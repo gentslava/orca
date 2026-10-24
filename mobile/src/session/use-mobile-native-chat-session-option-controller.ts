@@ -27,6 +27,7 @@ export function useMobileNativeChatSessionOptionController(args: {
   reportedModel: string | null
   modelSwitchCommand?: string
   structured: {
+    allowsWorkingPicks?: boolean
     optionSurface?: SessionOptionsSurface
     conversationCommands?: readonly AgentSessionConversationCommand[]
     optionPickerRequest?: { id: string; sequence: number } | null
@@ -112,12 +113,22 @@ export function useMobileNativeChatSessionOptionController(args: {
     () =>
       activeChatStructured
         ? structuredController
-          ? { controller: structuredController, isWorking }
+          ? {
+              controller: structuredController,
+              isWorking,
+              allowsWorkingPicks: structured.allowsWorkingPicks === true
+            }
           : null
         : sessionOptions.snapshot.length > 0
           ? { controller: sessionOptions, isWorking }
           : null,
-    [activeChatStructured, isWorking, sessionOptions, structuredController]
+    [
+      activeChatStructured,
+      isWorking,
+      sessionOptions,
+      structuredController,
+      structured.allowsWorkingPicks
+    ]
   )
 
   return { nativeChatSessionOptions, recordCommand: sessionOptions.recordCommand }

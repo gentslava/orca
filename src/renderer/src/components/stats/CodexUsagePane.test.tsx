@@ -51,6 +51,7 @@ vi.mock('./ShareUsageButton', () => ({
 }))
 
 vi.mock('@/i18n/i18n', () => ({
+  getIntlLocale: () => 'en-US',
   translate: (_key: string, fallback: string) => fallback
 }))
 

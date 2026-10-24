@@ -8,7 +8,12 @@ import {
 /** `t` thought, `c` call, `l` lead, `x` a drawn row that ends runs, `-` a row that draws nothing;
  *  `|` starts the next scope. */
 function rowsOf(pattern: string): NativeChatWorkRunRow[] {
-  const members: Record<string, NativeChatWorkRunMember> = { t: 'thought', c: 'tool', l: 'lead' }
+  const members: Record<string, NativeChatWorkRunMember> = {
+    t: 'thought',
+    c: 'tool',
+    l: 'lead',
+    n: 'notice'
+  }
   let scope = 0
   return [...pattern].flatMap((char) => {
     if (char === '|') {
@@ -33,6 +38,15 @@ describe('work run spans', () => {
     expect(spans('c')).toEqual([])
     expect(spans('tt')).toEqual([])
     expect(spans('txc')).toEqual([])
+  })
+
+  it('keeps successful review activity with the calls and with other reviews', () => {
+    expect(spans('ncnc')).toEqual([[0, 1, 2, 3]])
+    expect(spans('nn')).toEqual([[0, 1]])
+    expect(spans('cnxnc')).toEqual([
+      [0, 1],
+      [3, 4]
+    ])
   })
 
   it('lets a lead head a run but never join one', () => {

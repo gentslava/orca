@@ -436,7 +436,10 @@ import {
   FederationImportParams,
   FederationPullParams
 } from './orchestration-federation-relay-params'
-import { FederationAttachStartParams } from './orchestration-federation-start-params'
+import {
+  FederationAttachStartParams,
+  FederationWorkerLaunchParams
+} from './orchestration-federation-start-params'
 import {
   GateCreateParams,
   GateListParams,
@@ -454,6 +457,7 @@ import {
   ReplyParams,
   ResetParams,
   SessionAddressParams,
+  SessionChildrenParams,
   TaskCreateParams,
   TaskListParams
 } from './orchestration-params'
@@ -582,6 +586,7 @@ import {
 } from './structured-agent-session-params'
 import {
   QueuedMessageEditHoldParams,
+  QueuedMessageMoveParams,
   QueuedMessageUpdateParams
 } from './structured-agent-session-queued-edit-params'
 import { TerminalDaemonRestartSeveredParams } from './terminal-daemon-params'
@@ -627,6 +632,11 @@ import {
   UsageCredentialApiKeyParams,
   UsageCredentialSessionCookieParams
 } from './usage-credentials-params'
+import {
+  UsageRefreshParams,
+  UsageSetEnabledParams,
+  UsageSnapshotParams
+} from './usage-history-params'
 import { LayoutReopenHeldPanesParams } from './workspace-layout-held-panes-params'
 import {
   LayoutApplyParams,
@@ -740,6 +750,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.options': OptionsParams,
   'agentSession.queuedMessageDelete': QueuedMessageActionParams,
   'agentSession.queuedMessageEditHold': QueuedMessageEditHoldParams,
+  'agentSession.queuedMessageMove': QueuedMessageMoveParams,
   'agentSession.queuedMessageSend': QueuedMessageActionParams,
   'agentSession.queuedMessageUpdate': QueuedMessageUpdateParams,
   'agentSession.queuedMessagesResume': QueuedMessagesResumeParams,
@@ -1230,9 +1241,11 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.runStop': RunStopParams,
   'orchestration.runUse': RunUseParams,
   'orchestration.sessionAddress': SessionAddressParams,
+  'orchestration.sessionChildren': SessionChildrenParams,
   'orchestration.taskCreate': TaskCreateParams,
   'orchestration.taskList': TaskListParams,
   'orchestration.workerAbandon': WorkerDispatchParams,
+  'orchestration.workerLaunchPreflight': FederationWorkerLaunchParams,
   'orchestration.workerList': WorkerListParams,
   'orchestration.workerRead': WorkerReadParams,
   'orchestration.workerRelease': WorkerDispatchParamsOfOrchestrationWorkerReleaseSchemasParams,
@@ -1426,6 +1439,9 @@ export const RPC_PARAMS_BY_METHOD = {
   'updater.download': null,
   'updater.getStatus': null,
   'updater.install': null,
+  'usage.getSnapshot': UsageSnapshotParams,
+  'usage.refresh': UsageRefreshParams,
+  'usage.setEnabled': UsageSetEnabledParams,
   'workspacePorts.kill': WorkspacePortKillParams,
   'workspacePorts.killHost': WorkspacePortKillHostParams,
   'workspacePorts.probePage': WorkspacePortProbePageParams,

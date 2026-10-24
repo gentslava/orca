@@ -38,7 +38,7 @@ import {
 /** Builds preference defaults and setters for the UI slice, leaving durable writes to the persistence layer. */
 export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Partial<UISlice> {
   return {
-    sidebarBody: 'workspaces',
+    sidebarBody: 'conversations',
     setSidebarBody: (body) => set({ sidebarBody: body }),
 
     groupBy: 'repo',

@@ -60,6 +60,7 @@ export const commandReceiptResultSchema = z.discriminatedUnion('kind', [
         turnId: z.string().optional()
       }),
       z.strictObject({ kind: z.literal('queue-resume'), resumed: z.literal(false) }),
+      z.strictObject({ kind: z.literal('queue-move'), moved: z.literal(false) }),
       z.strictObject({
         kind: z.literal('queue-delete'),
         messageId: z.string().min(1),

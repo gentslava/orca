@@ -66,6 +66,10 @@ vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
 import { nativeChatReasoningDisclosureKey } from '../../../src/shared/native-chat-reasoning-row'
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
+import {
+  APPROVED_REVIEW,
+  approvalReviewMessage
+} from '../../../src/shared/native-chat-activity.test-fixture'
 
 const thought: NativeChatMessage = {
   id: 'r1',
@@ -141,6 +145,59 @@ it('draws nothing for a row a run absorbed', () => {
     )
   })
   expect(renderer!.toJSON()).toBeNull()
+})
+
+it.each(['review-first', 'tool-first'])(
+  'keeps successful reviews in one collapsed activity group on mobile: %s',
+  (order) => {
+    const review = approvalReviewMessage('review')
+    const members = order === 'review-first' ? [review, read, command] : [read, review, command]
+    act(() => {
+      renderer = create(
+        createElement(MobileNativeChatMessage, {
+          message: members[0]!,
+          workRun: members,
+          structuredActivityUi: true,
+          activeTurnIsWorking: false
+        })
+      )
+    })
+    const tree = renderer!
+    const trigger = tree.root.find(
+      (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
+    )
+    expect(trigger.props.accessibilityState.expanded).toBe(false)
+    expect(textIn(tree.root)).not.toContain(APPROVED_REVIEW)
+    act(() => trigger.props.onPress())
+    expect(textIn(tree.root)).toContain(APPROVED_REVIEW)
+    expect(textIn(tree.root)).toContain(JSON.stringify({ message: APPROVED_REVIEW }))
+    expect(textIn(tree.root)).toEqual(expect.arrayContaining(['Read', 'a.ts', 'pnpm test']))
+  }
+)
+
+it('keeps a real mobile tool failure visible before opening activity', () => {
+  const failed: NativeChatMessage = {
+    ...command,
+    blocks: [
+      { type: 'tool-call', name: 'Bash', input: { command: 'pnpm test' }, state: 'failed' },
+      { type: 'tool-result', output: 'Test failed', isError: true }
+    ]
+  }
+  act(() => {
+    renderer = create(
+      createElement(MobileNativeChatMessage, {
+        message: failed,
+        structuredActivityUi: true,
+        activeTurnIsWorking: false
+      })
+    )
+  })
+  expect(textIn(renderer!.root)).toContain('pnpm test: Test failed')
+  expect(
+    renderer!.root.find(
+      (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
+    ).props.accessibilityState.expanded
+  ).toBe(false)
 })
 
 it("opens a grouped thought's own actions on a long press, not the run's first row's", () => {

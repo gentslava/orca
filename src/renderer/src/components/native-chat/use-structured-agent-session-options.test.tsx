@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   call: vi.fn(),
@@ -32,6 +32,8 @@ import type { StructuredAgentSessionMutate } from './use-structured-agent-sessio
 import { useStructuredAgentSessionOptions } from './use-structured-agent-session-options'
 import { structuredAgentSessionSendSelection } from '../../../../shared/structured-agent-session-option-view'
 import { resetHostModelCatalogSnapshotsForTests } from '@/runtime/host-model-catalog-snapshots'
+import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
+import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-create-capabilities'
 
 const LOCAL_TARGET = { kind: 'local' } as const
 const PAIRED_TARGET = { kind: 'environment', environmentId: 'server-1' } as const
@@ -82,6 +84,7 @@ type RenderProps = {
   agent?: 'claude' | 'codex'
   providerStarting?: boolean
   paired?: boolean
+  isWorking?: boolean
 }
 
 // A new chat: create has not published, so there is no fence and no live read.
@@ -102,6 +105,7 @@ function renderOptions(initial: RenderProps, mutate: StructuredAgentSessionMutat
         transportEnabled: props.transportEnabled,
         isVisible: !props.hidden,
         providerVisible: props.transportEnabled && !props.hidden,
+        isWorking: props.isWorking,
         ...(props.providerStarting ? { providerStarting: true } : {}),
         fence: props.fence,
         turnId: props.turnId ?? null,
@@ -185,6 +189,7 @@ const SEED = { model: 'gpt-5.5' }
 const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
 
 describe('useStructuredAgentSessionOptions', () => {
+  afterEach(() => setLocalRuntimeCapabilitiesForTests(null))
   beforeEach(() => {
     mocks.call.mockReset()
     mocks.enqueue.mockReset()
@@ -192,6 +197,36 @@ describe('useStructuredAgentSessionOptions', () => {
     mocks.toastError.mockReset()
     resetHostModelCatalogSnapshotsForTests()
   })
+
+  it.each([false, true])(
+    'only allows future-turn picks while busy when the host captures message options (%s)',
+    async (supported) => {
+      setLocalRuntimeCapabilitiesForTests(
+        supported ? [AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY] : []
+      )
+      answer({
+        options: () => Promise.resolve(LIVE_OPTIONS),
+        modelCatalog: () => Promise.resolve(HOST_CATALOG)
+      })
+      const mutation = mutateWith(async () => ({ key: 'model', value: 'gpt-5.6-luna' }))
+      const { result } = renderOptions({ ...REOPENED, isWorking: true }, mutation.mutate)
+      await waitFor(() =>
+        expect(modelChoiceCount(result.current.optionSnapshot)).toBeGreaterThan(1)
+      )
+      expect(descriptor(result.current.optionSnapshot, 'model')?.settable).toBe(supported)
+      let accepted = false
+      await act(async () => {
+        accepted = await result.current.setStructuredOption('model', 'gpt-5.6-luna')
+      })
+      expect(accepted).toBe(supported)
+      expect(mutation.calls.mock.calls.length).toBe(supported ? 1 : 0)
+      if (!supported) {
+        expect(descriptor(result.current.optionSnapshot, 'model')?.disabledReason).toBe(
+          'host-update-required'
+        )
+      }
+    }
+  )
 
   it('upgrades the seed with the host catalog while the live read is still pending', async () => {
     answer({ modelCatalog: () => Promise.resolve(HOST_CATALOG) })

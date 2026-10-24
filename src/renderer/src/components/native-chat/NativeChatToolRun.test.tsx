@@ -521,11 +521,10 @@ describe('NativeChatToolRun', () => {
     expect(container.querySelector('.lucide-check')).toBeNull()
     expect(runHeader(container)).toHaveTextContent(' · 1 failed')
     expect(runHeader(container)).toHaveAccessibleName(/Failed tool calls: 1/)
-    // Quiet text, not a severity escalation: no destructive tint, no swapped glyph.
+    // The header stays quiet while the actual failure remains visible below it.
     expect(container.querySelector('.lucide-circle-alert')).toBeNull()
-    expect(container.querySelector('[class*="destructive"]')).toBeNull()
-    // The detail still belongs behind the disclosure.
-    expect(screen.queryByText('exit 1')).toBeNull()
+    expect(screen.getByRole('alert')).toHaveTextContent('false: exit 1')
+    expect(screen.getByRole('alert')).toHaveClass('text-destructive')
   })
 
   it('counts every failed call in a run, not just the last one', () => {

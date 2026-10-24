@@ -57,7 +57,8 @@ export default function AiVaultPanel({
   initialAgents,
   headerAction,
   onSessionOpened,
-  resumeHere
+  resumeHere,
+  conversationNavigation = false
 }: AiVaultPanelProps): React.JSX.Element {
   const {
     workspaceId: activeWorktreeId,
@@ -112,6 +113,7 @@ export default function AiVaultPanel({
   const projectScopeContext = useMemo(
     () =>
       buildAiVaultProjectContext({
+        folderWorkspaces: resumeTargetState.folderWorkspaces,
         repos,
         worktrees: allWorktrees,
         projectHostSetupProjection,
@@ -119,14 +121,27 @@ export default function AiVaultPanel({
         activeWorktree,
         sessions: []
       }),
-    [activeRepo, activeWorktree, allWorktrees, projectHostSetupProjection, repos]
+    [
+      activeRepo,
+      activeWorktree,
+      allWorktrees,
+      projectHostSetupProjection,
+      repos,
+      resumeTargetState.folderWorkspaces
+    ]
   )
   const activeProjectKey = projectScopeContext.activeProjectKey
-  const { scope, handleScopeChange, collapsedGroups, toggleGroup } = useAiVaultPanelScope({
+  const {
+    scope: panelScope,
+    handleScopeChange,
+    collapsedGroups,
+    toggleGroup
+  } = useAiVaultPanelScope({
     activeProjectKey,
     activeWorktreePath,
     local: workspace !== undefined
   })
+  const scope = conversationNavigation ? 'all' : panelScope
   const projectLabelByKey = projectScopeContext.projectLabelByKey
   // Sent to the scanner so scoped views surface sessions older than the global cap.
   const scopePaths = useMemo(
@@ -146,7 +161,7 @@ export default function AiVaultPanel({
     scanResult,
     sessions: history,
     loadedSessionLimit
-  } = useAiVaultSessionRefresh(scopePaths, executionHostScope, sessionLimit)
+  } = useAiVaultSessionRefresh(scopePaths, executionHostScope, sessionLimit, conversationNavigation)
   // Why an identity and not paths: a project's worktrees are the host's to
   // enumerate, and a repo with hundreds of them has no path list a request can carry.
   const searchWithin = useMemo(
@@ -174,12 +189,13 @@ export default function AiVaultPanel({
   const sessionProjectById = useMemo(
     () =>
       buildAiVaultSessionProjectById({
+        folderWorkspaces: resumeTargetState.folderWorkspaces,
         repos,
         worktrees: allWorktrees,
         projectHostSetupProjection,
         sessions
       }),
-    [allWorktrees, projectHostSetupProjection, repos, sessions]
+    [allWorktrees, projectHostSetupProjection, repos, sessions, resumeTargetState.folderWorkspaces]
   )
   const effectiveActiveWorktreeId = activeWorktreeId ?? activeWorktree?.id ?? null
   const {
@@ -209,6 +225,7 @@ export default function AiVaultPanel({
   })
 
   const { filteredSessions, groups } = useAiVaultPanelSessions(sessions, searching, group, {
+    preserveStructuredSessions: conversationNavigation,
     query,
     agents,
     scope,
@@ -251,6 +268,7 @@ export default function AiVaultPanel({
       {...aiVaultPanelKeyboardRootProps(keyboardRows ? listKeyboardRef : undefined)}
     >
       <AiVaultPanelHeader
+        conversationNavigation={conversationNavigation}
         query={query}
         searching={searching}
         loading={searching ? search.loading : loading}
@@ -301,7 +319,8 @@ export default function AiVaultPanel({
                 onChange={setSearchSort}
               />
             )
-          : sessions.length > 0 && (
+          : !conversationNavigation &&
+            sessions.length > 0 && (
               <AiVaultSessionListBar
                 label={aiVaultSessionCountLabel(filteredSessions.length, sessions.length)}
                 value={sort}
@@ -311,6 +330,7 @@ export default function AiVaultPanel({
             )}
         {(!searching || sessions.length > 0 || search.loading) && (
           <AiVaultSessionVirtualList
+            conversationNavigation={conversationNavigation}
             key={searching ? search.resetKey : 'history'}
             searchHits={searching ? searchHits : undefined}
             searchHitHostLabels={searchHitHostLabels}

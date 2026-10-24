@@ -62,6 +62,8 @@ export function createUsageEventAggregation<
 
   function createEmptyDailyAggregate(event: TEvent): UsageDailyAggregate<TMetric> {
     return {
+      ...(event.accountId !== undefined ? { accountId: event.accountId } : {}),
+      sessionId: event.sessionId,
       day: event.day,
       model: event.model,
       projectKey: event.projectKey,

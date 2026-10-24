@@ -1,3 +1,5 @@
+import type { UsageHistoryRow } from './usage-history-types'
+
 export type MuseUsageScope = 'orca' | 'all'
 export type MuseUsageRange = '7d' | '30d' | '90d' | 'all'
 export type MuseUsageBreakdownKind = 'model' | 'project'
@@ -43,7 +45,7 @@ export type MuseUsageBreakdownRow = MuseUsageTokenTotals & {
 export type MuseUsageSessionRow = MuseUsageTokenTotals & {
   sessionId: string
   lastActiveAt: string
-  durationMinutes: number
+  durationMinutes: number | null
   projectLabel: string
   model: string | null
   events: number
@@ -56,4 +58,6 @@ export type MuseUsageSnapshot = {
   modelBreakdown: MuseUsageBreakdownRow[]
   projectBreakdown: MuseUsageBreakdownRow[]
   recentSessions: MuseUsageSessionRow[]
+  history?: UsageHistoryRow[]
+  historyNeedsRescan?: boolean
 }

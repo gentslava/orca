@@ -20,6 +20,7 @@ import {
 import { STRUCTURED_AGENT_RUNTIME_METADATA } from '../runtime/structured-agent-runtime-metadata'
 import type { StructuredAgentRuntimeMetadata } from '../runtime/structured-agent-runtime-registration-types'
 import { commandName, commandProgramIndex, shellCommands } from './shell-command-words'
+import { projectDurableAiVaultConversations } from './structured-conversation-navigation'
 
 /** Hide chat-owned rows from clients unable to open that agent’s chat. */
 export type StructuredChatOpener = (agent: StructuredAgentId) => boolean
@@ -28,7 +29,8 @@ export const OPENS_EVERY_STRUCTURED_CHAT: StructuredChatOpener = () => true
 
 export function projectStructuredAiVaultSessions(
   result: AiVaultListResult,
-  opensChat: StructuredChatOpener
+  opensChat: StructuredChatOpener,
+  options?: { includeStructuredSessions?: boolean; childSessionIds?: ReadonlySet<string> }
 ): AiVaultListResult {
   const owner = ownershipLookup()
   if (!owner) {
@@ -44,10 +46,19 @@ export function projectStructuredAiVaultSessions(
     }
     return [{ ...session, ...ownedRow(session.agent, ownership) }]
   })
-  return sessions.length === result.sessions.length &&
+  const projected =
+    sessions.length === result.sessions.length &&
     sessions.every((row, index) => row === result.sessions[index])
-    ? result
-    : { ...result, sessions }
+      ? result
+      : { ...result, sessions }
+  return options?.includeStructuredSessions
+    ? projectDurableAiVaultConversations(
+        projected,
+        getStructuredAgentSessionHost()?.deps.store.listRecords() ?? [],
+        opensChat,
+        options.childSessionIds
+      )
+    : projected
 }
 
 /** Owned search hits open their chat and omit terminal resume commands, matching history rows. */
@@ -120,7 +131,7 @@ function ownershipLookup():
     return null
   }
   const byProviderSession = new Map<string, StructuredProviderSessionOwnership>()
-  for (const ownership of listOwnership()) {
+  for (const ownership of listOwnership(true)) {
     const key = `${ownership.provider}\0${ownership.providerSessionId}`
     if (!byProviderSession.has(key)) {
       byProviderSession.set(key, ownership)
@@ -198,9 +209,20 @@ export function findResumeOwnership(
   )
 }
 
-function listOwnership(): StructuredProviderSessionOwnership[] {
+function listOwnership(localOnly = false): StructuredProviderSessionOwnership[] {
   const host = getStructuredAgentSessionHost()
-  return host ? listStructuredProviderSessionOwnership(host.deps.store.listRecords()) : []
+  return host
+    ? listStructuredProviderSessionOwnership(
+        host.deps.store
+          .listRecords()
+          .filter(
+            (record) =>
+              !localOnly ||
+              (record.location.executionHostId === LOCAL_EXECUTION_HOST_ID &&
+                record.location.wslDistro === null)
+          )
+      )
+    : []
 }
 
 function resumesOwnedSession(

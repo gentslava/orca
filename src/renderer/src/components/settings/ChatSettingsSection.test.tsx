@@ -271,19 +271,19 @@ describe('Chat settings page', () => {
       state.settingsSearchQuery = 'queue'
       const { container } = renderChat(true)
       expect(chat && matchesSettingsSearch('queue', getSettingsSectionSearchEntries(chat))).toBe(
-        hostQueuesMessages
+        true
       )
-      expect(Boolean(queueEntry)).toBe(hostQueuesMessages)
-      expect(Boolean(queueResult)).toBe(hostQueuesMessages)
-      expect(Boolean(container.querySelector('#chat-queue-follow-ups'))).toBe(hostQueuesMessages)
-      expect(Boolean(container.querySelector('#chat-behavior'))).toBe(hostQueuesMessages)
-      if (hostQueuesMessages) {
-        expect(queueResult?.sectionId).toBe('chat')
-        expect(getSettingsScrollTarget(queueResult?.targetSectionId ?? '', container)).toBe(
-          container.querySelector('#chat-queue-follow-ups')
-        )
-        expect(screen.getByRole('switch', { name: 'Toggle queue follow-ups' })).toBeTruthy()
-      }
+      expect(Boolean(queueEntry)).toBe(true)
+      expect(Boolean(queueResult)).toBe(true)
+      expect(Boolean(container.querySelector('#chat-queue-follow-ups'))).toBe(true)
+      expect(Boolean(container.querySelector('#chat-behavior'))).toBe(true)
+      expect(queueResult?.sectionId).toBe('chat')
+      expect(getSettingsScrollTarget(queueResult?.targetSectionId ?? '', container)).toBe(
+        container.querySelector('#chat-queue-follow-ups')
+      )
+      expect(
+        screen.getByRole('switch', { name: 'Toggle queue follow-ups' }).hasAttribute('disabled')
+      ).toBe(!supported)
     }
   )
 

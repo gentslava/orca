@@ -7,25 +7,24 @@ import type { AiVaultSearchHostOutcome } from '../../../../shared/ai-vault-searc
 import { getExecutionHostLabel, parseExecutionHostId } from '../../../../shared/execution-host'
 import type { useAiVaultPanelSearch } from './use-ai-vault-search'
 
-// Short English like `getExecutionHostLabel`, which these read beside; null means the host answered.
 function hostSkipReason(outcome: AiVaultSearchHostOutcome['outcome']): string | null {
   switch (outcome) {
     case 'searched':
       return null
     case 'stale':
-      return 'index changed'
+      return translate('sessionSearch.panel.hostSkip.stale', 'index changed')
     case 'disabled':
-      return 'search off'
+      return translate('sessionSearch.panel.hostSkip.disabled', 'search off')
     case 'not-ready':
-      return 'not ready'
+      return translate('sessionSearch.panel.hostSkip.notReady', 'not ready')
     case 'no-service':
-      return 'unavailable'
+      return translate('sessionSearch.panel.hostSkip.noService', 'unavailable')
     case 'unreachable':
-      return 'unreachable'
+      return translate('sessionSearch.panel.hostSkip.unreachable', 'unreachable')
     case 'scope-unknown':
-      return 'scope not found there'
+      return translate('sessionSearch.panel.hostSkip.scopeUnknown', 'scope not found there')
     case 'unsupported-agent':
-      return 'agent not supported'
+      return translate('sessionSearch.panel.hostSkip.unsupportedAgent', 'agent not supported')
   }
 }
 

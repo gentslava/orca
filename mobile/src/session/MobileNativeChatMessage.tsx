@@ -30,6 +30,7 @@ import { nativeChatWorkRunEntries } from '../../../src/shared/native-chat-work-r
 import { nativeChatReasoningDisclosureKey } from '../../../src/shared/native-chat-reasoning-row'
 import { MobileNativeChatTurnStatus } from './MobileNativeChatTurnStatus'
 import { MobileNativeChatNoticeRow } from './MobileNativeChatNoticeRow'
+import { MobileNativeChatAutoApprovalNotice } from './MobileNativeChatAutoApprovalNotice'
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
 import { MobileNativeChatUserMessageFold } from './MobileNativeChatUserMessageFold'
 import { MobileNativeChatMessageTime } from './MobileNativeChatMessageTime'
@@ -151,32 +152,50 @@ function MobileNativeChatMessageImpl({
     if (!run) {
       return undefined
     }
-    const thought = (thoughtMessage: NativeChatMessage): React.JSX.Element => (
-      // Keyed by the thought, so it stays mounted as calls arrive after it.
-      <MobileNativeChatGroupedThought
-        key={`thought:${thoughtMessage.id}`}
-        message={thoughtMessage}
-        fontScale={fontScale}
-        live={activeTurnIsWorking === true}
-        expanded={openReasoning?.has(nativeChatReasoningDisclosureKey(thoughtMessage.id)) === true}
-        onToggle={onToggleReasoning}
-        onOpenFile={onOpenFile}
-        // Its own actions, as a standalone thought's: the run's row is another message.
-        onLongPress={INLINE_TEXT_SELECTION ? undefined : () => openSheet(thoughtMessage)}
-      />
-    )
+    const aside = (thoughtMessage: NativeChatMessage): React.JSX.Element =>
+      thoughtMessage.role === 'system' ? (
+        <View key={`notice:${thoughtMessage.id}`}>
+          {thoughtMessage.blocks.map((block, index) =>
+            block.type === 'text' ? (
+              <MobileNativeChatAutoApprovalNotice
+                key={index}
+                block={block}
+                messageId={thoughtMessage.id}
+                disclosed
+                fontScale={fontScale}
+              />
+            ) : null
+          )}
+        </View>
+      ) : (
+        // Keyed by the thought, so it stays mounted as calls arrive after it.
+        <MobileNativeChatGroupedThought
+          key={`thought:${thoughtMessage.id}`}
+          message={thoughtMessage}
+          fontScale={fontScale}
+          live={activeTurnIsWorking === true}
+          expanded={
+            openReasoning?.has(nativeChatReasoningDisclosureKey(thoughtMessage.id)) === true
+          }
+          onToggle={onToggleReasoning}
+          onOpenFile={onOpenFile}
+          // Its own actions, as a standalone thought's: the run's row is another message.
+          onLongPress={INLINE_TEXT_SELECTION ? undefined : () => openSheet(thoughtMessage)}
+        />
+      )
     const before = new Map<NativeChatBlock, React.JSX.Element[]>()
-    for (const [block, thoughts] of run.thoughtsBefore) {
-      before.set(block, thoughts.map(thought))
+    for (const [block, asides] of run.asidesBefore) {
+      before.set(block, asides.map(aside))
     }
-    return { before, after: run.thoughtsAfter.map(thought) }
+    return { before, after: run.asidesAfter.map(aside) }
   }, [run, fontScale, activeTurnIsWorking, openReasoning, onToggleReasoning, onOpenFile, openSheet])
   // A roster draws as its group row, which replaces its frozen sentence. A thought heading a
   // run draws inside the run, so its words are not this row's prose.
-  const drawnProse = isReasoning ? [] : withoutSubagentGroupTwins(prose)
+  const drawnProse =
+    isReasoning || (message.role === 'system' && workRun) ? [] : withoutSubagentGroupTwins(prose)
   // The agent did not write a system row: its words draw as a notice or a faint aside.
   const isSystem = message.role === 'system'
-  const showToolRun = tools.length > 0
+  const showToolRun = tools.length > 0 || workRun !== undefined
   const askPending = structuredActivityUi
     ? selectActiveToolCall(unansweredAsks, { activeTurnIsWorking }) !== null
     : unansweredAsks.length > 0
@@ -307,9 +326,10 @@ function MobileNativeChatMessageImpl({
             </Text>
           ) : null}
           {/* A roster is not tool activity, so it stays out of the settled-tools collapse. */}
-          {isSystem ? (
+          {isSystem && !workRun ? (
             <MobileNativeChatNoticeRow
               blocks={drawnProse}
+              messageId={message.id}
               fontScale={fontScale}
               onOpenFile={onOpenFile}
               onLongPress={onLongPress}

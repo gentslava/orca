@@ -36,6 +36,7 @@ export function useStructuredAgentSessionOptions(args: {
   providerVisible: boolean
   providerStarting?: boolean
   providerRunning?: boolean
+  isWorking?: boolean
   hostOptionStamp?: string
   fence: number | null
   turnId: string | null
@@ -207,7 +208,15 @@ export function useStructuredAgentSessionOptions(args: {
     (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => snapshot
   )
   const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) =>
-    !acceptsPicks ? lockedStructuredAgentSessionOptionSnapshot(snapshot) : snapshot
+    !acceptsPicks
+      ? lockedStructuredAgentSessionOptionSnapshot(snapshot)
+      : (args.isWorking ?? turnId !== null) && !takesSendOptions
+        ? snapshot.map((descriptor) =>
+            descriptor.id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
+              ? descriptor
+              : { ...descriptor, settable: false, disabledReason: 'host-update-required' as const }
+          )
+        : snapshot
   useLayoutEffect(() => {
     lockSnapshotRef.current = lockSnapshot
   })

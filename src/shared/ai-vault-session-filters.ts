@@ -46,6 +46,7 @@ export type AiVaultSessionFilterState = {
   sessionProjectById?: ReadonlyMap<string, AiVaultSessionProject>
   projectLabelByKey?: ReadonlyMap<string, string>
   hideEmptySessions: boolean
+  preserveStructuredSessions?: boolean
 }
 
 export type AiVaultSessionGroup = {
@@ -93,6 +94,7 @@ export function filterAiVaultSessions(
     // subagent transcripts) so a lost conversation is surfaced distinctly.
     if (
       filters.hideEmptySessions &&
+      !(filters.preserveStructuredSessions && session.structuredSession) &&
       !isAiVaultSessionResumableContent(session) &&
       !isAiVaultSessionRecoverableEmpty(session)
     ) {

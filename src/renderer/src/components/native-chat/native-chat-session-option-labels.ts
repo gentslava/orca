@@ -94,6 +94,11 @@ export function nativeChatSessionOptionDisabledReason(
         'components.native-chat.composer.availableAfterSessionStarts',
         'Available after the session starts.'
       )
+    case 'host-update-required':
+      return translate(
+        'components.native-chat.composer.futureOptionsRequireUpdate',
+        'Update Orca on this host to change future-turn choices while the agent works.'
+      )
     case undefined:
       return null
   }

@@ -56,8 +56,7 @@ export const AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY =
 // capable client can render the `queued` result arm. It gates `delivery: 'queue-if-active'` and
 // the client's queueing setting and chord, never the published draft list or its card actions: a
 // host without it still publishes a message it kept unsent across a restart or a close, and both
-// clients show that card and call its actions. DARK ON PURPOSE — not in
-// AGENT_SESSION_RUNTIME_CAPABILITIES: advertising still requires the integrated Codex steer matrix (#21062) in the shipped host.
+// clients show that card and call its actions.
 // v1 includes `submission.queuedMessageId` on every draft hand-off: a client reads that link and
 // never compares a draft id with a submission id. It also publishes the queue's pause once, as
 // `queuePause` beside the list, lifted by `agentSession.queuedMessagesResume` or any turn sent
@@ -65,9 +64,12 @@ export const AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY =
 // names the card the queue sends next once nothing runs, null while anything holds it; absent (an
 // older host) reads as null. A card carries a hold of its own when its conversion failed
 // (`send_failed`) or the host kept it unsent (`kept`). The host mechanism lands first; the constant
-// gates the rollout.
+// gates mixed-version clients.
 export const AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY =
   'agent-session.queued-messages.v1' as const
+export const AGENT_SESSION_QUEUED_MESSAGE_MOVE_RUNTIME_CAPABILITY =
+  'agent-session.queued-message-move.v1' as const
+export const AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY = 'agent-session.steer-draft.v1' as const
 // Why: a host advertising this edits a queued card in place (`agentSession.queuedMessageUpdate`)
 // and holds it from automatic delivery while edited (`agentSession.queuedMessageEditHold`). Apart
 // from queued-messages.v1: kept and agent-mail cards are editable with mid-turn queueing still off.
@@ -149,6 +151,9 @@ export const AGENT_SESSION_RUNTIME_CAPABILITIES = [
   // turn starts, so a client may gate on either.
   AGENT_SESSION_ACCEPTED_SEND_RUNTIME_CAPABILITY,
   AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY,
+  AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
+  AGENT_SESSION_QUEUED_MESSAGE_MOVE_RUNTIME_CAPABILITY,
+  AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_COMMANDS_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_IMAGE_EDIT_RUNTIME_CAPABILITY,

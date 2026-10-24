@@ -55,9 +55,9 @@ export type MobileNativeChatPickerPresentation = { page: string | null; refocus:
 
 export type MobileNativeChatSessionOptionPickersProps = {
   controller: MobileNativeChatSessionOptionsController
-  /** Pickers lock while the agent works — a mid-turn `/model` interleaves with
-   *  the agent's own output (desktop parity). */
   isWorking: boolean
+  /** Structured hosts capture choices per message; terminal commands still wait. */
+  allowsWorkingPicks?: boolean
   /** A composer send owns the TUI input line until it settles. The host spaces a
    *  send's body and its Enter ~500ms apart, so an apply dispatched inside that
    *  window would be submitted as part of the user's prompt. The composer blocks
@@ -106,6 +106,7 @@ function selectedChoice(descriptor: SessionOptionDescriptor | undefined) {
 export function MobileNativeChatSessionOptionPickers({
   controller,
   isWorking,
+  allowsWorkingPicks = false,
   sendInFlight = false,
   presentation,
   onNavigate,
@@ -131,6 +132,7 @@ export function MobileNativeChatSessionOptionPickers({
     (model !== undefined || permission !== undefined) &&
     activeDescriptor !== undefined &&
     isWorking &&
+    !allowsWorkingPicks &&
     !permissionView
 
   useEffect(() => {
@@ -151,7 +153,7 @@ export function MobileNativeChatSessionOptionPickers({
   const homeView = activeDescriptor !== undefined && activeDescriptor === home
   const busy = pendingId !== null || sendInFlight
   // The permission mode applies from the next send, so a running turn never locks it.
-  const locked = isWorking || busy
+  const locked = (isWorking && !allowsWorkingPicks) || busy
   const reason = mobileSessionOptionDisabledReason(activeDescriptor?.disabledReason)
   const permissionChoice = selectedChoice(permission)
   const permissionColor = permissionChoiceColor(permissionChoice?.value)

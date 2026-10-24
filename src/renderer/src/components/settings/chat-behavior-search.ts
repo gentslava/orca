@@ -24,10 +24,13 @@ export const getChatBehaviorEntriesByKey = createLocalizedCatalog(() => ({
   },
   queueFollowUps: {
     targetSectionId: 'chat-queue-follow-ups',
-    title: translate('components.settings.nativeChat.queueFollowUpsTitle', 'Queue follow-ups'),
+    title: translate(
+      'components.settings.nativeChat.queueFollowUpsTitle',
+      'Queue follow-ups on Enter'
+    ),
     description: translate(
       'components.settings.nativeChat.queueFollowUpsCopy',
-      'Messages you send while the agent is working wait as cards you can steer, edit, or delete. Messages with images send right away.'
+      'While the agent works, Enter queues text and images, and Cmd/Ctrl+Enter sends immediately. Turn off to reverse these shortcuts. Queued messages can be edited, deleted, reordered, or sent now.'
     ),
     keywords: [
       translate('components.settings.nativeChat.queueSearchQueue', 'queue'),

@@ -96,6 +96,8 @@ export type CodexUsageSession = {
 } & CodexLongContextTokens
 
 export type CodexUsageDailyAggregate = {
+  accountId?: string | null
+  sessionId?: string
   day: string
   model: string | null
   projectKey: string
@@ -112,6 +114,8 @@ export type CodexUsageDailyAggregate = {
 } & CodexLongContextTokens
 
 export type CodexUsagePersistedFile = CodexUsageProcessedFile & {
+  /** Aligned with ownedEventKeys; null preserves unknown and legacy ownership. */
+  ownedAccountIds?: (string | null)[]
   sessions: CodexUsageSession[]
   dailyAggregates: CodexUsageDailyAggregate[]
   /** Persisted ownership prevents forked copies from counting the same usage record twice. */
@@ -152,6 +156,7 @@ export type CodexUsageParsedEvent = {
 } & CodexLongContextTokens
 
 export type CodexUsageAttributedEvent = CodexUsageParsedEvent & {
+  accountId?: string | null
   day: string
   projectKey: string
   projectLabel: string

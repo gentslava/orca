@@ -16,7 +16,10 @@ import {
   agentSessionRefusalReference,
   type AgentSessionWireRefusal
 } from '../../../shared/agent-session-wire-refusals'
-import { AgentSessionAcquisitionRefusal } from './structured-agent-session-adapter'
+import {
+  AgentSessionAcquisitionRefusal,
+  isAgentSessionPreSpawnError
+} from './structured-agent-session-adapter'
 import { providerExecutableMissing } from '../../provider-process/provider-executable-missing'
 import { providerRequestTimeoutOf } from '../../provider-process/provider-request-timeout'
 import { findInErrorChain } from '../../provider-process/provider-error-chain'
@@ -36,7 +39,8 @@ const TYPED_START_REFUSALS = [
   'claudeAccountFolderMissing',
   'claudeAccountSetupFailed',
   'agentCommandNotRunnable',
-  'runtimeNotInstalled'
+  'runtimeNotInstalled',
+  'providerResumeUnavailable'
 ] as const satisfies readonly (AgentSessionFailureKind &
   AgentSessionRefusalReason<'agent_session_operation_invalid'>)[]
 
@@ -71,7 +75,9 @@ export function providerStartupFailureFact(cause?: unknown): SubmissionRejection
     })
   }
   const typed = typedStartRefusal(
-    cause instanceof AgentSessionAcquisitionRefusal ? cause.reason : undefined
+    cause instanceof AgentSessionAcquisitionRefusal || isAgentSessionPreSpawnError(cause)
+      ? cause.reason
+      : undefined
   )
   if (typed) {
     return agentSessionFailureFact(typed, {

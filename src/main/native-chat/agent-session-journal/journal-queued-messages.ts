@@ -28,6 +28,7 @@ import { QueuedMessageNotConsumableError } from './queued-message-consume-error'
 import { QueuedMessageEditLeases } from './queued-message-edit-leases'
 import { queuedMessageUpdateDecision, type QueuedMessageUpdate } from './queued-message-update'
 import type { JournalReducerState } from './journal-reducer'
+import { queuedMessageMoveChanges } from './queued-message-move'
 
 export type JournalQueuePlan = {
   rows: ((seq: number, ts: number) => JournalQueueRow)[]
@@ -183,6 +184,17 @@ export class JournalQueuedMessages {
         })),
         result: cards.map((card) => ({ ...card, state: 'withdrawn', holdReason: null }))
       }
+    }, receipt)
+  }
+
+  /** Move retained cards without rewriting their body, options or pause state. */
+  move(
+    input: { messageId: string; beforeMessageId: string | null },
+    receipt?: JournalOperationReceipt
+  ): Promise<boolean> {
+    return this.write(() => {
+      const changes = queuedMessageMoveChanges(this.list(), input)
+      return { changes, result: changes.length > 0 }
     }, receipt)
   }
 

@@ -90,7 +90,11 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   const setOption = vi.fn<MobileNativeChatSessionOptionsController['setOption']>()
   const invokeAction = vi.fn<MobileNativeChatSessionOptionsController['invokeAction']>()
 
-  const mount = (snapshot: SessionOptionDescriptor[], isWorking = false) => {
+  const mount = (
+    snapshot: SessionOptionDescriptor[],
+    isWorking = false,
+    allowsWorkingPicks = false
+  ) => {
     const controller: MobileNativeChatSessionOptionsController = {
       snapshot,
       pendingId: null,
@@ -105,6 +109,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
       return createElement(MobileNativeChatSessionOptionPickers, {
         controller,
         isWorking: working,
+        allowsWorkingPicks,
         presentation,
         onDrawerOpen: (page) => setPresentation({ page, refocus: false }),
         onNavigate: (page) => setPresentation((current) => current && { ...current, page })
@@ -319,7 +324,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     }
   )
 
-  it('locks the model and effort while the agent works, but never the permission mode', async () => {
+  it('locks terminal model and effort commands while working, but never the permission mode', async () => {
     mount([MODEL_DESCRIPTOR, EFFORT_DESCRIPTOR, PERMISSION_DESCRIPTOR], true)
     expect(pill('Model').props).toMatchObject({ disabled: false })
     await act(async () => pill('Model').props.onPress())
@@ -329,6 +334,23 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     expect(renderer!.root.findByProps({ children: 'Agent is working' })).toBeDefined()
     await act(async () => rowByText('Permissions').props.onPress())
     expect(renderer!.root.findAllByProps({ children: 'Agent is working' })).toHaveLength(0)
+  })
+
+  it('allows future model, effort and Fast picks while a structured agent works', async () => {
+    mount([MODEL_DESCRIPTOR, EFFORT_DESCRIPTOR, FAST_MODE_DESCRIPTOR], true, true)
+    await act(async () => pill('Model').props.onPress())
+    expect(rowByText('Opus 4.8').props.accessibilityState?.disabled).toBe(false)
+    expect(pill('Low').props.accessibilityState?.disabled).toBe(false)
+    expect(renderer!.root.findAllByProps({ children: 'Agent is working' })).toHaveLength(0)
+    expect(AccessibilityInfo.announceForAccessibilityWithOptions).not.toHaveBeenCalled()
+    await act(async () => rowByText('Opus 4.8').props.onPress())
+    expect(setOption).toHaveBeenCalledWith('model', 'opus')
+    await act(async () => pill('Low').props.onPress())
+    expect(setOption).toHaveBeenCalledWith('effort', 'low')
+    const fast = renderer!.root.findByType('Switch')
+    expect(fast.props.disabled).toBe(false)
+    await act(async () => fast.props.onValueChange(true))
+    expect(setOption).toHaveBeenCalledWith('fastMode', true)
   })
 
   it.each(['ios', 'android'] as const)(

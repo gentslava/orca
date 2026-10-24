@@ -14,6 +14,8 @@ import { structuredAgentSessionPayloadFingerprint } from './structured-agent-ses
 /** What a send carries beside its message: both join the OPERATION fingerprint, never the body's. */
 export type StructuredAgentSessionSendControl = {
   delivery?: 'queue-if-active'
+  /** Steer with the running turn's captured choices, preserving future-message settings. */
+  steer?: true
   options?: Readonly<Record<string, string>>
   usageLimitContinuationOfTurnItemId?: string
 }
@@ -29,6 +31,7 @@ export function agentSessionSendControlFields(
 ): StructuredAgentSessionSendControl {
   return {
     ...(send.delivery ? { delivery: send.delivery } : {}),
+    ...(send.steer ? { steer: send.steer } : {}),
     ...(send.options ? { options: send.options } : {}),
     ...(send.usageLimitContinuationOfTurnItemId
       ? { usageLimitContinuationOfTurnItemId: send.usageLimitContinuationOfTurnItemId }

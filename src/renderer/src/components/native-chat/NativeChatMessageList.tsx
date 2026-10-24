@@ -63,6 +63,7 @@ import type { NativeChatSettledTurns } from '../../../../shared/native-chat-turn
 import type { NativeChatDiffReveal, NativeChatDiffTarget } from './native-chat-turn-diffs'
 import { useNativeChatTurnDiffs } from './use-native-chat-turn-diffs'
 import { transcriptTailRow } from './native-chat-transcript-tail-row'
+import { useNativeChatChildNavigation } from './native-chat-child-navigation'
 
 /** The turn is blocked on the reader. `shown`: the pane draws the prompt itself, as a card;
  *  `unshown`: it cannot (the prompt is only in the agent's terminal). */
@@ -159,6 +160,17 @@ export function NativeChatMessageList({
     subagentDisclosure,
     openSubagentSections
   } = useNativeChatSubagentSections(messages, subagentRows, subagentRoster)
+  const childNavigation = useNativeChatChildNavigation()
+  const inlineSubagentChoices = useMemo(
+    () =>
+      childNavigation
+        ? {
+            ...subagentChoices,
+            sections: new Map(Array.from(subagentRows.keys(), (id) => [id, false]))
+          }
+        : subagentChoices,
+    [childNavigation, subagentChoices, subagentRows]
+  )
   // Folded subagent rows stay loaded, so a reopened reply keeps its reveal.
   const loadedMessageIds = useMemo(
     () => new Set([...messages.map(({ id }) => id), ...subagentSections.pathOf.keys()]),
@@ -210,7 +222,7 @@ export function NativeChatMessageList({
     isWorking,
     lifecycleWorking,
     subagentSections,
-    subagentChoices,
+    subagentChoices: inlineSubagentChoices,
     line: {
       draws: tailRow === 'activity',
       thinking: turnStatuses.active?.thinking === true,

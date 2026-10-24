@@ -1,6 +1,6 @@
 import React from 'react'
 import { SortableContext } from '@dnd-kit/sortable'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MessageSquarePlus, Plus } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { Button } from '@/components/ui/button'
 import {
@@ -108,6 +108,8 @@ export function renderTabBarSurface({
     includeTopTabBorder,
     activeClientHostedBrowserRowId
   })
+  const defaultChat =
+    agentMenu.state === 'settled' ? agentMenu.rows.find((row) => row.kind === 'chat') : undefined
 
   return (
     <div ref={surfaceRef} className="flex items-stretch h-full overflow-hidden flex-1 min-w-0">
@@ -204,6 +206,25 @@ export function renderTabBarSurface({
           </TooltipContent>
         </Tooltip>
       ) : null}
+      {!terminalOnly && showAgentLaunchItems && runtime.nativeChatEnabled ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="my-auto ml-1 shrink-0"
+          onClick={() => {
+            if (defaultChat) {
+              launchAgentRow(defaultChat)
+            } else {
+              setNewTabMenuOpen(true)
+            }
+          }}
+        >
+          <MessageSquarePlus aria-hidden="true" />
+          <span className="@max-[320px]/tab-strip:sr-only">
+            {translate('components.tab-bar.newChat', 'New chat')}
+          </span>
+        </Button>
+      ) : null}
       <DropdownMenu
         open={newTabMenuOpen}
         onOpenChange={setNewTabMenuOpen}
@@ -253,6 +274,12 @@ export function renderTabBarSurface({
               {showStaticCreateMenuItems ? <DropdownMenuSeparator /> : null}
             </>
           ) : null}
+          {showStaticCreateMenuItems && showAgentLaunchItems ? (
+            <>
+              <ProjectedAgentMenuItems model={agentMenu} runLaunch={launchAgentRow} />
+              <DropdownMenuSeparator />
+            </>
+          ) : null}
           {showStaticCreateMenuItems ? (
             <TabBarStaticCreateMenu
               props={props}
@@ -274,12 +301,6 @@ export function renderTabBarSurface({
                 queueNewActiveTerminalFocusAfterNewTabMenuClose
               }
             />
-          ) : null}
-          {showStaticCreateMenuItems && showAgentLaunchItems ? (
-            <>
-              <DropdownMenuSeparator />
-              <ProjectedAgentMenuItems model={agentMenu} runLaunch={launchAgentRow} />
-            </>
           ) : null}
         </DropdownMenuContent>
       </DropdownMenu>

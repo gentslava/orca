@@ -5,7 +5,7 @@
 // chord stays what it always was — a send.
 // The primary modifier follows the platform (⌘ on Mac, Ctrl elsewhere).
 
-import { renderHook } from '@testing-library/react'
+import { cleanup, fireEvent, render, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 const platform = vi.hoisted(() => ({ isMac: true }))
@@ -66,6 +66,49 @@ function press(handler: Handler, event: ReturnType<typeof enter>): void {
 }
 
 describe('composer steer chord', () => {
+  it.each([true, false])(
+    'steers the complete draft once with the platform modifier (Mac=%s)',
+    (isMac) => {
+      platform.isMac = isMac
+      const send = vi.fn()
+      const sendAlternate = vi.fn()
+      const steerQueued = vi.fn(() => true)
+      const { result } = renderHook(() =>
+        useNativeChatComposerKeyDown({
+          autocomplete: { mode: 'none' },
+          mentionFiles: { files: [], loading: false, failed: false },
+          completeMention: vi.fn(),
+          activeSuggestion: 0,
+          draft: 'review both screenshots',
+          hasAttachments: true,
+          isComposing: () => false,
+          completePickerItem: vi.fn(),
+          dispatchPickerCommand: vi.fn(),
+          dismissPicker: vi.fn(),
+          interrupt: vi.fn(),
+          send,
+          sendAlternate,
+          steerQueued,
+          setActiveSuggestion: vi.fn(),
+          setDraft: vi.fn(),
+          setCaret: vi.fn()
+        })
+      )
+      const { getByRole } = render(<textarea onKeyDown={result.current} />)
+      const field = getByRole('textbox')
+      const modifiers = isMac ? { metaKey: true } : { ctrlKey: true }
+      expect(fireEvent.keyDown(field, { key: 'Enter', ...modifiers })).toBe(false)
+      fireEvent.keyDown(field, { key: 'Enter', repeat: true, ...modifiers })
+      expect(sendAlternate).toHaveBeenCalledOnce()
+      expect(steerQueued).not.toHaveBeenCalled()
+      expect(send).not.toHaveBeenCalled()
+      expect(fireEvent.keyDown(field, { key: 'Enter', shiftKey: true, ...modifiers })).toBe(true)
+      expect(sendAlternate).toHaveBeenCalledOnce()
+      fireEvent.keyDown(field, { key: 'Enter' })
+      expect(send).toHaveBeenCalledOnce()
+      cleanup()
+    }
+  )
   it('⌘+Enter on Mac steers the newest queued draft instead of sending', () => {
     platform.isMac = true
     const steerQueued = vi.fn(() => true)

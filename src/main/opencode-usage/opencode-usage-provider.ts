@@ -6,7 +6,8 @@ import type { OpenCodeUsageDailyAggregate, OpenCodeUsageSession } from './types'
 // v5 merges a migrated session's two rows per column instead of picking one, so
 // v4 caches hold zeroed costs and pre-migration metadata.
 // v6 normalizes input; v7 preserves writes separately for telemetry.
-export const OPENCODE_USAGE_SCHEMA_VERSION = 7
+// Retain session identity in daily rows for period-correct drilldowns.
+export const OPENCODE_USAGE_SCHEMA_VERSION = 8
 
 export const openCodeUsageProvider = {
   id: 'opencode',

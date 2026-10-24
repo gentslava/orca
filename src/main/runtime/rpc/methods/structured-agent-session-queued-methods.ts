@@ -10,6 +10,7 @@ import {
 } from './structured-agent-session-gate'
 import {
   QueuedMessageActionParams,
+  QueuedMessageMoveParams,
   QueuedMessageUpdateParams,
   QueuedMessageEditHoldParams,
   QueuedMessagesResumeParams
@@ -17,6 +18,13 @@ import {
 import { readsQueuedImageCards } from './structured-agent-session-queued-image-capability'
 
 export const STRUCTURED_AGENT_SESSION_QUEUED_METHODS = [
+  defineMethod({
+    name: 'agentSession.queuedMessageMove',
+    permission: 'workspace',
+    params: QueuedMessageMoveParams,
+    handler: async (params, ctx) =>
+      requireSessionHost(ctx, params.envelope.sessionId).queuedMessageMove(callerFor(ctx), params)
+  }),
   defineMethod({
     name: 'agentSession.queuedMessageUpdate',
     permission: 'workspace',

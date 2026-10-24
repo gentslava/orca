@@ -111,6 +111,11 @@ export const SessionAddressParams = z.object({
   sessionId: requiredString('Missing sessionId')
 })
 
+export const SessionChildrenParams = SessionAddressParams.extend({
+  dispatchId: z.string().min(1).optional(),
+  cursor: z.string().min(1).optional()
+})
+
 /** A party's mailbox address, as a message's sender recorded it, and the mail that message
  *  carried from it: a handle from an earlier run is found again through that mail's sender pane. */
 export const PartyLocationParams = z.object({

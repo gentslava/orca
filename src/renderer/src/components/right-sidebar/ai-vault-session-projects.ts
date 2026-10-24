@@ -12,16 +12,18 @@ import type { AiVaultSession } from '../../../../shared/ai-vault-types'
 import type { ProjectHostSetup } from '../../../../shared/project-types'
 import type { Repo } from '../../../../shared/repo-types'
 import type { Worktree } from '../../../../shared/worktree/types'
+import type { FolderWorkspace } from '../../../../shared/folder-workspace-types'
 import { normalizeRuntimePathForComparison } from '../../../../shared/cross-platform-path'
 import {
   aiVaultSessionProjectCwdKey,
   matchAiVaultProjectCandidates
 } from './ai-vault-session-project-candidates'
+import type { AiVaultSessionProject } from '../../../../shared/ai-vault-session-filters'
 import {
-  folderGroupKey,
-  folderLabel,
-  type AiVaultSessionProject
-} from '../../../../shared/ai-vault-session-filters'
+  aiVaultCandidateProject,
+  aiVaultFolderProject,
+  resolveStructuredAiVaultSessionProject
+} from './ai-vault-structured-session-project'
 
 // Preserve renderer imports of the renderer-free descriptor.
 export type { AiVaultSessionProject } from '../../../../shared/ai-vault-session-filters'
@@ -34,6 +36,7 @@ export type AiVaultProjectContext = {
 }
 
 type SessionProjectCandidate = {
+  workspaceId?: string
   source: 'worktree' | 'setup'
   normalizedPath: string
   hostKey: ExecutionHostId
@@ -44,6 +47,7 @@ type SessionProjectCandidate = {
 }
 
 type ProjectResolverArgs = {
+  folderWorkspaces?: readonly FolderWorkspace[]
   repos: readonly Repo[]
   worktrees: readonly Worktree[]
   projectHostSetupProjection: ProjectHostSetupProjection
@@ -53,6 +57,7 @@ type ProjectResolverArgs = {
 }
 
 export function buildAiVaultProjectContext({
+  folderWorkspaces,
   repos,
   worktrees,
   projectHostSetupProjection,
@@ -67,6 +72,7 @@ export function buildAiVaultProjectContext({
     activeRepoId: activeRepo?.id ?? activeWorktree?.repoId ?? null,
     projectLabelByKey: buildProjectLabelByKey(repos, projectHostSetupProjection),
     sessionProjectById: buildAiVaultSessionProjectById({
+      folderWorkspaces,
       repos,
       worktrees,
       projectHostSetupProjection,
@@ -80,6 +86,7 @@ export function buildAiVaultProjectContext({
  * separately so memoizing callers don't rebuild the map on worktree switches.
  */
 export function buildAiVaultSessionProjectById({
+  folderWorkspaces = [],
   repos,
   worktrees,
   projectHostSetupProjection,
@@ -101,6 +108,16 @@ export function buildAiVaultSessionProjectById({
   >()
   for (const session of sessions) {
     const host = normalizeExecutionHostId(session.executionHostId)
+    const owned = resolveStructuredAiVaultSessionProject(
+      session,
+      candidates,
+      folderWorkspaces,
+      projectLabelByKey
+    )
+    if (owned) {
+      sessionProjectById.set(session.id, owned)
+      continue
+    }
     let projectsByCwd = projectsByHostAndCwd.get(host)
     if (!projectsByCwd) {
       projectsByCwd = new Map()
@@ -177,6 +194,7 @@ function buildProjectCandidates(
     candidates.push(
       makeProjectCandidate({
         source: 'worktree',
+        workspaceId: worktree.id,
         path: worktree.path,
         hostKey: resolveCandidateHostId(
           worktree.hostId,
@@ -276,32 +294,20 @@ function resolveSessionProject(
   if (sessionHostId && matches.length > 0 && hostMatches.length === 0) {
     // Why: same-path projects can exist on several hosts; a tagged transcript
     // should never be attributed to a project on a different machine.
-    return folderProject(cwd)
+    return aiVaultFolderProject(cwd)
   }
 
   const hostBuckets = new Set(hostMatches.map((candidate) => candidate.hostKey))
   if (!sessionHostId && hostBuckets.size > 1) {
-    return folderProject(cwd)
+    return aiVaultFolderProject(cwd)
   }
 
   const bestCandidate = hostMatches[0]
   if (!bestCandidate) {
-    return folderProject(cwd)
+    return aiVaultFolderProject(cwd)
   }
 
-  const key = toAiVaultProjectKey(bestCandidate.projectId, bestCandidate.repoId)
-  if (!key) {
-    return folderProject(cwd)
-  }
-
-  return {
-    kind: 'repo',
-    key,
-    label: projectLabelByKey.get(key) ?? key,
-    ...(bestCandidate.projectId ? { projectId: bestCandidate.projectId } : {}),
-    ...(bestCandidate.repoId ? { repoId: bestCandidate.repoId } : {}),
-    hostKey: bestCandidate.hostKey
-  }
+  return aiVaultCandidateProject(bestCandidate, projectLabelByKey)
 }
 
 function compareCandidates(left: SessionProjectCandidate, right: SessionProjectCandidate): number {
@@ -313,12 +319,4 @@ function compareCandidates(left: SessionProjectCandidate, right: SessionProjectC
     return 0
   }
   return left.source === 'worktree' ? -1 : 1
-}
-
-function folderProject(cwd: string): AiVaultSessionProject {
-  return {
-    kind: 'folder',
-    key: folderGroupKey(cwd),
-    label: folderLabel(cwd)
-  }
 }

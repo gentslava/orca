@@ -137,13 +137,15 @@ export const CreateSupportParams = z
 const AgentSessionOptions = z.record(z.string(), z.string()).refine(isAgentSessionOptions)
 
 export const SendParams = z
-  .object({
+  .strictObject({
     envelope: MutationEnvelope,
     retryUnknown: z.literal(true).optional(),
     /** Queue the send as a host-held draft while the main agent is working. Strict object, so an
      *  older host refuses it: clients send it only when `agent-session.queued-messages.v1` is
      *  advertised. Participates in the operation fingerprint, never the body fingerprint. */
     delivery: z.literal('queue-if-active').optional(),
+    /** Requires agent-session.steer-draft.v1; the host captures running-turn choices. */
+    steer: z.literal(true).optional(),
     /** The composer's choices for the turn this message starts, kept with the message until it is
      *  dispatched. Sent only when `agent-session.send-options.v1` is advertised. Operation fingerprint only. */
     options: AgentSessionOptions.optional(),
@@ -151,7 +153,7 @@ export const SendParams = z
     usageLimitContinuationOfTurnItemId: Identifier('Invalid source turn item id').optional(),
     body: SendBody
   })
-  .strict()
+  .refine((send) => !(send.steer && send.delivery), 'Steering cannot request queued delivery')
 
 export const CreateIntentParams = z
   .object({

@@ -46,7 +46,7 @@ export function NativeChatQueuedMessageList({
   /** The chat files added in a card's editor attach to, as its chat box attaches them. */
   editAttachTo?: QueuedEditAttachTarget
 }): React.JSX.Element {
-  const updateSettings = useAppStore((store) => store.updateSettings)
+  const queueOnEnter = useAppStore((store) => store.settings?.nativeChatQueueFollowUps !== false)
   const regionRef = useRef<HTMLDivElement>(null)
   const queueRef = useRef<HTMLDivElement>(null)
   const { cards, pause } = controller
@@ -80,10 +80,6 @@ export function NativeChatQueuedMessageList({
       listRef.current.scrollTop = listRef.current.scrollHeight
     }
   }, [newestPosition, newestIsPersons])
-  // Only a host that queues sends has queueing to turn off; a kept card shows without it.
-  const turnOffQueueing = controller.queueCapable
-    ? () => void updateSettings({ nativeChatQueueFollowUps: false })
-    : undefined
   // Only when focus was on the queue (a card, or the header) — never pull it from wherever the user
   // moved on to. A question or approval holding the composer's slot takes it instead.
   const refocusAfter = (action: Promise<unknown>): void => {
@@ -140,14 +136,14 @@ export function NativeChatQueuedMessageList({
                 controller.editor?.images?.chips.length ? 'max-h-72' : 'max-h-40'
               )}
             >
-              {cards.map((card) => (
+              {cards.map((card, index) => (
                 <NativeChatQueuedMessageCard
                   key={card.messageId}
                   card={card}
                   chatWorktreeId={chatWorktreeId}
                   agentName={agentName}
                   statedFailures={statedFailures}
-                  showsSteerShortcut={controller.queueCapable && card === newest}
+                  showsSteerShortcut={controller.queueCapable && queueOnEnter && card === newest}
                   steerHeld={steerHeld}
                   pending={controller.pending(card.messageId)}
                   onSteer={() => refocusAfter(controller.steer(card.messageId))}
@@ -158,9 +154,26 @@ export function NativeChatQueuedMessageList({
                   editor={
                     controller.editor?.messageId === card.messageId ? controller.editor : undefined
                   }
+                  onMoveEarlier={
+                    controller.reorder && index > 0 && card.hold !== 'sending'
+                      ? () =>
+                          void controller.reorder?.moveBefore(
+                            card.messageId,
+                            cards[index - 1].messageId
+                          )
+                      : undefined
+                  }
+                  onMoveLater={
+                    controller.reorder && index < cards.length - 1 && card.hold !== 'sending'
+                      ? () =>
+                          void controller.reorder?.moveBefore(
+                            card.messageId,
+                            cards[index + 2]?.messageId ?? null
+                          )
+                      : undefined
+                  }
                   editAttachTo={editAttachTo}
                   editDisabled={controller.editor !== undefined}
-                  onTurnOffQueueing={turnOffQueueing}
                 />
               ))}
             </ul>

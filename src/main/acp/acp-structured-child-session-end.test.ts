@@ -7,7 +7,8 @@ import { GROK_ACP_DIALECT } from './acp-dialects/grok-dialect'
 import { GENERIC_ACP_DIALECT, type AcpDialect } from './acp-dialects/acp-dialect'
 import {
   acpChildWorkStatusSink,
-  acpSubagentRecords
+  acpSubagentRecords,
+  expectRetainedSettledAgentHistory
 } from './acp-structured-child-work.test-support'
 import { PROVIDER_SESSION, replyChunk } from './acp-structured-adapter.test-support'
 import { openAttachedHostRig, promptIdOf, send, stop } from './acp-structured-host.test-support'
@@ -295,7 +296,7 @@ describe('recorded child-session outcome during a full parent Stop', () => {
           { membership: 'settled', outcome: 'cancelled' },
           { membership: 'settled', outcome: 'cancelled' }
         ])
-        expect.soft(await strip()).toBeNull()
+        expectRetainedSettledAgentHistory(await strip(), 2)
       }
       await vi.advanceTimersByTimeAsync(335 - 17)
       expect((await hosted.turns()).at(-1)).toMatchObject({
@@ -311,7 +312,7 @@ describe('recorded child-session outcome during a full parent Stop', () => {
         { membership: 'settled', outcome: 'cancelled' },
         { membership: 'settled', outcome }
       ])
-      expect(await strip()).toBeNull()
+      expectRetainedSettledAgentHistory(await strip(), 2)
       expect(await hosted.turns()).toHaveLength(1)
     }
   )

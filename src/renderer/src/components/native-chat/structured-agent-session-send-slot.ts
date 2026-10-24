@@ -22,6 +22,7 @@ export type StructuredAgentSessionSendInput = {
   attachments?: readonly StructuredAgentSessionAttachment[]
   /** Asks the host to hold it as a card while the agent works; decided once, at the send. */
   delivery?: 'queue-if-active'
+  steer?: true
   /** The composer's model and effort for the turn it starts, read once at the send. */
   options?: Readonly<Record<string, string>>
   /** The caller keeps the text if it comes back, instead of the chat's composer. */
@@ -37,7 +38,11 @@ export type StructuredAgentSessionSendInput = {
 export type StructuredAgentSessionSendRequest = Pick<
   StructuredAgentSessionSendInput,
   'callerKeepsText' | 'usageLimitContinuationOfTurnItemId' | 'skills'
-> & { onSettled?: (outcome: StructuredAgentSessionSendOutcome) => void }
+> & {
+  /** An explicit keyboard choice overrides the Enter preference for this draft. */
+  delivery?: 'immediate' | 'queue-if-active'
+  onSettled?: (outcome: StructuredAgentSessionSendOutcome) => void
+}
 
 /** Takes the chat's one send slot, drawn as sending; null while another send of the chat is out. */
 export function takeStructuredAgentSessionSendSlot(
@@ -54,7 +59,8 @@ export function takeStructuredAgentSessionSendSlot(
     previewUris: attachments.map((attachment) => attachment.previewUri),
     queuedAt: input.now ?? Date.now(),
     ...(input.delivery ? { delivery: input.delivery } : {}),
-    ...(input.options ? { options: input.options } : {}),
+    ...(input.steer ? { steer: input.steer } : {}),
+    ...(input.options ? { options: { ...input.options } } : {}),
     ...(input.usageLimitContinuationOfTurnItemId
       ? { usageLimitContinuationOfTurnItemId: input.usageLimitContinuationOfTurnItemId }
       : {}),

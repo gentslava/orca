@@ -13,7 +13,8 @@ import type { NativeChatBlock, NativeChatTextBlock } from './native-chat-types'
 export const NATIVE_CHAT_NOTICE_COPY = {
   compaction: 'Context compacted',
   contextCleared: 'Context cleared',
-  plan: 'Plan'
+  plan: 'Plan',
+  autoApprovalGranted: 'Automatic approval granted'
 } as const
 
 export type NativeChatNoticeTone = 'warning' | 'error' | 'notice'

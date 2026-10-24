@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeChatExpandable } from './NativeChatExpandable'
 import { useNativeChatDisclosure } from './native-chat-disclosure-store'
-import { Check } from 'lucide-react'
+import { Check, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 import {
@@ -39,6 +39,7 @@ import { NativeChatToolRunIcon } from './NativeChatToolIcon'
 import { NativeChatToolRunCallCounts } from './NativeChatToolRunCallCounts'
 import { NativeChatToolRunMembers, revealNativeChatToolRunMember } from './NativeChatToolRunMembers'
 import { NativeChatToolRunMemberList } from './NativeChatToolRunMemberList'
+import { NativeChatToolRunFailures } from './NativeChatToolRunFailures'
 
 /** Rows drawn among an open run's lines, each keyed: before the block they are keyed by, or
  *  after the last. */
@@ -63,7 +64,7 @@ export function NativeChatToolRun({
   subagentDisclosure,
   backgroundTasks = NO_BACKGROUND_TASKS,
   followsProse = true,
-  expandSignal,
+  expandSignal = false,
   activeTurnIsWorking,
   trailing,
   disclosureId,
@@ -85,7 +86,7 @@ export function NativeChatToolRun({
   /** The row draws prose above this run, which the run then sits just under. */
   followsProse?: boolean
   /** Legacy view-level default; production native-chat entry points pass false. */
-  expandSignal: boolean
+  expandSignal?: boolean
   /** Structured lifecycle state, when available, keeps orphaned running calls from spinning. */
   activeTurnIsWorking?: boolean
   /** Whether this run is the working turn's last. Only that run is live: a run
@@ -194,17 +195,22 @@ export function NativeChatToolRun({
   // to a check would read as a change of identity.
   const settledHeaderIcon = nativeChatToolRunIconName(headerBlocks.filter(isToolCallBlock))
   const fallbackLabel =
-    callCount === 0
-      ? translate('components.native-chat.tool.result', 'Result')
-      : callCount === 1
-        ? translate('components.native-chat.tool.countOne', NATIVE_CHAT_TOOL_ACTIVITY_COPY.countOne)
-        : translate('components.native-chat.tool.countN', NATIVE_CHAT_TOOL_ACTIVITY_COPY.countN, {
-            value0: callCount
-          })
+    callCount === 0 && asideCount > 0
+      ? translate('components.native-chat.tool.activity', 'Activity')
+      : callCount === 0
+        ? translate('components.native-chat.tool.result', 'Result')
+        : callCount === 1
+          ? translate(
+              'components.native-chat.tool.countOne',
+              NATIVE_CHAT_TOOL_ACTIVITY_COPY.countOne
+            )
+          : translate('components.native-chat.tool.countN', NATIVE_CHAT_TOOL_ACTIVITY_COPY.countN, {
+              value0: callCount
+            })
 
   // A roster with no tool calls beside it is the whole run: rendering the tool
   // header too would announce "1 tool call" for activity that has none.
-  if (blocks.length === 0) {
+  if (blocks.length === 0 && asideCount === 0) {
     return standaloneRows.length > 0 ? <div className={spacing}>{standaloneRows}</div> : null
   }
 
@@ -229,7 +235,7 @@ export function NativeChatToolRun({
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="group/tool-run flex min-h-6 w-full items-start gap-1.5 rounded-md py-0.5 text-left text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+          className="group/tool-run flex min-h-6 w-full items-center gap-1.5 rounded-md py-0.5 text-left text-sm leading-relaxed hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           aria-expanded={open}
           aria-live="polite"
           data-native-chat-tool-run-state={live ? 'live' : 'settled'}
@@ -245,7 +251,7 @@ export function NativeChatToolRun({
           {/* Keep the collapsed header bounded; the tool detail carries the full command. */}
           <span
             className={cn(
-              'min-w-0 line-clamp-2 whitespace-normal break-words text-sm leading-relaxed transition-colors',
+              'min-w-0 truncate text-sm leading-relaxed transition-colors',
               live
                 ? 'max-w-[72%] shrink-0 animate-pulse text-chat-foreground motion-reduce:animate-none'
                 : 'min-w-0 text-chat-foreground-faint group-hover/tool-run:text-chat-foreground'
@@ -272,8 +278,16 @@ export function NativeChatToolRun({
               </span>
             </span>
           ) : null}
+          <ChevronRight
+            aria-hidden="true"
+            className={cn(
+              'ml-auto size-3.5 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
+              open && 'rotate-90'
+            )}
+          />
         </button>
       )}
+      <NativeChatToolRunFailures blocks={headerBlocks} />
       <NativeChatExpandable open={open && showsHeader}>
         <NativeChatToolRunMembers
           followKey={blocks.length + asideCount}

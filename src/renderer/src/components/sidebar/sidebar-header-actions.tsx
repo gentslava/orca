@@ -81,10 +81,12 @@ function NewWorkspaceButton({
 
 export function SidebarHeaderActions({
   onWorkspaceBoardMenuOpenChange,
-  agentsViewActive = false
+  agentsViewActive = false,
+  conversationNavigation = false
 }: {
   onWorkspaceBoardMenuOpenChange: (open: boolean) => void
   agentsViewActive?: boolean
+  conversationNavigation?: boolean
 }): React.JSX.Element {
   return (
     <div className="flex shrink-0 items-center gap-1" data-sidebar-header-actions="">
@@ -97,7 +99,7 @@ export function SidebarHeaderActions({
         />
       )}
       <AddProjectButton preserveWorkspaceBoardOpen />
-      <NewWorkspaceButton preserveWorkspaceBoardOpen />
+      {conversationNavigation ? null : <NewWorkspaceButton preserveWorkspaceBoardOpen />}
     </div>
   )
 }

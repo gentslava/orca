@@ -3,7 +3,7 @@ import { translate } from '@/i18n/i18n'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import {
   useChatSettingsTypedPermissions,
-  useStructuredAgentSessionHostQueuesMessages
+  useStructuredAgentSessionHostQueuesMessagesState
 } from '@/runtime/structured-agent-session-host-capability'
 import { useAppStore } from '../../store'
 import { Card, CardContent } from '../ui/card'
@@ -32,15 +32,15 @@ export function ChatBehaviorSetting({
 }: ChatBehaviorSettingProps): React.JSX.Element | null {
   const typedPermissions = useChatSettingsTypedPermissions()
   const query = useAppStore((state) => state.settingsSearchQuery)
-  // A host without the capability ignores the preference; the switch would do nothing.
-  const hostQueuesMessages = useStructuredAgentSessionHostQueuesMessages(STRUCTURED_CHAT_HOST)
+  const queueCapability = useStructuredAgentSessionHostQueuesMessagesState(STRUCTURED_CHAT_HOST)
+  const hostQueuesMessages = queueCapability === 'supported'
   const entries = getChatBehaviorEntriesByKey()
   const rows = [
     ...(settings.nativeChatPermissionMode !== undefined
       ? [getChatPermissionSearchEntry(typedPermissions)]
       : []),
     entries.resumeOnRestart,
-    ...(hostQueuesMessages ? [entries.queueFollowUps] : []),
+    entries.queueFollowUps,
     entries.shellEnvironment
   ]
   if (!forceVisible && !matchesSettingsSearch(query, rows)) {
@@ -78,27 +78,43 @@ export function ChatBehaviorSetting({
                 }
               />
             </SearchableSetting>
-            {hostQueuesMessages ? (
-              <SearchableSetting
-                {...entries.queueFollowUps}
-                id={entries.queueFollowUps.targetSectionId}
-                forceVisible={forceVisible}
-                className="max-w-none"
-              >
-                <SettingsSwitchRow
-                  label={entries.queueFollowUps.title}
-                  description={entries.queueFollowUps.description}
-                  checked={queueFollowUpsEnabled}
-                  ariaLabel={translate(
-                    'components.settings.nativeChat.queueFollowUpsToggleLabel',
-                    'Toggle queue follow-ups'
-                  )}
-                  onChange={() =>
-                    updateSettings({ nativeChatQueueFollowUps: !queueFollowUpsEnabled })
-                  }
-                />
-              </SearchableSetting>
-            ) : null}
+            <SearchableSetting
+              {...entries.queueFollowUps}
+              id={entries.queueFollowUps.targetSectionId}
+              forceVisible={forceVisible}
+              className="max-w-none"
+            >
+              <SettingsSwitchRow
+                label={entries.queueFollowUps.title}
+                description={
+                  <>
+                    {entries.queueFollowUps.description}
+                    {!hostQueuesMessages ? (
+                      <span className="mt-1 block">
+                        {queueCapability === 'unknown'
+                          ? translate(
+                              'components.settings.nativeChat.queueFollowUpsChecking',
+                              'Checking whether this host supports queued messages…'
+                            )
+                          : translate(
+                              'components.settings.nativeChat.queueFollowUpsUnsupported',
+                              'Update Orca on this host to queue messages. While an agent is working, drafts stay in the composer until queueing is supported.'
+                            )}
+                      </span>
+                    ) : null}
+                  </>
+                }
+                checked={queueFollowUpsEnabled}
+                disabled={!hostQueuesMessages}
+                ariaLabel={translate(
+                  'components.settings.nativeChat.queueFollowUpsToggleLabel',
+                  'Toggle queue follow-ups'
+                )}
+                onChange={() =>
+                  updateSettings({ nativeChatQueueFollowUps: !queueFollowUpsEnabled })
+                }
+              />
+            </SearchableSetting>
             <SearchableSetting
               {...entries.shellEnvironment}
               id={entries.shellEnvironment.targetSectionId}

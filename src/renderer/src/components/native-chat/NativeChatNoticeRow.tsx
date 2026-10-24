@@ -30,6 +30,8 @@ import { agentSessionFailureSentence } from '../../../../shared/agent-session-fa
 import { sayAgentSessionFailureTranslated } from './agent-session-failure-words-text'
 import { nativeChatAntigravitySignInContent } from './native-chat-antigravity-settings'
 import { formatUsageLimitResetClock } from '../../../../shared/agent-session-usage-limit'
+import { isNativeChatAutoApprovalNotice } from '../../../../shared/native-chat-auto-approval'
+import { NativeChatAutoApprovalNotice } from './NativeChatAutoApprovalNotice'
 
 const HOST_STATUS_WORDS: Record<AgentSessionHostStatusPresentation, () => string> = {
   'history-repaired': () =>
@@ -72,6 +74,9 @@ export function NativeChatNoticeRow({
   const orcaStopView = useNativeChatOrcaStopView()
   const claudeSignIn = useNativeChatClaudeSignInView()
   const look = nativeChatNoticeLook(block)
+  if (isNativeChatAutoApprovalNotice(block)) {
+    return <NativeChatAutoApprovalNotice block={block} messageId={messageId} />
+  }
   if (look.kind === 'divider') {
     const label =
       look.label === 'contextCleared'

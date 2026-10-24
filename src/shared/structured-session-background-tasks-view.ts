@@ -58,31 +58,31 @@ export function structuredSessionBackgroundTasksView(
     foregroundCommands,
     (task) => task.id
   )
-  // Only running children arrive; a roster with none holds nothing open either way.
-  // An older host's roster whose listed rows have all finished shows nothing that runs.
-  const onlyFinished = !children && !tasks.length && Boolean(backgroundTasks?.settledTasks?.length)
+  const settledTasks = backgroundTasks?.settledTasks ?? NO_TASKS
   const onlyForeground =
     foregroundCommands.size > 0 &&
     !children?.length &&
     !tasks.length &&
+    !settledTasks.length &&
     Boolean(backgroundTasks?.children?.length || backgroundTasks?.tasks?.length)
   const incomplete = monitoring && backgroundTasks.incomplete === true
-  const show = monitoring && (incomplete || (!onlyFinished && !onlyForeground))
+  const show = monitoring && (incomplete || !onlyForeground)
   // Commands and rewind follow the listed records, as the host's own admission does.
-  const liveWork = children ? agentChildWorkLiveness(children) !== null : show
+  const liveWork = children
+    ? agentChildWorkLiveness(children) !== null
+    : tasks.length > 0 || (show && !settledTasks.length)
   const supportsStop = backgroundTasks?.supportsTaskStop === true
   return {
     show,
     isMonitoring: turnId === null && liveWork,
     tasks,
-    // Running work only, from any host: an older host's finished rows are not shown either.
-    settledTasks: NO_TASKS,
+    settledTasks,
     ...(children ? { children } : {}),
     supportsStop,
     // Absent means the host predates the field and does accept an untargeted
     // stop; only a host that says `false` has none to offer.
     offersStopAll:
-      (!supportsStop && backgroundTasks?.supportsStopAll !== false) ||
+      (!supportsStop && liveWork && backgroundTasks?.supportsStopAll !== false) ||
       (incomplete && turnId === null),
     incomplete
   }

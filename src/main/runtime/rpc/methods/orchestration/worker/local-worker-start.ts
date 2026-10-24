@@ -1,5 +1,3 @@
-import { probeWorkerOpenCodeModelLaunchSupport } from './worker-opencode-model-preflight'
-import { resolveWorkerConfiguredAgentParams } from './worker-configured-agent-preflight'
 import { waitForWorkerAgentReady } from '../../../../launched-agent-composer-readiness'
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import { describeTerminalWaitBlockedReason } from '../../../../../../shared/terminal-wait-blocked-reason-legacy-alias'
@@ -33,9 +31,9 @@ import { recordCreatedWorkerTerminalCustody } from './created-worker-terminal-cu
 import { tearDownFailedWorkerStart } from './failed-worker-start-teardown'
 import { releaseRetriedWorkerTerminal } from './retried-worker-terminal-release'
 import { requireWorkerAuthority, type WorkerEffect } from './worker-topology'
-import { prepareLocalWorkerStart } from './worker-start-validation'
 import { deliverAndSettleWorkerStartReadiness } from './worker-start-readiness-settlement'
 import type { WorkerStartMutation } from './worker-start-mutation'
+import { preflightLocalWorkerStartLaunch } from './worker-start-launch-preflight'
 
 export async function startLocalWorker(args: {
   params: WorkerStartInput
@@ -58,40 +56,13 @@ export async function startLocalWorker(args: {
   const chat = terminal ? chatAssigneeOf(terminal) : null
   const requestedWorktree = params.worktree ?? 'current'
   const createsWorktree = requestedWorktree === 'new-child' || requestedWorktree === 'new-top-level'
-  const launchParams = await resolveWorkerConfiguredAgentParams(runtime, params, async () => {
-    const callerWorkspaceId = await resolveDispatchCallerWorktreeId(
-      runtime,
-      params.from,
-      callerSession
-    )
-    const parent = createsWorktree
-      ? await runtime.showManagedWorktree(`id:${callerWorkspaceId}`)
-      : undefined
-    return createsWorktree
-      ? { repo: params.repo ?? parent?.repoId }
-      : {
-          worktree: requestedWorktree === 'current' ? `id:${callerWorkspaceId}` : requestedWorktree
-        }
-  })
-  let openCodeModelLaunchSupported = false
-  if (!createsWorktree && launchParams.agent === 'opencode' && launchParams.model) {
-    const callerWorkspaceId = await resolveDispatchCallerWorktreeId(
-      runtime,
-      params.from,
-      callerSession
-    )
-    openCodeModelLaunchSupported = await probeWorkerOpenCodeModelLaunchSupport(
-      runtime,
-      launchParams,
-      { worktree: requestedWorktree === 'current' ? `id:${callerWorkspaceId}` : requestedWorktree }
-    )
-  }
-
-  const { agent, launch } = prepareLocalWorkerStart({
-    params: launchParams,
-    createsWorktree,
+  const { agent, launch, fastWorkspace, fastMode } = await preflightLocalWorkerStartLaunch({
+    params,
     runtime,
-    openCodeModelLaunchSupported
+    callerSession,
+    requestedWorktree,
+    createsWorktree,
+    mode: args.mode
   })
 
   const coordinatorWorktreeId = await resolveDispatchCallerWorktreeId(
@@ -115,6 +86,7 @@ export async function startLocalWorker(args: {
       : requestedWorktree === 'current'
         ? await runtime.showManagedTerminalWorkspace(`id:${coordinatorWorktreeId}`)
         : await runtime.showManagedTerminalWorkspace(requestedWorktree)
+  resolvedWorktree = fastWorkspace ?? resolvedWorktree
   if (terminal) {
     await assertExplicitWorkerUsable({
       runtime,
@@ -125,8 +97,18 @@ export async function startLocalWorker(args: {
       resolvedWorktreeId: resolvedWorktree?.id
     })
   }
-  const hostMode = resolveWorkerStartModeOnHost(runtime, args.mode, resolvedWorktree?.id, agent)
+  const hostMode =
+    fastMode ?? resolveWorkerStartModeOnHost(runtime, args.mode, resolvedWorktree?.id, agent)
   let mode = chatWorkerMode(await hostMode, chat)
+  if (agent && mode.mode === 'terminal' && (params.role || params.fastMode !== undefined)) {
+    await runtime.preflightOrchestrationWorkerLaunch(
+      agent,
+      launch.preferences,
+      createsWorktree
+        ? { repo: params.repo ?? creationWorktree?.repoId }
+        : { worktree: `id:${resolvedWorktree!.id}` }
+    )
+  }
 
   const startOptions = {
     worktree: requestedWorktree,

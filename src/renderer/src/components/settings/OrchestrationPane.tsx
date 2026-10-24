@@ -28,6 +28,7 @@ import {
   getNestedWorkerDepthTitle
 } from './nested-worker-depth-copy'
 import { OrchestrationChatErrorSetting } from './OrchestrationChatErrorSetting'
+import { WorkerRoleSettings } from './WorkerRoleSettings'
 
 const EXAMPLE_ICONS = {
   handoff: ArrowRightLeft,
@@ -162,6 +163,9 @@ export function OrchestrationPane({
       ) : null}
       {showLocalRuntimeSettings ? (
         <OrchestrationChatErrorSetting settings={settings} updateSettings={updateSettings} />
+      ) : null}
+      {showLocalRuntimeSettings ? (
+        <WorkerRoleSettings settings={settings} updateSettings={updateSettings} />
       ) : null}
 
       {/* COMPAT(wsl-bridge): removed when WSL runs as an orcad host. */}

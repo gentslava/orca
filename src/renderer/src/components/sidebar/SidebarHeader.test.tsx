@@ -23,9 +23,9 @@ const mocks = vi.hoisted(() => {
 type MockState = {
   repos: { id: string }[]
   groupBy: string
-  sidebarBody: 'workspaces' | 'agents'
+  sidebarBody: 'conversations' | 'workspaces' | 'agents'
   sidebarWidth: number
-  setSidebarBody: (body: 'workspaces' | 'agents') => void
+  setSidebarBody: (body: 'conversations' | 'workspaces' | 'agents') => void
   openModal: (modal: string, data?: unknown) => void
   updateSettings: (patch: Record<string, unknown>) => void
   activeContextualTourId: string | null
@@ -206,7 +206,8 @@ describe('SidebarHeader', () => {
 
     expect(headerButton('New workspace')).toBeTruthy()
     expect(headerButton('Add project')).toBeTruthy()
-    expect(container.querySelector('[data-slot="dropdown-menu-trigger"]')).toBeNull()
+    expect(createButton().getAttribute('aria-haspopup')).toBeNull()
+    expect(headerButton('Add project').getAttribute('aria-haspopup')).toBeNull()
 
     await act(async () => {
       headerButton('Add project').click()
@@ -289,7 +290,7 @@ describe('SidebarHeader', () => {
       activityButton?.click()
     })
 
-    expect(mockState.setSidebarBody).toHaveBeenCalledWith('workspaces')
+    expect(mockState.setSidebarBody).toHaveBeenCalledWith('conversations')
   })
 
   it('uses the legacy title based on workspace grouping', () => {

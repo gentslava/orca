@@ -28,8 +28,12 @@ import type { AgentStatusState } from '../../../../shared/agent-status-types'
 import type { AiVaultSearchHit } from '../../../../shared/ai-vault-search-types'
 import { AiVaultSearchEvidence } from './AiVaultSearchEvidence'
 import { useAiVaultSessionDisplayTitle } from './use-ai-vault-session-display-title'
+import { AgentStateDot } from '@/components/AgentStateDot'
+import { AgentIcon } from '@/lib/agent-catalog'
 
 export function VaultSessionRow({
+  compact = false,
+  onOpen,
   session,
   liveState,
   resumeStartup,
@@ -63,6 +67,8 @@ export function VaultSessionRow({
   sourceHostLabel,
   onPick
 }: {
+  compact?: boolean
+  onOpen?: () => void
   session: AiVaultSession
   liveState: AgentStatusState | null
   resumeStartup: AiVaultResumeStartup
@@ -152,7 +158,7 @@ export function VaultSessionRow({
     <div
       className={cn(
         'group/session-row flex w-full min-w-0 cursor-pointer flex-col border-b border-sidebar-border px-3 py-2 text-left transition-colors hover:bg-sidebar-accent/55',
-        !detailsExpanded && 'min-h-[98px]'
+        !detailsExpanded && !compact && 'min-h-[98px]'
       )}
       onClick={(event) => {
         // Radix portals this row's menus out of its DOM, but React still
@@ -164,6 +170,8 @@ export function VaultSessionRow({
         }
         if (onPick) {
           onPick()
+        } else if (onOpen) {
+          onOpen()
         } else {
           onToggleDetails()
         }
@@ -192,6 +200,12 @@ export function VaultSessionRow({
             window.dispatchEvent(new Event(AI_VAULT_SESSION_DRAG_END_EVENT))
           }}
         >
+          {compact ? (
+            <span className="mr-1.5 inline-flex items-center gap-1.5 align-middle text-muted-foreground">
+              <AgentIcon agent={session.agent} size={14} />
+              {liveState && liveState !== 'done' ? <AgentStateDot state={liveState} /> : null}
+            </span>
+          ) : null}
           {title}
         </div>
         <SessionRowTrailingActions
@@ -223,7 +237,7 @@ export function VaultSessionRow({
         />
       </div>
       {searchHit ? <AiVaultSearchEvidence hit={searchHit} /> : null}
-      {!detailsExpanded && !searchHit ? (
+      {!compact && !detailsExpanded && !searchHit ? (
         <div className="mt-0.5 min-w-0 line-clamp-2 text-[12px] leading-4 text-muted-foreground">
           {latestTurn ? (
             <>
@@ -240,14 +254,16 @@ export function VaultSessionRow({
           )}
         </div>
       ) : null}
-      <SessionMetadata
-        session={session}
-        liveState={liveState}
-        updatedAt={updatedAt}
-        worktreeInfo={worktreeInfo}
-        vaultScope={vaultScope}
-        sourceHostLabel={sourceHostLabel}
-      />
+      {!compact || detailsExpanded ? (
+        <SessionMetadata
+          session={session}
+          liveState={liveState}
+          updatedAt={updatedAt}
+          worktreeInfo={worktreeInfo}
+          vaultScope={vaultScope}
+          sourceHostLabel={sourceHostLabel}
+        />
+      ) : null}
       {detailsExpanded ? (
         <SessionInlineDetails
           id={detailsId}

@@ -18,6 +18,16 @@ export function SessionUnsavedConversationNotice({
   // none, so the "open the log" hint would point at nothing.
   logAvailable: boolean
 }): React.JSX.Element {
+  if (session.source === 'structured-record') {
+    return (
+      <p className="text-xs text-muted-foreground">
+        {translate(
+          'auto.components.right.sidebar.AiVaultSessionDetails.noPreviewAvailable',
+          'No conversation preview available'
+        )}
+      </p>
+    )
+  }
   const recoverable = isAiVaultSessionRecoverableEmpty(session)
 
   return (

@@ -111,6 +111,8 @@ export type AiVaultSessionSubagentInfo = {
 }
 
 export type AiVaultSession = {
+  /** A durable Orca conversation with no provider transcript to read or mutate. */
+  source?: 'structured-record'
   id: string
   executionHostId: ExecutionHostId
   executionHostPlatform?: NodeJS.Platform | null
@@ -231,6 +233,8 @@ export type AiVaultScanIssue = {
 }
 
 export type AiVaultListArgs = {
+  /** Primary conversation navigation includes durable chats without provider files. */
+  includeStructuredSessions?: boolean
   /** Opts a selected runtime-host refresh into content-conditional replies. */
   afterFingerprint?: string | null
   /** Opt-in promises this client starts IDE history in a new CLI conversation. */

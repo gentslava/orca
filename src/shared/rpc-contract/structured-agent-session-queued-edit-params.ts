@@ -3,6 +3,12 @@ import { Identifier, SessionId } from './structured-agent-session-identifiers'
 import { MutationEnvelope, MAX_BLOCKS, MAX_PROMPT_BYTES } from './structured-agent-session-params'
 import { SendImageRefBlock } from './structured-agent-session-message-params'
 
+export const QueuedMessageMoveParams = z.strictObject({
+  envelope: MutationEnvelope,
+  messageId: Identifier('Invalid queued message id'),
+  beforeMessageId: Identifier('Invalid queued message id').nullable()
+})
+
 export const QueuedMessageUpdateParams = z
   .object({
     envelope: MutationEnvelope,

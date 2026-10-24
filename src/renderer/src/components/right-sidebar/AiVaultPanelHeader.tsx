@@ -10,6 +10,7 @@ import type { AiVaultHostScopeOption } from './ai-vault-host-scope'
 import type { AiVaultSessionLimit } from './ai-vault-session-limit'
 
 type AiVaultPanelHeaderProps = {
+  conversationNavigation?: boolean
   searching?: boolean
   query: string
   loading: boolean
@@ -42,6 +43,7 @@ type AiVaultPanelHeaderProps = {
 }
 
 export function AiVaultPanelHeader({
+  conversationNavigation = false,
   query,
   searching = false,
   loading,
@@ -78,9 +80,19 @@ export function AiVaultPanelHeader({
     }
   }, [focusSearchRequestId])
   return (
-    <div className="shrink-0 border-b border-sidebar-border px-2.5 py-2">
-      <div className="flex items-center gap-1.5">
-        <div className="min-w-0 flex-1">
+    <div
+      className={
+        conversationNavigation
+          ? 'flex shrink-0 items-center gap-1 border-b border-sidebar-border px-2.5 py-2'
+          : 'shrink-0 border-b border-sidebar-border px-2.5 py-2'
+      }
+    >
+      <div
+        className={
+          conversationNavigation ? 'order-2 flex items-center gap-1.5' : 'flex items-center gap-1.5'
+        }
+      >
+        <div className={conversationNavigation ? 'hidden' : 'min-w-0 flex-1'}>
           <div className="truncate text-xs font-semibold text-foreground">
             {/* Why: below 300px the header competes with fixed controls, so compact copy prevents overlap. */}
             <span className="@max-[300px]/ai-vault:hidden">
@@ -102,7 +114,7 @@ export function AiVaultPanelHeader({
                 )}
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-1 @max-[300px]/ai-vault:gap-0.5">
+        <div className="ml-auto flex shrink-0 items-center gap-1 @max-[300px]/ai-vault:gap-0.5">
           <VaultHostScopeMenu
             executionHostScope={executionHostScope}
             hostOptions={hostScopeOptions}
@@ -145,7 +157,7 @@ export function AiVaultPanelHeader({
         </div>
       </div>
 
-      <div className="mt-2">
+      <div className={conversationNavigation ? 'hidden' : 'mt-2'}>
         <VaultScopeSwitch
           scope={scope}
           workspaceAvailable={Boolean(activeWorktreePath)}
@@ -154,7 +166,9 @@ export function AiVaultPanelHeader({
         />
       </div>
 
-      <div className="mt-2 flex h-8 items-center gap-1.5 rounded-md border border-sidebar-border bg-input/50 px-2 focus-within:border-sidebar-ring focus-within:ring-[2px] focus-within:ring-sidebar-ring/30">
+      <div
+        className={`${conversationNavigation ? 'min-w-0 flex-1' : 'mt-2'} flex h-8 items-center gap-1.5 rounded-md border border-sidebar-border bg-input/50 px-2 focus-within:border-sidebar-ring focus-within:ring-[2px] focus-within:ring-sidebar-ring/30`}
+      >
         <Search className="size-3.5 shrink-0 text-muted-foreground" />
         <ImeInput
           ref={searchInputRef}

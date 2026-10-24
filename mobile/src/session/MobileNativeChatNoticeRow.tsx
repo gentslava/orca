@@ -13,6 +13,8 @@ import { MobileMarkdown } from '../components/MobileMarkdown'
 import { INLINE_TEXT_SELECTION } from '../components/inline-text-selection'
 import { colors, radii, spacing, typography } from '../theme/mobile-theme'
 import { MONO_SIZE, TEXT_SIZE, scaledType } from './mobile-native-chat-message-styles'
+import { isNativeChatAutoApprovalNotice } from '../../../src/shared/native-chat-auto-approval'
+import { MobileNativeChatAutoApprovalNotice } from './MobileNativeChatAutoApprovalNotice'
 
 const TONE_COLOR: Record<NativeChatNoticeTone, string> = {
   warning: colors.statusAmber,
@@ -25,11 +27,13 @@ const TONE_COLOR: Record<NativeChatNoticeTone, string> = {
 export function MobileNativeChatNoticeRow({
   blocks,
   fontScale,
+  messageId,
   onOpenFile,
   onLongPress
 }: {
   blocks: readonly NativeChatBlock[]
   fontScale: number
+  messageId?: string
   onOpenFile?: (relativePath: string) => void
   /** Android only: a long press on a plan's link opens the row's actions sheet. */
   onLongPress?: () => void
@@ -49,6 +53,15 @@ export function MobileNativeChatNoticeRow({
     ) : null
   }
   const look = nativeChatNoticeLook(notice)
+  if (isNativeChatAutoApprovalNotice(notice)) {
+    return (
+      <MobileNativeChatAutoApprovalNotice
+        block={notice}
+        messageId={messageId}
+        fontScale={fontScale}
+      />
+    )
+  }
   switch (look.kind) {
     case 'divider': {
       const label = NATIVE_CHAT_NOTICE_COPY[look.label]

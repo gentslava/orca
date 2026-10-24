@@ -284,6 +284,7 @@ export function useMobileStructuredAgentSession(
 
   return {
     ...options,
+    allowsWorkingPicks: hostSupport?.sendOptions === true,
     visualSource,
     imagePreviewsByMessageId: sends.imagePreviewsByMessageId,
     session: {

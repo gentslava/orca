@@ -1,0 +1,141 @@
+import type { AgentSessionRecord } from '../../shared/agent-session-record'
+import { defaultAgentChatLabel } from '../../shared/agent-session-chat-label'
+import {
+  isAiVaultAgent,
+  type AiVaultListArgs,
+  type AiVaultListResult,
+  type AiVaultSession
+} from '../../shared/ai-vault-types'
+import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
+import { splitWorktreeIdForFilesystem } from '../../shared/worktree/id'
+import { structuredAgentRuntimeMetadata } from '../runtime/structured-agent-runtime-metadata'
+import type { StructuredChatOpener } from './structured-session-ownership'
+import type { OrchestrationDb } from '../runtime/orchestration/db'
+import { z } from 'zod'
+import {
+  requestedAiVaultSessionDepth,
+  truncateAiVaultListResult
+} from '../../shared/ai-vault-session-depth'
+import { conditionalAiVaultListResult } from './session-list-fingerprint'
+import { clearedInto } from '../runtime/orchestration/structured-session-lineage'
+
+export function boundedAiVaultConversationList(
+  result: AiVaultListResult,
+  args?: AiVaultListArgs
+): AiVaultListResult {
+  return conditionalAiVaultListResult(
+    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths),
+    null
+  )
+}
+
+/** Project the existing record catalog; provider files remain optional evidence, never identity. */
+export function projectDurableAiVaultConversations(
+  result: AiVaultListResult,
+  records: readonly AgentSessionRecord[],
+  opensChat: StructuredChatOpener,
+  childSessionIds: ReadonlySet<string> = new Set()
+): AiVaultListResult {
+  const excluded = new Set(childSessionIds)
+  const recordsById = new Map(records.map((record) => [record.sessionId, record]))
+  for (const id of excluded) {
+    const record = recordsById.get(id)
+    const successor = record && clearedInto(record)
+    if (successor) {
+      excluded.add(successor)
+    }
+  }
+  const bySessionId = new Map<string, AiVaultSession>()
+  const otherRows: AiVaultSession[] = []
+  for (const row of result.sessions) {
+    if (row.executionHostId !== LOCAL_EXECUTION_HOST_ID || !row.structuredSession) {
+      otherRows.push(row)
+      continue
+    }
+    const id = row.structuredSession.sessionId
+    if (excluded.has(id)) {
+      continue
+    }
+    const previous = bySessionId.get(id)
+    if (!previous || rowTime(row) > rowTime(previous)) {
+      bySessionId.set(id, row)
+    }
+  }
+  for (const record of records) {
+    const registration = structuredAgentRuntimeMetadata(record.provider)
+    const agent = registration?.sessionHistory.rowAgents[0]
+    if (
+      record.location.executionHostId !== LOCAL_EXECUTION_HOST_ID ||
+      record.location.wslDistro !== null ||
+      !registration ||
+      !isAiVaultAgent(agent) ||
+      !opensChat(registration.definition.agent) ||
+      excluded.has(record.sessionId)
+    ) {
+      continue
+    }
+    const previous = bySessionId.get(record.sessionId)
+    const createdAt = new Date(record.createdAt).toISOString()
+    const updatedAt = new Date(
+      Math.max(record.updatedAt, previous ? rowTime(previous) : 0)
+    ).toISOString()
+    const cwd =
+      record.launchDirectory ??
+      splitWorktreeIdForFilesystem(record.location.workspaceId)?.worktreePath ??
+      previous?.cwd ??
+      null
+    bySessionId.set(record.sessionId, {
+      ...(previous ?? {
+        source: 'structured-record' as const,
+        id: `${LOCAL_EXECUTION_HOST_ID}:structured:${record.sessionId}`,
+        executionHostId: LOCAL_EXECUTION_HOST_ID,
+        agent,
+        sessionId: record.sessionId,
+        filePath: '',
+        codexHome: null,
+        branch: null,
+        messageCount: 0,
+        totalTokens: 0,
+        previewMessages: [],
+        queuedMessageCount: 0,
+        subagentTranscriptCount: 0,
+        resumeCommand: '',
+        subagent: null
+      }),
+      title: record.conversationName ?? defaultAgentChatLabel(registration.definition.agent),
+      cwd,
+      model: record.options?.model ?? previous?.model ?? null,
+      createdAt,
+      updatedAt,
+      modifiedAt: updatedAt,
+      structuredSession: { sessionId: record.sessionId, workspaceId: record.location.workspaceId }
+    })
+  }
+  return {
+    ...result,
+    sessions: [...otherRows, ...bySessionId.values()].sort((a, b) => rowTime(b) - rowTime(a))
+  }
+}
+
+function rowTime(row: AiVaultSession): number {
+  return Date.parse(row.updatedAt ?? row.modifiedAt) || 0
+}
+
+/** Child conversations are reached through the parent's journal, including after release. */
+export function aiVaultOrchestrationChildSessionIds(
+  db: OrchestrationDb | null
+): ReadonlySet<string> {
+  if (!db?.hasAnyDispatchContexts()) {
+    return new Set()
+  }
+  const rows = z.array(z.object({ sessionId: z.string() })).parse(
+    db.db
+      .prepare(`SELECT DISTINCT dispatch.assignee_orca_session_id AS sessionId FROM dispatch_contexts dispatch
+      JOIN worker_terminal_resources resource ON resource.owner_dispatch_id = dispatch.id
+      AND resource.process_incarnation = dispatch.process_incarnation
+      WHERE dispatch.assignee_orca_session_id IS NOT NULL AND dispatch.creator_orca_session_id IS NOT NULL
+      AND dispatch.assignee_orca_session_id != dispatch.creator_orca_session_id`)
+      .all()
+  )
+  return new Set(rows.map((row) => row.sessionId))
+}

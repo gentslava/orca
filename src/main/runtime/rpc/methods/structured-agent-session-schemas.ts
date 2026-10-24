@@ -38,5 +38,6 @@ export {
 export { ContinueInterruptedParams } from '../../../../shared/rpc-contract/structured-agent-session-continue-params'
 export {
   QueuedMessageUpdateParams,
+  QueuedMessageMoveParams,
   QueuedMessageEditHoldParams
 } from '../../../../shared/rpc-contract/structured-agent-session-queued-edit-params'

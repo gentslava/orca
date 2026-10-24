@@ -149,13 +149,13 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
 
     pendingRevealWorktree: null,
     pendingRevealSidebarRow: null,
-    // Why skipped rather than queued: the worktree list is unmounted in the activity view, and a
-    // reveal that switched bodies would kick the user out on every incidental activation.
+    // Incidental activation must not leave the reader's conversation or activity view.
     revealWorktreeInSidebar: (worktreeId, options) =>
       set((state) =>
-        state.sidebarBody === 'agents'
+        state.sidebarBody !== 'workspaces' && !options?.beginRename
           ? state
           : {
+              ...(options?.beginRename ? { sidebarBody: 'workspaces' as const } : {}),
               pendingRevealWorktree: {
                 worktreeId,
                 ...(options?.executionHostId ? { executionHostId: options.executionHostId } : {}),
@@ -167,7 +167,7 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
       ),
     revealSidebarRow: (rowKey, options) =>
       set((state) =>
-        state.sidebarBody === 'agents'
+        state.sidebarBody !== 'workspaces'
           ? state
           : {
               pendingRevealSidebarRow: {

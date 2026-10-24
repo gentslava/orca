@@ -6,7 +6,7 @@ import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import { structuredAgentSessionChildRan } from './structured-agent-session-ran-options'
 import type { StructuredAgentSessionProviderChild } from './structured-agent-session-host-types'
 
-const OPTION_ORDER = ['model', 'effort'] as const
+const OPTION_ORDER = ['model', 'effort', 'personality', 'fastMode', 'serviceTier'] as const
 
 /** Unset message choices inherit child execution values. */
 function sameOptions(
@@ -20,7 +20,7 @@ function sameOptions(
   return OPTION_ORDER.every((key) => (a?.[key] ?? ran?.[key]) === (b?.[key] ?? ran?.[key]))
 }
 
-/** Codex steer has no model/effort parameters; changed choices need a new turn. */
+/** Codex steer cannot change execution options; changed choices need a new turn. */
 export function waitsForCodexTurnOptions(
   record: Pick<AgentSessionRecord, 'provider'> | null,
   journal: Pick<AgentSessionJournal, 'newestTurn' | 'submissions' | 'itemBody'>,

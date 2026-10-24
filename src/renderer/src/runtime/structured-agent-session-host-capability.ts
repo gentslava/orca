@@ -5,6 +5,7 @@ import {
   AGENT_SESSION_QUEUED_COMMANDS_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_IMAGE_EDIT_RUNTIME_CAPABILITY,
+  AGENT_SESSION_QUEUED_MESSAGE_MOVE_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
   AGENT_SESSION_REWIND_RECOVERY_CAPABILITY,
   type RuntimeCapability
@@ -116,6 +117,15 @@ export function useStructuredAgentSessionHostRecoversRewindOnSend(
  *  published cards and their queuedMessage actions are not gated on it. */
 export function useStructuredAgentSessionHostQueuesMessages(target: RuntimeClientTarget): boolean {
   return useStructuredAgentSessionHostQueuesMessagesState(target) === 'supported'
+}
+
+export function useStructuredAgentSessionHostMovesQueuedMessages(
+  target: RuntimeClientTarget
+): boolean {
+  return useStructuredAgentSessionHostCapability(
+    target,
+    AGENT_SESSION_QUEUED_MESSAGE_MOVE_RUNTIME_CAPABILITY
+  )
 }
 
 /** Three-state: only `supported` lets a send ask to be queued; `unknown` holds nothing back. */

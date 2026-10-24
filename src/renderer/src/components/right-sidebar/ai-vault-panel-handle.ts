@@ -18,6 +18,7 @@ export type AiVaultPanelProps = {
   initialQuery?: string
   /** Read once, at mount; set, the panel filters agents on its own and never saves the filter. */
   initialAgents?: readonly AiVaultAgent[]
+  conversationNavigation?: boolean
   headerAction?: ReactNode
   /** Fires when a switch to an open session or a hand-off succeeds, which may leave the visible tab
    *  as it was; its presence also turns on arrow/Enter row keys. */

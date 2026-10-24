@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -83,6 +84,7 @@ function PickerTrigger(props: {
   disabled: boolean
   disabledReason: string | null
   dispatched: boolean
+  forFutureTurn: boolean
   triggerRef: React.Ref<HTMLButtonElement>
   onKeyDown: React.KeyboardEventHandler<HTMLButtonElement>
 }): React.JSX.Element {
@@ -100,11 +102,18 @@ function PickerTrigger(props: {
             variant="ghost"
             size="xs"
             aria-label={props.accessibleName}
-            className="max-w-64"
+            className="min-w-0 max-w-64 shrink"
             onKeyDown={props.onKeyDown}
           >
-            <span className="truncate text-chat-foreground">{props.modelLabel}</span>
-            {props.optionsLabel ? <span className="shrink-0">{props.optionsLabel}</span> : null}
+            {props.forFutureTurn ? (
+              <span className="shrink-0 text-xs">
+                {translate('components.native-chat.composer.nextTurn', 'Next turn')}
+              </span>
+            ) : null}
+            <span className="min-w-8 flex-1 truncate text-chat-foreground">{props.modelLabel}</span>
+            {props.optionsLabel ? (
+              <span className="min-w-0 truncate">{props.optionsLabel}</span>
+            ) : null}
             <ChevronDown className="size-3" />
           </Button>
         </PopoverTrigger>
@@ -162,6 +171,7 @@ function SessionOptionPopover(props: {
   const modelTitle = translate('components.native-chat.composer.model', 'Model')
   const modelLabel = nativeChatModelPillLabel(model)
   const modelName = pillAccessibleName(modelTitle, modelLabel)
+  const forFutureTurn = props.isWorking && model.transport === 'agent-session'
   const optionsTitle = nativeChatOptionsPillTitle(options)
   const optionsLabel = nativeChatOptionValuesLabel(options)
   const modelReason = nativeChatSessionOptionDisabledReason(model.disabledReason)
@@ -202,11 +212,22 @@ function SessionOptionPopover(props: {
         modelLabel={modelLabel}
         optionsLabel={optionsLabel}
         accessibleName={
-          optionsLabel
-            ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel)}`
-            : modelName
+          forFutureTurn
+            ? translate(
+                'components.native-chat.composer.nextTurnOptionsLabel',
+                'Next turn: {{options}}',
+                {
+                  options: optionsLabel
+                    ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel)}`
+                    : modelName
+                }
+              )
+            : optionsLabel
+              ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel)}`
+              : modelName
         }
-        disabled={props.isWorking}
+        forFutureTurn={forFutureTurn}
+        disabled={props.isWorking && model.transport !== 'agent-session'}
         disabledReason={modelReason ?? optionsReason}
         dispatched={
           sessionOptionDispatchUnconfirmed(model) || options.some(sessionOptionDispatchUnconfirmed)
@@ -252,6 +273,16 @@ function SessionOptionPopover(props: {
           }
         }}
       >
+        {forFutureTurn ? (
+          <p className="px-2 py-1 text-xs text-muted-foreground">
+            {model.disabledReason === 'host-update-required'
+              ? modelReason
+              : translate(
+                  'components.native-chat.composer.futureMessageOptions',
+                  'Changes apply to future messages. Running and queued messages keep their choices.'
+                )}
+          </p>
+        ) : null}
         {model.kind.type === 'select' && !model.action ? (
           <NativeChatModelCombobox
             choices={model.kind.choices}
@@ -300,6 +331,7 @@ function NativeChatSessionOptionPickersInner({
   pickerRequest,
   focusComposer
 }: NativeChatSessionOptionPickersProps): React.JSX.Element | null {
+  useTranslation()
   const [pending, setPending] = useState<ReadonlyMap<string, PendingPick>>(() => new Map())
   // Why: the session holds a request across composer remounts; one left standing reopens the
   // picker each time a prompt card gives the composer back. Dropped even when nothing could open.

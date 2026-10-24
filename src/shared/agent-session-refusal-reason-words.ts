@@ -108,6 +108,7 @@ const REASON_WORDS = {
     goalsUnsupported: causeWords('goalsUnsupported', 'hostFinding'),
     providerRejected: causeWords('agentRefused', 'retry'),
     providerStartFailed: { fact: 'providerStartFailed', action: 'retry' },
+    providerResumeUnavailable: { fact: 'providerResumeUnavailable', action: 'goElsewhere' },
     notSignedIn: { fact: 'notSignedIn', action: 'actFirst' },
     cliMissing: { fact: 'cliMissing', action: 'actFirst' },
     historyTooLarge: { fact: 'historyTooLarge', action: 'goElsewhere' },

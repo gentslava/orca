@@ -18,6 +18,8 @@ export function mobileSessionOptionDisabledReason(
       return 'Set when the session starts.'
     case 'available-after-session-start':
       return 'Available after the session starts.'
+    case 'host-update-required':
+      return 'Update Orca on this host to change future-turn choices while the agent works.'
     case undefined:
       return null
   }
