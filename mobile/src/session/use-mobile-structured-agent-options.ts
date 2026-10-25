@@ -183,7 +183,7 @@ export function useMobileStructuredAgentOptions(args: {
           const committed = result.value.options ?? { [id]: encoded }
           updateOptionState((current) =>
             current.record === targetRecord && result.sameFence
-              ? commitStructuredAgentSessionOptionValues(current, committed)
+              ? commitStructuredAgentSessionOptionValues(current, committed, id)
               : current
           )
           // Persist only accepted picks; uncertain optimism must not seed future launches with an option the provider may have refused.
@@ -191,7 +191,7 @@ export function useMobileStructuredAgentOptions(args: {
             void persistMobileStructuredOptionPicks({
               client,
               agent,
-              picks: structuredAgentSessionOptionPicks(currentState, committed)
+              picks: structuredAgentSessionOptionPicks(currentState, committed, id)
             })
           }
           readsBack = result.sameFence

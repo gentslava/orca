@@ -51,7 +51,7 @@ export function useStructuredAgentSessionOptionWrite(args: {
       const shownAtOnce = providerStarting || id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
       if (shownAtOnce) {
         updateOptionState((current) =>
-          commitStructuredAgentSessionOptionValues(current, { [id]: encoded })
+          commitStructuredAgentSessionOptionValues(current, { [id]: encoded }, id)
         )
       } else {
         pendingOptionsRef.current[id] = encoded
@@ -69,13 +69,14 @@ export function useStructuredAgentSessionOptionWrite(args: {
           const committed = isCurrent() ? returned : { [id]: returned[id] ?? encoded }
           updateOptionState((current) =>
             current.record === targetRecord
-              ? commitStructuredAgentSessionOptionValues(current, committed)
+              ? commitStructuredAgentSessionOptionValues(current, committed, id)
               : current
           )
           // The launch seed names the model an effort-only pick was made under.
           rememberOptionPicks(
             optionView(currentState, launchSeedOptions, NO_HELD_OPTIONS),
-            committed
+            committed,
+            id
           )
         }
         return Boolean(result)

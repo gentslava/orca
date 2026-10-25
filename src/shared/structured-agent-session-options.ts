@@ -271,7 +271,8 @@ export function structuredAgentSessionModelOffers(
 
 export function commitStructuredAgentSessionOptionValues(
   state: StructuredAgentSessionOptionState,
-  values: Readonly<Record<string, string>>
+  values: Readonly<Record<string, string>>,
+  pickedOptionId?: string
 ): StructuredAgentSessionOptionState {
   let next = state
   for (const id of STRUCTURED_LAUNCH_OPTION_IDS) {
@@ -280,20 +281,23 @@ export function commitStructuredAgentSessionOptionValues(
       next = commitStructuredAgentSessionOption(next, id, value)
     }
   }
-  return next
+  return pickedOptionId !== undefined && pickedOptionId !== 'model'
+    ? { ...next, modelDefault: state.modelDefault }
+    : next
 }
 
 export type StructuredSessionOptionPick = {
   modelId: string
   optionId: string
   value: SessionOptionValue
+  adoptModelAsLaunchDefault?: boolean
 }
 
-/** Persist only reseedable IDs, using provider-committed values after reconciliation. Effort-only picks adopt their controls’ model
- * because launch reads effort only under a stored model. Pre-commit state is valid: committed supplies changed model, record supplies unchanged model. */
+/** Persist reconciled model-scoped values; Default stays inherited until an explicit model pick. */
 export function structuredAgentSessionOptionPicks(
   state: StructuredAgentSessionOptionState,
-  committed: Readonly<Record<string, string>>
+  committed: Readonly<Record<string, string>>,
+  pickedOptionId?: string
 ): StructuredSessionOptionPick[] {
   if (!state.catalog) {
     return []
@@ -316,6 +320,15 @@ export function structuredAgentSessionOptionPicks(
       (typeof decoded === 'string' && !decoded.trim()) ||
       encodeStructuredAgentSessionOptionValue(optionId, decoded) === null
       ? []
-      : [{ modelId, optionId, value: decoded }]
+      : [
+          {
+            modelId,
+            optionId,
+            value: decoded,
+            ...(state.modelDefault && pickedOptionId !== 'model'
+              ? { adoptModelAsLaunchDefault: false }
+              : {})
+          }
+        ]
   })
 }

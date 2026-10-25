@@ -207,9 +207,11 @@ export function parseStoredNativeChatComposerDraft(
   const owner = parseOwner(value.owner)
   const editorDocument = isEditorDocument(document) ? document : undefined
   return {
-    ...(value.textFormat === 'literal' && !editorDocument
-      ? { text }
-      : nativeChatDraftWithoutLegacyImages(text, editorDocument)),
+    ...nativeChatDraftWithoutLegacyImages(
+      text,
+      editorDocument,
+      value.textFormat === 'literal' ? 'literal' : undefined
+    ),
     textFormat: 'literal',
     ...(pastedTextFiles ? { pastedTextFiles } : {}),
     images: images.flatMap((image) => parseImage(image) ?? []),

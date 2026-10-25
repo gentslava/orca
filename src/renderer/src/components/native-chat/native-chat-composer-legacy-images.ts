@@ -17,7 +17,10 @@ function textWithoutImageTokens(text: string): string {
     .join('')
 }
 
-function cleanDocument(node: JSONContent): { node: JSONContent; text: string; changed: boolean } {
+function cleanDocument(
+  node: JSONContent,
+  literal: boolean
+): { node: JSONContent; text: string; changed: boolean } {
   if (!node.content) {
     return {
       node,
@@ -31,7 +34,12 @@ function cleanDocument(node: JSONContent): { node: JSONContent; text: string; ch
   const text: string[] = []
   for (const child of node.content) {
     if (child.type === IMAGE_REFERENCE_NODE) {
-      afterImage = true
+      const token = child.attrs?.token
+      if (literal && typeof token === 'string' && token !== '') {
+        content.push({ type: 'text', text: token })
+        text.push(token)
+      }
+      afterImage = !literal
       changed = true
       continue
     }
@@ -43,7 +51,7 @@ function cleanDocument(node: JSONContent): { node: JSONContent; text: string; ch
     if (kept.type === 'text' && kept.text === '') {
       continue
     }
-    const clean = cleanDocument(kept)
+    const clean = cleanDocument(kept, literal)
     content.push(clean.node)
     text.push(clean.text)
     changed ||= clean.changed
@@ -55,14 +63,24 @@ function cleanDocument(node: JSONContent): { node: JSONContent; text: string; ch
   }
 }
 
-/** Old automatic image nodes leave the editor; image paths and ownership stay in the tray. */
+/** Image nodes leave the editor; marked literal tokens stay as text and attachments stay in the tray. */
 export function nativeChatDraftWithoutLegacyImages(
   text: string,
-  document?: JSONContent
+  document?: JSONContent,
+  textFormat?: 'literal'
 ): { text: string; document?: JSONContent } {
+  const literal = textFormat === 'literal'
   if (document) {
-    const clean = cleanDocument(document)
-    return clean.changed ? { text: clean.text, document: clean.node } : { text, document }
+    const clean = cleanDocument(document, literal)
+    if (literal && clean.changed && clean.text !== text) {
+      return { text }
+    }
+    return clean.changed
+      ? { text: literal ? text : clean.text, document: clean.node }
+      : { text, document }
+  }
+  if (literal) {
+    return { text }
   }
   const clean = textWithoutImageTokens(text)
   return { text: clean !== text && clean.trim() === '' ? '' : clean }

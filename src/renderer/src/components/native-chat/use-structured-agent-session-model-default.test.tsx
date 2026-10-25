@@ -13,6 +13,14 @@ import { useStructuredAgentSessionSendOptions } from './use-structured-agent-ses
 import { useStructuredAgentSessionSends } from './use-structured-agent-session-sends'
 import { resetStructuredAgentSessionSendsForTests } from './structured-agent-session-message-sender'
 import { FAST_OPTIONS } from './structured-agent-session-option-test-data'
+import {
+  applyNativeChatSessionOptionSettingsMutation,
+  resolveStructuredLaunchSeedOptions
+} from '../../../../shared/native-chat-session-option-defaults'
+import type {
+  NativeChatSessionOptionSettingsMutation,
+  PersistedNativeChatSessionOptions
+} from '../../../../shared/native-chat-session-options'
 
 const mocks = vi.hoisted(() => ({ call: vi.fn(), enqueue: vi.fn() }))
 vi.mock('@/runtime/structured-agent-session-client', () => ({
@@ -101,6 +109,70 @@ afterEach(() => {
   resetStructuredAgentSessionSendsForTests()
   setLocalRuntimeCapabilitiesForTests(null)
 })
+
+it.each([false, true])(
+  'keeps Default across effort-only persistence until an explicit model pick (full reply: %s)',
+  async (fullReply) => {
+    let persisted: PersistedNativeChatSessionOptions = {
+      claude: { model: 'gpt-live', valuesByModel: {} }
+    }
+    mocks.enqueue.mockImplementation(
+      (_target, mutation: NativeChatSessionOptionSettingsMutation) => {
+        persisted = applyNativeChatSessionOptionSettingsMutation(persisted, mutation) ?? persisted
+        return Promise.resolve()
+      }
+    )
+    const read = mocks.call.getMockImplementation()!
+    mocks.call.mockImplementation((target, method, params) => {
+      if (method !== 'agentSession.setOption') {
+        return read(target, method, params)
+      }
+      return Promise.resolve(
+        params.value === null
+          ? resetReply
+          : {
+              ok: true,
+              value: {
+                key: params.key,
+                value: params.value,
+                options: {
+                  ...(fullReply || params.key === 'model' ? { model: 'gpt-fast' } : {}),
+                  effort: params.key === 'effort' ? params.value : 'medium'
+                }
+              }
+            }
+      )
+    })
+    const { result, unmount } = renderSession()
+    await waitFor(() => expect(result.current.sendOptions()).toBeDefined())
+    await act(async () => {
+      await result.current.optionSurface.resetOption?.('model')
+    })
+    expect(resolveStructuredLaunchSeedOptions(persisted, 'claude')).toBeUndefined()
+    for (const effort of ['medium', 'low']) {
+      await act(async () => {
+        expect(await result.current.setStructuredOption('effort', effort)).toBe(true)
+      })
+      expect(persisted.claude?.valuesByModel?.['gpt-fast']?.effort).toBe(effort)
+      expect(resolveStructuredLaunchSeedOptions(persisted, 'claude')).toBeUndefined()
+      expect(
+        result.current.optionSnapshot.find((row) => row.id === 'model')?.defaultChoice?.selected
+      ).toBe(true)
+      expect(result.current.sendOptions()).toBeUndefined()
+    }
+    await act(async () => {
+      expect(await result.current.setStructuredOption('model', 'gpt-fast')).toBe(true)
+    })
+    expect(resolveStructuredLaunchSeedOptions(persisted, 'claude')).toEqual({
+      model: 'gpt-fast',
+      effort: 'medium'
+    })
+    expect(
+      result.current.optionSnapshot.find((row) => row.id === 'model')?.defaultChoice?.selected
+    ).toBe(false)
+    unmount()
+  }
+)
 
 it.each([
   ['effort', 'high', 'high'],
