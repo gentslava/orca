@@ -27,6 +27,8 @@ const desktop = [
   'src/main/ai-vault/session-list-fingerprint.test.ts',
   'src/main/runtime/rpc/methods/ai-vault.test.ts',
   'config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs',
+  'config/scripts/mobile-web-app/mobile-web-app-chat-attachments-render.test.mjs',
+  'src/main/runtime/runtime-rpc/runtime-rpc-mobile-method-routing.test.ts',
   'src/renderer/src/lib/activate-ai-vault-structured-session.test.ts',
   'src/renderer/src/lib/activate-ai-vault-structured-session-host.test.ts',
   'src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx',
@@ -160,6 +162,9 @@ const desktop = [
 ]
 const mobile = [
   'src/agent-history/agent-history-retry.test.tsx',
+  'src/session/MobileNativeChatImageAttachment.test.tsx',
+  'src/session/MobileNativeChatMessage.test.ts',
+  'src/session/MobileNativeChatMessage.android.test.ts',
   'src/host-screen/project-conversations.test.ts',
   'src/host-screen/use-project-conversations.test.tsx',
   'src/host-screen/use-conversation-actions.test.tsx',
