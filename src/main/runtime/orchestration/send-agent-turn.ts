@@ -136,7 +136,7 @@ function terminalTurnOptions(turn: TerminalTurn): DispatchPreambleSendOptions {
     case 'external-message':
       // The writer returning is the whole receipt; the turn is read from hooks, not awaited here.
       return {
-        inputKind: 'driving',
+        inputKind: 'orchestration',
         acceptQueued: true,
         observationTimeoutMs: 0,
         requestId: turn.operationId

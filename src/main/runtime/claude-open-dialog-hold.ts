@@ -1,7 +1,7 @@
 import type { AgentStatusIpcPayload } from '../../shared/agent-status-types'
 
-// Why a cap: Esc posts no hook, so a dismissed dialog's row can outlive it on an unreadable screen.
-export const CLAUDE_DIALOG_HOLD_CAP_MS = 10 * 60_000
+// Why a cap: Esc posts no hook, so a dismissed dialog's row can outlive it; a draft can be abandoned.
+export const USER_INPUT_HOLD_CAP_MS = 10 * 60_000
 // A dialog is painted at the bottom of the screen; older rows are scrollback.
 const DIALOG_REGION_LINES = 14
 const DIALOG_FOOTER_RE = /Enter to select|Esc to cancel/
@@ -34,7 +34,7 @@ export function isClaudeDialogHoldingPane(args: {
     row?.agentType !== 'claude' ||
     (row.state !== 'waiting' && row.state !== 'blocked') ||
     row.receivedAt < (args.respawnedAt ?? -1) ||
-    (args.now ?? Date.now()) - row.receivedAt > CLAUDE_DIALOG_HOLD_CAP_MS
+    (args.now ?? Date.now()) - row.receivedAt > USER_INPUT_HOLD_CAP_MS
   ) {
     return false
   }

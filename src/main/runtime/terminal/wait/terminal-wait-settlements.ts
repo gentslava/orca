@@ -19,6 +19,8 @@ import {
 } from '../../tui-idle-evidence'
 import { leafTuiIdleEvidence, ptyTuiIdleEvidence } from '../../tui-idle-evidence-source'
 import { TUI_IDLE_QUIESCENCE_MS } from '../../orca-runtime-postlude'
+import { USER_INPUT_HOLD_CAP_MS } from '../../claude-open-dialog-hold'
+import { detectTerminalComposerDraft } from '../../../../shared/terminal-composer-draft'
 
 import type { OrcaRuntimeWithResolveWaiter } from '../../orca-runtime-resolve-waiter'
 
@@ -179,9 +181,9 @@ export abstract class OrcaRuntimeWithResolveExitWaiters extends OrcaRuntimeWithB
     // stream to go quiet, so wake just after the window could have elapsed. A pane that is
     // still producing output re-arms from its own fresher timestamp rather than spinning.
     const elapsed = live?.lastOutputAt ? Date.now() - live.lastOutputAt : 0
-    // An open dialog lifts only when the user answers it, so poll it slowly rather than at 20 Hz.
+    // A dialog or draft lifts only when the user acts, so poll it slowly rather than at 20 Hz.
     const delay =
-      live?.ptyId && this.isPtyAwaitingUserInput(live.ptyId)
+      live?.ptyId && this.isPtyHoldingDelivery(live.ptyId)
         ? DIALOG_HOLD_RECHECK_MS
         : Math.max(TUI_IDLE_QUIESCENCE_MS - elapsed, 0) + 50
     const timer = setTimeout(() => {
@@ -212,7 +214,7 @@ export abstract class OrcaRuntimeWithResolveExitWaiters extends OrcaRuntimeWithB
    */
   protected isAgentSettledForDelivery(leaf: { tabId: string; leafId: string }): boolean {
     const live = this.leaves.get(this.getLeafKey(leaf.tabId, leaf.leafId))
-    if (!live || (live.ptyId && this.isPtyAwaitingUserInput(live.ptyId))) {
+    if (!live || (live.ptyId && this.isPtyHoldingDelivery(live.ptyId))) {
       return false
     }
     const evidence = leafTuiIdleEvidence(this.tuiIdleEvidenceSource, live, () =>
@@ -222,6 +224,21 @@ export abstract class OrcaRuntimeWithResolveExitWaiters extends OrcaRuntimeWithB
     // would spin, so delivery keeps its own, blocked-blind, reading of the same ranking.
     return isTuiIdleReadyVerdict(
       evaluateTuiIdle({ ...evidence, readTailBlockedReason: () => null })
+    )
+  }
+
+  /** An unsent draft would be submitted with the injected text; the cap bounds an abandoned or misread one. */
+  private isPtyHoldingDelivery(ptyId: string): boolean {
+    if (this.isPtyAwaitingUserInput(ptyId)) {
+      return true
+    }
+    const lastInputAt = this.terminalRunFacts.readLastDrivingInputAt(ptyId)
+    const state = this.readWholeScreenModel(ptyId)
+    return (
+      lastInputAt !== null &&
+      Date.now() - lastInputAt <= USER_INPUT_HOLD_CAP_MS &&
+      !!state &&
+      detectTerminalComposerDraft(state.emulator.getCursorLineContext()) !== null
     )
   }
 

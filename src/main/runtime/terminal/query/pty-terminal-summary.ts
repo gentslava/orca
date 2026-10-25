@@ -79,7 +79,7 @@ export abstract class OrcaRuntimeWithBuildPtyTerminalSummary extends OrcaRuntime
       ...(pty.lastExitCause ? { exitCause: pty.lastExitCause } : {}),
       ...this.terminalExecutionHostField(pty.ptyId, pty.worktreeId),
       ...this.resolvePaneAgentIdentityField(
-        pty.launchAgent,
+        pty.launchAgent ?? pty.launchCommandAgent,
         pty.foregroundAgent,
         processTitle,
         recorded.paneKey

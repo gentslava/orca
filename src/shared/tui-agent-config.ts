@@ -28,7 +28,9 @@ const TUI_AGENT_CONFIG_SOURCE: Record<TuiAgent, TuiAgentConfigSource> = {
     preflightTrust: 'claude',
     // Why: CLAUDE_CODE_DISABLE_TERMINAL_TITLE drops the `✳` title tui-idle waits on (#22655).
     draftPasteReadySignal: 'claude-composer-prompt',
-    workerStartReadsComposerMarker: true
+    workerStartReadsComposerMarker: true,
+    // Why: Claude decodes CSI-u Ctrl+Enter on local ConPTY; CR made a remapped ctrl+enter act as Enter (#29711).
+    ctrlEnterEncoding: 'csi-u'
   },
   'claude-agent-teams': {
     // Why: an Orca-provided launch mode, not a separate binary; detection follows the Orca CLI.
@@ -48,7 +50,9 @@ const TUI_AGENT_CONFIG_SOURCE: Record<TuiAgent, TuiAgentConfigSource> = {
     pasteNeedsTypedRequest: true,
     preflightTrust: 'claude',
     draftPasteReadySignal: 'claude-composer-prompt',
-    workerStartReadsComposerMarker: true
+    workerStartReadsComposerMarker: true,
+    // Why: runs the same Claude binary, so Ctrl+Enter must match `claude`.
+    ctrlEnterEncoding: 'csi-u'
   },
   codebuddy: {
     detectCmd: 'codebuddy',
