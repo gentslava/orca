@@ -426,6 +426,29 @@ describe('agent process recognition', () => {
     expect(recognizeAgentProcessFromCommandLine(command)).toBeNull()
   })
 
+  // Command lines captured from a live Windows Qwen Code 0.26.1 session (#17326).
+  it.each([
+    String.raw`"node"   "C:\Users\dev\AppData\Local\Temp\q\node_modules\.bin\\..\@qwen-code\qwen-code\cli-entry.js"`,
+    String.raw`"node"   "C:\Users\dev\AppData\Roaming\npm\\node_modules\@qwen-code\qwen-code\cli-entry.js"`,
+    String.raw`"C:\Program Files\nodejs\node.exe" --expose-gc C:\Users\dev\AppData\Roaming\npm\node_modules\@qwen-code\qwen-code\cli.js`,
+    String.raw`"C:\Users\dev\AppData\Local\qwen-code\qwen-code\node\node.exe" "C:\Users\dev\AppData\Local\qwen-code\qwen-code\bin\..\lib\cli-entry.js"`,
+    String.raw`C:\Users\dev\AppData\Local\qwen-code\qwen-code\node\node.exe --expose-gc C:\Users\dev\AppData\Local\qwen-code\qwen-code\lib\cli.js`,
+    'node /usr/local/lib/node_modules/@qwen-code/qwen-code/cli.js'
+  ])('recognizes a node-launched Qwen Code entrypoint: %s', (command) => {
+    expect(recognizeAgentProcessFromCommandLine(command)).toEqual({
+      agent: 'qwen-code',
+      processName: 'qwen'
+    })
+  })
+
+  it.each([
+    'node /tmp/node_modules/@qwen-code/qwen-code/fzfWorker.js',
+    'node /tmp/node_modules/@other/qwen-code/cli.js',
+    'node /tmp/not-qwen-code/lib/cli.js'
+  ])('does not recognize a Qwen Code entrypoint lookalike: %s', (command) => {
+    expect(recognizeAgentProcessFromCommandLine(command)).toBeNull()
+  })
+
   it('recognizes Prime Agent by its binary and npm entrypoint', () => {
     expect(recognizeAgentProcess('prime-agent')).toEqual({
       agent: 'prime-agent',

@@ -177,7 +177,7 @@ export type DispatchPreambleSendOptions = Pick<
 export function dispatchPreambleSendOptions(requestId: string): DispatchPreambleSendOptions {
   // Why: a delayed provider hook must not revoke an accepted Dispatch.
   return {
-    inputKind: 'driving',
+    inputKind: 'orchestration',
     leadLine: ORCA_DISPATCH_PROMPT_LEAD_LINE,
     acceptQueued: true,
     observationTimeoutMs: 0,
