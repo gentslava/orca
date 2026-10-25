@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { createAppMenuQuitItem } from './app-menu-quit-item'
 
 vi.mock('../window/desktop-hold-quit-surface', () => ({
-  hasDesktopHoldQuitSurface: () => true
+  hasFocusedDesktopHoldQuitSurface: () => true
 }))
 
 const platform = Object.getOwnPropertyDescriptor(process, 'platform')

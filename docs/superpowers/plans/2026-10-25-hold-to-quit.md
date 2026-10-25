@@ -54,3 +54,6 @@ The accepted independent-review no-window regression restores native Cmd+Q when
 the shared desktop/popup ownership resolver finds no routable contents. Four new
 failing lifecycle cases now pass, including close/reopen, live BaseWindow contents,
 real popup registration/removal, orphan DevTools, destruction and listener cleanup.
+The same review finding also covers unfocused/hidden/minimized windows. Six
+additional failing cases now pass through shared menu/guard focus eligibility and
+window/content lifecycle refresh, including focused desktop and popup DevTools.

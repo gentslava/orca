@@ -15,6 +15,7 @@ class Contents extends EventEmitter {
   hostWebContents: Contents | undefined
   devToolsWebContents: Contents | undefined
   destroyed = false
+  focused = true
   send = vi.fn()
   constructor(readonly id: number) {
     super()
@@ -23,7 +24,7 @@ class Contents extends EventEmitter {
     return this.destroyed
   }
   isFocused() {
-    return true
+    return this.focused
   }
 }
 const ipc = new EventEmitter()
@@ -35,19 +36,22 @@ const popout = new Contents(3)
 const allContents = [main, guest, popout]
 const mainWindow = Object.assign(new EventEmitter(), {
   destroyed: false,
-  isFocused: () => true,
+  focused: true,
+  isFocused: () => mainWindow.focused,
   isDestroyed: () => mainWindow.destroyed,
   webContents: main
 })
 const popoutWindow = Object.assign(new EventEmitter(), {
   destroyed: false,
-  isFocused: () => true,
+  focused: true,
+  isFocused: () => popoutWindow.focused,
   isDestroyed: () => popoutWindow.destroyed,
   webContents: popout
 })
 const popupWindow = Object.assign(new EventEmitter(), {
   destroyed: false,
-  isFocused: () => true,
+  focused: true,
+  isFocused: () => popupWindow.focused,
   isDestroyed: () => popupWindow.destroyed
 })
 const popupNotice = vi.fn()
@@ -81,10 +85,12 @@ beforeEach(() => {
   windowOwners.set(popout, popoutWindow)
   for (const contents of allContents) {
     contents.destroyed = false
+    contents.focused = true
     contents.devToolsWebContents = undefined
   }
   for (const window of [mainWindow, popoutWindow, popupWindow]) {
     window.destroyed = false
+    window.focused = true
   }
 })
 afterEach(() => {
@@ -217,7 +223,8 @@ it('refreshes native CmdQ on last-window closure and suppresses it before a reop
   expect(f.menu().role).toBe('quit')
   const reopenedWindow = Object.assign(new EventEmitter(), {
     destroyed: false,
-    isFocused: () => true,
+    focused: true,
+    isFocused: () => reopenedWindow.focused,
     isDestroyed: () => reopenedWindow.destroyed,
     webContents: reopened
   })
@@ -284,6 +291,78 @@ it('refreshes the fallback when the last routable contents is destroyed and remo
   mainWindow.emit('closed')
   expect(f.rebuildMenu).not.toHaveBeenCalled()
 })
+
+it('keeps native CmdQ when existing windows have no focused input route', () => {
+  mainWindow.focused = false
+  popoutWindow.focused = false
+  const f = fixture()
+  expect(f.menu().role).toBe('quit')
+  f.dispose()
+})
+
+it.each([
+  ['blur', 'focus'],
+  ['hide', 'show'],
+  ['minimize', 'restore']
+])('refreshes native CmdQ on %s and guards the focused window again on %s', (lost, gained) => {
+  const f = fixture()
+  mainWindow.focused = false
+  popoutWindow.focused = false
+  mainWindow.emit(lost)
+  expect(f.menu().role).toBe('quit')
+  mainWindow.focused = true
+  mainWindow.emit(gained)
+  expect(f.menu().role).toBeUndefined()
+  expect(f.menu().accelerator).toBeUndefined()
+  f.workLocally()
+  expect(key(main).preventDefault).toHaveBeenCalledOnce()
+  expect(f.quit).not.toHaveBeenCalled()
+  f.dispose()
+})
+
+it.each(['desktop', 'popup'])(
+  'uses focused %s DevTools while its inspected owner is unfocused',
+  (kind) => {
+    mainWindow.focused = false
+    popoutWindow.focused = false
+    popupWindow.focused = false
+    const page = kind === 'desktop' ? guest : new Contents(14)
+    const tools = new Contents(15)
+    tools.focused = false
+    page.devToolsWebContents = tools
+    allContents.splice(0, allContents.length, page, tools)
+    let unregister = () => {}
+    if (kind === 'popup') {
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: fixture implements the consumed WebContents methods.
+      unregister = registerNativePopupQuitSurface(page as never, {
+        // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: fixture implements the consumed BaseWindow lifecycle.
+        window: popupWindow as never,
+        notice: popupNotice
+      })
+    }
+    const f = fixture()
+    expect(f.menu().role).toBe('quit')
+    tools.focused = true
+    tools.emit('focus')
+    expect(f.menu().role).toBeUndefined()
+    f.workLocally()
+    const event = { preventDefault: vi.fn() }
+    tools.emit('input-event', event, {
+      type: 'rawKeyDown',
+      key: 'q',
+      code: 'KeyQ',
+      modifiers: ['meta']
+    })
+    expect(event.preventDefault).toHaveBeenCalledOnce()
+    tools.focused = false
+    tools.emit('blur')
+    expect(f.menu().role).toBe('quit')
+    mocks.watches[0]?.emit('held')
+    expect(f.quit).not.toHaveBeenCalled()
+    unregister()
+    f.dispose()
+  }
+)
 
 it.each(['linux', 'win32'])('leaves %s input and lifecycle listeners untouched', (platform) => {
   const f = fixture(platform)

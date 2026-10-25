@@ -41,6 +41,14 @@ export function getDesktopHoldQuitSurface(
   }
 }
 
-export function hasDesktopHoldQuitSurface(): boolean {
-  return webContents.getAllWebContents().some((contents) => getDesktopHoldQuitSurface(contents))
+export function isDesktopHoldQuitSurfaceFocused(contents: WebContents): boolean {
+  const surface = getDesktopHoldQuitSurface(contents)
+  return Boolean(
+    surface &&
+    (getDesktopHoldQuitInspectee(contents) ? contents.isFocused() : surface.window.isFocused())
+  )
+}
+
+export function hasFocusedDesktopHoldQuitSurface(): boolean {
+  return webContents.getAllWebContents().some(isDesktopHoldQuitSurfaceFocused)
 }

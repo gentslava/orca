@@ -11,7 +11,8 @@ import { onNativePopupQuitSurfaceChanged } from '../browser/native-browser-popup
 import {
   getDesktopHoldQuitInspectee as inspecteeFor,
   getDesktopHoldQuitSurface as ownerFor,
-  hasDesktopHoldQuitSurface
+  hasFocusedDesktopHoldQuitSurface,
+  isDesktopHoldQuitSurfaceFocused as focused
 } from './desktop-hold-quit-surface'
 
 export function installDesktopHoldQuit(options: {
@@ -32,7 +33,7 @@ export function installDesktopHoldQuit(options: {
   let activityOwner: WebContents | null = null
   let busy = false
   let disposed = false
-  let hadSurface = hasDesktopHoldQuitSurface()
+  let hadSurface = hasFocusedDesktopHoldQuitSurface()
   const routingWindows = new Map<BaseWindow, () => void>()
   const enabled = (): boolean => options.store.getSettings().holdQuitWhileAgentsWork === true
   const chordOwned = (): boolean =>
@@ -57,23 +58,33 @@ export function installDesktopHoldQuit(options: {
         windows.add(owner.window)
       }
     }
-    for (const [window, closed] of routingWindows) {
+    for (const [window, detach] of routingWindows) {
       if (!windows.has(window)) {
-        window.off('closed', closed)
+        detach()
         routingWindows.delete(window)
       }
     }
     for (const window of windows) {
       if (!routingWindows.has(window)) {
-        const closed = (): void => {
-          routingWindows.delete(window)
-          refreshRouting()
-        }
-        routingWindows.set(window, closed)
-        window.once('closed', closed)
+        window.on('focus', refreshRouting)
+        window.on('blur', refreshRouting)
+        window.on('show', refreshRouting)
+        window.on('hide', refreshRouting)
+        window.on('minimize', refreshRouting)
+        window.on('restore', refreshRouting)
+        window.on('closed', refreshRouting)
+        routingWindows.set(window, () => {
+          window.off('focus', refreshRouting)
+          window.off('blur', refreshRouting)
+          window.off('show', refreshRouting)
+          window.off('hide', refreshRouting)
+          window.off('minimize', refreshRouting)
+          window.off('restore', refreshRouting)
+          window.off('closed', refreshRouting)
+        })
       }
     }
-    const hasSurface = windows.size > 0
+    const hasSurface = hasFocusedDesktopHoldQuitSurface()
     if (hasSurface !== hadSurface) {
       hadSurface = hasSurface
       if (enabled()) {
@@ -81,11 +92,6 @@ export function installDesktopHoldQuit(options: {
       }
     }
   }
-  const focused = (contents: WebContents): boolean =>
-    !contents.isDestroyed() &&
-    (inspecteeFor(contents)
-      ? contents.isFocused()
-      : ownerFor(contents)?.window.isFocused() === true)
   const activity = (event: Electron.IpcMainEvent, value: unknown): void => {
     if (!options.isActivityOwner(event.sender) || typeof value !== 'boolean') {
       return
@@ -199,7 +205,9 @@ export function installDesktopHoldQuit(options: {
     contents.on('did-finish-load', refreshRouting)
     contents.on('devtools-opened', refreshRouting)
     contents.on('devtools-closed', refreshRouting)
+    contents.on('focus', refreshRouting)
     contents.on('blur', cancel)
+    contents.on('blur', refreshRouting)
     contents.on('render-process-gone', resetRenderer)
     contents.on('did-start-navigation', navigating)
     const detach = (): void => {
@@ -212,7 +220,9 @@ export function installDesktopHoldQuit(options: {
       contents.off('did-finish-load', refreshRouting)
       contents.off('devtools-opened', refreshRouting)
       contents.off('devtools-closed', refreshRouting)
+      contents.off('focus', refreshRouting)
       contents.off('blur', cancel)
+      contents.off('blur', refreshRouting)
       contents.off('render-process-gone', resetRenderer)
       contents.off('did-start-navigation', navigating)
       contents.off('destroyed', detach)
@@ -260,8 +270,8 @@ export function installDesktopHoldQuit(options: {
     }
     unsubscribe()
     unsubscribePopups()
-    for (const [window, closed] of routingWindows) {
-      window.off('closed', closed)
+    for (const detach of routingWindows.values()) {
+      detach()
     }
     routingWindows.clear()
     app.off('web-contents-created', created)
