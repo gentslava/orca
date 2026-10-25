@@ -84,6 +84,30 @@ type SystemPresenceSearchOptions = {
   showSystemTray?: boolean
 }
 
+export function getHoldQuitEntries(
+  options: { showHoldQuit?: boolean } = {}
+): SettingsSearchEntry[] {
+  if (
+    !(options.showHoldQuit ?? (getRendererAppPlatform() === 'darwin' && !isWebClientLocation()))
+  ) {
+    return []
+  }
+  return [
+    {
+      title: translate('settings.appearance.holdQuit.title', 'Hold ⌘Q while agents are working'),
+      description: translate(
+        'settings.appearance.holdQuit.description',
+        'Hold for about a second to quit during active work. When agents finish, a quick press quits normally.'
+      ),
+      keywords: [
+        ...translateSearchKeyword('settings.appearance.holdQuit.keyword.quit', 'quit'),
+        ...translateSearchKeyword('auto.components.settings.voice.pane.search.064a9bd94a', 'hold'),
+        ...translateSearchKeyword('auto.components.settings.general.search.baa263d6d8', 'agents')
+      ]
+    }
+  ]
+}
+
 export function getSystemTrayEntries(
   options: SystemPresenceSearchOptions = {}
 ): SettingsSearchEntry[] {

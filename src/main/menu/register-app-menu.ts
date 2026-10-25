@@ -10,6 +10,7 @@ import { translateMain } from '../i18n/main-i18n'
 import { createAppMenuSelectionItem, resolveNativeEditTarget } from './app-menu-selection-item'
 import { createAppMenuQuitItem } from './app-menu-quit-item'
 import { createAppWindowMenu } from './app-menu-window'
+import { createMacApplicationMenu } from './mac-application-menu'
 
 export type AppearanceMenuState = {
   showTasksButton: boolean
@@ -43,6 +44,7 @@ type RegisterAppMenuOptions = {
   // app.name stays stable for Keychain; menus use the per-branch development label.
   appMenuLabel?: string
   onQuit?: () => void
+  holdQuitShortcut?: { isEnabled: () => boolean; quit: () => void }
 }
 
 function buildAndApplyMenu(options: RegisterAppMenuOptions): void {
@@ -141,22 +143,16 @@ function buildAndApplyMenu(options: RegisterAppMenuOptions): void {
     click: (_menuItem, window) => onOpenCrashReport(window)
   }
 
-  const macAppMenu: Electron.MenuItemConstructorOptions = {
+  const macAppMenu = createMacApplicationMenu({
     label: options.appMenuLabel ?? app.name,
-    submenu: [
-      { role: 'about' },
-      checkForUpdatesItem,
-      settingsItem,
-      { type: 'separator' },
-      { role: 'services' },
-      { type: 'separator' },
-      { role: 'hide' },
-      { role: 'hideOthers' },
-      { role: 'unhide' },
-      { type: 'separator' },
-      createAppMenuQuitItem(options.onQuit, options.appMenuLabel ?? app.name)
-    ]
-  }
+    checkForUpdates: checkForUpdatesItem,
+    settings: settingsItem,
+    quit: createAppMenuQuitItem(
+      options.onQuit,
+      options.appMenuLabel ?? app.name,
+      options.holdQuitShortcut
+    )
+  })
 
   const fileMenu: Electron.MenuItemConstructorOptions = {
     label: translateMain('menu.file', 'File'),

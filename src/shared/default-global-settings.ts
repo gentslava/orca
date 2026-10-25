@@ -109,6 +109,7 @@ export function buildDefaultSettings(args: {
     minimizeToTrayOnClose: false,
     // Why: default-on everywhere so it round-trips across platforms; only darwin acts on it.
     showMenuBarIcon: true,
+    holdQuitWhileAgentsWork: false,
     terminalClipboardOnSelect: false,
     // Why: only the run of spaces shared by every selected line is dropped, so
     // relative indentation survives and the clipboard loses only the gutter.

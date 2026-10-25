@@ -3,9 +3,16 @@ import { translateMain } from '../i18n/main-i18n'
 /** Use onQuit so persistent hosts can refuse user Quit; the native guard covers only macOS. */
 export function createAppMenuQuitItem(
   onQuit: (() => void) | undefined,
-  macAppName?: string
+  macAppName?: string,
+  holdShortcut?: { isEnabled: () => boolean; quit: () => void }
 ): Electron.MenuItemConstructorOptions {
   const exitLabel = macAppName === undefined ? translateMain('menu.exit', 'Exit') : undefined
+  if (process.platform === 'darwin' && holdShortcut?.isEnabled()) {
+    return {
+      label: `${translateMain('menu.quitApp', `Quit ${macAppName}`, { appName: macAppName })}\t⌘Q`,
+      click: () => holdShortcut.quit()
+    }
+  }
   if (!onQuit) {
     return { role: 'quit', ...(exitLabel ? { label: exitLabel } : {}) }
   }

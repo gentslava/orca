@@ -17,6 +17,7 @@ import {
   getLanguageEntries,
   getLayoutEntries,
   getMenuBarIconEntries,
+  getHoldQuitEntries,
   getSidebarEntries,
   getStatusBarEntries,
   getSystemTrayEntries,
@@ -143,7 +144,8 @@ export function AppearancePane({
     ...(SHOW_UI_LANGUAGE_SETTING ? getLanguageEntries() : []),
     ...getTitlebarEntries(),
     ...getSystemTrayEntries({ showSystemTray: isDesktopWindows }),
-    ...getMenuBarIconEntries({ showMenuBarIcon: isDesktopMac })
+    ...getMenuBarIconEntries({ showMenuBarIcon: isDesktopMac }),
+    ...getHoldQuitEntries({ showHoldQuit: isDesktopMac })
   ]
   const terminalSearchEntries = [
     { title: terminalTitle },
