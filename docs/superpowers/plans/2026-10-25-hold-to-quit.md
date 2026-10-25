@@ -16,23 +16,36 @@
       boundaries; implement the smallest complete correction using existing owners.
 - [x] Add a default-off macOS switch and quiet English hint/progress through
       existing UI primitives; keep local preference outside host RPC updates.
-- [ ] Verify default/off/idle, short busy taps, 999/1000 ms, Q/Meta release,
+- [x] Verify default/off/idle, short busy taps, 999/1000 ms, Q/Meta release,
       blur/destruction/toggle/repeat cancellation, one Quit, recorder/injection
       ownership and all supported windows/guests.
-- [ ] Verify terminal/editor input does not receive Q; explicit Quit, update,
+- [x] Verify terminal/editor input does not receive Q; explicit Quit, update,
       signal and serve-host behavior is unchanged.
-- [ ] Capture hidden/unfocused English settings and hint proof; label native
+- [x] Capture hidden/unfocused English settings and hint proof; label native
       physical input validation separately and accurately.
-- [ ] Run focused tests, `pnpm run typecheck:ci --bun-concurrency=1 --bun-threads=2`,
+- [x] Run focused tests, `pnpm run typecheck:ci --bun-concurrency=1 --bun-threads=2`,
       changed code-quality/format checks and ordinary commit hooks with required env.
-- [ ] Review/stage explicit file allowlists, commit the focused implementation,
+- [x] Review/stage explicit file allowlists, commit the focused implementation,
       and leave it unpushed for coordinator review.
-- [ ] Write `/private/tmp/orca-hold-to-quit-report.md` with exact SHA, predicate,
+- [x] Write `/private/tmp/orca-hold-to-quit-report.md` with exact SHA, predicate,
       keys, test counts, evidence paths and limitations; check followups and report
       the true task outcome once.
 
 Resolved design gate: the existing macOS helper owns a full 1000 ms physical
 chord-state watch; a JavaScript timer never decides quit. Positive physical input
-validation stays separate from injected/source tests. The local universal build
-currently lacks x86_64 Swift compatibility archives in CommandLineTools; do not
-raise the deployment floor or change build flags to hide this environment limit.
+validation stays separate from injected/source tests. CommandLineTools-only builds
+lacked x86_64 Swift compatibility archives; command-local full Xcode builds now
+pass universally with unchanged deployment floor/build flags and strict local
+ad-hoc signature verification. No global developer selection changed.
+
+Final validation deliberately keeps source/native predicate tests and injected
+Electron routing separate from positive physical input. The full related-test
+aggregate was interrupted gracefully at the coordinator's direction; partial
+results are incomplete and are not reported green. Failed initial static checks
+were corrected and passed separately; combined integration validation belongs to
+the coordinator. Nothing was pushed or published.
+
+The coordinator-authorized native popup completion reuses main-controlled popup
+ownership and trusted origin/notice views, preserves OAuth viewport/lifecycle,
+and has separate hidden no-focus proof. Native pages provide no activity IPC and
+receive no notice DOM injection. The final focused suites cover this follow-up.

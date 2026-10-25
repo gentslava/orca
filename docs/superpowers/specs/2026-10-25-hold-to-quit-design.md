@@ -1,6 +1,7 @@
 # Hold to quit while agents work
 
-Status: approved; implementation and validation in progress.
+Status: implemented and source/hidden-renderer/universal-build validated; physical
+positive-hold and packaged permission/signing limits are recorded below.
 
 ## Requirements and decisions
 
@@ -79,6 +80,11 @@ projection over local IPC, with sender validation and renderer-lifetime cleanup.
 Launch/title-only seeds and restored-unconfirmed rows do not qualify. Local
 runtime work also uses the awake service's existing working count. There is no
 second runtime or activity polling service.
+That additive main-process count requires `observedInCurrentRuntime`, `working`
+and the existing finite `receivedAt` lease of two hours. The renderer projection
+uses its existing 30-minute freshness rule and structured-feed ownership.
+The existing freshness scheduler bumps `agentStatusEpoch` at the stale boundary,
+including mirrored terminal rows; the activity subscription republishes then.
 Unavailable remote contact must never manufacture a remote process exit.
 
 ## Gesture contract
@@ -102,7 +108,8 @@ must not activate, reveal or focus any window.
 
 ## Input feasibility finding
 
-Preventing the first `before-input-event` keydown is unsafe for a continuous hold.
+Preventing the first `before-input-event` keydown is unsafe when relying only on
+JavaScript release events for a continuous hold.
 Exact Electron 43.8.1 returns `HANDLED` from `PreHandleKeyboardEvent` after
 `preventDefault()`. Matching Chromium 150.0.7871.250 then suppresses subsequent
 keyup events before Electron can observe them. Orca's existing hold-dictation
@@ -163,10 +170,20 @@ Fresh nonrepeat presses replace the gesture generation. Repeats do nothing.
 Cancellation stops the helper and invalidates its output; only the current focused
 enabled gesture can consume `held`. Missing/old/erroring helpers show
 **Hold-to-quit is unavailable. Use the application menu to quit.** and never quit
-asynchronously. Main allows the raw keydown; the app preload captures its DOM event
-before terminal/editor listeners. The enabled macOS menu shows a shortcut hint
+asynchronously. Main consumes the guarded keydown before terminal/editor/guest
+DOM input; native sampling independently observes release even when Chromium
+suppresses JavaScript keyup. Guest DevTools reuses its existing raw `input-event`
+parser and routes the hint to its owning app renderer. The enabled macOS menu shows a shortcut hint
 without registering a native accelerator. Explicit menu clicks keep the existing
 Quit route; custom shortcut bindings and recording retain ownership.
+
+Native browser popups extend the existing main-owned popup registry with their
+actual BaseWindow/BrowserWindow and trusted notice presenter. The existing
+BaseWindow origin bar expands over the page without changing its viewport; a
+native BrowserWindow creates a small isolated notice view only during the hint.
+Both preserve committed-origin identification, keep notices outside the OAuth
+page DOM, accept no page activity IPC, and clean up on cancel/dismiss/destruction.
+The ordinary UI/embedded guest/dashboard/space/DevTools route stays the same.
 
 The disposable native probe read release counters with both Input Monitoring and
 Accessibility preflight false and requested no permission. Positive physical
@@ -181,3 +198,22 @@ projection, menu bypass, shortcut ownership, 999/1000 ms boundaries, every relea
 and lifecycle cancellation, repeats, once-only quit, and untouched explicit Quit
 and update/serve routes. Hidden rendered English settings and hint evidence must
 be separate from native physical keyboard validation. The latter has not run.
+
+The focused suites, four-project Bun CI typecheck, changed-code quality,
+localization coverage, formatting and normal commit hooks passed. Hidden Electron
+43.8.1 screenshots verify the actual English setting and all hint phases without
+showing or focusing a window. A rebuilt source input fixture verifies consumed Q
+and an absent native menu accelerator with simulated routing focus; it proves no
+physical key-release behavior.
+
+The full related-test aggregate was gracefully interrupted at the coordinator's
+request because it overlaps final combined integration validation. Its partial
+log is incomplete, not green and not a timeout/stall verdict. The initial format,
+menu-size and localization findings were fixed and their checks passed separately.
+The helper preserves layout output and builds universally with command-local
+`DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`: x86_64 and arm64 slices
+pass strict local ad-hoc signature verification. Initial CommandLineTools-only
+linking failed identically on the upstream baseline because its Swift compatibility
+archives lack x86_64; full Xcode resolves that environment issue. Deployment target,
+build flags and global developer selection are unchanged. Production Developer ID,
+notarization, packaged TCC and positive physical held-key validation have not run.
