@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
 import { getDefaultUIState } from '../../../shared/constants'
+import { omitPairingLocalUiFields } from '../../../shared/pairing-local-ui-fields'
+import { capturePersistedUIWriteBaseline } from '@/store/slices/persisted-ui-write-baseline'
 import {
   writeProjectOrderMode,
   writePersonalProjectPreference
@@ -63,3 +65,52 @@ describe('acknowledged project-order controls', () => {
     expect(useAppStore.getState().projectOrderBy).toBe('frequent')
   })
 })
+
+it.each(['mode', 'pin', 'open'] as const)(
+  'preserves client-owned UI fields when a %s acknowledgement omits them',
+  async (action) => {
+    fixture.capabilities = ['ui.personalProjectOrder.v1']
+    useAppStore.setState({
+      sidebarOpen: false,
+      manualRepoOrder: ['beta', 'alpha'],
+      workspaceHostOrder: ['runtime:server', 'local'],
+      agentsFilterRepoIds: ['alpha']
+    })
+    useAppStore.setState({
+      persistedUIWriteBaseline: capturePersistedUIWriteBaseline(useAppStore.getState())
+    })
+    const personalProjectOrder = {
+      revision: 1,
+      projects: { 'github:a': { pinned: true, openCount: 1 } },
+      settledOperations: []
+    }
+    fixture.call.mockResolvedValue({
+      ui: omitPairingLocalUiFields({
+        ...getDefaultUIState(),
+        projectOrderBy: 'name',
+        personalProjectOrder
+      })
+    })
+    if (action === 'mode') {
+      await writeProjectOrderMode('name')
+    } else if (action === 'pin') {
+      await writePersonalProjectPreference('ui.setProjectPinned', {
+        projectKey: 'github:a',
+        pinned: true
+      })
+    } else {
+      await writePersonalProjectPreference('ui.recordProjectOpen', {
+        projectKey: 'github:a',
+        previousProjectKey: null
+      })
+    }
+    expect(useAppStore.getState()).toMatchObject({
+      sidebarOpen: false,
+      manualRepoOrder: ['beta', 'alpha'],
+      workspaceHostOrder: ['runtime:server', 'local'],
+      agentsFilterRepoIds: ['alpha'],
+      projectOrderBy: 'name',
+      personalProjectOrder
+    })
+  }
+)
