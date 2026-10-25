@@ -264,6 +264,7 @@ async function openWorker() {
 }
 
 it('opens a separate completed conversation and its native descendants, retaining parent draft and scroll', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
   render(view())
   const parentFeed = screen.getByTestId(`feed:${PARENT}`)
   const composer = screen.getByRole('textbox', { name: 'Message' })
@@ -279,13 +280,27 @@ it('opens a separate completed conversation and its native descendants, retainin
   fireEvent.paste(workerFeed, { clipboardData: { getData: () => 'Do not append to parent' } })
   expect(mocks.handlePasteEvent).not.toHaveBeenCalled()
   workerFeed.scrollTop = 93
+  const childReads = () =>
+    transport.rpc.mock.calls.filter(
+      ([, method, params]) =>
+        method === 'orchestration.sessionChildren' && params.sessionId === 'worker-session'
+    ).length
+  const visibleChildReads = childReads()
+  expect(visibleChildReads).toBeGreaterThan(0)
   fireEvent.click(screen.getByRole('button', { name: /Nested native agent/ }))
   expect(await screen.findByText(/Nested original answer/)).toBeVisible()
   expect(workerFeed).not.toBeVisible()
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(3_000)
+  })
+  expect(childReads()).toBe(visibleChildReads)
+  expect(transport.unsubscribe).not.toHaveBeenCalled()
   expect(fireEvent.keyDown(screen.getByText(/Nested original answer/), { key: 'y' })).toBe(true)
   fireEvent.click(screen.getByRole('button', { name: 'Cross provider review' }))
   expect(workerFeed).toBeVisible()
+  expect(screen.getByTestId('feed:worker-session')).toBe(workerFeed)
   expect(workerFeed.scrollTop).toBe(93)
+  await waitFor(() => expect(childReads()).toBeGreaterThan(visibleChildReads))
   fireEvent.click(screen.getByRole('button', { name: 'Recorded result' }))
   expect(screen.getByText('Original recorded worker result')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Back to conversation' }))

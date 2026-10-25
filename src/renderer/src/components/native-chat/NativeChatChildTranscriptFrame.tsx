@@ -107,7 +107,7 @@ export function NativeChatChildTranscriptFrame({
           sessionId={session.sessionId}
           target={workerTarget}
           dispatchId={worker?.dispatchId}
-          isVisible={isVisible}
+          isVisible={isVisible && active}
         />
       ) : null}
       {unavailable ? (
