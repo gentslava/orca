@@ -118,7 +118,7 @@ function MobileAgentSessionHistoryPanelContent({
     onSelectScope,
     onRefresh,
     retry
-  } = useMobileAgentHistoryState({ hostId, worktreeId, worktrees, worktreesLoaded })
+  } = useMobileAgentHistoryState({ hostId, worktreeId, conversationId, worktrees, worktreesLoaded })
 
   const sessions = useMemo(() => {
     const all = screenState.kind === 'ready' ? screenState.sessions : EMPTY_SESSIONS
@@ -133,12 +133,12 @@ function MobileAgentSessionHistoryPanelContent({
     () =>
       buildMobileAgentHistorySections(sessions, {
         query,
-        scope,
+        scope: conversationId ? 'all' : scope,
         scopeFilterPaths,
         activeWorktreePath,
         now
       }),
-    [sessions, query, scope, scopeFilterPaths, activeWorktreePath, now]
+    [sessions, query, conversationId, scope, scopeFilterPaths, activeWorktreePath, now]
   )
 
   const resumeHost = useMemo(

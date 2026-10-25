@@ -347,7 +347,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     expect(pill('Low').props.accessibilityState?.disabled).toBe(false)
     const notice = renderer!.root.findByProps({ accessibilityLiveRegion: 'polite' })
     expect(notice.findByProps({ children: 'Choices apply to future messages.' })).toBeDefined()
-    expect(notice.findAllByType('LockKeyhole')).toHaveLength(0)
+    expect(findAllByHostType(notice, 'LockKeyhole')).toHaveLength(0)
     expect(AccessibilityInfo.announceForAccessibilityWithOptions).toHaveBeenCalledExactlyOnceWith(
       'Agent is working. Choices apply to future messages.',
       { queue: false }
@@ -356,7 +356,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     expect(setOption).toHaveBeenCalledWith('model', 'opus')
     await act(async () => pill('Low').props.onPress())
     expect(setOption).toHaveBeenCalledWith('effort', 'low')
-    const fast = renderer!.root.findByType('Switch')
+    const fast = findByHostType(renderer!.root, 'Switch')
     expect(fast.props.disabled).toBe(false)
     await act(async () => fast.props.onValueChange(true))
     expect(setOption).toHaveBeenCalledWith('fastMode', true)

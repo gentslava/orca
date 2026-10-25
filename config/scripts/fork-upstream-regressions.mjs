@@ -159,6 +159,7 @@ const desktop = [
   'src/renderer/src/components/native-chat/native-chat-work-run-pairing.test.ts'
 ]
 const mobile = [
+  'src/agent-history/agent-history-retry.test.tsx',
   'src/host-screen/project-conversations.test.ts',
   'src/host-screen/use-project-conversations.test.tsx',
   'src/host-screen/use-conversation-actions.test.tsx',
