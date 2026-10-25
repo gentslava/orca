@@ -1,4 +1,4 @@
-// The conversation outline: every user message a structured session's transcript
+// The conversation outline: every human-authored message a structured session's transcript
 // draws, loaded by the client or not, so the message rail can map the whole
 // thread instead of only the pages a client happens to hold.
 //
@@ -43,7 +43,9 @@ export type AgentSessionConversationOutlineEntry = {
 
 export type AgentSessionConversationOutline = {
   sessionId: string
-  /** Journal position the outline is current through: every user message created
+  /** Absent on older hosts whose outlines can include agent-authored turn inputs. */
+  humanMessagesOnly?: true
+  /** Journal position the outline is current through: every human-authored message created
    *  at or before `cursor.sequence` is listed, unless `omittedEntries` says otherwise. */
   cursor: AgentJournalCursor
   entries: AgentSessionConversationOutlineEntry[]
@@ -156,7 +158,7 @@ export function truncateOutlinePreview(text: string, maxChars: number): string {
   return text.slice(0, end).trimEnd()
 }
 
-/** User messages that draw a transcript row, in transcript order. Projected over the
+/** Human-authored messages that draw a transcript row, in transcript order. Projected over the
  *  whole journal, not user items alone: whether a user row survives depends on its
  *  neighbours (a harness sidecar folds into the turn before it), and its order is
  *  its journal position. Previews are uncut; the reply bound owns length. */
@@ -191,6 +193,7 @@ export function projectAgentSessionConversationOutline(
       sequence === undefined ||
       stopped.has(message.id) ||
       message.role !== 'user' ||
+      message.from !== undefined ||
       !nativeChatRowRendersContent(message.blocks)
     ) {
       continue

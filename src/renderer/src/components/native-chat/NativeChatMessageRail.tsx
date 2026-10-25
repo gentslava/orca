@@ -1,6 +1,6 @@
 // The rail itself: a column of ticks down the right edge of the transcript, one
-// per user message. Each tick previews its own message and the agent's reply
-// while hovered or focused, and jumps to the message on click.
+// per human-authored message. Each tick previews that prompt while hovered or
+// focused, and jumps to the message on click.
 
 import { memo, useLayoutEffect, useRef, useState } from 'react'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
@@ -26,8 +26,8 @@ function railItemLabel(item: NativeChatRailItem): string {
     : translate('components.native-chat.railEmptyMessage', 'Message')
 }
 
-/** Where the card sits, and the reply it showed, latched on close for its exit animation. */
-type NativeChatRailPreviewTarget = { id: string; top: number; reply: string }
+/** Where the card sits while its prompt is previewed. */
+type NativeChatRailPreviewTarget = { id: string; top: number }
 
 /** From a tick's centre up to the card's top edge, so the card's first line meets
  *  the tick: the card's `p-4` plus half a `text-xs leading-snug` line. */
@@ -85,17 +85,15 @@ export const NativeChatMessageRail = memo(function NativeChatMessageRail({
 
   const previewed = target === null ? null : (ticks.find((item) => item.id === target.id) ?? null)
   const previewedId = rail.previewId !== null && previewed ? previewed.id : null
-  const reply = previewedId === null ? (target?.reply ?? '') : rail.previewReply
   // One tab stop for the whole rail; arrow keys walk it from there.
   const tabId =
     [focusId, rail.activeId].find((id) => ticks.some((item) => item.id === id)) ?? ticks[0]?.id
 
   const show = (item: NativeChatRailItem, element: HTMLElement): void => {
-    setTarget({ id: item.id, top: element.offsetTop + element.offsetHeight / 2, reply: '' })
+    setTarget({ id: item.id, top: element.offsetTop + element.offsetHeight / 2 })
     rail.onPreview(item.id)
   }
   const close = (): void => {
-    setTarget((current) => current && { ...current, reply: rail.previewReply })
     rail.onPreview(null)
   }
 
@@ -217,9 +215,6 @@ export const NativeChatMessageRail = memo(function NativeChatMessageRail({
             <p className="line-clamp-2 text-xs leading-snug text-foreground">
               {railItemLabel(previewed)}
             </p>
-            {reply.length > 0 ? (
-              <p className="line-clamp-3 text-xs leading-snug text-muted-foreground">{reply}</p>
-            ) : null}
           </div>
         ) : null}
       </HoverCardContent>

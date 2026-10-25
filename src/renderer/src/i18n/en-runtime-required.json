@@ -3345,6 +3345,7 @@
         "continuedOutsideRewound": "Continued outside this chat. Earlier replies above are no longer in this conversation's history.",
         "historyItemTooLarge": "This part of the chat was too large to show.",
         "historyRepaired": "Part of this chat's history couldn't be loaded.",
+        "orchestrationMail": "Orchestration mail",
         "plan": "Plan"
       },
       "question": {
@@ -3717,6 +3718,9 @@
   },
   "stats": {
     "usage": {
+      "daily": {
+        "noData": "No recorded data"
+      },
       "history": {
         "host": "This device · Recorded agent logs",
         "remoteUnsupported": "Quotas above belong to {{host}}. Historical scanning for remote hosts is not supported; this ledger contains this device only.",

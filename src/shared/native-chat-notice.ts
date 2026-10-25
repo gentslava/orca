@@ -14,7 +14,8 @@ export const NATIVE_CHAT_NOTICE_COPY = {
   compaction: 'Context compacted',
   contextCleared: 'Context cleared',
   plan: 'Plan',
-  autoApprovalGranted: 'Automatic approval granted'
+  autoApprovalGranted: 'Automatic approval granted',
+  orchestrationMail: 'Orchestration mail'
 } as const
 
 export type NativeChatNoticeTone = 'warning' | 'error' | 'notice'

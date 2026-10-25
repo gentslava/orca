@@ -649,6 +649,7 @@
       },
       "notices": {
         "autoApprovalGranted": "Разрешено автоматической проверкой",
+        "orchestrationMail": "Служебные сообщения агентов",
         "contextCleared": "Контекст очищен",
         "compaction": "Контекст сокращён",
         "details": "Подробности",

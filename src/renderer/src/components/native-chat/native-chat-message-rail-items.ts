@@ -93,6 +93,7 @@ export function buildNativeChatRailItems(
       slot.kind !== 'message' ||
       slot.depth !== 0 ||
       slot.message.role !== 'user' ||
+      slot.message.from !== undefined ||
       slot.message.stoppedBeforeStart === true
     ) {
       continue

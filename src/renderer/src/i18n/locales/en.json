@@ -19177,7 +19177,8 @@
         "orcaStopRemote": "Orca on {{machine}} stopped while this response was in progress.",
         "orcaStopCanContinue": "You can continue in this conversation.",
         "orcaStopUnnamedServer": "the remote server",
-        "autoApprovalGranted": "Automatic approval granted"
+        "autoApprovalGranted": "Automatic approval granted",
+        "orchestrationMail": "Orchestration mail"
       },
       "composer": {
         "defaultModel": "Default",
