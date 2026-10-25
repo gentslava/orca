@@ -20,11 +20,7 @@ import { focusNativeChatPromptCard } from './use-native-chat-prompt-card-focus'
 import { QUEUED_MESSAGE_PAUSED_SEND_FAILED } from '../../../../shared/agent-session-wire'
 import type { QueuedEditAttachTarget } from './use-native-chat-queued-edit-image-intake'
 
-/**
- * Host-held drafts stacked between the transcript and the composer — never in
- * the transcript: a draft only becomes a bubble once the host consumes it into
- * a submission. The live region stays mounted while empty, so the first card is announced.
- */
+/** Keep host-held drafts outside the transcript until consumed; keep the live region mounted for the first card. */
 export function NativeChatQueuedMessageList({
   controller,
   chatWorktreeId,
@@ -107,7 +103,6 @@ export function NativeChatQueuedMessageList({
     <div ref={regionRef} aria-live="polite">
       {cards.length > 0 ? (
         <div ref={queueRef} className="mx-auto w-full max-w-(--chat-content-max-width) px-4 py-1">
-          {/* One box: the header is its first row, and each card a row below it. */}
           <div className="divide-y divide-border rounded-md border border-border bg-card text-card-foreground">
             <NativeChatQueueHeader
               count={cards.length}
@@ -130,8 +125,7 @@ export function NativeChatQueuedMessageList({
                 'components.native-chat.queuedMessages.listLabel',
                 'Queued messages'
               )}
-              // Scrolls on its own so a long queue never squeezes the transcript or the composer;
-              // taller while an edit shows thumbnails, so they and the field fit.
+              // Bound queue height to preserve transcript/composer space; allow extra room for edit thumbnails.
               className={cn(
                 'scrollbar-sleek divide-y divide-border overflow-y-auto',
                 controller.editor?.images?.chips.length ? 'max-h-72' : 'max-h-40'
@@ -194,8 +188,6 @@ export function NativeChatQueuedMessageList({
   )
 }
 
-/** "Queued" and the count; while the host holds the queue after a Stop, "Paused" with Clear all
- *  and Resume. Collapsing hides only the cards. */
 function NativeChatQueueHeader({
   count,
   attentionCaption,

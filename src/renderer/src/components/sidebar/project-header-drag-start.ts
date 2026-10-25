@@ -32,8 +32,7 @@ export function createProjectHeaderDragSession(args: {
     [...args.sidebarRepoHeaderIdsByBucket].find(([, ids]) => ids.includes(args.repo.id))?.[0] ??
     membershipBucketKey
   const sidebarRepoHeaderIds = args.sidebarRepoHeaderIdsByBucket.get(bucketKey) ?? []
-  // Why: a single project in its bucket has nowhere to land, so skip arming
-  // drag and let the header click toggle collapse instead.
+  // A lone project cannot move within its bucket; preserve the collapse click instead.
   if (sidebarRepoHeaderIds.length <= 1) {
     return null
   }
@@ -42,8 +41,7 @@ export function createProjectHeaderDragSession(args: {
     return null
   }
   const handleEl = args.event.currentTarget
-  // Why: defer setPointerCapture until the drag threshold is crossed so a
-  // header click still reaches the inner collapse handler on pointerup.
+  // Delay pointer capture until promotion so ordinary clicks can still toggle collapse.
   return {
     repo: args.repo,
     bucketKey,

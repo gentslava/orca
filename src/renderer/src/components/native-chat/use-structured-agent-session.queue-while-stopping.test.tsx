@@ -1,8 +1,6 @@
 // @vitest-environment happy-dom
 
-// A message sent while the chat reads Stopping, through the chat's own send and its real sender:
-// where the host does not queue sends, it goes out plain, for the host to hold until the stop lands,
-// and is marked as sent while stopping, so it draws after the Stopping line.
+// Without host queue support, sends during Stopping go out plain and render after the Stop line while the host holds delivery.
 
 import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -97,7 +95,6 @@ it('sends plain where the host does not queue sends, marked as sent while stoppi
   ).toMatchObject({ role: 'user', sentWhileStopping: true })
 })
 
-// Sent before the Stop, the host steers it into the turn: it is not one held behind the Stop.
 it('does not mark a send made before the chat read Stopping', async () => {
   const { result, rerender } = renderHook(
     ({ hostStopping }: { hostStopping: boolean }) =>

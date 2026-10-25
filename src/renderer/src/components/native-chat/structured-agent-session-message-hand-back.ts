@@ -2,13 +2,11 @@ import type { AgentJournalMessageItem } from '../../../../shared/agent-session-j
 import { structuredAgentSessionDraftScopeKey } from './native-chat-composer-draft-store'
 import { appendNativeChatDraftCache } from './native-chat-draft-cache'
 
-/** The text a message body carries, as the composer shows it. */
 export function structuredAgentSessionMessageText(body: AgentJournalMessageItem): string {
   return body.blocks.flatMap((block) => (block.type === 'text' ? [block.text] : [])).join('\n')
 }
 
-/** Puts a message's text and images into a composer, after whatever is there. True once the text
- *  is durable. */
+/** Append text and images without replacing existing input; return true once durable. */
 export function returnMessageToComposer(
   composerScopeKey: string,
   /** Unique to this message, so its images never collide with ones already attached. */
@@ -34,8 +32,7 @@ export function returnMessageToComposer(
         ]
       : []
   })
-  // One step keeps text with its images, and a second return of the
-  // message is skipped by its image ids whatever was typed since.
+  // Atomically append text/images; stable image ids make repeated hand-back idempotent despite later typing.
   return appendNativeChatDraftCache(
     composerScopeKey,
     structuredAgentSessionMessageText({ kind: 'message', role: 'user', blocks }),
@@ -44,11 +41,7 @@ export function returnMessageToComposer(
   )
 }
 
-/**
- * Puts a message that did not reach the host back in its chat's composer, after whatever is
- * there: the chat's draft is keyed by its conversation, so this works with or without its view
- * mounted. True once the text is durable.
- */
+/** Return unaccepted text/images to the conversation-scoped draft even when unmounted; true means durable. */
 export function handBackStructuredAgentSessionMessage(
   sessionId: string,
   clientMessageId: string,

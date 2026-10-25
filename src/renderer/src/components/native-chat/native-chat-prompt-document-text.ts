@@ -4,7 +4,7 @@ import { NATIVE_CHAT_PASTED_TEXT_TOKEN } from './native-chat-pasted-text-referen
 export const IMAGE_REFERENCE_NODE = 'nativeChatImageReference'
 export const FILE_REFERENCE_NODE = 'nativeChatFileReference'
 
-/** Text stays literal; only admitted pasted text references become file pills. */
+/** All text-to-document paths must reconstruct image chips and pending-paste pills. */
 export function promptTextContent(text: string): JSONContent {
   return {
     type: 'doc',

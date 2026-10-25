@@ -117,7 +117,6 @@ describe('useStructuredAgentSession working state', () => {
     )
 
     expect(result.current.isWorking).toBe(true)
-    // Only the provider can mint a cancellable turn, so Stop stays unavailable here.
     expect(result.current.turnId).toBeNull()
   })
 
@@ -225,8 +224,7 @@ describe('useStructuredAgentSession options', () => {
       expect(await result.current.setStructuredOption('model', 'gpt-fast')).toBe(false)
     })
 
-    // Said once, without the transport's text, and without claiming an outcome the failure
-    // cannot prove; nothing stays behind under the composer.
+    // Show one uncertainty notice without raw transport text or an unproved outcome.
     expect(mocks.toastError).toHaveBeenCalledWith(
       "Orca couldn't confirm what happened. Check the chat."
     )
@@ -240,7 +238,6 @@ describe('useStructuredAgentSession options', () => {
     let attempts = 0
     mocks.call.mockImplementation((_target, method) => {
       if (method !== 'agentSession.setOption') {
-        // The hook also holds the session while it is mounted; only option writes are attempts.
         return Promise.resolve(method === 'agentSession.options' ? OPTIONS : null)
       }
       attempts += 1
@@ -297,7 +294,6 @@ describe('useStructuredAgentSession options', () => {
         return refreshedOptions.promise
       }
       if (method !== 'agentSession.setOption') {
-        // The hook also holds the session while it is mounted; only option writes are attempts.
         return Promise.resolve(method === 'agentSession.options' ? OPTIONS : null)
       }
       attempts += 1
@@ -365,7 +361,6 @@ describe('useStructuredAgentSession options', () => {
     const pending = new Promise<never>((_resolve, rejectPromise) => {
       reject = rejectPromise
     })
-    // Only the option write fails; a refused hold would surface on `error` for its own reason.
     mocks.call.mockImplementation((_target, method) =>
       method === 'agentSession.options' || method === 'agentSession.hold'
         ? Promise.resolve(method === 'agentSession.options' ? OPTIONS : null)
@@ -761,8 +756,7 @@ describe('turn timing', () => {
       )
       expect(result.current.isWorking).toBe(true)
       expect(result.current.workingStartedAt).toBe(50_000 - 300)
-      // t2 is still running, so the host has no duration for it: an explicit null
-      // that outranks whatever this client clocked locally.
+      // A running turn’s explicit null duration outranks client-observed timing.
       expect([...result.current.settledTurns]).toEqual([
         ['u1', { startedAt: 9_000_000, workedSeconds: 4 }],
         ['u2', null]
@@ -829,9 +823,7 @@ describe('structured option surface snapshot identity', () => {
     mocks.call.mockResolvedValue(null)
   })
 
-  /** `SessionOptionsSurface` is read through `useSyncExternalStore` by the sibling
-   *  PTY surface, whose contract is a cached snapshot: an uncached `getSnapshot`
-   *  returns a new array per call and never quiesces. */
+  /** The sibling PTY surface uses useSyncExternalStore; unstable snapshots would never quiesce. */
   it('returns the same snapshot instance for repeated reads at one state', async () => {
     mocks.call.mockResolvedValue(FAST_OPTIONS)
     const { result } = renderHook(() =>

@@ -59,7 +59,6 @@ export {
   waitForNativeChatComposerDrafts
 } from './native-chat-composer-draft-load'
 
-/** This window has changed the draft and storage has not confirmed it yet. */
 export function hasUnsavedNativeChatComposerDraftChange(scopeKey: string): boolean {
   return hasLocalChange(scopeKey)
 }
@@ -87,14 +86,12 @@ export function setNativeChatComposerDraftOwnerResolver(
   resolveOwner = resolver
 }
 
-/** The owner a new draft in this scope would record now. */
 export function resolveNativeChatComposerDraftOwner(
   scopeKey: string
 ): NativeChatComposerDraftOwner | undefined {
   return resolveOwner?.(scopeKey)
 }
 
-/** Composers render from the store; this tells one that its pane's draft changed. */
 export function subscribeToNativeChatComposerDraft(
   scopeKey: string,
   listener: () => void
@@ -125,11 +122,7 @@ export function readNativeChatComposerDraft(
   return records.get(scopeKey) ?? EMPTY_DRAFT
 }
 
-/**
- * Changes fields of the scope's draft. `deferred` is for typing, coalesced into one write;
- * `immediate` saves now: text or images given back from a copy about to be deleted, and clears.
- * An emptied draft is removed at once, so a sent message never comes back.
- */
+/** Coalesce typing, persist hand-backs/clears immediately, and remove empty drafts so sent input cannot return. */
 export function updateNativeChatComposerDraft(
   scopeKey: string,
   change: NativeChatComposerDraftChange,
@@ -201,13 +194,7 @@ function withAddition<T extends NativeChatComposerDraft>(
   }
 }
 
-/**
- * Adds to the scope's draft as it is now: text or images given back, or attached. Before the
- * startup load lands, the same addition is made again to the loaded draft, so nothing saved
- * earlier is replaced by it, unless that draft already holds it (a hand-back repeated after a
- * crash before its copy was deleted). True once the addition is durable: storage commits later,
- * so it is also journaled at once, and the copy it came from may then be deleted.
- */
+/** Replay additions over late hydration without duplicates; true means durable hand-back, allowing deletion of its source copy. */
 export function appendToNativeChatComposerDraft(
   scopeKey: string,
   addition: NativeChatComposerDraftAddition,
@@ -239,10 +226,7 @@ export function appendToNativeChatComposerDraft(
   return journalNativeChatComposerDraftAddition(scopeKey, placed, after.savedAt)
 }
 
-/**
- * Clears a sent draft only while it is still what was sent, so a send settling late never wipes
- * what was typed or attached since, even from a composer that was replaced meanwhile.
- */
+/** Clear only the sent draft’s unchanged portion so late acceptance cannot erase newer typing or attachments. */
 export function clearNativeChatComposerDraftIfUnchanged(
   scopeKey: string,
   sent: NativeChatComposerDraft
@@ -282,7 +266,6 @@ function deleteDraftsWhere(
   }
 }
 
-/** Drops one scope's draft, for an owner that is gone for good. */
 export function deleteNativeChatComposerDraft(scopeKey: string): void {
   deleteDraftsWhere((key) => key === scopeKey)
 }
@@ -299,8 +282,7 @@ export function nativeChatDraftScopeTabId(scopeKey: string): string {
   return scopeKey.slice(0, scopeKey.lastIndexOf(':'))
 }
 
-/** Drops the drafts of every pane in a tab the user closed; its pane keys never come back. A
- *  conversation's draft is never a tab's. */
+/** Delete closed-tab pane drafts; conversation-scoped drafts outlive their tabs. */
 export function deleteNativeChatComposerDraftsForTab(tabId: string): void {
   deleteDraftsWhere(
     (scopeKey) =>

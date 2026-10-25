@@ -76,7 +76,7 @@ export function useMobileStructuredOptionState(args: {
     optionIdentityRef.current = identity
     const previous = optionStateRef.current
     const seeded = createStructuredAgentSessionOptionState(agent ?? 'codex', optionCatalog)
-    // A host answer is the account's, not the fence's: keep it rather than fall back to the placeholder.
+    // Retain account answers across fence changes instead of reviving placeholders.
     const kept =
       sameSession && previous.catalogSource !== 'seed' && previous.catalogSource !== null
         ? {
@@ -106,7 +106,6 @@ export function useMobileStructuredOptionState(args: {
   const [imageSupport, setImageSupport] = useState<{
     sessionId: string
     acceptsImages: boolean | undefined
-    /** The answer named the chat's permission mode, as only a host applying modes does. */
     statesPermissionMode: boolean
   } | null>(null)
 
@@ -156,7 +155,7 @@ export function useMobileStructuredOptionState(args: {
         if (stale || !isCurrentContext() || activeOptionRecordRef.current !== record) {
           return
         }
-        // This view keeps its latch; a later one may run a model picked here.
+        // Latch for this view; a later view may run the model selected here.
         forgetMobileCreatedStructuredSession(sessionId)
         setImageSupport({
           sessionId,

@@ -104,13 +104,15 @@ export abstract class RuntimeConstructionServices {
     agent: TuiAgent
   ): TuiIdleHookTurn | null
   protected abstract readLiveTerminalScreenLines(ptyId: string | null | undefined): string[] | null
+  protected abstract readCaughtUpRuledScreen(ptyId: string): RuledScreen | null
+  protected abstract clearWaitBlockedStamp(ptyId: string): void
   protected abstract readRuledScreen(ptyId: string | null | undefined): RuledScreen | null
   protected abstract headlessTerminals: Map<string, RuntimeHeadlessTerminal>
   protected abstract readHeadlessVisibleTerminalState(
     ptyId: string
   ): Promise<RuntimeVisibleTerminalState | null>
   protected abstract getLeafKey(tabId: string, leafId: string): string
-  /** The tab and pane that hold a terminal: the one reader of a record's pane copies (L80). */
+  /** L80: sole reader of a PTY record's tab/pane copies. */
   protected abstract paneOfPty(pty: PtyPaneSource | null | undefined): PtyPane
   protected abstract getLivePtyForHandle(handle: string): {
     record: TerminalHandleRecord

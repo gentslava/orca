@@ -122,7 +122,6 @@ export abstract class OrcaRuntimeWithPreservedBranchCleanup extends OrcaRuntimeW
     return confirmRunTerminalShellAlone(this.ptyController, ptyId)
   }
 
-  /** The PTY a terminal handle drives now; a restarted pane answers with its new PTY. */
   getTerminalPtyIdForHandle(handle: string): string | null {
     return this.getLivePtyForHandle(handle)?.pty.ptyId ?? null
   }
@@ -294,7 +293,7 @@ export abstract class OrcaRuntimeWithPreservedBranchCleanup extends OrcaRuntimeW
       if (this.store) {
         this.removeWorktreeMetadataAndHistory(this.store, worktreeId)
       }
-      // Why every host after the local-only hub: this store mints folder ids, so none is shared.
+      // Folder ids are minted by this store and shared with no other host.
       this.dropAgentStatusForRemovedWorktreeFn?.(worktreeId, ALL_EXECUTION_HOSTS_SCOPE)
     },
     emitWorktreeLifecycle: (event) => this.worktreeLifecycleEvents.emit(event)

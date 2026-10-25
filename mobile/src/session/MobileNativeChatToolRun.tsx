@@ -43,8 +43,7 @@ function fill(template: string, value: number): string {
   return template.replaceAll('{{value0}}', String(value))
 }
 
-/** Desktop's `animate-pulse` on a live run's sentence. One element either way, so the
- *  header never remounts as the run settles. */
+// Keep one header element so live-to-settled changes cannot remount it.
 function PulsingText({
   pulsing,
   style,
@@ -92,13 +91,11 @@ export function ToolRun({
 }: MobileNativeChatToolRunProps): React.JSX.Element {
   const runKey = disclosureId === undefined ? undefined : `run:${disclosureId}`
   const [open, setOpen] = useMobileNativeChatDisclosure(runKey, false)
-  // Rows drawn among the calls count as work too: a reader at the end follows them arriving.
   const asideCount = asides
     ? asides.after.length +
       Array.from(asides.before.values()).reduce((count, rows) => count + rows.length, 0)
     : 0
-  // Live is the turn's state, not a call's: deriving it from "some call is running"
-  // flipped the header to settled and back around every call.
+  // Use turn liveness; individual calls settling must not flicker the header between live and settled.
   const live =
     activeTurnIsWorking === true && !awaitingAnswer
       ? trailing !== false
@@ -136,8 +133,7 @@ export function ToolRun({
 
   return (
     <View style={styles.run} testID={mobileNativeChatMemberId('run')}>
-      {/* One element for the run's whole life: live and settled are states of this
-          button, not two buttons. */}
+      {/* Keep one button through live/settled states so accessibility focus survives. */}
       <Pressable
         style={styles.header}
         onPress={() => setOpen(!open)}
@@ -155,12 +151,11 @@ export function ToolRun({
           {sentence ?? fallbackLabel}
         </PulsingText>
         {marks.length > 0 ? (
-          // Never shrinks: it is the one thing the reader cannot afford to miss.
           <Text style={[styles.lineMeta, styles.headerMarks, type.meta]} numberOfLines={1}>
             {` · ${marks.join(', ')}`}
           </Text>
         ) : null}
-        {/* Only a stated success is marked done, and never while live. */}
+        {}
         {!live && outcome.succeeded ? (
           <Check size={12 * fontScale} color={colors.textMuted} strokeWidth={2} />
         ) : null}
@@ -208,8 +203,7 @@ export function ToolRun({
   )
 }
 
-/** Desktop parity: `NativeChatToolRunMemberList`. Mounted only while the run is open,
- *  so a collapsed run pays for none of the pairing. */
+// Mount pairing only while open so collapsed runs avoid its work.
 function ToolRunMemberList({
   blocks,
   disclosureId,
@@ -238,8 +232,7 @@ function ToolRunMemberList({
   const { editCards, consumedResults } = useMemo(() => buildEditCards(blocks), [blocks])
   const { resultByCall, pairedResults } = useMemo(() => pairNativeChatToolResults(blocks), [blocks])
   const seen = new Map<string, number>()
-  // Each drawn member's line identity: the page finds the reader's line by this, and a card keyed by
-  // it keeps its state when older calls join the run above it.
+  // Stable member keys preserve reading position and card state when older calls join above.
   const memberSeen = new Map<string, number>()
   const memberIdentity = (block: NativeChatBlock) =>
     nativeChatToolLineIdentity(block, memberSeen, true)
@@ -277,7 +270,6 @@ function ToolRunMemberList({
         </View>
       )
     }
-    // A result its call now owns is drawn by that call's line, not as a row of its own.
     if (
       taskLists.consumedResults.has(block) ||
       consumedResults.has(block) ||
@@ -304,7 +296,7 @@ function ToolRunMemberList({
 
   return (
     <>
-      {/* One flat keyed list with or without asides, so a row gaining its first never remounts a line. */}
+      {/* Keep one keyed list so adding the first aside cannot remount tool lines. */}
       {blocks.flatMap((block) => [...(asides?.before.get(block) ?? []), member(block)])}
       {asides?.after}
     </>

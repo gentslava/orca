@@ -149,7 +149,7 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
 
     pendingRevealWorktree: null,
     pendingRevealSidebarRow: null,
-    // Incidental activation must not leave the reader's conversation or activity view.
+    // Activity view unmounts workspaces; incidental activation must not switch bodies or queue a surprise reveal.
     revealWorktreeInSidebar: (worktreeId, options) =>
       set((state) =>
         state.sidebarBody !== 'workspaces' && !options?.beginRename
@@ -188,8 +188,7 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
           ? state
           : { floatingWorkspacePath: path || null }
       ),
-    // Why restored: leaving the panel closed forces the user to reopen and re-maximize it,
-    // and that size jump reflows a live TUI's buffer (see floating-terminal-panel-view-state).
+    // Restore floating panel size/open state to avoid reopen/remaximize reflow of live TUI buffers (floating-terminal-panel-view-state).
     floatingWorkspacePanelOpen: readPersistedFloatingTerminalPanelViewState()?.open === true,
     setFloatingWorkspacePanelOpen: (open) =>
       set((state) =>

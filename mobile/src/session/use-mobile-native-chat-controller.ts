@@ -60,9 +60,7 @@ export function useMobileNativeChatController(
     toggleTabChatView
   } = useMobileNativeChatActiveResolution(args)
 
-  // The lane runs before the drafts hook (fixed hook order); Edit's composer
-  // append reaches the drafts state through this ref, set below once they exist.
-  // Until the drafts mount, nothing is copied, so Edit deletes nothing.
+  // Fixed hook order mounts the lane before drafts; defer Edit’s append through a ref and delete nothing until copying succeeds.
   const appendComposerTextRef = useRef<(text: string) => boolean>(() => false)
   const { structuredSession: structuredNativeChat, session: nativeChatSession } =
     useMobileNativeChatSessionLane({
@@ -102,23 +100,19 @@ export function useMobileNativeChatController(
     messages: nativeChatSession.messages,
     launchDraft: activeSessionTab?.launchDraft ?? null,
     launchDraftCreatedAt: activeSessionTab?.launchDraftCreatedAt ?? null,
-    // Why: pass the raw draft plus this flag rather than nulling it off-chat —
-    // a null is indistinguishable from a host retraction, and peeking at the
-    // terminal view would permanently decline the prefill.
+    // Off-chat null would look like host retraction and permanently decline launch prefill; preserve the draft plus visibility.
     chatActive: showNativeChat,
     transcriptLoading: nativeChatSession.transcriptLoading,
     transcriptSettled: nativeChatSession.status === 'ready'
   })
 
-  // Deliberately not gated on the chat view being visible: the streaming gate
-  // has to tell "hidden mid-turn" from "the turn ended".
+  // Observe turn liveness even off-chat so hidden mid-turn cannot look ended.
   const nativeChatStreamLive = activeChatStructured
     ? structuredNativeChat.isWorking
     : activeTabAgentWorking
   const nativeChatAgentWorking =
     nativeChatStreamLive && (activeChatStructured || activeChatResolution != null)
-  // Throttle the streaming bubble: OpenCode emits a status frame per streamed
-  // part, and each one re-renders and re-parses the whole accumulated markdown.
+  // Throttle status-part previews to avoid reparsing the whole accumulated markdown per part.
   const nativeChatStreamingText = useThrottledLatestValue(
     activeChatStructured
       ? undefined
@@ -151,9 +145,7 @@ export function useMobileNativeChatController(
     observing: showNativeChat && (nativeChatDetectedAsk != null || nativeChatTranscriptSettled)
   })
 
-  // Every chat write gates on both: the lease proves the input floor is ours, and
-  // `connState` collapses a render before the lease does on disconnect. A remembered-only
-  // agent may have exited to a shell, so it never writes.
+  // Require both input lease and live connection; remembered-only agents may now be shells and must never receive chat writes.
   const inputSendable = activeChatStructured
     ? client != null && activeChatSessionId != null && connState === 'connected'
     : nativeChatInputLeaseReady && connState === 'connected' && activeChatAgentConfirmed
@@ -176,9 +168,7 @@ export function useMobileNativeChatController(
 
   const nativeChatFiles = useMobileNativeChatFileSearch({ client, worktreeId })
 
-  // Why: the send seam reports outgoing catalog commands to session-option
-  // tracking, but the options hook needs the seam's dispatcher — a ref breaks
-  // the cycle without re-creating the send callbacks per snapshot.
+  // Break the send/options cycle through a ref so snapshot changes cannot recreate send callbacks.
   const recordSessionOptionCommandRef = useRef<(command: string) => void>(() => {})
 
   const {
@@ -241,7 +231,6 @@ export function useMobileNativeChatController(
     recordSessionOptionCommandRef.current = recordNativeChatSessionOptionCommand
     appendComposerTextRef.current = appendComposerText
   }, [appendComposerText, recordNativeChatSessionOptionCommand])
-  // Card actions retire the route's held failure banner too, not just sends.
   const answerAsk = useNativeChatAcceptedAction(structuredAnswer ?? bridgeAnswerAsk, onSendResolved)
   const cancelAsk = useNativeChatAcceptedAction(handleNativeChatCancelAsk, onSendResolved)
   const promptCards = useMobileNativeChatPromptCards({
@@ -275,7 +264,6 @@ export function useMobileNativeChatController(
       ? structuredNativeChat.imagePreviewsByMessageId
       : chatImagePreviewsByMessageId,
     nativeChatSession,
-    /** Structured lane: drives the per-turn status row and live tool progress. */
     nativeChatStructured: activeChatStructured,
     nativeChatVisualSource: activeChatStructured ? structuredNativeChat.visualSource : null,
     nativeChatItemSource:
@@ -289,7 +277,6 @@ export function useMobileNativeChatController(
     nativeChatTurnJournal: activeChatStructured ? structuredNativeChat.turnJournal : null,
     nativeChatReceipts: activeChatStructured ? structuredNativeChat.receipts : null,
     nativeChatActionablePromptIds: structuredNativeChat.actionablePromptIds,
-    // Only the structured lane names a refusal's cause; the bridge lane's starved ones drop none.
     nativeChatCommandRefusalCauses: structuredNativeChat.commandRefusalCauses,
     // A host that stops what the chat has in flight takes Stop before the agent opens a turn.
     nativeChatCanStop: activeChatStructured
@@ -308,7 +295,6 @@ export function useMobileNativeChatController(
     handleNativeChatAnswerAsk: answerAsk,
     handleNativeChatCancelAsk: cancelAsk,
     handleNativeChatStop: activeChatStructured ? structuredNativeChat.cancel : handleNativeChatStop,
-    // The inactive lane's session is starved of identity, so its cards stay empty.
     nativeChatQueued: structuredNativeChat.queued,
     nativeChatBackgroundTasks: activeChatStructured ? structuredNativeChat.backgroundTasks : null,
     ...nativeChatFiles,
@@ -320,7 +306,6 @@ export function useMobileNativeChatController(
       : handleNativeChatSendWithOutcome,
     readSeededLaunchDraft,
     nativeChatSessionOptions,
-    // A terminal-backed chat pastes images into the agent's own input instead.
     nativeChatAcceptsImages: !activeChatStructured || structuredNativeChat.acceptsImages
   }
 }

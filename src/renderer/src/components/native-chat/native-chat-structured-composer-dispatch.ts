@@ -17,7 +17,7 @@ export async function dispatchNativeChatStructuredComposerText(
 ): Promise<Omit<StructuredAgentSessionCommandOutcome, 'handled'> & { revealsTranscript: boolean }> {
   const prompt = draftText
   const { handled, ...command } = await transport.dispatchCommand(prompt)
-  // A command's reveal, if any, came at the press; a message reveals unless it waits as a queued card.
+  // Commands already reveal at keypress; messages reveal unless admitted as queued cards.
   if (handled) {
     return { ...command, revealsTranscript: false }
   }

@@ -69,8 +69,7 @@ export const AI_VAULT_METHODS = [
     permission: 'settings-write',
     params: AiVaultSetSearchEnabledParamsSchema,
     handler: async (params, { runtime, clientKind, pairedDeviceId }) => {
-      // Paired clients only: an in-process caller writes this host's own settings directly,
-      // and admitting one here would let any unauthenticated local path flip consent.
+      // Only authenticated paired clients may flip host consent; local callers write settings directly.
       if (!pairedDeviceId) {
         throw Object.assign(
           new Error('Session search consent can only be changed by a paired client.'),
@@ -171,8 +170,7 @@ export const AI_VAULT_METHODS = [
         ...(params.fork ? { fork: true } : {}),
         filePath: params.filePath,
         codexHome: params.codexHome,
-        // Why: the RPC executes on the transcript-owning host; never let a
-        // client-provided runtime/SSH stamp escape that host boundary.
+        // This host owns the transcripts; never echo a client-supplied runtime/SSH owner stamp.
         executionHostId: LOCAL_EXECUTION_HOST_ID
       }
       if (!isWslUncPath(args.filePath)) {

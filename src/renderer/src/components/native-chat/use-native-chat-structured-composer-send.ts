@@ -60,8 +60,7 @@ export type NativeChatStructuredComposerSend = (
   request?: StructuredAgentSessionSendRequest
 ) => Promise<void>
 
-/** Send through the structured journal transport, clearing the composer only
- *  once the transport accepts (the PTY path has its own sibling hook). */
+/** Clear submitted composer content only after structured transport acceptance. */
 export function useNativeChatStructuredComposerSend({
   agent,
   draftScopeKey,
@@ -164,8 +163,7 @@ export function useNativeChatStructuredComposerSend({
             structuredTransport,
             revealsTranscript && (!hostCommand || isCurrent())
           )
-          // Why: the send settles after a round trip, while this or another composer of the same
-          // conversation may have changed the draft; only what was sent leaves it.
+          // A round trip may outlast edits in any composer for this conversation; remove only the submitted content.
           const left = nativeChatComposerDraftLeftAfterSend(
             readNativeChatComposerDraft(draftScopeKey),
             submitted

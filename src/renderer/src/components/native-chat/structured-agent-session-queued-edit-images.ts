@@ -1,6 +1,4 @@
-// A queued edit's images, held in memory for that edit only: the card's own image-ref blocks kept
-// verbatim, apart from the images added in this edit. Not the chat box's saved draft, which
-// outlives a reload and whose scope keys name a chat, not an edit.
+// Keep original card image blocks verbatim; edit-only additions live in memory and must not share the durable chat draft scope.
 
 import type { AgentJournalMessageItem } from '../../../../shared/agent-session-journal-types'
 import {
@@ -25,8 +23,7 @@ export type QueuedEditImageState = {
   intake: QueuedEditImageIntake
 }
 
-/** Drives an edit's added images the way an upload or paste drives the chat box's chips. Bound to
- *  one edit, so a late result never lands in another. */
+/** Bind intake to one edit so late upload results cannot attach to another. */
 export type QueuedEditImageIntake = {
   begin: (previewUrl?: string, pendingName?: string) => string | null
   resolve: (id: string, path: string, connectionId?: string | null) => boolean
@@ -46,7 +43,6 @@ export type QueuedEditImagesEditor = {
   empty: boolean
 }
 
-/** A new edit's images: the card's own, and an intake bound to that edit. */
 export function queuedEditImageFields(
   body: AgentJournalMessageItem,
   edit: () => QueuedEditImageState,
@@ -92,7 +88,7 @@ export function releaseQueuedEditImages(edit: QueuedEditImageState): void {
   edit.added.forEach(releasePreview)
 }
 
-/** Recovers unsaved typing and settled additions together; pending uploads leave with the edit. */
+/** Hand back unsaved text and settled additions atomically, excluding card-owned image markers; discard pending uploads with their edit, as mobile does. */
 export function handOffQueuedEdit(edit: QueuedEditImageState): boolean {
   const text = edit.text === queuedMessageEditableText(edit.body) ? '' : edit.text
   const images = edit.added.flatMap((image) => (image.pending ? [] : [settled(image)]))

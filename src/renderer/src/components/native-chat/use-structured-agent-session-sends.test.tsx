@@ -23,7 +23,6 @@ afterEach(() => {
   mocks.call.mockClear()
 })
 
-// The composer moves the reader only for a message the transcript draws as a bubble.
 it.each([
   ['a text follow-up while the agent works', QUEUEING, true, [], 'queued'],
   ['the same follow-up when the agent is idle', QUEUEING, false, [], true],

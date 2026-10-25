@@ -228,11 +228,7 @@ async function reserveLoopbackPort(): Promise<number> {
   return port
 }
 
-/**
- * The packaged build as a headless `orca serve`, spawned directly rather than through Playwright:
- * a packaged build can print its readiness line before Playwright's launch resolves, and Playwright
- * consumes stdout, so a listener attached afterwards misses it.
- */
+// Spawn directly to capture readiness from process creation; Playwright can consume it before launch resolves.
 export async function launchPackagedServeHost(executablePath: string): Promise<PackagedServeHost> {
   // Why /tmp on macOS: the released helper has a 103-byte Unix socket ceiling.
   const parent = process.platform === 'darwin' ? '/tmp' : os.tmpdir()
@@ -248,8 +244,7 @@ export async function launchPackagedServeHost(executablePath: string): Promise<P
       label: 'packaged orca serve',
       program: executablePath,
       args: [
-        // Why: a raw spawn gets no --no-sandbox from Playwright, and an extracted .deb's
-        // chrome-sandbox is not root-owned, so Chromium aborts at startup on Linux.
+        // Raw spawn needs --no-sandbox because extracted Linux chrome-sandbox lacks root ownership.
         ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
         '--serve',
         '--serve-json',

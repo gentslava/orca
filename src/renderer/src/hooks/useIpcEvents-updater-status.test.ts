@@ -340,8 +340,7 @@ describe('useIpcEvents updater integration', () => {
             onOpenSettingsRegistered = true
             return () => {}
           },
-          // Why: exercise the positive branch — an intent queued before mount is
-          // pulled once the renderer's onOpenSettings listener is attached.
+          // Consume Settings intent queued before listener attachment once mount registers it.
           consumePendingOpenSettings: () => Promise.resolve(true),
           getZoomLevel: () => 0,
           set: vi.fn()
@@ -352,7 +351,6 @@ describe('useIpcEvents updater integration', () => {
     const { useIpcEvents } = await import('./useIpcEvents')
 
     useIpcEvents()
-    // Why: the pending-intent pull is a Promise; flush microtasks before asserting.
     await Promise.resolve()
     await Promise.resolve()
 

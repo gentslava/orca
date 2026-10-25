@@ -59,7 +59,7 @@ export function claudeProfileTranscriptSources(): UsageAccountRoot[] {
 export async function listClaudeTranscriptFiles(
   profileDirs = claudeProfileTranscriptDirs()
 ): Promise<string[]> {
-  const roots = [CLAUDE_PROJECTS_DIR, CLAUDE_TRANSCRIPTS_DIR, ...profileDirs]
-  const files = await Promise.all(roots.map((root) => walkJsonlFiles(root)))
+  const roots = new Set([CLAUDE_PROJECTS_DIR, CLAUDE_TRANSCRIPTS_DIR, ...profileDirs])
+  const files = await Promise.all([...roots].map((root) => walkJsonlFiles(root)))
   return [...new Set(files.flat())].sort()
 }

@@ -77,7 +77,6 @@ export function promptText(doc: ProseMirrorNode, from = 0, to = doc.content.size
   return doc.textBetween(from, to, '\n', promptLeafText)
 }
 
-/** The plain-text caret for a document position. */
 export function promptTextOffset(doc: ProseMirrorNode, position: number): number {
   const resolved = doc.resolve(position)
   // Paragraph node selections start outside the block; include its preceding newline.
@@ -85,8 +84,7 @@ export function promptTextOffset(doc: ProseMirrorNode, position: number): number
   return promptText(doc, 0, to).length
 }
 
-/** The document position for a plain-text caret; one inside a pill's token lands on the pill's
- *  `before` or `after` edge, and one past the end on the end. */
+/** Map carets inside pill tokens to the chosen edge; clamp offsets beyond the document end. */
 export function promptTextPosition(
   doc: ProseMirrorNode,
   offset: number,

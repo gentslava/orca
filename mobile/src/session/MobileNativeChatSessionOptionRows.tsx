@@ -13,7 +13,6 @@ import {
   type SessionOptionValue
 } from '../../../src/shared/native-chat-session-options'
 
-/** Muted one-liner above a group — dispatch state, or why a row is locked. */
 export function SessionOptionCaption({ children }: { children: string }): React.JSX.Element {
   return <Text style={styles.caption}>{children}</Text>
 }
@@ -88,7 +87,6 @@ function ToggleRow({
 }: {
   label: string
   checked: boolean
-  /** Where the rendered value came from, or null once something picked it. */
   marker: SessionOptionValueMarker | null
   disabled: boolean
   grouped: boolean
@@ -153,7 +151,6 @@ export function SessionOptionSummaryRow({
   valueColor?: string
   disabled: boolean
   divided: boolean
-  /** Absent for a value with no choice to make: the row reads as text, with no page behind it. */
   onPress?: () => void
 }): React.JSX.Element {
   if (!onPress) {
@@ -236,9 +233,7 @@ export function DescriptorRows({
       />
     )
   }
-  // One switch, not an On/Off pair: the option is binary. The value always
-  // renders; the marker is what keeps an unpicked one from reading as confirmed,
-  // since the switch itself cannot say "nobody said".
+  // An unknown baseline still renders a switch; the source marker prevents implying the value was confirmed.
   if (descriptor.kind.type === 'boolean') {
     return (
       <ToggleRow

@@ -530,7 +530,6 @@ describe('buildAiVaultSessionProjectById', () => {
 
     const standalone = buildAiVaultSessionProjectById(shared)
 
-    // The active repo/worktree must never leak into attribution.
     for (const [activeRepo, activeWorktree] of [
       [repoA, worktreeA],
       [repoB, worktreeB],
@@ -543,7 +542,6 @@ describe('buildAiVaultSessionProjectById', () => {
   })
 
   it('attributes non-ASCII cwds across unicode normalization forms', () => {
-    // NFC worktree path vs NFD session cwd — both spell /Users/ada/café.
     const repo = makeRepo({ id: 'repo-1', displayName: 'Café', path: '/Users/ada/caf\u00e9' })
     const worktree = makeWorktree({ id: 'wt-1', repoId: repo.id, path: '/Users/ada/caf\u00e9' })
 
@@ -727,8 +725,6 @@ describe('AI vault session project attribution reuse', () => {
   })
 
   it('gives sessions on one host distinct attribution per cwd', () => {
-    // Guards the cwd half of the cache key: a host-only key would hand every
-    // session the first session's project.
     const repos = [
       makeRepo({ id: 'repo-a', path: '/repo-a' }),
       makeRepo({ id: 'repo-b', path: '/repo-b' })
@@ -752,8 +748,7 @@ describe('AI vault session project attribution reuse', () => {
   })
 
   it('keys on the raw cwd so equivalent spellings still resolve correctly', () => {
-    // The key is deliberately NOT canonicalized: two spellings of one folder miss
-    // each other's entry and are recomputed, which is correct but unshared.
+    // Raw spellings intentionally miss one another's cache entries; recomputation remains correct.
     const repos = [makeRepo({ id: 'repo-win', path: 'C:\\Users\\Ada\\repo' })]
     const result = buildAiVaultSessionProjectById({
       repos,

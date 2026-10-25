@@ -45,8 +45,7 @@ export function appendProjectGroupSections(
   }
 
   const projectGroupsById = new Map(projectGroups.map((group) => [group.id, group]))
-  // Membership already decided by getRenderableFolderWorkspaces in planSidebarRows, so
-  // repo grouping no longer owns the filter — it only groups and orders (#15362).
+  // Folder membership is already resolved above grouping; only group/order here (#15362).
   const folderWorkspacesByProjectGroupId = new Map<string, RenderableFolderWorkspace[]>()
   for (const pair of folderWorkspaces) {
     const groupId = pair.folderWorkspace.projectGroupId
@@ -122,8 +121,7 @@ export function appendProjectGroupSections(
     if (projectGroupId === null || projectGroupsById.has(projectGroupId)) {
       continue
     }
-    // Why: startup can have repos from hosts whose project-group metadata was
-    // not fetched yet; missing metadata must not make those repos disappear.
+    // Keep repos visible while host project-group metadata is still loading.
     remainingRepoEntries.push(...entries)
   }
   appendOrderedGroups(

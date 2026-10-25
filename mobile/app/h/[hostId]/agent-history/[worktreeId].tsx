@@ -12,17 +12,8 @@ import {
 import { PageRouteUnavailableScreen } from '../../../../src/mobile-web-shell/PageRouteUnavailableScreen'
 import { firstParam } from '../../../../src/navigation/route-param-reader'
 
-/**
- * Agent session history, from the desktop's bundle.
- *
- * Two dynamic segments rather than one, so both are encoded: `useLocalSearchParams` answers the
- * decoded value, and a worktree id or a deep-linked host id carrying `/`, `?`, `#` or whitespace
- * would otherwise stop being the single segment `matchesRoutePattern` reads it as.
- *
- * Encoding does not save a `.` or `..` id, and that pathname fails the bridge's own segment rule,
- * which the page would answer with "Update Orca to open this workspace". So the route asks the
- * schema first (through `shellScreenRoute`) and refuses here when the answer is no.
- */
+// Encode both dynamic segments to keep decoded ids containing /, ?, # or whitespace within one segment.
+// Ask shellScreenRoute schema too: encoding cannot make dot/dot-dot ids valid.
 export default withWorkspaceRoute(function MobileAgentSessionHistoryScreen() {
   const params = useLocalSearchParams<{
     hostId?: string | string[]
@@ -45,8 +36,7 @@ export default withWorkspaceRoute(function MobileAgentSessionHistoryScreen() {
     hostId && worktreeId
       ? shellScreenRoute({
           pathname: `/h/${encodeURIComponent(hostId)}/agent-history/${encodeURIComponent(worktreeId)}`,
-          // Omitted rather than empty: the page reads the label off the search half, and a `name=`
-          // with nothing after it is a label, where an absent one lets the panel derive its own.
+          // Omit absent name: name= is an explicit label, while absence lets the panel derive one.
           ...(Object.keys(routeParams).length === 0 ? {} : { params: routeParams })
         })
       : null

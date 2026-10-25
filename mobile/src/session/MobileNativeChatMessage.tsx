@@ -85,68 +85,48 @@ function MobileNativeChatMessageImpl({
   onToggleUserMessage
 }: {
   message: NativeChatMessage
-  /** The row's place on the page, kept while older messages join it; tags the row. */
+  // Stable placement key survives older messages joining a folded row.
   rowKey?: string
   runOwner?: string
-  /** The newest assistant row of a live turn with no prompt open: its last text may still grow. */
+  // Only the newest live assistant row can still grow.
   mayStillGrow?: boolean
-  /** The last plan each task-list tool wrote before this row, so an update reads as its changes. */
+  // Compare plan updates against the prior write, not an empty checklist.
   previousTodoWrite?: NativeChatToolCallBlock
   previousUpdatePlan?: NativeChatToolCallBlock
-  /** Multiplies all chat text sizes for pinch-to-zoom (1 = no change). */
   fontScale?: number
   onOpenFile?: (relativePath: string) => void
-  /** This turn's status row, rendered under its opening user message. */
   turnStatus?: NativeChatTurnStatus | null
-  /** Render the status above the row: its turn has no user bubble of its own. */
   turnStatusAbove?: boolean
-  /** Whether the turn caret has disclosed this turn's activity. */
   turnExpanded?: boolean
-  /** Set only when this row's turn has settled and can disclose its activity. */
   turnKey?: string
-  /** Stable across renders; the row supplies its own key when tapped. */
   onToggleTurn?: (turnKey: string) => void
-  /** Session-level working state for this message's turn; gates the live tool row. */
   activeTurnIsWorking?: boolean
-  /** Whether this row is the live turn's frontier, the last where the agent spoke or acted. */
   trailingRun?: boolean
-  /** Set on the first row of a work run: every member, which this row draws as one run. */
+  // The run’s first row draws all members; later members render no duplicate activity.
   workRun?: readonly NativeChatMessage[]
-  /** A later member of a work run, which its first row draws. */
   joinsWorkRun?: boolean
-  /** Folded behind its settled turn's "Worked for" row. */
   foldedAway?: boolean
-  /** The reasoning disclosures the reader opened, for thoughts drawn inside the work run. */
   openReasoning?: ReadonlySet<string>
-  /** Structured lane only: live tool progress plus the turn-status disclosure. */
   structuredActivityUi?: boolean
-  /** This open reasoning block is disclosed by the live activity line, so its row draws nothing. */
+  // Hide the reasoning row while the live activity line discloses the same block.
   reasoningIsLive?: boolean
-  /** The transcript-held disclosure of a reasoning row; one stable handler takes its key. */
   reasoningExpanded?: boolean
   onToggleReasoning?: (key: string) => void
-  /** Why the host did not deliver this message, when it is drawn as not sent. */
   unsentNotice?: string
   receipt?: NativeChatResolvedPrompt
   awaiting?: boolean
-  /** The roster groups the reader opened, held by the transcript; only a roster row gets it. */
   subagentGroupsOpen?: ReadonlySet<string>
   onToggleSubagentGroup?: (groupId: string) => void
   userMessageOpen?: boolean
   onToggleUserMessage?: (messageId: string) => void
 }): React.JSX.Element {
   const { shown: message, showFull, recovery } = useMobileNativeChatFullMessage(rowMessage)
-  // Another agent's message is set apart from the person's bubble, left-aligned and named.
   const attribution = agentMessageAttribution('Message from', message.from)
   const isUser = message.role === 'user' && attribution === null
   const isReasoning = message.role === 'reasoning'
-  // Separate the agent's words from its tool activity: prose renders first, the
-  // tool calls fold into a collapsible run beneath. The user's own messages get
-  // an inverted (filled accent) bubble so they stand apart from agent prose.
   const { prose, tools: blocksOfTools } = splitNativeChatBlocks(message.blocks)
   const { asks, unansweredAsks, work: ownTools } = nativeChatAskRunBlocks(blocksOfTools)
   const { openActions: openSheet } = useContext(MobileNativeChatRowOverlaysContext)
-  // A work run draws every member's calls as this row's one run, its thoughts among them.
   const run = useMemo(() => (workRun ? nativeChatWorkRunEntries(workRun) : null), [workRun])
   const tools = run?.blocks ?? ownTools
   const asides = useMemo(() => {
@@ -217,7 +197,6 @@ function MobileNativeChatMessageImpl({
   const openActions = useCallback(() => openSheet(pressedMessage.current), [openSheet])
   const onLongPress = INLINE_TEXT_SELECTION ? undefined : openActions
   const renderVisual = useContext(MobileNativeChatVisualContext) ?? undefined
-  // Structured replies grow in place: only the last block of the newest row may still be typing.
   const growingBlock =
     message.role === 'assistant' && mayStillGrow && activeTurnIsWorking === true
       ? message.blocks.at(-1)
@@ -232,7 +211,7 @@ function MobileNativeChatMessageImpl({
       onToggleExpanded={turnKey && onToggleTurn ? () => onToggleTurn(turnKey) : undefined}
     />
   ) : null
-  // A receipt outlives the fold, as on desktop: it is the record of what the reader answered.
+  // Keep answered receipts visible even when their tool run folds away.
   if (joinsWorkRun || (foldedAway && !receipt)) {
     return <>{statusRow}</>
   }
@@ -251,11 +230,8 @@ function MobileNativeChatMessageImpl({
       </>
     )
   }
-  // A run that opens on a thought draws as the run, the thought inside it.
   if (isReasoning && !workRun) {
-    // The same text the live line's selector reads, so the two agree on whether there is any.
     const markdown = deriveNativeChatRowContent(message.blocks).markdown
-    // Blank, or disclosed by the live activity line: nothing draws, not even an empty row.
     const draws = markdown.trim().length > 0 && !reasoningIsLive
     return (
       <>

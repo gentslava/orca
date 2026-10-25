@@ -5,7 +5,6 @@ import { nativeChatLinkActions } from './native-chat-link-target-actions'
 import { readNativeChatQuotableSelection } from './native-chat-quote-selection'
 import type { NativeChatMessageListHandle } from './use-native-chat-reveal-latest'
 
-/** What a right-click landed on that the menu can act on; each part is null where it does not apply. */
 export type NativeChatContextMenuTarget = {
   /** The selection the "Add to chat" offer would quote. */
   quoteText: string | null

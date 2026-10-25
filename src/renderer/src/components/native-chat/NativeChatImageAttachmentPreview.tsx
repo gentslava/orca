@@ -17,14 +17,13 @@ import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-targe
 
 type Props = {
   attachment: NativeChatComposerImageAttachment
-  /** Its place in the ordered image attachments sent to the provider. */
+  /** Structured-chat image position, shared by prompt chips and send markers. */
   number?: number
   /** The paired server the chat runs on; a file stored there is read back through it. */
   hostEnvironmentId?: string
   onRemove: (id: string) => void
 }
 
-/** Thumbnail for a pending image, with an in-app full-size preview on click. */
 export function NativeChatImageAttachmentPreview({
   attachment,
   hostEnvironmentId,
@@ -51,7 +50,6 @@ export function NativeChatImageAttachmentPreview({
   )
 }
 
-/** The thumbnail's number; its accessible label names it for readers. */
 function ImageNumberBadge({ number }: { number?: number }): React.JSX.Element | null {
   if (number === undefined) {
     return null
@@ -94,8 +92,7 @@ function RemoveAttachmentButton({ onRemove }: { onRemove: () => void }): React.J
   )
 }
 
-/** An image the draft names but couldn't bring back. A file can be attached again in its place; a
- *  pasted image can't be matched by a new paste, so its copy asks only for removal. */
+/** Missing files can be reattached; a new paste cannot recover a missing pasted image, so offer removal only. */
 function NativeChatUnavailableImageChip({
   id,
   name,
@@ -197,8 +194,7 @@ function NativeChatImageThumbnail({
     // Why chat-image: a draft handed off from the host queue may carry paths a paired client chose.
     chatImageAccess()
   )
-  // The clipboard thumbnail is already in this process, so it renders with no
-  // round-trip; the on-disk file only wins for the full-size dialog.
+  // Use the immediate clipboard preview for thumbnails and prefer the stored file for full-size viewing.
   const thumbnailSrc = attachment.previewUrl ?? localSrc
   const fullSizeSrc = localSrc ?? attachment.previewUrl
   const filename = attachmentLabel(attachment.path)
@@ -239,7 +235,6 @@ function NativeChatImageThumbnail({
               className={`size-full object-cover${isPending ? ' opacity-50' : ''}`}
             />
           ) : isPending ? (
-            // Why: a chip still on its way shows only that it is loading and what it is.
             <span className="flex max-w-full flex-col items-center gap-1 px-1">
               <LoadingSpinner className="size-4 shrink-0 text-muted-foreground" />
               {attachment.pendingName ? (

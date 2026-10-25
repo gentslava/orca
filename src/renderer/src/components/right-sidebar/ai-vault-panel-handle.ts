@@ -20,8 +20,7 @@ export type AiVaultPanelProps = {
   initialAgents?: readonly AiVaultAgent[]
   conversationNavigation?: boolean
   headerAction?: ReactNode
-  /** Fires when a switch to an open session or a hand-off succeeds, which may leave the visible tab
-   *  as it was; its presence also turns on arrow/Enter row keys. */
+  /** Success may leave the tab unchanged; providing this callback also enables arrow/Enter row keys. */
   onSessionOpened?: () => void
   /** Set in `/resume`: picking a row resumes it in that chat, and rows offer no other action. */
   resumeHere?: AiVaultResumeHere

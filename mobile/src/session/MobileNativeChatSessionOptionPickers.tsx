@@ -46,6 +46,7 @@ export type MobileNativeChatPickerPresentation = { page: string | null; refocus:
 
 export type MobileNativeChatSessionOptionPickersProps = {
   controller: MobileNativeChatSessionOptionsController
+  // Mid-turn model commands would interleave with agent output.
   isWorking: boolean
   /** Structured hosts capture choices per message; terminal commands still wait. */
   allowsWorkingPicks?: boolean
@@ -59,9 +60,7 @@ export type MobileNativeChatSessionOptionPickersProps = {
 type PresentationProps = {
   presentation: MobileNativeChatPickerPresentation | null
   onNavigate: (page: string | null) => void
-  /** The pill opened the drawer; fires before the keyboard is dismissed. */
   onDrawerOpen: (page: string) => void
-  /** The drawer's sheet has fully left the screen, however it closed. */
   onDrawerAfterClose?: () => void
 }
 
@@ -71,7 +70,6 @@ function selectedChoice(descriptor: SessionOptionDescriptor | undefined) {
     : undefined
 }
 
-/** One pill for the session's model and options; its sheet also holds the permission mode. */
 export function MobileNativeChatSessionOptionPickers({
   controller,
   isWorking,
@@ -138,7 +136,6 @@ export function MobileNativeChatSessionOptionPickers({
 
   const closePicker = (): void => onNavigate(null)
   const applyOption = (descriptor: SessionOptionDescriptor, value: SessionOptionValue): void => {
-    // Re-picking the tracked value is a no-op — never re-dispatch it.
     if (
       !descriptor.defaultChoice?.selected &&
       descriptor.valueSource !== 'unknown' &&
@@ -147,12 +144,11 @@ export function MobileNativeChatSessionOptionPickers({
     ) {
       return
     }
-    // A permission pick shows at once; its write may wait behind a starting agent.
+    // Close permission selection immediately because its write may wait behind agent startup.
     if (descriptor === permission) {
       onNavigate(descriptor === home ? null : home.id)
     }
     void controller.setOption(descriptor.id, value).then((applied) => {
-      // The sheet stays on its home page so the next setting is one tap away; a sub page returns.
       if (applied && descriptor !== home && descriptor !== permission) {
         onNavigate(home.id)
       }
@@ -272,7 +268,6 @@ export function MobileNativeChatSessionOptionPickers({
   )
 }
 
-/** The model page's other settings: a switch where one value flips, else a row to its page. */
 function OptionRows({
   descriptors,
   permission,

@@ -1,8 +1,9 @@
+// Sidebar/chat list running children from host records; finished history stays in transcripts. Derive on read without storing another roster.
+
 import { settledOwnersOfLiveWork } from './agent-status-child-work-liveness'
 import type { AgentChildWorkView } from './agent-status-child-work-view'
 
-/** A child that runs. A finished child whose
- *  own work still runs counts, since it reads monitoring and keeps that work's owner on screen. */
+/** Include settled owners of live work so monitoring rows retain that work's parent. */
 export function agentChildWorkIsRunning(child: {
   settled: boolean
   ownsLiveWork: boolean
