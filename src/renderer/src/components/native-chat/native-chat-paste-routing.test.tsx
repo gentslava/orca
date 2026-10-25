@@ -466,6 +466,7 @@ describe('terminal context-menu paste on a covered pane', () => {
       const clipboard = Promise.withResolvers<string>()
       mocks.readClipboardText.mockReturnValue(clipboard.promise)
       await pasteTerminalPaneMenuClipboard(menuContext(), menuPane(f.pane), 'context-menu')
+      expect(mocks.readClipboardText).toHaveBeenCalledTimes(1)
       const parentContent = document.createElement('section')
       answer.replaceWith(parentContent)
       parentContent.append(answer)

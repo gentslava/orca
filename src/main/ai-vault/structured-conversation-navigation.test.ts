@@ -18,6 +18,7 @@ import { restampAiVaultListResult } from './session-list-results'
 import { aiVaultOrchestrationChildSessionIds } from './structured-conversation-navigation'
 import { OrchestrationDb } from '../runtime/orchestration/db'
 import { testOrcaSessionId } from '../../shared/orca-session-address-test-fixture'
+import { formatOrcaSessionAddress } from '../../shared/orca-session-address'
 import {
   mintStructuredWorkerHandle,
   mintStructuredWorkerPaneKey,
@@ -156,6 +157,83 @@ describe('primary conversation navigation from the durable session catalog', () 
       db.close()
     }
   })
+  it.each(['chat', 'structured-worker'] as const)(
+    'keeps directly assigned %s conversations inside the parent without terminal custody',
+    (kind) => {
+      const db = new OrchestrationDb(':memory:')
+      try {
+        const parent = testOrcaSessionId('4a1f6c2e-8b3d-4e7a-9c15-0d2b6e8f1a37')
+        const worker = testOrcaSessionId('7e3b9d15-2c4a-4f86-a0b1-5c9e2d7f3b64')
+        const standalone = testOrcaSessionId('561bb50e-6281-43a7-a761-4e15dc4c730a')
+        const run = db.createRun({
+          objective: 'Adopt an existing conversation',
+          coordinatorHandle: null,
+          coordinatorPaneKey: null,
+          coordinatorOrcaSessionId: parent
+        })
+        const dispatch = db.createDispatchContext({
+          taskId: db.createTask({ runId: run.id, spec: 'Inspect' }).id,
+          ...(kind === 'chat'
+            ? { assigneeHandle: formatOrcaSessionAddress(worker) }
+            : {
+                assigneeHandle: mintStructuredWorkerHandle(),
+                assigneePaneKey: mintStructuredWorkerPaneKey(worker),
+                processIncarnation: structuredWorkerProcessIncarnation(worker)
+              }),
+          creator: { kind: 'session', orcaSessionId: parent },
+          maxDepth: 10
+        })
+        expect(dispatch).toMatchObject({
+          assignee_orca_session_id: worker,
+          creator_orca_session_id: parent
+        })
+        expect(db.getWorkerTerminalResourceByOwner(dispatch.id)).toBeUndefined()
+        db.createDispatchContext({
+          taskId: db.createTask({ runId: run.id, spec: 'Coordinator bookkeeping' }).id,
+          assigneeHandle: formatOrcaSessionAddress(parent),
+          creator: { kind: 'session', orcaSessionId: parent },
+          maxDepth: 10
+        })
+        db.createDispatchContext({
+          taskId: db.createTask({ runId: run.id, spec: 'Root assignment' }).id,
+          assigneeHandle: formatOrcaSessionAddress(standalone),
+          creator: { kind: 'system' },
+          maxDepth: 10
+        })
+        db.createDispatchContext({
+          taskId: db.createTask({ runId: run.id, spec: 'Legacy terminal' }).id,
+          assigneeHandle: 'term_without_session_identity',
+          creator: { kind: 'session', orcaSessionId: parent },
+          maxDepth: 10
+        })
+        const records = [parent, worker, standalone].map((sessionId) => ({
+          ...retained(),
+          sessionId
+        }))
+        install(records)
+        const topLevel = () =>
+          projectStructuredAiVaultSessions(EMPTY, OPENS_EVERY_STRUCTURED_CHAT, {
+            includeStructuredSessions: true,
+            childSessionIds: aiVaultOrchestrationChildSessionIds(db)
+          }).sessions.map((row) => row.structuredSession?.sessionId)
+        expect(aiVaultOrchestrationChildSessionIds(db)).toEqual(new Set([worker]))
+        expect(topLevel()).toEqual([parent, standalone])
+        expect(
+          db.settleWorkerReport({
+            taskId: dispatch.task_id,
+            dispatchId: dispatch.id,
+            outcome: 'succeeded',
+            result: 'Done'
+          })
+        ).toMatchObject({ action: 'settled' })
+        expect(aiVaultOrchestrationChildSessionIds(db)).toEqual(new Set([worker]))
+        expect(topLevel()).toEqual([parent, standalone])
+      } finally {
+        db.close()
+      }
+    }
+  )
+
   it.each(['claude', 'codex', 'gemini'])(
     'retains an empty %s chat without a provider handle or file, without changing transcript browsing',
     (provider) => {

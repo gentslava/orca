@@ -52,14 +52,16 @@ const SidebarHeader = React.memo(function SidebarHeader({
   const acknowledgeIntro = React.useCallback(() => {
     void updateSettings?.({ agentsSidebarIntroShown: true })
   }, [updateSettings])
+  const workspaceTitle =
+    groupBy === 'repo'
+      ? translate('dashboard.sidebar.projects', 'Projects')
+      : translate('dashboard.sidebar.workspaces', 'Workspaces')
   const sidebarTitle =
     sidebarBody === 'conversations'
       ? translate('dashboard.sidebar.conversations', 'Conversations')
       : sidebarBody === 'agents'
         ? translate('dashboard.sidebar.activity', 'Activity')
-        : groupBy === 'repo'
-          ? translate('dashboard.sidebar.projects', 'Projects')
-          : translate('dashboard.sidebar.workspaces', 'Workspaces')
+        : workspaceTitle
   const activityLabel = translate(
     agentsViewActive ? 'dashboard.sidebar.closeActivity' : 'dashboard.sidebar.openActivity',
     agentsViewActive ? 'Turn off activity view' : 'View activity'
@@ -97,7 +99,7 @@ const SidebarHeader = React.memo(function SidebarHeader({
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setSidebarBody('workspaces')}>
               <FolderTree />
-              {translate('dashboard.sidebar.workspaces', 'Workspaces')}
+              {workspaceTitle}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setSidebarBody('agents')}>
               <Activity />

@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 
 import React, { act } from 'react'
+import { fireEvent, screen } from '@testing-library/react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SidebarHeader from './SidebarHeader'
@@ -139,6 +140,22 @@ describe('SidebarHeader', () => {
     expect(container.textContent).toContain('Activity')
     expect(container.querySelector('button')?.textContent).not.toContain('Projects')
   })
+  it.each([
+    { groupBy: 'repo', label: 'Projects' },
+    { groupBy: 'workspace-status', label: 'Workspaces' }
+  ])('names the workspace view choice $label for $groupBy grouping', async ({ groupBy, label }) => {
+    mockState.groupBy = groupBy
+    act(() => root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />))
+    const trigger = container.querySelector<HTMLButtonElement>('[data-sidebar-section-title]')
+    if (!trigger) {
+      throw new Error('Sidebar view chooser not rendered')
+    }
+    await act(async () => fireEvent.keyDown(trigger, { key: 'ArrowDown' }))
+    const choice = screen.getByRole('menuitem', { name: label })
+    await act(async () => fireEvent.click(choice))
+    expect(mockState.setSidebarBody).toHaveBeenCalledWith('workspaces')
+  })
+
   it.each(['workspaces', 'agents'] as const)(
     'prioritizes questions, then working, and shows idle zero in the %s view',
     (sidebarBody) => {

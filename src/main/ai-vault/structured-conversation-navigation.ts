@@ -134,8 +134,6 @@ export function aiVaultOrchestrationChildSessionIds(
     const rows = z.array(z.object({ sessionId: z.string() })).parse(
       db.db
         .prepare(`SELECT DISTINCT dispatch.assignee_orca_session_id AS sessionId FROM dispatch_contexts dispatch
-        JOIN worker_terminal_resources resource ON resource.owner_dispatch_id = dispatch.id
-        AND resource.process_incarnation = dispatch.process_incarnation
         WHERE dispatch.assignee_orca_session_id IS NOT NULL AND dispatch.creator_orca_session_id IS NOT NULL
         AND dispatch.assignee_orca_session_id != dispatch.creator_orca_session_id`)
         .all()
