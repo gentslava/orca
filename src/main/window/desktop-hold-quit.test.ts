@@ -133,8 +133,13 @@ it('guards BaseWindow popup contents and delivers native-ack progress only to it
   popupWindow.emit('blur')
   mocks.watches[1]?.emit('held')
   expect(f.quit).not.toHaveBeenCalled()
-  popupContents.emit('destroyed')
+  key(popupContents)
+  mocks.watches[2]?.emit('watching')
+  popupContents.destroyed = true
   unregister()
+  popupContents.emit('destroyed')
+  expect(popupNotice).toHaveBeenLastCalledWith({ phase: 'dismissed' })
+  expect(mocks.watches[2]?.cancel).toHaveBeenCalledOnce()
   f.dispose()
 })
 
@@ -262,6 +267,31 @@ it.each([
   expect(f.quit).toHaveBeenCalledOnce()
   f.dispose()
 })
+
+it.each(['starting', 'holding'] as const)(
+  'dismisses the trusted owner notice when a %s guest is destroyed',
+  (phase) => {
+    const f = fixture()
+    try {
+      ipc.emit('ui:holdQuitActivity', { sender: main }, true)
+      key(guest)
+      const watch = mocks.watches[0]
+      if (phase === 'holding') {
+        watch?.emit('watching')
+      }
+      expect(main.send).toHaveBeenLastCalledWith('ui:holdQuitNotice', { phase })
+      guest.destroyed = true
+      guest.emit('destroyed')
+      expect(watch?.cancel).toHaveBeenCalledOnce()
+      expect(main.send).toHaveBeenLastCalledWith('ui:holdQuitNotice', { phase: 'dismissed' })
+      watch?.emit('held')
+      expect(f.quit).not.toHaveBeenCalled()
+      expect(popout.send).not.toHaveBeenCalled()
+    } finally {
+      f.dispose()
+    }
+  }
+)
 
 it('restores native idle CmdQ without a routable surface, including orphan contents', () => {
   allContents.splice(0)

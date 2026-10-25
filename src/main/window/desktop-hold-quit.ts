@@ -115,8 +115,11 @@ export function installDesktopHoldQuit(options: {
   ipcMain.on('ui:setShortcutRecorderFocused', recording)
 
   const attach = (contents: WebContents): void => {
+    let lastNotice: ((notice: HoldQuitNotice) => void) | null = null
     const sendNotice = (notice: HoldQuitNotice): void => {
-      ownerFor(contents)?.notice(notice)
+      const target = ownerFor(contents)?.notice ?? lastNotice
+      lastNotice = notice.phase === 'dismissed' ? null : target
+      target?.(notice)
     }
     const gesture = new HoldQuitGesture({
       isEnabled: enabled,
