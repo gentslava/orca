@@ -5,7 +5,10 @@ import {
 } from '../../../../src/navigation/workspace-execution-host'
 import { useLocalSearchParams } from 'expo-router'
 import { MobileWebShellScreen } from '../../../../src/mobile-web-shell/MobileWebShellScreen'
-import { shellScreenRoute } from '../../../../src/mobile-web-shell/shell-screen-route'
+import {
+  shellScreenRoute,
+  shellScreenRouteKey
+} from '../../../../src/mobile-web-shell/shell-screen-route'
 import { PageRouteUnavailableScreen } from '../../../../src/mobile-web-shell/PageRouteUnavailableScreen'
 import { firstParam } from '../../../../src/navigation/route-param-reader'
 
@@ -25,13 +28,16 @@ export default withWorkspaceRoute(function MobileAgentSessionHistoryScreen() {
     hostId?: string | string[]
     worktreeId?: string | string[]
     name?: string | string[]
+    conversationId?: string | string[]
   }>()
   const hostId = firstParam(params.hostId)
   const worktreeId = firstParam(params.worktreeId)
   const name = firstParam(params.name)
+  const conversationId = firstParam(params.conversationId)
   const executionHost = useWorkspaceExecutionHost()
   const routeParams = {
     ...(name === '' ? {} : { name }),
+    ...(conversationId === '' ? {} : { conversationId }),
     ...workspaceRouteParams(executionHost)
   }
 
@@ -51,5 +57,5 @@ export default withWorkspaceRoute(function MobileAgentSessionHistoryScreen() {
   // reused across a route change would keep authorising frames under the grants of the route the
   // page has left. The key is what makes the change a remount, which disposes that bridge in the
   // commit, and the new session starts with no grants until its own `init`.
-  return <MobileWebShellScreen key={route.pathname} hostId={hostId} route={route} />
+  return <MobileWebShellScreen key={shellScreenRouteKey(route)} hostId={hostId} route={route} />
 })

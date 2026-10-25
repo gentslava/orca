@@ -29,11 +29,13 @@ import { buildMobileAgentHistoryResumeActionState } from './agent-history-sessio
 import { styles } from './agent-history-styles'
 import { useNow } from '../hooks/use-now'
 import { useMobileResumeOperationOwnership } from './use-mobile-resume-operation-ownership'
+import { conversationCopy } from '../host-screen/conversation-copy'
 
 export type MobileAgentSessionHistoryPanelProps = {
   hostId: string
   worktreeId: string
   name?: string
+  conversationId?: string
 }
 
 const SCOPE_TABS: { scope: AiVaultScope; label: string }[] = [
@@ -49,7 +51,8 @@ export function MobileAgentSessionHistoryPanel(props: MobileAgentSessionHistoryP
 function MobileAgentSessionHistoryPanelContent({
   hostId,
   worktreeId,
-  name = ''
+  name = '',
+  conversationId
 }: MobileAgentSessionHistoryPanelProps) {
   // Not `useRouter`: inside the shell's page this screen is one document standing in for one
   // screen, and the session it resumes into is a native route the shell has to push.
@@ -121,7 +124,10 @@ function MobileAgentSessionHistoryPanelContent({
     retry
   } = useMobileAgentHistoryState({ hostId, worktreeId, worktrees, worktreesLoaded })
 
-  const sessions = screenState.kind === 'ready' ? screenState.sessions : EMPTY_SESSIONS
+  const sessions = useMemo(() => {
+    const all = screenState.kind === 'ready' ? screenState.sessions : EMPTY_SESSIONS
+    return conversationId ? all.filter((session) => session.id === conversationId) : all
+  }, [screenState, conversationId])
   const issues = screenState.kind === 'ready' ? screenState.issues : EMPTY_ISSUES
   const sessionsById = useMemo(
     () => new Map(sessions.map((session) => [session.id, session])),
@@ -279,7 +285,7 @@ function MobileAgentSessionHistoryPanelContent({
           </Pressable>
           <View style={styles.titleBlock}>
             <Text style={styles.title} numberOfLines={1}>
-              Agent Session History
+              {conversationId ? conversationCopy().history : 'Agent Session History'}
             </Text>
             <Text style={styles.meta} numberOfLines={1}>
               {worktreeLabel}
@@ -319,33 +325,37 @@ function MobileAgentSessionHistoryPanelContent({
         </View>
       ) : (
         <>
-          <View style={styles.scopeTabs}>
-            {SCOPE_TABS.map((tab) => {
-              const active = scope === tab.scope
-              return (
-                <Pressable
-                  key={tab.scope}
-                  style={[styles.scopeTab, active && styles.scopeTabActive]}
-                  onPress={() => onSelectScope(tab.scope)}
-                >
-                  <Text style={[styles.scopeTabText, active && styles.scopeTabTextActive]}>
-                    {tab.label}
-                  </Text>
-                </Pressable>
-              )
-            })}
-          </View>
-          <View style={styles.searchRow}>
-            <TextInput
-              style={styles.searchInput}
-              value={query}
-              onChangeText={setQuery}
-              placeholder="Search sessions, repo:, path:"
-              placeholderTextColor={colors.textMuted}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
+          {!conversationId && (
+            <View style={styles.scopeTabs}>
+              {SCOPE_TABS.map((tab) => {
+                const active = scope === tab.scope
+                return (
+                  <Pressable
+                    key={tab.scope}
+                    style={[styles.scopeTab, active && styles.scopeTabActive]}
+                    onPress={() => onSelectScope(tab.scope)}
+                  >
+                    <Text style={[styles.scopeTabText, active && styles.scopeTabTextActive]}>
+                      {tab.label}
+                    </Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+          )}
+          {!conversationId && (
+            <View style={styles.searchRow}>
+              <TextInput
+                style={styles.searchInput}
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Search sessions, repo:, path:"
+                placeholderTextColor={colors.textMuted}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+          )}
           {issues.length > 0 ? (
             <View style={styles.noticeBanner}>
               <Text style={styles.noticeText}>
@@ -367,10 +377,15 @@ function MobileAgentSessionHistoryPanelContent({
             </View>
           ) : (
             <MobileAgentSessionHistoryList
+              key={conversationId ?? 'history'}
               sections={sections}
               sessionsById={sessionsById}
               refreshing={refreshing}
-              showCurrentWorktreeBadges={shouldShowMobileCurrentWorktreeBadge(scope)}
+              showCurrentWorktreeBadges={
+                !conversationId && shouldShowMobileCurrentWorktreeBadge(scope)
+              }
+              initialExpandedId={conversationId}
+              hideSectionHeaders={Boolean(conversationId)}
               resumeActionStateBySessionId={resumeActionStateBySessionId}
               onResume={onResumeSession}
               onRefresh={() => void onRefresh()}

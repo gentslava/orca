@@ -113,6 +113,7 @@ export function projectDurableAiVaultConversations(
   }
   return {
     ...result,
+    includesStructuredSessions: true,
     sessions: [...otherRows, ...bySessionId.values()].sort((a, b) => rowTime(b) - rowTime(a))
   }
 }

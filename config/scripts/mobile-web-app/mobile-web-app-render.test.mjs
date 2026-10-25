@@ -418,12 +418,11 @@ describeRender('the Route A page in a real browser', () => {
     await opened.page.goto(`${origin}/`, { waitUntil: 'load' })
     await waitForRoute(opened, HOST_ROUTE, SHELL_HOST.name)
     const layout = await opened.page.evaluate(() => {
-      // The one control this route paints with no RPC answered. Positioned against the bottom of
-      // the root, so it is also the element a collapsed root moves furthest.
-      const fab = [...document.querySelectorAll('[role="button"]')].find(
-        (element) => element.getAttribute('aria-label') === 'New workspace'
+      // The host's settings remain reachable even when the host has answered no catalog reads.
+      const control = [...document.querySelectorAll('[role="button"]')].find(
+        (element) => element.getAttribute('aria-label') === 'More options'
       )
-      const box = fab?.getBoundingClientRect() ?? null
+      const box = control?.getBoundingClientRect() ?? null
       const hit =
         box === null
           ? null
@@ -431,9 +430,9 @@ describeRender('the Route A page in a real browser', () => {
       return {
         rootHeight: document.getElementById('root').getBoundingClientRect().height,
         viewportHeight: window.innerHeight,
-        fabTop: box?.top ?? null,
-        fabBottom: box?.bottom ?? null,
-        reachesTheControl: hit !== null && fab.contains(hit)
+        controlTop: box?.top ?? null,
+        controlBottom: box?.bottom ?? null,
+        reachesTheControl: hit !== null && control.contains(hit)
       }
     })
     await opened.page.close()
@@ -442,8 +441,8 @@ describeRender('the Route A page in a real browser', () => {
     // every assertion on `innerText` passes while the phone paints a blank list under the header.
     // A height is the only thing that says the screen is on the screen.
     expect(layout.rootHeight).toBe(layout.viewportHeight)
-    expect(layout.fabTop).toBeGreaterThan(0)
-    expect(layout.fabBottom).toBeLessThanOrEqual(layout.viewportHeight)
+    expect(layout.controlTop).toBeGreaterThan(0)
+    expect(layout.controlBottom).toBeLessThanOrEqual(layout.viewportHeight)
     // Laid out is not reachable. A row inside a scroller the collapse clipped keeps its rect and
     // takes no taps, which is what both phones found before this file could say so.
     expect(layout.reachesTheControl).toBe(true)

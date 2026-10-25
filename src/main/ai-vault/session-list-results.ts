@@ -41,6 +41,7 @@ export function restampAiVaultListResult(
   executionHostId: ExecutionHostId
 ): AiVaultListResult {
   return {
+    ...result,
     sessions: result.sessions.map((session) =>
       session.executionHostId === executionHostId
         ? session
@@ -50,8 +51,7 @@ export function restampAiVaultListResult(
             id: `${executionHostId}:${session.agent}:${session.sessionId}:${session.filePath}`
           }
     ),
-    issues: result.issues.map((issue) => ({ ...issue, executionHostId })),
-    scannedAt: result.scannedAt
+    issues: result.issues.map((issue) => ({ ...issue, executionHostId }))
   }
 }
 

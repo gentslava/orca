@@ -11,6 +11,9 @@ const desktop = [
   'src/main/gemini/gemini-acp-resume.test.ts',
   'src/main/gemini/gemini-acp-session.test.ts',
   'src/main/ai-vault/structured-conversation-navigation.test.ts',
+  'src/main/ai-vault/session-list-results.test.ts',
+  'src/main/runtime/rpc/methods/ai-vault.test.ts',
+  'config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs',
   'src/renderer/src/lib/activate-ai-vault-structured-session.test.ts',
   'src/renderer/src/components/native-chat/native-chat-child-navigation.test.tsx',
   'src/renderer/src/components/native-chat/native-chat-transcript-work-runs.test.ts',
@@ -42,6 +45,10 @@ const desktop = [
   'src/main/updater.headless-serve-install.test.ts'
 ]
 const mobile = [
+  'src/host-screen/project-conversations.test.ts',
+  'src/host-screen/use-project-conversations.test.tsx',
+  'src/host-screen/use-conversation-actions.test.tsx',
+  'src/host-screen/conversation-open.test.ts',
   'src/session/MobileNativeChatMessage.work-run.test.tsx',
   'src/session/MobileNativeChatSessionOptionPickers.test.ts',
   'src/host-screen/host-worktree-child-navigation.test.tsx',

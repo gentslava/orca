@@ -250,6 +250,8 @@ export type AiVaultListArgs = {
 }
 
 export type AiVaultListResult = {
+  /** This host included durable Orca records, even when no provider transcript exists. */
+  includesStructuredSessions?: true
   /** Local scan entry that produced this result; absent for remote and merged results. */
   scanId?: string
   fingerprint?: string

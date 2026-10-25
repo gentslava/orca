@@ -5,7 +5,7 @@ import type {
   AiVaultSession
 } from '../../shared/ai-vault-types'
 import { truncateAiVaultListResult } from '../../shared/ai-vault-session-depth'
-import { mergeAiVaultListResults } from './session-list-results'
+import { mergeAiVaultListResults, restampAiVaultListResult } from './session-list-results'
 
 function listResult(issues: AiVaultScanIssue[]): AiVaultListResult {
   return { sessions: [], issues, scannedAt: '2026-08-02T00:00:00.000Z' }
@@ -45,6 +45,18 @@ const SCOPE_TRUNCATION: AiVaultScanIssue = {
   path: '/home/ada',
   message: 'Only the first 64 project paths were scanned.'
 }
+
+describe('restampAiVaultListResult', () => {
+  it('preserves confirmed empty catalog coverage without claiming it for legacy results', () => {
+    const original = listResult([])
+    expect(restampAiVaultListResult(original, 'runtime:server')).not.toHaveProperty(
+      'includesStructuredSessions'
+    )
+    expect(
+      restampAiVaultListResult({ ...original, includesStructuredSessions: true }, 'runtime:server')
+    ).toEqual({ ...original, includesStructuredSessions: true })
+  })
+})
 
 describe('mergeAiVaultListResults', () => {
   afterEach(() => {
