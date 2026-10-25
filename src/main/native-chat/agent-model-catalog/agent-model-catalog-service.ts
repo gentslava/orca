@@ -141,8 +141,9 @@ export function createAgentModelCatalogService(
         if (
           params.verifiedOnly &&
           (!listed ||
-            (independentAgentModelCatalog(params.agent) &&
-              (!exact || !deps.store.verified(listed))))
+            (independentAgentModelCatalog(params.agent) && !exact) ||
+            ((independentAgentModelCatalog(params.agent) || params.requireConfiguredDefault) &&
+              !deps.store.verified(listed, params.requireConfiguredDefault)))
         ) {
           return { origin: 'unknown' }
         }

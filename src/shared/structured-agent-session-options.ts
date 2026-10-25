@@ -69,6 +69,7 @@ export type StructuredAgentSessionOptionState = {
   listingInProgress?: boolean
   fastModeRestricted?: boolean
   modelDefault?: boolean
+  defaultModel?: AgentSessionOptionsResult['defaultModel']
 }
 
 /** With `seedCatalog`, the state holds the static seed from the first frame, but the picker shows
@@ -201,6 +202,7 @@ export function applyStructuredAgentSessionOptions(
     ...state,
     catalog: installed ? state.catalog : structuredAgentSessionOptionCatalog(seed, result),
     modelDefault: current.modelDefault === true,
+    defaultModel: result.defaultModel,
     fastModeRestricted:
       installed &&
       result.fastModeSupport?.supported === false &&
@@ -254,7 +256,11 @@ export function commitStructuredAgentSessionModelDefault(
   for (const id of ['model', 'effort', 'fastMode', 'serviceTier']) {
     delete state.record.values[id]
   }
-  return { ...commitStructuredAgentSessionOptionValues(state, values), modelDefault: true }
+  return {
+    ...commitStructuredAgentSessionOptionValues(state, values),
+    modelDefault: true,
+    defaultModel: undefined
+  }
 }
 
 /** Whether a pick of `modelId` held before launch keeps another held value (decoded or encoded):

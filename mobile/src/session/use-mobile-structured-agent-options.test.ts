@@ -219,6 +219,39 @@ function currentValueOf(snapshot: readonly SessionOptionDescriptor[], id: string
 const BASE = { agent: 'codex', sessionId: 'session-1', fence: 1 } as const
 
 describe('useMobileStructuredAgentOptions Default model', () => {
+  it('carries the host Default preview without replacing the explicit selected model', async () => {
+    let reported = true
+    const client = optionsClient(async () => ({
+      ...OPTIONS,
+      ...(reported
+        ? {
+            defaultModel: {
+              id: 'host-original',
+              label: 'Host original',
+              description: 'Configured model'
+            }
+          }
+        : {})
+    }))
+    const mounted = await mountOptions({
+      ...BASE,
+      client: client.client,
+      mutate: recordingMutate(async () => accepted({ key: 'model', value: 'gpt-live' }, true))
+        .mutate,
+      supportsDefault: true
+    })
+    expect(descriptorFor(mounted.current().optionSnapshot, 'model')?.defaultChoice).toEqual({
+      selected: false,
+      model: { value: 'host-original', label: 'Host original', description: 'Configured model' }
+    })
+    expect(currentValueOf(mounted.current().optionSnapshot, 'model')).toBe('gpt-live')
+    reported = false
+    await mounted.rerender({ optionStamp: 'next-turn' })
+    expect(descriptorFor(mounted.current().optionSnapshot, 'model')?.defaultChoice).toEqual({
+      selected: false
+    })
+    await mounted.unmount()
+  })
   it.each([false, true])(
     'gates reset on the connected host capability (%s)',
     async (supportsDefault) => {

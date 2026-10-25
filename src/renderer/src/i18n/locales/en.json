@@ -19182,6 +19182,7 @@
       },
       "composer": {
         "defaultModel": "Default",
+        "defaultModelNotReported": "Default model not reported",
         "imageUnsupported": "Image paste is not supported for this agent.",
         "send": "Send",
         "noPty": "No live terminal — toggle back to reconnect.",

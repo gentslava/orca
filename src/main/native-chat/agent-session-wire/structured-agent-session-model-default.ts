@@ -1,8 +1,53 @@
 import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
-import { refuse, type AgentSessionOptionResult } from '../../../shared/agent-session-wire'
+import {
+  refuse,
+  type AgentSessionOptionResult,
+  type AgentSessionOptionsResult
+} from '../../../shared/agent-session-wire'
 import type { AgentSessionTurnContext, TurnOutcome } from './structured-agent-session-turns'
 import type { StructuredAgentSessionHostDeps } from './structured-agent-session-host-types'
 import { agentSessionOptionAdmitted } from '../../runtime/agent-session-record-options'
+
+/** Passive verified configuration reads never launch a probe or substitute the current model. */
+export async function readStructuredAgentSessionDefaultModel(
+  deps: Pick<StructuredAgentSessionHostDeps, 'store' | 'modelCatalog'>,
+  sessionId: string
+): Promise<AgentSessionOptionsResult['defaultModel']> {
+  const record = deps.store.getRecord(sessionId)
+  if (!record) {
+    return undefined
+  }
+  const listing = await deps.modelCatalog
+    ?.read({
+      agent: record.provider,
+      sessionId,
+      inSessionWorkspace: true,
+      savedOnly: true,
+      verifiedOnly: true,
+      requireConfiguredDefault: true
+    })
+    .catch(() => null)
+  const catalog =
+    listing && listing.origin !== 'unknown' && !listing.listingInProgress && !listing.unavailable
+      ? listing
+      : undefined
+  const id =
+    record.defaultModelOptions !== undefined
+      ? record.defaultModelOptions.model
+      : (catalog?.defaultModelOptions?.model ??
+        (catalog?.listingNamesConfiguredModel === true
+          ? catalog.models.find((model) => model.isDefault)?.id
+          : undefined))
+  if (!id) {
+    return undefined
+  }
+  const model = catalog?.models.find((model) => model.id === id)
+  return {
+    id,
+    label: model?.label ?? id,
+    ...(model?.description ? { description: model.description } : {})
+  }
+}
 
 /** Read original host configuration, never a resumed thread's current model or a recommendation. */
 export async function resetStructuredAgentSessionModel(

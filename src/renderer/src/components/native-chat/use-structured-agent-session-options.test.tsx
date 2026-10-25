@@ -169,6 +169,35 @@ describe('useStructuredAgentSessionOptions', () => {
     resetHostModelCatalogSnapshotsForTests()
   })
 
+  it('carries the host Default preview without replacing the explicit selected model', async () => {
+    setLocalRuntimeCapabilitiesForTests([AGENT_SESSION_DEFAULT_MODEL_CAPABILITY])
+    const defaultModel = {
+      id: 'host-original',
+      label: 'Host original',
+      description: 'Configured model'
+    }
+    answer({ options: async () => ({ ...LIVE_OPTIONS, defaultModel }) })
+    const { result, rerender, unmount } = renderOptions(
+      REOPENED,
+      mutateWith(async () => null).mutate
+    )
+    await waitFor(() =>
+      expect(descriptor(result.current.optionSnapshot, 'model')?.defaultChoice).toEqual({
+        selected: false,
+        model: { value: 'host-original', label: 'Host original', description: 'Configured model' }
+      })
+    )
+    expect(currentValue(result.current.optionSnapshot, 'model')).toBe('gpt-5.5')
+    answer({ options: async () => LIVE_OPTIONS })
+    rerender({ ...REOPENED, turnId: 'next-turn' })
+    await waitFor(() =>
+      expect(descriptor(result.current.optionSnapshot, 'model')?.defaultChoice).toEqual({
+        selected: false
+      })
+    )
+    unmount()
+  })
+
   it.each([false, true])(
     'resets the model on its execution host and clears launch preferences (paired: %s)',
     async (paired) => {

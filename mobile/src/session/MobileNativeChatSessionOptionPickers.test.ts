@@ -190,6 +190,33 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     expect(setOption).not.toHaveBeenCalled()
   })
 
+  it('shows the proven Default model and description under its action', async () => {
+    mount(
+      [
+        {
+          ...MODEL_DESCRIPTOR,
+          defaultChoice: {
+            selected: false,
+            model: { value: 'opus', label: 'Opus 5.5', description: 'Most capable model' }
+          }
+        }
+      ],
+      true,
+      true
+    )
+    await act(async () => pill('Model').props.onPress())
+    const row = rowByText('Default')
+    expect(rowByText('Opus 5.5')).toBe(row)
+    expect(rowByText('Most capable model')).toBe(row)
+    expect(row.props.accessibilityState?.checked).toBe(false)
+  })
+
+  it('states when the host has not reported its Default model', async () => {
+    mount([{ ...MODEL_DESCRIPTOR, defaultChoice: { selected: false } }], true, true)
+    await act(async () => pill('Model').props.onPress())
+    expect(rowByText('Default model not reported')).toBe(rowByText('Default'))
+  })
+
   it('shows the current model and effort in one pill', () => {
     mount([MODEL_DESCRIPTOR, EFFORT_DESCRIPTOR])
     expect(pill('Model').props).toMatchObject({

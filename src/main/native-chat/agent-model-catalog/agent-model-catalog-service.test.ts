@@ -53,6 +53,42 @@ const GROK_HOME = (path: string): { variable: 'GROK_HOME'; path: string } => ({
 })
 
 describe('agent model catalog service', () => {
+  it('omits stale original-default proof on passive verified reads without starting a probe', async () => {
+    let now = 1_000
+    const store = new AgentModelCatalogStore({ now: () => now })
+    const pinned = record('/homes/session')
+    store.recordSuccess(
+      agentModelCatalogFingerprintForRecord(pinned),
+      'grok',
+      listing('original-default'),
+      'discovery'
+    )
+    const probe = vi.fn(async () => listing('refreshed-default'))
+    const service = createAgentModelCatalogService({
+      store,
+      getRecord: () => pinned,
+      drivesRecord: () => true,
+      resolveAccountHome: async () => GROK_HOME('/homes/selected'),
+      listingNamesConfiguredModel: new Set(['grok']),
+      recordWorkspacePath: async () => '/workspace/project',
+      workspaceMayOverrideDefaultModel: async () => false,
+      probes: { grok: probe }
+    })
+    const read = () =>
+      service.read({
+        agent: 'grok',
+        sessionId: pinned.sessionId,
+        inSessionWorkspace: true,
+        savedOnly: true,
+        verifiedOnly: true,
+        requireConfiguredDefault: true
+      })
+    expect(await read()).toMatchObject({ origin: 'probe', listingNamesConfiguredModel: true })
+    now += AGENT_MODEL_CATALOG_FRESH_MS
+    expect(await read()).toEqual({ origin: 'unknown' })
+    expect(probe).not.toHaveBeenCalled()
+  })
+
   it('answers unknown and kicks one probe for a session whose key has never listed', async () => {
     const store = new AgentModelCatalogStore()
     const probe = vi.fn(async (_home: AgentSessionAccountHome) => listing('gpt-a'))

@@ -23,6 +23,7 @@ import { structuredAgentSessionLaunchPermission } from './structured-agent-sessi
 import type { StructuredAgentSessionMutationContext } from './structured-agent-session-host-mutations'
 import { structuredAgentSessionNeverSent } from './structured-agent-session-never-sent'
 import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
+import { readStructuredAgentSessionDefaultModel } from './structured-agent-session-model-default'
 
 export {
   recordStructuredAgentSessionOptionIntent,
@@ -282,8 +283,10 @@ export async function readStructuredAgentSessionOptions(
       current.serviceTier = projected.options.serviceTier
     }
   }
+  const defaultModel = await readStructuredAgentSessionDefaultModel(context.deps, sessionId)
   return {
     ...options,
+    ...(defaultModel ? { defaultModel } : {}),
     current: {
       ...current,
       ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),

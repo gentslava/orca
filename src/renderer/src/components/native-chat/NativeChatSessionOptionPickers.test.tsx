@@ -148,6 +148,43 @@ const effortLevels = (): HTMLElement[] =>
 afterEach(() => cleanup())
 
 describe('NativeChatSessionOptionPickers', () => {
+  it('shows the proven Default model and its description while retaining the current explicit model', () => {
+    render(
+      <NativeChatSessionOptionPickers
+        isWorking={false}
+        surface={{ ...surface, resetOption: vi.fn() }}
+        snapshot={[
+          model({
+            transport: 'agent-session',
+            defaultChoice: {
+              selected: false,
+              model: { value: 'opus', label: 'Opus 5.5', description: 'Most capable model' }
+            }
+          })
+        ]}
+      />
+    )
+    const row = screen.getByRole('option', { name: /Default/ })
+    expect(within(row).getByText('Opus 5.5')).toBeDefined()
+    expect(within(row).getByText('Most capable model')).toBeDefined()
+    expect(row.getAttribute('aria-current')).not.toBe('true')
+  })
+
+  it('states when the host has not reported its Default model', () => {
+    render(
+      <NativeChatSessionOptionPickers
+        isWorking={false}
+        surface={{ ...surface, resetOption: vi.fn() }}
+        snapshot={[model({ transport: 'agent-session', defaultChoice: { selected: false } })]}
+      />
+    )
+    expect(
+      within(screen.getByRole('option', { name: /Default/ })).getByText(
+        'Default model not reported'
+      )
+    ).toBeDefined()
+  })
+
   it('offers Default as a reset action without sending a synthetic model id', async () => {
     const resetOption = vi.fn(async () => ({ snapshot: [] }))
     render(
@@ -157,7 +194,7 @@ describe('NativeChatSessionOptionPickers', () => {
         isWorking
       />
     )
-    fireEvent.click(screen.getByRole('option', { name: 'Default' }))
+    fireEvent.click(screen.getByRole('option', { name: /Default/ }))
     await settle()
     expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
     expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')

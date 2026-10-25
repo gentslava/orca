@@ -1,3 +1,4 @@
+import { structuredAgentSessionDefaultModelChoice } from '../../../src/shared/structured-agent-session-default-model-choice'
 import type { AgentSessionConversationCommand } from '../../../src/shared/agent-session/agent-session-conversation-command'
 import { useMobileStructuredOptionState } from './use-mobile-structured-option-state'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
@@ -119,7 +120,7 @@ export function useMobileStructuredAgentOptions(args: {
               ? {
                   ...descriptor,
                   settable: true,
-                  defaultChoice: { selected: optionStateRef.current.modelDefault === true }
+                  defaultChoice: structuredAgentSessionDefaultModelChoice(optionStateRef.current)
                 }
               : descriptor
           )

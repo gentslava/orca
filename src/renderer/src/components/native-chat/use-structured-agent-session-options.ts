@@ -1,3 +1,4 @@
+import { structuredAgentSessionDefaultModelChoice } from '../../../../shared/structured-agent-session-default-model-choice'
 import { useStructuredAgentSessionOptionWrite } from './use-structured-agent-session-option-write'
 import { toast } from 'sonner'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
@@ -165,7 +166,7 @@ export function useStructuredAgentSessionOptions(args: {
               ? {
                   ...descriptor,
                   settable: true,
-                  defaultChoice: { selected: optionStateRef.current.modelDefault === true }
+                  defaultChoice: structuredAgentSessionDefaultModelChoice(optionStateRef.current)
                 }
               : descriptor
           )
