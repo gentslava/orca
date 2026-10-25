@@ -290,7 +290,8 @@ describe('Stats & Usage daily workflow', () => {
     expect(
       screen.getByText(/Historical usage is unavailable from Build server/)
     ).toBeInTheDocument()
-    expect(screen.getByTestId('usage-history-totals')).not.toHaveTextContent('0.0k')
+    const tokens = within(screen.getByTestId('usage-history-totals')).getByText('Tokens')
+    expect(tokens.previousElementSibling).toHaveTextContent(/^—$/)
     expect(screen.queryByRole('button', { name: 'Enable Codex' })).not.toBeInTheDocument()
     expect(screen.getByTestId('usage-quota-codex')).toHaveTextContent('Reset time unavailable')
   })
