@@ -17,6 +17,7 @@ import type { StructuredAgentSessionHostDeps } from './structured-agent-session-
 import {
   structuredAgentSessionCapabilityView,
   structuredAgentSessionOptionModels,
+  structuredAgentSessionProjectedModel,
   type StructuredAgentSessionRestingOptions as RestingOptions
 } from './structured-agent-session-option-models'
 import { structuredAgentSessionLaunchPermission } from './structured-agent-session-launch-permission'
@@ -178,7 +179,7 @@ export async function readStructuredAgentSessionOptions(
     (rested ??= await readStructuredAgentSessionOptionsAtRest(context.deps, sessionId, reader))
   let options: Omit<AgentSessionOptionsResult, 'rewind'>
   if (live) {
-    const { catalogListing, ...answer } = live
+    const { catalogListing, confirmedModelSelection: _selection, ...answer } = live
     options = answer
     // Fill missing live listings from saved catalog state; absent records keep the child’s answer.
     if (!catalogListing && !answer.listedModelIds && store.getRecord(sessionId)) {
@@ -225,9 +226,10 @@ export async function readStructuredAgentSessionOptions(
   const refusedModel = live && !!adapter.readOptionRestoreFailures?.(sessionId).includes('model')
   const saved = record ? (effectiveAgentSessionOptions(record) ?? {}) : {}
   const { model: _refused, ...selectedWithoutModel } = selected.current
+  const savedModel = structuredAgentSessionProjectedModel(saved.model, live, options.current)
   const model = refusedModel
     ? (options.current.model ?? displayDefault)
-    : (saved.model ?? (options.current.model || selected.current.model || displayDefault))
+    : (savedModel ?? (options.current.model || selected.current.model || displayDefault))
   const current = {
     ...(refusedModel ? selectedWithoutModel : selected.current),
     ...options.current,
@@ -293,7 +295,6 @@ export async function readStructuredAgentSessionOptions(
       defaulted,
       confirmed,
       ...(options.current.fastModeState ? { fastModeState: options.current.fastModeState } : {}),
-      ...(confirmed?.length ? { confirmed } : {}),
       ...(permissionMode ? { permissionMode } : {})
     },
     rewind:

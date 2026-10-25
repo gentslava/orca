@@ -6,6 +6,8 @@ import { isDirectInvocation } from './script-entry-detection.mjs'
 const desktop = [
   'config/scripts/fork-upstream-sync.test.mjs',
   'config/scripts/fork-upstream-archives.test.mjs',
+  'src/main/antigravity/antigravity-model-options.test.ts',
+  'src/main/acp/acp-structured-host-model-options.test.ts',
   'src/main/gemini/gemini-acp-launch.test.ts',
   'src/main/gemini/gemini-acp-permissions.test.ts',
   'src/main/gemini/gemini-acp-resume.test.ts',

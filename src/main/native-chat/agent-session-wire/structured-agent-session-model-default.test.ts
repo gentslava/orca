@@ -127,7 +127,7 @@ it('learns an omitted new-chat default once from execution without restoring an 
     rig.store.reviseSessionOptions(recordAgentSessionRanOptions, {
       sessionId,
       fence: record.lease.runtimeFence,
-      now: Date.now(),
+      now: 1_700_000_000_000,
       model,
       options: { model, effort: 'medium' },
       models: []

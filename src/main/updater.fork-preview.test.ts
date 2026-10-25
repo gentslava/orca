@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { loadUpdaterModule, warmUpdaterModule } from './updater-test-module-loader'
 
 const {
@@ -39,13 +39,19 @@ vi.mock('./updater-release-builds', () => ({
 }))
 
 warmUpdaterModule()
+const lastCheckAt = 1_700_000_000_000
 
 describe('fork preview updater isolation', () => {
   beforeEach(() => {
+    vi.spyOn(Date, 'now').mockReturnValue(lastCheckAt)
     resetUpdaterMocks()
     loadAutoUpdaterMock.mockClear()
     listReleaseBuildsMock.mockClear()
     resolveTargetBuildMock.mockClear()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it.each([
@@ -89,7 +95,7 @@ describe('fork preview updater isolation', () => {
     appMock.getVersion.mockReturnValue(version)
     const updater = await loadUpdaterModule()
 
-    updater.setupAutoUpdater(null, { getLastUpdateCheckAt: () => Date.now() })
+    updater.setupAutoUpdater(null, { getLastUpdateCheckAt: () => lastCheckAt })
     await updater.listAvailableReleaseBuilds('stable', { force: true })
 
     expect(loadAutoUpdaterMock).toHaveBeenCalledOnce()

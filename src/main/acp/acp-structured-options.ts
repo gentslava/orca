@@ -63,6 +63,7 @@ export class AcpStructuredOptions {
   /** Last successful Orca writes, distinct from agent-reported values. */
   readonly applied = new Map<string, string>()
   private initialChoice: Readonly<Record<string, string>> = {}
+  private modelSelection: { requested: string; reported: string } | null = null
   currentProof = new Set<string>()
   writeRevision = 0
 
@@ -78,6 +79,7 @@ export class AcpStructuredOptions {
     this.resolvesConfig = origin === 'new'
     this.initialChoice = this.reported()
     this.currentProof = new Set(Object.keys(this.initialChoice))
+    this.confirmModelSelection(response.models?.currentModelId)
   }
 
   /** Native selection before any message changed this child. */
@@ -89,10 +91,30 @@ export class AcpStructuredOptions {
     this.picked.add(key)
   }
 
-  adoptConfigOptions(configOptions: SessionConfigOption[] | null | undefined): void {
+  adoptConfigOptions(
+    configOptions: SessionConfigOption[] | null | undefined,
+    requestedModel?: string
+  ): void {
     if (configOptions) {
       this.configOptions = configOptions
+      if (requestedModel !== undefined) {
+        this.confirmModelSelection(requestedModel)
+      } else if (this.modelSelection?.reported !== this.select('model')?.currentValue) {
+        this.modelSelection = null
+      }
     }
+  }
+
+  confirmedModelSelection(): string | undefined {
+    return this.currentProof.has('model') &&
+      this.modelSelection?.reported === this.select('model')?.currentValue
+      ? this.modelSelection?.requested
+      : undefined
+  }
+
+  private confirmModelSelection(requested: string | undefined): void {
+    const reported = this.select('model')?.currentValue
+    this.modelSelection = requested && reported ? { requested, reported } : null
   }
 
   adoptModel(modelId: string): void {
@@ -226,7 +248,11 @@ export async function readAcpLiveOptions(
 ) {
   const acceptsImages = await acpSessionAcceptsImages(session)
   // Only startup establishes config resolution; later reads may reflect changed picks.
-  return { ...withLiveCatalogListing(session.options.read()), acceptsImages }
+  return {
+    ...withLiveCatalogListing(session.options.read()),
+    confirmedModelSelection: session.options.confirmedModelSelection(),
+    acceptsImages
+  }
 }
 
 /** Only the current, still-awaited write may establish reusable option proof. */
@@ -257,7 +283,14 @@ export function writeAcpSessionOption(
     write.method === 'config'
       ? connection
           .setConfigOption(write.configId, write.value)
-          .then((result) => adopt(() => options.adoptConfigOptions(result.configOptions)))
+          .then((result) =>
+            adopt(() =>
+              options.adoptConfigOptions(
+                result.configOptions,
+                bound.key === 'model' ? bound.value : undefined
+              )
+            )
+          )
       : connection
           .setModel(write.modelId)
           .then(() => adopt(() => options.adoptModel(write.modelId)))

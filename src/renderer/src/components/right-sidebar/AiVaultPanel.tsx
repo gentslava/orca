@@ -67,6 +67,7 @@ export default function AiVaultPanel({
   } = useAiVaultPanelWorkspace(workspace)
   const repos = useRepos()
   const allWorktrees = useAllWorktrees()
+  const projectFolderWorkspaces = useAppStore(selectFolderWorkspaces)
   const projectHostSetupProjection = useProjectHostSetupProjection()
   const resumeTargetState = useAppStore(
     useShallow((state) => ({
@@ -113,7 +114,7 @@ export default function AiVaultPanel({
   const projectScopeContext = useMemo(
     () =>
       buildAiVaultProjectContext({
-        folderWorkspaces: resumeTargetState.folderWorkspaces,
+        folderWorkspaces: projectFolderWorkspaces,
         repos,
         worktrees: allWorktrees,
         projectHostSetupProjection,
@@ -127,7 +128,7 @@ export default function AiVaultPanel({
       allWorktrees,
       projectHostSetupProjection,
       repos,
-      resumeTargetState.folderWorkspaces
+      projectFolderWorkspaces
     ]
   )
   const activeProjectKey = projectScopeContext.activeProjectKey
@@ -189,13 +190,13 @@ export default function AiVaultPanel({
   const sessionProjectById = useMemo(
     () =>
       buildAiVaultSessionProjectById({
-        folderWorkspaces: resumeTargetState.folderWorkspaces,
+        folderWorkspaces: projectFolderWorkspaces,
         repos,
         worktrees: allWorktrees,
         projectHostSetupProjection,
         sessions
       }),
-    [allWorktrees, projectHostSetupProjection, repos, sessions, resumeTargetState.folderWorkspaces]
+    [allWorktrees, projectHostSetupProjection, repos, sessions, projectFolderWorkspaces]
   )
   const effectiveActiveWorktreeId = activeWorktreeId ?? activeWorktree?.id ?? null
   const {

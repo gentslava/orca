@@ -100,6 +100,8 @@ export type AcpDialect = {
   notification?(method: string, params: unknown, at: number): AcpDialectNotification | undefined
   contextWindow?(models: unknown): number | undefined
   modelEfforts?(model: ModelInfo): { efforts: AgentSessionOptionChoice[]; defaultEffort?: string }
+  /** Model config writes return the selected family's effort menu without a model turn. */
+  modelConfigUpdatesEfforts?: true
   /** Claimed permission requests are never auto-approved. */
   request?(method: string, params: unknown): AcpRequestPresentation | undefined
   settleRequest?(method: string, params: unknown): AcpRequestSettlement | undefined

@@ -31,7 +31,11 @@ import {
 } from './acp-structured-session-adapter-deps'
 import { readAcpLiveOptions, writeAcpSessionOption } from './acp-structured-options'
 import { stopAcpChildren, acpChildStopCapabilities } from './acp-structured-child-stop'
-import { acpStartupFailure, isAcpReadySession } from './acp-structured-child'
+import {
+  acpStartupFailure,
+  canSetAcpOptionWhileIdle,
+  isAcpReadySession
+} from './acp-structured-child'
 import { AcpStructuredChildren } from './acp-structured-child-lifecycle'
 import { AcpConversationCopies } from './acp-conversation-copies'
 import { supportsAcpStructuredLocation } from './acp-structured-location-support'
@@ -250,6 +254,9 @@ export class AcpStructuredSessionAdapter implements StructuredAgentSessionAdapte
     })
     return session.options.reported()
   }
+
+  canSetOptionWhileIdle = (input: StructuredAgentSessionSetOptionInput): boolean =>
+    canSetAcpOptionWhileIdle(this.children.sessions.get(input.sessionId), input)
 
   readOptions = async (input: { sessionId: string; fence: number }) =>
     readAcpLiveOptions(this.live(input.sessionId))
