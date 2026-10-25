@@ -1,0 +1,228 @@
+name: Fork preview - macOS ARM64
+run-name: Fork ARM64 preview - ${{ github.sha }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      formats:
+        description: Installable preview formats (no release publication)
+        type: choice
+        required: true
+        default: both
+        options:
+          - both
+          - dmg
+          - zip
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-preview-macos-arm64-${{ github.repository }}
+  cancel-in-progress: true
+
+env:
+  ORCA_BACKGROUND_LAUNCH: '1'
+  ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
+  ORCA_MAC_RELEASE: '0'
+  ORCA_MAC_HOURLY: '0'
+  ORCA_MAC_DAILY: '0'
+  ORCA_MAC_ADHOC: '0'
+  CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+  CSC_NAME: '-'
+  ORCA_COMPUTER_MACOS_SIGN_IDENTITY: '-'
+  NODE_OPTIONS: --max-old-space-size=4096
+
+jobs:
+  macos-arm64:
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    runs-on: macos-15
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout the dispatched master commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Require native Apple Silicon and build tools
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = macOS
+          test "$(uname -m)" = arm64
+          printf 'ORCA_USER_DATA_PATH=%s/primary-profile\nORCA_USER_DATA=%s/server-profile\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          xcode-select -p
+          swift --version
+          python3 --version
+          df -h .
+
+      - name: Install pinned dependencies and Electron native runtime
+        uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: electron
+          persist-native-cache: 'false'
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            mobile/pnpm-lock.yaml
+
+      - name: Install the separate mobile project
+        uses: ./.github/actions/install-mobile-dependencies
+
+      - name: Typecheck and build desktop, CLI, web and mobile resources
+        run: pnpm run build:desktop:ci
+
+      - name: Build native macOS helpers
+        run: pnpm run build:native
+
+      - name: Verify native helper resources
+        run: pnpm run verify:computer-native
+
+      - name: Assign the supported local preview version
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { appendFileSync } from 'node:fs'
+          import { getLocalBuildIdentity } from './config/scripts/build-mac-local.mjs'
+          const identity = getLocalBuildIdentity()
+          const version = identity.version.replace(/([.-])local\.(?=\d+\.)/, '$1local.forkpreview.')
+          appendFileSync(process.env.GITHUB_ENV, `ORCA_LOCAL_BUILD_VERSION=${version}\nORCA_BUILD_COMMIT=${process.env.GITHUB_SHA}\n`)
+          console.log(`Preview version: ${version}`)
+          NODE
+
+      - name: Package ARM64 with the existing local build config
+        env:
+          PREVIEW_FORMATS: ${{ inputs.formats }}
+        run: |
+          set -euo pipefail
+          case "$PREVIEW_FORMATS" in
+            both) targets=(dmg zip) ;;
+            dmg) targets=(dmg) ;;
+            zip) targets=(zip) ;;
+            *) echo '::error::Unsupported preview format'; exit 2 ;;
+          esac
+          node config/scripts/pinned-node-downloads.mjs darwin-arm64
+          pnpm run ensure:electron-runtime
+          # Local preview mode permits an absent server deployment template; no partial template is substituted.
+          pnpm exec electron-builder --config config/electron-builder.config.cjs \
+            --mac "${targets[@]}" --arm64 --config.mac.identity=- --publish never
+
+      - name: Verify and stage installable artifacts
+        env:
+          PREVIEW_FORMATS: ${{ inputs.formats }}
+        run: |
+          set -euo pipefail
+          app=dist/mac-arm64/Orca.app
+          test -d "$app"
+          lipo -verify_arch arm64 "$app/Contents/MacOS/Orca"
+          codesign --verify --deep --strict "$app"
+          mkdir -p .build/fork-preview
+          node <<'NODE'
+          const { readdirSync, statSync, copyFileSync, writeFileSync, readFileSync } = require('node:fs')
+          const { createHash } = require('node:crypto')
+          const formats = process.env.PREVIEW_FORMATS === 'both' ? ['dmg', 'zip'] : [process.env.PREVIEW_FORMATS]
+          const files = readdirSync('dist').filter(file => statSync(`dist/${file}`).isFile() && formats.some(ext => file.endsWith(`.${ext}`)))
+          for (const ext of formats) {
+            const matches = files.filter(file => file.endsWith(`.${ext}`))
+            if (matches.length !== 1) throw new Error(`Expected one .${ext} artifact, got ${matches.length}`)
+          }
+          const checksums = files.map(file => {
+            copyFileSync(`dist/${file}`, `.build/fork-preview/${file}`)
+            return `${createHash('sha256').update(readFileSync(`dist/${file}`)).digest('hex')}  ${file}`
+          })
+          writeFileSync('.build/fork-preview/SHA256SUMS', `${checksums.join('\n')}\n`)
+          writeFileSync('.build/fork-preview/build-info.json', `${JSON.stringify({
+            repository: process.env.GITHUB_REPOSITORY,
+            commit: process.env.GITHUB_SHA,
+            version: process.env.ORCA_LOCAL_BUILD_VERSION,
+            runId: process.env.GITHUB_RUN_ID,
+            runAttempt: process.env.GITHUB_RUN_ATTEMPT,
+            architecture: 'arm64',
+            developerIdSigned: false,
+            notarized: false,
+            bundledOrcadDeploymentTemplate: false,
+            requiresForkPreviewUpdaterGuard: true,
+            files
+          }, null, 2)}\n`)
+          NODE
+          mkdir -p .build/fork-preview-launcher
+          cat > '.build/fork-preview-launcher/Launch Orca Preview.command' <<'LAUNCHER'
+          #!/bin/bash
+          set -euo pipefail
+          launcher_dir="$(cd -- "$(dirname -- "$0")" && pwd -P)"
+          preview_app="${1:-$launcher_dir/Orca.app}"
+          if [[ ! -x "$preview_app/Contents/MacOS/Orca" ]]; then
+            echo 'Put the extracted preview Orca.app beside this launcher, then double-click this .command.'
+            echo 'A Terminal invocation may instead pass the absolute path to the preview .app.'
+            exit 1
+          fi
+          preview_app="$(cd -- "$preview_app" && pwd -P)"
+          preview_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$preview_app/Contents/Info.plist")"
+          if [[ ! "$preview_version" =~ [.-]local\.forkpreview\.[0-9]+\.[0-9a-f]{1,12}$ ]]; then
+            echo 'Refusing to launch: this app is not a fork-preview build with the updater guard.'
+            exit 1
+          fi
+          codesign --verify --deep --strict "$preview_app"
+          umask 077
+          preview_root="$(mktemp -d "${TMPDIR:-/tmp/}orca-fork-preview.XXXXXX")"
+          preview_root="$(cd -- "$preview_root" && pwd -P)"
+          preview_data="$preview_root/user-data"
+          preview_home="$preview_root/home"
+          mkdir -p "$preview_data" "$preview_home" "$preview_root/server-data"
+          echo "Preview version: $preview_version"
+          echo "Isolated profile: $preview_data"
+          echo "Isolated home: $preview_home"
+          echo 'This human-initiated launcher opens the preview window with a separate profile and home.'
+          echo 'Existing production accounts are not imported. Press Control-C to stop the preview.'
+          unset ORCA_BYPASS_SINGLE_INSTANCE_LOCK ORCA_BACKGROUND_LAUNCH ORCA_E2E_HEADLESS ORCA_E2E_HEADFUL
+          exec /usr/bin/env \
+            HOME="$preview_home" \
+            XDG_CONFIG_HOME="$preview_home/.config" XDG_DATA_HOME="$preview_home/.local/share" \
+            XDG_STATE_HOME="$preview_home/.local/state" XDG_CACHE_HOME="$preview_home/.cache" \
+            ORCA_E2E_FOREGROUND=1 ORCA_E2E_ENFORCE_SINGLE_INSTANCE_LOCK=1 \
+            ORCA_E2E_USER_DATA_DIR="$preview_data" ORCA_E2E_HOME_DIR="$preview_home" \
+            ORCA_USER_DATA_PATH="$preview_data" ORCA_USER_DATA="$preview_root/server-data" \
+            ORCA_E2E_RUNTIME_WS_PORT=0 \
+            "$preview_app/Contents/MacOS/Orca" \
+            --user-data-dir="$preview_data" --password-store=basic --use-mock-keychain
+          LAUNCHER
+          chmod 755 '.build/fork-preview-launcher/Launch Orca Preview.command'
+          cp '.build/fork-preview-launcher/Launch Orca Preview.command' .build/fork-preview/
+          ditto -c -k --keepParent .build/fork-preview-launcher .build/fork-preview/Orca-Preview-Launcher.zip
+          shasum -a 256 .build/fork-preview/Orca-Preview-Launcher.zip | sed 's|  .build/fork-preview/|  |' >> .build/fork-preview/SHA256SUMS
+          cat > .build/fork-preview/README.txt <<'TXT'
+          Orca fork preview for Apple Silicon (ARM64).
+          Local test build: ad-hoc integrity signatures, no Developer ID signature or notarization.
+          DMG: mount and copy Orca.app into a separate test directory; ZIP: extract with macOS Archive Utility or ditto.
+          This keeps the standard Orca bundle ID/name. Do not overwrite an official installation for this test.
+          The SSH automatic-deployment orcad template is absent under the supported local-build policy.
+          This workflow does not upload a GitHub Release or configure a fork update channel.
+          No desktop GUI smoke test was performed; packaging hooks checked the native daemon/terminal-host resources.
+          Extract Orca-Preview-Launcher.zip to preserve the .command executable bit, then put preview Orca.app beside it.
+          Double-click Launch Orca Preview.command for a fresh disposable profile/home and a visible human-initiated launch.
+          The raw .command in the Actions artifact may need chmod +x; the nested launcher ZIP preserves it.
+          Fork-preview versions require the integrated runtime updater guard; normal Orca update channels are unchanged.
+          Existing production account logins are not copied into this disposable home.
+          macOS may block this downloaded unnotarized preview; its Gatekeeper state differs from an official release.
+          TXT
+          {
+            echo '### ARM64 local preview'
+            echo "Source commit: $GITHUB_SHA"
+            echo "Version: $ORCA_LOCAL_BUILD_VERSION"
+            echo 'Download the Actions artifact below: DMG/ZIP, SHA256SUMS, build-info.json and README.txt.'
+            echo 'Ad-hoc signatures only; no notarization, release publication, bundled orcad template, or GUI validation.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the fork preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: orca-fork-preview-macos-arm64-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .build/fork-preview/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
