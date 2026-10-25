@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Image, Platform, Pressable, Text, View } from 'react-native'
 import type { NativeChatImageRefBlock } from '../../../src/shared/native-chat-types'
 import { isAgentSessionAttachmentStorePath } from '../../../src/shared/agent-session-attachments'
@@ -28,10 +28,14 @@ export function MobileNativeChatImageAttachment({
   const readable = !!client && !!path && isAgentSessionAttachmentStorePath(path)
   const [round, setRound] = useState(0)
   const [showSpinner, setShowSpinner] = useState(false)
-  const owner = useMemo(
-    () => ({ client, sessionId, generation, path, directUri, round }),
-    [client, sessionId, generation, path, directUri, round]
+  const source = useMemo(
+    () => ({ client, sessionId, generation, path, directUri }),
+    [client, sessionId, generation, path, directUri]
   )
+  const [failedDirectSource, setFailedDirectSource] = useState<typeof source | null>(null)
+  const usableDirectUri = failedDirectSource === source ? null : directUri
+  const owner = useMemo(() => ({ source, round }), [source, round])
+  const activeOwner = useRef<typeof owner | null>(owner)
   const [failedOwner, setFailedOwner] = useState<typeof owner | null>(null)
   const [preview, setPreview] = useState<{
     owner: typeof owner
@@ -40,7 +44,14 @@ export function MobileNativeChatImageAttachment({
   const current = preview?.owner === owner ? preview : null
 
   useEffect(() => {
-    if (directUri || !client || !path || !isAgentSessionAttachmentStorePath(path)) {
+    activeOwner.current = owner
+    return () => {
+      activeOwner.current = null
+    }
+  }, [owner])
+
+  useEffect(() => {
+    if (usableDirectUri || !client || !path || !isAgentSessionAttachmentStorePath(path)) {
       return
     }
     let disposed = false
@@ -60,9 +71,9 @@ export function MobileNativeChatImageAttachment({
       disposed = true
       clearTimeout(timer)
     }
-  }, [client, generation, path, directUri, owner])
+  }, [client, generation, path, usableDirectUri, owner])
 
-  const uri = directUri ?? current?.uri
+  const uri = usableDirectUri ?? current?.uri
   const label = block.alt ?? 'Attached image'
   if (uri && failedOwner !== owner) {
     return (
@@ -74,15 +85,25 @@ export function MobileNativeChatImageAttachment({
         accessibilityHint="Opens the image full size"
       >
         <Image
+          key={`${round}:${usableDirectUri ? 'direct' : 'stored'}`}
           source={{ uri }}
           style={styles.imageThumb}
           resizeMode="contain"
-          onError={() => setFailedOwner(owner)}
+          onError={() => {
+            if (activeOwner.current !== owner || (client?.getGeneration?.() ?? 0) !== generation) {
+              return
+            }
+            if (usableDirectUri && readable) {
+              setFailedDirectSource(source)
+            } else {
+              setFailedOwner(owner)
+            }
+          }}
         />
       </Pressable>
     )
   }
-  if (readable && !current && !directUri) {
+  if (readable && !current && !usableDirectUri) {
     return (
       <View style={[styles.imageThumb, styles.imageLoading]} accessibilityLabel="Loading image">
         {showSpinner ? <ActivityIndicator /> : null}

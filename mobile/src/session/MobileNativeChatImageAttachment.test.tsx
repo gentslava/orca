@@ -32,12 +32,13 @@ describe('host-owned mobile chat images', () => {
   const openImage = vi.fn()
   const render = (
     client: RpcClient | null,
-    block: NativeChatImageRefBlock = { type: 'image-ref', path: PATH }
+    block: NativeChatImageRefBlock = { type: 'image-ref', path: PATH },
+    sessionId = 'chat'
   ) => {
     const value = {
       openImage,
       openActions: () => {},
-      imageSource: client ? { client, sessionId: 'chat' } : null
+      imageSource: client ? { client, sessionId } : null
     }
     return createElement(
       MobileNativeChatRowOverlaysContext.Provider,
@@ -90,7 +91,176 @@ describe('host-owned mobile chat images', () => {
       uri: 'file:///phone/photo.png'
     })
     expect(sendRequest).not.toHaveBeenCalled()
+    act(() => tree?.root.findByProps({ accessibilityLabel: 'Attached image' }).props.onPress())
+    expect(openImage).toHaveBeenCalledWith({
+      uri: 'file:///phone/photo.png',
+      label: 'Attached image'
+    })
   })
+
+  it('falls back to the selected host when a direct preview cannot decode', async () => {
+    const sendRequest = vi.fn<RpcClient['sendRequest']>().mockResolvedValue(REPLY)
+    await act(async () => {
+      tree = create(
+        render(stubRpcClient({ sendRequest }), {
+          type: 'image-ref',
+          path: PATH,
+          url: 'file:///phone/expired.png'
+        })
+      )
+    })
+    if (!tree) {
+      throw new Error('image did not mount')
+    }
+    expect(findByHostType(tree.root, 'Image').props.source.uri).toBe('file:///phone/expired.png')
+    expect(sendRequest).not.toHaveBeenCalled()
+    await act(async () => findByHostType(tree!.root, 'Image').props.onError())
+    expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: URI })
+    expect(sendRequest).toHaveBeenCalledExactlyOnceWith(
+      'agentSessionAttachment.read',
+      { path: PATH },
+      expect.anything()
+    )
+    act(() => tree?.root.findByProps({ accessibilityLabel: 'Attached image' }).props.onPress())
+    expect(openImage).toHaveBeenCalledWith({ uri: URI, label: 'Attached image' })
+  })
+
+  it('retries a failed fallback read without choosing the broken direct preview again', async () => {
+    const sendRequest = vi
+      .fn<RpcClient['sendRequest']>()
+      .mockRejectedValueOnce(new Error('Disconnected'))
+      .mockResolvedValueOnce(REPLY)
+    await act(async () => {
+      tree = create(
+        render(stubRpcClient({ sendRequest }), {
+          type: 'image-ref',
+          path: PATH,
+          url: 'file:///phone/expired.png'
+        })
+      )
+    })
+    if (!tree) {
+      throw new Error('image did not mount')
+    }
+    await act(async () => findByHostType(tree!.root, 'Image').props.onError())
+    expect(findAllByHostType(tree.root, 'Image')).toHaveLength(0)
+    await act(async () =>
+      tree?.root.findByProps({ accessibilityLabel: 'Image unavailable' }).props.onPress()
+    )
+    expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: URI })
+    expect(sendRequest).toHaveBeenCalledTimes(2)
+  })
+
+  it('retries fallback decoder failures and ignores the previous decoder attempt', async () => {
+    const sendRequest = vi.fn<RpcClient['sendRequest']>().mockResolvedValue(REPLY)
+    await act(async () => {
+      tree = create(
+        render(stubRpcClient({ sendRequest }), {
+          type: 'image-ref',
+          path: PATH,
+          url: 'file:///phone/expired.png'
+        })
+      )
+    })
+    if (!tree) {
+      throw new Error('image did not mount')
+    }
+    const directError = findByHostType(tree.root, 'Image').props.onError
+    await act(async () => directError())
+    const failedImage = findByHostType(tree.root, 'Image')
+    const fallbackError = failedImage.props.onError
+    act(() => fallbackError())
+    expect(findAllByHostType(tree.root, 'Image')).toHaveLength(0)
+    act(() => directError())
+    expect(tree.root.findByProps({ accessibilityLabel: 'Image unavailable' })).toBeDefined()
+    await act(async () =>
+      tree?.root.findByProps({ accessibilityLabel: 'Image unavailable' }).props.onPress()
+    )
+    expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: URI })
+    expect(findByHostType(tree.root, 'Image')).not.toBe(failedImage)
+    act(() => fallbackError())
+    expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: URI })
+    expect(sendRequest).toHaveBeenCalledTimes(2)
+  })
+
+  it.each([
+    { path: 'file:///phone/photo.png' },
+    { path: '/private/secret.png', url: 'content://phone/photo' },
+    { url: 'blob:phone/photo' }
+  ])('retries a device URI without reading non-store paths %j', async (source) => {
+    const sendRequest = vi.fn<RpcClient['sendRequest']>()
+    await act(async () => {
+      tree = create(render(stubRpcClient({ sendRequest }), { type: 'image-ref', ...source }))
+    })
+    if (!tree) {
+      throw new Error('image did not mount')
+    }
+    const image = findByHostType(tree.root, 'Image')
+    const uri = image.props.source.uri
+    act(() => image.props.onError())
+    expect(findAllByHostType(tree.root, 'Image')).toHaveLength(0)
+    await act(async () =>
+      tree?.root.findByProps({ accessibilityLabel: 'Image unavailable' }).props.onPress()
+    )
+    expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri })
+    expect(findByHostType(tree.root, 'Image')).not.toBe(image)
+    expect(sendRequest).not.toHaveBeenCalled()
+  })
+
+  it.each(['client', 'session', 'generation', 'path', 'url'])(
+    'ignores old fallback replies and decoder events after the %s changes',
+    async (change) => {
+      let generation = 0
+      let finish: ((reply: typeof REPLY) => void) | undefined
+      const sendRequest = vi
+        .fn<RpcClient['sendRequest']>()
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              finish = resolve
+            })
+        )
+        .mockResolvedValue(REPLY)
+      const client = stubRpcClient({ sendRequest, getGeneration: () => generation })
+      const block: NativeChatImageRefBlock = {
+        type: 'image-ref',
+        path: PATH,
+        url: 'file:///phone/expired.png'
+      }
+      await act(async () => {
+        tree = create(render(client, block))
+      })
+      if (!tree) {
+        throw new Error('image did not mount')
+      }
+      const oldError = findByHostType(tree.root, 'Image').props.onError
+      await act(async () => oldError())
+      expect(tree.root.findByProps({ accessibilityLabel: 'Loading image' })).toBeDefined()
+      const nextClient = change === 'client' ? stubRpcClient({ sendRequest }) : client
+      const nextBlock = {
+        ...block,
+        path: change === 'path' ? PATH.replace('one', 'two') : PATH,
+        url: change === 'url' ? 'file:///phone/next.png' : block.url
+      }
+      if (change === 'generation') {
+        generation++
+      }
+      await act(async () =>
+        tree?.update(render(nextClient, nextBlock, change === 'session' ? 'next' : 'chat'))
+      )
+      expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: nextBlock.url })
+      await act(async () => findByHostType(tree!.root, 'Image').props.onError())
+      expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: URI })
+      act(() => findByHostType(tree!.root, 'Image').props.onError())
+      await act(async () => {
+        oldError()
+        finish?.(REPLY)
+      })
+      expect(findAllByHostType(tree.root, 'Image')).toHaveLength(0)
+      expect(tree.root.findByProps({ accessibilityLabel: 'Image unavailable' })).toBeDefined()
+      expect(sendRequest).toHaveBeenCalledTimes(2)
+    }
+  )
 
   it('does not read arbitrary host files or fall back when the owning client is absent', async () => {
     const sendRequest = vi.fn<RpcClient['sendRequest']>()
@@ -103,6 +273,31 @@ describe('host-owned mobile chat images', () => {
     await act(async () => tree?.update(render(null)))
     expect(sendRequest).not.toHaveBeenCalled()
     expect(tree && findAllByHostType(tree.root, 'Image')).toEqual([])
+  })
+
+  it('ignores a decoder event from an old generation before the next render', async () => {
+    let generation = 0
+    const sendRequest = vi.fn<RpcClient['sendRequest']>().mockResolvedValue(REPLY)
+    const client = stubRpcClient({ sendRequest, getGeneration: () => generation })
+    const block: NativeChatImageRefBlock = {
+      type: 'image-ref',
+      path: PATH,
+      url: 'file:///phone/photo.png'
+    }
+    await act(async () => {
+      tree = create(render(client, block))
+    })
+    if (!tree) {
+      throw new Error('image did not mount')
+    }
+    generation++
+    await act(async () => findByHostType(tree!.root, 'Image').props.onError())
+    expect(sendRequest).not.toHaveBeenCalled()
+    await act(async () => tree?.update(render(client, block)))
+    expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: block.url })
+    await act(async () => findByHostType(tree!.root, 'Image').props.onError())
+    expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: URI })
+    expect(sendRequest).toHaveBeenCalledTimes(1)
   })
 
   it('lets a failed read retry without showing a broken image', async () => {
