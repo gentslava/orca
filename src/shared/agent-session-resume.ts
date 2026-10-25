@@ -28,7 +28,8 @@ export const RESUMABLE_TUI_AGENTS = [
   'zcode',
   'dsh',
   'jcode',
-  'kiro'
+  'kiro',
+  'hermes'
 ] as const satisfies readonly TuiAgent[]
 
 export type ResumableTuiAgent = (typeof RESUMABLE_TUI_AGENTS)[number]
@@ -230,6 +231,8 @@ export function extractAgentProviderSession(
     }
     // DSH's bridge has no persistence artifact and sends an empty transcript_path; retain its session ID only.
     // Kiro also reports no transcript path; its ID feeds --resume-id.
+    // Hermes' managed plugin posts the live session_id on every hook; `hermes --resume` takes it.
+    case 'hermes':
     case 'kiro':
     case 'dsh': {
       const id = readSessionId(payload, ['session_id'])
@@ -282,7 +285,6 @@ export function extractAgentProviderSession(
     }
     case 'amp':
     case 'command-code':
-    case 'hermes':
       return null
   }
 }
