@@ -26,7 +26,9 @@ export function UsageHistoryDailyChart({
   today?: string
 }): React.JSX.Element {
   const [metric, setMetric] = useState<'tokens' | 'cost'>('tokens')
-  const [activeDay, setActiveDay] = useState<string | null>(null)
+  const [hoveredDay, setHoveredDay] = useState<string | null>(null)
+  const [focusedDay, setFocusedDay] = useState<string | null>(null)
+  const activeDay = hoveredDay ?? focusedDay
   const days = useMemo(
     () => usageHistoryChartDays(rows, range, selectedDay, undefined, today),
     [rows, range, selectedDay, today]
@@ -80,6 +82,7 @@ export function UsageHistoryDailyChart({
               : null
     if (next !== null) {
       event.preventDefault()
+      setHoveredDay(null)
       buttons[Math.max(0, Math.min(buttons.length - 1, next))]?.focus()
     }
   }
@@ -123,7 +126,6 @@ export function UsageHistoryDailyChart({
                 y2="4"
                 stroke={USAGE_PROVIDER_COLORS[provider].color}
                 strokeWidth="2"
-                strokeDasharray={USAGE_PROVIDER_COLORS[provider].dash}
               />
             </svg>
             {getAgentLabel(provider)}
@@ -140,7 +142,11 @@ export function UsageHistoryDailyChart({
           ))}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="relative h-52">
+          <div
+            className="relative h-52"
+            data-testid="usage-history-plot"
+            onMouseLeave={() => setHoveredDay(null)}
+          >
             <svg
               className="h-full w-full overflow-visible"
               viewBox="0 0 1000 200"
@@ -156,7 +162,6 @@ export function UsageHistoryDailyChart({
                   y2={height}
                   className="stroke-border"
                   vectorEffect="non-scaling-stroke"
-                  strokeDasharray="3 4"
                 />
               ))}
               {series.map(({ provider, points }) => (
@@ -188,17 +193,11 @@ export function UsageHistoryDailyChart({
                               vectorEffect="non-scaling-stroke"
                               strokeLinejoin="round"
                               strokeLinecap="round"
-                              strokeDasharray={USAGE_PROVIDER_COLORS[provider].dash}
                             />
                           </>
                         ) : null}
                         {segment
-                          .filter(
-                            (point) =>
-                              days.length <= 31 ||
-                              segment.length === 1 ||
-                              point.index === activeIndex
-                          )
+                          .filter((point) => point.index === hoveredIndex)
                           .map((point) => (
                             <ellipse
                               key={point.index}
@@ -214,7 +213,7 @@ export function UsageHistoryDailyChart({
                   })}
                 </g>
               ))}
-              {active ? (
+              {hoveredIndex !== -1 ? (
                 <line
                   x1={x(activeIndex)}
                   x2={x(activeIndex)}
@@ -222,7 +221,6 @@ export function UsageHistoryDailyChart({
                   y2="192"
                   className="stroke-muted-foreground"
                   vectorEffect="non-scaling-stroke"
-                  strokeDasharray="3 4"
                 />
               ) : null}
             </svg>
@@ -233,8 +231,14 @@ export function UsageHistoryDailyChart({
                     key={day}
                     type="button"
                     onClick={() => onDay(day)}
-                    onMouseEnter={() => setActiveDay(day)}
-                    onFocus={() => setActiveDay(day)}
+                    onMouseEnter={() => setHoveredDay(day)}
+                    onFocus={(event) => {
+                      if (event.currentTarget.matches(':focus-visible')) {
+                        setHoveredDay(null)
+                        setFocusedDay(day)
+                      }
+                    }}
+                    onBlur={() => setFocusedDay(null)}
                     onKeyDown={onDayKey}
                     aria-pressed={selectedDay === day}
                     aria-label={
@@ -257,7 +261,7 @@ export function UsageHistoryDailyChart({
                 ) : (
                   <span
                     key={day}
-                    onMouseEnter={() => setActiveDay(day)}
+                    onMouseEnter={() => setHoveredDay(day)}
                     className="min-w-0 flex-1"
                   />
                 )

@@ -4,13 +4,12 @@ import {
   type UsageHistoryTotals
 } from '../../../../shared/usage-history-aggregation'
 
-export const USAGE_PROVIDER_COLORS: Record<UsageHistoryProvider, { color: string; dash: string }> =
-  {
-    claude: { color: 'var(--chart-provider-claude)', dash: '' },
-    codex: { color: 'var(--chart-2)', dash: '7 3' },
-    opencode: { color: 'var(--chart-provider-opencode)', dash: '2 3' },
-    muse: { color: 'var(--chart-provider-muse)', dash: '8 3 2 3' }
-  }
+export const USAGE_PROVIDER_COLORS: Record<UsageHistoryProvider, { color: string }> = {
+  claude: { color: 'var(--chart-provider-claude)' },
+  codex: { color: 'var(--chart-2)' },
+  opencode: { color: 'var(--chart-provider-opencode)' },
+  muse: { color: 'var(--chart-provider-muse)' }
+}
 
 export type UsageHistoryChartPoint = {
   index: number
