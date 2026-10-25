@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { useMobileNativeChatAskDismiss } from './use-mobile-native-chat-ask-dismiss'
 import { useMobileNativeChatDrafts } from './use-mobile-native-chat-drafts'
-import { useMobileNativeChatFileSearch } from './use-mobile-native-chat-file-search'
+import { useMobileNativeChatFileSearch } from './native-chat/composer/use-mobile-native-chat-file-search'
 import { useMobileNativeChatMessageSend } from './use-mobile-native-chat-message-send'
 import { mobileNativeChatStreamPreview } from './mobile-native-chat-streaming-gate'
 import { useMobileNativeChatSessionOptionController } from './use-mobile-native-chat-session-option-controller'

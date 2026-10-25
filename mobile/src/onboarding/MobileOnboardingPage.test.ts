@@ -82,13 +82,9 @@ describe('MobileOnboardingPage', () => {
   }
 
   function button(label: string) {
-    const match = findAllByHostType(renderer!.root, 'Pressable').find(
-      (node) => node.props.accessibilityLabel === label
+    return renderer!.root.find(
+      (node) => String(node.type) === 'Pressable' && node.props.accessibilityLabel === label
     )
-    if (!match) {
-      throw new Error(`No ${label} button`)
-    }
-    return match
   }
 
   function collectText(): string {

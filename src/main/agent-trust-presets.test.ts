@@ -7,6 +7,7 @@ import {
   realpathSync,
   rmSync,
   statSync,
+  symlinkSync,
   writeFileSync
 } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -36,7 +37,8 @@ const {
   markAntigravityWorkspaceTrusted,
   markCodexProjectTrusted,
   markCopilotFolderTrusted,
-  markCursorWorkspaceTrusted
+  markCursorWorkspaceTrusted,
+  markKimiWorkspaceTrusted
 } = await import('./agent-trust-presets')
 const { runExclusivelyForCodexTrustConfig } =
   await import('./codex/codex-trust-config-mutation-queue')
@@ -104,6 +106,40 @@ describe('markCursorWorkspaceTrusted', () => {
       rmSync(workspace, { recursive: true, force: true })
     }
   })
+})
+
+describe('markKimiWorkspaceTrusted', () => {
+  const kimiHome = () => join(testState.fakeHomeDir, '.kimi-code')
+  const records = () => readdirSync(join(kimiHome(), 'workspace-trust'))
+
+  it.skipIf(process.platform === 'win32')('uses the record name Kimi Code 2.3.1 wrote', () => {
+    // Name captured from a real Kimi Code 2.3.1 "Trust and continue" on macOS.
+    markKimiWorkspaceTrusted('/private/tmp/kimi-inst/ws/Sample Project', kimiHome())
+    expect(records()).toEqual(['wd_sample-project_017c73b76124'])
+  })
+
+  it.skipIf(process.platform !== 'win32')('lowercases Windows paths like Kimi', () => {
+    markKimiWorkspaceTrusted('C:\\projects\\Sample Project', kimiHome())
+    markKimiWorkspaceTrusted('c:\\PROJECTS\\sample project', kimiHome())
+    expect(records()).toEqual(['wd_sample-project_f415ab4f33c6'])
+  })
+
+  it.skipIf(process.platform === 'win32')(
+    'keys a symlinked workspace by the physical cwd Kimi sees',
+    () => {
+      const real = mkdtempSync(join(tmpdir(), 'orca-kimi-ws-'))
+      const link = join(testState.fakeHomeDir, 'linked-ws')
+      symlinkSync(real, link)
+      try {
+        markKimiWorkspaceTrusted(link, kimiHome())
+        const [name] = records()
+        const record = JSON.parse(readFileSync(join(kimiHome(), 'workspace-trust', name), 'utf-8'))
+        expect(record).toEqual({ root: realpathSync.native(real), trustedAt: expect.any(Number) })
+      } finally {
+        rmSync(real, { recursive: true, force: true })
+      }
+    }
+  )
 })
 
 describe('markCopilotFolderTrusted', () => {
@@ -417,6 +453,22 @@ describe('markCodexProjectTrusted', () => {
       expect(written).toContain('trust_level = "trusted"')
       expect(runtimeWritten).toContain(`[projects."${escapeTomlBasicString(realpath)}"]`)
       expect(runtimeWritten).toContain('trust_level = "trusted"')
+    } finally {
+      rmSync(workspace, { recursive: true, force: true })
+    }
+  })
+
+  it('writes the managed-account CODEX_HOME the launch runs on (#27235)', async () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'orca-codex-ws-'))
+    const accountHome = join(testState.userDataDir, 'codex-accounts', 'acct-1', 'home')
+    try {
+      await markCodexProjectTrusted(
+        workspace,
+        getLocalCodexTrustConfigFiles(testState.fakeHomeDir, accountHome)
+      )
+      expect(readFileSync(join(accountHome, 'config.toml'), 'utf-8')).toContain(
+        `[projects."${escapeTomlBasicString(realpathSync.native(workspace))}"]\ntrust_level = "trusted"`
+      )
     } finally {
       rmSync(workspace, { recursive: true, force: true })
     }

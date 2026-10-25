@@ -14,7 +14,7 @@ import {
 } from './mobile-native-chat-send'
 import { sendMobileTerminalQueryReply } from '../terminal/mobile-terminal-query-reply'
 import { useMobileDiffReviewSendActions } from './use-mobile-diff-review-send-actions'
-import { pasteMobileNativeChatImagePaths } from './mobile-native-chat-image-send'
+import { pasteMobileNativeChatImagePaths } from './native-chat/composer/mobile-native-chat-image-send'
 
 vi.mock('react-native', () => ({ Keyboard: { dismiss: vi.fn() } }))
 vi.mock('../platform/haptics', () => ({ triggerError: vi.fn(), triggerSuccess: vi.fn() }))

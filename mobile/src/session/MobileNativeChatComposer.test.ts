@@ -98,9 +98,10 @@ describe('MobileNativeChatComposer', () => {
     if (!renderer) {
       throw new Error('Composer was not rendered')
     }
-    return findAllByHostType(renderer.root, 'Pressable').find(
-      (node) => node.props.accessibilityLabel === 'Send message'
-    )!
+    return renderer.root.find(
+      (node) =>
+        String(node.type) === 'Pressable' && node.props.accessibilityLabel === 'Send message'
+    )
   }
 
   it('reports an accepted send without owning route-scoped draft cleanup', async () => {
@@ -194,9 +195,10 @@ describe('MobileNativeChatComposer', () => {
       renderer = create(draw('run the tests'))
     })
     const modelPill = () =>
-      findAllByHostType(renderer!.root, 'Pressable').find(
-        (node) => node.props.accessibilityLabel === 'Model, Model'
-      )!
+      renderer!.root.find(
+        (node) =>
+          String(node.type) === 'Pressable' && node.props.accessibilityLabel === 'Model, Model'
+      )
     expect(modelPill().props.accessibilityState).toMatchObject({ disabled: false })
     // Start the send but don't await it — it stays in flight on purpose.
     let pressed!: Promise<void>
@@ -543,9 +545,9 @@ describe('MobileNativeChatComposer', () => {
     const onMicPressIn = vi.fn()
     const onMicPressOut = vi.fn()
     const mic = () =>
-      findAllByHostType(renderer!.root, 'Pressable').find(
-        (node) => node.props.accessibilityLabel === 'Dictate'
-      )!
+      renderer!.root.find(
+        (node) => String(node.type) === 'Pressable' && node.props.accessibilityLabel === 'Dictate'
+      )
 
     await act(async () => {
       renderer = create(

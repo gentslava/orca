@@ -3,7 +3,7 @@ import { act, create } from 'react-test-renderer'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { RpcClient } from '../transport/rpc-client'
 import { MobileNativeChatComposer } from './MobileNativeChatComposer'
-import { useMobileNativeChatFileSearch } from './use-mobile-native-chat-file-search'
+import { useMobileNativeChatFileSearch } from './native-chat/composer/use-mobile-native-chat-file-search'
 import { stubRpcClient } from '../transport/rpc-client-test-stub'
 
 vi.mock('react-native', async () => {
