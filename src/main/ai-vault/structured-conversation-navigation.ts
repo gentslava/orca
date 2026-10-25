@@ -124,9 +124,10 @@ function rowTime(row: AiVaultSession): number {
 
 /** Child conversations are reached through the parent's journal, including after release. */
 export function aiVaultOrchestrationChildSessionIds(
-  db: OrchestrationDb | null
-): ReadonlySet<string> {
+  source: OrchestrationDb | null | (() => OrchestrationDb | null)
+): ReadonlySet<string> | null {
   try {
+    const db = typeof source === 'function' ? source() : source
     if (!db?.hasAnyDispatchContexts()) {
       return new Set()
     }
@@ -142,6 +143,6 @@ export function aiVaultOrchestrationChildSessionIds(
     return new Set(rows.map((row) => row.sessionId))
   } catch (error) {
     console.warn('[ai-vault] Child conversation lookup unavailable', error)
-    return new Set()
+    return null
   }
 }

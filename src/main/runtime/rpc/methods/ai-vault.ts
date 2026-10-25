@@ -127,7 +127,7 @@ export const AI_VAULT_METHODS = [
           includeStructuredSessions: params.includeStructuredSessions,
           ...(params.includeStructuredSessions
             ? {
-                childSessionIds: aiVaultOrchestrationChildSessionIds(
+                childSessionIds: aiVaultOrchestrationChildSessionIds(() =>
                   runtime.getExistingOrchestrationDb()
                 )
               }

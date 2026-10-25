@@ -54,6 +54,15 @@ function retained(provider = 'claude'): AgentSessionRecord {
 afterEach(() => setStructuredAgentSessionHost(null))
 
 describe('primary conversation navigation from the durable session catalog', () => {
+  it('distinguishes absent orchestration history from an unreadable custody database', () => {
+    expect(aiVaultOrchestrationChildSessionIds(null)?.size).toBe(0)
+    expect(
+      aiVaultOrchestrationChildSessionIds(() => {
+        throw new Error('database open failed')
+      })
+    ).toBeNull()
+  })
+
   it('keeps the conversation list available when child custody lookup fails', () => {
     const db = new OrchestrationDb(':memory:')
     try {
@@ -62,15 +71,26 @@ describe('primary conversation navigation from the durable session catalog', () 
       const spy = vi
         .spyOn(db.db, 'prepare')
         .mockImplementation(() => prepare('SELECT NULL AS sessionId'))
-      expect(aiVaultOrchestrationChildSessionIds(db).size).toBe(0)
+      expect(aiVaultOrchestrationChildSessionIds(db)).toBeNull()
       spy.mockImplementation(() => {
         throw new Error('custody database unavailable')
       })
-      expect(aiVaultOrchestrationChildSessionIds(db).size).toBe(0)
+      expect(aiVaultOrchestrationChildSessionIds(db)).toBeNull()
     } finally {
       db.close()
     }
   })
+  it('keeps provider history but does not project retained children without custody evidence', () => {
+    install([retained()])
+    const providerList = listResult()
+    const projected = projectStructuredAiVaultSessions(providerList, OPENS_EVERY_STRUCTURED_CHAT, {
+      includeStructuredSessions: true,
+      childSessionIds: null
+    })
+    expect(projected.sessions).toEqual(providerList.sessions)
+    expect(projected).not.toHaveProperty('includesStructuredSessions')
+  })
+
   it('keeps released worker journals inside the parent using existing orchestration custody records', () => {
     const db = new OrchestrationDb(':memory:')
     try {

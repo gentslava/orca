@@ -272,7 +272,7 @@ export function registerCoreHandlers(
   registerAiVaultHandlers({
     ensureStructuredSessionOwnership,
     getOrchestrationChildSessionIds: () =>
-      aiVaultOrchestrationChildSessionIds(runtime.getExistingOrchestrationDb()),
+      aiVaultOrchestrationChildSessionIds(() => runtime.getExistingOrchestrationDb()),
     getAdditionalCodexHomePaths: lifecycleOptions.getAdditionalAiVaultCodexHomePaths,
     prepareSessionResume: lifecycleOptions.prepareAiVaultSessionResume,
     getActiveRuntimeAiVaultHostInfos: () =>

@@ -30,7 +30,7 @@ export const OPENS_EVERY_STRUCTURED_CHAT: StructuredChatOpener = () => true
 export function projectStructuredAiVaultSessions(
   result: AiVaultListResult,
   opensChat: StructuredChatOpener,
-  options?: { includeStructuredSessions?: boolean; childSessionIds?: ReadonlySet<string> }
+  options?: { includeStructuredSessions?: boolean; childSessionIds?: ReadonlySet<string> | null }
 ): AiVaultListResult {
   const owner = ownershipLookup()
   if (!owner) {
@@ -51,7 +51,7 @@ export function projectStructuredAiVaultSessions(
     sessions.every((row, index) => row === result.sessions[index])
       ? result
       : { ...result, sessions }
-  return options?.includeStructuredSessions
+  return options?.includeStructuredSessions && options.childSessionIds !== null
     ? projectDurableAiVaultConversations(
         projected,
         getStructuredAgentSessionHost()?.deps.store.listRecords() ?? [],

@@ -68,7 +68,7 @@ type AiVaultHandlerOptions = AiVaultSessionSources &
     getActiveRuntimeAiVaultHostInfos?: () => readonly RuntimeAiVaultHostInfo[]
     scanRuntimeAiVaultSessions?: RuntimeAiVaultScanner
     resolveRuntimeAiVaultSessionTitles?: RuntimeAiVaultSessionTitleResolver
-    getOrchestrationChildSessionIds?: () => ReadonlySet<string>
+    getOrchestrationChildSessionIds?: () => ReadonlySet<string> | null
   }
 
 let scanCoordinator = new AiVaultScanCoordinator()
