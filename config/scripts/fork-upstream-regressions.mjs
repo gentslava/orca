@@ -27,6 +27,7 @@ const desktop = [
   'config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs',
   'src/renderer/src/lib/activate-ai-vault-structured-session.test.ts',
   'src/renderer/src/components/native-chat/native-chat-child-navigation.test.tsx',
+  'src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx',
   'src/renderer/src/components/native-chat/native-chat-transcript-work-runs.test.ts',
   'src/renderer/src/components/native-chat/NativeChatMessageRow.work-run.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatMessageRow.test.tsx',
