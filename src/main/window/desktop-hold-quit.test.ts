@@ -41,6 +41,15 @@ const popoutWindow = Object.assign(new EventEmitter(), {
   isDestroyed: () => false,
   webContents: popout
 })
+const popupWindow = Object.assign(new EventEmitter(), {
+  isFocused: () => true,
+  isDestroyed: () => false
+})
+const popupNotice = vi.fn()
+vi.mock('../browser/native-browser-popup-windows', () => ({
+  getNativePopupQuitSurface: (contents: Contents) =>
+    contents.id === 5 ? { window: popupWindow, notice: popupNotice } : undefined
+}))
 vi.mock('electron', () => ({
   app,
   ipcMain: ipc,
@@ -63,13 +72,36 @@ afterEach(() => {
   if (platform) {
     Object.defineProperty(process, 'platform', platform)
   }
-  for (const emitter of [ipc, app, main, guest, popout, mainWindow, popoutWindow]) {
+  for (const emitter of [ipc, app, main, guest, popout, mainWindow, popoutWindow, popupWindow]) {
     emitter.removeAllListeners()
   }
   mocks.watches = []
   mocks.injected = false
   main.send.mockClear()
   popout.send.mockClear()
+  popupNotice.mockClear()
+})
+
+it('guards BaseWindow popup contents and delivers native-ack progress only to its trusted notice owner', () => {
+  const f = fixture()
+  const popupContents = new Contents(5)
+  app.emit('web-contents-created', {}, popupContents)
+  ipc.emit('ui:holdQuitActivity', { sender: popupContents }, true)
+  ipc.emit('ui:holdQuitActivity', { sender: main }, true)
+  ipc.emit('ui:holdQuitActivity', { sender: popupContents }, false)
+  key(popupContents)
+  expect(popupNotice).toHaveBeenLastCalledWith({ phase: 'starting' })
+  mocks.watches[0]?.emit('watching')
+  expect(popupNotice).toHaveBeenLastCalledWith({ phase: 'holding' })
+  key(popupContents, 'keyUp')
+  expect(popupNotice).toHaveBeenLastCalledWith({ phase: 'released' })
+  mocks.watches[0]?.emit('held')
+  key(popupContents)
+  popupWindow.emit('blur')
+  mocks.watches[1]?.emit('held')
+  expect(f.quit).not.toHaveBeenCalled()
+  popupContents.emit('destroyed')
+  f.dispose()
 })
 
 function fixture(platform = 'darwin') {

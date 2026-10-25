@@ -115,8 +115,8 @@ export class HoldQuitGesture {
 
   private release(phase: 'released' | 'unavailable' = 'released'): void {
     this.stopPending()
-    this.dismiss()
     if (!this.deps.isBusy()) {
+      this.dismiss()
       return
     }
     this.publish(phase)

@@ -1,4 +1,11 @@
-import { app, BrowserWindow, ipcMain, webContents, type WebContents } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  webContents,
+  type BaseWindow,
+  type WebContents
+} from 'electron'
 import type { Store } from '../persistence'
 import { isAgentInjectingInput } from '../browser/agent-input-injection'
 import { HoldQuitGesture } from './hold-quit-gesture'
@@ -7,6 +14,10 @@ import type { HoldQuitInput, HoldQuitNotice } from '../../shared/mac-hold-quit'
 import { isHoldQuitChord } from '../../shared/mac-hold-quit'
 import { keybindingMatchesInput, type KeybindingOverrides } from '../../shared/keybindings'
 import { readDevToolsShortcutInput } from '../browser/browser-guest-devtools-window'
+import {
+  getNativePopupQuitSurface,
+  type NativePopupQuitSurface
+} from '../browser/native-browser-popup-windows'
 
 export function installDesktopHoldQuit(options: {
   store: Pick<Store, 'getSettings' | 'onSettingsChanged'>
@@ -41,16 +52,37 @@ export function installDesktopHoldQuit(options: {
     webContents
       .getAllWebContents()
       .find((candidate) => !candidate.isDestroyed() && candidate.devToolsWebContents === contents)
-  const ownerFor = (contents: WebContents): BrowserWindow | null => {
+  const ownerFor = (
+    contents: WebContents
+  ): (NativePopupQuitSurface & { renderer?: WebContents }) | null => {
     if (contents.isDestroyed()) {
       return null
     }
     const owner = inspecteeFor(contents) ?? contents
-    return BrowserWindow.fromWebContents(owner.hostWebContents ?? owner)
+    const popup = getNativePopupQuitSurface(owner)
+    if (popup) {
+      return popup.window.isDestroyed() ? null : popup
+    }
+    const window = BrowserWindow.fromWebContents(owner.hostWebContents ?? owner)
+    if (!window || window.isDestroyed()) {
+      return null
+    }
+    const renderer = window.webContents
+    return {
+      window,
+      renderer,
+      notice: (notice) => {
+        if (!renderer.isDestroyed()) {
+          renderer.send('ui:holdQuitNotice', notice)
+        }
+      }
+    }
   }
   const focused = (contents: WebContents): boolean =>
     !contents.isDestroyed() &&
-    (inspecteeFor(contents) ? contents.isFocused() : ownerFor(contents)?.isFocused() === true)
+    (inspecteeFor(contents)
+      ? contents.isFocused()
+      : ownerFor(contents)?.window.isFocused() === true)
   const activity = (event: Electron.IpcMainEvent, value: unknown): void => {
     if (!options.isActivityOwner(event.sender) || typeof value !== 'boolean') {
       return
@@ -75,10 +107,7 @@ export function installDesktopHoldQuit(options: {
 
   const attach = (contents: WebContents): void => {
     const sendNotice = (notice: HoldQuitNotice): void => {
-      const owner = ownerFor(contents)
-      if (owner && !owner.isDestroyed() && !owner.webContents.isDestroyed()) {
-        owner.webContents.send('ui:holdQuitNotice', notice)
-      }
+      ownerFor(contents)?.notice(notice)
     }
     const gesture = new HoldQuitGesture({
       isEnabled: enabled,
@@ -86,17 +115,17 @@ export function installDesktopHoldQuit(options: {
       isFocused: () => focused(contents),
       isRecording: () => {
         const owner = ownerFor(contents)
-        return chordOwned() || Boolean(owner && recorders.has(owner.webContents.id))
+        return chordOwned() || Boolean(owner?.renderer && recorders.has(owner.renderer.id))
       },
       quit: options.quit,
       notice: sendNotice,
       watch: watchMacQuitChord
     })
     gestures.set(contents, gesture)
-    let boundWindow: BrowserWindow | null = null
+    let boundWindow: BaseWindow | null = null
     const cancel = (): void => gesture.cancel()
     const bindWindow = (): void => {
-      const owner = ownerFor(contents)
+      const owner = ownerFor(contents)?.window ?? null
       if (owner === boundWindow) {
         return
       }
@@ -127,7 +156,7 @@ export function installDesktopHoldQuit(options: {
         enabled() &&
         focused(contents) &&
         owner &&
-        !recorders.has(owner.webContents.id)
+        !(owner.renderer && recorders.has(owner.renderer.id))
       ) {
         event.preventDefault()
       }
