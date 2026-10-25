@@ -39,7 +39,7 @@ export async function captureMobilePersonalOpening(args: {
   const projectKey = resolveProjectPreferenceKey(
     args.target.repoId,
     args.catalog.setups,
-    args.target.hostId
+    args.target.hostId ?? 'local'
   )
   if (!projectKey) {
     return null
@@ -55,31 +55,35 @@ export async function captureMobilePersonalOpening(args: {
           (row.hostId ?? 'local') === (previous.executionHost ?? 'local')
       )
     : undefined
-  const previousProjectKey =
-    lastActivatedProject.get(args.client) ??
-    (previousRow
-      ? resolveProjectPreferenceKey(previousRow.repoId, args.catalog.setups, previousRow.hostId)
-      : null)
-  if (previousProjectKey) {
-    lastActivatedProject.set(args.client, previousProjectKey)
-  }
-  if (projectKey === previousProjectKey) {
-    return null
-  }
+  const storedPreviousProjectKey = previousRow
+    ? resolveProjectPreferenceKey(
+        previousRow.repoId,
+        args.catalog.setups,
+        previousRow.hostId ?? 'local'
+      )
+    : null
   const client = args.client
   const opId = { writer, seq: ++seq }
-  return async () => {
-    lastActivatedProject.set(client, projectKey)
-    const reply = await projectOpenWrite.request(client, {
-      projectKey,
-      previousProjectKey,
-      opId
-    })
-    const result = projectOpenWrite.interpret(reply)
-    if (!result.accepted) {
-      throw new Error('project_open_refused')
+  let recorded: Promise<PersonalProjectOrder | undefined> | undefined
+  return () => {
+    if (recorded) {
+      return recorded
     }
-    return result.value.personalProjectOrder
+    const previousProjectKey = lastActivatedProject.get(client) ?? storedPreviousProjectKey
+    lastActivatedProject.set(client, projectKey)
+    recorded =
+      projectKey === previousProjectKey
+        ? Promise.resolve(undefined)
+        : projectOpenWrite
+            .request(client, { projectKey, previousProjectKey, opId })
+            .then((reply) => {
+              const result = projectOpenWrite.interpret(reply)
+              if (!result.accepted) {
+                throw new Error('project_open_refused')
+              }
+              return result.value.personalProjectOrder
+            })
+    return recorded
   }
 }
 

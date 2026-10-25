@@ -3,7 +3,7 @@
 // Empty-composer Cmd/Ctrl+Enter steers the newest card; other cases retain ordinary send behavior.
 
 import { cleanup, fireEvent, render, renderHook } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const platform = vi.hoisted(() => ({ isMac: true }))
 vi.mock('./native-chat-shortcut', () => ({
@@ -11,6 +11,8 @@ vi.mock('./native-chat-shortcut', () => ({
 }))
 
 import { useNativeChatComposerKeyDown } from './use-native-chat-composer-keydown'
+
+afterEach(cleanup)
 
 function setup(
   steerQueued?: () => boolean,
@@ -103,7 +105,6 @@ describe('composer steer chord', () => {
       expect(sendAlternate).toHaveBeenCalledOnce()
       fireEvent.keyDown(field, { key: 'Enter' })
       expect(send).toHaveBeenCalledOnce()
-      cleanup()
     }
   )
   it('⌘+Enter on Mac steers the newest queued draft instead of sending', () => {

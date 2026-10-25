@@ -17,6 +17,7 @@ import {
 import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
 import type { AiVaultSessionListKeyboard } from './use-ai-vault-session-keyboard-navigation'
 import type { AiVaultResumeHere } from './ai-vault-session-resume-here'
+import { activateAiVaultStructuredSession } from '@/lib/activate-ai-vault-structured-session'
 
 const VIEWPORT_PX = 600
 const ROW_PX = 98
@@ -243,6 +244,8 @@ function selectedTitle(): string | null {
 
 beforeEach(() => {
   toastError.mockClear()
+  vi.mocked(activateAiVaultStructuredSession).mockClear()
+  launch.settlement = { kind: 'structured', sessionId: 'new' }
   // Why: happy-dom has no layout; give the virtualizer a bounded viewport and fixed rows.
   vi.stubGlobal('ResizeObserver', NoopResizeObserver)
   vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (
@@ -267,6 +270,60 @@ afterEach(() => {
 })
 
 describe('Session History keyboard selection', () => {
+  it.each(['structured', 'adopted-here', 'adopted-elsewhere'] as const)(
+    'keeps the selected remote owner when reopening %s from /resume',
+    async (kind) => {
+      const workspaceId = 'folder:notes'
+      const owner = {
+        sessionId: 'picked-owner',
+        workspaceId: kind === 'adopted-elsewhere' ? 'folder:elsewhere' : workspaceId
+      }
+      const picked: AiVaultSession = {
+        ...session(0),
+        executionHostId: 'runtime:selected-host',
+        ...(kind === 'structured' ? { structuredSession: owner } : {})
+      }
+      useAppStore.setState(useAppStore.getInitialState(), true)
+      useAppStore.setState({ activeWorktreeId: workspaceId })
+      useAppStore.getState().createUnifiedTab(workspaceId, 'agent-session', {
+        id: 'old',
+        entityId: 'old',
+        executionHostId: LOCAL_EXECUTION_HOST_ID,
+        agentSessionAgent: 'claude'
+      })
+      main = await drawTabsFromMain(useAppStore)
+      launch.settlement = {
+        kind: 'failed',
+        error: Object.assign(new Error('already adopted'), {
+          refusal: {
+            code: 'agent_session_conflict',
+            details: { reason: 'conversationHeldElsewhere', owner }
+          }
+        })
+      }
+      const { press } = renderList({
+        groups: [{ key: 'picked', label: null, sessions: [picked] }],
+        resumeHere: {
+          tabId: 'old',
+          workspaceId,
+          agent: 'claude',
+          dismiss: vi.fn(),
+          confirm: vi.fn()
+        }
+      })
+      press('Enter')
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        await main?.settle()
+      })
+      expect(activateAiVaultStructuredSession).toHaveBeenCalledExactlyOnceWith({
+        structuredSession: owner,
+        executionHostId: picked.executionHostId
+      })
+      expect(toastError).not.toHaveBeenCalled()
+    }
+  )
+
   it('opens an empty durable Gemini chat through stored-session activation even when legacy resume is unavailable', () => {
     const saved = {
       ...sessions[0]!,

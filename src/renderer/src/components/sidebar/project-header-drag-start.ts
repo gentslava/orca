@@ -13,7 +13,10 @@ import {
 import type { Repo } from '../../../../shared/repo-types'
 
 export function createProjectHeaderDragSession(args: {
-  event: PointerEvent<HTMLElement>
+  event: Pick<
+    PointerEvent<HTMLElement>,
+    'button' | 'target' | 'currentTarget' | 'pointerId' | 'clientX' | 'clientY'
+  >
   repo: Repo
   sidebarRepoHeaderIdsByBucket: ReadonlyMap<ProjectHeaderDragBucketKey, readonly string[]>
   getScrollContainer: () => HTMLElement | null
@@ -28,9 +31,20 @@ export function createProjectHeaderDragSession(args: {
     return null
   }
   const membershipBucketKey = getProjectHeaderDragBucketKey(args.repo)
-  const bucketKey =
-    [...args.sidebarRepoHeaderIdsByBucket].find(([, ids]) => ids.includes(args.repo.id))?.[0] ??
-    membershipBucketKey
+  const renderedBucketKey = args.event.currentTarget.getAttribute('data-repo-header-bucket')
+  const candidates = [
+    membershipBucketKey,
+    JSON.stringify([membershipBucketKey, true]),
+    JSON.stringify([membershipBucketKey, false])
+  ].filter((key) => args.sidebarRepoHeaderIdsByBucket.get(key)?.includes(args.repo.id))
+  const bucketKey = renderedBucketKey
+    ? candidates.find((key) => key === renderedBucketKey)
+    : candidates.length === 1
+      ? candidates[0]
+      : undefined
+  if (!bucketKey) {
+    return null
+  }
   const sidebarRepoHeaderIds = args.sidebarRepoHeaderIdsByBucket.get(bucketKey) ?? []
   // A lone project cannot move within its bucket; preserve the collapse click instead.
   if (sidebarRepoHeaderIds.length <= 1) {

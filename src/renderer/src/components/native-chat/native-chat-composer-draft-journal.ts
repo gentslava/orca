@@ -44,7 +44,8 @@ function parseEntry(entry: unknown): JournalEntry[] {
   }
   const run = typeof entry.run === 'string' ? entry.run : undefined
   if (!isRecord(addition)) {
-    return [{ scopeKey, draft: parseStoredNativeChatComposerDraft(draft), at, run }]
+    const parsed = parseStoredNativeChatComposerDraft(draft)
+    return draft === null || parsed ? [{ scopeKey, draft: parsed, at, run }] : []
   }
   const parsed = parseStoredNativeChatComposerDraft({
     text: typeof addition.text === 'string' ? addition.text : '',
@@ -74,13 +75,14 @@ function parseEntry(entry: unknown): JournalEntry[] {
 }
 
 function readEntries(): JournalEntry[] {
+  let entries: unknown
   try {
     const raw = localStorage.getItem(JOURNAL_KEY)
-    const entries: unknown = raw === null ? [] : JSON.parse(raw)
-    return Array.isArray(entries) ? entries.flatMap(parseEntry) : []
+    entries = raw === null ? [] : JSON.parse(raw)
   } catch {
     return []
   }
+  return Array.isArray(entries) ? entries.flatMap(parseEntry) : []
 }
 
 function writeEntries(entries: readonly JournalEntry[]): boolean {

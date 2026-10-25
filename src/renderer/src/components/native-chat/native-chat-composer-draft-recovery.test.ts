@@ -145,6 +145,68 @@ describe('composer recovery across reloads', () => {
     expect((await reload()).readNativeChatComposerDraft(SCOPE).text).toBe(TEXT)
   })
 
+  it('recovers valid journal entries around damaged records without treating damage as a removal', async () => {
+    const images = [{ id: 'remote', path: '/remote/shot.png', connectionId: 'ssh-box' }]
+    const owner = { workspaceId: '/folder', executionHostId: 'ssh:box' as const }
+    const document = {
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [{ type: 'text', text: 'other chat' }] }]
+    }
+    storage.drafts.set(SCOPE, { text: 'old', images: [], savedAt: 1 })
+    storage.drafts.set('removed', { text: 'sent', images: [], savedAt: 1 })
+    localStorage.setItem(
+      'orca:nativeChatComposerDraftJournal:v1',
+      JSON.stringify([
+        {
+          scopeKey: SCOPE,
+          at: 3,
+          draft: {
+            text: TEXT,
+            textFormat: 'literal',
+            document: { type: 'doc', content: [null] },
+            images,
+            owner,
+            savedAt: 3
+          }
+        },
+        {
+          scopeKey: 'valid',
+          at: 4,
+          draft: { text: 'other chat', document, images: [], savedAt: 4 }
+        },
+        { scopeKey: SCOPE, at: 5, draft: { text: 1 } },
+        { scopeKey: 'valid', at: 5 },
+        { scopeKey: 'removed', at: 6, draft: null },
+        { scopeKey: SCOPE, at: 9, textFormat: 'literal', addition: { text: 'third' } },
+        { scopeKey: SCOPE, at: 7, textFormat: 'literal', addition: { text: 'second' } }
+      ])
+    )
+
+    const store = await reload()
+    expect(store.readNativeChatComposerDraft(SCOPE)).toMatchObject({
+      text: `${TEXT}\n\nsecond\n\nthird`,
+      images,
+      owner
+    })
+    expect(store.readNativeChatComposerDraft(SCOPE).document).toBeUndefined()
+    expect(store.readNativeChatComposerDraft('valid')).toMatchObject({
+      text: 'other chat',
+      document
+    })
+    expect(store.readNativeChatComposerDraft('removed').text).toBe('')
+    await store.nativeChatComposerDraftWritesSettled()
+    expect(storage.drafts.get(SCOPE)?.owner).toEqual(owner)
+    expect(storage.drafts.has('removed')).toBe(false)
+    store.clearNativeChatComposerDraftsForTests()
+
+    const reloaded = await reload()
+    expect(reloaded.readNativeChatComposerDraft(SCOPE)).toMatchObject({
+      text: `${TEXT}\n\nsecond\n\nthird`,
+      images
+    })
+    expect(reloaded.readNativeChatComposerDraft('valid').document).toEqual(document)
+  })
+
   it('migrates unmarked legacy documentless drafts and additions while keeping remote images', async () => {
     const images = [{ id: 'old', path: '/remote/old.png', connectionId: 'ssh-old' }]
     storage.drafts.set(SCOPE, {

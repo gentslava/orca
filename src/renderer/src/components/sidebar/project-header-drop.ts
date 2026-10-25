@@ -3,7 +3,7 @@ import {
   computeWorktreeSidebarHeaderDropPreview,
   type WorktreeSidebarHeaderDropPreview
 } from './worktree-sidebar-header-drop-preview'
-import type { Row } from '../../../../shared/sidebar-list/row-types'
+import type { GroupHeaderRow, Row } from '../../../../shared/sidebar-list/row-types'
 import type { Repo } from '../../../../shared/repo-types'
 
 export type ProjectHeaderDragBucketKey = string
@@ -26,30 +26,39 @@ export function getProjectHeaderDragBucketKey(
   return repo.projectGroupId ? `group:${repo.projectGroupId}` : 'ungrouped'
 }
 
-export function getSidebarOrderedRepoHeaderIdsByBucket(
+export type RepoHeaderRow = GroupHeaderRow & { repo: Repo }
+
+export function getSidebarOrderedRepoHeaderRowsByBucket(
   rows: readonly Row[]
-): Map<ProjectHeaderDragBucketKey, string[]> {
-  const buckets = new Map<ProjectHeaderDragBucketKey, string[]>()
-  const pinnedBuckets = new Set(
-    rows.flatMap((row) =>
-      row.type === 'header' && row.repo && row.projectPinned
-        ? [getProjectHeaderDragBucketKey(row.repo)]
-        : []
-    )
+): Map<ProjectHeaderDragBucketKey, RepoHeaderRow[]> {
+  const headers = rows.filter(
+    (row): row is RepoHeaderRow => row.type === 'header' && row.repo !== undefined
   )
-  for (const row of rows) {
-    if (row.type !== 'header' || !row.repo) {
-      continue
-    }
+  const buckets = new Map<ProjectHeaderDragBucketKey, RepoHeaderRow[]>()
+  const pinnedBuckets = new Set(
+    headers.filter((row) => row.projectPinned).map((row) => getProjectHeaderDragBucketKey(row.repo))
+  )
+  for (const row of headers) {
     const baseBucket = getProjectHeaderDragBucketKey(row.repo)
     const bucketKey = pinnedBuckets.has(baseBucket)
       ? JSON.stringify([baseBucket, row.projectPinned === true])
       : baseBucket
     const list = buckets.get(bucketKey) ?? []
-    list.push(row.repo.id)
+    list.push(row)
     buckets.set(bucketKey, list)
   }
   return buckets
+}
+
+export function getSidebarOrderedRepoHeaderIdsByBucket(
+  rows: readonly Row[]
+): Map<ProjectHeaderDragBucketKey, string[]> {
+  return new Map(
+    [...getSidebarOrderedRepoHeaderRowsByBucket(rows)].map(([bucket, headers]) => [
+      bucket,
+      headers.map((row) => row.repo.id)
+    ])
+  )
 }
 
 export function getProjectGroupOrderForSidebarDrop(args: {

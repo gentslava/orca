@@ -135,7 +135,7 @@ it('keeps host-local same-ID folder projects and their pins on their actual owne
     { ...worktree, id: 'same::/w', repoId: 'same', hostId: 'local' as const },
     { ...worktree, id: 'same::/w', repoId: 'same', hostId: 'runtime:server' as const }
   ]
-  const headers = planSidebarRows({
+  const plan = planSidebarRows({
     groupBy: 'repo',
     worktrees: rows,
     repoMap: new Map([['same', local]]),
@@ -165,8 +165,10 @@ it('keeps host-local same-ID folder projects and their pins on their actual owne
     pinnedDisplayPolicy: 'single-location',
     filterRepoIds: []
   })
-    .render(new Set())
-    .filter((row) => row.type === 'header' && row.repo)
+  for (const occurrence of plan.occurrencePlan.preferredByIdentity.values()) {
+    expect(occurrence.owningSectionKey).toBe(occurrence.sectionKey)
+  }
+  const headers = plan.render(new Set()).filter((row) => row.type === 'header' && row.repo)
   expect(headers).toHaveLength(2)
   expect(
     headers.flatMap((row) => (row.type === 'header' ? [row.repo?.executionHostId] : []))

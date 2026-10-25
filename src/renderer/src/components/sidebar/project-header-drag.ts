@@ -25,7 +25,7 @@ import type { Repo } from '../../../../shared/repo-types'
 export function useRepoHeaderDrag({
   orderedRepoIds,
   sidebarRepoHeaderIdsByBucket,
-  repoById,
+  sidebarRepoHeaderRowsByBucket,
   getLiveRepos,
   usesProjectGroupOrdering,
   onCommitRepoOrder,
@@ -40,8 +40,8 @@ export function useRepoHeaderDrag({
   orderedIdsRef.current = orderedRepoIds
   const sidebarRepoHeaderIdsByBucketRef = useRef(sidebarRepoHeaderIdsByBucket)
   sidebarRepoHeaderIdsByBucketRef.current = sidebarRepoHeaderIdsByBucket
-  const repoByIdRef = useRef(repoById)
-  repoByIdRef.current = repoById
+  const sidebarRepoHeaderRowsByBucketRef = useRef(sidebarRepoHeaderRowsByBucket)
+  sidebarRepoHeaderRowsByBucketRef.current = sidebarRepoHeaderRowsByBucket
   const usesProjectGroupOrderingRef = useRef(usesProjectGroupOrdering)
   usesProjectGroupOrderingRef.current = usesProjectGroupOrdering
   const onCommitRepoOrderRef = useRef(onCommitRepoOrder)
@@ -148,7 +148,7 @@ export function useRepoHeaderDrag({
         session,
         sidebarDropIndex,
         orderedRepoIds: orderedIdsRef.current,
-        repoById: repoByIdRef.current,
+        currentRepoHeaderRowsByBucket: sidebarRepoHeaderRowsByBucketRef.current,
         liveRepos: getLiveReposRef.current(),
         currentBuckets: sidebarRepoHeaderIdsByBucketRef.current,
         usesProjectGroupOrdering: usesProjectGroupOrderingRef.current,
