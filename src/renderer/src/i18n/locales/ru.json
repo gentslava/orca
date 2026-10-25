@@ -1254,7 +1254,9 @@
           "switchToChatView": "Продолжить в чате"
         },
         "BrowserTab": {
-          "closeOthers": "Закрыть остальные"
+          "closeOthers": "Закрыть остальные",
+          "muteTab": "Выключить звук вкладки",
+          "unmuteTab": "Включить звук вкладки"
         },
         "EditorFileTabContextMenu": {
           "closeOthers": "Закрыть остальные"

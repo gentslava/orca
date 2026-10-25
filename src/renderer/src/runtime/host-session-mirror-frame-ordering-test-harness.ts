@@ -1,9 +1,9 @@
 import { act, cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, expect, vi } from 'vitest'
-import type { PublicKnownRuntimeEnvironment } from '../../../shared/runtime-environments'
+import { getDefaultSettings } from '../../../shared/constants'
 import { makePaneKey } from '../../../shared/stable-pane-id'
 import { resetStaleDocumentVisibilityForTesting } from '@/components/terminal-pane/stale-document-visibility'
-import { useAppStore, type AppState } from '@/store'
+import { useAppStore } from '@/store'
 import {
   clearRuntimeEnvironmentConnectionGenerationsForTests,
   setRuntimeEnvironmentConnectionGenerationForTests
@@ -28,6 +28,10 @@ import {
 } from './host-session-mirror-hydration'
 import { replaceRuntimeEnvironmentRevisions } from './runtime-environment-revision'
 import { resetWebSessionTabsSnapshotFreshnessForTests } from './web-session-tabs-sync/tracking-lifecycle'
+import {
+  connectedRuntimeStatus,
+  publicRuntimeEnvironment
+} from './paired-runtime-environment-test-fixture'
 
 const initialState = useAppStore.getInitialState()
 
@@ -53,8 +57,8 @@ export async function settle(): Promise<void> {
 
 export function seedState(): void {
   const runtimeEnvironments = [
-    { id: ENV, createdAt: 100, pairingRevision: REVISION }
-  ] as PublicKnownRuntimeEnvironment[]
+    publicRuntimeEnvironment({ id: ENV, createdAt: 100, pairingRevision: REVISION })
+  ]
   replaceRuntimeEnvironmentRevisions(runtimeEnvironments)
   const worktrees = [
     makeWorktree(WT, '/workspace/feature'),
@@ -78,9 +82,7 @@ export function seedState(): void {
       activeView: 'terminal',
       workspaceSessionReady: true,
       runtimeEnvironments,
-      runtimeStatusByEnvironmentId: new Map([
-        [ENV, { status: { runtimeId: 'runtime-a' }, connectionGeneration: 1 }]
-      ]) as AppState['runtimeStatusByEnvironmentId'],
+      runtimeStatusByEnvironmentId: new Map([[ENV, connectedRuntimeStatus('runtime-a', 1)]]),
       // Mirror rows the host published before the app restarted; no live PTY
       // handles yet, which is precisely why liveness is unknowable right now.
       tabsByWorktree: {
@@ -92,16 +94,18 @@ export function seedState(): void {
         [MIRROR_TAB_ID]: {
           root: { type: 'leaf', leafId: LEAF_ID },
           activeLeafId: LEAF_ID,
+          expandedLeafId: null,
           ptyIdsByLeafId: { [LEAF_ID]: 'pty-host-old-1' }
         },
         [BG_MIRROR_TAB_ID]: {
           root: { type: 'leaf', leafId: LEAF_ID },
           activeLeafId: LEAF_ID,
+          expandedLeafId: null,
           ptyIdsByLeafId: { [LEAF_ID]: 'pty-host-old-2' }
         }
       },
-      settings: { agentCmdOverrides: {} }
-    } as never,
+      settings: { ...getDefaultSettings('/tmp'), agentCmdOverrides: {} }
+    },
     true
   )
 }
