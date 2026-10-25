@@ -32,6 +32,23 @@ describe('structured AI Vault ownership', () => {
     })
   })
 
+  it('retains local WSL ownership while excluding records owned by another execution host', () => {
+    const result = listResult()
+    installOwnership({ conversationName: 'WSL conversation', location: { wslDistro: 'Ubuntu' } })
+    expect(
+      projectStructuredAiVaultSessions(result, OPENS_EVERY_STRUCTURED_CHAT).sessions[0]
+    ).toMatchObject({
+      title: 'WSL conversation',
+      structuredSession: { sessionId: 'session-alpha' }
+    })
+    expect(projectStructuredAiVaultSessions(result, () => false).sessions).toEqual([])
+    installOwnership({
+      conversationName: 'Remote conversation',
+      location: { executionHostId: 'runtime:other' }
+    })
+    expect(projectStructuredAiVaultSessions(result, OPENS_EVERY_STRUCTURED_CHAT)).toBe(result)
+  })
+
   it('uses the owning record name while leaving an unowned row alone', () => {
     installOwnership({ conversationName: 'auth/login' })
     const result = listResult()

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AgentSessionRecord } from '../../shared/agent-session-record'
 import {
   agentSessionLeaseFixture,
@@ -54,6 +54,23 @@ function retained(provider = 'claude'): AgentSessionRecord {
 afterEach(() => setStructuredAgentSessionHost(null))
 
 describe('primary conversation navigation from the durable session catalog', () => {
+  it('keeps the conversation list available when child custody lookup fails', () => {
+    const db = new OrchestrationDb(':memory:')
+    try {
+      vi.spyOn(db, 'hasAnyDispatchContexts').mockReturnValue(true)
+      const prepare = db.db.prepare.bind(db.db)
+      const spy = vi
+        .spyOn(db.db, 'prepare')
+        .mockImplementation(() => prepare('SELECT NULL AS sessionId'))
+      expect(aiVaultOrchestrationChildSessionIds(db).size).toBe(0)
+      spy.mockImplementation(() => {
+        throw new Error('custody database unavailable')
+      })
+      expect(aiVaultOrchestrationChildSessionIds(db).size).toBe(0)
+    } finally {
+      db.close()
+    }
+  })
   it('keeps released worker journals inside the parent using existing orchestration custody records', () => {
     const db = new OrchestrationDb(':memory:')
     try {

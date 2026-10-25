@@ -210,7 +210,7 @@ export function renderTabBarSurface({
         <Button
           variant="ghost"
           size="sm"
-          className="my-auto ml-1 shrink-0"
+          className="my-auto ml-1 shrink-0 [-webkit-app-region:no-drag]"
           onClick={() => {
             if (defaultChat) {
               launchAgentRow(defaultChat)

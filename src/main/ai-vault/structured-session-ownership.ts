@@ -216,10 +216,7 @@ function listOwnership(localOnly = false): StructuredProviderSessionOwnership[] 
         host.deps.store
           .listRecords()
           .filter(
-            (record) =>
-              !localOnly ||
-              (record.location.executionHostId === LOCAL_EXECUTION_HOST_ID &&
-                record.location.wslDistro === null)
+            (record) => !localOnly || record.location.executionHostId === LOCAL_EXECUTION_HOST_ID
           )
       )
     : []

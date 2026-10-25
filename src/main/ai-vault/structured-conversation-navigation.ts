@@ -126,17 +126,22 @@ function rowTime(row: AiVaultSession): number {
 export function aiVaultOrchestrationChildSessionIds(
   db: OrchestrationDb | null
 ): ReadonlySet<string> {
-  if (!db?.hasAnyDispatchContexts()) {
+  try {
+    if (!db?.hasAnyDispatchContexts()) {
+      return new Set()
+    }
+    const rows = z.array(z.object({ sessionId: z.string() })).parse(
+      db.db
+        .prepare(`SELECT DISTINCT dispatch.assignee_orca_session_id AS sessionId FROM dispatch_contexts dispatch
+        JOIN worker_terminal_resources resource ON resource.owner_dispatch_id = dispatch.id
+        AND resource.process_incarnation = dispatch.process_incarnation
+        WHERE dispatch.assignee_orca_session_id IS NOT NULL AND dispatch.creator_orca_session_id IS NOT NULL
+        AND dispatch.assignee_orca_session_id != dispatch.creator_orca_session_id`)
+        .all()
+    )
+    return new Set(rows.map((row) => row.sessionId))
+  } catch (error) {
+    console.warn('[ai-vault] Child conversation lookup unavailable', error)
     return new Set()
   }
-  const rows = z.array(z.object({ sessionId: z.string() })).parse(
-    db.db
-      .prepare(`SELECT DISTINCT dispatch.assignee_orca_session_id AS sessionId FROM dispatch_contexts dispatch
-      JOIN worker_terminal_resources resource ON resource.owner_dispatch_id = dispatch.id
-      AND resource.process_incarnation = dispatch.process_incarnation
-      WHERE dispatch.assignee_orca_session_id IS NOT NULL AND dispatch.creator_orca_session_id IS NOT NULL
-      AND dispatch.assignee_orca_session_id != dispatch.creator_orca_session_id`)
-      .all()
-  )
-  return new Set(rows.map((row) => row.sessionId))
 }

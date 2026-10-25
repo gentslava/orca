@@ -133,6 +133,12 @@ afterEach(() => {
 })
 
 describe('SidebarHeader', () => {
+  it('names the selected Activity section instead of the workspace grouping', () => {
+    mockState.sidebarBody = 'agents'
+    act(() => root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />))
+    expect(container.textContent).toContain('Activity')
+    expect(container.querySelector('button')?.textContent).not.toContain('Projects')
+  })
   it.each(['workspaces', 'agents'] as const)(
     'prioritizes questions, then working, and shows idle zero in the %s view',
     (sidebarBody) => {

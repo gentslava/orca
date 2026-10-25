@@ -55,9 +55,11 @@ const SidebarHeader = React.memo(function SidebarHeader({
   const sidebarTitle =
     sidebarBody === 'conversations'
       ? translate('dashboard.sidebar.conversations', 'Conversations')
-      : groupBy === 'repo'
-        ? translate('dashboard.sidebar.projects', 'Projects')
-        : translate('dashboard.sidebar.workspaces', 'Workspaces')
+      : sidebarBody === 'agents'
+        ? translate('dashboard.sidebar.activity', 'Activity')
+        : groupBy === 'repo'
+          ? translate('dashboard.sidebar.projects', 'Projects')
+          : translate('dashboard.sidebar.workspaces', 'Workspaces')
   const activityLabel = translate(
     agentsViewActive ? 'dashboard.sidebar.closeActivity' : 'dashboard.sidebar.openActivity',
     agentsViewActive ? 'Turn off activity view' : 'View activity'
@@ -77,9 +79,11 @@ const SidebarHeader = React.memo(function SidebarHeader({
               data-sidebar-section-title={
                 sidebarBody === 'conversations'
                   ? 'conversations'
-                  : groupBy === 'repo'
-                    ? 'projects'
-                    : 'workspaces'
+                  : sidebarBody === 'agents'
+                    ? translate('dashboard.sidebar.activity', 'Activity')
+                    : groupBy === 'repo'
+                      ? 'projects'
+                      : 'workspaces'
               }
             >
               {sidebarTitle}
