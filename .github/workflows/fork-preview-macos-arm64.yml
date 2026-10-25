@@ -122,6 +122,9 @@ jobs:
       - name: Install the separate mobile project
         uses: ./.github/actions/install-mobile-dependencies
 
+      - name: Install headless Chromium for mobile render regressions
+        run: pnpm exec playwright install chromium --only-shell
+
       - name: Run fork feature regressions and sync safety tests
         run: |
           set -euo pipefail
