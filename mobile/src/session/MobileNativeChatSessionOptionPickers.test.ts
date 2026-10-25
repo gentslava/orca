@@ -305,8 +305,13 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     await act(async () => pill('Model').props.onPress())
     expect(rowByText('Opus 4.8').props.accessibilityState?.disabled).toBe(false)
     expect(pill('Low').props.accessibilityState?.disabled).toBe(false)
-    expect(renderer!.root.findAllByProps({ children: 'Agent is working' })).toHaveLength(0)
-    expect(AccessibilityInfo.announceForAccessibilityWithOptions).not.toHaveBeenCalled()
+    const notice = renderer!.root.findByProps({ accessibilityLiveRegion: 'polite' })
+    expect(notice.findByProps({ children: 'Choices apply to future messages.' })).toBeDefined()
+    expect(notice.findAllByType('LockKeyhole')).toHaveLength(0)
+    expect(AccessibilityInfo.announceForAccessibilityWithOptions).toHaveBeenCalledExactlyOnceWith(
+      'Agent is working. Choices apply to future messages.',
+      { queue: false }
+    )
     await act(async () => rowByText('Opus 4.8').props.onPress())
     expect(setOption).toHaveBeenCalledWith('model', 'opus')
     await act(async () => pill('Low').props.onPress())

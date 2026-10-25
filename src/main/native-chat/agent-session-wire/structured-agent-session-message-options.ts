@@ -8,6 +8,25 @@ import type { StructuredAgentSessionProviderChild } from './structured-agent-ses
 
 const OPTION_ORDER = ['model', 'effort', 'personality', 'fastMode', 'serviceTier'] as const
 
+/** Goal continuations inherit the current child's last turn/start choices. */
+export function latestStructuredChildOptionsSubmission(
+  submissions: readonly AgentJournalSubmission[],
+  fence: number
+): AgentJournalSubmission | undefined {
+  return submissions
+    .filter(
+      (submission) =>
+        submission.fence === fence &&
+        submission.handedOverAt !== undefined &&
+        (submission.dispatchState !== 'rejected' || submission.answeredInTurn)
+    )
+    .reduce<AgentJournalSubmission | undefined>(
+      (newest, submission) =>
+        newest && (newest.handedOverAt ?? 0) > (submission.handedOverAt ?? 0) ? newest : submission,
+      undefined
+    )
+}
+
 /** Unset message choices inherit child execution values. */
 function sameOptions(
   a: AgentSessionExecutionOptions | undefined,
@@ -47,19 +66,7 @@ export function waitsForCodexTurnOptions(
   if (!opener && onChild.some((submission) => submission.dispatchState === 'pending')) {
     return true
   }
-  const active =
-    opener ??
-    // Goal continuations have no opener and run on this child's last turn/start choices.
-    onChild
-      // A send rejected after its turn opened still set the thread's choices.
-      .filter((submission) => submission.dispatchState !== 'rejected' || submission.answeredInTurn)
-      .reduce<AgentJournalSubmission | undefined>(
-        (newest, submission) =>
-          newest && (newest.handedOverAt ?? 0) > (submission.handedOverAt ?? 0)
-            ? newest
-            : submission,
-        undefined
-      )
+  const active = opener ?? latestStructuredChildOptionsSubmission(onChild, child.fence)
   const ran = structuredAgentSessionChildRan(child)
   if (active) {
     return !sameOptions(active.options, next.options, ran)

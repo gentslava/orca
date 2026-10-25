@@ -11,6 +11,7 @@ import {
 import {
   HOST_TEST_SESSION as SESSION,
   HOST_TEST_THREAD as THREAD,
+  hostTestMessage,
   hostTestOperationId
 } from './structured-agent-session-host-test-data'
 
@@ -54,6 +55,39 @@ async function startGoalTurn(
   )
   await rig.host.flushStreamedEvents(SESSION)
 }
+
+it.each<{ label: string; choices: Readonly<Record<string, string>> }>([
+  { label: 'matching', choices: { model: 'gpt-ran', effort: 'high' } },
+  { label: 'inherited', choices: {} },
+  { label: 'partly inherited', choices: { model: 'other-model' } }
+])('explicitly steers a goal turn with its $label accepted choices', async ({ choices }) => {
+  const hasChoices = Object.keys(choices).length > 0
+  await (hasChoices
+    ? startGoalTurn({ model: 'earlier-model' }, async () => {
+        const latest = await rig.workingSend(choices)
+        await rig.settleAccepted(latest, 'latest')
+      })
+    : startGoalTurn(choices))
+  const fields = {
+    body: hostTestMessage('Steer the goal turn'),
+    steer: true as const,
+    options: { model: 'future-model', effort: 'low' }
+  }
+  const operation = hostTestOperationId()
+  expect(
+    await rig.host.send(QUEUED_RIG_CALLER, {
+      envelope: rig.envelope(fields, 'agentSession.send', operation),
+      ...fields,
+      userSend: true
+    })
+  ).toMatchObject({ ok: true })
+  const dispatches = hasChoices ? 3 : 2
+  await eventually(() => expect(rig.dispatch).toHaveBeenCalledTimes(dispatches))
+  expect((await rig.submission(operation))?.options).toEqual(choices)
+  expect(rig.dispatch.mock.calls[dispatches - 1]?.[0].executionOptions).toEqual(choices)
+  expect(rig.host.currentWork(SESSION)?.activeTurnId()).toBe('goal-turn')
+  expect(rig.cancelTurn).not.toHaveBeenCalled()
+})
 
 it.each<{ label: string; choices: Readonly<Record<string, string>> }>([
   { label: 'matching', choices: { model: 'gpt-ran', effort: 'high' } },

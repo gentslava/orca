@@ -70,6 +70,42 @@ function controller(
 afterEach(() => cleanup())
 
 describe('NativeChatQueuedMessageList inline edit', () => {
+  it.each([
+    { index: 0, moves: true },
+    { index: 1, moves: false }
+  ])(
+    'ignores client-only sending cards when moving host card $index later',
+    async ({ index, moves }) => {
+      const owner = controller(
+        [
+          card({ messageId: 'a', position: 1 }),
+          card({ messageId: 'b', position: 2 }),
+          card({ messageId: 'sending', position: 3, hold: 'sending' })
+        ],
+        null,
+        true,
+        { editCapable: true, editor: undefined }
+      )
+      const moveBefore = vi.fn(async () => {})
+      owner.reorder = { moveBefore }
+      renderList(owner)
+      const row = screen.getAllByRole('listitem')[index]!
+      fireEvent.keyDown(within(row).getByRole('button', { name: 'More actions' }), {
+        key: 'ArrowDown'
+      })
+      await screen.findByRole('menuitem', { name: 'Edit message' })
+      const later = screen.queryByRole('menuitem', { name: 'Move later' })
+      if (moves) {
+        expect(later).not.toBeNull()
+        fireEvent.click(later!)
+        expect(moveBefore).toHaveBeenCalledExactlyOnceWith('a', null)
+      } else {
+        expect(later).toBeNull()
+        expect(moveBefore).not.toHaveBeenCalled()
+      }
+    }
+  )
+
   it('moves a named card before its neighbour using the existing action menu', async () => {
     const owner = controller(
       [

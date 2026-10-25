@@ -132,18 +132,20 @@ export function MobileNativeChatSessionOptionPickers({
     (model !== undefined || permission !== undefined) &&
     activeDescriptor !== undefined &&
     isWorking &&
-    !allowsWorkingPicks &&
     !permissionView
+  const workingNoticeDescription = allowsWorkingPicks
+    ? 'Choices apply to future messages.'
+    : 'Model settings unlock when this turn finishes.'
 
   useEffect(() => {
     if (Platform.OS === 'ios' && showWorkingNotice) {
       // Queued announcements cannot be canceled when the picker closes or changes pages.
       AccessibilityInfo.announceForAccessibilityWithOptions(
-        'Agent is working. Model settings unlock when this turn finishes.',
+        `Agent is working. ${workingNoticeDescription}`,
         { queue: false }
       )
     }
-  }, [showWorkingNotice])
+  }, [showWorkingNotice, workingNoticeDescription])
 
   const options = sortNativeChatSessionOptions(snapshot)
   if (!model && !permission) {
@@ -242,12 +244,12 @@ export function MobileNativeChatSessionOptionPickers({
             </View>
             {showWorkingNotice ? (
               <View style={styles.lockNotice} accessibilityLiveRegion="polite">
-                <LockKeyhole size={16} color={colors.textSecondary} />
+                {!allowsWorkingPicks ? (
+                  <LockKeyhole size={16} color={colors.textSecondary} />
+                ) : null}
                 <View style={styles.lockNoticeBody}>
                   <Text style={styles.lockNoticeTitle}>Agent is working</Text>
-                  <Text style={styles.lockNoticeDescription}>
-                    Model settings unlock when this turn finishes.
-                  </Text>
+                  <Text style={styles.lockNoticeDescription}>{workingNoticeDescription}</Text>
                 </View>
               </View>
             ) : null}

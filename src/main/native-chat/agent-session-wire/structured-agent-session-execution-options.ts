@@ -7,6 +7,7 @@ import type { AgentSessionTurnContext } from './structured-agent-session-turns'
 import { structuredAgentSessionOptionOverridesRefusal } from './structured-agent-session-options-read'
 import { agentJournalSubmissionKey } from '../../../shared/agent-session-journal-item-key'
 import { contextStructuredAgentSessionCurrentWork } from './structured-agent-session-current-work'
+import { latestStructuredChildOptionsSubmission } from './structured-agent-session-message-options'
 
 /** Capture send-specific choices or saved defaults once under the acceptance lane. */
 export function captureStructuredExecutionOptions(
@@ -61,7 +62,18 @@ export function captureStructuredSteerOptions(
           ? agentJournalSubmissionKey(submission.clientMessageId) === turn.userItemId
           : work.owesSend(submission))
     )
-  const active = candidates.length === 1 ? candidates[0] : undefined
+  const onChild = ctx.journal
+    .submissions()
+    .filter((submission) => submission.fence === ctx.fence && submission.handedOverAt !== undefined)
+  const active =
+    candidates.length === 1
+      ? candidates[0]
+      : candidates.length === 0 &&
+          turn?.state === 'running' &&
+          work.activeTurnId() !== null &&
+          !onChild.some((submission) => submission.dispatchState === 'pending')
+        ? latestStructuredChildOptionsSubmission(onChild, ctx.fence)
+        : undefined
   return active?.options
     ? { options: { ...active.options } }
     : {

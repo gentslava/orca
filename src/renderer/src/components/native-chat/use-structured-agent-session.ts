@@ -151,6 +151,8 @@ export function useStructuredAgentSession(args: {
     () => ({ capability: queueCapability, enabled: queueEnabled }),
     [queueCapability, queueEnabled]
   )
+  // A queued send is a card, never a transcript bubble.
+  const isWorking = transportState.isWorking || transportState.queueSendsNext
   const sends = useStructuredAgentSessionSends({
     sessionId,
     target,
@@ -161,7 +163,7 @@ export function useStructuredAgentSession(args: {
     queuedMessageIds,
     queue,
     historyLoaded: transportEnabled && state.status === 'ready',
-    isWorking: transportState.isWorking,
+    isWorking,
     stopping: stopControl.stopping,
     sendOptions
   })
@@ -196,8 +198,6 @@ export function useStructuredAgentSession(args: {
     write,
     capturePresentation
   })
-  // A queued send is a card, never a transcript bubble.
-  const isWorking = transportState.isWorking || transportState.queueSendsNext
   // A message typed during a command queues behind it on the host.
   const send = (...input: Parameters<typeof sends.send>) =>
     // Legacy: an older host refuses sends while a command runs; removable once those hosts age out.
