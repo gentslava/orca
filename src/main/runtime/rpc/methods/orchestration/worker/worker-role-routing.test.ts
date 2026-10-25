@@ -10,6 +10,7 @@ import {
 
 const harness = createOrchestrationRpcHarness()
 let state: ReturnType<typeof harness.setup>
+let experimentalNativeChat = false
 const profiles = {
   research: { agent: 'claude', model: 'sonnet', effort: 'high' },
   implementation: { agent: 'codex', model: 'gpt-5.5', effort: 'high' },
@@ -18,11 +19,12 @@ const profiles = {
 }
 
 beforeEach(() => {
+  experimentalNativeChat = false
   state = harness.setup()
   const { runtime } = state
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: these handlers read only settings from the store fixture.
   vi.spyOn(runtime, 'requireStore').mockReturnValue({
-    getSettings: () => ({ orchestrationWorkerRoles: profiles })
+    getSettings: () => ({ experimentalNativeChat, orchestrationWorkerRoles: profiles })
   } as never)
   vi.spyOn(runtime, 'validateOrchestrationAgentLauncher').mockImplementation(() => {})
   vi.spyOn(runtime, 'preflightOrchestrationWorkerLaunch').mockResolvedValue(undefined)
@@ -141,6 +143,32 @@ describe('worker role routing through durable worker-start', () => {
     expectNoTaskEffects()
   })
 
+  it.each(['new-child', 'new-top-level'])(
+    'validates terminal fallback preferences before creating a structured %s worker',
+    async (worktree) => {
+      experimentalNativeChat = true
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: creation admission reads only the parent workspace and repository ids.
+      vi.spyOn(state.runtime, 'showManagedWorktree').mockResolvedValue({
+        id: 'repo::parent',
+        repoId: 'repo'
+      } as never)
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: folder-workspace admission reads only the repository kind.
+      vi.spyOn(state.runtime, 'showRepo').mockResolvedValue({ id: 'repo', kind: 'git' } as never)
+      const create = vi
+        .spyOn(state.runtime, 'createManagedWorktree')
+        .mockRejectedValue(new Error('Worktree effects must not begin'))
+      vi.mocked(state.runtime.preflightOrchestrationWorkerLaunch).mockRejectedValue(
+        new Error('Agent command override conflicts with the requested launch preferences.')
+      )
+
+      await expect(start({ worktree, name: 'role-worker' })).rejects.toThrow(
+        'command override conflicts'
+      )
+      expectNoTaskEffects()
+      expect(create).not.toHaveBeenCalled()
+    }
+  )
+
   it.each([
     { role: 'missing' },
     { role: 'invalid' },
@@ -176,34 +204,59 @@ describe('worker role routing through durable worker-start', () => {
     expectNoTaskEffects()
   })
 
-  it('does not claim effective options from an unverified remote receipt or launch a duplicate', async () => {
-    const remote = remoteCalls(remoteCapabilities(), async (method, params) => {
-      if (method === 'orchestration.workerLaunchPreflight') {
-        return {
-          launch: {
-            role: 'research',
-            requested: { agent: 'claude', model: 'sonnet', effort: 'high' },
-            effective: null
+  it.each([
+    undefined,
+    {
+      role: 'research',
+      requested: { agent: 'claude', model: 'sonnet', effort: 'high' },
+      effective: { agent: 'claude', model: 'opus', effort: 'high' }
+    }
+  ])(
+    'preserves remote identity for an unverified launch without a duplicate: %j',
+    async (launch) => {
+      const remote = remoteCalls(remoteCapabilities(), async (method, params) => {
+        if (method === 'orchestration.workerLaunchPreflight') {
+          return {
+            launch: {
+              role: 'research',
+              requested: { agent: 'claude', model: 'sonnet', effort: 'high' },
+              effective: null
+            }
           }
         }
-      }
-      const { dispatchId } = z.object({ dispatchId: z.string() }).parse(params)
-      return {
-        dispatchId,
-        state: 'ready',
-        runtimeEpoch: 'remote_1',
-        worktreeId: 'remote_folder',
-        terminalHandle: 'term_remote'
-      }
-    })
-    const result = await startRemote()
-    expect(result).toMatchObject({ state: 'outcome_unknown', launch: { effective: null } })
-    expect(state.db.db.prepare('SELECT count(*) AS count FROM tasks').get()).toEqual({ count: 1 })
-    expect(
-      remote.mock.calls.filter((call) => call[1] === 'orchestration.federationAttachStart')
-    ).toHaveLength(1)
-    expect(state.runtime.createTerminal).not.toHaveBeenCalled()
-  })
+        const { dispatchId } = z.object({ dispatchId: z.string() }).parse(params)
+        return {
+          dispatchId,
+          state: 'ready',
+          runtimeEpoch: 'remote_1',
+          worktreeId: 'remote_folder',
+          terminalHandle: 'term_remote',
+          ...(launch ? { launch } : {})
+        }
+      })
+      const result = await startRemote()
+      const { dispatchId } = z.object({ dispatchId: z.string() }).parse(result)
+      expect(result).toMatchObject({
+        state: 'outcome_unknown',
+        launch: {
+          role: 'research',
+          requested: { agent: 'claude', model: 'sonnet', effort: 'high' },
+          effective: null
+        }
+      })
+      expect(state.db.getFederatedDispatch(dispatchId)).toMatchObject({
+        remote_runtime_epoch: 'remote_1',
+        remote_worktree_id: 'remote_folder',
+        remote_terminal_handle: 'term_remote'
+      })
+      expect(state.db.getWorkerDispatch(dispatchId)?.state).toBe('start_unknown')
+      expect(state.db.db.prepare('SELECT count(*) AS count FROM tasks').get()).toEqual({ count: 1 })
+      expect(
+        remote.mock.calls.filter((call) => call[1] === 'orchestration.federationAttachStart')
+      ).toHaveLength(1)
+      expect(state.runtime.createTerminal).not.toHaveBeenCalled()
+    }
+  )
 })
 
 function remoteCapabilities() {

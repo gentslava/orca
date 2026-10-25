@@ -56,7 +56,7 @@ export async function startLocalWorker(args: {
   const chat = terminal ? chatAssigneeOf(terminal) : null
   const requestedWorktree = params.worktree ?? 'current'
   const createsWorktree = requestedWorktree === 'new-child' || requestedWorktree === 'new-top-level'
-  const { agent, launch, fastWorkspace, fastMode } = await preflightLocalWorkerStartLaunch({
+  const { agent, launch, fastWorkspace, fastWorkerMode } = await preflightLocalWorkerStartLaunch({
     params,
     runtime,
     callerSession,
@@ -98,9 +98,13 @@ export async function startLocalWorker(args: {
     })
   }
   const hostMode =
-    fastMode ?? resolveWorkerStartModeOnHost(runtime, args.mode, resolvedWorktree?.id, agent)
+    fastWorkerMode ?? resolveWorkerStartModeOnHost(runtime, args.mode, resolvedWorktree?.id, agent)
   let mode = chatWorkerMode(await hostMode, chat)
-  if (agent && mode.mode === 'terminal' && (params.role || params.fastMode !== undefined)) {
+  if (
+    agent &&
+    (mode.mode === 'terminal' || createsWorktree) &&
+    (params.role || params.fastMode !== undefined)
+  ) {
     await runtime.preflightOrchestrationWorkerLaunch(
       agent,
       launch.preferences,

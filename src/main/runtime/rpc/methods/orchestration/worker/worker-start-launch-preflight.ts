@@ -51,7 +51,7 @@ export async function preflightLocalWorkerStartLaunch(args: {
   }
 
   let fastWorkspace: Awaited<ReturnType<typeof runtime.showManagedTerminalWorkspace>> | undefined
-  let fastMode: WorkerStartModeReceipt | undefined
+  let fastWorkerMode: WorkerStartModeReceipt | undefined
   let structuredFastModeSupported = false
   let structuredFastServiceTier: string | undefined
   if (
@@ -74,13 +74,13 @@ export async function preflightLocalWorkerStartLaunch(args: {
     fastWorkspace = await runtime.showManagedTerminalWorkspace(
       requestedWorktree === 'current' ? `id:${callerWorkspaceId}` : requestedWorktree
     )
-    fastMode = await resolveWorkerStartModeOnHost(
+    fastWorkerMode = await resolveWorkerStartModeOnHost(
       runtime,
       mode,
       fastWorkspace.id,
       launchParams.agent
     )
-    if (fastMode.mode === 'structured') {
+    if (fastWorkerMode.mode === 'structured') {
       structuredFastServiceTier = await preflightStructuredWorkerFast({
         runtime,
         agent: launchParams.agent,
@@ -100,5 +100,5 @@ export async function preflightLocalWorkerStartLaunch(args: {
     structuredFastModeSupported,
     structuredFastServiceTier
   })
-  return { ...prepared, fastWorkspace, fastMode }
+  return { ...prepared, fastWorkspace, fastWorkerMode }
 }

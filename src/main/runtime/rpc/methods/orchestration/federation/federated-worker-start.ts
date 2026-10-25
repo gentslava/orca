@@ -198,11 +198,6 @@ export async function startFederatedWorker(args: {
         'The worker server returned a different Dispatch attachment.'
       )
     }
-    const launch = resolveFederatedWorkerLaunchReceipt(
-      remote.launch,
-      requestedLaunch,
-      remote.state === 'ready'
-    )
     if (isReadyRemoteFederatedWorkerStartReceipt(remote)) {
       db.updateFederatedDispatchResources({
         dispatchId: started.dispatch.id,
@@ -210,6 +205,13 @@ export async function startFederatedWorker(args: {
         worktreeId: remote.worktreeId,
         terminalHandle: remote.terminalHandle
       })
+    }
+    const launch = resolveFederatedWorkerLaunchReceipt(
+      remote.launch,
+      requestedLaunch,
+      remote.state === 'ready'
+    )
+    if (isReadyRemoteFederatedWorkerStartReceipt(remote)) {
       db.recordWorkerStage({
         dispatchId: started.dispatch.id,
         stage: 'remote_input_accepted',
