@@ -1,4 +1,3 @@
-import { writeProjectOrderMode } from '@/runtime/personal-project-order-client'
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
 import type { UISlice, UISliceGet, UISliceSet } from './ui-slice-contract'
@@ -56,9 +55,11 @@ export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Par
 
     projectOrderBy: 'manual',
     setProjectOrderBy: (p) => {
-      void writeProjectOrderMode(p).catch(() =>
-        toast.error(translate('sidebar.projectOrder.saveFailed', 'Could not save project order'))
-      )
+      void import('@/runtime/personal-project-order-client')
+        .then(({ writeProjectOrderMode }) => writeProjectOrderMode(p))
+        .catch(() =>
+          toast.error(translate('sidebar.projectOrder.saveFailed', 'Could not save project order'))
+        )
     },
 
     showActiveOnly: false,
