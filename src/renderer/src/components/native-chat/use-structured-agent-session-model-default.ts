@@ -75,11 +75,10 @@ export function useStructuredAgentSessionModelDefault(args: {
       const targetRecord = optionStateRef.current.record
       const finish = beginOptionWrite(id)
       const generation = ++optionMutationGeneration.current
-      const current = () =>
-        isCurrentContext() &&
-        activeOptionRecordRef.current === targetRecord &&
-        optionMutationGeneration.current === generation
-      pendingOptionsRef.current.modelDefault = 'true'
+      const sameRecord = () => isCurrentContext() && activeOptionRecordRef.current === targetRecord
+      const current = () => sameRecord() && optionMutationGeneration.current === generation
+      const pendingDefault = String(generation)
+      pendingOptionsRef.current.modelDefault = pendingDefault
       updateOptionState((state) => ({ ...state, pendingId: id }))
       let accepted = false
       try {
@@ -104,8 +103,10 @@ export function useStructuredAgentSessionModelDefault(args: {
         }
         return snapshot()
       } finally {
-        if (current()) {
+        if (sameRecord() && pendingOptionsRef.current.modelDefault === pendingDefault) {
           delete pendingOptionsRef.current.modelDefault
+        }
+        if (current()) {
           updateOptionState((state) => ({ ...state, pendingId: null }))
         }
         finish(accepted && current())

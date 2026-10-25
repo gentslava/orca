@@ -40,6 +40,7 @@ const desktop = [
   'src/renderer/src/components/native-chat/NativeChatMessageList.rail-history-jump.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx',
   'src/renderer/src/components/native-chat/use-structured-agent-session-options.test.tsx',
+  'src/renderer/src/components/native-chat/use-structured-agent-session-model-default.test.tsx',
   'src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx',
   'src/renderer/src/components/native-chat/use-structured-agent-session-queue-working.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatQueuedMessageList.inline-edit.test.tsx',
