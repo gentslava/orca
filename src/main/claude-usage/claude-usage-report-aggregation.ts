@@ -44,11 +44,10 @@ export function buildSummary(
     turns += row.turnCount
     zeroCacheReadTurns += row.zeroCacheReadTurnCount
     const modelKey = row.model ?? 'Unknown model'
-    byModel.set(modelKey, (byModel.get(modelKey) ?? 0) + row.inputTokens + row.outputTokens)
-    byProject.set(
-      row.projectLabel,
-      (byProject.get(row.projectLabel) ?? 0) + row.inputTokens + row.outputTokens
-    )
+    const totalTokens =
+      row.inputTokens + row.outputTokens + row.cacheReadTokens + row.cacheWriteTokens
+    byModel.set(modelKey, (byModel.get(modelKey) ?? 0) + totalTokens)
+    byProject.set(row.projectLabel, (byProject.get(row.projectLabel) ?? 0) + totalTokens)
     const cost = estimateCostUsd(row.model, row)
     if (cost !== null) {
       hasAnyBillableCost = true

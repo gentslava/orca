@@ -58,6 +58,8 @@ export type MuseUsageSnapshot = {
   modelBreakdown: MuseUsageBreakdownRow[]
   projectBreakdown: MuseUsageBreakdownRow[]
   recentSessions: MuseUsageSessionRow[]
+  /** Calendar day on the recording host, using the same local boundary as history rows. */
+  historyToday?: string
   history?: UsageHistoryRow[]
   historyNeedsRescan?: boolean
 }

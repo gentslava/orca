@@ -78,6 +78,8 @@ export type CodexUsageSnapshot = {
   modelBreakdown: CodexUsageBreakdownRow[]
   projectBreakdown: CodexUsageBreakdownRow[]
   recentSessions: CodexUsageSessionRow[]
+  /** Calendar day on the recording host, using the same local boundary as history rows. */
+  historyToday?: string
   history?: UsageHistoryRow[]
   historyNeedsRescan?: boolean
 }

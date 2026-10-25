@@ -75,6 +75,8 @@ export type ClaudeUsageSnapshot = {
   modelBreakdown: ClaudeUsageBreakdownRow[]
   projectBreakdown: ClaudeUsageBreakdownRow[]
   recentSessions: ClaudeUsageSessionRow[]
+  /** Calendar day on the recording host, using the same local boundary as history rows. */
+  historyToday?: string
   history?: UsageHistoryRow[]
   historyNeedsRescan?: boolean
 }

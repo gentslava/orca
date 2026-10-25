@@ -23,22 +23,30 @@ export function buildRecentSessions(
   )
   if (selected) {
     const metadata = new Map(state.sessions.map((session) => [session.sessionId, session]))
-    return selected.slice(0, limit).map((row) => ({
-      sessionId: row.sessionId,
-      lastActiveAt: metadata.get(row.sessionId)?.lastTimestamp ?? row.lastActiveDay,
-      lastActiveDay: row.lastActiveDay,
-      durationMinutes: usageSessionDurationMinutes(metadata.get(row.sessionId)),
-      projectLabel: row.projectLabel,
-      branch: metadata.get(row.sessionId)?.lastGitBranch ?? null,
-      model: row.model,
-      turns: row.activityCount,
-      inputTokens: row.newInputTokens,
-      outputTokens: row.outputTokens,
-      cacheReadTokens: row.cacheReadTokens,
-      cacheWriteTokens: row.cacheWriteTokens
-    }))
+    return selected
+      .map((row) => ({
+        sessionId: row.sessionId,
+        lastActiveAt: metadata.get(row.sessionId)?.lastTimestamp ?? row.lastActiveDay,
+        lastActiveDay: row.lastActiveDay,
+        durationMinutes: usageSessionDurationMinutes(metadata.get(row.sessionId)),
+        projectLabel: row.projectLabel,
+        branch: metadata.get(row.sessionId)?.lastGitBranch ?? null,
+        model: row.model,
+        turns: row.activityCount,
+        inputTokens: row.newInputTokens,
+        outputTokens: row.outputTokens,
+        cacheReadTokens: row.cacheReadTokens,
+        cacheWriteTokens: row.cacheWriteTokens
+      }))
+      .sort(
+        (a, b) =>
+          b.lastActiveDay.localeCompare(a.lastActiveDay) ||
+          b.lastActiveAt.localeCompare(a.lastActiveAt)
+      )
+      .slice(0, limit)
   }
   return getFilteredSessions(state, scope, range)
+    .toSorted((a, b) => b.lastTimestamp.localeCompare(a.lastTimestamp))
     .slice(0, limit)
     .map((session) => {
       const matchingLocations = session.locationBreakdown.filter((entry) =>

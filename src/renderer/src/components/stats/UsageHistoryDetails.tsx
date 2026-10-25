@@ -19,15 +19,17 @@ export function UsageHistoryDailyChart({
   rows,
   range,
   selectedDay,
-  onDay
+  onDay,
+  today
 }: {
   rows: readonly UsageHistoryRow[]
   range: UsageHistoryRange
   selectedDay: string | null
   onDay: (day: string) => void
+  today?: string
 }): React.JSX.Element {
   const [metric, setMetric] = useState<'tokens' | 'cost'>('tokens')
-  const days = usageHistoryChartDays(rows, range, selectedDay).map((day) => ({
+  const days = usageHistoryChartDays(rows, range, selectedDay, undefined, today).map((day) => ({
     ...day,
     amount:
       metric === 'tokens'
@@ -221,35 +223,37 @@ export function UsageHistorySessions({
     rows,
     'session',
     translate('stats.usage.session.unavailable', 'Session attribution unavailable')
-  ).sort((a, b) => (b.rows.at(-1)?.day ?? '').localeCompare(a.rows.at(-1)?.day ?? ''))
-  const sessions = groups.map((group) => {
-    const models = new Set(group.rows.map((row) => row.model))
-    const projects = new Set(group.rows.map((row) => row.projectKey))
-    const days = group.rows.map((row) => row.day).sort()
-    const accounts = new Set(group.rows.map(usageHistoryAccountKey))
-    const first = group.rows[0]
-    return {
-      sessionId: group.key,
-      label: group.label,
-      provider: group.rows[0]?.provider,
-      accountLabel:
-        accounts.size === 1 && first
-          ? `${first.accountId ? '' : `${getAgentLabel(first.provider)} · `}${usageHistoryAccountLabel(first, accountLabels)}`
-          : translate('stats.usage.account.multiple', 'Multiple accounts'),
-      lastActiveAt: days.at(-1) ?? '',
-      projectLabel:
-        projects.size === 1
-          ? (group.rows[0]?.projectLabel ?? unknown)
-          : translate('stats.usage.session.multipleProjects', 'Multiple projects'),
-      model:
-        models.size === 1
-          ? (group.rows[0]?.model ?? unknown)
-          : translate('stats.usage.session.multipleModels', 'Multiple models'),
-      inputTokens: group.newInputTokens + group.cacheReadTokens + group.cacheWriteTokens,
-      outputTokens: group.outputTokens,
-      group
-    }
-  })
+  )
+  const sessions = groups
+    .map((group) => {
+      const models = new Set(group.rows.map((row) => row.model))
+      const projects = new Set(group.rows.map((row) => row.projectKey))
+      const days = group.rows.map((row) => row.day).sort()
+      const accounts = new Set(group.rows.map(usageHistoryAccountKey))
+      const first = group.rows[0]
+      return {
+        sessionId: group.key,
+        label: group.label,
+        provider: group.rows[0]?.provider,
+        accountLabel:
+          accounts.size === 1 && first
+            ? `${first.accountId ? '' : `${getAgentLabel(first.provider)} · `}${usageHistoryAccountLabel(first, accountLabels)}`
+            : translate('stats.usage.account.multiple', 'Multiple accounts'),
+        lastActiveAt: days.at(-1) ?? '',
+        projectLabel:
+          projects.size === 1
+            ? (group.rows[0]?.projectLabel ?? unknown)
+            : translate('stats.usage.session.multipleProjects', 'Multiple projects'),
+        model:
+          models.size === 1
+            ? (group.rows[0]?.model ?? unknown)
+            : translate('stats.usage.session.multipleModels', 'Multiple models'),
+        inputTokens: group.newInputTokens + group.cacheReadTokens + group.cacheWriteTokens,
+        outputTokens: group.outputTokens,
+        group
+      }
+    })
+    .sort((a, b) => b.lastActiveAt.localeCompare(a.lastActiveAt))
   return (
     <div className="space-y-2">
       <UsageRecentSessionsTable

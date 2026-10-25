@@ -16,6 +16,7 @@ export type UsageHistorySource = {
   isScanning: boolean
   lastScanCompletedAt: number | null
   error: string | null
+  historyToday?: string
   needsRescan?: boolean
   rows: UsageHistoryRow[]
 }
@@ -151,6 +152,7 @@ export function useUsageHistory(target: RuntimeClientTarget = LOCAL_TARGET) {
               }
               update(provider, {
                 status: snapshot.history === undefined ? 'unsupported' : 'ready',
+                historyToday: snapshot.historyToday,
                 enabled: snapshot.scanState.enabled,
                 isScanning: snapshot.scanState.isScanning,
                 lastScanCompletedAt: snapshot.scanState.lastScanCompletedAt,

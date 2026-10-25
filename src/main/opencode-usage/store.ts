@@ -1,3 +1,4 @@
+import { localUsageDay } from '../../shared/usage-history-range'
 import { projectEventUsageHistory } from '../usage/usage-history-projection'
 import { codexOpenCodeTokenSessions } from '../usage/agent-token-usage'
 import { getAppEnvironment } from '../../shared/app-environment'
@@ -79,7 +80,10 @@ export class OpenCodeUsageStore extends UsageProviderStoreLifecycle<
     return {
       scanState: this.getScanState(),
       ...(includeHistory
-        ? { history: projectEventUsageHistory('opencode', this.getFilteredDaily(scope, range)) }
+        ? {
+            historyToday: localUsageDay(new Date()),
+            history: projectEventUsageHistory('opencode', this.getFilteredDaily(scope, range))
+          }
         : {}),
       summary: this.buildSummary(scope, range),
       daily: this.buildDaily(scope, range),

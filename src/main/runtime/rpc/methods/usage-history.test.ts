@@ -245,6 +245,7 @@ describe('owner historical usage RPC', () => {
         lastScanCompletedAt: expect.any(Number)
       })
       expect(snapshot.history).toBeDefined()
+      expect(snapshot.historyToday).toMatch(/^\d{4}-\d{2}-\d{2}$/)
     }
   })
 

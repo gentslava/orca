@@ -18,6 +18,7 @@ import type {
 
 export type UsageHistorySelection = {
   range: UsageHistoryRange
+  today?: string
   scope: 'all' | 'orca'
   provider: UsageHistoryProvider | 'all'
   account?: string | null
@@ -31,12 +32,13 @@ export function filterUsageHistory(
   selection: UsageHistorySelection,
   now = new Date()
 ): UsageHistoryRow[] {
-  const startDay = usageHistoryStartDay(selection.range, now)
-  const endDay = localUsageDay(now)
+  const calendar = selection.today ? new Date(`${selection.today}T12:00:00`) : now
+  const startDay = usageHistoryStartDay(selection.range, calendar)
+  const endDay = selection.today ?? (selection.range === 'all' ? null : localUsageDay(now))
   return rows.filter(
     (row) =>
       (!startDay || row.day >= startDay) &&
-      row.day <= endDay &&
+      (!endDay || row.day <= endDay) &&
       (selection.scope === 'all' || row.inOrca) &&
       (selection.provider === 'all' || row.provider === selection.provider) &&
       (selection.account == null || usageHistoryAccountKey(row) === selection.account) &&
@@ -71,14 +73,18 @@ export function usageHistoryChartDays(
   rows: readonly UsageHistoryRow[],
   range: UsageHistoryRange,
   selectedDay: string | null,
-  now = new Date()
+  now = new Date(),
+  today?: string
 ): { day: string; usage: UsageHistoryGroup | null }[] {
   const daily = groupUsageHistory(rows, 'day', '')
-  const start = selectedDay ?? usageHistoryStartDay(range, now) ?? daily[0]?.key
+  const calendar = today ? new Date(`${today}T12:00:00`) : now
+  const start = selectedDay ?? usageHistoryStartDay(range, calendar) ?? daily[0]?.key
   if (!start) {
     return []
   }
-  const end = selectedDay ?? localUsageDay(now)
+  const clientDay = localUsageDay(now)
+  const lastDay = daily.at(-1)?.key ?? clientDay
+  const end = selectedDay ?? today ?? (range === 'all' && lastDay > clientDay ? lastDay : clientDay)
   const byDay = new Map(daily.map((day) => [day.key, day]))
   const days: { day: string; usage: UsageHistoryGroup | null }[] = []
   const date = new Date(`${start}T00:00:00`)

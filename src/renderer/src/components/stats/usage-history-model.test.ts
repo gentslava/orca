@@ -184,3 +184,26 @@ describe('one historical usage selection', () => {
     expect(formatCacheReadShare(totalUsageHistory([]), 'ru', 'н/д')).toBe('н/д')
   })
 })
+
+it('uses the host calendar when it is ahead of or behind the client across midnight', () => {
+  const history = [
+    row({ day: '2026-10-18' }),
+    row({ day: '2026-10-19' }),
+    row({ day: '2026-10-25' })
+  ]
+  const ahead = { ...selection, today: '2026-10-25' }
+  const selected = filterUsageHistory(history, ahead, now)
+  expect(selected.map((row) => row.day)).toEqual(['2026-10-19', '2026-10-25'])
+  expect(usageHistoryChartDays(selected, '7d', null, now, ahead.today).at(-1)?.day).toBe(
+    '2026-10-25'
+  )
+  const behind = { ...selection, today: '2026-10-23' }
+  expect(filterUsageHistory([row({ day: '2026-10-17' })], behind, now)).toHaveLength(1)
+  expect(filterUsageHistory(history, { ...ahead, range: 'all' }, now)).toHaveLength(3)
+})
+
+it('keeps all-time host rows visible with older snapshots that lack a host calendar', () => {
+  expect(
+    filterUsageHistory([row({ day: '2026-10-25' })], { ...selection, range: 'all' }, now)
+  ).toHaveLength(1)
+})

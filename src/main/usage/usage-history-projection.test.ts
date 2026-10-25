@@ -63,6 +63,61 @@ function event(sessionId: string): CodexUsageAttributedEvent {
 }
 
 describe('historical usage projection', () => {
+  it('preserves Claude session counts when daily data is absent', () => {
+    const state = {
+      ...aggregateClaudeUsage([turn('persisted')]),
+      schemaVersion: 7,
+      processedFiles: [],
+      worktreeFingerprint: null,
+      dailyAggregates: [],
+      scanState: {
+        enabled: true,
+        lastScanStartedAt: null,
+        lastScanCompletedAt: null,
+        lastScanError: null
+      }
+    }
+    expect(claudeSummary(state, 'all', 'all').sessions).toBe(1)
+  })
+
+  it('retains recent Claude lifetime rows when daily data is absent', () => {
+    const state = {
+      ...aggregateClaudeUsage([turn('persisted')]),
+      schemaVersion: 7,
+      processedFiles: [],
+      worktreeFingerprint: null,
+      dailyAggregates: [],
+      scanState: {
+        enabled: true,
+        lastScanStartedAt: null,
+        lastScanCompletedAt: null,
+        lastScanError: null
+      }
+    }
+    expect(claudeSessions(state, 'all', 'all')).toEqual([
+      expect.objectContaining({ sessionId: 'persisted', inputTokens: 100, cacheReadTokens: 300 })
+    ])
+  })
+
+  it('orders same-day Claude sessions by their timestamp before applying the limit', () => {
+    const state = {
+      ...aggregateClaudeUsage([
+        { ...turn('older'), timestamp: '2026-10-24T08:00:00Z', inputTokens: 500 },
+        { ...turn('newer'), timestamp: '2026-10-24T18:00:00Z', inputTokens: 10 }
+      ]),
+      schemaVersion: 7,
+      processedFiles: [],
+      worktreeFingerprint: null,
+      scanState: {
+        enabled: true,
+        lastScanStartedAt: null,
+        lastScanCompletedAt: null,
+        lastScanError: null
+      }
+    }
+    expect(claudeSessions(state, 'all', 'all', 1).map((row) => row.sessionId)).toEqual(['newer'])
+  })
+
   it('keeps provider drilldown totals on the same days and folder scope as summaries and chart', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 9, 24, 12))
@@ -191,7 +246,13 @@ describe('historical usage projection', () => {
       session_model: null,
       data: JSON.stringify({
         cost: 25,
-        tokens: { input: 100, output: 200, reasoning: 50, cache: { read: 400, write: 80 } }
+        tokens: {
+          total: 1000,
+          input: 100,
+          output: 200,
+          reasoning: 50,
+          cache: { read: 400, write: 80 }
+        }
       })
     })
     expect(parsed).not.toBeNull()
@@ -214,7 +275,7 @@ describe('historical usage projection', () => {
       cacheReadTokens: 400,
       cacheWriteTokens: 80,
       outputTokens: 250,
-      totalTokens: 830,
+      totalTokens: 1000,
       apiEquivalentCostUsd: null
     })
   })

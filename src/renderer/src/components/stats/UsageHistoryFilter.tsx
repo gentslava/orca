@@ -26,7 +26,8 @@ export function UsageHistoryFilter({
   onChange: (value: string | null) => void
 }): React.JSX.Element {
   const [open, setOpen] = useState(false)
-  const selectedLabel = options.find((option) => option.value === value)?.label ?? allLabel
+  const selectedLabel =
+    value === null ? allLabel : (options.find((option) => option.value === value)?.label ?? value)
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>

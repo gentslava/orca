@@ -1,3 +1,4 @@
+import { localUsageDay } from '../../shared/usage-history-range'
 import { projectEventUsageHistory } from '../usage/usage-history-projection'
 import { getAppEnvironment } from '../../shared/app-environment'
 import { join } from 'node:path'
@@ -65,7 +66,10 @@ export class MuseUsageStore extends UsageProviderStoreLifecycle<
     return {
       scanState: this.getScanState(),
       ...(includeHistory
-        ? { history: projectEventUsageHistory('muse', this.getFilteredDaily(scope, range)) }
+        ? {
+            historyToday: localUsageDay(new Date()),
+            history: projectEventUsageHistory('muse', this.getFilteredDaily(scope, range))
+          }
         : {}),
       summary: buildMuseUsageSummary(scope, range, daily, sessions),
       daily: buildMuseUsageDailyPoints(daily),

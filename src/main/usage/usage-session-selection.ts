@@ -50,7 +50,7 @@ export function selectEventUsageSessions(
 }
 
 export function selectUsageSessionTotals(history: UsageHistoryRow[]) {
-  if (history.some((row) => row.sessionId === null)) {
+  if (history.length === 0 || history.some((row) => row.sessionId === null)) {
     return null
   }
   return groupUsageHistory(history, 'session', 'Unknown')
@@ -88,7 +88,7 @@ export function countUsageDailySessions(
   daily: readonly { sessionId?: string }[],
   legacyCount: number
 ): number {
-  return daily.some((row) => row.sessionId === undefined)
+  return daily.length === 0 || daily.some((row) => row.sessionId === undefined)
     ? legacyCount
     : new Set(daily.map((row) => row.sessionId)).size
 }

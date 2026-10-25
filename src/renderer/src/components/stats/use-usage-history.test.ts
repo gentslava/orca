@@ -55,6 +55,7 @@ function snapshot(): CodexUsageSnapshot {
     modelBreakdown: [],
     projectBreakdown: [],
     recentSessions: [],
+    historyToday: '2026-10-25',
     history: [
       {
         provider: 'codex',
@@ -127,6 +128,9 @@ describe('existing historical source snapshots', () => {
         force: false
       },
       expect.anything()
+    )
+    expect(result.current.sources.find((source) => source.provider === 'codex')?.historyToday).toBe(
+      '2026-10-25'
     )
     expect(local.getSnapshot).not.toHaveBeenCalled()
     expect(local.refresh).not.toHaveBeenCalled()

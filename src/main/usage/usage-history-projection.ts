@@ -63,7 +63,7 @@ export function projectEventUsageHistory(
       outputTokens,
       reasoningTokens: row.reasoningOutputTokens,
       activityCount: row.eventCount,
-      totalTokens: row.inputTokens + outputTokens,
+      totalTokens: provider === 'opencode' ? row.totalTokens : row.inputTokens + outputTokens,
       // OpenCode's recorded cost is harness telemetry, not an invoice or a price estimate.
       apiEquivalentCostUsd
     }

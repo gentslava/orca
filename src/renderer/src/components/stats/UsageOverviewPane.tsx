@@ -74,10 +74,12 @@ export function UsageOverviewPane({
     () => sources.flatMap((source) => (source.enabled ? source.rows : [])),
     [sources]
   )
-  const rows = useMemo(() => filterUsageHistory(allRows, selection), [allRows, selection])
+  const today = sources.find((source) => source.historyToday)?.historyToday
+  const datedSelection = useMemo(() => ({ ...selection, today }), [selection, today])
+  const rows = useMemo(() => filterUsageHistory(allRows, datedSelection), [allRows, datedSelection])
   const totals = useMemo(() => totalUsageHistory(rows), [rows])
   const accountLabels = usageHistoryAccountLabels(accounts)
-  const unattributed = filterUsageHistory(allRows, { ...selection, account: 'unknown' })
+  const unattributed = filterUsageHistory(allRows, { ...datedSelection, account: 'unknown' })
   const days = new Set(rows.map((row) => row.day))
   const hasRows = rows.length > 0
   const hasSupportedSource = sources.some((source) => source.status === 'ready')
@@ -118,7 +120,7 @@ export function UsageOverviewPane({
       </div>
       <UsageHistoryFilters
         allRows={allRows}
-        selection={selection}
+        selection={datedSelection}
         setSelection={setSelection}
         providers={PROVIDERS}
         accountLabels={accountLabels}
@@ -304,6 +306,7 @@ export function UsageOverviewPane({
             rows={rows}
             range={selection.range}
             selectedDay={selection.day}
+            today={today}
             onDay={(day) => setSelection((current) => ({ ...current, day }))}
           />
           <UsageHistoryBreakdowns

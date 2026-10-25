@@ -1,3 +1,4 @@
+import { localUsageDay } from '../../shared/usage-history-range'
 import { filterUsageDaily } from '../usage/usage-scope-filters'
 import { projectClaudeUsageHistory } from '../usage/usage-history-projection'
 import { claudeTokenSessions } from '../usage/agent-token-usage'
@@ -111,6 +112,7 @@ export class ClaudeUsageStore extends UsageProviderStoreLifecycle<
       scanState: this.getScanState(),
       ...(includeHistory
         ? {
+            historyToday: localUsageDay(new Date()),
             historyNeedsRescan: this.state.schemaVersion === 6,
             history: projectClaudeUsageHistory(
               filterUsageDaily(this.state.dailyAggregates, scope, range)

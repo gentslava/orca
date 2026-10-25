@@ -1,3 +1,4 @@
+import { localUsageDay } from '../../shared/usage-history-range'
 import { filterUsageDaily } from '../usage/usage-scope-filters'
 import { projectEventUsageHistory } from '../usage/usage-history-projection'
 import { codexOpenCodeTokenSessions } from '../usage/agent-token-usage'
@@ -108,6 +109,7 @@ export class CodexUsageStore extends UsageProviderStoreLifecycle<
       scanState: this.getScanState(),
       ...(includeHistory
         ? {
+            historyToday: localUsageDay(new Date()),
             history: projectEventUsageHistory(
               'codex',
               filterUsageDaily(this.state.dailyAggregates, scope, range)

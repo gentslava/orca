@@ -74,6 +74,8 @@ export type OpenCodeUsageSnapshot = {
   modelBreakdown: OpenCodeUsageBreakdownRow[]
   projectBreakdown: OpenCodeUsageBreakdownRow[]
   recentSessions: OpenCodeUsageSessionRow[]
+  /** Calendar day on the recording host, using the same local boundary as history rows. */
+  historyToday?: string
   history?: UsageHistoryRow[]
   historyNeedsRescan?: boolean
 }
