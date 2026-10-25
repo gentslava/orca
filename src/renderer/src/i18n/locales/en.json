@@ -21519,7 +21519,7 @@
       },
       "daily": {
         "title": "Daily usage",
-        "description": "Select a day to inspect its usage. Gaps have no recorded data, rather than verified zero usage.",
+        "description": "Select a day to inspect its usage. Days without recorded usage are shown at zero.",
         "inspect": "{{day}}: {{tokens}} tokens",
         "metric": "Chart metric",
         "cost": "API estimate",

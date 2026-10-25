@@ -79,7 +79,7 @@ describe('one historical usage selection', () => {
     ).toBe(total.totalTokens)
     expect(filterUsageHistory(history, { ...selection, account: 'unknown' }, now)).toHaveLength(2)
   })
-  it('keeps missing calendar days unavailable instead of synthesizing zero usage', () => {
+  it('keeps empty calendar slots separate from recorded ledger rows', () => {
     const days = usageHistoryChartDays([row()], '7d', null, now)
     expect(days).toHaveLength(7)
     expect(days[0]).toEqual({ day: '2026-10-18', usage: null })

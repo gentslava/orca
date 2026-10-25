@@ -24,7 +24,7 @@ function row(day: string, patch: Partial<UsageHistoryRow> = {}): UsageHistoryRow
   }
 }
 
-it('breaks each provider line at absent days and absent prices, but plots a recorded zero price', () => {
+it('connects inactive days at zero while keeping unknown prices distinct from zero cost', () => {
   const days = usageHistoryChartDays(
     [
       row('2026-10-21'),
@@ -39,29 +39,28 @@ it('breaks each provider line at absent days and absent prices, but plots a reco
   )
   const tokens = usageHistoryProviderSeries(days, 'tokens')
   const claude = tokens.find((series) => series.provider === 'claude')
-  expect(claude?.points.map((point) => point.amount)).toEqual([
-    null,
-    null,
-    110,
-    110,
-    null,
-    110,
-    110
-  ])
+  expect(claude?.points.map((point) => point.amount)).toEqual([0, 0, 110, 110, 0, 110, 110])
   expect(
     usageHistoryLineSegments(claude?.points ?? []).map((segment) =>
       segment.map((point) => days[point.index].day)
     )
   ).toEqual([
-    ['2026-10-21', '2026-10-22'],
-    ['2026-10-24', '2026-10-25']
+    [
+      '2026-10-19',
+      '2026-10-20',
+      '2026-10-21',
+      '2026-10-22',
+      '2026-10-23',
+      '2026-10-24',
+      '2026-10-25'
+    ]
   ])
   const cost = usageHistoryProviderSeries(days, 'cost').find(
     (series) => series.provider === 'claude'
   )
-  expect(cost?.points.map((point) => point.amount)).toEqual([null, null, 0.01, 0.01, null, null, 0])
+  expect(cost?.points.map((point) => point.amount)).toEqual([0, 0, 0.01, 0.01, 0, null, 0])
   expect(usageHistoryLineSegments(cost?.points ?? []).map((segment) => segment.length)).toEqual([
-    2, 1
+    5, 1
   ])
 })
 

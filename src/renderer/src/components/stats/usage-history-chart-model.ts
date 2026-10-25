@@ -30,8 +30,7 @@ export function usageHistoryProviderSeries(
       return {
         index,
         usage,
-        amount:
-          metric === 'tokens' ? (usage?.totalTokens ?? null) : (usage?.apiEquivalentCostUsd ?? null)
+        amount: usage ? (metric === 'tokens' ? usage.totalTokens : usage.apiEquivalentCostUsd) : 0
       }
     })
   }))

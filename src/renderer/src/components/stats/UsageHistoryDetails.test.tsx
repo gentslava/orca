@@ -60,7 +60,7 @@ it('paginates sessions by the latest recorded day even when snapshots arrive out
   expect(first.parentElement).toHaveTextContent('recent')
 })
 
-it('draws separate provider series with gaps and exposes exact hover and keyboard day values', () => {
+it('connects inactive provider days at zero and exposes exact hover and keyboard day values', () => {
   const onDay = vi.fn()
   const rows = [
     row('codex-1', '2026-10-23'),
@@ -79,14 +79,18 @@ it('draws separate provider series with gaps and exposes exact hover and keyboar
   expect(view.container.querySelectorAll('[data-provider-series]')).toHaveLength(2)
   expect(
     view.container.querySelectorAll('[data-provider-series="codex"] path[fill="none"]')
-  ).toHaveLength(0)
+  ).toHaveLength(1)
   expect(view.container.querySelectorAll('[data-provider-series] ellipse')).toHaveLength(0)
   const day = screen.getByRole('button', { name: '2026-10-24: 330 tokens' })
   fireEvent.mouseEnter(day)
-  expect(view.container.querySelectorAll('[data-provider-series] ellipse')).toHaveLength(1)
+  expect(view.container.querySelectorAll('[data-provider-series] ellipse')).toHaveLength(2)
   expect(screen.getByTestId('usage-history-readout')).toHaveTextContent('Claude')
   expect(screen.getByTestId('usage-history-readout')).toHaveTextContent('330')
-  expect(screen.getByTestId('usage-history-readout')).toHaveTextContent('No recorded data')
+  expect(screen.getByTestId('usage-history-readout')).toHaveTextContent('Codex0')
+  const inactive = screen.getByRole('button', { name: '2026-10-22: 0 tokens' })
+  fireEvent.mouseEnter(inactive)
+  expect(screen.getByTestId('usage-history-readout')).toHaveTextContent('Claude0')
+  expect(screen.getByTestId('usage-history-readout')).toHaveTextContent('Codex0')
   fireEvent.mouseLeave(screen.getByTestId('usage-history-plot'))
   expect(view.container.querySelectorAll('[data-provider-series] ellipse')).toHaveLength(0)
   fireEvent.mouseEnter(day)

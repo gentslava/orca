@@ -120,7 +120,7 @@ export function UsageHistoryDailyChart({
       <p className="text-xs text-muted-foreground">
         {translate(
           'stats.usage.daily.description',
-          'Select a day to inspect its usage. Gaps have no recorded data, rather than verified zero usage.'
+          'Select a day to inspect its usage. Days without recorded usage are shown at zero.'
         )}
       </p>
       <div
@@ -228,47 +228,39 @@ export function UsageHistoryDailyChart({
               ) : null}
             </svg>
             <div className="absolute inset-0 flex">
-              {days.map(({ day, usage }) =>
-                usage ? (
-                  <button
-                    key={day}
-                    type="button"
-                    onClick={() => onDay(day)}
-                    onMouseEnter={() => setHoveredDay(day)}
-                    onFocus={(event) => {
-                      if (event.currentTarget.matches(':focus-visible')) {
-                        setHoveredDay(null)
-                        setFocusedDay(day)
-                      }
-                    }}
-                    onBlur={() => setFocusedDay(null)}
-                    onKeyDown={onDayKey}
-                    aria-pressed={selectedDay === day}
-                    aria-label={
-                      metric === 'tokens'
-                        ? translate('stats.usage.daily.inspect', '{{day}}: {{tokens}} tokens', {
-                            day,
-                            tokens: usage.totalTokens.toLocaleString(getIntlLocale())
-                          })
-                        : translate(
-                            'stats.usage.daily.inspectCost',
-                            '{{day}}: {{cost}} API-equivalent estimate',
-                            {
-                              day,
-                              cost: `${formatUsageCost(usage.apiEquivalentCostUsd)}${usage.hasPartialCost ? ' *' : ''}`
-                            }
-                          )
+              {days.map(({ day, usage }) => (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => onDay(day)}
+                  onMouseEnter={() => setHoveredDay(day)}
+                  onFocus={(event) => {
+                    if (event.currentTarget.matches(':focus-visible')) {
+                      setHoveredDay(null)
+                      setFocusedDay(day)
                     }
-                    className="min-w-0 flex-1 rounded-sm outline-none hover:bg-accent/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                  />
-                ) : (
-                  <span
-                    key={day}
-                    onMouseEnter={() => setHoveredDay(day)}
-                    className="min-w-0 flex-1"
-                  />
-                )
-              )}
+                  }}
+                  onBlur={() => setFocusedDay(null)}
+                  onKeyDown={onDayKey}
+                  aria-pressed={selectedDay === day}
+                  aria-label={
+                    metric === 'tokens'
+                      ? translate('stats.usage.daily.inspect', '{{day}}: {{tokens}} tokens', {
+                          day,
+                          tokens: (usage?.totalTokens ?? 0).toLocaleString(getIntlLocale())
+                        })
+                      : translate(
+                          'stats.usage.daily.inspectCost',
+                          '{{day}}: {{cost}} API-equivalent estimate',
+                          {
+                            day,
+                            cost: `${formatUsageCost(usage ? usage.apiEquivalentCostUsd : 0)}${usage?.hasPartialCost ? ' *' : ''}`
+                          }
+                        )
+                  }
+                  className="min-w-0 flex-1 rounded-sm outline-none hover:bg-accent/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                />
+              ))}
             </div>
           </div>
           <div
@@ -293,8 +285,10 @@ export function UsageHistoryDailyChart({
             <span className="tabular-nums">
               {formatAmount(
                 metric === 'tokens'
-                  ? (active.usage?.totalTokens ?? null)
-                  : (active.usage?.apiEquivalentCostUsd ?? null)
+                  ? (active.usage?.totalTokens ?? 0)
+                  : active.usage
+                    ? active.usage.apiEquivalentCostUsd
+                    : 0
               )}
               {metric === 'cost' && active.usage?.hasPartialCost ? ' *' : ''}
             </span>
@@ -312,11 +306,9 @@ export function UsageHistoryDailyChart({
                     {getAgentLabel(provider)}
                   </span>
                   <span className="tabular-nums text-muted-foreground">
-                    {point?.usage
-                      ? point.amount === null
-                        ? translate('stats.usage.daily.unpriced', 'Price unavailable')
-                        : `${metric === 'tokens' ? point.amount.toLocaleString(getIntlLocale()) : formatUsageCost(point.amount)}${metric === 'cost' && point.usage.hasPartialCost ? ' *' : ''}`
-                      : translate('stats.usage.daily.noData', 'No recorded data')}
+                    {point?.amount === null
+                      ? translate('stats.usage.daily.unpriced', 'Price unavailable')
+                      : `${metric === 'tokens' ? (point?.amount ?? 0).toLocaleString(getIntlLocale()) : formatUsageCost(point?.amount ?? 0)}${metric === 'cost' && point?.usage?.hasPartialCost ? ' *' : ''}`}
                   </span>
                 </span>
               )
