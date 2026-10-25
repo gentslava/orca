@@ -170,7 +170,7 @@ describe('per-job path classification', () => {
       'src/main/codex/codex-hook-reconcile.ts',
       'src/main/codex/config-toml-hook-trust-edit.ts',
       'src/main/codex-cli/codex-read-only-app-server-args.ts',
-      'src/main/codex/codex-app-server-capability-signal.ts',
+      'src/main/codex/app-server/codex-app-server-capability-signal.ts',
       'src/main/provider-process/provider-process-exit-deadline.ts',
       'src/main/provider-process/provider-process-launch.ts',
       'src/main/provider-process/provider-record-reader.ts',

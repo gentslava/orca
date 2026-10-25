@@ -199,7 +199,7 @@
 4 src/renderer/src/components/task-page/linear/use-task-page-linear-issue-creation.ts
 2 src/renderer/src/components/task-page/linear/use-task-page-linear-project-creation.ts
 2 src/renderer/src/components/use-task-page-provider-metadata.ts
-2 src/renderer/src/components/use-task-page-source-availability.ts
+2 src/renderer/src/components/task-page/use-task-page-source-availability.ts
 2 src/renderer/src/components/use-task-page-store-bindings.ts
 5 src/renderer/src/components/use-terminal-create-actions.ts
 2 src/renderer/src/components/use-worktree-jump-palette-controller.ts

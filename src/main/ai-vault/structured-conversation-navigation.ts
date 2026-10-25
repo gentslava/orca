@@ -1,5 +1,5 @@
 import type { AgentSessionRecord } from '../../shared/agent-session-record'
-import { defaultAgentChatLabel } from '../../shared/agent-session-chat-label'
+import { defaultAgentChatLabel } from '../../shared/agent-session/agent-session-chat-label'
 import {
   isAiVaultAgent,
   type AiVaultListArgs,

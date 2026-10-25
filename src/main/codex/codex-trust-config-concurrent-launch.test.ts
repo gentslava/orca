@@ -33,7 +33,8 @@ vi.mock('node:os', async () => {
 })
 
 const { CodexAppServerUnsupportedError } = await import('./codex-app-server-client')
-const { codexAppServerCapabilityCache } = await import('./codex-app-server-capability-cache')
+const { codexAppServerCapabilityCache } =
+  await import('./app-server/codex-app-server-capability-cache')
 const { _internals, grantManagedCodexHookTrust } = await import('./codex-hook-trust-grant')
 const { markCodexProjectTrusted } = await import('../agent-trust-presets')
 const { getLocalCodexTrustConfigFiles } = await import('./codex-home-paths')

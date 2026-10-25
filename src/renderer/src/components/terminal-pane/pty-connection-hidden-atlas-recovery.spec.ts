@@ -516,14 +516,9 @@ export function registerPtyConnectionHiddenAtlasRecoveryTests(): void {
 
       capturedDataCallback.current?.('\x1b]10;?\x1b\\\x1b]11;?\x1b\\startup frame\r\n')
 
-      expect(transport.sendInput).not.toHaveBeenCalledWith(
-        '\x1b]10;rgb:1111/1111/1111\x1b\\',
-        expect.anything()
-      )
-      expect(transport.sendInput).not.toHaveBeenCalledWith(
-        '\x1b]11;rgb:1111/1111/1111\x1b\\',
-        expect.anything()
-      )
+      const replies = transport.sendInput.mock.calls.map(([data]) => data).join('')
+      expect(replies).not.toContain('\x1b]10;rgb:')
+      expect(replies).not.toContain('\x1b]11;rgb:')
 
       binding.dispose()
     })

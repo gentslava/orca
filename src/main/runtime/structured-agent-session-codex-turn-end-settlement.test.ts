@@ -10,12 +10,12 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  CodexAppServerRequestError,
-  type CodexAppServerConnection,
-  type CodexAppServerConnectionHandlers,
-  type openCodexAppServerConnection
-} from '../codex/codex-app-server-connection'
+import { CodexAppServerRequestError } from '../codex/app-server/codex-app-server-request-error'
+import type {
+  CodexAppServerConnection,
+  CodexAppServerConnectionHandlers
+} from '../codex/app-server/codex-app-server-connection-types'
+import type { openCodexAppServerConnection } from '../codex/codex-app-server-connection'
 import { codexTurnLifecycleFake } from '../codex/codex-turn-lifecycle-fake'
 import { settledWithin } from '../codex/codex-structured-dispatch-test-support'
 import { CODEX_TURN_OPEN_WAIT_MS } from '../codex/codex-structured-turn-open-wait'

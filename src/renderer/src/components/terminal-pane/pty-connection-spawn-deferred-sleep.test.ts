@@ -322,7 +322,7 @@ describe('connectPanePty: a restore the host kept asleep', () => {
     binding.dispose()
   })
 
-  it('stops the background retry when the pane is opened or closed', async () => {
+  it('stops the background retry when the pane is disposed', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = deferringTransport()
     transportFactoryQueue.push(transport)

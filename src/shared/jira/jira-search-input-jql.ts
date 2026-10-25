@@ -1,4 +1,4 @@
-import { JIRA_ISSUE_KEY_PATTERN } from '../jira-issue-url'
+import { JIRA_ISSUE_KEY_PATTERN } from './jira-issue-url'
 
 // Why: JQL's operator set is closed (plugins add functions, not operators), so input with none
 // of these and no leading ORDER BY cannot parse as JQL. Hyphens excluded so `sign-in` stays text.

@@ -108,7 +108,7 @@ const CODEX_INDEX_HEAL_CONTRACT_PREFIXES = [
   'src/main/codex/codex-app-server-session',
   'src/main/codex/codex-state-db',
   'src/main/sqlite/sync-database',
-  'src/main/codex/codex-app-server-capability-signal',
+  'src/main/codex/app-server/codex-app-server-capability-signal',
   'src/main/provider-process/provider-process-exit-deadline',
   'src/main/provider-process/provider-process-launch',
   'src/main/provider-process/provider-record-reader',

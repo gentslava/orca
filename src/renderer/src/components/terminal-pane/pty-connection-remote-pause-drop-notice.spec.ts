@@ -131,7 +131,7 @@ export function registerPtyConnectionRemotePauseDropNoticeTests(): void {
       binding.dispose()
     })
 
-    it('still restores on every reveal when the host cannot report drops', async () => {
+    it('restores on reveal when the host cannot report drops', async () => {
       const { transport, binding, setVisible } = await connectRemotePane(false)
 
       await setVisible(false)

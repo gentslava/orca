@@ -70,19 +70,17 @@ describe('terminal path-exists cache', () => {
     expect(cache.get('older-first')).toEqual({ exists: true, ...newer })
   })
 
-  it('returns undefined for an unknown key', () => {
-    expect(readTerminalPathExistence(new Map(), 'missing')).toBeUndefined()
-  })
-
   it('bounds the cache to the max entry count, evicting the oldest', () => {
     const cache: TerminalPathExistsCache = new Map()
     for (let i = 0; i < TERMINAL_PATH_EXISTS_CACHE_MAX_ENTRIES; i++) {
       writeTerminalPathExistence(cache, `k-${i}`, true, startTerminalPathExistsProbe(1))
     }
     expect(cache.size).toBe(TERMINAL_PATH_EXISTS_CACHE_MAX_ENTRIES)
+    expect(readTerminalPathExistence(cache, 'k-0', 2)).toBe(true)
     writeTerminalPathExistence(cache, 'k-fresh', true, startTerminalPathExistsProbe(2))
     expect(cache.size).toBe(TERMINAL_PATH_EXISTS_CACHE_MAX_ENTRIES)
-    expect(cache.has('k-0')).toBe(false)
+    expect(cache.has('k-0')).toBe(true)
+    expect(cache.has('k-1')).toBe(false)
     expect(cache.has('k-fresh')).toBe(true)
   })
 

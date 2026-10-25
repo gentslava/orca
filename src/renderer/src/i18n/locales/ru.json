@@ -4576,7 +4576,9 @@
               "description": "Необязательное переопределение. Иначе Orca использует ключ, сохранённый OpenCode при выполнении /connect, затем OPENCODE_API_KEY.",
               "label": "API-ключ OpenCode Go",
               "placeholder": "Оставьте пустым, чтобы использовать ключ, сохранённый через /connect, или OPENCODE_API_KEY",
-              "help": "Используется для расхода OpenCode Go в строке состояния. Cookie сеанса ниже нужна только для учётных записей старой консоли (OpenCode Black)."
+              "help": "Используется для расхода OpenCode Go в строке состояния. Cookie сеанса ниже нужна только для учётных записей старой консоли (OpenCode Black).",
+              "checking": "Проверка…",
+              "unavailable": "Статус недоступен"
             }
           },
           "remoteScopeLocalAccountsKeptHostPicker": "Учётные записи на этом компьютере не изменились. Чтобы увидеть их, выберите этот компьютер в меню «Сервер» вверху настроек.",
@@ -14179,11 +14181,7 @@
             "downloadOpenWithDefaultApp": "Скачать и открыть приложением по умолчанию",
             "downloadOpenFailed": "Не удалось скачать «{{value0}}».",
             "openInThisGroup": "Открыть в этой группе",
-            "openInThisGroupRefused": "Не удалось открыть {{value0}} в этой группе",
-            "fileInOtherWorkspace": "Этот файл находится в {{value0}}",
-            "fileInAnotherWorkspace": "Этот файл находится в другом рабочем пространстве",
-            "openInOwningWorkspace": "Открыть там",
-            "openedHereReadOnly": "Открыто здесь только для чтения"
+            "openInThisGroupRefused": "Не удалось открыть {{value0}} в этой группе"
           },
           "TerminalSessionStateSaveFailureDialog": {
             "ae20d0ffc2": "Скрыть",
@@ -16295,7 +16293,6 @@
           "7c08a1f990": "Копировать путь",
           "84cdc0794b": "Переименовать",
           "a10d9b8337": "Открыть файл",
-          "readOnlyBadge": "Только чтение",
           "fb8331694e": "Открыть предпросмотр сбоку",
           "1bb1e226ec": "Переименовать файл {{value0}}",
           "5447c4f68f": "Содержание",

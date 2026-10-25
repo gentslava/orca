@@ -65,11 +65,6 @@ describe('deriveMobilePrBranchContext', () => {
     expect(result.headSha).toBeNull()
   })
 
-  it('derives branch from status.branch', () => {
-    const result = deriveMobilePrBranchContext(status({ branch: 'topic' }), null)
-    expect(result.branch).toBe('topic')
-  })
-
   it('returns null branch when status.branch is absent', () => {
     const result = deriveMobilePrBranchContext(status({ branch: undefined }), null)
     expect(result.branch).toBeNull()

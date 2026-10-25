@@ -745,6 +745,7 @@ describe('launch facts outside the tables', () => {
       ORCA_PANE_KEY: `${tabId}:${leafId}`,
       ORCA_TAB_ID: tabId
     })
+    expect(env.ORCA_AGENT_PANE).toBe(`${tabId}:${leafId}`) // SSH relays skip local env builders
   })
 })
 

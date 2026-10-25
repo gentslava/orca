@@ -105,8 +105,12 @@ describe('useMobileNativeChatFileSearch', () => {
   })
 
   it('cancels an in-flight query on a cache hit so a stale result cannot clobber it', async () => {
-    const sendRequest = vi.fn(async (_method: string, params: { query: string }) =>
-      rpcSuccess(params.query === 'app' ? ['src/app.ts'] : ['src/beta.ts'])
+    let resolveBeta: (reply: Awaited<ReturnType<RpcClient['sendRequest']>>) => void = () => {}
+    const betaReply = new Promise<Awaited<ReturnType<RpcClient['sendRequest']>>>((resolve) => {
+      resolveBeta = resolve
+    })
+    const sendRequest = vi.fn((_method: string, params: { query: string }) =>
+      params.query === 'app' ? Promise.resolve(rpcSuccess(['src/app.ts'])) : betaReply
     )
     await mount(fakeClient({ sendRequest }))
 
@@ -132,6 +136,18 @@ describe('useMobileNativeChatFileSearch', () => {
     expect(
       sendRequest.mock.calls.filter(([, params]) => (params as { query: string }).query === 'beta')
     ).toHaveLength(0)
+
+    act(() => state?.loadNativeChatFiles('beta'))
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(120)
+    })
+    expect(sendRequest).toHaveBeenCalledTimes(2)
+    act(() => state?.loadNativeChatFiles('app'))
+    await act(async () => {
+      resolveBeta(rpcSuccess(['src/beta.ts']))
+      await betaReply
+    })
+    expect(state?.nativeChatFilePaths).toEqual(['src/app.ts'])
   })
 
   it('reloads the legacy inventory when the logical authority epoch advances', async () => {

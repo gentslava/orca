@@ -309,12 +309,8 @@ describe('isPrSidebarDetailsPlaceholder / prSidebarDetailsNeedFetch', () => {
 })
 
 describe('buildMobilePrSidebarIdentity', () => {
-  it('keys identity on worktree + branch, not head SHA', () => {
+  it('keys identity on worktree and branch', () => {
     expect(buildMobilePrSidebarIdentity({ worktreeId: 'w1', branch: 'feat' })).toBe('w1\u0000feat')
-    // Head advances on commit must not form a new identity — soft refresh keeps ready UI.
-    expect(buildMobilePrSidebarIdentity({ worktreeId: 'w1', branch: 'feat' })).toBe(
-      buildMobilePrSidebarIdentity({ worktreeId: 'w1', branch: 'feat' })
-    )
   })
 
   it('is null without a branch and changes when branch or worktree changes', () => {

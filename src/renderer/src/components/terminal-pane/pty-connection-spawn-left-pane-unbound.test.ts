@@ -138,7 +138,7 @@ describe('fresh spawn leaves a local pane unbound', () => {
     return buildPaneConnectionDeps(() => mockStoreState, overrides)
   }
 
-  it('remounts the pane when the spawn resolves without a PTY id', async () => {
+  it('requests pane recovery when the spawn resolves without a PTY id', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport()
     // A spawn that produced nothing: no id returned and nothing bound after it.

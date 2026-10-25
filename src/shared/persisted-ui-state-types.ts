@@ -1,4 +1,4 @@
-import type { JiraQuickFilterState } from './jira-quick-filters'
+import type { JiraQuickFilterState } from './jira/jira-quick-filters'
 import type { JiraSavedFilterState } from './jira/jira-saved-filters'
 import type { ReleaseChannel } from './release-channel'
 import type { WorkspaceCleanupUIState } from './workspace-cleanup'
