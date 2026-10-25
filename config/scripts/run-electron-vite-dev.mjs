@@ -16,6 +16,7 @@ import net from 'node:net'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 
+import { assertMacGuiLaunchAllowed } from './macos-gui-launch-preflight.mjs'
 import { prepareDevCliTerminalWrappers } from './dev-cli-terminal-wrapper.mjs'
 import {
   DEV_BUNDLE_MARKER_FILENAME,
@@ -51,6 +52,9 @@ const rawForwardedArgs = process.argv.slice(2)
 const useStableElectronName =
   process.env.ORCA_DEV_STABLE_NAME === '1' || rawForwardedArgs.includes(STABLE_NAME_FLAG)
 const forwardedRaw = rawForwardedArgs.filter((arg) => arg !== STABLE_NAME_FLAG)
+if (!forwardedRaw.some((arg) => ['--help', '-h', '--version'].includes(arg))) {
+  assertMacGuiLaunchAllowed()
+}
 if (useStableElectronName) {
   process.env.ORCA_DEV_STABLE_NAME = '1'
 }

@@ -2,6 +2,7 @@
  * A released, packaged Orca build (the "old" side of a mixed-version test). CI downloads a pinned
  * release and points ORCA_CROSS_VERSION_PACKAGED_EXECUTABLE at its executable; specs skip without it.
  */
+import { assertMacGuiLaunchAllowed } from '../../../config/scripts/macos-gui-launch-preflight.mjs'
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer, type AddressInfo } from 'node:net'
 import os from 'node:os'
@@ -79,6 +80,7 @@ export async function launchPackagedPairedClient(args: {
   testInfo: TestInfo
   name?: string
 }): Promise<PackagedPairedClient> {
+  assertMacGuiLaunchAllowed()
   const userDataDir = mkdtempSync(path.join(os.tmpdir(), 'orca-e2e-packaged-client-'))
   let app: ElectronApplication | undefined
   try {

@@ -1,3 +1,4 @@
+import { assertMacGuiLaunchAllowed } from '../../../config/scripts/macos-gui-launch-preflight.mjs'
 import { _electron as electron, expect } from '@stablyai/playwright-test'
 import { build as buildMain } from 'esbuild'
 import { build as buildRenderer } from 'vite'
@@ -8,6 +9,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createElectronHomeIsolation } from '../../e2e/helpers/electron-home-isolation.ts'
 
+assertMacGuiLaunchAllowed()
 expect(process.env.ORCA_BACKGROUND_LAUNCH).toBe('1')
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const parent = path.join(root, '.bench-fixtures')
