@@ -53,6 +53,8 @@ export type SessionOptionDescriptor = {
   transport: NativeChatLiveOptionTransport
   settable: boolean
   disabledReason?: SessionOptionDisabledReason
+  /** A reset action, separate from catalog model IDs. Absent on older hosts and PTY surfaces. */
+  defaultChoice?: { selected: boolean }
   /** Why: picker-only and toggle-only PTY commands cannot be represented as
    * a truthful radio/checkbox state, so the producer exposes an action row. */
   action?: { type: 'agent-picker' | 'toggle-command' }
@@ -123,8 +125,10 @@ export type NativeChatSessionOptionSettingsMutation =
       }[]
     }
   | { type: 'clear-model-if-missing'; agent: AgentType; availableModelIds: readonly string[] }
+  | { type: 'clear-model'; agent: AgentType }
 
 export type SessionOptionsSurface = {
+  resetOption?: (id: string) => Promise<SessionOptionSetResult>
   demandModelCatalog?: () => void
   getSnapshot(): SessionOptionDescriptor[]
   /** Apply an absolute target; known flip-only options use their tracked baseline. */

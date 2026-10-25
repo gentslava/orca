@@ -46,6 +46,7 @@ export type AgentSessionTurnContext = {
   agent: string
   logger: StructuredAgentSessionLogger
   persistedOptions?: Readonly<Record<string, string>>
+  defaultModelSelected?: boolean
   persistOptions: (options: Readonly<Record<string, string>>) => Promise<void>
   resolvedBy: string
   /** Publish non-journal state; appends publish themselves. */

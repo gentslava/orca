@@ -68,6 +68,7 @@ export type StructuredAgentSessionOptionState = {
   pendingId: string | null
   listingInProgress?: boolean
   fastModeRestricted?: boolean
+  modelDefault?: boolean
 }
 
 /** With `seedCatalog`, the state holds the static seed from the first frame, but the picker shows
@@ -176,6 +177,9 @@ export function applyStructuredAgentSessionOptions(
   launch: { newLaunch: boolean; coherentCatalog?: boolean } = { newLaunch: false }
 ): StructuredAgentSessionOptionState {
   const { current } = result
+  if (current.modelDefault && current.model === undefined) {
+    delete state.record.values.model
+  }
   const installed = usesInstalledAgentModelCatalog(state.record.agent, launch.coherentCatalog)
   // A value the host supplied from a catalog default is context for the picker, not the chat's own.
   replaceStructuredAgentSessionAnsweredValues(
@@ -196,6 +200,7 @@ export function applyStructuredAgentSessionOptions(
   return {
     ...state,
     catalog: installed ? state.catalog : structuredAgentSessionOptionCatalog(seed, result),
+    modelDefault: current.modelDefault === true,
     fastModeRestricted:
       installed &&
       result.fastModeSupport?.supported === false &&
@@ -239,7 +244,17 @@ export function commitStructuredAgentSessionOption(
   }
   // Each value is the chat's own: a model pick leaves the others for the host to reconcile.
   state.record.values[id] = { value: decoded, source: 'dispatched' }
-  return { ...state, pendingId: null }
+  return { ...state, pendingId: null, ...(id === 'model' ? { modelDefault: false } : {}) }
+}
+
+export function commitStructuredAgentSessionModelDefault(
+  state: StructuredAgentSessionOptionState,
+  values: Readonly<Record<string, string>>
+): StructuredAgentSessionOptionState {
+  for (const id of ['model', 'effort', 'fastMode', 'serviceTier']) {
+    delete state.record.values[id]
+  }
+  return { ...commitStructuredAgentSessionOptionValues(state, values), modelDefault: true }
 }
 
 /** Whether a pick of `modelId` held before launch keeps another held value (decoded or encoded):

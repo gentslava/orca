@@ -93,6 +93,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   let renderer: ReactTestRenderer | null = null
   const setOption = vi.fn<MobileNativeChatSessionOptionsController['setOption']>()
   const invokeAction = vi.fn<MobileNativeChatSessionOptionsController['invokeAction']>()
+  const resetOption = vi.fn(async () => ({ snapshot: [] }))
 
   const mount = (
     snapshot: SessionOptionDescriptor[],
@@ -104,7 +105,14 @@ describe('MobileNativeChatSessionOptionPickers', () => {
       pendingId: null,
       setOption,
       invokeAction,
-      recordCommand: vi.fn()
+      recordCommand: vi.fn(),
+      optionSurface: {
+        getSnapshot: () => snapshot,
+        setOption: async () => ({ snapshot }),
+        invokeAction: async () => ({ snapshot }),
+        subscribe: () => () => {},
+        resetOption
+      }
     }
     function Pickers({ working }: { working: boolean }) {
       const [presentation, setPresentation] = useState<MobileNativeChatPickerPresentation | null>(
@@ -154,6 +162,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   }
 
   beforeEach(() => {
+    resetOption.mockClear()
     Platform.OS = 'ios'
     vi.mocked(AccessibilityInfo.announceForAccessibilityWithOptions).mockClear()
     setOption.mockReset()
@@ -171,6 +180,14 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   it('renders nothing without a model descriptor', () => {
     mount([])
     expect(renderer!.toJSON()).toBeNull()
+  })
+
+  it('offers a separate Default action while future picks are enabled', async () => {
+    mount([{ ...MODEL_DESCRIPTOR, defaultChoice: { selected: false } }], true, true)
+    await act(async () => pill('Model').props.onPress())
+    await act(async () => rowByText('Default').props.onPress())
+    expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
+    expect(setOption).not.toHaveBeenCalled()
   })
 
   it('shows the current model and effort in one pill', () => {

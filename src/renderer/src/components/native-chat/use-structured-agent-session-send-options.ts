@@ -15,7 +15,7 @@ export function useStructuredAgentSessionSendOptions(
 ): () => Readonly<Record<string, string>> | undefined {
   const { optionStateRef, optionView, pendingOptionsRef, takesSendOptions } = source
   return useCallback(() => {
-    if (!takesSendOptions) {
+    if (!takesSendOptions || pendingOptionsRef.current.modelDefault === 'true') {
       return undefined
     }
     // Read, not rendered: a pick the launch just took is not in this render's props yet.

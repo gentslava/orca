@@ -123,7 +123,15 @@ export function agentModelCatalogResultFromEntry(
     models: models.map((model) => (namesDefault ? { ...model } : { ...model, isDefault: false })),
     ...(entry.fastModeSupport ? { fastModeSupport: entry.fastModeSupport } : {}),
     fetchedAt: entry.fetchedAt,
-    listingNamesConfiguredModel: namesDefault && namesConfigured
+    listingNamesConfiguredModel: namesDefault && namesConfigured,
+    ...(namesDefault && useConfigured && entry.configured
+      ? {
+          defaultModelOptions: {
+            model: entry.configured.modelId,
+            ...(entry.configured.effort ? { effort: entry.configured.effort } : {})
+          }
+        }
+      : {})
   }
 }
 

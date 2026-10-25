@@ -30,6 +30,8 @@ export type AgentModelCatalogService = {
     /** null means the requested workspace is not a local directory. */
     workspacePath?: string | null
     inSessionWorkspace?: true
+    /** An explicit Default reset needs fresh original configuration, even beside a cached list. */
+    requireConfiguredDefault?: true
     /** Await missing-catalog discovery or reprobe of expired unavailability. */
     waitForListing?: boolean
     /** Return saved facts only; do not start, join or recheck discovery. */

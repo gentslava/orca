@@ -34,7 +34,7 @@ export function useStructuredAgentSessionOptionStamp(
     feed.subscribe,
     () => {
       const summary = feed.getSnapshot().get(sessionId)
-      return `${summary?.model ?? ''}|${summary?.permissionMode ?? ''}`
+      return `${summary?.model ?? ''}|${summary?.permissionMode ?? ''}|${summary?.modelDefault === true}`
     },
     () => ''
   )

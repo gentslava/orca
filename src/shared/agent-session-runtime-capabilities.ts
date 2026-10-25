@@ -8,6 +8,7 @@ import { AGENT_SESSION_RESUME_RUNTIME_CAPABILITIES } from './agent-session-resum
 import { AGENT_SESSION_STOP_RUNTIME_CAPABILITIES } from './agent-session-stop-capabilities'
 import { AGENT_SESSION_WORKSPACE_SLEEP_MARK_RUNTIME_CAPABILITY } from './agent-session/agent-session-workspace-sleep'
 import { STRUCTURED_AGENT_SESSION_SURFACE_RUNTIME_CAPABILITIES } from './structured-agent-session-surface-capabilities'
+import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from './agent-session-default-model'
 
 export const AGENT_SESSION_BOUNDARY_RUNTIME_CAPABILITY =
   'agent-session.session-boundary.v1' as const
@@ -137,6 +138,7 @@ export const AGENT_SESSION_BACKGROUND_TASK_ROW_STOP_CAPABILITY =
   'agent-session.background-task-row-stop.v1' as const
 
 export const AGENT_SESSION_RUNTIME_CAPABILITIES = [
+  AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
   ...AGENT_SESSION_STOP_RUNTIME_CAPABILITIES,
   ...AGENT_SESSION_CREATE_RUNTIME_CAPABILITIES,
   AGENT_SESSION_BOUNDARY_RUNTIME_CAPABILITY,

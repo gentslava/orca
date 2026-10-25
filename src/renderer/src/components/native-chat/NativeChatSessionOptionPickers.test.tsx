@@ -148,6 +148,21 @@ const effortLevels = (): HTMLElement[] =>
 afterEach(() => cleanup())
 
 describe('NativeChatSessionOptionPickers', () => {
+  it('offers Default as a reset action without sending a synthetic model id', async () => {
+    const resetOption = vi.fn(async () => ({ snapshot: [] }))
+    render(
+      <NativeChatSessionOptionPickers
+        surface={{ ...surface, resetOption }}
+        snapshot={[model({ transport: 'agent-session', defaultChoice: { selected: false } })]}
+        isWorking
+      />
+    )
+    fireEvent.click(screen.getByRole('option', { name: 'Default' }))
+    await settle()
+    expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
+    expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
+  })
+
   it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
     const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
     const { container } = render(

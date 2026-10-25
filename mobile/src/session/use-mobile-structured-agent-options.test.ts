@@ -147,6 +147,7 @@ type ProbeProps = {
   fence: number | null
   mutate: StructuredAgentSessionMutate
   optionStamp?: string
+  supportsDefault?: boolean
   onRender: (controller: Controller) => void
 }
 
@@ -160,7 +161,7 @@ function Probe(props: ProbeProps): null {
       fence: props.fence,
       mutate: props.mutate,
       ...(props.optionStamp ? { optionStamp: props.optionStamp } : {}),
-      hostSupport: { permissionModes: true }
+      hostSupport: { permissionModes: true, defaultModel: props.supportsDefault }
     })
   )
   return null
@@ -216,6 +217,65 @@ function currentValueOf(snapshot: readonly SessionOptionDescriptor[], id: string
 }
 
 const BASE = { agent: 'codex', sessionId: 'session-1', fence: 1 } as const
+
+describe('useMobileStructuredAgentOptions Default model', () => {
+  it.each([false, true])(
+    'gates reset on the connected host capability (%s)',
+    async (supportsDefault) => {
+      let reset = false
+      const client = optionsClient(() =>
+        Promise.resolve({
+          ...OPTIONS,
+          current: reset
+            ? { model: 'gpt-fast', effort: 'low', modelDefault: true }
+            : OPTIONS.current
+        })
+      )
+      const mutation = recordingMutate(async () => {
+        reset = true
+        return accepted(
+          {
+            key: 'model',
+            value: null,
+            modelDefault: true,
+            options: { model: 'gpt-fast', effort: 'low' }
+          },
+          true
+        )
+      })
+      const mounted = await mountOptions({
+        agent: 'codex',
+        client: client.client,
+        sessionId: 'default-phone',
+        fence: 1,
+        mutate: mutation.mutate,
+        supportsDefault
+      })
+      if (supportsDefault) {
+        await act(async () => {
+          await mounted.current().optionSurface.resetOption?.('model')
+        })
+        expect(mutation.calls).toHaveLength(1)
+        expect(mutation.calls[0]?.fields).toEqual({ key: 'model', value: null })
+        expect(
+          mounted.current().optionSnapshot.find((row) => row.id === 'model')?.defaultChoice
+            ?.selected
+        ).toBe(true)
+        expect(client.methods('settings.mutateNativeChatSessionOptions')[0]?.params).toMatchObject({
+          type: 'clear-model',
+          agent: 'codex'
+        })
+      } else {
+        expect(mounted.current().optionSurface.resetOption).toBeUndefined()
+        expect(
+          mounted.current().optionSnapshot.find((row) => row.id === 'model')?.defaultChoice
+        ).toBeUndefined()
+        expect(mutation.calls).toHaveLength(0)
+      }
+      await mounted.unmount()
+    }
+  )
+})
 
 describe('useMobileStructuredAgentOptions fast mode', () => {
   it('round-trips a boolean fastMode pick as the wire string and remembers the decoded pick', async () => {

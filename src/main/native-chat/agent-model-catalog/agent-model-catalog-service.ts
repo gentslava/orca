@@ -1,3 +1,4 @@
+import { saveAgentModelCatalogLiveListing } from './agent-model-catalog-live-listing'
 import {
   agentModelCatalogProbeLister,
   scopedAgentModelCatalogLister
@@ -14,13 +15,9 @@ import {
   agentModelCatalogResultFromEntry,
   retainedAgentModelCatalogModels
 } from './agent-model-catalog-entry'
-import type {
-  AgentModelCatalogEntry,
-  AgentModelCatalogLiveListing
-} from './agent-model-catalog-store'
+import type { AgentModelCatalogEntry } from './agent-model-catalog-store'
 import {
   catalogFolder,
-  recordConfiguredDefault,
   sessionWorkspacePath,
   workspaceKeepsListedDefault
 } from './agent-model-catalog-workspace'
@@ -52,31 +49,6 @@ export function createAgentModelCatalogService(
       record,
       await catalogFolder(deps, record.provider, undefined, record)
     )
-  const saveLiveListing = (
-    record: AgentSessionRecord,
-    listing: AgentModelCatalogLiveListing,
-    fingerprint: string
-  ): void => {
-    const { configuredDefault, ...listed } = listing
-    const saved = deps.store.recordSuccess(
-      fingerprint,
-      record.provider,
-      { ...listed, origin: 'live-session' },
-      'live'
-    )
-    if (saved && configuredDefault !== undefined) {
-      // Preserve report order when learning configured defaults.
-      const recording = (recordingDefaults.get(fingerprint) ?? Promise.resolve())
-        .then(() => recordConfiguredDefault(deps, record, fingerprint, configuredDefault))
-        .catch(() => {})
-        .then(() => {
-          if (recordingDefaults.get(fingerprint) === recording) {
-            recordingDefaults.delete(fingerprint)
-          }
-        })
-      recordingDefaults.set(fingerprint, recording)
-    }
-  }
   return {
     peek(sessionId, verifiedOnly) {
       const key = sessionKeys.get(sessionId)
@@ -100,6 +72,9 @@ export function createAgentModelCatalogService(
       const record = params.sessionId ? deps.getRecord(params.sessionId) : undefined
       const scoped =
         record && record.provider === params.agent && deps.drivesRecord(record) ? record : undefined
+      if (params.requireConfiguredDefault && params.sessionId && !scoped) {
+        return { origin: 'unknown' }
+      }
       const workspacePath = params.inSessionWorkspace
         ? record
           ? await sessionWorkspacePath(deps, record)
@@ -226,6 +201,15 @@ export function createAgentModelCatalogService(
       ) {
         return answer(entry)
       }
+      if (params.requireConfiguredDefault) {
+        if (!probe || !probeHome || lifetime.signal.aborted) {
+          return { origin: 'unknown' }
+        }
+        const refreshed = await deps.store.refresh(fingerprint, params.agent, probe, list)
+        return refreshed && deps.store.verified(refreshed, true)
+          ? answer(refreshed)
+          : { origin: 'unknown' }
+      }
       if (probe && probeHome && !lifetime.signal.aborted && deps.store.heldReasonDue(fingerprint)) {
         void deps.store.refresh(fingerprint, params.agent, probe, list)
         if (!params.waitForListing) {
@@ -281,12 +265,26 @@ export function createAgentModelCatalogService(
         return
       }
       if (!deps.listsInChatFolder?.has(record.provider)) {
-        saveLiveListing(record, listing, agentModelCatalogFingerprintForRecord(record))
+        saveAgentModelCatalogLiveListing(
+          deps,
+          recordingDefaults,
+          record,
+          listing,
+          agentModelCatalogFingerprintForRecord(record)
+        )
         return
       }
       // Serialize reports so a slow folder lookup cannot overwrite a newer listing.
       const writing = (liveWrites.get(sessionId) ?? Promise.resolve())
-        .then(async () => saveLiveListing(record, listing, await sessionCatalogKey(record)))
+        .then(async () =>
+          saveAgentModelCatalogLiveListing(
+            deps,
+            recordingDefaults,
+            record,
+            listing,
+            await sessionCatalogKey(record)
+          )
+        )
         .catch((error: unknown) => {
           console.warn('[agent-model-catalog] could not save a chat model list:', error)
         })

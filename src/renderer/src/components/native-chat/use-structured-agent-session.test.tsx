@@ -1,7 +1,11 @@
 // @vitest-environment happy-dom
 
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
+import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-create-capabilities'
+
+afterEach(() => setLocalRuntimeCapabilitiesForTests(null))
 
 const mocks = vi.hoisted(() => ({
   call: vi.fn(),
@@ -80,38 +84,7 @@ function seededByNextLaunch(): Record<string, string> | undefined {
 
 const LOCAL_TARGET = { kind: 'local' } as const
 
-const OPTIONS = {
-  models: [
-    {
-      id: 'gpt-live',
-      label: 'GPT Live',
-      isDefault: true,
-      defaultEffort: 'medium',
-      efforts: [
-        { value: 'medium', label: 'Medium' },
-        { value: 'high', label: 'High' }
-      ]
-    },
-    {
-      id: 'gpt-fast',
-      label: 'GPT Fast',
-      isDefault: false,
-      defaultEffort: 'low',
-      efforts: [
-        { value: 'low', label: 'Low' },
-        { value: 'medium', label: 'Medium' }
-      ]
-    }
-  ],
-  current: { model: 'gpt-live', effort: 'medium' }
-}
-
-const FAST_OPTIONS = {
-  ...OPTIONS,
-  models: OPTIONS.models.map((model) => ({ ...model, supportsFastMode: true })),
-  fastModeSupport: { supported: true },
-  current: { ...OPTIONS.current, fastMode: false, confirmed: ['fastMode'] }
-}
+import { OPTIONS, FAST_OPTIONS } from './structured-agent-session-option-test-data'
 
 describe('useStructuredAgentSession working state', () => {
   beforeEach(() => {
@@ -668,6 +641,7 @@ describe('useStructuredAgentSession options', () => {
   })
 
   it('discards an option read that began before a Fast mutation', async () => {
+    setLocalRuntimeCapabilitiesForTests([AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY])
     const staleRead = Promise.withResolvers<typeof FAST_OPTIONS>()
     let optionReads = 0
     mocks.call.mockImplementation((_target, method) => {

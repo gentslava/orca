@@ -238,6 +238,7 @@ export function DescriptorRows({
   grouped = false,
   onSetOption,
   onInvokeAction,
+  onReset,
   choiceLabelColor
 }: {
   descriptor: SessionOptionDescriptor
@@ -245,6 +246,7 @@ export function DescriptorRows({
   grouped?: boolean
   onSetOption: (value: SessionOptionValue) => void
   onInvokeAction: () => void
+  onReset?: () => void
   /** A choice whose name reads in a colour of its own, as Full access does. */
   choiceLabelColor?: (value: string) => string | undefined
 }): React.JSX.Element {
@@ -289,12 +291,22 @@ export function DescriptorRows({
   const { currentValue, choices } = descriptor.kind
   return (
     <>
+      {descriptor.defaultChoice && onReset ? (
+        <ChoiceRow
+          label="Default"
+          selected={descriptor.defaultChoice.selected}
+          disabled={locked}
+          grouped={grouped}
+          divided={grouped && choices.length > 0}
+          onPress={onReset}
+        />
+      ) : null}
       {choices.map((choice, index) => (
         <ChoiceRow
           key={choice.value}
           label={choice.label}
           description={choice.description}
-          selected={choice.value === currentValue}
+          selected={!descriptor.defaultChoice?.selected && choice.value === currentValue}
           disabled={locked}
           grouped={grouped}
           divided={grouped && index < choices.length - 1}

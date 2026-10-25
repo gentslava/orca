@@ -35,6 +35,7 @@ export type AgentSessionOptionsResult = {
   fastModeSupport?: AgentSessionFastModeSupport
   current: {
     model?: string
+    modelDefault?: boolean
     effort?: string
     /** Canonical preference for the next turn. Explicit false is meaningful. */
     fastMode?: boolean

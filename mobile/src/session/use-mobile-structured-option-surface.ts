@@ -13,6 +13,7 @@ export function useMobileStructuredOptionSurface(args: {
   lockSnapshot: (snapshot: SessionOptionDescriptor[]) => SessionOptionDescriptor[]
   optionSnapshot: SessionOptionDescriptor[]
   setStructuredOption: (id: string, value: SessionOptionValue) => Promise<boolean>
+  resetOption?: SessionOptionsSurface['resetOption']
   /** The latest option state, which a settled pick's snapshot is read from. */
   optionStateRef: RefObject<StructuredAgentSessionOptionState>
 }) {
@@ -45,13 +46,14 @@ export function useMobileStructuredOptionSurface(args: {
 
   const optionSurface = useMemo<SessionOptionsSurface>(
     () => ({
+      ...(args.resetOption ? { resetOption: args.resetOption } : {}),
       getSnapshot: () => optionSnapshot,
       demandModelCatalog,
       setOption,
       invokeAction: async () => ({ snapshot: optionSnapshot }),
       subscribe: () => () => {}
     }),
-    [optionSnapshot, setOption, demandModelCatalog]
+    [optionSnapshot, setOption, demandModelCatalog, args.resetOption]
   )
 
   return { optionPickerRequest, invokeStructuredOption, optionSurface }

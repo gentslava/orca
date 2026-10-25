@@ -19180,6 +19180,7 @@
         "autoApprovalGranted": "Automatic approval granted"
       },
       "composer": {
+        "defaultModel": "Default",
         "imageUnsupported": "Image paste is not supported for this agent.",
         "send": "Send",
         "noPty": "No live terminal — toggle back to reconnect.",

@@ -163,6 +163,9 @@ export function applyNativeChatSessionOptionSettingsMutation(
       picks: mutation.picks
     })
   }
+  if (mutation.type === 'clear-model') {
+    return clearNativeChatSessionOptionModel(persisted, mutation.agent)
+  }
   const modelId = persisted?.[mutation.agent]?.model
   if (!modelId || mutation.availableModelIds.includes(modelId)) {
     return null

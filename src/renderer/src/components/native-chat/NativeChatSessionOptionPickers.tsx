@@ -145,6 +145,7 @@ function SessionOptionPopover(props: {
   request: NativeChatOptionPickerRequest | null
   onSet: (descriptor: SessionOptionDescriptor, value: SessionOptionValue) => void
   onAction: (descriptor: SessionOptionDescriptor) => void
+  onReset?: (descriptor: SessionOptionDescriptor) => void
   focusComposer?: () => void
 }): React.JSX.Element {
   const { model, options, pendingIds, demandModelCatalog } = props
@@ -190,7 +191,7 @@ function SessionOptionPopover(props: {
     if (descriptor.id === 'effort') {
       setOpen(false)
     }
-    if (descriptor.kind.currentValue !== value) {
+    if (descriptor.defaultChoice?.selected || descriptor.kind.currentValue !== value) {
       props.onSet(descriptor, value)
     }
   }
@@ -286,6 +287,8 @@ function SessionOptionPopover(props: {
         {model.kind.type === 'select' && !model.action ? (
           <NativeChatModelCombobox
             choices={model.kind.choices}
+            defaultChoice={model.defaultChoice}
+            onReset={props.onReset ? () => props.onReset?.(model) : undefined}
             currentValue={model.kind.currentValue}
             readOnly={!model.settable}
             readOnlyReason={modelReason}
@@ -377,6 +380,14 @@ function NativeChatSessionOptionPickersInner({
           runSessionOptionSurfaceCall({ id: descriptor.id }, markPending(descriptor.id), () =>
             surface.invokeAction(descriptor.id)
           )
+        }
+        onReset={
+          surface.resetOption
+            ? (descriptor) =>
+                runSessionOptionSurfaceCall({ id: descriptor.id }, markPending(descriptor.id), () =>
+                  surface.resetOption!(descriptor.id)
+                )
+            : undefined
         }
         focusComposer={focusComposer}
       />

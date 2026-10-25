@@ -30,6 +30,7 @@ import { useMobileHostModelCatalogUpgrade } from './use-mobile-host-model-catalo
 import { mobileCreatedStructuredSession } from './mobile-created-structured-sessions'
 import { encodeStructuredAgentSessionOptionValue } from '../../../src/shared/structured-agent-session-option-codec'
 import { useMobileStructuredOptionSurface } from './use-mobile-structured-option-surface'
+import { useMobileStructuredModelDefault } from './use-mobile-structured-model-default'
 
 const NO_COMMANDS: readonly AgentSessionConversationCommand[] = []
 
@@ -45,7 +46,7 @@ export function useMobileStructuredAgentOptions(args: {
   /** What the host advertised; null until its status probe answers. */
   hostSupport: Pick<
     StructuredAgentSessionHostSupport,
-    'permissionModes' | 'coherentModelCatalog'
+    'permissionModes' | 'coherentModelCatalog' | 'defaultModel'
   > | null
 }) {
   const { agent, client, enabled, fence, mutate, optionStamp, sessionId, hostSupport } = args
@@ -110,8 +111,21 @@ export function useMobileStructuredAgentOptions(args: {
   const lockSnapshotRef = useRef(
     (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) => snapshot
   )
-  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) =>
-    awaitingOptions ? lockedStructuredAgentSessionOptionSnapshot(snapshot) : snapshot
+  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) => {
+    const choices =
+      hostSupport?.defaultModel === true
+        ? snapshot.map((descriptor) =>
+            descriptor.id === 'model'
+              ? {
+                  ...descriptor,
+                  settable: true,
+                  defaultChoice: { selected: optionStateRef.current.modelDefault === true }
+                }
+              : descriptor
+          )
+        : snapshot
+    return awaitingOptions ? lockedStructuredAgentSessionOptionSnapshot(choices) : choices
+  }
   useLayoutEffect(() => {
     lockSnapshotRef.current = lockSnapshot
   })
@@ -234,15 +248,38 @@ export function useMobileStructuredAgentOptions(args: {
 
   // Read, not rendered: what the chat holds when the send goes out.
   const sendSelection = useCallback(
-    () => structuredAgentSessionSendSelection(optionStateRef.current),
+    () =>
+      pendingOptionRef.current === 'model'
+        ? undefined
+        : structuredAgentSessionSendSelection(optionStateRef.current),
     []
   )
+  const resetOption = useMobileStructuredModelDefault({
+    agent,
+    client,
+    sessionId,
+    mutate,
+    takesModelDefault: hostSupport?.defaultModel === true,
+    awaitingOptions,
+    lockSnapshotRef,
+    source: {
+      optionStateRef,
+      activeOptionRecordRef,
+      pendingOptionRef,
+      optionMutationGeneration,
+      updateOptionState,
+      writes,
+      readRef,
+      isCurrentContext
+    }
+  })
   const { optionPickerRequest, invokeStructuredOption, optionSurface } =
     useMobileStructuredOptionSurface({
       optionSnapshot,
       demandModelCatalog,
       setStructuredOption,
       optionStateRef,
+      resetOption: hostSupport?.defaultModel === true ? resetOption : undefined,
       lockSnapshot: (snapshot) => lockSnapshotRef.current(snapshot)
     })
 

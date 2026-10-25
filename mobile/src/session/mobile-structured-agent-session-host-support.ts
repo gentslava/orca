@@ -14,9 +14,11 @@ import {
 import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session-create-capabilities'
 import { AGENT_SESSION_PERMISSION_MODES_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session-permission-modes-capability'
 import { AGENT_SESSION_PHONE_ATTACHMENTS_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session-runtime-capabilities'
+import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../src/shared/agent-session-default-model'
 
 /** Structured-session features the connected host advertised; null until the status probe answers. */
 export type StructuredAgentSessionHostSupport = {
+  defaultModel?: boolean
   coherentModelCatalog?: boolean
   promptCancel: boolean
   questionAnswers: boolean
@@ -49,6 +51,7 @@ export function structuredAgentSessionHostSupport(
   capabilities: readonly string[]
 ): StructuredAgentSessionHostSupport {
   return {
+    defaultModel: capabilities.includes(AGENT_SESSION_DEFAULT_MODEL_CAPABILITY),
     coherentModelCatalog: capabilities.includes(AGENT_SESSION_COHERENT_MODEL_CATALOG_CAPABILITY),
     promptCancel: capabilities.includes(AGENT_SESSION_PROMPT_CANCEL_RUNTIME_CAPABILITY),
     questionAnswers: capabilities.includes(AGENT_SESSION_QUESTION_ANSWERS_RUNTIME_CAPABILITY),

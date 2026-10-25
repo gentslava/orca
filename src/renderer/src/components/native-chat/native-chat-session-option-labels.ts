@@ -105,6 +105,9 @@ export function nativeChatSessionOptionDisabledReason(
 }
 
 export function nativeChatModelPillLabel(descriptor: SessionOptionDescriptor): string {
+  if (descriptor.defaultChoice?.selected) {
+    return translate('components.native-chat.composer.defaultModel', 'Default')
+  }
   // Why: show the value only (Codex/Conductor style). "Model:" is redundant —
   // the control's aria-label/tooltip already names the category.
   // Only `unknown` withholds the value; a `default` source still names the model

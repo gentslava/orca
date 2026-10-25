@@ -22,6 +22,7 @@ import {
 import { structuredAgentSessionLaunchPermission } from './structured-agent-session-launch-permission'
 import type { StructuredAgentSessionMutationContext } from './structured-agent-session-host-mutations'
 import { structuredAgentSessionNeverSent } from './structured-agent-session-never-sent'
+import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
 
 export {
   recordStructuredAgentSessionOptionIntent,
@@ -62,7 +63,7 @@ async function readStructuredAgentSessionOptionsAtRest(
             : {})
       })
       .catch(() => null)) ?? { origin: 'unknown' }
-  const saved = record.options ?? {}
+  const saved = effectiveAgentSessionOptions(record) ?? {}
   const scoped = await readCatalog(true)
   const folderDefault =
     scoped.origin === 'unknown' ? undefined : scoped.models.find((entry) => entry.isDefault)
@@ -221,7 +222,7 @@ export async function readStructuredAgentSessionOptions(
       : undefined
   // Show saved intent unless the provider explicitly rejected that model; then show execution.
   const refusedModel = live && !!adapter.readOptionRestoreFailures?.(sessionId).includes('model')
-  const saved = record?.options ?? {}
+  const saved = record ? (effectiveAgentSessionOptions(record) ?? {}) : {}
   const { model: _refused, ...selectedWithoutModel } = selected.current
   const model = refusedModel
     ? (options.current.model ?? displayDefault)
@@ -285,6 +286,7 @@ export async function readStructuredAgentSessionOptions(
     ...options,
     current: {
       ...current,
+      ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
       defaulted,
       confirmed,
       ...(options.current.fastModeState ? { fastModeState: options.current.fastModeState } : {}),
