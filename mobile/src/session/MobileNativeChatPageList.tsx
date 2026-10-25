@@ -199,17 +199,18 @@ export function MobileNativeChatPageList({
         )
       } else if (keys[first] !== undefined) {
         // Appends may slide the opening tail window only until the reader takes it.
-        setDrawn((current) =>
-          current.scope === rowKeys.scope && current.firstKey !== null
-            ? current
-            : {
-                scope: rowKeys.scope,
-                firstKey: keys[first]!,
-                count: n - first,
-                fromStart: first === 0,
-                detached: true
-              }
-        )
+        setDrawn((current) => {
+          if (current.scope !== rowKeys.scope || current.firstKey === null) {
+            return {
+              scope: rowKeys.scope,
+              firstKey: keys[first]!,
+              count: n - first,
+              fromStart: first === 0,
+              detached: true
+            }
+          }
+          return current.fromStart || current.detached ? current : { ...current, detached: true }
+        })
       }
     },
     [isFollowing]

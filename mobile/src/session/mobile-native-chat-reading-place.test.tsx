@@ -417,22 +417,30 @@ it('keeps the initial tall-row window anchored after a reader parks and backgrou
 })
 
 it.each([
-  ['scroll', false],
-  ['jump', false],
-  ['scroll', true],
-  ['jump', true]
+  ['scroll', 'opening'],
+  ['jump', 'opening'],
+  ['scroll', 'partial'],
+  ['jump', 'partial'],
+  ['scroll', 'automatic'],
+  ['jump', 'automatic']
 ] as const)(
-  'slides the opening window after a detached reader resumes by %s, partially expanded: %s',
-  (resume, expand) => {
+  'slides the %s-resumed tail after a detached reader used the %s window',
+  (resume, window) => {
     const rows = Array.from({ length: 500 }, (_, i) => ({
       ...say(`m${i}`, 'assistant', ''),
-      blocks: Array.from({ length: 5 }, () => ({ type: 'text' as const, text: `Message ${i}` }))
+      blocks: Array.from({ length: window === 'automatic' && i >= 176 && i < 200 ? 1 : 5 }, () => ({
+        type: 'text' as const,
+        text: `Message ${i}`
+      }))
     }))
     const chat0 = mount(rows.slice(0, 200), { live: false })
+    if (window === 'automatic') {
+      expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m164'))
+    }
     chat0.read(() => (chat0.scroller.scrollTop = -150))
     chat0.show(rows.slice(0, 230))
     expect(chat0.drawn(mobileNativeChatRowId('m196'))).toBe(1)
-    if (expand) {
+    if (window === 'partial') {
       chat0.read(() => chat0.scroller.showFrom(200))
       expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m164'))
     }
