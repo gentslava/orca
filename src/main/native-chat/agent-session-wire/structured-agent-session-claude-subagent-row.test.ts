@@ -242,7 +242,10 @@ it('keeps a helper working while its own shell runs and through its wake-up, end
       settledAt: start + 46_198
     })
   )
-  expect(strip()).toEqual([])
+  expect(strip()).toEqual(['agent-1'])
+  expect(host['backgroundTasks'].read(SESSION)).toMatchObject({
+    children: [expect.objectContaining({ state: 'done', membership: 'settled', stoppable: false })]
+  })
   expect((await savedRows()).filter(({ id }) => id === 'agent-1')).toHaveLength(1)
 })
 
