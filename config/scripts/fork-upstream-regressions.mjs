@@ -1,0 +1,100 @@
+import { execFileSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import { join, resolve } from 'node:path'
+import { isDirectInvocation } from './script-entry-detection.mjs'
+
+const desktop = [
+  'config/scripts/fork-upstream-sync.test.mjs',
+  'config/scripts/fork-upstream-archives.test.mjs',
+  'src/main/gemini/gemini-acp-launch.test.ts',
+  'src/main/gemini/gemini-acp-permissions.test.ts',
+  'src/main/gemini/gemini-acp-resume.test.ts',
+  'src/main/gemini/gemini-acp-session.test.ts',
+  'src/main/ai-vault/structured-conversation-navigation.test.ts',
+  'src/renderer/src/lib/activate-ai-vault-structured-session.test.ts',
+  'src/renderer/src/components/native-chat/native-chat-child-navigation.test.tsx',
+  'src/renderer/src/components/native-chat/native-chat-transcript-work-runs.test.ts',
+  'src/renderer/src/components/native-chat/NativeChatMessageRow.work-run.test.tsx',
+  'src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx',
+  'src/renderer/src/components/native-chat/use-structured-agent-session-queued-messages.test.tsx',
+  'src/main/runtime/rpc/methods/structured-agent-session-queued-edit.test.ts',
+  'src/main/native-chat/agent-session-wire/structured-agent-session-queued-move.test.ts',
+  'src/shared/orchestration-worker-roles.test.ts',
+  'src/cli/handlers/orchestration-worker-role-cli.test.ts',
+  'src/main/runtime/rpc/methods/orchestration/worker/worker-role-routing.test.ts',
+  'src/renderer/src/components/sidebar/WorktreeCardAgents.test.tsx',
+  'src/renderer/src/components/sidebar/worktree-card-agent-summary.test.ts',
+  'src/main/usage/usage-account-attribution.test.ts',
+  'src/main/usage/usage-history-projection.test.ts',
+  'src/main/runtime/rpc/methods/usage-history.test.ts',
+  'src/renderer/src/components/stats/StatsPane.usage.test.tsx',
+  'src/renderer/src/components/stats/UsageAccountQuotas.test.tsx',
+  'src/renderer/src/components/stats/usage-overview-model.test.ts',
+  'src/renderer/src/components/stats/usage-history-model.test.ts',
+  'src/renderer/src/components/stats/use-usage-history.test.ts',
+  'src/renderer/src/components/status-bar/use-owner-usage-rate-limits.test.tsx',
+  'src/renderer/src/store/slices/usage-web-client-fallback.test.ts',
+  'src/renderer/src/i18n/russian-daily-flow.test.tsx',
+  'src/renderer/src/web/web-preload-api-russian-language.test.ts',
+  'src/main/updater.fork-preview.test.ts',
+  'src/main/updater.build-channel-selection.test.ts',
+  'src/main/updater.quit-and-install.test.ts',
+  'src/main/updater.headless-serve-install.test.ts'
+]
+const mobile = [
+  'src/session/MobileNativeChatMessage.work-run.test.tsx',
+  'src/session/MobileNativeChatSessionOptionPickers.test.ts',
+  'src/host-screen/host-worktree-child-navigation.test.tsx',
+  'src/session/MobileNativeChatRowOverlaysHost.test.tsx',
+  'src/session/use-mobile-native-chat-composer-tray.test.tsx'
+]
+
+export function runForkRegressions(root = process.cwd()) {
+  for (const file of [...desktop, ...mobile.map((file) => join('mobile', file))]) {
+    if (!existsSync(join(root, file))) {
+      throw new Error(`Required fork regression suite disappeared: ${file}`)
+    }
+  }
+  const env = { ...process.env, ORCA_BACKGROUND_LAUNCH: '1' }
+  for (const [script, ...args] of [
+    ['generate-rpc-params-catalog.mjs', '--check'],
+    ['verify-localization-catalogs.mjs'],
+    ['russian-translation-progress.mjs', '--require-complete'],
+    ['verify-localization-extraction.mjs'],
+    ['audit-localization-coverage.mjs', '--check']
+  ]) {
+    execFileSync(process.execPath, [resolve(root, 'config/scripts', script), ...args], {
+      cwd: root,
+      env,
+      stdio: 'inherit'
+    })
+  }
+  execFileSync(
+    process.execPath,
+    [
+      resolve(root, 'config/scripts/run-vitest.mjs'),
+      'run',
+      '--config',
+      'config/vitest.config.ts',
+      ...desktop,
+      '--maxWorkers=2'
+    ],
+    { cwd: root, env, stdio: 'inherit' }
+  )
+  execFileSync(
+    process.execPath,
+    [
+      resolve(root, 'config/scripts/run-vitest.mjs'),
+      'run',
+      '--config',
+      'mobile/vitest.config.ts',
+      ...mobile,
+      '--maxWorkers=2'
+    ],
+    { cwd: root, env, stdio: 'inherit' }
+  )
+}
+
+if (isDirectInvocation(import.meta.url, process.argv[1])) {
+  runForkRegressions()
+}
