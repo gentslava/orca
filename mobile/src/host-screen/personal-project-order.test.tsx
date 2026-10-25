@@ -239,3 +239,40 @@ it.each(['recent', 'frequent', 'name', 'manual'] as const)(
     ).toEqual(['Beta', 'Alpha'])
   }
 )
+
+it('clears personal summaries on a client switch without changing an empty view', async () => {
+  let client = stubRpcClient({ sendRequest: async () => ({ id: 'read', ok: true, result: {} }) })
+  const held: { state?: ReturnType<typeof useHostScreenState>; initial?: object } = {}
+  function Probe() {
+    const state = useHostScreenState('host')
+    held.state = state
+    held.initial ??= state.viewRef.current
+    useHostViewSettings({ client, connState: 'connected', state })
+    return null
+  }
+  await act(async () => {
+    tree = create(createElement(Probe))
+  })
+  expect(held.state?.viewRef.current).toBe(held.initial)
+  await act(async () => {
+    const state = held.state
+    if (!state) {
+      throw new Error('missing probe')
+    }
+    const next = {
+      ...state.viewRef.current,
+      personalProjectOrder: {
+        revision: 9,
+        projects: { alpha: { pinned: true } },
+        settledOperations: []
+      }
+    }
+    state.viewRef.current = next
+    state.setView(next)
+  })
+  client = stubRpcClient({ sendRequest: async () => ({ id: 'read', ok: true, result: {} }) })
+  await act(async () => {
+    tree?.update(createElement(Probe))
+  })
+  expect(held.state?.viewRef.current.personalProjectOrder).toBeUndefined()
+})

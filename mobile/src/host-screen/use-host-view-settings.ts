@@ -60,6 +60,9 @@ export function useHostViewSettings(args: {
   }, [])
 
   useEffect(() => {
+    if (viewRef.current.personalProjectOrder === undefined) {
+      return
+    }
     const next = { ...viewRef.current, personalProjectOrder: undefined }
     applyViewState(next)
   }, [client, applyViewState])
