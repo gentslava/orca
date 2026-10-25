@@ -49,3 +49,8 @@ The coordinator-authorized native popup completion reuses main-controlled popup
 ownership and trusted origin/notice views, preserves OAuth viewport/lifecycle,
 and has separate hidden no-focus proof. Native pages provide no activity IPC and
 receive no notice DOM injection. The final focused suites cover this follow-up.
+
+The accepted independent-review no-window regression restores native Cmd+Q when
+the shared desktop/popup ownership resolver finds no routable contents. Four new
+failing lifecycle cases now pass, including close/reopen, live BaseWindow contents,
+real popup registration/removal, orphan DevTools, destruction and listener cleanup.

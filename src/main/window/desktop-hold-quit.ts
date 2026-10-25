@@ -1,11 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  webContents,
-  type BaseWindow,
-  type WebContents
-} from 'electron'
+import { app, ipcMain, webContents, type BaseWindow, type WebContents } from 'electron'
 import type { Store } from '../persistence'
 import { isAgentInjectingInput } from '../browser/agent-input-injection'
 import { HoldQuitGesture } from './hold-quit-gesture'
@@ -14,10 +7,12 @@ import type { HoldQuitInput, HoldQuitNotice } from '../../shared/mac-hold-quit'
 import { isHoldQuitChord } from '../../shared/mac-hold-quit'
 import { keybindingMatchesInput, type KeybindingOverrides } from '../../shared/keybindings'
 import { readDevToolsShortcutInput } from '../browser/browser-guest-devtools-window'
+import { onNativePopupQuitSurfaceChanged } from '../browser/native-browser-popup-windows'
 import {
-  getNativePopupQuitSurface,
-  type NativePopupQuitSurface
-} from '../browser/native-browser-popup-windows'
+  getDesktopHoldQuitInspectee as inspecteeFor,
+  getDesktopHoldQuitSurface as ownerFor,
+  hasDesktopHoldQuitSurface
+} from './desktop-hold-quit-surface'
 
 export function installDesktopHoldQuit(options: {
   store: Pick<Store, 'getSettings' | 'onSettingsChanged'>
@@ -36,6 +31,9 @@ export function installDesktopHoldQuit(options: {
   const detachments = new Map<WebContents, () => void>()
   let activityOwner: WebContents | null = null
   let busy = false
+  let disposed = false
+  let hadSurface = hasDesktopHoldQuitSurface()
+  const routingWindows = new Map<BaseWindow, () => void>()
   const enabled = (): boolean => options.store.getSettings().holdQuitWhileAgentsWork === true
   const chordOwned = (): boolean =>
     Object.values(options.getKeybindings?.() ?? {}).some((bindings) =>
@@ -48,33 +46,38 @@ export function installDesktopHoldQuit(options: {
       gesture.refresh()
     }
   }
-  const inspecteeFor = (contents: WebContents): WebContents | undefined =>
-    webContents
-      .getAllWebContents()
-      .find((candidate) => !candidate.isDestroyed() && candidate.devToolsWebContents === contents)
-  const ownerFor = (
-    contents: WebContents
-  ): (NativePopupQuitSurface & { renderer?: WebContents }) | null => {
-    if (contents.isDestroyed()) {
-      return null
+  const refreshRouting = (): void => {
+    if (disposed) {
+      return
     }
-    const owner = inspecteeFor(contents) ?? contents
-    const popup = getNativePopupQuitSurface(owner)
-    if (popup) {
-      return popup.window.isDestroyed() ? null : popup
+    const windows = new Set<BaseWindow>()
+    for (const contents of webContents.getAllWebContents()) {
+      const owner = ownerFor(contents)
+      if (owner) {
+        windows.add(owner.window)
+      }
     }
-    const window = BrowserWindow.fromWebContents(owner.hostWebContents ?? owner)
-    if (!window || window.isDestroyed()) {
-      return null
+    for (const [window, closed] of routingWindows) {
+      if (!windows.has(window)) {
+        window.off('closed', closed)
+        routingWindows.delete(window)
+      }
     }
-    const renderer = window.webContents
-    return {
-      window,
-      renderer,
-      notice: (notice) => {
-        if (!renderer.isDestroyed()) {
-          renderer.send('ui:holdQuitNotice', notice)
+    for (const window of windows) {
+      if (!routingWindows.has(window)) {
+        const closed = (): void => {
+          routingWindows.delete(window)
+          refreshRouting()
         }
+        routingWindows.set(window, closed)
+        window.once('closed', closed)
+      }
+    }
+    const hasSurface = windows.size > 0
+    if (hasSurface !== hadSurface) {
+      hadSurface = hasSurface
+      if (enabled()) {
+        options.rebuildMenu()
       }
     }
   }
@@ -193,6 +196,9 @@ export function installDesktopHoldQuit(options: {
     contents.prependListener('before-input-event', onInput)
     contents.on('input-event', devToolsInput)
     contents.on('did-finish-load', bindWindow)
+    contents.on('did-finish-load', refreshRouting)
+    contents.on('devtools-opened', refreshRouting)
+    contents.on('devtools-closed', refreshRouting)
     contents.on('blur', cancel)
     contents.on('render-process-gone', resetRenderer)
     contents.on('did-start-navigation', navigating)
@@ -203,6 +209,9 @@ export function installDesktopHoldQuit(options: {
       contents.off('before-input-event', onInput)
       contents.off('input-event', devToolsInput)
       contents.off('did-finish-load', bindWindow)
+      contents.off('did-finish-load', refreshRouting)
+      contents.off('devtools-opened', refreshRouting)
+      contents.off('devtools-closed', refreshRouting)
       contents.off('blur', cancel)
       contents.off('render-process-gone', resetRenderer)
       contents.off('did-start-navigation', navigating)
@@ -215,15 +224,22 @@ export function installDesktopHoldQuit(options: {
         activityOwner = null
         refresh()
       }
+      refreshRouting()
     }
     detachments.set(contents, detach)
     contents.once('destroyed', detach)
   }
-  const created = (_event: Electron.Event, contents: WebContents): void => attach(contents)
+  const created = (_event: Electron.Event, contents: WebContents): void => {
+    attach(contents)
+    refreshRouting()
+  }
   app.on('web-contents-created', created)
+  app.on('browser-window-created', refreshRouting)
+  const unsubscribePopups = onNativePopupQuitSurfaceChanged(refreshRouting)
   for (const contents of webContents.getAllWebContents()) {
     attach(contents)
   }
+  refreshRouting()
   const unsubscribe = options.store.onSettingsChanged((updates) => {
     if ('holdQuitWhileAgentsWork' in updates) {
       refresh()
@@ -237,12 +253,19 @@ export function installDesktopHoldQuit(options: {
   }
   app.on('before-quit', cancelAll)
   return () => {
+    disposed = true
     cancelAll()
     for (const detach of detachments.values()) {
       detach()
     }
     unsubscribe()
+    unsubscribePopups()
+    for (const [window, closed] of routingWindows) {
+      window.off('closed', closed)
+    }
+    routingWindows.clear()
     app.off('web-contents-created', created)
+    app.off('browser-window-created', refreshRouting)
     app.off('before-quit', cancelAll)
     ipcMain.off('ui:holdQuitActivity', activity)
     ipcMain.off('ui:setShortcutRecorderFocused', recording)

@@ -174,8 +174,14 @@ asynchronously. Main consumes the guarded keydown before terminal/editor/guest
 DOM input; native sampling independently observes release even when Chromium
 suppresses JavaScript keyup. Guest DevTools reuses its existing raw `input-event`
 parser and routes the hint to its owning app renderer. The enabled macOS menu shows a shortcut hint
-without registering a native accelerator. Explicit menu clicks keep the existing
-Quit route; custom shortcut bindings and recording retain ownership.
+without registering a native accelerator while an actual routable surface exists.
+With no live desktop/popup owner, native Cmd+Q returns, including the existing serve
+callback policy. Menu refresh follows BrowserWindow creation/closure, popup registry
+registration/removal, contents destruction and load/DevTools ownership changes.
+The menu and keyboard guard share the same WebContents ownership resolver; an
+unowned background page or orphan DevTools does not stand in for an open window.
+Explicit menu clicks keep the existing Quit route; custom shortcut bindings and
+recording retain ownership.
 
 Native browser popups extend the existing main-owned popup registry with their
 actual BaseWindow/BrowserWindow and trusted notice presenter. The existing

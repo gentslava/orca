@@ -8,15 +8,31 @@ export type NativePopupQuitSurface = {
   notice: (notice: HoldQuitNotice) => void
 }
 const popupQuitSurfaces = new WeakMap<object, NativePopupQuitSurface>()
+const popupQuitSurfaceListeners = new Set<() => void>()
+
+export function onNativePopupQuitSurfaceChanged(listener: () => void): () => void {
+  popupQuitSurfaceListeners.add(listener)
+  return () => {
+    popupQuitSurfaceListeners.delete(listener)
+  }
+}
+
+function notifyQuitSurfaceChanged(): void {
+  for (const listener of popupQuitSurfaceListeners) {
+    listener()
+  }
+}
 
 export function registerNativePopupQuitSurface(
   contents: WebContents,
   surface: NativePopupQuitSurface
 ): () => void {
   popupQuitSurfaces.set(contents, surface)
+  notifyQuitSurfaceChanged()
   return () => {
     if (popupQuitSurfaces.get(contents) === surface) {
       popupQuitSurfaces.delete(contents)
+      notifyQuitSurfaceChanged()
     }
   }
 }

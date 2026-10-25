@@ -1,9 +1,10 @@
 import { EventEmitter } from 'node:events'
-import { afterEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { getDefaultSettings } from '../../shared/constants'
 import type { GlobalSettings } from '../../shared/global-settings-types'
 import type { HoldQuitWatchEvent } from './hold-quit-gesture'
 import type { KeybindingOverrides } from '../../shared/keybindings'
+import { registerNativePopupQuitSurface } from '../browser/native-browser-popup-windows'
 
 const mocks = vi.hoisted(() => {
   const watches: { emit: (event: HoldQuitWatchEvent) => void; cancel: ReturnType<typeof vi.fn> }[] =
@@ -31,31 +32,35 @@ const main = new Contents(1)
 const guest = new Contents(2)
 guest.hostWebContents = main
 const popout = new Contents(3)
+const allContents = [main, guest, popout]
 const mainWindow = Object.assign(new EventEmitter(), {
+  destroyed: false,
   isFocused: () => true,
-  isDestroyed: () => false,
+  isDestroyed: () => mainWindow.destroyed,
   webContents: main
 })
 const popoutWindow = Object.assign(new EventEmitter(), {
+  destroyed: false,
   isFocused: () => true,
-  isDestroyed: () => false,
+  isDestroyed: () => popoutWindow.destroyed,
   webContents: popout
 })
 const popupWindow = Object.assign(new EventEmitter(), {
+  destroyed: false,
   isFocused: () => true,
-  isDestroyed: () => false
+  isDestroyed: () => popupWindow.destroyed
 })
 const popupNotice = vi.fn()
-vi.mock('../browser/native-browser-popup-windows', () => ({
-  getNativePopupQuitSurface: (contents: Contents) =>
-    contents.id === 5 ? { window: popupWindow, notice: popupNotice } : undefined
-}))
+const windowOwners = new Map([
+  [main, mainWindow],
+  [popout, popoutWindow]
+])
 vi.mock('electron', () => ({
   app,
   ipcMain: ipc,
-  webContents: { getAllWebContents: () => [main, guest, popout] },
+  webContents: { getAllWebContents: () => allContents },
   BrowserWindow: {
-    fromWebContents: (contents: Contents) => (contents.id === popout.id ? popoutWindow : mainWindow)
+    fromWebContents: (contents: Contents) => windowOwners.get(contents) ?? null
   }
 }))
 vi.mock('../browser/agent-input-injection', () => ({ isAgentInjectingInput: () => mocks.injected }))
@@ -67,7 +72,21 @@ vi.mock('./macos-quit-chord-watch', () => ({
   }
 }))
 const { installDesktopHoldQuit } = await import('./desktop-hold-quit')
+const { createAppMenuQuitItem } = await import('../menu/app-menu-quit-item')
 const platform = Object.getOwnPropertyDescriptor(process, 'platform')
+beforeEach(() => {
+  allContents.splice(0, allContents.length, main, guest, popout)
+  windowOwners.clear()
+  windowOwners.set(main, mainWindow)
+  windowOwners.set(popout, popoutWindow)
+  for (const contents of allContents) {
+    contents.destroyed = false
+    contents.devToolsWebContents = undefined
+  }
+  for (const window of [mainWindow, popoutWindow, popupWindow]) {
+    window.destroyed = false
+  }
+})
 afterEach(() => {
   if (platform) {
     Object.defineProperty(process, 'platform', platform)
@@ -85,6 +104,12 @@ afterEach(() => {
 it('guards BaseWindow popup contents and delivers native-ack progress only to its trusted notice owner', () => {
   const f = fixture()
   const popupContents = new Contents(5)
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: fixture implements the consumed WebContents methods.
+  const unregister = registerNativePopupQuitSurface(popupContents as never, {
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: fixture implements the consumed BaseWindow lifecycle.
+    window: popupWindow as never,
+    notice: popupNotice
+  })
   app.emit('web-contents-created', {}, popupContents)
   ipc.emit('ui:holdQuitActivity', { sender: popupContents }, true)
   ipc.emit('ui:holdQuitActivity', { sender: main }, true)
@@ -101,16 +126,26 @@ it('guards BaseWindow popup contents and delivers native-ack progress only to it
   mocks.watches[1]?.emit('held')
   expect(f.quit).not.toHaveBeenCalled()
   popupContents.emit('destroyed')
+  unregister()
   f.dispose()
 })
 
 function fixture(platform = 'darwin') {
   Object.defineProperty(process, 'platform', { value: platform })
   let bindings: KeybindingOverrides | undefined
+  let localBusy = false
   let settings = { ...getDefaultSettings('/tmp'), holdQuitWhileAgentsWork: true }
   let changed: (updates: Partial<GlobalSettings>, settings: GlobalSettings) => void = () => {}
   const quit = vi.fn()
-  const rebuildMenu = vi.fn()
+  const buildQuitItem = () =>
+    createAppMenuQuitItem(undefined, 'Orca', {
+      isEnabled: () => settings.holdQuitWhileAgentsWork,
+      quit
+    })
+  let quitItem = buildQuitItem()
+  const rebuildMenu = vi.fn(() => {
+    quitItem = buildQuitItem()
+  })
   const dispose = installDesktopHoldQuit({
     store: {
       getSettings: () => settings,
@@ -121,7 +156,7 @@ function fixture(platform = 'darwin') {
     },
     isActivityOwner: (sender) => sender.id === main.id,
     isUIRenderer: (sender) => sender.id === main.id || sender.id === popout.id,
-    isLocalWorkActive: () => false,
+    isLocalWorkActive: () => localBusy,
     getKeybindings: () => bindings,
     quit,
     rebuildMenu
@@ -130,6 +165,10 @@ function fixture(platform = 'darwin') {
     quit,
     dispose,
     rebuildMenu,
+    menu: () => quitItem,
+    workLocally: () => {
+      localBusy = true
+    },
     bindQ: () => {
       bindings = { 'app.settings': ['Cmd+Q'] }
     },
@@ -139,6 +178,112 @@ function fixture(platform = 'darwin') {
     }
   }
 }
+
+it('restores native idle CmdQ without a routable surface, including orphan contents', () => {
+  allContents.splice(0)
+  const orphan = new Contents(9)
+  const tools = new Contents(10)
+  orphan.devToolsWebContents = tools
+  allContents.push(orphan, tools)
+  windowOwners.set(tools, mainWindow)
+  const f = fixture()
+  expect(f.menu().role).toBe('quit')
+  const serveQuit = vi.fn()
+  const serveItem = createAppMenuQuitItem(serveQuit, 'Orca', {
+    isEnabled: () => true,
+    quit: f.quit
+  })
+  expect(serveItem.accelerator).toBe('CmdOrCtrl+Q')
+  if (serveItem.click) {
+    Reflect.apply(serveItem.click, undefined, [])
+  }
+  expect(serveQuit).toHaveBeenCalledOnce()
+  expect(f.quit).not.toHaveBeenCalled()
+  f.dispose()
+})
+
+it('refreshes native CmdQ on last-window closure and suppresses it before a reopened window loads', () => {
+  const f = fixture()
+  expect(f.menu().role).toBeUndefined()
+  mainWindow.destroyed = true
+  mainWindow.emit('closed')
+  expect(f.menu().role).toBeUndefined()
+  popoutWindow.destroyed = true
+  popoutWindow.emit('closed')
+  expect(f.menu().role).toBe('quit')
+  const reopened = new Contents(11)
+  allContents.push(reopened)
+  app.emit('web-contents-created', {}, reopened)
+  expect(f.menu().role).toBe('quit')
+  const reopenedWindow = Object.assign(new EventEmitter(), {
+    destroyed: false,
+    isFocused: () => true,
+    isDestroyed: () => reopenedWindow.destroyed,
+    webContents: reopened
+  })
+  windowOwners.set(reopened, reopenedWindow)
+  app.emit('browser-window-created', {}, reopenedWindow)
+  expect(f.menu().role).toBeUndefined()
+  expect(f.menu().accelerator).toBeUndefined()
+  f.workLocally()
+  expect(key(reopened).preventDefault).toHaveBeenCalledOnce()
+  expect(f.quit).not.toHaveBeenCalled()
+  f.dispose()
+})
+
+it('uses real registered BaseWindow ownership and restores native CmdQ when it closes with live contents', () => {
+  allContents.splice(0)
+  const f = fixture()
+  const page = new Contents(12)
+  const tools = new Contents(13)
+  page.devToolsWebContents = tools
+  allContents.push(page, tools)
+  app.emit('web-contents-created', {}, page)
+  app.emit('web-contents-created', {}, tools)
+  expect(f.menu().role).toBe('quit')
+  const surface = {
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: fixture implements the consumed BaseWindow lifecycle.
+    window: popupWindow as never,
+    notice: popupNotice
+  }
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: fixture implements the consumed WebContents methods.
+  const unregister = registerNativePopupQuitSurface(page as never, surface)
+  expect(f.menu().role).toBeUndefined()
+  unregister()
+  expect(f.menu().role).toBe('quit')
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: fixture implements the consumed WebContents methods.
+  const unregisterAgain = registerNativePopupQuitSurface(page as never, surface)
+  expect(f.menu().role).toBeUndefined()
+  ipc.emit('ui:holdQuitActivity', { sender: main }, true)
+  const event = { preventDefault: vi.fn() }
+  tools.emit('input-event', event, {
+    type: 'rawKeyDown',
+    key: 'q',
+    code: 'KeyQ',
+    modifiers: ['meta']
+  })
+  expect(event.preventDefault).toHaveBeenCalledOnce()
+  popupWindow.destroyed = true
+  popupWindow.emit('closed')
+  expect(f.menu().role).toBe('quit')
+  mocks.watches[0]?.emit('held')
+  expect(f.quit).not.toHaveBeenCalled()
+  unregisterAgain()
+  f.dispose()
+})
+
+it('refreshes the fallback when the last routable contents is destroyed and removes lifecycle listeners', () => {
+  allContents.splice(0, allContents.length, main)
+  const f = fixture()
+  main.destroyed = true
+  main.emit('destroyed')
+  expect(f.menu().role).toBe('quit')
+  f.dispose()
+  f.rebuildMenu.mockClear()
+  app.emit('browser-window-created', {}, mainWindow)
+  mainWindow.emit('closed')
+  expect(f.rebuildMenu).not.toHaveBeenCalled()
+})
 
 it.each(['linux', 'win32'])('leaves %s input and lifecycle listeners untouched', (platform) => {
   const f = fixture(platform)
