@@ -5,6 +5,7 @@ import type { NativeChatGlobalSettings } from './native-chat-appearance-settings
 import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
 import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
 import type { WorkerRoleSettings } from './orchestration-worker-roles'
+import type { HoldQuitSettings } from './mac-hold-quit'
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = NativeChatGlobalSettings &
@@ -13,4 +14,5 @@ export type GlobalSettingsBase = NativeChatGlobalSettings &
   AgentPermissionGlobalSettings &
   ExternalConversationSettings &
   BrowserLinkOpeningSettings &
-  WorkerRoleSettings
+  WorkerRoleSettings &
+  HoldQuitSettings

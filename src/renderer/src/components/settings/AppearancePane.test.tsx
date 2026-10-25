@@ -494,6 +494,31 @@ describe('AppearancePane', () => {
     expect(updateSettings).toHaveBeenCalledWith({ showMenuBarIcon: false })
   })
 
+  it('keeps hold-quit off until acknowledged settings come back and exposes it only on macOS', async () => {
+    mocks.state.appPlatform = 'darwin'
+    mocks.state.settingsSearchQuery = 'hold'
+    const updateSettings = vi.fn()
+    const container = await renderAppearancePane(getDefaultSettings('/tmp'), updateSettings)
+    const query = 'button[role="switch"][aria-label="Hold ⌘Q while agents are working"]'
+    const toggle = container.querySelector<HTMLButtonElement>(query)
+    expect(toggle?.getAttribute('aria-checked')).toBe('false')
+    await act(async () => {
+      toggle?.click()
+    })
+    expect(updateSettings).toHaveBeenCalledWith({ holdQuitWhileAgentsWork: true })
+    expect(toggle?.getAttribute('aria-checked')).toBe('false')
+    await rerenderAppearancePane({ ...getDefaultSettings('/tmp'), holdQuitWhileAgentsWork: true })
+    expect(container.querySelector(query)?.getAttribute('aria-checked')).toBe('true')
+    mocks.state.appPlatform = 'linux'
+    resetRendererAppPlatformCacheForTests()
+    const linux = await renderAppearancePane(getDefaultSettings('/tmp'))
+    expect(linux.querySelector(query)).toBeNull()
+    mocks.state.appPlatform = 'win32'
+    resetRendererAppPlatformCacheForTests()
+    const windows = await renderAppearancePane(getDefaultSettings('/tmp'))
+    expect(windows.querySelector(query)).toBeNull()
+  })
+
   it('keeps description-only search matches visible after helper text is hidden', async () => {
     mocks.state.settingsSearchQuery = 'app window'
     const container = await renderAppearancePane(getDefaultSettings('/tmp'))

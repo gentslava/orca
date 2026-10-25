@@ -6,6 +6,12 @@ import path from 'node:path'
 
 const repoRoot = path.resolve(import.meta.dirname, '../..')
 const sourcePath = path.join(repoRoot, 'native', 'keyboard-layout-macos', 'main.swift')
+const quitChordSourcePath = path.join(
+  repoRoot,
+  'native',
+  'keyboard-layout-macos',
+  'QuitChordWatch.swift'
+)
 const defaultOutputPath = path.join(
   repoRoot,
   'native',
@@ -35,6 +41,7 @@ try {
       [
         '-O',
         sourcePath,
+        quitChordSourcePath,
         '-target',
         triple.replace('-apple-macosx', '-apple-macosx11.0'),
         '-o',

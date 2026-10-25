@@ -114,7 +114,38 @@ const desktop = [
   'src/main/updater.fork-preview.test.ts',
   'src/main/updater.build-channel-selection.test.ts',
   'src/main/updater.quit-and-install.test.ts',
-  'src/main/updater.headless-serve-install.test.ts'
+  'src/main/updater.headless-serve-install.test.ts',
+  'src/main/persistence/applying-settings/persistence-personal-project-order.test.ts',
+  'src/main/runtime/rpc/methods/client-ui-project-order.test.ts',
+  'src/renderer/src/components/sidebar/project-header-drop.test.ts',
+  'src/renderer/src/components/sidebar/worktree-list-groups-personal-project-order.test.ts',
+  'src/renderer/src/lib/worktree-activation-personal-project-order.test.ts',
+  'src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts',
+  'src/renderer/src/runtime/personal-project-order-client.test.ts',
+  'src/shared/project-preference-identity.test.ts',
+  'src/shared/project-section-order.test.ts',
+  'config/scripts/hold-quit-native.test.mjs',
+  'src/main/window/hold-quit-gesture.test.ts',
+  'src/main/window/desktop-hold-quit.test.ts',
+  'src/main/window/macos-quit-chord-watch.test.ts',
+  'src/shared/hold-quit-activity.test.ts',
+  'src/renderer/src/app-shell/use-hold-quit-activity.test.tsx',
+  'src/renderer/src/components/HoldQuitNotice.test.tsx',
+  'src/renderer/src/components/settings/AppearancePane.test.tsx',
+  'src/main/menu/app-menu-hold-quit.test.ts',
+  'src/main/menu/register-app-menu.test.ts',
+  'src/main/persistence/applying-settings/persistence-settings-ui-defaults.test.ts',
+  'src/main/updater-mac-quit-guard.test.ts',
+  'src/main/startup/main-process-quit-update-veto.test.ts',
+  'src/main/startup/serve-native-quit-guard.test.ts',
+  'src/main/startup/main-window-actions-user-quit.test.ts',
+  'src/renderer/src/store/slices/settings.test.ts',
+  'src/renderer/src/store/slices/hold-quit-settings-owner.test.ts',
+  'src/main/browser/popup-origin-bar-window.test.ts',
+  'src/main/browser/browser-popup-native-window.test.ts',
+  'src/main/codex-usage/scanner.test.ts',
+  'src/main/codex-usage/store-persistence.test.ts',
+  'src/renderer/src/components/native-chat/native-chat-work-run-pairing.test.ts'
 ]
 const mobile = [
   'src/host-screen/project-conversations.test.ts',
@@ -129,7 +160,9 @@ const mobile = [
   'src/session/use-mobile-structured-native-chat-send-bridge.test.ts',
   'src/host-screen/host-worktree-child-navigation.test.tsx',
   'src/session/MobileNativeChatRowOverlaysHost.test.tsx',
-  'src/session/use-mobile-native-chat-composer-tray.test.tsx'
+  'src/session/use-mobile-native-chat-composer-tray.test.tsx',
+  'src/host-screen/personal-project-order.test.tsx',
+  'src/worktree/personal-project-route-intent.test.ts'
 ]
 
 export function runForkRegressions(root = process.cwd()) {

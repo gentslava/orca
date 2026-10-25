@@ -1,4 +1,8 @@
 {
+  "holdQuit": {
+    "hint": "Agents are still working. Hold ⌘Q to quit.",
+    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
+  },
   "csv": {
     "detectingDelimiter": "Detecting delimiter…",
     "indexProgress": "Indexing CSV… {{percent}}%",
@@ -333,6 +337,11 @@
       "rightOptionDescription": "The right Option key sends Alt/Esc; the other composes special characters."
     },
     "appearance": {
+      "holdQuit": {
+        "title": "Hold ⌘Q while agents are working",
+        "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
+        "keyword": { "quit": "quit" }
+      },
       "language": {
         "title": "Language",
         "description": "Choose the language used by the Orca interface.",
