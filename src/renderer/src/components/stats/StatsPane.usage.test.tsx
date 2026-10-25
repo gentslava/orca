@@ -136,9 +136,12 @@ describe('Stats & Usage daily workflow', () => {
     render(<StatsPane />)
     const chart = screen.getByTestId('usage-history-daily')
     const quotas = screen.getByTestId('usage-account-quotas').textContent
-    expect(within(chart).getAllByRole('button')).toHaveLength(3)
+    expect(within(chart).getAllByRole('button')).toHaveLength(30)
     fireEvent.click(within(chart).getByRole('radio', { name: 'API estimate' }))
-    expect(within(chart).getAllByRole('button')).toHaveLength(3)
+    expect(within(chart).getAllByRole('button')).toHaveLength(30)
+    expect(
+      within(chart).getByRole('button', { name: '2026-10-21: $0.0000 API-equivalent estimate' })
+    ).toBeEnabled()
     expect(
       within(chart).getByRole('button', { name: '2026-10-24: $0.0000 API-equivalent estimate' })
     ).toBeInTheDocument()
@@ -187,7 +190,9 @@ describe('Stats & Usage daily workflow', () => {
     fireEvent.click(screen.getByRole('combobox', { name: 'Account' }))
     fireEvent.click(screen.getByRole('option', { name: 'Codex · work@example.test' }))
     expect(within(screen.getByTestId('usage-history-totals')).getByText('1.2k')).toBeInTheDocument()
-    expect(within(screen.getByTestId('usage-history-daily')).getAllByRole('button')).toHaveLength(1)
+    expect(within(screen.getByTestId('usage-history-daily')).getAllByRole('button')).toHaveLength(
+      30
+    )
     const table = screen.getByRole('table')
     expect(table).toHaveTextContent('work@example.test')
     expect(table).not.toHaveTextContent('personal@example.test')
@@ -257,7 +262,7 @@ describe('Stats & Usage daily workflow', () => {
     fireEvent.click(screen.getByRole('combobox', { name: 'Project' }))
     fireEvent.click(screen.getByRole('option', { name: 'Folder project' }))
     expect(within(screen.getByTestId('usage-history-totals')).getByText('1.2k')).toBeInTheDocument()
-    expect(within(screen.getByTestId('usage-history-daily')).getAllByRole('button')).toHaveLength(1)
+    expect(within(screen.getByTestId('usage-history-daily')).getAllByRole('button')).toHaveLength(7)
     expect(screen.queryByText('Other project')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '2026-10-24' }))
     expect(screen.getByText('session-a', { exact: true })).toBeInTheDocument()
