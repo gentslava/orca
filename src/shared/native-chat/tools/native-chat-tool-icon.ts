@@ -1,7 +1,7 @@
 import { mcpToolIdentity, type NativeChatMcpIdentity } from './native-chat-tool-identity'
 /** Share category glyphs across lifecycle states; change tone/failure marks only, preserving identity.
  * Glyphs are decorative: render the identifying tool word alongside them, never alone. */
-import { EDIT_TOOL_NAMES } from './native-chat/tools/native-chat-diff'
+import { EDIT_TOOL_NAMES } from './native-chat-diff'
 import { isCommandToolName } from './native-chat-tool-activity'
 import { toolInputCommand } from './native-chat-tool-summary'
 

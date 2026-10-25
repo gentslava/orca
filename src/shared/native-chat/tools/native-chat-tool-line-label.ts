@@ -1,5 +1,5 @@
-import { nativeChatCommandLanguage } from './native-chat/native-chat-command-language'
-import { isNativeChatFileCountPath } from './native-chat/tools/native-chat-edit-patch-files'
+import { nativeChatCommandLanguage } from '../native-chat-command-language'
+import { isNativeChatFileCountPath } from './native-chat-edit-patch-files'
 import { nativeChatToolCategory } from './native-chat-tool-icon'
 import {
   nativeChatFullCommand,
@@ -7,7 +7,7 @@ import {
   nativeChatToolInputText
 } from './native-chat-tool-input-text'
 import { createToolInputDisplay, summarizeToolInput } from './native-chat-tool-summary'
-import type { NativeChatToolCallBlock, NativeChatToolResultBlock } from './native-chat-types'
+import type { NativeChatToolCallBlock, NativeChatToolResultBlock } from '../../native-chat-types'
 
 /** Shared desktop/mobile tool verbs; desktop translates the English record. */
 export const NATIVE_CHAT_TOOL_ROW_VERB_COPY = {

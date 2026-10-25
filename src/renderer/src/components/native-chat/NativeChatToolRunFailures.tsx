@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { translate } from '@/i18n/i18n'
 import { nativeChatToolFailures } from '../../../../shared/native-chat-tool-failures'
-import { nativeChatToolLineIdentity } from '../../../../shared/native-chat-tool-line-identity'
+import { nativeChatToolLineIdentity } from '../../../../shared/native-chat/tools/native-chat-tool-line-identity'
 import type { NativeChatBlock } from '../../../../shared/native-chat-types'
 import { nativeChatToolLineLabel } from './native-chat-tool-line-label'
 

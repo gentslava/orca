@@ -5,6 +5,7 @@ import { repo, worktree } from '../components/sidebar/worktree-list-groups-test-
 import { getDefaultUIState } from '../../../shared/constants'
 import { mutatePersonalProjectOrder } from '../../../shared/personal-project-order-writes'
 import { RecordProjectOpenParams } from '../../../shared/rpc-contract/personal-project-order-params'
+import type { PendingWorktreeCreation } from './pending-worktree-creation'
 
 vi.mock('../runtime/local-runtime-capabilities', () => ({
   ensureLocalRuntimeCapabilities: async () => ['ui.personalProjectOrder.v1']
@@ -18,7 +19,7 @@ afterEach(() => {
 })
 
 describe('successful deliberate personal project activation', () => {
-  it('counts cross-project opens and ignores background, missing, no-op and same-project workspaces', async () => {
+  it('counts completed cross-project opens and ignores pending, failed, background and same-project transitions', async () => {
     let ui = getDefaultUIState()
     const runtime = {
       getUIState: () => ui,
@@ -67,8 +68,44 @@ describe('successful deliberate personal project activation', () => {
       clearSidebarFilters: false,
       executionHostId: 'local' as const
     }
+    const creation: PendingWorktreeCreation = {
+      creationId: 'create-a',
+      worktreeId: wa.id,
+      phase: 'creating',
+      status: 'creating',
+      startedAt: 1,
+      indeterminate: false,
+      loaderVisible: false,
+      request: {
+        repoId: a.id,
+        name: 'one',
+        setupDecision: 'inherit',
+        agent: null,
+        pendingFirstAgentMessageRename: false,
+        note: '',
+        startupPlan: null,
+        quickPrompt: '',
+        quickTelemetry: null
+      }
+    }
+    useAppStore.getState().beginPendingWorktreeCreation(creation)
+    expect(activateAndRevealWorktree(wa.id, deliberate)).toEqual({ primaryTabId: null })
     activateAndRevealWorktree(wa.id, deliberate)
+    await new Promise<void>((resolve) => queueMicrotask(resolve))
+    expect(useAppStore.getState().activeWorktreeId).toBe(wb.id)
+    expect(useAppStore.getState().activePendingCreationId).toBe(creation.creationId)
+    expect(useAppStore.getState().pendingWorktreeCreations[creation.creationId].loaderVisible).toBe(
+      true
+    )
+    expect(call).not.toHaveBeenCalled()
+    useAppStore.getState().updatePendingWorktreeCreation(creation.creationId, { status: 'error' })
+    useAppStore.getState().removePendingWorktreeCreation(creation.creationId)
+    await new Promise<void>((resolve) => queueMicrotask(resolve))
+    expect(ui.personalProjectOrder).toBeUndefined()
+    useAppStore.getState().beginPendingWorktreeCreation(creation)
+    activateAndRevealWorktree(wa.id, { ...deliberate, worktreeCreationId: creation.creationId })
     await vi.waitFor(() => expect(ui).toHaveProperty('personalProjectOrder'))
+    useAppStore.getState().removePendingWorktreeCreation(creation.creationId)
     const first = ui.personalProjectOrder
     expect(first).toMatchObject({ projects: { '["local","local","repo:a"]': { openCount: 1 } } })
     activateAndRevealWorktree(wa.id, deliberate)

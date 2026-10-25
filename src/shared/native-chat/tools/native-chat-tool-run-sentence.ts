@@ -3,7 +3,7 @@
 import { nativeChatToolCategory, type NativeChatToolCategory } from './native-chat-tool-icon'
 import type { NativeChatMcpIdentity } from './native-chat-tool-identity'
 import { toolInputCommand } from './native-chat-tool-summary'
-import { isToolCallBlock, type NativeChatBlock } from './native-chat-types'
+import { isToolCallBlock, type NativeChatBlock } from '../../native-chat-types'
 
 /** Shared singular/plural category copy; desktop translates and mobile formats directly. */
 export const NATIVE_CHAT_TOOL_RUN_SENTENCE_COPY: Record<
