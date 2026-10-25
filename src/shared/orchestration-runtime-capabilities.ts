@@ -1,3 +1,5 @@
+import { ORCHESTRATION_SESSION_CHILDREN_CAPABILITY } from './orchestration-session-children'
+
 export const ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY = 'orchestration.federation.v1' as const
 export const ORCHESTRATION_FEDERATION_CONTROL_MAIL_RUNTIME_CAPABILITY =
   'orchestration.federation-control-mail.v1' as const
@@ -33,4 +35,3 @@ export const ORCHESTRATION_RUNTIME_CAPABILITIES = [
   ORCHESTRATION_FEDERATION_RELEASE_ARCHIVE_RUNTIME_CAPABILITY,
   ORCHESTRATION_CONTRACT_RUNTIME_CAPABILITY
 ] as const
-import { ORCHESTRATION_SESSION_CHILDREN_CAPABILITY } from './orchestration-session-children'
