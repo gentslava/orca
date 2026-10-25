@@ -730,6 +730,7 @@
         "sessionOptions": "Параметры сессии",
         "chooseInAgentPicker": "Выбрать в списке агентов…",
         "searchModels": "Найти модель…",
+        "defaultModel": "По умолчанию",
         "noModelsMatch": "Подходящих моделей нет.",
         "toggleOption": "Переключить {{value0}}",
         "pillAccessibleName": "{{value0}} {{value1}}",
