@@ -228,14 +228,15 @@ describe('mobile RPC allowlist', () => {
     expect(mobileRpcAllowlist().has('agentSession.attach')).toBe(false)
   })
 
-  it('lets a phone upload chat attachments but not read the store back', () => {
+  it('lets a phone upload chat attachments and read their previews', () => {
     expect(
       [...mobileRpcAllowlist()].filter((method) => method.startsWith('agentSessionAttachment.'))
     ).toEqual([
       'agentSessionAttachment.uploadStart',
       'agentSessionAttachment.uploadAppend',
       'agentSessionAttachment.uploadCommit',
-      'agentSessionAttachment.uploadAbort'
+      'agentSessionAttachment.uploadAbort',
+      'agentSessionAttachment.read'
     ])
   })
 })

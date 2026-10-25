@@ -35,6 +35,8 @@ export const MOBILE_AGENT_SESSION_RPC_METHODS = [
   'agentSessionAttachment.uploadAppend',
   'agentSessionAttachment.uploadCommit',
   'agentSessionAttachment.uploadAbort',
+  // The existing store reader validates image paths and bounds replies for the phone.
+  'agentSessionAttachment.read',
   // No-ops on a current host; kept until MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION passes the
   // mobile builds that still call them.
   'agentSession.hold',
