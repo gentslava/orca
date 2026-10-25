@@ -10,6 +10,7 @@ import { REJECTED_SPLIT_PTY_STOP_TIMEOUT_MS, ownerSurfacing } from '../../orca-r
 import type { Worktree } from '../../../../shared/worktree/types'
 import { spawnInAdmittedPane, withdrawRuntimePane } from '../../runtime-pane-admission'
 import { UNMEASURED_PTY_SIZE } from '../../../ipc/pty/pty-first-size'
+import { resolveLaunchCommandPaneAgent } from '../../runtime-agent-launch-resolution'
 
 export type TerminalSplitOptions = {
   direction?: 'horizontal' | 'vertical'
@@ -118,6 +119,7 @@ export abstract class OrcaRuntimeWithSplitPtyBackedTerminal extends OrcaRuntimeW
         spawnSurfaceClaimSequence(this.graphSequence)
       )
       createdPty.runtimeSessionOwned = pty.runtimeSessionOwned
+      createdPty.launchCommandAgent = resolveLaunchCommandPaneAgent(opts.command)
       this.setPairedRendererSessionOwnership(
         createdPty.ptyId,
         this.pairedRendererSessionOwnedPtyIds.has(pty.ptyId)

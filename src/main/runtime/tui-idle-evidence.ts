@@ -216,7 +216,8 @@ export type TuiIdleVerdict =
   | { kind: 'ready-weak' }
   /** The agent says it is mid-turn: nothing may settle, and its screen is not read. */
   | { kind: 'working' }
-  | { kind: 'pending'; quietForeground: QuietForegroundLane }
+  /** `recheckAt`: when time alone may settle it, sooner than the next poll sweep. */
+  | { kind: 'pending'; quietForeground: QuietForegroundLane; recheckAt?: number }
 
 const READY_STRONG: TuiIdleVerdict = { kind: 'ready-strong' }
 const READY_WEAK: TuiIdleVerdict = { kind: 'ready-weak' }
