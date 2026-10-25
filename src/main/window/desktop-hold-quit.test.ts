@@ -76,6 +76,7 @@ vi.mock('./macos-quit-chord-watch', () => ({
   }
 }))
 const { installDesktopHoldQuit } = await import('./desktop-hold-quit')
+const { webContents, BrowserWindow } = await import('electron')
 const { createAppMenuQuitItem } = await import('../menu/app-menu-quit-item')
 const platform = Object.getOwnPropertyDescriptor(process, 'platform')
 beforeEach(() => {
@@ -105,6 +106,7 @@ afterEach(() => {
   main.send.mockClear()
   popout.send.mockClear()
   popupNotice.mockClear()
+  vi.restoreAllMocks()
 })
 
 it('guards BaseWindow popup contents and delivers native-ack progress only to its trusted notice owner', () => {
@@ -143,6 +145,7 @@ function fixture(platform = 'darwin') {
   let settings = { ...getDefaultSettings('/tmp'), holdQuitWhileAgentsWork: true }
   let changed: (updates: Partial<GlobalSettings>, settings: GlobalSettings) => void = () => {}
   const quit = vi.fn()
+  const getKeybindings = vi.fn(() => bindings)
   const buildQuitItem = () =>
     createAppMenuQuitItem(undefined, 'Orca', {
       isEnabled: () => settings.holdQuitWhileAgentsWork,
@@ -163,12 +166,13 @@ function fixture(platform = 'darwin') {
     isActivityOwner: (sender) => sender.id === main.id,
     isUIRenderer: (sender) => sender.id === main.id || sender.id === popout.id,
     isLocalWorkActive: () => localBusy,
-    getKeybindings: () => bindings,
+    getKeybindings,
     quit,
     rebuildMenu
   })
   return {
     quit,
+    getKeybindings,
     dispose,
     rebuildMenu,
     menu: () => quitItem,
@@ -184,6 +188,80 @@ function fixture(platform = 'darwin') {
     }
   }
 }
+
+it.each(['keyDown', 'keyUp', 'rawKeyDown'])(
+  'keeps ordinary %s off the ownership and shortcut-check path',
+  (type) => {
+    const tools = new Contents(16)
+    guest.devToolsWebContents = tools
+    allContents.push(tools)
+    const f = fixture()
+    const enumerate = vi.spyOn(webContents, 'getAllWebContents')
+    const owner = vi.spyOn(BrowserWindow, 'fromWebContents')
+    const focus = vi.spyOn(mainWindow, 'isFocused')
+    try {
+      for (const contents of [main, guest, popout, tools]) {
+        for (const input of [
+          { key: 'a', code: 'KeyA', meta: false },
+          { key: 'a', code: 'KeyA', meta: true },
+          { key: 'q', code: 'KeyQ', meta: false },
+          { key: 'q', code: 'KeyQ', meta: true, shift: true }
+        ]) {
+          const event = { preventDefault: vi.fn() }
+          if (type === 'rawKeyDown') {
+            contents.emit('input-event', event, {
+              ...input,
+              type,
+              modifiers: [...(input.meta ? ['meta'] : []), ...('shift' in input ? ['shift'] : [])]
+            })
+          } else {
+            contents.emit('before-input-event', event, { ...input, type })
+          }
+          expect(event.preventDefault).not.toHaveBeenCalled()
+        }
+      }
+      expect({
+        enumerations: enumerate.mock.calls.length,
+        owners: owner.mock.calls.length,
+        focusChecks: focus.mock.calls.length,
+        keybindingReads: f.getKeybindings.mock.calls.length
+      }).toEqual({ enumerations: 0, owners: 0, focusChecks: 0, keybindingReads: 0 })
+      expect(mocks.watches).toHaveLength(0)
+      expect(f.quit).not.toHaveBeenCalled()
+    } finally {
+      f.dispose()
+      tools.removeAllListeners()
+    }
+  }
+)
+
+it.each([
+  { type: 'keyDown', key: 'a', code: 'KeyA', meta: true, phase: 'dismissed' },
+  { type: 'rawKeyDown', key: 'a', code: 'KeyA', meta: true, phase: 'dismissed' },
+  { type: 'keyUp', key: 'q', code: 'KeyQ', meta: true, phase: 'released' },
+  { type: 'keyUp', key: 'Meta', code: 'MetaLeft', meta: false, phase: 'released' }
+])('forwards $type $key to cancel the active native hold', ({ phase, ...input }) => {
+  const f = fixture()
+  ipc.emit('ui:holdQuitActivity', { sender: main }, true)
+  key(guest)
+  const watch = mocks.watches[0]
+  watch?.emit('watching')
+  guest.emit(
+    input.type === 'rawKeyDown' ? 'input-event' : 'before-input-event',
+    { preventDefault: vi.fn() },
+    { ...input, modifiers: ['meta'] }
+  )
+  expect(watch?.cancel).toHaveBeenCalledOnce()
+  expect(main.send).toHaveBeenLastCalledWith('ui:holdQuitNotice', { phase })
+  watch?.emit('held')
+  expect(f.quit).not.toHaveBeenCalled()
+  key(guest)
+  mocks.watches[1]?.emit('watching')
+  expect(main.send).toHaveBeenLastCalledWith('ui:holdQuitNotice', { phase: 'holding' })
+  mocks.watches[1]?.emit('held')
+  expect(f.quit).toHaveBeenCalledOnce()
+  f.dispose()
+})
 
 it('restores native idle CmdQ without a routable surface, including orphan contents', () => {
   allContents.splice(0)

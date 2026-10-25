@@ -153,15 +153,18 @@ export function installDesktopHoldQuit(options: {
       if (isAgentInjectingInput(contents)) {
         return
       }
+      if (!isHoldQuitChord(input)) {
+        gesture.input(input)
+        return
+      }
       bindWindow()
-      if (isHoldQuitChord(input) && chordOwned()) {
+      if (chordOwned()) {
         gesture.cancel()
         return
       }
       const owner = ownerFor(contents)
       if (
         input.type === 'keyDown' &&
-        isHoldQuitChord(input) &&
         enabled() &&
         focused(contents) &&
         owner &&
@@ -172,12 +175,16 @@ export function installDesktopHoldQuit(options: {
       gesture.input(input)
     }
     const devToolsInput = (event: Electron.Event, inputEvent: Electron.InputEvent): void => {
-      if (!enabled() || inputEvent.type !== 'rawKeyDown' || !inspecteeFor(contents)) {
+      if (!enabled() || inputEvent.type !== 'rawKeyDown') {
         return
       }
       const input = readDevToolsShortcutInput(inputEvent)
-      if (input) {
-        onInput(event, { ...input, type: 'keyDown', isAutoRepeat: false })
+      if (!input) {
+        return
+      }
+      const keyDown = { ...input, type: 'keyDown', isAutoRepeat: false }
+      if (!isHoldQuitChord(keyDown) || inspecteeFor(contents)) {
+        onInput(event, keyDown)
       }
     }
     const resetRenderer = (): void => {

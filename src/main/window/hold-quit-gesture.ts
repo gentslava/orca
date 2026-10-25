@@ -42,14 +42,14 @@ export class HoldQuitGesture {
     if (input.type !== 'keyDown') {
       return
     }
-    if (!this.deps.isEnabled() || this.deps.isRecording() || !this.deps.isFocused()) {
-      this.cancel()
-      return
-    }
     if (!isHoldQuitChord(input)) {
       if (this.pending) {
         this.cancel()
       }
+      return
+    }
+    if (!this.deps.isEnabled() || this.deps.isRecording() || !this.deps.isFocused()) {
+      this.cancel()
       return
     }
     if (input.isAutoRepeat) {

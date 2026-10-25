@@ -10,11 +10,15 @@ function fixture() {
   const notice = vi.fn()
   const watches: { emit: (event: HoldQuitWatchEvent) => void; cancel: ReturnType<typeof vi.fn> }[] =
     []
+  const isEnabled = vi.fn(() => enabled)
+  const isBusy = vi.fn(() => busy)
+  const isFocused = vi.fn(() => focused)
+  const isRecording = vi.fn(() => recording)
   const gesture = new HoldQuitGesture({
-    isEnabled: () => enabled,
-    isBusy: () => busy,
-    isFocused: () => focused,
-    isRecording: () => recording,
+    isEnabled,
+    isBusy,
+    isFocused,
+    isRecording,
     quit,
     notice,
     watch: (_code, emit) => {
@@ -31,6 +35,10 @@ function fixture() {
     quit,
     notice,
     watches,
+    isEnabled,
+    isBusy,
+    isFocused,
+    isRecording,
     setEnabled: (value: boolean) => {
       enabled = value
       gesture.refresh()
@@ -51,6 +59,24 @@ function fixture() {
 afterEach(() => vi.useRealTimers())
 
 describe('keyboard-only hold quit gesture', () => {
+  it('does not consult gesture dependencies for ordinary key presses or releases', () => {
+    const f = fixture()
+    for (const type of ['keyDown', 'keyUp']) {
+      f.gesture.input({ type, key: 'a', code: 'KeyA', meta: false })
+      f.gesture.input({ type, key: 'q', code: 'KeyQ', meta: false })
+      f.gesture.input({ type, key: 'q', code: 'KeyQ', meta: true, shift: true })
+    }
+    expect({
+      enabled: f.isEnabled.mock.calls.length,
+      busy: f.isBusy.mock.calls.length,
+      focused: f.isFocused.mock.calls.length,
+      recording: f.isRecording.mock.calls.length
+    }).toEqual({ enabled: 0, busy: 0, focused: 0, recording: 0 })
+    expect(f.watches).toHaveLength(0)
+    expect(f.quit).not.toHaveBeenCalled()
+    expect(f.notice).not.toHaveBeenCalled()
+  })
+
   it('leaves disabled shortcuts to the native menu and immediately quits on a fresh idle tap', () => {
     const f = fixture()
     f.setEnabled(false)
