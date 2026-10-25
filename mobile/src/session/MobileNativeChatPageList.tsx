@@ -81,6 +81,7 @@ type Drawn = {
   count: number
   fromStart?: boolean
   detached?: boolean
+  automatic?: boolean
 }
 
 // End anchoring preserves position when history prepends; restore after below-reader changes only at rest or on regroup.
@@ -147,13 +148,15 @@ export function MobileNativeChatPageList({
   const kept = drawn.scope === rowKeys.scope ? drawn : null
   const opening = Math.max(0, n - FIRST_ROWS)
   const firstKey = kept?.firstKey ?? null
-  const first = kept?.fromStart
-    ? 0
-    : firstKey === null
-      ? opening
-      : (indexOf.get(firstKey) ??
-        indexOf.get(rowKeys.current(firstKey) ?? '') ??
-        Math.max(0, n - (kept?.count ?? FIRST_ROWS)))
+  const first = kept?.automatic
+    ? Math.max(0, n - kept.count)
+    : kept?.fromStart
+      ? 0
+      : firstKey === null
+        ? opening
+        : (indexOf.get(firstKey) ??
+          indexOf.get(rowKeys.current(firstKey) ?? '') ??
+          Math.max(0, n - (kept?.count ?? FIRST_ROWS)))
 
   const own = useRef<number | null>(null)
   const touching = useRef(false)
@@ -200,7 +203,7 @@ export function MobileNativeChatPageList({
       } else if (keys[first] !== undefined) {
         // Appends may slide the opening tail window only until the reader takes it.
         setDrawn((current) => {
-          if (current.scope !== rowKeys.scope || current.firstKey === null) {
+          if (current.scope !== rowKeys.scope || current.firstKey === null || current.automatic) {
             return {
               scope: rowKeys.scope,
               firstKey: keys[first]!,
@@ -264,23 +267,28 @@ export function MobileNativeChatPageList({
   })
   useEffect(() => () => clearTimeout(settleTimer.current), [])
 
-  const drawAndFetch = useCallback((s: Scroller) => {
-    const { first: at, keys: drawnKeys, n: total, rowKeys: current } = latest.current
-    const screens = (s.scrollHeight - s.clientHeight + s.scrollTop) / s.clientHeight
-    if (at > 0 && screens < DRAW_AHEAD_SCREENS) {
-      const next = Math.max(0, at - DRAW_BATCH)
-      setDrawn((previous) => ({
-        scope: current.scope,
-        firstKey: drawnKeys[next]!,
-        count: total - next,
-        fromStart: next === 0,
-        detached: next > 0 && previous.scope === current.scope && previous.detached
-      }))
-    }
-    if (at < FETCH_AHEAD_ROWS && screens < FETCH_REACH_SCREENS) {
-      ask.current?.()
-    }
-  }, [])
+  const drawAndFetch = useCallback(
+    (s: Scroller) => {
+      const { first: at, keys: drawnKeys, n: total, rowKeys: current } = latest.current
+      const screens = (s.scrollHeight - s.clientHeight + s.scrollTop) / s.clientHeight
+      if (at > 0 && screens < DRAW_AHEAD_SCREENS) {
+        const next = Math.max(0, at - DRAW_BATCH)
+        const automatic = isFollowing()
+        setDrawn((previous) => ({
+          scope: current.scope,
+          firstKey: drawnKeys[next]!,
+          count: total - next,
+          fromStart: next === 0,
+          detached: !automatic && next > 0 && previous.scope === current.scope && previous.detached,
+          automatic
+        }))
+      }
+      if (at < FETCH_AHEAD_ROWS && screens < FETCH_REACH_SCREENS) {
+        ask.current?.()
+      }
+    },
+    [isFollowing]
+  )
 
   useImperativeHandle(
     ref,

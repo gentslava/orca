@@ -422,24 +422,36 @@ it.each([
   ['scroll', 'partial'],
   ['jump', 'partial'],
   ['scroll', 'automatic'],
-  ['jump', 'automatic']
+  ['jump', 'automatic'],
+  ['scroll', 'automatic-start'],
+  ['jump', 'automatic-start']
 ] as const)(
   'slides the %s-resumed tail after a detached reader used the %s window',
   (resume, window) => {
     const rows = Array.from({ length: 500 }, (_, i) => ({
       ...say(`m${i}`, 'assistant', ''),
-      blocks: Array.from({ length: window === 'automatic' && i >= 176 && i < 200 ? 1 : 5 }, () => ({
-        type: 'text' as const,
-        text: `Message ${i}`
-      }))
+      blocks: Array.from(
+        {
+          length:
+            (window === 'automatic' && i >= 176 && i < 200) ||
+            (window === 'automatic-start' && i < 40)
+              ? 1
+              : 5
+        },
+        () => ({
+          type: 'text' as const,
+          text: `Message ${i}`
+        })
+      )
     }))
-    const chat0 = mount(rows.slice(0, 200), { live: false })
-    if (window === 'automatic') {
-      expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m164'))
+    const initial = window === 'automatic-start' ? 40 : 200
+    const chat0 = mount(rows.slice(0, initial), { live: false })
+    if (window === 'automatic' || window === 'automatic-start') {
+      expect(chat0.rows()[0]).toBe(mobileNativeChatRowId(window === 'automatic' ? 'm164' : 'm0'))
     }
     chat0.read(() => (chat0.scroller.scrollTop = -150))
-    chat0.show(rows.slice(0, 230))
-    expect(chat0.drawn(mobileNativeChatRowId('m196'))).toBe(1)
+    chat0.show(rows.slice(0, initial + 30))
+    expect(chat0.drawn(mobileNativeChatRowId(`m${initial - 4}`))).toBe(1)
     if (window === 'partial') {
       chat0.read(() => chat0.scroller.showFrom(200))
       expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m164'))
@@ -450,7 +462,7 @@ it.each([
     } else {
       chat0.read(() => (chat0.scroller.scrollTop = 0))
     }
-    for (const count of [250, 350, 500]) {
+    for (const count of [initial + 50, 350, 500]) {
       chat0.show(rows.slice(0, count))
       expect(chat0.rows()).toEqual(
         rows.slice(count - 24, count).map((row) => mobileNativeChatRowId(row.id))
@@ -459,6 +471,20 @@ it.each([
     }
   }
 )
+
+it.each([40, 200])('bounds an automatically expanded %i-row chat while following', (initial) => {
+  const rows = Array.from({ length: 1000 }, (_, i) => say(`m${i}`, 'assistant', 'line'))
+  const chat0 = mount(rows.slice(0, initial), { live: false })
+  const drawn = chat0.rows().length
+  expect(drawn).toBeGreaterThan(24)
+  for (const count of [initial + 100, 500, 1000]) {
+    chat0.show(rows.slice(0, count))
+    expect(chat0.rows()).toHaveLength(drawn)
+    expect(chat0.drawn(mobileNativeChatRowId(`m${count - 1}`))).toBe(1)
+    expect(chat0.drawn(mobileNativeChatRowId(`m${initial - 1}`))).toBe(0)
+    expect(chat0.scroller.scrollTop).toBe(0)
+  }
+})
 
 it('keeps an explicitly opened from-start window after following resumes', () => {
   const rows = Array.from({ length: 100 }, (_, i) => ({
