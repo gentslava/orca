@@ -6,6 +6,7 @@ import { getDefaultUIState } from '../../../shared/constants'
 import { mutatePersonalProjectOrder } from '../../../shared/personal-project-order-writes'
 import { RecordProjectOpenParams } from '../../../shared/rpc-contract/personal-project-order-params'
 import type { PendingWorktreeCreation } from './pending-worktree-creation'
+import type { ExecutionHostId } from '../../../shared/execution-host'
 
 vi.mock('../runtime/local-runtime-capabilities', () => ({
   ensureLocalRuntimeCapabilities: async () => ['ui.personalProjectOrder.v1']
@@ -19,6 +20,115 @@ afterEach(() => {
 })
 
 describe('successful deliberate personal project activation', () => {
+  it.each<
+    [
+      string,
+      ExecutionHostId | null,
+      ExecutionHostId | undefined,
+      ExecutionHostId,
+      'hydrated' | 'ambiguous' | 'missing',
+      number,
+      string | null
+    ]
+  >([
+    ['implicit local reopen', null, 'local', 'local', 'hydrated', 0, null],
+    ['implicit SSH reopen', null, 'ssh:box', 'ssh:box', 'hydrated', 0, null],
+    [
+      'implicit SSH to local',
+      null,
+      'ssh:box',
+      'local',
+      'hydrated',
+      1,
+      '["ssh:box","ssh:box","repo:a"]'
+    ],
+    ['explicit selection owner', 'local', 'ssh:box', 'local', 'hydrated', 0, null],
+    ['ambiguous owner', null, 'local', 'local', 'ambiguous', 1, null],
+    ['missing owner', null, undefined, 'local', 'missing', 1, null]
+  ])(
+    'preserves actual previous ownership for %s with same-ID repos on two hosts',
+    async (_label, selectionHost, ownerHost, targetHost, ownership, expectedCount, previousKey) => {
+      let ui = getDefaultUIState()
+      const runtime = {
+        getUIState: () => ui,
+        updateUIState: (patch: Partial<typeof ui>) => (ui = { ...ui, ...patch })
+      }
+      const openings: ReturnType<typeof RecordProjectOpenParams.parse>[] = []
+      vi.stubGlobal('window', {
+        api: {
+          runtime: {
+            call: async (request: { method: string; params?: unknown }) => {
+              expect(request.method).toBe('ui.recordProjectOpen')
+              const opening = RecordProjectOpenParams.parse(request.params)
+              openings.push(opening)
+              return {
+                id: 'record',
+                ok: true,
+                result: mutatePersonalProjectOrder(runtime, opening)
+              }
+            }
+          }
+        }
+      })
+      const a = { ...repo, id: 'a', path: '/a', executionHostId: 'local' as const }
+      const remoteA = { ...a, connectionId: 'box', executionHostId: 'ssh:box' as const }
+      const b = { ...a, id: 'b', path: '/b' }
+      const previous = { ...worktree, id: 'a::previous', repoId: 'a', hostId: ownerHost }
+      const target = { ...previous, id: 'a::target', hostId: targetHost }
+      const other = { ...worktree, id: 'b::target', repoId: 'b', hostId: 'local' as const }
+      const previousRows = ownership === 'missing' ? [] : [previous]
+      if (ownership === 'ambiguous') {
+        previousRows.push({ ...previous, hostId: 'ssh:box' })
+      }
+      useAppStore.setState({
+        repos: [a, remoteA, b],
+        projects: [],
+        projectHostSetups: [],
+        worktreesByRepo: { a: [...previousRows, target], b: [other] },
+        activeRepoId: a.id,
+        activeWorktreeId: previous.id,
+        activeWorkspaceExecutionHostId: selectionHost,
+        activeView: 'terminal',
+        tabsByWorktree: {},
+        ptyIdsByTabId: {},
+        everActivatedWorktreeIds: new Set([target.id, other.id]),
+        recordWorktreeVisit: vi.fn(),
+        markWorktreeVisited: vi.fn(),
+        refreshGitHubForWorktreeIfStale: vi.fn(),
+        getKnownWorktreeById: (id) => [target, other].find((entry) => entry.id === id),
+        setActiveRepo: (id) => useAppStore.setState({ activeRepoId: id }),
+        setActiveWorktree: (id, host) => {
+          useAppStore.setState({
+            activeWorktreeId: id,
+            activeWorkspaceExecutionHostId: host ?? null
+          })
+          return true
+        }
+      })
+      const deliberate = {
+        navigationIntent: 'user-open' as const,
+        providesInitialSurface: true,
+        revealInSidebar: false,
+        clearSidebarFilters: false,
+        notifyHostRuntime: false
+      }
+      activateAndRevealWorktree(target.id, { ...deliberate, executionHostId: targetHost })
+      activateAndRevealWorktree(target.id, { ...deliberate, executionHostId: targetHost })
+      activateAndRevealWorktree(other.id, { ...deliberate, executionHostId: 'local' })
+      activateAndRevealWorktree(other.id, { ...deliberate, executionHostId: 'local' })
+      await vi.waitFor(() =>
+        expect(ui.personalProjectOrder?.projects['["local","local","repo:b"]'].openCount).toBe(1)
+      )
+      const targetKey = JSON.stringify([targetHost, targetHost, 'repo:a'])
+      expect(ui.personalProjectOrder?.projects[targetKey]?.openCount ?? 0).toBe(expectedCount)
+      expect(openings).toHaveLength(expectedCount + 1)
+      if (expectedCount) {
+        expect(openings[0].previousProjectKey).toBe(previousKey)
+      }
+      expect(openings.at(-1)?.previousProjectKey).toBe(targetKey)
+    }
+  )
+
   it('counts completed cross-project opens and ignores pending, failed, background and same-project transitions', async () => {
     let ui = getDefaultUIState()
     const runtime = {

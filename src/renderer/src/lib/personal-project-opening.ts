@@ -4,6 +4,7 @@ import type { WorktreeActivationOptions } from './worktree-activation-surface-se
 import { getProjectHostSetupProjectionFromState } from '@/store/project-host-setup-selector'
 import { resolveProjectPreferenceKey } from '../../../shared/project-preference-identity'
 import { writePersonalProjectPreference } from '@/runtime/personal-project-order-client'
+import { getResolvedExecutionHostIdForWorktree } from './resolved-worktree-execution-host'
 
 export function capturePersonalProjectOpening(
   state: AppState,
@@ -17,7 +18,12 @@ export function capturePersonalProjectOpening(
   const { setups } = getProjectHostSetupProjectionFromState(state)
   const projectKey = resolveProjectPreferenceKey(repoId, setups, options.executionHostId)
   const previousProjectKey = state.activeRepoId
-    ? resolveProjectPreferenceKey(state.activeRepoId, setups, state.activeWorkspaceExecutionHostId)
+    ? resolveProjectPreferenceKey(
+        state.activeRepoId,
+        setups,
+        state.activeWorkspaceExecutionHostId ??
+          getResolvedExecutionHostIdForWorktree(state, state.activeWorktreeId)
+      )
     : null
   if (!projectKey || projectKey === previousProjectKey) {
     return null
