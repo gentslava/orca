@@ -31,7 +31,8 @@ COPY config/ config/
 ARG ORCAD_SOURCE_COMMIT
 ARG ORCAD_SOURCE_DIRTY=false
 ARG ORCAD_SOURCE_FINGERPRINT
-RUN pnpm build:mobile-web && ORCAD_SOURCE_COMMIT=${ORCAD_SOURCE_COMMIT} pnpm build:orcad \
+RUN pnpm --dir mobile run postinstall && pnpm build:mobile-web \
+    && ORCAD_SOURCE_COMMIT=${ORCAD_SOURCE_COMMIT} pnpm build:orcad \
     && node config/docker/orcad/build-support.mjs
 
 FROM ${NODE_IMAGE} AS runtime
