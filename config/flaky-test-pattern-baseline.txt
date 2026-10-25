@@ -165,7 +165,6 @@
 1 test-no-real-time-wait:mobile/src/terminal/terminal-web-document-mount.test.ts
 1 test-no-real-time-wait:mobile/src/terminal/terminal-webview-tap-routing.test.ts
 1 test-no-real-time-wait:mobile/src/transport/cellular-handshake-stall-real-socket.test.ts
-1 test-no-real-time-wait:mobile/src/transport/mobile-relay-pairing-journal-store.test.ts
 1 test-no-real-time-wait:mobile/src/transport/mobile-relay-runtime-failover.test.ts
 4 test-no-real-time-wait:mobile/src/transport/rpc-client-live-recovery.test.ts
 1 test-no-real-time-wait:mobile/src/transport/rpc-operation-barrier.test.ts
