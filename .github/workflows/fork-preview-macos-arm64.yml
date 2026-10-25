@@ -119,7 +119,7 @@ jobs:
           set -euo pipefail
           app=dist/mac-arm64/Orca.app
           test -d "$app"
-          lipo -verify_arch arm64 "$app/Contents/MacOS/Orca"
+          lipo "$app/Contents/MacOS/Orca" -verify_arch arm64
           codesign --verify --deep --strict "$app"
           mkdir -p .build/fork-preview
           node <<'NODE'
