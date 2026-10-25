@@ -6,7 +6,7 @@ import { watchMacQuitChord } from './macos-quit-chord-watch'
 import type { HoldQuitInput, HoldQuitNotice } from '../../shared/mac-hold-quit'
 import { isHoldQuitChord } from '../../shared/mac-hold-quit'
 import { keybindingMatchesInput, type KeybindingOverrides } from '../../shared/keybindings'
-import { readDevToolsShortcutInput } from '../browser/browser-guest-devtools-window'
+import { readDevToolsShortcutInput } from '../browser/browser-guest-devtools-close-shortcut'
 import { onNativePopupQuitSurfaceChanged } from '../browser/native-browser-popup-windows'
 import {
   getDesktopHoldQuitInspectee as inspecteeFor,
