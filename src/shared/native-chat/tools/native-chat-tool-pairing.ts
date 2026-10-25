@@ -14,12 +14,12 @@
 // that has not been answered yet. Position alone misattributes every later result once
 // one call finishes with no output, which is why a producer that knows the call names it.
 
-import { pairToolBlocks } from './native-chat-tool-fold'
+import { pairToolBlocks } from './native-chat-tool-pairs'
 import type {
   NativeChatBlock,
   NativeChatToolCallBlock,
   NativeChatToolResultBlock
-} from './native-chat-types'
+} from '../../native-chat-types'
 
 export type NativeChatToolPairing = {
   /** The result each call owns. A call still running has none. */

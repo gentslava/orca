@@ -220,6 +220,7 @@ export async function loadIpcEventsHarness(
         ssh: {
           listTargets: () => Promise.resolve([]),
           listPortForwards: () => Promise.resolve([]),
+          listUnrestoredPortForwards: () => Promise.resolve([]),
           listDetectedPorts: () => Promise.resolve([]),
           listRemovedTargetLabels: () => Promise.resolve({}),
           getState: () => Promise.resolve(null),

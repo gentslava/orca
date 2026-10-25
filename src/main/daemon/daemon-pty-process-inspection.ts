@@ -138,8 +138,10 @@ export abstract class DaemonPtyProcessInspection extends DaemonPtyBufferSnapshot
   }
 
   /**
-   * A session this client never spawned or reattached, such as one a relaunched app's window has
-   * not reopened: adopted before its Sleep, or that Sleep writes no checkpoint and keeps no folder.
+   * Before a Sleep, what only the daemon still knows about a session: one this client never
+   * spawned or reattached (a relaunched window has not reopened it) is adopted, or that Sleep
+   * writes no checkpoint; one it reattached has no spawn environment, so no pane key to read its
+   * WSL shell's folder by.
    */
   protected async adoptListedSessionForSleep(
     sessionId: string,
@@ -147,11 +149,16 @@ export abstract class DaemonPtyProcessInspection extends DaemonPtyBufferSnapshot
   ): Promise<void> {
     // Why active too: a session this client suspended after a seed failure must stay suspended,
     // or its fresh-only screen would replace the history it was restored from.
-    if (
-      !this.historyManager ||
-      this.historyManager.hasWriter(sessionId) ||
-      this.activeSessionIds.has(sessionId)
-    ) {
+    const needsAdoption =
+      !!this.historyManager &&
+      !this.historyManager.hasWriter(sessionId) &&
+      !this.activeSessionIds.has(sessionId)
+    const needsPaneKey =
+      process.platform === 'win32' &&
+      !needsAdoption &&
+      !this.wslPaneKeysBySessionId.has(sessionId) &&
+      this.wslDistrosBySessionId.get(sessionId) !== undefined
+    if (!needsAdoption && !needsPaneKey) {
       return
     }
     const result = await this.client.request<ListSessionsResult>(
@@ -160,8 +167,10 @@ export abstract class DaemonPtyProcessInspection extends DaemonPtyBufferSnapshot
       remainingDaemonRequestTimeoutMs(deadlineMs)
     )
     const session = result.sessions.find((entry) => entry.sessionId === sessionId && entry.isAlive)
-    if (session) {
+    if (session && needsAdoption) {
       await this.adoptLiveSession(session, { activeOnlyIfReconciled: true })
+    } else if (session?.wslDistro && session.paneKey) {
+      this.wslPaneKeysBySessionId.set(sessionId, session.paneKey)
     }
   }
 

@@ -237,6 +237,13 @@ export type SavedPortForward = {
   label?: string
 }
 
+/** A saved forward that isn't open on this connection; `error` is why its last start failed. */
+export type UnrestoredPortForward = SavedPortForward & {
+  error?: string
+  /** It ran, then its process died, rather than never starting. */
+  stopped?: true
+}
+
 export type SshConnectionStatus =
   | 'disconnected'
   | 'connecting'

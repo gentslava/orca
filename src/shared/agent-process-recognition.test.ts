@@ -306,6 +306,16 @@ describe('agent process recognition', () => {
     expect(isRecognizedAgentType('kimi-code')).toBe(true)
   })
 
+  // #31311: the npm install on Windows runs as node.exe, observed with this exact .bin shim path.
+  it('recognizes Kimi Code launched by its npm shim on Windows', () => {
+    expect(
+      recognizeAgentProcessFromCommandLine(
+        '"C:\\Program Files\\nodejs\\node.exe" C:\\Users\\dev\\proj\\node_modules\\.bin/../@moonshot-ai/kimi-code/dist/main.mjs --session session_1'
+      )
+    ).toEqual({ agent: 'kimi', processName: 'kimi' })
+    expect(recognizeAgentProcessFromCommandLine('node C:\\tools\\app\\dist\\main.mjs')).toBeNull()
+  })
+
   it('recognizes Qwen Code by its installed qwen executable', () => {
     expect(recognizeAgentProcess('/home/dev/.local/bin/qwen')).toEqual({
       agent: 'qwen-code',

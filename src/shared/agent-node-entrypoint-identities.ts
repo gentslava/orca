@@ -49,5 +49,12 @@ export const EXACT_NODE_ENTRYPOINT_IDENTITIES: readonly {
       /(?:^|\/)(?:node_modules\/@qwen-code\/qwen-code\/(?:cli-entry|cli|scripts\/cli-entry|dist\/cli)|qwen-code\/lib\/cli(?:-entry)?)\.js$/,
     agent: 'qwen-code',
     processName: 'qwen'
+  },
+  // Why: Kimi Code's npm bin is a generic `dist/main.mjs`, and on Windows its process stays
+  // node.exe instead of retitling to `kimi-code`, so only the package path identifies it.
+  {
+    pattern: /(?:^|\/)node_modules\/@moonshot-ai\/kimi-code\/dist\/main\.mjs$/,
+    agent: 'kimi',
+    processName: 'kimi'
   }
 ]

@@ -1,5 +1,5 @@
 import { agentJournalToolCallLifecycle } from './agent-journal-tool-call-lifecycle'
-import { pairToolBlocks, type NativeChatToolPair } from './native-chat-tool-pairs'
+import { pairToolBlocks, type NativeChatToolPair } from './native-chat/tools/native-chat-tool-pairs'
 import type { NativeChatBlock } from './native-chat-types'
 
 /** Interrupted calls remain neutral even when an older provider marked their result as an error. */

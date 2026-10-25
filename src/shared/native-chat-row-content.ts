@@ -14,7 +14,7 @@ import {
   isSubagentGroupBlock,
   type NativeChatBlock
 } from './native-chat-types'
-import { splitNativeChatBlocks } from './native-chat-tool-fold'
+import { splitNativeChatBlocks } from './native-chat/tools/native-chat-tool-fold'
 import { nativeChatProseToMarkdown } from './native-chat-prose'
 
 /** Inferred from `derive` so the shape cannot drift from what it returns. */
