@@ -1,3 +1,4 @@
+import type { PersonalProjectOrder } from './personal-project-order'
 import type { JiraQuickFilterState } from './jira/jira-quick-filters'
 import type { JiraSavedFilterState } from './jira/jira-saved-filters'
 import type { ReleaseChannel } from './release-channel'
@@ -46,6 +47,7 @@ export type PersistedUIState = {
   groupBy: 'none' | 'workspace-status' | 'repo' | 'pr-status'
   sortBy: 'name' | 'smart' | 'recent' | 'repo' | 'manual'
   /** Project header ordering in `groupBy: 'repo'`, independent of `sortBy`: 'manual' uses persisted order + header drag, 'recent' by latest visible activity. */
+  personalProjectOrder?: PersonalProjectOrder
   projectOrderBy: ProjectOrderBy
   /** Deprecated; the Active only filter is retired and ignored on hydration. */
   showActiveOnly: boolean
