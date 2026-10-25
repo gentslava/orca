@@ -77,7 +77,9 @@ it('draws separate provider series with gaps and exposes exact hover and keyboar
     />
   )
   expect(view.container.querySelectorAll('[data-provider-series]')).toHaveLength(2)
-  expect(view.container.querySelectorAll('[data-provider-series="codex"] polyline')).toHaveLength(0)
+  expect(
+    view.container.querySelectorAll('[data-provider-series="codex"] path[fill="none"]')
+  ).toHaveLength(0)
   expect(view.container.querySelectorAll('[data-provider-series] ellipse')).toHaveLength(0)
   const day = screen.getByRole('button', { name: '2026-10-24: 330 tokens' })
   fireEvent.mouseEnter(day)

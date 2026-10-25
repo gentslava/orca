@@ -1,11 +1,13 @@
 import { useMemo, useState, type KeyboardEvent } from 'react'
+import { area as svgArea, curveMonotoneX, line as svgLine } from 'd3-shape'
 import type { UsageHistoryRange, UsageHistoryRow } from '../../../../shared/usage-history-types'
 import { SettingsSegmentedControl } from '../settings/SettingsFormControls'
 import { usageHistoryChartDays } from './usage-history-model'
 import {
   USAGE_PROVIDER_COLORS,
   usageHistoryProviderSeries,
-  usageHistoryLineSegments
+  usageHistoryLineSegments,
+  type UsageHistoryChartPoint
 } from './usage-history-chart-model'
 import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
 import { formatUsageDayLabel } from './usage-formatters'
@@ -42,6 +44,15 @@ export function UsageHistoryDailyChart({
   const max = Math.ceil((largest || 1) / magnitude) * magnitude
   const x = (index: number) => ((index + 0.5) / days.length) * 1000
   const y = (amount: number) => 192 - (amount / max) * 184
+  const lineCurve = svgLine<UsageHistoryChartPoint>()
+    .x((point) => x(point.index))
+    .y((point) => y(point.amount ?? 0))
+    .curve(curveMonotoneX)
+  const areaCurve = svgArea<UsageHistoryChartPoint>()
+    .x((point) => x(point.index))
+    .y0(192)
+    .y1((point) => y(point.amount ?? 0))
+    .curve(curveMonotoneX)
   const hoveredIndex = days.findIndex((day) => day.day === activeDay)
   const activeIndex = Math.max(
     0,
@@ -168,25 +179,17 @@ export function UsageHistoryDailyChart({
                 <g key={provider} data-provider-series={provider}>
                   {usageHistoryLineSegments(points).map((segment) => {
                     const first = segment[0]
-                    const last = segment.at(-1)
-                    if (!first || !last) {
+                    if (!first) {
                       return null
                     }
-                    const coordinates = segment
-                      .map((point) => `${x(point.index)},${y(point.amount ?? 0)}`)
-                      .join(' ')
                     const color = USAGE_PROVIDER_COLORS[provider].color
                     return (
                       <g key={first.index}>
                         {segment.length > 1 ? (
                           <>
-                            <polygon
-                              points={`${x(first.index)},192 ${coordinates} ${x(last.index)},192`}
-                              fill={color}
-                              opacity="0.07"
-                            />
-                            <polyline
-                              points={coordinates}
+                            <path d={areaCurve(segment) ?? undefined} fill={color} opacity="0.07" />
+                            <path
+                              d={lineCurve(segment) ?? undefined}
                               fill="none"
                               stroke={color}
                               strokeWidth="2"
