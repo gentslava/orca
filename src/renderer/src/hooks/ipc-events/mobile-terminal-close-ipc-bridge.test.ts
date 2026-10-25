@@ -139,7 +139,7 @@ async function setup(viewedSurface: 'editor' | 'terminal'): Promise<{
     store.getState().setActiveTabType('terminal', VIEWED)
   }
   await settle()
-  store.setState({ activeView: 'terminal', pendingRevealWorktree: null })
+  store.setState({ activeView: 'terminal', sidebarBody: 'workspaces', pendingRevealWorktree: null })
   const unsubs: (() => void)[] = []
   registerMobileAndTerminalCloseIpcBridge(unsubs, vi.fn())
   const { openFile, openDiff } = listeners

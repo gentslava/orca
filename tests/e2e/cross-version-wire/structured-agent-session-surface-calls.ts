@@ -65,7 +65,7 @@ export const STRUCTURED_CALLS: {
   {
     method: 'agentSession.queuedMessageMove',
     hostMethod: 'queuedMessageMove',
-    result: { ok: true, replayed: false }
+    result: { ok: true, replayed: false, value: { moved: true } }
   },
   // Editing a queued card in place. Clients call these only on a host advertising
   // `agent-session.queued-message-edit.v1`; an older host answers `method_not_found`.

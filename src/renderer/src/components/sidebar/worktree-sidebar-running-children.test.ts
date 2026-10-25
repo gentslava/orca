@@ -107,7 +107,7 @@ describe('the worktree sidebar lists running children only', () => {
     expect(sidebarNames(parent({ subagents: [] }))).toEqual([])
   })
 
-  it("applies the one rule to a finished child from an older host's task roster, on both surfaces", () => {
+  it("keeps an older host's finished child inspectable while excluding it from live rows", () => {
     const tasks = [
       { id: 'live', kind: 'agent' as const, description: 'Live task', state: 'working' as const }
     ]
@@ -123,6 +123,6 @@ describe('the worktree sidebar lists running children only', () => {
       null
     )
     const [agents] = buildBackgroundTaskGroups(strip.tasks, strip.settledTasks)
-    expect(agents.tasks.map((entry) => entry.row.name)).toEqual(['Live task'])
+    expect(agents.tasks.map((entry) => entry.row.name)).toEqual(['Done task', 'Live task'])
   })
 })

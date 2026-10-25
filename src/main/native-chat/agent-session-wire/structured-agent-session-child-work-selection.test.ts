@@ -53,8 +53,8 @@ describe('the sidebar and the strip list running children only', () => {
   })
 })
 
-describe("the host's strip channel and summary list the same running children", () => {
-  it('sends both the running children, and the strip nothing once none runs', async () => {
+describe("the host's inspection channel and live summary", () => {
+  it('retains settled agents for inspection while the summary lists only live work', async () => {
     let records = [
       finished('done', 5),
       running('run'),
@@ -68,7 +68,7 @@ describe("the host's strip channel and summary list the same running children", 
       const page = await host.history({ sessionId: SESSION, direction: 'tail' })
       return page.ok ? page.page.backgroundTasks : undefined
     }
-    expect(ids((await strip())?.children ?? [])).toEqual(['run', 'owner', 'shell'])
+    expect(ids((await strip())?.children ?? [])).toEqual(['done', 'run', 'owner', 'shell'])
     const summaries: string[][] = []
     host.subscribeStatus({
       id: 'list',
@@ -81,7 +81,10 @@ describe("the host's strip channel and summary list the same running children", 
     expect(summaries.at(-1)).toEqual(['run', 'owner', 'shell'])
 
     records = [finished('done', 5), finished('run', 7)]
-    expect(await strip()).toBeNull()
+    expect((await strip())?.children).toMatchObject([
+      { id: 'done', state: 'done', membership: 'settled', outcome: 'succeeded' },
+      { id: 'run', state: 'done', membership: 'settled', outcome: 'succeeded' }
+    ])
   })
 })
 

@@ -253,6 +253,7 @@ describe('NonGitFolderDialog', () => {
 
     await vi.waitFor(() =>
       expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith(serverWorktree.id, {
+        navigationIntent: 'user-open',
         sidebarRevealBehavior: 'auto',
         executionHostId: 'runtime:env-1'
       })

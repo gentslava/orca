@@ -29,6 +29,7 @@ vi.mock('./use-structured-agent-session-read', () => ({
 }))
 
 import { AGENT_SESSION_CONVERSATION_STOP_RUNTIME_CAPABILITY } from '../../../../shared/protocol-version'
+import { AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-runtime-capabilities'
 import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
 import { clearNativeChatDraftCacheForTests } from './native-chat-draft-cache'
 import { useStructuredAgentSession } from './use-structured-agent-session'
@@ -52,8 +53,10 @@ beforeEach(() => {
   localStorage.clear()
   clearNativeChatDraftCacheForTests()
   items = [RUNNING_TURN]
-  // A host that does not queue sends, as every shipped host does not yet.
-  setLocalRuntimeCapabilitiesForTests([AGENT_SESSION_CONVERSATION_STOP_RUNTIME_CAPABILITY])
+  setLocalRuntimeCapabilitiesForTests([
+    AGENT_SESSION_CONVERSATION_STOP_RUNTIME_CAPABILITY,
+    AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY
+  ])
   // The host has not answered yet: the send is still on its way, as while a Stop holds the lane.
   mocks.call.mockImplementation(() => new Promise(() => {}))
 })

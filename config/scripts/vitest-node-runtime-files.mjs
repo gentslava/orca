@@ -24,6 +24,8 @@ const NODE_RUNTIME_INCLUDE = [
   // Electron main bridges streams with Node's implementation.
   'src/main/host/electron-http-client.test.ts',
   'src/main/daemon/daemon-init-provider-installation.test.ts',
+  'src/main/daemon/repro-13767-shell-ready-marker-lost-to-exec.test.ts',
+  'tests/e2e/cross-version-wire/host-model-catalog-released-phone.unit.test.ts',
   'src/main/orcad/orcad-daemon-teardown-linux.test.ts',
   'src/renderer/src/components/terminal-pane/pty-input-write-queue.test.ts',
   'src/renderer/src/lib/react-commit-cascade-observer.test.ts',
