@@ -184,7 +184,10 @@ export function acpStructuredLaunchPart(
   return async (basis, identity) => {
     const { record } = basis
     const head = agentSessionProviderHandleChainHead(record.providerHandleChain)
-    if (head && spec.resumeUnavailable) {
+    const mayBeUnsaved = (): boolean =>
+      head?.origin === 'created' &&
+      nothingExchangedOn(deps.readJournal, identity.sessionId, head.handle.nativeId)
+    if (head && spec.resumeUnavailable && !mayBeUnsaved()) {
       throw new AgentSessionPreSpawnError(`${spec.agent} cannot safely reopen this chat`, {
         reason: 'providerResumeUnavailable'
       })
@@ -237,9 +240,7 @@ export function acpStructuredLaunchPart(
           ? {
               sessionId: head.handle.nativeId,
               key: agentSessionProviderHandleKey(head.handle),
-              mayBeUnsaved: () =>
-                head.origin === 'created' &&
-                nothingExchangedOn(deps.readJournal, identity.sessionId, head.handle.nativeId),
+              mayBeUnsaved,
               unannouncedLosses: () =>
                 unannouncedLosses(deps.readJournal, identity.sessionId, record.providerHandleChain)
             }

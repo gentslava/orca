@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { agentSessionRecordFixture } from '../../shared/agent-session-record.test-fixture'
+import type { AgentSessionRecord } from '../../shared/agent-session-record'
+import { agentSessionProviderHandleKey } from '../../shared/agent-session-provider-handle'
 import { agentSessionRefusalNotice } from '../../shared/agent-session-refusal-notice'
 import {
   closeProviderTimelineRigs,
@@ -30,22 +32,72 @@ const resume = {
   unannouncedLosses: () => []
 }
 
+function geminiRecord(origin: 'created' | 'resumed'): AgentSessionRecord {
+  return {
+    ...agentSessionRecordFixture(),
+    provider: 'gemini',
+    accountHome: { variable: 'GEMINI_CLI_HOME', path: '/accounts/pinned' },
+    providerHandleChain: [
+      {
+        linkId: 'gemini-saved-link',
+        handle: { transport: 'acp', agent: 'gemini', nativeId: PROVIDER_SESSION },
+        origin,
+        mintedAtFence: 1,
+        observedAt: 1
+      }
+    ]
+  }
+}
+
 describe('Gemini native reopen safety', () => {
+  it('recovers a missing created handle with no exchanged turn and delivers the next prompt', async () => {
+    const record = geminiRecord('created')
+    const readJournal = vi.fn(() => null)
+    const resolveLaunch = createAcpStructuredLaunchResolver(GEMINI, {
+      store: { getRecord: () => record, pinLaunchDirectory: vi.fn() },
+      readJournal,
+      resolveEnvironment: async () => ({ PATH: '/usr/bin' }),
+      resolveCommand: () => '/installed/gemini',
+      probeVersion: async () => ({ version: '0.65.0' })
+    })
+    const rig = await openAcpAdapterRig({
+      spec: GEMINI,
+      initialize: GEMINI_ACP_INITIALIZE,
+      deps: { resolveLaunch },
+      script: (agent) => {
+        scriptGeminiAcpSession(agent)
+        agent.on('session/load', (frame) => agent.fail(frame, -32002, 'Resource not found'))
+        agent.on('session/prompt', (frame) => {
+          agent.notify('session/update', {
+            sessionId: PROVIDER_SESSION,
+            update: {
+              sessionUpdate: 'agent_message_chunk',
+              content: { type: 'text', text: 'Answer after recovery' }
+            }
+          })
+          agent.reply(frame, { stopReason: 'end_turn' })
+        })
+      }
+    })
+    await rig.acquire()
+    expect(rig.started().link).toMatchObject({
+      origin: 'created',
+      supersedesKey: agentSessionProviderHandleKey(record.providerHandleChain[0]!.handle)
+    })
+    await sendHello(rig, 'recovered-prompt')
+    await waitFor(async () =>
+      expect((await rig.rig.rows()).flatMap((row) => messageText(row.body) ?? [])).toContain(
+        'Answer after recovery'
+      )
+    )
+    expect(rig.sent('session/load')).toHaveLength(1)
+    expect(rig.sent('session/new')).toHaveLength(1)
+    expect(rig.sent('session/prompt')).toHaveLength(1)
+    expect(rig.openFailure()).toBeUndefined()
+  })
+
   it('refuses before any process or account lookup, preserves journal history, and offers an honest next step', async () => {
-    const record = {
-      ...agentSessionRecordFixture(),
-      provider: 'gemini',
-      accountHome: { variable: 'GEMINI_CLI_HOME', path: '/accounts/pinned' },
-      providerHandleChain: [
-        {
-          linkId: 'gemini-saved-link',
-          handle: { transport: 'acp', agent: 'gemini', nativeId: PROVIDER_SESSION },
-          origin: 'created' as const,
-          mintedAtFence: 1,
-          observedAt: 1
-        }
-      ]
-    }
+    const record = geminiRecord('resumed')
     const readJournal = vi.fn(() => null)
     const resolveEnvironment = vi.fn(async () => ({}))
     const probeVersion = vi.fn(async () => ({ version: '0.65.0' }))
