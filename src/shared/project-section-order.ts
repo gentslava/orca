@@ -141,6 +141,10 @@ export function compareProjectEntries<
     }
   }
   if (mode === 'recent' || mode === 'frequent') {
+    const personalTier = Number(pb !== undefined) - Number(pa !== undefined)
+    if (mode === 'recent' && personalTier) {
+      return personalTier
+    }
     if (pa !== undefined || pb !== undefined || mode === 'frequent') {
       const recent = (pb?.lastOpenedAt ?? 0) - (pa?.lastOpenedAt ?? 0)
       if (recent) {
