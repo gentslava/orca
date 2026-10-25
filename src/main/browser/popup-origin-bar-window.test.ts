@@ -11,7 +11,7 @@ type FakeWebContents = {
   loadURL: ReturnType<typeof vi.fn>
   close: ReturnType<typeof vi.fn>
   setWindowOpenHandler: ReturnType<typeof vi.fn>
-  isDestroyed: ReturnType<typeof vi.fn>
+  isDestroyed: ReturnType<typeof vi.fn<() => boolean>>
   emit: (event: string, ...args: unknown[]) => void
 }
 

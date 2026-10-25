@@ -7,7 +7,8 @@ export type NativePopupQuitSurface = {
   window: BaseWindow
   notice: (notice: HoldQuitNotice) => void
 }
-const popupQuitSurfaces = new WeakMap<object, NativePopupQuitSurface>()
+type NativePopupQuitOwner = Pick<WebContents, 'isDestroyed'>
+const popupQuitSurfaces = new WeakMap<NativePopupQuitOwner, NativePopupQuitSurface>()
 const popupQuitSurfaceListeners = new Set<() => void>()
 
 export function onNativePopupQuitSurfaceChanged(listener: () => void): () => void {
@@ -37,7 +38,9 @@ export function registerNativePopupQuitSurface(
   }
 }
 
-export function getNativePopupQuitSurface(contents: object): NativePopupQuitSurface | undefined {
+export function getNativePopupQuitSurface(
+  contents: NativePopupQuitOwner
+): NativePopupQuitSurface | undefined {
   return popupQuitSurfaces.get(contents)
 }
 

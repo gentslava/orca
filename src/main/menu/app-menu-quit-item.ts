@@ -1,12 +1,16 @@
 import { translateMain } from '../i18n/main-i18n'
 import { hasFocusedDesktopHoldQuitSurface } from '../window/desktop-hold-quit-surface'
 
+type AppMenuQuitItem = Omit<Electron.MenuItemConstructorOptions, 'click'> & {
+  click?: () => void
+}
+
 /** Use onQuit so persistent hosts can refuse user Quit; the native guard covers only macOS. */
 export function createAppMenuQuitItem(
   onQuit: (() => void) | undefined,
   macAppName?: string,
   holdShortcut?: { isEnabled: () => boolean; quit: () => void }
-): Electron.MenuItemConstructorOptions {
+): AppMenuQuitItem {
   const exitLabel = macAppName === undefined ? translateMain('menu.exit', 'Exit') : undefined
   if (
     process.platform === 'darwin' &&
