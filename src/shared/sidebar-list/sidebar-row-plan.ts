@@ -138,6 +138,7 @@ export function planSidebarRows(inputs: SidebarRowPlanInputs) {
           : buildOrderedGroups({
               groupBy,
               naturalWorktrees: natural,
+              repoOfWorktree: repoOf,
               repoMap,
               prGroupOf,
               workspaceStatuses,

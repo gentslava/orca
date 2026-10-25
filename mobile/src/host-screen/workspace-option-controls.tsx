@@ -299,11 +299,35 @@ export const WORKSPACE_OPTION_CONTROLS: Record<WorkspaceViewOptionKey, Workspace
     (controller) => controller.state.view.sortBy,
     (controller) => controller.settings.handleSortChange
   ),
-  projectOrderBy: choicePage(
-    WORKSPACE_PROJECT_ORDER_CHOICES,
-    (controller) => controller.projectOrderBy,
-    (controller) => controller.settings.setProjectOrderBy
-  ),
+  projectOrderBy: {
+    kind: 'page',
+    value: ({ controller }) =>
+      choiceLabel(WORKSPACE_PROJECT_ORDER_CHOICES, controller.projectOrderBy),
+    Page: ({ controller }) => (
+      <OptionRowList>
+        {WORKSPACE_PROJECT_ORDER_CHOICES.map((choice) => (
+          <CheckRow
+            key={choice.id}
+            label={choice.label}
+            radio
+            checked={controller.projectOrderBy === choice.id}
+            detail={
+              !controller.settings.supportsPersonalProjectOrder && choice.id === 'recent'
+                ? 'Most recent workspace activity'
+                : choice.description
+            }
+            disabled={
+              !controller.settings.supportsPersonalProjectOrder &&
+              (choice.id === 'name' || choice.id === 'frequent')
+            }
+            onPress={() => {
+              void controller.settings.setProjectOrderBy(choice.id)
+            }}
+          />
+        ))}
+      </OptionRowList>
+    )
+  },
   cardLayout: choicePage(
     WORKSPACE_CARD_LAYOUT_CHOICES,
     (controller) => (controller.state.view.compactWorktreeCards ? 'compact' : 'detailed'),

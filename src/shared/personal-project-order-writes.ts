@@ -1,9 +1,9 @@
-import type { PersistedUIState } from '../../shared/persisted-ui-state-types'
-import { normalizePersonalProjectOrder } from '../../shared/personal-project-order'
+import type { PersistedUIState } from './persisted-ui-state-types'
+import { normalizePersonalProjectOrder } from './personal-project-order'
 import type {
   RecordProjectOpenRequest,
   SetProjectPinnedRequest
-} from '../../shared/rpc-contract/personal-project-order-params'
+} from './rpc-contract/personal-project-order-params'
 
 type ProjectOrderStore = {
   getUIState(): PersistedUIState
@@ -29,9 +29,10 @@ export function mutatePersonalProjectOrder(
   for (const entry of Object.values(current.projects)) {
     latestTimestamp = Math.max(latestTimestamp, entry.lastOpenedAt ?? 0)
   }
+  const ownerNow = Date.now()
   const timestamp = Math.min(
     Number.MAX_SAFE_INTEGER,
-    Math.max(Math.trunc(Date.now()), latestTimestamp + 1)
+    Math.max(Number.isFinite(ownerNow) ? Math.trunc(ownerNow) : 0, latestTimestamp + 1)
   )
   const preference = isOpen
     ? {
@@ -44,6 +45,7 @@ export function mutatePersonalProjectOrder(
     applied,
     ui: store.updateUIState({
       personalProjectOrder: {
+        revision: Math.min(Number.MAX_SAFE_INTEGER, (current.revision ?? 0) + 1),
         projects: applied
           ? { ...current.projects, [request.projectKey]: preference }
           : current.projects,

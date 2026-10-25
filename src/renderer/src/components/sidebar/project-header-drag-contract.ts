@@ -35,6 +35,8 @@ export type ProjectHeaderDragSession = {
   // Why the row, not its id: a twin on another host shares the id.
   repo: Repo
   bucketKey: ProjectHeaderDragBucketKey
+  membershipBucketKey?: ProjectHeaderDragBucketKey
+  fixedPinTier?: boolean
   sidebarRepoHeaderIds: readonly string[]
   pointerId: number
   headerRects: ProjectHeaderDragRect[]

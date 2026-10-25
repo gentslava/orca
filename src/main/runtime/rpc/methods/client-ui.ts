@@ -2,7 +2,7 @@ import {
   RecordProjectOpenParams,
   SetProjectPinnedParams
 } from '../../../../shared/rpc-contract/personal-project-order-params'
-import { mutatePersonalProjectOrder } from '../../personal-project-order-writes'
+import { mutatePersonalProjectOrder } from '../../../../shared/personal-project-order-writes'
 import { normalizeJiraQuickFilterState } from '../../../../shared/jira/jira-quick-filters'
 import { JiraQuickFilterStateParam } from '../../../../shared/rpc-contract/jira-quick-filter-params'
 import {

@@ -27,7 +27,10 @@ export function createProjectHeaderDragSession(args: {
   if (isRepoHeaderActionTarget(args.event.target, args.event.currentTarget)) {
     return null
   }
-  const bucketKey = getProjectHeaderDragBucketKey(args.repo)
+  const membershipBucketKey = getProjectHeaderDragBucketKey(args.repo)
+  const bucketKey =
+    [...args.sidebarRepoHeaderIdsByBucket].find(([, ids]) => ids.includes(args.repo.id))?.[0] ??
+    membershipBucketKey
   const sidebarRepoHeaderIds = args.sidebarRepoHeaderIdsByBucket.get(bucketKey) ?? []
   // Why: a single project in its bucket has nowhere to land, so skip arming
   // drag and let the header click toggle collapse instead.
@@ -44,6 +47,8 @@ export function createProjectHeaderDragSession(args: {
   return {
     repo: args.repo,
     bucketKey,
+    membershipBucketKey,
+    fixedPinTier: bucketKey !== membershipBucketKey,
     sidebarRepoHeaderIds,
     pointerId: args.event.pointerId,
     headerRects: measureProjectHeaderDragRects(container, bucketKey),

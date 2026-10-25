@@ -1,3 +1,4 @@
+import type { PersonalProjectOrder } from '../../../src/shared/personal-project-order'
 import { getRepoExecutionHostId, type ExecutionHostId } from '../../../src/shared/execution-host'
 import { getLogicalRepoOrderRankById } from '../../../src/shared/project-section-order'
 import type { ProjectOrderBy } from '../../../src/shared/ui-chrome-types'
@@ -15,7 +16,8 @@ export function buildProjectSectionCatalog(
   desktopRepos: readonly SectionRepo[],
   visibleHostIds: readonly ExecutionHostId[] | null,
   /** The shared UI value; null until read, when the served one stands in. */
-  projectOrderBy: ProjectOrderBy | null
+  projectOrderBy: ProjectOrderBy | null,
+  personalProjectOrder?: PersonalProjectOrder
 ): ProjectSectionCatalog {
   const shown = (repos: readonly SectionRepo[]) =>
     visibleHostIds
@@ -37,7 +39,11 @@ export function buildProjectSectionCatalog(
   })
   return {
     repos: shown(repos),
-    grouping: { projects: served.projects, projectHostSetups: served.setups },
+    grouping: {
+      projects: served.projects,
+      projectHostSetups: served.setups,
+      personalProjectOrder: personalProjectOrder ?? served.personalProjectOrder
+    },
     // Why: served repos come in the sidebar's header order, cross-host manual order included.
     repoOrder: getLogicalRepoOrderRankById(served.repos.map((repo) => repo.id)),
     projectOrderBy: projectOrderBy ?? served.projectOrderBy

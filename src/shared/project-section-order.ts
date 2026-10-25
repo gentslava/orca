@@ -121,12 +121,46 @@ export function getManualOrderAnchorRepo<R extends ProjectSectionRepo>(
   return anchor
 }
 
-/**
- * Order project header entries by the user's project-order preference. Manual
- * follows the canonical repoOrder; Recent follows each project's most recent
- * visible workspace activity (descending), with empty/imported-only projects
- * sorting after active ones, then by manual rank, then label.
- */
+export function compareProjectEntries<
+  T extends readonly [string, ProjectSectionEntry<ActivityItem, ProjectSectionRepo>]
+>(a: T, b: T, mode: ProjectOrderBy, manualRank: (entry: T) => number): number {
+  const pa = a[1].projectPreference
+  const pb = b[1].projectPreference
+  const pinned = Number(pb?.pinned === true) - Number(pa?.pinned === true)
+  if (pinned) {
+    return pinned
+  }
+  const byName = () => compareSidebarText(a[1].label, b[1].label) || compareCodePoints(a[0], b[0])
+  if (mode === 'name') {
+    return byName()
+  }
+  if (mode === 'frequent') {
+    const count = (pb?.openCount ?? 0) - (pa?.openCount ?? 0)
+    if (count) {
+      return count
+    }
+  }
+  if (mode === 'recent' || mode === 'frequent') {
+    if (pa !== undefined || pb !== undefined || mode === 'frequent') {
+      const recent = (pb?.lastOpenedAt ?? 0) - (pa?.lastOpenedAt ?? 0)
+      if (recent) {
+        return recent
+      }
+      if (mode === 'frequent' && ((pa?.openCount ?? 0) > 0 || (pb?.openCount ?? 0) > 0)) {
+        return byName()
+      }
+    } else {
+      const recent = compareRecentRank(recentRankForEntry(a), recentRankForEntry(b))
+      if (recent) {
+        return recent
+      }
+    }
+  }
+  const rankA = manualRank(a)
+  const rankB = manualRank(b)
+  return (rankA === rankB ? 0 : rankA - rankB) || byName()
+}
+
 export function sortProjectEntries<
   T extends readonly [string, ProjectSectionEntry<ActivityItem, ProjectSectionRepo>]
 >(
@@ -134,35 +168,14 @@ export function sortProjectEntries<
   projectOrderBy: ProjectOrderBy,
   repoOrder: ReadonlyMap<string, number> | undefined
 ): T[] {
-  if (projectOrderBy === 'recent') {
-    if (entries.length < 2) {
-      return [...entries]
-    }
-    const getRecentRank = createRecentRankLookup<T>()
-    return [...entries].sort((a, b) => {
-      const byRecent = compareRecentRank(getRecentRank(a), getRecentRank(b))
-      if (byRecent !== 0) {
-        return byRecent
-      }
-      const ma = manualRankForEntry(a, repoOrder)
-      const mb = manualRankForEntry(b, repoOrder)
-      if (ma !== mb) {
-        return ma - mb
-      }
-      return compareSidebarText(a[1].label, b[1].label) || compareCodePoints(a[0], b[0])
-    })
-  }
-  if (!repoOrder) {
-    return entries
-  }
-  return [...entries].sort((a, b) => {
-    const ra = manualRankForEntry(a, repoOrder)
-    const rb = manualRankForEntry(b, repoOrder)
-    if (ra !== rb) {
-      return ra - rb
-    }
-    return compareSidebarText(a[1].label, b[1].label) || compareCodePoints(a[0], b[0])
-  })
+  const encounter = new Map(entries.map((entry, index) => [entry, index]))
+  return [...entries].sort((a, b) =>
+    compareProjectEntries(a, b, projectOrderBy, (entry) =>
+      repoOrder
+        ? manualRankForEntry(entry, repoOrder)
+        : (encounter.get(entry) ?? Number.POSITIVE_INFINITY)
+    )
+  )
 }
 
 /**
@@ -182,8 +195,12 @@ export function orderProjectSections<
     section.repo = getManualOrderAnchorRepo(section, repoMap, repoOrder)
   }
   // Why: project header order is its own user choice (projectOrderBy), decoupled from workspace
-  // sortBy. Manual uses the canonical repoOrder; Recent follows activity.
-  return sortProjectEntries(Array.from(sections.entries()), projectOrderBy, repoOrder)
+  // sortBy. Manual uses canonical repoOrder; personal Recent comes from the view owner.
+  return sortProjectEntries(
+    withRepoSectionDisplayLabels(Array.from(sections.entries())),
+    projectOrderBy,
+    repoOrder
+  )
 }
 
 /** Each repo id's rank in catalog order; the first occurrence wins across hosts. */

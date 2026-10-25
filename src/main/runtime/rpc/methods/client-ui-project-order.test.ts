@@ -1,5 +1,5 @@
 import '../unused-default-rpc-methods.test-fixture'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getDefaultUIState } from '../../../../shared/constants'
 import type { PersistedUIState } from '../../../../shared/persisted-ui-state-types'
 import type { OrcaRuntimeService } from '../../orca-runtime'
@@ -27,6 +27,10 @@ function host(initial: PersistedUIState = getDefaultUIState()) {
   ) => call('ui.recordProjectOpen', { projectKey, previousProjectKey, opId: { writer, seq } })
   return { call, open, read: () => ui }
 }
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 describe('personal project order UI mutations', () => {
   it('acknowledges concurrent distinct opens and replays safely after restart', async () => {
@@ -83,4 +87,26 @@ describe('personal project order UI mutations', () => {
       expect(current.read()).not.toHaveProperty('personalProjectOrder')
     }
   )
+
+  it('keeps distinct reordered operations, saturates counts and stamps with the monotonic owner clock', async () => {
+    const current = host({
+      ...getDefaultUIState(),
+      personalProjectOrder: {
+        projects: {
+          'github:alpha': { openCount: Number.MAX_SAFE_INTEGER, lastOpenedAt: 500, pinned: true }
+        },
+        settledOperations: []
+      }
+    })
+    vi.spyOn(Date, 'now').mockReturnValue(Number.NaN)
+    await current.open('reordered', 2)
+    await current.open('reordered', 1)
+    const preference = current.read().personalProjectOrder?.projects['github:alpha']
+    expect(preference).toMatchObject({
+      openCount: Number.MAX_SAFE_INTEGER,
+      lastOpenedAt: 502,
+      pinned: true
+    })
+    expect(Number.isSafeInteger(preference?.lastOpenedAt)).toBe(true)
+  })
 })

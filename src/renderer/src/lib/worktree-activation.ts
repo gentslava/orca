@@ -1,3 +1,4 @@
+import { capturePersonalProjectOpening } from './personal-project-opening'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
 import type { PendingSidebarWorktreeReveal } from '@/store/slices/ui'
@@ -184,6 +185,13 @@ export function activateAndRevealWorktree(
   if (!wt) {
     return false
   }
+  const personalOpening = capturePersonalProjectOpening(
+    state,
+    wt.repoId,
+    opts?.executionHostId,
+    opts?.navigationIntent
+  )
+  let activationAcknowledgement: Promise<boolean> = Promise.resolve(true)
   const hasActivationWork = Boolean(
     opts?.startup || opts?.setup || opts?.defaultTabs || opts?.issueCommand
   )
@@ -209,7 +217,7 @@ export function activateAndRevealWorktree(
 
   const previousActive = readPreviousActive(state)
   // 3. Core activation: setActiveWorktree also restores per-worktree state, clears unread, bumps dead PTY generations, refreshes GitHub
-  state.setActiveWorktree(worktreeId, opts?.executionHostId)
+  const activated = state.setActiveWorktree(worktreeId, opts?.executionHostId)
   const postActivationState = useAppStore.getState()
   const ownerRuntimeEnvironmentId = runtimeEnvironmentIdOrLocalUnlessTwin(
     postActivationState,
@@ -217,7 +225,7 @@ export function activateAndRevealWorktree(
   )
   if (opts?.notifyHostRuntime !== false && isWebRuntimeSessionActive(ownerRuntimeEnvironmentId)) {
     // Why: paired web clients own only local selection, so the desktop host publishes session surfaces without treating it as a nav command.
-    void activateWebRuntimeSessionWorktree({
+    activationAcknowledgement = activateWebRuntimeSessionWorktree({
       worktreeId,
       environmentId: ownerRuntimeEnvironmentId
     })
@@ -313,6 +321,11 @@ export function activateAndRevealWorktree(
     })
   }
 
+  if (activated && personalOpening && useAppStore.getState().activeWorktreeId === worktreeId) {
+    void activationAcknowledgement
+      .then((accepted) => (accepted ? personalOpening() : undefined))
+      .catch(console.error)
+  }
   return { primaryTabId }
 }
 
