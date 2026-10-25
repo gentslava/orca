@@ -75,7 +75,7 @@ type Props = {
 }
 
 // Anchor by key so streaming rows below cannot move the drawn range.
-type Drawn = { scope: string; firstKey: string | null; count: number }
+type Drawn = { scope: string; firstKey: string | null; count: number; fromStart?: boolean }
 
 // End anchoring preserves position when history prepends; restore after below-reader changes only at rest or on regroup.
 export function MobileNativeChatPageList({
@@ -141,8 +141,9 @@ export function MobileNativeChatPageList({
   const kept = drawn.scope === rowKeys.scope ? drawn : null
   const opening = Math.max(0, n - FIRST_ROWS)
   const firstKey = kept?.firstKey ?? null
-  const first =
-    firstKey === null
+  const first = kept?.fromStart
+    ? 0
+    : firstKey === null
       ? opening
       : (indexOf.get(firstKey) ??
         indexOf.get(rowKeys.current(firstKey) ?? '') ??
@@ -180,8 +181,23 @@ export function MobileNativeChatPageList({
   // Keep one reading anchor so whole-pixel corrections cannot accumulate rounding drift.
   const notePlace = useCallback(
     (s: Scroller) => {
-      place.current = isFollowing() ? null : mobileNativeChatReadingPlace(s, latest.current.rowKeys)
-      placedLayout.current = latest.current.layoutKey
+      const { first, n, keys, layoutKey, rowKeys } = latest.current
+      const reading = !isFollowing()
+      place.current = reading ? mobileNativeChatReadingPlace(s, rowKeys) : null
+      placedLayout.current = layoutKey
+      if (reading && keys[first] !== undefined) {
+        // Appends may slide the opening tail window only until the reader takes it.
+        setDrawn((current) =>
+          current.scope === rowKeys.scope && current.firstKey !== null
+            ? current
+            : {
+                scope: rowKeys.scope,
+                firstKey: keys[first]!,
+                count: n - first,
+                fromStart: first === 0
+              }
+        )
+      }
     },
     [isFollowing]
   )
@@ -239,7 +255,12 @@ export function MobileNativeChatPageList({
     const screens = (s.scrollHeight - s.clientHeight + s.scrollTop) / s.clientHeight
     if (at > 0 && screens < DRAW_AHEAD_SCREENS) {
       const next = Math.max(0, at - DRAW_BATCH)
-      setDrawn({ scope: current.scope, firstKey: drawnKeys[next]!, count: total - next })
+      setDrawn({
+        scope: current.scope,
+        firstKey: drawnKeys[next]!,
+        count: total - next,
+        fromStart: next === 0
+      })
     }
     if (at < FETCH_AHEAD_ROWS && screens < FETCH_REACH_SCREENS) {
       ask.current?.()

@@ -239,7 +239,8 @@ export function NativeChatMessageList({
   const { marker: newRowsMarker, dismiss } = useNativeChatNewRowsMarker(
     slots,
     waitingSlots,
-    isVisible && session.readCurrent === true
+    isVisible && session.readCurrent === true,
+    navigationSequence
   )
   const transcriptWindow = useNativeChatTranscriptWindow({
     scrollRef,
@@ -324,8 +325,12 @@ export function NativeChatMessageList({
     beginNavigation()
     scrollToBottom()
   }, [beginNavigation, scrollToBottom])
+  const onReaderScroll = useCallback(() => {
+    navigationSequence.current += 1
+    beginNavigation()
+  }, [beginNavigation])
   const readerInput = useNativeChatReaderScrollInput(scrollRef, {
-    onReaderScroll: beginNavigation,
+    onReaderScroll,
     onTakeScroll: transcriptWindow.cancelAlign,
     onLeaveEnd: readerLeavesEnd,
     onScrollGesture: transcriptScroll.forwardedGesture

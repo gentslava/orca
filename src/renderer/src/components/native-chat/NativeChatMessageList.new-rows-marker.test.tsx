@@ -2,7 +2,7 @@
 
 import '@testing-library/jest-dom/vitest'
 
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { createRef } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { NativeChatMessage } from '../../../../shared/native-chat-types'
@@ -144,5 +144,37 @@ describe('the "New" marker in the transcript', () => {
       expect(screen.getByRole('separator', { name: 'New' })).toBeInTheDocument()
       expect(scrollTop(container)).toBe(readingAt)
     })
+
+    it.each(['wheel', 'touch'] as const)(
+      'keeps recent context when %s precedes foreground history catch-up',
+      async (gesture) => {
+        const { container, rerender } = render(chat(TRANSCRIPT_LENGTH, true))
+        vi.mocked(document.hasFocus).mockReturnValue(false)
+        fireEvent.blur(window)
+        rerender(chat(TRANSCRIPT_LENGTH + 1000, true, { readCurrent: false }))
+        vi.mocked(document.hasFocus).mockReturnValue(true)
+        fireEvent.focus(window)
+        const scroller = container.querySelector<HTMLElement>('[data-native-chat-scroll]')!
+        if (gesture === 'wheel') {
+          fireEvent.wheel(scroller, { deltaY: -100 })
+        } else {
+          fireEvent.touchMove(scroller)
+        }
+        scroller.scrollTop -= 100
+        fireEvent.scroll(scroller)
+        const readingAt = scroller.scrollTop
+        expect(readingAt).toBeGreaterThan(TRANSCRIPT_LENGTH * ROW_PITCH_PX)
+        rerender(chat(TRANSCRIPT_LENGTH + 1000, true))
+        act(() => void deliverResizes())
+        await act(async () => {
+          await new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+          )
+        })
+
+        expect(scrollTop(container)).toBe(readingAt)
+        expect(screen.getByRole('separator', { name: 'New' })).toBeInTheDocument()
+      }
+    )
   })
 })

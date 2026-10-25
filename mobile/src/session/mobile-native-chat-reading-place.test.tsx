@@ -15,6 +15,7 @@ import {
 } from './mobile-native-chat-row-keys'
 import { mobileNativeChatRowId } from './mobile-native-chat-reading-place'
 import { MobileNativeChatPageList } from './MobileNativeChatPageList'
+import { useMobileNativeChatTailFollow } from './use-mobile-native-chat-tail-follow'
 import { ToolRun } from './MobileNativeChatToolRun'
 import { useMobileNativeChatTurnDisclosure } from './use-mobile-native-chat-turn-disclosure'
 
@@ -231,7 +232,7 @@ let shownKeys!: MobileNativeChatRowKeys
 
 function Chat(props: {
   messages: NativeChatMessage[]
-  following: boolean
+  following?: boolean
   live: boolean
   joined?: number
   runs?: boolean
@@ -247,14 +248,18 @@ function Chat(props: {
     scopeKey: 'chat'
   })
   const keys = useMobileNativeChatRowKeys(folded, props.messages, 'chat', turns.presentation)
+  const tail = useMobileNativeChatTailFollow({ hasItems: folded.length > 0, scopeKey: 'chat' })
   shownKeys = keys
   return h(MobileNativeChatPageList, {
-    ref: null,
+    ref: tail.pageListProps.ref,
     rows: turns.listMessages,
     rowKeys: keys,
     runs: turns.presentation.workRuns.heads,
-    isFollowing: () => props.following,
-    onEndDistance: () => {},
+    isFollowing:
+      props.following === undefined
+        ? tail.pageListProps.isFollowing
+        : () => props.following === true,
+    onEndDistance: props.following === undefined ? tail.pageListProps.onEndDistance : () => {},
     renderItem: ({ item, index }) => {
       const { workRun, joinsWorkRun } = turns.resolveRow(index, item)
       return h(Row, {
@@ -276,7 +281,10 @@ function Chat(props: {
 
 function mount(
   messages: NativeChatMessage[],
-  options: { following: boolean; live: boolean; runs?: boolean } = { following: false, live: false }
+  options: { following?: boolean; live: boolean; runs?: boolean } = {
+    following: false,
+    live: false
+  }
 ) {
   let renderer!: ReactTestRenderer
   act(() => {
@@ -375,6 +383,32 @@ it('holds back a change below a scrolling reader until they rest, then keeps the
   chat0.rest()
   expect(chat0.drawn(mobileNativeChatRowId('n1'))).toBe(1)
   expect(chat0.scroller.top(mobileNativeChatRowId('m4'))).toBe(line)
+})
+
+it('keeps the initial tall-row window anchored after a reader parks and background history appends', () => {
+  const rows = Array.from({ length: 230 }, (_, i) => ({
+    ...say(`m${i}`, 'assistant', ''),
+    blocks: Array.from({ length: 5 }, () => ({ type: 'text' as const, text: `Message ${i}` }))
+  }))
+  const chat0 = mount(rows.slice(0, 200), { live: false })
+  chat0.scroller.touch('touchstart')
+  chat0.scroller.scrollTop = -150
+  chat0.scrolled()
+  chat0.scroller.touch('touchend')
+  chat0.rest()
+  const anchor = mobileNativeChatRowId('m196')
+  const top = chat0.scroller.top(anchor)
+  expect(Number.isFinite(top)).toBe(true)
+  chat0.show(rows)
+
+  expect(chat0.drawn(anchor)).toBe(1)
+  expect(chat0.scroller.top(anchor)).toBe(top)
+  chat0.scroller.touch('touchstart')
+  chat0.scroller.scrollTop -= 100
+  chat0.scrolled()
+  chat0.scroller.touch('touchend')
+  chat0.rest()
+  expect(chat0.scroller.top(anchor)).toBe(top + 100)
 })
 
 it("holds a row's look with its messages: what the chat's state adds lands once the reader rests", () => {
