@@ -42,7 +42,9 @@ export type OwnProjectCatalog = {
 export function buildSidebarProjectCatalog(
   own: OwnProjectCatalog,
   servers: readonly PairedServerCatalog[],
-  ui: Pick<PersistedUIState, 'manualRepoOrder' | 'projectOrderBy'> | undefined
+  ui:
+    | Pick<PersistedUIState, 'manualRepoOrder' | 'projectOrderBy' | 'personalProjectOrder'>
+    | undefined
 ): MobileProjectSectionCatalog {
   const local = { kind: 'local' } as const
   // Folded host by host as the window's mergeFetchedReposForHost does: a server's copy of a
@@ -76,6 +78,7 @@ export function buildSidebarProjectCatalog(
           : LOCAL_EXECUTION_HOST_ID
       })),
       ...servers.flatMap((server) => server.projectGroups)
-    ]
+    ],
+    ui?.personalProjectOrder
   )
 }

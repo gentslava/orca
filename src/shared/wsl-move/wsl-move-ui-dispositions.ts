@@ -74,6 +74,7 @@ export const UI_STATE_DISPOSITIONS = {
 
 /** UI fields with no repo, worktree, pane or path in them. */
 export const UI_STATE_GLOBAL_FIELDS = [
+  'personalProjectOrder',
   'activeView',
   'sidebarWidth',
   'sidebarOpen',

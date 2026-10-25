@@ -41,6 +41,15 @@
       "description": "The active workspace is hidden in the sidebar. Revealing it will adjust only the filters hiding it.",
       "confirm": "Adjust filters and reveal",
       "cancel": "Keep filters"
+    },
+    "projectOrder": {
+      "pin": "Pin project",
+      "unpin": "Unpin project",
+      "frequent": "Frequent",
+      "recentDescription": "Most recently opened by you",
+      "frequentDescription": "Most project openings by you",
+      "nameDescription": "Project name, A to Z",
+      "saveFailed": "Could not save project order"
     }
   },
   "app": {

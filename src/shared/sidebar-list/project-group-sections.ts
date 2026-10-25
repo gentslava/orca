@@ -11,11 +11,7 @@ import { appendOrderedGroups } from './group-sections'
 import { compareCodePoints, compareSidebarText } from './text-order'
 import type { SectionAppendContext } from './group-sections'
 import type { OrderedGroupEntry } from './worktree-group-entry'
-import {
-  compareRecentRank,
-  createRecentRankLookup,
-  withRepoSectionDisplayLabels
-} from '../project-section-order'
+import { compareProjectEntries, withRepoSectionDisplayLabels } from '../project-section-order'
 import { buildFolderWorkspaceRow } from './row-builders'
 
 export function appendProjectGroupSections(
@@ -41,23 +37,11 @@ export function appendProjectGroupSections(
   }
 
   const sortRepoEntriesWithinGroup = (entries: OrderedGroupEntry[]): OrderedGroupEntry[] => {
-    if (projectOrderBy === 'recent') {
-      if (entries.length < 2) {
-        return [...entries]
-      }
-      const getRecentRank = createRecentRankLookup()
-      return [...entries].sort((left, right) =>
-        compareRecentRank(getRecentRank(left), getRecentRank(right))
+    return withRepoSectionDisplayLabels(entries).sort((left, right) =>
+      compareProjectEntries(left, right, projectOrderBy, (entry) =>
+        getEffectiveProjectGroupManualRank(entry[1].repo, repoOrder)
       )
-    }
-    // Manual: within a Project Group, projects order by their per-group rank
-    // (projectGroupOrder), falling back to global repoOrder when unset so drag
-    // midpoint commits and the rendered order stay aligned.
-    return [...entries].sort((left, right) => {
-      const leftRank = getEffectiveProjectGroupManualRank(left[1].repo, repoOrder)
-      const rightRank = getEffectiveProjectGroupManualRank(right[1].repo, repoOrder)
-      return leftRank - rightRank
-    })
+    )
   }
 
   const projectGroupsById = new Map(projectGroups.map((group) => [group.id, group]))

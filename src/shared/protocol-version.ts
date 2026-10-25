@@ -1,3 +1,4 @@
+import { PERSONAL_PROJECT_ORDER_CAPABILITY } from './personal-project-order'
 import { ACCOUNT_RUNTIME_CAPABILITIES } from './account-runtime-capabilities'
 import { USAGE_RUNTIME_CAPABILITIES } from './usage-history-rpc'
 import * as agentLaunchCapabilities from './agent-launch-runtime-capability'
@@ -138,6 +139,7 @@ export const NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES = [
 
 // Each area lists what it publishes in its own module; a new capability edits only that module.
 export const RUNTIME_CAPABILITIES = [
+  PERSONAL_PROJECT_ORDER_CAPABILITY,
   ...HOST_RUNTIME_CAPABILITIES,
   ...DEVICE_KEY_RUNTIME_CAPABILITIES,
   ...MOBILE_RUNTIME_CAPABILITIES,

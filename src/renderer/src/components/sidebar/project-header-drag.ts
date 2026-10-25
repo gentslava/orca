@@ -1,3 +1,4 @@
+import { isPointerInsideProjectPinTier } from './project-header-drag-pin-tier'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
@@ -78,6 +79,9 @@ export function useRepoHeaderDrag({
       if (!session || !container) {
         return null
       }
+      if (!isPointerInsideProjectPinTier(session, pointerY, container)) {
+        return null
+      }
       return computeProjectHeaderDropPreview({
         pointerY,
         containerTop: container.getBoundingClientRect().top,
@@ -149,6 +153,7 @@ export function useRepoHeaderDrag({
         orderedRepoIds: orderedIdsRef.current,
         repoById: repoByIdRef.current,
         liveRepos: getLiveReposRef.current(),
+        currentBuckets: sidebarRepoHeaderIdsByBucketRef.current,
         usesProjectGroupOrdering: usesProjectGroupOrderingRef.current,
         onCommitRepoOrder: onCommitRepoOrderRef.current,
         onCommitProjectGroupOrder: onCommitProjectGroupOrderRef.current
