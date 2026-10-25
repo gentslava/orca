@@ -179,6 +179,7 @@ export function ToolRun({
           <Text
             key={nativeChatToolLineIdentity(block, failureSeen, true)}
             accessibilityRole="alert"
+            numberOfLines={12}
             style={[type.row, styles.errorText]}
           >
             {`${name}: ${detail}`}
