@@ -6,6 +6,7 @@
 import type { ElectronApplication, Page, TestInfo } from '@stablyai/playwright-test'
 import { expect, test } from './orca-app'
 import { createRestartSession } from './orca-restart'
+import type { LaunchOptions } from './orca-restart-launch-options'
 import { startOrcadConvertHost, type OrcadConvertHost } from './orcad-convert-host'
 import { seedRelayEraProfile, type RelayEraProfile } from './orcad-upgrade-profile'
 import { convertAndRetain } from './orcad-convert-flow'
@@ -122,14 +123,15 @@ export async function launchManagedWorkspace(
 /** Quits the live launch and relaunches the same profile, waiting for startup to settle. */
 export async function relaunchManagedApp(
   fixture: ManagedHostFixture,
-  onLaunch?: (page: Page) => void | Promise<void>
+  onLaunch?: (page: Page) => void | Promise<void>,
+  launchOptions?: LaunchOptions
 ): Promise<Page> {
   if (!fixture.app) {
     throw new Error('No live launch to close')
   }
   await fixture.session.close(fixture.app)
   fixture.app = null
-  const { app, page } = await fixture.session.launch()
+  const { app, page } = await fixture.session.launch(launchOptions)
   fixture.app = app
   await onLaunch?.(page)
   await waitForSessionReady(page)

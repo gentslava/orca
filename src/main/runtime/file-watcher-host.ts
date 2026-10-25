@@ -13,7 +13,7 @@ import {
 import {
   WATCHER_IGNORE_DIRS,
   buildParcelWatcherIgnoreOptions
-} from '../ipc/filesystem-watcher-ignore'
+} from '../ipc/filesystem/watchers/filesystem-watcher-ignore'
 import { createRuntimeRootOwnershipReleaser } from './runtime-root-watch-ownership'
 import { closeRuntimeRootWatch } from './runtime-root-watch-teardown'
 import {
