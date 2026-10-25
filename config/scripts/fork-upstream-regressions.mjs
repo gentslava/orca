@@ -30,6 +30,7 @@ const desktop = [
   'config/scripts/mobile-web-app/mobile-web-app-chat-attachments-render.test.mjs',
   'src/main/runtime/runtime-rpc/runtime-rpc-mobile-method-routing.test.ts',
   'src/main/runtime/mobile-rpc-allowlist.test.ts',
+  'src/renderer/src/components/status-bar/provider-segment-stale-warning.test.tsx',
   'src/renderer/src/lib/activate-ai-vault-structured-session.test.ts',
   'src/renderer/src/lib/activate-ai-vault-structured-session-host.test.ts',
   'src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx',
