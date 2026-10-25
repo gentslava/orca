@@ -205,6 +205,7 @@ export function useMobileNativeChatController(
   const structuredNativeChatSend = useMobileStructuredNativeChatSendBridge({
     agent: activeChatResolution?.agent,
     sendStructured: structuredNativeChat.sendWithOutcome,
+    isModelWritePending: structuredNativeChat.isModelWritePending,
     captureSendOrigin,
     clearDraftForSend,
     restoreRejectedDraft,

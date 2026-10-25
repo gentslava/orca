@@ -255,6 +255,7 @@ export function useMobileStructuredAgentOptions(args: {
         : structuredAgentSessionSendSelection(optionStateRef.current),
     []
   )
+  const isModelWritePending = useCallback(() => pendingOptionRef.current === 'model', [])
   const resetOption = useMobileStructuredModelDefault({
     agent,
     client,
@@ -297,6 +298,7 @@ export function useMobileStructuredAgentOptions(args: {
     pendingOptionId: optionState.pendingId,
     setStructuredOption,
     invokeStructuredOption,
-    sendSelection
+    sendSelection,
+    isModelWritePending
   }
 }

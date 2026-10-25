@@ -65,6 +65,7 @@ export function useMobileStructuredSendWithOutcome(args: {
   onSendError: MobileNativeChatSendErrorReporter
   /** The chat's own model and effort each send carries; absent for an older host, which takes neither. */
   sendOptions?: () => Readonly<Record<string, string>> | undefined
+  isModelWritePending?: () => boolean
 }): (
   text: string,
   images?: string[],
@@ -80,6 +81,7 @@ export function useMobileStructuredSendWithOutcome(args: {
     controller,
     enabled,
     hold,
+    isModelWritePending,
     onSendError,
     queueCapable,
     sendOptions,
@@ -135,6 +137,10 @@ export function useMobileStructuredSendWithOutcome(args: {
       if (commandOutcome !== null) {
         return commandOutcome
       }
+      if (isModelWritePending?.()) {
+        onSendError('Message not sent (model selection is still updating)')
+        return 'rejected'
+      }
       const imageAttachments: StructuredAgentSessionAttachment[] = []
       const files: { path: string }[] = []
       for (const attachment of sendAttachments) {
@@ -156,7 +162,6 @@ export function useMobileStructuredSendWithOutcome(args: {
         queuedAt: Date.now(),
         ...(stopping ? { sentWhileStopping: true as const } : {})
       }
-      // A pick on its way holds the send, so the chat's values are what it holds.
       const options = sendOptions?.()
       const outcome = await sendMobileStructuredAgentSessionMessage({
         client,
@@ -188,6 +193,7 @@ export function useMobileStructuredSendWithOutcome(args: {
       controller,
       enabled,
       hold,
+      isModelWritePending,
       onSendError,
       queueCapable,
       sendOptions,

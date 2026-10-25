@@ -121,6 +121,8 @@ const mobile = [
   'src/session/mobile-agent-message-attribution.test.ts',
   'src/session/MobileNativeChatSessionOptionPickers.test.ts',
   'src/session/use-mobile-structured-agent-options.test.ts',
+  'src/session/use-mobile-structured-agent-session-send.test.tsx',
+  'src/session/use-mobile-structured-native-chat-send-bridge.test.ts',
   'src/host-screen/host-worktree-child-navigation.test.tsx',
   'src/session/MobileNativeChatRowOverlaysHost.test.tsx',
   'src/session/use-mobile-native-chat-composer-tray.test.tsx'
