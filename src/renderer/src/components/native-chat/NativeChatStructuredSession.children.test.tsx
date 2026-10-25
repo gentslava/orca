@@ -276,6 +276,12 @@ it('opens a separate completed conversation and its native descendants, retainin
   expect(workerFeed.textContent).toContain('Full worker answer')
   expect(parentFeed).not.toBeVisible()
   expect(composer).not.toBeVisible()
+  const parentReads = () =>
+    transport.rpc.mock.calls.filter(
+      ([, method, params]) =>
+        method === 'orchestration.sessionChildren' && params.sessionId === PARENT
+    ).length
+  const hiddenParentReads = parentReads()
   expect(fireEvent.keyDown(workerFeed, { key: 'x' })).toBe(true)
   fireEvent.paste(workerFeed, { clipboardData: { getData: () => 'Do not append to parent' } })
   expect(mocks.handlePasteEvent).not.toHaveBeenCalled()
@@ -294,6 +300,8 @@ it('opens a separate completed conversation and its native descendants, retainin
     await vi.advanceTimersByTimeAsync(3_000)
   })
   expect(childReads()).toBe(visibleChildReads)
+  // The visible worker still refreshes its identity, without the hidden parent's duplicate poll.
+  expect(parentReads()).toBe(hiddenParentReads + 1)
   expect(transport.unsubscribe).not.toHaveBeenCalled()
   expect(fireEvent.keyDown(screen.getByText(/Nested original answer/), { key: 'y' })).toBe(true)
   fireEvent.click(screen.getByRole('button', { name: 'Cross provider review' }))
@@ -303,11 +311,13 @@ it('opens a separate completed conversation and its native descendants, retainin
   await waitFor(() => expect(childReads()).toBeGreaterThan(visibleChildReads))
   fireEvent.click(screen.getByRole('button', { name: 'Recorded result' }))
   expect(screen.getByText('Original recorded worker result')).toBeVisible()
+  const readsBeforeReturn = parentReads()
   fireEvent.click(screen.getByRole('button', { name: 'Back to conversation' }))
   expect(screen.getByTestId(`feed:${PARENT}`)).toBe(parentFeed)
   expect(parentFeed.scrollTop).toBe(176)
   expect(composer).toBeVisible()
   expect(composer).toHaveValue('Unsent parent draft')
+  await waitFor(() => expect(parentReads()).toBeGreaterThan(readsBeforeReturn))
   expect(
     transport.read.mock.calls.every(
       ([target, method]) => target.environmentId === 'owner-a' && method === 'agentSession.history'

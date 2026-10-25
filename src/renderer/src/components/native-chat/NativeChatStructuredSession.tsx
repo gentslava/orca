@@ -295,7 +295,7 @@ export function NativeChatStructuredSession(
           <NativeChatSessionChildren
             sessionId={props.sessionId}
             target={props.target}
-            isVisible={props.isVisible}
+            isVisible={props.isVisible && childNavigator.child === null}
           />
           <NativeChatContextClearFade clearing={controller.contextClear.clearing}>
             {viewState.kind === 'loading' || (viewState.kind === 'error' && !readFailure) ? (
