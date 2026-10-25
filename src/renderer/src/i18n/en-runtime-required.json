@@ -3221,6 +3221,7 @@
         "effort": "Effort",
         "enterQueues": "Enter queues text and images.",
         "enterSendsNow": "Enter sends immediately.",
+        "imageReferenceMissing": "Image removed",
         "imageUnsupported": "Image paste is not supported for this agent.",
         "placeholder": "Ask anything, @ to mention files, / for commands",
         "queueChecking": "Checking queue support. Enter sends immediately until the host confirms support.",

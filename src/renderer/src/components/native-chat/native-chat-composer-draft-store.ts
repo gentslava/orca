@@ -1,4 +1,5 @@
 import { nativeChatPastedTextToken } from './native-chat-pasted-text-reference'
+import { nativeChatDraftWithoutLegacyImages } from './native-chat-composer-legacy-images'
 // The one owner of each composer scope's unsent message: its text, the editor document for that
 // text and its settled image refs. Every writer changes the whole record here in memory, and
 // storage is written from that record, so a reload or quit gives the draft back and a failed or
@@ -136,8 +137,11 @@ export function updateNativeChatComposerDraft(
   append?: DraftAppend
 ): void {
   const current = records.get(scopeKey) ?? EMPTY_DRAFT
-  const text = change.text ?? current.text
-  const document = 'document' in change ? change.document : current.document
+  const proposedText = change.text ?? current.text
+  const proposedDocument = 'document' in change ? change.document : current.document
+  const { text, document } = proposedDocument
+    ? nativeChatDraftWithoutLegacyImages(proposedText, proposedDocument)
+    : { text: proposedText, document: proposedDocument }
   const pastedTextFiles = Object.fromEntries(
     Object.entries(change.pastedTextFiles ?? current.pastedTextFiles ?? {}).filter(([id]) =>
       text.includes(nativeChatPastedTextToken(id))
@@ -168,6 +172,7 @@ export function updateNativeChatComposerDraft(
   const owner = current.owner ?? change.owner ?? resolveOwner?.(scopeKey)
   const record: DraftRecord = {
     text,
+    textFormat: 'literal',
     ...(Object.keys(pastedTextFiles).length ? { pastedTextFiles } : {}),
     ...(document ? { document } : {}),
     images: [...images],
@@ -189,7 +194,11 @@ function withAddition<T extends NativeChatComposerDraft>(
   draft: T,
   addition: NativeChatComposerDraftAddition
 ): T {
-  return { ...draft, ...withNativeChatComposerDraftAddition(draft, addition) }
+  return {
+    ...draft,
+    ...withNativeChatComposerDraftAddition(draft, addition),
+    textFormat: 'literal'
+  }
 }
 
 /**

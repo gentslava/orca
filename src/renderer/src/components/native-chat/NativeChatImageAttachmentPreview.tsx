@@ -14,12 +14,10 @@ import { isAgentSessionAttachmentStorePath } from '../../../../shared/agent-sess
 import { chatImageAccess } from '@/lib/local-file-access'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
-import { nativeChatImageNumberLabel } from './NativeChatImageReferencePill'
 
 type Props = {
   attachment: NativeChatComposerImageAttachment
-  /** Its place in the row, which numbers its chips in the prompt and its marker at send; only a
-   *  structured chat has chips, so only it numbers its images. */
+  /** Its place in the ordered image attachments sent to the provider. */
   number?: number
   /** The paired server the chat runs on; a file stored there is read back through it. */
   hostEnvironmentId?: string
@@ -53,7 +51,7 @@ export function NativeChatImageAttachmentPreview({
   )
 }
 
-/** The thumbnail's number, as its chips in the prompt read; its label names it for readers. */
+/** The thumbnail's number; its accessible label names it for readers. */
 function ImageNumberBadge({ number }: { number?: number }): React.JSX.Element | null {
   if (number === undefined) {
     return null
@@ -69,7 +67,9 @@ function ImageNumberBadge({ number }: { number?: number }): React.JSX.Element | 
 }
 
 function numberedLabel(number: number | undefined, label: string): string {
-  return number === undefined ? label : `${nativeChatImageNumberLabel(number)}: ${label}`
+  return number === undefined
+    ? label
+    : `${translate('components.native-chat.composer.imageNumber', 'Image #{{number}}', { number })}: ${label}`
 }
 
 function attachmentLabel(path: string): string {

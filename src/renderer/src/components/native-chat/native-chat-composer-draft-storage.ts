@@ -5,6 +5,7 @@
 import type { JSONContent } from '@tiptap/react'
 import { parseExecutionHostId, type ExecutionHostId } from '../../../../shared/execution-host'
 import { createIndexedDbNativeChatComposerDraftStorage } from './native-chat-composer-draft-indexeddb'
+import { nativeChatDraftWithoutLegacyImages } from './native-chat-composer-legacy-images'
 
 export type NativeChatComposerDraftImage = {
   id: string
@@ -30,6 +31,8 @@ export type NativeChatComposerDraftOwner = {
 }
 
 export type StoredNativeChatComposerDraft = NativeChatComposerDraft & {
+  /** Unmarked documentless drafts may still contain automatic legacy image tokens. */
+  readonly textFormat?: 'literal'
   readonly savedAt: number
   readonly owner?: NativeChatComposerDraftOwner
 }
@@ -169,10 +172,13 @@ export function parseStoredNativeChatComposerDraft(
       )
     : undefined
   const owner = parseOwner(value.owner)
+  const editorDocument = isEditorDocument(document) ? document : undefined
   return {
-    text,
+    ...(value.textFormat === 'literal' && !editorDocument
+      ? { text }
+      : nativeChatDraftWithoutLegacyImages(text, editorDocument)),
+    textFormat: 'literal',
     ...(pastedTextFiles ? { pastedTextFiles } : {}),
-    ...(isEditorDocument(document) ? { document } : {}),
     images: images.flatMap((image) => parseImage(image) ?? []),
     savedAt,
     ...(owner ? { owner } : {})

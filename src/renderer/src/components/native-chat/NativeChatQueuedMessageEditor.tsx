@@ -86,10 +86,11 @@ export function NativeChatQueuedMessageEditor({
       </div>
       {chips.length > 0 ? (
         <div className="mb-2 flex flex-wrap gap-2 px-1 pt-1.5">
-          {chips.map((chip) => (
+          {chips.map((chip, index) => (
             <NativeChatImageAttachmentPreview
               key={chip.id}
               attachment={chip}
+              number={index + 1}
               hostEnvironmentId={intake.hostEnvironmentId}
               onRemove={(id) => editor.images?.intake.remove(id)}
             />

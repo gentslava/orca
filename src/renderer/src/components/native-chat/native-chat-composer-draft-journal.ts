@@ -30,7 +30,10 @@ const THIS_RUN = `${Date.now()}-${Math.random()}`
 
 type EntryBase = { readonly scopeKey: string; readonly at: number; readonly run?: string }
 type DraftEntry = EntryBase & { readonly draft: StoredNativeChatComposerDraft | null }
-type AdditionEntry = EntryBase & { readonly addition: NativeChatComposerDraftAddition }
+type AdditionEntry = EntryBase & {
+  readonly addition: NativeChatComposerDraftAddition
+  readonly textFormat?: 'literal'
+}
 type JournalEntry = DraftEntry | AdditionEntry
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -56,6 +59,7 @@ function parseEntry(entry: unknown): JournalEntry[] {
   // Parsed as a draft, so its text and images are checked the same way.
   const parsed = parseStoredNativeChatComposerDraft({
     text: typeof addition.text === 'string' ? addition.text : '',
+    textFormat: entry.textFormat,
     images: Array.isArray(addition.images) ? addition.images : [],
     savedAt: at
   })
@@ -65,6 +69,7 @@ function parseEntry(entry: unknown): JournalEntry[] {
           scopeKey,
           at,
           run,
+          textFormat: 'literal',
           addition: {
             text: parsed.text,
             images: parsed.images,
@@ -149,6 +154,7 @@ export function replayNativeChatComposerDraftJournal(
     drafts.set(scopeKey, {
       ...from,
       ...next,
+      textFormat: 'literal',
       savedAt: at
     })
     changed.add(scopeKey)
@@ -194,7 +200,10 @@ export function journalNativeChatComposerDraftAddition(
   addition: NativeChatComposerDraftAddition,
   at: number
 ): boolean {
-  const entries: JournalEntry[] = [...readEntries(), { scopeKey, at, run: THIS_RUN, addition }]
+  const entries: JournalEntry[] = [
+    ...readEntries(),
+    { scopeKey, at, run: THIS_RUN, addition, textFormat: 'literal' }
+  ]
   const additions = JSON.stringify(entries.filter(isAddition)).length
   return additions <= MAX_JOURNAL_ADDITIONS_CHARS && writeEntries(entries)
 }

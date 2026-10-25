@@ -1,11 +1,5 @@
 import type { AgentJournalMessageItem } from './agent-session-journal-types'
 import { MAX_BLOCKS, MAX_PROMPT_BYTES } from './rpc-contract/structured-agent-session-params'
-import { imageReferenceInsertion, imageReferenceToken } from './native-chat-image-reference'
-import {
-  imageReferencesToPromptMarkers,
-  promptMarkersToImageReferences
-} from './native-chat-image-transcript-markers'
-
 export type QueuedMessageImageBlock = Extract<
   AgentJournalMessageItem['blocks'][number],
   { type: 'image-ref' }
@@ -62,47 +56,6 @@ export function queuedEditKeptImages(
   )
 }
 
-/** Markers follow the complete image order; references to removed images go with their chips. */
-export function queuedEditTextForKeptImages(
-  text: string,
-  from: readonly string[],
-  to: readonly string[]
-): string {
-  let chips = promptMarkersToImageReferences(text, from)
-  const staying = new Set(to)
-  for (const id of from.filter((entry) => !staying.has(entry))) {
-    const token = imageReferenceToken(id)
-    chips = chips.replaceAll(`${token} `, '').replaceAll(token, '')
-  }
-  return imageReferencesToPromptMarkers(chips, to)
-}
-
-/** Added references are derived at Save, so attachment changes never rewrite the field. */
-export function queuedEditTextWithAddedImages(draft: QueuedMessageEditDraft): string {
-  const addedIds = draft.added.filter((image) => !image.pending).map(({ id }) => id)
-  const suffix = imageReferenceInsertion(draft.text, '', addedIds)
-  return (
-    draft.text +
-    imageReferencesToPromptMarkers(suffix, [...draft.kept.map(({ id }) => id), ...addedIds])
-  )
-}
-
-/** The text an edit's typing is measured against: the card's own, its markers following the
- *  images removed so far, so a removal alone is not typing. */
-export function queuedEditBaseText(
-  body: AgentJournalMessageItem,
-  kept: readonly { id: string }[]
-): string | null {
-  const text = queuedMessageEditableText(body)
-  return text === null
-    ? null
-    : queuedEditTextForKeptImages(
-        text,
-        queuedEditKeptImages(body).map(({ id }) => id),
-        kept.map(({ id }) => id)
-      )
-}
-
 function queuedEditImagesChanged(
   body: AgentJournalMessageItem,
   draft: QueuedMessageEditDraft
@@ -147,7 +100,7 @@ export function queuedEditInput(
     image.pending ? [] : [{ type: 'image-ref' as const, path: image.path }]
   )
   return {
-    text: queuedEditTextWithAddedImages(draft),
+    text: draft.text,
     images: [...draft.kept.map(({ block }) => block), ...added]
   }
 }
