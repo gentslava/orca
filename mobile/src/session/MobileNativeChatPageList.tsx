@@ -75,7 +75,13 @@ type Props = {
 }
 
 // Anchor by key so streaming rows below cannot move the drawn range.
-type Drawn = { scope: string; firstKey: string | null; count: number; fromStart?: boolean }
+type Drawn = {
+  scope: string
+  firstKey: string | null
+  count: number
+  fromStart?: boolean
+  detached?: boolean
+}
 
 // End anchoring preserves position when history prepends; restore after below-reader changes only at rest or on regroup.
 export function MobileNativeChatPageList({
@@ -185,7 +191,13 @@ export function MobileNativeChatPageList({
       const reading = !isFollowing()
       place.current = reading ? mobileNativeChatReadingPlace(s, rowKeys) : null
       placedLayout.current = layoutKey
-      if (reading && keys[first] !== undefined) {
+      if (!reading) {
+        setDrawn((current) =>
+          current.scope === rowKeys.scope && current.detached
+            ? { scope: rowKeys.scope, firstKey: null, count: 0 }
+            : current
+        )
+      } else if (keys[first] !== undefined) {
         // Appends may slide the opening tail window only until the reader takes it.
         setDrawn((current) =>
           current.scope === rowKeys.scope && current.firstKey !== null
@@ -194,7 +206,8 @@ export function MobileNativeChatPageList({
                 scope: rowKeys.scope,
                 firstKey: keys[first]!,
                 count: n - first,
-                fromStart: first === 0
+                fromStart: first === 0,
+                detached: true
               }
         )
       }

@@ -272,7 +272,12 @@ function Chat(props: {
     },
     layoutKey: 'layout',
     contentContainerStyle: null,
-    header: h('div', { testID: 'header' }, h('span', null, 'Loading')),
+    header: h(
+      'div',
+      { testID: 'header' },
+      h('span', null, 'Loading'),
+      h('button', { onPress: tail.jumpToTail }, 'Jump to latest')
+    ),
     footer: props.live ? h('span', null, 'Working') : null,
     emptyStateView: null,
     onScroll: () => {}
@@ -409,6 +414,49 @@ it('keeps the initial tall-row window anchored after a reader parks and backgrou
   chat0.scroller.touch('touchend')
   chat0.rest()
   expect(chat0.scroller.top(anchor)).toBe(top + 100)
+})
+
+it.each(['scroll', 'jump'] as const)(
+  'slides the opening window after a detached reader resumes following by %s',
+  (resume) => {
+    const rows = Array.from({ length: 500 }, (_, i) => ({
+      ...say(`m${i}`, 'assistant', ''),
+      blocks: Array.from({ length: 5 }, () => ({ type: 'text' as const, text: `Message ${i}` }))
+    }))
+    const chat0 = mount(rows.slice(0, 200), { live: false })
+    chat0.read(() => (chat0.scroller.scrollTop = -150))
+    chat0.show(rows.slice(0, 230))
+    expect(chat0.drawn(mobileNativeChatRowId('m196'))).toBe(1)
+
+    if (resume === 'jump') {
+      chat0.press('header')
+    } else {
+      chat0.read(() => (chat0.scroller.scrollTop = 0))
+    }
+    for (const count of [250, 350, 500]) {
+      chat0.show(rows.slice(0, count))
+      expect(chat0.rows()).toEqual(
+        rows.slice(count - 24, count).map((row) => mobileNativeChatRowId(row.id))
+      )
+      expect(chat0.scroller.scrollTop).toBe(0)
+    }
+  }
+)
+
+it('keeps an explicitly opened from-start window after following resumes', () => {
+  const rows = Array.from({ length: 100 }, (_, i) => ({
+    ...say(`m${i}`, 'assistant', ''),
+    blocks: Array.from({ length: 5 }, () => ({ type: 'text' as const, text: `Message ${i}` }))
+  }))
+  const chat0 = mount(rows.slice(0, 40), { live: false })
+  chat0.read(() => chat0.scroller.showFrom(0))
+  chat0.read(() => chat0.scroller.showFrom(0))
+  expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m0'))
+  chat0.press('header')
+  chat0.show(rows)
+
+  expect(chat0.rows()).toEqual(rows.map((row) => mobileNativeChatRowId(row.id)))
+  expect(chat0.scroller.scrollTop).toBe(0)
 })
 
 it("holds a row's look with its messages: what the chat's state adds lands once the reader rests", () => {

@@ -283,8 +283,7 @@ export function NativeChatMessageList({
     outline: railOutline
   })
   const requestRailJump = useCallback((item: NativeChatRailItem) => {
-    navigationSequence.current += 1
-    const requestId = navigationSequence.current
+    const requestId = ++navigationSequence.current
     setNavigationRequest({ kind: 'rail', messageId: item.id, requestId })
   }, [])
   const railHistoryJump = useNativeChatRailHistoryJump({
@@ -298,6 +297,7 @@ export function NativeChatMessageList({
   // Abort paging navigation before any new jump so late history cannot pull the reader back.
   const selectRailItem = useCallback(
     (item: NativeChatRailItem) => {
+      navigationSequence.current += 1
       beginNavigation()
       readerLeavesEnd()
       if (item.slotIndex === null) {
@@ -315,13 +315,13 @@ export function NativeChatMessageList({
       if (target.subagentSections) {
         openSubagentSections(target.subagentSections)
       }
-      navigationSequence.current += 1
-      const requestId = navigationSequence.current
+      const requestId = ++navigationSequence.current
       setNavigationRequest({ kind: 'diff', target: { ...target, requestId } })
     },
     [beginNavigation, readerLeavesEnd, openSubagentSections]
   )
   const jumpToLatest = useCallback(() => {
+    navigationSequence.current += 1
     beginNavigation()
     scrollToBottom()
   }, [beginNavigation, scrollToBottom])
