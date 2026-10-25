@@ -6,6 +6,8 @@ import { NativeChatNoticeRow } from './NativeChatNoticeRow'
 import type { NativeChatTextBlock } from '../../../../shared/native-chat-types'
 import {
   APPROVED_REVIEW,
+  COMPACT_APPROVAL_CASES,
+  NON_COMPACT_APPROVAL_BLOCKS,
   approvalReviewBlock
 } from '../../../../shared/native-chat-activity.test-fixture'
 
@@ -37,10 +39,24 @@ describe('automatic approval review activity', () => {
     }
   )
 
+  it.each(COMPACT_APPROVAL_CASES)(
+    'keeps $label visible while disclosing original rejection details',
+    ({ block, label }) => {
+      render(<NativeChatNoticeRow block={block} />)
+      const trigger = screen.getByRole('button', { name: label })
+      expect(trigger).toHaveAttribute('aria-expanded', 'false')
+      expect(screen.queryByText(block.text)).toBeNull()
+      expect(trigger.querySelector('svg')).toBeInTheDocument()
+      fireEvent.click(trigger)
+      expect(screen.getByText(block.text)).toBeVisible()
+      fireEvent.click(screen.getByText('Details'))
+      expect(screen.getByText(block.providerFrame!.payload.head)).toBeVisible()
+      fireEvent.click(trigger)
+      expect(screen.queryByText(block.text)).toBeNull()
+    }
+  )
+
   it.each([
-    'Automatic approval review rejected (risk: high): Permission required.',
-    'Automatic approval review denied: Permission required.',
-    'Automatic approval review timed out.',
     'Automatic approval review approved (risk: low):',
     'Approval required to run this command.',
     'A warning mentions Automatic approval review approved (risk: low): fine.',
@@ -50,6 +66,12 @@ describe('automatic approval review activity', () => {
     expect(screen.getByText(text)).toBeVisible()
     expect(document.querySelector('.text-chat-warning')).not.toBeNull()
     expect(screen.queryByRole('button', { name: 'Automatic approval granted' })).toBeNull()
+  })
+
+  it.each(NON_COMPACT_APPROVAL_BLOCKS)('retains other error or quoted text: $text', (block) => {
+    render(<NativeChatNoticeRow block={block} />)
+    expect(screen.getByText(block.text)).toBeVisible()
+    expect(screen.queryByRole('button', { expanded: false })).toBeNull()
   })
 
   it.each<Partial<NativeChatTextBlock>>([

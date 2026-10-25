@@ -30,7 +30,7 @@ import { agentSessionFailureSentence } from '../../../../shared/agent-session-fa
 import { sayAgentSessionFailureTranslated } from './agent-session-failure-words-text'
 import { nativeChatAntigravitySignInContent } from './native-chat-antigravity-settings'
 import { formatUsageLimitResetClock } from '../../../../shared/agent-session-usage-limit'
-import { isNativeChatAutoApprovalNotice } from '../../../../shared/native-chat-auto-approval'
+import { nativeChatAutoApprovalOutcome } from '../../../../shared/native-chat-auto-approval'
 import { NativeChatAutoApprovalNotice } from './NativeChatAutoApprovalNotice'
 
 const HOST_STATUS_WORDS: Record<AgentSessionHostStatusPresentation, () => string> = {
@@ -74,7 +74,7 @@ export function NativeChatNoticeRow({
   const orcaStopView = useNativeChatOrcaStopView()
   const claudeSignIn = useNativeChatClaudeSignInView()
   const look = nativeChatNoticeLook(block)
-  if (isNativeChatAutoApprovalNotice(block)) {
+  if (nativeChatAutoApprovalOutcome(block) !== null) {
     return <NativeChatAutoApprovalNotice block={block} messageId={messageId} />
   }
   if (look.kind === 'divider') {

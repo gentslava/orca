@@ -673,7 +673,11 @@
         "orcaStopCrash": "Во время ответа Orca на {{machine}} неожиданно завершилась.",
         "orcaStopRemote": "Во время ответа Orca на {{machine}} остановилась.",
         "orcaStopCanContinue": "Вы можете продолжить этот разговор.",
-        "orcaStopUnnamedServer": "удалённом сервере"
+        "orcaStopUnnamedServer": "удалённом сервере",
+        "autoApprovalRejected": "Отклонено автоматической проверкой",
+        "autoApprovalDenied": "Отказ автоматической проверки",
+        "autoApprovalTimedOut": "Время автоматической проверки истекло",
+        "safetyCheckDenied": "Заблокировано проверкой безопасности"
       },
       "composer": {
         "futureMessageOptions": "Изменения применятся к следующим сообщениям. Текущая работа и сообщения в очереди сохранят свои параметры.",

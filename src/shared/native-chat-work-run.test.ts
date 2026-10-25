@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
   nativeChatWorkRunSpans,
+  nativeChatWorkRunMember,
   type NativeChatWorkRunMember,
   type NativeChatWorkRunRow
 } from './native-chat-work-run'
+
+import { COMPACT_APPROVAL_CASES, approvalReviewMessage } from './native-chat-activity.test-fixture'
 
 /** `t` thought, `c` call, `l` lead, `x` a drawn row that ends runs, `-` a row that draws nothing;
  *  `|` starts the next scope. */
@@ -64,5 +67,16 @@ describe('work run spans', () => {
   it('never crosses a scope, even through a row that draws nothing', () => {
     expect(spans('ct|c')).toEqual([[0, 1]])
     expect(spans('c|-|c')).toEqual([])
+  })
+})
+
+describe('approval outcomes at work run boundaries', () => {
+  it.each(COMPACT_APPROVAL_CASES)('keeps $label outside successful routine work', ({ block }) => {
+    const message = { ...approvalReviewMessage('blocked-review'), blocks: [block] }
+    expect(nativeChatWorkRunMember(message, false, false)).toBeNull()
+    expect(nativeChatWorkRunMember(message, false, true)).toBeNull()
+    expect(nativeChatWorkRunMember(approvalReviewMessage('approved-review'), false, false)).toBe(
+      'notice'
+    )
   })
 })

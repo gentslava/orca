@@ -19224,6 +19224,10 @@
         "orcaStopCanContinue": "You can continue in this conversation.",
         "orcaStopUnnamedServer": "the remote server",
         "autoApprovalGranted": "Automatic approval granted",
+        "autoApprovalRejected": "Automatic approval rejected",
+        "autoApprovalDenied": "Automatic approval denied",
+        "autoApprovalTimedOut": "Automatic approval timed out",
+        "safetyCheckDenied": "Permission denied by safety check",
         "orchestrationMail": "Orchestration mail"
       },
       "composer": {

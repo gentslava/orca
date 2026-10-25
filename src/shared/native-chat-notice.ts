@@ -13,6 +13,10 @@ export const NATIVE_CHAT_NOTICE_COPY = {
   contextCleared: 'Context cleared',
   plan: 'Plan',
   autoApprovalGranted: 'Automatic approval granted',
+  autoApprovalRejected: 'Automatic approval rejected',
+  autoApprovalDenied: 'Automatic approval denied',
+  autoApprovalTimedOut: 'Automatic approval timed out',
+  safetyCheckDenied: 'Permission denied by safety check',
   orchestrationMail: 'Orchestration mail'
 } as const
 

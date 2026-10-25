@@ -1,9 +1,33 @@
-import { Check, ChevronRight } from 'lucide-react'
+import { AlertCircle, AlertTriangle, Check, ChevronRight } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { translate } from '@/i18n/i18n'
 import type { NativeChatTextBlock } from '../../../../shared/native-chat-types'
+import {
+  nativeChatAutoApprovalOutcome,
+  type NativeChatAutoApprovalOutcome
+} from '../../../../shared/native-chat-auto-approval'
+import { cn } from '@/lib/utils'
 import { ProviderFrameRow } from './NativeChatTranscriptChrome'
 import { useNativeChatDisclosure } from './native-chat-disclosure-store'
+
+const OUTCOME_LABEL: Record<NativeChatAutoApprovalOutcome, () => string> = {
+  approved: () =>
+    translate('components.native-chat.notices.autoApprovalGranted', 'Automatic approval granted'),
+  rejected: () =>
+    translate('components.native-chat.notices.autoApprovalRejected', 'Automatic approval rejected'),
+  denied: () =>
+    translate('components.native-chat.notices.autoApprovalDenied', 'Automatic approval denied'),
+  'timed-out': () =>
+    translate(
+      'components.native-chat.notices.autoApprovalTimedOut',
+      'Automatic approval timed out'
+    ),
+  'safety-denied': () =>
+    translate(
+      'components.native-chat.notices.safetyCheckDenied',
+      'Permission denied by safety check'
+    )
+}
 
 export function NativeChatAutoApprovalNotice({
   block,
@@ -18,6 +42,9 @@ export function NativeChatAutoApprovalNotice({
     messageId === undefined ? undefined : `auto-approval:${messageId}`,
     false
   )
+  const outcome = nativeChatAutoApprovalOutcome(block) ?? 'approved'
+  const Icon =
+    outcome === 'approved' ? Check : outcome === 'timed-out' ? AlertCircle : AlertTriangle
   const details = (
     <div className="space-y-1 py-1 text-sm text-chat-foreground-faint">
       <p className="whitespace-pre-wrap break-words">{block.text}</p>
@@ -33,12 +60,14 @@ export function NativeChatAutoApprovalNotice({
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger variant="transcript" className="group/auto-approval">
-        <Check aria-hidden="true" className="size-3.5 shrink-0" />
-        <span className="min-w-0 truncate">
-          {translate(
-            'components.native-chat.notices.autoApprovalGranted',
-            'Automatic approval granted'
+        <span
+          className={cn(
+            'flex min-w-0 items-center gap-1.5',
+            outcome !== 'approved' && 'text-chat-warning'
           )}
+        >
+          <Icon aria-hidden="true" className="size-3.5 shrink-0" />
+          <span className="min-w-0 truncate">{OUTCOME_LABEL[outcome]()}</span>
         </span>
         <ChevronRight
           aria-hidden="true"

@@ -13,7 +13,7 @@ import { MobileMarkdown } from '../components/MobileMarkdown'
 import { INLINE_TEXT_SELECTION } from '../components/inline-text-selection'
 import { colors, radii, spacing, typography } from '../theme/mobile-theme'
 import { MONO_SIZE, TEXT_SIZE, scaledType } from './mobile-native-chat-message-styles'
-import { isNativeChatAutoApprovalNotice } from '../../../src/shared/native-chat-auto-approval'
+import { nativeChatAutoApprovalOutcome } from '../../../src/shared/native-chat-auto-approval'
 import { MobileNativeChatAutoApprovalNotice } from './MobileNativeChatAutoApprovalNotice'
 
 const TONE_COLOR: Record<NativeChatNoticeTone, string> = {
@@ -50,7 +50,7 @@ export function MobileNativeChatNoticeRow({
     ) : null
   }
   const look = nativeChatNoticeLook(notice)
-  if (isNativeChatAutoApprovalNotice(notice)) {
+  if (nativeChatAutoApprovalOutcome(notice) !== null) {
     return (
       <MobileNativeChatAutoApprovalNotice
         block={notice}
