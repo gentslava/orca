@@ -40,8 +40,9 @@ export function restampAiVaultListResult(
   result: AiVaultListResult,
   executionHostId: ExecutionHostId
 ): AiVaultListResult {
+  const { scanId: _localScanId, ...remoteResult } = result
   return {
-    ...result,
+    ...remoteResult,
     sessions: result.sessions.map((session) =>
       session.executionHostId === executionHostId
         ? session

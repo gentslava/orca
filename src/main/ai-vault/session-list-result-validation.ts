@@ -111,7 +111,8 @@ const aiVaultListResultEnvelopeSchema = z
       .string()
       .regex(/^[0-9a-f]{64}$/)
       .optional(),
-    unchanged: z.literal(true).optional()
+    unchanged: z.literal(true).optional(),
+    includesStructuredSessions: z.literal(true).optional()
   })
   .refine(
     (value) =>
@@ -172,6 +173,9 @@ export function parseAiVaultListResult(value: unknown): AiVaultListResult {
     sessions,
     issues,
     scannedAt: envelope.data.scannedAt,
+    ...(envelope.data.includesStructuredSessions
+      ? { includesStructuredSessions: true as const }
+      : {}),
     ...(envelope.data.fingerprint ? { fingerprint: envelope.data.fingerprint } : {}),
     ...(envelope.data.unchanged ? { unchanged: true as const } : {})
   }

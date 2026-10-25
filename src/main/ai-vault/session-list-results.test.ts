@@ -5,6 +5,7 @@ import type {
   AiVaultSession
 } from '../../shared/ai-vault-types'
 import { truncateAiVaultListResult } from '../../shared/ai-vault-session-depth'
+import { parseAiVaultListResult } from './session-list-result-validation'
 import { mergeAiVaultListResults, restampAiVaultListResult } from './session-list-results'
 
 function listResult(issues: AiVaultScanIssue[]): AiVaultListResult {
@@ -47,14 +48,56 @@ const SCOPE_TRUNCATION: AiVaultScanIssue = {
 }
 
 describe('restampAiVaultListResult', () => {
-  it('preserves confirmed empty catalog coverage without claiming it for legacy results', () => {
-    const original = listResult([])
-    expect(restampAiVaultListResult(original, 'runtime:server')).not.toHaveProperty(
-      'includesStructuredSessions'
+  const catalogs = [
+    { name: 'empty', result: listResult([]) },
+    {
+      name: 'populated',
+      result: { ...listResult([SCOPE_TRUNCATION]), sessions: [session(1)] }
+    },
+    {
+      name: 'unchanged',
+      result: { ...listResult([]), fingerprint: 'a'.repeat(64), unchanged: true as const }
+    }
+  ]
+
+  it.each(catalogs)('preserves confirmed $name catalog coverage through parsing', ({ result }) => {
+    const stamped = restampAiVaultListResult(
+      { ...result, includesStructuredSessions: true },
+      'runtime:server'
     )
-    expect(
-      restampAiVaultListResult({ ...original, includesStructuredSessions: true }, 'runtime:server')
-    ).toEqual({ ...original, includesStructuredSessions: true })
+    const parsed = parseAiVaultListResult(stamped)
+
+    expect(parsed).toEqual(stamped)
+    expect(parsed.includesStructuredSessions).toBe(true)
+    expect(parsed.sessions.every((row) => row.executionHostId === 'runtime:server')).toBe(true)
+    expect(parsed.issues.every((issue) => issue.executionHostId === 'runtime:server')).toBe(true)
+  })
+
+  it.each(catalogs)('does not claim coverage for a legacy $name catalog', ({ result }) => {
+    const parsed = parseAiVaultListResult(restampAiVaultListResult(result, 'runtime:server'))
+
+    expect(parsed).not.toHaveProperty('includesStructuredSessions')
+  })
+
+  it.each([
+    { name: 'full', metadata: { fingerprint: 'a'.repeat(64) } },
+    { name: 'unchanged', metadata: { fingerprint: 'a'.repeat(64), unchanged: true as const } },
+    { name: 'cancelled', metadata: { cancelled: true as const } }
+  ])('omits the local scan id while preserving $name reply metadata', ({ metadata }) => {
+    const expected = { ...listResult([]), ...metadata, includesStructuredSessions: true as const }
+    const original = { ...expected, scanId: 'local-scan' }
+
+    expect(restampAiVaultListResult(original, 'runtime:server')).toEqual(expected)
+    expect(original.scanId).toBe('local-scan')
+  })
+
+  it.each([false, null, 'true', 1, {}])('rejects an invalid coverage marker: %j', (marker) => {
+    expect(() =>
+      parseAiVaultListResult({
+        ...restampAiVaultListResult(listResult([]), 'runtime:server'),
+        includesStructuredSessions: marker
+      })
+    ).toThrow()
   })
 })
 

@@ -708,6 +708,8 @@ describe('aiVault.listSessions handler + shared cache', () => {
     })
 
     expect(localResponse.result.sessions[0]?.executionHostId).toBe('local')
+    expect(localResponse.result.scanId).toEqual(expect.any(String))
+    expect(runtimeResponse.result).not.toHaveProperty('scanId')
     expect(runtimeResponse.result.sessions[0]?.executionHostId).toBe('runtime:remote-server')
     expect(runtimeResponse.result.sessions[0]?.id).toBe(
       'runtime:remote-server:claude:sess-1:/tmp/t.jsonl'
