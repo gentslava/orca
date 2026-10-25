@@ -296,8 +296,6 @@ jobs:
       github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -314,9 +312,12 @@ jobs:
           path: ${{ runner.temp }}/fork-sync/
       - name: Fast-forward master to the archived candidate with an atomic old-SHA guard
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
           FORK_SYNC_PLAN: ${{ needs.plan.outputs.plan }}
         run: node config/scripts/fork-upstream-sync.mjs promote
+      - name: Remove temporary SSH credentials even after cancellation
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
       - name: Upload promotion diagnostics
         if: always()
         uses: actions/upload-artifact@v7
@@ -335,7 +336,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
     steps:
       - uses: actions/checkout@v6
@@ -349,9 +350,13 @@ jobs:
           package-manager-cache: false
       - name: Open or update the single fork integration PR from an upstream-main mirror
         env:
+          FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
           FORK_SYNC_PLAN: ${{ needs.plan.outputs.plan }}
         run: node config/scripts/fork-upstream-sync.mjs recover
+      - name: Remove temporary SSH credentials even after cancellation
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
       - name: Retain recovery errors when repository policy rejects the PR or mirror push
         if: failure()
         uses: actions/upload-artifact@v7

@@ -97,30 +97,63 @@ current candidate is never rebased or rebuilt silently before promotion.
 ## Permissions and operating limits
 
 Planning and all merged-code execution have only `contents: read`, and checkout
-never persists credentials. Only the final promotion job gets `contents: write`;
-only the recovery job additionally gets `pull-requests: write`. They use the
-job's `GITHUB_TOKEN` in memory for authenticated fork writes, never personal
-tokens, generated GitHub App tokens or upstream credentials. All write URLs are
-hardcoded to the fork. See
+never persists credentials. Every job's `GITHUB_TOKEN` retains `contents: read`;
+only recovery additionally gets `pull-requests: write` for the PR REST API.
+Git pushes use `git@github.com:gentslava/orca.git` with the repository Actions
+secret `FORK_SYNC_DEPLOY_KEY`: a **new dedicated writable SSH deploy key attached
+only to `gentslava/orca`**, never a personal/account SSH key, an existing key, a
+PAT or an upstream credential. Ordinary `GITHUB_TOKEN` cannot push changes to
+`.github/workflows`, which upstream integrations include; granting
+`contents: write` does not solve that restriction. See GitHub's primary
+[workflow permission discussion](https://github.com/orgs/community/discussions/26711)
+and [workflow-file rejection discussion](https://github.com/orgs/community/discussions/26583).
+There is no token fallback or permission bypass. See
+[deploy key scope](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys) and
 [GitHub token permissions](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token).
+
+Only the promote/recovery invocation steps receive the SSH secret, after a fresh
+checkout of trusted `github.sha`; the candidate build has no deploy key or write
+token. The trusted script creates a temporary mode-0700 directory outside the
+diagnostic artifact tree and a mode-0600 key file, then removes the entire
+directory in `finally`. An `always()` workflow step also removes those temporary
+directories after failure/cancellation. No key is installed in HOME or an agent.
+SSH ignores user/system configuration and agents, uses `IdentitiesOnly` and
+`BatchMode`, and requires strict host verification against the checked-in
+`config/fork-upstream-github-known-hosts`. Those public host keys were pinned from
+[`https://api.github.com/meta`'s `ssh_keys`](https://api.github.com/meta) on
+2026-10-25 and checked against
+[GitHub's official host fingerprints](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints).
+Review official host-key rotations and update the pins through normal review;
+the workflow never trusts `ssh-keyscan` output. Git subprocesses receive neither
+the raw deploy key nor REST tokens, inherited SSH agents or Git auth overrides.
+The REST client receives only the standard job `GITHUB_TOKEN` as its credential.
+
+Provision the new deploy key with write access in the fork's Deploy keys settings,
+and store its private half in the fork's repository Actions secret named above.
+Do not attach the key to a user account or another repository. Verify the deploy
+key's repository and write flag before storing the secret. Revoke by deleting
+both the repository deploy key and the Actions secret; deleting only the secret
+does not revoke the public key's access. The workflow fails clearly if the secret
+is absent, and it does not create or rotate credentials.
 
 Repository/organization policy can still deny pushes or automated PR creation.
 For the PR fallback, enable **Settings → Actions → General → Workflow permissions
 → Allow GitHub Actions to create and approve pull requests** in `gentslava/orca`.
 This is the repository Actions API field `can_approve_pull_request_reviews: true`
 on `PUT /repos/gentslava/orca/actions/permissions/workflow`. The default workflow
-permission can remain `read`: this workflow grants the two writer jobs only the
-permissions declared above and never approves a PR. See the
+permission remains `read`: this workflow grants only recovery's PR API write
+permission and never approves a PR. See the
 [repository Actions settings reference](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#preventing-github-actions-from-creating-or-approving-pull-requests).
 Protected
-master rules, workflow-file permission restrictions, an upstream history rewrite,
+master rules, an upstream history rewrite,
 or a human modification of the mirror branch can reject ordinary pushes. Such
 rejections fail visibly, preserve master, and retain diagnostics; this workflow
 does not acquire broader credentials or bypass those rules. No automatic PR CI
 or push-triggered CI is relied upon for the promotion gate; all required checks
-run explicitly before the writer job. GitHub's
-[token-trigger behavior](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs)
-also limits workflows initiated by token writes.
+run explicitly before the writer job. Deploy-key pushes can trigger other
+push workflows; this sync workflow accepts only schedule/manual events, so its
+own writes cannot create a sync loop. PR creation still uses `GITHUB_TOKEN` and
+has GitHub's [token-trigger limits](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs).
 
 This is a local preview build with ad-hoc signatures, no Developer ID signing,
 notarization, release publication, auto-update channel, GUI validation, Docker
@@ -142,7 +175,11 @@ actionlint -oneline .github/workflows/fork-preview-macos-arm64.yml
 `fork-upstream-sync.test.mjs` uses real temporary repositories and bare remotes
 for unchanged/manual decisions, pinned clean merges, conflicts, source drift,
 archive-verifier error propagation, bundle promotion and both build-time and
-fetch-to-push master races. Its archive verifier is mocked to keep Git protocol
+fetch-to-push master races. It also exercises the production SSH URL through a
+local SSH transport double backed by a real bare repository, verifies key modes,
+strict host options, environment/REST separation and cleanup, and checks that the
+workflow grants the secret only to the trusted writer steps. No test writes to
+GitHub or generates a real credential. Its archive verifier is mocked to keep Git protocol
 coverage independent of the host OS. `fork-upstream-archives.test.mjs` exercises
 the real verifier on macOS with a compiled, ad-hoc-signed ARM64 fixture app,
 real DMGs and ZIPs. It rejects fake-text DMGs, mismatched embedded commit/version/
