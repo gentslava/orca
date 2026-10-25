@@ -416,9 +416,14 @@ it('keeps the initial tall-row window anchored after a reader parks and backgrou
   expect(chat0.scroller.top(anchor)).toBe(top + 100)
 })
 
-it.each(['scroll', 'jump'] as const)(
-  'slides the opening window after a detached reader resumes following by %s',
-  (resume) => {
+it.each([
+  ['scroll', false],
+  ['jump', false],
+  ['scroll', true],
+  ['jump', true]
+] as const)(
+  'slides the opening window after a detached reader resumes by %s, partially expanded: %s',
+  (resume, expand) => {
     const rows = Array.from({ length: 500 }, (_, i) => ({
       ...say(`m${i}`, 'assistant', ''),
       blocks: Array.from({ length: 5 }, () => ({ type: 'text' as const, text: `Message ${i}` }))
@@ -427,6 +432,10 @@ it.each(['scroll', 'jump'] as const)(
     chat0.read(() => (chat0.scroller.scrollTop = -150))
     chat0.show(rows.slice(0, 230))
     expect(chat0.drawn(mobileNativeChatRowId('m196'))).toBe(1)
+    if (expand) {
+      chat0.read(() => chat0.scroller.showFrom(200))
+      expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m164'))
+    }
 
     if (resume === 'jump') {
       chat0.press('header')

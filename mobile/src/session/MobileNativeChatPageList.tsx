@@ -268,12 +268,13 @@ export function MobileNativeChatPageList({
     const screens = (s.scrollHeight - s.clientHeight + s.scrollTop) / s.clientHeight
     if (at > 0 && screens < DRAW_AHEAD_SCREENS) {
       const next = Math.max(0, at - DRAW_BATCH)
-      setDrawn({
+      setDrawn((previous) => ({
         scope: current.scope,
         firstKey: drawnKeys[next]!,
         count: total - next,
-        fromStart: next === 0
-      })
+        fromStart: next === 0,
+        detached: next > 0 && previous.scope === current.scope && previous.detached
+      }))
     }
     if (at < FETCH_AHEAD_ROWS && screens < FETCH_REACH_SCREENS) {
       ask.current?.()
