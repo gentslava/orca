@@ -58,8 +58,9 @@
 ### Task 4: Verify and deliver
 
 - [x] Self-review branch against spec, fix material findings with red/green tests, update this checklist truthfully.
-- [x] Run focused suites, actual `pnpm run typecheck:ci --bun-concurrency=1 --bun-threads=2`, mobile typecheck, bounded `pnpm check:changed`, format/quality and normal hooks.
-- [x] Capture English before/after hidden UI proof and instructions; record exact checks and limitations in `/private/tmp/orca-personal-project-order-implementation-report.md`.
+- [x] Run focused suites, actual `pnpm run typecheck:ci --bun-concurrency=1 --bun-threads=2`, mobile typecheck, format/quality and normal hooks.
+- [ ] Complete the aggregate bounded `pnpm check:changed` gate: incomplete; the interrupted related-test process left the gate at exit 1 (see Final gate disposition).
+- [x] Capture English before/after hidden UI proof and instructions; record exact checks and limitations in the [PR Testing section](https://github.com/stablyai/orca/pull/33502#testing) and [durable verification evidence](https://github.com/gentslava/orca/issues/1#issuecomment-6396521711).
 - [x] Verify clean committed tree and report once to coordinator; no push (final handoff after this documentation commit).
 
 ## Self-review
