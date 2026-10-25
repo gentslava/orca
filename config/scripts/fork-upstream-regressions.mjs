@@ -103,6 +103,7 @@ const desktop = [
   'src/main/rate-limits/antigravity-usage-response.test.ts',
   'src/main/rate-limits/service-antigravity-usage.test.ts',
   'src/renderer/src/components/status-bar/usage-error-copy.test.ts',
+  'tests/e2e/antigravity-usage-diagnostic.unit.test.ts',
   'src/renderer/src/components/status-bar/tooltip.test.ts',
   'src/renderer/src/components/status-bar/owner-usage-rate-limits.test.ts',
   'src/renderer/src/store/slices/usage-web-client-fallback.test.ts',
