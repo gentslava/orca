@@ -12,7 +12,7 @@ import {
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { NativeChatMessage } from '../../../src/shared/native-chat-types'
-import { foldToolMessages } from '../../../src/shared/native-chat-tool-fold'
+import { foldToolMessages } from '../../../src/shared/native-chat/tools/native-chat-tool-fold'
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
 import { MobileNativeChatScrollRootsBoundary } from './MobileNativeChatScrollRootsBoundary'
 import { MobileNativeChatScrollMotion } from './mobile-native-chat-scroll-motion'

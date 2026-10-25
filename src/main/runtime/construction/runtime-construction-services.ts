@@ -128,6 +128,7 @@ export abstract class RuntimeConstructionServices {
   protected abstract getPtyTitleDisplayClear(
     ptyId: string | null | undefined
   ): TitleDisplayClear | null
+  protected abstract flushPendingWaitBlockedCheck(ptyId: string): void
   protected abstract makeDecorativeTitleGateKey(rawTitle: string, normalizedTitle: string): string
   protected abstract refreshTerminalSideEffectConsumerAvailability(): void
   protected abstract resolveNativeChatLaunchDraftOwner(handle: string): {

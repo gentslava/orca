@@ -1,7 +1,7 @@
 import { OrcaRuntimeWithOnPtyExit } from '../lifecycle/pty-exit-lifecycle'
 import type { PtyLivenessVerdict } from '../../../../shared/pty-liveness-verdict'
 import type { DriverState } from '../../orca-runtime-core'
-import type { TerminalInputKind } from '../../../../shared/terminal-input-kind'
+import { isDrivingInputKind, type TerminalInputKind } from '../../../../shared/terminal-input-kind'
 import { isUntypedTerminalInput } from '../../../../shared/terminal-untyped-input'
 import { clampTerminalViewport } from '../../../../shared/terminal-viewport'
 import { getPtyTerminalState, getTerminalState } from '../../terminal-wait-results'
@@ -259,7 +259,7 @@ export abstract class OrcaRuntimeWithMarkPtyLivenessUnverifiable extends OrcaRun
   }
 
   noteRemoteDesktopHostInput(ptyId: string, inputKind: TerminalInputKind, data: string): void {
-    if (inputKind === 'driving' && !isUntypedTerminalInput(data)) {
+    if (isDrivingInputKind(inputKind) && !isUntypedTerminalInput(data)) {
       this.remoteDesktopFloor.noteHostInput(ptyId)
     }
   }

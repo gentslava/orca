@@ -5,16 +5,14 @@ import {
   isToolResultBlock,
   type NativeChatBlock,
   type NativeChatMessage
-} from './native-chat-types'
-import { isKnownHarnessInjectedUserTurnText } from './harness-injected-user-turns'
-import { isNoiseMessage } from './native-chat-noise'
+} from '../../native-chat-types'
+import { isKnownHarnessInjectedUserTurnText } from '../../harness-injected-user-turns'
+import { isNoiseMessage } from '../../native-chat-noise'
 import {
   CODEX_PLAN_UPDATED_FRAME_KIND,
   isWordlessProviderFrameMessage
-} from './native-chat/native-chat-provider-frame-summary'
+} from '../native-chat-provider-frame-summary'
 import { FoldedToolResultSources } from './native-chat-folded-tool-results'
-
-export { pairToolBlocks, type NativeChatToolPair } from './native-chat-tool-pairs'
 
 function isToolOnlyMessage(message: NativeChatMessage): boolean {
   return (

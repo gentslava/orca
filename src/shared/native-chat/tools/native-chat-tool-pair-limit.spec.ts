@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { pairToolBlocks, type NativeChatToolPair } from './native-chat-tool-fold'
-import type { NativeChatBlock } from './native-chat-types'
+import { pairToolBlocks, type NativeChatToolPair } from './native-chat-tool-pairs'
+import type { NativeChatBlock } from '../../native-chat-types'
 
 function original(blocks: readonly NativeChatBlock[], limit: number): NativeChatToolPair[] {
   const pairs: NativeChatToolPair[] = []

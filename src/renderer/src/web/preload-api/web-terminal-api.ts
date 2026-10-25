@@ -192,6 +192,8 @@ export function createSshApi(): NonNullable<Partial<PreloadApi>['ssh']> {
       Promise.reject(new Error('SSH port forwarding is unavailable in the web client.')),
     removePortForward: () => Promise.resolve(null),
     listPortForwards: () => Promise.resolve([]),
+    listUnrestoredPortForwards: () => Promise.resolve([]),
+    removeSavedPortForward: () => Promise.resolve(),
     listDetectedPorts: () => Promise.resolve([]),
     onPortForwardsChanged: () => noopUnsubscribe,
     onDetectedPortsChanged: () => noopUnsubscribe,

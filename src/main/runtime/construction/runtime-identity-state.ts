@@ -298,7 +298,7 @@ export abstract class OrcaRuntimeWithRuntimeId extends RuntimeConstructionServic
       return null
     }
     const pty = this.ptysById.get(ptyId)
-    const agent = pty?.launchAgent ?? pty?.foregroundAgent ?? null
+    const agent = pty?.launchAgent ?? pty?.foregroundAgent ?? pty?.launchCommandAgent ?? null
     return isTuiAgent(agent) ? agent : null
   }
 

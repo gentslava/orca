@@ -172,6 +172,7 @@ export function buildStoreState(overrides: StoreLike): StoreLike {
     setSshConnectionState: vi.fn(),
     setSshTargetLabels: vi.fn(),
     setPortForwards: vi.fn(),
+    setUnrestoredPortForwards: vi.fn(),
     clearPortForwards: vi.fn(),
     setDetectedPorts: vi.fn(),
     enqueueSshCredentialRequest: vi.fn(),

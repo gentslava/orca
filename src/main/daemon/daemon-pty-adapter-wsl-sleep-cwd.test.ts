@@ -184,6 +184,28 @@ describe('a sleeping bridge WSL pane keeps its shell folder', () => {
     expect(checkpointCwd(id)).toBe(`${WSL_CWD}\\deep\\er`)
   })
 
+  // awin verify-11, 5e: a pane the relaunched window reattached (no spawn env, so no pane key)
+  // slept at its spawn folder.
+  it('reads it for a pane a relaunched app reattached without its spawn environment', async () => {
+    const before = new DaemonPtyAdapter({ socketPath, tokenPath, historyPath: historyDir() })
+    const { id } = await before.spawn({
+      cols: 80,
+      rows: 24,
+      cwd: WSL_CWD,
+      env: { ORCA_PANE_KEY: PANE_KEY },
+      sessionId: 'repo::/repo@@reattached'
+    })
+    lastSubprocess._simulateData('$ cd deep/er\r\n')
+    await before.disconnectOnly()
+    adapter = new DaemonPtyAdapter({ socketPath, tokenPath, historyPath: historyDir() })
+    await adapter.attach(id)
+
+    await adapter.shutdown(id, { immediate: true, keepHistory: true })
+
+    expect(readRows).toHaveBeenCalledWith('Ubuntu', expect.any(Number), { running: true })
+    expect(checkpointCwd(id)).toBe(`${WSL_CWD}\\deep\\er`)
+  })
+
   it('keeps the spawn folder when the distro cannot be read', async () => {
     readRows.mockResolvedValue(null)
     adapter = new DaemonPtyAdapter({ socketPath, tokenPath, historyPath: historyDir() })

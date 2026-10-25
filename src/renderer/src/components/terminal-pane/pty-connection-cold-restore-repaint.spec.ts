@@ -7,7 +7,7 @@ import {
 } from '../../../../shared/terminal-mode-reset-profiles'
 import { Terminal } from '@xterm/headless'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
-import { buildFreshShellViewportBlankingSequence } from './terminal-restored-viewport'
+import { buildFreshShellViewportBlankingSequence } from '../../../../shared/terminal-fresh-shell-viewport'
 import {
   flushAsyncTicks,
   writeHeadlessTerminal,

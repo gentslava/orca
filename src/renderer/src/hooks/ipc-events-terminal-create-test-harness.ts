@@ -94,6 +94,7 @@ export async function setupTerminalCreateSurfacing(
     setSshConnectionState: vi.fn(),
     setSshTargetLabels: vi.fn(),
     setPortForwards: vi.fn(),
+    setUnrestoredPortForwards: vi.fn(),
     clearPortForwards: vi.fn(),
     setDetectedPorts: vi.fn(),
     enqueueSshCredentialRequest: vi.fn(),

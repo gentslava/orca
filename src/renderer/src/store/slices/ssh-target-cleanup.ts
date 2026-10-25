@@ -220,6 +220,10 @@ export function buildRemovedSshTargetCleanupPatch(
     omitKey(state.transientClearedAgentStatusConnectionIds, targetId)
   )
   assign('portForwardsByConnection', omitKey(state.portForwardsByConnection, targetId))
+  assign(
+    'unrestoredPortForwardsByConnection',
+    omitKey(state.unrestoredPortForwardsByConnection, targetId)
+  )
   assign('detectedPortsByConnection', omitKey(state.detectedPortsByConnection, targetId))
   assign('sshConnectionStates', withoutMapKey(state.sshConnectionStates, targetId))
   assign('sshTargetLabels', withoutMapKey(state.sshTargetLabels, targetId))
