@@ -201,7 +201,7 @@ it('restores native idle CmdQ without a routable surface, including orphan conte
   })
   expect(serveItem.accelerator).toBe('CmdOrCtrl+Q')
   if (serveItem.click) {
-    Reflect.apply(serveItem.click, undefined, [])
+    serveItem.click()
   }
   expect(serveQuit).toHaveBeenCalledOnce()
   expect(f.quit).not.toHaveBeenCalled()

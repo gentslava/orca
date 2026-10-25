@@ -20,7 +20,7 @@ it('removes both native quit role and accelerator only for the enabled macOS key
   expect(enabled.accelerator).toBeUndefined()
   expect(enabled.label).toContain('⌘Q')
   if (enabled.click) {
-    Reflect.apply(enabled.click, undefined, [])
+    enabled.click()
   }
   expect(quit).toHaveBeenCalledOnce()
   expect(createAppMenuQuitItem(undefined, 'Orca', { isEnabled: () => false, quit }).role).toBe(
