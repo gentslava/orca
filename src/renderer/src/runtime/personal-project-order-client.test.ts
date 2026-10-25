@@ -70,9 +70,13 @@ it.each(['mode', 'pin', 'open'] as const)(
   'preserves client-owned UI fields when a %s acknowledgement omits them',
   async (action) => {
     fixture.capabilities = ['ui.personalProjectOrder.v1']
+    const manualRepoOrder = [
+      { hostId: 'local' as const, repoId: 'beta' },
+      { hostId: 'runtime:server' as const, repoId: 'alpha' }
+    ]
     useAppStore.setState({
       sidebarOpen: false,
-      manualRepoOrder: ['beta', 'alpha'],
+      manualRepoOrder,
       workspaceHostOrder: ['runtime:server', 'local'],
       agentsFilterRepoIds: ['alpha']
     })
@@ -106,7 +110,7 @@ it.each(['mode', 'pin', 'open'] as const)(
     }
     expect(useAppStore.getState()).toMatchObject({
       sidebarOpen: false,
-      manualRepoOrder: ['beta', 'alpha'],
+      manualRepoOrder,
       workspaceHostOrder: ['runtime:server', 'local'],
       agentsFilterRepoIds: ['alpha'],
       projectOrderBy: 'name',
