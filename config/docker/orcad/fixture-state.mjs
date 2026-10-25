@@ -7,6 +7,7 @@ import { AGENT_JOURNAL_THREAD_SCOPE } from '../../../src/shared/agent-session-jo
 import { codexProviderHandle } from '../../../src/shared/agent-session-provider-handle-encoding.ts'
 import { createOrcadSecretStore } from '../../../src/main/orcad/orcad-secret-store.ts'
 import { resolveStructuredAgentCommand } from '../../../src/main/native-chat/structured-agent-command-resolution.ts'
+import { encodePairingOffer, parsePairingCode } from '../../../src/shared/pairing.ts'
 
 async function main() {
   const create = process.argv.includes('--create')
@@ -14,6 +15,24 @@ async function main() {
   const home = process.env.HOME
   if (state !== '/var/lib/orca' || home !== '/home/node' || process.getuid?.() !== 1000) {
     throw new Error('fixture requires the isolated Docker service volumes and user')
+  }
+  if (process.argv.includes('--invalidate-health-grant')) {
+    const source = await readFile('/run/orca/readiness.json', 'utf8')
+    const ready = JSON.parse(source)
+    const offer = parsePairingCode(ready.pairing.url)
+    assert.ok(offer)
+    await writeFile('/run/orca/readiness.health-fixture.json', source, { mode: 0o600 })
+    ready.pairing.url = encodePairingOffer({ ...offer, deviceToken: 'unregistered-fixture-token' })
+    await writeFile('/run/orca/readiness.json', JSON.stringify(ready), { mode: 0o600 })
+    return
+  }
+  if (process.argv.includes('--restore-health-grant')) {
+    await writeFile(
+      '/run/orca/readiness.json',
+      await readFile('/run/orca/readiness.health-fixture.json'),
+      { mode: 0o600 }
+    )
+    return
   }
   const marker = 'orcad-docker-fixture-no-provider-account'
   const providers = JSON.parse(await readFile('/opt/orca/providers/manifest.json', 'utf8'))

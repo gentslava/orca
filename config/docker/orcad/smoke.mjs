@@ -157,6 +157,38 @@ try {
     (await docker(['inspect', '--format', '{{json .Image}}', await containerId()])).stdout
   )
   await verify('initial', true)
+  await compose([
+    'exec',
+    '-T',
+    'orcad',
+    'node',
+    '/tmp/fixture-state.cjs',
+    '--invalidate-health-grant'
+  ])
+  try {
+    const failedProbe = await compose(
+      ['exec', '-T', 'orcad', 'node', '/opt/orca/docker/healthcheck.cjs'],
+      20000,
+      true
+    )
+    assert.notEqual(failedProbe.code, 0)
+    assert.equal(failedProbe.timedOut, false)
+    report.negativeHealthCredential = {
+      simulation: 'unregistered-startup-token',
+      code: failedProbe.code,
+      diagnosis: failedProbe.stderr.trim()
+    }
+  } finally {
+    await compose([
+      'exec',
+      '-T',
+      'orcad',
+      'node',
+      '/tmp/fixture-state.cjs',
+      '--restore-health-grant'
+    ])
+  }
+  await healthy()
   const daemonPid = String(ready.health.terminalDaemon.pid)
   await compose([
     'exec',

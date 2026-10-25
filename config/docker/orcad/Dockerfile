@@ -31,9 +31,10 @@ COPY config/ config/
 ARG ORCAD_SOURCE_COMMIT
 ARG ORCAD_SOURCE_DIRTY=false
 ARG ORCAD_SOURCE_FINGERPRINT
-RUN pnpm --dir mobile run postinstall && pnpm build:mobile-web \
+RUN ORCAD_BUILT_SOURCE_FINGERPRINT="$(node config/docker/orcad/source-metadata.mjs)" \
+    && pnpm --dir mobile run postinstall && pnpm build:mobile-web \
     && ORCAD_SOURCE_COMMIT=${ORCAD_SOURCE_COMMIT} pnpm build:orcad \
-    && node config/docker/orcad/build-support.mjs
+    && ORCAD_BUILT_SOURCE_FINGERPRINT=${ORCAD_BUILT_SOURCE_FINGERPRINT} node config/docker/orcad/build-support.mjs
 
 FROM ${NODE_IMAGE} AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \

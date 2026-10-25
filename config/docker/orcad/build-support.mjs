@@ -1,10 +1,13 @@
 import { build } from 'esbuild'
 import { readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { sourceFingerprint } from './source-metadata.mjs'
 
 const root = resolve(import.meta.dirname, '../../..')
 const out = resolve(root, 'out/orcad-docker')
+const builtSourceFingerprint = process.env.ORCAD_BUILT_SOURCE_FINGERPRINT
+if (!/^[a-f0-9]{64}$/.test(builtSourceFingerprint ?? '')) {
+  throw new Error('Snapshot ORCAD_BUILT_SOURCE_FINGERPRINT before generating build inputs')
+}
 await build({
   entryPoints: ['entrypoint', 'healthcheck', 'install-providers'].map((name) =>
     resolve(import.meta.dirname, `${name}.mjs`)
@@ -26,7 +29,7 @@ await writeFile(
       revision: process.env.ORCAD_SOURCE_COMMIT,
       dirty: process.env.ORCAD_SOURCE_DIRTY === 'true',
       configuredSourceFingerprint: process.env.ORCAD_SOURCE_FINGERPRINT,
-      builtSourceFingerprint: await sourceFingerprint(root),
+      builtSourceFingerprint,
       orcadVersion: (await readFile(resolve(root, 'out/orcad/.version'), 'utf8')).trim()
     },
     null,

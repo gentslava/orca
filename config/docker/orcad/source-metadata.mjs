@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readdir, readFile, readlink } from 'node:fs/promises'
 import { join } from 'node:path'
+import { isDirectInvocation } from '../../scripts/script-entry-detection.mjs'
 
 const excluded = new Set([
   'node_modules',
@@ -32,7 +33,9 @@ export async function sourceFingerprint(root) {
   async function visit(relative) {
     const path = join(root, relative)
     const entries = await readdir(path, { withFileTypes: true })
-    for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name, 'en'))) {
+    for (const entry of entries.sort((left, right) =>
+      left.name < right.name ? -1 : left.name > right.name ? 1 : 0
+    )) {
       if (
         excluded.has(entry.name) ||
         entry.name.startsWith('.env') ||
@@ -66,4 +69,8 @@ export async function sourceFingerprint(root) {
     }
   }
   return hash.digest('hex')
+}
+
+if (isDirectInvocation(import.meta.url, process.argv[1])) {
+  console.log(await sourceFingerprint(process.cwd()))
 }
