@@ -15,41 +15,44 @@ import {
 vi.mock('electron', async () => (await import('./filesystem-test-harness')).electronMock)
 vi.mock('fs/promises', async () => (await import('./filesystem-test-harness')).fsPromisesMock)
 vi.mock(
-  '../wsl-unc-delete',
+  '../../wsl-unc-delete',
   async () => (await import('./filesystem-test-harness')).wslUncDeleteMock
 )
 vi.mock(
-  '../crash-reporting/crash-breadcrumb-store',
+  '../../crash-reporting/crash-breadcrumb-store',
   async () => (await import('./filesystem-test-harness')).crashBreadcrumbMock
 )
 vi.mock(
-  '../git/status',
+  '../../git/status',
   async () => (await import('./filesystem-test-harness')).gitStatusModuleMock
 )
 vi.mock(
-  '../git/check-ignored-paths',
+  '../../git/check-ignored-paths',
   async () => (await import('./filesystem-test-harness')).gitIgnoredPathsMock
 )
-vi.mock('../git/worktree', async () => (await import('./filesystem-test-harness')).gitWorktreeMock)
 vi.mock(
-  '../text-generation/commit-message-text-generation',
+  '../../git/worktree',
+  async () => (await import('./filesystem-test-harness')).gitWorktreeMock
+)
+vi.mock(
+  '../../text-generation/commit-message-text-generation',
   async () => (await import('./filesystem-test-harness')).textGenerationModuleMock
 )
 vi.mock(
-  '../text-generation/pull-request-context',
+  '../../text-generation/pull-request-context',
   async () => (await import('./filesystem-test-harness')).pullRequestContextMock
 )
 vi.mock(
-  '../source-control/pull-request-template',
+  '../../source-control/pull-request-template',
   async () => (await import('./filesystem-test-harness')).pullRequestTemplateMock
 )
 vi.mock(
-  '../source-control/pull-request-linked-issue',
+  '../../source-control/pull-request-linked-issue',
   async () => (await import('./filesystem-test-harness')).pullRequestLinkedIssueMock
 )
 
 import { registerFilesystemHandlers } from './filesystem'
-import { invalidateAuthorizedRootsCache } from './registered-worktree-roots-cache'
+import { invalidateAuthorizedRootsCache } from '../registered-worktree-roots-cache'
 
 describe('registerFilesystemHandlers', () => {
   beforeEach(() => {

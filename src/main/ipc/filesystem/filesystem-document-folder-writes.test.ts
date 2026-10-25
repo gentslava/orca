@@ -2,9 +2,9 @@ import { mkdir, mkdtemp, readdir, realpath, rm, symlink, writeFile } from 'node:
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Store } from '../persistence'
-import type * as RepoWorktrees from '../repo-worktrees'
-import { invalidateAuthorizedRootsCache } from './registered-worktree-roots-cache'
+import type { Store } from '../../persistence/loading-store/store'
+import type * as RepoWorktrees from '../../repo-worktrees'
+import { invalidateAuthorizedRootsCache } from '../registered-worktree-roots-cache'
 
 type Handler = (event: unknown, args: unknown) => Promise<unknown>
 
@@ -17,8 +17,8 @@ vi.mock('electron', () => ({
   app: { getPath: () => userData.path },
   ipcMain: { handle: (channel: string, handler: Handler) => handlers.set(channel, handler) }
 }))
-vi.mock('../repo-worktrees', async () => {
-  const actual = await vi.importActual<typeof RepoWorktrees>('../repo-worktrees')
+vi.mock('../../repo-worktrees', async () => {
+  const actual = await vi.importActual<typeof RepoWorktrees>('../../repo-worktrees')
   return { ...actual, listRepoWorktreeGraph: vi.fn(async () => []) }
 })
 

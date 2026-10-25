@@ -3,9 +3,9 @@ import { writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, expect, it } from 'vitest'
-import type { Store } from '../persistence'
-import { listQuickOpenFiles } from './filesystem-list-files'
-import { searchQuickOpenFilePaths } from './filesystem-search-file-paths'
+import type { Store } from '../../persistence/loading-store/store'
+import { listQuickOpenFiles } from '../filesystem-list-files'
+import { searchQuickOpenFilePaths } from '../filesystem-search-file-paths'
 
 const fixtures: string[] = []
 afterEach(async () => {

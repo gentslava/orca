@@ -21028,7 +21028,9 @@
         "settingRestart": "Всегда перезапускать",
         "settingKeep": "Никогда не перезапускать",
         "restartingOne": "Перезапуск одного сеанса Claude с {{account}}",
-        "restartingOther": "Перезапуск сеансов Claude с {{account}}: {{count}}"
+        "restartingOther": "Перезапуск сеансов Claude с {{account}}: {{count}}",
+        "uncheckedOne": "Не удалось проверить один терминал на наличие Claude. Если Claude в нём запущен, он продолжит работать с {{previous}} до перезапуска.",
+        "uncheckedOther": "Не удалось проверить терминалы на наличие Claude: {{count}}. Если Claude в них запущен, он продолжит работать с {{previous}} до перезапуска."
       },
       "signInAgain": "Войти снова",
       "usageSignInLabel": "Войти снова",

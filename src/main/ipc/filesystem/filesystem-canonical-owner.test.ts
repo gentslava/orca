@@ -1,16 +1,16 @@
 import { join, posix, resolve, win32 } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Store } from '../persistence'
-import type { Repo } from '../../shared/repo-types'
-import type { ProjectGroup } from '../../shared/project-group-types'
-import type { FolderWorkspace } from '../../shared/folder-workspace-types'
-import { resolveFolderWorkspaceHost } from '../../shared/folder-workspace-execution-host'
+import type { Store } from '../../persistence/loading-store/store'
+import type { Repo } from '../../../shared/repo-types'
+import type { ProjectGroup } from '../../../shared/project-group-types'
+import type { FolderWorkspace } from '../../../shared/folder-workspace-types'
+import { resolveFolderWorkspaceHost } from '../../../shared/folder-workspace-execution-host'
 import {
   getAllowedRoots,
   getLocalRepos,
   resolveUnanchoredWorkspaceRoot
-} from './filesystem-allowed-roots'
-import { isPathAllowed } from './filesystem-auth'
+} from '../filesystem-allowed-roots'
+import { isPathAllowed } from '../filesystem-auth'
 import {
   __resetCreatedWorktreeRootsForTests,
   invalidateAuthorizedRootsCache,
@@ -18,7 +18,7 @@ import {
   rebuildAuthorizedRootsCache,
   registerCreatedWorktreeRoot,
   registerWorktreeRootsForRepo
-} from './registered-worktree-roots-cache'
+} from '../registered-worktree-roots-cache'
 
 const mocks = vi.hoisted(() => ({
   graph: vi.fn(),
@@ -29,12 +29,12 @@ const mocks = vi.hoisted(() => ({
   projectRuntimes: vi.fn()
 }))
 vi.mock('node:fs/promises', () => ({ stat: mocks.stat, realpath: mocks.realpath }))
-vi.mock('../repo-worktrees', () => ({ listRepoWorktreeGraph: mocks.graph, isRepoRoot: vi.fn() }))
-vi.mock('./worktree-logic', () => ({
+vi.mock('../../repo-worktrees', () => ({ listRepoWorktreeGraph: mocks.graph, isRepoRoot: vi.fn() }))
+vi.mock('../worktree-logic', () => ({
   computeWorkspaceRootWithin: async (...args: unknown[]) => mocks.workspaceRoot(...args),
   getWorktreePathSettings: mocks.pathSettings
 }))
-vi.mock('../project-runtime-git-options', () => ({
+vi.mock('../../project-runtime-git-options', () => ({
   getWorktreeMirrorDistroForRuntime: vi.fn(),
   resolveLocalProjectRuntimesForRepos: mocks.projectRuntimes
 }))

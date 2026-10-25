@@ -32,7 +32,7 @@ import { registerFilesystemMutationHandlers } from './filesystem-mutations'
 import {
   resetSshConnectionGenerations,
   setSshConnectionGeneration
-} from '../ssh/connection/ssh-connection-generation'
+} from '../../ssh/connection/ssh-connection-generation'
 
 // Resolve fixture paths like production to preserve cross-platform comparisons.
 const REPO_PATH = path.resolve('/workspace/repo')

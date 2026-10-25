@@ -1,7 +1,7 @@
 import type { UserConfig } from 'electron-vite'
 
 /**
- * Opt-in (`ORCA_DEV_BUNDLED=1`): Vite's experimental bundled dev mode serves the renderer as
+ * Default in dev (opt out with `ORCA_DEV_BUNDLED=0`): Vite's bundled dev mode serves the renderer as
  * bundled chunks instead of thousands of per-module requests, which shortens dev startup and reloads.
  */
 export function withBundledRendererDev(
@@ -9,7 +9,7 @@ export function withBundledRendererDev(
   env: NodeJS.ProcessEnv = process.env
 ): UserConfig {
   const renderer = config.renderer
-  if (env.ORCA_DEV_BUNDLED !== '1' || !renderer || typeof renderer === 'function') {
+  if (env.ORCA_DEV_BUNDLED === '0' || !renderer || typeof renderer === 'function') {
     return config
   }
   const rollupOptions = renderer.build?.rollupOptions

@@ -162,6 +162,28 @@ describe('a sleeping bridge WSL pane keeps its shell folder', () => {
     expect(woken.coldRestore).toBeTruthy()
   })
 
+  // awin verify-10, X2: production never calls reconcileOnStartup, so after a relaunch a pane the
+  // window has not reopened is known only from the inventory; its Sleep wrote no checkpoint at all.
+  it('reads it for a pane a relaunched app only listed, never adopted or reattached', async () => {
+    const before = new DaemonPtyAdapter({ socketPath, tokenPath, historyPath: historyDir() })
+    const { id } = await before.spawn({
+      cols: 80,
+      rows: 24,
+      cwd: WSL_CWD,
+      env: { ORCA_PANE_KEY: PANE_KEY },
+      sessionId: 'repo::/repo@@listed'
+    })
+    lastSubprocess._simulateData('$ cd deep/er\r\n')
+    await before.disconnectOnly()
+    adapter = new DaemonPtyAdapter({ socketPath, tokenPath, historyPath: historyDir() })
+    expect((await adapter.listProcesses()).map((process) => process.id)).toContain(id)
+
+    await adapter.shutdown(id, { immediate: true, keepHistory: true })
+
+    expect(readRows).toHaveBeenCalledWith('Ubuntu', expect.any(Number), { running: true })
+    expect(checkpointCwd(id)).toBe(`${WSL_CWD}\\deep\\er`)
+  })
+
   it('keeps the spawn folder when the distro cannot be read', async () => {
     readRows.mockResolvedValue(null)
     adapter = new DaemonPtyAdapter({ socketPath, tokenPath, historyPath: historyDir() })

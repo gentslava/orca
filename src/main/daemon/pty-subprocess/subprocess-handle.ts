@@ -134,6 +134,8 @@ export function createDaemonPtySubprocessHandle(args: {
   return {
     pid: proc.pid,
     processNameIsSpawnFile: ptyProcessNameIsSpawnFile(proc),
+    // Only the login(1) wrapper hides the shell's exit status, and it forks the shell as its child.
+    shellIsRootChild: !reportsChildExitStatus,
     ...(process.platform === 'win32'
       ? {
           inspectChildProcesses: (fresh?: boolean, ignoreDetached?: boolean) =>

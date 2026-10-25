@@ -2,7 +2,7 @@ import { isAbsolute } from 'node:path'
 import { spawnProcess } from '@orca/process-host'
 import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type * as BundledRipgrepPath from '../ripgrep/bundled-ripgrep-path'
+import type * as BundledRipgrepPath from '../../ripgrep/bundled-ripgrep-path'
 
 const {
   handleMock,
@@ -33,36 +33,36 @@ vi.mock('electron', () => ({
   }
 }))
 
-vi.mock('../git/runner', () => ({
+vi.mock('../../git/runner', () => ({
   gitExecFileAsync: vi.fn(),
   wslAwareSpawn: wslAwareSpawnMock
 }))
 
-vi.mock('../wsl', () => ({
+vi.mock('../../wsl', () => ({
   parseWslPath: parseWslPathMock,
   toWindowsWslPath: toWindowsWslPathMock
 }))
 
-vi.mock('./filesystem-auth', () => ({
+vi.mock('../filesystem-auth', () => ({
   authorizeExternalPath: vi.fn(async (value: string) => value),
   resolveAuthorizedPath: resolveAuthorizedPathMock
 }))
 
-vi.mock('./local-file-access-resolution', () => ({
+vi.mock('../local-file-access-resolution', () => ({
   resolveDesktopAuthorizedPath: resolveAuthorizedPathMock,
   resolveLocalFileRequestPath: resolveAuthorizedPathMock
 }))
 
-vi.mock('./filesystem-path-containment', () => ({
+vi.mock('../filesystem-path-containment', () => ({
   isENOENT: vi.fn(() => false),
   validateGitRelativeFilePath: vi.fn((value: string) => value)
 }))
 
-vi.mock('./registered-worktree-roots-cache', () => ({
+vi.mock('../registered-worktree-roots-cache', () => ({
   resolveRegisteredWorktreePath: vi.fn(async (value: string) => value)
 }))
 
-vi.mock('./filesystem-list-files', () => ({
+vi.mock('../filesystem-list-files', () => ({
   listQuickOpenFiles: vi.fn()
 }))
 
@@ -70,16 +70,16 @@ vi.mock('./filesystem-mutations', () => ({
   registerFilesystemMutationHandlers: vi.fn()
 }))
 
-vi.mock('../ripgrep/bundled-ripgrep-path', async (importOriginal) => ({
+vi.mock('../../ripgrep/bundled-ripgrep-path', async (importOriginal) => ({
   ...(await importOriginal<typeof BundledRipgrepPath>()),
   bundledRipgrepCommand: bundledRipgrepCommandMock
 }))
 
-vi.mock('./local-worktree-runtime-options', () => ({
+vi.mock('../local-worktree-runtime-options', () => ({
   getLocalGitOptionsForRegisteredWorktree: getLocalGitOptionsForRegisteredWorktreeMock
 }))
 
-vi.mock('./markdown-documents', () => ({
+vi.mock('../markdown-documents', () => ({
   listMarkdownDocuments: vi.fn()
 }))
 
@@ -207,7 +207,7 @@ describe('content search cancellation', () => {
     registerFilesystemHandlers({} as never)
     const sender = Object.assign(new EventEmitter(), { id: 7 })
     const binary = await vi.importActual<typeof BundledRipgrepPath>(
-      '../ripgrep/bundled-ripgrep-path'
+      '../../ripgrep/bundled-ripgrep-path'
     )
     const program = binary.bundledRipgrepCommand()
     expect(isAbsolute(program)).toBe(true)

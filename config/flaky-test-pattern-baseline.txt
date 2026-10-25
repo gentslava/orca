@@ -270,7 +270,7 @@
 1 test-no-real-time-wait:src/main/grok/grok-hook-stdin-no-eof.test.ts
 1 test-no-real-time-wait:src/main/ipc/created-worktree-reconciliation.test.ts
 1 test-no-real-time-wait:src/main/ipc/filesystem-auth.test.ts
-1 test-no-real-time-wait:src/main/ipc/filesystem-content-search-cancellation.test.ts
+1 test-no-real-time-wait:src/main/ipc/filesystem/filesystem-content-search-cancellation.test.ts
 1 test-no-real-time-wait:src/main/ipc/filesystem-watcher-local-events.test.ts
 1 test-no-real-time-wait:src/main/ipc/filesystem-watcher-local-unsubscribe.test.ts
 1 test-no-real-time-wait:src/main/ipc/filesystem-watcher-real.test.ts
@@ -1051,7 +1051,6 @@
 3 test-no-wall-clock:src/renderer/src/components/activity/activity-auto-mark-read-loop.react185.test.tsx
 2 test-no-wall-clock:src/renderer/src/components/artifacts/artifact-list-windowing.test.tsx
 2 test-no-wall-clock:src/renderer/src/components/artifacts/ArtifactCollection.test.tsx
-1 test-no-wall-clock:src/renderer/src/components/automations/automation-list-search-rows.test.ts
 7 test-no-wall-clock:src/renderer/src/components/automations/AutomationListLocalRows.test.tsx
 1 test-no-wall-clock:src/renderer/src/components/automations/use-automation-list-search.test.tsx
 1 test-no-wall-clock:src/renderer/src/components/browser-pane/assemble-chrome/browser-workspace-pane.adoption-chrome.test.tsx
@@ -1275,7 +1274,7 @@
 1 test-timeout-needs-reason:src/main/hermes/hook-service.test.ts
 2 test-timeout-needs-reason:src/main/hook-archive-timeout-observation.test.ts
 2 test-timeout-needs-reason:src/main/hook-termination-real-process.test.ts
-2 test-timeout-needs-reason:src/main/ipc/filesystem-quick-open-options.integration.test.ts
+2 test-timeout-needs-reason:src/main/ipc/filesystem/filesystem-quick-open-options.integration.test.ts
 1 test-timeout-needs-reason:src/main/ipc/filesystem-watcher-lifecycle-model.test.ts
 1 test-timeout-needs-reason:src/main/ipc/preflight-runnable-local-cli.test.ts
 1 test-timeout-needs-reason:src/main/ipc/runtime-environments/runtime-environment-federated-read-transport.bench.test.ts

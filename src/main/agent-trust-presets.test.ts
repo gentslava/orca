@@ -84,7 +84,7 @@ describe('markCursorWorkspaceTrusted', () => {
       const trustFile = join(projectsDir, slugDirs[0], '.workspace-trusted')
       expect(existsSync(trustFile)).toBe(true)
       const payload = JSON.parse(readFileSync(trustFile, 'utf-8'))
-      expect(payload.workspacePath).toBeTruthy()
+      expect(payload.workspacePath).toBe(realpathSync.native(workspace))
       expect(typeof payload.trustedAt).toBe('string')
     } finally {
       rmSync(workspace, { recursive: true, force: true })
@@ -152,7 +152,7 @@ describe('markCopilotFolderTrusted', () => {
       const parsed = JSON.parse(readFileSync(configPath, 'utf-8'))
       expect(Array.isArray(parsed.trustedFolders)).toBe(true)
       expect(parsed.trustedFolders.length).toBe(1)
-      expect(typeof parsed.trustedFolders[0]).toBe('string')
+      expect(parsed.trustedFolders[0]).toBe(realpathSync.native(workspace))
     } finally {
       rmSync(workspace, { recursive: true, force: true })
     }

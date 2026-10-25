@@ -296,7 +296,7 @@ vi.mock('../emulator-video-stream', () => ({
   registerEmulatorVideoStreamHandlers: registerEmulatorVideoStreamHandlersMock
 }))
 
-vi.mock('../filesystem', () => ({
+vi.mock('../filesystem/filesystem', () => ({
   registerFilesystemHandlers: registerFilesystemHandlersMock
 }))
 

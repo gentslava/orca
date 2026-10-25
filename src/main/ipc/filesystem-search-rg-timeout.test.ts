@@ -60,7 +60,7 @@ vi.mock('./filesystem-list-files', () => ({
   listQuickOpenFiles: vi.fn()
 }))
 
-vi.mock('./filesystem-mutations', () => ({
+vi.mock('./filesystem/filesystem-mutations', () => ({
   registerFilesystemMutationHandlers: vi.fn()
 }))
 
@@ -77,7 +77,7 @@ vi.mock('./markdown-documents', () => ({
   listMarkdownDocuments: vi.fn()
 }))
 
-import { registerFilesystemHandlers } from './filesystem'
+import { registerFilesystemHandlers } from './filesystem/filesystem'
 
 function createMockProcess(): ChildProcess {
   const p = new EventEmitter() as unknown as ChildProcess

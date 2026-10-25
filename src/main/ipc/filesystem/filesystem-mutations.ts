@@ -2,34 +2,34 @@ import { app, ipcMain } from 'electron'
 import { constants } from 'node:fs'
 import { copyFile, mkdir, writeFile } from 'node:fs/promises'
 import { basename, dirname } from 'node:path'
-import type { Store } from '../persistence'
+import type { Store } from '../../persistence/loading-store/store'
 import {
   resolveDesktopAuthorizedPath,
   resolveLocalRenamePaths,
   resolveLocalRequestPath
-} from './local-file-access-resolution'
-import type { LocalFileAccess } from '../../shared/local-file-access'
-import { SshHostNotServedError } from '../providers/ssh-host-not-served-error'
-import { resolveLocalDroppedPathsForAgent } from './dropped-path-resolution'
-import type { SshMutationExpectation } from '../../shared/ssh-types'
-import { assertSshMutationExpectation } from '../ssh/connection/ssh-connection-generation'
-import { renameLocalPathSerializedByDestination } from '../destination-serialized-local-rename'
-import { assertNotExists, rethrowWithUserMessage } from './filesystem-create-path-guards'
+} from '../local-file-access-resolution'
+import type { LocalFileAccess } from '../../../shared/local-file-access'
+import { SshHostNotServedError } from '../../providers/ssh-host-not-served-error'
+import { resolveLocalDroppedPathsForAgent } from '../dropped-path-resolution'
+import type { SshMutationExpectation } from '../../../shared/ssh-types'
+import { assertSshMutationExpectation } from '../../ssh/connection/ssh-connection-generation'
+import { renameLocalPathSerializedByDestination } from '../../destination-serialized-local-rename'
+import { assertNotExists, rethrowWithUserMessage } from '../filesystem-create-path-guards'
 import type {
   ImportItemResult,
   ResolveDroppedPathsResult,
   StagedExternalImportSource
-} from '../../shared/filesystem-import-result-types'
-import { importOneSource } from './filesystem-import-local'
+} from '../../../shared/filesystem-import-result-types'
+import { importOneSource } from '../filesystem-import-local'
 import {
   stagedRuntimeUploadByteLength,
   stageOneSourceForRuntimeUpload
-} from './filesystem-runtime-upload-staging'
-import { streamExternalFileToRuntime } from './runtime-upload-file-stream'
-import { abortWhenRendererGone } from './renderer-lifetime-abort'
-import { sweepAbandonedRuntimeUploadTempPath } from './runtime-upload-temp-sweep'
-import type { RuntimeUploadFileStreamRequest } from '../../shared/runtime-upload-staging-contract'
-import { resolveEnvironment } from '../../shared/runtime-environment-store'
+} from '../filesystem-runtime-upload-staging'
+import { streamExternalFileToRuntime } from '../runtime-upload-file-stream'
+import { abortWhenRendererGone } from '../renderer-lifetime-abort'
+import { sweepAbandonedRuntimeUploadTempPath } from '../runtime-upload-temp-sweep'
+import type { RuntimeUploadFileStreamRequest } from '../../../shared/runtime-upload-staging-contract'
+import { resolveEnvironment } from '../../../shared/runtime-environment-store'
 
 export function registerFilesystemMutationHandlers(store: Store): void {
   ipcMain.handle(

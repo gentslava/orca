@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events'
 import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Store } from '../persistence'
+import type { Store } from '../../persistence/loading-store/store'
 
 const mocks = vi.hoisted(() => ({
   handlers: new Map<string, (...args: unknown[]) => Promise<unknown>>(),
@@ -21,9 +21,9 @@ vi.mock('electron', () => ({
 }))
 vi.mock('node:fs/promises', () => ({ ...mocks, writeFile: vi.fn() }))
 
-import { createFilesystemHandlerContext } from './filesystem/filesystem-handler-context'
-import { registerFilesystemDownloadHandlers } from './filesystem/filesystem-download-handlers'
-import { DOWNLOAD_SESSION_TTL_MS } from './filesystem/filesystem-download-promotion'
+import { createFilesystemHandlerContext } from './filesystem-handler-context'
+import { registerFilesystemDownloadHandlers } from './filesystem-download-handlers'
+import { DOWNLOAD_SESSION_TTL_MS } from './filesystem-download-promotion'
 
 const destination = resolve('fake-downloads', 'file.txt')
 const lifetimeEvents = ['destroyed', 'render-process-gone', 'did-navigate'] as const

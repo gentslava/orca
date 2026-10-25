@@ -12,20 +12,20 @@ vi.mock('electron', () => ({
   ipcMain: { handle: handleMock },
   app: { getPath: () => '/user-data' }
 }))
-vi.mock('./runtime-upload-file-stream', () => ({
+vi.mock('../runtime-upload-file-stream', () => ({
   streamExternalFileToRuntime: streamMock
 }))
-vi.mock('./runtime-upload-temp-sweep', () => ({
+vi.mock('../runtime-upload-temp-sweep', () => ({
   sweepAbandonedRuntimeUploadTempPath: sweepMock
 }))
-vi.mock('../../shared/runtime-environment-store', () => ({
+vi.mock('../../../shared/runtime-environment-store', () => ({
   resolveEnvironment: (_userDataPath: string, selector: string) => ({
     id: selector === 'env-alias' ? 'env-1' : selector
   })
 }))
 
 import { registerFilesystemMutationHandlers } from './filesystem-mutations'
-import { RENDERER_GONE_MESSAGE } from './renderer-lifetime-abort'
+import { RENDERER_GONE_MESSAGE } from '../renderer-lifetime-abort'
 
 const request = {
   environmentId: 'env-1',
