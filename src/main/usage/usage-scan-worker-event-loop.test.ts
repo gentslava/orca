@@ -193,8 +193,11 @@ describe('usage scan worker event-loop occupancy', () => {
     const caller = await measureCallerOccupancy(() => scanCodexUsageOnCallingThread())
     expect(caller.value.processedFiles).toHaveLength(FILE_COUNT)
     expect(caller.value.sessions).toHaveLength(FILE_COUNT)
-    expect(caller.value.dailyAggregates).toHaveLength(1)
-    expect(caller.value.dailyAggregates[0]?.eventCount).toBe(EXPECTED_EVENTS)
+    expect(caller.value.dailyAggregates).toHaveLength(FILE_COUNT)
+    expect(new Set(caller.value.dailyAggregates.map((row) => row.sessionId)).size).toBe(FILE_COUNT)
+    expect(caller.value.dailyAggregates.reduce((sum, row) => sum + row.eventCount, 0)).toBe(
+      EXPECTED_EVENTS
+    )
 
     const client = createWorkerClient()
     const sourceCache: UsageSourceCacheRef = {
@@ -211,8 +214,11 @@ describe('usage scan worker event-loop occupancy', () => {
     // The per-source records stay on the worker's side of the boundary.
     expect(await readUsageSourceCache(sourceCache)).toHaveLength(FILE_COUNT)
     expect(worker.value.sessions).toHaveLength(FILE_COUNT)
-    expect(worker.value.dailyAggregates).toHaveLength(1)
-    expect(worker.value.dailyAggregates[0]?.eventCount).toBe(EXPECTED_EVENTS)
+    expect(worker.value.dailyAggregates).toHaveLength(FILE_COUNT)
+    expect(new Set(worker.value.dailyAggregates.map((row) => row.sessionId)).size).toBe(FILE_COUNT)
+    expect(worker.value.dailyAggregates.reduce((sum, row) => sum + row.eventCount, 0)).toBe(
+      EXPECTED_EVENTS
+    )
 
     // The caller still pays to post the request and structured-clone 600
     // sessions back, so this is a fifth, not a rout. Measured margin is
