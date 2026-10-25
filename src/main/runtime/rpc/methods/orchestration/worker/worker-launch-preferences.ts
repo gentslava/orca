@@ -28,7 +28,8 @@ const PreflightSelection = z.object({
   agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
   model: z.string().nullable(),
   effort: z.string().nullable(),
-  fastMode: z.boolean().optional()
+  fastMode: z.boolean().optional(),
+  serviceTier: z.string().optional()
 })
 
 export function parseWorkerLaunchPreflight(value: unknown): OrchestrationWorkerLaunchReceipt {
@@ -211,7 +212,8 @@ export function resolveFederatedWorkerLaunchReceipt(
       actual.agent !== requested.requested.agent ||
       actual.model !== requested.requested.model ||
       actual.effort !== requested.requested.effort ||
-      actual.fastMode !== requested.requested.fastMode
+      actual.fastMode !== requested.requested.fastMode ||
+      actual.serviceTier !== requested.requested.serviceTier
     ) {
       throw new Error(
         'The worker server returned different effective launch options; inspect the existing Dispatch before taking further action.'

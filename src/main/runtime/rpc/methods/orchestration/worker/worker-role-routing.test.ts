@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { createOrchestrationRpcHarness } from '../rpc-test-harness'
+import { resolveWorkerLaunchPreferences } from './worker-launch-preferences'
 import {
   ORCHESTRATION_CONTRACT_RUNTIME_CAPABILITY,
   ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY,
@@ -257,6 +258,70 @@ describe('worker role routing through durable worker-start', () => {
       expect(state.runtime.createTerminal).not.toHaveBeenCalled()
     }
   )
+
+  it.each([
+    { serviceTier: 'priority', ready: true },
+    { serviceTier: 'auto', ready: false },
+    { serviceTier: undefined, ready: false }
+  ])('verifies the remote Codex Fast service tier: %j', async ({ serviceTier, ready }) => {
+    const { receipt } = resolveWorkerLaunchPreferences({
+      agent: 'codex',
+      model: 'gpt-5.5',
+      fastMode: true,
+      structuredFastModeSupported: true,
+      structuredFastServiceTier: 'priority'
+    })
+    const remote = remoteCalls(remoteCapabilities(), async (method, params) => {
+      if (method === 'orchestration.workerLaunchPreflight') {
+        return { launch: { ...receipt, effective: null } }
+      }
+      const { dispatchId } = z.object({ dispatchId: z.string() }).parse(params)
+      const { serviceTier: _preflightTier, ...effective } = receipt.requested
+      return {
+        dispatchId,
+        state: 'ready',
+        runtimeEpoch: 'remote_1',
+        worktreeId: 'remote_folder',
+        terminalHandle: 'term_remote',
+        launch: {
+          ...receipt,
+          effective: { ...effective, ...(serviceTier !== undefined ? { serviceTier } : {}) }
+        }
+      }
+    })
+
+    const result = await startRemote({
+      role: undefined,
+      agent: 'codex',
+      model: 'gpt-5.5',
+      fastMode: true
+    })
+    const { dispatchId } = z.object({ dispatchId: z.string() }).parse(result)
+    expect(result).toMatchObject({
+      state: ready ? 'ready' : 'outcome_unknown',
+      launch: { requested: receipt.requested, effective: ready ? receipt.effective : null }
+    })
+    expect(state.db.getFederatedDispatch(dispatchId)).toMatchObject({
+      remote_runtime_epoch: 'remote_1',
+      remote_worktree_id: 'remote_folder',
+      remote_terminal_handle: 'term_remote'
+    })
+    const worker = state.db.getWorkerDispatch(dispatchId)
+    expect(worker?.state).toBe(ready ? 'ready' : 'start_unknown')
+    expect(JSON.parse(worker?.start_options ?? '{}')).toMatchObject({
+      launch: { requested: receipt.requested }
+    })
+    expect(state.db.db.prepare('SELECT count(*) AS count FROM tasks').get()).toEqual({ count: 1 })
+    expect(state.db.db.prepare('SELECT count(*) AS count FROM dispatch_contexts').get()).toEqual({
+      count: 1
+    })
+    expect(remote.mock.calls.map((call) => call[1])).toEqual([
+      'status.get',
+      'orchestration.workerLaunchPreflight',
+      'orchestration.federationAttachStart'
+    ])
+    expect(state.runtime.createTerminal).not.toHaveBeenCalled()
+  })
 })
 
 function remoteCapabilities() {
@@ -291,7 +356,7 @@ function remoteCalls(
     })
 }
 
-function startRemote() {
+function startRemote(params: Record<string, unknown> = {}) {
   return harness.call(
     'orchestration.workerStart',
     {
@@ -299,7 +364,8 @@ function startRemote() {
       spec: 'Inspect remote folder',
       role: 'research',
       on: 'remote',
-      worktree: 'id:remote_folder'
+      worktree: 'id:remote_folder',
+      ...params
     },
     {
       ...state.ctx,
