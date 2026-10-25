@@ -60,10 +60,14 @@ export function formatSessionTime(timestamp: string): string {
   })
 }
 
-export function formatUsageDayLabel(day: string): string {
+export function formatUsageDayLabel(day: string, includeYear = false): string {
   const parsed = new Date(`${day}T12:00:00`)
   if (Number.isNaN(parsed.getTime())) {
     return day
   }
-  return parsed.toLocaleDateString(getIntlLocale(), { month: 'short', day: 'numeric' })
+  return parsed.toLocaleDateString(getIntlLocale(), {
+    month: 'short',
+    day: 'numeric',
+    ...(includeYear ? ({ year: 'numeric' } as const) : {})
+  })
 }

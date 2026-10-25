@@ -1,138 +1,19 @@
 import { useState } from 'react'
-import type { UsageHistoryRange, UsageHistoryRow } from '../../../../shared/usage-history-types'
+import type { UsageHistoryRow } from '../../../../shared/usage-history-types'
 import { Button } from '../ui/button'
-import { SettingsSegmentedControl } from '../settings/SettingsFormControls'
 import { UsageRecentSessionsTable } from './UsageRecentSessionsTable'
 import {
   groupUsageHistory,
   usageHistoryAccountKey,
-  usageHistoryChartDays,
   type UsageHistoryGroup
 } from './usage-history-model'
 import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
-import { formatUsageDayLabel } from './usage-formatters'
 import { getIntlLocale, translate } from '@/i18n/i18n'
 import { usageHistoryAccountLabel } from './usage-history-accounts'
+import { USAGE_PROVIDER_COLORS } from './usage-history-chart-model'
 import { getAgentLabel } from '@/lib/agent-catalog'
 
-export function UsageHistoryDailyChart({
-  rows,
-  range,
-  selectedDay,
-  onDay,
-  today
-}: {
-  rows: readonly UsageHistoryRow[]
-  range: UsageHistoryRange
-  selectedDay: string | null
-  onDay: (day: string) => void
-  today?: string
-}): React.JSX.Element {
-  const [metric, setMetric] = useState<'tokens' | 'cost'>('tokens')
-  const days = usageHistoryChartDays(rows, range, selectedDay, undefined, today).map((day) => ({
-    ...day,
-    amount:
-      metric === 'tokens'
-        ? (day.usage?.totalTokens ?? null)
-        : (day.usage?.apiEquivalentCostUsd ?? null)
-  }))
-  const max = days.reduce((value, day) => Math.max(value, day.amount ?? 0), Number.EPSILON)
-  const partialCost =
-    metric === 'cost' &&
-    days.some((day) => day.usage && (day.amount === null || day.usage.hasPartialCost))
-  return (
-    <section
-      className="space-y-3 rounded-lg border border-border bg-card p-4"
-      data-testid="usage-history-daily"
-    >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h4 className="text-sm font-medium text-foreground">
-          {translate('stats.usage.daily.title', 'Daily usage')}
-        </h4>
-        <SettingsSegmentedControl<'tokens' | 'cost'>
-          value={metric}
-          onChange={setMetric}
-          ariaLabel={translate('stats.usage.daily.metric', 'Chart metric')}
-          options={[
-            { value: 'tokens', label: translate('stats.usage.tokens', 'Tokens') },
-            {
-              value: 'cost',
-              label: translate('stats.usage.daily.cost', 'API estimate')
-            }
-          ]}
-          size="sm"
-        />
-      </div>
-      <p className="text-xs text-muted-foreground">
-        {translate(
-          'stats.usage.daily.description',
-          'Select a day to inspect its usage. Gaps have no recorded data, rather than verified zero usage.'
-        )}
-      </p>
-      {partialCost ? (
-        <p role="status" className="text-xs text-muted-foreground">
-          {translate(
-            'stats.usage.daily.partialCost',
-            'Some usage has no recorded price. Cost bars show the priced portion; * marks a partial estimate. This is not a billing statement.'
-          )}
-        </p>
-      ) : null}
-      <div className="overflow-x-auto scrollbar-sleek">
-        <div className="flex h-44 min-w-full items-end gap-1.5 pb-1">
-          {days.map(({ day: key, usage: day, amount }) =>
-            day && amount !== null ? (
-              <button
-                type="button"
-                key={day.key}
-                onClick={() => onDay(day.key)}
-                aria-label={
-                  metric === 'tokens'
-                    ? translate('stats.usage.daily.inspect', '{{day}}: {{tokens}} tokens', {
-                        day: day.key,
-                        tokens: day.totalTokens.toLocaleString(getIntlLocale())
-                      })
-                    : translate(
-                        'stats.usage.daily.inspectCost',
-                        '{{day}}: {{cost}} API-equivalent estimate',
-                        {
-                          day: day.key,
-                          cost: `${formatUsageCost(amount)}${day.hasPartialCost ? ' *' : ''}`
-                        }
-                      )
-                }
-                title={`${day.key} · ${metric === 'tokens' ? day.totalTokens.toLocaleString(getIntlLocale()) : `${formatUsageCost(amount)}${day.hasPartialCost ? ' *' : ''}`}`}
-                className="flex h-full min-w-8 flex-1 flex-col justify-end gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <span className="flex min-h-0 flex-1 items-end justify-center">
-                  <span
-                    className="block w-full max-w-10 rounded-t-sm bg-primary/75"
-                    style={{
-                      height: `${(amount / max) * 100}%`,
-                      minHeight: amount > 0 ? 2 : 0
-                    }}
-                  />
-                </span>
-                <span className="text-center text-[11px] text-muted-foreground">
-                  {formatUsageDayLabel(day.key)}
-                </span>
-              </button>
-            ) : (
-              <span
-                key={key}
-                className="flex h-full min-w-8 flex-1 flex-col justify-end gap-2"
-                title={`${key} · ${metric === 'cost' && day ? formatUsageCost(null) : '—'}`}
-              >
-                <span className="text-center text-[11px] text-muted-foreground">
-                  {formatUsageDayLabel(key)}
-                </span>
-              </span>
-            )
-          )}
-        </div>
-      </div>
-    </section>
-  )
-}
+export { UsageHistoryDailyChart } from './UsageHistoryDailyChart'
 
 function HistoryTotalsList({
   title,
@@ -143,30 +24,71 @@ function HistoryTotalsList({
   rows: UsageHistoryGroup[]
   onSelect: (value: string) => void
 }): React.JSX.Element {
+  const totalTokens = rows.reduce((sum, row) => sum + row.totalTokens, 0)
   return (
     <section className="min-w-0 rounded-lg border border-border bg-card p-4">
-      <h4 className="mb-3 text-sm font-medium text-foreground">{title}</h4>
+      <h4 className="text-sm font-medium text-foreground">{title}</h4>
+      <p className="mb-3 mt-1 text-xs text-muted-foreground">
+        {translate('stats.usage.breakdown.share', 'Share of selected tokens')}
+      </p>
       <div className="max-h-64 space-y-1 overflow-y-auto scrollbar-sleek">
-        {rows.map((row) => (
-          <Button
-            key={row.key}
-            variant="ghost"
-            size="sm"
-            onClick={() => onSelect(row.key)}
-            className="h-auto w-full justify-between"
-          >
-            <span className="min-w-0 flex-1 break-all whitespace-normal text-left">
-              {row.label}
-            </span>
-            <span className="shrink-0 text-right tabular-nums text-muted-foreground">
-              {formatUsageTokens(row.totalTokens)}
-              <span className="block">
-                {formatUsageCost(row.apiEquivalentCostUsd)}
-                {row.hasPartialCost ? ' *' : ''}
+        {rows.map((row) => {
+          const share = totalTokens > 0 ? (row.totalTokens / totalTokens) * 100 : 0
+          const shareLabel = `${share.toLocaleString(getIntlLocale(), { maximumFractionDigits: 1 })}%`
+          const providers = new Map<string, { tokens: number; color: string }>()
+          for (const entry of row.rows) {
+            const provider = providers.get(entry.provider) ?? {
+              tokens: 0,
+              color: USAGE_PROVIDER_COLORS[entry.provider].color
+            }
+            provider.tokens += entry.totalTokens
+            providers.set(entry.provider, provider)
+          }
+          return (
+            <Button
+              key={row.key}
+              variant="ghost"
+              size="sm"
+              onClick={() => onSelect(row.key)}
+              className="h-auto w-full flex-col items-stretch"
+            >
+              <span className="flex items-start justify-between gap-3">
+                <span className="min-w-0 flex-1 break-all whitespace-normal text-left text-xs">
+                  {row.label}
+                </span>
+                <span className="shrink-0 text-right text-xs tabular-nums">
+                  {formatUsageTokens(row.totalTokens)}
+                  <span className="ml-2 text-muted-foreground">{shareLabel}</span>
+                  <span className="block text-muted-foreground">
+                    {formatUsageCost(row.apiEquivalentCostUsd)}
+                    {row.hasPartialCost ? ' *' : ''}
+                  </span>
+                </span>
               </span>
-            </span>
-          </Button>
-        ))}
+              <span
+                aria-hidden="true"
+                className="block h-1.5 overflow-hidden rounded-full bg-muted"
+              >
+                <span
+                  className="flex h-full overflow-hidden rounded-full"
+                  style={{ width: `${share}%` }}
+                  data-usage-share={share}
+                >
+                  {[...providers].map(([provider, entry]) => (
+                    <span
+                      key={provider}
+                      className="h-full"
+                      style={{
+                        width: `${row.totalTokens > 0 ? (entry.tokens / row.totalTokens) * 100 : 0}%`,
+                        backgroundColor: entry.color
+                      }}
+                    />
+                  ))}
+                </span>
+              </span>
+            </Button>
+          )
+        })}
       </div>
     </section>
   )

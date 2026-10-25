@@ -21522,8 +21522,11 @@
         "inspect": "{{day}}: {{tokens}} tokens",
         "metric": "Chart metric",
         "cost": "API estimate",
-        "partialCost": "Some usage has no recorded price. Cost bars show the priced portion; * marks a partial estimate. This is not a billing statement.",
-        "inspectCost": "{{day}}: {{cost}} API-equivalent estimate"
+        "partialCost": "Some usage has no recorded price. The chart shows the priced portion; * marks a partial estimate. This is not a billing statement.",
+        "inspectCost": "{{day}}: {{cost}} API-equivalent estimate",
+        "providers": "Provider series",
+        "unpriced": "Price unavailable",
+        "noData": "No recorded data"
       },
       "unknown": "Unknown",
       "models": {
@@ -21612,6 +21615,9 @@
       },
       "accounts": {
         "title": "By account · tokens / API estimate"
+      },
+      "breakdown": {
+        "share": "Share of selected tokens"
       }
     }
   },

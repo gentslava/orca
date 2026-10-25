@@ -138,7 +138,7 @@ describe('Stats & Usage daily workflow', () => {
     const quotas = screen.getByTestId('usage-account-quotas').textContent
     expect(within(chart).getAllByRole('button')).toHaveLength(3)
     fireEvent.click(within(chart).getByRole('radio', { name: 'API estimate' }))
-    expect(within(chart).getAllByRole('button')).toHaveLength(2)
+    expect(within(chart).getAllByRole('button')).toHaveLength(3)
     expect(
       within(chart).getByRole('button', { name: '2026-10-24: $0.0000 API-equivalent estimate' })
     ).toBeInTheDocument()
@@ -146,7 +146,9 @@ describe('Stats & Usage daily workflow', () => {
       name: '2026-10-22: $0.02 * API-equivalent estimate'
     })
     expect(within(chart).getByRole('status')).toHaveTextContent('priced portion')
-    expect(within(chart).queryByRole('button', { name: /2026-10-23:/ })).toBeNull()
+    expect(
+      within(chart).getByRole('button', { name: '2026-10-23: n/a API-equivalent estimate' })
+    ).toBeEnabled()
     fireEvent.click(partialDay)
     expect(within(chart).getAllByRole('button')).toHaveLength(1)
     expect(screen.getByTestId('usage-history-totals')).toHaveTextContent('$0.02')
