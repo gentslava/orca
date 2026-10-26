@@ -3245,8 +3245,10 @@
         "effort": "Effort",
         "enterQueues": "Enter queues text and images.",
         "enterSendsNow": "Enter sends immediately.",
+        "futureMessageOptions": "Changes apply to future messages. Running and queued messages keep their choices.",
         "imageReferenceMissing": "Image removed",
         "imageUnsupported": "Image paste is not supported for this agent.",
+        "nextTurn": "Next turn",
         "placeholder": "Ask anything, @ to mention files, / for commands",
         "queueChecking": "Checking queue support. Enter sends immediately until the host confirms support.",
         "queueDraft": "Queue",
@@ -3303,12 +3305,15 @@
         "compactionFailed": "Compaction failed.",
         "compactionFailedQuoted": "Compaction failed: {{detail}}.",
         "compactionUnconfirmed": "Compaction completion is unconfirmed.",
+        "conversationOpenElsewhere": "Codex is still holding this conversation open. Try again in a moment, or close other Codex terminals.",
+        "conversationOpenInTerminal": "{{agent}} is already running this conversation in another terminal. Quit {{agent}} there or close that terminal to continue here.",
         "couldNotRestart": "{{agent}} couldn't restart.",
         "couldNotStart": "{{agent}} couldn't start.",
         "couldNotStop": "Couldn't stop {{agent}}.",
         "couldNotStopTheAgent": "Couldn't stop the agent.",
         "editSavedArguments": "Edit them in Settings > Agents > Arguments.",
         "emptyMessage": "This message is empty, so it was not sent.",
+        "fullAccessAsRoot": "{{agent}} won't use Full access while it runs as root. Choose another permission for {{agent}} in Settings → Agents for the computer running this chat, then start a new chat.",
         "historyInOtherAccount": "This chat's history is in another Claude account. Switch back to that account to continue it.",
         "historyTooLarge": "This conversation's history is too large to restore here.",
         "hostFault": "Orca ran into a problem, so this didn't go through.",
@@ -3341,9 +3346,6 @@
         "runCommandAgain": "Run /{{command}} again.",
         "runCommandWhenDone": "Run /{{command}} when it's done.",
         "runtimeNotInstalled": "{{agent}} isn't installed on the computer running this chat. Install it from the chat in a current version of Orca.",
-        "fullAccessAsRoot": "{{agent}} won't use Full access while it runs as root. Choose another permission for {{agent}} in Settings → Agents for the computer running this chat, then start a new chat.",
-        "conversationOpenElsewhere": "Codex is still holding this conversation open. Try again in a moment, or close other Codex terminals.",
-        "conversationOpenInTerminal": "{{agent}} is already running this conversation in another terminal. Quit {{agent}} there or close that terminal to continue here.",
         "sendAgainToTryOnceMore": "Send your message again to try once more.",
         "sendToTryAgain": "Send your message to try again.",
         "sessionNotRestored": "{{agent}} couldn't reopen its earlier session, so this chat continues in a new one. {{agent}} doesn't remember the earlier messages.",
@@ -3373,6 +3375,7 @@
         "stopUnconfirmed": "Codex could not confirm Stop. Check the chat before continuing."
       },
       "notices": {
+        "agentError": "Agent reported an error",
         "compaction": "Context compacted",
         "contextCleared": "Context cleared",
         "continuedOutside": "Continued outside this chat.",
@@ -3556,6 +3559,9 @@
         }
       }
     },
+    "tab-bar": {
+      "newChat": "New chat"
+    },
     "workspace": {
       "cleanup": {
         "browse": {
@@ -3604,9 +3610,12 @@
       "show_other": "Show {{count}} child agents"
     },
     "sidebar": {
+      "chooseChatAgent": "Choose an agent for a new chat",
       "closeActivity": "Turn off activity view",
+      "conversations": "Conversations",
       "label": "Agents",
-      "openActivity": "View activity"
+      "openActivity": "View activity",
+      "openProject": "Open project"
     }
   },
   "dashboardPopout": {
@@ -3695,18 +3704,13 @@
     "agents": {
       "loadingHost": "Loading agent settings…",
       "permissionChoiceDescription": "Applies where each agent supports this mode. Change one agent below.",
-      "permissionOverridesKept": "{{count}} agents still use their own permission setting:",
-      "permissionOverridesKept_one": "{{count}} agent still uses their own permission setting:",
-      "permissionOverridesKept_other": "{{count}} agents still use their own permission setting:",
-      "permissionOverridesFollow": "{{count}} agents now follow {{mode}}",
-      "permissionOverridesFollow_one": "{{count}} agent now follows {{mode}}",
-      "permissionOverridesFollow_other": "{{count}} agents now follow {{mode}}",
-      "permissionOverrideFollows": "{{agent}} now follows {{mode}}",
-      "permissionOverrideMore": "and {{count}} more",
+      "permissionEachOwnDescription": "Orca adds nothing; each CLI uses its own config",
       "permissionOverrideMore_one": "and {{count}} more",
       "permissionOverrideMore_other": "and {{count}} more",
-      "permissionOverridesUse": "Use {{mode}}",
-      "permissionEachOwnDescription": "Orca adds nothing; each CLI uses its own config"
+      "permissionOverridesFollow_one": "{{count}} agent now follows {{mode}}",
+      "permissionOverridesFollow_other": "{{count}} agents now follow {{mode}}",
+      "permissionOverridesKept_one": "{{count}} agent still uses their own permission setting:",
+      "permissionOverridesKept_other": "{{count}} agents still use their own permission setting:"
     },
     "browser": {
       "clientHostedRemote": {
