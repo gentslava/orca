@@ -98,6 +98,7 @@ export async function performSend(
     source?: AgentSessionMessageSource
     options?: Readonly<Record<string, string>>
     steer?: true
+    keepCurrentOptions?: true
   }
 ): Promise<TurnOutcome<AgentSessionSendResult>> {
   const existing = ctx.journal
@@ -115,16 +116,18 @@ export async function performSend(
       value: { clientMessageId: input.clientMessageId, submission: { ...existing } }
     }
   }
-  const captured = input.steer
-    ? captureStructuredSteerOptions(ctx, input.options)
-    : captureStructuredExecutionOptions(ctx, input.options)
+  const { steer: _steer, keepCurrentOptions, ...submission } = input
+  const captured = keepCurrentOptions
+    ? { options: undefined }
+    : input.steer
+      ? captureStructuredSteerOptions(ctx, input.options)
+      : captureStructuredExecutionOptions(ctx, input.options)
   if ('refusal' in captured) {
     return { ok: false, refusal: captured.refusal }
   }
   try {
-    const { steer: _steer, ...message } = input
     await ctx.journal.appendSubmission(
-      { ...message, options: captured.options, fence: ctx.fence, handoverRecorded: true },
+      { ...submission, options: captured.options, fence: ctx.fence, handoverRecorded: true },
       undefined,
       ctx.operationReceipt
     )
