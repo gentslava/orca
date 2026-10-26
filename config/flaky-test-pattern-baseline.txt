@@ -1155,7 +1155,6 @@
 2 test-no-wall-clock:src/shared/fish-query-reply-child-stdin.node-pty.test.ts
 1 test-no-wall-clock:src/shared/git-binary-compatibility.test.ts
 1 test-no-wall-clock:src/shared/mobile-push-contract.test.ts
-2 test-no-wall-clock:src/shared/native-chat-ask-fifo.test.ts
 1 test-no-wall-clock:src/shared/plugins/plugin-kill-list.test.ts
 2 test-no-wall-clock:src/shared/pty-reply-echo-shapes.node-pty.test.ts
 5 test-no-wall-clock:src/shared/sidebar-list/smart-sort.test.ts
