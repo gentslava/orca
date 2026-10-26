@@ -37,6 +37,12 @@ import type {
   RuntimeHostDisplayLabelOverrides
 } from './runtime-client-settings-shape'
 
+/** Which Orca cloud services this host registered; headless hosts register none. */
+export type RuntimeSharingServicePresence = {
+  artifacts(): boolean
+  skills(): boolean
+}
+
 export class RuntimeClientSettingsController {
   private reconciliationGeneration = 0
   private reconciliationTail: Promise<void> = Promise.resolve()
@@ -46,7 +52,8 @@ export class RuntimeClientSettingsController {
       RuntimeStore,
       'getSettings' | 'updateSettings' | 'runDurableMutation'
     > | null,
-    private readonly notifyReposChanged: (() => void) | undefined = undefined
+    private readonly notifyReposChanged: (() => void) | undefined = undefined,
+    private readonly sharingServices: RuntimeSharingServicePresence | undefined = undefined
   ) {}
 
   get(): RuntimeClientSettings {
@@ -87,9 +94,14 @@ export class RuntimeClientSettingsController {
       minimaxEndpoint: settings.minimaxEndpoint ?? 'overseas',
       zcodePlanSite: settings.zcodePlanSite ?? 'zai',
       prBotAuthorOverrides: settings.prBotAuthorOverrides ?? [],
-      artifactSharingEnabled: isArtifactSharingEnabled(settings),
+      // Omitted without a service: clients treat absence as "ask the host", which names the real cause.
+      ...(this.sharingServices?.artifacts() === false
+        ? {}
+        : { artifactSharingEnabled: isArtifactSharingEnabled(settings) }),
       worktreeVisibilityDefaults: settings.worktreeVisibilityDefaults ?? { external: 'hide' },
-      agentSkillSharingEnabled: isAgentSkillSharingEnabled(settings),
+      ...(this.sharingServices?.skills() === false
+        ? {}
+        : { agentSkillSharingEnabled: isAgentSkillSharingEnabled(settings) }),
       machineName: settings.machineName ?? '',
       nativeChatPermissionMode: publishedLegacyChatPermissionMode(settings),
       // Why projected: a paired client's AI buttons start these actions' agents, and must honour

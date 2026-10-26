@@ -3,7 +3,6 @@
 # Prune after a fix: pnpm check:flaky-test-pattern-ratchet --prune
 1 test-no-polling-loop:config/scripts/happy-dom-mutation-observer-retention.test.ts
 1 test-no-polling-loop:config/scripts/mobile-web-app/mobile-web-app-frame-budget-sweep.test.ts
-1 test-no-polling-loop:mobile/src/transport/cellular-handshake-stall-real-socket.test.ts
 1 test-no-polling-loop:mobile/src/transport/rpc-client-live-recovery.test.ts
 1 test-no-polling-loop:src/main/browser/cdp-ws-proxy.test.ts
 1 test-no-polling-loop:src/main/browser/cookies/browser-cookie-import-concurrency.test.ts
@@ -164,7 +163,6 @@
 1 test-no-real-time-wait:mobile/src/tasks/worktree-create-retry.test.ts
 1 test-no-real-time-wait:mobile/src/terminal/terminal-web-document-mount.test.ts
 1 test-no-real-time-wait:mobile/src/terminal/terminal-webview-tap-routing.test.ts
-1 test-no-real-time-wait:mobile/src/transport/cellular-handshake-stall-real-socket.test.ts
 1 test-no-real-time-wait:mobile/src/transport/mobile-relay-runtime-failover.test.ts
 4 test-no-real-time-wait:mobile/src/transport/rpc-client-live-recovery.test.ts
 1 test-no-real-time-wait:mobile/src/transport/rpc-operation-barrier.test.ts
@@ -481,7 +479,6 @@
 5 test-no-real-time-wait:src/shared/fish-query-reply-child-stdin.node-pty.test.ts
 1 test-no-real-time-wait:src/shared/git-branch-line-total-soft-deadline.test.ts
 1 test-no-real-time-wait:src/shared/osc52-clipboard.test.ts
-1 test-no-real-time-wait:src/shared/priority-semaphore.test.ts
 4 test-no-real-time-wait:src/shared/pty-reply-echo-shapes.node-pty.test.ts
 1 test-no-real-time-wait:src/shared/remote-runtime-outbound-admission.test.ts
 2 test-no-real-time-wait:src/shared/remote-runtime/control/remote-runtime-shared-control-auth-refusal.test.ts
@@ -500,11 +497,9 @@
 1 test-no-real-time-wait:tests/e2e/artificial-opencode-revisit-pressure-scenario.ts
 1 test-no-real-time-wait:tests/e2e/artificial-opencode-scroll-scenario.ts
 1 test-no-real-time-wait:tests/e2e/browser-guest-crash-recovery.spec.ts
-1 test-no-real-time-wait:tests/e2e/browser-settings-preview.spec.ts
 1 test-no-real-time-wait:tests/e2e/browser-tab.spec.ts
 9 test-no-real-time-wait:tests/e2e/chinese-ime-chat-input-repro.spec.ts
 2 test-no-real-time-wait:tests/e2e/cli-floating-file-open-position.spec.ts
-1 test-no-real-time-wait:tests/e2e/client-hosted-browser-tooltip-preview.spec.ts
 1 test-no-real-time-wait:tests/e2e/codex-ctrl-c-status.spec.ts
 4 test-no-real-time-wait:tests/e2e/combined-diff-scroll-restore.spec.ts
 1 test-no-real-time-wait:tests/e2e/computer-windows.e2e.ts
@@ -704,7 +699,6 @@
 1 test-no-wall-clock:mobile/src/session/use-mobile-native-chat-message-send.test.ts
 1 test-no-wall-clock:mobile/src/source-control/MobileGitHistoryList.test.tsx
 1 test-no-wall-clock:mobile/src/tasks/worktree-create-launch-operation.test.ts
-2 test-no-wall-clock:mobile/src/transport/cellular-handshake-stall-real-socket.test.ts
 1 test-no-wall-clock:mobile/src/transport/host-store.test.ts
 1 test-no-wall-clock:mobile/src/transport/mobile-relay-invite-director.test.ts
 3 test-no-wall-clock:mobile/src/transport/mobile-relay-resume-director.test.ts
@@ -1179,10 +1173,9 @@
 7 test-timeout-needs-reason:mobile/src/tasks/worktree-create-retry.test.ts
 2 test-timeout-needs-reason:mobile/src/terminal/document/native-document-bundle.test.ts
 1 test-timeout-needs-reason:mobile/src/test-support/rpc-recording/family-recordings.test.ts
-2 test-timeout-needs-reason:mobile/src/test-support/rpc-recording/mutants/family-mutants.test.ts
+1 test-timeout-needs-reason:mobile/src/test-support/rpc-recording/mutants/family-mutants.test.ts
 1 test-timeout-needs-reason:mobile/src/test-support/rpc-recording/recorded-request-params.test.ts
 1 test-timeout-needs-reason:mobile/src/test-support/rpc-recording/rpc-recording-through-bridge.test.ts
-1 test-timeout-needs-reason:mobile/src/transport/cellular-handshake-stall-real-socket.test.ts
 1 test-timeout-needs-reason:mobile/src/transport/mobile-web-bundle-host-slow-link.test.ts
 1 test-timeout-needs-reason:mobile/src/transport/rpc-client-live-recovery.test.ts
 3 test-timeout-needs-reason:mobile/src/transport/rpc-client-reconnect-wait.test.ts
@@ -1201,7 +1194,7 @@
 1 test-timeout-needs-reason:src/main/antigravity/native-macos-credentials.real.test.ts
 2 test-timeout-needs-reason:src/main/antigravity/posix-hook-invocation.test.ts
 2 test-timeout-needs-reason:src/main/antigravity/windows-hook-json-post.test.ts
-4 test-timeout-needs-reason:src/main/antigravity/windows-hook-payload-delivery.test.ts
+3 test-timeout-needs-reason:src/main/antigravity/windows-hook-payload-delivery.test.ts
 1 test-timeout-needs-reason:src/main/browser/agent-browser-bridge-raw-process.test.ts
 1 test-timeout-needs-reason:src/main/browser/browser-client-page-renderer-lifecycle.electron.test.ts
 1 test-timeout-needs-reason:src/main/browser/browser-find-frame-traversal.electron.test.ts
@@ -1371,9 +1364,7 @@
 1 test-timeout-needs-reason:tests/e2e/agent-session-log-tail-stability.spec.ts
 1 test-timeout-needs-reason:tests/e2e/browser-agent-input-focus-isolation-native.spec.ts
 5 test-timeout-needs-reason:tests/e2e/browser-agent-input-focus-isolation.spec.ts
-1 test-timeout-needs-reason:tests/e2e/browser-settings-preview.spec.ts
 1 test-timeout-needs-reason:tests/e2e/cli-agent-unopened-workspace-resume.spec.ts
-1 test-timeout-needs-reason:tests/e2e/client-hosted-browser-tooltip-preview.spec.ts
 1 test-timeout-needs-reason:tests/e2e/combined-diff-invalidation-freeze-repro.spec.ts
 1 test-timeout-needs-reason:tests/e2e/completed-worker-retirement-resume.spec.ts
 2 test-timeout-needs-reason:tests/e2e/cross-version-wire/agent-session-clear-old-client.unit.test.ts

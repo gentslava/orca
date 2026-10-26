@@ -5,6 +5,7 @@ import type { UsageAccountRoot } from '../usage/usage-account-attribution'
 import type { ClaudeProfileRouter } from './claude-profile-router'
 import type { ClaudeWslProfileRouter } from './claude-profile-wsl-router'
 import type { ClaudeAccountSelectionTarget } from './runtime-selection'
+import type { ClaudeObservedConfigDirs } from './claude-observed-config-dirs'
 
 export function claudeAccountHistoryRoots(): UsageAccountRoot[] {
   const router = installed
@@ -34,6 +35,16 @@ export function getClaudeProfileRouter(): ClaudeProfileRouter | undefined {
   return installed
 }
 
+let installedObserved: ClaudeObservedConfigDirs | undefined
+
+export function installClaudeObservedConfigDirs(dirs: ClaudeObservedConfigDirs | undefined): void {
+  installedObserved = dirs
+}
+
+export function getClaudeObservedConfigDirs(): ClaudeObservedConfigDirs | undefined {
+  return installedObserved
+}
+
 let installedWsl: ClaudeWslProfileRouter | undefined
 
 export function installClaudeWslProfileRouter(router: ClaudeWslProfileRouter | undefined): void {
@@ -52,9 +63,13 @@ export function withClaudeProfileTerminalEnv<Env extends Record<string, string> 
   return profileEnv ? { ...env, ...profileEnv } : env
 }
 
-/** Account homes plus the user's CLAUDE_CONFIG_DIR, which a Dock launch only learns from the login shell. */
+/** The user's CLAUDE_CONFIG_DIR from the login shell, folders Orca saw Claude use, and account homes. */
 export function claudeProfileHistoryDirs(surface: 'projects' | 'transcripts'): string[] {
-  const userConfigDir = installed?.userConfigDir()
-  const homes = [...(userConfigDir ? [userConfigDir] : []), ...(installed?.accountHomes() ?? [])]
-  return homes.map((home) => join(home, surface)).filter(isDirectory)
+  const homes = [
+    installed?.userConfigDir(),
+    ...(installedObserved?.list() ?? []),
+    ...(installed?.accountHomes() ?? [])
+  ].filter((home): home is string => Boolean(home))
+  const dirs = homes.map((home) => join(home, surface)).filter(isDirectory)
+  return dirs.filter((dir, index) => dirs.indexOf(dir) === index)
 }
