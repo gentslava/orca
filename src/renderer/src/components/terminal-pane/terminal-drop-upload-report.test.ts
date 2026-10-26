@@ -8,12 +8,14 @@ vi.mock('sonner', () => ({ toast: { message: vi.fn(), error: vi.fn() } }))
 
 beforeEach(async () => {
   vi.clearAllMocks()
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
   i18n.addResourceBundle('ru', 'translation', russian, true, true)
   await i18n.changeLanguage('ru')
 })
 
 afterEach(async () => {
   await i18n.changeLanguage('en')
+  vi.restoreAllMocks()
 })
 
 describe('terminal drop reports', () => {
@@ -48,7 +50,7 @@ describe('terminal drop reports', () => {
       [],
       Array.from({ length: count }, () => ({ reason: '/secret/project/file.txt' }))
     )
-    expect(toast.error).toHaveBeenLastCalledWith(failures)
+    expect(toast.error).toHaveBeenLastCalledWith(failures, { description: expect.any(String) })
     expect(toast.error).not.toHaveBeenCalledWith(
       expect.stringContaining('/secret/project/file.txt')
     )
@@ -70,6 +72,33 @@ describe('terminal drop reports', () => {
       [{ reason: 'unknown' }, { reason: 'unknown' }]
     )
     expect(toast.message).toHaveBeenCalledWith('Skipped 1 symlink.', { description: undefined })
-    expect(toast.error).toHaveBeenCalledWith('Failed to upload 2 files.')
+    expect(toast.error).toHaveBeenCalledWith('Failed to upload 2 files.', {
+      description: "Couldn't upload these files."
+    })
+  })
+  it('names shared failure categories without exposing host paths', async () => {
+    await i18n.changeLanguage('en')
+    const failures = [
+      "Error invoking remote method 'fs:x': Error: ENOSPC: no space left on device",
+      "EACCES: permission denied, open '/home/John Doe/Client Acme/shot.png'",
+      'C:\\Users\\John Doe\\Application Support\\shot.png: unexpected',
+      "File changed since it was staged: 'disconnect-notes.txt'",
+      'Runtime environment is manually disconnected.'
+    ]
+    for (const reason of failures) {
+      reportTerminalDropUploadSkipsAndFailures([], [{ reason }])
+    }
+    reportTerminalDropUploadSkipsAndFailures([], [{ reason: 'a' }, { reason: 'b' }])
+    expect(vi.mocked(toast.error).mock.calls.map((call) => call[1])).toEqual([
+      { description: 'The host is out of disk space.' },
+      { description: 'Permission denied.' },
+      { description: "Couldn't upload this file." },
+      { description: 'The file changed while it was uploading. Try again.' },
+      { description: 'The host is disconnected.' },
+      { description: undefined }
+    ])
+    expect(JSON.stringify(vi.mocked(toast.error).mock.calls)).not.toMatch(
+      /John Doe|shot\.png|disconnect-notes/
+    )
   })
 })

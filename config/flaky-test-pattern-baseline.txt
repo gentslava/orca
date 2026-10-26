@@ -866,7 +866,6 @@
 1 test-no-wall-clock:src/main/orca-profiles/profile-cloud-service.test.ts
 4 test-no-wall-clock:src/main/orcad/orcad-artifact-cache-retention.test.ts
 2 test-no-wall-clock:src/main/orcad/orcad-artifact-materializer.test.ts
-2 test-no-wall-clock:src/main/orcad/orcad-instance-lock.test.ts
 3 test-no-wall-clock:src/main/orcad/orcad-node-launcher.integration.test.ts
 1 test-no-wall-clock:src/main/orcad/orcad-push-startup.test.ts
 2 test-no-wall-clock:src/main/orcad/orcad-secret-store.test.ts

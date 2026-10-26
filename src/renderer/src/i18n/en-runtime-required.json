@@ -3055,6 +3055,13 @@
       "claudeAgentRowView": {
         "restartRequired": "Restart Claude in this pane to enable subagent navigation. Recent Claude versions with Orca hooks are required."
       },
+      "dropFailureReason": {
+        "changed": "The file changed while it was uploading. Try again.",
+        "disconnected": "The host is disconnected.",
+        "hostUnreachable": "The connection to the host changed or dropped. Try again.",
+        "noSpace": "The host is out of disk space.",
+        "tooLarge": "Too large to upload to this host."
+      },
       "dropSkipReason": {
         "missing": "No longer at its original path.",
         "permissionDenied": "Permission denied.",

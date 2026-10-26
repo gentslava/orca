@@ -344,7 +344,7 @@ describe('LinuxLidSleepAssertion', () => {
       return { assertion, failLatestChild, logger, spawn, spawnGaps }
     }
 
-    it('warns once while it keeps retrying every interval', () => {
+    it('warns once while it keeps retrying, doubling the wait up to a cap', () => {
       vi.useFakeTimers()
       try {
         const { assertion, failLatestChild, logger, spawnGaps } = createRetryingAssertion()
@@ -355,7 +355,9 @@ describe('LinuxLidSleepAssertion', () => {
           vi.advanceTimersToNextTimer()
         }
 
-        expect(spawnGaps()).toEqual(Array(8).fill(LINUX_LID_SLEEP_ASSERTION_RETRY_MS))
+        expect(spawnGaps()).toEqual(
+          [1, 2, 4, 8, 16, 16, 16, 16].map((factor) => factor * LINUX_LID_SLEEP_ASSERTION_RETRY_MS)
+        )
         expect(logger.warn).toHaveBeenCalledTimes(1)
         expect(logger.debug).toHaveBeenCalledTimes(7)
         assertion.dispose()
