@@ -20,7 +20,7 @@ import { ActionSheetModal } from '../components/ActionSheetModal'
 import { AuthFailedBanner } from '../components/AuthFailedBanner'
 import { formatAgentTypeLabel } from '../../../src/shared/agent-type-label'
 import type { HostScreenController } from './use-host-screen-controller'
-import { buildProjectConversations, type ConversationRow } from './project-conversations'
+import { buildProjectConversations } from './project-conversations'
 import { useConversationActions } from './use-conversation-actions'
 import { conversationCopy, conversationTimeAgo } from './conversation-copy'
 import { conversationStyles as styles } from './conversation-styles'
@@ -28,6 +28,7 @@ import { buildProjectSectionCatalog } from '../worktree/project-section-catalog'
 import { ConversationProjectOrderSheet } from './conversation-project-order-sheet'
 import { ConversationDetailsSheet } from './conversation-details-sheet'
 import { useConversationPreferences } from './use-conversation-preferences'
+import { useConversationDetails } from './use-conversation-details'
 import { PROJECT_CONVERSATION_PAGE_SIZE } from '../../../src/shared/project-conversation-list'
 import { useProjectConversations } from './use-project-conversations'
 
@@ -47,7 +48,11 @@ export function HostConversations({
   const [sorting, setSorting] = useState(false)
   const [archived, setArchived] = useState(false)
   const [expandedProjects, setExpandedProjects] = useState<ReadonlySet<string>>(new Set())
-  const [details, setDetails] = useState<ConversationRow | null>(null)
+  const { details, setDetails } = useConversationDetails({
+    client: controller.client,
+    hostId,
+    generation: controller.client?.getGeneration?.() ?? 0
+  })
   const { busy, error, newChat, setNewChat, prepare, launch, open } = useConversationActions(
     controller,
     data
