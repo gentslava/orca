@@ -1,3 +1,4 @@
+import { getRepoExecutionHostId } from '../../../src/shared/execution-host'
 import {
   buildWorktreeOccurrencePlan,
   type WorktreeOccurrenceSection
@@ -226,6 +227,11 @@ export function buildMobileWorkspacePlan(
           buildProjectSections({
             items: canonicalGroupWorktrees,
             repoIdOf: (w) => w.repoId,
+            repoOfItem: (w) =>
+              projectCatalog.repos.find(
+                (repo) =>
+                  repo.id === w.repoId && getRepoExecutionHostId(repo) === (w.hostId ?? 'local')
+              ),
             displayRepoIdOf: (w) =>
               (displayRootByIdentity.get(getWorktreeRowIdentity(w)) ?? w).repoId,
             repoMap,

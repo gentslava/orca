@@ -154,6 +154,10 @@ export function paramsFor(method: string): unknown {
       const fields = { messageId: 'queued-1', expectedBodyFingerprint: 'a'.repeat(64), text: 'hi' }
       return { envelope: envelope({ method, fields, fence }), ...fields }
     }
+    case 'agentSession.queuedMessageMove': {
+      const fields = { messageId: 'queued-1', beforeMessageId: null }
+      return { envelope: envelope({ method, fields, fence }), ...fields }
+    }
     case 'agentSession.queuedMessageEditHold':
       return {
         sessionId: SESSION,

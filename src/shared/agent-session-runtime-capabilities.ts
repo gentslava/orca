@@ -8,6 +8,7 @@ import { AGENT_SESSION_RESUME_RUNTIME_CAPABILITIES } from './agent-session-resum
 import { AGENT_SESSION_STOP_RUNTIME_CAPABILITIES } from './agent-session-stop-capabilities'
 import { AGENT_SESSION_WORKSPACE_SLEEP_MARK_RUNTIME_CAPABILITY } from './agent-session/agent-session-workspace-sleep'
 import { STRUCTURED_AGENT_SESSION_SURFACE_RUNTIME_CAPABILITIES } from './structured-agent-session-surface-capabilities'
+import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from './agent-session-default-model'
 
 export const AGENT_SESSION_BOUNDARY_RUNTIME_CAPABILITY =
   'agent-session.session-boundary.v1' as const
@@ -45,7 +46,13 @@ export const AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY =
 // Host mechanisms land first; this capability gates rollout.
 export const AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY =
   'agent-session.queued-messages.v1' as const
-// Advertise in-place update/edit holds separately from mid-turn queueing: kept/mail cards remain editable while queueing is off. Never fall back to copy/delete.
+export const AGENT_SESSION_QUEUED_MESSAGE_MOVE_RUNTIME_CAPABILITY =
+  'agent-session.queued-message-move.v1' as const
+export const AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY = 'agent-session.steer-draft.v1' as const
+// Why: a host advertising this edits a queued card in place (`agentSession.queuedMessageUpdate`)
+// and holds it from automatic delivery while edited (`agentSession.queuedMessageEditHold`). Apart
+// from queued-messages.v1: kept and agent-mail cards are editable with mid-turn queueing still off.
+// A client offers Edit only when the host advertises it; there is no copy-and-delete fallback.
 export const AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY =
   'agent-session.queued-message-edit.v1' as const
 // Update params are strict: send images only when advertised; otherwise Save edits text alone.
@@ -90,6 +97,7 @@ export const AGENT_SESSION_BACKGROUND_TASK_ROW_STOP_CAPABILITY =
   'agent-session.background-task-row-stop.v1' as const
 
 export const AGENT_SESSION_RUNTIME_CAPABILITIES = [
+  AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
   ...AGENT_SESSION_STOP_RUNTIME_CAPABILITIES,
   ...AGENT_SESSION_CREATE_RUNTIME_CAPABILITIES,
   AGENT_SESSION_BOUNDARY_RUNTIME_CAPABILITY,
@@ -104,6 +112,9 @@ export const AGENT_SESSION_RUNTIME_CAPABILITIES = [
   // turn starts, so a client may gate on either.
   AGENT_SESSION_ACCEPTED_SEND_RUNTIME_CAPABILITY,
   AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY,
+  AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
+  AGENT_SESSION_QUEUED_MESSAGE_MOVE_RUNTIME_CAPABILITY,
+  AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_COMMANDS_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_IMAGE_EDIT_RUNTIME_CAPABILITY,

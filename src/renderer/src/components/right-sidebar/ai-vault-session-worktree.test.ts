@@ -231,6 +231,27 @@ function makeFolderWorkspace(overrides: Partial<FolderWorkspace> = {}): FolderWo
 }
 
 describe('folder workspaces as session owners', () => {
+  it('resolves a record-only chat by stored folder identity without a cwd and keeps host twins separate', () => {
+    const folder = makeFolderWorkspace()
+    const saved = {
+      ...baseSession,
+      source: 'structured-record' as const,
+      cwd: null,
+      filePath: '',
+      structuredSession: { sessionId: 'saved-empty', workspaceId: 'folder:folder-1' }
+    }
+    const worktrees = aiVaultSessionOwnerWorkspaces([], [folder])
+    expect(
+      resolveAiVaultSessionWorktreeInfo({ session: saved, worktrees, activeWorktreeId: null })
+    ).toMatchObject({ worktreeId: 'folder:folder-1', path: '/work/notes', label: 'Notes' })
+    expect(
+      resolveAiVaultSessionWorktreeInfo({
+        session: { ...saved, executionHostId: 'runtime:remote' },
+        worktrees,
+        activeWorktreeId: null
+      })
+    ).toBeNull()
+  })
   const resolveOwner = (
     cwd: string,
     folderWorkspaces: FolderWorkspace[],

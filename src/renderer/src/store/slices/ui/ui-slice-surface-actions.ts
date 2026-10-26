@@ -152,9 +152,10 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
     // Activity view unmounts workspaces; incidental activation must not switch bodies or queue a surprise reveal.
     revealWorktreeInSidebar: (worktreeId, options) =>
       set((state) =>
-        state.sidebarBody === 'agents'
+        state.sidebarBody !== 'workspaces' && !options?.beginRename
           ? state
           : {
+              ...(options?.beginRename ? { sidebarBody: 'workspaces' as const } : {}),
               pendingRevealWorktree: {
                 worktreeId,
                 ...(options?.executionHostId ? { executionHostId: options.executionHostId } : {}),
@@ -166,7 +167,7 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
       ),
     revealSidebarRow: (rowKey, options) =>
       set((state) =>
-        state.sidebarBody === 'agents'
+        state.sidebarBody !== 'workspaces'
           ? state
           : {
               pendingRevealSidebarRow: {

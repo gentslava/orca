@@ -98,5 +98,9 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.bgRaised,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle
+  },
+  imageLoading: {
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })

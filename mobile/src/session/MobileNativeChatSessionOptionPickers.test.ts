@@ -95,14 +95,26 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   let renderer: ReactTestRenderer | null = null
   const setOption = vi.fn<MobileNativeChatSessionOptionsController['setOption']>()
   const invokeAction = vi.fn<MobileNativeChatSessionOptionsController['invokeAction']>()
+  const resetOption = vi.fn(async () => ({ snapshot: [] }))
 
-  const mount = (snapshot: SessionOptionDescriptor[], isWorking = false) => {
+  const mount = (
+    snapshot: SessionOptionDescriptor[],
+    isWorking = false,
+    allowsWorkingPicks = false
+  ) => {
     const controller: MobileNativeChatSessionOptionsController = {
       snapshot,
       pendingId: null,
       setOption,
       invokeAction,
-      recordCommand: vi.fn()
+      recordCommand: vi.fn(),
+      optionSurface: {
+        getSnapshot: () => snapshot,
+        setOption: async () => ({ snapshot }),
+        invokeAction: async () => ({ snapshot }),
+        subscribe: () => () => {},
+        resetOption
+      }
     }
     function Pickers({ working }: { working: boolean }) {
       const [presentation, setPresentation] = useState<MobileNativeChatPickerPresentation | null>(
@@ -111,6 +123,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
       return createElement(MobileNativeChatSessionOptionPickers, {
         controller,
         isWorking: working,
+        allowsWorkingPicks,
         presentation,
         onDrawerOpen: (page) => setPresentation({ page, refocus: false }),
         onNavigate: (page) => setPresentation((current) => current && { ...current, page })
@@ -151,6 +164,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   }
 
   beforeEach(() => {
+    resetOption.mockClear()
     Platform.OS = 'ios'
     vi.mocked(AccessibilityInfo.announceForAccessibilityWithOptions).mockClear()
     setOption.mockReset()
@@ -168,6 +182,41 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   it('renders nothing without a model descriptor', () => {
     mount([])
     expect(renderer!.toJSON()).toBeNull()
+  })
+
+  it('offers a separate Default action while future picks are enabled', async () => {
+    mount([{ ...MODEL_DESCRIPTOR, defaultChoice: { selected: false } }], true, true)
+    await act(async () => pill('Model').props.onPress())
+    await act(async () => rowByText('Default').props.onPress())
+    expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
+    expect(setOption).not.toHaveBeenCalled()
+  })
+
+  it('shows the proven Default model and description under its action', async () => {
+    mount(
+      [
+        {
+          ...MODEL_DESCRIPTOR,
+          defaultChoice: {
+            selected: false,
+            model: { value: 'opus', label: 'Opus 5.5', description: 'Most capable model' }
+          }
+        }
+      ],
+      true,
+      true
+    )
+    await act(async () => pill('Model').props.onPress())
+    const row = rowByText('Default')
+    expect(rowByText('Opus 5.5')).toBe(row)
+    expect(rowByText('Most capable model')).toBe(row)
+    expect(row.props.accessibilityState?.checked).toBe(false)
+  })
+
+  it('states when the host has not reported its Default model', async () => {
+    mount([{ ...MODEL_DESCRIPTOR, defaultChoice: { selected: false } }], true, true)
+    await act(async () => pill('Model').props.onPress())
+    expect(rowByText('Default model not reported')).toBe(rowByText('Default'))
   })
 
   it('shows the current model and effort in one pill', () => {
@@ -282,7 +331,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     }
   )
 
-  it('locks the model and effort while the agent works, but never the permission mode', async () => {
+  it('locks terminal model and effort commands while working, but never the permission mode', async () => {
     mount([MODEL_DESCRIPTOR, EFFORT_DESCRIPTOR, PERMISSION_DESCRIPTOR], true)
     expect(pill('Model').props).toMatchObject({ disabled: false })
     await act(async () => pill('Model').props.onPress())
@@ -292,6 +341,28 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     expect(renderer!.root.findByProps({ children: 'Agent is working' })).toBeDefined()
     await act(async () => rowByText('Permissions').props.onPress())
     expect(renderer!.root.findAllByProps({ children: 'Agent is working' })).toHaveLength(0)
+  })
+
+  it('allows future model, effort and Fast picks while a structured agent works', async () => {
+    mount([MODEL_DESCRIPTOR, EFFORT_DESCRIPTOR, FAST_MODE_DESCRIPTOR], true, true)
+    await act(async () => pill('Model').props.onPress())
+    expect(rowByText('Opus 4.8').props.accessibilityState?.disabled).toBe(false)
+    expect(pill('Low').props.accessibilityState?.disabled).toBe(false)
+    const notice = renderer!.root.findByProps({ accessibilityLiveRegion: 'polite' })
+    expect(notice.findByProps({ children: 'Choices apply to future messages.' })).toBeDefined()
+    expect(findAllByHostType(notice, 'LockKeyhole')).toHaveLength(0)
+    expect(AccessibilityInfo.announceForAccessibilityWithOptions).toHaveBeenCalledExactlyOnceWith(
+      'Agent is working. Choices apply to future messages.',
+      { queue: false }
+    )
+    await act(async () => rowByText('Opus 4.8').props.onPress())
+    expect(setOption).toHaveBeenCalledWith('model', 'opus')
+    await act(async () => pill('Low').props.onPress())
+    expect(setOption).toHaveBeenCalledWith('effort', 'low')
+    const fast = findByHostType(renderer!.root, 'Switch')
+    expect(fast.props.disabled).toBe(false)
+    await act(async () => fast.props.onValueChange(true))
+    expect(setOption).toHaveBeenCalledWith('fastMode', true)
   })
 
   it.each(['ios', 'android'] as const)(

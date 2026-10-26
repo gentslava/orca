@@ -15,6 +15,7 @@ import {
 } from './mobile-native-chat-row-keys'
 import { mobileNativeChatRowId } from './mobile-native-chat-reading-place'
 import { MobileNativeChatPageList } from './MobileNativeChatPageList'
+import { useMobileNativeChatTailFollow } from './use-mobile-native-chat-tail-follow'
 import { ToolRun } from './MobileNativeChatToolRun'
 import { useMobileNativeChatTurnDisclosure } from './use-mobile-native-chat-turn-disclosure'
 
@@ -231,7 +232,7 @@ let shownKeys!: MobileNativeChatRowKeys
 
 function Chat(props: {
   messages: NativeChatMessage[]
-  following: boolean
+  following?: boolean
   live: boolean
   joined?: number
   runs?: boolean
@@ -247,14 +248,18 @@ function Chat(props: {
     scopeKey: 'chat'
   })
   const keys = useMobileNativeChatRowKeys(folded, props.messages, 'chat', turns.presentation)
+  const tail = useMobileNativeChatTailFollow({ hasItems: folded.length > 0, scopeKey: 'chat' })
   shownKeys = keys
   return h(MobileNativeChatPageList, {
-    ref: null,
+    ref: tail.pageListProps.ref,
     rows: turns.listMessages,
     rowKeys: keys,
     runs: turns.presentation.workRuns.heads,
-    isFollowing: () => props.following,
-    onEndDistance: () => {},
+    isFollowing:
+      props.following === undefined
+        ? tail.pageListProps.isFollowing
+        : () => props.following === true,
+    onEndDistance: props.following === undefined ? tail.pageListProps.onEndDistance : () => {},
     renderItem: ({ item, index }) => {
       const { workRun, joinsWorkRun } = turns.resolveRow(index, item)
       return h(Row, {
@@ -267,7 +272,12 @@ function Chat(props: {
     },
     layoutKey: 'layout',
     contentContainerStyle: null,
-    header: h('div', { testID: 'header' }, h('span', null, 'Loading')),
+    header: h(
+      'div',
+      { testID: 'header' },
+      h('span', null, 'Loading'),
+      h('button', { onPress: tail.jumpToTail }, 'Jump to latest')
+    ),
     footer: props.live ? h('span', null, 'Working') : null,
     emptyStateView: null,
     onScroll: () => {}
@@ -276,7 +286,10 @@ function Chat(props: {
 
 function mount(
   messages: NativeChatMessage[],
-  options: { following: boolean; live: boolean; runs?: boolean } = { following: false, live: false }
+  options: { following?: boolean; live: boolean; runs?: boolean } = {
+    following: false,
+    live: false
+  }
 ) {
   let renderer!: ReactTestRenderer
   act(() => {
@@ -375,6 +388,118 @@ it('holds back a change below a scrolling reader until they rest, then keeps the
   chat0.rest()
   expect(chat0.drawn(mobileNativeChatRowId('n1'))).toBe(1)
   expect(chat0.scroller.top(mobileNativeChatRowId('m4'))).toBe(line)
+})
+
+it('keeps the initial tall-row window anchored after a reader parks and background history appends', () => {
+  const rows = Array.from({ length: 230 }, (_, i) => ({
+    ...say(`m${i}`, 'assistant', ''),
+    blocks: Array.from({ length: 5 }, () => ({ type: 'text' as const, text: `Message ${i}` }))
+  }))
+  const chat0 = mount(rows.slice(0, 200), { live: false })
+  chat0.scroller.touch('touchstart')
+  chat0.scroller.scrollTop = -150
+  chat0.scrolled()
+  chat0.scroller.touch('touchend')
+  chat0.rest()
+  const anchor = mobileNativeChatRowId('m196')
+  const top = chat0.scroller.top(anchor)
+  expect(Number.isFinite(top)).toBe(true)
+  chat0.show(rows)
+
+  expect(chat0.drawn(anchor)).toBe(1)
+  expect(chat0.scroller.top(anchor)).toBe(top)
+  chat0.scroller.touch('touchstart')
+  chat0.scroller.scrollTop -= 100
+  chat0.scrolled()
+  chat0.scroller.touch('touchend')
+  chat0.rest()
+  expect(chat0.scroller.top(anchor)).toBe(top + 100)
+})
+
+it.each([
+  ['scroll', 'opening'],
+  ['jump', 'opening'],
+  ['scroll', 'partial'],
+  ['jump', 'partial'],
+  ['scroll', 'automatic'],
+  ['jump', 'automatic'],
+  ['scroll', 'automatic-start'],
+  ['jump', 'automatic-start']
+] as const)(
+  'slides the %s-resumed tail after a detached reader used the %s window',
+  (resume, window) => {
+    const rows = Array.from({ length: 500 }, (_, i) => ({
+      ...say(`m${i}`, 'assistant', ''),
+      blocks: Array.from(
+        {
+          length:
+            (window === 'automatic' && i >= 176 && i < 200) ||
+            (window === 'automatic-start' && i < 40)
+              ? 1
+              : 5
+        },
+        () => ({
+          type: 'text' as const,
+          text: `Message ${i}`
+        })
+      )
+    }))
+    const initial = window === 'automatic-start' ? 40 : 200
+    const chat0 = mount(rows.slice(0, initial), { live: false })
+    if (window === 'automatic' || window === 'automatic-start') {
+      expect(chat0.rows()[0]).toBe(mobileNativeChatRowId(window === 'automatic' ? 'm164' : 'm0'))
+    }
+    chat0.read(() => (chat0.scroller.scrollTop = -150))
+    chat0.show(rows.slice(0, initial + 30))
+    expect(chat0.drawn(mobileNativeChatRowId(`m${initial - 4}`))).toBe(1)
+    if (window === 'partial') {
+      chat0.read(() => chat0.scroller.showFrom(200))
+      expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m164'))
+    }
+
+    if (resume === 'jump') {
+      chat0.press('header')
+    } else {
+      chat0.read(() => (chat0.scroller.scrollTop = 0))
+    }
+    for (const count of [initial + 50, 350, 500]) {
+      chat0.show(rows.slice(0, count))
+      expect(chat0.rows()).toEqual(
+        rows.slice(count - 24, count).map((row) => mobileNativeChatRowId(row.id))
+      )
+      expect(chat0.scroller.scrollTop).toBe(0)
+    }
+  }
+)
+
+it.each([40, 200])('bounds an automatically expanded %i-row chat while following', (initial) => {
+  const rows = Array.from({ length: 1000 }, (_, i) => say(`m${i}`, 'assistant', 'line'))
+  const chat0 = mount(rows.slice(0, initial), { live: false })
+  const drawn = chat0.rows().length
+  expect(drawn).toBeGreaterThan(24)
+  for (const count of [initial + 100, 500, 1000]) {
+    chat0.show(rows.slice(0, count))
+    expect(chat0.rows()).toHaveLength(drawn)
+    expect(chat0.drawn(mobileNativeChatRowId(`m${count - 1}`))).toBe(1)
+    expect(chat0.drawn(mobileNativeChatRowId(`m${initial - 1}`))).toBe(0)
+    expect(chat0.scroller.scrollTop).toBe(0)
+  }
+})
+
+it('keeps an explicitly opened from-start window after following resumes', () => {
+  const rows = Array.from({ length: 100 }, (_, i) => ({
+    ...say(`m${i}`, 'assistant', ''),
+    blocks: Array.from({ length: 5 }, () => ({ type: 'text' as const, text: `Message ${i}` }))
+  }))
+  const chat0 = mount(rows.slice(0, 40), { live: false })
+  chat0.read(() => chat0.scroller.showFrom(0))
+  chat0.read(() => chat0.scroller.showFrom(0))
+  expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m0'))
+  chat0.press('header')
+  chat0.show(rows)
+
+  expect(chat0.rows()).toEqual(rows.map((row) => mobileNativeChatRowId(row.id)))
+  expect(chat0.scroller.scrollTop).toBe(0)
 })
 
 it("holds a row's look with its messages: what the chat's state adds lands once the reader rests", () => {

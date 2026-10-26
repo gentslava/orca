@@ -38,6 +38,7 @@ import {
   setOptionPlan,
   type MutationPlan
 } from './structured-agent-session-mutation-plans'
+import { resetStructuredAgentSessionModel } from './structured-agent-session-model-default'
 import { agentSessionMutationAdmitsNow } from './structured-agent-session-mutation-admits-now'
 import { runQueueableStructuredAgentSessionSend } from './structured-agent-session-queued-send'
 import { cancelStructuredAgentSessionPrompt } from './structured-agent-session-prompt-cancel'
@@ -56,6 +57,7 @@ import {
   type StructuredAgentSessionOptionsReader
 } from './structured-agent-session-options-read'
 import { settleStructuredAgentSessionLateDispatch } from './structured-agent-session-late-dispatch'
+import { confirmIdleStructuredAgentSessionOption } from './structured-agent-session-idle-option'
 
 export function sendStructuredAgentSessionTurn(
   context: StructuredAgentSessionMutationContext,
@@ -65,6 +67,7 @@ export function sendStructuredAgentSessionTurn(
     body: AgentJournalMessageItem
     retryUnknown?: true
     delivery?: 'queue-if-active'
+    steer?: true
     queuedImageCards?: boolean
     options?: Readonly<Record<string, string>>
     usageLimitContinuationOfTurnItemId?: string
@@ -222,7 +225,7 @@ export function respondToStructuredAgentSessionPrompt(
 export async function setStructuredAgentSessionOption(
   context: StructuredAgentSessionMutationContext,
   caller: StructuredAgentSessionCaller,
-  params: { envelope: AgentSessionMutationEnvelope; key: string; value: string }
+  params: { envelope: AgentSessionMutationEnvelope; key: string; value: string | null }
 ): Promise<AgentSessionMutationResult<AgentSessionOptionResult>> {
   const plan = setOptionPlan(params)
   return mutateStructuredAgentSession(
@@ -232,7 +235,22 @@ export async function setStructuredAgentSessionOption(
     {
       ...plan,
       conversationWrite: true,
-      run: (ctx) => recordStructuredAgentSessionOptionIntent(context.deps, ctx, params)
+      run: async (ctx) => {
+        if (params.value === null) {
+          return resetStructuredAgentSessionModel(
+            context.deps,
+            ctx,
+            Boolean((await context.conversation(ctx.sessionId)).child),
+            params.key
+          )
+        }
+        const input = { key: params.key, value: params.value }
+        const picked = await recordStructuredAgentSessionOptionIntent(context.deps, ctx, input)
+        if (picked.ok) {
+          await confirmIdleStructuredAgentSessionOption(context, ctx, input)
+        }
+        return picked
+      }
     },
     openForWrite(context, params.envelope)
   )

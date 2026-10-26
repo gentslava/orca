@@ -129,6 +129,7 @@ vi.mock('../runtime/push/desktop-push-service', () => ({
 }))
 vi.mock('../runtime/orca-runtime', () => ({
   OrcaRuntimeService: class {
+    readonly usageHistory = { setStores() {} }
     readonly sidebarFacts = null
     readonly agentTransitions = { seedRestoredRows() {} }
     attachAgentStatusStore() {

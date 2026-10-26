@@ -24,6 +24,16 @@ afterEach(() => {
 })
 import type { NativeChatMessage } from '../../../../shared/native-chat-types'
 import { MessageRow } from './NativeChatMessageRow'
+import {
+  buildNativeChatTranscriptSlots,
+  nativeChatSlotIndexOf,
+  type NativeChatMessageSlot
+} from './native-chat-transcript-slots'
+import {
+  APPROVED_REVIEW,
+  approvalReviewMessage
+} from '../../../../shared/native-chat-activity.test-fixture'
+import { openToolRunMembers } from './native-chat-tool-run-members-test-support'
 
 afterEach(() => {
   cleanup()
@@ -108,4 +118,213 @@ describe('message row drawing a work run', () => {
     fireEvent.click(header)
     expect(screen.getByText(/Thought for 3s/)).toBeInTheDocument()
   })
+
+  it.each(['review-first', 'tool-first'])(
+    'retains consecutive review and tool activity behind one closed row: %s',
+    (order) => {
+      const review = approvalReviewMessage('review')
+      const action = command('action', 'pnpm test')
+      const members = order === 'review-first' ? [review, action] : [action, review]
+      const slots = activitySlots(members)
+      expect(slots).toHaveLength(1)
+      expect(slots[0]?.workRun).toEqual(members)
+      expect(nativeChatSlotIndexOf(slots, 'action')).toBe(0)
+      expect(nativeChatSlotIndexOf(slots, 'review')).toBe(0)
+      const { container } = render(
+        <MessageRow
+          message={members[0]!}
+          workRun={slots[0]?.workRun}
+          expandSignal={false}
+          onScrollMessageToTop={() => {}}
+        />
+      )
+      const header = container.querySelector('[data-native-chat-tool-run-state]')!
+      expect(header).toHaveAttribute('aria-expanded', 'false')
+      expect(container.querySelectorAll('[data-native-chat-tool-run-state]')).toHaveLength(1)
+      expect(screen.queryByText(APPROVED_REVIEW)).toBeNull()
+      expect(screen.queryByText('ok')).toBeNull()
+      fireEvent.click(header)
+      expect(screen.getByText(APPROVED_REVIEW)).toBeVisible()
+      expect(
+        container.querySelector('[data-native-chat-activity-message-id="review"]')
+      ).not.toBeNull()
+      openToolRunMembers()
+      expect(screen.getByText('ok')).toBeVisible()
+    }
+  )
+
+  it('groups successive reviews even before their tool arrives', () => {
+    const members = [
+      approvalReviewMessage('review-a'),
+      approvalReviewMessage('review-b', APPROVED_REVIEW.replace('local check', 'file read'))
+    ]
+    const slots = activitySlots(members)
+    const { container } = render(
+      <MessageRow
+        message={members[0]!}
+        workRun={slots[0]?.workRun}
+        expandSignal={false}
+        onScrollMessageToTop={() => {}}
+      />
+    )
+    const header = container.querySelector('[data-native-chat-tool-run-state]')!
+    expect(header).toHaveTextContent('Activity')
+    expect(container.querySelectorAll('button')).toHaveLength(1)
+    fireEvent.click(header)
+    expect(screen.getByText(APPROVED_REVIEW)).toBeVisible()
+    expect(screen.getByText(APPROVED_REVIEW.replace('local check', 'file read'))).toBeVisible()
+  })
+
+  it('keeps prose visible between activity groups and retains streaming output on expansion', () => {
+    const prose: NativeChatMessage = {
+      id: 'explanation',
+      role: 'assistant',
+      blocks: [{ type: 'text', text: 'The first check passed; I am checking the next file.' }],
+      timestamp: 1,
+      source: 'transcript'
+    }
+    const running: NativeChatMessage = {
+      ...command('running', 'pnpm tc'),
+      blocks: [
+        {
+          type: 'tool-call',
+          name: 'Bash',
+          input: { command: 'pnpm tc' },
+          callId: 'running',
+          state: 'running'
+        },
+        { type: 'tool-result', output: 'checking a.ts', callId: 'running' }
+      ]
+    }
+    const slots = activitySlots([
+      command('a', 'pnpm test'),
+      approvalReviewMessage('review'),
+      prose,
+      running
+    ])
+    expect(slots.map((slot) => slot.message.id)).toEqual(['a', 'explanation', 'running'])
+    const { container, rerender } = render(
+      <>
+        {slots.map((slot) => (
+          <MessageRow
+            key={slot.message.id}
+            message={slot.message}
+            workRun={slot.workRun}
+            expandSignal={false}
+            activeTurnIsWorking={true}
+            trailingRun={slot.message.id === 'running'}
+            onScrollMessageToTop={() => {}}
+          />
+        ))}
+      </>
+    )
+    expect(screen.getByText('The first check passed; I am checking the next file.')).toBeVisible()
+    const headers = container.querySelectorAll('[data-native-chat-tool-run-state]')
+    expect(headers).toHaveLength(2)
+    for (const header of headers) {
+      expect(header).toHaveAttribute('aria-expanded', 'false')
+    }
+    fireEvent.click(headers[1]!)
+    openToolRunMembers()
+    expect(screen.getByText('checking a.ts')).toBeVisible()
+    const updated = {
+      ...running,
+      blocks: running.blocks.map((block) =>
+        block.type === 'tool-result' ? { ...block, output: 'checking a.ts\nchecking b.ts' } : block
+      )
+    }
+    const next = activitySlots([
+      command('a', 'pnpm test'),
+      approvalReviewMessage('review'),
+      prose,
+      updated
+    ])
+    rerender(
+      <>
+        {next.map((slot) => (
+          <MessageRow
+            key={slot.message.id}
+            message={slot.message}
+            workRun={slot.workRun}
+            expandSignal={false}
+            activeTurnIsWorking={true}
+            trailingRun={slot.message.id === 'running'}
+            onScrollMessageToTop={() => {}}
+          />
+        ))}
+      </>
+    )
+    expect(screen.getByText(/checking b.ts/)).toBeVisible()
+  })
+
+  it('ends activity at unknown guardian warnings, failed tools, and real questions', () => {
+    const warning = approvalReviewMessage('warning', 'Review required before continuing.')
+    const failed: NativeChatMessage = {
+      ...command('failed', 'pnpm tc'),
+      blocks: [
+        {
+          type: 'tool-call',
+          name: 'Bash',
+          input: { command: 'pnpm tc' },
+          callId: 'failed',
+          state: 'failed'
+        },
+        { type: 'tool-result', callId: 'failed', output: 'Type error in a.ts', isError: true }
+      ]
+    }
+    const question: NativeChatMessage = {
+      ...command('question', ''),
+      blocks: [
+        {
+          type: 'tool-call',
+          name: 'AskUserQuestion',
+          input: { questions: [{ question: 'Which host should I use?' }] },
+          state: 'running'
+        }
+      ]
+    }
+    for (const boundary of [warning, failed, question]) {
+      const slots = activitySlots([
+        command('a', 'one'),
+        approvalReviewMessage('review-a'),
+        boundary,
+        approvalReviewMessage('review-b'),
+        command('b', 'two')
+      ])
+      expect(slots.map((slot) => slot.message.id)).toEqual(['a', boundary.id, 'review-b'])
+      expect(slots[1]?.workRun).toBeUndefined()
+      const view = render(
+        <MessageRow
+          message={boundary}
+          expandSignal={false}
+          activeTurnIsWorking={true}
+          onScrollMessageToTop={() => {}}
+        />
+      )
+      if (boundary === warning) {
+        expect(screen.getByText('Review required before continuing.')).toBeVisible()
+      }
+      if (boundary === failed) {
+        expect(screen.getByRole('alert')).toHaveTextContent('Type error in a.ts')
+      }
+      if (boundary === question) {
+        expect(screen.getByText('Which host should I use?')).toBeVisible()
+      }
+      view.unmount()
+    }
+  })
 })
+
+function activitySlots(messages: NativeChatMessage[]): NativeChatMessageSlot[] {
+  return buildNativeChatTranscriptSlots({
+    messages,
+    turnKeys: messages.map(() => 'turn'),
+    liveTurnKey: undefined,
+    receipts: new Map(),
+    turnStatuses: { active: null, completedByTurn: {} },
+    turnDiffs: new Map(),
+    expandedTurnKeys: new Set(),
+    isWorking: false,
+    lifecycleWorking: false
+  }).filter((slot): slot is NativeChatMessageSlot => slot.kind === 'message')
+}

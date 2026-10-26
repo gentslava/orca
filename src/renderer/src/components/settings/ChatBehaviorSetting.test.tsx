@@ -187,33 +187,40 @@ describe('ChatBehaviorSetting shell environment', () => {
 describe('ChatBehaviorSetting queue follow-ups', () => {
   const QUEUE_TOGGLE = '[aria-label="Toggle queue follow-ups"]'
 
-  it('shows the switch, with copy naming the image exception, when the host queues messages', () => {
+  it('queues text and images by default when the host supports it', () => {
     setLocalRuntimeCapabilitiesForTests([AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY])
     const updateSettings = vi.fn()
     const { container } = renderSetting({}, updateSettings)
-    expect(container.textContent).toContain('Messages with images send right away.')
+    expect(container.textContent).toContain('Enter queues text and images')
+    expect(container.textContent).toContain('Turn off to reverse these shortcuts')
     fireEvent.click(container.querySelector(QUEUE_TOGGLE)!)
     expect(updateSettings).toHaveBeenCalledWith({ nativeChatQueueFollowUps: false })
   })
 
-  it('hides the switch when the host does not queue messages, since it would do nothing', () => {
+  it('keeps the preference visible but disabled with an explanation on older hosts', () => {
     setLocalRuntimeCapabilitiesForTests([])
-    const { container } = renderSetting({})
-    expect(container.querySelector(QUEUE_TOGGLE)).toBeNull()
+    const updateSettings = vi.fn()
+    const { getByRole, container } = renderSetting({}, updateSettings)
+    const toggle = getByRole('switch', { name: 'Toggle queue follow-ups' })
+    expect(toggle.getAttribute('disabled')).not.toBeNull()
+    fireEvent.click(toggle)
+    expect(updateSettings).not.toHaveBeenCalled()
+    expect(container.textContent).toContain('Update Orca on this host')
   })
 
-  it('hides the switch until the host answers, then shows it', async () => {
+  it('disables the visible preference while checking the host, then enables it', async () => {
     setLocalRuntimeCapabilitiesForTests(null)
     let answer: (status: { capabilities: string[] }) => void = () => {}
     vi.stubGlobal('api', {
       runtime: { getStatus: () => new Promise((resolve) => (answer = resolve)) }
     })
     const { container } = renderSetting({})
-    expect(container.querySelector(QUEUE_TOGGLE)).toBeNull()
+    expect(container.querySelector(QUEUE_TOGGLE)?.getAttribute('disabled')).not.toBeNull()
+    expect(container.textContent).toContain('Checking whether this host supports queued messages')
     await act(async () =>
       answer({ capabilities: [AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY] })
     )
-    expect(container.querySelector(QUEUE_TOGGLE)).not.toBeNull()
+    expect(container.querySelector(QUEUE_TOGGLE)?.getAttribute('disabled')).toBeNull()
   })
 })
 

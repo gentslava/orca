@@ -17,6 +17,7 @@ import type {
   StatusPublication
 } from './structured-agent-session-status-feed-deps'
 import { structuredStatusSummariesEqual } from './structured-agent-session-status-summary-equality'
+import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
 
 export function structuredAgentSessionStatusSummary({
   sessionId,
@@ -48,7 +49,10 @@ export function structuredAgentSessionStatusSummary({
   const projected = state.summary
   const providerSession = structuredAgentSessionProviderSessionMetadata(record)
   // Acknowledged record options remain authoritative across model switches.
-  const model = normalizeOptionalField(record?.options?.model, AGENT_MODEL_MAX_LENGTH)
+  const model = normalizeOptionalField(
+    record ? effectiveAgentSessionOptions(record)?.model : undefined,
+    AGENT_MODEL_MAX_LENGTH
+  )
   const permissionMode = record?.permissionMode
   const launchDirectory = record ? agentSessionPinnedLaunchDirectory(record) : undefined
   return {
@@ -70,6 +74,7 @@ export function structuredAgentSessionStatusSummary({
       ? { rewindBlockedReason: 'outcome-unknown' as const }
       : {}),
     ...(model ? { model } : {}),
+    ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
     ...(isAgentChatPermissionMode(permissionMode) ? { permissionMode } : {}),
     ...childWork,
     ...(providerSession ? { providerSession } : {}),

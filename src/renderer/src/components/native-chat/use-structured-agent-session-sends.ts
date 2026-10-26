@@ -1,5 +1,6 @@
 import { useStructuredAgentSessionHostCapabilityState } from '@/runtime/structured-agent-session-host-capability'
 import { AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-create-capabilities'
+import { AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-runtime-capabilities'
 import type { StructuredAgentSessionSendRequest } from './structured-agent-session-send-slot'
 import { useCallback, useEffect, useEffectEvent, useSyncExternalStore } from 'react'
 import type {
@@ -10,6 +11,7 @@ import type { StructuredAgentSessionAttachment } from '../../../../shared/struct
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import {
   structuredAgentSessionQueueRequest,
+  structuredAgentSessionRequestedDelivery,
   type StructuredAgentSessionQueueDelivery
 } from './structured-agent-session-queue-request'
 import {
@@ -64,6 +66,10 @@ export function useStructuredAgentSessionSends(args: {
       target,
       AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY
     ) === 'supported'
+  const steerCapability = useStructuredAgentSessionHostCapabilityState(
+    target,
+    AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY
+  )
   const subscribe = useCallback(
     (listener: () => void) => subscribeToStructuredAgentSessionPendingSends(sessionId, listener),
     [sessionId]
@@ -110,13 +116,29 @@ export function useStructuredAgentSessionSends(args: {
       if (!text.trim() && attachments.length === 0) {
         return false
       }
-      const delivery = structuredAgentSessionQueueRequest(queue)
+      const intent = structuredAgentSessionRequestedDelivery(queue, isWorking, request?.delivery)
+      const explicitQueue = intent === 'queue-if-active'
+      if (explicitQueue && queue.capability !== 'supported') {
+        return false
+      }
+      const steers =
+        intent === 'immediate' ||
+        (!request?.delivery && !queue.enabled && steerCapability === 'supported')
+      if (steers && steerCapability !== 'supported') {
+        return false
+      }
+      const delivery = explicitQueue
+        ? 'queue-if-active'
+        : steers
+          ? undefined
+          : structuredAgentSessionQueueRequest(queue)
       const options = sendOptions?.()
       const sent = sendStructuredAgentSessionMessage({
         sessionId,
         target,
         text,
         attachments,
+        ...(steers ? { steer: true as const } : {}),
         ...(request?.callerKeepsText ? { callerKeepsText: request.callerKeepsText } : {}),
         ...(request?.usageLimitContinuationOfTurnItemId
           ? { usageLimitContinuationOfTurnItemId: request.usageLimitContinuationOfTurnItemId }
@@ -141,11 +163,22 @@ export function useStructuredAgentSessionSends(args: {
         ? 'queued'
         : true
     },
-    [isWorking, queue, queuedMessageIds, sendOptions, sessionId, stopping, takesSkills, target]
+    [
+      isWorking,
+      queue,
+      queuedMessageIds,
+      sendOptions,
+      sessionId,
+      steerCapability,
+      stopping,
+      takesSkills,
+      target
+    ]
   )
 
   return {
     pending,
+    steerCapability,
     /** A write such as a /clear keeps every send out meanwhile. */
     held,
     /** Why the last message came back to the composer, until the next send. */

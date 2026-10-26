@@ -47,6 +47,7 @@ describe('CodexUsageStore', () => {
       path: join(storeEnv.tempUserData, 'orca-codex-usage-sources.json'),
       schemaVersion: CODEX_USAGE_SCHEMA_VERSION,
       worktreeFingerprint: '[]',
+      hadPreviousHistory: false,
       reuse: false
     })
     expect(persistedJson).toBe(JSON.stringify(JSON.parse(persistedJson)))
@@ -102,7 +103,7 @@ describe('CodexUsageStore', () => {
     })
   })
 
-  it('rescans from scratch when the cache predates per-request long-context counts', async () => {
+  it('rescans from scratch when the cache predates session/day history attribution', async () => {
     const scanMock = vi.mocked(scanCodexUsageFilesViaWorker)
     const sourceCachePath = join(storeEnv.tempUserData, 'orca-codex-usage-sources.json')
     const cacheFile = join(storeEnv.tempUserData, 'orca-codex-usage.json')
@@ -118,16 +119,21 @@ describe('CodexUsageStore', () => {
       path: sourceCachePath,
       schemaVersion: CODEX_USAGE_SCHEMA_VERSION,
       worktreeFingerprint: '[]',
+      hadPreviousHistory: false,
       reuse: true
     })
 
-    writeFileSync(cacheFile, JSON.stringify({ ...JSON.parse(current), schemaVersion: 5 }))
+    writeFileSync(
+      cacheFile,
+      JSON.stringify({ ...JSON.parse(current), schemaVersion: CODEX_USAGE_SCHEMA_VERSION - 1 })
+    )
     scanMock.mockClear()
     await new CodexUsageStore({ getRepos: () => [], getAllWorktreeMeta: () => ({}) }).refresh(false)
     expect(scanMock).toHaveBeenLastCalledWith([], {
       path: sourceCachePath,
       schemaVersion: CODEX_USAGE_SCHEMA_VERSION,
       worktreeFingerprint: '[]',
+      hadPreviousHistory: false,
       reuse: false
     })
   })

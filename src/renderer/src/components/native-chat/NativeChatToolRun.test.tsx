@@ -499,8 +499,8 @@ describe('NativeChatToolRun', () => {
     expect(runHeader(container)).toHaveTextContent(' · 1 failed')
     expect(runHeader(container)).toHaveAccessibleName(/Failed tool calls: 1/)
     expect(container.querySelector('.lucide-circle-alert')).toBeNull()
-    expect(container.querySelector('[class*="destructive"]')).toBeNull()
-    expect(screen.queryByText('exit 1')).toBeNull()
+    expect(screen.getByRole('alert')).toHaveTextContent('false: exit 1')
+    expect(screen.getByRole('alert')).toHaveClass('text-destructive')
   })
 
   it('counts every failed call in a run, not just the last one', () => {

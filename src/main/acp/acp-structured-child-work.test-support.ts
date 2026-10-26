@@ -5,6 +5,25 @@ import {
   type AgentStatusStructuredSessionSubject
 } from '../../shared/agent-status-subject'
 import type { StructuredAgentSessionStatusSink } from '../native-chat/agent-session-wire/structured-agent-session-status-ownership'
+import type { AgentSessionBackgroundTaskState } from '../../shared/agent-session-wire'
+import { structuredSessionBackgroundTasksView } from '../../shared/structured-session-background-tasks-view'
+import { expect } from 'vitest'
+
+export function expectRetainedSettledAgentHistory(
+  state: AgentSessionBackgroundTaskState | null | undefined,
+  count: number
+): void {
+  expect(state?.children).toHaveLength(count)
+  expect(
+    state?.children?.every((child) => child.membership === 'settled' && !child.stoppable)
+  ).toBe(true)
+  expect(state?.settledTasks).toHaveLength(count)
+  expect(state?.tasks ?? []).toEqual([])
+  const view = structuredSessionBackgroundTasksView(state, null)
+  expect(view.show).toBe(true)
+  expect(view.isMonitoring).toBe(false)
+  expect(view.offersStopAll).toBe(false)
+}
 
 export function acpChildWorkStatusSink() {
   const server = new AgentHookServer()

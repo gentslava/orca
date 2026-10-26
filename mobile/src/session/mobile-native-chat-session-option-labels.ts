@@ -13,6 +13,8 @@ export function mobileSessionOptionDisabledReason(
       return 'Set when the session starts.'
     case 'available-after-session-start':
       return 'Available after the session starts.'
+    case 'host-update-required':
+      return 'Update Orca on this host to change future-turn choices while the agent works.'
     case undefined:
       return null
   }
@@ -38,6 +40,9 @@ function selectedChoiceLabel(descriptor: SessionOptionDescriptor): string | null
 
 /** Value-only pill text — the category lives on the sheet title, not the pill. */
 export function mobileModelPillLabel(descriptor: SessionOptionDescriptor): string {
+  if (descriptor.defaultChoice?.selected) {
+    return 'Default'
+  }
   return selectedChoiceLabel(descriptor) ?? 'Model'
 }
 

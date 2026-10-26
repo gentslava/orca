@@ -2,6 +2,7 @@ import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import type { AgentSessionJournal } from '../agent-session-journal/journal-store'
 import type { AgentSessionMutationRequest } from './structured-agent-session-mutation-admission'
 import type { AgentSessionTurnContext } from './structured-agent-session-turns'
+import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
 
 export function mutationTurnContext<TValue>(
   request: Omit<AgentSessionMutationRequest<TValue>, 'plan'>,
@@ -10,7 +11,8 @@ export function mutationTurnContext<TValue>(
 ): AgentSessionTurnContext {
   const fence = record.lease.runtimeFence
   const { sessionId } = request.envelope
-  const persistedOptions = request.store.getRecord(sessionId)?.options
+  const current = request.store.getRecord(sessionId)
+  const persistedOptions = current ? effectiveAgentSessionOptions(current) : undefined
   return {
     sessionId,
     journal,
@@ -21,6 +23,7 @@ export function mutationTurnContext<TValue>(
     agent: record.provider,
     logger: request.logger,
     ...(persistedOptions ? { persistedOptions } : {}),
+    defaultModelSelected: current?.defaultModelOptions !== undefined,
     persistOptions: (options) =>
       request.store
         .replaceSessionOptions({

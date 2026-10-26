@@ -6,6 +6,7 @@ import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/structured-agen
 import type { RpcClient } from '../transport/rpc-client'
 import {
   fieldsOf,
+  mutationOk,
   ok,
   snapshotEvent
 } from './use-mobile-structured-agent-session-queued.test-fixture'
@@ -13,6 +14,11 @@ import { markRpcDeliveryUnknown } from '../transport/rpc-delivery-ambiguity'
 import { structuredSendResultFixture } from './structured-agent-send-result.test-fixture'
 import { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
 import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session-create-capabilities'
+import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../src/shared/agent-session-default-model'
+import type { AgentSessionOptionsResult } from '../../../src/shared/agent-session-wire'
+import type { RpcResponse } from '../transport/types'
+import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
+import type { MobileNativeChatSendOrigin } from './use-mobile-native-chat-drafts'
 import {
   structuredAgentSessionHostSupport,
   type StructuredAgentSessionHostSupport
@@ -43,6 +49,23 @@ function sendResult(dispatchState: AgentJournalDispatchState, reason: string | n
   })
 }
 
+function deferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((accept) => {
+    resolve = accept
+  })
+  return { promise, resolve }
+}
+
+const MODEL_OPTIONS: AgentSessionOptionsResult = {
+  conversationCommands: ['compact'],
+  models: [
+    { id: 'opus', label: 'Opus', isDefault: true, efforts: [] },
+    { id: 'sonnet', label: 'Sonnet', isDefault: false, efforts: [] }
+  ],
+  current: { model: 'opus' }
+}
+
 describe('mobile structured send actions', () => {
   let renderer: ReactTestRenderer | null = null
   let hook: ReturnType<typeof useMobileStructuredAgentSession> | null = null
@@ -50,7 +73,21 @@ describe('mobile structured send actions', () => {
   let listener: ((value: unknown) => void) | null = null
   let storedOperations: Map<string, string>
   let agent = 'codex'
+  let sessionId = 'session-1'
   let hostSupport: StructuredAgentSessionHostSupport | null = null
+  let bridge: ReturnType<typeof useMobileStructuredNativeChatSendBridge>
+  const clearDraftForSend = vi.fn()
+  const restoreRejectedDraft = vi.fn()
+  const captureSendOrigin = vi.fn((text: string): MobileNativeChatSendOrigin => ({
+    draftKey: 'draft',
+    draftEditGeneration: 0,
+    pendingKey: 'pending',
+    normalizedText: text,
+    baselineOccurrences: 0,
+    baselineTailMessageId: null,
+    baselineResolved: true,
+    sentAt: 0
+  }))
   const onSendError = vi.fn()
   const sendRequest = vi.fn<RpcClient['sendRequest']>()
   const subscribe = vi.fn<RpcClient['subscribe']>((_method, _params, onData) => {
@@ -74,12 +111,21 @@ describe('mobile structured send actions', () => {
     banner.bannerMountedRef.current = true
     hook = useMobileStructuredAgentSession({
       client,
-      sessionId: 'session-1',
+      sessionId,
       sourceIdentity: 'host-a\0workspace-a',
       enabled: true,
       connected: true,
       agent,
       hostSupport,
+      onSendError
+    })
+    bridge = useMobileStructuredNativeChatSendBridge({
+      agent: 'claude',
+      sendStructured: hook.sendWithOutcome,
+      isModelWritePending: hook.isModelWritePending,
+      captureSendOrigin,
+      clearDraftForSend,
+      restoreRejectedDraft,
       onSendError
     })
     return createElement('span', null, banner.message)
@@ -131,6 +177,7 @@ describe('mobile structured send actions', () => {
     banner = null
     listener = null
     agent = 'codex'
+    sessionId = 'session-1'
     hostSupport = null
   })
 
@@ -217,6 +264,198 @@ describe('mobile structured send actions', () => {
       expect(await hook!.sendWithOutcome('hello')).toBe('accepted')
     })
     expect(fieldsOf(calls()[0]![1]).options).toEqual({ model: 'opus[1m]', effort: 'max' })
+  })
+
+  it.each([
+    ['explicit model', true, false],
+    ['Default reset', true, true],
+    ['legacy explicit model', false, false],
+    ['legacy Default reset', false, true]
+  ] as const)(
+    'rejects a send during a pending %s, then sends the accepted selection',
+    async (_name, takesOptions, reset) => {
+      agent = 'claude'
+      hostSupport = structuredAgentSessionHostSupport([
+        AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
+        ...(takesOptions ? [AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY] : [])
+      ])
+      const write = deferred<RpcResponse>()
+      let current = MODEL_OPTIONS.current
+      sendRequest.mockImplementation(async (method) => {
+        if (method === 'agentSession.setOption') {
+          return write.promise
+        }
+        if (method === 'agentSession.send') {
+          return sendResult('accepted')
+        }
+        if (method === 'agentSession.options') {
+          return ok({ ...MODEL_OPTIONS, current })
+        }
+        return ok({})
+      })
+      await mountSession()
+      await act(async () => {})
+      expect(hook!.pendingOptionId).toBeNull()
+      let mutation: Promise<unknown> | undefined
+      await act(async () => {
+        mutation = reset
+          ? hook!.optionSurface.resetOption?.('model')
+          : hook!.setStructuredOption('model', 'sonnet')
+        // The rendered picker has not caught up with the write's ref yet.
+        expect(hook!.pendingOptionId).toBeNull()
+        expect(await bridge.sendWithOutcome('keep this draft')).toBe('rejected')
+        expect(await hook!.sendWithOutcome('keep this draft')).toBe('rejected')
+      })
+      expect(
+        sendRequest.mock.calls.filter(([method]) => method === 'agentSession.setOption')
+      ).toHaveLength(1)
+      expect(calls()).toHaveLength(0)
+      expect(hook!.session.messages).toEqual([])
+      expect(captureSendOrigin).not.toHaveBeenCalled()
+      expect(clearDraftForSend).not.toHaveBeenCalled()
+      expect(restoreRejectedDraft).not.toHaveBeenCalled()
+      await act(async () => {
+        expect(await hook!.sendWithOutcome('still pending')).toBe('rejected')
+      })
+      await act(async () => {
+        current = { model: 'sonnet', ...(reset ? { modelDefault: true } : {}) }
+        write.resolve(
+          mutationOk({
+            key: 'model',
+            value: reset ? null : 'sonnet',
+            options: { model: 'sonnet' },
+            ...(reset ? { modelDefault: true } : {})
+          })
+        )
+        await mutation
+        expect(await bridge.sendWithOutcome('fresh send')).toBe('accepted')
+      })
+      expect(calls()).toHaveLength(1)
+      if (takesOptions && !reset) {
+        expect(fieldsOf(calls()[0]![1]).options).toEqual({ model: 'sonnet' })
+      } else {
+        expect(fieldsOf(calls()[0]![1])).not.toHaveProperty('options')
+      }
+      expect(hook!.session.messages).toHaveLength(1)
+      expect(clearDraftForSend).toHaveBeenCalledTimes(1)
+    }
+  )
+
+  it.each([false, true])(
+    'releases a failed model write without changing the selection (reset %s)',
+    async (reset) => {
+      agent = 'claude'
+      hostSupport = structuredAgentSessionHostSupport([
+        AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
+        AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
+      ])
+      const write = deferred<RpcResponse>()
+      sendRequest.mockImplementation(async (method) =>
+        method === 'agentSession.setOption'
+          ? write.promise
+          : method === 'agentSession.send'
+            ? sendResult('accepted')
+            : method === 'agentSession.options'
+              ? ok(MODEL_OPTIONS)
+              : method === 'agentSession.conversationCommand'
+                ? mutationOk({ command: 'compact', state: 'completed' })
+                : ok({})
+      )
+      await mountSession()
+      await act(async () => {})
+      await act(async () => {
+        const mutation = reset
+          ? hook!.optionSurface.resetOption?.('model')
+          : hook!.setStructuredOption('model', 'sonnet')
+        expect(await hook!.sendWithOutcome('pending')).toBe('rejected')
+        expect(await bridge.sendWithOutcome('/compact')).toBe('accepted')
+        expect(hook!.isModelWritePending()).toBe(true)
+        write.resolve({
+          id: 'write',
+          ok: false,
+          error: { code: 'invalid_argument', message: 'Model unavailable' }
+        })
+        await mutation
+        expect(await hook!.sendWithOutcome('after refusal')).toBe('accepted')
+      })
+      expect(calls()).toHaveLength(1)
+      expect(fieldsOf(calls()[0]![1]).options).toEqual({ model: 'opus' })
+    }
+  )
+
+  it.each([false, true])(
+    'allows an options-capable host to send without a known original model (Default %s)',
+    async (modelDefault) => {
+      agent = 'claude'
+      hostSupport = structuredAgentSessionHostSupport([
+        AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
+      ])
+      sendRequest.mockImplementation(async (method) =>
+        method === 'agentSession.send'
+          ? sendResult('accepted')
+          : method === 'agentSession.options'
+            ? ok({ models: [], current: { modelDefault } })
+            : ok({})
+      )
+      await mountSession()
+      await act(async () => {
+        expect(await bridge.sendWithOutcome('provider chooses')).toBe('accepted')
+      })
+      expect(calls()).toHaveLength(1)
+      expect(fieldsOf(calls()[0]![1])).not.toHaveProperty('options')
+      expect(clearDraftForSend).toHaveBeenCalledTimes(1)
+    }
+  )
+
+  it('keeps the new session write guarded when the old session write settles', async () => {
+    agent = 'claude'
+    hostSupport = structuredAgentSessionHostSupport([AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY])
+    const oldWrite = deferred<RpcResponse>()
+    const newWrite = deferred<RpcResponse>()
+    sendRequest.mockImplementation(async (method, params) => {
+      if (method === 'agentSession.setOption') {
+        return fieldsOf(fieldsOf(params).envelope).sessionId === 'session-1'
+          ? oldWrite.promise
+          : newWrite.promise
+      }
+      return method === 'agentSession.send'
+        ? sendResult('accepted')
+        : method === 'agentSession.options'
+          ? ok(MODEL_OPTIONS)
+          : ok({})
+    })
+    await mountSession()
+    await act(async () => {})
+    let oldMutation: Promise<boolean> | undefined
+    act(() => {
+      oldMutation = hook!.setStructuredOption('model', 'sonnet')
+    })
+    sessionId = 'session-2'
+    await act(async () => {
+      renderer!.update(createElement(Harness))
+    })
+    const event = snapshotEvent()
+    await act(async () => listener?.({ ...event, sessionId, page: { ...event.page, sessionId } }))
+    expect(hook!.isModelWritePending()).toBe(false)
+    let newMutation: Promise<boolean> | undefined
+    act(() => {
+      newMutation = hook!.setStructuredOption('model', 'sonnet')
+    })
+    await act(async () => {
+      oldWrite.resolve(mutationOk({ key: 'model', value: 'sonnet', options: { model: 'sonnet' } }))
+      await oldMutation
+      expect(await hook!.sendWithOutcome('new session still pending')).toBe('rejected')
+    })
+    expect(calls()).toHaveLength(0)
+    expect(hook!.pendingOptionId).toBe('model')
+    await act(async () => {
+      newWrite.resolve(mutationOk({ key: 'model', value: 'sonnet', options: { model: 'sonnet' } }))
+      await newMutation
+      expect(await hook!.sendWithOutcome('new session ready')).toBe('accepted')
+    })
+    expect(calls()[0]![1]).toMatchObject({
+      envelope: { sessionId: 'session-2', expectedRuntimeFence: 3 }
+    })
   })
 
   it("sends a command the chat's own agent runs as a message, though Codex's host claims it", async () => {

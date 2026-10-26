@@ -11,7 +11,7 @@ export function agentChildWorkIsRunning(child: {
   return !child.settled || child.ownsLiveWork
 }
 
-/** A session's running children, in store order: what the sidebar and the strip list. */
+/** A session's running children, in store order. */
 export function structuredRunningChildWork(
   views: readonly AgentChildWorkView[]
 ): AgentChildWorkView[] {
@@ -28,4 +28,11 @@ export function structuredRunningChildWork(
       ownsLiveWork: owners.has(view.id)
     })
   )
+}
+
+export function structuredInspectableChildWork(
+  views: readonly AgentChildWorkView[]
+): AgentChildWorkView[] {
+  const running = new Set(structuredRunningChildWork(views).map((view) => view.id))
+  return views.filter((view) => view.kind === 'agent' || running.has(view.id))
 }

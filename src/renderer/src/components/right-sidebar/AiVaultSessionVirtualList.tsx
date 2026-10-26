@@ -36,6 +36,7 @@ const VAULT_ROW_OVERSCAN = 8
 const VAULT_EXPANDED_SESSION_ROW_ESTIMATED_HEIGHT = 420
 
 export function AiVaultSessionVirtualList({
+  conversationNavigation = false,
   groups,
   collapsedGroups,
   loading,
@@ -74,6 +75,7 @@ export function AiVaultSessionVirtualList({
   query = '',
   resumeHere
 }: {
+  conversationNavigation?: boolean
   groups: readonly AiVaultSessionListGroup[]
   collapsedGroups: ReadonlySet<string>
   loading: boolean
@@ -154,7 +156,7 @@ export function AiVaultSessionVirtualList({
       if (row?.type === 'session' && expandedSessionIds.has(row.session.id)) {
         return VAULT_EXPANDED_SESSION_ROW_ESTIMATED_HEIGHT
       }
-      return VAULT_SESSION_ROW_HEIGHT
+      return conversationNavigation ? 40 : VAULT_SESSION_ROW_HEIGHT
     },
     overscan: VAULT_ROW_OVERSCAN,
     // Why: the pinned group header covers the list's top, so a row scrolled into view stops below it.
@@ -222,10 +224,36 @@ export function AiVaultSessionVirtualList({
   }
   // Enter resumes the row in the chat; a row that can't shows its details instead.
   const activateSession = (session: AiVaultSession, index: number): void => {
+    if (conversationNavigation && openConversation(session)) {
+      return
+    }
     if (!pickHere(session)) {
       setExpandedSessionIds((current) => new Set(current).add(session.id))
       virtualizer.scrollToIndex(index)
     }
+  }
+  function openConversation(session: AiVaultSession): boolean {
+    if (session.structuredSession) {
+      onResume(session, session.structuredSession.workspaceId)
+      return true
+    }
+    const actions = resolveAiVaultSessionRowChatActions({
+      session,
+      originalPaneTarget: getOriginalPaneTarget(session),
+      structuredSessionOpen: isStructuredSessionOpen(session),
+      resumeState: getSessionResumeState(session),
+      resumeInChat: getSessionResumeInChat(session),
+      searchHit: searchHits?.get(session.id)
+    })
+    if (actions.canJumpToOriginalPane) {
+      onJumpToOriginalPane(session)
+      return true
+    }
+    if (actions.resumeInNewChatWorkspaceId) {
+      onResumeInNewChat(session, actions.resumeInNewChatWorkspaceId)
+      return true
+    }
+    return false
   }
   useAiVaultSessionListKeyboard(keyboardRef, {
     rows: vaultRows,
@@ -282,6 +310,16 @@ export function AiVaultSessionVirtualList({
           <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
             {virtualItems.map((virtualRow) => (
               <AiVaultVirtualRow
+                conversationNavigation={conversationNavigation}
+                onOpenConversation={
+                  conversationNavigation
+                    ? (session) => {
+                        if (!openConversation(session)) {
+                          toggleSessionDetails(session.id)
+                        }
+                      }
+                    : undefined
+                }
                 key={virtualRow.key}
                 row={vaultRows[virtualRow.index]}
                 index={virtualRow.index}

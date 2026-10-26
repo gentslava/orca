@@ -1,3 +1,9 @@
+import { PERSONAL_PROJECT_ORDER_CAPABILITY } from '../../../src/shared/personal-project-order'
+import type { ServedProjectSections } from '../worktree/project-sections-operations'
+import {
+  captureMobilePersonalOpening,
+  applyAcknowledgedMobilePersonalOpening
+} from '../worktree/personal-project-opening'
 import { useCallback } from 'react'
 import { ORCA_SIDEBAR_INPUTS_IS_MAIN } from '../../../src/shared/sidebar-inputs-switch'
 import type { useRouter } from 'expo-router'
@@ -40,6 +46,7 @@ export function useHostWorktreeActions(args: {
   pathname: string
   router: ReturnType<typeof useRouter>
   state: HostScreenState
+  projectCatalog?: ServedProjectSections | null
 }) {
   const {
     client,
@@ -237,7 +244,7 @@ export function useHostWorktreeActions(args: {
   )
 
   const openWorktreeSession = useCallback(
-    (item: Worktree, paneKey?: string) => {
+    async (item: Worktree, paneKey?: string) => {
       const server = serverWorkspaces.hosts.find((host) => host.hostId === item.hostId)
       if (server?.relay === 'update-needed') {
         setServerNotice(serverUpdateNeededNotice(server.label))
@@ -247,7 +254,18 @@ export function useHostWorktreeActions(args: {
       if (routeHost === null) {
         return
       }
-      // Record this phone’s visit before navigation; a session opened in another page cannot publish its stored write back here.
+      const personalOpening = hostCapabilities.includes(PERSONAL_PROJECT_ORDER_CAPABILITY)
+        ? await captureMobilePersonalOpening({
+            client,
+            hostId,
+            capabilities: hostCapabilities,
+            catalog: args.projectCatalog ?? state.servedProjectSections,
+            target: item,
+            rows: [...state.worktrees, ...serverWorkspaces.worktrees]
+          })
+        : null
+      // Switch point: a feed-built list highlights this phone's last visit, noted here because the
+      // session may open as another page whose stored write this list never sees.
       if (!ORCA_SIDEBAR_INPUTS_IS_MAIN) {
         setOptimisticActiveWorktreeIdentity(getWorktreeRowIdentity(item))
       } else if (hostId) {
@@ -261,6 +279,9 @@ export function useHostWorktreeActions(args: {
             notifyClients: false,
             navigation: 'caller'
           })
+          .then((reply) =>
+            applyAcknowledgedMobilePersonalOpening(reply, personalOpening, state, client)
+          )
           .catch(() => null)
       }
       // Use an empty missing hostId: the shell refuses /h//session, whereas the string undefined would name an accepted host.
@@ -276,7 +297,13 @@ export function useHostWorktreeActions(args: {
       hostCapabilities,
       hostId,
       navigateFromHostList,
-      serverWorkspaces
+      serverWorkspaces,
+      state.servedProjectSections,
+      args.projectCatalog,
+      state.worktrees,
+      state.clientRef,
+      state.viewRef,
+      state.setView
     ]
   )
 

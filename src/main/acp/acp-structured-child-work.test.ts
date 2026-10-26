@@ -17,7 +17,10 @@ import {
   promptIdOf,
   send
 } from './acp-structured-host.test-support'
-import { acpChildWorkStatusSink } from './acp-structured-child-work.test-support'
+import {
+  acpChildWorkStatusSink,
+  expectRetainedSettledAgentHistory
+} from './acp-structured-child-work.test-support'
 import { GrokFixtureReplay } from './acp-structured-fixture-replay.test-support'
 import { readAcpFixture } from './acp-timeline-fixture.test-support'
 import type { FakeFrame } from './acp-scripted-agent.test-support'
@@ -180,9 +183,10 @@ describe('Grok roster evidence through the existing host child store', () => {
         )
       ).toEqual([])
     }
-    expect(
-      (await hosted.host.history({ sessionId: SESSION, direction: 'tail' })).page.backgroundTasks
-    ).toBeNull()
+    expectRetainedSettledAgentHistory(
+      (await hosted.host.history({ sessionId: SESSION, direction: 'tail' })).page.backgroundTasks,
+      1
+    )
   })
 
   it('shares one label and one id between saved rows, agent strip and sidebar after parent completion', async () => {
@@ -203,11 +207,11 @@ describe('Grok roster evidence through the existing host child store', () => {
     await f.finish('first', 'completed')
     expect((await f.strip())?.tasks).toMatchObject([{ id: 'sibling' }])
     await f.finish('sibling', 'failed')
-    expect(await f.strip()).toBeNull()
+    expectRetainedSettledAgentHistory(await f.strip(), 2)
     expect(f.sidebar.at(-1)).toEqual([])
     expect(f.childWork.views().map((view) => view.outcome)).toEqual(['succeeded', 'failed'])
     await f.notify({ sessionUpdate: 'subagent_progress', subagent_id: 'first', tokens_used: 100 })
-    expect(await f.strip()).toBeNull()
+    expectRetainedSettledAgentHistory(await f.strip(), 2)
   })
 
   it('uses the targeted extension for one owned child and awaits its finish without cancelling parent or sibling', async () => {
@@ -300,7 +304,7 @@ describe('Grok roster evidence through the existing host child store', () => {
       subagent_id: 'original',
       tokens_used: 111
     })
-    expect(await f.strip()).toBeNull()
+    expectRetainedSettledAgentHistory(await f.strip(), 36)
     expect(f.childWork.views().find((view) => view.providerId === 'original')?.outcome).toBe(
       'cancelled'
     )
@@ -409,7 +413,7 @@ describe('Grok roster evidence through the existing host child store', () => {
         update: { sessionUpdate: 'subagent_progress', subagent_id: 'unresolved', tokens_used: 100 }
       })
       await f.rows()
-      expect(await f.strip()).toBeNull()
+      expectRetainedSettledAgentHistory(await f.strip(), 1)
     } finally {
       child.exit()
     }

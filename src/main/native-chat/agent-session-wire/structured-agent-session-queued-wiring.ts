@@ -12,6 +12,7 @@ import {
   sendQueuedStructuredAgentMessage
 } from './structured-agent-session-queued-mutations'
 import { deferredStructuredAgentSessionLogger } from './structured-agent-session-logger'
+import { moveQueuedStructuredAgentMessage } from './structured-agent-session-queued-move'
 import {
   holdQueuedStructuredAgentMessageEdit,
   republish,
@@ -39,6 +40,10 @@ export function wireStructuredAgentSessionQueuedMessages(
   })
   return {
     drain,
+    queuedMessageMove: (
+      caller: StructuredAgentSessionCaller,
+      params: Parameters<typeof moveQueuedStructuredAgentMessage>[2]
+    ) => moveQueuedStructuredAgentMessage(context(), caller, params),
     onOpened: (sessionId: string) => {
       const journal = sessions.get(sessionId)?.journal
       journal?.queuedMessages.editLeases.onDeadline(() => {

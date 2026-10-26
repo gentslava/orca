@@ -1,5 +1,6 @@
 import { lstatSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
+import type { UsageAccountRoot } from '../usage/usage-account-attribution'
 // Keep the router setup graph out of scan workers.
 import type { ClaudeProfileRouter } from './claude-profile-router'
 import type { ClaudeWslProfileRouter } from './claude-profile-wsl-router'
@@ -23,6 +24,23 @@ export function listClaudeProfileHomes(dataRoot: string): string[] {
     return []
   }
   return ids.map((id) => join(root, id, 'home')).filter(isDirectory)
+}
+
+export function claudeAccountHistoryRoots(): UsageAccountRoot[] {
+  const router = installed
+  return (router?.accountHomes() ?? []).flatMap((path) => {
+    const accountId = basename(dirname(path))
+    try {
+      return router?.accountHome(accountId) === path &&
+        isDirectory(path) &&
+        isDirectory(dirname(path)) &&
+        isDirectory(dirname(dirname(path)))
+        ? [{ path, accountId }]
+        : []
+    } catch {
+      return []
+    }
+  })
 }
 
 let installed: ClaudeProfileRouter | undefined

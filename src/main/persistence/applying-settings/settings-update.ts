@@ -5,6 +5,7 @@ import { retireAtRestCommandSettings } from '../../native-chat/agent-session-wir
 import { normalizeDisabledTuiAgents } from '../../../shared/tui-agent-selection'
 import { normalizeNativeChatProviderChoices } from '../../../shared/native-chat/native-chat-providers'
 import { resolveNestedWorkerMaxDepth } from '../../../shared/nested-worker-depth'
+import { parseWorkerRoleProfiles } from '../../../shared/orchestration-worker-roles'
 import { sanitizeAgentLaunchProfileUpdates } from '../../../shared/tui-agent-launch-defaults'
 import { normalizeTerminalQuickCommands } from '../../../shared/terminal-quick-commands'
 import { assertTerminalQuickCommandsStorable } from '../../../shared/terminal-quick-command-prompt-limit'
@@ -70,6 +71,10 @@ export function updateSettings(
   if ('showMenuBarIcon' in updates) {
     sanitizedUpdates.showMenuBarIcon = updates.showMenuBarIcon === true
   }
+  if ('holdQuitWhileAgentsWork' in updates) {
+    sanitizedUpdates.holdQuitWhileAgentsWork = updates.holdQuitWhileAgentsWork === true
+  }
+  // Why: the artifact publish capability must be an exact boolean on disk; no truthy value grants it.
   if ('artifactSharingEnabled' in updates) {
     sanitizedUpdates.artifactSharingEnabled = updates.artifactSharingEnabled === true
   }
@@ -80,6 +85,11 @@ export function updateSettings(
     sanitizedUpdates.nestedWorkerMaxDepth = resolveNestedWorkerMaxDepth({
       nestedWorkerMaxDepth: updates.nestedWorkerMaxDepth
     })
+  }
+  if ('orchestrationWorkerRoles' in updates) {
+    sanitizedUpdates.orchestrationWorkerRoles = parseWorkerRoleProfiles(
+      updates.orchestrationWorkerRoles
+    )
   }
   if ('nativeChatAppearance' in updates) {
     sanitizedUpdates.nativeChatAppearance = normalizeNativeChatAppearanceSettings(

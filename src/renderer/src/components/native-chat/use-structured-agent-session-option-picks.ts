@@ -9,8 +9,12 @@ import { enqueueSessionOptionSettingsWrite } from './native-chat-session-option-
 
 export function useRememberSessionOptionPicks(target: RuntimeClientTarget, agent: AgentType) {
   return useCallback(
-    (view: StructuredAgentSessionOptionState, committed: Readonly<Record<string, string>>) => {
-      const picks = structuredAgentSessionOptionPicks(view, committed)
+    (
+      view: StructuredAgentSessionOptionState,
+      committed: Readonly<Record<string, string>>,
+      pickedOptionId?: string
+    ) => {
+      const picks = structuredAgentSessionOptionPicks(view, committed, pickedOptionId)
       if (picks.length > 0) {
         void enqueueSessionOptionSettingsWrite(target, { type: 'apply-picks', agent, picks })
       }

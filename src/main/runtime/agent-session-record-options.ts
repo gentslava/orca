@@ -1,4 +1,5 @@
 import { independentAgentModelCatalog } from '../../shared/agent-model-catalog-ownership'
+import { effectiveAgentSessionOptions } from '../../shared/agent-session-default-model'
 import { agentSessionEffortLevels } from '../../shared/agent-session-effort-levels'
 import { agentSessionRefusalError } from '../../shared/agent-session-wire-refusals'
 import type {
@@ -19,7 +20,14 @@ export function replaceAgentSessionRecordOptions(
     throw agentSessionRefusalError('agent_session_ownership_unknown', { reason: 'leaseMoved' })
   }
   return 'options' in replacement
-    ? { ...record, options: { ...replacement.options }, updatedAt: replacement.now }
+    ? {
+        ...record,
+        options: { ...replacement.options },
+        ...('defaultModelOptions' in replacement
+          ? { defaultModelOptions: replacement.defaultModelOptions ?? undefined }
+          : {}),
+        updatedAt: replacement.now
+      }
     : { ...record, permissionMode: replacement.permissionMode, updatedAt: replacement.now }
 }
 
@@ -114,20 +122,27 @@ export function pickAgentSessionOption(
     key !== 'model' &&
     (independentAgentModelCatalog(record.provider) || record.lease.claimStatus !== 'live')
   ) {
-    const { model } = record.options ?? {}
+    const { model } = effectiveAgentSessionOptions(record) ?? {}
     assertAgentSessionOptionsAdmitted(record.provider, models, {
       ...(model ? { model } : {}),
       [key]: value
     })
   }
-  const picked = { ...record.options, [key]: value }
+  const picked = {
+    ...(key === 'model' ? effectiveAgentSessionOptions(record) : record.options),
+    [key]: value
+  }
   const options = Object.fromEntries(
     Object.entries(picked).filter(
       ([name, kept]) =>
         key !== 'model' || agentSessionOptionAdmitted(record.provider, models, value, name, kept)
     )
   )
-  return replaceAgentSessionRecordOptions(record, { ...at, options })
+  return replaceAgentSessionRecordOptions(record, {
+    ...at,
+    options,
+    ...(key === 'model' ? { defaultModelOptions: null } : {})
+  })
 }
 
 /** Fill only missing options for the still-current model; explicit picks always win. */
@@ -144,8 +159,12 @@ export function recordAgentSessionRanOptions(
   record: AgentSessionRecord,
   { model, options, models, ...at }: AgentSessionRanOptions
 ): AgentSessionRecord {
-  const saved = record.options ?? {}
-  // These run options cannot follow a concurrent model change.
+  const defaultSelected = record.defaultModelOptions !== undefined
+  if (record.defaultModelOptions?.model !== undefined) {
+    return record
+  }
+  const saved = (defaultSelected ? record.defaultModelOptions : record.options) ?? {}
+  // Another model won meanwhile: none of this run's options belong to it.
   if (saved.model !== undefined && saved.model !== model) {
     return record
   }
@@ -159,6 +178,11 @@ export function recordAgentSessionRanOptions(
     ? record
     : replaceAgentSessionRecordOptions(record, {
         ...at,
-        options: { ...Object.fromEntries(added), ...saved }
+        options: defaultSelected
+          ? (record.options ?? {})
+          : { ...Object.fromEntries(added), ...saved },
+        ...(defaultSelected
+          ? { defaultModelOptions: { ...Object.fromEntries(added), ...saved } }
+          : {})
       })
 }

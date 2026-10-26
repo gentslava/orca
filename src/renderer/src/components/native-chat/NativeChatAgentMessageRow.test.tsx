@@ -141,7 +141,6 @@ describe("another agent's queued card", () => {
           onSteer={vi.fn()}
           onDelete={vi.fn()}
           onEdit={vi.fn()}
-          onTurnOffQueueing={vi.fn()}
         />
       </TooltipProvider>
     )

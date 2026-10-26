@@ -1,0 +1,370 @@
+name: Fork upstream sync - macOS ARM64
+run-name: Fork upstream sync - ${{ github.event_name }} - ${{ github.run_number }}
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      formats:
+        description: Installable preview formats (scheduled builds use DMG only)
+        type: choice
+        required: true
+        default: dmg
+        options:
+          - dmg
+          - both
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-preview-macos-arm64-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  ORCA_BACKGROUND_LAUNCH: '1'
+  ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
+  ORCA_MAC_RELEASE: '0'
+  ORCA_MAC_HOURLY: '0'
+  ORCA_MAC_DAILY: '0'
+  ORCA_MAC_ADHOC: '0'
+  CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+  CSC_NAME: '-'
+  ORCA_COMPUTER_MACOS_SIGN_IDENTITY: '-'
+  NODE_OPTIONS: --max-old-space-size=4096
+
+jobs:
+  plan:
+    if: >-
+      (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') &&
+      github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      build: ${{ steps.plan.outputs.build }}
+      plan: ${{ steps.plan.outputs.plan }}
+      fork-sha: ${{ steps.plan.outputs.fork-sha }}
+      formats: ${{ steps.plan.outputs.formats }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Pin fork master and upstream main; skip unchanged scheduled builds
+        id: plan
+        env:
+          PREVIEW_FORMATS: ${{ inputs.formats || 'dmg' }}
+        run: node config/scripts/fork-upstream-sync.mjs plan
+      - name: Upload pinned plan
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fork-sync-plan
+          path: ${{ runner.temp }}/fork-sync/
+          if-no-files-found: error
+          retention-days: 7
+
+  macos-arm64:
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: macos-15
+    timeout-minutes: 120
+    outputs:
+      archive-id: ${{ steps.archive.outputs.artifact-id }}
+    env:
+      FORK_SYNC_PLAN: ${{ needs.plan.outputs.plan }}
+      PREVIEW_FORMATS: ${{ needs.plan.outputs.formats }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout pinned fork master
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.plan.outputs.fork-sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Merge the exact pinned upstream commit and assign source identity
+        run: node config/scripts/fork-upstream-sync.mjs merge
+
+      - name: Require native Apple Silicon and build tools
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = macOS
+          test "$(uname -m)" = arm64
+          printf 'ORCA_USER_DATA_PATH=%s/primary-profile\nORCA_USER_DATA=%s/server-profile\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          xcode-select -p
+          swift --version
+          python3 --version
+          df -h .
+
+      - name: Install pinned dependencies and Electron native runtime
+        uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: electron
+          persist-native-cache: 'false'
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            mobile/pnpm-lock.yaml
+
+      - name: Install the separate mobile project
+        uses: ./.github/actions/install-mobile-dependencies
+
+      - name: Install headless Chromium for mobile render regressions
+        run: pnpm exec playwright install chromium --only-shell
+
+      - name: Run fork feature regressions and sync safety tests
+        run: |
+          set -euo pipefail
+          node config/scripts/fork-upstream-regressions.mjs 2>&1 | tee "$RUNNER_TEMP/fork-sync/regressions.log"
+
+      - name: Typecheck and build desktop, CLI, web and mobile resources
+        run: |
+          set -euo pipefail
+          pnpm run build:desktop:ci 2>&1 | tee "$RUNNER_TEMP/fork-sync/build.log"
+
+      - name: Build native macOS helpers
+        run: |
+          set -euo pipefail
+          pnpm run build:native 2>&1 | tee "$RUNNER_TEMP/fork-sync/native-build.log"
+
+      - name: Verify native helper resources
+        run: |
+          set -euo pipefail
+          pnpm run verify:computer-native 2>&1 | tee "$RUNNER_TEMP/fork-sync/native-verification.log"
+
+      - name: Package ARM64 with the existing local build config
+        run: |
+          set -euo pipefail
+          exec > >(tee "$RUNNER_TEMP/fork-sync/package.log") 2>&1
+          case "$PREVIEW_FORMATS" in
+            dmg) targets=(dmg) ;;
+            both) targets=(dmg zip) ;;
+            *) echo '::error::Unsupported preview format'; exit 2 ;;
+          esac
+          node config/scripts/pinned-node-downloads.mjs darwin-arm64
+          pnpm run ensure:electron-runtime
+          # Local preview mode permits an absent server deployment template; no partial template is substituted.
+          pnpm exec electron-builder --config config/electron-builder.config.cjs \
+            --mac "${targets[@]}" --arm64 --config.mac.identity=- --publish never
+
+      - name: Verify and stage installable artifacts
+        run: |
+          set -euo pipefail
+          exec > >(tee "$RUNNER_TEMP/fork-sync/staging.log") 2>&1
+          node config/scripts/fork-upstream-archives.mjs
+          mkdir -p .build/fork-preview-launcher
+          cat > '.build/fork-preview-launcher/Launch Orca Preview.command' <<'LAUNCHER'
+          #!/bin/bash
+          set -euo pipefail
+          launcher_dir="$(cd -- "$(dirname -- "$0")" && pwd -P)"
+          preview_app="${1:-$launcher_dir/Orca.app}"
+          if [[ ! -x "$preview_app/Contents/MacOS/Orca" ]]; then
+            echo 'Put the extracted preview Orca.app beside this launcher, then double-click this .command.'
+            echo 'A Terminal invocation may instead pass the absolute path to the preview .app.'
+            exit 1
+          fi
+          preview_app="$(cd -- "$preview_app" && pwd -P)"
+          preview_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$preview_app/Contents/Info.plist")"
+          if [[ ! "$preview_version" =~ [.-]local\.forkpreview\.[0-9]+\.[0-9a-f]{1,12}$ ]]; then
+            echo 'Refusing to launch: this app is not a fork-preview build with the updater guard.'
+            exit 1
+          fi
+          codesign --verify --deep --strict "$preview_app"
+          umask 077
+          preview_root="$(mktemp -d "${TMPDIR:-/tmp/}orca-fork-preview.XXXXXX")"
+          preview_root="$(cd -- "$preview_root" && pwd -P)"
+          preview_data="$preview_root/user-data"
+          preview_home="$preview_root/home"
+          mkdir -p "$preview_data" "$preview_home" "$preview_root/server-data"
+          echo "Preview version: $preview_version"
+          echo "Isolated profile: $preview_data"
+          echo "Isolated home: $preview_home"
+          echo 'This human-initiated launcher opens the preview window with a separate profile and home.'
+          echo 'Existing production accounts are not imported. Press Control-C to stop the preview.'
+          unset ORCA_BYPASS_SINGLE_INSTANCE_LOCK ORCA_BACKGROUND_LAUNCH ORCA_E2E_HEADLESS ORCA_E2E_HEADFUL
+          exec /usr/bin/env \
+            HOME="$preview_home" \
+            XDG_CONFIG_HOME="$preview_home/.config" XDG_DATA_HOME="$preview_home/.local/share" \
+            XDG_STATE_HOME="$preview_home/.local/state" XDG_CACHE_HOME="$preview_home/.cache" \
+            ORCA_E2E_FOREGROUND=1 ORCA_E2E_ENFORCE_SINGLE_INSTANCE_LOCK=1 \
+            ORCA_E2E_USER_DATA_DIR="$preview_data" ORCA_E2E_HOME_DIR="$preview_home" \
+            ORCA_USER_DATA_PATH="$preview_data" ORCA_USER_DATA="$preview_root/server-data" \
+            ORCA_E2E_RUNTIME_WS_PORT=0 \
+            "$preview_app/Contents/MacOS/Orca" \
+            --user-data-dir="$preview_data" --password-store=basic --use-mock-keychain
+          LAUNCHER
+          chmod 755 '.build/fork-preview-launcher/Launch Orca Preview.command'
+          cp '.build/fork-preview-launcher/Launch Orca Preview.command' .build/fork-preview/
+          ditto -c -k --keepParent .build/fork-preview-launcher .build/fork-preview/Orca-Preview-Launcher.zip
+          shasum -a 256 .build/fork-preview/Orca-Preview-Launcher.zip | sed 's|  .build/fork-preview/|  |' >> .build/fork-preview/SHA256SUMS
+          cat > .build/fork-preview/README.txt <<'TXT'
+          Orca fork preview for Apple Silicon (ARM64).
+          Local test build: ad-hoc integrity signatures, no Developer ID signature or notarization.
+          DMG: mount and copy Orca.app into a separate test directory; ZIP: extract with macOS Archive Utility or ditto.
+          This keeps the standard Orca bundle ID/name. Do not overwrite an official installation for this test.
+          The SSH automatic-deployment orcad template is absent under the supported local-build policy.
+          This workflow does not upload a GitHub Release or configure a fork update channel.
+          No desktop GUI smoke test was performed; packaging hooks checked the native daemon/terminal-host resources.
+          Extract Orca-Preview-Launcher.zip to preserve the .command executable bit, then put preview Orca.app beside it.
+          Double-click Launch Orca Preview.command for a fresh disposable profile/home and a visible human-initiated launch.
+          The raw .command in the Actions artifact may need chmod +x; the nested launcher ZIP preserves it.
+          Fork-preview versions require the integrated runtime updater guard; normal Orca update channels are unchanged.
+          Existing production account logins are not copied into this disposable home.
+          Archive identity and signatures were checked after extraction; app-tree-manifest.json records the tested bundle.
+          macOS may block this downloaded unnotarized preview; its Gatekeeper state differs from an official release.
+          TXT
+          {
+            echo '### ARM64 local preview'
+            echo "Source commit: $ORCA_BUILD_COMMIT"
+            echo "Pinned fork master: $FORK_MASTER_SHA"
+            echo "Pinned upstream main: $UPSTREAM_MAIN_SHA"
+            echo "Version: $ORCA_LOCAL_BUILD_VERSION"
+            echo 'Download the Actions artifact below: DMG/ZIP, SHA256SUMS, build-info.json, app-tree-manifest.json and README.txt.'
+            echo 'Ad-hoc signatures only; no notarization, release publication, bundled orcad template, or GUI validation.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the fork preview
+        id: archive
+        uses: actions/upload-artifact@v7
+        with:
+          name: orca-fork-preview-macos-arm64-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .build/fork-preview/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+      - name: Seal the tested candidate after archive upload
+        run: node config/scripts/fork-upstream-sync.mjs seal
+
+      - name: Upload candidate history for promotion
+        uses: actions/upload-artifact@v7
+        with:
+          name: fork-sync-candidate
+          path: |
+            ${{ runner.temp }}/fork-sync/candidate.json
+            ${{ runner.temp }}/fork-sync/candidate.bundle
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+      - name: Collect integration diagnostics
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/fork-sync"
+          git status --short > "$RUNNER_TEMP/fork-sync/git-status.txt"
+          git log -5 --format=fuller > "$RUNNER_TEMP/fork-sync/git-log.txt"
+          git diff --binary > "$RUNNER_TEMP/fork-sync/worktree.diff"
+          git diff --cached --binary > "$RUNNER_TEMP/fork-sync/index.diff"
+          git diff --name-only --diff-filter=U > "$RUNNER_TEMP/fork-sync/conflicts.txt"
+
+      - name: Retain unpromoted archives if a later staging or check step failed
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: orca-fork-unpromoted-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            .build/fork-preview/build-info.json
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 7
+
+      - name: Upload diagnostics even after merge or check failure
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fork-sync-build-diagnostics
+          path: ${{ runner.temp }}/fork-sync/
+          if-no-files-found: error
+          retention-days: 7
+
+  promote:
+    needs: [plan, macos-arm64]
+    if: >-
+      needs.macos-arm64.result == 'success' && needs.macos-arm64.outputs.archive-id != '' &&
+      github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: fork-sync-candidate
+          path: ${{ runner.temp }}/fork-sync/
+      - name: Fast-forward master to the archived candidate with an atomic old-SHA guard
+        env:
+          FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
+          FORK_SYNC_PLAN: ${{ needs.plan.outputs.plan }}
+        run: node config/scripts/fork-upstream-sync.mjs promote
+      - name: Remove temporary SSH credentials even after cancellation
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
+      - name: Upload promotion diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fork-sync-promotion-diagnostics
+          path: ${{ runner.temp }}/fork-sync/
+          if-no-files-found: error
+          retention-days: 7
+
+  integration-pr:
+    needs: [plan, macos-arm64, promote]
+    if: >-
+      always() && !cancelled() && needs.plan.outputs.build == 'true' &&
+      (needs.macos-arm64.result == 'failure' || needs.promote.result == 'failure') &&
+      github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Open or update the single fork integration PR from an upstream-main mirror
+        env:
+          FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          FORK_SYNC_PLAN: ${{ needs.plan.outputs.plan }}
+        run: node config/scripts/fork-upstream-sync.mjs recover
+      - name: Remove temporary SSH credentials even after cancellation
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
+      - name: Retain recovery errors when repository policy rejects the PR or mirror push
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fork-sync-recovery-diagnostics
+          path: ${{ runner.temp }}/fork-sync/
+          if-no-files-found: warn
+          retention-days: 7

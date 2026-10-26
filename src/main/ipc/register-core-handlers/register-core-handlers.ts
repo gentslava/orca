@@ -102,6 +102,7 @@ import {
   scanRuntimeAiVaultSessions
 } from '../../ai-vault/runtime-session-scanner'
 import { callRuntimeSessionSearch } from '../../ai-vault/runtime-session-search-call'
+import { aiVaultOrchestrationChildSessionIds } from '../../ai-vault/structured-conversation-navigation'
 import { ensureStructuredAgentSessionHostUnlessRefused } from '../../runtime/structured-agent-session-host-refusal'
 import { getAgentSessionAttachmentStore } from '../../native-chat/agent-session-attachments/agent-session-attachment-store-registry'
 import type { PluginService } from '../../plugins/plugin-service'
@@ -271,6 +272,8 @@ export function registerCoreHandlers(
   registerAiVaultHandlers({
     getUserDataPath: () => app.getPath('userData'),
     ensureStructuredSessionOwnership,
+    getOrchestrationChildSessionIds: () =>
+      aiVaultOrchestrationChildSessionIds(() => runtime.getExistingOrchestrationDb()),
     getAdditionalCodexHomePaths: lifecycleOptions.getAdditionalAiVaultCodexHomePaths,
     prepareSessionResume: lifecycleOptions.prepareAiVaultSessionResume,
     getActiveRuntimeAiVaultHostInfos: () =>

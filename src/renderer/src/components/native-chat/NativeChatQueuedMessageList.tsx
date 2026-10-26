@@ -42,7 +42,7 @@ export function NativeChatQueuedMessageList({
   /** The chat files added in a card's editor attach to, as its chat box attaches them. */
   editAttachTo?: QueuedEditAttachTarget
 }): React.JSX.Element {
-  const updateSettings = useAppStore((store) => store.updateSettings)
+  const queueOnEnter = useAppStore((store) => store.settings?.nativeChatQueueFollowUps !== false)
   const regionRef = useRef<HTMLDivElement>(null)
   const queueRef = useRef<HTMLDivElement>(null)
   const { cards, pause } = controller
@@ -76,11 +76,8 @@ export function NativeChatQueuedMessageList({
       listRef.current.scrollTop = listRef.current.scrollHeight
     }
   }, [newestPosition, newestIsPersons])
-  // Only a host that queues sends has queueing to turn off; a kept card shows without it.
-  const turnOffQueueing = controller.queueCapable
-    ? () => void updateSettings({ nativeChatQueueFollowUps: false })
-    : undefined
-  // Refocus only if focus stayed on the queue; an active prompt card takes priority over the composer.
+  // Only when focus was on the queue (a card, or the header) — never pull it from wherever the user
+  // moved on to. A question or approval holding the composer's slot takes it instead.
   const refocusAfter = (action: Promise<unknown>): void => {
     void action.then(() => {
       const active = document.activeElement
@@ -101,6 +98,7 @@ export function NativeChatQueuedMessageList({
       refocusAfter(Promise.resolve())
     }
   })
+  const movableCards = cards.filter((card) => card.hold !== 'sending')
   return (
     <div ref={regionRef} aria-live="polite">
       {cards.length > 0 ? (
@@ -133,29 +131,55 @@ export function NativeChatQueuedMessageList({
                 controller.editor?.images?.chips.length ? 'max-h-72' : 'max-h-40'
               )}
             >
-              {cards.map((card) => (
-                <NativeChatQueuedMessageCard
-                  key={card.messageId}
-                  card={card}
-                  chatWorktreeId={chatWorktreeId}
-                  agentName={agentName}
-                  statedFailures={statedFailures}
-                  showsSteerShortcut={controller.queueCapable && card === newest}
-                  steerHeld={steerHeld}
-                  pending={controller.pending(card.messageId)}
-                  onSteer={() => refocusAfter(controller.steer(card.messageId))}
-                  onDelete={() => refocusAfter(controller.remove(card.messageId))}
-                  onEdit={
-                    controller.editCapable ? () => void controller.edit(card.messageId) : undefined
-                  }
-                  editor={
-                    controller.editor?.messageId === card.messageId ? controller.editor : undefined
-                  }
-                  editAttachTo={editAttachTo}
-                  editDisabled={controller.editor !== undefined}
-                  onTurnOffQueueing={turnOffQueueing}
-                />
-              ))}
+              {cards.map((card) => {
+                const movableIndex = movableCards.indexOf(card)
+                return (
+                  <NativeChatQueuedMessageCard
+                    key={card.messageId}
+                    card={card}
+                    chatWorktreeId={chatWorktreeId}
+                    agentName={agentName}
+                    statedFailures={statedFailures}
+                    showsSteerShortcut={controller.queueCapable && queueOnEnter && card === newest}
+                    steerHeld={steerHeld}
+                    pending={controller.pending(card.messageId)}
+                    onSteer={() => refocusAfter(controller.steer(card.messageId))}
+                    onDelete={() => refocusAfter(controller.remove(card.messageId))}
+                    onEdit={
+                      controller.editCapable
+                        ? () => void controller.edit(card.messageId)
+                        : undefined
+                    }
+                    editor={
+                      controller.editor?.messageId === card.messageId
+                        ? controller.editor
+                        : undefined
+                    }
+                    onMoveEarlier={
+                      controller.reorder && movableIndex > 0
+                        ? () =>
+                            void controller.reorder?.moveBefore(
+                              card.messageId,
+                              movableCards[movableIndex - 1].messageId
+                            )
+                        : undefined
+                    }
+                    onMoveLater={
+                      controller.reorder &&
+                      movableIndex !== -1 &&
+                      movableIndex < movableCards.length - 1
+                        ? () =>
+                            void controller.reorder?.moveBefore(
+                              card.messageId,
+                              movableCards[movableIndex + 2]?.messageId ?? null
+                            )
+                        : undefined
+                    }
+                    editAttachTo={editAttachTo}
+                    editDisabled={controller.editor !== undefined}
+                  />
+                )
+              })}
             </ul>
           </div>
         </div>

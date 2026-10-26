@@ -9,7 +9,6 @@ import { useNativeChatDraft } from './use-native-chat-draft'
 import { useNativeChatComposerRecall } from './use-native-chat-composer-recall'
 import { useNativeChatLaunchDraftAdoption } from './use-native-chat-launch-draft-adoption'
 import { NativeChatComposerField } from './NativeChatComposerField'
-import type { NativeChatResolvedTarget } from './native-chat-composer-target'
 import { useNativeChatComposerAttachments } from './use-native-chat-composer-attachments'
 import { nativeChatImageSendBlock } from './native-chat-image-reattach'
 import { useNativeChatComposerHandle } from './use-native-chat-composer-handle'
@@ -137,18 +136,16 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       structuredWorktreeId: structuredTransport?.worktreeId
     })
 
-    const resolveTarget = useCallback((): NativeChatResolvedTarget | null => {
-      if (!targetPtyId) {
-        return null
-      }
-      return { ptyId: targetPtyId }
-    }, [targetPtyId])
+    // Resolve the live ptyId for this chat leaf; the id names its owning host.
+    const resolveTarget = useCallback(
+      () => (targetPtyId ? { ptyId: targetPtyId } : null),
+      [targetPtyId]
+    )
 
     const attachments = useNativeChatComposerAttachments({
       attachmentScopeKey: draftScopeKey,
       allowWithoutTarget: Boolean(structuredTransport),
       acceptsImages: structuredTransport?.acceptsImages !== false,
-      imageReferences: Boolean(structuredTransport),
       caret,
       disabled,
       isComposing: imeEnterGesture.isComposing,
@@ -168,9 +165,8 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       structuredTransport?.sendOut === true ||
       imageBlock.holdsSend ||
       structuredTransport?.sendBlockedReason !== undefined
-    const sendButtonDisabled = isWorking
-      ? !hasPty || !onStop
-      : sendHeld || (draft.trim() === '' && imageAttachments.length === 0)
+    const draftSendDisabled = sendHeld || (draft.trim() === '' && imageAttachments.length === 0)
+    const sendButtonDisabled = isWorking ? !hasPty || !onStop : draftSendDisabled
 
     const { pickAttachments, attachExternalPaths, captureCopiedFiles, resolveAttachmentOwner } =
       useNativeChatFileDrops({
@@ -282,7 +278,7 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       optimisticSendOutcome,
       terminalTabId
     })
-    const { send, goalMode } = useNativeChatComposerSubmit({
+    const { send, sendAlternate, goalMode } = useNativeChatComposerSubmit({
       structuredTransport,
       draftScopeKey,
       draft,
@@ -329,8 +325,9 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       dismissPicker: dismiss,
       interrupt,
       send,
+      ...(structuredTransport && isWorking ? { sendAlternate } : {}),
       hasAttachments: imageAttachments.length > 0,
-      ...(steerQueued ? { steerQueued } : {}),
+      ...(steerQueued && structuredTransport?.queue?.enabled !== false ? { steerQueued } : {}),
       setActiveSuggestion,
       setDraft,
       setCaret

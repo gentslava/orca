@@ -192,6 +192,7 @@ export function useMobileStructuredAgentSession(
     commandPending: commandPendingRef,
     controller: sendController,
     onSendError,
+    isModelWritePending: options.isModelWritePending,
     sendOptions: hostSupport?.sendOptions === true ? options.sendSelection : undefined
   })
   const turnIndicator = useMemo(
@@ -275,6 +276,7 @@ export function useMobileStructuredAgentSession(
 
   return {
     ...options,
+    allowsWorkingPicks: hostSupport?.sendOptions === true,
     visualSource,
     imagePreviewsByMessageId: sends.imagePreviewsByMessageId,
     session: {

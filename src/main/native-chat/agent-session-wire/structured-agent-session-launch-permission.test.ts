@@ -26,7 +26,8 @@ const listing = (
 function launchPermission(
   provider: string,
   options: Record<string, string> | undefined,
-  answer: AgentSessionModelCatalogResult | Error = { origin: 'unknown' }
+  answer: AgentSessionModelCatalogResult | Error = { origin: 'unknown' },
+  defaultModelOptions?: Record<string, string>
 ) {
   const read = vi.fn(async () => {
     if (answer instanceof Error) {
@@ -47,7 +48,7 @@ function launchPermission(
     read,
     result: structuredAgentSessionLaunchPermission(
       { agents: claudeAndCodexDeclared(), modelCatalog },
-      record(provider, options)
+      { ...record(provider, options), defaultModelOptions }
     )
   }
 }
@@ -87,6 +88,20 @@ describe('the permission mode a chat starts with', () => {
         ])
       ).result
     ).resolves.toBe('ask')
+  })
+
+  it('keeps auto support tied to the effective Default snapshot after catalog defaults change', async () => {
+    await expect(
+      launchPermission(
+        'claude',
+        { permissionMode: 'auto' },
+        listing([
+          { id: 'new-configured-model', isDefault: true, supportsAutoMode: false },
+          { id: 'original-default', supportsAutoMode: true }
+        ]),
+        { model: 'original-default' }
+      ).result
+    ).resolves.toBe('auto')
   })
 
   it('asks when the catalog cannot confirm the model runs auto', async () => {

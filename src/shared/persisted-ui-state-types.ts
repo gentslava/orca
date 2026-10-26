@@ -1,3 +1,4 @@
+import type { PersonalProjectOrder } from './personal-project-order'
 import type { JiraQuickFilterState } from './jira/jira-quick-filters'
 import type { BrowserDevToolsDockLayout } from './browser-devtools-dock'
 import type { JiraSavedFilterState } from './jira/jira-saved-filters'
@@ -46,7 +47,8 @@ export type PersistedUIState = {
   combinedDiffFileTreeWidth?: number
   groupBy: 'none' | 'workspace-status' | 'repo' | 'pr-status'
   sortBy: 'name' | 'smart' | 'recent' | 'repo' | 'manual'
-  /** Project-header order in repo grouping, independent of workspace sort: manual permits drag, recent follows visible activity. */
+  /** Project header ordering in `groupBy: 'repo'`, independent of `sortBy`: 'manual' uses persisted order + header drag, 'recent' by latest visible activity. */
+  personalProjectOrder?: PersonalProjectOrder
   projectOrderBy: ProjectOrderBy
   /** Deprecated; the Active only filter is retired and ignored on hydration. */
   showActiveOnly: boolean

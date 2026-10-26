@@ -24,10 +24,12 @@ import {
   updateNativeChatComposerDraft
 } from './native-chat-composer-draft-store'
 import { nativeChatComposerDraftLeftAfterSend } from './native-chat-composer-draft-comparison'
+import type { StructuredAgentSessionSendRequest } from './structured-agent-session-send-slot'
 import {
   admitNativeChatPastedText,
   resolveNativeChatPastedText
 } from './native-chat-composer-pasted-text-references'
+import { structuredAgentSessionRequestedDelivery } from './structured-agent-session-queue-request'
 
 export type UseNativeChatStructuredComposerSendArgs = {
   agent: AgentType
@@ -54,7 +56,8 @@ function isNativeChatStructuredHostCommand(
 
 export type NativeChatStructuredComposerSend = (
   text: string,
-  attachments?: readonly NativeChatComposerImageAttachment[]
+  attachments?: readonly NativeChatComposerImageAttachment[],
+  request?: StructuredAgentSessionSendRequest
 ) => Promise<void>
 
 /** Clear submitted composer content only after structured transport acceptance. */
@@ -69,17 +72,51 @@ export function useNativeChatStructuredComposerSend({
   setCaret
 }: UseNativeChatStructuredComposerSendArgs): NativeChatStructuredComposerSend {
   return useCallback<NativeChatStructuredComposerSend>(
-    async (text, attachments = imageAttachments): Promise<void> => {
-      // Picked commands must also wait for pending attachments to acquire paths.
+    async (text, attachments = imageAttachments, request): Promise<void> => {
+      // A picked command is held like Send: it would carry attachments still uploading, pathless.
       if (!structuredTransport || attachments.some((attachment) => attachment.pending)) {
+        return
+      }
+      const hostCommand = isNativeChatStructuredHostCommand(text, agent, structuredTransport)
+      const intent = structuredTransport.queue
+        ? structuredAgentSessionRequestedDelivery(
+            structuredTransport.queue,
+            structuredTransport.isWorking === true,
+            request?.delivery
+          )
+        : request?.delivery
+      if (
+        !hostCommand &&
+        intent === 'immediate' &&
+        structuredTransport.steerCapability !== 'supported'
+      ) {
+        structuredTransport.onError(
+          translate(
+            'components.native-chat.composer.steerUnavailable',
+            'This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.'
+          )
+        )
+        return
+      }
+      if (
+        !hostCommand &&
+        intent === 'queue-if-active' &&
+        structuredTransport.queue?.capability !== 'supported'
+      ) {
+        structuredTransport.onError(
+          translate(
+            'components.native-chat.composer.queueUnavailable',
+            'This host cannot queue drafts yet. Update Orca on this host; your draft has been kept.'
+          )
+        )
         return
       }
       if (!admitNativeChatPastedText(draftScopeKey, text, structuredTransport.onError)) {
         return
       }
       text = resolveNativeChatPastedText(draftScopeKey, text)
-      const hostCommand = isNativeChatStructuredHostCommand(text, agent, structuredTransport)
-      // Blocked hosts cannot take turns/conversation commands; option commands only configure later turns.
+      // A held host takes no turn, and its notice says why; an option command only changes what
+      // the next turn runs with.
       if (
         structuredTransport.sendBlockedReason !== undefined &&
         (!hostCommand || structuredAgentSessionCommandChangesConversation(text))
@@ -111,7 +148,8 @@ export function useNativeChatStructuredComposerSend({
         structuredTransport,
         text,
         attachments,
-        promptSkillRefs(submitted.document)
+        promptSkillRefs(submitted.document),
+        request
       )
         .then(({ accepted, error, refusedWhile, revealsTranscript }) => {
           if (!hostCommand || isCurrent()) {

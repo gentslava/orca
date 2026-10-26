@@ -1,3 +1,4 @@
+import { acpConfigSelectChoices } from './acp-config-select-choices'
 import { abortSignalReason } from '../../shared/abort-signal-reason'
 
 import type {
@@ -14,13 +15,10 @@ import {
   type AgentModelCatalogConfiguredChoice,
   type AgentModelCatalogLiveListing
 } from '../native-chat/agent-model-catalog/agent-model-catalog-entry'
-import {
-  SessionConfigSelectGroupSchema,
-  SessionConfigSelectOptionSchema,
-  type AvailableCommand,
-  type SessionConfigOption,
-  type SessionConfigSelectOption,
-  type SessionModelState
+import type {
+  AvailableCommand,
+  SessionConfigOption,
+  SessionModelState
 } from './generated/acp-protocol.generated'
 
 type SelectOption = Extract<SessionConfigOption, { type: 'select' }>
@@ -28,22 +26,6 @@ type SelectOption = Extract<SessionConfigOption, { type: 'select' }>
 export type AcpOptionWrite =
   | { method: 'config'; configId: string; value: string }
   | { method: 'model'; modelId: string }
-
-function selectChoices(option: SelectOption): SessionConfigSelectOption[] {
-  const choices: SessionConfigSelectOption[] = []
-  for (const entry of option.options) {
-    const group = SessionConfigSelectGroupSchema.safeParse(entry)
-    if (group.success) {
-      choices.push(...group.data.options)
-      continue
-    }
-    const choice = SessionConfigSelectOptionSchema.safeParse(entry)
-    if (choice.success) {
-      choices.push(choice.data)
-    }
-  }
-  return choices
-}
 
 function isSelect(option: SessionConfigOption): option is SelectOption {
   return option.type === 'select'
@@ -66,6 +48,7 @@ export class AcpStructuredOptions {
   /** Installed Orca policy and successful writes, distinct from native agent reports. */
   readonly applied = new Map<string, string>()
   private initialChoice: Readonly<Record<string, string>> = {}
+  private modelSelection: { requested: string; reported: string } | null = null
   currentProof = new Set<string>()
   writeRevision = 0
 
@@ -81,6 +64,7 @@ export class AcpStructuredOptions {
     this.resolvesConfig = origin === 'new'
     this.initialChoice = this.reported()
     this.currentProof = new Set(Object.keys(this.initialChoice))
+    this.confirmModelSelection(response.models?.currentModelId)
   }
 
   /** Native selection before any message changed this child. */
@@ -92,10 +76,30 @@ export class AcpStructuredOptions {
     this.picked.add(key)
   }
 
-  adoptConfigOptions(configOptions: SessionConfigOption[] | null | undefined): void {
+  adoptConfigOptions(
+    configOptions: SessionConfigOption[] | null | undefined,
+    requestedModel?: string
+  ): void {
     if (configOptions) {
       this.configOptions = configOptions
+      if (requestedModel !== undefined) {
+        this.confirmModelSelection(requestedModel)
+      } else if (this.modelSelection?.reported !== this.select('model')?.currentValue) {
+        this.modelSelection = null
+      }
     }
+  }
+
+  confirmedModelSelection(): string | undefined {
+    return this.currentProof.has('model') &&
+      this.modelSelection?.reported === this.select('model')?.currentValue
+      ? this.modelSelection?.requested
+      : undefined
+  }
+
+  private confirmModelSelection(requested: string | undefined): void {
+    const reported = this.select('model')?.currentValue
+    this.modelSelection = requested && reported ? { requested, reported } : null
   }
 
   adoptModel(modelId: string): void {
@@ -140,7 +144,7 @@ export class AcpStructuredOptions {
     const modelOption = this.select('model')
     const effortOption = this.select('thought_level')
     const sessionEfforts: AgentSessionOptionChoice[] = effortOption
-      ? selectChoices(effortOption).map((choice) => ({
+      ? acpConfigSelectChoices(effortOption).map((choice) => ({
           value: choice.value,
           label: choice.name,
           ...(choice.description ? { description: choice.description } : {})
@@ -148,7 +152,7 @@ export class AcpStructuredOptions {
       : []
     const currentModel = (modelOption?.currentValue ?? this.models?.currentModelId) || undefined
     const listed: { id: string; label: string; description?: string }[] = modelOption
-      ? selectChoices(modelOption).map((choice) => ({
+      ? acpConfigSelectChoices(modelOption).map((choice) => ({
           id: choice.value,
           label: choice.name,
           ...(choice.description ? { description: choice.description } : {})
@@ -259,6 +263,7 @@ export async function readAcpLiveOptions(
       ...options.current,
       reportedPermissionMode: session.options.reportedPermissionMode(permissionModes)
     },
+    confirmedModelSelection: session.options.confirmedModelSelection(),
     acceptsImages
   }
 }
@@ -291,7 +296,14 @@ export function writeAcpSessionOption(
     write.method === 'config'
       ? connection
           .setConfigOption(write.configId, write.value)
-          .then((result) => adopt(() => options.adoptConfigOptions(result.configOptions)))
+          .then((result) =>
+            adopt(() =>
+              options.adoptConfigOptions(
+                result.configOptions,
+                bound.key === 'model' ? bound.value : undefined
+              )
+            )
+          )
       : connection
           .setModel(write.modelId)
           .then(() => adopt(() => options.adoptModel(write.modelId)))

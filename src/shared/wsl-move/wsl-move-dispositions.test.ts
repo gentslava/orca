@@ -37,6 +37,13 @@ const ALL_ROWS: WslMoveFieldDisposition[] = [
 ]
 
 describe('WSL mover dispositions', () => {
+  it('requires a desktop rewrite for host-qualified personal order keys', () => {
+    expect(UI_STATE_DISPOSITIONS).toHaveProperty(
+      'personalProjectOrder.disposition',
+      'rewrite-desktop'
+    )
+  })
+
   it('decides every inventory item of the design', () => {
     const covered = new Set(ALL_ROWS.map((row) => row.item))
     const missing = Array.from({ length: 62 }, (_, index) => index + 1).filter(

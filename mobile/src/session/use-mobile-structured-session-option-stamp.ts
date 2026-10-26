@@ -18,7 +18,7 @@ export function useMobileStructuredSessionOptionStamp(args: {
   )
   const readStamp = (): string => {
     const summary = feed && sessionId ? feed.getSnapshot().get(sessionId) : undefined
-    return `${summary?.model ?? ''}|${summary?.permissionMode ?? ''}`
+    return `${summary?.model ?? ''}|${summary?.permissionMode ?? ''}|${summary?.modelDefault === true}`
   }
   return useSyncExternalStore(subscribe, readStamp, readStamp)
 }

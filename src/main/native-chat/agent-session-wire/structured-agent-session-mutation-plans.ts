@@ -150,6 +150,7 @@ export function sendPlan(
         origin: params.userSend ? 'client' : 'host',
         ...(source ? { source } : {}),
         clientMessageId,
+        ...(params.steer ? { steer: params.steer } : {}),
         ...(params.options ? { options: params.options } : {}),
         payloadFingerprint: agentSessionSendBodyFingerprint(params.envelope.sessionId, params.body),
         body: params.body
@@ -302,13 +303,14 @@ export function promptPlan(
 
 export function setOptionPlan(params: {
   key: string
-  value: string
+  value: string | null
 }): MutationPlan<AgentSessionOptionResult> {
   return {
     method: 'agentSession.setOption',
     fields: { key: params.key, value: params.value },
     run: async (ctx) => {
-      const options = { ...ctx.persistedOptions, [params.key]: params.value }
+      const options =
+        params.value === null ? {} : { ...ctx.persistedOptions, [params.key]: params.value }
       await ctx.persistOptions(options)
       ctx.publish()
       return { ok: true, value: { ...params, options } }
@@ -319,6 +321,7 @@ export function setOptionPlan(params: {
         ? {
             key: params.key,
             value: params.value,
+            ...(params.value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
             ...(ctx.persistedOptions ? { options: { ...ctx.persistedOptions } } : {})
           }
         : null

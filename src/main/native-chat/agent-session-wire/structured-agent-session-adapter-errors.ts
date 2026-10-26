@@ -46,6 +46,7 @@ export type AgentSessionPreSpawnReason = Extract<
   | 'agentCommandNotRunnable'
   | 'runtimeNotInstalled'
   | 'conversationOpenInTerminal'
+  | 'providerResumeUnavailable'
 >
 
 /** First-hand proof that acquisition spawned no process. */

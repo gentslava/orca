@@ -1,4 +1,8 @@
-// Sync phone view settings through the shared ui.get/ui.set store so edits converge across clients.
+import { newerPersonalProjectOrder } from '../../../src/shared/personal-project-order'
+// Bi-directional mapping between the mobile workspaces screen's local view model
+// and the desktop's shared PersistedUIState (read/written via the ui.get/ui.set
+// RPCs). Keeping these settings in the same global store is what lets a grouping
+// or filter change on the phone show up on desktop and vice-versa.
 
 import type { WorkspaceStatusDefinition } from '../../../src/shared/worktree/types'
 import {
@@ -39,6 +43,7 @@ export type WorkspaceViewSettings = {
     | (typeof WORKSPACE_VIEW_UI_FIELDS)[number]
     // Written with the card properties only: whether they are a Card layout preset.
     | '_worktreeCardModeDefaulted'
+    | 'personalProjectOrder'
   >
 >
 
@@ -49,6 +54,7 @@ export type MobileViewState = {
   collapsedGroups: readonly string[]
   workspaceStatuses: readonly WorkspaceStatusDefinition[]
   /** Null until the desktop's value is read; the served project list's order stands in. */
+  personalProjectOrder?: PersistedUIState['personalProjectOrder']
   projectOrderBy: ProjectOrderBy | null
   /** May hold a property a newer desktop added; it is carried back unchanged. */
   worktreeCardProperties: readonly WorktreeCardProperty[]
@@ -174,6 +180,10 @@ export function applyDesktopViewSettings(
     filters,
     collapsedGroups: settings.collapsedGroups ?? current.collapsedGroups,
     workspaceStatuses,
+    personalProjectOrder: newerPersonalProjectOrder(
+      current.personalProjectOrder,
+      settings.personalProjectOrder
+    ),
     projectOrderBy: settings.projectOrderBy ?? current.projectOrderBy,
     worktreeCardProperties: settings.worktreeCardProperties ?? current.worktreeCardProperties,
     agentActivityDisplayMode: settings.agentActivityDisplayMode ?? current.agentActivityDisplayMode,

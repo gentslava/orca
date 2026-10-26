@@ -125,6 +125,8 @@ export type AgentSessionRecord = {
   launchDirectory?: string
   /** Provider options the user chose, replayed whenever a new owner starts the session. */
   options?: Record<string, string>
+  /** Original host configuration resolved when Default was selected; empty before first launch. */
+  defaultModelOptions?: Record<string, string>
   /** The permission mode the user chose; Orca's, so a provider's options answer never replaces it. */
   permissionMode?: string
   rewind?: AgentSessionRewindRecord
@@ -150,7 +152,13 @@ export type AgentSessionOptionsReplacement = {
   sessionId: string
   fence: number
   now: number
-} & ({ options: Readonly<Record<string, string>> } | { permissionMode: string })
+} & (
+  | {
+      options: Readonly<Record<string, string>>
+      defaultModelOptions?: Readonly<Record<string, string>> | null
+    }
+  | { permissionMode: string }
+)
 
 const MAX_ID_LENGTH = 512
 /** A death evidence's `detail` past this fails a load, so whoever writes one cuts it here. */
@@ -320,6 +328,8 @@ export function isPersistedAgentSessionRecord(
     (record.launchDirectory === undefined ||
       isBoundedString(record.launchDirectory, MAX_PATH_LENGTH)) &&
     (record.options === undefined || isAgentSessionOptions(record.options)) &&
+    (record.defaultModelOptions === undefined ||
+      isAgentSessionOptions(record.defaultModelOptions)) &&
     (record.permissionMode === undefined ||
       isBoundedString(record.permissionMode, MAX_ID_LENGTH)) &&
     (record.rewind === undefined || isAgentSessionRewindRecord(record.rewind)) &&

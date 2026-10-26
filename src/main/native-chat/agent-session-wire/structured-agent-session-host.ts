@@ -288,6 +288,7 @@ export class StructuredAgentSessionHost {
   send = this.conversationCommands.send
 
   queuedMessageSend = this.queued.queuedMessageSend
+  queuedMessageMove = this.queued.queuedMessageMove
   queuedMessageDelete = this.queued.queuedMessageDelete
   queuedMessagesResume = this.queued.queuedMessagesResume
   queuedMessageUpdate = this.queued.queuedMessageUpdate

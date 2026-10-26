@@ -153,7 +153,10 @@ export function useStructuredAgentSessionOptionState(args: {
             reportedPermissionMode: undefined
           }
         : seeded
-    const next = sameSession ? { ...kept, permissionMode: previous.permissionMode } : kept
+    // The chat's own, which a restart for a new mode keeps: the picker never blanks between them.
+    const next = sameSession
+      ? { ...kept, defaultModel: undefined, permissionMode: previous.permissionMode }
+      : kept
     writes.current = { count: 0, readback: false }
     optionMutationGeneration.current += 1
     pendingOptionsRef.current = {}

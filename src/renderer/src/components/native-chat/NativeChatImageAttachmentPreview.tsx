@@ -14,7 +14,6 @@ import { isAgentSessionAttachmentStorePath } from '../../../../shared/agent-sess
 import { chatImageAccess } from '@/lib/local-file-access'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
-import { nativeChatImageNumberLabel } from './NativeChatImageReferencePill'
 
 type Props = {
   attachment: NativeChatComposerImageAttachment
@@ -66,7 +65,9 @@ function ImageNumberBadge({ number }: { number?: number }): React.JSX.Element | 
 }
 
 function numberedLabel(number: number | undefined, label: string): string {
-  return number === undefined ? label : `${nativeChatImageNumberLabel(number)}: ${label}`
+  return number === undefined
+    ? label
+    : `${translate('components.native-chat.composer.imageNumber', 'Image #{{number}}', { number })}: ${label}`
 }
 
 function attachmentLabel(path: string): string {

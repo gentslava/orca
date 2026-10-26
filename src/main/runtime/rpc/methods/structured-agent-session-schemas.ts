@@ -36,5 +36,6 @@ export { ContinueInterruptedParams } from '../../../../shared/rpc-contract/struc
 export { RenameParams } from '../../../../shared/rpc-contract/structured-agent-session-rename-params'
 export {
   QueuedMessageUpdateParams,
+  QueuedMessageMoveParams,
   QueuedMessageEditHoldParams
 } from '../../../../shared/rpc-contract/structured-agent-session-queued-edit-params'

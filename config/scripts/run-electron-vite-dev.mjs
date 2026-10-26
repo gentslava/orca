@@ -15,6 +15,7 @@ import {
 import { createRequire } from 'node:module'
 import path from 'node:path'
 
+import { assertMacGuiLaunchAllowed } from './macos-gui-launch-preflight.mjs'
 import { prepareDevCliTerminalWrappers } from './dev-cli-terminal-wrapper.mjs'
 import {
   DEV_BUNDLE_MARKER_FILENAME,
@@ -80,6 +81,9 @@ if (useStableElectronName) {
 }
 // Why: --help/--version exit immediately; binding probe sockets or printing instance lines is noise.
 const isHelpOrVersion = forwardedRaw.some((a) => a === '--help' || a === '-h' || a === '--version')
+if (!isHelpOrVersion) {
+  assertMacGuiLaunchAllowed()
+}
 dropInheritedDevInstanceEnv(process.env, repoRoot)
 
 function readGitValue(args) {

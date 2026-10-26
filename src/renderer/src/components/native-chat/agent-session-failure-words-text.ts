@@ -24,6 +24,12 @@ const PIECES: Record<AgentSessionFailureCopyId, (values: AgentSessionFailureCopy
         COPY.providerStartFailed,
         values
       ),
+    providerResumeUnavailable: (values) =>
+      translate(
+        'components.native-chat.failureWords.providerResumeUnavailable',
+        COPY.providerResumeUnavailable,
+        values
+      ),
     runCommandAgain: (values) =>
       translate(
         'components.native-chat.failureWords.runCommandAgain',

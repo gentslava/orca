@@ -37,6 +37,8 @@ import { useWindowVisibilityEffects } from './app-shell/use-window-visibility-ef
 import { SpaceWindowStatePublisher } from './components/workspace-space/SpaceWindowStatePublisher'
 import { PlainSshTerminalPanels } from './components/plain-ssh-terminal/PlainSshTerminalPanels'
 import { installActiveWorktreeRemovalSuccessor } from './lib/active-worktree-removal-successor'
+import { useHoldQuitActivity } from './app-shell/use-hold-quit-activity'
+import { HoldQuitNotice } from './components/HoldQuitNotice'
 
 function App(): React.JSX.Element {
   const layout = useAppChromeLayout()
@@ -45,7 +47,8 @@ function App(): React.JSX.Element {
   const clearUnreadDockBadge = useUnreadDockBadge(floatingWorkspace.open)
 
   useAppShellServices()
-  // Load drafts before the startup chain so no failed step can skip them.
+  useHoldQuitActivity()
+  // Why before the startup chain: its effect runs first, and no startup step can skip the load.
   useEffect(startNativeChatDraftLoad, [])
   useAppStartupHydration(onboardingGate.applyStartupOnboardingState)
   useAppSessionPersistence()
@@ -112,6 +115,7 @@ function App(): React.JSX.Element {
         <PlainSshTerminalPanels />
       </TooltipProvider>
       <SkillFreshnessNudge />
+      <HoldQuitNotice />
       <WorktreeBaseFallbackDialog />
       <ClaudeAccountSwitchDialog />
       <PinnedTabCloseDialog />

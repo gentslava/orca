@@ -52,13 +52,14 @@ type FetchedHistoryState =
 export type MobileAgentHistoryStateParams = {
   hostId: string
   worktreeId: string
+  conversationId?: string
   worktrees: readonly Worktree[]
   // Distinguish unfetched worktree list from fetched-but-missing workspace; only first holds loading.
   worktreesLoaded: boolean
 }
 
 export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams) {
-  const { hostId, worktreeId, worktrees, worktreesLoaded } = params
+  const { hostId, worktreeId, conversationId, worktrees, worktreesLoaded } = params
   const { client, state: connState } = useWorkspaceClient(hostId)
   const forceReconnect = useForceReconnect()
   const [scope, setScope] = useState<AiVaultScope>('workspace')
@@ -95,8 +96,8 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
   const activeWorktreePath = activeWorktree?.path ?? null
   // Reuse host hint prefixes for client narrowing: host union only widens, and All leaves prefixes empty.
   const scopeFilterPaths = useMemo(
-    () => deriveMobileAiVaultScopePaths(scope, activeWorktree, worktrees),
-    [scope, activeWorktree, worktrees]
+    () => deriveMobileAiVaultScopePaths(conversationId ? 'all' : scope, activeWorktree, worktrees),
+    [conversationId, scope, activeWorktree, worktrees]
   )
 
   const feed = useMemo(() => (client ? mobileStructuredSessionStatusFeed(client) : null), [client])
@@ -130,6 +131,7 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
     async (options: { scope: AiVaultScope; force: boolean }): Promise<void> => {
       const requestIdentity = identityRef.current
       const associationRevision = feed?.getAssociationRevision()
+      const scanScope = conversationId ? 'all' : options.scope
       const generation = generationRef.current + 1
       generationRef.current = generation
       const isCurrent = () =>
@@ -169,17 +171,18 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
         }
 
         // Wait for worktree list before scoped fetch to avoid unrelated history flash; once loaded, proceed even if workspace is missing to avoid stuck spinner.
-        if (options.scope !== 'all' && !activeWorktree && !worktreesLoaded) {
+        if (scanScope !== 'all' && !activeWorktree && !worktreesLoaded) {
           if (isCurrent()) {
             setScreenState((prev) => (prev.kind === 'ready' ? prev : { kind: 'loading' }))
           }
           return
         }
 
-        const scopePaths = deriveMobileAiVaultScopePaths(options.scope, activeWorktree, worktrees)
+        const scopePaths = deriveMobileAiVaultScopePaths(scanScope, activeWorktree, worktrees)
         const reply = await agentHistorySessionScan.request(client, {
           limit: MOBILE_AI_VAULT_SESSION_LIMIT,
           force: options.force,
+          ...(conversationId ? { includeStructuredSessions: true } : {}),
           scopePaths
         })
         if (!isCurrent()) {
@@ -214,7 +217,17 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
         }
       }
     },
-    [activeWorktree, client, clientGeneration, connState, feed, hostId, worktrees, worktreesLoaded]
+    [
+      activeWorktree,
+      client,
+      clientGeneration,
+      connState,
+      conversationId,
+      feed,
+      hostId,
+      worktrees,
+      worktreesLoaded
+    ]
   )
 
   // Initial/reconnect/scope loads reuse host’s 15s cache; only explicit refresh bypasses it.

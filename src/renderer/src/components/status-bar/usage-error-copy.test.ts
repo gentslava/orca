@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { ProviderRateLimits } from '../../../../shared/rate-limit-types'
 
 const i18nState = vi.hoisted(() => ({ language: 'en' }))
 
@@ -65,6 +66,35 @@ describe('unsubscribed OpenCode Go accounts', () => {
 
   it('keeps the specific message rather than the generic auth copy', () => {
     expect(getProviderUsageErrorMessage(noSubscription)).toBe(noSubscription.error)
+  })
+})
+
+describe('unavailable Antigravity usage', () => {
+  const locationRejection = {
+    provider: 'antigravity',
+    session: null,
+    weekly: null,
+    updatedAt: 0,
+    error:
+      'Antigravity usage is not available. The Antigravity CLI reports that Antigravity is not currently available in your location.',
+    status: 'unavailable',
+    usageMetadata: { failureKind: 'usage-unavailable' }
+  } as const satisfies ProviderRateLimits
+
+  it('labels the shared unavailable contract and preserves its diagnostic', () => {
+    expect(getProviderUsageStatusLabel(locationRejection)).toBe('Usage unavailable')
+    expect(getProviderUsageErrorMessage(locationRejection)).toBe(locationRejection.error)
+  })
+
+  it('keeps unknown Antigravity refresh failures distinct', () => {
+    expect(
+      getProviderUsageStatusLabel({
+        ...locationRejection,
+        status: 'error',
+        error: 'The Antigravity CLI did not report a quota (exit 1).',
+        usageMetadata: { failureKind: 'parse' }
+      })
+    ).toBe('Refresh failed')
   })
 })
 

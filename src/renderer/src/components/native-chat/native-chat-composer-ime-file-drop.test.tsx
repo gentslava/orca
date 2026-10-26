@@ -104,7 +104,6 @@ function ComposerProbe({
   const attachments = useNativeChatComposerAttachments({
     attachmentScopeKey: `pane:${workspaceId}`,
     allowWithoutTarget: structured,
-    imageReferences: structured,
     caret,
     disabled,
     isComposing: imeEnterGesture.isComposing,
@@ -248,7 +247,7 @@ describe('OS file drops through the real composing chat field', () => {
     }
   )
 
-  it('numbers images dropped together 1, 2, 3, each with its chip in the prompt', async () => {
+  it('keeps images dropped together ordered in the tray and leaves the editor untouched', async () => {
     render(
       <NativeChatPaneFileDropSurface className="chat">
         <ComposerProbe />
@@ -260,7 +259,11 @@ describe('OS file drops through the real composing chat field', () => {
       [...editor.querySelectorAll('[data-native-chat-image-reference]')].map(
         (chip) => chip.textContent
       )
-    ).toEqual(['Image #1', 'Image #2', 'Image #3'])
+    ).toEqual([])
+    expect(promptValue(editor)).toBe('')
+    expect(
+      [...document.querySelectorAll('[data-image-attachment]')].map((image) => image.textContent)
+    ).toEqual(['/drop/a.png', '/drop/b.png', '/drop/c.png'])
   })
 
   it('shows a dropped file and a file picked with the attach button as the same filename pill', async () => {

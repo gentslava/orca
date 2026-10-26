@@ -7,10 +7,15 @@ import { translateSearchKeyword } from './settings-search-keywords'
 import { SHOW_UI_LANGUAGE_SETTING } from '@/i18n/supported-languages'
 import { getStatusBarToggles } from './appearance-status-bar-search'
 import { getUsagePercentageDisplayEntry } from './appearance-usage-percentage-search'
-import { getMenuBarIconEntries, getSystemTrayEntries } from './appearance-system-presence-search'
+import {
+  getHoldQuitEntries,
+  getMenuBarIconEntries,
+  getSystemTrayEntries
+} from './appearance-system-presence-search'
 
 export {
   getMenuBarIconEntries,
+  getHoldQuitEntries,
   getStatusBarToggles,
   getSystemTrayEntries,
   getUsagePercentageDisplayEntry
@@ -52,6 +57,7 @@ export const getLanguageEntries = createLocalizedCatalog((): SettingsSearchEntry
       ...translateSearchKeyword('settings.appearance.language.spanish', 'Español'),
       ...translateSearchKeyword('settings.appearance.language.french', 'Français'),
       ...translateSearchKeyword('settings.appearance.language.portuguese', 'Português (Brasil)'),
+      ...translateSearchKeyword('settings.appearance.language.russian', 'Русский'),
       // Index native language words in every locale so users can find their language from an unfamiliar UI.
       '语言',
       '語言',
@@ -59,6 +65,7 @@ export const getLanguageEntries = createLocalizedCatalog((): SettingsSearchEntry
       '言語',
       'Idioma',
       'Langue',
+      'Язык',
       ...translateSearchKeyword(
         'auto.components.settings.appearance.search.language.locale',
         'locale'
@@ -249,6 +256,7 @@ type AppearancePaneSearchOptions = {
   showDesktopThemeImports?: boolean
   showSystemTray?: boolean
   showMenuBarIcon?: boolean
+  showHoldQuit?: boolean
 }
 
 export function getAppearancePaneSearchEntries(
@@ -267,6 +275,7 @@ export function getAppearancePaneSearchEntries(
     ...getSidebarEntries(),
     ...getAppIconEntries(),
     ...getSystemTrayEntries(options),
-    ...getMenuBarIconEntries(options)
+    ...getMenuBarIconEntries(options),
+    ...getHoldQuitEntries(options)
   ]
 }

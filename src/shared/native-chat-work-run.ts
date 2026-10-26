@@ -1,14 +1,16 @@
 // Group tool calls and finished thoughts into one collapsible run between prose rows; thinking before each call must not double the visible rows.
 
 import { isNativeChatAskCall } from './native-chat-ask-row'
+import { isNativeChatAutoApprovalMessage } from './native-chat-auto-approval'
 import { deriveNativeChatRowContent } from './native-chat-row-content'
 import { isStoppedBeforeStartBlock } from './native-chat-stopped-before-start'
+import { nativeChatToolFailures } from './native-chat-tool-failures'
 import { pairToolBlocks } from './native-chat/tools/native-chat-tool-pairs'
 import type { NativeChatBlock, NativeChatMessage } from './native-chat-types'
 
 /** `lead`: the agent's words with calls already folded under them, which may head a run but
  *  never join one. */
-export type NativeChatWorkRunMember = 'lead' | 'tool' | 'thought'
+export type NativeChatWorkRunMember = 'lead' | 'tool' | 'thought' | 'notice'
 
 /** Only prose/plain tool activity joins runs; rosters, tasks, questions and approval receipts keep separate rows. scopeIsWorking names the owning turn/subagent’s liveness. */
 export function nativeChatWorkRunMember(
@@ -18,6 +20,9 @@ export function nativeChatWorkRunMember(
 ): NativeChatWorkRunMember | null {
   if (hasReceipt) {
     return null
+  }
+  if (isNativeChatAutoApprovalMessage(message)) {
+    return 'notice'
   }
   if (message.role === 'reasoning') {
     // Live thinking stays separate; ended thoughts join runs, including textless thoughts that render nothing.
@@ -32,7 +37,8 @@ export function nativeChatWorkRunMember(
     message.blocks.some(
       (block) => isStoppedBeforeStartBlock(block) || (block.type === 'text' && block.providerFrame)
     ) ||
-    content.tools.some(isNativeChatAskCall)
+    content.tools.some(isNativeChatAskCall) ||
+    nativeChatToolFailures(content.tools).length > 0
   ) {
     return null
   }
@@ -88,20 +94,20 @@ export function nativeChatWorkRunSpans(rows: readonly NativeChatWorkRunRow[]): n
 export type NativeChatWorkRunEntries = {
   /** Every member's tool blocks, in order: the run's one block list. */
   blocks: NativeChatBlock[]
-  /** Thoughts drawn just before a block, keyed by that block. */
-  thoughtsBefore: Map<NativeChatBlock, NativeChatMessage[]>
-  /** Thoughts after the run's last block. */
-  thoughtsAfter: NativeChatMessage[]
+  /** Thoughts and successful reviews drawn just before a block, keyed by that block. */
+  asidesBefore: Map<NativeChatBlock, NativeChatMessage[]>
+  /** Asides after the run's last block. */
+  asidesAfter: NativeChatMessage[]
 }
 
 export function nativeChatWorkRunEntries(
   members: readonly NativeChatMessage[]
 ): NativeChatWorkRunEntries {
   const blocks: NativeChatBlock[] = []
-  const thoughtsBefore = new Map<NativeChatBlock, NativeChatMessage[]>()
+  const asidesBefore = new Map<NativeChatBlock, NativeChatMessage[]>()
   let waiting: NativeChatMessage[] = []
   for (const message of members) {
-    if (message.role === 'reasoning') {
+    if (message.role === 'reasoning' || isNativeChatAutoApprovalMessage(message)) {
       waiting.push(message)
       continue
     }
@@ -110,12 +116,12 @@ export function nativeChatWorkRunEntries(
       continue
     }
     if (waiting.length > 0) {
-      thoughtsBefore.set(tools[0]!, waiting)
+      asidesBefore.set(tools[0]!, waiting)
       waiting = []
     }
     blocks.push(...tools)
   }
-  return { blocks, thoughtsBefore, thoughtsAfter: waiting }
+  return { blocks, asidesBefore, asidesAfter: waiting }
 }
 
 /** Map message-local diff target indexes into the run’s combined edit numbering. */

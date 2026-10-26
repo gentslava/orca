@@ -104,11 +104,26 @@ function resolveWorktreeInfoFromCandidates(
   session: AiVaultSession,
   candidates: readonly WorktreeCandidate[]
 ): AiVaultSessionWorktreeInfo | null {
+  const sessionHostId = normalizeExecutionHostId(session.executionHostId)
+  const owned =
+    session.structuredSession &&
+    candidates.find(
+      (candidate) =>
+        candidate.worktree.id === session.structuredSession?.workspaceId &&
+        candidate.hostId === sessionHostId
+    )
+  if (owned) {
+    return {
+      status: owned.status,
+      label: owned.worktree.displayName || compactPathLabel(owned.path),
+      path: owned.path,
+      worktreeId: owned.worktree.id
+    }
+  }
   if (!session.cwd) {
     return null
   }
 
-  const sessionHostId = normalizeExecutionHostId(session.executionHostId)
   const normalizedCwd = normalizeRuntimePathForComparison(session.cwd)
   const matched = candidates
     .filter((candidate) => candidate.ownsNormalizedCwd(normalizedCwd))

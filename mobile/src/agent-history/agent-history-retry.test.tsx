@@ -63,6 +63,9 @@ import { createFakeBridgePortPair } from '../mobile-web-shell/bridge/bridge-port
 import { createFakeRpcClient } from '../mobile-web-shell/bridge-host-test-fakes'
 import { RpcClientProvider, useRpcClientContext } from '../transport/client-context.web'
 import { MobileAgentSessionHistoryPanel } from './MobileAgentSessionHistoryPanel'
+import { MobileAgentSessionHistoryList } from './MobileAgentSessionHistoryList'
+import { WorkspaceServerContext } from '../transport/use-workspace-client'
+import type { MobileAgentHistorySection } from './agent-history-sections'
 
 doubles.read = useRpcClientContext
 
@@ -223,3 +226,171 @@ it.each([
     )
   }
 )
+
+function conversationSession(id: string, cwd: string | null): AiVaultSession {
+  return {
+    id,
+    executionHostId: 'runtime:selected-host',
+    agent: 'claude',
+    sessionId: id,
+    structuredSession: { sessionId: id, workspaceId: 'folder:notes' },
+    title: id,
+    cwd,
+    branch: null,
+    model: null,
+    filePath: '',
+    codexHome: null,
+    createdAt: null,
+    updatedAt: null,
+    modifiedAt: '2026-10-25T00:00:00.000Z',
+    messageCount: 2,
+    totalTokens: 0,
+    previewMessages: [],
+    queuedMessageCount: 0,
+    subagentTranscriptCount: 0,
+    resumeCommand: '',
+    subagent: null
+  }
+}
+
+function historyClient(sessions: AiVaultSession[], includesStructuredSessions?: true) {
+  const client = new FakeSession('connected')
+  client.sendRequest.mockImplementation(async (method) => ({
+    id: 'conversation-history',
+    ok: true,
+    result:
+      method === 'status.get'
+        ? { capabilities: ['aiVault.v1'], hostPlatform: 'linux' }
+        : method === 'worktree.ps'
+          ? { worktrees: [{ worktreeId: 'folder:notes', repoId: 'notes', path: '/notes' }] }
+          : {
+              sessions,
+              issues: [],
+              ...(includesStructuredSessions ? { includesStructuredSessions } : {})
+            }
+  }))
+  return client
+}
+
+function visibleHistoryIds(rendered: ReactTestRenderer): string[] {
+  return rendered.root
+    .findAllByType(MobileAgentSessionHistoryList)
+    .flatMap((list) =>
+      list.props.sections.flatMap((section: MobileAgentHistorySection) =>
+        section.data.map((card) => card.id)
+      )
+    )
+}
+
+function historyServer(client: RpcClient | null, state: 'connected' | 'disconnected') {
+  return { client, state }
+}
+
+it.each([null, '/outside/notes', 'C:\\outside\\notes'])(
+  'opens only the selected conversation on its server despite cwd %s',
+  async (cwd) => {
+    const pair = createFakeBridgePortPair()
+    await pair.flush()
+    const selected = conversationSession('selected', cwd)
+    const client = historyClient([selected, conversationSession('other', '/notes')], true)
+    const server = historyServer(client, 'connected')
+    const local = historyClient([conversationSession('local-only', '/notes')])
+    doubles.connection = { client: local, state: 'connected' }
+    await act(async () => {
+      tree = create(
+        <RpcClientProvider client={pair.client}>
+          <WorkspaceServerContext.Provider value={server}>
+            <MobileAgentSessionHistoryPanel
+              hostId="host-a"
+              worktreeId="folder:notes"
+              conversationId="selected"
+            />
+          </WorkspaceServerContext.Provider>
+        </RpcClientProvider>
+      )
+    })
+    if (!tree) {
+      throw new Error('history did not mount')
+    }
+    expect.soft(visibleHistoryIds(tree)).toEqual(['selected'])
+    expect
+      .soft(client.sendRequest)
+      .toHaveBeenCalledWith(
+        'aiVault.listSessions',
+        expect.objectContaining({ scopePaths: [], includeStructuredSessions: true })
+      )
+    expect(local.sendRequest).not.toHaveBeenCalled()
+    const list = tree.root.findAllByType(MobileAgentSessionHistoryList)[0]
+    expect.soft(list?.props.initialExpandedId).toBe('selected')
+    expect.soft(list ? [...list.props.sessionsById.keys()] : []).toEqual(['selected'])
+  }
+)
+
+it('keeps general history scoped and accepts legacy scan replies without a coverage marker', async () => {
+  const pair = createFakeBridgePortPair()
+  await pair.flush()
+  const sessions = [
+    conversationSession('missing-cwd', null),
+    conversationSession('outside', '/outside/notes'),
+    conversationSession('inside', '/notes')
+  ]
+  const client = historyClient(sessions)
+  doubles.connection = { client, state: 'connected' }
+  const render = (conversationId?: string) => (
+    <RpcClientProvider client={pair.client}>
+      <MobileAgentSessionHistoryPanel
+        hostId="host-a"
+        worktreeId="folder:notes"
+        conversationId={conversationId}
+      />
+    </RpcClientProvider>
+  )
+  await act(async () => {
+    tree = create(render())
+  })
+  if (!tree) {
+    throw new Error('history did not mount')
+  }
+  expect(visibleHistoryIds(tree)).toEqual(['inside'])
+  expect(client.sendRequest).toHaveBeenCalledWith(
+    'aiVault.listSessions',
+    expect.objectContaining({ scopePaths: ['/notes'] })
+  )
+  client.sendRequest.mockClear()
+  await act(async () => tree?.update(render('missing-cwd')))
+  expect(visibleHistoryIds(tree)).toEqual(['missing-cwd'])
+  expect(client.sendRequest).toHaveBeenCalledWith(
+    'aiVault.listSessions',
+    expect.objectContaining({ scopePaths: [], includeStructuredSessions: true })
+  )
+  await act(async () => tree?.update(render('outside')))
+  expect(visibleHistoryIds(tree)).toEqual(['outside'])
+  await act(async () => tree?.update(render()))
+  expect(visibleHistoryIds(tree)).toEqual(['inside'])
+})
+
+it('never falls back to the paired host when the selected conversation server is unavailable', async () => {
+  const pair = createFakeBridgePortPair()
+  await pair.flush()
+  const local = historyClient([conversationSession('selected', '/notes')])
+  const server = historyServer(null, 'disconnected')
+  doubles.connection = { client: local, state: 'connected' }
+  await act(async () => {
+    tree = create(
+      <RpcClientProvider client={pair.client}>
+        <WorkspaceServerContext.Provider value={server}>
+          <MobileAgentSessionHistoryPanel
+            hostId="host-a"
+            worktreeId="folder:notes"
+            conversationId="selected"
+          />
+        </WorkspaceServerContext.Provider>
+      </RpcClientProvider>
+    )
+  })
+  if (!tree) {
+    throw new Error('history did not mount')
+  }
+  expect(visibleHistoryIds(tree)).toEqual([])
+  expect(local.sendRequest).not.toHaveBeenCalled()
+})

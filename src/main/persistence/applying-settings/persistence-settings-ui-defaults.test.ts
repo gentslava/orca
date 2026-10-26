@@ -69,6 +69,7 @@ describe('Store', () => {
   it('returns default settings when no data file exists', async () => {
     const store = await createStore()
     const settings = store.getSettings()
+    expect(settings.holdQuitWhileAgentsWork).toBe(false)
     expect(settings.branchPrefix).toBe('git-username')
     expect(settings.refreshLocalBaseRefOnWorktreeCreate).toBe(false)
     expect(settings.sourceControlGroupOrder).toBe('changes-first')
@@ -87,9 +88,9 @@ describe('Store', () => {
     expect(settings.localAccountRuntimeDefaultedToAutoForAllUsers).toBe(true)
     expect(settings.terminalTuiScrollSensitivityDefaultedToOne).toBe(true)
     expect(settings.terminalUseSeparateLightTheme).toBe(true)
-    expect(settings.rightSidebarOpenByDefault).toBe(true)
-    expect(settings.showTasksButton).toBe(true)
-    expect(settings.showAutomationsButton).toBe(true)
+    expect(settings.rightSidebarOpenByDefault).toBe(false)
+    expect(settings.showTasksButton).toBe(false)
+    expect(settings.showAutomationsButton).toBe(false)
     expect(settings.visibleTaskProviders).toEqual(['github', 'gitlab', 'linear', 'jira'])
     expect(settings.openInApplications).toEqual([
       { id: 'vscode', label: 'VS Code', command: 'code' }
@@ -103,6 +104,19 @@ describe('Store', () => {
     expect(settings.notifications.customSoundPath).toBeNull()
     expect(settings.notifications.customSoundVolume).toBe(100)
     expect(settings.notifications.suppressWhenFocused).toBe(true)
+  })
+
+  it('persists the optional hold-quit choice and acknowledges its normalized value', async () => {
+    for (const value of [true, false]) {
+      const store = await createStore()
+      expect(store.updateSettings({ holdQuitWhileAgentsWork: value }).holdQuitWhileAgentsWork).toBe(
+        value
+      )
+      store.flush()
+      await closeTestStores()
+      expect((await createStore()).getSettings().holdQuitWhileAgentsWork).toBe(value)
+      await closeTestStores()
+    }
   })
 
   it('repairs a persisted terminal line height outside xterm bounds', async () => {
@@ -123,7 +137,7 @@ describe('Store', () => {
     const store = await createStore()
     const ui = store.getUI()
     expect(ui.sidebarWidth).toBe(280)
-    expect(ui.rightSidebarOpen).toBe(true)
+    expect(ui.rightSidebarOpen).toBe(false)
     expect(ui.rightSidebarTab).toBe('explorer')
     expect(ui.groupBy).toBe('repo')
     expect(ui.lastActiveRepoId).toBeNull()

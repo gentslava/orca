@@ -17,10 +17,7 @@ import {
 } from '@/runtime/structured-agent-session-host-capability'
 import { structuredAgentSessionStopControl } from './structured-agent-session-stop-control'
 import type { AgentSessionPromptResponse } from '../../../../shared/agent-session-question-answer'
-import {
-  respondToStructuredAgentSessionPrompt,
-  cancelStructuredAgentSessionPrompt
-} from './structured-agent-session-prompt-response'
+import * as promptResponse from './structured-agent-session-prompt-response'
 import {
   pendingStructuredSessionPrompts,
   type StructuredPromptItem
@@ -125,6 +122,7 @@ export function useStructuredAgentSession(args: {
     isVisible: args.isVisible,
     providerVisible,
     providerStarting,
+    isWorking: transportState.isWorking,
     ...(args.providerRunning ? { providerRunning: true } : {}),
     ...(args.hostOptionStamp ? { hostOptionStamp: args.hostOptionStamp } : {}),
     fence: state.fence,
@@ -151,6 +149,8 @@ export function useStructuredAgentSession(args: {
     () => ({ capability: queueCapability, enabled: queueEnabled }),
     [queueCapability, queueEnabled]
   )
+  // A queued send is a card, never a transcript bubble.
+  const isWorking = transportState.isWorking || transportState.queueSendsNext
   const sends = useStructuredAgentSessionSends({
     sessionId,
     target,
@@ -161,7 +161,7 @@ export function useStructuredAgentSession(args: {
     queuedMessageIds,
     queue,
     historyLoaded: transportEnabled && state.status === 'ready',
-    isWorking: transportState.isWorking,
+    isWorking,
     stopping: stopControl.stopping,
     sendOptions
   })
@@ -196,7 +196,7 @@ export function useStructuredAgentSession(args: {
     write,
     capturePresentation
   })
-  const isWorking = transportState.isWorking || transportState.queueSendsNext
+  // A message typed during a command queues behind it on the host.
   const send = (...input: Parameters<typeof sends.send>) =>
     // Legacy: an older host refuses sends while a command runs; removable once those hosts age out.
     (!commandPending.current || hostStatesTurnScopes(journalItems)) &&
@@ -308,8 +308,10 @@ export function useStructuredAgentSession(args: {
     capturePresentation,
     /** Host and send both permit queueing: follow-ups/commands request it and no unanswerable prompt blocks it. */
     sendsQueue: structuredAgentSessionNewSendsQueue(queue),
+    queue,
+    steerCapability: sends.steerCapability,
     cancel: (turnId: string | undefined, prompt?: { itemId: string; expectedRevision: number }) =>
-      cancelStructuredAgentSessionPrompt(admit(), turnId, prompt),
+      promptResponse.cancelStructuredAgentSessionPrompt(admit(), turnId, prompt),
     stopBackgroundTask: (taskId?: string) =>
       mutate<AgentSessionCancelResult>('agentSession.cancel', 'agentSession.cancel', {
         turnId: 'background-tasks',
@@ -317,7 +319,7 @@ export function useStructuredAgentSession(args: {
         ...(taskId ? { taskId } : {})
       }),
     respond: (item: StructuredPromptItem, response: AgentSessionPromptResponse) =>
-      respondToStructuredAgentSessionPrompt({ item, response, action: admit() }),
+      promptResponse.respondToStructuredAgentSessionPrompt({ item, response, action: admit() }),
     optionSnapshot,
     optionSurface,
     sessionCommands: transportEnabled ? (state.commands ?? undefined) : undefined,

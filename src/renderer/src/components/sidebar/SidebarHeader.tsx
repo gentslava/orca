@@ -6,10 +6,16 @@ import { SidebarHeaderActions } from './sidebar-header-actions'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverAnchor, PopoverArrow, PopoverContent } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Sparkles, Bell } from 'lucide-react'
+import { Sparkles, Bell, ChevronDown, FolderTree, MessageSquare, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AgentQuestionIcon } from '@/components/AgentQuestionIcon'
 import { useAgentBucketCounts } from '@/components/dashboard/useAgentBucketCounts'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
 type SidebarHeaderProps = {
   onWorkspaceBoardMenuOpenChange: (open: boolean) => void
@@ -22,7 +28,7 @@ const SidebarHeader = React.memo(function SidebarHeader({
 }: SidebarHeaderProps) {
   // Subscribe this memoized header to locale changes before using translate().
   useTranslation()
-  const sidebarBody = useAppStore((s) => s.sidebarBody ?? 'workspaces')
+  const sidebarBody = useAppStore((s) => s.sidebarBody ?? 'conversations')
   const groupBy = useAppStore((s) => s.groupBy)
   const setSidebarBody = useAppStore((s) => s.setSidebarBody)
   const updateSettings = useAppStore((s) => s.updateSettings)
@@ -46,10 +52,16 @@ const SidebarHeader = React.memo(function SidebarHeader({
   const acknowledgeIntro = React.useCallback(() => {
     void updateSettings?.({ agentsSidebarIntroShown: true })
   }, [updateSettings])
-  const sidebarTitle =
+  const workspaceTitle =
     groupBy === 'repo'
       ? translate('dashboard.sidebar.projects', 'Projects')
       : translate('dashboard.sidebar.workspaces', 'Workspaces')
+  const sidebarTitle =
+    sidebarBody === 'conversations'
+      ? translate('dashboard.sidebar.conversations', 'Conversations')
+      : sidebarBody === 'agents'
+        ? translate('dashboard.sidebar.activity', 'Activity')
+        : workspaceTitle
   const activityLabel = translate(
     agentsViewActive ? 'dashboard.sidebar.closeActivity' : 'dashboard.sidebar.openActivity',
     agentsViewActive ? 'Turn off activity view' : 'View activity'
@@ -58,13 +70,43 @@ const SidebarHeader = React.memo(function SidebarHeader({
   return (
     <div className="mt-2 flex h-8 min-w-0 shrink-0 items-center justify-between gap-1.5 px-2">
       <div className="flex min-w-0 items-center gap-1">
-        <span
-          // Truncate localized titles because fixed-width actions cannot shrink inside the short header row.
-          className="min-w-0 truncate select-none pl-2 pr-0.5 text-xs font-semibold text-muted-foreground/80"
-          data-sidebar-section-title={groupBy === 'repo' ? 'projects' : 'workspaces'}
-        >
-          {sidebarTitle}
-        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="xs"
+              // Why truncate: the action cluster is shrink-0, so a long localized title
+              // (es "Espacios de trabajo") otherwise wraps out of the h-8 row.
+              className="min-w-0"
+              data-sidebar-section-title={
+                sidebarBody === 'conversations'
+                  ? 'conversations'
+                  : sidebarBody === 'agents'
+                    ? translate('dashboard.sidebar.activity', 'Activity')
+                    : groupBy === 'repo'
+                      ? 'projects'
+                      : 'workspaces'
+              }
+            >
+              {sidebarTitle}
+              <ChevronDown aria-hidden="true" className="size-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onSelect={() => setSidebarBody('conversations')}>
+              <MessageSquare />
+              {translate('dashboard.sidebar.conversations', 'Conversations')}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSidebarBody('workspaces')}>
+              <FolderTree />
+              {workspaceTitle}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSidebarBody('agents')}>
+              <Activity />
+              {translate('dashboard.sidebar.activity', 'Activity')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <Popover
@@ -90,7 +132,7 @@ const SidebarHeader = React.memo(function SidebarHeader({
                     aria-label={activityLabel}
                     aria-pressed={agentsViewActive}
                     aria-describedby={activityBadgeId}
-                    onClick={() => setSidebarBody?.(agentsViewActive ? 'workspaces' : 'agents')}
+                    onClick={() => setSidebarBody?.(agentsViewActive ? 'conversations' : 'agents')}
                   >
                     <span className="relative size-6 shrink-0">
                       <Bell className="absolute left-0 top-1.5 size-3" />
@@ -164,8 +206,9 @@ const SidebarHeader = React.memo(function SidebarHeader({
           </PopoverContent>
         </Popover>
         <SidebarHeaderActions
+          conversationNavigation={sidebarBody === 'conversations'}
           onWorkspaceBoardMenuOpenChange={onWorkspaceBoardMenuOpenChange}
-          agentsViewActive={agentsViewActive}
+          agentsViewActive={sidebarBody !== 'workspaces'}
           activityOptionsTarget={activityOptionsTarget}
         />
       </div>

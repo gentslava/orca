@@ -15,6 +15,8 @@ export type StructuredRailOutlineWindow = {
 export type StructuredRailOutlineView =
   /** Everything is loaded, or nothing is: the loaded rail is already the whole thread. */
   | { kind: 'complete' }
+  /** Older hosts cannot establish authorship for retained entries. */
+  | { kind: 'unattributed' }
   | { kind: 'fresh'; entries: readonly NativeChatRailOutlineEntry[] }
   | { kind: 'stale' }
 
@@ -41,7 +43,11 @@ export function selectStructuredRailOutline(
   ) {
     return STALE
   }
-  // Reuse view identity until covered entries change; streaming often moves the edge without crossing a prompt.
+  if (outline.humanMessagesOnly !== true) {
+    return { kind: 'unattributed' }
+  }
+  // The rail's merge sees one array until the covered entries change. A trimmed live
+  // window moves its edge on every new row, and usually past no user message.
   const prior = views.get(outline)
   const cached = prior?.floor === contextFloor ? prior : undefined
   if (cached?.edge === oldestLoadedSequence) {

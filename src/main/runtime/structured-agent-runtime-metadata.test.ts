@@ -30,6 +30,7 @@ describe('structured agent metadata without adapter implementations', () => {
       'opencode',
       'opencode2',
       'omp',
+      'gemini',
       'antigravity'
     ])
     expect(

@@ -10,6 +10,7 @@ export type StructuredAgentSessionPendingSend = {
   previewUris: readonly string[]
   queuedAt: number
   delivery?: 'queue-if-active'
+  steer?: true
   options?: Readonly<Record<string, string>>
   usageLimitContinuationOfTurnItemId?: string
   /** Sending blocks new sends; recorded releases the slot but retains its echo until host rows/cards arrive. */

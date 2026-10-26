@@ -14,6 +14,8 @@ export type StructuredAgentSessionOptionProjection = {
 
 export type StructuredAgentSessionLiveOptions = AgentSessionOptionsResult & {
   catalogListing?: AgentModelCatalogLiveListing
+  /** Exact requested identity proven equivalent to current.model by this child's response. */
+  confirmedModelSelection?: string
 }
 
 export type StructuredAgentSessionRestingOptions = Pick<
@@ -22,6 +24,18 @@ export type StructuredAgentSessionRestingOptions = Pick<
 > & {
   inventory: AgentSessionModelCatalogResult
   fallback: AgentSessionOptionsResult['models']
+}
+
+export function structuredAgentSessionProjectedModel(
+  saved: string | undefined,
+  live: StructuredAgentSessionLiveOptions | null,
+  current: AgentSessionOptionsResult['current']
+): string | undefined {
+  return saved !== undefined &&
+    saved === live?.confirmedModelSelection &&
+    current.confirmed?.includes('model')
+    ? current.model
+    : saved
 }
 
 export function structuredAgentSessionOptionModels<TModel extends AgentSessionModelOption>(

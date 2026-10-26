@@ -63,6 +63,9 @@ export function useNativeChatStructuredComposerTransport(args: {
             : Promise.resolve(false)
       : null
     return {
+      queue: controller.queue,
+      isWorking: controller.isWorking,
+      steerCapability: controller.steerCapability,
       capturePresentation: controller.capturePresentation,
       send: (text, attachments, ...request) =>
         sendBlockedReason === null &&

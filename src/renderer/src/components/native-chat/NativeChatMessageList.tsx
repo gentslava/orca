@@ -63,6 +63,7 @@ import type { NativeChatSettledTurns } from '../../../../shared/native-chat-turn
 import type { NativeChatDiffReveal, NativeChatDiffTarget } from './native-chat-turn-diffs'
 import { useNativeChatTurnDiffs } from './use-native-chat-turn-diffs'
 import { transcriptTailRow } from './native-chat-transcript-tail-row'
+import { useNativeChatChildNavigation } from './native-chat-child-navigation'
 
 /** shown prompts have a card in this pane; unshown prompts require input in the agent’s terminal. */
 export type NativeChatAwaitingInput = 'shown' | 'unshown'
@@ -156,6 +157,17 @@ export function NativeChatMessageList({
     subagentDisclosure,
     openSubagentSections
   } = useNativeChatSubagentSections(messages, subagentRows, subagentRoster)
+  const childNavigation = useNativeChatChildNavigation()
+  const inlineSubagentChoices = useMemo(
+    () =>
+      childNavigation
+        ? {
+            ...subagentChoices,
+            sections: new Map(Array.from(subagentRows.keys(), (id) => [id, false]))
+          }
+        : subagentChoices,
+    [childNavigation, subagentChoices, subagentRows]
+  )
   // Folded subagent rows stay loaded, so a reopened reply keeps its reveal.
   const loadedMessageIds = useMemo(
     () => new Set([...messages.map(({ id }) => id), ...subagentSections.pathOf.keys()]),
@@ -204,7 +216,7 @@ export function NativeChatMessageList({
     isWorking,
     lifecycleWorking,
     subagentSections,
-    subagentChoices,
+    subagentChoices: inlineSubagentChoices,
     line: {
       draws: tailRow === 'activity',
       thinking: turnStatuses.active?.thinking === true,
@@ -227,7 +239,8 @@ export function NativeChatMessageList({
   const { marker: newRowsMarker, dismiss } = useNativeChatNewRowsMarker(
     slots,
     waitingSlots,
-    isVisible && session.readCurrent === true
+    isVisible && session.readCurrent === true,
+    navigationSequence
   )
   const transcriptWindow = useNativeChatTranscriptWindow({
     scrollRef,
@@ -270,8 +283,7 @@ export function NativeChatMessageList({
     outline: railOutline
   })
   const requestRailJump = useCallback((item: NativeChatRailItem) => {
-    navigationSequence.current += 1
-    const requestId = navigationSequence.current
+    const requestId = ++navigationSequence.current
     setNavigationRequest({ kind: 'rail', messageId: item.id, requestId })
   }, [])
   const railHistoryJump = useNativeChatRailHistoryJump({
@@ -285,6 +297,7 @@ export function NativeChatMessageList({
   // Abort paging navigation before any new jump so late history cannot pull the reader back.
   const selectRailItem = useCallback(
     (item: NativeChatRailItem) => {
+      navigationSequence.current += 1
       beginNavigation()
       readerLeavesEnd()
       if (item.slotIndex === null) {
@@ -302,18 +315,22 @@ export function NativeChatMessageList({
       if (target.subagentSections) {
         openSubagentSections(target.subagentSections)
       }
-      navigationSequence.current += 1
-      const requestId = navigationSequence.current
+      const requestId = ++navigationSequence.current
       setNavigationRequest({ kind: 'diff', target: { ...target, requestId } })
     },
     [beginNavigation, readerLeavesEnd, openSubagentSections]
   )
   const jumpToLatest = useCallback(() => {
+    navigationSequence.current += 1
     beginNavigation()
     scrollToBottom()
   }, [beginNavigation, scrollToBottom])
+  const onReaderScroll = useCallback(() => {
+    navigationSequence.current += 1
+    beginNavigation()
+  }, [beginNavigation])
   const readerInput = useNativeChatReaderScrollInput(scrollRef, {
-    onReaderScroll: beginNavigation,
+    onReaderScroll,
     onTakeScroll: transcriptWindow.cancelAlign,
     onLeaveEnd: readerLeavesEnd,
     onScrollGesture: transcriptScroll.forwardedGesture

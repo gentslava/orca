@@ -1,4 +1,5 @@
 import type { AgentSessionRecord } from '../../../shared/agent-session-record'
+import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
 import {
   agentChatPermissionModes,
   chatModelSupportsAutoMode,
@@ -25,7 +26,7 @@ async function listedAutoModeSupport(
     listing !== null &&
     listing !== undefined &&
     listing.origin !== 'unknown' &&
-    chatModelSupportsAutoMode(listing.models, record.options?.model)
+    chatModelSupportsAutoMode(listing.models, effectiveAgentSessionOptions(record)?.model)
   )
 }
 

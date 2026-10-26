@@ -226,7 +226,7 @@ describe('ExperimentalPane', () => {
     const updateSettings = vi.fn()
     const { root, container } = await renderExperimentalPane({
       updateSettings,
-      settings: getDefaultSettings('/tmp')
+      settings: { ...getDefaultSettings('/tmp'), experimentalNativeChat: false }
     })
     expect(container.textContent).toContain('Chat UI')
     expect(container.textContent).not.toContain('Default view')

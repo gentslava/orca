@@ -47,7 +47,9 @@ function modelOptionView(
   held: Readonly<Record<string, string>>
 ): StructuredAgentSessionOptionState {
   const unconfirmedSeed =
-    seed !== undefined && structuredAgentSessionModelId(state.record, 'own') === null
+    !state.modelDefault &&
+    seed !== undefined &&
+    structuredAgentSessionModelId(state.record, 'own') === null
   const hasHeld = Object.keys(held).length > 0
   // A saved pick the host's list does not name would show its raw id or another model's label.
   if (
@@ -80,7 +82,7 @@ function modelOptionView(
 export function structuredAgentSessionSendSelection(
   view: StructuredAgentSessionOptionState
 ): Record<string, string> | undefined {
-  if (view.record.agent !== 'claude') {
+  if (view.record.agent !== 'claude' || view.modelDefault) {
     return undefined
   }
   const snapshot =

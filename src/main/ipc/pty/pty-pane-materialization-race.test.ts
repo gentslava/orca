@@ -10,6 +10,10 @@ import { registerPtyHandlers } from './register-handlers'
 import { getPtyIdForPaneKey } from './pane/key-state'
 import { setLocalPtyProvider } from './provider/registry'
 
+vi.mock('../../startup/login-shell-environment', () => ({
+  resolveLoginShellEnvironment: vi.fn(async () => ({}))
+}))
+
 vi.mock('electron', () => import('../pty-ipc-mock-registry').then((m) => m.electronModuleMock()))
 vi.mock('fs', () => import('../pty-ipc-mock-registry').then((m) => m.fsModuleMock()))
 vi.mock('node-pty', () => import('../pty-ipc-mock-registry').then((m) => m.nodePtyModuleMock()))

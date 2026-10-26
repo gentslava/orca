@@ -5,18 +5,11 @@ import {
   CornerDownRight,
   Image as ImageIcon,
   ListEnd,
-  MoreHorizontal,
-  Pencil,
   Send,
   Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { NativeChatQueuedMessageMenu } from './NativeChatQueuedMessageMenu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { ShortcutKeyCombo } from '@/components/ShortcutKeyCombo'
@@ -156,10 +149,11 @@ export function NativeChatQueuedMessageCard({
   onSteer,
   onDelete,
   onEdit,
+  onMoveEarlier,
+  onMoveLater,
   editor,
   editAttachTo,
-  editDisabled = false,
-  onTurnOffQueueing
+  editDisabled = false
 }: {
   card: QueuedMessageCard
   /** The chat's worktree, whose host its sender is found on; null shows the sender unlinked. */
@@ -176,14 +170,14 @@ export function NativeChatQueuedMessageCard({
   onDelete: () => void
   /** Absent when the host cannot edit in place: the card then offers no Edit at all. */
   onEdit?: () => void
+  onMoveEarlier?: () => void
+  onMoveLater?: () => void
   /** This card is being edited here: the editor replaces its text and its actions. */
   editor?: QueuedMessageInlineEditor
   /** The chat files added in the editor attach to. */
   editAttachTo?: QueuedEditAttachTarget
   /** Another card in this pane is being edited. */
   editDisabled?: boolean
-  /** Absent when the host does not queue sends, so there is nothing to turn off. */
-  onTurnOffQueueing?: () => void
 }): React.JSX.Element {
   const caption = queuedMessageCardCaption(card, agentName, statedFailures)
   const line = queuedMessageCardLine(card)
@@ -303,44 +297,14 @@ export function NativeChatQueuedMessageCard({
                 {translate('components.native-chat.queuedMessages.delete', 'Delete')}
               </TooltipContent>
             </Tooltip>
-            {(!card.command && onEdit) || onTurnOffQueueing ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    aria-label={translate(
-                      'components.native-chat.queuedMessages.moreActions',
-                      'More actions'
-                    )}
-                    disabled={busy}
-                  >
-                    <MoreHorizontal className="size-3.5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {/* A command's text is not a draft: edited, it would become a message. */}
-                  {card.command || !onEdit ? null : (
-                    <DropdownMenuItem disabled={editDisabled} onSelect={onEdit}>
-                      <Pencil />
-                      {translate(
-                        'components.native-chat.queuedMessages.editMessage',
-                        'Edit message'
-                      )}
-                    </DropdownMenuItem>
-                  )}
-                  {onTurnOffQueueing ? (
-                    <DropdownMenuItem onSelect={onTurnOffQueueing}>
-                      {translate(
-                        'components.native-chat.queuedMessages.turnOffQueueing',
-                        'Turn off queueing'
-                      )}
-                    </DropdownMenuItem>
-                  ) : null}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
+            <NativeChatQueuedMessageMenu
+              busy={busy}
+              command={card.command === true}
+              editDisabled={editDisabled}
+              onEdit={onEdit}
+              onMoveEarlier={onMoveEarlier}
+              onMoveLater={onMoveLater}
+            />
           </>
         )}
       </div>

@@ -24,7 +24,11 @@ export type AgentSessionQueuedMessagesResumeResult = {
   resumed: boolean
 }
 
-/** Publish whole card lists on history/subscribe; image cards require the reader's agent-session.queued-image-cards.v1 capability. */
+export type AgentSessionQueuedMessageMoveResult = { moved: boolean }
+
+/** One draft the host holds for this conversation, published whole-list on the
+ *  subscribe stream and on history pages. A card holding an image goes only to a reader that
+ *  advertises `agent-session.queued-image-cards.v1`. */
 export type AgentSessionQueuedMessage = {
   messageId: string
   position: number

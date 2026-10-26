@@ -29,4 +29,8 @@ describe('mobile RPC method routing census', () => {
   it('sends a targeted status to the server, whose features a server workspace gates on', () => {
     expect(MOBILE_RPC_METHOD_ROUTES.get('status.get')).toBe('execution-host')
   })
+
+  it('reads chat attachment bytes from the execution host that owns their store', () => {
+    expect(MOBILE_RPC_METHOD_ROUTES.get('agentSessionAttachment.read')).toBe('execution-host')
+  })
 })

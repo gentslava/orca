@@ -21,6 +21,7 @@ export type StructuredMobileSession = ReturnType<typeof useMobileStructuredAgent
   ReturnType<typeof useMobileStructuredAgentTurnTiming> & {
     session: MobileNativeChatSession
     isWorking: boolean
+    allowsWorkingPicks?: boolean
     turnId: string | null
     turnIndicator: NativeChatLiveTurnIndicator
     sendWithOutcome: (

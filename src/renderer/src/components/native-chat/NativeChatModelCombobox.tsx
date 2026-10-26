@@ -9,7 +9,10 @@ import {
   CommandList
 } from '@/components/ui/command'
 import { translate } from '@/i18n/i18n'
-import type { SessionOptionSelectChoice } from '../../../../shared/native-chat-session-options'
+import type {
+  SessionOptionDescriptor,
+  SessionOptionSelectChoice
+} from '../../../../shared/native-chat-session-options'
 import { nativeChatSessionChoiceLabel } from './native-chat-session-option-labels'
 import { NativeChatSessionOptionChoiceBody } from './NativeChatSessionOptionChoiceBody'
 import { NativeChatSessionOptionWriteGroup } from './NativeChatSessionOptionWriteGroup'
@@ -24,6 +27,8 @@ type NativeChatModelComboboxProps = {
   busy: boolean
   /** Called for a model other than the current one; the list stays as it is. */
   onSelect: (value: string) => void
+  defaultChoice?: SessionOptionDescriptor['defaultChoice']
+  onReset?: () => void
 }
 
 // Why not cmdk's scorer: it matches scattered letters and reorders the host's list.
@@ -39,7 +44,9 @@ export function NativeChatModelCombobox({
   readOnly,
   readOnlyReason,
   busy,
-  onSelect
+  onSelect,
+  defaultChoice,
+  onReset
 }: NativeChatModelComboboxProps): React.JSX.Element {
   const searchLabel = translate('components.native-chat.composer.searchModels', 'Search models…')
   const search = useRef<HTMLInputElement>(null)
@@ -73,9 +80,44 @@ export function NativeChatModelCombobox({
         </CommandEmpty>
         <NativeChatSessionOptionWriteGroup busy={busy}>
           <CommandGroup>
+            {defaultChoice && onReset ? (
+              <CommandItem
+                value="provider-default-action"
+                keywords={[
+                  translate('components.native-chat.composer.defaultModel', 'Default'),
+                  defaultChoice.model?.label ?? '',
+                  defaultChoice.model?.description ?? ''
+                ]}
+                selection="palette"
+                disabled={readOnly}
+                aria-current={defaultChoice.selected || undefined}
+                onSelect={() => {
+                  if (!defaultChoice.selected) {
+                    onReset()
+                  }
+                }}
+              >
+                <NativeChatSessionOptionChoiceBody
+                  label={translate('components.native-chat.composer.defaultModel', 'Default')}
+                  description={
+                    defaultChoice.model?.label ??
+                    translate(
+                      'components.native-chat.composer.defaultModelNotReported',
+                      'Default model not reported'
+                    )
+                  }
+                  detail={defaultChoice.model?.description}
+                />
+                <span className="ml-auto flex size-3.5 shrink-0 items-center justify-center">
+                  {defaultChoice.selected ? (
+                    <Check className="size-3.5 text-muted-foreground" />
+                  ) : null}
+                </span>
+              </CommandItem>
+            ) : null}
             {choices.map((choice) => {
               const label = nativeChatSessionChoiceLabel(choice)
-              const current = choice.value === currentValue
+              const current = !defaultChoice?.selected && choice.value === currentValue
               return (
                 <CommandItem
                   key={choice.value}

@@ -6,6 +6,10 @@ import { OrcaRuntimeService } from '../../runtime/orca-runtime'
 import { registerPtyHandlers } from './register-handlers'
 import { attachViewAfterHiddenStart } from './pane/attach-only-view'
 
+vi.mock('../../startup/login-shell-environment', () => ({
+  resolveLoginShellEnvironment: vi.fn(async () => ({}))
+}))
+
 vi.mock('electron', () => import('../pty-ipc-mock-registry').then((m) => m.electronModuleMock()))
 vi.mock('fs', () => import('../pty-ipc-mock-registry').then((m) => m.fsModuleMock()))
 vi.mock('node-pty', () => import('../pty-ipc-mock-registry').then((m) => m.nodePtyModuleMock()))

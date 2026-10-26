@@ -18,6 +18,7 @@ import { DEFAULT_APP_FONT_FAMILY } from '../../../../shared/constants'
 import {
   getLanguageEntries,
   getMenuBarIconEntries,
+  getHoldQuitEntries,
   getSystemTrayEntries,
   getThemeEntries,
   getTitlebarEntries,
@@ -62,6 +63,7 @@ export function AppearanceInterfaceSection({
   const zoomOutKeyCombos = useShortcutKeyComboDetails('zoom.out')
   const languageEntry = getLanguageEntries()[0]
   const menuBarIconEntry = getMenuBarIconEntries({ showMenuBarIcon: true })[0]
+  const holdQuitEntry = getHoldQuitEntries({ showHoldQuit: isDesktopMac })[0]
   const systemTrayEntry = getSystemTrayEntries({ showSystemTray: true })[0]
   const themeEntry = getThemeEntries()[0]
   const themeLabel = translate('auto.components.settings.AppearancePane.932ff1fbff', 'Theme')
@@ -71,7 +73,8 @@ export function AppearanceInterfaceSection({
   const advancedEntries = [
     ...getTitlebarEntries(),
     ...getSystemTrayEntries({ showSystemTray: isDesktopWindows }),
-    ...getMenuBarIconEntries({ showMenuBarIcon: isDesktopMac })
+    ...getMenuBarIconEntries({ showMenuBarIcon: isDesktopMac }),
+    ...getHoldQuitEntries({ showHoldQuit: isDesktopMac })
   ]
   const showAdvanced = !isSearching || matchesSettingsSearch(searchQuery, advancedEntries)
   const languageTitle = translate('settings.appearance.language.title', 'Language')
@@ -238,6 +241,21 @@ export function AppearanceInterfaceSection({
                   checked={settings.minimizeToTrayOnClose === true}
                   onChange={() =>
                     updateSettings({ minimizeToTrayOnClose: !settings.minimizeToTrayOnClose })
+                  }
+                />
+              </SearchableSetting>
+            ) : null}
+
+            {holdQuitEntry ? (
+              <SearchableSetting {...holdQuitEntry}>
+                <SettingsSwitchRow
+                  label={holdQuitEntry.title}
+                  description={holdQuitEntry.description}
+                  checked={settings.holdQuitWhileAgentsWork === true}
+                  onChange={() =>
+                    updateSettings({
+                      holdQuitWhileAgentsWork: settings.holdQuitWhileAgentsWork !== true
+                    })
                   }
                 />
               </SearchableSetting>

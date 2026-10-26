@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
+import { useStructuredAgentSessionHostMovesQueuedMessages } from '@/runtime/structured-agent-session-host-capability'
 import type { AgentJournalSubmission } from '../../../../shared/agent-session-journal-types'
 import { mapSettledWithConcurrency } from '../../../../shared/map-with-concurrency'
 import type {
   AgentSessionQueuedMessage,
   AgentSessionQueuedMessageDeleteResult,
+  AgentSessionQueuedMessageMoveResult,
   AgentSessionQueuedMessagesResumeResult,
   AgentSessionQueuePause,
   AgentSessionSendResult
@@ -51,6 +53,7 @@ export type StructuredAgentSessionQueuedMessagesController = {
   /** Send-now into the running turn; the transcript shows it at delivery position. */
   steer: (messageId: string) => Promise<void>
   remove: (messageId: string) => Promise<void>
+  reorder?: { moveBefore: (messageId: string, beforeMessageId: string | null) => Promise<void> }
   /** The host edits cards in place; without it a card offers no Edit. */
   editCapable: boolean
   editor: QueuedMessageInlineEditor | undefined
@@ -59,7 +62,8 @@ export type StructuredAgentSessionQueuedMessagesController = {
   steerNewest: () => boolean
 }
 
-export type QueuedMessagesPendingAction = 'send' | 'delete' | 'resume' | 'clear'
+/** Which control is on its way, so the button that was pressed is the one that spins. */
+export type QueuedMessagesPendingAction = 'send' | 'delete' | 'move' | 'resume' | 'clear'
 
 const NO_SENDS: readonly StructuredAgentSessionPendingSend[] = []
 const CLEAR_DELETE_CONCURRENCY = 8
@@ -92,6 +96,7 @@ export function useStructuredAgentSessionQueuedMessages(args: {
   const { composerScopeKey, enabled, hasPendingPrompt, mutate, queuedMessages, submissions } = args
   const { admit, capturePresentation, isWorking, queuePause } = args
   const sending = args.sending ?? NO_SENDS
+  const reorderCapable = useStructuredAgentSessionHostMovesQueuedMessages(args.editTransport.target)
 
   const cards = useMemo(
     () => [
@@ -182,6 +187,22 @@ export function useStructuredAgentSessionQueuedMessages(args: {
     promptOpen: hasPendingPrompt
   })
 
+  const moveBefore = useCallback(
+    async (messageId: string, beforeMessageId: string | null): Promise<void> => {
+      if (!reorderCapable) {
+        return
+      }
+      await run([QUEUE_KEY, ...cardsRef.current.map((card) => card.messageId)], 'move', () =>
+        mutate<AgentSessionQueuedMessageMoveResult>(
+          'agentSession.queuedMessageMove',
+          'agentSession.queuedMessageMove',
+          { messageId, beforeMessageId }
+        )
+      )
+    },
+    [reorderCapable, mutate, run]
+  )
+
   const steerNewest = useCallback((): boolean => {
     if (!enabled) {
       return false
@@ -270,6 +291,7 @@ export function useStructuredAgentSessionQueuedMessages(args: {
     pending: (messageId) => inFlight.get(messageId) ?? null,
     steer,
     remove,
+    ...(reorderCapable ? { reorder: { moveBefore } } : {}),
     edit: editing.begin,
     editCapable: editing.capable,
     editor: editing.editor,

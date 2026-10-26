@@ -78,6 +78,11 @@ vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
   MobileNativeChatMessageActionsSheet: 'MessageActionsSheet'
 }))
 
+import {
+  COMPACT_APPROVAL_CASES,
+  NON_COMPACT_APPROVAL_BLOCKS,
+  approvalReviewBlock
+} from '../../../src/shared/native-chat-activity.test-fixture'
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
 import { findAllByHostType, findByHostType } from '../test-support/react-test-renderer-host-nodes'
 
@@ -159,6 +164,50 @@ describe('MobileNativeChatMessage', () => {
 
   const words = (node: ReactTestInstance): string[] =>
     node.children.flatMap((child) => (typeof child === 'string' ? [child] : words(child)))
+
+  it.each([
+    ...COMPACT_APPROVAL_CASES,
+    { block: approvalReviewBlock(), label: 'Automatic approval granted' }
+  ])('discloses $label without showing the original rejection by default', ({ block, label }) => {
+    render({ id: 'denial', role: 'system', blocks: [block], timestamp: 0, source: 'transcript' })
+    const tree = renderer!
+    const texts = () => findAllByHostType(tree.root, 'Text').map((node) => node.children.join(''))
+    const trigger = findAllByHostType(tree.root, 'Pressable').find(
+      (node) => node.props.accessibilityState?.expanded !== undefined
+    )!
+    expect(texts()).toContain(label)
+    expect(texts()).not.toContain(block.text)
+    expect(trigger.props.accessibilityState.expanded).toBe(false)
+    expect(trigger.props['aria-expanded']).toBe(false)
+    act(() => trigger.props.onPress())
+    expect(texts()).toContain(block.text)
+    expect(texts()).toContain(block.providerFrame!.payload.head)
+    expect(trigger.props.accessibilityState.expanded).toBe(true)
+    expect(trigger.props['aria-expanded']).toBe(true)
+    act(() => trigger.props.onPress())
+    expect(texts()).not.toContain(block.text)
+    expect(trigger.props.accessibilityState.expanded).toBe(false)
+    expect(trigger.props['aria-expanded']).toBe(false)
+  })
+
+  it.each(NON_COMPACT_APPROVAL_BLOCKS)(
+    'keeps another error or interactive notice visible: $text',
+    (block) => {
+      render({
+        id: 'ordinary',
+        role: 'system',
+        blocks: [block],
+        timestamp: 0,
+        source: 'transcript'
+      })
+      expect(textIn(renderer!.root)).toContain(block.text)
+      expect(
+        findAllByHostType(renderer!.root, 'Pressable').filter(
+          (node) => node.props.accessibilityState?.expanded !== undefined
+        )
+      ).toHaveLength(0)
+    }
+  )
 
   it('draws an answered approval and question as their receipts', () => {
     const { messages, receipts } = structuredQuestionTranscript(ANSWERED_PROMPT_ITEMS)

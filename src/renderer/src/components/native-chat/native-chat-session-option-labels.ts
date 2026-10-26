@@ -90,13 +90,24 @@ export function nativeChatSessionOptionDisabledReason(
         'components.native-chat.composer.availableAfterSessionStarts',
         'Available after the session starts.'
       )
+    case 'host-update-required':
+      return translate(
+        'components.native-chat.composer.futureOptionsRequireUpdate',
+        'Update Orca on this host to change future-turn choices while the agent works.'
+      )
     case undefined:
       return null
   }
 }
 
 export function nativeChatModelPillLabel(descriptor: SessionOptionDescriptor): string {
-  // The tooltip names the category; default sources still identify a model, while unknown sources do not.
+  if (descriptor.defaultChoice?.selected) {
+    return translate('components.native-chat.composer.defaultModel', 'Default')
+  }
+  // Why: show the value only (Codex/Conductor style). "Model:" is redundant —
+  // the control's aria-label/tooltip already names the category.
+  // Only `unknown` withholds the value; a `default` source still names the model
+  // the launch will use, so it renders like any observed one.
   if (
     descriptor.valueSource === 'unknown' ||
     descriptor.kind.type !== 'select' ||
