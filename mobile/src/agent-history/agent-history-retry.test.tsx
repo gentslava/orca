@@ -394,3 +394,33 @@ it('never falls back to the paired host when the selected conversation server is
   expect(visibleHistoryIds(tree)).toEqual([])
   expect(local.sendRequest).not.toHaveBeenCalled()
 })
+
+it('ignores the hidden general-history search when opening a selected conversation', async () => {
+  const pair = createFakeBridgePortPair()
+  await pair.flush()
+  const client = historyClient([conversationSession('selected', '/notes')])
+  doubles.connection = { client, state: 'connected' }
+  const render = (conversationId?: string) => (
+    <RpcClientProvider client={pair.client}>
+      <MobileAgentSessionHistoryPanel
+        hostId="host-a"
+        worktreeId="folder:notes"
+        conversationId={conversationId}
+      />
+    </RpcClientProvider>
+  )
+  await act(async () => {
+    tree = create(render())
+  })
+  if (!tree) {
+    throw new Error('history did not mount')
+  }
+  const search = tree.root.findAll((node) => String(node.type) === 'TextInput')[0]
+  act(() => search?.props.onChangeText('unrelated search'))
+  expect(visibleHistoryIds(tree)).toEqual([])
+  await act(async () => tree?.update(render('selected')))
+  expect(tree.root.findAll((node) => String(node.type) === 'TextInput')).toHaveLength(0)
+  expect(visibleHistoryIds(tree)).toEqual(['selected'])
+  await act(async () => tree?.update(render()))
+  expect(visibleHistoryIds(tree)).toEqual([])
+})

@@ -66,6 +66,7 @@ function MobileAgentSessionHistoryPanelContent({
   const [worktrees, setWorktrees] = useState<Worktree[]>([])
   const [worktreesLoaded, setWorktreesLoaded] = useState(false)
   const [query, setQuery] = useState('')
+  const effectiveQuery = conversationId ? '' : query
   const [resumingSessionId, setResumingSessionId] = useState<string | null>(null)
   const [resumeMessage, setResumeMessage] = useState<string | null>(null)
   const now = useNow(30_000)
@@ -132,13 +133,13 @@ function MobileAgentSessionHistoryPanelContent({
   const sections = useMemo(
     () =>
       buildMobileAgentHistorySections(sessions, {
-        query,
+        query: effectiveQuery,
         scope: conversationId ? 'all' : scope,
         scopeFilterPaths,
         activeWorktreePath,
         now
       }),
-    [sessions, query, conversationId, scope, scopeFilterPaths, activeWorktreePath, now]
+    [sessions, effectiveQuery, conversationId, scope, scopeFilterPaths, activeWorktreePath, now]
   )
 
   const resumeHost = useMemo(
@@ -366,7 +367,9 @@ function MobileAgentSessionHistoryPanelContent({
             <View style={styles.state}>
               <Text style={styles.stateTitle}>No agent sessions</Text>
               <Text style={styles.stateText}>
-                {query ? 'No sessions match your search.' : 'No past agent sessions in this scope.'}
+                {effectiveQuery
+                  ? 'No sessions match your search.'
+                  : 'No past agent sessions in this scope.'}
               </Text>
             </View>
           ) : (
