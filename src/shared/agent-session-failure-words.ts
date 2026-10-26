@@ -17,6 +17,7 @@ import {
   type AgentSessionFailureCopyValues,
   type AgentSessionFailureSay
 } from './agent-session-failure-copy'
+import { AGENT_SESSION_GOAL_CONTROL_COPY } from './agent-session-goal-control-copy'
 import { START_REFUSAL_RESUMABLE } from './agent-session-start-refusal-resumable'
 import { providerRetryWords, withRetryCause } from './agent-session-provider-retry-words'
 import {
@@ -24,7 +25,7 @@ import {
   type AgentSessionUsageLimitResetWords
 } from './agent-session-usage-limit-words'
 import { commandRefusedByReason } from './agent-session-command-refusal-words'
-import { attachmentProblemSentence } from './agent-session-attachment-failure-words'
+import { agent, attachmentProblemSentence } from './agent-session-attachment-failure-words'
 import { joinSentences } from './sentence-joining'
 import { requestTimeoutSeconds } from './agent-session-request-timeout'
 import {
@@ -56,6 +57,7 @@ export type AgentSessionFailureSurface = 'row' | 'rejection' | 'answer'
 export type AgentSessionFailureWordsContext = {
   /** The chat's agent, when the writer knows it. */
   agentName?: string
+  stopNotice?: 'pauseUnconfirmed' | 'stopUnconfirmed'
   /** Names the legacy queue-full marker; without it a full queue is worded as a sentence. */
   provider?: 'claude' | 'codex'
   /** Retry the failed start's conversation command instead of sending a message. */
@@ -77,10 +79,6 @@ type Sentence = (
   surface: AgentSessionFailureSurface,
   say: AgentSessionFailureSay
 ) => string
-
-function agent(say: AgentSessionFailureSay, { agentName }: AgentSessionFailureWordsContext) {
-  return { agent: agentName ?? say('theAgent') }
-}
 
 function namingAgent(id: AgentSessionFailureCopyId): Sentence {
   return (context, _fact, _surface, say) => say(id, agent(say, context))
@@ -188,6 +186,8 @@ const FAILURE_SENTENCES = {
   claudeAccountSetupFailed: (_context, _fact, _surface, say) => say('claudeAccountSetupFailed'),
   agentCommandNotRunnable: namingAgent('agentCommandNotRunnable'),
   runtimeNotInstalled: namingAgent('runtimeNotInstalled'),
+  conversationOpenInTerminal: namingAgent('conversationOpenInTerminal'),
+  conversationOpenElsewhere: (_context, _fact, _surface, say) => say('conversationOpenElsewhere'),
   managedAccountUnsupported: (context, _fact, _surface, say) =>
     joinSentences([
       say('managedAccountUnsupported'),
@@ -235,7 +235,8 @@ const FAILURE_SENTENCES = {
   compactionFailed: (_context, fact, _surface, say) =>
     quotingPersonDetail(say, 'compactionFailed', 'compactionFailedQuoted', fact.detail),
   compactionUnconfirmed: (_context, _fact, _surface, say) => say('compactionUnconfirmed'),
-  cancelUnconfirmed: (_context, _fact, _surface, say) => say('cancelUnconfirmed'),
+  cancelUnconfirmed: ({ stopNotice }, _fact, _surface, say) =>
+    stopNotice ? AGENT_SESSION_GOAL_CONTROL_COPY[stopNotice] : say('cancelUnconfirmed'),
   // The agent was reached and declined, so the sentence says that, not that the Stop was lost.
   stopRefused: (context, fact, _surface, say) =>
     fact.detail?.audience === 'person'
@@ -272,8 +273,7 @@ const FAILURE_SENTENCES = {
       : providerRetryWords(say, agent(say, context), retry),
   usageLimitReached: (context, { usageLimit }, _surface, say) =>
     usageLimitWords(say, agent(say, context), usageLimit, {
-      resetWords: context.usageLimitReset,
-      continueControl: context.retryControl
+      resetWords: context.usageLimitReset
     }),
   previousExitUnverifiable: namingAgent('previousExitUnverifiable'),
   sessionNotRestored: namingAgent('sessionNotRestored')

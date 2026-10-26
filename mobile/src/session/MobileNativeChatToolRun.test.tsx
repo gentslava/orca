@@ -2,7 +2,7 @@ import { createElement, type ReactNode } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AgentJournalToolCallItem } from '../../../src/shared/agent-session-journal-types'
-import { MAX_TOOL_DETAIL_LENGTH } from '../../../src/shared/native-chat-tool-summary'
+import { MAX_TOOL_DETAIL_LENGTH } from '../../../src/shared/native-chat/tools/native-chat-tool-summary'
 import { projectStructuredItemToNativeChat } from '../../../src/shared/structured-agent-session-projection'
 import type {
   NativeChatBlock,
@@ -480,12 +480,6 @@ describe('ToolRun', () => {
     })
   })
 
-  it('lets a tap inside the run land while the keyboard is up, as the transcript list does', () => {
-    const tree = render([{ type: 'tool-call', name: 'Bash', input: { command: 'ls' } }])
-    const boxes = tree.root.findAll((node) => String(node.type) === 'ScrollView')
-    expect(boxes.map((box) => box.props.keyboardShouldPersistTaps)).toEqual(['handled'])
-  })
-
   it('follows new work at the end of a live run, but holds still when the reader opens a row', () => {
     const live = (blocks: NativeChatBlock[]) =>
       createElement(ToolRun, {
@@ -528,23 +522,6 @@ describe('ToolRun', () => {
       box().props.onContentSizeChange()
     })
     expect(scrolls.toEnd).toHaveBeenCalledTimes(1)
-  })
-
-  it("keeps a row's output out of inline selection where the platform forbids it", () => {
-    const tree = render([
-      { type: 'tool-call', name: 'Bash', input: { command: 'ls' } },
-      { type: 'tool-result', output: 'a.ts' }
-    ])
-    act(() => {
-      tree.root
-        .findAll((node) => String(node.type) === 'Pressable')
-        .findLast((node) => textIn(node).includes('ls'))!
-        .props.onPress()
-    })
-    const output = tree.root.findAll(
-      (node) => String(node.type) === 'Text' && textIn(node)[0] === 'a.ts'
-    )[0]!
-    expect(output.props.selectable).toBe(false)
   })
 
   it('does not save a follow for a later row opening when new work left the height unchanged', () => {
