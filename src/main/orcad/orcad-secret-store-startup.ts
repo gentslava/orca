@@ -6,7 +6,7 @@ export async function prepareOrcadSecretStoreAndMigrate(userDataPath: string): P
   const { reportSecretProtectionGap } = await import('../host/secret-protection-report')
   const { migratePlaintextCredentials, orcadCredentialRoot } =
     await import('./orcad-plaintext-credential-migration')
-  // Why the credential root, not userData: a disposable ORCA_USER_DATA would take the key with it.
+  // Keep sealing keys outside disposable ORCA_USER_DATA roots.
   if (await prepareOrcadSecretStore(orcadCredentialRoot(), userDataPath)) {
     migratePlaintextCredentials(getSecretStore())
   }

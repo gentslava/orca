@@ -1,3 +1,4 @@
+import { AgentSessionAssociationObservation } from '../../../../shared/agent-session-status-snapshot-fold'
 // @vitest-environment happy-dom
 
 import { act, cleanup, render } from '@testing-library/react'
@@ -22,6 +23,7 @@ const feeds = vi.hoisted(
       string,
       {
         snapshot: ReadonlyMap<string, AgentSessionStatusSummary>
+        associations: AgentSessionAssociationObservation
         listeners: Set<() => void>
         activate: ReturnType<typeof vi.fn>
       }
@@ -33,13 +35,19 @@ vi.mock('@/runtime/structured-agent-session-status-feed', () => ({
     const key = target.kind === 'local' ? 'local' : `runtime:${target.environmentId}`
     let feed = feeds.get(key)
     if (!feed) {
-      feed = { snapshot: new Map(), listeners: new Set(), activate: vi.fn(() => () => {}) }
+      feed = {
+        snapshot: new Map(),
+        associations: new AgentSessionAssociationObservation(),
+        listeners: new Set(),
+        activate: vi.fn(() => () => {})
+      }
       feeds.set(key, feed)
     }
     const owner = feed
     return {
       activate: owner.activate,
       getSnapshot: () => owner.snapshot,
+      getAssociationRevision: () => owner.associations.revision,
       subscribe: (listener: () => void) => {
         owner.listeners.add(listener)
         return () => owner.listeners.delete(listener)
@@ -107,6 +115,7 @@ async function publish(
       ...overrides
     }
     feed.snapshot = new Map([[summary.sessionId, summary]])
+    feed.associations.observe({ type: 'status', session: summary })
     for (const listener of feed.listeners) {
       listener()
     }

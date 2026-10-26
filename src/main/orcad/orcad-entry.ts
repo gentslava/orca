@@ -1,15 +1,4 @@
-/**
- * `orcad` — the Orca runtime served without Electron.
- *
- * Installs the Node host adapters, constructs the same `OrcaRuntimeService` the
- * desktop uses, installs a PTY controller via `registerHeadlessPtyRuntime`, and
- * serves runtime RPC. See docs/design/node-only-runtime-backend.html.
- *
- * Desktop UI surfaces stay uninstalled: no native notifications or renderer delivery.
- * Browser automation is installed through
- * the runtime factory, but only when an Electron serve sidecar or an operator-supplied
- * Chromium proves available at startup.
- */
+// Compose the Node-host runtime; paired desktop pages work even without a local browser engine.
 import process from 'node:process'
 import { getAppEnvironment } from '../../shared/app-environment'
 import { resolveOrcadInstallRoot, resolveUserDataPath } from './orcad-app-paths'
@@ -20,6 +9,7 @@ import {
   flushOrcadProfileStoreForShutdown,
   installOrcadShutdownSignals,
   startOrcadWithHost,
+  stopOrcadStructuredAgentSessions,
   type OrcadShutdownTrigger
 } from './orcad-lifecycle'
 import { ORCAD_USAGE, parseArgs, resolveOrcadWebClientRoot } from './orcad-command-arguments'
@@ -122,13 +112,10 @@ async function startOrcadRuntime(
   registerCleanup(async () => {
     // A SQLite-backed orcad has no JSON mirror to absorb a debounced write after SIGTERM.
     if (profileStoreForShutdown) {
-      const paneGrids = paneGridsForShutdown?.flushPaneGrids()
-      if (paneGrids) {
-        await paneGrids
-      }
-      await flushOrcadProfileStoreForShutdown(profileStoreForShutdown)
+      await flushOrcadProfileStoreForShutdown(profileStoreForShutdown, paneGridsForShutdown)
     }
   })
+  registerCleanup(stopOrcadStructuredAgentSessions)
   registerCleanup(() => disposeWatcherProcessAndWait())
   const { DesktopPushService } = await import('../runtime/push/desktop-push-service')
   const { resolvePushGatewayOrigin } = await import('../runtime/push/push-gateway-origin')
@@ -219,6 +206,8 @@ async function startOrcadRuntime(
   paneGridsForShutdown = runtime
 
   accountLaunch?.attachToRuntime(runtime)
+  const { installOrcadEmulatorBridge } = await import('./orcad-emulator-bridge')
+  installOrcadEmulatorBridge(runtime, registerCleanup)
 
   const { startOrcadUsageHistory } = await import('./orcad-usage-history')
   startOrcadUsageHistory(runtimeUserDataPath, profileStore, runtime.usageHistory, registerCleanup)
@@ -335,6 +324,8 @@ async function startOrcadRuntime(
     agentStates: () => agentHookServer.getStatusSnapshot(),
     hasStagedMigration: () => profileStore.hasStagedOrcadMigrationCatalog(),
     automationsBusy: () => orcadAutomationsKeepHostBusy(profileStore),
+    emulatorsBusy: async () =>
+      (await runtime.getEmulatorBridge()?.hasLiveManagedSessions()) ?? false,
     registerCleanup
   })
   return { readiness }
