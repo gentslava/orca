@@ -341,7 +341,9 @@
       "holdQuit": {
         "title": "Hold ⌘Q while agents are working",
         "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
-        "keyword": { "quit": "quit" }
+        "keyword": {
+          "quit": "quit"
+        }
       },
       "language": {
         "title": "Language",
@@ -607,7 +609,12 @@
           "effort": "effort",
           "fast": "fast",
           "provider": "provider"
-        }
+        },
+        "modelsUnavailable": "No models reported by this host.",
+        "unavailable": "Unavailable",
+        "notListed": "Not listed",
+        "checking": "Checking…",
+        "refreshingModels": "Refreshing models…"
       }
     }
   },
@@ -19293,7 +19300,8 @@
         "autoApprovalDenied": "Automatic approval denied",
         "autoApprovalTimedOut": "Automatic approval timed out",
         "safetyCheckDenied": "Permission denied by safety check",
-        "orchestrationMail": "Orchestration mail"
+        "orchestrationMail": "Orchestration mail",
+        "agentError": "Agent reported an error"
       },
       "composer": {
         "defaultModel": "Default",
@@ -19408,7 +19416,9 @@
         "optionValueShort": {
           "minimal": "Min",
           "medium": "Med",
-          "xhigh": "XHigh"
+          "xhigh": "XHigh",
+          "max": "Max",
+          "ultra": "Ultra"
         },
         "imageUnavailable": "Preview unavailable",
         "queueDraft": "Queue",
@@ -21971,5 +21981,30 @@
   },
   "documentLinks": {
     "keyboardHint": "↑↓ navigate  ↵ select  esc dismiss"
+  },
+  "projectConversations": {
+    "saveFailed": "Could not save chat preferences. Update Orca or try again.",
+    "unpin": "Unpin chat",
+    "pin": "Pin chat",
+    "restore": "Restore chat",
+    "archive": "Archive chat",
+    "working": "Working",
+    "needsYou": "Needs you",
+    "unpinProject": "Unpin project",
+    "pinProject": "Pin project",
+    "showMore": "Show more",
+    "newChatInProject": "New chat in {{project}}",
+    "projectOrder": "Project order",
+    "allChats": "Chats",
+    "archived": "Archived",
+    "projectOptions": "Project options",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "noChats": "No chats yet",
+    "loading": "Loading chats…",
+    "noArchived": "No archived chats",
+    "noMatching": "No matching chats",
+    "search": "Search chats",
+    "untitled": "Untitled chat"
   }
 }

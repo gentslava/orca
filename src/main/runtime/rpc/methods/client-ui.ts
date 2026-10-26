@@ -1,4 +1,8 @@
 import {
+  SetConversationPreferenceParams,
+  updateConversationPreference
+} from '../../../../shared/conversation-navigation-preferences'
+import {
   RecordProjectOpenParams,
   SetProjectPinnedParams
 } from '../../../../shared/rpc-contract/personal-project-order-params'
@@ -48,6 +52,19 @@ function uiForCaller(
 }
 
 export const CLIENT_UI_METHODS = [
+  defineMethod({
+    name: 'ui.setConversationPreference',
+    permission: 'workspace',
+    params: SetConversationPreferenceParams,
+    handler: (params, { runtime }) => ({
+      preferences: runtime.updateUIState({
+        conversationPreferences: updateConversationPreference(
+          runtime.getUIState().conversationPreferences,
+          params
+        )
+      }).conversationPreferences
+    })
+  }),
   defineMethod({
     name: 'ui.recordProjectOpen',
     permission: 'workspace',

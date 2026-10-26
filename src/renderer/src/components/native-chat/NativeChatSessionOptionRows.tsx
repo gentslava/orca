@@ -1,6 +1,7 @@
-import { useId, useLayoutEffect, useRef } from 'react'
+import { useId, useLayoutEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
+import { Slider } from '@/components/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { sortNativeChatSessionOptions } from '../../../../shared/native-chat-session-option-snapshot'
@@ -75,6 +76,75 @@ function LevelSegment(props: {
   )
 }
 
+function EffortSlider({
+  descriptor,
+  gone,
+  disabled,
+  onSet
+}: {
+  descriptor: SessionOptionDescriptor & { kind: { type: 'select' } }
+  gone: boolean
+  disabled: boolean
+  onSet: (value: SessionOptionValue) => void
+}): React.JSX.Element {
+  const { kind } = descriptor
+  const [draft, setDraft] = useState<{ source: typeof kind; index: number } | null>(null)
+  const currentIndex = gone
+    ? -1
+    : kind.choices.findIndex((choice) => choice.value === kind.currentValue)
+  const index = draft?.source === kind ? draft.index : currentIndex
+  const choice = index < 0 ? undefined : kind.choices[index]
+  const label = nativeChatSessionOptionLabel(descriptor)
+  const valueLabel = choice ? nativeChatSessionChoiceLabel(choice, descriptor.id) : '—'
+  const shortValueLabel = choice ? nativeChatSessionChoiceShortLabel(choice, descriptor.id) : '—'
+  return (
+    <div className="space-y-2 px-2 py-1.5">
+      <div className="flex min-w-0 items-baseline justify-between gap-3 text-xs">
+        <span className="whitespace-nowrap text-muted-foreground">{label}</span>
+        {choice && !gone ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            disabled={disabled}
+            className="min-w-0"
+            onClick={() => onSet(choice.value)}
+          >
+            <span className="truncate" title={valueLabel}>
+              {shortValueLabel}
+            </span>
+          </Button>
+        ) : (
+          <span className="text-foreground">—</span>
+        )}
+      </div>
+      <Slider
+        min={0}
+        max={kind.choices.length - 1}
+        step={1}
+        value={[Math.max(index, 0)]}
+        disabled={disabled}
+        thumbLabels={[label]}
+        thumbValueLabels={[
+          [gone ? '—' : valueLabel, choice?.description].filter(Boolean).join(' · ')
+        ]}
+        onValueChange={([nextIndex]) => {
+          if (nextIndex !== undefined) {
+            setDraft({ source: kind, index: nextIndex })
+          }
+        }}
+        onValueCommit={([nextIndex]) => {
+          setDraft(null)
+          const next = nextIndex === undefined ? undefined : kind.choices[nextIndex]
+          if (next) {
+            onSet(next.value)
+          }
+        }}
+      />
+    </div>
+  )
+}
+
 function OptionRow(props: {
   descriptor: SessionOptionDescriptor
   /** Kept from an earlier model in this visit; the current one does not offer it. */
@@ -135,6 +205,20 @@ function OptionRow(props: {
           </span>
         )}
       </div>
+    )
+  }
+  if (
+    descriptor.id === 'effort' &&
+    descriptor.kind.choices.length > 1 &&
+    (gone || descriptor.kind.choices.some((choice) => choice.value === current))
+  ) {
+    return (
+      <EffortSlider
+        descriptor={{ ...descriptor, kind: descriptor.kind }}
+        gone={gone}
+        disabled={off}
+        onSet={onSet}
+      />
     )
   }
   return (

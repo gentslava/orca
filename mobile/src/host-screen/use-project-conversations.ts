@@ -132,7 +132,10 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
               next.history.push(
                 ...history.sessions.map((session) => ({
                   ...session,
-                  executionHostId: sourceHost === 'local' ? session.executionHostId : sourceHost
+                  executionHostId:
+                    sourceHost !== 'local' && session.executionHostId === 'local'
+                      ? sourceHost
+                      : session.executionHostId
                 }))
               )
             } catch {

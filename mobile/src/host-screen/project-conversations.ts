@@ -1,65 +1,29 @@
-import { z } from 'zod'
-import { isPathInsideOrEqual } from '../../../src/shared/cross-platform-path'
 import {
-  getRepoExecutionHostId,
-  normalizeExecutionHostId,
-  type ExecutionHostId
-} from '../../../src/shared/execution-host'
+  conversationPreferenceKey,
+  type ConversationPreferences
+} from '../../../src/shared/conversation-navigation-preferences'
+import {
+  projectConversationTitle,
+  isGenericConversationTitle
+} from '../../../src/shared/project-conversation-list'
+import type { ProjectPreference } from '../../../src/shared/personal-project-order'
+import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
+import {
+  buildProjectGroupingIndex,
+  getProjectGroupingForRepo
+} from '../../../src/shared/project-section-grouping'
+import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
+import { isPathInsideOrEqual } from '../../../src/shared/cross-platform-path'
+import { getRepoExecutionHostId, type ExecutionHostId } from '../../../src/shared/execution-host'
 import { structuredAgentSessionPaneKey } from '../../../src/shared/structured-agent-session-projection'
 import { agentDotState, agentRowTimeAt, type AgentDotState } from '../worktree/agent-row-display'
 import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
+import { orderProjectConversations } from './project-conversation-order'
 import type { SectionRepo, Worktree } from '../worktree/workspace-list-types'
 
-const historySchema = z.looseObject({
-  id: z.string(),
-  executionHostId: z.string().transform((value) => normalizeExecutionHostId(value)),
-  sessionId: z.string(),
-  agent: z.string(),
-  title: z.string(),
-  cwd: z.string().nullable(),
-  updatedAt: z.string().nullable(),
-  modifiedAt: z.string(),
-  model: z.string().nullable().optional(),
-  subagent: z.unknown().optional(),
-  structuredSession: z.object({ sessionId: z.string(), workspaceId: z.string() }).optional()
-})
-export type ConversationHistory = z.infer<typeof historySchema>
-const historyListSchema = z.object({
-  sessions: z.array(historySchema),
-  includesStructuredSessions: z.literal(true).optional()
-})
-export function readConversationHistory(value: unknown) {
-  return historyListSchema.parse(value)
-}
-
-const tabSchema = z.object({
-  type: z.enum(['terminal', 'agent-session']),
-  id: z.string(),
-  title: z.string(),
-  sessionId: z.string().optional(),
-  agent: z.string().optional(),
-  terminal: z.string().nullable().optional(),
-  launchAgent: z.string().optional(),
-  parentTabId: z.string().optional(),
-  leafId: z.string().optional(),
-  agentStatus: z
-    .object({
-      agentType: z.string().nullable().optional(),
-      sessionId: z.string().nullable().optional()
-    })
-    .nullable()
-    .optional()
-})
-export type ConversationTab = z.infer<typeof tabSchema>
-export function readConversationTabs(value: unknown): ConversationTab[] {
-  return z
-    .object({ tabs: z.array(z.unknown()) })
-    .parse(value)
-    .tabs.flatMap((tab) => {
-      const parsed = tabSchema.safeParse(tab)
-      return parsed.success ? [parsed.data] : []
-    })
-}
+export { readConversationHistory, readConversationTabs } from './conversation-records'
+export type { ConversationHistory, ConversationTab } from './conversation-records'
+import type { ConversationHistory, ConversationTab } from './conversation-records'
 
 export type ConversationRow = {
   key: string
@@ -69,6 +33,7 @@ export type ConversationRow = {
   at: number
   workspace: Worktree
   paneKey?: string
+  preferenceKey?: string
   history?: ConversationHistory
 }
 export type ConversationProject = {
@@ -77,6 +42,8 @@ export type ConversationProject = {
   hostId: ExecutionHostId
   hostLabel?: string
   hostHealthLabel?: string
+  repo?: SectionRepo
+  projectPreference?: ProjectPreference
   workspaces: Worktree[]
   data: ConversationRow[]
 }
@@ -92,6 +59,7 @@ export function conversationTitle(
       .find(
         (value) =>
           value &&
+          !isGenericConversationTitle(value) &&
           value !== workspace.branch &&
           value !== workspace.path &&
           value !== workspace.displayName
@@ -115,14 +83,42 @@ export function buildProjectConversations(args: {
   now: number
   untitled: string
   query?: string
+  projectCatalog?: ProjectSectionCatalog
+  preferences?: ConversationPreferences
+  archived?: boolean
 }): ConversationProject[] {
   const projects = new Map<string, ConversationProject>()
   const hostOf = (workspace: Worktree) => workspace.hostId ?? workspace.hostContextHostId ?? 'local'
-  const projectKey = (hostId: ExecutionHostId, repoId: string) => `${hostId}\0${repoId}`
-  for (const repo of args.repos) {
+  const catalog = args.projectCatalog
+  const repos = catalog?.repos ?? args.repos
+  const repoMap = new Map(repos.map((repo) => [repo.id, repo]))
+  const projectIndex = buildProjectGroupingIndex(catalog?.grouping ?? undefined)
+  const groupingFor = (hostId: ExecutionHostId, repoId: string) => {
+    const repo = repos.find((repo) => repo.id === repoId && getRepoExecutionHostId(repo) === hostId)
+    return getProjectGroupingForRepo(repoId, repoMap, projectIndex, repo)
+  }
+  const projectKey = (hostId: ExecutionHostId, repoId: string) =>
+    `${hostId}\0${groupingFor(hostId, repoId).key}`
+  for (const repo of repos) {
     const hostId = getRepoExecutionHostId(repo)
     const key = projectKey(hostId, repo.id)
-    projects.set(key, { key, title: repo.displayName, hostId, workspaces: [], data: [] })
+    if (projects.has(key)) {
+      continue
+    }
+    const preferenceKey = catalog?.grouping
+      ? resolveProjectPreferenceKey(repo.id, catalog.grouping.projectHostSetups, hostId)
+      : null
+    projects.set(key, {
+      key,
+      title: groupingFor(hostId, repo.id).label,
+      hostId,
+      repo,
+      projectPreference: preferenceKey
+        ? (catalog?.grouping?.personalProjectOrder?.projects[preferenceKey] ?? {})
+        : undefined,
+      workspaces: [],
+      data: []
+    })
   }
   for (const workspace of args.workspaces) {
     const hostId = hostOf(workspace)
@@ -154,10 +150,20 @@ export function buildProjectConversations(args: {
         continue
       }
       used.add(paneKey)
+      const saved = args.history.find(
+        (session) =>
+          session.executionHostId === hostId &&
+          (tab.sessionId
+            ? session.structuredSession?.sessionId === tab.sessionId
+            : session.sessionId === tab.agentStatus?.sessionId)
+      )
+      if (saved?.conversationContent === 'empty') {
+        continue
+      }
       project.data.push({
         key: `${key}\0${workspace.worktreeId}\0${tab.sessionId ?? paneKey}`,
         title: conversationTitle(
-          [agent?.taskTitle, agent?.prompt, tab.title],
+          [agent?.taskTitle, agent?.prompt, saved ? projectConversationTitle(saved) : tab.title],
           workspace,
           args.untitled
         ),
@@ -166,15 +172,17 @@ export function buildProjectConversations(args: {
         at: agent ? agentRowTimeAt(agent) : 0,
         workspace,
         paneKey,
-        ...(tab.sessionId
-          ? {
-              history: args.history.find(
-                (session) =>
-                  session.executionHostId === hostId &&
-                  session.structuredSession?.sessionId === tab.sessionId
-              )
-            }
-          : {})
+        history: saved,
+        preferenceKey: saved
+          ? conversationPreferenceKey({ ...saved, executionHostId: hostId })
+          : tab.sessionId
+            ? conversationPreferenceKey({
+                executionHostId: hostId,
+                agent: agentType ?? '',
+                sessionId: tab.sessionId,
+                structuredSession: { sessionId: tab.sessionId, workspaceId: workspace.worktreeId }
+              })
+            : undefined
       })
     }
     for (const agent of agents) {
@@ -193,7 +201,7 @@ export function buildProjectConversations(args: {
     }
   }
   for (const session of args.history) {
-    if (!session.executionHostId || session.subagent) {
+    if (!session.executionHostId || session.subagent || session.conversationContent === 'empty') {
       continue
     }
     const workspace = args.workspaces
@@ -224,28 +232,17 @@ export function buildProjectConversations(args: {
     }
     project.data.push({
       key,
-      title: conversationTitle([session.title], workspace, args.untitled),
+      title: conversationTitle([projectConversationTitle(session)], workspace, args.untitled),
       agent: session.agent,
       status: sessionId ? 'saved' : 'transcript',
       at: Date.parse(session.updatedAt ?? session.modifiedAt) || 0,
       workspace,
-      history: session
+      history: session,
+      preferenceKey: conversationPreferenceKey({
+        ...session,
+        executionHostId: session.executionHostId
+      })
     })
   }
-  const query = args.query?.trim().toLocaleLowerCase()
-  return [...projects.values()]
-    .map((project) => ({
-      ...project,
-      data: project.data
-        .sort((a, b) => b.at - a.at)
-        .filter(
-          (row) =>
-            !query ||
-            `${project.title} ${row.title} ${row.agent ?? ''}`.toLocaleLowerCase().includes(query)
-        )
-    }))
-    .filter(
-      (project) =>
-        !query || project.data.length > 0 || project.title.toLocaleLowerCase().includes(query)
-    )
+  return orderProjectConversations(projects.values(), args)
 }

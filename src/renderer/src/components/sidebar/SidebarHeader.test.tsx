@@ -141,20 +141,24 @@ describe('SidebarHeader', () => {
     expect(container.querySelector('button')?.textContent).not.toContain('Projects')
   })
   it.each([
-    { groupBy: 'repo', label: 'Projects' },
-    { groupBy: 'workspace-status', label: 'Workspaces' }
-  ])('names the workspace view choice $label for $groupBy grouping', async ({ groupBy, label }) => {
-    mockState.groupBy = groupBy
-    act(() => root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />))
-    const trigger = container.querySelector<HTMLButtonElement>('[data-sidebar-section-title]')
-    if (!trigger) {
-      throw new Error('Sidebar view chooser not rendered')
+    { groupBy: 'repo', label: 'Projects', body: 'conversations' },
+    { groupBy: 'workspace-status', label: 'Projects', body: 'conversations' },
+    { groupBy: 'repo', label: 'Workspaces', body: 'workspaces' }
+  ])(
+    'names the workspace view choice $label for $groupBy grouping',
+    async ({ groupBy, label, body }) => {
+      mockState.groupBy = groupBy
+      act(() => root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />))
+      const trigger = container.querySelector<HTMLButtonElement>('[data-sidebar-section-title]')
+      if (!trigger) {
+        throw new Error('Sidebar view chooser not rendered')
+      }
+      await act(async () => fireEvent.keyDown(trigger, { key: 'ArrowDown' }))
+      const choice = screen.getByRole('menuitem', { name: label })
+      await act(async () => fireEvent.click(choice))
+      expect(mockState.setSidebarBody).toHaveBeenCalledWith(body)
     }
-    await act(async () => fireEvent.keyDown(trigger, { key: 'ArrowDown' }))
-    const choice = screen.getByRole('menuitem', { name: label })
-    await act(async () => fireEvent.click(choice))
-    expect(mockState.setSidebarBody).toHaveBeenCalledWith('workspaces')
-  })
+  )
 
   it.each(['workspaces', 'agents'] as const)(
     'prioritizes questions, then working, and shows idle zero in the %s view',
@@ -316,21 +320,16 @@ describe('SidebarHeader', () => {
     expect(mockState.setSidebarBody).toHaveBeenCalledWith('conversations')
   })
 
-  it('uses the legacy title based on workspace grouping', () => {
-    act(() => {
-      root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />)
-    })
-
-    expect(container.querySelector('[data-sidebar-section-title="projects"]')?.textContent).toBe(
-      'Projects'
-    )
-
-    mockState.groupBy = 'workspace-status'
-    act(() => {
-      root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />)
-    })
+  it('keeps Projects and Workspaces distinct regardless of branch grouping', () => {
+    act(() => root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />))
     expect(container.querySelector('[data-sidebar-section-title="workspaces"]')?.textContent).toBe(
       'Workspaces'
+    )
+    mockState.groupBy = 'workspace-status'
+    mockState.sidebarBody = 'conversations'
+    act(() => root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />))
+    expect(container.querySelector('[data-sidebar-section-title="projects"]')?.textContent).toBe(
+      'Projects'
     )
   })
 

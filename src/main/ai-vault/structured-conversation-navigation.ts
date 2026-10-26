@@ -2,6 +2,8 @@ import type { AgentSessionRecord } from '../../shared/agent-session-record'
 import { defaultAgentChatLabel } from '../../shared/agent-session/agent-session-chat-label'
 import {
   isAiVaultAgent,
+  isAiVaultSessionResumableContent,
+  aiVaultSessionRecoverableSignalCount,
   type AiVaultListArgs,
   type AiVaultListResult,
   type AiVaultSession
@@ -18,6 +20,10 @@ import {
 } from '../../shared/ai-vault-session-depth'
 import { conditionalAiVaultListResult } from './session-list-fingerprint'
 import { clearedInto } from '../runtime/orchestration/structured-session-lineage'
+import { isGenericConversationTitle } from '../../shared/project-conversation-list'
+import { conversationNameSeed } from '../../shared/conversation-name-generation'
+import type { JournalHostDatabase } from '../native-chat/agent-session-journal/journal-host-database'
+import { structuredConversationJournalPreview } from './structured-conversation-journal-preview'
 
 export function boundedAiVaultConversationList(
   result: AiVaultListResult,
@@ -34,7 +40,8 @@ export function projectDurableAiVaultConversations(
   result: AiVaultListResult,
   records: readonly AgentSessionRecord[],
   opensChat: StructuredChatOpener,
-  childSessionIds: ReadonlySet<string> = new Set()
+  childSessionIds: ReadonlySet<string> = new Set(),
+  journalDatabase?: JournalHostDatabase
 ): AiVaultListResult {
   const excluded = new Set(childSessionIds)
   const recordsById = new Map(records.map((record) => [record.sessionId, record]))
@@ -75,6 +82,30 @@ export function projectDurableAiVaultConversations(
       continue
     }
     const previous = bySessionId.get(record.sessionId)
+    const providerHasContent =
+      previous &&
+      (isAiVaultSessionResumableContent(previous) ||
+        aiVaultSessionRecoverableSignalCount(previous) > 0 ||
+        previous.firstUserPrompt?.trim() ||
+        previous.lastUserPrompt?.trim())
+    const preview = providerHasContent
+      ? { conversationContent: 'present' as const }
+      : !previous ||
+          previous.source === 'structured-record' ||
+          isGenericConversationTitle(previous.title)
+        ? structuredConversationJournalPreview(journalDatabase, record)
+        : { conversationContent: 'unknown' as const }
+    const firstUserPrompt =
+      previous?.firstUserPrompt?.trim() ||
+      ('firstUserPrompt' in preview ? preview.firstUserPrompt : undefined)
+    const recordTitle = record.conversationName?.trim()
+    const providerTitle = previous?.title.trim()
+    const title =
+      [recordTitle, providerTitle].find((value) => value && !isGenericConversationTitle(value)) ||
+      conversationNameSeed(firstUserPrompt ?? '') ||
+      recordTitle ||
+      providerTitle ||
+      defaultAgentChatLabel(registration.definition.agent)
     const createdAt = new Date(record.createdAt).toISOString()
     const updatedAt = new Date(
       Math.max(record.updatedAt, previous ? rowTime(previous) : 0)
@@ -102,7 +133,14 @@ export function projectDurableAiVaultConversations(
         resumeCommand: '',
         subagent: null
       }),
-      title: record.conversationName ?? defaultAgentChatLabel(registration.definition.agent),
+      title,
+      conversationContent:
+        previous &&
+        previous.source !== 'structured-record' &&
+        preview.conversationContent === 'empty'
+          ? 'unknown'
+          : preview.conversationContent,
+      ...(firstUserPrompt ? { firstUserPrompt } : {}),
       cwd,
       model: record.options?.model ?? previous?.model ?? null,
       createdAt,

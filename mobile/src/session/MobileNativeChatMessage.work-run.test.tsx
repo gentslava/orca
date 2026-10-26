@@ -6,6 +6,7 @@ import type { AgentJournalRenderItem } from '../../../src/shared/agent-session-j
 import type { RpcClient } from '../transport/rpc-client'
 import { MobileNativeChatItemSourceContext } from './mobile-native-chat-item-read'
 import { useMobileNativeChatMessageDetail } from './use-mobile-native-chat-message-detail'
+import { Harness, Result } from './use-mobile-native-chat-turn-disclosure.test-fixture'
 
 vi.mock('react-native', async () => {
   const React = await import('react')
@@ -176,29 +177,93 @@ it.each(['review-first', 'tool-first'])(
   }
 )
 
-it('keeps a real mobile tool failure visible before opening activity', () => {
+it('keeps a mobile tool failure inside its collapsed activity group', () => {
   const failed: NativeChatMessage = {
     ...command,
+    id: 'failed-test',
     blocks: [
-      { type: 'tool-call', name: 'Bash', input: { command: 'pnpm test' }, state: 'failed' },
-      { type: 'tool-result', output: 'Test failed', isError: true }
+      {
+        type: 'tool-call',
+        callId: 'failed-test',
+        name: 'Bash',
+        input: { command: 'pnpm test' },
+        state: 'failed'
+      },
+      { type: 'tool-result', callId: 'failed-test', output: 'Test failed', isError: true }
     ]
   }
+  const members = [read, failed, command]
+  act(() => {
+    renderer = create(
+      createElement(Harness, { messages: members, enabled: true, isWorking: false })
+    )
+  })
+  const { disclosure } = renderer!.root.findByType(Result).props
+  const { workRun } = disclosure.resolveRow(0, read)
+  expect(workRun).toEqual(members)
+  act(() => renderer!.unmount())
   act(() => {
     renderer = create(
       createElement(MobileNativeChatMessage, {
-        message: failed,
+        message: read,
+        workRun,
         structuredActivityUi: true,
         activeTurnIsWorking: false
       })
     )
   })
-  expect(textIn(renderer!.root)).toContain('pnpm test: Test failed')
-  expect(
-    renderer!.root.find(
-      (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
-    ).props.accessibilityState.expanded
-  ).toBe(false)
+  const tree = renderer!
+  const trigger = tree.root.find(
+    (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
+  )
+  expect(textIn(tree.root)).toContain(' · 1 failed')
+  expect(textIn(tree.root).some((text) => text.includes('Test failed'))).toBe(false)
+  expect(trigger.props.accessibilityState.expanded).toBe(false)
+  act(() => trigger.props.onPress())
+  act(() =>
+    tree.root
+      .findAll((node) => String(node.type) === 'Pressable')
+      .find(
+        (node) => typeof node.props.onPress === 'function' && textIn(node).includes('pnpm test')
+      )!
+      .props.onPress()
+  )
+  expect(textIn(tree.root)).toContain('Test failed')
+})
+
+it('keeps guardian warnings and unanswered questions outside mobile activity groups', () => {
+  const warning = approvalReviewMessage('warning', 'Review required before continuing.')
+  const question: NativeChatMessage = {
+    ...command,
+    id: 'question',
+    blocks: [
+      {
+        type: 'tool-call',
+        name: 'AskUserQuestion',
+        input: { questions: [{ question: 'Which host should I use?' }] },
+        state: 'running'
+      }
+    ]
+  }
+  for (const boundary of [warning, question]) {
+    const messages = [
+      read,
+      command,
+      boundary,
+      { ...read, id: 'read-b' },
+      { ...command, id: 'cmd-b' }
+    ]
+    act(() => {
+      renderer = create(createElement(Harness, { messages, enabled: true, isWorking: true }))
+    })
+    const { disclosure } = renderer!.root.findByType(Result).props
+    expect(disclosure.resolveRow(0, read).workRun).toEqual([read, command])
+    expect(disclosure.resolveRow(2, boundary).workRun).toBeUndefined()
+    expect(disclosure.resolveRow(2, boundary).joinsWorkRun).not.toBe(true)
+    expect(disclosure.resolveRow(3, messages[3]!).workRun).toEqual(messages.slice(3))
+    act(() => renderer!.unmount())
+    renderer = null
+  }
 })
 
 it("opens a grouped thought's own actions on a long press, not the run's first row's", () => {

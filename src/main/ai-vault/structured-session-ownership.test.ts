@@ -93,7 +93,7 @@ describe('structured AI Vault ownership', () => {
   })
 
   it.each(['claude', 'codex'] as const)(
-    'keeps an unnamed %s chat at its ordinary label',
+    'keeps a meaningful provider title for an unnamed %s chat',
     (provider) => {
       installOwnership({ provider })
       const result = listResult()
@@ -104,7 +104,7 @@ describe('structured AI Vault ownership', () => {
       }))
       expect(
         projectStructuredAiVaultSessions(result, OPENS_EVERY_STRUCTURED_CHAT).sessions[0]?.title
-      ).toBe(provider === 'claude' ? 'Claude Chat' : 'Codex Chat')
+      ).toBe('First prompt')
     }
   )
 

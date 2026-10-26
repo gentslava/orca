@@ -7,15 +7,10 @@ import { translateSearchKeyword } from './settings-search-keywords'
 import { SHOW_UI_LANGUAGE_SETTING } from '@/i18n/supported-languages'
 import { getStatusBarToggles } from './appearance-status-bar-search'
 import { getUsagePercentageDisplayEntry } from './appearance-usage-percentage-search'
-import {
-  getHoldQuitEntries,
-  getMenuBarIconEntries,
-  getSystemTrayEntries
-} from './appearance-system-presence-search'
+import { getMenuBarIconEntries, getSystemTrayEntries } from './appearance-system-presence-search'
 
 export {
   getMenuBarIconEntries,
-  getHoldQuitEntries,
   getStatusBarToggles,
   getSystemTrayEntries,
   getUsagePercentageDisplayEntry
@@ -256,7 +251,6 @@ type AppearancePaneSearchOptions = {
   showDesktopThemeImports?: boolean
   showSystemTray?: boolean
   showMenuBarIcon?: boolean
-  showHoldQuit?: boolean
 }
 
 export function getAppearancePaneSearchEntries(
@@ -275,7 +269,6 @@ export function getAppearancePaneSearchEntries(
     ...getSidebarEntries(),
     ...getAppIconEntries(),
     ...getSystemTrayEntries(options),
-    ...getMenuBarIconEntries(options),
-    ...getHoldQuitEntries(options)
+    ...getMenuBarIconEntries(options)
   ]
 }

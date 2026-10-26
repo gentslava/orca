@@ -113,7 +113,7 @@ export function hostModelCatalogSnapshotAgents(target: RuntimeClientTarget): str
 export async function preloadHostModelCatalogSnapshots(
   target: RuntimeClientTarget,
   agents: readonly string[],
-  options: { savedOnly?: true } = {}
+  options: { savedOnly?: true; awaitListing?: true } = {}
 ): Promise<void> {
   const hostKey = structuredAgentSessionHostKey(target)
   const generation = generations.get(hostKey) ?? 0
@@ -122,9 +122,21 @@ export async function preloadHostModelCatalogSnapshots(
       callStructuredAgentSession<AgentSessionModelCatalogResult>(
         target,
         'agentSession.modelCatalog',
-        { agent, ...options }
+        { agent, ...(options.savedOnly ? { savedOnly: true } : {}) }
       )
-        .then((catalog) => {
+        .then(async (catalog) => {
+          if (
+            options.awaitListing &&
+            !options.savedOnly &&
+            catalog.listingInProgress &&
+            (generations.get(hostKey) ?? 0) === generation
+          ) {
+            catalog = await callStructuredAgentSession<AgentSessionModelCatalogResult>(
+              target,
+              'agentSession.modelCatalog',
+              { agent, waitForListing: true }
+            )
+          }
           if ((generations.get(hostKey) ?? 0) === generation) {
             recordHostModelCatalogSnapshot(target, agent, null, catalog)
           }

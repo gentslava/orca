@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { useAppStore } from '@/store'
+import { getResolvedExecutionHostIdForWorktree } from '@/lib/resolved-worktree-execution-host'
+import type { ExecutionHostId } from '../../../../shared/execution-host'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, MessageSquarePlus } from 'lucide-react'
+import { SquarePen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,7 +12,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
 import { useAgentMenuObservation } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
@@ -19,22 +21,37 @@ import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import { captureNativeChatComposerFocusIntent } from '@/components/native-chat/use-native-chat-composer-reveal-focus'
 import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
 
-export function SidebarConversationStart(): React.JSX.Element {
+export function SidebarConversationStart({
+  worktreeId,
+  executionHostId,
+  projectName
+}: {
+  worktreeId: string
+  executionHostId: ExecutionHostId
+  projectName: string
+}): React.JSX.Element | null {
   useTranslation()
-  const worktreeId = useAppStore((state) => state.activeWorktreeId)
-  const openModal = useAppStore((state) => state.openModal)
   const [open, setOpen] = useState(false)
-  const target = useAgentDetectionTargetForWorktree(worktreeId)
-  const { model } = useAgentMenuObservation(worktreeId, open, target)
-  const rows = model.state === 'settled' ? model.rows.filter((row) => row.kind === 'chat') : []
-  const selected = rows[0]
-  const label = translate('components.tab-bar.newChat', 'New chat')
-  const chooseLabel = translate(
-    'dashboard.sidebar.chooseChatAgent',
-    'Choose an agent for a new chat'
+  const resolvedHost = useAppStore((state) =>
+    getResolvedExecutionHostIdForWorktree(state, worktreeId)
   )
+  const ownsTarget = resolvedHost === executionHostId
+  const target = useAgentDetectionTargetForWorktree(ownsTarget ? worktreeId : null)
+  const { model } = useAgentMenuObservation(
+    ownsTarget ? worktreeId : null,
+    open && ownsTarget,
+    ownsTarget ? target : undefined
+  )
+  const rows = model.state === 'settled' ? model.rows.filter((row) => row.kind === 'chat') : []
+  const label = translate('projectConversations.newChatInProject', 'New chat in {{project}}', {
+    project: projectName
+  })
   const launch = (row: NewTabAgentMenuRow): void => {
-    if (!worktreeId || row.kind !== 'chat') {
+    if (
+      row.kind !== 'chat' ||
+      row.executionHostId !== executionHostId ||
+      getResolvedExecutionHostIdForWorktree(useAppStore.getState(), worktreeId) !== executionHostId
+    ) {
       return
     }
     launchAgentInNewTab({
@@ -46,57 +63,42 @@ export function SidebarConversationStart(): React.JSX.Element {
       selectedExecutionHostId: row.executionHostId
     })
   }
+  if (!ownsTarget) {
+    return null
+  }
   return (
-    <div className="flex shrink-0 items-center gap-1 px-3 pb-2">
-      <Button
-        variant="outline"
-        size="sm"
-        className="min-w-0 flex-1 justify-start"
-        onClick={() => {
-          if (!worktreeId) {
-            openModal('add-repo')
-          } else if (selected) {
-            launch(selected)
-          } else {
-            setOpen(true)
-          }
-        }}
-      >
-        <MessageSquarePlus aria-hidden="true" />
-        {worktreeId ? label : translate('dashboard.sidebar.openProject', 'Open project')}
-      </Button>
-      {worktreeId ? (
-        <DropdownMenu open={open} onOpenChange={setOpen}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" aria-label={chooseLabel}>
-                  <ChevronDown aria-hidden="true" />
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent>{chooseLabel}</TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="start">
-            {rows.map((row) => (
-              <DropdownMenuItem key={row.agent} onSelect={() => launch(row)}>
-                <AgentIcon agent={row.agent} size={16} />
-                {getAgentCatalog().find((agent) => agent.id === row.agent)?.label ?? row.agent}
-              </DropdownMenuItem>
-            ))}
-            {rows.length === 0 ? (
-              <DropdownMenuItem disabled>
-                {model.state === 'loading'
-                  ? translate('dashboard.sidebar.loadingChatAgents', 'Loading chat agents…')
-                  : translate(
-                      'dashboard.sidebar.noChatAgents',
-                      'No chat agents available on this host'
-                    )}
-              </DropdownMenuItem>
-            ) : null}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : null}
-    </div>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button type="button" variant="ghost" size="icon-xs" aria-label={label}>
+              <SquarePen className="size-3.5" aria-hidden="true" />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent align="start">
+        {rows.map((row) => (
+          <DropdownMenuItem
+            key={`${row.agent}:${row.executionHostId}`}
+            onSelect={() => launch(row)}
+          >
+            <AgentIcon agent={row.agent} size={16} />
+            {getAgentCatalog().find((agent) => agent.id === row.agent)?.label ?? row.agent}
+          </DropdownMenuItem>
+        ))}
+        {rows.length === 0 ? (
+          <DropdownMenuItem disabled>
+            {model.state === 'loading'
+              ? translate('dashboard.sidebar.loadingChatAgents', 'Loading chat agents…')
+              : translate(
+                  'dashboard.sidebar.noChatAgents',
+                  'No chat agents available on this host'
+                )}
+          </DropdownMenuItem>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

@@ -40,7 +40,6 @@ import { NativeChatToolRunCallCounts } from './NativeChatToolRunCallCounts'
 import { NativeChatToolRunMembers, revealNativeChatToolRunMember } from './NativeChatToolRunMembers'
 import { NativeChatToolRunMemberList } from './NativeChatToolRunMemberList'
 import { NativeChatBrowserRunPageButton } from './NativeChatBrowserPageButton'
-import { NativeChatToolRunFailures } from './NativeChatToolRunFailures'
 
 /** Insert keyed asides before their block or after the final block. */
 export type NativeChatToolRunAsides = {
@@ -260,7 +259,6 @@ export function NativeChatToolRun({
           <NativeChatBrowserRunPageButton calls={headerBlocks.filter(isToolCallBlock)} />
         </div>
       )}
-      <NativeChatToolRunFailures blocks={headerBlocks} />
       <NativeChatExpandable open={open && showsHeader}>
         <NativeChatToolRunMembers
           followKey={blocks.length + asideCount}

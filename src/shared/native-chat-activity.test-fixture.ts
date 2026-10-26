@@ -76,9 +76,31 @@ export const CLAUDE_SAFETY_DENIAL: NativeChatTextBlock = {
   }
 }
 
+const CLAUDE_AUTO_MODE_DENIAL_TEXT =
+  "Permission for this action was denied by the Claude Code auto mode classifier. Reason: [Irreversible Deletion (general)]. If you have other tasks that don't depend on this action, continue working on those."
+const CLAUDE_AUTO_MODE_DENIAL_PAYLOAD = JSON.stringify({
+  type: 'system',
+  subtype: 'permission_denied',
+  message: CLAUDE_AUTO_MODE_DENIAL_TEXT
+})
+export const CLAUDE_AUTO_MODE_DENIAL: NativeChatTextBlock = {
+  ...CLAUDE_SAFETY_DENIAL,
+  text: CLAUDE_AUTO_MODE_DENIAL_TEXT,
+  providerFrame: {
+    ...CLAUDE_SAFETY_DENIAL.providerFrame!,
+    payload: {
+      head: CLAUDE_AUTO_MODE_DENIAL_PAYLOAD,
+      byteLength: CLAUDE_AUTO_MODE_DENIAL_PAYLOAD.length,
+      digest: 'auto-mode-denial-digest',
+      truncated: false
+    }
+  }
+}
+
 export const COMPACT_APPROVAL_CASES = [
   ...BLOCKED_APPROVAL_CASES,
-  { block: CLAUDE_SAFETY_DENIAL, label: 'Permission denied by safety check' }
+  { block: CLAUDE_SAFETY_DENIAL, label: 'Permission denied by safety check' },
+  { block: CLAUDE_AUTO_MODE_DENIAL, label: 'Automatic approval denied' }
 ]
 
 export const NON_COMPACT_APPROVAL_BLOCKS: NativeChatTextBlock[] = [
@@ -99,5 +121,14 @@ export const NON_COMPACT_APPROVAL_BLOCKS: NativeChatTextBlock[] = [
     providerFrame: { ...CLAUDE_SAFETY_DENIAL.providerFrame!, kind: 'message:system:mirror_error' }
   },
   { ...CLAUDE_SAFETY_DENIAL, providerFrame: undefined },
+  { ...CLAUDE_AUTO_MODE_DENIAL, text: `"${CLAUDE_AUTO_MODE_DENIAL.text}"` },
+  { ...CLAUDE_AUTO_MODE_DENIAL, providerFrame: undefined },
+  {
+    ...CLAUDE_AUTO_MODE_DENIAL,
+    providerFrame: {
+      ...CLAUDE_AUTO_MODE_DENIAL.providerFrame!,
+      kind: 'message:system:mirror_error'
+    }
+  },
   { ...BLOCKED_APPROVAL_CASES[0]!.block, failure: { kind: 'notSignedIn' } }
 ]

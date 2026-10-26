@@ -52,6 +52,22 @@ describe('applyDesktopViewSettings', () => {
     })
   })
 
+  it('retains newer chat preferences when a delayed host settings reply arrives', () => {
+    const current = {
+      ...base,
+      conversationPreferences: { revision: 3, entries: { chat: { pinned: true, archived: true } } }
+    }
+    expect(
+      applyDesktopViewSettings(current, { conversationPreferences: { revision: 2, entries: {} } })
+        .conversationPreferences
+    ).toEqual(current.conversationPreferences)
+    expect(
+      applyDesktopViewSettings(current, {
+        conversationPreferences: { revision: 4, entries: { chat: { archived: false } } }
+      }).conversationPreferences
+    ).toEqual({ revision: 4, entries: { chat: { archived: false } } })
+  })
+
   it('keeps current values when the desktop payload is empty', () => {
     expect(applyDesktopViewSettings(base, {})).toEqual({ ...base, sharesOtherClientFilter: false })
   })

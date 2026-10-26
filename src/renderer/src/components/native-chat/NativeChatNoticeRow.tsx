@@ -1,4 +1,5 @@
 import { agentSessionGoalControlWords } from './agent-session-goal-control-words'
+import { NativeChatErrorNotice } from './NativeChatErrorNotice'
 import { AlertCircle, AlertTriangle, Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
@@ -183,6 +184,14 @@ export function NativeChatNoticeRow({
       ? failure.detail.text
       : undefined
   const tone = named ? 'notice' : look.kind === 'line' ? look.tone : null
+  if (
+    tone === 'error' &&
+    !continueOffered &&
+    !antigravitySignInContent &&
+    !(claudeSignIn && isClaudeSignInFailureKind(block.failure?.kind))
+  ) {
+    return <NativeChatErrorNotice block={block} messageId={messageId} text={text} detail={detail} />
+  }
   const Icon =
     tone === 'warning'
       ? AlertTriangle

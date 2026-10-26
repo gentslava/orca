@@ -544,6 +544,42 @@ describe('older history auto-load', () => {
     expect(scroller.scrollTop).toBe(TOP_GUTTER_PX + 90 * ROW_PITCH_PX + 17)
   })
 
+  it('keeps a visible work run in place when an older page supplies its new head', () => {
+    const call = (index: number): NativeChatMessage => ({
+      ...marker(index),
+      blocks: [
+        {
+          type: 'tool-call',
+          name: 'shell',
+          input: { command: `call-${index}` },
+          state: 'completed',
+          callId: `call-${index}`
+        }
+      ]
+    })
+    const base = [call(100), call(101), ...markers(102, 200)]
+    const loadEarlier = lands()
+    const { container, rerender } = render(paging({ messages: base, loadEarlier }))
+    paint(container)
+    scrollTranscript(container, TOP_GUTTER_PX + 17)
+    paint(container)
+    const scroller = scrollRoot(container)
+    expect(container.querySelector('[data-index="0"]')).not.toBeNull()
+
+    rerender(
+      paging({
+        messages: [...markers(49, 98), { ...marker(98), role: 'user' }, call(99), ...base],
+        loadEarlier
+      })
+    )
+    paint(container)
+
+    const retained = container.querySelector<HTMLElement>('[data-index="50"]')
+    expect(retained).not.toBeNull()
+    const spacer = container.querySelector<HTMLElement>('[data-native-chat-window]')
+    expect((spacer?.offsetTop ?? 0) + (retained?.offsetTop ?? 0) - scroller.scrollTop).toBe(-17)
+  })
+
   // Removing in-flow older-history chrome would move every row when the last page lands.
   it('keeps the reader in place when the last page lands and the older-history row leaves', async () => {
     const loadEarlier = lands()

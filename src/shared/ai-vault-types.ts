@@ -108,6 +108,8 @@ export type AiVaultSessionSubagentInfo = {
 export type AiVaultSession = {
   /** A durable Orca conversation with no provider transcript to read or mutate. */
   source?: 'structured-record'
+  /** Host-proven content; absent or unknown must preserve recoverable conversations. */
+  conversationContent?: 'empty' | 'present' | 'unknown'
   id: string
   executionHostId: ExecutionHostId
   executionHostPlatform?: NodeJS.Platform | null
@@ -131,7 +133,7 @@ export type AiVaultSession = {
   previewMessagesTruncated?: boolean
   /** Bounded opening-prompt identity for Antigravity history joins; never a rolling preview. */
   antigravityOpeningPrompt?: { hash: string; timestamp: string | null }
-  /** Full first non-injected prompt only on on-demand getFirstUserPrompt reparses; list scans omit it for payload/cost. */
+  /** Opening human prompt; durable journal previews are bounded, provider-file full reads remain on demand. */
   firstUserPrompt?: string | null
   /** Latest provider-authenticated user prompt; absent when the transcript has no trustworthy signal. */
   lastUserPrompt?: string | null

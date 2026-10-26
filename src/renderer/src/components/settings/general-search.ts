@@ -5,6 +5,8 @@ import { searchKeywords, translateSearchKeyword } from './settings-search-keywor
 import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 import { getGeneralProjectRuntimeSearchEntries } from './general-project-runtime-search'
 import { getGeneralSupportSearchEntries } from './general-support-search'
+import { getHoldQuitEntries } from './general-hold-quit-search'
+export { getHoldQuitEntries } from './general-hold-quit-search'
 
 export { getGeneralEditorSearchEntries } from './general-editor-search'
 export { getGeneralSupportSearchEntries } from './general-support-search'
@@ -114,7 +116,7 @@ export const getGeneralWorkspaceSearchEntries = createLocalizedCatalog(() => [
   }
 ])
 
-export const getGeneralNavigationSearchEntries = createLocalizedCatalog(() => [
+const getGeneralNavigationEntryCatalog = createLocalizedCatalog(() => [
   {
     title: translate('auto.components.settings.general.search.256d92554d', 'Tab Order'),
     description: translate(
@@ -195,6 +197,12 @@ export const getGeneralNavigationSearchEntries = createLocalizedCatalog(() => [
   }
 ])
 
+export function getGeneralNavigationSearchEntries(
+  options: { showHoldQuit?: boolean } = {}
+): SettingsSearchEntry[] {
+  return [...getGeneralNavigationEntryCatalog(), ...getHoldQuitEntries(options)]
+}
+
 export const getGeneralCliSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate('auto.components.settings.general.search.327e3fa70d', 'Orca CLI'),
@@ -254,6 +262,7 @@ export const getGeneralUpdateSearchEntries = createLocalizedCatalog(() => [
 
 type GeneralPaneSearchOptions = {
   includeProjectRuntime?: boolean
+  showHoldQuit?: boolean
 }
 
 export function getGeneralPaneSearchEntries(
@@ -261,7 +270,7 @@ export function getGeneralPaneSearchEntries(
 ): SettingsSearchEntry[] {
   return [
     ...getGeneralWorkspaceSearchEntries(),
-    ...getGeneralNavigationSearchEntries(),
+    ...getGeneralNavigationSearchEntries(options),
     ...(options.includeProjectRuntime === false ? [] : getGeneralProjectRuntimeSearchEntries()),
     ...getGeneralEditorSearchEntries(),
     ...getGeneralCliSearchEntries(),

@@ -1,0 +1,106 @@
+// @vitest-environment happy-dom
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { conversationSessions } from '../sidebar/ProjectConversationList.test-fixture'
+import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
+
+const state = {
+  settings: { aiVaultSearch: { enabled: true } },
+  runtimeEnvironments: [],
+  folderWorkspaces: [],
+  projectGroups: [],
+  repos: [],
+  worktreesByRepo: {}
+}
+vi.mock('@/store', () => ({
+  useAppStore: Object.assign((select: (value: typeof state) => unknown) => select(state), {
+    getState: () => state
+  })
+}))
+vi.mock('@/store/selectors', () => ({
+  useActiveRepo: () => null,
+  useActiveWorktree: () => null,
+  useActiveWorktreeId: () => null,
+  useAllWorktrees: () => [],
+  useProjectHostSetupProjection: () => ({ projects: [], setups: [] }),
+  useRepos: () => []
+}))
+const sessions = [
+  {
+    ...conversationSessions[0]!,
+    source: 'structured-record' as const,
+    messageCount: 0,
+    title: 'Saved durable chat',
+    firstUserPrompt: 'Find the distinctive journal marker',
+    structuredSession: { sessionId: 'chat', workspaceId: 'folder:notes' }
+  }
+]
+vi.mock('./ai-vault-session-refresh', () => ({
+  useAiVaultSessionRefresh: () => ({
+    error: null,
+    loading: false,
+    refresh: vi.fn(),
+    scanResult: { sessions, issues: [], scannedAt: 'now' },
+    sessions,
+    loadedSessionLimit: 100
+  })
+}))
+vi.mock('./use-persisted-ai-vault-view-options', () => ({
+  usePersistedAiVaultViewOptions: () => ({
+    agents: [],
+    sort: 'updated',
+    searchSort: 'relevance',
+    group: 'project',
+    hideEmptySessions: true,
+    sessionLimit: 100,
+    setSort: vi.fn(),
+    setSearchSort: vi.fn(),
+    setGroup: vi.fn(),
+    setHideEmptySessions: vi.fn(),
+    setSessionLimit: vi.fn(),
+    setAgentEnabled: vi.fn(),
+    setAllAgentsEnabled: vi.fn(),
+    resetViewOptions: vi.fn()
+  })
+}))
+vi.mock('../sidebar/ProjectConversationList', () => ({
+  ProjectConversationList: ({ groups }: { groups: readonly AiVaultSessionListGroup[] }) => (
+    <ul>
+      {groups.flatMap((group) =>
+        group.sessions.map((session) => <li key={session.id}>{session.title}</li>)
+      )}
+    </ul>
+  )
+}))
+vi.mock('./ai-vault-session-delete-action', () => ({
+  useAiVaultSessionDeleteAction: () => vi.fn()
+}))
+const searchSessions = vi.fn()
+beforeEach(() => {
+  searchSessions.mockReset().mockResolvedValue({
+    kind: 'results',
+    hits: [],
+    page: { cursor: null, hasMore: false },
+    generation: 1,
+    durationMs: 1,
+    truncated: { candidates: false, snippets: 0, query: false, freshness: false }
+  })
+  Object.defineProperty(window, 'api', {
+    configurable: true,
+    value: { aiVault: { searchSessions }, ui: { writeClipboardText: vi.fn() } }
+  })
+})
+afterEach(cleanup)
+
+it('shows primary project chats despite legacy hidden-agent filters and searches their durable prompts without an index hit', async () => {
+  const { default: AiVaultPanel } = await import('./AiVaultPanel')
+  render(<AiVaultPanel conversationNavigation />)
+  expect(screen.getByText('Saved durable chat')).toBeTruthy()
+  await userEvent.type(screen.getByLabelText('Search sessions'), 'distinctive')
+  await waitFor(() => expect(searchSessions).toHaveBeenCalled())
+  await waitFor(() => expect(screen.getByText('Saved durable chat')).toBeTruthy())
+  expect(
+    screen.queryByText('No matching sessions in the indexed history. Try another query or scope.')
+  ).toBeNull()
+})

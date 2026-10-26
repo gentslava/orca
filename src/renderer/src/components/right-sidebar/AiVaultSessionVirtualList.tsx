@@ -8,7 +8,7 @@ import { translate } from '@/i18n/i18n'
 import { measureVirtualRowRetainingHiddenSize } from '@/hooks/virtualized-hidden-row-measurement'
 import { getActiveStickyHeaderIndexForScroll } from '../sidebar/worktree-list/viewport/virtual-rows'
 import { EmptyState, SessionLoadingState } from './AiVaultSessionListStates'
-import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
+import type { AiVaultSessionListGroup, AiVaultSessionProject } from './ai-vault-session-filters'
 import type { AiVaultOriginalPaneTarget } from './ai-vault-original-pane'
 import type {
   AiVaultSessionResumeActions,
@@ -75,6 +75,7 @@ export function AiVaultSessionVirtualList({
   query = '',
   resumeHere
 }: {
+  sessionProjects?: ReadonlyMap<string, AiVaultSessionProject>
   conversationNavigation?: boolean
   groups: readonly AiVaultSessionListGroup[]
   collapsedGroups: ReadonlySet<string>

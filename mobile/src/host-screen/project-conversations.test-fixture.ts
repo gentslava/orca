@@ -53,6 +53,7 @@ export function conversationHistory(
     title: 'Improve the onboarding',
     cwd: '/projects/atlas',
     updatedAt: null,
+    previewMessages: [],
     modifiedAt: '2026-10-24T12:00:00Z',
     ...overrides
   }

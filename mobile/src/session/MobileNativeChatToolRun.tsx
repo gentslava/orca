@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { Animated, Pressable, Text, View } from 'react-native'
 import { Check } from 'lucide-react-native'
-import { nativeChatToolFailures } from '../../../src/shared/native-chat-tool-failures'
-import { nativeChatToolLineLabel } from '../../../src/shared/native-chat/tools/native-chat-tool-line-label'
 import {
   describeLatestToolCall,
   NATIVE_CHAT_TOOL_ACTIVITY_COPY,
@@ -128,8 +126,6 @@ export function ToolRun({
   ].filter((mark) => mark !== null)
   const type = toolType(fontScale)
   const iconSize = 15 * fontScale
-  const failures = useMemo(() => nativeChatToolFailures(blocks), [blocks])
-  const failureSeen = new Map<string, number>()
 
   return (
     <View style={styles.run} testID={mobileNativeChatMemberId('run')}>
@@ -165,22 +161,6 @@ export function ToolRun({
           </Text>
         ) : null}
       </Pressable>
-      {failures.map(({ call, result }) => {
-        const label = call ? nativeChatToolLineLabel(call, result) : null
-        const name = label?.target || call?.name || 'Result'
-        const detail = result?.output || fill(NATIVE_CHAT_TOOL_ACTIVITY_COPY.failedCount, 1)
-        const block = call ?? result
-        return block ? (
-          <Text
-            key={nativeChatToolLineIdentity(block, failureSeen, true)}
-            accessibilityRole="alert"
-            numberOfLines={12}
-            style={[type.row, styles.errorText]}
-          >
-            {`${name}: ${detail}`}
-          </Text>
-        ) : null
-      })}
       {open ? (
         <MobileNativeChatToolRunMembers
           followKey={blocks.length + asideCount}

@@ -39,7 +39,6 @@ export function MobileNativeChatAutoApprovalNotice({
   const outcome = nativeChatAutoApprovalOutcome(block) ?? 'approved'
   const Icon =
     outcome === 'approved' ? Check : outcome === 'timed-out' ? AlertCircle : AlertTriangle
-  const color = outcome === 'approved' ? colors.textMuted : colors.statusAmber
   return (
     <View>
       {disclosed ? null : (
@@ -50,8 +49,8 @@ export function MobileNativeChatAutoApprovalNotice({
           accessibilityState={{ expanded: open }}
           onPress={() => setOpen(!open)}
         >
-          <Icon size={14 * fontScale} color={color} />
-          <Text style={[styles.headerSentence, type.row, { color }]} numberOfLines={1}>
+          <Icon size={14 * fontScale} color={colors.textMuted} />
+          <Text style={[styles.headerSentence, type.row]} numberOfLines={1}>
             {OUTCOME_COPY[outcome]}
           </Text>
           <ChevronRight
@@ -63,12 +62,19 @@ export function MobileNativeChatAutoApprovalNotice({
       )}
       {disclosed || open ? (
         <View style={styles.taskCard}>
-          <Text selectable={INLINE_TEXT_SELECTION} style={[styles.headerSentence, type.row]}>
+          <Text
+            selectable={INLINE_TEXT_SELECTION}
+            style={[styles.headerSentence, type.row, block.tone === 'error' && styles.errorText]}
+          >
             {block.text}
           </Text>
           {block.providerFrame ? (
             <MobileNativeChatToolOutput
-              body={{ type: 'tool-result', output: block.providerFrame.payload.head }}
+              body={{
+                type: 'tool-result',
+                output: block.providerFrame.payload.head,
+                isError: block.tone === 'error'
+              }}
               type={type.code}
               rootIdentity={`auto-approval:${messageId ?? block.providerFrame.payload.digest}`}
               positionKey={`auto-approval:${messageId ?? block.providerFrame.payload.digest}:payload`}

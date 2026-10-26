@@ -22,12 +22,22 @@ export function nativeChatAutoApprovalOutcome(
   if (
     block.tone === 'error' &&
     frame?.provider === 'claude' &&
-    frame.kind === 'message:system:permission_denied' &&
-    /^Permission for this command was denied by a built-in Claude Code safety check, not by the user\. \S[\s\S]*The command was NOT run;[\s\S]*What was flagged: \S/.test(
-      block.text
-    )
+    frame.kind === 'message:system:permission_denied'
   ) {
-    return 'safety-denied'
+    if (
+      /^Permission for this action was denied by the Claude Code auto mode classifier\. Reason:\s+\S/.test(
+        block.text
+      )
+    ) {
+      return 'denied'
+    }
+    if (
+      /^Permission for this command was denied by a built-in Claude Code safety check, not by the user\. \S[\s\S]*The command was NOT run;[\s\S]*What was flagged: \S/.test(
+        block.text
+      )
+    ) {
+      return 'safety-denied'
+    }
   }
   if (
     block.tone !== 'warning' ||

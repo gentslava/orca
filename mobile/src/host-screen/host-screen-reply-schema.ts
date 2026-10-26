@@ -1,3 +1,4 @@
+import { ConversationPreferencesSchema } from '../../../src/shared/conversation-navigation-preferences'
 import { PersonalProjectOrderSchema } from '../../../src/shared/personal-project-order'
 import { z } from 'zod'
 import type { PersistedUIState } from '../../../src/shared/persisted-ui-state-types'
@@ -113,6 +114,10 @@ export const hostViewSettingsSchema = z
       hideWorkspacesFromOtherDevices: salvagedOptional(
         'hideWorkspacesFromOtherDevices',
         z.boolean()
+      ),
+      conversationPreferences: salvagedOptional(
+        'conversationPreferences',
+        ConversationPreferencesSchema
       ),
       personalProjectOrder: salvagedOptional('personalProjectOrder', PersonalProjectOrderSchema),
       projectOrderBy: salvagedOptional('projectOrderBy', z.enum(WORKSPACE_PROJECT_ORDER_ARMS)),

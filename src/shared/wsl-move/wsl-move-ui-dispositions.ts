@@ -10,6 +10,10 @@ import {
 export const UI_STATE_DISPOSITIONS = {
   lastActiveRepoId: notApplicableDisposition(38, 'repoId is kept.'),
   lastActiveWorktreeId: moveDisposition(38, { rewriteDesktopCopy: true }),
+  conversationPreferences: notApplicableDisposition(
+    38,
+    'Conversation preferences retain their execution-host-qualified identities.'
+  ),
   personalProjectOrder: {
     disposition: 'rewrite-desktop',
     item: 38,

@@ -4,7 +4,6 @@ import { isNativeChatAskCall } from './native-chat-ask-row'
 import { isNativeChatAutoApprovalMessage } from './native-chat-auto-approval'
 import { deriveNativeChatRowContent } from './native-chat-row-content'
 import { isStoppedBeforeStartBlock } from './native-chat-stopped-before-start'
-import { nativeChatToolFailures } from './native-chat-tool-failures'
 import { pairToolBlocks } from './native-chat/tools/native-chat-tool-pairs'
 import type { NativeChatBlock, NativeChatMessage } from './native-chat-types'
 
@@ -37,8 +36,7 @@ export function nativeChatWorkRunMember(
     message.blocks.some(
       (block) => isStoppedBeforeStartBlock(block) || (block.type === 'text' && block.providerFrame)
     ) ||
-    content.tools.some(isNativeChatAskCall) ||
-    nativeChatToolFailures(content.tools).length > 0
+    content.tools.some(isNativeChatAskCall)
   ) {
     return null
   }

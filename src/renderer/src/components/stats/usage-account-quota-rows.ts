@@ -14,6 +14,10 @@ import {
   normalizeCodexStatusRuntimeTarget
 } from '../status-bar/status-bar-codex-accounts'
 import { translate } from '@/i18n/i18n'
+import {
+  getVisibleUsageProvider,
+  type UsageProviderSettings
+} from '../status-bar/status-bar-provider-visibility'
 
 export type UsageAccountQuotaRow = {
   key: string
@@ -98,10 +102,11 @@ function managedQuotaRows({
 export function buildUsageAccountQuotaRows(
   limits: RateLimitState,
   accounts: ProviderAccountsSnapshot | null,
-  unverifiable = false
+  unverifiable = false,
+  settings?: Partial<UsageProviderSettings> | null
 ): UsageAccountQuotaRow[] {
   const fallback = (provider: ProviderRateLimits | null): UsageAccountQuotaRow[] =>
-    provider
+    provider && getVisibleUsageProvider(provider.provider, provider, { ...settings, ...limits })
       ? [
           {
             key: `${provider.provider}:current`,

@@ -245,6 +245,7 @@ export function NativeChatMessageList({
   const transcriptWindow = useNativeChatTranscriptWindow({
     scrollRef,
     slots,
+    messages: session.messages,
     isVisible,
     // Rail jumps and diff reveals share one mutually exclusive pin.
     revealIndex: nativeChatSlotIndexOf(slots, railJump?.messageId ?? revealedDiff?.messageId),

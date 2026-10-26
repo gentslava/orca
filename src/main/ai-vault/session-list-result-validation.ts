@@ -46,6 +46,7 @@ const sessionPreviewMessageSchema = z.object({
 
 const aiVaultSessionSchema = z.object({
   source: z.literal('structured-record').optional(),
+  conversationContent: z.enum(['empty', 'present', 'unknown']).optional().catch(undefined),
   id: z.string(),
   executionHostId: executionHostIdSchema,
   executionHostPlatform: nodePlatformSchema.nullable().optional(),

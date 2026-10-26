@@ -120,20 +120,22 @@ export function AiVaultPanelHeader({
             hostOptions={hostScopeOptions}
             onExecutionHostScopeChange={onExecutionHostScopeChange}
           />
-          <VaultViewMenu
-            searching={searching}
-            agents={agents}
-            group={group}
-            hideEmptySessions={hideEmptySessions}
-            sessionLimit={sessionLimit}
-            adjustmentCount={adjustmentCount}
-            onAgentEnabledChange={onAgentEnabledChange}
-            onAllAgentsEnabledChange={onAllAgentsEnabledChange}
-            onGroupChange={onGroupChange}
-            onHideEmptySessionsChange={onHideEmptySessionsChange}
-            onSessionLimitChange={onSessionLimitChange}
-            onReset={onReset}
-          />
+          {!conversationNavigation ? (
+            <VaultViewMenu
+              searching={searching}
+              agents={agents}
+              group={group}
+              hideEmptySessions={hideEmptySessions}
+              sessionLimit={sessionLimit}
+              adjustmentCount={adjustmentCount}
+              onAgentEnabledChange={onAgentEnabledChange}
+              onAllAgentsEnabledChange={onAllAgentsEnabledChange}
+              onGroupChange={onGroupChange}
+              onHideEmptySessionsChange={onHideEmptySessionsChange}
+              onSessionLimitChange={onSessionLimitChange}
+              onReset={onReset}
+            />
+          ) : null}
           <Button
             type="button"
             variant="ghost"
@@ -174,10 +176,14 @@ export function AiVaultPanelHeader({
           ref={searchInputRef}
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder={translate(
-            'auto.components.right.sidebar.AiVaultPanel.searchSessions',
-            'Search sessions'
-          )}
+          placeholder={
+            conversationNavigation
+              ? translate('projectConversations.search', 'Search chats')
+              : translate(
+                  'auto.components.right.sidebar.AiVaultPanel.searchSessions',
+                  'Search sessions'
+                )
+          }
           className="min-w-0 flex-1 bg-transparent py-1.5 text-xs text-foreground outline-none placeholder:text-muted-foreground/50"
           aria-label={translate(
             'auto.components.right.sidebar.AiVaultPanel.searchSessions',

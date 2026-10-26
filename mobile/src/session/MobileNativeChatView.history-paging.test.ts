@@ -122,10 +122,10 @@ describe('MobileNativeChatView: history paging and anchoring', () => {
     expect(onLoadEarlier).toHaveBeenCalledOnce()
   })
 
-  it('anchors the first visible row, which the header above it is not', async () => {
+  it('anchors the first message with and without older-history chrome', async () => {
     const folded = [assistantTurn('a1', 'History')]
     await render({ folded, hasMore: true })
-    expect(list().props.maintainVisibleContentPosition).toEqual({ minIndexForVisible: 1 })
+    expect(list().props.maintainVisibleContentPosition).toEqual({ minIndexForVisible: 0 })
 
     await update({ folded, hasMore: false })
     expect(list().props.maintainVisibleContentPosition).toEqual({ minIndexForVisible: 0 })

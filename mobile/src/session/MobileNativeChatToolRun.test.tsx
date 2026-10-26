@@ -173,7 +173,7 @@ describe('ToolRun', () => {
       expect(textIn(tree.root)).toContain(listing)
     })
 
-    it('caps a collapsed failure preview and keeps every line available on expansion', () => {
+    it('keeps failure output hidden until expansion and then offers every line', () => {
       const output = 'failure detail\n'.repeat(MAX_TOOL_DETAIL_LENGTH) + 'last failure line'
       act(() => {
         renderer = create(
@@ -189,8 +189,9 @@ describe('ToolRun', () => {
       const alerts = tree.root.findAll(
         (node) => String(node.type) === 'Text' && node.props.accessibilityRole === 'alert'
       )
-      expect(alerts).toHaveLength(1)
-      expect(alerts[0]!.props.numberOfLines).toBe(12)
+      expect(alerts).toHaveLength(0)
+      expect(textIn(tree.root).some((text) => text.includes('failure detail'))).toBe(false)
+      expect(flatStyle(textNode(tree, ' · 1 failed')).color).toBe(colors.textMuted)
       expect(tree.root.findAll((node) => String(node.type) === 'ScrollView')).toHaveLength(0)
       openRun(tree)
       open(tree, 'pnpm test')

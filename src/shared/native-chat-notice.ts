@@ -9,6 +9,7 @@ import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from './native-chat-sto
 import type { NativeChatBlock, NativeChatTextBlock } from './native-chat-types'
 
 export const NATIVE_CHAT_NOTICE_COPY = {
+  agentError: 'Agent reported an error',
   compaction: 'Context compacted',
   contextCleared: 'Context cleared',
   plan: 'Plan',

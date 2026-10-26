@@ -1,5 +1,6 @@
+import { MobileNativeChatErrorNotice } from './MobileNativeChatErrorNotice'
 import { StyleSheet, Text, View } from 'react-native'
-import { AlertCircle, AlertTriangle, Info } from 'lucide-react-native'
+import { AlertTriangle, Info } from 'lucide-react-native'
 import { AGENT_SESSION_HOST_STATUS_COPY } from '../../../src/shared/agent-session-host-status-rows'
 import {
   NATIVE_CHAT_NOTICE_COPY,
@@ -108,6 +109,11 @@ export function MobileNativeChatNoticeRow({
         </Text>
       )
     case 'line': {
+      if (look.tone === 'error') {
+        return (
+          <MobileNativeChatErrorNotice block={notice} messageId={messageId} fontScale={fontScale} />
+        )
+      }
       const lineText = usageLimitLineText(notice)
       const textStyle = [
         styles.line,
@@ -121,8 +127,7 @@ export function MobileNativeChatNoticeRow({
           </Text>
         )
       }
-      const Icon =
-        look.tone === 'warning' ? AlertTriangle : look.tone === 'error' ? AlertCircle : Info
+      const Icon = look.tone === 'warning' ? AlertTriangle : Info
       return (
         <View style={[styles.card, styles.toneCard]}>
           <Icon

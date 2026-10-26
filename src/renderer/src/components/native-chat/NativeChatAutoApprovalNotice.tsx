@@ -46,7 +46,12 @@ export function NativeChatAutoApprovalNotice({
   const Icon =
     outcome === 'approved' ? Check : outcome === 'timed-out' ? AlertCircle : AlertTriangle
   const details = (
-    <div className="space-y-1 py-1 text-sm text-chat-foreground-faint">
+    <div
+      className={cn(
+        'space-y-1 py-1 text-sm',
+        block.tone === 'error' ? 'text-destructive' : 'text-chat-foreground-faint'
+      )}
+    >
       <p className="whitespace-pre-wrap break-words">{block.text}</p>
       <ProviderFrameRow
         block={block}
@@ -60,12 +65,7 @@ export function NativeChatAutoApprovalNotice({
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger variant="transcript" className="group/auto-approval">
-        <span
-          className={cn(
-            'flex min-w-0 items-center gap-1.5',
-            outcome !== 'approved' && 'text-chat-warning'
-          )}
-        >
+        <span className="flex min-w-0 items-center gap-1.5">
           <Icon aria-hidden="true" className="size-3.5 shrink-0" />
           <span className="min-w-0 truncate">{OUTCOME_LABEL[outcome]()}</span>
         </span>

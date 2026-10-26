@@ -1,3 +1,4 @@
+import { useNativeChatChildHistory } from './use-native-chat-child-history'
 import { useMemo } from 'react'
 import type { OrchestrationSessionChild } from '../../../../shared/orchestration-session-children'
 import type { StructuredAgentSubagentRoster } from '../../../../shared/structured-agent-session-subagent-roster'
@@ -37,6 +38,19 @@ export function NativeChatChildTranscript(
 
 function ProviderChildTranscript(props: NativeChatChildTranscriptProps): React.JSX.Element {
   const { child, session, roster } = props
+  useNativeChatChildHistory({
+    scopeKey: `${session.sessionId ?? ''}:${child.agentId}`,
+    agentId: child.agentId,
+    messages: session.messages,
+    hasMore: session.hasMore,
+    loading: session.loadingEarlier,
+    generation: session.olderHistoryGeneration,
+    enabled:
+      (session.agent === 'codex' || session.agent === 'claude') &&
+      props.isVisible &&
+      props.active !== false,
+    loadEarlier: session.loadEarlier
+  })
   const messages = useMemo(
     () => nativeChatChildTranscript(session.messages, child.agentId),
     [session.messages, child.agentId]
