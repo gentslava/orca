@@ -22,6 +22,7 @@ import { STRUCTURED_AGENT_RUNTIME_METADATA } from '../runtime/structured-agent-r
 import type { StructuredAgentRuntimeMetadata } from '../runtime/structured-agent-runtime-registration-types'
 import { commandName, commandProgramIndex, shellCommands } from './shell-command-words'
 import { projectDurableAiVaultConversations } from './structured-conversation-navigation'
+import { isGenericConversationTitle } from '../../shared/project-conversation-list'
 
 /** Hide chat-owned rows from clients unable to open that agent’s chat. */
 export type StructuredChatOpener = (agent: StructuredAgentId) => boolean
@@ -45,7 +46,7 @@ export function projectStructuredAiVaultSessions(
     if (!opensChat(ownership.provider)) {
       return []
     }
-    return [{ ...session, ...ownedRow(session.agent, ownership) }]
+    return [{ ...session, ...ownedRow(session, ownership) }]
   })
   const projected =
     sessions.length === result.sessions.length &&
@@ -57,7 +58,8 @@ export function projectStructuredAiVaultSessions(
         projected,
         getStructuredAgentSessionHost()?.deps.store.listRecords() ?? [],
         opensChat,
-        options.childSessionIds
+        options.childSessionIds,
+        getStructuredAgentSessionHost()?.deps.journalDatabase
       )
     : projected
 }
@@ -82,7 +84,7 @@ export function projectStructuredAiVaultSearchResponse(
         return []
       }
       const { resumeCommand: _resumeCommand, ...owned } = hit
-      return [{ ...owned, ...ownedRow(hit.agent, ownership) }]
+      return [{ ...owned, ...ownedRow(hit, ownership) }]
     })
   }
 }
@@ -111,14 +113,24 @@ export async function searchWithStructuredOwners(
     : response
 }
 
-function ownedRow(rowAgent: string, ownership: StructuredProviderSessionOwnership) {
+function ownedRow(
+  row: { agent: string; title: string },
+  ownership: StructuredProviderSessionOwnership
+) {
   const structuredSession = {
     sessionId: ownership.sessionId,
     workspaceId: ownership.workspaceId
   }
+  const name = ownership.conversationName?.trim()
   const title =
-    ownership.conversationName ??
-    (historyRowFallsBackToChatLabel(rowAgent) ? defaultAgentChatLabel(ownership.provider) : null)
+    name && !isGenericConversationTitle(name)
+      ? name
+      : !isGenericConversationTitle(row.title)
+        ? null
+        : name ||
+          (historyRowFallsBackToChatLabel(row.agent)
+            ? defaultAgentChatLabel(ownership.provider)
+            : null)
   return title === null ? { structuredSession } : { title, structuredSession }
 }
 

@@ -6,7 +6,7 @@ import { SidebarHeaderActions } from './sidebar-header-actions'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverAnchor, PopoverArrow, PopoverContent } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Sparkles, Bell, ChevronDown, FolderTree, MessageSquare, Activity } from 'lucide-react'
+import { Sparkles, Bell, ChevronDown, FolderTree, GitBranch, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AgentQuestionIcon } from '@/components/AgentQuestionIcon'
 import { useAgentBucketCounts } from '@/components/dashboard/useAgentBucketCounts'
@@ -29,7 +29,6 @@ const SidebarHeader = React.memo(function SidebarHeader({
   // Subscribe this memoized header to locale changes before using translate().
   useTranslation()
   const sidebarBody = useAppStore((s) => s.sidebarBody ?? 'conversations')
-  const groupBy = useAppStore((s) => s.groupBy)
   const setSidebarBody = useAppStore((s) => s.setSidebarBody)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const agentsViewActive = sidebarBody === 'agents'
@@ -52,13 +51,10 @@ const SidebarHeader = React.memo(function SidebarHeader({
   const acknowledgeIntro = React.useCallback(() => {
     void updateSettings?.({ agentsSidebarIntroShown: true })
   }, [updateSettings])
-  const workspaceTitle =
-    groupBy === 'repo'
-      ? translate('dashboard.sidebar.projects', 'Projects')
-      : translate('dashboard.sidebar.workspaces', 'Workspaces')
+  const workspaceTitle = translate('dashboard.sidebar.workspaces', 'Workspaces')
   const sidebarTitle =
     sidebarBody === 'conversations'
-      ? translate('dashboard.sidebar.conversations', 'Conversations')
+      ? translate('dashboard.sidebar.projects', 'Projects')
       : sidebarBody === 'agents'
         ? translate('dashboard.sidebar.activity', 'Activity')
         : workspaceTitle
@@ -80,12 +76,10 @@ const SidebarHeader = React.memo(function SidebarHeader({
               className="min-w-0"
               data-sidebar-section-title={
                 sidebarBody === 'conversations'
-                  ? 'conversations'
+                  ? 'projects'
                   : sidebarBody === 'agents'
                     ? translate('dashboard.sidebar.activity', 'Activity')
-                    : groupBy === 'repo'
-                      ? 'projects'
-                      : 'workspaces'
+                    : 'workspaces'
               }
             >
               {sidebarTitle}
@@ -94,11 +88,11 @@ const SidebarHeader = React.memo(function SidebarHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuItem onSelect={() => setSidebarBody('conversations')}>
-              <MessageSquare />
-              {translate('dashboard.sidebar.conversations', 'Conversations')}
+              <FolderTree />
+              {translate('dashboard.sidebar.projects', 'Projects')}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setSidebarBody('workspaces')}>
-              <FolderTree />
+              <GitBranch />
               {workspaceTitle}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setSidebarBody('agents')}>

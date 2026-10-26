@@ -1,6 +1,6 @@
 import React from 'react'
 import { SortableContext } from '@dnd-kit/sortable'
-import { ChevronLeft, ChevronRight, MessageSquarePlus, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { Button } from '@/components/ui/button'
 import {
@@ -108,8 +108,6 @@ export function renderTabBarSurface({
     includeTopTabBorder,
     activeClientHostedBrowserRowId
   })
-  const defaultChat =
-    agentMenu.state === 'settled' ? agentMenu.rows.find((row) => row.kind === 'chat') : undefined
 
   return (
     <div ref={surfaceRef} className="flex items-stretch h-full overflow-hidden flex-1 min-w-0">
@@ -205,25 +203,6 @@ export function renderTabBarSurface({
             {translate('auto.components.tab.bar.TabBar.232e075b07', 'Scroll tabs right')}
           </TooltipContent>
         </Tooltip>
-      ) : null}
-      {!terminalOnly && showAgentLaunchItems && runtime.nativeChatEnabled ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="my-auto ml-1 shrink-0 [-webkit-app-region:no-drag]"
-          onClick={() => {
-            if (defaultChat) {
-              launchAgentRow(defaultChat)
-            } else {
-              setNewTabMenuOpen(true)
-            }
-          }}
-        >
-          <MessageSquarePlus aria-hidden="true" />
-          <span className="@max-[320px]/tab-strip:sr-only">
-            {translate('components.tab-bar.newChat', 'New chat')}
-          </span>
-        </Button>
       ) : null}
       <DropdownMenu
         open={newTabMenuOpen}

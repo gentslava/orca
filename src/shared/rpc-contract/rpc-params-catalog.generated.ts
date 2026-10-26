@@ -22,6 +22,7 @@ import {
   BundledSkillExecuteRequestSchema,
   BundledSkillPlanRequestSchema
 } from '../bundled-skill-plan'
+import { SetConversationPreferenceParams } from '../conversation-navigation-preferences'
 import { DelegatedMobileDeviceSyncParamsSchema } from '../delegated-mobile-device-contract'
 import {
   DesktopBrowserBridgeAttachParams,
@@ -1441,6 +1442,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'ui.recordProjectOpen': RecordProjectOpenParams,
   'ui.set': UiUpdate,
   'ui.setCollapsed': SetCollapsedParams,
+  'ui.setConversationPreference': SetConversationPreferenceParams,
   'ui.setJiraQuickFilters': JiraQuickFilterStateParam,
   'ui.setProjectPinned': SetProjectPinnedParams,
   'updater.check': UpdaterCheckParams,

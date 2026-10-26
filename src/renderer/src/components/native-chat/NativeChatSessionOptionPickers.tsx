@@ -82,7 +82,6 @@ function PickerTrigger(props: {
   disabled: boolean
   disabledReason: string | null
   dispatched: boolean
-  forFutureTurn: boolean
   triggerRef: React.Ref<HTMLButtonElement>
   onKeyDown: React.KeyboardEventHandler<HTMLButtonElement>
 }): React.JSX.Element {
@@ -102,11 +101,6 @@ function PickerTrigger(props: {
             className="min-w-0 max-w-64 shrink"
             onKeyDown={props.onKeyDown}
           >
-            {props.forFutureTurn ? (
-              <span className="shrink-0 text-xs">
-                {translate('components.native-chat.composer.nextTurn', 'Next turn')}
-              </span>
-            ) : null}
             <span className="min-w-8 flex-1 truncate text-chat-foreground">{props.modelLabel}</span>
             {props.optionsLabel ? (
               <span className="min-w-0 truncate">{props.optionsLabel}</span>
@@ -224,7 +218,6 @@ function SessionOptionPopover(props: {
               ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel)}`
               : modelName
         }
-        forFutureTurn={forFutureTurn}
         disabled={props.isWorking && model.transport !== 'agent-session'}
         disabledReason={modelReason ?? optionsReason}
         dispatched={
@@ -254,6 +247,7 @@ function SessionOptionPopover(props: {
           }
           const row = content.querySelector(`[data-option-id="${CSS.escape(optionId)}"]`)
           const control =
+            row?.querySelector<HTMLElement>('[role="slider"]:not([data-disabled])') ??
             row?.querySelector<HTMLElement>('[aria-checked="true"]:not(:disabled)') ??
             row?.querySelector<HTMLElement>('button:not(:disabled)')
           if (control) {
@@ -270,15 +264,8 @@ function SessionOptionPopover(props: {
           }
         }}
       >
-        {forFutureTurn ? (
-          <p className="px-2 py-1 text-xs text-muted-foreground">
-            {model.disabledReason === 'host-update-required'
-              ? modelReason
-              : translate(
-                  'components.native-chat.composer.futureMessageOptions',
-                  'Changes apply to future messages. Running and queued messages keep their choices.'
-                )}
-          </p>
+        {forFutureTurn && model.disabledReason === 'host-update-required' ? (
+          <p className="px-2 py-1 text-xs text-muted-foreground">{modelReason}</p>
         ) : null}
         {model.kind.type === 'select' && !model.action ? (
           <NativeChatModelCombobox

@@ -257,8 +257,7 @@ describe('message row drawing a work run', () => {
     expect(screen.getByText(/checking b.ts/)).toBeVisible()
   })
 
-  it('ends activity at unknown guardian warnings, failed tools, and real questions', () => {
-    const warning = approvalReviewMessage('warning', 'Review required before continuing.')
+  it('keeps recoverable tool failures inside the same collapsed activity group', () => {
     const failed: NativeChatMessage = {
       ...command('failed', 'pnpm tc'),
       blocks: [
@@ -272,6 +271,39 @@ describe('message row drawing a work run', () => {
         { type: 'tool-result', callId: 'failed', output: 'Type error in a.ts', isError: true }
       ]
     }
+    const members = [command('a', 'pnpm test'), failed, command('b', 'pnpm tc --pretty false')]
+    const slots = activitySlots(members)
+    expect(slots).toHaveLength(1)
+    expect(slots[0]?.workRun).toEqual(members)
+    const { container } = render(
+      <MessageRow
+        message={members[0]!}
+        workRun={slots[0]?.workRun}
+        expandSignal={false}
+        activeTurnIsWorking={true}
+        onScrollMessageToTop={() => {}}
+      />
+    )
+    const header = container.querySelector('[data-native-chat-tool-run-state]')!
+    expect(header).toHaveTextContent('Running 3 commands')
+    expect(header).toHaveTextContent('1 failed')
+    expect(header).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('Type error in a.ts')).toBeNull()
+    expect(screen.queryByRole('alert')).toBeNull()
+    fireEvent.click(header)
+    openToolRunMembers()
+    expect(screen.getByText('Type error in a.ts')).toBeVisible()
+  })
+
+  it('ends activity at unknown guardian warnings, real questions, and final blockers', () => {
+    const warning = approvalReviewMessage('warning', 'Review required before continuing.')
+    const blocker: NativeChatMessage = {
+      id: 'blocker',
+      role: 'assistant',
+      blocks: [{ type: 'text', text: 'I could not finish because the host is unavailable.' }],
+      timestamp: 1,
+      source: 'transcript'
+    }
     const question: NativeChatMessage = {
       ...command('question', ''),
       blocks: [
@@ -283,7 +315,7 @@ describe('message row drawing a work run', () => {
         }
       ]
     }
-    for (const boundary of [warning, failed, question]) {
+    for (const boundary of [warning, question, blocker]) {
       const slots = activitySlots([
         command('a', 'one'),
         approvalReviewMessage('review-a'),
@@ -304,8 +336,10 @@ describe('message row drawing a work run', () => {
       if (boundary === warning) {
         expect(screen.getByText('Review required before continuing.')).toBeVisible()
       }
-      if (boundary === failed) {
-        expect(screen.getByRole('alert')).toHaveTextContent('Type error in a.ts')
+      if (boundary === blocker) {
+        expect(
+          screen.getByText('I could not finish because the host is unavailable.')
+        ).toBeVisible()
       }
       if (boundary === question) {
         expect(screen.getByText('Which host should I use?')).toBeVisible()

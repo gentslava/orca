@@ -1,13 +1,21 @@
 import { useMemo, useState } from 'react'
 import { ActivityIndicator, Pressable, RefreshControl, SectionList, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { ChevronLeft, MessageSquare, MoreHorizontal, Plus, Settings } from 'lucide-react-native'
+import {
+  ArrowDownAZ,
+  ChevronLeft,
+  MessageSquare,
+  MoreHorizontal,
+  Pin,
+  Plus,
+  Settings
+} from 'lucide-react-native'
 import { colors } from '../theme/mobile-theme'
 import { MobileAgentIcon } from '../components/MobileAgentIcon'
 import { AgentStateDot } from '../components/AgentStateDot'
 import { StatusDot } from '../components/StatusDot'
 import { MobileSearchField } from '../components/MobileSearchField'
-import { BottomDrawer } from '../components/BottomDrawer'
+import { ConversationAgentSheet } from './conversation-agent-sheet'
 import { ActionSheetModal } from '../components/ActionSheetModal'
 import { AuthFailedBanner } from '../components/AuthFailedBanner'
 import { formatAgentTypeLabel } from '../../../src/shared/agent-type-label'
@@ -16,6 +24,11 @@ import { buildProjectConversations, type ConversationRow } from './project-conve
 import { useConversationActions } from './use-conversation-actions'
 import { conversationCopy, conversationTimeAgo } from './conversation-copy'
 import { conversationStyles as styles } from './conversation-styles'
+import { buildProjectSectionCatalog } from '../worktree/project-section-catalog'
+import { ConversationProjectOrderSheet } from './conversation-project-order-sheet'
+import { ConversationDetailsSheet } from './conversation-details-sheet'
+import { useConversationPreferences } from './use-conversation-preferences'
+import { PROJECT_CONVERSATION_PAGE_SIZE } from '../../../src/shared/project-conversation-list'
 import { useProjectConversations } from './use-project-conversations'
 
 export function HostConversations({
@@ -28,12 +41,32 @@ export function HostConversations({
   const copy = conversationCopy()
   const { hostId, connState, actions, state } = controller
   const data = useProjectConversations(controller)
+  const conversationPreferences = useConversationPreferences(controller)
   const [query, setQuery] = useState('')
   const [options, setOptions] = useState(false)
+  const [sorting, setSorting] = useState(false)
+  const [archived, setArchived] = useState(false)
+  const [expandedProjects, setExpandedProjects] = useState<ReadonlySet<string>>(new Set())
   const [details, setDetails] = useState<ConversationRow | null>(null)
   const { busy, error, newChat, setNewChat, prepare, launch, open } = useConversationActions(
     controller,
     data
+  )
+  const projectCatalog = useMemo(
+    () =>
+      buildProjectSectionCatalog(
+        controller.projectCatalog,
+        [...controller.sectionsResult.repoById.values()],
+        state.view.filters.visibleHostIds,
+        controller.projectOrderBy,
+        state.view.personalProjectOrder
+      ),
+    [
+      controller.projectCatalog,
+      controller.sectionsResult.repoById,
+      controller.projectOrderBy,
+      state.view
+    ]
   )
   const projects = useMemo(
     () =>
@@ -44,7 +77,10 @@ export function HostConversations({
         history: data.history,
         now: controller.now,
         untitled: copy.untitled,
-        query
+        query,
+        projectCatalog,
+        preferences: conversationPreferences.preferences,
+        archived
       }),
     [
       data.workspaces,
@@ -53,10 +89,25 @@ export function HostConversations({
       data.history,
       controller.now,
       copy.untitled,
-      query
+      query,
+      projectCatalog,
+      conversationPreferences.preferences,
+      archived
     ]
   )
 
+  const sections = useMemo(
+    () =>
+      projects.map((project) => ({
+        ...project,
+        totalCount: project.data.length,
+        data:
+          query.trim() || expandedProjects.has(project.key)
+            ? project.data
+            : project.data.slice(0, PROJECT_CONVERSATION_PAGE_SIZE)
+      })),
+    [projects, query, expandedProjects]
+  )
   const connected = connState === 'connected'
   return (
     <View style={styles.container}>
@@ -71,7 +122,7 @@ export function HostConversations({
             <ChevronLeft size={22} color={colors.textPrimary} />
           </Pressable>
           <View style={styles.headerText}>
-            <Text style={styles.title}>{copy.conversations}</Text>
+            <Text style={styles.title}>{archived ? copy.archived : copy.projects}</Text>
             <View style={styles.host}>
               <StatusDot state={connState} />
               <Text style={styles.meta} numberOfLines={1}>
@@ -108,17 +159,27 @@ export function HostConversations({
         />
       )}
       <View style={styles.search}>
-        <MobileSearchField
-          value={query}
-          onChangeText={setQuery}
-          placeholder={copy.search}
-          accessibilityLabel={copy.search}
-        />
+        <View style={styles.searchField}>
+          <MobileSearchField
+            value={query}
+            onChangeText={setQuery}
+            placeholder={copy.search}
+            accessibilityLabel={copy.search}
+          />
+        </View>
+        <Pressable
+          onPress={() => setSorting(true)}
+          style={styles.iconButton}
+          accessibilityRole="button"
+          accessibilityLabel={copy.projectOrder}
+        >
+          <ArrowDownAZ size={18} color={colors.textSecondary} />
+        </Pressable>
       </View>
       {!connected && <Text style={styles.notice}>{copy.offline}</Text>}
-      {error || state.actionError ? (
+      {error || state.actionError || conversationPreferences.error ? (
         <Text accessibilityRole="alert" style={[styles.notice, styles.failure]}>
-          {error || state.actionError}
+          {error || state.actionError || conversationPreferences.error}
         </Text>
       ) : null}
       {data.failed || state.catalogError ? <Text style={styles.notice}>{copy.failed}</Text> : null}
@@ -132,7 +193,7 @@ export function HostConversations({
         <Text style={styles.notice}>{copy.legacy}</Text>
       ) : null}
       <SectionList
-        sections={projects}
+        sections={sections}
         keyExtractor={(row) => row.key}
         stickySectionHeadersEnabled={false}
         keyboardShouldPersistTaps="handled"
@@ -166,6 +227,24 @@ export function HostConversations({
                 </Text>
               ) : null}
             </View>
+            {section.repo && controller.settings.supportsPersonalProjectOrder ? (
+              <Pressable
+                onPress={() =>
+                  section.repo && void controller.settings.toggleProjectPin(section.repo)
+                }
+                style={styles.iconButton}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  section.projectPreference?.pinned ? copy.unpinProject : copy.pinProject
+                }
+                disabled={!connected}
+              >
+                <Pin
+                  size={16}
+                  color={section.projectPreference?.pinned ? colors.textPrimary : colors.textMuted}
+                />
+              </Pressable>
+            ) : null}
             <Pressable
               onPress={() => prepare(section)}
               disabled={!connected || Boolean(section.hostHealthLabel) || busy !== null}
@@ -187,6 +266,17 @@ export function HostConversations({
         )}
         renderSectionFooter={({ section }) => (
           <>
+            {section.totalCount > section.data.length ? (
+              <Pressable
+                onPress={() => setExpandedProjects((current) => new Set([...current, section.key]))}
+                style={styles.agentButton}
+                accessibilityRole="button"
+              >
+                <Text style={styles.actionText}>
+                  {copy.showMore} ({section.totalCount - section.data.length})
+                </Text>
+              </Pressable>
+            ) : null}
             {section.data.length === 0 ? <Text style={styles.empty}>{copy.empty}</Text> : null}
             {section.hostId.startsWith('ssh:') ? (
               <Text style={styles.empty}>{copy.ssh}</Text>
@@ -207,9 +297,15 @@ export function HostConversations({
             >
               <MobileAgentIcon agentId={item.agent ?? ''} size={20} />
               <View style={styles.rowText}>
-                <Text style={styles.rowTitle} numberOfLines={1}>
-                  {item.title}
-                </Text>
+                <View style={styles.rowMeta}>
+                  {item.preferenceKey &&
+                  conversationPreferences.preferences?.entries[item.preferenceKey]?.pinned ? (
+                    <Pin size={12} color={colors.textSecondary} />
+                  ) : null}
+                  <Text style={[styles.rowTitle, styles.sectionName]} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                </View>
                 <View style={styles.rowMeta}>
                   <AgentStateDot
                     state={
@@ -254,11 +350,20 @@ export function HostConversations({
           </View>
         )}
       />
+      <ConversationProjectOrderSheet
+        visible={sorting}
+        onClose={() => setSorting(false)}
+        controller={controller}
+      />
       <ActionSheetModal
         visible={options}
         title={copy.settings}
         onClose={() => setOptions(false)}
         actions={[
+          {
+            label: archived ? copy.back : copy.archived,
+            onPress: () => setArchived((value) => !value)
+          },
           { label: copy.workspaces, onPress: onWorkspaces },
           {
             label: copy.accounts,
@@ -271,40 +376,22 @@ export function HostConversations({
           { label: copy.newWorkspace, onPress: actions.openNewWorktreeModal, disabled: !connected }
         ]}
       />
-      <BottomDrawer visible={details !== null} onClose={() => setDetails(null)}>
-        {details && (
-          <View style={styles.drawer}>
-            <Text style={styles.title}>{details.title}</Text>
-            <Text
-              style={styles.detail}
-              selectable
-            >{`${copy.host}: ${details.workspace.hostContextLabel ?? controller.hostDisplay.title}\n${copy.workspace}: ${details.workspace.displayName}\n${details.workspace.path}${details.workspace.branch ? `\n${copy.branch}: ${details.workspace.branch}` : ''}${details.workspace.linkedPR ? `\nPR #${details.workspace.linkedPR.number}` : ''}${details.history?.model ? `\n${copy.model}: ${details.history.model}` : ''}`}</Text>
-            <Pressable
-              onPress={() => setDetails(null)}
-              style={styles.agentButton}
-              accessibilityRole="button"
-            >
-              <Text style={styles.actionText}>{copy.close}</Text>
-            </Pressable>
-          </View>
-        )}
-      </BottomDrawer>
-      <BottomDrawer visible={newChat !== null} onClose={() => setNewChat(null)}>
-        <View style={styles.drawer}>
-          <Text style={styles.title}>{copy.agent}</Text>
-          {newChat?.agents.map((option) => (
-            <Pressable
-              key={option.agent}
-              onPress={() => launch(option)}
-              style={({ pressed }) => [styles.agentButton, pressed && styles.pressed]}
-              accessibilityRole="button"
-            >
-              <MobileAgentIcon agentId={option.agent} size={20} />
-              <Text style={styles.actionText}>{option.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </BottomDrawer>
+      <ConversationDetailsSheet
+        details={details}
+        onClose={() => setDetails(null)}
+        hostTitle={controller.hostDisplay.title}
+        canManage={conversationPreferences.supported}
+        writing={conversationPreferences.writing}
+        preferences={conversationPreferences.preferences}
+        onPreference={conversationPreferences.setPreference}
+        {...{ archived, connected }}
+      />
+      <ConversationAgentSheet
+        visible={newChat !== null}
+        agents={newChat?.agents ?? []}
+        onClose={() => setNewChat(null)}
+        onLaunch={launch}
+      />
     </View>
   )
 }

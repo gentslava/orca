@@ -73,7 +73,7 @@ function renderStatus(
     }
   ])
   const view = orcaStopView(hostLabel, continueAvailable, remoteHost, offer)
-  return render(
+  const rendered = render(
     <TooltipProvider>
       <NativeChatOrcaStopContext.Provider value={view}>
         <MessageRow
@@ -85,6 +85,11 @@ function renderStatus(
       </NativeChatOrcaStopContext.Provider>
     </TooltipProvider>
   )
+  const generic = screen.queryByRole('button', { name: 'Agent reported an error' })
+  if (generic) {
+    fireEvent.click(generic)
+  }
+  return rendered
 }
 
 const LEGACY_TEXT =
@@ -214,9 +219,7 @@ describe('the row an Orca stop leaves', () => {
   it('keeps the host words for a stop Orca did not cause', () => {
     const { orcaStop: _orcaStop, presentation: _presentation, ...agentExit } = orcaStopRow('update')
     renderStatus(agentExit, 'studio-mac')
-    expect(screen.getByText(LEGACY_TEXT).parentElement?.parentElement).toHaveClass(
-      'text-destructive'
-    )
+    expect(screen.getByText(LEGACY_TEXT).parentElement).toHaveClass('text-destructive')
   })
 })
 
@@ -269,6 +272,10 @@ describe('notice rows', () => {
         agentName="Grok"
       />
     )
+    const generic = screen.queryByRole('button', { name: 'Agent reported an error' })
+    if (generic) {
+      fireEvent.click(generic)
+    }
     expect(screen.getByText(text)).toBeInTheDocument()
   })
 
@@ -349,7 +356,7 @@ describe('notice rows', () => {
       expect(
         screen.getByText(`${guidance}${locale === 'ja' ? '' : ' '}${detail}`)
       ).toBeInTheDocument()
-      expect(screen.queryByText(words.text)).toBeNull()
+      expect(screen.getByText(words.text)).toBeInTheDocument()
     }
   )
 
@@ -535,7 +542,10 @@ describe('Codex installation in notice rows', () => {
         'Codex'
       )
       expect(screen.getByText(text)).toBeInTheDocument()
-      expect(screen.queryByRole('button')).toBeNull()
+      expect(screen.getByRole('button', { name: 'Agent reported an error' })).toHaveAttribute(
+        'aria-expanded',
+        'true'
+      )
     }
   )
 })

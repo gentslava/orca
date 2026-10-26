@@ -1,3 +1,4 @@
+import { normalizeConversationPreferences } from '../../../shared/conversation-navigation-preferences'
 import { normalizePersonalProjectOrder } from '../../../shared/personal-project-order'
 import { normalizeExplorerDisplayRootByWorktree } from '../../../shared/file-explorer-display-root'
 import type { PersistedState } from '../../../shared/persisted-state-types'
@@ -119,6 +120,9 @@ export function updatePersistedUI(
     sortBy: durableUpdates.sortBy
       ? normalizeSortBy(durableUpdates.sortBy)
       : normalizeSortBy(operations.state.ui?.sortBy),
+    conversationPreferences: normalizeConversationPreferences(
+      durableUpdates.conversationPreferences ?? currentUI.conversationPreferences
+    ),
     personalProjectOrder: normalizePersonalProjectOrder(
       durableUpdates.personalProjectOrder ?? currentUI.personalProjectOrder
     ),

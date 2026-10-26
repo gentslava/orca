@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDetectedAgents } from '@/hooks/useDetectedAgents'
 import { translate } from '@/i18n/i18n'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import {
@@ -20,6 +21,7 @@ export function WorkerRoleSettings({
   settings: GlobalSettings
   updateSettings: (updates: Partial<GlobalSettings>) => void | Promise<void>
 }): React.JSX.Element {
+  const { detectedIds } = useDetectedAgents({ kind: 'local' })
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [newRole, setNewRole] = useState('')
@@ -96,6 +98,7 @@ export function WorkerRoleSettings({
             profile={profiles[role]}
             disabled={pending}
             disabledAgents={settings.disabledTuiAgents}
+            detectedIds={detectedIds}
             structuredFast={
               (profiles[role]?.agent === 'claude' || profiles[role]?.agent === 'codex') &&
               isNativeChatDefaultFor(settings, profiles[role].agent)

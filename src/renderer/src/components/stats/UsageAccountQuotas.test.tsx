@@ -87,6 +87,51 @@ function fixture() {
 afterEach(cleanup)
 
 describe('account quota coverage', () => {
+  it('omits unconfigured current providers and preserves configured unavailable and failing accounts', () => {
+    const unavailable = (provider: ProviderRateLimits['provider']): ProviderRateLimits => ({
+      ...quota(0, 'plus'),
+      provider,
+      session: null,
+      weekly: null,
+      status: 'unavailable',
+      error: 'Not configured'
+    })
+    const limits = createEmptyRateLimitState({
+      gemini: unavailable('gemini'),
+      opencodeGo: unavailable('opencode-go'),
+      kimi: unavailable('kimi'),
+      grok: unavailable('grok'),
+      cursor: {
+        ...unavailable('cursor'),
+        status: 'error',
+        error: 'Token expired',
+        usageMetadata: { failureKind: 'stale-token' }
+      },
+      minimax: unavailable('minimax'),
+      minimaxApiKeyConfigured: true
+    })
+    expect(buildUsageAccountQuotaRows(limits, null).map((row) => row.provider.provider)).toEqual([
+      'minimax',
+      'cursor'
+    ])
+    expect(
+      buildUsageAccountQuotaRows(limits, null, false, { geminiCliOAuthEnabled: true }).map(
+        (row) => row.provider.provider
+      )
+    ).toEqual(['gemini', 'minimax', 'cursor'])
+    render(
+      <UsageAccountQuotas
+        rateLimits={limits}
+        ownerLabel="This device"
+        onRefresh={() => {}}
+        onManage={() => {}}
+      />
+    )
+    expect(screen.queryByTestId('usage-quota-gemini')).not.toBeInTheDocument()
+    expect(screen.getByTestId('usage-quota-cursor')).toHaveTextContent('Run cursor-agent login')
+    expect(screen.getByRole('button', { name: 'Manage accounts' })).toBeInTheDocument()
+  })
+
   it('shows each reported account with distinct safe identity, plan, windows, resets and source errors', () => {
     const { accounts, rateLimits } = fixture()
     render(

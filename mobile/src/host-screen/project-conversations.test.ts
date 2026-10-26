@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { conversationPreferenceKey } from '../../../src/shared/conversation-navigation-preferences'
+import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
 import { structuredAgentSessionPaneKey } from '../../../src/shared/structured-agent-session-projection'
 import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
 import {
@@ -191,6 +193,110 @@ describe('projects containing conversations', () => {
     expect(
       buildProjectConversations({ ...defaults, workspaces: [workspace], query: 'clearer' })[0]?.data
     ).toHaveLength(1)
+  })
+
+  it('uses personal project openings, pins, names and catalog order independently of agent activity', () => {
+    const repos = ['Beta', 'Alpha', 'Pinned'].map((displayName) => ({
+      id: displayName,
+      displayName,
+      path: `/projects/${displayName}`
+    }))
+    const projectCatalog: ProjectSectionCatalog = {
+      repos,
+      grouping: {
+        projects: repos.map((repo) => ({ id: `github:${repo.id}`, displayName: repo.displayName })),
+        projectHostSetups: repos.map((repo) => ({
+          id: repo.id,
+          projectId: `github:${repo.id}`,
+          hostId: 'local',
+          repoId: repo.id,
+          path: repo.path,
+          displayName: repo.displayName,
+          setupMethod: 'imported-existing-folder'
+        })),
+        personalProjectOrder: {
+          projects: {
+            'github:Beta': { lastOpenedAt: 200, openCount: 1 },
+            'github:Alpha': { lastOpenedAt: 100, openCount: 8 },
+            'github:Pinned': { pinned: true }
+          },
+          settledOperations: []
+        }
+      },
+      repoOrder: new Map(repos.map((repo, index) => [repo.id, index])),
+      projectOrderBy: 'recent'
+    }
+    const workspaces = repos.map((repo) =>
+      conversationWorkspace({
+        repoId: repo.id,
+        repo: repo.displayName,
+        worktreeId: repo.id,
+        path: repo.path,
+        lastActivityAt: repo.id === 'Alpha' ? 9999 : 0
+      })
+    )
+    const titles = () =>
+      buildProjectConversations({ ...defaults, repos, workspaces, projectCatalog }).map(
+        (project) => project.title
+      )
+
+    expect(titles()).toEqual(['Pinned', 'Beta', 'Alpha'])
+    projectCatalog.projectOrderBy = 'frequent'
+    expect(titles()).toEqual(['Pinned', 'Alpha', 'Beta'])
+    projectCatalog.projectOrderBy = 'name'
+    expect(titles()).toEqual(['Pinned', 'Alpha', 'Beta'])
+    projectCatalog.projectOrderBy = 'manual'
+    expect(titles()).toEqual(['Pinned', 'Beta', 'Alpha'])
+  })
+
+  it('shares chat pins and archive identity while hiding only confirmed empty history', () => {
+    const saved = conversationHistory({
+      title: 'Codex Chat',
+      agent: 'codex',
+      firstUserPrompt: 'Repair the history scroll',
+      structuredSession: {
+        sessionId: 'native-chat',
+        workspaceId: conversationWorkspace().worktreeId
+      }
+    })
+    const newer = conversationHistory({
+      id: 'newer',
+      sessionId: 'provider-newer',
+      modifiedAt: '2026-10-25T12:00:00Z'
+    })
+    const empty = conversationHistory({
+      id: 'empty',
+      sessionId: 'provider-empty',
+      conversationContent: 'empty'
+    })
+    const unknown = conversationHistory({
+      id: 'unknown',
+      sessionId: 'provider-unknown',
+      conversationContent: 'unknown'
+    })
+    const key = conversationPreferenceKey({ ...saved, executionHostId: 'local' })
+    const preferences = { revision: 1, entries: { [key]: { pinned: true, archived: false } } }
+    const args = {
+      ...defaults,
+      workspaces: [conversationWorkspace()],
+      history: [newer, saved, empty, unknown],
+      preferences
+    }
+    const active = buildProjectConversations(args)[0]?.data
+    expect(active?.map((row) => row.history?.id)).toEqual([saved.id, newer.id, unknown.id])
+    expect(active?.[0]?.title).toBe('Repair the history scroll')
+
+    preferences.entries[key] = { pinned: true, archived: true }
+    expect(buildProjectConversations(args)[0]?.data.map((row) => row.history?.id)).toEqual([
+      newer.id,
+      unknown.id
+    ])
+    expect(
+      buildProjectConversations({ ...args, archived: true })[0]?.data.map((row) => row.history?.id)
+    ).toEqual([saved.id])
+    preferences.entries[key] = { pinned: true, archived: false }
+    expect(buildProjectConversations({ ...args, archived: true })).toEqual([])
+    expect(buildProjectConversations(args)[0]?.data[0]?.preferenceKey).toBe(key)
   })
 
   it('leaves old-host durable coverage unconfirmed rather than claiming no saved conversations', () => {

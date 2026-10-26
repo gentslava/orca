@@ -138,6 +138,7 @@ export function UsageAccountQuotas({
   onRefresh: () => void | Promise<void>
   onManage: () => void
 }): React.JSX.Element {
+  const settings = useAppStore((state) => (localOwner ? state.settings : null))
   const fetchRateLimits = useAppStore((state) => state.fetchRateLimits)
   const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
   const fetchInactiveCodex = useAppStore((state) => state.fetchInactiveCodexAccountUsage)
@@ -148,7 +149,7 @@ export function UsageAccountQuotas({
       void fetchInactiveCodex?.()
     }
   }, [localOwner, fetchRateLimits, fetchInactiveClaude, fetchInactiveCodex])
-  const rows = buildUsageAccountQuotaRows(rateLimits, accounts, accountsUnverifiable)
+  const rows = buildUsageAccountQuotaRows(rateLimits, accounts, accountsUnverifiable, settings)
   return (
     <section className="space-y-3" data-testid="usage-account-quotas">
       <div className="flex items-start justify-between gap-3">

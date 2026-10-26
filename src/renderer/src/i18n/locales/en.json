@@ -341,7 +341,9 @@
       "holdQuit": {
         "title": "Hold ⌘Q while agents are working",
         "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
-        "keyword": { "quit": "quit" }
+        "keyword": {
+          "quit": "quit"
+        }
       },
       "language": {
         "title": "Language",
@@ -578,6 +580,11 @@
     },
     "orchestration": {
       "roles": {
+        "modelsUnavailable": "No models reported by this host.",
+        "unavailable": "Unavailable",
+        "notListed": "Not listed",
+        "checking": "Checking…",
+        "refreshingModels": "Refreshing models…",
         "agent": "Agent",
         "unconfigured": "Not configured",
         "model": "Model",
@@ -19271,6 +19278,7 @@
         "cancelledBy": "Cancelled on {{device}}"
       },
       "notices": {
+        "agentError": "Agent reported an error",
         "contextCleared": "Context cleared",
         "compaction": "Context compacted",
         "details": "Details",
@@ -21966,5 +21974,30 @@
   },
   "documentLinks": {
     "keyboardHint": "↑↓ navigate  ↵ select  esc dismiss"
+  },
+  "projectConversations": {
+    "saveFailed": "Could not save chat preferences. Update Orca or try again.",
+    "unpin": "Unpin chat",
+    "pin": "Pin chat",
+    "restore": "Restore chat",
+    "archive": "Archive chat",
+    "working": "Working",
+    "needsYou": "Needs you",
+    "unpinProject": "Unpin project",
+    "pinProject": "Pin project",
+    "showMore": "Show more",
+    "newChatInProject": "New chat in {{project}}",
+    "projectOrder": "Project order",
+    "allChats": "Chats",
+    "archived": "Archived",
+    "projectOptions": "Project options",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "noChats": "No chats yet",
+    "loading": "Loading chats…",
+    "noArchived": "No archived chats",
+    "noMatching": "No matching chats",
+    "search": "Search chats",
+    "untitled": "Untitled chat"
   }
 }

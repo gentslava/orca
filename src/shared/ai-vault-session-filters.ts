@@ -210,6 +210,7 @@ function matchesQuery(
   if (parsed.terms.length > 0) {
     const searchable = [
       session.title,
+      session.firstUserPrompt,
       session.sessionId,
       session.agent,
       session.branch,

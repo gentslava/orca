@@ -24,7 +24,14 @@ export const conversationStyles = StyleSheet.create({
     borderRadius: radii.button
   },
   pressed: { backgroundColor: colors.bgRaised },
-  search: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+  search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md
+  },
+  searchField: { flex: 1 },
   list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
   section: {
     flexDirection: 'row',

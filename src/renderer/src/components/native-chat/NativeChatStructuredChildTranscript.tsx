@@ -1,3 +1,4 @@
+import { useNativeChatChildHistory } from './use-native-chat-child-history'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { translate } from '@/i18n/i18n'
@@ -147,6 +148,20 @@ function JournalTranscript({
     NO_OPTIMISTIC,
     read.state.submissions
   )
+  useNativeChatChildHistory({
+    scopeKey: JSON.stringify([source.target, source.sessionId, scopeAgentId]),
+    agentId: scopeAgentId,
+    messages: projected,
+    hasMore: read.state.hasOlder,
+    loading: read.loadingOlder,
+    generation: read.olderHistoryGeneration,
+    anchorKey: read.state.items[0]?.itemId,
+    enabled:
+      (source.agent === 'codex' || source.agent === 'claude') &&
+      props.isVisible &&
+      props.active !== false,
+    loadEarlier: read.loadOlder
+  })
   const messages = useMemo(
     () => (scopeAgentId ? nativeChatChildTranscript(projected, scopeAgentId) : projected),
     [projected, scopeAgentId]

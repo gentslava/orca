@@ -487,7 +487,7 @@ describe('NativeChatToolRun', () => {
     expect(container.querySelector('.animate-pulse')).toBeNull()
   })
 
-  it('refuses the completion mark to a collapsed run whose call failed', () => {
+  it('keeps a failed call quiet until its activity and output are opened', () => {
     const blocks: NativeChatBlock[] = [
       { type: 'tool-call', name: 'shell', input: { command: 'false' }, state: 'failed' },
       { type: 'tool-result', output: 'exit 1', isError: true }
@@ -499,8 +499,15 @@ describe('NativeChatToolRun', () => {
     expect(runHeader(container)).toHaveTextContent(' · 1 failed')
     expect(runHeader(container)).toHaveAccessibleName(/Failed tool calls: 1/)
     expect(container.querySelector('.lucide-circle-alert')).toBeNull()
-    expect(screen.getByRole('alert')).toHaveTextContent('false: exit 1')
-    expect(screen.getByRole('alert')).toHaveClass('text-destructive')
+    expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.queryByText('exit 1')).toBeNull()
+    expect(container.querySelector('[class*="text-destructive"]')).toBeNull()
+    expect(screen.getByLabelText('Failed tool calls: 1')).toHaveClass('text-chat-foreground-faint')
+
+    fireEvent.click(runHeader(container))
+    openToolRunMembers()
+    expect(screen.getByText('exit 1')).toBeVisible()
+    expect(screen.getByText('exit 1')).toHaveClass('text-destructive')
   })
 
   it('counts every failed call in a run, not just the last one', () => {

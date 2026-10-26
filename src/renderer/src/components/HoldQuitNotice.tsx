@@ -4,7 +4,7 @@ import { Progress } from './ui/progress'
 import { translate } from '@/i18n/i18n'
 import { HOLD_QUIT_DURATION_MS, type HoldQuitNotice as Notice } from '../../../shared/mac-hold-quit'
 
-function HoldQuitHint({ phase }: { phase: Notice['phase'] }): React.JSX.Element {
+export function HoldQuitHint({ phase }: { phase: Notice['phase'] }): React.JSX.Element {
   const [progress, setProgress] = useState(0)
   useEffect(() => {
     if (phase !== 'holding') {
@@ -33,8 +33,13 @@ function HoldQuitHint({ phase }: { phase: Notice['phase'] }): React.JSX.Element 
             )
           : hint}
       </p>
-      {phase === 'holding' ? (
-        <Progress value={progress} aria-label={hint} animated={false} className="h-1" />
+      {phase !== 'unavailable' ? (
+        <Progress
+          value={phase === 'holding' ? progress : 0}
+          aria-label={hint}
+          animated={false}
+          className="h-1.5"
+        />
       ) : null}
     </div>
   )

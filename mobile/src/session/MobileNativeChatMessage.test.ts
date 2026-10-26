@@ -78,12 +78,8 @@ vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
   MobileNativeChatMessageActionsSheet: 'MessageActionsSheet'
 }))
 
-import {
-  COMPACT_APPROVAL_CASES,
-  NON_COMPACT_APPROVAL_BLOCKS,
-  approvalReviewBlock
-} from '../../../src/shared/native-chat-activity.test-fixture'
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
+import { registerMobileNativeChatAutoApprovalTests } from './MobileNativeChatMessage.auto-approval.spec'
 import { findAllByHostType, findByHostType } from '../test-support/react-test-renderer-host-nodes'
 
 function userMessage(blocks: NativeChatMessage['blocks']): NativeChatMessage {
@@ -165,49 +161,31 @@ describe('MobileNativeChatMessage', () => {
   const words = (node: ReactTestInstance): string[] =>
     node.children.flatMap((child) => (typeof child === 'string' ? [child] : words(child)))
 
-  it.each([
-    ...COMPACT_APPROVAL_CASES,
-    { block: approvalReviewBlock(), label: 'Automatic approval granted' }
-  ])('discloses $label without showing the original rejection by default', ({ block, label }) => {
-    render({ id: 'denial', role: 'system', blocks: [block], timestamp: 0, source: 'transcript' })
-    const tree = renderer!
-    const texts = () => findAllByHostType(tree.root, 'Text').map((node) => node.children.join(''))
+  it('keeps a generic completed error neutral and collapsed until its details are opened', () => {
+    const text = 'Provider error: a previously unknown execution failure.'
+    const tree = render({
+      id: 'generic-error',
+      role: 'system',
+      blocks: [{ type: 'text', tone: 'error', text }],
+      timestamp: 0,
+      source: 'transcript'
+    })
+    expect(textIn(tree.root)).toContain('Agent reported an error')
+    expect(textIn(tree.root)).not.toContain(text)
     const trigger = findAllByHostType(tree.root, 'Pressable').find(
-      (node) => node.props.accessibilityState?.expanded !== undefined
-    )!
-    expect(texts()).toContain(label)
-    expect(texts()).not.toContain(block.text)
-    expect(trigger.props.accessibilityState.expanded).toBe(false)
-    expect(trigger.props['aria-expanded']).toBe(false)
-    act(() => trigger.props.onPress())
-    expect(texts()).toContain(block.text)
-    expect(texts()).toContain(block.providerFrame!.payload.head)
-    expect(trigger.props.accessibilityState.expanded).toBe(true)
-    expect(trigger.props['aria-expanded']).toBe(true)
-    act(() => trigger.props.onPress())
-    expect(texts()).not.toContain(block.text)
-    expect(trigger.props.accessibilityState.expanded).toBe(false)
-    expect(trigger.props['aria-expanded']).toBe(false)
+      (node) => node.props.accessibilityState?.expanded === false
+    )
+    expect(trigger).toBeDefined()
+    act(() => trigger?.props.onPress())
+    expect(textIn(tree.root)).toContain(text)
+    expect(
+      findAllByHostType(tree.root, 'Pressable').some(
+        (node) => node.props.accessibilityState?.expanded === true
+      )
+    ).toBe(true)
   })
 
-  it.each(NON_COMPACT_APPROVAL_BLOCKS)(
-    'keeps another error or interactive notice visible: $text',
-    (block) => {
-      render({
-        id: 'ordinary',
-        role: 'system',
-        blocks: [block],
-        timestamp: 0,
-        source: 'transcript'
-      })
-      expect(textIn(renderer!.root)).toContain(block.text)
-      expect(
-        findAllByHostType(renderer!.root, 'Pressable').filter(
-          (node) => node.props.accessibilityState?.expanded !== undefined
-        )
-      ).toHaveLength(0)
-    }
-  )
+  registerMobileNativeChatAutoApprovalTests(render)
 
   it('draws an answered approval and question as their receipts', () => {
     const { messages, receipts } = structuredQuestionTranscript(ANSWERED_PROMPT_ITEMS)
@@ -477,6 +455,12 @@ describe('MobileNativeChatMessage', () => {
     ]
   ])('draws %s, never as the agent speaking', (_, message, color) => {
     const tree = render(message)
+    const generic = findAllByHostType(tree.root, 'Pressable').find(
+      (node) => node.props.accessibilityState?.expanded === false
+    )
+    if (generic) {
+      act(() => generic.props.onPress())
+    }
     expect(tree.root.findAll((node) => String(node.type) === 'MobileMarkdown')).toHaveLength(0)
     const text = tree.root.find(
       (node) => String(node.type) === 'Text' && node.props.selectable === true

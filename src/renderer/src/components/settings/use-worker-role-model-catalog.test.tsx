@@ -54,12 +54,48 @@ describe('worker role model catalogs', () => {
       fixture.catalogs.set('codex', catalog)
     })
     const { result } = renderHook(() => useWorkerRoleModelCatalog('codex'))
-    await waitFor(() => expect(result.current?.models[0]?.id).toBe('new-host-model'))
+    await waitFor(() => expect(result.current.catalog?.models[0]?.id).toBe('new-host-model'))
     expect(fixture.preload).toHaveBeenCalledWith({ kind: 'local' }, ['codex'], { savedOnly: true })
-    expect(result.current?.models[0]?.options[0]?.kind).toMatchObject({
+    expect(result.current.catalog?.models[0]?.options[0]?.kind).toMatchObject({
       type: 'select',
       choices: [{ value: 'low' }, { value: 'high' }]
     })
+  })
+
+  it('demands a live host listing when the model menu is opened instead of retaining only saved seeds', async () => {
+    fixture.preload.mockImplementation(async (_target, _agents, options) => {
+      if (options.awaitListing) {
+        fixture.catalogs.set('codex', {
+          ...catalog,
+          models: [
+            { ...catalog.models[0], id: 'gpt-6.1-sol', label: 'GPT 6.1 Sol' },
+            { ...catalog.models[0], id: 'gpt-6-astra', label: 'GPT 6 Astra' }
+          ]
+        })
+      }
+    })
+    const { result } = renderHook(() => useWorkerRoleModelCatalog('codex'))
+    await waitFor(() =>
+      expect(fixture.preload).toHaveBeenCalledWith({ kind: 'local' }, ['codex'], {
+        savedOnly: true
+      })
+    )
+    act(() => result.current.refresh())
+    await waitFor(() =>
+      expect(result.current.catalog?.models.map((model) => model.id)).toEqual([
+        'gpt-6.1-sol',
+        'gpt-6-astra'
+      ])
+    )
+    expect(fixture.preload).toHaveBeenLastCalledWith({ kind: 'local' }, ['codex'], {
+      awaitListing: true
+    })
+  })
+
+  it('withholds unproven built-in model choices when a capable host has no saved catalog', async () => {
+    fixture.preload.mockResolvedValue(undefined)
+    const { result } = renderHook(() => useWorkerRoleModelCatalog('codex'))
+    await waitFor(() => expect(result.current.catalog).toBeNull())
   })
 
   it('keeps the built-in choices without a listing request on older hosts', async () => {
@@ -67,7 +103,7 @@ describe('worker role model catalogs', () => {
     const { result } = renderHook(() => useWorkerRoleModelCatalog('codex'))
     await act(async () => {})
     expect(fixture.preload).not.toHaveBeenCalled()
-    expect(result.current?.models.some((model) => model.id === 'gpt-5.6-sol')).toBe(true)
+    expect(result.current.catalog?.models.some((model) => model.id === 'gpt-5.6-sol')).toBe(true)
   })
 
   it('drops loaded choices after an account change and ignores the old in-flight agent read', async () => {
@@ -87,16 +123,20 @@ describe('worker role model catalogs', () => {
       fixture.catalogs.set('codex', catalog)
       finish?.()
     })
-    expect(result.current?.models.some((model) => model.id === 'new-host-model')).toBe(false)
+    expect(result.current.catalog?.models.some((model) => model.id === 'new-host-model')).not.toBe(
+      true
+    )
     fixture.preload.mockImplementation(async () => {
       fixture.catalogs.set('codex', catalog)
     })
     rerender({ agent: 'codex' })
-    await waitFor(() => expect(result.current?.models[0]?.id).toBe('new-host-model'))
+    await waitFor(() => expect(result.current.catalog?.models[0]?.id).toBe('new-host-model'))
     fixture.catalogs.clear()
     fixture.settings = { activeCodexManagedAccountId: 'personal' }
     fixture.preload.mockImplementation(async () => {})
     rerender({ agent: 'codex' })
-    expect(result.current?.models.some((model) => model.id === 'new-host-model')).toBe(false)
+    expect(result.current.catalog?.models.some((model) => model.id === 'new-host-model')).not.toBe(
+      true
+    )
   })
 })

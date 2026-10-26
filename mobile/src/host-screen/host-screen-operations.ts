@@ -1,3 +1,5 @@
+import { z } from 'zod'
+import { ConversationPreferencesSchema } from '../../../src/shared/conversation-navigation-preferences'
 import { bindDeferredRpcOperation, defineRpcOperation } from '../transport/rpc-operation'
 import { rpcResultVariant } from '../transport/rpc-operation-result-reader'
 import {
@@ -132,5 +134,18 @@ export const projectPinWrite = bindDeferredRpcOperation(
     acceptance: 'success-result-or-skip',
     barrier: 'after-caller-barrier',
     read: rpcResultVariant('project-pin-written', hostViewSettingsSchema)
+  })
+)
+
+export const conversationPreferenceWrite = bindDeferredRpcOperation(
+  defineRpcOperation({
+    name: 'ui.set-conversation-preference',
+    method: 'ui.setConversationPreference',
+    acceptance: 'success-result-or-skip',
+    barrier: 'after-caller-barrier',
+    read: rpcResultVariant(
+      'conversation-preference-written',
+      z.object({ preferences: ConversationPreferencesSchema })
+    )
   })
 )

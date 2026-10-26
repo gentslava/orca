@@ -21,7 +21,6 @@ import { lazyWithRetry } from '@/lib/lazy-with-retry'
 import { LocalGitToolchainScanBanner } from './LocalGitToolchainScanBanner'
 import { SeveredTerminalDaemonBanner } from './SeveredTerminalDaemonBanner'
 import { StalledTerminalDaemonBanner } from './StalledTerminalDaemonBanner'
-import { SidebarConversationStart } from './SidebarConversationStart'
 
 // Keep the Agents activity pipeline out of the workspace view’s initial bundle.
 const SidebarAgentsList = lazyWithRetry(() => import('./SidebarAgentsList'))
@@ -176,7 +175,6 @@ function Sidebar({
             />
             <SeveredTerminalDaemonBanner />
             <StalledTerminalDaemonBanner />
-            {sidebarBody === 'conversations' ? <SidebarConversationStart /> : null}
             {sidebarBody === 'conversations' ? (
               <React.Suspense fallback={<div className="min-h-0 flex-1" />}>
                 <ConversationHistory conversationNavigation onSessionOpened={closeWorkspaceBoard} />

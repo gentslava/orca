@@ -25,8 +25,6 @@ type Props = Pick<
 > & {
   tail: MobileNativeChatTailFollow
   rowKeys: MobileNativeChatRowKeys
-  /** With a header, the row below it anchors the native list's visible content. */
-  hasHeader: boolean
 }
 
 export function MobileNativeChatRowList(props: Props): ReactElement {
@@ -60,7 +58,7 @@ export function MobileNativeChatRowList(props: Props): ReactElement {
       scrollEventThrottle={32}
       onContentSizeChange={tail.pinToTailAfterContentResize}
       onLayout={tail.pinToTail}
-      maintainVisibleContentPosition={mobileNativeChatRowAnchor(props.hasHeader)}
+      maintainVisibleContentPosition={mobileNativeChatRowAnchor()}
       ListHeaderComponent={header}
       ListFooterComponent={footer}
       ListEmptyComponent={emptyStateView}
