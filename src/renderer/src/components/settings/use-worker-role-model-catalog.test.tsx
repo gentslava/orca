@@ -98,6 +98,16 @@ describe('worker role model catalogs', () => {
     await waitFor(() => expect(result.current.catalog).toBeNull())
   })
 
+  it('settles a failed capability refresh without offering unverified models', async () => {
+    fixture.preload.mockResolvedValue(undefined)
+    const { result } = renderHook(() => useWorkerRoleModelCatalog('codex'))
+    await waitFor(() => expect(result.current.catalog).toBeNull())
+    fixture.capabilities.mockRejectedValueOnce(new Error('capability probe failed'))
+    act(() => result.current.refresh())
+    await waitFor(() => expect(result.current.isRefreshing).toBe(false))
+    expect(result.current.catalog).toBeNull()
+  })
+
   it('keeps the built-in choices without a listing request on older hosts', async () => {
     fixture.capabilities.mockResolvedValue([])
     const { result } = renderHook(() => useWorkerRoleModelCatalog('codex'))

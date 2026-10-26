@@ -79,7 +79,11 @@ export function useWorkerRoleModelCatalog(
           setLoaded({ agent, settings, request, catalog: roleCatalog(agent, !canList) })
         }
       })
-      .catch(() => undefined)
+      .catch(() => {
+        if (current) {
+          setLoaded({ agent, settings, request, catalog: null })
+        }
+      })
     return () => {
       current = false
     }
