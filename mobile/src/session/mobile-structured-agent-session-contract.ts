@@ -9,7 +9,10 @@ import type { NativeChatLiveTurnIndicator } from '../../../src/shared/native-cha
 import type { NativeChatResolvedPrompt } from '../../../src/shared/native-chat-resolution-receipt'
 import type { useMobileStructuredAgentOptions } from './use-mobile-structured-agent-options'
 import type { useMobileStructuredAgentTurnTiming } from './use-mobile-structured-agent-turn-timing'
-import type { StructuredMobileSendAttachment } from './use-mobile-structured-send-with-outcome'
+import type {
+  StructuredMobileSendAttachment,
+  StructuredMobileSendRequest
+} from './use-mobile-structured-send-with-outcome'
 import type {
   MobileNativeChatCommandRefusalCauses,
   MobileNativeChatSendErrorReporter
@@ -28,7 +31,8 @@ export type StructuredMobileSession = ReturnType<typeof useMobileStructuredAgent
       text: string,
       images?: string[],
       deadline?: number,
-      attachments?: readonly StructuredMobileSendAttachment[]
+      attachments?: readonly StructuredMobileSendAttachment[],
+      request?: StructuredMobileSendRequest
     ) => Promise<MobileNativeChatSendOutcome>
     cancel: () => void
     receipts: ReadonlyMap<string, NativeChatResolvedPrompt>

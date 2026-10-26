@@ -35,7 +35,7 @@ const asked: NativeChatMessage = {
 }
 
 describe('NativeChatStructuredAsyncQuestion', () => {
-  it('answers a Codex async question with an ordinary send, then hides it', () => {
+  it('answers a Codex async question immediately rather than following the queue preference', () => {
     const send = vi.fn(() => true)
     act(() =>
       root.render(
@@ -52,7 +52,7 @@ describe('NativeChatStructuredAsyncQuestion', () => {
     act(() => blue?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
     act(() => vi.runAllTimers())
 
-    expect(send).toHaveBeenCalledWith('> Which color?\n\nBlue', [])
+    expect(send).toHaveBeenCalledWith('> Which color?\n\nBlue', [], { delivery: 'immediate' })
     expect(container.textContent).not.toContain('Which color?')
   })
 })

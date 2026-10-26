@@ -13,6 +13,8 @@ import {
 import { markRpcDeliveryUnknown } from '../transport/rpc-delivery-ambiguity'
 import { structuredSendResultFixture } from './structured-agent-send-result.test-fixture'
 import { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
+import { AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY } from '../../../src/shared/protocol-version'
+import { AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session-runtime-capabilities'
 import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session-create-capabilities'
 import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../src/shared/agent-session-default-model'
 import type { AgentSessionOptionsResult } from '../../../src/shared/agent-session-wire'
@@ -180,6 +182,35 @@ describe('mobile structured send actions', () => {
     sessionId = 'session-1'
     hostSupport = null
   })
+
+  it.each([true, false])(
+    'delivers async question answers immediately only with host support %s',
+    async (takesSteer) => {
+      hostSupport = structuredAgentSessionHostSupport([
+        AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
+        ...(takesSteer ? [AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY] : [])
+      ])
+      sendRequest.mockImplementation(async (method) =>
+        method === 'agentSession.send' ? sendResult('accepted') : ok({})
+      )
+      await mountSession()
+      await act(async () => {
+        expect(
+          await hook!.sendWithOutcome('The selected answer', undefined, undefined, undefined, {
+            delivery: 'immediate'
+          })
+        ).toBe(takesSteer ? 'accepted' : 'rejected')
+      })
+      if (takesSteer) {
+        expect(calls()).toHaveLength(1)
+        expect(fieldsOf(calls()[0]![1])).not.toHaveProperty('delivery')
+        expect(fieldsOf(calls()[0]![1])).toHaveProperty('steer', true)
+      } else {
+        expect(calls()).toHaveLength(0)
+        expect(onSendError).toHaveBeenCalledWith(expect.stringContaining('answer'))
+      }
+    }
+  )
 
   it.each([
     ['carries the shown model and effort to a host that takes them', true],

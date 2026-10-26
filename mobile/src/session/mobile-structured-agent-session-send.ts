@@ -26,6 +26,8 @@ export async function sendMobileStructuredAgentSessionMessage(input: {
   attachments: readonly StructuredAgentSessionAttachment[]
   /** Sent only when the host advertises `agent-session.queued-messages.v1`. */
   delivery?: 'queue-if-active'
+  /** Sent only when the host advertises immediate steering. */
+  steer?: true
   /** Sent only when the host advertises `agent-session.send-options.v1`. */
   options?: Readonly<Record<string, string>>
   deadline?: number
@@ -54,6 +56,7 @@ export async function sendMobileStructuredAgentSessionMessage(input: {
     fields: {
       body,
       ...(input.delivery ? { delivery: input.delivery } : {}),
+      ...(input.steer ? { steer: input.steer } : {}),
       ...(input.options ? { options: input.options } : {})
     },
     clientOperationId: input.clientMessageId,

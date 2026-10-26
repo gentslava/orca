@@ -33,6 +33,8 @@ export function mobileStructuredSendQueues(
   )
 }
 
+export type StructuredMobileSendRequest = { delivery: 'immediate' }
+
 export type StructuredMobileSendAttachment =
   | (StructuredAgentSessionAttachment & { kind?: 'image'; id?: string })
   | { kind: 'file'; id?: string; path: string }
@@ -43,6 +45,7 @@ export function useMobileStructuredSendWithOutcome(args: {
   sessionId: string | null
   enabled: boolean
   queueCapable: boolean
+  steerCapable?: boolean
   commandsWait: boolean
   stateRef: { readonly current: StructuredAgentSessionState }
   stopping: boolean
@@ -61,7 +64,8 @@ export function useMobileStructuredSendWithOutcome(args: {
   text: string,
   images?: string[],
   deadline?: number,
-  attachments?: readonly StructuredMobileSendAttachment[]
+  attachments?: readonly StructuredMobileSendAttachment[],
+  request?: StructuredMobileSendRequest
 ) => Promise<MobileNativeChatSendOutcome> {
   const {
     accept,
@@ -75,6 +79,7 @@ export function useMobileStructuredSendWithOutcome(args: {
     isModelWritePending,
     onSendError,
     queueCapable,
+    steerCapable = false,
     sendOptions,
     sessionId,
     stateRef,
@@ -85,7 +90,8 @@ export function useMobileStructuredSendWithOutcome(args: {
       text: string,
       images?: string[],
       deadline?: number,
-      attachments?: readonly StructuredMobileSendAttachment[]
+      attachments?: readonly StructuredMobileSendAttachment[],
+      request?: StructuredMobileSendRequest
     ): Promise<MobileNativeChatSendOutcome> => {
       const currentFence = stateRef.current.fence
       if (!client || !sessionId || !enabled || currentFence === null) {
@@ -99,6 +105,11 @@ export function useMobileStructuredSendWithOutcome(args: {
       }
       if (attachments === undefined && images !== undefined && images.length > 0) {
         onSendError('Message not sent')
+        return 'rejected'
+      }
+      const immediate = request?.delivery === 'immediate'
+      if (immediate && queueCapable && !steerCapable) {
+        onSendError('Update Orca on this host to answer while the agent works.')
         return 'rejected'
       }
       const sendAttachments = attachments ?? []
@@ -159,7 +170,8 @@ export function useMobileStructuredSendWithOutcome(args: {
         expectedRuntimeFence: currentFence,
         text: wireText,
         attachments: imageAttachments,
-        ...(mobileStructuredSendQueues(queueCapable, stateRef.current)
+        ...(immediate && steerCapable ? { steer: true as const } : {}),
+        ...(!immediate && mobileStructuredSendQueues(queueCapable, stateRef.current)
           ? { delivery: 'queue-if-active' as const }
           : {}),
         ...(options ? { options } : {}),
@@ -186,6 +198,7 @@ export function useMobileStructuredSendWithOutcome(args: {
       isModelWritePending,
       onSendError,
       queueCapable,
+      steerCapable,
       sendOptions,
       sessionId,
       stateRef,
