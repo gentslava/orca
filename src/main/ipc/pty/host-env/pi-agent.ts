@@ -132,6 +132,8 @@ export function getInheritedAgentHookEnvKeysToDelete(
   // Providers later merge ambient env; delete stale hooks without removing freshly injected coordinates.
   return [
     ...AGENT_HOOK_RUNTIME_ENV_KEYS,
+    'ORCA_CLAUDE_AGENT_VIEW_PLUGIN_DIR',
+    'ORCA_CLAUDE_CONFIG_DIR',
     'ORCA_OPENCODE_AGENT',
     'ORCA_OPENCODE_CONFIG_DIR',
     'ORCA_OPENCODE_SOURCE_CONFIG_DIR'

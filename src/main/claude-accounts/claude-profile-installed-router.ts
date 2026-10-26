@@ -1,30 +1,10 @@
-import { lstatSync, readdirSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
+import { isDirectory } from './claude-profile-homes'
 import type { UsageAccountRoot } from '../usage/usage-account-attribution'
 // Keep the router setup graph out of scan workers.
 import type { ClaudeProfileRouter } from './claude-profile-router'
 import type { ClaudeWslProfileRouter } from './claude-profile-wsl-router'
 import type { ClaudeAccountSelectionTarget } from './runtime-selection'
-
-/** Exclude linked history directories to avoid reading them twice. */
-export function isDirectory(path: string): boolean {
-  try {
-    return lstatSync(path).isDirectory()
-  } catch {
-    return false
-  }
-}
-
-export function listClaudeProfileHomes(dataRoot: string): string[] {
-  const root = join(dataRoot, 'claude-profiles')
-  let ids: string[]
-  try {
-    ids = readdirSync(root)
-  } catch {
-    return []
-  }
-  return ids.map((id) => join(root, id, 'home')).filter(isDirectory)
-}
 
 export function claudeAccountHistoryRoots(): UsageAccountRoot[] {
   const router = installed

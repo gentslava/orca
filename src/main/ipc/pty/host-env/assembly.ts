@@ -1,3 +1,4 @@
+import { applyClaudeAgentViewEnv } from './claude-agent-view'
 import { resolveTerminalInlineImagesEnabled } from '../../../../shared/terminal-inline-images-settings'
 import { resolveSetupAgentSequenceLaunchCommand } from '../../../../shared/setup-agent-sequencing'
 import {
@@ -57,6 +58,7 @@ export function buildPtyHostEnv(
   const openCodeConfig = captureOpenCodeSourceConfig(baseEnv, opts.userDataPath)
   const launchCommandHint = resolveSetupAgentSequenceLaunchCommand(baseEnv, opts.launchCommand)
   applyManagedDataAccountEnvironment(baseEnv, { ...opts, launchCommand: launchCommandHint })
+  applyClaudeAgentViewEnv(baseEnv, opts)
   const explicitPiAgentKind = isPiCompatibleAgentType(opts.launchAgent)
     ? opts.launchAgent
     : opts.launchAgent === undefined
@@ -136,6 +138,15 @@ export function buildPtyHostEnv(
       const guestEndpoint = wslHookRelayManager.getGuestEndpointFilePath(distro)
       if (guestEndpoint) {
         baseEnv.ORCA_AGENT_HOOK_ENDPOINT = guestEndpoint
+      }
+      const claude =
+        opts.claudeSubagentNavigationEnabled !== false &&
+        isTuiAgentEnabled('claude', opts.disabledTuiAgents)
+          ? wslHookRelayManager.getClaudeAgentView(distro)
+          : null
+      if (claude) {
+        baseEnv.ORCA_CLAUDE_AGENT_VIEW_PLUGIN_DIR = claude.pluginDir
+        baseEnv.ORCA_CLAUDE_CONFIG_DIR = claude.configDir
       }
       // OpenCode must load status hooks from its guest-resident overlay.
       const opencodeOverlayDir = openCodeAgent
