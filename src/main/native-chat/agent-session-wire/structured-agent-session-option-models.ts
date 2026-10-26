@@ -14,6 +14,8 @@ export type StructuredAgentSessionOptionProjection = {
 
 export type StructuredAgentSessionLiveOptions = AgentSessionOptionsResult & {
   catalogListing?: AgentModelCatalogLiveListing
+  /** Exact requested identity proven equivalent to current.model by this child's response. */
+  confirmedModelSelection?: string
 }
 
 export type StructuredAgentSessionRestingOptions = Pick<

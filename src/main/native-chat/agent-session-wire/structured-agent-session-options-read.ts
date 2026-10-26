@@ -94,10 +94,7 @@ async function readStructuredAgentSessionOptionsAtRest(
         ? proof.models
         : []
       : models
-  const fastMode =
-    saved.fastMode === undefined
-      ? null
-      : decodeStructuredAgentSessionOptionValue('fastMode', saved.fastMode)
+  const fastMode = decodeStructuredAgentSessionOptionValue('fastMode', saved.fastMode ?? '')
   // Only a real listing confirms account defaults; built-in defaults cannot override client state.
   const model =
     saved.model ??
@@ -176,7 +173,7 @@ export async function readStructuredAgentSessionOptions(
     (rested ??= await readStructuredAgentSessionOptionsAtRest(context.deps, sessionId, reader))
   let options: Omit<AgentSessionOptionsResult, 'rewind'>
   if (live) {
-    const { catalogListing, ...answer } = live
+    const { catalogListing, confirmedModelSelection: _selection, ...answer } = live
     options = answer
     // Fill missing live listings from saved catalog state; absent records keep the child’s answer.
     if (!catalogListing && !answer.listedModelIds && store.getRecord(sessionId)) {
@@ -223,9 +220,15 @@ export async function readStructuredAgentSessionOptions(
   const refusedModel = live && !!adapter.readOptionRestoreFailures?.(sessionId).includes('model')
   const saved = record?.options ?? {}
   const { model: _refused, ...selectedWithoutModel } = selected.current
+  const savedModel =
+    saved.model !== undefined &&
+    saved.model === live?.confirmedModelSelection &&
+    options.current.confirmed?.includes('model')
+      ? options.current.model
+      : saved.model
   const model = refusedModel
     ? (options.current.model ?? displayDefault)
-    : (saved.model ?? (options.current.model || selected.current.model || displayDefault))
+    : (savedModel ?? (options.current.model || selected.current.model || displayDefault))
   const current = {
     ...(refusedModel ? selectedWithoutModel : selected.current),
     ...options.current,
