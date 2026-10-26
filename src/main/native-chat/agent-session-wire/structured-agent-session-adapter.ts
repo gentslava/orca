@@ -254,6 +254,8 @@ export type StructuredAgentSessionAdapter = StructuredAgentSessionAdapterStop & 
   setOption(
     input: StructuredAgentSessionSetOptionInput
   ): Promise<void | Readonly<Record<string, string>>>
+  /** Opt in only when setOption can update idle metadata without a provider turn. */
+  canSetOptionWhileIdle?(input: StructuredAgentSessionSetOptionInput): boolean
   /** Synchronous capability projection; never acquires inventory or changes saved intent. */
   projectOptions?(
     sessionId: string,
