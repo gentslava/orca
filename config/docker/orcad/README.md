@@ -58,7 +58,7 @@ Keep all three volumes, together:
 | `orcad_state`      | `/var/lib/orca` | `ORCA_USER_DATA`: profiles, chat journal, pairing registry, account metadata, terminal state and logs; persistent `machine-id`                                                  |
 | `orcad_workspaces` | `/workspaces`   | Folder projects, repositories, worktrees and project configuration                                                                                                              |
 
-These are the actual names when using `-p orcad`; a different Compose project name gets distinct volumes. `ORCA_USER_DATA` does **not** relocate all credentials out of `HOME/.orca`. `/etc/machine-id` links to the state volume; the entrypoint creates a unique identity once, before launching the existing server. Retain it with the home volume so saved credentials can still decrypt after replacement. Do not mount the host's own home or machine-id.
+These are the actual names when using `-p orcad`; a different Compose project name gets distinct volumes. `ORCA_USER_DATA` does **not** relocate all credentials out of `HOME/.orca`. `/etc/machine-id` links to the state volume; the entrypoint creates a unique identity once, before launching the existing server. Retain it with the state volume so saved credentials can still decrypt after replacement. Do not mount the host's own home or machine-id.
 
 Create/import projects under `/workspaces`. Folder projects work without Git. If replacing a named volume with a bind mount, prepare it for UID/GID 1000 and keep each absolute container path unchanged. Changes saved elsewhere in the container are ephemeral. The runtime is nonroot, so install additional system dependencies by extending the Dockerfile, and rebuild the image.
 

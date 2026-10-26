@@ -29,7 +29,17 @@ const inputs = [
 ]
 
 export async function sourceFingerprint(root) {
-  const hash = createHash('sha256')
+  const hash = createHash('sha256').update('orcad-source-v2\0')
+  function appendSourceEntry(relative, kind, content) {
+    const name = Buffer.from(relative)
+    const bytes = Buffer.isBuffer(content) ? content : Buffer.from(content)
+    hash
+      .update(kind)
+      .update(`${name.length}:`)
+      .update(name)
+      .update(`${bytes.length}:`)
+      .update(bytes)
+  }
   async function visit(relative) {
     const path = join(root, relative)
     const entries = await readdir(path, { withFileTypes: true })
@@ -47,23 +57,19 @@ export async function sourceFingerprint(root) {
       if (entry.isDirectory()) {
         await visit(child)
       } else if (entry.isFile() || entry.isSymbolicLink()) {
-        hash
-          .update(`${child}\0`)
-          .update(
-            entry.isSymbolicLink()
-              ? await readlink(join(root, child))
-              : await readFile(join(root, child))
-          )
-          .update('\0')
+        appendSourceEntry(
+          child,
+          entry.isSymbolicLink() ? 'L' : 'F',
+          entry.isSymbolicLink()
+            ? await readlink(join(root, child), { encoding: 'buffer' })
+            : await readFile(join(root, child))
+        )
       }
     }
   }
   for (const input of inputs) {
     if (input.includes('.')) {
-      hash
-        .update(`${input}\0`)
-        .update(await readFile(join(root, input)))
-        .update('\0')
+      appendSourceEntry(input, 'F', await readFile(join(root, input)))
     } else {
       await visit(input)
     }

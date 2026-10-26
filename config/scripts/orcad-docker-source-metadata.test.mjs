@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { runProcess } from '@orca/process-host'
@@ -25,7 +25,7 @@ afterEach(async () => {
 it('hashes names in code-unit order, independent of locale collation', async () => {
   await writeFile(join(root, 'src/Z.ts'), 'upper')
   await writeFile(join(root, 'src/a.ts'), 'lower')
-  const expected = createHash('sha256')
+  const expected = createHash('sha256').update('orcad-source-v2\0')
   for (const [file, content] of [
     ['package.json', '{}'],
     ['pnpm-lock.yaml', '{}'],
@@ -33,10 +33,35 @@ it('hashes names in code-unit order, independent of locale collation', async () 
     ['src/Z.ts', 'upper'],
     ['src/a.ts', 'lower']
   ]) {
-    expected.update(`${file}\0`).update(content).update('\0')
+    expected
+      .update('F')
+      .update(`${Buffer.byteLength(file)}:`)
+      .update(file)
+      .update(`${Buffer.byteLength(content)}:`)
+      .update(content)
   }
   expect(await sourceFingerprint(root)).toBe(expected.digest('hex'))
 })
+
+it('distinguishes file contents from additional path records', async () => {
+  await writeFile(join(root, 'resources/blob.bin'), 'hello\0resources/fake.bin\0world')
+  const embeddedRecord = await sourceFingerprint(root)
+  await writeFile(join(root, 'resources/blob.bin'), 'hello')
+  await writeFile(join(root, 'resources/fake.bin'), 'world')
+  expect(await sourceFingerprint(root)).not.toBe(embeddedRecord)
+})
+
+it.skipIf(process.platform === 'win32')(
+  'hashes symlink target bytes without UTF-8 replacement',
+  async () => {
+    const path = join(root, 'resources/link')
+    await symlink(Buffer.from([0x80]), path)
+    const before = await sourceFingerprint(root)
+    await rm(path)
+    await symlink(Buffer.from([0x81]), path)
+    expect(await sourceFingerprint(root)).not.toBe(before)
+  }
+)
 
 it.skipIf(process.platform === 'win32')(
   'records the input tree before the Docker build generates mobile sources',
