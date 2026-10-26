@@ -179,17 +179,22 @@ export class StructuredAgentSessionAdapterRouter implements StructuredAgentSessi
     return adapter.copyConversation(input)
   }
 
-  closeSession = (sessionId: string): Promise<boolean> =>
-    this.stopSession(sessionId, (adapter) => adapter.closeSession?.(sessionId))
+  closeSession: NonNullable<StructuredAgentSessionAdapter['closeSession']> = (
+    sessionId,
+    observeClose
+  ) => this.stopSession(sessionId, (adapter) => adapter.closeSession?.(sessionId, observeClose))
 
   forceCloseSession = (sessionId: string): Promise<boolean> =>
     this.stopSession(sessionId, (adapter) =>
       (adapter.forceCloseSession ?? adapter.closeSession)?.call(adapter, sessionId)
     )
 
-  disposeSession = (sessionId: string): Promise<boolean> =>
+  disposeSession: NonNullable<StructuredAgentSessionAdapter['disposeSession']> = (
+    sessionId,
+    observeClose
+  ) =>
     this.stopSession(sessionId, (adapter) =>
-      (adapter.disposeSession ?? adapter.closeSession)?.call(adapter, sessionId)
+      (adapter.disposeSession ?? adapter.closeSession)?.call(adapter, sessionId, observeClose)
     )
 
   private async stopSession(
