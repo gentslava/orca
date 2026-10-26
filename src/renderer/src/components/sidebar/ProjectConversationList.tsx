@@ -27,7 +27,7 @@ import {
   projectConversations,
   PROJECT_CONVERSATION_PAGE_SIZE
 } from '../../../../shared/project-conversation-list'
-import type { ProjectOrderBy } from '../../../../shared/ui-chrome-types'
+import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
 import { useConversationPreferences } from './use-conversation-preferences'
 import { ProjectConversationRow } from './ProjectConversationRow'
 import { ProjectConversationSection } from './ProjectConversationSection'
@@ -139,12 +139,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
   const query = props.query?.trim() ?? ''
   const visibleGroups =
     query || archived ? groups.filter((group) => group.sessions.length > 0) : groups
-  const orderLabels: Record<ProjectOrderBy, string> = {
-    recent: translate('sidebar.projectOrder.recent', 'Recent'),
-    frequent: translate('sidebar.projectOrder.frequent', 'Frequently used'),
-    name: translate('sidebar.projectOrder.name', 'Name'),
-    manual: translate('sidebar.projectOrder.manual', 'Manual')
-  }
+  const orderLabels = new Map(PROJECT_ORDER_OPTIONS.map(({ id, label }) => [id, label]))
   const open = (session: AiVaultSession): void => {
     if (session.structuredSession) {
       props.onResume(session, session.structuredSession.workspaceId)
@@ -201,7 +196,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
               className="min-w-0 text-muted-foreground"
               aria-label={translate('projectConversations.projectOrder', 'Project order')}
             >
-              {orderLabels[order]}
+              {orderLabels.get(order)}
               <ChevronDown className="size-3" />
             </Button>
           </DropdownMenuTrigger>
@@ -225,7 +220,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
                   value={value}
                   disabled={!personalOrderSupported && (value === 'frequent' || value === 'name')}
                 >
-                  {orderLabels[value]}
+                  {orderLabels.get(value)}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>
