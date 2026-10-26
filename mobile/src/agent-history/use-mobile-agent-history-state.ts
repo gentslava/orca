@@ -25,6 +25,7 @@ import {
   agentHistorySessionScan
 } from './mobile-agent-history-operations'
 import { interpretOrThrowRefusalMessage } from '../transport/rpc-refusal-message'
+import { AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY } from '../../../src/shared/ai-vault-runtime-capabilities'
 import { MOBILE_AI_VAULT_CAPABILITY } from './agent-history-capability'
 
 export { MOBILE_AI_VAULT_CAPABILITY }
@@ -113,12 +114,22 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
       client,
       clientGeneration,
       connState,
-      worktreeId,
+      conversation: { worktreeId, conversationId },
       worktrees,
       worktreesLoaded,
       scope
     }),
-    [hostId, client, clientGeneration, connState, worktreeId, worktrees, worktreesLoaded, scope]
+    [
+      hostId,
+      client,
+      clientGeneration,
+      connState,
+      worktreeId,
+      conversationId,
+      worktrees,
+      worktreesLoaded,
+      scope
+    ]
   )
   const identityRef = useRef(identity)
   useLayoutEffect(() => {
@@ -183,6 +194,10 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
           limit: MOBILE_AI_VAULT_SESSION_LIMIT,
           force: options.force,
           ...(conversationId ? { includeStructuredSessions: true } : {}),
+          ...(conversationId &&
+          status.capabilities?.includes(AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY)
+            ? { selectedSessionId: conversationId }
+            : {}),
           scopePaths
         })
         if (!isCurrent()) {
@@ -259,10 +274,6 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
     }
   }, [feed, loadSessions, scope])
 
-  const onSelectScope = useCallback((nextScope: AiVaultScope) => {
-    setScope(nextScope)
-  }, [])
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
     try {
@@ -312,7 +323,7 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
     hostStatusResult,
     activeWorktreePath,
     scopeFilterPaths,
-    onSelectScope,
+    onSelectScope: setScope,
     onRefresh,
     retry
   }

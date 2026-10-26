@@ -367,9 +367,11 @@ function MobileAgentSessionHistoryPanelContent({
             <View style={styles.state}>
               <Text style={styles.stateTitle}>No agent sessions</Text>
               <Text style={styles.stateText}>
-                {effectiveQuery
-                  ? 'No sessions match your search.'
-                  : 'No past agent sessions in this scope.'}
+                {conversationId
+                  ? "This conversation's history is unavailable on this host."
+                  : effectiveQuery
+                    ? 'No sessions match your search.'
+                    : 'No past agent sessions in this scope.'}
               </Text>
             </View>
           ) : (

@@ -253,14 +253,24 @@ function conversationSession(id: string, cwd: string | null): AiVaultSession {
   }
 }
 
-function historyClient(sessions: AiVaultSession[], includesStructuredSessions?: true) {
+function historyClient(
+  sessions: AiVaultSession[],
+  includesStructuredSessions?: true,
+  selectedCapability = false
+) {
   const client = new FakeSession('connected')
   client.sendRequest.mockImplementation(async (method) => ({
     id: 'conversation-history',
     ok: true,
     result:
       method === 'status.get'
-        ? { capabilities: ['aiVault.v1'], hostPlatform: 'linux' }
+        ? {
+            capabilities: [
+              'aiVault.v1',
+              ...(selectedCapability ? ['aiVault.selected-session.v1'] : [])
+            ],
+            hostPlatform: 'linux'
+          }
         : method === 'worktree.ps'
           ? { worktrees: [{ worktreeId: 'folder:notes', repoId: 'notes', path: '/notes' }] }
           : {
@@ -424,3 +434,43 @@ it('ignores the hidden general-history search when opening a selected conversati
   await act(async () => tree?.update(render()))
   expect(visibleHistoryIds(tree)).toEqual([])
 })
+
+it.each([false, true])(
+  'requests the exact selected session only from a capable host (%s)',
+  async (capable) => {
+    const pair = createFakeBridgePortPair()
+    await pair.flush()
+    const client = historyClient(
+      capable ? [conversationSession('selected', '/notes')] : [],
+      true,
+      capable
+    )
+    doubles.connection = { client, state: 'connected' }
+    await act(async () => {
+      tree = create(
+        <RpcClientProvider client={pair.client}>
+          <MobileAgentSessionHistoryPanel
+            hostId="host-a"
+            worktreeId="folder:notes"
+            conversationId="selected"
+          />
+        </RpcClientProvider>
+      )
+    })
+    const request = client.sendRequest.mock.calls.find(
+      ([method]) => method === 'aiVault.listSessions'
+    )
+    expect(request?.[1]).toMatchObject({ limit: 500, scopePaths: [] })
+    if (capable) {
+      expect(request?.[1]).toHaveProperty('selectedSessionId', 'selected')
+    } else {
+      expect(request?.[1]).not.toHaveProperty('selectedSessionId')
+      expect(
+        tree?.root.findAll(
+          (node) =>
+            node.props.children === "This conversation's history is unavailable on this host."
+        )
+      ).not.toHaveLength(0)
+    }
+  }
+)

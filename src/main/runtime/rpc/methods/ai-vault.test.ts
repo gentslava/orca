@@ -422,6 +422,53 @@ describe('aiVault.listSessions handler + shared cache', () => {
     }
   )
 
+  it.each([undefined, 'runtime:test-runtime'] as const)(
+    'keeps a selected record after 500 newer rows and separates its cache (%s)',
+    async (executionHostId) => {
+      const selected = {
+        ...makeSession(),
+        id: 'local:claude:old:/old.jsonl',
+        sessionId: 'old',
+        filePath: '/old.jsonl'
+      }
+      const recent = Array.from({ length: 501 }, (_, index) => ({
+        ...makeSession(),
+        id: `local:claude:new-${index}:/new-${index}.jsonl`,
+        sessionId: `new-${index}`,
+        filePath: `/new-${index}.jsonl`
+      }))
+      scanAiVaultSessionsInService.mockResolvedValue({
+        ...makeResult(),
+        sessions: [...recent, selected]
+      })
+      const dispatcher = makeDispatcher()
+      const selectedSessionId = executionHostId
+        ? selected.id.replace('local:', `${executionHostId}:`)
+        : selected.id
+      const response = await dispatcher.dispatch(
+        makeRequest('aiVault.listSessions', {
+          limit: 500,
+          includeStructuredSessions: true,
+          selectedSessionId,
+          executionHostId
+        })
+      )
+      expect(response.ok).toBe(true)
+      if (response.ok) {
+        expect(response.result).toMatchObject({
+          sessions: expect.arrayContaining([expect.objectContaining({ id: selectedSessionId })])
+        })
+        expect(response.result).toHaveProperty('sessions.length', 501)
+      }
+      expect(scanAiVaultSessionsInService.mock.calls.at(-1)?.[0]).toMatchObject({
+        selectedSessionId: selected.id,
+        limit: 500
+      })
+      await dispatcher.dispatch(makeRequest('aiVault.listSessions', { limit: 500 }))
+      expect(scanAiVaultSessionsInService).toHaveBeenCalledTimes(2)
+    }
+  )
+
   it('aborts the host scan when its last RPC caller disconnects', async () => {
     scanAiVaultSessionsInService.mockImplementation(
       (_options, signal) =>

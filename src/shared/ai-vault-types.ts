@@ -220,6 +220,7 @@ export type AiVaultScanIssue = {
 }
 
 export type AiVaultListArgs = {
+  selectedSessionId?: string
   /** Primary conversation navigation includes durable chats without provider files. */
   includeStructuredSessions?: boolean
   /** Opts a selected runtime-host refresh into content-conditional replies. */

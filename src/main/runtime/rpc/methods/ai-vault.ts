@@ -104,6 +104,10 @@ export const AI_VAULT_METHODS = [
       await ensureStructuredAgentSessionHostUnlessRefused(() =>
         runtime.ensureStructuredAgentSessionHost()
       )
+      const selectedSessionId =
+        params.executionHostId && params.selectedSessionId?.startsWith(`${params.executionHostId}:`)
+          ? `${LOCAL_EXECUTION_HOST_ID}:${params.selectedSessionId.slice(params.executionHostId.length + 1)}`
+          : params.selectedSessionId
       let result
       try {
         result = await runtime.listAiVaultSessions(
@@ -112,6 +116,7 @@ export const AI_VAULT_METHODS = [
             unlimited: params.unlimited,
             force: params.force,
             scopePaths: params.scopePaths,
+            selectedSessionId,
             includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
           },
           signal
@@ -143,7 +148,8 @@ export const AI_VAULT_METHODS = [
         ? truncateAiVaultListResult(
             projected,
             requestedAiVaultSessionDepth(params),
-            params.scopePaths
+            params.scopePaths,
+            selectedSessionId
           )
         : projected
       return conditionalAiVaultListResult(
