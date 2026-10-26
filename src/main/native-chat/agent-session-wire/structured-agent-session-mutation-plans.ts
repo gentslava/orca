@@ -130,7 +130,6 @@ export function sendPlan(
     /** Host-sent personal text; userSend always implies this. */
     personsMessage?: true
     beforeRun?: () => void
-    keepCurrentOptions?: true
   }
 ): MutationPlan<AgentSessionSendResult> {
   // Match operation ID to optimistic client message ID for durable reconciliation.
@@ -153,7 +152,6 @@ export function sendPlan(
         clientMessageId,
         ...(params.steer ? { steer: params.steer } : {}),
         ...(params.options ? { options: params.options } : {}),
-        ...(params.keepCurrentOptions ? { keepCurrentOptions: true } : {}),
         payloadFingerprint: agentSessionSendBodyFingerprint(params.envelope.sessionId, params.body),
         body: params.body
       })

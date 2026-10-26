@@ -18,7 +18,7 @@ import type {
   TerminalTabTitleUpdate
 } from '../slices/terminal-tab-title-batch'
 import type { NativeChatLaunchDraft, NativeChatLaunchPrompt } from '@/lib/native-chat-launch-prompt'
-import type { AgentStatusWorktreeShutdownReason } from '../slices/agent-status'
+import type { AgentStatusWorktreeShutdownReason } from '../slices/agent-status/agent-status-contract'
 import type {
   TerminalTabCloseReason,
   TerminalTabRetirementPlan

@@ -27,12 +27,6 @@ import type { AgentSessionRecordStore } from '../../runtime/agent-session-record
 import { openTestAgentSessionRecordStore } from '../../runtime/agent-session-record-store-test-harness'
 import { structuredClaudeLifecycleEvent } from '../../runtime/structured-claude-runtime-adapter'
 import { claudeStructuredPermissionOptions } from '../../claude/claude-structured-launch-resolution'
-import { OrchestrationDb } from '../../runtime/orchestration/db'
-import { reconcileLifecycleMessage } from '../../runtime/orchestration/lifecycle-reconciliation'
-import { OrchestrationStructuredMailboxPointerDelivery } from '../../runtime/orchestration/structured-mailbox-pointer-delivery'
-import { createStructuredMailboxPointerHost } from '../../runtime/orchestration/structured-mailbox-pointer-host'
-import { structuredWorkerOwesWork } from '../../runtime/structured-worker-custody'
-import { setStructuredAgentSessionHost } from './structured-agent-session-registry'
 import { openTestJournalHostDatabase } from '../agent-session-journal/journal-host-database-test-support'
 import { StructuredAgentSessionHost } from './structured-agent-session-host'
 import { STRUCTURED_AGENT_SESSION_IDLE_MS } from './structured-agent-session-idle-sweep'
@@ -50,14 +44,13 @@ import {
 const CALLER = { callerKey: 'client-1' }
 let releaseBarriers: (() => void)[] = []
 let claudeFrames: { replayUuid: null; initProof?: 'none' }
+
 let root: string
 let host: StructuredAgentSessionHost
 let adapter: ClaudeStructuredSessionAdapter
 let store: AgentSessionRecordStore
 let claude: ReturnType<typeof fakeClaude>
 let records: ReturnType<typeof acpChildWorkStatusSink>
-let orchestration: OrchestrationDb
-/** The host's clock, which stamps every child's start and end. */
 let clock = NOW
 
 beforeEach(async () => {
@@ -68,7 +61,6 @@ beforeEach(async () => {
   const log = recordingStructuredAgentSessionLogger()
   claudeFrames = { replayUuid: null }
   claude = fakeClaude(claudeFrames)
-  orchestration = new OrchestrationDb(':memory:')
   adapter = new ClaudeStructuredSessionAdapter({
     resolveLaunch: async ({ permissionMode }) => ({
       pathToClaudeCodeExecutable: 'claude',
@@ -106,7 +98,6 @@ beforeEach(async () => {
     mintSpawnToken: () => 'spawn-a',
     logger: log.logger,
     statusSink: records.sink,
-    hasOpenDispatch: (record) => structuredWorkerOwesWork(orchestration, record),
     now: () => clock
   })
   const params = hostTestAttachParams(null, {
@@ -122,10 +113,8 @@ beforeEach(async () => {
 
 afterEach(async () => {
   releaseBarriers.forEach((release) => release())
-  setStructuredAgentSessionHost(null)
   await adapter.closeAll()
   await host.flushAllStreamedEvents()
-  orchestration.close()
   await rm(root, { recursive: true, force: true })
 })
 
@@ -169,235 +158,6 @@ async function savedRows() {
     item.body.kind === 'message' ? item.body.blocks.filter(isSubagentBlock) : []
   )
 }
-
-it('keeps worker mail and native results on the live process, then reopens for the captured user choice', async () => {
-  const db = orchestration
-  const runId = 'run_legacy_local'
-  const handle = 'structworker_transition'
-  const task = db.createTask({ runId, spec: 'Read the result and report completion.' })
-  const { dispatch } = db.createStartingWorkerDispatch({
-    creator: { kind: 'system' },
-    maxDepth: Number.MAX_SAFE_INTEGER,
-    taskId: task.id,
-    startOptions: {}
-  })
-  db.prepareStartingWorkerAuthority({
-    dispatchId: dispatch.id,
-    handle,
-    paneKey: null,
-    processIncarnation: `structured:${SESSION}`,
-    worktreeId: 'workspace-1',
-    setupState: 'not_applicable',
-    effects: [],
-    terminalOwnership: 'created',
-    hostScope: JSON.stringify({ kind: 'local', hostId: 'local' })
-  })
-  db.markWorkerDispatchReady(dispatch.id)
-  expect(structuredWorkerOwesWork(db, store.getRecord(SESSION)!)).toBe(true)
-  const first = claude.connections[0]!
-  expect(first.launch.options).toMatchObject({ model: 'haiku', permissionMode: 'auto' })
-  frame(first, {
-    type: 'system',
-    subtype: 'init',
-    uuid: 'first-root',
-    model: 'claude-haiku-4-5',
-    permissionMode: 'default'
-  })
-  await sendAndEcho(first, 'Run it in the background.')
-  for (const [index, captured] of RESUMED_BY_MESSAGE.filter(({ at }) => at <= 4_765).entries()) {
-    frame(first, { uuid: `launch-${index}`, ...captured.frame })
-  }
-  await eventually(async () =>
-    expect(await savedRows()).toEqual([expect.objectContaining({ state: 'working' })])
-  )
-  await store.replaceSessionOptions({
-    sessionId: SESSION,
-    fence: store.getRecord(SESSION)!.lease.runtimeFence,
-    options: { model: 'opus' },
-    now: clock
-  })
-  const body = hostTestMessage('Use my new model now.')
-  const refused = await host.send(CALLER, {
-    envelope: envelope('agentSession.send', { body }),
-    body
-  })
-  expect(refused.ok).toBe(true)
-  if (!refused.ok) {
-    throw new Error('send was not journaled')
-  }
-  await eventually(async () =>
-    expect(
-      (await host.journalSnapshot(SESSION)).submissions.find(
-        (submission) => submission.clientMessageId === refused.value.clientMessageId
-      )
-    ).toMatchObject({
-      dispatchState: 'rejected',
-      reason: expect.stringContaining('Background tasks are still running.')
-    })
-  )
-  expect(first.closed).toBe(false)
-  expect(first.calls.some(({ subtype }) => subtype === 'set_model')).toBe(false)
-  await store.replaceSessionOptions({
-    sessionId: SESSION,
-    fence: store.getRecord(SESSION)!.lease.runtimeFence,
-    permissionMode: 'ask',
-    now: clock
-  })
-
-  setStructuredAgentSessionHost(host)
-  const mailboxHandle = `dispatch:${dispatch.id}`
-  const mail = db.insertMessage({
-    runId,
-    from: 'coordinator',
-    to: mailboxHandle,
-    type: 'question',
-    subject: 'Result ready',
-    body: 'Consume this result and finish.',
-    deliveryContract: 'current_delivery'
-  })
-  const pointers = new OrchestrationStructuredMailboxPointerDelivery({
-    getDb: () => db,
-    getMessageWaiters: () => undefined,
-    resolveStructuredTarget: () => ({ sessionId: SESSION, dispatchId: dispatch.id }),
-    getCliCommand: () => 'orca-dev',
-    senderName: () => null,
-    host: createStructuredMailboxPointerHost()
-  })
-  expect(pointers.deliverForHandle(mailboxHandle)).toBe(true)
-  await eventually(() => expect(first.sent).toHaveLength(2))
-  frame(first, { ...first.sent.at(-1)!, uuid: 'mail-echo' })
-  await eventually(() => expect(db.getMessageById(mail.id)?.delivered_at).not.toBeNull())
-  expect(claude.connections).toHaveLength(1)
-  expect(
-    first.calls.some(({ subtype }) => subtype === 'set_model' || subtype === 'set_permission_mode')
-  ).toBe(false)
-  const pointer = (await host.journalSnapshot(SESSION)).submissions.at(-1)!
-  expect(pointer.options).toBeUndefined()
-  expect(store.getRecord(SESSION)?.options?.model).toBe('opus')
-  for (const [index, captured] of RESUMED_BY_MESSAGE.filter(
-    ({ at }) => at > 4_765 && at <= 10_960
-  ).entries()) {
-    frame(first, { uuid: `native-result-${index}`, ...captured.frame })
-  }
-  await eventually(async () =>
-    expect(await savedRows()).toEqual([
-      expect.objectContaining({ state: 'completed', tokens: 15_971 })
-    ])
-  )
-  await eventually(() => expect(host.currentWork(SESSION)?.activeTurnId()).toBeNull())
-  const consumer = {
-    runId,
-    mailboxHandle,
-    consumerGeneration: db.getDispatchContextById(dispatch.id)!.consumer_generation
-  }
-  const checked = db.getOrCreateMailboxDelivery(consumer)!
-  expect(checked.messages.map(({ id }) => id)).toEqual([mail.id])
-  expect(db.getMessageById(mail.id)?.read).toBe(0)
-  db.acknowledgeMailboxDelivery({ ...consumer, deliveryId: checked.delivery.id })
-  expect(db.getMessageById(mail.id)?.read).toBe(1)
-  const done = db.insertMessage({
-    runId,
-    from: handle,
-    to: 'coordinator',
-    type: 'worker_done',
-    subject: 'Done',
-    payload: JSON.stringify({ taskId: task.id, dispatchId: dispatch.id, outcome: 'succeeded' })
-  })
-  expect(reconcileLifecycleMessage(db, done).action).toBe('completed')
-  expect(db.getTask(task.id)?.status).toBe('completed')
-  await store.replaceSessionOptions({
-    sessionId: SESSION,
-    fence: store.getRecord(SESSION)!.lease.runtimeFence,
-    permissionMode: 'auto',
-    now: clock
-  })
-  const followupTask = db.createTask({ runId, spec: 'Continue on the same worker.' })
-  const followup = db.createDispatchContext({
-    taskId: followupTask.id,
-    assigneeHandle: handle,
-    processIncarnation: `structured:${SESSION}`,
-    creator: { kind: 'system' },
-    maxDepth: Number.MAX_SAFE_INTEGER
-  })
-  expect(structuredWorkerOwesWork(db, store.getRecord(SESSION)!)).toBe(true)
-
-  const nextBody = hostTestMessage('Reply on my captured choice.')
-  const options = { model: 'opus' }
-  const close = first.close
-  vi.spyOn(first, 'close').mockImplementationOnce(async () => {
-    await store.replaceSessionOptions({
-      sessionId: SESSION,
-      fence: store.getRecord(SESSION)!.lease.runtimeFence,
-      options: { model: 'haiku' },
-      now: clock
-    })
-    return close()
-  })
-  const push = claude.connections.push.bind(claude.connections)
-  vi.spyOn(claude.connections, 'push').mockImplementation((connection) => {
-    const initialize = connection.initializationResult
-    connection.initializationResult = async () => {
-      frame(connection, {
-        type: 'system',
-        subtype: 'init',
-        uuid: 'reopened-root',
-        model: 'claude-opus-4-6',
-        permissionMode: 'default'
-      })
-      return initialize()
-    }
-    return push(connection)
-  })
-  await host.send(CALLER, {
-    envelope: envelope('agentSession.send', { body: nextBody, options }),
-    body: nextBody,
-    options
-  })
-  await eventually(() => expect(claude.connections).toHaveLength(2))
-  const second = claude.connections[1]!
-  expect(first.closeCount).toBe(1)
-  expect(second.launch.options).toMatchObject({ model: 'opus', permissionMode: 'auto' })
-  expect(store.getRecord(SESSION)?.options?.model).toBe('haiku')
-  expect(store.getRecord(SESSION)?.providerHandleChain).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        handle: expect.objectContaining({ transport: 'claude-sdk', nativeId: PROVIDER_SESSION_ID })
-      })
-    ])
-  )
-  await eventually(() => expect(second.sent).toHaveLength(1))
-  frame(second, { ...second.sent[0]!, uuid: 'new-choice-echo' })
-  frame(second, {
-    type: 'assistant',
-    uuid: 'reply-1',
-    parent_tool_use_id: null,
-    message: { role: 'assistant', content: [{ type: 'text', text: 'First reply.' }] }
-  })
-  frame(second, { type: 'result', subtype: 'success', uuid: 'result-1', result: 'First reply.' })
-  await eventually(() => expect(host.currentWork(SESSION)?.activeTurnId()).toBeNull())
-  const again = hostTestMessage('Reply again.')
-  await host.send(CALLER, {
-    envelope: envelope('agentSession.send', { body: again, options }),
-    body: again,
-    options
-  })
-  await eventually(() => expect(second.sent).toHaveLength(2))
-  frame(second, { ...second.sent[1]!, uuid: 'second-echo' })
-  frame(second, {
-    type: 'assistant',
-    uuid: 'reply-2',
-    parent_tool_use_id: null,
-    message: { role: 'assistant', content: [{ type: 'text', text: 'Second reply.' }] }
-  })
-  frame(second, { type: 'result', subtype: 'success', uuid: 'result-2', result: 'Second reply.' })
-  await host.flushStreamedEvents(SESSION)
-  const transcript = JSON.stringify((await host.journalSnapshot(SESSION)).items)
-  expect(transcript).toContain('First reply.')
-  expect(transcript).toContain('Second reply.')
-  expect(claude.connections).toHaveLength(2)
-  expect(db.getDispatchContextById(followup.id)?.status).toBe('dispatched')
-  expect(structuredWorkerOwesWork(db, store.getRecord(SESSION)!)).toBe(true)
-})
 
 it("keeps a background helper's row working past its spawn result and its turn's end, until its own end", async () => {
   const connection = claude.connections[0]!

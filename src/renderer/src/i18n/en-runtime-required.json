@@ -3358,6 +3358,12 @@
         "usageLimitWindowWeeklyModel": "weekly model",
         "writeFailed": "Orca couldn't hand this message to the agent, so it was not sent."
       },
+      "goalControl": {
+        "pauseUnconfirmed": "Codex stopped running, but its goal pause was not confirmed. Check the goal before continuing.",
+        "settingsRejected": "Codex could not apply the selected model and effort. This goal change was not sent. Check the selection and try again.",
+        "settingsUnconfirmed": "Codex did not confirm the selected model and effort. This goal change was not sent. Check the chat and try again.",
+        "stopUnconfirmed": "Codex could not confirm Stop. Check the chat before continuing."
+      },
       "notices": {
         "compaction": "Context compacted",
         "contextCleared": "Context cleared",

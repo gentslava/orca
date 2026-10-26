@@ -2,6 +2,7 @@ import { createElement, type ReactNode } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AgentJournalStatusItem } from '../../../src/shared/agent-session-journal-types'
+import { isAdmissibleAgentJournalItemBody } from '../../../src/shared/agent-session-journal-schemas'
 import { projectStructuredItemToNativeChat } from '../../../src/shared/structured-agent-session-projection'
 import {
   NATIVE_CHAT_INTERRUPTED_STATUS_TEXT,
@@ -48,31 +49,17 @@ vi.mock('react-native', async () => {
   }
 })
 vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }))
-vi.mock('lucide-react-native', () => ({
-  AlertCircle: 'AlertCircle',
-  AlertTriangle: 'AlertTriangle',
-  ArrowUp: 'ArrowUp',
-  Bot: 'Bot',
-  Brain: 'Brain',
-  Check: 'Check',
-  ChevronDown: 'ChevronDown',
-  ChevronRight: 'ChevronRight',
-  Copy: 'Copy',
-  Eye: 'Eye',
-  FileMinus2: 'FileMinus2',
-  FilePen: 'FilePen',
-  FilePlus2: 'FilePlus2',
-  Folder: 'Folder',
-  Globe: 'Globe',
-  ListChecks: 'ListChecks',
-  MessageSquareMore: 'MessageSquareMore',
-  Pencil: 'Pencil',
-  Plug: 'Plug',
-  Search: 'Search',
-  SquareChevronRight: 'SquareChevronRight',
-  SquareTerminal: 'SquareTerminal',
-  Wrench: 'Wrench'
-}))
+vi.mock('lucide-react-native', () =>
+  Object.fromEntries(
+    [
+      'AlertCircle AlertTriangle ArrowUp Bot Brain Check ChevronDown ChevronRight',
+      'Copy Eye FileMinus2 FilePen FilePlus2 Folder Globe ListChecks',
+      'MessageSquareMore Pencil Plug Search SquareChevronRight SquareTerminal Wrench'
+    ]
+      .flatMap((names) => names.split(' '))
+      .map((name) => [name, name])
+  )
+)
 vi.mock('../components/MobileMarkdown', () => ({ MobileMarkdown: 'MobileMarkdown' }))
 vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
   MobileNativeChatMessageActionsSheet: 'MessageActionsSheet'
@@ -382,43 +369,51 @@ describe('MobileNativeChatMessage', () => {
       body
     })!
 
-  it.each([false, true])('draws an OpenCode usage warning with supplied reset: %s', (hasReset) => {
-    const resetsAt = new Date(2026, 9, 15, 15, 42).getTime()
-    const now = vi.spyOn(Date, 'now').mockReturnValue(new Date(2026, 9, 15, 12).getTime())
-    try {
-      const host = agentSessionFailureWords(
-        agentSessionFailureFact('usageLimitReached', {
-          detail: {
-            text: 'Internal error: Rate limit exceeded. Please try again later.',
-            audience: 'person'
-          },
-          ...(hasReset ? { usageLimit: { resetsAt } } : {})
-        }),
-        { surface: 'row', agentName: 'OpenCode' }
-      )
-      expect(host.text).toBe(
-        'OpenCode hit its usage limit. Send a message once it resets to continue.'
-      )
-      const tree = render(statusRow({ kind: 'status', tone: 'warning', ...host }))
-      const text = tree.root.find(
-        (node) => String(node.type) === 'Text' && node.props.selectable === true
-      )
-      expect(text.props.children).toEqual(
-        hasReset
-          ? expect.stringMatching(
-              /^OpenCode hit its usage limit\. Send a message once it resets to continue\. It resets at (3:42\sPM|15:42)\.$/
-            )
-          : host.text
-      )
-      expect(Object.assign({}, ...text.props.style)).toMatchObject({ color: colors.statusAmber })
-      expect(tree.root.find((node) => String(node.type) === 'AlertTriangle').props.color).toBe(
-        colors.statusAmber
-      )
-      expect(markdownIn(tree.root)).toEqual([])
-    } finally {
-      now.mockRestore()
+  it.each(['without reset', 'with reset', 'from an old host'] as const)(
+    'draws an OpenCode usage warning %s',
+    (source) => {
+      const hasReset = source === 'with reset'
+      const resetsAt = new Date(2026, 9, 15, 15, 42).getTime()
+      const now = vi.spyOn(Date, 'now').mockReturnValue(new Date(2026, 9, 15, 12).getTime())
+      try {
+        const host = agentSessionFailureWords(
+          agentSessionFailureFact('usageLimitReached', {
+            detail: {
+              text: 'Internal error: Rate limit exceeded. Please try again later.',
+              audience: 'person'
+            },
+            ...(hasReset ? { usageLimit: { resetsAt } } : {})
+          }),
+          { surface: 'row', agentName: 'OpenCode' }
+        )
+        expect(host.text).toBe('OpenCode hit its usage limit.')
+        const hostText =
+          source === 'from an old host'
+            ? 'OpenCode hit its usage limit. Send a message once it resets to continue.'
+            : host.text
+        const body: unknown = { kind: 'status', tone: 'warning', ...host, text: hostText }
+        if (!isAdmissibleAgentJournalItemBody(body) || body.kind !== 'status') {
+          throw new Error('Status fixture was not admitted')
+        }
+        const tree = render(statusRow(body))
+        const text = tree.root.find(
+          (node) => String(node.type) === 'Text' && node.props.selectable === true
+        )
+        expect(text.props.children).toEqual(
+          hasReset
+            ? expect.stringMatching(/^OpenCode hit its usage limit\. It resets at \S.*\.$/u)
+            : hostText
+        )
+        expect(Object.assign({}, ...text.props.style)).toMatchObject({ color: colors.statusAmber })
+        expect(tree.root.find((node) => String(node.type) === 'AlertTriangle').props.color).toBe(
+          colors.statusAmber
+        )
+        expect(markdownIn(tree.root)).toEqual([])
+      } finally {
+        now.mockRestore()
+      }
     }
-  })
+  )
 
   it.each<readonly [string, NativeChatMessage, string]>([
     [

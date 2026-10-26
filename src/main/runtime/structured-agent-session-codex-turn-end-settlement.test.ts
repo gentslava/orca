@@ -19,6 +19,7 @@ import type { AgentJournalSubmission } from '../../shared/agent-session-journal-
 import { classifyDispatchRejection } from '../../shared/structured-agent-session-dispatch-rejection'
 import { owesStructuredAgentSessionWork } from '../../shared/structured-agent-session-owed-work'
 import { readAgentJournalTurn } from '../../shared/agent-session-turn-record'
+import { AGENT_SESSION_GOAL_CONTROL_COPY } from '../../shared/agent-session-goal-control-copy'
 import {
   HOST_TEST_SESSION as SESSION,
   HOST_TEST_THREAD as THREAD,
@@ -188,6 +189,10 @@ function verdictOf(submissions: readonly AgentJournalSubmission[], clientMessage
     : submission?.dispatchState
 }
 
+async function waitForVerdict(id: string, expected: string): Promise<void> {
+  await vi.waitFor(async () => expect(verdictOf((await settled()).submissions, id)).toBe(expected))
+}
+
 beforeEach(async () => {
   root = await mkdtemp(join(tmpdir(), 'orca-codex-turn-end-'))
   openWaits.turnIds.length = 0
@@ -211,10 +216,19 @@ beforeEach(async () => {
   ) => {
     handlers = connectionHandlers
     connections += 1
+    let closed = false
     const connection: CodexAppServerConnection = {
       pid: 4321,
-      closed: false,
+      get closed() {
+        return closed
+      },
+      get closeResult(): CodexAppServerConnection['closeResult'] {
+        return closed ? { root: 'exited', tree: 'exited' } : null
+      },
       request: async (method, params) => {
+        if (method === 'thread/goal/get') {
+          return { goal: null }
+        }
         if (method === 'thread/start' || method === 'thread/resume') {
           return { thread: { id: THREAD } }
         }
@@ -258,6 +272,7 @@ beforeEach(async () => {
           throw new Error('the kill timed out')
         }
         childCloses += 1
+        closed = true
         return true
       }
     }
@@ -396,9 +411,7 @@ describe('the turn a withdrawn Codex send was answered into', () => {
     await vi.waitFor(() => expect(steers).toBe(1))
 
     await stop('turn-1')
-    await vi.waitFor(async () =>
-      expect(verdictOf((await settled()).submissions, steered)).toBe('withdrawn')
-    )
+    await waitForVerdict(steered, 'withdrawn')
 
     const { turnRecords } = await answeredInto(opening)
     expect(turnRecords).toHaveLength(1)
@@ -414,9 +427,7 @@ describe('the turn a withdrawn Codex send was answered into', () => {
     const opening = await runningTurn()
 
     await stop('turn-1')
-    await vi.waitFor(async () =>
-      expect(verdictOf((await settled()).submissions, opening)).toBe('accepted')
-    )
+    await waitForVerdict(opening, 'accepted')
 
     expect(await answeredInto(opening)).toMatchObject({ named: undefined, onPage: undefined })
   })
@@ -429,9 +440,7 @@ describe('the turn a withdrawn Codex send was answered into', () => {
     turns.end('interrupted')
     release()
 
-    await vi.waitFor(async () =>
-      expect(verdictOf((await settled()).submissions, sent)).toBe('withdrawn')
-    )
+    await waitForVerdict(sent, 'withdrawn')
     const { turnRecords, named } = await answeredInto(sent)
     expect(turnRecords).toHaveLength(1)
     expect(named).toEqual({ turnItemId: turnRecords[0], via: 'start' })
@@ -531,9 +540,7 @@ describe("a queued card's Send-now while a Codex turn runs", () => {
     turns.echo(sent)
     turns.end('completed')
 
-    await vi.waitFor(async () =>
-      expect(verdictOf((await settled()).submissions, sent)).toBe('accepted')
-    )
+    await waitForVerdict(sent, 'accepted')
     expect((await settled()).owesWork).toBe(false)
   })
 
@@ -551,9 +558,7 @@ describe("a queued card's Send-now while a Codex turn runs", () => {
 
     await stop('turn-1')
 
-    await vi.waitFor(async () =>
-      expect(verdictOf((await settled()).submissions, sent)).toBe('unknown')
-    )
+    await waitForVerdict(sent, 'unknown')
     expect(steers).toBe(1)
   })
 })
@@ -613,9 +618,7 @@ describe('a Stop sent after Codex answered a cold send, before it opened the tur
 
     expect(interrupts).toBe(2)
     await vi.waitFor(() => expect(turns.turnId).toBeNull())
-    await vi.waitFor(async () =>
-      expect(verdictOf((await settled()).submissions, sent)).toBe('withdrawn')
-    )
+    await waitForVerdict(sent, 'withdrawn')
     expect((await settled()).owesWork).toBe(false)
   })
 })
@@ -645,9 +648,7 @@ describe('a Stop in that window that the turn never opens for', () => {
     expect(interrupts).toBe(1)
     expect(childCloses).toBe(1)
     // The request stays visible; the withdrawn send has its own stopped result.
-    await vi.waitFor(async () =>
-      expect(verdictOf((await settled()).submissions, sent)).toBe('withdrawn')
-    )
+    await waitForVerdict(sent, 'withdrawn')
     expect(await statusRows()).toEqual(['Cancellation requested.'])
   })
 
@@ -797,7 +798,7 @@ describe("a Stop pressed while Codex's turn/start is in flight", () => {
     await stopWhenItsTurnNeverOpens(release)
 
     expect(verdictOf((await settled()).submissions, sent)).toBe('withdrawn')
-    expect(await statusRows()).toEqual(['Cancellation requested.'])
+    expect(await statusRows()).toEqual([AGENT_SESSION_GOAL_CONTROL_COPY.stopUnconfirmed])
     expect(turnRow((await host.journalSnapshot(SESSION)).items)).toMatchObject({
       state: 'completed'
     })
@@ -818,9 +819,7 @@ describe("a Stop pressed while Codex's turn/start is in flight", () => {
     }
     const sent = await send('look around')
     await vi.waitFor(() => expect(answers).toBe(2))
-    await vi.waitFor(async () =>
-      expect(verdictOf((await settled()).submissions, sent)).toBe('unknown')
-    )
+    await waitForVerdict(sent, 'unknown')
 
     expect(host.currentWork(SESSION)?.working()).toBe(false)
     expect(childCloses).toBe(0)
@@ -849,7 +848,7 @@ describe("a Stop pressed while Codex's turn/start is in flight", () => {
 
     expect(childCloses).toBe(1)
     expect(verdictOf((await settled()).submissions, sent)).toBe('unknown')
-    expect(await statusRows()).toEqual(['Cancellation requested.'])
+    expect(await statusRows()).toEqual([AGENT_SESSION_GOAL_CONTROL_COPY.stopUnconfirmed])
   })
 
   // Handed over once the stopped turn read ended, it started its own turn, however late that

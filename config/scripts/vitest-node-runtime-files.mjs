@@ -128,7 +128,6 @@ const NODE_RUNTIME_INCLUDE = [
   'src/main/foreign-sqlite-readers/**/*.test.ts',
   'src/main/browser/*cookie*.test.ts',
   'src/main/browser/cookies/*cookie*.test.ts',
-  'src/main/browser/cookies/sources/browser-cookie-validation.test.ts',
   'src/main/browser/cookies/sources/browser-cookie-decryption.test.ts',
   'src/main/browser/cookies/sources/browser-cookie-import-undecryptable.test.ts',
   'src/main/browser/cookies/sources/browser-cookie-source-partition.test.ts',

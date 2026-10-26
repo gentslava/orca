@@ -19852,8 +19852,7 @@
         "continue": "Continue",
         "failed": "Couldn't continue this chat. Try again, or send a message.",
         "explanation": "Continue, and the agent first checks whether its last step finished.",
-        "unconfirmed": "Couldn't confirm whether {{agent}} received Continue. Check the chat before trying again.",
-        "usageLimitExplanation": "Asks the agent to continue where it left off. Use it once the limit resets."
+        "unconfirmed": "Couldn't confirm whether {{agent}} received Continue. Check the chat before trying again."
       },
       "antigravitySignIn": {
         "sentence": "Antigravity isn't signed in. Sign in under <settings>Settings → Accounts → Antigravity</settings>. Then send your message again."
@@ -19903,6 +19902,12 @@
           "host": "Execution host"
         },
         "identityUnavailable": "This worker’s conversation identity could not be verified."
+      },
+      "goalControl": {
+        "settingsRejected": "Codex could not apply the selected model and effort. This goal change was not sent. Check the selection and try again.",
+        "settingsUnconfirmed": "Codex did not confirm the selected model and effort. This goal change was not sent. Check the chat and try again.",
+        "pauseUnconfirmed": "Codex stopped running, but its goal pause was not confirmed. Check the goal before continuing.",
+        "stopUnconfirmed": "Codex could not confirm Stop. Check the chat before continuing."
       }
     },
     "tab": {

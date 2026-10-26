@@ -19350,8 +19350,7 @@
         "continue": "继续",
         "failed": "无法继续此聊天。请重试，或发送一条消息。",
         "explanation": "继续后，智能体会先检查其上一步是否已完成。",
-        "unconfirmed": "无法确认 {{agent}} 是否收到“继续”。在重试之前请检查聊天记录。",
-        "usageLimitExplanation": "让智能体从中断处继续。请在上限重置后使用。"
+        "unconfirmed": "无法确认 {{agent}} 是否收到“继续”。在重试之前请检查聊天记录。"
       },
       "rewind": {
         "unsupported": "此聊天无法返回到更早的消息。",
@@ -19401,7 +19400,13 @@
       "explicitChatSsh": "无法通过 SSH 进行聊天。请改为在终端中打开智能体。",
       "explicitChatWsl": "WSL 中无法使用聊天功能。请改为在终端中打开智能体。",
       "explicitChatUnavailable": "此工作区无法运行聊天。检查智能体安装或在终端中打开它。",
-      "structuredSessionTerminalNotVisible": "Orca 已在终端中打开 {{value0}}，但启动完成后无法在此处显示。您的聊天草稿已保留。"
+      "structuredSessionTerminalNotVisible": "Orca 已在终端中打开 {{value0}}，但启动完成后无法在此处显示。您的聊天草稿已保留。",
+      "goalControl": {
+        "settingsRejected": "Codex 无法应用所选模型和推理强度。此目标更改尚未发送。请检查选择后重试。",
+        "settingsUnconfirmed": "Codex 未确认所选模型和推理强度。此目标更改尚未发送。请检查聊天后重试。",
+        "pauseUnconfirmed": "Codex 已停止运行，但尚未确认目标已暂停。请在继续前检查目标。",
+        "stopUnconfirmed": "Codex 无法确认停止。请在继续前检查聊天。"
+      }
     },
     "tab": {
       "bar": {
