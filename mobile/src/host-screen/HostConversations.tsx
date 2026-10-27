@@ -306,7 +306,9 @@ export function HostConversations({
                             ? copy.transcript
                             : item.status === 'failed'
                               ? copy.failedState
-                              : copy[item.status],
+                              : item.status === 'unverifiable'
+                                ? copy.unconfirmed
+                                : copy[item.status],
                       item.at ? conversationTimeAgo(item.at, controller.now) : null
                     ]
                       .filter(Boolean)

@@ -4,7 +4,7 @@ import { agentSessionPromptQuestions } from '../../../../shared/agent-session-qu
 import { NativeChatApprovalCard } from './NativeChatApprovalCard'
 import { NativeChatStructuredQuestionCard } from './NativeChatStructuredQuestionCard'
 import { NativeChatStructuredAsyncQuestion } from './NativeChatStructuredAsyncQuestion'
-import { chatApprovalFromJournal } from './native-chat-interactive-prompt'
+import { chatApprovalFromJournal } from '../../../../shared/native-chat-interactive-prompt'
 import type {
   StructuredPromptItem,
   useStructuredAgentSession

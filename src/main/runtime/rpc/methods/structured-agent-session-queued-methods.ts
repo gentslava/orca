@@ -17,13 +17,6 @@ import { readsQueuedImageCards } from './structured-agent-session-queued-image-c
 
 export const STRUCTURED_AGENT_SESSION_QUEUED_METHODS = [
   defineMethod({
-    name: 'agentSession.queuedMessageMove',
-    permission: 'workspace',
-    params: QueuedMessageMoveParams,
-    handler: async (params, ctx) =>
-      requireSessionHost(ctx, params.envelope.sessionId).queuedMessageMove(callerFor(ctx), params)
-  }),
-  defineMethod({
     name: 'agentSession.queuedMessageUpdate',
     permission: 'workspace',
     params: QueuedMessageUpdateParams,
@@ -59,6 +52,13 @@ export const STRUCTURED_AGENT_SESSION_QUEUED_METHODS = [
     params: QueuedMessageActionParams,
     handler: async (params, ctx) =>
       requireSessionHost(ctx, params.envelope.sessionId).queuedMessageDelete(callerFor(ctx), params)
+  }),
+  defineMethod({
+    name: 'agentSession.queuedMessageMove',
+    permission: 'workspace',
+    params: QueuedMessageMoveParams,
+    handler: async (params, ctx) =>
+      requireSessionHost(ctx, params.envelope.sessionId).queuedMessageMove(callerFor(ctx), params)
   }),
   defineMethod({
     name: 'agentSession.queuedMessagesResume',

@@ -1,5 +1,4 @@
 import {
-  Fragment,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -22,8 +21,11 @@ import type { MobileNativeChatRowKeys } from './mobile-native-chat-row-keys'
 import { MobileNativeChatPageScroll } from './MobileNativeChatPageScroll'
 import {
   mobileNativeChatReadingDrift,
+  measureMobileNativeChatPageRows,
+  mobileNativeChatUndrawnHeight,
   mobileNativeChatReadingPlace,
   mobileNativeChatRowAbove,
+  mobileNativeChatRowBoxProps,
   type MobileNativeChatReadingUnit,
   type MobileNativeChatDrawnWindow,
   type MobileNativeChatScrollNode
@@ -32,6 +34,8 @@ import type { MobileNativeChatListHandle } from './use-mobile-native-chat-tail-f
 import type { MobileNativeChatScrollRoots } from './mobile-native-chat-scroll-roots'
 import {
   createMobileNativeChatGrowthHold,
+  mobileNativeChatHeldRows,
+  type MobileNativeChatHeldRows as Held,
   MobileNativeChatGrowthHoldContext
 } from './mobile-native-chat-growth-hold'
 
@@ -52,12 +56,7 @@ type Scroller = MobileNativeChatScrollNode & {
   addEventListener: Listen
   removeEventListener: Listen
 }
-type Held = {
-  rows: readonly NativeChatMessage[]
-  footer: ReactElement | null
-  // Freeze renderItem too: grouping/turn context changes a row even if its message is unchanged.
-  renderItem: (row: Row) => ReactElement
-}
+type ReadScroller = () => Scroller | null
 
 type Props = {
   roots?: MobileNativeChatScrollRoots
@@ -97,43 +96,16 @@ export function MobileNativeChatPageList({
   onNearTop
 }: Props): ReactElement {
   const scroll = useRef<ScrollView>(null)
-  const scroller = useCallback((): Scroller | null => {
-    const node: Scroller | null | undefined = scroll.current?.getScrollableNode()
-    return node ?? null
-  }, [])
+  const scroller = useCallback<ReadScroller>(() => scroll.current?.getScrollableNode() ?? null, [])
 
   // Hold below-reader growth during a fling: correcting scroll mid-fling stops iOS momentum. Keep the hold in a ref to avoid a render until release.
   const heldRef = useRef<Held | null>(null)
   const [, release] = useState(0)
   const held = heldRef.current
-  const { rows, heldFrom, heldAt } = useMemo(() => {
-    const unheld = { rows: liveRows, heldFrom: Infinity, heldAt: 0 }
-    const head = held?.rows[0]
-    const at = head ? liveRows.findIndex((row) => rowKeys.keyOf(row) === rowKeys.keyOf(head)) : -1
-    if (!held || at === -1) {
-      return unheld
-    }
-    // A newly prepended run head owns its held members; draw those members live.
-    let last: NativeChatMessage | undefined
-    for (const [index, members] of runs ?? []) {
-      if (index >= at) {
-        break
-      }
-      last = members.at(-1)
-    }
-    const from = Math.max(at, last ? liveRows.indexOf(last, at) + 1 : 0)
-    const kept = liveRows.slice(at, from).every((row, i) => {
-      const was = held.rows[i]
-      return was !== undefined && rowKeys.keyOf(was) === rowKeys.keyOf(row)
-    })
-    return kept
-      ? {
-          rows: [...liveRows.slice(0, from), ...held.rows.slice(from - at)],
-          heldFrom: from,
-          heldAt: at
-        }
-      : unheld
-  }, [held, liveRows, rowKeys, runs])
+  const { rows, heldFrom, heldAt } = useMemo(
+    () => mobileNativeChatHeldRows(held, liveRows, rowKeys, runs),
+    [held, liveRows, rowKeys, runs]
+  )
   const footer = held ? held.footer : liveFooter
   const keys = useMemo(() => rows.map(rowKeys.keyOf), [rows, rowKeys.keyOf])
   const indexOf = useMemo(() => new Map(keys.map((key, at) => [key, at])), [keys])
@@ -156,6 +128,21 @@ export function MobileNativeChatPageList({
           indexOf.get(rowKeys.current(firstKey) ?? '') ??
           Math.max(0, n - (kept?.count ?? FIRST_ROWS)))
 
+  const rowHeights = useMemo(() => new Map<string, number>(), [rowKeys.scope, layoutKey])
+  const beforeRowsHeight = mobileNativeChatUndrawnHeight(keys, first, rowHeights)
+  const measureDrawn = useCallback(
+    (s: Scroller) => measureMobileNativeChatPageRows(s, rowHeights),
+    [rowHeights]
+  )
+  useLayoutEffect(() => {
+    const retained = new Set(keys)
+    for (const key of rowHeights.keys()) {
+      if (!retained.has(key)) {
+        rowHeights.delete(key)
+      }
+    }
+  }, [keys, rowHeights])
+
   const own = useRef<number | null>(null)
   const touching = useRef(false)
   const readerScrolledAt = useRef(0)
@@ -165,9 +152,9 @@ export function MobileNativeChatPageList({
   const live = useRef<Held>({ rows: liveRows, footer: liveFooter, renderItem })
   const ask = useRef(onNearTop)
   // Read latest committed geometry from event handlers between renders.
-  const latest = useRef({ first, opening, n, keys, indexOf, layoutKey, rowKeys })
+  const latest = useRef({ first, opening, n, keys, indexOf, layoutKey, rowKeys, beforeRowsHeight })
   useLayoutEffect(() => {
-    latest.current = { first, opening, n, keys, indexOf, layoutKey, rowKeys }
+    latest.current = { first, opening, n, keys, indexOf, layoutKey, rowKeys, beforeRowsHeight }
     ask.current = onNearTop
     live.current = { rows: liveRows, footer: liveFooter, renderItem }
   })
@@ -273,14 +260,16 @@ export function MobileNativeChatPageList({
         keys: drawnKeys,
         indexOf: rowAt,
         n: total,
-        rowKeys: current
+        rowKeys: current,
+        beforeRowsHeight
       } = latest.current
-      const screens = (s.scrollHeight - s.clientHeight + s.scrollTop) / s.clientHeight
+      const screens =
+        (s.scrollHeight - s.clientHeight + s.scrollTop - beforeRowsHeight) / s.clientHeight
       let next = at
       if (at > 0 && screens < DRAW_AHEAD_SCREENS) {
         next = Math.max(0, at - DRAW_BATCH)
       } else if (at < opening && screens > TRIM_SCREENS && isFollowing()) {
-        // Cut above the draw-ahead line so trimming cannot immediately redraw the row.
+        // Cut at a row wholly above the draw-ahead line so drawing never wants it back.
         const cut = mobileNativeChatRowAbove(s, DRAW_AHEAD_SCREENS * s.clientHeight)
         next = Math.min(rowAt.get(cut ?? '') ?? at, opening)
       }
@@ -324,30 +313,34 @@ export function MobileNativeChatPageList({
   useLayoutEffect(() => {
     const s = scroller()
     if (s) {
+      measureDrawn(s)
       keepPlace(s)
       drawAndFetch(s)
     }
   })
 
-  // Image/inner-box resize bypasses React commits; restore nested scroll boxes first.
+  // Content and viewport resizes (e.g. the composer growing) bypass commits; restore nested scroll boxes first.
   useEffect(() => {
     const s = scroller()
+    const viewport: Element | null | undefined = scroll.current?.getScrollableNode()
     const content: Element | null | undefined = scroll.current?.getInnerViewNode()
-    if (!s || !content || typeof ResizeObserver === 'undefined') {
+    if (!s || !viewport || !content || typeof ResizeObserver === 'undefined') {
       return
     }
     const observer = new ResizeObserver(() => {
       roots?.restoreAll()
+      measureDrawn(s)
       keepPlace(s)
       drawAndFetch(s)
     })
+    observer.observe(viewport)
     observer.observe(content)
     roots?.observeWith(observer)
     return () => {
       roots?.observeWith(null)
       observer.disconnect()
     }
-  }, [scroller, roots, keepPlace, drawAndFetch])
+  }, [scroller, roots, measureDrawn, keepPlace, drawAndFetch])
 
   useEffect(() => {
     const s = scroller()
@@ -416,15 +409,16 @@ export function MobileNativeChatPageList({
           emptyStateView
         ) : (
           // Key by chat to reset rows; persist disclosures above windowed rows. Block flow avoids relaying out every row for each streamed token.
-          <div key={rowKeys.scope}>
+          <div key={rowKeys.scope} {...mobileNativeChatRowBoxProps}>
+            <div style={{ height: beforeRowsHeight }} />
             {rows.slice(first).map((item, at) => {
               const index = first + at
               return (
-                <Fragment key={keys[index]}>
+                <div key={keys[index]} data-native-chat-page-row={keys[index]}>
                   {held && index >= heldFrom
                     ? held.renderItem({ item, index: index - heldAt })
                     : renderItem({ item, index })}
-                </Fragment>
+                </div>
               )
             })}
           </div>

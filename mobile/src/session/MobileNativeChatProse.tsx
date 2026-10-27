@@ -7,7 +7,7 @@ import {
   AGENT_SESSION_HOST_STATUS_COPY,
   isAgentSessionHostStatusPresentation
 } from '../../../src/shared/agent-session-host-status-rows'
-import { withoutPendingNativeChatVisualDirectiveTail } from '../../../src/shared/native-chat-visual-directive'
+import { withoutPendingNativeChatVisualDirectiveTail } from '../../../src/shared/native-chat/native-chat-visual-directive'
 import { MobileNativeChatImageAttachment } from './MobileNativeChatImageAttachment'
 import {
   CHAT_PROSE_SCALE,

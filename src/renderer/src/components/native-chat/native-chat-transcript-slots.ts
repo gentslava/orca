@@ -9,7 +9,11 @@ import type { NativeChatTurnStatus } from '../../../../shared/native-chat-turn-s
 import { isNativeChatRowInLiveWorkingTurn } from '../../../../shared/native-chat-turn-membership'
 import { nativeChatMessagesWaitingBehindLiveTurn } from '../../../../shared/native-chat-messages-waiting-behind-live-turn'
 import { nativeChatTurnBarRows } from '../../../../shared/native-chat-turn-grouping'
-import { nativeChatTurnFold, nativeChatTurnFoldRow } from '../../../../shared/native-chat-turn-fold'
+import {
+  nativeChatTurnFold,
+  nativeChatTurnFoldRow,
+  type NativeChatTurnFoldHistory
+} from '../../../../shared/native-chat-turn-fold'
 import { nativeChatRowRendersContent } from '../../../../shared/native-chat-row-content'
 import {
   type NativeChatRowTypography,
@@ -86,6 +90,7 @@ export type NativeChatTranscriptSlotsInput = {
   turnDiffs: ReadonlyMap<string, NativeChatTurnDiff>
   /** Turns the reader opened. Everything else with a duration stays folded. */
   expandedTurnKeys: ReadonlySet<string>
+  turnFold?: NativeChatTurnFoldHistory
   isWorking: boolean
   /** Session-level lifecycle, which outlives a transcript that never said "done". */
   lifecycleWorking: boolean
@@ -115,9 +120,11 @@ export function buildNativeChatTranscriptSlots(
     liveReasoningId = null
   } = input
   // Share row rendering facts with fold selection so answer detection agrees with visible prose.
-  const foldRows = messages.map((message, index) =>
-    nativeChatTurnFoldRow(message, turnKeys[index], receipts.has(message.id))
-  )
+  const foldRows =
+    input.turnFold?.rows ??
+    messages.map((message, index) =>
+      nativeChatTurnFoldRow(message, turnKeys[index], receipts.has(message.id))
+    )
   // Liveness follows the turn frontier, not a call’s stale running flag.
   const trailingRunIndex = foldRows.findLastIndex((row, index) =>
     nativeChatRowSpeaksOrActs(messages[index]!, row.rendersProse, receipts)
@@ -127,11 +134,13 @@ export function buildNativeChatTranscriptSlots(
       .filter(([, status]) => status.workedSeconds != null)
       .map(([turnKey]) => turnKey)
   )
-  const { foldedRows, foldableTurnKeys } = nativeChatTurnFold({
-    rows: foldRows,
-    settledTurnKeys,
-    expandedTurnKeys
-  })
+  const { foldedRows, foldableTurnKeys } =
+    input.turnFold?.fold ??
+    nativeChatTurnFold({
+      rows: foldRows,
+      settledTurnKeys,
+      expandedTurnKeys
+    })
   const bars = nativeChatTurnBarRows(messages, turnKeys)
   // Turn rows can interleave with other prompts; emit one rollup after their last row.
   const lastRowByTurn = new Map<string, number>()

@@ -1,15 +1,17 @@
+import {
+  useStructuredAgentSessionQueuedReorder,
+  type QueuedMessageReorder
+} from './use-structured-agent-session-queued-reorder'
 // Host owns durable queued drafts; this pane routes card/header actions and holds only open-edit typing.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
-import { useStructuredAgentSessionHostMovesQueuedMessages } from '@/runtime/structured-agent-session-host-capability'
 import type { AgentJournalSubmission } from '../../../../shared/agent-session-journal-types'
 import { mapSettledWithConcurrency } from '../../../../shared/map-with-concurrency'
 import type {
   AgentSessionQueuedMessage,
   AgentSessionQueuedMessageDeleteResult,
-  AgentSessionQueuedMessageMoveResult,
   AgentSessionQueuedMessagesResumeResult,
   AgentSessionQueuePause,
   AgentSessionSendResult
@@ -36,6 +38,7 @@ import type {
 
 export type StructuredAgentSessionQueuedMessagesController = {
   cards: QueuedMessageCard[]
+  reorder?: QueuedMessageReorder
   /** Cards can show unsent messages without host queue support; queue settings/steer then have no effect. */
   queueCapable: boolean
   /** Clear all waits for sends/actions so it cannot silently clear fewer cards than shown. */
@@ -53,7 +56,6 @@ export type StructuredAgentSessionQueuedMessagesController = {
   /** Send-now into the running turn; the transcript shows it at delivery position. */
   steer: (messageId: string) => Promise<void>
   remove: (messageId: string) => Promise<void>
-  reorder?: { moveBefore: (messageId: string, beforeMessageId: string | null) => Promise<void> }
   /** The host edits cards in place; without it a card offers no Edit. */
   editCapable: boolean
   editor: QueuedMessageInlineEditor | undefined
@@ -62,8 +64,7 @@ export type StructuredAgentSessionQueuedMessagesController = {
   steerNewest: () => boolean
 }
 
-/** Which control is on its way, so the button that was pressed is the one that spins. */
-export type QueuedMessagesPendingAction = 'send' | 'delete' | 'move' | 'resume' | 'clear'
+export type QueuedMessagesPendingAction = 'send' | 'delete' | 'resume' | 'clear'
 
 const NO_SENDS: readonly StructuredAgentSessionPendingSend[] = []
 const CLEAR_DELETE_CONCURRENCY = 8
@@ -96,7 +97,6 @@ export function useStructuredAgentSessionQueuedMessages(args: {
   const { composerScopeKey, enabled, hasPendingPrompt, mutate, queuedMessages, submissions } = args
   const { admit, capturePresentation, isWorking, queuePause } = args
   const sending = args.sending ?? NO_SENDS
-  const reorderCapable = useStructuredAgentSessionHostMovesQueuedMessages(args.editTransport.target)
 
   const cards = useMemo(
     () => [
@@ -115,6 +115,11 @@ export function useStructuredAgentSessionQueuedMessages(args: {
       )
     ],
     [isWorking, sending, queuePause, queuedMessages, submissions]
+  )
+  const reordered = useStructuredAgentSessionQueuedReorder(
+    cards,
+    args.editTransport,
+    capturePresentation
   )
   const cardsRef = useRef(cards)
   useEffect(() => {
@@ -186,22 +191,6 @@ export function useStructuredAgentSessionQueuedMessages(args: {
     composerScopeKey,
     promptOpen: hasPendingPrompt
   })
-
-  const moveBefore = useCallback(
-    async (messageId: string, beforeMessageId: string | null): Promise<void> => {
-      if (!reorderCapable) {
-        return
-      }
-      await run([QUEUE_KEY, ...cardsRef.current.map((card) => card.messageId)], 'move', () =>
-        mutate<AgentSessionQueuedMessageMoveResult>(
-          'agentSession.queuedMessageMove',
-          'agentSession.queuedMessageMove',
-          { messageId, beforeMessageId }
-        )
-      )
-    },
-    [reorderCapable, mutate, run]
-  )
 
   const steerNewest = useCallback((): boolean => {
     if (!enabled) {
@@ -281,7 +270,8 @@ export function useStructuredAgentSessionQueuedMessages(args: {
   }, [admit, capturePresentation, clearCapable, run])
 
   return {
-    cards,
+    cards: reordered.cards,
+    reorder: reordered.reorder,
     queueCapable: enabled,
     clearCapable,
     pause,
@@ -291,7 +281,6 @@ export function useStructuredAgentSessionQueuedMessages(args: {
     pending: (messageId) => inFlight.get(messageId) ?? null,
     steer,
     remove,
-    ...(reorderCapable ? { reorder: { moveBefore } } : {}),
     edit: editing.begin,
     editCapable: editing.capable,
     editor: editing.editor,

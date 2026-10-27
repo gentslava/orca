@@ -37,7 +37,6 @@ import {
 import { useNativeChatTranscriptSlots } from './use-native-chat-transcript-slots'
 import { useNativeChatTranscriptWindow } from './use-native-chat-transcript-window'
 import { useNativeChatSubagentSections } from './use-native-chat-subagent-sections'
-import { toggleNativeChatExpandedKey } from './native-chat-expanded-keys'
 import { useNativeChatTurnMembership } from './use-native-chat-turn-membership'
 import { useNativeChatTranscriptScroll } from './use-native-chat-transcript-scroll'
 import { useNativeChatNewRowsMarker } from './native-chat-new-rows-marker'
@@ -135,11 +134,7 @@ export function NativeChatMessageList({
   )
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
-  const [expandedTurnIds, setExpandedTurnIds] = useState<ReadonlySet<string>>(new Set())
   const disclosures = useNativeChatDisclosures()
-  const toggleExpandedTurn = useCallback((turnKey: string) => {
-    setExpandedTurnIds((current) => toggleNativeChatExpandedKey(current, turnKey))
-  }, [])
 
   const { hasMore, loadingEarlier, loadEarlier } = session
   // Pending/failed reads cannot page; recovery remounts the sentinel to recheck its range.
@@ -202,9 +197,15 @@ export function NativeChatMessageList({
   })
   // Only unshown prompts need a waiting tail row; prompt cards explain their own wait.
   const tailRow = transcriptTailRow(isWorking, awaitingInput)
-  const lifecycleWorking = session.transcriptLifecycle?.state === 'working'
   const { measureContent, typography } = useNativeChatRowTypography(contentRef)
-  const { slots: allSlots, liveLine } = useNativeChatTranscriptSlots({
+  const {
+    slots: allSlots,
+    liveLine,
+    expandedTurnKeys: historyExpandedTurns,
+    toggleExpandedTurn
+  } = useNativeChatTranscriptSlots({
+    scopeKey: `${session.agent}:${session.sessionId ?? ''}`,
+    historyHead: journalItems?.[0]?.itemId,
     typography,
     messages: rows,
     unresolvedRowIds: turnRows.unresolvedRowIds,
@@ -213,9 +214,8 @@ export function NativeChatMessageList({
     receipts,
     turnStatuses,
     turnDiffs,
-    expandedTurnKeys: expandedTurnIds,
     isWorking,
-    lifecycleWorking,
+    lifecycleWorking: session.transcriptLifecycle?.state === 'working',
     subagentSections,
     subagentChoices: inlineSubagentChoices,
     line: {
@@ -351,7 +351,7 @@ export function NativeChatMessageList({
     expandSignal,
     revealedDiff,
     taskListPredecessors,
-    expandedTurnIds,
+    expandedTurnIds: historyExpandedTurns,
     deliveryNotices,
     allowFileUriLinks,
     runtimeContext,

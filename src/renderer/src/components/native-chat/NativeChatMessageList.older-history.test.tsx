@@ -544,6 +544,37 @@ describe('older history auto-load', () => {
     expect(scroller.scrollTop).toBe(TOP_GUTTER_PX + 90 * ROW_PITCH_PX + 17)
   })
 
+  it('retains the visible row when async paging supplies a settled turn opener, then scrolls down normally', async () => {
+    const messages = markers(0, 100).map((message, index) =>
+      index === 0 ? { ...message, role: 'user' as const } : message
+    )
+    const settledTurns = new Map([['message-0', { startedAt: 1, workedSeconds: 10 }]])
+    const loadEarlier = lands()
+    const draw = (rows: NativeChatMessage[]) => (
+      <NativeChatMessageList
+        session={{ ...session(rows), hasMore: true, loadEarlier }}
+        isWorking={false}
+        expandSignal={false}
+        settledTurns={settledTurns}
+      />
+    )
+    const { container, rerender } = render(draw(messages.slice(50)))
+    paint(container)
+    const scroller = scrollRoot(container)
+    scrollTranscript(container, TOP_GUTTER_PX + 10 * ROW_PITCH_PX + 17)
+    paint(container)
+    const before = rowTop(container, 'marker-60') - scroller.scrollTop
+    await settle()
+    rerender(draw(messages))
+    paint(container)
+    expect(rowTop(container, 'marker-60') - scroller.scrollTop).toBe(before)
+    const extent = scroller.scrollHeight
+    scrollTranscript(container, scroller.scrollTop + ROW_PITCH_PX)
+    paint(container)
+    expect(rowTop(container, 'marker-60') - scroller.scrollTop).toBe(before - ROW_PITCH_PX)
+    expect(scroller.scrollHeight).toBe(extent)
+  })
+
   it('keeps a visible work run in place when an older page supplies its new head', () => {
     const call = (index: number): NativeChatMessage => ({
       ...marker(index),

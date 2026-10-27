@@ -1,15 +1,26 @@
+import {
+  QueuedMessageImageCount,
+  queuedMessageImageCount
+} from './NativeChatQueuedMessageImageCount'
+import type { QueuedMessageDragPresentation } from './NativeChatQueuedMessageRows'
 import { useId, useState } from 'react'
 import {
   AlertCircle,
   ChevronDown,
   CornerDownRight,
-  Image as ImageIcon,
   ListEnd,
+  MoreHorizontal,
+  Pencil,
   Send,
   Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { NativeChatQueuedMessageMenu } from './NativeChatQueuedMessageMenu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { ShortcutKeyCombo } from '@/components/ShortcutKeyCombo'
@@ -97,12 +108,6 @@ export function queuedMessageCardCaption(
   }
 }
 
-function queuedMessageImageCount(count: number): string {
-  return translate('components.native-chat.queuedMessages.imageCount', '{{count}} images', {
-    count
-  })
-}
-
 /** The card's line: its text, or for a card of images alone, the image's name or their count. */
 function queuedMessageCardLine(card: QueuedMessageCard): string {
   const images = card.images ?? []
@@ -149,11 +154,10 @@ export function NativeChatQueuedMessageCard({
   onSteer,
   onDelete,
   onEdit,
-  onMoveEarlier,
-  onMoveLater,
   editor,
   editAttachTo,
-  editDisabled = false
+  editDisabled = false,
+  drag
 }: {
   card: QueuedMessageCard
   /** The chat's worktree, whose host its sender is found on; null shows the sender unlinked. */
@@ -170,18 +174,18 @@ export function NativeChatQueuedMessageCard({
   onDelete: () => void
   /** Absent when the host cannot edit in place: the card then offers no Edit at all. */
   onEdit?: () => void
-  onMoveEarlier?: () => void
-  onMoveLater?: () => void
   /** This card is being edited here: the editor replaces its text and its actions. */
   editor?: QueuedMessageInlineEditor
   /** The chat files added in the editor attach to. */
   editAttachTo?: QueuedEditAttachTarget
   /** Another card in this pane is being edited. */
   editDisabled?: boolean
+  drag?: QueuedMessageDragPresentation
 }): React.JSX.Element {
   const caption = queuedMessageCardCaption(card, agentName, statedFailures)
   const line = queuedMessageCardLine(card)
   const returned = card.state === 'returned'
+  const attention = returned || card.pausedReason === QUEUED_MESSAGE_PAUSED_SEND_FAILED
   const sendNow = queuedMessageCardSendNow(card)
   const busy = pending !== null
   const isMac = isMacPlatform()
@@ -207,16 +211,37 @@ export function NativeChatQueuedMessageCard({
   }
   return (
     <li
+      ref={drag?.rowRef}
+      style={drag?.rowStyle}
       data-queued-message-id={card.messageId}
       data-queued-message-state={card.state}
-      className="px-2.5 py-1.5"
+      className="group/queued relative px-2.5 py-1.5"
     >
-      <div className="flex items-center gap-2">
-        {returned || card.pausedReason === QUEUED_MESSAGE_PAUSED_SEND_FAILED ? (
-          <AlertCircle className="size-3.5 shrink-0 text-destructive" aria-hidden />
-        ) : (
-          <ListEnd className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
-        )}
+      {drag?.insertion ? (
+        <span
+          aria-hidden
+          className={cn(
+            'pointer-events-none absolute inset-x-0 h-0.5 bg-primary',
+            drag.insertion === 'before' ? 'top-0' : 'bottom-0'
+          )}
+        />
+      ) : null}
+      <div className="flex items-center gap-1">
+        <span className="relative flex size-3.5 shrink-0 items-center justify-center">
+          {attention && !drag?.grip ? (
+            <AlertCircle className="size-3.5 text-destructive" aria-hidden />
+          ) : (
+            <ListEnd
+              className={cn(
+                'size-3.5 text-muted-foreground',
+                drag?.grip &&
+                  'group-hover/queued:opacity-0 group-focus-within/queued:opacity-0 [@media(hover:none)]:opacity-0'
+              )}
+              aria-hidden
+            />
+          )}
+          {drag?.grip}
+        </span>
         <div className="min-w-0 flex-1">
           {sender}
           {expanded ? null : (
@@ -232,6 +257,12 @@ export function NativeChatQueuedMessageCard({
                   : 'truncate text-xs text-muted-foreground'
               }
             >
+              {attention && drag?.grip ? (
+                <AlertCircle
+                  className="mr-1 inline size-3.5 align-text-bottom text-destructive"
+                  aria-hidden
+                />
+              ) : null}
               {caption}
             </p>
           ) : null}
@@ -297,14 +328,36 @@ export function NativeChatQueuedMessageCard({
                 {translate('components.native-chat.queuedMessages.delete', 'Delete')}
               </TooltipContent>
             </Tooltip>
-            <NativeChatQueuedMessageMenu
-              busy={busy}
-              command={card.command === true}
-              editDisabled={editDisabled}
-              onEdit={onEdit}
-              onMoveEarlier={onMoveEarlier}
-              onMoveLater={onMoveLater}
-            />
+            {!card.command && onEdit ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label={translate(
+                      'components.native-chat.queuedMessages.moreActions',
+                      'More actions'
+                    )}
+                    disabled={busy}
+                  >
+                    <MoreHorizontal className="size-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {/* A command's text is not a draft: edited, it would become a message. */}
+                  {card.command || !onEdit ? null : (
+                    <DropdownMenuItem disabled={editDisabled} onSelect={onEdit}>
+                      <Pencil />
+                      {translate(
+                        'components.native-chat.queuedMessages.editMessage',
+                        'Edit message'
+                      )}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
           </>
         )}
       </div>
@@ -317,32 +370,6 @@ export function NativeChatQueuedMessageCard({
         </p>
       ) : null}
     </li>
-  )
-}
-
-/** Images are named in the tooltip, not drawn: the row stays one line. */
-function QueuedMessageImageCount({
-  images
-}: {
-  images: NonNullable<QueuedMessageCard['images']>
-}): React.JSX.Element {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span
-          role="img"
-          tabIndex={0}
-          aria-label={queuedMessageImageCount(images.length)}
-          className="flex shrink-0 items-center gap-0.5 text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <ImageIcon className="size-3.5" aria-hidden />
-          <span aria-hidden>{images.length}</span>
-        </span>
-      </TooltipTrigger>
-      <TooltipContent side="top" sideOffset={4}>
-        {images.map(nativeChatImageLabel).join(', ')}
-      </TooltipContent>
-    </Tooltip>
   )
 }
 

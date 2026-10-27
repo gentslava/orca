@@ -1,3 +1,4 @@
+import { NativeChatQueuedMessageRows } from './NativeChatQueuedMessageRows'
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { AlertCircle, ChevronDown, ChevronRight, Play, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -63,21 +64,22 @@ export function NativeChatQueuedMessageList({
     ? queuedMessageCardCaption(attentionCard, agentName, statedFailures)
     : null
   const listRef = useRef<HTMLUListElement>(null)
-  const newestPosition = newest?.position ?? 0
   const newestIsPersons = newest !== undefined && !newest.from
-  const shownPosition = useRef(newestPosition)
+  const shownIds = useRef<ReadonlySet<string> | null>(null)
   // Before paint, so the new card never shows a frame before the scroll.
   useLayoutEffect(() => {
-    // From 0 the queue is loading or holds one card: nothing to scroll to.
-    const appended = shownPosition.current > 0 && newestPosition > shownPosition.current
-    shownPosition.current = newestPosition
+    const appended =
+      shownIds.current !== null &&
+      shownIds.current.size > 0 &&
+      newest !== undefined &&
+      !shownIds.current.has(newest.messageId)
+    shownIds.current = new Set(cards.map((card) => card.messageId))
     // The list opens on the next card to send; a card the person just queued is shown instead.
     if (appended && newestIsPersons && listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight
     }
-  }, [newestPosition, newestIsPersons])
-  // Only when focus was on the queue (a card, or the header) — never pull it from wherever the user
-  // moved on to. A question or approval holding the composer's slot takes it instead.
+  }, [cards, newest, newestIsPersons])
+  // Refocus only if focus stayed on the queue; an active prompt card takes priority over the composer.
   const refocusAfter = (action: Promise<unknown>): void => {
     void action.then(() => {
       const active = document.activeElement
@@ -98,7 +100,6 @@ export function NativeChatQueuedMessageList({
       refocusAfter(Promise.resolve())
     }
   })
-  const movableCards = cards.filter((card) => card.hold !== 'sending')
   return (
     <div ref={regionRef} aria-live="polite">
       {cards.length > 0 ? (
@@ -131,12 +132,14 @@ export function NativeChatQueuedMessageList({
                 controller.editor?.images?.chips.length ? 'max-h-72' : 'max-h-40'
               )}
             >
-              {cards.map((card) => {
-                const movableIndex = movableCards.indexOf(card)
-                return (
+              <NativeChatQueuedMessageRows
+                cards={cards}
+                reorder={controller.editor ? undefined : controller.reorder}
+                renderCard={(card, drag) => (
                   <NativeChatQueuedMessageCard
                     key={card.messageId}
                     card={card}
+                    drag={drag}
                     chatWorktreeId={chatWorktreeId}
                     agentName={agentName}
                     statedFailures={statedFailures}
@@ -155,31 +158,11 @@ export function NativeChatQueuedMessageList({
                         ? controller.editor
                         : undefined
                     }
-                    onMoveEarlier={
-                      controller.reorder && movableIndex > 0
-                        ? () =>
-                            void controller.reorder?.moveBefore(
-                              card.messageId,
-                              movableCards[movableIndex - 1].messageId
-                            )
-                        : undefined
-                    }
-                    onMoveLater={
-                      controller.reorder &&
-                      movableIndex !== -1 &&
-                      movableIndex < movableCards.length - 1
-                        ? () =>
-                            void controller.reorder?.moveBefore(
-                              card.messageId,
-                              movableCards[movableIndex + 2]?.messageId ?? null
-                            )
-                        : undefined
-                    }
                     editAttachTo={editAttachTo}
                     editDisabled={controller.editor !== undefined}
                   />
-                )
-              })}
+                )}
+              />
             </ul>
           </div>
         </div>

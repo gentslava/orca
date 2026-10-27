@@ -1,4 +1,11 @@
 {
+  "agentLaunch": {
+    "opencode": {
+      "invalidConfig": "OpenCode could not apply this model choice to the launch configuration. Check the OpenCode launch configuration and try again, or omit the model choice.",
+      "unsupportedLaunch": "OpenCode cannot apply this model choice to this launch. Start a fresh local terminal with supported launch arguments, or omit the model choice.",
+      "updateRequired": "OpenCode cannot safely start with a chosen model on this version. Update OpenCode to a supported release, or omit the model choice."
+    }
+  },
   "agentsSidebarIntro": {
     "migrated": {
       "action": "Open Agents"
@@ -1518,6 +1525,9 @@
           "setupProjectOnHost": "Set up on another host",
           "setupProjectOnHostHelp": "Choose a host, then import an existing checkout, clone the repository there, or track a setup that will be provisioned later."
         },
+        "RepositorySourceControlAiActionRows": {
+          "7a3a8e431d": "CLI arguments"
+        },
         "RepositorySourceControlAiEnablement": {
           "30ae6dcce8": "Global default is",
           "84233d1bb3": "Off",
@@ -1651,8 +1661,8 @@
           "fac59213fc": "Search builtin themes"
         },
         "SourceControlAiActionRecipeDefaults": {
-          "a9359c8aa9": "Unknown error",
-          "2cb4bb7e5d": "CLI arguments"
+          "2cb4bb7e5d": "CLI arguments",
+          "a9359c8aa9": "Unknown error"
         },
         "SparsePresetSettingsSection": {
           "2d7d45e991": "Cancel",
@@ -2101,9 +2111,6 @@
         },
         "wslHosts": {
           "remove": "Remove"
-        },
-        "RepositorySourceControlAiActionRows": {
-          "7a3a8e431d": "CLI arguments"
         }
       },
       "shared": {
@@ -3583,6 +3590,18 @@
     "tab-bar": {
       "newChat": "New chat"
     },
+    "tab": {
+      "bar": {
+        "bulkClose": {
+          "confirm": "Close tabs",
+          "description": "The selected tabs will be closed. Pinned tabs will stay open.",
+          "editors": "Close all editor tabs?",
+          "left": "Close tabs to the left?",
+          "others": "Close other tabs?",
+          "right": "Close tabs to the right?"
+        }
+      }
+    },
     "workspace": {
       "cleanup": {
         "browse": {
@@ -3619,18 +3638,6 @@
           "closedToast_other": "Closed {{count}} files with unsaved edits from {{workspace}}",
           "discarded_one": "Unsaved edits in {{count}} file will be discarded:",
           "discarded_other": "Unsaved edits in {{count}} files will be discarded:"
-        }
-      }
-    },
-    "tab": {
-      "bar": {
-        "bulkClose": {
-          "confirm": "Close tabs",
-          "description": "The selected tabs will be closed. Pinned tabs will stay open.",
-          "editors": "Close all editor tabs?",
-          "left": "Close tabs to the left?",
-          "others": "Close other tabs?",
-          "right": "Close tabs to the right?"
         }
       }
     }
@@ -3761,9 +3768,6 @@
     "sourceControl": {
       "actionModel": {
         "permissionsDefaultHint": "Terminals use Agent Permissions unless this action sets its own CLI arguments."
-      },
-      "actionPermissions": {
-        "sameAsAgent": "Same as {{agent}}"
       }
     }
   },
@@ -3896,12 +3900,5 @@
   "worktreePorts": {
     "liveCount_one": "{{count}} live port",
     "liveCount_other": "{{count}} live ports"
-  },
-  "agentLaunch": {
-    "opencode": {
-      "invalidConfig": "OpenCode could not apply this model choice to the launch configuration. Check the OpenCode launch configuration and try again, or omit the model choice.",
-      "unsupportedLaunch": "OpenCode cannot apply this model choice to this launch. Start a fresh local terminal with supported launch arguments, or omit the model choice.",
-      "updateRequired": "OpenCode cannot safely start with a chosen model on this version. Update OpenCode to a supported release, or omit the model choice."
-    }
   }
 }

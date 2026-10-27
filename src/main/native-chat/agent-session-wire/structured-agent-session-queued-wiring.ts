@@ -12,12 +12,12 @@ import {
   sendQueuedStructuredAgentMessage
 } from './structured-agent-session-queued-mutations'
 import { deferredStructuredAgentSessionLogger } from './structured-agent-session-logger'
-import { moveQueuedStructuredAgentMessage } from './structured-agent-session-queued-move'
 import {
   holdQueuedStructuredAgentMessageEdit,
   republish,
   updateQueuedStructuredAgentMessage
 } from './structured-agent-session-queued-edit'
+import { moveQueuedStructuredAgentMessage } from './structured-agent-session-queued-move'
 
 /** Read host context lazily during field initialization; session touch renews idle activity. */
 export function wireStructuredAgentSessionQueuedMessages(
@@ -40,10 +40,6 @@ export function wireStructuredAgentSessionQueuedMessages(
   })
   return {
     drain,
-    queuedMessageMove: (
-      caller: StructuredAgentSessionCaller,
-      params: Parameters<typeof moveQueuedStructuredAgentMessage>[2]
-    ) => moveQueuedStructuredAgentMessage(context(), caller, params),
     onOpened: (sessionId: string) => {
       const journal = sessions.get(sessionId)?.journal
       journal?.queuedMessages.editLeases.onDeadline(() => {
@@ -86,6 +82,10 @@ export function wireStructuredAgentSessionQueuedMessages(
       caller: StructuredAgentSessionCaller,
       params: Parameters<typeof deleteQueuedStructuredAgentMessage>[2]
     ) => deleteQueuedStructuredAgentMessage(context(), caller, params),
+    queuedMessageMove: (
+      caller: StructuredAgentSessionCaller,
+      params: Parameters<typeof moveQueuedStructuredAgentMessage>[2]
+    ) => moveQueuedStructuredAgentMessage(context(), caller, params),
     queuedMessagesResume: (
       caller: StructuredAgentSessionCaller,
       params: Parameters<typeof resumeStructuredAgentQueue>[2]

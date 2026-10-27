@@ -67,61 +67,25 @@ function controller(
 afterEach(() => cleanup())
 
 describe('NativeChatQueuedMessageList inline edit', () => {
-  it.each([
-    { index: 0, moves: true },
-    { index: 1, moves: false }
-  ])(
-    'ignores client-only sending cards when moving host card $index later',
-    async ({ index, moves }) => {
-      const owner = controller(
-        [
-          card({ messageId: 'a', position: 1 }),
-          card({ messageId: 'b', position: 2 }),
-          card({ messageId: 'sending', position: 3, hold: 'sending' })
-        ],
-        null,
-        true,
-        { editCapable: true, editor: undefined }
-      )
-      const moveBefore = vi.fn(async () => {})
-      owner.reorder = { moveBefore }
-      renderList(owner)
-      const row = screen.getAllByRole('listitem')[index]!
-      fireEvent.keyDown(within(row).getByRole('button', { name: 'More actions' }), {
-        key: 'ArrowDown'
-      })
-      await screen.findByRole('menuitem', { name: 'Edit message' })
-      const later = screen.queryByRole('menuitem', { name: 'Move later' })
-      if (moves) {
-        expect(later).not.toBeNull()
-        fireEvent.click(later!)
-        expect(moveBefore).toHaveBeenCalledExactlyOnceWith('a', null)
-      } else {
-        expect(later).toBeNull()
-        expect(moveBefore).not.toHaveBeenCalled()
-      }
-    }
-  )
-
-  it('moves a named card before its neighbour using the existing action menu', async () => {
-    const owner = controller(
-      [
-        card({ messageId: 'a', position: 1 }),
-        card({ messageId: 'b', position: 2 }),
-        card({ messageId: 'c', position: 3 })
-      ],
-      null,
-      true,
-      { editCapable: true, editor: undefined }
+  it('reorders only user cards from the grip with arrow keys and retains focus', async () => {
+    const cards = [card({ messageId: 'a' }), card({ messageId: 'b', position: 2 })]
+    const owner = controller(cards, null, true, { editCapable: true, editor: undefined })
+    const move = vi.fn(async () => {})
+    owner.reorder = { scope: 'session', pending: false, move }
+    const view = renderList(owner)
+    const grip = screen.getAllByRole('button', { name: 'Reorder message' })[0]!
+    grip.focus()
+    fireEvent.keyDown(grip, { key: 'ArrowDown' })
+    expect(move).toHaveBeenCalledExactlyOnceWith('a', { afterMessageId: 'b' })
+    view.rerender(
+      <TooltipProvider>
+        <NativeChatQueuedMessageList
+          chatWorktreeId={null}
+          controller={{ ...owner, cards: [cards[1]!, cards[0]!] }}
+        />
+      </TooltipProvider>
     )
-    const moveBefore = vi.fn(async () => {})
-    owner.reorder = { moveBefore }
-    renderList(owner)
-    fireEvent.keyDown(screen.getAllByRole('button', { name: 'More actions' })[1], {
-      key: 'ArrowDown'
-    })
-    fireEvent.click(await screen.findByRole('menuitem', { name: 'Move earlier' }))
-    expect(moveBefore).toHaveBeenCalledExactlyOnceWith('b', 'a')
+    expect(document.activeElement).toBe(grip)
   })
 
   it('a host that cannot edit in place offers no Edit, and an empty menu is not shown', async () => {
@@ -151,7 +115,9 @@ describe('NativeChatQueuedMessageList inline edit', () => {
       true,
       { editCapable: true, editor }
     )
+    owner.reorder = { scope: 'session', pending: false, move: vi.fn(async () => {}) }
     renderList(owner)
+    expect(screen.queryByRole('button', { name: 'Reorder message' })).toBeNull()
     const [edited, other] = screen.getAllByRole('listitem')
     expect(within(edited!).getByRole('textbox', { name: 'Edit message' })).toBeTruthy()
     expect(within(edited!).queryByRole('button', { name: 'Delete' })).toBeNull()

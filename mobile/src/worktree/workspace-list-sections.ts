@@ -1,4 +1,6 @@
 import { getRepoExecutionHostId } from '../../../src/shared/execution-host'
+import { orderMainWorktreeFirst } from '../../../src/shared/sidebar-list/section-order'
+import { withFolderWorkspacesLast } from './folder-workspace-lane-order'
 import { prGroupOfPsLinkedPR } from '../../../src/shared/sidebar-list/workspace-review-facts'
 import {
   buildWorktreeOccurrencePlan,
@@ -20,7 +22,13 @@ import {
   PR_GROUP_LABELS,
   PR_GROUP_ORDER
 } from '../../../src/shared/workspace-view/workspace-pr-groups'
-import type { FilterState, Section, SectionRepo, Worktree } from './workspace-list-types'
+import type {
+  FilterState,
+  Section,
+  SectionRepo,
+  Worktree,
+  ProjectSectionCatalog
+} from './workspace-list-types'
 import type {
   WorkspaceGroupBy,
   WorkspaceSortBy
@@ -32,27 +40,21 @@ import type { ExecutionHostId } from '../../../src/shared/execution-host'
 import {
   buildProjectGroupingIndex,
   buildProjectSections,
-  getProjectGroupingForRepo,
-  type ProjectSectionModel
+  getProjectGroupingForRepo
 } from '../../../src/shared/project-section-grouping'
 import { withRepoSectionDisplayLabels } from '../../../src/shared/project-section-order'
-import type { ProjectOrderBy } from '../../../src/shared/ui-chrome-types'
 import {
   filterWorkspaceRows,
   type WorkspaceRowFactReader
 } from '../../../src/shared/workspace-view/workspace-row-filters'
 
-export type { FilterState, Section, SectionRepo, Worktree } from './workspace-list-types'
-
-export type ProjectSectionCatalog = {
-  /** Catalog repos of the hosts the list shows; each without rows gets an empty section. */
-  repos: readonly SectionRepo[]
-  /** Null until the desktop's catalog answers; rows then group by repo, as the desktop's would. */
-  grouping: ProjectSectionModel | null
-  /** Manual header rank; undefined keeps first-row order. */
-  repoOrder: ReadonlyMap<string, number> | undefined
-  projectOrderBy: ProjectOrderBy
-}
+export type {
+  FilterState,
+  Section,
+  SectionRepo,
+  Worktree,
+  ProjectSectionCatalog
+} from './workspace-list-types'
 
 export const NO_PROJECT_SECTION_CATALOG: ProjectSectionCatalog = {
   repos: [],
@@ -97,7 +99,11 @@ function makeSection(
 }
 
 // Idle prompts have no recent output; live terminals or unread output still count as active.
-export function isWorktreeActive(w: Worktree): boolean {
+export function isWorktreeActive(
+  w: Pick<Worktree, 'hasHostSidebarActivity' | 'status' | 'liveTerminalCount'> & {
+    unread?: boolean
+  }
+): boolean {
   if (w.hasHostSidebarActivity !== undefined) {
     return w.hasHostSidebarActivity
   }
@@ -139,14 +145,6 @@ function phoneRowFacts(
     isMainWorktree: (w) => w.isMainWorktree ?? guessDefaultBranchWorkspace(w),
     isSleeping: (w) => !isWorktreeActive(w)
   }
-}
-
-function orderMainWorktreeFirst(worktrees: Worktree[]): Worktree[] {
-  const mainWorktrees = worktrees.filter((worktree) => worktree.isMainWorktree)
-  if (mainWorktrees.length === 0) {
-    return worktrees
-  }
-  return [...mainWorktrees, ...worktrees.filter((worktree) => !worktree.isMainWorktree)]
 }
 
 export function filterWorktrees(
@@ -210,7 +208,9 @@ export function buildMobileWorkspacePlan(
       }
       if (groupMode === 'none') {
         if (canonicalGroupWorktrees.length > 0) {
-          sections.push(makeSection('all', 'All', canonicalGroupWorktrees))
+          sections.push(
+            makeSection('all', 'All', withFolderWorkspacesLast(canonicalGroupWorktrees))
+          )
         }
       } else if (groupMode === 'repo') {
         const representedRepoIds = new Set(worktrees.map((w) => w.repoId))
@@ -263,7 +263,13 @@ export function buildMobileWorkspacePlan(
         for (const status of renderableWorkspaceStatuses) {
           const items = byStatus.get(status.id)
           if (items && items.length > 0) {
-            sections.push(makeSection(getWorkspaceStatusGroupKey(status.id), status.label, items))
+            sections.push(
+              makeSection(
+                getWorkspaceStatusGroupKey(status.id),
+                status.label,
+                withFolderWorkspacesLast(items)
+              )
+            )
           }
         }
       } else if (groupMode === 'pr-status') {
@@ -280,7 +286,13 @@ export function buildMobileWorkspacePlan(
         for (const groupKey of PR_GROUP_ORDER) {
           const items = byGroup.get(groupKey)
           if (items && items.length > 0) {
-            sections.push(makeSection(getPRLaneKey(groupKey), PR_GROUP_LABELS[groupKey], items))
+            sections.push(
+              makeSection(
+                getPRLaneKey(groupKey),
+                PR_GROUP_LABELS[groupKey],
+                withFolderWorkspacesLast(items)
+              )
+            )
           }
         }
       }

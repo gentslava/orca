@@ -13,6 +13,7 @@ import {
   type FileExplorerDeletionEditor
 } from './file-explorer-deletion-editors'
 import {
+  confirmRemoteDelete,
   getFileDeleteErrorMessage,
   isLocalDeleteNode,
   needsRemoteDeleteConfirmation
@@ -27,12 +28,10 @@ import {
   assertFileWriteApplied,
   missingOrIdenticalPrecondition
 } from '../../../../shared/file-write-disk-precondition'
+import { deleteWithPermanentFallback } from './file-explorer-trash-fallback'
 import { readRuntimeFileContent } from '@/runtime/runtime-file-read-client'
 import { translate } from '@/i18n/i18n'
-import {
-  fileExplorerBatchDeleteConfirmation,
-  fileExplorerDeleteConfirmation
-} from './file-explorer-delete-confirmation'
+import { fileExplorerBatchDeleteConfirmation } from './file-explorer-delete-confirmation'
 
 type UseFileDeletionParams = {
   activeWorktreeId: string | null
@@ -80,7 +79,7 @@ export function useFileDeletion({
         )
         // Remote deletes bypass Trash and may be unrecoverable; batches confirm once up front.
         if (isRemote && !options?.skipConfirmation) {
-          const confirmed = await confirm(fileExplorerDeleteConfirmation(node))
+          const confirmed = await confirmRemoteDelete(confirm, node)
           if (!confirmed) {
             return false
           }
@@ -134,7 +133,19 @@ export function useFileDeletion({
         }
 
         operationGuard.assertCurrent()
-        await deleteRuntimePath(fileContext, node.path, node.isDirectory)
+        const deletion = await deleteWithPermanentFallback({
+          name: node.name,
+          isRemote,
+          isWindows,
+          confirm,
+          deletePath: (deleteOptions) =>
+            deleteRuntimePath(fileContext, node.path, node.isDirectory, deleteOptions),
+          beforePermanentDelete: () => operationGuard.assertCurrent()
+        })
+        if (!deletion) {
+          return false
+        }
+        const { permanent } = deletion
 
         if (undoContent !== undefined) {
           commitFileExplorerOp({
@@ -165,7 +176,8 @@ export function useFileDeletion({
                   connectionId: currentRoute.connectionId
                 },
                 node.path,
-                node.isDirectory
+                node.isDirectory,
+                { permanent }
               )
               await refreshDir(parentDir)
             }
@@ -217,9 +229,13 @@ export function useFileDeletion({
                     "Failed to move '{{name}}' to Recycle Bin.",
                     { name: node.name }
                   )
-                : translate('fileExplorer.trashFailed', "Failed to move '{{name}}' to Trash.", {
-                    name: node.name
-                  })
+                : translate(
+                    'fileExplorer.trashFailed.message',
+                    "Failed to move '{{name}}' to Trash.",
+                    {
+                      name: node.name
+                    }
+                  )
         )
         return false
       } finally {
@@ -253,9 +269,7 @@ export function useFileDeletion({
       const roots = selectDeletionRoots(nodes)
       // Mixed batches must distinguish permanent remote deletion from local Trash.
       const hasLocalDelete = roots.some(isLocalDeleteNode)
-      // Why: selection is cleared once after the entire batch settles rather
-      // than per-node, so no concurrent completion can restore a partial
-      // stale set.
+      // Clear selection after the whole batch so concurrent completions cannot restore stale partial sets.
       void (async () => {
         const deletedRoots = await runBatchDeletion({
           roots,
@@ -263,9 +277,7 @@ export function useFileDeletion({
           needsConfirmation: roots.some(needsRemoteDeleteConfirmation),
           confirmBatch: () =>
             confirm(
-              // Why: count the full selection, not the filtered roots —
-              // deleting a folder still deletes the selected children inside
-              // it, and the prompt should match what the user sees selected.
+              // Count selected children even when ancestor roots subsume their deletes.
               fileExplorerBatchDeleteConfirmation({
                 count: nodes.length,
                 hasLocalDelete,

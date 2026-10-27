@@ -55,6 +55,8 @@ export const AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY = 'agent-session.steer
 // A client offers Edit only when the host advertises it; there is no copy-and-delete fallback.
 export const AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY =
   'agent-session.queued-message-edit.v1' as const
+export const AGENT_SESSION_QUEUED_MESSAGE_REORDER_RUNTIME_CAPABILITY =
+  'agent-session.queued-message-reorder.v1' as const
 // Update params are strict: send images only when advertised; otherwise Save edits text alone.
 export const AGENT_SESSION_QUEUED_MESSAGE_IMAGE_EDIT_RUNTIME_CAPABILITY =
   'agent-session.queued-message-image-edit.v1' as const
@@ -117,6 +119,7 @@ export const AGENT_SESSION_RUNTIME_CAPABILITIES = [
   AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_COMMANDS_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY,
+  AGENT_SESSION_QUEUED_MESSAGE_REORDER_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_IMAGE_EDIT_RUNTIME_CAPABILITY,
   AGENT_SESSION_CONTINUE_INTERRUPTED_RUNTIME_CAPABILITY,
   AGENT_SESSION_PERMISSION_MODES_RUNTIME_CAPABILITY,

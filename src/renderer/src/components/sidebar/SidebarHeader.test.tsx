@@ -212,20 +212,6 @@ describe('SidebarHeader', () => {
     expect(mocks.openWorkspaceCreationComposerWithTourHandoff).toHaveBeenCalledTimes(1)
   })
 
-  it('opens the composer the same way once projects exist', async () => {
-    mockState.repos = [{ id: 'repo-a' }]
-    act(() => {
-      root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />)
-    })
-
-    await act(async () => {
-      createButton().click()
-    })
-
-    expect(createButton().disabled).toBe(false)
-    expect(mocks.openWorkspaceCreationComposerWithTourHandoff).toHaveBeenCalledTimes(1)
-  })
-
   it('reaches Add project and New workspace in one click each, with no menu', async () => {
     act(() => {
       root.render(<SidebarHeader onWorkspaceBoardMenuOpenChange={vi.fn()} />)

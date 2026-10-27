@@ -12,7 +12,7 @@ import type { RpcClient } from '../transport/rpc-client'
 import { readMirroredKeyOrStore } from '../storage/mirrored-storage-keys'
 import { LAST_VISITED_WORKTREE_STORAGE_KEY } from './last-visited-worktree-repo'
 import { readLastVisitedWorktreeOnHost } from './last-visited-worktree-by-host'
-import { getRepoIdFromMobileWorktreeId } from '../session/mobile-session-route-helpers'
+import { getRepoIdFromWorktreeId } from '../../../src/shared/worktree/id'
 import { projectSectionsRead } from './project-sections-operations'
 
 const Intent = z.object({
@@ -79,7 +79,7 @@ export async function recordPersonalProjectRouteIntent(args: {
   const previousProjectKey =
     intent.data.previousWorktreeId && previousHost
       ? resolveProjectPreferenceKey(
-          getRepoIdFromMobileWorktreeId(intent.data.previousWorktreeId),
+          getRepoIdFromWorktreeId(intent.data.previousWorktreeId),
           catalog.value.setups,
           previousHost
         )
