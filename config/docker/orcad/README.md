@@ -123,7 +123,7 @@ Retain the image ID/revision with the backup; newer SQLite state may require its
 Build the selected new source revision with new metadata, then replace the service with the **same** Compose project/volumes:
 
 ```sh
-node config/docker/orcad/configure.mjs --output /tmp/orcad-next.env
+node config/docker/orcad/configure.mjs --output config/docker/orcad/.env.next
 # Copy the new source/image metadata into the deployment .env, preserving settings.
 docker compose --env-file config/docker/orcad/.env -p orcad -f config/docker/orcad/compose.yaml build
 docker compose --env-file config/docker/orcad/.env -p orcad -f config/docker/orcad/compose.yaml up -d --no-build --force-recreate --wait --wait-timeout 180
