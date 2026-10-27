@@ -47,14 +47,18 @@ describe('worker role profile choices', () => {
     fireEvent.keyDown(screen.getByRole('combobox', { name: 'Model' }), { key: 'ArrowDown' })
     expect(mocks.refresh).toHaveBeenCalledOnce()
   })
-  it('shows retrieval failures beside the model field with an accessible retry', () => {
-    mocks.error = 'Host connection closed'
+  it('keeps long retrieval diagnostics collapsed behind a quiet status and accessible retry', () => {
+    mocks.error = 'Host connection closed: socket timeout and transport diagnostics. '.repeat(40)
     render(<WorkerRoleProfileEditor {...props} />)
-    expect(screen.getByRole('alert').textContent).toBe(
-      'Could not load models: Host connection closed'
-    )
+    const status = screen.getByRole('status')
+    expect(status.textContent).toBe('Could not load models.')
+    expect(status.className).toContain('text-muted-foreground')
+    expect(screen.queryByRole('alert')).toBeNull()
+    const details = screen.getByText(mocks.error.trim()).closest('details')
+    expect(details?.open).toBe(false)
+    expect(details?.querySelector('summary')?.textContent).toBe('Details')
     expect(screen.getByRole('combobox', { name: 'Model' }).getAttribute('aria-describedby')).toBe(
-      screen.getByRole('alert').id
+      status.id
     )
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
     expect(mocks.refresh).toHaveBeenCalledOnce()

@@ -50,9 +50,7 @@ export function WorkerRoleProfileEditor({
   const agentLabel =
     agents.find((agent) => agent.id === profile?.agent)?.label ?? profile?.agent ?? ''
   const catalogError = error
-    ? translate('settings.orchestration.roles.modelsFailed', 'Could not load models: {{error}}', {
-        error
-      })
+    ? translate('settings.orchestration.roles.modelsFailed', 'Could not load models.')
     : catalogUnavailable?.reason === 'cliMissing'
       ? sayAgentSessionFailureTranslated('cliMissing', { agent: agentLabel })
       : catalogUnavailable?.reason === 'notSignedIn'
@@ -177,11 +175,21 @@ export function WorkerRoleProfileEditor({
           <div className="space-y-1">
             <p
               id={`worker-role-${role}-model-error`}
-              role="alert"
-              className="text-xs text-destructive"
+              role="status"
+              className="text-xs text-muted-foreground"
             >
               {catalogError}
             </p>
+            {error ? (
+              <details className="max-w-full text-xs text-muted-foreground">
+                <summary className="cursor-pointer select-none">
+                  {translate('settings.orchestration.roles.modelErrorDetails', 'Details')}
+                </summary>
+                <div className="scrollbar-sleek mt-1 max-h-40 overflow-auto break-words whitespace-pre-wrap">
+                  {error}
+                </div>
+              </details>
+            ) : null}
             <Button
               type="button"
               variant="ghost"

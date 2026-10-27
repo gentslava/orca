@@ -71,3 +71,19 @@ const fixture = (field: 'agent' | 'model') =>
   })
 export const agents = fixture('agent')
 export const models = fixture('model')
+
+export const retrievalFailure = defineFixture({
+  width: 480,
+  setup: () => {
+    setup()
+    window.api.runtime.call = async () => {
+      throw new Error(
+        'Host connection closed: socket timeout and transport diagnostics. '.repeat(40)
+      )
+    }
+  },
+  render: () => <WorkerRoleFixture />,
+  interact: async () => {
+    await setRendererUiLanguage('en')
+  }
+})

@@ -616,7 +616,8 @@
         "notListed": "Not listed",
         "checking": "Checking…",
         "refreshingModels": "Refreshing models…",
-        "modelsFailed": "Could not load models: {{error}}",
+        "modelsFailed": "Could not load models.",
+        "modelErrorDetails": "Details",
         "retryModels": "Retry"
       }
     },
