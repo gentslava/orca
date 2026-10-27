@@ -22,17 +22,12 @@ import {
   PR_GROUP_LABELS,
   PR_GROUP_ORDER
 } from '../../../src/shared/workspace-view/workspace-pr-groups'
-import type {
-  FilterState,
-  Section,
-  SectionRepo,
-  Worktree,
-  ProjectSectionCatalog
-} from './workspace-list-types'
+import type { FilterState, Section, SectionRepo, Worktree } from './workspace-list-types'
 import type {
   WorkspaceGroupBy,
   WorkspaceSortBy
 } from '../../../src/shared/workspace-view/workspace-view-options'
+import { NO_PROJECT_SECTION_CATALOG, type ProjectSectionCatalog } from './project-section-catalog'
 import { hostSortsByStamps, sortWorktrees } from './workspace-list-ordering'
 import { getWorktreeRowIdentity } from './worktree-host-row-identity'
 import { resolveWorktreeHostId } from './worktree-host-context-labels'
@@ -48,20 +43,9 @@ import {
   type WorkspaceRowFactReader
 } from '../../../src/shared/workspace-view/workspace-row-filters'
 
-export type {
-  FilterState,
-  Section,
-  SectionRepo,
-  Worktree,
-  ProjectSectionCatalog
-} from './workspace-list-types'
+export type { FilterState, Section, SectionRepo, Worktree } from './workspace-list-types'
 
-export const NO_PROJECT_SECTION_CATALOG: ProjectSectionCatalog = {
-  repos: [],
-  grouping: null,
-  repoOrder: undefined,
-  projectOrderBy: 'manual'
-}
+export { NO_PROJECT_SECTION_CATALOG, type ProjectSectionCatalog } from './project-section-catalog'
 
 export function buildSectionRepoMap(
   catalogRepos: readonly SectionRepo[],

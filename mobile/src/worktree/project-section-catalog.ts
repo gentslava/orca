@@ -3,9 +3,17 @@ import { getRepoExecutionHostId, type ExecutionHostId } from '../../../src/share
 import { getLogicalRepoOrderRankById } from '../../../src/shared/project-section-order'
 import type { ProjectOrderBy } from '../../../src/shared/ui-chrome-types'
 import type { ServedProjectSections } from './project-sections-operations'
-import { NO_PROJECT_SECTION_CATALOG, type ProjectSectionCatalog } from './workspace-list-sections'
-import type { SectionRepo } from './workspace-list-types'
+import type { ProjectSectionCatalog, SectionRepo } from './workspace-list-types'
 import { resolveServedProjectSectionClaims } from '../../../src/shared/project-section-catalog-claims'
+
+export type { ProjectSectionCatalog } from './workspace-list-types'
+
+export const NO_PROJECT_SECTION_CATALOG: ProjectSectionCatalog = {
+  repos: [],
+  grouping: null,
+  repoOrder: undefined,
+  projectOrderBy: 'manual'
+}
 
 // Use served all-host project grouping; older desktops fall back to repo grouping.
 // Only visible hosts’ repos open empty sections.
