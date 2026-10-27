@@ -1,10 +1,9 @@
 import { defineFixture } from '../../component-fixtures/component-fixture'
 import { setRendererUiLanguage } from '@/i18n/i18n'
 import { useTranslation } from 'react-i18next'
-import { getDefaultSettings } from '../../../../shared/constants'
 import { NativeChatSessionOptionRows } from './NativeChatSessionOptionRows'
 
-function RussianEffort(): React.JSX.Element {
+function EffortExample({ currentValue = 'xhigh' }: { currentValue?: string }): React.JSX.Element {
   useTranslation()
   return (
     <div className="native-chat-appearance rounded-md border border-border bg-popover p-1 text-popover-foreground">
@@ -16,7 +15,7 @@ function RussianEffort(): React.JSX.Element {
             category: 'thought_level',
             kind: {
               type: 'select',
-              currentValue: 'xhigh',
+              currentValue,
               choices: [
                 { value: 'minimal', label: 'Minimal' },
                 { value: 'low', label: 'Low' },
@@ -42,9 +41,24 @@ function RussianEffort(): React.JSX.Element {
 
 export const russianEffort = defineFixture({
   width: 320,
-  store: { settings: { ...getDefaultSettings('/fixture'), uiLanguage: 'ru' } },
-  render: () => <RussianEffort />,
+  render: () => <EffortExample />,
   interact: async () => {
     await setRendererUiLanguage('ru')
+  }
+})
+
+export const extraHigh = defineFixture({
+  width: 320,
+  render: () => <EffortExample />,
+  interact: async () => {
+    await setRendererUiLanguage('en')
+  }
+})
+
+export const high = defineFixture({
+  width: 320,
+  render: () => <EffortExample currentValue="high" />,
+  interact: async () => {
+    await setRendererUiLanguage('en')
   }
 })

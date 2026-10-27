@@ -102,18 +102,16 @@ function EffortSlider({
       <div className="flex min-w-0 items-baseline justify-between gap-3 text-xs">
         <span className="whitespace-nowrap text-muted-foreground">{label}</span>
         {choice && !gone ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            disabled={disabled}
-            className="min-w-0"
-            onClick={() => onSet(choice.value)}
-          >
-            <span className="truncate" title={valueLabel}>
-              {shortValueLabel}
-            </span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="min-w-0 truncate whitespace-nowrap text-foreground">
+                {shortValueLabel}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={4}>
+              {valueLabel}
+            </TooltipContent>
+          </Tooltip>
         ) : (
           <span className="text-foreground">—</span>
         )}

@@ -669,7 +669,7 @@ describe('NativeChatSessionOptionPickers', () => {
     expect(pill('Model Opus 4.8, Effort XHigh').textContent).toBe('Opus 4.8XHigh')
   })
 
-  it('can explicitly choose the resolved effort while its provider default is selected', async () => {
+  it('keeps the current effort passive and adjusts it only through the slider', async () => {
     const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
     render(
       <NativeChatSessionOptionPickers
@@ -678,8 +678,13 @@ describe('NativeChatSessionOptionPickers', () => {
         isWorking={false}
       />
     )
-    fireEvent.click(screen.getByRole('button', { name: 'High' }))
-    await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'high'))
+    expect(screen.queryByRole('button', { name: 'High' })).toBeNull()
+    fireEvent.click(screen.getAllByText('High')[0]!)
+    expect(setOption).not.toHaveBeenCalled()
+    expect(effortSlider().tabIndex).toBe(0)
+    expect(effortSlider().getAttribute('aria-valuetext')).toBe('High')
+    pickEffort('Home')
+    await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'low'))
   })
 
   it('keeps an unknown effort unreported until a supported choice is committed', async () => {
