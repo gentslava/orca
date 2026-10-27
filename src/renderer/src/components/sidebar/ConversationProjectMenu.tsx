@@ -114,8 +114,10 @@ export function ConversationProjectMenu({
           'auto.components.sidebar.WorktreeList.d880ea0744',
           'Create a group and move this project into it.'
         )}
-        initialName={`${group.repo.displayName} group`}
-        confirmLabel="Create"
+        initialName={translate('projectConversations.defaultGroupName', '{{project}} group', {
+          project: group.repo.displayName
+        })}
+        confirmLabel={translate('auto.components.Landing.76a95f7f47', 'Create')}
         onOpenChange={(open) => {
           if (!open) {
             dialogs.setNameDialog(null)

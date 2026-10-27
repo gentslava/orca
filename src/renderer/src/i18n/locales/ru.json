@@ -22275,6 +22275,7 @@
     "agentDriving": "Агент работает с этой страницей"
   },
   "projectConversations": {
+    "defaultGroupName": "Группа {{project}}",
     "hideProject": "Скрыть проект из списка",
     "hiddenProjects": "Скрытые проекты",
     "keepFiles": "Файлы и история сохраняются",
