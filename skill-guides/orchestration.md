@@ -15,6 +15,8 @@ which attempt is authoritative, and when supervised work has settled.
 
 ## Choose the delegation mechanism
 
+An explicit `$orchestration` or `/orchestration` invocation selects this Orca workflow.
+
 For ordinary parallel work inside the current Codex or Claude conversation, use
 the provider's native subagents when available. Asking to delegate, inspect their
 progress or collect their results alone does not request Orca orchestration.

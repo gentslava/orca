@@ -6,7 +6,8 @@ purpose so it can never drift from the binary that will actually run your comman
 
 Use Orca orchestration for explicitly requested Orca workers, durable Runs/task DAGs,
 cross-agent or cross-host coordination, and live Task/Dispatch worker obligations
-(`check`, `ask`, `worker_done`). It starts independent agent chats or terminals.
+(`check`, `ask`, `worker_done`). It starts independent agent chats or terminals. An explicit
+`$orchestration` or `/orchestration` invocation selects this Orca workflow.
 
 For ordinary parallel delegation inside Codex or Claude, prefer that provider's native
 subagents. Asking to delegate, monitor their progress or collect results alone does not
