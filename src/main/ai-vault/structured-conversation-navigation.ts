@@ -84,7 +84,8 @@ export function projectDurableAiVaultConversations(
     const previous = bySessionId.get(record.sessionId)
     const providerHasContent =
       previous &&
-      (isAiVaultSessionResumableContent(previous) ||
+      (previous.conversationContent === 'present' ||
+        (previous.conversationContent !== 'empty' && isAiVaultSessionResumableContent(previous)) ||
         aiVaultSessionRecoverableSignalCount(previous) > 0 ||
         previous.firstUserPrompt?.trim() ||
         previous.lastUserPrompt?.trim())
@@ -137,6 +138,7 @@ export function projectDurableAiVaultConversations(
       conversationContent:
         previous &&
         previous.source !== 'structured-record' &&
+        previous.conversationContent !== 'empty' &&
         preview.conversationContent === 'empty'
           ? 'unknown'
           : preview.conversationContent,

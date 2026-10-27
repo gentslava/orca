@@ -5,6 +5,7 @@ import {
 } from './conversation-navigation-preferences'
 import { AI_VAULT_AGENT_LABELS, type AiVaultSession } from './ai-vault-types'
 import { sessionPromptPreview } from './ai-vault-session-display'
+import { isKnownHarnessInjectedUserTurnText } from './harness-injected-user-turns'
 
 const GENERIC_TITLES = new Set(
   Object.values(AI_VAULT_AGENT_LABELS)
@@ -14,7 +15,16 @@ const GENERIC_TITLES = new Set(
 
 export function isGenericConversationTitle(title: string): boolean {
   const value = title.trim()
-  return !value || /^[.\s…]+$/u.test(value) || GENERIC_TITLES.has(value.toLowerCase())
+  return (
+    !value ||
+    /^[.\s…]+$/u.test(value) ||
+    GENERIC_TITLES.has(value.toLowerCase()) ||
+    isKnownHarnessInjectedUserTurnText(value) ||
+    Object.values(AI_VAULT_AGENT_LABELS).some(
+      (label) =>
+        value.startsWith(`${label} `) && /^[0-9a-f]{8}$/iu.test(value.slice(label.length + 1))
+    )
+  )
 }
 
 export function projectConversationTitle(
@@ -24,7 +34,19 @@ export function projectConversationTitle(
   if (!isGenericConversationTitle(title)) {
     return title
   }
-  return conversationNameSeed(sessionPromptPreview(session)?.text ?? '') ?? title
+  const prompt = sessionPromptPreview({
+    firstUserPrompt:
+      session.firstUserPrompt && !isKnownHarnessInjectedUserTurnText(session.firstUserPrompt)
+        ? session.firstUserPrompt
+        : null,
+    previewMessages: session.previewMessages.filter(
+      (message) => !isKnownHarnessInjectedUserTurnText(message.text)
+    )
+  })
+  return (
+    conversationNameSeed(prompt?.text ?? '') ??
+    (isKnownHarnessInjectedUserTurnText(title) ? '' : title)
+  )
 }
 
 export function projectConversations(

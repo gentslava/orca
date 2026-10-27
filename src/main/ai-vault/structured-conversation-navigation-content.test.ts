@@ -143,6 +143,17 @@ describe('durable conversation names and bounded content evidence', () => {
     ).toBe('unknown')
   })
 
+  it('keeps an intact creation epoch empty when native turns are proven command metadata only', () => {
+    register()
+    const session = {
+      ...providerRow('Claude Chat', 3),
+      conversationContent: 'empty' as const
+    }
+    expect(project({ ...EMPTY, sessions: [session] }).sessions[0]?.conversationContent).toBe(
+      'empty'
+    )
+  })
+
   it.each(['workspace mismatch', 'missing epoch', 'corrupt row', 'sequence gap', 'adopted-only'])(
     'keeps uncertain history visible: %s',
     (reason) => {

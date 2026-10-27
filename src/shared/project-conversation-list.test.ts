@@ -57,4 +57,31 @@ describe('project conversation navigation', () => {
     expect(projectConversationTitle(session)).toBe('Fix reader pagination alignment')
     expect(projectConversationTitle(session, 'Reader pagination')).toBe('Reader pagination')
   })
+
+  it('replaces injected command titles from older hosts with a human prompt', () => {
+    const caveat = '<local-command-caveat>Local command output follows</local-command-caveat>'
+    const session = {
+      ...row('chat', '2026-10-26'),
+      title: caveat,
+      firstUserPrompt: caveat,
+      previewMessages: [
+        { role: 'user' as const, text: caveat, timestamp: null },
+        { role: 'user' as const, text: 'Fix reader pagination alignment', timestamp: null }
+      ]
+    }
+    expect(projectConversationTitle(session)).toBe('Fix reader pagination alignment')
+    expect(projectConversationTitle({ ...session, previewMessages: [] })).toBe('')
+    expect(projectConversationTitle(session, '<my-card> rendering')).toBe('<my-card> rendering')
+  })
+
+  it('replaces scanner-generated identifier labels when a human prompt is available', () => {
+    const session = {
+      ...row('019f7a2c-1234', '2026-10-26'),
+      title: 'Claude 019f7a2c',
+      firstUserPrompt: 'Investigate the intermittent deployment failure'
+    }
+    expect(projectConversationTitle(session)).toBe(
+      'Investigate the intermittent deployment failure'
+    )
+  })
 })
