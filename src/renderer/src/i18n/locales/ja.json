@@ -8338,7 +8338,8 @@
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "{{value0}} リポジトリカラーを使用する",
-          "fde066a63b": "PNG、JPEG、SVG、WebP、GIF、BMP、ICO、AVIF。最大10MB。",
+          "fde066a63b": "PNG、JPEG、SVG、WebP、GIF、BMP、ICO、AVIF。最大10MB、3200万画素。",
+          "imageTooLarge": "画像が10MBまたは3200万画素の上限を超えています。",
           "cc1286e263": "ファビコン",
           "03ca1a4e9b": "example.com",
           "381b4844fd": "画像をアップロード",

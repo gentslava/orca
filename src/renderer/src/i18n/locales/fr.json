@@ -8515,7 +8515,8 @@
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "Utiliser la couleur de dépôt {{value0}}",
-          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO ou AVIF. Jusqu’à 10 Mo.",
+          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO ou AVIF. Jusqu’à 10 Mo et 32 mégapixels.",
+          "imageTooLarge": "L’image dépasse la limite de 10 Mo ou de 32 mégapixels.",
           "cc1286e263": "Favicon",
           "03ca1a4e9b": "example.com",
           "381b4844fd": "Téléverser une image",

@@ -8301,7 +8301,8 @@
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "{{value0}} repo 색상 사용",
-          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO 또는 AVIF. 최대 10MB.",
+          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO 또는 AVIF. 최대 10MB 및 3,200만 화소.",
+          "imageTooLarge": "이미지가 10MB 또는 3,200만 화소 제한을 초과합니다.",
           "cc1286e263": "파비콘",
           "03ca1a4e9b": "example.com",
           "381b4844fd": "이미지 업로드",

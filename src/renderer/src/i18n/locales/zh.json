@@ -8301,7 +8301,8 @@
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "使用 {{value0}} 仓库颜色",
-          "fde066a63b": "PNG、JPEG、SVG、WebP、GIF、BMP、ICO 或 AVIF。最大 10MB。",
+          "fde066a63b": "PNG、JPEG、SVG、WebP、GIF、BMP、ICO 或 AVIF。最大 10MB、3200 万像素。",
+          "imageTooLarge": "图片超过 10MB 或 3200 万像素的限制。",
           "cc1286e263": "网站图标",
           "03ca1a4e9b": "example.com",
           "381b4844fd": "上传图片",
