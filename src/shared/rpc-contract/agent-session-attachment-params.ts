@@ -33,4 +33,6 @@ export const AttachmentUploadAppendParams = z
 
 export const AttachmentUploadIdParams = z.object({ uploadId: UploadId }).strict()
 
-export const AttachmentReadParams = z.object({ path: z.string().min(1).max(4096) }).strict()
+export const AttachmentReadParams = z
+  .object({ path: z.string().min(1).max(4096), sessionId: SessionId.optional() })
+  .strict()

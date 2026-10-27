@@ -12,6 +12,7 @@ import {
   AttachmentUploadIdParams,
   AttachmentUploadStartParams
 } from '../../../../shared/rpc-contract/agent-session-attachment-params'
+import { readAgentSessionReferencedImage } from '../../../native-chat/agent-session-attachments/agent-session-referenced-image'
 import { remoteFileContentBudget } from './files-remote-content-budget'
 import type { AgentSessionAttachmentStore } from '../../../native-chat/agent-session-attachments/agent-session-attachment-store'
 import { getAgentSessionAttachmentStore } from '../../../native-chat/agent-session-attachments/agent-session-attachment-store-registry'
@@ -69,9 +70,15 @@ export const STRUCTURED_AGENT_SESSION_ATTACHMENT_METHODS = [
     permission: 'workspace',
     params: AttachmentReadParams,
     handler: async (params, ctx) => {
+      const budget = remoteFileContentBudget(ctx.clientKind, ctx.requestId)
+      if (params.sessionId) {
+        const host = await requireInstalledStructuredHost(ctx, params.sessionId)
+        const snapshot = await host.journalSnapshot(params.sessionId)
+        return readAgentSessionReferencedImage(params.path, snapshot.items, budget)
+      }
       const { store } = await requireStore(ctx)
       // Bound remote replies or outbound-budget overflow closes the socket.
-      return store.readPreview(params.path, remoteFileContentBudget(ctx.clientKind, ctx.requestId))
+      return store.readPreview(params.path, budget)
     }
   })
 ]

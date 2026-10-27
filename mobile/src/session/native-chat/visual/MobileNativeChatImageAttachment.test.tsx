@@ -188,7 +188,7 @@ describe('host-owned mobile chat images', () => {
 
   it.each([
     { path: 'file:///phone/photo.png' },
-    { path: '/private/secret.png', url: 'content://phone/photo' },
+    { url: 'content://phone/photo' },
     { url: 'blob:phone/photo' }
   ])('retries a device URI without reading non-store paths %j', async (source) => {
     const sendRequest = vi.fn<RpcClient['sendRequest']>()
@@ -265,16 +265,26 @@ describe('host-owned mobile chat images', () => {
     }
   )
 
-  it('does not read arbitrary host files or fall back when the owning client is absent', async () => {
-    const sendRequest = vi.fn<RpcClient['sendRequest']>()
-    await act(async () => {
-      tree = create(
-        render(stubRpcClient({ sendRequest }), { type: 'image-ref', path: '/private/secret.png' })
+  it.each(['/var/folders/host/T/orca-paste-123.png', '/private/tmp/fixtures/screen.png'])(
+    'reads a transcript image outside the attachment store with its owning session: %s',
+    async (path) => {
+      const sendRequest = vi.fn<RpcClient['sendRequest']>().mockResolvedValue(REPLY)
+      await act(async () => {
+        tree = create(render(stubRpcClient({ sendRequest }), { type: 'image-ref', path }))
+      })
+      expect(sendRequest).toHaveBeenCalledExactlyOnceWith(
+        'agentSessionAttachment.read',
+        { path, sessionId: 'chat' },
+        expect.anything()
       )
+      expect(tree && findByHostType(tree.root, 'Image').props.source).toEqual({ uri: URI })
+    }
+  )
+
+  it('does not read a host image when its owning client is absent', async () => {
+    await act(async () => {
+      tree = create(render(null, { type: 'image-ref', path: '/private/tmp/screen.png' }))
     })
-    expect(sendRequest).not.toHaveBeenCalled()
-    await act(async () => tree?.update(render(null)))
-    expect(sendRequest).not.toHaveBeenCalled()
     expect(tree && findAllByHostType(tree.root, 'Image')).toEqual([])
   })
 

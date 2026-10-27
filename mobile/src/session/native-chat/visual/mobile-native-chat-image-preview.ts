@@ -1,4 +1,5 @@
 import { buildImageDataUri } from '../../../../../src/shared/image-data-uri'
+import { isAgentSessionAttachmentStorePath } from '../../../../../src/shared/agent-session-attachments'
 import { PrioritySemaphore } from '../../../../../src/shared/priority-semaphore'
 import { filePreviewImageSchema } from '../../../files/file-preview-reply-schema'
 import { bindDeferredRpcOperation, defineRpcOperation } from '../../../transport/rpc-operation'
@@ -29,7 +30,8 @@ const storedImageReads = new PrioritySemaphore(2)
 export async function readStoredChatImage(
   client: RpcClient,
   path: string,
-  signal: AbortSignal
+  signal: AbortSignal,
+  sessionId?: string
 ): Promise<string | null> {
   const release = await storedImageReads.acquire(0, signal).catch(() => null)
   if (!release || signal.aborted) {
@@ -39,7 +41,7 @@ export async function readStoredChatImage(
   try {
     const reply = await storedImageRead.request(
       client,
-      { path },
+      { path, ...(!isAgentSessionAttachmentStorePath(path) && sessionId ? { sessionId } : {}) },
       { timeoutMs: 15_000, budgetSpansConnect: true }
     )
     const image = storedImageRead.interpret(reply)

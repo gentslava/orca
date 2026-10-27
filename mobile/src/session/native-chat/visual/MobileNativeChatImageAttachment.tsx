@@ -25,7 +25,11 @@ export function MobileNativeChatImageAttachment({
     : isRenderableImageUri(path)
       ? path
       : null
-  const readable = !!client && !!path && isAgentSessionAttachmentStorePath(path)
+  const readable =
+    !!client &&
+    !!path &&
+    !isRenderableImageUri(path) &&
+    (isAgentSessionAttachmentStorePath(path) || !!sessionId)
   const [round, setRound] = useState(0)
   const [showSpinner, setShowSpinner] = useState(false)
   const source = useMemo(
@@ -51,7 +55,7 @@ export function MobileNativeChatImageAttachment({
   }, [owner])
 
   useEffect(() => {
-    if (usableDirectUri || !client || !path || !isAgentSessionAttachmentStorePath(path)) {
+    if (usableDirectUri || !client || !path || !readable) {
       return
     }
     const unmounted = new AbortController()
@@ -61,7 +65,7 @@ export function MobileNativeChatImageAttachment({
         setShowSpinner(true)
       }
     }, 200)
-    void readStoredChatImage(client, path, unmounted.signal).then((uri) => {
+    void readStoredChatImage(client, path, unmounted.signal, sessionId).then((uri) => {
       clearTimeout(timer)
       if (!unmounted.signal.aborted && (client.getGeneration?.() ?? 0) === generation) {
         setPreview({ owner, uri })
@@ -71,7 +75,7 @@ export function MobileNativeChatImageAttachment({
       unmounted.abort()
       clearTimeout(timer)
     }
-  }, [client, generation, path, usableDirectUri, owner])
+  }, [client, generation, path, usableDirectUri, owner, readable, sessionId])
 
   const uri = usableDirectUri ?? current?.uri
   const label = block.alt ?? 'Attached image'

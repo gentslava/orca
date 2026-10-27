@@ -1,5 +1,5 @@
 import '../unused-default-rpc-methods.test-fixture'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -17,6 +17,7 @@ import { STRUCTURED_AGENT_SESSION_ATTACHMENT_METHODS } from './structured-agent-
 import { isMobileE2EETextPayloadWithinLimit } from '../mobile-e2ee-outbound-admission'
 import {
   clearStructuredHostStub,
+  hostCalls,
   installStructuredHostStub,
   STRUCTURED_CLIENT
 } from './structured-agent-session-rpc.test-fixture'
@@ -103,6 +104,32 @@ async function uploadBytes(name: string, bytes: Buffer): Promise<string> {
 }
 
 describe('agentSessionAttachment.*', () => {
+  it('serves an external image only when the selected host chat journal references it', async () => {
+    const path = join(root, 'old-paste.png')
+    await writeFile(path, 'png')
+    hostCalls.journalSnapshot.mockResolvedValue({
+      items: [
+        {
+          body: { kind: 'message', role: 'user', blocks: [{ type: 'image-ref', path }] }
+        }
+      ]
+    })
+    const response = await call(
+      'agentSessionAttachment.read',
+      { path, sessionId: 'session-alpha' },
+      CLIENT_A
+    )
+    expect(response).toMatchObject({ ok: true, result: { isImage: true, mimeType: 'image/png' } })
+    expect(hostCalls.journalSnapshot).toHaveBeenCalledWith('session-alpha')
+    hostCalls.journalSnapshot.mockResolvedValue({ items: [] })
+    expect(
+      await call('agentSessionAttachment.read', { path, sessionId: 'session-other' }, CLIENT_A)
+    ).toMatchObject({ ok: false })
+    expect(await call('agentSessionAttachment.read', { path }, CLIENT_A)).toMatchObject({
+      ok: false
+    })
+  })
+
   it('is advertised, so a client can tell a host with the store from an older one', () => {
     expect(RUNTIME_CAPABILITIES).toContain(AGENT_SESSION_ATTACHMENTS_RUNTIME_CAPABILITY)
     expect(RUNTIME_CAPABILITIES).toContain(AGENT_SESSION_PHONE_ATTACHMENTS_RUNTIME_CAPABILITY)
