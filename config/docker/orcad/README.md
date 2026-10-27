@@ -4,7 +4,7 @@ This builds the existing `pnpm build:orcad` runtime, without Electron or Xvfb. T
 
 ## Build and start
 
-Use a source checkout, Node 24, the repository's installed dependencies (`@orca/process-host` must be built), Docker with BuildKit, and Docker Compose v2 or newer. Linux amd64 and arm64 builds use the repository's existing glibc 2.28 native-build images and verified pinned Node. The final image is Debian Bookworm and runs as UID/GID 1000 (`node`). macOS and Windows hosts use Docker's Linux engine; no host-native modules enter the image.
+Use a source checkout, Node 24, the repository's installed dependencies (`@orca/process-host` must be built), Docker with BuildKit, and [Docker Compose v2.17.0 or newer](https://github.com/docker/compose/releases/tag/v2.17.0) for `up --wait-timeout`. Linux amd64 and arm64 builds use the repository's existing glibc 2.28 native-build images and verified pinned Node. The final image is Debian Bookworm and runs as UID/GID 1000 (`node`). macOS and Windows hosts use Docker's Linux engine; no host-native modules enter the image.
 
 From the repository root:
 
@@ -82,7 +82,13 @@ ORCAD_CODEX_VERSION=0.160.0
 ORCAD_GEMINI_CLI_VERSION=0.65.0
 ```
 
-These are example exact pins, not a promise to track the latest releases; empty values omit those packages. The packages are `@openai/codex` and `@google/gemini-cli`, installed into `/opt/orca/providers`, recorded with executable hashes and verified with `--version`. Log in with `exec orcad codex login` or the Gemini CLI's supported login flow. See [Codex CLI](https://developers.openai.com/codex/cli/) and [Gemini CLI installation](https://geminicli.com/docs/get-started/installation/). This source checkout also supports original Gemini CLI 0.65.0 or newer through its native ACP chat adapter. A signed-in new session supplies its model list. Native reopen/adoption is explicitly refused for the verified 0.65.0 protocol because its asynchronous history replay has no safe completion marker; saved Orca journals remain readable. Continue in the original terminal or start a new chat. Installing the CLI does not make every provider feature available. Other official CLIs can be installed in a derived image or the persisted user home and selected through existing agent settings.
+These are example exact pins, not a promise to track the latest releases; empty values omit those packages. The packages are `@openai/codex` and `@google/gemini-cli`, installed into `/opt/orca/providers`, recorded with executable hashes and verified with `--version`. Authenticate Codex in the container:
+
+```sh
+docker compose --env-file config/docker/orcad/.env -p orcad -f config/docker/orcad/compose.yaml exec orcad codex login
+```
+
+For Gemini, use the CLI's supported login flow. See [Codex CLI](https://developers.openai.com/codex/cli/) and [Gemini CLI installation](https://geminicli.com/docs/get-started/installation/). This source checkout also supports original Gemini CLI 0.65.0 or newer through its native ACP chat adapter. A signed-in new session supplies its model list. Native reopen/adoption is explicitly refused for the verified 0.65.0 protocol because its asynchronous history replay has no safe completion marker; saved Orca journals remain readable. Continue in the original terminal or start a new chat. Installing the CLI does not make every provider feature available. Other official CLIs can be installed in a derived image or the persisted user home and selected through existing agent settings.
 
 `manifest.json` records package name, exact version, resolved executable, executable SHA-256 and reported CLI version. Installation and fixture checks run only `--version`, without provider login or paid prompts.
 
@@ -96,7 +102,7 @@ The tiny init process reaps descendants, and the Node launcher forwards SIGTERM/
 
 ```sh
 docker compose --env-file config/docker/orcad/.env -p orcad -f config/docker/orcad/compose.yaml stop
-docker compose --env-file config/docker/orcad/.env -p orcad -f config/docker/orcad/compose.yaml start --wait
+docker compose --env-file config/docker/orcad/.env -p orcad -f config/docker/orcad/compose.yaml up -d --no-build --no-recreate --wait --wait-timeout 180
 ```
 
 Container replacement ends live provider/shell processes. Durable workspaces and history remain, and supported provider sessions may be resumed through the existing runtime; this does not preserve running processes across container replacement. The image has no desktop display or system browser: desktop-control operations and server browser operations that require additional browser dependencies remain unavailable, while paired desktop capabilities continue to negotiate normally.
