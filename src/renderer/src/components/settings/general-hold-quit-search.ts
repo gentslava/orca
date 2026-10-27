@@ -20,20 +20,15 @@ export function getHoldQuitEntries(
         'Hold for about a second to quit during active work. When agents finish, a quick press quits normally.'
       ),
       keywords: [
-        'Cmd+Q',
-        'Cmd Q',
-        'Command Q',
-        '⌘Q',
-        'close',
-        'exit',
-        'выход',
-        'выйти',
-        'закрытие',
-        'закрыть',
-        'удержание',
-        'удерживать',
-        ...translateSearchKeyword('settings.appearance.holdQuit.keyword.quit', 'quit'),
-        ...translateSearchKeyword('auto.components.settings.voice.pane.search.064a9bd94a', 'hold'),
+        ...translateSearchKeyword('settings.appearance.holdQuit.keyword.quit', 'quit', {
+          aliases: ['Cmd+Q', 'Cmd Q', 'Command Q', '⌘Q', 'exit', 'выход', 'выйти']
+        }),
+        ...translateSearchKeyword('auto.components.settings.general.search.afa37a34e1', 'close', {
+          aliases: ['закрытие', 'закрыть']
+        }),
+        ...translateSearchKeyword('auto.components.settings.voice.pane.search.064a9bd94a', 'hold', {
+          aliases: ['удержание', 'удерживать']
+        }),
         ...translateSearchKeyword('auto.components.settings.general.search.baa263d6d8', 'agents')
       ]
     }
