@@ -1,5 +1,4 @@
 import { acpConfigSelectChoices } from './acp-config-select-choices'
-import { abortSignalReason } from '../../shared/abort-signal-reason'
 
 import type {
   AgentSessionModelOption,
@@ -82,6 +81,7 @@ export class AcpStructuredOptions {
   ): void {
     if (configOptions) {
       this.configOptions = configOptions
+      this.adoptOwnChoice()
       if (requestedModel !== undefined) {
         this.confirmModelSelection(requestedModel)
       } else if (this.modelSelection?.reported !== this.select('model')?.currentValue) {
@@ -100,6 +100,28 @@ export class AcpStructuredOptions {
   private confirmModelSelection(requested: string | undefined): void {
     const reported = this.select('model')?.currentValue
     this.modelSelection = requested && reported ? { requested, reported } : null
+  }
+
+  /** Until Orca writes a key, a later report is still the agent's own (OpenCode's start answers
+   *  before its catalog loads); an effort belongs to its model, so it stops with either write. */
+  private adoptOwnChoice(): void {
+    if (this.picked.has('model')) {
+      return
+    }
+    const reported = this.reported()
+    const own = this.picked.has('effort') ? ['model'] : ['model', 'effort']
+    const choice: Record<string, string> = { ...this.initialChoice }
+    for (const key of own) {
+      const value = reported[key]
+      if (value === undefined) {
+        delete choice[key]
+        this.currentProof.delete(key)
+      } else {
+        choice[key] = value
+        this.currentProof.add(key)
+      }
+    }
+    this.initialChoice = choice
   }
 
   adoptModel(modelId: string): void {
@@ -268,70 +290,4 @@ export async function readAcpLiveOptions(
   }
 }
 
-/** Only the current, still-awaited write may establish reusable option proof. */
-export function writeAcpSessionOption(
-  connection: Pick<AcpStructuredConnection, 'setConfigOption' | 'setModel'>,
-  options: AcpStructuredOptions,
-  write: AcpOptionWrite,
-  bound: { agent: string; timeoutMs: number; signal?: AbortSignal; key: string; value: string }
-): Promise<void> {
-  const { agent, timeoutMs, signal } = bound
-  if (signal?.aborted) {
-    return Promise.reject(abortSignalReason(signal))
-  }
-  const revision = ++options.writeRevision
-  options.currentProof.delete(bound.key)
-  if (bound.key === 'model') {
-    options.currentProof.delete('effort')
-  }
-  const adopt = (apply: () => void): void => {
-    if (options.writeRevision !== revision) {
-      throw new Error(`${agent} option write was superseded`)
-    }
-    apply()
-    options.currentProof.add(bound.key)
-    options.applied.set(bound.key, bound.value)
-  }
-  const applied =
-    write.method === 'config'
-      ? connection
-          .setConfigOption(write.configId, write.value)
-          .then((result) =>
-            adopt(() =>
-              options.adoptConfigOptions(
-                result.configOptions,
-                bound.key === 'model' ? bound.value : undefined
-              )
-            )
-          )
-      : connection
-          .setModel(write.modelId)
-          .then(() => adopt(() => options.adoptModel(write.modelId)))
-  return new Promise<void>((resolve, reject) => {
-    const fail = (error: Error): void => {
-      if (options.writeRevision === revision) {
-        options.writeRevision += 1
-      }
-      settle()
-      reject(error)
-    }
-    const onAbort = (): void => {
-      if (signal) {
-        fail(abortSignalReason(signal))
-      }
-    }
-    const timer = setTimeout(
-      () => fail(new Error(`${agent} did not answer an option write within ${timeoutMs}ms`)),
-      timeoutMs
-    )
-    const settle = (): void => {
-      clearTimeout(timer)
-      signal?.removeEventListener('abort', onAbort)
-    }
-    signal?.addEventListener('abort', onAbort, { once: true })
-    applied.then(() => {
-      settle()
-      resolve()
-    }, fail)
-  })
-}
+export { writeAcpSessionOption } from './acp-session-option-write'
