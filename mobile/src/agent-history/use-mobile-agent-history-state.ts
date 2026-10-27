@@ -185,9 +185,11 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
           return
         }
 
-        const scopePaths = mobileAiVaultScanScopePaths(
-          deriveMobileAiVaultScopePaths(scanScope, activeWorktree, worktrees)
-        )
+        const scopePaths = conversationId
+          ? []
+          : mobileAiVaultScanScopePaths(
+              deriveMobileAiVaultScopePaths(scanScope, activeWorktree, worktrees)
+            )
         const reply = await agentHistorySessionScan.request(client, {
           limit: MOBILE_AI_VAULT_SESSION_LIMIT,
           force: options.force,
