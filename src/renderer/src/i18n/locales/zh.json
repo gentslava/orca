@@ -350,7 +350,9 @@
     "help": "帮助",
     "paste": "粘贴",
     "copy": "复制",
-    "selectAll": "全选"
+    "selectAll": "全选",
+    "quitAndStopAllSessions": "完全退出...",
+    "quitAndStopAllSessionsTooltip": "同时停止所有终端会话，包括正在运行的智能体。普通退出会保留这些会话，以便 Orca 下次启动时重新连接。"
   },
   "tray": {
     "openOrca": "打开 Orca",
@@ -5521,9 +5523,10 @@
           "b2bc47c080": "更多位置",
           "b47ba1a9d2": "{{value0}} 预览",
           "2251d41ebb": "隐藏的工作树组",
-          "f54f2bec5d": "{{value0}} 隐藏 {{value1}} 的工作树",
           "5a9688802a": "显示 {{value0}} 更多",
-          "294de4aeb2": "显示较少"
+          "294de4aeb2": "显示较少",
+          "collapseAriaLabel": "折叠 {{repo}} 的隐藏工作树",
+          "expandAriaLabel": "展开 {{repo}} 的隐藏工作树"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "作为文件夹打开",
@@ -20537,6 +20540,36 @@
       "unstagedChangesDescription": "这将恢复对此文件的未暂存更改。此操作无法撤消。",
       "unstagedSelectionIncludingUntrackedDescription": "这将还原未暂存的更改，并永久删除此选择中的任何未跟踪文件。此操作无法撤销。",
       "unstagedFilesIncludingUntrackedDescription": "这将还原未暂存的更改，并永久删除这 {{count}} 个文件中的任何未跟踪文件。此操作无法撤销。"
+    },
+    "createReviewFailure": {
+      "authRequiredCommand": "{{providerName}} 未通过身份验证。下一步：在此环境中运行 {{command}}。",
+      "authRequiredVariable": "{{providerName}} 未通过身份验证。下一步：在此环境中设置 {{variable}}。",
+      "authRequiredBitbucket": "Bitbucket 未通过身份验证。下一步：在“设置 > 集成”中连接 Bitbucket，或在此环境中设置 ORCA_BITBUCKET_*。",
+      "signInHintCommand": "在此环境中运行 {{command}}",
+      "signInHintVariable": "在此环境中设置 {{variable}}",
+      "signInHintBitbucket": "在“设置 > 集成”中连接 Bitbucket",
+      "dirty": "请在创建 {{reviewLabel}} 之前提交或放弃本地更改。",
+      "detachedHead": "请在创建 {{reviewLabel}} 之前切换到某个分支。",
+      "defaultBranch": "请在创建 {{reviewLabel}} 之前选择功能分支。",
+      "noUpstream": "请在创建 {{reviewLabel}} 之前发布此分支。",
+      "needsPush": "请在创建 {{reviewLabel}} 之前推送此分支。",
+      "needsSync": "请在创建 {{reviewLabel}} 之前同步此分支。",
+      "refreshStatus": "请刷新源代码控制状态后重试。",
+      "namedBaseNotOnRemote": "基础分支“{{base}}”尚未推送到远程。请选择已推送的基础分支，或先推送它。",
+      "baseNotOnRemote": "基础分支尚未推送到远程。请选择已推送的基础分支，或先推送它。",
+      "branchChanged": "请在创建 {{reviewLabel}} 之前切换回所选分支。",
+      "branchStatusUnverified": "无法验证分支状态。请刷新源代码控制后重试。",
+      "reviewLookupUnavailable": "Orca 无法确认此分支是否已有 {{reviewLabel}}。请在 {{providerName}} 查询成功后重试。",
+      "sameBaseBranch": "请在创建 {{reviewLabel}} 之前选择其他基础分支。",
+      "rejected": "{{providerName}} 拒绝了该 {{reviewLabel}}。请检查基础分支和分支状态，然后重试。",
+      "repositoryNotFound": "{{providerName}} 找不到该仓库。请确认凭据对该仓库具有写入权限。",
+      "createFailed": "{{providerName}} 无法创建 {{reviewLabel}}。请稍后重试。",
+      "unsupportedProvider": "创建 {{reviewLabel}} 需要托管在 {{providerName}} 上的远程仓库。",
+      "providerNotSupported": "尚不支持为此提供商创建评审。",
+      "existingReview": "此分支已存在 {{reviewLabel}}。",
+      "creationUnconfirmed": "{{shortLabel}} 可能已创建完成。正在刷新分支评审状态...",
+      "withDetail": "创建 {{shortLabel}} 失败：{{detail}}",
+      "pushFailed": "推送失败。请解决推送错误后重试。"
     }
   },
   "rendererRecovery": {
@@ -21419,5 +21452,17 @@
   },
   "browserTab": {
     "agentDriving": "智能体正在使用此页面"
+  },
+  "quitAndStopAllSessions": {
+    "title": "完全退出",
+    "message": "停止所有终端会话并退出 Orca？",
+    "detail": "Orca 会关闭所有终端标签页并停止其会话（包括在终端中运行的智能体），然后退出。普通退出会保留这些会话，以便 Orca 下次启动时重新连接。远程主机上的终端会话可能会在远程继续运行。未保存的终端工作将丢失，关闭的标签页在下次启动时不会恢复。此操作不可撤销。",
+    "confirm": "停止会话并退出",
+    "cancel": "取消",
+    "failed": "未能停止所有终端会话，因此 Orca 仍保持打开。",
+    "stopping": "正在停止终端会话，然后退出…",
+    "ok": "确定",
+    "unavailableMessage": "Orca 目前无法停止所有终端会话。",
+    "unavailableDetail": "未停止任何内容。请在终端打开后重试。如果某个终端显示它是在较新版本的 Orca 中打开的，请先重新打开它。如果终端已经打开，请退出并重新打开 Orca，然后重试。"
   }
 }

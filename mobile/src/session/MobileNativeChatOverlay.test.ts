@@ -20,8 +20,10 @@ vi.mock('./native-chat/input/MobileNativeChatQueuedMessages', () => ({
 vi.mock('./native-chat/input/MobileNativeChatBackgroundTasks', () => ({
   MobileNativeChatBackgroundTasks: 'BackgroundTasks'
 }))
-vi.mock('./MobileNativeChatVisual', () => ({ useMobileNativeChatVisualRenderer: () => null }))
-vi.mock('./MobileNativeChatRowOverlaysHost', () => ({
+vi.mock('./native-chat/visual/MobileNativeChatVisual', () => ({
+  useMobileNativeChatVisualRenderer: () => null
+}))
+vi.mock('./native-chat/transcript/MobileNativeChatRowOverlaysHost', () => ({
   MobileNativeChatRowOverlaysHost: 'View'
 }))
 

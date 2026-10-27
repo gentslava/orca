@@ -2,7 +2,7 @@ export function createMacApplicationMenu(items: {
   label: string
   checkForUpdates: Electron.MenuItemConstructorOptions
   settings: Electron.MenuItemConstructorOptions
-  quit: Electron.MenuItemConstructorOptions
+  quit: Electron.MenuItemConstructorOptions | Electron.MenuItemConstructorOptions[]
 }): Electron.MenuItemConstructorOptions {
   return {
     label: items.label,
@@ -17,7 +17,7 @@ export function createMacApplicationMenu(items: {
       { role: 'hideOthers' },
       { role: 'unhide' },
       { type: 'separator' },
-      items.quit
+      ...(Array.isArray(items.quit) ? items.quit : [items.quit])
     ]
   }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { AgentSessionOptionsResult } from './agent-session-wire'
-import { sortNativeChatSessionOptions } from './native-chat-session-option-snapshot'
+import { sortNativeChatSessionOptions } from './native-chat/input/native-chat-session-option-snapshot'
 import {
   applyStructuredAgentSessionOptions,
   commitStructuredAgentSessionOption,

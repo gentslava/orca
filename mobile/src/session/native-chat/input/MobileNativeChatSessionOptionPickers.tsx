@@ -21,13 +21,15 @@ import {
   sessionOptionDispatchUnconfirmed,
   type SessionOptionDescriptor,
   type SessionOptionValue
-} from '../../../../../src/shared/native-chat-session-options'
+} from '../../../../../src/shared/native-chat/input/native-chat-session-options'
 import {
-  mobileModelPillLabel,
-  mobileOptionsPillLabel,
-  mobileSessionOptionSummaryValue,
-  mobileSessionOptionDisabledReason
-} from './mobile-native-chat-session-option-labels'
+  nativeChatModelPillLabel,
+  nativeChatOptionValuesLabel,
+  nativeChatSessionOptionDisabledReason,
+  nativeChatSessionOptionLabel,
+  sayNativeChatSessionOptionEnglish as say
+} from '../../../../../src/shared/native-chat-session-option-labels'
+import { mobileSessionOptionSummaryValue } from './mobile-native-chat-session-option-labels'
 import {
   DescriptorRows,
   ModelPill,
@@ -38,7 +40,7 @@ import {
   SessionOptionSegments,
   showsSessionOptionAsSegments
 } from './MobileNativeChatSessionOptionSegments'
-import { sortNativeChatSessionOptions } from '../../../../../src/shared/native-chat-session-option-snapshot'
+import { sortNativeChatSessionOptions } from '../../../../../src/shared/native-chat/input/native-chat-session-option-snapshot'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../../src/shared/agent-chat-permission-mode'
 import type { MobileNativeChatSessionOptionsController } from './use-mobile-native-chat-session-options'
 
@@ -121,9 +123,9 @@ export function MobileNativeChatSessionOptionPickers({
   const home = model ?? permission!
   const homeView = activeDescriptor !== undefined && activeDescriptor === home
   const busy = pendingId !== null || sendInFlight
-  // The permission mode applies from the next send, so a running turn never locks it.
+  // Permission mode affects the next send, so a working turn must not lock it.
   const locked = (isWorking && !allowsWorkingPicks) || busy
-  const reason = mobileSessionOptionDisabledReason(activeDescriptor?.disabledReason)
+  const reason = nativeChatSessionOptionDisabledReason(activeDescriptor?.disabledReason, say)
   const permissionChoice = selectedChoice(permission)
   const permissionColor = permissionChoice?.value === 'full-access' ? colors.statusAmber : undefined
   const permissionIcon =
@@ -131,11 +133,9 @@ export function MobileNativeChatSessionOptionPickers({
   const segmentOptions = options.filter(showsSessionOptionAsSegments)
   const rowOptions = options.filter((descriptor) => !segmentOptions.includes(descriptor))
   const primary = model
-    ? mobileModelPillLabel(model)
-    : permission
-      ? mobileSessionOptionSummaryValue(permission)
-      : 'Permissions'
-  const secondary = model && options.length > 0 ? mobileOptionsPillLabel(options) : null
+    ? nativeChatModelPillLabel(model, say)
+    : mobileSessionOptionSummaryValue(home)
+  const secondary = (model && nativeChatOptionValuesLabel(options, say)) || null
 
   const closePicker = (): void => onNavigate(null)
   const applyOption = (descriptor: SessionOptionDescriptor, value: SessionOptionValue): void => {
@@ -206,7 +206,9 @@ export function MobileNativeChatSessionOptionPickers({
                   <ChevronLeft size={18} color={colors.textSecondary} strokeWidth={2.2} />
                 )}
               </Pressable>
-              <Text style={styles.sheetTitle}>{activeDescriptor.label}</Text>
+              <Text style={styles.sheetTitle}>
+                {nativeChatSessionOptionLabel(activeDescriptor, say)}
+              </Text>
               <View style={styles.sheetHeaderSide}>
                 {pendingId !== null ? (
                   <ActivityIndicator size="small" color={colors.textSecondary} />
@@ -315,7 +317,7 @@ function OptionRows({
         return (
           <SessionOptionSummaryRow
             key={descriptor.id}
-            label={isPermission ? 'Permissions' : descriptor.label}
+            label={isPermission ? 'Permissions' : nativeChatSessionOptionLabel(descriptor, say)}
             value={value}
             valueColor={isPermission ? permissionColor : undefined}
             disabled={disabled}

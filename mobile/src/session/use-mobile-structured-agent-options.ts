@@ -1,16 +1,13 @@
-import { structuredAgentSessionDefaultModelChoice } from '../../../src/shared/structured-agent-session-default-model-choice'
-import type { AgentSessionConversationCommand } from '../../../src/shared/agent-session/agent-session-conversation-command'
 import { useMobileStructuredOptionState } from './use-mobile-structured-option-state'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
 import { isAgentSessionHandleProvider } from '../../../src/shared/agent-session-provider-handle'
 import { structuredAgentSessionSeedCatalog } from '../../../src/shared/structured-agent-session-seed-catalog'
 import type { AgentSessionOptionResult } from '../../../src/shared/agent-session-wire'
-import type { SessionOptionValue } from '../../../src/shared/native-chat-session-options'
+import type { SessionOptionValue } from '../../../src/shared/native-chat/input/native-chat-session-options'
 import {
   canSetStructuredAgentSessionOption,
   commitStructuredAgentSessionOption,
   commitStructuredAgentSessionOptionValues,
-  lockedStructuredAgentSessionOptionSnapshot,
   structuredAgentSessionOptionPicks
 } from '../../../src/shared/structured-agent-session-options'
 import {
@@ -30,10 +27,22 @@ import { persistMobileStructuredOptionPicks } from './native-chat/input/mobile-n
 import { useMobileHostModelCatalogUpgrade } from './use-mobile-host-model-catalog-upgrade'
 import { mobileCreatedStructuredSession } from './mobile-created-structured-sessions'
 import { encodeStructuredAgentSessionOptionValue } from '../../../src/shared/structured-agent-session-option-codec'
+import {
+  beginStructuredOptionPick,
+  isLatestStructuredOptionPick,
+  settleStructuredOptionPick,
+  structuredOptionPickCommit,
+  structuredOptionPickBlockingId,
+  structuredOptionPickIsPending
+} from '../../../src/shared/structured-agent-session-option-pick-book'
 import { useMobileStructuredOptionSurface } from './use-mobile-structured-option-surface'
-import { useMobileStructuredModelDefault } from './use-mobile-structured-model-default'
+import {
+  MOBILE_MODEL_DEFAULT_PICK,
+  mobileStructuredModelDefaultSnapshot,
+  useMobileStructuredModelDefault
+} from './use-mobile-structured-model-default'
 
-const NO_COMMANDS: readonly AgentSessionConversationCommand[] = []
+const NO_COMMANDS = [] as const
 
 export function useMobileStructuredAgentOptions(args: {
   agent: string | null
@@ -43,12 +52,14 @@ export function useMobileStructuredAgentOptions(args: {
   fence: number | null
   mutate: StructuredAgentSessionMutate
   optionStamp?: string
+  turnId: string | null
   hostSupport: Pick<
     StructuredAgentSessionHostSupport,
     'permissionModes' | 'permissionOwn' | 'coherentModelCatalog' | 'statusFeed' | 'defaultModel'
   > | null
 }) {
-  const { agent, client, enabled, fence, mutate, optionStamp, sessionId, hostSupport } = args
+  const { agent, client, enabled, fence, mutate, optionStamp, sessionId, turnId, hostSupport } =
+    args
   const optionCatalog = useMemo(
     () => (agent ? structuredAgentSessionSeedCatalog(agent) : null),
     [agent]
@@ -64,6 +75,7 @@ export function useMobileStructuredAgentOptions(args: {
     fence,
     optionCatalog,
     sessionId,
+    turnId,
     client,
     optionStamp,
     newLaunch: createdHere !== undefined,
@@ -75,8 +87,8 @@ export function useMobileStructuredAgentOptions(args: {
     optionState,
     optionStateRef,
     activeOptionRecordRef,
-    pendingOptionRef,
-    optionMutationGeneration,
+    optionPicks,
+    providerStarting,
     updateOptionState,
     conversationSupport,
     imageSupport,
@@ -112,21 +124,13 @@ export function useMobileStructuredAgentOptions(args: {
   const lockSnapshotRef = useRef(
     (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) => snapshot
   )
-  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) => {
-    const choices =
-      hostSupport?.defaultModel === true
-        ? snapshot.map((descriptor) =>
-            descriptor.id === 'model'
-              ? {
-                  ...descriptor,
-                  settable: true,
-                  defaultChoice: structuredAgentSessionDefaultModelChoice(optionStateRef.current)
-                }
-              : descriptor
-          )
-        : snapshot
-    return awaitingOptions ? lockedStructuredAgentSessionOptionSnapshot(choices) : choices
-  }
+  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) =>
+    mobileStructuredModelDefaultSnapshot(
+      snapshot,
+      optionStateRef.current,
+      hostSupport?.defaultModel === true,
+      awaitingOptions
+    )
   useLayoutEffect(() => {
     lockSnapshotRef.current = lockSnapshot
   })
@@ -154,13 +158,17 @@ export function useMobileStructuredAgentOptions(args: {
           value === 'own' &&
           !hostSupport?.permissionOwn) ||
         !isCurrentContext() ||
-        pendingOptionRef.current !== null ||
+        // A Default reset clears dependent choices, so it must settle before another pick.
+        optionPicks.current.pending.model === MOBILE_MODEL_DEFAULT_PICK ||
         !client ||
         !sessionId ||
         !optionCatalog ||
         encoded === null ||
         !canSetStructuredAgentSessionOption(
-          structuredAgentSessionOptionView(currentState, undefined, {}),
+          {
+            ...structuredAgentSessionOptionView(currentState, undefined, {}),
+            pendingId: structuredOptionPickBlockingId(optionPicks.current, id, providerStarting)
+          },
           id,
           value,
           lockSnapshotRef.current(structuredAgentSessionShownSnapshot(currentState))
@@ -170,12 +178,12 @@ export function useMobileStructuredAgentOptions(args: {
       }
       const targetRecord = currentState.record
       writes.current.count += 1
-      const mutationGeneration = ++optionMutationGeneration.current
+      const shownAtOnce = providerStarting || id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
+      const pick = beginStructuredOptionPick(optionPicks.current, id, encoded, shownAtOnce)
+      const sameRecord = (): boolean =>
+        isCurrentContext() && activeOptionRecordRef.current === targetRecord
       const isCurrent = (): boolean =>
-        isCurrentContext() &&
-        activeOptionRecordRef.current === targetRecord &&
-        optionMutationGeneration.current === mutationGeneration
-      const shownAtOnce = id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
+        sameRecord() && isLatestStructuredOptionPick(optionPicks.current, pick)
       if (shownAtOnce) {
         updateOptionState((current) =>
           current.record === targetRecord
@@ -183,7 +191,6 @@ export function useMobileStructuredAgentOptions(args: {
             : current
         )
       } else {
-        pendingOptionRef.current = id
         updateOptionState((current) => ({ ...current, pendingId: id }))
       }
       let readsBack = shownAtOnce
@@ -193,11 +200,15 @@ export function useMobileStructuredAgentOptions(args: {
           'agentSession.setOption',
           { key: id, value: encoded }
         )
-        if (!isCurrent()) {
-          return result.status !== 'rejected'
+        // As on desktop, a reply that never came is not a pick done.
+        if (result.status !== 'accepted') {
+          return false
         }
-        if (result.status === 'accepted') {
-          const committed = result.value.options ?? { [id]: encoded }
+        const committed =
+          sameRecord() && result.sameFence
+            ? structuredOptionPickCommit(optionPicks.current, pick, result.value.options)
+            : null
+        if (committed) {
           updateOptionState((current) =>
             current.record === targetRecord && result.sameFence
               ? commitStructuredAgentSessionOptionValues(current, committed, id)
@@ -211,29 +222,21 @@ export function useMobileStructuredAgentOptions(args: {
               picks: structuredAgentSessionOptionPicks(currentState, committed, id)
             })
           }
-          readsBack = result.sameFence
-          return true
         }
-        if (result.status === 'unknown') {
-          readsBack = false
-          updateOptionState((current) =>
-            current.record === targetRecord
-              ? commitStructuredAgentSessionOption(current, id, encoded)
-              : current
-          )
-          return true
-        }
-        return false
+        readsBack = result.sameFence
+        return true
       } finally {
+        if (sameRecord()) {
+          settleStructuredOptionPick(optionPicks.current, pick)
+        }
         if (isCurrent()) {
-          pendingOptionRef.current = null
           updateOptionState((current) =>
             current.record === targetRecord && current.pendingId === id
               ? { ...current, pendingId: null }
               : current
           )
         }
-        if (isCurrentContext() && activeOptionRecordRef.current === targetRecord) {
+        if (sameRecord()) {
           writes.current.count -= 1
           writes.current.readback ||= readsBack && isCurrent()
           if (!writes.current.count && writes.current.readback) {
@@ -244,13 +247,13 @@ export function useMobileStructuredAgentOptions(args: {
     },
     [
       agent,
-      awaitingOptions,
       hostSupport?.permissionOwn,
       projectPermission,
       client,
-      createdHere,
       mutate,
       optionCatalog,
+      optionPicks,
+      providerStarting,
       writes,
       isCurrentContext,
       sessionId,
@@ -260,12 +263,15 @@ export function useMobileStructuredAgentOptions(args: {
 
   const sendSelection = useCallback(
     () =>
-      pendingOptionRef.current === 'model'
+      structuredOptionPickIsPending(optionPicks.current, 'model')
         ? undefined
         : structuredAgentSessionSendSelection(optionStateRef.current),
     []
   )
-  const isModelWritePending = useCallback(() => pendingOptionRef.current === 'model', [])
+  const isModelWritePending = useCallback(
+    () => structuredOptionPickIsPending(optionPicks.current, 'model'),
+    []
+  )
   const resetOption = useMobileStructuredModelDefault({
     agent,
     client,

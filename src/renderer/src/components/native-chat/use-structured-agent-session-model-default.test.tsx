@@ -16,11 +16,11 @@ import { FAST_OPTIONS } from './structured-agent-session-option-test-data'
 import {
   applyNativeChatSessionOptionSettingsMutation,
   resolveStructuredLaunchSeedOptions
-} from '../../../../shared/native-chat-session-option-defaults'
+} from '../../../../shared/native-chat/input/native-chat-session-option-defaults'
 import type {
   NativeChatSessionOptionSettingsMutation,
   PersistedNativeChatSessionOptions
-} from '../../../../shared/native-chat-session-options'
+} from '../../../../shared/native-chat/input/native-chat-session-options'
 
 const mocks = vi.hoisted(() => ({ call: vi.fn(), enqueue: vi.fn() }))
 vi.mock('@/runtime/structured-agent-session-client', () => ({
@@ -112,7 +112,7 @@ afterEach(() => {
 })
 
 it.each([false, true])(
-  'keeps Default across effort-only persistence until an explicit model pick (full reply: %s)',
+  'keeps Default across effort and Fast persistence until an explicit model pick (full reply: %s)',
   async (fullReply) => {
     let persisted: PersistedNativeChatSessionOptions = {
       claude: { model: 'gpt-live', valuesByModel: {} }
@@ -138,7 +138,8 @@ it.each([false, true])(
                 value: params.value,
                 options: {
                   ...(fullReply || params.key === 'model' ? { model: 'gpt-fast' } : {}),
-                  effort: params.key === 'effort' ? params.value : 'medium'
+                  effort: params.key === 'effort' ? params.value : 'medium',
+                  ...(params.key === 'fastMode' ? { fastMode: params.value } : {})
                 }
               }
             }
@@ -161,12 +162,24 @@ it.each([false, true])(
       ).toBe(true)
       expect(result.current.sendOptions()).toBeUndefined()
     }
+    for (const fastMode of [true, false]) {
+      await act(async () => {
+        expect(await result.current.setStructuredOption('fastMode', fastMode)).toBe(true)
+      })
+      expect(persisted.claude?.valuesByModel?.['gpt-fast']?.fastMode).toBe(fastMode)
+      expect(resolveStructuredLaunchSeedOptions(persisted, 'claude')).toBeUndefined()
+      expect(
+        result.current.optionSnapshot.find((row) => row.id === 'model')?.defaultChoice?.selected
+      ).toBe(true)
+      expect(result.current.sendOptions()).toBeUndefined()
+    }
     await act(async () => {
       expect(await result.current.setStructuredOption('model', 'gpt-fast')).toBe(true)
     })
     expect(resolveStructuredLaunchSeedOptions(persisted, 'claude')).toEqual({
       model: 'gpt-fast',
-      effort: 'medium'
+      effort: 'medium',
+      fastMode: 'false'
     })
     expect(
       result.current.optionSnapshot.find((row) => row.id === 'model')?.defaultChoice?.selected
@@ -175,112 +188,53 @@ it.each([false, true])(
   }
 )
 
-it.each([
-  ['effort', 'high', 'high'],
-  ['fastMode', true, 'medium']
-] as const)(
-  'restores send options after a reset superseded by %s settles',
-  async (id, value, effort) => {
-    const reset = pending()
-    const pick = pending()
+it.each(
+  [true, false].flatMap((resetFirst) => [
+    { id: 'effort', value: 'high', resetFirst },
+    { id: 'fastMode', value: true, resetFirst }
+  ])
+)(
+  'serializes Default reset with $id writes (reset first: $resetFirst)',
+  async ({ id, value, resetFirst }) => {
+    const inFlight = pending()
     const read = mocks.call.getMockImplementation()!
     mocks.call.mockImplementation((target, method, params) =>
-      method === 'agentSession.setOption'
-        ? params.value === null
-          ? reset.promise
-          : pick.promise
-        : read(target, method, params)
+      method === 'agentSession.setOption' ? inFlight.promise : read(target, method, params)
     )
     const { result, unmount } = renderSession()
-    await waitFor(() =>
-      expect(result.current.sendOptions()).toEqual({ model: 'gpt-live', effort: 'medium' })
-    )
-    let resetting: Promise<unknown> | undefined
-    let picking: Promise<boolean> | undefined
-    act(() => {
-      resetting = result.current.optionSurface.resetOption?.('model')
-    })
-    act(() => {
-      picking = result.current.setStructuredOption(id, value)
-    })
+    await waitFor(() => expect(result.current.sendOptions()).toBeDefined())
+    let first: Promise<unknown> | undefined
     await act(async () => {
-      pick.resolve({
-        ok: true,
-        value: {
-          key: id,
-          value: String(value),
-          options: { model: 'gpt-live', effort, ...(id === 'fastMode' ? { fastMode: 'true' } : {}) }
-        }
-      })
-      expect(await picking).toBe(true)
+      first = resetFirst
+        ? result.current.optionSurface.resetOption?.('model')
+        : result.current.setStructuredOption(id, value)
+      if (resetFirst) {
+        expect(await result.current.setStructuredOption(id, value)).toBe(false)
+        expect(result.current.sendOptions()).toBeUndefined()
+      } else {
+        await result.current.optionSurface.resetOption?.('model')
+      }
     })
-    expect(result.current.sendOptions()).toBeUndefined()
-    await act(async () => {
-      reset.resolve(resetReply)
-      await resetting
-    })
-    expect(mocks.enqueue).not.toHaveBeenCalledWith(TARGET, { type: 'clear-model', agent: 'claude' })
-    act(() => {
-      expect(result.current.sends.send('follow up')).toBe('queued')
-    })
-    await waitFor(() =>
-      expect(
-        mocks.call.mock.calls.find(([, method]) => method === 'agentSession.send')?.[2]
-      ).toMatchObject({ options: { model: 'gpt-live', effort } })
+    const writes = mocks.call.mock.calls.filter(([, method]) => method === 'agentSession.setOption')
+    expect(writes).toHaveLength(1)
+    expect(writes[0]?.[2]).toMatchObject(
+      resetFirst ? { key: 'model', value: null } : { key: id, value: String(value) }
     )
+    await act(async () => {
+      inFlight.resolve(
+        resetFirst
+          ? resetReply
+          : { ok: true, value: { key: id, value: String(value), options: { [id]: String(value) } } }
+      )
+      await first
+    })
+    expect(
+      result.current.optionSnapshot.find((row) => row.id === 'model')?.defaultChoice?.selected
+    ).toBe(resetFirst)
+    expect(result.current.sendOptions() === undefined).toBe(resetFirst)
     unmount()
   }
 )
-
-it('keeps a newer reset pending when a superseded old reset finishes', async () => {
-  const oldReset = pending()
-  const newReset = pending()
-  const pick = pending()
-  const read = mocks.call.getMockImplementation()!
-  let resets = 0
-  mocks.call.mockImplementation((target, method, params) =>
-    method === 'agentSession.setOption'
-      ? params.value === null
-        ? ++resets === 1
-          ? oldReset.promise
-          : newReset.promise
-        : pick.promise
-      : read(target, method, params)
-  )
-  const { result, unmount } = renderSession()
-  await waitFor(() => expect(result.current.sendOptions()).toBeDefined())
-  let old: Promise<unknown> | undefined
-  let newer: Promise<unknown> | undefined
-  let picking: Promise<boolean> | undefined
-  act(() => {
-    old = result.current.optionSurface.resetOption?.('model')
-  })
-  act(() => {
-    picking = result.current.setStructuredOption('effort', 'high')
-  })
-  act(() => {
-    newer = result.current.optionSurface.resetOption?.('model')
-  })
-  await act(async () => {
-    oldReset.resolve(resetReply)
-    pick.resolve({ ok: true, value: { key: 'effort', value: 'high', options: { effort: 'high' } } })
-    await Promise.all([old, picking])
-  })
-  expect(resets).toBe(2)
-  expect(result.current.sendOptions()).toBeUndefined()
-  await act(async () => {
-    newReset.resolve(resetReply)
-    await newer
-  })
-  expect(
-    result.current.optionSnapshot.find((entry) => entry.id === 'model')?.defaultChoice?.selected
-  ).toBe(true)
-  expect(mocks.enqueue).toHaveBeenCalledWith(TARGET, {
-    type: 'clear-model',
-    agent: 'claude'
-  })
-  unmount()
-})
 
 it.each([
   { sessionId: 'session-2', fence: 1 },

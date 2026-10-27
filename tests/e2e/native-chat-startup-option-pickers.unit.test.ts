@@ -153,7 +153,7 @@ it('picks model then effort through the menus during startup and uses both in th
         })
       )
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Model opus, Reasoning effort High' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Model opus, Effort High' }))
     fireEvent.click(await screen.findByRole('option', { name: 'sonnet' }))
     const effort = await screen.findByRole('slider', { name: 'Reasoning effort' })
     effort.focus()

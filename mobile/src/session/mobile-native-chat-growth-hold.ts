@@ -1,6 +1,6 @@
 import { createContext, type ReactElement } from 'react'
 import type { NativeChatMessage } from '../../../src/shared/native-chat-types'
-import type { MobileNativeChatRowKeys } from './mobile-native-chat-row-keys'
+import type { MobileNativeChatRowKeys } from './native-chat/transcript/mobile-native-chat-row-keys'
 
 // Hold below-reader growth during scrolling because corrective writes stop iOS flings; notify only growing rows.
 export type MobileNativeChatGrowthHold = {

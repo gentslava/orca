@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SessionOptionDescriptor } from '../../../src/shared/native-chat-session-options'
+import type { SessionOptionDescriptor } from '../../../src/shared/native-chat/input/native-chat-session-options'
 import type { RpcClient } from '../transport/rpc-client'
 import type { ConnectionState } from '../transport/types'
 import type { MobileNativeChatPrompts } from './native-chat/input/use-mobile-native-chat-prompts'
@@ -168,9 +168,7 @@ const ORIGIN = {
   draftEditGeneration: 0,
   pendingKey: 'h\0w\0tab-1\0session-1',
   normalizedText: 'look',
-  baselineOccurrences: 0,
-  baselineTailMessageId: null,
-  baselineResolved: true,
+  boundary: { afterMessageId: null },
   sentAt: 0
 }
 

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { OMP_SESSION_OPTION_CATALOG } from './agent-session-option-catalog-omp'
 import { CODEX_SESSION_OPTION_CATALOG } from './agent-session-option-catalog-claude-codex'
-import { buildNativeChatSessionOptionSnapshot } from './native-chat-session-option-snapshot'
-import { createNativeChatSessionOptionRecord } from './native-chat-session-option-state'
+import { buildNativeChatSessionOptionSnapshot } from './native-chat/input/native-chat-session-option-snapshot'
+import { createNativeChatSessionOptionRecord } from './native-chat/input/native-chat-session-option-state'
 import {
   applyStructuredAgentSessionModelCatalog,
   applyStructuredAgentSessionOptions,

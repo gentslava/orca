@@ -1,13 +1,11 @@
 ---
 name: orchestration
 description: >-
-  Coordinate supervised Orca workers: threaded messages, blocking ask/reply,
-  task dispatch, worker_done/escalation waits, task DAGs, decision gates,
-  coordinator loops, and decomposing work across agents. Use `orca-cli` for full
-  ownership handoffs — "hand off", "handoff", "handover", "give this to another
-  agent", "another worktree" — unless asked to supervise, monitor, or coordinate
-  a DAG, and for terminal control, lightweight terminal prompts, shell commands,
-  Orca worktree management, and reading or waiting on terminals.
+  Coordinate explicitly requested Orca workers across agents, workspaces or hosts,
+  or work under a live Orca Task/Dispatch preamble (check, ask, worker_done).
+  Use for Orca Runs, task DAGs, decision gates and durable worker ownership.
+  For ordinary delegation within Codex or Claude, prefer that agent's native
+  subagents. Use `orca-cli` for ownership handoffs and workspace/terminal control.
 ---
 
 # Orca Orchestration
@@ -16,14 +14,18 @@ This file is a discovery stub, not the usage guide. The full, version-matched Or
 orchestration reference is served by the `orca` binary itself — kept out of this file on
 purpose so it can never drift from the binary that will actually run your commands.
 
-Engage Orca orchestration whenever you need structured multi-agent coordination: threaded
-messages, blocking ask/reply flows, task dispatch, worker_done/escalation waits, task DAGs,
-decision gates, coordinator loops, or decomposing work across agents. Use the orca-cli skill
-instead for full ownership handoffs ("hand off", "handoff", "handover", "give this to
-another agent", "another worktree") when the user did not ask to supervise, monitor, wait
-for results, or coordinate a DAG — and for ordinary terminal control, shell commands,
-worktree management, and the built-in browser. Coordination requires real Orca runtime
-state; never substitute a non-Orca subagent tool.
+Use Orca orchestration for explicitly requested Orca workers, durable Runs/task DAGs,
+cross-agent or cross-host coordination, and live Task/Dispatch worker obligations
+(`check`, `ask`, `worker_done`). It starts independent agent chats or terminals.
+
+For ordinary parallel delegation inside Codex or Claude, prefer that provider's native
+subagents. Asking to delegate, monitor their progress or collect results alone does not
+request Orca workers. If native subagents are unavailable, explain the independent-session
+behavior before offering Orca workers. Preserve an existing Orca Run's lifecycle authority;
+native subagents cannot replace its Dispatches or settle its workers.
+
+Use `orca-cli` for ownership handoffs without Orca supervision, and for workspace,
+terminal and built-in browser operations.
 
 ## Resolve the CLI for this session
 
@@ -51,9 +53,9 @@ ORCA skills get orchestration
 ```
 
 That prints the compact, version-matched guide for the exact binary that will handle your
-next commands. It covers the normal local coordinator loop. For a conditional action gate
-such as remote placement, uncertain release recovery, or expanded DAG work, load only the
-reference that gate names with
+next commands. It covers the normal local coordinator loop and dispatched-worker
+obligations. For a conditional action gate such as remote placement, uncertain release
+recovery, or expanded DAG work, load only the reference that gate names with
 `ORCA skills get orchestration --reference references/<file>.md`
 (`--references` lists the names). If that binary rejects `--reference`, run
 `ORCA skills get orchestration --full` and read the named bundled reference before acting.

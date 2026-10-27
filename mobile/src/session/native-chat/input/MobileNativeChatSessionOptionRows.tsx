@@ -11,7 +11,13 @@ import {
   type SessionOptionDescriptor,
   type SessionOptionValueMarker,
   type SessionOptionValue
-} from '../../../../../src/shared/native-chat-session-options'
+} from '../../../../../src/shared/native-chat/input/native-chat-session-options'
+import {
+  nativeChatSessionChoiceLabel,
+  nativeChatSessionOptionActionLabel,
+  nativeChatSessionOptionLabel,
+  sayNativeChatSessionOptionEnglish as say
+} from '../../../../../src/shared/native-chat-session-option-labels'
 
 export function SessionOptionCaption({ children }: { children: string }): React.JSX.Element {
   return <Text style={styles.caption}>{children}</Text>
@@ -211,22 +217,11 @@ export function DescriptorRows({
   choiceLabelColor?: (value: string) => string | undefined
 }): React.JSX.Element {
   const locked = disabled || !descriptor.settable
-  // Why: flip-only without a baseline is an action — never claim On/Off.
-  if (descriptor.action?.type === 'toggle-command') {
+  // Why: flip-only and agent-picker options are actions, not values or radio choices.
+  if (descriptor.action) {
     return (
       <ActionRow
-        label={`Toggle ${descriptor.label.toLowerCase()}`}
-        disabled={locked}
-        grouped={grouped}
-        onPress={onInvokeAction}
-      />
-    )
-  }
-  // Why: agent-picker opens the TUI; it is not a set of radio choices.
-  if (descriptor.action?.type === 'agent-picker') {
-    return (
-      <ActionRow
-        label="Choose in agent picker…"
+        label={nativeChatSessionOptionActionLabel(descriptor, say)}
         disabled={locked}
         grouped={grouped}
         onPress={onInvokeAction}
@@ -237,7 +232,7 @@ export function DescriptorRows({
   if (descriptor.kind.type === 'boolean') {
     return (
       <ToggleRow
-        label={descriptor.label}
+        label={nativeChatSessionOptionLabel(descriptor, say)}
         checked={descriptor.kind.currentValue}
         marker={sessionOptionValueMarker(descriptor)}
         disabled={locked}
@@ -264,7 +259,7 @@ export function DescriptorRows({
       {choices.map((choice, index) => (
         <ChoiceRow
           key={choice.value}
-          label={choice.label}
+          label={nativeChatSessionChoiceLabel(choice, say, descriptor.id)}
           description={choice.description}
           selected={!descriptor.defaultChoice?.selected && choice.value === currentValue}
           disabled={locked}

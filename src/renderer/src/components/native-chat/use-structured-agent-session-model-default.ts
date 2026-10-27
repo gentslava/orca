@@ -2,12 +2,18 @@ import { useCallback, type RefObject } from 'react'
 import type { AgentType } from '../../../../shared/agent-status-types'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import type { AgentSessionOptionResult } from '../../../../shared/agent-session-wire'
-import type { SessionOptionDescriptor } from '../../../../shared/native-chat-session-options'
+import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
 import {
   commitStructuredAgentSessionModelDefault,
   commitStructuredAgentSessionOptionValues,
   structuredAgentSessionOptionSnapshot
 } from '../../../../shared/structured-agent-session-options'
+import {
+  STRUCTURED_MODEL_DEFAULT_PICK,
+  beginStructuredOptionPick,
+  isLatestStructuredOptionPick,
+  settleStructuredOptionPick
+} from '../../../../shared/structured-agent-session-option-pick-book'
 import type { StructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
 import type { useStructuredAgentSessionOptionState } from './use-structured-agent-session-option-state'
 import { enqueueSessionOptionSettingsWrite } from './native-chat-session-option-settings-write'
@@ -26,8 +32,8 @@ export function useStructuredAgentSessionModelDefault(args: {
     | 'optionView'
     | 'optionStateRef'
     | 'activeOptionRecordRef'
-    | 'pendingOptionsRef'
-    | 'optionMutationGeneration'
+    | 'optionPicks'
+    | 'writes'
     | 'beginOptionWrite'
     | 'isCurrentContext'
     | 'updateOptionState'
@@ -47,8 +53,8 @@ export function useStructuredAgentSessionModelDefault(args: {
     optionView,
     optionStateRef,
     activeOptionRecordRef,
-    pendingOptionsRef,
-    optionMutationGeneration,
+    optionPicks,
+    writes,
     beginOptionWrite,
     isCurrentContext,
     updateOptionState
@@ -68,17 +74,20 @@ export function useStructuredAgentSessionModelDefault(args: {
         !acceptsPicks ||
         fence === null ||
         !isCurrentContext() ||
-        optionStateRef.current.pendingId === 'model'
+        writes.current.count > 0
       ) {
         return snapshot()
       }
       const targetRecord = optionStateRef.current.record
       const finish = beginOptionWrite(id)
-      const generation = ++optionMutationGeneration.current
+      const pick = beginStructuredOptionPick(
+        optionPicks.current,
+        id,
+        STRUCTURED_MODEL_DEFAULT_PICK,
+        false
+      )
       const sameRecord = () => isCurrentContext() && activeOptionRecordRef.current === targetRecord
-      const current = () => sameRecord() && optionMutationGeneration.current === generation
-      const pendingDefault = String(generation)
-      pendingOptionsRef.current.modelDefault = pendingDefault
+      const current = () => sameRecord() && isLatestStructuredOptionPick(optionPicks.current, pick)
       updateOptionState((state) => ({ ...state, pendingId: id }))
       let accepted = false
       try {
@@ -103,8 +112,8 @@ export function useStructuredAgentSessionModelDefault(args: {
         }
         return snapshot()
       } finally {
-        if (sameRecord() && pendingOptionsRef.current.modelDefault === pendingDefault) {
-          delete pendingOptionsRef.current.modelDefault
+        if (sameRecord()) {
+          settleStructuredOptionPick(optionPicks.current, pick)
         }
         if (current()) {
           updateOptionState((state) => ({ ...state, pendingId: null }))
@@ -122,10 +131,10 @@ export function useStructuredAgentSessionModelDefault(args: {
       launchSeedOptions,
       lockSnapshotRef,
       mutate,
-      optionMutationGeneration,
       optionStateRef,
       optionView,
-      pendingOptionsRef,
+      optionPicks,
+      writes,
       takesModelDefault,
       target,
       updateOptionState

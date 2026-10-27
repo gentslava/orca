@@ -178,14 +178,14 @@ describe('AgentSkillSetupPanel', () => {
     expect(findButton('Re-check')).toBeDefined()
   })
 
-  it('shows only Re-check when the installed copy is already current', async () => {
+  it('offers recheck and skill management when the installed copy is current', async () => {
     mocks.plan.mockResolvedValue({ kind: 'plan', plan: planOf([sharedEntry('orca-cli', 'keep')]) })
     await renderInteractivePanel({ installed: true })
 
     const labels = Array.from(container?.querySelectorAll('button') ?? [], (button) =>
       button.textContent?.trim()
     )
-    expect(labels).toEqual(['Re-check'])
+    expect(labels).toEqual(['Re-check', 'Open Skills'])
   })
 
   it('shows a checking verdict before the guided setup plan loads', () => {

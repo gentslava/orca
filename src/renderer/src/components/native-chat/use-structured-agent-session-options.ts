@@ -7,7 +7,7 @@ import type { StructuredAgentSessionMutate } from './use-structured-agent-sessio
 import type { StructuredAgentSessionLaunchView } from './use-native-chat-provisional-launch'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { structuredAgentSessionSeedCatalog } from '../../../../shared/structured-agent-session-seed-catalog'
-import type { SessionOptionsSurface } from '../../../../shared/native-chat-session-options'
+import type { SessionOptionsSurface } from '../../../../shared/native-chat/input/native-chat-session-options'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../shared/agent-chat-permission-mode'
 import {
   canSetStructuredAgentSessionOption,
@@ -16,6 +16,10 @@ import {
   type StructuredAgentSessionOptionState
 } from '../../../../shared/structured-agent-session-options'
 import { useRememberSessionOptionPicks } from './use-structured-agent-session-option-picks'
+import {
+  STRUCTURED_MODEL_DEFAULT_PICK,
+  structuredOptionPickBlockingId
+} from '../../../../shared/structured-agent-session-option-pick-book'
 import { encodeStructuredAgentSessionOptionValue } from '../../../../shared/structured-agent-session-option-codec'
 import { useHostModelCatalogUpgrade } from './use-host-model-catalog-upgrade'
 import { useStructuredAgentSessionOptionState } from './use-structured-agent-session-option-state'
@@ -72,11 +76,11 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     optionState,
     optionStateRef,
     activeOptionRecordRef,
-    pendingOptionsRef,
-    optionMutationGeneration,
+    optionPicks,
     updateOptionState,
     receiveCatalog,
     beginOptionWrite,
+    writes,
     isCurrentContext,
     conversationSupport
   } = useStructuredAgentSessionOptionState({
@@ -141,8 +145,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     source: {
       optionStateRef,
       activeOptionRecordRef,
-      pendingOptionsRef,
-      optionMutationGeneration,
+      optionPicks,
       beginOptionWrite,
       isCurrentContext,
       updateOptionState,
@@ -197,20 +200,20 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   const setStructuredOption = useCallback(
     async (id: string, value: string | boolean): Promise<boolean> => {
       const view = pendingView(optionStateRef.current)
-      const pickState = {
-        ...view,
-        pendingId: providerStarting || pendingOptionsRef.current[id] === undefined ? null : id
-      }
       const encoded = encodeStructuredAgentSessionOptionValue(id, value)
       if (
         (id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID &&
           value === 'own' &&
           !view.permissionOwnSupported) ||
         !isCurrentContext() ||
+        optionPicks.current.pending.model === STRUCTURED_MODEL_DEFAULT_PICK ||
         !optionCatalog ||
         encoded === null ||
         !canSetStructuredAgentSessionOption(
-          pickState,
+          {
+            ...view,
+            pendingId: structuredOptionPickBlockingId(optionPicks.current, id, providerStarting)
+          },
           id,
           value,
           lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view))
@@ -231,7 +234,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       optionCatalog,
       isCurrentContext,
       optionStateRef,
-      pendingOptionsRef,
+      optionPicks,
       pendingView,
       providerStarting,
       sendStructuredOption,
@@ -267,8 +270,8 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       optionView,
       optionStateRef,
       activeOptionRecordRef,
-      pendingOptionsRef,
-      optionMutationGeneration,
+      optionPicks,
+      writes,
       beginOptionWrite,
       isCurrentContext,
       updateOptionState
@@ -303,7 +306,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     optionSnapshot,
     optionSurface,
     setStructuredOption,
-    sendSource: { optionStateRef, pendingOptionsRef, optionView, takesSendOptions },
+    sendSource: { optionStateRef, optionPicks, optionView, takesSendOptions },
     unavailable: hostCatalog.unavailable
   }
 }

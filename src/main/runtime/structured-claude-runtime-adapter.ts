@@ -13,7 +13,10 @@ import {
   reviseAgentSessionProviderResumePoint
 } from './agent-session/ownership/agent-session-provider-handle-transition'
 import type { AgentSessionRecordStore } from './agent-session-record-store'
-import { ClaudeAtRestCommandCatalog } from '../claude/claude-at-rest-commands'
+import {
+  ClaudeAtRestCommandCatalog,
+  type ClaudeAtRestCommandsDeps
+} from '../claude/claude-at-rest-commands'
 import type { ClaudeCommandCatalogProbe } from '../claude/claude-command-catalog-probe'
 import { openClaudeStreamJsonConnection } from '../claude/claude-stream-json-connection'
 import type { ClaudeCliFlagSupport } from '../claude/claude-cli-flag-support'
@@ -22,6 +25,7 @@ import { prewarmClaudeCliFlags } from '../claude/claude-cli-flag-prewarm'
 export type StructuredClaudeRuntimeAdapterDeps = {
   store: AgentSessionRecordStore
   resolveWorkspacePath: (workspaceId: string) => Promise<string>
+  resolveAccountHome?: ClaudeAtRestCommandsDeps['resolveAccountHome']
   resolveLaunch: ClaudeStructuredSessionAdapterDeps['resolveLaunch']
   /** The binary and env the startup version prewarm asks, as a launch would. */
   resolveClaudeCommand?: typeof resolveClaudeCommand
@@ -88,6 +92,7 @@ export function createStructuredClaudeRuntimeAdapter(
   return new ClaudeStructuredSessionAdapter({
     atRestCommands: new ClaudeAtRestCommandCatalog({
       resolveWorkspacePath: deps.resolveWorkspacePath,
+      ...(deps.resolveAccountHome ? { resolveAccountHome: deps.resolveAccountHome } : {}),
       ...(deps.atRestCommandProbe ? { probe: deps.atRestCommandProbe } : {})
     }),
     resolveLaunch: deps.resolveLaunch,

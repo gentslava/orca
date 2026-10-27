@@ -1180,6 +1180,7 @@
           "a31e2aa302": "Failed to copy command."
         },
         "AgentsPane": {
+          "959b67385b": "Set default",
           "9b175d0f5e": "Pre-selected agent when opening a new workspace.",
           "c8794e622e": "Detected",
           "db9e9e5887": "Customize command",
@@ -2159,7 +2160,9 @@
           "07729cc155": "expired"
         },
         "DeleteWorktreeDirtyChangeHint": {
-          "8e2994ce28": "Deleting this workspace permanently removes these changes from disk."
+          "8e2994ce28": "Deleting this workspace permanently removes these changes from disk.",
+          "changeCount_one": "1 uncommitted or untracked change",
+          "changeCount_other": "{{count}} uncommitted or untracked changes"
         },
         "FolderWorkspaceComposerDialog": {
           "chooseSourceProject": "Choose task source",
@@ -2173,7 +2176,16 @@
         },
         "ImportedWorktreesVisibilityLine": {
           "b2bc47c080": "more locations",
-          "f54f2bec5d": "{{value0}} hidden worktrees for {{value1}}"
+          "collapseAriaLabel": "Collapse hidden worktrees for {{repo}}",
+          "expandAriaLabel": "Expand hidden worktrees for {{repo}}",
+          "hidingInRepo_one": "Hiding 1 discovered worktree in {{repo}}",
+          "hidingInRepo_other": "Hiding {{count}} discovered worktrees in {{repo}}",
+          "hiding_one": "Hiding 1 discovered worktree",
+          "hiding_other": "Hiding {{count}} discovered worktrees",
+          "keepHiddenAriaLabel_one": "Keep 1 discovered worktree hidden for {{repo}}; recover from the project menu",
+          "keepHiddenAriaLabel_other": "Keep {{count}} discovered worktrees hidden for {{repo}}; recover from the project menu",
+          "keepHiddenTooltip": "Keep hidden - recover from the project menu",
+          "repoOnHost": "{{repo}} on {{host}}"
         },
         "LinearAgentSkillSetupPrompt": {
           "missingBoth": "Orca CLI and Linear agent skill are missing.",
@@ -2212,7 +2224,9 @@
           "e8c1f4a2b9": "in workspace options."
         },
         "SetupScriptPromptCard": {
-          "dcaa645da5": "ok"
+          "dcaa645da5": "ok",
+          "savedWithSkippedFields_one": "1 unsupported field skipped. Saved the setup command.",
+          "savedWithSkippedFields_other": "{{count}} unsupported fields skipped. Saved the setup command."
         },
         "SidebarHeader": {
           "49f62c5665": "Workspace board",
@@ -2271,7 +2285,8 @@
         "WorktreeCardPorts": {
           "34f733dda2": "Go to Worktree",
           "3e5f66564e": "Workspace unavailable",
-          "fed49903c9": "{{value0}} live {{value1}}"
+          "fed49903c9": "{{value0}} live {{value1}}",
+          "unknownProcess": "Unknown process"
         },
         "WorktreeCardReviewDetailSection": {
           "copyLink": "Copy link",
@@ -2376,6 +2391,12 @@
               }
             }
           }
+        },
+        "workspaceBatchActionLabels": {
+          "deleteCount_one": "Delete 1 Workspace",
+          "deleteCount_other": "Delete {{count}} Workspaces",
+          "sleepCount_one": "Sleep 1 Workspace",
+          "sleepCount_other": "Sleep {{count}} Workspaces"
         },
         "worktree": {
           "card": {
@@ -3270,13 +3291,16 @@
       },
       "composer": {
         "draftActions": "Draft actions",
-        "effort": "Effort",
         "enterQueues": "Enter queues text and images.",
         "enterSendsNow": "Enter sends immediately.",
         "futureMessageOptions": "Changes apply to future messages. Running and queued messages keep their choices.",
         "imageReferenceMissing": "Image removed",
         "imageUnsupported": "Image paste is not supported for this agent.",
         "nextTurn": "Next turn",
+        "optionValueShort": {
+          "max": "Max",
+          "ultra": "Ultra"
+        },
         "placeholder": "Ask anything, @ to mention files, / for commands",
         "queueChecking": "Checking queue support. Enter sends immediately until the host confirms support.",
         "queueDraft": "Queue",
@@ -3411,7 +3435,8 @@
         "historyItemTooLarge": "This part of the chat was too large to show.",
         "historyRepaired": "Part of this chat's history couldn't be loaded.",
         "orchestrationMail": "Orchestration mail",
-        "plan": "Plan"
+        "plan": "Plan",
+        "stoppedBeforeStart": "Stopped manually"
       },
       "question": {
         "other": "Other…"
@@ -3485,6 +3510,7 @@
         "countOne": "1 tool call",
         "failedCallsLabel": "Failed tool calls: {{value0}}",
         "failedCount": "{{value0}} failed",
+        "fullOutputPartial": "Showing {{shown}} of {{total}}.",
         "interruptedCallsLabel": "Interrupted tool calls: {{value0}}",
         "interruptedCount": "{{value0}} interrupted",
         "moreCalls": "+{{value0}} more",
@@ -3492,6 +3518,7 @@
         "ranCommandOneToolSummary": "Ran {{commandCount}} command and used {{toolCount}} tool",
         "ranCommandsManyToolsSummary": "Ran {{commandCount}} commands and used {{toolCount}} tools",
         "ranCommandsOneToolSummary": "Ran {{commandCount}} commands and used {{toolCount}} tool",
+        "result": "Result",
         "running": "Running…",
         "runningCommand": "Running command",
         "runningNamed": "Running {{toolName}}",

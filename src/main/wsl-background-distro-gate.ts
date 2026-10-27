@@ -91,6 +91,16 @@ async function settledStartedAfter(
   return anchor
 }
 
+/** A confirmed list from a probe started after `startedAfter` and after `distro`'s stop settled. */
+export async function readSettledConfirmedRunningWslDistros(
+  distro: string,
+  startedAfter?: number
+): Promise<WslRunningDistrosRead> {
+  return readConfirmedRunningWslDistros({
+    startedAfter: await settledStartedAfter(distro, startedAfter)
+  })
+}
+
 export type WslDistroRunningState = 'running' | 'stopped' | 'unverifiable'
 
 /** A failed read is 'unverifiable', never a stop; `retryUnverifiable` re-reads once past the failure backoff. */

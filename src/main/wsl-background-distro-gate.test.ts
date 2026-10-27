@@ -14,6 +14,7 @@ import {
   isWslDistroRunningForBackgroundWork,
   noteWslDistroMayHaveStopped,
   noteWslDistrosRunning,
+  readSettledConfirmedRunningWslDistros,
   WSL_STOP_SETTLE_MS
 } from './wsl-background-distro-gate'
 import {
@@ -79,6 +80,28 @@ describe('the stop settle window', () => {
     await expect(isWslDistroRunning('Ubuntu')).resolves.toBe(false)
     expect(probeStarts).toHaveLength(1)
     expect(probeStarts[0]).toBeGreaterThanOrEqual(settledAt)
+  })
+})
+
+describe('readSettledConfirmedRunningWslDistros', () => {
+  it('never answers from a probe that started inside the window, even one still in flight', async () => {
+    let finishStale: (distros: string[]) => void = () => {}
+    const probe = vi
+      .fn<() => Promise<string[]>>()
+      .mockImplementationOnce(() => new Promise((resolve) => (finishStale = resolve)))
+      .mockResolvedValueOnce([])
+    wslMocks.listRunningWslDistrosAsync.mockImplementation((options) =>
+      resolveRunningWslDistros(probe, options)
+    )
+    const stale = isWslDistroRunning('Ubuntu')
+    await vi.waitFor(() => expect(probe).toHaveBeenCalledOnce())
+
+    const settled = readSettledConfirmedRunningWslDistros('Ubuntu', performance.now())
+    finishStale(['Ubuntu'])
+
+    await expect(stale).resolves.toBe(true)
+    await expect(settled).resolves.toEqual({ status: 'confirmed', distros: [] })
+    expect(probe).toHaveBeenCalledTimes(2)
   })
 })
 

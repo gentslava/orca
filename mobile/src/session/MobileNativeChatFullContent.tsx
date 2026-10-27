@@ -1,20 +1,20 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { Pressable, Text, View, type TextStyle } from 'react-native'
+import { truncateToolDetail } from '../../../src/shared/native-chat/tools/native-chat-tool-summary'
 import {
-  truncateToolDetail,
-  MAX_TOOL_DETAIL_LENGTH
-} from '../../../src/shared/native-chat/tools/native-chat-tool-summary'
+  isNativeChatToolOutputClipped,
+  NATIVE_CHAT_TOOL_OUTPUT_COPY,
+  nativeChatToolFullPayload,
+  nativeChatToolOutputPartialSizes
+} from '../../../src/shared/native-chat/tools/native-chat-tool-output'
 import type {
   NativeChatMessage,
   NativeChatToolResultBlock
 } from '../../../src/shared/native-chat-types'
-import type {
-  AgentJournalBoundedPayload,
-  AgentJournalItemBody
-} from '../../../src/shared/agent-session-journal-types'
+import type { AgentJournalBoundedPayload } from '../../../src/shared/agent-session-journal-types'
 import { INLINE_TEXT_SELECTION } from '../components/inline-text-selection'
-import { styles } from './mobile-native-chat-message-styles'
-import { toolStyles } from './mobile-native-chat-tool-styles'
+import { styles } from './native-chat/transcript/mobile-native-chat-message-styles'
+import { toolStyles } from './native-chat/transcript/mobile-native-chat-tool-styles'
 import { MobileNativeChatOwnedScrollView } from './MobileNativeChatOwnedScrollView'
 import {
   MobileNativeChatItemSourceContext,
@@ -47,13 +47,6 @@ function ShowFull({
       </Text>
     </Pressable>
   )
-}
-
-function outputOf(body: AgentJournalItemBody | null): AgentJournalBoundedPayload | null {
-  if (body?.kind === 'tool-call') {
-    return body.output ?? null
-  }
-  return body?.kind === 'diff' ? body.patch : null
 }
 
 export function MobileNativeChatToolOutput({
@@ -91,9 +84,8 @@ export function MobileNativeChatToolOutput({
       ? detail
       : null
   const full = current?.full
-  const clipped =
-    !full &&
-    (fullOutputItemId !== undefined || (!expanded && output.length > MAX_TOOL_DETAIL_LENGTH))
+  const clipped = isNativeChatToolOutputClipped(body, { expanded, fullLoaded: Boolean(full) })
+  const partial = useMemo(() => (full ? nativeChatToolOutputPartialSizes(full) : null), [full])
   const showFull = (): void => {
     if (fullOutputItemId === undefined || source === null) {
       setExpanded(true)
@@ -109,7 +101,11 @@ export function MobileNativeChatToolOutput({
     }
     readMobileNativeChatItem(source, fullOutputItemId)
       .then((item) =>
-        finish(item?.itemId === fullOutputItemId ? (outputOf(item.body) ?? undefined) : undefined)
+        finish(
+          item?.itemId === fullOutputItemId
+            ? (nativeChatToolFullPayload(item.body) ?? undefined)
+            : undefined
+        )
       )
       .catch(() => finish())
   }
@@ -129,9 +125,11 @@ export function MobileNativeChatToolOutput({
           {full ? full.head : expanded ? output : truncateToolDetail(output)}
         </Text>
       </MobileNativeChatOwnedScrollView>
-      {full?.truncated ? (
+      {partial ? (
         <Text style={styles.showFullText}>
-          Showing {new TextEncoder().encode(full.head).length} of {full.byteLength} bytes.
+          {NATIVE_CHAT_TOOL_OUTPUT_COPY.partial
+            .replace('{{shown}}', partial.shown)
+            .replace('{{total}}', partial.total)}
         </Text>
       ) : null}
       {clipped ? (

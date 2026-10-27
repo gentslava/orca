@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native'
 import { colors, spacing, typography } from '../theme/mobile-theme'
 import { MobileLoadErrorState } from '../components/MobileLoadErrorState'
-import { MobileNativeChatImageViewer } from '../session/MobileNativeChatImageViewer'
+import { MobileNativeChatImageViewer } from '../session/native-chat/visual/MobileNativeChatImageViewer'
 import type { MobileFilePreviewRpcSender } from './mobile-file-preview-operations'
 import { loadMarkdownPreviewImage } from './mobile-markdown-image-source'
 

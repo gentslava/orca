@@ -20,7 +20,7 @@ import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../src/shared/agen
 import type { AgentSessionOptionsResult } from '../../../src/shared/agent-session-wire'
 import type { RpcResponse } from '../transport/types'
 import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
-import type { MobileNativeChatSendOrigin } from './use-mobile-native-chat-drafts'
+import type { MobileNativeChatSendOrigin } from './native-chat/composer/use-mobile-native-chat-drafts'
 import {
   structuredAgentSessionHostSupport,
   type StructuredAgentSessionHostSupport

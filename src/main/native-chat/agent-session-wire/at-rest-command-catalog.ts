@@ -1,6 +1,9 @@
 import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import type { AgentSessionSlashCommand } from '../../../shared/agent-session-wire'
-import { requireLegacyAgentSessionAccountHome } from '../../../shared/agent-session-account-home'
+import {
+  requireLegacyAgentSessionAccountHome,
+  type AgentSessionAccountHome
+} from '../../../shared/agent-session-account-home'
 import { agentSessionPinnedLaunchDirectory } from '../../runtime/agent-session-record-launch-directory'
 import type { StructuredAgentSessionAtRestCommands } from './structured-agent-session-at-rest-commands'
 import { atRestCommandContextReady } from './at-rest-command-context'
@@ -30,6 +33,8 @@ export type AtRestCommandSource = {
     isCurrent: () => boolean
   ) => Promise<AtRestCommandScan>
   resolveWorkspacePath: (workspaceId: string) => Promise<string>
+  /** The account a start uses now, read at scan time; absent scans the chat's saved account. */
+  resolveAccountHome?: () => Promise<AgentSessionAccountHome>
   label: string
   now?: () => number
 }
@@ -121,7 +126,10 @@ export class AtRestCommandCatalog implements StructuredAgentSessionAtRestCommand
     }
     const key = JSON.stringify([
       record.provider,
-      requireLegacyAgentSessionAccountHome(record.accountHome).path,
+      // A selected account changes through retireContext, not per chat.
+      this.source.resolveAccountHome
+        ? null
+        : requireLegacyAgentSessionAccountHome(record.accountHome).path,
       record.location.workspaceId,
       agentSessionPinnedLaunchDirectory(record)
     ])
@@ -172,8 +180,9 @@ export class AtRestCommandCatalog implements StructuredAgentSessionAtRestCommand
       const cwd =
         agentSessionPinnedLaunchDirectory(record) ??
         (await this.source.resolveWorkspacePath(record.location.workspaceId))
+      const accountHome = (await this.source.resolveAccountHome?.()) ?? record.accountHome
       return isCurrent()
-        ? this.source.scan(record, cwd, isCurrent)
+        ? this.source.scan({ ...record, accountHome }, cwd, isCurrent)
         : { commands: undefined, fromAgent: false }
     })()
       .then(

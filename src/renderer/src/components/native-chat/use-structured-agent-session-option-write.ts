@@ -1,6 +1,12 @@
 import { useCallback } from 'react'
 import type { AgentSessionOptionResult } from '../../../../shared/agent-session-wire'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../shared/agent-chat-permission-mode'
+import {
+  beginStructuredOptionPick,
+  isLatestStructuredOptionPick,
+  settleStructuredOptionPick,
+  structuredOptionPickCommit
+} from '../../../../shared/structured-agent-session-option-pick-book'
 import { commitStructuredAgentSessionOptionValues } from '../../../../shared/structured-agent-session-options'
 import type { StructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
 import type { useStructuredAgentSessionOptionState } from './use-structured-agent-session-option-state'
@@ -13,8 +19,7 @@ export function useStructuredAgentSessionOptionWrite(args: {
     ReturnType<typeof useStructuredAgentSessionOptionState>,
     | 'optionStateRef'
     | 'activeOptionRecordRef'
-    | 'pendingOptionsRef'
-    | 'optionMutationGeneration'
+    | 'optionPicks'
     | 'beginOptionWrite'
     | 'isCurrentContext'
     | 'updateOptionState'
@@ -29,8 +34,7 @@ export function useStructuredAgentSessionOptionWrite(args: {
   const {
     optionStateRef,
     activeOptionRecordRef,
-    pendingOptionsRef,
-    optionMutationGeneration,
+    optionPicks,
     beginOptionWrite,
     isCurrentContext,
     updateOptionState,
@@ -41,22 +45,17 @@ export function useStructuredAgentSessionOptionWrite(args: {
       const currentState = optionStateRef.current
       const targetRecord = currentState.record
       const finishWrite = beginOptionWrite(id)
-      const mutationGeneration = ++optionMutationGeneration.current
+      const shownAtOnce = providerStarting || id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
+      const pick = beginStructuredOptionPick(optionPicks.current, id, encoded, shownAtOnce)
       const sameRecord = (): boolean =>
         isCurrentContext() && activeOptionRecordRef.current === targetRecord
       const isCurrent = (): boolean =>
-        sameRecord() && optionMutationGeneration.current === mutationGeneration
-      const currentPick = (): boolean => isCurrent() || pendingOptionsRef.current[id] === encoded
-      // Record-only: shown at once, so the picker stays usable while the write waits behind a start.
-      const shownAtOnce = providerStarting || id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
-      if (shownAtOnce) {
-        updateOptionState((current) =>
-          commitStructuredAgentSessionOptionValues(current, { [id]: encoded }, id)
-        )
-      } else {
-        pendingOptionsRef.current[id] = encoded
-        updateOptionState((current) => ({ ...current, pendingId: id }))
-      }
+        sameRecord() && isLatestStructuredOptionPick(optionPicks.current, pick)
+      updateOptionState((current) =>
+        shownAtOnce
+          ? commitStructuredAgentSessionOptionValues(current, { [id]: encoded }, id)
+          : { ...current, pendingId: id }
+      )
       let result: AgentSessionOptionResult | null = null
       try {
         result = await mutate<AgentSessionOptionResult>(
@@ -64,9 +63,11 @@ export function useStructuredAgentSessionOptionWrite(args: {
           'agentSession.setOption',
           { key: id, value: encoded }
         )
-        if (result && sameRecord() && currentPick()) {
-          const returned = result.options ?? { [id]: encoded }
-          const committed = isCurrent() ? returned : { [id]: returned[id] ?? encoded }
+        const committed =
+          result && sameRecord()
+            ? structuredOptionPickCommit(optionPicks.current, pick, result.options)
+            : null
+        if (committed) {
           updateOptionState((current) =>
             current.record === targetRecord
               ? commitStructuredAgentSessionOptionValues(current, committed, id)
@@ -81,8 +82,8 @@ export function useStructuredAgentSessionOptionWrite(args: {
         }
         return Boolean(result)
       } finally {
-        if (sameRecord() && pendingOptionsRef.current[id] === encoded) {
-          delete pendingOptionsRef.current[id]
+        if (sameRecord()) {
+          settleStructuredOptionPick(optionPicks.current, pick)
         }
         if (isCurrent()) {
           updateOptionState((current) =>
@@ -100,10 +101,9 @@ export function useStructuredAgentSessionOptionWrite(args: {
       isCurrentContext,
       launchSeedOptions,
       mutate,
-      optionMutationGeneration,
       optionStateRef,
       optionView,
-      pendingOptionsRef,
+      optionPicks,
       providerStarting,
       rememberOptionPicks,
       updateOptionState

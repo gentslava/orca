@@ -1,4 +1,4 @@
-import type { SessionOptionDescriptor } from './native-chat-session-options'
+import type { SessionOptionDescriptor } from './native-chat/input/native-chat-session-options'
 import type { StructuredAgentSessionOptionState } from './structured-agent-session-options'
 
 export function structuredAgentSessionDefaultModelChoice(

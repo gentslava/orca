@@ -1,16 +1,46 @@
 import { useCallback, type RefObject } from 'react'
+import { structuredAgentSessionDefaultModelChoice } from '../../../src/shared/structured-agent-session-default-model-choice'
+import {
+  beginStructuredOptionPick,
+  settleStructuredOptionPick,
+  structuredOptionPickCommit
+} from '../../../src/shared/structured-agent-session-option-pick-book'
 import type { RpcClient } from '../transport/rpc-client'
 import type { AgentSessionOptionResult } from '../../../src/shared/agent-session-wire'
-import type { SessionOptionDescriptor } from '../../../src/shared/native-chat-session-options'
+import type { SessionOptionDescriptor } from '../../../src/shared/native-chat/input/native-chat-session-options'
 import {
   commitStructuredAgentSessionModelDefault,
-  commitStructuredAgentSessionOptionValues
+  commitStructuredAgentSessionOptionValues,
+  lockedStructuredAgentSessionOptionSnapshot,
+  type StructuredAgentSessionOptionState
 } from '../../../src/shared/structured-agent-session-options'
 import { structuredAgentSessionShownSnapshot } from '../../../src/shared/structured-agent-session-option-view'
 import type { StructuredAgentSessionMutate } from './mobile-structured-agent-session-rpc'
 import type { useMobileStructuredOptionState } from './use-mobile-structured-option-state'
 import { nativeChatSessionOptionsWrite } from './mobile-session-launch-operations'
 import { isTuiAgent } from '../../../src/shared/tui-agent-config'
+
+export const MOBILE_MODEL_DEFAULT_PICK = ''
+
+export function mobileStructuredModelDefaultSnapshot(
+  snapshot: SessionOptionDescriptor[],
+  state: StructuredAgentSessionOptionState,
+  supported: boolean,
+  awaitingOptions: boolean
+): SessionOptionDescriptor[] {
+  const choices = supported
+    ? snapshot.map((descriptor) =>
+        descriptor.id === 'model'
+          ? {
+              ...descriptor,
+              settable: true,
+              defaultChoice: structuredAgentSessionDefaultModelChoice(state)
+            }
+          : descriptor
+      )
+    : snapshot
+  return awaitingOptions ? lockedStructuredAgentSessionOptionSnapshot(choices) : choices
+}
 
 export function useMobileStructuredModelDefault(args: {
   agent: string | null
@@ -24,8 +54,7 @@ export function useMobileStructuredModelDefault(args: {
     ReturnType<typeof useMobileStructuredOptionState>,
     | 'optionStateRef'
     | 'activeOptionRecordRef'
-    | 'pendingOptionRef'
-    | 'optionMutationGeneration'
+    | 'optionPicks'
     | 'updateOptionState'
     | 'writes'
     | 'readRef'
@@ -37,8 +66,7 @@ export function useMobileStructuredModelDefault(args: {
   const {
     optionStateRef,
     activeOptionRecordRef,
-    pendingOptionRef,
-    optionMutationGeneration,
+    optionPicks,
     updateOptionState,
     writes,
     readRef,
@@ -58,19 +86,20 @@ export function useMobileStructuredModelDefault(args: {
         !sessionId ||
         !agent ||
         awaitingOptions ||
-        pendingOptionRef.current !== null ||
+        writes.current.count > 0 ||
         !isCurrentContext()
       ) {
         return snapshot()
       }
       const targetRecord = optionStateRef.current.record
-      const generation = ++optionMutationGeneration.current
-      const current = () =>
-        isCurrentContext() &&
-        activeOptionRecordRef.current === targetRecord &&
-        optionMutationGeneration.current === generation
+      const pick = beginStructuredOptionPick(
+        optionPicks.current,
+        id,
+        MOBILE_MODEL_DEFAULT_PICK,
+        false
+      )
+      const sameRecord = () => isCurrentContext() && activeOptionRecordRef.current === targetRecord
       writes.current.count += 1
-      pendingOptionRef.current = id
       updateOptionState((state) => ({ ...state, pendingId: id }))
       let readsBack = false
       try {
@@ -79,12 +108,16 @@ export function useMobileStructuredModelDefault(args: {
           'agentSession.setOption',
           { key: id, value: null }
         )
-        if (result.status === 'accepted' && result.sameFence && current()) {
+        const committed =
+          result.status === 'accepted' && result.sameFence && sameRecord()
+            ? structuredOptionPickCommit(optionPicks.current, pick, result.value.options ?? {})
+            : null
+        if (result.status === 'accepted' && committed) {
           updateOptionState((state) =>
             result.value.modelDefault
-              ? commitStructuredAgentSessionModelDefault(state, result.value.options ?? {})
+              ? commitStructuredAgentSessionModelDefault(state, committed)
               : {
-                  ...commitStructuredAgentSessionOptionValues(state, result.value.options ?? {}),
+                  ...commitStructuredAgentSessionOptionValues(state, committed, id),
                   modelDefault: false
                 }
           )
@@ -97,9 +130,11 @@ export function useMobileStructuredModelDefault(args: {
         readsBack = result.status !== 'rejected'
         return snapshot()
       } finally {
-        if (current()) {
-          pendingOptionRef.current = null
-          updateOptionState((state) => ({ ...state, pendingId: null }))
+        if (sameRecord()) {
+          settleStructuredOptionPick(optionPicks.current, pick)
+          updateOptionState((state) =>
+            state.pendingId === id ? { ...state, pendingId: null } : state
+          )
         }
         if (isCurrentContext() && activeOptionRecordRef.current === targetRecord) {
           writes.current.count -= 1
@@ -119,9 +154,8 @@ export function useMobileStructuredModelDefault(args: {
       isCurrentContext,
       lockSnapshotRef,
       mutate,
-      optionMutationGeneration,
       optionStateRef,
-      pendingOptionRef,
+      optionPicks,
       readRef,
       sessionId,
       updateOptionState,

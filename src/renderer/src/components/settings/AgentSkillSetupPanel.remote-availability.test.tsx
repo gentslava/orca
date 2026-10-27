@@ -168,7 +168,7 @@ describe('remote skill setup availability', () => {
     )
     await act(async () => setHostConnected(true))
     expect(container?.textContent).not.toContain('Connect to this SSH host')
-    expect(buttonLabels()).toEqual(['Re-check'])
+    expect(buttonLabels()).toEqual(['Re-check', 'Open Skills'])
     expect(mocks.rpc).toHaveBeenCalledTimes(2)
   })
 

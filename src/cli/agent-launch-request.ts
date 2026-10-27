@@ -15,7 +15,7 @@ import { createStructuredAgentSessionOperationId } from '../shared/structured-ag
 import { parseAgentSessionOperationTimestamp } from '../shared/agent-session-host-authority'
 import type { RuntimeStatus } from '../shared/runtime-types'
 import type { TuiAgent } from '../shared/tui-agent'
-import type { SessionOptionValue } from '../shared/native-chat-session-options'
+import type { SessionOptionValue } from '../shared/native-chat/input/native-chat-session-options'
 import { isTuiAgent } from '../shared/tui-agent-config'
 import {
   getOptionalStringFlag,

@@ -1,4 +1,4 @@
-import type { SessionOptionDescriptor } from '../../../../shared/native-chat-session-options'
+import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
 
 export function model(overrides: Partial<SessionOptionDescriptor> = {}): SessionOptionDescriptor {
   return {

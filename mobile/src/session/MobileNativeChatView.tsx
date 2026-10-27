@@ -3,7 +3,7 @@ import { nativeChatTaskListPredecessors } from '../../../src/shared/native-chat/
 import {
   MobileNativeChatDisclosureContext,
   useMobileNativeChatDisclosures
-} from './mobile-native-chat-disclosure-store'
+} from './native-chat/transcript/mobile-native-chat-disclosure-store'
 import {
   ActivityIndicator,
   type NativeScrollEvent,
@@ -31,15 +31,15 @@ import {
   mobileNativeChatEmptyState,
   type MobileNativeChatPendingItem
 } from './mobile-native-chat-render-data'
-import { useMobileNativeChatRowKeys } from './mobile-native-chat-row-keys'
+import { useMobileNativeChatRowKeys } from './native-chat/transcript/mobile-native-chat-row-keys'
 import { useMobileNativeChatPinchGesture } from './use-mobile-native-chat-pinch-gesture'
 import { useMobileNativeChatTailFollow } from './use-mobile-native-chat-tail-follow'
-import { useMobileNativeChatTurnDisclosure } from './use-mobile-native-chat-turn-disclosure'
+import { useMobileNativeChatTurnDisclosure } from './native-chat/transcript/use-mobile-native-chat-turn-disclosure'
 import {
   mobileNativeChatComposerPlaceholder,
   useSettledMobileNativeChatInputLock
 } from './native-chat/use-mobile-native-chat-input-lease'
-import { MobileNativeChatLiveLine } from './MobileNativeChatLiveLine'
+import { MobileNativeChatLiveLine } from './native-chat/transcript/MobileNativeChatLiveLine'
 import { MobileNativeChatFloatingControls } from './MobileNativeChatFloatingControls'
 import type { PendingNativeChatImage } from './native-chat/composer/mobile-native-chat-image-attachment'
 import {
@@ -55,8 +55,8 @@ import type { MobileChatPermission } from './native-chat/input/mobile-native-cha
 import type { MobileChatQuestion } from './native-chat/input/mobile-native-chat-question'
 import type { MobileNativeChatSessionOptionPickersProps } from './native-chat/input/MobileNativeChatSessionOptionPickers'
 import { MobileNativeChatScrollRootsBoundary } from './MobileNativeChatScrollRootsBoundary'
-import { MobileNativeChatRowList } from './MobileNativeChatRowList'
-import { useMobileNativeChatRowRenderer } from './use-mobile-native-chat-row-renderer'
+import { MobileNativeChatRowList } from './native-chat/transcript/MobileNativeChatRowList'
+import { useMobileNativeChatRowRenderer } from './native-chat/transcript/use-mobile-native-chat-row-renderer'
 import type { MobileNativeChatStatus } from './use-mobile-native-chat-session'
 import type { OlderPagePhase } from './use-mobile-older-page-loader'
 
@@ -207,13 +207,12 @@ export function MobileNativeChatView({
   const { data } = useMemo(
     () =>
       buildMobileNativeChatTransientData({
-        messages,
         folded,
         streaming,
         pending,
         imagePreviewsByMessageId
       }),
-    [messages, folded, streaming, pending, imagePreviewsByMessageId]
+    [folded, streaming, pending, imagePreviewsByMessageId]
   )
   const tail = useMobileNativeChatTailFollow({ hasItems: data.length > 0, scopeKey: sendSurfaceId })
   const { jumpToTail, recordScrollMetrics, scrollMayLoadEarlier } = tail

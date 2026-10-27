@@ -16,8 +16,9 @@ import {
 import { recordCrashBreadcrumb } from '../crash-reporting/crash-breadcrumb-store'
 import { mainProcessState as state } from './main-process-state'
 import {
-  openSettingsFromSystemMenu,
+  getAppMenuQuitHandlers,
   quitFromUserCommand,
+  openSettingsFromSystemMenu,
   runUserInitiatedUpdateCheck,
   sendOpenCrashReport,
   sendOpenFeatureTour,
@@ -51,7 +52,7 @@ export async function initializeMainProcessI18nAndMenu(): Promise<void> {
   })
   registerAppMenu({
     appMenuLabel: state.devInstanceIdentity?.name ?? app.name,
-    ...(state.isServeMode ? { onQuit: quitFromUserCommand } : {}),
+    ...getAppMenuQuitHandlers(),
     holdQuitShortcut: {
       isEnabled: () =>
         process.platform === 'darwin' && store.getSettings().holdQuitWhileAgentsWork === true,

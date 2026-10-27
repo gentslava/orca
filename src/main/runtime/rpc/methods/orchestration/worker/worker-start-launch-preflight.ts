@@ -11,6 +11,7 @@ import { resolveWorkerConfiguredAgentParams } from './worker-configured-agent-pr
 import { probeWorkerOpenCodeModelLaunchSupport } from './worker-opencode-model-preflight'
 import { preflightStructuredWorkerFast } from './worker-structured-fast-preflight'
 import { prepareLocalWorkerStart } from './worker-start-validation'
+import type { WorkerWorktreeCreationTarget } from './worker-worktree-creation'
 
 export async function preflightLocalWorkerStartLaunch(args: {
   params: WorkerStartInput
@@ -18,6 +19,7 @@ export async function preflightLocalWorkerStartLaunch(args: {
   callerSession?: OrchestrationSessionCaller
   requestedWorktree: string
   createsWorktree: boolean
+  creationTargetFor: (callerWorktreeId: string) => Promise<WorkerWorktreeCreationTarget>
   mode: WorkerStartModeReceipt
 }) {
   const { params, runtime, callerSession, requestedWorktree, createsWorktree, mode } = args
@@ -27,11 +29,8 @@ export async function preflightLocalWorkerStartLaunch(args: {
       params.from,
       callerSession
     )
-    const parent = createsWorktree
-      ? await runtime.showManagedWorktree(`id:${callerWorkspaceId}`)
-      : undefined
     return createsWorktree
-      ? { repo: params.repo ?? parent?.repoId }
+      ? { repo: (await args.creationTargetFor(callerWorkspaceId)).repoSelector }
       : {
           worktree: requestedWorktree === 'current' ? `id:${callerWorkspaceId}` : requestedWorktree
         }

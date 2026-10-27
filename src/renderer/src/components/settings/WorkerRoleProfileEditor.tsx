@@ -8,7 +8,8 @@ import type { TuiAgent } from '../../../../shared/tui-agent'
 import { isTuiAgentEnabled } from '../../../../shared/tui-agent-selection'
 import type { WorkerRoleProfile } from '../../../../shared/orchestration-worker-roles'
 import { useWorkerRoleModelCatalog } from './use-worker-role-model-catalog'
-import { nativeChatSessionChoiceLabel } from '../native-chat/native-chat-session-option-labels'
+import { nativeChatSessionChoiceLabel } from '../../../../shared/native-chat-session-option-labels'
+import { sayNativeChatSessionOptionTranslated } from '../native-chat/native-chat-session-option-labels-text'
 import { sayAgentSessionFailureTranslated } from '../native-chat/agent-session-failure-words-text'
 import { notSignedInSentence } from '../../../../shared/agent-session-availability-sentences'
 import { Button } from '../ui/button'
@@ -230,7 +231,7 @@ export function WorkerRoleProfileEditor({
             {effort?.kind.type === 'select'
               ? effort.kind.choices.map((choice) => (
                   <SelectItem key={choice.value} value={choice.value}>
-                    {nativeChatSessionChoiceLabel(choice)}
+                    {nativeChatSessionChoiceLabel(choice, sayNativeChatSessionOptionTranslated)}
                   </SelectItem>
                 ))
               : null}

@@ -1,19 +1,29 @@
 ---
 name: orchestration
 description: >-
-  Coordinate supervised Orca workers: threaded messages, blocking ask/reply,
-  task dispatch, worker_done/escalation waits, task DAGs, decision gates,
-  coordinator loops, and decomposing work across agents. Use `orca-cli` for full
-  ownership handoffs — "hand off", "handoff", "handover", "give this to another
-  agent", "another worktree" — unless asked to supervise, monitor, or coordinate
-  a DAG, and for terminal control, lightweight terminal prompts, shell commands,
-  Orca worktree management, and reading or waiting on terminals.
+  Coordinate explicitly requested Orca workers across agents, workspaces or hosts,
+  or work under a live Orca Task/Dispatch preamble (check, ask, worker_done).
+  Use for Orca Runs, task DAGs, decision gates and durable worker ownership.
+  For ordinary delegation within Codex or Claude, prefer that agent's native
+  subagents. Use `orca-cli` for ownership handoffs and workspace/terminal control.
 ---
 
 # Orca orchestration
 
 Orchestration is Orca's structured coordination layer. It records who owns work,
 which attempt is authoritative, and when supervised work has settled.
+
+## Choose the delegation mechanism
+
+For ordinary parallel work inside the current Codex or Claude conversation, use
+the provider's native subagents when available. Asking to delegate, inspect their
+progress or collect their results alone does not request Orca orchestration.
+
+Use this skill when the user requests Orca-managed workers, a durable Run/DAG,
+cross-agent or cross-host coordination, or when a live Task/Dispatch preamble
+already makes this session a worker. `worker-start` opens a separate agent chat
+or terminal; it does not create a provider-native subagent. If native delegation
+is unavailable, explain that difference before offering independent workers.
 
 ## Outcome
 
@@ -32,13 +42,13 @@ absence included, is a checkpoint.
 
 ## Classify the role
 
-| Current context                                                                                                                                | Role                    | Route                                                                          |
-| ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------ |
-| The user explicitly asks to supervise, monitor, wait for results, track completion, coordinate a DAG, use a decision gate, or manage ask/reply | Coordinator             | Use the supervised loop below                                                  |
-| The current prompt contains a live injected preamble with Task and Dispatch IDs                                                                | Dispatched worker       | Follow the preamble and the worker obligations below                           |
-| The user asks to hand off ownership or start another agent/worktree without supervision                                                        | Handoff owner           | Use `orca-cli`; create no Run, Task, or Dispatch and do not monitor completion |
-| A message carries a legacy authority label                                                                                                     | Compatibility operator  | Load the legacy contract reference before any lifecycle mutation               |
-| No live preamble and no explicit supervision                                                                                                   | Ordinary terminal agent | Do not emit lifecycle messages; use `orca-cli` for terminal/worktree work      |
+| Current context                                                                                              | Role                    | Route                                                                          |
+| ------------------------------------------------------------------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------ |
+| The user requests Orca-managed workers, an Orca Run/DAG, cross-agent/host coordination or its decision gates | Coordinator             | Use the supervised loop below                                                  |
+| The current prompt contains a live injected preamble with Task and Dispatch IDs                              | Dispatched worker       | Follow the preamble and the worker obligations below                           |
+| The user asks to hand off ownership or start another agent/worktree without supervision                      | Handoff owner           | Use `orca-cli`; create no Run, Task, or Dispatch and do not monitor completion |
+| A message carries a legacy authority label                                                                   | Compatibility operator  | Load the legacy contract reference before any lifecycle mutation               |
+| No live preamble and no explicit supervision                                                                 | Ordinary terminal agent | Do not emit lifecycle messages; use `orca-cli` for terminal/worktree work      |
 
 Model or effort selection does not make a handoff supervised: `orca-cli`'s
 `worktree create --agent` and `agent launch` take `--model` and `--effort`, and
@@ -81,7 +91,8 @@ The injected preamble is authoritative. A dispatched worker must:
    coordinator question. Never open a local question TUI the coordinator cannot
    answer. Resume the same message ID after an ask timeout.
 2. Send heartbeats only at the cadence in the preamble. A heartbeat proves
-   liveness, not completion.
+   liveness, not completion. If a background loop sends them, restart it if it
+   expires mid-task, and stop it before `worker_done`.
 3. Read coordinator follow-ups at each natural checkpoint — before starting a
    new file, after a test run — and once more immediately before `worker_done`:
    `ORCA orchestration check --terminal <your_handle> --json`.

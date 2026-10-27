@@ -2,7 +2,8 @@ import { PrioritySemaphore } from '../../shared/priority-semaphore'
 import type { AgentSessionRecord } from '../../shared/agent-session-record'
 import {
   isLegacyAgentSessionAccountHome,
-  requireLegacyAgentSessionAccountHome
+  requireLegacyAgentSessionAccountHome,
+  type AgentSessionAccountHome
 } from '../../shared/agent-session-account-home'
 import type { AgentSessionSlashCommand } from '../../shared/agent-session-wire'
 import { structuredSlashCommands } from '../../shared/structured-agent-session-composer'
@@ -23,6 +24,8 @@ const MAX_PROBES_RUNNING = 2
 
 export type ClaudeAtRestCommandsDeps = {
   resolveWorkspacePath: (workspaceId: string) => Promise<string>
+  /** A resting chat's next start follows the selected account, not the one it was created on. */
+  resolveAccountHome?: () => Promise<AgentSessionAccountHome>
   probe?: ClaudeCommandCatalogProbe
   now?: () => number
   discover?: typeof discoverSkills
@@ -39,6 +42,7 @@ export class ClaudeAtRestCommandCatalog extends AtRestCommandCatalog {
         supportsClaudeStructuredLocation(record.location) &&
         isLegacyAgentSessionAccountHome(record.accountHome),
       resolveWorkspacePath: deps.resolveWorkspacePath,
+      ...(deps.resolveAccountHome ? { resolveAccountHome: deps.resolveAccountHome } : {}),
       scan: (record, cwd, isCurrent) => scanClaudeAtRest(deps, probes, record, cwd, isCurrent),
       ...(deps.now ? { now: deps.now } : {})
     })
