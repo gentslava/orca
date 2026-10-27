@@ -85,7 +85,7 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
     const servers = reachableServerClients(client, hostCapabilities, serversRef.current)
     return client ? new Map([['local' as const, client], ...servers]) : servers
   }, [client, hostCapabilities, serverStamp])
-  const authority = JSON.stringify([hostCapabilities, serverStamp])
+  const authority = serverStamp ? JSON.stringify([hostCapabilities, serverStamp]) : ''
   const cached = client ? snapshots.get(client) : undefined
   const belongsHere = (entry: LoadedConversations | null | undefined) =>
     entry?.client === client &&

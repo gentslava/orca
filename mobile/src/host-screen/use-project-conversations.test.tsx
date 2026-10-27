@@ -87,11 +87,11 @@ describe('host-owned conversation snapshots', () => {
   it('shows the warm list immediately on return and refreshes stale rows in the background', async () => {
     vi.useFakeTimers()
     const { client, sendRequest } = replies()
-    const initial = source(client)
+    const initial = { ...source(client), hostCapabilities: ['known-host-capability'] }
     const first = await mount(initial)
     first.unmount()
     const calls = sendRequest.mock.calls.length
-    const warm = await mount(initial)
+    const warm = await mount({ ...initial, hostCapabilities: [] })
     expect(warm.read().loading).toBe(false)
     expect(warm.read().history).toHaveLength(1)
     expect(sendRequest).toHaveBeenCalledTimes(calls)
