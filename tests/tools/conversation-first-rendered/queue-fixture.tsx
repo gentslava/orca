@@ -10,7 +10,7 @@ import type {
   SessionOptionDescriptor,
   SessionOptionValue,
   SessionOptionsSurface
-} from '../../../src/shared/native-chat-session-options'
+} from '../../../src/shared/native-chat/input/native-chat-session-options'
 
 const noop = () => undefined
 const initialOptions: SessionOptionDescriptor[] = [
