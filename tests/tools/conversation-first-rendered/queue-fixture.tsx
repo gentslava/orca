@@ -130,18 +130,24 @@ export function QueueFixture() {
         }
       : undefined,
     reorder: {
-      moveBefore: async (id, beforeId) => {
+      scope: 'fixture',
+      pending: false,
+      move: async (id, anchor) => {
         setCards((current) => {
           const moving = current.find((c) => c.messageId === id)
           if (!moving) {
             return current
           }
           const remaining = current.filter((c) => c.messageId !== id)
+          const anchorId = anchor.afterMessageId ?? anchor.beforeMessageId
           const index =
-            beforeId === null
+            anchorId == null
               ? remaining.length
-              : remaining.findIndex((c) => c.messageId === beforeId)
-          remaining.splice(index < 0 ? remaining.length : index, 0, moving)
+              : remaining.findIndex((c) => c.messageId === anchorId)
+          if (index < 0) {
+            return current
+          }
+          remaining.splice(index + (anchor.afterMessageId ? 1 : 0), 0, moving)
           return remaining.map((c, i) => ({ ...c, position: i + 1 }))
         })
       }
