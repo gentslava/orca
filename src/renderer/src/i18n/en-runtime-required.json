@@ -1424,6 +1424,7 @@
           "chatErrorEscalationKeywordChat": "chat",
           "chatErrorEscalationKeywordError": "error",
           "heartbeatKeywordHeartbeat": "heartbeat",
+          "heartbeatKeywordInterval": "interval",
           "heartbeatKeywordStalled": "stalled"
         },
         "OrchestrationSkillAgentCoverage": {
