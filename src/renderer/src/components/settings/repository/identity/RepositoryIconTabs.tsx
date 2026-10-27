@@ -2,7 +2,11 @@ import { Suspense, useState } from 'react'
 import { toast } from 'sonner'
 import { Github, Image, Link2 } from 'lucide-react'
 import type { RepoIcon } from '../../../../../../shared/repo-icon'
-import { faviconUrlFromWebsite } from '../../../../../../shared/repo-icon'
+import {
+  faviconUrlFromWebsite,
+  MAX_REPO_ICON_UPLOAD_BYTES
+} from '../../../../../../shared/repo-icon'
+import { blobToBase64, convertImageBlobToPng } from '@/lib/image-blob-png'
 import { Button } from '../../../ui/button'
 import { Input } from '../../../ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../ui/tabs'
@@ -46,9 +50,18 @@ export function RepositoryIconTabs({
       if (!result || !mountedRef.current) {
         return
       }
+      const source = await (await fetch(result.dataUrl)).blob()
+      const png = await convertImageBlobToPng(source, { maxEdge: 128 })
+      if (png.size > MAX_REPO_ICON_UPLOAD_BYTES) {
+        throw new Error('Repo icon image is too large.')
+      }
+      const dataUrl = `data:image/png;base64,${await blobToBase64(png)}`
+      if (!mountedRef.current) {
+        return
+      }
       onSetIcon({
         type: 'image',
-        src: result.dataUrl,
+        src: dataUrl,
         source: 'upload',
         label: result.fileName
       })
@@ -128,7 +141,7 @@ export function RepositoryIconTabs({
           onClick={() => void handleUploadImage()}
         >
           <Image className="size-3.5" />
-          {translate('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload PNG')}
+          {translate('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload image')}
         </Button>
         <div className="flex gap-2">
           <Input
@@ -154,7 +167,7 @@ export function RepositoryIconTabs({
         <p className="text-xs text-muted-foreground">
           {translate(
             'auto.components.settings.RepositoryIconPicker.fde066a63b',
-            'PNG uploads must be 256KB or smaller.'
+            'PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF. Up to 10MB.'
           )}
         </p>
       </TabsContent>

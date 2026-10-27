@@ -98,6 +98,23 @@ describe('convertImageBlobToPng', () => {
     }
   )
 
+  it.each([
+    ['image/svg+xml', 2000, 1000, 128, 64],
+    ['image/png', 20, 40, 20, 40]
+  ])(
+    'fits %s within an icon edge without upscaling',
+    async (type, width, height, wantWidth, wantHeight) => {
+      stubDecodedSize(width, height)
+      const { dimensions, png } = stubCanvas()
+      const source = new Blob([type === 'image/png' ? PNG_BYTES : WEBP_BYTES], { type })
+
+      await expect(convertImageBlobToPng(source, { maxEdge: 128 })).resolves.toBe(png)
+
+      expect(dimensions).toEqual({ width: wantWidth, height: wantHeight })
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:decode-owned')
+    }
+  )
+
   it('rejects excessive source bytes before creating a decode URL', async () => {
     await expect(
       convertImageBlobToPng(new Blob([new Uint8Array(CLIPBOARD_IMAGE_MAX_SOURCE_BYTES + 1)]))

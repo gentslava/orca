@@ -6345,10 +6345,10 @@
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "Usar cor {{value0}} do repositório",
-          "fde066a63b": "Envios de PNG devem ter 256KB ou menos.",
+          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO ou AVIF. Até 10 MB.",
           "cc1286e263": "Favicon",
           "03ca1a4e9b": "example.com",
-          "381b4844fd": "Enviar PNG",
+          "381b4844fd": "Enviar imagem",
           "7da623abcc": "Usado por padrão — o GitHub sempre fornece um, mesmo quando o proprietário não definiu uma imagem personalizada.",
           "39da8a10bf": "Usar Avatar do GitHub",
           "c490787d24": "Emoji",

@@ -8302,10 +8302,10 @@
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "使用 {{value0}} 仓库颜色",
-          "fde066a63b": "PNG 上传必须为 256KB 或更小。",
+          "fde066a63b": "PNG、JPEG、SVG、WebP、GIF、BMP、ICO 或 AVIF。最大 10MB。",
           "cc1286e263": "网站图标",
           "03ca1a4e9b": "example.com",
-          "381b4844fd": "上传PNG",
+          "381b4844fd": "上传图片",
           "7da623abcc": "默认使用 — GitHub 始终提供一个，即使所有者尚未设置自定义图像。",
           "39da8a10bf": "使用 GitHub 头像",
           "c490787d24": "表情符号",

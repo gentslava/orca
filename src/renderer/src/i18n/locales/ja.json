@@ -8339,10 +8339,10 @@
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "{{value0}} リポジトリカラーを使用する",
-          "fde066a63b": "PNG アップロードは 256KB 以下である必要があります。",
+          "fde066a63b": "PNG、JPEG、SVG、WebP、GIF、BMP、ICO、AVIF。最大10MB。",
           "cc1286e263": "ファビコン",
           "03ca1a4e9b": "example.com",
-          "381b4844fd": "PNG をアップロードする",
+          "381b4844fd": "画像をアップロード",
           "7da623abcc": "デフォルトで使用 — 所有者がカスタムイメージを設定していない場合でも、GitHub は常にイメージを提供します。",
           "39da8a10bf": "GitHub アバターを使用する",
           "c490787d24": "絵文字",

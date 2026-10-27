@@ -8,7 +8,7 @@ import type {
   ShellOpenExternalEditorResult,
   ShellOpenLocalPathResult
 } from '../../shared/shell-open-types'
-import { MAX_REPO_ICON_UPLOAD_BYTES } from '../../shared/repo-icon'
+import { MAX_REPO_ICON_SOURCE_BYTES } from '../../shared/repo-icon'
 import type { Store } from '../persistence'
 import {
   EXTERNAL_EDITOR_CLI_COMMAND,
@@ -32,7 +32,15 @@ import {
 export { EXTERNAL_EDITOR_CLI_COMMAND }
 
 const REPO_ICON_IMAGE_MIME_TYPES: Record<string, string> = {
-  '.png': 'image/png'
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.bmp': 'image/bmp',
+  '.ico': 'image/x-icon',
+  '.avif': 'image/avif'
 }
 
 async function openInFileManager(
@@ -254,7 +262,14 @@ export function registerShellHandlers(
     async (): Promise<{ dataUrl: string; fileName: string } | null> => {
       const result = await dialog.showOpenDialog({
         properties: ['openFile'],
-        filters: [{ name: 'Repo icon images', extensions: ['png'] }]
+        filters: [
+          {
+            name: 'Repo icon images',
+            extensions: Object.keys(REPO_ICON_IMAGE_MIME_TYPES).map((extension) =>
+              extension.slice(1)
+            )
+          }
+        ]
       })
       if (result.canceled || result.filePaths.length === 0) {
         return null
@@ -264,12 +279,12 @@ export function registerShellHandlers(
       const extension = extname(filePath).toLowerCase()
       const mimeType = REPO_ICON_IMAGE_MIME_TYPES[extension]
       if (!mimeType) {
-        throw new Error('Repo icons must be PNG files.')
+        throw new Error('Choose a PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF image.')
       }
 
       const stats = await stat(filePath)
-      if (stats.size > MAX_REPO_ICON_UPLOAD_BYTES) {
-        throw new Error('Repo icon image must be 256KB or smaller.')
+      if (!stats.isFile() || stats.size > MAX_REPO_ICON_SOURCE_BYTES) {
+        throw new Error('Repo icon image must be 10MB or smaller.')
       }
 
       const buffer = await readFile(filePath)
