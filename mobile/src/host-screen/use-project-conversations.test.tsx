@@ -75,6 +75,7 @@ async function mount(initial: ProjectConversationsSource) {
       }
       return observed.current
     },
+    unmount: () => act(() => tree?.unmount()),
     update: async (next: ProjectConversationsSource) => {
       props = next
       await act(async () => tree?.update(createElement(Probe)))
@@ -83,6 +84,65 @@ async function mount(initial: ProjectConversationsSource) {
 }
 
 describe('host-owned conversation snapshots', () => {
+  it('shows the warm list immediately on return and refreshes stale rows in the background', async () => {
+    vi.useFakeTimers()
+    const { client, sendRequest } = replies()
+    const initial = source(client)
+    const first = await mount(initial)
+    first.unmount()
+    const calls = sendRequest.mock.calls.length
+    const warm = await mount(initial)
+    expect(warm.read().loading).toBe(false)
+    expect(warm.read().history).toHaveLength(1)
+    expect(sendRequest).toHaveBeenCalledTimes(calls)
+    warm.unmount()
+    await vi.advanceTimersByTimeAsync(15_000)
+    let settle: (reply: RpcResponse) => void = () => {}
+    sendRequest.mockImplementation((method) =>
+      method === 'aiVault.listSessions'
+        ? new Promise((resolve) => {
+            settle = resolve
+          })
+        : Promise.resolve({
+            id: 'next',
+            ok: true,
+            result: method === 'status.get' ? { capabilities: ['aiVault.v1'] } : { tabs: [] }
+          })
+    )
+    const returned = await mount(initial)
+    expect(returned.read().loading).toBe(false)
+    expect(returned.read().history).toHaveLength(1)
+    await act(async () =>
+      settle({
+        id: 'fresh',
+        ok: true,
+        result: { sessions: [], issues: [], includesStructuredSessions: true }
+      })
+    )
+    expect(returned.read().history).toEqual([])
+    expect(returned.read().tabs.get(getWorktreeRowIdentity(conversationWorkspace()))).toEqual([])
+  })
+
+  it('does not restore a cached list after a host or generation change while unmounted', async () => {
+    const original = replies()
+    const client = createStableLogicalRpcClient(original.client, 'lan')
+    const first = await mount(source(client))
+    first.unmount()
+    const replacement = replies()
+    replacement.sendRequest.mockImplementation(() => new Promise(() => {}))
+    await client.migrateTo(replacement.client, 'relay')
+    const returned = await mount(source(client))
+    expect(returned.read().loading).toBe(true)
+    expect(returned.read().history).toEqual([])
+    returned.unmount()
+    const other = await mount({ ...source(original.client), hostId: 'another-host' })
+    other.unmount()
+    original.sendRequest.mockImplementation(() => new Promise(() => {}))
+    const changed = await mount(source(original.client))
+    expect(changed.read().history).toEqual([])
+    expect(changed.read().loading).toBe(true)
+  })
+
   it('invalidates connected cutover snapshots immediately and continues polling the new authority', async () => {
     vi.useFakeTimers()
     const original = replies()

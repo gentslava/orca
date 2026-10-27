@@ -1,5 +1,6 @@
 import { AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY } from '../../../src/shared/ai-vault-runtime-capabilities'
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import type { RpcClient } from '../transport/rpc-client'
 import type { ExecutionHostId } from '../../../src/shared/execution-host'
 import {
   rpcClientForExecutionHost,
@@ -34,6 +35,19 @@ const EMPTY: ConversationSnapshot = {
   complete: false,
   failed: false
 }
+
+type LoadedConversations = {
+  client: RpcClient
+  hostId: string | undefined
+  generation: number
+  authority: string
+  workspaceStamp: string
+  at: number
+  value: ConversationSnapshot
+}
+
+const snapshots = new WeakMap<RpcClient, LoadedConversations>()
+const REFRESH_MS = 15_000
 
 export type ProjectConversationsSource = Pick<
   HostScreenController,
@@ -71,12 +85,15 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
     const servers = reachableServerClients(client, hostCapabilities, serversRef.current)
     return client ? new Map([['local' as const, client], ...servers]) : servers
   }, [client, hostCapabilities, serverStamp])
-  const [loaded, setLoaded] = useState<{
-    client: typeof client
-    hostId: typeof hostId
-    generation: number
-    value: ConversationSnapshot
-  } | null>(null)
+  const authority = JSON.stringify([hostCapabilities, serverStamp])
+  const cached = client ? snapshots.get(client) : undefined
+  const belongsHere = (entry: LoadedConversations | null | undefined) =>
+    entry?.client === client &&
+    entry.hostId === hostId &&
+    entry.generation === generation &&
+    entry.authority === authority
+  const [loaded, setLoaded] = useState<LoadedConversations | null>(null)
+  const retained = belongsHere(loaded) ? loaded : belongsHere(cached) ? cached : null
   const [refreshing, setRefreshing] = useState(false)
   const [revision, setRevision] = useState(0)
   const onRefresh = useCallback(() => {
@@ -92,6 +109,15 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
     let stale = false
     let running = false
     let firstRefresh = true
+    const cached = snapshots.get(client)
+    const fresh =
+      cached !== undefined &&
+      cached.hostId === hostId &&
+      cached.generation === generation &&
+      cached.authority === authority &&
+      cached.workspaceStamp === workspaceStamp &&
+      !cached.value.failed &&
+      Date.now() - cached.at < REFRESH_MS
     const current = () => !stale && generation === (client.getGeneration?.() ?? 0)
     const refresh = async () => {
       if (running) {
@@ -178,14 +204,16 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
         }
         await historyRequests
         if (current()) {
-          setLoaded((previous) => {
+          const previous = snapshots.get(client)
+          const value = (() => {
             const tabs = new Map(next.tabs)
             const capabilities = new Map(next.capabilities)
             let history = next.history
             if (
               previous?.client === client &&
               previous.hostId === hostId &&
-              previous.generation === generation
+              previous.generation === generation &&
+              previous.authority === authority
             ) {
               for (const source of failedSources) {
                 const retained = previous.value.capabilities.get(source)
@@ -212,8 +240,19 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
                 )
               ]
             }
-            return { client, hostId, generation, value: { ...next, tabs, capabilities, history } }
-          })
+            return { ...next, tabs, capabilities, history }
+          })()
+          const loaded = {
+            client,
+            hostId,
+            generation,
+            authority,
+            workspaceStamp,
+            at: Date.now(),
+            value
+          }
+          snapshots.set(client, loaded)
+          setLoaded(loaded)
         }
       } finally {
         running = false
@@ -222,18 +261,27 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
         }
       }
     }
-    void refresh()
-    const timer = setInterval(() => void refresh(), 15_000)
+    if (!fresh || revision > 0) {
+      void refresh()
+    }
+    const timer = setInterval(() => void refresh(), REFRESH_MS)
     return () => {
       stale = true
       clearInterval(timer)
     }
-  }, [client, connState, hostId, generation, sources, workspaceStamp, hostCapabilities, revision])
+  }, [
+    client,
+    connState,
+    hostId,
+    generation,
+    sources,
+    workspaceStamp,
+    hostCapabilities,
+    revision,
+    authority
+  ])
 
-  const snapshot =
-    loaded?.client === client && loaded.hostId === hostId && loaded.generation === generation
-      ? loaded.value
-      : EMPTY
+  const snapshot = retained?.value ?? EMPTY
   return {
     ...snapshot,
     generation,
