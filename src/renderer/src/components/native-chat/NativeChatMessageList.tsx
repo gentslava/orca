@@ -1,3 +1,4 @@
+import { copyChatMathSelection } from '../sidebar/chat-markdown-math-selection'
 import {
   nativeChatTranscriptOuterClass,
   NATIVE_CHAT_TRANSCRIPT_COLUMN_CLASS
@@ -96,8 +97,8 @@ export function NativeChatMessageList({
 }: {
   ref?: Parameters<typeof useNativeChatMessageListHandle>[0]
   session: NativeChatLiveSession
-  journalItems?: readonly AgentJournalRenderItem[]
   /** With the items, what places each row in its turn (structured lane). */
+  journalItems?: readonly AgentJournalRenderItem[]
   journalSubmissions?: readonly AgentJournalSubmission[]
   /** The host's newest turn record, which places a live turn whose record is not loaded. */
   journalLatestTurn?: AgentSessionLatestTurn | null
@@ -295,11 +296,14 @@ export function NativeChatMessageList({
     jumpToLoaded: requestRailJump
   })
   const { start: startHistoryJump, abort: beginNavigation } = railHistoryJump
+  const onReaderScroll = useCallback(() => {
+    navigationSequence.current += 1
+    beginNavigation()
+  }, [beginNavigation])
   // Abort paging navigation before any new jump so late history cannot pull the reader back.
   const selectRailItem = useCallback(
     (item: NativeChatRailItem) => {
-      navigationSequence.current += 1
-      beginNavigation()
+      onReaderScroll()
       readerLeavesEnd()
       if (item.slotIndex === null) {
         startHistoryJump(item)
@@ -307,7 +311,7 @@ export function NativeChatMessageList({
       }
       requestRailJump(item)
     },
-    [beginNavigation, readerLeavesEnd, requestRailJump, startHistoryJump]
+    [onReaderScroll, readerLeavesEnd, requestRailJump, startHistoryJump]
   )
   const revealDiff = useCallback(
     (target: NativeChatDiffTarget) => {
@@ -322,14 +326,9 @@ export function NativeChatMessageList({
     [beginNavigation, readerLeavesEnd, openSubagentSections]
   )
   const jumpToLatest = useCallback(() => {
-    navigationSequence.current += 1
-    beginNavigation()
+    onReaderScroll()
     scrollToBottom()
-  }, [beginNavigation, scrollToBottom])
-  const onReaderScroll = useCallback(() => {
-    navigationSequence.current += 1
-    beginNavigation()
-  }, [beginNavigation])
+  }, [onReaderScroll, scrollToBottom])
   const readerInput = useNativeChatReaderScrollInput(scrollRef, {
     onReaderScroll,
     onTakeScroll: transcriptWindow.cancelAlign,
@@ -370,6 +369,7 @@ export function NativeChatMessageList({
           <div
             ref={scrollRef}
             onScroll={onScroll}
+            onCopy={copyChatMathSelection}
             {...readerInput.scrollerProps}
             // Measurement finds this named scroll root independently of utility classes.
             data-native-chat-scroll

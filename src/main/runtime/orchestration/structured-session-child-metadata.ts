@@ -1,4 +1,4 @@
-import type { AgentSessionRecord } from '../../../shared/agent-session-record'
+import type { AgentSessionConversationView } from '../../../shared/agent-session-conversation-view'
 import { isStructuredAgentId } from '../../../shared/agent-session-provider-handle-encoding'
 import { parseRoutableExecutionHostId } from '../../../shared/execution-host'
 import { isTuiAgent } from '../../../shared/tui-agent-config'
@@ -21,7 +21,7 @@ export function structuredSessionChildMetadata(args: {
   worker: WorkerDispatchRow | undefined
   resource: WorkerTerminalResourceRow | undefined
   federation: FederatedDispatchRow | undefined
-  session: AgentSessionRecord | null
+  session: Pick<AgentSessionConversationView, 'provider' | 'location'> | null
 }): OrchestrationChildMetadata | undefined {
   const scopes = [args.dispatch.host_scope, args.resource?.host_scope]
     .map(readWorkerTerminalHostScope)
@@ -95,7 +95,9 @@ function scopeHost(
   }
 }
 
-function recordHost(record: AgentSessionRecord): OrchestrationChildExecutionHost | undefined {
+function recordHost(
+  record: Pick<AgentSessionConversationView, 'location'>
+): OrchestrationChildExecutionHost | undefined {
   const host = parseRoutableExecutionHostId(record.location.executionHostId)
   if (host?.kind === 'local') {
     return record.location.wslDistro

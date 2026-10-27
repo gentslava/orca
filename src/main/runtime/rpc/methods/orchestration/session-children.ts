@@ -1,6 +1,7 @@
 import { isOrcaSessionId } from '../../../../../shared/orca-session-address'
 import { SessionChildrenParams } from '../../../../../shared/rpc-contract/orchestration-params'
 import { structuredSessionChildWorkers } from '../../../orchestration/structured-session-child-workers'
+import { conversationRecordReader } from '../../../orchestration/structured-session-lineage'
 import { OrchestrationError } from '../../../orchestration/orchestration-error'
 import { defineMethod } from '../../core'
 import { requireInstalledStructuredHost } from '../structured-agent-session-gate'
@@ -22,7 +23,7 @@ export const ORCHESTRATION_SESSION_CHILDREN_METHODS = [
         ...params,
         sessionId: params.sessionId,
         db: ctx.runtime.getOrchestrationDb(),
-        records: host.deps.store
+        records: conversationRecordReader(host.deps.store)
       })
     }
   })

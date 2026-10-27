@@ -1,4 +1,4 @@
-import { createElement as h, useMemo, type ReactElement, type ReactNode } from 'react'
+import { createElement as h, Fragment, useMemo, type ReactElement, type ReactNode } from 'react'
 import {
   act,
   create,
@@ -236,6 +236,7 @@ function Chat(props: {
   live: boolean
   joined?: number
   runs?: boolean
+  status?: boolean
 }): ReactElement {
   const folded = useMemo(
     () => foldMobileNativeChatMessages(props.messages, 'claude'),
@@ -262,13 +263,22 @@ function Chat(props: {
     onEndDistance: props.following === undefined ? tail.pageListProps.onEndDistance : () => {},
     renderItem: ({ item, index }) => {
       const { workRun, joinsWorkRun } = turns.resolveRow(index, item)
-      return h(Row, {
+      const row = h(Row, {
         message: item,
         rowKey: keys.keyOf(item),
         joined: item === folded.at(-1) ? props.joined : 0,
         workRun,
         joinsWorkRun
       })
+      // Turn status draws beside its row, untagged.
+      return props.status
+        ? h(
+            Fragment,
+            null,
+            row,
+            ...Array.from({ length: 5 }, (_, i) => h('span', { key: i }, 'Done'))
+          )
+        : row
     },
     layoutKey: 'layout',
     contentContainerStyle: null,
@@ -286,7 +296,7 @@ function Chat(props: {
 
 function mount(
   messages: NativeChatMessage[],
-  options: { following?: boolean; live: boolean; runs?: boolean } = {
+  options: { following?: boolean; live: boolean; runs?: boolean; status?: boolean } = {
     following: false,
     live: false
   }
@@ -446,8 +456,11 @@ it.each([
     }))
     const initial = window === 'automatic-start' ? 40 : 200
     const chat0 = mount(rows.slice(0, initial), { live: false })
-    if (window === 'automatic' || window === 'automatic-start') {
-      expect(chat0.rows()[0]).toBe(mobileNativeChatRowId(window === 'automatic' ? 'm164' : 'm0'))
+    if (window === 'automatic') {
+      expect(chat0.rows().length).toBeGreaterThan(24)
+      expect(chat0.drawn(mobileNativeChatRowId('m176'))).toBe(1)
+    } else if (window === 'automatic-start') {
+      expect(chat0.rows()[0]).toBe(mobileNativeChatRowId('m0'))
     }
     chat0.read(() => (chat0.scroller.scrollTop = -150))
     chat0.show(rows.slice(0, initial + 30))
@@ -486,7 +499,7 @@ it.each([40, 200])('bounds an automatically expanded %i-row chat while following
   }
 })
 
-it('keeps an explicitly opened from-start window after following resumes', () => {
+it('bounds an explicitly opened from-start window after following resumes', () => {
   const rows = Array.from({ length: 100 }, (_, i) => ({
     ...say(`m${i}`, 'assistant', ''),
     blocks: Array.from({ length: 5 }, () => ({ type: 'text' as const, text: `Message ${i}` }))
@@ -498,7 +511,7 @@ it('keeps an explicitly opened from-start window after following resumes', () =>
   chat0.press('header')
   chat0.show(rows)
 
-  expect(chat0.rows()).toEqual(rows.map((row) => mobileNativeChatRowId(row.id)))
+  expect(chat0.rows()).toEqual(rows.slice(-24).map((row) => mobileNativeChatRowId(row.id)))
   expect(chat0.scroller.scrollTop).toBe(0)
 })
 
@@ -547,6 +560,29 @@ it('opens a chat whose newest rows are short and older ones tall without drawing
   )
   const chat0 = mount([...tall, ...short], { following: true, live: false })
   expect(chat0.drawn(mobileNativeChatRowId('t11'))).toBe(1)
+})
+
+it('draws a bounded tail again once a reader who scrolled back through history returns to it', () => {
+  // Rows and their status lines are sized so a cut that drops a row's status would draw it back.
+  const messages = Array.from({ length: 200 }, (_, i) => ({
+    ...say(`m${i}`, i % 2 ? 'assistant' : 'user', ''),
+    blocks: [0, 1].map((line) => ({ type: 'text' as const, text: `message ${i}.${line}` }))
+  }))
+  const options = { following: true, live: false, status: true }
+  const chat0 = mount(messages, options)
+  const tail = chat0.rows().length
+  options.following = false
+  chat0.show(messages)
+  for (let page = 0; page < 8; page += 1) {
+    chat0.read(() => chat0.scroller.showFrom(0))
+  }
+  expect(chat0.rows().length).toBeGreaterThan(tail * 2)
+
+  options.following = true
+  chat0.show(messages)
+  chat0.read(() => (chat0.scroller.scrollTop = 0))
+  expect(chat0.rows().length).toBeLessThanOrEqual(tail)
+  expect(chat0.rows().at(-1)).toBe(mobileNativeChatRowId('m199'))
 })
 
 it('holds a row the reader taps open in place, and a reply below waits out a flick', () => {

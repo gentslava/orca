@@ -14,10 +14,14 @@ import {
   ANTIGRAVITY_VERSION_TIMEOUT_MS,
   antigravityCommandName
 } from './antigravity-usage-command'
-import { parseAntigravityUsageStdout, stdoutShowsModelTurn } from './antigravity-usage-response'
-
+import {
+  parseAntigravityUsageStdout,
+  readAntigravityErrorEnvelope,
+  stdoutShowsModelTurn
+} from './antigravity-usage-response'
 import {
   classifyAntigravityUsageFailure,
+  formatAgyErrorForDisplay,
   stderrShowsInteractiveSignIn
 } from './antigravity-usage-error'
 
@@ -196,13 +200,6 @@ export async function fetchAntigravityRateLimits(
   }
   if (!reading) {
     const failure = classifyAntigravityUsageFailure(`${result.stdout}\n${result.stderr}`)
-    if (failure?.reason === 'location-unavailable') {
-      return unavailable(
-        'Antigravity usage is not available. The Antigravity CLI reports that Antigravity is not currently available in your location.',
-        failure.failureKind,
-        now()
-      )
-    }
     if (failure?.signedOut) {
       return unavailable(
         'Antigravity usage is not available. Sign in with `agy` to report this account’s quota.',
@@ -218,8 +215,10 @@ export async function fetchAntigravityRateLimits(
         now()
       )
     }
-  }
-  if (!reading) {
+    const agyError = formatAgyErrorForDisplay(readAntigravityErrorEnvelope(result.stdout) ?? '')
+    if (agyError) {
+      return failed(`Antigravity usage is not available. agy reported: ${agyError}`, 'parse', now())
+    }
     // runProcess returns nonzero exit as data; classify signed-out first and add exit detail only when payload is missing.
     const exitDetail = result.code === 0 || result.code === null ? '' : ` (exit ${result.code})`
     return failed(

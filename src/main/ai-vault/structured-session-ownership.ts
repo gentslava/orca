@@ -1,5 +1,5 @@
 import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
-import { agentSessionLeaseAdmitsWriter } from '../../shared/agent-session-lease-adjudication'
+import { agentSessionOwnerObservationIsLive } from '../../shared/agent-session-lease-adjudication'
 import { defaultAgentChatLabel } from '../../shared/agent-session/agent-session-chat-label'
 import type { AiVaultListResult } from '../../shared/ai-vault-types'
 import { historyRowFallsBackToChatLabel } from '../../shared/structured-chat-row-name'
@@ -56,7 +56,7 @@ export function projectStructuredAiVaultSessions(
   return options?.includeStructuredSessions && options.childSessionIds !== null
     ? projectDurableAiVaultConversations(
         projected,
-        getStructuredAgentSessionHost()?.deps.store.listRecords() ?? [],
+        getStructuredAgentSessionHost()?.deps.store.listConversations() ?? [],
         opensChat,
         options.childSessionIds,
         getStructuredAgentSessionHost()?.deps.journalDatabase
@@ -228,7 +228,7 @@ function listOwnership(localOnly = false): StructuredProviderSessionOwnership[] 
   return host
     ? listStructuredProviderSessionOwnership(
         host.deps.store
-          .listRecords()
+          .listConversations()
           .filter(
             (record) => !localOnly || record.location.executionHostId === LOCAL_EXECUTION_HOST_ID
           )
@@ -289,7 +289,7 @@ function parseResumeInvocations(command: string): ResumeInvocation[] {
 
 function refuseLegacyWriter(ownership: StructuredProviderSessionOwnership): never {
   throw new Error(
-    agentSessionLeaseAdmitsWriter(ownership.lease)
+    agentSessionOwnerObservationIsLive(ownership.ownerObservation)
       ? 'agent_session_conflict'
       : 'agent_session_ownership_unknown'
   )

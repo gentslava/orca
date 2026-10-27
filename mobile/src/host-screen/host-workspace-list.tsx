@@ -138,6 +138,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
       ) : (
         <HostWorkspaceListStates
           connState={connState}
+          connectionVerdict={controller.connectionVerdict}
           // A feed-built list is loaded once the feed installs; rows draw before worktree.ps answers.
           worktreesLoaded={
             controller.feed ? controller.feed.kind === 'ready' : state.worktreesLoaded

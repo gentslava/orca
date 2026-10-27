@@ -1,13 +1,13 @@
 import { useLayoutEffect, useRef } from 'react'
-import { useMobileNativeChatAskDismiss } from './use-mobile-native-chat-ask-dismiss'
+import { useMobileNativeChatAskDismiss } from './native-chat/input/use-mobile-native-chat-ask-dismiss'
 import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
 import { useMobileNativeChatFileSearch } from './native-chat/composer/use-mobile-native-chat-file-search'
 import { useMobileNativeChatMessageSend } from './use-mobile-native-chat-message-send'
 import { mobileNativeChatStreamPreview } from './native-chat/mobile-native-chat-streaming-gate'
-import { useMobileNativeChatSessionOptionController } from './use-mobile-native-chat-session-option-controller'
+import { useMobileNativeChatSessionOptionController } from './native-chat/input/use-mobile-native-chat-session-option-controller'
 import { useMobileNativeChatSessionLane } from './use-mobile-native-chat-session-lane'
 import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
-import { useMobileNativeChatPrompts } from './use-mobile-native-chat-prompts'
+import { useMobileNativeChatPrompts } from './native-chat/input/use-mobile-native-chat-prompts'
 import { useNativeChatAcceptedAction } from './use-native-chat-action-outcomes'
 import { useThrottledLatestValue } from './use-throttled-latest-value'
 import type {
@@ -16,7 +16,7 @@ import type {
 } from './mobile-native-chat-controller-contract'
 import { useMobileBridgeChatPromptWrites } from './use-mobile-bridge-chat-prompt-writes'
 import { useMobileNativeChatActiveResolution } from './use-mobile-native-chat-active-resolution'
-import { useMobileNativeChatPromptCards } from './use-mobile-native-chat-prompt-cards'
+import { useMobileNativeChatPromptCards } from './native-chat/input/use-mobile-native-chat-prompt-cards'
 import { mobileNativeChatScopeKey } from './native-chat/mobile-native-chat-scope-key'
 
 export type { MobileNativeChatController } from './mobile-native-chat-controller-contract'
@@ -41,7 +41,6 @@ export function useMobileNativeChatController(
     onSendResolved
   } = args
   const {
-    activeChatAgent,
     activeChatAgentConfirmed,
     activeChatAgentRef,
     activeChatResolution,
@@ -62,22 +61,20 @@ export function useMobileNativeChatController(
 
   // Fixed hook order mounts the lane before drafts; defer Edit’s append through a ref and delete nothing until copying succeeds.
   const appendComposerTextRef = useRef<(text: string) => boolean>(() => false)
-  const { structuredSession: structuredNativeChat, session: nativeChatSession } =
-    useMobileNativeChatSessionLane({
-      client,
-      structured: activeChatStructured,
-      agent: activeChatAgent,
-      resolvedAgent: activeChatResolution?.agent ?? null,
-      transcriptPath: activeChatResolution?.transcriptPath ?? null,
-      sessionId: activeChatSessionId,
-      sourceIdentity,
-      enabled: showNativeChat,
-      connState,
-      hostSupport: agentSessionHostSupport,
-      appendComposerTextRef,
-      onSendError,
-      onActionResolved: onSendResolved
-    })
+  const nativeChatLane = useMobileNativeChatSessionLane({
+    client,
+    hostId,
+    structured: activeChatStructured,
+    resolution: activeChatResolution,
+    sourceIdentity,
+    enabled: showNativeChat,
+    connState,
+    hostSupport: agentSessionHostSupport,
+    appendComposerTextRef,
+    onSendError,
+    onActionResolved: onSendResolved
+  })
+  const { structuredSession: structuredNativeChat, session: nativeChatSession } = nativeChatLane
   const {
     composerText: chatComposerText,
     setComposerText: setChatComposerText,
@@ -194,6 +191,7 @@ export function useMobileNativeChatController(
 
   const structuredNativeChatSend = useMobileStructuredNativeChatSendBridge({
     agent: activeChatResolution?.agent,
+    sessionCommands: nativeChatLane.sessionCommands.commands,
     sendStructured: structuredNativeChat.sendWithOutcome,
     isModelWritePending: structuredNativeChat.isModelWritePending,
     captureSendOrigin,
@@ -306,6 +304,7 @@ export function useMobileNativeChatController(
       : handleNativeChatSendWithOutcome,
     readSeededLaunchDraft,
     nativeChatSessionOptions,
+    nativeChatSessionCommands: nativeChatLane.sessionCommands,
     nativeChatAcceptsImages: !activeChatStructured || structuredNativeChat.acceptsImages
   }
 }

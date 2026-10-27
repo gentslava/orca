@@ -1,3 +1,4 @@
+import { agentSessionConversationView } from '../../shared/agent-session-conversation-view'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { agentSessionRecordFixture } from '../../shared/agent-session-record.test-fixture'
 import type { AgentSessionRecord } from '../../shared/agent-session-record'
@@ -29,7 +30,10 @@ beforeEach(() => {
   record = agentSessionRecordFixture()
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: projection reads only this host's catalog and journal database.
   setStructuredAgentSessionHost({
-    deps: { store: { listRecords: () => [record] }, journalDatabase: { db } }
+    deps: {
+      store: { listConversations: () => [agentSessionConversationView(record)] },
+      journalDatabase: { db }
+    }
   } as never)
 })
 afterEach(() => {

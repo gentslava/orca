@@ -17,7 +17,7 @@ import { agentSessionFailureWords } from '../../../src/shared/agent-session-fail
 import { structuredQuestionTranscript } from '../../../src/shared/structured-agent-question-projection'
 import type { NativeChatResolvedPrompt } from '../../../src/shared/native-chat-resolution-receipt'
 import { colors, typography } from '../theme/mobile-theme'
-import { ANSWERED_PROMPT_ITEMS } from './mobile-native-chat-answered-prompts.test-fixture'
+import { ANSWERED_PROMPT_ITEMS } from './native-chat/input/mobile-native-chat-answered-prompts.test-fixture'
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
 import { styles } from './mobile-native-chat-message-styles'
 

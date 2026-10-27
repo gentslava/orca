@@ -11,6 +11,11 @@ import {
   getChatErrorEscalationSearchKeywords,
   getChatErrorEscalationTitle
 } from './chat-error-escalation-copy'
+import {
+  getOrchestrationHeartbeatDescription,
+  getOrchestrationHeartbeatSearchKeywords,
+  getOrchestrationHeartbeatTitle
+} from './orchestration-heartbeat-copy'
 
 type OrchestrationPaneSearchOptions = {
   includeLocalRuntimeSettings?: boolean
@@ -18,9 +23,11 @@ type OrchestrationPaneSearchOptions = {
 
 const NESTED_WORKER_DEPTH_SEARCH_ENTRY_ID = 'nested-worker-depth'
 const CHAT_ERROR_ESCALATION_SEARCH_ENTRY_ID = 'chat-error-escalation'
+const HEARTBEAT_SEARCH_ENTRY_ID = 'worker-heartbeats'
 const LOCAL_RUNTIME_SEARCH_ENTRY_IDS: ReadonlySet<string | undefined> = new Set([
   'worker-roles',
   NESTED_WORKER_DEPTH_SEARCH_ENTRY_ID,
+  HEARTBEAT_SEARCH_ENTRY_ID,
   CHAT_ERROR_ESCALATION_SEARCH_ENTRY_ID
 ])
 
@@ -118,6 +125,12 @@ const getAllOrchestrationPaneSearchEntries = createLocalizedCatalog(() => [
     title: getNestedWorkerDepthTitle(),
     description: getNestedWorkerDepthDescription(),
     keywords: getNestedWorkerDepthSearchKeywords()
+  },
+  {
+    id: HEARTBEAT_SEARCH_ENTRY_ID,
+    title: getOrchestrationHeartbeatTitle(),
+    description: getOrchestrationHeartbeatDescription(),
+    keywords: getOrchestrationHeartbeatSearchKeywords()
   },
   {
     id: CHAT_ERROR_ESCALATION_SEARCH_ENTRY_ID,

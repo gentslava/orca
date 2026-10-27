@@ -228,7 +228,7 @@ describe('mobile RPC allowlist', () => {
     expect(mobileRpcAllowlist().has('agentSession.attach')).toBe(false)
   })
 
-  it('lets a phone upload chat attachments and read their previews', () => {
+  it('lets a phone upload chat attachments and read stored images back', () => {
     expect(
       [...mobileRpcAllowlist()].filter((method) => method.startsWith('agentSessionAttachment.'))
     ).toEqual([

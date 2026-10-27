@@ -1,3 +1,4 @@
+import { agentSessionConversationView } from '../../shared/agent-session-conversation-view'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AgentSessionRecord } from '../../shared/agent-session-record'
 import {
@@ -29,7 +30,9 @@ const EMPTY: AiVaultListResult = { sessions: [], issues: [], scannedAt: '2026-10
 
 function install(records: readonly AgentSessionRecord[]): void {
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: list projection reads only the durable catalog on this host.
-  setStructuredAgentSessionHost({ deps: { store: { listRecords: () => records } } } as never)
+  setStructuredAgentSessionHost({
+    deps: { store: { listConversations: () => records.map(agentSessionConversationView) } }
+  } as never)
 }
 
 function retained(provider = 'claude'): AgentSessionRecord {

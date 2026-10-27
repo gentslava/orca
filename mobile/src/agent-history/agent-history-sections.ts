@@ -3,11 +3,25 @@ import {
   groupAiVaultSessions
 } from '../../../src/shared/ai-vault-session-filters'
 import { AI_VAULT_AGENTS } from '../../../src/shared/ai-vault-types'
-import type { AiVaultScope, AiVaultSession } from '../../../src/shared/ai-vault-types'
+import type {
+  AiVaultScanIssue,
+  AiVaultScope,
+  AiVaultSession
+} from '../../../src/shared/ai-vault-types'
 import {
   buildMobileAgentHistoryCard,
   type MobileAgentHistoryCard
 } from './agent-history-session-card'
+
+export type AgentHistoryScreenState =
+  | { kind: 'loading' }
+  | { kind: 'unsupported' }
+  | { kind: 'error'; message: string }
+  | {
+      kind: 'ready'
+      sessions: AiVaultSession[]
+      issues: AiVaultScanIssue[]
+    }
 
 // SectionList requires data field; naming it cards renders no rows.
 export type MobileAgentHistorySection = {
@@ -16,7 +30,7 @@ export type MobileAgentHistorySection = {
   data: MobileAgentHistoryCard[]
 }
 
-// Host scopePaths only widen discovery, so narrow Workspace/Project by cwd prefix client-side (active path / same-repo siblings); All stays unfiltered.
+// Host scopePaths only widen discovery, so narrow Workspace/Project by cwd prefix client-side (desktop's scope paths); All stays unfiltered.
 // Mobile lacks project-key metadata; hideEmptySessions matches desktop default.
 export function buildMobileAgentHistorySections(
   sessions: readonly AiVaultSession[],

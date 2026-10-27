@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import type { StructuredAgentId } from '../../../src/shared/agent-session-provider-handle'
+import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session-wire'
 import { isStructuredAgentSessionComposerCommand } from '../../../src/shared/structured-agent-session-composer'
 import type { MobileNativeChatSendOutcome } from './native-chat/mobile-native-chat-send'
 import type { MobileNativeChatSendOrigin } from './native-chat/mobile-native-chat-pending-echo'
@@ -7,6 +8,7 @@ import type { StructuredMobileSendAttachment } from './use-mobile-structured-sen
 
 export function useMobileStructuredNativeChatSendBridge(args: {
   agent: StructuredAgentId | undefined
+  sessionCommands?: readonly AgentSessionSlashCommand[]
   sendStructured: (
     text: string,
     images?: string[],
@@ -34,7 +36,8 @@ export function useMobileStructuredNativeChatSendBridge(args: {
     isModelWritePending,
     onSendError,
     restoreRejectedDraft,
-    sendStructured
+    sendStructured,
+    sessionCommands
   } = args
   const sendWithOutcome = useCallback(
     async (
@@ -43,7 +46,7 @@ export function useMobileStructuredNativeChatSendBridge(args: {
       deadline?: number,
       attachments?: readonly StructuredMobileSendAttachment[]
     ): Promise<MobileNativeChatSendOutcome> => {
-      const isHostCommand = isStructuredAgentSessionComposerCommand(text, agent)
+      const isHostCommand = isStructuredAgentSessionComposerCommand(text, agent, sessionCommands)
       if (!isHostCommand && isModelWritePending?.()) {
         onSendError('Message not sent (model selection is still updating)')
         return 'rejected'
@@ -75,7 +78,8 @@ export function useMobileStructuredNativeChatSendBridge(args: {
       isModelWritePending,
       onSendError,
       restoreRejectedDraft,
-      sendStructured
+      sendStructured,
+      sessionCommands
     ]
   )
   const send = useCallback(

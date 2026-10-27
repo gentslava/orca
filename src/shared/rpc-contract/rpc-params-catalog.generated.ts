@@ -183,6 +183,7 @@ import {
   ConnectorAnswer,
   ConnectorCancel,
   ConnectorPendingPrompt,
+  ConnectorReply,
   ConnectorSend,
   ConnectorStart,
   ConnectorWatch
@@ -491,7 +492,8 @@ import {
   PreflightAgentDetection,
   PreflightCheck,
   PreflightDetectRemoteAgents,
-  PreflightDetectRemoteWindowsTerminalCapabilities
+  PreflightDetectRemoteWindowsTerminalCapabilities,
+  PreflightProjectAgentDetection
 } from './preflight-params'
 import {
   ProjectHostSetupClone,
@@ -923,6 +925,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'connector.answer': ConnectorAnswer,
   'connector.cancel': ConnectorCancel,
   'connector.pendingPrompt': ConnectorPendingPrompt,
+  'connector.reply': ConnectorReply,
   'connector.send': ConnectorSend,
   'connector.start': ConnectorStart,
   'connector.watch': ConnectorWatch,
@@ -1273,7 +1276,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'plugins.readPanelEntry': PluginReadPanelEntryParams,
   'plugins.setEnabled': PluginSetEnabledParams,
   'preflight.check': PreflightCheck,
-  'preflight.detectAgents': PreflightAgentDetection,
+  'preflight.detectAgents': PreflightProjectAgentDetection,
   'preflight.detectRemoteAgents': PreflightDetectRemoteAgents,
   'preflight.detectRemoteWindowsTerminalCapabilities':
     PreflightDetectRemoteWindowsTerminalCapabilities,

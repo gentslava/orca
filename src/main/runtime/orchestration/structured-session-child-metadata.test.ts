@@ -1,3 +1,4 @@
+import { agentSessionConversationView } from '../../../shared/agent-session-conversation-view'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import {
@@ -94,8 +95,11 @@ function children() {
   return structuredSessionChildWorkers({
     db,
     records: {
-      getRecord: (id) => records.get(id) ?? null,
-      listRecords: () => [...records.values()]
+      getRecord: (id) => {
+        const record = records.get(id)
+        return record ? agentSessionConversationView(record) : null
+      },
+      listRecords: () => [...records.values()].map(agentSessionConversationView)
     },
     sessionId: PARENT
   }).children

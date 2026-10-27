@@ -1,3 +1,4 @@
+import { agentSessionConversationView } from '../../../shared/agent-session-conversation-view'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import {
@@ -21,8 +22,11 @@ const CLEARED = testOrcaSessionId('2e8b4d61-5a3c-4e97-b0f2-7c1d9a6e3b54')
 let db: OrchestrationDb
 let records: Map<string, AgentSessionRecord>
 const reader = {
-  getRecord: (id: string) => records.get(id) ?? null,
-  listRecords: () => [...records.values()]
+  getRecord: (id: string) => {
+    const record = records.get(id)
+    return record ? agentSessionConversationView(record) : null
+  },
+  listRecords: () => [...records.values()].map(agentSessionConversationView)
 }
 
 function record(sessionId: string): AgentSessionRecord {

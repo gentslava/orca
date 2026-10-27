@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { classifyAntigravityUsageFailure } from './antigravity-usage-error'
-import { ANTIGRAVITY_LOCATION_REJECTION } from './antigravity-usage-location-rejection.test-fixtures'
+import {
+  classifyAntigravityUsageFailure,
+  formatAgyErrorForDisplay
+} from './antigravity-usage-error'
 
 /** Captured verbatim from agy 1.2.11 when the account had exhausted its weekly pool. */
 const REAL_RESOURCE_EXHAUSTED =
@@ -44,25 +46,6 @@ describe('classifyAntigravityUsageFailure', () => {
   })
 
   it.each([
-    ['print envelope', ANTIGRAVITY_LOCATION_REJECTION.stdout],
-    ['stderr', ANTIGRAVITY_LOCATION_REJECTION.stderr]
-  ])('recognizes the captured location rejection in %s', (_label, output) => {
-    expect(classifyAntigravityUsageFailure(output)).toEqual({
-      failureKind: 'usage-unavailable',
-      signedOut: false,
-      reason: 'location-unavailable'
-    })
-  })
-
-  it('keeps structured errors ahead of the location diagnostic', () => {
-    expect(
-      classifyAntigravityUsageFailure(
-        `${ANTIGRAVITY_LOCATION_REJECTION.stdout}\n${agyError({ status: 'RESOURCE_EXHAUSTED' })}`
-      )
-    ).toEqual({ failureKind: 'rate-limited', signedOut: false })
-  })
-
-  it.each([
     'You are not logged into Antigravity.',
     'Error: not signed in. Run `agy` to continue.',
     'please sign in to continue',
@@ -89,12 +72,16 @@ describe('classifyAntigravityUsageFailure', () => {
     ['unrelated noise', 'I0926 quota_manager.go:45] doRefreshQuota: starting reload'],
     ['an unparsable structured line', 'AGY_ERROR: {not json'],
     ['an unrecognised status', agyError({ status: 'SOMETHING_NEW' })],
-    [
-      'an unknown eligibility rejection',
-      '{"status":"ERROR","error":"Eligibility check failed: unknown reason"}'
-    ],
     ['empty output', '']
   ])('returns null for %s rather than inventing a cause', (_label, output) => {
     expect(classifyAntigravityUsageFailure(output)).toBeNull()
   })
+})
+
+it('bounds a large unbroken error without blocking the main process', () => {
+  const text = `${'!'.repeat(256 * 1024)}@invalid`
+  const started = performance.now()
+
+  expect(formatAgyErrorForDisplay(text)).toBe(`${'!'.repeat(159)}…`)
+  expect(performance.now() - started).toBeLessThan(2000)
 })

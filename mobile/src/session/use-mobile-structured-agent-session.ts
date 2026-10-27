@@ -16,10 +16,7 @@ import {
   structuredAgentSessionHostSaysWorking
 } from '../../../src/shared/structured-agent-session-live-turn'
 import { selectStructuredAgentTurnActivity } from '../../../src/shared/native-chat-turn-activity'
-import {
-  actionableStructuredApproval,
-  actionableStructuredQuestion
-} from './mobile-structured-actionable-prompt'
+import { actionableStructuredPrompts } from './mobile-structured-actionable-prompt'
 import {
   projectStructuredPermission,
   projectStructuredQuestion
@@ -191,6 +188,7 @@ export function useMobileStructuredAgentSession(
     hold: sends.hold,
     commandPending: commandPendingRef,
     controller: sendController,
+    sessionCommands: args.sessionCommands,
     onSendError,
     isModelWritePending: options.isModelWritePending,
     sendOptions: hostSupport?.sendOptions === true ? options.sendSelection : undefined
@@ -213,10 +211,10 @@ export function useMobileStructuredAgentSession(
   )
   const { items, currentRequests, actionablePromptIds, status } = state
   // Prefer host actionability: ended-agent prompts must receive no answer.
-  const [approvalPrompt, questionPrompt] = useMemo(() => {
-    const prompts = { items, currentRequests, actionablePromptIds }
-    return [actionableStructuredApproval(prompts), actionableStructuredQuestion(prompts)] as const
-  }, [items, currentRequests, actionablePromptIds])
+  const [approvalPrompt, questionPrompt] = useMemo(
+    () => actionableStructuredPrompts({ items, currentRequests, actionablePromptIds }),
+    [items, currentRequests, actionablePromptIds]
+  )
   const commandRefusalCauses = useMemo(
     () => ({
       working: turnId !== null,

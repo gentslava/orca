@@ -19,7 +19,10 @@ import type {
   AiVaultSession
 } from '../../../src/shared/ai-vault-types'
 import type { Worktree } from '../worktree/workspace-list-types'
-import { deriveMobileAiVaultScopePaths } from './agent-history-scope-paths'
+import {
+  deriveMobileAiVaultScopePaths,
+  mobileAiVaultScanScopePaths
+} from './agent-history-scope-paths'
 import {
   agentHistoryHostStatusRead,
   agentHistorySessionScan
@@ -27,6 +30,7 @@ import {
 import { interpretOrThrowRefusalMessage } from '../transport/rpc-refusal-message'
 import { AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY } from '../../../src/shared/ai-vault-runtime-capabilities'
 import { MOBILE_AI_VAULT_CAPABILITY } from './agent-history-capability'
+import type { AgentHistoryScreenState } from './agent-history-sections'
 
 export { MOBILE_AI_VAULT_CAPABILITY }
 
@@ -36,15 +40,7 @@ const EMPTY_NAMES: AgentSessionConversationNames = new Map()
 const noSubscription = () => () => {}
 const noNames = () => EMPTY_NAMES
 
-export type AgentHistoryScreenState =
-  | { kind: 'loading' }
-  | { kind: 'unsupported' }
-  | { kind: 'error'; message: string }
-  | {
-      kind: 'ready'
-      sessions: AiVaultSession[]
-      issues: AiVaultScanIssue[]
-    }
+export type { AgentHistoryScreenState } from './agent-history-sections'
 
 type FetchedHistoryState =
   | Exclude<AgentHistoryScreenState, { kind: 'ready' }>
@@ -95,7 +91,7 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
     [worktrees, worktreeId]
   )
   const activeWorktreePath = activeWorktree?.path ?? null
-  // Reuse host hint prefixes for client narrowing: host union only widens, and All leaves prefixes empty.
+  // Reuse host hint prefixes for client narrowing: host union only widens; All is not narrowed.
   const scopeFilterPaths = useMemo(
     () => deriveMobileAiVaultScopePaths(conversationId ? 'all' : scope, activeWorktree, worktrees),
     [conversationId, scope, activeWorktree, worktrees]
@@ -189,7 +185,9 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
           return
         }
 
-        const scopePaths = deriveMobileAiVaultScopePaths(scanScope, activeWorktree, worktrees)
+        const scopePaths = mobileAiVaultScanScopePaths(
+          deriveMobileAiVaultScopePaths(scanScope, activeWorktree, worktrees)
+        )
         const reply = await agentHistorySessionScan.request(client, {
           limit: MOBILE_AI_VAULT_SESSION_LIMIT,
           force: options.force,

@@ -79,3 +79,14 @@ export function structuredAgentSessionCapabilityView(
     )
   }
 }
+
+export function structuredAgentSessionConfirmedOptions(
+  current: AgentSessionOptionsResult['current'],
+  reported: AgentSessionOptionsResult['current']
+): AgentSessionOptionsResult['current']['confirmed'] {
+  return reported.confirmed?.filter((key) =>
+    key === 'model' || key === 'effort' || key === 'fastMode' || key === 'serviceTier'
+      ? current[key] === reported[key]
+      : false
+  )
+}

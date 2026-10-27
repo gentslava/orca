@@ -6,11 +6,11 @@ import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { useAllWorktrees, useProjectHostSetupProjection, useRepos } from '@/store/selectors'
 import { useAiVaultPanelSessions } from './ai-vault-session-filters'
-import { deriveAiVaultScopeSessionPaths } from './ai-vault-scope-paths'
 import { countAiVaultViewAdjustments } from './ai-vault-view-defaults'
 import {
   useAiVaultPanelProjectContext,
-  useAiVaultPanelSessionProjects
+  useAiVaultPanelSessionProjects,
+  useAiVaultPanelScopePaths
 } from './use-ai-vault-panel-projects'
 import { useAiVaultSessionLaunchActions } from './ai-vault-session-launch-actions'
 import { openAiVaultSessionLogInOrca } from './ai-vault-session-log-open'
@@ -35,7 +35,7 @@ import { AgentSessionContinuationDialog } from '@/components/agent-session-conti
 import { AiVaultScanIssueBanners } from './AiVaultScanIssueBanners'
 import { useAiVaultSessionDeleteAction } from './ai-vault-session-delete-action'
 import { useAiVaultPanelSearch } from './use-ai-vault-search'
-import { aiVaultSearchScopeIdentity } from './ai-vault-search-scope-identity'
+import { withAiVaultHistoryPreviews } from './ai-vault-search-session'
 import { AiVaultPanelSearch } from './AiVaultPanelSearch'
 import { useAiVaultPanelSessionResume } from './use-ai-vault-panel-session-resume'
 import { AiVaultScanProgressStrip } from './AiVaultScanProgressStrip'
@@ -126,15 +126,13 @@ export default function AiVaultPanel({
     local: workspace !== undefined
   })
   const scope = conversationNavigation ? 'all' : panelScope
-  const scopePaths = useMemo(
-    () =>
-      deriveAiVaultScopeSessionPaths(activeWorktree ?? null, allWorktrees, {
-        scope,
-        activeProjectKey,
-        projectHostSetupProjection
-      }),
-    [activeProjectKey, activeWorktree, allWorktrees, projectHostSetupProjection, scope]
-  )
+  const { scopePaths, searchWithin } = useAiVaultPanelScopePaths({
+    activeWorktree,
+    worktrees: allWorktrees,
+    projectHostSetupProjection,
+    scope,
+    activeProjectKey
+  })
   const {
     error,
     loading,
@@ -144,19 +142,12 @@ export default function AiVaultPanel({
     sessions: history,
     loadedSessionLimit
   } = useAiVaultSessionRefresh(scopePaths, executionHostScope, sessionLimit, conversationNavigation)
-  // Why an identity and not paths: a project's worktrees are the host's to
-  // enumerate, and a repo with hundreds of them has no path list a request can carry.
-  const searchWithin = useMemo(
-    () =>
-      aiVaultSearchScopeIdentity({
-        scope,
-        activeWorktreeId: activeWorktree?.id,
-        activeProjectKey
-      }),
-    [activeProjectKey, activeWorktree?.id, scope]
-  )
   const search = useAiVaultPanelSearch(query, agents, searchWithin, executionHostScope, searchSort)
   const { searching, searchHits } = search
+  const searchSessions = useMemo(
+    () => withAiVaultHistoryPreviews(search.sessions, history),
+    [history, search.sessions]
+  )
   const requestedScanKey = aiVaultLocalScanKey({
     scopePaths,
     includeAntigravityIdeSessions: true,
@@ -173,7 +164,7 @@ export default function AiVaultPanel({
       projectHostSetupProjection
     },
     history,
-    search.sessions,
+    searchSessions,
     searching,
     conversationNavigation
   )
@@ -191,11 +182,11 @@ export default function AiVaultPanel({
   }
   const metadataSearch = useAiVaultConversationSearch(
     conversationNavigation && searching,
-    search.sessions,
+    searchSessions,
     history,
     filters
   )
-  const sessions = metadataSearch?.sessions ?? (searching ? search.sessions : history)
+  const sessions = metadataSearch?.sessions ?? (searching ? searchSessions : history)
   const effectiveActiveWorktreeId = activeWorktreeId ?? activeWorktree?.id ?? null
   const {
     getSessionWorktreeInfo,

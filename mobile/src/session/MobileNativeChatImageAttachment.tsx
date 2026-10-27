@@ -3,7 +3,7 @@ import { ActivityIndicator, Image, Platform, Pressable, Text, View } from 'react
 import type { NativeChatImageRefBlock } from '../../../src/shared/native-chat-types'
 import { isAgentSessionAttachmentStorePath } from '../../../src/shared/agent-session-attachments'
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
-import { isRenderableImageUri, readMobileNativeChatImage } from './mobile-native-chat-image-preview'
+import { isRenderableImageUri, readStoredChatImage } from './mobile-native-chat-image-preview'
 import { styles, TEXT_SIZE } from './mobile-native-chat-message-styles'
 
 export function MobileNativeChatImageAttachment({
@@ -54,21 +54,21 @@ export function MobileNativeChatImageAttachment({
     if (usableDirectUri || !client || !path || !isAgentSessionAttachmentStorePath(path)) {
       return
     }
-    let disposed = false
+    const unmounted = new AbortController()
     setShowSpinner(false)
     const timer = setTimeout(() => {
-      if (!disposed) {
+      if (!unmounted.signal.aborted) {
         setShowSpinner(true)
       }
     }, 200)
-    void readMobileNativeChatImage(client, path).then((uri) => {
+    void readStoredChatImage(client, path, unmounted.signal).then((uri) => {
       clearTimeout(timer)
-      if (!disposed && (client.getGeneration?.() ?? 0) === generation) {
+      if (!unmounted.signal.aborted && (client.getGeneration?.() ?? 0) === generation) {
         setPreview({ owner, uri })
       }
     })
     return () => {
-      disposed = true
+      unmounted.abort()
       clearTimeout(timer)
     }
   }, [client, generation, path, usableDirectUri, owner])

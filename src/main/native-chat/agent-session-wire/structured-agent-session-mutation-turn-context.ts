@@ -1,7 +1,11 @@
+import type { AgentSessionConversationView } from '../../../shared/agent-session-conversation-view'
 import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import type { AgentSessionJournal } from '../agent-session-journal/journal-store'
 import type { AgentSessionMutationRequest } from './structured-agent-session-mutation-admission'
-import type { AgentSessionTurnContext } from './structured-agent-session-turns'
+import type {
+  AgentSessionReplayContext,
+  AgentSessionTurnContext
+} from './structured-agent-session-turns'
 import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
 
 export function mutationTurnContext<TValue>(
@@ -36,5 +40,23 @@ export function mutationTurnContext<TValue>(
     resolvedBy: request.callerKey,
     publish: () => request.publish(journal),
     now: () => request.now()
+  }
+}
+
+export function mutationReplayContext<TValue>(
+  request: Omit<AgentSessionMutationRequest<TValue>, 'plan'>,
+  journal: AgentSessionJournal,
+  record: AgentSessionConversationView
+): AgentSessionReplayContext {
+  const persistedOptions = effectiveAgentSessionOptions(record)
+  return {
+    sessionId: record.sessionId,
+    journal,
+    fence: record.currentFence,
+    agent: record.provider,
+    ...(request.currentWork ? { currentWork: request.currentWork } : {}),
+    ...(persistedOptions ? { persistedOptions } : {}),
+    defaultModelSelected: record.defaultModelOptions !== undefined,
+    now: request.now
   }
 }

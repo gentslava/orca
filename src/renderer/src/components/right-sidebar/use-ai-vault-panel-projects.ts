@@ -1,6 +1,10 @@
 import { useMemo } from 'react'
-import type { AiVaultSession } from '../../../../shared/ai-vault-types'
-import { deriveAiVaultWorkspaceScopePaths } from './ai-vault-scope-paths'
+import type { AiVaultScope, AiVaultSession } from '../../../../shared/ai-vault-types'
+import {
+  deriveAiVaultScopeSessionPaths,
+  deriveAiVaultWorkspaceScopePaths
+} from '../../../../shared/ai-vault-scope-paths'
+import { aiVaultSearchScopeIdentity } from './ai-vault-search-scope-identity'
 import {
   buildAiVaultProjectContext,
   buildAiVaultSessionProjectById
@@ -59,4 +63,36 @@ export function useAiVaultPanelSessionProjects(
       }),
     [worktrees, projectHostSetupProjection, repos, sessions, folderWorkspaces]
   )
+}
+
+export function useAiVaultPanelScopePaths({
+  activeWorktree,
+  worktrees,
+  projectHostSetupProjection,
+  scope,
+  activeProjectKey
+}: Pick<ProjectContextArgs, 'activeWorktree' | 'worktrees' | 'projectHostSetupProjection'> & {
+  scope: AiVaultScope
+  activeProjectKey: string | null
+}) {
+  const scopePaths = useMemo(
+    () =>
+      deriveAiVaultScopeSessionPaths(activeWorktree, worktrees, {
+        scope,
+        activeProjectKey,
+        projectHostSetupProjection
+      }),
+    [activeProjectKey, activeWorktree, worktrees, projectHostSetupProjection, scope]
+  )
+  // Search carries project identity because only its host can enumerate every worktree.
+  const searchWithin = useMemo(
+    () =>
+      aiVaultSearchScopeIdentity({
+        scope,
+        activeWorktreeId: activeWorktree?.id,
+        activeProjectKey
+      }),
+    [activeProjectKey, activeWorktree?.id, scope]
+  )
+  return { scopePaths, searchWithin }
 }

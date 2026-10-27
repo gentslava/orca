@@ -16656,7 +16656,9 @@
       "id": "native-chat-session-option-pick-written",
       "operation": "nativeChat.session-option-pick",
       "family": "nativeChat.session-option-pick",
-      "sites": ["mobile/src/session/mobile-native-chat-session-option-persistence.ts"],
+      "sites": [
+        "mobile/src/session/native-chat/input/mobile-native-chat-session-option-persistence.ts"
+      ],
       "schedules": [],
       "steps": [
         {
@@ -16692,7 +16694,9 @@
       "id": "native-chat-session-option-pick-refused",
       "operation": "nativeChat.session-option-pick",
       "family": "nativeChat.session-option-pick",
-      "sites": ["mobile/src/session/mobile-native-chat-session-option-persistence.ts"],
+      "sites": [
+        "mobile/src/session/native-chat/input/mobile-native-chat-session-option-persistence.ts"
+      ],
       "schedules": [],
       "steps": [
         {
@@ -16729,7 +16733,9 @@
       "id": "native-chat-session-option-pick-empty",
       "operation": "nativeChat.session-option-pick",
       "family": "nativeChat.session-option-pick",
-      "sites": ["mobile/src/session/mobile-native-chat-session-option-persistence.ts"],
+      "sites": [
+        "mobile/src/session/native-chat/input/mobile-native-chat-session-option-persistence.ts"
+      ],
       "schedules": [],
       "steps": [
         {
@@ -21122,7 +21128,8 @@
             "limit": 40,
             "subscriptionId": "claude:session-1:00000000-0000-4000-8000-000000000001",
             "capabilities": {
-              "transcriptPending": 1
+              "transcriptPending": 1,
+              "transcriptSourceOrder": 1
             },
             "transcriptPath": "/work/feature/.claude/session-1.jsonl"
           },
@@ -21178,6 +21185,9 @@
             "agent": "claude",
             "sessionId": "session-1",
             "limit": 60,
+            "capabilities": {
+              "transcriptSourceOrder": 1
+            },
             "beforeOffset": 1200,
             "transcriptPath": "/work/feature/.claude/session-1.jsonl"
           },
@@ -21233,7 +21243,8 @@
             "limit": 40,
             "subscriptionId": "claude:session-1:00000000-0000-4000-8000-000000000001",
             "capabilities": {
-              "transcriptPending": 1
+              "transcriptPending": 1,
+              "transcriptSourceOrder": 1
             },
             "transcriptPath": "/work/feature/.claude/session-1.jsonl"
           },
