@@ -24,6 +24,7 @@ export function aiVaultSessionListArgs(
 ): AiVaultListArgs {
   return {
     ...(request.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
+    historyOwnership: {},
     includeAntigravityIdeSessions: true,
     limit: request.sessionLimit === 'unlimited' ? undefined : request.sessionLimit,
     unlimited: request.sessionLimit === 'unlimited',

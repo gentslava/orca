@@ -1,8 +1,8 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { getProjectHostSetupProjectionFromState } from '@/store/project-host-setup-selector'
+import { useMemo, useRef, useState } from 'react'
 import { AI_VAULT_AGENTS } from '../../../../shared/ai-vault-types'
 import { useAiVaultConversationSearch } from './ai-vault-conversation-search'
 import { useShallow } from 'zustand/react/shallow'
-import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { useAllWorktrees, useProjectHostSetupProjection, useRepos } from '@/store/selectors'
 import { useAiVaultPanelSessions } from './ai-vault-session-filters'
@@ -14,7 +14,7 @@ import {
 } from './use-ai-vault-panel-projects'
 import { useAiVaultSessionLaunchActions } from './ai-vault-session-launch-actions'
 import { openAiVaultSessionLogInOrca } from './ai-vault-session-log-open'
-import { revealAiVaultSessionPath } from './ai-vault-session-path-actions'
+import { revealAiVaultSessionPath, copyAiVaultSessionText } from './ai-vault-session-path-actions'
 import { useAiVaultOriginalPaneActions } from './ai-vault-original-pane-actions'
 import { translate } from '@/i18n/i18n'
 import { AiVaultPanelHeader } from './AiVaultPanelHeader'
@@ -63,7 +63,8 @@ export default function AiVaultPanel({
   const {
     workspaceId: activeWorktreeId,
     worktree: activeWorktree,
-    repo: activeRepo
+    repo: activeRepo,
+    legacyProjectKey
   } = useAiVaultPanelWorkspace(workspace)
   const repos = useRepos()
   const allWorktrees = useAllWorktrees()
@@ -71,7 +72,7 @@ export default function AiVaultPanel({
   const projectHostSetupProjection = useProjectHostSetupProjection()
   const resumeTargetState = useAppStore(
     useShallow((state) => ({
-      projects: state.projects,
+      projectHostSetupProjection: getProjectHostSetupProjectionFromState(state),
       settings: state.settings,
       folderWorkspaces: selectFolderWorkspaces(state),
       projectGroups: state.projectGroups,
@@ -112,6 +113,7 @@ export default function AiVaultPanel({
       repos,
       worktrees: allWorktrees,
       projectHostSetupProjection,
+      settings: settings ?? undefined,
       activeRepo,
       activeWorktree
     })
@@ -131,7 +133,8 @@ export default function AiVaultPanel({
     worktrees: allWorktrees,
     projectHostSetupProjection,
     scope,
-    activeProjectKey
+    activeProjectKey,
+    legacyProjectKey
   })
   const {
     error,
@@ -142,7 +145,14 @@ export default function AiVaultPanel({
     sessions: history,
     loadedSessionLimit
   } = useAiVaultSessionRefresh(scopePaths, executionHostScope, sessionLimit, conversationNavigation)
-  const search = useAiVaultPanelSearch(query, agents, searchWithin, executionHostScope, searchSort)
+  const search = useAiVaultPanelSearch(
+    query,
+    agents,
+    searchWithin,
+    executionHostScope,
+    searchSort,
+    activeProjectKey ?? undefined
+  )
   const { searching, searchHits } = search
   const searchSessions = useMemo(
     () => withAiVaultHistoryPreviews(search.sessions, history),
@@ -161,7 +171,8 @@ export default function AiVaultPanel({
       folderWorkspaces: projectFolderWorkspaces,
       repos,
       worktrees: allWorktrees,
-      projectHostSetupProjection
+      projectHostSetupProjection,
+      settings: settings ?? undefined
     },
     history,
     searchSessions,
@@ -225,15 +236,6 @@ export default function AiVaultPanel({
     () => (searching ? aiVaultSearchHitHostLabels(filteredSessions, hostScopeOptions) : null),
     [filteredSessions, hostScopeOptions, searching]
   )
-
-  const copyText = useCallback(async (text: string, label: string): Promise<void> => {
-    await window.api.ui.writeClipboardText(text)
-    toast.success(
-      translate('auto.components.right.sidebar.AiVaultPanel.valueCopied', '{{value0}} copied', {
-        value0: label
-      })
-    )
-  }, [])
 
   useAiVaultPanelHandle(ref, {
     query,
@@ -363,13 +365,13 @@ export default function AiVaultPanel({
               void launchActions.copyResumeCommand(session, worktreeId)
             }
             onCopyId={(session) =>
-              void copyText(
+              void copyAiVaultSessionText(
                 session.sessionId,
                 translate('auto.components.right.sidebar.AiVaultPanel.sessionId', 'Session ID')
               )
             }
             onCopyPath={(session) =>
-              void copyText(
+              void copyAiVaultSessionText(
                 session.filePath,
                 translate('auto.components.right.sidebar.AiVaultPanel.logPath', 'Log path')
               )

@@ -77,6 +77,7 @@ export async function scanRuntimeAiVaultSessions(
     environmentId,
     'aiVault.listSessions',
     {
+      historyOwnership: args.historyOwnership,
       includeAntigravityIdeSessions: args.includeAntigravityIdeSessions,
       ...(args.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
       limit: args.limit,

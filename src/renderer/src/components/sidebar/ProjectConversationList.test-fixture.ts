@@ -136,8 +136,8 @@ export const conversationStore = {
   groupsByWorktree: {},
   unifiedTabsByWorktree: {},
   repos: conversationRepos,
-  projects: conversationCatalog.projects,
-  projectHostSetups: conversationCatalog.setups,
+  endpointProjects: conversationCatalog.projects,
+  endpointProjectHostSetups: conversationCatalog.setups,
   worktreesByRepo: { orca: [conversationWorktrees[0]!], djinn: [conversationWorktrees[1]!] },
   activeWorktreeId: conversationWorktrees[1]!.id,
   projectOrderBy: 'manual' as const

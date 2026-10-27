@@ -72,8 +72,8 @@ function fixture(personal: boolean, width = 360) {
     width,
     store: {
       repos: [beta, alpha],
-      projects: projection.projects,
-      projectHostSetups: projection.setups,
+      endpointProjects: projection.projects,
+      endpointProjectHostSetups: projection.setups,
       worktreesByRepo: { beta: [betaWorkspace], alpha: [alphaWorkspace] },
       groupBy: 'repo',
       sortBy: 'recent',

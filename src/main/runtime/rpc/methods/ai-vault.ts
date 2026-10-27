@@ -115,6 +115,7 @@ export const AI_VAULT_METHODS = [
             limit: params.unlimited ? undefined : params.limit,
             unlimited: params.unlimited,
             force: params.force,
+            historyOwnership: params.historyOwnership,
             scopePaths: params.scopePaths,
             selectedSessionId,
             includeAntigravityIdeSessions: params.includeAntigravityIdeSessions

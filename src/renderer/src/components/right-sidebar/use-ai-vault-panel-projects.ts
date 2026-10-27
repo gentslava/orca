@@ -19,7 +19,8 @@ export function useAiVaultPanelProjectContext({
   worktrees,
   projectHostSetupProjection,
   activeRepo,
-  activeWorktree
+  activeWorktree,
+  settings
 }: ProjectContextArgs) {
   const activeWorktreePaths = useMemo(
     () => deriveAiVaultWorkspaceScopePaths(activeWorktree, worktrees),
@@ -34,15 +35,24 @@ export function useAiVaultPanelProjectContext({
         projectHostSetupProjection,
         activeRepo,
         activeWorktree,
+        settings,
         sessions: []
       }),
-    [activeRepo, activeWorktree, worktrees, projectHostSetupProjection, repos, folderWorkspaces]
+    [
+      activeRepo,
+      activeWorktree,
+      worktrees,
+      projectHostSetupProjection,
+      repos,
+      folderWorkspaces,
+      settings
+    ]
   )
   return { ...context, activeWorktreePaths }
 }
 
 export function useAiVaultPanelSessionProjects(
-  { folderWorkspaces, repos, worktrees, projectHostSetupProjection }: SessionProjectArgs,
+  { folderWorkspaces, repos, worktrees, projectHostSetupProjection, settings }: SessionProjectArgs,
   history: readonly AiVaultSession[],
   indexed: readonly AiVaultSession[],
   searching: boolean,
@@ -59,9 +69,10 @@ export function useAiVaultPanelSessionProjects(
         repos,
         worktrees,
         projectHostSetupProjection,
+        settings,
         sessions
       }),
-    [worktrees, projectHostSetupProjection, repos, sessions, folderWorkspaces]
+    [worktrees, projectHostSetupProjection, repos, sessions, folderWorkspaces, settings]
   )
 }
 
@@ -70,10 +81,12 @@ export function useAiVaultPanelScopePaths({
   worktrees,
   projectHostSetupProjection,
   scope,
-  activeProjectKey
+  activeProjectKey,
+  legacyProjectKey
 }: Pick<ProjectContextArgs, 'activeWorktree' | 'worktrees' | 'projectHostSetupProjection'> & {
   scope: AiVaultScope
   activeProjectKey: string | null
+  legacyProjectKey?: string | null
 }) {
   const scopePaths = useMemo(
     () =>
@@ -90,9 +103,9 @@ export function useAiVaultPanelScopePaths({
       aiVaultSearchScopeIdentity({
         scope,
         activeWorktreeId: activeWorktree?.id,
-        activeProjectKey
+        activeProjectKey: legacyProjectKey === undefined ? activeProjectKey : legacyProjectKey
       }),
-    [activeProjectKey, activeWorktree?.id, scope]
+    [activeProjectKey, legacyProjectKey, activeWorktree?.id, scope]
   )
   return { scopePaths, searchWithin }
 }

@@ -11,6 +11,8 @@ const state = {
   folderWorkspaces: [],
   projectGroups: [],
   repos: [],
+  endpointProjects: [],
+  endpointProjectHostSetups: [],
   worktreesByRepo: {}
 }
 vi.mock('@/store', () => ({

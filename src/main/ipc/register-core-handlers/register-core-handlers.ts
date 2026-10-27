@@ -1,4 +1,6 @@
 import { app } from 'electron'
+import { LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host'
+import { sessionSearchScopeCatalogFromStore } from '../../ai-vault-search/session-search-store-scope-catalog'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../shared/layout-owner-switch'
 import { registerAppHandlers } from '../app'
 import { registerCliHandlers } from '../cli'
@@ -91,10 +93,7 @@ import type { AutomationService } from '../../automations/service'
 import type { AgentAwakeService } from '../../agent-awake-service'
 import type { CrashReportStore } from '../../crash-reporting/crash-report-store'
 import type { KeybindingService } from '../../keybindings/keybinding-service'
-import type {
-  AiVaultPrepareSessionResumeArgs,
-  AiVaultPrepareSessionResumeResult
-} from '../../../shared/ai-vault-resume-preparation'
+import type { CoreHandlerLifecycleOptions } from './core-handler-lifecycle-options'
 import {
   getSavedRuntimeAiVaultHostInfos,
   deleteRuntimeAiVaultSession,
@@ -102,7 +101,10 @@ import {
   resolveRuntimeAiVaultSessionTitles,
   scanRuntimeAiVaultSessions
 } from '../../ai-vault/runtime-session-scanner'
-import { callRuntimeSessionSearch } from '../../ai-vault/runtime-session-search-call'
+import {
+  callRuntimeSessionSearch,
+  bindRuntimeSessionSearch
+} from '../../ai-vault/runtime-session-search-call'
 import { aiVaultOrchestrationChildSessionIds } from '../../ai-vault/structured-conversation-navigation'
 import { configureRuntimeAiVaultSessionDelete } from '../ai-vault-delete'
 import { ensureStructuredAgentSessionHostUnlessRefused } from '../../runtime/structured-agent-session-host-refusal'
@@ -125,17 +127,6 @@ async function closeNotificationDismissalsBeforeRelaunch(
   if (result.outcome === 'timed-out') {
     console.warn('[notifications] Relaunching before dismissal recovery state finished saving')
   }
-}
-
-type CoreHandlerLifecycleOptions = {
-  onBeforeRelaunch?: () => void | Promise<void>
-  onOrcaProfileAuthMutation?: () => void
-  onBeforeOrcaProfileSignOut?: () => void
-  onAfterOrcaProfileSignOut?: () => void
-  getAdditionalAiVaultCodexHomePaths?: () => readonly string[]
-  prepareAiVaultSessionResume?: (
-    args: AiVaultPrepareSessionResumeArgs
-  ) => Promise<AiVaultPrepareSessionResumeResult>
 }
 
 export function registerCoreHandlers(
@@ -271,6 +262,8 @@ export function registerCoreHandlers(
   registerAiVaultSearchHandlers({
     callRuntimeSearch: (environmentId, method, params) =>
       callRuntimeSessionSearch(app.getPath('userData'), environmentId, method, params),
+    bindRuntimeSearch: (environmentId) =>
+      bindRuntimeSessionSearch(app.getPath('userData'), environmentId),
     ensureStructuredSessionOwnership
   })
   registerAiVaultHandlers({
@@ -278,6 +271,8 @@ export function registerCoreHandlers(
     ensureStructuredSessionOwnership,
     getOrchestrationChildSessionIds: () =>
       aiVaultOrchestrationChildSessionIds(() => runtime.getExistingOrchestrationDb()),
+    getProjectOwnershipCatalog: () =>
+      sessionSearchScopeCatalogFromStore(store, LOCAL_EXECUTION_HOST_ID),
     getAdditionalCodexHomePaths: lifecycleOptions.getAdditionalAiVaultCodexHomePaths,
     prepareSessionResume: lifecycleOptions.prepareAiVaultSessionResume,
     getActiveRuntimeAiVaultHostInfos: () =>
@@ -295,9 +290,7 @@ export function registerCoreHandlers(
   registerNativeChatHandlers()
   registerClipboardHandlers(store, {
     localChatAttachmentStore: async () => {
-      await ensureStructuredAgentSessionHostUnlessRefused(() =>
-        runtime.ensureStructuredAgentSessionHost()
-      )
+      await ensureStructuredSessionOwnership()
       return getAgentSessionAttachmentStore()
     }
   })

@@ -1,3 +1,5 @@
+import { toast } from 'sonner'
+import { translate } from '@/i18n/i18n'
 import {
   LOCAL_EXECUTION_HOST_ID,
   normalizeExecutionHostId,
@@ -38,4 +40,13 @@ export async function revealAiVaultSessionPath(
   if (path) {
     await revealInFileManager(path, session.executionHostId)
   }
+}
+
+export async function copyAiVaultSessionText(text: string, label: string): Promise<void> {
+  await window.api.ui.writeClipboardText(text)
+  toast.success(
+    translate('auto.components.right.sidebar.AiVaultPanel.valueCopied', '{{value0}} copied', {
+      value0: label
+    })
+  )
 }

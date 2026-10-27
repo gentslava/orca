@@ -69,6 +69,9 @@ function runtimeScanArgs(
   if (listArgs?.includeStructuredSessions) {
     scanArgs.includeStructuredSessions = true
   }
+  if (listArgs?.historyOwnership !== undefined) {
+    scanArgs.historyOwnership = listArgs.historyOwnership
+  }
   if (listArgs?.afterFingerprint !== undefined) {
     scanArgs.afterFingerprint = listArgs.afterFingerprint
   }

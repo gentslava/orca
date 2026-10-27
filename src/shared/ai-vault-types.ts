@@ -119,6 +119,8 @@ export type AiVaultSession = {
   cwd: string | null
   /** The host's spellings of `cwd` under a symlinked scope path. Scope matching only; resume reads `cwd`. */
   cwdAliases?: string[]
+  /** Host-derived affiliation; null is unknown, absence uses legacy attribution. */
+  projectOwnerKey?: string | null
   branch: string | null
   model: string | null
   filePath: string
@@ -223,6 +225,7 @@ export type AiVaultListArgs = {
   selectedSessionId?: string
   /** Primary conversation navigation includes durable chats without provider files. */
   includeStructuredSessions?: boolean
+  historyOwnership?: { projectKey?: string }
   /** Opts a selected runtime-host refresh into content-conditional replies. */
   afterFingerprint?: string | null
   /** Opt-in promises this client starts IDE history in a new CLI conversation. */
