@@ -32,6 +32,8 @@ import { getDefaultSettings } from '../../../shared/constants'
 import { useAppStore } from '@/store'
 import {
   readHostModelCatalogSnapshot,
+  loadHostModelCatalogSnapshot,
+  forgetHostModelCatalogSnapshots,
   preloadHostModelCatalogSnapshots,
   recordHostModelCatalogSnapshot,
   resetHostModelCatalogSnapshotsForTests
@@ -55,6 +57,21 @@ describe('host model catalog snapshots', () => {
   beforeEach(() => {
     mocks.call.mockReset()
     resetHostModelCatalogSnapshotsForTests()
+  })
+
+  it('withholds a direct reply invalidated by an account or host change', async () => {
+    let finish: ((value: AgentSessionModelCatalogResult) => void) | undefined
+    mocks.call.mockImplementationOnce(
+      () =>
+        new Promise<AgentSessionModelCatalogResult>((resolve) => {
+          finish = resolve
+        })
+    )
+    const pending = loadHostModelCatalogSnapshot(LOCAL, 'codex')
+    forgetHostModelCatalogSnapshots(LOCAL)
+    finish?.(list(false))
+    expect(await pending).toBeUndefined()
+    expect(readHostModelCatalogSnapshot(LOCAL, 'codex', NEW_CHAT)).toBeUndefined()
   })
 
   it('awaits a listing only after the host reports it in progress, and records the settled answer', async () => {

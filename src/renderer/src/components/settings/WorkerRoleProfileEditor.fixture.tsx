@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { defineFixture } from '../../component-fixtures/component-fixture'
-import { getDefaultSettings } from '../../../../shared/constants'
 import { setRendererUiLanguage } from '@/i18n/i18n'
-import { recordHostModelCatalogSnapshot } from '@/runtime/host-model-catalog-snapshots'
+import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
+import { AGENT_SESSION_MODEL_CATALOG_SAVED_ONLY_RUNTIME_CAPABILITY } from '../../../../shared/structured-agent-session-surface-capabilities'
+import type { AgentSessionModelCatalogResult } from '../../../../shared/agent-session-wire'
 import { WorkerRoleProfileEditor } from './WorkerRoleProfileEditor'
 
 function WorkerRoleFixture(): React.JSX.Element {
@@ -22,35 +23,43 @@ function WorkerRoleFixture(): React.JSX.Element {
   )
 }
 
-const setup = (): void =>
-  recordHostModelCatalogSnapshot({ kind: 'local' }, 'codex', null, {
-    origin: 'probe',
-    fetchedAt: 1,
-    fastModeSupport: { supported: true },
-    models: [
-      {
-        id: 'gpt-6.1-sol',
-        label: 'GPT 6.1 Sol',
-        isDefault: false,
-        efforts: [
-          { value: 'low', label: 'Low' },
-          { value: 'high', label: 'High' }
-        ],
-        supportsFastMode: true
-      },
-      {
-        id: 'gpt-6-astra',
-        label: 'GPT 6 Astra',
-        isDefault: false,
-        efforts: [{ value: 'high', label: 'High' }],
-        supportsFastMode: false
-      }
-    ]
-  })
+const catalog: AgentSessionModelCatalogResult = {
+  origin: 'probe',
+  fetchedAt: 1,
+  modelsDifferByWorkspace: true,
+  fastModeSupport: { supported: true },
+  models: [
+    {
+      id: 'gpt-6.1-sol',
+      label: 'GPT 6.1 Sol',
+      isDefault: false,
+      efforts: [
+        { value: 'low', label: 'Low' },
+        { value: 'high', label: 'High' }
+      ],
+      supportsFastMode: true
+    },
+    {
+      id: 'gpt-6-astra',
+      label: 'GPT 6 Astra',
+      isDefault: false,
+      efforts: [{ value: 'high', label: 'High' }],
+      supportsFastMode: false
+    }
+  ]
+}
+const setup = (): void => {
+  setLocalRuntimeCapabilitiesForTests([AGENT_SESSION_MODEL_CATALOG_SAVED_ONLY_RUNTIME_CAPABILITY])
+  window.api.runtime.call = async ({ method }) => {
+    if (method !== 'agentSession.modelCatalog') {
+      throw new Error(`Unexpected fixture request: ${method}`)
+    }
+    return { id: 'fixture', ok: true, result: catalog, _meta: { runtimeId: 'fixture' } }
+  }
+}
 const fixture = (field: 'agent' | 'model') =>
   defineFixture({
     width: 480,
-    store: { settings: { ...getDefaultSettings('/fixture'), uiLanguage: 'ru' } },
     setup,
     render: () => <WorkerRoleFixture />,
     interact: async () => {

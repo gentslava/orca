@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getAgentSessionOptionLaunchCatalog } from '../../../../shared/agent-session-option-launch'
 import { WorkerRoleProfileEditor } from './WorkerRoleProfileEditor'
 
-const mocks = vi.hoisted(() => ({ refresh: vi.fn() }))
+const mocks = vi.hoisted(() => ({ refresh: vi.fn(), error: '' }))
 vi.mock('@/lib/agent-catalog', () => ({
   getAgentCatalog: () => [
     { id: 'claude', label: 'Claude' },
@@ -16,12 +16,13 @@ vi.mock('@/lib/agent-catalog', () => ({
 vi.mock('./use-worker-role-model-catalog', () => ({
   useWorkerRoleModelCatalog: () => {
     const catalog = getAgentSessionOptionLaunchCatalog('codex')
-    return { ...catalog, catalog, refresh: mocks.refresh }
+    return { ...catalog, catalog, refresh: mocks.refresh, error: mocks.error || null }
   }
 }))
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  mocks.error = ''
 })
 const props = {
   role: 'implementation',
@@ -44,6 +45,18 @@ describe('worker role profile choices', () => {
   it('refreshes the current host model catalog when its model selector opens', () => {
     render(<WorkerRoleProfileEditor {...props} />)
     fireEvent.keyDown(screen.getByRole('combobox', { name: 'Model' }), { key: 'ArrowDown' })
+    expect(mocks.refresh).toHaveBeenCalledOnce()
+  })
+  it('shows retrieval failures beside the model field with an accessible retry', () => {
+    mocks.error = 'Host connection closed'
+    render(<WorkerRoleProfileEditor {...props} />)
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Could not load models: Host connection closed'
+    )
+    expect(screen.getByRole('combobox', { name: 'Model' }).getAttribute('aria-describedby')).toBe(
+      screen.getByRole('alert').id
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
     expect(mocks.refresh).toHaveBeenCalledOnce()
   })
   it('retains a saved unavailable agent explicitly without offering unrelated providers', () => {

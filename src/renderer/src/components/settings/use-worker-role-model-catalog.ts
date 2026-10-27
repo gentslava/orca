@@ -8,9 +8,11 @@ import {
 } from '../../../../shared/structured-agent-session-options'
 import { AGENT_SESSION_MODEL_CATALOG_SAVED_ONLY_RUNTIME_CAPABILITY } from '../../../../shared/structured-agent-session-surface-capabilities'
 import {
-  preloadHostModelCatalogSnapshots,
-  readHostModelCatalogSnapshot
-} from '@/runtime/host-model-catalog-snapshots'
+  readAgentSessionUnavailable,
+  type AgentSessionUnavailable
+} from '../../../../shared/agent-session-availability'
+import type { AgentSessionModelCatalogResult } from '../../../../shared/agent-session-wire'
+import { loadHostModelCatalogSnapshot } from '@/runtime/host-model-catalog-snapshots'
 import { ensureLocalRuntimeCapabilities } from '@/runtime/local-runtime-capabilities'
 import { useAppStore } from '@/store'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
@@ -18,30 +20,30 @@ import type { GlobalSettings } from '../../../../shared/global-settings-types'
 const LOCAL = { kind: 'local' } as const
 
 function roleCatalog(
-  agent: string | undefined,
-  allowSeed = true
+  agent: string,
+  saved: AgentSessionModelCatalogResult | undefined
 ): AgentSessionOptionCatalog | null {
-  if (!agent || !isTuiAgent(agent)) {
-    return null
-  }
   const seed = getAgentSessionOptionLaunchCatalog(agent)
-  const saved = readHostModelCatalogSnapshot(LOCAL, agent, { newLaunch: false, seedsModel: true })
-  return seed && saved
+  return seed && saved && saved.origin !== 'unknown' && saved.models.length > 0
     ? applyStructuredAgentSessionModelCatalog(
         createStructuredAgentSessionOptionState(agent, seed),
         seed,
         saved,
         { newLaunch: false, coherentCatalog: true }
       ).catalog
-    : allowSeed
-      ? seed
-      : null
+    : null
 }
 
 export function useWorkerRoleModelCatalog(
   agent: string | undefined,
   enabled = true
-): { catalog: AgentSessionOptionCatalog | null; refresh: () => void; isRefreshing: boolean } {
+): {
+  catalog: AgentSessionOptionCatalog | null
+  refresh: () => void
+  isRefreshing: boolean
+  error: string | null
+  unavailable: AgentSessionUnavailable | null
+} {
   const settings = useAppStore((state) => state.settings)
   const [demand, setDemand] = useState<{
     agent: string
@@ -55,6 +57,8 @@ export function useWorkerRoleModelCatalog(
     settings: GlobalSettings | null
     catalog: AgentSessionOptionCatalog | null
     request: number
+    error: string | null
+    unavailable: AgentSessionUnavailable | null
   } | null>(null)
   useEffect(() => {
     let current = true
@@ -66,39 +70,60 @@ export function useWorkerRoleModelCatalog(
         if (!current) {
           return
         }
+        if (capabilities === null) {
+          throw new Error('Could not read host capabilities.')
+        }
         const canList =
           capabilities?.includes(AGENT_SESSION_MODEL_CATALOG_SAVED_ONLY_RUNTIME_CAPABILITY) === true
-        if (canList) {
-          await preloadHostModelCatalogSnapshots(
-            LOCAL,
-            [agent],
-            request > 0 ? { awaitListing: true } : { savedOnly: true }
-          )
-        }
+        const reply = canList
+          ? await loadHostModelCatalogSnapshot(
+              LOCAL,
+              agent,
+              request > 0 ? { awaitListing: true } : { savedOnly: true }
+            )
+          : undefined
         if (current) {
-          setLoaded({ agent, settings, request, catalog: roleCatalog(agent, !canList) })
+          setLoaded({
+            agent,
+            settings,
+            request,
+            catalog: canList
+              ? roleCatalog(agent, reply)
+              : getAgentSessionOptionLaunchCatalog(agent),
+            error:
+              canList &&
+              request > 0 &&
+              !reply?.unavailable &&
+              (!reply || reply.origin === 'unknown' || reply.models.length === 0)
+                ? 'Host did not return a model list.'
+                : null,
+            unavailable: readAgentSessionUnavailable(reply?.unavailable)
+          })
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (current) {
-          setLoaded({ agent, settings, request, catalog: null })
+          setLoaded({
+            agent,
+            settings,
+            request,
+            catalog: null,
+            error: error instanceof Error ? error.message : String(error),
+            unavailable: null
+          })
         }
       })
     return () => {
       current = false
     }
   }, [agent, settings, enabled, request])
-  const matches =
-    loaded !== null &&
-    loaded.agent === agent &&
-    loaded.settings === settings &&
-    loaded.request === request
+  const sameAccount = loaded !== null && loaded.agent === agent && loaded.settings === settings
+  const matches = sameAccount && loaded.request === request
   return {
-    catalog:
-      loaded !== null && loaded.agent === agent && loaded.settings === settings
-        ? loaded.catalog
-        : roleCatalog(agent),
-    isRefreshing: enabled && request > 0 && !matches,
+    catalog: sameAccount ? loaded.catalog : null,
+    isRefreshing: enabled && !!agent && isTuiAgent(agent) && !matches,
+    error: matches ? loaded.error : null,
+    unavailable: matches ? loaded.unavailable : null,
     refresh: () => {
       if (enabled && agent && isTuiAgent(agent)) {
         setDemand((current) => ({ agent, settings, request: (current?.request ?? 0) + 1 }))

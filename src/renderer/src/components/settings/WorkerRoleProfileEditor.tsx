@@ -9,6 +9,9 @@ import { isTuiAgentEnabled } from '../../../../shared/tui-agent-selection'
 import type { WorkerRoleProfile } from '../../../../shared/orchestration-worker-roles'
 import { useWorkerRoleModelCatalog } from './use-worker-role-model-catalog'
 import { nativeChatSessionChoiceLabel } from '../native-chat/native-chat-session-option-labels'
+import { sayAgentSessionFailureTranslated } from '../native-chat/agent-session-failure-words-text'
+import { notSignedInSentence } from '../../../../shared/agent-session-availability-sentences'
+import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 
@@ -35,12 +38,30 @@ export function WorkerRoleProfileEditor({
     (agent) => isTuiAgentEnabled(agent.id, disabledAgents) && detectedIds?.includes(agent.id)
   )
   const agentAvailable = agents.some((agent) => agent.id === profile?.agent)
-  const { catalog, refresh, isRefreshing } = useWorkerRoleModelCatalog(
-    profile?.agent,
-    agentAvailable
-  )
+  const {
+    catalog,
+    refresh,
+    isRefreshing,
+    error,
+    unavailable: catalogUnavailable
+  } = useWorkerRoleModelCatalog(profile?.agent, agentAvailable)
   const unavailable = translate('settings.orchestration.roles.unavailable', 'Unavailable')
   const notListed = translate('settings.orchestration.roles.notListed', 'Not listed')
+  const agentLabel =
+    agents.find((agent) => agent.id === profile?.agent)?.label ?? profile?.agent ?? ''
+  const catalogError = error
+    ? translate('settings.orchestration.roles.modelsFailed', 'Could not load models: {{error}}', {
+        error
+      })
+    : catalogUnavailable?.reason === 'cliMissing'
+      ? sayAgentSessionFailureTranslated('cliMissing', { agent: agentLabel })
+      : catalogUnavailable?.reason === 'notSignedIn'
+        ? notSignedInSentence(
+            { agentName: agentLabel },
+            { kind: 'notSignedIn', account: catalogUnavailable.account },
+            sayAgentSessionFailureTranslated
+          )
+        : null
   const models = catalog?.supportsWorkerLaunchPreferences ? catalog.models : []
   const model = catalog && profile?.model ? findCatalogModel(catalog, profile.model) : undefined
   const effort = findCatalogOption(model, 'effort')
@@ -117,7 +138,10 @@ export function WorkerRoleProfileEditor({
           }}
           onValueChange={(value) => writeOption('model', value)}
         >
-          <SelectTrigger id={`worker-role-${role}-model`}>
+          <SelectTrigger
+            id={`worker-role-${role}-model`}
+            aria-describedby={catalogError ? `worker-role-${role}-model-error` : undefined}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -134,7 +158,7 @@ export function WorkerRoleProfileEditor({
                 {translate('settings.orchestration.roles.refreshingModels', 'Refreshing models…')}
               </div>
             ) : null}
-            {!isRefreshing && models.length === 0 ? (
+            {!isRefreshing && !catalogError && models.length === 0 ? (
               <div role="status" className="px-2 py-1.5 text-xs text-muted-foreground">
                 {translate(
                   'settings.orchestration.roles.modelsUnavailable',
@@ -149,6 +173,26 @@ export function WorkerRoleProfileEditor({
             ))}
           </SelectContent>
         </Select>
+        {catalogError ? (
+          <div className="space-y-1">
+            <p
+              id={`worker-role-${role}-model-error`}
+              role="alert"
+              className="text-xs text-destructive"
+            >
+              {catalogError}
+            </p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              disabled={disabled || isRefreshing}
+              onClick={refresh}
+            >
+              {translate('settings.orchestration.roles.retryModels', 'Retry')}
+            </Button>
+          </div>
+        ) : null}
       </div>
       <div className="space-y-1">
         <Label htmlFor={`worker-role-${role}-effort`}>

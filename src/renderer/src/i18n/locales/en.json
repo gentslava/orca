@@ -615,7 +615,9 @@
         "unavailable": "Unavailable",
         "notListed": "Not listed",
         "checking": "Checking…",
-        "refreshingModels": "Refreshing models…"
+        "refreshingModels": "Refreshing models…",
+        "modelsFailed": "Could not load models: {{error}}",
+        "retryModels": "Retry"
       }
     },
     "sourceControl": {
