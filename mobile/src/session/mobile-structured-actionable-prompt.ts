@@ -34,6 +34,6 @@ export function actionableStructuredQuestion(state: PromptState): StructuredQues
   )
 }
 
-export function actionableStructuredPrompts(state: PromptState) {
+export function actionableStructuredPromptPair(state: PromptState) {
   return [actionableStructuredApproval(state), actionableStructuredQuestion(state)] as const
 }
