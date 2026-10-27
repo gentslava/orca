@@ -3,6 +3,7 @@ import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { describe, expect, it, vi } from 'vitest'
 import {
   CONVERSATION_NAVIGATION_CAPABILITY,
+  CONVERSATION_PROJECT_VISIBILITY_CAPABILITY,
   SetConversationPreferenceParams,
   updateConversationPreference
 } from '../../../src/shared/conversation-navigation-preferences'
@@ -30,6 +31,7 @@ describe('host-owned mobile conversation preferences', () => {
     const second = endpoint()
     let client: RpcClient = first.client
     let hostId = 'first'
+    let hostCapabilities = [CONVERSATION_NAVIGATION_CAPABILITY]
     const observed: {
       current: ReturnType<typeof useConversationPreferences> | null
       view: MobileViewState
@@ -43,7 +45,7 @@ describe('host-owned mobile conversation preferences', () => {
         client,
         hostId,
         connState: 'connected',
-        hostCapabilities: [CONVERSATION_NAVIGATION_CAPABILITY],
+        hostCapabilities,
         state: { view, viewRef, setView }
       })
       return null
@@ -60,6 +62,25 @@ describe('host-owned mobile conversation preferences', () => {
         revision: 1,
         entries: { chat: { pinned: true } }
       })
+
+      await act(async () => {
+        expect(await observed.current?.setProjectHidden('project', 'Notes', true)).toBe(false)
+      })
+      expect(first.sendRequest).toHaveBeenCalledTimes(1)
+      hostCapabilities = [
+        CONVERSATION_NAVIGATION_CAPABILITY,
+        CONVERSATION_PROJECT_VISIBILITY_CAPABILITY
+      ]
+      await act(async () => tree?.update(createElement(Probe)))
+      await act(async () => {
+        expect(await observed.current?.setProjectHidden('project', 'Notes', true)).toBe(true)
+      })
+      expect(observed.view.conversationPreferences?.hiddenProjects).toEqual({ project: 'Notes' })
+      expect(observed.view.conversationPreferences?.entries).toEqual({ chat: { pinned: true } })
+      await act(async () => {
+        expect(await observed.current?.setProjectHidden('project', 'Notes', false)).toBe(true)
+      })
+      expect(observed.view.conversationPreferences?.hiddenProjects).toEqual({})
 
       let resolveOld: (reply: RpcResponse) => void = () => {}
       first.sendRequest.mockImplementation(

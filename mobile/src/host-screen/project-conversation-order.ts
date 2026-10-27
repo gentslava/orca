@@ -56,6 +56,7 @@ export function orderProjectConversations(
     }))
     .filter(
       (project) =>
+        !args.preferences?.hiddenProjects?.[project.visibilityKey ?? project.key] &&
         (!args.archived || project.data.length > 0) &&
         (!query || project.data.length > 0 || project.title.toLocaleLowerCase().includes(query))
     )

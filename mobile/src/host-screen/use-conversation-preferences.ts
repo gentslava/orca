@@ -1,8 +1,11 @@
 import { useRef, useState } from 'react'
 import {
   CONVERSATION_NAVIGATION_CAPABILITY,
-  type ConversationPreference
+  CONVERSATION_PROJECT_VISIBILITY_CAPABILITY,
+  type ConversationPreference,
+  type SetConversationPreferenceParams
 } from '../../../src/shared/conversation-navigation-preferences'
+import type { z } from 'zod'
 import type { HostScreenController } from './use-host-screen-controller'
 import { conversationPreferenceWrite } from './host-screen-operations'
 import { conversationCopy } from './conversation-copy'
@@ -23,9 +26,15 @@ export function useConversationPreferences(
   const [writingOwner, setWriting] = useState<WriteOwner | null>(null)
   const [errorOwner, setError] = useState<(WriteOwner & { message: string }) | null>(null)
   const locked = useRef<WriteOwner | null>(null)
+  const acceptedOwner = useRef<WriteOwner | null>(null)
   const owner = useRef({ client, hostId, connState })
   owner.current = { client, hostId, connState }
-  async function setPreference(key: string, patch: ConversationPreference): Promise<boolean> {
+  const projectVisibilitySupported = hostCapabilities.includes(
+    CONVERSATION_PROJECT_VISIBILITY_CAPABILITY
+  )
+  async function writePreference(
+    params: z.infer<typeof SetConversationPreferenceParams>
+  ): Promise<boolean> {
     if (!client || !supported || connState !== 'connected' || owns(locked.current)) {
       return false
     }
@@ -39,7 +48,7 @@ export function useConversationPreferences(
     setWriting(request)
     setError(null)
     try {
-      const reply = await conversationPreferenceWrite.request(client, { key, ...patch })
+      const reply = await conversationPreferenceWrite.request(client, params)
       if (!current()) {
         return false
       }
@@ -48,9 +57,11 @@ export function useConversationPreferences(
         throw new Error('conversation_preference_refused')
       }
       if (
+        !owns(acceptedOwner.current) ||
         result.value.preferences.revision >=
-        (state.viewRef.current.conversationPreferences?.revision ?? 0)
+          (state.viewRef.current.conversationPreferences?.revision ?? 0)
       ) {
+        acceptedOwner.current = request
         const next = { ...state.viewRef.current, conversationPreferences: result.value.preferences }
         state.viewRef.current = next
         state.setView(next)
@@ -73,6 +84,12 @@ export function useConversationPreferences(
     supported,
     writing: owns(writingOwner),
     error: owns(errorOwner) ? (errorOwner?.message ?? '') : '',
-    setPreference
+    setPreference: (key: string, patch: ConversationPreference) =>
+      writePreference({ key, ...patch }),
+    projectVisibilitySupported,
+    setProjectHidden: (projectKey: string, label: string, hidden: boolean) =>
+      projectVisibilitySupported
+        ? writePreference({ projectKey, label, hidden })
+        : Promise.resolve(false)
   }
 }

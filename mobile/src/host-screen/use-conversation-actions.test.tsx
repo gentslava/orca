@@ -147,6 +147,24 @@ describe('conversation action ownership and selection', () => {
     }
   )
 
+  it('opens an orphan transcript on its owning host without revealing or starting a workspace', async () => {
+    const physical = session()
+    const probe = await mount(physical)
+    physical.sendRequest.mockClear()
+    await act(async () => {
+      probe.read().open({
+        ...probe.row,
+        workspace: null,
+        executionHostId: 'runtime:server-a',
+        history: conversationHistory({ id: 'orphan', executionHostId: 'runtime:server-a' })
+      })
+    })
+    expect(probe.replace).toHaveBeenCalledWith(
+      `/h/host/agent-history/history?name=${encodeURIComponent(probe.row.title)}&conversationId=orphan&executionHost=runtime%3Aserver-a`
+    )
+    expect(physical.sendRequest).not.toHaveBeenCalled()
+  })
+
   it('closes the old authority agent choice and cannot launch its selected option after cutover', async () => {
     const client = createStableLogicalRpcClient(session(), 'lan')
     const probe = await mount(client)

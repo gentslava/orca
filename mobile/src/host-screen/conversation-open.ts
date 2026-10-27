@@ -37,7 +37,7 @@ export async function conversationOpenPane(args: {
   const result = revealSchema.parse(response.result)
   if (
     result.sessionId !== structured.sessionId ||
-    result.workspaceId !== args.row.workspace.worktreeId
+    result.workspaceId !== (args.row.workspace?.worktreeId ?? structured.workspaceId)
   ) {
     throw new Error('conversation_host_identity_changed')
   }

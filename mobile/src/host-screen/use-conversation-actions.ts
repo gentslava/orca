@@ -130,6 +130,18 @@ export function useConversationActions(
 
   function open(row: ConversationRow) {
     void perform(row.key, async (current) => {
+      if (!row.workspace) {
+        if (row.history) {
+          const executionHost = row.executionHostId?.startsWith('runtime:')
+            ? `&executionHost=${encodeURIComponent(row.executionHostId)}`
+            : ''
+          actions.navigateFromHostList(
+            `/h/${encodeURIComponent(hostId)}/agent-history/${encodeURIComponent(row.history.structuredSession?.workspaceId ?? 'history')}?name=${encodeURIComponent(row.title)}&conversationId=${encodeURIComponent(row.history.id)}${executionHost}`,
+            true
+          )
+        }
+        return
+      }
       const paneKey = await conversationOpenPane({
         row,
         client: rowClient(row.workspace),

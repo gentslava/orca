@@ -1,26 +1,21 @@
 import { useMemo, useState } from 'react'
 import { ActivityIndicator, Pressable, RefreshControl, SectionList, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import {
-  ArrowDownAZ,
-  ChevronLeft,
-  MessageSquare,
-  MoreHorizontal,
-  Pin,
-  Plus,
-  Settings
-} from 'lucide-react-native'
+import { ArrowDownAZ, ChevronLeft, MoreHorizontal, Pin, Settings } from 'lucide-react-native'
 import { colors } from '../theme/mobile-theme'
 import { MobileAgentIcon } from '../components/MobileAgentIcon'
 import { AgentStateDot } from '../components/AgentStateDot'
 import { StatusDot } from '../components/StatusDot'
 import { MobileSearchField } from '../components/MobileSearchField'
 import { ConversationAgentSheet } from './conversation-agent-sheet'
-import { ActionSheetModal } from '../components/ActionSheetModal'
+import { ConversationSidebarOptions } from './conversation-sidebar-options'
 import { AuthFailedBanner } from '../components/AuthFailedBanner'
 import { formatAgentTypeLabel } from '../../../src/shared/agent-type-label'
 import type { HostScreenController } from './use-host-screen-controller'
-import { buildProjectConversations } from './project-conversations'
+import { HiddenConversationProjectsSheet } from './hidden-conversation-projects-sheet'
+import { ConversationProjectHeader } from './ConversationProjectHeader'
+import { ConversationProjectActionsSheet } from './conversation-project-actions-sheet'
+import { buildProjectConversations, type ConversationProject } from './project-conversations'
 import { useConversationActions } from './use-conversation-actions'
 import { conversationCopy, conversationTimeAgo } from './conversation-copy'
 import { conversationStyles as styles } from './conversation-styles'
@@ -46,6 +41,19 @@ export function HostConversations({
   const [query, setQuery] = useState('')
   const [options, setOptions] = useState(false)
   const [sorting, setSorting] = useState(false)
+  const [managingHidden, setManagingHidden] = useState(false)
+  const [projectAction, setProjectAction] = useState<{
+    project: ConversationProject
+    client: typeof controller.client
+    hostId: string
+    generation: number
+  } | null>(null)
+  const actionProject =
+    projectAction?.client === controller.client &&
+    projectAction.hostId === hostId &&
+    projectAction.generation === data.generation
+      ? projectAction.project
+      : null
   const [archived, setArchived] = useState(false)
   const [expandedProjects, setExpandedProjects] = useState<ReadonlySet<string>>(new Set())
   const { details, setDetails } = useConversationDetails({
@@ -220,54 +228,20 @@ export function HostConversations({
           <Text style={styles.empty}>{state.worktreesLoaded ? copy.noProjects : copy.loading}</Text>
         }
         renderSectionHeader={({ section }) => (
-          <View style={styles.section}>
-            <MessageSquare size={16} color={colors.textSecondary} />
-            <View style={styles.sectionName}>
-              <Text style={styles.projectTitle} numberOfLines={1}>
-                {section.title}
-              </Text>
-              {section.hostLabel || section.hostHealthLabel ? (
-                <Text style={styles.meta}>
-                  {[section.hostLabel, section.hostHealthLabel].filter(Boolean).join(' · ')}
-                </Text>
-              ) : null}
-            </View>
-            {section.repo && controller.settings.supportsPersonalProjectOrder ? (
-              <Pressable
-                onPress={() =>
-                  section.repo && void controller.settings.toggleProjectPin(section.repo)
-                }
-                style={styles.iconButton}
-                accessibilityRole="button"
-                accessibilityLabel={
-                  section.projectPreference?.pinned ? copy.unpinProject : copy.pinProject
-                }
-                disabled={!connected}
-              >
-                <Pin
-                  size={16}
-                  color={section.projectPreference?.pinned ? colors.textPrimary : colors.textMuted}
-                />
-              </Pressable>
-            ) : null}
-            <Pressable
-              onPress={() => prepare(section)}
-              disabled={!connected || Boolean(section.hostHealthLabel) || busy !== null}
-              style={[
-                styles.newChat,
-                (!connected || section.hostHealthLabel || busy !== null) && styles.disabled
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel={`${copy.newChat}: ${section.title}`}
-            >
-              {busy === section.key ? (
-                <ActivityIndicator size="small" color={colors.textPrimary} />
-              ) : (
-                <Plus size={16} color={colors.textPrimary} />
-              )}
-              <Text style={styles.actionText}>{copy.newChat}</Text>
-            </Pressable>
-          </View>
+          <ConversationProjectHeader
+            project={section}
+            connected={connected}
+            busy={busy}
+            onPrepare={() => prepare(section)}
+            onOptions={() =>
+              setProjectAction({
+                project: section,
+                client: controller.client,
+                hostId,
+                generation: data.generation
+              })
+            }
+          />
         )}
         renderSectionFooter={({ section }) => (
           <>
@@ -294,7 +268,7 @@ export function HostConversations({
               onPress={() => open(item)}
               onLongPress={() => setDetails(item)}
               disabled={
-                !connected || Boolean(item.workspace.hostContextHealthLabel) || busy !== null
+                !connected || Boolean(item.workspace?.hostContextHealthLabel) || busy !== null
               }
               style={({ pressed }) => [styles.rowButton, pressed && styles.pressed]}
               accessibilityRole="button"
@@ -314,7 +288,7 @@ export function HostConversations({
                 <View style={styles.rowMeta}>
                   <AgentStateDot
                     state={
-                      !connected || item.workspace.hostContextHealthLabel
+                      !connected || item.workspace?.hostContextHealthLabel
                         ? 'unverifiable'
                         : item.status === 'saved' || item.status === 'transcript'
                           ? 'idle'
@@ -324,7 +298,7 @@ export function HostConversations({
                   <Text style={styles.meta} numberOfLines={1}>
                     {[
                       item.agent ? formatAgentTypeLabel(item.agent) : null,
-                      !connected || item.workspace.hostContextHealthLabel
+                      !connected || item.workspace?.hostContextHealthLabel
                         ? copy.offline
                         : item.status === 'saved'
                           ? copy.saved
@@ -355,31 +329,51 @@ export function HostConversations({
           </View>
         )}
       />
+      <ConversationProjectActionsSheet
+        project={actionProject}
+        controller={controller}
+        onClose={() => setProjectAction(null)}
+        onWorkspaces={onWorkspaces}
+        onHide={
+          actionProject &&
+          connected &&
+          !conversationPreferences.writing &&
+          conversationPreferences.projectVisibilitySupported
+            ? () =>
+                void conversationPreferences.setProjectHidden(
+                  actionProject.visibilityKey ?? actionProject.key,
+                  actionProject.title,
+                  true
+                )
+            : undefined
+        }
+      />
+      <HiddenConversationProjectsSheet
+        visible={managingHidden}
+        projects={conversationPreferences.preferences?.hiddenProjects}
+        supported={conversationPreferences.projectVisibilitySupported}
+        writing={conversationPreferences.writing}
+        connected={connected}
+        onClose={() => setManagingHidden(false)}
+        onRestore={(key, label) => void conversationPreferences.setProjectHidden(key, label, false)}
+      />
       <ConversationProjectOrderSheet
         visible={sorting}
         onClose={() => setSorting(false)}
         controller={controller}
       />
-      <ActionSheetModal
+      <ConversationSidebarOptions
         visible={options}
-        title={copy.settings}
+        controller={controller}
+        archived={archived}
         onClose={() => setOptions(false)}
-        actions={[
-          {
-            label: archived ? copy.back : copy.archived,
-            onPress: () => setArchived((value) => !value)
-          },
-          { label: copy.workspaces, onPress: onWorkspaces },
-          {
-            label: copy.accounts,
-            onPress: () => actions.navigateFromHostList(`/h/${encodeURIComponent(hostId)}/accounts`)
-          },
-          {
-            label: copy.tasks,
-            onPress: () => actions.navigateFromHostList(`/h/${encodeURIComponent(hostId)}/tasks`)
-          },
-          { label: copy.newWorkspace, onPress: actions.openNewWorktreeModal, disabled: !connected }
-        ]}
+        onToggleArchive={() => setArchived((value) => !value)}
+        onWorkspaces={onWorkspaces}
+        onHiddenProjects={
+          Object.keys(conversationPreferences.preferences?.hiddenProjects ?? {}).length
+            ? () => setManagingHidden(true)
+            : undefined
+        }
       />
       <ConversationDetailsSheet
         details={details}

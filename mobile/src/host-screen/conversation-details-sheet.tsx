@@ -35,10 +35,19 @@ export function ConversationDetailsSheet({
       {details && (
         <View style={styles.drawer}>
           <Text style={styles.title}>{details.title}</Text>
-          <Text
-            style={styles.detail}
-            selectable
-          >{`${copy.host}: ${details.workspace.hostContextLabel ?? hostTitle}\n${copy.workspace}: ${details.workspace.displayName}\n${details.workspace.path}${details.workspace.branch ? `\n${copy.branch}: ${details.workspace.branch}` : ''}${details.workspace.linkedPR ? `\nPR #${details.workspace.linkedPR.number}` : ''}${details.history?.model ? `\n${copy.model}: ${details.history.model}` : ''}`}</Text>
+          <Text style={styles.detail} selectable>
+            {[
+              `${copy.host}: ${details.workspace?.hostContextLabel ?? hostTitle}`,
+              details.workspace
+                ? `${copy.workspace}: ${details.workspace.displayName}\n${details.workspace.path}`
+                : details.history?.cwd,
+              details.workspace?.branch ? `${copy.branch}: ${details.workspace.branch}` : null,
+              details.workspace?.linkedPR ? `PR #${details.workspace.linkedPR.number}` : null,
+              details.history?.model ? `${copy.model}: ${details.history.model}` : null
+            ]
+              .filter(Boolean)
+              .join('\n')}
+          </Text>
           {details.preferenceKey && canManage ? (
             <>
               <Pressable

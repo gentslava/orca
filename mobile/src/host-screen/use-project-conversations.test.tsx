@@ -179,7 +179,8 @@ describe('host-owned conversation snapshots', () => {
       probe.read().tabs.get(getWorktreeRowIdentity(conversationWorkspace()))?.[0]?.sessionId
     ).toBe('empty-chat')
     expect(sendRequest).toHaveBeenCalledWith('aiVault.listSessions', {
-      limit: 500,
+      unlimited: true,
+      includeAntigravityIdeSessions: true,
       includeStructuredSessions: true,
       force: false
     })

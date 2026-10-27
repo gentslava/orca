@@ -17,6 +17,11 @@ const english = {
     frequent: 'Frequent openings',
     name: 'Name, A to Z'
   },
+  projectOptions: 'Project options',
+  hideProject: 'Hide project from list',
+  hiddenProjects: 'Hidden projects',
+  keepFiles: 'Files and history are kept.',
+  restoreProject: 'Restore project',
   pinProject: 'Pin project',
   unpinProject: 'Unpin project',
   newChat: 'New chat',
@@ -79,6 +84,11 @@ const russian: typeof english = {
     frequent: 'Часто открываемые',
     name: 'По алфавиту'
   },
+  projectOptions: 'Действия с проектом',
+  hideProject: 'Скрыть проект из списка',
+  hiddenProjects: 'Скрытые проекты',
+  keepFiles: 'Файлы и история сохраняются.',
+  restoreProject: 'Показать проект',
   pinProject: 'Закрепить проект',
   unpinProject: 'Открепить проект',
   newChat: 'Новый чат',

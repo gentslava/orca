@@ -1,3 +1,4 @@
+import { AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY } from '../../../src/shared/ai-vault-runtime-capabilities'
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import type { ExecutionHostId } from '../../../src/shared/execution-host'
 import {
@@ -121,7 +122,11 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
                 return
               }
               const reply = await agentHistorySessionScan.request(sourceClient, {
-                limit: 500,
+                ...(status.capabilities.includes(AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY)
+                  ? { historyOwnership: {} }
+                  : {}),
+                unlimited: true,
+                includeAntigravityIdeSessions: true,
                 includeStructuredSessions: true,
                 force
               })
