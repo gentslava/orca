@@ -83,9 +83,10 @@ async function settledStartedAfter(
     woken ?? -Infinity
   )
   const anchor = floor === -Infinity ? startedAfter : Math.max(startedAfter ?? -Infinity, floor)
-  const waitMs = (anchor ?? -Infinity) - performance.now()
-  if (waitMs > 0) {
-    await new Promise((resolve) => setTimeout(resolve, waitMs))
+  // Timers truncate to whole ms on a ms clock and can wake ~2ms short; sleep until the anchor has passed.
+  const settled = anchor ?? -Infinity
+  while (performance.now() < settled) {
+    await new Promise((resolve) => setTimeout(resolve, Math.ceil(settled - performance.now())))
   }
   return anchor
 }
