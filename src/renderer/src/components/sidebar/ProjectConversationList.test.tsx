@@ -16,12 +16,15 @@ import {
   updateConversationPreference,
   type ConversationPreferences
 } from '../../../../shared/conversation-navigation-preferences'
-const state = vi.hoisted(() => ({
-  preferences: { revision: 0, entries: {} } as ConversationPreferences,
-  setPreference: vi.fn(),
-  projectVisibilitySupported: true,
-  setProjectHidden: vi.fn()
-}))
+const state = vi.hoisted(() => {
+  const preferences: ConversationPreferences = { revision: 0, entries: {} }
+  return {
+    preferences,
+    setPreference: vi.fn(),
+    projectVisibilitySupported: true,
+    setProjectHidden: vi.fn()
+  }
+})
 vi.mock('./use-conversation-preferences', () => ({ useConversationPreferences: () => state }))
 vi.mock('@/hooks/use-personal-project-order', () => ({
   usePersonalProjectOrderSupported: () => true
@@ -141,8 +144,11 @@ describe('Projects containing conversations', () => {
     mount()
     expect(screen.queryByText(conversationSessions[0]!.title)).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Archived' }))
-    const chat = screen.getByText(conversationSessions[0]!.title).closest('[data-conversation-id]')!
-    fireEvent.click(within(chat as HTMLElement).getByRole('button', { name: 'Restore chat' }))
+    const chat = screen.getByText(conversationSessions[0]!.title).closest('[data-conversation-id]')
+    if (!(chat instanceof HTMLElement)) {
+      throw new Error('Expected a conversation row')
+    }
+    fireEvent.click(within(chat).getByRole('button', { name: 'Restore chat' }))
     expect(state.setPreference).toHaveBeenCalledWith(
       conversationPreferenceKey(conversationSessions[0]!),
       { archived: false }

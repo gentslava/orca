@@ -8,7 +8,7 @@ import {
   createStore,
   testState
 } from '../../../persistence/persistence-test-harness'
-import type { OrcaRuntimeService } from '../../orca-runtime'
+import { OrcaRuntimeService } from '../../orca-runtime'
 import { RpcDispatcher } from '../dispatcher'
 import { CLIENT_UI_METHODS } from './client-ui'
 
@@ -21,17 +21,8 @@ afterEach(async () => {
 })
 
 function dispatcherFor(store: ReturnType<typeof createStore>) {
-  const runtime = {
-    getRuntimeId: () => 'test-runtime',
-    getUIState: () => store.getUI(),
-    updateUIState: (updates: Parameters<typeof store.updateUI>[0]) => {
-      store.updateUI(updates)
-      return store.getUI()
-    }
-  }
-  // SAFETY: this registry only reads runtime identity and UI state, which the real profile store supplies.
   return new RpcDispatcher({
-    runtime: runtime as unknown as OrcaRuntimeService,
+    runtime: new OrcaRuntimeService(store),
     methods: CLIENT_UI_METHODS
   })
 }

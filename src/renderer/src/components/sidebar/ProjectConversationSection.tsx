@@ -87,7 +87,7 @@ export function ProjectConversationSection({
               variant="ghost"
               size="sm"
               onClick={onMore}
-              className="ml-6 justify-start text-muted-foreground"
+              className="ml-6 justify-start"
             >
               {translate('projectConversations.showMore', 'Show more')}
             </Button>

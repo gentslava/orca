@@ -198,7 +198,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
             <Button
               variant="ghost"
               size="xs"
-              className="min-w-0 text-muted-foreground"
+              className="min-w-0"
               aria-label={translate('projectConversations.projectOrder', 'Project order')}
             >
               {orderLabels.get(order)}
@@ -235,7 +235,6 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
           variant="ghost"
           size="xs"
           aria-pressed={archived}
-          className="text-muted-foreground"
           onClick={() => setArchived(!archived)}
         >
           <Archive className="size-3.5" />
