@@ -124,7 +124,7 @@ describe('Projects containing conversations', () => {
         .getAttribute('aria-current')
     ).toBe('page')
   })
-  it('creates a chat in its project even when another project is active', () => {
+  it('targets each project’s new-chat action at its own workspace', () => {
     mount()
     expect(screen.getByRole('button', { name: 'New chat in Orca' }).dataset.workspace).toBe(
       conversationWorktrees[0]!.id

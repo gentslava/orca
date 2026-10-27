@@ -17,6 +17,7 @@ import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTar
 import { useAgentMenuObservation } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
 import { AgentIcon, getAgentCatalog } from '@/lib/agent-catalog'
 import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
+import { activateAndRevealWorkspace } from '@/lib/worktree-activation'
 import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import { captureNativeChatComposerFocusIntent } from '@/components/native-chat/use-native-chat-composer-reveal-focus'
 import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
@@ -60,7 +61,13 @@ export function SidebarConversationStart({
       agent: row.agent,
       worktreeId,
       requestedSurface: 'chat',
-      selectedExecutionHostId: row.executionHostId
+      selectedExecutionHostId: row.executionHostId,
+      beforeSurfaceOpen: () =>
+        activateAndRevealWorkspace(worktreeId, {
+          executionHostId,
+          providesInitialSurface: true,
+          revealInSidebar: false
+        }) !== false
     })
   }
   if (!ownsTarget) {
