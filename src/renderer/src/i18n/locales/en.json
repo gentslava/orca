@@ -22119,6 +22119,12 @@
     "keyboardHint": "↑↓ navigate  ↵ select  esc dismiss"
   },
   "projectConversations": {
+    "hideProject": "Hide project from list",
+    "hiddenProjects": "Hidden projects",
+    "keepFiles": "Files and history are kept",
+    "restoreProject": "Restore {{project}}",
+    "projectOptionsFor": "Project options for {{project}}",
+    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
     "saveFailed": "Could not save chat preferences. Update Orca or try again.",
     "unpin": "Unpin chat",
     "pin": "Pin chat",
@@ -22133,7 +22139,6 @@
     "projectOrder": "Project order",
     "allChats": "Chats",
     "archived": "Archived",
-    "projectOptions": "Project options",
     "moveUp": "Move up",
     "moveDown": "Move down",
     "noChats": "No chats yet",

@@ -36,14 +36,14 @@ function groups(overrides: Partial<Parameters<typeof buildConversationProjectGro
     sessionProjects: new Map(),
     repos: [],
     worktrees: [],
-    folderWorkspaces: [],
+    folders: [],
     catalog: { projects: [], setups: [] },
     order: 'recent' as const,
     activeWorkspaceId: null,
     ...overrides
   }
   const sessionProjects = buildAiVaultSessionProjectById({
-    folderWorkspaces: args.folderWorkspaces,
+    folderWorkspaces: args.folders,
     repos: args.repos,
     worktrees: args.worktrees,
     projectHostSetupProjection: args.catalog,
@@ -56,7 +56,7 @@ describe('project conversation ownership', () => {
   it('keeps same-path folder conversations and their new-chat targets separate on each host', () => {
     const result = groups({
       sessions: [chat('local', 'local'), chat('remote', 'runtime:remote')],
-      folderWorkspaces: [localFolder, remoteFolder]
+      folders: [localFolder, remoteFolder]
     })
     expect(result).toHaveLength(2)
     expect(new Set(result.map((group) => group.key)).size).toBe(2)
@@ -68,7 +68,7 @@ describe('project conversation ownership', () => {
   })
   it('shows catalog folders before their first chat and limits empty placeholders to the selected host', () => {
     const result = groups({
-      folderWorkspaces: [localFolder, remoteFolder],
+      folders: [localFolder, remoteFolder],
       executionHostScope: 'local'
     })
     expect(result).toHaveLength(1)
@@ -106,6 +106,17 @@ describe('project conversation ownership', () => {
       new Set(['local', 'runtime:remote'])
     )
     expect(result.every((group) => group.workspaceId === worktrees[0]!.id)).toBe(true)
+  })
+  it('places a canonical owner in the registered project group with its existing actions', () => {
+    const repos = [conversationRepos[0]!]
+    const result = groups({
+      repos,
+      catalog: projectHostSetupProjectionFromRepos(repos),
+      sessions: [{ ...conversationSessions[0]!, projectOwnerKey: 'repo:orca' }]
+    })
+    expect(result).toHaveLength(1)
+    expect(result[0]?.repo?.id).toBe('orca')
+    expect(result[0]?.sessions).toHaveLength(1)
   })
   it('does not guess a host for unqualified workspace twins', () => {
     const repos = [

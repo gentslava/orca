@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import userEvent from '@testing-library/user-event'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
@@ -12,11 +13,14 @@ import {
 } from './ProjectConversationList.test-fixture'
 import {
   conversationPreferenceKey,
+  updateConversationPreference,
   type ConversationPreferences
 } from '../../../../shared/conversation-navigation-preferences'
 const state = vi.hoisted(() => ({
   preferences: { revision: 0, entries: {} } as ConversationPreferences,
-  setPreference: vi.fn()
+  setPreference: vi.fn(),
+  projectVisibilitySupported: true,
+  setProjectHidden: vi.fn()
 }))
 vi.mock('./use-conversation-preferences', () => ({ useConversationPreferences: () => state }))
 vi.mock('@/hooks/use-personal-project-order', () => ({
@@ -36,7 +40,17 @@ vi.mock('../right-sidebar/use-ai-vault-session-display-title', () => ({
 }))
 beforeEach(() => {
   state.preferences = { revision: 0, entries: {} }
+  state.projectVisibilitySupported = true
   state.setPreference.mockReset().mockResolvedValue(undefined)
+  state.setProjectHidden
+    .mockReset()
+    .mockImplementation(async (projectKey: string, label: string, hidden: boolean) => {
+      state.preferences = updateConversationPreference(state.preferences, {
+        projectKey,
+        label,
+        hidden
+      })
+    })
   useAppStore.setState(conversationStore)
 })
 afterEach(cleanup)
@@ -154,4 +168,49 @@ describe('Projects containing conversations', () => {
     const result = mount(props)
     expect(result.container.querySelectorAll('[data-conversation-id]')).toHaveLength(7)
   })
+})
+
+it('reuses registered project settings and removal confirmation actions', async () => {
+  mount()
+  await userEvent.click(screen.getByRole('button', { name: 'Project actions for Orca' }))
+  expect(screen.getByRole('menuitem', { name: 'Project Settings' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Change Project Icon' })).toBeTruthy()
+  await userEvent.click(screen.getByRole('menuitem', { name: 'Remove Project' }))
+  expect(useAppStore.getState().activeModal).toBe('confirm-remove-folder')
+  expect(useAppStore.getState().modalData).toMatchObject({ repoId: 'orca', hostId: 'local' })
+})
+
+it('hides a history-only group and restores it through management without requiring a workspace', async () => {
+  const props = conversationListProps()
+  const session = { ...conversationSessions[0]!, id: 'lost', cwd: '/lost' }
+  props.groups = [{ key: 'lost', label: 'Lost', sessions: [session] }]
+  props.sessionProjects = new Map([
+    ['lost', { kind: 'folder', key: 'folder:/lost', label: 'Lost' }]
+  ])
+  const view = mount(props)
+  await userEvent.click(screen.getByRole('button', { name: 'Project options for Lost' }))
+  await userEvent.click(screen.getByRole('menuitem', { name: 'Hide project from list' }))
+  const redraw = () =>
+    view.rerender(
+      <TooltipProvider>
+        <ProjectConversationList {...props} />
+      </TooltipProvider>
+    )
+  redraw()
+  expect(screen.queryByRole('region', { name: 'Lost' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'New chat in Lost' })).toBeNull()
+  await userEvent.click(screen.getByRole('button', { name: 'Hidden projects' }))
+  await userEvent.click(screen.getByRole('menuitem', { name: 'Restore Lost' }))
+  redraw()
+  expect(screen.getByRole('region', { name: 'Lost' })).toBeTruthy()
+})
+
+it('keeps visibility actions disabled until the host advertises support', async () => {
+  state.projectVisibilitySupported = false
+  mount()
+  await userEvent.click(screen.getByRole('button', { name: 'Project actions for Orca' }))
+  const hide = screen.getByRole('menuitem', { name: 'Hide project from list' })
+  expect(hide.getAttribute('aria-disabled')).toBe('true')
+  await userEvent.click(hide)
+  expect(state.setProjectHidden).not.toHaveBeenCalled()
 })

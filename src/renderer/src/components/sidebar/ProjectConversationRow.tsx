@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
+import { AgentIcon } from '@/lib/agent-catalog'
 import type { AiVaultSession } from '../../../../shared/ai-vault-types'
 import type { AgentStatusState } from '../../../../shared/agent-status-types'
 import type { ConversationPreference } from '../../../../shared/conversation-navigation-preferences'
@@ -67,6 +68,12 @@ export function ProjectConversationRow({
             aria-current={selected ? 'page' : undefined}
             className="flex min-w-0 flex-1 items-center gap-1.5 py-1.5 pr-1 group-hover/chat:pr-12 group-focus-within/chat:pr-12 [@media(hover:none)]:pr-12 text-left text-sm outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring rounded-sm"
           >
+            <span
+              aria-hidden="true"
+              className="flex size-3.5 shrink-0 items-center justify-center text-muted-foreground"
+            >
+              <AgentIcon agent={session.agent} size={14} />
+            </span>
             <span className="min-w-0 flex-1 truncate">{title}</span>
             {liveState === 'working' ? (
               <Loader2

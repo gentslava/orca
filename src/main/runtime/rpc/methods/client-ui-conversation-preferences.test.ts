@@ -1,6 +1,6 @@
 import '../unused-default-rpc-methods.test-fixture'
 import { afterEach, beforeEach, expect, it } from 'vitest'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import {
@@ -20,8 +20,7 @@ afterEach(async () => {
   rmSync(testState.dir, { recursive: true, force: true })
 })
 
-it('merges concurrent host-qualified conversation changes through RPC and persists restore across restart', async () => {
-  const store = createStore()
+function dispatcherFor(store: ReturnType<typeof createStore>) {
   const runtime = {
     getRuntimeId: () => 'test-runtime',
     getUIState: () => store.getUI(),
@@ -31,10 +30,15 @@ it('merges concurrent host-qualified conversation changes through RPC and persis
     }
   }
   // SAFETY: this registry only reads runtime identity and UI state, which the real profile store supplies.
-  const dispatcher = new RpcDispatcher({
+  return new RpcDispatcher({
     runtime: runtime as unknown as OrcaRuntimeService,
     methods: CLIENT_UI_METHODS
   })
+}
+
+it('merges concurrent host-qualified conversation changes through RPC and persists restore across restart', async () => {
+  const store = createStore()
+  const dispatcher = dispatcherFor(store)
   const remote = JSON.stringify(['ssh:alpha', 'structured', 'same-session'])
   const local = JSON.stringify(['local', 'structured', 'same-session'])
   const mutate = (id: string, params: unknown) =>
@@ -78,4 +82,31 @@ it('merges concurrent host-qualified conversation changes through RPC and persis
       entries: { [remote]: { pinned: true, archived: false }, [local]: { pinned: true } }
     }
   })
+})
+
+it('persists hidden discovered groups and restores them without touching project files or history', async () => {
+  const file = join(testState.dir, 'project-file.txt')
+  const history = join(testState.dir, 'transcript.jsonl')
+  writeFileSync(file, 'keep project contents')
+  writeFileSync(history, 'keep conversation contents')
+  const key = JSON.stringify(['runtime:remote', 'folder:/notes'])
+  let store = createStore()
+  const mutate = (hidden: boolean) =>
+    dispatcherFor(store).dispatch({
+      id: hidden ? 'hide' : 'restore',
+      authToken: 'tok',
+      method: 'ui.setConversationPreference',
+      params: { projectKey: key, label: 'Notes', hidden }
+    })
+  expect(await mutate(true)).toMatchObject({ ok: true })
+  store.flush()
+  await closeTestStores()
+  store = createStore()
+  expect(store.getUI().conversationPreferences?.hiddenProjects).toEqual({ [key]: 'Notes' })
+  expect(await mutate(false)).toMatchObject({ ok: true })
+  store.flush()
+  await closeTestStores()
+  expect(createStore().getUI().conversationPreferences?.hiddenProjects).toEqual({})
+  expect(readFileSync(file, 'utf8')).toBe('keep project contents')
+  expect(readFileSync(history, 'utf8')).toBe('keep conversation contents')
 })

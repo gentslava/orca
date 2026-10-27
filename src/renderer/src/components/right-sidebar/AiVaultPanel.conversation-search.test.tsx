@@ -38,15 +38,19 @@ const sessions = [
     structuredSession: { sessionId: 'chat', workspaceId: 'folder:notes' }
   }
 ]
+const observeRefresh = vi.hoisted(() => vi.fn())
 vi.mock('./ai-vault-session-refresh', () => ({
-  useAiVaultSessionRefresh: () => ({
-    error: null,
-    loading: false,
-    refresh: vi.fn(),
-    scanResult: { sessions, issues: [], scannedAt: 'now' },
-    sessions,
-    loadedSessionLimit: 100
-  })
+  useAiVaultSessionRefresh: (_paths: string[], _scope: string, limit: number | 'unlimited') => {
+    observeRefresh(limit)
+    return {
+      error: null,
+      loading: false,
+      refresh: vi.fn(),
+      scanResult: { sessions, issues: [], scannedAt: 'now' },
+      sessions,
+      loadedSessionLimit: 100
+    }
+  }
 }))
 vi.mock('./use-persisted-ai-vault-view-options', () => ({
   usePersistedAiVaultViewOptions: () => ({
@@ -98,6 +102,8 @@ afterEach(cleanup)
 it('shows primary project chats despite legacy hidden-agent filters and searches their durable prompts without an index hit', async () => {
   const { default: AiVaultPanel } = await import('./AiVaultPanel')
   render(<AiVaultPanel conversationNavigation />)
+  expect(observeRefresh).toHaveBeenLastCalledWith('unlimited')
+  expect(screen.queryByText('Show more sessions')).toBeNull()
   expect(screen.getByText('Saved durable chat')).toBeTruthy()
   await userEvent.type(screen.getByLabelText('Search sessions'), 'distinctive')
   await waitFor(() => expect(searchSessions).toHaveBeenCalled())

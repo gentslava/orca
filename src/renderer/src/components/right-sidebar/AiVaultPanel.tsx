@@ -93,7 +93,7 @@ export default function AiVaultPanel({
     searchSort,
     group,
     hideEmptySessions,
-    sessionLimit,
+    sessionLimit: historySessionLimit,
     setSort,
     setSearchSort,
     setGroup,
@@ -103,6 +103,7 @@ export default function AiVaultPanel({
     setAllAgentsEnabled,
     resetViewOptions
   } = usePersistedAiVaultViewOptions(initialAgents)
+  const sessionLimit = conversationNavigation ? 'unlimited' : historySessionLimit
   const agents = conversationNavigation ? AI_VAULT_AGENTS : historyAgents
   const { executionHostScope, onExecutionHostScopeChange, hostScopeOptions } =
     useAiVaultPanelHostScope(activeWorktreeId ?? null, resumeTargetState)
@@ -382,7 +383,7 @@ export default function AiVaultPanel({
             onRequestDelete={(session) => void requestDelete(session)}
           />
         )}
-        {!searching && (
+        {!searching && !conversationNavigation && (
           <AiVaultShowMoreSessionsRow
             loaded={sessions.length}
             loadedSessionLimit={loadedSessionLimit}

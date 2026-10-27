@@ -1,6 +1,6 @@
 import { useMemo, useState, useRef, useImperativeHandle, type ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Archive, ChevronDown, MoreHorizontal, ArrowUp, ArrowDown } from 'lucide-react'
+import { Archive, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { selectFolderWorkspaces } from '@/store/workspace-record-selectors'
@@ -17,7 +17,8 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
 import { translate } from '@/i18n/i18n'
-import { ProjectPinMenuItem } from './project-pin-menu-item'
+import { ConversationProjectMenu } from './ConversationProjectMenu'
+import { HiddenConversationProjects } from './HiddenConversationProjects'
 import type { AiVaultSessionVirtualList } from '../right-sidebar/AiVaultSessionVirtualList'
 import { resolveAiVaultSessionRowChatActions } from '../right-sidebar/ai-vault-session-chat-action'
 import type { AiVaultSession } from '../../../../shared/ai-vault-types'
@@ -58,7 +59,8 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
     state.activeWorktreeId ? state.getActiveTab(state.activeWorktreeId) : null
   )
   const personalOrderSupported = usePersonalProjectOrderSupported()
-  const { preferences, setPreference } = useConversationPreferences()
+  const { preferences, setPreference, projectVisibilitySupported, setProjectHidden } =
+    useConversationPreferences()
   const [archived, setArchived] = useState(false)
   const [pageSizes, setPageSizes] = useState<Record<string, number>>({})
   const sessions = useMemo(
@@ -77,7 +79,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
         sessionProjects: props.sessionProjects ?? new Map(),
         repos,
         worktrees,
-        folderWorkspaces,
+        folders: folderWorkspaces,
         activeExecutionHostId,
         executionHostScope: props.executionHostScope,
         catalog,
@@ -137,8 +139,11 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
     }
   }))
   const query = props.query?.trim() ?? ''
-  const visibleGroups =
-    query || archived ? groups.filter((group) => group.sessions.length > 0) : groups
+  const visibleGroups = groups.filter(
+    (group) =>
+      !preferences.hiddenProjects?.[group.key] &&
+      (!(query || archived) || group.sessions.length > 0)
+  )
   const orderLabels = new Map(PROJECT_ORDER_OPTIONS.map(({ id, label }) => [id, label]))
   const open = (session: AiVaultSession): void => {
     if (session.structuredSession) {
@@ -164,8 +169,8 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
     }
   }
   const move = (group: ConversationProjectGroup, direction: -1 | 1) => {
-    const index = groups.findIndex((item) => item.key === group.key)
-    const target = groups[index + direction]
+    const index = visibleGroups.findIndex((item) => item.key === group.key)
+    const target = visibleGroups[index + direction]
     if (!target) {
       return
     }
@@ -239,6 +244,16 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
             : translate('projectConversations.archived', 'Archived')}
         </Button>
       </div>
+      <div className="flex justify-end px-3">
+        <HiddenConversationProjects
+          projects={preferences.hiddenProjects}
+          onRestore={
+            projectVisibilitySupported
+              ? (key, label) => void setProjectHidden(key, label, false)
+              : undefined
+          }
+        />
+      </div>
       <div
         ref={listRef}
         className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pb-3 scrollbar-sleek"
@@ -293,41 +308,31 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
                 ) : undefined
               }
               menu={
-                group.repo ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        aria-label={translate(
-                          'projectConversations.projectOptions',
-                          'Project options'
-                        )}
+                <ConversationProjectMenu
+                  group={group}
+                  onHide={
+                    projectVisibilitySupported
+                      ? () => void setProjectHidden(group.key, group.label, true)
+                      : undefined
+                  }
+                >
+                  {order === 'manual' ? (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem disabled={index === 0} onSelect={() => move(group, -1)}>
+                        <ArrowUp />
+                        {translate('projectConversations.moveUp', 'Move up')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        disabled={index === visibleGroups.length - 1}
+                        onSelect={() => move(group, 1)}
                       >
-                        <MoreHorizontal className="size-3.5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <ProjectPinMenuItem repo={group.repo} />
-                      {order === 'manual' ? (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem disabled={index === 0} onSelect={() => move(group, -1)}>
-                            <ArrowUp />
-                            {translate('projectConversations.moveUp', 'Move up')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            disabled={index === groups.length - 1}
-                            onSelect={() => move(group, 1)}
-                          >
-                            <ArrowDown />
-                            {translate('projectConversations.moveDown', 'Move down')}
-                          </DropdownMenuItem>
-                        </>
-                      ) : null}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : undefined
+                        <ArrowDown />
+                        {translate('projectConversations.moveDown', 'Move down')}
+                      </DropdownMenuItem>
+                    </>
+                  ) : null}
+                </ConversationProjectMenu>
               }
             >
               {group.sessions.slice(0, size).map((session) => (

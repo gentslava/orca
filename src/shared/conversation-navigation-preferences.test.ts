@@ -40,4 +40,47 @@ describe('conversation navigation preferences', () => {
       entries: { a: {} }
     })
   })
+  it('hides and restores one host-qualified project without changing chat preferences', () => {
+    const pinned = updateConversationPreference(null, { key: 'chat', pinned: true })
+    const local = JSON.stringify(['local', 'folder:/notes'])
+    const remote = JSON.stringify(['runtime:server', 'folder:/notes'])
+    const hidden = updateConversationPreference(pinned, {
+      projectKey: local,
+      label: 'Notes',
+      hidden: true
+    })
+    const both = updateConversationPreference(hidden, {
+      projectKey: remote,
+      label: 'Remote notes',
+      hidden: true
+    })
+    const restored = updateConversationPreference(both, {
+      projectKey: local,
+      label: 'Notes',
+      hidden: false
+    })
+    expect(restored).toEqual({
+      revision: 4,
+      entries: { chat: { pinned: true } },
+      hiddenProjects: { [remote]: 'Remote notes' }
+    })
+  })
+  it('separates provider histories by distro and Antigravity origin while keeping stored chat handles stable', () => {
+    const row = {
+      executionHostId: 'local' as const,
+      agent: 'codex',
+      sessionId: 'same',
+      filePath: '/home/me/.codex/a.jsonl'
+    }
+    const ubuntu = { ...row, filePath: '//wsl.localhost/Ubuntu/home/me/.codex/a.jsonl' }
+    const debian = { ...row, filePath: '//wsl.localhost/Debian/home/me/.codex/a.jsonl' }
+    expect(new Set([row, ubuntu, debian].map(conversationPreferenceKey)).size).toBe(3)
+    const cli = {
+      ...row,
+      agent: 'antigravity',
+      filePath: '/home/me/.gemini/antigravity-cli/brain/same/transcript.jsonl'
+    }
+    const ide = { ...cli, filePath: cli.filePath.replace('antigravity-cli', 'antigravity-ide') }
+    expect(conversationPreferenceKey(cli)).not.toBe(conversationPreferenceKey(ide))
+  })
 })

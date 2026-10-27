@@ -58,7 +58,7 @@ export const conversationSessions: AiVaultSession[] = titles.map((title, index) 
   id: `chat-${index}`,
   sessionId: `chat-${index}`,
   executionHostId: 'local',
-  agent: 'claude',
+  agent: index % 3 === 0 ? 'claude' : index % 3 === 1 ? 'codex' : 'gemini',
   title,
   cwd: '/projects/orca',
   branch: null,

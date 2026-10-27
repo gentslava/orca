@@ -1,3 +1,5 @@
+import { toAiVaultProjectKey } from '../../../../shared/ai-vault-project-key'
+import { createConversationWorkspaceMatcher } from '../../../../shared/conversation-workspace-matcher'
 import type { AiVaultSession } from '../../../../shared/ai-vault-types'
 import {
   folderGroupKey,
@@ -24,6 +26,7 @@ import { applyManualRepoOrder } from '../../../../shared/manual-repo-order'
 import {
   buildProjectGroupingIndex,
   buildProjectSections,
+  getProjectGroupingForRepo,
   type ProjectSectionEntry
 } from '../../../../shared/project-section-grouping'
 import {
@@ -47,7 +50,7 @@ export function buildConversationProjectGroups(args: {
   sessionProjects: ReadonlyMap<string, AiVaultSessionProject>
   repos: readonly Repo[]
   worktrees: readonly Worktree[]
-  folderWorkspaces?: readonly FolderWorkspace[]
+  folders?: readonly FolderWorkspace[]
   catalog: ProjectHostSetupProjection
   personalOrder?: PersonalProjectOrder
   order: ProjectOrderBy
@@ -91,12 +94,32 @@ export function buildConversationProjectGroups(args: {
   const hostByKey = new Map<string, ExecutionHostId>()
   for (const [host, repos] of reposByHost) {
     const repoMap = new Map(repos.map((repo) => [repo.id, repo]))
+    const reposByProject = new Map<string, Repo[]>()
+    for (const repo of repos) {
+      const grouping = getProjectGroupingForRepo(repo.id, repoMap, projectIndex, repo)
+      for (const key of new Set([grouping.key, toAiVaultProjectKey(grouping.projectId, repo.id)])) {
+        if (key) {
+          reposByProject.set(key, [...(reposByProject.get(key) ?? []), repo])
+        }
+      }
+    }
     const items = args.sessions.flatMap((session): ConversationItem[] => {
       if (session.executionHostId !== host) {
         return []
       }
-      const repoId = args.sessionProjects.get(session.id)?.repoId
-      const repo = repoId ? repoMap.get(repoId) : undefined
+      const project = args.sessionProjects.get(session.id)
+      const candidates = project?.kind === 'repo' ? reposByProject.get(project.key) : undefined
+      const repo = project?.repoId
+        ? repoMap.get(project.repoId)
+        : candidates?.length &&
+            candidates.every(
+              (candidate) =>
+                getProjectGroupingForRepo(candidate.id, repoMap, projectIndex, candidate).key ===
+                getProjectGroupingForRepo(candidates[0]!.id, repoMap, projectIndex, candidates[0])
+                  .key
+            )
+          ? candidates[0]
+          : undefined
       if (!repo) {
         return []
       }
@@ -163,7 +186,7 @@ export function buildConversationProjectGroups(args: {
   )
   const folderGroups = new Map<string, ConversationProjectGroup>()
   const foldersByPath = new Map<string, ConversationProjectGroup[]>()
-  for (const folder of args.folderWorkspaces ?? []) {
+  for (const folder of args.folders ?? []) {
     const executionHostId = getFolderWorkspaceWorktreeHostId(folder)
     if (folder.isArchived || !matchesHost(executionHostId)) {
       continue
@@ -182,6 +205,9 @@ export function buildConversationProjectGroups(args: {
     const pathKey = JSON.stringify([executionHostId, folderGroupKey(folder.folderPath)])
     foldersByPath.set(pathKey, [...(foldersByPath.get(pathKey) ?? []), group])
   }
+  const matchFolder = createConversationWorkspaceMatcher(
+    (args.folders ?? []).filter((folder) => !folder.isArchived).map(folderWorkspaceToWorktree)
+  )
   const orphans = new Map<string, ConversationProjectGroup>()
   for (const session of args.sessions) {
     if (assigned.has(session.id) || !matchesHost(session.executionHostId)) {
@@ -193,10 +219,12 @@ export function buildConversationProjectGroups(args: {
           JSON.stringify([session.executionHostId, session.structuredSession.workspaceId])
         )
       : undefined
-    const matchingFolders =
-      !session.structuredSession && project?.kind === 'folder'
-        ? foldersByPath.get(JSON.stringify([session.executionHostId, project.key]))
-        : undefined
+    const folderMatch = !session.structuredSession ? matchFolder(session) : null
+    const matchingFolders = folderMatch
+      ? foldersByPath.get(
+          JSON.stringify([session.executionHostId, folderGroupKey(folderMatch.path)])
+        )
+      : undefined
     const folderGroup = owned ?? (matchingFolders?.length === 1 ? matchingFolders[0] : undefined)
     if (folderGroup) {
       folderGroup.sessions.push(session)

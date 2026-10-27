@@ -5,6 +5,7 @@ import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { ensureLocalRuntimeCapabilities } from '@/runtime/local-runtime-capabilities'
 import {
   CONVERSATION_NAVIGATION_CAPABILITY,
+  CONVERSATION_PROJECT_VISIBILITY_CAPABILITY,
   normalizeConversationPreferences,
   type ConversationPreference,
   type ConversationPreferences
@@ -12,6 +13,7 @@ import {
 
 let current: ConversationPreferences = { revision: 0, entries: {} }
 let supported = false
+let projectVisibilitySupported = false
 const listeners = new Set<() => void>()
 let flight: Promise<void> | null = null
 function accept(next: unknown): void {
@@ -26,9 +28,10 @@ function accept(next: unknown): void {
 }
 function refresh(): Promise<void> {
   flight ??= (async () => {
-    supported =
-      (await ensureLocalRuntimeCapabilities())?.includes(CONVERSATION_NAVIGATION_CAPABILITY) ===
-      true
+    const capabilities = await ensureLocalRuntimeCapabilities()
+    supported = capabilities?.includes(CONVERSATION_NAVIGATION_CAPABILITY) === true
+    projectVisibilitySupported =
+      capabilities?.includes(CONVERSATION_PROJECT_VISIBILITY_CAPABILITY) === true
     if (!supported) {
       return
     }
@@ -82,5 +85,30 @@ export function useConversationPreferences() {
       )
     }
   }
-  return { preferences, setPreference }
+  const setProjectHidden = async (
+    projectKey: string,
+    label: string,
+    hidden: boolean
+  ): Promise<void> => {
+    try {
+      await refresh()
+      if (!projectVisibilitySupported) {
+        throw new Error('host-update-required')
+      }
+      const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
+        { kind: 'local' },
+        'ui.setConversationPreference',
+        { projectKey, label, hidden }
+      )
+      accept(reply.preferences)
+    } catch {
+      toast.error(
+        translate(
+          'projectConversations.visibilityFailed',
+          'Could not save project visibility. Update Orca or try again.'
+        )
+      )
+    }
+  }
+  return { preferences, setPreference, projectVisibilitySupported, setProjectHidden }
 }
