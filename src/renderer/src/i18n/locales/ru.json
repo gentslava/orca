@@ -389,7 +389,10 @@
         "unavailable": "Недоступно",
         "notListed": "Нет в списке",
         "checking": "Проверка…",
-        "refreshingModels": "Обновление моделей…"
+        "refreshingModels": "Обновление моделей…",
+        "modelsFailed": "Не удалось загрузить модели.",
+        "modelErrorDetails": "Подробнее",
+        "retryModels": "Повторить"
       }
     },
     "followSymlinkedDirectoriesKeywords": {
