@@ -7,6 +7,7 @@ import type { WorktreeDeletionPreferences } from './worktree-deletion-preference
 import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
 import type { WorkerRoleSettings } from './orchestration-worker-roles'
 import type { HoldQuitSettings } from './mac-hold-quit'
+import type { OrchestrationHeartbeatSettings } from './orchestration-heartbeat'
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = ClaudeAgentViewSettings &
@@ -17,4 +18,5 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   ExternalConversationSettings &
   BrowserLinkOpeningSettings &
   WorkerRoleSettings &
-  HoldQuitSettings
+  HoldQuitSettings &
+  OrchestrationHeartbeatSettings

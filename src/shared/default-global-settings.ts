@@ -155,6 +155,7 @@ export function buildDefaultSettings(args: {
     orchestrationChatErrorEscalationEnabled: true,
     orchestrationWorkerRoles: {},
     orchestrationHeartbeatsEnabled: true,
+    orchestrationHeartbeatIntervalMinutes: 5,
     showArtifactsButton: false,
     showSkillsButton: false,
     showMobileButton: false,

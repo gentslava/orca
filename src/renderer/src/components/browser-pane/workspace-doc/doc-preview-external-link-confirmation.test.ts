@@ -22,6 +22,8 @@ const openBrowser = vi.fn(async () => 'opened-page')
 const state = {
   repos: [],
   projectHostSetupProjection: { projects: [], setups: [] },
+  endpointProjects: [],
+  endpointProjectHostSetups: [],
   activeWorktreeId: 'unrelated-workspace',
   settings: { openLinksInApp: true, openLinksInAppModifierInverts: false },
   setActiveWorktree: vi.fn(),
