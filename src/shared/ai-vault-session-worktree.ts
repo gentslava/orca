@@ -1,6 +1,6 @@
 // Which live workspace owns a saved session's cwd, on the host that recorded it; shared by desktop and mobile.
 
-import { parseWslUncPath } from './wsl-paths'
+import { createNormalizedAiVaultScopeCwdMatcher } from './ai-vault-scope-cwd-match'
 import { splitWorktreeIdForFilesystem } from './worktree/id'
 import {
   getRepoExecutionHostId,
@@ -9,7 +9,6 @@ import {
   type ExecutionHostId
 } from './execution-host'
 import {
-  createNormalizedPathInsideOrEqualMatcher,
   isRuntimePathAbsolute,
   normalizeRuntimePathForComparison,
   normalizeRuntimePathSeparators
@@ -46,7 +45,7 @@ type WorktreeCandidate = {
   status: Exclude<AiVaultSessionWorktreeStatus, 'current'>
   source: 'current-path' | 'prior-path'
   // Precomputed so a 500-session scan doesn't re-normalize ~500 roots per session.
-  ownsNormalizedCwd: (normalizedCwd: string) => boolean
+  ownsNormalizedCwd: ReturnType<typeof createNormalizedAiVaultScopeCwdMatcher>
   normalizedPathLength: number
 }
 
@@ -104,7 +103,7 @@ function resolveWorktreeInfoFromCandidates(
 
   const normalizedCwd = normalizeRuntimePathForComparison(session.cwd)
   const matched = candidates
-    .filter((candidate) => candidate.ownsNormalizedCwd(normalizedCwd))
+    .filter((candidate) => candidate.ownsNormalizedCwd(normalizedCwd, session.filePath))
     .filter((candidate) => !sessionHostId || candidate.hostId === sessionHostId)
     .sort(compareWorktreeCandidates)
 
@@ -251,20 +250,13 @@ function makeWorktreeCandidate(
   hostId: ExecutionHostId,
   source: WorktreeCandidate['source']
 ): WorktreeCandidate {
-  const ownsCwd = createNormalizedPathInsideOrEqualMatcher(path)
-  // A WSL UNC root also owns sessions recorded under its Linux-native cwd.
-  const wslPath = parseWslUncPath(path)
-  const ownsCwdViaWslAlias = wslPath
-    ? createNormalizedPathInsideOrEqualMatcher(wslPath.linuxPath)
-    : null
   return {
     worktree,
     path,
     hostId,
     status: worktree.isArchived ? 'archived' : 'active',
     source,
-    ownsNormalizedCwd: (normalizedCwd) =>
-      ownsCwd(normalizedCwd) || (ownsCwdViaWslAlias?.(normalizedCwd) ?? false),
+    ownsNormalizedCwd: createNormalizedAiVaultScopeCwdMatcher([path]),
     normalizedPathLength: normalizeRuntimePathForComparison(path).length
   }
 }
