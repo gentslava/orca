@@ -152,6 +152,7 @@ function couldNot(verb: 'couldNotStart' | 'couldNotRestart'): Sentence {
 const FAILURE_SENTENCES = {
   providerStartFailed: (context, _fact, _surface, say) =>
     joinSentences([say('providerStartFailed', agent(say, context)), ...startRetry(say, context)]),
+  providerResumeUnavailable: namingAgent('providerResumeUnavailable'),
   startFailed: couldNot('couldNotStart'),
   notSignedIn: (context, fact, surface, say) => notSignedInSentence(context, fact, say, surface),
   cliMissing: (context, _fact, _surface, say) => cliMissingSentence(context, say),
@@ -187,14 +188,10 @@ const FAILURE_SENTENCES = {
       agent(say, context)
     ),
   restartFailed: couldNot('couldNotRestart'),
-  providerRejected: (context, fact, _surface, say) =>
-    quotingPersonDetail(
-      say,
-      'providerRejected',
-      'providerRejectedQuoted',
-      fact.detail,
-      agent(say, context)
-    ),
+  providerRejected: (context, { detail }, _surface, say) => {
+    const values = agent(say, context)
+    return quotingPersonDetail(say, 'providerRejected', 'providerRejectedQuoted', detail, values)
+  },
   attachmentInvalid: (context, fact, _surface, say) =>
     fact.attachment
       ? attachmentProblemSentence(say, context, fact.attachment)

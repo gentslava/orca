@@ -41,6 +41,7 @@ import {
   withNativeChatVisualsEnv
 } from '../native-chat/native-chat-visuals-delivery'
 import type { AcpLaunchSpec } from './acp-launch-specs'
+import { AgentSessionPreSpawnError } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
 import { acpSessionNotRestoredItem } from './acp-session-reopen-failure'
 import { loadAcpVisualsSkill, type AcpLaunchVisualsDeps } from './acp-structured-launch-visuals'
 
@@ -182,6 +183,15 @@ export function acpStructuredLaunchPart(
 ): StructuredAgentLaunchPartResolver<AcpStructuredLaunch> {
   return async (basis, identity) => {
     const { record } = basis
+    const head = agentSessionProviderHandleChainHead(record.providerHandleChain)
+    const mayBeUnsaved = (): boolean =>
+      head?.origin === 'created' &&
+      nothingExchangedOn(deps.readJournal, identity.sessionId, head.handle.nativeId)
+    if (head && spec.resumeUnavailable && !mayBeUnsaved()) {
+      throw new AgentSessionPreSpawnError(`${spec.agent} cannot safely reopen this chat`, {
+        reason: 'providerResumeUnavailable'
+      })
+    }
     const { env, envToDelete, command } = await resolveAcpLaunchInvocation(
       spec,
       record.accountHome,
@@ -220,7 +230,6 @@ export function acpStructuredLaunchPart(
         })
       : null
     const fullAccess = basis.permissionMode === 'full-access'
-    const head = agentSessionProviderHandleChainHead(record.providerHandleChain)
     return {
       launch: {
         spec,
@@ -231,9 +240,7 @@ export function acpStructuredLaunchPart(
           ? {
               sessionId: head.handle.nativeId,
               key: agentSessionProviderHandleKey(head.handle),
-              mayBeUnsaved: () =>
-                head.origin === 'created' &&
-                nothingExchangedOn(deps.readJournal, identity.sessionId, head.handle.nativeId),
+              mayBeUnsaved,
               unannouncedLosses: () =>
                 unannouncedLosses(deps.readJournal, identity.sessionId, record.providerHandleChain)
             }

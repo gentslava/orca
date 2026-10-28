@@ -78,6 +78,44 @@ function resolver(record: AgentSessionRecord, readJournal: () => JournalLoad | n
 }
 
 describe('ACP launch resolution', () => {
+  it.each([
+    ['an exchanged turn', () => journalWithTurns('acp-1')],
+    [
+      'an unreadable journal',
+      () => {
+        throw new Error('unreadable')
+      }
+    ]
+  ])(
+    'refuses a created Gemini handle with %s before any environment lookup',
+    async (_label, readJournal) => {
+      const record = grokRecord({
+        provider: 'gemini',
+        accountHome: { variable: 'GEMINI_CLI_HOME', path: '/accounts/gemini' },
+        providerHandleChain: [
+          {
+            linkId: 'created-link',
+            origin: 'created',
+            mintedAtFence: 1,
+            observedAt: 1,
+            handle: { transport: 'acp', agent: 'gemini', nativeId: 'acp-1' }
+          }
+        ]
+      })
+      const resolveEnvironment = vi.fn(async () => ({}))
+      const resolve = createAcpStructuredLaunchResolver(acpLaunchSpecFor('gemini')!, {
+        store: { getRecord: () => record, pinLaunchDirectory: vi.fn() },
+        readJournal,
+        resolveEnvironment
+      })
+      await expect(resolve({ identity: { ...identity, agent: 'gemini' } })).rejects.toMatchObject({
+        name: 'AgentSessionPreSpawnError',
+        reason: 'providerResumeUnavailable'
+      })
+      expect(resolveEnvironment).not.toHaveBeenCalled()
+    }
+  )
+
   it('pins the record account home and searches the agent install dir', async () => {
     const { resolve, searched } = resolver(grokRecord())
     const launch = await resolve({ identity })
