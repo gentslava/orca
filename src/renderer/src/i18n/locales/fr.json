@@ -8361,7 +8361,6 @@
           "a016ffbeed": "Auto utilise Windows PowerShell pour le moment et bascule vers PowerShell 7+ une fois installé.",
           "5ed5c95344": "Choisissez entre Windows PowerShell et PowerShell 7+ pour les nouveaux volets de terminal.",
           "3d88af864d": "Choisissez si l'option de shell PowerShell lance Windows PowerShell ou PowerShell 7+ pour les nouveaux volets de terminal.",
-          "8a956cc91e": "Caractères traités comme séparateurs de mots pour la sélection par double-clic.",
           "4bebcc2b2c": "Séparateurs de mots",
           "12e06178fa": "lignes",
           "907b0b9d3e": "Personnalisé",
@@ -17766,7 +17765,8 @@
           "xhigh": "Extra"
         },
         "sessionAttachmentsFailed": "Le chat {{agent}} n'a pas pu s'ouvrir. Utilisez Réessayer dans le chat, puis joignez à nouveau les fichiers.",
-        "sessionAttachmentsStarting": "Le chat de {{agent}} est encore en cours d’ouverture. Attendez qu’il soit ouvert, puis joignez à nouveau les fichiers."
+        "sessionAttachmentsStarting": "Le chat de {{agent}} est encore en cours d’ouverture. Attendez qu’il soit ouvert, puis joignez à nouveau les fichiers.",
+        "imageReferenceMissing": "Image retirée"
       },
       "tool": {
         "result": "Résultat",
@@ -18156,7 +18156,6 @@
         "pausedSendFailedWaiting": "Envoi impossible. Quand l'agent aura terminé, appuyez sur Envoyer pour réessayer.",
         "save": "Enregistrer",
         "editingMessage": "Modification du message",
-        "cancelEditing": "Annuler la modification",
         "editChanged": "Ce message a changé pendant que vous le modifiiez. Votre modification se trouve dans le champ de discussion.",
         "editChangedPrompt": "Ce message a changé pendant que vous le modifiiez. Votre modification sera dans le champ de discussion une fois que vous aurez répondu à l'agent.",
         "editChangedNotSaved": "Ce message a changé pendant que vous le modifiiez. Votre modification n'a pas été enregistrée.",
@@ -18170,8 +18169,6 @@
         "expand": "Développer",
         "queued": "En file d'attente",
         "clearAll": "Tout effacer",
-        "pasteOrDropImages": "Collez ou déposez des images",
-        "saveNeedsContent": "Ajoutez du texte ou une image pour enregistrer",
         "moveChanged": "La file d'attente a changé avant ce déplacement. Essayez de faire glisser le message à nouveau.",
         "reorderHint": "Faites glisser pour réorganiser, ou utilisez les touches fléchées Haut et Bas.",
         "reorderMessage": "Réorganiser le message",

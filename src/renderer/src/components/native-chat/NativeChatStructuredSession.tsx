@@ -202,7 +202,7 @@ export function NativeChatStructuredSession(
     isFocusedGroup: props.isFocusedGroup,
     composerReady: composerShown && install.slot.kind !== 'install' && childNavigator.child === null
   })
-  const structuredTransport = useNativeChatStructuredComposerTransport({
+  const transport = useNativeChatStructuredComposerTransport({
     props,
     controller,
     sendThroughLaunch: provisionalLaunch.sendThroughLaunch,
@@ -223,7 +223,7 @@ export function NativeChatStructuredSession(
     isWorking: controller.isWorking || hostHeld,
     reportComposerError,
     focusComposer,
-    transport: structuredTransport
+    transport
   })
 
   // Said once: on the pane when the failure took it, else in the composer's notices.
@@ -331,7 +331,7 @@ export function NativeChatStructuredSession(
                 statedFailures={startFailures}
                 steerHeld={stopControls.stopping || hostHeld}
                 focusComposer={focusComposer}
-                editAttachTo={{ terminalTabId: props.tabId, transport: structuredTransport }}
+                editAttachTo={{ terminalTabId: props.tabId, agent: props.agent, transport }}
               />
               <NativeChatStructuredSessionStatus
                 sessionId={props.sessionId}
@@ -344,7 +344,7 @@ export function NativeChatStructuredSession(
                 <NativeChatStructuredGoalStrip
                   sessionId={props.sessionId}
                   threadGoal={controller.threadGoal}
-                  transport={structuredTransport}
+                  transport={transport}
                   isWorking={controller.isWorking}
                   isVisible={props.isVisible}
                   turnId={controller.turnId}
@@ -365,7 +365,7 @@ export function NativeChatStructuredSession(
                   childNavigator.child === null
                 }
                 answerInputRef={questionAnswerInputRef}
-                asyncQuestion={{ paneKey, session, send: structuredTransport.send }}
+                asyncQuestion={{ paneKey, session, send: transport.send }}
                 {...fileLinkProps}
               />
               {composerShown && (
@@ -384,7 +384,7 @@ export function NativeChatStructuredSession(
                   steerQueued={
                     stopControls.stopping ? undefined : submits.queuedMessages.steerNewest
                   }
-                  structuredTransport={structuredTransport}
+                  structuredTransport={transport}
                   launchSeed={{ ...launchDraftSignal, ownsTabWideLaunchDraft: true }}
                   notices={notices}
                   recallSource={{ messages: session.messages, withoutImageMarkers: true }}

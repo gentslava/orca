@@ -29,6 +29,7 @@ import type { StructuredAgentSessionHostSupport } from './mobile-structured-agen
 import type { useMobileNativeChatSessionLane } from './use-mobile-native-chat-session-lane'
 
 export type MobileNativeChatControllerArgs = {
+  onQueuedEditNotice?: (message: string) => void
   client: RpcClient | null
   hostId: string
   worktreeId: string
@@ -57,6 +58,8 @@ export type MobileNativeChatController = {
   showNativeChat: boolean
   showNativeChatRef: MutableRefObject<boolean>
   nativeChatAgent: string | null
+  chatComposerScopeKey?: string | null
+  reportQueuedEditError?: (message: string) => void
   chatDraftKey: string | null
   setChatComposerText: Dispatch<SetStateAction<string>>
   getChatComposerEditGeneration: () => number

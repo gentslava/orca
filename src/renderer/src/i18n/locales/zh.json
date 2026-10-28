@@ -8112,7 +8112,6 @@
           "a016ffbeed": "Auto 现在使用 Windows PowerShell，并在安装后切换到 PowerShell 7+。",
           "5ed5c95344": "为新的终端窗格选择 Windows PowerShell 和 PowerShell 7+。",
           "3d88af864d": "选择 PowerShell shell 选项是为新终端窗格启动 Windows PowerShell 还是 PowerShell 7+。",
-          "8a956cc91e": "双击选择时将字符视为单词边界。",
           "4bebcc2b2c": "单词分隔符",
           "12e06178fa": "行",
           "907b0b9d3e": "自定义",
@@ -17590,7 +17589,8 @@
           "xhigh": "极高"
         },
         "sessionAttachmentsFailed": "{{agent}} 聊天无法打开。在聊天中使用“重试”，然后再次附加文件。",
-        "sessionAttachmentsStarting": "正在打开 {{agent}} 聊天。请等待聊天打开后再重新附加文件。"
+        "sessionAttachmentsStarting": "正在打开 {{agent}} 聊天。请等待聊天打开后再重新附加文件。",
+        "imageReferenceMissing": "图片已移除"
       },
       "tool": {
         "result": "结果",
@@ -17979,6 +17979,7 @@
         "editMessage": "编辑消息",
         "showFullMessage": "显示完整消息",
         "showLess": "收起",
+        "turnOffQueueing": "关闭排队",
         "withdrawnHold": "在发送前已停止",
         "pausedSendFailed": "无法发送。点按发送以重试。",
         "paused": "已暂停",
@@ -17987,7 +17988,6 @@
         "pausedSendFailedWaiting": "无法发送。智能体完成后，点按发送以重试。",
         "save": "保存",
         "editingMessage": "正在编辑消息",
-        "cancelEditing": "取消编辑",
         "editChanged": "你编辑时此消息已更改。你编辑的内容已放入聊天输入框。",
         "editChangedPrompt": "你编辑时此消息已更改。回答智能体后，你编辑的内容会出现在聊天输入框中。",
         "editChangedNotSaved": "你编辑时此消息已更改。你的编辑未保存。",
@@ -18000,10 +18000,7 @@
         "collapse": "收起",
         "expand": "展开",
         "queued": "已排队",
-        "clearAll": "全部清除",
-        "pasteOrDropImages": "粘贴或拖入图片",
-        "saveNeedsContent": "添加文字或图片后才能保存",
-        "turnOffQueueing": "关闭排队"
+        "clearAll": "全部清除"
       },
       "thought": "已思考",
       "thoughtForDuration": "思考了 {{duration}}",

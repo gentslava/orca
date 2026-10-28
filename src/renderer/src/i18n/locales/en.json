@@ -295,6 +295,10 @@
     "fileLoad": {
       "hostUnresolved": "The host couldn't find this file's workspace. It may have been removed, or the host may not know about it yet. Retry, or close this tab from the tab strip.",
       "remoteTooLarge": "This file is too large to open from its host."
+    },
+    "diffTooLarge": {
+      "title": "File too large to diff",
+      "detail": "One version of this file is over 10 MB, so Orca doesn’t load it for a text diff."
     }
   },
   "githubChecks": {
@@ -380,6 +384,10 @@
         "openManageSessions": "Open Manage Sessions",
         "administratorSearchDescription": "See Orca’s Windows permissions or restart with administrator approval.",
         "administratorApproval": "Windows will ask for approval. Use your usual account."
+      },
+      "wordSeparators": {
+        "description": "Characters treated as word boundaries for double-click selection, including space.",
+        "noSpaceHint": "No space included — double-click will select across spaces."
       },
       "leftOptionDescription": "The left Option key sends Alt/Esc; the other composes special characters.",
       "rightOptionDescription": "The right Option key sends Alt/Esc; the other composes special characters."
@@ -3617,9 +3625,12 @@
             "orcaBrowser": "Orca Browser",
             "terminalLinkSettings": "Terminal link settings",
             "copyLink": "Copy link",
+            "copyFilePath": "Copy file path",
             "copied": "Copied",
             "copiedLink": "Copied link",
+            "copiedFilePath": "Copied file path",
             "copyLinkFailed": "Failed to copy link",
+            "copyFilePathFailed": "Failed to copy file path",
             "downloadOpenWithDefaultApp": "Download & open with default app",
             "downloadOpenFailed": "Failed to download '{{value0}}'.",
             "openInThisGroup": "Open in this group",
@@ -8585,7 +8596,6 @@
           "a016ffbeed": "Auto uses Windows PowerShell now and switches to PowerShell 7+ when installed.",
           "5ed5c95344": "Choose between Windows PowerShell and PowerShell 7+ for new terminal panes.",
           "3d88af864d": "Choose whether the PowerShell shell option launches Windows PowerShell or PowerShell 7+ for new terminal panes.",
-          "8a956cc91e": "Characters treated as word boundaries for double-click selection.",
           "4bebcc2b2c": "Word Separators",
           "12e06178fa": "rows",
           "907b0b9d3e": "Custom",
@@ -12021,7 +12031,8 @@
             "migration": "Not done: a move onto this server is unfinished. Resume it first.",
             "deferred": "Not done yet: the server isn’t ready for this. Try again later.",
             "failed": "Orca couldn’t finish this on the server. Try again.",
-            "defaultServer": "Not done: this server is the default host for new projects. Choose another one under New projects open on before stopping it."
+            "defaultServer": "Not done: this server is the default host for new projects. Choose another one under New projects open on before stopping it.",
+            "wslMoveRunning": "Not done: a project is moving onto this server. Orca updates it once the move finishes."
           },
           "reassurance": "Runs on each host, reached over your own SSH connection. Your code and files stay where they are. Only Orca’s list of projects, tabs and terminals moves to the host."
         },
@@ -18065,7 +18076,8 @@
         "nextTurnOptionsLabel": "Next turn: {{options}}",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
-        "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
+        "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept.",
+        "imageReferenceMissing": "Image removed"
       },
       "tool": {
         "exitCode": "exit {{value0}}",
@@ -18429,6 +18441,7 @@
         "editMessage": "Edit message",
         "showFullMessage": "Show full message",
         "showLess": "Show less",
+        "turnOffQueueing": "Turn off queueing",
         "listLabel": "Queued messages",
         "alreadySent": "This message was already sent.",
         "withdrawnHold": "Stopped before it was sent",
@@ -18439,7 +18452,6 @@
         "pausedSendFailedWaiting": "Couldn't send — press Send to retry once the agent finishes.",
         "save": "Save",
         "editingMessage": "Editing message",
-        "cancelEditing": "Cancel editing",
         "editChanged": "This message changed while you were editing. Your edit is in the chat box.",
         "editChangedPrompt": "This message changed while you were editing. Your edit will be in the chat box after you answer the agent.",
         "editChangedNotSaved": "This message changed while you were editing. Your edit wasn't saved.",
@@ -18453,11 +18465,10 @@
         "expand": "Expand",
         "queued": "Queued",
         "clearAll": "Clear all",
-        "pasteOrDropImages": "Paste or drop images",
-        "saveNeedsContent": "Add text or an image to save",
+        "editReturned": "Your edit is in the chat box.",
+        "commandsUnsupported": "Commands can't be saved in a queued message.",
         "moveEarlier": "Move earlier",
-        "moveLater": "Move later",
-        "turnOffQueueing": "Turn off queueing"
+        "moveLater": "Move later"
       },
       "thought": "Thought",
       "thoughtForDuration": "Thought for {{duration}}",
@@ -20441,7 +20452,8 @@
         "manifestTooLarge": "there is more saved state than one move can carry",
         "hostUpdate": "the host needs an update first",
         "attemptsExhausted": "it didn't complete after several tries"
-      }
+      },
+      "finishPending": "An earlier move to the {{distro}} host is done there. Orca finishes it here when it restarts, or now with Check again."
     }
   },
   "onboarding": {

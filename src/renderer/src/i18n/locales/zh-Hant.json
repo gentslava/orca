@@ -8469,7 +8469,6 @@
           "a016ffbeed": "「自動」模式目前使用 Windows PowerShell，並在安裝後切換到 PowerShell 7+。",
           "5ed5c95344": "為新的終端機窗格選擇 Windows PowerShell 或 PowerShell 7+。",
           "3d88af864d": "使用 PowerShell shell 選項開啟新的終端機窗格時，選擇要啟動 Windows PowerShell 還是 PowerShell 7+。",
-          "8a956cc91e": "按兩下選取時視為字詞邊界的字元。",
           "4bebcc2b2c": "字詞分隔字元",
           "12e06178fa": "列",
           "907b0b9d3e": "自訂",
@@ -17921,7 +17920,8 @@
           "medium": "中",
           "xhigh": "極高"
         },
-        "imageUnavailable": "無法預覽"
+        "imageUnavailable": "無法預覽",
+        "imageReferenceMissing": "圖片已移除"
       },
       "tool": {
         "exitCode": "結束碼 {{value0}}",
@@ -18284,6 +18284,7 @@
         "editMessage": "編輯訊息",
         "showFullMessage": "顯示完整訊息",
         "showLess": "收合",
+        "turnOffQueueing": "關閉排隊",
         "listLabel": "排隊的訊息",
         "alreadySent": "此訊息已傳送。",
         "withdrawnHold": "在傳送前已停止",
@@ -18294,7 +18295,6 @@
         "pausedSendFailedWaiting": "無法傳送。代理程式完成後，點按傳送以重試。",
         "save": "儲存",
         "editingMessage": "正在編輯訊息",
-        "cancelEditing": "取消編輯",
         "editChanged": "你編輯時此訊息已更改。你編輯的內容已放入聊天輸入框。",
         "editChangedPrompt": "你編輯時此訊息已更改。回答代理程式後，你編輯的內容會出現在聊天輸入框中。",
         "editChangedNotSaved": "編輯期間，這則訊息已變更。編輯內容未儲存。",
@@ -18307,10 +18307,7 @@
         "collapse": "收合",
         "expand": "展開",
         "queued": "已排隊",
-        "clearAll": "全部清除",
-        "pasteOrDropImages": "貼上或拖入圖片",
-        "saveNeedsContent": "新增文字或圖片後才能儲存",
-        "turnOffQueueing": "關閉排隊"
+        "clearAll": "全部清除"
       },
       "thought": "已思考",
       "thoughtForDuration": "思考了 {{duration}}",

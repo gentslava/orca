@@ -1,9 +1,6 @@
 import { nativeChatPastedTextToken } from './native-chat-pasted-text-reference'
 import { nativeChatDraftWithoutLegacyImages } from './native-chat-composer-legacy-images'
-// The one owner of each composer scope's unsent message: its text, the editor document for that
-// text and its settled image refs. Every writer changes the whole record here in memory, and
-// storage is written from that record, so a reload or quit gives the draft back and a failed or
-// skipped write is repaired by the next one.
+// Own complete unsent drafts in memory so each write repairs storage from one authoritative record.
 
 import type { JSONContent } from '@tiptap/react'
 import {
@@ -26,6 +23,9 @@ import {
   records,
   refusedScopes,
   scopeListeners,
+  notifyDraftAppend,
+  ephemeralDrafts,
+  isNativeChatEditDraft,
   reconcileRestoredImageChecks,
   type DraftAppend,
   type DraftRecord
@@ -73,6 +73,12 @@ export type NativeChatComposerDraftChange = {
   unsavedText?: string
   /** A new draft's owner when its chat may no longer be open to name it: the one it was begun in. */
   owner?: NativeChatComposerDraftOwner
+}
+
+/** Edit scopes share input machinery but never enter draft persistence. */
+export function openNativeChatEditDraft(scopeKey: string, draft: NativeChatComposerDraft): void {
+  ephemeralDrafts.set(scopeKey, { scopeKey, active: true })
+  updateNativeChatComposerDraft(scopeKey, draft, 'immediate')
 }
 
 const EMPTY_DRAFT: DraftRecord = { text: '', images: [], savedAt: 0 }
@@ -129,6 +135,9 @@ export function updateNativeChatComposerDraft(
   persist: 'immediate' | 'deferred',
   append?: DraftAppend
 ): void {
+  if (isNativeChatEditDraft(scopeKey) && !ephemeralDrafts.has(scopeKey)) {
+    return
+  }
   const current = records.get(scopeKey) ?? EMPTY_DRAFT
   const proposedText = change.text ?? current.text
   const proposedDocument = 'document' in change ? change.document : current.document
@@ -158,7 +167,9 @@ export function updateNativeChatComposerDraft(
     records.delete(scopeKey)
     reconcileRestoredImageChecks(scopeKey, [])
     notifyScope(scopeKey)
-    persistNativeChatComposerDraft(scopeKey, 'immediate', append)
+    if (!isNativeChatEditDraft(scopeKey)) {
+      persistNativeChatComposerDraft(scopeKey, 'immediate', append)
+    }
     return
   }
   // Why stamped once: a conversation never moves to another workspace, so its owner stays true.
@@ -176,6 +187,9 @@ export function updateNativeChatComposerDraft(
   records.set(scopeKey, record)
   reconcileRestoredImageChecks(scopeKey, record.images)
   notifyScope(scopeKey)
+  if (isNativeChatEditDraft(scopeKey)) {
+    return
+  }
   persistNativeChatComposerDraft(scopeKey, persist, append)
   if (!load.hydrated) {
     // Why: a window whose startup never started the load still gets its saved drafts.
@@ -203,18 +217,22 @@ export function appendToNativeChatComposerDraft(
   const before = records.get(scopeKey)
   const current = readNativeChatComposerDraft(scopeKey)
   const placed = placeNativeChatComposerDraftAddition(current, addition)
-  const { text, images, document } = withAddition(current, placed)
+  const { text, images, document, pastedTextFiles } = withAddition(current, placed)
   updateNativeChatComposerDraft(
     scopeKey,
     {
       text,
       images,
       document,
+      pastedTextFiles,
       ...(owner ? { owner } : {})
     },
     'immediate',
     (loaded) => withAddition(loaded, placed)
   )
+  if (text !== current.text) {
+    notifyDraftAppend(scopeKey, placed, current)
+  }
   const after = records.get(scopeKey)
   if (!after) {
     return true
@@ -223,7 +241,10 @@ export function appendToNativeChatComposerDraft(
   if (after === before && !hasLocalChange(scopeKey) && !refusedScopes.has(scopeKey)) {
     return true
   }
-  return journalNativeChatComposerDraftAddition(scopeKey, placed, after.savedAt)
+  return (
+    isNativeChatEditDraft(scopeKey) ||
+    journalNativeChatComposerDraftAddition(scopeKey, placed, after.savedAt)
+  )
 }
 
 /** Clear only the sent draft’s unchanged portion so late acceptance cannot erase newer typing or attachments. */
@@ -301,9 +322,20 @@ export function deleteNativeChatComposerDraftsOwnedBy(owner: NativeChatComposerD
 }
 
 export function clearNativeChatComposerDraftsForTests(): void {
+  ephemeralDrafts.clear()
   clearDraftMemoryForTests()
   resetNativeChatComposerDraftPersistenceForTests()
   resetNativeChatComposerDraftLoadForTests()
   setNativeChatComposerDraftStorageForTests(null)
   resolveOwner = null
 }
+
+export { subscribeToNativeChatComposerDraftAppend } from './native-chat-composer-draft-memory'
+
+export {
+  captureNativeChatEditDraftDestination,
+  redirectNativeChatEditDraft,
+  isNativeChatEditDraft,
+  closeNativeChatEditDraft,
+  type NativeChatEditDraftDestination
+} from './native-chat-composer-draft-memory'

@@ -60,16 +60,14 @@ export function useMobileNativeChatController(
   // Fixed hook order mounts the lane before drafts; defer Edit’s append through a ref and delete nothing until copying succeeds.
   const appendComposerTextRef = useRef<(text: string) => boolean>(() => false)
   const nativeChatLane = useMobileNativeChatSessionLane({
-    client,
-    hostId,
+    ...args,
+    composerScopeKey: mobileNativeChatScopeKey(hostId, worktreeId, activeSessionTabId),
     structured: activeChatStructured,
     resolution: activeChatResolution,
     sourceIdentity,
     enabled: showNativeChat,
-    connState,
     hostSupport: agentSessionHostSupport,
     appendComposerTextRef,
-    onSendError,
     onActionResolved: onSendResolved
   })
   const { structuredSession: structuredNativeChat, session: nativeChatSession } = nativeChatLane
@@ -240,6 +238,8 @@ export function useMobileNativeChatController(
   })
 
   return {
+    reportQueuedEditError: onSendError,
+    chatComposerScopeKey: mobileNativeChatScopeKey(hostId, worktreeId, activeSessionTabId),
     sessionViewReady,
     isTabChatView,
     setTabView,

@@ -49,6 +49,8 @@ function parseEntry(entry: unknown): JournalEntry[] {
   }
   const parsed = parseStoredNativeChatComposerDraft({
     text: typeof addition.text === 'string' ? addition.text : '',
+    document: addition.document,
+    pastedTextFiles: addition.pastedTextFiles,
     textFormat: entry.textFormat,
     images: Array.isArray(addition.images) ? addition.images : [],
     savedAt: at
@@ -63,6 +65,8 @@ function parseEntry(entry: unknown): JournalEntry[] {
           addition: {
             text: parsed.text,
             images: parsed.images,
+            document: parsed.document,
+            pastedTextFiles: parsed.pastedTextFiles,
             ...(addition.fromUser === true ? { fromUser: true } : {}),
             ...(typeof addition.before === 'string' ? { before: addition.before } : {}),
             ...(Array.isArray(addition.fills)

@@ -8142,7 +8142,6 @@
           "a016ffbeed": "Auto usa Windows PowerShell ahora y cambia a PowerShell 7+ cuando está instalado.",
           "5ed5c95344": "Elige entre Windows PowerShell y PowerShell 7+ para nuevos paneles de terminal.",
           "3d88af864d": "Elige si la opción de shell PowerShell inicia Windows PowerShell o PowerShell 7+ para nuevos paneles de terminal.",
-          "8a956cc91e": "Caracteres tratados como límites de palabras para la selección con doble clic.",
           "4bebcc2b2c": "Separadores de palabras",
           "12e06178fa": "filas",
           "907b0b9d3e": "Personalizado",
@@ -17593,7 +17592,8 @@
           "xhigh": "Muy alto"
         },
         "sessionAttachmentsFailed": "El chat {{agent}} no se pudo abrir. Utilice Reintentar en el chat y luego adjunte los archivos nuevamente.",
-        "sessionAttachmentsStarting": "El chat de {{agent}} aún se está abriendo. Espera a que se abra y vuelve a adjuntar los archivos."
+        "sessionAttachmentsStarting": "El chat de {{agent}} aún se está abriendo. Espera a que se abra y vuelve a adjuntar los archivos.",
+        "imageReferenceMissing": "Imagen quitada"
       },
       "tool": {
         "result": "Resultado",
@@ -17840,7 +17840,6 @@
         "pausedSendFailedWaiting": "No se pudo enviar. Cuando el agente termine, pulsa Enviar para reintentar.",
         "save": "Guardar",
         "editingMessage": "Editando mensaje",
-        "cancelEditing": "Cancelar edición",
         "editChanged": "Este mensaje cambió mientras lo editabas. Tu edición está en el cuadro de chat.",
         "editChangedPrompt": "Este mensaje cambió mientras lo editabas. Tu edición estará en el cuadro de chat cuando respondas al agente.",
         "editChangedNotSaved": "Este mensaje cambió mientras lo editabas. Tu edición no se guardó.",
@@ -17854,8 +17853,6 @@
         "expand": "Expandir",
         "queued": "En cola",
         "clearAll": "Borrar todo",
-        "pasteOrDropImages": "Pega o suelta imágenes",
-        "saveNeedsContent": "Añade texto o una imagen para guardar",
         "moveChanged": "La cola cambió antes de este movimiento. Intenta arrastrar el mensaje de nuevo.",
         "reorderHint": "Arrastra para reordenar o usa las teclas de flecha arriba y abajo.",
         "reorderMessage": "Reordenar mensaje",

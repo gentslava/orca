@@ -1,3 +1,4 @@
+import { nativeChatComposerDestination } from './native-chat-composer-destination'
 import { useCallback, useEffect } from 'react'
 import type { RefObject } from 'react'
 import { toast } from 'sonner'
@@ -73,8 +74,8 @@ export function useNativeChatPasteBridge({
         }
         return
       }
-      if (composerRef.current) {
-        composerRef.current.pasteFromClipboard()
+      if (nativeChatComposerDestination(rootRef.current, composerRef.current)) {
+        nativeChatComposerDestination(rootRef.current, composerRef.current)?.pasteFromClipboard()
         return
       }
       const answerInput = questionAnswerInputRef?.current
@@ -96,12 +97,19 @@ export function useNativeChatPasteBridge({
         return
       }
       if (isEditableTarget(event.target)) {
-        if (event.target instanceof Node && composerRef.current?.contains(event.target)) {
-          composerRef.current.handlePasteEvent(event)
+        if (
+          event.target instanceof Node &&
+          nativeChatComposerDestination(rootRef.current, composerRef.current)?.contains(
+            event.target
+          )
+        ) {
+          nativeChatComposerDestination(rootRef.current, composerRef.current)?.handlePasteEvent(
+            event
+          )
         }
         return
       }
-      const composer = composerRef.current
+      const composer = nativeChatComposerDestination(rootRef.current, composerRef.current)
       if (composer) {
         composer.handlePasteEvent(event)
         event.preventDefault()
@@ -137,7 +145,10 @@ export function useNativeChatPasteBridge({
     // Named-pane paste requests carry no clipboard event data.
     const onPasteRequest = (event: Event): void => {
       const answerInput = questionAnswerInputRef?.current
-      if (composerRef.current || (answerInput && canPasteIntoAnswerInput(answerInput))) {
+      if (
+        nativeChatComposerDestination(rootRef.current, composerRef.current) ||
+        (answerInput && canPasteIntoAnswerInput(answerInput))
+      ) {
         event.preventDefault()
         pasteClipboardIntoComposer()
       }
@@ -161,7 +172,9 @@ export function useNativeChatPasteBridge({
       }
       if (
         isEditableTarget(activeElement) &&
-        !composerRef.current?.contains(activeElement) &&
+        !nativeChatComposerDestination(rootRef.current, composerRef.current)?.contains(
+          activeElement
+        ) &&
         activeElement !== questionAnswerInputRef?.current
       ) {
         return

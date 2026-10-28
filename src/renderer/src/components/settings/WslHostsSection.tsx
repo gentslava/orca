@@ -18,6 +18,7 @@ import { AddRemoteHostDialog, type AddRemoteHostMode } from '../sidebar/AddRemot
 import { HostRemoveDialog } from '../sidebar/HostRemoveDialog'
 import {
   openWslHostsExperimentalSetting,
+  useWslHostsAcceptNewWork,
   useWslHostsEnabled,
   useWslHostServerFilesMissing,
   wslHostsAvailable
@@ -84,6 +85,7 @@ export function WslHostsSection({
   // Read WSL hosts directly because the remote-server catalog excludes them.
   const environments = useAppStore((s) => s.runtimeEnvironments)
   const enabled = useWslHostsEnabled()
+  const acceptsNewWork = useWslHostsAcceptNewWork()
   const serverFilesMissing = useWslHostServerFilesMissing()
   // Share unavailable reasons across every listing of the host.
   const unavailableLabel = serverFilesMissing
@@ -137,7 +139,7 @@ export function WslHostsSection({
               )}
           </p>
         </div>
-        {enabled ? (
+        {enabled && !acceptsNewWork ? null : enabled ? (
           <Button
             type="button"
             variant="outline"
@@ -244,7 +246,7 @@ export function WslHostsSection({
                         {translate('auto.components.settings.wslHosts.connect', 'Connect')}
                       </DropdownMenuItem>
                     ) : null}
-                    {unavailableLabel ? null : (
+                    {unavailableLabel || !acceptsNewWork ? null : (
                       <DropdownMenuItem
                         onSelect={() => openWslMoveDialogFor(environment.orcadDeployment.distro)}
                       >

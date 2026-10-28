@@ -1,3 +1,4 @@
+import { NativeChatPickerListbox } from './NativeChatPickerListbox'
 import { memo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Package, RotateCcw } from 'lucide-react'
@@ -60,7 +61,7 @@ export const NativeChatPickerMenu = memo(function NativeChatPickerMenu({
 
   let optionIndex = 0
   return (
-    <PickerListbox id={listboxId}>
+    <NativeChatPickerListbox id={listboxId}>
       {showCommandsHeading ? <PickerGroupHeading kind="commands" /> : null}
       {commands.map((item) => {
         const index = optionIndex++
@@ -134,7 +135,7 @@ export const NativeChatPickerMenu = memo(function NativeChatPickerMenu({
                     .join('. ')
                 : ''}
       </div>
-    </PickerListbox>
+    </NativeChatPickerListbox>
   )
 })
 
@@ -225,24 +226,6 @@ function PickerOption({
         </span>
       ) : null}
     </PickerOptionButton>
-  )
-}
-
-function PickerListbox({
-  id,
-  children
-}: {
-  id: string
-  children: React.ReactNode
-}): React.JSX.Element {
-  return (
-    <div
-      id={id}
-      role="listbox"
-      className="scrollbar-sleek absolute bottom-full left-0 right-0 z-20 mb-1 max-h-72 overflow-y-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
-    >
-      {children}
-    </div>
   )
 }
 
@@ -345,7 +328,7 @@ export const NativeChatMentionMenu = memo(function NativeChatMentionMenu({
           : translate('components.native-chat.composer.noFiles', 'No matching files')
 
   return (
-    <PickerListbox id={listboxId}>
+    <NativeChatPickerListbox id={listboxId}>
       {files.map((path, index) => {
         return (
           <PickerOptionButton
@@ -372,6 +355,6 @@ export const NativeChatMentionMenu = memo(function NativeChatMentionMenu({
       <div aria-live="polite" className="sr-only">
         {statusText ?? ''}
       </div>
-    </PickerListbox>
+    </NativeChatPickerListbox>
   )
 })

@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as DraftStore from './native-chat-composer-draft-store'
-import type { QueuedEditImageState } from './structured-agent-session-queued-edit-images'
 import type { AgentJournalMessageItem } from '../../../../shared/agent-session-journal-types'
 import {
   createMemoryNativeChatComposerDraftStorage,
@@ -77,32 +76,41 @@ describe('composer recovery across reloads', () => {
               )
             ).toBe(true)
           } else {
-            const { handOffQueuedEdit, queuedEditImageFields } =
-              await import('./structured-agent-session-queued-edit-images')
+            const { createNativeChatQueuedEditDraft, handBackNativeChatQueuedEdit } =
+              await import('./native-chat-queued-edit-draft')
+            const { addNativeChatPendingAttachment } =
+              await import('./native-chat-pending-attachment-cache')
             const body: AgentJournalMessageItem = {
               kind: 'message',
               role: 'user',
               blocks: [{ type: 'text', text: 'original queued text' }]
             }
-            const edit: QueuedEditImageState = {
-              draftKey: SCOPE,
-              body,
-              text: TEXT,
-              ...queuedEditImageFields(
-                body,
-                () => edit,
-                () => true,
-                () => {}
-              )
-            }
-            edit.intake.append(['/remote/a.png'], 'ssh-a')
-            edit.intake.append(['/remote/b.png'], 'ssh-b')
-            edit.intake.begin()
-            expect(handOffQueuedEdit(edit)).toBe(true)
+            const edit = createNativeChatQueuedEditDraft(body, SCOPE)
+            store.updateNativeChatComposerDraft(
+              edit.scopeKey,
+              {
+                text: TEXT,
+                document: undefined,
+                images: [
+                  { id: 'a', path: '/remote/a.png', connectionId: 'ssh-a' },
+                  { id: 'b', path: '/remote/b.png', connectionId: 'ssh-b' }
+                ]
+              },
+              'immediate'
+            )
+            addNativeChatPendingAttachment(edit.scopeKey, {
+              id: 'pending',
+              path: '',
+              pending: true
+            })
+            expect(handBackNativeChatQueuedEdit(edit)).toBe(true)
           }
           const before = store.readNativeChatComposerDraft(SCOPE)
           expect(before.text).toBe(TEXT)
-          expect(before.document).toBeUndefined()
+          expect(before.document).toEqual({
+            type: 'doc',
+            content: [{ type: 'paragraph', content: [{ type: 'text', text: TEXT }] }]
+          })
           expect(before.images).toEqual([
             expect.objectContaining({ path: '/remote/a.png', connectionId: 'ssh-a' }),
             expect.objectContaining({ path: '/remote/b.png', connectionId: 'ssh-b' })

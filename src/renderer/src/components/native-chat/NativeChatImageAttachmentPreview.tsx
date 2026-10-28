@@ -15,7 +15,7 @@ import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-targe
 
 type Props = {
   attachment: NativeChatComposerImageAttachment
-  /** Structured-chat image position, shared by prompt chips and send markers. */
+  /** Its place in the ordered image attachments sent to the provider. */
   number?: number
   /** The paired server the chat runs on; a file stored there is read back through it. */
   hostEnvironmentId?: string

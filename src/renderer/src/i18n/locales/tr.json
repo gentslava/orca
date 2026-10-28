@@ -8486,7 +8486,6 @@
           "a016ffbeed": "Otomatik, şu anda Windows PowerShell'i kullanır ve kurulduğunda PowerShell 7+'a geçer.",
           "5ed5c95344": "Yeni terminal bölmeleri için Windows PowerShell ve PowerShell 7+ arasında seçim yapın.",
           "3d88af864d": "PowerShell kabuk seçeneğinin yeni terminal bölmeleri için Windows PowerShell mi yoksa PowerShell 7+ mı başlatacağını seçin.",
-          "8a956cc91e": "Çift tıklama seçiminde kelime sınırı olarak kabul edilen karakterler.",
           "4bebcc2b2c": "Kelime Ayırıcıları",
           "12e06178fa": "satır",
           "907b0b9d3e": "Özel",
@@ -17943,7 +17942,8 @@
           "medium": "Orta",
           "xhigh": "Çok yüksek"
         },
-        "imageUnavailable": "Önizleme kullanılamıyor"
+        "imageUnavailable": "Önizleme kullanılamıyor",
+        "imageReferenceMissing": "Görsel kaldırıldı"
       },
       "tool": {
         "exitCode": "çıkış {{value0}}",
@@ -18306,6 +18306,7 @@
         "editMessage": "Mesajı düzenle",
         "showFullMessage": "Mesajın tamamını göster",
         "showLess": "Daha az göster",
+        "turnOffQueueing": "Kuyruğa almayı kapat",
         "listLabel": "Kuyruktaki mesajlar",
         "alreadySent": "Bu mesaj zaten gönderildi.",
         "withdrawnHold": "Gönderilmeden önce durduruldu",
@@ -18316,7 +18317,6 @@
         "pausedSendFailedWaiting": "Gönderilemedi — ajan işi bitirdiğinde yeniden denemek için Gönder'e basın.",
         "save": "Kaydet",
         "editingMessage": "Mesaj düzenleniyor",
-        "cancelEditing": "Düzenlemeyi iptal et",
         "editChanged": "Siz düzenlerken bu mesaj değişti. Düzenlediğiniz metin sohbet kutusunda.",
         "editChangedPrompt": "Siz düzenlerken bu mesaj değişti. Ajana yanıt verdikten sonra düzenlediğiniz metin sohbet kutusuna getirilecek.",
         "editChangedNotSaved": "Siz düzenlerken bu mesaj değişti. Düzenlemeniz kaydedilmedi.",
@@ -18329,10 +18329,7 @@
         "collapse": "Daralt",
         "expand": "Genişlet",
         "queued": "Sıraya alındı",
-        "clearAll": "Tümünü temizle",
-        "pasteOrDropImages": "Görselleri yapıştırın veya bırakın",
-        "saveNeedsContent": "Kaydetmek için metin veya görsel ekleyin",
-        "turnOffQueueing": "Kuyruğa almayı kapat"
+        "clearAll": "Tümünü temizle"
       },
       "thought": "Düşündü",
       "thoughtForDuration": "{{duration}} boyunca düşündü",

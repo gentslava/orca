@@ -8112,7 +8112,6 @@
           "a016ffbeed": "자동은 현재 Windows PowerShell을 사용하고, PowerShell 7+가 설치되면 전환합니다.",
           "5ed5c95344": "새 터미널 패널을 위해 Windows PowerShell과 PowerShell 7+ 중에서 선택하세요.",
           "3d88af864d": "PowerShell 셸 옵션이 새 터미널 패널에 대해 Windows PowerShell을 시작할지 아니면 PowerShell 7+를 시작할지 선택합니다.",
-          "8a956cc91e": "두 번 클릭 선택 시 단어 경계로 처리되는 문자입니다.",
           "4bebcc2b2c": "단어 구분 기호",
           "12e06178fa": "행",
           "907b0b9d3e": "사용자 지정",
@@ -17624,7 +17623,8 @@
         },
         "imageUnavailable": "미리보기를 사용할 수 없음",
         "sessionAttachmentsStarting": "{{agent}} 채팅을 여는 중입니다. 열릴 때까지 기다린 후 파일을 다시 첨부하세요.",
-        "sessionAttachmentsFailed": "{{agent}} 채팅을 열 수 없습니다. 채팅에서 재시도를 사용한 후 파일을 다시 첨부하세요."
+        "sessionAttachmentsFailed": "{{agent}} 채팅을 열 수 없습니다. 채팅에서 재시도를 사용한 후 파일을 다시 첨부하세요.",
+        "imageReferenceMissing": "이미지가 제거됨"
       },
       "tool": {
         "result": "결과",
@@ -18014,7 +18014,6 @@
         "pausedSendFailedWaiting": "보낼 수 없습니다. 에이전트가 끝나면 보내기를 눌러 다시 시도하세요.",
         "save": "저장",
         "editingMessage": "메시지 편집 중",
-        "cancelEditing": "편집 취소",
         "editChanged": "편집하는 동안 이 메시지가 변경되었습니다. 편집한 내용은 채팅 입력란에 있습니다.",
         "editChangedPrompt": "편집하는 동안 이 메시지가 변경되었습니다. 에이전트에 답하면 편집한 내용이 채팅 입력란에 표시됩니다.",
         "editChangedNotSaved": "편집하는 동안 이 메시지가 변경되었습니다. 편집한 내용은 저장되지 않았습니다.",
@@ -18028,8 +18027,6 @@
         "expand": "펼치기",
         "queued": "대기 중",
         "clearAll": "모두 지우기",
-        "pasteOrDropImages": "이미지를 붙여넣거나 끌어다 놓기",
-        "saveNeedsContent": "저장하려면 텍스트나 이미지를 추가하세요",
         "moveChanged": "이동하기 전에 대기열이 변경되었습니다. 메시지를 다시 드래그해 보세요.",
         "reorderHint": "드래그하거나 위쪽 및 아래쪽 화살표 키를 사용하여 순서를 변경하세요.",
         "reorderMessage": "메시지 순서 변경",

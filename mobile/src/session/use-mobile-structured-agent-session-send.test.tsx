@@ -1,3 +1,8 @@
+import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
+import {
+  updateMobileNativeChatDraftInputs,
+  resetMobileNativeChatDraftInputsForTests
+} from './native-chat/composer/mobile-native-chat-draft-inputs'
 import { createElement, useState } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -23,13 +28,14 @@ import { stubRpcClient } from '../transport/rpc-client-test-stub'
 import { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
 import { AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY } from '../../../src/shared/protocol-version'
 import { AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session-runtime-capabilities'
+import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
+import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
+import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session-wire'
 import {
   AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY,
   AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY
 } from '../../../src/shared/agent-session-create-capabilities'
-import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../src/shared/agent-session-default-model'
 import type { RpcResponse } from '../transport/types'
-import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
 import type { MobileNativeChatSendOrigin } from './native-chat/composer/use-mobile-native-chat-drafts'
 import {
   structuredAgentSessionHostSupport,
@@ -66,6 +72,8 @@ describe('mobile structured send actions', () => {
   let listener: ((value: unknown) => void) | null = null
   let agent = 'codex'
   let sessionId = 'session-1'
+  let sessionCommands: readonly AgentSessionSlashCommand[] | undefined
+  let sendOrdinary: ReturnType<typeof useMobileStructuredNativeChatSendBridge>['sendWithOutcome']
   let hostSupport: StructuredAgentSessionHostSupport | null = null
   let bridge: ReturnType<typeof useMobileStructuredNativeChatSendBridge>
   const clearDraftForSend = vi.fn()
@@ -112,9 +120,11 @@ describe('mobile structured send actions', () => {
       client,
       sessionId,
       sourceIdentity: 'host-a\0workspace-a',
+      composerScopeKey: 'ordinary-draft',
       enabled: true,
       connected: true,
       agent,
+      sessionCommands,
       hostSupport,
       onSendError
     })
@@ -130,9 +140,28 @@ describe('mobile structured send actions', () => {
     return createElement('span', null, banner.message)
   }
 
-  async function mountSession(): Promise<void> {
+  function BridgeHarness() {
+    const drafts = useMobileNativeChatDrafts({
+      hostId: 'host-a',
+      worktreeId: 'workspace-a',
+      tabId: 'performance',
+      sessionId: 'session-1',
+      messages: [],
+      transcriptSettled: true
+    })
+    sendOrdinary = useMobileStructuredNativeChatSendBridge({
+      ...drafts,
+      agent: 'codex',
+      sessionCommands,
+      sendStructured: (...args) => hook!.sendWithOutcome(...args),
+      onSendError
+    }).sendWithOutcome
+    return createElement(Harness)
+  }
+
+  async function mountSession(ordinary = false): Promise<void> {
     act(() => {
-      renderer = create(createElement(Harness))
+      renderer = create(createElement(ordinary ? BridgeHarness : Harness))
     })
     await vi.waitFor(() => expect(listener).toEqual(expect.any(Function)))
     act(() => listener?.(snapshotEvent()))
@@ -168,7 +197,9 @@ describe('mobile structured send actions', () => {
     listener = null
     agent = 'codex'
     sessionId = 'session-1'
+    sessionCommands = undefined
     hostSupport = null
+    resetMobileNativeChatDraftInputsForTests()
   })
 
   it.each([true, false])(
@@ -206,6 +237,45 @@ describe('mobile structured send actions', () => {
       }
     }
   )
+  it.each([10, 100])(
+    'ordinary phone bridge and Send skip %i commands for prose but still route slash controls',
+    async (count) => {
+      let kinds = 0
+      let names = 0
+      sessionCommands = Array.from({ length: count }, (_, index) => ({
+        get kind() {
+          kinds++
+          return 'command' as const
+        },
+        get name() {
+          names++
+          return `provider-${index}`
+        }
+      }))
+      sendRequest.mockImplementation(async (method) =>
+        method === 'agentSession.send' ? sendResult('accepted') : ok({})
+      )
+      await mountSession(true)
+      kinds = 0
+      names = 0
+      await act(async () => {
+        expect(await sendOrdinary('hello')).toBe('accepted')
+      })
+      expect(calls()).toHaveLength(1)
+      expect(fieldsOf(calls()[0]![1]).body).toMatchObject({
+        blocks: [{ type: 'text', text: 'hello' }]
+      })
+      expect({ kinds, names }).toEqual({ kinds: 0, names: 0 })
+      await act(async () => {
+        expect(await sendOrdinary('/compact extra')).toBe('rejected')
+      })
+      expect(calls()).toHaveLength(1)
+      expect(onSendError).toHaveBeenCalledWith('Use /compact without arguments.', undefined)
+      expect(kinds).toBeGreaterThanOrEqual(count)
+      expect(names).toBeGreaterThanOrEqual(count)
+    }
+  )
+
   it('selects a native OMP skill and sends the exact token and arguments through RPC', async () => {
     agent = 'omp'
     sendRequest.mockImplementation(async (method) =>
@@ -311,122 +381,22 @@ describe('mobile structured send actions', () => {
     expect(fieldsOf(calls()[0]![1]).options).toEqual({ model: 'opus[1m]', effort: 'max' })
   })
 
-  it.each([
-    ['explicit model', true, false],
-    ['Default reset', true, true],
-    ['legacy explicit model', false, false],
-    ['legacy Default reset', false, true]
-  ] as const)(
-    'rejects a send during a pending %s, then sends the accepted selection',
-    async (_name, takesOptions, reset) => {
-      agent = 'claude'
-      hostSupport = structuredAgentSessionHostSupport([
-        AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
-        ...(takesOptions ? [AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY] : [])
-      ])
-      const write = deferred<RpcResponse>()
-      let current = MODEL_OPTIONS.current
-      sendRequest.mockImplementation(async (method) => {
-        if (method === 'agentSession.setOption') {
-          return write.promise
-        }
-        if (method === 'agentSession.send') {
-          return sendResult('accepted')
-        }
-        if (method === 'agentSession.options') {
-          return ok({ ...MODEL_OPTIONS, current })
-        }
-        return ok({})
-      })
-      await mountSession()
-      await act(async () => {})
-      expect(hook!.pendingOptionId).toBeNull()
-      let mutation: Promise<unknown> | undefined
-      await act(async () => {
-        mutation = reset
-          ? hook!.optionSurface.resetOption?.('model')
-          : hook!.setStructuredOption('model', 'sonnet')
-        // The rendered picker has not caught up with the write's ref yet.
-        expect(hook!.pendingOptionId).toBeNull()
-        expect(await bridge.sendWithOutcome('keep this draft')).toBe('rejected')
-        expect(await hook!.sendWithOutcome('keep this draft')).toBe('rejected')
-      })
-      expect(
-        sendRequest.mock.calls.filter(([method]) => method === 'agentSession.setOption')
-      ).toHaveLength(1)
-      expect(calls()).toHaveLength(0)
-      expect(hook!.session.messages).toEqual([])
-      expect(captureSendOrigin).not.toHaveBeenCalled()
-      expect(clearDraftForSend).not.toHaveBeenCalled()
-      expect(restoreRejectedDraft).not.toHaveBeenCalled()
-      await act(async () => {
-        expect(await hook!.sendWithOutcome('still pending')).toBe('rejected')
-      })
-      await act(async () => {
-        current = { model: 'sonnet', ...(reset ? { modelDefault: true } : {}) }
-        write.resolve(
-          mutationOk({
-            key: 'model',
-            value: reset ? null : 'sonnet',
-            options: { model: 'sonnet' },
-            ...(reset ? { modelDefault: true } : {})
-          })
-        )
-        await mutation
-        expect(await bridge.sendWithOutcome('fresh send')).toBe('accepted')
-      })
-      expect(calls()).toHaveLength(1)
-      if (takesOptions && !reset) {
-        expect(fieldsOf(calls()[0]![1]).options).toEqual({ model: 'sonnet' })
-      } else {
-        expect(fieldsOf(calls()[0]![1])).not.toHaveProperty('options')
-      }
-      expect(hook!.session.messages).toHaveLength(1)
-      expect(clearDraftForSend).toHaveBeenCalledTimes(1)
-    }
-  )
-
-  it.each([false, true])(
-    'releases a failed model write without changing the selection (reset %s)',
-    async (reset) => {
-      agent = 'claude'
-      hostSupport = structuredAgentSessionHostSupport([
-        AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
-        AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
-      ])
-      const write = deferred<RpcResponse>()
-      sendRequest.mockImplementation(async (method) =>
-        method === 'agentSession.setOption'
-          ? write.promise
-          : method === 'agentSession.send'
-            ? sendResult('accepted')
-            : method === 'agentSession.options'
-              ? ok(MODEL_OPTIONS)
-              : method === 'agentSession.conversationCommand'
-                ? mutationOk({ command: 'compact', state: 'completed' })
-                : ok({})
-      )
-      await mountSession()
-      await act(async () => {})
-      await act(async () => {
-        const mutation = reset
-          ? hook!.optionSurface.resetOption?.('model')
-          : hook!.setStructuredOption('model', 'sonnet')
-        expect(await hook!.sendWithOutcome('pending')).toBe('rejected')
-        expect(await bridge.sendWithOutcome('/compact')).toBe('accepted')
-        expect(hook!.isModelWritePending()).toBe(true)
-        write.resolve({
-          id: 'write',
-          ok: false,
-          error: { code: 'invalid_argument', message: 'Model unavailable' }
-        })
-        await mutation
-        expect(await hook!.sendWithOutcome('after refusal')).toBe('accepted')
-      })
-      expect(calls()).toHaveLength(1)
-      expect(fieldsOf(calls()[0]![1]).options).toEqual({ model: 'opus' })
-    }
-  )
+  defineMobilePendingModelSendCases({
+    setAgent: (value) => {
+      agent = value
+    },
+    setHostSupport: (value) => {
+      hostSupport = value
+    },
+    getHook: () => hook!,
+    getBridge: () => bridge,
+    sendRequest,
+    mountSession,
+    calls,
+    captureSendOrigin,
+    clearDraftForSend,
+    restoreRejectedDraft
+  })
 
   it.each([false, true])(
     'allows an options-capable host to send without a known original model (Default %s)',
@@ -741,6 +711,23 @@ describe('mobile structured send actions', () => {
       })
     }
   )
+
+  it('does not infer omitted captured skills from the live composer draft', async () => {
+    hostSupport = structuredAgentSessionHostSupport([AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY])
+    sendRequest.mockImplementation(async (method) =>
+      method === 'agentSession.send' ? sendResult('accepted') : ok({ models: [], current: {} })
+    )
+    updateMobileNativeChatDraftInputs('ordinary-draft', () => ({
+      images: [],
+      files: [],
+      skills: [{ name: 'review', path: '/live/SKILL.md' }]
+    }))
+    await mountSession()
+    await act(async () => {
+      await hook!.sendWithOutcome('$review text')
+    })
+    expect(fieldsOf(calls()[0]?.[1]).body).not.toHaveProperty('skills')
+  })
 
   it('sends an attached file as a reference after the text, and only images as image blocks', async () => {
     sendRequest.mockImplementation(async (method) =>

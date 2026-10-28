@@ -1,10 +1,11 @@
 import type { JSONContent } from '@tiptap/react'
+import { imageReferenceToken } from '../../../../shared/native-chat-image-reference'
 import { NATIVE_CHAT_PASTED_TEXT_TOKEN } from './native-chat-pasted-text-reference'
 
 export const IMAGE_REFERENCE_NODE = 'nativeChatImageReference'
 export const FILE_REFERENCE_NODE = 'nativeChatFileReference'
 
-/** All text-to-document paths must reconstruct image chips and pending-paste pills. */
+/** Text stays literal; only admitted pasted text references become file pills. */
 export function promptTextContent(text: string): JSONContent {
   return {
     type: 'doc',
@@ -21,6 +22,23 @@ export function promptTextContent(text: string): JSONContent {
         )
     }))
   }
+}
+
+export function withoutImageReferenceNodes(
+  document: JSONContent,
+  attachmentId: string
+): JSONContent {
+  return document.content
+    ? {
+        ...document,
+        content: document.content
+          .filter(
+            (node) =>
+              node.type !== IMAGE_REFERENCE_NODE || node.attrs?.attachmentId !== attachmentId
+          )
+          .map((node) => withoutImageReferenceNodes(node, attachmentId))
+      }
+    : document
 }
 
 /** Applies an appended text change without replacing existing picked nodes. */
@@ -69,4 +87,41 @@ export function appendPromptDocumentText(
     }
   }
   return promptTextContent(after)
+}
+
+/** Slice serialized prompt offsets while retaining selected nodes inside the range. */
+export function slicePromptDocument(document: JSONContent, from: number, to: number): JSONContent {
+  let offset = 0
+  const blocks: JSONContent[] = []
+  for (const [index, block] of (document.content ?? []).entries()) {
+    if (index > 0) {
+      offset++
+    }
+    const start = offset
+    const content: JSONContent[] = []
+    for (const node of block.content ?? []) {
+      const value =
+        node.type === IMAGE_REFERENCE_NODE
+          ? imageReferenceToken(String(node.attrs?.attachmentId))
+          : node.type === 'hardBreak'
+            ? '\n'
+            : (node.text ?? String(node.attrs?.token ?? ''))
+      const end = offset + value.length
+      if (end > from && offset < to) {
+        content.push(
+          node.type === 'text'
+            ? {
+                ...node,
+                text: value.slice(Math.max(0, from - offset), Math.min(value.length, to - offset))
+              }
+            : node
+        )
+      }
+      offset = end
+    }
+    if (offset >= from && start <= to) {
+      blocks.push({ ...block, content })
+    }
+  }
+  return { ...document, content: blocks.length ? blocks : [{ type: 'paragraph' }] }
 }
