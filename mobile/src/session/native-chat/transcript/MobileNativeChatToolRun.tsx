@@ -1,23 +1,5 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react'
-import {
-  Animated,
-  Pressable,
-  Platform,
-  type ScrollView,
-  Text,
-  useWindowDimensions,
-  View,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent
-} from 'react-native'
+import { useEffect, useMemo, useRef } from 'react'
+import { Animated, Pressable, Text, View } from 'react-native'
 import { Check } from 'lucide-react-native'
 import { NATIVE_CHAT_TOOL_ACTIVITY_COPY } from '../../../../../src/shared/native-chat/tools/native-chat-tool-activity'
 import { nativeChatToolLineIdentity } from '../../../../../src/shared/native-chat/tools/native-chat-tool-line-identity'
@@ -39,23 +21,14 @@ import { MobileNativeChatToolGlyph } from './MobileNativeChatToolIcon'
 import { MobileNativeChatToolLine } from './MobileNativeChatToolLine'
 import { MobileNativeChatDiffCard } from '../../MobileNativeChatDiffCard'
 import { MobileNativeChatTaskList } from '../input/MobileNativeChatTaskList'
-import { MobileNativeChatOpenedDetailContext } from '../visual/mobile-native-chat-opened-detail'
-import {
-  MAX_DISCLOSURES,
-  MobileNativeChatDisclosureContext,
-  useMobileNativeChatDisclosure
-} from './mobile-native-chat-disclosure-store'
+import { useMobileNativeChatDisclosure } from './mobile-native-chat-disclosure-store'
 import { toolStyles as styles, toolType } from './mobile-native-chat-tool-styles'
 import { mobileNativeChatMemberId } from '../../mobile-native-chat-reading-place'
-import { MobileNativeChatOwnedScrollView } from '../../MobileNativeChatOwnedScrollView'
+import { MobileNativeChatToolRunMembers } from './MobileNativeChatToolRunMembers'
 import type {
   MobileNativeChatToolRunAsides,
   MobileNativeChatToolRunProps
 } from './mobile-native-chat-tool-run-props'
-
-/** Desktop's 18rem: an opened run lists this much before it scrolls in place. */
-const MEMBERS_MIN_HEIGHT = 288
-const FOLLOW_REARM_PX = 24
 
 function fill(template: string, value: number): string {
   return template.replaceAll('{{value0}}', String(value))
@@ -87,101 +60,9 @@ function PulsingText({
     return () => animation.stop()
   }, [opacity, pulsing])
   return (
-    <Animated.Text style={[style, { opacity }]} numberOfLines={2}>
+    <Animated.Text style={[style, { opacity }]} numberOfLines={1}>
       {children}
     </Animated.Text>
-  )
-}
-
-function ToolRunMembers({
-  followKey,
-  startsAtEnd,
-  memoryKey,
-  owner,
-  children
-}: {
-  // Follow only new work, not a reader opening existing detail.
-  followKey: number
-  startsAtEnd: boolean
-  memoryKey?: string
-  owner?: string
-  children: React.ReactNode
-}): React.JSX.Element {
-  useMobileColorScheme()
-  const { height } = useWindowDimensions()
-  const store = useContext(MobileNativeChatDisclosureContext)
-  const runScroll = store?.runScroll
-  const owned = Platform.OS === 'web' && store !== null
-  const [remembered] = useState(() =>
-    memoryKey === undefined ? undefined : runScroll?.get(memoryKey)
-  )
-  const scroller = useRef<ScrollView>(null)
-  const followsEnd = useRef(remembered?.followsEnd ?? startsAtEnd)
-  const pendingRestore = useRef(remembered !== undefined && !remembered.followsEnd)
-  // Decide follow in the work update so later detail expansion cannot inherit it.
-  useLayoutEffect(() => {
-    if (!owned && followsEnd.current) {
-      scroller.current?.scrollToEnd({ animated: false })
-    }
-  }, [followKey, owned])
-  const details = useRef(new Map<string, number>())
-  const [openedHeight, setOpenedHeight] = useState(0)
-  const reportDetail = useCallback((detailId: string, detailHeight: number | null) => {
-    if (detailHeight === null) {
-      details.current.delete(detailId)
-    } else {
-      details.current.set(detailId, detailHeight)
-    }
-    let total = 0
-    for (const value of details.current.values()) {
-      total += value
-    }
-    setOpenedHeight(total)
-  }, [])
-  const onScroll = ({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { contentOffset, contentSize, layoutMeasurement } = nativeEvent
-    followsEnd.current =
-      contentSize.height - contentOffset.y - layoutMeasurement.height <= FOLLOW_REARM_PX
-    if (!owned && runScroll && memoryKey !== undefined) {
-      runScroll.delete(memoryKey)
-      runScroll.set(memoryKey, { top: contentOffset.y, followsEnd: followsEnd.current })
-      if (runScroll.size > MAX_DISCLOSURES) {
-        const oldest = runScroll.keys().next().value
-        if (oldest !== undefined) {
-          runScroll.delete(oldest)
-        }
-      }
-    }
-  }
-  // Restore the saved offset only after content layout exists.
-  const onContentSizeChange = () => {
-    if (!owned && pendingRestore.current && remembered) {
-      pendingRestore.current = false
-      scroller.current?.scrollTo({ y: remembered.top, animated: false })
-    }
-  }
-  return (
-    <MobileNativeChatOpenedDetailContext.Provider value={reportDetail}>
-      <MobileNativeChatOwnedScrollView
-        positionKey={memoryKey ?? `run:${owner ?? 'local'}`}
-        rootIdentity={`run:${owner ?? 'local'}`}
-        owner={owner}
-        initialFollow={startsAtEnd}
-        followKey={followKey}
-        ref={scroller}
-        style={[
-          styles.members,
-          { maxHeight: Math.min(height / 2, MEMBERS_MIN_HEIGHT + openedHeight) }
-        ]}
-        nestedScrollEnabled
-        keyboardShouldPersistTaps="handled"
-        scrollEventThrottle={32}
-        onScroll={onScroll}
-        onContentSizeChange={onContentSizeChange}
-      >
-        {children}
-      </MobileNativeChatOwnedScrollView>
-    </MobileNativeChatOpenedDetailContext.Provider>
   )
 }
 
@@ -219,7 +100,10 @@ export function ToolRun({
     { live },
     NATIVE_CHAT_TOOL_RUN_SENTENCE_ENGLISH
   )
-  const fallbackLabel = fill(NATIVE_CHAT_TOOL_ACTIVITY_COPY[header.fallbackLabel], header.callCount)
+  const fallbackLabel =
+    header.callCount === 0 && asideCount > 0
+      ? 'Activity'
+      : fill(NATIVE_CHAT_TOOL_ACTIVITY_COPY[header.fallbackLabel], header.callCount)
   const marks = [
     header.failedCallCount > 0
       ? fill(NATIVE_CHAT_TOOL_ACTIVITY_COPY.failedCount, header.failedCallCount)
@@ -266,7 +150,7 @@ export function ToolRun({
         ) : null}
       </Pressable>
       {open ? (
-        <ToolRunMembers
+        <MobileNativeChatToolRunMembers
           followKey={blocks.length + asideCount}
           startsAtEnd={live}
           memoryKey={runKey}
@@ -281,7 +165,7 @@ export function ToolRun({
             fontScale={fontScale}
             onOpenFile={onOpenFile}
           />
-        </ToolRunMembers>
+        </MobileNativeChatToolRunMembers>
       ) : null}
     </View>
   )

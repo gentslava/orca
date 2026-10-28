@@ -9,9 +9,15 @@ import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from './native-chat-sto
 import type { NativeChatBlock, NativeChatTextBlock } from '../native-chat-types'
 
 export const NATIVE_CHAT_NOTICE_COPY = {
+  agentError: 'Agent reported an error',
   compaction: 'Context compacted',
   contextCleared: 'Context cleared',
-  plan: 'Plan'
+  plan: 'Plan',
+  autoApprovalGranted: 'Automatic approval granted',
+  autoApprovalRejected: 'Automatic approval rejected',
+  autoApprovalDenied: 'Automatic approval denied',
+  autoApprovalTimedOut: 'Automatic approval timed out',
+  safetyCheckDenied: 'Permission denied by safety check'
 } as const
 
 export type NativeChatNoticeTone = 'warning' | 'error' | 'notice'

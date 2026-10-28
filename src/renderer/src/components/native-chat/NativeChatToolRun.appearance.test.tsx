@@ -42,8 +42,8 @@ import { i18n } from '@/i18n/i18n'
         </div>
       )
 
-      const summary = container.querySelector('span.line-clamp-2')
-      expect(summary).toHaveClass('line-clamp-2', 'break-words')
+      const summary = container.querySelector('span.truncate')
+      expect(summary).toHaveClass('truncate')
       expect(summary?.textContent).toContain('printf')
       expect(summary?.textContent?.length).toBeLessThan(command.length)
       expect(container.querySelector('pre')).toBeNull()

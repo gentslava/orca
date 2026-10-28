@@ -18040,7 +18040,13 @@
         "orcaStopCrash": "Во время ответа Orca на {{machine}} неожиданно завершилась.",
         "orcaStopRemote": "Во время ответа Orca на {{machine}} остановилась.",
         "orcaStopCanContinue": "Вы можете продолжить этот разговор.",
-        "orcaStopUnnamedServer": "удалённом сервере"
+        "orcaStopUnnamedServer": "удалённом сервере",
+        "agentError": "Ошибка при работе агента",
+        "autoApprovalGranted": "Разрешено автоматической проверкой",
+        "autoApprovalRejected": "Отклонено автоматической проверкой",
+        "autoApprovalDenied": "Отказ автоматической проверки",
+        "autoApprovalTimedOut": "Время автоматической проверки истекло",
+        "safetyCheckDenied": "Заблокировано проверкой безопасности"
       },
       "composer": {
         "send": "Отправить",
@@ -18245,7 +18251,8 @@
         "runLiveToolOne": "Использует 1 инструмент",
         "runLiveToolMany": "Использует инструменты: {{value0}}",
         "showBrowserPage": "Показать",
-        "showBrowserPageLabel": "Показать {{value0}}"
+        "showBrowserPageLabel": "Показать {{value0}}",
+        "activity": "Действия"
       },
       "providerFrame": {
         "byteLength": "{{value0}} байт"

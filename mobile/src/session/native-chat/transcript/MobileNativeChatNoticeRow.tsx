@@ -1,6 +1,7 @@
+import { MobileNativeChatErrorNotice } from './MobileNativeChatErrorNotice'
 import { useContext } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import { AlertCircle, AlertTriangle, Info } from 'lucide-react-native'
+import { AlertTriangle, Info } from 'lucide-react-native'
 import { AGENT_SESSION_HOST_STATUS_COPY } from '../../../../../src/shared/agent-session-host-status-rows'
 import {
   NATIVE_CHAT_NOTICE_COPY,
@@ -30,6 +31,8 @@ import { colors, radii, spacing, typography } from '../../../theme/mobile-theme'
 import { themedStyleSheet } from '../../../theme/themed-styles'
 import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
 import { MONO_SIZE, TEXT_SIZE, scaledType } from './mobile-native-chat-message-styles'
+import { nativeChatAutoApprovalOutcome } from '../../../../../src/shared/native-chat-auto-approval'
+import { MobileNativeChatAutoApprovalNotice } from './MobileNativeChatAutoApprovalNotice'
 
 function toneColor(tone: NativeChatNoticeTone): string {
   return { warning: colors.statusAmber, error: colors.statusRed, notice: colors.textMuted }[tone]
@@ -57,11 +60,13 @@ function noticeLineText(notice: NativeChatTextBlock, names: MobileNativeChatNoti
 export function MobileNativeChatNoticeRow({
   blocks,
   fontScale,
+  messageId,
   onOpenFile,
   onLongPress
 }: {
   blocks: readonly NativeChatBlock[]
   fontScale: number
+  messageId?: string
   onOpenFile?: (relativePath: string) => void
   onLongPress?: () => void
 }): React.JSX.Element | null {
@@ -81,6 +86,15 @@ export function MobileNativeChatNoticeRow({
     ) : null
   }
   const look = nativeChatNoticeLook(notice)
+  if (nativeChatAutoApprovalOutcome(notice) !== null) {
+    return (
+      <MobileNativeChatAutoApprovalNotice
+        block={notice}
+        messageId={messageId}
+        fontScale={fontScale}
+      />
+    )
+  }
   switch (look.kind) {
     case 'divider': {
       const label = NATIVE_CHAT_NOTICE_COPY[look.label]
@@ -130,6 +144,11 @@ export function MobileNativeChatNoticeRow({
         </Text>
       )
     case 'line': {
+      if (look.tone === 'error') {
+        return (
+          <MobileNativeChatErrorNotice block={notice} messageId={messageId} fontScale={fontScale} />
+        )
+      }
       const lineText = noticeLineText(notice, names)
       const textStyle = [
         styles.line,
@@ -143,8 +162,7 @@ export function MobileNativeChatNoticeRow({
           </Text>
         )
       }
-      const Icon =
-        look.tone === 'warning' ? AlertTriangle : look.tone === 'error' ? AlertCircle : Info
+      const Icon = look.tone === 'warning' ? AlertTriangle : Info
       return (
         <View style={[styles.card, styles.toneCard]}>
           <Icon

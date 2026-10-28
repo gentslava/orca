@@ -1,3 +1,4 @@
+import { NativeChatErrorNotice } from './NativeChatErrorNotice'
 import { agentSessionGoalControlWords } from './agent-session-goal-control-words'
 import { AlertCircle, AlertTriangle, Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -35,6 +36,8 @@ import { agentSessionFailureSentence } from '../../../../shared/agent-session-fa
 import { sayAgentSessionFailureTranslated } from './agent-session-failure-words-text'
 import { nativeChatAntigravitySignInContent } from './native-chat-antigravity-settings'
 import { formatUsageLimitResetClock } from '../../../../shared/agent-session-usage-limit'
+import { nativeChatAutoApprovalOutcome } from '../../../../shared/native-chat-auto-approval'
+import { NativeChatAutoApprovalNotice } from './NativeChatAutoApprovalNotice'
 
 const HOST_STATUS_WORDS: Record<AgentSessionHostStatusPresentation, () => string> = {
   'history-repaired': () =>
@@ -77,6 +80,9 @@ export function NativeChatNoticeRow({
   const orcaStopView = useNativeChatOrcaStopView()
   const claudeSignIn = useNativeChatClaudeSignInView()
   const look = nativeChatNoticeLook(block)
+  if (nativeChatAutoApprovalOutcome(block) !== null) {
+    return <NativeChatAutoApprovalNotice block={block} messageId={messageId} />
+  }
   if (look.kind === 'divider') {
     const label =
       look.label === 'contextCleared'
@@ -182,6 +188,14 @@ export function NativeChatNoticeRow({
   const failureDetail = agentSessionFailureDetailText(failure)
   const detail = failureDetail?.trim() !== text.trim() ? failureDetail : undefined
   const tone = named ? 'notice' : look.kind === 'line' ? look.tone : null
+  if (
+    tone === 'error' &&
+    !continueOffered &&
+    !antigravitySignInContent &&
+    !(claudeSignIn && isClaudeSignInFailureKind(block.failure?.kind))
+  ) {
+    return <NativeChatErrorNotice block={block} messageId={messageId} text={text} detail={detail} />
+  }
   const Icon =
     tone === 'warning'
       ? AlertTriangle

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import '@testing-library/jest-dom/vitest'
 import { createElement } from 'react'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { agentJournalItemKey } from '../../src/shared/agent-session-journal-item-key.ts'
 import { projectStructuredItemsToNativeChat } from '../../src/shared/structured-agent-session-projection.ts'
@@ -65,9 +65,10 @@ describe('startup sign-in rows from host to renderer', () => {
           onScrollMessageToTop: vi.fn()
         })
       )
-      expect(
-        screen.getByText(`${guidance} ${detail} Puis envoyez à nouveau votre message.`)
-      ).toBeInTheDocument()
+      const text = `${guidance} ${detail} Puis envoyez à nouveau votre message.`
+      expect(screen.queryByText(text)).toBeNull()
+      fireEvent.click(screen.getByRole('button'))
+      expect(screen.getByText(text)).toBeInTheDocument()
       expect(screen.queryByText(mutation.body.text)).toBeNull()
     }
   )

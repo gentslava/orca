@@ -17950,6 +17950,7 @@
         "cancelledBy": "Cancelled on {{device}}"
       },
       "notices": {
+        "agentError": "Agent reported an error",
         "contextCleared": "Context cleared",
         "compaction": "Context compacted",
         "details": "Details",
@@ -17966,7 +17967,12 @@
         "orcaStopCrash": "Orca on {{machine}} stopped unexpectedly while this response was in progress.",
         "orcaStopRemote": "Orca on {{machine}} stopped while this response was in progress.",
         "orcaStopCanContinue": "You can continue in this conversation.",
-        "orcaStopUnnamedServer": "the remote server"
+        "orcaStopUnnamedServer": "the remote server",
+        "autoApprovalGranted": "Automatic approval granted",
+        "autoApprovalRejected": "Automatic approval rejected",
+        "autoApprovalDenied": "Automatic approval denied",
+        "autoApprovalTimedOut": "Automatic approval timed out",
+        "safetyCheckDenied": "Permission denied by safety check"
       },
       "composer": {
         "send": "Send",
@@ -18171,7 +18177,8 @@
         "runLiveToolOne": "Using 1 tool",
         "runLiveToolMany": "Using {{value0}} tools",
         "showBrowserPage": "Show",
-        "showBrowserPageLabel": "Show {{value0}}"
+        "showBrowserPageLabel": "Show {{value0}}",
+        "activity": "Activity"
       },
       "providerFrame": {
         "byteLength": "{{value0}} bytes"

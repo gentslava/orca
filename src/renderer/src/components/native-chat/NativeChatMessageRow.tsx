@@ -1,4 +1,5 @@
 import { memo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { NativeChatRewindSurface } from './use-native-chat-rewind'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
 import { NativeChatUserMessageRow } from './NativeChatUserMessageRow'
@@ -71,6 +72,7 @@ function rowHasContent(content: ReturnType<typeof deriveNativeChatRowContent>): 
 export const MessageRow = memo(function MessageRow(
   props: MessageRowProps
 ): React.JSX.Element | null {
+  useTranslation()
   const {
     message,
     agentName,
@@ -107,7 +109,7 @@ export const MessageRow = memo(function MessageRow(
   }
 
   const notice = isSystem ? nativeChatNoticeBlock(blocks) : undefined
-  if (notice) {
+  if (notice && run === undefined) {
     return (
       <div ref={rowRef}>
         <NativeChatNoticeRow
@@ -121,7 +123,7 @@ export const MessageRow = memo(function MessageRow(
     )
   }
 
-  if (providerFrame) {
+  if (providerFrame && run === undefined) {
     return (
       <div ref={rowRef}>
         <ProviderFrameRow block={providerFrame} />

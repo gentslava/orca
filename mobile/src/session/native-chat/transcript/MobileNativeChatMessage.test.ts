@@ -1,4 +1,5 @@
-import { createElement, type ReactNode } from 'react'
+import '../../mobile-native-chat-message-render-mocks.test-fixture'
+import { createElement } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { projectStructuredItemToNativeChat } from '../../../../../src/shared/structured-agent-session-projection'
@@ -11,66 +12,6 @@ import { ANSWERED_PROMPT_ITEMS } from '../input/mobile-native-chat-answered-prom
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
 import { styles } from './mobile-native-chat-message-styles'
 import { stubRpcClient } from '../../../transport/rpc-client-test-stub'
-
-vi.mock('react-native', async () => {
-  const React = await import('react')
-  const Text = ({ children, ...props }: { children?: ReactNode }): unknown =>
-    React.createElement('Text', props, children)
-  return {
-    AppState: { currentState: 'active', addEventListener: () => ({ remove: () => {} }) },
-    ActivityIndicator: 'ActivityIndicator',
-    Animated: {
-      Text,
-      Value: class {
-        setValue(): void {}
-      },
-      loop: (animation: unknown) => animation,
-      sequence: () => ({ start: vi.fn(), stop: vi.fn() }),
-      timing: () => ({ start: vi.fn(), stop: vi.fn() })
-    },
-    Image: 'Image',
-    Platform: { OS: 'ios' },
-    Pressable: 'Pressable',
-    ScrollView: ({ children, ...props }: { children?: ReactNode }) =>
-      React.createElement('ScrollView', props, children),
-    Text,
-    View: ({ children, ...props }: { children?: ReactNode }) =>
-      React.createElement('View', props, children),
-    StyleSheet: { create: (styles: unknown) => styles, hairlineWidth: 1 },
-    useWindowDimensions: () => ({ width: 400, height: 800 })
-  }
-})
-vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }))
-vi.mock('lucide-react-native', () => ({
-  AlertCircle: 'AlertCircle',
-  AlertTriangle: 'AlertTriangle',
-  ArrowUp: 'ArrowUp',
-  Bot: 'Bot',
-  Brain: 'Brain',
-  Check: 'Check',
-  ChevronDown: 'ChevronDown',
-  ChevronRight: 'ChevronRight',
-  Copy: 'Copy',
-  Eye: 'Eye',
-  FileMinus2: 'FileMinus2',
-  FilePen: 'FilePen',
-  FilePlus2: 'FilePlus2',
-  Folder: 'Folder',
-  Globe: 'Globe',
-  Info: 'Info',
-  ListChecks: 'ListChecks',
-  MessageSquareMore: 'MessageSquareMore',
-  Pencil: 'Pencil',
-  Plug: 'Plug',
-  Search: 'Search',
-  SquareChevronRight: 'SquareChevronRight',
-  SquareTerminal: 'SquareTerminal',
-  Wrench: 'Wrench'
-}))
-vi.mock('../../../components/MobileMarkdown', () => ({ MobileMarkdown: 'MobileMarkdown' }))
-vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
-  MobileNativeChatMessageActionsSheet: 'MessageActionsSheet'
-}))
 
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
 import {
@@ -159,6 +100,30 @@ describe('MobileNativeChatMessage', () => {
 
   const words = (node: ReactTestInstance): string[] =>
     node.children.flatMap((child) => (typeof child === 'string' ? [child] : words(child)))
+
+  it('keeps a generic completed error neutral and collapsed until its details are opened', () => {
+    const text = 'Provider error: a previously unknown execution failure.'
+    const tree = render({
+      id: 'generic-error',
+      role: 'system',
+      blocks: [{ type: 'text', tone: 'error', text }],
+      timestamp: 0,
+      source: 'transcript'
+    })
+    expect(textIn(tree.root)).toContain('Agent reported an error')
+    expect(textIn(tree.root)).not.toContain(text)
+    const trigger = findAllByHostType(tree.root, 'Pressable').find(
+      (node) => node.props.accessibilityState?.expanded === false
+    )
+    expect(trigger).toBeDefined()
+    act(() => trigger?.props.onPress())
+    expect(textIn(tree.root)).toContain(text)
+    expect(
+      findAllByHostType(tree.root, 'Pressable').some(
+        (node) => node.props.accessibilityState?.expanded === true
+      )
+    ).toBe(true)
+  })
 
   it('draws an answered approval and question as their receipts', () => {
     const { messages, receipts } = structuredQuestionTranscript(ANSWERED_PROMPT_ITEMS)

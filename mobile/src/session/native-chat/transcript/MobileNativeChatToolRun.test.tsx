@@ -175,6 +175,34 @@ describe('ToolRun', () => {
       expect(textIn(tree.root)).toContain(listing)
     })
 
+    it('keeps failure output hidden until expansion and then offers every line', () => {
+      const output = 'failure detail\n'.repeat(MAX_TOOL_DETAIL_LENGTH) + 'last failure line'
+      act(() => {
+        renderer = create(
+          createElement(ToolRun, {
+            blocks: [
+              { type: 'tool-call', name: 'Bash', input: { command: 'pnpm test' }, state: 'failed' },
+              { type: 'tool-result', output, isError: true }
+            ]
+          })
+        )
+      })
+      const tree = renderer!
+      const alerts = tree.root.findAll(
+        (node) => String(node.type) === 'Text' && node.props.accessibilityRole === 'alert'
+      )
+      expect(alerts).toHaveLength(0)
+      expect(textIn(tree.root).some((text) => text.includes('failure detail'))).toBe(false)
+      expect(flatStyle(textNode(tree, ' · 1 failed')).color).toBe(colors.textMuted)
+      expect(tree.root.findAll((node) => String(node.type) === 'ScrollView')).toHaveLength(0)
+      openRun(tree)
+      open(tree, 'pnpm test')
+      expect(textIn(tree.root)).not.toContain(output)
+      open(tree, 'Show full output')
+      expect(textIn(tree.root)).toContain(output)
+      expect(textNode(tree, output).props.numberOfLines).toBeUndefined()
+    })
+
     it('keeps a failed command red even when its output reads as a diff', () => {
       const output = 'error: patch failed\n-const a = 1\n+const a = 2'
       const tree = render([

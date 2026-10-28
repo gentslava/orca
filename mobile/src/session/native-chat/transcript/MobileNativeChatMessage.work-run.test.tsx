@@ -6,6 +6,9 @@ import type { AgentJournalRenderItem } from '../../../../../src/shared/agent-ses
 import type { RpcClient } from '../../../transport/rpc-client'
 import { MobileNativeChatItemSourceContext } from '../../mobile-native-chat-item-read'
 import { useMobileNativeChatMessageDetail } from './use-mobile-native-chat-message-detail'
+import { Harness, Result } from './use-mobile-native-chat-turn-disclosure.test-fixture'
+import { findAllByHostType } from '../../../test-support/react-test-renderer-host-nodes'
+import { colors } from '../../../theme/mobile-theme'
 
 vi.mock('react-native', async () => {
   const React = await import('react')
@@ -32,6 +35,8 @@ vi.mock('react-native', async () => {
 })
 vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }))
 vi.mock('lucide-react-native', () => ({
+  AlertCircle: 'AlertCircle',
+  AlertTriangle: 'AlertTriangle',
   Bot: 'Bot',
   Brain: 'Brain',
   Check: 'Check',
@@ -65,6 +70,13 @@ vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
 import { nativeChatReasoningDisclosureKey } from '../../../../../src/shared/native-chat/transcript/native-chat-reasoning-row'
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
+import {
+  APPROVED_REVIEW,
+  COMPACT_APPROVAL_CASES,
+  NON_COMPACT_APPROVAL_BLOCKS,
+  approvalReviewBlock,
+  approvalReviewMessage
+} from '../../../../../src/shared/native-chat-activity.test-fixture'
 
 const thought: NativeChatMessage = {
   id: 'r1',
@@ -103,6 +115,77 @@ afterEach(() => {
 const textIn = (node: ReactTestInstance): string[] =>
   node.findAll((child) => String(child.type) === 'Text').map((text) => text.children.join(''))
 
+function render(message: NativeChatMessage): ReactTestRenderer {
+  act(() => {
+    renderer = create(createElement(MobileNativeChatMessage, { message }))
+  })
+  return renderer!
+}
+
+it.each([
+  ...COMPACT_APPROVAL_CASES,
+  { block: approvalReviewBlock(), label: 'Automatic approval granted' }
+])('discloses $label without showing the original rejection by default', ({ block, label }) => {
+  render({ id: 'denial', role: 'system', blocks: [block], timestamp: 0, source: 'transcript' })
+  const tree = renderer!
+  const texts = () => findAllByHostType(tree.root, 'Text').map((node) => node.children.join(''))
+  const trigger = findAllByHostType(tree.root, 'Pressable').find(
+    (node) => node.props.accessibilityState?.expanded !== undefined
+  )!
+  expect(texts()).toContain(label)
+  expect(texts()).not.toContain(block.text)
+  const labelNode = findAllByHostType(tree.root, 'Text').find(
+    (node) => node.children.join('') === label
+  )!
+  expect(Object.assign({}, ...[labelNode.props.style].flat(Infinity).filter(Boolean)).color).toBe(
+    colors.textMuted
+  )
+  expect(trigger.props.accessibilityState.expanded).toBe(false)
+  expect(trigger.props['aria-expanded']).toBe(false)
+  act(() => trigger.props.onPress())
+  expect(texts()).toContain(block.text)
+  if (block.tone === 'error') {
+    const detail = findAllByHostType(tree.root, 'Text').find(
+      (node) => node.children.join('') === block.text
+    )!
+    expect(Object.assign({}, ...[detail.props.style].flat(Infinity).filter(Boolean)).color).toBe(
+      colors.statusRed
+    )
+  }
+  expect(texts()).toContain(block.providerFrame!.payload.head)
+  expect(trigger.props.accessibilityState.expanded).toBe(true)
+  expect(trigger.props['aria-expanded']).toBe(true)
+  act(() => trigger.props.onPress())
+  expect(texts()).not.toContain(block.text)
+  expect(trigger.props.accessibilityState.expanded).toBe(false)
+  expect(trigger.props['aria-expanded']).toBe(false)
+})
+
+it.each(NON_COMPACT_APPROVAL_BLOCKS)(
+  'keeps other notice text available without treating it as automatic approval: $text',
+  (block) => {
+    render({
+      id: 'ordinary',
+      role: 'system',
+      blocks: [block],
+      timestamp: 0,
+      source: 'transcript'
+    })
+    const tree = renderer!
+    const disclosures = findAllByHostType(tree.root, 'Pressable').filter(
+      (node) => node.props.accessibilityState?.expanded !== undefined
+    )
+    if (block.tone === 'error') {
+      expect(textIn(tree.root)).not.toContain(block.text)
+      expect(disclosures).toHaveLength(1)
+      act(() => disclosures[0]?.props.onPress())
+    } else {
+      expect(disclosures).toHaveLength(0)
+    }
+    expect(textIn(tree.root)).toContain(block.text)
+  }
+)
+
 it('draws a run that opens on a thought as one header, the thought inside it', () => {
   act(() => {
     renderer = create(
@@ -139,6 +222,123 @@ it('draws nothing for a row a run absorbed', () => {
     )
   })
   expect(renderer!.toJSON()).toBeNull()
+})
+
+it.each(['review-first', 'tool-first'])(
+  'keeps successful reviews in one collapsed activity group on mobile: %s',
+  (order) => {
+    const review = approvalReviewMessage('review')
+    const members = order === 'review-first' ? [review, read, command] : [read, review, command]
+    act(() => {
+      renderer = create(
+        createElement(MobileNativeChatMessage, {
+          message: members[0]!,
+          workRun: members,
+          structuredActivityUi: true,
+          activeTurnIsWorking: false
+        })
+      )
+    })
+    const tree = renderer!
+    const trigger = tree.root.find(
+      (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
+    )
+    expect(trigger.props.accessibilityState.expanded).toBe(false)
+    expect(textIn(tree.root)).not.toContain(APPROVED_REVIEW)
+    act(() => trigger.props.onPress())
+    expect(textIn(tree.root)).toContain(APPROVED_REVIEW)
+    expect(textIn(tree.root)).toContain(JSON.stringify({ message: APPROVED_REVIEW }))
+    expect(textIn(tree.root)).toEqual(expect.arrayContaining(['Read', 'a.ts', 'pnpm test']))
+  }
+)
+
+it('keeps a mobile tool failure inside its collapsed activity group', () => {
+  const failed: NativeChatMessage = {
+    ...command,
+    id: 'failed-test',
+    blocks: [
+      {
+        type: 'tool-call',
+        callId: 'failed-test',
+        name: 'Bash',
+        input: { command: 'pnpm test' },
+        state: 'failed'
+      },
+      { type: 'tool-result', callId: 'failed-test', output: 'Test failed', isError: true }
+    ]
+  }
+  const members = [read, failed, command]
+  act(() => {
+    renderer = create(
+      createElement(Harness, { messages: members, enabled: true, isWorking: false })
+    )
+  })
+  const { disclosure } = renderer!.root.findByType(Result).props
+  const { workRun } = disclosure.resolveRow(0, read)
+  expect(workRun).toEqual(members)
+  act(() => renderer!.unmount())
+  act(() => {
+    renderer = create(
+      createElement(MobileNativeChatMessage, {
+        message: read,
+        workRun,
+        structuredActivityUi: true,
+        activeTurnIsWorking: false
+      })
+    )
+  })
+  const tree = renderer!
+  const trigger = tree.root.find(
+    (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
+  )
+  expect(textIn(tree.root)).toContain(' · 1 failed')
+  expect(textIn(tree.root).some((text) => text.includes('Test failed'))).toBe(false)
+  expect(trigger.props.accessibilityState.expanded).toBe(false)
+  act(() => trigger.props.onPress())
+  act(() =>
+    tree.root
+      .findAll((node) => String(node.type) === 'Pressable')
+      .find(
+        (node) => typeof node.props.onPress === 'function' && textIn(node).includes('pnpm test')
+      )!
+      .props.onPress()
+  )
+  expect(textIn(tree.root)).toContain('Test failed')
+})
+
+it('keeps guardian warnings and unanswered questions outside mobile activity groups', () => {
+  const warning = approvalReviewMessage('warning', 'Review required before continuing.')
+  const question: NativeChatMessage = {
+    ...command,
+    id: 'question',
+    blocks: [
+      {
+        type: 'tool-call',
+        name: 'AskUserQuestion',
+        input: { questions: [{ question: 'Which host should I use?' }] },
+        state: 'running'
+      }
+    ]
+  }
+  for (const boundary of [warning, question]) {
+    const messages = [
+      read,
+      command,
+      boundary,
+      { ...read, id: 'read-b' },
+      { ...command, id: 'cmd-b' }
+    ]
+    act(() => {
+      renderer = create(createElement(Harness, { messages, enabled: true, isWorking: true }))
+    })
+    const { disclosure } = renderer!.root.findByType(Result).props
+    expect(disclosure.resolveRow(0, read).workRun).toEqual([read, command])
+    expect(disclosure.resolveRow(2, boundary).workRun).toBeUndefined()
+    expect(disclosure.resolveRow(2, boundary).joinsWorkRun).not.toBe(true)
+    expect(disclosure.resolveRow(3, messages[3]!).workRun).toEqual(messages.slice(3))
+    act(() => renderer!.unmount())
+    renderer = null
+  }
 })
 
 it("opens a grouped thought's own actions on a long press, not the run's first row's", () => {

@@ -751,6 +751,7 @@
         "stopUnconfirmed": "Codex could not confirm Stop. Check the chat before continuing."
       },
       "notices": {
+        "agentError": "Agent reported an error",
         "compaction": "Context compacted",
         "contextCleared": "Context cleared",
         "continuedOutside": "Continued outside this chat.",
