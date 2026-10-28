@@ -4,6 +4,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
+import * as i18n from '@/i18n/i18n'
 import { sanitizeRepoIcon, type RepoIcon } from '../../../../../../shared/repo-icon'
 import { RepositoryIconTabs } from './RepositoryIconTabs'
 
@@ -195,5 +196,27 @@ it('explains the advertised image limit without storing an oversized decode', as
   })
   expect(icons).toEqual([])
   expect(error).toHaveBeenCalledWith('Image exceeds the 10MB or 32-megapixel limit.')
+  expect(upload.disabled).toBe(false)
+})
+
+it.each([
+  'Repo icon image must be 10MB or smaller.',
+  "Error invoking remote method 'shell:pickRepoIconImage': Error: Repo icon image must be 10MB or smaller."
+])('localizes native picker size errors: %s', async (message) => {
+  vi.spyOn(i18n, 'translate').mockImplementation((key, fallback) =>
+    key === 'auto.components.settings.RepositoryIconPicker.imageTooLarge'
+      ? 'Image trop volumineuse.'
+      : (fallback ?? key)
+  )
+  const error = vi.spyOn(toast, 'error')
+  const pick = vi.fn(async () => ({ dataUrl: source, fileName: 'large.svg' }))
+  pick.mockRejectedValueOnce(new Error(message))
+  const { icons, upload } = await renderPicker({ pick })
+  await act(async () => {
+    upload.click()
+    await vi.waitFor(() => expect(error).toHaveBeenCalled())
+  })
+  expect(error).toHaveBeenCalledWith('Image trop volumineuse.')
+  expect(icons).toEqual([])
   expect(upload.disabled).toBe(false)
 })

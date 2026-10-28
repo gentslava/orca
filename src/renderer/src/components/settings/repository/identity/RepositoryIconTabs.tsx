@@ -101,7 +101,8 @@ export function RepositoryIconTabs({
       }
       toast.error(
         error instanceof Error
-          ? error.message === CLIPBOARD_IMAGE_TOO_LARGE_ERROR
+          ? error.message === CLIPBOARD_IMAGE_TOO_LARGE_ERROR ||
+            error.message.endsWith('Repo icon image must be 10MB or smaller.')
             ? translate(
                 'auto.components.settings.RepositoryIconPicker.imageTooLarge',
                 'Image exceeds the 10MB or 32-megapixel limit.'

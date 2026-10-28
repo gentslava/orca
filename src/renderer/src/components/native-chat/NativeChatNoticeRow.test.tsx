@@ -405,7 +405,7 @@ describe('notice rows', () => {
       expect(
         screen.getByText(`${guidance}${locale === 'ja' ? '' : ' '}${detail}`)
       ).toBeInTheDocument()
-      expect(screen.getByText(words.text)).toBeInTheDocument()
+      expect(screen.queryByText(words.text)).toBeNull()
     }
   )
 
