@@ -2,6 +2,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { CLIPBOARD_IMAGE_TOO_LARGE_ERROR } from '../../../../../src/shared/clipboard-image'
 import type { RpcClient } from '../../../transport/rpc-client'
 import type { ConnectionState } from '../../../transport/types'
+import { NativeVerbError } from '../../../mobile-web-shell/bridge/native-verb-error'
 import { useMediaPicker } from '../../../platform/media-picker'
 import {
   ImageLibraryPermissionError,
@@ -98,11 +99,27 @@ export function useMobileNativeChatImageUpload(args: {
           showToast('Attach failed (disconnected)', 1500)
           return
         }
-        if (uploadError instanceof ImageLibraryPermissionError) {
+        const reason = uploadError instanceof NativeVerbError ? uploadError.reason : null
+        if (
+          uploadError instanceof ImageLibraryPermissionError ||
+          reason === 'native_media_permission_denied'
+        ) {
           showToast('Photo permission denied', 1500)
           return
         }
-        if (message === CLIPBOARD_IMAGE_TOO_LARGE_ERROR) {
+        if (
+          reason === 'ungranted' ||
+          reason === 'native_verb_ungranted' ||
+          reason === 'native_verb_unknown'
+        ) {
+          showToast('Media attachments unavailable here', 1500)
+          return
+        }
+        if (reason === 'native_media_handle_cap') {
+          showToast('Attachment capacity reached', 1500)
+          return
+        }
+        if (reason === 'native_media_too_large' || message === CLIPBOARD_IMAGE_TOO_LARGE_ERROR) {
           showToast('Image too large to attach', 1500)
           return
         }
