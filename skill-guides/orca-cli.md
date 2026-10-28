@@ -24,11 +24,11 @@ Prefer `--json` for agent-driven calls. If the CLI is missing, say so explicitly
 
 ## Full Handoffs
 
-A full handoff transfers ownership to another agent or worktree, then the original agent stops. Treat requests phrased as "hand off", "handoff", "handover", "give this to another agent", "give this to another worktree", "another agent", or "another worktree" as full handoffs unless the user explicitly asks to supervise, monitor, wait for results, track completion, coordinate a DAG, use decision gates, or manage ask/reply.
+A full handoff transfers ownership to another agent or worktree, then the original agent stops. Use this route when the user asks for an Orca worktree/terminal handoff or explicitly transfers ownership. Ordinary delegation within the current Codex or Claude conversation uses native subagents when available. Asking to monitor progress, wait for results or collect answers alone does not select Orca supervised orchestration. Use the orchestration skill for an explicit `$orchestration` / `/orchestration` invocation, Orca-managed workers, a Run/DAG, cross-agent/host coordination or decision gates, and preserve existing Run/Dispatch obligations.
 
 A handoff is done when the new worktree id and agent handle have been reported and the prompt was delivered: the launch's `prompt.outcome` is `journaled` or `handed-to-terminal`, or, for an agent that was already running, the send receipt reported `accepted: true`. Do not wait for the receiving agent to finish.
 
-Do not use `orca orchestration task-create`, `orca orchestration dispatch --inject`, or `orca orchestration check --wait` for full handoffs. `task-create` is also forbidden because it records coordinator-owned tracking state; if a task row is needed, the user asked for supervised orchestration. Deliver the prompt with the agent launch, or with terminal commands for an agent that is already running.
+Do not use `orca orchestration task-create`, `orca orchestration dispatch --inject`, or `orca orchestration check --wait` for full handoffs. `task-create` records coordinator-owned tracking state; do not infer authorization for it from a generic request to monitor or collect results. Deliver the prompt with the agent launch, or with terminal commands for an agent that is already running.
 
 Independent new-worktree handoff:
 
