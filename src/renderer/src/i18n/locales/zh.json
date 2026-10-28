@@ -18002,7 +18002,8 @@
         "queued": "已排队",
         "clearAll": "全部清除",
         "pasteOrDropImages": "粘贴或拖入图片",
-        "saveNeedsContent": "添加文字或图片后才能保存"
+        "saveNeedsContent": "添加文字或图片后才能保存",
+        "turnOffQueueing": "关闭排队"
       },
       "thought": "已思考",
       "thoughtForDuration": "思考了 {{duration}}",

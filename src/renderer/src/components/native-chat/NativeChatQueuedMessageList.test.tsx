@@ -300,9 +300,10 @@ describe('NativeChatQueuedMessageList', () => {
     expect(screen.queryByRole('button', { name: 'Steer' })).toBeNull()
   })
 
-  it('a command card offers no Edit or preference menu', () => {
+  it('a command card offers no Edit: its text is not a draft', async () => {
     renderList(controller([card({ messageId: 'compact-1', text: '/compact', command: true })]))
-    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull()
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'More actions' }))
+    expect(await screen.findByRole('menuitem', { name: 'Turn off queueing' })).toBeTruthy()
     expect(screen.queryByRole('menuitem', { name: 'Edit message' })).toBeNull()
   })
 
@@ -488,7 +489,7 @@ describe('NativeChatQueuedMessageList', () => {
     // The open question below already says the agent waits; the text is the card's only line.
     expect(row.querySelectorAll('p')).toHaveLength(1)
     expect(within(row).getByRole('button', { name: 'Delete' })).toBeTruthy()
-    expect(within(row).queryByRole('button', { name: 'More actions' })).toBeNull()
+    expect(within(row).getByRole('button', { name: 'More actions' })).toBeTruthy()
     fireEvent.click(within(row).getByRole('button', { name: 'Steer' }))
     expect(mutate).toHaveBeenCalledWith(
       'agentSession.queuedMessageSend',
@@ -758,16 +759,15 @@ describe('NativeChatQueuedMessageList', () => {
     expect(screen.queryByRole('button', { name: 'Show full message' })).toBeNull()
   })
 
-  it('the menu edits the message and leaves queue preferences in settings', async () => {
+  it('the menu offers Edit message and Turn off queueing', async () => {
     const owner = controller([card({ messageId: 'draft-1' })])
     renderList(owner)
     fireEvent.pointerDown(screen.getByRole('button', { name: 'More actions' }))
     fireEvent.click(await screen.findByRole('menuitem', { name: 'Edit message' }))
     expect(owner.edit).toHaveBeenCalledWith('draft-1')
     fireEvent.pointerDown(screen.getByRole('button', { name: 'More actions' }))
-    expect(await screen.findByRole('menuitem', { name: 'Edit message' })).toBeTruthy()
-    expect(screen.queryByRole('menuitem', { name: 'Turn off queueing' })).toBeNull()
-    expect(mocks.updateSettings).not.toHaveBeenCalled()
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Turn off queueing' }))
+    expect(mocks.updateSettings).toHaveBeenCalledWith({ nativeChatQueueFollowUps: false })
   })
 
   // Kept cards also work without host queueing; omit queue-only settings and shortcuts there.
@@ -775,7 +775,7 @@ describe('NativeChatQueuedMessageList', () => {
     { queueCapable: true, offered: true },
     { queueCapable: false, offered: false }
   ])(
-    'offers the send chord only when the host queues sends ($queueCapable)',
+    'offers Turn off queueing and the send chord only when the host queues sends ($queueCapable)',
     async ({ queueCapable, offered }) => {
       const owner = controller([card({ messageId: 'kept', hold: 'paused' })], null, queueCapable)
       renderList(owner)
@@ -784,8 +784,7 @@ describe('NativeChatQueuedMessageList', () => {
       expect(hint[0]!.parentElement!.children).toHaveLength(offered ? 2 : 1)
       fireEvent.pointerDown(screen.getByRole('button', { name: 'More actions' }))
       expect(await screen.findByRole('menuitem', { name: 'Edit message' })).toBeTruthy()
-      expect(screen.queryByRole('menuitem', { name: 'Turn off queueing' })).toBeNull()
-      // Send, Delete and Edit work either way.
+      expect(screen.queryByRole('menuitem', { name: 'Turn off queueing' }) !== null).toBe(offered)
       fireEvent.click(screen.getByRole('menuitem', { name: 'Edit message' }))
       expect(owner.edit).toHaveBeenCalledWith('kept')
       fireEvent.click(screen.getByRole('button', { name: 'Send' }))

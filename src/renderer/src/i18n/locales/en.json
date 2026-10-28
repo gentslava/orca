@@ -18456,7 +18456,8 @@
         "pasteOrDropImages": "Paste or drop images",
         "saveNeedsContent": "Add text or an image to save",
         "moveEarlier": "Move earlier",
-        "moveLater": "Move later"
+        "moveLater": "Move later",
+        "turnOffQueueing": "Turn off queueing"
       },
       "thought": "Thought",
       "thoughtForDuration": "Thought for {{duration}}",

@@ -18526,7 +18526,8 @@
         "moveEarlier": "Переместить выше",
         "moveLater": "Переместить ниже",
         "imageCount_few": "{{count}} изображения",
-        "imageCount_many": "{{count}} изображений"
+        "imageCount_many": "{{count}} изображений",
+        "turnOffQueueing": "Выключить очередь"
       },
       "thought": "Размышлял",
       "thoughtForDuration": "Размышлял {{duration}}",
@@ -19218,7 +19219,6 @@
       "subagents_many": "{{count}} дочерних агентов"
     },
     "terminal": {
-      "closed": "Нет активного терминала — панель этого агента закрыта.",
       "remotePreviewUnavailable": "Для этой удалённой сессии нет предпросмотра — откройте рабочее пространство, чтобы увидеть терминал.",
       "focusWorktree": "Открыть рабочее дерево",
       "close": "Закрыть"

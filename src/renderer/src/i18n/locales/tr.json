@@ -18331,7 +18331,8 @@
         "queued": "Sıraya alındı",
         "clearAll": "Tümünü temizle",
         "pasteOrDropImages": "Görselleri yapıştırın veya bırakın",
-        "saveNeedsContent": "Kaydetmek için metin veya görsel ekleyin"
+        "saveNeedsContent": "Kaydetmek için metin veya görsel ekleyin",
+        "turnOffQueueing": "Kuyruğa almayı kapat"
       },
       "thought": "Düşündü",
       "thoughtForDuration": "{{duration}} boyunca düşündü",
@@ -18988,7 +18989,6 @@
       "subagents_other": "{{count}} alt ajan"
     },
     "terminal": {
-      "closed": "Canlı terminal yok, bu ajanın bölmesi kapandı.",
       "remotePreviewUnavailable": "Bu uzak oturum için önizleme yok, terminali görüntülemek için çalışma alanını açın.",
       "focusWorktree": "Worktree'yi aç",
       "close": "Kapat"

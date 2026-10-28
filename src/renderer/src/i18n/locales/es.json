@@ -17858,7 +17858,8 @@
         "saveNeedsContent": "Añade texto o una imagen para guardar",
         "moveChanged": "La cola cambió antes de este movimiento. Intenta arrastrar el mensaje de nuevo.",
         "reorderHint": "Arrastra para reordenar o usa las teclas de flecha arriba y abajo.",
-        "reorderMessage": "Reordenar mensaje"
+        "reorderMessage": "Reordenar mensaje",
+        "turnOffQueueing": "Desactivar la cola"
       },
       "thought": "Pensó",
       "thoughtForDuration": "Pensó durante {{duration}}",

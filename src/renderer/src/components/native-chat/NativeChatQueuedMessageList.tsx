@@ -43,6 +43,7 @@ export function NativeChatQueuedMessageList({
   /** The chat files added in a card's editor attach to, as its chat box attaches them. */
   editAttachTo?: QueuedEditAttachTarget
 }): React.JSX.Element {
+  const updateSettings = useAppStore((store) => store.updateSettings)
   const queueOnEnter = useAppStore((store) => store.settings?.nativeChatQueueFollowUps !== false)
   const regionRef = useRef<HTMLDivElement>(null)
   const queueRef = useRef<HTMLDivElement>(null)
@@ -74,6 +75,10 @@ export function NativeChatQueuedMessageList({
       listRef.current.scrollTop = listRef.current.scrollHeight
     }
   }, [cards, newest, newestIsPersons])
+  // Only a host that queues sends has queueing to turn off; a kept card shows without it.
+  const turnOffQueueing = controller.queueCapable
+    ? () => void updateSettings({ nativeChatQueueFollowUps: false })
+    : undefined
   // Refocus only if focus stayed on the queue; an active prompt card takes priority over the composer.
   const refocusAfter = (action: Promise<unknown>): void => {
     void action.then(() => {
@@ -155,6 +160,7 @@ export function NativeChatQueuedMessageList({
                     }
                     editAttachTo={editAttachTo}
                     editDisabled={controller.editor !== undefined}
+                    onTurnOffQueueing={turnOffQueueing}
                   />
                 )}
               />

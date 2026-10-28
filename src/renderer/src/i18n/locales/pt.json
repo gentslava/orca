@@ -18665,7 +18665,8 @@
         "saveNeedsContent": "Adicione texto ou uma imagem para salvar",
         "moveChanged": "A fila mudou antes desta movimentação. Tente arrastar a mensagem novamente.",
         "reorderHint": "Arraste para reordenar ou use as teclas de seta para cima e para baixo.",
-        "reorderMessage": "Reordenar mensagem"
+        "reorderMessage": "Reordenar mensagem",
+        "turnOffQueueing": "Desativar fila"
       },
       "thought": "Raciocínio",
       "thoughtForDuration": "Pensou por {{duration}}",

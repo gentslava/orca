@@ -18032,7 +18032,8 @@
         "saveNeedsContent": "保存するにはテキストか画像を追加してください",
         "moveChanged": "移動の前にキューが変更されました。もう一度メッセージをドラッグしてください。",
         "reorderHint": "ドラッグするか、上下の矢印キーを使って並べ替えます。",
-        "reorderMessage": "メッセージを並べ替え"
+        "reorderMessage": "メッセージを並べ替え",
+        "turnOffQueueing": "キューへの追加をオフにする"
       },
       "thought": "考えました",
       "thoughtForDuration": "{{duration}} 考えました",
