@@ -42,7 +42,7 @@ const desktop = [
   'src/renderer/src/components/native-chat/native-chat-transcript-work-runs.test.ts',
   'src/renderer/src/components/native-chat/NativeChatMessageRow.work-run.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatNoticeRow.auto-approval.test.tsx',
-  'src/shared/native-chat-work-run.test.ts',
+  'src/shared/native-chat/native-chat-work-run.test.ts',
   'src/renderer/src/components/native-chat/NativeChatMessageRow.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatMessageRail.test.tsx',
   'src/renderer/src/components/native-chat/native-chat-message-rail-items.test.ts',

@@ -1,7 +1,7 @@
-import { StyleSheet } from 'react-native'
+import { themedStyleSheet } from '../theme/themed-styles'
 import { colors, radii, spacing, typography } from '../theme/mobile-theme'
 
-export const conversationStyles = StyleSheet.create({
+export const conversationStyles = themedStyleSheet(() => ({
   container: { flex: 1, backgroundColor: colors.bgBase },
   header: {
     flexDirection: 'row',
@@ -86,4 +86,4 @@ export const conversationStyles = StyleSheet.create({
     borderRadius: radii.button
   },
   spinner: { marginVertical: spacing.lg }
-})
+}))

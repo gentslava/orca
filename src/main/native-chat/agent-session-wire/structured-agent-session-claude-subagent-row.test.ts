@@ -334,7 +334,7 @@ it('steers with current choices while saving future choices for the next message
     eventually(() =>
       expect(host.collaboratorsForTests().conversationDelivery.loop.isRunning(SESSION)).toBe(false)
     )
-  const init = (on: FakeConnection, permissionMode = 'default') =>
+  const init = (on: FakeConnection, permissionMode = 'auto') =>
     frame(on, {
       type: 'system',
       subtype: 'init',
@@ -393,7 +393,7 @@ it('steers with current choices while saving future choices for the next message
   await store.replaceSessionOptions({
     sessionId: SESSION,
     fence: store.getRecord(SESSION)!.lease.runtimeFence,
-    options: choices,
+    options: { ...choices, permissionMode: 'auto' },
     now: NOW
   })
   const controls = first.calls.length
@@ -407,7 +407,7 @@ it('steers with current choices while saving future choices for the next message
   expect(dispatch.mock.calls[bIndex]![0].executionOptions).toEqual({ model: 'haiku' })
   expect(await dispatch.mock.results[bIndex]!.value).toMatchObject({ state: 'admitted' })
   expect((await submission(b))?.options).toEqual({ model: 'haiku' })
-  expect(store.getRecord(SESSION)?.options).toEqual(choices)
+  expect(store.getRecord(SESSION)?.options).toEqual({ ...choices, permissionMode: 'auto' })
   expect(await savedRows()).toEqual(
     expect.arrayContaining([expect.objectContaining({ state: 'working' })])
   )

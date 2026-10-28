@@ -4,7 +4,7 @@ import { NativeChatQueuedMessageList } from '@/components/native-chat/NativeChat
 import { useNativeChatComposerKeyDown } from '@/components/native-chat/use-native-chat-composer-keydown'
 import { useImeEnterGestureOwnership } from '@/lib/ime-composition-keyboard-event'
 import type { NativeChatComposerInput } from '@/components/native-chat/native-chat-composer-input'
-import type { QueuedMessageCard } from '@/components/native-chat/structured-agent-session-queued-cards'
+import type { QueuedMessageCard } from '../../../src/shared/structured-agent-session-queued-cards'
 import type { StructuredAgentSessionQueuedMessagesController } from '@/components/native-chat/use-structured-agent-session-queued-messages'
 import type {
   SessionOptionDescriptor,

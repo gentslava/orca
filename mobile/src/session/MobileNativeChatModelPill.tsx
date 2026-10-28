@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet, Text } from 'react-native'
+import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+import { themedStyleSheet } from '../theme/themed-styles'
+import { Pressable, Text } from 'react-native'
 import { ShieldAlert, type LucideIcon } from 'lucide-react-native'
 import { colors, typography } from '../theme/mobile-theme'
 
@@ -20,6 +22,7 @@ export function ModelPill({
   disabled: boolean
   onPress: () => void
 }): React.JSX.Element {
+  useMobileColorScheme()
   const PillIcon = Icon ?? (warning ? ShieldAlert : undefined)
   return (
     <Pressable
@@ -48,7 +51,7 @@ export function ModelPill({
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyleSheet(() => ({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -75,4 +78,4 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7
   }
-})
+}))

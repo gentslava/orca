@@ -465,7 +465,8 @@ import type { NativeChatLiveSession } from './use-native-chat-live-session'
         failureBlock.tone = 'error'
       }
       render(transcript([unknown, failure, frame(3, 'inProgress')]))
-      expect(screen.queryByText('notification:future/event')).toBeNull()
+      expect(screen.queryByText(/notification:future\/(?:event|failure)/)).toBeNull()
+      fireEvent.click(screen.getByRole('button', { name: 'Agent reported an error' }))
       expect(screen.getByText('codex · notification:future/failure')).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: 'Tasks 0 of 1 tasks completed' })
