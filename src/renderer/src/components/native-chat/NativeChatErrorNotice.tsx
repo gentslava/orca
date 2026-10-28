@@ -41,9 +41,6 @@ export function NativeChatErrorNotice({
       <CollapsibleContent>
         <div className="space-y-2 py-1 text-sm text-destructive">
           <p className="whitespace-pre-wrap break-words">{text}</p>
-          {text !== block.text ? (
-            <p className="whitespace-pre-wrap break-words">{block.text}</p>
-          ) : null}
           {detail ? <p className="whitespace-pre-wrap break-words">{detail}</p> : null}
           <ProviderFrameRow
             block={block}
