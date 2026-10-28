@@ -17966,7 +17966,8 @@
         "orcaStopCrash": "Orca on {{machine}} stopped unexpectedly while this response was in progress.",
         "orcaStopRemote": "Orca on {{machine}} stopped while this response was in progress.",
         "orcaStopCanContinue": "You can continue in this conversation.",
-        "orcaStopUnnamedServer": "the remote server"
+        "orcaStopUnnamedServer": "the remote server",
+        "orchestrationMail": "Orchestration mail"
       },
       "composer": {
         "send": "Send",

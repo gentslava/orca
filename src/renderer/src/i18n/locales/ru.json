@@ -18040,7 +18040,8 @@
         "orcaStopCrash": "Во время ответа Orca на {{machine}} неожиданно завершилась.",
         "orcaStopRemote": "Во время ответа Orca на {{machine}} остановилась.",
         "orcaStopCanContinue": "Вы можете продолжить этот разговор.",
-        "orcaStopUnnamedServer": "удалённом сервере"
+        "orcaStopUnnamedServer": "удалённом сервере",
+        "orchestrationMail": "Служебные сообщения агентов"
       },
       "composer": {
         "send": "Отправить",
