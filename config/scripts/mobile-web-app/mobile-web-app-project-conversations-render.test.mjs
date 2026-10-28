@@ -336,10 +336,10 @@ describeRender('the actual mobile project conversation list', () => {
     await page.getByText('Этот хост показывает открытые чаты', { exact: false }).waitFor()
     await page.getByRole('button', { name: 'Другие действия', exact: true }).click()
     await page.getByText('Дополнительно: рабочие каталоги', { exact: true }).click()
-    await page.getByText('К разговорам', { exact: true }).waitFor()
+    await page.getByText('К проектам', { exact: true }).waitFor()
     await page.getByText('master', { exact: true }).first().waitFor()
     await proof(page, 'before-workspaces-preserved')
-    await page.getByRole('button', { name: 'К разговорам', exact: true }).click()
+    await page.getByRole('button', { name: 'К проектам', exact: true }).click()
     await page
       .getByRole('button', { name: 'Clearer conversation navigation', exact: true })
       .waitFor()

@@ -2,7 +2,7 @@
 
 import type { AgentJournalMessageItem } from '../../../../shared/agent-session-journal-types'
 import {
-  queuedEditHandOffTyping,
+  queuedMessageEditableText,
   queuedEditImagesPending,
   queuedEditKeptImages,
   type QueuedMessageEditResult,
@@ -90,7 +90,7 @@ export function releaseQueuedEditImages(edit: QueuedEditImageState): void {
 
 /** Hand back unsaved text and settled additions atomically, excluding card-owned image markers; discard pending uploads with their edit, as mobile does. */
 export function handOffQueuedEdit(edit: QueuedEditImageState): boolean {
-  const text = queuedEditHandOffTyping(edit.body, edit)
+  const text = edit.text === queuedMessageEditableText(edit.body) ? '' : edit.text
   const images = edit.added.flatMap((image) => (image.pending ? [] : [settled(image)]))
   appendNativeChatDraftCache(edit.draftKey, text, undefined, images)
   return text !== '' || images.length > 0

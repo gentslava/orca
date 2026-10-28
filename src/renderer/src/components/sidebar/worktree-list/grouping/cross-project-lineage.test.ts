@@ -137,7 +137,7 @@ describe('cross-project sidebar lineage', () => {
       }
       const worktrees = [grandchild, child, pinnedParent]
       const parentProjectId = canonical.setups.find((setup) => setup.repoId === repo.id)!.projectId
-      const parentSection = `project:${parentProjectId}`
+      const parentSection = `project:${parentProjectId}::setup:${repo.id}`
       const plan = buildSidebarRowPlan(
         'repo',
         worktrees,

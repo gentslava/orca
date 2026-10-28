@@ -114,7 +114,13 @@ export function getManualOrderAnchorRepo<R extends ProjectSectionRepo>(
 
 export function compareProjectEntries<
   T extends readonly [string, ProjectSectionEntry<ActivityItem, ProjectSectionRepo>]
->(a: T, b: T, mode: ProjectOrderBy, manualRank: (entry: T) => number): number {
+>(
+  a: T,
+  b: T,
+  mode: ProjectOrderBy,
+  manualRank: (entry: T) => number,
+  rankForEntry: (entry: T) => RecentRank = recentRankForEntry
+): number {
   const pa = a[1].projectPreference
   const pb = b[1].projectPreference
   const pinned = Number(pb?.pinned === true) - Number(pa?.pinned === true)
@@ -145,7 +151,7 @@ export function compareProjectEntries<
         return byName()
       }
     } else {
-      const recent = compareRecentRank(recentRankForEntry(a), recentRankForEntry(b))
+      const recent = compareRecentRank(rankForEntry(a), rankForEntry(b))
       if (recent) {
         return recent
       }
@@ -163,12 +169,25 @@ export function sortProjectEntries<
   projectOrderBy: ProjectOrderBy,
   repoOrder: ReadonlyMap<string, number> | undefined
 ): T[] {
+  if (
+    projectOrderBy === 'manual' &&
+    !repoOrder &&
+    !entries.some(([, group]) => group.projectPreference?.pinned)
+  ) {
+    return entries
+  }
+  const rankForEntry = createRecentRankLookup<T>()
   const encounter = new Map(entries.map((entry, index) => [entry, index]))
   return [...entries].sort((a, b) =>
-    compareProjectEntries(a, b, projectOrderBy, (entry) =>
-      repoOrder
-        ? manualRankForEntry(entry, repoOrder)
-        : (encounter.get(entry) ?? Number.POSITIVE_INFINITY)
+    compareProjectEntries(
+      a,
+      b,
+      projectOrderBy,
+      (entry) =>
+        repoOrder
+          ? manualRankForEntry(entry, repoOrder)
+          : (encounter.get(entry) ?? Number.POSITIVE_INFINITY),
+      rankForEntry
     )
   )
 }

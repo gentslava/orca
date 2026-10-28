@@ -219,7 +219,7 @@ it('shows hold-to-quit beside closing confirmations and keeps its local settings
   expect(toggle.getAttribute('aria-checked')).toBe('false')
   expect(toggle.closest('section')).toBe(
     screen
-      .getByRole('switch', { name: 'Confirm before closing running terminals' })
+      .getByRole('switch', { name: 'Confirm before closing active chats or terminals' })
       .closest('section')
   )
   fake.query = 'Cmd+Q'

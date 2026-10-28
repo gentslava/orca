@@ -311,7 +311,10 @@ describe('Session History keyboard selection', () => {
         ...(kind === 'structured' ? { structuredSession: owner } : {})
       }
       useAppStore.setState(useAppStore.getInitialState(), true)
-      useAppStore.setState({ activeWorktreeId: workspaceId })
+      useAppStore.setState({
+        activeWorktreeId: workspaceId,
+        activeWorkspaceExecutionHostId: picked.executionHostId
+      })
       useAppStore.getState().createUnifiedTab(workspaceId, 'agent-session', {
         id: 'old',
         entityId: 'old',

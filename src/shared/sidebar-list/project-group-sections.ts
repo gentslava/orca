@@ -11,7 +11,11 @@ import { appendOrderedGroups } from './group-sections'
 import { compareCodePoints, compareSidebarText } from './text-order'
 import type { SectionAppendContext } from './group-sections'
 import type { OrderedGroupEntry } from './worktree-group-entry'
-import { compareProjectEntries, withRepoSectionDisplayLabels } from '../project-section-order'
+import {
+  compareProjectEntries,
+  createRecentRankLookup,
+  withRepoSectionDisplayLabels
+} from '../project-section-order'
 import { buildFolderWorkspaceRow } from './row-builders'
 
 export function appendProjectGroupSections(
@@ -36,10 +40,15 @@ export function appendProjectGroupSections(
     groupByProjectGroupId.set(projectGroupId, list)
   }
 
+  const rankForEntry = createRecentRankLookup<OrderedGroupEntry>()
   const sortRepoEntriesWithinGroup = (entries: OrderedGroupEntry[]): OrderedGroupEntry[] => {
     return withRepoSectionDisplayLabels(entries).sort((left, right) =>
-      compareProjectEntries(left, right, projectOrderBy, (entry) =>
-        getEffectiveProjectGroupManualRank(entry[1].repo, repoOrder)
+      compareProjectEntries(
+        left,
+        right,
+        projectOrderBy,
+        (entry) => getEffectiveProjectGroupManualRank(entry[1].repo, repoOrder),
+        rankForEntry
       )
     )
   }
