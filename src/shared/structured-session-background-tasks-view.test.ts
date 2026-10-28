@@ -77,15 +77,15 @@ describe('structuredSessionBackgroundTasksView', () => {
     expect(structuredSessionBackgroundTasksView(roster, 'turn-1').isMonitoring).toBe(false)
   })
 
-  it("shows an older host's running tasks only, and nothing once only finished ones are left", () => {
+  it("retains an older host's finished agents without claiming that they still run", () => {
     const tasks = [{ id: 'task-1', kind: 'agent' as const }]
     const settledTasks = [{ id: 'task-2', kind: 'agent' as const }]
     expect(
       structuredSessionBackgroundTasksView({ state: 'monitoring', tasks, settledTasks }, null)
-    ).toMatchObject({ show: true, isMonitoring: true, tasks, settledTasks: [] })
+    ).toMatchObject({ show: true, isMonitoring: true, tasks, settledTasks })
     expect(
       structuredSessionBackgroundTasksView({ state: 'monitoring', settledTasks }, null)
-    ).toMatchObject({ show: false, isMonitoring: false })
+    ).toMatchObject({ show: true, isMonitoring: false, offersStopAll: false, settledTasks })
     // A host that reports state only still says something runs.
     expect(structuredSessionBackgroundTasksView({ state: 'monitoring' }, null).show).toBe(true)
   })

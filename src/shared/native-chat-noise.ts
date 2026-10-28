@@ -11,6 +11,9 @@ function messageText(message: NativeChatMessage): string {
 
 /** Harness-injected user/system turns are transport machinery, not conversation. */
 export function isNoiseMessage(message: NativeChatMessage): boolean {
+  if (message.from?.kind === 'agent' && message.from.orchestration?.message !== 'mail-notice') {
+    return false
+  }
   if (message.role !== 'user' && message.role !== 'system') {
     return false
   }
