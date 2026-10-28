@@ -1,5 +1,6 @@
 import { structuredLaunchRequestedOptions } from '../../../../shared/native-chat/input/native-chat-session-option-defaults'
 import { useCallback } from 'react'
+import { STRUCTURED_MODEL_DEFAULT_PICK } from '../../../../shared/structured-agent-session-option-pick-book'
 import { structuredAgentSessionSendSelection } from '../../../../shared/structured-agent-session-option-view'
 import { getStructuredAgentSessionLaunchSelection } from '@/lib/structured-agent-session-launch-options'
 import type { StructuredAgentSessionLaunchView } from './use-native-chat-provisional-launch'
@@ -16,7 +17,7 @@ export function useStructuredAgentSessionSendOptions(
 ): () => Readonly<Record<string, string>> | undefined {
   const { optionStateRef, optionView, optionPicks, takesSendOptions } = source
   return useCallback(() => {
-    if (!takesSendOptions) {
+    if (!takesSendOptions || optionPicks.current.pending.model === STRUCTURED_MODEL_DEFAULT_PICK) {
       return undefined
     }
     // Read held picks directly because launch acceptance can precede this render’s props.

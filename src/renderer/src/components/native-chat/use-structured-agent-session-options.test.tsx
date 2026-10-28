@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type * as RuntimeRpcClient from '@/runtime/runtime-rpc-client'
 
 const mocks = vi.hoisted(() => ({
   call: vi.fn(),
@@ -9,10 +10,15 @@ const mocks = vi.hoisted(() => ({
   hold: vi.fn<
     (sessionId: string, id: string, encoded: string, picker?: unknown) => Promise<unknown> | null
   >(),
-  toastError: vi.fn<(message: string) => void>()
+  toastError: vi.fn<(message: string) => void>(),
+  supportsRemote: vi.fn()
 }))
 
 vi.mock('sonner', () => ({ toast: { error: mocks.toastError } }))
+vi.mock('@/runtime/runtime-rpc-client', async (original) => ({
+  ...(await original<typeof RuntimeRpcClient>()),
+  runtimeEnvironmentSupportsCapability: mocks.supportsRemote
+}))
 
 vi.mock('@/runtime/structured-agent-session-client', () => ({
   subscribeStructuredAgentSessionStatus: vi.fn(async () => ({ unsubscribe: vi.fn() })),
@@ -33,6 +39,9 @@ import type { StructuredAgentSessionMutate } from './use-structured-agent-sessio
 import { useStructuredAgentSessionOptions } from './use-structured-agent-session-options'
 import { structuredAgentSessionSendSelection } from '../../../../shared/structured-agent-session-option-view'
 import { resetHostModelCatalogSnapshotsForTests } from '@/runtime/host-model-catalog-snapshots'
+import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
+import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-create-capabilities'
+import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../../shared/agent-session-default-model'
 
 const LOCAL_TARGET = { kind: 'local' } as const
 const PAIRED_TARGET = { kind: 'environment', environmentId: 'server-1' } as const
@@ -43,10 +52,7 @@ class FakeRpcCallError extends Error {
   }
 }
 
-type Answers = {
-  options?: () => Promise<unknown>
-  modelCatalog?: () => Promise<unknown>
-}
+type Answers = Partial<Record<'options' | 'modelCatalog', () => Promise<unknown>>>
 
 function answer(answers: Answers): void {
   mocks.call.mockImplementation((_target: unknown, method: string) => {
@@ -83,6 +89,7 @@ type RenderProps = {
   agent?: 'claude' | 'codex'
   providerStarting?: boolean
   paired?: boolean
+  isWorking?: boolean
 }
 
 const PROVISIONAL: RenderProps = { transportEnabled: false, fence: null, launch: 'new' }
@@ -101,6 +108,7 @@ function renderOptions(initial: RenderProps, mutate: StructuredAgentSessionMutat
         transportEnabled: props.transportEnabled,
         isVisible: !props.hidden,
         providerVisible: props.transportEnabled && !props.hidden,
+        isWorking: props.isWorking,
         ...(props.providerStarting ? { providerStarting: true } : {}),
         fence: props.fence,
         turnId: props.turnId ?? null,
@@ -141,55 +149,147 @@ function setOptionCalls(calls: ReturnType<typeof vi.fn<MutateCall>>): unknown[] 
     .map(([, , fields]) => fields)
 }
 
-const HOST_CATALOG = {
-  origin: 'live-session',
-  models: [
-    {
-      id: 'gpt-hosted',
-      label: 'GPT Hosted',
-      isDefault: true,
-      efforts: [{ value: 'high', label: 'High' }]
-    }
-  ],
-  fetchedAt: 1_000
-}
-
-const LIVE_OPTIONS = {
-  models: [
-    { id: 'gpt-5.5', label: 'GPT-5.5', isDefault: true, efforts: [] },
-    { id: 'gpt-5.6-luna', label: 'GPT-5.6 Luna', efforts: [] }
-  ],
-  current: { model: 'gpt-5.5', confirmed: ['model'] }
-}
-
-const SAVED_LIST = {
-  origin: 'probe',
-  models: [
-    {
-      id: 'gpt-5.5',
-      label: 'GPT-5.5',
-      isDefault: true,
-      efforts: [
-        { value: 'medium', label: 'Medium' },
-        { value: 'high', label: 'High' }
-      ]
-    },
-    { id: 'gpt-5.6-luna', label: 'GPT-5.6 Luna', efforts: [] }
-  ],
-  fetchedAt: 1_000
-}
+import { HOST_CATALOG, LIVE_OPTIONS, SAVED_LIST } from './structured-agent-session-option-test-data'
 
 const SEED = { model: 'gpt-5.5' }
 const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
 
 describe('useStructuredAgentSessionOptions', () => {
+  afterEach(() => setLocalRuntimeCapabilitiesForTests(null))
   beforeEach(() => {
+    mocks.supportsRemote.mockReset().mockResolvedValue(false)
     mocks.call.mockReset()
     mocks.enqueue.mockReset()
     mocks.hold.mockReset()
     mocks.toastError.mockReset()
     resetHostModelCatalogSnapshotsForTests()
   })
+
+  it('carries the host Default preview without replacing the explicit selected model', async () => {
+    setLocalRuntimeCapabilitiesForTests([AGENT_SESSION_DEFAULT_MODEL_CAPABILITY])
+    const defaultModel = {
+      id: 'host-original',
+      label: 'Host original',
+      description: 'Configured model'
+    }
+    answer({ options: async () => ({ ...LIVE_OPTIONS, defaultModel }) })
+    const { result, rerender, unmount } = renderOptions(
+      REOPENED,
+      mutateWith(async () => null).mutate
+    )
+    await waitFor(() =>
+      expect(descriptor(result.current.optionSnapshot, 'model')?.defaultChoice).toEqual({
+        selected: false,
+        model: { value: 'host-original', label: 'Host original', description: 'Configured model' }
+      })
+    )
+    expect(currentValue(result.current.optionSnapshot, 'model')).toBe('gpt-5.5')
+    answer({ options: async () => LIVE_OPTIONS })
+    rerender({ ...REOPENED, turnId: 'next-turn' })
+    await waitFor(() =>
+      expect(descriptor(result.current.optionSnapshot, 'model')?.defaultChoice).toEqual({
+        selected: false
+      })
+    )
+    unmount()
+  })
+
+  it.each([false, true])(
+    'resets the model on its execution host and clears launch preferences (paired: %s)',
+    async (paired) => {
+      const capabilities = [
+        AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
+        AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
+      ]
+      setLocalRuntimeCapabilitiesForTests(capabilities)
+      mocks.supportsRemote.mockResolvedValue(true)
+      let reset = false
+      answer({
+        options: () =>
+          Promise.resolve(
+            reset
+              ? {
+                  ...LIVE_OPTIONS,
+                  current: { model: 'gpt-5.5', effort: 'medium', modelDefault: true }
+                }
+              : LIVE_OPTIONS
+          ),
+        modelCatalog: () => Promise.resolve(HOST_CATALOG)
+      })
+      const mutation = mutateWith(async () => {
+        reset = true
+        return {
+          key: 'model',
+          value: null,
+          modelDefault: true,
+          options: { model: 'gpt-5.5', effort: 'medium' }
+        }
+      })
+      const { result } = renderOptions({ ...ATTACHED, paired, isWorking: true }, mutation.mutate)
+      await waitFor(() => expect(result.current.optionSurface.resetOption).toBeDefined())
+      await act(async () => {
+        await result.current.optionSurface.resetOption?.('model')
+      })
+      expect(mutation.calls).toHaveBeenCalledExactlyOnceWith(
+        'agentSession.setOption',
+        'agentSession.setOption',
+        { key: 'model', value: null }
+      )
+      expect(descriptor(result.current.optionSnapshot, 'model')?.defaultChoice?.selected).toBe(true)
+      expect(mocks.enqueue).toHaveBeenCalledWith(paired ? PAIRED_TARGET : LOCAL_TARGET, {
+        type: 'clear-model',
+        agent: 'codex'
+      })
+      if (paired) {
+        expect(mocks.supportsRemote).toHaveBeenCalledWith(
+          'server-1',
+          AGENT_SESSION_DEFAULT_MODEL_CAPABILITY
+        )
+      }
+    }
+  )
+
+  it('never sends a null reset to an older host', () => {
+    setLocalRuntimeCapabilitiesForTests([])
+    answer({})
+    const mutation = mutateWith(async () => {
+      throw new Error('must not write')
+    })
+    const { result } = renderOptions(REOPENED, mutation.mutate)
+    expect(result.current.optionSurface.resetOption).toBeUndefined()
+    expect(descriptor(result.current.optionSnapshot, 'model')?.defaultChoice).toBeUndefined()
+    expect(mutation.calls).not.toHaveBeenCalled()
+  })
+
+  it.each([false, true])(
+    'only allows future-turn picks while busy when the host captures message options (%s)',
+    async (supported) => {
+      setLocalRuntimeCapabilitiesForTests(
+        supported ? [AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY] : []
+      )
+      answer({
+        options: () => Promise.resolve(LIVE_OPTIONS),
+        modelCatalog: () => Promise.resolve(HOST_CATALOG)
+      })
+      const mutation = mutateWith(async () => ({ key: 'model', value: 'gpt-5.6-luna' }))
+      const { result } = renderOptions({ ...REOPENED, isWorking: true }, mutation.mutate)
+      await waitFor(() =>
+        expect(modelChoiceCount(result.current.optionSnapshot)).toBeGreaterThan(1)
+      )
+      expect(descriptor(result.current.optionSnapshot, 'model')?.settable).toBe(supported)
+      let accepted = false
+      await act(async () => {
+        accepted = await result.current.setStructuredOption('model', 'gpt-5.6-luna')
+      })
+      expect(accepted).toBe(supported)
+      expect(mutation.calls.mock.calls.length).toBe(supported ? 1 : 0)
+      if (!supported) {
+        expect(descriptor(result.current.optionSnapshot, 'model')?.disabledReason).toBe(
+          'host-update-required'
+        )
+      }
+    }
+  )
 
   it('upgrades the seed with the host catalog while the live read is still pending', async () => {
     answer({ modelCatalog: () => Promise.resolve(HOST_CATALOG) })

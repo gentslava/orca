@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { memo, useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -134,6 +135,7 @@ function SessionOptionPopover(props: {
   request: NativeChatOptionPickerRequest | null
   onSet: (descriptor: SessionOptionDescriptor, value: SessionOptionValue) => void
   onAction: (descriptor: SessionOptionDescriptor) => void
+  onReset?: (descriptor: SessionOptionDescriptor) => void
   focusComposer?: () => void
 }): React.JSX.Element {
   const { model, options, pendingIds, demandModelCatalog } = props
@@ -178,7 +180,7 @@ function SessionOptionPopover(props: {
     if (descriptor.id === 'effort') {
       setOpen(false)
     }
-    if (descriptor.kind.currentValue !== value) {
+    if (descriptor.defaultChoice?.selected || descriptor.kind.currentValue !== value) {
       props.onSet(descriptor, value)
     }
   }
@@ -252,6 +254,8 @@ function SessionOptionPopover(props: {
         {model.kind.type === 'select' && !model.action ? (
           <NativeChatModelCombobox
             choices={model.kind.choices}
+            defaultChoice={model.defaultChoice}
+            onReset={props.onReset ? () => props.onReset?.(model) : undefined}
             currentValue={model.kind.currentValue}
             readOnly={!model.settable}
             readOnlyReason={modelReason}
@@ -297,6 +301,7 @@ function NativeChatSessionOptionPickersInner({
   pickerRequest,
   focusComposer
 }: NativeChatSessionOptionPickersProps): React.JSX.Element | null {
+  useTranslation()
   const [pending, setPending] = useState<ReadonlyMap<string, PendingPick>>(() => new Map())
   // Consume requests even without a usable picker so composer remounts cannot reopen them.
   useEffect(() => pickerRequest?.consume(), [pickerRequest])
@@ -341,6 +346,14 @@ function NativeChatSessionOptionPickersInner({
           runSessionOptionSurfaceCall({ id: descriptor.id }, markPending(descriptor.id), () =>
             surface.invokeAction(descriptor.id)
           )
+        }
+        onReset={
+          surface.resetOption
+            ? (descriptor) =>
+                runSessionOptionSurfaceCall({ id: descriptor.id }, markPending(descriptor.id), () =>
+                  surface.resetOption!(descriptor.id)
+                )
+            : undefined
         }
         focusComposer={focusComposer}
       />

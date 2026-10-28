@@ -21,6 +21,8 @@ export type AgentSessionOptionsResult = {
   /** This session takes image attachments. Absent = unknown (an older host). */
   acceptsImages?: boolean
   models: AgentSessionModelOption[]
+  /** Original host/workspace configuration, or the saved Default baseline; never a recommendation. */
+  defaultModel?: { id: string; label: string; description?: string }
   /** The `models` ids the agent's own finished listing names, excluding host-added rows and
    *  unverified launch-only rows. Absent: nothing verified, as from an older host. */
   listedModelIds?: string[]
@@ -28,6 +30,7 @@ export type AgentSessionOptionsResult = {
   fastModeSupport?: AgentSessionFastModeSupport
   current: {
     model?: string
+    modelDefault?: boolean
     effort?: string
     /** Canonical preference for the next turn. Explicit false is meaningful. */
     fastMode?: boolean

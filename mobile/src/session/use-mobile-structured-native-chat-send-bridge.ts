@@ -21,6 +21,7 @@ export function useMobileStructuredNativeChatSendBridge(args: {
     attachments?: readonly StructuredMobileSendAttachment[],
     skills?: readonly AgentJournalSkillRef[]
   ) => Promise<MobileNativeChatSendOutcome>
+  isModelWritePending?: () => boolean
   captureSendOrigin: (text: string) => MobileNativeChatSendOrigin | null
   clearDraftForSend: (origin: MobileNativeChatSendOrigin, text: string) => void
   restoreRejectedDraft: (origin: MobileNativeChatSendOrigin, text: string) => void
@@ -38,6 +39,7 @@ export function useMobileStructuredNativeChatSendBridge(args: {
     agent,
     captureSendOrigin,
     clearDraftForSend,
+    isModelWritePending,
     onSendError,
     restoreRejectedDraft,
     sendStructured,
@@ -50,12 +52,16 @@ export function useMobileStructuredNativeChatSendBridge(args: {
       deadline?: number,
       attachments?: readonly StructuredMobileSendAttachment[]
     ): Promise<MobileNativeChatSendOutcome> => {
+      const isHostCommand = isStructuredAgentSessionComposerCommand(text, agent, sessionCommands)
+      if (!isHostCommand && isModelWritePending?.()) {
+        onSendError('Message not sent (model selection is still updating)')
+        return 'rejected'
+      }
       const origin = captureSendOrigin(text.trimEnd())
       if (!origin) {
         onSendError('Message not sent (disconnected)')
         return 'rejected'
       }
-      const isHostCommand = isStructuredAgentSessionComposerCommand(text, agent, sessionCommands)
       const skills = readMobileNativeChatPickedSkills(origin.draftKey)
       clearDraftForSend(origin, text)
       const outcome = await sendStructured(text, images, deadline, attachments, skills)
@@ -70,6 +76,7 @@ export function useMobileStructuredNativeChatSendBridge(args: {
       agent,
       captureSendOrigin,
       clearDraftForSend,
+      isModelWritePending,
       onSendError,
       restoreRejectedDraft,
       sendStructured,

@@ -201,6 +201,7 @@ export function useMobileStructuredAgentSession(
     controller: sendController,
     sessionCommands: args.sessionCommands,
     onSendError,
+    isModelWritePending: options.isModelWritePending,
     queueSendsNext,
     sendOptions: hostSupport?.sendOptions === true ? options.sendSelection : undefined,
     takesSkills: hostSupport?.sendSkills === true

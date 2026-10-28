@@ -76,6 +76,9 @@ export function createAgentModelCatalogService(
       const savedOnly = params.savedOnly || !!(record && !deps.getRecord(record.sessionId))
       const scoped =
         record && record.provider === params.agent && deps.drivesRecord(record) ? record : undefined
+      if (params.requireConfiguredDefault && params.sessionId && !scoped) {
+        return { origin: 'unknown' }
+      }
       const workspacePath = params.inSessionWorkspace
         ? record
           ? await sessionWorkspacePath(deps, record)
@@ -143,8 +146,9 @@ export function createAgentModelCatalogService(
         if (
           params.verifiedOnly &&
           (!listed ||
-            (independentAgentModelCatalog(params.agent) &&
-              (!exact || !deps.store.verified(listed))))
+            (independentAgentModelCatalog(params.agent) && !exact) ||
+            ((independentAgentModelCatalog(params.agent) || params.requireConfiguredDefault) &&
+              !deps.store.verified(listed, params.requireConfiguredDefault)))
         ) {
           return { origin: 'unknown' }
         }
@@ -205,6 +209,15 @@ export function createAgentModelCatalogService(
           scoped.ownerObservation.deathEvidence)
       ) {
         return answer(entry)
+      }
+      if (params.requireConfiguredDefault) {
+        if (!probe || !probeHome || lifetime.signal.aborted) {
+          return { origin: 'unknown' }
+        }
+        const refreshed = await deps.store.refresh(fingerprint, params.agent, probe, list)
+        return refreshed && deps.store.verified(refreshed, true)
+          ? answer(refreshed)
+          : { origin: 'unknown' }
       }
       if (probe && probeHome && !lifetime.signal.aborted && deps.store.heldReasonDue(fingerprint)) {
         void deps.store.refresh(fingerprint, params.agent, probe, list)

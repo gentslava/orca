@@ -6,7 +6,10 @@ import type {
   AgentSessionOptionResult,
   AgentSessionOptionsResult
 } from '../../../src/shared/agent-session-wire'
-import type { SessionOptionDescriptor } from '../../../src/shared/native-chat/input/native-chat-session-options'
+import type {
+  PersistedNativeChatSessionOptions,
+  SessionOptionDescriptor
+} from '../../../src/shared/native-chat/input/native-chat-session-options'
 import type { RpcClient } from '../transport/rpc-client'
 import type {
   StructuredAgentSessionMutate,
@@ -14,44 +17,13 @@ import type {
 } from './mobile-structured-agent-session-rpc'
 import { useMobileStructuredAgentOptions } from './use-mobile-structured-agent-options'
 import { rememberMobileCreatedStructuredSession } from './mobile-created-structured-sessions'
+import {
+  applyNativeChatSessionOptionSettingsMutation,
+  resolveStructuredLaunchSeedOptions
+} from '../../../src/shared/native-chat/input/native-chat-session-option-defaults'
+import { NativeChatSessionOptionsMutation } from '../../../src/shared/rpc-contract/client-settings-params'
 
-const OPTIONS: AgentSessionOptionsResult = {
-  models: [
-    {
-      id: 'gpt-live',
-      label: 'GPT Live',
-      isDefault: true,
-      defaultEffort: 'medium',
-      efforts: [
-        { value: 'medium', label: 'Medium' },
-        { value: 'high', label: 'High' }
-      ]
-    },
-    {
-      id: 'gpt-fast',
-      label: 'GPT Fast',
-      isDefault: false,
-      defaultEffort: 'low',
-      efforts: [
-        { value: 'low', label: 'Low' },
-        { value: 'medium', label: 'Medium' }
-      ]
-    }
-  ],
-  current: { model: 'gpt-live', effort: 'medium' }
-}
-
-const FAST_OPTIONS: AgentSessionOptionsResult = {
-  ...OPTIONS,
-  models: OPTIONS.models.map((model) => ({ ...model, supportsFastMode: true })),
-  fastModeSupport: { supported: true },
-  current: { ...OPTIONS.current, fastMode: false, confirmed: ['fastMode'] }
-}
-
-const FAST_OPTIONS_ON: AgentSessionOptionsResult = {
-  ...FAST_OPTIONS,
-  current: { ...FAST_OPTIONS.current, fastMode: true }
-}
+import { OPTIONS, FAST_OPTIONS, FAST_OPTIONS_ON } from './mobile-structured-agent-option-test-data'
 
 function deferred<T>() {
   let resolve!: (value: T) => void
@@ -140,6 +112,7 @@ type ProbeProps = {
   fence: number | null
   mutate: StructuredAgentSessionMutate
   optionStamp?: string
+  supportsDefault?: boolean
   turnId?: string | null
   onRender: (controller: Controller) => void
 }
@@ -154,7 +127,7 @@ function Probe(props: ProbeProps): null {
     mutate: props.mutate,
     turnId: props.turnId ?? null,
     ...(props.optionStamp ? { optionStamp: props.optionStamp } : {}),
-    hostSupport: { permissionModes: true, statusFeed: false }
+    hostSupport: { permissionModes: true, statusFeed: false, defaultModel: props.supportsDefault }
   })
   useLayoutEffect(() => props.onRender(controller), [controller, props.onRender])
   return null
@@ -210,6 +183,172 @@ function currentValueOf(snapshot: readonly SessionOptionDescriptor[], id: string
 }
 
 const BASE = { agent: 'codex', sessionId: 'session-1', fence: 1 } as const
+
+describe('useMobileStructuredAgentOptions Default model', () => {
+  it.each([false, true])(
+    'keeps Default across effort-only persistence until an explicit model pick (full reply: %s)',
+    async (fullReply) => {
+      let persisted: PersistedNativeChatSessionOptions = {
+        codex: { model: 'gpt-live', valuesByModel: {} }
+      }
+      let reads = 0
+      const client = optionsClient(() =>
+        ++reads === 1 ? Promise.resolve(OPTIONS) : new Promise(() => {})
+      )
+      const request = client.client.sendRequest
+      client.client.sendRequest = async (method, params) => {
+        if (method === 'settings.mutateNativeChatSessionOptions') {
+          persisted =
+            applyNativeChatSessionOptionSettingsMutation(
+              persisted,
+              NativeChatSessionOptionsMutation.parse(params)
+            ) ?? persisted
+        }
+        return request(method, params)
+      }
+      const mutation = recordingMutate(async (call) =>
+        accepted(
+          call === 0
+            ? {
+                key: 'model',
+                value: null,
+                modelDefault: true,
+                options: { model: 'gpt-fast', effort: 'low' }
+              }
+            : {
+                key: call === 3 ? 'model' : 'effort',
+                value: call === 3 ? 'gpt-fast' : call === 1 ? 'medium' : 'low',
+                options: {
+                  ...(fullReply || call === 3 ? { model: 'gpt-fast' } : {}),
+                  effort: call === 2 ? 'low' : 'medium'
+                }
+              },
+          true
+        )
+      )
+      const mounted = await mountOptions({
+        ...BASE,
+        client: client.client,
+        mutate: mutation.mutate,
+        supportsDefault: true
+      })
+      await act(async () => {
+        await mounted.current().optionSurface.resetOption?.('model')
+      })
+      expect(resolveStructuredLaunchSeedOptions(persisted, 'codex')).toBeUndefined()
+      for (const effort of ['medium', 'low']) {
+        await act(async () => {
+          expect(await mounted.current().setStructuredOption('effort', effort)).toBe(true)
+        })
+        expect(persisted.codex?.valuesByModel?.['gpt-fast']?.effort).toBe(effort)
+        expect(resolveStructuredLaunchSeedOptions(persisted, 'codex')).toBeUndefined()
+        expect(
+          descriptorFor(mounted.current().optionSnapshot, 'model')?.defaultChoice?.selected
+        ).toBe(true)
+      }
+      await act(async () => {
+        expect(await mounted.current().setStructuredOption('model', 'gpt-fast')).toBe(true)
+      })
+      expect(resolveStructuredLaunchSeedOptions(persisted, 'codex')).toEqual({
+        model: 'gpt-fast',
+        effort: 'medium'
+      })
+      expect(
+        descriptorFor(mounted.current().optionSnapshot, 'model')?.defaultChoice?.selected
+      ).toBe(false)
+      await mounted.unmount()
+    }
+  )
+  it('carries the host Default preview without replacing the explicit selected model', async () => {
+    let reported = true
+    const client = optionsClient(async () => ({
+      ...OPTIONS,
+      ...(reported
+        ? {
+            defaultModel: {
+              id: 'host-original',
+              label: 'Host original',
+              description: 'Configured model'
+            }
+          }
+        : {})
+    }))
+    const mounted = await mountOptions({
+      ...BASE,
+      client: client.client,
+      mutate: recordingMutate(async () => accepted({ key: 'model', value: 'gpt-live' }, true))
+        .mutate,
+      supportsDefault: true
+    })
+    expect(descriptorFor(mounted.current().optionSnapshot, 'model')?.defaultChoice).toEqual({
+      selected: false,
+      model: { value: 'host-original', label: 'Host original', description: 'Configured model' }
+    })
+    expect(currentValueOf(mounted.current().optionSnapshot, 'model')).toBe('gpt-live')
+    reported = false
+    await mounted.rerender({ optionStamp: 'next-turn' })
+    expect(descriptorFor(mounted.current().optionSnapshot, 'model')?.defaultChoice).toEqual({
+      selected: false
+    })
+    await mounted.unmount()
+  })
+  it.each([false, true])(
+    'gates reset on the connected host capability (%s)',
+    async (supportsDefault) => {
+      let reset = false
+      const client = optionsClient(() =>
+        Promise.resolve({
+          ...OPTIONS,
+          current: reset
+            ? { model: 'gpt-fast', effort: 'low', modelDefault: true }
+            : OPTIONS.current
+        })
+      )
+      const mutation = recordingMutate(async () => {
+        reset = true
+        return accepted(
+          {
+            key: 'model',
+            value: null,
+            modelDefault: true,
+            options: { model: 'gpt-fast', effort: 'low' }
+          },
+          true
+        )
+      })
+      const mounted = await mountOptions({
+        agent: 'codex',
+        client: client.client,
+        sessionId: 'default-phone',
+        fence: 1,
+        mutate: mutation.mutate,
+        supportsDefault
+      })
+      if (supportsDefault) {
+        await act(async () => {
+          await mounted.current().optionSurface.resetOption?.('model')
+        })
+        expect(mutation.calls).toHaveLength(1)
+        expect(mutation.calls[0]?.fields).toEqual({ key: 'model', value: null })
+        expect(
+          mounted.current().optionSnapshot.find((row) => row.id === 'model')?.defaultChoice
+            ?.selected
+        ).toBe(true)
+        expect(client.methods('settings.mutateNativeChatSessionOptions')[0]?.params).toMatchObject({
+          type: 'clear-model',
+          agent: 'codex'
+        })
+      } else {
+        expect(mounted.current().optionSurface.resetOption).toBeUndefined()
+        expect(
+          mounted.current().optionSnapshot.find((row) => row.id === 'model')?.defaultChoice
+        ).toBeUndefined()
+        expect(mutation.calls).toHaveLength(0)
+      }
+      await mounted.unmount()
+    }
+  )
+})
 
 describe('useMobileStructuredAgentOptions fast mode', () => {
   it('round-trips a boolean fastMode pick as the wire string and remembers the decoded pick', async () => {

@@ -69,7 +69,7 @@ export function replaceStructuredAgentSessionAnsweredValues(
 
 /** The host status's option values as one stamp: another device's pick moves it, so options re-read. */
 export function structuredAgentSessionOptionStamp(
-  summary: Pick<AgentSessionStatusSummary, 'model' | 'permissionMode'> | undefined
+  summary: Pick<AgentSessionStatusSummary, 'model' | 'permissionMode' | 'modelDefault'> | undefined
 ): string {
-  return `${summary?.model ?? ''}|${summary?.permissionMode ?? ''}`
+  return `${summary?.model ?? ''}|${summary?.permissionMode ?? ''}|${summary?.modelDefault === true}`
 }

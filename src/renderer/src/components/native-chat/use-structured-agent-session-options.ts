@@ -1,26 +1,23 @@
-import type { StructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
-import type { StructuredAgentSessionLaunchView } from './use-native-chat-provisional-launch'
-import type { AgentType } from '../../../../shared/agent-status-types'
-import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+import { structuredAgentSessionDefaultModelChoice } from '../../../../shared/structured-agent-session-default-model-choice'
+import { useStructuredAgentSessionOptionWrite } from './use-structured-agent-session-option-write'
 import { toast } from 'sonner'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
-import type { AgentSessionOptionResult } from '../../../../shared/agent-session-wire'
+import type { AgentType } from '../../../../shared/agent-status-types'
+import type { StructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
+import type { StructuredAgentSessionLaunchView } from './use-native-chat-provisional-launch'
+import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { structuredAgentSessionSeedCatalog } from '../../../../shared/structured-agent-session-seed-catalog'
 import type { SessionOptionsSurface } from '../../../../shared/native-chat/input/native-chat-session-options'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../shared/agent-chat-permission-mode'
 import {
   canSetStructuredAgentSessionOption,
-  commitStructuredAgentSessionOptionValues,
   lockedStructuredAgentSessionOptionSnapshot,
   structuredAgentSessionOptionSnapshot,
   type StructuredAgentSessionOptionState
 } from '../../../../shared/structured-agent-session-options'
 import { useRememberSessionOptionPicks } from './use-structured-agent-session-option-picks'
 import {
-  beginStructuredOptionPick,
-  isLatestStructuredOptionPick,
-  settleStructuredOptionPick,
-  structuredOptionPickCommit,
+  STRUCTURED_MODEL_DEFAULT_PICK,
   structuredOptionPickBlockingId
 } from '../../../../shared/structured-agent-session-option-pick-book'
 import { encodeStructuredAgentSessionOptionValue } from '../../../../shared/structured-agent-session-option-codec'
@@ -32,6 +29,9 @@ import {
   holdStructuredAgentSessionLaunchOption,
   type StructuredLaunchOptionOutcome
 } from '@/lib/structured-agent-session-launch-options'
+import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../../shared/agent-session-default-model'
+import { useStructuredAgentSessionHostCapability } from '@/runtime/structured-agent-session-host-capability'
+import { useStructuredAgentSessionModelDefault } from './use-structured-agent-session-model-default'
 
 export type StructuredAgentSessionOptionsArgs = {
   agent: AgentType
@@ -42,6 +42,7 @@ export type StructuredAgentSessionOptionsArgs = {
   providerVisible: boolean
   providerStarting?: boolean
   providerRunning?: boolean
+  isWorking?: boolean
   hostOptionStamp?: string
   fence: number | null
   turnId: string | null
@@ -79,6 +80,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     updateOptionState,
     receiveCatalog,
     beginOptionWrite,
+    writes,
     isCurrentContext,
     conversationSupport
   } = useStructuredAgentSessionOptionState({
@@ -131,75 +133,25 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   )
 
   const rememberOptionPicks = useRememberSessionOptionPicks(target, agent)
-  const sendStructuredOption = useCallback(
-    async (id: string, encoded: string): Promise<boolean> => {
-      const currentState = optionStateRef.current
-      const targetRecord = currentState.record
-      const finishWrite = beginOptionWrite(id)
-      // Show record-only picks immediately while their writes wait behind provider startup.
-      const shownAtOnce = providerStarting || id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
-      const pick = beginStructuredOptionPick(optionPicks.current, id, encoded, shownAtOnce)
-      const sameRecord = (): boolean =>
-        isCurrentContext() && activeOptionRecordRef.current === targetRecord
-      const isCurrent = (): boolean =>
-        sameRecord() && isLatestStructuredOptionPick(optionPicks.current, pick)
-      updateOptionState((current) =>
-        shownAtOnce
-          ? commitStructuredAgentSessionOptionValues(current, { [id]: encoded })
-          : { ...current, pendingId: id }
-      )
-      let result: AgentSessionOptionResult | null = null
-      try {
-        result = await mutate<AgentSessionOptionResult>(
-          'agentSession.setOption',
-          'agentSession.setOption',
-          { key: id, value: encoded }
-        )
-        const committed =
-          result && sameRecord()
-            ? structuredOptionPickCommit(optionPicks.current, pick, result.options)
-            : null
-        if (committed) {
-          updateOptionState((current) =>
-            current.record === targetRecord
-              ? commitStructuredAgentSessionOptionValues(current, committed)
-              : current
-          )
-          // The launch seed names the model an effort-only pick was made under.
-          rememberOptionPicks(
-            optionView(currentState, launchSeedOptions, NO_HELD_OPTIONS),
-            committed
-          )
-        }
-        return Boolean(result)
-      } finally {
-        if (sameRecord()) {
-          settleStructuredOptionPick(optionPicks.current, pick)
-        }
-        if (isCurrent()) {
-          updateOptionState((current) =>
-            current.record === targetRecord && current.pendingId === id
-              ? { ...current, pendingId: null }
-              : current
-          )
-        }
-        finishWrite(isCurrent() && Boolean(result || shownAtOnce))
-      }
-    },
-    [
+  const takesModelDefault = useStructuredAgentSessionHostCapability(
+    target,
+    AGENT_SESSION_DEFAULT_MODEL_CAPABILITY
+  )
+  const sendStructuredOption = useStructuredAgentSessionOptionWrite({
+    providerStarting,
+    launchSeedOptions,
+    mutate,
+    rememberOptionPicks,
+    source: {
+      optionStateRef,
       activeOptionRecordRef,
+      optionPicks,
       beginOptionWrite,
       isCurrentContext,
-      launchSeedOptions,
-      mutate,
-      optionPicks,
-      optionStateRef,
-      optionView,
-      providerStarting,
-      rememberOptionPicks,
-      updateOptionState
-    ]
-  )
+      updateOptionState,
+      optionView
+    }
+  })
   const settleLaunchOptionPick = useCallback(
     (outcome: StructuredLaunchOptionOutcome) => {
       if (outcome.kind === 'refused') {
@@ -216,8 +168,29 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   const lockSnapshotRef = useRef(
     (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => snapshot
   )
-  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) =>
-    !acceptsPicks ? lockedStructuredAgentSessionOptionSnapshot(snapshot) : snapshot
+  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => {
+    const choices =
+      takesModelDefault && fence !== null
+        ? snapshot.map((descriptor) =>
+            descriptor.id === 'model'
+              ? {
+                  ...descriptor,
+                  settable: true,
+                  defaultChoice: structuredAgentSessionDefaultModelChoice(optionStateRef.current)
+                }
+              : descriptor
+          )
+        : snapshot
+    return !acceptsPicks
+      ? lockedStructuredAgentSessionOptionSnapshot(choices)
+      : (args.isWorking ?? turnId !== null) && !takesSendOptions
+        ? choices.map((descriptor) =>
+            descriptor.id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
+              ? descriptor
+              : { ...descriptor, settable: false, disabledReason: 'host-update-required' as const }
+          )
+        : choices
+  }
   useLayoutEffect(() => {
     lockSnapshotRef.current = lockSnapshot
   })
@@ -233,6 +206,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
           value === 'own' &&
           !view.permissionOwnSupported) ||
         !isCurrentContext() ||
+        optionPicks.current.pending.model === STRUCTURED_MODEL_DEFAULT_PICK ||
         !optionCatalog ||
         encoded === null ||
         !canSetStructuredAgentSessionOption(
@@ -284,15 +258,36 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     },
     [launchSeedOptions, optionStateRef, optionView, sessionId, setStructuredOption]
   )
+  const resetOption = useStructuredAgentSessionModelDefault({
+    agent,
+    target,
+    mutate,
+    takesModelDefault,
+    acceptsPicks,
+    fence,
+    launchSeedOptions,
+    lockSnapshotRef,
+    source: {
+      optionView,
+      optionStateRef,
+      activeOptionRecordRef,
+      optionPicks,
+      writes,
+      beginOptionWrite,
+      isCurrentContext,
+      updateOptionState
+    }
+  })
   const optionSurface = useMemo<SessionOptionsSurface>(
     () => ({
+      ...(takesModelDefault ? { resetOption } : {}),
       getSnapshot: () => optionSnapshot,
       demandModelCatalog: hostCatalog.demandModelCatalog,
       setOption,
       invokeAction: async () => ({ snapshot: optionSnapshot }),
       subscribe: () => () => {}
     }),
-    [setOption, optionSnapshot, hostCatalog.demandModelCatalog]
+    [setOption, optionSnapshot, hostCatalog.demandModelCatalog, resetOption, takesModelDefault]
   )
 
   const support =

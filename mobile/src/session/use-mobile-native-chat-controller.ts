@@ -1,8 +1,4 @@
-import { useLayoutEffect, useRef, type MutableRefObject } from 'react'
-import type { RpcClient } from '../transport/rpc-client'
-import type { ConnectionState } from '../transport/types'
-import type { MobileNativeChatTab } from './native-chat/mobile-native-chat-eligibility'
-import type { StructuredAgentSessionHostSupport } from './mobile-structured-agent-session-host-support'
+import { useLayoutEffect, useRef } from 'react'
 import { useMobileNativeChatAskDismiss } from './native-chat/input/use-mobile-native-chat-ask-dismiss'
 import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
 import { useMobileNativeChatWorkspaceCatalog } from './native-chat/composer/use-mobile-native-chat-workspace-catalog'
@@ -13,7 +9,10 @@ import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured
 import { useMobileNativeChatPrompts } from './native-chat/input/use-mobile-native-chat-prompts'
 import { useNativeChatAcceptedAction } from './use-native-chat-action-outcomes'
 import { useMobileNativeChatTerminalTurn } from './use-mobile-native-chat-terminal-turn'
-import type { MobileNativeChatController } from './mobile-native-chat-controller-contract'
+import type {
+  MobileNativeChatController,
+  MobileNativeChatControllerArgs
+} from './mobile-native-chat-controller-contract'
 import { useMobileBridgeChatPromptWrites } from './use-mobile-bridge-chat-prompt-writes'
 import { useMobileNativeChatActiveResolution } from './use-mobile-native-chat-active-resolution'
 import { useMobileNativeChatPromptCards } from './native-chat/input/use-mobile-native-chat-prompt-cards'
@@ -21,24 +20,9 @@ import { mobileNativeChatScopeKey } from './native-chat/mobile-native-chat-scope
 
 export type { MobileNativeChatController } from './mobile-native-chat-controller-contract'
 
-export function useMobileNativeChatController(args: {
-  client: RpcClient | null
-  hostId: string
-  worktreeId: string
-  activeSessionTab: MobileNativeChatTab | null
-  activeSessionTabId: string | null
-  activeHandleRef: MutableRefObject<string | null>
-  deviceTokenRef: MutableRefObject<string | null>
-  nativeChatTranscriptIsLocalReadable: boolean
-  nativeChatInputLeaseReady: boolean
-  /** Live socket state; the lease collapses on disconnect but one render later. */
-  connState: ConnectionState
-  agentSessionHostSupport?: StructuredAgentSessionHostSupport | null
-  onSendError: Parameters<typeof useMobileNativeChatSessionLane>[0]['onSendError']
-  // Any accepted chat write clears the held failure banner, including answers and permission replies.
-  onQueuedEditNotice?: (message: string) => void
-  onSendResolved: () => void
-}): MobileNativeChatController {
+export function useMobileNativeChatController(
+  args: MobileNativeChatControllerArgs
+): MobileNativeChatController {
   const {
     client,
     hostId,
@@ -200,6 +184,7 @@ export function useMobileNativeChatController(args: {
     agent: activeChatResolution?.agent,
     sessionCommands: nativeChatLane.sessionCommands.commands,
     sendStructured: structuredNativeChat.sendWithOutcome,
+    isModelWritePending: structuredNativeChat.isModelWritePending,
     captureSendOrigin,
     clearDraftForSend,
     restoreRejectedDraft,

@@ -16,12 +16,15 @@ import { independentAgentModelCatalog } from '../agent-model-catalog/agent-model
 import type { StructuredAgentSessionHostDeps } from './structured-agent-session-host-types'
 import {
   structuredAgentSessionCapabilityView,
+  structuredAgentSessionConfirmedOptions,
   structuredAgentSessionOptionModels,
   type StructuredAgentSessionRestingOptions as RestingOptions
 } from './structured-agent-session-option-models'
 import { structuredAgentSessionLaunchPermission } from './structured-agent-session-launch-permission'
 import type { StructuredAgentSessionMutationContext } from './structured-agent-session-host-mutations'
 import { structuredAgentSessionNeverSent } from './structured-agent-session-never-sent'
+import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
+import { readStructuredAgentSessionDefaultModel } from './structured-agent-session-model-default'
 
 export {
   recordStructuredAgentSessionOptionIntent,
@@ -62,7 +65,7 @@ async function readStructuredAgentSessionOptionsAtRest(
             : {})
       })
       .catch(() => null)) ?? { origin: 'unknown' }
-  const saved = record.options ?? {}
+  const saved = effectiveAgentSessionOptions(record) ?? {}
   const scoped = await readCatalog(true)
   const folderDefault =
     scoped.origin === 'unknown' ? undefined : scoped.models.find((entry) => entry.isDefault)
@@ -223,7 +226,7 @@ export async function readStructuredAgentSessionOptions(
       : undefined
   // Show saved intent unless the provider explicitly rejected that model; then show execution.
   const refusedModel = live && !!adapter.readOptionRestoreFailures?.(sessionId).includes('model')
-  const saved = record?.options ?? {}
+  const saved = record ? (effectiveAgentSessionOptions(record) ?? {}) : {}
   const { model: _refused, ...selectedWithoutModel } = selected.current
   const model = refusedModel
     ? (options.current.model ?? displayDefault)
@@ -250,11 +253,7 @@ export async function readStructuredAgentSessionOptions(
   const defaulted = structuredAgentSessionNeverSent(record, session.journal)
     ? []
     : (['model', 'effort'] as const).filter((key) => saved[key] === undefined && defaultedBy(key))
-  const confirmed = options.current.confirmed?.filter((key) =>
-    key === 'model' || key === 'effort' || key === 'fastMode' || key === 'serviceTier'
-      ? current[key] === options.current[key]
-      : false
-  )
+  const confirmed = structuredAgentSessionConfirmedOptions(current, options.current)
   if (independent) {
     const { inventory, fallback, listedModelIds } = await atRest()
     if (saved.model === undefined && current.model && inventory.origin !== 'unknown') {
@@ -283,14 +282,15 @@ export async function readStructuredAgentSessionOptions(
       current.serviceTier = projected.options.serviceTier
     }
   }
+  const defaultModel = await readStructuredAgentSessionDefaultModel(context.deps, sessionId)
   return {
     ...options,
+    ...(defaultModel ? { defaultModel } : {}),
     current: {
       ...current,
+      ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
       defaulted,
       confirmed,
-      ...(options.current.fastModeState ? { fastModeState: options.current.fastModeState } : {}),
-      ...(confirmed?.length ? { confirmed } : {}),
       ...(permissionMode ? { permissionMode } : {}),
       ...(live && options.current.reportedPermissionMode !== undefined
         ? { reportedPermissionMode: options.current.reportedPermissionMode }

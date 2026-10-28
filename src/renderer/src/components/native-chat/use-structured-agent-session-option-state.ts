@@ -157,7 +157,10 @@ export function useStructuredAgentSessionOptionState(args: {
             reportedPermissionMode: undefined
           }
         : seeded
-    const next = sameSession ? { ...kept, permissionMode: previous.permissionMode } : kept
+    // Keep the chat’s mode visible through provider restarts.
+    const next = sameSession
+      ? { ...kept, defaultModel: undefined, permissionMode: previous.permissionMode }
+      : kept
     writes.current = { count: 0, readback: false }
     resetStructuredOptionPickBook(optionPicks.current)
     optionStateRef.current = next
@@ -303,6 +306,7 @@ export function useStructuredAgentSessionOptionState(args: {
     conversationSupport,
     receiveCatalog,
     beginOptionWrite,
+    writes,
     isCurrentContext,
     optionState,
     optionStateRef,

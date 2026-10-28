@@ -1,3 +1,7 @@
+import {
+  permissionChoiceColor,
+  permissionModeIcon
+} from './mobile-native-chat-permission-option-style'
 import { useEffect, useRef } from 'react'
 import {
   AccessibilityInfo,
@@ -8,16 +12,7 @@ import {
   Text,
   View
 } from 'react-native'
-import {
-  ChevronLeft,
-  FilePenLine,
-  Hand,
-  LockKeyhole,
-  ShieldAlert,
-  ShieldCheck,
-  X,
-  type LucideIcon
-} from 'lucide-react-native'
+import { ChevronLeft, LockKeyhole, X } from 'lucide-react-native'
 import { BottomDrawer } from '../../../components/BottomDrawer'
 import { colors } from '../../../theme/mobile-theme'
 import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
@@ -46,11 +41,7 @@ import {
   showsSessionOptionAsSegments
 } from './MobileNativeChatSessionOptionSegments'
 import { sortNativeChatSessionOptions } from '../../../../../src/shared/native-chat/input/native-chat-session-option-snapshot'
-import {
-  AGENT_CHAT_PERMISSION_MODE_ICON_NAMES,
-  AGENT_CHAT_PERMISSION_MODE_OPTION_ID,
-  isAgentChatPermissionMode
-} from '../../../../../src/shared/agent-chat-permission-mode'
+import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../../src/shared/agent-chat-permission-mode'
 import type { MobileNativeChatSessionOptionsController } from './use-mobile-native-chat-session-options'
 import { sessionOptionPickerStyles as styles } from './mobile-native-chat-session-option-picker-styles'
 
@@ -69,26 +60,6 @@ type PresentationProps = {
   onNavigate: (page: string | null) => void
   onDrawerOpen: (page: string) => void
   onDrawerAfterClose?: () => void
-}
-
-function permissionChoiceColor(value: string | undefined): string | undefined {
-  return value === 'full-access' ? colors.statusAmber : undefined
-}
-
-function permissionModeIcon(value: string): LucideIcon | undefined {
-  if (!isAgentChatPermissionMode(value)) {
-    return undefined
-  }
-  switch (AGENT_CHAT_PERMISSION_MODE_ICON_NAMES[value]) {
-    case 'Hand':
-      return Hand
-    case 'FilePenLine':
-      return FilePenLine
-    case 'ShieldCheck':
-      return ShieldCheck
-    case 'ShieldAlert':
-      return ShieldAlert
-  }
 }
 
 function selectedChoice(descriptor: SessionOptionDescriptor | undefined) {
@@ -164,6 +135,7 @@ export function MobileNativeChatSessionOptionPickers({
     // A permission report can match a new explicit pick while the saved intent is Own.
     if (
       descriptor !== permission &&
+      !descriptor.defaultChoice?.selected &&
       descriptor.valueSource !== 'unknown' &&
       descriptor.kind.type === 'select' &&
       descriptor.kind.currentValue === value
@@ -258,6 +230,13 @@ export function MobileNativeChatSessionOptionPickers({
                 grouped
                 onSetOption={(value) => applyOption(activeDescriptor, value)}
                 onInvokeAction={() => invokeAction(activeDescriptor)}
+                onReset={
+                  controller.optionSurface?.resetOption
+                    ? () => {
+                        void controller.optionSurface?.resetOption?.(activeDescriptor.id)
+                      }
+                    : undefined
+                }
                 {...(permissionView ? { choiceLabelColor: permissionChoiceColor } : {})}
               />
             </View>
