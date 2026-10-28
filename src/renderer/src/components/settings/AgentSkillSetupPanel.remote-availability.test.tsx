@@ -16,6 +16,7 @@ const TARGET = { kind: 'environment', environmentId: 'managed-ssh' } as const
 
 vi.mock('@/hooks/useActiveProjectSkillRuntime', () => ({
   useActiveProjectSkillRuntime: () => ({
+    managerRuntimeTarget: TARGET,
     bundledSkillTarget: TARGET
   })
 }))

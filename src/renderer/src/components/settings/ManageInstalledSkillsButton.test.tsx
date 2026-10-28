@@ -12,11 +12,11 @@ const runtime = vi.hoisted(() => ({
   manager: ((): RuntimeClientTarget | null => ({ kind: 'local' }))(),
   target: ((): BundledSkillTarget | null => ({ kind: 'local' }))()
 }))
-vi.mock('@/hooks/use-active-skill-discovery-runtime-target', () => ({
-  useActiveSkillDiscoveryRuntimeTarget: () => runtime.manager
-}))
 vi.mock('@/hooks/useActiveProjectSkillRuntime', () => ({
-  useActiveProjectSkillRuntime: () => ({ bundledSkillTarget: runtime.target })
+  useActiveProjectSkillRuntime: () => ({
+    bundledSkillTarget: runtime.target,
+    managerRuntimeTarget: runtime.manager
+  })
 }))
 
 let root: Root | null = null

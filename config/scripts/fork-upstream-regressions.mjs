@@ -16,7 +16,6 @@ const desktop = [
   'src/main/native-chat/agent-model-catalog/agent-model-catalog-independent-discovery.test.ts',
   'src/main/native-chat/agent-session-wire/structured-agent-session-model-default.test.ts',
   'src/main/native-chat/agent-session-wire/structured-agent-session-options-read.test.ts',
-  'src/main/native-chat/agent-session-wire/structured-agent-session-launch-permission.test.ts',
   'src/main/codex/codex-structured-message-options.test.ts',
   'src/shared/structured-agent-session-option-view.test.ts',
   'src/shared/host-operation-ownership.test.ts',

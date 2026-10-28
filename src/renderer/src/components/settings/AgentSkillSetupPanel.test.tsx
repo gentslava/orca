@@ -35,6 +35,7 @@ vi.mock('@/runtime/runtime-bundled-skills-client', () => ({
 
 vi.mock('@/hooks/useActiveProjectSkillRuntime', () => ({
   useActiveProjectSkillRuntime: () => ({
+    managerRuntimeTarget: mocks.target,
     bundledSkillTarget: mocks.target,
     agentRuntime: mocks.agentRuntime,
     installDisabledReason: mocks.installDisabledReason,

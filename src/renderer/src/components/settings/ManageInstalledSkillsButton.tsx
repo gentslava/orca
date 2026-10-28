@@ -1,7 +1,6 @@
 import { BookOpen } from 'lucide-react'
 import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
-import { useActiveSkillDiscoveryRuntimeTarget } from '@/hooks/use-active-skill-discovery-runtime-target'
 import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'
 import { bundledSkillTargetKey, type BundledSkillTarget } from '@/lib/bundled-skill-target'
 import { Button } from '../ui/button'
@@ -12,8 +11,8 @@ export function ManageInstalledSkillsButton({
   target?: BundledSkillTarget | null
 }): React.JSX.Element | null {
   const openSkillsPage = useAppStore((state) => state.openSkillsPage)
-  const active = useActiveProjectSkillRuntime().bundledSkillTarget
-  const manager = useActiveSkillDiscoveryRuntimeTarget()
+  const { bundledSkillTarget: active, managerRuntimeTarget: manager } =
+    useActiveProjectSkillRuntime()
   // The existing manager follows the active host; never send another host's card there.
   if (
     !active ||
