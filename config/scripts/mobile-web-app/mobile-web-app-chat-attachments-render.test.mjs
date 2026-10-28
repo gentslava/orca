@@ -28,8 +28,8 @@ const entry = `
 import { createElement as h } from 'react'
 import { createRoot } from 'react-dom/client'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { MobileNativeChatRowOverlaysHost } from './src/session/MobileNativeChatRowOverlaysHost'
-import { MobileNativeChatMessage } from './src/session/MobileNativeChatMessage'
+import { MobileNativeChatRowOverlaysHost } from './src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost'
+import { MobileNativeChatMessage } from './src/session/native-chat/transcript/MobileNativeChatMessage'
 import { stubRpcClient } from './src/transport/rpc-client-test-stub'
 import { RpcClientProvider } from './src/transport/client-context.web'
 globalThis.__imageRequests = []

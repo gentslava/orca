@@ -133,6 +133,10 @@ async function openHostRoute({
     timeout: 30_000,
     polling: 250
   })
+  const menu = page.getByRole('button', { name: 'More options', exact: true })
+  if (await menu.count()) {
+    await menu.click()
+  }
   return { page, errors, jsResponses }
 }
 

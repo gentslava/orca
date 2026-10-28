@@ -245,7 +245,7 @@ describeRender('the actual mobile project conversation list', () => {
   it('groups chats directly under projects and reserves all git metadata for details', async () => {
     const { page, errors } = await open()
     const text = await page.locator('body').innerText()
-    expect(text).toContain('Разговоры')
+    expect(text).toContain('Проекты')
     expect(text).toContain('Atlas')
     expect(text).toContain('Notes')
     expect(await page.getByTestId('conversation-row').count()).toBe(5)

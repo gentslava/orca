@@ -122,7 +122,7 @@ function instrumentFrames() {
 
 /** The header's Workspace options chip, by its own label. */
 function workspaceOptionsChip(page) {
-  return page.getByText('Workspace options', { exact: true })
+  return page.getByRole('button', { name: 'More options', exact: true })
 }
 
 describeDrawer('the bottom drawer on the page', () => {

@@ -15,6 +15,7 @@ import { isTuiAgent } from '../../../../shared/tui-agent-config'
 import { resolveConfiguredWorkerAgent } from '../../orchestration/configured-worker-agent-selector'
 import { newWorktreeLaunchScope, resolveAgentLaunchRuntime } from '../../agent-launch-scope-runtime'
 import { parseWslUncPath } from '../../../../shared/wsl-paths'
+import { OPENCODE_MODEL_VERSION_REFUSAL } from '../../../../shared/agent-launch-model-preferences'
 import { prepareOpenCodeModelStartupInputs } from '../../../opencode/opencode-model-startup-plan'
 import { resolveAgentStartupPlanInputs } from '../../../../shared/agent-startup-plan-inputs'
 import { OrcaRuntimeWithAdoptTerminalOrphansFromInventory } from '../adoption/adopt-terminal-orphans-from-inventory'
@@ -102,7 +103,10 @@ export abstract class OrcaRuntimeWithOrchestrationAgentLaunch extends OrcaRuntim
         hostIdentity: this.getRuntimeId()
       })
       return true
-    } catch {
+    } catch (error) {
+      if (error instanceof OrchestrationError && error.message === OPENCODE_MODEL_VERSION_REFUSAL) {
+        throw error
+      }
       return false
     }
   }

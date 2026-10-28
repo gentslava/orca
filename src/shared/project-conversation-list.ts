@@ -17,7 +17,7 @@ export function isGenericConversationTitle(title: string): boolean {
   const value = title.trim()
   return (
     !value ||
-    /^[.\s…]+$/u.test(value) ||
+    /^[.\s\u2026]+$/u.test(value) ||
     GENERIC_TITLES.has(value.toLowerCase()) ||
     isKnownHarnessInjectedUserTurnText(value) ||
     Object.values(AI_VAULT_AGENT_LABELS).some(

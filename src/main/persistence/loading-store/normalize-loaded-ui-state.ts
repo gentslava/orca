@@ -96,7 +96,11 @@ export function normalizeLoadedUiState(
       return undefined
     }
     if (needsLegacyDefaultedCompactMigration) {
-      return getWorktreeCardModeProperties('Compact')
+      const compact = getWorktreeCardModeProperties('Compact')
+      return compact.length === rawCardProps.length &&
+        compact.every((property, index) => property === rawCardProps[index])
+        ? undefined
+        : compact
     }
     const candidate = needsInlineAgentsMigration
       ? [...rawCardProps, 'inline-agents' as const]
