@@ -103,7 +103,8 @@ export function buildUsageAccountQuotaRows(
   limits: RateLimitState,
   accounts: ProviderAccountsSnapshot | null,
   unverifiable = false,
-  settings?: Partial<UsageProviderSettings> | null
+  settings?: Partial<UsageProviderSettings> | null,
+  ownerLabel?: string
 ): UsageAccountQuotaRow[] {
   const fallback = (provider: ProviderRateLimits | null): UsageAccountQuotaRow[] =>
     provider && getVisibleUsageProvider(provider.provider, provider, { ...settings, ...limits })
@@ -123,7 +124,9 @@ export function buildUsageAccountQuotaRows(
     accounts?.claude && !accounts.failedProviders?.includes('claude')
       ? managedQuotaRows({
           provider: 'claude',
-          groups: buildClaudeStatusSwitchGroups(accounts.claude, limits.claudeTarget),
+          groups: buildClaudeStatusSwitchGroups(accounts.claude, limits.claudeTarget, {
+            hostLabel: ownerLabel
+          }),
           current: limits.claude,
           inactive: limits.inactiveClaudeAccounts,
           target: normalizeClaudeStatusRuntimeTarget(accounts.claude, limits.claudeTarget),
@@ -135,7 +138,9 @@ export function buildUsageAccountQuotaRows(
     accounts?.codex && !accounts.failedProviders?.includes('codex')
       ? managedQuotaRows({
           provider: 'codex',
-          groups: buildCodexStatusSwitchGroups(accounts.codex, limits.codexTarget),
+          groups: buildCodexStatusSwitchGroups(accounts.codex, limits.codexTarget, {
+            hostLabel: ownerLabel
+          }),
           current: limits.codex,
           inactive: limits.inactiveCodexAccounts,
           target: normalizeCodexStatusRuntimeTarget(accounts.codex, limits.codexTarget),

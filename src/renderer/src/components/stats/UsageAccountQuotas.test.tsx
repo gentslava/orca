@@ -6,7 +6,7 @@ import { createEmptyRateLimitState } from '../../../../shared/rate-limit-state-f
 import type { ProviderRateLimits } from '../../../../shared/rate-limit-types'
 import type { CodexManagedAccountSummary } from '../../../../shared/managed-account-types'
 import type { ProviderAccountsSnapshot } from '@/runtime/runtime-provider-accounts-client'
-import { UsageAccountQuotas } from './UsageAccountQuotas'
+import { UsageAccountQuotas, UsageAccountQuotaCard } from './UsageAccountQuotas'
 import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'
 
 vi.mock('../../store', () => ({ useAppStore: () => vi.fn() }))
@@ -158,9 +158,39 @@ describe('account quota coverage', () => {
     expect(within(cards[2]).queryByRole('progressbar')).not.toBeInTheDocument()
     expect(cards[2]).toHaveTextContent('Fixture account unavailable')
     expect(cards[2]).toHaveTextContent('Quota data unavailable')
+    expect(cards[2]).not.toHaveTextContent('Last known quota')
     expect(screen.getByTestId('usage-quota-coverage')).toHaveTextContent(
       'Other providers show the current account only'
     )
+  })
+
+  it('labels managed Claude and Codex accounts with their remote owner', () => {
+    const { accounts, rateLimits } = fixture()
+    rateLimits.claude = { ...quota(18, 'max'), provider: 'claude' }
+    accounts.claude.systemDefaultEmail = 'claude@example.test'
+    render(
+      <UsageAccountQuotas
+        accounts={accounts}
+        rateLimits={rateLimits}
+        ownerLabel="Build server"
+        onRefresh={() => {}}
+        onManage={() => {}}
+      />
+    )
+    const cards = [
+      screen.getByTestId('usage-quota-claude'),
+      ...screen.getAllByTestId('usage-quota-codex')
+    ]
+    for (const card of cards) {
+      expect(card).toHaveTextContent('Build server')
+      expect(card).not.toHaveTextContent('This device')
+    }
+  })
+
+  it('labels retained quota windows after a failed refresh', () => {
+    render(<UsageAccountQuotaCard provider={{ ...quota(27, 'plus'), status: 'error' }} />)
+    expect(screen.getByText('Last known quota; the latest check failed.')).toBeInTheDocument()
+    expect(screen.getAllByRole('progressbar')).toHaveLength(2)
   })
 
   it('never assigns host-selected account windows to a different runtime and keeps unknown rows unavailable', () => {

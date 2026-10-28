@@ -112,7 +112,8 @@ export function UsageAccountQuotaCard({
           {error}
         </p>
       ) : null}
-      {provider.status === 'error' || provider.usageMetadata?.unverifiableOwner ? (
+      {sections.length > 0 &&
+      (provider.status === 'error' || provider.usageMetadata?.unverifiableOwner) ? (
         <p className="text-xs text-muted-foreground">
           {translate('stats.usage.quota.lastKnown', 'Last known quota; the latest check failed.')}
         </p>
@@ -149,7 +150,13 @@ export function UsageAccountQuotas({
       void fetchInactiveCodex?.()
     }
   }, [localOwner, fetchRateLimits, fetchInactiveClaude, fetchInactiveCodex])
-  const rows = buildUsageAccountQuotaRows(rateLimits, accounts, accountsUnverifiable, settings)
+  const rows = buildUsageAccountQuotaRows(
+    rateLimits,
+    accounts,
+    accountsUnverifiable,
+    settings,
+    ownerLabel
+  )
   return (
     <section className="space-y-3" data-testid="usage-account-quotas">
       <div className="flex items-start justify-between gap-3">
