@@ -21,6 +21,8 @@ type Props = {
   resumeActionStateBySessionId?: ReadonlyMap<string, { disabled: boolean; loading: boolean }>
   onResume?: (session: AiVaultSession) => void | Promise<void>
   onRefresh: () => void
+  initialExpandedId?: string
+  hideSectionHeaders?: boolean
 }
 
 export function MobileAgentSessionHistoryList({
@@ -30,10 +32,12 @@ export function MobileAgentSessionHistoryList({
   showCurrentWorktreeBadges,
   resumeActionStateBySessionId,
   onResume,
-  onRefresh
+  onRefresh,
+  initialExpandedId,
+  hideSectionHeaders = false
 }: Props) {
   const colorScheme = useMobileColorScheme()
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(initialExpandedId ?? null)
 
   const toggleExpanded = useCallback((id: string) => {
     setExpandedId((prev) => (prev === id ? null : id))
@@ -75,14 +79,16 @@ export function MobileAgentSessionHistoryList({
           tintColor={colors.textSecondary}
         />
       }
-      renderSectionHeader={({ section }) => (
-        <View style={styles.groupHeader}>
-          <Text style={styles.groupHeaderText} numberOfLines={1}>
-            {section.label}
-          </Text>
-          <Text style={styles.groupHeaderCount}>{section.data.length}</Text>
-        </View>
-      )}
+      renderSectionHeader={({ section }) =>
+        hideSectionHeaders ? null : (
+          <View style={styles.groupHeader}>
+            <Text style={styles.groupHeaderText} numberOfLines={1}>
+              {section.label}
+            </Text>
+            <Text style={styles.groupHeaderCount}>{section.data.length}</Text>
+          </View>
+        )
+      }
       renderItem={renderItem}
     />
   )

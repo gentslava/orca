@@ -104,7 +104,14 @@ export async function readResumableTranscript(
       channel.mute(() => displayState.consumeLine(partialLine))
     }
 
-    const session = await displayState.finalize(args.platform)
+    const skippedRecords = mergeSkippedTranscriptRecords(
+      canResume ? resume.skippedRecords : [],
+      readResult.skippedRecords
+    )
+    let session = await displayState.finalize(args.platform)
+    if (session?.conversationContent === 'empty' && skippedRecords.length > 0) {
+      session = { ...session, conversationContent: 'unknown' }
+    }
     const consumerSession = args.sessionForConsumers
       ? await args.sessionForConsumers(session)
       : session
@@ -122,11 +129,7 @@ export async function readResumableTranscript(
         mtimeMs: file.mtimeMs,
         sizeBytes: file.sizeBytes,
         channel,
-        // Retain earlier skips only for append reads; replacements revisit those records.
-        skippedRecords: mergeSkippedTranscriptRecords(
-          canResume ? resume.skippedRecords : [],
-          readResult.skippedRecords
-        )
+        skippedRecords
       }
     }
   } catch (error) {

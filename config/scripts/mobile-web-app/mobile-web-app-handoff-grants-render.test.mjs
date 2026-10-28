@@ -94,7 +94,7 @@ async function openHostRoute({
   awaitText = SHELL_HOST.name,
   ownsHostArea = false
 }) {
-  const page = await browser.newPage({ viewport })
+  const page = await browser.newPage({ viewport, locale: 'en-US' })
   await page.addInitScript(installShellDouble, {
     version: bridgeVersion,
     sessionId: SHELL_SESSION_ID,
@@ -133,6 +133,10 @@ async function openHostRoute({
     timeout: 30_000,
     polling: 250
   })
+  const menu = page.getByRole('button', { name: 'More options', exact: true })
+  if (route === HOST_ROUTE) {
+    await menu.click()
+  }
   return { page, errors, jsResponses }
 }
 
@@ -176,7 +180,7 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
     })
     const { page, errors, jsResponses } = opened
     // The header's own control, by the name a user reads; it is the sidebar's on a wide layout.
-    await page.getByLabel('Tasks').first().click()
+    await page.getByRole('button', { name: 'Tasks', exact: true }).first().click()
     await expect
       .poll(() => navigates(page))
       .toEqual([
@@ -207,7 +211,7 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
     })
     const { page, errors } = opened
     const clickedAt = opened.jsResponses.length
-    await page.getByLabel('Tasks').first().click()
+    await page.getByRole('button', { name: 'Tasks', exact: true }).first().click()
     await waitForTasksRoute(page, opened, clickedAt)
     expect(await navigates(page)).toEqual([])
     expect(errors).toEqual([])
@@ -221,7 +225,7 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
       grants: [faultGrant, 'navigate', 'storage', 'haptics']
     })
     const { page, errors, jsResponses } = opened
-    const tasks = page.getByLabel('Tasks')
+    const tasks = page.getByRole('button', { name: 'Tasks', exact: true })
     // Require one narrow toolbar control or selecting among duplicates could hide a stray wide header.
     expect(await tasks.count()).toBe(1)
     await tasks.click()
@@ -248,7 +252,7 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
     })
     const { page, errors } = opened
     const clickedAt = opened.jsResponses.length
-    await page.getByLabel('Tasks').first().click()
+    await page.getByRole('button', { name: 'Tasks', exact: true }).first().click()
     await waitForTasksRoute(page, opened, clickedAt)
     expect(await navigates(page)).toEqual([])
     expect(errors).toEqual([])
@@ -268,7 +272,7 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
     expect(
       await page.evaluate((name) => document.body.innerText.includes(name), SHELL_HOST.name)
     ).toBe(false)
-    expect(await page.getByLabel('Tasks').count()).toBe(0)
+    expect(await page.getByRole('button', { name: 'Tasks', exact: true }).count()).toBe(0)
     expect(errors).toEqual([])
     await page.close()
   }, 60_000)

@@ -161,6 +161,8 @@ export function useHostScreenController({
     collapsedGroups,
     feed,
     projectOrderBy,
+    projectCatalog:
+      (feed?.kind === 'ready' ? feed.domains.projectCatalog : null) ?? state.servedProjectSections,
     client,
     connectionVerdict,
     connState,

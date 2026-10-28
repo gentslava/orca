@@ -8,6 +8,10 @@ import {
 
 /** UI fields that name a repo, worktree, pane or path. Everything else in the UI state is global. */
 export const UI_STATE_DISPOSITIONS = {
+  conversationPreferences: notApplicableDisposition(
+    38,
+    'Conversation preferences retain their execution-host-qualified identities.'
+  ),
   lastActiveRepoId: notApplicableDisposition(38, 'repoId is kept.'),
   pendingRuntimeRepoRemovals: notApplicableDisposition(
     38,
