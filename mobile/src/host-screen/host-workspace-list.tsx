@@ -1,3 +1,5 @@
+import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
+import { getRepoExecutionHostId } from '../../../src/shared/execution-host'
 import { useMemo } from 'react'
 import {
   ActivityIndicator,
@@ -188,6 +190,17 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
                 : null
             const repoSectionColor = repoSectionLook?.color ?? null
             const repoSectionIcon = repoSectionLook?.icon ?? null
+            const projectKey =
+              section.repo && controller.projectCatalog
+                ? resolveProjectPreferenceKey(
+                    section.repo.id,
+                    controller.projectCatalog.setups,
+                    getRepoExecutionHostId(section.repo)
+                  )
+                : null
+            const projectPinned = projectKey
+              ? state.view.personalProjectOrder?.projects[projectKey]?.pinned === true
+              : false
             return (
               <>
                 <Pressable
@@ -223,6 +236,24 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
                   ) : null}
                   <Text style={styles.sectionTitle}>{section.title}</Text>
                   <Text style={styles.sectionCount}>{count}</Text>
+                  {projectKey && section.repo && settings.supportsPersonalProjectOrder ? (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={projectPinned ? 'Unpin project' : 'Pin project'}
+                      hitSlop={8}
+                      onPress={(event) => {
+                        event.stopPropagation()
+                        if (section.repo) {
+                          void settings.toggleProjectPin(section.repo)
+                        }
+                      }}
+                    >
+                      <Pin
+                        size={14}
+                        color={projectPinned ? colors.textPrimary : colors.textMuted}
+                      />
+                    </Pressable>
+                  ) : null}
                   {pendingCollapseKeys.has(section.key) && (
                     <ActivityIndicator
                       size="small"

@@ -1,3 +1,4 @@
+import { capturePersonalProjectOpening } from './personal-project-opening'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
 import type { PendingSidebarWorktreeReveal } from '@/store/slices/ui'
@@ -189,6 +190,8 @@ export function activateAndRevealWorktree(
     state.setActiveView('terminal')
     return { primaryTabId: null }
   }
+  const personalOpening = capturePersonalProjectOpening(state, wt.repoId, worktreeId, opts)
+  let activationAcknowledgement: Promise<boolean> = Promise.resolve(true)
   const hasActivationWork = Boolean(
     opts?.startup || opts?.setup || opts?.defaultTabs || opts?.issueCommand
   )
@@ -211,7 +214,7 @@ export function activateAndRevealWorktree(
   }
 
   const previousActive = readPreviousActive(state)
-  state.setActiveWorktree(worktreeId, opts?.executionHostId)
+  const activated = state.setActiveWorktree(worktreeId, opts?.executionHostId)
   const postActivationState = useAppStore.getState()
   const ownerRuntimeEnvironmentId = runtimeEnvironmentIdOrLocalUnlessTwin(
     postActivationState,
@@ -219,7 +222,7 @@ export function activateAndRevealWorktree(
   )
   if (opts?.notifyHostRuntime !== false && isWebRuntimeSessionActive(ownerRuntimeEnvironmentId)) {
     // Why: paired web clients own only local selection, so the desktop host publishes session surfaces without treating it as a nav command.
-    void activateWebRuntimeSessionWorktree({
+    activationAcknowledgement = activateWebRuntimeSessionWorktree({
       worktreeId,
       environmentId: ownerRuntimeEnvironmentId
     })
@@ -308,6 +311,7 @@ export function activateAndRevealWorktree(
     })
   }
 
+  personalOpening?.(activated, activationAcknowledgement)
   return { primaryTabId }
 }
 
