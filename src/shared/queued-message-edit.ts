@@ -16,7 +16,6 @@ import {
   promptMarkersToImageReferences,
   stripSentImagePromptMarkers
 } from './native-chat-image-transcript-markers'
-
 export type QueuedMessageImageBlock = Extract<
   AgentJournalMessageItem['blocks'][number],
   { type: 'image-ref' }
@@ -129,7 +128,6 @@ export function queuedEditHandOffTyping(
     ? ''
     : stripSentImagePromptMarkers(draft.text, draft.kept.length)
 }
-
 function queuedEditImagesChanged(
   body: AgentJournalMessageItem,
   draft: QueuedMessageEditDraft
@@ -174,7 +172,7 @@ export function queuedEditInput(
     image.pending ? [] : [{ type: 'image-ref' as const, path: image.path }]
   )
   return {
-    text: queuedEditTextWithAddedImages(draft),
+    text: draft.text,
     images: [...draft.kept.map(({ block }) => block), ...added]
   }
 }

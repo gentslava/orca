@@ -23,7 +23,6 @@ function Probe(props: {
   const api = useNativeChatComposerAttachments({
     attachmentScopeKey: 'structured-session',
     allowWithoutTarget: true,
-    imageReferences: true,
     acceptsImages: props.acceptsImages,
     caret,
     disabled: false,
