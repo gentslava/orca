@@ -115,7 +115,8 @@
         "japanese": "日本語",
         "spanish": "Español",
         "french": "Français",
-        "portuguese": "Português (Brasil)"
+        "portuguese": "Português (Brasil)",
+        "russian": "Русский"
       },
       "statusBar": {
         "claudeToggleDescription": "显示当前工作区的 Claude Token 与费用消耗情况。",
@@ -873,8 +874,7 @@
           "in": {
             "new": {
               "tab": {
-                "11cce5cc77": "无法在新终端中启动 {{value0}}。",
-                "a5a1f7033f": "您的 {{value0}} 未发送 - 智能体准备好后将其粘贴。"
+                "11cce5cc77": "无法在新终端中启动 {{value0}}。"
               }
             }
           },
@@ -890,10 +890,7 @@
               "3de6371df3": "无法构建智能体启动命令。",
               "67e103dd60": "工作区已创建但无法激活。",
               "19c7683acf": "所选智能体在创建的工作区中不可用。",
-              "8bc45efdbc": "无法解析 PR 头引用。",
-              "agent": {
-                "ceeeb509b5": "智能体启动时间太长。工作区已准备就绪 - 当智能体空闲时粘贴 {{value0}}。"
-              }
+              "8bc45efdbc": "无法解析 PR 头引用。"
             }
           }
         }
@@ -1564,7 +1561,6 @@
         "d1fa2cf888": "没有 PR head SHA 就无法发表评论。",
         "829674460a": "Diff 不可用，因为 PR commit SHA 丢失。",
         "af924014f8": "已查看",
-        "2d89a38d9d": "{{value0}} {{value1}} 为已查看",
         "70e84e3d0b": "没有匹配的评审人。",
         "1ffce94a8b": "其他人",
         "c2b21818e1": "建议",
@@ -1643,9 +1639,7 @@
         "8812225174": "重新打开",
         "09d67a0f9b": "无法关闭拉取请求",
         "88809e79db": "无法重新提交拉取请求",
-        "00f55cc17b": "此拉取请求无法访问仓库。",
-        "reactionCountSingular": "{{count}} 个 {{reaction}} 反应",
-        "reactionCountPlural": "{{count}} 个 {{reaction}} 反应"
+        "00f55cc17b": "此拉取请求无法访问仓库。"
       },
       "GitLabItemDialog": {
         "65e784c1f1": "重新打开",
@@ -3279,21 +3273,13 @@
             },
             "drop": {
               "handler": {
-                "1e072f611e": "无法上传 {{value0}} {{value1}}。",
                 "0c77693641": "工作树尚未准备好 - 请稍后再试。",
                 "ce8248b835": "工作树路径不可用。",
                 "internalTooManyPaths": "拖放的路径过多，无法安全粘贴到终端。",
                 "internalPathsTooLarge": "拖放的路径列表过大，无法安全粘贴到终端。",
                 "internalHostMismatch": "请拖放与此终端位于同一主机的文件。",
-                "b4cf68e889": "已跳过 {{value0}} {{value1}}。",
                 "writeTimeout": "文件拖放已取消：终端在安全超时前未接受路径。",
-                "writeRejected": "文件拖放已取消：终端无法接受路径。",
-                "skippedSymlinkSingular": "已跳过 {{count}} 个符号链接。",
-                "skippedSymlinkPlural": "已跳过 {{count}} 个符号链接。",
-                "uploadingFileSingular": "正在将 {{count}} 个文件上传到运行时…",
-                "uploadingFilePlural": "正在将 {{count}} 个文件上传到运行时…",
-                "uploadingFileToRemoteSingular": "正在将 {{count}} 个文件上传到远程主机…",
-                "uploadingFileToRemotePlural": "正在将 {{count}} 个文件上传到远程主机…"
+                "writeRejected": "文件拖放已取消：终端无法接受路径。"
               }
             }
           },
@@ -3660,7 +3646,6 @@
             "a8e4bdb412": "· {{value0}} 外部",
             "c22ea609fd": "端口",
             "ca41be2802": "端口 — {{value0}} 个工作区 {{value1}}{{value2}}",
-            "b8bc3e420a": "端口，{{value0}} 工作区 {{value1}}",
             "3a87d54dfb": "未检测到工作区端口",
             "c174bbbfed": "正在扫描工作区端口...",
             "8caaa86e9a": "端口",
@@ -3853,7 +3838,6 @@
             "65402b7192": "已选择",
             "43171f3e60": "工作区",
             "09960d86bd": "已扫描",
-            "63efebe0e6": "{{value0}} {{value1}} 从空间中移除。",
             "eee5240810": "工作区已删除",
             "9afc97f9a3": "工作区已删除",
             "792a214457": "删除工作区",
@@ -3900,7 +3884,6 @@
             "c5135e7e4a": "扫描工作区大小。您可以离开此页面。",
             "0990a63160": "尚无扫描的工作区大小。",
             "977bdf9a36": "没有可显示的顶级项目。",
-            "131662ac65": "{{value0}} 打开",
             "0d1c78d749": "选择 {{value0}}"
           },
           "ports": {
@@ -4291,7 +4274,6 @@
         },
         "StatsPane": {
           "42d3e0bdf7": "使用情况分析提供商：{{value0}}",
-          "c79f073d4c": "使用情况分析",
           "a58aba506f": "已创建 PR",
           "1c96f433e2": "智能体工作时间",
           "9dbec9e675": "已启动智能体",
@@ -4304,25 +4286,7 @@
           "trackingSince": "自 {{value0}} 开始跟踪"
         },
         "UsageOverviewPane": {
-          "22ed1b7669": "会话",
-          "444585cb41": "有数据",
-          "ecb0cd8a4c": "已启用 -",
-          "33f7b043d2": "供应商",
-          "70f36452d4": "缓存共享",
-          "327603fe8b": "活跃天数",
-          "0eaf937335": "预计成本",
-          "3887b94ce5": "token总数",
-          "2d13e57f72": "启用OpenCode",
-          "2f1ee2878b": "启用 Codex",
-          "0ea0cae435": "启用 Claude",
-          "6c00c46815": "启用提供商以扫描本地智能体日志并构建组合的token账本。",
-          "49405ccc8d": "开始跟踪token",
-          "ca6bc5fded": "刷新",
-          "e06d1baf5c": "刷新使用概览",
-          "c760c481c5": "使用概述",
-          "55c910f4f1": "- 部分型号价格不详",
-          "enableMuse": "启用 Muse",
-          "noLocalUsageYet": "尚未找到本地 Claude、Codex、OpenCode 或 Muse 使用情况。概览将在下一个智能体会话写入token日志后填充。"
+          "3887b94ce5": "token总数"
         },
         "share": {
           "card": {
@@ -4561,7 +4525,6 @@
           "updateMany": "更新技能",
           "description": "更新 {{value0}}，让智能体遵循此版本 Orca 的最新说明。"
         },
-        "SkillFreshnessRow": {},
         "SkillFreshnessUpdateDialog": {
           "title": "更新技能",
           "checking": "正在检查已安装的 Orca 技能…",
@@ -4603,7 +4566,6 @@
           "updateServer": "请在服务器上更新 Orca",
           "connectHost": "请连接 SSH 主机"
         },
-        "SkillUpdateResultRows": {},
         "SkillUpdateRow": {
           "replaceWithOrca": "替换为 Orca 的副本（保留备份）"
         },
@@ -5056,21 +5018,10 @@
           "b7a87dc32f": "在工作树列表中显示",
           "ad99f4eea9": "保持隐藏",
           "9f4f14e821": "稍后从项目菜单中更改此设置。",
-          "b2bc47c080": "更多位置",
           "b47ba1a9d2": "{{value0}} 预览",
           "2251d41ebb": "隐藏的工作树组",
           "5a9688802a": "显示 {{value0}} 更多",
-          "294de4aeb2": "显示较少",
-          "collapseAriaLabel": "折叠 {{repo}} 的隐藏工作树",
-          "expandAriaLabel": "展开 {{repo}} 的隐藏工作树",
-          "hiding_one": "已隐藏 {{count}} 个检测到的工作树",
-          "hiding_other": "已隐藏 {{count}} 个检测到的工作树",
-          "hidingInRepo_one": "已隐藏 {{repo}} 中的 {{count}} 个检测到的工作树",
-          "hidingInRepo_other": "已隐藏 {{repo}} 中的 {{count}} 个检测到的工作树",
-          "keepHiddenAriaLabel_one": "为 {{repo}} 保留 {{count}} 个检测到的工作树为隐藏状态；可从项目菜单恢复",
-          "keepHiddenAriaLabel_other": "为 {{repo}} 保留 {{count}} 个检测到的工作树为隐藏状态；可从项目菜单恢复",
-          "keepHiddenTooltip": "保持隐藏 - 从项目菜单恢复",
-          "repoOnHost": "{{host}} 上的 {{repo}}"
+          "294de4aeb2": "显示较少"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "作为文件夹打开",
@@ -5083,18 +5034,7 @@
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "运行钩子",
-          "43b7bec4cd": "不运行",
-          "c494b3ccb1": "在",
-          "79afc6772b": "orca.yaml",
-          "531689199b": "永远信任",
-          "bf800b7e04": "。仅当您信任时才运行",
-          "831f2cd9f0": "在你的机器上运行",
-          "aa3ffb33fb": "这个仓库的",
-          "c55beddbf8": "自您上次批准以来已发生变化。运行前请重新评审",
-          "95bf974a1a": "{{value0}} 脚本",
-          "9e52effffd": "新的 {{value0}} 脚本",
-          "e4a51dc4b3": "从 {{value1}} 运行 {{value0}}？",
-          "02b0ede5ad": "{{value0}} 的 {{value1}} 已更改 — 运行新版本吗？"
+          "43b7bec4cd": "不运行"
         },
         "PendingWorktreeRow": {
           "af21e953d1": "取消工作树创建",
@@ -5473,9 +5413,7 @@
           "9950fe2d20": "刷新端口失败",
           "5d1a5d51bb": "已停止 {{value0}} 上的进程",
           "c89f290e25": "已复制 {{value0}}",
-          "d1113f4660": "无法打开浏览器",
-          "fed49903c9": "{{value0}} 直播 {{value1}}",
-          "unknownProcess": "未知进程"
+          "d1113f4660": "无法打开浏览器"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "创建一个组并将该项目移入其中。",
@@ -5548,9 +5486,7 @@
           "failedUnnestWorkspace": "展开工作区失败",
           "groupRenameFailed": "重命名组失败",
           "groupRenameFailedDesc": "Orca 无法与该分组所在的主机确认新名称。重新连接后请再次检查该分组。",
-          "hostRepairRequired": "Re-pair required",
-          "groupProjectsRemainedSingular": "删除分组后，{{count}} 个包含项目中仍剩 {{remaining}} 个。",
-          "groupProjectsRemainedPlural": "删除分组后，{{count}} 个包含项目中仍剩 {{remaining}} 个。"
+          "hostRepairRequired": "Re-pair required"
         },
         "WorktreeMetaDialog": {
           "3db0a2a593": "取消",
@@ -5814,14 +5750,6 @@
           }
         },
         "worktree": {
-          "card": {
-            "compact": {
-              "agents": {
-                "289a1d2ca7": "展开{{value0}}。 {{value1}}",
-                "0c1debfe84": "折叠 {{value0}}"
-              }
-            }
-          },
           "list": {
             "groups": {
               "0ed04075b8": "全部",
@@ -5856,9 +5784,7 @@
                   "f15fd80989": "新工作树是最新的，但本地 {{value0}} 落后 {{value1}} {{value2}}，因此 AI 差异可能会与过时历史比较。让 Orca 自动保持它最新。可随时在",
                   "3d260e1a5d": "设置 › {{value0}}",
                   "34a03a6565": "保持 {{value0}} 最新",
-                  "4a18052018": "本地 {{value0}} 落后于 {{value1}}",
-                  "commit": "提交",
-                  "commits": "提交"
+                  "4a18052018": "本地 {{value0}} 落后于 {{value1}}"
                 }
               }
             }
@@ -6079,9 +6005,7 @@
           "identityFileFromConfigHint": "故意留空：Orca 使用 ~/.ssh/config 解析为 {{value0}} 的每个密钥。键入一个路径以仅使用该键。",
           "sshConfigPickerRetry": "重试",
           "sshConfigPickerResolving": "阅读…",
-          "pairingHelpShareComputer": "在另一台电脑上通过“设置 → 远程 Orca 服务器 → 共享此电脑”创建。",
-          "sshImportSyncedPlural": "已将 {{count}} 个主机添加到 Orca。",
-          "sshImportSyncedSingular": "已将 {{count}} 个主机添加到 Orca。"
+          "pairingHelpShareComputer": "在另一台电脑上通过“设置 → 远程 Orca 服务器 → 共享此电脑”创建。"
         },
         "ForgetSshWorkspaceDialog": {
           "reconnectFailed": "重新连接失败",
@@ -8176,7 +8100,6 @@
           "badb1219fc": "两个都",
           "43c2ff7b0e": "自动",
           "0a10420e1a": "选项作为 Alt",
-          "ce3aadf0b2": "{{value0}} Option键发送Alt/Esc；另一个组成特殊字符。",
           "b62373091a": "两个 Option 键都发送 Alt/Esc 序列。",
           "d8998bb328": "选项为您的键盘布局组成特殊字符。",
           "d21c493808": "自动 — 已检测：{{value0}}。",
@@ -12442,7 +12365,6 @@
             "812cb992ee": "打开于 {{value0}}",
             "eef5446523": "{{value0}} #{{value1}} 已开放",
             "0453ca3a9a": "{{value0}} 已创建，但 Orca 尚无法刷新它。",
-            "f99560ab29": "中止 {{value0}} 失败",
             "eae7a1da5f": "无法清除笔记。",
             "df5040e3c3": "取消暂存",
             "8cde1a2fb0": "暂存",
@@ -12568,11 +12490,7 @@
             "entryFailedInWorkspace": "{{value0}} 在 {{value1}} 中",
             "diffCommentNotesCopyFailed": "复制笔记失败",
             "conflictCount_one": "{{count}} 个冲突",
-            "conflictCount_other": "{{count}} 个冲突",
-            "discardFailedSingular": "无法丢弃 {{count}} 个文件",
-            "discardFailedPlural": "无法丢弃 {{count}} 个文件",
-            "noteCountSingular": "{{count}} 条备注",
-            "noteCountPlural": "{{count}} 条备注"
+            "conflictCount_other": "{{count}} 个冲突"
           },
           "SourceControlAgentActionDialog": {
             "8e856842d1": "无法启动选定的智能体。",
@@ -12706,9 +12624,6 @@
                 "checksUnresolvedChip": "未解决的",
                 "checksUnresolvedStripHint": "这些检查完成后没有得出通过或失败的结论。",
                 "dcb3c546fe": "重试",
-                "commitsBehind_one": "落后 {{count}} 个提交",
-                "commitsBehind_other": "落后 {{count}} 个提交",
-                "baseCommitLabel": "基础提交：",
                 "failingChecks_one": "{{count}} 项检查失败",
                 "failingChecks_other": "{{count}} 项检查失败",
                 "pendingChecks_one": "{{count}} 项检查待处理",
@@ -12956,8 +12871,6 @@
                 "dialog": {
                   "3bc61dc989": "取消",
                   "15efa778e3": "放弃",
-                  "42f89dd030": "文件",
-                  "e7611dca35": "文件",
                   "0d2d88cba5": "此操作无法撤销。",
                   "1551c14668": "放弃更改？"
                 }
@@ -13119,12 +13032,6 @@
                   }
                 }
               },
-              "compare": {
-                "summary": {
-                  "commitsAheadSingular": "领先 {{ref}} {{count}} 个提交",
-                  "commitsAheadPlural": "领先 {{ref}} {{count}} 个提交"
-                }
-              },
               "conflict": {
                 "status": {
                   "cards": {
@@ -13186,7 +13093,6 @@
             "unresolved": "无法确定哪个主机拥有此工作区。请检查连接后重试。"
           },
           "useFileDeletion": {
-            "72691dfebc": "无法 {{value0}}“{{value1}}”。",
             "d979a4fbb5": "永久删除“{{value0}}”？",
             "92276aceb7": "删除",
             "7fb9435c86": "这会永久删除远程主机上的目录及其内容。此操作无法撤销。",
@@ -13200,10 +13106,6 @@
           "useFileExplorerHandlers": {
             "32cd9fd991": "无法打开符号链接目标",
             "folderLinksOutsideProject": "此文件夹链接到项目之外，无法在此打开。"
-          },
-          "useFileExplorerImport": {
-            "25919b2050": "跳过 {{value0}} {{value1}}。",
-            "132fd0e1e9": "无法导入 {{value0}} {{value1}}。"
           },
           "useFileExplorerKeys": {
             "8adb953095": "操作失败"
@@ -13658,9 +13560,7 @@
           "217beb0658": "GitHub",
           "4983ae7433": "使用个人 API 密钥添加 Linear 访问权限。完全访问密钥可显示密钥所有者可访问的全部团队。",
           "d6e5dba05a": "登录",
-          "0b4a7d23ab": "登录",
-          "linearWorkspacesLinkedSingular": "已关联 {{count}} 个工作区。可随时添加其他工作区或更换受限密钥。",
-          "linearWorkspacesLinkedPlural": "已关联 {{count}} 个工作区。可随时添加其他工作区或更换受限密钥。"
+          "0b4a7d23ab": "登录"
         },
         "NotificationStep": {
           "3bede04483": "发送测试通知",
@@ -14135,8 +14035,7 @@
           "FloatingTerminalToggleButton": {
             "3b04b065b5": "显示浮动工作区",
             "4cb418b991": "显示浮动工作区，有新活动",
-            "5785dd9148": "最小化浮动工作区",
-            "bfe7809a70": "{{value0}} 浮动工作区 ({{value1}})"
+            "5785dd9148": "最小化浮动工作区"
           },
           "FloatingTerminalWindowControls": {
             "2f6054342c": "最小化",
@@ -14679,15 +14578,12 @@
           "39b6b9e4e4": "已提交到分支"
         },
         "CombinedDiffViewer": {
-          "35cc27aeb2": "在源代码控制中",
-          "e3b9a6ce02": "更多的",
           "1da745c551": "发送",
           "84898c548d": "清除",
           "88b70d0ef5": "复制",
           "bb84b4c374": "AI 笔记",
           "948a5fd6c8": "清除笔记",
           "0f806a2ab1": "取消",
-          "80a286d8f5": "从此工作树中清除？",
           "7e7ca60816": "更改的文件",
           "b6c3b84476": "显示文件树",
           "39f8007549": "评审冲突",
@@ -14698,8 +14594,6 @@
           "fd8892b120": "没有显示任何变化",
           "eb5f40e49c": "此差异视图排除了未解决的冲突，因为普通的双向差异管道不是冲突安全的。",
           "45cf23b418": "无法清除笔记。",
-          "0fb870a0fe": "笔记",
-          "8ab3248fd8": "笔记",
           "ec5053c7f5": "并排",
           "f786fd54e1": "内联",
           "ea08dae15b": "全部折叠",
@@ -14727,7 +14621,6 @@
           "6e459867ad": "会话本地连续性状态。 Git 不再将此文件报告为未合并。",
           "9c2901ef8a": "下一次冲突",
           "41d9af2e7a": "上一个冲突",
-          "55d61a0ccd": "冲突 ·",
           "da539359b6": "对于此冲突，没有可编辑的工作树文件。",
           "unresolvedConflicts_one": "{{count}} 个未解决的冲突",
           "unresolvedConflicts_other": "{{count}} 个未解决的冲突"
@@ -15028,7 +14921,6 @@
           "13822cdfda": "纯文本"
         },
         "RichMarkdownDocLinkMenu": {
-          "e17b987473": "↑↓ 导航↵ 选择 esc 关闭",
           "90c5f0e1e4": "的",
           "2aaf7d9678": "显示中",
           "63ced7cb9b": "没有找到文件",
@@ -15460,9 +15352,6 @@
         }
       },
       "dashboard": {
-        "DashboardAgentChildDisclosure": {
-          "1b57ce9fa4": "{{value0}} {{value1}} 子 {{value2}}"
-        },
         "DashboardAgentRow": {
           "912e136cd9": "发送",
           "a743da52ff": "展开详情",
@@ -17621,7 +17510,6 @@
         "imageAttachAgainLabel": "重新附加",
         "pastedImageNotKeptLabel": "未保留",
         "imageNumber": "图片 #{{number}}",
-        "imageReferenceMissing": "图片已移除",
         "imagePasteFailed": "图片粘贴失败。",
         "worktreeNotReady": "工作树未就绪 — 请稍后重试。",
         "pasteUnavailable": "无法粘贴 — 此聊天当前不接受输入。",
@@ -18090,7 +17978,6 @@
         "editMessage": "编辑消息",
         "showFullMessage": "显示完整消息",
         "showLess": "收起",
-        "turnOffQueueing": "关闭排队",
         "withdrawnHold": "在发送前已停止",
         "pausedSendFailed": "无法发送。点按发送以重试。",
         "paused": "已暂停",

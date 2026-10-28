@@ -93,6 +93,51 @@ pnpm dev:fresh [--keep] [--seed-from[=<profile dir>]]   # temporary profile, rem
 
 ### Targeting Local Tests
 
+During iteration, use `pnpm check:iteration --maxWorkers=2` to select checks for staged,
+unstaged, and untracked edits against HEAD. Before handoff, run
+`pnpm check:changed --maxWorkers=2` for the whole branch against its merge base with
+`origin/main` (override with `--base=<ref>`). `check:changed --scope=worktree` is the
+explicit form of `check:iteration`. A clean worktree has nothing to check in iteration
+mode, even if the branch has committed changes. Both commands check the current
+working-tree bytes; they do not validate a different version stored only in the index.
+
+Both gates print each step's command, deadline, start, and completion, emit a heartbeat
+every 15 seconds, and stream Vitest progress. Each step has a five-minute deadline;
+pass `--stepTimeoutMs=<ms>` to increase it for a larger check. A timeout fails the gate
+and requests termination of the step's process group/tree. Process shutdown can take
+additional time. `--maxWorkers` also caps concurrent check tasks, while typecheck and
+Vitest retain their own bounded worker pools. The deadline applies to each step,
+not to the total command, and does not apply to direct `pnpm test` commands.
+Passing results are cached separately for branch and worktree scope; a timeout, failure,
+or cancellation never records a pass. Starting a real recheck invalidates the earlier
+pass for that scope, including with `--force`. The cache includes runtime and effective
+test-selection context. Inputs are rehashed before saving a pass; an edit detected
+during checks fails the gate and requires a retry. Keep edits paused during checks:
+this is not an immutable filesystem snapshot.
+For gates with unit tests, reuse also requires matching dependency-record evidence.
+New incomplete records arriving during checks prevent a pass; a successful run can
+cache its own passing record updates immediately. Unreadable or oversized evidence
+disables caching without discarding otherwise successful checks.
+
+Stream the command's output to observe progress. If you redirect it to a log, tail that
+log while the same command runs. A tool's output-yield interval can be short, but its
+execution deadline must allow the selected steps and process shutdown to finish; poll
+the existing process/session instead of launching a replacement on an observation timeout.
+For example, start `pnpm check:iteration --maxWorkers=2` with a short tool-output yield,
+then read that same running session until it exits and preserve its exit status.
+Uncatchable termination of the gate, or descendants that escape its POSIX process group,
+can require separate cleanup; these are not proof of a completed or passing check.
+Closed output consumers cancel active checks. Slow consumers can omit live progress
+with a notice; a final output drain that cannot finish fails the command.
+
+Iteration checks use the CI unit inventory, leaving shell, Electron, and cross-version
+tests to their dedicated CI jobs. Ordinary `pnpm test` and the branch handoff gate retain
+their broader local discovery, and explicit test commands can still run those suites.
+Both gates use the installed incremental dependency recording and its cold-cache static
+fallback described below. Deleting a related source runs the full inventory for that
+gate's scope, because a cold graph cannot reliably resolve a removed import. Neither
+gate replaces CI's full coverage of global inputs.
+
 Use a test file or directory when you know the relevant suites. For dependency-based
 feedback, Vitest can select tests affected by your edits:
 
@@ -115,14 +160,21 @@ runs when at most 100 such tests are in scope, which records them. Beyond that, 
 a new worktree, unrecorded tests are selected with Vitest's static import graph
 instead of running all of them. Keep Vite's local test cache between runs. Use
 `--experimental.recordDependencies=false` to use the static import graph for every test.
+The cold fallback still scans test import graphs; it limits test execution, not all
+transformation work.
+Recorded source closures, configuration, and runtime context are checked for freshness;
+stale records use the same cold-cache fallback. Failed or partial suites retain the
+union of known dependencies and run again until they complete successfully. Sources
+modified during a run cannot receive a fresh record for that run.
 
 This is local feedback, not a complete regression check. Vitest records loaded
 imports, including executed dynamic imports, but cannot infer arbitrary filesystem
 reads, subprocess inputs, or externalized module dependencies. Explicitly run tests
 for changed fixtures, generated files, CLI entry points, and other indirect inputs.
-After changing imports, run the affected suites before committing those changes so
-later edits use current records. Configuration, lockfile, patch, and workspace-package
-changes rerun every test within the requested scope. CI does not enable recording;
+Configuration, lockfile, patch, and workspace-package changes passed directly to
+Vitest's affected-test command rerun every test within the requested scope. The check
+gates instead select colocated tests for these global inputs and rely on CI for full
+coverage. CI does not enable recording;
 the existing CI selection policy is unchanged. The static graph has the same blind spots
 and also misses dynamic imports with computed specifiers, so the first changed-file run
 in a new worktree is a little less complete than later ones.

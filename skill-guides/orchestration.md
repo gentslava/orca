@@ -44,13 +44,13 @@ absence included, is a checkpoint.
 
 ## Classify the role
 
-| Current context                                                                                              | Role                    | Route                                                                          |
-| ------------------------------------------------------------------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------ |
-| The user requests Orca-managed workers, an Orca Run/DAG, cross-agent/host coordination or its decision gates | Coordinator             | Use the supervised loop below                                                  |
-| The current prompt contains a live injected preamble with Task and Dispatch IDs                              | Dispatched worker       | Follow the preamble and the worker obligations below                           |
-| The user asks to hand off ownership or start another agent/worktree without supervision                      | Handoff owner           | Use `orca-cli`; create no Run, Task, or Dispatch and do not monitor completion |
-| A message carries a legacy authority label                                                                   | Compatibility operator  | Load the legacy contract reference before any lifecycle mutation               |
-| No live preamble and no explicit supervision                                                                 | Ordinary terminal agent | Do not emit lifecycle messages; use `orca-cli` for terminal/worktree work      |
+| Current context                                                                                                                                                                      | Role                    | Route                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------ |
+| The user explicitly invokes `$orchestration` / `/orchestration`, requests Orca workers/Run/DAG/decision gates, or this session coordinates an existing Run with unsettled Dispatches | Coordinator             | Use the supervised loop below                                                  |
+| The current prompt contains a live injected preamble with Task and Dispatch IDs                                                                                                      | Dispatched worker       | Follow the preamble and the worker obligations below                           |
+| The user asks to hand off ownership or start another agent/worktree without supervision                                                                                              | Handoff owner           | Use `orca-cli`; create no Run, Task, or Dispatch and do not monitor completion |
+| A message carries a legacy authority label                                                                                                                                           | Compatibility operator  | Load the legacy contract reference before any lifecycle mutation               |
+| No live preamble, explicit Orca invocation, or existing coordinator obligation                                                                                                       | Ordinary terminal agent | Do not emit lifecycle messages; use `orca-cli` for terminal/worktree work      |
 
 Model or effort selection does not make a handoff supervised: `orca-cli`'s
 `worktree create --agent` and `agent launch` take `--model` and `--effort`, and

@@ -8,11 +8,6 @@
   },
   "auto": {
     "components": {
-      "GitHubItemDialog": {
-        "2d89a38d9d": "{{value0}} {{value1}} as viewed",
-        "reactionCountPlural": "{{count}} {{reaction}} reactions",
-        "reactionCountSingular": "{{count}} {{reaction}} reaction"
-      },
       "NativeChatResumeOnRestartModal": {
         "serverResumeHere": "Resume {{count}} chats started here",
         "serverResumeHereOne": "Resume 1 chat started here"
@@ -54,23 +49,12 @@
           "errorUnavailable": "Screenshot markup is not available on this page."
         }
       },
-      "dashboard": {
-        "DashboardAgentChildDisclosure": {
-          "1b57ce9fa4": "{{value0}} {{value1}} child {{value2}}"
-        }
-      },
       "editor": {
         "CombinedDiffViewer": {
-          "0fb870a0fe": "notes",
-          "35cc27aeb2": "in Source Control",
-          "80a286d8f5": "from this worktree?",
-          "8ab3248fd8": "note",
-          "e3b9a6ce02": "more",
           "skippedConflictsExcluded_one": "{{count}} unresolved conflict was excluded from this diff view.",
           "skippedConflictsExcluded_other": "{{count}} unresolved conflicts were excluded from this diff view."
         },
         "ConflictComponents": {
-          "55d61a0ccd": "conflict ·",
           "unresolvedConflicts_one": "{{count}} unresolved conflict",
           "unresolvedConflicts_other": "{{count}} unresolved conflicts"
         },
@@ -100,9 +84,6 @@
           "e72e6b03f4": "Rust",
           "edfcc64182": "Go"
         },
-        "RichMarkdownDocLinkMenu": {
-          "e17b987473": "↑↓ navigate&nbsp;&nbsp;↵ select&nbsp;&nbsp;esc dismiss"
-        },
         "editor": {
           "save": {
             "notUtf8": {
@@ -117,13 +98,6 @@
           }
         }
       },
-      "floating": {
-        "terminal": {
-          "FloatingTerminalToggleButton": {
-            "bfe7809a70": "{{value0}} floating workspace ({{value1}})"
-          }
-        }
-      },
       "github": {
         "project": {
           "ProjectPicker": {
@@ -135,12 +109,6 @@
       "hostPicker": {
         "moreHosts_one": "{{count}} more host. Search by name to find it.",
         "moreHosts_other": "{{count}} more hosts. Search by name to find one."
-      },
-      "onboarding": {
-        "IntegrationsStep": {
-          "linearWorkspacesLinkedPlural": "{{count}} workspaces linked. Add another workspace or replace a restricted key any time.",
-          "linearWorkspacesLinkedSingular": "{{count}} workspace linked. Add another workspace or replace a restricted key any time."
-        }
       },
       "right": {
         "sidebar": {
@@ -163,19 +131,11 @@
             "conflictsSection": "Conflicts",
             "createPrIntentConfigureAi": "Add a commit message or configure Source Control AI settings.",
             "createPrIntentGenerateFailed": "Could not generate a commit message. Add one and retry.",
-            "d4ef4bafc5": "Changes",
-            "discardFailedPlural": "Failed to discard {{count}} files",
-            "discardFailedSingular": "Failed to discard {{count}} file",
-            "f99560ab29": "Abort {{value0}} failed",
-            "noteCountPlural": "{{count}} notes",
-            "noteCountSingular": "{{count}} note"
+            "d4ef4bafc5": "Changes"
           },
           "checks": {
             "panel": {
               "content": {
-                "baseCommitLabel": "base commit:",
-                "commitsBehind_one": "{{count}} commit behind",
-                "commitsBehind_other": "{{count}} commits behind",
                 "failingChecks_one": "{{count}} failing check",
                 "failingChecks_other": "{{count}} failing checks",
                 "pendingChecks_one": "{{count}} check pending",
@@ -275,18 +235,6 @@
           },
           "source": {
             "control": {
-              "compare": {
-                "summary": {
-                  "commitsAheadPlural": "{{count}} commits ahead of {{ref}}",
-                  "commitsAheadSingular": "{{count}} commit ahead of {{ref}}"
-                }
-              },
-              "discard": {
-                "dialog": {
-                  "42f89dd030": "files",
-                  "e7611dca35": "file"
-                }
-              },
               "dropdown": {
                 "items": {
                   "fastForwardCount_one": "Fast-forward {{count}} commit",
@@ -306,13 +254,6 @@
                 }
               }
             }
-          },
-          "useFileDeletion": {
-            "72691dfebc": "Failed to {{value0}} '{{value1}}'."
-          },
-          "useFileExplorerImport": {
-            "132fd0e1e9": "Failed to import {{value0}} {{value1}}.",
-            "25919b2050": "Skipped {{value0}} {{value1}}."
           }
         }
       },
@@ -363,9 +304,6 @@
         "SshPane": {
           "syncedServerPlural": "Synced {{count}} servers",
           "syncedServerSingular": "Synced {{count}} server"
-        },
-        "TerminalPane": {
-          "ce3aadf0b2": "The {{value0}} Option key sends Alt/Esc; the other composes special characters."
         },
         "WarpThemeImportModal": {
           "found_theme_one": "Found {{value0}} theme",
@@ -494,39 +432,9 @@
         }
       },
       "sidebar": {
-        "AddRemoteHostDialog": {
-          "sshImportSyncedPlural": "Added {{count}} hosts to Orca.",
-          "sshImportSyncedSingular": "Added {{count}} host to Orca."
-        },
         "DeleteWorktreeDirtyChangeHint": {
           "changeCount_one": "{{count}} uncommitted or untracked change",
           "changeCount_other": "{{count}} uncommitted or untracked changes"
-        },
-        "ImportedWorktreesVisibilityLine": {
-          "b2bc47c080": "more locations",
-          "collapseAriaLabel": "Collapse hidden worktrees for {{repo}}",
-          "expandAriaLabel": "Expand hidden worktrees for {{repo}}",
-          "hidingInRepo_one": "Hiding {{count}} discovered worktree in {{repo}}",
-          "hidingInRepo_other": "Hiding {{count}} discovered worktrees in {{repo}}",
-          "hiding_one": "Hiding {{count}} discovered worktree",
-          "hiding_other": "Hiding {{count}} discovered worktrees",
-          "keepHiddenAriaLabel_one": "Keep {{count}} discovered worktree hidden for {{repo}}; recover from the project menu",
-          "keepHiddenAriaLabel_other": "Keep {{count}} discovered worktrees hidden for {{repo}}; recover from the project menu",
-          "keepHiddenTooltip": "Keep hidden - recover from the project menu",
-          "repoOnHost": "{{repo}} on {{host}}"
-        },
-        "OrcaYamlTrustDialog": {
-          "02b0ede5ad": "{{value0}}'s {{value1}} changed — run the new version?",
-          "531689199b": "Always trust",
-          "79afc6772b": "orca.yaml",
-          "831f2cd9f0": "runs on your machine",
-          "95bf974a1a": "{{value0}} script",
-          "9e52effffd": "New {{value0}} script",
-          "aa3ffb33fb": "This repository's",
-          "bf800b7e04": ". Only run if you trust",
-          "c494b3ccb1": "in",
-          "c55beddbf8": "changed since you last approved. Re-review before it runs",
-          "e4a51dc4b3": "Run {{value0}} from {{value1}}?"
         },
         "PreservedBranchBatchReviewDialog": {
           "a0f9863597_one": "Force Delete {{count}} Branch",
@@ -535,26 +443,6 @@
         "SetupScriptPromptCard": {
           "savedWithSkippedFields_one": "{{count}} unsupported field skipped. Saved the setup command.",
           "savedWithSkippedFields_other": "{{count}} unsupported fields skipped. Saved the setup command."
-        },
-        "WorktreeCardPorts": {
-          "fed49903c9": "{{value0}} live {{value1}}",
-          "unknownProcess": "Unknown process"
-        },
-        "WorktreeList": {
-          "groupProjectsRemainedPlural": "{{remaining}} of {{count}} contained projects remained after deleting the group.",
-          "groupProjectsRemainedSingular": "{{remaining}} of {{count}} contained project remained after deleting the group."
-        },
-        "local": {
-          "base": {
-            "ref": {
-              "suggestion": {
-                "toast": {
-                  "commit": "commit",
-                  "commits": "commits"
-                }
-              }
-            }
-          }
         },
         "preserved": {
           "branch": {
@@ -579,16 +467,6 @@
           "deleteCount_other": "Delete {{count}} Workspaces",
           "sleepCount_one": "Sleep {{count}} Workspace",
           "sleepCount_other": "Sleep {{count}} Workspaces"
-        },
-        "worktree": {
-          "card": {
-            "compact": {
-              "agents": {
-                "0c1debfe84": "Collapse {{value0}}",
-                "289a1d2ca7": "Expand {{value0}}. {{value1}}"
-              }
-            }
-          }
         }
       },
       "skills": {
@@ -597,36 +475,8 @@
           "placementsChecked_other": "{{count}} placements checked."
         }
       },
-      "stats": {
-        "StatsPane": {
-          "c79f073d4c": "Usage Analytics"
-        },
-        "UsageOverviewPane": {
-          "0ea0cae435": "Enable Claude",
-          "0eaf937335": "Est. cost",
-          "22ed1b7669": "sessions",
-          "2d13e57f72": "Enable OpenCode",
-          "2f1ee2878b": "Enable Codex",
-          "327603fe8b": "Active days",
-          "33f7b043d2": "Providers",
-          "444585cb41": "with data",
-          "49405ccc8d": "Start tracking tokens",
-          "55c910f4f1": "- some model prices are unavailable",
-          "6c00c46815": "Enable a provider to scan local agent logs and build the combined token ledger.",
-          "70f36452d4": "Cache share",
-          "c760c481c5": "Usage Overview",
-          "ca6bc5fded": "Refresh",
-          "e06d1baf5c": "Refresh usage overview",
-          "ecb0cd8a4c": "enabled -",
-          "enableMuse": "Enable Muse",
-          "noLocalUsageYet": "No local Claude, Codex, OpenCode, or Muse usage found yet. The overview will populate after the next agent session writes token logs."
-        }
-      },
       "status": {
         "bar": {
-          "PortsStatusSegment": {
-            "b8bc3e420a": "Ports, {{value0}} workspace {{value1}}"
-          },
           "SshStatusSegment": {
             "connectedHostCount_one": "{{count}} host",
             "connectedHostCount_other": "{{count}} hosts",
@@ -634,10 +484,6 @@
             "moreSshHostMatches_other": "{{count}} more matches. Keep typing to narrow them down.",
             "moreSshHosts_one": "Find {{count}} more SSH host…",
             "moreSshHosts_other": "Find among {{count}} more SSH hosts…"
-          },
-          "WorkspaceSpaceManagerPanel": {
-            "131662ac65": "{{value0}} open",
-            "63efebe0e6": "{{value0}} {{value1}} removed from Space."
           },
           "resource": {
             "manager": {
@@ -657,20 +503,6 @@
             "hostTerminalCap": "The host is already running as many terminals as Orca allows. Close a terminal you no longer need, then try again.",
             "ptyAllocationLimit": "Your system cannot allocate any more pty devices. Close some terminals you are not using, in Orca or another program, then try again.",
             "terminalProcessLimit": "Your system cannot start another terminal process. Close unused terminals or quit unused processes, then try again."
-          },
-          "terminal": {
-            "drop": {
-              "handler": {
-                "1e072f611e": "Failed to upload {{value0}} {{value1}}.",
-                "b4cf68e889": "Skipped {{value0}} {{value1}}.",
-                "skippedSymlinkPlural": "Skipped {{count}} symlinks.",
-                "skippedSymlinkSingular": "Skipped {{count}} symlink.",
-                "uploadingFilePlural": "Uploading {{count}} files to runtime…",
-                "uploadingFileSingular": "Uploading {{count}} file to runtime…",
-                "uploadingFileToRemotePlural": "Uploading {{count}} files to remote…",
-                "uploadingFileToRemoteSingular": "Uploading {{count}} file to remote…"
-              }
-            }
           }
         }
       }
@@ -698,26 +530,6 @@
         "permissionDenied": "Permission denied.",
         "symlink": "Symbolic links cannot be attached.",
         "unsupported": "Unsupported file type."
-      },
-      "launch": {
-        "agent": {
-          "in": {
-            "new": {
-              "tab": {
-                "a5a1f7033f": "Your {{value0}} wasn't sent — paste it once the agent is ready."
-              }
-            }
-          }
-        },
-        "work": {
-          "item": {
-            "direct": {
-              "agent": {
-                "ceeeb509b5": "Agent took too long to start. The workspace is ready — paste the {{value0}} when the agent is idle."
-              }
-            }
-          }
-        }
       }
     },
     "runtime": {
@@ -753,21 +565,7 @@
     "conflicts": {
       "behindBase_one": "{{count}} commit behind (base commit: <commit>{{commit}}</commit>)",
       "behindBase_other": "{{count}} commits behind (base commit: <commit>{{commit}}</commit>)"
-    },
-    "triage": {
-      "failingCount": "{{count}} failing checks",
-      "failingCount_one": "{{count}} failing check",
-      "failingCount_other": "{{count}} failing checks",
-      "pendingCount": "{{count}} checks pending",
-      "pendingCount_one": "{{count}} check pending",
-      "pendingCount_other": "{{count}} checks pending",
-      "unresolvedCount": "{{count}} checks unresolved",
-      "unresolvedCount_one": "{{count}} check unresolved",
-      "unresolvedCount_other": "{{count}} checks unresolved"
     }
-  },
-  "codeSearch": {
-    "resultSummary": "Results: {{results}} · files: {{files}}"
   },
   "components": {
     "native-chat": {
@@ -832,25 +630,7 @@
         "workflow": "Background workflow"
       },
       "composer": {
-        "draftActions": "Draft actions",
-        "enterQueues": "Enter queues text and images.",
-        "enterSendsNow": "Enter sends immediately.",
-        "futureMessageOptions": "Changes apply to future messages. Running and queued messages keep their choices.",
-        "imageReferenceMissing": "Image removed",
-        "nextTurn": "Next turn",
-        "optionValueShort": {
-          "max": "Max",
-          "ultra": "Ultra"
-        },
-        "placeholder": "Ask anything, @ to mention files, / for commands",
-        "queueChecking": "Checking queue support. Enter sends immediately until the host confirms support.",
-        "queueDraft": "Queue",
-        "queueUnsupported": "Enter sends immediately. Update Orca on this host to queue drafts.",
-        "sendDraft": "Send",
-        "sendingDraft": "Sending draft…",
-        "steerCurrentTurn": "Send now with the running turn’s choices",
-        "steerDraft": "Send now with current turn",
-        "steerRequiresUpdate": "Steering drafts requires an updated host."
+        "placeholder": "Ask anything, @ to mention files, / for commands"
       },
       "failureWords": {
         "accountSwitchInProgress": "{{agent}}'s setup is changing on this host. Try again after it finishes.",
@@ -993,8 +773,7 @@
         "editGone": "This message was already sent or removed. Your edit is in the chat box.",
         "editGonePrompt": "This message was already sent or removed. Your edit will be in the chat box after you answer the agent.",
         "imageCount_one": "{{count}} image",
-        "imageCount_other": "{{count}} images",
-        "turnOffQueueing": "Turn off queueing"
+        "imageCount_other": "{{count}} images"
       },
       "receipt": {
         "cancelled": "Cancelled",
@@ -1150,9 +929,6 @@
         }
       }
     },
-    "tab-bar": {
-      "newChat": "New chat"
-    },
     "tab": {
       "bar": {
         "bulkClose": {
@@ -1186,11 +962,8 @@
       "show_other": "Show {{count}} child agents"
     },
     "sidebar": {
-      "chooseChatAgent": "Choose an agent for a new chat",
       "closeActivity": "Turn off activity view",
-      "conversations": "Conversations",
-      "openActivity": "View activity",
-      "openProject": "Open project"
+      "openActivity": "View activity"
     }
   },
   "dashboardPopout": {
@@ -1204,11 +977,6 @@
     "clearConfirmation_other": "Clear {{count}} notes from this worktree?",
     "moreInSourceControl_one": "{{count}} more note in Source Control",
     "moreInSourceControl_other": "{{count}} more notes in Source Control"
-  },
-  "editorConflicts": {
-    "unresolvedCount": "{{count}} unresolved conflicts",
-    "unresolvedCount_one": "{{count}} unresolved conflict",
-    "unresolvedCount_other": "{{count}} unresolved conflicts"
   },
   "fileExplorer": {
     "import": {
@@ -1270,46 +1038,11 @@
       "permissionOverridesKept_other": "{{count}} agents still use their own permission setting:"
     }
   },
-  "skills": {
-    "install": {
-      "checkedPlacements": "Checked installation locations: {{count}}."
-    }
-  },
   "sourceControl": {
-    "actions": {
-      "fastForwardCount": "Fast-forward {{count}} commits",
-      "fastForwardCount_one": "Fast-forward {{count}} commit",
-      "fastForwardCount_other": "Fast-forward {{count}} commits",
-      "forcePushBranch": "Remote only has older copies of local commits. Force push this branch with lease to update {{upstream}}.",
-      "forcePushCount": "Remote only has older copies of local commits. Force push {{count}} branch commits with lease to update {{upstream}}.",
-      "forcePushCount_one": "Remote only has older copies of local commits. Force push {{count}} branch commit with lease to update {{upstream}}.",
-      "forcePushCount_other": "Remote only has older copies of local commits. Force push {{count}} branch commits with lease to update {{upstream}}.",
-      "manualForcePush": "Force push {{count}} local commits with lease to update {{upstream}}.",
-      "manualForcePushReplace": "Force push {{count}} local commits with lease to update {{upstream}} and replace remote-only commits.",
-      "manualForcePushReplace_one": "Force push {{count}} local commit with lease to update {{upstream}} and replace remote-only commits.",
-      "manualForcePushReplace_other": "Force push {{count}} local commits with lease to update {{upstream}} and replace remote-only commits.",
-      "manualForcePush_one": "Force push {{count}} local commit with lease to update {{upstream}}.",
-      "manualForcePush_other": "Force push {{count}} local commits with lease to update {{upstream}}.",
-      "pullCount": "Pull {{count}} commits",
-      "pullCount_one": "Pull {{count}} commit",
-      "pullCount_other": "Pull {{count}} commits",
-      "pushCount": "Push {{count}} commits",
-      "pushCount_one": "Push {{count}} commit",
-      "pushCount_other": "Push {{count}} commits",
-      "remoteBranch": "the remote branch",
-      "syncCounts": "Pull {{behind}}, push {{ahead}}",
-      "unpublishedForcePushBranch": "Force push this branch with lease and set an upstream if needed.",
-      "unpublishedForcePushCount": "Force push {{count}} branch commits with lease and set an upstream if needed.",
-      "unpublishedForcePushCount_one": "Force push {{count}} branch commit with lease and set an upstream if needed.",
-      "unpublishedForcePushCount_other": "Force push {{count}} branch commits with lease and set an upstream if needed."
-    },
     "compare": {
       "commitsAhead_one": "{{count}} commit ahead of {{baseRef}}",
       "commitsAhead_other": "{{count}} commits ahead of {{baseRef}}"
     },
-    "conflictCount": "{{count}} conflicts",
-    "conflictCount_one": "{{count}} conflict",
-    "conflictCount_other": "{{count}} conflicts",
     "discard": {
       "failedFiles_one": "Failed to discard {{count}} file",
       "failedFiles_other": "Failed to discard {{count}} files",
@@ -1323,21 +1056,6 @@
     "import": {
       "addedHosts_one": "Added {{count}} host to Orca.",
       "addedHosts_other": "Added {{count}} hosts to Orca."
-    }
-  },
-  "stats": {
-    "usage": {
-      "daily": {
-        "noData": "No recorded data"
-      },
-      "history": {
-        "host": "This device · Recorded agent logs",
-        "remoteUnsupported": "Quotas above belong to {{host}}. Historical scanning for remote hosts is not supported; this ledger contains this device only.",
-        "unsupported": "Historical log scanning is unavailable in this client. Open Stats & Usage on the owning desktop to inspect its logs."
-      },
-      "source": {
-        "unsupported": "History unavailable in this client"
-      }
     }
   },
   "terminal": {

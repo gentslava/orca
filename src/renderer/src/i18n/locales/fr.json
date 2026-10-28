@@ -288,7 +288,8 @@
         "japanese": "日本語",
         "spanish": "Español",
         "french": "Français",
-        "portuguese": "Português (Brasil)"
+        "portuguese": "Português (Brasil)",
+        "russian": "Русский"
       },
       "statusBar": {
         "claudeToggleDescription": "Afficher l'utilisation des tokens et des coûts de Claude pour l'espace de travail actif.",
@@ -1046,8 +1047,7 @@
           "in": {
             "new": {
               "tab": {
-                "11cce5cc77": "Impossible de lancer {{value0}} dans un nouveau terminal.",
-                "a5a1f7033f": "Votre {{value0}} n'a pas été envoyé — collez-le dès que l'agent est prêt."
+                "11cce5cc77": "Impossible de lancer {{value0}} dans un nouveau terminal."
               }
             }
           },
@@ -1063,10 +1063,7 @@
               "3de6371df3": "Impossible de construire la commande de lancement de l'agent.",
               "67e103dd60": "L'espace de travail a été créé mais n'a pas pu être activé.",
               "19c7683acf": "L'agent sélectionné n'est pas disponible dans l'espace de travail créé.",
-              "8bc45efdbc": "Échec de la résolution du head de la pull request.",
-              "agent": {
-                "ceeeb509b5": "L'agent a mis trop de temps à démarrer. L'espace de travail est prêt — collez le {{value0}} quand l'agent est inactif."
-              }
+              "8bc45efdbc": "Échec de la résolution du head de la pull request."
             }
           }
         }
@@ -1756,7 +1753,6 @@
         "d1fa2cf888": "Impossible de commenter sans le SHA head de la PR.",
         "829674460a": "Diff indisponible car les SHA des commits de la PR manquent.",
         "af924014f8": "Consulté",
-        "2d89a38d9d": "{{value0}} {{value1}} comme consultés",
         "70e84e3d0b": "Aucun reviewer correspondant.",
         "1ffce94a8b": "Tous les autres",
         "c2b21818e1": "Suggestions",
@@ -1835,9 +1831,7 @@
         "8812225174": "Rouvrir",
         "09d67a0f9b": "Échec de la fermeture de la pull request",
         "88809e79db": "Échec de la réouverture de la pull request",
-        "00f55cc17b": "L'accès au dépôt est indisponible pour cette pull request.",
-        "reactionCountSingular": "{{count}} {{reaction}} réaction",
-        "reactionCountPlural": "{{count}} {{reaction}} réactions"
+        "00f55cc17b": "L'accès au dépôt est indisponible pour cette pull request."
       },
       "GitLabItemDialog": {
         "65e784c1f1": "Rouvrir",
@@ -3492,21 +3486,13 @@
             },
             "drop": {
               "handler": {
-                "1e072f611e": "Échec de l'envoi de {{value0}} {{value1}}.",
                 "0c77693641": "Worktree pas encore prêt — réessayez dans un instant.",
                 "ce8248b835": "Chemin du worktree indisponible.",
                 "internalTooManyPaths": "Le contenu déposé contient trop de chemins pour un collage sûr dans le terminal.",
                 "internalPathsTooLarge": "La liste de chemins déposée est trop volumineuse pour un collage sûr dans le terminal.",
                 "internalHostMismatch": "Déposez des fichiers provenant du même hôte que ce terminal.",
-                "b4cf68e889": "Ignoré : {{value0}} {{value1}}.",
                 "writeTimeout": "Glisser-déposer de fichiers annulé : le terminal n'a pas accepté le chemin avant le délai de sécurité.",
-                "writeRejected": "Glisser-déposer de fichiers annulé : le terminal n'a pas pu accepter le chemin.",
-                "skippedSymlinkSingular": "Ignoré : {{count}} symlink.",
-                "skippedSymlinkPlural": "Ignorés : {{count}} symlinks.",
-                "uploadingFileSingular": "Envoi de {{count}} fichier vers le runtime…",
-                "uploadingFilePlural": "Envoi de {{count}} fichiers vers le runtime…",
-                "uploadingFileToRemoteSingular": "Envoi de {{count}} fichier vers l’hôte distant…",
-                "uploadingFileToRemotePlural": "Envoi de {{count}} fichiers vers l’hôte distant…"
+                "writeRejected": "Glisser-déposer de fichiers annulé : le terminal n'a pas pu accepter le chemin."
               }
             }
           },
@@ -3852,7 +3838,6 @@
             "a8e4bdb412": " · {{value0}} externe(s)",
             "c22ea609fd": "Ports",
             "ca41be2802": "Ports — espace de travail {{value0}} {{value1}}{{value2}}",
-            "b8bc3e420a": "Ports, espace de travail {{value0}} {{value1}}",
             "3a87d54dfb": "Aucun port d'espace de travail détecté",
             "c174bbbfed": "Recherche des ports d'espace de travail...",
             "8caaa86e9a": "ports",
@@ -4048,7 +4033,6 @@
             "65402b7192": "sélectionnés",
             "43171f3e60": "Espaces de travail",
             "09960d86bd": "Analysé",
-            "63efebe0e6": "{{value0}} {{value1}} supprimés de Space.",
             "eee5240810": "Espaces de travail supprimés",
             "9afc97f9a3": "Espace de travail supprimé",
             "792a214457": "Supprimer l'espace de travail",
@@ -4095,7 +4079,6 @@
             "c5135e7e4a": "Analyse de la taille des espaces de travail. Vous pouvez quitter cette page.",
             "0990a63160": "Aucune taille d'espace de travail analysée pour le moment.",
             "977bdf9a36": "Aucun élément de premier niveau à afficher.",
-            "131662ac65": "{{value0}} ouvert(s)",
             "0d1c78d749": "Sélectionner {{value0}}"
           },
           "ports": {
@@ -4483,7 +4466,6 @@
         },
         "StatsPane": {
           "42d3e0bdf7": "Fournisseur de statistiques d'utilisation : {{value0}}",
-          "c79f073d4c": "Statistiques d'utilisation",
           "a58aba506f": "PRs créées",
           "1c96f433e2": "Temps de travail des agents",
           "9dbec9e675": "Agents lancés",
@@ -4496,25 +4478,7 @@
           "trackingSince": "Suivi depuis {{value0}}"
         },
         "UsageOverviewPane": {
-          "22ed1b7669": "sessions",
-          "444585cb41": "avec données",
-          "ecb0cd8a4c": "activés -",
-          "33f7b043d2": "Fournisseurs",
-          "70f36452d4": "Part du cache",
-          "327603fe8b": "Jours actifs",
-          "0eaf937335": "Coût estimé",
-          "3887b94ce5": "Total de tokens",
-          "2d13e57f72": "Activer OpenCode",
-          "2f1ee2878b": "Activer Codex",
-          "0ea0cae435": "Activer Claude",
-          "6c00c46815": "Activez un fournisseur pour analyser les journaux locaux des agents et construire le registre combiné de tokens.",
-          "49405ccc8d": "Commencer le suivi des tokens",
-          "ca6bc5fded": "Actualiser",
-          "e06d1baf5c": "Actualiser la vue d'ensemble de l'utilisation",
-          "c760c481c5": "Vue d'ensemble de l'utilisation",
-          "55c910f4f1": "- certains prix de modèles sont indisponibles",
-          "enableMuse": "Activer Muse",
-          "noLocalUsageYet": "Aucune utilisation locale de Claude, Codex, OpenCode ou Muse trouvée pour l'instant. L'aperçu se remplira dès que la prochaine session d'agent écrira des journaux de tokens."
+          "3887b94ce5": "Total de tokens"
         },
         "share": {
           "card": {
@@ -4674,7 +4638,6 @@
           "updateOne": "Mettre à jour le skill",
           "updateMany": "Mettre à jour les skills"
         },
-        "SkillFreshnessRow": {},
         "SkillFreshnessUpdateDialog": {
           "title": "Mettre à jour les skills",
           "checking": "Vérification des skills Orca installés…",
@@ -4705,7 +4668,6 @@
           "updateServer": "Mettez à jour Orca sur le serveur pour mettre à jour ses skills Orca.",
           "connectHost": "Connectez-vous à cet hôte SSH pour vérifier ses skills Orca."
         },
-        "SkillUpdateResultRows": {},
         "SkillUpdateRow": {
           "replaceWithOrca": "Remplacer par la copie d’Orca (conserve une sauvegarde)"
         },
@@ -5100,9 +5062,7 @@
                   "f15fd80989": "Votre nouveau worktree est à jour, mais le {{value0}} local est en retard de {{value1}} {{value2}}, les diffs IA peuvent donc se comparer à un historique obsolète. Laissez Orca le maintenir à jour automatiquement. Modifiable à tout moment dans",
                   "3d260e1a5d": "Paramètres › {{value0}}",
                   "34a03a6565": "Garder {{value0}} à jour",
-                  "4a18052018": "Le {{value0}} local est en retard sur {{value1}}",
-                  "commit": "commit",
-                  "commits": "commits"
+                  "4a18052018": "Le {{value0}} local est en retard sur {{value1}}"
                 }
               }
             }
@@ -5282,21 +5242,10 @@
           "b7a87dc32f": "Afficher dans la liste des worktrees",
           "ad99f4eea9": "Garder masqué",
           "9f4f14e821": "Modifiable plus tard depuis le menu du projet.",
-          "b2bc47c080": "autres emplacements",
           "b47ba1a9d2": "Aperçu de {{value0}}",
           "2251d41ebb": "Groupes de worktrees masqués",
           "5a9688802a": "Afficher {{value0}} de plus",
-          "294de4aeb2": "Afficher moins",
-          "collapseAriaLabel": "Réduire les worktrees masqués de {{repo}}",
-          "expandAriaLabel": "Développer les worktrees masqués de {{repo}}",
-          "hiding_one": "{{count}} worktree détecté masqué",
-          "hiding_other": "{{count}} worktrees détectés masqués",
-          "hidingInRepo_one": "{{count}} worktree détecté masqué dans {{repo}}",
-          "hidingInRepo_other": "{{count}} worktrees détectés masqués dans {{repo}}",
-          "keepHiddenAriaLabel_one": "Garder {{count}} worktree détecté masqué pour {{repo}} ; récupérez-le depuis le menu du projet",
-          "keepHiddenAriaLabel_other": "Garder {{count}} worktrees détectés masqués pour {{repo}} ; récupérez-les depuis le menu du projet",
-          "keepHiddenTooltip": "Garder masqué - récupérable depuis le menu du projet",
-          "repoOnHost": "{{repo}} sur {{host}}"
+          "294de4aeb2": "Afficher moins"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "Ouvrir comme dossier",
@@ -5309,18 +5258,7 @@
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "Exécuter les hooks",
-          "43b7bec4cd": "Ne pas exécuter",
-          "c494b3ccb1": "dans",
-          "79afc6772b": "orca.yaml",
-          "531689199b": "Toujours faire confiance",
-          "bf800b7e04": ". N'exécutez que si vous faites confiance",
-          "831f2cd9f0": "s'exécute sur votre machine",
-          "aa3ffb33fb": "De ce dépôt, le",
-          "c55beddbf8": "a changé depuis votre dernière approbation. Revérifiez avant son exécution",
-          "95bf974a1a": "script {{value0}}",
-          "9e52effffd": "Nouveau script {{value0}}",
-          "e4a51dc4b3": "Exécuter {{value0}} de {{value1}} ?",
-          "02b0ede5ad": "Le {{value1}} de {{value0}} a changé — exécuter la nouvelle version ?"
+          "43b7bec4cd": "Ne pas exécuter"
         },
         "PendingWorktreeRow": {
           "af21e953d1": "Annuler la création du worktree",
@@ -5703,9 +5641,7 @@
           "9950fe2d20": "Échec de l'actualisation des ports",
           "5d1a5d51bb": "Processus arrêté sur {{value0}}",
           "c89f290e25": "{{value0}} copié",
-          "d1113f4660": "Échec de l'ouverture du navigateur",
-          "fed49903c9": "{{value0}} {{value1}} actif(s)",
-          "unknownProcess": "Processus inconnu"
+          "d1113f4660": "Échec de l'ouverture du navigateur"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "Créez un groupe et déplacez-y ce projet.",
@@ -5778,9 +5714,7 @@
           "failedNestWorkspace": "Échec de l'imbrication de l'espace de travail",
           "sidebarRowMissing": "La cible n'existe plus",
           "failedUnnestWorkspace": "Échec de la désimbrication de l'espace de travail",
-          "hostRepairRequired": "Re-pair required",
-          "groupProjectsRemainedSingular": "{{remaining}} projet sur {{count}} est resté après la suppression du groupe.",
-          "groupProjectsRemainedPlural": "Projets restés après la suppression du groupe : {{remaining}} sur {{count}}."
+          "hostRepairRequired": "Re-pair required"
         },
         "WorktreeMetaDialog": {
           "3db0a2a593": "Annuler",
@@ -5924,8 +5858,7 @@
                 "62e71f2d5d": "Créer un espace de travail pour {{value0}}"
               }
             }
-          },
-          "project": {}
+          }
         },
         "sleep": {
           "worktree": {
@@ -6005,14 +5938,6 @@
           }
         },
         "worktree": {
-          "card": {
-            "compact": {
-              "agents": {
-                "289a1d2ca7": "Développer {{value0}}. {{value1}}",
-                "0c1debfe84": "Réduire {{value0}}"
-              }
-            }
-          },
           "list": {
             "groups": {
               "0ed04075b8": "Tous",
@@ -6232,9 +6157,7 @@
           "identityFileFromConfigHint": "Volontairement laissé vide : Orca utilise toutes les clés résolues par ~/.ssh/config pour {{value0}}. Saisissez un chemin pour n'utiliser que cette clé.",
           "sshConfigPickerRetry": "Réessayer",
           "sshConfigPickerResolving": "Lecture…",
-          "pairingHelpShareComputer": "Créez-le dans Réglages → Serveurs Orca distants → Partager cet ordinateur sur l’autre ordinateur.",
-          "sshImportSyncedPlural": "Ajout de {{count}} hôtes à Orca.",
-          "sshImportSyncedSingular": "Ajout de {{count}} hôte à Orca."
+          "pairingHelpShareComputer": "Créez-le dans Réglages → Serveurs Orca distants → Partager cet ordinateur sur l’autre ordinateur."
         },
         "ForgetSshWorkspaceDialog": {
           "reconnectFailed": "Échec de la reconnexion",
@@ -8426,7 +8349,6 @@
           "badb1219fc": "Les deux",
           "43c2ff7b0e": "Auto",
           "0a10420e1a": "Option comme Alt",
-          "ce3aadf0b2": "La touche Option {{value0}} envoie Alt/Esc ; l'autre compose des caractères spéciaux.",
           "b62373091a": "Les deux touches Option envoient des séquences Alt/Esc.",
           "d8998bb328": "Option compose des caractères spéciaux selon votre disposition de clavier.",
           "d21c493808": "Auto — détecté : {{value0}}.",
@@ -12652,7 +12574,6 @@
             "812cb992ee": "Ouvrir sur {{value0}}",
             "eef5446523": "{{value0}} #{{value1}} est déjà ouvert",
             "0453ca3a9a": "Création de {{value0}} effectuée, mais Orca n'a pas encore pu l'actualiser.",
-            "f99560ab29": "Échec de l'abandon de {{value0}}",
             "eae7a1da5f": "Échec de l'effacement des notes.",
             "df5040e3c3": "Déstager",
             "8cde1a2fb0": "Stager",
@@ -12778,11 +12699,7 @@
             "entryFailedInWorkspace": "{{value0}} dans {{value1}}",
             "diffCommentNotesCopyFailed": "Échec de la copie des notes",
             "conflictCount_one": "{{count}} conflit",
-            "conflictCount_other": "{{count}} conflits",
-            "discardFailedSingular": "Échec de l'abandon de {{count}} fichier",
-            "discardFailedPlural": "Échec de l'abandon de {{count}} fichiers",
-            "noteCountSingular": "{{count}} note",
-            "noteCountPlural": "{{count}} notes"
+            "conflictCount_other": "{{count}} conflits"
           },
           "SourceControlAgentActionDialog": {
             "8e856842d1": "Impossible de démarrer l'agent sélectionné.",
@@ -12916,9 +12833,6 @@
                 "b3195cba33": "Retirer le marqueur bot de l'auteur",
                 "f588b46a6c": "Marquer l'auteur comme bot",
                 "e45324fbed": "Échec du chargement des détails de la vérification.",
-                "commitsBehind_one": "{{count}} commit de retard",
-                "commitsBehind_other": "{{count}} commits de retard",
-                "baseCommitLabel": "commit de base :",
                 "failingChecks_one": "{{count}} vérification en échec",
                 "failingChecks_other": "{{count}} vérifications en échec",
                 "pendingChecks_one": "{{count}} vérification en attente",
@@ -13166,8 +13080,6 @@
                 "dialog": {
                   "3bc61dc989": "Annuler",
                   "15efa778e3": "Abandonner",
-                  "42f89dd030": "fichiers",
-                  "e7611dca35": "fichier",
                   "0d2d88cba5": "Cette action est irréversible.",
                   "1551c14668": "Abandonner les modifications ?"
                 }
@@ -13329,12 +13241,6 @@
                   }
                 }
               },
-              "compare": {
-                "summary": {
-                  "commitsAheadSingular": "{{count}} commit d'avance sur {{ref}}",
-                  "commitsAheadPlural": "{{count}} commits d'avance sur {{ref}}"
-                }
-              },
               "conflict": {
                 "status": {
                   "cards": {
@@ -13396,7 +13302,6 @@
             "unresolved": "Impossible de déterminer quel hôte possède cet espace de travail. Vérifiez la connexion et réessayez."
           },
           "useFileDeletion": {
-            "72691dfebc": "Échec : {{value0}} « {{value1}} ».",
             "d979a4fbb5": "Supprimer définitivement « {{value0}} » ?",
             "92276aceb7": "Supprimer",
             "7fb9435c86": "Cette action supprime définitivement le répertoire et son contenu sur l'hôte distant. Elle est irréversible.",
@@ -13410,10 +13315,6 @@
           "useFileExplorerHandlers": {
             "32cd9fd991": "Impossible d'ouvrir la cible du symlink",
             "folderLinksOutsideProject": "Ce dossier pointe en dehors du projet ; il ne peut pas être ouvert ici."
-          },
-          "useFileExplorerImport": {
-            "25919b2050": "Ignoré : {{value0}} {{value1}}.",
-            "132fd0e1e9": "Échec de l'importation de {{value0}} {{value1}}."
           },
           "useFileExplorerKeys": {
             "8adb953095": "Échec de l'opération"
@@ -13851,9 +13752,7 @@
           "217beb0658": "GitHub",
           "4983ae7433": "Ajoutez l'accès à Linear avec une clé d'API personnelle. Les clés à accès complet peuvent afficher toutes les équipes accessibles au propriétaire de la clé.",
           "d6e5dba05a": "Se connecter",
-          "0b4a7d23ab": "Connexion en cours",
-          "linearWorkspacesLinkedSingular": "{{count}} espace de travail associé. Ajoutez un autre espace de travail ou remplacez une clé restreinte à tout moment.",
-          "linearWorkspacesLinkedPlural": "{{count}} espaces de travail associés. Ajoutez un autre espace de travail ou remplacez une clé restreinte à tout moment."
+          "0b4a7d23ab": "Connexion en cours"
         },
         "NotificationStep": {
           "3bede04483": "Envoyer une notification de test",
@@ -14328,8 +14227,7 @@
           "FloatingTerminalToggleButton": {
             "3b04b065b5": "Afficher l'espace de travail flottant",
             "4cb418b991": "Afficher l'espace de travail flottant, nouvelle activité",
-            "5785dd9148": "Réduire l'espace de travail flottant",
-            "bfe7809a70": "Espace de travail flottant {{value0}} ({{value1}})"
+            "5785dd9148": "Réduire l'espace de travail flottant"
           },
           "FloatingTerminalWindowControls": {
             "2f6054342c": "Réduire",
@@ -14872,15 +14770,12 @@
           "39b6b9e4e4": "Committé sur la branche"
         },
         "CombinedDiffViewer": {
-          "35cc27aeb2": "dans le contrôle de code source",
-          "e3b9a6ce02": "de plus",
           "1da745c551": "Envoyé",
           "84898c548d": "Effacer",
           "88b70d0ef5": "Copier",
           "bb84b4c374": "Notes IA",
           "948a5fd6c8": "Effacer les notes",
           "0f806a2ab1": "Annuler",
-          "80a286d8f5": "de ce worktree ?",
           "7e7ca60816": "fichiers modifiés",
           "b6c3b84476": "Afficher l'arborescence des fichiers",
           "39f8007549": "Examiner les conflits",
@@ -14888,8 +14783,6 @@
           "fd8892b120": "Aucune modification à afficher",
           "eb5f40e49c": "Cette vue de diff exclut les conflits non résolus, car le pipeline de diff bidirectionnel habituel n'est pas conçu pour gérer les conflits.",
           "45cf23b418": "Échec de l'effacement des notes.",
-          "0fb870a0fe": "notes",
-          "8ab3248fd8": "note",
           "ec5053c7f5": "Côte à côte",
           "f786fd54e1": "En ligne",
           "ea08dae15b": "Tout réduire",
@@ -14920,7 +14813,6 @@
           "6e459867ad": "État de continuité valable pour la session. Git ne signale plus ce fichier comme non fusionné.",
           "9c2901ef8a": "Conflit suivant",
           "41d9af2e7a": "Conflit précédent",
-          "55d61a0ccd": "conflit ·",
           "da539359b6": "Aucun fichier de l'arbre de travail n'est modifiable pour ce conflit.",
           "unresolvedConflicts_one": "{{count}} conflit non résolu",
           "unresolvedConflicts_other": "{{count}} conflits non résolus"
@@ -15221,7 +15113,6 @@
           "13822cdfda": "Texte brut"
         },
         "RichMarkdownDocLinkMenu": {
-          "e17b987473": "↑↓ naviguer&nbsp;&nbsp;↵ sélectionner&nbsp;&nbsp;esc fermer",
           "90c5f0e1e4": "sur",
           "2aaf7d9678": "Affichage de",
           "63ced7cb9b": "Aucun document trouvé",
@@ -15653,9 +15544,6 @@
         }
       },
       "dashboard": {
-        "DashboardAgentChildDisclosure": {
-          "1b57ce9fa4": "{{value0}} {{value1}} enfant {{value2}}"
-        },
         "DashboardAgentRow": {
           "912e136cd9": "Envoyer",
           "a743da52ff": "Développer les détails",
@@ -17814,7 +17702,6 @@
         "imageAttachAgainLabel": "Joindre à nouveau",
         "pastedImageNotKeptLabel": "Non conservée",
         "imageNumber": "Image #{{number}}",
-        "imageReferenceMissing": "Image retirée",
         "imagePasteFailed": "Échec du collage de l'image.",
         "worktreeNotReady": "Worktree pas encore prêt — réessayez dans un instant.",
         "pasteUnavailable": "Impossible de coller — ce chat n'accepte pas de saisie pour le moment.",
@@ -18260,7 +18147,6 @@
         "editMessage": "Modifier le message",
         "showFullMessage": "Afficher le message complet",
         "showLess": "Afficher moins",
-        "turnOffQueueing": "Désactiver la file d'attente",
         "withdrawnHold": "Arrêté avant l'envoi",
         "pausedSendFailed": "Envoi impossible. Appuyez sur Envoyer pour réessayer.",
         "paused": "En pause",

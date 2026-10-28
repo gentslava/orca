@@ -115,7 +115,8 @@
         "japanese": "日本語",
         "spanish": "Español",
         "french": "Français",
-        "portuguese": "Português (Brasil)"
+        "portuguese": "Português (Brasil)",
+        "russian": "Русский"
       },
       "statusBar": {
         "claudeToggleDescription": "アクティブなワークスペースの Claude トークンとコストの使用状況を表示します。",
@@ -873,8 +874,7 @@
           "in": {
             "new": {
               "tab": {
-                "11cce5cc77": "新規ターミナルで {{value0}} を起動できませんでした。",
-                "a5a1f7033f": "{{value0}} は送信されませんでした。Agent の準備ができたら、それを貼り付けてください。"
+                "11cce5cc77": "新規ターミナルで {{value0}} を起動できませんでした。"
               }
             }
           },
@@ -890,10 +890,7 @@
               "3de6371df3": "Agent 起動コマンドを構築できませんでした。",
               "67e103dd60": "ワークスペースは作成されましたが、アクティブ化できませんでした。",
               "19c7683acf": "選択した Agent は、作成されたワークスペースでは使用できません。",
-              "8bc45efdbc": "PR ヘッドを解決できませんでした。",
-              "agent": {
-                "ceeeb509b5": "Agent の起動に時間がかかりすぎました。ワークスペースの準備はできています。Agent がアイドル状態になったら {{value0}} を貼り付けてください。"
-              }
+              "8bc45efdbc": "PR ヘッドを解決できませんでした。"
             }
           }
         }
@@ -1564,7 +1561,6 @@
         "d1fa2cf888": "PR ヘッドの SHA がないとコメントできません。",
         "829674460a": "PR commit SHA が欠落しているため、差分は利用できません。",
         "af924014f8": "閲覧済み",
-        "2d89a38d9d": "{{value0}} {{value1}} 表示",
         "70e84e3d0b": "一致するレビュアーがいません。",
         "1ffce94a8b": "他のみんな",
         "c2b21818e1": "提案",
@@ -1643,9 +1639,7 @@
         "8812225174": "再度開く",
         "09d67a0f9b": "PR をクローズできませんでした",
         "88809e79db": "PR の再開に失敗しました",
-        "00f55cc17b": "この PR ではリポジトリにアクセスできません。",
-        "reactionCountSingular": "{{reaction}} 反応 {{count}} 件",
-        "reactionCountPlural": "{{reaction}} 反応 {{count}} 件"
+        "00f55cc17b": "この PR ではリポジトリにアクセスできません。"
       },
       "GitLabItemDialog": {
         "65e784c1f1": "再度開く",
@@ -3279,21 +3273,13 @@
             },
             "drop": {
               "handler": {
-                "1e072f611e": "{{value0}} {{value1}} のアップロードに失敗しました。",
                 "0c77693641": "ワークツリーが準備できていません — しばらくしてから再試行してください。",
                 "ce8248b835": "ワークツリーのパスが使用できません。",
                 "internalTooManyPaths": "安全にターミナルへ貼り付けるにはドロップされたパスが多すぎます。",
                 "internalPathsTooLarge": "安全にターミナルへ貼り付けるにはパス一覧が大きすぎます。",
                 "internalHostMismatch": "このターミナルと同じホストのファイルをドロップしてください。",
-                "b4cf68e889": "{{value0}} {{value1}} をスキップしました。",
                 "writeTimeout": "ファイルドロップをキャンセルしました: 安全タイムアウト前にターミナルがパスを受け付けませんでした。",
-                "writeRejected": "ファイルドロップをキャンセルしました: ターミナルがパスを受け付けられませんでした。",
-                "skippedSymlinkSingular": "{{count}} 個のシンボリックリンクをスキップしました。",
-                "skippedSymlinkPlural": "{{count}} 個のシンボリックリンクをスキップしました。",
-                "uploadingFileSingular": "{{count}} 個のファイルをランタイムにアップロードしています…",
-                "uploadingFilePlural": "{{count}} 個のファイルをランタイムにアップロードしています…",
-                "uploadingFileToRemoteSingular": "{{count}} 個のファイルをリモートホストにアップロードしています…",
-                "uploadingFileToRemotePlural": "{{count}} 個のファイルをリモートホストにアップロードしています…"
+                "writeRejected": "ファイルドロップをキャンセルしました: ターミナルがパスを受け付けられませんでした。"
               }
             }
           },
@@ -3660,7 +3646,6 @@
             "a8e4bdb412": " · 外部 {{value0}} 件",
             "c22ea609fd": "ポート",
             "ca41be2802": "ポート — {{value0}} ワークスペース {{value1}}{{value2}}",
-            "b8bc3e420a": "ポート、{{value0}} ワークスペース {{value1}}",
             "3a87d54dfb": "ワークスペースポートが検出されませんでした",
             "c174bbbfed": "ワークスペースポートをスキャンしています…",
             "8caaa86e9a": "ポート",
@@ -3853,7 +3838,6 @@
             "65402b7192": "選択中",
             "43171f3e60": "ワークスペース",
             "09960d86bd": "スキャン済み",
-            "63efebe0e6": "{{value0}} {{value1}} がスペースから削除されました。",
             "eee5240810": "ワークスペースが削除されました",
             "9afc97f9a3": "ワークスペースが削除されました",
             "792a214457": "ワークスペースの削除",
@@ -3900,7 +3884,6 @@
             "c5135e7e4a": "ワークスペースのサイズをスキャンしています。このページから離れても構いません。",
             "0990a63160": "スキャンされたワークスペースのサイズはまだありません。",
             "977bdf9a36": "表示するトップレベルの項目はありません。",
-            "131662ac65": "{{value0}} オープン",
             "0d1c78d749": "{{value0}} を選択"
           },
           "ports": {
@@ -4291,7 +4274,6 @@
         },
         "StatsPane": {
           "42d3e0bdf7": "使用状況分析プロバイダー: {{value0}}",
-          "c79f073d4c": "使用状況分析",
           "a58aba506f": "作成された PR",
           "1c96f433e2": "Agent 作業時間",
           "9dbec9e675": "Agent が生成されました",
@@ -4304,25 +4286,7 @@
           "trackingSince": "{{value0}} 以降の追跡"
         },
         "UsageOverviewPane": {
-          "22ed1b7669": "セッション",
-          "444585cb41": "データ付き",
-          "ecb0cd8a4c": "有効 -",
-          "33f7b043d2": "プロバイダー",
-          "70f36452d4": "キャッシュシェア",
-          "327603fe8b": "アクティブ日数",
-          "0eaf937335": "推定コスト",
-          "3887b94ce5": "総トークン数",
-          "2d13e57f72": "OpenCode を有効にする",
-          "2f1ee2878b": "Codex を有効にする",
-          "0ea0cae435": "Claude を有効にする",
-          "6c00c46815": "プロバイダーがローカル Agent ログをスキャンし、結合されたトークン台帳を構築できるようにします。",
-          "49405ccc8d": "トークンの追跡を開始する",
-          "ca6bc5fded": "更新",
-          "e06d1baf5c": "使用量の概要を更新",
-          "c760c481c5": "使用方法の概要",
-          "55c910f4f1": "- 一部のモデルの価格は利用できません",
-          "enableMuse": "Muse を有効にする",
-          "noLocalUsageYet": "ローカルの Claude、Codex、OpenCode、Muse の使用状況はまだ見つかりません。次の Agent セッションがトークンログを書き込むと、概要に反映されます。"
+          "3887b94ce5": "総トークン数"
         },
         "share": {
           "card": {
@@ -4561,7 +4525,6 @@
           "updateMany": "スキルを更新",
           "description": "Agent がこのバージョンの Orca の最新の手順に従うように、{{value0}} を更新してください。"
         },
-        "SkillFreshnessRow": {},
         "SkillFreshnessUpdateDialog": {
           "title": "スキルを更新",
           "checking": "インストール済みの Orca スキルを確認中…",
@@ -4603,7 +4566,6 @@
           "updateServer": "サーバーの Orca を更新してください",
           "connectHost": "SSH ホストに接続してください"
         },
-        "SkillUpdateResultRows": {},
         "SkillUpdateRow": {
           "replaceWithOrca": "Orca のコピーに置き換える（バックアップを保持）"
         },
@@ -5056,21 +5018,10 @@
           "b7a87dc32f": "ワークツリーリストに表示",
           "ad99f4eea9": "非表示のままにする",
           "9f4f14e821": "後でプロジェクトメニューから変更できます。",
-          "b2bc47c080": "さらに多くの場所",
           "b47ba1a9d2": "{{value0}} プレビュー",
           "2251d41ebb": "非表示のワークツリーグループ",
           "5a9688802a": "{{value0}} をもっと見る",
-          "294de4aeb2": "表示数を減らす",
-          "collapseAriaLabel": "{{repo}} の非表示のワークツリー一覧を折りたたむ",
-          "expandAriaLabel": "{{repo}} の非表示のワークツリー一覧を展開",
-          "hiding_one": "{{count}} 件のワークツリーを非表示中",
-          "hiding_other": "{{count}} 件のワークツリーを非表示中",
-          "hidingInRepo_one": "{{repo}} の {{count}} 件のワークツリーを非表示中",
-          "hidingInRepo_other": "{{repo}} の {{count}} 件のワークツリーを非表示中",
-          "keepHiddenAriaLabel_one": "{{repo}} で検出されたワークツリー {{count}} 件を非表示のままにする（プロジェクトメニューから再表示できます）",
-          "keepHiddenAriaLabel_other": "{{repo}} で検出されたワークツリー {{count}} 件を非表示のままにする（プロジェクトメニューから再表示できます）",
-          "keepHiddenTooltip": "非表示のままにする（プロジェクトメニューから再表示できます）",
-          "repoOnHost": "{{repo}}（{{host}}）"
+          "294de4aeb2": "表示数を減らす"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "フォルダーとして開く",
@@ -5083,18 +5034,7 @@
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "フックを実行する",
-          "43b7bec4cd": "実行しない",
-          "c494b3ccb1": "で",
-          "79afc6772b": "orca.yaml",
-          "531689199b": "常に信頼する",
-          "bf800b7e04": "。信頼できる場合のみ実行してください",
-          "831f2cd9f0": "あなたのマシン上で動作します",
-          "aa3ffb33fb": "このリポジトリの",
-          "c55beddbf8": "最後に承認してから変更されました。実行前に再確認する",
-          "95bf974a1a": "{{value0}} スクリプト",
-          "9e52effffd": "新規{{value0}}スクリプト",
-          "e4a51dc4b3": "{{value1}} から {{value0}} を実行しますか?",
-          "02b0ede5ad": "{{value0}} の {{value1}} が変更されました — 新規バージョンを実行しますか?"
+          "43b7bec4cd": "実行しない"
         },
         "PendingWorktreeRow": {
           "af21e953d1": "ワークツリーの作成をキャンセルする",
@@ -5473,9 +5413,7 @@
           "9950fe2d20": "ポートの更新に失敗しました",
           "5d1a5d51bb": "{{value0}} でプロセスを停止しました",
           "c89f290e25": "{{value0}} をコピーしました",
-          "d1113f4660": "ブラウザを開けませんでした",
-          "fed49903c9": "{{value0}} ライブ {{value1}}",
-          "unknownProcess": "不明なプロセス"
+          "d1113f4660": "ブラウザを開けませんでした"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "グループを作成し、このプロジェクトをそのグループに移動します。",
@@ -5548,9 +5486,7 @@
           "failedUnnestWorkspace": "ワークスペースの展開に失敗しました",
           "groupRenameFailed": "グループ名の変更に失敗しました",
           "groupRenameFailedDesc": "Orca はグループのホストに新規名前を確認できませんでした。再接続後、グループを再確認してください。",
-          "hostRepairRequired": "Re-pair required",
-          "groupProjectsRemainedSingular": "グループ削除後も、含まれていたプロジェクト {{count}} 件中 {{remaining}} 件が残りました。",
-          "groupProjectsRemainedPlural": "グループ削除後も、含まれていたプロジェクト {{count}} 件中 {{remaining}} 件が残りました。"
+          "hostRepairRequired": "Re-pair required"
         },
         "WorktreeMetaDialog": {
           "3db0a2a593": "キャンセル",
@@ -5814,14 +5750,6 @@
           }
         },
         "worktree": {
-          "card": {
-            "compact": {
-              "agents": {
-                "289a1d2ca7": "{{value0}} を展開します。 {{value1}}",
-                "0c1debfe84": "{{value0}} を折りたたむ"
-              }
-            }
-          },
           "list": {
             "groups": {
               "0ed04075b8": "全て",
@@ -5856,9 +5784,7 @@
                   "f15fd80989": "新規ワークツリーは最新ですが、ローカル {{value0}} は {{value1}} {{value2}} 遅れているため、AI diff が古い履歴と比較する可能性があります。Orca が自動で最新状態を保つようにできます。これはいつでもここで変更できます",
                   "3d260e1a5d": "設定 › {{value0}}",
                   "34a03a6565": "{{value0}} を最新の状態に保つ",
-                  "4a18052018": "ローカル {{value0}} は {{value1}} より遅れています",
-                  "commit": "commit",
-                  "commits": "commits"
+                  "4a18052018": "ローカル {{value0}} は {{value1}} より遅れています"
                 }
               }
             }
@@ -6079,9 +6005,7 @@
           "identityFileFromConfigHint": "意図的に空のままにします: Orca は ~/.ssh/config が {{value0}} に対して解決するすべてのキーを使用します。そのキーのみを使用するパスを入力します。",
           "sshConfigPickerRetry": "再試行",
           "sshConfigPickerResolving": "読む…",
-          "pairingHelpShareComputer": "もう一方のコンピューターで「設定 → リモート Orca サーバー → このコンピューターを共有」から作成します。",
-          "sshImportSyncedPlural": "{{count}} 個のホストを Orca に追加しました。",
-          "sshImportSyncedSingular": "{{count}} 個のホストを Orca に追加しました。"
+          "pairingHelpShareComputer": "もう一方のコンピューターで「設定 → リモート Orca サーバー → このコンピューターを共有」から作成します。"
         },
         "ForgetSshWorkspaceDialog": {
           "reconnectFailed": "再接続に失敗しました",
@@ -8213,7 +8137,6 @@
           "badb1219fc": "両方",
           "43c2ff7b0e": "自動",
           "0a10420e1a": "Alt としてのオプション",
-          "ce3aadf0b2": "{{value0}} Option キーは Alt/Esc を送信します。もう 1 つは特殊文字を構成します。",
           "b62373091a": "どちらの Option キーも Alt/Esc シーケンスを送信します。",
           "d8998bb328": "Option キーで、キーボードレイアウトに応じた特殊文字を入力します。",
           "d21c493808": "自動 — 検出されました: {{value0}}。",
@@ -12442,7 +12365,6 @@
             "812cb992ee": "{{value0}} で開く",
             "eef5446523": "{{value0}} #{{value1}} はすでに開いています",
             "0453ca3a9a": "{{value0}} が作成されましたが、Orca はまだ更新できませんでした。",
-            "f99560ab29": "{{value0}} の中止に失敗しました",
             "eae7a1da5f": "メモを消去できませんでした。",
             "df5040e3c3": "アンステージ",
             "8cde1a2fb0": "ステージ",
@@ -12568,11 +12490,7 @@
             "entryFailedInWorkspace": "{{value0}} の {{value1}}",
             "diffCommentNotesCopyFailed": "メモのコピーに失敗しました",
             "conflictCount_one": "競合 {{count}} 件",
-            "conflictCount_other": "競合 {{count}} 件",
-            "discardFailedSingular": "{{count}} 個のファイルを破棄できませんでした",
-            "discardFailedPlural": "{{count}} 個のファイルを破棄できませんでした",
-            "noteCountSingular": "メモ {{count}} 件",
-            "noteCountPlural": "メモ {{count}} 件"
+            "conflictCount_other": "競合 {{count}} 件"
           },
           "SourceControlAgentActionDialog": {
             "8e856842d1": "選択した Agent を開始できませんでした。",
@@ -12706,9 +12624,6 @@
                 "checksUnresolvedChip": "未解決",
                 "checksUnresolvedStripHint": "これらのチェックは、合格または不合格の判定なしで終了しました。",
                 "dcb3c546fe": "再試行",
-                "commitsBehind_one": "{{count}} コミット遅れ",
-                "commitsBehind_other": "{{count}} コミット遅れ",
-                "baseCommitLabel": "ベースコミット:",
                 "failingChecks_one": "失敗したチェック {{count}} 件",
                 "failingChecks_other": "失敗したチェック {{count}} 件",
                 "pendingChecks_one": "保留中のチェック {{count}} 件",
@@ -12956,8 +12871,6 @@
                 "dialog": {
                   "3bc61dc989": "キャンセル",
                   "15efa778e3": "破棄",
-                  "42f89dd030": "ファイル",
-                  "e7611dca35": "ファイル",
                   "0d2d88cba5": "これを元に戻すことはできません。",
                   "1551c14668": "変更を破棄しますか?"
                 }
@@ -13119,12 +13032,6 @@
                   }
                 }
               },
-              "compare": {
-                "summary": {
-                  "commitsAheadSingular": "{{ref}}より{{count}}コミット進んでいます",
-                  "commitsAheadPlural": "{{ref}}より{{count}}コミット進んでいます"
-                }
-              },
               "conflict": {
                 "status": {
                   "cards": {
@@ -13186,7 +13093,6 @@
             "unresolved": "このワークスペースを所有しているホストを特定できませんでした。接続を確認して、もう一度お試しください。"
           },
           "useFileDeletion": {
-            "72691dfebc": "{{value0}} '{{value1}}' に失敗しました。",
             "d979a4fbb5": "「{{value0}}」を完全に削除しますか?",
             "92276aceb7": "削除",
             "7fb9435c86": "リモートホスト上のディレクトリとその内容を完全に削除します。この操作は取り消せません。",
@@ -13200,10 +13106,6 @@
           "useFileExplorerHandlers": {
             "32cd9fd991": "シンボリックリンクターゲットを開けません",
             "folderLinksOutsideProject": "このフォルダーはプロジェクト外へのリンクのため、ここでは開けません。"
-          },
-          "useFileExplorerImport": {
-            "25919b2050": "{{value0}} {{value1}} をスキップしました。",
-            "132fd0e1e9": "{{value0}} {{value1}} のインポートに失敗しました。"
           },
           "useFileExplorerKeys": {
             "8adb953095": "操作が失敗しました"
@@ -13658,9 +13560,7 @@
           "217beb0658": "GitHub",
           "4983ae7433": "Personal API キーを使用して Linear アクセスを追加します。フルアクセスキーは、キーの所有者がアクセスできるすべてのチームを表示できます。",
           "d6e5dba05a": "サインイン",
-          "0b4a7d23ab": "サインインする",
-          "linearWorkspacesLinkedSingular": "{{count}} 個のワークスペースがリンクされました。いつでも別のワークスペースを追加したり、制限付きキーを置き換えたりできます。",
-          "linearWorkspacesLinkedPlural": "{{count}} 個のワークスペースがリンクされました。いつでも別のワークスペースを追加したり、制限付きキーを置き換えたりできます。"
+          "0b4a7d23ab": "サインインする"
         },
         "NotificationStep": {
           "3bede04483": "テスト通知を送信する",
@@ -14135,8 +14035,7 @@
           "FloatingTerminalToggleButton": {
             "3b04b065b5": "フローティングワークスペースを表示",
             "4cb418b991": "フローティングワークスペースを表示、新規アクティビティ",
-            "5785dd9148": "フローティングワークスペースを最小限に抑える",
-            "bfe7809a70": "{{value0}} フローティングワークスペース ({{value1}})"
+            "5785dd9148": "フローティングワークスペースを最小限に抑える"
           },
           "FloatingTerminalWindowControls": {
             "2f6054342c": "最小化",
@@ -14679,15 +14578,12 @@
           "39b6b9e4e4": "コミット先のブランチ"
         },
         "CombinedDiffViewer": {
-          "35cc27aeb2": "ソース管理内",
-          "e3b9a6ce02": "件以上",
           "1da745c551": "送信済み",
           "84898c548d": "クリア",
           "88b70d0ef5": "コピー",
           "bb84b4c374": "AIメモ",
           "948a5fd6c8": "ノートをクリア",
           "0f806a2ab1": "キャンセル",
-          "80a286d8f5": "このワークツリーから?",
           "7e7ca60816": "変更されたファイル",
           "b6c3b84476": "ファイルツリーを表示",
           "39f8007549": "競合をレビューする",
@@ -14698,8 +14594,6 @@
           "fd8892b120": "表示に変更はありません",
           "eb5f40e49c": "通常の双方向 diff パイプラインは競合に対して安全ではないため、この diff ビューでは未解決の競合が除外されます。",
           "45cf23b418": "メモを消去できませんでした。",
-          "0fb870a0fe": "メモ",
-          "8ab3248fd8": "メモ",
           "ec5053c7f5": "サイドバイサイド",
           "f786fd54e1": "インライン",
           "ea08dae15b": "すべて折りたたむ",
@@ -14727,7 +14621,6 @@
           "6e459867ad": "セッションローカルの継続状態。 Git は、このファイルがマージされていないと報告しなくなりました。",
           "9c2901ef8a": "次の競合",
           "41d9af2e7a": "前の競合",
-          "55d61a0ccd": "競合 ·",
           "da539359b6": "この競合に対して編集できる作業ツリーファイルはありません。",
           "unresolvedConflicts_one": "未解決の競合 {{count}} 件",
           "unresolvedConflicts_other": "未解決の競合 {{count}} 件"
@@ -15028,7 +14921,6 @@
           "13822cdfda": "プレーンテキスト"
         },
         "RichMarkdownDocLinkMenu": {
-          "e17b987473": "↑↓ 移動 ↵ 選択 esc 閉じる",
           "90c5f0e1e4": "の",
           "2aaf7d9678": "表示中",
           "63ced7cb9b": "文書が見つかりませんでした",
@@ -15460,9 +15352,6 @@
         }
       },
       "dashboard": {
-        "DashboardAgentChildDisclosure": {
-          "1b57ce9fa4": "{{value0}} {{value1}} 子 {{value2}}"
-        },
         "DashboardAgentRow": {
           "912e136cd9": "送信",
           "a743da52ff": "詳細を展開",
@@ -17654,7 +17543,6 @@
         "imageAttachAgainLabel": "もう一度添付",
         "pastedImageNotKeptLabel": "保持されていません",
         "imageNumber": "画像 #{{number}}",
-        "imageReferenceMissing": "画像は削除されました",
         "imagePasteFailed": "画像の貼り付けに失敗しました。",
         "worktreeNotReady": "ワークツリーが準備できていません — しばらくしてから再試行してください。",
         "pasteUnavailable": "貼り付けできません — このチャットは現在入力を受け付けていません。",
@@ -18117,7 +18005,6 @@
         "editMessage": "メッセージを編集",
         "showFullMessage": "メッセージ全体を表示",
         "showLess": "折りたたむ",
-        "turnOffQueueing": "キューへの追加をオフにする",
         "withdrawnHold": "送信前に停止されました",
         "pausedSendFailed": "送信できませんでした。「送信」を押して再試行してください。",
         "paused": "一時停止中",

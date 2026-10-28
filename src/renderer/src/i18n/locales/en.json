@@ -1185,8 +1185,7 @@
           "in": {
             "new": {
               "tab": {
-                "11cce5cc77": "Could not launch {{value0}} in a new terminal.",
-                "a5a1f7033f": "Your {{value0}} wasn't sent — paste it once the agent is ready."
+                "11cce5cc77": "Could not launch {{value0}} in a new terminal."
               }
             }
           },
@@ -1202,10 +1201,7 @@
               "3de6371df3": "Could not build the agent launch command.",
               "67e103dd60": "Workspace created but could not be activated.",
               "19c7683acf": "Selected agent is not available in the created workspace.",
-              "8bc45efdbc": "Failed to resolve PR head.",
-              "agent": {
-                "ceeeb509b5": "Agent took too long to start. The workspace is ready — paste the {{value0}} when the agent is idle."
-              }
+              "8bc45efdbc": "Failed to resolve PR head."
             }
           }
         }
@@ -1880,7 +1876,6 @@
         "d1fa2cf888": "Unable to comment without the PR head SHA.",
         "829674460a": "Diff unavailable because the PR commit SHAs are missing.",
         "af924014f8": "Viewed",
-        "2d89a38d9d": "{{value0}} {{value1}} as viewed",
         "70e84e3d0b": "No matching reviewers.",
         "1ffce94a8b": "Everyone else",
         "c2b21818e1": "Suggestions",
@@ -1959,9 +1954,7 @@
         "8812225174": "Reopen",
         "09d67a0f9b": "Failed to close pull request",
         "88809e79db": "Failed to reopen pull request",
-        "00f55cc17b": "Repository access is unavailable for this pull request.",
-        "reactionCountSingular": "{{count}} {{reaction}} reaction",
-        "reactionCountPlural": "{{count}} {{reaction}} reactions"
+        "00f55cc17b": "Repository access is unavailable for this pull request."
       },
       "GitLabItemDialog": {
         "65e784c1f1": "Reopen",
@@ -3666,21 +3659,13 @@
             },
             "drop": {
               "handler": {
-                "1e072f611e": "Failed to upload {{value0}} {{value1}}.",
                 "0c77693641": "Worktree not ready — try again in a moment.",
                 "ce8248b835": "Worktree path not available.",
                 "internalTooManyPaths": "Drop contains too many paths for a safe terminal paste.",
                 "internalPathsTooLarge": "Drop path list is too large for a safe terminal paste.",
                 "internalHostMismatch": "Drop files from the same host as this terminal.",
-                "b4cf68e889": "Skipped {{value0}} {{value1}}.",
                 "writeTimeout": "File drop cancelled: terminal did not accept the path before the safety timeout.",
-                "writeRejected": "File drop cancelled: terminal could not accept the path.",
-                "skippedSymlinkSingular": "Skipped {{count}} symlink.",
-                "skippedSymlinkPlural": "Skipped {{count}} symlinks.",
-                "uploadingFileSingular": "Uploading {{count}} file to runtime…",
-                "uploadingFilePlural": "Uploading {{count}} files to runtime…",
-                "uploadingFileToRemoteSingular": "Uploading {{count}} file to remote…",
-                "uploadingFileToRemotePlural": "Uploading {{count}} files to remote…"
+                "writeRejected": "File drop cancelled: terminal could not accept the path."
               }
             }
           },
@@ -4026,7 +4011,6 @@
             "a8e4bdb412": " · {{value0}} external",
             "c22ea609fd": "Ports",
             "ca41be2802": "Ports — {{value0}} workspace {{value1}}{{value2}}",
-            "b8bc3e420a": "Ports, {{value0}} workspace {{value1}}",
             "3a87d54dfb": "No workspace ports detected",
             "c174bbbfed": "Scanning for workspace ports...",
             "8caaa86e9a": "ports",
@@ -4224,7 +4208,6 @@
             "65402b7192": "selected",
             "43171f3e60": "Workspaces",
             "09960d86bd": "Scanned",
-            "63efebe0e6": "{{value0}} {{value1}} removed from Space.",
             "eee5240810": "Workspaces deleted",
             "9afc97f9a3": "Workspace deleted",
             "792a214457": "Delete workspace",
@@ -4271,7 +4254,6 @@
             "c5135e7e4a": "Scanning workspace sizes. You can leave this page.",
             "0990a63160": "No scanned workspace sizes yet.",
             "977bdf9a36": "No top-level items to show.",
-            "131662ac65": "{{value0}} open",
             "0d1c78d749": "Select {{value0}}"
           },
           "ports": {
@@ -4668,7 +4650,6 @@
         },
         "StatsPane": {
           "42d3e0bdf7": "Usage analytics provider: {{value0}}",
-          "c79f073d4c": "Usage Analytics",
           "a58aba506f": "PRs created",
           "1c96f433e2": "Time agents worked",
           "9dbec9e675": "Agents spawned",
@@ -4681,25 +4662,7 @@
           "trackingSince": "Tracking since {{value0}}"
         },
         "UsageOverviewPane": {
-          "22ed1b7669": "sessions",
-          "444585cb41": "with data",
-          "ecb0cd8a4c": "enabled -",
-          "33f7b043d2": "Providers",
-          "70f36452d4": "Cache share",
-          "327603fe8b": "Active days",
-          "0eaf937335": "Est. cost",
-          "3887b94ce5": "Total tokens",
-          "2d13e57f72": "Enable OpenCode",
-          "2f1ee2878b": "Enable Codex",
-          "0ea0cae435": "Enable Claude",
-          "6c00c46815": "Enable a provider to scan local agent logs and build the combined token ledger.",
-          "49405ccc8d": "Start tracking tokens",
-          "ca6bc5fded": "Refresh",
-          "e06d1baf5c": "Refresh usage overview",
-          "c760c481c5": "Usage Overview",
-          "55c910f4f1": "- some model prices are unavailable",
-          "enableMuse": "Enable Muse",
-          "noLocalUsageYet": "No local Claude, Codex, OpenCode, or Muse usage found yet. The overview will populate after the next agent session writes token logs."
+          "3887b94ce5": "Total tokens"
         },
         "share": {
           "card": {
@@ -4859,7 +4822,6 @@
           "updateOne": "Update skill",
           "updateMany": "Update skills"
         },
-        "SkillFreshnessRow": {},
         "SkillFreshnessUpdateDialog": {
           "title": "Update skills",
           "checking": "Checking installed Orca skills…",
@@ -4890,7 +4852,6 @@
           "updateServer": "Update Orca on the server to update its Orca skills.",
           "connectHost": "Connect to this SSH host to check its Orca skills."
         },
-        "SkillUpdateResultRows": {},
         "SkillUpdateRow": {
           "replaceWithOrca": "Replace with Orca's copy (keeps a backup)"
         },
@@ -5286,9 +5247,7 @@
                   "f15fd80989": "Your new worktree is current, but local {{value0}} is {{value1}} {{value2}} behind, so AI diffs may compare to stale history. Let Orca keep it up to date automatically. Change this anytime in",
                   "3d260e1a5d": "Settings › {{value0}}",
                   "34a03a6565": "Keep {{value0}} up to date",
-                  "4a18052018": "Local {{value0}} is behind {{value1}}",
-                  "commit": "commit",
-                  "commits": "commits"
+                  "4a18052018": "Local {{value0}} is behind {{value1}}"
                 }
               }
             }
@@ -5468,21 +5427,10 @@
           "b7a87dc32f": "Show in worktree list",
           "ad99f4eea9": "Keep hidden",
           "9f4f14e821": "Change this later from the project menu.",
-          "b2bc47c080": "more locations",
           "b47ba1a9d2": "{{value0}} preview",
           "2251d41ebb": "Hidden worktree groups",
           "5a9688802a": "Show {{value0}} more",
-          "294de4aeb2": "Show fewer",
-          "collapseAriaLabel": "Collapse hidden worktrees for {{repo}}",
-          "expandAriaLabel": "Expand hidden worktrees for {{repo}}",
-          "hiding_one": "Hiding {{count}} discovered worktree",
-          "hiding_other": "Hiding {{count}} discovered worktrees",
-          "hidingInRepo_one": "Hiding {{count}} discovered worktree in {{repo}}",
-          "hidingInRepo_other": "Hiding {{count}} discovered worktrees in {{repo}}",
-          "keepHiddenAriaLabel_one": "Keep {{count}} discovered worktree hidden for {{repo}}; recover from the project menu",
-          "keepHiddenAriaLabel_other": "Keep {{count}} discovered worktrees hidden for {{repo}}; recover from the project menu",
-          "keepHiddenTooltip": "Keep hidden - recover from the project menu",
-          "repoOnHost": "{{repo}} on {{host}}"
+          "294de4aeb2": "Show fewer"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "Open as Folder",
@@ -5495,18 +5443,7 @@
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "Run hooks",
-          "43b7bec4cd": "Don't run",
-          "c494b3ccb1": "in",
-          "79afc6772b": "orca.yaml",
-          "531689199b": "Always trust",
-          "bf800b7e04": ". Only run if you trust",
-          "831f2cd9f0": "runs on your machine",
-          "aa3ffb33fb": "This repository's",
-          "c55beddbf8": "changed since you last approved. Re-review before it runs",
-          "95bf974a1a": "{{value0}} script",
-          "9e52effffd": "New {{value0}} script",
-          "e4a51dc4b3": "Run {{value0}} from {{value1}}?",
-          "02b0ede5ad": "{{value0}}'s {{value1}} changed — run the new version?"
+          "43b7bec4cd": "Don't run"
         },
         "PendingWorktreeRow": {
           "af21e953d1": "Cancel worktree creation",
@@ -5889,9 +5826,7 @@
           "9950fe2d20": "Failed to refresh ports",
           "5d1a5d51bb": "Stopped process on {{value0}}",
           "c89f290e25": "Copied {{value0}}",
-          "d1113f4660": "Failed to open browser",
-          "fed49903c9": "{{value0}} live {{value1}}",
-          "unknownProcess": "Unknown process"
+          "d1113f4660": "Failed to open browser"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "Create a group and move this project into it.",
@@ -5964,9 +5899,7 @@
           "failedNestWorkspace": "Failed to nest workspace",
           "sidebarRowMissing": "Target no longer exists",
           "failedUnnestWorkspace": "Failed to unnest workspace",
-          "hostRepairRequired": "Re-pair required",
-          "groupProjectsRemainedSingular": "{{remaining}} of {{count}} contained project remained after deleting the group.",
-          "groupProjectsRemainedPlural": "{{remaining}} of {{count}} contained projects remained after deleting the group."
+          "hostRepairRequired": "Re-pair required"
         },
         "WorktreeMetaDialog": {
           "3db0a2a593": "Cancel",
@@ -6204,14 +6137,6 @@
           }
         },
         "worktree": {
-          "card": {
-            "compact": {
-              "agents": {
-                "289a1d2ca7": "Expand {{value0}}. {{value1}}",
-                "0c1debfe84": "Collapse {{value0}}"
-              }
-            }
-          },
           "list": {
             "groups": {
               "0ed04075b8": "All",
@@ -6431,9 +6356,7 @@
           "identityFileFromConfigHint": "Left empty on purpose: Orca uses every key ~/.ssh/config resolves for {{value0}}. Type a path to use just that key.",
           "sshConfigPickerRetry": "Try again",
           "sshConfigPickerResolving": "Reading…",
-          "pairingHelpShareComputer": "Create this under Settings → Remote Orca Servers → Share this computer on the other computer.",
-          "sshImportSyncedPlural": "Added {{count}} hosts to Orca.",
-          "sshImportSyncedSingular": "Added {{count}} host to Orca."
+          "pairingHelpShareComputer": "Create this under Settings → Remote Orca Servers → Share this computer on the other computer."
         },
         "ForgetSshWorkspaceDialog": {
           "reconnectFailed": "Reconnection failed",
@@ -8616,7 +8539,6 @@
           "badb1219fc": "Both",
           "43c2ff7b0e": "Auto",
           "0a10420e1a": "Option as Alt",
-          "ce3aadf0b2": "The {{value0}} Option key sends Alt/Esc; the other composes special characters.",
           "b62373091a": "Both Option keys send Alt/Esc sequences.",
           "d8998bb328": "Option composes special characters for your keyboard layout.",
           "d21c493808": "Auto — detected: {{value0}}.",
@@ -12820,7 +12742,6 @@
             "812cb992ee": "Open on {{value0}}",
             "eef5446523": "{{value0}} #{{value1}} is already open",
             "0453ca3a9a": "{{value0}} created, but Orca could not refresh it yet.",
-            "f99560ab29": "Abort {{value0}} failed",
             "eae7a1da5f": "Failed to clear notes.",
             "df5040e3c3": "Unstage",
             "8cde1a2fb0": "Stage",
@@ -12947,10 +12868,6 @@
             "diffCommentNotesCopyFailed": "Failed to copy notes",
             "conflictCount_one": "{{count}} conflict",
             "conflictCount_other": "{{count}} conflicts",
-            "discardFailedSingular": "Failed to discard {{count}} file",
-            "discardFailedPlural": "Failed to discard {{count}} files",
-            "noteCountSingular": "{{count}} note",
-            "noteCountPlural": "{{count}} notes",
             "conflictCount": "{{count}} conflicts"
           },
           "SourceControlAgentActionDialog": {
@@ -13086,9 +13003,6 @@
                 "b3195cba33": "Unmark author as bot",
                 "f588b46a6c": "Mark author as bot",
                 "e45324fbed": "Failed to load check details.",
-                "commitsBehind_one": "{{count}} commit behind",
-                "commitsBehind_other": "{{count}} commits behind",
-                "baseCommitLabel": "base commit:",
                 "failingChecks_one": "{{count}} failing check",
                 "failingChecks_other": "{{count}} failing checks",
                 "pendingChecks_one": "{{count}} check pending",
@@ -13338,8 +13252,6 @@
                 "dialog": {
                   "3bc61dc989": "Cancel",
                   "15efa778e3": "Discard",
-                  "42f89dd030": "files",
-                  "e7611dca35": "file",
                   "0d2d88cba5": "This cannot be undone.",
                   "1551c14668": "Discard changes?"
                 }
@@ -13508,12 +13420,6 @@
                   }
                 }
               },
-              "compare": {
-                "summary": {
-                  "commitsAheadSingular": "{{count}} commit ahead of {{ref}}",
-                  "commitsAheadPlural": "{{count}} commits ahead of {{ref}}"
-                }
-              },
               "conflict": {
                 "status": {
                   "cards": {
@@ -13575,7 +13481,6 @@
             "unresolved": "Couldn't determine which host owns this workspace. Check the connection and try again."
           },
           "useFileDeletion": {
-            "72691dfebc": "Failed to {{value0}} '{{value1}}'.",
             "d979a4fbb5": "Permanently delete '{{value0}}'?",
             "92276aceb7": "Delete",
             "7fb9435c86": "This permanently deletes the directory and its contents on the remote host. This cannot be undone.",
@@ -13589,10 +13494,6 @@
           "useFileExplorerHandlers": {
             "32cd9fd991": "Cannot open symlink target",
             "folderLinksOutsideProject": "This folder links outside the project, so it can't be opened here."
-          },
-          "useFileExplorerImport": {
-            "25919b2050": "Skipped {{value0}} {{value1}}.",
-            "132fd0e1e9": "Failed to import {{value0}} {{value1}}."
           },
           "useFileExplorerKeys": {
             "8adb953095": "Operation failed"
@@ -14049,9 +13950,7 @@
           "217beb0658": "GitHub",
           "4983ae7433": "Add Linear access with a Personal API key. Full-access keys can show every team the key owner can access.",
           "d6e5dba05a": "Sign in",
-          "0b4a7d23ab": "Signing in",
-          "linearWorkspacesLinkedSingular": "{{count}} workspace linked. Add another workspace or replace a restricted key any time.",
-          "linearWorkspacesLinkedPlural": "{{count}} workspaces linked. Add another workspace or replace a restricted key any time."
+          "0b4a7d23ab": "Signing in"
         },
         "NotificationStep": {
           "3bede04483": "Send test notification",
@@ -14526,8 +14425,7 @@
           "FloatingTerminalToggleButton": {
             "3b04b065b5": "Show floating workspace",
             "4cb418b991": "Show floating workspace, new activity",
-            "5785dd9148": "Minimize floating workspace",
-            "bfe7809a70": "{{value0}} floating workspace ({{value1}})"
+            "5785dd9148": "Minimize floating workspace"
           },
           "FloatingTerminalWindowControls": {
             "2f6054342c": "Minimize",
@@ -15070,15 +14968,12 @@
           "39b6b9e4e4": "Committed on Branch"
         },
         "CombinedDiffViewer": {
-          "35cc27aeb2": "in Source Control",
-          "e3b9a6ce02": "more",
           "1da745c551": "Sent",
           "84898c548d": "Clear",
           "88b70d0ef5": "Copy",
           "bb84b4c374": "AI notes",
           "948a5fd6c8": "Clear Notes",
           "0f806a2ab1": "Cancel",
-          "80a286d8f5": "from this worktree?",
           "7e7ca60816": "changed files",
           "b6c3b84476": "Show file tree",
           "39f8007549": "Review conflicts",
@@ -15089,8 +14984,6 @@
           "fd8892b120": "No changes to display",
           "eb5f40e49c": "This diff view excludes unresolved conflicts because the normal two-way diff pipeline is not conflict-safe.",
           "45cf23b418": "Failed to clear notes.",
-          "0fb870a0fe": "notes",
-          "8ab3248fd8": "note",
           "ec5053c7f5": "Side by Side",
           "f786fd54e1": "Inline",
           "ea08dae15b": "Collapse All",
@@ -15118,7 +15011,6 @@
           "6e459867ad": "Session-local continuity state. Git is no longer reporting this file as unmerged.",
           "9c2901ef8a": "Next conflict",
           "41d9af2e7a": "Previous conflict",
-          "55d61a0ccd": "conflict ·",
           "da539359b6": "No working-tree file is available to edit for this conflict.",
           "unresolvedConflicts_one": "{{count}} unresolved conflict",
           "unresolvedConflicts_other": "{{count}} unresolved conflicts",
@@ -15423,7 +15315,6 @@
           "13822cdfda": "Plain text"
         },
         "RichMarkdownDocLinkMenu": {
-          "e17b987473": "↑↓ navigate&nbsp;&nbsp;↵ select&nbsp;&nbsp;esc dismiss",
           "90c5f0e1e4": "of",
           "2aaf7d9678": "Showing",
           "63ced7cb9b": "No documents found",
@@ -15852,9 +15743,6 @@
         }
       },
       "dashboard": {
-        "DashboardAgentChildDisclosure": {
-          "1b57ce9fa4": "{{value0}} {{value1}} child {{value2}}"
-        },
         "DashboardAgentRow": {
           "912e136cd9": "Send",
           "a743da52ff": "Expand details",
@@ -18072,7 +17960,6 @@
         "imageAttachAgainLabel": "Attach again",
         "pastedImageNotKeptLabel": "Not kept",
         "imageNumber": "Image #{{number}}",
-        "imageReferenceMissing": "Image removed",
         "imagePasteFailed": "Image paste failed.",
         "imageSaving": "Saving pasted image…",
         "worktreeNotReady": "Worktree not ready — try again in a moment.",
@@ -18135,27 +18022,12 @@
         "optionValueShort": {
           "minimal": "Min",
           "medium": "Med",
-          "xhigh": "XHigh",
-          "max": "Max",
-          "ultra": "Ultra"
+          "xhigh": "XHigh"
         },
         "imageUnavailable": "Preview unavailable",
         "defaultModel": "Default",
         "defaultModelNotReported": "Default model not reported",
-        "queueDraft": "Queue",
-        "sendDraft": "Send",
-        "draftActions": "Draft actions",
-        "steerDraft": "Send now with current turn",
-        "sendingDraft": "Sending draft…",
-        "queueChecking": "Checking queue support. Enter sends immediately until the host confirms support.",
-        "queueUnsupported": "Enter sends immediately. Update Orca on this host to queue drafts.",
-        "enterQueues": "Enter queues text and images.",
-        "enterSendsNow": "Enter sends immediately.",
-        "steerCurrentTurn": "Send now with the running turn’s choices",
-        "steerRequiresUpdate": "Steering drafts requires an updated host.",
-        "nextTurn": "Next turn",
         "nextTurnOptionsLabel": "Next turn: {{options}}",
-        "futureMessageOptions": "Changes apply to future messages. Running and queued messages keep their choices.",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
         "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
@@ -18522,7 +18394,6 @@
         "editMessage": "Edit message",
         "showFullMessage": "Show full message",
         "showLess": "Show less",
-        "turnOffQueueing": "Turn off queueing",
         "listLabel": "Queued messages",
         "alreadySent": "This message was already sent.",
         "withdrawnHold": "Stopped before it was sent",
@@ -18555,6 +18426,7 @@
       "thought": "Thought",
       "thoughtForDuration": "Thought for {{duration}}",
       "explicitChatWsl": "Chat is not available in WSL. Open the agent in a terminal instead.",
+      "explicitChatWslAddHost": "Chat is not available in a WSL folder opened from Windows. Add the distro as a WSL host (Add a project → Add remote host → Add WSL distro) to chat there, or open the agent in a terminal.",
       "explicitChatSsh": "Chat is not available over SSH. Open the agent in a terminal instead.",
       "explicitChatUnavailable": "This workspace cannot run the chat. Check the agent installation or open it in a terminal.",
       "structuredSessionHostDeclined": "Opened {{value0}} in a terminal",
@@ -19193,9 +19065,6 @@
       "stepDownload": "Download",
       "stepUnpack": "Unpack",
       "stepCheck": "Check"
-    },
-    "tab-bar": {
-      "newChat": "New chat"
     }
   },
   "dashboardPopout": {
@@ -19280,11 +19149,8 @@
       "closeActivity": "Turn off activity view",
       "projects": "Projects",
       "workspaces": "Workspaces",
-      "chooseChatAgent": "Choose an agent for a new chat",
-      "openProject": "Open project",
       "loadingChatAgents": "Loading chat agents…",
       "noChatAgents": "No chat agents available on this host",
-      "conversations": "Conversations",
       "activity": "Activity"
     },
     "childAgents": {
@@ -19416,9 +19282,6 @@
     "unlinkedPr": {
       "status": "PR #{{number}} unlinked"
     },
-    "conflictCount": "{{count}} conflicts",
-    "conflictCount_one": "{{count}} conflict",
-    "conflictCount_other": "{{count}} conflicts",
     "noteCount": "{{count}} notes",
     "noteCount_one": "{{count}} note",
     "noteCount_other": "{{count}} notes",
@@ -19426,33 +19289,6 @@
       "commitsAhead": "{{count}} commits ahead of {{baseRef}}",
       "commitsAhead_one": "{{count}} commit ahead of {{baseRef}}",
       "commitsAhead_other": "{{count}} commits ahead of {{baseRef}}"
-    },
-    "actions": {
-      "pushCount": "Push {{count}} commits",
-      "pushCount_one": "Push {{count}} commit",
-      "pushCount_other": "Push {{count}} commits",
-      "pullCount": "Pull {{count}} commits",
-      "pullCount_one": "Pull {{count}} commit",
-      "pullCount_other": "Pull {{count}} commits",
-      "fastForwardCount": "Fast-forward {{count}} commits",
-      "fastForwardCount_one": "Fast-forward {{count}} commit",
-      "fastForwardCount_other": "Fast-forward {{count}} commits",
-      "syncCounts": "Pull {{behind}}, push {{ahead}}",
-      "remoteBranch": "the remote branch",
-      "forcePushCount": "Remote only has older copies of local commits. Force push {{count}} branch commits with lease to update {{upstream}}.",
-      "forcePushCount_one": "Remote only has older copies of local commits. Force push {{count}} branch commit with lease to update {{upstream}}.",
-      "forcePushCount_other": "Remote only has older copies of local commits. Force push {{count}} branch commits with lease to update {{upstream}}.",
-      "forcePushBranch": "Remote only has older copies of local commits. Force push this branch with lease to update {{upstream}}.",
-      "manualForcePushReplace": "Force push {{count}} local commits with lease to update {{upstream}} and replace remote-only commits.",
-      "manualForcePushReplace_one": "Force push {{count}} local commit with lease to update {{upstream}} and replace remote-only commits.",
-      "manualForcePushReplace_other": "Force push {{count}} local commits with lease to update {{upstream}} and replace remote-only commits.",
-      "manualForcePush": "Force push {{count}} local commits with lease to update {{upstream}}.",
-      "manualForcePush_one": "Force push {{count}} local commit with lease to update {{upstream}}.",
-      "manualForcePush_other": "Force push {{count}} local commits with lease to update {{upstream}}.",
-      "unpublishedForcePushCount": "Force push {{count}} branch commits with lease and set an upstream if needed.",
-      "unpublishedForcePushCount_one": "Force push {{count}} branch commit with lease and set an upstream if needed.",
-      "unpublishedForcePushCount_other": "Force push {{count}} branch commits with lease and set an upstream if needed.",
-      "unpublishedForcePushBranch": "Force push this branch with lease and set an upstream if needed."
     },
     "abort": {
       "rebaseTitle": "Abort rebase?",
@@ -20803,10 +20639,7 @@
       "history": {
         "detail": "History detail",
         "title": "Historical usage",
-        "host": "This device · Recorded agent logs",
-        "remoteUnsupported": "Quotas above belong to {{host}}. Historical scanning for remote hosts is not supported; this ledger contains this device only.",
         "refresh": "Refresh historical usage",
-        "unsupported": "Historical log scanning is unavailable in this client. Open Stats & Usage on the owning desktop to inspect its logs.",
         "empty": "No recorded usage matches this selection. Enable a provider, refresh its scan, or change the filters.",
         "owner": "{{host}} · Recorded agent logs",
         "ownerUnavailable": "Historical usage is unavailable from {{host}}. Check the host connection and update it if it does not support historical usage.",
@@ -20826,8 +20659,7 @@
         "partialCost": "Some usage has no recorded price. The chart shows the priced portion; * marks a partial estimate. This is not a billing statement.",
         "inspectCost": "{{day}}: {{cost}} API-equivalent estimate",
         "providers": "Provider series",
-        "unpriced": "Price unavailable",
-        "noData": "No recorded data"
+        "unpriced": "Price unavailable"
       },
       "unknown": "Unknown",
       "models": {
@@ -20892,7 +20724,6 @@
         "partial": "Coverage is incomplete. Disabled, unavailable or failed sources do not mean zero usage; totals include recorded rows only."
       },
       "source": {
-        "unsupported": "History unavailable in this client",
         "loading": "Loading scan state…",
         "disabled": "Tracking disabled",
         "scanning": "Scanning logs…",
@@ -21033,11 +20864,6 @@
       "remainingProjects": "Contained projects remaining after deleting the group: {{remaining}} of {{total}}."
     }
   },
-  "skills": {
-    "install": {
-      "checkedPlacements": "Checked installation locations: {{count}}."
-    }
-  },
   "workspacePorts": {
     "statusCount": "Ports, {{count}} workspace ports",
     "statusCount_one": "Ports, {{count}} workspace port",
@@ -21065,21 +20891,7 @@
   "webKeybindings": {
     "unableToParseShortcut": "Unable to parse shortcut."
   },
-  "codeSearch": {
-    "resultSummary": "Results: {{results}} · files: {{files}}"
-  },
   "checks": {
-    "triage": {
-      "failingCount": "{{count}} failing checks",
-      "failingCount_one": "{{count}} failing check",
-      "failingCount_other": "{{count}} failing checks",
-      "pendingCount": "{{count}} checks pending",
-      "pendingCount_one": "{{count}} check pending",
-      "pendingCount_other": "{{count}} checks pending",
-      "unresolvedCount": "{{count}} checks unresolved",
-      "unresolvedCount_one": "{{count}} check unresolved",
-      "unresolvedCount_other": "{{count}} checks unresolved"
-    },
     "conflicts": {
       "behindBase": "{{count}} commits behind (base commit: <commit>{{commit}}</commit>)",
       "behindBase_one": "{{count}} commit behind (base commit: <commit>{{commit}}</commit>)",
@@ -21087,9 +20899,6 @@
     }
   },
   "editorConflicts": {
-    "unresolvedCount": "{{count}} unresolved conflicts",
-    "unresolvedCount_one": "{{count}} unresolved conflict",
-    "unresolvedCount_other": "{{count}} unresolved conflicts",
     "kind": {
       "bothModified": "Both modified",
       "bothAdded": "Both added",

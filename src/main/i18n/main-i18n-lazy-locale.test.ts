@@ -75,11 +75,19 @@ describe('main-i18n lazy locale loading', () => {
     expect(await setMainUiLanguage(UI_LANGUAGE_RUSSIAN)).toBe('ru')
     expect(translateMain('menu.file', 'File')).toBe('Файл')
     expect(translateMain('menu.settings', 'Settings')).toBe('Настройки')
-    expect(
-      translateMain('components.native-chat.queuedMessages.imageCount', '{{count}} images', {
-        count: 5
-      })
-    ).toBe('5 изображений')
+    // Production callers pass the literal `_other` key; Russian must still pick few/many.
+    for (const [count, expected] of [
+      [3, '3 активных терминала переподключатся после перезапуска.'],
+      [5, '5 активных терминалов переподключатся после перезапуска.']
+    ] as const) {
+      expect(
+        translateMain(
+          'localBuild.liveTerminals_other',
+          '{{count}} live terminals will reconnect after restart.',
+          { count }
+        )
+      ).toBe(expected)
+    }
   })
 
   it('returns to English from a lazily-loaded locale', async () => {

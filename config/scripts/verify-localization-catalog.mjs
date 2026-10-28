@@ -289,7 +289,7 @@ export function resolveLocaleSourceKey(enEntries, localeName, key) {
     return key
   }
   const plural = /^(.*)_(zero|one|two|few|many|other)$/.exec(key)
-  if (!plural || !enEntries.has(`${plural[1]}_other`)) {
+  if (!plural || !localeName || !enEntries.has(`${plural[1]}_other`)) {
     return undefined
   }
   try {

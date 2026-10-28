@@ -29,9 +29,6 @@
   "auto.components.GitHubItemDialog.28986b3747": {
     "ko": "실패한 체크를 위한 AI agent를 시작했습니다."
   },
-  "auto.components.GitHubItemDialog.2d89a38d9d": {
-    "ko": "{{value0}} {{value1}}을(를) 본 것으로 표시"
-  },
   "auto.components.GitHubItemDialog.5932578f51": {
     "ko": "병합하려면 등록된 로컬 repo가 필요합니다."
   },
@@ -3629,12 +3626,6 @@
   "auto.components.sidebar.OrcaYamlTrustDialog.43b7bec4cd": {
     "ko": "실행 안 함"
   },
-  "auto.components.sidebar.OrcaYamlTrustDialog.531689199b": {
-    "ko": "항상 신뢰"
-  },
-  "auto.components.sidebar.OrcaYamlTrustDialog.831f2cd9f0": {
-    "ko": "내 컴퓨터에서 실행"
-  },
   "auto.components.sidebar.PendingWorktreeRow.af21e953d1": {
     "ko": "워크트리 만들기 취소"
   },
@@ -3899,15 +3890,6 @@
   "auto.components.stats.OpenCodeUsagePane.rangeLast90Days": {
     "ko": "최근 90일"
   },
-  "auto.components.stats.UsageOverviewPane.444585cb41": {
-    "ko": "데이터 있음"
-  },
-  "auto.components.stats.UsageOverviewPane.6c00c46815": {
-    "ko": "공급자를 활성화해 로컬 agent 로그를 스캔하고 통합 토큰 원장을 만드세요."
-  },
-  "auto.components.stats.UsageOverviewPane.e06d1baf5c": {
-    "ko": "사용량 개요 새로고침"
-  },
   "auto.components.stats.share.card.utils.19f4b4dc75": {
     "ko": "github.com/stablyai/orca"
   },
@@ -4015,9 +3997,6 @@
   },
   "auto.components.status.bar.WorkspaceSpaceManagerPanel.39801484e0": {
     "ko": "실패"
-  },
-  "auto.components.status.bar.WorkspaceSpaceManagerPanel.63efebe0e6": {
-    "ko": "{{value0}} {{value1}}이(가) Space에서 제거되었습니다."
   },
   "auto.components.status.bar.WorkspaceSpaceManagerPanel.65402b7192": {
     "ko": "선택됨"
@@ -5807,12 +5786,6 @@
   "auto.components.settings.contrast.off": {
     "ko": "끔"
   },
-  "auto.components.GitHubItemDialog.reactionCountSingular": {
-    "ko": "{{reaction}} 반응 {{count}}개"
-  },
-  "auto.components.GitHubItemDialog.reactionCountPlural": {
-    "ko": "{{reaction}} 반응 {{count}}개"
-  },
   "auto.components.GitLabItemDialog.approvalsRemainingSingular": {
     "ko": "승인 {{count}}개 남음"
   },
@@ -5830,47 +5803,5 @@
   },
   "auto.components.TaskPage.memberCountPlural": {
     "ko": "멤버 {{count}}명"
-  },
-  "auto.components.terminal.pane.terminal.drop.handler.skippedSymlinkSingular": {
-    "ko": "심볼릭 링크 {{count}}개를 건너뛰었습니다."
-  },
-  "auto.components.terminal.pane.terminal.drop.handler.skippedSymlinkPlural": {
-    "ko": "심볼릭 링크 {{count}}개를 건너뛰었습니다."
-  },
-  "auto.components.terminal.pane.terminal.drop.handler.uploadingFileSingular": {
-    "ko": "파일 {{count}}개를 런타임에 업로드하는 중…"
-  },
-  "auto.components.terminal.pane.terminal.drop.handler.uploadingFilePlural": {
-    "ko": "파일 {{count}}개를 런타임에 업로드하는 중…"
-  },
-  "auto.components.sidebar.WorktreeList.groupProjectsRemainedSingular": {
-    "ko": "그룹을 삭제했지만, 포함된 프로젝트 {{count}}개 중 {{remaining}}개가 남아 있습니다."
-  },
-  "auto.components.sidebar.WorktreeList.groupProjectsRemainedPlural": {
-    "ko": "그룹을 삭제했지만, 포함된 프로젝트 {{count}}개 중 {{remaining}}개가 남아 있습니다."
-  },
-  "auto.components.sidebar.AddRemoteHostDialog.sshImportSyncedSingular": {
-    "ko": "호스트 {{count}}개를 Orca에 추가했습니다."
-  },
-  "auto.components.sidebar.AddRemoteHostDialog.sshImportSyncedPlural": {
-    "ko": "호스트 {{count}}개를 Orca에 추가했습니다."
-  },
-  "auto.components.right.sidebar.SourceControl.discardFailedSingular": {
-    "ko": "파일 {{count}}개의 변경 사항을 버리지 못했습니다."
-  },
-  "auto.components.right.sidebar.SourceControl.discardFailedPlural": {
-    "ko": "파일 {{count}}개의 변경 사항을 버리지 못했습니다."
-  },
-  "auto.components.right.sidebar.SourceControl.noteCountSingular": {
-    "ko": "메모 {{count}}개"
-  },
-  "auto.components.right.sidebar.SourceControl.noteCountPlural": {
-    "ko": "메모 {{count}}개"
-  },
-  "auto.components.onboarding.IntegrationsStep.linearWorkspacesLinkedSingular": {
-    "ko": "워크스페이스 {{count}}개가 연결되었습니다. 언제든지 다른 워크스페이스를 추가하거나 접근 권한이 제한된 API 키를 교체할 수 있습니다."
-  },
-  "auto.components.onboarding.IntegrationsStep.linearWorkspacesLinkedPlural": {
-    "ko": "워크스페이스 {{count}}개가 연결되었습니다. 언제든지 다른 워크스페이스를 추가하거나 접근 권한이 제한된 API 키를 교체할 수 있습니다."
   }
 }

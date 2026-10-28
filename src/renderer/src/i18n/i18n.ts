@@ -20,11 +20,12 @@ import { advanceTranslationResourceVersion } from './translation-resource-versio
 import { DEFAULT_LOCALE, resolveUiLocale } from './supported-languages'
 import type { SupportedUiLocale } from '../../../shared/ui-locale'
 import { isPluginUiLanguage, type UiLanguage } from '../../../shared/ui-language'
-import {
-  isCatalogObject,
-  type PluginLanguagePackRegistration
-} from '../../../shared/plugins/plugin-language-pack-artifact'
+import type { PluginLanguagePackRegistration } from '../../../shared/plugins/plugin-language-pack-artifact'
 import { withTimeout } from '../../../shared/promise-timeout-fallback'
+import {
+  resolvePluralFamilyKey,
+  withPluralCategoriesFromOther
+} from '../../../shared/i18n-plural-family'
 
 export const i18n: I18nInstance = i18next.createInstance()
 
@@ -105,12 +106,8 @@ const getPluralRule = pluralResolver.getRule.bind(pluralResolver)
 pluralResolver.getRule = (code: string, options?: { ordinal?: boolean }) =>
   getPluralRule(pluralLocaleByResourceLanguage.get(code) ?? code, options)
 
-const PLURAL_SUFFIX_RE = /_(zero|one|two|few|many|other)$/
-
 export function translate(key: string, fallback: string, options?: TOptions): string {
-  // Callers name a literal `_one`/`_other` key for extraction; with a count, let CLDR pick the form.
-  const resolvedKey = typeof options?.count === 'number' ? key.replace(PLURAL_SUFFIX_RE, '') : key
-  const value = i18n.t(resolvedKey, { defaultValue: fallback, ...options })
+  const value = i18n.t(resolvePluralFamilyKey(key, options), { defaultValue: fallback, ...options })
   return isPseudoLocalizationLocale(i18n.language) ? pseudoLocalizeString(value) : value
 }
 
@@ -163,24 +160,6 @@ function supportedIntlLocale(
 
 export function resolveRendererResourceLanguage(language: string): string {
   return pluginLanguagePacks.find((pack) => pack.id === language)?.resourceLanguage ?? language
-}
-
-// Catalogs translated from English often ship only _one/_other; reuse _other so few/many stay in-language.
-function withPluralCategoriesFromOther(
-  catalog: Record<string, unknown>,
-  categories: readonly string[]
-): Record<string, unknown> {
-  const filled: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(catalog)) {
-    filled[key] = isCatalogObject(value) ? withPluralCategoriesFromOther(value, categories) : value
-    if (typeof value === 'string' && key.endsWith('_other')) {
-      const base = key.slice(0, -'_other'.length)
-      for (const category of categories) {
-        filled[`${base}_${category}`] ??= value
-      }
-    }
-  }
-  return filled
 }
 
 export function setRendererPluginLanguagePacks(
