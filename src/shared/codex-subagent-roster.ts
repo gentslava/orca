@@ -22,6 +22,8 @@ type TrackedCodexSubagent = {
   state: 'working' | 'waiting'
   startedAt: number
   identityTranscriptPath?: string
+  /** Relay session whose own roster listed this child; only that session may retire it by omission. */
+  reportedBy?: string
 }
 
 export function upsertCodexSubagent(
@@ -101,7 +103,8 @@ export function setCodexSubagentModel(
 
 export function seedCodexSubagentRoster(
   roster: CodexSubagentRoster,
-  snapshots: readonly AgentSubagentSnapshot[]
+  snapshots: readonly AgentSubagentSnapshot[],
+  reportedBy?: string
 ): void {
   for (const snapshot of snapshots) {
     if (snapshot.state !== 'working' && snapshot.state !== 'waiting') {
@@ -118,6 +121,10 @@ export function seedCodexSubagentRoster(
       },
       snapshot.startedAt
     )
+    const tracked = reportedBy ? roster.get(snapshot.id.trim()) : undefined
+    if (tracked) {
+      tracked.reportedBy = reportedBy
+    }
   }
 }
 

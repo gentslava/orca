@@ -116,7 +116,8 @@
         "spanish": "Español",
         "french": "Français",
         "portuguese": "Português (Brasil)",
-        "russian": "Русский"
+        "russian": "Русский",
+        "turkish": "Türkçe"
       },
       "statusBar": {
         "claudeToggleDescription": "アクティブなワークスペースの Claude トークンとコストの使用状況を表示します。",
@@ -6129,7 +6130,7 @@
           "running": "実行中",
           "stopped": "停止中",
           "title": "WSL ディストリビューションを追加",
-          "description": "Orca はディストリビューション内でサーバーを実行するため、git、ファイル、ターミナルは Linux 上でネイティブに動作します。新規プロジェクトに使用してください。\\\\wsl.localhost 経由で開いたプロジェクトはそのまま動作し続けます。",
+          "description": "Orca はディストリビューション内でサーバーを実行するため、git、ファイル、ターミナルは Linux 上でネイティブに動作します。\\\\wsl.localhost 経由で開いたプロジェクトは、このホストに移動するまでそのまま動作し続けます。",
           "distro": "ディストリビューション",
           "loading": "WSL ディストリビューションを探しています…",
           "placeholder": "ディストリビューションを選択",
@@ -18717,7 +18718,6 @@
       "subagents_other": "{{count}} 個のサブ Agent"
     },
     "terminal": {
-      "closed": "実行中のターミナルがありません。この Agent のペインは閉じられています。",
       "focusWorktree": "ワークツリーを開く",
       "close": "閉じる",
       "remotePreviewUnavailable": "このリモートセッションにはプレビューがありません。ワークスペースを開いてターミナルを表示してください。"
@@ -19005,6 +19005,20 @@
       "description": "アクティブなワークスペースはサイドバーに表示されません。これを表示すると、それを非表示にしているフィルターのみが調整されます。",
       "confirm": "フィルターを調整して明らかにする",
       "cancel": "フィルタを保持する"
+    },
+    "wslMoved": {
+      "movedToHost": "{{distro}} ホストに移動済み",
+      "useHere": "このコンピューターで再び使用",
+      "useHereTitle": "{{name}} をこのコンピューターで再び使用しますか？",
+      "useHereDescription": "Orca はこのプロジェクトを移動前の状態でここに開きます。コードには影響しません（移動していません）。移動後に {{distro}} ホストで行った変更（新しいタブやチャットなど）はホストに残り、戻りません。一緒に移動したプロジェクトも戻ります。プロジェクトは、{{distro}} ホストで削除するまでそこにも残ります。このウィンドウは再読み込みされます。",
+      "useHereConfirm": "このコンピューターで使用",
+      "useHereSuperseded": "{{distro}} ホストへの後の移動にこのプロジェクトが含まれています。先にそちらを戻してください。",
+      "useHereMoveRunning": "{{distro}} ホストへの移動がまだ実行中です。終了してからもう一度お試しください。",
+      "useHereHostUnreachable": "{{distro}} ホストが応答しないため、Orca はこのプロジェクトのホスト側のコピーを停止できず、そのAgentがまだ実行中の可能性があります。設定でホストに接続するか削除してから、もう一度お試しください。",
+      "useHereHostStillRunning": "{{distro}} ホスト上のこのプロジェクトのコピーでまだターミナルが実行中のため、Agentが二重に動く可能性があります。少し待ってからもう一度お試しください。",
+      "useHereFailed": "このプロジェクトをこのコンピューターに戻せませんでした。",
+      "useHereUnsavedTitle": "先にファイルを保存してください",
+      "useHereUnsavedDescription": "{{name}} を戻すとこのウィンドウが再読み込みされます。先に次のファイルを保存するか閉じてください: {{files}}"
     },
     "startupWorktreeRefresh": {
       "loading": "ワークスペースを検出中…",

@@ -125,7 +125,8 @@ export function NativeChatQueuedMessageCard({
   editor,
   editAttachTo,
   editDisabled = false,
-  drag
+  drag,
+  onTurnOffQueueing
 }: {
   card: QueuedMessageCard
   /** The chat's worktree, whose host its sender is found on; null shows the sender unlinked. */
@@ -149,6 +150,8 @@ export function NativeChatQueuedMessageCard({
   /** Another card in this pane is being edited. */
   editDisabled?: boolean
   drag?: QueuedMessageDragPresentation
+  /** Absent when the host does not queue sends, so there is nothing to turn off. */
+  onTurnOffQueueing?: () => void
 }): React.JSX.Element {
   const caption = queuedMessageCardCaption(card, agentName, statedFailures)
   const line = queuedMessageCardLine(card, nativeChatImageLabelCopy())
@@ -296,7 +299,7 @@ export function NativeChatQueuedMessageCard({
                 {translate('components.native-chat.queuedMessages.delete', 'Delete')}
               </TooltipContent>
             </Tooltip>
-            {!card.command && onEdit ? (
+            {(!card.command && onEdit) || onTurnOffQueueing ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -323,6 +326,14 @@ export function NativeChatQueuedMessageCard({
                       )}
                     </DropdownMenuItem>
                   )}
+                  {onTurnOffQueueing ? (
+                    <DropdownMenuItem onSelect={onTurnOffQueueing}>
+                      {translate(
+                        'components.native-chat.queuedMessages.turnOffQueueing',
+                        'Turn off queueing'
+                      )}
+                    </DropdownMenuItem>
+                  ) : null}
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : null}

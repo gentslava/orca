@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import '@testing-library/jest-dom/vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
+import { render } from './native-chat-tooltip-test-harness'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Why: these fixtures have neither inline visual owners nor sender navigation.
@@ -28,7 +29,6 @@ import {
   orchestrationNoticeMessage
 } from '../../../../shared/native-chat-orchestration-notice.test-fixture'
 import { MessageRow, type NativeChatDeliveryNotice } from './NativeChatMessageRow'
-import { TooltipProvider } from '@/components/ui/tooltip'
 import type { NativeChatRewindSurface } from './use-native-chat-rewind'
 import { readNativeChatQuotableSelection } from './native-chat-quote-selection'
 
@@ -49,20 +49,18 @@ function renderMessage(
   rewind?: NativeChatRewindSurface
 ) {
   return render(
-    <TooltipProvider>
-      <MessageRow
-        message={{
-          id: 'message',
-          role,
-          timestamp,
-          source: 'transcript',
-          blocks: [{ type: 'text', text: 'Message text' }]
-        }}
-        expandSignal={false}
-        onScrollMessageToTop={vi.fn()}
-        rewind={rewind}
-      />
-    </TooltipProvider>
+    <MessageRow
+      message={{
+        id: 'message',
+        role,
+        timestamp,
+        source: 'transcript',
+        blocks: [{ type: 'text', text: 'Message text' }]
+      }}
+      expandSignal={false}
+      onScrollMessageToTop={vi.fn()}
+      rewind={rewind}
+    />
   )
 }
 
@@ -124,24 +122,22 @@ describe('MessageRow control visibility', () => {
     Object.assign(window, { api: { ui: { writeClipboardText } } })
 
     render(
-      <TooltipProvider>
-        <MessageRow
-          message={{
-            id: 'message',
-            role: 'assistant',
-            timestamp: 0,
-            source: 'transcript',
-            blocks: [
-              {
-                type: 'text',
-                text: 'Here it is.\n\n::orca-visual{file="usage.html" title="Usage"}\n\nDone.'
-              }
-            ]
-          }}
-          expandSignal={false}
-          onScrollMessageToTop={vi.fn()}
-        />
-      </TooltipProvider>
+      <MessageRow
+        message={{
+          id: 'message',
+          role: 'assistant',
+          timestamp: 0,
+          source: 'transcript',
+          blocks: [
+            {
+              type: 'text',
+              text: 'Here it is.\n\n::orca-visual{file="usage.html" title="Usage"}\n\nDone.'
+            }
+          ]
+        }}
+        expandSignal={false}
+        onScrollMessageToTop={vi.fn()}
+      />
     )
     fireEvent.click(screen.getByRole('button', { name: 'Copy message' }))
 
@@ -188,21 +184,19 @@ describe('MessageRow control visibility', () => {
 
   it('holds the agent controls back until the turn stops working', () => {
     const row = (activeTurnIsWorking: boolean) => (
-      <TooltipProvider>
-        <MessageRow
-          message={{
-            id: 'message',
-            role: 'assistant',
-            timestamp: 0,
-            source: 'transcript',
-            blocks: [{ type: 'text', text: 'Message text' }]
-          }}
-          expandSignal={false}
-          activeTurnIsWorking={activeTurnIsWorking}
-          trailingRun
-          onScrollMessageToTop={vi.fn()}
-        />
-      </TooltipProvider>
+      <MessageRow
+        message={{
+          id: 'message',
+          role: 'assistant',
+          timestamp: 0,
+          source: 'transcript',
+          blocks: [{ type: 'text', text: 'Message text' }]
+        }}
+        expandSignal={false}
+        activeTurnIsWorking={activeTurnIsWorking}
+        trailingRun
+        onScrollMessageToTop={vi.fn()}
+      />
     )
     const { rerender } = render(row(true))
     expect(screen.getByText('Message text')).toBeInTheDocument()

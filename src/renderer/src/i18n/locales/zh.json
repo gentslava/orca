@@ -116,7 +116,8 @@
         "spanish": "Español",
         "french": "Français",
         "portuguese": "Português (Brasil)",
-        "russian": "Русский"
+        "russian": "Русский",
+        "turkish": "Türkçe"
       },
       "statusBar": {
         "claudeToggleDescription": "显示当前工作区的 Claude Token 与费用消耗情况。",
@@ -6129,7 +6130,7 @@
           "running": "运行中",
           "stopped": "已停止",
           "title": "添加 WSL 发行版",
-          "description": "Orca 在发行版内运行其服务器，因此 git、文件和终端都在 Linux 中原生运行。请将其用于新项目；通过 \\\\wsl.localhost 打开的项目会照常工作。",
+          "description": "Orca 在发行版内运行其服务器，因此 git、文件和终端都在 Linux 中原生运行。通过 \\\\wsl.localhost 打开的项目会照常工作，直到你将它们移到此主机。",
           "distro": "发行版",
           "loading": "正在查找 WSL 发行版…",
           "placeholder": "选择发行版",
@@ -18718,7 +18719,6 @@
       "subagents_other": "{{count}} 个子智能体"
     },
     "terminal": {
-      "closed": "没有活动的终端 — 该智能体的窗格已关闭。",
       "focusWorktree": "聚焦工作树",
       "close": "关闭",
       "remotePreviewUnavailable": "此远程会话没有预览 - 打开工作区以查看终端。"
@@ -19006,6 +19006,20 @@
       "description": "活动工作区隐藏在侧边栏中。显示它只会调整隐藏它的过滤器。",
       "confirm": "调整滤镜并显示",
       "cancel": "保留过滤器"
+    },
+    "wslMoved": {
+      "movedToHost": "已移至 {{distro}} 主机",
+      "useHere": "重新在此电脑上使用",
+      "useHereTitle": "要重新在此电脑上使用 {{name}} 吗？",
+      "useHereDescription": "Orca 会按移动前的状态在这里打开此项目。你的代码不受影响：它从未移动。移动后在 {{distro}} 主机上所做的更改（例如新标签页和聊天）会留在主机上，不会回来。与它一起移动的项目也会一起回来。在你于 {{distro}} 主机上将其移除之前，项目也会一直保留在那里。此窗口将重新加载。",
+      "useHereConfirm": "在此电脑上使用",
+      "useHereSuperseded": "之后一次移动到 {{distro}} 主机的操作包含此项目。请先将那次移动恢复。",
+      "useHereMoveRunning": "移动到 {{distro}} 主机的操作仍在进行。请在其结束后重试。",
+      "useHereHostUnreachable": "{{distro}} 主机没有响应，Orca 无法停止它上面的此项目副本，其代理可能仍在运行。请在设置中连接或移除该主机，然后重试。",
+      "useHereHostStillRunning": "{{distro}} 主机上的此项目副本仍有终端在运行，其代理可能会运行两次。请稍候再试。",
+      "useHereFailed": "无法将此项目恢复到此电脑。",
+      "useHereUnsavedTitle": "请先保存文件",
+      "useHereUnsavedDescription": "将 {{name}} 恢复到此电脑会重新加载此窗口。请先保存或关闭以下文件：{{files}}"
     },
     "startupWorktreeRefresh": {
       "loading": "正在发现工作区…",

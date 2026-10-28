@@ -6213,7 +6213,6 @@
       "src/main/skills/skill-remote-install-service.test.ts": 120,
       "src/main/skills/skill-remove-transaction.test.ts": 439,
       "src/main/skills/skill-root-file-walk.test.ts": 46,
-      "src/main/skills/skill-runtime-capability.test.ts": 76,
       "src/main/skills/skill-scan-coalescer.test.ts": 58,
       "src/main/skills/skill-share-package-name.test.ts": 358,
       "src/main/skills/skill-share-preparation-service.test.ts": 343,

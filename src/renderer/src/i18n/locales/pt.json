@@ -509,7 +509,6 @@
       "subagents_other": "{{count}} subagentes"
     },
     "terminal": {
-      "closed": "Nenhum terminal ativo — o painel deste agente foi encerrado.",
       "remotePreviewUnavailable": "Nenhuma pré-visualização para esta sessão remota — abra o espaço de trabalho para ver o terminal.",
       "focusWorktree": "Abrir worktree",
       "close": "Fechar"
@@ -733,7 +732,8 @@
         "spanish": "Español",
         "french": "Français",
         "portuguese": "Português (Brasil)",
-        "russian": "Русский"
+        "russian": "Русский",
+        "turkish": "Türkçe"
       },
       "statusBar": {
         "claudeToggleDescription": "Mostra o uso de tokens e custo do Claude para o espaço de trabalho ativo.",

@@ -16,7 +16,6 @@ const nodeRuntimeInclude = process.versions.bun
   ? getNodeRuntimeInclude({ filters: readRunFilters() })
   : []
 const balancedShards = process.env.ORCA_BALANCE_UNIT_SHARDS === '1'
-const ciUnitInventory = balancedShards || process.env.ORCA_UNIT_INVENTORY === 'ci'
 const moduleCachePath = process.env.ORCA_UNIT_MODULE_CACHE_PATH
 const measurementFile = 'src/main/foreign-sqlite-readers/foreign-sqlite-reader-event-loop.test.ts'
 const paletteMeasurementFile =
@@ -96,7 +95,7 @@ const testOptions = {
   execArgv: ['--no-experimental-webstorage', '--expose-gc'],
   setupFiles: UNIT_SETUP_FILES.map((file) => resolve(file)),
   include: UNIT_INCLUDE,
-  exclude: ciUnitInventory ? UNIT_EXCLUDE : defaultExclude,
+  exclude: balancedShards ? UNIT_EXCLUDE : defaultExclude,
   hookTimeout: 60_000,
   testTimeout: 30_000
 }
@@ -161,7 +160,6 @@ export default defineConfig({
   ...transforms,
   test: {
     ...testOptions,
-    experimental: { recordDependencies: !process.env.CI },
     forceRerunTriggers: [
       ...configDefaults.forceRerunTriggers,
       '**/pnpm-lock.yaml',

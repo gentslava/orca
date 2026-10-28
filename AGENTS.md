@@ -1,8 +1,6 @@
 # Useful Commands
 
-- **While editing**: `pnpm check:iteration --maxWorkers=2` for repeated feedback on uncommitted edits against HEAD (CI unit inventory).
-- **Before handoff**: `pnpm check:changed --maxWorkers=2` once for the whole branch (format, lint, typecheck, affected tests, ratchets; cached when nothing changed). An iteration pass does not replace this gate.
-- Stream check output and poll the same running process/session for progress. Redirecting to a file hides progress unless you tail it; keep any outer execution deadline longer than the check's step budgets plus shutdown time.
+- **Before handoff**: `pnpm check:changed --maxWorkers=2` (format, lint, typecheck, affected tests, ratchets; cached when nothing changed)
 - **Typecheck**: `pnpm tc` (or `tc:node` / `tc:cli` / `tc:web`)
 - **Test**: `pnpm test [path/to/file.test.ts]`; affected only: `pnpm test:changed [path] --maxWorkers=2` ([details](.github/CONTRIBUTING.md#targeting-local-tests))
 - **Lint**: `oxlint`; format: `pnpm format`

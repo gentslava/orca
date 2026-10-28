@@ -9,6 +9,7 @@ import {
   UI_LANGUAGE_RUSSIAN,
   UI_LANGUAGE_SPANISH,
   UI_LANGUAGE_SYSTEM,
+  UI_LANGUAGE_TURKISH,
   isPluginUiLanguage,
   type UiLanguage
 } from './ui-language'
@@ -22,7 +23,8 @@ export const SUPPORTED_UI_LOCALES = [
   'es',
   'fr',
   'pt',
-  'ru'
+  'ru',
+  'tr'
 ] as const
 export type SupportedUiLocale = (typeof SUPPORTED_UI_LOCALES)[number]
 
@@ -147,6 +149,9 @@ export function resolveUiLocale(
   }
   if (language === UI_LANGUAGE_RUSSIAN) {
     return 'ru'
+  }
+  if (language === UI_LANGUAGE_TURKISH) {
+    return 'tr'
   }
   return normalizeSupportedUiLocale(systemLocale)
 }

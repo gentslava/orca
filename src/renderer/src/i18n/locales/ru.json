@@ -377,7 +377,8 @@
         "spanish": "Español",
         "french": "Français",
         "portuguese": "Português (Brasil)",
-        "russian": "Русский"
+        "russian": "Русский",
+        "turkish": "Türkçe"
       },
       "statusBar": {
         "claudeToggleDescription": "Показывать расход токенов и стоимость Claude для активного рабочего пространства.",

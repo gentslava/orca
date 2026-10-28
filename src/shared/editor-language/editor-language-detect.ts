@@ -103,6 +103,8 @@ const EXT_TO_LANGUAGE: Record<string, string> = {
   '.vue': 'vue',
   '.svelte': 'svelte',
   '.astro': 'astro',
+  '.gjs': 'glimmer-js',
+  '.gts': 'glimmer-ts',
   '.sv': 'systemverilog',
   '.svh': 'systemverilog',
   '.v': 'verilog',

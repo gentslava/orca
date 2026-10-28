@@ -13,6 +13,7 @@ import jaCatalogUrl from './locales/ja.json?url'
 import koCatalogUrl from './locales/ko.json?url'
 import ptCatalogUrl from './locales/pt.json?url'
 import ruCatalogUrl from './locales/ru.json?url'
+import trCatalogUrl from './locales/tr.json?url'
 import zhCatalogUrl from './locales/zh.json?url'
 import zhHantCatalogUrl from './locales/zh-Hant.json?url'
 import { isPseudoLocalizationLocale, pseudoLocalizeString } from './pseudo-localization'
@@ -37,6 +38,7 @@ const NON_DEFAULT_LOCALE_URLS: Record<Exclude<SupportedUiLocale, 'en'>, string> 
   ko: koCatalogUrl,
   pt: ptCatalogUrl,
   ru: ruCatalogUrl,
+  tr: trCatalogUrl,
   zh: zhCatalogUrl,
   'zh-Hant': zhHantCatalogUrl
 }

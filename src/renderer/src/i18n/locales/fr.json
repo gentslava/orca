@@ -289,7 +289,8 @@
         "spanish": "Español",
         "french": "Français",
         "portuguese": "Português (Brasil)",
-        "russian": "Русский"
+        "russian": "Русский",
+        "turkish": "Türkçe"
       },
       "statusBar": {
         "claudeToggleDescription": "Afficher l'utilisation des tokens et des coûts de Claude pour l'espace de travail actif.",
@@ -6307,7 +6308,7 @@
           "running": "En cours",
           "stopped": "Arrêtée",
           "title": "Ajouter une distro WSL",
-          "description": "Orca exécute son serveur dans la distro, de sorte que git, les fichiers et les terminaux s'exécutent nativement sous Linux. Utilisez-la pour les nouveaux projets ; les projets que vous avez ouverts via \\\\wsl.localhost continuent de fonctionner tels quels.",
+          "description": "Orca exécute son serveur dans la distro, de sorte que git, les fichiers et les terminaux s'exécutent nativement sous Linux. Les projets que vous avez ouverts via \\\\wsl.localhost continuent de fonctionner tels quels jusqu'à ce que vous les déplaciez vers cet hôte.",
           "distro": "Distro",
           "loading": "Recherche des distros WSL…",
           "placeholder": "Choisissez une distro",
@@ -18896,7 +18897,6 @@
       "subagents_other": "{{count}} sous-agents"
     },
     "terminal": {
-      "closed": "Pas de terminal en direct — le volet de cet agent est fermé.",
       "focusWorktree": "Ouvrir le worktree",
       "close": "Fermer",
       "remotePreviewUnavailable": "Aucun aperçu pour cette session à distance — ouvrez l'espace de travail pour afficher le terminal."
@@ -19075,6 +19075,20 @@
       "description": "L'espace de travail actif est masqué dans la barre latérale. Le révéler ajustera uniquement les filtres qui le cachent.",
       "confirm": "Ajustez les filtres et révélez",
       "cancel": "Conserver les filtres"
+    },
+    "wslMoved": {
+      "movedToHost": "Déplacé vers l'hôte {{distro}}",
+      "useHere": "Utiliser à nouveau sur cet ordinateur",
+      "useHereTitle": "Utiliser à nouveau {{name}} sur cet ordinateur ?",
+      "useHereDescription": "Orca ouvrira ce projet ici tel qu'il était avant le déplacement. Votre code n'est pas concerné : il n'a jamais été déplacé. Les modifications faites sur l'hôte {{distro}} depuis le déplacement, comme de nouveaux onglets et chats, restent sur l'hôte et ne reviennent pas. Les projets déplacés avec celui-ci reviennent aussi. Le projet reste également sur l'hôte {{distro}} jusqu'à ce que vous l'y supprimiez. Cette fenêtre va se recharger.",
+      "useHereConfirm": "Utiliser sur cet ordinateur",
+      "useHereSuperseded": "Un déplacement ultérieur vers l'hôte {{distro}} inclut ce projet. Ramenez d'abord celui-là.",
+      "useHereMoveRunning": "Un déplacement vers l'hôte {{distro}} est encore en cours. Réessayez une fois terminé.",
+      "useHereHostUnreachable": "L'hôte {{distro}} ne répond pas : Orca ne peut pas arrêter sa copie de ce projet, et ses agents y tournent peut-être encore. Connectez l'hôte dans les Réglages, ou supprimez-le, puis réessayez.",
+      "useHereHostStillRunning": "La copie de ce projet sur l'hôte {{distro}} a encore des terminaux en cours : ses agents pourraient tourner deux fois. Patientez un instant, puis réessayez.",
+      "useHereFailed": "Impossible de ramener ce projet sur cet ordinateur.",
+      "useHereUnsavedTitle": "Enregistrez d'abord vos fichiers",
+      "useHereUnsavedDescription": "Récupérer {{name}} recharge cette fenêtre. Enregistrez ou fermez d'abord ces fichiers : {{files}}"
     },
     "startupWorktreeRefresh": {
       "loading": "Recherche des espaces de travail…",

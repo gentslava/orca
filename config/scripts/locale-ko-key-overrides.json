@@ -4316,9 +4316,6 @@
   "dashboardPopout.card.you": {
     "ko": "나"
   },
-  "dashboardPopout.terminal.closed": {
-    "ko": "실시간 터미널이 없습니다 — 이 에이전트의 창이 닫혔습니다."
-  },
   "dashboardPopout.terminal.focusWorktree": {
     "ko": "워크트리 열기"
   },

@@ -116,7 +116,8 @@
         "spanish": "Español",
         "french": "Français",
         "portuguese": "Português (Brasil)",
-        "russian": "Русский"
+        "russian": "Русский",
+        "turkish": "Türkçe"
       },
       "statusBar": {
         "claudeToggleDescription": "Muestra el consumo de tokens y el costo de Claude para el espacio de trabajo activo.",
@@ -6130,7 +6131,7 @@
           "running": "En ejecución",
           "stopped": "Detenida",
           "title": "Agregar distro WSL",
-          "description": "Orca ejecuta su servidor dentro de la distro, así que git, los archivos y las terminales se ejecutan de forma nativa en Linux. Úsala para proyectos nuevos; los proyectos que abriste a través de \\\\wsl.localhost siguen funcionando tal como están.",
+          "description": "Orca ejecuta su servidor dentro de la distro, así que git, los archivos y las terminales se ejecutan de forma nativa en Linux. Los proyectos que abriste a través de \\\\wsl.localhost siguen funcionando tal como están hasta que los muevas a este host.",
           "distro": "Distro",
           "loading": "Buscando distros WSL…",
           "placeholder": "Elige una distro",
@@ -18717,7 +18718,6 @@
       "subagents_other": "{{count}} subagentes"
     },
     "terminal": {
-      "closed": "No hay terminal activa: el panel de este agente se ha cerrado.",
       "focusWorktree": "Open worktree",
       "close": "Close",
       "remotePreviewUnavailable": "No hay vista previa para esta sesión remota: abre el espacio de trabajo para ver la terminal."
@@ -19304,6 +19304,20 @@
       "description": "El espacio de trabajo activo está oculto en la barra lateral. Mostrarlo solo ajustará los filtros que lo ocultan.",
       "confirm": "Ajustar filtros y mostrar",
       "cancel": "Mantener filtros"
+    },
+    "wslMoved": {
+      "movedToHost": "Movido al host de {{distro}}",
+      "useHere": "Usar de nuevo en este equipo",
+      "useHereTitle": "¿Usar {{name}} de nuevo en este equipo?",
+      "useHereDescription": "Orca abrirá este proyecto aquí tal como estaba antes de moverlo. Tu código no se ve afectado: nunca se movió. Los cambios hechos en el host {{distro}} desde el traslado, como pestañas y chats nuevos, se quedan en el host y no vuelven. Los proyectos que se movieron junto con este también vuelven. El proyecto también sigue en el host {{distro}} hasta que lo quites allí. Esta ventana se recargará.",
+      "useHereConfirm": "Usar en este equipo",
+      "useHereSuperseded": "Un traslado posterior al host {{distro}} incluye este proyecto. Trae ese de vuelta primero.",
+      "useHereMoveRunning": "Todavía hay un traslado al host {{distro}} en curso. Inténtalo de nuevo cuando termine.",
+      "useHereHostUnreachable": "El host {{distro}} no responde, así que Orca no puede detener su copia de este proyecto y sus agentes podrían seguir ejecutándose allí. Conecta el host en Configuración, o quítalo, e inténtalo de nuevo.",
+      "useHereHostStillRunning": "La copia de este proyecto en el host {{distro}} todavía tiene terminales en ejecución, así que sus agentes podrían ejecutarse dos veces. Espera un momento e inténtalo de nuevo.",
+      "useHereFailed": "No se pudo devolver este proyecto a este equipo.",
+      "useHereUnsavedTitle": "Guarda primero tus archivos",
+      "useHereUnsavedDescription": "Recuperar {{name}} recarga esta ventana. Guarda o cierra primero estos archivos: {{files}}"
     },
     "startupWorktreeRefresh": {
       "loading": "Buscando espacios de trabajo…",
