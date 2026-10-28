@@ -1,4 +1,5 @@
 import { BookOpen } from 'lucide-react'
+import { isRuntimeHostContactRevoked } from '../../../../shared/runtime-host-status'
 import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
 import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'
@@ -13,8 +14,16 @@ export function ManageInstalledSkillsButton({
   const openSkillsPage = useAppStore((state) => state.openSkillsPage)
   const { bundledSkillTarget: active, managerRuntimeTarget: manager } =
     useActiveProjectSkillRuntime()
+  const unavailable = useAppStore((state) => {
+    if (active?.kind !== 'environment') {
+      return false
+    }
+    const entry = state.runtimeStatusByEnvironmentId.get(active.environmentId)
+    return isRuntimeHostContactRevoked(entry) || entry?.snapshot?.transport === 'disconnected'
+  })
   // The existing manager follows the active host; never send another host's card there.
   if (
+    unavailable ||
     !active ||
     !manager ||
     active.kind === 'ssh' ||

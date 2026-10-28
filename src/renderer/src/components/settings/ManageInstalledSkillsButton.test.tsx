@@ -21,6 +21,7 @@ vi.mock('@/hooks/useActiveProjectSkillRuntime', () => ({
 
 let root: Root | null = null
 let container: HTMLDivElement | null = null
+const originalStatuses = useAppStore.getState().runtimeStatusByEnvironmentId
 const originalOpen = useAppStore.getState().openSkillsPage
 const open = vi.fn()
 
@@ -28,7 +29,7 @@ beforeEach(() => {
   runtime.target = { kind: 'local' }
   runtime.manager = { kind: 'local' }
   open.mockClear()
-  useAppStore.setState({ openSkillsPage: open })
+  useAppStore.setState({ openSkillsPage: open, runtimeStatusByEnvironmentId: new Map() })
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)
@@ -36,7 +37,10 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root?.unmount())
   container?.remove()
-  useAppStore.setState({ openSkillsPage: originalOpen })
+  useAppStore.setState({
+    openSkillsPage: originalOpen,
+    runtimeStatusByEnvironmentId: originalStatuses
+  })
 })
 
 async function render(target?: BundledSkillTarget | null): Promise<void> {
@@ -75,4 +79,38 @@ describe('installed skill management navigation', () => {
     expect(container?.querySelector('button')).toBeNull()
     expect(open).not.toHaveBeenCalled()
   })
+  it.each(['disconnected', 'retired', 'blocked'] as const)(
+    'hides a cached installed host after it becomes %s',
+    async (availability) => {
+      runtime.target = { kind: 'environment', environmentId: 'server' }
+      runtime.manager = runtime.target
+      await render(runtime.target)
+      expect(container?.querySelector('button')).not.toBeNull()
+      await act(async () => {
+        useAppStore.setState({
+          runtimeStatusByEnvironmentId: new Map([
+            [
+              'server',
+              {
+                status: null,
+                checkedAt: 1,
+                snapshot: {
+                  environmentId: 'server',
+                  pairingRevision: 1,
+                  sequence: 2,
+                  checkedAt: 1,
+                  status: null,
+                  verification: 'blocked',
+                  transport: availability === 'disconnected' ? 'disconnected' : 'ready',
+                  ...(availability === 'retired' ? { retired: true as const } : {})
+                }
+              }
+            ]
+          ])
+        })
+      })
+      expect(container?.querySelector('button')).toBeNull()
+      expect(open).not.toHaveBeenCalled()
+    }
+  )
 })

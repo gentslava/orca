@@ -89,11 +89,12 @@ function EffortSlider({
   onSet: (value: SessionOptionValue) => void
 }): React.JSX.Element {
   const { kind } = descriptor
-  const [draft, setDraft] = useState<{ source: typeof kind; index: number } | null>(null)
+  const [draft, setDraft] = useState<string | null>(null)
   const currentIndex = gone
     ? -1
     : kind.choices.findIndex((choice) => choice.value === kind.currentValue)
-  const index = draft?.source === kind ? draft.index : currentIndex
+  const index =
+    draft === null ? currentIndex : kind.choices.findIndex((choice) => choice.value === draft)
   const choice = index < 0 ? undefined : kind.choices[index]
   const label = nativeChatSessionOptionLabel(descriptor, say)
   const valueLabel = choice ? nativeChatSessionChoiceLabel(choice, say, descriptor.id) : '—'
@@ -131,9 +132,11 @@ function EffortSlider({
         ]}
         onValueChange={([nextIndex]) => {
           if (nextIndex !== undefined) {
-            setDraft({ source: kind, index: nextIndex })
+            setDraft(kind.choices[nextIndex]?.value ?? null)
           }
         }}
+        onPointerCancel={() => setDraft(null)}
+        onLostPointerCapture={() => setDraft(null)}
         onValueCommit={([nextIndex]) => {
           setDraft(null)
           const next = nextIndex === undefined ? undefined : kind.choices[nextIndex]
@@ -215,6 +218,7 @@ function OptionRow(props: {
   ) {
     return (
       <EffortSlider
+        key={JSON.stringify([descriptor.kind.choices.map((choice) => choice.value), current, off])}
         descriptor={{ ...descriptor, kind: descriptor.kind }}
         gone={gone}
         disabled={off}

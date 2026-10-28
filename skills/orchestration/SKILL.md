@@ -1,7 +1,7 @@
 ---
 name: orchestration
 description: >-
-  Coordinate explicitly requested Orca workers across agents, workspaces or hosts,
+  Coordinate explicitly requested Orca workers, cross-agent or cross-host work,
   or work under a live Orca Task/Dispatch preamble (check, ask, worker_done).
   Use for Orca Runs, task DAGs, decision gates and durable worker ownership.
   For ordinary delegation within Codex or Claude, prefer that agent's native
