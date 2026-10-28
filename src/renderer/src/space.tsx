@@ -17,6 +17,7 @@ import { buildAppFontFamily } from './lib/app-font-family'
 import { getOrCreateRendererRoot } from './lib/react-renderer-root'
 import { I18nProvider } from './i18n/I18nProvider'
 import { useAppStore } from './store'
+import { HoldQuitNotice } from './components/HoldQuitNotice'
 
 function SpaceWindowRoot(): React.JSX.Element {
   const { t } = useTranslation()
@@ -86,6 +87,7 @@ function SpaceWindowRoot(): React.JSX.Element {
           {activeModal === 'preserved-branch-review' ? <PreservedBranchBatchReviewModal /> : null}
         </ConfirmationDialogProvider>
         <Toaster closeButton toastOptions={{ className: 'font-sans text-sm' }} />
+        <HoldQuitNotice />
       </TooltipProvider>
     </RecoverableRenderErrorBoundary>
   )
