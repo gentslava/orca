@@ -314,6 +314,23 @@ async function runningTurn(): Promise<string> {
 }
 
 describe('a Codex send its turn ended without taking it', () => {
+  it('steers an explicit draft once using the running execution snapshot after future choices change', async () => {
+    await runningTurn()
+    const option = { key: 'model', value: 'future-model' }
+    const update = { envelope: envelope('agentSession.setOption', option), ...option }
+    expect(await host.setOption(CALLER, update)).toMatchObject({ ok: true })
+    const body = hostTestMessage('steer')
+    const fields = { body, steer: true as const, options: { model: option.value } }
+    const params = { envelope: envelope('agentSession.send', fields), ...fields }
+    await expect(host.send(CALLER, params)).resolves.toMatchObject({
+      ok: true,
+      value: { submission: { options: { model: MODEL.model } } }
+    })
+    await vi.waitFor(() => expect(steers).toBe(1))
+    expect(answers).toBe(1)
+    expect(await host.send(CALLER, params)).toMatchObject({ ok: true, replayed: true })
+    expect(steers).toBe(1)
+  })
   it('is withdrawn by a Stop before any echo, and nothing reads as working after', async () => {
     const sent = await send('look around')
     await vi.waitFor(() => expect(answers).toBe(1))

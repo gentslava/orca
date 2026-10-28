@@ -5,6 +5,14 @@ export type StructuredAgentSessionQueueDelivery = {
   enabled: boolean
 }
 
+export function structuredAgentSessionRequestedDelivery(
+  queue: StructuredAgentSessionQueueDelivery,
+  isWorking: boolean,
+  requested?: 'immediate' | 'queue-if-active'
+): 'immediate' | 'queue-if-active' | undefined {
+  return requested ?? (isWorking ? (queue.enabled ? 'queue-if-active' : 'immediate') : undefined)
+}
+
 export function structuredAgentSessionNewSendsQueue(
   queue: StructuredAgentSessionQueueDelivery
 ): boolean {

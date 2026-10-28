@@ -44,6 +44,7 @@ export function NativeChatQueuedMessageList({
   editAttachTo?: QueuedEditAttachTarget
 }): React.JSX.Element {
   const updateSettings = useAppStore((store) => store.updateSettings)
+  const queueOnEnter = useAppStore((store) => store.settings?.nativeChatQueueFollowUps !== false)
   const regionRef = useRef<HTMLDivElement>(null)
   const queueRef = useRef<HTMLDivElement>(null)
   const { cards, pause } = controller
@@ -142,7 +143,7 @@ export function NativeChatQueuedMessageList({
                     chatWorktreeId={chatWorktreeId}
                     agentName={agentName}
                     statedFailures={statedFailures}
-                    showsSteerShortcut={controller.queueCapable && card === newest}
+                    showsSteerShortcut={controller.queueCapable && queueOnEnter && card === newest}
                     steerHeld={steerHeld}
                     pending={controller.pending(card.messageId)}
                     onSteer={() => refocusAfter(controller.steer(card.messageId))}

@@ -191,6 +191,7 @@ export function useMobileStructuredAgentSession(
     enabled,
     queueCapable,
     queueFollowUps,
+    steerCapable: hostSupport?.steerDraft === true,
     commandsWait,
     stateRef,
     stopping,
@@ -271,6 +272,7 @@ export function useMobileStructuredAgentSession(
 
   return {
     ...options,
+    allowsWorkingPicks: hostSupport?.sendOptions === true,
     visualSource,
     imagePreviewsByMessageId: sends.imagePreviewsByMessageId,
     session: {

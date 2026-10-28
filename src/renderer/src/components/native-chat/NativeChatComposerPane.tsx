@@ -133,12 +133,10 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
       structuredWorktreeId: structuredTransport?.worktreeId
     })
 
-    const resolveTarget = useCallback(() => {
-      if (!targetPtyId) {
-        return null
-      }
-      return { ptyId: targetPtyId }
-    }, [targetPtyId])
+    const resolveTarget = useCallback(
+      () => (targetPtyId ? { ptyId: targetPtyId } : null),
+      [targetPtyId]
+    )
 
     const attachments = useNativeChatComposerAttachments({
       attachmentScopeKey: draftScopeKey,
@@ -289,7 +287,7 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
       optimisticSendOutcome,
       terminalTabId
     })
-    const { send: sendMessage, goalMode } = useNativeChatComposerSubmit({
+    const submit = useNativeChatComposerSubmit({
       structuredTransport,
       draftScopeKey,
       draft,
@@ -302,6 +300,8 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
       setDraft,
       setCaret
     })
+
+    const { sendAlternate, goalMode } = submit
 
     const { send, chooseEditItem, fieldOverrides, dispatchPickerCommand } =
       useNativeChatComposerEditSession({
@@ -317,7 +317,7 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
         sendStructured,
         ptyCommandRouting: { ...ptyCommandRouting, setActiveSuggestion },
         setNotice,
-        sendMessage
+        sendMessage: submit.send
       })
 
     const interrupt = useNativeChatComposerInterrupt({
@@ -343,8 +343,10 @@ export const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, Nativ
       dismissPicker: dismiss,
       interrupt: editSession?.cancel ?? interrupt,
       send,
+      ...(!editSession && structuredTransport && isWorking ? { sendAlternate } : {}),
       hasAttachments: imageAttachments.length > 0,
-      ...(!editSession && steerQueued ? { steerQueued } : {}),
+      steerQueued:
+        editSession || structuredTransport?.queue?.enabled === false ? undefined : steerQueued,
       setActiveSuggestion,
       setDraft,
       setCaret

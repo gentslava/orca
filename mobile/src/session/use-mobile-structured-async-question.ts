@@ -13,7 +13,7 @@ export type MobileStructuredAskSession = Pick<
   'permission' | 'question' | 'sendWithOutcome'
 >
 
-// Keep nonblocking structured questions pending until the next user message; answer by ordinary send without touching the draft.
+// Card answers reach the current turn without touching the composer draft.
 export function useMobileStructuredAsyncQuestion(args: {
   structured: MobileStructuredAskSession | null
   messages: readonly NativeChatMessage[]
@@ -34,7 +34,16 @@ export function useMobileStructuredAsyncQuestion(args: {
   const answer = useCallback(
     async (prompt: AskPrompt, selections: AskAnswerSelection[]) =>
       sendWithOutcome !== undefined &&
-      (await sendWithOutcome(formatAskAnswer(prompt, selections))) !== 'rejected',
+      (await sendWithOutcome(
+        formatAskAnswer(prompt, selections),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        {
+          delivery: 'immediate'
+        }
+      )) !== 'rejected',
     [sendWithOutcome]
   )
   return { ask, answer: structured ? answer : null }

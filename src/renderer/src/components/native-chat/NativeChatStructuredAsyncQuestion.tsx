@@ -6,7 +6,7 @@ import { NativeChatQuestionCard } from './NativeChatQuestionCard'
 import type { NativeChatLiveSession } from './use-native-chat-live-session'
 import { useNativeChatPromptCardPresentation } from './use-native-chat-prompt-card-presentation'
 
-/** Async questions leave the composer usable; the next ordinary send answers them and Cancel only hides them. */
+/** Async questions keep the composer usable; card answers reach the current turn immediately. */
 export function NativeChatStructuredAsyncQuestion({
   paneKey,
   session,
@@ -36,7 +36,9 @@ export function NativeChatStructuredAsyncQuestion({
       key={presentation.occurrenceKey ?? 'async-question'}
       prompt={card.prompt}
       onAnswer={(selections) => {
-        if (send(formatAskAnswer(card.prompt, selections), []) !== false) {
+        if (
+          send(formatAskAnswer(card.prompt, selections), [], { delivery: 'immediate' }) !== false
+        ) {
           presentation.dismiss()
         }
       }}

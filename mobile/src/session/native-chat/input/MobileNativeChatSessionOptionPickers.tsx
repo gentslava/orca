@@ -1,3 +1,7 @@
+import {
+  permissionChoiceColor,
+  permissionModeIcon
+} from './mobile-native-chat-permission-option-style'
 import { useEffect, useRef } from 'react'
 import {
   AccessibilityInfo,
@@ -8,16 +12,7 @@ import {
   Text,
   View
 } from 'react-native'
-import {
-  ChevronLeft,
-  FilePenLine,
-  Hand,
-  LockKeyhole,
-  ShieldAlert,
-  ShieldCheck,
-  X,
-  type LucideIcon
-} from 'lucide-react-native'
+import { ChevronLeft, LockKeyhole, X } from 'lucide-react-native'
 import { BottomDrawer } from '../../../components/BottomDrawer'
 import { colors } from '../../../theme/mobile-theme'
 import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
@@ -46,11 +41,7 @@ import {
   showsSessionOptionAsSegments
 } from './MobileNativeChatSessionOptionSegments'
 import { sortNativeChatSessionOptions } from '../../../../../src/shared/native-chat/input/native-chat-session-option-snapshot'
-import {
-  AGENT_CHAT_PERMISSION_MODE_ICON_NAMES,
-  AGENT_CHAT_PERMISSION_MODE_OPTION_ID,
-  isAgentChatPermissionMode
-} from '../../../../../src/shared/agent-chat-permission-mode'
+import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../../src/shared/agent-chat-permission-mode'
 import type { MobileNativeChatSessionOptionsController } from './use-mobile-native-chat-session-options'
 import { sessionOptionPickerStyles as styles } from './mobile-native-chat-session-option-picker-styles'
 
@@ -58,8 +49,10 @@ export type MobileNativeChatPickerPresentation = { page: string | null; refocus:
 
 export type MobileNativeChatSessionOptionPickersProps = {
   controller: MobileNativeChatSessionOptionsController
-  // Mid-turn model commands would interleave with agent output.
+  // Mid-turn terminal model commands would interleave with agent output.
   isWorking: boolean
+  /** Structured hosts capture choices per message; terminal commands still wait. */
+  allowsWorkingPicks?: boolean
   // Block applies during composer send: the host’s body/Enter delay could submit the setting as prompt text.
   sendInFlight?: boolean
 }
@@ -71,26 +64,6 @@ type PresentationProps = {
   onDrawerAfterClose?: () => void
 }
 
-function permissionChoiceColor(value: string | undefined): string | undefined {
-  return value === 'full-access' ? colors.statusAmber : undefined
-}
-
-function permissionModeIcon(value: string): LucideIcon | undefined {
-  if (!isAgentChatPermissionMode(value)) {
-    return undefined
-  }
-  switch (AGENT_CHAT_PERMISSION_MODE_ICON_NAMES[value]) {
-    case 'Hand':
-      return Hand
-    case 'FilePenLine':
-      return FilePenLine
-    case 'ShieldCheck':
-      return ShieldCheck
-    case 'ShieldAlert':
-      return ShieldAlert
-  }
-}
-
 function selectedChoice(descriptor: SessionOptionDescriptor | undefined) {
   return descriptor?.kind.type === 'select'
     ? descriptor.kind.choices.find((choice) => choice.value === descriptor.kind.currentValue)
@@ -100,6 +73,7 @@ function selectedChoice(descriptor: SessionOptionDescriptor | undefined) {
 export function MobileNativeChatSessionOptionPickers({
   controller,
   isWorking,
+  allowsWorkingPicks = false,
   sendInFlight = false,
   presentation,
   onNavigate,
@@ -127,16 +101,19 @@ export function MobileNativeChatSessionOptionPickers({
     activeDescriptor !== undefined &&
     isWorking &&
     !permissionView
+  const workingNoticeDescription = allowsWorkingPicks
+    ? 'Choices apply to future messages.'
+    : 'Model settings unlock when this turn finishes.'
 
   useEffect(() => {
     if (Platform.OS === 'ios' && showWorkingNotice) {
       // Queued announcements cannot be canceled when the picker closes or changes pages.
       AccessibilityInfo.announceForAccessibilityWithOptions(
-        'Agent is working. Model settings unlock when this turn finishes.',
+        `Agent is working. ${workingNoticeDescription}`,
         { queue: false }
       )
     }
-  }, [showWorkingNotice])
+  }, [showWorkingNotice, workingNoticeDescription])
 
   const options = sortNativeChatSessionOptions(snapshot)
   if (!model && !permission) {
@@ -146,7 +123,7 @@ export function MobileNativeChatSessionOptionPickers({
   const homeView = activeDescriptor !== undefined && activeDescriptor === home
   const busy = pendingId !== null || sendInFlight
   // Permission mode affects the next send, so a working turn must not lock it.
-  const locked = isWorking || busy
+  const locked = (isWorking && !allowsWorkingPicks) || busy
   const reason = nativeChatSessionOptionDisabledReason(activeDescriptor?.disabledReason, say)
   const permissionChoice = selectedChoice(permission)
   const permissionColor = permissionChoiceColor(permissionChoice?.value)
@@ -238,12 +215,12 @@ export function MobileNativeChatSessionOptionPickers({
             </View>
             {showWorkingNotice ? (
               <View style={styles.lockNotice} accessibilityLiveRegion="polite">
-                <LockKeyhole size={16} color={colors.textSecondary} />
+                {!allowsWorkingPicks ? (
+                  <LockKeyhole size={16} color={colors.textSecondary} />
+                ) : null}
                 <View style={styles.lockNoticeBody}>
                   <Text style={styles.lockNoticeTitle}>Agent is working</Text>
-                  <Text style={styles.lockNoticeDescription}>
-                    Model settings unlock when this turn finishes.
-                  </Text>
+                  <Text style={styles.lockNoticeDescription}>{workingNoticeDescription}</Text>
                 </View>
               </View>
             ) : null}

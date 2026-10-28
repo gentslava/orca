@@ -18,6 +18,8 @@ import type { NativeChatComposerImageAttachment } from './NativeChatComposerFiel
 import type { NativeChatAfterStopSend } from './native-chat-composer-target'
 import type { NativeChatLocalCommandAnswer } from './use-native-chat-local-command-answer'
 import type { NativeChatRecallSource } from './native-chat-sent-prompt-history'
+import type { StructuredAgentSessionQueueDelivery } from './structured-agent-session-queue-request'
+import type { StructuredAgentSessionHostCapabilityState } from '@/runtime/structured-agent-session-host-capability'
 
 export type NativeChatComposerErrorDetail = {
   /** Error text Orca did not write, shown apart and copyable. */
@@ -34,6 +36,9 @@ export type NativeChatOptionPickerRequest = {
 }
 
 export type NativeChatStructuredComposerTransport = {
+  queue?: StructuredAgentSessionQueueDelivery
+  isWorking?: boolean
+  steerCapability?: StructuredAgentSessionHostCapabilityState
   capturePresentation: CaptureStructuredAgentSessionPresentation
   conversationCommands?: readonly AgentSessionConversationCommand[]
   send: (

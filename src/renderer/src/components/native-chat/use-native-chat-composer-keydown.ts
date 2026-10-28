@@ -33,6 +33,8 @@ export type UseNativeChatComposerKeyDownArgs = {
   dismissPicker: (triggerKey: string) => void
   interrupt: () => void
   send: () => void
+  /** Performs the opposite of the configured Enter action on the complete draft. */
+  sendAlternate?: (() => void) | undefined
   /** Empty-composer Cmd/Ctrl+Enter steers the newest card; false falls through to send. */
   steerQueued?: (() => boolean) | undefined
   setActiveSuggestion: Dispatch<SetStateAction<number>>
@@ -54,6 +56,7 @@ export function useNativeChatComposerKeyDown({
   dismissPicker,
   interrupt,
   send,
+  sendAlternate,
   steerQueued,
   setActiveSuggestion,
   setDraft,
@@ -75,6 +78,10 @@ export function useNativeChatComposerKeyDown({
       if (event.key === 'Escape' && event.defaultPrevented) {
         return
       }
+      if (event.key === 'Enter' && event.repeat && !event.shiftKey) {
+        event.preventDefault()
+        return
+      }
 
       if (autocomplete.mode !== 'none') {
         const items = autocomplete.mode === 'slash' ? autocomplete.items : mentionFiles.files
@@ -89,7 +96,11 @@ export function useNativeChatComposerKeyDown({
           return
         }
         // Shift keeps its own meaning: a newline for Enter, focus back for Tab.
-        const picks = (event.key === 'Enter' || event.key === 'Tab') && !event.shiftKey
+        const picks =
+          (event.key === 'Enter' || event.key === 'Tab') &&
+          !event.shiftKey &&
+          !event.metaKey &&
+          !event.ctrlKey
         if (picks && items.length > 0) {
           event.preventDefault()
           if (autocomplete.mode === 'mention') {
@@ -132,7 +143,11 @@ export function useNativeChatComposerKeyDown({
           return
         }
         event.preventDefault()
-        send()
+        if (steerChord && sendAlternate) {
+          sendAlternate()
+        } else {
+          send()
+        }
         return
       }
       const arrow = event.key === 'ArrowUp' || event.key === 'ArrowDown'
@@ -177,6 +192,7 @@ export function useNativeChatComposerKeyDown({
       isComposing,
       mentionFiles,
       send,
+      sendAlternate,
       steerQueued,
       setActiveSuggestion,
       setCaret,

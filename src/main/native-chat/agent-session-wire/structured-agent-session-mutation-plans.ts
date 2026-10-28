@@ -151,6 +151,7 @@ export function sendPlan(
         origin: params.userSend ? 'client' : 'host',
         ...(source ? { source } : {}),
         clientMessageId,
+        ...(params.steer ? { steer: params.steer } : {}),
         ...(params.options ? { options: params.options } : {}),
         payloadFingerprint: agentSessionSendBodyFingerprint(params.envelope.sessionId, params.body),
         body: params.body

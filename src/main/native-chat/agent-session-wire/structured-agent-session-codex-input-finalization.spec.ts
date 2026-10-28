@@ -51,7 +51,8 @@ export function registerCodexInputFinalization(current: typeof codexInputFinaliz
     const journal = sessions.get(SESSION)!.journal
     const persisted = vi.spyOn(journal, 'resolveDispatch')
     if (failure === 'lost-steer') {
-      await began(await permissionSend('running'))
+      await began(await permissionSend('running', { personality: 'friendly' }))
+      await pick('auto')
     }
     const paused = Promise.withResolvers<unknown>()
     codex.routes['config/read'] = () => paused.promise

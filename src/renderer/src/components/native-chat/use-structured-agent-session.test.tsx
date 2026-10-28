@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
 
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
+import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
+import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-create-capabilities'
 
 const mocks = vi.hoisted(() => ({
   call: vi.fn(),
@@ -112,6 +114,17 @@ const FAST_OPTIONS = {
   models: OPTIONS.models.map((model) => ({ ...model, supportsFastMode: true })),
   fastModeSupport: { supported: true },
   current: { ...OPTIONS.current, fastMode: false, confirmed: ['fastMode'] }
+}
+
+function renderLocalSessionOptions() {
+  return renderHook(() =>
+    useStructuredAgentSession({
+      sessionId: 'session-1',
+      target: LOCAL_TARGET,
+      agent: 'codex',
+      isVisible: true
+    })
+  )
 }
 
 describe('useStructuredAgentSession working state', () => {
@@ -627,14 +640,7 @@ describe('useStructuredAgentSession options', () => {
         }
       })
     })
-    const { result } = renderHook(() =>
-      useStructuredAgentSession({
-        sessionId: 'session-1',
-        target: LOCAL_TARGET,
-        agent: 'codex',
-        isVisible: true
-      })
-    )
+    const { result } = renderLocalSessionOptions()
     await waitFor(() => expect(result.current.optionSnapshot).toHaveLength(3))
 
     await act(async () => {
@@ -663,6 +669,8 @@ describe('useStructuredAgentSession options', () => {
   })
 
   it('discards an option read that began before a Fast mutation', async () => {
+    setLocalRuntimeCapabilitiesForTests([AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY])
+    onTestFinished(() => setLocalRuntimeCapabilitiesForTests(null))
     const staleRead = Promise.withResolvers<typeof FAST_OPTIONS>()
     let optionReads = 0
     mocks.call.mockImplementation((_target, method) => {
@@ -691,14 +699,7 @@ describe('useStructuredAgentSession options', () => {
         }
       })
     })
-    const { result, rerender } = renderHook(() =>
-      useStructuredAgentSession({
-        sessionId: 'session-1',
-        target: LOCAL_TARGET,
-        agent: 'codex',
-        isVisible: true
-      })
-    )
+    const { result, rerender } = renderLocalSessionOptions()
     await waitFor(() => expect(result.current.optionSnapshot).toHaveLength(3))
     items = [
       {

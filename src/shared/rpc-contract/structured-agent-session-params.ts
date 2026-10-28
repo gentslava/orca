@@ -118,19 +118,21 @@ export const CreateSupportParams = z
   .strict()
 
 export const SendParams = z
-  .object({
+  .strictObject({
     envelope: MutationEnvelope,
     retryUnknown: z.literal(true).optional(),
     /** Host-held draft while active; gate strict payloads on agent-session.queued-messages.v1.
      * Operation fingerprint only, never body fingerprint. */
     delivery: z.literal('queue-if-active').optional(),
+    /** Requires agent-session.steer-draft.v1; the host captures running-turn choices. */
+    steer: z.literal(true).optional(),
     /** Preserve composer options until dispatch; requires agent-session.send-options.v1. Operation fingerprint only. */
     options: AgentSessionOptions.optional(),
     // Strict payload: only hosts advertising the bound usage-limit send capability accept this.
     usageLimitContinuationOfTurnItemId: Identifier('Invalid source turn item id').optional(),
     body: SendBody
   })
-  .strict()
+  .refine((send) => !(send.steer && send.delivery), 'Steering cannot request queued delivery')
 
 export const CreateIntentParams = z
   .object({

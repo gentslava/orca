@@ -37,14 +37,14 @@ export const AGENT_SESSION_ACCEPTED_SEND_RUNTIME_CAPABILITY =
 export const AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY =
   'agent-session.send-answers-proof.v1' as const
 // Older hosts reject delivery; older clients cannot render queued replies. Gate queue-if-active,
-// its setting and chord, but never kept-draft lists/actions. DARK until the shipped host passes
-// the integrated Codex steer matrix (#21062); keep out of AGENT_SESSION_RUNTIME_CAPABILITIES.
+// its setting and chord, but never kept-draft lists/actions.
 // v1 links hand-offs via submission.queuedMessageId, never equal draft/submission IDs. queuePause
 // holds every card until queuedMessagesResume or a later turn starts. nextQueuedMessageId names
 // the next eligible card; null/missing means none. Per-card holds: send_failed conversion or kept.
 // Host mechanisms land first; this capability gates rollout.
 export const AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY =
   'agent-session.queued-messages.v1' as const
+export const AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY = 'agent-session.steer-draft.v1' as const
 // Advertise in-place update/edit holds separately from mid-turn queueing: kept/mail cards remain editable while queueing is off. Never fall back to copy/delete.
 export const AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY =
   'agent-session.queued-message-edit.v1' as const
@@ -112,6 +112,8 @@ export const AGENT_SESSION_RUNTIME_CAPABILITIES = [
   // turn starts, so a client may gate on either.
   AGENT_SESSION_ACCEPTED_SEND_RUNTIME_CAPABILITY,
   AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY,
+  AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
+  AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_COMMANDS_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_REORDER_RUNTIME_CAPABILITY,
