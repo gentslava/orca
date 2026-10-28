@@ -20,11 +20,7 @@ let cachedCatalogSource: CatalogSource | null = null
 export function getProjectSectionCatalogFromState(
   state: Pick<
     AppState,
-    | 'repos'
-    | 'endpointProjects'
-    | 'endpointProjectHostSetups'
-    | 'projectOrderBy'
-    | 'personalProjectOrder'
+    'repos' | 'projects' | 'projectHostSetups' | 'projectOrderBy' | 'personalProjectOrder'
   >
 ): MobileProjectSectionCatalog | null {
   // Why: graph publication must not fail on a store slice that holds no repo catalog.

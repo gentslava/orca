@@ -10,6 +10,7 @@ vi.mock('electron', () => ({
 
 import {
   UI_LANGUAGE_CHINESE,
+  UI_LANGUAGE_CHINESE_TRADITIONAL,
   UI_LANGUAGE_ENGLISH,
   UI_LANGUAGE_JAPANESE,
   UI_LANGUAGE_KOREAN,
@@ -59,6 +60,9 @@ describe('main-i18n lazy locale loading', () => {
     expect(translateMain('menu.file', 'File')).not.toBe('File')
 
     await setMainUiLanguage(UI_LANGUAGE_PORTUGUESE)
+    expect(translateMain('menu.file', 'File')).not.toBe('File')
+
+    await setMainUiLanguage(UI_LANGUAGE_CHINESE_TRADITIONAL)
     expect(translateMain('menu.file', 'File')).not.toBe('File')
   })
 

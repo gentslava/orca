@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   UI_LANGUAGE_CHINESE,
+  UI_LANGUAGE_CHINESE_TRADITIONAL,
   UI_LANGUAGE_ENGLISH,
   UI_LANGUAGE_PORTUGUESE,
   UI_LANGUAGE_RUSSIAN,
@@ -61,6 +62,14 @@ describe('renderer i18n lazy locale loading', () => {
         })
       ).toBe(expected)
     }
+  })
+
+  it('falls back from Traditional Chinese to English, never Simplified', async () => {
+    i18n.addResourceBundle('zh', 'translation', { zhOnlyKey: '简体' }, true, true)
+    await setRendererUiLanguage(UI_LANGUAGE_CHINESE_TRADITIONAL)
+    expect(i18n.language).toBe('zh-Hant')
+    expect(i18n.t('menu.file', { defaultValue: 'File' })).not.toBe('File')
+    expect(i18n.t('zhOnlyKey', { defaultValue: 'English' })).toBe('English')
   })
 
   it.each(['network', 'http', 'invalid-json'] as const)(

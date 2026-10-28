@@ -81,6 +81,7 @@ ORCA repo set-base-ref --repo id:<repoId> --ref origin/main --json
 ORCA repo search-refs --repo id:<repoId> --query main --limit 10 --json
 ORCA worktree list --repo id:<repoId> --json
 ORCA worktree ps --json
+ORCA worktree ps --agent-wait --json
 ORCA worktree current --json
 ORCA worktree show --worktree <selector> --json
 ORCA worktree create --repo id:<repoId> --name related-task --json

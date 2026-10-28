@@ -1,4 +1,3 @@
-import { getProjectHostSetupProjectionFromState } from '@/store/project-host-setup-selector'
 import { useMemo, useRef, useState } from 'react'
 import { AI_VAULT_AGENTS } from '../../../../shared/ai-vault-types'
 import { useAiVaultConversationSearch } from './ai-vault-conversation-search'
@@ -63,8 +62,7 @@ export default function AiVaultPanel({
   const {
     workspaceId: activeWorktreeId,
     worktree: activeWorktree,
-    repo: activeRepo,
-    legacyProjectKey
+    repo: activeRepo
   } = useAiVaultPanelWorkspace(workspace)
   const repos = useRepos()
   const allWorktrees = useAllWorktrees()
@@ -72,7 +70,7 @@ export default function AiVaultPanel({
   const projectHostSetupProjection = useProjectHostSetupProjection()
   const resumeTargetState = useAppStore(
     useShallow((state) => ({
-      projectHostSetupProjection: getProjectHostSetupProjectionFromState(state),
+      projects: state.projects,
       settings: state.settings,
       folderWorkspaces: selectFolderWorkspaces(state),
       projectGroups: state.projectGroups,
@@ -134,8 +132,7 @@ export default function AiVaultPanel({
     worktrees: allWorktrees,
     projectHostSetupProjection,
     scope,
-    activeProjectKey,
-    legacyProjectKey
+    activeProjectKey
   })
   const {
     error,
@@ -146,14 +143,7 @@ export default function AiVaultPanel({
     sessions: history,
     loadedSessionLimit
   } = useAiVaultSessionRefresh(scopePaths, executionHostScope, sessionLimit, conversationNavigation)
-  const search = useAiVaultPanelSearch(
-    query,
-    agents,
-    searchWithin,
-    executionHostScope,
-    searchSort,
-    activeProjectKey ?? undefined
-  )
+  const search = useAiVaultPanelSearch(query, agents, searchWithin, executionHostScope, searchSort)
   const { searching, searchHits } = search
   const searchSessions = useMemo(
     () => withAiVaultHistoryPreviews(search.sessions, history),

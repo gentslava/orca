@@ -11,7 +11,10 @@ import {
   snapshotEvent
 } from './use-mobile-structured-agent-session-queued.test-fixture'
 import { markRpcDeliveryUnknown } from '../transport/rpc-delivery-ambiguity'
-import { mobileSendReply as sendResult } from './structured-agent-send-result.test-fixture'
+import {
+  mobileSendReply as sendResult,
+  structuredSendResultFixture
+} from './structured-agent-send-result.test-fixture'
 import {
   deferred,
   SEND_MODEL_OPTIONS as MODEL_OPTIONS
@@ -531,9 +534,6 @@ describe('mobile structured send actions', () => {
 
   it('shows a recovered unknown once and a new Send and reply without replay', async () => {
     const original = structuredSendResultFixture('unknown')
-    if (!('submission' in original)) {
-      throw new Error('expected a submission answer')
-    }
     original.submission.recovered = true
     const event = snapshotEvent({
       items: [
@@ -554,9 +554,6 @@ describe('mobile structured send actions', () => {
       }
       const id = String(fieldsOf(fieldsOf(params).envelope).clientOperationId)
       const value = structuredSendResultFixture('accepted')
-      if (!('submission' in value)) {
-        throw new Error('expected a submission answer')
-      }
       value.clientMessageId = id
       value.submission.clientMessageId = id
       return ok({
@@ -582,9 +579,6 @@ describe('mobile structured send actions', () => {
     expect(hook!.session.messages.map((message) => message.id)).toEqual([messages[0]?.id, sent])
     expect(hook!.session.messages[0]).toEqual(messages[0])
     const followUp = structuredSendResultFixture('accepted')
-    if (!('submission' in followUp)) {
-      throw new Error('expected a submission answer')
-    }
     const newId = sentIds()[0]!
     expect(newId).not.toBe(original.submission.clientMessageId)
     followUp.submission.clientMessageId = newId
@@ -627,9 +621,6 @@ describe('mobile structured send actions', () => {
       const fact = { kind: 'notSignedIn' } as const
       const words = agentSessionFailureWords(fact, { agentName: 'Codex', surface: 'row' })
       const value = structuredSendResultFixture('rejected', words.text)
-      if (!('submission' in value)) {
-        throw new Error('expected submission')
-      }
       value.submission.rejection = fact
       const sentRow = agentJournalSubmissionKey(value.submission.clientMessageId)
       const event = snapshotEvent({

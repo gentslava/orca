@@ -3,12 +3,11 @@ import {
   normalizeExecutionHostId,
   toRuntimeExecutionHostId
 } from './execution-host'
-import type { ProjectHostSetup } from './project-types'
 import { getRepoHostIdentityForParts, getRepoSetupOwnerScope } from './repo-host-identity'
+import type { ProjectHostSetup } from './project-types'
 import type { Repo } from './repo-types'
 import type { WorktreeMeta } from './worktree/meta-types'
 import { projectHostSetupProjectionFromRepos } from './project-host-setup-projection'
-import { resolveProjectHostSetupProjection } from './project-host-setup-hydration'
 
 type SetupOwner = Pick<ProjectHostSetup, 'projectId' | 'repoId'> &
   Partial<Pick<ProjectHostSetup, 'id' | 'hostId' | 'executionHostId' | 'connectionId'>>
@@ -29,7 +28,7 @@ type ProjectHostSetupLookup = {
   projectId: (workspace: WorkspaceProjectOwner) => string | undefined
 }
 
-/** Current checkout ownership outranks a saved association, without guessing an absent owner. */
+/** Resolve recorded workspace ownership and its host-scoped checkout fallback. */
 export function getProjectHostSetupLookup(
   setups: readonly SetupOwner[] = EMPTY_SETUPS
 ): ProjectHostSetupLookup {
@@ -97,7 +96,7 @@ export function getProjectHostSetupLookup(
   const lookup = {
     forWorkspace,
     projectId: (workspace: WorkspaceProjectOwner) =>
-      forWorkspace(workspace)?.projectId ?? workspace.projectId ?? undefined
+      workspace.projectId ?? forWorkspace(workspace)?.projectId ?? undefined
   }
   ownerLookupCache.set(setups, lookup)
   return lookup
@@ -120,20 +119,10 @@ export function getProjectHostSetupWorktreeMeta(
   setups: readonly ProjectHostSetup[],
   repo: Repo
 ): Pick<WorktreeMeta, 'projectId' | 'hostId' | 'projectHostSetupId'> {
-  const setup = getProjectHostSetupForRepo(
-    resolveProjectHostSetupProjection([repo], [], setups).setups,
-    repo
-  )
+  const setup = getProjectHostSetupForRepo(setups, repo)
   return {
     projectId: setup.projectId,
     hostId: setup.hostId,
     projectHostSetupId: setup.id
   }
-}
-
-export function getProjectHostSetupsForProject(
-  setups: readonly ProjectHostSetup[],
-  projectId: string
-): readonly ProjectHostSetup[] {
-  return setups.filter((setup) => setup.projectId === projectId)
 }

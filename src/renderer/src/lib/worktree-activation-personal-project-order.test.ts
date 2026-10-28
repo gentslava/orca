@@ -82,8 +82,8 @@ describe('successful deliberate personal project activation', () => {
       }
       useAppStore.setState({
         repos: [a, remoteA, b],
-        endpointProjects: [],
-        endpointProjectHostSetups: [],
+        projects: [],
+        projectHostSetups: [],
         worktreesByRepo: { a: [...previousRows, target], b: [other] },
         activeRepoId: a.id,
         activeWorktreeId: previous.id,
@@ -151,8 +151,8 @@ describe('successful deliberate personal project activation', () => {
     const wb = { ...worktree, id: 'b::/b/one', repoId: 'b', path: '/b/one' }
     useAppStore.setState({
       repos: [a, b],
-      endpointProjects: [],
-      endpointProjectHostSetups: [],
+      projects: [],
+      projectHostSetups: [],
       worktreesByRepo: { a: [wa, wa2], b: [wb] },
       activeRepoId: 'b',
       activeWorktreeId: wb.id,

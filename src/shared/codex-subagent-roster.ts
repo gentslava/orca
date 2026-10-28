@@ -135,7 +135,7 @@ export function codexRosterToSnapshots(
     state: tracked.state,
     startedAt: tracked.startedAt
   }))
-  snapshots.sort((a, b) => a.startedAt - b.startedAt || a.id.localeCompare(b.id))
+  snapshots.sort((a, b) => a.startedAt - b.startedAt || a.id.localeCompare(b.id, 'en'))
   return snapshots
 }
 

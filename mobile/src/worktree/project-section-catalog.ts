@@ -4,7 +4,6 @@ import { getLogicalRepoOrderRankById } from '../../../src/shared/project-section
 import type { ProjectOrderBy } from '../../../src/shared/ui-chrome-types'
 import type { ServedProjectSections } from './project-sections-operations'
 import type { ProjectSectionCatalog, SectionRepo } from './workspace-list-types'
-import { resolveServedProjectSectionClaims } from '../../../src/shared/project-section-catalog-claims'
 
 export type { ProjectSectionCatalog } from './workspace-list-types'
 
@@ -36,7 +35,6 @@ export function buildProjectSectionCatalog(
       projectOrderBy: projectOrderBy ?? NO_PROJECT_SECTION_CATALOG.projectOrderBy
     }
   }
-  served = resolveServedProjectSectionClaims(served)
   // Why: the desktop withholds uploaded image icons from the snapshot; its repo.list still carries them.
   const iconKey = (repo: SectionRepo) => `${getRepoExecutionHostId(repo)}|${repo.id}`
   const iconByKey = new Map(desktopRepos.map((repo) => [iconKey(repo), repo.repoIcon]))

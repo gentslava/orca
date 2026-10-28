@@ -2,7 +2,7 @@ import { AI_VAULT_CHAT_FORK_SOURCE_CAPABILITY } from './ai-vault-resume-preparat
 
 // aiVault.listSessions is unconditional, so getStatus advertises this statically rather than as a runtime-dependent capability.
 export const AI_VAULT_RUNTIME_CAPABILITY = 'aiVault.v1' as const
-// Canonical Project intent is resolved before native candidate limits; absent intent stays legacy.
+// Older hosts can resolve canonical project intent before native candidate limits.
 export const AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY =
   'aiVault.search.canonical-project.v1' as const
 export const AI_VAULT_SESSION_TITLES_RUNTIME_CAPABILITY = 'aiVault.session-titles.v1' as const
@@ -13,7 +13,6 @@ export const AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY = 'aiVault.selected-se
 export const AI_VAULT_RUNTIME_CAPABILITIES = [
   AI_VAULT_RUNTIME_CAPABILITY,
   AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY,
-  AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY,
   AI_VAULT_SESSION_TITLES_RUNTIME_CAPABILITY,
   AI_VAULT_DELETE_SESSION_RUNTIME_CAPABILITY,
   AI_VAULT_CHAT_FORK_SOURCE_CAPABILITY

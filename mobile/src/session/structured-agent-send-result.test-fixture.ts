@@ -7,7 +7,7 @@ import type { AgentSessionSendResult } from '../../../src/shared/agent-session-w
 export function structuredSendResultFixture(
   dispatchState: AgentJournalDispatchState,
   reason: string | null = null
-): AgentSessionSendResult {
+): Extract<AgentSessionSendResult, { submission: unknown }> {
   return {
     clientMessageId: 'msg-1',
     submission: {

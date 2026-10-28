@@ -2102,5 +2102,17 @@
   "components.native-chat.composer.optionValueShort.ultra": {
     "source": "Ultra",
     "rationale": "Keep the provider effort name compact in the composer; the full menu label remains localized."
+  },
+  "settings.appearance.language.chineseTraditional": {
+    "source": "繁體中文（台灣）",
+    "rationale": "Родное название языка в списке выбора сохраняется в исходном написании."
+  },
+  "settings.browser.extensions.keywordChrome": {
+    "source": "chrome",
+    "rationale": "Название браузера и точный поисковый термин сохраняются без перевода."
+  },
+  "auto.components.settings.experimental.search.browserExtensions.chrome": {
+    "source": "chrome",
+    "rationale": "Название браузера и точный поисковый термин сохраняются без перевода."
   }
 }

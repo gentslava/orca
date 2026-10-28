@@ -53,6 +53,7 @@ import { useNativeChatLinkActions } from './use-native-chat-link-actions'
 import type { NativeChatResolvedViewProps } from './native-chat-view-types'
 import { useNativeChatFileLinkContext } from './use-native-chat-file-link-context'
 import { useRecheckNativeChatFileLinksWhenTurnEnds } from './use-native-chat-file-link-existence'
+import { useNativeChatImageRuntimeContext } from './native-chat-image-runtime-context'
 import { matchNativeChatSplitShortcut } from './native-chat-split-shortcut'
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
 import { formatShortcutLabel } from '@/hooks/useShortcutLabel'
@@ -80,6 +81,7 @@ export function NativeChatResolvedView({
     JSON.stringify([paneKey, runtimeEnvironmentId, sessionId])
   )
   const keybindings = useAppStore((s) => s.keybindings)
+  const imageRuntimeContext = useNativeChatImageRuntimeContext(terminalTabId)
   const session = useNativeChatRetainedSession({
     paneKey,
     agent,
@@ -341,6 +343,7 @@ export function NativeChatResolvedView({
                 onLinkClick={onLinkClick}
                 allowFileUriLinks={fileLinkContext !== null}
                 deliveryNotices={deliveryNotices}
+                runtimeContext={imageRuntimeContext}
               />
             )}
           </div>
@@ -403,6 +406,7 @@ export function NativeChatResolvedView({
             session={sessionWithPending}
             isVisible={isVisible}
             onLinkClick={onLinkClick}
+            runtimeContext={imageRuntimeContext}
           />
         ) : null}
         {contextMenu.menu}

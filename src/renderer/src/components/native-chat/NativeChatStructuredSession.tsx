@@ -282,7 +282,7 @@ export function NativeChatStructuredSession(
         style={appearanceStyle}
         data-native-chat-scheme={appearanceStyle.colorScheme}
       >
-        {nativeChatPaneHeader(props, ownerWorktreeId, appearanceStyle.colorScheme)}
+        {nativeChatPaneHeader(props, ownerWorktreeId, appearanceStyle.colorScheme, handOff)}
         {find.isOpen ? <NativeChatFindBar find={find} isVisible={props.isVisible} /> : null}
         <div
           hidden={childNavigator.child !== null}
