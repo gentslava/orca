@@ -4,7 +4,6 @@ import { getAppEnvironment } from '../../shared/app-environment'
 import { resolveOrcadInstallRoot, resolveUserDataPath } from './orcad-app-paths'
 import { prepareOrcadCliLauncher } from './orcad-cli-launcher'
 import { installOrcadHostAdapters, runOrcadQuitHandlers } from './orcad-host-adapters'
-import { prepareOrcadSecretStoreAndMigrate } from './orcad-secret-store-startup'
 import { describeOrcadBindExposure, resolveOrcadBindHost } from './orcad-bind-address'
 import {
   flushOrcadProfileStoreForShutdown,
@@ -27,6 +26,7 @@ import { stampRuntimeSourceEnv } from '../../shared/runtime-source-env'
 import { adoptWslHostLoginEnvironment } from './orcad-wsl-host-login-environment'
 import { installOrcadProcessErrorGuards } from './orcad-process-error-guards'
 import { orcadWsPortOptions } from './orcad-ws-port-policy'
+import { prepareOrcadSecretStoreAndMigrate } from './orcad-secret-store-startup'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../shared/layout-owner-switch'
 import { placeUnshownLiveTerminalsBestEffort } from '../runtime/terminal/adoption/unshown-live-terminal-placement'
 
@@ -215,6 +215,9 @@ async function startOrcadRuntime(
   accountLaunch?.attachToRuntime(runtime)
   const { installOrcadEmulatorBridge } = await import('./orcad-emulator-bridge')
   installOrcadEmulatorBridge(runtime, registerCleanup)
+
+  const { startOrcadUsageHistory } = await import('./orcad-usage-history')
+  startOrcadUsageHistory(runtimeUserDataPath, profileStore, runtime.usageHistory, registerCleanup)
 
   // Restore prior desktop-pushed account selection before automations or CLI launches.
   const { restoreOrcadHostAccountLaunchEnv } = await import('./orcad-host-account-launch-env-store')
