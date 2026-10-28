@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  asyncQuestionMessage,
+  asyncQuestionTitle,
+  orchestrationNoticeMessage
+} from './native-chat-async-question.test-fixture'
+import {
   NATIVE_CHAT_INTERRUPTED_STATUS_TEXT,
   type NativeChatBlock,
   type NativeChatMessage
@@ -157,5 +162,32 @@ describe('async questions', () => {
       ['A?']
     )
     expect(extractPendingAsk([asked, userRow('sent')])).toBeNull()
+  })
+
+  it.each([
+    orchestrationNoticeMessage.from,
+    { kind: 'agent', senders: [], orchestration: null }
+  ] as const)('keeps a human question open across agent-origin messages %j', (from) => {
+    expect(titles([asyncQuestionMessage, { ...orchestrationNoticeMessage, from }])).toEqual([
+      asyncQuestionTitle
+    ])
+  })
+
+  it.each([
+    { queued: true },
+    { unsent: true },
+    { stoppedBeforeStart: true },
+    { awaitsRetry: true },
+    { sentWhileStopping: true }
+  ] as const)('keeps the question open until a human answer is delivered %j', (flags) => {
+    const history = [asyncQuestionMessage, orchestrationNoticeMessage]
+    expect(titles([...history, userRow('held', flags)])).toEqual([asyncQuestionTitle])
+    expect(extractPendingAsk([...history, userRow('sent')])).toBeNull()
+  })
+
+  it('clears async questions on interruption even after an agent message', () => {
+    expect(
+      extractPendingAsk([asyncQuestionMessage, orchestrationNoticeMessage, interrupted('stop')])
+    ).toBeNull()
   })
 })

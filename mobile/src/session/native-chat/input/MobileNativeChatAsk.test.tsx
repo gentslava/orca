@@ -6,6 +6,14 @@ import { NATIVE_CHAT_QUESTION_AUTO_ADVANCE_MS } from '../../../../../src/shared/
 import { encodeAgentSessionQuestionAnswers } from '../../../../../src/shared/agent-session-question-answer'
 import { MobileNativeChatAsk } from './MobileNativeChatAsk'
 import { MobileNativeChatStructuredAsk } from './MobileNativeChatStructuredAsk'
+import { useMobileNativeChatPrompts } from './use-mobile-native-chat-prompts'
+import type { NativeChatMessage } from '../../../../../src/shared/native-chat-types'
+import {
+  asyncQuestionMessage,
+  asyncQuestionOptions,
+  asyncQuestionTitle,
+  orchestrationNoticeMessage
+} from '../../../../../src/shared/native-chat/input/native-chat-async-question.test-fixture'
 
 vi.mock('react-native', () => ({
   Keyboard: { dismiss: () => {} },
@@ -69,12 +77,109 @@ const isHost = (node: { type: unknown }, name: string): boolean => node.type ===
 const shows = (text: string): boolean =>
   tree.root.findAll((node) => isHost(node, 'Text') && node.props.children === text).length > 0
 
+function StructuredAsyncAsk({
+  messages,
+  transcriptLoading = false,
+  sendWithOutcome
+}: {
+  messages: NativeChatMessage[]
+  transcriptLoading?: boolean
+  sendWithOutcome: () => Promise<'accepted'>
+}) {
+  const prompts = useMobileNativeChatPrompts({
+    enabled: true,
+    structured: { permission: null, question: null, sendWithOutcome },
+    status: null,
+    messages,
+    transcriptLoading
+  })
+  const prompt = prompts.ask
+  return prompt
+    ? createElement(MobileNativeChatAsk, {
+        prompt,
+        onAnswer: (selections) => prompts.structuredAnswer!(prompt, selections),
+        onCancel: async () => true
+      })
+    : null
+}
+
 afterEach(() => {
   act(() => tree.unmount())
   vi.useRealTimers()
 })
 
 describe('MobileNativeChatAsk single-select auto-advance', () => {
+  it('retires answered history and withholds an unsettled transcript', () => {
+    const sendWithOutcome = vi.fn(async () => 'accepted' as const)
+    const pending = [asyncQuestionMessage, orchestrationNoticeMessage]
+    act(() => {
+      tree = create(
+        createElement(StructuredAsyncAsk, {
+          messages: pending,
+          transcriptLoading: true,
+          sendWithOutcome
+        })
+      )
+    })
+    expect(tree.root.findAllByType(MobileNativeChatAsk)).toHaveLength(0)
+    act(() => {
+      tree.update(createElement(StructuredAsyncAsk, { messages: pending, sendWithOutcome }))
+    })
+    expect(tree.root.findAllByType(MobileNativeChatAsk)).toHaveLength(1)
+    act(() => {
+      tree.update(
+        createElement(StructuredAsyncAsk, {
+          messages: [
+            ...pending,
+            {
+              id: 'human-answer',
+              role: 'user',
+              blocks: [{ type: 'text', text: asyncQuestionOptions[0]! }],
+              timestamp: 3,
+              source: 'transcript'
+            },
+            { ...orchestrationNoticeMessage, id: 'later-notice', timestamp: 4 }
+          ],
+          sendWithOutcome
+        })
+      )
+    })
+    expect(tree.root.findAllByType(MobileNativeChatAsk)).toHaveLength(0)
+    expect(sendWithOutcome).not.toHaveBeenCalled()
+  })
+
+  it.each(['option', 'text'])(
+    'keeps %s answer controls after an orchestration notice reaches Codex',
+    async (answerKind) => {
+      vi.useFakeTimers()
+      const sendWithOutcome = vi.fn(async () => 'accepted' as const)
+      act(() => {
+        tree = create(
+          createElement(StructuredAsyncAsk, {
+            messages: [asyncQuestionMessage, orchestrationNoticeMessage],
+            sendWithOutcome
+          })
+        )
+      })
+      expect(shows(asyncQuestionTitle)).toBe(true)
+      for (const option of asyncQuestionOptions) {
+        expect(tree.root.find((node) => node.props.label === option).props.disabled).toBeFalsy()
+      }
+      if (answerKind === 'option') {
+        press(asyncQuestionOptions[1]!)
+        await passAutoAdvanceBeat()
+      } else {
+        press('Other…')
+        const input = tree.root.find((node) => isHost(node, 'TextInput'))
+        act(() => input.props.onChangeText('Android is still on the old APK'))
+        await submit()
+      }
+      expect(sendWithOutcome).toHaveBeenCalledExactlyOnceWith(
+        `> ${asyncQuestionTitle}\n\n${answerKind === 'option' ? asyncQuestionOptions[1] : 'Android is still on the old APK'}`
+      )
+    }
+  )
+
   it('moves to the next question after a pick and sends after the last one', async () => {
     const onAnswer = render({ questions: [indent, fruit] })
 
