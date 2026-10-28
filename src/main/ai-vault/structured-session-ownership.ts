@@ -21,6 +21,8 @@ import {
 import { STRUCTURED_AGENT_RUNTIME_METADATA } from '../runtime/structured-agent-runtime-metadata'
 import type { StructuredAgentRuntimeMetadata } from '../runtime/structured-agent-runtime-registration-types'
 import { commandName, commandProgramIndex, shellCommands } from './shell-command-words'
+import { projectDurableAiVaultConversations } from './structured-conversation-navigation'
+import { isGenericConversationTitle } from '../../shared/project-conversation-list'
 
 /** Hide chat-owned rows from clients unable to open that agent’s chat. */
 export type StructuredChatOpener = (agent: StructuredAgentId) => boolean
@@ -29,7 +31,8 @@ export const OPENS_EVERY_STRUCTURED_CHAT: StructuredChatOpener = () => true
 
 export function projectStructuredAiVaultSessions(
   result: AiVaultListResult,
-  opensChat: StructuredChatOpener
+  opensChat: StructuredChatOpener,
+  options?: { includeStructuredSessions?: boolean; childSessionIds?: ReadonlySet<string> | null }
 ): AiVaultListResult {
   const owner = ownershipLookup()
   if (!owner) {
@@ -43,12 +46,22 @@ export function projectStructuredAiVaultSessions(
     if (!opensChat(ownership.provider)) {
       return []
     }
-    return [{ ...session, ...ownedRow(session.agent, ownership) }]
+    return [{ ...session, ...ownedRow(session, ownership) }]
   })
-  return sessions.length === result.sessions.length &&
+  const projected =
+    sessions.length === result.sessions.length &&
     sessions.every((row, index) => row === result.sessions[index])
-    ? result
-    : { ...result, sessions }
+      ? result
+      : { ...result, sessions }
+  return options?.includeStructuredSessions && options.childSessionIds !== null
+    ? projectDurableAiVaultConversations(
+        projected,
+        getStructuredAgentSessionHost()?.deps.store.listRecords() ?? [],
+        opensChat,
+        options.childSessionIds,
+        getStructuredAgentSessionHost()?.deps.journalDatabase
+      )
+    : projected
 }
 
 /** Owned search hits open their chat and omit terminal resume commands, matching history rows. */
@@ -71,7 +84,7 @@ export function projectStructuredAiVaultSearchResponse(
         return []
       }
       const { resumeCommand: _resumeCommand, ...owned } = hit
-      return [{ ...owned, ...ownedRow(hit.agent, ownership) }]
+      return [{ ...owned, ...ownedRow(hit, ownership) }]
     })
   }
 }
@@ -100,14 +113,24 @@ export async function searchWithStructuredOwners(
     : response
 }
 
-function ownedRow(rowAgent: string, ownership: StructuredProviderSessionOwnership) {
+function ownedRow(
+  row: { agent: string; title: string },
+  ownership: StructuredProviderSessionOwnership
+) {
   const structuredSession = {
     sessionId: ownership.sessionId,
     workspaceId: ownership.workspaceId
   }
+  const name = ownership.conversationName?.trim()
   const title =
-    ownership.conversationName ??
-    (historyRowFallsBackToChatLabel(rowAgent) ? defaultAgentChatLabel(ownership.provider) : null)
+    name && !isGenericConversationTitle(name)
+      ? name
+      : !isGenericConversationTitle(row.title)
+        ? null
+        : name ||
+          (historyRowFallsBackToChatLabel(row.agent)
+            ? defaultAgentChatLabel(ownership.provider)
+            : null)
   return title === null ? { structuredSession } : { title, structuredSession }
 }
 
@@ -119,7 +142,7 @@ function ownershipLookup():
     return null
   }
   const byProviderSession = new Map<string, StructuredProviderSessionOwnership>()
-  for (const ownership of listOwnership()) {
+  for (const ownership of listOwnership(true)) {
     const key = `${ownership.provider}\0${ownership.providerSessionId}`
     const kept = byProviderSession.get(key)
     if (!kept || (kept.role !== 'head' && ownership.role === 'head')) {
@@ -200,9 +223,17 @@ function resumeOwnerships(
   ]
 }
 
-function listOwnership(): StructuredProviderSessionOwnership[] {
+function listOwnership(localOnly = false): StructuredProviderSessionOwnership[] {
   const host = getStructuredAgentSessionHost()
-  return host ? listStructuredProviderSessionOwnership(host.deps.store.listConversations()) : []
+  return host
+    ? listStructuredProviderSessionOwnership(
+        host.deps.store
+          .listConversations()
+          .filter(
+            (record) => !localOnly || record.location.executionHostId === LOCAL_EXECUTION_HOST_ID
+          )
+      )
+    : []
 }
 
 function resumesOwnedSession(

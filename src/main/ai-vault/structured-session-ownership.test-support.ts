@@ -19,9 +19,10 @@ export const PROVIDER_SESSION = '019fd532-7c11-7a90-b6de-4e1a2c3d5f60'
 export function installOwnership(
   overrides: Partial<Omit<StructuredProviderSessionOwnership, 'role' | 'key'>> & {
     handle?: AgentSessionProviderHandle
+    location?: Partial<AgentSessionRecord['location']>
   } = {}
 ): void {
-  const { handle, ...ownershipOverrides } = overrides
+  const { handle, location, ...ownershipOverrides } = overrides
   const ownership: Omit<StructuredProviderSessionOwnership, 'role' | 'key'> = {
     sessionId: 'session-alpha',
     workspaceId: 'workspace-1',
@@ -33,32 +34,31 @@ export function installOwnership(
   const record = agentSessionRecordFixture(
     agentSessionLeaseFixture({ sessionId: ownership.sessionId })
   )
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the ownership read touches only `deps.store.listConversations`; the rest of the host is never reached.
+  const ownedRecord = {
+    ...record,
+    sessionId: ownership.sessionId,
+    location: { ...record.location, workspaceId: ownership.workspaceId, ...location },
+    provider: ownership.provider,
+    providerHandleChain: [
+      {
+        ...record.providerHandleChain[0]!,
+        handle:
+          handle ??
+          (ownership.provider === 'claude'
+            ? claudeProviderHandle(ownership.providerSessionId, null)
+            : codexProviderHandle(ownership.providerSessionId))
+      }
+    ],
+    ...(ownership.conversationName ? { conversationName: ownership.conversationName } : {})
+  }
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: ownership and history projection read only the catalog and its conversation views.
   setStructuredAgentSessionHost({
     deps: {
       store: {
+        listRecords: () => [ownedRecord],
         listConversations: () => [
           {
-            ...agentSessionConversationView({
-              ...record,
-              sessionId: ownership.sessionId,
-              location: { ...record.location, workspaceId: ownership.workspaceId },
-              provider: ownership.provider,
-              providerHandleChain: [
-                {
-                  ...record.providerHandleChain[0]!,
-                  handle:
-                    handle ??
-                    (ownership.provider === 'claude'
-                      ? claudeProviderHandle(ownership.providerSessionId, null)
-                      : codexProviderHandle(ownership.providerSessionId))
-                }
-              ],
-              lease: record.lease,
-              ...(ownership.conversationName
-                ? { conversationName: ownership.conversationName }
-                : {})
-            }),
+            ...agentSessionConversationView(ownedRecord),
             ownerObservation: ownership.ownerObservation
           }
         ]

@@ -9,6 +9,7 @@ import { runtimeEnvironmentIdOrLocalUnlessTwin } from './worktree-runtime-owner'
 import { callRuntimeRpc, runtimeEnvironmentSupportsCapability } from '@/runtime/runtime-rpc-client'
 import type { RuntimeClientTarget } from '../../../shared/runtime-client-target'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
+import { parseRoutableExecutionHostId } from '../../../shared/execution-host'
 import { toRuntimeWorktreeSelector } from '@/runtime/runtime-worktree-selector'
 import { refreshLocalStructuredSessionWorktreeTabs } from '@/runtime/local-structured-session-tabs-sync/inventory-refresh'
 import { STRUCTURED_AGENT_SESSION_REVEAL_RUNTIME_CAPABILITY } from '../../../shared/protocol-version'
@@ -78,13 +79,25 @@ const defaultDeps: StructuredSessionActivationDeps = {
 
 /** Read only structuredSession so history clicks and drag payloads follow the same reveal path. */
 export async function activateAiVaultStructuredSession(
-  session: Pick<AiVaultSession, 'structuredSession'>,
+  session: Pick<AiVaultSession, 'structuredSession'> &
+    Partial<Pick<AiVaultSession, 'executionHostId'>>,
   deps: StructuredSessionActivationDeps = defaultDeps,
   target?: RuntimeClientTarget
 ): Promise<boolean> {
   const structured = session.structuredSession
   if (!structured) {
     return false
+  }
+  if (!target && session.executionHostId) {
+    const host = parseRoutableExecutionHostId(session.executionHostId)
+    if (host?.kind === 'runtime') {
+      target = { kind: 'environment', environmentId: host.environmentId }
+    } else if (host?.kind === 'local') {
+      target = { kind: 'local' }
+    } else {
+      deps.hostCannotOpen()
+      return true
+    }
   }
   // Coalesce clicks across refresh/probe/reveal timeouts to avoid duplicate sequences and toasts.
   const hostKey = executionHostIdForStructuredTarget(

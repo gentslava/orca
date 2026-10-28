@@ -69,28 +69,34 @@ beforeEach(() => {
   })
 })
 
-it('keeps the known host through the default refresh/reveal/activation path without applying its snapshot as local', async () => {
-  await expect(
-    activateAiVaultStructuredSession(
-      {
-        structuredSession: { workspaceId: 'workspace', sessionId: 'sender' }
-      },
-      undefined,
-      TARGET
+it.each(['explicit-target', 'selected-session-host'] as const)(
+  'keeps the known host through the default refresh/reveal/activation path (%s) without applying its snapshot as local',
+  async (source) => {
+    await expect(
+      activateAiVaultStructuredSession(
+        {
+          structuredSession: { workspaceId: 'workspace', sessionId: 'sender' },
+          ...(source === 'selected-session-host'
+            ? { executionHostId: 'runtime:remote-2' as const }
+            : {})
+        },
+        undefined,
+        source === 'explicit-target' ? TARGET : undefined
+      )
+    ).resolves.toBe(true)
+    expect(mocks.supports).toHaveBeenCalledWith(
+      'remote-2',
+      STRUCTURED_AGENT_SESSION_REVEAL_RUNTIME_CAPABILITY,
+      expect.any(Number)
     )
-  ).resolves.toBe(true)
-  expect(mocks.supports).toHaveBeenCalledWith(
-    'remote-2',
-    STRUCTURED_AGENT_SESSION_REVEAL_RUNTIME_CAPABILITY,
-    expect.any(Number)
-  )
-  expect(mocks.call.mock.calls.map(([host, method]) => [host, method])).toEqual([
-    [TARGET, 'session.tabs.list'],
-    [TARGET, 'agentSession.reveal'],
-    [TARGET, 'session.tabs.list'],
-    [TARGET, 'session.tabs.activate']
-  ])
-  expect(mocks.apply).not.toHaveBeenCalled()
-  expect(mocks.activateTab).toHaveBeenCalledOnce()
-  expect(mocks.activateTab).toHaveBeenCalledWith('right-remote', { worktreeId: 'workspace' })
-})
+    expect(mocks.call.mock.calls.map(([host, method]) => [host, method])).toEqual([
+      [TARGET, 'session.tabs.list'],
+      [TARGET, 'agentSession.reveal'],
+      [TARGET, 'session.tabs.list'],
+      [TARGET, 'session.tabs.activate']
+    ])
+    expect(mocks.apply).not.toHaveBeenCalled()
+    expect(mocks.activateTab).toHaveBeenCalledOnce()
+    expect(mocks.activateTab).toHaveBeenCalledWith('right-remote', { worktreeId: 'workspace' })
+  }
+)

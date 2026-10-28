@@ -252,6 +252,12 @@ export function renderTabBarSurface({
               {showStaticCreateMenuItems ? <DropdownMenuSeparator /> : null}
             </>
           ) : null}
+          {showStaticCreateMenuItems && showAgentLaunchItems ? (
+            <>
+              <ProjectedAgentMenuItems model={agentMenu} runLaunch={launchAgentRow} />
+              <DropdownMenuSeparator />
+            </>
+          ) : null}
           {showStaticCreateMenuItems ? (
             <TabBarStaticCreateMenu
               props={props}
@@ -273,12 +279,6 @@ export function renderTabBarSurface({
                 queueNewActiveTerminalFocusAfterNewTabMenuClose
               }
             />
-          ) : null}
-          {showStaticCreateMenuItems && showAgentLaunchItems ? (
-            <>
-              <DropdownMenuSeparator />
-              <ProjectedAgentMenuItems model={agentMenu} runLaunch={launchAgentRow} />
-            </>
           ) : null}
         </DropdownMenuContent>
       </DropdownMenu>

@@ -82,12 +82,16 @@ export function RepoHeaderProjectActionsMenu({
   repo,
   label,
   projectGroups,
-  actions
+  actions,
+  children,
+  alwaysVisible
 }: {
   repo: Repo
   label: string
   projectGroups: readonly ProjectGroup[]
   actions: RepoHeaderProjectActions
+  children?: React.ReactNode
+  alwaysVisible?: boolean
 }): React.JSX.Element {
   return (
     <DropdownMenu modal={false}>
@@ -99,6 +103,7 @@ export function RepoHeaderProjectActionsMenu({
               variant="ghost"
               size="icon-xs"
               className={REPO_HEADER_ACTION_BUTTON_CLASS}
+              data-always-visible={alwaysVisible || undefined}
               data-repo-header-action=""
               aria-label={translate(
                 'auto.components.sidebar.WorktreeList.609633a9e6',
@@ -175,6 +180,7 @@ export function RepoHeaderProjectActionsMenu({
             {translate('auto.components.sidebar.WorktreeList.64e55f7f01', 'Remove from group')}
           </DropdownMenuItem>
         ) : null}
+        {children}
         <WslMoveProjectMenuItem repo={repo} />
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onSelect={() => actions.onRemoveProject(repo)}>
