@@ -1,3 +1,4 @@
+import { mutationOk } from './use-mobile-structured-agent-session-queued.test-fixture'
 // Include the durable submission and dispatchState: ok alone proves no message delivery.
 
 import type { AgentJournalDispatchState } from '../../../src/shared/agent-session-journal-types'
@@ -20,4 +21,11 @@ export function structuredSendResultFixture(
       resolvedAt: dispatchState === 'pending' ? null : 10
     }
   }
+}
+
+export function mobileSendReply(
+  dispatchState: AgentJournalDispatchState,
+  reason: string | null = null
+) {
+  return mutationOk(structuredSendResultFixture(dispatchState, reason))
 }

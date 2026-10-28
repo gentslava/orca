@@ -77,6 +77,8 @@
       "connectionNotSecure": "Connection isn't secure",
       "cantReachHost": "Can't reach {{value0}}",
       "cantLoadPage": "Can't load this page",
+      "blockedTitle": "{{host}} is blocked",
+      "blockedDescription": "An extension blocked this page. To open it, allow this site in the extension, then retry.",
       "certificateNameMismatch": "The certificate doesn't match {{value0}}.",
       "certificateDateInvalid": "The certificate for {{value0}} isn't valid at the current date and time.",
       "certificateAuthorityInvalid": "Orca doesn't trust the authority that issued the certificate for {{value0}}.",
@@ -211,6 +213,16 @@
     },
     "managedProfile": {
       "createFailed": "Couldn't create this workspace's browser profile. Close this tab and open a new one to try again."
+    },
+    "extensions": {
+      "menu": "Extensions",
+      "open": "Open",
+      "pin": "Pin to toolbar",
+      "unpin": "Unpin from toolbar",
+      "remove": "Remove…",
+      "empty": "No extensions are on for this profile",
+      "visitWebStore": "Visit Chrome Web Store",
+      "manage": "Manage extensions"
     },
     "history": {
       "clear": "Clear browsing history",
@@ -495,6 +507,39 @@
         "keywordIsolate": "isolate",
         "repoProfileLabel": "Repo: {{name}}",
         "worktreeProfileLabel": "Workspace: {{name}}"
+      },
+      "extensions": {
+        "sourceUnpacked": "Unpacked",
+        "sourceWebStore": "Chrome Web Store",
+        "options": "Options",
+        "toggleLabel": "Turn {{name}} on or off",
+        "remove": "Remove",
+        "reload": "Reload from folder",
+        "removeTitle": "Remove {{name}}?",
+        "removeUnpackedDescription": "It is removed from every Orca browser profile, with its saved data. The folder on disk stays where it is.",
+        "removeDescription": "It is removed from every Orca browser profile, with its saved data.",
+        "heldUpdate": "Version {{version}} is waiting for more access.",
+        "reviewAccess": "Review access",
+        "loadError": "Could not start: {{error}}",
+        "profileDescription": "Extensions turned on here run in tabs that use the {{profile}} profile.",
+        "loadUnpacked": "Load unpacked…",
+        "empty": "No extensions installed. Add one from the Chrome Web Store above.",
+        "title": "Extensions",
+        "description": "Chrome extensions for the selected local browser profile.",
+        "keywordExtension": "extension",
+        "keywordChrome": "chrome",
+        "keywordUnpacked": "unpacked",
+        "keywordPassword": "password manager",
+        "desktopOnly": "Browser extensions run only in the Orca desktop app.",
+        "webStore": {
+          "placeholder": "Chrome Web Store link or extension ID",
+          "inputLabel": "Add from Chrome Web Store",
+          "add": "Add",
+          "adding": "Adding…",
+          "added": "Added {{name}}",
+          "browse": "Browse the Chrome Web Store",
+          "openFailed": "Open a workspace to browse the Chrome Web Store."
+        }
       }
     },
     "agents": {
@@ -1575,6 +1620,12 @@
         "agentUnavailable": "Claude cannot open this agent. It may no longer be available.",
         "closeDialog": "Claude did not switch views. Close any open dialog and try again.",
         "hostUnavailable": "Subagent navigation is unavailable on this host. Update Orca and restart Claude in this pane."
+      },
+      "wslHostWindowsDriveRefusal": {
+        "addOnThisComputer": "Add on this computer",
+        "title": "Add Windows drive folders on this computer",
+        "descriptionWithPath": "{{value0}} is on a Windows drive. Git in WSL reports false line-ending changes there, misses edits made from Windows, and searches it slowly.",
+        "description": "This folder is on a Windows drive. Git in WSL reports false line-ending changes there, misses edits made from Windows, and searches it slowly."
       }
     },
     "hooks": {
@@ -3748,6 +3799,7 @@
             "78b79d854d": "Close Terminal?",
             "stop_agent_title": "Stop this agent?",
             "stop_command_title": "Stop running command?",
+            "stop_chat_description": "Closing this chat will stop the agent's current work.",
             "stop_agent_description": "Closing this terminal will stop the agent's current work.",
             "stop_command_description": "Closing this terminal will stop the command running inside it.",
             "dont_ask_again": "Don't ask again for running terminals",
@@ -5395,15 +5447,16 @@
           "fab8fce842": "files",
           "8f9833d509": "Immutable version",
           "66270286ac": "· You can retry safely.",
-          "1b6ad2ca5c": "checked.",
-          "3fc62a61eb": "placement",
           "157de228b4": "Inspect skill",
           "69236de8d6": "Checking…",
           "27672470d9": "Opening the link does not install anything. Review the immutable version first.",
           "66cff7a804": "https://app.orca.dev/skills/share/…",
           "93eb0fe8c7": "Orca skill link",
           "releaseNotes": "Release notes:",
-          "targetHeader": "Installation Target"
+          "targetHeader": "Installation Target",
+          "placementsChecked_one": "{{count}} placement checked.",
+          "placementsChecked_other": "{{count}} placements checked.",
+          "placementsChecked": "{{count}} placements checked."
         },
         "SkillInstallTargetFields": {
           "8e6a972229": "No workspaces are known on this machine.",
@@ -7617,7 +7670,6 @@
           "c9b33eb5c0": "Refreshing…",
           "13647f9f80": "Re-read your shell PATH and re-detect installed agents",
           "db9e9e5887": "Customize command",
-          "959b67385b": "Set default",
           "24e032fa34": "Default",
           "5f986a9b92": "Set as default",
           "cfb3f35775": "Arguments",
@@ -8076,6 +8128,10 @@
             "modeAriaLabel": "Agent Dashboard open mode",
             "modeInWindow": "In-window",
             "modePopout": "Pop-out"
+          },
+          "browserExtensions": {
+            "copy": "Adds Settings › Browser › Extensions for local browser profiles.",
+            "toggleLabel": "Toggle browser extensions"
           }
         },
         "FloatingWorkspacePane": {
@@ -8159,6 +8215,8 @@
         "GeneralPane": {
           "editor_preview_tabs": "Reuse a preview tab when browsing files",
           "editor_preview_tabs_description": "Single-clicking a file in the Explorer, or following a link in Markdown source, reuses one italic preview tab per group instead of opening a new one. Editing, double-clicking, or pinning keeps that tab open. Turn this off to give every file its own tab.",
+          "confirm_running_work_close": "Confirm before closing active chats or terminals",
+          "confirm_running_work_close_description": "Ask before stopping an active agent or command when closing its chat or terminal.",
           "confirm_running_terminal_close": "Confirm before closing running terminals",
           "confirm_running_terminal_close_description": "Ask before stopping a running agent or command when closing a terminal.",
           "d58fccfd84": "Navigation",
@@ -8474,8 +8532,6 @@
         "McpConfigSection": {
           "4d16a0d9ac": "Checked",
           "b900cd6282": "No MCP config found. Add an empty workspace config when you want this repo to define its own MCP servers.",
-          "3b224167ff": "server",
-          "251b96564a": "detected ·",
           "f34c152dc0": "Refresh MCP configs",
           "6bac9ddfc6": "SSH repos are read through the remote filesystem. Starter creation is limited to the workspace root config.",
           "96f5609b04": "Inspect MCP server definitions that agents can use while working in this repo.",
@@ -8483,7 +8539,9 @@
           "9ee215caf6": ".mcp.json",
           "1f3665e35a": "MCP config created",
           "82436439eb": "Add MCP config",
-          "0a5c1ead54": "Create empty config"
+          "0a5c1ead54": "Create empty config",
+          "detectedServers_one": "{{detected}} detected · {{count}} server",
+          "detectedServers_other": "{{detected}} detected · {{count}} servers"
         },
         "MobileEmulatorAgentControlRow": {
           "1861982430": "Failed to load CLI status.",
@@ -9253,8 +9311,6 @@
           "ad6c529693": "AI Provider Accounts",
           "ec1ba547f7": "Manage AI agents, set a default, and customize commands.",
           "8afa676615": "Agents",
-          "add3b97ee6": "\"",
-          "3c88ec55d6": "No settings found for \"",
           "c7ad095d96": "Loading settings...",
           "acc7bbdefd": "Press ESC again to exit settings",
           "43b68e10f0": "You have unsaved AI settings. Leaving will discard them.",
@@ -9273,7 +9329,8 @@
           "linearTitle": "Linear",
           "linearDescription": "How Linear works in Orca, setup checklist, agent skill, and example prompts.",
           "tasksDescription": "Connect providers, install the Linear skill, and choose what appears in Tasks.",
-          "remoteServersDescription": "Run Orca on another machine and work on it from here."
+          "remoteServersDescription": "Run Orca on another machine and work on it from here.",
+          "noSettingsFoundForQuery": "No settings found for \"{{value0}}\""
         },
         "SettingsFormControls": {
           "42a4d15a30": "No matching fonts.",
@@ -9311,7 +9368,10 @@
           "df8466f3fc": "Clear shortcut search",
           "f733c4b89f": "Search command or keys",
           "02dc7d4251": "Find shortcuts",
-          "1d5634ba31": "{{value0}} shortcut"
+          "1d5634ba31": "{{value0}} shortcut",
+          "filterAll": "All",
+          "filterUnassigned": "Unassigned",
+          "filterConflicts": "Conflicts"
         },
         "ShortcutRowsList": {
           "4ce3cd24d9": "No shortcuts match those filters."
@@ -10607,6 +10667,13 @@
               "board": "board",
               "inWindow": "in-window",
               "worktrees": "worktrees"
+            },
+            "browserExtensions": {
+              "title": "Browser extensions",
+              "description": "Run Chrome extensions, such as password managers, in Orca browser tabs.",
+              "extension": "extension",
+              "chrome": "chrome",
+              "password": "password manager"
             }
           }
         },
@@ -13112,7 +13179,8 @@
           "confirm": "Stop cleanup"
         },
         "shortcutDefinitionCatalog": {
-          "missionControlConflict": "Blocked by Mission Control. Remap here or change it in System Settings."
+          "missionControlConflict": "Blocked by Mission Control. Remap here or change it in System Settings.",
+          "bindingConflict": "{{binding}} conflicts with {{actions}}."
         },
         "contrast": {
           "title": "Color Contrast",
@@ -13974,12 +14042,14 @@
           "Search": {
             "1abfb25a66": "Type to search in files",
             "d56d140747": "Press Enter to search",
-            "0b8104eaf2": "file",
-            "4107975b3a": "in",
-            "6aeda362ed": "result",
             "98c8435e36": "Select a workspace to search",
             "1ec640c9c7": "match",
-            "dcc294f28d": "(results truncated)"
+            "dcc294f28d": "(results truncated)",
+            "resultsInFiles": "{{results}} in {{files}}",
+            "resultCount_one": "{{count}} result",
+            "resultCount_other": "{{count}} results",
+            "fileCount_one": "{{count}} file",
+            "fileCount_other": "{{count}} files"
           },
           "SearchFilters": {
             "01e4671ccf": "e.g. *.min.js, dist/**",
@@ -14009,7 +14079,6 @@
             "conflictsSection": "Conflicts",
             "cc05b2d088": "Open in File Explorer",
             "03194cfff4": "Local session state derived from a conflict you opened here.",
-            "413a3ba113": "conflict",
             "27a50fe970": "Review conflicts",
             "f6cb48b6fe": "Resolve with AI",
             "3eeccbb221": "Resolved files move back to normal changes after they leave the live conflict state.",
@@ -14236,7 +14305,10 @@
             "entryDiscardFailed": "Failed to discard “{{value0}}”",
             "entryDeleteFailed": "Failed to delete “{{value0}}”",
             "entryFailedInWorkspace": "{{value0}} in {{value1}}",
-            "diffCommentNotesCopyFailed": "Failed to copy notes"
+            "diffCommentNotesCopyFailed": "Failed to copy notes",
+            "conflictCount_one": "{{count}} conflict",
+            "conflictCount_other": "{{count}} conflicts",
+            "conflictCount": "{{count}} conflicts"
           },
           "SourceControlAgentActionDialog": {
             "8e856842d1": "Could not start the selected agent.",
@@ -14295,7 +14367,6 @@
             "panel": {
               "loadFailedOnMachine": "Could not load from {{machine}}: {{detail}}",
               "content": {
-                "3916814392": "behind (base commit:",
                 "755be805f6": "No comments",
                 "751f7c6e5c": "Showing first 100 comments per source",
                 "94557d68e2": "Comments",
@@ -14345,13 +14416,10 @@
                 "c16762ac8c": "Checks and comments below show the current fetched context.",
                 "9d0e7bcefc": "No blocking PR action",
                 "5856874b59": "Orca will refresh checks while this panel stays open.",
-                "5341023167": "check",
                 "b45db92d0e": "Fix",
                 "5d4ebf9391": "Inspect details or start an AI fix pass.",
-                "b652f38caf": "failing check",
                 "87cd07c69a": "This branch has conflicts that must be resolved",
                 "0975eeaaef": "Conflicting files",
-                "6fa7f8723f": "commit",
                 "2b2be92919": "Add comment",
                 "7440d09d2c": "Start conversation",
                 "b37ebdc51c": "Commenting unavailable.",
@@ -14388,7 +14456,19 @@
                 "actionRequiredHint": "This check needs a manual action on GitHub (for example, approving the workflow run) before merging is unblocked.",
                 "b3195cba33": "Unmark author as bot",
                 "f588b46a6c": "Mark author as bot",
-                "e45324fbed": "Failed to load check details."
+                "e45324fbed": "Failed to load check details.",
+                "commitsBehind_one": "{{count}} commit behind",
+                "commitsBehind_other": "{{count}} commits behind",
+                "baseCommitLabel": "base commit:",
+                "failingChecks_one": "{{count}} failing check",
+                "failingChecks_other": "{{count}} failing checks",
+                "pendingChecks_one": "{{count}} check pending",
+                "pendingChecks_other": "{{count}} checks pending",
+                "unresolvedChecks_one": "{{count}} check unresolved",
+                "unresolvedChecks_other": "{{count}} checks unresolved",
+                "failingChecks": "{{count}} failing checks",
+                "pendingChecks": "{{count}} checks pending",
+                "unresolvedChecks": "{{count}} checks unresolved"
               },
               "empty": {
                 "state": {
@@ -14719,7 +14799,74 @@
                   "blockedExistingReview": "A {{reviewLabel}} already exists",
                   "blockedForkHeadUnsupported": "Fork head unsupported",
                   "blockedBaseNotOnRemote": "Base branch is not on the remote",
-                  "blockedBranchNotReady": "Branch is not ready"
+                  "blockedBranchNotReady": "Branch is not ready",
+                  "titleCheckOutBranchToPush": "Check out a branch before pushing commits",
+                  "titleLinkedReviewTargetUnavailable": "Linked review branch target is unavailable",
+                  "titlePublishBranchFirstToPush": "Publish the branch first to push commits",
+                  "titleCommitAndForcePush": "Commit staged changes and force push with lease",
+                  "titleCommitAndTryPush": "Commit staged changes and try to push",
+                  "titleCommitAndPush": "Commit staged changes and push",
+                  "commitForcePush": "Commit & Force Push",
+                  "commitPush": "Commit & Push",
+                  "titleOperationInProgress": "Operation in progress…",
+                  "titleAbortRebaseInProgress": "Abort the rebase in progress",
+                  "titleAbortMergeInProgress": "Abort the merge in progress",
+                  "titleNothingToPushTo": "Nothing to push to {{upstreamName}}",
+                  "titleNothingToPush": "Nothing to push",
+                  "titleNothingToForcePushTo": "Nothing to force push to {{upstreamName}}",
+                  "titleNothingToForcePush": "Nothing to force push",
+                  "titlePushAndSetUpstream": "Push this branch and set an upstream if needed",
+                  "titleTryRegularPush": "Try a regular push; git may require force push",
+                  "titlePushMayNeedSync": "Push local commits; git may require syncing first",
+                  "titleCheckOutBranchToForcePush": "Check out a branch before force pushing commits",
+                  "titleCheckOutBranchToPull": "Check out a branch before pulling commits",
+                  "titlePublishBranchFirstToPull": "Publish the branch first to pull commits",
+                  "titleNothingNewToPull": "Nothing new to pull — remote only has older copies of local commits",
+                  "titleNothingToPull": "Nothing to pull",
+                  "fastForward": "Fast-forward",
+                  "titleCheckOutBranchToFastForward": "Check out a branch before fast-forwarding",
+                  "titlePublishBranchFirstToFastForward": "Publish the branch first to fast-forward",
+                  "titleNothingNewToFastForward": "Nothing new to fast-forward — remote only has older copies of local commits",
+                  "titleNothingToFastForward": "Nothing to fast-forward",
+                  "titleTryFastForwardPull": "Try a fast-forward pull; git may reject local commits",
+                  "titleUseForcePushToSync": "Use Force Push — remote only has older copies of local commits",
+                  "titleBranchUpToDate": "Branch is up to date",
+                  "publishPrStatus": "PR Status",
+                  "publishLinkedReview": "Linked Review",
+                  "publishNoBranch": "No Branch",
+                  "titleLinkedReviewBranchExists": "Linked review branch already exists",
+                  "titleCheckOutBranchToPublish": "Check out a branch before publishing commits",
+                  "titleBranchAlreadyPublished": "Branch is already published",
+                  "titleCreateReviewForBranch": "Create a {{reviewLabel}} for this branch",
+                  "forcePushBeforeReview": "Force Push before {{shortLabel}}",
+                  "pushBeforeReview": "Push before {{shortLabel}}",
+                  "titleForcePushBeforeCreatingReview": "Force push with lease before creating a {{reviewLabel}}",
+                  "titlePushBeforeCreatingReview": "Push local commits before creating a {{reviewLabel}}",
+                  "pushCount_one": "Push {{count}} commit",
+                  "pushCount_other": "Push {{count}} commits",
+                  "pullCount_one": "Pull {{count}} commit",
+                  "pullCount_other": "Pull {{count}} commits",
+                  "fastForwardCount_one": "Fast-forward {{count}} commit",
+                  "fastForwardCount_other": "Fast-forward {{count}} commits",
+                  "syncCounts": "Pull {{behind}}, push {{ahead}}",
+                  "remoteBranchFallback": "the remote branch",
+                  "titleForcePushOlderCopiesBranch": "Remote only has older copies of local commits. Force push this branch with lease to update {{upstreamName}}.",
+                  "titleForcePushOlderCopiesCount_one": "Remote only has older copies of local commits. Force push {{count}} branch commit with lease to update {{upstreamName}}.",
+                  "titleForcePushOlderCopiesCount_other": "Remote only has older copies of local commits. Force push {{count}} branch commits with lease to update {{upstreamName}}.",
+                  "titleManualForcePushReplaceRemote_one": "Force push {{count}} local commit with lease to update {{upstreamName}} and replace remote-only commits.",
+                  "titleManualForcePushReplaceRemote_other": "Force push {{count}} local commits with lease to update {{upstreamName}} and replace remote-only commits.",
+                  "titleManualForcePush_one": "Force push {{count}} local commit with lease to update {{upstreamName}}.",
+                  "titleManualForcePush_other": "Force push {{count}} local commits with lease to update {{upstreamName}}.",
+                  "titleUnpublishedForcePushBranch": "Force push this branch with lease and set an upstream if needed.",
+                  "titleUnpublishedForcePushCount_one": "Force push {{count}} branch commit with lease and set an upstream if needed.",
+                  "titleUnpublishedForcePushCount_other": "Force push {{count}} branch commits with lease and set an upstream if needed.",
+                  "pushCount": "Push {{count}} commits",
+                  "pullCount": "Pull {{count}} commits",
+                  "fastForwardCount": "Fast-forward {{count}} commits",
+                  "titleForcePushOlderCopiesCount": "Remote only has older copies of local commits. Force push {{count}} branch commits with lease to update {{upstreamName}}.",
+                  "titleManualForcePushReplaceRemote": "Force push {{count}} local commits with lease to update {{upstreamName}} and replace remote-only commits.",
+                  "titleManualForcePush": "Force push {{count}} local commits with lease to update {{upstreamName}}.",
+                  "titleUnpublishedForcePushCount": "Force push {{count}} branch commits with lease and set an upstream if needed."
                 }
               },
               "primary": {
@@ -16521,7 +16668,6 @@
           "f338288514": "Loading conflict contents...",
           "90d576adb2": "Refresh",
           "a1ce36f77d": "Snapshot captured at",
-          "4be41eaafc": "unresolved conflict",
           "c8ca989aea": "Show file tree",
           "58ad5ad431": "Dismiss",
           "28e7db4a90": "Source Control",
@@ -16532,7 +16678,10 @@
           "9c2901ef8a": "Next conflict",
           "41d9af2e7a": "Previous conflict",
           "55d61a0ccd": "conflict ·",
-          "da539359b6": "No working-tree file is available to edit for this conflict."
+          "da539359b6": "No working-tree file is available to edit for this conflict.",
+          "unresolvedConflicts_one": "{{count}} unresolved conflict",
+          "unresolvedConflicts_other": "{{count}} unresolved conflicts",
+          "unresolvedConflicts": "{{count}} unresolved conflicts"
         },
         "ConflictReviewFileTree": {
           "3449521a8c": "No conflicts in this snapshot.",
@@ -19203,20 +19352,15 @@
         "terminalUnavailable": "Orca couldn’t open a terminal here.",
         "openHint": "Keeps you working on the host while Orca can’t set up there."
       },
-      "ClaudeAgentViewIndicator": {
-        "viewing": "Currently viewing",
-        "viewingChild": "Viewing subagent {{name}}",
-        "returnHint": "Click the parent row to return. Esc stops this subagent. Enter sends your draft to this subagent."
-      },
       "PullRequestConfirmation": {
         "closeTitle": "Close PR #{{number}}?",
-        "mergeLabel": "Create merge commit",
-        "mergeTitle": "Merge PR #{{number}} with a merge commit?",
-        "rebaseLabel": "Rebase and merge",
-        "rebaseTitle": "Rebase and merge PR #{{number}}?",
         "reopenTitle": "Reopen PR #{{number}}?",
+        "mergeTitle": "Merge PR #{{number}} with a merge commit?",
+        "squashTitle": "Squash and merge PR #{{number}}?",
+        "rebaseTitle": "Rebase and merge PR #{{number}}?",
+        "mergeLabel": "Create merge commit",
         "squashLabel": "Squash and merge",
-        "squashTitle": "Squash and merge PR #{{number}}?"
+        "rebaseLabel": "Rebase and merge"
       }
     },
     "i18n": {
@@ -19535,7 +19679,8 @@
         "clearAfterRetry": "Retry your earlier message, then run /clear.",
         "compactAfterRetry": "Retry your earlier message, then run /compact.",
         "clearAfterSending": "Your earlier message is still being sent. Run /clear once it has gone.",
-        "compactAfterSending": "Your earlier message is still being sent. Run /compact once it has gone."
+        "compactAfterSending": "Your earlier message is still being sent. Run /compact once it has gone.",
+        "pendingWork": "Wait for pending work and messages to finish before using this command."
       },
       "taskList": {
         "title": "Tasks",
@@ -20006,9 +20151,6 @@
         "ranN": "Ran {{value0}} subagents",
         "tokens": "{{value0}} tokens",
         "unnamed": "Subagent"
-      },
-      "conversationCommand": {
-        "pendingWork": "Wait for pending work and messages to finish before using this command."
       },
       "rewind": {
         "unsupported": "This chat can't go back to an earlier message.",
@@ -20520,6 +20662,7 @@
       }
     },
     "agentSessionContinuation": {
+      "preparingContext": "Preparing saved chat context…",
       "handOffToAnotherAgent": "Hand Off to Another Agent",
       "dialogTitle": "Hand Off to Another Agent",
       "dialogDescription": "Start a fresh Agent session from this stopping point. The original session stays unchanged.",
@@ -20533,6 +20676,8 @@
       "context": "Context",
       "modeFocused": "Focused handoff (Recommended)",
       "modeFocusedDescription": "Uses the latest status and current workspace, reading older transcript details only when needed.",
+      "modeLoadedDescription": "Uses recent messages currently loaded in this chat and the current workspace.",
+      "modeCapturedDescription": "Uses captured text and the current workspace.",
       "modeFull": "Full session transcript",
       "modeFullDescription": "Asks the new Agent to read the complete saved session before continuing. This can take longer and use significant context, plan usage, or API credits.",
       "startsIn": "Starts in:",
@@ -21439,6 +21584,8 @@
       "added": "Account added. Select it to use it for the next Claude you start.",
       "nextLaunch": "{{value0}} → {{value1}}. The next Claude you start uses it. Running sessions keep their account.",
       "profileSwitching": "Switching applies to the next Claude you start in any tab.",
+      "systemDefault": "System default",
+      "unnamedAccount": "Claude account",
       "systemDefaultNamed": "System default: {{value0}}",
       "systemDefaultIsSaved": "System default is signed in as {{value0}}, which is also a saved account. An earlier Orca version may have copied that login there. If it is not your own login, select System default and run claude /login.",
       "systemDefaultIsSavedDismiss": "Dismiss",
@@ -21554,7 +21701,8 @@
       "deleting": "Deleting…",
       "confirm": "Delete all listed worktrees",
       "preservedBranches": "Some nested worktree branches were kept"
-    }
+    },
+    "setupTerminalTitle": "Setup"
   },
   "projectBoard": {
     "noColumnField": "This board view has no single-select or iteration field to group by, so Orca is listing items instead.",
@@ -21573,15 +21721,64 @@
     "unsupported": {
       "switchLayout": "Switch to a Table, Board, or Roadmap view to work with this project in Orca.",
       "description": "Orca renders table, board, and roadmap project views. This view uses a layout it cannot render yet.",
-      "layoutMessage": "Orca doesn't support {{layout}} project views yet."
+      "layoutNotSupported": "Orca doesn't support {{layout}} project views yet."
+    },
+    "authHelp": {
+      "hostSignedOut": "`gh` is not signed in to {{host}}.",
+      "hostSignedOutDetail": "GitHub Enterprise hosts need their own `gh` login, separate from github.com. Run the login command in a terminal, complete the browser flow on {{host}}, then reload.",
+      "ghMissing": "GitHub CLI (`gh`) is not installed or not on PATH.",
+      "ghMissingDetail": "Orca uses `gh` to talk to GitHub Projects. Install it from cli.github.com, then sign in.",
+      "envTokenKeyringFallback": "Your keyring already has a `gh` login that will take over once the env var is gone.",
+      "envTokenLoginAfterUnset": "After unsetting it, run `gh auth login` to sign in normally, then retry.",
+      "envTokenRemoveWindows": "Find where `{{varName}}` is set (System or User environment variables, or your PowerShell profile), remove it, then restart Orca so the new environment is picked up.",
+      "envTokenRemovePosix": "Find where `{{varName}}` is exported (commonly `~/.zshrc`, `~/.zshenv`, `~/.bashrc`, `~/.profile`, or your shell's secrets manager), remove it, then restart Orca so the new environment is picked up.",
+      "envTokenActive": "`{{varName}}` is set in your environment, so `gh` is using that token instead of your keyring login. `gh auth refresh` cannot modify env-supplied tokens — that's why running it didn't help.",
+      "envTokenInherited": "Orca inherited `{{varName}}` from your shell, and `gh` is using that token. `gh auth refresh` doesn't apply to env-supplied tokens.",
+      "envTokenInheritedDetailWindows": "Unset `{{varName}}` in the shell that launches Orca (or in your user environment variables), then restart Orca.",
+      "envTokenInheritedDetailPosix": "Unset `{{varName}}` in the shell that launches Orca (or in your shell rc file), then restart Orca.",
+      "signedOut": "You’re not signed in to GitHub via `gh`.",
+      "missingScopes": "Your `gh` token is missing scopes needed for GitHub Projects: {{scopes}}.",
+      "missingScopesDetail": "Run the refresh command in a terminal. It will open a browser to authorize the new scopes, then come back here and reload.",
+      "accessDeniedDetail": "Your token has the required scopes but GitHub still denied access. If the project is in an org with SAML SSO, you must authorize this token for the org under Settings → Developer settings → Personal access tokens → Configure SSO."
+    },
+    "picker": {
+      "pasteUnparseable": "Expected a project URL or owner/number",
+      "ownerLoadFailed": "Couldn't load projects from {{owner}}.",
+      "organizationsLoadFailed": "Some organizations didn't load ({{failureCount}})."
     },
     "error": {
-      "tooManyItems": "This view has too many items to render in Orca. Narrow the view's filter on GitHub.",
-      "itemCountTooLarge": "This view has {{count}} items — too large to render in Orca. Narrow the view's filter on GitHub.",
-      "notFound": "Could not find this project or view.",
+      "notFoundState": "Could not find this project or view.",
       "schemaDrift": "Could not read this project view.",
-      "itemCountTooLarge_one": "This view has {{count}} item — too large to render in Orca. Narrow the view's filter on GitHub.",
-      "itemCountTooLarge_other": "This view has {{count}} items — too large to render in Orca. Narrow the view's filter on GitHub."
+      "projectOrViewNotFound": "Project or view not found.",
+      "projectNotFound": "Project not found.",
+      "viewNotFound": "Could not find the selected view.",
+      "ownerNotFound": "Owner not found.",
+      "itemNotFound": "Item not found.",
+      "issueNotFound": "Issue not found.",
+      "inputRequired": "Input required.",
+      "inputTooLarge": "Project reference is too large to resolve.",
+      "inputUnparseable": "Could not parse input. Expected a GitHub project URL or `owner/number`.",
+      "invalidSlug": "Invalid {{field}}: \"{{value}}\" is not a valid GitHub slug.",
+      "invalidPositiveInteger": "Invalid {{field}}: must be a positive integer.",
+      "invalidOwnerType": "Invalid ownerType.",
+      "invalidItemType": "Invalid item type.",
+      "missingIds": "Missing ids.",
+      "updatesRequired": "Updates required.",
+      "commentBodyRequired": "Comment body required.",
+      "duplicateTargetNotAllowed": "Duplicate target is only valid when closing as duplicate.",
+      "duplicateTargetRequired": "Duplicate target issue number is required.",
+      "requestInvalid": "Invalid request — {{detail}}",
+      "requestFailedDetail": "GitHub request failed: {{detail}}",
+      "requestFailed": "GitHub request failed.",
+      "unexpectedRestResponse": "Unexpected REST response: {{detail}}",
+      "authRequired": "Sign in to GitHub to load project tasks. Run `{{command}}`.",
+      "scopeMissing": "GitHub project access needs additional scopes. Run `{{command}}`.",
+      "rateLimitNearlyExhausted": "GitHub rate limit nearly exhausted ({{remaining}}/{{limit}} left). Resets in ~{{minutes}}m.",
+      "rateLimited": "GitHub rate limit hit. Try again in a few minutes.",
+      "network": "Network error — check your connection.",
+      "tooLargeUnknownCount": "This view has too many items to render in Orca. Narrow the view's filter on GitHub.",
+      "tooLarge": "This view has {{itemCount}} items — too large to render in Orca. Narrow the view's filter on GitHub.",
+      "schemaDriftDetail": "Could not read this project view: {{detail}}."
     }
   },
   "projectField": {
@@ -21677,6 +21874,7 @@
       "title": "Couldn't name this chat",
       "description": "The chat-name agent stopped with an error, so the chat keeps its first message as its name.",
       "viewError": "view error",
+      "settings": "Settings",
       "dialogTitle": "Chat auto-name failed",
       "dialogDescriptionStart": "Orca couldn't generate a name for",
       "dialogDescriptionEnd": "from its first message."
@@ -21988,6 +22186,54 @@
     "restartLocal": "Restart local daemon",
     "killAllLocal": "Kill all local sessions",
     "killFailed": "The terminal could not be ended. Last-observed sessions are retained."
+  },
+  "browserExtensions": {
+    "permission": {
+      "history": "Read your browsing history",
+      "historyWrite": "Read and change your browsing history",
+      "bookmarks": "Read and change your bookmarks",
+      "clipboardRead": "Read data you copy and paste",
+      "clipboardWrite": "Modify data you copy and paste",
+      "downloads": "Manage your downloads",
+      "nativeMessaging": "Communicate with cooperating native applications",
+      "notifications": "Display notifications",
+      "privacy": "Change your privacy-related settings",
+      "management": "Manage your other extensions",
+      "proxy": "Change your proxy settings",
+      "contentSettings": "Change which sites can use cookies, JavaScript, your camera, microphone and location",
+      "geolocation": "Detect your physical location",
+      "topSites": "Read a list of your most frequently visited websites",
+      "blockContent": "Block content on any page",
+      "debugger": "Access the page debugger backend",
+      "screenCapture": "Capture content of your screen",
+      "email": "Know your email address",
+      "allSites": "Read and change all your data on all websites",
+      "someSites": "Read and change your data on {{hosts}}",
+      "manySites": "Read and change your data on {{hosts}} and {{count}} other sites"
+    },
+    "install": {
+      "title": "Add {{name}}?",
+      "profileDescription": "It runs in tabs that use the {{profile}} profile.",
+      "description": "It runs in Orca browser tabs.",
+      "noAccess": "It does not ask to read or change data on websites.",
+      "canHeading": "It can:",
+      "cancel": "Cancel",
+      "confirm": "Add extension"
+    },
+    "uninstall": {
+      "title": "Remove {{name}}?",
+      "confirm": "Remove"
+    },
+    "unsupported": {
+      "identity": "extension sign-in",
+      "line": "Not available in Orca yet: {{features}}."
+    },
+    "permissions": {
+      "title": "Allow {{name}} more access?",
+      "description": "It is asking for access it did not have when you added it.",
+      "deny": "Deny",
+      "confirm": "Allow"
+    }
   },
   "browserTab": {
     "agentDriving": "An agent is using this page"
@@ -22403,5 +22649,116 @@
     "ok": "OK",
     "unavailableMessage": "Orca can't stop every terminal session right now.",
     "unavailableDetail": "Nothing was stopped. Try again once your terminals have opened. If a terminal says it was opened in a newer version of Orca, reopen it first. If your terminals are already open, quit and reopen Orca, then try again."
+  },
+  "keybindings": {
+    "title": {
+      "worktreeQuickOpen": "Go to File",
+      "appSettings": "Open Settings",
+      "appForceReload": "Force Reload",
+      "worktreePalette": "Switch worktree",
+      "worktreeNavigateUp": "Previous worktree",
+      "worktreeNavigateDown": "Next worktree",
+      "workspaceCreate": "Create worktree",
+      "workspaceRename": "Rename worktree",
+      "workspaceDelete": "Delete Workspace",
+      "workspaceOpenBoard": "Toggle Workspace Board",
+      "dashboardToggle": "Toggle Agent Dashboard",
+      "workspaceSelectByIndex": "Select Workspace 1–9",
+      "voiceDictation": "Dictation",
+      "viewTasks": "Open Tasks",
+      "sidebarLeftToggle": "Toggle Sidebar",
+      "sidebarRightToggle": "Toggle Right Sidebar",
+      "sidebarExplorerToggle": "Show Explorer",
+      "sidebarSearchToggle": "Show Search",
+      "sidebarSourceControlToggle": "Show Source Control",
+      "sidebarChecksToggle": "Show Checks",
+      "sidebarPortsToggle": "Show Ports",
+      "sidebarSleepingWorkspacesToggle": "Toggle Sleeping Workspaces",
+      "sidebarFocusWorktreeList": "Focus worktree list",
+      "floatingTerminalToggle": "Toggle Floating Terminal",
+      "floatingWorkspaceMaximize": "Maximize Floating Workspace Panel",
+      "floatingWorkspaceMinimize": "Minimize Floating Workspace Panel",
+      "zoomIn": "Zoom In",
+      "zoomOut": "Zoom Out",
+      "zoomReset": "Reset Size",
+      "worktreeHistoryBack": "Worktree History Back",
+      "worktreeHistoryForward": "Worktree History Forward",
+      "tabNewTerminal": "New terminal tab",
+      "tabNewAgent": "New agent tab (default agent)",
+      "tabNewBrowser": "New browser tab",
+      "tabNewSimulator": "New mobile emulator tab",
+      "tabNewMarkdown": "New markdown tab",
+      "tabOpenMarkdown": "Open markdown tab",
+      "tabClose": "Close active tab",
+      "tabCloseAll": "Close all editor tabs",
+      "tabRename": "Rename active tab",
+      "tabReopenClosed": "Reopen closed tab",
+      "tabNextSameType": "Next tab (same type)",
+      "tabPreviousSameType": "Previous tab (same type)",
+      "tabNextAllTypes": "Next tab (all types)",
+      "tabPreviousAllTypes": "Previous tab (all types)",
+      "tabPreviousRecent": "Previous recent tab",
+      "tabNextTerminal": "Next terminal tab",
+      "tabPreviousTerminal": "Previous terminal tab",
+      "tabSelectByIndex": "Select Tab 1–9",
+      "tabOpenQuickCommandsMenu": "Toggle Quick Commands menu",
+      "browserFind": "Find in Browser",
+      "browserBack": "Go Back in Browser",
+      "browserForward": "Go Forward in Browser",
+      "browserShowHistory": "Show Browser History",
+      "browserReload": "Reload Browser Page",
+      "browserHardReload": "Hard Reload Browser Page",
+      "browserFocusAddressBar": "Focus Browser Address Bar",
+      "browserGrabElement": "Grab Page Element",
+      "browserAnnotateElement": "Annotate Page Element",
+      "editorFind": "Find in editor",
+      "editorReplace": "Replace in editor",
+      "editorSave": "Save File",
+      "editorMarkdownPreview": "Show Markdown Preview",
+      "editorToggleWordWrap": "Toggle Word Wrap",
+      "editorCopyContext": "Copy Context",
+      "editorPreviousChange": "Go to Previous Change",
+      "editorNextChange": "Go to Next Change",
+      "editorAddReviewNote": "Add Review Note",
+      "sourceControlSendReviewNotes": "Send Review Notes to Agent",
+      "fileExplorerUndo": "Undo file operation",
+      "fileExplorerRedo": "Redo file operation",
+      "fileExplorerCopyPath": "Copy file path",
+      "fileExplorerCopyRelativePath": "Copy relative file path",
+      "fileExplorerDelete": "Delete file",
+      "settingsSearch": "Search Settings",
+      "terminalCopySelection": "Copy terminal selection",
+      "terminalSelectAll": "Select all terminal text",
+      "terminalPaste": "Paste into terminal",
+      "terminalSearch": "Search active pane",
+      "terminalClear": "Clear active pane",
+      "terminalFocusNextPane": "Focus next pane",
+      "terminalFocusPreviousPane": "Focus previous pane",
+      "terminalEqualizePaneSizes": "Equalize pane sizes",
+      "terminalExpandPane": "Expand / collapse pane",
+      "terminalSetTitle": "Set Title…",
+      "chatFind": "Find in chat",
+      "terminalToggleNativeChat": "Switch between Chat UI and terminal",
+      "sidebarChildWorkspacesToggle": "Toggle Child Workspaces",
+      "terminalClearPaneTitle": "Clear Pane Title",
+      "terminalClosePane": "Close active pane",
+      "terminalSplitRight": "Split terminal right",
+      "terminalSplitDown": "Split terminal down",
+      "terminalSwitchInputSource": "Switch input source / language (native)",
+      "newAgentTab": "New {{agent}} tab"
+    },
+    "group": {
+      "global": "Global",
+      "tabs": "Tabs",
+      "tabNavigation": "Tab Navigation",
+      "quickCommands": "Quick Commands",
+      "browser": "Browser",
+      "editors": "Editors",
+      "fileExplorer": "File Explorer",
+      "settings": "Settings",
+      "terminalPanes": "Terminal Panes",
+      "chat": "Chat",
+      "agents": "Agents"
+    }
   }
 }

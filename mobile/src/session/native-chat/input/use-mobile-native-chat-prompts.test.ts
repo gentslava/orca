@@ -170,6 +170,7 @@ describe('useMobileNativeChatPrompts in a structured chat', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         { delivery: 'immediate' }
       )
     }

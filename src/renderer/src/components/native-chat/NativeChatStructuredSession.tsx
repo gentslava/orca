@@ -1,7 +1,8 @@
+import { useNativeChatHandOff } from './use-native-chat-hand-off'
 import { cn } from '@/lib/utils'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from './use-native-chat-store-appearance-style'
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { structuredAgentSessionPaneKey } from '../../../../shared/structured-agent-session-projection'
 import { useStructuredChatLiveSession } from './use-structured-chat-live-session'
 import { NativeChatComposer, type NativeChatComposerHandle } from './NativeChatComposer'
@@ -72,10 +73,7 @@ export function NativeChatStructuredSession(
   const provisionalLaunch = useNativeChatProvisionalLaunch(ownerWorktreeId, props.sessionId)
   // The host's own word on whether the provider child has answered startup yet.
   const hostExecution = useStructuredAgentSessionHostExecution(props.sessionId, props.target)
-  const paneKey = useMemo(
-    () => structuredAgentSessionPaneKey(props.tabId, props.sessionId),
-    [props.sessionId, props.tabId]
-  )
+  const paneKey = structuredAgentSessionPaneKey(props.tabId, props.sessionId)
   const childNavigator = useNativeChatChildNavigator(JSON.stringify([paneKey, props.target]))
   const childMessageListRef = useRef<NativeChatMessageListHandle>(null)
   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
@@ -152,8 +150,7 @@ export function NativeChatStructuredSession(
       ? structuredAgentSessionReadFailureNotice(controller.readRefusal)
       : null
   // Final read refusal replaces the pane because no existing action can succeed.
-  const readFailedFinally = readFailure?.final === true
-  const viewState = selectNativeChatViewState(session, { readRetries: !readFailedFinally })
+  const viewState = selectNativeChatViewState(session, { readRetries: readFailure?.final !== true })
   const paneActive = props.isVisible && props.isFocusedGroup
   useNativeChatFontSize(viewState.kind === 'ready' && paneActive, rootRef)
   const activeComposerRef = childNavigator.child ? readOnlyComposerRef : composerRef
@@ -170,17 +167,20 @@ export function NativeChatStructuredSession(
     { sessionId: props.sessionId, isVisible: props.isVisible }
   )
   const fileLinkProps = { onLinkClick, allowFileUriLinks: onLinkClick !== undefined }
+  const handOff = useNativeChatHandOff({
+    pane: props,
+    directory: fileLinkContext,
+    messages: controller.messages,
+    epoch: controller.epoch,
+    focusComposer
+  })
   const paneCommands = useStructuredNativeChatPaneCommands({
-    tabId: props.tabId,
+    pane: props,
+    handOff,
     ownerWorktreeId,
-    groupId: props.groupId,
-    isVisible: props.isVisible,
     rootRef,
     composerRef: activeComposerRef,
     questionAnswerInputRef: activeQuestionAnswerInputRef,
-    terminalPaneActions: props.contextMenuActions,
-    sessionId: props.sessionId,
-    target: props.target,
     messageListRef: activeMessageListRef,
     fileLinkContext,
     rewind: controller.rewind.surface,
@@ -189,7 +189,7 @@ export function NativeChatStructuredSession(
   const prompt = controller.prompts[0] ?? null
   // Unknown prompts leave the composer usable; a send starts a turn whose cancel can resolve them.
   const promptsUnanswerable = pendingPromptsAllUnanswerableHere(controller.prompts)
-  const composerShown = (prompt === null || promptsUnanswerable) && !readFailedFinally
+  const composerShown = (prompt === null || promptsUnanswerable) && readFailure?.final !== true
   // An owned prompt keeps its card; otherwise a missing program leaves the composer disabled.
   const installLayout = viewState.kind === 'empty' ? 'hero' : 'strip'
   const install = useNativeChatInstallSlot(props, agentLabel, installLayout)
@@ -321,7 +321,7 @@ export function NativeChatStructuredSession(
               />
             )}
           </NativeChatContextClearFade>
-          {readFailedFinally ? null : (
+          {readFailure?.final ? null : (
             <>
               {/* Host-held drafts, never transcript rows. Above the status area, so running shells and agents sit next to the composer. */}
               <NativeChatQueuedMessageList
@@ -406,6 +406,7 @@ export function NativeChatStructuredSession(
           />
         ) : null}
         {paneCommands.menu}
+        {handOff.dialog}
         <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
       </div>
     </NativeChatChildNavigationContext.Provider>

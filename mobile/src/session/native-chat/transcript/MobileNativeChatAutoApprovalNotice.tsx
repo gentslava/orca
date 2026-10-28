@@ -4,7 +4,7 @@ import {
   nativeChatAutoApprovalOutcome,
   type NativeChatAutoApprovalOutcome
 } from '../../../../../src/shared/native-chat-auto-approval'
-import { NATIVE_CHAT_NOTICE_COPY } from '../../../../../src/shared/native-chat-notice'
+import { NATIVE_CHAT_NOTICE_COPY } from '../../../../../src/shared/native-chat/native-chat-notice'
 import type { NativeChatTextBlock } from '../../../../../src/shared/native-chat-types'
 import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection'
 import { colors } from '../../../theme/mobile-theme'

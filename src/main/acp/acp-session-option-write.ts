@@ -1,3 +1,6 @@
+import type { AcpStructuredSession } from './acp-structured-session'
+import type { StructuredAgentSessionSetOptionInput } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
+import { AgentSessionOptionRejectedError } from '../native-chat/agent-session-wire/structured-agent-session-option-error'
 import { abortSignalReason } from '../../shared/abort-signal-reason'
 import type { AcpStructuredConnection } from './acp-structured-connection'
 import type { AcpOptionWrite, AcpStructuredOptions } from './acp-structured-options'
@@ -68,4 +71,27 @@ export function writeAcpSessionOption(
       resolve()
     }, fail)
   })
+}
+
+export async function setAcpSessionOption(
+  session: Pick<AcpStructuredSession, 'options' | 'connection' | 'spec'>,
+  input: StructuredAgentSessionSetOptionInput,
+  timeoutMs: number
+): Promise<Readonly<Record<string, string>>> {
+  const write = session.options.write(input.key, input.value)
+  if (!write) {
+    throw new AgentSessionOptionRejectedError(
+      `${session.spec.agent} offers no session option named ${input.key}`
+    )
+  }
+  session.options.notePick(input.key)
+  // Bound option writes so they cannot hold the session queue indefinitely.
+  await writeAcpSessionOption(session.connection, session.options, write, {
+    key: input.key,
+    value: input.value,
+    agent: session.spec.agent,
+    timeoutMs: timeoutMs,
+    ...(input.signal ? { signal: input.signal } : {})
+  })
+  return session.options.reported()
 }

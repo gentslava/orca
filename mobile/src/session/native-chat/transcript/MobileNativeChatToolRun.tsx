@@ -16,6 +16,7 @@ import type {
 } from '../../../../../src/shared/native-chat-types'
 import { buildNativeChatTaskListRows } from '../../../../../src/shared/native-chat/input/native-chat-task-list-history'
 import { colors } from '../../../theme/mobile-theme'
+import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
 import { MobileNativeChatToolGlyph } from './MobileNativeChatToolIcon'
 import { MobileNativeChatToolLine } from './MobileNativeChatToolLine'
 import { MobileNativeChatDiffCard } from '../../MobileNativeChatDiffCard'
@@ -79,6 +80,7 @@ export function ToolRun({
   fontScale = 1,
   onOpenFile
 }: MobileNativeChatToolRunProps): React.JSX.Element {
+  useMobileColorScheme()
   const runKey = disclosureId === undefined ? undefined : `run:${disclosureId}`
   const [open, setOpen] = useMobileNativeChatDisclosure(runKey, false)
   const asideCount = asides

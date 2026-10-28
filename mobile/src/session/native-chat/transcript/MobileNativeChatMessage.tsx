@@ -26,8 +26,8 @@ import {
   MobileNativeChatReasoningRow
 } from './MobileNativeChatReasoningRow'
 import { mobileNativeChatRowId } from '../../mobile-native-chat-reading-place'
-import { nativeChatWorkRunEntries } from '../../../../../src/shared/native-chat-work-run'
-import { nativeChatReasoningDisclosureKey } from '../../../../../src/shared/native-chat-reasoning-row'
+import { nativeChatWorkRunEntries } from '../../../../../src/shared/native-chat/native-chat-work-run'
+import { nativeChatReasoningDisclosureKey } from '../../../../../src/shared/native-chat/transcript/native-chat-reasoning-row'
 import { MobileNativeChatTurnStatus } from './MobileNativeChatTurnStatus'
 import { MobileNativeChatNoticeRow } from './MobileNativeChatNoticeRow'
 import { MobileNativeChatAutoApprovalNotice } from './MobileNativeChatAutoApprovalNotice'
@@ -48,6 +48,7 @@ import { styles } from './mobile-native-chat-message-styles'
 import { agentMessageAttribution } from '../../mobile-agent-message-attribution'
 import { MobileNativeChatVisualContext } from '../visual/mobile-native-chat-visual-context'
 import { useMobileNativeChatFullMessage } from '../../MobileNativeChatFullContent'
+import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
 import { MobileNativeChatPacedProse } from './MobileNativeChatPacedProse'
 import { MobileNativeChatOrchestrationNotice } from './MobileNativeChatOrchestrationNotice'
 import { Prose } from './MobileNativeChatProse'
@@ -120,6 +121,7 @@ function MobileNativeChatMessageImpl({
   userMessageOpen?: boolean
   onToggleUserMessage?: (messageId: string) => void
 }): React.JSX.Element {
+  useMobileColorScheme()
   const { shown: message, showFull, recovery } = useMobileNativeChatFullMessage(rowMessage)
   const attribution = agentMessageAttribution('Message from', message.from)
   const isUser = message.role === 'user' && attribution === null
@@ -271,7 +273,7 @@ function MobileNativeChatMessageImpl({
       <Prose
         key={index}
         block={block}
-        invert={isUser}
+        userMessage={isUser}
         fontScale={fontScale}
         onOpenFile={onOpenFile}
         onLongPress={onLongPress}

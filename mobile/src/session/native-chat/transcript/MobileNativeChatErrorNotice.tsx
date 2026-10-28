@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native'
 import { AlertCircle, ChevronRight } from 'lucide-react-native'
 import { readWholeAgentSessionFailureFact } from '../../../../../src/shared/agent-session-failure'
-import { NATIVE_CHAT_NOTICE_COPY } from '../../../../../src/shared/native-chat-notice'
+import { NATIVE_CHAT_NOTICE_COPY } from '../../../../../src/shared/native-chat/native-chat-notice'
 import type { NativeChatTextBlock } from '../../../../../src/shared/native-chat-types'
 import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection'
 import { colors } from '../../../theme/mobile-theme'

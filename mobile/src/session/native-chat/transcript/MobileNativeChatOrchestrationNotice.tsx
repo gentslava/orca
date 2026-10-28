@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { ChevronRight, Mail } from 'lucide-react-native'
-import { NATIVE_CHAT_NOTICE_COPY } from '../../../../../src/shared/native-chat-notice'
+import { NATIVE_CHAT_NOTICE_COPY } from '../../../../../src/shared/native-chat/native-chat-notice'
 import { colors } from '../../../theme/mobile-theme'
 import { useMobileNativeChatDisclosure } from './mobile-native-chat-disclosure-store'
 import { toolStyles as styles, toolType } from './mobile-native-chat-tool-styles'

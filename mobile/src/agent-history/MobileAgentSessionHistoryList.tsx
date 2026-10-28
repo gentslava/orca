@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { ActivityIndicator, Pressable, RefreshControl, SectionList, Text, View } from 'react-native'
 import { Play } from 'lucide-react-native'
 import { colors } from '../theme/mobile-theme'
+import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
 import { MobileAgentIcon } from '../components/MobileAgentIcon'
 import { recentSessionConversationTurns } from '../../../src/shared/ai-vault-session-display'
 import type { AiVaultSession } from '../../../src/shared/ai-vault-types'
@@ -35,6 +36,7 @@ export function MobileAgentSessionHistoryList({
   initialExpandedId,
   hideSectionHeaders = false
 }: Props) {
+  const colorScheme = useMobileColorScheme()
   const [expandedId, setExpandedId] = useState<string | null>(initialExpandedId ?? null)
 
   const toggleExpanded = useCallback((id: string) => {
@@ -66,6 +68,7 @@ export function MobileAgentSessionHistoryList({
   return (
     <SectionList
       sections={sections}
+      extraData={colorScheme}
       keyExtractor={(card) => card.id}
       stickySectionHeadersEnabled={false}
       contentContainerStyle={styles.list}
@@ -108,6 +111,7 @@ function AgentHistoryCardRow({
   onResume?: (session: AiVaultSession) => void | Promise<void>
   onPress: () => void
 }) {
+  useMobileColorScheme()
   const previewTurns = useMemo(
     () => (expanded && session ? recentSessionConversationTurns(session, PREVIEW_TURN_LIMIT) : []),
     [expanded, session]

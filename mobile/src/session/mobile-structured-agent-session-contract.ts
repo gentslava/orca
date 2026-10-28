@@ -14,6 +14,7 @@ import type {
   StructuredMobileSendAttachment,
   StructuredMobileSendRequest
 } from './use-mobile-structured-send-with-outcome'
+import type { AgentJournalSkillRef } from '../../../src/shared/agent-session-journal-types'
 import type {
   MobileNativeChatCommandRefusalCauses,
   MobileNativeChatSendErrorReporter
@@ -26,6 +27,8 @@ export type StructuredMobileSession = ReturnType<typeof useMobileStructuredAgent
     session: MobileNativeChatSession
     isWorking: boolean
     allowsWorkingPicks?: boolean
+    /** Desktop's Stop rule: a running turn, or conversation Stop while working or sending. */
+    canStop: boolean
     turnId: string | null
     turnIndicator: NativeChatLiveTurnIndicator
     sendWithOutcome: (
@@ -33,6 +36,7 @@ export type StructuredMobileSession = ReturnType<typeof useMobileStructuredAgent
       images?: string[],
       deadline?: number,
       attachments?: readonly StructuredMobileSendAttachment[],
+      skills?: readonly AgentJournalSkillRef[],
       request?: StructuredMobileSendRequest
     ) => Promise<MobileNativeChatSendOutcome>
     cancel: () => void

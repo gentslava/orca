@@ -10,7 +10,7 @@ import {
   type NativeChatChildLocation
 } from './native-chat-child-navigation'
 import type { OrchestrationSessionChild } from '../../../../shared/orchestration-session-children'
-import { subagentStateLabel } from '../../../../shared/native-chat-subagent-group-header'
+import { subagentStateLabel } from '../../../../shared/native-chat/transcript/native-chat-subagent-group-header'
 import { sayNativeChatSubagentGroupTranslated as say } from './native-chat-subagent-group-words-text'
 import { NativeChatChildMetadata } from './NativeChatChildMetadata'
 

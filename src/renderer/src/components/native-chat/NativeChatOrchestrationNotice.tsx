@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { ChevronRight, Mail } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { translate } from '@/i18n/i18n'
-import { NATIVE_CHAT_NOTICE_COPY } from '../../../../shared/native-chat-notice'
+import { NATIVE_CHAT_NOTICE_COPY } from '../../../../shared/native-chat/native-chat-notice'
 import { useNativeChatDisclosure } from './native-chat-disclosure-store'
 
 export function NativeChatOrchestrationNotice({

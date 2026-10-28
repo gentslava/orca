@@ -150,3 +150,18 @@ export function batchEvent(
     ...(queuePause !== undefined ? { queuePause } : {})
   }
 }
+
+export function seedMobileOperationStorage(storage: {
+  getItem: { mockImplementation: (read: (key: string) => Promise<string | null>) => unknown }
+  setItem: { mockImplementation: (write: (key: string, value: string) => Promise<void>) => unknown }
+  removeItem: { mockImplementation: (remove: (key: string) => Promise<void>) => unknown }
+}): void {
+  const values = new Map<string, string>()
+  storage.getItem.mockImplementation(async (key) => values.get(key) ?? null)
+  storage.setItem.mockImplementation(async (key, value) => {
+    values.set(key, value)
+  })
+  storage.removeItem.mockImplementation(async (key) => {
+    values.delete(key)
+  })
+}

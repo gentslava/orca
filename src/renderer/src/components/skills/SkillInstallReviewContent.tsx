@@ -79,11 +79,9 @@ export function SkillInstallOutcome({ result }: { result: SkillInstallResult }):
           <p className="text-sm font-medium">{skillInstallResultLabel(result)}</p>
           <p className="text-xs text-muted-foreground">
             {translate(
-              'skills.install.checkedPlacements',
-              'Checked installation locations: {{count}}.',
-              {
-                count: result.placements.length
-              }
+              'auto.components.skills.SkillInstallReviewContent.placementsChecked',
+              '{{count}} placements checked.',
+              { count: result.placements.length, defaultValue_one: '{{count}} placement checked.' }
             )}
           </p>
         </div>

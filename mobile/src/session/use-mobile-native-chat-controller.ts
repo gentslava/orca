@@ -1,15 +1,14 @@
 import { useLayoutEffect, useRef } from 'react'
 import { useMobileNativeChatAskDismiss } from './native-chat/input/use-mobile-native-chat-ask-dismiss'
 import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
-import { useMobileNativeChatFileSearch } from './native-chat/composer/use-mobile-native-chat-file-search'
+import { useMobileNativeChatWorkspaceCatalog } from './native-chat/composer/use-mobile-native-chat-workspace-catalog'
 import { useMobileNativeChatMessageSend } from './native-chat/transcript/use-mobile-native-chat-message-send'
-import { mobileNativeChatStreamPreview } from './native-chat/mobile-native-chat-streaming-gate'
 import { useMobileNativeChatSessionOptionController } from './native-chat/input/use-mobile-native-chat-session-option-controller'
 import { useMobileNativeChatSessionLane } from './use-mobile-native-chat-session-lane'
 import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
 import { useMobileNativeChatPrompts } from './native-chat/input/use-mobile-native-chat-prompts'
 import { useNativeChatAcceptedAction } from './use-native-chat-action-outcomes'
-import { useThrottledLatestValue } from './use-throttled-latest-value'
+import { useMobileNativeChatTerminalTurn } from './use-mobile-native-chat-terminal-turn'
 import type {
   MobileNativeChatController,
   MobileNativeChatControllerArgs
@@ -41,12 +40,12 @@ export function useMobileNativeChatController(
     onSendResolved
   } = args
   const {
+    activeChatAgent,
     activeChatAgentConfirmed,
     activeChatAgentRef,
     activeChatResolution,
     activeChatSessionId,
     activeChatStructured,
-    activeTabAgentWorking,
     isTabChatView,
     sessionViewReady,
     setTabView,
@@ -55,7 +54,6 @@ export function useMobileNativeChatController(
     showNativeChatRef,
     sourceIdentity,
     streamIdentity,
-    streamScopeKey,
     toggleTabChatView
   } = useMobileNativeChatActiveResolution(args)
 
@@ -103,19 +101,6 @@ export function useMobileNativeChatController(
     transcriptSettled: nativeChatSession.status === 'ready'
   })
 
-  // Observe turn liveness even off-chat so hidden mid-turn cannot look ended.
-  const nativeChatStreamLive = activeChatStructured
-    ? structuredNativeChat.isWorking
-    : activeTabAgentWorking
-  const nativeChatAgentWorking =
-    nativeChatStreamLive && (activeChatStructured || activeChatResolution != null)
-  // Throttle status-part previews to avoid reparsing the whole accumulated markdown per part.
-  const nativeChatStreamingText = useThrottledLatestValue(
-    activeChatStructured
-      ? undefined
-      : mobileNativeChatStreamPreview(nativeChatStatus, nativeChatAgentWorking),
-    50
-  )
   const {
     permission: legacyNativeChatPermission,
     ask: nativeChatAskPrompt,
@@ -162,7 +147,19 @@ export function useMobileNativeChatController(
     onSendError
   })
 
-  const nativeChatFiles = useMobileNativeChatFileSearch({ client, worktreeId })
+  const terminalTurn = useMobileNativeChatTerminalTurn({
+    status: nativeChatStatus,
+    resolution: activeChatResolution,
+    session: activeChatStructured ? null : nativeChatSession,
+    latestPendingId: chatPending.at(-1)?.id ?? null,
+    hasPromptCard: (legacyNativeChatPermission ?? nativeChatAskPrompt) != null,
+    scopeKey: streamIdentity,
+    stop: handleNativeChatStop
+  })
+  const activeTurn = activeChatStructured ? structuredNativeChat : terminalTurn
+  const nativeChatAgentWorking = activeTurn.isWorking
+
+  const workspaceCatalog = useMobileNativeChatWorkspaceCatalog(args, activeChatAgent)
 
   // Break the send/options cycle through a ref so snapshot changes cannot recreate send callbacks.
   const recordSessionOptionCommandRef = useRef<(command: string) => void>(() => {})
@@ -264,22 +261,19 @@ export function useMobileNativeChatController(
       activeChatStructured && agentSessionHostSupport?.itemDetail === true
         ? structuredNativeChat.visualSource
         : null,
-    nativeChatAgentWorking,
+    nativeChatTurnActive: activeChatStructured
+      ? structuredNativeChat.isWorking
+      : terminalTurn.turnActive,
+    nativeChatAwaitingInput: activeChatStructured ? null : terminalTurn.awaitingInput,
     nativeChatTurnIndicator: activeChatStructured ? structuredNativeChat.turnIndicator : null,
-    nativeChatWorkingStartedAt: activeChatStructured ? structuredNativeChat.workingStartedAt : null,
-    nativeChatSettledTurns: activeChatStructured ? structuredNativeChat.settledTurns : null,
+    nativeChatWorkingStartedAt: activeTurn.workingStartedAt,
+    nativeChatSettledTurns: activeTurn.settledTurns,
     nativeChatTurnJournal: activeChatStructured ? structuredNativeChat.turnJournal : null,
     nativeChatReceipts: activeChatStructured ? structuredNativeChat.receipts : null,
     nativeChatActionablePromptIds: structuredNativeChat.actionablePromptIds,
     nativeChatCommandRefusalCauses: structuredNativeChat.commandRefusalCauses,
-    // A host that stops what the chat has in flight takes Stop before the agent opens a turn.
-    nativeChatCanStop: activeChatStructured
-      ? structuredNativeChat.turnId !== null ||
-        (agentSessionHostSupport?.conversationStop === true && structuredNativeChat.isWorking)
-      : nativeChatAgentWorking,
-    nativeChatStreamingText,
-    nativeChatStreamLive,
-    nativeChatStreamScopeKey: streamScopeKey,
+    nativeChatCanStop: activeChatStructured ? structuredNativeChat.canStop : nativeChatAgentWorking,
+    nativeChatStreamingText: terminalTurn.streamingText,
     ...promptCards,
     nativeChatAsk: askDismissal.showAsk || askDismissal.collapsedAsk ? nativeChatAskPrompt : null,
     nativeChatAskKey: askDismissal.askKey,
@@ -288,10 +282,10 @@ export function useMobileNativeChatController(
     nativeChatCollapsedPrompt: askDismissal.collapsedAsk ?? promptCards.nativeChatCollapsedPrompt,
     handleNativeChatAnswerAsk: answerAsk,
     handleNativeChatCancelAsk: cancelAsk,
-    handleNativeChatStop: activeChatStructured ? structuredNativeChat.cancel : handleNativeChatStop,
+    handleNativeChatStop: activeChatStructured ? structuredNativeChat.cancel : terminalTurn.stop,
     nativeChatQueued: structuredNativeChat.queued,
     nativeChatBackgroundTasks: activeChatStructured ? structuredNativeChat.backgroundTasks : null,
-    ...nativeChatFiles,
+    ...workspaceCatalog,
     handleNativeChatSend: activeChatStructured
       ? structuredNativeChatSend.send
       : handleNativeChatSend,

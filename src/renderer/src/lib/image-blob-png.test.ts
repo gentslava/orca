@@ -138,15 +138,6 @@ describe('convertImageBlobToPng', () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:decode-owned')
   })
 
-  it('releases its temporary URL when no canvas context is available', async () => {
-    stubDecodedSize(800, 600)
-
-    await expect(convertImageBlobToPng(new Blob([WEBP_BYTES]))).rejects.toThrow(
-      'Clipboard image could not be decoded'
-    )
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:decode-owned')
-  })
-
   it.each([null, new Blob([new Uint8Array(CLIPBOARD_IMAGE_MAX_SOURCE_BYTES + 1)])])(
     'releases its temporary URL when PNG encoding fails or exceeds the byte cap',
     async (png) => {

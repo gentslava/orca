@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
 import { hostScreenStyles as styles } from './host-screen-styles'
 import { HostScreenHeader } from './host-screen-header'
 import { HostScreenOverlays } from './host-screen-overlays'
@@ -12,6 +13,7 @@ import { conversationStyles } from './conversation-styles'
 
 export function HostScreenView({ controller }: { controller: HostScreenController }) {
   const [advanced, setAdvanced] = useState(false)
+  useMobileColorScheme()
   if (controller.state.error) {
     return (
       <View style={styles.centered}>

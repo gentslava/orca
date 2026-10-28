@@ -34,9 +34,16 @@ export function useMobileStructuredAsyncQuestion(args: {
   const answer = useCallback(
     async (prompt: AskPrompt, selections: AskAnswerSelection[]) =>
       sendWithOutcome !== undefined &&
-      (await sendWithOutcome(formatAskAnswer(prompt, selections), undefined, undefined, undefined, {
-        delivery: 'immediate'
-      })) !== 'rejected',
+      (await sendWithOutcome(
+        formatAskAnswer(prompt, selections),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        {
+          delivery: 'immediate'
+        }
+      )) !== 'rejected',
     [sendWithOutcome]
   )
   return { ask, answer: structured ? answer : null }

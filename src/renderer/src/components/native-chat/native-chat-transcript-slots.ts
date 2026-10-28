@@ -8,12 +8,12 @@ import type { NativeChatMessage } from '../../../../shared/native-chat-types'
 import type { NativeChatTurnStatus } from '../../../../shared/native-chat-turn-status'
 import { isNativeChatRowInLiveWorkingTurn } from '../../../../shared/native-chat-turn-membership'
 import { nativeChatMessagesWaitingBehindLiveTurn } from '../../../../shared/native-chat-messages-waiting-behind-live-turn'
-import { nativeChatTurnBarRows } from '../../../../shared/native-chat-turn-grouping'
+import { nativeChatTurnBarRows } from '../../../../shared/native-chat/transcript/native-chat-turn-grouping'
 import {
   nativeChatTurnFold,
   nativeChatTurnFoldRow,
   type NativeChatTurnFoldHistory
-} from '../../../../shared/native-chat-turn-fold'
+} from '../../../../shared/native-chat/transcript/native-chat-turn-fold'
 import { nativeChatRowRendersContent } from '../../../../shared/native-chat-row-content'
 import {
   type NativeChatRowTypography,
@@ -35,7 +35,7 @@ import {
   type NativeChatSubagentEntriesSlot,
   type NativeChatSubagentSectionSlot
 } from './native-chat-subagent-section-slots'
-import { nativeChatRowSpeaksOrActs } from '../../../../shared/native-chat-trailing-run'
+import { nativeChatRowSpeaksOrActs } from '../../../../shared/native-chat/native-chat-trailing-run'
 import { nativeChatTranscriptWorkRuns } from './native-chat-transcript-work-runs'
 
 export type NativeChatTranscriptSlot =

@@ -16,11 +16,12 @@ import {
   TEXT_SIZE
 } from './mobile-native-chat-message-styles'
 import type { MobileNativeChatVisualRender } from '../visual/mobile-native-chat-visual-context'
+import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
 
 export function Prose({
   block,
   text,
-  invert,
+  userMessage,
   fontScale,
   onOpenFile,
   onLongPress,
@@ -30,7 +31,7 @@ export function Prose({
 }: {
   block: NativeChatBlock
   text: string
-  invert?: boolean
+  userMessage?: boolean
   fontScale: number
   /** Assistant prose of a structured chat only. */
   renderVisual?: MobileNativeChatVisualRender
@@ -41,6 +42,7 @@ export function Prose({
   /** Android only: routes a long press on a link span to the row's actions sheet. */
   onLongPress?: () => void
 }): React.JSX.Element | null {
+  useMobileColorScheme()
   if (isTextBlock(block)) {
     if (isAgentSessionHostStatusPresentation(block.presentation)) {
       return (
@@ -52,11 +54,11 @@ export function Prose({
         </Text>
       )
     }
-    if (invert) {
+    if (userMessage) {
       return (
         <MobileMarkdown
           content={text}
-          tone="onBright"
+          tone="userMessage"
           rangeSelectable
           textScale={CHAT_PROSE_SCALE * fontScale}
           onOpenFile={onOpenFile}

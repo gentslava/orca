@@ -172,3 +172,12 @@ export function currentValueOf(snapshot: readonly SessionOptionDescriptor[], id:
 }
 
 export const BASE = { agent: 'codex', sessionId: 'session-1', fence: 1 } as const
+
+export const SEND_MODEL_OPTIONS: AgentSessionOptionsResult = {
+  conversationCommands: ['compact'],
+  models: [
+    { id: 'opus', label: 'Opus', isDefault: true, efforts: [] },
+    { id: 'sonnet', label: 'Sonnet', isDefault: false, efforts: [] }
+  ],
+  current: { model: 'opus' }
+}

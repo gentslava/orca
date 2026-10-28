@@ -4,8 +4,10 @@ import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ChevronLeft, RefreshCw } from 'lucide-react-native'
 import { colors } from '../theme/mobile-theme'
+import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
 import { useWorkspaceClient } from '../transport/use-workspace-client'
 import { useWorkspaceRouteHandoff } from '../navigation/workspace-route-handoff'
+import { useSessionScreenHandlers } from '../session/session-screen-handlers'
 import { worktreeCatalogRead } from '../worktree/worktree-catalog-operations'
 import { getWorktreeLabel } from '../session/worktree-label'
 import {
@@ -36,6 +38,7 @@ export type MobileAgentSessionHistoryPanelProps = {
   worktreeId: string
   name?: string
   conversationId?: string
+  origin?: string
 }
 
 const SCOPE_TABS: { scope: AiVaultScope; label: string }[] = [
@@ -52,10 +55,13 @@ function MobileAgentSessionHistoryPanelContent({
   hostId,
   worktreeId,
   name = '',
-  conversationId
+  conversationId,
+  origin = ''
 }: MobileAgentSessionHistoryPanelProps) {
+  useMobileColorScheme()
   // Use handoff, not useRouter: resumed session is a native route outside this single-document page.
   const router = useWorkspaceRouteHandoff()
+  const sessionBelow = useSessionScreenHandlers(hostId, worktreeId)
   const { client, state: connState } = useWorkspaceClient(hostId)
   const claimResumeOwnership = useMobileResumeOperationOwnership(
     hostId,
@@ -217,7 +223,7 @@ function MobileAgentSessionHistoryPanelContent({
           hostTerminalWindowsShell,
           settings
         })
-        await resumeAiVaultSessionInTerminal(
+        const resumed = await resumeAiVaultSessionInTerminal(
           client,
           target.worktreeId,
           {
@@ -236,11 +242,15 @@ function MobileAgentSessionHistoryPanelContent({
           return
         }
         setResumeMessage('Agent session queued.')
-        router.push(
-          `/h/${encodeURIComponent(hostId)}/session/${encodeURIComponent(target.worktreeId)}` as Parameters<
-            typeof router.push
-          >[0]
-        )
+        // From a session screen the same workspace is the screen below; otherwise the session takes this screen's place.
+        if (origin === 'session' && target.worktreeId === worktreeId) {
+          sessionBelow?.onResumedTerminal(resumed.terminal)
+          router.back()
+        } else {
+          router.replace(
+            `/h/${encodeURIComponent(hostId)}/session/${encodeURIComponent(target.worktreeId)}`
+          )
+        }
       } catch (err) {
         triggerError()
         setResumeMessage(err instanceof Error ? err.message : 'Failed to resume session.')
@@ -253,6 +263,8 @@ function MobileAgentSessionHistoryPanelContent({
       client,
       connState,
       hostId,
+      origin,
+      sessionBelow,
       resumeHost,
       hostTerminalWindowsShell,
       router,

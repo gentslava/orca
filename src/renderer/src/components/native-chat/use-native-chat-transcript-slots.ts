@@ -4,11 +4,11 @@ import {
   nativeChatHistoryTurnFold,
   nativeChatTurnFoldRow,
   type NativeChatTurnFoldHistory
-} from '../../../../shared/native-chat-turn-fold'
+} from '../../../../shared/native-chat/transcript/native-chat-turn-fold'
 import {
   nativeChatLiveLine,
   type NativeChatLiveLine
-} from '../../../../shared/native-chat-live-line'
+} from '../../../../shared/native-chat/transcript/native-chat-live-line'
 import { isNativeChatRowInLiveWorkingTurn } from '../../../../shared/native-chat-turn-membership'
 import {
   buildNativeChatTranscriptSlots,
