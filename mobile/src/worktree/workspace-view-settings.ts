@@ -176,16 +176,17 @@ export function applyDesktopViewSettings(
       settings.workspaceHostScope
     )
   }
+  const personalProjectOrder = newerPersonalProjectOrder(
+    current.personalProjectOrder,
+    settings.personalProjectOrder
+  )
   return {
     groupBy: isGroupBy(settings.groupBy) ? settings.groupBy : current.groupBy,
     sortBy: isSortBy(settings.sortBy) ? settings.sortBy : current.sortBy,
     filters,
     collapsedGroups: settings.collapsedGroups ?? current.collapsedGroups,
     workspaceStatuses,
-    personalProjectOrder: newerPersonalProjectOrder(
-      current.personalProjectOrder,
-      settings.personalProjectOrder
-    ),
+    ...(personalProjectOrder ? { personalProjectOrder } : {}),
     ...(current.conversationPreferences
       ? { conversationPreferences: current.conversationPreferences }
       : {}),
