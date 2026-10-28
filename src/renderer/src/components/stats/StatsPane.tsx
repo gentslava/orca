@@ -8,6 +8,15 @@ import { GrokUsagePane } from './GrokUsagePane'
 import { OpenCodeUsagePane } from './OpenCodeUsagePane'
 import { MuseUsagePane } from './MuseUsagePane'
 import { UsageOverviewPane } from './UsageOverviewPane'
+import { UsageAccountQuotas } from './UsageAccountQuotas'
+import type { SettingsHostScope } from '../settings/settings-host-scope'
+import { SettingsHostScopeUnavailableNotice } from '../settings/SettingsHostScopePicker'
+import { resolveAccountOwner } from '@/lib/wsl-host-account-owner'
+import { isWebClientLocation } from '@/lib/web-client-location'
+import {
+  getUsageOwnerHostScope,
+  useOwnerUsageRateLimits
+} from '../status-bar/use-owner-usage-rate-limits'
 import { Button } from '../ui/button'
 import {
   DropdownMenu,
@@ -101,10 +110,36 @@ function UsageAnalyticsOptionIcon({ tab }: { tab: UsageTab }): React.JSX.Element
   return <AgentIcon agent={tab} size={14} />
 }
 
-export function StatsPane(): React.JSX.Element {
+export function StatsPane({
+  hostScope
+}: { hostScope?: SettingsHostScope } = {}): React.JSX.Element {
+  return hostScope?.available === false ? (
+    <SettingsHostScopeUnavailableNotice />
+  ) : (
+    <OwnedStatsPane hostScope={hostScope} />
+  )
+}
+
+function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
   const summary = useAppStore((s) => s.statsSummary)
   const fetchStatsSummary = useAppStore((s) => s.fetchStatsSummary)
   const recordFeatureInteraction = useAppStore((s) => s.recordFeatureInteraction)
+  const localRateLimits = useAppStore((state) => state.rateLimits)
+  const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
+  const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
+  const fetchInactiveCodex = useAppStore((state) => state.fetchInactiveCodexAccountUsage)
+  const openSettingsTarget = useAppStore((state) => state.openSettingsTarget)
+  const openSettingsPage = useAppStore((state) => state.openSettingsPage)
+  const environments = useAppStore((state) => state.runtimeEnvironments)
+  const selectedHost =
+    hostScope?.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
+      ? { kind: 'environment' as const, environmentId: environments[0].id }
+      : hostScope?.target
+  const accountTarget = selectedHost
+    ? resolveAccountOwner(selectedHost, environments ?? []).target
+    : undefined
+  const { rateLimits, remoteOwner, refreshRemote, accounts, accountsUnverifiable } =
+    useOwnerUsageRateLimits(localRateLimits, accountTarget, true)
   const [activeUsageTab, setActiveUsageTab] = useState<UsageTab>('overview')
   const activeUsageOption =
     USAGE_ANALYTICS_OPTIONS.find((option) => option.id === activeUsageTab) ??
@@ -116,7 +151,29 @@ export function StatsPane(): React.JSX.Element {
   }, [fetchStatsSummary, recordFeatureInteraction])
 
   return (
-    <div className="space-y-5">
+    <div className="@container space-y-5">
+      <UsageAccountQuotas
+        rateLimits={rateLimits}
+        accounts={accounts}
+        accountsUnverifiable={accountsUnverifiable}
+        localOwner={remoteOwner === null}
+        ownerLabel={remoteOwner?.label ?? translate('stats.usage.localHost', 'This device')}
+        onRefresh={
+          refreshRemote ??
+          (async () => {
+            await refreshRateLimits()
+            await Promise.all([fetchInactiveClaude(), fetchInactiveCodex()])
+          })
+        }
+        onManage={() => {
+          openSettingsTarget({
+            pane: 'accounts',
+            repoId: null,
+            hostScope: getUsageOwnerHostScope(remoteOwner)
+          })
+          openSettingsPage()
+        }}
+      />
       {summary ? (
         <div className="space-y-3">
           {summary.totalAgentsSpawned === 0 && summary.totalPRsCreated === 0 ? (

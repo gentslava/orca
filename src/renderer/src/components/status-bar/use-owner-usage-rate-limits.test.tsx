@@ -83,6 +83,53 @@ describe('useOwnerUsageRateLimits', () => {
     expect(result.current.remoteOwner).toBeNull()
   })
 
+  it('uses the explicit Settings owner and exposes its account roster with no focused-host substitution', () => {
+    mocks.owner = { kind: 'environment', environmentId: 'focused-other-host' }
+    const selected: RuntimeClientTarget = { kind: 'environment', environmentId: 'mini' }
+    const { result } = renderHook(() => useOwnerUsageRateLimits(local, selected, true))
+    expect(mocks.watchers[0].target).toEqual(selected)
+    const accounts = snapshot(createEmptyRateLimitState({ codex: provider('codex', 37) }))
+    act(() => mocks.watchers[0].handlers.onSnapshot(accounts))
+    expect(result.current.accounts).toBe(accounts)
+    expect(result.current.rateLimits.codex?.session?.usedPercent).toBe(37)
+    act(() => mocks.watchers[0].handlers.onError(new Error('closed')))
+    expect(result.current.accounts).toBe(accounts)
+    expect(result.current.accountsUnverifiable).toBe(true)
+  })
+
+  it('can read the local account roster without opening a remote usage stream', () => {
+    const { result } = renderHook(() => useOwnerUsageRateLimits(local, { kind: 'local' }, true))
+    expect(mocks.watchers[0].target).toEqual({ kind: 'local' })
+    const accounts = snapshot(null)
+    act(() => mocks.watchers[0].handlers.onSnapshot(accounts))
+    expect(result.current.accounts).toBe(accounts)
+    expect(result.current.rateLimits).toBe(local)
+    expect(result.current.accountsUnverifiable).toBe(false)
+  })
+
+  it('invalidates local account identity when its quota snapshot changes and ignores a delayed old roster', () => {
+    const { result, rerender } = renderHook(
+      ({ limits }) => useOwnerUsageRateLimits(limits, { kind: 'local' }, true),
+      {
+        initialProps: { limits: local }
+      }
+    )
+    const first = mocks.watchers[0]
+    const original = snapshot(null)
+    act(() => first.handlers.onSnapshot(original))
+    expect(result.current.accounts).toBe(original)
+    const next = createEmptyRateLimitState({ codex: provider('codex', 77) })
+    rerender({ limits: next })
+    expect(first.closed).toBe(true)
+    expect(result.current.accounts).toBeNull()
+    const fresh = snapshot(null)
+    fresh.codex.activeAccountId = 'new-account'
+    act(() => mocks.watchers[1].handlers.onSnapshot(fresh))
+    act(() => first.handlers.onSnapshot(original))
+    expect(result.current.accounts).toBe(fresh)
+    expect(result.current.rateLimits).toBe(next)
+  })
+
   it("reads usage from the remote owner's accounts stream", () => {
     mocks.owner = { kind: 'environment', environmentId: 'mini' }
     const { result } = renderHook(() => useOwnerUsageRateLimits(local))
