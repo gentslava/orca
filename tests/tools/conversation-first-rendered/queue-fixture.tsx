@@ -1,4 +1,8 @@
 import { useRef, useState } from 'react'
+import {
+  readNativeChatComposerDraft,
+  updateNativeChatComposerDraft
+} from '@/components/native-chat/native-chat-composer-draft-store'
 import { NativeChatComposerField } from '@/components/native-chat/NativeChatComposerField'
 import { NativeChatQueuedMessageList } from '@/components/native-chat/NativeChatQueuedMessageList'
 import { useNativeChatComposerKeyDown } from '@/components/native-chat/use-native-chat-composer-keydown'
@@ -109,12 +113,15 @@ export function QueueFixture() {
     edit: async (id) => {
       const card = cards.find((candidate) => candidate.messageId === id)
       if (card) {
+        updateNativeChatComposerDraft(`fixture-edit-${id}`, { text: card.text }, 'immediate')
         setEdit({ id, text: card.text })
       }
     },
     editor: edit
       ? {
           messageId: edit.id,
+          draftScopeKey: `fixture-edit-${edit.id}`,
+          imagesCapable: false,
           text: edit.text,
           acquiring: false,
           saving: false,
@@ -122,8 +129,9 @@ export function QueueFixture() {
           change: (text) => setEdit({ id: edit.id, text }),
           cancel: () => setEdit(null),
           save: () => {
+            const text = readNativeChatComposerDraft(`fixture-edit-${edit.id}`).text
             setCards((current) =>
-              current.map((c) => (c.messageId === edit.id ? { ...c, text: edit.text } : c))
+              current.map((c) => (c.messageId === edit.id ? { ...c, text } : c))
             )
             setEdit(null)
           }
@@ -201,6 +209,20 @@ export function QueueFixture() {
       <NativeChatQueuedMessageList
         controller={controller}
         chatWorktreeId={null}
+        editAttachTo={{
+          terminalTabId: 'fixture-tab',
+          transport: {
+            onError: noop,
+            runtime: 'local',
+            sessionId: 'fixture-session',
+            runtimeEnvironmentId: null,
+            capturePresentation: () => () => true,
+            send: () => false,
+            dispatchCommand: async () => ({ handled: true, accepted: false, error: null }),
+            optionsSurface: surface,
+            optionSnapshot: snapshot
+          }
+        }}
         focusComposer={() => input.current?.focus()}
       />
       <NativeChatComposerField

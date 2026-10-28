@@ -60,7 +60,7 @@ const desktop = [
   'src/renderer/src/components/native-chat/use-structured-agent-session-options.test.tsx',
   'src/renderer/src/components/native-chat/use-structured-agent-session-model-default.test.tsx',
   'src/renderer/src/components/native-chat/native-chat-image-references.test.tsx',
-  'src/renderer/src/components/native-chat/NativeChatQueuedMessageEditor.test.tsx',
+  'src/renderer/src/components/native-chat/native-chat-queued-edit-draft.test.ts',
   'src/renderer/src/components/native-chat/native-chat-composer-draft-recovery.test.ts',
   'src/renderer/src/components/native-chat/native-chat-composer-draft-storage.test.ts',
   'src/renderer/src/components/native-chat/native-chat-composer-draft-store.test.ts',
