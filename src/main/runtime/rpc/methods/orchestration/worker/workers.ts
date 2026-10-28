@@ -16,6 +16,9 @@ import {
 import { assertWorkerStartTaskSpecWithinPromptBudget } from './worker-start-prompt-budget'
 import { ORCA_SESSION_ADDRESS_PREFIX } from '../../../../../../shared/orca-session-address'
 import { ORCHESTRATION_SESSION_CALLER_ERROR_CODES as SESSION_CODES } from '../../../../../../shared/orchestration-session-caller-codes'
+import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
+import { FederationWorkerLaunchParams } from '../federation/federation-start-schema'
+import { prepareFederationWorkerLaunchOnHost } from './worker-opencode-model-preflight'
 
 export const ORCHESTRATION_WORKER_START_METHODS = [
   defineMethod({
@@ -23,9 +26,24 @@ export const ORCHESTRATION_WORKER_START_METHODS = [
     permission: 'workspace',
     params: WorkerStartParams,
     handler: async (
-      params,
+      input,
       { runtime, orchestrationMutation, orchestrationCompatibilityEvidence, orchestrationCaller }
     ) => {
+      let params = input
+      if (input.role) {
+        try {
+          params = resolveWorkerRoleParams(
+            input,
+            runtime.requireStore().getSettings().orchestrationWorkerRoles
+          )
+        } catch (error) {
+          throw new OrchestrationError(
+            'invalid_argument',
+            error instanceof Error ? error.message : 'Invalid worker role profile.',
+            { effectsApplied: false }
+          )
+        }
+      }
       if (!isWorkerStartTimeoutWithinTimerLimit(params.timeoutMs)) {
         throw new OrchestrationError(
           'invalid_argument',
@@ -93,6 +111,25 @@ export const ORCHESTRATION_WORKER_START_METHODS = [
         mode,
         helperCreator
       })
+    }
+  }),
+  defineMethod({
+    name: 'orchestration.workerLaunchPreflight',
+    permission: 'workspace',
+    params: FederationWorkerLaunchParams,
+    handler: async (params, { runtime }) => {
+      if (params.worktree === 'current' || params.worktree === 'new-child') {
+        throw new OrchestrationError(
+          'invalid_argument',
+          'Remote launch preflight requires an exact worktree selector or new-top-level.'
+        )
+      }
+      const { launch } = await prepareFederationWorkerLaunchOnHost({
+        params,
+        createsWorktree: params.worktree === 'new-top-level',
+        runtime
+      })
+      return { launch: { ...launch.receipt, effective: null } }
     }
   })
 ]

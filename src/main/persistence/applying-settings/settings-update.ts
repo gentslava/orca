@@ -5,6 +5,7 @@ import { retireAtRestCommandSettings } from '../../native-chat/agent-session-wir
 import { normalizeDisabledTuiAgents } from '../../../shared/tui-agent-selection'
 import { normalizeNativeChatProviderChoices } from '../../../shared/native-chat/native-chat-providers'
 import { resolveNestedWorkerMaxDepth } from '../../../shared/nested-worker-depth'
+import { sanitizeWorkerRoleProfileUpdates } from '../../../shared/orchestration-worker-roles'
 import { resolveOrchestrationHeartbeatInterval } from '../../../shared/orchestration-heartbeat'
 import { sanitizeAgentLaunchProfileUpdates } from '../../../shared/tui-agent-launch-defaults'
 import { normalizeTerminalQuickCommands } from '../../../shared/terminal-quick-commands'
@@ -82,6 +83,7 @@ export function updateSettings(
       nestedWorkerMaxDepth: updates.nestedWorkerMaxDepth
     })
   }
+  sanitizeWorkerRoleProfileUpdates(sanitizedUpdates, updates)
   if ('orchestrationHeartbeatIntervalMinutes' in updates) {
     sanitizedUpdates.orchestrationHeartbeatIntervalMinutes = resolveOrchestrationHeartbeatInterval({
       orchestrationHeartbeatIntervalMinutes: updates.orchestrationHeartbeatIntervalMinutes
