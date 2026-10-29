@@ -162,7 +162,10 @@ export function NativeChatMessageList({
       childNavigation
         ? {
             ...subagentChoices,
-            sections: new Map(Array.from(subagentRows.keys(), (id) => [id, false]))
+            sections: new Map([
+              ...Array.from(subagentRows.keys(), (id) => [id, false] as const),
+              ...subagentChoices.sections
+            ])
           }
         : subagentChoices,
     [childNavigation, subagentChoices, subagentRows]
