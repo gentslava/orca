@@ -280,7 +280,7 @@ module.exports = {
     // Local build logs and rollback copies are never application resources.
     '!notes{,/**/*}',
     // Local tooling directories are not runtime inputs and may contain symlink loops.
-    '!{.claude,.grok,.agents,.codex}{,/**/*}',
+    '!{.claude,.grok,.agents,.codex,.superpowers}{,/**/*}',
     '!Casks{,/**/*}',
     '!{AGENTS.md,CLAUDE.md,DEVELOPING.md,bundle-size-progress.md,ORCHESTRATION_IMPLEMENTATION_CHECKLIST.md,ORCHESTRATION_STRUCTURED_OUTPUT_DESIGN.md}',
     '!out/**/*.test.js',
