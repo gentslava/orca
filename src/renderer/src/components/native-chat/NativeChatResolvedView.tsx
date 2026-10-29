@@ -1,3 +1,4 @@
+import { NativeChatPaneFileDropScope } from './NativeChatPaneFileDropSurface'
 import { cn } from '@/lib/utils'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from './use-native-chat-store-appearance-style'
@@ -314,7 +315,8 @@ export function NativeChatResolvedView({
         data-native-chat-scheme={appearanceStyle.colorScheme}
       >
         {find.isOpen ? <NativeChatFindBar find={find} isVisible={isVisible} /> : null}
-        <div
+        <NativeChatPaneFileDropScope
+          enabled={childNavigator.child === null}
           hidden={childNavigator.child !== null}
           inert={childNavigator.child !== null}
           className={childNavigator.child ? 'hidden' : 'flex min-h-0 flex-1 flex-col'}
@@ -389,7 +391,7 @@ export function NativeChatResolvedView({
               recallSource={{ messages: sessionWithPending.messages, commands: commandMarkers }}
             />
           </div>
-        </div>
+        </NativeChatPaneFileDropScope>
         {childNavigator.child ? (
           <NativeChatChildTranscriptStack
             messageListRef={childMessageListRef}

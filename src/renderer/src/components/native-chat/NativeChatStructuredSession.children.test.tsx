@@ -2,6 +2,12 @@ import { useAppStore } from '@/store'
 // @vitest-environment happy-dom
 import '@testing-library/jest-dom/vitest'
 import { useImperativeHandle } from 'react'
+import type { NativeChatComposerProps } from './native-chat-composer-types'
+import {
+  NativeChatPaneFileDropSurface,
+  useNativeChatPaneFileDropClaim
+} from './NativeChatPaneFileDropSurface'
+import { WORKSPACE_FILE_PATH_MIME } from '@/lib/workspace-file-drag'
 import {
   act,
   cleanup,
@@ -46,7 +52,23 @@ vi.mock('./use-structured-agent-session', () => moduleFactories.useStructuredAge
 vi.mock('./use-native-chat-font-size', () => moduleFactories.useNativeChatFontSize())
 vi.mock('./use-native-chat-file-link-context', () => moduleFactories.useNativeChatFileLinkContext())
 vi.mock('./use-native-chat-file-link-click', () => moduleFactories.useNativeChatFileLinkClick())
-vi.mock('./NativeChatComposer', () => moduleFactories.nativeChatComposer())
+const dropIntoParent = vi.hoisted(() => vi.fn())
+vi.mock('./NativeChatComposer', () => {
+  const original = moduleFactories.nativeChatComposer()
+  return {
+    ...original,
+    NativeChatComposer: (props: NativeChatComposerProps) => {
+      useNativeChatPaneFileDropClaim({
+        destinationKey: 'parent-draft',
+        disabled: false,
+        captureExternalDrop: () => async () => {},
+        onDragOverCapture: (event) => event.preventDefault(),
+        onDropCapture: dropIntoParent
+      })
+      return <original.NativeChatComposer {...props} />
+    }
+  }
+})
 vi.mock('@/runtime/runtime-rpc-client', async (original) => ({
   ...(await original<typeof RuntimeRpcClient>()),
   callRuntimeRpc: transport.rpc
@@ -703,4 +725,18 @@ it('does not poll the full roster every three seconds and refreshes on worker li
   } finally {
     useAppStore.setState({ agentStatusByPaneKey: original })
   }
+})
+
+it('suspends the parent file-drop claim while inspecting a child and restores it on Back', async () => {
+  render(<NativeChatPaneFileDropSurface className="pane">{view()}</NativeChatPaneFileDropSurface>)
+  const dataTransfer = { types: [WORKSPACE_FILE_PATH_MIME] }
+  fireEvent.drop(screen.getByTestId(`feed:${PARENT}`), { dataTransfer })
+  expect(dropIntoParent).toHaveBeenCalledTimes(1)
+  const feed = await openWorker()
+  fireEvent.dragOver(feed, { dataTransfer })
+  fireEvent.drop(feed, { dataTransfer })
+  expect(dropIntoParent).toHaveBeenCalledTimes(1)
+  fireEvent.click(screen.getByRole('button', { name: 'Back to conversation' }))
+  fireEvent.drop(screen.getByTestId(`feed:${PARENT}`), { dataTransfer })
+  expect(dropIntoParent).toHaveBeenCalledTimes(2)
 })
