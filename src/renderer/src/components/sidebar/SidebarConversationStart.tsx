@@ -20,6 +20,7 @@ import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
 import { activateAndRevealWorkspace } from '@/lib/worktree-activation'
 import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import { captureNativeChatComposerFocusIntent } from '@/components/native-chat/use-native-chat-composer-reveal-focus'
+import { workspaceKindForWorktreeId } from '@/lib/agent-launch-route-input'
 import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
 
 export function SidebarConversationStart({
@@ -34,12 +35,14 @@ export function SidebarConversationStart({
   useTranslation()
   const [open, setOpen] = useState(false)
   const resolvedHost = useAppStore((state) =>
-    getResolvedExecutionHostIdForWorktree(state, worktreeId)
+    getResolvedExecutionHostIdForWorktree(state, worktreeId, executionHostId)
   )
   const ownsTarget = resolvedHost === executionHostId
-  const target = useAgentDetectionTargetForWorktree(ownsTarget ? worktreeId : null)
+  const target = useAgentDetectionTargetForWorktree(ownsTarget ? worktreeId : null, executionHostId)
   const { model } = useAgentMenuObservation(
-    ownsTarget ? worktreeId : null,
+    ownsTarget
+      ? { workspace: { kind: workspaceKindForWorktreeId(worktreeId), worktreeId, executionHostId } }
+      : null,
     open && ownsTarget,
     ownsTarget ? target : undefined
   )
@@ -51,7 +54,8 @@ export function SidebarConversationStart({
     if (
       row.kind !== 'chat' ||
       row.executionHostId !== executionHostId ||
-      getResolvedExecutionHostIdForWorktree(useAppStore.getState(), worktreeId) !== executionHostId
+      getResolvedExecutionHostIdForWorktree(useAppStore.getState(), worktreeId, executionHostId) !==
+        executionHostId
     ) {
       return
     }
