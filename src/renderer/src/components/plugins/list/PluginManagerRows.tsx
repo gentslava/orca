@@ -61,7 +61,8 @@ export function installedPluginControls(
     plugin,
     entry.updateVersion,
     busy,
-    entry.autoUpdate
+    entry.autoUpdate,
+    entry.reinstallVersion ?? null
   )
   const needsReview = pluginNeedsReview(plugin)
 
@@ -76,7 +77,7 @@ export function installedPluginControls(
     )
   } else if (kind === 'invalid' && plugin.error) {
     tone = 'destructive'
-    description = invalidPluginErrorMessage(plugin.error)
+    description = invalidPluginErrorMessage(plugin.error, !plugin.isDev)
   } else if (kind === 'error' && plugin.execution === 'data') {
     // Why: content-only plugins have no code or logs; only their files can fail.
     tone = 'destructive'
@@ -145,6 +146,13 @@ export function installedPluginControls(
           : translate('auto.components.settings.PluginManagerRows.update', 'Update {{value0}}', {
               value0: entry.updateVersion
             })}
+      </Button>
+    )
+  } else if (primary === 'reinstall') {
+    action = (
+      <Button variant="outline" size="xs" onClick={() => handlers.onCheckUpdate(entry)}>
+        <RotateCcw />
+        {translate('auto.components.settings.PluginManagerRows.reinstall', 'Reinstall')}
       </Button>
     )
   } else if (primary === 'error') {

@@ -165,4 +165,94 @@ test.describe('native chat on a WSL host', () => {
       rmSync(projectPath, { recursive: true, force: true })
     }
   })
+
+  test('names the distro when the agent is no longer installed there', async ({
+    orcaPage: hub,
+    claudeStub
+  }, testInfo) => {
+    // Two Electron apps, one chat turn and one failed restart.
+    test.setTimeout(240_000)
+    await waitForSessionReady(hub)
+    await hub.evaluate(async (command) => {
+      await window.__store?.getState().updateSettings({
+        experimentalNativeChat: true,
+        agentCmdOverrides: { claude: command }
+      })
+    }, buildFakeAgentCommandOverride(claudeStub.command))
+    const offer = await createRuntimeDesktopPairingOffer(hub)
+    const fakeDir = mkdtempSync(path.join(os.tmpdir(), 'orca-e2e-wsl-chat-missing-'))
+    const distrosFile = path.join(fakeDir, 'distros.json')
+    writeDistros(distrosFile, RUNNING)
+    const desktop = await launchDesktopWithFakeWsl(
+      { distros: RUNNING, distrosFile, pairingCode: offer.pairingUrl },
+      testInfo
+    )
+    const projectPath = createGitProject()
+    try {
+      const { page } = desktop
+      await page.evaluate(async () => {
+        const settings = await window.api.settings.set({ experimentalWslHosts: true })
+        window.__store?.setState({ settings })
+        await window.__store?.getState().updateSettings({
+          experimentalNativeChat: true,
+          defaultTuiAgent: 'claude'
+        })
+      })
+      const added = await page.evaluate(() =>
+        window.api.runtimeEnvironments.wslHosts?.add({ distro: 'Ubuntu' })
+      )
+      expect(added, JSON.stringify(added)).toMatchObject({ ok: true })
+      await callEnvironment(page, WSL_ENVIRONMENT_ID, 'repo.add', {
+        path: projectPath,
+        kind: 'git'
+      })
+      await expect.poll(() => focusProject(page, projectPath), { timeout: 60_000 }).toBeTruthy()
+      // The menu offers only installed agents, so the chat starts while claude is there.
+      await page.getByRole('button', { name: 'New tab', exact: true }).first().click()
+      await page
+        .getByRole('menu')
+        .getByText('Claude', { exact: true })
+        .first()
+        .click({ timeout: 60_000 })
+      const chat = page.locator('[data-native-chat-root="true"]')
+      const composer = chat.getByRole('textbox')
+      const send = async (text: string): Promise<void> => {
+        await expect(composer).toBeEditable({ timeout: 60_000 })
+        await composer.click()
+        await page.keyboard.type(text)
+        await expect(composer).toContainText(text)
+        await chat.getByRole('button', { name: 'Send', exact: true }).click()
+      }
+      await send('hello')
+      await expect(chat.getByText('Stub reply.').first()).toBeVisible({ timeout: 120_000 })
+
+      // Then claude leaves the host (its PATH keeps only the system dirs the stub fixture checked),
+      // and the chat's next start has to find it again.
+      await hub.evaluate(async () => {
+        await window.__store?.getState().updateSettings({
+          agentCmdOverrides: {},
+          agentDefaultEnv: { claude: { PATH: '/usr/bin:/bin:/usr/sbin:/sbin' } }
+        })
+      })
+      const sessionId = await page.evaluate(
+        () =>
+          Object.values(window.__store?.getState().unifiedTabsByWorktree ?? {})
+            .flat()
+            .find((tab) => tab.agentSessionAgent === 'claude')?.entityId ?? null
+      )
+      expect(sessionId).toBeTruthy()
+      await callEnvironment(page, WSL_ENVIRONMENT_ID, 'agentSession.close', { sessionId })
+      await send('again')
+      // Says where it's missing, not "the computer running this chat".
+      await expect(
+        chat.getByText(/Claude isn't installed in the WSL distro Ubuntu\./).first()
+      ).toBeVisible({ timeout: 120_000 })
+      await expect(chat.getByText(/the computer running this chat/)).toHaveCount(0)
+      await page.screenshot({ path: testInfo.outputPath('wsl-host-chat-cli-missing.png') })
+    } finally {
+      await desktop.dispose()
+      rmSync(fakeDir, { recursive: true, force: true })
+      rmSync(projectPath, { recursive: true, force: true })
+    }
+  })
 })

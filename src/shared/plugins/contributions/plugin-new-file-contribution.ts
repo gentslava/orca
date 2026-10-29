@@ -64,5 +64,3 @@ export const pluginNewFileContributionSchema = z
     description:
       'A kind of untitled file the user can create from the tab bar + menu or the command palette, in the active workspace.'
   })
-
-export type PluginNewFileContribution = z.infer<typeof pluginNewFileContributionSchema>

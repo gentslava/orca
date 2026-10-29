@@ -145,8 +145,9 @@ export abstract class CodexRuntimeHomeLaunch extends CodexRuntimeHomeRouting {
     codexHomePath: string | null,
     options: { reattached?: boolean; launchEnv?: NodeJS.ProcessEnv } = {}
   ): boolean | null {
+    // A WSL source still reaches invalidation, which records the full scan its launch will owe.
     if (
-      !this.isHostSystemDefaultSessionMigrationEligible() ||
+      !this.isHostSystemDefaultSessionMigrationRouteSelected() ||
       (!codexHomePath && !options.reattached) ||
       (codexHomePath &&
         normalizeRuntimePathForComparison(codexHomePath) !==
@@ -162,9 +163,14 @@ export abstract class CodexRuntimeHomeLaunch extends CodexRuntimeHomeRouting {
 
   isHostSystemDefaultSessionMigrationEligible(): boolean {
     return (
+      this.isHostSystemDefaultSessionMigrationRouteSelected() && !this.isHostHistorySourceInWsl()
+    )
+  }
+
+  private isHostSystemDefaultSessionMigrationRouteSelected(): boolean {
+    return (
       normalizeCodexRuntimeSelection(this.store.getSettings()).host === null &&
-      !hasCustomCodexHomeOverrideForLaunch() &&
-      !this.isHostHistorySourceInWsl()
+      !hasCustomCodexHomeOverrideForLaunch()
     )
   }
 

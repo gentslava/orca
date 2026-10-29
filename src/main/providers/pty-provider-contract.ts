@@ -95,6 +95,8 @@ export type PtySpawnOptions = {
   startupIngress?: PtyStartupIngressIntent
   /** Why the caller is starting this terminal; presence lets the host defer an automatic restore. */
   spawnIntent?: SpawnIntent
+  /** A restore no user act asked for: a WSL bridge pane whose distro is stopped is held, not started. */
+  wslPassiveRestore?: true
   agentSessionEnsure?: {
     claim: AgentSessionExecutionClaim
     surface: AgentSessionSurfaceBinding

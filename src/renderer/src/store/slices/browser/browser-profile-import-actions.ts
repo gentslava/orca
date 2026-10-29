@@ -10,6 +10,7 @@ import {
   browserImportStateForHostUpdate,
   retainCookieImportExecutionHost
 } from './browser-host-state'
+import { browserCookieImportFailureText } from '@/lib/browser-cookie-import-error-copy'
 
 export function createBrowserProfileImportActions(
   set: BrowserSliceSet,
@@ -76,7 +77,7 @@ export function createBrowserProfileImportActions(
               profileId,
               status: result.reason === 'canceled' ? 'idle' : 'error',
               summary: null,
-              error: result.reason === 'canceled' ? null : result.reason
+              error: result.reason === 'canceled' ? null : browserCookieImportFailureText(result)
             })
           )
         }

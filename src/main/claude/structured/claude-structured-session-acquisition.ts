@@ -67,10 +67,7 @@ export async function acquireClaudeSession({
       callbacks,
       sessionId
     },
-    () =>
-      liveSession && sessions.get(sessionId) === liveSession
-        ? liveSession.backgroundTasks.goalBackgroundWork
-        : 'unverifiable'
+    () => (liveSession && sessions.get(sessionId) === liveSession ? liveSession : null)
   )
   const contextActivity = translator?.contextActivity ?? 0
   const recordTurnEnd = claudeTurnResumePointWriter(sessionId, sessions, deps)
