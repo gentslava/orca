@@ -50,13 +50,14 @@ function WorkerTranscript({
     enabled: props.isVisible
   })
   const worker = roster.children.find((child) => child.dispatchId === source.dispatchId)
-  const conversation = roster.current ? worker?.conversation : undefined
+  const conversation = worker?.conversation
   if (conversation?.kind === 'journal') {
     return (
       <JournalTranscript
         key={`${conversation.sessionId}:${conversation.agent}`}
         {...props}
         worker={worker}
+        workerCurrent={roster.current}
         source={{ ...conversation, target: source.target }}
       />
     )
@@ -130,10 +131,12 @@ function unavailableText(
 function JournalTranscript({
   source,
   scopeAgentId,
+  workerCurrent = true,
   ...props
 }: NativeChatChildTranscriptProps & {
   source: { target: RuntimeClientTarget; sessionId: string; agent: AgentType; workspaceId?: string }
   scopeAgentId?: string
+  workerCurrent?: boolean
 }): React.JSX.Element {
   const navigation = useNativeChatChildNavigation()
   const read = useStructuredAgentSessionRead({
@@ -179,7 +182,7 @@ function JournalTranscript({
           ? 'error'
           : read.state.status !== 'ready'
             ? 'loading'
-            : read.readCurrent && presentation.isWorking
+            : workerCurrent && read.readCurrent && presentation.isWorking
               ? 'working'
               : messages.length
                 ? 'ready'
@@ -190,13 +193,13 @@ function JournalTranscript({
           : read.state.status !== 'ready'
             ? 'loading'
             : 'ready',
-      readCurrent: read.readCurrent,
+      readCurrent: workerCurrent && read.readCurrent,
       hasMore: read.state.hasOlder,
       loadingEarlier: read.loadingOlder,
       olderHistoryGeneration: read.olderHistoryGeneration,
       loadEarlier: read.loadOlder
     }),
-    [source.sessionId, source.agent, messages, read, presentation.isWorking]
+    [source.sessionId, source.agent, messages, read, presentation.isWorking, workerCurrent]
   )
   const runtimeContext = useMemo<RuntimeFileOperationArgs>(
     () => ({
@@ -232,7 +235,9 @@ function JournalTranscript({
         onLinkClick={sameFileScope ? props.onLinkClick : undefined}
         workerTarget={scopeAgentId ? undefined : source.target}
         unavailable={
-          read.state.status === 'error' || (read.state.epoch !== null && !read.readCurrent)
+          !workerCurrent ||
+          read.state.status === 'error' ||
+          (read.state.epoch !== null && !read.readCurrent)
             ? unavailableText(undefined)
             : undefined
         }

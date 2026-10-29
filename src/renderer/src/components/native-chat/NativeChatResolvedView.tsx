@@ -338,6 +338,7 @@ export function NativeChatResolvedView({
                 onLinkClick={onLinkClick}
                 allowFileUriLinks={fileLinkContext !== null}
                 deliveryNotices={deliveryNotices}
+                runtimeContext={imageRuntimeContext}
               />
             )}
           </div>

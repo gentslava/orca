@@ -74,7 +74,10 @@ export function NativeChatSessionChildren({
     return null
   }
   return (
-    <div data-native-chat-session-children="true" className="shrink-0 px-3 py-2 sm:px-4">
+    <div
+      data-native-chat-session-children="true"
+      className="max-h-[30%] shrink-0 overflow-y-auto px-3 py-2 scrollbar-sleek sm:px-4"
+    >
       <div className="mx-auto w-full max-w-(--chat-content-max-width)">
         <NativeChatChildNavigationContext.Provider value={workerNavigation}>
           <NativeChatSubagentRun
