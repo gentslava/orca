@@ -88,3 +88,34 @@ export const imageVisibility = defineFixture({
     }
   }
 })
+
+const unavailableName = 'a-very-long-unavailable-screenshot-filename-for-keyboard-inspection.png'
+
+export const unavailableFilename = defineFixture({
+  width: 320,
+  render: () => (
+    <NativeChatImageAttachments
+      blocks={[{ type: 'image-ref', path: `/missing/${unavailableName}` }]}
+      runtimeContext={null}
+    />
+  ),
+  interact: async (frame) => {
+    const trigger = frame.querySelector<HTMLButtonElement>('button')
+    const slot = trigger?.parentElement
+    if (!trigger || !slot) {
+      throw new Error('Expected a focusable unavailable image label')
+    }
+    const initial = slot.getBoundingClientRect()
+    trigger.focus()
+    trigger.click()
+    await paint()
+    const content = document.querySelector('[data-slot="popover-content"]')
+    if (content?.textContent !== unavailableName) {
+      throw new Error('The complete unavailable filename must be revealed')
+    }
+    const opened = slot.getBoundingClientRect()
+    if (opened.width !== initial.width || opened.height !== initial.height) {
+      throw new Error('Revealing a filename must preserve the thumbnail footprint')
+    }
+  }
+})

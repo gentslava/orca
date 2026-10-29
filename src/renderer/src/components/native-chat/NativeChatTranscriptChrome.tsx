@@ -9,6 +9,7 @@ import { NativeChatMessageTimestamp } from './NativeChatMessageTimestamp'
 import { nativeChatProviderFrameSummary } from '../../../../shared/native-chat/native-chat-provider-frame-summary'
 import { withoutNativeChatVisualDirectiveLines } from '../../../../shared/native-chat/native-chat-visual-directive'
 import { PanZoomImageDialog } from '@/components/editor/PanZoomImageDialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   getLocalImageCacheKey,
   getLocalImageSrcCacheKey,
@@ -126,13 +127,21 @@ function TranscriptImagePreview({
   const label = nativeChatImageLabel(block)
   const viewImageLabel = translate('components.native-chat.composer.viewAttachment', 'View image')
   const fallback = (
-    <div
-      className="flex max-w-full items-center gap-1.5 rounded-md border border-border bg-chat-canvas px-2 py-1 text-xs text-chat-foreground-faint"
-      title={label}
-    >
-      <ImageIcon className="size-3.5 shrink-0" />
-      <span className="truncate">{label}</span>
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          className="flex max-w-full items-center gap-1.5 rounded-md border border-border bg-chat-canvas px-2 py-1 text-xs text-chat-foreground-faint hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <ImageIcon className="size-3.5 shrink-0" />
+          <span className="truncate">{label}</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" aria-label={label} className="max-w-72">
+        <p className="break-all p-2 text-sm">{label}</p>
+      </PopoverContent>
+    </Popover>
   )
 
   useEffect(() => {
