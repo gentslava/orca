@@ -502,3 +502,36 @@ it('reveals the full unavailable image filename from the keyboard', async () => 
     container.remove()
   }
 })
+
+it('keeps the focused image control when a pending read becomes a preview', async () => {
+  const pending = Promise.withResolvers<{ content: string; isBinary: boolean; mimeType: string }>()
+  vi.mocked(window.api.fs.readFile).mockReturnValueOnce(pending.promise)
+  const container = document.body.appendChild(document.createElement('div'))
+  const root = createRoot(container)
+  try {
+    await act(async () => {
+      root.render(
+        createElement(NativeChatImageAttachments, {
+          blocks: [{ type: 'image-ref', path: '/repo/loading.png' }],
+          runtimeContext: runtimeContext('wt-1')
+        })
+      )
+      await flushPromises()
+    })
+    const trigger = within(container).getByRole('button', { name: 'loading.png' })
+    trigger.focus()
+    await act(async () => {
+      pending.resolve({ content: 'AA==', isBinary: true, mimeType: 'image/png' })
+      await flushPromises()
+    })
+    const preview = within(container).getByRole('button', { name: 'View image: loading.png' })
+    expect(preview).toBe(trigger)
+    expect(document.activeElement).toBe(preview)
+    const keyboard = userEvent.setup()
+    await keyboard.keyboard('{Enter}')
+    expect(screen.getByRole('dialog', { name: 'loading.png' })).toBeTruthy()
+  } finally {
+    await act(async () => root.unmount())
+    container.remove()
+  }
+})

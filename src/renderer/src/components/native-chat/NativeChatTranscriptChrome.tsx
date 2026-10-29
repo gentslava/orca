@@ -108,6 +108,7 @@ function TranscriptImagePreview({
   runtimeContext: RuntimeFileOperationArgs | null | undefined
 }): React.JSX.Element {
   const [open, setOpen] = useState(false)
+  const [filenameOpen, setFilenameOpen] = useState(false)
   const [near, setNear] = useState(false)
   const [thumbnailErrorSrc, setThumbnailErrorSrc] = useState<string | null>(null)
   const ref = useRef<HTMLDivElement>(null)
@@ -127,21 +128,10 @@ function TranscriptImagePreview({
   const label = nativeChatImageLabel(block)
   const viewImageLabel = translate('components.native-chat.composer.viewAttachment', 'View image')
   const fallback = (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          aria-label={label}
-          className="flex max-w-full items-center gap-1.5 rounded-md border border-border bg-chat-canvas px-2 py-1 text-xs text-chat-foreground-faint hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <ImageIcon className="size-3.5 shrink-0" />
-          <span className="truncate">{label}</span>
-        </button>
-      </PopoverTrigger>
-      <PopoverContent side="top" aria-label={label} className="max-w-72">
-        <p className="break-all p-2 text-sm">{label}</p>
-      </PopoverContent>
-    </Popover>
+    <>
+      <ImageIcon className="size-3.5 shrink-0" />
+      <span className="truncate">{label}</span>
+    </>
   )
 
   useEffect(() => {
@@ -169,39 +159,60 @@ function TranscriptImagePreview({
     Boolean(source) &&
     (external || runtimeContext !== null)
 
+  if (showPreview && filenameOpen) {
+    setFilenameOpen(false)
+  }
+
   return (
     <div ref={ref} className="relative flex size-20 shrink-0 items-center justify-center">
-      {showPreview ? (
-        <>
+      <Popover open={!showPreview && filenameOpen} onOpenChange={setFilenameOpen}>
+        <PopoverTrigger asChild>
           <button
             type="button"
-            aria-label={`${viewImageLabel}: ${label}`}
+            aria-label={showPreview ? `${viewImageLabel}: ${label}` : label}
             title={label}
-            data-native-chat-copy-image-src={copySrc}
-            onClick={() => setOpen(true)}
-            className="flex size-full items-center justify-center overflow-hidden rounded-md border border-border bg-chat-canvas transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            data-native-chat-copy-image-src={showPreview ? copySrc : undefined}
+            onClick={(event) => {
+              if (showPreview) {
+                event.preventDefault()
+                setOpen(true)
+              }
+            }}
+            className={cn(
+              'flex items-center justify-center rounded-md border border-border bg-chat-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              showPreview
+                ? 'size-full overflow-hidden transition-colors hover:border-ring'
+                : 'max-w-full gap-1.5 px-2 py-1 text-xs text-chat-foreground-faint hover:bg-accent/20'
+            )}
           >
-            <img
-              src={displaySrc}
-              alt={label}
-              loading="lazy"
-              onError={() => setThumbnailErrorSrc(displaySrc ?? null)}
-              className="size-full object-cover"
-            />
+            {showPreview ? (
+              <img
+                src={displaySrc}
+                alt={label}
+                loading="lazy"
+                onError={() => setThumbnailErrorSrc(displaySrc ?? null)}
+                className="size-full object-cover"
+              />
+            ) : (
+              fallback
+            )}
           </button>
-          <PanZoomImageDialog
-            open={open}
-            onOpenChange={setOpen}
-            src={displaySrc}
-            title={label}
-            showTitle
-            onInteractOutside={keepPreviewOpenForChatMenu}
-            data-native-chat-copy-image-src={copySrc}
-            fallback={fallback}
-          />
-        </>
-      ) : (
-        fallback
+        </PopoverTrigger>
+        <PopoverContent side="top" aria-label={label} className="max-w-72">
+          <p className="break-all p-2 text-sm">{label}</p>
+        </PopoverContent>
+      </Popover>
+      {showPreview && (
+        <PanZoomImageDialog
+          open={open}
+          onOpenChange={setOpen}
+          src={displaySrc}
+          title={label}
+          showTitle
+          onInteractOutside={keepPreviewOpenForChatMenu}
+          data-native-chat-copy-image-src={copySrc}
+          fallback={fallback}
+        />
       )}
     </div>
   )
