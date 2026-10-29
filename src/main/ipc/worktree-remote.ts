@@ -367,7 +367,9 @@ async function spawnLocalStartupAndSetupTerminals(args: {
         startupCommandDelivery: sequencedStartup.startupCommandDelivery,
         telemetry: sequencedStartup.telemetry,
         // Submitting renderer owns activation; background completion must not yank users who moved on (#9944).
-        surfaceOwner: false
+        surfaceOwner: false,
+        // Only the window's own create gets here (automation creates are host-provisioned below).
+        wslUserAct: true
       },
       worktree
     )
@@ -403,7 +405,8 @@ async function spawnLocalStartupAndSetupTerminals(args: {
           command: setupCommand,
           env: setup.envVars,
           activate: false,
-          surfaceOwner: false
+          surfaceOwner: false,
+          wslUserAct: true
         },
         worktree
       )
