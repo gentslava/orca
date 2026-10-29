@@ -1,5 +1,6 @@
 import { useNativeChatChildHistory } from './use-native-chat-child-history'
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
+import { NativeChatWorkerScope } from './native-chat-worker-scope'
 import type { OrchestrationSessionChild } from '../../../../shared/orchestration-session-children'
 import type { StructuredAgentSubagentRoster } from '../../../../shared/structured-agent-session-subagent-roster'
 import type { NativeChatChildLocation } from './native-chat-child-navigation'
@@ -78,18 +79,31 @@ export function NativeChatChildTranscriptStack({
 }: Omit<NativeChatChildTranscriptProps, 'child' | 'parent' | 'active'> & {
   path: readonly NativeChatChildLocation[]
 }): React.JSX.Element {
-  return (
-    <>
-      {path.map((child, index) => (
+  const renderLevel = (index: number): React.ReactNode => {
+    const child = path[index]
+    if (!child) {
+      return null
+    }
+    const content = () => (
+      <>
         <NativeChatChildTranscript
-          key={nativeChatChildLocationKey(child)}
           {...props}
           child={child}
           parent={path[index - 1] ?? null}
           active={index === path.length - 1}
           messageListRef={index === path.length - 1 ? messageListRef : undefined}
         />
-      ))}
-    </>
-  )
+        {renderLevel(index + 1)}
+      </>
+    )
+    const key = nativeChatChildLocationKey(child)
+    return child.source?.kind === 'worker' ? (
+      <NativeChatWorkerScope key={key} source={child.source} isVisible={props.isVisible}>
+        {content}
+      </NativeChatWorkerScope>
+    ) : (
+      <Fragment key={key}>{content()}</Fragment>
+    )
+  }
+  return <>{renderLevel(0)}</>
 }

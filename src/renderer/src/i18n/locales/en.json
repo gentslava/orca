@@ -19781,7 +19781,8 @@
         "workersUnavailable": "This host’s worker history is unavailable.",
         "identityUnavailable": "This worker’s conversation identity could not be verified.",
         "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
-        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation."
+        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
+        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
       }
     },
     "tab": {
