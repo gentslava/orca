@@ -320,6 +320,19 @@ describe('child views at the RPC boundary', () => {
     }
   )
 
+  it('retains settled tasks when a pre-row-stop reader filters its last unstoppable live row', async () => {
+    const state: AgentSessionBackgroundTaskState = {
+      state: 'monitoring',
+      supportsTaskStop: true,
+      tasks: [FOREGROUND_ROW],
+      settledTasks: [SETTLED_ROW]
+    }
+    expect(await historyFor(state, STOP_ONLY_CLIENT)).toMatchObject({
+      ok: true,
+      result: { page: { backgroundTasks: { ...state, tasks: [] } } }
+    })
+  })
+
   // Without targeted stop, clients draw no row buttons; stoppability filtering must not hide those rosters.
   it('keeps unstoppable rows for a stop-only reader when no targeted stop is offered', async () => {
     const codexRoster: AgentSessionBackgroundTaskState = {

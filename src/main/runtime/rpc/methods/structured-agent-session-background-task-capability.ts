@@ -59,7 +59,7 @@ function withoutUnstoppableRows(
     return state
   }
   const tasks = state.tasks.filter((task) => task.stoppable !== false)
-  return tasks.length > 0 ? { ...state, tasks } : null
+  return tasks.length > 0 || state.settledTasks?.length ? { ...state, tasks } : null
 }
 
 function projectState(
