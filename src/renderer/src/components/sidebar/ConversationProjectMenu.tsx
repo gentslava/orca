@@ -117,7 +117,7 @@ export function ConversationProjectMenu({
         initialName={translate('projectConversations.defaultGroupName', '{{project}} group', {
           project: group.repo.displayName
         })}
-        confirmLabel={translate('auto.components.Landing.76a95f7f47', 'Create')}
+        confirmLabel={translate('auto.components.sidebar.ProjectGroupNameDialog.create', 'Create')}
         onOpenChange={(open) => {
           if (!open) {
             dialogs.setNameDialog(null)

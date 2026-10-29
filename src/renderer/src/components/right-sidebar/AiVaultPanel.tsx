@@ -129,7 +129,7 @@ export default function AiVaultPanel({
   })
   const scope = conversationNavigation ? 'all' : panelScope
   const { scopePaths, searchWithin } = useAiVaultPanelScopePaths({
-    activeWorktree,
+    activeWorktree: conversationNavigation ? null : activeWorktree,
     worktrees: allWorktrees,
     projectHostSetupProjection,
     scope,
