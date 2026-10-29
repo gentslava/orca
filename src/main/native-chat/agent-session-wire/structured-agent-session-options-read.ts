@@ -65,7 +65,12 @@ export async function readStructuredAgentSessionOptions(
     (rested ??= await readStructuredAgentSessionOptionsAtRest(context.deps, sessionId, reader))
   let options: Omit<AgentSessionOptionsResult, 'rewind'>
   if (live) {
-    const { catalogListing, confirmedModelSelection: _selection, ...answer } = live
+    const {
+      catalogListing,
+      confirmedModelSelection: _selection,
+      effortFixed: _fixed,
+      ...answer
+    } = live
     options = answer
     // Fill missing live listings from saved catalog state; absent records keep the child’s answer.
     if (!catalogListing && !answer.listedModelIds && store.getConversation(sessionId)) {
@@ -163,6 +168,14 @@ export async function readStructuredAgentSessionOptions(
   return {
     ...options,
     ...(defaultModel ? { defaultModel } : {}),
+    ...(live?.effortFixed
+      ? {
+          models: options.models.map(({ effortsKnown: _unknown, ...row }) => ({
+            ...row,
+            efforts: []
+          }))
+        }
+      : {}),
     current: {
       ...current,
       ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),

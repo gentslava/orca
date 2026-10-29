@@ -147,6 +147,14 @@ export abstract class OrcaRuntimeWithRestoredPaneStart extends OrcaRuntimeWithBu
     })
   }
 
+  /** The user's Start on panes main held for a stopped WSL distro: each starts as the user's act. */
+  async startWslHeldTerminalPanes(panes: readonly RestoredPane[]): Promise<{ started: boolean }> {
+    const results = await Promise.allSettled(
+      panes.map((pane) => this.ensureRestoredPaneStarted(pane, { wslUserAct: true }))
+    )
+    return { started: results.every((result) => result.status === 'fulfilled' && result.value) }
+  }
+
   /**
    * The session a WSL move installed for this pane (its carried checkpoint, interrupted), so its
    * first start cold-restores that history once like after an app restart; undefined otherwise.
