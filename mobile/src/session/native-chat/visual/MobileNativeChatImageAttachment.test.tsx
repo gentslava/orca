@@ -36,12 +36,12 @@ describe('host-owned mobile chat images', () => {
   const render = (
     client: RpcClient | null,
     block: NativeChatImageRefBlock = { type: 'image-ref', path: PATH },
-    sessionId = 'chat'
+    worktreeId = 'chat'
   ) => {
     const value = {
       openImage,
       openActions: () => {},
-      imageSource: client ? { client, sessionId } : null
+      imageSource: client ? { client, worktreeId } : null
     }
     return createElement(
       MobileNativeChatRowOverlaysContext.Provider,
@@ -210,7 +210,7 @@ describe('host-owned mobile chat images', () => {
     expect(sendRequest).not.toHaveBeenCalled()
   })
 
-  it.each(['client', 'session', 'generation', 'path', 'url'])(
+  it.each(['client', 'workspace', 'generation', 'path', 'url'])(
     'ignores old fallback replies and decoder events after the %s changes',
     async (change) => {
       let generation = 0
@@ -249,7 +249,7 @@ describe('host-owned mobile chat images', () => {
         generation++
       }
       await act(async () =>
-        tree?.update(render(nextClient, nextBlock, change === 'session' ? 'next' : 'chat'))
+        tree?.update(render(nextClient, nextBlock, change === 'workspace' ? 'next' : 'chat'))
       )
       expect(findByHostType(tree.root, 'Image').props.source).toEqual({ uri: nextBlock.url })
       await act(async () => findByHostType(tree!.root, 'Image').props.onError())
@@ -266,15 +266,15 @@ describe('host-owned mobile chat images', () => {
   )
 
   it.each(['/var/folders/host/T/orca-paste-123.png', '/private/tmp/fixtures/screen.png'])(
-    'reads a transcript image outside the attachment store with its owning session: %s',
+    'reads a transcript image outside the attachment store with its owning workspace: %s',
     async (path) => {
       const sendRequest = vi.fn<RpcClient['sendRequest']>().mockResolvedValue(REPLY)
       await act(async () => {
         tree = create(render(stubRpcClient({ sendRequest }), { type: 'image-ref', path }))
       })
       expect(sendRequest).toHaveBeenCalledExactlyOnceWith(
-        'agentSessionAttachment.read',
-        { path, sessionId: 'chat' },
+        'files.readChatImage',
+        { worktree: 'id:chat', path },
         expect.anything()
       )
       expect(tree && findByHostType(tree.root, 'Image').props.source).toEqual({ uri: URI })

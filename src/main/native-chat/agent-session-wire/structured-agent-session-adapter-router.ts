@@ -168,12 +168,11 @@ export class StructuredAgentSessionAdapterRouter implements StructuredAgentSessi
 
   canSetOptionWhileIdle: StructuredAgentSessionAdapter['canSetOptionWhileIdle'] = (input) =>
     this.liveOwnerOrNull(input.sessionId)?.canSetOptionWhileIdle?.(input) === true
+  readAppliedInputOptions: StructuredAgentSessionAdapter['readAppliedInputOptions'] = (input) =>
+    this.liveOwnerOrNull(input.sessionId)?.readAppliedInputOptions?.(input) ?? null
 
   projectOptions: StructuredAgentSessionAdapter['projectOptions'] = (sessionId, options) =>
     this.liveOwnerOrNull(sessionId)?.projectOptions?.(sessionId, options)
-
-  prepareReadOptions = (input: { sessionId: string; fence: number }) =>
-    this.liveOwnerOrNull(input.sessionId)?.prepareReadOptions?.(input)
 
   readOptions = (input: { sessionId: string; fence: number }) => {
     const reader = this.owner(input.sessionId).readOptions

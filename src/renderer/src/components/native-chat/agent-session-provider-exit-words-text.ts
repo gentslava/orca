@@ -6,6 +6,13 @@ import {
 } from '../../../../shared/agent-session-failure-copy'
 
 export const PROVIDER_EXIT_PIECES = {
+  providerResumeUnavailable: (values) =>
+    translate(
+      'components.native-chat.failureWords.providerResumeUnavailable',
+      COPY.providerResumeUnavailable,
+      values
+    ),
+
   providerExitedRow: (values) =>
     translate(
       'components.native-chat.failureWords.providerExitedRow',

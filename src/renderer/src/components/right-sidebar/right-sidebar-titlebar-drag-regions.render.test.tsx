@@ -13,7 +13,7 @@ import {
 } from './right-sidebar-titlebar-drag-regions'
 import type { ActiveRightSidebarTab } from '@/store/slices/editor'
 import { resetRendererAppPlatformCacheForTests } from '@/lib/renderer-app-platform'
-import { i18n, setRendererUiLanguage, translate } from '@/i18n/i18n'
+import { i18n, translate } from '@/i18n/i18n'
 import { PSEUDO_LOCALIZATION_LOCALE } from '@/i18n/pseudo-localization'
 
 const mockAppState = vi.hoisted(() => ({
@@ -241,13 +241,13 @@ describe('rendered right sidebar titlebar drag regions', () => {
   })
 
   it('updates cached activity labels when the language changes after mount', async () => {
-    await setRendererUiLanguage('en')
+    await i18n.changeLanguage('en')
     const container = document.createElement('div')
     const root = createRoot(container)
     try {
       await act(async () => root.render(<RightSidebar />))
       expect(container.querySelector('[aria-label^="Source Control"]')).not.toBeNull()
-      await act(() => setRendererUiLanguage('ru'))
+      await act(() => i18n.changeLanguage('ru'))
       const label = translate('auto.components.right.sidebar.index.0314901467', 'Source Control')
       expect(label).not.toBe('Source Control')
       expect(
@@ -258,12 +258,12 @@ describe('rendered right sidebar titlebar drag regions', () => {
       expect(container.querySelector('[aria-label^="Source Control"]')).toBeNull()
       await act(() => i18n.changeLanguage(PSEUDO_LOCALIZATION_LOCALE))
       expect(container.querySelector('[aria-label^="[Source Control]"]')).not.toBeNull()
-      await act(() => setRendererUiLanguage('en'))
+      await act(() => i18n.changeLanguage('en'))
       expect(container.querySelector('[aria-label^="Source Control"]')).not.toBeNull()
       expect(container.querySelector('[aria-label^="[Source Control]"]')).toBeNull()
     } finally {
       await act(async () => root.unmount())
-      await setRendererUiLanguage('en')
+      await i18n.changeLanguage('en')
     }
   })
 

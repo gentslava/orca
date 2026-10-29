@@ -37,11 +37,12 @@ export function allowNativeBrowserPopup(input: {
   canPresent?: () => boolean
   onCreated: (options: PopupChildWindowOptions) => WebContents
 }): Electron.WindowOpenHandlerResponse {
+  const openerSession = input.opener.session
   const mayPresent = !isBackgroundLaunch() && input.options.show !== false
   const admit = (window: BrowserWindow): void => {
     markNativeBrowserPopupWindow(window)
     try {
-      if (input.opener.isDestroyed() || window.webContents.session !== input.opener.session) {
+      if (input.opener.isDestroyed() || window.webContents.session !== openerSession) {
         rejectNativeBrowserPopup(window)
         return
       }
@@ -56,7 +57,7 @@ export function allowNativeBrowserPopup(input: {
               window.isDestroyed() ||
               window.webContents.isDestroyed() ||
               input.opener.isDestroyed() ||
-              window.webContents.session !== input.opener.session ||
+              window.webContents.session !== openerSession ||
               (input.canPresent && !input.canPresent())
             ) {
               return
@@ -71,11 +72,19 @@ export function allowNativeBrowserPopup(input: {
   }
   let admitted = false
   const onCreated = (_event: Electron.Event, window: BrowserWindow): void => {
+    if (
+      window.isDestroyed() ||
+      window.webContents.isDestroyed() ||
+      window.webContents.session !== openerSession
+    ) {
+      return
+    }
+    app.off('browser-window-created', onCreated)
     admitted = true
     admit(window)
   }
   // Prepend prevents another browser-window-created listener from navigating the child first.
-  app.prependOnceListener('browser-window-created', onCreated)
+  app.prependListener('browser-window-created', onCreated)
   // A canceled native creation must not grant the next unrelated window this admission.
   queueMicrotask(() => {
     app.off('browser-window-created', onCreated)
@@ -94,7 +103,7 @@ export function allowNativeBrowserPopup(input: {
       useContentSize: true,
       minWidth: MIN_POPUP_CONTENT_WIDTH,
       minHeight: MIN_POPUP_CONTENT_HEIGHT,
-      webPreferences: { ...input.options.webPreferences, session: input.opener.session }
+      webPreferences: { ...input.options.webPreferences, session: openerSession }
     }
   }
 }

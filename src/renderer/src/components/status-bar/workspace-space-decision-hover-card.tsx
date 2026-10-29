@@ -11,15 +11,18 @@ import type { WorkspaceSpaceWorktree } from '../../../../shared/workspace-space-
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import { HoverCardContent } from '../ui/hover-card'
-import {
-  formatBytes,
-  getWorkspaceSpaceBranchLabel,
-  getWorkspaceSpaceStatusLabel
-} from './workspace-space-format'
+import { formatBytes, getWorkspaceSpaceBranchLabel } from './workspace-space-format'
 import { translate } from '@/i18n/i18n'
 import type { WorkspaceDecisionDetails } from './workspace-space-decision-details'
 import type { WorkspaceGitRefreshState } from './workspace-space-manager-state-types'
 import { WorkspaceSpaceStatusBadge } from './workspace-space-status-badge'
+import {
+  getAgentDecisionLabel,
+  getDeleteDecisionLabel,
+  getEditorDecisionLabel,
+  getGitDecisionLabel,
+  getTerminalDecisionLabel
+} from './workspace-space-decision-labels'
 
 function DecisionLine({
   icon,
@@ -54,112 +57,6 @@ function DecisionLine({
   )
 }
 
-function getAgentDecisionLabel(details: WorkspaceDecisionDetails): string {
-  const active = translate('workspaceSpace.decision.activeAgents', '{{count}} active agents', {
-    count: details.activeAgentCount,
-    defaultValue_one: '{{count}} active agent'
-  })
-  const completed = translate(
-    'workspaceSpace.decision.completedAgents',
-    '{{count}} completed agents',
-    {
-      count: details.completedAgentCount,
-      defaultValue_one: '{{count}} completed agent'
-    }
-  )
-  if (details.activeAgentCount > 0 && details.completedAgentCount > 0) {
-    return `${active}, ${completed}`
-  }
-  if (details.activeAgentCount > 0) {
-    return active
-  }
-  if (details.completedAgentCount > 0) {
-    return translate('workspaceSpace.decision.retainedAgents', '{{agents}} retained', {
-      agents: completed
-    })
-  }
-  return translate('workspaceSpace.decision.noAgents', 'No tracked agents running')
-}
-
-function getTerminalDecisionLabel(details: WorkspaceDecisionDetails): string {
-  if (details.terminalTabCount === 0) {
-    return translate('workspaceSpace.decision.noTerminalTabs', 'No terminal tabs')
-  }
-  return translate(
-    'workspaceSpace.decision.liveTerminalTabs',
-    '{{live}} live of {{count}} terminal tabs',
-    {
-      live: details.liveTerminalCount,
-      count: details.terminalTabCount,
-      defaultValue_one: '{{live}} live of {{count}} terminal tab'
-    }
-  )
-}
-
-function getGitDecisionLabel(
-  details: WorkspaceDecisionDetails,
-  gitRefreshState?: WorkspaceGitRefreshState
-): string {
-  if (details.changedFileCount === null) {
-    if (gitRefreshState?.error) {
-      return translate(
-        'workspaceSpace.decision.gitStatusUnavailable',
-        'Git status unavailable: {{error}}',
-        {
-          error: gitRefreshState.error
-        }
-      )
-    }
-    return translate('workspaceSpace.decision.gitStatusNotLoaded', 'Git status has not loaded yet')
-  }
-  if (details.changedFileCount === 0) {
-    return translate('workspaceSpace.decision.noUncommittedFiles', 'No uncommitted files')
-  }
-  return translate('workspaceSpace.decision.changedFiles', '{{count}} changed files', {
-    count: details.changedFileCount,
-    defaultValue_one: '{{count}} changed file'
-  })
-}
-
-function getEditorDecisionLabel(details: WorkspaceDecisionDetails): string {
-  if (details.openEditorFileCount === 0) {
-    return translate('workspaceSpace.decision.noEditorFiles', 'No editor files open')
-  }
-  if (details.dirtyEditorBufferCount === 0) {
-    return translate('workspaceSpace.decision.openEditorFiles', '{{count}} editor files open', {
-      count: details.openEditorFileCount,
-      defaultValue_one: '{{count}} editor file open'
-    })
-  }
-  return translate(
-    'workspaceSpace.decision.dirtyEditorBuffers',
-    'Unsaved editor buffers: {{dirty}}; open files: {{total}}',
-    {
-      dirty: details.dirtyEditorBufferCount,
-      total: details.openEditorFileCount
-    }
-  )
-}
-
-function getDeleteDecisionLabel(
-  worktree: WorkspaceSpaceWorktree,
-  details: WorkspaceDecisionDetails
-): string {
-  if (details.isActive) {
-    return translate('workspaceSpace.decision.activeWorkspace', 'This is the active workspace')
-  }
-  if (worktree.status !== 'ok') {
-    return worktree.error ?? getWorkspaceSpaceStatusLabel(worktree.status)
-  }
-  if (worktree.isMainWorktree) {
-    return translate('workspaceSpace.decision.mainWorktreeProtected', 'Main worktree is protected')
-  }
-  if (!worktree.canDelete) {
-    return translate('workspaceSpace.decision.workspaceProtected', 'Workspace is protected')
-  }
-  return translate('workspaceSpace.decision.canDelete', 'Can be deleted after review')
-}
-
 export function WorkspaceDecisionHoverCard({
   worktree,
   details,
@@ -174,7 +71,7 @@ export function WorkspaceDecisionHoverCard({
   const deleteDecision = getDeleteDecisionLabel(worktree, details)
   const issueLabel =
     [details.issueLabel, details.linearIssueLabel].filter(Boolean).join(' · ') ||
-    translate('workspaceSpace.decision.noLinkedIssue', 'No linked issue')
+    translate('auto.components.status.bar.workspaceSpaceDecision.noLinkedIssue', 'No linked issue')
   return (
     <HoverCardContent
       align="end"
@@ -256,7 +153,11 @@ export function WorkspaceDecisionHoverCard({
             'Review'
           )}
           value={
-            details.reviewLabel ?? translate('workspaceSpace.decision.noLinkedPR', 'No linked PR')
+            details.reviewLabel ??
+            translate(
+              'auto.components.status.bar.workspaceSpaceDecision.noLinkedReview',
+              'No linked PR'
+            )
           }
         />
         <DecisionLine
@@ -272,10 +173,11 @@ export function WorkspaceDecisionHoverCard({
       <div className="flex items-center justify-between gap-3 border-t border-border/60 px-4 py-3">
         <div className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">
           {details.browserTabCount > 0
-            ? translate('workspaceSpace.decision.openBrowserTabs', '{{count}} browser tabs open', {
-                count: details.browserTabCount,
-                defaultValue_one: '{{count}} browser tab open'
-              })
+            ? translate(
+                'auto.components.status.bar.workspaceSpaceDecision.browserTabsOpen',
+                '{{count}} browser tabs open',
+                { count: details.browserTabCount, defaultValue_one: '{{count}} browser tab open' }
+              )
             : worktree.path}
         </div>
         <Button

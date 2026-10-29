@@ -14,8 +14,10 @@ import {
 } from './file-explorer-deletion-editors'
 import {
   confirmRemoteDelete,
+  fileDeleteFailedMessage,
   getFileDeleteErrorMessage,
   isLocalDeleteNode,
+  mixedBatchDeleteDescription,
   needsRemoteDeleteConfirmation
 } from './file-explorer-delete-classification'
 import {
@@ -31,7 +33,6 @@ import {
 import { deleteWithPermanentFallback } from './file-explorer-trash-fallback'
 import { readRuntimeFileContent } from '@/runtime/runtime-file-read-client'
 import { translate } from '@/i18n/i18n'
-import { fileExplorerBatchDeleteConfirmation } from './file-explorer-delete-confirmation'
 
 type UseFileDeletionParams = {
   activeWorktreeId: string | null
@@ -215,27 +216,9 @@ export function useFileDeletion({
 
         return true
       } catch (error) {
-        const errorMessage = getFileDeleteErrorMessage(error)
         toast.error(
-          errorMessage
-            ? errorMessage
-            : isRemote
-              ? translate('fileExplorer.deleteFailed', "Failed to delete '{{name}}'.", {
-                  name: node.name
-                })
-              : isWindows
-                ? translate(
-                    'fileExplorer.recycleFailed',
-                    "Failed to move '{{name}}' to Recycle Bin.",
-                    { name: node.name }
-                  )
-                : translate(
-                    'fileExplorer.trashFailed.message',
-                    "Failed to move '{{name}}' to Trash.",
-                    {
-                      name: node.name
-                    }
-                  )
+          getFileDeleteErrorMessage(error) ||
+            fileDeleteFailedMessage(node.name, isRemote, isWindows)
         )
         return false
       } finally {
@@ -276,14 +259,31 @@ export function useFileDeletion({
           // Local Trash remains prompt-free; only remote roots need confirmation.
           needsConfirmation: roots.some(needsRemoteDeleteConfirmation),
           confirmBatch: () =>
-            confirm(
+            confirm({
               // Count selected children even when ancestor roots subsume their deletes.
-              fileExplorerBatchDeleteConfirmation({
-                count: nodes.length,
-                hasLocalDelete,
-                isWindows
-              })
-            ),
+              title: hasLocalDelete
+                ? translate(
+                    'auto.components.right.sidebar.useFileDeletion.deleteItems_other',
+                    'Delete {{count}} items?',
+                    { count: nodes.length }
+                  )
+                : translate(
+                    'auto.components.right.sidebar.useFileDeletion.permanentlyDeleteItems_other',
+                    'Permanently delete {{count}} items?',
+                    { count: nodes.length }
+                  ),
+              description: !hasLocalDelete
+                ? translate(
+                    'auto.components.right.sidebar.useFileDeletion.dd029aa5cd',
+                    'This permanently deletes the selected items and any directory contents on the remote host. This cannot be undone.'
+                  )
+                : mixedBatchDeleteDescription(isWindows),
+              confirmLabel: translate(
+                'auto.components.right.sidebar.useFileDeletion.92276aceb7',
+                'Delete'
+              ),
+              confirmVariant: 'destructive'
+            }),
           deleteNode: (node) => runDelete(node, { skipConfirmation: true })
         })
         if (deletedRoots === null || deletedRoots.length === 0) {

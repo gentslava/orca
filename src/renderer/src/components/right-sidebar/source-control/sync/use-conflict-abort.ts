@@ -49,25 +49,30 @@ export function useSourceControlConflictAbort({
       }
 
       const isRebase = requestedOperation === 'rebase'
-      const label = isRebase ? 'rebase' : 'merge'
       const title = isRebase
-        ? translate('sourceControl.abort.rebaseTitle', 'Abort rebase?')
-        : translate('sourceControl.abort.mergeTitle', 'Abort merge?')
+        ? translate(
+            'auto.components.right.sidebar.SourceControl.abortRebaseConfirmTitle',
+            'Abort rebase?'
+          )
+        : translate(
+            'auto.components.right.sidebar.SourceControl.abortMergeConfirmTitle',
+            'Abort merge?'
+          )
       const description = isRebase
         ? translate(
-            'sourceControl.abort.rebaseDescription',
+            'auto.components.right.sidebar.SourceControl.abortRebaseConfirmDescription',
             'This cancels the rebase in progress and can discard conflict resolutions made during this rebase.'
           )
         : translate(
-            'sourceControl.abort.mergeDescription',
+            'auto.components.right.sidebar.SourceControl.abortMergeConfirmDescription',
             'This cancels the merge in progress and can discard conflict resolutions made during this merge.'
           )
       const confirmed = await confirmAction({
         title,
         description,
         confirmLabel: isRebase
-          ? translate('sourceControl.abort.rebaseConfirm', 'Abort rebase')
-          : translate('sourceControl.abort.mergeConfirm', 'Abort merge'),
+          ? translate('auto.components.right.sidebar.SourceControl.425f138269', 'Abort rebase')
+          : translate('auto.components.right.sidebar.SourceControl.540ca8f78c', 'Abort merge'),
         confirmVariant: 'destructive'
       })
       if (!confirmed) {
@@ -88,17 +93,36 @@ export function useSourceControlConflictAbort({
         const abortGitOperation = isRebase ? abortRuntimeGitRebase : abortRuntimeGitMerge
         await abortGitOperation(context)
       } catch (error) {
-        const failure = isRebase
-          ? translate('sourceControl.abort.rebaseFailed', 'Failed to abort rebase')
-          : translate('sourceControl.abort.mergeFailed', 'Failed to abort merge')
-        const message = error instanceof Error ? error.message : failure
-        toast.error(failure, { description: message })
+        const message =
+          error instanceof Error
+            ? error.message
+            : isRebase
+              ? translate(
+                  'auto.components.right.sidebar.SourceControl.abortRebaseFailedFallback',
+                  'Failed to abort rebase'
+                )
+              : translate(
+                  'auto.components.right.sidebar.SourceControl.abortMergeFailedFallback',
+                  'Failed to abort merge'
+                )
+        toast.error(
+          isRebase
+            ? translate(
+                'auto.components.right.sidebar.SourceControl.abortRebaseFailed',
+                'Abort rebase failed'
+              )
+            : translate(
+                'auto.components.right.sidebar.SourceControl.abortMergeFailed',
+                'Abort merge failed'
+              ),
+          { description: message }
+        )
         setRemoteActionErrors((prev) => ({
           ...prev,
           [activeWorktreeId]: {
             kind: isRebase ? 'abort_rebase' : 'abort_merge',
             message,
-            rawError: error instanceof Error ? error.message : `Failed to abort ${label}`
+            rawError: message
           }
         }))
       } finally {

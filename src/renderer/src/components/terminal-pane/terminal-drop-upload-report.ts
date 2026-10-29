@@ -14,14 +14,16 @@ export function reportTerminalDropUploadSkipsAndFailures(
     const allSymlinks = skipped.every((item) => item.reason === 'symlink')
     toast.message(
       allSymlinks
-        ? translate('terminalDrop.skippedSymlinks', 'Skipped {{count}} symlinks.', {
-            count: skipped.length,
-            defaultValue_one: 'Skipped {{count}} symlink.'
-          })
-        : translate('terminalDrop.skippedItems', 'Skipped {{count}} items.', {
-            count: skipped.length,
-            defaultValue_one: 'Skipped {{count}} item.'
-          }),
+        ? translate(
+            'auto.components.terminal.pane.terminal.drop.handler.skippedSymlinks',
+            'Skipped {{count}} symlinks.',
+            { count: skipped.length, defaultValue_one: 'Skipped {{count}} symlink.' }
+          )
+        : translate(
+            'auto.components.terminal.pane.terminal.drop.handler.skippedItems',
+            'Skipped {{count}} items.',
+            { count: skipped.length, defaultValue_one: 'Skipped {{count}} item.' }
+          ),
       {
         description: allSymlinks ? undefined : describeSharedDropSkipReason(skipped)
       }
@@ -29,10 +31,11 @@ export function reportTerminalDropUploadSkipsAndFailures(
   }
   if (failed.length > 0) {
     toast.error(
-      translate('terminalDrop.failedUploads', 'Failed to upload {{count}} files.', {
-        count: failed.length,
-        defaultValue_one: 'Failed to upload {{count}} file.'
-      }),
+      translate(
+        'auto.components.terminal.pane.terminal.drop.handler.failedUploads',
+        'Failed to upload {{count}} files.',
+        { count: failed.length, defaultValue_one: 'Failed to upload {{count}} file.' }
+      ),
       { description: describeSharedDropFailureReason(failed) }
     )
   }

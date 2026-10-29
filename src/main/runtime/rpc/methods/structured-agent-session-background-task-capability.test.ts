@@ -244,10 +244,18 @@ describe('child views at the RPC boundary', () => {
     children: [view('settled')]
   }
 
-  it('withholds settled-only history from older readers and retains it for current readers', async () => {
+  it('retains readable settled task history while omitting unsupported child views', async () => {
     expect(await historyFor(settledOnly, PRE_VIEWS_CLIENT)).toMatchObject({
       ok: true,
-      result: { page: { backgroundTasks: null } }
+      result: {
+        page: {
+          backgroundTasks: {
+            state: 'monitoring',
+            supportsTaskStop: true,
+            settledTasks: [SETTLED_ROW]
+          }
+        }
+      }
     })
     for (const client of [CURRENT_CLIENT, undefined]) {
       expect(await historyFor(settledOnly, client)).toMatchObject({
@@ -258,7 +266,7 @@ describe('child views at the RPC boundary', () => {
     expect(settledOnly.children).toHaveLength(1)
   })
 
-  it('clears a settled-only subscription strip for older readers', async () => {
+  it('preserves readable settled tasks on subscriptions for older readers', async () => {
     hostCalls.subscribe.mockImplementation((input: AgentSessionSubscribeInput) => {
       input.emit({
         type: 'batch',
@@ -275,7 +283,10 @@ describe('child views at the RPC boundary', () => {
       return () => {}
     })
     for (const [client, expected] of [
-      [PRE_VIEWS_CLIENT, null],
+      [
+        PRE_VIEWS_CLIENT,
+        { state: 'monitoring', supportsTaskStop: true, settledTasks: [SETTLED_ROW] }
+      ],
       [CURRENT_CLIENT, settledOnly]
     ] as const) {
       expect(await call('agentSession.subscribe', { sessionId: SESSION }, client)).toMatchObject({
@@ -283,6 +294,14 @@ describe('child views at the RPC boundary', () => {
         result: { type: 'batch', backgroundTasks: expected }
       })
     }
+  })
+
+  it('withholds a settled-only child view when an older reader has no readable task rows', async () => {
+    const { settledTasks: _tasks, ...unreadable } = settledOnly
+    expect(await historyFor(unreadable, PRE_VIEWS_CLIENT)).toMatchObject({
+      ok: true,
+      result: { page: { backgroundTasks: null } }
+    })
   })
 
   it.each([

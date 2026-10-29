@@ -91,8 +91,6 @@ const desktop = [
   'src/renderer/src/components/native-chat/use-structured-agent-session-queue-working.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatQueuedMessageList.inline-edit.test.tsx',
   'src/main/native-chat/agent-session-wire/structured-agent-session-goal-steering.test.ts',
-  'config/scripts/apply-translation-delta.test.mjs',
-  'config/scripts/russian-translation-progress.test.mjs',
   'config/scripts/localization-count-lookups.test.mjs',
   'src/renderer/src/components/native-chat/use-structured-agent-session-queued-messages.test.tsx',
   'src/main/runtime/rpc/methods/structured-agent-session-queued-edit.test.ts',
@@ -197,7 +195,6 @@ export function runForkRegressions(root = process.cwd()) {
   for (const [script, ...args] of [
     ['generate-rpc-params-catalog.mjs', '--check'],
     ['verify-localization-catalogs.mjs'],
-    ['russian-translation-progress.mjs', '--require-complete'],
     ['verify-localization-extraction.mjs'],
     ['audit-localization-coverage.mjs', '--check']
   ]) {

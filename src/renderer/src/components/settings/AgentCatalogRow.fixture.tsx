@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { defineFixture } from '../../component-fixtures/component-fixture'
-import { setRendererUiLanguage } from '@/i18n/i18n'
+import { i18n } from '@/i18n/i18n'
 import { AgentCatalogRow } from './AgentCatalogRow'
 
 function CatalogFixture(): React.JSX.Element {
@@ -40,7 +40,7 @@ const fixture = (width: number) =>
     width,
     render: () => <CatalogFixture />,
     interact: async () => {
-      await setRendererUiLanguage('ru')
+      await i18n.changeLanguage('ru')
     }
   })
 

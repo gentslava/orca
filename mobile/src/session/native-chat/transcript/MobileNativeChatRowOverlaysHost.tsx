@@ -10,8 +10,8 @@ import {
   useMobileNativeChatConversationState,
   type MobileNativeChatConversation
 } from '../../use-mobile-native-chat-conversation-state'
-import type { MobileNativeChatVisualSource } from '../visual/mobile-native-chat-visual-read'
 import type { RpcClient } from '../../../transport/rpc-client'
+import type { MobileNativeChatImageSource } from '../visual/mobile-native-chat-image-preview'
 
 export function MobileNativeChatRowOverlaysHost({
   conversation,
@@ -19,7 +19,7 @@ export function MobileNativeChatRowOverlaysHost({
   children
 }: {
   conversation: MobileNativeChatConversation
-  imageSource?: MobileNativeChatVisualSource | null
+  imageSource?: MobileNativeChatImageSource
   children?: React.ReactNode
 }): React.JSX.Element {
   // Keep pressed message text with its conversation so streaming cannot rewrite an open sheet.

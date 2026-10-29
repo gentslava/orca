@@ -34,7 +34,7 @@ export class AcpStructuredOptions {
   constructor(
     private readonly dialect: Pick<
       AcpDialect,
-      'modelEfforts' | 'clampsUnlistedEffort' | 'withheldCommands'
+      'modelEfforts' | 'clampsUnlistedEffort' | 'withheldCommands' | 'effortChangesModel'
     > = {}
   ) {}
 
@@ -44,13 +44,24 @@ export class AcpStructuredOptions {
   // Only new sessions resolve configured defaults; loaded sessions retain their saved choices.
   private resolvesConfig = false
   readonly picked = new Set<string>()
-  /** Installed Orca policy and successful writes, distinct from native agent reports. */
+  readonly appliedInput = new Map<string, string>()
   readonly applied = new Map<string, string>()
   private initialChoice: Readonly<Record<string, string>> = {}
   private modelSelection: { requested: string; reported: string } | null = null
   currentProof = new Set<string>()
   writeRevision = 0
 
+  invalidateInput(key: string): void {
+    this.appliedInput.delete(key)
+    if (key === 'model') {
+      this.appliedInput.delete('effort')
+    }
+    if (key === 'effort' && this.dialect.effortChangesModel) {
+      this.appliedInput.delete('model')
+    }
+  }
+
+  /** The session state a new, load or resume response reported. */
   adoptSession(
     response: {
       configOptions?: SessionConfigOption[] | null
@@ -61,6 +72,7 @@ export class AcpStructuredOptions {
     this.configOptions = response.configOptions ?? []
     this.models = response.models ?? null
     this.resolvesConfig = origin === 'new'
+    this.appliedInput.clear()
     this.initialChoice = this.reported()
     this.currentProof = new Set(Object.keys(this.initialChoice))
     this.confirmModelSelection(response.models?.currentModelId)

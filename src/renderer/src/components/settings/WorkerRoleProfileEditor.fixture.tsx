@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { defineFixture } from '../../component-fixtures/component-fixture'
-import { setRendererUiLanguage } from '@/i18n/i18n'
+import { i18n } from '@/i18n/i18n'
 import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
 import { AGENT_SESSION_MODEL_CATALOG_SAVED_ONLY_RUNTIME_CAPABILITY } from '../../../../shared/structured-agent-session-surface-capabilities'
 import type { AgentSessionModelCatalogResult } from '../../../../shared/agent-session-wire'
@@ -63,7 +63,7 @@ const fixture = (field: 'agent' | 'model') =>
     setup,
     render: () => <WorkerRoleFixture />,
     interact: async () => {
-      await setRendererUiLanguage('ru')
+      await i18n.changeLanguage('ru')
       document
         .getElementById(`worker-role-implementation-${field}`)
         ?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
@@ -84,6 +84,6 @@ export const retrievalFailure = defineFixture({
   },
   render: () => <WorkerRoleFixture />,
   interact: async () => {
-    await setRendererUiLanguage('en')
+    await i18n.changeLanguage('en')
   }
 })

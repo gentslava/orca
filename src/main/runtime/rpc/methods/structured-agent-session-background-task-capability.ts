@@ -41,6 +41,7 @@ function withoutChildViews(
   if (
     !state.incomplete &&
     !state.tasks?.length &&
+    !state.settledTasks?.length &&
     children?.length &&
     children.every((child) => child.membership === 'settled')
   ) {

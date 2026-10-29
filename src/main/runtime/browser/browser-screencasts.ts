@@ -176,19 +176,27 @@ export class RuntimeBrowserScreencasts {
       resolveSubscriberDone()
       throw error
     }
-    // Reconnects have new sockets; replace by device identity after joining to avoid stopping an empty stream.
-    if (stream.pairedDeviceId !== undefined) {
+    try {
+      if (!createdPageStream) {
+        if (active.viewportOwnerSubscriptionId === subscriptionId) {
+          await session.updateViewport(viewport)
+        }
+        await applySharedScreencastFrameBudget(active, session)
+      }
+    } catch (error) {
+      this.leaveScreencastSubscriber(active, subscriptionId, session)
+      throw error
+    }
+    // Retire a reconnected device's old socket only after its replacement successfully joins.
+    if (stream.pairedDeviceId !== undefined && active.subscribers.has(subscriptionId)) {
       for (const [candidateId, candidate] of active.subscribers) {
-        if (candidateId !== subscriptionId && candidate.pairedDeviceId === stream.pairedDeviceId) {
+        if (candidateId === subscriptionId) {
+          break
+        }
+        if (candidate.pairedDeviceId === stream.pairedDeviceId) {
           this.leaveScreencastSubscriber(active, candidateId, session)
         }
       }
-    }
-    if (!createdPageStream) {
-      if (active.viewportOwnerSubscriptionId === subscriptionId) {
-        await session.updateViewport(viewport)
-      }
-      await applySharedScreencastFrameBudget(active, session)
     }
     return {
       subscriptionId,

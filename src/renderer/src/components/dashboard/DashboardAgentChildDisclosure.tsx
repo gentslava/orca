@@ -66,14 +66,16 @@ export function DashboardAgentChildDisclosure({
         className="col-start-1 row-start-1 -mr-1.5"
         aria-label={
           childAgentsExpanded
-            ? translate('dashboard.childAgents.hide', 'Hide {{count}} child agents', {
-                count: childAgentCount,
-                defaultValue_one: 'Hide {{count}} child agent'
-              })
-            : translate('dashboard.childAgents.show', 'Show {{count}} child agents', {
-                count: childAgentCount,
-                defaultValue_one: 'Show {{count}} child agent'
-              })
+            ? translate(
+                'auto.components.dashboard.DashboardAgentChildDisclosure.hideChildAgents',
+                'Hide {{count}} child agents',
+                { count: childAgentCount, defaultValue_one: 'Hide {{count}} child agent' }
+              )
+            : translate(
+                'auto.components.dashboard.DashboardAgentChildDisclosure.showChildAgents',
+                'Show {{count}} child agents',
+                { count: childAgentCount, defaultValue_one: 'Show {{count}} child agent' }
+              )
         }
         aria-expanded={childAgentsExpanded}
       >

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { setRendererUiLanguage } from '@/i18n/i18n'
+import { i18n } from '@/i18n/i18n'
 import { createRoot } from 'react-dom/client'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
@@ -178,7 +178,7 @@ function Fixture() {
               variant="ghost"
               size="xs"
               onClick={async () => {
-                await setRendererUiLanguage(russian ? 'en' : 'ru')
+                await i18n.changeLanguage(russian ? 'en' : 'ru')
                 setRussian(!russian)
               }}
             >

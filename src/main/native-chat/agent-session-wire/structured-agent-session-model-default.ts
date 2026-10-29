@@ -6,7 +6,6 @@ import {
 } from '../../../shared/agent-session-wire'
 import type { AgentSessionTurnContext, TurnOutcome } from './structured-agent-session-turns'
 import type { StructuredAgentSessionHostDeps } from './structured-agent-session-host-types'
-import { agentSessionOptionAdmitted } from '../../runtime/agent-session-record-options'
 
 /** Passive verified configuration reads never launch a probe or substitute the current model. */
 export async function readStructuredAgentSessionDefaultModel(
@@ -101,17 +100,7 @@ export async function resetStructuredAgentSessionModel(
   const defaultModelOptions: Record<string, string> =
     configured ?? (baseline ? { model: baseline.id } : {})
   const options = Object.fromEntries(
-    Object.entries(record.options ?? {}).filter(
-      ([key, value]) =>
-        key !== 'model' &&
-        agentSessionOptionAdmitted(
-          record.provider,
-          listing && listing.origin !== 'unknown' ? listing.models : undefined,
-          defaultModelOptions.model,
-          key,
-          value
-        )
-    )
+    Object.entries(record.options ?? {}).filter(([key]) => key !== 'model')
   )
   const updated = await deps.store.replaceSessionOptions({
     sessionId: ctx.sessionId,

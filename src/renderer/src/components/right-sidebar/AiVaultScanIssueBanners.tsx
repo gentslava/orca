@@ -48,9 +48,9 @@ export function AiVaultScanIssueBanners({
           {skippedTranscriptCount > 0 ? (
             <div className="border-b border-sidebar-border px-3 py-1.5 text-[11px] text-muted-foreground">
               {translate(
-                'auto.components.right.sidebar.AiVaultPanel.transcriptsSkipped',
-                '{{count}} transcript skipped',
-                { count: skippedTranscriptCount }
+                'auto.components.right.sidebar.AiVaultPanel.transcriptsSkippedCount',
+                '{{count}} transcripts skipped',
+                { count: skippedTranscriptCount, defaultValue_one: '{{count}} transcript skipped' }
               )}
             </div>
           ) : null}

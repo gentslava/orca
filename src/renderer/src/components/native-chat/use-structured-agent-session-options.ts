@@ -1,11 +1,8 @@
 import { structuredAgentSessionDefaultModelChoice } from '../../../../shared/structured-agent-session-default-model-choice'
 import { useStructuredAgentSessionOptionWrite } from './use-structured-agent-session-option-write'
+import type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
 import { toast } from 'sonner'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
-import type { AgentType } from '../../../../shared/agent-status-types'
-import type { StructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
-import type { StructuredAgentSessionLaunchView } from './use-native-chat-provisional-launch'
-import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { structuredAgentSessionSeedCatalog } from '../../../../shared/structured-agent-session-seed-catalog'
 import type { SessionOptionsSurface } from '../../../../shared/native-chat/input/native-chat-session-options'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../shared/agent-chat-permission-mode'
@@ -33,23 +30,7 @@ import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../../shared/agent
 import { useStructuredAgentSessionHostCapability } from '@/runtime/structured-agent-session-host-capability'
 import { useStructuredAgentSessionModelDefault } from './use-structured-agent-session-model-default'
 
-export type StructuredAgentSessionOptionsArgs = {
-  agent: AgentType
-  sessionId: string
-  target: RuntimeClientTarget
-  transportEnabled: boolean
-  isVisible: boolean
-  providerVisible: boolean
-  providerStarting?: boolean
-  providerRunning?: boolean
-  isWorking?: boolean
-  hostOptionStamp?: string
-  fence: number | null
-  turnId: string | null
-  unloadedTurnRevisions: number | undefined
-  mutate: StructuredAgentSessionMutate
-  launch?: StructuredAgentSessionLaunchView
-}
+export type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
 
 const NO_HELD_OPTIONS: Readonly<Record<string, string>> = {}
 
@@ -165,6 +146,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     },
     [launchSeedOptions, optionStateRef, optionView, rememberOptionPicks]
   )
+  const interactionReadyRef = useRef(acceptsPicks)
   const lockSnapshotRef = useRef(
     (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => snapshot
   )
@@ -192,6 +174,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
         : choices
   }
   useLayoutEffect(() => {
+    interactionReadyRef.current = acceptsPicks
     lockSnapshotRef.current = lockSnapshot
   })
   const optionSnapshot = lockSnapshot(
@@ -216,14 +199,15 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
           },
           id,
           value,
-          lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view))
+          lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
+          interactionReadyRef.current
         )
       ) {
         return false
       }
       if (!transportEnabled || fence === null) {
         // No fence yet: the launch holds it and applies it before anything else is sent.
-        const applied = holdStructuredAgentSessionLaunchOption(sessionId, id, encoded, view)
+        const applied = holdStructuredAgentSessionLaunchOption(sessionId, id, encoded)
         void applied?.then(settleLaunchOptionPick)
         return applied !== null
       }

@@ -1,3 +1,4 @@
+import { useAppStore } from '@/store'
 // @vitest-environment happy-dom
 import '@testing-library/jest-dom/vitest'
 import { useImperativeHandle } from 'react'
@@ -154,6 +155,9 @@ function view(target: RuntimeClientTarget = TARGET) {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  transport.rpc.mockReset()
+  transport.read.mockReset()
+  transport.subscribe.mockReset()
   resetStructuredSessionMocks()
   resetStructuredAgentSessionReadOwnersForTests()
   transport.capability = 'supported'
@@ -297,7 +301,7 @@ it('opens a separate completed conversation and its native descendants, retainin
   expect(await screen.findByText(/Nested original answer/)).toBeVisible()
   expect(workerFeed).not.toBeVisible()
   await act(async () => {
-    await vi.advanceTimersByTimeAsync(3_000)
+    await vi.advanceTimersByTimeAsync(30_000)
   })
   expect(childReads()).toBe(visibleChildReads)
   // The visible worker still refreshes its identity, without the hidden parent's duplicate poll.
@@ -359,7 +363,7 @@ it('retires the old journal reader when the same Dispatch continues into a new s
     page('continued-session', [message('new1', 'Continued original answer')])
   )
   await act(async () => {
-    await vi.advanceTimersByTimeAsync(3_000)
+    await vi.advanceTimersByTimeAsync(30_000)
   })
   expect(screen.queryByTestId('feed:worker-session')).toBeNull()
   expect(screen.getByTestId('feed:continued-session')).toHaveTextContent(
@@ -567,3 +571,47 @@ it.each(['unsupported', 'unknown', 'terminal', 'offline'] as const)(
     expect(transport.subscribe).not.toHaveBeenCalled()
   }
 )
+
+it('does not poll the full roster every three seconds and refreshes on worker lifecycle events', async () => {
+  vi.useFakeTimers()
+  transport.rpc.mockImplementation(async () => ({ children: [worker], nextCursor: null }))
+  const original = useAppStore.getState().agentStatusByPaneKey
+  try {
+    const hook = renderHook(() =>
+      useNativeChatSessionChildren({ sessionId: PARENT, target: TARGET, enabled: true })
+    )
+    await act(async () => {})
+    expect(hook.result.current.children).toHaveLength(1)
+    const reads = () =>
+      transport.rpc.mock.calls.filter(([, method]) => method === 'orchestration.sessionChildren')
+        .length
+    const initial = reads()
+    expect(initial).toBeGreaterThan(0)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3_000)
+    })
+    expect(reads()).toBe(initial)
+    act(() =>
+      useAppStore.setState({
+        agentStatusByPaneKey: {
+          ...original,
+          'worker:leaf': {
+            paneKey: 'worker:leaf',
+            state: 'done',
+            prompt: '',
+            updatedAt: 1,
+            stateStartedAt: 1,
+            stateHistory: [],
+            orchestration: { taskId: 'task', dispatchId: 'dispatch', dispatchStatus: 'completed' }
+          }
+        }
+      })
+    )
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(250)
+    })
+    expect(reads()).toBe(initial + 1)
+  } finally {
+    useAppStore.setState({ agentStatusByPaneKey: original })
+  }
+})

@@ -24,12 +24,6 @@ const PIECES: Record<AgentSessionFailureCopyId, (values: AgentSessionFailureCopy
         COPY.providerStartFailed,
         values
       ),
-    providerResumeUnavailable: (values) =>
-      translate(
-        'components.native-chat.failureWords.providerResumeUnavailable',
-        COPY.providerResumeUnavailable,
-        values
-      ),
     runCommandAgain: (values) =>
       translate(
         'components.native-chat.failureWords.runCommandAgain',
@@ -161,6 +155,12 @@ const PIECES: Record<AgentSessionFailureCopyId, (values: AgentSessionFailureCopy
         COPY.fullAccessAsRoot,
         values
       ),
+    launchPreparationFailed: (values) =>
+      translate(
+        'components.native-chat.failureWords.launchPreparationFailed',
+        COPY.launchPreparationFailed,
+        values
+      ),
     conversationOpenElsewhere: () =>
       translate(
         'components.native-chat.failureWords.conversationOpenElsewhere',
@@ -189,6 +189,11 @@ const PIECES: Record<AgentSessionFailureCopyId, (values: AgentSessionFailureCopy
         COPY.chooseClaudeAccountThenSend
       ),
     ...PROVIDER_EXIT_PIECES,
+    claudeEffortInvalid: () =>
+      translate(
+        'components.native-chat.failureWords.claudeEffortInvalid',
+        COPY.claudeEffortInvalid
+      ),
     providerRejected: (values) =>
       translate(
         'components.native-chat.failureWords.providerRejected',

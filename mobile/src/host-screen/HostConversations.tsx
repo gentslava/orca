@@ -1,3 +1,4 @@
+import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import { useMemo, useState } from 'react'
 import { ActivityIndicator, Pressable, RefreshControl, SectionList, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -34,6 +35,7 @@ export function HostConversations({
   controller: HostScreenController
   onWorkspaces: () => void
 }) {
+  const t = useMobileTranslation()
   const copy = conversationCopy()
   const { hostId, connState, actions, state } = controller
   const data = useProjectConversations(controller)
@@ -130,7 +132,7 @@ export function HostConversations({
             onPress={actions.leaveHost}
             style={styles.iconButton}
             accessibilityRole="button"
-            accessibilityLabel="Back to hosts"
+            accessibilityLabel={t('hostScreen.conversations.backToHosts', 'Back to hosts')}
           >
             <ChevronLeft size={22} color={colors.textPrimary} />
           </Pressable>
@@ -148,7 +150,7 @@ export function HostConversations({
               onPress={controller.onHideSidebar}
               style={styles.iconButton}
               accessibilityRole="button"
-              accessibilityLabel="Hide sidebar"
+              accessibilityLabel={t('hostScreen.conversations.hideSidebar', 'Hide sidebar')}
             >
               <ChevronLeft size={18} color={colors.textSecondary} />
             </Pressable>

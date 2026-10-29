@@ -51,8 +51,8 @@ afterEach(() => {
 })
 
 it('closes a host image when its owning client changes and never reopens it on return', () => {
-  const first = { client: stubRpcClient(), sessionId: 's1' }
-  const second = { client: stubRpcClient(), sessionId: 's1' }
+  const first = { client: stubRpcClient(), worktreeId: 'w1' }
+  const second = { client: stubRpcClient(), worktreeId: 'w1' }
   const render = (imageSource: typeof first) => (
     <MobileNativeChatRowOverlaysHost
       conversation={{ surfaceId: 'tab-a', sessionId: 's1' }}

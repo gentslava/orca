@@ -141,7 +141,7 @@ export function useWorkspaceSpaceManagerPanel() {
             ),
         {
           description: translate(
-            'workspaceSpace.deletedWorkspaces',
+            'auto.components.status.bar.WorkspaceSpaceManagerPanel.removedFromSpace',
             '{{count}} workspaces removed from Space.',
             {
               count: deletedTargets.length,

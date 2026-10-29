@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { UsageAccountQuotas } from '@/components/stats/UsageAccountQuotas'
 import { UsageOverviewPane } from '@/components/stats/UsageOverviewPane'
 import { WorkerRoleSettings } from '@/components/settings/WorkerRoleSettings'
-import { setRendererUiLanguage } from '@/i18n/i18n'
+import { i18n } from '@/i18n/i18n'
 import { buildDefaultSettings } from '../../../src/shared/default-global-settings'
 import { getDefaultVoiceSettings } from '../../../src/shared/constants'
 import { getDefaultNotificationSettings } from '../../../src/shared/notification-settings-defaults'
@@ -153,7 +153,7 @@ export function SettingsFixture() {
           size="sm"
           variant="ghost"
           onClick={async () => {
-            await setRendererUiLanguage(russian ? 'en' : 'ru')
+            await i18n.changeLanguage(russian ? 'en' : 'ru')
             setRussian(!russian)
           }}
         >

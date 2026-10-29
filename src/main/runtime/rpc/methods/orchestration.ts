@@ -1,3 +1,4 @@
+import { requiringOrcadFeature } from '../orcad-feature-readiness'
 import { ORCHESTRATION_RUN_METHODS } from './orchestration/runs/runs'
 import { ORCHESTRATION_WORKER_METHODS } from './orchestration/worker/worker-methods'
 import { ORCHESTRATION_FEDERATION_METHODS } from './orchestration/federation/federation-methods'
@@ -12,7 +13,8 @@ import { ORCHESTRATION_RESET_METHODS } from './orchestration/runs/reset-methods'
 import { ORCHESTRATION_CALLER_METHODS } from './orchestration/caller-show'
 import { ORCHESTRATION_SESSION_CHILDREN_METHODS } from './orchestration/session-children'
 
-export const ORCHESTRATION_METHODS = [
+// Every orchestration method reads the authority restored at startup.
+export const ORCHESTRATION_METHODS = requiringOrcadFeature('orchestration', [
   ...ORCHESTRATION_RUN_METHODS,
   ...ORCHESTRATION_WORKER_METHODS,
   ...ORCHESTRATION_FEDERATION_METHODS,
@@ -26,4 +28,4 @@ export const ORCHESTRATION_METHODS = [
   ...ORCHESTRATION_RESET_METHODS,
   ...ORCHESTRATION_CALLER_METHODS,
   ...ORCHESTRATION_SESSION_CHILDREN_METHODS
-]
+])

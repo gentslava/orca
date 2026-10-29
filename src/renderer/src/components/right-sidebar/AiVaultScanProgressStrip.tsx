@@ -27,7 +27,7 @@ function fileCountLabel(count: number): string {
   return translate(
     'auto.components.right.sidebar.AiVaultScanProgressStrip.fileCount',
     '{{value0}} files',
-    { count, value0, defaultValue_one: '{{value0}} file' }
+    { value0, count, defaultValue_one: '{{value0}} file' }
   )
 }
 
@@ -36,7 +36,7 @@ function databaseCountLabel(count: number): string {
   return translate(
     'auto.components.right.sidebar.AiVaultScanProgressStrip.databaseCount',
     '{{value0}} databases',
-    { count, value0, defaultValue_one: '{{value0}} database' }
+    { value0, count, defaultValue_one: '{{value0}} database' }
   )
 }
 
@@ -123,9 +123,15 @@ function AgentRow({
   const label = agentLabel(agent.agent)
   const checked = hasWork
     ? translate(
-        'auto.components.right.sidebar.AiVaultScanProgressStrip.agentChecked',
+        'auto.components.right.sidebar.AiVaultScanProgressStrip.agentCheckedCount',
         '{{agent}}: {{settled}} of {{total}} history candidates checked',
-        { agent: label, settled: formatCount(settled), total: formatCount(read.total) }
+        {
+          agent: label,
+          settled: formatCount(settled),
+          total: formatCount(read.total),
+          count: read.total,
+          defaultValue_one: '{{agent}}: {{settled}} of {{total}} history candidate checked'
+        }
       )
     : undefined
   return (

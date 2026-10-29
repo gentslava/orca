@@ -3,10 +3,7 @@ import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection
 import { MobileMarkdown } from '../../../components/MobileMarkdown'
 import { isImageRefBlock, isTextBlock } from '../../../../../src/shared/native-chat-types'
 import type { NativeChatBlock } from '../../../../../src/shared/native-chat-types'
-import {
-  AGENT_SESSION_HOST_STATUS_COPY,
-  isAgentSessionHostStatusPresentation
-} from '../../../../../src/shared/agent-session-host-status-rows'
+import { isAgentSessionHostStatusPresentation } from '../../../../../src/shared/agent-session-host-status-rows'
 import { withoutPendingNativeChatVisualDirectiveTail } from '../../../../../src/shared/native-chat/native-chat-visual-directive'
 import { MobileNativeChatImageAttachment } from '../visual/MobileNativeChatImageAttachment'
 import {
@@ -17,6 +14,8 @@ import {
 } from './mobile-native-chat-message-styles'
 import type { MobileNativeChatVisualRender } from '../visual/mobile-native-chat-visual-context'
 import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
+import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
+import { nativeChatHostStatusCopy } from './native-chat-notice-copy'
 
 export function Prose({
   block,
@@ -43,6 +42,7 @@ export function Prose({
   onLongPress?: () => void
 }): React.JSX.Element | null {
   useMobileColorScheme()
+  const t = useMobileTranslation()
   if (isTextBlock(block)) {
     if (isAgentSessionHostStatusPresentation(block.presentation)) {
       return (
@@ -50,7 +50,7 @@ export function Prose({
           selectable={INLINE_TEXT_SELECTION}
           style={[styles.hostNotice, scaledType(TEXT_SIZE, fontScale)]}
         >
-          {AGENT_SESSION_HOST_STATUS_COPY[block.presentation]}
+          {nativeChatHostStatusCopy(t)[block.presentation]}
         </Text>
       )
     }

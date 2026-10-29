@@ -1,3 +1,4 @@
+import type { MobileStructuredAgentOptionsArgs } from './mobile-structured-agent-session-contract'
 import { useMobileStructuredOptionState } from './use-mobile-structured-option-state'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
 import { isAgentSessionHandleProvider } from '../../../src/shared/agent-session-provider-handle'
@@ -20,9 +21,7 @@ import {
   agentChatPermissionModes
 } from '../../../src/shared/agent-chat-permission-mode'
 import { legacyHostPermissionDescriptor } from '../../../src/shared/structured-agent-session-permission-option'
-import type { RpcClient } from '../transport/rpc-client'
-import type { StructuredAgentSessionHostSupport } from './mobile-structured-agent-session-host-support'
-import type { StructuredAgentSessionMutate } from './mobile-structured-agent-session-rpc'
+
 import { persistMobileStructuredOptionPicks } from './native-chat/input/mobile-native-chat-session-option-persistence'
 import { useMobileHostModelCatalogUpgrade } from './use-mobile-host-model-catalog-upgrade'
 import { mobileCreatedStructuredSession } from './mobile-created-structured-sessions'
@@ -44,20 +43,7 @@ import {
 
 const NO_COMMANDS = [] as const
 
-export function useMobileStructuredAgentOptions(args: {
-  agent: string | null
-  client: RpcClient | null
-  sessionId: string | null
-  enabled: boolean
-  fence: number | null
-  mutate: StructuredAgentSessionMutate
-  optionStamp?: string
-  turnId: string | null
-  hostSupport: Pick<
-    StructuredAgentSessionHostSupport,
-    'permissionModes' | 'permissionOwn' | 'coherentModelCatalog' | 'statusFeed' | 'defaultModel'
-  > | null
-}) {
+export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptionsArgs) {
   const { agent, client, enabled, fence, mutate, optionStamp, sessionId, turnId, hostSupport } =
     args
   const optionCatalog = useMemo(
@@ -121,6 +107,7 @@ export function useMobileStructuredAgentOptions(args: {
     imageSupport?.sessionId === sessionId &&
     !imageSupport.statesPermissionMode &&
     optionState.permissionMode === null
+  const interactionReadyRef = useRef(!awaitingOptions)
   const lockSnapshotRef = useRef(
     (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) => snapshot
   )
@@ -132,6 +119,7 @@ export function useMobileStructuredAgentOptions(args: {
       awaitingOptions
     )
   useLayoutEffect(() => {
+    interactionReadyRef.current = !awaitingOptions
     lockSnapshotRef.current = lockSnapshot
   })
   const shown = lockSnapshot(
@@ -171,7 +159,8 @@ export function useMobileStructuredAgentOptions(args: {
           },
           id,
           value,
-          lockSnapshotRef.current(structuredAgentSessionShownSnapshot(currentState))
+          lockSnapshotRef.current(structuredAgentSessionShownSnapshot(currentState)),
+          interactionReadyRef.current
         )
       ) {
         return false

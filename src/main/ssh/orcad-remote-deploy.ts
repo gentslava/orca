@@ -50,6 +50,8 @@ export type OrcadDeployOptions = {
   census: OrcadTerminalCensus
   /** Bind census to its incumbent record; a changed locked record makes earlier counts unverifiable. */
   censusRecord?: OrcadActivationRecord
+  /** WSL only: the record and fence this connect read moments ago; skips the same pre-upload reads. */
+  preRead?: { record: OrcadActivationRecord; fenceOpen: boolean }
   /** Recount under fence just before stopping the same incumbent; uploads may outdate initial counts and failures stay unverifiable. */
   recountCensus: () => Promise<OrcadTerminalCensus>
   /** Best-effort reopen when incumbent keeps serving; admission also expires server-side. */
@@ -102,15 +104,21 @@ export async function deployOrcad(
     const { cleared, ...refusal } = await orcadActivationFenceRefusal(options, 'update')
     // Retry one cleared abandoned fence; repeated abandonment must surface to the caller.
     if (cleared && retryClearedFence) {
-      return deployOrcad({ ...input, target, localOrcadDir: options.localOrcadDir }, false)
+      return deployOrcad(
+        { ...input, preRead: undefined, target, localOrcadDir: options.localOrcadDir },
+        false
+      )
     }
     return { outcome: 'installed-not-activated', fullVersion, ...refusal }
   }
   // Refuse before upload, then re-read both admission inputs under fence.
-  const preUploadRecord = await readOrcadActivationRecord(options)
+  const preUploadRecord = options.preRead?.record ?? (await readOrcadActivationRecord(options))
   const censusRecord = options.censusRecord ?? preUploadRecord
   // An unanswered probe only skips this shortcut; lock acquisition still arbitrates.
-  if (await orcadActivationFenceExists(options).catch(() => false)) {
+  if (
+    !options.preRead?.fenceOpen &&
+    (await orcadActivationFenceExists(options).catch(() => false))
+  ) {
     return held()
   }
 

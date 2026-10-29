@@ -564,7 +564,7 @@ describe("a queued card's Send-now while a Codex turn runs", () => {
 })
 
 describe('a second send made after Codex answered the first, before it opened that turn', () => {
-  it('waits for the opener before steering the later send, which Stop then withdraws', async () => {
+  it('waits for the native turn to open before steering, keeps echo acceptance separate, and withdraws on Stop', async () => {
     const opening = await send('look around')
     await vi.waitFor(() => expect(answers).toBe(1))
     const followUp = await send('and check the tests')
@@ -578,10 +578,14 @@ describe('a second send made after Codex answered the first, before it opened th
       'running'
     )
     await vi.waitFor(() => expect(loop.isRunning(SESSION)).toBe(false))
-    expect(steers).toBe(0)
+    expect(steers).toBe(1)
     expect(verdictOf((await settled()).submissions, followUp)).toBe('pending')
+    expect(verdictOf((await settled()).submissions, opening)).toBe('pending')
     turns.echo(opening)
-    await vi.waitFor(() => expect(steers).toBe(1))
+    await vi.waitFor(async () =>
+      expect(verdictOf((await settled()).submissions, opening)).toBe('accepted')
+    )
+    expect(steers).toBe(1)
     expect(answers).toBe(1)
 
     await stop()
@@ -901,22 +905,19 @@ describe('a cold send with no Stop behind it', () => {
   /** Well inside one eviction step's budget, and far inside the bound a Stop waits. */
   const PROMPTLY_MS = 1_000
 
-  async function answeredColdSend(): Promise<void> {
+  beforeEach(async () => {
     await send('look around')
     await vi.waitFor(() => expect(answers).toBe(1))
     expect(turns.turnId).toBe('turn-1')
-  }
+  })
 
   it('never delays closing the chat', async () => {
-    await answeredColdSend()
-
     expect(await settledWithin(host.close(SESSION, 'evict'), PROMPTLY_MS)).not.toBe('held')
     expect(childCloses).toBe(1)
   })
 
   // Only a person's Stop takes a send back: a host's close leaves it in doubt, as before.
   it('leaves its send in doubt when the host closes the chat', async () => {
-    await answeredColdSend()
     const sent = (await settled()).submissions[0]?.clientMessageId ?? ''
 
     await host.close(SESSION, 'evict')
@@ -926,8 +927,6 @@ describe('a cold send with no Stop behind it', () => {
   })
 
   it('never delays quitting the app', async () => {
-    await answeredColdSend()
-
     expect(await settledWithin(stopStructuredAgentSessionRuntime(), PROMPTLY_MS)).not.toBe('held')
     expect(childCloses).toBe(1)
   })

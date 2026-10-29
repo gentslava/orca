@@ -132,18 +132,20 @@ export function useFileExplorerImport({
 
         if (failed.length > 0) {
           toast.error(
-            translate('fileExplorer.import.failedFiles', 'Failed to import {{count}} files.', {
-              count: failed.length,
-              defaultValue_one: 'Failed to import {{count}} file.'
-            }),
+            translate(
+              'auto.components.right.sidebar.useFileExplorerImport.importFailedCount',
+              'Failed to import {{count}} files.',
+              { count: failed.length, defaultValue_one: 'Failed to import {{count}} file.' }
+            ),
             { description: describeSharedDropFailureReason(failed) }
           )
         } else if (skipped.length > 0 && imported.length === 0) {
           toast.error(
-            translate('fileExplorer.import.skippedFiles', 'Skipped {{count}} files.', {
-              count: skipped.length,
-              defaultValue_one: 'Skipped {{count}} file.'
-            }),
+            translate(
+              'auto.components.right.sidebar.useFileExplorerImport.importSkippedCount',
+              'Skipped {{count}} files.',
+              { count: skipped.length, defaultValue_one: 'Skipped {{count}} file.' }
+            ),
             { description: describeSharedDropSkipReason(skipped) }
           )
         }
@@ -151,7 +153,10 @@ export function useFileExplorerImport({
         toast.error(
           extractIpcErrorMessage(
             err,
-            translate('fileExplorer.import.failed', 'Failed to import files.')
+            translate(
+              'auto.components.right.sidebar.useFileExplorerImport.importFailed',
+              'Failed to import files.'
+            )
           )
         )
       } finally {

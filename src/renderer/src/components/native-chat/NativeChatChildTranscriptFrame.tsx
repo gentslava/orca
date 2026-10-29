@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { getIntlLocale, translate } from '@/i18n/i18n'
 import type { NativeChatSubagentEntry } from '../../../../shared/native-chat-types'
 import type { StructuredAgentSessionState } from '../../../../shared/structured-agent-session-reducer'
-import { normalizeSubagentState } from '../../../../shared/native-chat-subagent-summary'
+import { normalizeSubagentState } from '../../../../shared/native-chat/transcript/native-chat-subagent-summary'
 import { subagentStateLabel } from '../../../../shared/native-chat/transcript/native-chat-subagent-group-header'
 import { sayNativeChatSubagentGroupTranslated as say } from './native-chat-subagent-group-words-text'
 import { NativeChatMessageList } from './NativeChatMessageList'

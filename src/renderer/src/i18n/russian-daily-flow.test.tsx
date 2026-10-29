@@ -9,17 +9,17 @@ import { NativeChatEmptyState } from '@/components/native-chat/NativeChatEmptySt
 import { NativeChatQueuedMessageCard } from '@/components/native-chat/NativeChatQueuedMessageCard'
 import { NativeChatSessionOptionPickers } from '@/components/native-chat/NativeChatSessionOptionPickers'
 import type { SessionOptionDescriptor } from '../../../shared/native-chat/input/native-chat-session-options'
-import { getIntlLocale, setRendererUiLanguage } from './i18n'
+import { getIntlLocale, i18n } from './i18n'
 import { getUiWeekdayNames } from './weekday-names'
 import { formatUiRelativeTime } from './relative-time-format'
 
 beforeEach(async () => {
-  await setRendererUiLanguage('ru')
+  await i18n.changeLanguage('ru')
 })
 
 afterEach(async () => {
   cleanup()
-  await setRendererUiLanguage('en')
+  await i18n.changeLanguage('en')
 })
 
 describe('Russian daily conversation', () => {
@@ -52,9 +52,9 @@ describe('Russian daily conversation', () => {
     )
     const russian = screen.getByRole('button', { name: /Fixture model/ }).getAttribute('aria-label')
     expect(russian).not.toContain('Next turn')
-    await act(() => setRendererUiLanguage('en'))
+    await act(() => i18n.changeLanguage('en'))
     expect(screen.getByRole('button', { name: 'Next turn: Model Fixture model' })).toBeTruthy()
-    await act(() => setRendererUiLanguage('ru'))
+    await act(() => i18n.changeLanguage('ru'))
     expect(screen.getByRole('button', { name: /Fixture model/ }).getAttribute('aria-label')).toBe(
       russian
     )

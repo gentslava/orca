@@ -1,9 +1,9 @@
+import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Image, Platform, Pressable, Text, View } from 'react-native'
 import type { NativeChatImageRefBlock } from '../../../../../src/shared/native-chat-types'
-import { isAgentSessionAttachmentStorePath } from '../../../../../src/shared/agent-session-attachments'
 import { MobileNativeChatRowOverlaysContext } from '../transcript/mobile-native-chat-row-overlays'
-import { isRenderableImageUri, readStoredChatImage } from './mobile-native-chat-image-preview'
+import { isRenderableImageUri, readHostChatImage } from './mobile-native-chat-image-preview'
 import { styles, TEXT_SIZE } from '../transcript/mobile-native-chat-message-styles'
 
 export function MobileNativeChatImageAttachment({
@@ -15,9 +15,10 @@ export function MobileNativeChatImageAttachment({
   fontScale: number
   onLongPress?: () => void
 }): React.JSX.Element {
+  const t = useMobileTranslation()
   const { openImage, imageSource } = useContext(MobileNativeChatRowOverlaysContext)
   const client = imageSource?.client
-  const sessionId = imageSource?.sessionId
+  const worktreeId = imageSource?.worktreeId
   const generation = client?.getGeneration?.() ?? 0
   const path = block.path
   const directUri = isRenderableImageUri(block.url)
@@ -25,16 +26,12 @@ export function MobileNativeChatImageAttachment({
     : isRenderableImageUri(path)
       ? path
       : null
-  const readable =
-    !!client &&
-    !!path &&
-    !isRenderableImageUri(path) &&
-    (isAgentSessionAttachmentStorePath(path) || !!sessionId)
+  const readable = !!client && !!path && !isRenderableImageUri(path) && !!worktreeId
   const [round, setRound] = useState(0)
   const [showSpinner, setShowSpinner] = useState(false)
   const source = useMemo(
-    () => ({ client, sessionId, generation, path, directUri }),
-    [client, sessionId, generation, path, directUri]
+    () => ({ client, worktreeId, generation, path, directUri }),
+    [client, worktreeId, generation, path, directUri]
   )
   const [failedDirectSource, setFailedDirectSource] = useState<typeof source | null>(null)
   const usableDirectUri = failedDirectSource === source ? null : directUri
@@ -55,7 +52,7 @@ export function MobileNativeChatImageAttachment({
   }, [owner])
 
   useEffect(() => {
-    if (usableDirectUri || !client || !path || !readable) {
+    if (usableDirectUri || !client || !imageSource || !path || !readable) {
       return
     }
     const unmounted = new AbortController()
@@ -65,7 +62,7 @@ export function MobileNativeChatImageAttachment({
         setShowSpinner(true)
       }
     }, 200)
-    void readStoredChatImage(client, path, unmounted.signal, sessionId).then((uri) => {
+    void readHostChatImage(imageSource, path, unmounted.signal).then((uri) => {
       clearTimeout(timer)
       if (!unmounted.signal.aborted && (client.getGeneration?.() ?? 0) === generation) {
         setPreview({ owner, uri })
@@ -75,10 +72,10 @@ export function MobileNativeChatImageAttachment({
       unmounted.abort()
       clearTimeout(timer)
     }
-  }, [client, generation, path, usableDirectUri, owner, readable, sessionId])
+  }, [client, generation, path, usableDirectUri, owner, readable, imageSource])
 
   const uri = usableDirectUri ?? current?.uri
-  const label = block.alt ?? 'Attached image'
+  const label = block.alt ?? t('chat.nativeChatProse.attachedImage', 'Attached image')
   if (uri && failedOwner !== owner) {
     return (
       <Pressable
@@ -86,7 +83,7 @@ export function MobileNativeChatImageAttachment({
         onLongPress={onLongPress}
         accessibilityRole={Platform.OS === 'web' ? 'button' : 'imagebutton'}
         accessibilityLabel={label}
-        accessibilityHint="Opens the image full size"
+        accessibilityHint={t('chat.nativeChatProse.openImageHint', 'Opens the image full size')}
       >
         <Image
           key={`${round}:${usableDirectUri ? 'direct' : 'stored'}`}
@@ -109,7 +106,10 @@ export function MobileNativeChatImageAttachment({
   }
   if (readable && !current && !usableDirectUri) {
     return (
-      <View style={[styles.imageThumb, styles.imageLoading]} accessibilityLabel="Loading image">
+      <View
+        style={[styles.imageThumb, styles.imageLoading]}
+        accessibilityLabel={t('chat.nativeChatProse.loadingImage', 'Loading image')}
+      >
         {showSpinner ? <ActivityIndicator /> : null}
       </View>
     )
@@ -118,21 +118,21 @@ export function MobileNativeChatImageAttachment({
     return (
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Image unavailable"
-        accessibilityHint="Tries to load it again"
+        accessibilityLabel={t('chat.nativeChatProse.imageUnavailable', 'Image unavailable')}
+        accessibilityHint={t('chat.nativeChatProse.retryImageHint', 'Tries to load it again')}
         onPress={() => {
           setRound((value) => value + 1)
         }}
       >
         <Text style={[styles.imageRef, { fontSize: TEXT_SIZE * fontScale }]}>
-          Image unavailable — tap to retry
+          {t('chat.nativeChatProse.retryImage', 'Image unavailable — tap to retry')}
         </Text>
       </Pressable>
     )
   }
   return (
     <Text style={[styles.imageRef, { fontSize: TEXT_SIZE * fontScale }]}>
-      🖼 {block.alt ?? block.path ?? block.url ?? 'image'}
+      🖼 {block.alt ?? block.path ?? block.url ?? t('chat.nativeChatProse.image', 'image')}
     </Text>
   )
 }

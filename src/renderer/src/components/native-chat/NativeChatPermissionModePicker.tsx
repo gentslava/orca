@@ -1,5 +1,4 @@
 import { memo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { ChevronDown, Settings2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
+import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import {
   AGENT_CHAT_PERMISSION_MODE_OPTION_ID,
   isAgentChatPermissionMode,
@@ -95,7 +95,7 @@ function NativeChatPermissionModePickerInner({
   onSelect,
   currentLabel
 }: NativeChatPermissionModePickerProps): React.JSX.Element {
-  useTranslation()
+  useUiLanguageRevision()
   const title = nativeChatPermissionPickerTitle()
   const label = isAgentChatPermissionMode(current)
     ? nativeChatPermissionModeLabel(current)

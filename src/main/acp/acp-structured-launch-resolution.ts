@@ -1,20 +1,22 @@
+import type { JournalLoad } from '../native-chat/agent-session-journal/journal-open'
+import { nothingExchangedOn, unannouncedLosses } from './acp-resume-journal-evidence'
+import {
+  assertStructuredAgentResolutionCurrent,
+  resolveAgainAfterRefreshOnMissingProgram,
+  resolveStructuredAgentCommand,
+  type StructuredAgentCommandSettings,
+  type StructuredAgentResolutionOperation
+} from '../native-chat/structured-agent-command-resolution'
 // Launch from durable record values for the working directory, pinned account and resume session.
 
 import { delimiter } from 'node:path'
 import { homedir } from 'node:os'
-import { parseAgentJournalItemKey } from '../../shared/agent-session-journal-item-key'
 import {
   agentSessionProviderHandleChainHead,
-  agentSessionProviderHandleKey,
-  type AgentSessionProviderHandleChain
+  agentSessionProviderHandleKey
 } from '../../shared/agent-session-provider-handle'
 import type { AgentSessionAccountHome } from '../../shared/agent-session-account-home'
 import type { resolveCliCommand } from '../../shared/node-cli-command-resolution'
-import {
-  resolveAgainAfterRefreshOnMissingProgram,
-  resolveStructuredAgentCommand,
-  type StructuredAgentCommandSettings
-} from '../native-chat/structured-agent-command-resolution'
 import {
   checkAgentCliVersion,
   type AgentCliVersionCheck,
@@ -26,13 +28,6 @@ import {
   resolveInstalledRuntimeRelease
 } from '../node-runtime/managed-runtime-release'
 import { hasExplicitTuiLaunchCommand } from '../../shared/tui-agent-launch-command-override'
-import { readAgentJournalTurn } from '../../shared/agent-session-turn-record'
-import type { JournalLoad } from '../native-chat/agent-session-journal/journal-open'
-import {
-  isProviderTimelineTurnInNamespace,
-  providerTimelineKeyPart,
-  spelledProviderTimelineItemKey
-} from '../native-chat/agent-session-timeline/provider-timeline-identity'
 import type { StructuredAgentLaunchPartResolver } from '../runtime/structured-agent-launch-composition'
 import { STRUCTURED_CHILD_ENV_TO_DELETE } from '../runtime/structured-session-child-env'
 import {
@@ -42,7 +37,6 @@ import {
 } from '../native-chat/native-chat-visuals-delivery'
 import type { AcpLaunchSpec } from './acp-launch-specs'
 import { AgentSessionPreSpawnError } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
-import { acpSessionNotRestoredItem } from './acp-session-reopen-failure'
 import { loadAcpVisualsSkill, type AcpLaunchVisualsDeps } from './acp-structured-launch-visuals'
 
 export type AcpStructuredLaunch = {
@@ -75,6 +69,7 @@ export type AcpStructuredLaunchPartDeps = {
 } & Pick<AcpLaunchVisualsDeps, 'logger'>
 
 export type AcpLaunchInvocationDeps = {
+  operation?: StructuredAgentResolutionOperation
   /** Reread per acquisition. */
   resolveEnvironment: () => Promise<Record<string, string>>
   resolveLaunchEnv?: (agent: string) => Record<string, string>
@@ -154,7 +149,8 @@ export function resolveAcpLaunchInvocation(
   return resolveAgainAfterRefreshOnMissingProgram(
     () => readAcpLaunchInvocation(spec, accountHome, deps),
     deps.refreshEnvironmentAfterMiss,
-    { env: ({ env }) => env, cwd: deps.resolveWorkingDirectory }
+    { env: ({ env }) => env, cwd: deps.resolveWorkingDirectory },
+    deps.operation
   )
 }
 
@@ -163,7 +159,9 @@ async function readAcpLaunchInvocation(
   accountHome: AgentSessionAccountHome,
   deps: AcpLaunchInvocationDeps
 ): Promise<{ command: string; env: Record<string, string>; envToDelete: string[] }> {
+  assertStructuredAgentResolutionCurrent(deps.operation)
   const base = await deps.resolveEnvironment()
+  assertStructuredAgentResolutionCurrent(deps.operation)
   const env: Record<string, string> = spec.account.environment(accountHome, {
     ...base,
     ...deps.resolveLaunchEnv?.(spec.agent)
@@ -259,65 +257,3 @@ export function acpStructuredLaunchPart(
 }
 
 /** Missing journals count as empty; read errors or damaged/newer journals cannot prove no exchange. */
-function nothingExchangedOn(
-  readJournal: AcpStructuredLaunchPartDeps['readJournal'],
-  sessionId: string,
-  nativeId: string
-): boolean {
-  let load: JournalLoad | null
-  try {
-    load = readJournal(sessionId)
-  } catch {
-    return false
-  }
-  if (!load) {
-    return true
-  }
-  if (load.damage || load.newer) {
-    return false
-  }
-  for (const item of load.state.items.values()) {
-    const turn = readAgentJournalTurn(item.body)
-    if (turn && isProviderTimelineTurnInNamespace(turn.turnId, nativeId)) {
-      return false
-    }
-  }
-  return true
-}
-
-/** Retry missing loss-warning rows on successful starts; unreadable journals suppress new warnings. */
-function unannouncedLosses(
-  readJournal: AcpStructuredLaunchPartDeps['readJournal'],
-  sessionId: string,
-  chain: AgentSessionProviderHandleChain
-): string[] {
-  const lost = chain.flatMap((link) =>
-    link.replaces?.reason === 'restore-failed' ? [link.replaces.key] : []
-  )
-  if (lost.length === 0) {
-    return []
-  }
-  let load: JournalLoad | null
-  try {
-    load = readJournal(sessionId)
-  } catch {
-    return []
-  }
-  if (!load) {
-    return lost
-  }
-  if (load.damage || load.newer) {
-    return []
-  }
-  const written = new Set<string>()
-  for (const itemId of load.state.items.keys()) {
-    const identity = parseAgentJournalItemKey(itemId)
-    const spelled =
-      identity?.provider === 'legacy' ? spelledProviderTimelineItemKey(identity.recordId) : null
-    if (spelled !== null) {
-      written.add(spelled)
-    }
-  }
-  // Warnings survive even if the replacement session that wrote them is superseded.
-  return lost.filter((key) => !written.has(providerTimelineKeyPart(acpSessionNotRestoredItem(key))))
-}

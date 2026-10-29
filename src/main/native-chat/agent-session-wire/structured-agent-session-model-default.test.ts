@@ -68,9 +68,13 @@ function catalog(namesConfigured: boolean) {
     ]
   }))
   rig.host.deps.modelCatalog = {
+    snapshot: () => ({ origin: 'unknown', models: [] }),
+    demand: async () => {},
+    prepareSaved: read,
+    captureSource: () => () => true,
+    retireContext: () => {},
     read,
     peek: () => null,
-    retainedLiveModelIds: async () => [],
     recordLiveListing: () => {},
     prewarm: async () => {},
     stop: () => {},
@@ -164,7 +168,7 @@ it('snapshots the original host default for future queued messages while preserv
   })
   expect(journal.queuedMessages.get(after.value.queued.messageId)?.options).toEqual({
     model: 'configured-model',
-    effort: 'medium'
+    effort: 'high'
   })
   expect((await rig.submission(first))?.options).toEqual({ model: 'picked-model', effort: 'high' })
   expect(rig.store.getRecord(SESSION)?.options?.model).toBeUndefined()
@@ -175,7 +179,7 @@ it('snapshots the original host default for future queued messages while preserv
   await eventually(() => expect(rig.dispatch).toHaveBeenCalledTimes(2))
   expect(rig.dispatch.mock.calls[1]?.[0].executionOptions).toEqual({
     model: 'configured-model',
-    effort: 'medium'
+    effort: 'high'
   })
   expect(rig.store.getRecord(SESSION)?.options?.model).toBeUndefined()
 })
@@ -274,11 +278,11 @@ it('keeps a pending catalog listing from promising a concrete Default model', as
   )
 })
 
-it('checks stale non-model picks against the effective Default model', async () => {
+it('keeps chat effort choices independent of the configured model inventory', async () => {
   catalog(true)
   expect(await pick('model', null)).toMatchObject({ ok: true })
-  expect(await pick('effort', 'high')).toMatchObject({ ok: false })
-  expect(rig.store.getRecord(SESSION)?.options?.effort).toBeUndefined()
+  expect(await pick('effort', 'high')).toMatchObject({ ok: true })
+  expect(rig.store.getRecord(SESSION)?.options?.effort).toBe('high')
   expect(await pick('effort', 'medium')).toMatchObject({ ok: true })
 })
 

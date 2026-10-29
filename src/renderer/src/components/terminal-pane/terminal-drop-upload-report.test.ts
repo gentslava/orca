@@ -1,104 +1,127 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
-import { i18n } from '@/i18n/i18n'
-import russian from '@/i18n/test-resources/runtime-source-grammar.json'
 import { reportTerminalDropUploadSkipsAndFailures } from './terminal-drop-upload-report'
 
-vi.mock('sonner', () => ({ toast: { message: vi.fn(), error: vi.fn() } }))
+const mocks = vi.hoisted(() => ({
+  translate: vi.fn((key: string, fallback: string) => `${key}:${fallback}`)
+}))
 
-beforeEach(async () => {
-  vi.clearAllMocks()
-  vi.spyOn(console, 'warn').mockImplementation(() => {})
-  i18n.addResourceBundle('ru', 'translation', russian, true, true)
-  await i18n.changeLanguage('ru')
-})
+vi.mock('sonner', () => ({
+  toast: {
+    message: vi.fn(),
+    error: vi.fn()
+  }
+}))
 
-afterEach(async () => {
-  await i18n.changeLanguage('en')
-  vi.restoreAllMocks()
-})
+vi.mock('@/i18n/i18n', () => ({
+  translate: mocks.translate
+}))
 
-describe('terminal drop reports', () => {
-  it('stays silent when nothing was skipped or failed', () => {
-    reportTerminalDropUploadSkipsAndFailures([], [])
-    expect(toast.message).not.toHaveBeenCalled()
-    expect(toast.error).not.toHaveBeenCalled()
+describe('reportTerminalDropUploadSkipsAndFailures', () => {
+  beforeEach(() => {
+    mocks.translate.mockClear()
+    vi.mocked(toast.message).mockClear()
+    vi.mocked(toast.error).mockClear()
   })
 
-  it.each([
-    [1, 'Пропущена 1 символьная ссылка.', 'Пропущен 1 элемент.', 'Не удалось загрузить 1 файл.'],
-    [2, 'Пропущены 2 символьные ссылки.', 'Пропущено 2 элемента.', 'Не удалось загрузить 2 файла.'],
-    [
-      5,
-      'Пропущено 5 символьных ссылок.',
-      'Пропущено 5 элементов.',
-      'Не удалось загрузить 5 файлов.'
-    ],
-    [21, 'Пропущена 21 символьная ссылка.', 'Пропущен 21 элемент.', 'Не удалось загрузить 21 файл.']
-  ] as const)('inflects all upload reports for %i items', (count, symlinks, items, failures) => {
-    reportTerminalDropUploadSkipsAndFailures(
-      Array.from({ length: count }, () => ({ reason: 'symlink' })),
-      []
+  it('uses distinct translation keys for symlink-only and mixed skipped uploads', () => {
+    reportTerminalDropUploadSkipsAndFailures([{ reason: 'symlink' }], [])
+    const symlinkOnlyKey = mocks.translate.mock.calls[0]?.[0]
+
+    mocks.translate.mockClear()
+    reportTerminalDropUploadSkipsAndFailures([{ reason: 'symlink' }, { reason: 'too_large' }], [])
+    const mixedSkipKey = mocks.translate.mock.calls[0]?.[0]
+
+    expect(symlinkOnlyKey).toBe(
+      'auto.components.terminal.pane.terminal.drop.handler.skippedSymlinks'
     )
-    expect(toast.message).toHaveBeenLastCalledWith(symlinks, { description: undefined })
-    reportTerminalDropUploadSkipsAndFailures(
-      Array.from({ length: count }, () => ({ reason: 'permission-denied' })),
-      []
+    expect(mixedSkipKey).toBe('auto.components.terminal.pane.terminal.drop.handler.skippedItems')
+    expect(symlinkOnlyKey).not.toBe(mixedSkipKey)
+    expect(toast.message).toHaveBeenCalledTimes(2)
+  })
+
+  it('reports upload failures without leaking individual paths', () => {
+    reportTerminalDropUploadSkipsAndFailures([], [{ reason: '/secret/project/file.txt' }])
+
+    expect(mocks.translate).toHaveBeenCalledWith(
+      'auto.components.terminal.pane.terminal.drop.handler.failedUploads',
+      'Failed to upload {{count}} files.',
+      { count: 1, defaultValue_one: 'Failed to upload {{count}} file.' }
     )
-    expect(toast.message).toHaveBeenLastCalledWith(items, { description: expect.any(String) })
-    reportTerminalDropUploadSkipsAndFailures(
-      [],
-      Array.from({ length: count }, () => ({ reason: '/secret/project/file.txt' }))
-    )
-    expect(toast.error).toHaveBeenLastCalledWith(failures, { description: expect.any(String) })
-    expect(toast.error).not.toHaveBeenCalledWith(
-      expect.stringContaining('/secret/project/file.txt')
+    expect(toast.error).toHaveBeenCalledWith(
+      expect.not.stringContaining('/secret/project/file.txt'),
+      { description: expect.not.stringContaining('/secret/project/file.txt') }
     )
   })
 
-  it('keeps mixed and unknown reasons generic', () => {
+  it('names a shared known skip reason', () => {
+    reportTerminalDropUploadSkipsAndFailures(
+      [{ reason: 'permission-denied' }, { reason: 'permission-denied' }],
+      []
+    )
+
+    expect(toast.message).toHaveBeenCalledWith(
+      'auto.components.terminal.pane.terminal.drop.handler.skippedItems:Skipped {{count}} items.',
+      { description: 'auto.lib.dropSkipReason.permissionDenied:Permission denied.' }
+    )
+  })
+
+  it('gives no reason for mixed, unknown, or symlink-only skips', () => {
     reportTerminalDropUploadSkipsAndFailures([{ reason: 'missing' }, { reason: 'symlink' }], [])
     reportTerminalDropUploadSkipsAndFailures([{ reason: 'too_large' }], [])
+    reportTerminalDropUploadSkipsAndFailures([{ reason: 'symlink' }], [])
+
     expect(vi.mocked(toast.message).mock.calls.map((call) => call[1])).toEqual([
+      { description: undefined },
       { description: undefined },
       { description: undefined }
     ])
   })
 
-  it('keeps singular and plural English defaults usable before catalog generation', async () => {
-    await i18n.changeLanguage('en')
-    reportTerminalDropUploadSkipsAndFailures(
-      [{ reason: 'symlink' }],
-      [{ reason: 'unknown' }, { reason: 'unknown' }]
-    )
-    expect(toast.message).toHaveBeenCalledWith('Skipped 1 symlink.', { description: undefined })
-    expect(toast.error).toHaveBeenCalledWith('Failed to upload 2 files.', {
-      description: "Couldn't upload these files."
-    })
-  })
-  it('names shared failure categories without exposing host paths', async () => {
-    await i18n.changeLanguage('en')
-    const failures = [
-      "Error invoking remote method 'fs:x': Error: ENOSPC: no space left on device",
-      "EACCES: permission denied, open '/home/John Doe/Client Acme/shot.png'",
-      'C:\\Users\\John Doe\\Application Support\\shot.png: unexpected',
-      "File changed since it was staged: 'disconnect-notes.txt'",
-      'Runtime environment is manually disconnected.'
-    ]
-    for (const reason of failures) {
-      reportTerminalDropUploadSkipsAndFailures([], [{ reason }])
-    }
+  it('keeps upload wording for failures', () => {
     reportTerminalDropUploadSkipsAndFailures([], [{ reason: 'a' }, { reason: 'b' }])
+
+    expect(mocks.translate).toHaveBeenCalledWith(
+      'auto.components.terminal.pane.terminal.drop.handler.failedUploads',
+      'Failed to upload {{count}} files.',
+      { count: 2, defaultValue_one: 'Failed to upload {{count}} file.' }
+    )
+  })
+
+  it('names a shared failure category, never the host text', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    reportTerminalDropUploadSkipsAndFailures(
+      [],
+      [{ reason: "Error invoking remote method 'fs:x': Error: ENOSPC: no space left on device" }]
+    )
+    reportTerminalDropUploadSkipsAndFailures(
+      [],
+      [{ reason: 'EACCES: permission denied, open \'/home/John Doe/Client "Acme"/shot.png\'' }]
+    )
+    reportTerminalDropUploadSkipsAndFailures(
+      [],
+      [{ reason: 'C:\\Users\\John Doe\\Application Support\\shot.png: unexpected' }]
+    )
+    reportTerminalDropUploadSkipsAndFailures(
+      [],
+      [{ reason: "File changed since it was staged: 'disconnect-notes.txt'" }]
+    )
+    reportTerminalDropUploadSkipsAndFailures(
+      [],
+      [{ reason: 'Runtime environment is manually disconnected.' }]
+    )
+    reportTerminalDropUploadSkipsAndFailures([], [{ reason: 'a' }, { reason: 'b' }])
+
     expect(vi.mocked(toast.error).mock.calls.map((call) => call[1])).toEqual([
-      { description: 'The host is out of disk space.' },
-      { description: 'Permission denied.' },
-      { description: "Couldn't upload this file." },
-      { description: 'The file changed while it was uploading. Try again.' },
-      { description: 'The host is disconnected.' },
+      { description: 'auto.lib.dropFailureReason.noSpace:The host is out of disk space.' },
+      { description: 'auto.lib.dropSkipReason.permissionDenied:Permission denied.' },
+      { description: "auto.lib.dropFailureReason.unknownOne:Couldn't upload this file." },
+      {
+        description:
+          'auto.lib.dropFailureReason.changed:The file changed while it was uploading. Try again.'
+      },
+      { description: 'auto.lib.dropFailureReason.disconnected:The host is disconnected.' },
       { description: undefined }
     ])
-    expect(JSON.stringify(vi.mocked(toast.error).mock.calls)).not.toMatch(
-      /John Doe|shot\.png|disconnect-notes/
-    )
   })
 })

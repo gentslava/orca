@@ -5,7 +5,8 @@ import {
   resetAiVaultScannerBackgroundForTests,
   scanAiVaultSessionsInBackground
 } from './session-scanner-background'
-import { getCachedWslDistros, hasCachedWslDistros, listRunningWslHomeDirsAsync } from '../wsl'
+import { getCachedWslDistros, hasCachedWslDistros } from '../wsl'
+import { listRunningWslHomeDirsUnlessStopped } from '../wsl/wsl-home-unless-stopped'
 import { filterPathsToRunningWslDistrosAsync } from '../wsl-running-path-filter'
 import {
   isAiVaultScanCancelledError,
@@ -187,7 +188,7 @@ export async function getAiVaultWslHomeDirs(): Promise<string[]> {
   if (hasCachedWslDistros() && getCachedWslDistros()?.length === 0) {
     return []
   }
-  return listRunningWslHomeDirsAsync()
+  return listRunningWslHomeDirsUnlessStopped()
 }
 
 export function aiVaultSessionListCacheGeneration(): number {

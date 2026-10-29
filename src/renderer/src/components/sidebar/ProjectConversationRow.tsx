@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 import { AgentIcon } from '@/lib/agent-catalog'
 import type { AiVaultSession } from '../../../../shared/ai-vault-types'
-import type { AgentStatusState } from '../../../../shared/agent-status-types'
+import type { AgentDotState } from '@/components/AgentStateDot'
 import type { ConversationPreference } from '../../../../shared/conversation-navigation-preferences'
 import { projectConversationTitle } from '../../../../shared/project-conversation-list'
 import { useAiVaultSessionDisplayTitle } from '../right-sidebar/use-ai-vault-session-display-title'
@@ -22,7 +22,7 @@ export function ProjectConversationRow({
   session: AiVaultSession
   preference?: ConversationPreference
   selected: boolean
-  liveState: AgentStatusState | null
+  liveState: AgentDotState | null
   onOpen: () => void
   onPreference: (patch: ConversationPreference) => Promise<void>
 }): React.JSX.Element {

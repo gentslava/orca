@@ -1,3 +1,4 @@
+import { useAppStore } from '@/store'
 import { useEffect, useMemo, useState } from 'react'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import {
@@ -7,6 +8,24 @@ import {
 } from '../../../../shared/orchestration-session-children'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { useStructuredAgentSessionHostCapabilityState } from '@/runtime/structured-agent-session-host-capability'
+
+function workerLifecycleKey(state: ReturnType<typeof useAppStore.getState>): string {
+  return JSON.stringify(
+    Object.entries(state.agentStatusByPaneKey).flatMap(([key, row]) =>
+      row.orchestration
+        ? [
+            [
+              key,
+              row.orchestration.dispatchId,
+              row.orchestration.dispatchStatus,
+              row.state,
+              row.providerSession
+            ]
+          ]
+        : []
+    )
+  )
+}
 
 export function useNativeChatSessionChildren(args: {
   sessionId: string
@@ -36,8 +55,10 @@ export function useNativeChatSessionChildren(args: {
     }
     let disposed = false
     let reading = false
+    let refreshRequested = false
     const refresh = async (): Promise<void> => {
       if (reading) {
+        refreshRequested = true
         return
       }
       reading = true
@@ -79,13 +100,38 @@ export function useNativeChatSessionChildren(args: {
         }))
       } finally {
         reading = false
+        if (refreshRequested && !disposed) {
+          refreshRequested = false
+          void refresh()
+        }
       }
     }
     void refresh()
-    const timer = setInterval(() => void refresh(), 3_000)
+    let lifecycle = workerLifecycleKey(useAppStore.getState())
+    let eventTimer: ReturnType<typeof setTimeout> | undefined
+    const unsubscribe = useAppStore.subscribe((state) => {
+      const next = workerLifecycleKey(state)
+      if (next === lifecycle) {
+        return
+      }
+      lifecycle = next
+      if (eventTimer !== undefined) {
+        clearTimeout(eventTimer)
+      }
+      eventTimer = setTimeout(() => {
+        eventTimer = undefined
+        void refresh()
+      }, 250)
+    })
+    // Status pushes drive updates; recover missed events from older hosts at a coarse interval.
+    const timer = setInterval(() => void refresh(), 30_000)
     return () => {
       disposed = true
       clearInterval(timer)
+      unsubscribe()
+      if (eventTimer !== undefined) {
+        clearTimeout(eventTimer)
+      }
     }
   }, [capability, dispatchId, enabled, key, sessionId, target])
   const current = enabled && capability === 'supported' && snapshot?.key === key && snapshot.current

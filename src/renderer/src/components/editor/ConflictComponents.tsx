@@ -182,8 +182,9 @@ export function ConflictBanner({
       )}
       {entry?.oldPath && (
         <div className="mt-1 text-muted-foreground">
-          {translate('auto.components.editor.ConflictComponents.d5edd81755', 'Renamed from')}{' '}
-          {entry.oldPath}
+          {translate('editorConflicts.renamedFrom', 'Renamed from {{path}}', {
+            path: entry.oldPath
+          })}
         </div>
       )}
     </div>
@@ -342,11 +343,9 @@ export function ConflictReviewPanel({
               </span>
               <span className="text-muted-foreground/50">·</span>
               <span className="text-xs text-muted-foreground">
-                {translate(
-                  'auto.components.editor.ConflictComponents.a1ce36f77d',
-                  'Snapshot captured at'
-                )}{' '}
-                {snapshotTime}.
+                {translate('editorConflicts.snapshotCapturedAt', 'Snapshot captured at {{time}}.', {
+                  time: snapshotTime
+                })}
               </span>
             </div>
           </div>

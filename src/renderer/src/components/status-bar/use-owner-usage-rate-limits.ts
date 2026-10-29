@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { translate } from '@/i18n/i18n'
+import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { runtimeTargetEnvironmentId } from '@/runtime/runtime-client-target'
 import {
@@ -63,6 +64,7 @@ export function useOwnerUsageRateLimits(
   ownerTarget?: RuntimeClientTarget,
   includeAccounts = false
 ): OwnerUsageRateLimits {
+  const languageRevision = useUiLanguageRevision()
   // Why: route by the focused workspace's owner, never by the Active Server setting.
   const activeOwner = useActiveAccountOwner(LOCAL_TARGET)
   const target = ownerTarget ?? activeOwner.target
@@ -213,7 +215,8 @@ export function useOwnerUsageRateLimits(
               translate('auto.components.status.bar.StatusBar.remoteServerLabel', 'Remote server')
           }
         : null,
-    [ownerId, ownerName]
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- translate() reads the UI language implicitly.
+    [ownerId, ownerName, languageRevision]
   )
 
   const ownerState = useMemo<OwnerUsageState>(() => {
