@@ -129,11 +129,11 @@ export default function AiVaultPanel({
     local: workspace !== undefined
   })
   const scope = conversationNavigation ? 'all' : panelScope
-  const scopePaths = useAiVaultPanelScopePaths(activeWorktree, allWorktrees, {
-    projectHostSetupProjection,
-    scope,
-    activeProjectKey
-  })
+  const scopePaths = useAiVaultPanelScopePaths(
+    conversationNavigation ? null : activeWorktree,
+    allWorktrees,
+    { projectHostSetupProjection, scope, activeProjectKey }
+  )
   const searchWithin = useAiVaultPanelSearchWithin(scope, activeWorktree?.id, activeProjectKey)
   const {
     error,
