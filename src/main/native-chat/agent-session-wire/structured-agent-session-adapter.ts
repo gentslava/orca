@@ -295,7 +295,6 @@ export type StructuredAgentSessionAdapter = StructuredAgentSessionAdapterStop & 
     sessionId: string
     fence: number
   }): Promise<StructuredAgentSessionLiveOptions>
-  readOptionRestoreFailures?(sessionId: string): readonly string[]
   /** Copy the provider conversation without changing the chat’s ID; omit for CLI-based forks. */
   copyConversation?(input: {
     identity: AgentSessionJournalIdentity

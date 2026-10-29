@@ -42,7 +42,7 @@ src/main/emulator/simctl-simulator-devices.ts
 src/main/emulator/simulator-app-visibility.ts
 src/main/external-editor-launch.ts
 src/main/git/command-runner/exec-file-capture.ts
-src/main/git/command-runner/git-exec-file.ts
+src/main/git/command-runner/git-exec-file-sync.ts
 src/main/git/command-runner/git-spawn.ts
 src/main/git/command-runner/git-stream-stdout.ts
 src/main/git/command-runner/spawn-command-capture.ts

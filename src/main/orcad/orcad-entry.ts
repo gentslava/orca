@@ -134,13 +134,8 @@ async function startOrcadRuntime(
     console.warn('[orcad] Could not prepare the profile CLI launcher', error)
   })
   const idleExitStartup = beginOrcadIdleExit(runtimeUserDataPath)
-  const { orcadSessionScannerIdleTimeoutMs } = await import('./orcad-session-scanner-idle')
-  const scannerIdleTimeoutMs = orcadSessionScannerIdleTimeoutMs()
-  if (scannerIdleTimeoutMs !== null) {
-    const { setAiVaultServiceIdleTimeoutMs } =
-      await import('../ai-vault/session-scanner-service-spawn')
-    setAiVaultServiceIdleTimeoutMs(scannerIdleTimeoutMs)
-  }
+  const { configureOrcadSessionScannerIdleTimeout } = await import('./orcad-session-scanner-idle')
+  await configureOrcadSessionScannerIdleTimeout()
   // Initialize sealing before Store load unseals protected settings.
   await timed('secret-store', () => prepareOrcadSecretStoreAndMigrate(runtimeUserDataPath))
   const { store: profileStore, authority: profileStateAuthority } = await timed('profile', () =>
@@ -163,7 +158,7 @@ async function startOrcadRuntime(
 
   // Reconcile, daemon and runtime all consume this environment.
   await timed('login-env-wait', () => loginEnvironment)
-  startOrcadManagedAgentHooks(
+  const managedAgentHooks = startOrcadManagedAgentHooks(
     profileStore,
     (enabled) => agentHookServer.setStatusHooksEnabled(enabled),
     registerCleanup
@@ -336,6 +331,7 @@ async function startOrcadRuntime(
 
   await new ServeReadinessPublisher().publish(readiness, servePublishMode(options))
   reportStartupTiming()
+  managedAgentHooks.readinessPublished()
 
   await idleExitStartup.start({
     rpc,

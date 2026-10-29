@@ -18,7 +18,8 @@ export const UNIT_SETUP_FILES = [
   'config/scripts/vitest-bun-node-builtins.ts',
   'config/scripts/vitest-dom-setup.ts',
   'config/scripts/vitest-host-ports-setup.ts',
-  'config/scripts/vitest-caller-identity-env-setup.ts'
+  'config/scripts/vitest-caller-identity-env-setup.ts',
+  'config/scripts/vitest-orcad-feature-readiness-reset.ts'
 ]
 
 export const UNIT_EXCLUDE = [

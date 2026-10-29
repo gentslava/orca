@@ -182,9 +182,6 @@ export class StructuredAgentSessionAdapterRouter implements StructuredAgentSessi
     return reader(input)
   }
 
-  readOptionRestoreFailures = (sessionId: string): readonly string[] =>
-    this.owner(sessionId).readOptionRestoreFailures?.(sessionId) ?? []
-
   copyConversation: NonNullable<StructuredAgentSessionAdapter['copyConversation']> = (input) => {
     const { adapter } = this.requireAgent(input.identity)
     if (!adapter.copyConversation) {

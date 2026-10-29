@@ -22,7 +22,10 @@ import {
 } from './host-codex-managed-home-ownership'
 import { hasCustomCodexHomeOverrideForLaunch } from '../codex/codex-real-home-path'
 import { resolveCodexSessionBackfillPaths } from '../codex/codex-session-backfill'
-import { hasCompletedCodexSessionBackfillMarker } from '../codex/codex-session-backfill-marker'
+import {
+  hasCompletedCodexSessionBackfillMarker,
+  markCodexSessionBackfillMarkerNeedsFullScan
+} from '../codex/codex-session-backfill-marker'
 import { getDefaultWslDistro } from '../wsl'
 import { startWslCodexSessionBridgeInBackground } from '../codex/wsl-codex-session-bridge'
 import type { CodexAccountSelectionTarget } from './runtime-selection'
@@ -147,8 +150,10 @@ export abstract class CodexRuntimeHomeManagedHome extends CodexRuntimeHomeSync {
 
   // Reading a distro's history over 9P would boot it (E9); the WSL lane owns those homes.
   protected isHostHistorySourceInWsl(): boolean {
-    const sourceHome = resolveHostCodexSessionSourceHome(this.store.getSettings())
-    return Boolean(sourceHome && parseWslUncPath(sourceHome))
+    // The home the lanes actually read: the setting, else the system home they fall back to.
+    const sourceHome =
+      resolveHostCodexSessionSourceHome(this.store.getSettings()) ?? getSystemCodexHomePath()
+    return parseWslUncPath(sourceHome) !== null
   }
 
   protected getSelfContainedSessionBridgeSourceHomes(): string[] {
@@ -242,9 +247,13 @@ export abstract class CodexRuntimeHomeManagedHome extends CodexRuntimeHomeSync {
     const settings = this.store.getSettings()
     if (
       normalizeCodexRuntimeSelection(settings).host !== null ||
-      hasCustomCodexHomeOverrideForLaunch(launchEnv) ||
-      this.isHostHistorySourceInWsl()
+      hasCustomCodexHomeOverrideForLaunch(launchEnv)
     ) {
+      return null
+    }
+    if (this.isHostHistorySourceInWsl()) {
+      // This launch's dates go unrecorded, so a later plain source must walk all history.
+      markCodexSessionBackfillMarkerNeedsFullScan(resolveCodexSessionBackfillPaths().markerPath)
       return null
     }
     if (!this.hostSystemDefaultSessionMigrationPending) {

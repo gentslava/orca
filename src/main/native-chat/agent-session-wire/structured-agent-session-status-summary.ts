@@ -100,7 +100,11 @@ export function structuredSummaryConversationNaming(
   return failure?.forName === name
     ? {
         conversationName: name,
-        namingError: { message: failure.message, failedAt: failure.failedAt }
+        namingError: {
+          message: failure.message,
+          failedAt: failure.failedAt,
+          ...(failure.messageCode ? { messageCode: failure.messageCode } : {})
+        }
       }
     : { conversationName: name }
 }

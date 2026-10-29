@@ -28,7 +28,8 @@ export const WSL_CHAT_GUEST_BIN = 'orca-lane-chat-bin'
 const GUEST_CLI_FIXTURES = {
   claude: 'src/main/claude/__fixtures__/claude-agent-sdk-scripted-cli.mjs',
   codex: 'src/main/codex/__fixtures__/codex-app-server-scripted-cli.mjs',
-  grok: 'src/main/acp/__fixtures__/grok-acp-scripted-cli.mjs'
+  grok: 'src/main/acp/__fixtures__/grok-acp-scripted-cli.mjs',
+  opencode: 'src/main/acp/__fixtures__/opencode-acp-scripted-cli.mjs'
 } as const
 
 export type WslChatGuestAgent = keyof typeof GUEST_CLI_FIXTURES
@@ -37,7 +38,7 @@ export type WslGuestCli = { script: string; cli: string }
 
 /** Where a scripted provider reports its launch and waits for the test to see its partial reply. */
 export type WslScriptedProviderInstall = WslGuestCli & {
-  agent: 'codex' | 'grok'
+  agent: 'codex' | 'grok' | 'opencode'
   accountHome: string
   reportPath: string
   ackPath: string
@@ -47,7 +48,12 @@ export type WslScriptedProviderInstall = WslGuestCli & {
 export async function installWslChatFixture(lane: WslChatHost) {
   const home = (await lane.guest('printf %s "$HOME"')).trim()
   const root = `${home}/wsl chat fixture`
-  const dirs = [`${root}/codex-home`, `${root}/grok-home`, `${home}/${WSL_CHAT_GUEST_BIN}`]
+  const dirs = [
+    `${root}/codex-home`,
+    `${root}/grok-home`,
+    `${root}/opencode-home`,
+    `${home}/${WSL_CHAT_GUEST_BIN}`
+  ]
   await lane.guest(`mkdir -p ${dirs.map(quotePosixShell).join(' ')}`)
   const runtime = (await lane.guest(`readlink -f /proc/${lane.runtimePid}/exe`)).trim()
   const installCli = async (agent: WslChatGuestAgent): Promise<WslGuestCli> => {
@@ -67,7 +73,9 @@ export async function installWslChatFixture(lane: WslChatHost) {
     return { script, cli }
   }
   const claude = await installCli('claude')
-  const scripted = async (agent: 'codex' | 'grok'): Promise<WslScriptedProviderInstall> => ({
+  const scripted = async (
+    agent: WslScriptedProviderInstall['agent']
+  ): Promise<WslScriptedProviderInstall> => ({
     ...(await installCli(agent)),
     agent,
     accountHome: `${root}/${agent}-home`,
@@ -76,6 +84,7 @@ export async function installWslChatFixture(lane: WslChatHost) {
   })
   const codex = await scripted('codex')
   const grok = await scripted('grok')
+  const opencode = await scripted('opencode')
   // No Command setting: orcad must find each CLI the way a user's install is found.
   await lane.rpc('settings.update', {
     nativeChatPermissionMode: 'ask',
@@ -94,6 +103,12 @@ export async function installWslChatFixture(lane: WslChatHost) {
         GROK_HOME: grok.accountHome,
         ORCA_ACP_CONTRACT_REPORT_PATH: grok.reportPath,
         ORCA_ACP_CONTRACT_ACK_PATH: grok.ackPath
+      },
+      // An unmanaged OpenCode account keeps the user's own data dir, set here like a user's env.
+      opencode: {
+        XDG_DATA_HOME: opencode.accountHome,
+        ORCA_ACP_CONTRACT_REPORT_PATH: opencode.reportPath,
+        ORCA_ACP_CONTRACT_ACK_PATH: opencode.ackPath
       }
     }
   })
@@ -113,6 +128,7 @@ export async function installWslChatFixture(lane: WslChatHost) {
     ...claude,
     codex,
     grok,
+    opencode,
     folderPath,
     folderWorktree: folderWorkspaceKey(folder.folderWorkspace.id)
   }

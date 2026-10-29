@@ -8,7 +8,7 @@ import type {
   UsageOverviewModel,
   UsageProviderOverview
 } from './usage-overview-types'
-import { translate } from '@/i18n/i18n'
+import { getIntlLocale, translate } from '@/i18n/i18n'
 
 const INTENSITY_CLASS: Record<UsageOverviewDailyPoint['intensity'], string> = {
   0: 'border-border/60 bg-muted/40',
@@ -24,7 +24,7 @@ function sessionCountLabel(sessions: number): string {
     '{{formatted}} sessions',
     {
       count: sessions,
-      formatted: sessions.toLocaleString(),
+      formatted: sessions.toLocaleString(getIntlLocale()),
       defaultValue_one: '{{formatted}} session'
     }
   )
@@ -36,13 +36,21 @@ function activityCountLabel(provider: UsageProviderOverview): string {
     return translate(
       'auto.components.stats.usage.overview.sections.turnCount',
       '{{formatted}} turns',
-      { count, formatted: count.toLocaleString(), defaultValue_one: '{{formatted}} turn' }
+      {
+        count,
+        formatted: count.toLocaleString(getIntlLocale()),
+        defaultValue_one: '{{formatted}} turn'
+      }
     )
   }
   return translate(
     'auto.components.stats.usage.overview.sections.eventCount',
     '{{formatted}} events',
-    { count, formatted: count.toLocaleString(), defaultValue_one: '{{formatted}} event' }
+    {
+      count,
+      formatted: count.toLocaleString(getIntlLocale()),
+      defaultValue_one: '{{formatted}} event'
+    }
   )
 }
 
@@ -119,7 +127,7 @@ export function TokenMixBar({ overview }: { overview: UsageOverviewModel }): Rea
                   '{{value0}}: {{value1}} tokens',
                   {
                     value0: segment.label,
-                    value1: segment.value.toLocaleString()
+                    value1: segment.value.toLocaleString(getIntlLocale())
                   }
                 )}
               />
@@ -190,7 +198,7 @@ export function DailyIntensityGrid({
             aria-label={translate(
               'auto.components.stats.usage.overview.sections.32330a6e66',
               '{{value0}}: {{value1}} tokens',
-              { value0: day.day, value1: day.totalTokens.toLocaleString() }
+              { value0: day.day, value1: day.totalTokens.toLocaleString(getIntlLocale()) }
             )}
           />
         ))}

@@ -20,7 +20,9 @@ vi.mock('@/runtime/runtime-paged-file-read', () => ({
 const store = vi.hoisted(() => ({
   markFileDirty: vi.fn(),
   openFiles: [{ id: 'book', isDirty: false }],
-  listeners: new Set<(state: unknown) => void>()
+  editorBufferIdOf: {},
+  editorBufferViews: {},
+  listeners: new Set<(state: unknown, previous: unknown) => void>()
 }))
 vi.mock('@/store', () => ({
   useAppStore: {
@@ -75,7 +77,7 @@ beforeEach(() => {
 afterEach(async () => {
   // Closing the tab drops its bytes document.
   for (const listener of store.listeners) {
-    listener({ openFiles: [] })
+    listener({ openFiles: [] }, store)
   }
   await act(async () => root.unmount())
   container.remove()

@@ -3,7 +3,7 @@ import {
   listAiVaultSessions as listCachedLocalAiVaultSessions
 } from '../ai-vault/cached-session-list'
 import { aiVaultScanIssueResult } from '../ai-vault/session-list-results'
-import { describeAiVaultScanError } from '../../shared/ai-vault-scan-error-message'
+import { classifyAiVaultScanError } from '../../shared/ai-vault-scan-error-message'
 import {
   isAiVaultScanCancelledError,
   type AiVaultListArgs,
@@ -28,7 +28,7 @@ export async function scanLocalAiVaultSessionsAsIssue(
     const result = aiVaultScanIssueResult({
       executionHostId: LOCAL_EXECUTION_HOST_ID,
       path: 'this computer',
-      message: describeAiVaultScanError(raw)
+      ...classifyAiVaultScanError(raw)
     })
     return error instanceof AiVaultLocalScanError ? { ...result, scanId: error.scanId } : result
   }

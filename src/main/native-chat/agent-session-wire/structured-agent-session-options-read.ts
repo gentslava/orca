@@ -96,16 +96,11 @@ export async function readStructuredAgentSessionOptions(
           (row) => row.isDefault
         )?.id
       : undefined
-  // Show saved intent unless the provider explicitly rejected that model; then show execution.
-  const refusedModel = live && !!adapter.readOptionRestoreFailures?.(sessionId).includes('model')
   const saved = record ? (effectiveAgentSessionOptions(record) ?? {}) : {}
-  const { model: _refused, ...selectedWithoutModel } = selected.current
   const savedModel = structuredAgentSessionProjectedModel(saved.model, live, options.current)
-  const model = refusedModel
-    ? (options.current.model ?? displayDefault)
-    : (savedModel ?? (options.current.model || selected.current.model || displayDefault))
+  const model = savedModel ?? (options.current.model || selected.current.model || displayDefault)
   const current = {
-    ...(refusedModel ? selectedWithoutModel : selected.current),
+    ...selected.current,
     ...options.current,
     ...(model !== undefined ? { model } : {}),
     effort: saved.effort ?? options.current.effort,

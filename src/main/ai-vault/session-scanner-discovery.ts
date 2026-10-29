@@ -14,7 +14,8 @@ import { SessionNewestFiles } from './session-newest-files'
 import type { AiVaultAgent, AiVaultScanIssue } from '../../shared/ai-vault-types'
 import { wslGatedReaddir } from '../native-chat/wsl-transcript-fs-access'
 import { WslTranscriptFsError } from '../native-chat/wsl-transcript-fs-gate'
-import { recordSessionScanIssue } from './session-scan-issues'
+import { recordSessionScanIssue, scanIssueTextFromError } from './session-scan-issues'
+import { aiVaultScanIssueText } from '../../shared/ai-vault-scan-issue-copy'
 import type { FileWithMtime, SessionFileDiscovery } from './session-scanner-types'
 import { throwIfAiVaultScanCancelled } from './ai-vault-scan-cancellation'
 import {
@@ -77,7 +78,7 @@ export async function discoverFiles(args: {
         recordSessionScanIssue(args.issues, {
           agent: args.agent,
           path: observation.sidecarPath ?? args.rootDir,
-          message: 'Session metadata could not be read this scan.'
+          ...aiVaultScanIssueText('sessionMetadataUnreadable')
         })
       }
       try {
@@ -202,7 +203,7 @@ export async function discoverFiles(args: {
     recordSessionScanIssue(args.issues, {
       agent: args.agent,
       path: args.rootDir,
-      message: err.message
+      ...scanIssueTextFromError(err)
     })
     return { agent: args.agent, rootDir: args.rootDir, files: [] }
   } finally {

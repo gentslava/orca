@@ -9,7 +9,6 @@ import type { NativeChatBlock } from '../../../../shared/native-chat-types'
 /** Extraction requires literal keys/fallbacks; parity tests keep these clauses aligned with mobile’s shared record. */
 function clause(category: NativeChatToolCategory, count: number, live: boolean): string {
   const one = count === 1
-  const plural = { count }
   if (live) {
     return liveClause(category, count)
   }
@@ -48,11 +47,10 @@ function clause(category: NativeChatToolCategory, count: number, live: boolean):
     case 'browser':
       return one
         ? translate('components.native-chat.tool.runBrowserOne', 'Used the browser')
-        : translate(
-            'components.native-chat.tool.runBrowser_other',
-            'Used the browser {{count}} times',
-            plural
-          )
+        : translate('components.native-chat.tool.runBrowser', 'Used the browser {{count}} times', {
+            count,
+            defaultValue_one: 'Used the browser {{count}} time'
+          })
     case 'mcpToolCall':
       return translate(
         'components.native-chat.tool.runIntegration',
@@ -67,11 +65,10 @@ function clause(category: NativeChatToolCategory, count: number, live: boolean):
     case 'todoList':
       return one
         ? translate('components.native-chat.tool.runPlanOne', 'Updated the plan')
-        : translate(
-            'components.native-chat.tool.runPlan_other',
-            'Updated the plan {{count}} times',
-            plural
-          )
+        : translate('components.native-chat.tool.runPlan', 'Updated the plan {{count}} times', {
+            count,
+            defaultValue_one: 'Updated the plan {{count}} time'
+          })
     case 'other':
       return translate('components.native-chat.tool.runTool', 'Used {{count}} tools', {
         count,
@@ -82,7 +79,6 @@ function clause(category: NativeChatToolCategory, count: number, live: boolean):
 
 function liveClause(category: NativeChatToolCategory, count: number): string {
   const one = count === 1
-  const plural = { count }
   switch (category) {
     case 'read':
       return translate('components.native-chat.tool.runLiveRead', 'Reading {{count}} files', {
@@ -120,9 +116,9 @@ function liveClause(category: NativeChatToolCategory, count: number): string {
       return one
         ? translate('components.native-chat.tool.runLiveBrowserOne', 'Using the browser')
         : translate(
-            'components.native-chat.tool.runLiveBrowser_other',
+            'components.native-chat.tool.runLiveBrowser',
             'Using the browser {{count}} times',
-            plural
+            { count, defaultValue_one: 'Using the browser {{count}} time' }
           )
     case 'mcpToolCall':
       return translate(
@@ -139,9 +135,9 @@ function liveClause(category: NativeChatToolCategory, count: number): string {
       return one
         ? translate('components.native-chat.tool.runLivePlanOne', 'Updating the plan')
         : translate(
-            'components.native-chat.tool.runLivePlan_other',
+            'components.native-chat.tool.runLivePlan',
             'Updating the plan {{count}} times',
-            plural
+            { count, defaultValue_one: 'Updating the plan {{count}} time' }
           )
     case 'other':
       return translate('components.native-chat.tool.runLiveTool', 'Using {{count}} tools', {

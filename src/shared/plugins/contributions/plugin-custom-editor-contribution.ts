@@ -11,7 +11,6 @@ import { PLUGIN_ICON_RULE_TEXT } from '../images/plugin-image-fields'
 export const PLUGIN_CUSTOM_EDITOR_LIMIT = 16
 
 export const PLUGIN_CUSTOM_EDITOR_PRIORITIES = ['default', 'option'] as const
-export type PluginCustomEditorPriority = (typeof PLUGIN_CUSTOM_EDITOR_PRIORITIES)[number]
 
 /** What the editor frame receives: the file's text, or its raw bytes. */
 export const PLUGIN_CUSTOM_EDITOR_CONTENT_KINDS = ['text', 'bytes'] as const
@@ -84,8 +83,6 @@ export const pluginCustomEditorContributionSchema = z
     description:
       'An editor for the listed files, shown in the editor tab beside Source. It must list at least one extension or file name. Requires the `sandboxed-ui` execution profile or higher.'
   })
-
-export type PluginCustomEditorContribution = z.infer<typeof pluginCustomEditorContributionSchema>
 
 export function customEditorContentKind(editor: {
   contentKind?: PluginCustomEditorContentKind

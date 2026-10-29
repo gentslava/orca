@@ -66,6 +66,8 @@ const RECEIPT_DIR = process.env.ORCA_WSL_ORCAD_LANE_RECEIPTS ?? join(WORK_DIR, '
 const IDLE_TIMEOUT_MS = 15_000
 // Idle period, one holder poll, then WSL's own stop of a distro with no client left.
 const RELEASE_BUDGET_MS = IDLE_TIMEOUT_MS + WSL_DISTRO_HOLDER_POLL_SECONDS * 1000 + 90_000
+// Round-trip counts are exact; five runs keep the ms medians readable on a noisy runner.
+const RESTART_RUNS = 5
 const HELD_WITH_TERMINAL_MS = IDLE_TIMEOUT_MS + WSL_DISTRO_HOLDER_POLL_SECONDS * 1000 + 45_000
 
 type Receipt = Record<string, unknown>
@@ -541,7 +543,7 @@ async function profileOrcadRestart(repoPath: string): Promise<string[]> {
 }
 
 /**
- * Distro restart (VM warm) to first command output, median of 3 each, alternating so neither path
+ * Distro restart (VM warm) to first command output, median of 5 each, alternating so neither path
  * always runs on a warmer VM.
  */
 async function distroRestartBaseline(): Promise<void> {
@@ -551,13 +553,13 @@ async function distroRestartBaseline(): Promise<void> {
   const host: Awaited<ReturnType<typeof restartThroughHost>>[] = []
   const bridge: Receipt[] = []
   const conpty: Receipt[] = []
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < RESTART_RUNS; i++) {
     host.push(await restartThroughHost(repoPath))
     bridge.push(await restartThroughBridgeExec())
     conpty.push(await restartThroughBridgeConpty())
   }
   const median = (runs: Receipt[], key: string): number =>
-    runs.map((run) => Number(run[key])).toSorted((a, b) => a - b)[1] ?? 0
+    runs.map((run) => Number(run[key])).toSorted((a, b) => a - b)[(runs.length - 1) >> 1] ?? 0
   receipt.distroRestartToFirstOutput = {
     host,
     bridgeExecLowerBound: bridge,
@@ -598,7 +600,7 @@ describe.runIf(RUN && process.platform === 'win32')('WSL distro idle release', (
     RELEASE_BUDGET_MS + 2 * HELD_WITH_TERMINAL_MS + 6 * 60_000
   )
 
-  // After the idle phase: six distro restarts, a warm-up and one profiled restart, each bounded.
+  // After the idle phase: fifteen distro restarts, a warm-up and one profiled restart, each bounded.
   it(
     'measures distro restart to first output for the WSL host and an old-bridge exec lower bound',
     distroRestartBaseline,

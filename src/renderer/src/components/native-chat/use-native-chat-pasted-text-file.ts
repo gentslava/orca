@@ -46,7 +46,6 @@ function nativeChatDraftTooLarge(scopeKey: string, text: string): boolean {
 
 export function useNativeChatPastedTextFile(args: {
   scopeKey: string
-  pastesInline?: () => boolean
   /** Null: not a structured chat. Else the editor while it shows this scope. */
   scopeEditor: (() => NativeChatComposerInput | null) | null
   resolveAttachmentOwner: () => NativeChatAttachmentOwner
@@ -54,11 +53,10 @@ export function useNativeChatPastedTextFile(args: {
   setNotice: (notice: string | null, errorText?: string) => void
 }): (text: string) => boolean {
   const { scopeKey, scopeEditor, resolveAttachmentOwner, insertTypedText, setNotice } = args
-  const { pastesInline } = args
   return useCallback(
     (text: string): boolean => {
       const input = scopeEditor?.()
-      if (pastesInline?.() || !scopeEditor || !input?.stagePastedText || input.disabled) {
+      if (!scopeEditor || !input?.stagePastedText || input.disabled) {
         return insertTypedText(text)
       }
       const { value, selectionStart, selectionEnd } = input
@@ -115,6 +113,6 @@ export function useNativeChatPastedTextFile(args: {
         )
       return true
     },
-    [insertTypedText, pastesInline, resolveAttachmentOwner, scopeEditor, scopeKey, setNotice]
+    [insertTypedText, resolveAttachmentOwner, scopeEditor, scopeKey, setNotice]
   )
 }

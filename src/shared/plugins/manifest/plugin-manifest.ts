@@ -184,18 +184,28 @@ export const pluginManifestV2Object = z
   })
   .strict()
 
-export const pluginManifestSchema = z.preprocess(
-  upgradePluginManifestV1Names,
-  z.discriminatedUnion('manifestVersion', [
-    pluginManifestV1Object.superRefine(validatePluginManifestContributions),
-    pluginManifestV2Object.superRefine((manifest, ctx) => {
-      validatePluginManifestContributions(manifest, ctx)
-      validatePluginExecutionProfile(manifest, ctx)
-      validatePluginManifestV2Rules(manifest, ctx)
-      validatePluginEngineFloor(pluginManifestV2Object, manifest, ctx)
-    })
-  ])
-)
+function buildPluginManifestSchema(enforceEngineFloor: boolean) {
+  return z.preprocess(
+    upgradePluginManifestV1Names,
+    z.discriminatedUnion('manifestVersion', [
+      pluginManifestV1Object.superRefine(validatePluginManifestContributions),
+      pluginManifestV2Object.superRefine((manifest, ctx) => {
+        validatePluginManifestContributions(manifest, ctx)
+        validatePluginExecutionProfile(manifest, ctx)
+        validatePluginManifestV2Rules(manifest, ctx)
+        if (enforceEngineFloor) {
+          validatePluginEngineFloor(pluginManifestV2Object, manifest, ctx)
+        }
+      })
+    ])
+  )
+}
+
+/** Authoring schema: also refuses an engines.orca below the newest field it uses. */
+export const pluginManifestSchema = buildPluginManifestSchema(true)
+// Why no floor at runtime: the floor only lets older hosts say "requires Orca X"; a host that
+// parses every field and meets engines.orca runs the plugin fine, so refusing it strands installs.
+const hostPluginManifestSchema = buildPluginManifestSchema(false)
 
 export type PluginManifest = z.infer<typeof pluginManifestSchema>
 export {
@@ -230,12 +240,23 @@ export type PluginManifestParseResult =
   | { ok: true; manifest: PluginManifest }
   | { ok: false; error: string }
 
-export function parsePluginManifest(raw: unknown): PluginManifestParseResult {
-  const parsed = pluginManifestSchema.safeParse(raw)
+function parseWith(schema: typeof pluginManifestSchema, raw: unknown): PluginManifestParseResult {
+  const parsed = schema.safeParse(raw)
   if (parsed.success) {
     return { ok: true, manifest: parsed.data }
   }
   return { ok: false, error: formatPluginSchemaIssues(parsed.error.issues, raw) }
+}
+
+/** Strict authoring check (`validate:plugin`, catalog CI, dev folders). */
+export function parsePluginManifest(raw: unknown): PluginManifestParseResult {
+  return parseWith(pluginManifestSchema, raw)
+}
+
+/** Runtime read for install, discovery and update. Callers must still check engines.orca
+ *  against the host, which is what actually gates loading. */
+export function parseHostPluginManifest(raw: unknown): PluginManifestParseResult {
+  return parseWith(hostPluginManifestSchema, raw)
 }
 
 export {

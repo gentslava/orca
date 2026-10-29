@@ -2,11 +2,33 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { ALL_RPC_METHODS } from './methods'
+import { buildRegistry } from './core'
 import { ACCOUNT_METHODS } from './methods/accounts'
-import type { OrcadFeature } from './orcad-feature-readiness'
+import { resolveOrcadFeatureRequirement, type OrcadFeature } from './orcad-feature-readiness'
 
-const requiresOf = (name: string): readonly OrcadFeature[] | undefined =>
-  ALL_RPC_METHODS.find((method) => method.name === name)?.requires
+// Every method's declared needs for these params; param-level ones read them.
+const REGISTRY = buildRegistry(ALL_RPC_METHODS)
+const requiresOf = (name: string, params: unknown = {}): readonly OrcadFeature[] => {
+  const method = REGISTRY.get(name)
+  expect(method, name).toBeDefined()
+  return resolveOrcadFeatureRequirement(method?.requires, params)
+}
+
+// Launches that start an agent (and so read its account home); a terminal create is one only with an agent.
+const AGENT_LAUNCHES = [
+  'terminal.createAgentSession',
+  'agentSession.create',
+  'git.generateCommitMessage',
+  'orchestration.workerStart',
+  'orchestration.federationAttachStart'
+]
+const PARAM_GATED_LAUNCHES = [
+  'terminal.ensureAgentSession',
+  'terminal.create',
+  'session.tabs.createTerminal',
+  'agent.launch',
+  'agent.launchReplay'
+]
 
 describe('which RPC methods wait for an orcad startup phase', () => {
   it('gates the account services, search index, orchestration and orphan adoption', () => {
@@ -20,6 +42,9 @@ describe('which RPC methods wait for an orcad startup phase', () => {
       ) {
         expected.push('accounts')
       }
+      if (AGENT_LAUNCHES.includes(method.name)) {
+        expected.push('accounts')
+      }
       if (method.name.startsWith('orchestration.')) {
         expected.push('orchestration')
       }
@@ -29,10 +54,41 @@ describe('which RPC methods wait for an orcad startup phase', () => {
       if (method.name === 'terminal.adoptOrphans') {
         expected.push('unshownPlacement')
       }
-      expect({ name: method.name, requires: method.requires ?? [] }).toEqual({
+      if (PARAM_GATED_LAUNCHES.includes(method.name)) {
+        expect(typeof method.requires, method.name).toBe('function')
+        continue
+      }
+      expect({ name: method.name, requires: requiresOf(method.name) }).toEqual({
         name: method.name,
         requires: expected
       })
+    }
+  })
+
+  it('gates a terminal create only when it starts an agent; plain shells stay ungated', () => {
+    for (const name of ['terminal.create', 'session.tabs.createTerminal']) {
+      expect(requiresOf(name, {}), name).toEqual([])
+      expect(requiresOf(name, { command: 'ls -la' }), name).toEqual([])
+      expect(requiresOf(name, { command: 'claude --resume' }), name).toEqual(['accounts'])
+      expect(requiresOf(name, { command: 'codex' }), name).toEqual(['accounts'])
+      expect(requiresOf(name, { launchAgent: 'claude' }), name).toEqual(['accounts'])
+      expect(requiresOf(name, { launchConfig: { agentArgs: '', agentEnv: {} } }), name).toEqual([
+        'accounts'
+      ])
+      expect(requiresOf(name, { resumeProviderSession: { id: 's' } }), name).toEqual(['accounts'])
+    }
+    expect(requiresOf('session.tabs.createTerminal', { agent: 'claude' })).toEqual(['accounts'])
+  })
+
+  it('gates only an explicit ensureAgentSession; an attach is restore latency', () => {
+    expect(requiresOf('terminal.ensureAgentSession', { kind: 'explicit' })).toEqual(['accounts'])
+    expect(requiresOf('terminal.ensureAgentSession', { kind: 'automatic' })).toEqual([])
+  })
+
+  it('gates agent.launch unless it reuses a live terminal', () => {
+    for (const name of ['agent.launch', 'agent.launchReplay']) {
+      expect(requiresOf(name, {}), name).toEqual(['accounts'])
+      expect(requiresOf(name, { reuseTerminal: { handle: 'h' } }), name).toEqual([])
     }
   })
 
@@ -46,7 +102,7 @@ describe('which RPC methods wait for an orcad startup phase', () => {
       'accounts.setHostLaunchEnv'
     ]) {
       expect(ALL_RPC_METHODS.some((method) => method.name === name)).toBe(true)
-      expect(requiresOf(name)).toBeUndefined()
+      expect(requiresOf(name)).toEqual([])
     }
   })
 

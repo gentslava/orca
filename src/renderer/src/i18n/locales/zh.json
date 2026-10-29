@@ -433,6 +433,53 @@
         "conflictingOverrides": "有冲突的自定义快捷键已被忽略：{{actions}}。",
         "readFailed": "无法读取键绑定文件：{{reason}}"
       }
+    },
+    "network": {
+      "proxyUrlErrors": {
+        "tooLong": "代理 URL 过长。",
+        "invalid": "请输入有效的代理 URL。",
+        "unsupportedProtocol": "请使用 http、https、socks、socks4 或 socks5 代理 URL。",
+        "missingHost": "代理 URL 必须包含主机。"
+      }
+    },
+    "voice": {
+      "modelDescriptions": {
+        "parakeetV3": "为 25 种欧洲语言提供最高准确度。支持标点、大小写和词级时间戳。",
+        "parakeetV2": "仅限英语。准确度与 v3 相近，速度更快。支持标点和大小写。",
+        "zipformerBilingual": "中文 + 英文，支持语言混用。低延迟实时流式处理。",
+        "paraformerBilingual": "中文（普通话 + 方言）+ 英文。擅长识别各地口音和方言。",
+        "zipformerStreamingEn": "仅限英语。2000 万参数的轻量模型，兼顾速度和体积。",
+        "zipformerStreamingZh": "仅限中文。1400 万参数的超轻量模型，适合资源有限的设备。",
+        "zipformerStreamingKo": "仅限韩语。低延迟实时流式处理。",
+        "parakeetJa": "仅限日语。使用超过 3.5 万小时的自然语音训练。支持标点。",
+        "whisperTiny": "支持 90 多种语言。准确度低于 Parakeet，但语言覆盖最广。",
+        "senseVoice": "支持中文、英语、日语、韩语和粤语，并自动检测语言。",
+        "gpt4oMiniTranscribe": "准确度高、成本低的云端转录。需要 OpenAI API 密钥。",
+        "gpt4oTranscribe": "准确度更高的云端转录。需要 OpenAI API 密钥。"
+      }
+    },
+    "diagnostics": {
+      "errors": {
+        "creatingDisabled": "已禁用创建查看文件",
+        "sendingDisabled": "已禁用发送诊断信息",
+        "sendingNotConfigured": "此构建版本未配置诊断信息发送功能",
+        "expiredBeforeSending": "查看文件已过期；请在发送前创建新文件",
+        "expiredBeforeOpening": "查看文件已过期；请在打开前创建新文件",
+        "previewNotOpened": "请在发送前打开查看文件",
+        "previewOpenFailed": "无法打开查看文件",
+        "deleteNotConfigured": "此构建版本未配置诊断信息上传端点",
+        "createFailed": "无法创建查看文件",
+        "openFailed": "无法打开查看文件",
+        "sendFailed": "无法发送诊断信息",
+        "discardFailed": "无法丢弃查看文件",
+        "deleteFailed": "无法删除已发送的诊断信息"
+      }
+    },
+    "repository": {
+      "iconPickErrors": {
+        "notPng": "仓库图标必须是 PNG 文件。",
+        "tooLarge": "仓库图标图片不得超过 256 KB。"
+      }
     }
   },
   "menu": {
@@ -11360,9 +11407,7 @@
         },
         "pluginThemeApply": {
           "nowUsing": "正在使用 {{value0}}",
-          "switchBack": "切换回去",
-          "setAsLight": "已将 {{value0}} 设为浅色主题",
-          "setAsDark": "已将 {{value0}} 设为深色主题"
+          "switchBack": "切换回去"
         },
         "pluginError": {
           "installManifestMissing": "未找到可读的 orca-plugin.json。请选择插件的根文件夹。",
@@ -11373,6 +11418,7 @@
           "installGit": "无法获取此 Git 版本。请检查 URL、#ref 和访问权限。",
           "invalidManifestMissing": "插件根目录缺少 orca-plugin.json。请添加它，然后刷新插件。",
           "invalidManifest": "orca-plugin.json 无效。请修复它，然后刷新插件。",
+          "installedManifestUnloadable": "此版本无法在当前 Orca 中加载。请更新或重新安装。",
           "invalidArtifact": "工作进程或面板文件缺失或不安全。修复后请刷新。",
           "consentChanged": "你审查期间此插件发生了变化。请重新审查。"
         },
@@ -12400,6 +12446,7 @@
           "noAccessReach": "仅限其自身文件"
         },
         "PluginManagerRows": {
+          "reinstall": "重新安装",
           "crashedCount": "连续崩溃 {{value0}} 次",
           "crashed": "启动时崩溃",
           "remove": "移除…",
@@ -12491,8 +12538,6 @@
           "autoUpdateHint": "仅在需要新访问权限时再次询问"
         },
         "InstalledPluginCarousel": {
-          "title": "已安装 · {{value0}}",
-          "seeAll": "查看全部",
           "previous": "上一组已安装插件",
           "next": "下一组已安装插件"
         },
@@ -18127,6 +18172,7 @@
         "codexManagedNotSignedIn": "此 Codex 账户尚未登录。请在 Codex 账户设置中重新登录。",
         "antigravityNotSignedIn": "尚未登录 Antigravity。请在设置 → 账户 → Antigravity中登录，然后重新发送消息。",
         "cliMissing": "在运行此聊天的计算机上找不到 {{agent}}。请安装它，或检查设置 → 智能体中的命令。",
+        "cliMissingInWslDistro": "WSL 发行版 {{distro}} 中未安装 {{agent}}。请在 {{distro}} 中安装它，或检查设置 → 智能体中的命令。",
         "signInFirst": "请先登录。",
         "signInThenRunCommand": "请登录，然后重新运行 /{{command}}。",
         "signInThenSend": "请登录，然后重新发送您的消息。",
@@ -18150,6 +18196,7 @@
         "providerExitedRow": "{{agent}} 在生成此回复时停止了。您可以在此对话中继续。",
         "providerExitedRejection": "{{agent}} 在发送此消息前已停止。",
         "providerExitedAnswer": "{{agent}} 已停止，因此您的回答未发送。发送消息以继续。",
+        "modelUnavailable": "{{agent}} 无法使用 {{detail}}。请选择其他模型并重新发送。",
         "providerRejected": "{{agent}} 未接受此消息。",
         "providerRejectedQuoted": "{{agent}} 未接受此消息：{{detail}}。",
         "attachmentEmpty": "此消息中的一张图片为空，因此消息未发送。",
@@ -18798,7 +18845,10 @@
       "hostOutage": {
         "offline": "{{hostName}} 已离线",
         "reconnecting": "正在重新连接 {{hostName}}…",
-        "reconnect": "重新连接"
+        "reconnect": "重新连接",
+        "stopped": "{{distro}} 已停止",
+        "start": "启动",
+        "unverifiable": "Orca 无法确认 {{distro}} 是否正在运行"
       },
       "interruptedContinue": {
         "continue": "继续",
@@ -18961,6 +19011,27 @@
         "noLiveTerminal": "没有可用的活动终端。",
         "commandCanceled": "输入框已关闭，Chat UI 命令已取消。",
         "commandRejected": "终端未接受该命令。"
+      },
+      "sessionOptionErrors": {
+        "startOnly": "此选项只能在会话启动时设置。",
+        "modelRejected": "Claude 保留了当前模型。",
+        "modelUnverified": "无法验证模型变更，请打开终端检查。",
+        "unknownOption": "未知的会话选项：{{id}}",
+        "agentPickerOnly": "此选项必须在智能体选择器中更改。",
+        "toggleBaselineUnknown": "当前值未知，请改用“切换”操作。",
+        "afterStartOnly": "此选项仅在会话启动后可用。",
+        "valueRequired": "此选项需要一个值。",
+        "toggleValueKnown": "此选项的值已知，请改选“开启”或“关闭”。"
+      },
+      "composerErrors": {
+        "goalObjectiveMissing": "请在 /goal 后描述目标。",
+        "commandUnavailable": "/{{name}} 在聊天会话中不可用。请使用斜杠菜单查看可用命令。",
+        "commandTakesNoArguments": "请使用 /{{name}}，不要附带参数。",
+        "commandUnsupportedByHost": "此聊天主机不支持 /{{name}}。",
+        "modelPickerFailed": "无法打开模型选择器。",
+        "effortPickerFailed": "无法打开推理强度选择器。",
+        "modelApplyFailed": "无法应用模型 {{value}}。",
+        "effortApplyFailed": "无法应用推理强度 {{value}}。"
       }
     },
     "tab": {
@@ -19762,6 +19833,38 @@
       "laptop": "笔记本电脑 — 1024 × 768",
       "laptop-l": "大屏笔记本电脑 — 1440 × 900",
       "desktop": "桌面电脑 — 1920 × 1080"
+    },
+    "cookieImport": {
+      "errors": {
+        "notAuthorized": "未获授权",
+        "profileNotFound": "未找到会话配置文件。",
+        "invalidBrowserProfile": "浏览器配置文件名称无效。",
+        "browserNotFound": "在此系统上未找到浏览器。",
+        "browserProfileDatabaseMissing": "未找到配置文件“{{profile}}”的 Cookie 数据库。",
+        "fileUnreadable": "无法读取所选文件。",
+        "fileInvalidJson": "文件不是有效的 JSON。",
+        "fileNotArray": "需要包含 Cookie 对象的 JSON 数组。",
+        "fileEmpty": "Cookie 文件为空。",
+        "fileNoValidCookies_other": "未找到有效的 Cookie。由于字段缺失或无效，已跳过 {{count}} 条记录。",
+        "databaseNotFound": "未找到 {{browser}} 的 Cookie 数据库。",
+        "databaseCopyFailed": "无法复制 {{browser}} 的 Cookie 数据库。请先尝试关闭 {{browser}}。",
+        "noCookies": "在 {{browser}} 中未找到 Cookie。",
+        "noValidCookies": "在 {{browser}} 中未找到有效的 Cookie。",
+        "allCookiesExpired": "{{browser}} 的所有 Cookie 均已过期。",
+        "encryptionKeyDenied": "无法访问 {{browser}} 的加密密钥。操作系统可能拒绝了访问。",
+        "readFailed": "无法读取 {{browser}} 的 Cookie。",
+        "importFailed": "无法从 {{browser}} 导入 Cookie。",
+        "importFailedTryClosing": "无法从 {{browser}} 导入 Cookie。请先尝试关闭 {{browser}}。",
+        "importFailedWithLog": "无法从 {{browser}} 导入 Cookie：{{detail}}。详细信息已写入 {{logPath}}。",
+        "safariFullDiskAccess": "macOS 拒绝访问 Safari 的 Cookie。请在系统设置 → 隐私与安全 → 完全磁盘访问权限中授予 Orca 完全磁盘访问权限。",
+        "connectionEnded": "导入期间与此服务器的连接已断开。请重新连接后重试。",
+        "serverRepaired": "此服务器在导入期间已重新配对。请重试。"
+      },
+      "notice": {
+        "importedMore_other": "已为 {{domains}} 及其他 {{more}} 个域名导入 {{count}} 个 Cookie。请重新加载页面以使用它们。",
+        "imported_other": "已为 {{domains}} 导入 {{count}} 个 Cookie。请重新加载页面以使用它们。",
+        "failed": "Cookie 导入失败：{{reason}}"
+      }
     }
   },
   "runtimeRpc": {
@@ -19912,6 +20015,12 @@
       "searching": "正在搜索…",
       "searchFailed": "搜索未能完成，请重试。",
       "refreshFailed": "预览更新失败，正在显示上一版本。请打开源码视图查看当前内容。"
+    },
+    "pdfExport": {
+      "errors": {
+        "noContent": "没有可导出的内容",
+        "timedOut": "导出超时"
+      }
     }
   },
   "featureTips": {
@@ -19934,7 +20043,10 @@
       "listening": "听...",
       "unassignedInstruction": "在焦点窗格中开始语音听写之前指定听写快捷方式。",
       "shortcutInstruction": "将焦点移至终端、编辑器或智能体提示词输入框，然后按 <shortcut/> 开始语音听写。再次按 <shortcut/> 即可停止。",
-      "changeInSettings": "随时在<link>设置 → 语音</link>中更改模型、听写模式或快捷键。"
+      "changeInSettings": "随时在<link>设置 → 语音</link>中更改模型、听写模式或快捷键。",
+      "title": "在任意窗格中听写",
+      "description": "在任意已聚焦的窗格中开始语音听写，再次使用快捷键即可停止。",
+      "cta": "设置语音听写"
     },
     "sessionSearch": {
       "ageHours": "2小时",
@@ -19979,8 +20091,23 @@
       "recent3Text": "这是按领域分组的记录初稿。",
       "recent3Title": "发布说明草稿",
       "startSearching": "开始搜索",
-      "changeInSettings": "随时在<link>设置 → 智能体会话搜索</link>中更改或关闭。"
-    }
+      "changeInSettings": "随时在<link>设置 → 智能体会话搜索</link>中更改或关闭。",
+      "title": "搜索所有智能体会话",
+      "description": "根据对话内容找到任何历史会话，再从智能体上次停下的地方继续。",
+      "cta": "开启会话搜索"
+    },
+    "eyebrowNew": "新功能",
+    "eyebrowTip": "提示",
+    "orcaCli": {
+      "title": "让智能体通过 Orca CLI 操控 Orca",
+      "description": "让智能体协调子工作树，并在工作树之间通信。",
+      "cta": "安装 CLI 与技能"
+    },
+    "cmdJPalette": {
+      "title": "使用 <shortcut> 跳转到工作树",
+      "description": "搜索工作树、切换标签页、调整设置或创建工作树，全程无需离开键盘。"
+    },
+    "gotIt": "知道了"
   },
   "quickOpen": {
     "moreMatchesAvailable": "可能还有更多匹配结果。请细化搜索以缩小范围。",
@@ -20043,7 +20170,26 @@
       "existingReview": "此分支已存在 {{reviewLabel}}。",
       "creationUnconfirmed": "{{shortLabel}} 可能已创建完成。正在刷新分支评审状态...",
       "withDetail": "创建 {{shortLabel}} 失败：{{detail}}",
-      "pushFailed": "推送失败。请解决推送错误后重试。"
+      "pushFailed": "推送失败。请解决推送错误后重试。",
+      "stacked": {
+        "stackGithubOnly": "仅 GitHub 仓库支持创建堆栈中的 PR。",
+        "stackGithubComOnly": "GitHub 堆栈中的 PR 仅在 GitHub.com 上可用。",
+        "stackSameParent": "创建堆栈中的 PR 前，请选择其他父分支。",
+        "stackParentWithoutReview": "父分支 {{base}} 没有打开的 PR。请先创建该 PR。",
+        "stackParentAmbiguous": "Orca 发现父分支 {{base}} 有多个打开的 PR。",
+        "stackHeadAmbiguous": "Orca 发现当前分支 {{head}} 有多个打开的 PR。",
+        "stackParentMultipleStacks": "所选父 PR 属于多个堆栈。",
+        "stackParentClosed": "所选父 PR 属于已关闭的堆栈。",
+        "stackParentNotTop": "添加新层前，请选择堆栈最顶层的 PR 作为基础分支。",
+        "stackConflict": "此 PR 已属于另一个 GitHub 堆栈。",
+        "stacksUnavailable": "此仓库不支持 GitHub 堆栈中的 PR。",
+        "stackParentUnverified": "Orca 无法验证父 PR。请稍后重试。",
+        "stackExistingReviewOtherBase": "此分支已有打开的 PR，但其目标不是所选父分支。",
+        "stackCreationUnconfirmed": "PR 可能已创建成功。请重试以完成堆栈注册。",
+        "stackRegistrationUnavailable": "PR 已创建，但此仓库不支持 GitHub 堆栈。",
+        "stackRegistrationFailed": "PR 已创建，但 GitHub 无法将其添加到堆栈。请重试以完成堆栈注册。"
+      },
+      "baseHeadTitleRequired": "必须提供基础分支、源分支和标题。"
     },
     "model": {
       "auto": "自动",
@@ -20120,7 +20266,39 @@
         "planAgentUnsupported": "智能体“{{agent}}”不支持 AI 提交信息。",
         "planModelUnavailable": "模型“{{model}}”不可用于 {{label}}。",
         "planModelWithoutThinking": "模型“{{model}}”不支持思考强度设置。",
-        "planThinkingLevelInvalid": "思考级别“{{level}}”对 {{model}} 无效。"
+        "planThinkingLevelInvalid": "思考级别“{{level}}”对 {{model}} 无效。",
+        "openCodeInvalidEvents": "OpenCode 返回了无效的 JSON 事件。",
+        "antigravityInvalidEvents": "Antigravity 返回了无效的 JSON 事件。",
+        "antigravityInvalidResult": "Antigravity 返回了无效的结果。",
+        "antigravityNoFinalResult": "Antigravity 未返回最终结果。",
+        "kimiUnreadableOutput": "Kimi 返回了 Orca 无法读取的输出。请重试。",
+        "kimiSessionOccupied": "Kimi 无法使用此会话，因为它在另一个客户端中处于活动状态。请在该客户端中停止会话或退出该客户端，然后重试。",
+        "kimiInterrupted": "Kimi 在完成文本生成前被中断。请重试。",
+        "kimiFailed": "Kimi 未能完成文本生成。请在执行主机上打开 Kimi，检查失败原因后再重试。",
+        "kimiAgentOptionsConflict": "Kimi 收到了冲突或重复的智能体选项。请在生成预设或 CLI 参数中仅保留一个 --agent 或 --agent-file 选项，然后重试。",
+        "kimiOptionRejected": "Kimi 拒绝了某个选项或参数。请修正生成预设或 CLI 参数，然后重试。",
+        "kimiSessionNotFound": "Kimi 找不到请求的会话。请使用现有会话或启动新会话。",
+        "kimiSessionOtherDirectory": "此 Kimi 会话属于另一个目录。请在该目录中恢复会话，或使用为此工作区创建的会话。",
+        "kimiCredentialVariableMissing": "Kimi 缺少已配置的凭据环境变量。请在执行主机上设置该变量后重试。",
+        "kimiCredentialsRequired": "Kimi 需要提供者凭据。请在执行主机上打开 Kimi，配置提供者或登录，然后重试。",
+        "kimiModelMissing": "Kimi 未配置可用模型。请在执行主机上打开 Kimi，配置或选择模型，然后重试。",
+        "kimiPromptHookBlocked": "Kimi 提示词钩子阻止了请求，或无法启动此轮交互。请在重试前检查 Kimi 钩子和配置。",
+        "kimiCancelled": "Kimi 在完成文本生成前取消了请求。请重试。",
+        "kimiEmptyPrompt": "Kimi 收到了空提示词。请修正生成预设或 CLI 参数中的该项输入，然后重试。",
+        "kimiEmptyModel": "Kimi 收到的模型为空。请修正生成预设或 CLI 参数中的该项输入，然后重试。",
+        "kimiEmptyAgent": "Kimi 收到的智能体为空。请修正生成预设或 CLI 参数中的该项输入，然后重试。",
+        "kimiEmptyAgentFilePath": "Kimi 收到了空的智能体文件路径。请修正生成预设或 CLI 参数中的该项输入，然后重试。",
+        "kimiOutputFormatInvalid": "Kimi 输出格式需要提示词模式及受支持的 text 或 stream-json 值。请在重试前修正生成预设或 CLI 参数。",
+        "kimiSessionIdRequired": "Kimi 在提示词模式下恢复会话需要会话 ID。请修正生成预设或 CLI 参数，然后重试。",
+        "kimiConflictingOptions": "Kimi 收到了冲突的选项：{{option}} 与 {{otherOption}}。请在重试前修正生成预设或 CLI 参数。",
+        "kimiAgentChangeOnResume": "Kimi 无法在恢复会话时更改智能体。请移除智能体覆盖设置，或在生成预设或 CLI 参数中启动新会话。",
+        "kimiResponseBlocked": "Kimi 无法返回响应，因为响应被阻止。请在重试前修改提示词或模型配置。",
+        "kimiAuthFailed": "Kimi 无法通过身份验证。请在执行主机上登录或修正提供者凭据，然后重试。",
+        "kimiConnectionFailed": "Kimi 无法连接到提供者。请检查执行主机上的网络，然后重试。",
+        "kimiProviderLimited": "Kimi 已达到提供者限制，或提供者正忙。请等待后再重试，或降低请求频率。",
+        "kimiContextOverflow": "Kimi 的上下文已用尽。请缩短提示词或启动新会话，然后重试。",
+        "kimiConfigInvalid": "Kimi 的配置无效。请在重试前检查执行主机上的模型和提供者配置。",
+        "kimiContinueSessionConflict": "Kimi 收到了冲突的选项：--continue, --session。请在重试前修正生成预设或 CLI 参数。"
       },
       "enableSourceControlAi": "请在设置 -> Git 中启用源代码控制 AI。",
       "chooseBaseBranch": "请先选择基础分支，再生成。"
@@ -20245,7 +20423,33 @@
     "antigravityIdeToCli": "IDE → CLI",
     "antigravity2ToCli": "2.0 → 命令行界面",
     "continueInCli": "在 CLI 中继续",
-    "continueInCliNewTab": "在新选项卡中继续使用 CLI"
+    "continueInCliNewTab": "在新选项卡中继续使用 CLI",
+    "scanIssues": {
+      "issuesOmitted": "已省略其他扫描问题。",
+      "sessionMetadataUnreadable": "本次扫描未能读取会话元数据。",
+      "openCodeScannerUnavailable": "由于无法启动后台扫描器，已跳过 OpenCode 历史记录；应用仍可正常响应。",
+      "openCodeScanIncomplete": "OpenCode 历史记录扫描未完成：{{detail}}",
+      "openCodeWslReaderPreparing": "正在准备 WSL SQLite 读取器。设置完成后请刷新 Vault。",
+      "openCodeWslReaderNotPrepared": "WSL SQLite 读取器尚未准备就绪。请刷新 Vault 以重试。",
+      "openCodeDatabaseBusy": "{{label}} 正在写入 {{name}}，因此已跳过其历史记录。下次刷新时会重新读取。",
+      "openCodeDatabaseUnreadable": "无法读取 {{label}} 在 {{name}} 中的历史记录：{{detail}}",
+      "openCodeWslDatabaseUnsupported": "目前尚无法从 Windows 搜索 WSL 内的 {{label}} 会话。",
+      "openCodeWriteAheadLogUnreadable": "无法读取 {{label}} 在 {{name}} 中的历史记录。此文件系统不支持以只读方式打开其预写日志。请正常退出 {{label}} 以将日志写入数据库。",
+      "wslTranscriptFsSlow": "由于文件系统访问耗时过长，WSL 会话记录文件暂时不可用。请稍后重试；如果问题持续，请重启 Orca。",
+      "wslTranscriptFsCapacity": "由于已有太多文件系统请求在排队，暂时无法查找 WSL 会话记录。请稍后重试；如果问题持续，请重启 Orca。",
+      "wslTranscriptFsProcessFailed": "由于文件系统辅助进程失败（{{detail}}），WSL 会话记录文件暂时不可用。请稍后重试；如果问题持续，请重启 Orca。",
+      "wslDistroNotRunning": "由于 WSL 发行版“{{distro}}”未运行，WSL 会话记录文件不可用。请在该发行版中打开终端以启动它。",
+      "wslDistroUnverifiable": "WSL 未回应“{{distro}}”是否正在运行，因此无法使用 WSL 会话记录文件。请稍后重试。",
+      "wslSessionsFromLastScan": "无法检查 WSL；其会话来自上次扫描。",
+      "scopePathsTruncated": "仅扫描了前 {{limit}} 个项目路径。",
+      "invalidResultsSkipped_other": "已跳过智能体会话历史中 {{count}} 条无效的结果条目。",
+      "scanTimedOutOnSshHost": "此 SSH 主机上的会话扫描在 {{seconds}} 秒后超时。请刷新以重试。",
+      "scanTimedOut": "会话扫描在 {{seconds}} 秒后超时，计算机可能正忙。请刷新以重试。",
+      "scannerPaused": "会话扫描因多次失败而暂停。请刷新以重试。",
+      "scannerBusy": "同时进行的会话扫描过多。请稍等片刻，然后刷新。",
+      "scannerMissing": "此 Orca 安装中缺少会话扫描器。重新安装 Orca 可将其恢复。",
+      "scannerStopped": "会话扫描器意外停止。请刷新以重试。"
+    }
   },
   "common": {
     "retry": "重试",
@@ -20447,7 +20651,12 @@
       "pasteCodeHelp": "登录后，页面会显示一段代码。请将其粘贴到此处。",
       "waiting": "在此设备上打开此页面并登录。帐户保存在 {{host}} 上。",
       "enterCode": "在该页面输入此代码：",
-      "cancelFailed": "暂时无法连接到服务器以取消操作。"
+      "cancelFailed": "暂时无法连接到服务器以取消操作。",
+      "errors": {
+        "ownerSilent": "发起此次登录的设备已停止响应。",
+        "superseded": "此主机上的账户变更中断了登录。请重新开始。",
+        "failed": "登录失败。请重试。"
+      }
     },
     "remoteScopeAccountsAddHere": "当前显示由 {{value0}} 管理的账户。新账户将在那里登录，您需要在此设备的浏览器中完成操作。"
   },
@@ -20859,7 +21068,12 @@
       "settings": "设置",
       "dialogTitle": "聊天自动命名失败",
       "dialogDescriptionStart": "Orca 无法根据第一条消息为",
-      "dialogDescriptionEnd": "生成名称。"
+      "dialogDescriptionEnd": "生成名称。",
+      "errors": {
+        "noName": "聊天命名智能体未返回名称。",
+        "agentNotRun": "Orca 无法运行聊天命名智能体。",
+        "noAgentAvailable": "此工作区中没有可运行的聊天命名智能体。"
+      }
     }
   },
   "jira": {
@@ -20987,7 +21201,35 @@
       "browserSummary": "后台 Orca 服务器的浏览器仍在使用此应用程序。"
     },
     "wslMoveInstallHeld": "项目正在移到其 WSL 主机。移动完成后再安装更新。",
-    "wslMoveUndoInstallHeld": "项目正在从其 WSL 主机移回。完成后再安装更新。"
+    "wslMoveUndoInstallHeld": "项目正在从其 WSL 主机移回。完成后再安装更新。",
+    "failure": {
+      "releaseNotReady": "此设备暂时还无法获取更新的版本。请稍后再检查。",
+      "updateServerUnreachable": "无法连接更新服务器。请几分钟后重试。",
+      "channelUnsupportedPlatform": "{{channel}} 构建仅针对 macOS 和 Windows 提供。",
+      "unsignedDevChannel": "{{channel}} 构建未签名，而当前已签名的构建仅安装由 Orca 发布者签名的更新。请从版本发布页面下载安装程序并运行一次，之后更新即可正常进行，包括切回稳定版。",
+      "linuxPackageMissing": "下载的安装包已不在更新缓存中。请重新下载更新，或从官方版本发布页面获取。",
+      "linuxPackageNotRegular": "更新缓存中下载的安装包已不再是有效文件。请重新下载更新，或从官方版本发布页面获取。",
+      "linuxPackageHashMismatch": "下载的安装包与已验证的版本不再匹配，因此 Orca 不会将其交给包管理器。请重新下载更新，或从官方版本发布页面获取。",
+      "linuxPackageReadFailed": "Orca 无法读取下载的安装包。请重新下载更新，或从官方版本发布页面获取。",
+      "linuxPackageNoSudo": "系统目录中未找到 sudo 命令，因此 Orca 无法生成安全的安装命令。请显示安装包并使用包管理器安装。",
+      "linuxPackageNoPackageManager": "系统目录中未找到受支持的包管理器，因此 Orca 无法生成安全的安装命令。请显示安装包并使用包管理器安装。",
+      "linuxPackageInvalidPath": "下载的安装包不在可用路径中，因此 Orca 无法生成安全的安装命令。请显示安装包并使用包管理器安装。",
+      "linuxPackageMarkerUnusable": "Orca 无法验证已安装的 Linux 软件包格式，因此不会自动安装此更新。请从官方版本发布页面下载更新并手动安装。",
+      "linuxPackageExternallyManaged": "此 Orca 由系统包管理器管理，因此 Orca 无法自行安装更新。请通过所用的发行版更新 Orca。",
+      "linuxPackageManualInstall": "运行系统软件包安装命令前，请先退出 Orca。",
+      "linuxPackageMetadataUnusable": "无法验证下载的安装包元数据。请先退出 Orca，再从官方版本发布页面下载并安装更新。",
+      "unknownReleaseChannel": "未知的发布渠道“{{channel}}”。",
+      "invalidReleaseTag": "“{{tag}}”不是有效的发布标签。",
+      "releaseRepoNotFound": "在 {{repo}} 未找到发布版本的仓库。",
+      "releaseListFailed": "无法列出 {{channel}} 构建（HTTP {{status}}）。",
+      "releaseListUnreadable": "无法读取 {{channel}} 的版本发布列表。",
+      "rateLimitedSoon": "已达到 GitHub 速率限制。请几分钟后重试。",
+      "rateLimitedSoonSignedOut": "已达到 GitHub 速率限制。请几分钟后重试，或运行 `gh auth login`，以便 Orca 使用你账户的更高限额。",
+      "rateLimitedInMinute": "已达到 GitHub 速率限制。请约一分钟后重试。",
+      "rateLimitedInMinuteSignedOut": "已达到 GitHub 速率限制。请约一分钟后重试，或运行 `gh auth login`，以便 Orca 使用你账户的更高限额。",
+      "rateLimitedInMinutes_other": "已达到 GitHub 速率限制。请约 {{count}} 分钟后重试。",
+      "rateLimitedInMinutesSignedOut_other": "已达到 GitHub 速率限制。请约 {{count}} 分钟后重试，或运行 `gh auth login`，以便 Orca 使用你账户的更高限额。"
+    }
   },
   "onboarding": {
     "language": {
@@ -21382,10 +21624,37 @@
       "automationHistory": "自动化历史",
       "onboarding": "入门引导进度",
       "other": "其他已保存的应用状态"
+    },
+    "startupFailure": {
+      "noneFound": "（未找到）",
+      "sqlitePath": "SQLite 路径：{{path}}",
+      "sectionsDamaged": "此配置文件已保存状态的一部分已损坏：{{sections}}。其余内容均完好无损。",
+      "repairCommand": "关闭 Orca，然后运行 `{{command}}`，仅从备份中替换损坏的部分，并保留其余所有内容。Orca 会保留损坏文件的副本。",
+      "restoreWholeBackup": "如需改为恢复整份备份，请先运行 `{{exportsCommand}}`，再运行 `{{rollbackCommand}}`。",
+      "sqliteUnreadable": "Orca 无法安全地打开当前配置文件，因为其 SQLite 状态无法读取。",
+      "legacyJsonPath": "旧版 JSON 路径：{{path}}",
+      "retainedBackups": "保留的 SQLite 备份：",
+      "retainedExports": "保留的 JSON 导出：",
+      "chooseRecoveryArtifact": "关闭 Orca，然后运行 `{{command}}`，选择一份确认完好的恢复数据。",
+      "restoreCommands": "使用 `{{backupCommand}}` 恢复 SQLite，或使用 `{{revisionCommand}}` 恢复 JSON 导出。",
+      "authorityAmbiguous": "Orca 无法安全地确定以哪份配置文件状态为准：{{detail}}",
+      "authorityBothPreserved": "旧版本可能修改过 JSON 文件。两个副本均已保留，不会自动选择任何一个。",
+      "authorityCopyFirst": "关闭 Orca 并复制配置文件目录，然后再选择要保留的状态。",
+      "authorityKeepJson": "如需保留当前 JSON（包括旧版本中的修改），请运行 `{{command}}`。此操作会归档两个副本，不会合并其内容。",
+      "authorityInspect": "运行 `{{command}}` 以查看保留的恢复点。",
+      "authorityRestore": "请先选择要恢复的状态，再使用 `{{backupCommand}}` 或 `{{revisionCommand}}`。",
+      "newerSchema": "此配置文件由较新版本的 Orca 保存。请使用该版本或更新版本打开。你的配置文件未被更改。",
+      "revisionConflict": "Orca 启动期间，当前配置文件发生了更改。请关闭使用此配置文件的其他 Orca 进程，然后重新启动 Orca。",
+      "writerUnavailable": "Orca 无法启动配置文件保存功能。请重新启动 Orca；如果问题仍然存在，请修复或重新安装此版本。",
+      "publicationUnavailable": "Orca 无法将配置文件状态安全地保存到 {{directory}}。",
+      "publicationNeedsHardLinks": "此位置必须支持硬链接，且 Orca 需要创建硬链接的权限。",
+      "publicationMoveData": "在检查文件夹权限，或将整个 Orca 数据目录移动到支持硬链接的可写本地文件系统（如 APFS、NTFS 或 ext4）之前，请关闭 Orca 和 orcad。",
+      "publicationKeepFiles": "请保留原始目录和所有恢复文件。"
     }
   },
   "startupFailure": {
-    "title": "Orca 无法启动"
+    "title": "Orca 无法启动",
+    "finishFailed": "Orca 无法完成启动：{{detail}}"
   },
   "localBuild": {
     "chooseTitle": "选择本地 Orca 构建",
@@ -21416,6 +21685,26 @@
       "compatible": "运行时客户端与服务器兼容。",
       "clientTooOld": "此 Orca 客户端版本过旧，无法连接所选服务器。请更新本机上的 Orca。客户端协议版本为 {{clientProtocol}}，服务器要求的客户端协议版本为 {{requiredProtocol}}。",
       "serverTooOld": "所选 Orca 服务器版本过旧，无法与此客户端兼容。请更新服务器上的 Orca。服务器协议版本为 {{serverProtocol}}，客户端要求的服务器协议版本为 {{requiredProtocol}}。"
+    },
+    "remoteServerPairingErrors": {
+      "invalidPairingCode": "配对码无效。需要 orca://pair?... URL 或原始配对数据。",
+      "selfPairingCode": "这是当前 Orca 的配对码。请改在另一台计算机上生成配对码。",
+      "managedDeployment": "Orca 为你在 SSH 主机上运行此服务器；无法在此替换或移除其配对。要停用它，请运行 `orca environment stop --environment <name> --yes`，或前往设置 > SSH 主机上的 Orca；如果主机已不存在，请运行 `orca environment forget --environment <name> --yes`。",
+      "sshAccessChangePending": "此服务器的 SSH 访问更改未完成。替换配对或移除此服务器之前，请在设置 > 远程 Orca 服务器 > 已配对服务器的 SSH 访问下重试或取消更改。",
+      "sshAccessLinked": "替换配对或移除此服务器之前，请在设置 > 远程 Orca 服务器 > 已配对服务器的 SSH 访问下解除此服务器的 SSH 访问关联。",
+      "alreadyPairedCloudWorkspace": "此服务器已作为“{{name}}”配对。它属于一个云工作区，该工作区恢复运行时会再次与其配对。",
+      "alreadyPairedCloudIdentity": "此服务器已作为“{{name}}”配对。云工作区的服务器复用了该服务器的身份，因此未保存。",
+      "alreadyPairedWslHost": "此服务器已作为“{{name}}”配对。Orca 将其作为 WSL 主机管理，因此无法在此替换其配对。",
+      "alreadyPairedManagedDeployment": "此服务器已作为“{{name}}”配对。Orca 为你在 SSH 主机上运行此服务器；无法在此替换或移除其配对。要停用它，请运行 `orca environment stop --environment <name> --yes`，或前往设置 > SSH 主机上的 Orca；如果主机已不存在，请运行 `orca environment forget --environment <name> --yes`。",
+      "alreadyPairedSshAccessChangePending": "此服务器已作为“{{name}}”配对。此服务器的 SSH 访问更改未完成。替换配对或移除此服务器之前，请在设置 > 远程 Orca 服务器 > 已配对服务器的 SSH 访问下重试或取消更改。",
+      "alreadyPairedSshAccessLinked": "此服务器已作为“{{name}}”配对。替换配对或移除此服务器之前，请在设置 > 远程 Orca 服务器 > 已配对服务器的 SSH 访问下解除此服务器的 SSH 访问关联。",
+      "alreadyPairedAddAgain": "此服务器已作为“{{name}}”配对。要更新其连接，请在设置 > 远程 Orca 服务器下重新添加。",
+      "alreadyPairedUnreadable": "此服务器已作为“{{name}}”配对，但此版本的 Orca 无法读取其已保存的设置。",
+      "nameTaken": "名为“{{name}}”的服务器已存在。",
+      "idNeedsNewerOrca": "具有此 ID 的服务器已存在，其格式需要更新版本的 Orca。",
+      "hostSaveFailed": "Orca 已验证主机，但无法保存。请检查本地设置存储并重试。",
+      "repairSaveFailed": "Orca 已验证服务器，但无法保存新的配对。请检查本地设置存储并重试。",
+      "repairCloudWorkspace": "此服务器属于一个云工作区，该工作区恢复运行时会再次与其配对。"
     }
   },
   "native": {
@@ -21768,6 +22057,22 @@
         "error": "项目在所选自动化主机上设置失败。",
         "unsupported": "所选自动化主机不支持此项目。"
       }
+    },
+    "extraAgentArgs": {
+      "errors": {
+        "tooLarge": "额外参数不得超过 4 KB。",
+        "controlCharacters": "额外参数不能包含控制字符或换行符。",
+        "invalid": "额外参数无效：{{detail}}",
+        "shellSyntax": "{{text}} 使用了额外参数不允许的 Shell 语法。",
+        "terminator": "额外参数中不允许使用“--”。",
+        "notAnOption": "“{{token}}”不是选项。{{agent}} 的额外参数仅接受：{{allowed}}。",
+        "optionNotAllowed": "{{agent}} 的额外参数中不允许使用“{{option}}”。允许的选项：{{allowed}}。",
+        "missingValue": "“{{option}}”需要一个值。",
+        "valueNotAllowed": "不允许使用“{{option}} {{value}}”。{{agent}} 的额外参数仅接受“{{option}} {{prefix}}<level>”。",
+        "modelRepeated": "额外参数重复设置了模型。",
+        "effortRepeated": "额外参数重复设置了推理强度。"
+      },
+      "hostUpdateRequired": "请更新此主机上的 Orca 以使用额外参数。"
     }
   },
   "codeHost": {
@@ -21816,6 +22121,242 @@
         "jobProjectNotFound": "找不到此作业的 GitLab 项目。",
         "jobLogFailed": "加载作业日志失败：{{detail}}"
       }
+    },
+    "startPoint": {
+      "repoNotFound": "未找到仓库",
+      "folderUnsupported": "文件夹模式不支持创建工作树。",
+      "fetchFailed": "无法获取 {{ref}}：{{detail}}",
+      "remoteRefMissing": "获取后，远程引用 {{ref}} 不存在。",
+      "github": {
+        "prNotFound": "未找到 PR #{{number}}。",
+        "prHeadBranchMissing": "PR #{{number}} 没有源分支。",
+        "forkHeadUnresolved": "获取后，无法解析来自 fork 的 PR #{{number}} 的头部引用。",
+        "headShaEmpty": "解析 PR #{{number}} 的头部引用时得到空 SHA。"
+      },
+      "gitlab": {
+        "projectNotFound": "未找到此仓库对应的 GitLab 项目。",
+        "mrNotFound": "未找到 MR !{{number}}。",
+        "mrSourceBranchMissing": "MR !{{number}} 没有源分支。",
+        "forkHeadUnresolved": "获取后，无法解析来自 fork 的 MR !{{number}} 的头部引用。"
+      }
+    },
+    "bitbucketConnect": {
+      "invalidInput": "Bitbucket 凭据无效",
+      "accessTokenRequired": "请输入访问令牌。",
+      "emailAndApiTokenRequired": "请输入电子邮件地址和 API 令牌。",
+      "rejected": "Bitbucket 拒绝了这些凭据。请检查电子邮件地址和令牌，然后重试。",
+      "unreachable": "无法连接到 Bitbucket。请检查网络连接或 API 基础 URL，然后重试。"
+    }
+  },
+  "featureWall": {
+    "workflows": {
+      "workspaces": {
+        "title": "工作区",
+        "lede": "Orca 为每项任务分配独立的工作区，让智能体能够并行工作。"
+      },
+      "tasks": {
+        "title": "任务",
+        "lede": "直接从 GitHub 或 Linear 开始工作。"
+      },
+      "agents": {
+        "title": "智能体",
+        "lede": "同时运行多个智能体，跟踪进度，并在需要时通过自动化操控 Orca。"
+      },
+      "workbench": {
+        "title": "工作台",
+        "lede": "将常用的终端配置带入 Orca，再拆分窗格，让服务器、测试、日志和智能体并排运行。"
+      },
+      "review": {
+        "title": "代码评审",
+        "lede": "审阅更改，留下有针对性的反馈，再发送给智能体。"
+      }
+    },
+    "steps": {
+      "statuses": {
+        "name": "可见性",
+        "subtitle": "智能体可见性",
+        "description": "了解哪些智能体正在工作、等待、处于活跃状态或已被阻塞。"
+      },
+      "orchestration": {
+        "name": "编排",
+        "description": "让智能体管理和协调 Orca 工作区，以执行更大规模的任务。"
+      },
+      "usage": {
+        "name": "用量",
+        "description": "查看所有已连接账户的用量和速率限制，掌握切换账户的时机。"
+      },
+      "terminal": {
+        "name": "终端",
+        "description": "同时查看智能体、测试和开发日志。"
+      },
+      "editor": {
+        "name": "编辑器",
+        "description": "使用 Notion 风格的 Markdown 编辑器，无需离开 Orca 即可记笔记。"
+      },
+      "browser": {
+        "name": "浏览器",
+        "description": "在 Orca 浏览器中运行应用，将选中的 UI 元素发送给智能体，并让智能体与你的网页交互。"
+      },
+      "notes": {
+        "name": "笔记",
+        "subtitle": "笔记与差异",
+        "description": "向智能体发送有针对性的评审笔记。"
+      },
+      "prView": {
+        "name": "PR 检查项",
+        "subtitle": "PR 检查项与评论",
+        "description": "在“检查项”标签页中查看 PR 状态。"
+      },
+      "ship": {
+        "name": "借助 AI 交付",
+        "description": "让 AI 为你准备提交和 PR 草稿。"
+      }
+    },
+    "tiles": {
+      "tile01": {
+        "title": "并行工作区编排"
+      },
+      "tile02": {
+        "title": "Ghostty 级终端"
+      },
+      "tile03": {
+        "title": "原生集成 GitHub 与 Linear"
+      },
+      "tile04": {
+        "title": "支持的 CLI 智能体"
+      },
+      "tile05": {
+        "title": "内嵌浏览器 + 设计模式"
+      },
+      "tile06": {
+        "title": "远程工作区"
+      },
+      "tile07": {
+        "title": "Monaco 编辑器，拖给智能体"
+      },
+      "tile08": {
+        "title": "行内评审，反馈给智能体"
+      },
+      "tile09": {
+        "title": "Orca CLI"
+      },
+      "tile10": {
+        "title": "键盘优先"
+      },
+      "tile11": {
+        "title": "掌握用量与速率限制"
+      },
+      "tile12": {
+        "title": "PDF、图片、CSV、Markdown"
+      }
+    }
+  },
+  "setupScriptPrompt": {
+    "candidateLabels": {
+      "codexEnvironment": "Codex 环境",
+      "packageManager": "包管理器"
+    }
+  },
+  "emulator": {
+    "errors": {
+      "disabled": "手机模拟器已在设置中禁用。",
+      "notAvailable": "手机模拟器不可用。",
+      "noSession": "没有活动的模拟器会话",
+      "noDeviceSpecified": "未指定模拟器设备。请在设置 > 手机模拟器中选择默认设备，或传入设备。",
+      "workspaceChanged": "模拟器启动期间工作区已更改。请重新连接模拟器。",
+      "noIosSimulators": "未找到 iOS 模拟器。请在 Xcode Settings > Platforms 中添加一个。",
+      "simctlUnavailable": "xcrun simctl 不可用。",
+      "simulatorToolsUnavailable": "Xcode Simulator 工具不可用。请安装完整版 Xcode，打开一次，然后使用 `sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer` 选择它。",
+      "requiresMacosXcode": "iOS 模拟器需要安装了 Xcode Command Line Tools 的 macOS。",
+      "simulatorNotFound": "未找到模拟器 {{udid}}。请通过 Xcode > Window > Devices and Simulators 创建一个。",
+      "serveSimUnavailable": "serve-sim 不可用。",
+      "serveSimNoEndpoints": "serve-sim 未返回流端点。",
+      "serveSimEndpointUnreachable": "serve-sim 已启动，但无法访问其流端点。",
+      "androidSdkMissing": "未找到 Android SDK。请安装 Android Studio 并设置 ANDROID_HOME。",
+      "adbUnavailable": "adb 不可用。",
+      "noAndroidDevices": "未找到 Android 设备或 AVD。请在 Android Studio 中创建一个。",
+      "androidDeviceNotRunning": "Android 设备“{{device}}”未运行。请先启动它。",
+      "unknownDeviceOrAvd": "“{{device}}”不是正在运行的设备，也不是已知的 AVD。",
+      "avdBootTimeout": "AVD “{{avdName}}”未能及时完成启动。",
+      "scrcpyDownloadFailed": "无法下载 scrcpy 服务器：{{detail}}",
+      "scrcpyServerInvalid": "下载的 scrcpy 服务器无效或不完整。"
+    },
+    "pane": {
+      "listDevicesFailed": "无法列出模拟器设备。",
+      "noDevices": "未找到模拟器设备。请在 Xcode 中添加 iOS 模拟器，或在 Android Studio 中添加 Android 虚拟设备。",
+      "startFailed": "无法启动模拟器。请确保已配置好 Xcode（iOS）或 Android Studio（Android），然后尝试其他设备。",
+      "shutdownFailed": "无法关闭模拟器。请重试，或通过模拟器管理器停止它。"
+    },
+    "settings": {
+      "availabilityCheckFailed": "无法检查模拟器可用性。"
+    }
+  },
+  "ephemeralVm": {
+    "errors": {
+      "repoNotFound": "未找到仓库：{{repoId}}",
+      "remoteRepoUnsupported": "在 v1 中，临时虚拟机环境模板在本地桌面主机上运行。",
+      "recipeNotFound": "未找到环境模板：{{recipeId}}",
+      "runtimeNotFound": "未知的临时虚拟机运行时：{{runtimeId}}",
+      "runtimeRepoMissing": "临时虚拟机运行时没有仓库 ID：{{runtimeId}}",
+      "provisionCancelled": "预配已取消。",
+      "startRefUnresolved": "无法解析已预配根目录的起始引用：{{ref}}",
+      "defaultStartRefUnresolved": "无法解析已预配根目录的默认起始引用。",
+      "recipeExited": "环境模板已退出，退出码为 {{exitCode}}。",
+      "recipeResultMissing": "环境模板未生成 JSON 结果。",
+      "recipeResultNotJsonObject": "环境模板的 stdout 必须是单个 JSON 对象。",
+      "recipeResultPairingCodeInvalid": "环境模板结果中的 pairingCode 不是有效的 Orca 配对码。",
+      "recipeResultProjectRootNotAbsolute": "环境模板结果中的 projectRoot 必须是运行时中的绝对路径。",
+      "provisionedRootResultRequired": "使用已预配根目录的环境模板必须返回 schemaVersion 2，且 checkoutMode 为 \"provisioned-root\"。",
+      "provisionedRootNotConfigured": "环境模板结果请求使用已预配根目录检出模式，但环境模板未配置为使用此模式。",
+      "destroyExited": "销毁操作已退出，退出码为 {{exitCode}}。",
+      "destroyFailed": "销毁失败。",
+      "destroyDisabled": "此环境模板已禁用销毁。",
+      "cleanupStopped": "用户已停止清理。",
+      "cleanupInterrupted": "清理已中断。请重试清理以继续。",
+      "sshTargetRemoveFailed": "无法移除隐藏的 SSH 目标。",
+      "recipeExitedWithoutCode": "环境模板已退出，退出码未知。",
+      "destroyExitedWithoutCode": "销毁操作已退出，退出码未知。"
+    }
+  },
+  "installDirAcl": {
+    "cause": "Orca 安装文件夹的 Windows 权限阻止了 Orca 自身的沙箱进程读取随应用附带的文件。",
+    "repaired": "Orca 已修复权限。请重新加载以应用。",
+    "repairing": "Orca 正在修复权限。",
+    "repairFailed": "Orca 无法修复权限，这通常意味着该文件夹需要管理员权限。",
+    "runCommands": "在以管理员身份运行的命令提示符中执行以下命令，然后重新启动 Orca："
+  },
+  "pet": {
+    "importErrors": {
+      "unsupportedFile": "不支持此文件。请选择 PNG、APNG、JPG、GIF、WebP 或 SVG。",
+      "fileUnreadable": "无法读取所选文件。",
+      "notAFile": "所选路径不是文件",
+      "fileTooLarge": "文件过大（{{size}} MB）。最大允许 {{max}} MB。",
+      "saveFailed": "无法保存宠物。",
+      "pathUnreadable": "无法读取所选路径。",
+      "manifestMissing": "包中缺少 pet.json。",
+      "manifestInvalid": "pet.json 无效。",
+      "manifestSymlink": "pet.json 不能是符号链接。",
+      "manifestParseFailed": "无效的 pet.json：{{detail}}",
+      "bundleSaveFailed": "无法保存宠物包。",
+      "sheetPathNotRelative": "spritesheetPath 必须是相对于包的路径。",
+      "sheetPathIsRoot": "spritesheetPath 必须指向文件，而不是包的根目录。",
+      "sheetPathEscapes": "spritesheetPath 指向包之外的路径。",
+      "sheetSymlink": "精灵图不能是符号链接。",
+      "sheetUnsupportedType": "精灵图必须是 PNG、APNG、JPG、GIF 或 WebP 文件。",
+      "sheetNotFound": "找不到精灵图文件。",
+      "sheetNotAFile": "精灵图路径不是文件。",
+      "sheetTooLarge": "精灵图过大（{{size}} MB）。",
+      "sheetSizeLimitExceeded": "精灵图超出了大小限制。",
+      "sheetUndecodable": "无法解码精灵图图像。",
+      "sheetFrameMismatch": "精灵图尺寸 {{sheetWidth}}×{{sheetHeight}} 不是帧尺寸 {{frameWidth}}×{{frameHeight}} 的整数倍。",
+      "animationRowOutOfRange": "动画“{{name}}”引用了第 {{row}} 行，但精灵图只有 {{rows}} 行。",
+      "animationTooManyFrames": "动画“{{name}}”有 {{frames}} 帧，但精灵图只有 {{columns}} 列。",
+      "animationDurationMismatch": "动画“{{name}}”声明了 {{durations}} 个帧时长，但有 {{frames}} 帧。",
+      "defaultAnimationMissing": "defaultAnimation “{{name}}” 不在 animations 中。"
+    },
+    "defaultLabels": {
+      "image": "自定义宠物",
+      "bundle": "宠物包"
     }
   }
 }

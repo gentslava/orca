@@ -50,6 +50,14 @@ describe('plugin status presentation', () => {
     ).toMatchObject({ primary: 'restart', statusText: 'Stopped' })
   })
 
+  it('offers Reinstall for a plugin that cannot load, and View error without one', () => {
+    const broken = host('a', { status: 'invalid' })
+    expect(installedPluginPresentation(broken, null, false, idle, '1.0.0').primary).toBe(
+      'reinstall'
+    )
+    expect(installedPluginPresentation(broken, null, false, idle).primary).toBe('error')
+  })
+
   it('counts a crashed plugin as switched on, and a pending one as needing review', () => {
     expect(isPluginEnabled({ status: 'errored' })).toBe(true)
     expect(isPluginEnabled({ status: 'disabled' })).toBe(false)

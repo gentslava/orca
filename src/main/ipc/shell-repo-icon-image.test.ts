@@ -69,8 +69,16 @@ describe('project icon image input', () => {
   })
 
   it('rejects oversized sources and non-image extensions', async () => {
-    await expect(pickFile('huge.png', new Uint8Array(10 * 1024 * 1024 + 1))).rejects.toThrow()
-    await expect(pickFile('script.html', Buffer.from('<html/>'))).rejects.toThrow()
+    await expect(pickFile('huge.png', new Uint8Array(10 * 1024 * 1024 + 1))).resolves.toMatchObject(
+      {
+        ok: false,
+        errorCode: 'sourceTooLarge'
+      }
+    )
+    await expect(pickFile('script.html', Buffer.from('<html/>'))).resolves.toMatchObject({
+      ok: false,
+      errorCode: 'unsupportedImage'
+    })
   })
 
   it('keeps cancellation silent', async () => {

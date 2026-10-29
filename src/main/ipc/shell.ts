@@ -1,4 +1,3 @@
-import { IMAGE_FILE_MIME_TYPES } from '../../shared/image-file-extensions'
 import { translateMain } from '../i18n/main-i18n'
 import {
   validatePathExistenceBatch,
@@ -14,6 +13,11 @@ import type {
   ShellOpenLocalPathResult
 } from '../../shared/shell-open-types'
 import { MAX_REPO_ICON_SOURCE_BYTES } from '../../shared/repo-icon'
+import { IMAGE_FILE_MIME_TYPES } from '../../shared/image-file-extensions'
+import {
+  repoIconPickFailure,
+  type RepoIconPickResult
+} from '../../shared/repo-icon-pick-failure-copy'
 import type { Store } from '../persistence'
 import {
   EXTERNAL_EDITOR_CLI_COMMAND,
@@ -267,41 +271,38 @@ export function registerShellHandlers(
     return result.filePaths[0]
   })
 
-  ipcMain.handle(
-    'shell:pickRepoIconImage',
-    async (): Promise<{ dataUrl: string; fileName: string } | null> => {
-      const result = await dialog.showOpenDialog({
-        properties: ['openFile'],
-        filters: [
-          {
-            name: translateMain('native.dialog.repoIconImages', 'Repo icon images'),
-            extensions: Object.keys(IMAGE_FILE_MIME_TYPES).map((extension) => extension.slice(1))
-          }
-        ]
-      })
-      if (result.canceled || result.filePaths.length === 0) {
-        return null
-      }
-
-      const filePath = result.filePaths[0]
-      const extension = extname(filePath).toLowerCase()
-      const mimeType = IMAGE_FILE_MIME_TYPES[extension]
-      if (!mimeType) {
-        throw new Error('Choose a PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF image.')
-      }
-
-      const stats = await stat(filePath)
-      if (!stats.isFile() || stats.size > MAX_REPO_ICON_SOURCE_BYTES) {
-        throw new Error('Repo icon image must be 10MB or smaller.')
-      }
-
-      const buffer = await readFile(filePath)
-      return {
-        dataUrl: `data:${mimeType};base64,${buffer.toString('base64')}`,
-        fileName: basename(filePath)
-      }
+  ipcMain.handle('shell:pickRepoIconImage', async (): Promise<RepoIconPickResult> => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        {
+          name: translateMain('native.dialog.repoIconImages', 'Repo icon images'),
+          extensions: Object.keys(IMAGE_FILE_MIME_TYPES).map((extension) => extension.slice(1))
+        }
+      ]
+    })
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
     }
-  )
+
+    const filePath = result.filePaths[0]
+    const extension = extname(filePath).toLowerCase()
+    const mimeType = IMAGE_FILE_MIME_TYPES[extension]
+    if (!mimeType) {
+      return repoIconPickFailure('unsupportedImage')
+    }
+
+    const stats = await stat(filePath)
+    if (!stats.isFile() || stats.size > MAX_REPO_ICON_SOURCE_BYTES) {
+      return repoIconPickFailure('sourceTooLarge')
+    }
+
+    const buffer = await readFile(filePath)
+    return {
+      dataUrl: `data:${mimeType};base64,${buffer.toString('base64')}`,
+      fileName: basename(filePath)
+    }
+  })
 
   ipcMain.handle('shell:pickAudio', async (): Promise<string | null> => {
     const result = await dialog.showOpenDialog({

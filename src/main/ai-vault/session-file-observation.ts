@@ -2,11 +2,12 @@ import { wslGatedStat } from '../native-chat/wsl-transcript-fs-access'
 import { WslTranscriptFsError } from '../native-chat/wsl-transcript-fs-gate'
 import type { SessionSidecarObservation } from './session-sidecar-stat'
 import type { FileWithMtime } from './session-scanner-types'
-import { errorMessage } from './session-scanner-values'
+import { scanIssueTextFromError } from './session-scan-issues'
+import type { AiVaultScanIssue } from '../../shared/ai-vault-types'
 
 export type SessionFileObservation =
   | { file: Omit<FileWithMtime, 'modifiedAt'>; sidecarPath?: string }
-  | { issue: { path: string; message: string } }
+  | { issue: Omit<AiVaultScanIssue, 'agent' | 'kind' | 'executionHostId'> }
 
 export async function observeSessionFile(
   path: string,
@@ -30,7 +31,7 @@ export async function observeSessionFile(
       sidecarPath
     }
   } catch (err) {
-    return { issue: { path, message: errorMessage(err) } }
+    return { issue: { path, ...scanIssueTextFromError(err) } }
   }
 }
 
