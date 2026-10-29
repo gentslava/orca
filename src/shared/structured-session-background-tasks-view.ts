@@ -4,7 +4,7 @@ import type {
   AgentSessionBackgroundTask,
   AgentSessionBackgroundTaskState
 } from './agent-session-wire'
-import { agentChildWorkLiveness } from './agent-status-child-work-liveness'
+import { isLiveChildWork } from './agent-status-child-work-liveness'
 import type { AgentChildWorkView } from './agent-status-child-work-view'
 
 export type StructuredSessionBackgroundTasksView = {
@@ -63,7 +63,7 @@ export function structuredSessionBackgroundTasksView(
   const show = monitoring && (incomplete || !onlyForeground)
   // Commands and rewind follow the listed records, as the host's own admission does.
   const liveWork = children
-    ? agentChildWorkLiveness(children) !== null
+    ? children.some((child) => child.membership === 'live' && isLiveChildWork(child))
     : tasks.length > 0 || (show && !settledTasks.length)
   const supportsStop = backgroundTasks?.supportsTaskStop === true
   return {

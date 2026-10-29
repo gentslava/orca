@@ -50,12 +50,28 @@ describe('structuredSessionBackgroundTasksView', () => {
     expect(shown).toMatchObject({ show: true, tasks: [tasks[1]], children: [agent] })
   })
 
-  it('shows finished children until the next turn, but they hold nothing open', () => {
-    const finished = structuredSessionBackgroundTasksView(
-      { state: 'monitoring', children: [view('settled')] },
-      null
-    )
-    expect(finished).toMatchObject({ show: true, isMonitoring: false, children: [view('settled')] })
+  it.each(['done', 'idle', 'blocked', 'unverifiable'] as const)(
+    'retains settled agents with display state %s without treating them as live work',
+    (state) => {
+      const child = { ...view('settled'), state }
+      const finished = structuredSessionBackgroundTasksView(
+        { state: 'monitoring', children: [child] },
+        null
+      )
+      expect(finished).toMatchObject({
+        show: true,
+        isMonitoring: false,
+        offersStopAll: false,
+        children: [child]
+      })
+    }
+  )
+
+  it('keeps lost contact with a still-live child active', () => {
+    const child = { ...view('live'), state: 'unverifiable' as const }
+    expect(
+      structuredSessionBackgroundTasksView({ state: 'monitoring', children: [child] }, null)
+    ).toMatchObject({ show: true, isMonitoring: true, offersStopAll: true })
   })
 
   // Unrecorded work keeps the strip visible; commands/rewind still follow listed records as host admission does.
