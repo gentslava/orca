@@ -299,6 +299,9 @@ it('opens a separate completed conversation and its native descendants, retainin
   expect(visibleChildReads).toBeGreaterThan(0)
   fireEvent.click(screen.getByRole('button', { name: /Nested native agent/ }))
   expect(await screen.findByText(/Nested original answer/)).toBeVisible()
+  const nestedFrame = screen.getByRole('region', { name: 'Nested native agent' })
+  expect(within(nestedFrame).getByText('completed', { selector: 'header > span' })).toBeVisible()
+  expect(within(nestedFrame).queryByRole('button', { name: 'Recorded result' })).toBeNull()
   expect(workerFeed).not.toBeVisible()
   await act(async () => {
     await vi.advanceTimersByTimeAsync(30_000)
@@ -413,6 +416,7 @@ it('does not rebind an open native descendant to a worker’s replacement conver
   })
   const frame = screen.getByRole('region', { name: 'Nested native agent' })
   expect(within(frame).queryByText(/Nested original answer/)).toBeNull()
+  expect(within(frame).queryByRole('button', { name: 'Recorded result' })).toBeNull()
   expect(within(frame).getByRole('status')).toHaveTextContent(
     'This host has not supplied the agent’s conversation history.'
   )
