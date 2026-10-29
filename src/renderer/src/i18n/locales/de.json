@@ -8455,7 +8455,8 @@
           "issueCommandDescription": "Optionale Überschreibung. <artifactUrl>{{artifact_url}}</artifactUrl> für die URL des verknüpften Issues oder PRs verwenden.",
           "issueCommandSharedDefault": "Leer lassen, um den Repository-Standard aus <yaml>orca.yaml</yaml> zu verwenden.",
           "issueCommandOptionalDefault": "Leer lassen, um den Repository-Standard aus <yaml>orca.yaml</yaml> zu verwenden, sofern vorhanden.",
-          "commandSourceDescription": "Wenn sowohl <yaml>orca.yaml</yaml> als auch lokale Befehle vorhanden sind, auswählen, welche ausgeführt werden."
+          "commandSourceDescription": "Wenn sowohl <yaml>orca.yaml</yaml> als auch lokale Befehle vorhanden sind, auswählen, welche ausgeführt werden.",
+          "issueCommandWslStopped": "Die WSL-Distribution {{distro}} ist gestoppt. Öffne darin ein Terminal, um diesen Befehl anzuzeigen oder zu bearbeiten."
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "Repository-Farbe {{value0}} verwenden",
@@ -21076,7 +21077,9 @@
       "errors": {
         "noName": "Der Agent zur Chat-Benennung hat keinen Namen zurückgegeben.",
         "agentNotRun": "Orca konnte den Agenten zur Chat-Benennung nicht ausführen.",
-        "noAgentAvailable": "In diesem Arbeitsbereich kann kein Agent zur Chat-Benennung ausgeführt werden."
+        "noAgentAvailable": "In diesem Arbeitsbereich kann kein Agent zur Chat-Benennung ausgeführt werden.",
+        "grokFailed": "Grok konnte diesen Chat nicht benennen. Versuche erneut, den Namen zu generieren.",
+        "antigravityFailed": "Antigravity konnte diesen Chat nicht benennen. Versuche erneut, den Namen zu generieren."
       }
     }
   },

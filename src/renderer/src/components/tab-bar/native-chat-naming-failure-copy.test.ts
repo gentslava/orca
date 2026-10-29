@@ -20,6 +20,15 @@ describe('nativeChatNamingErrorText', () => {
         messageCode: 'noName'
       })
     ).toBe(es.tabHoverCard.namingFailure.errors.noName)
+    for (const messageCode of ['grokFailed', 'antigravityFailed'] as const) {
+      expect(
+        nativeChatNamingErrorText({
+          message: 'private provider diagnostic',
+          failedAt: 1,
+          messageCode
+        })
+      ).toBe(es.tabHoverCard.namingFailure.errors[messageCode])
+    }
     expect(nativeChatNamingErrorText({ message: 'claude exited 1', failedAt: 1 })).toBe(
       'claude exited 1'
     )

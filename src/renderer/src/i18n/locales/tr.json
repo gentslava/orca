@@ -8441,7 +8441,8 @@
           "issueCommandDescription": "İsteğe bağlı geçersiz kılma. Bağlı sorunun veya PR'ın URL'si için <artifactUrl>{{artifact_url}}</artifactUrl> kullanın.",
           "issueCommandSharedDefault": "<yaml>orca.yaml</yaml> dosyasındaki repo varsayılanını kullanmak için boş bırakın.",
           "issueCommandOptionalDefault": "Varsa <yaml>orca.yaml</yaml> dosyasındaki repo varsayılanını kullanmak için boş bırakın.",
-          "commandSourceDescription": "Hem <yaml>orca.yaml</yaml> hem de yerel komutlar varsa hangilerinin çalışacağını seçin."
+          "commandSourceDescription": "Hem <yaml>orca.yaml</yaml> hem de yerel komutlar varsa hangilerinin çalışacağını seçin.",
+          "issueCommandWslStopped": "WSL dağıtımı {{distro}} durduruldu. Bu komutu görmek veya düzenlemek için içinde bir terminal açın."
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "{{value0}} reposunun rengini kullan",
@@ -21059,7 +21060,9 @@
       "errors": {
         "noName": "Sohbeti adlandıran ajan bir ad döndürmedi.",
         "agentNotRun": "Sohbeti adlandıran ajan Orca tarafından çalıştırılamadı.",
-        "noAgentAvailable": "Bu çalışma alanında sohbeti adlandıran hiçbir ajan çalıştırılamaz."
+        "noAgentAvailable": "Bu çalışma alanında sohbeti adlandıran hiçbir ajan çalıştırılamaz.",
+        "grokFailed": "Grok bu sohbete ad veremedi. Adı yeniden oluşturmayı deneyin.",
+        "antigravityFailed": "Antigravity bu sohbete ad veremedi. Adı yeniden oluşturmayı deneyin."
       }
     }
   },

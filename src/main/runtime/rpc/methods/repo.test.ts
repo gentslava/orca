@@ -397,6 +397,13 @@ describe('repo RPC methods', () => {
     await dispatcher.dispatch(makeRequest('repo.hooksCheck', { repo: 'repo-1' }))
     await dispatcher.dispatch(makeRequest('repo.setupScriptImports', { repo: 'repo-1' }))
     await dispatcher.dispatch(makeRequest('repo.issueCommandRead', { repo: 'repo-1' }))
+    // A launch's wake reaches the read; a non-boolean value is dropped, as older clients send none.
+    await dispatcher.dispatch(
+      makeRequest('repo.issueCommandRead', { repo: 'repo-1', wakeWslDistro: true })
+    )
+    await dispatcher.dispatch(
+      makeRequest('repo.issueCommandRead', { repo: 'repo-1', wakeWslDistro: 'yes' })
+    )
     await dispatcher.dispatch(
       makeRequest('repo.issueCommandWrite', {
         repo: 'repo-1',
@@ -411,8 +418,14 @@ describe('repo RPC methods', () => {
     })
     expect(runtime.checkRepoHooks).toHaveBeenCalledWith('repo-1')
     expect(runtime.inspectRepoSetupScriptImports).toHaveBeenCalledWith('repo-1')
-    expect(runtime.readRepoIssueCommand).toHaveBeenCalledWith('repo-1')
-    expect(runtime.writeRepoIssueCommand).toHaveBeenCalledWith('repo-1', 'Fix it')
+    expect(vi.mocked(runtime.readRepoIssueCommand).mock.calls).toEqual([
+      ['repo-1', { wakeWslDistro: undefined }],
+      ['repo-1', { wakeWslDistro: true }],
+      ['repo-1', { wakeWslDistro: undefined }]
+    ])
+    expect(runtime.writeRepoIssueCommand).toHaveBeenCalledWith('repo-1', 'Fix it', {
+      wakeWslDistro: undefined
+    })
   })
 
   it('persists GitHub issue source preference updates', async () => {

@@ -256,9 +256,14 @@
       "description": "Choisissez l’apparence et le comportement des chats.",
       "names": {
         "title": "Noms des chats",
-        "description": "Utilisez un agent pour nommer les nouveaux chats à partir de leur premier message. En attendant un nom généré, le chat affiche son premier message.",
+        "description": "Utilisez l’agent de chaque chat pour le nommer à partir de son premier message. Choisissez un autre agent dans Avancé. En attendant un nom, le chat affiche son premier message.",
         "enable": "Nommer automatiquement les chats",
         "recipe": "Nom du chat",
+        "useChatAgent": "Utiliser l’agent du chat",
+        "configuredCliAgent": "Utiliser l’agent CLI configuré ({{agent}})",
+        "configuredCliAgentUnknown": "Utiliser l’agent CLI configuré",
+        "clearCliArguments": "Effacez les arguments CLI pour utiliser l’agent de chaque chat.",
+        "cliArgumentsPlaceholder": "Arguments facultatifs pour un agent CLI de nommage configuré",
         "recipeDescription": "Génère un nom court à partir du premier message d’un nouveau chat.",
         "customCommandDescription": "Ligne de commande partagée par les recettes qui sélectionnent Commande personnalisée. Utilisez {prompt} pour transmettre le texte en argument ; sinon, il est envoyé sur l’entrée standard.",
         "saveFailed": "Impossible d’enregistrer les paramètres de nom des chats.",
@@ -8367,7 +8372,8 @@
           "issueCommandDescription": "Remplacement facultatif. Utilisez <artifactUrl>{{artifact_url}}</artifactUrl> pour l'URL de l'issue ou de la pull request liée.",
           "issueCommandSharedDefault": "Laissez vide pour utiliser la valeur par défaut du dépôt définie dans <yaml>orca.yaml</yaml>.",
           "issueCommandOptionalDefault": "Laissez vide pour utiliser la valeur par défaut du dépôt définie dans <yaml>orca.yaml</yaml>, s'il en existe une.",
-          "commandSourceDescription": "Lorsque <yaml>orca.yaml</yaml> et des commandes locales existent tous les deux, choisissez celles qui s'exécutent."
+          "commandSourceDescription": "Lorsque <yaml>orca.yaml</yaml> et des commandes locales existent tous les deux, choisissez celles qui s'exécutent.",
+          "issueCommandWslStopped": "La distribution WSL {{distro}} est arrêtée. Ouvrez-y un terminal pour afficher ou modifier cette commande."
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "Utiliser la couleur de dépôt {{value0}}",
@@ -21732,7 +21738,9 @@
       "errors": {
         "noName": "L’agent de nommage des chats n’a renvoyé aucun nom.",
         "agentNotRun": "Orca n’a pas pu exécuter l’agent de nommage des chats.",
-        "noAgentAvailable": "Aucun agent de nommage des chats ne peut s’exécuter dans cet espace de travail."
+        "noAgentAvailable": "Aucun agent de nommage des chats ne peut s’exécuter dans cet espace de travail.",
+        "grokFailed": "Grok n’a pas pu nommer cette discussion. Essayez de générer le nom à nouveau.",
+        "antigravityFailed": "Antigravity n’a pas pu nommer cette discussion. Essayez de générer le nom à nouveau."
       }
     }
   },

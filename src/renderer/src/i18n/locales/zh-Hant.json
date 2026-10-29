@@ -8301,7 +8301,8 @@
           "issueCommandDescription": "此覆寫設定為選用。使用 <artifactUrl>{{artifact_url}}</artifactUrl> 表示關聯議題或 PR 的 URL。",
           "issueCommandSharedDefault": "留空則使用 <yaml>orca.yaml</yaml> 中的存放庫預設值。",
           "issueCommandOptionalDefault": "留空則使用 <yaml>orca.yaml</yaml> 中的存放庫預設值（如果有）。",
-          "commandSourceDescription": "當 <yaml>orca.yaml</yaml> 和本機命令同時存在時，選擇要執行哪些命令。"
+          "commandSourceDescription": "當 <yaml>orca.yaml</yaml> 和本機命令同時存在時，選擇要執行哪些命令。",
+          "issueCommandWslStopped": "WSL 發行版 {{distro}} 已停止。請在其中開啟終端機以檢視或編輯此命令。"
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "使用 {{value0}} 存放庫顏色",
@@ -20776,7 +20777,9 @@
       "errors": {
         "noName": "對話命名代理程式未傳回名稱。",
         "agentNotRun": "Orca 無法執行對話命名代理程式。",
-        "noAgentAvailable": "此工作區中沒有可執行的對話命名代理程式。"
+        "noAgentAvailable": "此工作區中沒有可執行的對話命名代理程式。",
+        "grokFailed": "Grok 無法為此聊天命名。請嘗試重新產生名稱。",
+        "antigravityFailed": "Antigravity 無法為此聊天命名。請嘗試重新產生名稱。"
       }
     }
   },

@@ -450,9 +450,14 @@
       "description": "Choose how chats look and behave.",
       "names": {
         "title": "Chat names",
-        "description": "Use an agent to name new chats from their first message. Until a name is generated, a chat shows its first message.",
+        "description": "Use each chat’s agent to name it from its first message. Choose another naming agent in Advanced. Until a name is generated, a chat shows its first message.",
         "enable": "Name chats automatically",
         "recipe": "Chat name",
+        "useChatAgent": "Use chat agent",
+        "configuredCliAgent": "Use configured CLI agent ({{agent}})",
+        "configuredCliAgentUnknown": "Use configured CLI agent",
+        "clearCliArguments": "Clear CLI arguments to use each chat’s agent.",
+        "cliArgumentsPlaceholder": "Optional arguments for a configured CLI naming agent",
         "recipeDescription": "Generate a short name from the first message in a new chat.",
         "customCommandDescription": "Command line shared by recipes that select Custom command. Use {prompt} to pass the input as an argument; otherwise it is piped to stdin.",
         "saveFailed": "Could not save chat name settings.",
@@ -8569,7 +8574,8 @@
           "issueCommandDescription": "Optional override. Use <artifactUrl>{{artifact_url}}</artifactUrl> for the linked issue or PR URL.",
           "issueCommandSharedDefault": "Leave blank to use the repo default from <yaml>orca.yaml</yaml>.",
           "issueCommandOptionalDefault": "Leave blank to use the repo default from <yaml>orca.yaml</yaml> when one exists.",
-          "commandSourceDescription": "When both <yaml>orca.yaml</yaml> and local commands exist, choose which run."
+          "commandSourceDescription": "When both <yaml>orca.yaml</yaml> and local commands exist, choose which run.",
+          "issueCommandWslStopped": "WSL distro {{distro}} is stopped. Open a terminal in it to see or edit this command."
         },
         "RepositoryIconPicker": {
           "2b7d27b93c": "Use {{value0}} repo color",
@@ -21633,7 +21639,9 @@
       "errors": {
         "noName": "The chat-name agent returned no name.",
         "agentNotRun": "Orca could not run the chat-name agent.",
-        "noAgentAvailable": "No chat-name agent can run in this workspace."
+        "noAgentAvailable": "No chat-name agent can run in this workspace.",
+        "grokFailed": "Grok could not name this chat. Try generating the name again.",
+        "antigravityFailed": "Antigravity could not name this chat. Try generating the name again."
       }
     }
   },

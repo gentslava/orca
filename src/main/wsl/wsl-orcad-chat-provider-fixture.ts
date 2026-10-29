@@ -67,7 +67,23 @@ export async function installWslChatFixture(lane: WslChatHost) {
     await writeChatFixtureFile(
       lane,
       cli,
-      `#!/bin/sh\nexport ORCA_LANE_CLI_WRAPPER="$0"\nexec ${quotePosixShell(runtime)} ${quotePosixShell(script)} "$@"\n`
+      `#!/bin/sh
+export ORCA_LANE_CLI_WRAPPER="$0"
+${
+  agent === 'claude'
+    ? `export ORCA_LANE_CLAUDE_WRAPPER="$0"
+previous=
+for argument in "$@"; do
+  if [ "$previous" = --output-format ] && [ "$argument" = text ]; then
+    cat > /dev/null
+    printf '%s\\n' 'WSL fixture title'
+    exit 0
+  fi
+  previous=$argument
+done
+`
+    : ''
+}exec ${quotePosixShell(runtime)} ${quotePosixShell(script)} "$@"\n`
     )
     await lane.guest(`chmod 700 ${quotePosixShell(cli)}`)
     return { script, cli }
