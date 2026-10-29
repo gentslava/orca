@@ -1,8 +1,4 @@
-import type {
-  AgentHistoryScreenState,
-  FetchedHistoryState
-} from './mobile-agent-history-screen-state'
-export type { AgentHistoryScreenState } from './mobile-agent-history-screen-state'
+import type { MobileAgentHistoryStateParams } from './mobile-agent-history-state-contract'
 import {
   useCallback,
   useEffect,
@@ -23,7 +19,6 @@ import type {
   AiVaultScope,
   AiVaultSession
 } from '../../../src/shared/ai-vault-types'
-import type { Worktree } from '../worktree/workspace-list-types'
 import {
   deriveMobileAiVaultScopePaths,
   mobileAiVaultScanScopePaths
@@ -35,6 +30,8 @@ import {
 import { interpretOrThrowRefusalMessage } from '../transport/rpc-refusal-message'
 import { AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY } from '../../../src/shared/ai-vault-runtime-capabilities'
 import { MOBILE_AI_VAULT_CAPABILITY } from './agent-history-capability'
+import type { AgentHistoryScreenState } from './agent-history-sections'
+import { useMobileTranslation } from '../i18n/use-mobile-translation'
 
 export { MOBILE_AI_VAULT_CAPABILITY }
 
@@ -44,16 +41,14 @@ const EMPTY_NAMES: AgentSessionConversationNames = new Map()
 const noSubscription = () => () => {}
 const noNames = () => EMPTY_NAMES
 
-export type MobileAgentHistoryStateParams = {
-  hostId: string
-  worktreeId: string
-  conversationId?: string
-  worktrees: readonly Worktree[]
-  // Distinguish unfetched worktree list from fetched-but-missing workspace; only first holds loading.
-  worktreesLoaded: boolean
-}
+export type { AgentHistoryScreenState } from './agent-history-sections'
+
+type FetchedHistoryState =
+  | Exclude<AgentHistoryScreenState, { kind: 'ready' }>
+  | (Extract<AgentHistoryScreenState, { kind: 'ready' }> & { hostId: string; client: RpcClient })
 
 export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams) {
+  const t = useMobileTranslation()
   const { hostId, worktreeId, conversationId, worktrees, worktreesLoaded } = params
   const { client, state: connState } = useWorkspaceClient(hostId)
   const forceReconnect = useForceReconnect()
@@ -149,10 +144,9 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
       if (!client || connState !== 'connected') {
         if (isCurrent()) {
           setHostStatusProbe(null)
+          const message = t('agentHistory.useAgentHistoryState.waitingForHost', 'Waiting for host…')
           // Keep stale rows visible during reconnect reloads instead of replacing them with full-screen error, matching host list.
-          setScreenState((prev) =>
-            prev.kind === 'ready' ? prev : { kind: 'error', message: 'Waiting for host…' }
-          )
+          setScreenState((prev) => (prev.kind === 'ready' ? prev : { kind: 'error', message }))
         }
         return
       }
@@ -167,7 +161,7 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
         }
         const status = interpretOrThrowRefusalMessage(
           () => agentHistoryHostStatusRead.interpret(statusReply),
-          'Unable to reach host'
+          t('agentHistory.useAgentHistoryState.hostUnreachable', 'Unable to reach host')
         )
         setHostStatusProbe({ hostId, client, generation: clientGeneration, result: status })
         if (!status.capabilities?.includes(MOBILE_AI_VAULT_CAPABILITY)) {
@@ -203,7 +197,7 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
         }
         const result = interpretOrThrowRefusalMessage(
           () => agentHistorySessionScan.interpret(reply),
-          'Unable to load agent sessions'
+          t('agentHistory.useAgentHistoryState.loadFailed', 'Unable to load agent sessions')
         )
         setScreenState({
           kind: 'ready',
@@ -218,7 +212,10 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
         if (!isCurrent()) {
           return
         }
-        const message = err instanceof Error ? err.message : 'Unable to load agent sessions'
+        const message =
+          err instanceof Error
+            ? err.message
+            : t('agentHistory.useAgentHistoryState.loadFailed', 'Unable to load agent sessions')
         setHostStatusProbe(null)
         setScreenState({ kind: 'error', message })
       } finally {
@@ -239,7 +236,8 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
       feed,
       hostId,
       worktrees,
-      worktreesLoaded
+      worktreesLoaded,
+      t
     ]
   )
 

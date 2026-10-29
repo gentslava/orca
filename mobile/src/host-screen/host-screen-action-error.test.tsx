@@ -17,11 +17,13 @@ vi.mock('react-native', () => ({
   },
   StyleSheet: { create: (styles: unknown) => styles },
   Text: 'Text',
-  View: 'View'
+  View: 'View',
+  Pressable: 'Pressable'
 }))
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }))
 vi.mock('./host-screen-header', () => ({ HostScreenHeader: 'HostScreenHeader' }))
 vi.mock('./host-workspace-list', () => ({ HostWorkspaceList: 'HostWorkspaceList' }))
+vi.mock('./HostConversations', () => ({ HostConversations: 'HostConversations' }))
 vi.mock('./host-screen-overlays', () => ({ HostScreenOverlays: 'HostScreenOverlays' }))
 vi.mock('../transport/host-removal-lifecycle', () => ({
   removeHostAndCloseClient: () => Promise.reject(doubles.removalRejection)
@@ -40,7 +42,7 @@ function byName(tree: ReactTestRenderer, name: string): ReactTestInstance[] {
 }
 
 function controllerWith(fields: { error: string; actionError: string }) {
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: `HostScreenView` reads `state.error` and then hands the controller to three mocked children, so these two fields are the whole reachable surface.
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: `HostScreenView` reads `state.error` and then hands the controller to mocked children, so these two fields are the whole reachable surface.
   return { state: fields } as unknown as Parameters<typeof HostScreenView>[0]['controller']
 }
 
@@ -97,11 +99,14 @@ describe('a removal that failed', () => {
   it('keeps the list, the header and the overlays on screen', () => {
     // The reopened confirm lives in overlays; early-returning the screen would hide the action needed to recover.
     const tree = render({ error: '', actionError: 'Could not remove host. Please try again.' })
+    expect(byName(tree, 'HostConversations')).toHaveLength(1)
+    expect(byName(tree, 'HostScreenOverlays')).toHaveLength(1)
+    expect(byName(tree, 'Text')).toEqual([])
+    act(() => byName(tree, 'HostConversations')[0]?.props.onWorkspaces())
     expect(byName(tree, 'SafeAreaView')).toHaveLength(1)
     expect(byName(tree, 'HostScreenHeader')).toHaveLength(1)
     expect(byName(tree, 'HostWorkspaceList')).toHaveLength(1)
     expect(byName(tree, 'HostScreenOverlays')).toHaveLength(1)
-    expect(byName(tree, 'Text')).toEqual([])
   })
 
   it('still lets the identity error take the whole screen, which is what it is for', () => {
