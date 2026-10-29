@@ -2185,7 +2185,8 @@
       "usageLimitWindowWeeklyModel": "hebdomadaire du modèle",
       "waitForBackgroundTasks": "Attendez la fin des tâches en arrière-plan.",
       "waitForStart": "Attendez que l'agent ait fini de démarrer.",
-      "writeFailed": "Orca n'a pas pu transmettre ce message à l'agent, il n'a donc pas été envoyé."
+      "writeFailed": "Orca n'a pas pu transmettre ce message à l'agent, il n'a donc pas été envoyé.",
+      "providerResumeUnavailable": "{{agent}} cannot safely reopen this chat. Start a new chat or continue in the terminal."
     },
     "fileReader": {
       "copyReviewNotes": "Copier les notes de revue",

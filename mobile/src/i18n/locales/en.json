@@ -2395,7 +2395,8 @@
       "conversationOpenInTerminal": "{{agent}} is already running this conversation in another terminal. Quit {{agent}} there or close that terminal to continue here.",
       "chooseClaudeAccount": "Choose or add one in Claude Accounts settings.",
       "chooseClaudeAccountThenRunCommand": "Choose or add one in Claude Accounts settings, then run /{{command}} again.",
-      "chooseClaudeAccountThenSend": "Choose or add one in Claude Accounts settings, then send your message again."
+      "chooseClaudeAccountThenSend": "Choose or add one in Claude Accounts settings, then send your message again.",
+      "providerResumeUnavailable": "{{agent}} cannot safely reopen this chat. Start a new chat or continue in the terminal."
     },
     "writeNotice": {
       "notDoneReadHistory": "This chat's history couldn't be loaded.",

@@ -2108,7 +2108,8 @@
       "usageLimitWindowWeeklyModel": "模型每周",
       "waitForBackgroundTasks": "请等待后台任务完成。",
       "waitForStart": "请等待智能体完成启动。",
-      "writeFailed": "Orca 无法将此消息交给智能体，因此消息未发送。"
+      "writeFailed": "Orca 无法将此消息交给智能体，因此消息未发送。",
+      "providerResumeUnavailable": "{{agent}} cannot safely reopen this chat. Start a new chat or continue in the terminal."
     },
     "fileReader": {
       "copyReviewNotes": "复制评审备注",

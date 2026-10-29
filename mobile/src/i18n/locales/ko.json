@@ -2108,7 +2108,8 @@
       "usageLimitWindowWeeklyModel": "모델별 주간",
       "waitForBackgroundTasks": "백그라운드 작업이 끝날 때까지 기다리세요.",
       "waitForStart": "에이전트가 시작을 마칠 때까지 기다리세요.",
-      "writeFailed": "Orca가 이 메시지를 에이전트에 전달하지 못해 전송되지 않았습니다."
+      "writeFailed": "Orca가 이 메시지를 에이전트에 전달하지 못해 전송되지 않았습니다.",
+      "providerResumeUnavailable": "{{agent}} cannot safely reopen this chat. Start a new chat or continue in the terminal."
     },
     "fileReader": {
       "copyReviewNotes": "리뷰 메모 복사",

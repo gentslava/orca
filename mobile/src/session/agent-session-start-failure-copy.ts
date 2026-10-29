@@ -6,6 +6,12 @@ import { translate } from '../i18n/mobile-i18n'
 
 export const START_FAILURE_COPY = {
   theAgent: (values) => translate('session.failure.theAgent', 'The agent', values),
+  providerResumeUnavailable: (values) =>
+    translate(
+      'session.failure.providerResumeUnavailable',
+      '{{agent}} cannot safely reopen this chat. Start a new chat or continue in the terminal.',
+      values
+    ),
   providerStartFailed: (values) =>
     translate(
       'session.failure.providerStartFailed',

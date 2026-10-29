@@ -2108,7 +2108,8 @@
       "usageLimitWindowWeeklyModel": "模型每週",
       "waitForBackgroundTasks": "請等待背景任務完成。",
       "waitForStart": "請等待代理程式完成啟動。",
-      "writeFailed": "Orca 無法將此訊息交給代理程式，因此訊息未傳送。"
+      "writeFailed": "Orca 無法將此訊息交給代理程式，因此訊息未傳送。",
+      "providerResumeUnavailable": "{{agent}} cannot safely reopen this chat. Start a new chat or continue in the terminal."
     },
     "fileReader": {
       "copyReviewNotes": "複製審查備註",

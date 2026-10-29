@@ -2112,7 +2112,8 @@
       "usageLimitWindowWeeklyModel": "Wöchentliche Modellnutzung",
       "waitForBackgroundTasks": "Warten, bis die Hintergrundaufgaben abgeschlossen sind.",
       "waitForStart": "Warten, bis der Agent vollständig gestartet ist.",
-      "writeFailed": "Orca konnte diese Nachricht nicht an den Agenten übergeben, daher wurde sie nicht gesendet."
+      "writeFailed": "Orca konnte diese Nachricht nicht an den Agenten übergeben, daher wurde sie nicht gesendet.",
+      "providerResumeUnavailable": "{{agent}} cannot safely reopen this chat. Start a new chat or continue in the terminal."
     },
     "fileReader": {
       "copyReviewNotes": "Review-Notizen kopieren",
