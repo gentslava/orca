@@ -89,6 +89,8 @@ export function buildManagedWorktreeCreateArgs(
     ...provenance,
     // Only user-visible creates offer offline fallback; automation retains the network error.
     ...(provenance.automationProvenance ? {} : { allowLocalBaseFallback: true }),
+    // An automation's create is background work: its terminals never start a stopped WSL distro (E9).
+    ...(provenance.automationProvenance ? {} : { wslUserAct: true as const }),
     startup: params.startupCommand
       ? {
           command: params.startupCommand,

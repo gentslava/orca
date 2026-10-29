@@ -27,3 +27,22 @@ export function parseWslDistroHold(
   }
   return null
 }
+
+/** What a person reads when a terminal was held; the raw code stays for programs that match it. */
+export function wslDistroHoldUserMessage(hold: {
+  distro: string
+  state: WslDistroHoldState
+}): string {
+  return hold.state === 'stopped'
+    ? `The WSL distro ${hold.distro} is stopped, so Orca didn't start this terminal. Start the distro, then try again.`
+    : `Orca couldn't check whether the WSL distro ${hold.distro} is running, so it didn't start this terminal. Start the distro, then try again.`
+}
+
+/** An RPC failure's readable message and data for a held terminal, or null when it is not one. */
+export function wslDistroHoldRpcFailure(message: string): {
+  message: string
+  data: { wslDistroHold: { distro: string; state: WslDistroHoldState } }
+} | null {
+  const hold = parseWslDistroHold(message)
+  return hold ? { message: wslDistroHoldUserMessage(hold), data: { wslDistroHold: hold } } : null
+}
