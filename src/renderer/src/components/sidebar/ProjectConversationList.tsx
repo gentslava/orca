@@ -4,7 +4,8 @@ import { Archive, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { selectFolderWorkspaces } from '@/store/workspace-record-selectors'
-import type { ExecutionHostScope } from '../../../../shared/execution-host'
+import { getRepoExecutionHostId, type ExecutionHostScope } from '../../../../shared/execution-host'
+import { getManualRepoOrder } from '../../../../shared/manual-repo-order'
 import { useRepos, useAllWorktrees, useProjectHostSetupProjection } from '@/store/selectors'
 import { Button } from '@/components/ui/button'
 import {
@@ -170,9 +171,15 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
       return
     }
     const all = [...repos]
-    const block = all.filter((repo) => group.repoIds.has(repo.id))
-    const rest = all.filter((repo) => !group.repoIds.has(repo.id))
-    const targetIndexes = rest.flatMap((repo, i) => (target.repoIds.has(repo.id) ? [i] : []))
+    const isGroupRepo = (repo: (typeof repos)[number]) =>
+      getRepoExecutionHostId(repo) === group.executionHostId && group.repoIds.has(repo.id)
+    const block = all.filter(isGroupRepo)
+    const rest = all.filter((repo) => !isGroupRepo(repo))
+    const targetIndexes = rest.flatMap((repo, i) =>
+      getRepoExecutionHostId(repo) === target.executionHostId && target.repoIds.has(repo.id)
+        ? [i]
+        : []
+    )
     if (!targetIndexes.length) {
       return
     }
@@ -180,7 +187,10 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
     rest.splice(insertion, 0, ...block)
     void useAppStore
       .getState()
-      .reorderRepos(rest.map((repo) => repo.id))
+      .reorderRepos(
+        rest.map((repo) => repo.id),
+        getManualRepoOrder(rest)
+      )
       .catch(() =>
         toast.error(translate('sidebar.projectOrder.saveFailed', 'Could not save project order'))
       )

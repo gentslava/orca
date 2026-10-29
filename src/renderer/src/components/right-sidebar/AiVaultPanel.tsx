@@ -288,7 +288,7 @@ export default function AiVaultPanel({
         </div>
       ) : null}
 
-      {!searching && !conversationNavigation && <AiVaultScanIssueBanners scanResult={scanResult} />}
+      {!searching && <AiVaultScanIssueBanners scanResult={scanResult} />}
       <AiVaultPanelSearch
         search={search}
         noAgents={agents.length === 0}

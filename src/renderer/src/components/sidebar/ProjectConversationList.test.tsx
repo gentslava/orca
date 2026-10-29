@@ -3,10 +3,13 @@ import userEvent from '@testing-library/user-event'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
+import type { Repo } from '../../../../shared/repo-types'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { projectHostSetupProjectionFromRepos } from '../../../../shared/project-host-setup-projection'
 import { ProjectConversationList } from './ProjectConversationList'
 import {
   conversationListProps,
+  conversationRepos,
   conversationStore,
   conversationWorktrees,
   conversationSessions
@@ -216,4 +219,55 @@ it('keeps visibility actions disabled until the host advertises support', async 
   expect(hide.getAttribute('aria-disabled')).toBe('true')
   await userEvent.click(hide)
   expect(state.setProjectHidden).not.toHaveBeenCalled()
+})
+
+it('moves only the selected host project when adjacent projects share a repo id', async () => {
+  const local: Repo = { ...conversationRepos[0]!, id: 'same', executionHostId: 'local' }
+  const remote: Repo = {
+    ...local,
+    path: '/remote/orca',
+    executionHostId: 'ssh:box',
+    connectionId: 'box'
+  }
+  const catalog = projectHostSetupProjectionFromRepos([local, remote])
+  const persist = vi.fn().mockResolvedValue(undefined)
+  Object.defineProperty(window, 'api', {
+    configurable: true,
+    value: {
+      ui: { set: persist },
+      repos: { reorderForHost: vi.fn().mockResolvedValue({ status: 'applied' }) }
+    }
+  })
+  useAppStore.setState({
+    repos: [local, remote],
+    projects: catalog.projects,
+    projectHostSetups: catalog.setups,
+    worktreesByRepo: {},
+    detectedWorktreesByRepo: {},
+    manualRepoOrder: [],
+    folderWorkspaces: []
+  })
+  mount({
+    ...conversationListProps(),
+    groups: [],
+    sessionProjects: new Map(),
+    executionHostScope: 'all'
+  })
+  const [first, second] = screen.getAllByRole('region')
+  if (!first || !second) {
+    throw new Error('Expected both host-qualified projects')
+  }
+  await userEvent.click(within(first).getByRole('button', { name: /Project actions/ }))
+  await userEvent.click(screen.getByRole('menuitem', { name: 'Move down' }))
+  expect(useAppStore.getState().repos.map((repo) => repo.executionHostId)).toEqual([
+    'ssh:box',
+    'local'
+  ])
+  expect(persist).toHaveBeenCalledWith({
+    manualRepoOrder: [
+      { hostId: 'ssh:box', repoId: 'same' },
+      { hostId: 'local', repoId: 'same' }
+    ]
+  })
+  vi.restoreAllMocks()
 })

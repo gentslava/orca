@@ -103,3 +103,36 @@ it('keeps the loaded project list and expanded chats while navigating across pro
   expect(listSessions.mock.lastCall?.[0].force).toBe(true)
   expect(project.querySelectorAll('[data-conversation-id]')).toHaveLength(7)
 })
+
+it.each([false, true])(
+  'shows scan warnings when project history is partial: %s',
+  async (hasRows) => {
+    listSessions.mockResolvedValue({
+      sessions: hasRows ? conversationSessions : [],
+      issues: [
+        {
+          kind: 'host',
+          executionHostId: 'local',
+          agent: 'codex',
+          path: '/history',
+          message: 'History host unreachable'
+        }
+      ],
+      scannedAt: '2026-10-29T00:00:00Z'
+    })
+    render(
+      <TooltipProvider>
+        <ConfirmationDialogProvider>
+          <AiVaultPanel conversationNavigation />
+        </ConfirmationDialogProvider>
+      </TooltipProvider>
+    )
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1200)
+    })
+    expect(screen.getByText(/History host unreachable/)).toBeTruthy()
+    if (hasRows) {
+      expect(screen.getByText(conversationSessions[0]!.title)).toBeTruthy()
+    }
+  }
+)
