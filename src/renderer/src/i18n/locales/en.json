@@ -7166,7 +7166,12 @@
           "xcodeLicense": "Apple developer tools require license acceptance before Git can run.",
           "developerTools": "Apple command-line developer tools are missing or unavailable.",
           "architectureMismatch": "A Git-related executable could not run because its CPU architecture is incompatible with this execution host. Install Git and related tools for the host architecture.",
-          "copyDiagnostics": "Copy diagnostics"
+          "copyDiagnostics": "Copy diagnostics",
+          "wslStoppedTitle": "WSL distro {{value0}} is stopped",
+          "wslUnverifiableTitle": "Couldn't confirm WSL distro {{value0}} is running",
+          "wslRetained": "Showing the worktrees Orca already knew about. They refresh when Orca sees the distro running.",
+          "wslStartAndScan": "Start distro and scan",
+          "wslStartAndScanHint": "Click the icon to start the distro and scan again."
         },
         "LocalGitToolchainScanBanner": {
           "xcodeLicenseTitle": "Accept the Xcode license to use Git",
@@ -20065,6 +20070,16 @@
         "effortPickerFailed": "Could not open the effort picker.",
         "modelApplyFailed": "Could not apply model {{value}}.",
         "effortApplyFailed": "Could not apply effort {{value}}."
+      },
+      "githubPeek": {
+        "updated": "updated {{time}}",
+        "oneComment": "1 comment",
+        "comments": "{{count}} comments",
+        "unavailable": "Preview unavailable.",
+        "retry": "Retry"
+      },
+      "webPeek": {
+        "unavailable": "No preview for this page."
       }
     },
     "tab": {
@@ -20460,7 +20475,12 @@
         "shellEnvSearchPath": "PATH",
         "shellEnvSearchProxy": "proxy",
         "queueFollowUpsChecking": "Checking whether this host supports queued messages…",
-        "queueFollowUpsUnsupported": "Update Orca on this host to queue messages. While an agent is working, drafts stay in the composer until queueing is supported."
+        "queueFollowUpsUnsupported": "Update Orca on this host to queue messages. While an agent is working, drafts stay in the composer until queueing is supported.",
+        "linkPreviewsToggleLabel": "Toggle link previews",
+        "linkPreviewsTitle": "Link previews",
+        "linkPreviewsCopy": "Hovering a web link shows a preview card. Orca fetches the page to build it, so the site can see the request.",
+        "linkPreviewsSearchUnfurl": "unfurl",
+        "linkPreviewsSearchHover": "hover card"
       }
     },
     "agentChildRow": {

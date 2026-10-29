@@ -59,6 +59,8 @@ export type WorktreeApi = {
     args: ForgetRemovedWorktreesForExecutionHostArgs
   ) => Promise<ForgetRemovedWorktreesForExecutionHostResult>
   cancelListDetected?: (args: { providerRequestId: ProviderRequestId }) => Promise<void>
+  /** User act: scan a local repo inside its WSL distro's user-act scope, which may start it. */
+  scanStartingWslDistro?: (args: { repoId: string }) => Promise<void>
   create: (args: CreateWorktreeArgs) => Promise<CreateWorktreeResult>
   adoptProvisionedRoot: (args: AdoptProvisionedRootArgs) => Promise<CreateWorktreeResult>
   /** Local creates report progress by creationId; remote/runtime creates emit nothing. */

@@ -86,7 +86,7 @@ src/main/plugins/catalog/plugin-private-marketplace-ssh-shim.cjs
 src/main/ports/port-scan-command-execution.ts
 src/main/providers/macos-login-session-pty-probe.ts
 src/main/providers/process-cwd.ts
-src/main/pty-descendant-termination.ts
+src/main/pty-descendant-fresh-table.ts
 src/main/pty/windows-environment-path.ts
 src/main/rate-limits/gemini-cli-oauth-extractor.ts
 src/main/runtime/windows-default-route-interfaces.ts

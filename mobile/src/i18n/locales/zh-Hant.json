@@ -2478,7 +2478,8 @@
     "useNativeChatDictation": {
       "insertFailed": "無法插入聽寫內容",
       "insertFailedCopied": "無法插入聽寫內容，已複製到剪貼簿",
-      "inserted": "已插入聽寫內容"
+      "inserted": "已插入聽寫內容",
+      "stoppedAfterSilence": "靜音一分鐘後已停止"
     },
     "useNativeChatStop": {
       "stopNotSent": "未送出停止命令",

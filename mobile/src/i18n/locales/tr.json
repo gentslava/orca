@@ -2482,7 +2482,8 @@
     "useNativeChatDictation": {
       "insertFailed": "Dikte metni eklenemedi",
       "insertFailedCopied": "Dikte metni eklenemediği için panoya kopyalandı",
-      "inserted": "Dikte metni eklendi"
+      "inserted": "Dikte metni eklendi",
+      "stoppedAfterSilence": "Bir dakika sessizlikten sonra durduruldu"
     },
     "useNativeChatStop": {
       "stopNotSent": "Durdurma isteği gönderilemedi",

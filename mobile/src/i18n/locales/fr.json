@@ -2558,7 +2558,8 @@
     "useNativeChatDictation": {
       "insertFailed": "Impossible d'insérer la dictée",
       "insertFailedCopied": "Impossible d'insérer la dictée ; elle a été copiée dans le presse-papiers",
-      "inserted": "Dictée insérée"
+      "inserted": "Dictée insérée",
+      "stoppedAfterSilence": "Arrêt après une minute de silence"
     },
     "useNativeChatStop": {
       "stopNotSent": "Commande d'arrêt non envoyée",

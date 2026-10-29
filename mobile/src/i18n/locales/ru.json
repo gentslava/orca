@@ -2663,7 +2663,8 @@
     "useNativeChatDictation": {
       "insertFailed": "Не удалось вставить текст диктовки",
       "insertFailedCopied": "Не удалось вставить текст диктовки — он скопирован в буфер обмена",
-      "inserted": "Текст диктовки вставлен"
+      "inserted": "Текст диктовки вставлен",
+      "stoppedAfterSilence": "Остановлено после минуты тишины"
     },
     "useNativeChatStop": {
       "stopNotSent": "Команда остановки не отправлена",

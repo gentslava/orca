@@ -6410,7 +6410,12 @@
           "xcodeLicense": "Apple 开发者工具需要接受许可证才能运行 Git。",
           "developerTools": "Apple 命令行开发人员工具丢失或不可用。",
           "architectureMismatch": "与 Git 相关的可执行文件无法运行，因为其 CPU 架构与此执行主机不兼容。为主机架构安装 Git 和相关工具。",
-          "copyDiagnostics": "复制诊断"
+          "copyDiagnostics": "复制诊断",
+          "wslStoppedTitle": "WSL 发行版 {{value0}} 已停止",
+          "wslUnverifiableTitle": "无法确认 WSL 发行版 {{value0}} 正在运行",
+          "wslRetained": "正在显示 Orca 已知的工作树。Orca 检测到该发行版运行后会刷新。",
+          "wslStartAndScan": "启动发行版并扫描",
+          "wslStartAndScanHint": "点击图标启动该发行版并重新扫描。"
         },
         "LocalGitToolchainScanBanner": {
           "xcodeLicenseTitle": "接受 Xcode 许可协议以使用 Git",

@@ -556,7 +556,10 @@ it('publishes accepted Codex fresh policy to desktop and phone without stale sta
     })
     await waitFor(() => expect(descriptions()).toEqual(['Ask for approval', 'Ask for approval']))
     expect((await readCurrentOptions()).current.reportedPermissionMode).toBe('ask')
-    expect(store.getRecord(sessionId)).toEqual(saved)
+    await host.drainStatusWrites()
+    const updated = store.getRecord(sessionId)
+    expect(updated).toEqual({ ...saved, lastTurn: updated?.lastTurn })
+    expect(updated?.lastTurn).toEqual({ state: 'open', at: expect.any(Number), prompt: '' })
     expect((await host.readOptions(sessionId)).current).toMatchObject({
       permissionMode: 'ask',
       reportedPermissionMode: 'ask'

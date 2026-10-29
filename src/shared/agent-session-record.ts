@@ -10,6 +10,7 @@ import {
 } from './agent-session-legacy-handoff-lease'
 /** Identity pins location, provider and account home independently of terminal tabs; the lease separately grants one process writer authority. */
 
+import type { AgentSessionLastTurn } from './agent-session-last-turn'
 import type { ExecutionHostId } from './execution-host'
 import {
   isAgentSessionConversationCommandRecord,
@@ -142,6 +143,8 @@ export type AgentSessionRecord = {
   conversationNameSource?: 'user'
   /** When the user's Sleep stopped this chat; the next admitted send clears it. */
   sleptAt?: number
+  /** Latest turn edge for lists that must not open conversation history. */
+  lastTurn?: AgentSessionLastTurn
   launchArgs?: AgentSessionLaunchArgs
   lease: AgentSessionLease
   createdAt: number
@@ -155,9 +158,8 @@ const MAX_LAUNCH_ENV_ENTRIES = 256
 const MAX_LAUNCH_ENV_VALUE_LENGTH = 65_536
 const SESSION_ID_PATTERN = /^[A-Za-z0-9_-]{8,128}$/
 
-function isBoundedString(value: unknown, max: number): value is string {
-  return typeof value === 'string' && value.length > 0 && value.length <= max
-}
+const isBoundedString = (value: unknown, max: number): value is string =>
+  typeof value === 'string' && value.length > 0 && value.length <= max
 
 export function isAgentSessionId(value: unknown): value is string {
   return typeof value === 'string' && SESSION_ID_PATTERN.test(value)

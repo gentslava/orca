@@ -13,6 +13,7 @@ import type { StructuredAgentSessionLogger } from '../native-chat/agent-session-
 export type StructuredAgentSessionRuntimeDeps = StructuredAgentSessionTransportOverrides & {
   /** Host state root. The record store and the journal database both hang off it. */
   stateDirectory: string
+  legacySessionTabIds?: readonly string[]
   /** Execution host this runtime *is*. A record pinned elsewhere is not ours to
    *  probe and not ours to spawn for. */
   hostId: string

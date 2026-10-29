@@ -2073,7 +2073,8 @@
     "useNativeChatDictation": {
       "insertFailedCopied": "Couldn't insert dictation, so it was copied to the clipboard",
       "insertFailed": "Couldn't insert dictation",
-      "inserted": "Dictation inserted"
+      "inserted": "Dictation inserted",
+      "stoppedAfterSilence": "Stopped after a minute of silence"
     },
     "quickCommandLaunch": {
       "editBeforeRunning": "Edit this quick command before running it",

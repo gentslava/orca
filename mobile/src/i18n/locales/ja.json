@@ -2478,7 +2478,8 @@
     "useNativeChatDictation": {
       "insertFailed": "ディクテーションの結果を挿入できませんでした。",
       "insertFailedCopied": "ディクテーションの結果を挿入できず、クリップボードにコピーしました。",
-      "inserted": "ディクテーションの結果を挿入しました。"
+      "inserted": "ディクテーションの結果を挿入しました。",
+      "stoppedAfterSilence": "1分間音声がなかったため停止しました。"
     },
     "useNativeChatStop": {
       "stopNotSent": "停止要求を送信できませんでした。",

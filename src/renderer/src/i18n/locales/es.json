@@ -6676,7 +6676,12 @@
           "xcodeLicense": "Las herramientas de desarrollo de Apple requieren la aceptación de la licencia antes de que Git pueda ejecutarse.",
           "developerTools": "Las herramientas de desarrollo de línea de comandos de Apple faltan o no están disponibles.",
           "architectureMismatch": "No se pudo ejecutar un ejecutable relacionado con Git porque su arquitectura de CPU es incompatible con este host de ejecución. Instale Git y herramientas relacionadas para la arquitectura del host.",
-          "copyDiagnostics": "Copiar diagnóstico"
+          "copyDiagnostics": "Copiar diagnóstico",
+          "wslStoppedTitle": "La distribución WSL {{value0}} está detenida",
+          "wslUnverifiableTitle": "No se pudo confirmar que la distribución WSL {{value0}} esté en ejecución",
+          "wslRetained": "Se muestran los worktrees que Orca ya conocía. Se actualizan cuando Orca detecta la distribución en ejecución.",
+          "wslStartAndScan": "Iniciar distribución y escanear",
+          "wslStartAndScanHint": "Haz clic en el icono para iniciar la distribución y volver a escanear."
         },
         "manualSortSwitch": {
           "title": "Orden cambiado a Manual",

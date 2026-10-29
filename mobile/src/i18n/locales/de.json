@@ -2482,7 +2482,8 @@
     "useNativeChatDictation": {
       "insertFailed": "Diktat konnte nicht eingefügt werden",
       "insertFailedCopied": "Diktat konnte nicht eingefügt werden und wurde daher in die Zwischenablage kopiert",
-      "inserted": "Diktat eingefügt"
+      "inserted": "Diktat eingefügt",
+      "stoppedAfterSilence": "Nach einer Minute Stille beendet"
     },
     "useNativeChatStop": {
       "stopNotSent": "Stoppbefehl nicht gesendet",

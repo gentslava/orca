@@ -132,3 +132,16 @@ export function retainedStructuredStatusSummaries(
     ({ summary }) => renamedStructuredStatusSummary(summary, deps, summary.sessionId) ?? summary
   )
 }
+
+export function releasedStructuredStatusSummary(
+  previous: AgentSessionStatusSummary
+): AgentSessionStatusSummary {
+  const {
+    hostExecutionOwned: _hostExecutionOwned,
+    hostExecutionPhase: _hostExecutionPhase,
+    stopping: _stopping,
+    restartResume: _restartResume,
+    ...retained
+  } = previous
+  return { ...retained, runtimePermission: null }
+}

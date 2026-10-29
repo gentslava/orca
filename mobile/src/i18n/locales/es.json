@@ -2558,7 +2558,8 @@
     "useNativeChatDictation": {
       "insertFailed": "No se pudo insertar el dictado",
       "insertFailedCopied": "No se pudo insertar el dictado, así que se copió al portapapeles.",
-      "inserted": "Dictado insertado"
+      "inserted": "Dictado insertado",
+      "stoppedAfterSilence": "Se detuvo tras un minuto de silencio"
     },
     "useNativeChatStop": {
       "stopNotSent": "No se envió la orden de detener",

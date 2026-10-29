@@ -40,6 +40,7 @@ export function ChatBehaviorSetting({
       : []),
     entries.resumeOnRestart,
     entries.queueFollowUps,
+    entries.linkPreviews,
     entries.shellEnvironment
   ]
   if (!forceVisible && !matchesSettingsSearch(query, rows)) {
@@ -47,6 +48,7 @@ export function ChatBehaviorSetting({
   }
   const resumeOnRestartEnabled = settings.nativeChatResumeWorkOnRestart === true
   const queueFollowUpsEnabled = settings.nativeChatQueueFollowUps !== false
+  const linkPreviewsEnabled = settings.nativeChatLinkPreviews !== false
   return (
     <section id="chat-behavior" className="space-y-3">
       <SettingsSubsectionHeader title={getChatBehaviorTitle()} />
@@ -112,6 +114,23 @@ export function ChatBehaviorSetting({
                 onChange={() =>
                   updateSettings({ nativeChatQueueFollowUps: !queueFollowUpsEnabled })
                 }
+              />
+            </SearchableSetting>
+            <SearchableSetting
+              {...entries.linkPreviews}
+              id={entries.linkPreviews.targetSectionId}
+              forceVisible={forceVisible}
+              className="max-w-none"
+            >
+              <SettingsSwitchRow
+                label={entries.linkPreviews.title}
+                description={entries.linkPreviews.description}
+                checked={linkPreviewsEnabled}
+                ariaLabel={translate(
+                  'components.settings.nativeChat.linkPreviewsToggleLabel',
+                  'Toggle link previews'
+                )}
+                onChange={() => updateSettings({ nativeChatLinkPreviews: !linkPreviewsEnabled })}
               />
             </SearchableSetting>
             <SearchableSetting

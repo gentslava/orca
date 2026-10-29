@@ -7037,7 +7037,12 @@
           "xcodeLicense": "Git'in çalışabilmesi için önce Apple geliştirici araçlarının lisansını kabul etmeniz gerekir.",
           "developerTools": "Apple komut satırı geliştirici araçları eksik veya kullanılamıyor.",
           "architectureMismatch": "Bir Git ile ilgili çalıştırılabilir dosya, CPU mimarisi bu çalıştırma host'uyla uyumsuz olduğu için çalıştırılamadı. Git ve ilgili araçları host mimarisi için yükleyin.",
-          "copyDiagnostics": "Tanılamayı kopyala"
+          "copyDiagnostics": "Tanılamayı kopyala",
+          "wslStoppedTitle": "WSL dağıtımı {{value0}} durduruldu",
+          "wslUnverifiableTitle": "WSL dağıtımı {{value0}} öğesinin çalıştığı doğrulanamadı",
+          "wslRetained": "Orca'nın zaten bildiği worktree'ler gösteriliyor. Orca dağıtımın çalıştığını gördüğünde yenilenirler.",
+          "wslStartAndScan": "Dağıtımı başlat ve tara",
+          "wslStartAndScanHint": "Dağıtımı başlatıp yeniden taramak için simgeye tıklayın."
         },
         "LocalGitToolchainScanBanner": {
           "xcodeLicenseTitle": "Git'i kullanmak için Xcode lisansını kabul edin",

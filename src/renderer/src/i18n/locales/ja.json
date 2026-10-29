@@ -6410,7 +6410,12 @@
           "xcodeLicense": "Apple 開発者ツールは、Git を実行する前にライセンスへの同意が必要です。",
           "developerTools": "Apple コマンドライン開発者ツールが見つからないか、使用できません。",
           "architectureMismatch": "Git 関連の実行可能ファイルは、CPU アーキテクチャがこの実行ホストと互換性がないため、実行できませんでした。ホストアーキテクチャ用の Git と関連ツールをインストールします。",
-          "copyDiagnostics": "コピー診断"
+          "copyDiagnostics": "コピー診断",
+          "wslStoppedTitle": "WSL ディストリビューション {{value0}} は停止しています",
+          "wslUnverifiableTitle": "WSL ディストリビューション {{value0}} が実行中か確認できませんでした",
+          "wslRetained": "Orca が把握済みのワークツリーを表示しています。ディストリビューションの実行を Orca が確認すると更新されます。",
+          "wslStartAndScan": "ディストリビューションを起動してスキャン",
+          "wslStartAndScanHint": "アイコンをクリックすると、ディストリビューションを起動して再スキャンします。"
         },
         "LocalGitToolchainScanBanner": {
           "xcodeLicenseTitle": "Git を使うには Xcode ライセンスに同意してください",

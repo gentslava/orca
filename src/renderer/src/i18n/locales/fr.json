@@ -6886,7 +6886,12 @@
           "xcodeLicense": "Les outils de développement Apple nécessitent l’acceptation d’une licence avant que Git puisse s’exécuter.",
           "developerTools": "Les outils de développement en ligne de commande Apple sont manquants ou indisponibles.",
           "architectureMismatch": "Un exécutable lié à Git n'a pas pu s'exécuter car son architecture CPU est incompatible avec cet hôte d'exécution. Installez Git et les outils associés pour l'architecture hôte.",
-          "copyDiagnostics": "Copier les diagnostics"
+          "copyDiagnostics": "Copier les diagnostics",
+          "wslStoppedTitle": "La distribution WSL {{value0}} est arrêtée",
+          "wslUnverifiableTitle": "Impossible de confirmer que la distribution WSL {{value0}} est en cours d'exécution",
+          "wslRetained": "Affichage des worktrees déjà connus d'Orca. Ils sont actualisés dès qu'Orca voit la distribution en cours d'exécution.",
+          "wslStartAndScan": "Démarrer la distribution et analyser",
+          "wslStartAndScanHint": "Cliquez sur l'icône pour démarrer la distribution et relancer l'analyse."
         },
         "LocalGitToolchainScanBanner": {
           "xcodeLicenseTitle": "Acceptez la licence Xcode pour utiliser Git",
