@@ -104,10 +104,7 @@ describe('options at rest', () => {
       readsWithoutModel: true
     })
     expect(current.current).toEqual({ defaulted: [], permissionMode: 'ask' })
-    expect(read).toHaveBeenCalledTimes(2)
-    expect(read).not.toHaveBeenCalledWith(
-      expect.objectContaining({ requireConfiguredDefault: true })
-    )
+    expect(current).not.toHaveProperty('defaultModel')
     const older = await readStructuredAgentSessionOptions(context, SESSION, {
       readsWithoutModel: false
     })

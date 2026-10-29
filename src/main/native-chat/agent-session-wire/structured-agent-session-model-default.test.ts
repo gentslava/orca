@@ -228,58 +228,80 @@ it('refuses a live reset when the catalog default is only a recommendation', asy
   expect(rig.store.getRecord(SESSION)?.defaultModelOptions).toBeUndefined()
 })
 
-it('previews the original configured default separately from the explicit current model', async () => {
-  catalog(true)
-  const sessionId = await unstartedChat('preview-explicit')
-  const options = await rig.host.readOptions(sessionId, { readsWithoutModel: false })
-  expect(options.current.model).toBe('picked-model')
-  expect(options).toHaveProperty('defaultModel', { id: 'configured-model', label: 'Configured' })
-})
+it.each([true, false])(
+  'previews the original configured default separately from the explicit current model (readsWithoutModel=%s)',
+  async (readsWithoutModel) => {
+    const read = catalog(true)
+    const sessionId = await unstartedChat('preview-explicit')
+    const options = await rig.host.readOptions(sessionId, { readsWithoutModel })
+    expect(options.current.model).toBe('picked-model')
+    expect(options).toHaveProperty('defaultModel', { id: 'configured-model', label: 'Configured' })
+    expect(read).toHaveBeenCalledWith(
+      expect.objectContaining({
+        savedOnly: true,
+        verifiedOnly: true,
+        requireConfiguredDefault: true
+      })
+    )
+  }
+)
 
-it('keeps the saved Default baseline when host configuration later changes', async () => {
-  const read = catalog(true)
-  const sessionId = await unstartedChat('preview-saved-default')
-  await pick('model', null, sessionId)
-  read.mockResolvedValue({
-    ...(await read()),
-    defaultModelOptions: { model: 'changed-configured-model', effort: 'medium' }
-  })
-  const options = await rig.host.readOptions(sessionId, { readsWithoutModel: false })
-  expect(options.current.model).toBe('configured-model')
-  expect(options).toHaveProperty('defaultModel', { id: 'configured-model', label: 'Configured' })
-})
-
-it('does not preview the recommendation as the original default without configuration evidence', async () => {
-  catalog(false)
-  expect(
-    await rig.host.readOptions(await unstartedChat('preview-unproven'), {
-      readsWithoutModel: false
+it.each([true, false])(
+  'keeps the saved Default baseline when host configuration later changes (readsWithoutModel=%s)',
+  async (readsWithoutModel) => {
+    const read = catalog(true)
+    const sessionId = await unstartedChat('preview-saved-default')
+    await pick('model', null, sessionId)
+    read.mockResolvedValue({
+      ...(await read()),
+      defaultModelOptions: { model: 'changed-configured-model', effort: 'medium' }
     })
-  ).not.toHaveProperty('defaultModel')
-})
+    const options = await rig.host.readOptions(sessionId, { readsWithoutModel })
+    expect(options.current.model).toBe('configured-model')
+    expect(options).toHaveProperty('defaultModel', { id: 'configured-model', label: 'Configured' })
+  }
+)
 
-it('previews an unlisted configured default by its proven id', async () => {
-  const read = catalog(true)
-  read.mockResolvedValue({
-    ...(await read()),
-    models: [],
-    defaultModelOptions: { model: 'unlisted-original', effort: 'medium' }
-  })
-  expect(
-    await rig.host.readOptions(await unstartedChat('preview-unlisted'), {
-      readsWithoutModel: false
+it.each([true, false])(
+  'does not preview the recommendation as the original default without configuration evidence (readsWithoutModel=%s)',
+  async (readsWithoutModel) => {
+    catalog(false)
+    expect(
+      await rig.host.readOptions(await unstartedChat('preview-unproven'), {
+        readsWithoutModel
+      })
+    ).not.toHaveProperty('defaultModel')
+  }
+)
+
+it.each([true, false])(
+  'previews an unlisted configured default by its proven id (readsWithoutModel=%s)',
+  async (readsWithoutModel) => {
+    const read = catalog(true)
+    read.mockResolvedValue({
+      ...(await read()),
+      models: [],
+      defaultModelOptions: { model: 'unlisted-original', effort: 'medium' }
     })
-  ).toHaveProperty('defaultModel', { id: 'unlisted-original', label: 'unlisted-original' })
-})
+    expect(
+      await rig.host.readOptions(await unstartedChat('preview-unlisted'), {
+        readsWithoutModel
+      })
+    ).toHaveProperty('defaultModel', { id: 'unlisted-original', label: 'unlisted-original' })
+  }
+)
 
-it('keeps a pending catalog listing from promising a concrete Default model', async () => {
-  const read = catalog(true)
-  const listing = { ...(await read()), listingInProgress: true as const }
-  read.mockResolvedValue(listing)
-  expect(
-    await rig.host.readOptions(await unstartedChat('preview-listing'), { readsWithoutModel: false })
-  ).not.toHaveProperty('defaultModel')
-})
+it.each([true, false])(
+  'keeps a pending catalog listing from promising a concrete Default model (readsWithoutModel=%s)',
+  async (readsWithoutModel) => {
+    const read = catalog(true)
+    const listing = { ...(await read()), listingInProgress: true as const }
+    read.mockResolvedValue(listing)
+    expect(
+      await rig.host.readOptions(await unstartedChat('preview-listing'), { readsWithoutModel })
+    ).not.toHaveProperty('defaultModel')
+  }
+)
 
 it('keeps chat effort choices independent of the configured model inventory', async () => {
   catalog(true)
