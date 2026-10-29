@@ -181,7 +181,7 @@ export default function AiVaultPanel({
     activeProjectKey,
     sessionProjectById,
     projectLabelByKey,
-    hideEmptySessions,
+    hideEmptySessions: conversationNavigation ? false : hideEmptySessions,
     preserveStructuredSessions: conversationNavigation
   }
   const metadataSearch = useAiVaultConversationSearch(
