@@ -1,4 +1,5 @@
 import { retainLocalGoogleCookieClearTarget } from '../browser/browser-google-cookie-clear-target'
+import { browserCookieImportFailure } from '../../shared/browser-cookie-import-failure-copy'
 import { registerGoogleCookieClearHandlers } from './browser-google-cookie-clear-ipc'
 import { BrowserWindow, ipcMain } from 'electron'
 import { browserSessionRegistry } from '../browser/browser-session-registry'
@@ -106,11 +107,11 @@ export function registerBrowserSessionProfileHandlers(): void {
     'browser:session:importCookies',
     async (event, args: { profileId: string }): Promise<BrowserCookieImportResult> => {
       if (!isTrustedBrowserRenderer(event.sender)) {
-        return { ok: false, reason: 'Not authorized' }
+        return browserCookieImportFailure('notAuthorized')
       }
       const profile = browserSessionRegistry.getProfile(args.profileId)
       if (!profile) {
-        return { ok: false, reason: 'Session profile not found.' }
+        return browserCookieImportFailure('profileNotFound')
       }
 
       const parent = BrowserWindow.fromWebContents(event.sender)
@@ -211,7 +212,7 @@ export function registerBrowserSessionProfileHandlers(): void {
       }
     ): Promise<BrowserCookieImportResult | null> => {
       if (!isTrustedBrowserRenderer(event.sender)) {
-        return { ok: false, reason: 'Not authorized' }
+        return browserCookieImportFailure('notAuthorized')
       }
       return importCookiesIntoClientRoutePartition({
         environmentId: args.environmentId,
@@ -263,11 +264,11 @@ export function registerBrowserSessionProfileHandlers(): void {
       args: { profileId: string; browserFamily: string; browserProfile?: string }
     ): Promise<BrowserCookieImportResult> => {
       if (!isTrustedBrowserRenderer(event.sender)) {
-        return { ok: false, reason: 'Not authorized' }
+        return browserCookieImportFailure('notAuthorized')
       }
       const profile = browserSessionRegistry.getProfile(args.profileId)
       if (!profile) {
-        return { ok: false, reason: 'Session profile not found.' }
+        return browserCookieImportFailure('profileNotFound')
       }
 
       // Renderer profile names become paths; reject traversal before cookie import.
@@ -275,22 +276,21 @@ export function registerBrowserSessionProfileHandlers(): void {
         args.browserProfile &&
         (/[/\\]/.test(args.browserProfile) || args.browserProfile.includes('..'))
       ) {
-        return { ok: false, reason: 'Invalid browser profile name.' }
+        return browserCookieImportFailure('invalidBrowserProfile')
       }
 
       const browsers = detectInstalledBrowsers()
       let browser = browsers.find((b) => b.family === args.browserFamily)
       if (!browser) {
-        return { ok: false, reason: 'Browser not found on this system.' }
+        return browserCookieImportFailure('browserNotFound')
       }
 
       if (args.browserProfile && args.browserProfile !== browser.selectedProfile) {
         const reselected = selectBrowserProfile(browser, args.browserProfile)
         if (!reselected) {
-          return {
-            ok: false,
-            reason: `No cookies database found for profile "${args.browserProfile}".`
-          }
+          return browserCookieImportFailure('browserProfileDatabaseMissing', {
+            profile: args.browserProfile
+          })
         }
         browser = reselected
       }

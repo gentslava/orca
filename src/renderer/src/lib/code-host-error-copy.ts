@@ -3,6 +3,10 @@ import {
   CODE_HOST_FAILURE_COPY as EN,
   type CodeHostFailureCode
 } from '../../../shared/code-host-failure-copy'
+import {
+  REVIEW_START_POINT_FAILURE_COPY as START_EN,
+  type ReviewStartPointFailureCode
+} from '../../../shared/review-start-point-failure-copy'
 
 // null = required detail missing; caller shows the host's English `error`.
 const COPY: Record<CodeHostFailureCode, (detail: string | null) => string | null> = {
@@ -156,4 +160,100 @@ export function codeHostErrorText(
   }
   const detail = typeof failure.errorDetail === 'string' ? failure.errorDetail : null
   return COPY[failure.errorCode](detail) ?? failure.error
+}
+
+type StartPointValues = { number: number | null; ref: string | null; detail: string | null }
+
+// null = required values missing; caller shows the host's English `error`.
+const START_POINT_COPY: Record<
+  ReviewStartPointFailureCode,
+  (values: StartPointValues) => string | null
+> = {
+  repoNotFound: () => translate('codeHost.startPoint.repoNotFound', START_EN.repoNotFound),
+  folderUnsupported: () =>
+    translate('codeHost.startPoint.folderUnsupported', START_EN.folderUnsupported),
+  fetchFailed: ({ ref, detail }) =>
+    ref === null || detail === null
+      ? null
+      : translate('codeHost.startPoint.fetchFailed', START_EN.fetchFailed, { ref, detail }),
+  remoteRefMissing: ({ ref }) =>
+    ref === null
+      ? null
+      : translate('codeHost.startPoint.remoteRefMissing', START_EN.remoteRefMissing, { ref }),
+  'github.prNotFound': ({ number }) =>
+    number === null
+      ? null
+      : translate('codeHost.startPoint.github.prNotFound', START_EN['github.prNotFound'], {
+          number
+        }),
+  'github.prHeadBranchMissing': ({ number }) =>
+    number === null
+      ? null
+      : translate(
+          'codeHost.startPoint.github.prHeadBranchMissing',
+          START_EN['github.prHeadBranchMissing'],
+          { number }
+        ),
+  'github.forkHeadUnresolved': ({ number }) =>
+    number === null
+      ? null
+      : translate(
+          'codeHost.startPoint.github.forkHeadUnresolved',
+          START_EN['github.forkHeadUnresolved'],
+          { number }
+        ),
+  'github.headShaEmpty': ({ number }) =>
+    number === null
+      ? null
+      : translate('codeHost.startPoint.github.headShaEmpty', START_EN['github.headShaEmpty'], {
+          number
+        }),
+  'gitlab.projectNotFound': () =>
+    translate('codeHost.startPoint.gitlab.projectNotFound', START_EN['gitlab.projectNotFound']),
+  'gitlab.mrNotFound': ({ number }) =>
+    number === null
+      ? null
+      : translate('codeHost.startPoint.gitlab.mrNotFound', START_EN['gitlab.mrNotFound'], {
+          number
+        }),
+  'gitlab.mrSourceBranchMissing': ({ number }) =>
+    number === null
+      ? null
+      : translate(
+          'codeHost.startPoint.gitlab.mrSourceBranchMissing',
+          START_EN['gitlab.mrSourceBranchMissing'],
+          { number }
+        ),
+  'gitlab.forkHeadUnresolved': ({ number }) =>
+    number === null
+      ? null
+      : translate(
+          'codeHost.startPoint.gitlab.forkHeadUnresolved',
+          START_EN['gitlab.forkHeadUnresolved'],
+          { number }
+        )
+}
+
+function isReviewStartPointFailureCode(code: unknown): code is ReviewStartPointFailureCode {
+  return typeof code === 'string' && Object.hasOwn(START_POINT_COPY, code)
+}
+
+/** PR/MR start-point failure text; uncoded, unknown, or incomplete results show the English `error`. */
+export function reviewStartPointErrorText(failure: {
+  error: string
+  errorCode?: unknown
+  errorParams?: unknown
+  errorDetail?: unknown
+}): string {
+  if (!isReviewStartPointFailureCode(failure.errorCode)) {
+    return failure.error
+  }
+  const params =
+    typeof failure.errorParams === 'object' && failure.errorParams !== null
+      ? failure.errorParams
+      : {}
+  const number = 'number' in params && typeof params.number === 'number' ? params.number : null
+  const ref = 'ref' in params && typeof params.ref === 'string' ? params.ref : null
+  const detail = typeof failure.errorDetail === 'string' ? failure.errorDetail : null
+  return START_POINT_COPY[failure.errorCode]({ number, ref, detail }) ?? failure.error
 }

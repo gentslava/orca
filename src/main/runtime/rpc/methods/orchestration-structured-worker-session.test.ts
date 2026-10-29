@@ -7,6 +7,8 @@ import type { AgentJournalSubmission } from '../../../../shared/agent-session-jo
 import type { AgentMessageSource } from '../../../../shared/agent-session/agent-session-message-source'
 import { getAppEnvironment } from '../../../../shared/app-environment'
 import { DISPATCH_REJECTED_WRITE_FAILED } from '../../../../shared/structured-agent-session-dispatch-rejection'
+import { agentSessionFailureFact } from '../../../../shared/agent-session-failure'
+import { codexDispatchRejection } from '../../../codex/codex-structured-turn-end-settlement'
 
 const hostRef: { current: unknown } = { current: null }
 const createSpy = vi.fn()
@@ -231,7 +233,7 @@ describe('structured worker session', () => {
 
 describe('structured worker dispatch preamble', () => {
   type PreambleHost = Parameters<typeof sendStructuredWorkerPreamble>[0]['host']
-  type Settled = Pick<AgentJournalSubmission, 'dispatchState' | 'reason'>
+  type Settled = Pick<AgentJournalSubmission, 'dispatchState' | 'reason' | 'rejection'>
 
   function submissionOf(settled: Settled): AgentJournalSubmission {
     return {
@@ -375,6 +377,43 @@ describe('structured worker dispatch preamble', () => {
     expect((error as { code?: string }).code).toBe('dispatch_preamble_undelivered')
     expect((error as Error).message).toMatch(/not delivered: fence moved/)
     expect(isUnknownWorkerStartOutcome(error, 'dispatch_input')).toBe(false)
+  })
+
+  it('names a provider log detail the rejection sentence leaves out', async () => {
+    const error = await send(
+      hostWithSubmission({
+        dispatchState: 'rejected',
+        ...codexDispatchRejection(
+          agentSessionFailureFact('providerRejected', {
+            detail: { text: 'thread/start: unsupported service tier', audience: 'log' },
+            neverReachedAgent: true
+          })
+        )
+      })
+    ).catch((thrown: unknown) => thrown)
+    expect(error).toMatchObject({
+      code: 'dispatch_preamble_undelivered',
+      message:
+        "The dispatch preamble was not delivered (providerRejected): Codex didn't accept this message. Details: thread/start: unsupported service tier."
+    })
+  })
+
+  it('does not repeat provider words the rejection sentence already quotes', async () => {
+    const error = await send(
+      hostWithSubmission({
+        dispatchState: 'rejected',
+        ...codexDispatchRejection(
+          agentSessionFailureFact('providerRejected', {
+            detail: { text: 'Unsupported service tier.', audience: 'person' },
+            neverReachedAgent: true
+          })
+        )
+      })
+    ).catch((thrown: unknown) => thrown)
+    expect(error).toMatchObject({
+      message:
+        "The dispatch preamble was not delivered (providerRejected): Codex didn't accept this message: Unsupported service tier."
+    })
   })
 
   it('ends the message with one period whether the reason is a sentence or a marker', async () => {
