@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import userEvent from '@testing-library/user-event'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -13,6 +13,8 @@ import type * as AgentLaunchPlanModule from '@/lib/agent-session-launch-plan'
 import type { ProvisionalLaunchArgs } from '@/lib/agent-session/structured-agent-session-provisional-tab'
 import { SidebarConversationStart } from './SidebarConversationStart'
 import type { FolderWorkspace } from '../../../../shared/folder-workspace-types'
+import type { ExecutionHostId } from '../../../../shared/execution-host'
+import type { AgentMenuRowsTarget } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
 import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 
 vi.mock('@/runtime/runtime-rpc-client', async (importOriginal) =>
@@ -24,13 +26,13 @@ vi.mock('@/hooks/useAgentDetectionTarget', () => ({
   useAgentDetectionTargetForWorktree: () => ({ kind: 'local' })
 }))
 vi.mock('@/components/tab-bar/use-new-tab-agent-menu-rows', () => ({
-  useAgentMenuObservation: () => ({
+  useAgentMenuObservation: (target: string | AgentMenuRowsTarget | null) => ({
     model: {
       state: 'settled',
       rows: ['claude', 'codex', 'antigravity'].map((agent) => ({
         kind: 'chat',
         agent,
-        executionHostId: 'local'
+        executionHostId: typeof target === 'string' ? 'local' : target?.workspace.executionHostId
       }))
     }
   })
@@ -46,7 +48,7 @@ vi.mock('@/lib/agent-session-launch-plan', async (importOriginal) => {
         requestId: request.requestId,
         agent: request.agent,
         worktreeId: request.workspace.worktreeId,
-        executionHostId: 'local'
+        executionHostId: request.selectedExecutionHostId ?? 'local'
       })
     }
   }
@@ -61,7 +63,7 @@ vi.mock('@/lib/agent-session/structured-agent-session-provisional-tab', async (i
     }
     const tab = openStructuredAgentSessionProvisionalTab({
       worktreeId,
-      executionHostId: 'local',
+      executionHostId: args.plan.executionHostId ?? 'local',
       agent: args.plan.agent,
       sessionId: `new-${args.plan.agent}`
     })
@@ -152,6 +154,82 @@ describe.each(['worktree', 'folder'] as const)('new chat from a %s project sideb
         }
         expect(state.activeView).toBe('terminal')
         expect(state.sidebarBody).toBe('conversations')
+        expect(state.tabsByWorktree[workspaceId] ?? []).toHaveLength(0)
+      })
+    }
+  )
+})
+
+describe.each(['worktree', 'folder'] as const)('same-ID %s project owners', (kind) => {
+  it.each(['local', 'runtime:paired'] as const)(
+    'keeps the %s new-chat button and opens a chat on that host while a twin is selected',
+    async (host) => {
+      const hosts: ExecutionHostId[] = ['local', 'runtime:paired']
+      const workspaceId = kind === 'folder' ? folderWorkspaceKey('twins') : workspace.id
+      const repo = useAppStore.getState().repos[0]
+      useAppStore.setState({
+        repos: hosts.map((executionHostId) => ({ ...repo, executionHostId })),
+        runtimeStatusByEnvironmentId: new Map([
+          [
+            'paired',
+            {
+              checkedAt: 1,
+              status: {
+                runtimeId: 'paired-runtime',
+                rendererGraphEpoch: 0,
+                graphStatus: 'ready',
+                authoritativeWindowId: null,
+                liveTabCount: 0,
+                liveLeafCount: 0,
+                hostPlatform: 'linux'
+              }
+            }
+          ]
+        ]),
+        worktreesByRepo: {
+          [workspace.repoId]: hosts.map((hostId) => ({ ...workspace, hostId }))
+        },
+        folderWorkspaces: hosts.map((executionHostId) => ({
+          id: 'twins',
+          projectGroupId: 'group',
+          name: 'Twin',
+          folderPath: '/workspace/folder',
+          executionHostId,
+          linkedTask: null,
+          comment: '',
+          isArchived: false,
+          isUnread: false,
+          isPinned: false,
+          sortOrder: 0,
+          lastActivityAt: 0,
+          createdAt: 0,
+          updatedAt: 0
+        }))
+      })
+      const user = userEvent.setup()
+      render(
+        <TooltipProvider>
+          <SidebarConversationStart
+            worktreeId={workspaceId}
+            executionHostId={host}
+            projectName="Twin"
+          />
+        </TooltipProvider>
+      )
+      const button = screen.getByRole('button', { name: 'New chat in Twin' })
+      act(() =>
+        useAppStore.setState({
+          activeWorktreeId: workspaceId,
+          activeWorkspaceExecutionHostId: host === 'local' ? 'runtime:paired' : 'local'
+        })
+      )
+      await user.click(button)
+      await user.click(screen.getByRole('menuitem', { name: 'Codex' }))
+      await waitFor(() => {
+        const state = useAppStore.getState()
+        expect(state.activeWorkspaceExecutionHostId).toBe(host)
+        expect(state.getActiveTab(workspaceId)?.executionHostId).toBe(host)
+        expect(state.getActiveTab(workspaceId)?.contentType).toBe('agent-session')
         expect(state.tabsByWorktree[workspaceId] ?? []).toHaveLength(0)
       })
     }
