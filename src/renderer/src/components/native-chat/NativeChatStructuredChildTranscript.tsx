@@ -83,7 +83,7 @@ function WorkerTranscript({
       <JournalTranscript
         key={`${conversation.sessionId}:${conversation.agent}`}
         {...props}
-        worker={worker}
+        worker={journalSource ? undefined : worker}
         workerCurrent={roster.current}
         scopeAgentId={scopeAgentId}
         source={{ ...conversation, target: source.target }}
@@ -108,8 +108,8 @@ function WorkerTranscript({
       onLinkClick={undefined}
       runtimeContext={undefined}
       roster={undefined}
-      worker={worker}
-      entry={workerEntry(worker)}
+      worker={journalSource ? undefined : worker}
+      entry={journalSource ? undefined : workerEntry(worker)}
       unavailable={roster.loading ? undefined : unavailableText(conversation)}
     />
   )
