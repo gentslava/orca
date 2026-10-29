@@ -143,6 +143,119 @@
     },
     "projectOrder": {
       "saveFailed": "Не удалось сохранить порядок проектов"
+    },
+    "agentSummary": {
+      "state": {
+        "waiting": "ожидание",
+        "blocked": "заблокирован",
+        "interrupted": "прерван",
+        "failed": "ошибка",
+        "working": "в работе",
+        "monitoring": "наблюдение",
+        "done": "готово",
+        "idle": "бездействует",
+        "notReporting": "нет данных о статусе",
+        "unconfirmed": "не подтверждён",
+        "needsAttention": "требует внимания"
+      },
+      "mixedStates": "{{subject}}: {{states}}",
+      "agentIdentityState": "{{agent}}: {{status}}",
+      "agentCount_one": "{{count}} агент",
+      "agentCount_other": "{{count}} агента",
+      "agentCount_few": "{{count}} агента",
+      "agentCount_many": "{{count}} агентов",
+      "stateCount": {
+        "waiting_one": "{{count}} ожидает",
+        "waiting_other": "{{count}} ожидают",
+        "blocked_one": "{{count}} заблокирован",
+        "blocked_other": "{{count}} заблокированы",
+        "interrupted_one": "{{count}} прерван",
+        "interrupted_other": "{{count}} прерваны",
+        "failed_one": "{{count}} дал сбой",
+        "failed_other": "{{count}} дали сбой",
+        "working_one": "{{count}} работает",
+        "working_other": "{{count}} работают",
+        "monitoring_one": "{{count}} наблюдает",
+        "monitoring_other": "{{count}} наблюдают",
+        "done_one": "{{count}} завершил работу",
+        "done_other": "{{count}} завершили работу",
+        "idle_one": "{{count}} бездействует",
+        "idle_other": "{{count}} бездействуют",
+        "notReporting_one": "{{count}} не сообщает статус",
+        "notReporting_other": "{{count}} не сообщают статус",
+        "unconfirmed_one": "{{count}} не подтверждён",
+        "unconfirmed_other": "{{count}} не подтверждены",
+        "needsAttention_one": "{{count}} требует внимания",
+        "needsAttention_other": "{{count}} требуют внимания",
+        "waiting_few": "{{count}} ожидают",
+        "waiting_many": "{{count}} ожидают",
+        "blocked_few": "{{count}} заблокированы",
+        "blocked_many": "{{count}} заблокированы",
+        "interrupted_few": "{{count}} прерваны",
+        "interrupted_many": "{{count}} прерваны",
+        "failed_few": "{{count}} дали сбой",
+        "failed_many": "{{count}} дали сбой",
+        "working_few": "{{count}} работают",
+        "working_many": "{{count}} работают",
+        "monitoring_few": "{{count}} наблюдают",
+        "monitoring_many": "{{count}} наблюдают",
+        "done_few": "{{count}} завершили работу",
+        "done_many": "{{count}} завершили работу",
+        "idle_few": "{{count}} бездействуют",
+        "idle_many": "{{count}} бездействуют",
+        "notReporting_few": "{{count}} не сообщают статус",
+        "notReporting_many": "{{count}} не сообщают статус",
+        "unconfirmed_few": "{{count}} не подтверждены",
+        "unconfirmed_many": "{{count}} не подтверждены",
+        "needsAttention_few": "{{count}} требуют внимания",
+        "needsAttention_many": "{{count}} требуют внимания"
+      },
+      "allInState": {
+        "waiting_one": "{{count}} агент ожидает",
+        "waiting_other": "Все {{count}} агента ожидают",
+        "blocked_one": "{{count}} агент заблокирован",
+        "blocked_other": "Все {{count}} агента заблокированы",
+        "interrupted_one": "{{count}} агент прерван",
+        "interrupted_other": "Все {{count}} агента прерваны",
+        "failed_one": "{{count}} агент дал сбой",
+        "failed_other": "Все {{count}} агента дали сбой",
+        "working_one": "{{count}} агент работает",
+        "working_other": "Все {{count}} агента работают",
+        "monitoring_one": "{{count}} агент наблюдает",
+        "monitoring_other": "Все {{count}} агента наблюдают",
+        "done_one": "{{count}} агент завершил работу",
+        "done_other": "Все {{count}} агента завершили работу",
+        "idle_one": "{{count}} агент бездействует",
+        "idle_other": "Все {{count}} агента бездействуют",
+        "notReporting_one": "{{count}} агент не сообщает статус",
+        "notReporting_other": "Все {{count}} агента не сообщают статус",
+        "unconfirmed_one": "{{count}} агент не подтверждён",
+        "unconfirmed_other": "Все {{count}} агента не подтверждены",
+        "needsAttention_one": "{{count}} агент требует внимания",
+        "needsAttention_other": "Все {{count}} агента требуют внимания",
+        "waiting_few": "Все {{count}} агента ожидают",
+        "waiting_many": "Все {{count}} агентов ожидают",
+        "blocked_few": "Все {{count}} агента заблокированы",
+        "blocked_many": "Все {{count}} агентов заблокированы",
+        "interrupted_few": "Все {{count}} агента прерваны",
+        "interrupted_many": "Все {{count}} агентов прерваны",
+        "failed_few": "Все {{count}} агента дали сбой",
+        "failed_many": "Все {{count}} агентов дали сбой",
+        "working_few": "Все {{count}} агента работают",
+        "working_many": "Все {{count}} агентов работают",
+        "monitoring_few": "Все {{count}} агента наблюдают",
+        "monitoring_many": "Все {{count}} агентов наблюдают",
+        "done_few": "Все {{count}} агента завершили работу",
+        "done_many": "Все {{count}} агентов завершили работу",
+        "idle_few": "Все {{count}} агента бездействуют",
+        "idle_many": "Все {{count}} агентов бездействуют",
+        "notReporting_few": "Все {{count}} агента не сообщают статус",
+        "notReporting_many": "Все {{count}} агентов не сообщают статус",
+        "unconfirmed_few": "Все {{count}} агента не подтверждены",
+        "unconfirmed_many": "Все {{count}} агентов не подтверждены",
+        "needsAttention_few": "Все {{count}} агента требуют внимания",
+        "needsAttention_many": "Все {{count}} агентов требуют внимания"
+      }
     }
   },
   "app": {
@@ -964,8 +1077,11 @@
       "clearHosts": "Очистить выбор серверов",
       "clearProjects": "Очистить выбор проектов",
       "back": "Назад",
-      "ariaActive": "Фильтр: активных — {{value0}}.",
-      "scopedTo": "Область поиска"
+      "scopedTo": "Область поиска",
+      "ariaActiveCount_one": "Фильтр: активен {{count}} фильтр.",
+      "ariaActiveCount_other": "Фильтр: {{count}} активного фильтра.",
+      "ariaActiveCount_few": "Фильтр: активны {{count}} фильтра.",
+      "ariaActiveCount_many": "Фильтр: активны {{count}} фильтров."
     },
     "taskUrl": {
       "loadingHint": "Загрузка {{value0}}…",
@@ -3654,7 +3770,6 @@
         "cleanup": {
           "WorkspaceCleanupDialog": {
             "3828408538": "Удалить {{value0}}",
-            "352f15d6fc": "Последняя активность",
             "b6bae1eed1": "Отмена",
             "38ca0b1400": "Локальные файлы будут удалены навсегда. Это действие нельзя отменить.",
             "e97e4580c7": "Есть изменения",
@@ -4398,7 +4513,9 @@
             "f395c9a685": "Не удалось импортировать файл",
             "e6234bcc17": "Для загрузки своего питомца нужен полный перезапуск приложения, простого обновления окна недостаточно.",
             "6d0a8cd179": "Показать питомца",
-            "1fbc51cc77": "Скрыть питомца"
+            "1fbc51cc77": "Скрыть питомца",
+            "petFallbackLabel": "Питомец",
+            "petHiddenLabel": "{{pet}} не отображается"
           },
           "PortsStatusSegment": {
             "4ebf90c12e": "Внешние порты не обнаружены",
@@ -6159,7 +6276,8 @@
           "c49fb13492": "Не удалось добавить папку на этом компьютере",
           "9a766f33ac": "Этот путь проверен на SSH-сервере.",
           "79fd02cf5f": "Этот путь проверен на {{hostName}}.",
-          "8851b77327": "Этот путь проверен локально."
+          "8851b77327": "Этот путь проверен локально.",
+          "sshConnectionUnavailable": "SSH-соединение «{{connection}}» не найдено или не подключено"
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "Выполнить хуки",
@@ -6249,8 +6367,10 @@
           "removeDescriptionSsh": "Это только уберёт {{name}} из Orca. Файлы останутся на {{host}} — добавьте этот SSH-сервер заново, чтобы восстановить доступ.",
           "removeDescriptionLocal": "Это только уберёт {{name}} из Orca. Папка останется на диске.",
           "removeDescriptionVmRecipe": "Это уберёт {{name}} из Orca. Будут ли окружение и его файлы удалены навсегда, зависит от рецепта ВМ.",
-          "openTerminalWarningOne": "1 открытый терминал этого проекта будет закрыт.",
-          "openTerminalWarningMany": "Будут закрыты открытые терминалы этого проекта: {{count}}."
+          "openTerminalWarning_one": "В этом проекте будет закрыт {{count}} открытый терминал.",
+          "openTerminalWarning_other": "В этом проекте будет закрыто {{count}} открытого терминала.",
+          "openTerminalWarning_few": "В этом проекте будут закрыты {{count}} открытых терминала.",
+          "openTerminalWarning_many": "В этом проекте будут закрыты {{count}} открытых терминалов."
         },
         "ScrollToCurrentWorkspaceToolbarButton": {
           "23989bb663": "Показать активное рабочее пространство"
@@ -6362,7 +6482,10 @@
           "4815c70605": "Нет подходящих проектов",
           "bbbc6e8e3b": "Подходящих невыбранных проектов нет",
           "allProjects": "Все проекты",
-          "selectedProjectsCount": "Проектов: {{value0}}"
+          "selectedProjects_one": "{{count}} проект",
+          "selectedProjects_other": "{{count}} проекта",
+          "selectedProjects_few": "{{count}} проекта",
+          "selectedProjects_many": "{{count}} проектов"
         },
         "SidebarSettingsHelpMenu": {
           "ad3d3ed7f1": "Перезапустить Orca",
@@ -6425,7 +6548,6 @@
           "7bada3b1ab": "Сортировать по",
           "dc0bb670bc": "Группировать по",
           "9919ae1082": "Параметры рабочих пространств",
-          "bc96dbd041": "Параметры рабочих пространств ({{value0}})",
           "af9249c505": "Недавняя активность рабочих пространств",
           "b451c8b162": "Недавние",
           "6664282a7b": "Перетаскивайте проекты, чтобы менять их порядок",
@@ -6460,7 +6582,14 @@
           "folderPathIdentity": "Ветка / путь папки",
           "cli": "Orca CLI",
           "workspaceOptions": "Параметры рабочих пространств",
-          "optionsActiveLabel": "Параметры рабочего пространства (активно: {{value0}})"
+          "optionsActiveFilters_one": "Параметры рабочих пространств ({{count}} активный фильтр)",
+          "optionsActiveFilters_other": "Параметры рабочих пространств ({{count}} активного фильтра)",
+          "optionsFilterCount_one": "Параметры рабочих пространств ({{count}} фильтр)",
+          "optionsFilterCount_other": "Параметры рабочих пространств ({{count}} фильтра)",
+          "optionsActiveFilters_few": "Параметры рабочих пространств ({{count}} активных фильтра)",
+          "optionsActiveFilters_many": "Параметры рабочих пространств ({{count}} активных фильтров)",
+          "optionsFilterCount_few": "Параметры рабочих пространств ({{count}} фильтра)",
+          "optionsFilterCount_many": "Параметры рабочих пространств ({{count}} фильтров)"
         },
         "SshTargetRow": {
           "4677394048": "Подключение…",
@@ -6532,7 +6661,8 @@
         },
         "WorktreeCardAgents": {
           "1b0a156717": "Агенты",
-          "agentUnavailable": "Агент недоступен"
+          "agentUnavailable": "Агент недоступен",
+          "sendingTarget": "Отправка…"
         },
         "WorktreeCardMeta": {
           "3e65e11cc6": "Метаданные рабочего пространства",
@@ -17733,9 +17863,6 @@
           "sortedAscending": "{{value0}}, по возрастанию",
           "sortedDescending": "{{value0}}, по убыванию"
         },
-        "hostSummary": {
-          "partialFailure": "Не удалось загрузить серверы: {{failed}} из {{total}}"
-        },
         "emptyState": {
           "unknownHost": "этот сервер",
           "hostLoading": "Загрузка сервера…",
@@ -17851,8 +17978,6 @@
           "failed24h": "Неуспешно · 24 ч",
           "successful7d": "Успешно · 7 дн",
           "failed7d": "Неуспешно · 7 дн",
-          "historyUnavailableOne": "История запусков недоступна для 1 автоматизации. В счётчиках учтена только доступная история.",
-          "historyUnavailableMany": "История запусков недоступна для автоматизаций: {{count}}. В счётчиках учтена только доступная история.",
           "automation": "Автоматизация",
           "triggered": "Запущено",
           "trigger": "Триггер",
@@ -17861,7 +17986,11 @@
           "emptyDescription": "После срабатывания автоматизации её запуски появятся здесь.",
           "runs": "Запуски",
           "local": "Локально",
-          "remote": "Удалённо"
+          "remote": "Удалённо",
+          "historyUnavailable_one": "История запусков недоступна для {{count}} автоматизации. В подсчётах учитывается только доступная история.",
+          "historyUnavailable_other": "История запусков недоступна для {{count}} автоматизации. В подсчётах учитывается только доступная история.",
+          "historyUnavailable_few": "История запусков недоступна для {{count}} автоматизаций. В подсчётах учитывается только доступная история.",
+          "historyUnavailable_many": "История запусков недоступна для {{count}} автоматизаций. В подсчётах учитывается только доступная история."
         },
         "AutomationsPageBreadcrumb": {
           "ariaLabel": "Путь раздела автоматизаций",
@@ -17937,7 +18066,8 @@
           "tokensAndCost_one": "{{tokens}} токен · {{cost}}",
           "tokensAndCost_few": "{{tokens}} токена · {{cost}}",
           "tokensAndCost_many": "{{tokens}} токенов · {{cost}}",
-          "tokensAndCost_other": "{{tokens}} токена · {{cost}}"
+          "tokensAndCost_other": "{{tokens}} токена · {{cost}}",
+          "costUnavailable": "нет данных"
         },
         "externalDisplay": {
           "sshHost": "SSH-сервер",
@@ -17949,6 +18079,12 @@
           "connectSshHost": "Подключите этот SSH-сервер перед управлением автоматизациями {{provider}}.",
           "cannotManageOnSshHost": "{{provider}} не может управлять автоматизациями на этом SSH-сервере.",
           "cannotManageLocally": "{{provider}} не может управлять автоматизациями на этом компьютере."
+        },
+        "hostSummary": {
+          "partialFailureOfHosts_one": "Не удалось загрузить {{failed}} из {{count}} сервера",
+          "partialFailureOfHosts_other": "Не удалось загрузить {{failed}} из {{count}} сервера",
+          "partialFailureOfHosts_few": "Не удалось загрузить {{failed}} из {{count}} серверов",
+          "partialFailureOfHosts_many": "Не удалось загрузить {{failed}} из {{count}} серверов"
         }
       },
       "agent": {
@@ -18013,9 +18149,15 @@
           },
           "filtersSection": "Фильтры",
           "viewSection": "Вид",
-          "threadListOptionsActive": "Параметры списка обсуждений (активно: {{value0}})",
-          "activityOptionsActive": "Параметры событий ({{value0}})",
-          "groupAgentActivityBy": "Группировать события агентов по"
+          "groupAgentActivityBy": "Группировать события агентов по",
+          "threadListOptionsActiveFilters_one": "Параметры списка обсуждений ({{count}} активный фильтр)",
+          "threadListOptionsActiveFilters_other": "Параметры списка обсуждений ({{count}} активного фильтра)",
+          "activityOptionsFilterCount_one": "Параметры событий ({{count}} фильтр)",
+          "activityOptionsFilterCount_other": "Параметры событий ({{count}} фильтра)",
+          "threadListOptionsActiveFilters_few": "Параметры списка обсуждений ({{count}} активных фильтра)",
+          "threadListOptionsActiveFilters_many": "Параметры списка обсуждений ({{count}} активных фильтров)",
+          "activityOptionsFilterCount_few": "Параметры событий ({{count}} фильтра)",
+          "activityOptionsFilterCount_many": "Параметры событий ({{count}} фильтров)"
         },
         "clearCompleted": {
           "undo": "Отменить действие",
@@ -19910,7 +20052,8 @@
         "reconnect": "Подключиться снова",
         "stopped": "{{distro}} остановлен",
         "start": "Запустить",
-        "unverifiable": "Orca не удалось проверить, запущен ли {{distro}}"
+        "unverifiable": "Orca не удалось проверить, запущен ли {{distro}}",
+        "startToSend": "Запустите {{distro}}, чтобы отправить."
       },
       "interruptedContinue": {
         "continue": "Продолжить",
@@ -20308,7 +20451,8 @@
           "selectAllSafetyChecked_one": "Выбрать {{count}} рабочее пространство, прошедшее проверку безопасности",
           "selectAllSafetyChecked_few": "Выбрать все {{count}} рабочих пространства, прошедших проверку безопасности",
           "selectAllSafetyChecked_many": "Выбрать все {{count}} рабочих пространств, прошедших проверку безопасности",
-          "selectAllSafetyChecked_other": "Выбрать все рабочие пространства, прошедшие проверку безопасности ({{count}})"
+          "selectAllSafetyChecked_other": "Выбрать все рабочие пространства, прошедшие проверку безопасности ({{count}})",
+          "lastActive": "Последняя активность: {{value0}}"
         },
         "scan": {
           "progress": "Сканирование рабочих пространств ({{value0}}/{{value1}})",
@@ -20979,7 +21123,13 @@
         "kimiContinueSessionConflict": "Kimi получил конфликтующие параметры: --continue, --session. Исправьте рецепт создания текста или аргументы CLI перед повторной попыткой."
       },
       "enableSourceControlAi": "Включите ИИ для управления версиями в разделе «Настройки -> Git».",
-      "chooseBaseBranch": "Перед генерацией выберите базовую ветку."
+      "chooseBaseBranch": "Перед генерацией выберите базовую ветку.",
+      "savedCommitRecipeRepo": "Рецепт сообщения коммита сохранён для этого репозитория.",
+      "savedCommitRecipeGlobal": "Рецепт сообщения коммита сохранён как глобальный вариант по умолчанию.",
+      "savedReviewRecipeRepo": "Рецепт для PR и MR сохранён для этого репозитория.",
+      "savedReviewRecipeGlobal": "Рецепт для PR и MR сохранён как глобальный вариант по умолчанию.",
+      "savedBranchRecipeRepo": "Рецепт названия ветки сохранён для этого репозитория.",
+      "savedBranchRecipeGlobal": "Рецепт названия ветки сохранён как глобальный вариант по умолчанию."
     },
     "remoteError": {
       "submodule": {
@@ -21053,6 +21203,13 @@
         "pull": "Получение и слияние заблокированы — сначала переместите, удалите или добавьте неотслеживаемые файлы."
       },
       "authenticationFailed": "Ошибка аутентификации. Проверьте учётные данные для удалённого репозитория."
+    },
+    "submodule": {
+      "worktreeOnlyLabel": "Добавить в индекс внутри подмодуля",
+      "worktreeOnlyTooltip": "Родительский репозиторий (включая «Добавить всё в индекс») не может добавлять в индекс изменения файлов внутри подмодуля",
+      "loading": "Загрузка изменений подмодуля…",
+      "empty": "В подмодуле нет изменений",
+      "loadFailed": "Не удалось загрузить изменения подмодуля"
     }
   },
   "agentsSidebarIntro": {
@@ -22626,12 +22783,6 @@
       "workspaceApiKeyHint": "Вставьте личный API-ключ для {{workspace}}. Если это рабочее пространство уже подключено, Orca заменит его сохранённый ключ."
     }
   },
-  "workspaceOptions": {
-    "activeFilterCount_one": "{{count}} фильтр",
-    "activeFilterCount_other": "{{count}} фильтра",
-    "activeFilterCount_few": "{{count}} фильтра",
-    "activeFilterCount_many": "{{count}} фильтров"
-  },
   "stats": {
     "usageBreakdown": {
       "events_few": "{{count}} события",
@@ -22859,6 +23010,7 @@
       "agentNeverStarted": "Агент автоматизации так и не запустился после отправки запроса.",
       "agentNoCompletion": "Агент автоматизации не сообщил о завершении.",
       "watchTimedOut": "После 6 часов без сигнала о завершении Orca больше не отслеживает этот запуск.",
+      "wslDistroStopped": "Дистрибутив WSL {{distro}} остановлен, поэтому этот запуск по расписанию его не запустил. Запустите дистрибутив или используйте «Запустить сейчас»; следующие запуски пройдут, пока он работает.",
       "projectSetupState": {
         "notSetUp": "Проект не настроен на выбранном сервере автоматизации.",
         "settingUp": "На выбранном сервере автоматизации ещё идёт настройка проекта.",
@@ -23195,5 +23347,15 @@
     "showMore": "Показать больше",
     "newChatInProject": "Новый чат в {{project}}",
     "saveFailed": "Не удалось сохранить настройки чата. Обновите Orca или повторите попытку."
+  },
+  "diffComments": {
+    "lineRangeMeta": "строки {{start}}-{{end}}",
+    "lineMeta": "строка {{line}}"
+  },
+  "agentSendTargets": {
+    "disabledReason": {
+      "needsPermission": "Агенту требуется разрешение",
+      "statusStale": "Статус агента устарел"
+    }
   }
 }

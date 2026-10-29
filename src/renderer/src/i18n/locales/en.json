@@ -141,6 +141,73 @@
     },
     "projectOrder": {
       "saveFailed": "Could not save project order"
+    },
+    "agentSummary": {
+      "state": {
+        "waiting": "waiting",
+        "blocked": "blocked",
+        "interrupted": "interrupted",
+        "failed": "failed",
+        "working": "working",
+        "monitoring": "monitoring",
+        "done": "done",
+        "idle": "idle",
+        "notReporting": "not reporting",
+        "unconfirmed": "unconfirmed",
+        "needsAttention": "needs attention"
+      },
+      "mixedStates": "{{subject}}: {{states}}",
+      "agentIdentityState": "{{agent}} {{status}}",
+      "agentCount_one": "{{count}} agent",
+      "agentCount_other": "{{count}} agents",
+      "stateCount": {
+        "waiting_one": "{{count}} waiting",
+        "waiting_other": "{{count}} waiting",
+        "blocked_one": "{{count}} blocked",
+        "blocked_other": "{{count}} blocked",
+        "interrupted_one": "{{count}} interrupted",
+        "interrupted_other": "{{count}} interrupted",
+        "failed_one": "{{count}} failed",
+        "failed_other": "{{count}} failed",
+        "working_one": "{{count}} working",
+        "working_other": "{{count}} working",
+        "monitoring_one": "{{count}} monitoring",
+        "monitoring_other": "{{count}} monitoring",
+        "done_one": "{{count}} done",
+        "done_other": "{{count}} done",
+        "idle_one": "{{count}} idle",
+        "idle_other": "{{count}} idle",
+        "notReporting_one": "{{count}} not reporting",
+        "notReporting_other": "{{count}} not reporting",
+        "unconfirmed_one": "{{count}} unconfirmed",
+        "unconfirmed_other": "{{count}} unconfirmed",
+        "needsAttention_one": "{{count}} needs attention",
+        "needsAttention_other": "{{count}} needs attention"
+      },
+      "allInState": {
+        "waiting_one": "{{count}} agent waiting",
+        "waiting_other": "All {{count}} agents waiting",
+        "blocked_one": "{{count}} agent blocked",
+        "blocked_other": "All {{count}} agents blocked",
+        "interrupted_one": "{{count}} agent interrupted",
+        "interrupted_other": "All {{count}} agents interrupted",
+        "failed_one": "{{count}} agent failed",
+        "failed_other": "All {{count}} agents failed",
+        "working_one": "{{count}} agent working",
+        "working_other": "All {{count}} agents working",
+        "monitoring_one": "{{count}} agent monitoring",
+        "monitoring_other": "All {{count}} agents monitoring",
+        "done_one": "{{count}} agent done",
+        "done_other": "All {{count}} agents done",
+        "idle_one": "{{count}} agent idle",
+        "idle_other": "All {{count}} agents idle",
+        "notReporting_one": "{{count}} agent not reporting",
+        "notReporting_other": "All {{count}} agents not reporting",
+        "unconfirmed_one": "{{count}} agent unconfirmed",
+        "unconfirmed_other": "All {{count}} agents unconfirmed",
+        "needsAttention_one": "{{count}} agent needs attention",
+        "needsAttention_other": "All {{count}} agents needs attention"
+      }
     }
   },
   "app": {
@@ -993,8 +1060,9 @@
       "clearHosts": "Clear hosts",
       "clearProjects": "Clear projects",
       "back": "Back",
-      "ariaActive": "Filter: {{value0}} active.",
-      "scopedTo": "Scoped to"
+      "scopedTo": "Scoped to",
+      "ariaActiveCount_one": "Filter: {{count}} active.",
+      "ariaActiveCount_other": "Filter: {{count}} active."
     },
     "taskUrl": {
       "loadingHint": "Loading {{value0}}…",
@@ -3641,7 +3709,6 @@
         "cleanup": {
           "WorkspaceCleanupDialog": {
             "3828408538": "Remove {{value0}}",
-            "352f15d6fc": "Last active",
             "b6bae1eed1": "Cancel",
             "38ca0b1400": "This permanently deletes their local files. You can't undo this.",
             "e97e4580c7": "Dirty",
@@ -4378,7 +4445,9 @@
             "f395c9a685": "Failed to import file",
             "e6234bcc17": "Custom pet upload needs a full app restart (not just reload).",
             "6d0a8cd179": "Show pet",
-            "1fbc51cc77": "Hide pet"
+            "1fbc51cc77": "Hide pet",
+            "petFallbackLabel": "Pet",
+            "petHiddenLabel": "{{pet}} hidden"
           },
           "PortsStatusSegment": {
             "4ebf90c12e": "No external ports detected",
@@ -5315,7 +5384,6 @@
           "title_other": "{{count}} installed Orca skills are out of date",
           "title_one": "{{count}} installed Orca skill is out of date"
         },
-        "SkillFreshnessRow": {},
         "SkillFreshnessUpdateDialog": {
           "title": "Update skills",
           "checking": "Checking installed Orca skills…",
@@ -5347,7 +5415,6 @@
           "updateAction_one": "Update {{count}} skill",
           "upToDate_one": "{{count}} skill is up to date."
         },
-        "SkillUpdateResultRows": {},
         "SkillUpdateRow": {
           "replaceWithOrca": "Replace with Orca's copy (keeps a backup)"
         },
@@ -5979,7 +6046,8 @@
           "c49fb13492": "Failed to add folder on this host",
           "9a766f33ac": "This path was checked on the SSH host.",
           "79fd02cf5f": "This path was checked on {{hostName}}.",
-          "8851b77327": "This path was checked locally."
+          "8851b77327": "This path was checked locally.",
+          "sshConnectionUnavailable": "SSH connection \"{{connection}}\" not found or not connected"
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "Run hooks",
@@ -6065,8 +6133,8 @@
           "removeDescriptionSsh": "This only removes {{name}} from Orca. Its files stay on {{host}} — re-add that SSH host to recover it.",
           "removeDescriptionLocal": "This only removes {{name}} from Orca. It is still on your disk.",
           "removeDescriptionVmRecipe": "This removes {{name}} from Orca. Its VM recipe determines whether the environment and its files are permanently deleted.",
-          "openTerminalWarningOne": "1 open terminal in this project will be closed.",
-          "openTerminalWarningMany": "{{count}} open terminals in this project will be closed."
+          "openTerminalWarning_one": "{{count}} open terminal in this project will be closed.",
+          "openTerminalWarning_other": "{{count}} open terminals in this project will be closed."
         },
         "ScrollToCurrentWorkspaceToolbarButton": {
           "23989bb663": "Reveal active workspace"
@@ -6176,7 +6244,8 @@
           "4815c70605": "No projects match",
           "bbbc6e8e3b": "No unselected projects match",
           "allProjects": "All projects",
-          "selectedProjectsCount": "{{value0}} projects"
+          "selectedProjects_one": "{{count}} project",
+          "selectedProjects_other": "{{count}} projects"
         },
         "SidebarSettingsHelpMenu": {
           "ad3d3ed7f1": "Restart Orca",
@@ -6237,8 +6306,6 @@
           "7bada3b1ab": "Sort by",
           "dc0bb670bc": "Group by",
           "9919ae1082": "Workspace options",
-          "bc96dbd041": "Workspace options ({{value0}})",
-          "optionsActiveLabel": "Workspace options ({{value0}} active)",
           "af9249c505": "Most recent workspace activity",
           "b451c8b162": "Recent",
           "6664282a7b": "Drag projects to arrange them",
@@ -6272,7 +6339,11 @@
           "219ebf1961": "Branch name",
           "folderPathIdentity": "Branch / folder path",
           "cli": "Orca CLI",
-          "workspaceOptions": "Workspace options"
+          "workspaceOptions": "Workspace options",
+          "optionsActiveFilters_one": "Workspace options ({{count}} filter active)",
+          "optionsActiveFilters_other": "Workspace options ({{count}} filters active)",
+          "optionsFilterCount_one": "Workspace options ({{count}} filter)",
+          "optionsFilterCount_other": "Workspace options ({{count}} filters)"
         },
         "SshTargetRow": {
           "4677394048": "Connecting…",
@@ -6342,7 +6413,8 @@
         },
         "WorktreeCardAgents": {
           "1b0a156717": "Agents",
-          "agentUnavailable": "Agent is not available"
+          "agentUnavailable": "Agent is not available",
+          "sendingTarget": "Sending..."
         },
         "WorktreeCardMeta": {
           "3e65e11cc6": "Workspace metadata",
@@ -17682,9 +17754,6 @@
           "sortedAscending": "{{value0}}, sorted ascending",
           "sortedDescending": "{{value0}}, sorted descending"
         },
-        "hostSummary": {
-          "partialFailure": "{{failed}} of {{total}} hosts could not be loaded"
-        },
         "emptyState": {
           "unknownHost": "this host",
           "hostLoading": "Loading host…",
@@ -17798,8 +17867,6 @@
           "failed24h": "Failed · 24h",
           "successful7d": "Successful · 7d",
           "failed7d": "Failed · 7d",
-          "historyUnavailableOne": "Run history is unavailable for 1 automation. Counts include available history only.",
-          "historyUnavailableMany": "Run history is unavailable for {{count}} automations. Counts include available history only.",
           "automation": "Automation",
           "triggered": "Triggered",
           "trigger": "Trigger",
@@ -17808,7 +17875,9 @@
           "emptyDescription": "Runs appear here after an automation is triggered.",
           "runs": "Runs",
           "local": "Local",
-          "remote": "Remote"
+          "remote": "Remote",
+          "historyUnavailable_one": "Run history is unavailable for {{count}} automation. Counts include available history only.",
+          "historyUnavailable_other": "Run history is unavailable for {{count}} automations. Counts include available history only."
         },
         "AutomationsPageBreadcrumb": {
           "ariaLabel": "Automations breadcrumb",
@@ -17876,7 +17945,8 @@
         },
         "usage": {
           "tokensAndCost_one": "{{tokens}} token · {{cost}}",
-          "tokensAndCost_other": "{{tokens}} tokens · {{cost}}"
+          "tokensAndCost_other": "{{tokens}} tokens · {{cost}}",
+          "costUnavailable": "n/a"
         },
         "externalDisplay": {
           "sshHost": "SSH host",
@@ -17888,6 +17958,10 @@
           "connectSshHost": "Connect this SSH host before managing {{provider}} automations.",
           "cannotManageOnSshHost": "{{provider}} cannot manage automations on this SSH host.",
           "cannotManageLocally": "{{provider}} cannot manage automations on this machine."
+        },
+        "hostSummary": {
+          "partialFailureOfHosts_one": "{{failed}} of {{count}} host could not be loaded",
+          "partialFailureOfHosts_other": "{{failed}} of {{count}} hosts could not be loaded"
         }
       },
       "agent": {
@@ -17953,8 +18027,10 @@
           },
           "filtersSection": "Filters",
           "viewSection": "View",
-          "threadListOptionsActive": "Thread list options ({{value0}} active)",
-          "activityOptionsActive": "Activity options ({{value0}})"
+          "threadListOptionsActiveFilters_one": "Thread list options ({{count}} filter active)",
+          "threadListOptionsActiveFilters_other": "Thread list options ({{count}} filters active)",
+          "activityOptionsFilterCount_one": "Activity options ({{count}} filter)",
+          "activityOptionsFilterCount_other": "Activity options ({{count}} filters)"
         },
         "clearCompleted": {
           "undo": "Undo",
@@ -19736,7 +19812,8 @@
         "reconnect": "Reconnect",
         "stopped": "{{distro}} is stopped",
         "start": "Start",
-        "unverifiable": "Orca couldn't check whether {{distro}} is running"
+        "unverifiable": "Orca couldn't check whether {{distro}} is running",
+        "startToSend": "Start {{distro}} to send."
       },
       "interruptedContinue": {
         "continue": "Continue",
@@ -20126,7 +20203,8 @@
           "selectionWithheldCount_one": "{{count}} selected workspace is hidden by the current filters and was deselected.",
           "selectionWithheldCount_other": "{{count}} selected workspaces are hidden by the current filters and were deselected.",
           "selectAllSafetyChecked_one": "Select {{count}} safety-checked workspace",
-          "selectAllSafetyChecked_other": "Select all {{count}} safety-checked workspaces"
+          "selectAllSafetyChecked_other": "Select all {{count}} safety-checked workspaces",
+          "lastActive": "Last active {{value0}}"
         },
         "scan": {
           "progress": "Scanning workspaces ({{value0}}/{{value1}})",
@@ -20779,7 +20857,13 @@
         "kimiContinueSessionConflict": "Kimi received conflicting options: --continue, --session. Correct the generation recipe or CLI arguments before retrying."
       },
       "enableSourceControlAi": "Enable Source Control AI in Settings -> Git.",
-      "chooseBaseBranch": "Choose a base branch before generating."
+      "chooseBaseBranch": "Choose a base branch before generating.",
+      "savedCommitRecipeRepo": "Saved commit-message recipe for this repository.",
+      "savedCommitRecipeGlobal": "Saved commit-message recipe as a global default.",
+      "savedReviewRecipeRepo": "Saved hosted-review recipe for this repository.",
+      "savedReviewRecipeGlobal": "Saved hosted-review recipe as a global default.",
+      "savedBranchRecipeRepo": "Saved branch-name recipe for this repository.",
+      "savedBranchRecipeGlobal": "Saved branch-name recipe as a global default."
     },
     "remoteError": {
       "submodule": {
@@ -20853,6 +20937,13 @@
         "pull": "Pull blocked — move, remove, or add untracked files first."
       },
       "authenticationFailed": "Authentication failed. Check your remote credentials."
+    },
+    "submodule": {
+      "worktreeOnlyLabel": "Stage inside submodule",
+      "worktreeOnlyTooltip": "The parent repo (including Stage All) cannot stage file changes inside a submodule",
+      "loading": "Loading submodule changes…",
+      "empty": "No changes in submodule",
+      "loadFailed": "Failed to load submodule changes"
     }
   },
   "agentsSidebarIntro": {
@@ -22573,10 +22664,6 @@
       }
     }
   },
-  "workspaceOptions": {
-    "activeFilterCount_one": "{{count}} filter",
-    "activeFilterCount_other": "{{count}} filters"
-  },
   "editorConflicts": {
     "kind": {
       "addedByUs": "Added by us",
@@ -22642,6 +22729,7 @@
       "agentNeverStarted": "Automation agent never started after the prompt was submitted.",
       "agentNoCompletion": "Automation agent did not report completion.",
       "watchTimedOut": "Orca stopped watching this run after 6h without a completion signal.",
+      "wslDistroStopped": "The WSL distro {{distro}} is stopped, so this scheduled run did not start it. Start the distro or use Run now; later runs go ahead while it runs.",
       "projectSetupState": {
         "notSetUp": "The project is not set up on the selected automation host.",
         "settingUp": "The project is still being set up on the selected automation host.",
@@ -22978,5 +23066,15 @@
     "showMore": "Show more",
     "newChatInProject": "New chat in {{project}}",
     "saveFailed": "Could not save chat preferences. Update Orca or try again."
+  },
+  "diffComments": {
+    "lineRangeMeta": "lines {{start}}-{{end}}",
+    "lineMeta": "line {{line}}"
+  },
+  "agentSendTargets": {
+    "disabledReason": {
+      "needsPermission": "Agent needs permission",
+      "statusStale": "Agent status is stale"
+    }
   }
 }

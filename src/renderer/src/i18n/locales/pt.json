@@ -200,7 +200,13 @@
         "kimiContinueSessionConflict": "Kimi recebeu opções conflitantes: --continue, --session. Corrija a receita de geração de texto ou os argumentos da CLI antes de tentar novamente."
       },
       "enableSourceControlAi": "Ative a IA de Controle de Versão em Configurações -> Git.",
-      "chooseBaseBranch": "Escolha uma branch base antes de gerar."
+      "chooseBaseBranch": "Escolha uma branch base antes de gerar.",
+      "savedCommitRecipeRepo": "Receita de mensagem de commit salva para este repositório.",
+      "savedCommitRecipeGlobal": "Receita de mensagem de commit salva como padrão global.",
+      "savedReviewRecipeRepo": "Receita de revisão hospedada salva para este repositório.",
+      "savedReviewRecipeGlobal": "Receita de revisão hospedada salva como padrão global.",
+      "savedBranchRecipeRepo": "Receita de nome de branch salva para este repositório.",
+      "savedBranchRecipeGlobal": "Receita de nome de branch salva como padrão global."
     },
     "remoteError": {
       "submodule": {
@@ -274,6 +280,13 @@
         "pull": "Pull bloqueado — mova, remova ou adicione os arquivos não rastreados primeiro."
       },
       "authenticationFailed": "Falha na autenticação. Verifique suas credenciais de acesso ao remoto."
+    },
+    "submodule": {
+      "worktreeOnlyLabel": "Adicionar ao stage dentro do submódulo",
+      "worktreeOnlyTooltip": "O repo pai (incluindo Adicionar tudo ao stage) não pode adicionar ao stage alterações de arquivos dentro de um submódulo",
+      "loading": "Carregando alterações do submódulo…",
+      "empty": "Nenhuma alteração no submódulo",
+      "loadFailed": "Não foi possível carregar as alterações do submódulo"
     }
   },
   "githubChecks": {
@@ -478,6 +491,96 @@
         "serviceUnconfirmed": "O serviço WSL não confirmou se a distribuição está em execução.",
         "peerCheckFailed": "O Orca não conseguiu consultar o host WSL para saber se outro Orca neste computador ainda o usa: {{detail}}",
         "removalUnrecorded": "O Orca não conseguiu registrar o que continuou em execução após esta remoção: {{detail}}"
+      }
+    },
+    "agentSummary": {
+      "state": {
+        "waiting": "aguardando",
+        "blocked": "bloqueado",
+        "interrupted": "interrompido",
+        "failed": "falhou",
+        "working": "trabalhando",
+        "monitoring": "monitorando",
+        "done": "concluído",
+        "idle": "ocioso",
+        "notReporting": "sem informar o status",
+        "unconfirmed": "não confirmado",
+        "needsAttention": "precisa de atenção"
+      },
+      "mixedStates": "{{subject}}: {{states}}",
+      "agentIdentityState": "{{agent}}: {{status}}",
+      "agentCount_one": "{{count}} agente",
+      "agentCount_other": "{{count}} agentes",
+      "agentCount_many": "{{count}} agentes",
+      "stateCount": {
+        "waiting_one": "{{count}} aguardando",
+        "waiting_other": "{{count}} aguardando",
+        "waiting_many": "{{count}} aguardando",
+        "blocked_one": "{{count}} bloqueado",
+        "blocked_other": "{{count}} bloqueados",
+        "blocked_many": "{{count}} bloqueados",
+        "interrupted_one": "{{count}} interrompido",
+        "interrupted_other": "{{count}} interrompidos",
+        "interrupted_many": "{{count}} interrompidos",
+        "failed_one": "{{count}} falhou",
+        "failed_other": "{{count}} falharam",
+        "failed_many": "{{count}} falharam",
+        "working_one": "{{count}} trabalhando",
+        "working_other": "{{count}} trabalhando",
+        "working_many": "{{count}} trabalhando",
+        "monitoring_one": "{{count}} monitorando",
+        "monitoring_other": "{{count}} monitorando",
+        "monitoring_many": "{{count}} monitorando",
+        "done_one": "{{count}} concluído",
+        "done_other": "{{count}} concluídos",
+        "done_many": "{{count}} concluídos",
+        "idle_one": "{{count}} ocioso",
+        "idle_other": "{{count}} ociosos",
+        "idle_many": "{{count}} ociosos",
+        "notReporting_one": "{{count}} sem informar o status",
+        "notReporting_other": "{{count}} sem informar o status",
+        "notReporting_many": "{{count}} sem informar o status",
+        "unconfirmed_one": "{{count}} não confirmado",
+        "unconfirmed_other": "{{count}} não confirmados",
+        "unconfirmed_many": "{{count}} não confirmados",
+        "needsAttention_one": "{{count}} precisa de atenção",
+        "needsAttention_other": "{{count}} precisam de atenção",
+        "needsAttention_many": "{{count}} precisam de atenção"
+      },
+      "allInState": {
+        "waiting_one": "{{count}} agente aguardando",
+        "waiting_other": "Todos os {{count}} agentes aguardando",
+        "waiting_many": "Todos os {{count}} agentes aguardando",
+        "blocked_one": "{{count}} agente bloqueado",
+        "blocked_other": "Todos os {{count}} agentes bloqueados",
+        "blocked_many": "Todos os {{count}} agentes bloqueados",
+        "interrupted_one": "{{count}} agente interrompido",
+        "interrupted_other": "Todos os {{count}} agentes interrompidos",
+        "interrupted_many": "Todos os {{count}} agentes interrompidos",
+        "failed_one": "{{count}} agente falhou",
+        "failed_other": "Todos os {{count}} agentes falharam",
+        "failed_many": "Todos os {{count}} agentes falharam",
+        "working_one": "{{count}} agente trabalhando",
+        "working_other": "Todos os {{count}} agentes trabalhando",
+        "working_many": "Todos os {{count}} agentes trabalhando",
+        "monitoring_one": "{{count}} agente monitorando",
+        "monitoring_other": "Todos os {{count}} agentes monitorando",
+        "monitoring_many": "Todos os {{count}} agentes monitorando",
+        "done_one": "{{count}} agente concluiu o trabalho",
+        "done_other": "Todos os {{count}} agentes concluíram o trabalho",
+        "done_many": "Todos os {{count}} agentes concluíram o trabalho",
+        "idle_one": "{{count}} agente ocioso",
+        "idle_other": "Todos os {{count}} agentes ociosos",
+        "idle_many": "Todos os {{count}} agentes ociosos",
+        "notReporting_one": "{{count}} agente sem informar o status",
+        "notReporting_other": "Todos os {{count}} agentes sem informar o status",
+        "notReporting_many": "Todos os {{count}} agentes sem informar o status",
+        "unconfirmed_one": "{{count}} agente não confirmado",
+        "unconfirmed_other": "Todos os {{count}} agentes não confirmados",
+        "unconfirmed_many": "Todos os {{count}} agentes não confirmados",
+        "needsAttention_one": "{{count}} agente precisa de atenção",
+        "needsAttention_other": "Todos os {{count}} agentes precisam de atenção",
+        "needsAttention_many": "Todos os {{count}} agentes precisam de atenção"
       }
     }
   },
@@ -795,8 +898,10 @@
       "clearHosts": "Limpar hosts",
       "clearProjects": "Limpar projetos",
       "back": "Voltar",
-      "ariaActive": "Filtro: {{value0}} ativo(s).",
-      "scopedTo": "Limitado a"
+      "scopedTo": "Limitado a",
+      "ariaActiveCount_one": "Filtro: {{count}} ativo.",
+      "ariaActiveCount_other": "Filtro: {{count}} ativos.",
+      "ariaActiveCount_many": "Filtro: {{count}} ativos."
     },
     "taskUrl": {
       "loadingHint": "Carregando {{value0}}…",
@@ -2795,7 +2900,9 @@
             "f395c9a685": "Falha ao importar o arquivo",
             "e6234bcc17": "O envio de bichinho personalizado exige reiniciar todo o aplicativo (não apenas recarregar).",
             "6d0a8cd179": "Mostrar bichinho",
-            "1fbc51cc77": "Ocultar bichinho"
+            "1fbc51cc77": "Ocultar bichinho",
+            "petFallbackLabel": "Bichinho",
+            "petHiddenLabel": "{{pet}} (não visível)"
           },
           "PortsStatusSegment": {
             "4ebf90c12e": "Nenhuma porta externa detectada",
@@ -10882,8 +10989,6 @@
           "7bada3b1ab": "Ordenar por",
           "dc0bb670bc": "Agrupar por",
           "9919ae1082": "Opções do espaço de trabalho",
-          "bc96dbd041": "Opções do espaço de trabalho ({{value0}})",
-          "optionsActiveLabel": "Opções do espaço de trabalho ({{value0}} ativas)",
           "af9249c505": "Atividade mais recente do espaço de trabalho",
           "b451c8b162": "Recente",
           "6664282a7b": "Arraste os projetos para organizá-los",
@@ -10917,7 +11022,13 @@
           "folderPathIdentity": "Branch / caminho da pasta",
           "cli": "CLI do Orca",
           "workspaceOptions": "Opções do espaço de trabalho",
-          "host": "Host"
+          "host": "Host",
+          "optionsActiveFilters_one": "Opções do espaço de trabalho ({{count}} filtro ativo)",
+          "optionsActiveFilters_other": "Opções do espaço de trabalho ({{count}} filtros ativos)",
+          "optionsActiveFilters_many": "Opções do espaço de trabalho ({{count}} filtros ativos)",
+          "optionsFilterCount_one": "Opções do espaço de trabalho ({{count}} filtro)",
+          "optionsFilterCount_other": "Opções do espaço de trabalho ({{count}} filtros)",
+          "optionsFilterCount_many": "Opções do espaço de trabalho ({{count}} filtros)"
         },
         "WorktreeList": {
           "7a8b9c0d1e": "Atualização necessária",
@@ -11601,7 +11712,9 @@
           "4815c70605": "Nenhum projeto corresponde",
           "bbbc6e8e3b": "Nenhum projeto não selecionado corresponde",
           "allProjects": "Todos os projetos",
-          "selectedProjectsCount": "{{value0}} projetos"
+          "selectedProjects_one": "{{count}} projeto",
+          "selectedProjects_other": "{{count}} projetos",
+          "selectedProjects_many": "{{count}} projetos"
         },
         "SidebarWorkspaceFilterSection": {
           "c3fa13dc2e": "Ocultar branch padrão",
@@ -11786,7 +11899,8 @@
           "c49fb13492": "Falha ao adicionar a pasta neste host",
           "9a766f33ac": "Este caminho foi verificado no host SSH.",
           "79fd02cf5f": "Este caminho foi verificado em {{hostName}}.",
-          "8851b77327": "Este caminho foi verificado localmente."
+          "8851b77327": "Este caminho foi verificado localmente.",
+          "sshConnectionUnavailable": "A conexão SSH \"{{connection}}\" não foi encontrada ou não está conectada"
         },
         "RemoteFileBrowser": {
           "2300612806": "Digite para filtrar ou informe um caminho…",
@@ -11832,8 +11946,9 @@
           "removeDescriptionSsh": "Isso remove {{name}} apenas do Orca. Seus arquivos permanecem em {{host}} — adicione novamente esse host SSH para recuperá-lo.",
           "removeDescriptionLocal": "Isso remove {{name}} apenas do Orca. Ele ainda está no seu disco.",
           "removeDescriptionVmRecipe": "Isso remove {{name}} do Orca. A receita de VM determina se o ambiente e seus arquivos são excluídos permanentemente.",
-          "openTerminalWarningOne": "1 terminal aberto neste projeto será fechado.",
-          "openTerminalWarningMany": "{{count}} terminais abertos neste projeto serão fechados."
+          "openTerminalWarning_one": "{{count}} terminal aberto neste projeto será fechado.",
+          "openTerminalWarning_other": "{{count}} terminais abertos neste projeto serão fechados.",
+          "openTerminalWarning_many": "{{count}} terminais abertos neste projeto serão fechados."
         },
         "WorktreeCardMetadataStatusBadges": {
           "fe188062a1": "Estado: Aberto",
@@ -12117,7 +12232,8 @@
         },
         "WorktreeCardAgents": {
           "1b0a156717": "Agentes",
-          "agentUnavailable": "O agente não está disponível"
+          "agentUnavailable": "O agente não está disponível",
+          "sendingTarget": "Enviando..."
         },
         "CacheTimer": {
           "expiredTooltip": "A próxima mensagem reenviará todo o contexto como tokens sem cache",
@@ -13253,7 +13369,6 @@
           "updateAction_other": "Atualizar {{count}} skills",
           "updateAction_many": "Atualizar {{count}} skills"
         },
-        "SkillFreshnessRow": {},
         "SkillShareReviewContent": {
           "6d6233a3a4": "Copiar link",
           "0142581727": "Enviando…",
@@ -13580,7 +13695,6 @@
           "loading": "Carregando links compartilhados…",
           "noMatches": "Nenhum link corresponde a esta busca."
         },
-        "SkillUpdateResultRows": {},
         "skill-install-progress-state": {
           "currentSkill": "Instalando {{value0}} de {{value1}}: {{value2}}…"
         },
@@ -13871,8 +13985,6 @@
           "failed24h": "Com falha · 24h",
           "successful7d": "Bem-sucedidas · 7d",
           "failed7d": "Com falha · 7d",
-          "historyUnavailableOne": "O histórico de execução não está disponível para 1 automação. As contagens incluem apenas o histórico disponível.",
-          "historyUnavailableMany": "O histórico de execução não está disponível para {{count}} automações. As contagens incluem apenas o histórico disponível.",
           "automation": "Automação",
           "triggered": "Acionada",
           "trigger": "Acionador",
@@ -13881,7 +13993,10 @@
           "emptyDescription": "As execuções aparecem aqui depois que uma automação é acionada.",
           "runs": "Execuções",
           "local": "Local",
-          "remote": "Remoto"
+          "remote": "Remoto",
+          "historyUnavailable_one": "O histórico de execuções está indisponível para {{count}} automação. As contagens incluem apenas o histórico disponível.",
+          "historyUnavailable_other": "O histórico de execuções está indisponível para {{count}} automações. As contagens incluem apenas o histórico disponível.",
+          "historyUnavailable_many": "O histórico de execuções está indisponível para {{count}} automações. As contagens incluem apenas o histórico disponível."
         },
         "AutomationEditorDialog": {
           "fb1896a5e7": "Cancelar",
@@ -14106,9 +14221,6 @@
         "AutomationListLocalRows": {
           "c92c9463c6": "Ações da automação"
         },
-        "hostSummary": {
-          "partialFailure": "{{failed}} de {{total}} hosts não puderam ser carregados"
-        },
         "ownerConflict": {
           "dismiss": "Descartar"
         },
@@ -14187,7 +14299,8 @@
         "usage": {
           "tokensAndCost_one": "{{tokens}} token · {{cost}}",
           "tokensAndCost_other": "{{tokens}} tokens · {{cost}}",
-          "tokensAndCost_many": "{{tokens}} tokens · {{cost}}"
+          "tokensAndCost_many": "{{tokens}} tokens · {{cost}}",
+          "costUnavailable": "n/d"
         },
         "externalDisplay": {
           "sshHost": "Host SSH",
@@ -14199,6 +14312,11 @@
           "connectSshHost": "Conecte este host SSH antes de gerenciar automações de {{provider}}.",
           "cannotManageOnSshHost": "{{provider}} não pode gerenciar automações neste host SSH.",
           "cannotManageLocally": "{{provider}} não pode gerenciar automações nesta máquina."
+        },
+        "hostSummary": {
+          "partialFailureOfHosts_one": "Falha ao carregar {{failed}} de {{count}} host",
+          "partialFailureOfHosts_other": "Falha ao carregar {{failed}} de {{count}} hosts",
+          "partialFailureOfHosts_many": "Falha ao carregar {{failed}} de {{count}} hosts"
         }
       },
       "TaskPage": {
@@ -16978,7 +17096,6 @@
         "cleanup": {
           "WorkspaceCleanupDialog": {
             "3828408538": "Remover {{value0}}",
-            "352f15d6fc": "Última atividade",
             "b6bae1eed1": "Cancelar",
             "38ca0b1400": "Isso exclui permanentemente seus arquivos locais. Você não pode desfazer isso.",
             "e97e4580c7": "Sujo",
@@ -17546,8 +17663,12 @@
           },
           "filtersSection": "Filtros",
           "viewSection": "Visualização",
-          "threadListOptionsActive": "Opções da lista de conversas ({{value0}} ativas)",
-          "activityOptionsActive": "Opções de atividade ({{value0}})"
+          "threadListOptionsActiveFilters_one": "Opções da lista de threads ({{count}} filtro ativo)",
+          "threadListOptionsActiveFilters_other": "Opções da lista de threads ({{count}} filtros ativos)",
+          "threadListOptionsActiveFilters_many": "Opções da lista de threads ({{count}} filtros ativos)",
+          "activityOptionsFilterCount_one": "Opções de atividade ({{count}} filtro)",
+          "activityOptionsFilterCount_other": "Opções de atividade ({{count}} filtros)",
+          "activityOptionsFilterCount_many": "Opções de atividade ({{count}} filtros)"
         },
         "clearCompleted": {
           "undo": "Desfazer",
@@ -20297,7 +20418,8 @@
         "reconnect": "Reconectar",
         "stopped": "{{distro}} está parado",
         "start": "Iniciar",
-        "unverifiable": "O Orca não conseguiu verificar se {{distro}} está em execução"
+        "unverifiable": "O Orca não conseguiu verificar se {{distro}} está em execução",
+        "startToSend": "Inicie {{distro}} para enviar."
       },
       "interruptedContinue": {
         "continue": "Continuar",
@@ -20691,7 +20813,8 @@
           "selectionWithheldCount_many": "{{count}} espaços de trabalho selecionados estão ocultos pelos filtros atuais e foram desmarcados.",
           "selectAllSafetyChecked_one": "Selecionar {{count}} espaço de trabalho com segurança verificada",
           "selectAllSafetyChecked_other": "Selecionar todos os {{count}} espaços de trabalho com segurança verificada",
-          "selectAllSafetyChecked_many": "Selecionar todos os {{count}} espaços de trabalho com segurança verificada"
+          "selectAllSafetyChecked_many": "Selecionar todos os {{count}} espaços de trabalho com segurança verificada",
+          "lastActive": "Última atividade: {{value0}}"
         },
         "scan": {
           "progress": "Verificando espaços de trabalho ({{value0}}/{{value1}})",
@@ -22377,11 +22500,6 @@
       }
     }
   },
-  "workspaceOptions": {
-    "activeFilterCount_one": "{{count}} filtro",
-    "activeFilterCount_other": "{{count}} filtros",
-    "activeFilterCount_many": "{{count}} filtros"
-  },
   "editorConflicts": {
     "kind": {
       "addedByUs": "Adicionado por nós",
@@ -22606,6 +22724,7 @@
       "agentNeverStarted": "O agente da automação nunca foi iniciado após o envio do prompt.",
       "agentNoCompletion": "O agente da automação não informou a conclusão.",
       "watchTimedOut": "O Orca parou de monitorar esta execução após 6 horas sem um sinal de conclusão.",
+      "wslDistroStopped": "A distribuição WSL {{distro}} está parada, então esta execução agendada não a iniciou. Inicie a distribuição ou use Executar agora; as próximas execuções acontecem enquanto ela estiver em execução.",
       "projectSetupState": {
         "notSetUp": "O projeto não está configurado no host selecionado para a automação.",
         "settingUp": "O projeto ainda está sendo configurado no host selecionado para a automação.",
@@ -22912,6 +23031,16 @@
     "defaultLabels": {
       "image": "Bichinho personalizado",
       "bundle": "Pacote do bichinho"
+    }
+  },
+  "diffComments": {
+    "lineRangeMeta": "linhas {{start}}-{{end}}",
+    "lineMeta": "linha {{line}}"
+  },
+  "agentSendTargets": {
+    "disabledReason": {
+      "needsPermission": "O agente precisa de permissão",
+      "statusStale": "O status do agente está desatualizado"
     }
   }
 }

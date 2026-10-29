@@ -97,6 +97,8 @@ export type PtySpawnOptions = {
   spawnIntent?: SpawnIntent
   /** A restore no user act asked for: a WSL bridge pane whose distro is stopped is held, not started. */
   wslPassiveRestore?: true
+  /** A main-side start no user act asked for (orchestration, automations, recovery): held like a passive restore. */
+  wslBackgroundStart?: true
   agentSessionEnsure?: {
     claim: AgentSessionExecutionClaim
     surface: AgentSessionSurfaceBinding

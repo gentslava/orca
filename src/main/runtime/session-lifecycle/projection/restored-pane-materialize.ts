@@ -199,7 +199,8 @@ export abstract class OrcaRuntimeWithRestoredPaneStart extends OrcaRuntimeWithBu
       automatic = false,
       targetsHost = false,
       targetGroupId,
-      sessionId
+      sessionId,
+      wslUserAct
     }: RestoredPaneTrigger & { sessionId?: string }
   ): Promise<RuntimeMobileSessionCreateTerminalResult> {
     // Recover undelivered startup commands (#7587) or recorded agent sessions (#27147, #27777); live-session attach skips startup commands, preventing double launches.
@@ -262,6 +263,7 @@ export abstract class OrcaRuntimeWithRestoredPaneStart extends OrcaRuntimeWithBu
             : {}),
           launchRuntime: agentStartup.launchRuntime,
           targetGroupId,
+          ...(wslUserAct ? { wslUserAct } : {}),
           onPtySpawnDispatched: () => {
             dispatched = true
           },
