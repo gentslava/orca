@@ -101,6 +101,7 @@ beforeEach(() => {
 afterEach(cleanup)
 
 it('keeps recoverable provider history with unknown content despite the saved empty-session filter', async () => {
+  const { default: AiVaultPanel } = await import('./AiVaultPanel')
   const unknown: AiVaultSession = {
     ...conversationSessions[0]!,
     id: 'provider-unknown',
