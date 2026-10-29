@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { conversationSessions } from '../sidebar/ProjectConversationList.test-fixture'
 import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
+import type { AiVaultSession } from '../../../../shared/ai-vault-types'
 
 const state = {
   settings: { aiVaultSearch: { enabled: true } },
@@ -28,7 +29,7 @@ vi.mock('@/store/selectors', () => ({
   useProjectHostSetupProjection: () => ({ projects: [], setups: [] }),
   useRepos: () => []
 }))
-const sessions = [
+const sessions: AiVaultSession[] = [
   {
     ...conversationSessions[0]!,
     source: 'structured-record' as const,
@@ -98,6 +99,29 @@ beforeEach(() => {
   })
 })
 afterEach(cleanup)
+
+it('keeps recoverable provider history with unknown content despite the saved empty-session filter', async () => {
+  const unknown: AiVaultSession = {
+    ...conversationSessions[0]!,
+    id: 'provider-unknown',
+    sessionId: 'provider-unknown',
+    source: undefined,
+    structuredSession: undefined,
+    messageCount: 0,
+    conversationContent: 'unknown',
+    title: 'Recoverable provider history'
+  }
+  sessions.push(unknown)
+  try {
+    render(<AiVaultPanel conversationNavigation />)
+    expect(screen.getByText('Recoverable provider history')).toBeTruthy()
+    await userEvent.type(screen.getByLabelText('Search sessions'), 'Recoverable')
+    await waitFor(() => expect(searchSessions).toHaveBeenCalled())
+    await waitFor(() => expect(screen.getByText('Recoverable provider history')).toBeTruthy())
+  } finally {
+    sessions.pop()
+  }
+})
 
 it('shows primary project chats despite legacy hidden-agent filters and searches their durable prompts without an index hit', async () => {
   const { default: AiVaultPanel } = await import('./AiVaultPanel')
