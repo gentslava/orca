@@ -6,6 +6,8 @@
 #include <aclapi.h>
 #include <sddl.h>
 
+#include "isolated-spawn.h"
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -423,6 +425,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set("grantAccess", Napi::Function::New(env, GrantAccessJs));
   exports.Set("grantAccessAsync", Napi::Function::New(env, GrantAccessAsync));
   exports.Set("clearStdHandleInheritance", Napi::Function::New(env, ClearStdHandleInheritance));
+  exports.Set("spawnDetachedIsolated", Napi::Function::New(env, SpawnDetachedIsolated));
   return exports;
 }
 

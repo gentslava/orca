@@ -107,6 +107,10 @@ export function createFakeWindowsSecurity(): FakeWindowsSecurity {
       fake.calls.filter((call) => call.op === op && (path === undefined || call.path === path)),
     currentUserSid: () => FAKE_USER_SID,
     clearStdHandleInheritance: () => [],
+    spawnDetachedIsolated: () => {
+      throw new Error('spawnDetachedIsolated is not faked')
+    },
+    hasNativeExport: () => true,
     getDaclAces: (addonPath) => {
       const path = record('get', addonPath)
       return daclFromSddl(fake.dacls.get(path) ?? INHERITED_SDDL)

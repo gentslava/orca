@@ -19,6 +19,7 @@ import { bindReplayDataDrain } from './replay-data-drain'
 import { bindStartFreshSpawn } from './fresh-spawn-start'
 
 import { bindFreshSpawnFollowReset } from './fresh-spawn-follow-reset'
+import { bindReplacedProcessInputModes } from './replaced-process-input-modes'
 import { deferHiddenAgentResume } from './hidden-agent-resume-deferral'
 import { holdInPlaceResumeUntilSettled } from './in-place-resume-hold'
 import { attachToMainResumedSleepPane, mainResumedSleepPane } from './main-resumed-sleep-pane'
@@ -196,6 +197,7 @@ export function bindDeferredColdRestoreAndSnapshot(session: ConnectPanePtySessio
     session.freshSpawnFollowResetDisposables = []
   }
   bindFreshSpawnFollowReset(session)
+  bindReplacedProcessInputModes(session)
   bindStartFreshSpawn(session)
   bindReplayDataDrain(session)
   session.replayDataCallback = (

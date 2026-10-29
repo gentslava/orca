@@ -8,6 +8,7 @@ import type { Store } from '../persistence'
 import { consumeBurstToken, resetBurstCapsForSession } from './burst-cap'
 import { getCohortAtEmit } from './cohort-classifier'
 import { resolveConsent } from './consent'
+import * as postHogStart from './posthog-client-start'
 import { buildCommonProps, createPostHogClient, waitForCaptureEnqueue } from './posthog-transport'
 import { commonPropsSchema, validate } from './validator'
 
@@ -43,7 +44,7 @@ let testTransportEnabled = false
 let appOpenedTrackedThisSession = false
 const trackedDashboardActiveDays = new Map<AgentDashboardSurface, number>()
 
-export function initTelemetry(store: Store): void {
+export function initTelemetry(store: Store, scheduleStart: postHogStart.StartScheduler): void {
   // Retain Store even for contributor builds so opt-out persists.
   storeRef = store
   resetBurstCapsForSession()
@@ -51,6 +52,7 @@ export function initTelemetry(store: Store): void {
   // Reset banner/app-open gating each launch, not once per install.
   appOpenedTrackedThisSession = false
   trackedDashboardActiveDays.clear()
+  postHogStart.resetStart()
 
   if (!TELEMETRY_ENABLED || !IS_OFFICIAL_BUILD || BUILD_IDENTITY === null || WRITE_KEY === null) {
     return
@@ -80,7 +82,26 @@ export function initTelemetry(store: Store): void {
     return
   }
 
-  posthog = createPostHogClient(WRITE_KEY, resolveConsent(settings))
+  posthog = null
+  postHogStart.deferStart(WRITE_KEY, scheduleStart, ensurePostHogClient)
+}
+
+function ensurePostHogClient(): PostHog | null {
+  const start = posthog ? null : postHogStart.takeStart()
+  if (!start || !storeRef) {
+    return posthog
+  }
+  try {
+    // Apply consent as it stands now; the live per-event check already gated each held capture.
+    posthog = createPostHogClient(start.writeKey, resolveConsent(storeRef.getSettings()))
+    for (const message of start.held) {
+      posthog.capture(message)
+    }
+  } catch (err) {
+    // Callers include opt-out and quit, which must still complete without a client.
+    console.warn('[telemetry] PostHog client failed to start or replay held events:', err)
+  }
+  return posthog
 }
 
 /** Lets producers avoid preparing usage payloads when transmission is disabled. */
@@ -88,7 +109,7 @@ export function isTelemetryEnabled(): boolean {
   return (
     (testTransportEnabled || (IS_OFFICIAL_BUILD && TELEMETRY_ENABLED)) &&
     !shuttingDown &&
-    posthog !== null &&
+    (posthog !== null || postHogStart.isStartDeferred()) &&
     commonProps !== null &&
     storeRef !== null &&
     resolveConsent(storeRef.getSettings()).effective === 'enabled'
@@ -115,7 +136,12 @@ export function track<N extends EventName>(name: N, props: EventProps<N>): boole
   if (shuttingDown) {
     return false
   }
-  if (!posthog || !commonProps || !storeRef || posthog.optedOut) {
+  if (
+    (!posthog && !postHogStart.isStartDeferred()) ||
+    !commonProps ||
+    !storeRef ||
+    posthog?.optedOut
+  ) {
     return false
   }
 
@@ -171,7 +197,7 @@ export function track<N extends EventName>(name: N, props: EventProps<N>): boole
       : {}
 
   // Node SDK requires per-capture person-profile suppression.
-  posthog.capture({
+  const message = {
     distinctId: commonProps.install_id,
     event: name,
     properties: {
@@ -180,7 +206,12 @@ export function track<N extends EventName>(name: N, props: EventProps<N>): boole
       ...mainOwnedProps,
       $process_person_profile: false
     }
-  })
+  }
+  if (posthog) {
+    posthog.capture(message)
+  } else {
+    postHogStart.holdCapture(message)
+  }
   if (dashboardActiveSurface && settings.telemetry) {
     trackedDashboardActiveDays.set(dashboardActiveSurface, dashboardActiveDay)
     try {
@@ -204,6 +235,8 @@ export async function setOptIn(via: OptInVia, optedIn: boolean): Promise<void> {
   if (!storeRef) {
     return
   }
+  // Start before consent changes: opt-out must flush held events and enqueue its own event first.
+  ensurePostHogClient()
   const settings = storeRef.getSettings()
   // Deep-merge opt-in without clobbering installation identity or cohort.
   storeRef.updateSettings(
@@ -292,7 +325,8 @@ export function trackAppOpenedOnce(): void {
 export async function shutdownTelemetry(): Promise<void> {
   // Fence before flushing so late IPC cannot enqueue.
   shuttingDown = true
-  const instance = posthog
+  const instance = postHogStart.hasHeldCaptures() ? ensurePostHogClient() : posthog
+  postHogStart.resetStart()
   if (!instance) {
     return
   }

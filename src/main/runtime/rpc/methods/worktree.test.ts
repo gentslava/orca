@@ -727,6 +727,14 @@ describe('worktree RPC methods', () => {
       headRefName: 'feature/pr-head',
       isCrossRepository: false
     })
+    // A paired client's create-from-PR wake reaches the host; anything else is dropped (E9).
+    for (const wakeWslDistro of [true, 'yes']) {
+      await dispatcher.dispatch(
+        makeRequest('worktree.resolvePrBase', { repo: 'id:repo-1', prNumber: 42, wakeWslDistro })
+      )
+    }
+    const wakes = vi.mocked(runtime.resolveManagedPrBase).mock.calls.map(([a]) => a.wakeWslDistro)
+    expect(wakes).toEqual([undefined, true, undefined])
   })
 
   it('passes explicit repo selectors to MR base resolution', async () => {

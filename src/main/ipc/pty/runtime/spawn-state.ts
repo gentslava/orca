@@ -129,6 +129,8 @@ export type RuntimePtySpawnArgs = {
   resumeProviderSession?: AgentProviderSessionMetadata
   /** `saved`: built from a pane's saved facts, which the host refuses for a chat's conversation. */
   resumeOrigin?: 'saved'
+  /** The user's own act (a CLI command, a paired client's create, a launch); without it a stopped WSL distro holds the start. */
+  wslUserAct?: true
   connectionId?: string | null
   worktreeId?: string
   preAllocatedHandle?: string

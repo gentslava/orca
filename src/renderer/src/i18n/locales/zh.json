@@ -560,8 +560,8 @@
       "clearHosts": "清除主机",
       "clearProjects": "清除项目",
       "back": "返回",
-      "ariaActive": "筛选：{{value0}} 个生效。",
-      "scopedTo": "范围："
+      "scopedTo": "范围：",
+      "ariaActiveCount_other": "筛选：已启用 {{count}} 个。"
     },
     "linearIssue": {
       "createLabel": "从 Linear 议题 {{value0}} 创建工作树：{{value1}}",
@@ -3136,7 +3136,6 @@
         "cleanup": {
           "WorkspaceCleanupDialog": {
             "3828408538": "删除 {{value0}}",
-            "352f15d6fc": "最后活跃",
             "b6bae1eed1": "取消",
             "38ca0b1400": "这将永久删除他们的本地文件。您无法撤销此操作。",
             "e97e4580c7": "有改动",
@@ -3865,7 +3864,9 @@
             "f395c9a685": "导入文件失败",
             "e6234bcc17": "自定义宠物上传需要完全重启应用（不仅是重新加载）。",
             "6d0a8cd179": "显示宠物",
-            "1fbc51cc77": "隐藏宠物"
+            "1fbc51cc77": "隐藏宠物",
+            "petFallbackLabel": "宠物",
+            "petHiddenLabel": "{{pet}} 已隐藏"
           },
           "PortsStatusSegment": {
             "4ebf90c12e": "未检测到外部端口",
@@ -4821,7 +4822,6 @@
           "description": "更新 {{value0}}，让智能体遵循此版本 Orca 的最新说明。",
           "title_other": "{{count}} 个已安装的 Orca 技能需要更新"
         },
-        "SkillFreshnessRow": {},
         "SkillFreshnessUpdateDialog": {
           "title": "更新技能",
           "checking": "正在检查已安装的 Orca 技能…",
@@ -4859,7 +4859,6 @@
           "updateServer": "请在服务器上更新 Orca",
           "connectHost": "请连接 SSH 主机"
         },
-        "SkillUpdateResultRows": {},
         "SkillUpdateRow": {
           "replaceWithOrca": "替换为 Orca 的副本（保留备份）"
         },
@@ -5349,7 +5348,8 @@
           "c49fb13492": "添加远程文件夹失败",
           "9a766f33ac": "已在 SSH 主机上检查此路径。",
           "79fd02cf5f": "已在 {{hostName}} 上检查此路径。",
-          "8851b77327": "已在本机检查此路径。"
+          "8851b77327": "已在本机检查此路径。",
+          "sshConnectionUnavailable": "未找到 SSH 连接“{{connection}}”或该连接未连接"
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "运行钩子",
@@ -5433,8 +5433,7 @@
           "removeDescriptionSsh": "此操作仅将 {{name}} 从 Orca 中移除。文件仍保留在 {{host}} 上 — 重新添加该 SSH 主机即可恢复。",
           "removeDescriptionLocal": "此操作仅将 {{name}} 从 Orca 中移除。文件仍保留在您的磁盘上。",
           "removeDescriptionVmRecipe": "这会从 Orca 中删除 {{name}}。其VM配方决定是否永久删除环境及其文件。",
-          "openTerminalWarningOne": "此项目中 1 个打开的终端将被关闭。",
-          "openTerminalWarningMany": "此项目中 {{count}} 个打开的终端将被关闭。"
+          "openTerminalWarning_other": "此项目中打开的 {{count}} 个终端将被关闭。"
         },
         "ScrollToCurrentWorkspaceToolbarButton": {
           "23989bb663": "显示活动工作区"
@@ -5544,7 +5543,7 @@
           "4815c70605": "没有匹配的项目",
           "bbbc6e8e3b": "没有匹配的未选择项目",
           "allProjects": "所有项目",
-          "selectedProjectsCount": "{{value0}} 个项目"
+          "selectedProjects_other": "{{count}} 个项目"
         },
         "SidebarSettingsHelpMenu": {
           "ad3d3ed7f1": "重启 Orca",
@@ -5592,8 +5591,6 @@
           "7bada3b1ab": "排序方式",
           "dc0bb670bc": "分组依据",
           "9919ae1082": "工作区选项",
-          "bc96dbd041": "工作区选项 ({{value0}})",
-          "optionsActiveLabel": "工作区选项（{{value0}} 个生效）",
           "af9249c505": "最近的工作区活动",
           "b451c8b162": "最近的",
           "6664282a7b": "拖动项目进行排列",
@@ -5634,7 +5631,9 @@
           "automation": "自动化",
           "folderPathIdentity": "分支 / 文件夹路径",
           "cli": "Orca CLI",
-          "workspaceOptions": "工作区选项"
+          "workspaceOptions": "工作区选项",
+          "optionsActiveFilters_other": "工作区选项（{{count}} 个筛选条件已启用）",
+          "optionsFilterCount_other": "工作区选项（{{count}} 个筛选条件）"
         },
         "SshTargetRow": {
           "4677394048": "正在连接…",
@@ -5703,7 +5702,8 @@
         },
         "WorktreeCardAgents": {
           "1b0a156717": "智能体",
-          "agentUnavailable": "智能体不可用"
+          "agentUnavailable": "智能体不可用",
+          "sendingTarget": "正在发送..."
         },
         "WorktreeCardMeta": {
           "3e65e11cc6": "工作区元数据",
@@ -16610,8 +16610,6 @@
           "failed24h": "失败 · 24 小时",
           "successful7d": "成功 · 7 天",
           "failed7d": "失败 · 7 天",
-          "historyUnavailableOne": "1 个自动化的运行历史不可用。计数仅包含可用的历史记录。",
-          "historyUnavailableMany": "{{count}} 个自动化的运行历史不可用。计数仅包含可用的历史记录。",
           "automation": "自动化",
           "triggered": "已触发",
           "trigger": "触发",
@@ -16620,7 +16618,8 @@
           "emptyDescription": "触发自动化后，运行记录会显示在这里。",
           "runs": "运行",
           "local": "本地",
-          "remote": "远程"
+          "remote": "远程",
+          "historyUnavailable_other": "{{count}} 个自动化的运行历史不可用。统计仅包含可用的历史记录。"
         },
         "AutomationsPageBreadcrumb": {
           "ariaLabel": "自动化面包屑导航",
@@ -16984,9 +16983,6 @@
           "sortedAscending": "{{value0}}，升序排序",
           "sortedDescending": "{{value0}}，降序排序"
         },
-        "hostSummary": {
-          "partialFailure": "无法加载 {{total}} 主机的 {{failed}}"
-        },
         "emptyState": {
           "unknownHost": "该主机",
           "hostLoading": "正在加载主机...",
@@ -17129,7 +17125,8 @@
           "namedWorkspaceGone": "{{name}}（已不可用）"
         },
         "usage": {
-          "tokensAndCost_other": "{{tokens}} token · {{cost}}"
+          "tokensAndCost_other": "{{tokens}} token · {{cost}}",
+          "costUnavailable": "暂无数据"
         },
         "externalDisplay": {
           "sshHost": "SSH 主机",
@@ -17141,6 +17138,9 @@
           "connectSshHost": "请先连接此 SSH 主机，再管理 {{provider}} 自动化。",
           "cannotManageOnSshHost": "{{provider}} 无法管理此 SSH 主机上的自动化。",
           "cannotManageLocally": "{{provider}} 无法管理此计算机上的自动化。"
+        },
+        "hostSummary": {
+          "partialFailureOfHosts_other": "{{count}} 个主机中有 {{failed}} 个无法加载"
         }
       },
       "agent": {
@@ -17206,8 +17206,8 @@
           },
           "filtersSection": "筛选",
           "viewSection": "视图",
-          "threadListOptionsActive": "线程列表选项（{{value0}} 个生效）",
-          "activityOptionsActive": "活动选项（{{value0}}）"
+          "threadListOptionsActiveFilters_other": "线程列表选项（{{count}} 个筛选条件已启用）",
+          "activityOptionsFilterCount_other": "活动选项（{{count}} 个筛选条件）"
         },
         "ActivityScopeFilterControls": {
           "resetScope": "显示所有主机和项目",
@@ -18890,7 +18890,8 @@
         "reconnect": "重新连接",
         "stopped": "{{distro}} 已停止",
         "start": "启动",
-        "unverifiable": "Orca 无法确认 {{distro}} 是否正在运行"
+        "unverifiable": "Orca 无法确认 {{distro}} 是否正在运行",
+        "startToSend": "请启动 {{distro}} 后再发送。"
       },
       "interruptedContinue": {
         "continue": "继续",
@@ -19293,7 +19294,8 @@
           "forceDeleteRisk_other": "{{count}} 个工作区目前存在风险，可能需要强制删除",
           "selectionVanishedCount_other": "所选的 {{count}} 个工作区已不存在。",
           "selectionWithheldCount_other": "所选的 {{count}} 个工作区被当前筛选条件隐藏，已取消选择。",
-          "selectAllSafetyChecked_other": "选择全部 {{count}} 个已通过安全检查的工作区"
+          "selectAllSafetyChecked_other": "选择全部 {{count}} 个已通过安全检查的工作区",
+          "lastActive": "最后活跃：{{value0}}"
         },
         "scan": {
           "progress": "扫描工作区 ({{value0}}/{{value1}})",
@@ -20036,6 +20038,50 @@
         "peerCheckFailed": "Orca 无法向 WSL 主机询问此电脑上的另一个 Orca 是否仍在使用该主机：{{detail}}",
         "removalUnrecorded": "Orca 无法记录此次移除后仍在运行的内容：{{detail}}"
       }
+    },
+    "agentSummary": {
+      "state": {
+        "waiting": "等待中",
+        "blocked": "已阻塞",
+        "interrupted": "已中断",
+        "failed": "失败",
+        "working": "工作中",
+        "monitoring": "监控中",
+        "done": "已完成",
+        "idle": "空闲",
+        "notReporting": "未报告状态",
+        "unconfirmed": "未确认",
+        "needsAttention": "需要处理"
+      },
+      "mixedStates": "{{subject}}：{{states}}",
+      "agentIdentityState": "{{agent}} {{status}}",
+      "agentCount_other": "{{count}} 个智能体",
+      "stateCount": {
+        "waiting_other": "{{count}} 个等待中",
+        "blocked_other": "{{count}} 个已阻塞",
+        "interrupted_other": "{{count}} 个已中断",
+        "failed_other": "{{count}} 个失败",
+        "working_other": "{{count}} 个工作中",
+        "monitoring_other": "{{count}} 个监控中",
+        "done_other": "{{count}} 个已完成",
+        "idle_other": "{{count}} 个空闲",
+        "notReporting_other": "{{count}} 个未报告状态",
+        "unconfirmed_other": "{{count}} 个未确认",
+        "needsAttention_other": "{{count}} 个需要处理"
+      },
+      "allInState": {
+        "waiting_other": "全部 {{count}} 个智能体等待中",
+        "blocked_other": "全部 {{count}} 个智能体已阻塞",
+        "interrupted_other": "全部 {{count}} 个智能体已中断",
+        "failed_other": "全部 {{count}} 个智能体失败",
+        "working_other": "全部 {{count}} 个智能体工作中",
+        "monitoring_other": "全部 {{count}} 个智能体监控中",
+        "done_other": "全部 {{count}} 个智能体已完成",
+        "idle_other": "全部 {{count}} 个智能体空闲",
+        "notReporting_other": "全部 {{count}} 个智能体未报告状态",
+        "unconfirmed_other": "全部 {{count}} 个智能体未确认",
+        "needsAttention_other": "全部 {{count}} 个智能体需要处理"
+      }
     }
   },
   "editor": {
@@ -20343,7 +20389,93 @@
         "kimiContinueSessionConflict": "Kimi 收到了冲突的选项：--continue, --session。请在重试前修正生成预设或 CLI 参数。"
       },
       "enableSourceControlAi": "请在设置 -> Git 中启用源代码控制 AI。",
-      "chooseBaseBranch": "请先选择基础分支，再生成。"
+      "chooseBaseBranch": "请先选择基础分支，再生成。",
+      "savedCommitRecipeRepo": "已为此仓库保存提交消息预设。",
+      "savedCommitRecipeGlobal": "已将提交消息预设保存为全局默认值。",
+      "savedReviewRecipeRepo": "已为此仓库保存托管评审预设。",
+      "savedReviewRecipeGlobal": "已将托管评审预设保存为全局默认值。",
+      "savedBranchRecipeRepo": "已为此仓库保存分支名称预设。",
+      "savedBranchRecipeGlobal": "已将分支名称预设保存为全局默认值。"
+    },
+    "remoteError": {
+      "submodule": {
+        "namedRemoteChanged": "子模块“{{name}}”有远程更改。请在子模块内拉取后重试。",
+        "remoteChanged": "某个子模块有远程更改。请在子模块内拉取后重试。",
+        "namedPushFailed": "无法推送子模块“{{name}}”。请解决子模块的推送错误后重试。",
+        "pushFailed": "无法推送某个子模块。请解决子模块的推送错误后重试。"
+      },
+      "failedWithDetail": {
+        "publish": "发布分支失败。{{detail}}",
+        "sync": "同步失败。{{detail}}",
+        "forcePush": "强制推送失败。{{detail}}",
+        "push": "推送失败。{{detail}}",
+        "fetch": "获取失败。{{detail}}",
+        "fastForward": "快进失败。{{detail}}",
+        "rebase": "变基失败。{{detail}}",
+        "pull": "拉取失败。{{detail}}"
+      },
+      "hookBlocked": {
+        "lint": {
+          "publish": "发布分支被阻止 — 推送时 lint 失败。",
+          "sync": "同步被阻止 — 推送时 lint 失败。",
+          "forcePush": "强制推送被阻止 — 推送时 lint 失败。",
+          "push": "推送被阻止 — 推送时 lint 失败。"
+        },
+        "prePush": {
+          "publish": "发布分支被阻止 — pre-push 钩子失败。",
+          "sync": "同步被阻止 — pre-push 钩子失败。",
+          "forcePush": "强制推送被阻止 — pre-push 钩子失败。",
+          "push": "推送被阻止 — pre-push 钩子失败。"
+        },
+        "detail": {
+          "publish": "发布分支被阻止 — {{detail}}",
+          "sync": "同步被阻止 — {{detail}}",
+          "forcePush": "强制推送被阻止 — {{detail}}",
+          "push": "推送被阻止 — {{detail}}"
+        }
+      },
+      "remoteAccessWithDetail": {
+        "publish": "发布分支失败。{{detail}}。请检查远程访问权限后重试。",
+        "sync": "同步失败。{{detail}}。请检查远程访问权限后重试。",
+        "forcePush": "强制推送失败。{{detail}}。请检查远程访问权限后重试。",
+        "push": "推送失败。{{detail}}。请检查远程访问权限后重试。"
+      },
+      "publishFailed": "发布分支失败。请检查远程访问权限后重试。",
+      "syncFailed": "同步失败。请检查连接后重试。",
+      "forcePushFailed": "强制推送失败。请检查连接后重试。",
+      "pushFailed": "推送失败。请检查连接后重试。",
+      "localChangesBlocked": {
+        "rebase": "变基被阻止 — 请先提交本地更改或将其存入 stash。",
+        "fastForward": "快进被阻止 — 请先提交本地更改或将其存入 stash。",
+        "pull": "拉取被阻止 — 请先提交本地更改或将其存入 stash。"
+      },
+      "operationFailed": "远程操作失败",
+      "unconcludedMerge": {
+        "rebase": "变基被阻止 — 请先解决现有冲突。",
+        "sync": "同步被阻止 — 请先解决现有合并冲突。",
+        "pull": "拉取被阻止 — 请先解决现有合并冲突。"
+      },
+      "mergeConflicts": {
+        "rebase": "变基因冲突而停止。请在源代码控制中解决冲突，然后继续变基。",
+        "sync": "同步因合并冲突而停止。请在源代码控制中解决冲突，然后提交合并。",
+        "pull": "拉取因合并冲突而停止。请在源代码控制中解决冲突，然后提交合并。"
+      },
+      "syncRemoteMoved": "同步失败 — 同步期间远程发生了更改。请重试。",
+      "forcePushRejected": "强制推送被拒绝 — 远程在上次获取后发生了更改。请先获取，再重试。",
+      "pushRejected": "推送被拒绝 — 远程有更改。请先拉取，再重试。",
+      "untrackedFilesBlocked": {
+        "rebase": "变基被阻止 — 请先移动、移除或添加未跟踪文件。",
+        "fastForward": "快进被阻止 — 请先移动、移除或添加未跟踪文件。",
+        "pull": "拉取被阻止 — 请先移动、移除或添加未跟踪文件。"
+      },
+      "authenticationFailed": "身份验证失败。请检查远程凭据。"
+    },
+    "submodule": {
+      "worktreeOnlyLabel": "在子模块内暂存",
+      "worktreeOnlyTooltip": "父仓库（包括“暂存全部”）无法暂存子模块内的文件更改",
+      "loading": "正在加载子模块更改…",
+      "empty": "子模块中没有更改",
+      "loadFailed": "无法加载子模块更改"
     }
   },
   "rendererRecovery": {
@@ -21870,10 +22002,6 @@
       }
     }
   },
-  "workspaceOptions": {
-    "activeFilterCount_one": "{{count}} 个筛选条件",
-    "activeFilterCount_other": "{{count}} 个筛选条件"
-  },
   "editorConflicts": {
     "kind": {
       "addedByUs": "我们添加",
@@ -22095,6 +22223,7 @@
       "agentNeverStarted": "提交提示词后，自动化智能体始终未启动。",
       "agentNoCompletion": "自动化智能体未报告完成。",
       "watchTimedOut": "6 小时内未收到完成信号，Orca 已停止监视此次运行。",
+      "wslDistroStopped": "WSL 发行版 {{distro}} 已停止，因此本次计划运行没有启动它。请启动该发行版或使用“立即运行”；它运行期间，后续运行会照常进行。",
       "projectSetupState": {
         "notSetUp": "项目尚未在所选自动化主机上完成设置。",
         "settingUp": "项目仍在所选自动化主机上进行设置。",
@@ -22401,6 +22530,16 @@
     "defaultLabels": {
       "image": "自定义宠物",
       "bundle": "宠物包"
+    }
+  },
+  "diffComments": {
+    "lineRangeMeta": "第 {{start}}-{{end}} 行",
+    "lineMeta": "第 {{line}} 行"
+  },
+  "agentSendTargets": {
+    "disabledReason": {
+      "needsPermission": "智能体需要授权",
+      "statusStale": "智能体状态信息已过期"
     }
   }
 }
