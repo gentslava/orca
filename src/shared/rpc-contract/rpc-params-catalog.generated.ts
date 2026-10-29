@@ -1154,6 +1154,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'layout.getRemoteSnapshots': null,
   'layout.reopenHeldPanes': LayoutReopenHeldPanesParams,
   'layout.reportView': LayoutReportViewParams,
+  'layout.startWslHeldPanes': LayoutReopenHeldPanesParams,
   'layout.subscribe': LayoutSubscribeParams,
   'layout.unsubscribe': LayoutUnsubscribeParams,
   'linear.addIssueComment': IssueCommentOfLinearParams,

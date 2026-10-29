@@ -34,6 +34,7 @@ import { useWorktreeAgentRows } from '@/components/sidebar/useWorktreeAgentRows'
 import type { LaunchSource } from '../../../../shared/telemetry-events'
 import { agentRowDisplayDotState } from '@/lib/agent-row-dot-state'
 import { translate } from '@/i18n/i18n'
+import { agentSendDisabledReasonLabel } from '@/lib/agent-send-disabled-reason-label'
 
 type OrderedSendTarget = {
   target: NotesSendAgentTarget
@@ -239,7 +240,9 @@ function resolveCurrentSendTargetEligibility(
       ? { status: 'eligible' }
       : {
           status: 'disabled',
-          disabledReason: currentTarget.disabledReason ?? goneReason
+          disabledReason: currentTarget.disabledReason
+            ? agentSendDisabledReasonLabel(currentTarget.disabledReason)
+            : goneReason
         }
   }
 
@@ -263,7 +266,10 @@ function AgentTargetMenuItem({
   // Use the sidebar’s display state so failed/stopped agents agree across surfaces.
   const state = agent ? agentRowDisplayDotState(agent) : 'idle'
   const timeAgo = agent ? formatAgentRelativeTime(agent, now) : null
-  const disabledReason = target.status === 'disabled' ? target.disabledReason : undefined
+  const disabledReason =
+    target.status === 'disabled' && target.disabledReason
+      ? agentSendDisabledReasonLabel(target.disabledReason)
+      : undefined
   const secondaryParts = [
     agentStateLabel(state),
     ...(timeAgo ? [timeAgo] : []),

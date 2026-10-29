@@ -8,6 +8,12 @@ import { stopAgentSessionProviderRoot } from '../native-chat/agent-session-wire/
 import { withAgentSessionCreatePhase } from '../observability/agent-session-instrumentation'
 import type { ClaudeStructuredLaunch } from './claude-structured-launch-resolution'
 import {
+  CLAUDE_APPLY_FLAG_SETTINGS_CONTROL,
+  CLAUDE_CACHED_FLAG_CHECK_BUDGET_MS,
+  CLAUDE_CLI_FLAG_PROBE_KILL_AFTER_MS,
+  CLAUDE_EFFORT_FLAG
+} from './claude-cli-flag-support'
+import {
   claudeStructuredSpawnOptions,
   type ClaudeStructuredSpawnOptions
 } from './claude-structured-spawn-options'
@@ -96,14 +102,27 @@ export async function resolveClaudeAcquisitionLaunch(args: {
         throw launchPreparationFailure(error)
       })
     acquisitions.assertCurrent(sessionId, attempt)
-    const spawn = claudeStructuredSpawnOptions({ launch, saved: input.options })
+    // Saved effort waits out the version probe: a guess fails an old CLI's launch or defers effort.
+    const effortFlag =
+      input.options?.effort === undefined
+        ? 'unknown'
+        : await launch.cliFlag(CLAUDE_EFFORT_FLAG, CLAUDE_CLI_FLAG_PROBE_KILL_AFTER_MS)
+    const flagSettingsControl = await launch.cliFlag(
+      CLAUDE_APPLY_FLAG_SETTINGS_CONTROL,
+      CLAUDE_CACHED_FLAG_CHECK_BUDGET_MS,
+      false
+    )
+    acquisitions.assertCurrent(sessionId, attempt)
+    const { sdkOptions, ...savedOptions } = claudeStructuredSpawnOptions({
+      launch,
+      saved: input.options,
+      effortFlag,
+      flagSettingsControl
+    })
     return {
       ...launch,
-      options: spawn.sdkOptions,
-      savedOptions: {
-        options: spawn.options,
-        fastModeAtStart: spawn.fastModeAtStart
-      }
+      options: sdkOptions,
+      savedOptions: { ...savedOptions, cliFlag: launch.cliFlag, flagSettingsControl }
     }
   })
 }
