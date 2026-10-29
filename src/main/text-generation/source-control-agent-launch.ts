@@ -1,7 +1,7 @@
 import { wslDistroForCommand } from '../../shared/wsl-paths'
 import { spawnProcess } from '@orca/process-host'
 import { withCliRuntimeOnPath } from '../../shared/node-cli-command-resolution'
-import { resolveCliCommand } from '../codex-cli/command'
+import { resolveCliCommand, resolveGuestNativeAgentCommand } from '../codex-cli/command'
 import { createProviderSpawnSpec } from '../provider-process/provider-process-supervisor'
 import { guardSupervisedProviderGroup } from '../provider-process/provider-group-orphan-guard'
 import { SOURCE_CONTROL_KILL_SITE } from './source-control-agent-termination'
@@ -98,14 +98,21 @@ function spawnSupervisedAgent(
   input: SourceControlAgentSpawnInput,
   spawnEnv: NodeJS.ProcessEnv
 ): SpawnedSourceControlAgentProcess {
+  const env = guestNativeSpawnEnv(spawnEnv)
+  const binary = input.binary.includes('/')
+    ? input.binary
+    : resolveGuestNativeAgentCommand(input.binary, {
+        pathEnv: env.PATH ?? env.Path ?? null,
+        homePath: env.HOME ?? env.USERPROFILE
+      })
   const spec = createProviderSpawnSpec(
     {
-      command: input.binary,
+      command: binary,
       args: input.args,
       ...(input.useCwdForNative && input.cwd !== undefined ? { cwd: input.cwd } : {})
     },
     // On a WSL-host orcad, a missing CLI must fail rather than run a Windows shim found via PATH.
-    withCliRuntimeOnPath(input.binary, guestNativeSpawnEnv(spawnEnv)),
+    withCliRuntimeOnPath(binary, env),
     process.platform,
     { lifetime: 'one-shot' }
   )
