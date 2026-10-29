@@ -13,6 +13,16 @@ afterEach(() => {
 })
 
 describe('normalizeGitErrorMessage', () => {
+  it.each(['remote: stale info', 'hook: stale info'])(
+    'does not classify unrelated output as a lease rejection: %s',
+    (output) => {
+      const tail = "error: failed to push some refs to 'origin'"
+      const error = new Error(`Command failed: git push\n${output}\n${tail}`)
+
+      expect(normalizeGitErrorMessage(error, 'push')).toBe(tail)
+    }
+  )
+
   it.each(['push', 'pull', 'fetch', 'upstream'] as const)(
     'classifies noninteractive credential refusal for %s',
     (operation) => {

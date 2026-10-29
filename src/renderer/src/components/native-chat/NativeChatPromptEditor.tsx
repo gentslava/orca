@@ -36,6 +36,7 @@ import {
 } from './native-chat-prompt-document'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
 import { mountedEditorView } from './native-chat-mounted-editor-view'
+import { NativeChatUnkernedRunDecorations } from './native-chat-unkerned-run-decorations'
 
 type Props = Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'onSelect'> & {
   scopeKey?: string
@@ -91,6 +92,7 @@ function NativePromptEditor({
         }),
         NativeChatSkill,
         NativeChatFileReference,
+        NativeChatUnkernedRunDecorations,
         // A disabled box still says why it is disabled, as the plain text box's placeholder does.
         Placeholder.configure({
           placeholder: () => placeholderRef.current,
