@@ -182,7 +182,7 @@ function TranscriptImagePreview({
               'flex items-center justify-center rounded-md border border-border bg-chat-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               showPreview
                 ? 'size-full overflow-hidden transition-colors hover:border-ring'
-                : 'max-w-full gap-1.5 px-2 py-1 text-xs text-chat-foreground-faint hover:bg-accent/20'
+                : 'max-w-full gap-1.5 px-2 py-1 text-xs text-chat-foreground-faint hover:bg-accent'
             )}
           >
             {showPreview ? (
