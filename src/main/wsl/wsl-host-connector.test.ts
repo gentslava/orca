@@ -4,7 +4,7 @@ import type { WslRunningDistrosRead } from '../wsl-background-distro-gate'
 import type * as TunnelIdentity from '../managed-server/lifecycle/orcad-managed-tunnel-identity'
 
 const mocks = vi.hoisted(() => ({
-  readRunning: vi.fn<() => Promise<WslRunningDistrosRead>>(),
+  readRunning: vi.fn<(distro: string) => Promise<WslRunningDistrosRead>>(),
   connect: vi.fn(),
   stopServer: vi.fn(async () => ({ stopped: true })),
   verify: vi.fn(),
@@ -22,7 +22,8 @@ vi.mock('./wsl-orcad-connection', async (importOriginal) => ({
   }
 }))
 vi.mock('../wsl-background-distro-gate', () => ({
-  readConfirmedRunningWslDistros: mocks.readRunning,
+  // Settled per distro: a list taken while it stops still names it (E9).
+  readSettledConfirmedRunningWslDistros: mocks.readRunning,
   listConfirmedRunningWslDistros: vi.fn(async () => [])
 }))
 vi.mock('../managed-server/lifecycle/orcad-managed-tunnel-identity', async (importOriginal) => ({
@@ -57,6 +58,7 @@ it('uses owned readiness without discovery and coalesces cold cleanup without wa
   await expect(passive).resolves.toBe(false)
   await expect(removal).resolves.toEqual({ stopped: true })
   expect(mocks.readRunning).toHaveBeenCalledTimes(1)
+  expect(mocks.readRunning).toHaveBeenCalledWith('Ubuntu')
   mocks.readRunning.mockResolvedValueOnce({ status: 'unavailable' })
   await expect(connector.stopServer('Ubuntu', 'wsl:ubuntu')).resolves.toMatchObject({
     stopped: false
@@ -120,6 +122,11 @@ it('a no-boot call joins a booting connect but stays no-boot itself (E9)', async
     'Ubuntu',
     expect.objectContaining({ requireRunning: expect.any(Function) })
   )
+  // That check is a settled read, so a distro still stopping counts as stopped.
+  const [, ensureOptions] = mocks.managerEnsure.mock.lastCall ?? []
+  mocks.readRunning.mockClear().mockResolvedValueOnce({ status: 'confirmed', distros: ['Ubuntu'] })
+  await expect(ensureOptions?.requireRunning('Ubuntu')).resolves.toBe(true)
+  expect(mocks.readRunning).toHaveBeenCalledWith('Ubuntu')
   finish()
   await first
 })

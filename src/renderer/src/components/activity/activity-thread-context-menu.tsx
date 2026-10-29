@@ -217,7 +217,7 @@ function ActivityThreadBulkMenuItems({
           {translate(
             'auto.components.activity.ActivityThreadContextMenu.markManyRead',
             'Mark {{count}} Agents Read',
-            { count: unread.length }
+            { count: unread.length, defaultValue_one: 'Mark {{count}} Agent Read' }
           )}
         </ContextMenuItem>
       ) : (
@@ -227,7 +227,7 @@ function ActivityThreadBulkMenuItems({
             ? translate(
                 'auto.components.activity.ActivityThreadContextMenu.markManyUnread',
                 'Mark {{count}} Agents Unread',
-                { count: read.length }
+                { count: read.length, defaultValue_one: 'Mark {{count}} Agent Unread' }
               )
             : translate(
                 'auto.components.activity.ActivityThreadContextMenu.markUnread',
@@ -245,7 +245,7 @@ function ActivityThreadBulkMenuItems({
           ? translate(
               'auto.components.activity.ActivityThreadContextMenu.clearMany',
               'Clear {{count}} Agents from List',
-              { count: clearable.length }
+              { count: clearable.length, defaultValue_one: 'Clear {{count}} Agent from List' }
             )
           : translate(
               'auto.components.activity.ActivityThreadContextMenu.clear',

@@ -1,7 +1,7 @@
 import { WslOrcadBridgeActivity } from './wsl-orcad-bridge-activity'
 import { listenWslOrcadStdioBridge } from './wsl-orcad-stdio-bridge'
 import { createWslOrcadPairingRecovery } from './wsl-orcad-pairing-repair'
-import { readConfirmedRunningWslDistros } from '../wsl-background-distro-gate'
+import { readSettledConfirmedRunningWslDistros } from '../wsl-background-distro-gate'
 import { parsePairingCode } from '../../shared/pairing'
 import { pairedRuntimeConnectionFromOffer } from '../../shared/paired-runtime-connection'
 import { verifyOrcadPairingIdentity } from '../managed-server/lifecycle/orcad-managed-tunnel-identity'
@@ -30,6 +30,7 @@ import { createWslOrcadLivenessSupervisor } from './wsl-orcad-liveness-wiring'
 import type { WslOrcadLivenessSupervisor } from './wsl-orcad-liveness-supervisor'
 import { confirmsRunning } from './wsl-orcad-liveness-evidence'
 import { wslDistroHolderKey } from './wsl-distro-holder-record'
+import { wslHostServerStopReason } from '../../shared/wsl-host-failure-copy'
 
 function targetFor(distro: string): WslOrcadHostTarget {
   return { kind: 'wsl', id: defaultWslOrcadEnvironmentId(distro), distro, label: distro }
@@ -100,9 +101,10 @@ export function createWslHostConnector(options: {
     string,
     { promise: Promise<WslOrcadConnection>; noBoot: boolean; intent: boolean }
   >()
-  // Read right before a no-boot reconnect spawns anything in the distro (E9).
+  // Read right before a no-boot reconnect spawns anything in the distro (E9); settled, since a
+  // list taken while the distro stops still names it.
   const requireRunning = async (distro: string): Promise<boolean> =>
-    confirmsRunning(await readConfirmedRunningWslDistros(), wslDistroHolderKey(distro))
+    confirmsRunning(await readSettledConfirmedRunningWslDistros(distro), wslDistroHolderKey(distro))
   const coldProbes = new Map<
     string,
     {
@@ -117,7 +119,7 @@ export function createWslHostConnector(options: {
     connection: WslOrcadConnection | null
   ): Promise<Reachability> => {
     // Bridge dialing spawns wsl.exe; passive checks must first prove the distro runs.
-    const running = await readConfirmedRunningWslDistros()
+    const running = await readSettledConfirmedRunningWslDistros(distro)
     if (running.status === 'unavailable') {
       return 'unavailable'
     }
@@ -205,7 +207,7 @@ export function createWslHostConnector(options: {
       if (reachability === 'unavailable') {
         return {
           stopped: false,
-          reason: 'The WSL service did not confirm whether the distro runs.',
+          ...wslHostServerStopReason('serviceUnconfirmed'),
           verdict: 'unverifiable'
         }
       }
