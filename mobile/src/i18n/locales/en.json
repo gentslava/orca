@@ -2424,7 +2424,13 @@
       "stoppedManually": "Stopped manually",
       "compaction": "Context compacted",
       "contextCleared": "Context cleared",
-      "plan": "Plan"
+      "plan": "Plan",
+      "agentError": "Agent reported an error",
+      "autoApprovalGranted": "Automatic approval granted",
+      "autoApprovalRejected": "Automatic approval rejected",
+      "autoApprovalDenied": "Automatic approval denied",
+      "autoApprovalTimedOut": "Automatic approval timed out",
+      "safetyCheckDenied": "Permission denied by safety check"
     },
     "nativeChatProse": {
       "attachedImage": "Attached image",

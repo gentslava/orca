@@ -18,6 +18,14 @@
     }
   },
   "chat": {
+    "notice": {
+      "agentError": "Agent reported an error",
+      "autoApprovalDenied": "Automatic approval denied",
+      "autoApprovalGranted": "Automatic approval granted",
+      "autoApprovalRejected": "Automatic approval rejected",
+      "autoApprovalTimedOut": "Automatic approval timed out",
+      "safetyCheckDenied": "Permission denied by safety check"
+    },
     "toolActivity": {
       "count_one": "{{count}} tool call",
       "count_other": "{{count}} tool calls"
