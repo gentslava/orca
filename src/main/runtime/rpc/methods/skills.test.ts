@@ -338,9 +338,49 @@ describe('skills.share RPC', () => {
     expect(discoverSkillsOnTarget).toHaveBeenCalledWith(
       expect.objectContaining({ kind: 'native-host', cwd: '/repo' }),
       [],
-      { providerRootOverrides: {}, refresh: true, gateStoppedWslDistros: false }
+      { providerRootOverrides: {}, refresh: true }
     )
+    // Every selector was found without starting any stopped distro.
+    expect(discoverSkillsOnTarget).toHaveBeenCalledTimes(1)
     expect(publishDiscoveredSkillsFromAgent).toHaveBeenCalledWith(request, discoveredSkills, signal)
+  })
+
+  it('reads stopped distros only when a selector is missing and a folder went unread', async () => {
+    const stoppedSource = { id: 'wsl-root', sourceKind: 'repo', skippedReason: 'unavailable' }
+    vi.mocked(discoverSkillsOnTarget)
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the handler reads only skill ids and source skippedReason.
+      .mockResolvedValueOnce({
+        skills: [{ id: 'alpha' }],
+        sources: [stoppedSource],
+        scannedAt: 1
+      } as never)
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the handler reads only skill ids and source skippedReason.
+      .mockResolvedValueOnce({
+        skills: [{ id: 'alpha' }, { id: 'beta' }],
+        sources: [],
+        scannedAt: 2
+      } as never)
+    const publishDiscoveredSkillsFromAgent = vi.fn(async () => ({ status: 'ok' }))
+    const runtime = {
+      assertAgentSkillSharingAllowed: vi.fn(),
+      resolveProjectRuntimeForWorktree: vi.fn(),
+      resolveSkillDiscoveryProviderRoots: vi.fn(async () => ({})),
+      listRepos: vi.fn(() => []),
+      publishDiscoveredSkillsFromAgent
+    }
+
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: skills.share reads only these runtime members and the signal.
+    await method('skills.share').handler(request, { runtime } as unknown as RpcContext)
+
+    expect(vi.mocked(discoverSkillsOnTarget).mock.calls.map((call) => call[2])).toEqual([
+      { providerRootOverrides: {}, refresh: true },
+      { providerRootOverrides: {}, refresh: true, readStoppedWslRootsFor: 'all' }
+    ])
+    expect(publishDiscoveredSkillsFromAgent).toHaveBeenCalledWith(
+      request,
+      [{ id: 'alpha' }, { id: 'beta' }],
+      undefined
+    )
   })
 
   it('rejects WSL before attempting to read Linux paths with native fs', async () => {

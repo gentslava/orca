@@ -1,4 +1,9 @@
-import { validatePathExistenceBatch } from '../../shared/path-existence-batch'
+import { IMAGE_FILE_MIME_TYPES } from '../../shared/image-file-extensions'
+import { translateMain } from '../i18n/main-i18n'
+import {
+  validatePathExistenceBatch,
+  type ShellPathExistence
+} from '../../shared/path-existence-batch'
 import { ipcMain, shell, dialog } from 'electron'
 import { constants, copyFile, readFile, stat } from 'node:fs/promises'
 import { basename, extname, isAbsolute, normalize, posix, win32 } from 'node:path'
@@ -28,20 +33,9 @@ import {
   resolveOwnedPathTarget,
   validateLocalPathTarget
 } from './shell-owned-path-target'
+import { guardWslUncPathAccess } from '../wsl/wsl-unc-access-gate'
 
 export { EXTERNAL_EDITOR_CLI_COMMAND }
-
-const REPO_ICON_IMAGE_MIME_TYPES: Record<string, string> = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.gif': 'image/gif',
-  '.bmp': 'image/bmp',
-  '.ico': 'image/x-icon',
-  '.avif': 'image/avif'
-}
 
 async function openInFileManager(
   pathValue: string,
@@ -201,10 +195,23 @@ export function registerShellHandlers(
     await openWithSystemDefault(target.path, ownerHostId)
   })
 
-  ipcMain.handle('shell:pathsExist', async (_event, paths: string[]): Promise<boolean[]> => {
-    validatePathExistenceBatch(paths)
-    return Promise.all(paths.map(pathExists))
-  })
+  ipcMain.handle(
+    'shell:pathsExist',
+    async (_event, paths: string[]): Promise<ShellPathExistence[]> => {
+      validatePathExistenceBatch(paths)
+      // Chat link renders and terminal hovers ask unprompted: a stat of a stopped distro's UNC path
+      // boots it (E9). Refuse that path alone, so the caller retries it and keeps the rest.
+      return Promise.all(
+        paths.map((path) =>
+          guardWslUncPathAccess(path, () => pathExists(path)).catch(
+            (error: unknown): ShellPathExistence => ({
+              error: error instanceof Error ? error.message : String(error)
+            })
+          )
+        )
+      )
+    }
+  )
 
   ipcMain.handle('shell:pathExists', async (_event, filePath: string): Promise<boolean> => {
     return pathExists(filePath)
@@ -248,7 +255,10 @@ export function registerShellHandlers(
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],
       filters: [
-        { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico'] }
+        {
+          name: translateMain('native.dialog.images', 'Images'),
+          extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico']
+        }
       ]
     })
     if (result.canceled || result.filePaths.length === 0) {
@@ -264,8 +274,8 @@ export function registerShellHandlers(
         properties: ['openFile'],
         filters: [
           {
-            name: 'Repo icon images',
-            extensions: Object.keys(REPO_ICON_IMAGE_MIME_TYPES).map((extension) =>
+            name: translateMain('native.dialog.repoIconImages', 'Repo icon images'),
+            extensions: Object.keys(IMAGE_FILE_MIME_TYPES).map((extension) =>
               extension.slice(1)
             )
           }
@@ -277,7 +287,7 @@ export function registerShellHandlers(
 
       const filePath = result.filePaths[0]
       const extension = extname(filePath).toLowerCase()
-      const mimeType = REPO_ICON_IMAGE_MIME_TYPES[extension]
+      const mimeType = IMAGE_FILE_MIME_TYPES[extension]
       if (!mimeType) {
         throw new Error('Choose a PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF image.')
       }
@@ -298,7 +308,12 @@ export function registerShellHandlers(
   ipcMain.handle('shell:pickAudio', async (): Promise<string | null> => {
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],
-      filters: [{ name: 'Audio', extensions: ['ogg', 'mp3', 'wav', 'm4a', 'aac', 'flac'] }]
+      filters: [
+        {
+          name: translateMain('native.dialog.audio', 'Audio'),
+          extensions: ['ogg', 'mp3', 'wav', 'm4a', 'aac', 'flac']
+        }
+      ]
     })
     if (result.canceled || result.filePaths.length === 0) {
       return null

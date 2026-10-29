@@ -160,15 +160,27 @@ export const SKILL_METHODS = [
         )
       }
       // Sharing named skills is a user act: it may start the workspace's distro.
-      const discovered = await runAsWslUserAct(
-        resolvedTarget.cwd ? wslDistroForPath(resolvedTarget.cwd) : null,
-        async () =>
-          discoverSkillsOnTarget(resolvedTarget, runtime.listRepos(), {
-            providerRootOverrides: await runtime.resolveSkillDiscoveryProviderRoots(resolvedTarget),
-            refresh: true,
-            gateStoppedWslDistros: false
-          })
-      )
+      const discover = async (readStoppedWslRootsFor?: 'all') =>
+        runAsWslUserAct(
+          resolvedTarget.cwd ? wslDistroForPath(resolvedTarget.cwd) : null,
+          async () =>
+            discoverSkillsOnTarget(resolvedTarget, runtime.listRepos(), {
+              providerRootOverrides:
+                await runtime.resolveSkillDiscoveryProviderRoots(resolvedTarget),
+              refresh: true,
+              ...(readStoppedWslRootsFor ? { readStoppedWslRootsFor } : {})
+            })
+        )
+      // Selectors name skills, not folders: start other stopped distros only when a selector is missing.
+      let discovered = await discover()
+      if (
+        !params.skillSelectors.every((selector) =>
+          discovered.skills.some((skill) => skill.id === selector || skill.name === selector)
+        ) &&
+        discovered.sources.some((source) => source.skippedReason === 'unavailable')
+      ) {
+        discovered = await discover('all')
+      }
       return runtime.publishDiscoveredSkillsFromAgent(params, discovered.skills, signal)
     }
   }),

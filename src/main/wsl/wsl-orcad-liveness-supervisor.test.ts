@@ -73,7 +73,9 @@ function harness(options: { visible?: boolean } = {}) {
       return connection
     }
   )
-  const readRunning = vi.fn(async () => state.running)
+  const readRunning = vi.fn(
+    async (_target: { distro: string; exitedAt?: number | null }) => state.running
+  )
   const requireRunning = vi.fn(async (_distro: string) => true)
   const readIdentity = vi.fn(async () => state.identity)
   const collectCensus = vi.fn(async () => CENSUS)
@@ -343,6 +345,10 @@ describe('WslOrcadLivenessSupervisor', () => {
     for (const [, opts] of recoveryCalls) {
       expect(opts).toMatchObject({ requireRunning: h.requireRunning })
     }
+    // Its backoff gate reads too: every read names the distro, so the wiring can settle it.
+    for (const [target] of h.readRunning.mock.calls) {
+      expect(target).toMatchObject({ distro: 'Ubuntu' })
+    }
   })
 
   it('reports ready itself when a user connect supersedes a recovery', async () => {
@@ -425,6 +431,15 @@ describe('WslOrcadLivenessSupervisor', () => {
     await h.advance(EXIT_SETTLE_MS)
     // A list probe begun inside the window may still show the stopping distro; it must not answer.
     expect(h.readRunning).toHaveBeenNthCalledWith(2, { distro: 'Ubuntu', exitedAt })
+  })
+
+  it('asks for a settled read of its own distro on every check, not a bare list (E9)', async () => {
+    const h = harness()
+    await h.supervisor.connect('Ubuntu')
+    h.lastWatch().exit(1)
+    await h.settle()
+    // The wiring answers a distro-scoped read only from a probe past that distro's stop settle.
+    expect(h.readRunning).toHaveBeenNthCalledWith(1, { distro: 'Ubuntu' })
   })
 
   it('waits for a still-listed distro to settle after a failed exit before probing inside it', async () => {
