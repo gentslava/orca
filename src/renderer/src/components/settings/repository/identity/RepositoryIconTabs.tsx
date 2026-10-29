@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Github, Image, Link2 } from 'lucide-react'
 import type { RepoIcon } from '../../../../../../shared/repo-icon'
@@ -26,7 +26,12 @@ const RepositoryIconEmojiPicker = lazyWithRetry(
   { reloadKey: 'repo-icon-emoji-picker' }
 )
 
+export type RepositoryIconTabsHandle = {
+  cancelUpload: () => void
+}
+
 type RepositoryIconTabsProps = {
+  ref?: React.Ref<RepositoryIconTabsHandle>
   initialTab: 'avatar' | 'icon' | 'emoji'
   selectedLucideName: string | null
   selectedEmoji: string
@@ -36,6 +41,7 @@ type RepositoryIconTabsProps = {
 }
 
 export function RepositoryIconTabs({
+  ref,
   initialTab,
   selectedLucideName,
   selectedEmoji,
@@ -62,6 +68,8 @@ export function RepositoryIconTabs({
     uploadRequest.current = null
     setUploading(false)
   }
+
+  useImperativeHandle(ref, () => ({ cancelUpload }))
 
   const handleSetIcon = (icon: RepoIcon | null) => {
     cancelUpload()

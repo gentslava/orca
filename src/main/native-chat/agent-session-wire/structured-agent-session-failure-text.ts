@@ -138,7 +138,10 @@ export function providerStartupFailureFact(cause?: unknown): SubmissionRejection
   if (typed) {
     return agentSessionFailureFact(typed, {
       ...(cause instanceof AgentSessionAcquisitionRefusal ? { account: cause.account } : {}),
-      detail: providerDiagnosticOf(cause)
+      detail:
+        typed === 'launchPreparationFailed'
+          ? (launchPreparationDiagnosticOf(cause) ?? providerDiagnosticOf(cause))
+          : providerDiagnosticOf(cause)
     })
   }
   if (providerExecutableMissing(cause)) {

@@ -99,6 +99,7 @@ describe('successful deliberate personal project activation', () => {
         setActiveRepo: (id) => useAppStore.setState({ activeRepoId: id }),
         setActiveWorktree: (id, host) => {
           useAppStore.setState({
+            activeRepoId: id?.split('::')[0] ?? null,
             activeWorktreeId: id,
             activeWorkspaceExecutionHostId: host ?? null
           })
@@ -167,7 +168,11 @@ describe('successful deliberate personal project activation', () => {
       getKnownWorktreeById: (id) => [wa, wa2, wb].find((entry) => entry.id === id),
       setActiveRepo: (id) => useAppStore.setState({ activeRepoId: id }),
       setActiveWorktree: (id, host) => {
-        useAppStore.setState({ activeWorktreeId: id, activeWorkspaceExecutionHostId: host ?? null })
+        useAppStore.setState({
+          activeRepoId: id?.split('::')[0] ?? null,
+          activeWorktreeId: id,
+          activeWorkspaceExecutionHostId: host ?? null
+        })
         return true
       }
     })

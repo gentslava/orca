@@ -240,10 +240,11 @@ export class AcpStructuredOptions {
   }
 
   reported(): Readonly<Record<string, string>> {
-    const { current } = this.read()
+    const model = this.select('model')?.currentValue ?? this.models?.currentModelId
+    const effort = this.select('thought_level')?.currentValue
     return {
-      ...(current.model ? { model: current.model } : {}),
-      ...(current.effort ? { effort: current.effort } : {})
+      ...(model ? { model } : {}),
+      ...(effort ? { effort } : {})
     }
   }
 

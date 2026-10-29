@@ -367,6 +367,57 @@ it.each(['hidden pane', 'failed roster refresh'])(
   }
 )
 
+it.each(['before', 'during'])(
+  'keeps retained-history verification visible in a native descendant opened %s a roster outage',
+  async (opened) => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
+    render(view())
+    await openWorker()
+    const openDescendant = () =>
+      fireEvent.click(screen.getByRole('button', { name: /Nested native agent/ }))
+    if (opened === 'before') {
+      openDescendant()
+    }
+    transport.rpc.mockRejectedValue(new Error('Temporary roster outage'))
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000)
+    })
+    if (opened === 'during') {
+      openDescendant()
+    }
+    expect(await screen.findByText(/Nested original answer/)).toBeVisible()
+    const frame = screen.getByRole('region', { name: 'Nested native agent' })
+    expect(await within(frame).findByRole('status')).toHaveTextContent(
+      'The worker’s identity could not be verified. Showing retained history.'
+    )
+  }
+)
+
+it('does not rebind an open native descendant to a worker’s replacement conversation', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
+  render(view())
+  await openWorker()
+  fireEvent.click(screen.getByRole('button', { name: /Nested native agent/ }))
+  expect(await screen.findByText(/Nested original answer/)).toBeVisible()
+  worker = {
+    ...worker,
+    conversation: {
+      kind: 'journal',
+      sessionId: 'replacement-session',
+      agent: 'claude',
+      workspaceId: 'folder-workspace'
+    }
+  }
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(30_000)
+  })
+  const frame = screen.getByRole('region', { name: 'Nested native agent' })
+  expect(within(frame).queryByText(/Nested original answer/)).toBeNull()
+  expect(within(frame).getByRole('status')).toHaveTextContent(
+    'This host has not supplied the agent’s conversation history.'
+  )
+})
+
 it('invalidates an open child path when the parent owner changes', async () => {
   const rendered = render(view())
   await openWorker()

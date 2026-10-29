@@ -228,8 +228,9 @@ it('leaves model picks deferred while the child is working', async () => {
   const rig = await openModels({ model: FLASH, effort: 'low' })
   await send(rig.host, 'hold this turn')
   await rig.rig.frame('session/prompt')
+  const writesBeforePick = rig.modelWrites()
   expect(await rig.pick('model', PRO)).toMatchObject({ ok: true })
-  expect(rig.modelWrites()).toEqual([])
+  expect(rig.modelWrites()).toEqual(writesBeforePick)
   expect(rig.store.getRecord(SESSION)?.options?.model).toBe(PRO)
 })
 

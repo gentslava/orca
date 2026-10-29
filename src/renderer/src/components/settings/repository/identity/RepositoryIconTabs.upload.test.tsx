@@ -5,10 +5,17 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
 import * as i18n from '@/i18n/i18n'
+import * as imageEncoding from '@/lib/image-blob-png'
 import { sanitizeRepoIcon, type RepoIcon } from '../../../../../../shared/repo-icon'
 import { RepositoryIconTabs } from './RepositoryIconTabs'
+import { RepositoryIconPicker } from './RepositoryIconPicker'
+import { DEFAULT_REPO_BADGE_COLOR } from '../../../../../../shared/constants'
 
-vi.mock('../../../repo/repo-icon', () => ({ getRepoLucideIconOptions: () => [] }))
+vi.mock('../../../repo/repo-icon', () => ({
+  getRepoLucideIconOptions: () => [],
+  RepoIconGlyph: () => null
+}))
+vi.mock('./RepositoryIconColorSection', () => ({ RepositoryIconColorSection: () => null }))
 
 const source = 'data:image/svg+xml;base64,PHN2Zy8+'
 const pngBytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])
@@ -31,6 +38,7 @@ afterEach(() => {
 })
 
 async function renderPicker({
+  inParent = false,
   width = 1024,
   height = 512,
   decode = vi.fn<() => Promise<void>>(async () => undefined),
@@ -58,7 +66,12 @@ async function renderPicker({
     expect([this.width, this.height]).toEqual([128, 64])
     callback(new Blob([pngBytes], { type: 'image/png' }))
   })
-  Object.assign(window, { api: { shell: { pickRepoIconImage: pick } } })
+  Object.assign(window, {
+    api: {
+      shell: { pickRepoIconImage: pick },
+      gh: { repoSlug: vi.fn(async () => null), repoUpstream: vi.fn(async () => null) }
+    }
+  })
   const icons: (RepoIcon | null)[] = []
   const container = document.createElement('div')
   document.body.append(container)
@@ -69,14 +82,29 @@ async function renderPicker({
   }
   await act(async () => {
     root.render(
-      <RepositoryIconTabs
-        initialTab="avatar"
-        selectedLucideName={null}
-        selectedEmoji=""
-        loadingGitHub={false}
-        onSetIcon={(icon) => icons.push(icon)}
-        onUseGitHubAvatar={() => icons.push(githubIcon)}
-      />
+      inParent ? (
+        <RepositoryIconPicker
+          repo={{
+            id: 'repo-1',
+            path: '/workspace/orca',
+            displayName: 'orca',
+            addedAt: 1,
+            badgeColor: DEFAULT_REPO_BADGE_COLOR,
+            kind: 'git',
+            upstream: null
+          }}
+          updateRepo={(_id, update) => icons.push(update.repoIcon ?? null)}
+        />
+      ) : (
+        <RepositoryIconTabs
+          initialTab="avatar"
+          selectedLucideName={null}
+          selectedEmoji=""
+          loadingGitHub={false}
+          onSetIcon={(icon) => icons.push(icon)}
+          onUseGitHubAvatar={() => icons.push(githubIcon)}
+        />
+      )
     )
   })
   const upload = [...container.querySelectorAll('button')].find((button) =>
@@ -88,7 +116,7 @@ async function renderPicker({
   if (!upload || !github) {
     throw new Error('Missing icon controls')
   }
-  return { icons, upload, github, pick }
+  return { icons, upload, github, pick, container }
 }
 
 it('stores a decoded upload as PNG accepted by the existing project icon contract', async () => {
@@ -220,3 +248,38 @@ it.each([
   expect(icons).toEqual([])
   expect(upload.disabled).toBe(false)
 })
+
+it.each(['success', 'failure'])(
+  'keeps Reset after a pending upload settles with %s',
+  async (outcome) => {
+    vi.spyOn(imageEncoding, 'blobToBase64').mockResolvedValue('iVBORw0KGgo=')
+    const pending = Promise.withResolvers<void>()
+    const decode = vi.fn(() => pending.promise)
+    const error = vi.spyOn(toast, 'error')
+    const { icons, upload, container } = await renderPicker({ inParent: true, decode })
+    await act(async () => {
+      upload.click()
+      await vi.waitFor(() => expect(decode).toHaveBeenCalledOnce())
+    })
+    const reset = [...container.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes('Reset')
+    )
+    if (!reset) {
+      throw new Error('Missing Reset control')
+    }
+    await act(async () => {
+      reset.click()
+      await vi.waitFor(() => expect(icons).toEqual([null]))
+    })
+    await act(async () => {
+      if (outcome === 'success') {
+        pending.resolve()
+      } else {
+        pending.reject(new Error('old upload failed'))
+      }
+    })
+    expect(icons).toEqual([null])
+    expect(error).not.toHaveBeenCalled()
+    expect(upload.disabled).toBe(false)
+  }
+)

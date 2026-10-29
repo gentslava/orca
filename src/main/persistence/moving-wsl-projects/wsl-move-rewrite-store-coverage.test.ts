@@ -70,6 +70,7 @@ const STORE_BY_ROW: Record<string, string> = {
   'session.closedTerminalTabTombstonesByTabId': HOST_SESSION_SEED,
   'ui.lastActiveWorktreeId': UI_ROUTING,
   'ui.manualRepoOrder': UI_ROUTING,
+  'ui.personalProjectOrder': UI_ROUTING,
   'ui.explorerDisplayRootByWorktree': UI_ROUTING,
   'ui.showDotfilesByWorktree': UI_ROUTING,
   'ui.workspaceCleanup': UI_ROUTING,
@@ -224,6 +225,10 @@ function movedUi(): Partial<PersistedUIState> {
   return {
     lastActiveWorktreeId: MOVED,
     manualRepoOrder: [{ hostId: 'local', repoId: 'repo-a' }],
+    personalProjectOrder: {
+      projects: { '["local","local","repo:repo-a"]': { pinned: true, openCount: 3 } },
+      settledOperations: []
+    },
     explorerDisplayRootByWorktree: { [MOVED]: '\\\\wsl.localhost\\Ubuntu\\home\\dev\\app\\src' },
     showDotfilesByWorktree: { [MOVED]: true },
     workspaceCleanup: {

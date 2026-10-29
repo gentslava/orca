@@ -132,7 +132,7 @@ export async function readAgentModelCatalogWithListing(
   }
 ) {
   const { params } = input
-  if (params.requireConfiguredDefault) {
+  if (params.requireConfiguredDefault && !params.savedOnly) {
     await input.resolve(params)
   } else if (!params.savedOnly && params.waitForListing) {
     const deadline = params.deadline ?? Date.now() + AGENT_MODEL_CATALOG_PICKER_WAIT_MS

@@ -19848,7 +19848,8 @@
           "agent": "Agent",
           "host": "Execution host"
         },
-        "identityUnavailable": "This worker’s conversation identity could not be verified."
+        "identityUnavailable": "This worker’s conversation identity could not be verified.",
+        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
       }
     },
     "tab": {

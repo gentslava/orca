@@ -41,7 +41,7 @@ client.getShellSession = () => null
 const message = {id:'picture',role:'user',source:'transcript',timestamp:null,blocks:[{type:'image-ref',path:${JSON.stringify(path)},alt:'Attached project sketch'},{type:'text',text:'Please review this sketch.'}]}
 const metrics = {frame:{x:0,y:0,width:390,height:844},insets:{top:0,bottom:0,left:0,right:0}}
 createRoot(document.getElementById('root')).render(h(RpcClientProvider,{client},h(SafeAreaProvider,{initialMetrics:metrics},
- h(MobileNativeChatRowOverlaysHost,{conversation:{surfaceId:'picture',sessionId:'session'},imageSource:{client,sessionId:'session'}},h(MobileNativeChatMessage,{message})))))
+ h(MobileNativeChatRowOverlaysHost,{conversation:{surfaceId:'picture',sessionId:'session'},imageSource:{client,worktreeId:'workspace'}},h(MobileNativeChatMessage,{message})))))
 `
 const describeRender = mobileWebAppDependenciesPresent() ? describe : describe.skip
 let scratch, server, browser, origin

@@ -12,7 +12,7 @@ import {
   useNativeChatChildNavigation,
   type NativeChatChildLocation
 } from './native-chat-child-navigation'
-import { useNativeChatSessionChildren } from './use-native-chat-session-children'
+import { NativeChatWorkerScope, useNativeChatWorkerScope } from './native-chat-worker-scope'
 import { useStructuredAgentSessionRead } from './use-structured-agent-session-read'
 import { useStructuredAgentSessionMessages } from './use-structured-agent-session-messages'
 import { useStructuredAgentSessionTransportState } from './use-structured-agent-session-transport-state'
@@ -25,10 +25,28 @@ export function NativeChatStructuredChildTranscript(
 ): React.JSX.Element {
   useTranslation()
   const source = props.child.source
-  return source?.kind === 'worker' ? (
-    <WorkerTranscript {...props} source={source} />
-  ) : source?.kind === 'journal' ? (
-    <JournalTranscript {...props} source={source} scopeAgentId={props.child.agentId} />
+  const scope = useNativeChatWorkerScope()
+  if (source?.kind === 'worker') {
+    return scope?.source === source ? (
+      <WorkerTranscript {...props} source={source} workerRoster={scope.roster} />
+    ) : (
+      <NativeChatWorkerScope source={source} isVisible={props.isVisible}>
+        {(roster) => <WorkerTranscript {...props} source={source} workerRoster={roster} />}
+      </NativeChatWorkerScope>
+    )
+  }
+  return source?.kind === 'journal' ? (
+    scope ? (
+      <WorkerTranscript
+        {...props}
+        source={scope.source}
+        workerRoster={scope.roster}
+        journalSource={source}
+        scopeAgentId={props.child.agentId}
+      />
+    ) : (
+      <JournalTranscript {...props} source={source} scopeAgentId={props.child.agentId} />
+    )
   ) : (
     <NativeChatChildTranscriptFrame {...props} />
   )
@@ -36,21 +54,30 @@ export function NativeChatStructuredChildTranscript(
 
 function WorkerTranscript({
   source,
+  journalSource,
+  scopeAgentId,
+  workerRoster: roster,
   ...props
 }: NativeChatChildTranscriptProps & {
+  workerRoster: NonNullable<ReturnType<typeof useNativeChatWorkerScope>>['roster']
   source: Extract<
     NonNullable<NativeChatChildTranscriptProps['child']['source']>,
     { kind: 'worker' }
   >
+  journalSource?: Extract<
+    NonNullable<NativeChatChildTranscriptProps['child']['source']>,
+    { kind: 'journal' }
+  >
+  scopeAgentId?: string
 }): React.JSX.Element {
-  const roster = useNativeChatSessionChildren({
-    target: source.target,
-    sessionId: source.parentSessionId,
-    dispatchId: source.parentDispatchId,
-    enabled: props.isVisible
-  })
   const worker = roster.children.find((child) => child.dispatchId === source.dispatchId)
-  const conversation = worker?.conversation
+  const recorded = worker?.conversation
+  const conversation =
+    journalSource &&
+    recorded?.kind === 'journal' &&
+    (recorded.sessionId !== journalSource.sessionId || recorded.agent !== journalSource.agent)
+      ? undefined
+      : (recorded ?? (!roster.current ? journalSource : undefined))
   if (conversation?.kind === 'journal') {
     return (
       <JournalTranscript
@@ -58,6 +85,7 @@ function WorkerTranscript({
         {...props}
         worker={worker}
         workerCurrent={roster.current}
+        scopeAgentId={scopeAgentId}
         source={{ ...conversation, target: source.target }}
       />
     )
@@ -235,11 +263,16 @@ function JournalTranscript({
         onLinkClick={sameFileScope ? props.onLinkClick : undefined}
         workerTarget={scopeAgentId ? undefined : source.target}
         unavailable={
-          !workerCurrent ||
-          read.state.status === 'error' ||
-          (read.state.epoch !== null && !read.readCurrent)
-            ? unavailableText(undefined)
-            : undefined
+          !workerCurrent
+            ? messages.length > 0
+              ? translate(
+                  'components.native-chat.children.retainedUnavailable',
+                  'The worker’s identity could not be verified. Showing retained history.'
+                )
+              : unavailableText({ kind: 'unavailable', reason: 'identity-unverifiable' })
+            : read.state.status === 'error' || (read.state.epoch !== null && !read.readCurrent)
+              ? unavailableText(undefined)
+              : undefined
         }
       />
     </NativeChatChildNavigationContext.Provider>
