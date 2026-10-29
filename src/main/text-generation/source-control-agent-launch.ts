@@ -1,3 +1,4 @@
+import { delimiter, resolve } from 'node:path'
 import { wslDistroForCommand } from '../../shared/wsl-paths'
 import { spawnProcess } from '@orca/process-host'
 import { withCliRuntimeOnPath } from '../../shared/node-cli-command-resolution'
@@ -99,10 +100,15 @@ function spawnSupervisedAgent(
   spawnEnv: NodeJS.ProcessEnv
 ): SpawnedSourceControlAgentProcess {
   const env = guestNativeSpawnEnv(spawnEnv)
+  const cwd = input.useCwdForNative && input.cwd !== undefined ? input.cwd : process.cwd()
+  const pathEnv = (env.PATH ?? env.Path ?? process.env.PATH ?? '')
+    .split(delimiter)
+    .map((entry) => resolve(cwd, entry))
+    .join(delimiter)
   const binary = input.binary.includes('/')
     ? input.binary
     : resolveGuestNativeAgentCommand(input.binary, {
-        pathEnv: env.PATH ?? env.Path ?? null,
+        pathEnv,
         homePath: env.HOME ?? env.USERPROFILE
       })
   const spec = createProviderSpawnSpec(
