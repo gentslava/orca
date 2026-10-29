@@ -1,3 +1,4 @@
+import { NativeChatPaneFileDropScope } from './NativeChatPaneFileDropSurface'
 import { useNativeChatHandOff } from './use-native-chat-hand-off'
 import { cn } from '@/lib/utils'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './native-chat-appearance-style'
@@ -82,7 +83,7 @@ export function NativeChatStructuredSession(
   const composerRef = useRef<NativeChatComposerHandle>(null)
   // Paste target while a question card replaces the composer.
   const questionAnswerInputRef = useRef<HTMLInputElement>(null)
-  const readOnlyQuestionAnswerInputRef = useRef<HTMLInputElement>(null)
+  const childAnswerInputRef = useRef<HTMLInputElement>(null)
   const { rewindHost, focusComposer } = useNativeChatRewindHost(props, composerRef)
   const controller = useStructuredAgentSession({
     ...props,
@@ -154,9 +155,7 @@ export function NativeChatStructuredSession(
   const paneActive = props.isVisible && props.isFocusedGroup
   useNativeChatFontSize(viewState.kind === 'ready' && paneActive, rootRef)
   const activeComposerRef = childNavigator.child ? readOnlyComposerRef : composerRef
-  const activeQuestionAnswerInputRef = childNavigator.child
-    ? readOnlyQuestionAnswerInputRef
-    : questionAnswerInputRef
+  const activeAnswerInputRef = childNavigator.child ? childAnswerInputRef : questionAnswerInputRef
   const activeMessageListRef = childNavigator.child ? childMessageListRef : submits.messageListRef
   const find = useNativeChatFind(paneActive, rootRef, activeComposerRef, activeMessageListRef)
   const appearanceStyle = useNativeChatStoreAppearanceStyle()
@@ -180,7 +179,7 @@ export function NativeChatStructuredSession(
     ownerWorktreeId,
     rootRef,
     composerRef: activeComposerRef,
-    questionAnswerInputRef: activeQuestionAnswerInputRef,
+    questionAnswerInputRef: activeAnswerInputRef,
     messageListRef: activeMessageListRef,
     fileLinkContext,
     rewind: controller.rewind.surface,
@@ -197,7 +196,7 @@ export function NativeChatStructuredSession(
     tabId: props.tabId,
     rootRef,
     composerRef: activeComposerRef,
-    questionAnswerInputRef: activeQuestionAnswerInputRef,
+    questionAnswerInputRef: activeAnswerInputRef,
     isVisible: props.isVisible,
     isFocusedGroup: props.isFocusedGroup,
     composerReady: composerShown && install.slot.kind !== 'install' && childNavigator.child === null
@@ -284,7 +283,8 @@ export function NativeChatStructuredSession(
       >
         {nativeChatPaneHeader(props, ownerWorktreeId, appearanceStyle.colorScheme, handOff)}
         {find.isOpen ? <NativeChatFindBar find={find} isVisible={props.isVisible} /> : null}
-        <div
+        <NativeChatPaneFileDropScope
+          enabled={childNavigator.child === null}
           hidden={childNavigator.child !== null}
           inert={childNavigator.child !== null}
           className={childNavigator.child ? 'hidden' : 'flex min-h-0 flex-1 flex-col'}
@@ -392,7 +392,7 @@ export function NativeChatStructuredSession(
               ) : null}
             </>
           )}
-        </div>
+        </NativeChatPaneFileDropScope>
         {childNavigator.child ? (
           <NativeChatChildTranscriptStack
             messageListRef={childMessageListRef}
