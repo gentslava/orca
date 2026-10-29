@@ -36,7 +36,8 @@ describe('host-owned mobile chat images', () => {
   const render = (
     client: RpcClient | null,
     block: NativeChatImageRefBlock = { type: 'image-ref', path: PATH },
-    worktreeId = 'chat'
+    worktreeId = 'chat',
+    onLongPress?: () => void
   ) => {
     const value = {
       openImage,
@@ -46,7 +47,7 @@ describe('host-owned mobile chat images', () => {
     return createElement(
       MobileNativeChatRowOverlaysContext.Provider,
       { value },
-      createElement(Prose, { block, text: '', fontScale: 1 })
+      createElement(Prose, { block, text: '', fontScale: 1, onLongPress })
     )
   }
   afterEach(() => {
@@ -314,6 +315,7 @@ describe('host-owned mobile chat images', () => {
   })
 
   it('lets a failed read retry without showing a broken image', async () => {
+    const onLongPress = vi.fn()
     const sendRequest = vi
       .fn<RpcClient['sendRequest']>()
       .mockResolvedValueOnce({
@@ -324,7 +326,7 @@ describe('host-owned mobile chat images', () => {
       .mockResolvedValueOnce(REPLY)
     const client = stubRpcClient({ sendRequest })
     await act(async () => {
-      tree = create(render(client))
+      tree = create(render(client, undefined, 'chat', onLongPress))
     })
     if (!tree) {
       throw new Error('image did not mount')
@@ -332,6 +334,9 @@ describe('host-owned mobile chat images', () => {
     expect(findAllByHostType(tree.root, 'Image')).toEqual([])
     const retry = tree.root.findAllByProps({ accessibilityLabel: 'Image unavailable' })[0]
     expect(retry).toBeDefined()
+    await act(async () => retry?.props.onLongPress?.())
+    expect(onLongPress).toHaveBeenCalledOnce()
+    expect(sendRequest).toHaveBeenCalledTimes(1)
     await act(async () => retry?.props.onPress())
     expect(findAllByHostType(tree.root, 'Image').map((node) => node.props.source)).toEqual([
       { uri: URI }

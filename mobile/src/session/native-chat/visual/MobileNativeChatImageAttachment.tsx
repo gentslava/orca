@@ -120,6 +120,7 @@ export function MobileNativeChatImageAttachment({
         accessibilityRole="button"
         accessibilityLabel={t('chat.nativeChatProse.imageUnavailable', 'Image unavailable')}
         accessibilityHint={t('chat.nativeChatProse.retryImageHint', 'Tries to load it again')}
+        onLongPress={onLongPress}
         onPress={() => {
           setRound((value) => value + 1)
         }}
