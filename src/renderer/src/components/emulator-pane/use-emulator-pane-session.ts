@@ -23,6 +23,7 @@ import { resolveEmulatorAttachTarget } from './emulator-attach-target'
 import { useEmulatorPaneLifecycle } from './use-emulator-pane-lifecycle'
 import { useEmulatorPaneShutdown } from './use-emulator-pane-shutdown'
 import { emulatorPaneErrorMessage } from './emulator-pane-error-message'
+import { SIMULATOR_DEFAULT_TAB_LABEL, formatSimulatorTabLabel } from '@/lib/simulator-tab-label'
 
 type UseEmulatorPaneSessionArgs = {
   worktreeId: string
@@ -149,7 +150,7 @@ export function useEmulatorPaneSession({
       setError(null)
       if (tabId) {
         const row = devices.find((device) => device.udid === target || device.name === target)
-        useAppStore.getState().setTabLabel(tabId, row?.name || 'Mobile Emulator')
+        useAppStore.getState().setTabLabel(tabId, row?.name || SIMULATOR_DEFAULT_TAB_LABEL)
       }
     },
     [devices, resetVisualOrientation, selectedUdid, session, tabId]
@@ -227,7 +228,7 @@ export function useEmulatorPaneSession({
         )
         setError(msg)
         if (tabId) {
-          useAppStore.getState().setTabLabel(tabId, 'Mobile Emulator')
+          useAppStore.getState().setTabLabel(tabId, SIMULATOR_DEFAULT_TAB_LABEL)
         }
       } finally {
         if (mountedRef.current) {
@@ -306,7 +307,7 @@ export function useEmulatorPaneSession({
     sendGesture,
     sendRotate,
     visualOrientation,
-    displayName: view.displayName,
+    displayName: formatSimulatorTabLabel(view.displayName),
     previewUrl: view.previewUrl,
     wsUrl: view.wsUrl,
     streamKey: streamKey ?? undefined,

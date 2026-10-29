@@ -156,16 +156,21 @@ export async function discoverSkillsOnTarget(
   options: {
     refresh?: boolean
     providerRootOverrides?: SkillProviderRootOverrides
-    /** False for a user act (Share), which may read a stopped distro's folders. */
-    gateStoppedWslDistros?: boolean
+    /** A user act (Share) may read stopped distros' folders: 'all', or only those holding these skill directories. */
+    readStoppedWslRootsFor?: 'all' | readonly string[]
   } = {}
 ): Promise<SkillDiscoveryResult> {
   const refresh = options.refresh === true
-  const gate = options.gateStoppedWslDistros === false ? { gateStoppedWslDistros: false } : {}
+  const readFor = options.readStoppedWslRootsFor
+  const gate = readFor ? { readStoppedWslRootsFor: readFor } : {}
+  const userActKey =
+    readFor === undefined
+      ? ''
+      : `:user-act:${readFor === 'all' ? 'all' : stablePathId([...readFor].sort().join('\0'))}`
   try {
     const outcome = await targetScans.run(
       // A gated and an ungated scan of one target must not answer for each other.
-      `${scanKey(target, repos, options.providerRootOverrides)}${options.gateStoppedWslDistros === false ? ':user-act' : ''}`,
+      `${scanKey(target, repos, options.providerRootOverrides)}${userActKey}`,
       { ttlMs: target.kind === 'wsl' ? WSL_RESULT_TTL_MS : 0, refresh },
       async (): Promise<TargetScanObservation> => {
         if (target.kind === 'wsl') {

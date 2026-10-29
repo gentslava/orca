@@ -1,3 +1,5 @@
+import { createCoalescedPollRunner } from '../right-sidebar/coalesced-poll-runner'
+import { useAppStore } from '@/store'
 import { useEffect, useMemo, useState } from 'react'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import {
@@ -7,6 +9,24 @@ import {
 } from '../../../../shared/orchestration-session-children'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { useStructuredAgentSessionHostCapabilityState } from '@/runtime/structured-agent-session-host-capability'
+
+function workerLifecycleKey(state: ReturnType<typeof useAppStore.getState>): string {
+  return JSON.stringify(
+    Object.entries(state.agentStatusByPaneKey).flatMap(([key, row]) =>
+      row.orchestration
+        ? [
+            [
+              key,
+              row.orchestration.dispatchId,
+              row.orchestration.dispatchStatus,
+              row.state,
+              row.providerSession
+            ]
+          ]
+        : []
+    )
+  )
+}
 
 export function useNativeChatSessionChildren(args: {
   sessionId: string
@@ -35,12 +55,7 @@ export function useNativeChatSessionChildren(args: {
       return
     }
     let disposed = false
-    let reading = false
     const refresh = async (): Promise<void> => {
-      if (reading) {
-        return
-      }
-      reading = true
       try {
         const children: OrchestrationSessionChild[] = []
         const visited = new Set<string>()
@@ -77,15 +92,26 @@ export function useNativeChatSessionChildren(args: {
           children: old?.key === key ? old.children : [],
           current: false
         }))
-      } finally {
-        reading = false
       }
     }
-    void refresh()
-    const timer = setInterval(() => void refresh(), 3_000)
+    const runner = createCoalescedPollRunner(refresh, { minIntervalMs: 250 })
+    runner.run()
+    let lifecycle = workerLifecycleKey(useAppStore.getState())
+    const unsubscribe = useAppStore.subscribe((state) => {
+      const next = workerLifecycleKey(state)
+      if (next === lifecycle) {
+        return
+      }
+      lifecycle = next
+      runner.run({ changeSignal: true })
+    })
+    // Status pushes drive updates; recover missed events from older hosts at a coarse interval.
+    const timer = setInterval(() => runner.run(), 30_000)
     return () => {
       disposed = true
       clearInterval(timer)
+      unsubscribe()
+      runner.dispose()
     }
   }, [capability, dispatchId, enabled, key, sessionId, target])
   const current = enabled && capability === 'supported' && snapshot?.key === key && snapshot.current

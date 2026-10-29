@@ -68,6 +68,8 @@ export type HostedReviewForBranchArgs = {
   currentHeadOid?: string | null
   /** Only selected-worktree surfaces set active: O(1) checks refresh per minute; O(N) lists refresh more slowly within the shared API budget (#11532). */
   active?: boolean
+  /** Desktop IPC only: an explicit Refresh, which may start a stopped WSL distro (E9). */
+  wakeWslDistro?: boolean
 }
 
 export type HostedReviewSummary = {

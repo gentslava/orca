@@ -162,3 +162,11 @@ export function uncRouteKey(cwd: string): string | null {
   const server = cwd.slice(2).split(/[\\/]/, 1)[0]
   return `unc:${server.toLowerCase()}`
 }
+
+/** Match command routing: a native UNC cwd takes precedence over a distro hint. */
+export function wslDistroForCommand(cwd: string | undefined, override?: string): string | null {
+  if (process.platform !== 'win32') {
+    return null
+  }
+  return (cwd ? parseWslUncPath(cwd)?.distro : undefined) ?? override ?? null
+}

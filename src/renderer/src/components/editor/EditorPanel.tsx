@@ -29,6 +29,8 @@ import {
 } from './editor-artifact-upload'
 import { useEditorPanelSave } from './useEditorPanelSave'
 import { isMarkdownReviewNotesEnabled } from '@/lib/markdown-review-notes-setting'
+import { useFileCustomEditors } from '@/store/plugin-custom-editors'
+import { applyCustomEditorToggle } from './custom-editor-toggle'
 
 function EditorPanelInner({
   activeFileId: activeFileIdProp,
@@ -83,6 +85,7 @@ function EditorPanelInner({
   )
   const editorDrafts = useAppStore(editorDraftSelector)
   const settings = useAppStore((s) => s.settings)
+  const customEditors = useFileCustomEditors(activeFileId, activeFile?.filePath)
   const markdownReviewNotesEnabled = isMarkdownReviewNotesEnabled(settings)
   const panelRef = useRef<HTMLDivElement>(null)
   const [copiedPathToast, setCopiedPathToast] = useState<{ fileId: string; token: number } | null>(
@@ -228,7 +231,8 @@ function EditorPanelInner({
     markdownViewMode,
     markdownRichModeSizeOverridden,
     isChangesMode,
-    canOpenWorkspaceFileBrowser
+    canOpenWorkspaceFileBrowser,
+    ...customEditors
   })
 
   const handleOpenPreviewToSide = (): void => {
@@ -249,7 +253,7 @@ function EditorPanelInner({
     if (!model.openFileState.canOpen) {
       return
     }
-    openFile({
+    const openedFileId = openFile({
       filePath: activeFile.filePath,
       relativePath: activeFile.relativePath,
       worktreeId: activeFile.worktreeId,
@@ -258,8 +262,8 @@ function EditorPanelInner({
       mode: 'edit'
     })
     if (preferredMarkdownViewMode) {
-      setEditorViewMode(activeFile.filePath, 'edit')
-      setMarkdownViewMode(activeFile.filePath, preferredMarkdownViewMode)
+      setEditorViewMode(openedFileId, 'edit')
+      setMarkdownViewMode(openedFileId, preferredMarkdownViewMode)
     }
   }
   const handleEditorToggleChange = (next: EditorToggleValue): void => {
@@ -273,8 +277,9 @@ function EditorPanelInner({
       return
     }
     setEditorViewMode(fileId, 'edit')
-    if (next !== 'edit') {
-      setMarkdownViewMode(fileId, next)
+    const markdownMode = applyCustomEditorToggle(fileId, next, model.customEditors.length > 0)
+    if (markdownMode) {
+      setMarkdownViewMode(fileId, markdownMode)
     }
   }
   const handleOpenMarkdownPreview = (): void => {
