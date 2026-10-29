@@ -140,10 +140,10 @@ function page(sessionId: string, items: AgentJournalRenderItem[]): AgentSessionH
     hasNewer: false
   }
 }
-function view(target: RuntimeClientTarget = TARGET) {
+function view(target: RuntimeClientTarget = TARGET, isVisible = true) {
   return (
     <NativeChatStructuredSession
-      isVisible
+      isVisible={isVisible}
       isFocusedGroup
       tabId="parent-tab"
       sessionId={PARENT}
@@ -332,6 +332,40 @@ it('opens a separate completed conversation and its native descendants, retainin
   ).toBe(true)
   expect(mocks.send).not.toHaveBeenCalled()
 })
+
+it.each(['hidden pane', 'failed roster refresh'])(
+  'retains the same worker reader and reading position after a %s',
+  async (cause) => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
+    const rendered = render(view())
+    const feed = await openWorker()
+    feed.scrollTop = 93
+    const reads = transport.read.mock.calls.length
+    if (cause === 'hidden pane') {
+      rendered.rerender(view(TARGET, false))
+    } else {
+      transport.rpc.mockRejectedValue(new Error('Temporary roster outage'))
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(30_000)
+      })
+    }
+    expect(screen.getByTestId('feed:worker-session')).toBe(feed)
+    expect(feed.scrollTop).toBe(93)
+    if (cause === 'failed roster refresh') {
+      expect(transport.unsubscribe).not.toHaveBeenCalled()
+    }
+    transport.rpc.mockResolvedValue({ children: [worker], nextCursor: null })
+    rendered.rerender(view())
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000)
+    })
+    expect(screen.getByTestId('feed:worker-session')).toBe(feed)
+    expect(feed.scrollTop).toBe(93)
+    if (cause === 'failed roster refresh') {
+      expect(transport.read.mock.calls).toHaveLength(reads)
+    }
+  }
+)
 
 it('invalidates an open child path when the parent owner changes', async () => {
   const rendered = render(view())
