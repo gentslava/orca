@@ -5783,7 +5783,17 @@
           "5a9688802a": "{{value0}} tane daha göster",
           "294de4aeb2": "Daha az göster",
           "moreLocations_other": "+ {{count}} konum daha",
-          "moreLocations_one": "+ {{count}} konum daha"
+          "moreLocations_one": "+ {{count}} konum daha",
+          "collapseAriaLabel": "{{repo}} için gizli worktree'leri daralt",
+          "expandAriaLabel": "{{repo}} için gizli worktree'leri genişlet",
+          "hiding_one": "Bulunan {{count}} worktree gizleniyor",
+          "hiding_other": "Bulunan {{count}} worktree gizleniyor",
+          "hidingInRepo_one": "{{repo}} içinde bulunan {{count}} worktree gizleniyor",
+          "hidingInRepo_other": "{{repo}} içinde bulunan {{count}} worktree gizleniyor",
+          "keepHiddenAriaLabel_one": "{{repo}} için bulunan {{count}} worktree'yi gizli tut; proje menüsünden geri getir",
+          "keepHiddenAriaLabel_other": "{{repo}} için bulunan {{count}} worktree'yi gizli tut; proje menüsünden geri getir",
+          "keepHiddenTooltip": "Gizli tut - proje menüsünden geri getir",
+          "repoOnHost": "{{host}} üzerindeki {{repo}}"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "Klasör Olarak Aç",
@@ -6213,7 +6223,8 @@
           "c89f290e25": "{{value0}} kopyalandı",
           "d1113f4660": "Tarayıcı açılamadı",
           "livePorts_other": "{{count}} etkin port",
-          "livePorts_one": "{{count}} etkin port"
+          "livePorts_one": "{{count}} etkin port",
+          "unknownProcess": "Bilinmeyen işlem"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "Bir grup oluşturun ve bu projeyi içine taşıyın.",
@@ -13406,7 +13417,10 @@
                   "rebase": "Rebase",
                   "merge": "Merge",
                   "cherryPick": "Cherry-pick"
-                }
+                },
+                "commitsBehind_one": "{{count}} commit geride",
+                "commitsBehind_other": "{{count}} commit geride",
+                "baseCommitLabel": "temel commit:"
               },
               "empty": {
                 "state": {

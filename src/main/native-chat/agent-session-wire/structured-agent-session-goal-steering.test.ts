@@ -121,8 +121,9 @@ it.each<{ label: string; choices: Readonly<Record<string, string>> }>([
   ).toMatchObject({ ok: true })
   const dispatches = hasChoices ? 3 : 2
   await eventually(() => expect(rig.dispatch).toHaveBeenCalledTimes(dispatches))
-  expect((await rig.submission(operation))?.options).toEqual(choices)
-  expect(rig.dispatch.mock.calls[dispatches - 1]?.[0].executionOptions).toEqual(choices)
+  const acceptedChoices = hasChoices ? { ...choices, effort: 'high' } : choices
+  expect((await rig.submission(operation))?.options).toEqual(acceptedChoices)
+  expect(rig.dispatch.mock.calls[dispatches - 1]?.[0].executionOptions).toEqual(acceptedChoices)
   expect(rig.host.currentWork(SESSION)?.activeTurnId()).toBe('goal-turn')
   expect(rig.cancelTurn).not.toHaveBeenCalled()
 })

@@ -168,7 +168,7 @@ export function projectAgentModelCatalogSnapshot(
   const listed = deps.store.observation(bound.fingerprint)
   const independent = independentAgentModelCatalog(params.agent)
   if (
-    params.verifiedOnly &&
+    (params.verifiedOnly || params.requireConfiguredDefault) &&
     (!listed ||
       (independent && !bound.exact) ||
       ((independent || params.requireConfiguredDefault) &&

@@ -5,7 +5,6 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
 import { i18n } from '@/i18n/i18n'
-import russian from '@/i18n/test-resources/runtime-source-grammar.json'
 import type { AppState } from '@/store/types'
 import type { LocalBaseRefUpdateSuggestion } from '../../../../shared/worktree/base-ref-drift-types'
 import { showLocalBaseRefUpdateSuggestionToast } from './local-base-ref-suggestion-toast'
@@ -87,7 +86,6 @@ describe('showLocalBaseRefUpdateSuggestionToast', () => {
   ] as const)(
     'inflects %i commits behind inside the actual toast while preserving branch names',
     async (behind, noun) => {
-      i18n.addResourceBundle('ru', 'translation', russian, true, true)
       await i18n.changeLanguage('ru')
       showLocalBaseRefUpdateSuggestionToast(
         { ...SUGGESTION, localBranch: 'main & <raw>', behind },

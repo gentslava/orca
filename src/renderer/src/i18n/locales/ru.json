@@ -6081,7 +6081,23 @@
           "moreLocations_one": "+ ещё {{count}} расположение",
           "moreLocations_few": "+ ещё {{count}} расположения",
           "moreLocations_many": "+ ещё {{count}} расположений",
-          "moreLocations_other": "+ ещё {{count}} расположения"
+          "moreLocations_other": "+ ещё {{count}} расположения",
+          "hiding_few": "Скрыты {{count}} найденные рабочие деревья",
+          "hiding_many": "Скрыто {{count}} найденных рабочих деревьев",
+          "hiding_other": "Скрыто найденных рабочих деревьев: {{count}}",
+          "collapseAriaLabel": "Свернуть скрытые рабочие деревья репозитория {{repo}}",
+          "expandAriaLabel": "Развернуть скрытые рабочие деревья репозитория {{repo}}",
+          "hidingInRepo_few": "Скрыты {{count}} найденных рабочих дерева в {{repo}}",
+          "hidingInRepo_many": "Скрыто {{count}} найденных рабочих деревьев в {{repo}}",
+          "hidingInRepo_one": "Скрыто {{count}} найденное рабочее дерево в {{repo}}",
+          "hidingInRepo_other": "Скрыто {{count}} найденного рабочего дерева в {{repo}}",
+          "hiding_one": "Скрыто {{count}} найденное рабочее дерево",
+          "keepHiddenAriaLabel_few": "Оставить скрытыми {{count}} найденных рабочих дерева в {{repo}}; показать их снова можно через меню проекта",
+          "keepHiddenAriaLabel_many": "Оставить скрытыми {{count}} найденных рабочих деревьев в {{repo}}; показать их снова можно через меню проекта",
+          "keepHiddenAriaLabel_one": "Оставить скрытым {{count}} найденное рабочее дерево в {{repo}}; показать его снова можно через меню проекта",
+          "keepHiddenAriaLabel_other": "Оставить скрытыми {{count}} найденного рабочего дерева в {{repo}}; показать их снова можно через меню проекта",
+          "keepHiddenTooltip": "Оставить скрытыми — показать снова можно через меню проекта",
+          "repoOnHost": "{{repo}} на {{host}}"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "Открыть как папку",
@@ -6099,10 +6115,10 @@
           "archiveChangedTitle": "Скрипт архивации {{repo}} изменился — запустить новую версию?",
           "issueCommandChangedTitle": "Команда задачи {{repo}} изменилась — запустить новую версию?",
           "vmRecipeChangedTitle": "Рецепт ВМ {{repo}} изменился — запустить новую версию?",
-          "setupRunTitle": "Запустить скрипт настройки из {{repo}}?",
-          "archiveRunTitle": "Запустить скрипт архивации из {{repo}}?",
-          "issueCommandRunTitle": "Выполнить команду задачи из {{repo}}?",
-          "vmRecipeRunTitle": "Запустить рецепт ВМ из {{repo}}?",
+          "setupRunTitle": "Запустить скрипт настройки из репозитория «{{repo}}»?",
+          "archiveRunTitle": "Запустить скрипт архивации из репозитория «{{repo}}»?",
+          "issueCommandRunTitle": "Выполнить команду задачи из репозитория «{{repo}}»?",
+          "vmRecipeRunTitle": "Запустить рецепт ВМ из репозитория «{{repo}}»?",
           "setupChangedBody": "<code>orca.yaml</code> изменился с последнего одобрения. Проверьте его перед запуском при создании этого рабочего пространства.",
           "archiveChangedBody": "<code>orca.yaml</code> изменился с последнего одобрения. Проверьте его перед запуском при удалении этого рабочего пространства.",
           "issueCommandChangedBody": "<code>orca.yaml</code> изменился с момента вашего последнего одобрения. Проверьте его ещё раз перед выполнением при запуске этого рабочего пространства со связанной задачей.",
@@ -6120,7 +6136,7 @@
           "newVmRecipe": "Новый рецепт ВМ",
           "vmRecipe": "Рецепт ВМ",
           "thisRepository": "этот репозиторий",
-          "alwaysTrustRepo": "Всегда доверять <code>orca.yaml</code> в <repo/>"
+          "alwaysTrustRepo": "Всегда доверять <code>orca.yaml</code> в репозитории «<repo/>»"
         },
         "PendingWorktreeRow": {
           "af21e953d1": "Отмена создания рабочего дерева",
@@ -6523,7 +6539,8 @@
           "livePorts_one": "{{count}} активный порт",
           "livePorts_few": "{{count}} активных порта",
           "livePorts_many": "{{count}} активных портов",
-          "livePorts_other": "{{count}} активного порта"
+          "livePorts_other": "{{count}} активного порта",
+          "unknownProcess": "Неизвестный процесс"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "Создайте группу и переместите в нее этот проект.",
@@ -13822,7 +13839,12 @@
                 },
                 "failingChecks": "{{count}} проверок с ошибкой",
                 "pendingChecks": "{{count}} проверок в ожидании",
-                "unresolvedChecks": "{{count}} проверок без результата"
+                "unresolvedChecks": "{{count}} проверок без результата",
+                "baseCommitLabel": "базовый коммит:",
+                "commitsBehind_few": "Отставание на {{count}} коммита",
+                "commitsBehind_many": "Отставание на {{count}} коммитов",
+                "commitsBehind_one": "Отставание на {{count}} коммит",
+                "commitsBehind_other": "Отставание на {{count}} коммита"
               },
               "empty": {
                 "state": {

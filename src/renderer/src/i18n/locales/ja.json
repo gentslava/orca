@@ -5254,7 +5254,17 @@
           "2251d41ebb": "非表示のワークツリーグループ",
           "5a9688802a": "{{value0}} をもっと見る",
           "294de4aeb2": "表示数を減らす",
-          "moreLocations_other": "ほか {{count}} か所"
+          "moreLocations_other": "ほか {{count}} か所",
+          "collapseAriaLabel": "{{repo}} の非表示のワークツリー一覧を折りたたむ",
+          "expandAriaLabel": "{{repo}} の非表示のワークツリー一覧を展開",
+          "hiding_one": "{{count}} 件のワークツリーを非表示中",
+          "hiding_other": "{{count}} 件のワークツリーを非表示中",
+          "hidingInRepo_one": "{{repo}} の {{count}} 件のワークツリーを非表示中",
+          "hidingInRepo_other": "{{repo}} の {{count}} 件のワークツリーを非表示中",
+          "keepHiddenAriaLabel_one": "{{repo}} で検出されたワークツリー {{count}} 件を非表示のままにする（プロジェクトメニューから再表示できます）",
+          "keepHiddenAriaLabel_other": "{{repo}} で検出されたワークツリー {{count}} 件を非表示のままにする（プロジェクトメニューから再表示できます）",
+          "keepHiddenTooltip": "非表示のままにする（プロジェクトメニューから再表示できます）",
+          "repoOnHost": "{{repo}}（{{host}}）"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "フォルダーとして開く",
@@ -5674,7 +5684,8 @@
           "5d1a5d51bb": "{{value0}} でプロセスを停止しました",
           "c89f290e25": "{{value0}} をコピーしました",
           "d1113f4660": "ブラウザを開けませんでした",
-          "livePorts_other": "稼働中のポート {{count}} 個"
+          "livePorts_other": "稼働中のポート {{count}} 個",
+          "unknownProcess": "不明なプロセス"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "グループを作成し、このプロジェクトをそのグループに移動します。",
@@ -13153,7 +13164,10 @@
                   "rebase": "リベース",
                   "merge": "マージ",
                   "cherryPick": "チェリーピック"
-                }
+                },
+                "commitsBehind_one": "{{count}} コミット遅れ",
+                "commitsBehind_other": "{{count}} コミット遅れ",
+                "baseCommitLabel": "ベースコミット:"
               },
               "empty": {
                 "state": {

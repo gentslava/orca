@@ -5254,7 +5254,17 @@
           "2251d41ebb": "숨겨진 워크트리 그룹",
           "5a9688802a": "{{value0}} 더 보기",
           "294de4aeb2": "간략히 표시",
-          "moreLocations_other": "+ 위치 {{count}}개 더"
+          "moreLocations_other": "+ 위치 {{count}}개 더",
+          "collapseAriaLabel": "{{repo}}의 숨겨진 워크트리 접기",
+          "expandAriaLabel": "{{repo}}의 숨겨진 워크트리 펼치기",
+          "hiding_one": "발견된 워크트리 {{count}}개 숨김",
+          "hiding_other": "발견된 워크트리 {{count}}개 숨김",
+          "hidingInRepo_one": "{{repo}}에서 발견된 워크트리 {{count}}개 숨김",
+          "hidingInRepo_other": "{{repo}}에서 발견된 워크트리 {{count}}개 숨김",
+          "keepHiddenAriaLabel_one": "{{repo}}에서 발견된 워크트리 {{count}}개를 숨김 상태로 유지합니다. 프로젝트 메뉴에서 복구할 수 있습니다",
+          "keepHiddenAriaLabel_other": "{{repo}}에서 발견된 워크트리 {{count}}개를 숨김 상태로 유지합니다. 프로젝트 메뉴에서 복구할 수 있습니다",
+          "keepHiddenTooltip": "숨김 유지 - 프로젝트 메뉴에서 복구",
+          "repoOnHost": "{{host}}의 {{repo}}"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "폴더로 열기",
@@ -5674,7 +5684,8 @@
           "5d1a5d51bb": "{{value0}}에서 프로세스가 중지되었습니다.",
           "c89f290e25": "{{value0}} 복사됨",
           "d1113f4660": "브라우저를 열지 못했습니다.",
-          "livePorts_other": "활성 포트 {{count}}개"
+          "livePorts_other": "활성 포트 {{count}}개",
+          "unknownProcess": "알 수 없는 프로세스"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "그룹을 만들고 이 프로젝트를 그룹으로 이동하세요.",
@@ -13153,7 +13164,10 @@
                   "rebase": "리베이스",
                   "merge": "병합",
                   "cherryPick": "체리픽"
-                }
+                },
+                "commitsBehind_one": "커밋 {{count}}개 뒤처짐",
+                "commitsBehind_other": "커밋 {{count}}개 뒤처짐",
+                "baseCommitLabel": "기본 커밋:"
               },
               "empty": {
                 "state": {

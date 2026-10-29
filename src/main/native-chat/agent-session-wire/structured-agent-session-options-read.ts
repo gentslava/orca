@@ -162,7 +162,9 @@ export async function readStructuredAgentSessionOptions(
       current.serviceTier = projected.options.serviceTier
     }
   }
-  const defaultModel = await readStructuredAgentSessionDefaultModel(context.deps, sessionId)
+  const defaultModel = reader.readsWithoutModel
+    ? undefined
+    : await readStructuredAgentSessionDefaultModel(context.deps, sessionId)
   return {
     ...options,
     ...(defaultModel ? { defaultModel } : {}),

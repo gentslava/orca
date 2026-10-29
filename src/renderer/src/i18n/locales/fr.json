@@ -5688,7 +5688,17 @@
           "keepHiddenAriaLabel_many": "Garder {{count}} worktrees détectés masqués pour {{repo}} ; récupérez-les depuis le menu du projet",
           "moreLocations_one": "+ {{count}} autre emplacement",
           "moreLocations_other": "+ {{count}} autres emplacements",
-          "moreLocations_many": "+ {{count}} autres emplacements"
+          "moreLocations_many": "+ {{count}} autres emplacements",
+          "collapseAriaLabel": "Réduire les worktrees masqués de {{repo}}",
+          "expandAriaLabel": "Développer les worktrees masqués de {{repo}}",
+          "hiding_one": "{{count}} worktree détecté masqué",
+          "hiding_other": "{{count}} worktrees détectés masqués",
+          "hidingInRepo_one": "{{count}} worktree détecté masqué dans {{repo}}",
+          "hidingInRepo_other": "{{count}} worktrees détectés masqués dans {{repo}}",
+          "keepHiddenAriaLabel_one": "Garder {{count}} worktree détecté masqué pour {{repo}} ; récupérez-le depuis le menu du projet",
+          "keepHiddenAriaLabel_other": "Garder {{count}} worktrees détectés masqués pour {{repo}} ; récupérez-les depuis le menu du projet",
+          "keepHiddenTooltip": "Garder masqué - récupérable depuis le menu du projet",
+          "repoOnHost": "{{repo}} sur {{host}}"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "Ouvrir comme dossier",
@@ -6124,7 +6134,8 @@
           "d1113f4660": "Échec de l'ouverture du navigateur",
           "livePorts_one": "{{count}} port actif",
           "livePorts_other": "{{count}} ports actifs",
-          "livePorts_many": "{{count}} ports actifs"
+          "livePorts_many": "{{count}} ports actifs",
+          "unknownProcess": "Processus inconnu"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "Créez un groupe et déplacez-y ce projet.",
@@ -13667,7 +13678,10 @@
                   "rebase": "Rebase",
                   "merge": "Merge",
                   "cherryPick": "Cherry-pick"
-                }
+                },
+                "commitsBehind_one": "{{count}} commit de retard",
+                "commitsBehind_other": "{{count}} commits de retard",
+                "baseCommitLabel": "commit de base :"
               },
               "empty": {
                 "state": {

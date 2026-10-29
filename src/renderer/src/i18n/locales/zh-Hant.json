@@ -5670,7 +5670,17 @@
           "2251d41ebb": "隱藏的工作樹群組",
           "5a9688802a": "再顯示 {{value0}} 個",
           "294de4aeb2": "顯示較少",
-          "moreLocations_other": "另有 {{count}} 個位置"
+          "moreLocations_other": "另有 {{count}} 個位置",
+          "collapseAriaLabel": "收合 {{repo}} 的隱藏工作樹",
+          "expandAriaLabel": "展開 {{repo}} 中隱藏的工作樹",
+          "hiding_one": "已隱藏 {{count}} 個偵測到的工作樹",
+          "hiding_other": "已隱藏 {{count}} 個偵測到的工作樹",
+          "hidingInRepo_one": "已隱藏 {{repo}} 中的 {{count}} 個偵測到的工作樹",
+          "hidingInRepo_other": "已隱藏 {{repo}} 中的 {{count}} 個偵測到的工作樹",
+          "keepHiddenAriaLabel_one": "讓 {{repo}} 中的 {{count}} 個偵測到的工作樹保持隱藏；可從專案選單恢復顯示",
+          "keepHiddenAriaLabel_other": "讓 {{repo}} 中的 {{count}} 個偵測到的工作樹保持隱藏；可從專案選單恢復顯示",
+          "keepHiddenTooltip": "保持隱藏，可從專案選單恢復顯示",
+          "repoOnHost": "{{host}} 上的 {{repo}}"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "作為資料夾開啟",
@@ -6095,7 +6105,8 @@
           "5d1a5d51bb": "已停止 {{value0}} 上的行程",
           "c89f290e25": "已複製 {{value0}}",
           "d1113f4660": "無法開啟瀏覽器",
-          "livePorts_other": "{{count}} 個作用中的連接埠"
+          "livePorts_other": "{{count}} 個作用中的連接埠",
+          "unknownProcess": "未知行程"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "建立一個群組並將該專案移入其中。",
@@ -13254,7 +13265,10 @@
                   "rebase": "變基",
                   "merge": "合併",
                   "cherryPick": "挑選"
-                }
+                },
+                "commitsBehind_one": "落後 {{count}} 筆提交",
+                "commitsBehind_other": "落後 {{count}} 筆提交",
+                "baseCommitLabel": "基準提交："
               },
               "empty": {
                 "state": {

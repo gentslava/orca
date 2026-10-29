@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { i18n } from '@/i18n/i18n'
-import russian from '@/i18n/test-resources/runtime-source-grammar.json'
 import type { DashboardAgentRow as DashboardAgentRowData } from '@/components/dashboard/useDashboardData'
 import {
   formatSummaryAgentCount,
@@ -61,7 +60,6 @@ describe('worktree card agent summary', () => {
 
 describe('localized worktree card agent summaries', () => {
   beforeEach(async () => {
-    i18n.addResourceBundle('ru', 'translation', russian, true, true)
     await i18n.changeLanguage('ru')
   })
   afterEach(async () => {

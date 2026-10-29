@@ -1,3 +1,4 @@
+import { keybindingDiagnosticText } from '@/components/settings/keybinding-diagnostic-text'
 // @vitest-environment happy-dom
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
@@ -14,7 +15,6 @@ import * as keybindings from '../../../shared/keybindings'
 import type { KeybindingFileDiagnostic } from '../../../shared/keybindings'
 import type { WorkspacePort } from '../../../shared/workspace-ports'
 import { i18n } from './i18n'
-import russian from './test-resources/runtime-source-grammar.json'
 
 const mocks = vi.hoisted(() => ({
   state: {
@@ -56,7 +56,6 @@ const port: WorkspacePort = {
 
 beforeEach(async () => {
   vi.clearAllMocks()
-  i18n.addResourceBundle('ru', 'translation', russian, true, true)
   await i18n.changeLanguage('ru')
 })
 afterEach(async () => {
@@ -153,21 +152,29 @@ describe('runtime source grammar', () => {
     )
   })
 
-  it('localizes only the shortcut parser fallback and retains diagnostics and action IDs', () => {
+  it('localizes coded shortcut diagnostics while retaining action IDs and uncoded parser details', () => {
     const normalize = vi.spyOn(keybindings, 'normalizeKeybindingArrayForAction')
     const diagnostics: KeybindingFileDiagnostic[] = []
-    normalize.mockReturnValueOnce({ ok: true, value: 'Ctrl+J' })
+    normalize.mockReturnValueOnce({
+      ok: false,
+      error: keybindings.KEYBINDING_REASON_COPY.invalidFormat,
+      errorCode: 'invalidFormat'
+    })
     normalizeStoredWebOverrides({ 'worktree.palette': ['Ctrl+J'] }, 'platforms.win32', diagnostics)
     expect(diagnostics[0]).toMatchObject({
       section: 'platforms.win32',
       actionId: 'worktree.palette',
-      message:
-        'Сочетание клавиш для «worktree.palette» пропущено: Не удалось разобрать сочетание клавиш.'
+      code: 'shortcutIgnored',
+      reasonCode: 'invalidFormat'
     })
+    expect(diagnostics.map(keybindingDiagnosticText)[0]).toBe(
+      'Сочетание клавиш для «worktree.palette» пропущено: Используйте сочетание клавиш, например Ctrl+Shift+P или Cmd+K.'
+    )
     normalize.mockReturnValueOnce({ ok: false, error: 'Parser diagnostic: Ctrl++Alt' })
     normalizeStoredWebOverrides({ 'worktree.palette': ['Ctrl+J'] }, 'platforms.linux', diagnostics)
     expect(diagnostics[1]?.message).toContain('Parser diagnostic: Ctrl++Alt')
     expect(diagnostics[1]?.actionId).toBe('worktree.palette')
+    expect(diagnostics.map(keybindingDiagnosticText)[1]).toContain('Parser diagnostic: Ctrl++Alt')
   })
 
   it('keeps English singular and plural source defaults', async () => {

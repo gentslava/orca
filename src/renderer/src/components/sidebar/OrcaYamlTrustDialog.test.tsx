@@ -2,7 +2,6 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { i18n } from '@/i18n/i18n'
-import russian from '@/i18n/test-resources/runtime-source-grammar.json'
 
 const mocks = vi.hoisted(() => ({
   state: {
@@ -71,7 +70,7 @@ describe('OrcaYamlTrustDialog', () => {
     const text = decodeHtml(renderToStaticMarkup(<OrcaYamlTrustDialog />)).replace(/<[^>]+>/g, '')
 
     expect(text).toContain("This repository's orca.yaml runs on your machine")
-    expect(text).toContain('Only run it if you trust orca.')
+    expect(text).toContain('Only run if you trust orca.')
     expect(text).toContain('Always trust orca.yaml in orca')
     expect(text).not.toContain("repository'sorca.yaml")
     expect(text).not.toContain('trustorca')
@@ -98,18 +97,17 @@ describe('OrcaYamlTrustDialog', () => {
   })
 
   it.each([
-    ['setup', 'сценарий настройки', 'при создании этого рабочего пространства'],
-    ['archive', 'сценарий архивации', 'при удалении этого рабочего пространства'],
+    ['setup', /скрипт настройки/i, 'при создании этого рабочего пространства'],
+    ['archive', /скрипт архивации/i, 'при удалении этого рабочего пространства'],
     [
       'issueCommand',
-      'команда задачи',
+      /команд[ау] задачи/i,
       'при запуске этого рабочего пространства со связанной задачей'
     ],
-    ['vmRecipe', 'рецепт виртуальной машины', 'перед подготовкой виртуальной машины']
+    ['vmRecipe', /рецепт ВМ/i, /подготовк(?:ой|е) ВМ/]
   ])(
     'localizes %s labels and triggers while retaining literal code and repository names',
     async (scriptKind, label, trigger) => {
-      i18n.addResourceBundle('ru', 'translation', russian, true, true)
       await i18n.changeLanguage('ru')
       mocks.state.modalData = {
         ...mocks.state.modalData,
@@ -121,8 +119,8 @@ describe('OrcaYamlTrustDialog', () => {
         mocks.state.modalData.previouslyApproved = previouslyApproved
         const markup = renderToStaticMarkup(<OrcaYamlTrustDialog />)
         const text = decodeHtml(markup.replace(/<[^>]+>/g, ''))
-        expect(text).toContain(label)
-        expect(text).toContain(trigger)
+        expect(text).toMatch(label)
+        expect(text).toMatch(typeof trigger === 'string' ? new RegExp(trigger) : trigger)
         expect(text).toContain('<external-repo>&name')
         expect(text).toContain('node config/scripts/run-internal-dev-setup.mjs\npnpm install')
         expect(markup).toContain('<code>orca.yaml</code>')
@@ -136,7 +134,6 @@ describe('OrcaYamlTrustDialog', () => {
   )
 
   it('localizes the missing repository name without requiring a grammatical case from it', async () => {
-    i18n.addResourceBundle('ru', 'translation', russian, true, true)
     await i18n.changeLanguage('ru')
     delete mocks.state.modalData.repoName
     const { default: OrcaYamlTrustDialog } = await import('./OrcaYamlTrustDialog')

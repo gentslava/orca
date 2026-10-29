@@ -9295,7 +9295,10 @@
                   "rebase": "Rebase",
                   "merge": "Merge",
                   "cherryPick": "Cherry-pick"
-                }
+                },
+                "commitsBehind_one": "{{count}} commit atrás",
+                "commitsBehind_other": "{{count}} commits atrás",
+                "baseCommitLabel": "commit base:"
               },
               "empty": {
                 "state": {
@@ -11289,7 +11292,8 @@
           "d1113f4660": "Falha ao abrir o navegador",
           "livePorts_one": "{{count}} porta ativa",
           "livePorts_other": "{{count}} portas ativas",
-          "livePorts_many": "{{count}} portas ativas"
+          "livePorts_many": "{{count}} portas ativas",
+          "unknownProcess": "Processo desconhecido"
         },
         "WorkspaceKanbanDrawer": {
           "1975a4e480": "Falha na sincronização do status da tarefa",
@@ -11416,7 +11420,17 @@
           "keepHiddenAriaLabel_many": "Manter {{count}} worktrees descobertas ocultas para {{repo}}; recupere-as pelo menu do projeto",
           "moreLocations_one": "+ {{count}} local a mais",
           "moreLocations_other": "+ {{count}} locais a mais",
-          "moreLocations_many": "+ {{count}} locais a mais"
+          "moreLocations_many": "+ {{count}} locais a mais",
+          "collapseAriaLabel": "Recolher worktrees ocultas de {{repo}}",
+          "expandAriaLabel": "Expandir worktrees ocultas de {{repo}}",
+          "hiding_one": "Ocultando {{count}} worktree descoberta",
+          "hiding_other": "Ocultando {{count}} worktrees descobertas",
+          "hidingInRepo_one": "Ocultando {{count}} worktree descoberta em {{repo}}",
+          "hidingInRepo_other": "Ocultando {{count}} worktrees descobertas em {{repo}}",
+          "keepHiddenAriaLabel_one": "Manter {{count}} worktree descoberta oculta para {{repo}}; recupere-a pelo menu do projeto",
+          "keepHiddenAriaLabel_other": "Manter {{count}} worktrees descobertas ocultas para {{repo}}; recupere-as pelo menu do projeto",
+          "keepHiddenTooltip": "Manter oculto - recupere pelo menu do projeto",
+          "repoOnHost": "{{repo}} em {{host}}"
         },
         "WorkspaceKanbanSettingsMenu": {
           "79eb990aa4": "Adicionar status",

@@ -5487,7 +5487,17 @@
           "keepHiddenAriaLabel_many": "Mantener ocultos {{count}} worktrees detectados de {{repo}}; recupéralos desde el menú del proyecto",
           "moreLocations_one": "+ {{count}} ubicación más",
           "moreLocations_other": "+ {{count}} ubicaciones más",
-          "moreLocations_many": "+ {{count}} ubicaciones más"
+          "moreLocations_many": "+ {{count}} ubicaciones más",
+          "collapseAriaLabel": "Contraer worktrees ocultos de {{repo}}",
+          "expandAriaLabel": "Expandir worktrees ocultos de {{repo}}",
+          "hiding_one": "Ocultando {{count}} worktree detectado",
+          "hiding_other": "Ocultando {{count}} worktrees detectados",
+          "hidingInRepo_one": "Ocultando {{count}} worktree detectado en {{repo}}",
+          "hidingInRepo_other": "Ocultando {{count}} worktrees detectados en {{repo}}",
+          "keepHiddenAriaLabel_one": "Mantener oculto {{count}} worktree detectado de {{repo}}; recupéralo desde el menú del proyecto",
+          "keepHiddenAriaLabel_other": "Mantener ocultos {{count}} worktrees detectados de {{repo}}; recupéralos desde el menú del proyecto",
+          "keepHiddenTooltip": "Mantener oculto: recupéralo desde el menú del proyecto",
+          "repoOnHost": "{{repo}} en {{host}}"
         },
         "NonGitFolderDialog": {
           "e52454b7f6": "Abrir como carpeta",
@@ -5916,7 +5926,8 @@
           "d1113f4660": "No se pudo abrir el navegador",
           "livePorts_one": "{{count}} puerto activo",
           "livePorts_other": "{{count}} puertos activos",
-          "livePorts_many": "{{count}} puertos activos"
+          "livePorts_many": "{{count}} puertos activos",
+          "unknownProcess": "Proceso desconocido"
         },
         "WorktreeContextMenu": {
           "c39c37676a": "Crea un grupo y mueve este proyecto a él.",
@@ -13481,7 +13492,10 @@
                   "rebase": "Rebase",
                   "merge": "Fusión",
                   "cherryPick": "Cherry-pick"
-                }
+                },
+                "commitsBehind_one": "{{count}} commit por detrás",
+                "commitsBehind_other": "{{count}} commits por detrás",
+                "baseCommitLabel": "commit base:"
               },
               "empty": {
                 "state": {

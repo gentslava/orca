@@ -22,10 +22,8 @@ import { RichMarkdownDocLinkMenu } from '@/components/editor/RichMarkdownDocLink
 import { AiVaultScanProgressStrip } from '@/components/right-sidebar/AiVaultScanProgressStrip'
 import type { PRCheckDetail } from '../../../shared/github/check-types'
 import { i18n } from './i18n'
-import russian from './test-resources/runtime-source-grammar.json'
 
 beforeEach(async () => {
-  i18n.addResourceBundle('ru', 'translation', russian, true, true)
   await i18n.changeLanguage('ru')
 })
 afterEach(async () => {
@@ -49,26 +47,26 @@ describe('editor and source-control source grammar', () => {
       expect(describeSyncCounts(count, 2)).toBe(`Получить: 2, отправить: ${count}`)
       const upstream = 'origin/feature & <raw>'
       const title = formatForcePushTitle(count, upstream)
-      expect(title).toContain(count ? `${count} ${noun} ветки` : 'эту ветку')
+      expect(title).toContain(count ? `${count} ${noun} этой ветки` : 'эту ветку')
       expect(title).toContain(upstream)
       expect(formatManualForcePushTitle(count, 2, upstream)).toContain(
-        'и заменить коммиты, которые есть только на удалённой ветке.'
+        'и заменить коммиты, которые есть только в удалённом репозитории.'
       )
       expect(formatUnpublishedForcePushTitle(count)).toContain(
-        'при необходимости настроить отслеживаемую ветку.'
+        'при необходимости настройте отслеживаемую удалённую ветку.'
       )
       expect(title).not.toMatch(/Force push|branch commits|the remote branch/)
     }
   )
 
   it.each([
-    [1, '1 проверка'],
-    [2, '2 проверки'],
-    [5, '5 проверок'],
-    [21, '21 проверка']
+    [1, '1 проверка', '1 непройденная проверка'],
+    [2, '2 проверки', '2 непройденные проверки'],
+    [5, '5 проверок', '5 непройденных проверок'],
+    [21, '21 проверка', '21 непройденная проверка']
   ] as const)(
     'uses whole failing, pending and unresolved check summaries for %i',
-    (count, phrase) => {
+    (count, phrase, unresolved) => {
       for (const kind of ['failing', 'pending', 'unresolved'] as const) {
         const checks: PRCheckDetail[] = Array.from({ length: count }, () => ({
           name: 'provider-check-name',
@@ -86,8 +84,12 @@ describe('editor and source-control source grammar', () => {
           />
         ).replace(/<[^>]+>/g, '')
         const state =
-          kind === 'failing' ? 'с ошибкой' : kind === 'pending' ? 'в ожидании' : 'без результата'
-        expect(text).toContain(`${phrase} ${state}`)
+          kind === 'failing'
+            ? `${phrase} с ошибками`
+            : kind === 'pending'
+              ? `${phrase} в ожидании результата`
+              : unresolved
+        expect(text).toContain(state)
         expect(text).not.toMatch(/check|pending|unresolved/)
       }
     }
@@ -140,7 +142,7 @@ describe('editor and source-control source grammar', () => {
         setOpen={() => {}}
       />
     )
-    expect(screen.getByText(`Удалить ${phrase} из этой рабочей копии?`)).toBeTruthy()
+    expect(screen.getByText(`Удалить ${phrase} из этого рабочего дерева?`)).toBeTruthy()
     const button = screen.getByRole('button', { name: 'Удалить заметки' })
     if (count > 0) {
       fireEvent.click(button)
@@ -169,7 +171,7 @@ describe('editor and source-control source grammar', () => {
         />
       </>
     )
-    expect(screen.getByText('Ещё 21 заметка в управлении исходным кодом')).toBeTruthy()
+    expect(screen.getByText('Ещё 21 заметка в разделе «Управление версиями»')).toBeTruthy()
     expect(container.textContent).toContain('↑↓ навигация  ↵ выбрать  esc закрыть')
     expect(container.textContent).not.toContain('&nbsp;')
   })

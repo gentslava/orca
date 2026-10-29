@@ -272,9 +272,17 @@ describe('agent model catalog service', () => {
         requireConfiguredDefault: true
       })
     ).toEqual({ origin: 'unknown' })
-    expect(probe).toHaveBeenCalledExactlyOnceWith(GROK_HOME('/homes/session'), {
-      signal: expect.any(AbortSignal)
-    })
+    expect(probe).toHaveBeenCalledExactlyOnceWith(
+      GROK_HOME('/homes/session'),
+      expect.objectContaining({
+        signal: expect.any(AbortSignal),
+        operation: expect.objectContaining({
+          deadline: expect.any(Number),
+          current: expect.any(Function),
+          signal: expect.any(AbortSignal)
+        })
+      })
+    )
   })
 
   it('does not substitute the selected account when a reset cannot use the original record', async () => {
