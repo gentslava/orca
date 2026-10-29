@@ -133,7 +133,7 @@ export function resolveGuestNativeProgram(
     pathEnv: guestNativePathEnv(options.pathEnv, mounts)
   })
   if (isAbsolute(native)) {
-    return native
+    return isUnderWindowsDriveMount(native, mounts) ? null : native
   }
   return hasWindowsDriveCopy(command, options, resolve, mounts) ? null : native
 }
