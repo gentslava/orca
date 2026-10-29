@@ -46,7 +46,14 @@ function collapseCountOnlyKeys(extracted, english) {
   }
   for (const [key, value] of extracted) {
     const base = key.endsWith('_other') ? key.slice(0, -'_other'.length) : null
-    if (base && !english.has(key) && english.has(base) && extracted.get(`${base}_one`) === value) {
+    // A suffixed key with count (x_one_other) is a pre-native plural call; keep it reported.
+    if (
+      base &&
+      !PLURAL_SUFFIX_RE.test(base) &&
+      !english.has(key) &&
+      english.has(base) &&
+      extracted.get(`${base}_one`) === value
+    ) {
       extracted.delete(key)
       extracted.delete(`${base}_one`)
       extracted.set(base, value)

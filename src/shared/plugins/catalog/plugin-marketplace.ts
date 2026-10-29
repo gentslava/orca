@@ -226,7 +226,6 @@ export type PluginMarketplace = z.infer<typeof pluginMarketplaceListingSchema>
 export type PluginMarketplaceEntry = z.infer<typeof pluginMarketplaceListingEntrySchema>
 export type PluginMarketplaceGitSource = z.infer<typeof pluginMarketplaceGitSourceSchema>
 export type PluginCatalogGitSource = z.infer<typeof catalogV2GitSourceSchema>
-export type PluginMarketplaceTrustMetadata = z.infer<typeof pluginMarketplaceTrustMetadataSchema>
 
 export const OFFICIAL_MARKETPLACE_GIT_SOURCE: PluginMarketplaceGitSource = {
   kind: 'git',

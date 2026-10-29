@@ -148,7 +148,7 @@ export function FileExplorerRowContextMenu({
 
   return (
     <ContextMenuContent
-      className="w-64"
+      className="min-w-64"
       onPointerUpCapture={stopRightButtonMenuSelection}
       onCloseAutoFocus={(e) => e.preventDefault()}
     >

@@ -181,13 +181,9 @@ export type ClaudeSession = {
   confirmedOptions: Set<string>
   /** Inputs carried by launch or accepted controls, independent of provider reports. */
   appliedInputOptions: Map<string, string>
-  /** The model the child was launched with, as `--model`; null when it runs the CLI's own. */
-  launchedModel: string | null
   /** What Orca put on this process's command line, and the first root init's answer; this process only. */
   launchIntent?: { permissionMode?: string; model?: string }
   firstRootInit?: { permissionMode: string | null }
-  /** A launched model the CLI answered `model_not_found` for; reported until a new pick. */
-  retiredModel?: string
   /** Fast was omitted from launch settings and must be applied before message input. */
   fastModeAtStart: boolean
   /** CLI-advertised protocol capabilities from init; gates interrupt-receipt handling. */

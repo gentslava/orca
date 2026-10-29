@@ -50,6 +50,7 @@ import {
 import { useAiVaultPanelHandle, type AiVaultPanelProps } from './ai-vault-panel-handle'
 import { aiVaultSearchHitHostLabels } from './ai-vault-search-hit-hosts'
 import { selectFolderWorkspaces, selectWorktreesByRepo } from '@/store/workspace-record-selectors'
+import { formatClipboardFilePath } from '@/lib/clipboard-file-path'
 
 export default function AiVaultPanel({
   ref,
@@ -364,7 +365,7 @@ export default function AiVaultPanel({
             }
             onCopyPath={(session) =>
               void copyAiVaultSessionText(
-                session.filePath,
+                formatClipboardFilePath(session.filePath, session.executionHostId),
                 translate('auto.components.right.sidebar.AiVaultPanel.logPath', 'Log path')
               )
             }
