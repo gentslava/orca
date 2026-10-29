@@ -275,9 +275,7 @@ export function registerShellHandlers(
         filters: [
           {
             name: translateMain('native.dialog.repoIconImages', 'Repo icon images'),
-            extensions: Object.keys(IMAGE_FILE_MIME_TYPES).map((extension) =>
-              extension.slice(1)
-            )
+            extensions: Object.keys(IMAGE_FILE_MIME_TYPES).map((extension) => extension.slice(1))
           }
         ]
       })
