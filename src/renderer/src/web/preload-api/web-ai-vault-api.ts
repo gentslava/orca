@@ -66,6 +66,7 @@ export function createWebAiVaultApi(): NonNullable<Partial<PreloadApi>['aiVault'
         includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions,
         ...(args?.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
         limit: args?.limit,
+        unlimited: args?.unlimited,
         force: args?.force,
         ...(requestedScope === executionHostId && args?.afterFingerprint !== undefined
           ? { afterFingerprint: args.afterFingerprint }

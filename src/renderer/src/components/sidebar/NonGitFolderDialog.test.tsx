@@ -380,7 +380,8 @@ describe('NonGitFolderDialog', () => {
       expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith(serverWorktree.id, {
         navigationIntent: 'user-open',
         sidebarRevealBehavior: 'auto',
-        executionHostId: 'runtime:env-1'
+        executionHostId: 'runtime:env-1',
+        navigationIntent: 'user-open'
       })
     )
     expect(mocks.activateAndRevealWorktree).not.toHaveBeenCalledWith(
