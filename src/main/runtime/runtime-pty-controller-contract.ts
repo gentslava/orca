@@ -88,6 +88,8 @@ export type RuntimePtyController = {
     sessionId?: string
     /** Windows shell to spawn AS this PTY, instead of the host default. */
     shellOverride?: string
+    /** The user's own act (a CLI command, a paired client's create, a launch); without it a stopped WSL distro holds the start. */
+    wslUserAct?: true
     /** The agent launch's runtime fact; when present the PTY shell comes only from it. */
     launchRuntime?: AgentLaunchRuntime
     isNewSession?: boolean

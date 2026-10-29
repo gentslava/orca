@@ -156,6 +156,8 @@ export abstract class OrcaRuntimeWithTerminalCreateDeduplication extends OrcaRun
       title?: string
       extraAgentArgs?: string
       suppressStartupUpdatePrompt?: boolean
+      /** Run now is the user's act; a scheduled run is background and a stopped WSL distro holds it. */
+      wslUserAct?: true
     }
   ): Promise<RuntimeTerminalCreate> {
     const worktree = await this.resolveGitWorktreeSelector(worktreeSelector)
@@ -184,7 +186,8 @@ export abstract class OrcaRuntimeWithTerminalCreateDeduplication extends OrcaRun
       launchRuntime: startup.launchRuntime,
       startupCommandDelivery: startup.startup.startupCommandDelivery,
       telemetry: startup.startup.telemetry,
-      title: opts.title
+      title: opts.title,
+      ...(opts.wslUserAct ? { wslUserAct: true } : {})
     })
     // Why: agents that read the prompt after they start get it typed in, not on argv.
     if (startup.followup) {
