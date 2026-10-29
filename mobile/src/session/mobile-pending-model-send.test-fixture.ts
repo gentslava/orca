@@ -10,7 +10,11 @@ import {
 } from './mobile-structured-agent-session-host-support'
 import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../src/shared/agent-session-default-model'
 import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session-create-capabilities'
-import { deferred, MODEL_OPTIONS, sendResult } from './structured-session-send-options.test-fixture'
+import {
+  deferred,
+  SEND_MODEL_OPTIONS as MODEL_OPTIONS
+} from './use-mobile-structured-agent-options.test-fixture'
+import { mobileSendReply as sendResult } from './structured-agent-send-result.test-fixture'
 import { fieldsOf, mutationOk, ok } from './use-mobile-structured-agent-session-queued.test-fixture'
 
 export function defineMobilePendingModelSendCases({
