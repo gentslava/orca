@@ -4518,9 +4518,7 @@
           "trackingSince": "{{value0}} 以降の追跡"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "総トークン数",
-          "providersEnabledWithData": "{{enabled}} 件が有効 - {{withData}} 件にデータあり",
-          "sessionCount_other": "{{formatted}} セッション"
+          "3887b94ce5": "総トークン数"
         },
         "share": {
           "card": {

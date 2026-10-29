@@ -973,8 +973,7 @@
     "taskCreate": "Create workspace",
     "taskSearchLoading": "Searching tasks…",
     "taskSearchFailed": "Some task sources could not be searched",
-    "taskSearchRetry": "Retry",
-    "createActionAvailableClause": ", create worktree action available"
+    "taskSearchRetry": "Retry"
   },
   "auto": {
     "App": {
@@ -5097,10 +5096,7 @@
           "trackingSince": "Tracking since {{value0}}"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "Total tokens",
-          "providersEnabledWithData": "{{enabled}} enabled - {{withData}} with data",
-          "sessionCount_one": "{{formatted}} session",
-          "sessionCount_other": "{{formatted}} sessions"
+          "3887b94ce5": "Total tokens"
         },
         "share": {
           "card": {
@@ -20440,14 +20436,7 @@
       "noChatAgents": "No chat agents available on this host",
       "activity": "Activity"
     },
-    "childAgents": {
-      "hide": "Hide {{count}} child agents",
-      "show": "Show {{count}} child agents",
-      "hide_one": "Hide {{count}} child agent",
-      "hide_other": "Hide {{count}} child agents",
-      "show_one": "Show {{count}} child agent",
-      "show_other": "Show {{count}} child agents"
-    }
+    "childAgents": {}
   },
   "runtimeRpc": {
     "startupFailure": {
@@ -20561,14 +20550,7 @@
       "discardAll": "Discard all",
       "deleteUntrackedTitle_one": "Delete {{count}} untracked file?",
       "deleteUntrackedTitle_other": "Delete {{count}} untracked files?",
-      "deleteCount": "Delete {{count}}",
-      "moreFailures": ", +{{count}} more",
-      "failedFiles": "Failed to discard {{count}} files",
-      "failedFiles_one": "Failed to discard {{count}} file",
-      "failedFiles_other": "Failed to discard {{count}} files",
-      "fileCount": "{{count}} files",
-      "fileCount_one": "{{count}} file",
-      "fileCount_other": "{{count}} files"
+      "deleteCount": "Delete {{count}}"
     },
     "unlinkedPr": {
       "status": "PR #{{number}} unlinked"
@@ -20683,24 +20665,8 @@
       "enableSourceControlAi": "Enable Source Control AI in Settings -> Git.",
       "chooseBaseBranch": "Choose a base branch before generating."
     },
-    "noteCount": "{{count}} notes",
-    "noteCount_one": "{{count}} note",
-    "noteCount_other": "{{count}} notes",
-    "compare": {
-      "commitsAhead": "{{count}} commits ahead of {{baseRef}}",
-      "commitsAhead_one": "{{count}} commit ahead of {{baseRef}}",
-      "commitsAhead_other": "{{count}} commits ahead of {{baseRef}}"
-    },
-    "abort": {
-      "rebaseTitle": "Abort rebase?",
-      "mergeTitle": "Abort merge?",
-      "rebaseDescription": "This cancels the rebase in progress and can discard conflict resolutions made during this rebase.",
-      "mergeDescription": "This cancels the merge in progress and can discard conflict resolutions made during this merge.",
-      "rebaseConfirm": "Abort rebase",
-      "mergeConfirm": "Abort merge",
-      "rebaseFailed": "Failed to abort rebase",
-      "mergeFailed": "Failed to abort merge"
-    }
+    "compare": {},
+    "abort": {}
   },
   "agentsSidebarIntro": {
     "migrated": {
@@ -20803,15 +20769,7 @@
         "scopeNotFound": "scope not found there",
         "agentNotSupported": "agent not supported"
       },
-      "hostSkip": {
-        "stale": "index changed",
-        "disabled": "search off",
-        "notReady": "not ready",
-        "noService": "unavailable",
-        "unreachable": "unreachable",
-        "scopeUnknown": "scope not found there",
-        "unsupportedAgent": "agent not supported"
-      }
+      "hostSkip": {}
     }
   },
   "sessionHistory": {
@@ -21000,25 +20958,14 @@
       "emptyFolder": "No files in this folder"
     },
     "trashFailed": {
-      "message": "Failed to move '{{name}}' to Trash.",
       "titleRecycleBin": "Couldn't move '{{name}}' to the Recycle Bin. Delete it permanently?",
       "titleTrash": "Couldn't move '{{name}}' to the Trash. Delete it permanently?",
       "description": "This cannot be undone.",
       "confirm": "Delete Permanently"
     },
-    "deleteFailed": "Failed to delete '{{name}}'.",
-    "recycleFailed": "Failed to move '{{name}}' to Recycle Bin.",
     "recycleBin": "Recycle Bin",
     "trash": "Trash",
-    "import": {
-      "failedFiles": "Failed to import {{count}} files.",
-      "failedFiles_one": "Failed to import {{count}} file.",
-      "failedFiles_other": "Failed to import {{count}} files.",
-      "skippedFiles": "Skipped {{count}} files.",
-      "skippedFiles_one": "Skipped {{count}} file.",
-      "skippedFiles_other": "Skipped {{count}} files.",
-      "failed": "Failed to import files."
-    }
+    "import": {}
   },
   "sparsePreset": {
     "name": "Name",
@@ -21637,44 +21584,7 @@
       "unavailable": "This workspace is protected or unavailable."
     },
     "rowActions": "Actions for {{name}}",
-    "scanningSizes": "Scanning workspace sizes",
-    "deletedWorkspaces": "{{count}} workspaces removed from Space.",
-    "decision": {
-      "activeAgents": "{{count}} active agents",
-      "completedAgents": "{{count}} completed agents",
-      "retainedAgents": "{{agents}} retained",
-      "noAgents": "No tracked agents running",
-      "noTerminalTabs": "No terminal tabs",
-      "liveTerminalTabs": "{{live}} live of {{count}} terminal tabs",
-      "gitStatusUnavailable": "Git status unavailable: {{error}}",
-      "gitStatusNotLoaded": "Git status has not loaded yet",
-      "noUncommittedFiles": "No uncommitted files",
-      "changedFiles": "{{count}} changed files",
-      "noEditorFiles": "No editor files open",
-      "openEditorFiles": "{{count}} editor files open",
-      "dirtyEditorBuffers": "Unsaved editor buffers: {{dirty}}; open files: {{total}}",
-      "activeWorkspace": "This is the active workspace",
-      "mainWorktreeProtected": "Main worktree is protected",
-      "workspaceProtected": "Workspace is protected",
-      "canDelete": "Can be deleted after review",
-      "noLinkedIssue": "No linked issue",
-      "noLinkedPR": "No linked PR",
-      "openBrowserTabs": "{{count}} browser tabs open",
-      "activeAgents_one": "{{count}} active agent",
-      "activeAgents_other": "{{count}} active agents",
-      "completedAgents_one": "{{count}} completed agent",
-      "completedAgents_other": "{{count}} completed agents",
-      "liveTerminalTabs_one": "{{live}} live of {{count}} terminal tab",
-      "liveTerminalTabs_other": "{{live}} live of {{count}} terminal tabs",
-      "changedFiles_one": "{{count}} changed file",
-      "changedFiles_other": "{{count}} changed files",
-      "openEditorFiles_one": "{{count}} editor file open",
-      "openEditorFiles_other": "{{count}} editor files open",
-      "openBrowserTabs_one": "{{count}} browser tab open",
-      "openBrowserTabs_other": "{{count}} browser tabs open"
-    },
-    "deletedWorkspaces_one": "{{count}} workspace removed from Space.",
-    "deletedWorkspaces_other": "{{count}} workspaces removed from Space."
+    "decision": {}
   },
   "wslMove": {
     "entry": {
@@ -22504,9 +22414,7 @@
         "failed": "Historical source unavailable"
       },
       "format": {
-        "notAvailable": "n/a",
-        "notScanned": "Not scanned yet",
-        "updated": "Updated {{time}}"
+        "notAvailable": "n/a"
       },
       "account": {
         "unknown": "Unknown account",
@@ -22617,76 +22525,17 @@
     "minimizeWithShortcut": "Minimize floating workspace ({{shortcut}})",
     "showWithShortcut": "Show floating workspace ({{shortcut}})"
   },
-  "githubReactions": {
-    "thumbsUp": "thumbs up",
-    "thumbsDown": "thumbs down",
-    "laugh": "laugh",
-    "confused": "confused",
-    "heart": "heart",
-    "hooray": "hooray",
-    "rocket": "rocket",
-    "eyes": "eyes",
-    "namedCount": "{{count}} {{reaction}} reactions",
-    "namedCount_one": "{{count}} {{reaction}} reaction",
-    "namedCount_other": "{{count}} {{reaction}} reactions"
-  },
-  "importedWorktrees": {
-    "repositoryOnHost": "{{repository}} on {{host}}",
-    "keepHiddenCount": "Keep {{count}} discovered worktrees hidden for {{repository}}; recover from the project menu",
-    "hidingInRepository": "Hiding {{count}} discovered worktrees in {{repository}}",
-    "hiding": "Hiding {{count}} discovered worktrees",
-    "collapse": "Collapse hidden worktrees for {{repository}}",
-    "expand": "Expand hidden worktrees for {{repository}}",
-    "keepHiddenHint": "Keep hidden - recover from the project menu",
-    "moreLocations": "+ {{count}} more locations",
-    "keepHiddenCount_one": "Keep {{count}} discovered worktree hidden for {{repository}}; recover from the project menu",
-    "keepHiddenCount_other": "Keep {{count}} discovered worktrees hidden for {{repository}}; recover from the project menu",
-    "hidingInRepository_one": "Hiding {{count}} discovered worktree in {{repository}}",
-    "hidingInRepository_other": "Hiding {{count}} discovered worktrees in {{repository}}",
-    "hiding_one": "Hiding {{count}} discovered worktree",
-    "hiding_other": "Hiding {{count}} discovered worktrees",
-    "moreLocations_one": "+ {{count}} more location",
-    "moreLocations_other": "+ {{count}} more locations"
-  },
+  "githubReactions": {},
+  "importedWorktrees": {},
   "orcaYamlTrust": {
-    "script": {
-      "setup": "setup script",
-      "archive": "archive script",
-      "issueCommand": "issue command",
-      "vmRecipe": "VM recipe"
-    },
-    "trigger": {
-      "setup": "when this workspace is created",
-      "archive": "when this workspace is removed",
-      "issueCommand": "when this workspace launches with a linked issue",
-      "vmRecipe": "before provisioning a VM"
-    },
-    "thisRepository": "this repository",
-    "changedTitle": "{{script}} changed in {{repository}} — run the new version?",
-    "runTitle": "Run {{script}} from {{repository}}?",
-    "changedDescription": "<yaml>orca.yaml</yaml> changed since you last approved it. Review it again before it runs {{trigger}}.",
-    "runDescription": "This repository's <yaml>orca.yaml</yaml> runs on your machine {{trigger}}. Only run it if you trust {{repository}}.",
-    "newScript": "New version: {{script}}",
-    "alwaysTrust": "Always trust <yaml>orca.yaml</yaml> in {{repository}}"
+    "script": {},
+    "trigger": {}
   },
-  "worktreePorts": {
-    "liveCount": "{{count}} live ports",
-    "unknownProcess": "Unknown process",
-    "liveCount_one": "{{count}} live port",
-    "liveCount_other": "{{count}} live ports"
-  },
+  "worktreePorts": {},
   "sshConfig": {
-    "import": {
-      "addedHosts": "Added {{count}} hosts to Orca.",
-      "addedHosts_one": "Added {{count}} host to Orca.",
-      "addedHosts_other": "Added {{count}} hosts to Orca."
-    }
+    "import": {}
   },
-  "localBaseRef": {
-    "commitNoun": "commits",
-    "commitNoun_one": "commit",
-    "commitNoun_other": "commits"
-  },
+  "localBaseRef": {},
   "worktreeAgentSummary": {
     "state": {
       "waiting": "waiting",
@@ -22714,55 +22563,18 @@
     "agentCount_other": "{{count}} agents"
   },
   "projectGroups": {
-    "delete": {
-      "remainingProjects": "Contained projects remaining after deleting the group: {{remaining}} of {{total}}."
-    }
+    "delete": {}
   },
-  "workspacePorts": {
-    "statusCount": "Ports, {{count}} workspace ports",
-    "statusCount_one": "Ports, {{count}} workspace port",
-    "statusCount_other": "Ports, {{count}} workspace ports"
-  },
-  "terminalDrop": {
-    "skippedSymlinks": "Skipped {{count}} symlinks.",
-    "skippedItems": "Skipped {{count}} items.",
-    "failedUploads": "Failed to upload {{count}} files.",
-    "uploadingToRuntime": "Uploading {{count}} files to runtime…",
-    "uploadFailed": "Failed to upload files.",
-    "resolveFailed": "Failed to resolve dropped files.",
-    "uploadingToRemote": "Uploading {{count}} files to remote…",
-    "skippedSymlinks_one": "Skipped {{count}} symlink.",
-    "skippedSymlinks_other": "Skipped {{count}} symlinks.",
-    "skippedItems_one": "Skipped {{count}} item.",
-    "skippedItems_other": "Skipped {{count}} items.",
-    "failedUploads_one": "Failed to upload {{count}} file.",
-    "failedUploads_other": "Failed to upload {{count}} files.",
-    "uploadingToRuntime_one": "Uploading {{count}} file to runtime…",
-    "uploadingToRuntime_other": "Uploading {{count}} files to runtime…",
-    "uploadingToRemote_one": "Uploading {{count}} file to remote…",
-    "uploadingToRemote_other": "Uploading {{count}} files to remote…"
-  },
-  "webKeybindings": {
-    "unableToParseShortcut": "Unable to parse shortcut."
-  },
+  "workspacePorts": {},
+  "terminalDrop": {},
+  "webKeybindings": {},
   "checks": {
-    "conflicts": {
-      "behindBase": "{{count}} commits behind (base commit: <commit>{{commit}}</commit>)",
-      "behindBase_one": "{{count}} commit behind (base commit: <commit>{{commit}}</commit>)",
-      "behindBase_other": "{{count}} commits behind (base commit: <commit>{{commit}}</commit>)"
-    }
+    "conflicts": {}
   },
   "browserGrab": {
     "unknownError": "Unknown error"
   },
-  "diffNotes": {
-    "moreInSourceControl": "{{count}} more notes in Source Control",
-    "moreInSourceControl_one": "{{count}} more note in Source Control",
-    "moreInSourceControl_other": "{{count}} more notes in Source Control",
-    "clearConfirmation": "Clear {{count}} notes from this worktree?",
-    "clearConfirmation_one": "Clear {{count}} note from this worktree?",
-    "clearConfirmation_other": "Clear {{count}} notes from this worktree?"
-  },
+  "diffNotes": {},
   "documentLinks": {
     "keyboardHint": "↑↓ navigate  ↵ select  esc dismiss"
   },

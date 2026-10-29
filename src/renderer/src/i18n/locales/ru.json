@@ -946,8 +946,7 @@
     "taskCreate": "Создать рабочее пространство",
     "taskSearchLoading": "Поиск задач…",
     "taskSearchFailed": "Не удалось выполнить поиск в некоторых источниках задач",
-    "taskSearchRetry": "Повторить",
-    "createActionAvailableClause": ", доступно создание рабочей копии"
+    "taskSearchRetry": "Повторить"
   },
   "auto": {
     "App": {
@@ -5190,12 +5189,7 @@
           "trackingSince": "Учёт с {{value0}}"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "Всего токенов",
-          "providersEnabledWithData": "Включено: {{enabled}} - с данными: {{withData}}",
-          "sessionCount_one": "{{formatted}} сессия",
-          "sessionCount_few": "{{formatted}} сессии",
-          "sessionCount_many": "{{formatted}} сессий",
-          "sessionCount_other": "{{formatted}} сессии"
+          "3887b94ce5": "Всего токенов"
         },
         "share": {
           "card": {
@@ -20626,18 +20620,7 @@
       "noChatAgents": "На этом сервере нет доступных агентов для чата",
       "activity": "Активность"
     },
-    "childAgents": {
-      "hide": "Скрыть {{count}} дочерних агентов",
-      "show": "Показать {{count}} дочерних агентов",
-      "hide_one": "Скрыть {{count}} дочернего агента",
-      "hide_other": "Скрыть {{count}} дочерних агентов",
-      "show_one": "Показать {{count}} дочернего агента",
-      "show_other": "Показать {{count}} дочерних агентов",
-      "hide_few": "Скрыть {{count}} дочерних агентов",
-      "hide_many": "Скрыть {{count}} дочерних агентов",
-      "show_few": "Показать {{count}} дочерних агентов",
-      "show_many": "Показать {{count}} дочерних агентов"
-    }
+    "childAgents": {}
   },
   "runtimeRpc": {
     "startupFailure": {
@@ -20759,18 +20742,7 @@
       "restore": "Восстановить",
       "unstagedFilesIncludingUntrackedDescription_one": "Изменения не в индексе будут отменены, а неотслеживаемые файлы среди выбранных ({{count}}) — безвозвратно удалены. Это действие нельзя отменить.",
       "deleteUntrackedTitle_few": "Удалить {{count}} неотслеживаемых файла?",
-      "deleteUntrackedTitle_many": "Удалить {{count}} неотслеживаемых файлов?",
-      "moreFailures": ", ещё {{count}}",
-      "failedFiles": "Не удалось отменить изменения в {{count}} файлах",
-      "failedFiles_one": "Не удалось отменить изменения в {{count}} файле",
-      "failedFiles_other": "Не удалось отменить изменения в {{count}} файла",
-      "fileCount": "{{count}} файлов",
-      "fileCount_one": "{{count}} файл",
-      "fileCount_other": "{{count}} файла",
-      "failedFiles_few": "Не удалось отменить изменения в {{count}} файлах",
-      "failedFiles_many": "Не удалось отменить изменения в {{count}} файлах",
-      "fileCount_few": "{{count}} файла",
-      "fileCount_many": "{{count}} файлов"
+      "deleteUntrackedTitle_many": "Удалить {{count}} неотслеживаемых файлов?"
     },
     "unlinkedPr": {
       "status": "Связь с PR №{{number}} удалена"
@@ -20885,28 +20857,8 @@
       "enableSourceControlAi": "Включите ИИ для управления версиями в разделе «Настройки -> Git».",
       "chooseBaseBranch": "Перед генерацией выберите базовую ветку."
     },
-    "noteCount": "{{count}} заметок",
-    "noteCount_one": "{{count}} заметка",
-    "noteCount_other": "{{count}} заметки",
-    "compare": {
-      "commitsAhead": "Опережение {{baseRef}} на {{count}} коммитов",
-      "commitsAhead_one": "Опережение {{baseRef}} на {{count}} коммит",
-      "commitsAhead_other": "Опережение {{baseRef}} на {{count}} коммита",
-      "commitsAhead_few": "Опережение {{baseRef}} на {{count}} коммита",
-      "commitsAhead_many": "Опережение {{baseRef}} на {{count}} коммитов"
-    },
-    "abort": {
-      "rebaseTitle": "Прервать перебазирование?",
-      "mergeTitle": "Прервать слияние?",
-      "rebaseDescription": "Текущее перебазирование будет отменено. Разрешения конфликтов, выполненные во время этого перебазирования, могут быть потеряны.",
-      "mergeDescription": "Текущее слияние будет отменено. Разрешения конфликтов, выполненные во время этого слияния, могут быть потеряны.",
-      "rebaseConfirm": "Прервать перебазирование",
-      "mergeConfirm": "Прервать слияние",
-      "rebaseFailed": "Не удалось прервать перебазирование",
-      "mergeFailed": "Не удалось прервать слияние"
-    },
-    "noteCount_few": "{{count}} заметки",
-    "noteCount_many": "{{count}} заметок"
+    "compare": {},
+    "abort": {}
   },
   "agentsSidebarIntro": {
     "migrated": {
@@ -21015,15 +20967,7 @@
         "scopeNotFound": "область поиска там не найдена",
         "agentNotSupported": "агент не поддерживается"
       },
-      "hostSkip": {
-        "stale": "индекс изменился",
-        "disabled": "поиск выключен",
-        "notReady": "ещё не готов",
-        "noService": "недоступен",
-        "unreachable": "нет соединения",
-        "scopeUnknown": "проект или рабочее пространство не найдены",
-        "unsupportedAgent": "агент не поддерживается"
-      }
+      "hostSkip": {}
     }
   },
   "sessionHistory": {
@@ -21220,29 +21164,14 @@
       "emptyFolder": "В этой папке нет файлов"
     },
     "trashFailed": {
-      "message": "Не удалось переместить «{{name}}» в Корзину.",
       "titleRecycleBin": "Не удалось переместить «{{name}}» в Корзину. Удалить безвозвратно?",
       "titleTrash": "Не удалось переместить «{{name}}» в Корзину. Удалить безвозвратно?",
       "description": "Это действие нельзя отменить.",
       "confirm": "Удалить безвозвратно"
     },
-    "deleteFailed": "Не удалось удалить «{{name}}».",
-    "recycleFailed": "Не удалось переместить «{{name}}» в Корзину.",
     "recycleBin": "Корзину",
     "trash": "Корзину",
-    "import": {
-      "failedFiles": "Не удалось импортировать {{count}} файлов.",
-      "failedFiles_one": "Не удалось импортировать {{count}} файл.",
-      "failedFiles_other": "Не удалось импортировать {{count}} файла.",
-      "skippedFiles": "Пропущено {{count}} файлов.",
-      "skippedFiles_one": "Пропущен {{count}} файл.",
-      "skippedFiles_other": "Пропущено {{count}} файла.",
-      "failed": "Не удалось импортировать файлы.",
-      "failedFiles_few": "Не удалось импортировать {{count}} файла.",
-      "failedFiles_many": "Не удалось импортировать {{count}} файлов.",
-      "skippedFiles_few": "Пропущено {{count}} файла.",
-      "skippedFiles_many": "Пропущено {{count}} файлов."
-    }
+    "import": {}
   },
   "sparsePreset": {
     "name": "Название",
@@ -21877,58 +21806,7 @@
       "unavailable": "Это рабочее пространство защищено или недоступно."
     },
     "rowActions": "Действия с {{name}}",
-    "scanningSizes": "Сканирование размеров рабочих пространств",
-    "deletedWorkspaces": "Из раздела «Место на диске» удалено {{count}} рабочих пространств.",
-    "decision": {
-      "activeAgents": "{{count}} активных агентов",
-      "completedAgents": "{{count}} завершивших работу агентов",
-      "retainedAgents": "Сохранено: {{agents}}",
-      "noAgents": "Нет работающих отслеживаемых агентов",
-      "noTerminalTabs": "Нет вкладок терминала",
-      "liveTerminalTabs": "Работает: {{live}} из {{count}} вкладок терминала",
-      "gitStatusUnavailable": "Статус Git недоступен: {{error}}",
-      "gitStatusNotLoaded": "Статус Git ещё не загружен",
-      "noUncommittedFiles": "Нет файлов с незакоммиченными изменениями",
-      "changedFiles": "{{count}} изменённых файлов",
-      "noEditorFiles": "В редакторе нет открытых файлов",
-      "openEditorFiles": "Открыто {{count}} файлов редактора",
-      "dirtyEditorBuffers": "Несохранённых буферов редактора: {{dirty}}; открытых файлов: {{total}}",
-      "activeWorkspace": "Это активное рабочее пространство",
-      "mainWorktreeProtected": "Основная рабочая копия защищена",
-      "workspaceProtected": "Рабочее пространство защищено",
-      "canDelete": "Можно удалить после проверки",
-      "noLinkedIssue": "Нет связанной задачи",
-      "noLinkedPR": "Нет связанного PR",
-      "openBrowserTabs": "Открыто {{count}} вкладок браузера",
-      "activeAgents_one": "{{count}} активный агент",
-      "activeAgents_other": "{{count}} активных агента",
-      "completedAgents_one": "{{count}} завершивший работу агент",
-      "completedAgents_other": "{{count}} завершивших работу агента",
-      "liveTerminalTabs_one": "Работает: {{live}} из {{count}} вкладки терминала",
-      "liveTerminalTabs_other": "Работает: {{live}} из {{count}} вкладки терминала",
-      "changedFiles_one": "{{count}} изменённый файл",
-      "changedFiles_other": "{{count}} изменённых файла",
-      "openEditorFiles_one": "Открыт {{count}} файл редактора",
-      "openEditorFiles_other": "Открыто {{count}} файла редактора",
-      "openBrowserTabs_one": "Открыта {{count}} вкладка браузера",
-      "openBrowserTabs_other": "Открыты {{count}} вкладки браузера",
-      "activeAgents_few": "{{count}} активных агента",
-      "activeAgents_many": "{{count}} активных агентов",
-      "completedAgents_few": "{{count}} завершивших работу агента",
-      "completedAgents_many": "{{count}} завершивших работу агентов",
-      "liveTerminalTabs_few": "Работает: {{live}} из {{count}} вкладок терминала",
-      "liveTerminalTabs_many": "Работает: {{live}} из {{count}} вкладок терминала",
-      "changedFiles_few": "{{count}} изменённых файла",
-      "changedFiles_many": "{{count}} изменённых файлов",
-      "openEditorFiles_few": "Открыто {{count}} файла редактора",
-      "openEditorFiles_many": "Открыто {{count}} файлов редактора",
-      "openBrowserTabs_few": "Открыты {{count}} вкладки браузера",
-      "openBrowserTabs_many": "Открыто {{count}} вкладок браузера"
-    },
-    "deletedWorkspaces_one": "Из раздела «Место на диске» удалено {{count}} рабочее пространство.",
-    "deletedWorkspaces_other": "Из раздела «Место на диске» удалено {{count}} рабочих пространства.",
-    "deletedWorkspaces_few": "Из раздела «Место на диске» удалено {{count}} рабочих пространства.",
-    "deletedWorkspaces_many": "Из раздела «Место на диске» удалено {{count}} рабочих пространств."
+    "decision": {}
   },
   "onboarding": {
     "language": {
@@ -22582,9 +22460,7 @@
         "failed": "Источник истории недоступен"
       },
       "format": {
-        "notAvailable": "н/д",
-        "notScanned": "Ещё не сканировалось",
-        "updated": "Обновлено {{time}}"
+        "notAvailable": "н/д"
       },
       "account": {
         "unknown": "Аккаунт неизвестен",
@@ -22875,92 +22751,17 @@
     "minimizeWithShortcut": "Свернуть плавающее рабочее пространство ({{shortcut}})",
     "showWithShortcut": "Показать плавающее рабочее пространство ({{shortcut}})"
   },
-  "githubReactions": {
-    "thumbsUp": "палец вверх",
-    "thumbsDown": "палец вниз",
-    "laugh": "смех",
-    "confused": "замешательство",
-    "heart": "сердце",
-    "hooray": "ура",
-    "rocket": "ракета",
-    "eyes": "глаза",
-    "namedCount": "{{count}} реакций «{{reaction}}»",
-    "namedCount_one": "{{count}} реакция «{{reaction}}»",
-    "namedCount_other": "{{count}} реакции «{{reaction}}»",
-    "namedCount_few": "{{count}} реакции «{{reaction}}»",
-    "namedCount_many": "{{count}} реакций «{{reaction}}»"
-  },
-  "importedWorktrees": {
-    "repositoryOnHost": "{{repository}} на {{host}}",
-    "keepHiddenCount": "Оставить {{count}} найденных рабочих копий скрытыми. Проект: {{repository}}; вернуть можно из меню проекта",
-    "hidingInRepository": "Скрыто {{count}} найденных рабочих копий. Проект: {{repository}}",
-    "hiding": "Скрыто {{count}} найденных рабочих копий",
-    "collapse": "Свернуть скрытые рабочие копии. Проект: {{repository}}",
-    "expand": "Развернуть скрытые рабочие копии. Проект: {{repository}}",
-    "keepHiddenHint": "Оставить скрытыми — вернуть можно из меню проекта",
-    "moreLocations": "+ ещё {{count}} расположений",
-    "keepHiddenCount_one": "Оставить {{count}} найденную рабочую копию скрытой. Проект: {{repository}}; вернуть можно из меню проекта",
-    "keepHiddenCount_other": "Оставить {{count}} найденные рабочие копии скрытыми. Проект: {{repository}}; вернуть можно из меню проекта",
-    "hidingInRepository_one": "Скрыта {{count}} найденная рабочая копия. Проект: {{repository}}",
-    "hidingInRepository_other": "Скрыты {{count}} найденные рабочие копии. Проект: {{repository}}",
-    "hiding_one": "Скрыта {{count}} найденная рабочая копия",
-    "hiding_other": "Скрыты {{count}} найденные рабочие копии",
-    "moreLocations_one": "+ ещё {{count}} расположение",
-    "moreLocations_other": "+ ещё {{count}} расположения",
-    "keepHiddenCount_few": "Оставить {{count}} найденные рабочие копии скрытыми. Проект: {{repository}}; вернуть можно из меню проекта",
-    "keepHiddenCount_many": "Оставить {{count}} найденных рабочих копий скрытыми. Проект: {{repository}}; вернуть можно из меню проекта",
-    "hidingInRepository_few": "Скрыты {{count}} найденные рабочие копии. Проект: {{repository}}",
-    "hidingInRepository_many": "Скрыто {{count}} найденных рабочих копий. Проект: {{repository}}",
-    "hiding_few": "Скрыты {{count}} найденные рабочие копии",
-    "hiding_many": "Скрыто {{count}} найденных рабочих копий",
-    "moreLocations_few": "+ ещё {{count}} расположения",
-    "moreLocations_many": "+ ещё {{count}} расположений"
-  },
+  "githubReactions": {},
+  "importedWorktrees": {},
   "orcaYamlTrust": {
-    "script": {
-      "setup": "сценарий настройки",
-      "archive": "сценарий архивации",
-      "issueCommand": "команда задачи",
-      "vmRecipe": "рецепт виртуальной машины"
-    },
-    "trigger": {
-      "setup": "при создании этого рабочего пространства",
-      "archive": "при удалении этого рабочего пространства",
-      "issueCommand": "при запуске этого рабочего пространства со связанной задачей",
-      "vmRecipe": "перед подготовкой виртуальной машины"
-    },
-    "thisRepository": "этот репозиторий",
-    "changedTitle": "Код «{{script}}» в репозитории «{{repository}}» изменился. Запустить новую версию?",
-    "runTitle": "Выполнить «{{script}}» из репозитория «{{repository}}»?",
-    "changedDescription": "<yaml>orca.yaml</yaml> изменился с момента вашего последнего разрешения. Проверьте код перед следующим запуском: {{trigger}}.",
-    "runDescription": "Файл <yaml>orca.yaml</yaml> из этого репозитория выполняет код на вашем компьютере: {{trigger}}. Запускайте его, только если доверяете репозиторию «{{repository}}».",
-    "newScript": "Новая версия: {{script}}",
-    "alwaysTrust": "Всегда доверять <yaml>orca.yaml</yaml> в репозитории «{{repository}}»"
+    "script": {},
+    "trigger": {}
   },
-  "worktreePorts": {
-    "liveCount": "{{count}} активных портов",
-    "unknownProcess": "Неизвестный процесс",
-    "liveCount_one": "{{count}} активный порт",
-    "liveCount_other": "{{count}} активных порта",
-    "liveCount_few": "{{count}} активных порта",
-    "liveCount_many": "{{count}} активных портов"
-  },
+  "worktreePorts": {},
   "sshConfig": {
-    "import": {
-      "addedHosts": "В Orca добавлено {{count}} серверов.",
-      "addedHosts_one": "В Orca добавлен {{count}} сервер.",
-      "addedHosts_other": "В Orca добавлено {{count}} сервера.",
-      "addedHosts_few": "В Orca добавлено {{count}} сервера.",
-      "addedHosts_many": "В Orca добавлено {{count}} серверов."
-    }
+    "import": {}
   },
-  "localBaseRef": {
-    "commitNoun": "коммитов",
-    "commitNoun_one": "коммит",
-    "commitNoun_other": "коммита",
-    "commitNoun_few": "коммита",
-    "commitNoun_many": "коммитов"
-  },
+  "localBaseRef": {},
   "worktreeAgentSummary": {
     "state": {
       "waiting": "ожидание",
@@ -22990,73 +22791,18 @@
     "agentCount_many": "{{count}} агентов"
   },
   "projectGroups": {
-    "delete": {
-      "remainingProjects": "После удаления группы осталось вложенных проектов: {{remaining}} из {{total}}."
-    }
+    "delete": {}
   },
-  "workspacePorts": {
-    "statusCount": "Порты, {{count}} портов рабочего пространства",
-    "statusCount_one": "Порты, {{count}} порт рабочего пространства",
-    "statusCount_other": "Порты, {{count}} порта рабочего пространства",
-    "statusCount_few": "Порты, {{count}} порта рабочего пространства",
-    "statusCount_many": "Порты, {{count}} портов рабочего пространства"
-  },
-  "terminalDrop": {
-    "skippedSymlinks": "Пропущено {{count}} символьных ссылок.",
-    "skippedItems": "Пропущено {{count}} элементов.",
-    "failedUploads": "Не удалось загрузить {{count}} файлов.",
-    "uploadingToRuntime": "Загрузка {{count}} файлов в среду выполнения…",
-    "uploadFailed": "Не удалось загрузить файлы.",
-    "resolveFailed": "Не удалось определить пути перетащенных файлов.",
-    "uploadingToRemote": "Загрузка {{count}} файлов на удалённый компьютер…",
-    "skippedSymlinks_one": "Пропущена {{count}} символьная ссылка.",
-    "skippedSymlinks_other": "Пропущены {{count}} символьные ссылки.",
-    "skippedItems_one": "Пропущен {{count}} элемент.",
-    "skippedItems_other": "Пропущено {{count}} элемента.",
-    "failedUploads_one": "Не удалось загрузить {{count}} файл.",
-    "failedUploads_other": "Не удалось загрузить {{count}} файла.",
-    "uploadingToRuntime_one": "Загрузка {{count}} файла в среду выполнения…",
-    "uploadingToRuntime_other": "Загрузка {{count}} файла в среду выполнения…",
-    "uploadingToRemote_one": "Загрузка {{count}} файла на удалённый компьютер…",
-    "uploadingToRemote_other": "Загрузка {{count}} файла на удалённый компьютер…",
-    "skippedSymlinks_few": "Пропущены {{count}} символьные ссылки.",
-    "skippedSymlinks_many": "Пропущено {{count}} символьных ссылок.",
-    "skippedItems_few": "Пропущено {{count}} элемента.",
-    "skippedItems_many": "Пропущено {{count}} элементов.",
-    "failedUploads_few": "Не удалось загрузить {{count}} файла.",
-    "failedUploads_many": "Не удалось загрузить {{count}} файлов.",
-    "uploadingToRuntime_few": "Загрузка {{count}} файлов в среду выполнения…",
-    "uploadingToRuntime_many": "Загрузка {{count}} файлов в среду выполнения…",
-    "uploadingToRemote_few": "Загрузка {{count}} файлов на удалённый компьютер…",
-    "uploadingToRemote_many": "Загрузка {{count}} файлов на удалённый компьютер…"
-  },
-  "webKeybindings": {
-    "unableToParseShortcut": "Не удалось разобрать сочетание клавиш."
-  },
+  "workspacePorts": {},
+  "terminalDrop": {},
+  "webKeybindings": {},
   "checks": {
-    "conflicts": {
-      "behindBase": "Отставание на {{count}} коммитов (базовый коммит: <commit>{{commit}}</commit>)",
-      "behindBase_one": "Отставание на {{count}} коммит (базовый коммит: <commit>{{commit}}</commit>)",
-      "behindBase_other": "Отставание на {{count}} коммита (базовый коммит: <commit>{{commit}}</commit>)",
-      "behindBase_few": "Отставание на {{count}} коммита (базовый коммит: <commit>{{commit}}</commit>)",
-      "behindBase_many": "Отставание на {{count}} коммитов (базовый коммит: <commit>{{commit}}</commit>)"
-    }
+    "conflicts": {}
   },
   "browserGrab": {
     "unknownError": "Неизвестная ошибка"
   },
-  "diffNotes": {
-    "moreInSourceControl": "Ещё {{count}} заметок в управлении исходным кодом",
-    "moreInSourceControl_one": "Ещё {{count}} заметка в управлении исходным кодом",
-    "moreInSourceControl_other": "Ещё {{count}} заметки в управлении исходным кодом",
-    "clearConfirmation": "Удалить {{count}} заметок из этой рабочей копии?",
-    "clearConfirmation_one": "Удалить {{count}} заметку из этой рабочей копии?",
-    "clearConfirmation_other": "Удалить {{count}} заметки из этой рабочей копии?",
-    "moreInSourceControl_few": "Ещё {{count}} заметки в управлении исходным кодом",
-    "moreInSourceControl_many": "Ещё {{count}} заметок в управлении исходным кодом",
-    "clearConfirmation_few": "Удалить {{count}} заметки из этой рабочей копии?",
-    "clearConfirmation_many": "Удалить {{count}} заметок из этой рабочей копии?"
-  },
+  "diffNotes": {},
   "documentLinks": {
     "keyboardHint": "↑↓ навигация  ↵ выбрать  esc закрыть"
   },

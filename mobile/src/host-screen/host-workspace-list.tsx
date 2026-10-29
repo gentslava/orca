@@ -244,7 +244,11 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
                   {projectKey && section.repo && settings.supportsPersonalProjectOrder ? (
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={projectPinned ? 'Unpin project' : 'Pin project'}
+                      accessibilityLabel={
+                        projectPinned
+                          ? t('hostScreen.project.unpin', 'Unpin project')
+                          : t('hostScreen.project.pin', 'Pin project')
+                      }
                       hitSlop={8}
                       onPress={(event) => {
                         event.stopPropagation()

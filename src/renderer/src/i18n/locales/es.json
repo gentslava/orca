@@ -4650,11 +4650,7 @@
           "trackingSince": "Seguimiento desde {{value0}}"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "Tokens totales",
-          "providersEnabledWithData": "Habilitados: {{enabled}} - con datos: {{withData}}",
-          "sessionCount_one": "{{formatted}} sesión",
-          "sessionCount_other": "{{formatted}} sesiones",
-          "sessionCount_many": "{{formatted}} sesiones"
+          "3887b94ce5": "Tokens totales"
         },
         "share": {
           "card": {

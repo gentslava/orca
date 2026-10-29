@@ -4976,10 +4976,7 @@
           "trackingSince": "{{value0}} tarihinden beri takip ediliyor"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "Toplam token",
-          "providersEnabledWithData": "{{enabled}} etkin - {{withData}} tanesinde veri var",
-          "sessionCount_other": "{{formatted}} oturum",
-          "sessionCount_one": "{{formatted}} oturum"
+          "3887b94ce5": "Toplam token"
         },
         "share": {
           "card": {

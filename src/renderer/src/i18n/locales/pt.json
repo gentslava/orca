@@ -14832,11 +14832,7 @@
           }
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "Total de tokens",
-          "providersEnabledWithData": "Habilitados: {{enabled}} - com dados: {{withData}}",
-          "sessionCount_one": "{{formatted}} sessão",
-          "sessionCount_other": "{{formatted}} sessões",
-          "sessionCount_many": "{{formatted}} sessões"
+          "3887b94ce5": "Total de tokens"
         },
         "StatsPane": {
           "42d3e0bdf7": "Provedor de análise de uso: {{value0}}",

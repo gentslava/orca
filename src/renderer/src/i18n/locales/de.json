@@ -4990,10 +4990,7 @@
           "trackingSince": "Erfassung seit {{value0}}"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "Token insgesamt",
-          "providersEnabledWithData": "{{enabled}} aktiviert - {{withData}} mit Daten",
-          "sessionCount_one": "{{formatted}} Sitzung",
-          "sessionCount_other": "{{formatted}} Sitzungen"
+          "3887b94ce5": "Token insgesamt"
         },
         "share": {
           "card": {

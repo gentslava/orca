@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { isNativeBrowserPopupWindow } from './native-browser-popup-windows'
+import {
+  isNativeBrowserPopupWindow,
+  getNativePopupQuitSurface
+} from './native-browser-popup-windows'
 
 const { events, FakeNoticeView, EventEmitter } = await vi.hoisted(async () => {
   const { EventEmitter } = await import('node:events')
@@ -19,7 +22,6 @@ const { events, FakeNoticeView, EventEmitter } = await vi.hoisted(async () => {
   return { events: new EventEmitter(), FakeNoticeView, EventEmitter }
 })
 vi.mock('electron', () => ({ app: events, WebContentsView: FakeNoticeView }))
-import { getNativePopupQuitSurface } from './native-browser-popup-windows'
 
 import {
   allowNativeBrowserPopup,

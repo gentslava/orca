@@ -1,3 +1,4 @@
+import { unrefTimer } from './timer-unref'
 import type { ChildProcess } from 'node:child_process'
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
@@ -13,7 +14,7 @@ const FORCE_KILL_WAIT_MS = 2_000
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => {
     const timeout = setTimeout(resolve, ms)
-    timeout.unref?.()
+    unrefTimer(timeout)
   })
 }
 
@@ -50,20 +51,20 @@ export function waitForExit(proc: ChildProcess, timeoutMs: number): Promise<bool
     }
     const onExit = (): void => finish(true)
     const timeout = setTimeout(() => finish(false), timeoutMs)
-    timeout.unref?.()
+    unrefTimer(timeout)
     proc.once('exit', onExit)
     proc.once('close', onExit)
   })
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
-  let timeout: NodeJS.Timeout | null = null
+  let timeout: ReturnType<typeof setTimeout> | null = null
   try {
     return await Promise.race([
       promise,
       new Promise<never>((_, reject) => {
         timeout = setTimeout(() => reject(new Error(message)), timeoutMs)
-        timeout.unref?.()
+        unrefTimer(timeout)
       })
     ])
   } finally {

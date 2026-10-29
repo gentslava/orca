@@ -4903,9 +4903,7 @@
           "trackingSince": "自 {{value0}} 開始追蹤"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "token 總數",
-          "providersEnabledWithData": "{{enabled}} 個已啟用 - {{withData}} 個有資料",
-          "sessionCount_other": "{{formatted}} 個工作階段"
+          "3887b94ce5": "token 總數"
         },
         "share": {
           "card": {

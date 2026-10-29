@@ -268,7 +268,7 @@ async function openWorker() {
 }
 
 it('opens a separate completed conversation and its native descendants, retaining parent draft and scroll', async () => {
-  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
   render(view())
   const parentFeed = screen.getByTestId(`feed:${PARENT}`)
   const composer = screen.getByRole('textbox', { name: 'Message' })
@@ -346,7 +346,7 @@ it('invalidates an open child path when the parent owner changes', async () => {
 })
 
 it('retires the old journal reader when the same Dispatch continues into a new session', async () => {
-  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
   render(view())
   await openWorker()
   worker = {

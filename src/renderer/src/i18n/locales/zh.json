@@ -4518,9 +4518,7 @@
           "trackingSince": "自 {{value0}} 开始跟踪"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "token总数",
-          "providersEnabledWithData": "{{enabled}} 个已启用 - {{withData}} 个有数据",
-          "sessionCount_other": "{{formatted}} 个会话"
+          "3887b94ce5": "token总数"
         },
         "share": {
           "card": {

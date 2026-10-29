@@ -4518,9 +4518,7 @@
           "trackingSince": "{{value0}} 이후 추적 중"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "총 토큰",
-          "providersEnabledWithData": "{{enabled}}개 활성화 - {{withData}}개에 데이터 있음",
-          "sessionCount_other": "세션 {{formatted}}개"
+          "3887b94ce5": "총 토큰"
         },
         "share": {
           "card": {

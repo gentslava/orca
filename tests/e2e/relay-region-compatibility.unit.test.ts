@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   AssignmentRequestSchema as BaselineRequest,
   AssignmentResponseSchema as BaselineResponse
@@ -41,13 +41,13 @@ function request(fetch: typeof globalThis.fetch) {
 describe('relay correction mixed-version wire contracts', () => {
   it('new desktop falls back against the actual pinned old director parser', async () => {
     const bodies: unknown[] = []
-    const fetch = vi.fn<typeof globalThis.fetch>(async (_url, init) => {
+    const fetch: typeof globalThis.fetch = async (_url, init) => {
       const body: unknown = JSON.parse(String(init?.body))
       bodies.push(body)
       return BaselineRequest.safeParse(body).success
         ? Response.json(BaselineResponse.parse(assignment))
         : new Response(null, { status: 400 })
-    })
+    }
     expect(await request(fetch)).toEqual(assignment)
     expect(bodies).toHaveLength(2)
     expect(AssignmentRequestSchema.safeParse(bodies[0]).success).toBe(true)

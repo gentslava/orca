@@ -1,3 +1,4 @@
+import { createCoalescedPollRunner } from '../right-sidebar/coalesced-poll-runner'
 import { useAppStore } from '@/store'
 import { useEffect, useMemo, useState } from 'react'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
@@ -54,14 +55,7 @@ export function useNativeChatSessionChildren(args: {
       return
     }
     let disposed = false
-    let reading = false
-    let refreshRequested = false
     const refresh = async (): Promise<void> => {
-      if (reading) {
-        refreshRequested = true
-        return
-      }
-      reading = true
       try {
         const children: OrchestrationSessionChild[] = []
         const visited = new Set<string>()
@@ -98,40 +92,26 @@ export function useNativeChatSessionChildren(args: {
           children: old?.key === key ? old.children : [],
           current: false
         }))
-      } finally {
-        reading = false
-        if (refreshRequested && !disposed) {
-          refreshRequested = false
-          void refresh()
-        }
       }
     }
-    void refresh()
+    const runner = createCoalescedPollRunner(refresh, { minIntervalMs: 250 })
+    runner.run()
     let lifecycle = workerLifecycleKey(useAppStore.getState())
-    let eventTimer: ReturnType<typeof setTimeout> | undefined
     const unsubscribe = useAppStore.subscribe((state) => {
       const next = workerLifecycleKey(state)
       if (next === lifecycle) {
         return
       }
       lifecycle = next
-      if (eventTimer !== undefined) {
-        clearTimeout(eventTimer)
-      }
-      eventTimer = setTimeout(() => {
-        eventTimer = undefined
-        void refresh()
-      }, 250)
+      runner.run({ changeSignal: true })
     })
     // Status pushes drive updates; recover missed events from older hosts at a coarse interval.
-    const timer = setInterval(() => void refresh(), 30_000)
+    const timer = setInterval(() => runner.run(), 30_000)
     return () => {
       disposed = true
       clearInterval(timer)
       unsubscribe()
-      if (eventTimer !== undefined) {
-        clearTimeout(eventTimer)
-      }
+      runner.dispose()
     }
   }, [capability, dispatchId, enabled, key, sessionId, target])
   const current = enabled && capability === 'supported' && snapshot?.key === key && snapshot.current

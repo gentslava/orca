@@ -663,6 +663,10 @@
     "conversations": {
       "backToHosts": "Back to hosts",
       "hideSidebar": "Hide sidebar"
+    },
+    "project": {
+      "unpin": "Unpin project",
+      "pin": "Pin project"
     }
   },
   "webShell": {
