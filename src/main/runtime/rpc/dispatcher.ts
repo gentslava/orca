@@ -33,6 +33,7 @@ import { recordRuntimeFeatureInteraction } from './runtime-feature-interaction'
 import type { RpcCallerScope } from './rpc-caller-scope'
 import { runWithActiveRpcCaller } from './rpc-active-caller'
 import { admitRpcRequest } from './rpc-request-admission-prologue'
+import { rpcMethodFeatureWait } from './orcad-feature-readiness'
 
 export type DispatcherOptions = {
   runtime: OrcaRuntimeService
@@ -83,6 +84,10 @@ export class RpcDispatcher {
       emulatorProbe(`rpc ${request.method}`, request.params)
     }
     try {
+      const featureWait = rpcMethodFeatureWait(admission.method.requires)
+      if (featureWait) {
+        await featureWait
+      }
       return successResponse(request.id, meta, await this.invokeUnary(admission, options))
     } catch (error) {
       if (probeEmulator) {
@@ -113,6 +118,15 @@ export class RpcDispatcher {
       return
     }
     const { method, request, params, caller } = admission
+    const featureWait = rpcMethodFeatureWait(method.requires)
+    if (featureWait) {
+      try {
+        await featureWait
+      } catch (error) {
+        reply(JSON.stringify(mapDispatcherError(request, meta, error)))
+        return
+      }
+    }
 
     if (!isStreamingMethod(method)) {
       try {

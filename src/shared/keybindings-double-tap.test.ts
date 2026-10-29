@@ -27,7 +27,8 @@ describe('keybindings', () => {
     // Mod + platform-specific reuses the shared error.
     expect(normalizeKeybinding('DoubleTap+Mod+Cmd')).toEqual({
       ok: false,
-      error: 'Use either Mod or a platform-specific modifier, not both.'
+      error: 'Use either Mod or a platform-specific modifier, not both.',
+      errorCode: 'mixedModifiers'
     })
     expect(normalizeKeybinding('DoubleTap')).toMatchObject({ ok: false })
 

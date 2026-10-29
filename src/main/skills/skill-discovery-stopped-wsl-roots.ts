@@ -23,13 +23,15 @@ export function unavailableSkillSource(root: SkillScanRoot): SkillDiscoverySourc
  * it, and passive UI runs this scan. The caller reports them unavailable, so the next scan reads them.
  */
 export async function splitStoppedWslDistroRoots(
-  roots: readonly SkillScanRoot[]
+  roots: readonly SkillScanRoot[],
+  /** Roots a user act may read even on a stopped distro; they never ask the gate. */
+  mayReadStopped: (path: string) => boolean = () => false
 ): Promise<{ readable: SkillScanRoot[]; unavailable: SkillScanRoot[] }> {
   const blockedByDistro = new Map<string, Promise<boolean>>()
   const blocked = await Promise.all(
     roots.map(async (root) => {
       const distro = wslDistroForPath(root.path)
-      if (!distro) {
+      if (!distro || mayReadStopped(root.path)) {
         return false
       }
       const key = distro.toLowerCase()
@@ -44,6 +46,27 @@ export async function splitStoppedWslDistroRoots(
   return {
     readable: roots.filter((_, index) => !blocked[index]),
     unavailable: roots.filter((_, index) => blocked[index])
+  }
+}
+
+function comparablePath(path: string): string {
+  return path
+    .replace(/[\\/]+/g, '/')
+    .replace(/\/$/, '')
+    .toLowerCase()
+}
+
+/** Whether a stopped-distro root or plugin cwd at `path` holds one of the chosen skill directories. */
+export function stoppedRootReader(
+  readFor: 'all' | readonly string[] | undefined
+): (path: string) => boolean {
+  if (readFor === 'all') {
+    return () => true
+  }
+  const directories = (readFor ?? []).map(comparablePath)
+  return (path) => {
+    const root = comparablePath(path)
+    return directories.some((directory) => directory === root || directory.startsWith(`${root}/`))
   }
 }
 

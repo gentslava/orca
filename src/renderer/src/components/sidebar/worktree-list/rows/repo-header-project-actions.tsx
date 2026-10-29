@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import React from 'react'
 import { useRepoSshGate } from '@/hooks/use-repo-ssh-gate'
 import {
@@ -78,7 +79,8 @@ export type RepoHeaderProjectActions = {
   onCreateForRepo: (projectId: string) => void
 }
 
-export function RepoHeaderProjectActionsMenu({
+// Memoized: the sidebar re-renders every header row when the active workspace changes.
+export const RepoHeaderProjectActionsMenu = React.memo(function RepoHeaderProjectActionsMenu({
   repo,
   label,
   projectGroups,
@@ -93,6 +95,8 @@ export function RepoHeaderProjectActionsMenu({
   children?: React.ReactNode
   alwaysVisible?: boolean
 }): React.JSX.Element {
+  // Memoized: subscribe so a language change still repaints its labels.
+  useTranslation()
   return (
     <DropdownMenu modal={false}>
       <Tooltip>
@@ -190,9 +194,9 @@ export function RepoHeaderProjectActionsMenu({
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+})
 
-export function RepoHeaderCreateWorkspaceButton({
+export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCreateWorkspaceButton({
   repo,
   label,
   onCreateForRepo
@@ -201,6 +205,8 @@ export function RepoHeaderCreateWorkspaceButton({
   label: string
   onCreateForRepo: (projectId: string) => void
 }): React.JSX.Element {
+  // Memoized: subscribe so a language change still repaints its labels.
+  useTranslation()
   const sshGate = useRepoSshGate(repo)
   const createState = getRepoHeaderCreateState({ repo, label, sshGate })
   const fallbackLabel = translate(
@@ -260,4 +266,4 @@ export function RepoHeaderCreateWorkspaceButton({
       </TooltipContent>
     </Tooltip>
   )
-}
+})

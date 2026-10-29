@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { AiVaultSession } from '../../../../shared/ai-vault-types'
 import type { AiVaultSearchHit } from '../../../../shared/ai-vault-search-types'
+import type { AgentDotState } from '@/components/AgentStateDot'
 import { AiVaultVirtualRow } from './AiVaultVirtualRow'
 
 const cliSession: AiVaultSession = {
@@ -40,6 +41,7 @@ function renderSession(
   blocked = false,
   searchHit?: AiVaultSearchHit,
   searchHitHostLabels?: ReadonlyMap<string, string>,
+  liveState: AgentDotState | null = null,
   conversationNavigation = false
 ) {
   const buildResumeStartup = vi.fn(() => ({ command: session.resumeCommand }))
@@ -66,7 +68,7 @@ function renderSession(
         buildResumeStartup={buildResumeStartup}
         getOriginalPaneTarget={() => null}
         isStructuredSessionOpen={() => false}
-        getSessionLiveState={() => null}
+        getSessionLiveState={() => liveState}
         getWorktreeInfo={() => null}
         getSessionResumeState={() => ({
           blocked,
@@ -112,6 +114,7 @@ it('opens a compact conversation row on a single click and retains its secondary
     false,
     undefined,
     undefined,
+    null,
     true
   )
   await userEvent.click(screen.getByText('CLI session'))
@@ -119,6 +122,11 @@ it('opens a compact conversation row on a single click and retains its secondary
   expect(onToggleSessionDetails).not.toHaveBeenCalled()
   expect(screen.queryByTestId('ai-vault-session-metadata')).toBeNull()
   expect(screen.getByTestId('ai-vault-session-more-actions')).toBeTruthy()
+})
+
+it('passes semantic status through the virtual row to the real glyph', () => {
+  renderSession(cliSession, false, undefined, undefined, 'monitoring')
+  expect(screen.getByLabelText('Monitoring background tasks')).toBeTruthy()
 })
 
 describe('AiVaultVirtualRow search hit source host', () => {
