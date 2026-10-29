@@ -60,13 +60,26 @@ export function buildProjectConversations(args: {
   projectCatalog?: ProjectSectionCatalog
   preferences?: ConversationPreferences
   archived?: boolean
+  visibleHostIds?: readonly ExecutionHostId[] | null
 }): ConversationProject[] {
   const projects = new Map<string, ConversationProject>()
   const ownerKeys = new Map<string, string | null>()
-  const savedForTab = createConversationHistoryIndex(args.history)
   const hostOf = (workspace: Worktree) => workspace.hostId ?? workspace.hostContextHostId ?? 'local'
+  const visibleHosts = args.visibleHostIds ? new Set(args.visibleHostIds) : null
+  const workspaces = visibleHosts
+    ? args.workspaces.filter((workspace) => visibleHosts.has(hostOf(workspace)))
+    : args.workspaces
+  const history = visibleHosts
+    ? args.history.filter(
+        (session) => session.executionHostId && visibleHosts.has(session.executionHostId)
+      )
+    : args.history
+  const savedForTab = createConversationHistoryIndex(history)
   const catalog = args.projectCatalog
-  const repos = catalog?.repos ?? args.repos
+  const allRepos = catalog?.repos ?? args.repos
+  const repos = visibleHosts
+    ? allRepos.filter((repo) => visibleHosts.has(getRepoExecutionHostId(repo)))
+    : allRepos
   const repoMap = new Map(repos.map((repo) => [repo.id, repo]))
   const projectIndex = buildProjectGroupingIndex(catalog?.grouping ?? undefined)
   const groupingFor = (hostId: ExecutionHostId, repoId: string) => {
@@ -102,7 +115,7 @@ export function buildProjectConversations(args: {
       data: []
     })
   }
-  for (const workspace of args.workspaces) {
+  for (const workspace of workspaces) {
     const hostId = hostOf(workspace)
     const key = workspaceProjectKey(workspace)
     let project = projects.get(key)
@@ -185,13 +198,13 @@ export function buildProjectConversations(args: {
     }
   }
   const matchWorkspace = createConversationWorkspaceMatcher(
-    args.workspaces.map((workspace) => ({
+    workspaces.map((workspace) => ({
       ...workspace,
       id: workspace.worktreeId,
       hostId: hostOf(workspace)
     }))
   )
-  for (const session of args.history) {
+  for (const session of history) {
     if (!session.executionHostId || session.subagent || session.conversationContent === 'empty') {
       continue
     }
@@ -204,7 +217,7 @@ export function buildProjectConversations(args: {
         : undefined
     const matched = matchWorkspace({ ...session, executionHostId: session.executionHostId })
     let workspace = matched
-      ? (args.workspaces.find(
+      ? (workspaces.find(
           (item) =>
             item.worktreeId === matched.worktreeId && hostOf(item) === session.executionHostId
         ) ?? null)

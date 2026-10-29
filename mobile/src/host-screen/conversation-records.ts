@@ -33,6 +33,9 @@ const historySchema = z.looseObject({
 export type ConversationHistory = z.infer<typeof historySchema>
 const historyListSchema = z.object({
   sessions: z.array(historySchema),
+  issues: z.array(z.unknown()).default([]),
+  fingerprint: z.string().optional(),
+  unchanged: z.literal(true).optional(),
   includesStructuredSessions: z.literal(true).optional()
 })
 export function readConversationHistory(value: unknown) {

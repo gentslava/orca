@@ -309,3 +309,72 @@ describe('host-owned conversation snapshots', () => {
     expect(probe.read().capabilitiesFor('runtime:server')).toEqual([])
   })
 })
+
+it('marks successful partial history replies incomplete while keeping their readable rows', async () => {
+  const { client, sendRequest } = replies()
+  sendRequest.mockImplementation(async (method) => ({
+    id: 'partial',
+    ok: true,
+    result:
+      method === 'status.get'
+        ? { capabilities: ['aiVault.v1'] }
+        : method === 'aiVault.listSessions'
+          ? {
+              sessions: [conversationHistory()],
+              issues: [{ message: 'One provider could not be scanned' }],
+              includesStructuredSessions: true
+            }
+          : { tabs: [] }
+  }))
+  const probe = await mount(source(client))
+  expect(probe.read().history).toHaveLength(1)
+  expect(probe.read().complete).toBe(false)
+  expect(probe.read().failed).toBe(true)
+})
+
+it('reuses per-host history fingerprints on automatic refresh while manual refresh requests a full snapshot', async () => {
+  vi.useFakeTimers()
+  const fingerprint = 'a'.repeat(64)
+  const { client, sendRequest } = replies()
+  sendRequest.mockImplementation(async (method, params) => {
+    const query = params !== null && typeof params === 'object' ? params : {}
+    return {
+      id: 'conditional',
+      ok: true,
+      result:
+        method === 'status.get'
+          ? { capabilities: ['aiVault.v1'] }
+          : method === 'aiVault.listSessions'
+            ? 'afterFingerprint' in query && query.afterFingerprint === fingerprint
+              ? {
+                  sessions: [],
+                  issues: [],
+                  unchanged: true,
+                  fingerprint,
+                  includesStructuredSessions: true
+                }
+              : {
+                  sessions: 'force' in query && query.force ? [] : [conversationHistory()],
+                  issues: [],
+                  fingerprint,
+                  includesStructuredSessions: true
+                }
+            : { tabs: [] }
+    }
+  })
+  const probe = await mount(source(client))
+  expect(probe.read().history).toHaveLength(1)
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(15_000)
+  })
+  const requests = () =>
+    sendRequest.mock.calls.filter(([method]) => method === 'aiVault.listSessions')
+  expect(requests().at(-1)?.[1]).toHaveProperty('afterFingerprint', fingerprint)
+  expect(probe.read().history).toHaveLength(1)
+  await act(async () => {
+    probe.read().onRefresh()
+  })
+  expect(requests().at(-1)?.[1]).not.toHaveProperty('afterFingerprint')
+  expect(requests().at(-1)?.[1]).toHaveProperty('force', true)
+  expect(probe.read().history).toEqual([])
+})

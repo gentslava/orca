@@ -1,4 +1,7 @@
-import { AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY } from '../../../src/shared/ai-vault-runtime-capabilities'
+import {
+  refreshProjectConversationHistory,
+  type ProjectConversationHistorySnapshot
+} from './project-conversation-history-refresh'
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import type { RpcClient } from '../transport/rpc-client'
 import type { ExecutionHostId } from '../../../src/shared/execution-host'
@@ -8,14 +11,9 @@ import {
 } from '../transport/execution-host-scoped-rpc-client'
 import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
 import { resolveWorktreeHostId } from '../worktree/worktree-host-context-labels'
-import {
-  agentHistoryHostStatusRead,
-  agentHistorySessionScan
-} from '../agent-history/mobile-agent-history-operations'
 import { sessionTabsListRead } from '../session/mobile-session-read-operations'
 import type { HostScreenController } from './use-host-screen-controller'
 import {
-  readConversationHistory,
   readConversationTabs,
   type ConversationHistory,
   type ConversationTab
@@ -24,6 +22,7 @@ import {
 type ConversationSnapshot = {
   tabs: Map<string, ConversationTab[]>
   history: ConversationHistory[]
+  historyByHost: Map<ExecutionHostId, ProjectConversationHistorySnapshot>
   capabilities: Map<ExecutionHostId, readonly string[]>
   complete: boolean
   failed: boolean
@@ -31,6 +30,7 @@ type ConversationSnapshot = {
 const EMPTY: ConversationSnapshot = {
   tabs: new Map(),
   history: [],
+  historyByHost: new Map(),
   capabilities: new Map(),
   complete: false,
   failed: false
@@ -126,11 +126,18 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
       running = true
       const force = firstRefresh && revision > 0
       firstRefresh = false
+      const previous = snapshots.get(client)
+      const sameAuthority =
+        previous !== undefined &&
+        previous.hostId === hostId &&
+        previous.generation === generation &&
+        previous.authority === authority
       const failedSources = new Set<ExecutionHostId>()
       const failedTabs = new Set<string>()
       const next: ConversationSnapshot = {
         tabs: new Map(),
         history: [],
+        historyByHost: new Map(),
         capabilities: new Map(),
         complete: true,
         failed: false
@@ -139,27 +146,21 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
         const historyRequests = Promise.all(
           [...sources].map(async ([sourceHost, sourceClient]) => {
             try {
-              const status = agentHistoryHostStatusRead.interpret(
-                await agentHistoryHostStatusRead.request(sourceClient)
+              const { capabilities, history } = await refreshProjectConversationHistory(
+                sourceClient,
+                force,
+                sameAuthority ? previous.value.historyByHost.get(sourceHost) : undefined
               )
-              next.capabilities.set(sourceHost, status.capabilities ?? [])
-              if (!status.capabilities?.includes('aiVault.v1')) {
+              next.capabilities.set(sourceHost, capabilities)
+              if (!history) {
                 next.complete = false
                 return
               }
-              const reply = await agentHistorySessionScan.request(sourceClient, {
-                ...(status.capabilities.includes(AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY)
-                  ? { historyOwnership: {} }
-                  : {}),
-                unlimited: true,
-                includeAntigravityIdeSessions: true,
-                includeStructuredSessions: true,
-                force
-              })
-              const history = readConversationHistory(agentHistorySessionScan.interpret(reply))
-              if (!history.includesStructuredSessions) {
+              next.historyByHost.set(sourceHost, history)
+              if (!history.includesStructuredSessions || history.issues.length > 0) {
                 next.complete = false
               }
+              next.failed ||= history.issues.length > 0
               next.history.push(
                 ...history.sessions.map((session) => ({
                   ...session,
@@ -204,18 +205,17 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
         }
         await historyRequests
         if (current()) {
-          const previous = snapshots.get(client)
           const value = (() => {
             const tabs = new Map(next.tabs)
             const capabilities = new Map(next.capabilities)
+            const historyByHost = new Map(next.historyByHost)
             let history = next.history
-            if (
-              previous?.client === client &&
-              previous.hostId === hostId &&
-              previous.generation === generation &&
-              previous.authority === authority
-            ) {
+            if (sameAuthority) {
               for (const source of failedSources) {
+                const priorHistory = previous.value.historyByHost.get(source)
+                if (priorHistory) {
+                  historyByHost.set(source, priorHistory)
+                }
                 const retained = previous.value.capabilities.get(source)
                 if (!capabilities.has(source) && retained) {
                   capabilities.set(source, retained)
@@ -240,7 +240,7 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
                 )
               ]
             }
-            return { ...next, tabs, capabilities, history }
+            return { ...next, tabs, capabilities, history, historyByHost }
           })()
           const loaded = {
             client,
