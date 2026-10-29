@@ -1,3 +1,4 @@
+import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
 import { Pressable, Text, View } from 'react-native'
 import { AlertCircle, ChevronRight } from 'lucide-react-native'
 import { readWholeAgentSessionFailureFact } from '../../../../../src/shared/agent-session-failure'
@@ -18,6 +19,7 @@ export function MobileNativeChatErrorNotice({
   messageId?: string
   fontScale: number
 }) {
+  const t = useMobileTranslation()
   const [open, setOpen] = useMobileNativeChatDisclosure(
     messageId === undefined ? undefined : `error-notice:${messageId}`,
     false
@@ -35,7 +37,7 @@ export function MobileNativeChatErrorNotice({
       >
         <AlertCircle size={14 * fontScale} color={colors.textMuted} />
         <Text style={[styles.headerSentence, type.row]} numberOfLines={1}>
-          {NATIVE_CHAT_NOTICE_COPY.agentError}
+          {t('chat.notice.agentError', NATIVE_CHAT_NOTICE_COPY.agentError)}
         </Text>
         <ChevronRight
           size={14 * fontScale}
@@ -66,6 +68,7 @@ export function MobileNativeChatErrorNotice({
                 output: block.providerFrame.payload.head,
                 isError: true
               }}
+              inlinePayload={block.providerFrame.payload}
               type={type.code}
               rootIdentity={`error-notice:${messageId ?? block.providerFrame.payload.digest}`}
               positionKey={`error-notice:${messageId ?? block.providerFrame.payload.digest}:payload`}

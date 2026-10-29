@@ -53,11 +53,13 @@ function ShowFull({
 
 export function MobileNativeChatToolOutput({
   body,
+  inlinePayload,
   type,
   rootIdentity,
   positionKey
 }: {
   body: NativeChatToolResultBlock
+  inlinePayload?: AgentJournalBoundedPayload
   type: TextStyle
   rootIdentity: string
   positionKey: string
@@ -87,7 +89,7 @@ export function MobileNativeChatToolOutput({
     detail?.body === body && detail.client === client && detail.sessionId === sessionId
       ? detail
       : null
-  const full = current?.full
+  const full = inlinePayload ?? current?.full
   const clipped = isNativeChatToolOutputClipped(body, { expanded, fullLoaded: Boolean(full) })
   const partial = useMemo(() => (full ? nativeChatToolOutputPartialSizes(full) : null), [full])
   const showFull = (): void => {

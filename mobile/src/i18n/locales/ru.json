@@ -291,7 +291,13 @@
       "compaction": "Контекст сокращён",
       "contextCleared": "Контекст очищен",
       "plan": "План",
-      "stoppedManually": "Остановлено вручную"
+      "stoppedManually": "Остановлено вручную",
+      "agentError": "Агент сообщил об ошибке",
+      "autoApprovalGranted": "Автоматически одобрено",
+      "autoApprovalRejected": "Автоматическое одобрение отклонено",
+      "autoApprovalDenied": "Автоматическое одобрение запрещено",
+      "autoApprovalTimedOut": "Время автоматического одобрения истекло",
+      "safetyCheckDenied": "Действие запрещено проверкой безопасности"
     },
     "orcaStop": {
       "canContinue": "Вы можете продолжить этот разговор.",

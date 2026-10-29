@@ -242,6 +242,14 @@ describe('MobileNativeChatMessage status notices', () => {
   ])('draws %s, never as the agent speaking', (_, message, color) => {
     const tree = render(message)
     expect(tree.root.findAll((node) => String(node.type) === 'MobileMarkdown')).toHaveLength(0)
+    if (
+      tree.root.findAll((node) => String(node.type) === 'Text' && node.props.selectable === true)
+        .length === 0
+    ) {
+      const disclosure = tree.root.findByProps({ accessibilityRole: 'button' })
+      expect(disclosure.props.accessibilityState.expanded).toBe(false)
+      act(() => disclosure.props.onPress())
+    }
     const text = tree.root.find(
       (node) => String(node.type) === 'Text' && node.props.selectable === true
     )

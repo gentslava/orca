@@ -1,3 +1,4 @@
+import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
 import { Pressable, Text, View } from 'react-native'
 import { AlertCircle, AlertTriangle, Check, ChevronRight } from 'lucide-react-native'
 import {
@@ -12,14 +13,6 @@ import { useMobileNativeChatDisclosure } from './mobile-native-chat-disclosure-s
 import { toolStyles as styles, toolType } from './mobile-native-chat-tool-styles'
 import { MobileNativeChatToolOutput } from '../../MobileNativeChatFullContent'
 
-const OUTCOME_COPY: Record<NativeChatAutoApprovalOutcome, string> = {
-  approved: NATIVE_CHAT_NOTICE_COPY.autoApprovalGranted,
-  rejected: NATIVE_CHAT_NOTICE_COPY.autoApprovalRejected,
-  denied: NATIVE_CHAT_NOTICE_COPY.autoApprovalDenied,
-  'timed-out': NATIVE_CHAT_NOTICE_COPY.autoApprovalTimedOut,
-  'safety-denied': NATIVE_CHAT_NOTICE_COPY.safetyCheckDenied
-}
-
 export function MobileNativeChatAutoApprovalNotice({
   block,
   messageId,
@@ -31,6 +24,17 @@ export function MobileNativeChatAutoApprovalNotice({
   disclosed?: boolean
   fontScale: number
 }): React.JSX.Element {
+  const t = useMobileTranslation()
+  const copy: Record<NativeChatAutoApprovalOutcome, string> = {
+    approved: t('chat.notice.autoApprovalGranted', NATIVE_CHAT_NOTICE_COPY.autoApprovalGranted),
+    rejected: t('chat.notice.autoApprovalRejected', NATIVE_CHAT_NOTICE_COPY.autoApprovalRejected),
+    denied: t('chat.notice.autoApprovalDenied', NATIVE_CHAT_NOTICE_COPY.autoApprovalDenied),
+    'timed-out': t(
+      'chat.notice.autoApprovalTimedOut',
+      NATIVE_CHAT_NOTICE_COPY.autoApprovalTimedOut
+    ),
+    'safety-denied': t('chat.notice.safetyCheckDenied', NATIVE_CHAT_NOTICE_COPY.safetyCheckDenied)
+  }
   const [open, setOpen] = useMobileNativeChatDisclosure(
     messageId === undefined ? undefined : `auto-approval:${messageId}`,
     false
@@ -51,7 +55,7 @@ export function MobileNativeChatAutoApprovalNotice({
         >
           <Icon size={14 * fontScale} color={colors.textMuted} />
           <Text style={[styles.headerSentence, type.row]} numberOfLines={1}>
-            {OUTCOME_COPY[outcome]}
+            {copy[outcome]}
           </Text>
           <ChevronRight
             size={14 * fontScale}
@@ -75,6 +79,7 @@ export function MobileNativeChatAutoApprovalNotice({
                 output: block.providerFrame.payload.head,
                 isError: block.tone === 'error'
               }}
+              inlinePayload={block.providerFrame.payload}
               type={type.code}
               rootIdentity={`auto-approval:${messageId ?? block.providerFrame.payload.digest}`}
               positionKey={`auto-approval:${messageId ?? block.providerFrame.payload.digest}:payload`}
