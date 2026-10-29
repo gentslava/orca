@@ -98,7 +98,7 @@ describe('importCookiesIntoClientRoutePartition', () => {
   it('fails closed on a conflicting persisted binding', async () => {
     bindingStore.get.mockReturnValue('b'.repeat(64))
 
-    expect(await importCookiesIntoClientRoutePartition(request)).toEqual({
+    expect(await importCookiesIntoClientRoutePartition(request)).toMatchObject({
       ok: false,
       reason: 'browser_route_partition_binding_conflict'
     })
@@ -108,7 +108,7 @@ describe('importCookiesIntoClientRoutePartition', () => {
   it('rejects a traversing browser profile name before touching the filesystem', async () => {
     expect(
       await importCookiesIntoClientRoutePartition({ ...request, browserProfile: '../../etc' })
-    ).toEqual({ ok: false, reason: 'Invalid browser profile name.' })
+    ).toMatchObject({ ok: false, reason: 'Invalid browser profile name.' })
     expect(detectInstalledBrowsersMock).not.toHaveBeenCalled()
   })
 
@@ -128,7 +128,7 @@ describe('importCookiesIntoClientRoutePartition', () => {
 
     const result = await importCookiesIntoClientRoutePartition(request)
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       ok: false,
       reason: 'This server was re-paired during the import. Try again.'
     })
@@ -141,7 +141,7 @@ describe('importCookiesIntoClientRoutePartition', () => {
 
     const result = await importCookiesIntoClientRoutePartition(request)
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       ok: false,
       reason: 'The connection to this server ended during the import. Reconnect and try again.'
     })
@@ -163,7 +163,7 @@ describe('importCookiesIntoClientRoutePartition', () => {
   it('rejects an unknown browser session profile', async () => {
     getProfileMock.mockReturnValue(null)
 
-    expect(await importCookiesIntoClientRoutePartition(request)).toEqual({
+    expect(await importCookiesIntoClientRoutePartition(request)).toMatchObject({
       ok: false,
       reason: 'Session profile not found.'
     })

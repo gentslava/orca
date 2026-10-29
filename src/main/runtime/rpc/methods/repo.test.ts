@@ -1,9 +1,9 @@
 import '../unused-default-rpc-methods.test-fixture'
 import { describe, expect, it, vi } from 'vitest'
 import { RpcDispatcher } from '../dispatcher'
-import type { RpcRequest } from '../core'
 import type { OrcaRuntimeService } from '../../orca-runtime'
 import { REPO_METHODS } from './repo'
+import { makeRequest, repoDispatcher } from './repo-rpc.test-fixture'
 import {
   NATIVE_REMOTE_RUNTIME_CLIENT_CAPABILITIES,
   REPO_SEARCH_QUALIFIED_REFS_RUNTIME_CAPABILITY,
@@ -13,20 +13,6 @@ import {
 import { remoteRuntimeClientCapabilities } from '../../../../shared/remote-runtime/remote-runtime-client-capabilities'
 import { REPO_SEARCH_REFS_MAX_LIMIT } from '../../../../shared/repo-search-limits'
 import { SSH_TARGET_MANAGEMENT_RUNTIME_CAPABILITY } from '../../../../shared/ssh-target-management'
-
-function makeRequest(method: string, params?: unknown): RpcRequest {
-  return { id: 'req-1', authToken: 'tok', method, params }
-}
-
-function repoDispatcher(
-  runtime: Pick<OrcaRuntimeService, 'getRuntimeId'> & Partial<OrcaRuntimeService>
-) {
-  return new RpcDispatcher({
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: These RPC cases supply every runtime method their handlers and envelope access.
-    runtime: runtime as OrcaRuntimeService,
-    methods: REPO_METHODS
-  })
-}
 
 describe('repo RPC methods', () => {
   it('advertises qualified-ref support from hosts and native remote clients', () => {
@@ -411,6 +397,13 @@ describe('repo RPC methods', () => {
     await dispatcher.dispatch(makeRequest('repo.hooksCheck', { repo: 'repo-1' }))
     await dispatcher.dispatch(makeRequest('repo.setupScriptImports', { repo: 'repo-1' }))
     await dispatcher.dispatch(makeRequest('repo.issueCommandRead', { repo: 'repo-1' }))
+    // A launch's wake reaches the read; a non-boolean value is dropped, as older clients send none.
+    await dispatcher.dispatch(
+      makeRequest('repo.issueCommandRead', { repo: 'repo-1', wakeWslDistro: true })
+    )
+    await dispatcher.dispatch(
+      makeRequest('repo.issueCommandRead', { repo: 'repo-1', wakeWslDistro: 'yes' })
+    )
     await dispatcher.dispatch(
       makeRequest('repo.issueCommandWrite', {
         repo: 'repo-1',
@@ -425,8 +418,14 @@ describe('repo RPC methods', () => {
     })
     expect(runtime.checkRepoHooks).toHaveBeenCalledWith('repo-1')
     expect(runtime.inspectRepoSetupScriptImports).toHaveBeenCalledWith('repo-1')
-    expect(runtime.readRepoIssueCommand).toHaveBeenCalledWith('repo-1')
-    expect(runtime.writeRepoIssueCommand).toHaveBeenCalledWith('repo-1', 'Fix it')
+    expect(vi.mocked(runtime.readRepoIssueCommand).mock.calls).toEqual([
+      ['repo-1', { wakeWslDistro: undefined }],
+      ['repo-1', { wakeWslDistro: true }],
+      ['repo-1', { wakeWslDistro: undefined }]
+    ])
+    expect(runtime.writeRepoIssueCommand).toHaveBeenCalledWith('repo-1', 'Fix it', {
+      wakeWslDistro: undefined
+    })
   })
 
   it('persists GitHub issue source preference updates', async () => {

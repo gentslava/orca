@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import { OptionalFiniteNumber, OptionalString, requiredString } from './rpc-param-primitives'
+import {
+  OptionalBoolean,
+  OptionalFiniteNumber,
+  OptionalString,
+  requiredString
+} from './rpc-param-primitives'
 import { createRepoUpdateSchema } from './repo-update-params'
 import { RepoSelector } from './github-repo-target-params'
 
@@ -90,8 +95,10 @@ export const ProjectGroupImportNested = z.discriminatedUnion('mode', [
   })
 ])
 
+/** `wakeWslDistro`: the user saving their own edit, which may start a stopped WSL distro; older hosts drop it. */
 export const RepoIssueCommandWrite = RepoSelector.extend({
-  content: z.string()
+  content: z.string(),
+  wakeWslDistro: OptionalBoolean
 })
 
 export const RepoSparsePresetSave = RepoSelector.extend({

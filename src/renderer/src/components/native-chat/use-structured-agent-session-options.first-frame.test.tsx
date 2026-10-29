@@ -314,7 +314,7 @@ describe('a new chat picker’s first frame', () => {
     unmount()
   })
 
-  it('never paints a saved pick the host list does not name', async () => {
+  it('keeps a saved pick visible when the host list omits it', async () => {
     catalogAnswers(() => Promise.resolve(CODEX_LIST))
     await preloadHostModelCatalogSnapshots(LOCAL_TARGET, ['codex'])
     const { frames, unmount } = renderNewChat({
@@ -322,7 +322,12 @@ describe('a new chat picker’s first frame', () => {
       seedOptions: { model: 'gpt-retired' }
     })
     await waitFor(() => expect(mocks.call).toHaveBeenCalledTimes(2))
-    expect(frames.every((frame) => frame.model === null && !frame.usable)).toBe(true)
+    expect(frames.length).toBeGreaterThan(0)
+    expect(
+      frames.every(
+        (frame) => frame.model === 'gpt-retired' && frame.label === 'gpt-retired' && frame.usable
+      )
+    ).toBe(true)
     unmount()
   })
 

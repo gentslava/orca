@@ -5,6 +5,7 @@ import { PLUGIN_CONTENT_HASH_PATTERN } from '../../shared/plugins/installation/p
 import {
   PLUGIN_MANIFEST_FILENAME,
   isQualifiedPluginKey,
+  parseHostPluginManifest,
   parsePluginManifest,
   qualifiedPluginKey,
   satisfiesOrcaEngineRange,
@@ -92,7 +93,8 @@ async function readManifestDir(
       isDev
     }
   }
-  const parsed = parsePluginManifest(raw)
+  // Why strict for dev trees: they are the author's working copy, so authoring errors belong there.
+  const parsed = isDev ? parsePluginManifest(raw) : parseHostPluginManifest(raw)
   if (!parsed.ok) {
     const incompatible = pluginManifestCompatibilityError(raw, hostVersion)
     return { rootDir, error: incompatible ?? `invalid manifest: ${parsed.error}`, isDev }

@@ -1,3 +1,4 @@
+import type { AiVaultScanIssueText } from './ai-vault-scan-issue-copy'
 import type { TuiAgent } from './tui-agent'
 import type { ExecutionHostId, ExecutionHostScope } from './execution-host'
 
@@ -217,7 +218,7 @@ export type AiVaultScanIssue = {
   kind?: 'host' | 'scope' | 'notice'
   path: string
   message: string
-}
+} & Omit<AiVaultScanIssueText, 'message'>
 
 export type AiVaultListArgs = {
   selectedSessionId?: string

@@ -248,7 +248,18 @@ describe('runWslDriveUncConversionsAtStartup', () => {
       },
       { record_json: '{not json' }
     ])
-    expect(listWslDriveUncConversions(root)).toEqual([])
+    // The window's stores record themselves once it opens.
+    expect(listWslDriveUncConversions(root)).toEqual([
+      expect.objectContaining({
+        phase: 'profile-rewritten',
+        rewrittenStores: [
+          'terminal-history',
+          'shell-history',
+          'orchestration-history',
+          'chat-journal'
+        ]
+      })
+    ])
   })
 
   it('rolls back, changing nothing, when the profile cannot be re-keyed', () => {
@@ -284,7 +295,18 @@ describe('runWslDriveUncConversionsAtStartup', () => {
     expect(readFileSync(join(moved, '.bash_history'), 'utf8')).toBe('make test\n')
     // The chats re-key after the history store, so a torn meta.json no longer leaves them behind.
     expect(chatRows()[0]).toEqual({ workspace_id: NEW_ID })
-    expect(listWslDriveUncConversions(root)).toEqual([])
+    // Every main-process store finished; the journal waits only for the window's stores.
+    expect(listWslDriveUncConversions(root)).toEqual([
+      expect.objectContaining({
+        phase: 'profile-rewritten',
+        rewrittenStores: [
+          'terminal-history',
+          'shell-history',
+          'orchestration-history',
+          'chat-journal'
+        ]
+      })
+    ])
   })
 
   it('keeps the profile converted and resumes a failed store at the next startup', () => {
@@ -370,25 +392,29 @@ describe('runPendingWslDriveUncConversions', () => {
     Object.defineProperty(process, 'platform', { configurable: true, value: originalPlatform })
   })
 
+  // Any platform finishes a journaled conversion once the gate is open; only the gate stops it.
   it.each([
-    ['with the WSL hosts gate closed', 'win32', ''],
-    ['off Windows', 'linux', '1']
-  ])('leaves a journaled conversion untouched %s', (_case, platform, gate) => {
-    vi.stubEnv(WSL_HOSTS_INTERNAL_GATE_ENV, gate)
-    Object.defineProperty(process, 'platform', { configurable: true, value: platform })
-    seedProfile(profileState())
-    journal()
+    ['on Windows', 'win32', ''],
+    ['off Windows', 'linux', '']
+  ])(
+    'leaves a journaled conversion untouched with the gate closed, %s',
+    (_case, platform, gate) => {
+      vi.stubEnv(WSL_HOSTS_INTERNAL_GATE_ENV, gate)
+      Object.defineProperty(process, 'platform', { configurable: true, value: platform })
+      seedProfile(profileState())
+      journal()
 
-    runPendingWslDriveUncConversions({
-      userDataPath: root,
-      profileUserDataPath: root,
-      profileId: PROFILE
-    })
+      runPendingWslDriveUncConversions({
+        userDataPath: root,
+        profileUserDataPath: root,
+        profileId: PROFILE
+      })
 
-    expect(lastWslDriveUncConversionOutcomes()).toEqual([])
-    expect(listWslDriveUncConversions(root)).toEqual([
-      expect.objectContaining({ phase: 'prepared' })
-    ])
-    expect(readProfile().repos[0].path).toBe(UNC)
-  })
+      expect(lastWslDriveUncConversionOutcomes()).toEqual([])
+      expect(listWslDriveUncConversions(root)).toEqual([
+        expect.objectContaining({ phase: 'prepared' })
+      ])
+      expect(readProfile().repos[0].path).toBe(UNC)
+    }
+  )
 })

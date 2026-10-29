@@ -29,12 +29,7 @@ const bridges = vi.hoisted(() => ({
   wsl: vi.fn(async () => {})
 }))
 
-// Every lane that links Codex sessions between homes, for one launch each.
-async function launchWith(
-  share: boolean | undefined,
-  lane: 'real-home' | 'per-account' | 'shared-mirror',
-  codexSessionSourceHome?: { host: string }
-): Promise<void> {
+function mockBridges(): void {
   vi.doMock('../codex/codex-account-session-bridge', async (importOriginal) => ({
     ...(await importOriginal<object>()),
     startCodexAccountSessionBridgeInBackground: bridges.account
@@ -43,6 +38,15 @@ async function launchWith(
     ...(await importOriginal<object>()),
     startSystemCodexSessionBridgeInBackground: bridges.system
   }))
+}
+
+// Every lane that links Codex sessions between homes, for one launch each.
+async function launchWith(
+  share: boolean | undefined,
+  lane: 'real-home' | 'per-account' | 'shared-mirror',
+  codexSessionSourceHome?: { host: string }
+): Promise<void> {
+  mockBridges()
   const managedHomePath = createManagedAuth(
     testState.userDataDir,
     'account-1',
@@ -214,4 +218,83 @@ describe('the Codex history-sharing opt-out (#24511)', () => {
       vi.unstubAllEnvs()
     }
   )
+
+  it('a launch while the source is \\\\wsl makes the next plain-source pass a full scan', async () => {
+    vi.stubEnv('HOME', testState.fakeHomeDir)
+    const plain = { host: join(testState.fakeHomeDir, 'custom-codex') }
+    const store = createStore(
+      createSettings({ realHomeRoutable: true, codexSessionSourceHome: plain })
+    )
+    const { CodexRuntimeHomeService } = await import('./runtime-home-service')
+    const { resolveCodexSessionBackfillPaths } = await import('../codex/codex-session-backfill')
+    const { writeCodexSessionBackfillMarker, captureCodexSessionBackfillMarkerGeneration } =
+      await import('../codex/codex-session-backfill-marker')
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the harness store implements the getSettings/updateSettings surface this service reads.
+    const service = new CodexRuntimeHomeService(store as never)
+    const paths = resolveCodexSessionBackfillPaths(plain.host)
+    writeCodexSessionBackfillMarker(
+      paths.markerPath,
+      paths.systemSessionsRoot,
+      {
+        stopped: false,
+        scannedFiles: 3,
+        linkedFiles: 3,
+        copiedFiles: 0,
+        skippedExistingFiles: 0,
+        skippedUnexpectedFiles: 0,
+        skippedSymlinkFiles: 0,
+        skippedUnsupportedFilesystemFiles: 0,
+        failedDirectories: 0,
+        failedFiles: 0,
+        failedHealAuditRecords: 0
+      },
+      captureCodexSessionBackfillMarkerGeneration(),
+      { coverage: 'full', coveredScanDates: [] }
+    )
+    // Certified plain-source history only owes a bounded pass.
+    expect(service.prepareHostSystemDefaultSessionMigrationPass()).toBe(false)
+    service.finishHostSystemDefaultSessionMigrationPass()
+
+    store.updateSettings({ codexSessionSourceHome: WSL_SOURCE })
+    expect(service.beginHostSystemDefaultSessionMigrationLaunch(null, { reattached: true })).toBe(
+      null
+    )
+    store.updateSettings({ codexSessionSourceHome: plain })
+
+    expect(service.prepareHostSystemDefaultSessionMigrationPass()).toBe(true)
+    vi.unstubAllEnvs()
+  })
+
+  it('a \\\\wsl CODEX_HOME never becomes the shared-mirror source', async () => {
+    const store = createStore(createSettings({ codexManagedAccounts: [] }))
+    // After createSettings, which sets the harness CODEX_HOME.
+    vi.stubEnv('CODEX_HOME', WSL_SOURCE.host)
+    mockBridges()
+    try {
+      const { CodexRuntimeHomeService } = await import('./runtime-home-service')
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the harness store implements the getSettings/updateSettings surface this service reads.
+      new CodexRuntimeHomeService(store as never).prepareForCodexLaunch()
+      expect(bridges.system).toHaveBeenCalledWith({}, undefined)
+      expect(bridges.system.mock.calls.flat()).not.toContain(WSL_SOURCE.host)
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
+  it('a system home that is itself a \\\\wsl path blocks migration and backfill', async () => {
+    vi.stubEnv('HOME', testState.fakeHomeDir)
+    const store = createStore(createSettings({ realHomeRoutable: true }))
+    const { CodexRuntimeHomeService } = await import('./runtime-home-service')
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the harness store implements the getSettings/updateSettings surface this service reads.
+    const service = new CodexRuntimeHomeService(store as never)
+    expect(service.isHostSystemDefaultSessionMigrationEligible()).toBe(true)
+    const realHome = testState.fakeHomeDir
+    testState.fakeHomeDir = '\\\\wsl.localhost\\Ubuntu\\home\\me'
+    try {
+      expect(service.isHostSystemDefaultSessionMigrationEligible()).toBe(false)
+    } finally {
+      testState.fakeHomeDir = realHome
+      vi.unstubAllEnvs()
+    }
+  })
 })

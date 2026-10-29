@@ -69,16 +69,15 @@ describe('main-i18n lazy locale loading', () => {
     expect(await setMainUiLanguage(UI_LANGUAGE_RUSSIAN)).toBe('ru')
     expect(translateMain('menu.file', 'File')).toBe('Файл')
     expect(translateMain('menu.settings', 'Settings')).toBe('Настройки')
-    // Production callers pass the literal `_other` key; Russian must still pick few/many.
     for (const [count, expected] of [
       [3, '3 активных терминала переподключатся после перезапуска.'],
       [5, '5 активных терминалов переподключатся после перезапуска.']
     ] as const) {
       expect(
         translateMain(
-          'localBuild.liveTerminals_other',
+          'localBuild.liveTerminals',
           '{{count}} live terminals will reconnect after restart.',
-          { count }
+          { count, defaultValue_one: '{{count}} live terminal will reconnect after restart.' }
         )
       ).toBe(expected)
     }
@@ -174,7 +173,7 @@ describe('main-i18n lazy locale loading', () => {
     ])
     await setMainUiLanguage(id)
     expect(
-      [1, 3, 5, 21].map((count) => translateMain('terminals_other', '{{count}} terms', { count }))
+      [1, 3, 5, 21].map((count) => translateMain('terminals', '{{count}} terms', { count }))
     ).toEqual(['1 one', '3 few', '5 other', '21 one'])
     // A key the pack omits falls back to English chosen by English rules, not Russian's (21 is ru "one").
     expect(

@@ -1,6 +1,6 @@
 import { selectedSqliteSessionId } from './session-scanner-selection'
 import { aiVaultScopePathsForWslDistro } from '../../shared/ai-vault-scope-cwd-match'
-import { recordSessionScanIssue } from './session-scan-issues'
+import { recordSessionScanIssue, scanIssueTextFromError } from './session-scan-issues'
 import type { AiVaultScanIssue, AiVaultSession } from '../../shared/ai-vault-types'
 import { throwIfSignalAborted } from '../../shared/abort-signal-reason'
 import { openCodeTranscriptPageLimit } from '../../shared/opencode-transcript-page-limit'
@@ -204,7 +204,7 @@ async function listCandidatesForHost(
           agent: args.agent ?? 'opencode',
           kind: 'scope',
           path: first,
-          message: error instanceof Error ? error.message : String(error)
+          ...scanIssueTextFromError(error)
         })
         return []
       } finally {

@@ -1,4 +1,4 @@
-import { translate } from '@/i18n/i18n'
+import { getIntlLocale, translate } from '@/i18n/i18n'
 import type { AutomationRunUsage } from '../../../../shared/automations-types'
 
 // Keep retained-run summaries shared across owning authorities; only display formatting belongs to the renderer.
@@ -15,7 +15,7 @@ export function formatAutomationTokens(value: number | null | undefined): string
   if (value >= 1_000) {
     return `${(value / 1_000).toFixed(value >= 10_000 ? 0 : 1)}k`
   }
-  return value.toLocaleString()
+  return value.toLocaleString(getIntlLocale())
 }
 
 export function formatAutomationCost(value: number | null | undefined): string {
