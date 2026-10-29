@@ -111,7 +111,10 @@ function prepare(raw: WindowsSecurityAddon): WindowsSecurity {
         raw.grantAccess(toNamespacedPath(path), sid, mask, options),
       grantAccessAsync: (path, sid, mask, options) =>
         inPathOrder(path, (namespaced) => raw.grantAccessAsync(namespaced, sid, mask, options)),
-      clearStdHandleInheritance: () => raw.clearStdHandleInheritance()
+      clearStdHandleInheritance: () => raw.clearStdHandleInheritance(),
+      spawnDetachedIsolated: (file, commandLine, cwd, environmentBlock, onExit) =>
+        raw.spawnDetachedIsolated(file, commandLine, cwd, environmentBlock, onExit),
+      hasNativeExport: (name) => raw.hasNativeExport(name)
     }
   }
 }

@@ -564,8 +564,10 @@
       "clearHosts": "Borrar hosts",
       "clearProjects": "Borrar proyectos",
       "back": "Atrás",
-      "ariaActive": "Filtro: {{value0}} activos.",
-      "scopedTo": "Ámbito:"
+      "scopedTo": "Ámbito:",
+      "ariaActiveCount_one": "Filtro: {{count}} activo.",
+      "ariaActiveCount_other": "Filtro: {{count}} activos.",
+      "ariaActiveCount_many": "Filtro: {{count}} activos."
     },
     "linearIssue": {
       "createLabel": "Crear árbol de trabajo a partir de un problema Linear __{{value0}} __: {{value1}}",
@@ -3186,7 +3188,6 @@
         "cleanup": {
           "WorkspaceCleanupDialog": {
             "3828408538": "Quitar {{value0}}",
-            "352f15d6fc": "Último activo",
             "b6bae1eed1": "Cancelar",
             "38ca0b1400": "Esto elimina permanentemente sus archivos locales. No puedes deshacer esto.",
             "e97e4580c7": "Con cambios",
@@ -3925,7 +3926,9 @@
             "f395c9a685": "No se pudo importar el archivo",
             "e6234bcc17": "Subir una mascota personalizada requiere reiniciar la app por completo (no solo recargarla).",
             "6d0a8cd179": "Mostrar mascota",
-            "1fbc51cc77": "Ocultar mascota"
+            "1fbc51cc77": "Ocultar mascota",
+            "petFallbackLabel": "Mascota",
+            "petHiddenLabel": "{{pet}} no visible"
           },
           "PortsStatusSegment": {
             "4ebf90c12e": "No se detectaron puertos externos",
@@ -5558,7 +5561,8 @@
           "c49fb13492": "No se pudo agregar la carpeta en este host",
           "9a766f33ac": "Esta ruta se verificó en el host SSH.",
           "79fd02cf5f": "Esta ruta se verificó en {{hostName}}.",
-          "8851b77327": "Esta ruta se verificó localmente."
+          "8851b77327": "Esta ruta se verificó localmente.",
+          "sshConnectionUnavailable": "No se encontró la conexión SSH «{{connection}}» o no está conectada"
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "Ejecutar hooks",
@@ -5646,8 +5650,9 @@
           "removeDescriptionSsh": "Esto solo elimina {{name}} de Orca. Sus archivos permanecen en {{host}}; vuelve a añadir ese host SSH para recuperarlo.",
           "removeDescriptionLocal": "Esto solo elimina {{name}} de Orca. Sigue estando en tu disco.",
           "removeDescriptionVmRecipe": "Esto elimina {{name}} de Orca. Su receta de VM determina si el entorno y sus archivos se eliminan permanentemente.",
-          "openTerminalWarningOne": "Se cerrará 1 terminal abierto en este proyecto.",
-          "openTerminalWarningMany": "Se cerrarán {{count}} terminales abiertos en este proyecto."
+          "openTerminalWarning_one": "Se cerrará {{count}} terminal abierto en este proyecto.",
+          "openTerminalWarning_other": "Se cerrarán {{count}} terminales abiertos en este proyecto.",
+          "openTerminalWarning_many": "Se cerrarán {{count}} terminales abiertos en este proyecto."
         },
         "ScrollToCurrentWorkspaceToolbarButton": {
           "23989bb663": "Mostrar espacio de trabajo activo"
@@ -5758,7 +5763,9 @@
           "4815c70605": "Ningún proyecto coincide",
           "bbbc6e8e3b": "Ningún proyecto no seleccionado coincide",
           "allProjects": "Todos los proyectos",
-          "selectedProjectsCount": "{{value0}} proyectos"
+          "selectedProjects_one": "{{count}} proyecto",
+          "selectedProjects_other": "{{count}} proyectos",
+          "selectedProjects_many": "{{count}} proyectos"
         },
         "SidebarSettingsHelpMenu": {
           "ad3d3ed7f1": "Reiniciar Orca",
@@ -5806,8 +5813,6 @@
           "7bada3b1ab": "Ordenar por",
           "dc0bb670bc": "Agrupar por",
           "9919ae1082": "Opciones de espacio de trabajo",
-          "bc96dbd041": "Opciones de espacio de trabajo ({{value0}})",
-          "optionsActiveLabel": "Opciones de espacio de trabajo ({{value0}} activos)",
           "af9249c505": "Actividad más reciente en el espacio de trabajo",
           "b451c8b162": "Reciente",
           "6664282a7b": "Arrastra proyectos para organizarlos",
@@ -5848,7 +5853,13 @@
           "219ebf1961": "Nombre de rama",
           "folderPathIdentity": "Rama / ruta de carpeta",
           "cli": "Orca CLI",
-          "workspaceOptions": "Opciones de espacio de trabajo"
+          "workspaceOptions": "Opciones de espacio de trabajo",
+          "optionsActiveFilters_one": "Opciones de espacio de trabajo ({{count}} filtro activo)",
+          "optionsActiveFilters_other": "Opciones de espacio de trabajo ({{count}} filtros activos)",
+          "optionsActiveFilters_many": "Opciones de espacio de trabajo ({{count}} filtros activos)",
+          "optionsFilterCount_one": "Opciones de espacio de trabajo ({{count}} filtro)",
+          "optionsFilterCount_other": "Opciones de espacio de trabajo ({{count}} filtros)",
+          "optionsFilterCount_many": "Opciones de espacio de trabajo ({{count}} filtros)"
         },
         "SshTargetRow": {
           "4677394048": "Conectando…",
@@ -5919,7 +5930,8 @@
         },
         "WorktreeCardAgents": {
           "1b0a156717": "Agents",
-          "agentUnavailable": "El agente no está disponible"
+          "agentUnavailable": "El agente no está disponible",
+          "sendingTarget": "Enviando..."
         },
         "WorktreeCardMeta": {
           "3e65e11cc6": "Metadatos del espacio de trabajo",
@@ -16969,8 +16981,6 @@
           "failed24h": "Fallidas · 24 h",
           "successful7d": "Exitosas · 7 días",
           "failed7d": "Fallidas · 7 días",
-          "historyUnavailableOne": "El historial de ejecuciones no está disponible para 1 automatización. Los recuentos solo incluyen el historial disponible.",
-          "historyUnavailableMany": "El historial de ejecuciones no está disponible para {{count}} automatizaciones. Los recuentos solo incluyen el historial disponible.",
           "automation": "Automatización",
           "triggered": "Activada",
           "trigger": "Activar",
@@ -16979,7 +16989,10 @@
           "emptyDescription": "Las ejecuciones aparecerán aquí después de activar una automatización.",
           "runs": "Ejecuciones",
           "local": "Local",
-          "remote": "Remoto"
+          "remote": "Remoto",
+          "historyUnavailable_one": "El historial de ejecuciones no está disponible para {{count}} automatización. Los recuentos solo incluyen el historial disponible.",
+          "historyUnavailable_other": "El historial de ejecuciones no está disponible para {{count}} automatizaciones. Los recuentos solo incluyen el historial disponible.",
+          "historyUnavailable_many": "El historial de ejecuciones no está disponible para {{count}} automatizaciones. Los recuentos solo incluyen el historial disponible."
         },
         "AutomationsPageBreadcrumb": {
           "ariaLabel": "Ruta de navegación de automatizaciones",
@@ -17423,9 +17436,6 @@
           "sortedAscending": "{{value0}}, orden ascendente",
           "sortedDescending": "{{value0}}, orden descendente"
         },
-        "hostSummary": {
-          "partialFailure": "No se pudieron cargar {{failed}} de {{total}} hosts"
-        },
         "capturedOwner": {
           "orphan": "Esta automatización no tiene host donde ejecutarse. Elimínala o vuelve a añadir el host al que pertenece.",
           "unfenced": "Orca en este host necesita una actualización antes de que puedas ver el historial de ejecuciones o gestionar esta automatización. Las ejecuciones programadas aún pueden continuar en el host."
@@ -17508,7 +17518,8 @@
         "usage": {
           "tokensAndCost_one": "{{tokens}} token · {{cost}}",
           "tokensAndCost_other": "{{tokens}} tokens · {{cost}}",
-          "tokensAndCost_many": "{{tokens}} tokens · {{cost}}"
+          "tokensAndCost_many": "{{tokens}} tokens · {{cost}}",
+          "costUnavailable": "n/d"
         },
         "externalDisplay": {
           "sshHost": "Host SSH",
@@ -17520,6 +17531,11 @@
           "connectSshHost": "Conecta este host SSH antes de gestionar automatizaciones de {{provider}}.",
           "cannotManageOnSshHost": "{{provider}} no puede gestionar automatizaciones en este host SSH.",
           "cannotManageLocally": "{{provider}} no puede gestionar automatizaciones en este equipo."
+        },
+        "hostSummary": {
+          "partialFailureOfHosts_one": "Carga fallida en {{failed}} de {{count}} host",
+          "partialFailureOfHosts_other": "Carga fallida en {{failed}} de {{count}} hosts",
+          "partialFailureOfHosts_many": "Carga fallida en {{failed}} de {{count}} hosts"
         }
       },
       "agent": {
@@ -17585,8 +17601,12 @@
           },
           "filtersSection": "Filtros",
           "viewSection": "Vista",
-          "threadListOptionsActive": "Opciones de lista de hilos ({{value0}} activos)",
-          "activityOptionsActive": "Opciones de actividad ({{value0}})"
+          "threadListOptionsActiveFilters_one": "Opciones de lista de hilos ({{count}} filtro activo)",
+          "threadListOptionsActiveFilters_other": "Opciones de lista de hilos ({{count}} filtros activos)",
+          "threadListOptionsActiveFilters_many": "Opciones de lista de hilos ({{count}} filtros activos)",
+          "activityOptionsFilterCount_one": "Opciones de actividad ({{count}} filtro)",
+          "activityOptionsFilterCount_other": "Opciones de actividad ({{count}} filtros)",
+          "activityOptionsFilterCount_many": "Opciones de actividad ({{count}} filtros)"
         },
         "ActivityScopeFilterControls": {
           "resetScope": "Mostrar todos los hosts y proyectos",
@@ -19400,7 +19420,8 @@
         "reconnect": "Reconectar",
         "stopped": "{{distro}} está detenido",
         "start": "Iniciar",
-        "unverifiable": "Orca no pudo comprobar si {{distro}} se está ejecutando"
+        "unverifiable": "Orca no pudo comprobar si {{distro}} se está ejecutando",
+        "startToSend": "Inicie {{distro}} para enviar."
       },
       "interruptedContinue": {
         "continue": "Continuar",
@@ -19818,7 +19839,8 @@
           "selectionWithheldCount_many": "{{count}} espacios de trabajo seleccionados están ocultos por los filtros actuales y se han deseleccionado.",
           "selectAllSafetyChecked_one": "Seleccionar {{count}} espacio de trabajo con seguridad comprobada",
           "selectAllSafetyChecked_other": "Seleccionar todos los {{count}} espacios de trabajo con seguridad comprobada",
-          "selectAllSafetyChecked_many": "Seleccionar todos los {{count}} espacios de trabajo con seguridad comprobada"
+          "selectAllSafetyChecked_many": "Seleccionar todos los {{count}} espacios de trabajo con seguridad comprobada",
+          "lastActive": "Última actividad: {{value0}}"
         },
         "scan": {
           "noWorkspaces": "No se encontraron espacios de trabajo.",
@@ -20899,6 +20921,96 @@
         "peerCheckFailed": "Orca no pudo consultar al host WSL si otro Orca en este equipo aún lo usa: {{detail}}",
         "removalUnrecorded": "Orca no pudo registrar qué quedó en ejecución tras esta eliminación: {{detail}}"
       }
+    },
+    "agentSummary": {
+      "state": {
+        "waiting": "en espera",
+        "blocked": "bloqueado",
+        "interrupted": "interrumpido",
+        "failed": "fallido",
+        "working": "trabajando",
+        "monitoring": "supervisando",
+        "done": "completado",
+        "idle": "inactivo",
+        "notReporting": "sin datos de estado",
+        "unconfirmed": "sin confirmar",
+        "needsAttention": "requiere atención"
+      },
+      "mixedStates": "{{subject}}: {{states}}",
+      "agentIdentityState": "{{agent}}: {{status}}",
+      "agentCount_one": "{{count}} agente",
+      "agentCount_other": "{{count}} agentes",
+      "agentCount_many": "{{count}} agentes",
+      "stateCount": {
+        "waiting_one": "{{count}} en espera",
+        "waiting_other": "{{count}} en espera",
+        "waiting_many": "{{count}} en espera",
+        "blocked_one": "{{count}} bloqueado",
+        "blocked_other": "{{count}} bloqueados",
+        "blocked_many": "{{count}} bloqueados",
+        "interrupted_one": "{{count}} interrumpido",
+        "interrupted_other": "{{count}} interrumpidos",
+        "interrupted_many": "{{count}} interrumpidos",
+        "failed_one": "{{count}} fallido",
+        "failed_other": "{{count}} fallidos",
+        "failed_many": "{{count}} fallidos",
+        "working_one": "{{count}} trabajando",
+        "working_other": "{{count}} trabajando",
+        "working_many": "{{count}} trabajando",
+        "monitoring_one": "{{count}} supervisando",
+        "monitoring_other": "{{count}} supervisando",
+        "monitoring_many": "{{count}} supervisando",
+        "done_one": "{{count}} completado",
+        "done_other": "{{count}} completados",
+        "done_many": "{{count}} completados",
+        "idle_one": "{{count}} inactivo",
+        "idle_other": "{{count}} inactivos",
+        "idle_many": "{{count}} inactivos",
+        "notReporting_one": "{{count}} sin datos de estado",
+        "notReporting_other": "{{count}} sin datos de estado",
+        "notReporting_many": "{{count}} sin datos de estado",
+        "unconfirmed_one": "{{count}} sin confirmar",
+        "unconfirmed_other": "{{count}} sin confirmar",
+        "unconfirmed_many": "{{count}} sin confirmar",
+        "needsAttention_one": "{{count}} requiere atención",
+        "needsAttention_other": "{{count}} requieren atención",
+        "needsAttention_many": "{{count}} requieren atención"
+      },
+      "allInState": {
+        "waiting_one": "{{count}} agente en espera",
+        "waiting_other": "Todos los {{count}} agentes en espera",
+        "waiting_many": "Todos los {{count}} agentes en espera",
+        "blocked_one": "{{count}} agente bloqueado",
+        "blocked_other": "Todos los {{count}} agentes bloqueados",
+        "blocked_many": "Todos los {{count}} agentes bloqueados",
+        "interrupted_one": "{{count}} agente interrumpido",
+        "interrupted_other": "Todos los {{count}} agentes interrumpidos",
+        "interrupted_many": "Todos los {{count}} agentes interrumpidos",
+        "failed_one": "{{count}} agente fallido",
+        "failed_other": "Todos los {{count}} agentes fallidos",
+        "failed_many": "Todos los {{count}} agentes fallidos",
+        "working_one": "{{count}} agente trabajando",
+        "working_other": "Todos los {{count}} agentes trabajando",
+        "working_many": "Todos los {{count}} agentes trabajando",
+        "monitoring_one": "{{count}} agente supervisando",
+        "monitoring_other": "Todos los {{count}} agentes supervisando",
+        "monitoring_many": "Todos los {{count}} agentes supervisando",
+        "done_one": "{{count}} agente ha terminado",
+        "done_other": "Todos los {{count}} agentes han terminado",
+        "done_many": "Todos los {{count}} agentes han terminado",
+        "idle_one": "{{count}} agente inactivo",
+        "idle_other": "Todos los {{count}} agentes inactivos",
+        "idle_many": "Todos los {{count}} agentes inactivos",
+        "notReporting_one": "{{count}} agente sin datos de estado",
+        "notReporting_other": "Todos los {{count}} agentes sin datos de estado",
+        "notReporting_many": "Todos los {{count}} agentes sin datos de estado",
+        "unconfirmed_one": "{{count}} agente sin confirmar",
+        "unconfirmed_other": "Todos los {{count}} agentes sin confirmar",
+        "unconfirmed_many": "Todos los {{count}} agentes sin confirmar",
+        "needsAttention_one": "{{count}} agente requiere atención",
+        "needsAttention_other": "Todos los {{count}} agentes requieren atención",
+        "needsAttention_many": "Todos los {{count}} agentes requieren atención"
+      }
     }
   },
   "rendererRecovery": {
@@ -21324,7 +21436,93 @@
         "kimiContinueSessionConflict": "Kimi recibió opciones incompatibles: --continue, --session. Corrige la acción de generación de texto o los argumentos de la CLI antes de volver a intentarlo."
       },
       "enableSourceControlAi": "Activa Source Control AI en Ajustes -> Git.",
-      "chooseBaseBranch": "Elige una rama base antes de generar."
+      "chooseBaseBranch": "Elige una rama base antes de generar.",
+      "savedCommitRecipeRepo": "Receta de mensajes de commit guardada para este repositorio.",
+      "savedCommitRecipeGlobal": "Receta de mensajes de commit guardada como valor predeterminado global.",
+      "savedReviewRecipeRepo": "Receta de revisión alojada guardada para este repositorio.",
+      "savedReviewRecipeGlobal": "Receta de revisión alojada guardada como valor predeterminado global.",
+      "savedBranchRecipeRepo": "Receta de nombres de rama guardada para este repositorio.",
+      "savedBranchRecipeGlobal": "Receta de nombres de rama guardada como valor predeterminado global."
+    },
+    "remoteError": {
+      "submodule": {
+        "namedRemoteChanged": "El submódulo '{{name}}' tiene cambios en el remoto. Haz pull dentro del submódulo y vuelve a intentarlo.",
+        "remoteChanged": "Un submódulo tiene cambios en el remoto. Haz pull dentro del submódulo y vuelve a intentarlo.",
+        "namedPushFailed": "No se pudo hacer push del submódulo '{{name}}'. Resuelve el error de push del submódulo y vuelve a intentarlo.",
+        "pushFailed": "No se pudo hacer push de un submódulo. Resuelve el error de push del submódulo y vuelve a intentarlo."
+      },
+      "failedWithDetail": {
+        "publish": "No se pudo publicar la rama. {{detail}}",
+        "sync": "La sincronización falló. {{detail}}",
+        "forcePush": "El force push falló. {{detail}}",
+        "push": "El push falló. {{detail}}",
+        "fetch": "El fetch falló. {{detail}}",
+        "fastForward": "El fast-forward falló. {{detail}}",
+        "rebase": "El rebase falló. {{detail}}",
+        "pull": "El pull falló. {{detail}}"
+      },
+      "hookBlocked": {
+        "lint": {
+          "publish": "Publicación de rama bloqueada — el lint falló durante el push.",
+          "sync": "Sincronización bloqueada — el lint falló durante el push.",
+          "forcePush": "Force push bloqueado — el lint falló durante el push.",
+          "push": "Push bloqueado — el lint falló durante el push."
+        },
+        "prePush": {
+          "publish": "Publicación de rama bloqueada — el hook pre-push falló.",
+          "sync": "Sincronización bloqueada — el hook pre-push falló.",
+          "forcePush": "Force push bloqueado — el hook pre-push falló.",
+          "push": "Push bloqueado — el hook pre-push falló."
+        },
+        "detail": {
+          "publish": "Publicación de rama bloqueada — {{detail}}",
+          "sync": "Sincronización bloqueada — {{detail}}",
+          "forcePush": "Force push bloqueado — {{detail}}",
+          "push": "Push bloqueado — {{detail}}"
+        }
+      },
+      "remoteAccessWithDetail": {
+        "publish": "No se pudo publicar la rama. {{detail}}. Comprueba tu acceso al remoto y vuelve a intentarlo.",
+        "sync": "La sincronización falló. {{detail}}. Comprueba tu acceso al remoto y vuelve a intentarlo.",
+        "forcePush": "El force push falló. {{detail}}. Comprueba tu acceso al remoto y vuelve a intentarlo.",
+        "push": "El push falló. {{detail}}. Comprueba tu acceso al remoto y vuelve a intentarlo."
+      },
+      "publishFailed": "No se pudo publicar la rama. Comprueba tu acceso al remoto y vuelve a intentarlo.",
+      "syncFailed": "La sincronización falló. Comprueba tu conexión y vuelve a intentarlo.",
+      "forcePushFailed": "El force push falló. Comprueba tu conexión y vuelve a intentarlo.",
+      "pushFailed": "El push falló. Comprueba tu conexión y vuelve a intentarlo.",
+      "localChangesBlocked": {
+        "rebase": "Rebase bloqueado — primero haz commit o stash de tus cambios locales.",
+        "fastForward": "Fast-forward bloqueado — primero haz commit o stash de tus cambios locales.",
+        "pull": "Pull bloqueado — primero haz commit o stash de tus cambios locales."
+      },
+      "operationFailed": "La operación remota falló",
+      "unconcludedMerge": {
+        "rebase": "Rebase bloqueado — resuelve primero los conflictos existentes.",
+        "sync": "Sincronización bloqueada — resuelve primero los conflictos de merge existentes.",
+        "pull": "Pull bloqueado — resuelve primero los conflictos de merge existentes."
+      },
+      "mergeConflicts": {
+        "rebase": "El rebase se detuvo por conflictos. Resuélvelos en Control de código fuente y luego continúa el rebase.",
+        "sync": "La sincronización se detuvo por conflictos de merge. Resuélvelos en Control de código fuente y luego haz commit del merge.",
+        "pull": "El pull se detuvo por conflictos de merge. Resuélvelos en Control de código fuente y luego haz commit del merge."
+      },
+      "syncRemoteMoved": "La sincronización falló — el remoto cambió durante la sincronización. Vuelve a intentarlo.",
+      "forcePushRejected": "Force push rechazado — el remoto cambió desde el último fetch. Haz fetch primero y vuelve a intentarlo.",
+      "pushRejected": "Push rechazado — hay cambios en el remoto. Haz pull primero y vuelve a intentarlo.",
+      "untrackedFilesBlocked": {
+        "rebase": "Rebase bloqueado — mueve, elimina o añade primero los archivos sin seguimiento.",
+        "fastForward": "Fast-forward bloqueado — mueve, elimina o añade primero los archivos sin seguimiento.",
+        "pull": "Pull bloqueado — mueve, elimina o añade primero los archivos sin seguimiento."
+      },
+      "authenticationFailed": "Falló la autenticación. Comprueba tus credenciales del remoto."
+    },
+    "submodule": {
+      "worktreeOnlyLabel": "Agregar al stage dentro del submódulo",
+      "worktreeOnlyTooltip": "El repo principal (incluido Agregar todo al stage) no puede agregar al stage los cambios de archivos dentro de un submódulo",
+      "loading": "Cargando cambios del submódulo…",
+      "empty": "No hay cambios en el submódulo",
+      "loadFailed": "No se pudieron cargar los cambios del submódulo"
     }
   },
   "aiVault": {
@@ -22452,11 +22650,6 @@
       }
     }
   },
-  "workspaceOptions": {
-    "activeFilterCount_one": "{{count}} filtro",
-    "activeFilterCount_other": "{{count}} filtros",
-    "activeFilterCount_many": "{{count}} filtros"
-  },
   "editorConflicts": {
     "kind": {
       "addedByUs": "Añadido por nosotros",
@@ -22681,6 +22874,7 @@
       "agentNeverStarted": "El agente de la automatización no llegó a iniciarse tras el envío del prompt.",
       "agentNoCompletion": "El agente de la automatización no informó de la finalización.",
       "watchTimedOut": "Orca dejó de supervisar esta ejecución tras 6 horas sin una señal de finalización.",
+      "wslDistroStopped": "La distribución WSL {{distro}} está detenida, así que esta ejecución programada no la inició. Inicia la distribución o usa Ejecutar ahora; las ejecuciones posteriores continúan mientras esté en marcha.",
       "projectSetupState": {
         "notSetUp": "El proyecto no está configurado en el host seleccionado para la automatización.",
         "settingUp": "El proyecto aún se está configurando en el host seleccionado para la automatización.",
@@ -22987,6 +23181,16 @@
     "defaultLabels": {
       "image": "Mascota personalizada",
       "bundle": "Bundle de mascota"
+    }
+  },
+  "diffComments": {
+    "lineRangeMeta": "líneas {{start}}-{{end}}",
+    "lineMeta": "línea {{line}}"
+  },
+  "agentSendTargets": {
+    "disabledReason": {
+      "needsPermission": "El agente necesita permiso",
+      "statusStale": "El estado del agente está desactualizado"
     }
   }
 }

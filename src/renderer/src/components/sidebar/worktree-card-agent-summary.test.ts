@@ -67,35 +67,30 @@ describe('localized worktree card agent summaries', () => {
   })
 
   it.each([
-    [0, '0 агентов'],
-    [1, '1 агент'],
-    [2, '2 агента'],
-    [5, '5 агентов'],
-    [21, '21 агент']
-  ] as const)('localizes the count and whole summary for %i agents', (count, label) => {
+    [0, '0 агентов', '0 агентов: '],
+    [1, '1 агент', '1 агент наблюдает'],
+    [2, '2 агента', 'Все 2 агента наблюдают'],
+    [5, '5 агентов', 'Все 5 агентов наблюдают'],
+    [21, '21 агент', '21 агент наблюдает']
+  ] as const)('localizes the count and whole summary for %i agents', (count, label, summary) => {
     expect(formatSummaryAgentCount(count)).toBe(label)
     const agents = Array.from({ length: count }, monitoringAgent)
-    if (count === 1) {
-      expect(summarizeAgents(agents, label)).toBe('1 агент: наблюдение')
-    }
-    if (count > 1) {
-      expect(summarizeAgents(agents, label)).toBe(`Все (${label}): наблюдение`)
-    }
+    expect(summarizeAgents(agents, label)).toBe(summary)
   })
 
   it('localizes every app-owned summary state and keeps agent brands intact', () => {
     const states = [
       ['waiting', 'ожидание'],
-      ['blocked', 'блокировка'],
-      ['interrupted', 'прервано'],
+      ['blocked', 'заблокирован'],
+      ['interrupted', 'прерван'],
       ['failed', 'ошибка'],
-      ['working', 'работа'],
+      ['working', 'в работе'],
       ['monitoring', 'наблюдение'],
       ['done', 'готово'],
-      ['idle', 'бездействие'],
-      ['unverifiable', 'нет данных'],
-      ['unconfirmed', 'не подтверждено'],
-      ['permission', 'требуется внимание']
+      ['idle', 'бездействует'],
+      ['unverifiable', 'нет данных о статусе'],
+      ['unconfirmed', 'не подтверждён'],
+      ['permission', 'требует внимания']
     ] as const
     for (const [state, expected] of states) {
       expect(formatSummaryStateLabel(state)).toBe(expected)
@@ -107,7 +102,7 @@ describe('localized worktree card agent summaries', () => {
     done.state = 'done'
     done.entry = { ...done.entry, state: 'done', workingMode: undefined }
     expect(summarizeAgents([monitoringAgent(), done], '2 агента')).toBe(
-      '2 агента: наблюдение: 1, готово: 1'
+      '2 агента: 1 наблюдает, 1 завершил работу'
     )
   })
 })

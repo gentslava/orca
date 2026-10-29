@@ -70,6 +70,8 @@ export type WorktreeApi = {
     headRefName?: string
     baseRefName?: string
     isCrossRepository?: boolean
+    /** The user creating or launching from the PR: it may start a stopped WSL distro. */
+    wakeWslDistro?: boolean
   }) => Promise<GitHubPrStartPoint | { error: string }>
   /** Same-project MRs return a remote branch; forks fetch the MR head ref and return its SHA. */
   resolveMrBase: (args: {
@@ -78,6 +80,8 @@ export type WorktreeApi = {
     sourceBranch?: string
     targetBranch?: string
     isCrossRepository?: boolean
+    /** The user creating from the MR: it may start a stopped WSL distro. */
+    wakeWslDistro?: boolean
   }) => Promise<
     { baseBranch: string; compareBaseRef?: string; pushTarget?: GitPushTarget } | { error: string }
   >

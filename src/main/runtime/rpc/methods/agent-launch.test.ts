@@ -546,6 +546,7 @@ describe('the terminal factory', () => {
     const result = await launch(CREATE_LAUNCH, runtime)
 
     expect(runtime.createTerminal).toHaveBeenCalledWith('id:wt-new', {
+      wslUserAct: true,
       startupAgent: 'claude',
       terminalImageViewerSupported: false,
       viewMode: 'terminal',
@@ -571,6 +572,7 @@ describe('the terminal factory', () => {
     expect(runtime.showManagedTerminalWorkspace).not.toHaveBeenCalled()
     // Normalize selectors to ids before lower layers add their own id: prefix.
     expect(runtime.createTerminal).toHaveBeenCalledWith('id:wt-7', {
+      wslUserAct: true,
       startupAgent: 'gemini',
       terminalImageViewerSupported: false,
       viewMode: 'terminal',

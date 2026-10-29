@@ -560,8 +560,8 @@
       "clearHosts": "ホストをクリア",
       "clearProjects": "プロジェクトをクリア",
       "back": "戻る",
-      "ariaActive": "フィルター: {{value0}} 件アクティブ。",
-      "scopedTo": "スコープ:"
+      "scopedTo": "スコープ:",
+      "ariaActiveCount_other": "フィルター：{{count}} 個が有効。"
     },
     "linearIssue": {
       "createLabel": "Linear 課題 {{value0}}: {{value1}} からワークツリーを作成",
@@ -3132,7 +3132,6 @@
         "cleanup": {
           "WorkspaceCleanupDialog": {
             "3828408538": "{{value0}} を削除",
-            "352f15d6fc": "最終アクティブ",
             "b6bae1eed1": "キャンセル",
             "38ca0b1400": "これにより、ローカルファイルが完全に削除されます。これを元に戻すことはできません。",
             "e97e4580c7": "汚い",
@@ -3861,7 +3860,9 @@
             "f395c9a685": "ファイルのインポートに失敗しました",
             "e6234bcc17": "カスタムペットのアップロードには、(リロードだけでなく) アプリを完全に再起動する必要があります。",
             "6d0a8cd179": "ペットを見せる",
-            "1fbc51cc77": "ペットを隠す"
+            "1fbc51cc77": "ペットを隠す",
+            "petFallbackLabel": "ペット",
+            "petHiddenLabel": "{{pet}} は非表示"
           },
           "PortsStatusSegment": {
             "4ebf90c12e": "外部ポートが検出されませんでした",
@@ -5325,7 +5326,8 @@
           "c49fb13492": "このホスト上でのフォルダーの追加に失敗しました",
           "9a766f33ac": "このパスは SSH ホストでチェックされました。",
           "79fd02cf5f": "このパスは {{hostName}} でチェックされました。",
-          "8851b77327": "このパスはローカルでチェックされました。"
+          "8851b77327": "このパスはローカルでチェックされました。",
+          "sshConnectionUnavailable": "SSH 接続「{{connection}}」が見つからないか、接続されていません"
         },
         "OrcaYamlTrustDialog": {
           "f3e2b868fb": "フックを実行する",
@@ -5409,8 +5411,7 @@
           "removeDescriptionSsh": "この操作は {{name}} を Orca から削除するだけです。ファイルは {{host}} に残っており、その SSH ホストを再追加すれば復元できます。",
           "removeDescriptionLocal": "この操作は {{name}} を Orca から削除するだけです。ファイルはディスクに残っています。",
           "removeDescriptionVmRecipe": "これにより、{{name}} が Orca から削除されます。その VM レシピによって、環境とそのファイルが完全に削除されるかどうかが決まります。",
-          "openTerminalWarningOne": "このプロジェクトで開いているターミナル 1 個が閉じられます。",
-          "openTerminalWarningMany": "このプロジェクトで開いているターミナル {{count}} 個が閉じられます。"
+          "openTerminalWarning_other": "このプロジェクトで開いている {{count}} 個のターミナルが閉じられます。"
         },
         "ScrollToCurrentWorkspaceToolbarButton": {
           "23989bb663": "アクティブなワークスペースを表示する"
@@ -5520,7 +5521,7 @@
           "4815c70605": "一致するプロジェクトはありません",
           "bbbc6e8e3b": "選択されていないプロジェクトは一致しません",
           "allProjects": "すべてのプロジェクト",
-          "selectedProjectsCount": "{{value0}} 件のプロジェクト"
+          "selectedProjects_other": "{{count}} 件のプロジェクト"
         },
         "SidebarSettingsHelpMenu": {
           "ad3d3ed7f1": "Orca を再起動",
@@ -5568,8 +5569,6 @@
           "7bada3b1ab": "並べ替え",
           "dc0bb670bc": "グループ化",
           "9919ae1082": "ワークスペースのオプション",
-          "bc96dbd041": "ワークスペースオプション ({{value0}})",
-          "optionsActiveLabel": "ワークスペースオプション（{{value0}} 件アクティブ）",
           "af9249c505": "最新のワークスペースアクティビティ",
           "b451c8b162": "最近の",
           "6664282a7b": "プロジェクトをドラッグして配置します",
@@ -5610,7 +5609,9 @@
           "automation": "オートメーション",
           "folderPathIdentity": "ブランチ / フォルダーパス",
           "cli": "Orca CLI",
-          "workspaceOptions": "ワークスペースのオプション"
+          "workspaceOptions": "ワークスペースのオプション",
+          "optionsActiveFilters_other": "ワークスペースのオプション（{{count}} 個のフィルターが有効）",
+          "optionsFilterCount_other": "ワークスペースのオプション（{{count}} 個のフィルター）"
         },
         "SshTargetRow": {
           "4677394048": "接続中…",
@@ -5679,7 +5680,8 @@
         },
         "WorktreeCardAgents": {
           "1b0a156717": "Agent",
-          "agentUnavailable": "Agent を利用できません"
+          "agentUnavailable": "Agent を利用できません",
+          "sendingTarget": "送信中…"
         },
         "WorktreeCardMeta": {
           "3e65e11cc6": "ワークスペースのメタデータ",
@@ -16574,8 +16576,6 @@
           "failed24h": "失敗 · 24時間",
           "successful7d": "成功 · 7日間",
           "failed7d": "失敗 · 7日間",
-          "historyUnavailableOne": "1件の自動化で実行履歴を利用できません。カウントには利用可能な履歴のみが含まれます。",
-          "historyUnavailableMany": "{{count}}件の自動化で実行履歴を利用できません。カウントには利用可能な履歴のみが含まれます。",
           "automation": "自動化",
           "triggered": "トリガー済み",
           "trigger": "トリガー",
@@ -16584,7 +16584,8 @@
           "emptyDescription": "自動化がトリガーされると、ここに実行が表示されます。",
           "runs": "実行",
           "local": "ローカル",
-          "remote": "リモート"
+          "remote": "リモート",
+          "historyUnavailable_other": "{{count}} 件のオートメーションで実行履歴を利用できません。集計には利用可能な履歴のみが含まれます。"
         },
         "AutomationsPageBreadcrumb": {
           "ariaLabel": "自動化のパンくずリスト",
@@ -16948,9 +16949,6 @@
           "sortedAscending": "{{value0}}、昇順にソート",
           "sortedDescending": "{{value0}}、降順でソート"
         },
-        "hostSummary": {
-          "partialFailure": "{{total}} ホスト中 {{failed}} をロードできませんでした"
-        },
         "emptyState": {
           "unknownHost": "このホスト",
           "hostLoading": "ホストを読み込み中…",
@@ -17093,7 +17091,8 @@
           "namedWorkspaceGone": "{{name}}（利用できなくなりました）"
         },
         "usage": {
-          "tokensAndCost_other": "{{tokens}} トークン · {{cost}}"
+          "tokensAndCost_other": "{{tokens}} トークン · {{cost}}",
+          "costUnavailable": "不明"
         },
         "externalDisplay": {
           "sshHost": "SSH ホスト",
@@ -17105,6 +17104,9 @@
           "connectSshHost": "{{provider}} のオートメーションを管理する前に、この SSH ホストに接続してください。",
           "cannotManageOnSshHost": "{{provider}} はこの SSH ホストでオートメーションを管理できません。",
           "cannotManageLocally": "{{provider}} はこのマシンでオートメーションを管理できません。"
+        },
+        "hostSummary": {
+          "partialFailureOfHosts_other": "{{count}} 台中 {{failed}} 台のホストを読み込めませんでした"
         }
       },
       "agent": {
@@ -17170,8 +17172,8 @@
           },
           "filtersSection": "フィルター",
           "viewSection": "表示",
-          "threadListOptionsActive": "スレッドリストのオプション（{{value0}} 件アクティブ）",
-          "activityOptionsActive": "アクティビティのオプション（{{value0}}）"
+          "threadListOptionsActiveFilters_other": "スレッドリストのオプション（{{count}} 個のフィルターが有効）",
+          "activityOptionsFilterCount_other": "アクティビティのオプション（{{count}} 個のフィルター）"
         },
         "ActivityScopeFilterControls": {
           "resetScope": "すべてのホストとプロジェクトを表示",
@@ -18884,7 +18886,8 @@
         "reconnect": "再接続",
         "stopped": "{{distro}} は停止しています",
         "start": "起動",
-        "unverifiable": "Orca は {{distro}} が実行中かどうかを確認できませんでした"
+        "unverifiable": "Orca は {{distro}} が実行中かどうかを確認できませんでした",
+        "startToSend": "送信するには {{distro}} を開始してください。"
       },
       "interruptedContinue": {
         "continue": "続行",
@@ -19298,7 +19301,8 @@
           "forceDeleteRisk_other": "現在 {{count}} 件のワークスペースにリスクがあり、強制削除が必要になる可能性があります",
           "selectionVanishedCount_other": "選択した {{count}} 件のワークスペースはすでに存在しません。",
           "selectionWithheldCount_other": "選択した {{count}} 件のワークスペースは現在のフィルターで非表示になっているため、選択を解除しました。",
-          "selectAllSafetyChecked_other": "安全性を確認した {{count}} 件のワークスペースをすべて選択"
+          "selectAllSafetyChecked_other": "安全性を確認した {{count}} 件のワークスペースをすべて選択",
+          "lastActive": "最終アクティブ：{{value0}}"
         },
         "scan": {
           "progress": "ワークスペースのスキャン ({{value0}}/{{value1}})",
@@ -19999,6 +20003,50 @@
         "peerCheckFailed": "Orca は WSL ホストに、このコンピューター上の別の Orca がまだ使用しているかを問い合わせられませんでした: {{detail}}",
         "removalUnrecorded": "Orca は、今回の削除後も実行中のものを記録できませんでした: {{detail}}"
       }
+    },
+    "agentSummary": {
+      "state": {
+        "waiting": "待機中",
+        "blocked": "ブロック中",
+        "interrupted": "中断",
+        "failed": "失敗",
+        "working": "作業中",
+        "monitoring": "監視中",
+        "done": "完了",
+        "idle": "アイドル",
+        "notReporting": "報告なし",
+        "unconfirmed": "未確認",
+        "needsAttention": "対応が必要"
+      },
+      "mixedStates": "{{subject}}：{{states}}",
+      "agentIdentityState": "{{agent}}：{{status}}",
+      "agentCount_other": "{{count}} 個の Agent",
+      "stateCount": {
+        "waiting_other": "{{count}} 個が待機中",
+        "blocked_other": "{{count}} 個がブロック中",
+        "interrupted_other": "{{count}} 個が中断",
+        "failed_other": "{{count}} 個が失敗",
+        "working_other": "{{count}} 個が作業中",
+        "monitoring_other": "{{count}} 個が監視中",
+        "done_other": "{{count}} 個が完了",
+        "idle_other": "{{count}} 個がアイドル",
+        "notReporting_other": "{{count}} 個から報告なし",
+        "unconfirmed_other": "{{count}} 個が未確認",
+        "needsAttention_other": "{{count}} 個に対応が必要"
+      },
+      "allInState": {
+        "waiting_other": "全 {{count}} 個の Agent が待機中",
+        "blocked_other": "全 {{count}} 個の Agent がブロック中",
+        "interrupted_other": "全 {{count}} 個の Agent が中断",
+        "failed_other": "全 {{count}} 個の Agent が失敗",
+        "working_other": "全 {{count}} 個の Agent が作業中",
+        "monitoring_other": "全 {{count}} 個の Agent が監視中",
+        "done_other": "全 {{count}} 個の Agent が完了",
+        "idle_other": "全 {{count}} 個の Agent がアイドル",
+        "notReporting_other": "全 {{count}} 個の Agent から報告なし",
+        "unconfirmed_other": "全 {{count}} 個の Agent が未確認",
+        "needsAttention_other": "全 {{count}} 個の Agent に対応が必要"
+      }
     }
   },
   "editor": {
@@ -20306,7 +20354,93 @@
         "kimiContinueSessionConflict": "Kimi に競合するオプションが渡されました：--continue, --session。再試行する前にテキスト生成レシピまたは CLI 引数を修正してください。"
       },
       "enableSourceControlAi": "設定 -> Git でソース管理 AI を有効にしてください。",
-      "chooseBaseBranch": "生成する前にベースブランチを選択してください。"
+      "chooseBaseBranch": "生成する前にベースブランチを選択してください。",
+      "savedCommitRecipeRepo": "このリポジトリのコミットメッセージレシピを保存しました。",
+      "savedCommitRecipeGlobal": "コミットメッセージレシピをグローバルの既定値として保存しました。",
+      "savedReviewRecipeRepo": "このリポジトリのホスト型レビューレシピを保存しました。",
+      "savedReviewRecipeGlobal": "ホスト型レビューレシピをグローバルの既定値として保存しました。",
+      "savedBranchRecipeRepo": "このリポジトリのブランチ名レシピを保存しました。",
+      "savedBranchRecipeGlobal": "ブランチ名レシピをグローバルの既定値として保存しました。"
+    },
+    "remoteError": {
+      "submodule": {
+        "namedRemoteChanged": "サブモジュール「{{name}}」にリモートの変更があります。サブモジュール内でプルしてから、もう一度お試しください。",
+        "remoteChanged": "サブモジュールにリモートの変更があります。サブモジュール内でプルしてから、もう一度お試しください。",
+        "namedPushFailed": "サブモジュール「{{name}}」をプッシュできませんでした。サブモジュールのプッシュエラーを解決してから、もう一度お試しください。",
+        "pushFailed": "サブモジュールをプッシュできませんでした。サブモジュールのプッシュエラーを解決してから、もう一度お試しください。"
+      },
+      "failedWithDetail": {
+        "publish": "ブランチの公開に失敗しました。{{detail}}",
+        "sync": "同期に失敗しました。{{detail}}",
+        "forcePush": "フォースプッシュに失敗しました。{{detail}}",
+        "push": "プッシュに失敗しました。{{detail}}",
+        "fetch": "フェッチに失敗しました。{{detail}}",
+        "fastForward": "Fast-forward に失敗しました。{{detail}}",
+        "rebase": "リベースに失敗しました。{{detail}}",
+        "pull": "プルに失敗しました。{{detail}}"
+      },
+      "hookBlocked": {
+        "lint": {
+          "publish": "ブランチの公開がブロックされました — プッシュ中に lint が失敗しました。",
+          "sync": "同期がブロックされました — プッシュ中に lint が失敗しました。",
+          "forcePush": "フォースプッシュがブロックされました — プッシュ中に lint が失敗しました。",
+          "push": "プッシュがブロックされました — プッシュ中に lint が失敗しました。"
+        },
+        "prePush": {
+          "publish": "ブランチの公開がブロックされました — pre-push フックが失敗しました。",
+          "sync": "同期がブロックされました — pre-push フックが失敗しました。",
+          "forcePush": "フォースプッシュがブロックされました — pre-push フックが失敗しました。",
+          "push": "プッシュがブロックされました — pre-push フックが失敗しました。"
+        },
+        "detail": {
+          "publish": "ブランチの公開がブロックされました — {{detail}}",
+          "sync": "同期がブロックされました — {{detail}}",
+          "forcePush": "フォースプッシュがブロックされました — {{detail}}",
+          "push": "プッシュがブロックされました — {{detail}}"
+        }
+      },
+      "remoteAccessWithDetail": {
+        "publish": "ブランチの公開に失敗しました。{{detail}}。リモートへのアクセスを確認して、もう一度お試しください。",
+        "sync": "同期に失敗しました。{{detail}}。リモートへのアクセスを確認して、もう一度お試しください。",
+        "forcePush": "フォースプッシュに失敗しました。{{detail}}。リモートへのアクセスを確認して、もう一度お試しください。",
+        "push": "プッシュに失敗しました。{{detail}}。リモートへのアクセスを確認して、もう一度お試しください。"
+      },
+      "publishFailed": "ブランチの公開に失敗しました。リモートへのアクセスを確認して、もう一度お試しください。",
+      "syncFailed": "同期に失敗しました。接続を確認して、もう一度お試しください。",
+      "forcePushFailed": "フォースプッシュに失敗しました。接続を確認して、もう一度お試しください。",
+      "pushFailed": "プッシュに失敗しました。接続を確認して、もう一度お試しください。",
+      "localChangesBlocked": {
+        "rebase": "リベースがブロックされました — 先にローカルの変更をコミットまたはスタッシュしてください。",
+        "fastForward": "Fast-forward がブロックされました — 先にローカルの変更をコミットまたはスタッシュしてください。",
+        "pull": "プルがブロックされました — 先にローカルの変更をコミットまたはスタッシュしてください。"
+      },
+      "operationFailed": "リモート操作に失敗しました",
+      "unconcludedMerge": {
+        "rebase": "リベースがブロックされました — 先に既存の競合を解決してください。",
+        "sync": "同期がブロックされました — 先に既存のマージ競合を解決してください。",
+        "pull": "プルがブロックされました — 先に既存のマージ競合を解決してください。"
+      },
+      "mergeConflicts": {
+        "rebase": "リベースが競合で停止しました。ソース管理で解決してから、リベースを続行してください。",
+        "sync": "同期がマージ競合で停止しました。ソース管理で解決してから、マージをコミットしてください。",
+        "pull": "プルがマージ競合で停止しました。ソース管理で解決してから、マージをコミットしてください。"
+      },
+      "syncRemoteMoved": "同期に失敗しました — 同期中にリモートが変更されました。もう一度お試しください。",
+      "forcePushRejected": "フォースプッシュが拒否されました — 最後のフェッチ以降にリモートが変更されました。先にフェッチしてから、もう一度お試しください。",
+      "pushRejected": "プッシュが拒否されました — リモートに変更があります。先にプルしてから、もう一度お試しください。",
+      "untrackedFilesBlocked": {
+        "rebase": "リベースがブロックされました — 先に未追跡ファイルを移動、削除、または追加してください。",
+        "fastForward": "Fast-forward がブロックされました — 先に未追跡ファイルを移動、削除、または追加してください。",
+        "pull": "プルがブロックされました — 先に未追跡ファイルを移動、削除、または追加してください。"
+      },
+      "authenticationFailed": "認証に失敗しました。リモートの認証情報を確認してください。"
+    },
+    "submodule": {
+      "worktreeOnlyLabel": "サブモジュール内でステージ",
+      "worktreeOnlyTooltip": "親リポジトリ（「すべてステージ」を含む）からは、サブモジュール内のファイル変更をステージできません",
+      "loading": "サブモジュールの変更を読み込み中…",
+      "empty": "サブモジュールに変更はありません",
+      "loadFailed": "サブモジュールの変更を読み込めませんでした"
     }
   },
   "rendererRecovery": {
@@ -21833,10 +21967,6 @@
       }
     }
   },
-  "workspaceOptions": {
-    "activeFilterCount_one": "{{count}} 件のフィルター",
-    "activeFilterCount_other": "{{count}} 件のフィルター"
-  },
   "editorConflicts": {
     "kind": {
       "addedByUs": "こちらで追加",
@@ -22058,6 +22188,7 @@
       "agentNeverStarted": "プロンプトの送信後、オートメーションの Agent が起動しませんでした。",
       "agentNoCompletion": "オートメーションの Agent から完了の報告がありませんでした。",
       "watchTimedOut": "完了シグナルがないまま 6 時間が経過したため、Orca はこの実行の監視を終了しました。",
+      "wslDistroStopped": "WSL ディストリビューション {{distro}} が停止しているため、このスケジュール実行では起動しませんでした。ディストリビューションを起動するか、「今すぐ実行」を使ってください。起動中は以降の実行が行われます。",
       "projectSetupState": {
         "notSetUp": "選択したオートメーションのホストでは、プロジェクトがセットアップされていません。",
         "settingUp": "選択したオートメーションのホストで、プロジェクトをまだセットアップ中です。",
@@ -22364,6 +22495,16 @@
     "defaultLabels": {
       "image": "カスタムペット",
       "bundle": "ペットバンドル"
+    }
+  },
+  "diffComments": {
+    "lineRangeMeta": "{{start}}-{{end}} 行目",
+    "lineMeta": "{{line}} 行目"
+  },
+  "agentSendTargets": {
+    "disabledReason": {
+      "needsPermission": "Agent に許可が必要です",
+      "statusStale": "Agent のステータスが古くなっています"
     }
   }
 }

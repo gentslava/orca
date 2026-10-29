@@ -1,5 +1,5 @@
 import { arch as osArch, platform as osPlatform, release as osRelease } from 'node:os'
-import { PostHog } from 'posthog-node'
+import type * as PostHogSdk from 'posthog-node'
 import { getAppEnvironment } from '../../shared/app-environment'
 import type { CommonProps, EventName } from '../../shared/telemetry-events'
 import type { ConsentState } from './consent'
@@ -24,7 +24,7 @@ export function buildCommonProps(
 }
 
 export function waitForCaptureEnqueue(
-  client: PostHog,
+  client: PostHogSdk.PostHog,
   event: EventName,
   uuid: string
 ): Promise<boolean> {
@@ -69,8 +69,13 @@ export function shouldOptOutSdkAtInit(consent: ConsentState): boolean {
   return consent.effective === 'disabled'
 }
 
-export function createPostHogClient(writeKey: string, consent: ConsentState): PostHog {
-  const client = new PostHog(writeKey, {
+// Load the SDK with the client; requiring it at startup costs ~58ms before any window (#35752).
+function loadPostHogSdk(): typeof PostHogSdk {
+  return require('posthog-node')
+}
+
+export function createPostHogClient(writeKey: string, consent: ConsentState): PostHogSdk.PostHog {
+  const client = new (loadPostHogSdk().PostHog)(writeKey, {
     host: 'https://us.i.posthog.com',
     flushAt: 20,
     flushInterval: 10_000,

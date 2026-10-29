@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { countActiveWorkspaceFilters } from '../../../../shared/workspace-view/workspace-row-filters'
-import { activeFilterCountLabel } from './active-filter-count-label'
 import { useShallow } from 'zustand/react/shallow'
 import { selectSidebarFilterState, sidebarWorkspaceRowFilters } from './sidebar-filter-actions'
 import SidebarRepositoryFilterSection from './SidebarRepositoryFilterSection'
@@ -41,7 +40,6 @@ import { SidebarGroupByToggle } from './SidebarGroupByToggle'
 export function useWorkspaceOptionsFilterBadge(): {
   hasAnyFilter: boolean
   activeFilterCount: number
-  activeFilterLabel: string
 } {
   const filterState = useAppStore(useShallow(selectSidebarFilterState))
   const repos = useAppStore((s) => s.repos)
@@ -55,8 +53,7 @@ export function useWorkspaceOptionsFilterBadge(): {
   )
   return {
     hasAnyFilter: activeFilterCount > 0,
-    activeFilterCount,
-    activeFilterLabel: activeFilterCountLabel(activeFilterCount)
+    activeFilterCount
   }
 }
 

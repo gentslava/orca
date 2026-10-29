@@ -43,6 +43,8 @@ function installFakeAddon(
     createFileWithDacl: unexpected,
     grantAccess: unexpected,
     clearStdHandleInheritance: unexpected,
+    spawnDetachedIsolated: unexpected,
+    hasNativeExport: unexpected,
     grantAccessAsync: async (path, sid, accessMask, options) => {
       calls.push({ path: plain(path), sid, accessMask, options })
       if (fail(plain(path))) {
@@ -191,6 +193,8 @@ describe('install-dir package grant passes', () => {
         createFileWithDacl: unexpected,
         grantAccess: unexpected,
         clearStdHandleInheritance: unexpected,
+        spawnDetachedIsolated: unexpected,
+        hasNativeExport: unexpected,
         grantAccessAsync: async (path) => {
           seen.push(path)
         }
