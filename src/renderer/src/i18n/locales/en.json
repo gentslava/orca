@@ -2433,8 +2433,7 @@
         "moveDownWorkspace": "Move down workspace",
         "installGit": "Install Git",
         "installGitHubCli": "Install GitHub CLI",
-        "learnMore": "Learn more",
-        "76a95f7f47": "Create"
+        "learnMore": "Learn more"
       },
       "LinearIssueMarkdownDescriptionEditor": {
         "d9c47069ef": "Markdown",
@@ -23066,30 +23065,9 @@
   },
   "localBaseRef": {},
   "worktreeAgentSummary": {
-    "state": {
-      "waiting": "waiting",
-      "blocked": "blocked",
-      "interrupted": "interrupted",
-      "failed": "failed",
-      "working": "working",
-      "monitoring": "monitoring",
-      "done": "done",
-      "idle": "idle",
-      "unverifiable": "not reporting",
-      "unconfirmed": "unconfirmed",
-      "permission": "needs attention"
-    },
-    "singleState": "{{subject}} {{state}}",
-    "allSameState": "All {{subject}} {{state}}",
-    "stateCount": "{{count}} {{state}}",
-    "mixedStates": "{{subject}}: {{states}}",
-    "agentCount": "{{count}} agents",
     "unknownAgent": "Agent",
-    "identityState": "{{agent}} {{state}}",
-    "collapse": "Collapse agent summary: {{subject}}",
     "expand": "Expand agent summary: {{summary}}. {{identities}}",
-    "agentCount_one": "{{count}} agent",
-    "agentCount_other": "{{count}} agents"
+    "collapse": "Collapse agent summary: {{subject}}"
   },
   "projectGroups": {
     "delete": {}

@@ -67,9 +67,6 @@
         "approvalsRemaining_one": "{{count}} approval remaining",
         "approvalsRemaining_other": "{{count}} approvals remaining"
       },
-      "Landing": {
-        "76a95f7f47": "Create"
-      },
       "NativeChatResumeOnRestartModal": {
         "activityMonitorCount_one": "Monitoring {{count}} background task",
         "activityMonitorCount_other": "Monitoring {{count}} background tasks",
@@ -2491,29 +2488,6 @@
       "linkedAndScannedCount_one": "{{size}} in linked worktrees · {{count}} workspace",
       "linkedAndScannedCount_other": "{{size}} in linked worktrees · {{count}} workspaces"
     }
-  },
-  "worktreeAgentSummary": {
-    "agentCount": "{{count}} agents",
-    "agentCount_one": "{{count}} agent",
-    "agentCount_other": "{{count}} agents",
-    "allSameState": "All {{subject}} {{state}}",
-    "identityState": "{{agent}} {{state}}",
-    "mixedStates": "{{subject}}: {{states}}",
-    "singleState": "{{subject}} {{state}}",
-    "state": {
-      "blocked": "blocked",
-      "done": "done",
-      "failed": "failed",
-      "idle": "idle",
-      "interrupted": "interrupted",
-      "monitoring": "monitoring",
-      "permission": "needs attention",
-      "unconfirmed": "unconfirmed",
-      "unverifiable": "not reporting",
-      "waiting": "waiting",
-      "working": "working"
-    },
-    "stateCount": "{{count}} {{state}}"
   },
   "worktreeJumpPalette": {
     "filter": {

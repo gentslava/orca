@@ -23366,32 +23366,9 @@
   },
   "localBaseRef": {},
   "worktreeAgentSummary": {
-    "state": {
-      "waiting": "ожидание",
-      "blocked": "блокировка",
-      "interrupted": "прервано",
-      "failed": "ошибка",
-      "working": "работа",
-      "monitoring": "наблюдение",
-      "done": "готово",
-      "idle": "бездействие",
-      "unverifiable": "нет данных",
-      "unconfirmed": "не подтверждено",
-      "permission": "требуется внимание"
-    },
-    "singleState": "{{subject}}: {{state}}",
-    "allSameState": "Все ({{subject}}): {{state}}",
-    "stateCount": "{{state}}: {{count}}",
-    "mixedStates": "{{subject}}: {{states}}",
-    "agentCount": "{{count}} агентов",
     "unknownAgent": "Агент",
-    "identityState": "{{agent}}: {{state}}",
-    "collapse": "Свернуть сводку агентов: {{subject}}",
     "expand": "Развернуть сводку агентов: {{summary}}. {{identities}}",
-    "agentCount_one": "{{count}} агент",
-    "agentCount_other": "{{count}} агента",
-    "agentCount_few": "{{count}} агента",
-    "agentCount_many": "{{count}} агентов"
+    "collapse": "Свернуть сводку агентов: {{subject}}"
   },
   "projectGroups": {
     "delete": {}
