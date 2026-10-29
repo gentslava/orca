@@ -462,6 +462,7 @@ it.each([false, true])(
     )
     expect(request?.[1]).toMatchObject({ limit: 500, scopePaths: [] })
     if (capable) {
+      expect(request?.[1]).toHaveProperty('includeAntigravityIdeSessions', true)
       expect(request?.[1]).toHaveProperty('selectedSessionId', 'selected')
     } else {
       expect(request?.[1]).not.toHaveProperty('selectedSessionId')

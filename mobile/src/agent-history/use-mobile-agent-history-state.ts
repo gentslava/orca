@@ -185,7 +185,9 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
         const reply = await agentHistorySessionScan.request(client, {
           limit: MOBILE_AI_VAULT_SESSION_LIMIT,
           force: options.force,
-          ...(conversationId ? { includeStructuredSessions: true } : {}),
+          ...(conversationId
+            ? { includeStructuredSessions: true, includeAntigravityIdeSessions: true }
+            : {}),
           ...(conversationId &&
           status.capabilities?.includes(AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY)
             ? { selectedSessionId: conversationId }

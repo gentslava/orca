@@ -87,6 +87,7 @@ export function HostConversations({
     () =>
       buildProjectConversations({
         workspaces: data.workspaces,
+        visibleHostIds: state.view.filters.visibleHostIds,
         repos: [...controller.sectionsResult.repoById.values()],
         tabs: data.tabs,
         history: data.history,
@@ -99,6 +100,7 @@ export function HostConversations({
       }),
     [
       data.workspaces,
+      state.view.filters.visibleHostIds,
       controller.sectionsResult.repoById,
       data.tabs,
       data.history,
