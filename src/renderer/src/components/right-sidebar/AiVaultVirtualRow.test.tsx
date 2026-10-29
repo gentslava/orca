@@ -154,7 +154,7 @@ describe('AiVaultVirtualRow resume command actions', () => {
       previewMessages: [],
       structuredSession: { sessionId: 'saved-empty', workspaceId: 'folder:notes' }
     }
-    const { buildResumeStartup } = renderSession(saved, false, undefined, undefined, true)
+    const { buildResumeStartup } = renderSession(saved, false, undefined, undefined, null, true)
     await userEvent.click(screen.getByTestId('ai-vault-session-more-actions'))
     const menu = await screen.findByRole('menu')
     expect(menu.textContent).not.toMatch(
