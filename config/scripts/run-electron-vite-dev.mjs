@@ -117,9 +117,7 @@ function formatDevInstanceLabel(branch, worktreeName) {
   return branch || worktreeName || null
 }
 
-function createDockTitle(branch, label) {
-  return `Orca: ${branch || label || 'dev'}`
-}
+const createDockTitle = (branch, label) => `Orca: ${branch || label || 'dev'}`
 
 function seedDevInstanceIdentityEnv() {
   const branch =
