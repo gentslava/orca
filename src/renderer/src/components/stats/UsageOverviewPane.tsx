@@ -8,7 +8,7 @@ import { StatCard } from './StatCard'
 import { getRecentUsageDays } from './usage-overview-daily-series'
 import { buildUsageOverview, formatUsageCost, formatUsageTokens } from './usage-overview-model'
 import { DailyIntensityGrid, ProviderUsageRow, TokenMixBar } from './usage-overview-sections'
-import { translate } from '@/i18n/i18n'
+import { getIntlLocale, translate } from '@/i18n/i18n'
 
 const RECENT_DAY_COUNT = 42
 
@@ -24,7 +24,7 @@ function formatUpdatedAt(timestamp: number | null): string {
     return translate('auto.components.stats.usageFormatters.notScannedYet', 'Not scanned yet')
   }
   return translate('auto.components.stats.usageFormatters.updatedAt', 'Updated {{time}}', {
-    time: new Date(timestamp).toLocaleString()
+    time: new Date(timestamp).toLocaleString(getIntlLocale())
   })
 }
 
@@ -239,7 +239,7 @@ export function UsageOverviewPane(): React.JSX.Element {
                   'auto.components.stats.UsageOverviewPane.327603fe8b',
                   'Active days'
                 )}
-                value={overview.activeDays.toLocaleString()}
+                value={overview.activeDays.toLocaleString(getIntlLocale())}
                 icon={<CalendarDays className="size-4" />}
               />
               <StatCard
@@ -290,7 +290,7 @@ export function UsageOverviewPane(): React.JSX.Element {
               '{{formatted}} sessions',
               {
                 count: overview.sessions,
-                formatted: overview.sessions.toLocaleString(),
+                formatted: overview.sessions.toLocaleString(getIntlLocale()),
                 defaultValue_one: '{{formatted}} session'
               }
             )}

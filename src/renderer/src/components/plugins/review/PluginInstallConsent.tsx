@@ -1,7 +1,7 @@
 import { useId } from 'react'
 import { AlertTriangle, Check, Loader2, ShieldAlert } from 'lucide-react'
 import type { PluginHostListEntry } from '../../../../../preload/api-types'
-import { translate } from '@/i18n/i18n'
+import { getIntlLocale, translate } from '@/i18n/i18n'
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
 import { Button } from '../../ui/button'
 import { SecuritySurface } from '../../ui/security-surface'
@@ -43,7 +43,7 @@ type PluginInstallConsentProps = {
 
 function formatFileTypeList(fileTypes: readonly string[]): string {
   try {
-    return new Intl.ListFormat(undefined, { type: 'conjunction' }).format(fileTypes)
+    return new Intl.ListFormat(getIntlLocale(), { type: 'conjunction' }).format(fileTypes)
   } catch {
     return fileTypes.join(', ')
   }
@@ -91,7 +91,10 @@ export function PluginInstallConsent({
           </h3>
           <span className="shrink-0 rounded-md border border-border px-1.5 py-px text-2xs font-medium text-muted-foreground">
             {!trust.worker && !trust.declarative && (editorFileTypes?.length ?? 0) > 0
-              ? translate('auto.components.settings.pluginConsentCopy.addsEditor', 'Adds an editor')
+              ? translate(
+                  'auto.components.settings.pluginConsentCopy.opensAndEditsFiles',
+                  'Opens and edits files'
+                )
               : pluginTrustLabel(trust)}
           </span>
         </div>

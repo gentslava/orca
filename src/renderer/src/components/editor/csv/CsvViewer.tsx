@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { detectCsvDelimiter } from './csv-parse'
 import { CsvDelimiterPicker, type CsvDelimiterChoice } from './csv-delimiter-picker'
 import { CsvGrid } from './CsvGrid'
-import { translate } from '@/i18n/i18n'
+import { getIntlLocale, translate } from '@/i18n/i18n'
 import { openCsvHttpLink } from './csv-link-routing'
 import { parseCsvTextDocument } from './csv-text-document'
 import { csvInspectionRows, csvSourceRow, type CsvInspectionSort } from './csv-inspection'
@@ -37,7 +37,7 @@ export default function CsvViewer({
   onContentChange?: (content: string) => void
   onSave?: (content: string) => Promise<boolean>
 }): React.JSX.Element {
-  useUiLanguageRevision()
+  const languageRevision = useUiLanguageRevision()
   const [delimiterChoice, setDelimiterChoice] = useState<CsvDelimiterChoice>('auto')
   const detectedDelimiter = useMemo(
     () => detectCsvDelimiter(filePath, content),
@@ -70,7 +70,8 @@ export default function CsvViewer({
   const effectiveSort = sort && sort.column < (document?.columnCount ?? 0) ? sort : null
   const inspectionRows = useMemo(
     () => (document ? csvInspectionRows(document.rows, filter, effectiveSort) : null),
-    [document, filter, effectiveSort]
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- sorting collates in the UI language.
+    [document, filter, effectiveSort, languageRevision]
   )
   const editor = useCsvTableEditor({
     document,
@@ -212,14 +213,14 @@ export function CsvFooter({
       <span>
         {translate('auto.components.editor.CsvViewer.rowCount', '{{formatted}} rows', {
           count: rowCount,
-          formatted: rowCount.toLocaleString(),
+          formatted: rowCount.toLocaleString(getIntlLocale()),
           defaultValue_one: '{{formatted}} row'
         })}
       </span>
       <span>
         {translate('auto.components.editor.CsvViewer.columnCount', '{{formatted}} columns', {
           count: columnCount,
-          formatted: columnCount.toLocaleString(),
+          formatted: columnCount.toLocaleString(getIntlLocale()),
           defaultValue_one: '{{formatted}} column'
         })}
       </span>

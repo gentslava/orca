@@ -1,6 +1,7 @@
 // Exercise real editor in Chromium/WebKit under shipped CSP: toolbar effects, private ready/change seam, listener/style cleanup, font floor and URL modal.
 // Native WebView postMessage/injectJavaScript are replaced by direct module calls; execCommand behavior requires real engines.
 import { Buffer } from 'node:buffer'
+import { codeBlockSelectionTest } from './mobile-web-app-code-block-selection.mjs'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -314,9 +315,7 @@ async function select(page, how) {
   }, how)
 }
 
-async function press(page, label) {
-  await page.locator(`[aria-label="${label}"]`).click()
-}
+const press = (page, label) => page.locator(`[aria-label="${label}"]`).click()
 
 describeEditor(
   'the rich Markdown editor on the page',
@@ -553,6 +552,8 @@ describeEditor(
             await page.close()
           }
         }, 600_000)
+
+        codeBlockSelectionTest(() => browser, openPage, setContent, select, press, readSurface)
 
         it('opens a link through the host rather than navigating the page', async () => {
           const { page } = await openPage(browser)

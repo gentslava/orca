@@ -121,9 +121,9 @@ export function skillDeleteNothingToDoLabel(count: number): string {
         'That skill cannot be deleted from here.'
       )
     : translate(
-        'auto.components.skills.SkillDelete.nothing_other',
+        'auto.components.skills.SkillDelete.nothing',
         'None of the {{count}} selected skills can be deleted from here.',
-        { count }
+        { count, defaultValue_one: 'The {{count}} selected skill cannot be deleted from here.' }
       )
 }
 

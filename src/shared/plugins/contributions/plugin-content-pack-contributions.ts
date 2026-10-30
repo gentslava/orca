@@ -197,8 +197,6 @@ export const pluginSyntaxContributionSchema = z
   .strict()
   .meta({ id: 'SyntaxContribution', description: 'Syntax highlighting for one language.' })
 
-export type PluginLanguagePackContribution = z.infer<typeof pluginLanguagePackContributionSchema>
 export type PluginKeybindingContribution = z.infer<typeof pluginKeybindingContributionSchema>
-export type PluginVmRecipeContribution = z.infer<typeof pluginVmRecipeContributionSchema>
 export type PluginThemeContribution = z.infer<typeof pluginThemeContributionSchema>
 export type PluginSyntaxContribution = z.infer<typeof pluginSyntaxContributionSchema>

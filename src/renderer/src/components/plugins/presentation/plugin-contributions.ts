@@ -6,7 +6,7 @@ import {
   type PluginContributionPoint
 } from '../../../../../shared/plugins/contributions/plugin-contribution-points'
 import type { PluginManifest } from '../../../../../shared/plugins/manifest/plugin-manifest'
-import { translate } from '@/i18n/i18n'
+import { getIntlLocale, translate } from '@/i18n/i18n'
 
 /** The manifest points shown as named rows; commands, shortcuts and events have their own lists. */
 export type PluginContributionKind = Exclude<
@@ -73,7 +73,7 @@ export function nameFromContributionPath(path: string): string {
 
 export function languageDisplayName(locale: string): string {
   try {
-    return new Intl.DisplayNames(undefined, { type: 'language' }).of(locale) ?? locale
+    return new Intl.DisplayNames(getIntlLocale(), { type: 'language' }).of(locale) ?? locale
   } catch {
     return locale
   }

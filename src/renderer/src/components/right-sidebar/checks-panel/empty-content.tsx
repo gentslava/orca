@@ -8,7 +8,7 @@ import {
 } from '../checks-panel-empty-state'
 import { openChecksPanelHostedReviewUrl } from '../checks-panel-hosted-review-click-routing'
 import { isMacPlatform } from '../../terminal-pane/terminal-link-open-hints'
-import { translate } from '@/i18n/i18n'
+import { getIntlLocale, translate } from '@/i18n/i18n'
 import { localizedHostedReviewCopy } from '@/i18n/hosted-review-localized-copy'
 import { isGitHubPRSuppressed } from '../../../../../shared/worktree/github-pr-suppression'
 import type { ChecksPanelEmptyContentModel } from './empty-content-props'
@@ -221,7 +221,7 @@ export function ChecksPanelEmptyContent({
         ? translate(
             'auto.components.right.sidebar.ChecksPanel.review.auto_retry',
             'Orca will retry at {{time}}.',
-            { time: new Date(reviewState.autoRetryAt).toLocaleTimeString() }
+            { time: new Date(reviewState.autoRetryAt).toLocaleTimeString(getIntlLocale()) }
           )
         : null
     const reviewRecoveryRetryDisabled =
