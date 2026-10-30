@@ -1,6 +1,7 @@
 // Which live workspace owns a saved session's cwd, on the host that recorded it; shared by desktop and mobile.
 
 import { createNormalizedAiVaultScopeCwdMatcher } from './ai-vault-scope-cwd-match'
+import { parseWslUncPath } from './wsl-paths'
 import { splitWorktreeIdForFilesystem } from './worktree/id'
 import {
   getRepoExecutionHostId,
@@ -15,6 +16,7 @@ import {
 } from './cross-platform-path'
 import type { AiVaultSession } from './ai-vault-types'
 import type { Worktree } from './worktree/types'
+import { matchAiVaultSessionCwdCandidates } from './ai-vault-session-cwd-candidates'
 
 /** The workspace fields that decide ownership; folder workspaces pass their folder row. */
 export type AiVaultSessionOwnerWorkspace = Pick<
@@ -47,6 +49,7 @@ type WorktreeCandidate = {
   // Precomputed so a 500-session scan doesn't re-normalize ~500 roots per session.
   ownsNormalizedCwd: ReturnType<typeof createNormalizedAiVaultScopeCwdMatcher>
   normalizedPathLength: number
+  normalizedPath: string
 }
 
 export function resolveAiVaultSessionWorktreeInfo({
@@ -86,11 +89,12 @@ function resolveWorktreeInfoFromCandidates(
   }
 
   const sessionHostId = normalizeExecutionHostId(session.executionHostId)
-  const normalizedCwd = normalizeRuntimePathForComparison(session.cwd)
-  const matched = candidates
-    .filter((candidate) => candidate.ownsNormalizedCwd(normalizedCwd, session.filePath))
-    .filter((candidate) => !sessionHostId || candidate.hostId === sessionHostId)
-    .sort(compareWorktreeCandidates)
+  const matched = matchAiVaultSessionCwdCandidates(
+    session,
+    session.cwd,
+    candidates.filter((candidate) => !sessionHostId || candidate.hostId === sessionHostId),
+    compareWorktreeCandidates
+  )
 
   const best = matched[0]
   if (!best) {
@@ -216,34 +220,40 @@ function buildWorktreeCandidates(
       normalizeExecutionHostId(worktree.hostId) ??
       (repo ? getRepoExecutionHostId(repo) : LOCAL_EXECUTION_HOST_ID)
     if (hasUsablePath(worktree.path)) {
-      candidates.push(makeWorktreeCandidate(worktree, worktree.path, hostId, 'current-path'))
+      candidates.push(...makeWorktreeCandidates(worktree, worktree.path, hostId, 'current-path'))
     }
     for (const priorWorktreeId of worktree.priorWorktreeIds ?? []) {
       const parsed = splitWorktreeIdForFilesystem(priorWorktreeId)
       if (!parsed || parsed.repoId !== worktree.repoId || !hasUsablePath(parsed.worktreePath)) {
         continue
       }
-      candidates.push(makeWorktreeCandidate(worktree, parsed.worktreePath, hostId, 'prior-path'))
+      candidates.push(
+        ...makeWorktreeCandidates(worktree, parsed.worktreePath, hostId, 'prior-path')
+      )
     }
   }
   return candidates
 }
 
-function makeWorktreeCandidate(
+function makeWorktreeCandidates(
   worktree: AiVaultSessionOwnerWorkspace,
   path: string,
   hostId: ExecutionHostId,
   source: WorktreeCandidate['source']
-): WorktreeCandidate {
-  return {
+): WorktreeCandidate[] {
+  // A WSL UNC root also owns sessions recorded under its Linux-native cwd.
+  const wslPath = parseWslUncPath(path)
+  const cwdPaths = wslPath ? [path, wslPath.linuxPath] : [path]
+  return cwdPaths.map((cwdPath): WorktreeCandidate => ({
     worktree,
     path,
     hostId,
     status: worktree.isArchived ? 'archived' : 'active',
     source,
     ownsNormalizedCwd: createNormalizedAiVaultScopeCwdMatcher([path]),
+    normalizedPath: normalizeRuntimePathForComparison(cwdPath),
     normalizedPathLength: normalizeRuntimePathForComparison(path).length
-  }
+  }))
 }
 
 function hasUsablePath(pathValue: string): boolean {
