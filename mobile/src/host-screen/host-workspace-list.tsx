@@ -34,8 +34,10 @@ import { HostPendingCreationRow } from './host-pending-creation-row'
 import { useSlowPendingKeys } from './use-slow-pending-keys'
 import { projectGroupHeaderIndent } from '../worktree/project-group-indent'
 import type { HostScreenController } from './use-host-screen-controller'
+import { useMobileTranslation } from '../i18n/use-mobile-translation'
 
 export function HostWorkspaceList({ controller }: { controller: HostScreenController }) {
+  const t = useMobileTranslation()
   const colorScheme = useMobileColorScheme()
   const {
     actions,
@@ -126,11 +128,14 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
           <MobileSearchField
             value={state.search}
             onChangeText={state.setSearch}
-            placeholder="Search workspaces…"
+            placeholder={t('hostScreen.hostWorkspaceList.searchPlaceholder', 'Search workspaces…')}
             autoFocus
             // Remount the focus effect per open so rapid search toggles reopen the keyboard.
             focusKey={state.showSearch}
-            accessibilityLabel="Search workspaces"
+            accessibilityLabel={t(
+              'hostScreen.hostWorkspaceList.searchWorkspaces',
+              'Search workspaces'
+            )}
           />
         </View>
       )}
@@ -181,7 +186,8 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
             if (!section.title) {
               return pendingCreations ? <>{pendingCreations}</> : null
             }
-            const isCollapsed = controller.collapsedGroups.has(section.key)
+            const collapseKey = section.collapseKey ?? section.key
+            const isCollapsed = controller.collapsedGroups.has(collapseKey)
             const count =
               section.count ?? rawSections.find((s) => s.key === section.key)?.data.length ?? 0
             const repoSectionLook =
@@ -213,7 +219,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
                         }
                       : null
                   ]}
-                  onPress={() => settings.toggleCollapsed(section.key)}
+                  onPress={() => settings.toggleCollapsed(collapseKey)}
                 >
                   {isCollapsed ? (
                     <ChevronRight size={12} color={colors.textMuted} style={styles.sectionIcon} />
@@ -239,7 +245,11 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
                   {projectKey && section.repo && settings.supportsPersonalProjectOrder ? (
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={projectPinned ? 'Unpin project' : 'Pin project'}
+                      accessibilityLabel={
+                        projectPinned
+                          ? t('hostScreen.project.unpin', 'Unpin project')
+                          : t('hostScreen.project.pin', 'Pin project')
+                      }
                       hitSlop={8}
                       onPress={(event) => {
                         event.stopPropagation()
@@ -254,7 +264,7 @@ export function HostWorkspaceList({ controller }: { controller: HostScreenContro
                       />
                     </Pressable>
                   ) : null}
-                  {pendingCollapseKeys.has(section.key) && (
+                  {pendingCollapseKeys.has(collapseKey) && (
                     <ActivityIndicator
                       size="small"
                       color={colors.textMuted}

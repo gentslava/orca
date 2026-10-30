@@ -143,6 +143,7 @@ export const UI_STATE_GLOBAL_FIELDS = [
   'usagePercentageDisplayChangeNoticeDismissed',
   'statusBarCompactChangeNoticeDismissed',
   'usageEmptyStateDismissed',
+  'pluginsAlphaNoticeDismissed',
   'codexTerminalServerIsolationNoticeSeen',
   'codexSharedSettingsNoticeSeen',
   'claudeDiffPanelNoticeSeen',

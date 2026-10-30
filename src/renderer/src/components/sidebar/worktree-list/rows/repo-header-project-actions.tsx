@@ -1,4 +1,5 @@
 import { ProjectPinMenuItem } from '../../project-pin-menu-item'
+import { useTranslation } from 'react-i18next'
 import React from 'react'
 import { useRepoSshGate } from '@/hooks/use-repo-ssh-gate'
 import {
@@ -76,10 +77,12 @@ export type RepoHeaderProjectActions = {
   onMoveProjectToGroup: (repo: Repo, groupId: string) => void
   onRemoveProjectFromGroup: (repo: Repo) => void
   onRemoveProject: (repo: Repo) => void
-  onCreateForRepo: (projectId: string) => void
+  /** `pinHost`: the header heads one host section, so its repo is that host's own registration. */
+  onCreateForRepo: (repo: Repo, options: { pinHost: boolean }) => void
 }
 
-export function RepoHeaderProjectActionsMenu({
+// Memoized: the sidebar re-renders every header row when the active workspace changes.
+export const RepoHeaderProjectActionsMenu = React.memo(function RepoHeaderProjectActionsMenu({
   repo,
   label,
   projectGroups,
@@ -90,6 +93,8 @@ export function RepoHeaderProjectActionsMenu({
   projectGroups: readonly ProjectGroup[]
   actions: RepoHeaderProjectActions
 }): React.JSX.Element {
+  // Memoized: subscribe so a language change still repaints its labels.
+  useTranslation()
   return (
     <DropdownMenu modal={false}>
       <Tooltip>
@@ -186,17 +191,21 @@ export function RepoHeaderProjectActionsMenu({
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+})
 
-export function RepoHeaderCreateWorkspaceButton({
+export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCreateWorkspaceButton({
   repo,
   label,
+  pinHost = false,
   onCreateForRepo
 }: {
   repo: Repo
   label: string
-  onCreateForRepo: (projectId: string) => void
+  pinHost?: boolean
+  onCreateForRepo: RepoHeaderProjectActions['onCreateForRepo']
 }): React.JSX.Element {
+  // Memoized: subscribe so a language change still repaints its labels.
+  useTranslation()
   const sshGate = useRepoSshGate(repo)
   const createState = getRepoHeaderCreateState({ repo, label, sshGate })
   const fallbackLabel = translate(
@@ -244,7 +253,7 @@ export function RepoHeaderCreateWorkspaceButton({
             onClick={(event) => {
               event.preventDefault()
               event.stopPropagation()
-              onCreateForRepo(repo.id)
+              onCreateForRepo(repo, { pinHost })
             }}
           >
             <Plus className="size-3" />
@@ -256,4 +265,4 @@ export function RepoHeaderCreateWorkspaceButton({
       </TooltipContent>
     </Tooltip>
   )
-}
+})

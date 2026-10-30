@@ -1,6 +1,6 @@
 import { estimateRenderRowSize } from './worktree-list/viewport/virtual-rows'
 import type { RenderRow } from './worktree-list/listing/render-row'
-import type { GroupHeaderRow } from '../../../../shared/sidebar-list/row-types'
+import { getHeaderDragRepo, type GroupHeaderRow } from '../../../../shared/sidebar-list/row-types'
 
 function getEstimatedRenderRowStarts(
   rows: readonly RenderRow[],
@@ -90,9 +90,9 @@ export function getRepoHeaderSectionEndByKey(args: {
   keyOf?: (row: GroupHeaderRow) => string | undefined
 }): Map<string, number> {
   const rowStarts = getEstimatedRenderRowStarts(args.rows, args.firstHeaderIndex)
-  const keyOf = args.keyOf ?? ((row: GroupHeaderRow) => row.repo?.id)
+  const keyOf = args.keyOf ?? ((row: GroupHeaderRow) => getHeaderDragRepo(row)?.id)
   const repoHeaderIndexByBucketAndRepoId = indexHeaderRenderRows(args.rows, (row) =>
-    row.repo
+    getHeaderDragRepo(row)
       ? JSON.stringify([args.repoHeaderBucketByKey.get(keyOf(row) ?? ''), keyOf(row)])
       : undefined
   )
@@ -100,7 +100,7 @@ export function getRepoHeaderSectionEndByKey(args: {
   const sectionEndByKey = new Map<string, number>()
   for (let index = 0; index < args.rows.length; index++) {
     const row = args.rows[index]
-    if (row?.type !== 'header' || !row.repo?.id) {
+    if (row?.type !== 'header' || !getHeaderDragRepo(row)?.id) {
       continue
     }
     const rowKey = keyOf(row)
@@ -128,7 +128,7 @@ export function getProjectGroupHeaderSectionEndByGroupId(args: {
 }): Map<string, number> {
   const rowStarts = getEstimatedRenderRowStarts(args.rows, args.firstHeaderIndex)
   const projectGroupHeaderIndexByGroupId = indexHeaderRenderRows(args.rows, (row) =>
-    row.repo ? undefined : row.projectGroup?.id
+    row.repo || row.repeated ? undefined : row.projectGroup?.id
   )
   const groupSuccessorsByBucket = indexBucketSuccessors(args.sidebarProjectGroupHeaderIdsByBucket)
   const sectionEndByGroupId = new Map<string, number>()
@@ -137,6 +137,7 @@ export function getProjectGroupHeaderSectionEndByGroupId(args: {
     const projectGroupHeader =
       row?.type === 'header' &&
       !row.repo &&
+      !row.repeated &&
       row.projectGroup &&
       typeof row.projectGroup.id === 'string'
         ? { row, groupId: row.projectGroup.id }
