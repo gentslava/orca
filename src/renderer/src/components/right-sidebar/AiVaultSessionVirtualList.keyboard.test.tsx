@@ -25,7 +25,9 @@ const VIEWPORT_PX = 600
 const ROW_PX = 98
 
 vi.mock('./AiVaultSessionRow', () => ({
-  VaultSessionRow: (props: { session: AiVaultSession }) => <div>{props.session.title}</div>
+  VaultSessionRow: (props: { session: AiVaultSession; detailsExpanded: boolean }) => (
+    <div data-details-expanded={props.detailsExpanded}>{props.session.title}</div>
+  )
 }))
 // The host's side of a resumed chat: it admits the chat, then the launch settles as the test says.
 const launch = vi.hoisted(
@@ -297,8 +299,54 @@ afterEach(() => {
 })
 
 describe('Session History keyboard selection', () => {
-  it.each(['structured', 'adopted-here', 'adopted-elsewhere'] as const)(
-    'keeps the selected remote owner when reopening %s from /resume',
+  it.each(['structured-other-workspace', 'cli-ineligible', 'cli-eligible'] as const)(
+    'keeps the Enter fallback for an unroutable %s row',
+    async (kind) => {
+      const workspaceId = 'folder:notes'
+      const picked: AiVaultSession = {
+        ...session(0),
+        executionHostId: 'ssh:unroutable',
+        ...(kind === 'structured-other-workspace'
+          ? { structuredSession: { sessionId: 'picked', workspaceId: 'folder:elsewhere' } }
+          : {})
+      }
+      useAppStore.setState(useAppStore.getInitialState(), true)
+      useAppStore.setState({ activeWorktreeId: workspaceId })
+      useAppStore.getState().createUnifiedTab(workspaceId, 'agent-session', {
+        id: 'old',
+        entityId: 'old',
+        executionHostId: LOCAL_EXECUTION_HOST_ID,
+        agentSessionAgent: 'claude'
+      })
+      main = await drawTabsFromMain(useAppStore)
+      const dismiss = vi.fn()
+      const confirm = vi.fn()
+      const { press, calls } = renderList({
+        groups: [{ key: 'picked', label: null, sessions: [picked] }],
+        eligible: () => kind !== 'cli-ineligible',
+        resumeHere: { tabId: 'old', workspaceId, agent: 'claude', dismiss, confirm }
+      })
+      press('Enter')
+      await act(async () => {
+        await main?.settle()
+      })
+      expect(document.querySelector('[data-details-expanded="true"]') !== null).toBe(
+        kind !== 'cli-eligible'
+      )
+      expect(toastError).toHaveBeenCalledTimes(kind === 'cli-eligible' ? 1 : 0)
+      expect(activateAiVaultStructuredSession).not.toHaveBeenCalled()
+      expect(calls.onResumeInNewChat).not.toHaveBeenCalled()
+      expect(calls.onResume).not.toHaveBeenCalled()
+      expect(dismiss).not.toHaveBeenCalled()
+      expect(confirm).not.toHaveBeenCalled()
+      expect(
+        useAppStore.getState().unifiedTabsByWorktree[workspaceId]?.map((tab) => tab.id)
+      ).toEqual(['old'])
+    }
+  )
+
+  it.each(['structured', 'adopted-here', 'adopted-elsewhere', 'unroutable', 'local'] as const)(
+    'keeps the selected owner when reopening %s from /resume',
     async (kind) => {
       const workspaceId = 'folder:notes'
       const owner = {
@@ -307,8 +355,15 @@ describe('Session History keyboard selection', () => {
       }
       const picked: AiVaultSession = {
         ...session(0),
-        executionHostId: 'runtime:selected-host',
-        ...(kind === 'structured' ? { structuredSession: owner } : {})
+        executionHostId:
+          kind === 'unroutable'
+            ? 'ssh:unroutable'
+            : kind === 'local'
+              ? 'local'
+              : 'runtime:selected-host',
+        ...(kind === 'structured' || kind === 'unroutable' || kind === 'local'
+          ? { structuredSession: owner }
+          : {})
       }
       useAppStore.setState(useAppStore.getInitialState(), true)
       useAppStore.setState({
@@ -346,11 +401,22 @@ describe('Session History keyboard selection', () => {
         await new Promise((resolve) => setTimeout(resolve, 0))
         await main?.settle()
       })
-      expect(activateAiVaultStructuredSession).toHaveBeenCalledExactlyOnceWith({
-        structuredSession: owner,
-        executionHostId: picked.executionHostId
-      })
-      expect(toastError).not.toHaveBeenCalled()
+      if (kind === 'unroutable') {
+        expect(activateAiVaultStructuredSession).not.toHaveBeenCalled()
+        expect(toastError).toHaveBeenCalledOnce()
+        expect(
+          useAppStore.getState().unifiedTabsByWorktree[workspaceId]?.some((tab) => tab.id === 'old')
+        ).toBe(true)
+      } else {
+        expect(activateAiVaultStructuredSession).toHaveBeenCalledExactlyOnceWith(
+          { structuredSession: owner },
+          undefined,
+          kind === 'local'
+            ? { kind: 'local' }
+            : { kind: 'environment', environmentId: 'selected-host' }
+        )
+        expect(toastError).not.toHaveBeenCalled()
+      }
     }
   )
 

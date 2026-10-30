@@ -15,6 +15,7 @@ import { useConversationPreferences } from './use-conversation-preferences'
 
 function endpoint() {
   let preferences = { revision: 0, entries: {} }
+  let generation = 0
   const sendRequest = vi.fn<RpcClient['sendRequest']>(async (_method, params) => {
     preferences = updateConversationPreference(
       preferences,
@@ -22,7 +23,13 @@ function endpoint() {
     )
     return { id: 'write', ok: true, result: { preferences } }
   })
-  return { client: { ...new FakeSession('connected'), sendRequest }, sendRequest }
+  return {
+    client: { ...new FakeSession('connected'), getGeneration: () => generation, sendRequest },
+    sendRequest,
+    advanceGeneration: () => {
+      generation += 1
+    }
+  }
 }
 
 describe('host-owned mobile conversation preferences', () => {
@@ -110,6 +117,31 @@ describe('host-owned mobile conversation preferences', () => {
           id: 'old-write',
           ok: true,
           result: { preferences: { revision: 999, entries: { chat: { archived: true } } } }
+        })
+        expect(await pending).toBe(false)
+      })
+      expect(observed.view.conversationPreferences?.entries).toEqual({
+        'second-chat': { archived: true }
+      })
+      second.sendRequest.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveOld = resolve
+          })
+      )
+      act(() => {
+        pending = observed.current?.setPreference('second-chat', { pinned: true })
+      })
+      second.advanceGeneration()
+      await act(async () => tree?.update(createElement(Probe)))
+      expect(observed.current?.writing).toBe(false)
+      await act(async () => {
+        resolveOld({
+          id: 'old-generation',
+          ok: true,
+          result: {
+            preferences: { revision: 999, entries: { 'second-chat': { pinned: true } } }
+          }
         })
         expect(await pending).toBe(false)
       })

@@ -134,7 +134,7 @@ export function HostConversations({
             onPress={actions.leaveHost}
             style={styles.iconButton}
             accessibilityRole="button"
-            accessibilityLabel={t('hostScreen.conversations.backToHosts', 'Back to hosts')}
+            accessibilityLabel={t('hostScreen.hostScreenHeader.backToHosts', 'Back to hosts')}
           >
             <ChevronLeft size={22} color={colors.textPrimary} />
           </Pressable>
@@ -152,7 +152,7 @@ export function HostConversations({
               onPress={controller.onHideSidebar}
               style={styles.iconButton}
               accessibilityRole="button"
-              accessibilityLabel={t('hostScreen.conversations.hideSidebar', 'Hide sidebar')}
+              accessibilityLabel={t('hostScreen.hostScreenHeader.hideSidebar', 'Hide sidebar')}
             >
               <ChevronLeft size={18} color={colors.textSecondary} />
             </Pressable>
