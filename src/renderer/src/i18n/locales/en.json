@@ -147,15 +147,6 @@
         "removalUnrecorded": "Orca couldn’t record what this Remove left running: {{detail}}"
       }
     },
-    "projectOrder": {
-      "pin": "Pin project",
-      "unpin": "Unpin project",
-      "frequent": "Frequent",
-      "recentDescription": "Most recently opened by you",
-      "frequentDescription": "Most project openings by you",
-      "nameDescription": "Project name, A to Z",
-      "saveFailed": "Could not save project order"
-    },
     "agentSummary": {
       "state": {
         "waiting": "waiting",
@@ -222,6 +213,18 @@
         "needsAttention_one": "{{count}} agent needs attention",
         "needsAttention_other": "All {{count}} agents needs attention"
       }
+    },
+    "cardProperties": {
+      "agentModel": "Agent model"
+    },
+    "projectOrder": {
+      "pin": "Pin project",
+      "unpin": "Unpin project",
+      "frequent": "Frequent",
+      "recentDescription": "Most recently opened by you",
+      "frequentDescription": "Most project openings by you",
+      "nameDescription": "Project name, A to Z",
+      "saveFailed": "Could not save project order"
     }
   },
   "app": {
@@ -533,15 +536,9 @@
       },
       "providers": {
         "title": "Providers",
-        "description": "Choose which agents open as a chat. Turned off, an installed agent opens in a terminal.",
         "searchAgents": "agents",
         "searchCli": "CLI",
         "searchTerminal": "terminal",
-        "agentDisabled": "Turned off in Agent settings",
-        "installed": "Installed",
-        "notInstalled": "Not installed",
-        "install": "Install",
-        "toggleLabel": "Open {{value0}} as a chat",
         "antigravityDescription": "Antigravity chats run a server Orca downloads to this host, separate from the agy CLI.",
         "antigravityNotSignedIn": "Not signed in. Chats need an Antigravity sign-in, separate from your agy terminal account.",
         "antigravityAccount": "Account",
@@ -823,7 +820,6 @@
       "defaultOpensAs": "Open {{value0}} as",
       "defaultOpensAsChat": "Chat",
       "defaultOpensAsCli": "CLI",
-      "defaultOpensAsScope": "Applies to new {{value0}} sessions launched from this computer, including on paired hosts. Matches its Providers switch.",
       "save": "Save",
       "clearDefault": "Clear default agent",
       "autoUnsupported": "Approve for me needs a newer Orca on this host.",
@@ -876,7 +872,11 @@
         "description": "Lets each Codex account, and your own ~/.codex, resume conversations started on the others. Turn off to keep every account's history separate. Turning it off removes nothing already shared.",
         "unsupported": "Update Orca on {{host}} to change this setting there.",
         "updateFailed": "Could not update the setting on {{host}}."
-      }
+      },
+      "installCliForTerminal": "Install the {{value0}} CLI to open it in a terminal.",
+      "chatRuntime": "Chat runtime",
+      "chatChoiceTitle": "Open as chat or CLI",
+      "chatChoiceDescription": "Choose whether each agent opens as a chat or in its CLI."
     },
     "followSymlinkedDirectoriesKeywords": {
       "symlink": "symlink",
@@ -970,48 +970,6 @@
         "devinDesktop": "Devin Desktop"
       }
     },
-    "orchestration": {
-      "roles": {
-        "agent": "Agent",
-        "unconfigured": "Not configured",
-        "model": "Model",
-        "agentDefault": "Agent default",
-        "effort": "Reasoning effort",
-        "fast": "Fast",
-        "on": "On",
-        "off": "Off",
-        "title": "Worker roles",
-        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
-        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
-        "clear": "Clear profile",
-        "new": "Add a role",
-        "add": "Add",
-        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
-        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
-        "research": "Research",
-        "implementation": "Implementation",
-        "review": "Review",
-        "keyword": {
-          "role": "role",
-          "profile": "profile",
-          "research": "research",
-          "implementation": "implementation",
-          "review": "review",
-          "model": "model",
-          "effort": "effort",
-          "fast": "fast",
-          "provider": "provider"
-        },
-        "modelsUnavailable": "No models reported by this host.",
-        "unavailable": "Unavailable",
-        "notListed": "Not listed",
-        "checking": "Checking…",
-        "refreshingModels": "Refreshing models…",
-        "modelsFailed": "Could not load models.",
-        "modelErrorDetails": "Details",
-        "retryModels": "Retry"
-      }
-    },
     "network": {
       "proxyUrlErrors": {
         "tooLong": "Proxy URL is too long.",
@@ -1059,6 +1017,48 @@
         "tooLarge": "Repo icon image must be 256KB or smaller.",
         "unsupportedImage": "Choose a PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF image.",
         "sourceTooLarge": "Repo icon image must be 10MB or smaller."
+      }
+    },
+    "orchestration": {
+      "roles": {
+        "agent": "Agent",
+        "unconfigured": "Not configured",
+        "model": "Model",
+        "agentDefault": "Agent default",
+        "effort": "Reasoning effort",
+        "fast": "Fast",
+        "on": "On",
+        "off": "Off",
+        "title": "Worker roles",
+        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
+        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
+        "clear": "Clear profile",
+        "new": "Add a role",
+        "add": "Add",
+        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
+        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
+        "research": "Research",
+        "implementation": "Implementation",
+        "review": "Review",
+        "keyword": {
+          "role": "role",
+          "profile": "profile",
+          "research": "research",
+          "implementation": "implementation",
+          "review": "review",
+          "model": "model",
+          "effort": "effort",
+          "fast": "fast",
+          "provider": "provider"
+        },
+        "modelsUnavailable": "No models reported by this host.",
+        "unavailable": "Unavailable",
+        "notListed": "Not listed",
+        "checking": "Checking…",
+        "refreshingModels": "Refreshing models…",
+        "modelsFailed": "Could not load models.",
+        "modelErrorDetails": "Details",
+        "retryModels": "Retry"
       }
     }
   },
@@ -13907,6 +13907,9 @@
             "clearNotesFromWorkspace_other": "Clear {{count}} notes from this workspace?",
             "clearNotesFromFile_one": "Clear {{count}} note from {{path}}?",
             "clearNotesFromFile_other": "Clear {{count}} notes from {{path}}?",
+            "markResolved": "Mark as resolved",
+            "keepFile": "Keep file",
+            "keepDeletion": "Keep deletion",
             "conflictCount": "{{count}} conflicts"
           },
           "SourceControlAgentActionDialog": {
@@ -14499,7 +14502,8 @@
                     "edc2d82a2b": "Merge in progress",
                     "5c3707aa44": "Rebase in progress",
                     "ffe53a1da6": "Cherry-pick in progress",
-                    "35eb76d323": "Operation in progress"
+                    "35eb76d323": "Operation in progress",
+                    "completeMerge": "Complete merge"
                   }
                 }
               },
@@ -14528,7 +14532,8 @@
                   "e7876a2bde": "Stage at least one file to generate a message.",
                   "0904be2505": "Clear the message to regenerate.",
                   "1ea9ba37aa": "Pick an agent in Settings -> Git -> Source Control AI."
-                }
+                },
+                "completeMergeFailed": "Complete merge failed"
               }
             }
           },
@@ -14570,8 +14575,7 @@
             "permanentlyDeleteItems_one": "Permanently delete {{count}} item?"
           },
           "useFileExplorerHandlers": {
-            "32cd9fd991": "Cannot open symlink target",
-            "folderLinksOutsideProject": "This folder links outside the project, so it can't be opened here."
+            "32cd9fd991": "Cannot open symlink target"
           },
           "useFileExplorerImport": {
             "importFailedCount_one": "Failed to import {{count}} file.",
@@ -19011,6 +19015,12 @@
       "forgeCredentialTarget": {
         "unknownHost": "The machine that owns this repository is not known yet. Reconnect it and try again.",
         "thisComputer": "this computer"
+      },
+      "runtimeGitSyncClient": {
+        "completeMergeNeedsNewerHost": "Completing a merge needs a newer Orca on this host. Update Orca on that host."
+      },
+      "runtimeGitWorkingTreeClient": {
+        "resolveConflictNeedsNewerHost": "Resolving conflicts needs a newer Orca on this host. Update Orca on that host."
       }
     },
     "ssh": {
@@ -19826,6 +19836,7 @@
         "goToAgent": "Go to agent",
         "messageFromCoordinator": "Message from coordinator",
         "showMore": "Show more",
+        "startedWorker": "Started worker",
         "taskFromCoordinator": "Task from coordinator",
         "updateFromWorker": "Update from worker"
       },
@@ -20075,31 +20086,6 @@
         "commandCanceled": "Chat UI command was canceled because the composer closed.",
         "commandRejected": "The terminal did not accept the command."
       },
-      "children": {
-        "back": "Back to conversation",
-        "started": "Started {{value0}}",
-        "finished": "Finished {{value0}}",
-        "loading": "Loading agent history…",
-        "unavailable": "This host has not supplied the agent’s conversation history.",
-        "loadEarlier": "Load earlier history",
-        "result": "Recorded result",
-        "starting": "Starting",
-        "unavailableState": "Unavailable",
-        "workersUnavailable": "This host’s worker history is unavailable.",
-        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
-        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
-        "metadata": {
-          "localHost": "Local execution host",
-          "environment": "Environment {{value0}}",
-          "wsl": "WSL · {{value0}}",
-          "ssh": "SSH · {{value0}}",
-          "unknown": "Unknown",
-          "agent": "Agent",
-          "host": "Execution host"
-        },
-        "identityUnavailable": "This worker’s conversation identity could not be verified.",
-        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
-      },
       "sessionOptionErrors": {
         "startOnly": "This option can only be set when the session starts.",
         "modelRejected": "Claude kept the current model.",
@@ -20130,6 +20116,31 @@
       },
       "webPeek": {
         "unavailable": "No preview for this page."
+      },
+      "children": {
+        "back": "Back to conversation",
+        "started": "Started {{value0}}",
+        "finished": "Finished {{value0}}",
+        "loading": "Loading agent history…",
+        "unavailable": "This host has not supplied the agent’s conversation history.",
+        "loadEarlier": "Load earlier history",
+        "result": "Recorded result",
+        "starting": "Starting",
+        "unavailableState": "Unavailable",
+        "workersUnavailable": "This host’s worker history is unavailable.",
+        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
+        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
+        "metadata": {
+          "localHost": "Local execution host",
+          "environment": "Environment {{value0}}",
+          "wsl": "WSL · {{value0}}",
+          "ssh": "SSH · {{value0}}",
+          "unknown": "Unknown",
+          "agent": "Agent",
+          "host": "Execution host"
+        },
+        "identityUnavailable": "This worker’s conversation identity could not be verified.",
+        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
       }
     },
     "tab": {
@@ -20619,7 +20630,7 @@
       "heroBody": "One-time {{size}} MB download. It's shared by {{agent}} chats on the computer running this chat.",
       "heroBodyNoSize": "One-time download. It's shared by {{agent}} chats on the computer running this chat.",
       "stripSize": "{{size}} MB download on the computer running this chat",
-      "settingsHint": "Also in Settings › Chat › Providers",
+      "settingsHint": "Also in Settings › Agents",
       "installShort": "Install",
       "tryAgain": "Try again",
       "cancelShort": "Cancel",
@@ -22664,6 +22675,29 @@
       "worktreeFolder": "New workspaces for this project are set to go inside WSL. Choose a folder on a Windows drive in this project’s settings first."
     }
   },
+  "wslDriveUnc": {
+    "label": "Location",
+    "description": "Orca opens this project through WSL. Open it at {{drivePath}} instead: Git runs on Windows, which is much faster here, and terminals and agents stay in {{distro}}.",
+    "convert": "Open at {{drivePath}}",
+    "review": "Orca pauses this project’s terminals, restarts, and reopens it at {{drivePath}}. Tabs, terminals with their history, chats and settings come along, and paused terminals pick up where they were.",
+    "cancel": "Cancel",
+    "confirm": "Restart and convert",
+    "failed": "Orca could not convert this project.",
+    "restarting": "Restarting Orca to convert this project…",
+    "terminalsBusy": "Some terminals in this project are busy. Let them finish or close them, then try again.",
+    "pauseFailed": "Orca could not pause this project’s terminals, so nothing changed.",
+    "blocker": {
+      "pending": "Orca is already converting a project. It finishes when Orca restarts.",
+      "state": "Orca found saved state for this project it can’t convert safely, so nothing changed.",
+      "duplicate": "{{drivePath}} is already a project in Orca.",
+      "mixed": "Some of this project’s folders are inside WSL, not on a Windows drive.",
+      "overlap": "This project shares folders with a project Orca can’t convert, so they would split.",
+      "notDriveMount": "In this distro, that folder isn’t {{drivePath}}: it isn’t mounted from that Windows drive.",
+      "notConvertible": "This project isn’t on a Windows drive on this computer.",
+      "differingState": "Orca saved different details for this folder under both its WSL path and {{drivePath}}, so nothing changed.",
+      "projectSplit": "This project also holds a repository that isn’t converting, so nothing changed."
+    }
+  },
   "runtime": {
     "health": {
       "mixed": "Mixed",
@@ -22997,6 +23031,22 @@
       "unmarkFile": "Unmark {{path}} as viewed"
     }
   },
+  "agentPicker": {
+    "search": "Search agents and setups…",
+    "configure": "Configure {{agent}}",
+    "arguments": "Arguments",
+    "argumentsHint": "Applies only to CLI launches.",
+    "launchChat": "Launch chat",
+    "launchTerminal": "Launch terminal",
+    "setByArguments": "Set by your Arguments",
+    "searchModels": "Search models",
+    "noModels": "No models match your search.",
+    "legacyModels": "Legacy models",
+    "toggleArguments": "Toggle Arguments",
+    "argumentsTerminalHint": "Only applies to terminal (CLI) launches",
+    "searchAgentModels": "Search {{agent}} models…",
+    "legacyModelCount": "{{total}} models"
+  },
   "automations": {
     "runFailures": {
       "noDispatchHost": "No Orca window was available to launch the automation.",
@@ -23118,100 +23168,6 @@
       "emailAndApiTokenRequired": "Enter both an email and an API token.",
       "rejected": "Bitbucket rejected these credentials. Check the email and token, then try again.",
       "unreachable": "Could not reach Bitbucket. Check your connection or the API base URL, then try again."
-    }
-  },
-  "holdQuit": {
-    "hint": "Agents are still working. Hold ⌘Q to quit.",
-    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
-  },
-  "floatingWorkspace": {
-    "minimizeWithShortcut": "Minimize floating workspace ({{shortcut}})",
-    "showWithShortcut": "Show floating workspace ({{shortcut}})"
-  },
-  "githubReactions": {},
-  "importedWorktrees": {},
-  "orcaYamlTrust": {
-    "script": {},
-    "trigger": {}
-  },
-  "worktreePorts": {},
-  "sshConfig": {
-    "import": {}
-  },
-  "localBaseRef": {},
-  "worktreeAgentSummary": {
-    "unknownAgent": "Agent",
-    "expand": "Expand agent summary: {{summary}}. {{identities}}",
-    "collapse": "Collapse agent summary: {{subject}}"
-  },
-  "projectGroups": {
-    "delete": {}
-  },
-  "workspacePorts": {},
-  "terminalDrop": {},
-  "webKeybindings": {},
-  "checks": {
-    "conflicts": {}
-  },
-  "browserGrab": {
-    "unknownError": "Unknown error"
-  },
-  "diffNotes": {},
-  "documentLinks": {
-    "keyboardHint": "↑↓ navigate  ↵ select  esc dismiss"
-  },
-  "projectConversations": {
-    "defaultGroupName": "{{project}} group",
-    "hideProject": "Hide project from list",
-    "hiddenProjects": "Hidden projects",
-    "keepFiles": "Files and history are kept",
-    "restoreProject": "Restore {{project}}",
-    "projectOptionsFor": "Project options for {{project}}",
-    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
-    "saveFailed": "Could not save chat preferences. Update Orca or try again.",
-    "unpin": "Unpin chat",
-    "pin": "Pin chat",
-    "restore": "Restore chat",
-    "archive": "Archive chat",
-    "working": "Working",
-    "needsYou": "Needs you",
-    "unpinProject": "Unpin project",
-    "pinProject": "Pin project",
-    "showMore": "Show more",
-    "newChatInProject": "New chat in {{project}}",
-    "projectOrder": "Project order",
-    "allChats": "Chats",
-    "archived": "Archived",
-    "moveUp": "Move up",
-    "moveDown": "Move down",
-    "noChats": "No chats yet",
-    "loading": "Loading chats…",
-    "noArchived": "No archived chats",
-    "noMatching": "No matching chats",
-    "search": "Search chats",
-    "untitled": "Untitled chat"
-  },
-  "wslDriveUnc": {
-    "label": "Location",
-    "description": "Orca opens this project through WSL. Open it at {{drivePath}} instead: Git runs on Windows, which is much faster here, and terminals and agents stay in {{distro}}.",
-    "convert": "Open at {{drivePath}}",
-    "review": "Orca pauses this project’s terminals, restarts, and reopens it at {{drivePath}}. Tabs, terminals with their history, chats and settings come along, and paused terminals pick up where they were.",
-    "cancel": "Cancel",
-    "confirm": "Restart and convert",
-    "failed": "Orca could not convert this project.",
-    "restarting": "Restarting Orca to convert this project…",
-    "terminalsBusy": "Some terminals in this project are busy. Let them finish or close them, then try again.",
-    "pauseFailed": "Orca could not pause this project’s terminals, so nothing changed.",
-    "blocker": {
-      "pending": "Orca is already converting a project. It finishes when Orca restarts.",
-      "state": "Orca found saved state for this project it can’t convert safely, so nothing changed.",
-      "duplicate": "{{drivePath}} is already a project in Orca.",
-      "mixed": "Some of this project’s folders are inside WSL, not on a Windows drive.",
-      "overlap": "This project shares folders with a project Orca can’t convert, so they would split.",
-      "notDriveMount": "In this distro, that folder isn’t {{drivePath}}: it isn’t mounted from that Windows drive.",
-      "notConvertible": "This project isn’t on a Windows drive on this computer.",
-      "differingState": "Orca saved different details for this folder under both its WSL path and {{drivePath}}, so nothing changed.",
-      "projectSplit": "This project also holds a repository that isn’t converting, so nothing changed."
     }
   },
   "featureWall": {
@@ -23434,5 +23390,76 @@
       "needsPermission": "Agent needs permission",
       "statusStale": "Agent status is stale"
     }
+  },
+  "holdQuit": {
+    "hint": "Agents are still working. Hold ⌘Q to quit.",
+    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
+  },
+  "floatingWorkspace": {
+    "minimizeWithShortcut": "Minimize floating workspace ({{shortcut}})",
+    "showWithShortcut": "Show floating workspace ({{shortcut}})"
+  },
+  "githubReactions": {},
+  "importedWorktrees": {},
+  "orcaYamlTrust": {
+    "script": {},
+    "trigger": {}
+  },
+  "worktreePorts": {},
+  "sshConfig": {
+    "import": {}
+  },
+  "localBaseRef": {},
+  "worktreeAgentSummary": {
+    "unknownAgent": "Agent",
+    "expand": "Expand agent summary: {{summary}}. {{identities}}",
+    "collapse": "Collapse agent summary: {{subject}}"
+  },
+  "projectGroups": {
+    "delete": {}
+  },
+  "workspacePorts": {},
+  "terminalDrop": {},
+  "webKeybindings": {},
+  "checks": {
+    "conflicts": {}
+  },
+  "browserGrab": {
+    "unknownError": "Unknown error"
+  },
+  "diffNotes": {},
+  "documentLinks": {
+    "keyboardHint": "↑↓ navigate  ↵ select  esc dismiss"
+  },
+  "projectConversations": {
+    "defaultGroupName": "{{project}} group",
+    "hideProject": "Hide project from list",
+    "hiddenProjects": "Hidden projects",
+    "keepFiles": "Files and history are kept",
+    "restoreProject": "Restore {{project}}",
+    "projectOptionsFor": "Project options for {{project}}",
+    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
+    "saveFailed": "Could not save chat preferences. Update Orca or try again.",
+    "unpin": "Unpin chat",
+    "pin": "Pin chat",
+    "restore": "Restore chat",
+    "archive": "Archive chat",
+    "working": "Working",
+    "needsYou": "Needs you",
+    "unpinProject": "Unpin project",
+    "pinProject": "Pin project",
+    "showMore": "Show more",
+    "newChatInProject": "New chat in {{project}}",
+    "projectOrder": "Project order",
+    "allChats": "Chats",
+    "archived": "Archived",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "noChats": "No chats yet",
+    "loading": "Loading chats…",
+    "noArchived": "No archived chats",
+    "noMatching": "No matching chats",
+    "search": "Search chats",
+    "untitled": "Untitled chat"
   }
 }

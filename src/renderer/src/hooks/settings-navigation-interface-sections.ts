@@ -4,7 +4,6 @@ import { getChatBehaviorSearchEntries } from '@/components/settings/chat-behavio
 import { getChatNamingSearchEntry } from '@/components/settings/chat-naming-search'
 import { getChatInlineVisualsSearchEntry } from '@/components/settings/chat-inline-visuals-search'
 import { getChatPermissionSearchEntry } from '@/components/settings/chat-permission-search'
-import { getChatProvidersSearchEntry } from '@/components/settings/chat-providers-search'
 import { getInputPaneSearchEntries } from '@/components/settings/input-search'
 import { getNotificationsPaneSearchEntries } from '@/components/settings/notifications-search'
 import { getShortcutsPaneSearchEntries } from '@/components/settings/shortcuts-search'
@@ -55,11 +54,7 @@ export function buildInterfaceSettingsSections({
               ...getChatAppearanceSearchEntries(),
               ...getChatBehaviorSearchEntries(),
               ...(showDesktopOnlySettings
-                ? [
-                    getChatProvidersSearchEntry(),
-                    getChatNamingSearchEntry(),
-                    getChatInlineVisualsSearchEntry()
-                  ]
+                ? [getChatNamingSearchEntry(), getChatInlineVisualsSearchEntry()]
                 : [])
             ],
             group: 'interface'
