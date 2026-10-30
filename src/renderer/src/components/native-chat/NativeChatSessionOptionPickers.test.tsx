@@ -4,11 +4,6 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testi
 import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { OMP_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-omp'
-import {
-  applyStructuredAgentSessionOptions,
-  createStructuredAgentSessionOptionState,
-  structuredAgentSessionOptionSnapshot
-} from '../../../../shared/structured-agent-session-options'
 import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
 import { RuntimeRpcCallError } from '@/runtime/runtime-rpc-result'
 
@@ -641,7 +636,7 @@ describe('NativeChatSessionOptionPickers', () => {
     expect(isOpen(pill('Model Opus 4.8, Effort High'))).toBe(false)
   })
 
-  it('shows one full effort label and exposes its provider description as the slider value', () => {
+  it('shows a compact effort label and exposes its provider description as the slider value', () => {
     render(
       <NativeChatSessionOptionPickers
         surface={surface}
@@ -664,7 +659,6 @@ describe('NativeChatSessionOptionPickers', () => {
       />
     )
     expect(effortSlider().getAttribute('aria-valuetext')).toBe('Extra high · Deepest reasoning')
-    expect(screen.getAllByText('Extra high')).toHaveLength(1)
     expect(screen.queryByRole('radiogroup', { name: 'Effort' })).toBeNull()
     expect(pill('Model Opus 4.8, Effort XHigh').textContent).toBe('Opus 4.8XHigh')
   })
@@ -674,7 +668,7 @@ describe('NativeChatSessionOptionPickers', () => {
     render(
       <NativeChatSessionOptionPickers
         surface={{ ...surface, setOption }}
-        snapshot={[model(), { ...effort, defaultChoice: { selected: true } }]}
+        snapshot={[model(), effort]}
         isWorking={false}
       />
     )
@@ -697,6 +691,7 @@ describe('NativeChatSessionOptionPickers', () => {
       />
     )
     const group = screen.getByRole('radiogroup', { name: 'Effort' })
+    expect(screen.queryByRole('slider')).toBeNull()
     expect(
       within(group)
         .getAllByRole('radio')

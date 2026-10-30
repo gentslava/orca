@@ -2,6 +2,12 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
+import { CODEX_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-claude-codex'
+import {
+  applyStructuredAgentSessionOptions,
+  createStructuredAgentSessionOptionState,
+  structuredAgentSessionOptionSnapshot
+} from '../../../../shared/structured-agent-session-options'
 import { NativeChatSessionOptionRows } from './NativeChatSessionOptionRows'
 
 vi.mock('@/i18n/i18n', () => ({ translate: (_key: string, fallback: string) => fallback }))
@@ -90,4 +96,41 @@ describe('effort drag lifetime', () => {
       expect(onSet).not.toHaveBeenCalled()
     }
   )
+})
+
+describe('unlisted effort controls', () => {
+  it('keeps an unlisted reported effort read-only through the actual snapshot pipeline', () => {
+    const state = applyStructuredAgentSessionOptions(
+      createStructuredAgentSessionOptionState('codex'),
+      CODEX_SESSION_OPTION_CATALOG,
+      {
+        models: [
+          {
+            id: 'account-model',
+            label: 'Account Model',
+            isDefault: true,
+            efforts: [
+              { value: 'low', label: 'Low' },
+              { value: 'high', label: 'High' }
+            ]
+          }
+        ],
+        current: { model: 'account-model', effort: 'unsupported-level', confirmed: ['effort'] }
+      }
+    )
+    const setOption = vi.fn()
+    render(
+      <NativeChatSessionOptionRows
+        options={structuredAgentSessionOptionSnapshot(state)}
+        pendingIds={new Set()}
+        shownReason={null}
+        onSet={setOption}
+        onAction={() => {}}
+      />
+    )
+    expect(screen.queryByRole('slider', { name: 'Effort' })).toBeNull()
+    expect(screen.queryByRole('radio', { name: 'unsupported-level' })).toBeNull()
+    expect(screen.getAllByText('unsupported-level').length).toBeGreaterThan(0)
+    expect(setOption).not.toHaveBeenCalled()
+  })
 })

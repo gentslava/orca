@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { defineFixture } from '../../component-fixtures/component-fixture'
-import { i18n } from '@/i18n/i18n'
+import { i18n, loadRendererUiLanguage } from '@/i18n/i18n'
 import { useTranslation } from 'react-i18next'
 import { NativeChatSessionOptionRows } from './NativeChatSessionOptionRows'
 
 function EffortExample({ currentValue = 'xhigh' }: { currentValue?: string }): React.JSX.Element {
   useTranslation()
+  const [selectedValue, setSelectedValue] = useState(currentValue)
   return (
     <div className="native-chat-appearance rounded-md border border-border bg-popover p-1 text-popover-foreground">
       <NativeChatSessionOptionRows
@@ -15,7 +17,7 @@ function EffortExample({ currentValue = 'xhigh' }: { currentValue?: string }): R
             category: 'thought_level',
             kind: {
               type: 'select',
-              currentValue,
+              currentValue: selectedValue,
               choices: [
                 { value: 'minimal', label: 'Minimal' },
                 { value: 'low', label: 'Low' },
@@ -32,18 +34,22 @@ function EffortExample({ currentValue = 'xhigh' }: { currentValue?: string }): R
         ]}
         shownReason={null}
         pendingIds={new Set()}
-        onSet={() => {}}
+        onSet={(_descriptor, value) => {
+          if (typeof value === 'string') {
+            setSelectedValue(value)
+          }
+        }}
         onAction={() => {}}
       />
     </div>
   )
 }
 
-export const russianEffort = defineFixture({
+export const effort = defineFixture({
   width: 320,
   render: () => <EffortExample />,
   interact: async () => {
-    await i18n.changeLanguage('ru')
+    await i18n.changeLanguage(await loadRendererUiLanguage('en'))
   }
 })
 
@@ -51,7 +57,7 @@ export const extraHigh = defineFixture({
   width: 320,
   render: () => <EffortExample />,
   interact: async () => {
-    await i18n.changeLanguage('en')
+    await i18n.changeLanguage(await loadRendererUiLanguage('en'))
   }
 })
 
@@ -59,6 +65,14 @@ export const high = defineFixture({
   width: 320,
   render: () => <EffortExample currentValue="high" />,
   interact: async () => {
-    await i18n.changeLanguage('en')
+    await i18n.changeLanguage(await loadRendererUiLanguage('en'))
+  }
+})
+
+export const russian = defineFixture({
+  width: 320,
+  render: () => <EffortExample />,
+  interact: async () => {
+    await i18n.changeLanguage(await loadRendererUiLanguage('ru'))
   }
 })

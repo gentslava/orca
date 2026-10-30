@@ -180,6 +180,44 @@ describe('session option picker focus', () => {
     expect(document.activeElement).toBe(screen.getByRole('combobox'))
   })
 
+  it('does not focus or change a pending effort when /effort reopens the picker', async () => {
+    let finish = () => {}
+    const setOption = vi.fn(
+      () =>
+        new Promise<{ snapshot: SessionOptionDescriptor[] }>((resolve) => {
+          finish = () => resolve({ snapshot: [] })
+        })
+    )
+    const view = (request: NativeChatOptionPickerRequest | null) => (
+      <TooltipProvider>
+        <NativeChatSessionOptionPickers
+          surface={{ ...surface, setOption }}
+          snapshot={[model, effort]}
+          isWorking={false}
+          pickerRequest={request}
+        />
+      </TooltipProvider>
+    )
+    const { rerender } = render(view(null))
+    await openPicker()
+    fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'End' })
+    await settle()
+    expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'high')
+    rerender(view({ id: 'effort', consume: () => {} }))
+    await settle()
+    const slider = screen.getByRole('slider', { name: 'Effort' })
+    expect(slider.closest('[aria-disabled="true"]')).not.toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('combobox'))
+    expect(slider.tabIndex).toBe(-1)
+    fireEvent.keyDown(slider, { key: 'Home' })
+    if (document.activeElement) {
+      fireEvent.keyDown(document.activeElement, { key: 'Home' })
+    }
+    expect(slider.getAttribute('aria-valuetext')).toBe('High')
+    expect(setOption).toHaveBeenCalledTimes(1)
+    await act(async () => finish())
+  })
+
   it('stays open across a model, a speed and a switch pick, and closes into the message box on an effort pick', async () => {
     const messageBox = await renderComposer([model, effort, speed, fast])
     await openPicker()
@@ -205,10 +243,26 @@ describe('session option picker focus', () => {
     expect(document.activeElement).toBe(messageBox)
   })
 
-  it('keeps an unchanged effort without a write or dismissal', async () => {
-    await renderComposer([model, effort])
+  it.each([
+    ['low', 'Home'],
+    ['high', 'End']
+  ])('keeps unchanged %s effort without a write or dismissal', async (value, key) => {
+    await renderComposer([
+      model,
+      {
+        ...effort,
+        kind: {
+          type: 'select',
+          currentValue: value,
+          choices: [
+            { value: 'low', label: 'Low' },
+            { value: 'high', label: 'High' }
+          ]
+        }
+      }
+    ])
     await openPicker()
-    fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'Home' })
+    fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key })
     await settle()
     expect(surface.setOption).not.toHaveBeenCalled()
     expect(screen.getByRole('dialog')).toBeDefined()
