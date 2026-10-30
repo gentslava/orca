@@ -207,7 +207,9 @@ describe('session option picker focus', () => {
     await settle()
     const slider = screen.getByRole('slider', { name: 'Effort' })
     expect(slider.closest('[aria-disabled="true"]')).not.toBeNull()
-    expect(document.activeElement).not.toBe(slider)
+    expect(document.activeElement).toBe(screen.getByRole('combobox'))
+    expect(slider.tabIndex).toBe(-1)
+    fireEvent.keyDown(slider, { key: 'Home' })
     if (document.activeElement) {
       fireEvent.keyDown(document.activeElement, { key: 'Home' })
     }
