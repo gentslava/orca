@@ -51,6 +51,7 @@ vi.mock('../wsl/wsl-host-service-instance', () => ({
 }))
 
 import { registerWslHostHandlers } from './wsl-host-handlers'
+import { configureWslHostsGate, resetWslHostsGateForTests } from '../wsl/wsl-host-gate'
 import { onWslHostUserAction, type WslHostUserAction } from '../wsl/wsl-host-user-actions'
 
 function register(): void {
@@ -83,7 +84,7 @@ describe('WSL host IPC: the user Add and Remove (D3a)', () => {
     expect(heard).toEqual([{ kind: 'added', distro: 'Ubuntu' }])
   })
 
-  it('refuses an Add in serve-only, keeping saved hosts usable', async () => {
+  it('refuses an Add in serve-only and says so in its capability, keeping saved hosts usable', async () => {
     vi.stubEnv('ORCA_INTERNAL_WSL_HOSTS', undefined)
     register()
 
@@ -92,7 +93,33 @@ describe('WSL host IPC: the user Add and Remove (D3a)', () => {
       kind: 'disabled'
     })
     expect(service.add).not.toHaveBeenCalled()
+    expect(await handlers.get('wslHosts:getCapability')?.({})).toMatchObject({
+      acceptsNewWork: false
+    })
     await handlers.get('wslHosts:remove')?.({}, { environmentId: 'wsl:Ubuntu' })
     expect(service.remove).toHaveBeenCalledWith('wsl:Ubuntu')
+  })
+
+  it('under a remote policy block, refuses an Add but keeps Remove', async () => {
+    vi.stubEnv('ORCA_INTERNAL_WSL_HOSTS', '1')
+    configureWslHostsGate({
+      hasSavedWslHost: () => true,
+      hasWslMoveCutover: () => false,
+      policy: () => 'block'
+    })
+    try {
+      register()
+
+      expect(await handlers.get('wslHosts:add')?.({}, { distro: 'Ubuntu' })).toMatchObject({
+        ok: false,
+        kind: 'disabled'
+      })
+      expect(service.add).not.toHaveBeenCalled()
+      service.remove.mockClear()
+      await handlers.get('wslHosts:remove')?.({}, { environmentId: 'wsl:Ubuntu' })
+      expect(service.remove).toHaveBeenCalledWith('wsl:Ubuntu')
+    } finally {
+      resetWslHostsGateForTests()
+    }
   })
 })
