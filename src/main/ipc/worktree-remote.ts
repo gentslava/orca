@@ -320,8 +320,11 @@ async function spawnLocalStartupAndSetupTerminals(args: {
   setup: CreateWorktreeResult['setup']
   defaultTabs: CreateWorktreeResult['defaultTabs']
   createdWithAgent: CreateWorktreeArgs['createdWithAgent']
+  /** An automation's create is background work: its terminals never start a stopped WSL distro (E9). */
+  automationCreate: boolean
 }): Promise<StagedStartupResult> {
   const { runtime, worktree, startup, defaultTabs, createdWithAgent } = args
+  const userAct = args.automationCreate ? {} : { wslUserAct: true as const }
   let { setup } = args
   if (!startup || defaultTabs?.tabs.length) {
     return { didSpawnSetup: false }
@@ -367,7 +370,8 @@ async function spawnLocalStartupAndSetupTerminals(args: {
         startupCommandDelivery: sequencedStartup.startupCommandDelivery,
         telemetry: sequencedStartup.telemetry,
         // Submitting renderer owns activation; background completion must not yank users who moved on (#9944).
-        surfaceOwner: false
+        surfaceOwner: false,
+        ...userAct
       },
       worktree
     )
@@ -403,7 +407,8 @@ async function spawnLocalStartupAndSetupTerminals(args: {
           command: setupCommand,
           env: setup.envVars,
           activate: false,
-          surfaceOwner: false
+          surfaceOwner: false,
+          ...userAct
         },
         worktree
       )
@@ -1714,7 +1719,8 @@ async function performLocalWorktreeCreate(
       startup: args.startup,
       setup,
       defaultTabs,
-      createdWithAgent: args.createdWithAgent
+      createdWithAgent: args.createdWithAgent,
+      automationCreate: Boolean(args.automationProvenance)
     })
   )
 
