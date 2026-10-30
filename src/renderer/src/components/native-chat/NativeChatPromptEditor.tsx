@@ -12,6 +12,7 @@ import {
 import { closeHistory } from '@tiptap/pm/history'
 import { Slice } from '@tiptap/pm/model'
 import {
+  memo,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -19,6 +20,7 @@ import {
   type HTMLAttributes,
   type RefObject
 } from 'react'
+import { shallow } from 'zustand/shallow'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -34,6 +36,7 @@ import {
 } from './native-chat-prompt-document'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
 import { mountedEditorView } from './native-chat-mounted-editor-view'
+import { NativeChatUnkernedRunDecorations } from './native-chat-unkerned-run-decorations'
 
 type Props = Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'onSelect'> & {
   scopeKey?: string
@@ -45,7 +48,14 @@ type Props = Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'onSelect'> & {
   onSelect: (input: NativeChatComposerInput) => void
 }
 
-export function NativeChatPromptEditor({
+// `initialValue` only seeds the editor at mount; keep the other props referentially stable or this memo stops helping.
+export const NativeChatPromptEditor = memo(
+  NativePromptEditor,
+  ({ initialValue: _previous, ...previous }, { initialValue: _next, ...next }) =>
+    shallow(previous, next)
+)
+
+function NativePromptEditor({
   scopeKey,
   inputRef,
   initialValue,
@@ -82,6 +92,7 @@ export function NativeChatPromptEditor({
         }),
         NativeChatSkill,
         NativeChatFileReference,
+        NativeChatUnkernedRunDecorations,
         // A disabled box still says why it is disabled, as the plain text box's placeholder does.
         Placeholder.configure({
           placeholder: () => placeholderRef.current,
