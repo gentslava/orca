@@ -28,6 +28,8 @@ export type PluginListEntry = {
   minimumOrca: string | null
   /** A newer catalog version than the installed one that this Orca can run, if any. */
   updateVersion: string | null
+  /** Catalog release to reinstall over an installed copy that can't load: same version, other bytes. */
+  reinstallVersion?: string | null
   /** Every catalog that lists this plugin, for filtering by catalog. */
   catalogIds: readonly string[]
   /** The listing comes from the catalog this plugin was installed from, so it can update it. */
@@ -116,6 +118,22 @@ function newerCatalogVersion(
   return compareAppVersions(version, plugin.version) > 0 ? version : null
 }
 
+function reinstallCatalogVersion(
+  plugin: PluginHostListEntry,
+  listing: PluginMarketplaceHostListing | null,
+  orcaVersion: string | null
+): string | null {
+  const release = listing?.release
+  if (plugin.status !== 'invalid' || plugin.source?.kind !== 'marketplace' || !release) {
+    return null
+  }
+  // Why bytes, not version: reinstalling the same bytes would fail the same way.
+  return needsNewerOrca(release.minimumOrca, orcaVersion) ||
+    release.contentHash === plugin.source.contentHash
+    ? null
+    : release.version
+}
+
 export function pluginListEntryFromInstalled(
   plugin: PluginHostListEntry,
   listing: PluginMarketplaceHostListing | null = null,
@@ -141,6 +159,7 @@ export function pluginListEntryFromInstalled(
     types: listing?.release ? pluginCatalogReleaseTypes(listing.release) : (plugin.types ?? []),
     minimumOrca: listing?.release?.minimumOrca ?? null,
     updateVersion,
+    reinstallVersion: updateVersion ? null : reinstallCatalogVersion(plugin, listing, orcaVersion),
     catalogIds,
     updatable: plugin.source?.kind === 'marketplace' && listing !== null,
     autoUpdate: entryAutoUpdate(plugin, updateVersion, autoUpdates),
@@ -263,6 +282,7 @@ export function buildPluginListEntries(
         : {
             ...entry,
             updateVersion: null,
+            reinstallVersion: null,
             updatable: false,
             autoUpdate: { ...entry.autoUpdate, needsReview: false }
           }

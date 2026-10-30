@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 import type { ConflictReviewEntry, OpenFile } from '@/store/slices/editor'
 import type { GitConflictKind, GitStatusEntry } from '../../../../shared/git-status-types'
 import { ConflictReviewFileTree } from './ConflictReviewFileTree'
-import { translate } from '@/i18n/i18n'
+import { getIntlLocale, translate } from '@/i18n/i18n'
 import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 
 const getConflictKindLabels = createLocalizedCatalog<Record<GitConflictKind, string>>(() => ({
@@ -260,7 +260,7 @@ export function ConflictReviewPanel({
   const [renderStartTime] = React.useState(() => Date.now())
   const snapshotTime = new Date(
     file.conflictReview?.snapshotTimestamp ?? renderStartTime
-  ).toLocaleTimeString()
+  ).toLocaleTimeString(getIntlLocale())
   const setFileTreeCollapsed = React.useCallback((collapsed: boolean) => {
     conflictReviewFileTreeCollapsedPreference = collapsed
     setFileTreeCollapsedState(collapsed)

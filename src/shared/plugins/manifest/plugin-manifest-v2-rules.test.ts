@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { pluginEngineFloor } from './plugin-engine-floor'
 import { PLUGIN_ENUM_SINCE_KEY } from './plugin-engine-floor-keys'
 import { PLUGIN_SCHEMA_NEWEST_SINCE, pluginHostVersion } from '../installation/plugin-host-version'
-import { parsePluginManifest } from './plugin-manifest'
+import { parseHostPluginManifest, parsePluginManifest } from './plugin-manifest'
 import { PLUGIN_MANIFEST_V2_SINCE } from './plugin-schema-field-docs'
 import { PLUGIN_RESERVED_CONTRIBUTION_POINTS } from '../contributions/plugin-contribution-points'
 
@@ -90,6 +90,17 @@ describe('manifest format 2 rules', () => {
     expect(parsePluginManifest(v2({ engines: { orca: '>=1.4.160' } }))).toEqual({
       ok: false,
       error: `engines.orca: must be at least >=${PLUGIN_MANIFEST_V2_SINCE}, because manifestVersion needs Orca ${PLUGIN_MANIFEST_V2_SINCE}`
+    })
+  })
+
+  it('skips only the engines floor when reading a manifest at runtime', () => {
+    const underDeclared = v2({ engines: { orca: '>=1.4.160' } })
+    expect(parseHostPluginManifest(underDeclared)).toMatchObject({ ok: true })
+    expect(parsePluginManifest(underDeclared)).toMatchObject({ ok: false })
+    // Every other rule still applies.
+    expect(parseHostPluginManifest(v2({ engines: { orca: '>=1.4.160' }, pluginApi: 1 }))).toEqual({
+      ok: false,
+      error: 'pluginApi: data plugins never call the host API; remove pluginApi'
     })
   })
 

@@ -3,7 +3,7 @@ import { cp, mkdir, rm } from 'node:fs/promises'
 import { join, relative, resolve, sep } from 'node:path'
 import {
   PLUGIN_MANIFEST_FILENAME,
-  parsePluginManifest,
+  parseHostPluginManifest,
   qualifiedPluginKey,
   satisfiesOrcaEngineRange,
   type PluginManifest
@@ -71,7 +71,7 @@ async function readInstallManifest(
       error: `unreadable ${PLUGIN_MANIFEST_FILENAME}: ${error instanceof Error ? error.message : String(error)}`
     }
   }
-  const parsed = parsePluginManifest(raw)
+  const parsed = parseHostPluginManifest(raw)
   if (!parsed.ok) {
     const incompatible = pluginManifestCompatibilityError(raw, hostVersion)
     return { ok: false, error: incompatible ?? `invalid manifest: ${parsed.error}` }
