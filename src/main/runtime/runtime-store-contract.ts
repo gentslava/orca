@@ -113,6 +113,7 @@ export type RuntimeStore = {
     activeCodexManagedAccountIdsByRuntime?: GlobalSettings['activeCodexManagedAccountIdsByRuntime']
     agentWorkspaceTrustEnabled?: GlobalSettings['agentWorkspaceTrustEnabled']
     codexManagedAccounts?: GlobalSettings['codexManagedAccounts']
+    codexShareHistoryAcrossAccounts?: GlobalSettings['codexShareHistoryAcrossAccounts']
     nestedWorkerMaxDepth?: GlobalSettings['nestedWorkerMaxDepth']
     orchestrationWorkerRoles?: GlobalSettings['orchestrationWorkerRoles']
     orchestrationChatErrorEscalationEnabled?: GlobalSettings['orchestrationChatErrorEscalationEnabled']

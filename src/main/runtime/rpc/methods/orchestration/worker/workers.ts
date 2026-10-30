@@ -23,6 +23,7 @@ import { prepareFederationWorkerLaunchOnHost } from './worker-opencode-model-pre
 export const ORCHESTRATION_WORKER_START_METHODS = [
   defineMethod({
     name: 'orchestration.workerStart',
+    requires: ['accounts'],
     permission: 'workspace',
     params: WorkerStartParams,
     handler: async (

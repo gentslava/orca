@@ -47,6 +47,10 @@ export function formatWorkerStart(value: WorkerStartReceipt): string {
         : 'Launch configuration: unverified'
     )
   }
+  const workspace = createdWorkspaceName(value.effects)
+  if (workspace) {
+    lines.push(`Created workspace: ${workspace}`)
+  }
   if (value.lastError) {
     lines.push(`${value.failedStage ?? 'start'}: ${value.lastError}`)
   } else if (value.warning) {
@@ -65,6 +69,23 @@ export function formatWorkerStart(value: WorkerStartReceipt): string {
     lines.push(...(value.nextCommands ?? []).map((command) => `Next command: ${command}`))
   }
   return lines.join('\n')
+}
+
+/** Only a created worktree's effect carries a name; older hosts omit it. */
+function createdWorkspaceName(effects: unknown[] | undefined): string | undefined {
+  for (const effect of effects ?? []) {
+    if (
+      typeof effect === 'object' &&
+      effect !== null &&
+      'kind' in effect &&
+      effect.kind === 'worktree' &&
+      'name' in effect &&
+      typeof effect.name === 'string'
+    ) {
+      return effect.name
+    }
+  }
+  return undefined
 }
 
 export function formatWorkerRead(
