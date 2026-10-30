@@ -177,10 +177,8 @@ export function agentSessionExecutionLocationsEqual(
   left: AgentSessionExecutionLocation,
   right: AgentSessionExecutionLocation
 ): boolean {
-  return (
-    agentSessionScopeKey(left) === agentSessionScopeKey(right) &&
-    left.workspaceKind === right.workspaceKind
-  )
+  const sameScope = agentSessionScopeKey(left) === agentSessionScopeKey(right)
+  return sameScope && left.workspaceKind === right.workspaceKind
 }
 
 export function isAgentSessionExecutionLocation(
@@ -320,6 +318,8 @@ export function isPersistedAgentSessionObservationRecord(
       (record.launchDirectory === undefined ||
         isBoundedString(record.launchDirectory, MAX_PATH_LENGTH)) &&
       (record.options === undefined || isAgentSessionOptions(record.options)) &&
+      (record.defaultModelOptions === undefined ||
+        isAgentSessionOptions(record.defaultModelOptions)) &&
       (record.permissionMode === undefined ||
         isBoundedString(record.permissionMode, MAX_ID_LENGTH)) &&
       (record.rewind === undefined || isAgentSessionRewindRecord(record.rewind)) &&

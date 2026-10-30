@@ -80,6 +80,7 @@ describe('agent model catalog service', () => {
       drivesRecord: () => true,
       resolveAccountHome: async () => GROK_HOME('/homes/selected'),
       listingNamesConfiguredModel: new Set(['grok']),
+      agentReadsProjectModelConfig: () => false,
       recordWorkspacePath: async () => '/workspace/project',
       workspaceMayOverrideDefaultModel: async () => false,
       probes: { grok: probe }
@@ -272,17 +273,15 @@ describe('agent model catalog service', () => {
         requireConfiguredDefault: true
       })
     ).toEqual({ origin: 'unknown' })
-    expect(probe).toHaveBeenCalledExactlyOnceWith(
-      GROK_HOME('/homes/session'),
-      expect.objectContaining({
+    expect(probe).toHaveBeenCalledExactlyOnceWith(GROK_HOME('/homes/session'), {
+      signal: expect.any(AbortSignal),
+      workspacePath: undefined,
+      operation: expect.objectContaining({
         signal: expect.any(AbortSignal),
-        operation: expect.objectContaining({
-          deadline: expect.any(Number),
-          current: expect.any(Function),
-          signal: expect.any(AbortSignal)
-        })
+        deadline: expect.any(Number),
+        current: expect.any(Function)
       })
-    )
+    })
   })
 
   it('does not substitute the selected account when a reset cannot use the original record', async () => {
