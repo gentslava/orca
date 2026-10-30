@@ -34,7 +34,10 @@ import {
 } from './structured-agent-session-runtime'
 import { createStructuredAgentSessionLogger } from '../native-chat/agent-session-wire/structured-agent-session-logger'
 import { createCoordinatorMailObservationClock } from './structured-chat-coordinator-observation-clock.test-fixture'
-import { scriptedCodexTransport } from './scripted-codex-transport.test-fixture'
+import {
+  SCRIPTED_CODEX_MODEL as MODEL,
+  scriptedCodexTransport
+} from './scripted-codex-transport.test-fixture'
 
 // The turns a send or Stop is waiting on to open, so a test knows the wait began.
 const openWaits = vi.hoisted(() => {
@@ -69,14 +72,6 @@ vi.mock('../codex/codex-structured-turn-open-wait', async (importOriginal) => {
 })
 
 const CALLER = { callerKey: 'codex-turn-end-test' }
-const MODEL = {
-  model: 'gpt-test',
-  displayName: 'GPT Test',
-  hidden: false,
-  supportedReasoningEfforts: [],
-  defaultReasoningEffort: null,
-  isDefault: true
-}
 
 let root: string
 let host: StructuredAgentSessionHost
@@ -282,7 +277,7 @@ beforeEach(async () => {
     resolveWorkspacePath: async () => root,
     resolveLaunchArgs: () => [],
     resolveClaudeAuthPolicy: () => ({ account: 'managed' }),
-    resolveCodexCommand: () => 'codex',
+    resolveCodexCommand: () => ({ command: 'codex', prefixArgs: [] }),
     resolveEnvironment: async () => ({ PATH: process.env.PATH }),
     ...scriptedCodexTransport(openConnection)
   })
@@ -559,7 +554,7 @@ describe("a queued card's Send-now while a Codex turn runs", () => {
 })
 
 describe('a second send made after Codex answered the first, before it opened that turn', () => {
-  it('waits for the opener before steering the later send, which Stop then withdraws', async () => {
+  it('waits for the native turn to open before steering, keeps echo acceptance separate, and withdraws on Stop', async () => {
     const opening = await send('look around')
     await vi.waitFor(() => expect(answers).toBe(1))
     const followUp = await send('and check the tests')
@@ -573,10 +568,14 @@ describe('a second send made after Codex answered the first, before it opened th
       'running'
     )
     await vi.waitFor(() => expect(loop.isRunning(SESSION)).toBe(false))
-    expect(steers).toBe(0)
+    expect(steers).toBe(1)
     expect(verdictOf((await settled()).submissions, followUp)).toBe('pending')
+    expect(verdictOf((await settled()).submissions, opening)).toBe('pending')
     turns.echo(opening)
-    await vi.waitFor(() => expect(steers).toBe(1))
+    await vi.waitFor(async () =>
+      expect(verdictOf((await settled()).submissions, opening)).toBe('accepted')
+    )
+    expect(steers).toBe(1)
     expect(answers).toBe(1)
 
     await stop()

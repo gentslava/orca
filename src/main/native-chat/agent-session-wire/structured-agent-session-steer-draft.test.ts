@@ -20,6 +20,10 @@ afterEach(() => rig.dispose())
 
 it('steers the complete draft once with running choices while future picks and queued snapshots stay intact', async () => {
   const runningChoices = { model: 'model-a', effort: 'high', serviceTier: 'default' }
+  rig.host.deps.adapter.readAppliedInputOptions = ({ next }) => ({
+    active: runningChoices,
+    next: next ?? {}
+  })
   const first = rig.send('running', undefined, { carried: runningChoices })
   await first.result
   await eventually(() => expect(rig.dispatch).toHaveBeenCalledOnce())
@@ -79,6 +83,10 @@ it('uses future choices for a steer draft accepted with no running turn', async 
 
 it('reuses the opening submission choices before the provider publishes its running turn', async () => {
   const choices = { model: 'model-a', effort: 'high', serviceTier: 'default' }
+  rig.host.deps.adapter.readAppliedInputOptions = ({ next }) => ({
+    active: choices,
+    next: next ?? {}
+  })
   const first = rig.send('opening', undefined, { carried: choices })
   expect(await first.result).toMatchObject({ ok: true })
   await eventually(() => expect(rig.dispatch).toHaveBeenCalledOnce())

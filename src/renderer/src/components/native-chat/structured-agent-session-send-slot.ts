@@ -21,6 +21,7 @@ export type StructuredAgentSessionSendInput = {
   delivery?: 'queue-if-active'
   steer?: true
   /** The composer's model and effort for the turn it starts, read once at the send. */
+  selection?: Readonly<Record<string, string>>
   options?: Readonly<Record<string, string>>
   /** The caller keeps the text if it comes back, instead of the chat's composer. */
   callerKeepsText?: true
@@ -58,6 +59,7 @@ export function takeStructuredAgentSessionSendSlot(
     ...(input.delivery ? { delivery: input.delivery } : {}),
     ...(input.steer ? { steer: input.steer } : {}),
     ...(input.options ? { options: { ...input.options } } : {}),
+    ...(input.selection !== undefined ? { selection: { ...input.selection } } : {}),
     ...(input.usageLimitContinuationOfTurnItemId
       ? { usageLimitContinuationOfTurnItemId: input.usageLimitContinuationOfTurnItemId }
       : {}),

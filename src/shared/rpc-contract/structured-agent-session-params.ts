@@ -1,3 +1,4 @@
+import { AgentSessionSelectionSchema } from '../agent-session-execution-options'
 import {
   SendBody,
   MAX_OPTION_LABEL,
@@ -128,10 +129,16 @@ export const SendParams = z
     steer: z.literal(true).optional(),
     /** Preserve composer options until dispatch; requires agent-session.send-options.v1. Operation fingerprint only. */
     options: AgentSessionOptions.optional(),
+    selection: AgentSessionSelectionSchema.optional(),
     // Strict payload: only hosts advertising the bound usage-limit send capability accept this.
     usageLimitContinuationOfTurnItemId: Identifier('Invalid source turn item id').optional(),
     body: SendBody
   })
+  .strict()
+  .refine(
+    (value) => value.options === undefined || value.selection === undefined,
+    'Choose options or selection'
+  )
   .refine((send) => !(send.steer && send.delivery), 'Steering cannot request queued delivery')
 
 export const CreateIntentParams = z
@@ -145,7 +152,8 @@ export const CreateIntentParams = z
     firstMessage: z
       .object({
         clientMessageId: Identifier('Invalid client message id'),
-        body: SendParams.shape.body
+        body: SendBody,
+        selection: AgentSessionSelectionSchema.optional()
       })
       .strict()
       .optional(),
