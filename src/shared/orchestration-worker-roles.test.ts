@@ -92,10 +92,20 @@ describe('worker Fast launch options', () => {
     }
   })
 
-  it.each(['claude', 'codex'] as const)('refuses unproven %s Fast launch support', (agent) => {
+  it('refuses unproven Codex Fast launch support', () => {
     expect(
-      checkAgentLaunchModelPreferences({ agent, model: 'opus', fastMode: true })
+      checkAgentLaunchModelPreferences({ agent: 'codex', model: 'opus', fastMode: true })
     ).toHaveProperty('refusal.message', expect.stringContaining('Fast'))
+  })
+
+  it.each([true, false])('applies catalogued Claude Fast=%s through settings', (fastMode) => {
+    const checked = checkAgentLaunchModelPreferences({ agent: 'claude', model: 'opus', fastMode })
+    if ('refusal' in checked) {
+      throw new Error(checked.refusal.message)
+    }
+    const launch = resolveAgentSessionOptionLaunch('claude', checked.preferences, [], false)
+    expect(launch.appliedValues).toEqual({ model: 'opus', fastMode })
+    expect(launch.args).toEqual(['--model', 'opus', '--settings', JSON.stringify({ fastMode })])
   })
 
   it('requires a model for a Fast option', () => {
