@@ -752,7 +752,6 @@
       "defaultOpensAsScope": "Eşleştirilmiş sunuculardakiler dahil, bu bilgisayardan başlatılan yeni {{value0}} oturumları için geçerlidir. Sağlayıcılar bölümündeki seçimiyle eşleşir.",
       "save": "Kaydet",
       "clearDefault": "Varsayılan ajanı temizle",
-      "autoPermissions": "Otomatik",
       "autoUnsupported": "Otomatik modu için bu ana makinede daha yeni bir Orca sürümü gerekir.",
       "permissionsDescription": "Ajanların size sormadan ne kadar işlem yapabileceği. Özel başlatma argümanları olan ajanlar bunları korur.",
       "permissionsAutoDescription": "<agents>Desteklenen ajanlar</agents> güvenli işlemleri kendileri onaylar.",
@@ -1800,10 +1799,7 @@
       },
       "claudeAgentRowView": {
         "subagentNavigationSetup": "Ayarlar → Ajanlar bölümünde Claude alt ajanları arasında gezinmeyi etkinleştirin, ardından Orca'da Claude 2.1.300+ sürümünü başlatın. keybindings.json dosyasında Ctrl+Alt+G, H veya V tuşlarının hâlâ command:orca-agent-view komutuna atandığını kontrol edin.",
-        "permissionPrompt": "Ajanlar arasında geçiş yapmadan önce Claude'un izin istemini yanıtlayın.",
-        "agentUnavailable": "Bu ajan Claude'da açılamıyor. Artık kullanılamıyor olabilir.",
-        "closeDialog": "Claude görünümü değiştirmedi. Açık iletişim kutularını kapatıp tekrar deneyin.",
-        "hostUnavailable": "Bu sunucuda alt ajanlar arasında gezinme kullanılamıyor. Orca'yı güncelleyin ve bu bölmede Claude'u yeniden başlatın."
+        "permissionPrompt": "Ajanlar arasında geçiş yapmadan önce Claude'un izin istemini yanıtlayın."
       },
       "wslHostWindowsDriveRefusal": {
         "addOnThisComputer": "Bu bilgisayarda ekle",
@@ -7062,7 +7058,12 @@
           "xcodeLicense": "Git'in çalışabilmesi için önce Apple geliştirici araçlarının lisansını kabul etmeniz gerekir.",
           "developerTools": "Apple komut satırı geliştirici araçları eksik veya kullanılamıyor.",
           "architectureMismatch": "Bir Git ile ilgili çalıştırılabilir dosya, CPU mimarisi bu çalıştırma host'uyla uyumsuz olduğu için çalıştırılamadı. Git ve ilgili araçları host mimarisi için yükleyin.",
-          "copyDiagnostics": "Tanılamayı kopyala"
+          "copyDiagnostics": "Tanılamayı kopyala",
+          "wslStoppedTitle": "WSL dağıtımı {{value0}} durduruldu",
+          "wslUnverifiableTitle": "WSL dağıtımı {{value0}} öğesinin çalıştığı doğrulanamadı",
+          "wslRetained": "Orca'nın zaten bildiği worktree'ler gösteriliyor. Orca dağıtımın çalıştığını gördüğünde yenilenirler.",
+          "wslStartAndScan": "Dağıtımı başlat ve tara",
+          "wslStartAndScanHint": "Dağıtımı başlatıp yeniden taramak için simgeye tıklayın."
         },
         "LocalGitToolchainScanBanner": {
           "xcodeLicenseTitle": "Git'i kullanmak için Xcode lisansını kabul edin",
@@ -7490,8 +7491,6 @@
           "8fbe1f37c1": "Ortam",
           "2d133152fa": "Varsayılan ortam yok",
           "agentPermissions": "Ajan İzinleri",
-          "agentPermissionsYolo": "Yolo",
-          "agentPermissionsManual": "Manuel",
           "3f1bdf3cb4": "Ortam metni güvenli bir şekilde ayrıştırılamayacak kadar büyük.",
           "codexSessionSource": "İçe aktarılacak Codex ana dizini",
           "codexSessionSourceInfo": "Codex geçmişini içe aktarma hakkında",
@@ -11824,8 +11823,8 @@
           "managedOverSshHelp": "Bu masaüstü uygulaması bu sunucuyu SSH üzerinden günceller. Uzak Orca sunucuları bölümünde sunucunun satırındaki Güncelle seçeneğini kullanın."
         },
         "BrowserLinkRoutingSetting": {
-          "description": "http(s) bağlantılarını terminalden, markdown'dan ve düzenleyiciden Orca'nın yerleşik tarayıcısında açın. {{shortcut}} her zaman sistem tarayıcınızı kullanır.",
-          "descriptionBase": "http(s) bağlantılarını terminalden, markdown'dan ve düzenleyiciden Orca'nın yerleşik tarayıcısında açın."
+          "description": "Orca'nın her yerindeki http(s) bağlantılarını yerleşik tarayıcıda açın. Oturum açma sayfaları ve {{shortcut}} her zaman sistem tarayıcınızı kullanır.",
+          "descriptionBase": "Orca'nın her yerindeki http(s) bağlantılarını yerleşik tarayıcıda açın. Oturum açma sayfaları yine sistem tarayıcınızda açılır."
         },
         "BrowserLinkRoutingModifierSetting": {
           "titleSystem": "Web tarayıcınızda açmak için Shift tuşunu basılı tutun",
@@ -14812,8 +14811,8 @@
           "aa97420ba4": "Kurulum bağlantısını kopyala",
           "ac1eb64952": "Android",
           "711e6f4b47": "iOS",
-          "e75647ace0": "Orca Mobile'ı almak için QR kodunu telefonunuzla tarayın veya kurulum bağlantısını açın.",
-          "0d9b33299e": "Uygulamayı edinin.",
+          "e75647ace0": "Bu indirme QR kodunu telefonunuzun kamerasıyla tarayın. Orca Mobile zaten yüklü mü? Eşleştirme QR kodu için 2. adıma geçin.",
+          "0d9b33299e": "Uygulamayı indirin.",
           "92ddfdfa1f": "Adım 1/2",
           "ff48d9d520": "Başka bir cihaz eşleştir",
           "f9cbf4bb53": "Cihazı iptal et",
@@ -15000,6 +14999,9 @@
           "reconnectBody": "Orca Relay'i kullanmak için tekrar oturum açın veya Tailscale ya da aynı Wi-Fi üzerinden eşleştirmek için Yerel Ağı kullanın.",
           "notEntitledTitle": "Orca Relay bu Orca hesabına dahil değil.",
           "rateLimitedBody": "Orca Relay meşgul. Bir dakika bekleyip yeniden deneyin veya Tailscale ya da aynı Wi‑Fi üzerinden eşleştirmek için LAN kullanın."
+        },
+        "relayClockSkewMessage": {
+          "message": "Bilgisayarınızın saati yaklaşık {{seconds}} saniye farklı. Otomatik saat ayarını açıp yeniden deneyin."
         }
       },
       "gitlab": {
@@ -16939,7 +16941,8 @@
                     "annotations": {
                       "0c7b9b2b7a": "Kopyalandı",
                       "c937229f19": "Ekran görüntüsü alındı",
-                      "1f5cb19034": "Ek açıklama eklendi"
+                      "1f5cb19034": "Ek açıklama eklendi",
+                      "limitReached": "{{limit}} ek açıklama sınırına ulaşıldı. Daha fazla eklemek için bazılarını gönderin, silin veya temizleyin."
                     }
                   }
                 }
@@ -16954,7 +16957,10 @@
                     "024467ceac": "İptal",
                     "449d2c2629": "Ek açıklama amacı",
                     "38d320108c": "Ek açıklamaları daralt",
-                    "9f209891a7": "Ek açıklamaları genişlet"
+                    "9f209891a7": "Ek açıklamaları genişlet",
+                    "includePageDetails": "Sayfa ayrıntılarını ekle",
+                    "copyFeedback": "Geri bildirimi kopyala",
+                    "copyFeedbackWithPageDetails": "Geri bildirimi sayfa ayrıntılarıyla kopyala"
                   }
                 }
               }
@@ -20707,7 +20713,8 @@
     },
     "codexSharedSettingsNotice": {
       "title": "Orca'daki Codex artık ~/.codex kullanıyor",
-      "description": "Codex, klasörlere güvenmenizi veya komutları onaylamanızı yeniden isteyebilir. Yalnızca Orca'ya eklediğiniz MCP sunucularını yeniden ekleyin."
+      "description": "Codex, klasörlere güvenmenizi veya komutları onaylamanızı yeniden isteyebilir. Yalnızca Orca'ya eklediğiniz MCP sunucularını yeniden ekleyin.",
+      "dismiss": "Kapat"
     },
     "codexSharedServerBanner": {
       "title": "Bu Codex, diğer Codex sekmelerinizle aynı sunucuyu paylaşıyor",
