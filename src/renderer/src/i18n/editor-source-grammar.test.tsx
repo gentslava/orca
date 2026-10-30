@@ -168,6 +168,7 @@ describe('editor and source-control source grammar', () => {
           rows={[]}
           totalMatches={0}
           selectedIndex={0}
+          onClose={() => {}}
         />
       </>
     )

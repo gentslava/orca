@@ -6,7 +6,8 @@ import {
   SessionModelStateSchema,
   SetSessionConfigOptionResponseSchema
 } from '../acp/generated/acp-protocol.generated'
-import { AcpStructuredOptions, writeAcpSessionOption } from '../acp/acp-structured-options'
+import { AcpStructuredOptions } from '../acp/acp-structured-options'
+import { writeAcpSessionOption } from '../acp/acp-session-option-write'
 import { ANTIGRAVITY_ACP_DIALECT } from '../acp/acp-dialects/antigravity-dialect'
 import { ANTIGRAVITY_ACP_RUNTIME } from './antigravity-acp-runtime'
 import { AgentModelCatalogStore } from '../native-chat/agent-model-catalog/agent-model-catalog-store'

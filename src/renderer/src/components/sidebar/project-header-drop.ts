@@ -3,7 +3,11 @@ import {
   computeWorktreeSidebarHeaderDropPreview,
   type WorktreeSidebarHeaderDropPreview
 } from './worktree-sidebar-header-drop-preview'
-import type { GroupHeaderRow, Row } from '../../../../shared/sidebar-list/row-types'
+import {
+  getHeaderDragRepo,
+  type GroupHeaderRow,
+  type Row
+} from '../../../../shared/sidebar-list/row-types'
 import type { Repo } from '../../../../shared/repo-types'
 
 export type ProjectHeaderDragBucketKey = string
@@ -31,9 +35,10 @@ export type RepoHeaderRow = GroupHeaderRow & { repo: Repo }
 export function getSidebarOrderedRepoHeaderRowsByBucket(
   rows: readonly Row[]
 ): Map<ProjectHeaderDragBucketKey, RepoHeaderRow[]> {
-  const headers = rows.filter(
-    (row): row is RepoHeaderRow => row.type === 'header' && row.repo !== undefined
-  )
+  const headers: RepoHeaderRow[] = rows.flatMap((row) => {
+    const repo = row.type === 'header' ? getHeaderDragRepo(row) : undefined
+    return row.type === 'header' && repo ? [{ ...row, repo }] : []
+  })
   const buckets = new Map<ProjectHeaderDragBucketKey, RepoHeaderRow[]>()
   const pinnedBuckets = new Set(
     headers.filter((row) => row.projectPinned).map((row) => getProjectHeaderDragBucketKey(row.repo))

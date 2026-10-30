@@ -99,6 +99,7 @@ export async function performSend(
     options?: Readonly<Record<string, string>>
     steer?: true
     keepCurrentOptions?: true
+    selection?: Readonly<Record<string, string>>
   }
 ): Promise<TurnOutcome<AgentSessionSendResult>> {
   const existing = ctx.journal
@@ -121,7 +122,7 @@ export async function performSend(
     ? { options: undefined }
     : input.steer
       ? captureStructuredSteerOptions(ctx, input.options)
-      : captureStructuredExecutionOptions(ctx, input.options)
+      : captureStructuredExecutionOptions(ctx, input.options, input.selection)
   if ('refusal' in captured) {
     return { ok: false, refusal: captured.refusal }
   }

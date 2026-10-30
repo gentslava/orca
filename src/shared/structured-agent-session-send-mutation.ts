@@ -17,6 +17,7 @@ export type StructuredAgentSessionSendControl = {
   /** Steer with the running turn's captured choices, preserving future-message settings. */
   steer?: true
   options?: Readonly<Record<string, string>>
+  selection?: Readonly<Record<string, string>>
   usageLimitContinuationOfTurnItemId?: string
 }
 
@@ -32,6 +33,7 @@ export function agentSessionSendControlFields(
     ...(send.delivery ? { delivery: send.delivery } : {}),
     ...(send.steer ? { steer: send.steer } : {}),
     ...(send.options ? { options: send.options } : {}),
+    ...(send.selection !== undefined ? { selection: send.selection } : {}),
     ...(send.usageLimitContinuationOfTurnItemId
       ? { usageLimitContinuationOfTurnItemId: send.usageLimitContinuationOfTurnItemId }
       : {})

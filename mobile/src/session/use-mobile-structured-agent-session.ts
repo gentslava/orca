@@ -57,7 +57,8 @@ export function useMobileStructuredAgentSession(
     enabled,
     onActionResolved,
     onSendError,
-    hostSupport
+    hostSupport,
+    onCommandsChanged
   } = args
   // Gate queueing by capability while accepting published cards from every host.
   const queueCapable = hostSupport?.queuedMessages === true
@@ -70,7 +71,7 @@ export function useMobileStructuredAgentSession(
   const commandPendingRef = useRef(false)
   // Legacy hosts must join repeated Stop while the first turn cancel remains pending.
   const inFlightStopsRef = useRef(new Map<string, Promise<boolean>>())
-  const stateArgs = { client, sessionId, sessionKey, enabled, connected }
+  const stateArgs = { client, sessionId, sessionKey, enabled, connected, onCommandsChanged }
   const { state, stateRef, queuedMessages, queuePause, olderPages, loadEarlier } =
     useMobileStructuredAgentState(stateArgs)
 
@@ -201,7 +202,7 @@ export function useMobileStructuredAgentSession(
     onSendError,
     isModelWritePending: options.isModelWritePending,
     queueSendsNext,
-    sendOptions: hostSupport?.sendOptions === true ? options.sendSelection : undefined,
+    sendSelection: options.sendSelection,
     takesSkills: hostSupport?.sendSkills === true
   })
   const { items, currentRequests, actionablePromptIds, status } = state

@@ -1,5 +1,3 @@
-import { acpConfigSelectChoices } from './acp-config-select-choices'
-
 import type {
   AgentSessionModelOption,
   AgentSessionOptionChoice,
@@ -14,10 +12,13 @@ import {
   type AgentModelCatalogConfiguredChoice,
   type AgentModelCatalogLiveListing
 } from '../native-chat/agent-model-catalog/agent-model-catalog-entry'
-import type {
-  AvailableCommand,
-  SessionConfigOption,
-  SessionModelState
+import {
+  SessionConfigSelectGroupSchema,
+  SessionConfigSelectOptionSchema,
+  type AvailableCommand,
+  type SessionConfigOption,
+  type SessionConfigSelectOption,
+  type SessionModelState
 } from './generated/acp-protocol.generated'
 
 type SelectOption = Extract<SessionConfigOption, { type: 'select' }>
@@ -25,6 +26,22 @@ type SelectOption = Extract<SessionConfigOption, { type: 'select' }>
 export type AcpOptionWrite =
   | { method: 'config'; configId: string; value: string }
   | { method: 'model'; modelId: string }
+
+function selectChoices(option: SelectOption): SessionConfigSelectOption[] {
+  const choices: SessionConfigSelectOption[] = []
+  for (const entry of option.options) {
+    const group = SessionConfigSelectGroupSchema.safeParse(entry)
+    if (group.success) {
+      choices.push(...group.data.options)
+      continue
+    }
+    const choice = SessionConfigSelectOptionSchema.safeParse(entry)
+    if (choice.success) {
+      choices.push(choice.data)
+    }
+  }
+  return choices
+}
 
 function isSelect(option: SessionConfigOption): option is SelectOption {
   return option.type === 'select'
@@ -34,7 +51,7 @@ export class AcpStructuredOptions {
   constructor(
     private readonly dialect: Pick<
       AcpDialect,
-      'modelEfforts' | 'clampsUnlistedEffort' | 'withheldCommands' | 'effortChangesModel'
+      'modelEfforts' | 'withheldCommands' | 'effortChangesModel'
     > = {}
   ) {}
 
@@ -46,9 +63,6 @@ export class AcpStructuredOptions {
   readonly picked = new Set<string>()
   readonly appliedInput = new Map<string, string>()
   readonly applied = new Map<string, string>()
-  private initialChoice: Readonly<Record<string, string>> = {}
-  private modelSelection: { requested: string; reported: string } | null = null
-  currentProof = new Set<string>()
   writeRevision = 0
 
   invalidateInput(key: string): void {
@@ -73,67 +87,16 @@ export class AcpStructuredOptions {
     this.models = response.models ?? null
     this.resolvesConfig = origin === 'new'
     this.appliedInput.clear()
-    this.initialChoice = this.reported()
-    this.currentProof = new Set(Object.keys(this.initialChoice))
-    this.confirmModelSelection(response.models?.currentModelId)
-  }
-
-  /** Native selection before any message changed this child. */
-  messageDefault(): Readonly<Record<string, string>> {
-    return this.initialChoice
   }
 
   notePick(key: string): void {
     this.picked.add(key)
   }
 
-  adoptConfigOptions(
-    configOptions: SessionConfigOption[] | null | undefined,
-    requestedModel?: string
-  ): void {
+  adoptConfigOptions(configOptions: SessionConfigOption[] | null | undefined): void {
     if (configOptions) {
       this.configOptions = configOptions
-      this.adoptOwnChoice()
-      if (requestedModel !== undefined) {
-        this.confirmModelSelection(requestedModel)
-      } else if (this.modelSelection?.reported !== this.select('model')?.currentValue) {
-        this.modelSelection = null
-      }
     }
-  }
-
-  confirmedModelSelection(): string | undefined {
-    return this.currentProof.has('model') &&
-      this.modelSelection?.reported === this.select('model')?.currentValue
-      ? this.modelSelection?.requested
-      : undefined
-  }
-
-  private confirmModelSelection(requested: string | undefined): void {
-    const reported = this.select('model')?.currentValue
-    this.modelSelection = requested && reported ? { requested, reported } : null
-  }
-
-  /** Until Orca writes a key, a later report is still the agent's own (OpenCode's start answers
-   *  before its catalog loads); an effort belongs to its model, so it stops with either write. */
-  private adoptOwnChoice(): void {
-    if (this.picked.has('model')) {
-      return
-    }
-    const reported = this.reported()
-    const own = this.picked.has('effort') ? ['model'] : ['model', 'effort']
-    const choice: Record<string, string> = { ...this.initialChoice }
-    for (const key of own) {
-      const value = reported[key]
-      if (value === undefined) {
-        delete choice[key]
-        this.currentProof.delete(key)
-      } else {
-        choice[key] = value
-        this.currentProof.add(key)
-      }
-    }
-    this.initialChoice = choice
   }
 
   adoptModel(modelId: string): void {
@@ -178,7 +141,7 @@ export class AcpStructuredOptions {
     const modelOption = this.select('model')
     const effortOption = this.select('thought_level')
     const sessionEfforts: AgentSessionOptionChoice[] = effortOption
-      ? acpConfigSelectChoices(effortOption).map((choice) => ({
+      ? selectChoices(effortOption).map((choice) => ({
           value: choice.value,
           label: choice.name,
           ...(choice.description ? { description: choice.description } : {})
@@ -186,7 +149,7 @@ export class AcpStructuredOptions {
       : []
     const currentModel = (modelOption?.currentValue ?? this.models?.currentModelId) || undefined
     const listed: { id: string; label: string; description?: string }[] = modelOption
-      ? acpConfigSelectChoices(modelOption).map((choice) => ({
+      ? selectChoices(modelOption).map((choice) => ({
           id: choice.value,
           label: choice.name,
           ...(choice.description ? { description: choice.description } : {})
@@ -199,18 +162,20 @@ export class AcpStructuredOptions {
     const models: AgentSessionModelOption[] = listed.map((model) => {
       const info = this.models?.availableModels.find((entry) => entry.modelId === model.id)
       const advertised = info ? this.dialect.modelEfforts?.(info) : undefined
-      // A clamping agent's session menu says nothing about another model's menu: unknown, not none.
+      // A current-session menu supplies no negative evidence about an unobserved model.
       const sessionMenu =
         model.id === currentModel
           ? { efforts: sessionEfforts }
-          : this.dialect.clampsUnlistedEffort && effortOption && !advertised
+          : (modelOption || effortOption) && !advertised
             ? { efforts: [], effortsKnown: false as const }
             : { efforts: [] }
       return {
         ...model,
         isDefault: false,
         // Fall back to the running session's menu when the advertised menu is empty.
-        ...(advertised && advertised.efforts.length > 0 ? advertised : sessionMenu)
+        ...(advertised && (advertised.efforts.length > 0 || model.id !== currentModel)
+          ? advertised
+          : sessionMenu)
       }
     })
     const confirmed = [...(currentModel ? ['model'] : []), ...(effortOption ? ['effort'] : [])]
@@ -240,11 +205,10 @@ export class AcpStructuredOptions {
   }
 
   reported(): Readonly<Record<string, string>> {
-    const model = this.select('model')?.currentValue ?? this.models?.currentModelId
-    const effort = this.select('thought_level')?.currentValue
+    const { current } = this.read()
     return {
-      ...(model ? { model } : {}),
-      ...(effort ? { effort } : {})
+      ...(current.model ? { model: current.model } : {}),
+      ...(current.effort ? { effort: current.effort } : {})
     }
   }
 
@@ -298,9 +262,6 @@ export async function readAcpLiveOptions(
       ...options.current,
       reportedPermissionMode: session.options.reportedPermissionMode(permissionModes)
     },
-    confirmedModelSelection: session.options.confirmedModelSelection(),
     acceptsImages
   }
 }
-
-export { writeAcpSessionOption } from './acp-session-option-write'

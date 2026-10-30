@@ -14,8 +14,6 @@ export type StructuredAgentSessionOptionProjection = {
 
 export type StructuredAgentSessionLiveOptions = AgentSessionOptionsResult & {
   catalogListing?: AgentModelCatalogLiveListing
-  /** Exact requested identity proven equivalent to current.model by this child's response. */
-  confirmedModelSelection?: string
   /** The running CLI cannot change effort mid-chat, whatever its catalog lists. */
   effortFixed?: true
 }
@@ -26,18 +24,6 @@ export type StructuredAgentSessionRestingOptions = Pick<
 > & {
   inventory: AgentSessionModelCatalogResult
   fallback: AgentSessionOptionsResult['models']
-}
-
-export function structuredAgentSessionProjectedModel(
-  saved: string | undefined,
-  live: StructuredAgentSessionLiveOptions | null,
-  current: AgentSessionOptionsResult['current']
-): string | undefined {
-  return saved !== undefined &&
-    saved === live?.confirmedModelSelection &&
-    current.confirmed?.includes('model')
-    ? current.model
-    : saved
 }
 
 export function structuredAgentSessionOptionModels<TModel extends AgentSessionModelOption>(
@@ -80,15 +66,4 @@ export function structuredAgentSessionCapabilityView(
       (row) => row.serviceTiers?.map((tier) => tier.value) ?? []
     )
   }
-}
-
-export function structuredAgentSessionConfirmedOptions(
-  current: AgentSessionOptionsResult['current'],
-  reported: AgentSessionOptionsResult['current']
-): AgentSessionOptionsResult['current']['confirmed'] {
-  return reported.confirmed?.filter((key) =>
-    key === 'model' || key === 'effort' || key === 'fastMode' || key === 'serviceTier'
-      ? current[key] === reported[key]
-      : false
-  )
 }

@@ -14,7 +14,45 @@ import type {
 } from './mobile-structured-agent-session-rpc'
 import { useMobileStructuredAgentOptions } from './use-mobile-structured-agent-options'
 
-export function deferred<T>() {
+const OPTIONS: AgentSessionOptionsResult = {
+  models: [
+    {
+      id: 'gpt-live',
+      label: 'GPT Live',
+      isDefault: true,
+      defaultEffort: 'medium',
+      efforts: [
+        { value: 'medium', label: 'Medium' },
+        { value: 'high', label: 'High' }
+      ]
+    },
+    {
+      id: 'gpt-fast',
+      label: 'GPT Fast',
+      isDefault: false,
+      defaultEffort: 'low',
+      efforts: [
+        { value: 'low', label: 'Low' },
+        { value: 'medium', label: 'Medium' }
+      ]
+    }
+  ],
+  current: { model: 'gpt-live', effort: 'medium' }
+}
+
+const FAST_OPTIONS: AgentSessionOptionsResult = {
+  ...OPTIONS,
+  models: OPTIONS.models.map((model) => ({ ...model, supportsFastMode: true })),
+  fastModeSupport: { supported: true },
+  current: { ...OPTIONS.current, fastMode: false, confirmed: ['fastMode'] }
+}
+
+const FAST_OPTIONS_ON: AgentSessionOptionsResult = {
+  ...FAST_OPTIONS,
+  current: { ...FAST_OPTIONS.current, fastMode: true }
+}
+
+function deferred<T>() {
   let resolve!: (value: T) => void
   const promise = new Promise<T>((accept) => {
     resolve = accept
@@ -28,7 +66,7 @@ function rpcSuccess(result: unknown) {
 
 type SentRequest = { method: string; params: unknown }
 
-export function optionsClient(
+function optionsClient(
   reads: () => Promise<AgentSessionOptionsResult>,
   catalog?: (params: unknown) => Promise<AgentSessionModelCatalogResult>
 ) {
@@ -62,7 +100,7 @@ export function optionsClient(
   return { client, sent, methods, optionReads: () => methods('agentSession.options').length }
 }
 
-export function queuedReads(...results: AgentSessionOptionsResult[]) {
+function queuedReads(...results: AgentSessionOptionsResult[]) {
   let index = 0
   return () => Promise.resolve(results[Math.min(index++, results.length - 1)]!)
 }
@@ -70,7 +108,7 @@ export function queuedReads(...results: AgentSessionOptionsResult[]) {
 type MutateCall = { method: string; fields: Record<string, unknown> }
 
 // Use an untyped mock: a concrete fixture cannot satisfy arbitrary TValue from the generic mutation caller.
-export function recordingMutate(
+function recordingMutate(
   next: (call: number) => Promise<StructuredAgentSessionMutationResult<AgentSessionOptionResult>>
 ) {
   const calls: MutateCall[] = []
@@ -85,7 +123,7 @@ export function recordingMutate(
   return { calls, mutate }
 }
 
-export function accepted(
+function accepted(
   value: AgentSessionOptionResult,
   sameFence: boolean
 ): StructuredAgentSessionMutationResult<AgentSessionOptionResult> {
@@ -103,6 +141,9 @@ type ProbeProps = {
   optionStamp?: string
   supportsDefault?: boolean
   turnId?: string | null
+  sendSelection?: boolean
+  coherentCatalog?: boolean
+  permissionOwn?: boolean
   onRender: (controller: Controller) => void
 }
 
@@ -116,20 +157,28 @@ function Probe(props: ProbeProps): null {
     mutate: props.mutate,
     turnId: props.turnId ?? null,
     ...(props.optionStamp ? { optionStamp: props.optionStamp } : {}),
-    hostSupport: { permissionModes: true, statusFeed: false, defaultModel: props.supportsDefault }
+    hostSupport: {
+      permissionModes: true,
+      defaultModel: props.supportsDefault,
+      permissionOwn: props.permissionOwn,
+      sendOptions: false,
+      statusFeed: false,
+      sendSelection: props.sendSelection,
+      coherentModelCatalog: props.coherentCatalog
+    }
   })
   useLayoutEffect(() => props.onRender(controller), [controller, props.onRender])
   return null
 }
 
-export async function settle() {
+async function settle() {
   await act(async () => {
     await Promise.resolve()
     await Promise.resolve()
   })
 }
 
-export async function mountOptions(props: Omit<ProbeProps, 'onRender'>) {
+async function mountOptions(props: Omit<ProbeProps, 'onRender'>) {
   let rendered: Controller | null = null
   const onRender = (controller: Controller) => {
     rendered = controller
@@ -159,19 +208,36 @@ export async function mountOptions(props: Omit<ProbeProps, 'onRender'>) {
   }
 }
 
-export function descriptorFor(
+function descriptorFor(
   snapshot: readonly SessionOptionDescriptor[],
   id: string
 ): SessionOptionDescriptor | undefined {
   return snapshot.find((entry) => entry.id === id)
 }
 
-export function currentValueOf(snapshot: readonly SessionOptionDescriptor[], id: string) {
+function currentValueOf(snapshot: readonly SessionOptionDescriptor[], id: string) {
   const kind = descriptorFor(snapshot, id)?.kind
   return kind && 'currentValue' in kind ? kind.currentValue : undefined
 }
 
-export const BASE = { agent: 'codex', sessionId: 'session-1', fence: 1 } as const
+const BASE = { agent: 'codex', sessionId: 'session-1', fence: 1 } as const
+
+export {
+  settle,
+  OPTIONS,
+  FAST_OPTIONS,
+  FAST_OPTIONS_ON,
+  deferred,
+  rpcSuccess,
+  optionsClient,
+  queuedReads,
+  recordingMutate,
+  accepted,
+  mountOptions,
+  descriptorFor,
+  currentValueOf,
+  BASE
+}
 
 export const SEND_MODEL_OPTIONS: AgentSessionOptionsResult = {
   conversationCommands: ['compact'],

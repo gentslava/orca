@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type RefObject } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { structuredAgentSessionShownSnapshot } from '../../../src/shared/structured-agent-session-option-view'
 import type { StructuredAgentSessionOptionState } from '../../../src/shared/structured-agent-session-options'
 import type {
@@ -11,13 +11,12 @@ export function useMobileStructuredOptionSurface(args: {
   demandModelCatalog: () => void
   lockSnapshot: (snapshot: SessionOptionDescriptor[]) => SessionOptionDescriptor[]
   optionSnapshot: SessionOptionDescriptor[]
-  setStructuredOption: (id: string, value: SessionOptionValue) => Promise<boolean>
   resetOption?: SessionOptionsSurface['resetOption']
+  setStructuredOption: (id: string, value: SessionOptionValue) => Promise<boolean>
   /** The latest option state, which a settled pick's snapshot is read from. */
-  optionStateRef: RefObject<StructuredAgentSessionOptionState>
-  projectPermission: (state: StructuredAgentSessionOptionState) => StructuredAgentSessionOptionState
+  readOptionState: () => StructuredAgentSessionOptionState
 }) {
-  const { optionSnapshot, optionStateRef, setStructuredOption, demandModelCatalog } = args
+  const { optionSnapshot, readOptionState, setStructuredOption, demandModelCatalog } = args
   const [optionPickerRequest, setOptionPickerRequest] = useState<{
     id: string
     sequence: number
@@ -37,13 +36,9 @@ export function useMobileStructuredOptionSurface(args: {
   const setOption = useCallback(
     async (id: string, value: SessionOptionValue) => {
       await setStructuredOption(id, value)
-      return {
-        snapshot: args.lockSnapshot(
-          structuredAgentSessionShownSnapshot(args.projectPermission(optionStateRef.current))
-        )
-      }
+      return { snapshot: args.lockSnapshot(structuredAgentSessionShownSnapshot(readOptionState())) }
     },
-    [args.lockSnapshot, optionStateRef, setStructuredOption]
+    [args.lockSnapshot, readOptionState, setStructuredOption]
   )
 
   const optionSurface = useMemo<SessionOptionsSurface>(

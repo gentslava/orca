@@ -1,6 +1,3 @@
-import type { AcpStructuredSession } from './acp-structured-session'
-import type { StructuredAgentSessionSetOptionInput } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
-import { AgentSessionOptionRejectedError } from '../native-chat/agent-session-wire/structured-agent-session-option-error'
 import { abortSignalReason } from '../../shared/abort-signal-reason'
 import type { AcpStructuredConnection } from './acp-structured-connection'
 import type { AcpOptionWrite, AcpStructuredOptions } from './acp-structured-options'
@@ -10,7 +7,14 @@ export function writeAcpSessionOption(
   connection: Pick<AcpStructuredConnection, 'setConfigOption' | 'setModel'>,
   options: AcpStructuredOptions,
   write: AcpOptionWrite,
-  bound: { agent: string; timeoutMs: number; signal?: AbortSignal; key: string; value: string }
+  bound: {
+    agent: string
+    timeoutMs: number
+    signal?: AbortSignal
+    key: string
+    value: string
+    onUncertain?: (error: Error) => void
+  }
 ): Promise<void> {
   const { agent, timeoutMs, signal } = bound
   if (signal?.aborted) {
@@ -25,27 +29,30 @@ export function writeAcpSessionOption(
     apply()
     options.appliedInput.set(bound.key, write.method === 'config' ? write.value : write.modelId)
   }
+  let completed = false
   const applied =
     write.method === 'config'
-      ? connection
-          .setConfigOption(write.configId, write.value)
-          .then((result) =>
-            adopt(() =>
-              options.adoptConfigOptions(
-                result.configOptions,
-                bound.key === 'model' ? bound.value : undefined
-              )
-            )
-          )
-      : connection
-          .setModel(write.modelId)
-          .then(() => adopt(() => options.adoptModel(write.modelId)))
+      ? connection.setConfigOption(write.configId, write.value).then((result) => {
+          completed = true
+          adopt(() => options.adoptConfigOptions(result.configOptions))
+        })
+      : connection.setModel(write.modelId).then(() => {
+          completed = true
+          adopt(() => options.adoptModel(write.modelId))
+        })
+  void applied.catch(() => {
+    completed = true
+  })
   return new Promise<void>((resolve, reject) => {
     const fail = (error: Error): void => {
       if (options.writeRevision === revision) {
         options.writeRevision += 1
       }
       settle()
+      // A local deadline/abort cannot cancel an already-sent native control.
+      if (!completed) {
+        bound.onUncertain?.(error)
+      }
       reject(error)
     }
     const onAbort = (): void => {
@@ -67,27 +74,4 @@ export function writeAcpSessionOption(
       resolve()
     }, fail)
   })
-}
-
-export async function setAcpSessionOption(
-  session: Pick<AcpStructuredSession, 'options' | 'connection' | 'spec'>,
-  input: StructuredAgentSessionSetOptionInput,
-  timeoutMs: number
-): Promise<Readonly<Record<string, string>>> {
-  const write = session.options.write(input.key, input.value)
-  if (!write) {
-    throw new AgentSessionOptionRejectedError(
-      `${session.spec.agent} offers no session option named ${input.key}`
-    )
-  }
-  session.options.notePick(input.key)
-  // Bound option writes so they cannot hold the session queue indefinitely.
-  await writeAcpSessionOption(session.connection, session.options, write, {
-    key: input.key,
-    value: input.value,
-    agent: session.spec.agent,
-    timeoutMs: timeoutMs,
-    ...(input.signal ? { signal: input.signal } : {})
-  })
-  return session.options.reported()
 }

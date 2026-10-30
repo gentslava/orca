@@ -46,10 +46,8 @@ export function canSetAcpOptionWhileIdle(
     session.journalClosed === null &&
     !session.closeRequested &&
     !session.turns.running &&
-    session.spec.dialect.modelConfigUpdatesEfforts &&
     input.key === 'model' &&
-    session.options.write('model', input.value)?.method === 'config' &&
-    session.options.write('effort', '')?.method === 'config'
+    session.options.write('model', input.value)?.method === 'config'
   )
 }
 

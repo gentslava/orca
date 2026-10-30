@@ -1,5 +1,6 @@
 import { ExecutionLocation } from './structured-agent-session-location-params'
 export { ExecutionHostId, ExecutionLocation } from './structured-agent-session-location-params'
+import { AgentSessionSelectionSchema } from '../agent-session-execution-options'
 import {
   SendBody,
   MAX_OPTION_LABEL,
@@ -108,10 +109,16 @@ export const SendParams = z
     /** The composer's choices for the turn this message starts, kept with the message until it is
      *  dispatched. Sent only when `agent-session.send-options.v1` is advertised. Operation fingerprint only. */
     options: AgentSessionOptions.optional(),
+    selection: AgentSessionSelectionSchema.optional(),
     // Strict payload: only hosts advertising the bound usage-limit send capability accept this.
     usageLimitContinuationOfTurnItemId: Identifier('Invalid source turn item id').optional(),
     body: SendBody
   })
+  .strict()
+  .refine(
+    (value) => value.options === undefined || value.selection === undefined,
+    'Choose options or selection'
+  )
   .refine((send) => !(send.steer && send.delivery), 'Steering cannot request queued delivery')
 
 export const CreateIntentParams = z
@@ -125,7 +132,8 @@ export const CreateIntentParams = z
     firstMessage: z
       .object({
         clientMessageId: Identifier('Invalid client message id'),
-        body: SendParams.shape.body
+        body: SendBody,
+        selection: AgentSessionSelectionSchema.optional()
       })
       .strict()
       .optional(),

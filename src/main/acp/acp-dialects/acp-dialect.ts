@@ -107,10 +107,6 @@ export type AcpDialect = {
   ): { sessionId: string; promptId: string; stopReason: string } | undefined
   contextWindow?(models: unknown): number | undefined
   modelEfforts?(model: ModelInfo): { efforts: AgentSessionOptionChoice[]; defaultEffort?: string }
-  /** The agent clamps an effort another model lacks, so unlisted models' menus are unknown, not empty. */
-  clampsUnlistedEffort?: true
-  /** Model config writes return the selected family's effort menu without a model turn. */
-  modelConfigUpdatesEfforts?: true
   /** Claimed permission requests are never auto-approved. */
   request?(method: string, params: unknown): AcpRequestPresentation | undefined
   settleRequest?(method: string, params: unknown): AcpRequestSettlement | undefined

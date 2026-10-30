@@ -70,6 +70,7 @@ export function sendStructuredAgentSessionTurn(
     steer?: true
     queuedImageCards?: boolean
     options?: Readonly<Record<string, string>>
+    selection?: Readonly<Record<string, string>>
     usageLimitContinuationOfTurnItemId?: string
     /** Client send RPCs set origin=client for recovery; host mail/continuations/launch sends omit it. */
     userSend?: true
@@ -247,7 +248,7 @@ export async function setStructuredAgentSessionOption(
         const input = { key: params.key, value: params.value }
         const picked = await recordStructuredAgentSessionOptionIntent(context.deps, ctx, input)
         if (picked.ok) {
-          await confirmIdleStructuredAgentSessionOption(context, ctx, input)
+          confirmIdleStructuredAgentSessionOption(context, ctx, input)
         }
         return picked
       }

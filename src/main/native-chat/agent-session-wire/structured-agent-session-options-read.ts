@@ -1,3 +1,5 @@
+import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
+import { readStructuredAgentSessionDefaultModel } from './structured-agent-session-model-default'
 import { AGENT_MODEL_CATALOG_PICKER_WAIT_MS } from '../agent-model-catalog/agent-model-catalog-listing-waiters'
 import { independentAgentModelCatalog } from '../agent-model-catalog/agent-model-catalog-discovery'
 import {
@@ -7,20 +9,19 @@ import {
 } from './structured-agent-session-resting-options'
 export { IN_PROCESS_OPTIONS_READER, type StructuredAgentSessionOptionsReader }
 import { structuredAgentSessionThreadGoalReport } from './structured-agent-session-thread-goal'
+// Saved choices, catalog defaults and actual execution reports remain separate facts.
 
 import type { AgentSessionOptionsResult } from '../../../shared/agent-session-wire'
+import type { AgentSessionAcceptedInputSources } from '../../../shared/agent-session-options-result'
 import { journalOpenReadRefusal } from '../agent-session-journal/journal-open-failure'
 import type { StructuredAgentSessionLiveOptions } from './structured-agent-session-adapter'
 import {
   structuredAgentSessionCapabilityView,
-  structuredAgentSessionProjectedModel,
   type StructuredAgentSessionRestingOptions as RestingOptions
 } from './structured-agent-session-option-models'
 import { structuredAgentSessionImmediatePermission } from './structured-agent-session-launch-permission'
 import type { StructuredAgentSessionMutationContext } from './structured-agent-session-host-mutations'
 import { structuredAgentSessionNeverSent } from './structured-agent-session-never-sent'
-import { effectiveAgentSessionOptions } from '../../../shared/agent-session-default-model'
-import { readStructuredAgentSessionDefaultModel } from './structured-agent-session-model-default'
 
 export {
   recordStructuredAgentSessionOptionIntent,
@@ -32,7 +33,8 @@ export async function readStructuredAgentSessionOptions(
   context: Pick<
     StructuredAgentSessionMutationContext,
     'deps' | 'serialize' | 'openConversation' | 'conversation'
-  >,
+  > &
+    Partial<Pick<StructuredAgentSessionMutationContext, 'deliveryOrder'>>,
   sessionId: string,
   reader: StructuredAgentSessionOptionsReader
 ): Promise<AgentSessionOptionsResult> {
@@ -40,24 +42,34 @@ export async function readStructuredAgentSessionOptions(
     ? reader
     : { ...reader, deadline: reader.deadline ?? Date.now() + AGENT_MODEL_CATALOG_PICKER_WAIT_MS }
   const { adapter, agents, store } = context.deps
-  const started = await context.serialize(sessionId, async () => {
-    const session = await context.openConversation(sessionId).catch((error: unknown) => {
-      throw journalOpenReadRefusal(error, context.deps.logger, sessionId)
+  const readCurrent = (allowJoin: boolean) =>
+    context.serialize(sessionId, async () => {
+      const session = await context.openConversation(sessionId).catch((error: unknown) => {
+        throw journalOpenReadRefusal(error, context.deps.logger, sessionId)
+      })
+      const child = session?.child
+      if (!child || child.phase === 'starting') {
+        return { kind: 'rest' as const }
+      }
+      if (!adapter.readOptions) {
+        throw new Error('structured_agent_session_options_unsupported')
+      }
+      const pending = allowJoin ? context.deliveryOrder?.optionsReady(sessionId) : undefined
+      if (pending) {
+        return { kind: 'pending' as const, pending }
+      }
+      return {
+        kind: 'live' as const,
+        session,
+        child,
+        options: await adapter.readOptions({ sessionId, fence: child.fence })
+      }
     })
-    const child = session?.child
-    if (!child || child.phase === 'starting') {
-      return { kind: 'rest' as const }
-    }
-    if (!adapter.readOptions) {
-      throw new Error('structured_agent_session_options_unsupported')
-    }
-    return {
-      kind: 'live' as const,
-      session,
-      child,
-      options: await adapter.readOptions({ sessionId, fence: child.fence })
-    }
-  })
+  let started = await readCurrent(true)
+  if (started.kind === 'pending') {
+    await started.pending.catch(() => undefined)
+    started = await readCurrent(false)
+  }
   const live: StructuredAgentSessionLiveOptions | null =
     started.kind === 'live' ? started.options : null
   let rested: RestingOptions | undefined
@@ -65,12 +77,7 @@ export async function readStructuredAgentSessionOptions(
     (rested ??= await readStructuredAgentSessionOptionsAtRest(context.deps, sessionId, reader))
   let options: Omit<AgentSessionOptionsResult, 'rewind'>
   if (live) {
-    const {
-      catalogListing,
-      confirmedModelSelection: _selection,
-      effortFixed: _fixed,
-      ...answer
-    } = live
+    const { catalogListing, effortFixed: _fixed, ...answer } = live
     options = answer
     // Fill missing live listings from saved catalog state; absent records keep the child’s answer.
     if (!catalogListing && !answer.listedModelIds && store.getConversation(sessionId)) {
@@ -102,17 +109,14 @@ export async function readStructuredAgentSessionOptions(
         )?.id
       : undefined
   const saved = record ? (effectiveAgentSessionOptions(record) ?? {}) : {}
-  const savedModel = structuredAgentSessionProjectedModel(saved.model, live, options.current)
-  const model = savedModel ?? (options.current.model || selected.current.model || displayDefault)
+  const model = saved.model ?? (options.current.model || selected.current.model || displayDefault)
   const current = {
     ...selected.current,
     ...options.current,
     ...(model !== undefined ? { model } : {}),
     effort: saved.effort ?? options.current.effort,
-    fastMode:
-      saved.fastMode !== undefined
-        ? selected.current.fastMode
-        : (options.current.fastMode ?? selected.current.fastMode),
+    fastMode: selected.current.fastMode ?? options.current.fastMode,
+    // The saved tier as the shared speed rule runs it under the saved model.
     serviceTier:
       saved.serviceTier !== undefined
         ? selected.current.serviceTier
@@ -123,11 +127,26 @@ export async function readStructuredAgentSessionOptions(
     key === 'model' && !options.current.model
       ? displayDefault !== undefined || selected.current.defaulted?.includes(key) === true
       : options.current.defaulted?.includes(key) === true
-  const defaulted =
-    (agent !== 'codex' || !live || options.current.model) &&
-    structuredAgentSessionNeverSent(record, session.journal)
-      ? []
-      : (['model', 'effort'] as const).filter((key) => saved[key] === undefined && defaultedBy(key))
+  const neverSent = structuredAgentSessionNeverSent(record, session.journal)
+  const defaultKeys = (['model', 'effort'] as const).filter(
+    (key) => saved[key] === undefined && defaultedBy(key)
+  )
+  const pinsDefaults = neverSent && (agent !== 'codex' || !live || !!options.current.model)
+  const defaulted = pinsDefaults ? [] : defaultKeys
+  const acceptedInputSources: AgentSessionAcceptedInputSources = {}
+  for (const key of ['model', 'effort', 'fastMode', 'serviceTier'] as const) {
+    if (current[key] !== undefined && saved[key] !== undefined) {
+      acceptedInputSources[key] = 'saved'
+    }
+  }
+  for (const key of defaultKeys) {
+    if (pinsDefaults && current[key] !== undefined) {
+      acceptedInputSources[key] = 'policy'
+    }
+  }
+  if (saved.fastMode === undefined && selected.current.fastMode === false) {
+    acceptedInputSources.fastMode = 'policy'
+  }
   const confirmed = options.current.confirmed?.filter((key) =>
     key === 'model' || key === 'effort' || key === 'fastMode' || key === 'serviceTier'
       ? current[key] === options.current[key]
@@ -177,8 +196,11 @@ export async function readStructuredAgentSessionOptions(
     current: {
       ...current,
       ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
+      acceptedInputSources,
       defaulted,
       confirmed,
+      ...(options.current.fastModeState ? { fastModeState: options.current.fastModeState } : {}),
+      ...(confirmed?.length ? { confirmed } : {}),
       ...(permissionMode ? { permissionMode } : {}),
       ...(live && options.current.reportedPermissionMode !== undefined
         ? { reportedPermissionMode: options.current.reportedPermissionMode }

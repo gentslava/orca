@@ -82,7 +82,7 @@ function renderSession(initial = { sessionId: 'session-1', fence: 1 }) {
         queue: QUEUE,
         historyLoaded: false,
         isWorking: true,
-        sendOptions
+        sendSelection: sendOptions
       })
       return { ...options, sendOptions, sends }
     },
@@ -160,7 +160,7 @@ it.each([false, true])(
       expect(
         result.current.optionSnapshot.find((row) => row.id === 'model')?.defaultChoice?.selected
       ).toBe(true)
-      expect(result.current.sendOptions()).toBeUndefined()
+      expect(result.current.sendOptions()?.options).toBeUndefined()
     }
     for (const fastMode of [true, false]) {
       await act(async () => {
@@ -171,14 +171,14 @@ it.each([false, true])(
       expect(
         result.current.optionSnapshot.find((row) => row.id === 'model')?.defaultChoice?.selected
       ).toBe(true)
-      expect(result.current.sendOptions()).toBeUndefined()
+      expect(result.current.sendOptions()?.options).toBeUndefined()
     }
     await act(async () => {
       expect(await result.current.setStructuredOption('model', 'gpt-fast')).toBe(true)
     })
     expect(resolveStructuredLaunchSeedOptions(persisted, 'claude')).toEqual({
       model: 'gpt-fast',
-      effort: 'medium',
+      effort: 'low',
       fastMode: 'false'
     })
     expect(
@@ -210,7 +210,7 @@ it.each(
         : result.current.setStructuredOption(id, value)
       if (resetFirst) {
         expect(await result.current.setStructuredOption(id, value)).toBe(false)
-        expect(result.current.sendOptions()).toBeUndefined()
+        expect(result.current.sendOptions()?.options).toBeUndefined()
       } else {
         await result.current.optionSurface.resetOption?.('model')
       }
@@ -231,7 +231,7 @@ it.each(
     expect(
       result.current.optionSnapshot.find((row) => row.id === 'model')?.defaultChoice?.selected
     ).toBe(resetFirst)
-    expect(result.current.sendOptions() === undefined).toBe(resetFirst)
+    expect(result.current.sendOptions()?.options === undefined).toBe(resetFirst)
     unmount()
   }
 )

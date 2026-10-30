@@ -53,7 +53,7 @@ export function useStructuredAgentSessionOptionWrite(args: {
         sameRecord() && isLatestStructuredOptionPick(optionPicks.current, pick)
       updateOptionState((current) =>
         shownAtOnce
-          ? commitStructuredAgentSessionOptionValues(current, { [id]: encoded }, id)
+          ? commitStructuredAgentSessionOptionValues(current, { [id]: encoded }, 'picked', id)
           : { ...current, pendingId: id }
       )
       let result: AgentSessionOptionResult | null = null
@@ -70,7 +70,7 @@ export function useStructuredAgentSessionOptionWrite(args: {
         if (committed) {
           updateOptionState((current) =>
             current.record === targetRecord
-              ? commitStructuredAgentSessionOptionValues(current, committed, id)
+              ? commitStructuredAgentSessionOptionValues(current, committed, 'picked', id)
               : current
           )
           // The launch seed names the model an effort-only pick was made under.

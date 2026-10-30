@@ -108,7 +108,6 @@ function normalizeToolUpdate(update: ToolCallUpdate): ToolCallUpdate {
 }
 
 export const ANTIGRAVITY_ACP_DIALECT: AcpDialect = {
-  modelConfigUpdatesEfforts: true,
   request: (method, params) => questionRequest(method, params) ?? warnedApproval(method, params),
   normalizeToolUpdate,
   // Avoid using the full command line as the tool name.

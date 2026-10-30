@@ -57,6 +57,10 @@ export function structuredAgentSessionStatusSummary({
     AGENT_MODEL_MAX_LENGTH
   )
   const permissionMode = record?.permissionMode
+  // Published so another device's pick moves the client's option stamp.
+  const effort = record?.options?.effort
+  const fastMode = record?.options?.fastMode
+  const serviceTier = record?.options?.serviceTier
   const launchDirectory = record ? agentSessionPinnedLaunchDirectory(record) : undefined
   return {
     sessionId,
@@ -79,6 +83,9 @@ export function structuredAgentSessionStatusSummary({
     ...(model ? { model } : {}),
     ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
     ...(isAgentChatPermissionMode(permissionMode) ? { permissionMode } : {}),
+    ...(effort ? { effort } : {}),
+    ...(fastMode ? { fastMode } : {}),
+    ...(serviceTier ? { serviceTier } : {}),
     ...childWork,
     ...(providerSession ? { providerSession } : {}),
     ...(launchDirectory ? { launchDirectory } : {}),

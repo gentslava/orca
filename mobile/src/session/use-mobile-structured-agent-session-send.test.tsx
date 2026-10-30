@@ -1,3 +1,4 @@
+import { mobileNativeChatDraftDestination } from './native-chat/composer/mobile-native-chat-draft-inputs'
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import {
   updateMobileNativeChatDraftInputs,
@@ -36,7 +37,7 @@ import {
   AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY
 } from '../../../src/shared/agent-session-create-capabilities'
 import type { RpcResponse } from '../transport/types'
-import type { MobileNativeChatSendOrigin } from './native-chat/composer/use-mobile-native-chat-drafts'
+import type { MobileNativeChatSendOrigin } from './native-chat/mobile-native-chat-pending-echo'
 import {
   structuredAgentSessionHostSupport,
   type StructuredAgentSessionHostSupport
@@ -80,12 +81,11 @@ describe('mobile structured send actions', () => {
   const restoreRejectedDraft = vi.fn()
   const captureSendOrigin = vi.fn((text: string): MobileNativeChatSendOrigin => ({
     draftKey: 'draft',
+    draftDestination: mobileNativeChatDraftDestination('draft'),
     draftEditGeneration: 0,
     pendingKey: 'pending',
     normalizedText: text,
-    baselineOccurrences: 0,
-    baselineTailMessageId: null,
-    baselineResolved: true,
+    boundary: {},
     sentAt: 0
   }))
   const onSendError = vi.fn()
@@ -271,8 +271,7 @@ describe('mobile structured send actions', () => {
       })
       expect(calls()).toHaveLength(1)
       expect(onSendError).toHaveBeenCalledWith('Use /compact without arguments.', undefined)
-      expect(kinds).toBeGreaterThanOrEqual(count)
-      expect(names).toBeGreaterThanOrEqual(count)
+      expect({ kinds, names }).toEqual({ kinds: 0, names: 0 })
     }
   )
 

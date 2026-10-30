@@ -153,6 +153,8 @@ export function sendPlan(
         clientMessageId,
         ...(params.steer ? { steer: params.steer } : {}),
         ...(params.options ? { options: params.options } : {}),
+        ...(params.selection !== undefined ? { selection: params.selection } : {}),
+        // Body-only, so the reducer's echo aliasing never sees control fields or the sender.
         payloadFingerprint: agentSessionSendBodyFingerprint(params.envelope.sessionId, params.body),
         body: params.body
       })

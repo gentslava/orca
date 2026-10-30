@@ -77,7 +77,8 @@ export type RepoHeaderProjectActions = {
   onMoveProjectToGroup: (repo: Repo, groupId: string) => void
   onRemoveProjectFromGroup: (repo: Repo) => void
   onRemoveProject: (repo: Repo) => void
-  onCreateForRepo: (projectId: string) => void
+  /** `pinHost`: the header heads one host section, so its repo is that host's own registration. */
+  onCreateForRepo: (repo: Repo, options: { pinHost: boolean }) => void
 }
 
 // Memoized: the sidebar re-renders every header row when the active workspace changes.
@@ -201,11 +202,13 @@ export const RepoHeaderProjectActionsMenu = React.memo(function RepoHeaderProjec
 export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCreateWorkspaceButton({
   repo,
   label,
+  pinHost = false,
   onCreateForRepo
 }: {
   repo: Repo
   label: string
-  onCreateForRepo: (projectId: string) => void
+  pinHost?: boolean
+  onCreateForRepo: RepoHeaderProjectActions['onCreateForRepo']
 }): React.JSX.Element {
   // Memoized: subscribe so a language change still repaints its labels.
   useTranslation()
@@ -256,7 +259,7 @@ export const RepoHeaderCreateWorkspaceButton = React.memo(function RepoHeaderCre
             onClick={(event) => {
               event.preventDefault()
               event.stopPropagation()
-              onCreateForRepo(repo.id)
+              onCreateForRepo(repo, { pinHost })
             }}
           >
             <Plus className="size-3" />
