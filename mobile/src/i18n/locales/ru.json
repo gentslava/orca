@@ -1582,12 +1582,13 @@
       "prMrLink": "Ссылка на PR/MR",
       "project": "Проект",
       "recent": "Недавние",
-      "recentProjectOrderDescription": "Недавняя активность рабочих пространств",
       "searchProjects": "Поиск проектов",
       "searchProjectsPlaceholder": "Поиск проектов…",
       "selectedCount": "{{count}} из {{total}}",
       "status": "Статус",
-      "frequent": "Часто используемые"
+      "frequent": "Часто используемые",
+      "recentProjectOpeningDescription": "Последние открытые вами проекты",
+      "frequentProjectOrderDescription": "Проекты, которые вы открываете чаще всего"
     },
     "workspaceOptionsSheet": {
       "backToOptions": "Вернуться к параметрам рабочих пространств",

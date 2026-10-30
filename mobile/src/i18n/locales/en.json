@@ -612,7 +612,6 @@
       "agentActivitySortDescription": "Agents that need attention, then most recent activity.",
       "manualWorkspaceOrderDescription": "Drag workspaces to arrange them within each group.",
       "manualProjectOrderDescription": "Drag projects to arrange them",
-      "recentProjectOrderDescription": "Most recent workspace activity",
       "detailed": "Detailed",
       "compact": "Compact",
       "fullList": "Full list",
@@ -638,7 +637,9 @@
       "searchProjects": "Search projects",
       "hover": "Hover",
       "agentActivityLayout": "Agent activity layout",
-      "frequent": "Frequently used"
+      "frequent": "Frequently used",
+      "frequentProjectOrderDescription": "Most project openings by you",
+      "recentProjectOpeningDescription": "Most recently opened by you"
     },
     "workspaceOptionsSheet": {
       "hosts": "Hosts",

@@ -97,9 +97,9 @@ describe('successful deliberate personal project activation', () => {
         refreshGitHubForWorktreeIfStale: vi.fn(),
         getKnownWorktreeById: (id) => [target, other].find((entry) => entry.id === id),
         setActiveRepo: (id) => useAppStore.setState({ activeRepoId: id }),
-        setActiveWorktree: (id, host) => {
+        setActiveWorktree: (id, host, options) => {
           useAppStore.setState({
-            activeRepoId: id?.split('::')[0] ?? null,
+            ...options?.stateTransition?.(useAppStore.getState()).patch,
             activeWorktreeId: id,
             activeWorkspaceExecutionHostId: host ?? null
           })
@@ -167,9 +167,9 @@ describe('successful deliberate personal project activation', () => {
       refreshGitHubForWorktreeIfStale: vi.fn(),
       getKnownWorktreeById: (id) => [wa, wa2, wb].find((entry) => entry.id === id),
       setActiveRepo: (id) => useAppStore.setState({ activeRepoId: id }),
-      setActiveWorktree: (id, host) => {
+      setActiveWorktree: (id, host, options) => {
         useAppStore.setState({
-          activeRepoId: id?.split('::')[0] ?? null,
+          ...options?.stateTransition?.(useAppStore.getState()).patch,
           activeWorktreeId: id,
           activeWorkspaceExecutionHostId: host ?? null
         })
