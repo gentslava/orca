@@ -164,6 +164,25 @@ describe('account quota coverage', () => {
     )
   })
 
+  it('warns about incomplete coverage when retained local accounts cannot be verified', () => {
+    const { accounts, rateLimits } = fixture()
+    render(
+      <UsageAccountQuotas
+        accounts={accounts}
+        accountsUnverifiable
+        rateLimits={rateLimits}
+        ownerLabel="This device"
+        onRefresh={() => {}}
+        onManage={() => {}}
+      />
+    )
+    expect(screen.getByTestId('usage-quota-coverage')).toHaveTextContent(
+      'The account list is unavailable or incomplete.'
+    )
+    expect(screen.getAllByTestId('usage-quota-codex')).toHaveLength(3)
+    expect(screen.queryAllByRole('progressbar')).toHaveLength(0)
+  })
+
   it('labels managed Claude and Codex accounts with their remote owner', () => {
     const { accounts, rateLimits } = fixture()
     rateLimits.claude = { ...quota(18, 'max'), provider: 'claude' }

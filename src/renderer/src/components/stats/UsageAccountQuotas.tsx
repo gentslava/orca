@@ -184,7 +184,7 @@ export function UsageAccountQuotas({
         </Button>
       </div>
       <p className="text-xs text-muted-foreground" data-testid="usage-quota-coverage">
-        {accounts && !accounts.failedProviders?.length
+        {accounts && !accountsUnverifiable && !accounts.failedProviders?.length
           ? translate(
               'stats.usage.quota.accountCoverage',
               'Claude and Codex show connected accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
