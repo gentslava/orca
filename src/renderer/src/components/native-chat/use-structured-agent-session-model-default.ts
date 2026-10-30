@@ -32,6 +32,7 @@ export function useStructuredAgentSessionModelDefault(args: {
     | 'optionView'
     | 'optionStateRef'
     | 'activeOptionRecordRef'
+    | 'controller'
     | 'optionPicks'
     | 'writes'
     | 'beginOptionWrite'
@@ -54,6 +55,7 @@ export function useStructuredAgentSessionModelDefault(args: {
     optionStateRef,
     activeOptionRecordRef,
     optionPicks,
+    controller,
     writes,
     beginOptionWrite,
     isCurrentContext,
@@ -74,7 +76,8 @@ export function useStructuredAgentSessionModelDefault(args: {
         !acceptsPicks ||
         fence === null ||
         !isCurrentContext() ||
-        writes.current.count > 0
+        writes.current.count > 0 ||
+        controller.pending().length > 0
       ) {
         return snapshot()
       }
@@ -98,6 +101,8 @@ export function useStructuredAgentSessionModelDefault(args: {
         )
         accepted = Boolean(result)
         if (result && current()) {
+          controller.abandon()
+          controller.setModelDefault(result.modelDefault === true)
           updateOptionState((state) =>
             result.modelDefault
               ? commitStructuredAgentSessionModelDefault(state, result.options ?? {})
@@ -134,6 +139,7 @@ export function useStructuredAgentSessionModelDefault(args: {
       optionStateRef,
       optionView,
       optionPicks,
+      controller,
       writes,
       takesModelDefault,
       target,

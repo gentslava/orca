@@ -1,7 +1,12 @@
+import {
+  createStructuredOptionPickBook,
+  resetStructuredOptionPickBook
+} from '../../../src/shared/structured-agent-session-option-pick-book'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { mobileStructuredSessionStatusFeed } from './mobile-structured-session-status-feed'
 import { projectRuntimePermission } from '../../../src/shared/structured-agent-session-permission-option'
 import type { AgentSessionConversationCommand } from '../../../src/shared/agent-session/agent-session-conversation-command'
+import { useMobileStructuredSelectionController } from './use-mobile-structured-selection-controller'
 import type {
   AgentSessionOptionsResult,
   AgentSessionModelCatalogResult
@@ -14,10 +19,6 @@ import type { AgentSessionOptionCatalog } from '../../../src/shared/agent-sessio
 import { usesInstalledAgentModelCatalog } from '../../../src/shared/agent-model-catalog-ownership'
 import { cloneStructuredAgentSessionOptionRecord } from '../../../src/shared/structured-agent-session-option-state'
 import {
-  createStructuredOptionPickBook,
-  resetStructuredOptionPickBook
-} from '../../../src/shared/structured-agent-session-option-pick-book'
-import {
   createStructuredAgentSessionOptionState,
   applyStructuredAgentSessionOptions,
   applyStructuredAgentSessionModelCatalog,
@@ -28,6 +29,7 @@ import {
 export function useMobileStructuredOptionState(args: {
   client: RpcClient | null
   optionStamp?: string
+  sendSelection?: boolean
   newLaunch: boolean
   worktree?: string
   coherentCatalog?: boolean
@@ -49,6 +51,7 @@ export function useMobileStructuredOptionState(args: {
     turnId,
     client,
     optionStamp,
+    sendSelection,
     newLaunch,
     worktree,
     coherentCatalog: hostCoherentCatalog = false
@@ -64,7 +67,6 @@ export function useMobileStructuredOptionState(args: {
   const summary = useSyncExternalStore(feed?.subscribe ?? (() => () => {}), () =>
     sessionId ? feed?.getSnapshot().get(sessionId) : undefined
   )
-  // As on desktop, a host still starting the provider holds option writes; picks show at once.
   const providerStarting = summary?.hostExecutionPhase === 'starting'
   const projectPermission = <T extends { reportedPermissionMode?: string | null }>(state: T): T =>
     projectRuntimePermission(state, summary, fence)
@@ -75,6 +77,19 @@ export function useMobileStructuredOptionState(args: {
   const optionStateRef = useRef(optionState)
   const activeOptionRecordRef = useRef(optionState.record)
   const optionPicks = useRef(createStructuredOptionPickBook())
+  const writes = useRef({ count: 0, readback: false })
+  const readEpoch = useRef(0)
+  const readRef = useRef<(() => void) | null>(null)
+  const reread = useCallback(() => {
+    readEpoch.current += 1
+    readRef.current?.()
+  }, [])
+  const { controller, clientGeneration } = useMobileStructuredSelectionController({
+    agent,
+    client,
+    sessionId,
+    onRevalidate: reread
+  })
   const updateOptionState = useCallback(
     (update: (current: StructuredAgentSessionOptionState) => StructuredAgentSessionOptionState) => {
       const next = update(optionStateRef.current)
@@ -92,23 +107,28 @@ export function useMobileStructuredOptionState(args: {
     () => contextRef.current.key === contextKey && contextRef.current.client === client,
     [contextKey, client]
   )
-  const writes = useRef({ count: 0, readback: false })
-  const optionIdentityRef = useRef(`${agent}:${sessionId}`)
+  const optionIdentityRef = useRef({ agent, sessionId, client, controller })
   useEffect(() => {
-    const identity = `${agent}:${sessionId}`
-    const sameSession = optionIdentityRef.current === identity
-    optionIdentityRef.current = identity
+    const previousIdentity = optionIdentityRef.current
+    const sameSession =
+      previousIdentity.agent === agent &&
+      previousIdentity.sessionId === sessionId &&
+      previousIdentity.client === client &&
+      previousIdentity.controller === controller
+    optionIdentityRef.current = { agent, sessionId, client, controller }
     const previous = optionStateRef.current
     const seeded = createStructuredAgentSessionOptionState(agent ?? 'codex', optionCatalog)
     // Retain account answers across fence changes instead of reviving placeholders.
     const kept =
-      sameSession && previous.catalogSource !== 'seed' && previous.catalogSource !== null
+      sameSession &&
+      (previous.optionsAnswerPresent ||
+        (previous.catalogSource !== 'seed' && previous.catalogSource !== null))
         ? {
             ...previous,
-            catalogSource: 'host' as const,
             record: cloneStructuredAgentSessionOptionRecord(previous.record),
             pendingId: null,
-            reportedPermissionMode: undefined
+            reportedPermissionMode: undefined,
+            reportedEffort: undefined
           }
         : seeded
     // Keep the chat’s mode visible through provider restarts.
@@ -117,10 +137,21 @@ export function useMobileStructuredOptionState(args: {
       : kept
     writes.current = { count: 0, readback: false }
     resetStructuredOptionPickBook(optionPicks.current)
+    readEpoch.current += 1
     optionStateRef.current = next
     activeOptionRecordRef.current = next.record
     setOptionState(next)
-  }, [agent, enabled, fence, optionCatalog, sessionId, contextKey, client])
+  }, [
+    agent,
+    enabled,
+    fence,
+    optionCatalog,
+    sessionId,
+    contextKey,
+    client,
+    clientGeneration,
+    controller
+  ])
 
   const [conversationSupport, setConversationSupport] = useState<{
     sessionId: string
@@ -136,7 +167,6 @@ export function useMobileStructuredOptionState(args: {
   const awaitingOptions =
     conversationSupport?.sessionId === sessionId && conversationSupport.fence !== fence
 
-  const readRef = useRef<(() => void) | null>(null)
   const receiveCatalog = (
     catalog: AgentSessionModelCatalogResult | null,
     _event: 'demand' | 'progress' | 'settled'
@@ -155,7 +185,13 @@ export function useMobileStructuredOptionState(args: {
   }
   useEffect(() => {
     // Read each turn and after provider start; before start only a resumed chat has model evidence.
-    if (!client || !sessionId || !enabled || !optionCatalog || (providerStarting && newLaunch)) {
+    if (
+      !client ||
+      !sessionId ||
+      !enabled ||
+      !optionCatalog ||
+      (providerStarting && newLaunch && !sendSelection)
+    ) {
       return
     }
     let stale = false
@@ -165,13 +201,15 @@ export function useMobileStructuredOptionState(args: {
         if (stale || !isCurrentContext()) {
           return
         }
+        const record = activeOptionRecordRef.current
         if (writes.current.count) {
           writes.current.readback = true
           return
         }
-        writes.current.readback = false
-        const record = activeOptionRecordRef.current
-        const readGeneration = optionPicks.current.generation
+        const pickGeneration = optionPicks.current.generation
+        const epoch = readEpoch.current
+        const generation = client.getGeneration?.()
+        const completed = controller.captureRead()
         const result = await callAgentSession<AgentSessionOptionsResult>(
           client,
           'agentSession.options',
@@ -187,16 +225,22 @@ export function useMobileStructuredOptionState(args: {
           acceptsImages: result.acceptsImages,
           statesPermissionMode: result.current?.permissionMode !== undefined
         })
-        if (optionPicks.current.generation !== readGeneration) {
+        if (
+          readEpoch.current !== epoch ||
+          optionPicks.current.generation !== pickGeneration ||
+          client.getGeneration?.() !== generation
+        ) {
           return
         }
         setConversationSupport({ sessionId, fence, commands: result.conversationCommands ?? [] })
+        controller.setModelDefault(result.current.modelDefault === true)
         updateOptionState((current) =>
           applyStructuredAgentSessionOptions(current, optionCatalog, result, {
             newLaunch,
             coherentCatalog
           })
         )
+        controller.retire(completed)
       }).catch(() => undefined)
     }
     readRef.current = request
@@ -207,10 +251,13 @@ export function useMobileStructuredOptionState(args: {
     }
   }, [
     client,
+    clientGeneration,
     newLaunch,
     enabled,
     optionCatalog,
     optionStamp,
+    sendSelection,
+    controller,
     isCurrentContext,
     coherentCatalog,
     providerStarting,
@@ -222,17 +269,19 @@ export function useMobileStructuredOptionState(args: {
 
   return {
     projectPermission,
+    optionPicks,
+    writes,
+    readRef,
     conversationSupport,
     imageSupport,
     awaitingOptions,
-    writes,
-    readRef,
+    controller,
+    reread,
     receiveCatalog,
     isCurrentContext,
     optionState,
     optionStateRef,
     activeOptionRecordRef,
-    optionPicks,
     providerStarting,
     updateOptionState
   }

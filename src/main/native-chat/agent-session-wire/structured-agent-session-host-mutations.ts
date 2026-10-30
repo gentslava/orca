@@ -57,6 +57,7 @@ import {
   type StructuredAgentSessionOptionsReader
 } from './structured-agent-session-options-read'
 import { settleStructuredAgentSessionLateDispatch } from './structured-agent-session-late-dispatch'
+import { confirmIdleStructuredAgentSessionOption } from './structured-agent-session-idle-option'
 
 export function sendStructuredAgentSessionTurn(
   context: StructuredAgentSessionMutationContext,
@@ -68,6 +69,7 @@ export function sendStructuredAgentSessionTurn(
     delivery?: 'queue-if-active'
     queuedImageCards?: boolean
     options?: Readonly<Record<string, string>>
+    selection?: Readonly<Record<string, string>>
     usageLimitContinuationOfTurnItemId?: string
     /** Client send RPCs set origin=client for recovery; host mail/continuations/launch sends omit it. */
     userSend?: true
@@ -233,18 +235,22 @@ export async function setStructuredAgentSessionOption(
     {
       ...plan,
       conversationWrite: true,
-      run: async (ctx) =>
-        params.value === null
-          ? resetStructuredAgentSessionModel(
-              context.deps,
-              ctx,
-              Boolean((await context.conversation(ctx.sessionId)).child),
-              params.key
-            )
-          : recordStructuredAgentSessionOptionIntent(context.deps, ctx, {
-              ...params,
-              value: params.value
-            })
+      run: async (ctx) => {
+        if (params.value === null) {
+          return resetStructuredAgentSessionModel(
+            context.deps,
+            ctx,
+            Boolean((await context.conversation(ctx.sessionId)).child),
+            params.key
+          )
+        }
+        const input = { key: params.key, value: params.value }
+        const picked = await recordStructuredAgentSessionOptionIntent(context.deps, ctx, input)
+        if (picked.ok) {
+          confirmIdleStructuredAgentSessionOption(context, ctx, input)
+        }
+        return picked
+      }
     },
     openForWrite(context, params.envelope)
   )

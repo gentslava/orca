@@ -54,6 +54,7 @@ export function useMobileStructuredModelDefault(args: {
     ReturnType<typeof useMobileStructuredOptionState>,
     | 'optionStateRef'
     | 'activeOptionRecordRef'
+    | 'controller'
     | 'optionPicks'
     | 'updateOptionState'
     | 'writes'
@@ -67,6 +68,7 @@ export function useMobileStructuredModelDefault(args: {
     optionStateRef,
     activeOptionRecordRef,
     optionPicks,
+    controller,
     updateOptionState,
     writes,
     readRef,
@@ -87,6 +89,7 @@ export function useMobileStructuredModelDefault(args: {
         !agent ||
         awaitingOptions ||
         writes.current.count > 0 ||
+        controller.pending().length > 0 ||
         !isCurrentContext()
       ) {
         return snapshot()
@@ -113,11 +116,13 @@ export function useMobileStructuredModelDefault(args: {
             ? structuredOptionPickCommit(optionPicks.current, pick, result.value.options ?? {})
             : null
         if (result.status === 'accepted' && committed) {
+          controller.abandon()
+          controller.setModelDefault(result.value.modelDefault === true)
           updateOptionState((state) =>
             result.value.modelDefault
               ? commitStructuredAgentSessionModelDefault(state, committed)
               : {
-                  ...commitStructuredAgentSessionOptionValues(state, committed, id),
+                  ...commitStructuredAgentSessionOptionValues(state, committed, 'picked', id),
                   modelDefault: false
                 }
           )
@@ -156,6 +161,7 @@ export function useMobileStructuredModelDefault(args: {
       mutate,
       optionStateRef,
       optionPicks,
+      controller,
       readRef,
       sessionId,
       updateOptionState,
