@@ -22,9 +22,12 @@ import { setReactCommitCascadeRendererSurface } from './lib/react-commit-cascade
 import { installOsFileDropCancellationGuard } from './lib/os-file-drop-cancellation-guard'
 import { HoldQuitNotice } from './components/HoldQuitNotice'
 import { Toaster } from './components/ui/sonner'
+import { installBodyOverlayAttributes } from './lib/body-overlay-attributes'
 
 const disposeOsFileDropGuard = installOsFileDropCancellationGuard()
 import.meta.hot?.dispose(disposeOsFileDropGuard)
+const disposeBodyOverlayAttributes = installBodyOverlayAttributes()
+import.meta.hot?.dispose(disposeBodyOverlayAttributes)
 // Each popout has a separate React root/DOM/JS context; run full renderer bootstrap despite sharing preload/window.api.
 recordRendererCrashBreadcrumb('popout_bootstrap_started', { dev: import.meta.env.DEV })
 installRendererCrashDiagnostics('dashboard-popout')
