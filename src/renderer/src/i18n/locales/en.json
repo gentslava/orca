@@ -205,6 +205,9 @@
         "needsAttention_one": "{{count}} agent needs attention",
         "needsAttention_other": "All {{count}} agents needs attention"
       }
+    },
+    "cardProperties": {
+      "agentModel": "Agent model"
     }
   },
   "app": {
@@ -516,15 +519,9 @@
       },
       "providers": {
         "title": "Providers",
-        "description": "Choose which agents open as a chat. Turned off, an installed agent opens in a terminal.",
         "searchAgents": "agents",
         "searchCli": "CLI",
         "searchTerminal": "terminal",
-        "agentDisabled": "Turned off in Agent settings",
-        "installed": "Installed",
-        "notInstalled": "Not installed",
-        "install": "Install",
-        "toggleLabel": "Open {{value0}} as a chat",
         "antigravityDescription": "Antigravity chats run a server Orca downloads to this host, separate from the agy CLI.",
         "antigravityNotSignedIn": "Not signed in. Chats need an Antigravity sign-in, separate from your agy terminal account.",
         "antigravityAccount": "Account",
@@ -797,7 +794,6 @@
       "defaultOpensAs": "Open {{value0}} as",
       "defaultOpensAsChat": "Chat",
       "defaultOpensAsCli": "CLI",
-      "defaultOpensAsScope": "Applies to new {{value0}} sessions launched from this computer, including on paired hosts. Matches its Providers switch.",
       "save": "Save",
       "clearDefault": "Clear default agent",
       "autoUnsupported": "Approve for me needs a newer Orca on this host.",
@@ -850,7 +846,11 @@
         "description": "Lets each Codex account, and your own ~/.codex, resume conversations started on the others. Turn off to keep every account's history separate. Turning it off removes nothing already shared.",
         "unsupported": "Update Orca on {{host}} to change this setting there.",
         "updateFailed": "Could not update the setting on {{host}}."
-      }
+      },
+      "installCliForTerminal": "Install the {{value0}} CLI to open it in a terminal.",
+      "chatRuntime": "Chat runtime",
+      "chatChoiceTitle": "Open as chat or CLI",
+      "chatChoiceDescription": "Choose whether each agent opens as a chat or in its CLI."
     },
     "followSymlinkedDirectoriesKeywords": {
       "symlink": "symlink",
@@ -13866,7 +13866,10 @@
             "clearNotesFromWorkspace_one": "Clear {{count}} note from this workspace?",
             "clearNotesFromWorkspace_other": "Clear {{count}} notes from this workspace?",
             "clearNotesFromFile_one": "Clear {{count}} note from {{path}}?",
-            "clearNotesFromFile_other": "Clear {{count}} notes from {{path}}?"
+            "clearNotesFromFile_other": "Clear {{count}} notes from {{path}}?",
+            "markResolved": "Mark as resolved",
+            "keepFile": "Keep file",
+            "keepDeletion": "Keep deletion"
           },
           "SourceControlAgentActionDialog": {
             "8e856842d1": "Could not start the selected agent.",
@@ -14448,7 +14451,8 @@
                     "edc2d82a2b": "Merge in progress",
                     "5c3707aa44": "Rebase in progress",
                     "ffe53a1da6": "Cherry-pick in progress",
-                    "35eb76d323": "Operation in progress"
+                    "35eb76d323": "Operation in progress",
+                    "completeMerge": "Complete merge"
                   }
                 }
               },
@@ -14477,7 +14481,8 @@
                   "e7876a2bde": "Stage at least one file to generate a message.",
                   "0904be2505": "Clear the message to regenerate.",
                   "1ea9ba37aa": "Pick an agent in Settings -> Git -> Source Control AI."
-                }
+                },
+                "completeMergeFailed": "Complete merge failed"
               }
             }
           },
@@ -14516,8 +14521,7 @@
             "permanentlyDeleteItems_one": "Permanently delete {{count}} item?"
           },
           "useFileExplorerHandlers": {
-            "32cd9fd991": "Cannot open symlink target",
-            "folderLinksOutsideProject": "This folder links outside the project, so it can't be opened here."
+            "32cd9fd991": "Cannot open symlink target"
           },
           "useFileExplorerImport": {
             "importFailedCount_one": "Failed to import {{count}} file.",
@@ -18958,6 +18962,12 @@
       "forgeCredentialTarget": {
         "unknownHost": "The machine that owns this repository is not known yet. Reconnect it and try again.",
         "thisComputer": "this computer"
+      },
+      "runtimeGitSyncClient": {
+        "completeMergeNeedsNewerHost": "Completing a merge needs a newer Orca on this host. Update Orca on that host."
+      },
+      "runtimeGitWorkingTreeClient": {
+        "resolveConflictNeedsNewerHost": "Resolving conflicts needs a newer Orca on this host. Update Orca on that host."
       }
     },
     "ssh": {
@@ -19761,6 +19771,7 @@
         "goToAgent": "Go to agent",
         "messageFromCoordinator": "Message from coordinator",
         "showMore": "Show more",
+        "startedWorker": "Started worker",
         "taskFromCoordinator": "Task from coordinator",
         "updateFromWorker": "Update from worker"
       },
@@ -20525,7 +20536,7 @@
       "heroBody": "One-time {{size}} MB download. It's shared by {{agent}} chats on the computer running this chat.",
       "heroBodyNoSize": "One-time download. It's shared by {{agent}} chats on the computer running this chat.",
       "stripSize": "{{size}} MB download on the computer running this chat",
-      "settingsHint": "Also in Settings › Chat › Providers",
+      "settingsHint": "Also in Settings › Agents",
       "installShort": "Install",
       "tryAgain": "Try again",
       "cancelShort": "Cancel",
@@ -22774,6 +22785,22 @@
       "markFile": "Mark {{path}} as viewed",
       "unmarkFile": "Unmark {{path}} as viewed"
     }
+  },
+  "agentPicker": {
+    "search": "Search agents and setups…",
+    "configure": "Configure {{agent}}",
+    "arguments": "Arguments",
+    "argumentsHint": "Applies only to CLI launches.",
+    "launchChat": "Launch chat",
+    "launchTerminal": "Launch terminal",
+    "setByArguments": "Set by your Arguments",
+    "searchModels": "Search models",
+    "noModels": "No models match your search.",
+    "legacyModels": "Legacy models",
+    "toggleArguments": "Toggle Arguments",
+    "argumentsTerminalHint": "Only applies to terminal (CLI) launches",
+    "searchAgentModels": "Search {{agent}} models…",
+    "legacyModelCount": "{{total}} models"
   },
   "automations": {
     "runFailures": {

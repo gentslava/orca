@@ -12,7 +12,7 @@ import { useStructuredAgentSessionOptions } from './use-structured-agent-session
 import { useStructuredAgentSessionSendOptions } from './use-structured-agent-session-send-options'
 import { useStructuredAgentSessionSends } from './use-structured-agent-session-sends'
 import { resetStructuredAgentSessionSendsForTests } from './structured-agent-session-message-sender'
-import { FAST_OPTIONS } from './structured-agent-session-option-test-data'
+import { FAST_OPTIONS } from './structured-session-option-defaults.test-fixture'
 import {
   applyNativeChatSessionOptionSettingsMutation,
   resolveStructuredLaunchSeedOptions
