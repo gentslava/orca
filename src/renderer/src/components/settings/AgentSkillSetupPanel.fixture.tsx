@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { defineFixture } from '../../component-fixtures/component-fixture'
-import { setRendererUiLanguage } from '@/i18n/i18n'
+import { i18n, loadRendererUiLanguage } from '@/i18n/i18n'
 import { planOf, sharedEntry } from '../skills/bundled-skill-plan-fixtures.test-support'
 import { AgentSkillSetupPanel } from './AgentSkillSetupPanel'
 
@@ -30,6 +30,6 @@ export const installed = defineFixture({
   },
   render: () => <InstalledSkill />,
   interact: async () => {
-    await setRendererUiLanguage('en')
+    await i18n.changeLanguage(await loadRendererUiLanguage('en'))
   }
 })
