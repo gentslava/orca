@@ -23027,7 +23027,9 @@
         "failed": "Источник истории недоступен"
       },
       "format": {
-        "notAvailable": "н/д"
+        "notAvailable": "н/д",
+        "notScanned": "Ещё не сканировалось",
+        "updated": "Обновлено {{time}}"
       },
       "account": {
         "unknown": "Аккаунт неизвестен",

@@ -23010,7 +23010,9 @@
         "failed": "Historical source unavailable"
       },
       "format": {
-        "notAvailable": "n/a"
+        "notAvailable": "n/a",
+        "notScanned": "Not scanned yet",
+        "updated": "Updated {{time}}"
       },
       "account": {
         "unknown": "Unknown account",
