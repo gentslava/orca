@@ -257,5 +257,3 @@ export function acpStructuredLaunchPart(
     }
   }
 }
-
-/** Missing journals count as empty; read errors or damaged/newer journals cannot prove no exchange. */
