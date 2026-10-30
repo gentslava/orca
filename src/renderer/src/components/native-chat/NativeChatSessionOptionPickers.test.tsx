@@ -3,6 +3,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { CODEX_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-claude-codex'
 import { OMP_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-omp'
 import {
   applyStructuredAgentSessionOptions,
@@ -602,6 +603,39 @@ describe('NativeChatSessionOptionPickers', () => {
     expect(effortSlider().getAttribute('aria-valuetext')).toBe('High')
     pickEffort('Home')
     await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'low'))
+  })
+
+  it('keeps an unlisted reported effort read-only through the actual snapshot pipeline', () => {
+    const state = applyStructuredAgentSessionOptions(
+      createStructuredAgentSessionOptionState('codex'),
+      CODEX_SESSION_OPTION_CATALOG,
+      {
+        models: [
+          {
+            id: 'account-model',
+            label: 'Account Model',
+            isDefault: true,
+            efforts: [
+              { value: 'low', label: 'Low' },
+              { value: 'high', label: 'High' }
+            ]
+          }
+        ],
+        current: { model: 'account-model', effort: 'unsupported-level', confirmed: ['effort'] }
+      }
+    )
+    const setOption = vi.fn()
+    render(
+      <NativeChatSessionOptionPickers
+        surface={{ ...surface, setOption }}
+        snapshot={structuredAgentSessionOptionSnapshot(state)}
+        isWorking={false}
+      />
+    )
+    expect(screen.queryByRole('slider', { name: 'Effort' })).toBeNull()
+    expect(screen.queryByRole('radio', { name: 'unsupported-level' })).toBeNull()
+    expect(screen.getAllByText('unsupported-level').length).toBeGreaterThan(0)
+    expect(setOption).not.toHaveBeenCalled()
   })
 
   it('keeps an unknown effort unreported until a supported choice is committed', async () => {

@@ -87,7 +87,10 @@ function optionDescriptor(args: {
   const showDefault = !tracked && (cliStatesDefault || (mode === 'draft' && !modelIsCliDefault))
   const valueSource = tracked?.source ?? (showDefault ? 'default' : 'unknown')
   if (option.kind.type === 'select') {
-    const choices = choiceWithCurrent(option.kind.choices, tracked)
+    const choices =
+      option.id === 'effort'
+        ? [...option.kind.choices]
+        : choiceWithCurrent(option.kind.choices, tracked)
     if (choices.length <= 1) {
       return null
     }

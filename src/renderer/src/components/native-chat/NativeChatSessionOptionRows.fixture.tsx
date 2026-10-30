@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { defineFixture } from '../../component-fixtures/component-fixture'
-import { setRendererUiLanguage } from '@/i18n/i18n'
+import { i18n, loadRendererUiLanguage } from '@/i18n/i18n'
 import { useTranslation } from 'react-i18next'
 import { NativeChatSessionOptionRows } from './NativeChatSessionOptionRows'
 
@@ -49,7 +49,7 @@ export const effort = defineFixture({
   width: 320,
   render: () => <EffortExample />,
   interact: async () => {
-    await setRendererUiLanguage('en')
+    await i18n.changeLanguage(await loadRendererUiLanguage('en'))
   }
 })
 
@@ -57,7 +57,7 @@ export const extraHigh = defineFixture({
   width: 320,
   render: () => <EffortExample />,
   interact: async () => {
-    await setRendererUiLanguage('en')
+    await i18n.changeLanguage(await loadRendererUiLanguage('en'))
   }
 })
 
@@ -65,7 +65,7 @@ export const high = defineFixture({
   width: 320,
   render: () => <EffortExample currentValue="high" />,
   interact: async () => {
-    await setRendererUiLanguage('en')
+    await i18n.changeLanguage(await loadRendererUiLanguage('en'))
   }
 })
 
@@ -73,6 +73,6 @@ export const russian = defineFixture({
   width: 320,
   render: () => <EffortExample />,
   interact: async () => {
-    await setRendererUiLanguage('ru')
+    await i18n.changeLanguage(await loadRendererUiLanguage('ru'))
   }
 })
