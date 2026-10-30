@@ -2565,7 +2565,8 @@
       "agentWorking": "Agent is working",
       "dispatchUnconfirmed": "Sent to the agent — not confirmed",
       "permissions": "Permissions",
-      "workingWithDescription": "Agent is working. {{description}}"
+      "workingWithDescription": "Agent is working. {{description}}",
+      "futureMessages": "Choices apply to future messages."
     },
     "sessionOptionRows": {
       "defaultMarker": "Default",

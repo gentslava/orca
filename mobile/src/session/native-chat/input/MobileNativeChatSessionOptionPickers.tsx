@@ -51,7 +51,7 @@ export type MobileNativeChatPickerPresentation = { page: string | null; refocus:
 
 export type MobileNativeChatSessionOptionPickersProps = {
   controller: MobileNativeChatSessionOptionsController
-  // Mid-turn model commands would interleave with agent output.
+  // Mid-turn terminal model commands would interleave with agent output.
   isWorking: boolean
   /** Structured hosts capture choices per message; terminal commands still wait. */
   allowsWorkingPicks?: boolean
@@ -108,8 +108,11 @@ export function MobileNativeChatSessionOptionPickers({
     isWorking &&
     !permissionView
   const workingNoticeDescription = allowsWorkingPicks
-    ? 'Choices apply to future messages.'
-    : 'Model settings unlock when this turn finishes.'
+    ? t('chat.sessionOptionPickers.futureMessages', 'Choices apply to future messages.')
+    : t(
+        'chat.sessionOptionPickers.settingsLocked',
+        'Model settings unlock when this turn finishes.'
+      )
 
   useEffect(() => {
     if (Platform.OS === 'ios' && showWorkingNotice) {

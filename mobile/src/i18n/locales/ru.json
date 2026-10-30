@@ -386,7 +386,8 @@
       "modelLabel": "Модель: {{value}}",
       "permissions": "Разрешения",
       "permissionsLabel": "Разрешения: {{value}}",
-      "workingWithDescription": "Агент работает. {{description}}"
+      "workingWithDescription": "Агент работает. {{description}}",
+      "futureMessages": "Настройки применятся к следующим сообщениям."
     },
     "sessionOptionRows": {
       "defaultMarker": "По умолчанию",

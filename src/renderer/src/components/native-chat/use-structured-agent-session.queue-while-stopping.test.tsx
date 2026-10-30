@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-// Without host queue support, sends during Stopping go out plain and render after the Stop line while the host holds delivery.
+// With queueing off, a capable host admits sends during Stopping and renders them after the Stop line.
 
 import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -82,12 +82,13 @@ function renderStopping() {
   )
 }
 
-it('sends plain where the host does not queue sends, marked as sent while stopping', async () => {
+it('sends through a capable host without queueing, marked as sent while stopping', async () => {
   const { result } = renderStopping()
 
   expect(result.current.send('run this after the stop')).toBe(true)
 
   await waitFor(() => expect(sends()).toHaveLength(1))
+  expect(sends()[0]).toMatchObject({ steer: true })
   expect(sends()[0]).not.toHaveProperty('delivery')
   expect(
     result.current.messages.find((message) =>
@@ -115,6 +116,7 @@ it('does not mark a send made before the chat read Stopping', async () => {
   rerender({ hostStopping: true })
 
   await waitFor(() => expect(sends()).toHaveLength(1))
+  expect(sends()[0]).toMatchObject({ steer: true })
   const sent = result.current.messages.find((message) =>
     JSON.stringify(message.blocks).includes('sent before the stop')
   )
