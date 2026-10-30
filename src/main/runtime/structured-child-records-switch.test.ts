@@ -287,8 +287,9 @@ describe('the chat strip and the session list read the same host child records',
       exitCode: 0
     })
     expect(parentRow()).toMatchObject({ state: 'done' })
-    // Finished child records remain until the user's next turn; exited command records are removed immediately.
+    // The finished agent remains inspectable; its stopped command and live sidebar status leave.
     expect(summaries.at(-1)).not.toHaveProperty('children')
+    expect(summaries.at(-1)).not.toHaveProperty('backgroundTasks')
     expect(stripRows()).toEqual([
       {
         kind: 'agent',
@@ -355,6 +356,7 @@ describe('the chat strip and the session list read the same host child records',
     connections[0]?.onExit?.(new Error('scripted provider exit'))
     await settle()
     expect(summaries.at(-1)).not.toHaveProperty('children')
+    expect(summaries.at(-1)).not.toHaveProperty('backgroundTasks')
     expect(stripRows()).toEqual([
       {
         kind: 'agent',

@@ -1,5 +1,3 @@
-// Require sidebar and chat-strip running-child parity, including legacy host rosters.
-
 import { describe, expect, it } from 'vitest'
 import {
   agentChildWorkIsRunning,

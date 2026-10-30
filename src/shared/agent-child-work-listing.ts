@@ -1,5 +1,3 @@
-// Sidebar/chat list running children from host records; finished history stays in transcripts. Derive on read without storing another roster.
-
 import { settledOwnersOfLiveWork } from './agent-status-child-work-liveness'
 import type { AgentChildWorkView } from './agent-status-child-work-view'
 
