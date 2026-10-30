@@ -20646,7 +20646,8 @@
       "stepDownload": "Download",
       "stepUnpack": "Unpack",
       "stepCheck": "Check"
-    }
+    },
+    "tab-bar": {}
   },
   "dashboardPopout": {
     "recoverableError": {

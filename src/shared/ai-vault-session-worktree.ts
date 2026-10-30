@@ -90,7 +90,8 @@ function resolveWorktreeInfoFromCandidates(
     candidates.find(
       (candidate) =>
         candidate.worktree.id === session.structuredSession?.workspaceId &&
-        candidate.hostId === sessionHostId
+        candidate.hostId === sessionHostId &&
+        candidate.source === 'current-path'
     )
   if (owned) {
     return {
