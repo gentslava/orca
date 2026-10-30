@@ -611,6 +611,9 @@
     },
     "tool": {
       "activity": "Активность"
+    },
+    "notices": {
+      "orchestrationMail": "Служебные сообщения агентов"
     }
   },
   "common": {

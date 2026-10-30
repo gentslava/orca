@@ -91,6 +91,9 @@
     "turnStatus": {
       "seconds_one": "{{count}}s",
       "seconds_other": "{{count}}s"
+    },
+    "notices": {
+      "orchestrationMail": "Orchestration mail"
     }
   },
   "components": {

@@ -1,4 +1,4 @@
-// Project every journal user row, including unloaded pages, with the transcript projection so rail identity, order and preview cannot disagree.
+// Project every human-authored journal user row, including unloaded pages, with the transcript projection so rail identity, order and preview cannot disagree.
 
 import type {
   AgentJournalCursor,

@@ -2861,6 +2861,9 @@
     },
     "tool": {
       "activity": "Activity"
+    },
+    "notices": {
+      "orchestrationMail": "Orchestration mail"
     }
   },
   "sourceControl": {
