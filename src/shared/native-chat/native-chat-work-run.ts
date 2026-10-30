@@ -53,7 +53,7 @@ export type NativeChatWorkRunRow = {
   scope: string | undefined
 }
 
-/** Derive ascending run-member indexes: at least two members and one call. A lead can head but never join another run. */
+/** Derive ascending run-member indexes: at least two members and one activity. A lead can head but never join another run. */
 export function nativeChatWorkRunSpans(rows: readonly NativeChatWorkRunRow[]): number[][] {
   const spans: number[][] = []
   let open: number[] = []
