@@ -43,11 +43,15 @@ export const AGENT_SESSION_FAILURE_KINDS = [
   'runtimeNotInstalled',
   /** The agent refuses Full access while it runs as root. */
   'fullAccessAsRoot',
+  /** Orca's own launch preparation on the host failed before any agent process was spawned. */
+  'launchPreparationFailed',
   'conversationOpenInTerminal',
   'conversationOpenElsewhere',
   'providerExited',
   'restartFailed',
   'providerRejected',
+  'modelUnavailable',
+  'claudeEffortInvalid',
   'attachmentInvalid',
   'attachmentUnreadable',
   'emptyMessage',
@@ -165,7 +169,7 @@ export type AgentSessionProviderRetry = {
 export type AgentSessionFailureFact = {
   kind: AgentSessionFailureKind
   account?: AgentSessionAccountKind
-  /** Provider-authored only; absent whenever Orca wrote the words. */
+  /** Provider diagnostic, the rejected model ID on `modelUnavailable`, or the host error on `launchPreparationFailed`; never Orca's sentence. */
   detail?: ProviderDiagnostic
   /** On `restartFailed` and `startFailed`: the refusal that kept the agent from starting. On
    *  `commandRefused`: the refusal that kept the command from running. */
