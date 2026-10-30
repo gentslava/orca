@@ -5106,9 +5106,6 @@
             },
             "mainWorktree": "main worktree",
             "detached": "detached"
-          },
-          "PluginsStatusSegment": {
-            "label": "Plugins"
           }
         }
       },
@@ -18964,7 +18961,7 @@
         },
         "list": {
           "PluginsSectionDescription": {
-            "openWith": "Open anytime with"
+            "openWith": "Open with (when focus is not in an editable field)"
           }
         }
       }

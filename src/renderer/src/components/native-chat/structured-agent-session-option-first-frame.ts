@@ -43,7 +43,8 @@ export function restartedOptionState(
           ...previous,
           record: cloneStructuredAgentSessionOptionRecord(previous.record),
           pendingId: null,
-          reportedPermissionMode: undefined
+          reportedPermissionMode: undefined,
+          reportedEffort: undefined
         }
       : seeded
   return sameSession

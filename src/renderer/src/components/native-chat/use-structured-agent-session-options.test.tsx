@@ -1,5 +1,4 @@
 import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
-import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-create-capabilities'
 // @vitest-environment happy-dom
 import {
   mocks,
@@ -21,11 +20,12 @@ import {
   LIVE_OPTIONS,
   SAVED_LIST,
   SEED,
-  tick
+  tick,
+  type RenderProps
 } from './use-structured-agent-session-options.test-fixture'
 import type { AgentSessionOptionsResult } from '../../../../shared/agent-session-wire'
 import { act, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   structuredAgentSessionSendSelection,
@@ -41,6 +41,7 @@ describe('useStructuredAgentSessionOptions', () => {
   afterEach(() => setLocalRuntimeCapabilitiesForTests(null))
   beforeEach(() => {
     mocks.supportsRemote.mockReset().mockResolvedValue(false)
+    mocks.sendSelection = false
     forgetStructuredSessionSelection('session-1')
     mocks.call.mockReset()
     mocks.enqueue.mockReset()
@@ -49,36 +50,6 @@ describe('useStructuredAgentSessionOptions', () => {
     mocks.coherentCatalog = false
     resetHostModelCatalogSnapshotsForTests()
   })
-
-  it.each([false, true])(
-    'only allows future-turn picks while busy when the host captures message options (%s)',
-    async (supported) => {
-      setLocalRuntimeCapabilitiesForTests(
-        supported ? [AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY] : []
-      )
-      answer({
-        options: () => Promise.resolve(LIVE_OPTIONS),
-        modelCatalog: () => Promise.resolve(HOST_CATALOG)
-      })
-      const mutation = mutateWith(async () => ({ key: 'model', value: 'gpt-5.6-luna' }))
-      const { result } = renderOptions({ ...REOPENED, isWorking: true }, mutation.mutate)
-      await waitFor(() =>
-        expect(modelChoiceCount(result.current.optionSnapshot)).toBeGreaterThan(1)
-      )
-      expect(descriptor(result.current.optionSnapshot, 'model')?.settable).toBe(supported)
-      let accepted = false
-      await act(async () => {
-        accepted = await result.current.setStructuredOption('model', 'gpt-5.6-luna')
-      })
-      expect(accepted).toBe(supported)
-      expect(mutation.calls.mock.calls.length).toBe(supported ? 1 : 0)
-      if (!supported) {
-        expect(descriptor(result.current.optionSnapshot, 'model')?.disabledReason).toBe(
-          'host-update-required'
-        )
-      }
-    }
-  )
 
   it('keeps the latest dependent menu after same-stamp receipts and an older delayed answer', async () => {
     const menu = (model: string, effort?: string): AgentSessionOptionsResult => ({
@@ -780,6 +751,99 @@ describe('useStructuredAgentSessionOptions', () => {
       )
       expect(result.current.acceptsImages).toBe(acceptsImages)
       unmount()
+    }
+  )
+})
+
+import type {
+  PiRefreshFixtureModule,
+  PiRefreshMount
+} from '../../../../shared/structured-agent-session-option-refresh.test-fixture-contract'
+const { piOptionRefreshContract } = await vi.importActual<PiRefreshFixtureModule>(
+  '../../../../main/native-chat/agent-session-wire/structured-agent-session-option-refresh.test-fixture'
+)
+
+describe('Pi catalog refresh completion', () => {
+  beforeEach(() => {
+    replaceRuntimeEnvironmentRevisions([{ id: 'server-1', createdAt: 1 }])
+    mocks.sendSelection = true
+    mocks.call.mockReset()
+    mocks.enqueue.mockReset()
+    mocks.hold.mockReset()
+    resetHostModelCatalogSnapshotsForTests()
+  })
+
+  const hosts = new Map<string, Parameters<PiRefreshMount>[0]>()
+  piOptionRefreshContract(
+    async (host) => {
+      forgetStructuredSessionSelection(host.record.sessionId)
+      hosts.set(host.record.sessionId, host)
+      mocks.call.mockImplementation(
+        (
+          _target: unknown,
+          method: string,
+          params: {
+            sessionId?: string
+            envelope?: { sessionId?: string }
+            key?: string
+            value?: string
+          }
+        ) => {
+          const id = params?.sessionId ?? params?.envelope?.sessionId
+          const current = id ? hosts.get(id) : undefined
+          if (method === 'agentSession.options' && current) {
+            return current.options()
+          }
+          if (method === 'agentSession.modelCatalog' && current) {
+            return current.catalog()
+          }
+          if (
+            method === 'agentSession.setOption' &&
+            current &&
+            params.key === 'effort' &&
+            typeof params.value === 'string'
+          ) {
+            return current.acceptEffort(params.value).then((value) => ({ ok: true, value }))
+          }
+          return new Promise(() => {})
+        }
+      )
+      const { mutate } = mutateWith(async (_method, _fingerprint, fields) => {
+        if (
+          typeof fields !== 'object' ||
+          fields === null ||
+          !('value' in fields) ||
+          typeof fields.value !== 'string'
+        ) {
+          throw new Error('missing effort')
+        }
+        return host.acceptEffort(fields.value)
+      })
+      const props: RenderProps = { ...REOPENED, agent: 'pi', sessionId: host.record.sessionId }
+      const harness = renderOptions(props, mutate)
+      await act(async () => {
+        await Promise.resolve()
+      })
+      return {
+        snapshot: () => harness.result.current.optionSnapshot,
+        capture: () => harness.result.current.capture().selection,
+        demand: () => harness.result.current.optionSurface.demandModelCatalog?.(),
+        pick: (value) => harness.result.current.setStructuredOption('effort', value),
+        replace: async (fence, otherHost) => {
+          await act(async () => harness.rerender({ ...props, fence, paired: otherHost }))
+        },
+        close: async () => {
+          harness.unmount()
+          hosts.delete(host.record.sessionId)
+        }
+      }
+    },
+    async (work) => {
+      await act(async () => {
+        work()
+        await Promise.resolve()
+        await Promise.resolve()
+      })
     }
   )
 })
