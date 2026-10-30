@@ -211,6 +211,35 @@ describe('plugin list entries', () => {
     expect(build('2.1.0')?.updateVersion).toBe('2.0.0')
   })
 
+  it('offers a reinstall for an installed copy that cannot load only when the catalog has other bytes', () => {
+    const plugin: PluginHostListEntry = {
+      ...fromCatalog(installed('acme.notes', 'Notes'), 'https://official.invalid/c.git'),
+      status: 'invalid'
+    }
+    const sources = [catalog('official', 'https://official.invalid/c.git')]
+    const release = (contentHash: string, minimumOrca = '1.0.0') =>
+      listing('acme.notes', {
+        version: '1.0.0',
+        release: {
+          version: '1.0.0',
+          commit: 'd'.repeat(40),
+          contentHash,
+          execution: 'data',
+          minimumOrca,
+          types: []
+        }
+      })
+    const build = (offered: PluginMarketplaceHostListing, target = plugin) =>
+      buildPluginListEntries([target], [offered], { sources, orcaVersion: '1.5.0' }).installed[0]
+    expect(build(release('e'.repeat(64)))?.reinstallVersion).toBe('1.0.0')
+    // Same bytes would fail the same way; a release this Orca can't run is no fix either.
+    expect(build(release('b'.repeat(64)))?.reinstallVersion).toBeNull()
+    expect(build(release('e'.repeat(64), '2.0.0'))?.reinstallVersion).toBeNull()
+    expect(
+      build(release('e'.repeat(64)), { ...plugin, status: 'running' })?.reinstallVersion
+    ).toBeNull()
+  })
+
   it('lists installed plugins once, joined to their listing, and the rest as available', () => {
     const result = buildPluginListEntries(
       [installed('stablyai.orca-midnight-theme', 'Orca Midnight')],

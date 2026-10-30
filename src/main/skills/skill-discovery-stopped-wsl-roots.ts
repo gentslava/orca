@@ -49,6 +49,7 @@ export async function splitStoppedWslDistroRoots(
   }
 }
 
+// Lowercasing can only widen the user-act-readable roots: Windows treats these UNC paths case-insensitively.
 function comparablePath(path: string): string {
   return path
     .replace(/[\\/]+/g, '/')
@@ -56,16 +57,39 @@ function comparablePath(path: string): string {
     .toLowerCase()
 }
 
-/** Whether a stopped-distro root or plugin cwd at `path` holds one of the chosen skill directories. */
+/** Stopped WSL roots a user act may read: every one, those on named distros, or those holding chosen skill directories. */
+export type StoppedWslRootsReadScope = 'all' | { distros: readonly string[] } | readonly string[]
+
+/** Distinguishes scans with different read scopes in the scan coalescer. */
+export function stoppedWslRootsReadScopeKey(scope: StoppedWslRootsReadScope): string {
+  if (scope === 'all') {
+    return 'all'
+  }
+  if ('distros' in scope) {
+    const distros = scope.distros.map((distro) => distro.toLowerCase())
+    return `distros:${stablePathId([...distros].sort().join('\0'))}`
+  }
+  return stablePathId([...scope].sort().join('\0'))
+}
+
+/** Whether a stopped-distro root or plugin cwd at `path` falls in the user act's read scope. */
 export function stoppedRootReader(
-  readFor: 'all' | readonly string[] | undefined
+  readFor: StoppedWslRootsReadScope | undefined
 ): (path: string) => boolean {
   if (readFor === 'all') {
     return () => true
   }
+  if (readFor !== undefined && 'distros' in readFor) {
+    const distros = new Set(readFor.distros.map((distro) => distro.toLowerCase()))
+    return (path) => distros.has(wslDistroForPath(path)?.toLowerCase() ?? '')
+  }
   const directories = (readFor ?? []).map(comparablePath)
   return (path) => {
     const root = comparablePath(path)
+    // `/` or `\\` normalizes to '', which would prefix every directory.
+    if (root === '') {
+      return false
+    }
     return directories.some((directory) => directory === root || directory.startsWith(`${root}/`))
   }
 }

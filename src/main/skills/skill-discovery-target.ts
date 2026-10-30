@@ -13,6 +13,10 @@ import { skillScanSourceKinds } from './skill-discovery-source-filter'
 import { getRepoExecutionHostId } from '../../shared/execution-host'
 import { isSkillRootUnavailableError, SkillScanCoalescer } from './skill-scan-coalescer'
 import { assertWslUncPathRunning } from '../wsl/wsl-unc-access-gate'
+import {
+  stoppedWslRootsReadScopeKey,
+  type StoppedWslRootsReadScope
+} from './skill-discovery-stopped-wsl-roots'
 
 // Cache whole WSL results to amortize process boots; native roots already cache, so only coalesce concurrent targets.
 const WSL_RESULT_TTL_MS = 10_000
@@ -156,17 +160,15 @@ export async function discoverSkillsOnTarget(
   options: {
     refresh?: boolean
     providerRootOverrides?: SkillProviderRootOverrides
-    /** A user act (Share) may read stopped distros' folders: 'all', or only those holding these skill directories. */
-    readStoppedWslRootsFor?: 'all' | readonly string[]
+    /** A user act (Share) may read stopped distros' folders; see `StoppedWslRootsReadScope`. */
+    readStoppedWslRootsFor?: StoppedWslRootsReadScope
   } = {}
 ): Promise<SkillDiscoveryResult> {
   const refresh = options.refresh === true
   const readFor = options.readStoppedWslRootsFor
   const gate = readFor ? { readStoppedWslRootsFor: readFor } : {}
   const userActKey =
-    readFor === undefined
-      ? ''
-      : `:user-act:${readFor === 'all' ? 'all' : stablePathId([...readFor].sort().join('\0'))}`
+    readFor === undefined ? '' : `:user-act:${stoppedWslRootsReadScopeKey(readFor)}`
   try {
     const outcome = await targetScans.run(
       // A gated and an ungated scan of one target must not answer for each other.

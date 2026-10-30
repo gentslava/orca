@@ -25,7 +25,8 @@ import {
   splitStoppedWslDistroRoots,
   stoppedPluginRoot,
   stoppedRootReader,
-  unavailableSkillSource
+  unavailableSkillSource,
+  type StoppedWslRootsReadScope
 } from './skill-discovery-stopped-wsl-roots'
 import { wslDistroForPath } from '../wsl/wsl-unc-access-gate'
 import { buildRemoteRepoSkillSources } from './skill-remote-repo-sources'
@@ -236,10 +237,11 @@ export async function discoverSkills(args: {
   names?: string[]
   sourceKinds?: SkillSourceKind[]
   /**
-   * A user act (Share) may read stopped WSL distros' folders: 'all', or only the roots holding these
-   * skill directories. Every other stopped root is reported unavailable, so its distro stays down.
+   * A user act (Share) may read stopped WSL distros' folders: 'all', those on named distros, or only
+   * the roots holding these skill directories. Every other stopped root is reported unavailable, so
+   * its distro stays down.
    */
-  readStoppedWslRootsFor?: 'all' | readonly string[]
+  readStoppedWslRootsFor?: StoppedWslRootsReadScope
 }): Promise<SkillDiscoveryResult> {
   args.signal?.throwIfAborted()
   const startedAt = Date.now()

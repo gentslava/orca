@@ -140,7 +140,7 @@ export function getEditorPanelRenderModel({
   // Read-only tabs keep raw source, as for every other rich view.
   const textEditorEligible =
     customEditorContentReady && !rawReadOnly && inlineFileContent?.isBinary !== true
-  // Bytes editors are read-only, so they also view read-only tabs; they need a pageable route.
+  // Bytes editors honor read-only themselves, so they open read-only tabs too; they need a pageable route.
   const bytesEditorEligible =
     customEditorContentReady && inlineFileContent?.byteSource !== undefined
   const eligibleCustomEditors = customEditors.filter((editor) =>

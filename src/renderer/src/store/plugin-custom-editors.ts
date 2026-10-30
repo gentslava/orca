@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { create } from 'zustand'
 import type { PluginHostCustomEditor, PluginHostListEntry } from '../../../preload/api-types'
 import { matchPluginFile } from '../../../shared/plugins/contributions/plugin-file-match'
 import { customEditorMayOpenByDefault } from '../../../shared/plugins/contributions/plugin-custom-editor-core-file-types'
-import { ensurePluginPanelsLoaded, usePluginPanelsStore } from './plugin-panels'
+import { isLivePlugin, keyedPluginContribution, usePluginListDerived } from './plugin-panels'
 
 /** A custom editor from an enabled plugin. `key` is unique across plugins; `iconUrl` is its own
  *  tab icon, else the plugin's. */
@@ -19,26 +19,13 @@ export type CustomEditorViewChoice = string
 
 const SOURCE_CHOICE = 'source'
 
-/** Same liveness as panels: enabled and consented, whether or not a worker runs. */
 export function collectActivePluginCustomEditors(
   plugins: readonly PluginHostListEntry[]
 ): ActivePluginCustomEditor[] {
   return plugins
-    .filter(
-      (plugin) =>
-        plugin.status === 'running' || plugin.status === 'restarting' || plugin.status === 'idle'
-    )
+    .filter(isLivePlugin)
     .flatMap((plugin) =>
-      (plugin.customEditors ?? []).map((editor) => {
-        const iconUrl = editor.icon ?? plugin.images?.icon?.url
-        return {
-          ...editor,
-          key: `${plugin.pluginKey}/${editor.id}`,
-          pluginKey: plugin.pluginKey,
-          pluginName: plugin.name,
-          ...(iconUrl ? { iconUrl } : {})
-        }
-      })
+      (plugin.customEditors ?? []).map((editor) => keyedPluginContribution(plugin, editor))
     )
 }
 
@@ -91,11 +78,7 @@ export const useCustomEditorViewStore = create<CustomEditorViewState>()((set) =>
 
 /** Custom editors of enabled plugins, sharing the plugin-list refresh. */
 export function usePluginCustomEditors(): ActivePluginCustomEditor[] {
-  const plugins = usePluginPanelsStore((state) => state.plugins)
-  useEffect(() => {
-    ensurePluginPanelsLoaded()
-  }, [])
-  return useMemo(() => collectActivePluginCustomEditors(plugins), [plugins])
+  return usePluginListDerived(collectActivePluginCustomEditors)
 }
 
 /** The enabled editors for one file and the user's pick among them. */

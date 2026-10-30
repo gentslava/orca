@@ -67,7 +67,7 @@ A sidebar panel. Requires the `sandboxed-ui` execution profile or higher.
 | `id` | string | yes | 1.4.160 | Panel id, unique among this plugin's panels. The reserved names `constructor` and `prototype` are refused. Example: `"dashboard"` |
 | `title` | string | yes | 1.4.160 | Title shown on the panel tab and its tooltip. Example: `"Dashboard"` |
 | `icon` | `"activity"` \| `"bar-chart-3"` \| `"bell"` \| `"blocks"` \| `"book"` \| `"bot"` \| `"bug"` \| `"calendar"` \| `"cloud"` \| `"code"` \| `"database"` \| `"file-text"` \| `"flag"` \| `"folder"` \| `"gauge"` \| `"globe"` \| `"hammer"` \| `"layers"` \| `"lightbulb"` \| `"package"` \| `"plug"` \| `"puzzle"` \| `"rocket"` \| `"star"` \| `"terminal"` \| `"wrench"` \| `"zap"` | no | 1.4.160 | Icon shown in the right-sidebar activity bar. Defaults to `plug`. Example: `"database"` |
-| `entry` | string | yes | 1.4.160 | HTML file, relative to the plugin root, rendered inside a sandboxed panel frame. Relative to the plugin root; `..` segments and Windows device names such as `CON` are refused. Example: `"dist/panel.html"` |
+| `entry` | string | yes | 1.4.160 | HTML file, relative to the plugin root, rendered inside a panel frame. It is trusted code: install panels you trust. Relative to the plugin root; `..` segments and Windows device names such as `CON` are refused. Example: `"dist/panel.html"` |
 
 ## CommandContribution
 
@@ -151,7 +151,7 @@ An editor for the listed files, shown in the editor tab beside Source. It must l
 | `icon` | string | no | 1.4.245 | Square image shown on the tab of a file this editor opens. Defaults to the plugin icon. PNG, WEBP, static, at least 128×128, square, at most 256 KB. Relative to the plugin root; `..` segments and Windows device names such as `CON` are refused. Example: `"images/editor-icon.png"` |
 | `extensions` | string[] | no | 1.4.245 | File-name suffixes, with the dot, this editor opens, ignoring case. A longer suffix such as `.excalidraw.json` wins over a shorter one, and a file named only the suffix never matches. At most 32. Example: `[".excalidraw",".excalidraw.json"]` |
 | `filenames` | string[] | no | 1.4.245 | Exact file names this editor opens, ignoring case; a name beats any extension. Names must be portable: no path separators, `.`, `..` or characters Windows forbids. At most 32. Example: `[]` |
-| `entry` | string | yes | 1.4.245 | HTML file rendered inside a sandboxed editor frame, like a panel. It receives the open document and posts edits back; it never gets a file path or file system. It is trusted code: install editors you trust. Relative to the plugin root; `..` segments and Windows device names such as `CON` are refused. Example: `"editor/index.html"` |
+| `entry` | string | yes | 1.4.245 | HTML file rendered inside an editor frame, like a panel. It receives the open document and posts edits back; it never gets a file path or file system. It is trusted code: install editors you trust. Relative to the plugin root; `..` segments and Windows device names such as `CON` are refused. Example: `"editor/index.html"` |
 | `priority` | `"default"` \| `"option"` | no | 1.4.245 | `default` (the default) opens matching files in this editor; `option` only offers it in the view toggle, so files open in Source. Files Orca opens itself (such as `.json`, `.ts`, `.md`, `.csv`, `.yaml`, lockfiles and `.env` files) always behave as `option`. Example: `"default"` |
 | `contentKind` | `"text"` \| `"bytes"` | no | 1.4.245 | `text` (the default) sends the file as text and accepts full-text edits. `bytes` sends the file's raw bytes, for binary formats such as spreadsheets, and accepts full-byte edits. Example: `"bytes"` |
 
@@ -189,7 +189,7 @@ One screenshot of the plugin in use.
 ## Versions and compatibility
 
 - **What runs is strict.** Orca refuses a manifest with any key it does not know, at every level, so an older Orca never silently ignores something a plugin relies on.
-- **`engines.orca` is the only version gate.** It must be at least the newest `Since` of every field and every value (capability, event, built-in action) the manifest uses. Orca checks this when it validates, lists or installs a plugin, so an older Orca can always say "requires Orca >=X (this is Y)" instead of listing unknown fields.
+- **`engines.orca` is the only version gate.** It must be at least the newest `Since` of every field and every value (capability, event, built-in action) the manifest uses. `pnpm validate:plugin` and catalog CI enforce it, so an older Orca can always say "requires Orca >=X (this is Y)" instead of listing unknown fields.
 - **`pluginApi` is optional.** It names the major version of the host API ([reference](plugin-host-api.md)), which only grows within major 1; Orca refuses a major it does not implement. Only `sandboxed-ui` and `trusted-worker` plugins call that API, so `data` and `declarative` plugins must leave it out.
 - **`terminal:send` needs `trusted-worker`.** Panels get no host method that types into a terminal, so Orca refuses the capability on any other profile instead of asking the user to grant something the plugin can never use.
 - **New fields, contribution points and values are additive.** They arrive with a `Since` version; nothing else changes. `manifestVersion` rises only if an existing field changes meaning.
