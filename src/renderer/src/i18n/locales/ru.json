@@ -1930,10 +1930,7 @@
       },
       "claudeAgentRowView": {
         "subagentNavigationSetup": "Включите переход к подагентам Claude в разделе «Настройки → Агенты», затем запустите Claude 2.1.300+ в Orca. Убедитесь, что в keybindings.json сочетания Ctrl+Alt+G, H или V по-прежнему привязаны к command:orca-agent-view.",
-        "permissionPrompt": "Ответьте на запрос разрешения Claude, прежде чем переключать агентов.",
-        "agentUnavailable": "Claude не может открыть этого агента. Возможно, он больше недоступен.",
-        "closeDialog": "Claude не переключил представление. Закройте открытые диалоги и повторите попытку.",
-        "hostUnavailable": "Переход к подагентам недоступен на этом сервере. Обновите Orca и перезапустите Claude в этой панели."
+        "permissionPrompt": "Ответьте на запрос разрешения Claude, прежде чем переключать агентов."
       },
       "wslHostWindowsDriveRefusal": {
         "addOnThisComputer": "Добавить на этом компьютере",

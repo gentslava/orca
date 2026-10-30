@@ -670,10 +670,6 @@
       "syncedAcrossDevices": "Synced across your devices",
       "clearFilters": "Clear filters"
     },
-    "conversations": {
-      "backToHosts": "Back to hosts",
-      "hideSidebar": "Hide sidebar"
-    },
     "project": {
       "unpin": "Unpin project",
       "pin": "Pin project"
@@ -2566,7 +2562,8 @@
       "dispatchUnconfirmed": "Sent to the agent — not confirmed",
       "permissions": "Permissions",
       "workingWithDescription": "Agent is working. {{description}}",
-      "futureMessages": "Choices apply to future messages."
+      "futureMessages": "Choices apply to future messages.",
+      "settingsLocked": "Model settings unlock when this turn finishes."
     },
     "sessionOptionRows": {
       "defaultMarker": "Default",

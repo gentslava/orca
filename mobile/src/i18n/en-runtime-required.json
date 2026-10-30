@@ -26,6 +26,9 @@
       "autoApprovalTimedOut": "Automatic approval timed out",
       "safetyCheckDenied": "Permission denied by safety check"
     },
+    "notices": {
+      "orchestrationMail": "Orchestration mail"
+    },
     "subagentGroup": {
       "ran_one": "Ran {{count}} subagent",
       "ran_other": "Ran {{count}} subagents",
@@ -91,9 +94,6 @@
     "turnStatus": {
       "seconds_one": "{{count}}s",
       "seconds_other": "{{count}}s"
-    },
-    "notices": {
-      "orchestrationMail": "Orchestration mail"
     }
   },
   "components": {

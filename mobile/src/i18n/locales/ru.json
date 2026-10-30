@@ -1623,10 +1623,6 @@
       "waitingForDesktop": "Всё ещё ждём ответа компьютера",
       "workspaceOptions": "Параметры рабочих пространств"
     },
-    "conversations": {
-      "backToHosts": "К списку компьютеров",
-      "hideSidebar": "Скрыть боковую панель"
-    },
     "project": {
       "pin": "Закрепить проект",
       "unpin": "Открепить проект"
