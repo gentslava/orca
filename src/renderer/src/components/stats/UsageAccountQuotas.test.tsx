@@ -164,6 +164,25 @@ describe('account quota coverage', () => {
     )
   })
 
+  it('warns about incomplete coverage when retained local accounts cannot be verified', () => {
+    const { accounts, rateLimits } = fixture()
+    render(
+      <UsageAccountQuotas
+        accounts={accounts}
+        accountsUnverifiable
+        rateLimits={rateLimits}
+        ownerLabel="This device"
+        onRefresh={() => {}}
+        onManage={() => {}}
+      />
+    )
+    expect(screen.getByTestId('usage-quota-coverage')).toHaveTextContent(
+      'The account list is unavailable or incomplete.'
+    )
+    expect(screen.getAllByTestId('usage-quota-codex')).toHaveLength(3)
+    expect(screen.queryAllByRole('progressbar')).toHaveLength(0)
+  })
+
   it('labels managed Claude and Codex accounts with their remote owner', () => {
     const { accounts, rateLimits } = fixture()
     rateLimits.claude = { ...quota(18, 'max'), provider: 'claude' }
@@ -280,5 +299,37 @@ describe('account quota coverage', () => {
       'Only reported accounts and current provider quota snapshots are shown'
     )
     expect(screen.getByTestId('usage-quota-codex')).toHaveTextContent('identity unavailable')
+  })
+  it('retains session, weekly and model windows together with their actual durations', () => {
+    render(
+      <UsageAccountQuotaCard
+        provider={{
+          ...quota(27, 'plus'),
+          provider: 'claude',
+          status: 'ok',
+          error: null,
+          buckets: [
+            {
+              name: 'Model group',
+              usedPercent: 12,
+              windowMinutes: 60,
+              resetsAt: null,
+              resetDescription: null
+            }
+          ],
+          fableWeekly: {
+            usedPercent: 7,
+            windowMinutes: 10080,
+            resetsAt: null,
+            resetDescription: null
+          }
+        }}
+      />
+    )
+    expect(screen.getAllByRole('progressbar')).toHaveLength(4)
+    expect(screen.getByText('Model group · 1h')).toBeInTheDocument()
+    expect(screen.getByText('Session · 5h')).toBeInTheDocument()
+    expect(screen.getByText('Weekly · wk')).toBeInTheDocument()
+    expect(screen.getByText('Fable · wk')).toBeInTheDocument()
   })
 })

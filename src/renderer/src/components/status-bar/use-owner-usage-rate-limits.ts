@@ -55,10 +55,7 @@ export type OwnerUsageRateLimits = {
   refreshRemote: (() => Promise<void>) | null
 }
 
-/**
- * Usage of whichever host owns the focused workspace's provider accounts. A remote owner's
- * usage comes from its own accounts snapshot, so it is read on the execution host.
- */
+/** Read provider usage from the focused workspace’s account owner, including that host’s own remote snapshot. */
 export function useOwnerUsageRateLimits(
   local: RateLimitState,
   ownerTarget?: RuntimeClientTarget,
@@ -75,8 +72,10 @@ export function useOwnerUsageRateLimits(
   )
   const [owned, setOwned] = useState<OwnedUsage | null>(null)
   const ownedRef = useRef<OwnedUsage | null>(null)
+  const usageGeneration = useRef(0)
 
   const apply = useCallback((next: OwnedUsage) => {
+    usageGeneration.current += 1
     ownedRef.current = next
     setOwned(next)
   }, [])
@@ -120,6 +119,7 @@ export function useOwnerUsageRateLimits(
   const ownerIdRef = useRef(ownerId)
   useEffect(() => {
     ownerIdRef.current = ownerId
+    usageGeneration.current += 1
   }, [ownerId])
   // Why: bumping reopens the stream; each open makes the host refresh stale usage.
   const [streamGeneration, setStreamGeneration] = useState(0)
@@ -189,6 +189,7 @@ export function useOwnerUsageRateLimits(
     if (!ownerId) {
       return
     }
+    const generation = ++usageGeneration.current
     try {
       const snapshot = await callRuntimeRpc<ProviderAccountsSnapshot>(
         { kind: 'environment', environmentId: ownerId },
@@ -196,8 +197,8 @@ export function useOwnerUsageRateLimits(
         { refreshUsage: true },
         { timeoutMs: REMOTE_USAGE_REFRESH_TIMEOUT_MS }
       )
-      // Why: a refresh that outlives an owner switch must not overwrite the new owner's usage.
-      if (ownerIdRef.current === ownerId) {
+      // A stream update, owner switch or newer refresh supersedes this request.
+      if (ownerIdRef.current === ownerId && usageGeneration.current === generation) {
         applySnapshot(ownerId, snapshot)
       }
     } catch {
@@ -249,7 +250,7 @@ export function useOwnerUsageRateLimits(
       owned?.ownerId === ownerId && (ownerId !== null || owned.rateLimits === local)
         ? owned.accounts
         : null,
-    accountsUnverifiable: ownerId !== null && owned?.ownerId === ownerId && owned.failure !== null,
+    accountsUnverifiable: owned?.ownerId === ownerId && owned.failure !== null,
     remoteOwner,
     refreshRemote: ownerId ? refreshRemote : null
   }

@@ -8,7 +8,6 @@ import type { AppState } from '../../store'
 import type { UsageHistorySource } from './use-usage-history'
 import type { ProviderAccountsSnapshot } from '@/runtime/runtime-provider-accounts-client'
 import { StatsPane } from './StatsPane'
-import { UsageAccountQuotaCard } from './UsageAccountQuotas'
 
 const noop = vi.fn(async () => {})
 const quota = {
@@ -212,39 +211,6 @@ describe('Stats & Usage daily workflow', () => {
     fireEvent.click(within(screen.getByRole('table')).getByRole('button', { name: '2026-10-24' }))
     expect(screen.getByRole('table')).toHaveTextContent('legacy-session')
   })
-  it('retains session, weekly and model windows together with their actual durations', () => {
-    render(
-      <UsageAccountQuotaCard
-        provider={{
-          ...quota.codex,
-          provider: 'claude',
-          status: 'ok',
-          error: null,
-          buckets: [
-            {
-              name: 'Model group',
-              usedPercent: 12,
-              windowMinutes: 60,
-              resetsAt: null,
-              resetDescription: null
-            }
-          ],
-          fableWeekly: {
-            usedPercent: 7,
-            windowMinutes: 10080,
-            resetsAt: null,
-            resetDescription: null
-          }
-        }}
-      />
-    )
-    expect(screen.getAllByRole('progressbar')).toHaveLength(4)
-    expect(screen.getByText('Model group · 1h')).toBeInTheDocument()
-    expect(screen.getByText('Session · 5h')).toBeInTheDocument()
-    expect(screen.getByText('Weekly · wk')).toBeInTheDocument()
-    expect(screen.getByText('Fable · wk')).toBeInTheDocument()
-  })
-
   it('keeps owner quota errors and freshness independent of history filters and drilldown', () => {
     render(<StatsPane />)
     const quotas = screen.getByTestId('usage-account-quotas')
