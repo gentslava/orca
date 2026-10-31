@@ -10,25 +10,10 @@ import type { AgentSessionModelCatalogResult } from '../../../shared/agent-sessi
 import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
 import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
 import type {
+  AgentModelCatalogBinding,
   AgentModelCatalogReadParams,
   AgentModelCatalogServiceDeps
 } from './agent-model-catalog-service-contract'
-
-export type AgentModelCatalogBinding = {
-  identity: string
-  params: AgentModelCatalogReadParams
-  workspaceId?: string
-  current: () => boolean
-  cancel: () => void
-  fingerprint: string
-  base: string
-  exact: boolean
-  folder?: string
-  cwd?: string
-  workspacePath?: string | null
-  keepDefault: boolean
-  projecting?: Promise<void>
-}
 
 /** Canonical authority survives folder churn and preliminary same-account refreshes until replacement. */
 export function bindAgentModelCatalogScope(
@@ -310,11 +295,7 @@ export function agentModelCatalogSessionPeek(
   }
 }
 
-export type AgentModelCatalogClaim = Pick<
+export type {
   AgentModelCatalogBinding,
-  'identity' | 'params' | 'current'
-> & {
-  controller: AbortController
-  promise: Promise<void>
-  ready: Promise<void>
-}
+  AgentModelCatalogClaim
+} from './agent-model-catalog-service-contract'

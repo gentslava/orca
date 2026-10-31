@@ -91,3 +91,28 @@ export type AgentModelCatalogReadParams = {
   /** Old options readers need account-default presentation, never launch or admission proof. */
   legacyOptionsDisplay?: true
 }
+
+export type AgentModelCatalogBinding = {
+  identity: string
+  params: AgentModelCatalogReadParams
+  workspaceId?: string
+  current: () => boolean
+  cancel: () => void
+  fingerprint: string
+  base: string
+  exact: boolean
+  folder?: string
+  cwd?: string
+  workspacePath?: string | null
+  keepDefault: boolean
+  projecting?: Promise<void>
+}
+
+export type AgentModelCatalogClaim = Pick<
+  AgentModelCatalogBinding,
+  'identity' | 'params' | 'current'
+> & {
+  controller: AbortController
+  promise: Promise<void>
+  ready: Promise<void>
+}

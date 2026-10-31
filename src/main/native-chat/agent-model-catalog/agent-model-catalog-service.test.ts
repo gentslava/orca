@@ -1,4 +1,6 @@
 import { agentSessionRecordFixture } from '../agent-session-record-test-fixture'
+import type { AgentSessionRecord } from '../../../shared/agent-session-record'
+import { record, listing, GROK_HOME } from './agent-model-catalog.test-fixture'
 import { agentSessionConversationView } from '../../../shared/agent-session-conversation-view'
 import {
   joinHostModelListingWait,
@@ -6,7 +8,6 @@ import {
 } from '../../../shared/host-model-listing-waits'
 import type { AgentSessionAccountHome } from '../../../shared/agent-session-account-home'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import {
   agentModelCatalogFingerprint,
   agentModelCatalogFingerprintForRecord
@@ -17,27 +18,6 @@ import {
   AgentModelCatalogStore,
   type AgentModelCatalogSuccess
 } from './agent-model-catalog-store'
-
-function record(accountHomePath: string): AgentSessionRecord {
-  return agentSessionRecordFixture({
-    sessionId: 'session-1',
-    provider: 'grok',
-    accountHome: { variable: 'GROK_HOME', path: accountHomePath },
-    location: {
-      executionHostId: 'local',
-      wslDistro: null,
-      workspaceId: 'ws-1',
-      workspaceKind: 'git-worktree'
-    }
-  })
-}
-
-function listing(id: string): AgentModelCatalogSuccess {
-  return {
-    models: [{ id, label: id, isDefault: true, efforts: [] }],
-    origin: 'probe'
-  }
-}
 
 function selectedHomeFingerprint(path: string): string {
   return agentModelCatalogFingerprint({
@@ -55,11 +35,6 @@ function discover(
   void service.demand(params)
   return service.read(params)
 }
-
-const GROK_HOME = (path: string): { variable: 'GROK_HOME'; path: string } => ({
-  variable: 'GROK_HOME',
-  path
-})
 
 describe('agent model catalog service', () => {
   it('omits stale original-default proof on passive verified reads without starting a probe', async () => {
