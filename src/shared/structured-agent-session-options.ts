@@ -62,7 +62,6 @@ export type StructuredAgentSessionOptionState = {
   reportedPermissionMode?: string | null
   permissionOwnSupported?: boolean | null
   reportedEffort?: string
-  pendingId: string | null
   listingInProgress?: boolean
   fastModeRestricted?: boolean
   modelDefault?: boolean
@@ -79,8 +78,7 @@ export function createStructuredAgentSessionOptionState(
     catalogSource: seedCatalog ? 'seed' : null,
     record: createStructuredAgentSessionOptionRecord(agent),
     acceptedInputSources: {},
-    permissionMode: null,
-    pendingId: null
+    permissionMode: null
   }
 }
 
@@ -247,14 +245,14 @@ export function commitStructuredAgentSessionOption(
     state = { ...state, reportedEffort: undefined }
   }
   if (id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID) {
-    return { ...state, permissionMode: value, reportedPermissionMode: undefined, pendingId: null }
+    return { ...state, permissionMode: value, reportedPermissionMode: undefined }
   }
   if (!state.catalog) {
     return state
   }
   const decoded = decodeStructuredAgentSessionOptionValue(id, value)
   if (decoded === null) {
-    return { ...state, pendingId: null }
+    return state
   }
   // Keep other picks after a model change; the host reconciles independent values.
   state.record.values[id] = { value: decoded, source: 'dispatched' }
@@ -264,7 +262,6 @@ export function commitStructuredAgentSessionOption(
       state.acceptedInputSources === undefined
         ? undefined
         : { ...state.acceptedInputSources, [id]: origin },
-    pendingId: null,
     ...(id === 'model' ? { modelDefault: false } : {})
   }
 }

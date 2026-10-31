@@ -91,7 +91,7 @@ export function useStructuredAgentSessionModelDefault(args: {
       )
       const sameRecord = () => isCurrentContext() && activeOptionRecordRef.current === targetRecord
       const current = () => sameRecord() && isLatestStructuredOptionPick(optionPicks.current, pick)
-      updateOptionState((state) => ({ ...state, pendingId: id }))
+      updateOptionState((state) => ({ ...state }))
       let accepted = false
       try {
         const result = await mutate<AgentSessionOptionResult>(
@@ -121,7 +121,7 @@ export function useStructuredAgentSessionModelDefault(args: {
           settleStructuredOptionPick(optionPicks.current, pick)
         }
         if (current()) {
-          updateOptionState((state) => ({ ...state, pendingId: null }))
+          updateOptionState((state) => ({ ...state }))
         }
         finish(accepted && current())
       }

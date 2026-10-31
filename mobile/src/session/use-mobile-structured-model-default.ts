@@ -103,7 +103,7 @@ export function useMobileStructuredModelDefault(args: {
       )
       const sameRecord = () => isCurrentContext() && activeOptionRecordRef.current === targetRecord
       const finish = beginOptionWrite(id)
-      updateOptionState((state) => ({ ...state, pendingId: id }))
+      updateOptionState((state) => ({ ...state }))
       let readsBack = false
       try {
         const result = await mutate<AgentSessionOptionResult>(
@@ -137,9 +137,7 @@ export function useMobileStructuredModelDefault(args: {
       } finally {
         if (sameRecord()) {
           settleStructuredOptionPick(optionPicks.current, pick)
-          updateOptionState((state) =>
-            state.pendingId === id ? { ...state, pendingId: null } : state
-          )
+          updateOptionState((state) => ({ ...state }))
         }
         finish(readsBack)
       }
