@@ -1667,9 +1667,7 @@
         "editGone": "This message was already sent or removed. Your edit is in the chat box.",
         "editGonePrompt": "This message was already sent or removed. Your edit will be in the chat box after you answer the agent.",
         "imageCount_one": "{{count}} image",
-        "imageCount_other": "{{count}} images",
-        "moveEarlier": "Move earlier",
-        "moveLater": "Move later"
+        "imageCount_other": "{{count}} images"
       },
       "receipt": {
         "cancelled": "Cancelled",

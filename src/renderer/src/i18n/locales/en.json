@@ -19989,9 +19989,7 @@
         "queued": "Queued",
         "clearAll": "Clear all",
         "editReturned": "Your edit is in the chat box.",
-        "commandsUnsupported": "Commands can't be saved in a queued message.",
-        "moveEarlier": "Move earlier",
-        "moveLater": "Move later"
+        "commandsUnsupported": "Commands can't be saved in a queued message."
       },
       "thought": "Thought",
       "thoughtForDuration": "Thought for {{duration}}",
@@ -20588,9 +20586,6 @@
         }
       },
       "nativeChat": {
-        "queueFollowUpsTitle": "Queue follow-ups on Enter",
-        "queueFollowUpsCopy": "While the agent works, Enter queues text and images, and Cmd/Ctrl+Enter sends immediately. Turn off to reverse these shortcuts. Queued messages can be edited, deleted, reordered, or sent now.",
-        "queueFollowUpsToggleLabel": "Toggle queue follow-ups",
         "followUpBehaviorTitle": "Queue follow-ups",
         "inlineVisualsTitle": "Inline visuals",
         "inlineVisualsCopy": "Let the agent show charts, diagrams and mockups inside its replies. Applies to newly started chats.",
@@ -20608,9 +20603,7 @@
         "linkPreviewsTitle": "Link previews",
         "linkPreviewsCopy": "Hovering a web link shows a preview card. Orca fetches the page to build it, so the site can see the request.",
         "linkPreviewsSearchUnfurl": "unfurl",
-        "linkPreviewsSearchHover": "hover card",
-        "queueFollowUpsChecking": "Checking whether this host supports queued messages…",
-        "queueFollowUpsUnsupported": "Update Orca on this host to queue messages. While an agent is working, drafts stay in the composer until queueing is supported."
+        "linkPreviewsSearchHover": "hover card"
       }
     },
     "agentChildRow": {
