@@ -325,7 +325,7 @@ export const WORKSPACE_OPTION_CONTROLS: Record<WorkspaceViewOptionKey, Workspace
     Page: function ProjectOrderPage({ controller }) {
       const t = useMobileTranslation()
       return (
-        <OptionRowList>
+        <ListGroup>
           {projectOrderChoices(t).map((choice) => (
             <CheckRow
               key={choice.id}
@@ -346,7 +346,7 @@ export const WORKSPACE_OPTION_CONTROLS: Record<WorkspaceViewOptionKey, Workspace
               }}
             />
           ))}
-        </OptionRowList>
+        </ListGroup>
       )
     }
   },

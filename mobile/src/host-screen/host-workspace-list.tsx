@@ -1,3 +1,4 @@
+import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
 import { getRepoExecutionHostId } from '../../../src/shared/execution-host'
 import { useEffect, useMemo, type ReactElement } from 'react'
@@ -45,6 +46,7 @@ export function HostWorkspaceList({
   /** The host name at the top of the list, folding into the bar as it scrolls. */
   pageTitle?: { element: ReactElement; collapsing: CollapsingTitle }
 }) {
+  const t = useMobileTranslation()
   const colorScheme = useMobileColorScheme()
   const {
     actions,

@@ -171,6 +171,7 @@ export function useHostScreenController({
     collapsedGroups,
     feed,
     projectOrderBy,
+    projectCatalog,
     client,
     connectionVerdict,
     connState,
@@ -195,7 +196,6 @@ export function useHostScreenController({
     routeNotice,
     router,
     sectionsResult,
-    projectCatalog,
     setDismissedNotice,
     settings,
     state
