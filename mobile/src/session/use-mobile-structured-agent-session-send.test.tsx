@@ -1,3 +1,4 @@
+import { defineMobileSendRefusalCases } from './mobile-send-refusals.test-fixture'
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import {
   mobileNativeChatDraftDestination,
@@ -8,7 +9,6 @@ import { structuredSendResultFixture } from './structured-agent-send-result.test
 import { createElement, useState } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/structured-agent-session-dispatch-rejection'
 import type { RpcClient } from '../transport/rpc-client'
 import {
   fieldsOf,
@@ -775,77 +775,12 @@ describe('mobile structured send actions', () => {
     })
   })
 
-  it('reports a send stopped before the agent started it without sending it twice', async () => {
-    sendRequest.mockImplementation(async (method) =>
-      method === 'agentSession.send'
-        ? sendResult('rejected', DISPATCH_REJECTED_CANCELLED)
-        : ok({ models: [], current: {} })
-    )
-    await mountSession()
-    await act(async () => {
-      expect(await hook!.sendWithOutcome('stopped')).toBe('accepted')
-      expect(await hook!.sendWithOutcome('stopped')).toBe('accepted')
-    })
-    expect(calls()).toHaveLength(2)
-    expect(new Set(sentIds()).size).toBe(2)
-    expect(onSendError).not.toHaveBeenCalled()
-  })
-
-  it.each(['invalid_argument', 'unauthorized'])(
-    'a later Send is independent after a %s refusal',
-    async (code) => {
-      let attempts = 0
-      sendRequest.mockImplementation(async (method) => {
-        if (method !== 'agentSession.send') {
-          return ok({ models: [], current: {} })
-        }
-        return ++attempts === 1
-          ? {
-              id: 'request-1',
-              ok: false as const,
-              error: { code, message: 'Message is not authorized' }
-            }
-          : sendResult('accepted')
-      })
-      await mountSession()
-      await act(async () => {
-        expect(await hook!.sendWithOutcome('again')).toBe('rejected')
-        expect(await hook!.sendWithOutcome('again')).toBe('accepted')
-      })
-      expect(new Set(sentIds()).size).toBe(2)
-    }
-  )
-
-  it('a new Send goes through after a stale-fence refusal', async () => {
-    let attempts = 0
-    sendRequest.mockImplementation(async (method) => {
-      if (method !== 'agentSession.send') {
-        return ok({ models: [], current: {} })
-      }
-      return ++attempts === 1
-        ? ok({
-            ok: false,
-            refusal: {
-              code: 'agent_session_checkpoint_stale',
-              message: 'Fence moved',
-              currentFence: 3
-            }
-          })
-        : sendResult('accepted')
-    })
-    await mountSession()
-    await act(async () => {
-      expect(await hook!.sendWithOutcome('again')).toBe('rejected')
-      expect(await hook!.sendWithOutcome('again')).toBe('accepted')
-    })
-    expect(new Set(sentIds()).size).toBe(2)
-  })
-
-  it('sends nothing once the action budget expires', async () => {
-    await mountSession()
-    await act(async () => {
-      expect(await hook!.sendWithOutcome('never attempted', undefined, 0)).toBe('rejected')
-    })
-    expect(calls()).toHaveLength(0)
+  defineMobileSendRefusalCases({
+    getHook: () => hook!,
+    sendRequest,
+    mountSession,
+    calls,
+    sentIds,
+    onSendError
   })
 })
