@@ -1,0 +1,39 @@
+{
+  "mobile": "0.0.59/code23",
+  "desktop": "1.4.242",
+  "source": "86ad9d95cac792f3d1359d886cef9fb9b0aadd47",
+  "images": [
+    {
+      "path": "evidence/2026-10-31/34351/after-selection-disconnected.png",
+      "sha256": "546b582a6f02c434e9219cf5ba179a24e59bd52d90e0126f72fd1b5cf1d71e62"
+    },
+    {
+      "path": "evidence/2026-10-31/34351/same-process-codex-success.png",
+      "sha256": "68489bd0d44f0e01deba777b9770914ac4c7cfef9c870af1f61b1ee74e6ee025"
+    },
+    {
+      "path": "evidence/2026-10-31/34351/draft-cleared.png",
+      "sha256": "f9290b1fab781310e05e3055677d5228f216ca5ec0f8f7485cc9aaf22cbb935c"
+    },
+    {
+      "path": "evidence/2026-10-31/34351/picker-lifecycle.txt",
+      "sha256": "94c7eef67e0ced59f7be083452ba06e31efc0b80417a72ac390a748e9cdedee9"
+    },
+    {
+      "path": "evidence/2026-10-31/34351/network.txt",
+      "sha256": "992e18291acfe2f5e111af19af14f518a5340fa3ea061b499f4ea189ce8b90ed"
+    },
+    {
+      "path": "evidence/2026-10-31/34351/trial-summary.json",
+      "sha256": "32542632ca510879ad400423f9acf2afc00a3861dae8c278ca10c95c6cf1cf48"
+    },
+    {
+      "path": "evidence/2026-10-31/34351/release-audit.md",
+      "sha256": "d40fb41a0ff68a1f18f845a633de6314d5684cf1263b254b3138de02e22197c6"
+    },
+    {
+      "path": "evidence/2026-10-31/34351/ordinary-ui-retry.mp4",
+      "sha256": "46488b1cfa51b17b53ac2a82441df5487c98d03da2ddfb3c0bd9acc8a656b31d"
+    }
+  ]
+}

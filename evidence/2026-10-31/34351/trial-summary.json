@@ -1,0 +1,20 @@
+{
+  "mobile": "0.0.59",
+  "versionCode": 23,
+  "desktop": "1.4.242",
+  "desktop_source": "86ad9d95cac792f3d1359d886cef9fb9b0aadd47",
+  "device": "isolated Pixel9 Android16 API36",
+  "app_pid": 5016,
+  "photos_launches": 5,
+  "cancellations": 2,
+  "selection_confirmations": 3,
+  "observed_disconnected_failure": 1,
+  "successful_draft_confirmations": 1,
+  "other_selection_outcome": "no draft retained; spinner/reconnect observed; exact toast not captured",
+  "messages_sent": 0,
+  "same_process_recovered": true,
+  "original_cause_proven": false,
+  "video_sha256": "46488b1cfa51b17b53ac2a82441df5487c98d03da2ddfb3c0bd9acc8a656b31d",
+  "raw_log_sha256": "59bc3641e9935a8896bf1c6288f56b49c97bae1254a5771218510ceea945155f",
+  "page_registry_generation": "not instrumented; same PID does not prove page/registry identity"
+}
