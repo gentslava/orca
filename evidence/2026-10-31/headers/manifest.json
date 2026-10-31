@@ -1,0 +1,38 @@
+{
+  "base": "d618a85ffd7695eb9828f759f13da4198aebd35a",
+  "source_after": "91cefaf5ba45fc7a99b0ddbb9b3eb1224480cce3",
+  "images": [
+    {
+      "path": "evidence/2026-10-31/headers/before-collapsed-light.png",
+      "sha256": "8dc4886eb0ab5f91c0093130b5edd4d0f526d7a759b23b6afe51ebed1f4971bd"
+    },
+    {
+      "path": "evidence/2026-10-31/headers/before-collapsed-dark.png",
+      "sha256": "a0e8ccc9caa08d04f48a707b6f14c64be95e614e378a287d3096832de4e0d5ff"
+    },
+    {
+      "path": "evidence/2026-10-31/headers/before-expanded-light.png",
+      "sha256": "441fc9a2ffaf364197f51e72a0c6cf6e7f6ec3657ea51f48f2be3ea78a05c10a"
+    },
+    {
+      "path": "evidence/2026-10-31/headers/before-expanded-dark.png",
+      "sha256": "3449dc6305c0ff3214c983c744be8426460e0707ee470a2aeb95062d3d2f19ad"
+    },
+    {
+      "path": "evidence/2026-10-31/headers/after-collapsed-light.png",
+      "sha256": "fcfc5956932ddc8986281dfe392aac7d4c4505710b5271845dfbe9c7505f997b"
+    },
+    {
+      "path": "evidence/2026-10-31/headers/after-collapsed-dark.png",
+      "sha256": "eea4f61253c35cbd54ea06a71b16a6ac2ab9f0e2b735d75a836f6c33790c68d2"
+    },
+    {
+      "path": "evidence/2026-10-31/headers/after-expanded-light.png",
+      "sha256": "d11892b8a5204b8655bf2125ece784404336c04119bfc1691cc3a197ce740f7d"
+    },
+    {
+      "path": "evidence/2026-10-31/headers/after-expanded-dark.png",
+      "sha256": "94e6fd44738a883b90668b845056ff811b7dbfbe76206f52c1e76d4e93bc8afd"
+    }
+  ]
+}
