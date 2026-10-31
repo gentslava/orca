@@ -7,6 +7,7 @@ import {
 } from '../../shared/agent-session-record.test-fixture'
 import { claudeProviderHandle } from '../../shared/agent-session-provider-handle-encoding'
 import type { AiVaultListResult } from '../../shared/ai-vault-types'
+import { filterAiVaultSessions } from '../../shared/ai-vault-session-filters'
 import { setStructuredAgentSessionHost } from '../native-chat/agent-session-wire/structured-agent-session-registry'
 import {
   OPENS_EVERY_STRUCTURED_CHAT,
@@ -33,6 +34,8 @@ function install(records: readonly AgentSessionRecord[]): void {
     deps: {
       store: {
         listRecords: () => records,
+        hostId: 'local',
+        getRecord: (id: string) => records.find((record) => record.sessionId === id) ?? null,
         listConversations: () => records.map(agentSessionConversationView)
       }
     }
@@ -263,6 +266,18 @@ describe('primary conversation navigation from the durable session catalog', () 
           structuredSession: { sessionId: record.sessionId, workspaceId: 'folder:notes' }
         })
       ])
+      const filters = {
+        query: '',
+        agents: [result.sessions[0]!.agent],
+        scope: 'all' as const,
+        sort: 'updated' as const,
+        activeWorktreePaths: [],
+        hideEmptySessions: true
+      }
+      expect(filterAiVaultSessions(result.sessions, filters)).toEqual([])
+      expect(
+        filterAiVaultSessions(result.sessions, { ...filters, preserveStructuredSessions: true })
+      ).toEqual(result.sessions)
       expect(
         projectStructuredAiVaultSessions(EMPTY, () => false, { includeStructuredSessions: true })
           .sessions
