@@ -135,7 +135,13 @@ describe('Chat settings page', () => {
         container.querySelector('#chat-queue-follow-ups')
       )
       expect(
-        screen.getByRole('switch', { name: 'Toggle queue follow-ups' }).hasAttribute('disabled')
+        screen
+          .getByRole('switch', {
+            name: getChatBehaviorSearchEntries().find(
+              (entry) => entry.targetSectionId === 'chat-queue-follow-ups'
+            )?.title
+          })
+          .hasAttribute('disabled')
       ).toBe(!supported)
     }
   )
