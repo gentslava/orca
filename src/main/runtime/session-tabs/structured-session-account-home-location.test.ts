@@ -27,6 +27,36 @@ afterEach(() => {
   roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true }))
 })
 
+it('an existing Codex chat resolves account changes through the host selection without launch side effects', async () => {
+  let selected = '/accounts/a/home'
+  const readHome = vi.fn(async () => selected)
+  const prepareHome = vi.fn()
+  const runtime: OrcaRuntimeWithStructuredSessionAccountHome = Object.assign(
+    Object.create(OrcaRuntimeWithStructuredSessionAccountHome.prototype),
+    {
+      accounts: { getClaudeConfigDirectory: () => null },
+      requireStore: () => ({ getSettings: () => ({}) }),
+      structuredAgentLaunchEnv: () => ({}),
+      resolveCodexStructuredLaunchHomeFn: readHome,
+      prepareCodexStructuredLaunchFn: prepareHome
+    }
+  )
+  const record = {
+    ...agentSessionRecordFixture(),
+    provider: 'codex',
+    accountHome: { variable: 'CODEX_HOME', path: selected }
+  }
+  expect(await runtime.resolveStructuredAgentLaunchAccountHome(record, 'identity')).toEqual(
+    record.accountHome
+  )
+  selected = '/accounts/b/home'
+  expect(await runtime.resolveStructuredAgentLaunchAccountHome(record, 'identity')).toEqual({
+    variable: 'CODEX_HOME',
+    path: selected
+  })
+  expect(prepareHome).not.toHaveBeenCalled()
+})
+
 it('with a router names the selected account before its folder exists, through the real runtime resolver', async () => {
   const root = mkdtempSync(join(tmpdir(), 'orca-account-identity-'))
   roots.push(root)

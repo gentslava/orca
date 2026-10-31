@@ -14,7 +14,8 @@ import {
 // must name the thread this session actually proved — never one a caller asks
 // for, which is how a resume becomes a fork wearing a resume's name.
 
-import { requireLegacyAgentSessionAccountHome } from '../../shared/agent-session-account-home'
+import type { AgentSessionAccountHome } from '../../shared/agent-session-account-home'
+import { prepareCodexStructuredAccountHome } from './codex-structured-account-home'
 import { agentSessionProviderHandleChainHead } from '../../shared/agent-session-provider-handle'
 import { resolveCodexCommand } from '../codex-cli/command'
 import type { StructuredAgentLaunchPartResolver } from '../runtime/structured-agent-launch-composition'
@@ -28,6 +29,7 @@ import {
 } from '../native-chat/native-chat-visuals-delivery'
 
 export type CodexStructuredLaunchPartDeps = {
+  resolveAccountHome?: () => Promise<AgentSessionAccountHome>
   resolveLaunchArgs: () => Promise<string[]> | string[]
   resolveCommand?: (options?: {
     pathEnv?: string | null
@@ -104,7 +106,10 @@ export function codexStructuredLaunchPart(
 ): StructuredAgentLaunchPartResolver<CodexStructuredLaunch> {
   return async (basis) => {
     const { record } = basis
-    const accountHome = requireLegacyAgentSessionAccountHome(record.accountHome)
+    const accountHome = await prepareCodexStructuredAccountHome(
+      record,
+      await deps.resolveAccountHome?.()
+    )
     const { command, prefixArgs } = await resolveCodexStructuredInvocation({
       ...(deps.resolveCommand ? { resolveCommand: deps.resolveCommand } : {}),
       refreshEnvironmentAfterMiss: basis.refreshAfterMissingProgram,
