@@ -18,7 +18,11 @@ const TEST_FILE_NAME = /\.(?:test|spec|e2e|bench)\.[cm]?[jt]sx?$/
 const NON_UNIT_TEST_RUNNERS = [
   {
     name: 'personal build node:test',
-    include: ['config/fork-build/*.test.mjs'],
+    include: [
+      'config/fork-build/composition.test.mjs',
+      'config/fork-build/status-record.test.mjs',
+      'config/fork-build/promotion.test.mjs'
+    ],
     sources: ['.github/workflows/personal-build.yml'],
     mirrors: [
       'config/fork-build/composition.test.mjs',
