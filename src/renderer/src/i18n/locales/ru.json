@@ -5427,9 +5427,7 @@
           "trackingSince": "Учёт с {{value0}}"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "Всего токенов",
-          "sessionCount_few": "{{formatted}} сессии",
-          "sessionCount_many": "{{formatted}} сессий"
+          "3887b94ce5": "Всего токенов"
         },
         "share": {
           "card": {

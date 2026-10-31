@@ -4974,8 +4974,7 @@
           "trackingSince": "Suivi depuis {{value0}}"
         },
         "UsageOverviewPane": {
-          "3887b94ce5": "Total de tokens",
-          "sessionCount_many": "{{formatted}} sessions"
+          "3887b94ce5": "Total de tokens"
         },
         "share": {
           "card": {
