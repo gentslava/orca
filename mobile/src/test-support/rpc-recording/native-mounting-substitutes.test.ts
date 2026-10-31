@@ -28,8 +28,8 @@ describe('nativeMountingSubstitutes', () => {
 
   it('throws on a member nobody substituted rather than recording an undefined native API', () => {
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the read itself is the assertion; the proxy has no declared shape.
-    expect(() => (substitute('expo-crypto') as { randomUUID?: unknown }).randomUUID).toThrow(
-      'Unsubstituted native member: expo-crypto.randomUUID'
-    )
+    expect(
+      () => (substitute('expo-crypto') as { unsubstitutedMember?: unknown }).unsubstitutedMember
+    ).toThrow('Unsubstituted native member: expo-crypto.unsubstitutedMember')
   })
 })
