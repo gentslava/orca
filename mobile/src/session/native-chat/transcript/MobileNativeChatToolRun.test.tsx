@@ -171,7 +171,7 @@ describe('ToolRun', () => {
       const input = {
         cmd: 'printf hello',
         workdir: '/repo',
-        message: 'x'.repeat(4500) + 'END_OF_INPUT'
+        message: `${'x'.repeat(4500)}END_OF_INPUT`
       }
       const tree = render([{ type: 'tool-call', name: 'exec_command', input }])
       open(tree, 'printf hello')
