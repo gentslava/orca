@@ -17,6 +17,20 @@ const TEST_FILE_NAME = /\.(?:test|spec|e2e|bench)\.[cm]?[jt]sx?$/
 // Mirror literals must appear in runner sources; list manual rows each run so their lack of CI remains visible.
 const NON_UNIT_TEST_RUNNERS = [
   {
+    name: 'personal build node:test',
+    include: [
+      'config/fork-build/composition.test.mjs',
+      'config/fork-build/status-record.test.mjs',
+      'config/fork-build/promotion.test.mjs'
+    ],
+    sources: ['.github/workflows/personal-build.yml'],
+    mirrors: [
+      'config/fork-build/composition.test.mjs',
+      'config/fork-build/status-record.test.mjs',
+      'config/fork-build/promotion.test.mjs'
+    ]
+  },
+  {
     name: 'Playwright e2e',
     include: ['tests/e2e/**/*.spec.ts'],
     sources: ['tests/playwright.config.ts'],
