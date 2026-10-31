@@ -178,56 +178,75 @@ run('production mobile PageList scrolling', () => {
       await page.close()
     }
   })
-  it('does not lose position while an older page arrives during a touch swipe', async () => {
-    const page = await browser.newPage({
-      viewport: { width: 390, height: 780 },
-      hasTouch: true,
-      isMobile: true
-    })
-    try {
-      await page.goto(origin)
-      await page.getByText('m99: Message history', { exact: true }).waitFor()
-      const cdp = await page.context().newCDPSession(page)
-      await page.evaluate(() => {
-        const root = [...document.querySelectorAll('div')].find(
-          (n) =>
-            getComputedStyle(n).flexDirection === 'column-reverse' &&
-            ['auto', 'scroll'].includes(getComputedStyle(n).overflowY)
-        )
-        window.historyScrollPositions = [root.scrollTop]
-        root.addEventListener('scroll', () => window.historyScrollPositions.push(root.scrollTop))
+  it.each(['touch', 'mouse'])(
+    'does not lose position while an older page arrives during a %s gesture',
+    async (gestureSourceType) => {
+      const page = await browser.newPage({
+        viewport: { width: 390, height: 780 },
+        hasTouch: true,
+        isMobile: true
       })
-      const before = await snapshot(page)
-      // Touch hit-testing needs a committed compositor frame after the first list layout.
-      await page.screenshot()
-      await cdp.send('Input.synthesizeScrollGesture', {
-        x: 190,
-        y: 180,
-        yDistance: 500,
-        speed: 300,
-        gestureSourceType: 'touch',
-        preventFling: true
-      })
-      await page.waitForTimeout(600)
-      const after = await snapshot(page)
-      const positions = await page.evaluate(() => window.historyScrollPositions)
-      expect(
-        Math.max(...positions.slice(1).map((value, i) => Math.abs(value - positions[i])))
-      ).toBeLessThan(100)
-      expect(after.scrollTop).toBeLessThan(-100)
-      expect(after.scrollTop).toBeGreaterThan(-600)
-      expect(after.first).toBe('m0')
-      expect(after.height).toBeGreaterThan(before.height + 6000)
-      const extent = after.height
-      await page.mouse.move(180, 300)
-      await page.mouse.wheel(0, 100)
-      await page.waitForTimeout(400)
-      expect((await snapshot(page)).height).toBe(extent)
-      await page.getByRole('button', { name: 'Jump to latest' }).click()
-      await page.waitForTimeout(400)
-      expect((await snapshot(page)).scrollTop).toBe(0)
-    } finally {
-      await page.close()
+      try {
+        await page.goto(origin)
+        await page.getByText('m99: Message history', { exact: true }).waitFor()
+        const cdp = await page.context().newCDPSession(page)
+        await page.evaluate(() => {
+          const root = [...document.querySelectorAll('div')].find(
+            (n) =>
+              getComputedStyle(n).flexDirection === 'column-reverse' &&
+              ['auto', 'scroll'].includes(getComputedStyle(n).overflowY)
+          )
+          window.historyScrollPositions = [root.scrollTop]
+          root.addEventListener('scroll', () => window.historyScrollPositions.push(root.scrollTop))
+        })
+        const before = await snapshot(page)
+        // Touch hit-testing needs a committed compositor frame after the first list layout.
+        await page.screenshot()
+        // Linux synthetic touch scrolling emits no moves; dispatch native touch events instead.
+        if (gestureSourceType === 'touch') {
+          await cdp.send('Input.dispatchTouchEvent', {
+            type: 'touchStart',
+            touchPoints: [{ x: 190, y: 180 }]
+          })
+          for (let step = 1; step <= 50; step++) {
+            await cdp.send('Input.dispatchTouchEvent', {
+              type: 'touchMove',
+              touchPoints: [{ x: 190, y: 180 + step * 10 }]
+            })
+            await page.waitForTimeout(1000 / 30)
+          }
+          await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+        } else {
+          await cdp.send('Input.synthesizeScrollGesture', {
+            x: 190,
+            y: 180,
+            yDistance: 500,
+            speed: 300,
+            gestureSourceType,
+            preventFling: true
+          })
+        }
+        await page.waitForTimeout(600)
+        const after = await snapshot(page)
+        const positions = await page.evaluate(() => window.historyScrollPositions)
+        expect(
+          Math.max(...positions.slice(1).map((value, i) => Math.abs(value - positions[i])))
+        ).toBeLessThan(100)
+        expect(after.scrollTop).toBeLessThan(-100)
+        expect(after.scrollTop).toBeGreaterThan(-600)
+        expect(after.first).toBe('m0')
+        expect(after.height).toBeGreaterThan(before.height + 6000)
+        const extent = after.height
+        await page.mouse.move(180, 300)
+        await page.mouse.wheel(0, 100)
+        await page.waitForTimeout(400)
+        expect((await snapshot(page)).height).toBe(extent)
+        await page.getByRole('button', { name: 'Jump to latest' }).click()
+        await page.waitForTimeout(400)
+        expect((await snapshot(page)).scrollTop).toBe(0)
+      } finally {
+        await page.close()
+      }
     }
-  })
+  )
 })
