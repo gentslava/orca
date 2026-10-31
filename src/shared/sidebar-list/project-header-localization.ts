@@ -27,8 +27,6 @@ export function localizeRowsToHost(
   hostId: ExecutionHostId | undefined
 ): Row[] {
   return hostId
-    ? rows.map((row) =>
-        row.type === 'header' ? localizeProjectHeader(row, hostId) : row
-      )
+    ? rows.map((row) => (row.type === 'header' ? localizeProjectHeader(row, hostId) : row))
     : [...rows]
 }
