@@ -77,7 +77,8 @@ export function ActionSheetContent({ title, message, children, actions, onClose 
                 accessibilityRole="button"
                 accessibilityState={{
                   disabled: Boolean(action.disabled || action.loading),
-                  busy: action.loading
+                  busy: action.loading,
+                  checked: action.checked || undefined
                 }}
                 style={({ pressed }) => [
                   styles.action,
@@ -85,7 +86,6 @@ export function ActionSheetContent({ title, message, children, actions, onClose 
                   pressed && !action.disabled && !action.loading && styles.actionPressed
                 ]}
                 disabled={action.disabled || action.loading}
-                accessibilityState={action.checked ? { checked: true } : undefined}
                 onPress={() => {
                   action.onPress()
                   if (!action.skipAutoClose && onClose) {
