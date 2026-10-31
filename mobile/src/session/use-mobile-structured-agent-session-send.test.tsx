@@ -1,3 +1,4 @@
+import { mobileNativeChatDraftDestination } from './native-chat/composer/mobile-native-chat-draft-inputs'
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import {
   updateMobileNativeChatDraftInputs,
@@ -71,12 +72,11 @@ describe('mobile structured send actions', () => {
   const restoreRejectedDraft = vi.fn()
   const captureSendOrigin = vi.fn((text: string): MobileNativeChatSendOrigin => ({
     draftKey: 'draft',
+    draftDestination: mobileNativeChatDraftDestination('draft'),
     draftEditGeneration: 0,
     pendingKey: 'pending',
     normalizedText: text,
-    baselineOccurrences: 0,
-    baselineTailMessageId: null,
-    baselineResolved: true,
+    boundary: { afterEmptyTranscriptSessionId: sessionId },
     sentAt: 0
   }))
   const onSendError = vi.fn()

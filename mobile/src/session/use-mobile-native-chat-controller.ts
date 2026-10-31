@@ -1,3 +1,4 @@
+import { asyncQuestionSourceScope } from '../../../src/shared/native-chat/input/native-chat-ask'
 import { useLayoutEffect, useRef } from 'react'
 import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
 import { useMobileNativeChatWorkspaceCatalog } from './native-chat/composer/use-mobile-native-chat-workspace-catalog'
@@ -118,6 +119,14 @@ export function useMobileNativeChatController(
     scopeKey: mobileNativeChatScopeKey(hostId, worktreeId, activeSessionTabId),
     sessionId: activeChatSessionId,
     streamIdentity,
+    asyncSourceScope: activeChatStructured
+      ? structuredNativeChat.asyncQuestionSourceScope
+      : asyncQuestionSourceScope({
+          kind: 'transcript',
+          agent: activeChatAgent,
+          sessionId: activeChatSessionId,
+          transcriptPath: activeChatResolution?.transcriptPath ?? null
+        }),
     visible: showNativeChat,
     terminal: bridgePromptWrites,
     onSendResolved

@@ -58,7 +58,7 @@ export function useMobileStructuredModelDefault(args: {
     | 'optionPicks'
     | 'updateOptionState'
     | 'writes'
-    | 'readRef'
+    | 'beginOptionWrite'
     | 'isCurrentContext'
   >
 }) {
@@ -71,7 +71,7 @@ export function useMobileStructuredModelDefault(args: {
     controller,
     updateOptionState,
     writes,
-    readRef,
+    beginOptionWrite,
     isCurrentContext
   } = args.source
   return useCallback(
@@ -102,7 +102,7 @@ export function useMobileStructuredModelDefault(args: {
         false
       )
       const sameRecord = () => isCurrentContext() && activeOptionRecordRef.current === targetRecord
-      writes.current.count += 1
+      const finish = beginOptionWrite(id)
       updateOptionState((state) => ({ ...state, pendingId: id }))
       let readsBack = false
       try {
@@ -141,13 +141,7 @@ export function useMobileStructuredModelDefault(args: {
             state.pendingId === id ? { ...state, pendingId: null } : state
           )
         }
-        if (isCurrentContext() && activeOptionRecordRef.current === targetRecord) {
-          writes.current.count -= 1
-          writes.current.readback ||= readsBack
-          if (!writes.current.count && writes.current.readback) {
-            readRef.current?.()
-          }
-        }
+        finish(readsBack)
       }
     },
     [
@@ -162,7 +156,7 @@ export function useMobileStructuredModelDefault(args: {
       optionStateRef,
       optionPicks,
       controller,
-      readRef,
+      beginOptionWrite,
       sessionId,
       updateOptionState,
       writes

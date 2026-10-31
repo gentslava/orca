@@ -2,6 +2,7 @@ import { structuredAgentSessionDefaultModelChoice } from '../../../../shared/str
 import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../../shared/agent-session-default-model'
 import { useStructuredAgentSessionHostCapability } from '@/runtime/structured-agent-session-host-capability'
 import { useStructuredAgentSessionModelDefault } from './use-structured-agent-session-model-default'
+import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
 import type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
 import { toast } from 'sonner'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
@@ -15,6 +16,7 @@ import {
   structuredAgentSessionOptionPicks
 } from '../../../../shared/structured-agent-session-options'
 import { encodeStructuredAgentSessionOptionValue } from '../../../../shared/structured-agent-session-option-codec'
+import { structuredAgentSessionShownSnapshot } from '../../../../shared/structured-agent-session-option-view'
 import { useHostModelCatalogUpgrade } from './use-host-model-catalog-upgrade'
 import { useStructuredAgentSessionOptionState } from './use-structured-agent-session-option-state'
 import { agentSessionWriteFailureText } from './agent-session-write-notice-text'
@@ -26,8 +28,9 @@ import {
 export type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
 
 export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOptionsArgs) {
-  const { agent, fence, launch, providerVisible, sessionId, target, transportEnabled, turnId } =
-    args
+  const { agent, fence, launch, providerVisible, sessionId, transportEnabled, turnId } = args
+  const environmentId = args.target.kind === 'environment' ? args.target.environmentId : null
+  const target = useMemo(() => runtimeTargetForOwnerEnvironment(environmentId), [environmentId])
   const mutate = args.mutate
   const capturePresentation = args.capturePresentation
   const providerStarting = args.providerStarting ?? false
@@ -133,7 +136,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     lockSnapshotRef.current = lockSnapshot
   })
   const optionSnapshot = lockSnapshot(
-    structuredAgentSessionOptionSnapshot(
+    structuredAgentSessionShownSnapshot(
       optionView(optionState, launchSeedOptions, launch?.explicitOptions)
     )
   )
@@ -227,7 +230,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       await setStructuredOption(id, value)
       return {
         snapshot: lockSnapshotRef.current(
-          structuredAgentSessionOptionSnapshot(
+          structuredAgentSessionShownSnapshot(
             optionView(optionStateRef.current, launchSeedOptions, launch?.explicitOptions)
           )
         )

@@ -63,7 +63,7 @@ describe('useStructuredAgentSessionOptions', () => {
       })),
       current: { model, ...(effort ? { effort } : {}) }
     })
-    const initial = menu('family')
+    const initial = { ...menu('family'), acceptsImages: true }
     const older = Promise.withResolvers<AgentSessionOptionsResult>()
     const latest = Promise.withResolvers<AgentSessionOptionsResult>()
     let reads = 0
@@ -94,9 +94,10 @@ describe('useStructuredAgentSessionOptions', () => {
     rerender({ ...REOPENED, agent: 'antigravity', hidden: true })
     rerender({ ...REOPENED, agent: 'antigravity' })
     await waitFor(() => expect(reads).toBe(3))
-    await act(async () => latest.resolve(menu('newer', 'high')))
+    await act(async () => latest.resolve({ ...menu('newer', 'high'), acceptsImages: true }))
     await waitFor(() => expect(currentValue(result.current.optionSnapshot, 'effort')).toBe('high'))
-    await act(async () => older.resolve(menu('family', 'low')))
+    await act(async () => older.resolve({ ...menu('family', 'low'), acceptsImages: false }))
+    expect(result.current.acceptsImages).toBe(true)
     expect(currentValue(result.current.optionSnapshot, 'model')).toBe('newer')
     expect(descriptor(result.current.optionSnapshot, 'effort')).toMatchObject({
       settable: true,
@@ -220,7 +221,7 @@ describe('useStructuredAgentSessionOptions', () => {
     unmount()
   })
 
-  it('treats method_not_found and forbidden as no list: the built-in one, naming nothing', async () => {
+  it('treats method_not_found and forbidden as unavailable discovery without hiding saved input', async () => {
     for (const code of ['method_not_found', 'forbidden']) {
       answer({ modelCatalog: () => Promise.reject(new FakeRpcCallError(code)) })
       const { result, unmount } = renderOptions(
@@ -228,11 +229,10 @@ describe('useStructuredAgentSessionOptions', () => {
         mutateWith(async () => null).mutate
       )
       await waitFor(() =>
-        expect(descriptor(result.current.optionSnapshot, 'model')?.settable).toBe(true)
+        expect(result.current.sendSource.optionStateRef.current.catalogSource).toBe('builtin')
       )
       expect(modelChoiceCount(result.current.optionSnapshot)).toBeGreaterThan(0)
-      // Wait for host labels instead of flashing built-in labels for saved picks.
-      expect(currentValue(result.current.optionSnapshot, 'model')).toBeNull()
+      expect(currentValue(result.current.optionSnapshot, 'model')).toBe(SEED.model)
       unmount()
     }
   })
