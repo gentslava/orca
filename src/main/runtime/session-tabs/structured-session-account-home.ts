@@ -1,4 +1,5 @@
 import type { StructuredAgentId } from '../../../shared/agent-session-provider-handle'
+import { agentSessionPinnedLaunchDirectory } from '../agent-session-record-launch-directory'
 import { structuredAgentRuntimeMetadata } from '../structured-agent-runtime-metadata'
 import { getProfileUserDataPath } from '../../orca-profiles/profile-storage-paths'
 import { OrcaRuntimeWithStructuredSessionCliWriterHost } from './structured-session-cli-writer-host'
@@ -59,7 +60,7 @@ export abstract class OrcaRuntimeWithStructuredSessionAccountHome extends OrcaRu
       provider,
       purpose === 'launch' ? `id:${location.workspaceId}` : '',
       purpose,
-      record.launchDirectory
+      agentSessionPinnedLaunchDirectory(record)
     )
     const launchEnv = this.structuredAgentLaunchEnv(provider, this.requireStore().getSettings())
     return (await read?.({ launchEnv, location })) ?? null
