@@ -20,6 +20,7 @@ import type { NativeChatLocalCommandAnswer } from './use-native-chat-local-comma
 import type { NativeChatRecallSource } from './native-chat-sent-prompt-history'
 import type { StructuredAgentSessionQueueDelivery } from './structured-agent-session-queue-request'
 import type { StructuredAgentSessionHostCapabilityState } from '@/runtime/structured-agent-session-host-capability'
+import type { NativeChatSendFollowUp } from '../../../../shared/native-chat-follow-up-behavior'
 
 export type NativeChatComposerErrorDetail = {
   /** Error text Orca did not write, shown apart and copyable. */
@@ -53,6 +54,8 @@ export type NativeChatStructuredComposerTransport = {
   sendOut?: boolean
   /** Send is held for this reason, which the disabled button says. */
   sendBlockedReason?: string
+  /** What a plain send does now, and whether Cmd/Ctrl+Enter would send it the other way. */
+  sendFollowUp?: NativeChatSendFollowUp
   dispatchCommand: (text: string) => Promise<StructuredAgentSessionCommandOutcome>
   optionsSurface: SessionOptionsSurface
   optionSnapshot: SessionOptionDescriptor[]

@@ -6,7 +6,10 @@ import { useStructuredAgentSessionSendOptions } from './use-structured-agent-ses
 import { useStructuredAgentSessionSends } from './use-structured-agent-session-sends'
 import { useStructuredAgentSessionCommandWrite } from './use-structured-agent-session-command-write'
 import { structuredAgentSessionSendQueues } from './structured-agent-session-queue-request'
-import { nativeChatQueueFollowUps } from '../../../../shared/native-chat-follow-up-behavior'
+import {
+  nativeChatQueueFollowUps,
+  nativeChatSendFollowUp
+} from '../../../../shared/native-chat-follow-up-behavior'
 import type { AgentSessionCancelResult } from '../../../../shared/agent-session-wire'
 import { structuredAgentLabel } from '@/lib/structured-agent-session-launch-label'
 import { useStructuredLegacyLaunchStop } from '@/lib/structured-agent-session-legacy-launch-stop'
@@ -281,6 +284,10 @@ export function useStructuredAgentSession(args: StructuredAgentSessionViewArgs) 
     sendsQueue: structuredAgentSessionSendQueues(queue),
     queue,
     steerCapability: sends.steerCapability,
+    /** What a plain send does now, and whether its alternate would send any differently. */
+    sendFollowUp: nativeChatSendFollowUp((alternate) =>
+      structuredAgentSessionSendQueues(queue, alternate)
+    ),
     cancel: (turnId: string | undefined, prompt?: { itemId: string; expectedRevision: number }) =>
       promptResponse.cancelStructuredAgentSessionPrompt(admit(), turnId, prompt),
     stopBackgroundTask: (taskId?: string) =>

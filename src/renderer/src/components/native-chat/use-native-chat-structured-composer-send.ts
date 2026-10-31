@@ -7,8 +7,7 @@ import { promptSkillRefs } from './native-chat-prompt-document'
 import { useCallback } from 'react'
 import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
 import {
-  isStructuredAgentSessionComposerCommand,
-  isStructuredAgentSessionGoalCommand,
+  isStructuredAgentSessionHostCommand,
   structuredAgentSessionCommandChangesConversation
 } from '../../../../shared/structured-agent-session-composer'
 import type { AgentType } from '../../../../shared/agent-status-types'
@@ -43,18 +42,6 @@ export type UseNativeChatStructuredComposerSendArgs = {
   setCaret: (caret: number) => void
 }
 
-/** A command the host runs itself (and `/goal` where the host sets goals), never a message. */
-function isNativeChatStructuredHostCommand(
-  text: string,
-  agent: AgentType,
-  transport: NativeChatStructuredComposerTransport
-): boolean {
-  return (
-    isStructuredAgentSessionComposerCommand(text, agent, transport.sessionCommands) ||
-    (transport.threadGoal !== undefined && isStructuredAgentSessionGoalCommand(text))
-  )
-}
-
 export type NativeChatStructuredComposerSend = (
   text: string,
   attachments?: readonly NativeChatComposerImageAttachment[],
@@ -78,7 +65,10 @@ export function useNativeChatStructuredComposerSend({
       if (!structuredTransport || attachments.some((attachment) => attachment.pending)) {
         return
       }
-      const hostCommand = isNativeChatStructuredHostCommand(text, agent, structuredTransport)
+      const hostCommand = isStructuredAgentSessionHostCommand(
+        text,
+        structuredTransport.threadGoal !== undefined
+      )
       const intent = structuredTransport.queue
         ? structuredAgentSessionRequestedDelivery(
             structuredTransport.queue,
