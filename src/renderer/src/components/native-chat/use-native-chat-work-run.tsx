@@ -40,20 +40,30 @@ export function useNativeChatWorkRun(
       return undefined
     }
     const { blocks, asidesBefore, asidesAfter } = nativeChatWorkRunEntries(members)
-    const aside = (message: NativeChatMessage): React.JSX.Element =>
-      message.role === 'system' ? (
+    const aside = (message: NativeChatMessage): React.JSX.Element => {
+      const occurrences = new Map<string, number>()
+      return message.role === 'system' ? (
         <div key={`notice:${message.id}`} data-native-chat-activity-message-id={message.id}>
-          {message.blocks.map((block, index) =>
-            block.type === 'text' ? (
-              <div key={index} className="space-y-1 py-1 text-sm text-chat-foreground-faint">
+          {message.blocks.map((block) => {
+            if (block.type !== 'text') {
+              return null
+            }
+            const identity = JSON.stringify(block)
+            const occurrence = (occurrences.get(identity) ?? 0) + 1
+            occurrences.set(identity, occurrence)
+            return (
+              <div
+                key={`${identity}:${occurrence}`}
+                className="space-y-1 py-1 text-sm text-chat-foreground-faint"
+              >
                 <p className="whitespace-pre-wrap break-words">{block.text}</p>
                 <ProviderFrameRow
                   block={block}
                   summary={translate('components.native-chat.notices.details', 'Details')}
                 />
               </div>
-            ) : null
-          )}
+            )
+          })}
         </div>
       ) : (
         // Keyed by the thought, so it stays mounted as calls arrive after it.
@@ -66,6 +76,7 @@ export function useNativeChatWorkRun(
           allowFileUriLinks={allowFileUriLinks}
         />
       )
+    }
     const before = new Map<NativeChatBlock, React.JSX.Element[]>()
     for (const [block, asides] of asidesBefore) {
       before.set(block, asides.map(aside))
