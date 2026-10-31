@@ -50,8 +50,8 @@ export type PersistedUIState = {
   combinedDiffFileTreeWidth?: number
   groupBy: 'none' | 'workspace-status' | 'repo' | 'pr-status'
   sortBy: 'name' | 'smart' | 'recent' | 'repo' | 'manual'
-  /** Project-header order in repo grouping, independent of workspace sort: manual permits drag, recent follows visible activity. */
   conversationPreferences?: ConversationPreferences
+  /** Project-header order in repo grouping, independent of workspace sort: manual permits drag, recent follows visible activity. */
   projectOrderBy: ProjectOrderBy
   /** Deprecated; the Active only filter is retired and ignored on hydration. */
   showActiveOnly: boolean

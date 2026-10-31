@@ -1,5 +1,6 @@
 import { ActionSheetModal } from '../components/ActionSheetModal'
-import { WORKSPACE_PROJECT_ORDER_CHOICES } from '../../../src/shared/workspace-view/workspace-view-options'
+import { projectOrderChoices } from './workspace-option-controls-copy'
+import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import type { HostScreenController } from './use-host-screen-controller'
 import { conversationCopy } from './conversation-copy'
 
@@ -12,6 +13,7 @@ export function ConversationProjectOrderSheet({
   onClose: () => void
   controller: HostScreenController
 }) {
+  const t = useMobileTranslation()
   const copy = conversationCopy()
   const connected = controller.connState === 'connected'
   return (
@@ -19,8 +21,8 @@ export function ConversationProjectOrderSheet({
       visible={visible}
       title={copy.projectOrder}
       onClose={() => onClose()}
-      actions={WORKSPACE_PROJECT_ORDER_CHOICES.map((choice) => ({
-        label: `${controller.projectOrderBy === choice.id ? '✓ ' : ''}${copy.projectOrderLabels[choice.id]}`,
+      actions={projectOrderChoices(t).map((choice) => ({
+        label: `${controller.projectOrderBy === choice.id ? '✓ ' : ''}${choice.label}`,
         onPress: () => {
           void controller.settings.setProjectOrderBy(choice.id)
         },

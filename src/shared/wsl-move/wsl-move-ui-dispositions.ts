@@ -8,16 +8,16 @@ import {
 
 /** UI fields that name a repo, worktree, pane or path. Everything else in the UI state is global. */
 export const UI_STATE_DISPOSITIONS = {
-  conversationPreferences: notApplicableDisposition(
-    38,
-    'Conversation preferences retain their execution-host-qualified identities.'
-  ),
   lastActiveRepoId: notApplicableDisposition(38, 'repoId is kept.'),
   pendingRuntimeRepoRemovals: notApplicableDisposition(
     38,
     'Owed to a paired server; a WSL move only moves local projects.'
   ),
   lastActiveWorktreeId: moveDisposition(38, { rewriteDesktopCopy: true }),
+  conversationPreferences: notApplicableDisposition(
+    38,
+    'Conversation preferences retain their execution-host-qualified identities.'
+  ),
   manualRepoOrder: moveDisposition(38, {
     rewriteDesktopCopy: true,
     note: "The desktop copy's hostId changes from 'local' to the WSL host."
