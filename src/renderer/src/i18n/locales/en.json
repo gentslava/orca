@@ -19570,6 +19570,8 @@
         },
         "imageUnavailable": "Preview unavailable",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+        "alternateSteerHint": "{{shortcut}} to steer",
+        "alternateQueueHint": "{{shortcut}} to queue",
         "nextTurnOptionsLabel": "Next turn: {{options}}",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
         "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
