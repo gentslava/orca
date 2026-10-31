@@ -767,3 +767,28 @@ index 26b320da678..517b5c01082 100644
  }
 
  describe('filesystem-watcher real @parcel/watcher integration', () => {
+diff --git a/src/main/ipc/emulator-scrcpy-touch.ts b/src/main/ipc/emulator-scrcpy-touch.ts
+index 58d168c8f82..f575744a1bf 100644
+--- a/src/main/ipc/emulator-scrcpy-touch.ts
++++ b/src/main/ipc/emulator-scrcpy-touch.ts
+@@ -14,12 +14,15 @@ function isScrcpyTouchMessage(value: unknown): value is ScrcpyTouchMessage {
+   if (typeof value !== 'object' || value === null) {
+     return false
+   }
+-  const touch = value as Record<string, unknown>
+   return (
+-    typeof touch.deviceId === 'string' &&
+-    TOUCH_PHASES.has(touch.type) &&
+-    isUnitCoordinate(touch.x) &&
+-    isUnitCoordinate(touch.y)
++    'deviceId' in value &&
++    typeof value.deviceId === 'string' &&
++    'type' in value &&
++    TOUCH_PHASES.has(value.type) &&
++    'x' in value &&
++    isUnitCoordinate(value.x) &&
++    'y' in value &&
++    isUnitCoordinate(value.y)
+   )
+ }
+ 
