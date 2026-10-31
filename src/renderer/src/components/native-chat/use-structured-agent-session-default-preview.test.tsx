@@ -17,13 +17,16 @@ import {
   HOST_CATALOG,
   LIVE_OPTIONS
 } from './use-structured-agent-session-options.test-fixture'
-import { act, waitFor } from '@testing-library/react'
+import { act, cleanup, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { forgetStructuredSessionSelection } from '@/lib/structured-agent-session-selection-controller'
 import { resetHostModelCatalogSnapshotsForTests } from '@/runtime/host-model-catalog-snapshots'
 describe('useStructuredAgentSessionOptions', () => {
-  afterEach(() => setLocalRuntimeCapabilitiesForTests(null))
+  afterEach(() => {
+    cleanup()
+    setLocalRuntimeCapabilitiesForTests(null)
+  })
   beforeEach(() => {
     mocks.supportsRemote.mockReset().mockResolvedValue(false)
     forgetStructuredSessionSelection('session-1')
