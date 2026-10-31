@@ -15,18 +15,13 @@ import { desktopStructuredTranscript } from './structured-agent-session-message-
 import { nativeChatTaskListPredecessors } from '../../../../shared/native-chat/input/native-chat-task-list-history'
 import { NativeChatDockedTaskList } from './NativeChatDockedTaskList'
 import { useNativeChatTurnStatus } from './use-native-chat-turn-status'
-import { NativeChatAwaitingInputRow } from './NativeChatAwaitingInputRow'
 import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client-types'
 import type { NativeChatTurnActivity } from '../../../../shared/native-chat/transcript/native-chat-turn-activity'
-import { NativeChatTurnActivityLine } from './NativeChatTurnActivityLine'
 import {
   NativeChatDisclosureContext,
   useNativeChatDisclosures
 } from './native-chat-disclosure-store'
-import {
-  NativeChatTranscriptItems,
-  NativeChatWaitingTranscriptItems
-} from './NativeChatTranscriptItems'
+import { NativeChatTranscriptItems, NativeChatTranscriptTail } from './NativeChatTranscriptItems'
 import { useNativeChatTranscriptRowContext } from './use-native-chat-transcript-row-context'
 import type { StructuredAgentSessionHostWork } from './use-structured-agent-session-transport-state'
 import type { NativeChatDeliveryNotice } from './NativeChatMessageRow'
@@ -404,16 +399,12 @@ export function NativeChatMessageList({
                   newRowsMarker={newRowsMarker}
                   forwardGesture={readerInput.forwardedGesture}
                 />
-                {liveLine ? (
-                  <NativeChatTurnActivityLine
-                    line={liveLine}
-                    onLinkClick={onLinkClick}
-                    allowFileUriLinks={allowFileUriLinks}
-                  />
-                ) : tailRow === 'awaiting-input' ? (
-                  <NativeChatAwaitingInputRow subject={null} pending />
-                ) : null}
-                <NativeChatWaitingTranscriptItems slots={waitingSlots} context={rowContext} />
+                <NativeChatTranscriptTail
+                  line={liveLine}
+                  awaitingInput={tailRow === 'awaiting-input'}
+                  slots={waitingSlots}
+                  context={rowContext}
+                />
               </div>
             </div>
           </div>
