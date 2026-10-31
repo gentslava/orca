@@ -2,6 +2,7 @@ import {
   CONVERSATION_NAVIGATION_CAPABILITY,
   CONVERSATION_PROJECT_VISIBILITY_CAPABILITY
 } from './conversation-navigation-preferences'
+import { PERSONAL_PROJECT_ORDER_CAPABILITY } from './personal-project-order'
 import { ACCOUNT_RUNTIME_CAPABILITIES } from './account-runtime-capabilities'
 import { USAGE_RUNTIME_CAPABILITIES } from './usage-history-rpc'
 import * as agentLaunchCapabilities from './agent-launch-runtime-capability'
@@ -142,6 +143,8 @@ export const RUNTIME_CAPABILITIES = [
   SAVED_RESUME_ORIGIN_RUNTIME_CAPABILITY,
   CONVERSATION_NAVIGATION_CAPABILITY,
   CONVERSATION_PROJECT_VISIBILITY_CAPABILITY,
+  PERSONAL_PROJECT_ORDER_CAPABILITY,
+
   ...HOST_RUNTIME_CAPABILITIES,
   ...DEVICE_KEY_RUNTIME_CAPABILITIES,
   ...MOBILE_RUNTIME_CAPABILITIES,
