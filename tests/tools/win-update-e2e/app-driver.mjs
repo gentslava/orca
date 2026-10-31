@@ -222,7 +222,9 @@ async function createWorkspaceFromSeededRepo(page, timeoutMs) {
   const deadline = Date.now() + timeoutMs
   const sidebarTitle = page.locator('[data-sidebar-section-title]').first()
   if ((await sidebarTitle.getAttribute('data-sidebar-section-title')) !== 'workspaces') {
-    await sidebarTitle.click({ timeout: Math.max(1, deadline - Date.now()) })
+    if (!(await tryClickWithKnownOverlayRetry(page, sidebarTitle, deadline - Date.now()))) {
+      await sidebarTitle.click({ timeout: 1 })
+    }
     await page.getByRole('menuitem', { name: 'Workspaces', exact: true }).click({
       timeout: Math.max(1, deadline - Date.now())
     })
