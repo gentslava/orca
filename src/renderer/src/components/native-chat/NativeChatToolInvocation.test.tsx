@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { NativeChatToolLine } from './NativeChatToolLine'
+import { NativeChatToolRun } from './NativeChatToolRun'
 
 vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
   loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
@@ -44,6 +45,34 @@ describe('expanded tool invocation', () => {
     fireEvent.click(screen.getByRole('button'))
     expect(container.querySelector('[data-native-chat-tool-invocation]')).toHaveTextContent(name)
     expect(container.querySelector('pre')?.textContent).toBe(JSON.stringify(input, null, 2))
+  })
+
+  it('reveals a command shorter than the preview limit through the activity disclosure', () => {
+    const command = "printf '%s' 'the-final-word-of-this-narrow-row-must-remain-inspectable'"
+    expect(command.length).toBeLessThan(80)
+    const { container } = render(
+      <NativeChatToolRun
+        blocks={[
+          {
+            type: 'tool-call',
+            name: 'exec_command',
+            input: { cmd: command, workdir: '/repo' },
+            state: 'completed'
+          },
+          { type: 'tool-result', output: 'probe completed' }
+        ]}
+        expandSignal={false}
+      />
+    )
+    const toggle = container.querySelector<HTMLButtonElement>('[data-native-chat-tool-run-state]')
+    if (!toggle) {
+      throw new Error('The activity disclosure is missing')
+    }
+    fireEvent.click(toggle)
+    fireEvent.click(screen.getByRole('button', { name: /exec_command/ }))
+    const input = container.querySelector('[data-native-chat-tool-invocation] pre')
+    expect(input?.textContent).toBe(JSON.stringify({ cmd: command, workdir: '/repo' }, null, 2))
+    expect(screen.getByText('probe completed', { selector: 'pre' })).toBeInTheDocument()
   })
 
   it('retains explicit integration identity and explains missing legacy input', () => {
