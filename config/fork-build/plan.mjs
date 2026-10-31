@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { join, resolve } from 'node:path'
 import { api, readLedger, renderReport } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
-import { compose, git } from './composition.mjs'
+import { assertFrozenHead, compose, git } from './composition.mjs'
 import { createLocalBuildVersion } from '../scripts/build-mac-local.mjs'
 
 const here = import.meta.dirname
@@ -66,9 +66,7 @@ try {
         'origin',
         `refs/pull/${pr.number}/head:refs/personal/pr-${pr.number}`
       ])
-      if (git(source, ['rev-parse', `refs/personal/pr-${pr.number}`]) !== pr.head.sha) {
-        throw new Error(`PR #${pr.number} moved after snapshot; rerun planning`)
-      }
+      assertFrozenHead(source, pr.number, pr.head.sha)
     }
   }
   plan.result = compose(source, plan.upstream, plan.selections, { timestamp: plan.timestamp })

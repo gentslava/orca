@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { resolveSelection, orderSelections } from './selection.mjs'
-import { compose } from './composition.mjs'
+import { compose, assertFrozenHead } from './composition.mjs'
 
 const pr = (number, extra = {}) => ({
   number,
@@ -152,4 +152,16 @@ test('real Git: merged after frozen upstream blocks publication', () =>
     ])
     assert.equal(result.publishable, false)
     assert.match(result.blockers[0].reason, /frozen/)
+  }))
+
+test('real Git: rejects a PR ref that moved after metadata resolution', () =>
+  fixture((cwd) => {
+    const frozen = git(cwd, 'rev-parse', 'HEAD')
+    git(cwd, 'update-ref', 'refs/personal/pr-1', frozen)
+    assertFrozenHead(cwd, 1, frozen)
+    writeFileSync(join(cwd, 'next'), 'next')
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'moved')
+    git(cwd, 'update-ref', 'refs/personal/pr-1', 'HEAD')
+    assert.throws(() => assertFrozenHead(cwd, 1, frozen), /moved after snapshot/)
   }))

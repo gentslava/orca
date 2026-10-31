@@ -34,6 +34,12 @@ export function isAncestor(cwd, ancestor, head) {
   }
 }
 
+export function assertFrozenHead(cwd, number, expected) {
+  if (git(cwd, ['rev-parse', `refs/personal/pr-${number}`]) !== expected) {
+    throw new Error(`PR #${number} moved after snapshot; rerun planning`)
+  }
+}
+
 function directConflicts(cwd, upstream, sha) {
   const directory = mkdtempSync(join(tmpdir(), 'plus-conflict-'))
   try {
