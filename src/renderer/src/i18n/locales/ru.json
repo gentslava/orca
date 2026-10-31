@@ -19910,8 +19910,6 @@
       },
       "composer": {
         "send": "Отправить",
-        "alternateSteerHint": "{{shortcut}}, чтобы направить",
-        "alternateQueueHint": "{{shortcut}}, чтобы поставить в очередь",
         "noPty": "Терминал отключён. Вернитесь в него, чтобы подключиться снова.",
         "locked": "Вводом управляет другое устройство.",
         "placeholder": "Задайте вопрос; @ — файлы, / — команды",
@@ -20022,8 +20020,12 @@
           "xhigh": "Очень выс."
         },
         "imageUnavailable": "Предпросмотр недоступен",
-        "nextTurnOptionsLabel": "Для следующего сообщения: {{options}}",
+        "defaultModel": "По умолчанию",
+        "defaultModelNotReported": "Модель по умолчанию не сообщена",
         "futureOptionsRequireUpdate": "Обновите Orca на этом сервере, чтобы менять параметры следующих ответов во время работы агента.",
+        "alternateSteerHint": "{{shortcut}}, чтобы направить",
+        "alternateQueueHint": "{{shortcut}}, чтобы поставить в очередь",
+        "nextTurnOptionsLabel": "Для следующего сообщения: {{options}}",
         "steerUnavailable": "На этом сервере пока недоступна немедленная отправка. Обновите Orca на сервере или измените действие Enter в настройках чата.",
         "queueUnavailable": "На этом сервере пока недоступна очередь сообщений. Обновите Orca на сервере; ваш черновик сохранён."
       },
@@ -23951,35 +23953,6 @@
       "bundle": "Пакет питомца"
     }
   },
-  "projectConversations": {
-    "defaultGroupName": "Группа {{project}}",
-    "hideProject": "Скрыть проект из списка",
-    "hiddenProjects": "Скрытые проекты",
-    "keepFiles": "Файлы и история сохраняются",
-    "restoreProject": "Показать {{project}}",
-    "projectOptionsFor": "Действия с проектом {{project}}",
-    "visibilityFailed": "Не удалось сохранить видимость проекта. Обновите Orca или попробуйте ещё раз.",
-    "search": "Поиск чатов",
-    "projectOrder": "Порядок проектов",
-    "allChats": "Чаты",
-    "archived": "Архив",
-    "moveUp": "Выше",
-    "moveDown": "Ниже",
-    "noChats": "Пока нет чатов",
-    "loading": "Загрузка чатов…",
-    "noArchived": "Архив пуст",
-    "noMatching": "Чаты не найдены",
-    "untitled": "Чат без названия",
-    "unpin": "Открепить чат",
-    "pin": "Закрепить чат",
-    "restore": "Вернуть чат из архива",
-    "archive": "Архивировать чат",
-    "working": "Работает",
-    "needsYou": "Требуется ваше действие",
-    "showMore": "Показать больше",
-    "newChatInProject": "Новый чат в {{project}}",
-    "saveFailed": "Не удалось сохранить настройки чата. Обновите Orca или повторите попытку."
-  },
   "diffComments": {
     "lineRangeMeta": "строки {{start}}-{{end}}",
     "lineMeta": "строка {{line}}"
@@ -24009,5 +23982,34 @@
     "argumentsHint": "Применяется только при запуске через CLI.",
     "launchChat": "Запустить чат",
     "launchTerminal": "Запустить терминал"
+  },
+  "projectConversations": {
+    "defaultGroupName": "Группа {{project}}",
+    "hideProject": "Скрыть проект из списка",
+    "hiddenProjects": "Скрытые проекты",
+    "keepFiles": "Файлы и история сохраняются",
+    "restoreProject": "Показать {{project}}",
+    "projectOptionsFor": "Действия с проектом {{project}}",
+    "visibilityFailed": "Не удалось сохранить видимость проекта. Обновите Orca или попробуйте ещё раз.",
+    "search": "Поиск чатов",
+    "projectOrder": "Порядок проектов",
+    "allChats": "Чаты",
+    "archived": "Архив",
+    "moveUp": "Выше",
+    "moveDown": "Ниже",
+    "noChats": "Пока нет чатов",
+    "loading": "Загрузка чатов…",
+    "noArchived": "Архив пуст",
+    "noMatching": "Чаты не найдены",
+    "untitled": "Чат без названия",
+    "unpin": "Открепить чат",
+    "pin": "Закрепить чат",
+    "restore": "Вернуть чат из архива",
+    "archive": "Архивировать чат",
+    "working": "Работает",
+    "needsYou": "Требуется ваше действие",
+    "showMore": "Показать больше",
+    "newChatInProject": "Новый чат в {{project}}",
+    "saveFailed": "Не удалось сохранить настройки чата. Обновите Orca или повторите попытку."
   }
 }
