@@ -2,18 +2,18 @@
 // provider-only effects start their child before admission, sends start through delivery.
 
 import { latestNativeChatUsageLimitCut } from '../../../shared/native-chat/native-chat-usage-limit-cut'
-import { refuse } from '../../../shared/agent-session-wire'
+import {
+  refuse,
+  type AgentSessionCancelResult,
+  type AgentSessionMutationEnvelope,
+  type AgentSessionMutationResult,
+  type AgentSessionOptionResult,
+  type AgentSessionPromptResult,
+  type AgentSessionSendResult
+} from '../../../shared/agent-session-wire'
 import { contextStructuredAgentSessionCurrentWork } from './structured-agent-session-current-work'
 import { shouldQueueStructuredAgentSessionSend } from './structured-agent-session-queued-messages'
 import type { AgentJournalMessageItem } from '../../../shared/agent-session-journal-types'
-import type {
-  AgentSessionCancelResult,
-  AgentSessionMutationEnvelope,
-  AgentSessionMutationResult,
-  AgentSessionOptionResult,
-  AgentSessionPromptResult,
-  AgentSessionSendResult
-} from '../../../shared/agent-session-wire'
 import type {
   AgentSessionThreadGoalChange,
   AgentSessionThreadGoalResult
@@ -50,13 +50,7 @@ import {
 } from './structured-agent-session-ready-operation'
 export type { StructuredAgentSessionMutationContext } from './structured-agent-session-mutation-context'
 import type { StructuredAgentSessionCaller } from './structured-agent-session-host-types'
-import {
-  readStructuredAgentSessionOptions,
-  IN_PROCESS_OPTIONS_READER,
-  recordStructuredAgentSessionOptionIntent,
-  type StructuredAgentSessionOptionsReader
-} from './structured-agent-session-options-read'
-import { settleStructuredAgentSessionLateDispatch } from './structured-agent-session-late-dispatch'
+import { recordStructuredAgentSessionOptionIntent } from './structured-agent-session-options-read'
 import { confirmIdleStructuredAgentSessionOption } from './structured-agent-session-idle-option'
 
 export function sendStructuredAgentSessionTurn(
@@ -228,6 +222,8 @@ export async function setStructuredAgentSessionOption(
   params: { envelope: AgentSessionMutationEnvelope; key: string; value: string | null }
 ): Promise<AgentSessionMutationResult<AgentSessionOptionResult>> {
   const plan = setOptionPlan(params)
+  const noChoice =
+    caller.readsOptionsWithoutModel === false && params.key === 'model' && params.value === ''
   return mutateStructuredAgentSession(
     context,
     caller,
@@ -245,12 +241,23 @@ export async function setStructuredAgentSessionOption(
           )
         }
         const input = { key: params.key, value: params.value }
-        const picked = await recordStructuredAgentSessionOptionIntent(context.deps, ctx, input)
+        const picked = await recordStructuredAgentSessionOptionIntent(context.deps, ctx, input, {
+          readsWithoutModel: caller.readsOptionsWithoutModel !== false
+        })
         if (picked.ok) {
           confirmIdleStructuredAgentSessionOption(context, ctx, input)
         }
         return picked
-      }
+      },
+      ...(noChoice
+        ? {
+            settledOutcome: (value: AgentSessionOptionResult) => ({
+              status: 'succeeded' as const,
+              sessionId: params.envelope.sessionId,
+              optionResult: { version: 1, ...value }
+            })
+          }
+        : {})
     },
     openForWrite(context, params.envelope)
   )
@@ -281,35 +288,4 @@ export async function changeStructuredAgentSessionThreadGoal(
         refuseThreadGoalUnsupported(context.deps.adapter, context.deps.agents, record?.provider)
     }
   )
-}
-
-/** Resolve context per call so moved maps/fences cannot become stale closures. */
-export function structuredAgentSessionMutationDelegates(
-  context: () => StructuredAgentSessionMutationContext
-) {
-  return {
-    cancel: (
-      caller: StructuredAgentSessionCaller,
-      params: Parameters<typeof cancelStructuredAgentSessionTurn>[2]
-    ) => cancelStructuredAgentSessionTurn(context(), caller, params),
-    respondToPrompt: (
-      caller: StructuredAgentSessionCaller,
-      params: Parameters<typeof respondToStructuredAgentSessionPrompt>[2]
-    ) => respondToStructuredAgentSessionPrompt(context(), caller, params),
-    setOption: (
-      caller: StructuredAgentSessionCaller,
-      params: Parameters<typeof setStructuredAgentSessionOption>[2]
-    ) => setStructuredAgentSessionOption(context(), caller, params),
-    changeThreadGoal: (
-      caller: StructuredAgentSessionCaller,
-      params: Parameters<typeof changeStructuredAgentSessionThreadGoal>[2]
-    ) => changeStructuredAgentSessionThreadGoal(context(), caller, params),
-    // Only in-process readers omit client identity.
-    readOptions: (
-      sessionId: string,
-      reader: StructuredAgentSessionOptionsReader = IN_PROCESS_OPTIONS_READER
-    ) => readStructuredAgentSessionOptions(context(), sessionId, reader),
-    settleLateDispatch: (input: Parameters<typeof settleStructuredAgentSessionLateDispatch>[1]) =>
-      settleStructuredAgentSessionLateDispatch(context(), input)
-  }
 }
