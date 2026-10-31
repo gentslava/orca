@@ -2686,6 +2686,7 @@
       "setWhenSessionStarts": "Set when the session starts.",
       "availableAfterSessionStarts": "Available after the session starts.",
       "sessionOptions": "Session options",
+      "defaultModel": "Default",
       "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works."
     },
     "streamFrame": {

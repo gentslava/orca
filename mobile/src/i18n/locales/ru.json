@@ -373,6 +373,7 @@
       "ultra": "Предельный",
       "xhigh": "Очень высокий",
       "xhighShort": "Очень выс.",
+      "defaultModel": "По умолчанию",
       "futureOptionsRequireUpdate": "Обновите Orca на этом компьютере, чтобы выбирать параметры следующих сообщений."
     },
     "sessionOptionPickers": {
