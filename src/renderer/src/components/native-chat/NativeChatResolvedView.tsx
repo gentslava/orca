@@ -26,8 +26,7 @@ import { NativeChatFindBar } from './NativeChatFindBar'
 import { useNativeChatCanSend } from './use-native-chat-can-send'
 import { NativeChatInteractiveCard } from './NativeChatInteractiveCard'
 import { nativeChatAskRequiresTerminal } from '../../../../shared/native-chat-agent-support'
-import { useNativeChatInteractivePromptCard } from './use-native-chat-interactive-prompt-card'
-import { useNativeChatPromptCardPresentation } from './use-native-chat-prompt-card-presentation'
+import { useNativeChatTerminalPromptCard } from './use-native-chat-interactive-prompt-card'
 import { NativeChatPromptStrip } from './NativeChatPromptCollapse'
 import { NativeChatEmptyState } from './NativeChatEmptyState'
 import { useNativeChatInteractiveSend } from './use-native-chat-interactive-send'
@@ -181,18 +180,20 @@ export function NativeChatResolvedView({
       working: liveWorking,
       previewIsToolOutput: hookPreviewIsToolOutput
     })
-  const promptCard = useNativeChatInteractivePromptCard({
-    paneKey,
-    messages: sessionAfterCommandBoundaries.messages,
-    transcriptSettled: session.readPhase === 'ready'
-  })
-  // A prompt card and composer must never share the input region: composer text would answer the agent’s selector.
-  const promptCardPresentation = useNativeChatPromptCardPresentation({
+  const {
+    promptCard,
+    presentation: promptCardPresentation,
+    actionKey
+  } = useNativeChatTerminalPromptCard({
     paneKey,
     targetPtyId,
-    card: promptCard,
-    canSend,
-    transcriptSettled: session.readPhase === 'ready'
+    runtimeEnvironmentId,
+    agent,
+    sessionId,
+    transcriptPath: transcriptPath ?? null,
+    messages: sessionAfterCommandBoundaries.messages,
+    transcriptSettled: session.readPhase === 'ready',
+    canSend
   })
   const { card: shownPromptCard, collapsedCard } = promptCardPresentation
   const mountedPromptCard = shownPromptCard ?? collapsedCard
@@ -352,7 +353,7 @@ export function NativeChatResolvedView({
               className="contents"
             >
               <NativeChatInteractiveCard
-                key={promptCardPresentation.occurrenceKey ?? 'prompt'}
+                key={actionKey}
                 card={mountedPromptCard}
                 send={interactiveSend}
                 requiresTerminal={nativeChatAskRequiresTerminal(agent)}
