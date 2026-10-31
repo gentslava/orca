@@ -42,7 +42,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Test composition policy with real Git fixtures
-        run: node --test config/fork-build/composition.test.mjs config/fork-build/status-record.test.mjs config/fork-build/promotion.test.mjs
+        run: node --test config/fork-build/composition.test.mjs config/fork-build/status-record.test.mjs config/fork-build/promotion.test.mjs config/fork-build/install.test.mjs
       - name: Freeze upstream and PR identities; compose required selection
         id: compose
         env:
