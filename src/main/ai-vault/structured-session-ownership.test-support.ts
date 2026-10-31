@@ -19,14 +19,16 @@ export const PROVIDER_SESSION = '019fd532-7c11-7a90-b6de-4e1a2c3d5f60'
 export function installOwnership(
   overrides: Partial<Omit<StructuredProviderSessionOwnership, 'role' | 'key'>> & {
     handle?: AgentSessionProviderHandle
+    accountHome?: AgentSessionRecord['accountHome']
     location?: Partial<AgentSessionRecord['location']>
   } = {}
 ): void {
-  const { handle, location, ...ownershipOverrides } = overrides
+  const { handle, accountHome, location, ...ownershipOverrides } = overrides
   const ownership: Omit<StructuredProviderSessionOwnership, 'role' | 'key'> = {
     sessionId: 'session-alpha',
     workspaceId: 'workspace-1',
     provider: handle?.agent ?? 'codex',
+    wslDistro: null,
     providerSessionId: PROVIDER_SESSION,
     ownerObservation: agentSessionConversationView(agentSessionRecordFixture()).ownerObservation,
     ...ownershipOverrides
@@ -37,7 +39,13 @@ export function installOwnership(
   const ownedRecord = {
     ...record,
     sessionId: ownership.sessionId,
-    location: { ...record.location, workspaceId: ownership.workspaceId, ...location },
+    accountHome: accountHome ?? record.accountHome,
+    location: {
+      ...record.location,
+      workspaceId: ownership.workspaceId,
+      wslDistro: ownership.wslDistro,
+      ...location
+    },
     provider: ownership.provider,
     providerHandleChain: [
       {

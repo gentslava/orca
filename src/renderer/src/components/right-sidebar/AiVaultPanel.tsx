@@ -43,6 +43,7 @@ import { AiVaultScanProgressStrip } from './AiVaultScanProgressStrip'
 import { useAiVaultScanProgress } from './ai-vault-scan-progress-store'
 import { aiVaultLocalScanKey } from '../../../../shared/ai-vault-local-scan-key'
 import { useAiVaultPanelWorkspace } from './use-ai-vault-panel-workspace'
+import { useAiVaultPanelQuery } from './use-ai-vault-panel-query'
 import {
   aiVaultPanelKeyboardRootProps,
   type AiVaultSessionListKeyboard
@@ -84,7 +85,6 @@ export default function AiVaultPanel({
   const settings = useAppStore((s) => s.settings)
   const agentCmdOverrides = settings?.agentCmdOverrides
   const paneActions = useAiVaultOriginalPaneActions()
-  const [query, setQuery] = useState(initialQuery)
   const [focusSearchRequestId, setFocusSearchRequestId] = useState(0)
   const listKeyboardRef = useRef<AiVaultSessionListKeyboard>(null)
   // Why: scope depends on current workspace/project availability, so only stable view options persist.
@@ -121,6 +121,7 @@ export default function AiVaultPanel({
     })
   const {
     scope: panelScope,
+    preferredScope,
     handleScopeChange,
     collapsedGroups,
     toggleGroup
@@ -128,6 +129,11 @@ export default function AiVaultPanel({
     activeProjectKey,
     activeWorktreePath,
     local: workspace !== undefined
+  })
+  const [query, setQuery] = useAiVaultPanelQuery(initialQuery, {
+    preferredScope,
+    activeWorktreeId,
+    activeProjectKey
   })
   const scope = conversationNavigation ? 'all' : panelScope
   const scopePaths = useAiVaultPanelScopePaths(

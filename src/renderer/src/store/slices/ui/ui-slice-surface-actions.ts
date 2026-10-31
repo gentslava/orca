@@ -156,8 +156,10 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
           ? state
           : {
               ...(options?.beginRename ? { sidebarBody: 'workspaces' as const } : {}),
+              pendingRevealSidebarRow: null,
               pendingRevealWorktree: {
                 worktreeId,
+                ...(options?.rowKey ? { rowKey: options.rowKey } : {}),
                 ...(options?.executionHostId ? { executionHostId: options.executionHostId } : {}),
                 behavior: options?.behavior ?? 'smooth',
                 ...(options?.highlight ? { highlight: true } : {}),
@@ -170,6 +172,7 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
         state.sidebarBody !== 'workspaces'
           ? state
           : {
+              pendingRevealWorktree: null,
               pendingRevealSidebarRow: {
                 rowKey,
                 behavior: options?.behavior ?? 'smooth',
@@ -177,8 +180,18 @@ export function createUiSurfaceActions(set: UISliceSet, _get: UISliceGet): Parti
               }
             }
       ),
-    clearPendingRevealWorktreeId: () => set({ pendingRevealWorktree: null }),
-    clearPendingRevealSidebarRow: () => set({ pendingRevealSidebarRow: null }),
+    clearPendingRevealWorktreeId: (expected) =>
+      set((state) =>
+        expected !== undefined && state.pendingRevealWorktree !== expected
+          ? state
+          : { pendingRevealWorktree: null }
+      ),
+    clearPendingRevealSidebarRow: (expected) =>
+      set((state) =>
+        expected !== undefined && state.pendingRevealSidebarRow !== expected
+          ? state
+          : { pendingRevealSidebarRow: null }
+      ),
     scrollToDiffCommentId: null,
     setScrollToDiffCommentId: (id) => set({ scrollToDiffCommentId: id }),
     floatingWorkspacePath: null,

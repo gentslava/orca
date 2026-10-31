@@ -38,11 +38,14 @@ export function getAgentDetectionTargetKeyForWorktree(
     ) {
       return undefined
     }
-    state = {
-      ...state,
-      activeWorktreeId: worktreeId,
-      activeWorkspaceExecutionHostId: executionHostId
+    const host = parseExecutionHostId(executionHostId)
+    if (host?.kind === 'runtime') {
+      return getRuntimeAgentDetectionTargetKey(host.environmentId, worktreeId)
     }
+    if (host?.kind === 'ssh') {
+      return `ssh:${host.targetId}`
+    }
+    return getLocalAgentDetectionTargetKey(worktreeId)
   }
   if (worktreeId === null) {
     return AGENT_DETECTION_LOCAL_TARGET_KEY
