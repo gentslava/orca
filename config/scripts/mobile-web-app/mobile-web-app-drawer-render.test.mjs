@@ -134,6 +134,7 @@ describeDrawer('the bottom drawer on the page', () => {
         // Reanimated latches media query at import; emulateMedia after goto cannot undo it.
         const page = await browser.newPage({
           viewport: VIEWPORT,
+          locale: 'en-US',
           reducedMotion: 'no-preference'
         })
         const errors = []
