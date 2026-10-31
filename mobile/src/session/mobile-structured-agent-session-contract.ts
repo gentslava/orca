@@ -25,8 +25,8 @@ import type { MobileStructuredBackgroundTasks } from './use-mobile-structured-ba
 export type StructuredMobileSession = ReturnType<typeof useMobileStructuredAgentOptions> &
   ReturnType<typeof useMobileStructuredAgentTurnTiming> & {
     session: MobileNativeChatSession
+    asyncQuestionSourceScope: string
     isWorking: boolean
-    allowsWorkingPicks?: boolean
     /** Desktop's Stop rule: a running turn, or conversation Stop while working or sending. */
     canStop: boolean
     turnId: string | null
