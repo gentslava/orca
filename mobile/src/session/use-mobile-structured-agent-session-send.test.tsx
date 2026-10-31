@@ -1,6 +1,6 @@
-import { mobileNativeChatDraftDestination } from './native-chat/composer/mobile-native-chat-draft-inputs'
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import {
+  mobileNativeChatDraftDestination,
   updateMobileNativeChatDraftInputs,
   resetMobileNativeChatDraftInputsForTests
 } from './native-chat/composer/mobile-native-chat-draft-inputs'
