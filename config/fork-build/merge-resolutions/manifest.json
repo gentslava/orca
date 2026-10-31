@@ -524,5 +524,18 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "9b4ef2eef81b862d8bd60b92cd5d3ead802c5b9394342b82953c6d68f98257b1",
     "reason": "Combine Default reset fencing with upstream shared option writes and immediate replies; retain both feature regressions."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation-content.test.ts",
+    "blobs": [
+      null,
+      "dc8c6c27fa710396a80b2f48d67617864a6cd073",
+      "a6911f91628a37a2e5f5914bb07c792718da74c3"
+    ],
+    "patch": "conversation-navigation/structured-conversation-navigation-content.test.ts.patch",
+    "resultSha256": "63c8cc3078bdc97078ba040514c5f5ab71c51f6bfd7048529dd417534eb7c5ff",
+    "reason": "Preserve account-owned content lookup in the desktop/mobile navigation fixture; both branches otherwise contain the same test.",
+    "pr": 33383,
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 ]
