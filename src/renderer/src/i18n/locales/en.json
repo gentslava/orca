@@ -19440,7 +19440,8 @@
         "orcaStopUnnamedServer": "the remote server",
         "permissionDenied": "{{agent}} denied permission. View details.",
         "safetyReview": "{{agent}} reported a safety review warning. View details.",
-        "truncatedResponse": "Provider response truncated (original size: {{bytes}} bytes)."
+        "truncatedResponse": "Provider response truncated (original size: {{bytes}} bytes).",
+        "orchestrationMail": "Orchestration mail"
       },
       "composer": {
         "defaultModel": "Default",
