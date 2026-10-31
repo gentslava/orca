@@ -3,7 +3,7 @@
 @@ -37,20 +37,44 @@
    onBeforeQuitFailure?: PreQuitCleanupFailureMode
  }
- 
+
 +function isForkPreviewBuild(): boolean {
 +  return /(?:-|\.)local\.forkpreview\.\d+\.[0-9a-f]{1,12}$/.test(app.getVersion())
 +}
@@ -23,35 +23,55 @@
 +    }
      this.checkForUpdatesInBackground()
    }
- 
+
    checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
 +    if (this.rejectForkPreviewUpdate(true)) {
 +      return
 +    }
      super.checkForUpdatesFromMenu(options)
    }
- 
+
    downloadUpdate(): void {
 +    if (this.rejectForkPreviewUpdate(true)) {
 +      return
 +    }
      super.downloadUpdate()
    }
- 
+
    quitAndInstall(): void {
 +    if (this.rejectForkPreviewUpdate(true)) {
 +      return
 +    }
      super.quitAndInstall()
    }
- 
+
 @@ -59,6 +83,9 @@
    }
- 
+
    getUpdateStatus(): UpdateStatus {
 +    if (isForkPreviewBuild()) {
 +      return { state: 'not-available' }
 +    }
      return super.getUpdateStatus()
    }
- 
+
+@@ -101,6 +128,9 @@
+     channel: ReleaseChannel,
+     options?: ReleaseBuildListOptions
+   ): Promise<ReleaseBuild[]> {
++    if (this.rejectForkPreviewUpdate(true)) {
++      return []
++    }
+     return super.listAvailableReleaseBuilds(channel, options)
+   }
+
+@@ -113,6 +143,9 @@
+   }
+
+   setupAutoUpdater(mainWindow: BrowserWindow | null, opts?: UpdaterSetupOptions): void {
++    if (this.rejectForkPreviewUpdate()) {
++      return
++    }
+     // Keep direct-window callers compatible; desktop composition supplies the lifecycle getter.
+     this.getMainWindow = opts?.getMainWindow ?? (mainWindow ? () => mainWindow : this.getMainWindow)
+     this.onBeforeQuitCleanup = opts?.onBeforeQuit ?? null

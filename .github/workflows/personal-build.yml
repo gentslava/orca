@@ -111,6 +111,13 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build and typecheck desktop, CLI, web and mobile resources
         run: pnpm run build:desktop:ci
+      - name: Verify preview updater policy against the composed application
+        run: |
+          set -euo pipefail
+          test ! -e src/main/updater.personal-build-policy.test.ts
+          cp "$RUNNER_TEMP/personal-control/src/main/updater.fork-preview.test.ts" src/main/updater.personal-build-policy.test.ts
+          trap 'rm -f src/main/updater.personal-build-policy.test.ts' EXIT
+          pnpm exec vitest run --config config/vitest.config.ts src/main/updater.personal-build-policy.test.ts --maxWorkers=1
       - name: Build and verify native helpers
         run: |
           set -euo pipefail
