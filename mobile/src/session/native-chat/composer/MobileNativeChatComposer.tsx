@@ -304,7 +304,10 @@ export function MobileNativeChatComposer({
             // The lock gates sending; the draft survives and rides the next send.
             textAlignVertical="top"
           />
-          <View style={inputStyles.actionRow} testID="native-chat-composer-actions">
+          <View
+            style={[inputStyles.actionRow, editSession && inputStyles.editActionRow]}
+            testID="native-chat-composer-actions"
+          >
             {attachPress ? (
               <Pressable
                 accessibilityLabel={attachLabel}
@@ -351,7 +354,7 @@ export function MobileNativeChatComposer({
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t('chat.composer.cancelEditing', 'Cancel editing')}
-                style={inputStyles.ghostButton}
+                style={[inputStyles.ghostButton, inputStyles.textButton]}
                 onPress={editSession.cancel}
               >
                 <Text style={{ color: colors.textSecondary }}>{t('common.cancel', 'Cancel')}</Text>
@@ -362,9 +365,11 @@ export function MobileNativeChatComposer({
               <MobileNativeChatStopButton onStop={stop.onStop} held={stop.held} />
             ) : editSession ? (
               <Pressable
+                accessibilityRole="button"
                 accessibilityLabel={t('chat.composer.saveEditedMessage', 'Save edited message')}
                 style={({ pressed }) => [
                   inputStyles.sendButton,
+                  inputStyles.textButton,
                   !canSend && inputStyles.sendButtonDisabled,
                   pressed && canSend && inputStyles.pressed
                 ]}
