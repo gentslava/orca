@@ -14,8 +14,11 @@ import { getSystemCodexHomePath } from './codex-home-paths'
 /** Move only the current conversation before launching with the selected account's credentials. */
 export async function prepareCodexStructuredAccountHome(
   record: AgentSessionRecord,
-  selected: AgentSessionAccountHome | undefined
+  selected: AgentSessionAccountHome | null | undefined
 ) {
+  if (selected === null) {
+    throw new Error('The selected Codex account is unavailable. No request was sent.')
+  }
   const acquired = acquiredCodexSessionAccount(record)
   const source = acquired
     ? { variable: 'CODEX_HOME' as const, path: acquired.recipe.home }

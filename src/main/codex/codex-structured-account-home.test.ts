@@ -135,6 +135,12 @@ describe('native Codex account transitions', () => {
     expect(await readFile(conflicting, 'utf8')).toBe('different conversation\n')
   })
 
+  it('refuses an unresolved launch account instead of treating it as the founding account', async () => {
+    await expect(prepareCodexStructuredAccountHome(record(), null)).rejects.toThrow(
+      'selected Codex account is unavailable'
+    )
+  })
+
   it('uses the last proved account after release and restart, including when the founding home is gone', async () => {
     await rollout(target, 'latest conversation in b\n')
     const value = record()

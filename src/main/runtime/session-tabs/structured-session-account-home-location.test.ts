@@ -30,12 +30,13 @@ afterEach(() => {
 it('an existing Codex chat resolves account changes through the host selection without launch side effects', async () => {
   let selected = '/accounts/a/home'
   const readHome = vi.fn(async () => selected)
-  const prepareHome = vi.fn()
+  const prepareHome = vi.fn(async () => selected)
+  const prepareAccount = vi.fn(async () => {})
   const runtime: OrcaRuntimeWithStructuredSessionAccountHome = Object.assign(
     Object.create(OrcaRuntimeWithStructuredSessionAccountHome.prototype),
     {
-      accounts: { getClaudeConfigDirectory: () => null },
-      requireStore: () => ({ getSettings: () => ({}) }),
+      accounts: { getClaudeConfigDirectory: () => null, prepareHostAgentLaunch: prepareAccount },
+      requireStore: () => ({ getSettings: () => ({ agentWorkspaceTrustEnabled: false }) }),
       structuredAgentLaunchEnv: () => ({}),
       resolveCodexStructuredLaunchHomeFn: readHome,
       prepareCodexStructuredLaunchFn: prepareHome
@@ -44,7 +45,8 @@ it('an existing Codex chat resolves account changes through the host selection w
   const record = {
     ...agentSessionRecordFixture(),
     provider: 'codex',
-    accountHome: { variable: 'CODEX_HOME', path: selected }
+    accountHome: { variable: 'CODEX_HOME', path: selected },
+    launchDirectory: '/workspace'
   }
   expect(await runtime.resolveStructuredAgentLaunchAccountHome(record, 'identity')).toEqual(
     record.accountHome
@@ -55,6 +57,13 @@ it('an existing Codex chat resolves account changes through the host selection w
     path: selected
   })
   expect(prepareHome).not.toHaveBeenCalled()
+  expect(prepareAccount).not.toHaveBeenCalled()
+  expect(await runtime.resolveStructuredAgentLaunchAccountHome(record, 'launch')).toEqual({
+    variable: 'CODEX_HOME',
+    path: selected
+  })
+  expect(prepareAccount).toHaveBeenCalledWith('codex')
+  expect(prepareHome).toHaveBeenCalledOnce()
 })
 
 it('with a router names the selected account before its folder exists, through the real runtime resolver', async () => {

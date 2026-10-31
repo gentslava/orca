@@ -15,6 +15,7 @@ import {
 // for, which is how a resume becomes a fork wearing a resume's name.
 
 import type { AgentSessionAccountHome } from '../../shared/agent-session-account-home'
+import type { AgentSessionRecord } from '../../shared/agent-session-record'
 import { prepareCodexStructuredAccountHome } from './codex-structured-account-home'
 import { agentSessionProviderHandleChainHead } from '../../shared/agent-session-provider-handle'
 import { resolveCodexCommand } from '../codex-cli/command'
@@ -29,7 +30,7 @@ import {
 } from '../native-chat/native-chat-visuals-delivery'
 
 export type CodexStructuredLaunchPartDeps = {
-  resolveAccountHome?: () => Promise<AgentSessionAccountHome>
+  resolveAccountHome?: (record: AgentSessionRecord) => Promise<AgentSessionAccountHome | null>
   resolveLaunchArgs: () => Promise<string[]> | string[]
   resolveCommand?: (options?: {
     pathEnv?: string | null
@@ -108,7 +109,7 @@ export function codexStructuredLaunchPart(
     const { record } = basis
     const accountHome = await prepareCodexStructuredAccountHome(
       record,
-      await deps.resolveAccountHome?.()
+      await deps.resolveAccountHome?.(record)
     )
     const { command, prefixArgs } = await resolveCodexStructuredInvocation({
       ...(deps.resolveCommand ? { resolveCommand: deps.resolveCommand } : {}),
