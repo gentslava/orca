@@ -6,6 +6,8 @@ The workflow freezes fresh `stablyai/orca:main`, discovers all open main-targete
 
 Every selection is required. Dependencies are explicit PR-number arrays; ties use ascending PR numbers. No dependencies are inferred from titles or reviews. A moved PR head fails planning. Direct upstream conflicts and conflicts caused by the selected combination are reported separately. The diagnostic composition may continue after a conflict to list further failures, but cannot be packaged or published. An outdated compatibility patch is a blocker as well.
 
+When every conflicted path is an English or Russian desktop/mobile translation catalog, composition attempts a strict three-way merge by key. Independent additions and unchanged-side removals are retained; different edits to one key, delete/edit races, duplicate keys and non-catalog values fail. Source-code conflicts are never resolved automatically. `plan.json` records each successful locale merge in `result.localeMerges`, with its PR number and exact paths.
+
 ## Operation
 
 - Daily at 03:37 UTC, plus manual **Personal upstream + PR build** on `master`.

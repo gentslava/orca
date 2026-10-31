@@ -49,6 +49,14 @@ export function renderReport(plan) {
         `| [#${pr.number}](https://github.com/${plan.repository}/pull/${pr.number}) | ${pr.merged_at ? 'merged (ancestry checked)' : pr.draft ? 'open draft' : 'open'} | \`${pr.head.sha}\` |`
       )
     }
+    if (plan.result.localeMerges?.length) {
+      lines.push('', '## Translation catalog merges', '')
+      for (const entry of plan.result.localeMerges) {
+        lines.push(
+          `- #${entry.number}: independent keys merged in ${entry.paths.map((path) => `\`${path}\``).join(', ')}.`
+        )
+      }
+    }
     lines.push('', '## Conflicts and blockers', '')
     for (const conflict of plan.result.conflicts) {
       lines.push(

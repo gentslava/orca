@@ -1,7 +1,8 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { composableLocalePaths, mergeTranslationCatalogs } from './locale-merge.mjs'
 
 export function git(cwd, args, extra = {}) {
   return execFileSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], {
@@ -40,6 +41,31 @@ export function assertFrozenHead(cwd, number, expected) {
   }
 }
 
+function resolveLocaleConflicts(cwd) {
+  const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
+  if (!paths.length || paths.some((path) => !composableLocalePaths.has(path))) {
+    return null
+  }
+  let merged
+  try {
+    merged = paths.map((path) => [
+      path,
+      mergeTranslationCatalogs(
+        git(cwd, ['show', `:1:${path}`]),
+        git(cwd, ['show', `:2:${path}`]),
+        git(cwd, ['show', `:3:${path}`])
+      )
+    ])
+  } catch {
+    return null
+  }
+  for (const [path, text] of merged) {
+    writeFileSync(join(cwd, path), text)
+  }
+  git(cwd, ['add', '--', ...paths])
+  return paths
+}
+
 function directConflicts(cwd, upstream, sha) {
   const directory = mkdtempSync(join(tmpdir(), 'plus-conflict-'))
   try {
@@ -52,7 +78,7 @@ function directConflicts(cwd, upstream, sha) {
       if (!git(directory, ['diff', '--name-only', '--diff-filter=U'])) {
         throw new Error('Direct merge failed without conflict paths')
       }
-      return true
+      return !resolveLocaleConflicts(directory)
     }
   } finally {
     rmSync(directory, { recursive: true, force: true })
@@ -62,6 +88,7 @@ function directConflicts(cwd, upstream, sha) {
 export function compose(cwd, upstream, selections, { timestamp = new Date().toISOString() } = {}) {
   git(cwd, ['checkout', '-B', 'personal-candidate', upstream])
   const included = [],
+    localeMerges = [],
     conflicts = [],
     suppliedByUpstream = [],
     blockers = []
@@ -91,6 +118,16 @@ export function compose(cwd, upstream, selections, { timestamp = new Date().toIS
       included.push({ number: pr.number, head: pr.head.sha })
     } catch (error) {
       const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
+      const localePaths = resolveLocaleConflicts(cwd)
+      if (localePaths) {
+        git(cwd, ['commit', '--no-edit'], {
+          GIT_AUTHOR_DATE: timestamp,
+          GIT_COMMITTER_DATE: timestamp
+        })
+        included.push({ number: pr.number, head: pr.head.sha })
+        localeMerges.push({ number: pr.number, paths: localePaths })
+        continue
+      }
       git(cwd, ['reset', '--hard', before])
       if (!paths.length) {
         throw error
@@ -109,6 +146,7 @@ export function compose(cwd, upstream, selections, { timestamp = new Date().toIS
     commit: git(cwd, ['rev-parse', 'HEAD']),
     tree: git(cwd, ['rev-parse', 'HEAD^{tree}']),
     included,
+    localeMerges,
     conflicts,
     suppliedByUpstream,
     blockers,

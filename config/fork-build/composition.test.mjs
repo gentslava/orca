@@ -1,11 +1,12 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { resolveSelection, orderSelections } from './selection.mjs'
 import { compose, assertFrozenHead } from './composition.mjs'
+import { mergeTranslationCatalogs } from './locale-merge.mjs'
 
 const pr = (number, extra = {}) => ({
   number,
@@ -165,3 +166,63 @@ test('real Git: rejects a PR ref that moved after metadata resolution', () =>
     git(cwd, 'update-ref', 'refs/personal/pr-1', 'HEAD')
     assert.throws(() => assertFrozenHead(cwd, 1, frozen), /moved after snapshot/)
   }))
+
+test('real Git: combines independent locale keys and still blocks divergent translations', () =>
+  fixture((cwd) => {
+    const path = 'src/renderer/src/i18n/locales/en.json'
+    mkdirSync(join(cwd, 'src/renderer/src/i18n/locales'), { recursive: true })
+    writeFileSync(join(cwd, path), JSON.stringify({ settings: { existing: 'Existing' } }, null, 2))
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'locale base')
+    const upstream = git(cwd, 'rev-parse', 'HEAD')
+    function branch(name, values) {
+      git(cwd, 'checkout', '-B', name, upstream)
+      writeFileSync(join(cwd, path), JSON.stringify({ settings: values }, null, 2))
+      git(cwd, 'add', '.')
+      git(cwd, 'commit', '-m', name)
+      return git(cwd, 'rev-parse', 'HEAD')
+    }
+    const one = branch('one', { existing: 'Existing', first: 'One' })
+    const two = branch('two', { existing: 'Existing', second: 'Two' })
+    const conflict = branch('conflict', { existing: 'Existing', first: 'Different' })
+    const result = compose(
+      cwd,
+      upstream,
+      [one, two, conflict].map((sha, index) => ({
+        ...pr(index + 1),
+        head: { sha }
+      }))
+    )
+    assert.deepEqual(
+      result.included.map((entry) => entry.number),
+      [1, 2]
+    )
+    assert.deepEqual(JSON.parse(git(cwd, 'show', `HEAD:${path}`)), {
+      settings: { existing: 'Existing', first: 'One', second: 'Two' }
+    })
+    assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
+    assert.deepEqual(
+      result.conflicts.map((entry) => [entry.number, entry.kind]),
+      [[3, 'combination']]
+    )
+    assert.equal(result.publishable, false)
+  }))
+
+test('locale policy retains removals but refuses delete/edit races, duplicate keys and non-catalog values', () => {
+  assert.deepEqual(
+    JSON.parse(
+      mergeTranslationCatalogs(
+        '{"keep":"Keep","remove":"Old"}',
+        '{"keep":"Keep"}',
+        '{"keep":"Keep","remove":"Old","new":"New"}'
+      )
+    ),
+    { keep: 'Keep', new: 'New' }
+  )
+  assert.throws(
+    () => mergeTranslationCatalogs('{"a":"Old"}', '{}', '{"a":"Changed"}'),
+    /Conflicting/
+  )
+  assert.throws(() => mergeTranslationCatalogs('{}', '{"a":"One","a":"Two"}', '{}'), /Duplicate/)
+  assert.throws(() => mergeTranslationCatalogs('{}', '{"a":true}', '{}'), /string leaves/)
+})
