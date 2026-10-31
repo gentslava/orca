@@ -1,4 +1,4 @@
-import type { ExecutionHostId } from '../execution-host'
+import { getRepoExecutionHostId, type ExecutionHostId } from '../execution-host'
 import type { Row } from './row-types'
 
 /** A project header's copy for one host: that host's registration, count and workspaces. */
@@ -9,7 +9,7 @@ export function localizeProjectHeader(
   const { hostRepos, ...projectHeader } = row
   const repo = hostRepos?.get(hostId)
   if (!repo) {
-    return row
+    return row.repo && getRepoExecutionHostId(row.repo) === hostId ? { ...row, hostId } : row
   }
   return {
     ...projectHeader,
@@ -28,7 +28,7 @@ export function localizeRowsToHost(
 ): Row[] {
   return hostId
     ? rows.map((row) =>
-        row.type === 'header' && row.hostRepos ? localizeProjectHeader(row, hostId) : row
+        row.type === 'header' ? localizeProjectHeader(row, hostId) : row
       )
     : [...rows]
 }
