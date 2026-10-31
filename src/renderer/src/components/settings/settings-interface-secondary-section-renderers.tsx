@@ -1,5 +1,4 @@
-import { StatsPane } from '../stats/StatsPane'
-import { UsageAccountQuotasSection } from '../stats/UsageAccountQuotasSection'
+import { AccountQuotaStatsPane as StatsPane } from '../stats/AccountQuotaStatsPane'
 import { AppearancePane } from './AppearancePane'
 import { ChatSettingsSection } from './ChatSettingsSection'
 import { InputPane } from './InputPane'
@@ -136,7 +135,7 @@ export function renderShortcutsSettingsSection(context: SettingsRenderContext): 
 }
 
 export function renderStatsSettingsSection(context: SettingsRenderContext): React.JSX.Element {
-  const { navigation, view } = context
+  const { model, navigation, view } = context
   return (
     <SettingsSection
       id="stats"
@@ -147,10 +146,7 @@ export function renderStatsSettingsSection(context: SettingsRenderContext): Reac
       )}
       searchEntries={navigation.getSectionSearchEntries('stats')}
     >
-      {view.isSectionMounted('stats') ? (
-        <UsageAccountQuotasSection hostScope={context.model.settingsHostScope} />
-      ) : null}
-      {view.isSectionMounted('stats') ? <StatsPane /> : null}
+      {view.isSectionMounted('stats') ? <StatsPane hostScope={model.settingsHostScope} /> : null}
     </SettingsSection>
   )
 }

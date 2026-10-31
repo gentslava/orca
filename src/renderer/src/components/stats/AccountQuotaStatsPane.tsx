@@ -1,3 +1,5 @@
+import type { ComponentType } from 'react'
+import { StatsPane } from './StatsPane'
 import { useAppStore } from '../../store'
 import { translate } from '@/i18n/i18n'
 import type { SettingsHostScope } from '../settings/settings-host-scope'
@@ -10,18 +12,20 @@ import {
 } from '../status-bar/use-owner-usage-rate-limits'
 import { UsageAccountQuotas } from './UsageAccountQuotas'
 
-export function UsageAccountQuotasSection({
+const HistoryPane: ComponentType<{ hostScope?: SettingsHostScope }> = StatsPane
+
+export function AccountQuotaStatsPane({
   hostScope
 }: {
-  hostScope: SettingsHostScope
+  hostScope?: SettingsHostScope
 }): React.JSX.Element {
-  return hostScope.available === false ? (
+  return hostScope?.available === false ? (
     <SettingsHostScopeUnavailableNotice />
   ) : (
     <OwnedAccountQuotas hostScope={hostScope} />
   )
 }
-function OwnedAccountQuotas({ hostScope }: { hostScope: SettingsHostScope }): React.JSX.Element {
+function OwnedAccountQuotas({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
   const localRateLimits = useAppStore((state) => state.rateLimits)
   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
   const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
@@ -39,7 +43,7 @@ function OwnedAccountQuotas({ hostScope }: { hostScope: SettingsHostScope }): Re
   const { rateLimits, remoteOwner, refreshRemote, accounts, accountsUnverifiable } =
     useOwnerUsageRateLimits(localRateLimits, accountTarget, true)
   return (
-    <div className="@container">
+    <div className="@container space-y-5">
       <UsageAccountQuotas
         rateLimits={rateLimits}
         accounts={accounts}
@@ -62,6 +66,7 @@ function OwnedAccountQuotas({ hostScope }: { hostScope: SettingsHostScope }): Re
           openSettingsPage()
         }}
       />
+      <HistoryPane hostScope={hostScope} />
     </div>
   )
 }
