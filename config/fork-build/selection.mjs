@@ -44,7 +44,7 @@ export async function resolveSelection(config, { openOwn, previous = [], readPr 
       throw new Error('Invalid PR number')
     }
     if (chain.includes(number)) {
-      throw new Error(`Replacement cycle: ${[...chain, number]}`)
+      throw new Error(`Replacement cycle: ${[...chain, number].join(' -> ')}`)
     }
     if (config.exclude[number]) {
       lifecycle.push({ number, disposition: 'excluded', reason: config.exclude[number] })
