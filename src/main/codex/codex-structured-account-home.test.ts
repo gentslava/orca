@@ -97,17 +97,28 @@ describe('native Codex account transitions', () => {
     expect(await readFile(join(target, 'auth.json'), 'utf8')).toBe('account-b-login')
   })
 
-  it('refuses missing history before resolving a process instead of using the old account', async () => {
-    const resolveCommand = vi.fn(() => ({ command: 'codex', prefixArgs: [] }))
-    const value = record()
-    const resolve = createCodexStructuredLaunchResolver({
-      store: { getRecord: () => value, pinLaunchDirectory: vi.fn() },
-      resolveAccountHome: async () => account(target),
-      resolveCommand,
-      resolveLaunchArgs: () => []
-    })
-    await expect(resolve({ identity })).rejects.toThrow('conversation history is unavailable')
-    expect(resolveCommand).not.toHaveBeenCalled()
+  it.each(['created', 'resumed'] as const)(
+    'refuses missing %s history before resolving a process instead of using the old account',
+    async (origin) => {
+      const resolveCommand = vi.fn(() => ({ command: 'codex', prefixArgs: [] }))
+      const value = record()
+      value.providerHandleChain = value.providerHandleChain.map((link) => ({ ...link, origin }))
+      const resolve = createCodexStructuredLaunchResolver({
+        store: { getRecord: () => value, pinLaunchDirectory: vi.fn() },
+        resolveAccountHome: async () => account(target),
+        resolveCommand,
+        resolveLaunchArgs: () => []
+      })
+      await expect(resolve({ identity })).rejects.toThrow('conversation history is unavailable')
+      expect(resolveCommand).not.toHaveBeenCalled()
+    }
+  )
+
+  it('launches a fresh chat on the selected account without requiring a founding rollout', async () => {
+    const value = { ...record(), providerHandleChain: [] }
+    await expect(prepareCodexStructuredAccountHome(value, account(target))).resolves.toEqual(
+      account(target)
+    )
   })
 
   it('refuses an unavailable selected account instead of launching on the founding account', async () => {
