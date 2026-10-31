@@ -63,6 +63,24 @@ function setup() {
 afterEach(cleanup)
 
 describe('effort drag lifetime', () => {
+  it('captures an explicit press on the displayed provider default without requiring a change', () => {
+    const onSet = vi.fn()
+    render(
+      <NativeChatSessionOptionRows
+        options={[{ ...effort(), valueSource: 'default' }]}
+        pendingIds={new Set()}
+        shownReason={null}
+        onAction={() => {}}
+        onSet={onSet}
+      />
+    )
+    const root = dragRoot()
+    fireEvent.pointerDown(root, { pointerId: 1, clientX: 100, clientY: 8 })
+    expect(onSet).not.toHaveBeenCalled()
+    fireEvent.pointerUp(root, { pointerId: 1, clientX: 100, clientY: 8 })
+    expect(onSet).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: 'effort' }), 'high')
+  })
+
   it('preserves a draft across equivalent published snapshots and commits on release', () => {
     const { onSet, root, rerender } = setup()
     rerender()
