@@ -2658,7 +2658,6 @@ const ORCHESTRATION_COORDINATOR_LOOP_REFERENCE_MARKDOWN = [
   "promise about provider execution, cost, quota, or billing. Role choices do not",
   "alter existing concurrency limits or trigger automatic retries.",
   "",
-  "",
 ].join('\n')
 
 // oxfmt-ignore
