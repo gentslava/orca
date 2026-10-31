@@ -114,7 +114,7 @@ ITEM rowKey=pinned:ssh:gpu-vm|orca-ssh::/w/remote-x depth=0 groupDepth=0 childre
 ITEM rowKey=pinned:ssh:gpu-vm|shared::/w/same depth=0 groupDepth=0 lastChild=true children=0 placement=pinned owning=project:repo:shared
 HEADER key=project-group:pg-remote-folders label="Remote folders" count=1 tone="text-foreground" icon=FolderTree projectGroup=pg-remote-folders projectGroupDepth=0
 FOLDER key=folder-workspace:ssh:gpu-vm|folder:fw-remote projectGroup=pg-remote-folders depth=0 groupDepth=1
-HEADER key=project:p-orca label="orca" count=1 tone="text-foreground" icon=FolderTree repo=orca-ssh projectGroupDepth=0 hostId=ssh:gpu-vm
+HEADER key=project:p-orca label="orca" count=1 tone="text-foreground" icon=FolderTree repo=orca-ssh projectGroupDepth=0
 HEADER key=project:repo:api label="api" count=0 tone="text-foreground" icon=FolderTree repo=api projectGroupDepth=0
 PENDING key=pending:creation-1 creation=creation-1 repo=api
 SECTION pinned: pinned:ssh:gpu-vm|orca-ssh::/w/remote-x pinned:ssh:gpu-vm|shared::/w/same
@@ -164,7 +164,7 @@ ITEM rowKey=pinned:ssh:gpu-vm|orca-ssh::/w/remote-x depth=0 groupDepth=0 childre
 ITEM rowKey=pinned:ssh:gpu-vm|shared::/w/same depth=0 groupDepth=0 lastChild=true children=0 placement=pinned owning=project:repo:shared
 HEADER key=project-group:pg-remote-folders label="Remote folders" count=1 tone="text-foreground" icon=FolderTree projectGroup=pg-remote-folders projectGroupDepth=0
 FOLDER key=folder-workspace:ssh:gpu-vm|folder:fw-remote projectGroup=pg-remote-folders depth=0 groupDepth=1
-HEADER key=project:p-orca label="orca" count=2 tone="text-foreground" icon=FolderTree repo=orca-ssh projectGroupDepth=0 hostId=ssh:gpu-vm
+HEADER key=project:p-orca label="orca" count=2 tone="text-foreground" icon=FolderTree repo=orca-ssh projectGroupDepth=0
 HEADER key=project:repo:api label="api" count=0 tone="text-foreground" icon=FolderTree repo=api projectGroupDepth=0
 PENDING key=pending:creation-1 creation=creation-1 repo=api
 HEADER key=project:repo:shared label="shared" count=1 tone="text-foreground" icon=FolderTree repo=shared projectGroupDepth=0
