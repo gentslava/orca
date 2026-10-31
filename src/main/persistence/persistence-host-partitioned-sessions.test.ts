@@ -762,42 +762,38 @@ describe('Store host-partitioned workspace sessions', () => {
     return JSON.parse(canonical) as PersistedSessionsFile
   }
 
-  it.each([false, true])(
-    'schedules a save for a salvaged local session without re-salvaging when compact cards are %s',
-    async (compactWorktreeCards) => {
-      const worktreeId = 'repo-1::/worktree'
-      const profile = await canonicalize({
-        schemaVersion: 1,
-        settings: { compactWorktreeCards },
-        repos: makeRepos('repo-1'),
-        workspaceSession: {
-          ...makeHostSession('local-repo'),
-          tabsByWorktree: { [worktreeId]: [makeTerminalTab({ id: 'tab-keep', worktreeId })] }
-        }
-      })
-      const tabs = profile.workspaceSession?.tabsByWorktree?.[worktreeId]
-      expect(tabs).toBeDefined()
-      tabs!.push({ id: 'tab-corrupt' })
-      writeDataFile(profile)
-
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      try {
-        await loadAndAwaitScheduledSave()
-        expect(warn).toHaveBeenCalledWith(
-          '[persistence] Salvaged workspace session; dropped corrupt entries:',
-          { count: 1, fields: ['tabsByWorktree'], detailsTruncated: false }
-        )
-        expect(JSON.stringify(warn.mock.calls)).not.toContain(worktreeId)
-      } finally {
-        warn.mockRestore()
+  it('schedules a save for a salvaged local session instead of re-salvaging every launch', async () => {
+    const worktreeId = 'repo-1::/worktree'
+    const profile = await canonicalize({
+      schemaVersion: 1,
+      repos: makeRepos('repo-1'),
+      workspaceSession: {
+        ...makeHostSession('local-repo'),
+        tabsByWorktree: { [worktreeId]: [makeTerminalTab({ id: 'tab-keep', worktreeId })] }
       }
+    })
+    const tabs = profile.workspaceSession?.tabsByWorktree?.[worktreeId]
+    expect(tabs).toBeDefined()
+    tabs!.push({ id: 'tab-corrupt' })
+    writeDataFile(profile)
 
-      const persisted = readDataFile() as PersistedSessionsFile
-      expect(
-        persisted.workspaceSession?.tabsByWorktree?.[worktreeId]?.map((tab) => tab.id)
-      ).toEqual(['tab-keep'])
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      await loadAndAwaitScheduledSave()
+      expect(warn).toHaveBeenCalledWith(
+        '[persistence] Salvaged workspace session; dropped corrupt entries:',
+        { count: 1, fields: ['tabsByWorktree'], detailsTruncated: false }
+      )
+      expect(JSON.stringify(warn.mock.calls)).not.toContain(worktreeId)
+    } finally {
+      warn.mockRestore()
     }
-  )
+
+    const persisted = readDataFile() as PersistedSessionsFile
+    expect(persisted.workspaceSession?.tabsByWorktree?.[worktreeId]?.map((tab) => tab.id)).toEqual([
+      'tab-keep'
+    ])
+  })
 
   it('schedules a save for salvaged host partitions', async () => {
     const worktreeId = 'repo-1::/worktree'

@@ -2,7 +2,7 @@
 
 import { isNativeChatAskCall } from './input/native-chat-ask-row'
 import { deriveNativeChatRowContent } from '../native-chat-row-content'
-import { isNativeChatAutoApprovalMessage } from '../native-chat-auto-approval'
+import { isNativeChatSuccessfulReviewMessage } from '../native-chat-successful-review'
 import { isStoppedBeforeStartBlock } from './native-chat-stopped-before-start'
 import { pairToolBlocks } from './tools/native-chat-tool-pairs'
 import type { NativeChatBlock, NativeChatMessage } from '../native-chat-types'
@@ -20,7 +20,7 @@ export function nativeChatWorkRunMember(
   if (hasReceipt) {
     return null
   }
-  if (isNativeChatAutoApprovalMessage(message)) {
+  if (isNativeChatSuccessfulReviewMessage(message)) {
     return 'notice'
   }
   if (message.role === 'reasoning') {
@@ -105,7 +105,7 @@ export function nativeChatWorkRunEntries(
   const asidesBefore = new Map<NativeChatBlock, NativeChatMessage[]>()
   let waiting: NativeChatMessage[] = []
   for (const message of members) {
-    if (message.role === 'reasoning' || isNativeChatAutoApprovalMessage(message)) {
+    if (message.role === 'reasoning' || isNativeChatSuccessfulReviewMessage(message)) {
       waiting.push(message)
       continue
     }

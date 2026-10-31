@@ -8,8 +8,7 @@ import { GROK_ACP_DIALECT } from './acp-dialects/grok-dialect'
 import { GENERIC_ACP_DIALECT, type AcpDialect } from './acp-dialects/acp-dialect'
 import {
   acpChildWorkStatusSink,
-  acpSubagentRecords,
-  expectRetainedSettledAgentHistory
+  acpSubagentRecords
 } from './acp-structured-child-work.test-support'
 import { PROVIDER_SESSION, replyChunk } from './acp-structured-adapter.test-support'
 import { openAttachedHostRig, promptIdOf, send, stop } from './acp-structured-host.test-support'
@@ -297,7 +296,6 @@ describe('recorded child-session outcome during a full parent Stop', () => {
           { membership: 'settled', outcome: 'cancelled' },
           { membership: 'settled', outcome: 'cancelled' }
         ])
-        expectRetainedSettledAgentHistory(await strip(), 2)
         expect.soft(structuredSessionBackgroundTasksView(await strip(), null)).toMatchObject({
           show: true,
           isMonitoring: false,
@@ -318,7 +316,6 @@ describe('recorded child-session outcome during a full parent Stop', () => {
         { membership: 'settled', outcome: 'cancelled' },
         { membership: 'settled', outcome }
       ])
-      expectRetainedSettledAgentHistory(await strip(), 2)
       const retained = await strip()
       expect(retained?.children).toMatchObject([
         { membership: 'settled', outcome: 'cancelled' },

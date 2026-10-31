@@ -99,6 +99,7 @@ function PickerTrigger(props: {
             variant="ghost"
             size="xs"
             aria-label={props.accessibleName}
+            disabled={props.disabled}
             className="min-w-0 max-w-64 shrink"
             onKeyDown={props.onKeyDown}
           >
@@ -141,6 +142,12 @@ function SessionOptionPopover(props: {
   focusComposer?: () => void
 }): React.JSX.Element {
   const { model, options, pendingIds, demandModelCatalog } = props
+  const canOpen = [model, ...options].some(
+    (descriptor) =>
+      descriptor.settable &&
+      !pendingIds.has(descriptor.id) &&
+      (!props.isWorking || descriptor.transport === 'agent-session')
+  )
   // Why here: this unmounts with the pill, so a picker that went away comes back closed.
   const [open, setOpen] = useState(false)
   const [seenRequest, setSeenRequest] = useState<NativeChatOptionPickerRequest | null>(null)
@@ -148,7 +155,7 @@ function SessionOptionPopover(props: {
   const [requestedOptionId, setRequestedOptionId] = useState<string | null>(null)
   if (props.request !== seenRequest) {
     setSeenRequest(props.request)
-    if (props.request) {
+    if (props.request && canOpen) {
       setOpen(true)
       setRequestedOptionId(props.request.id === model.id ? null : props.request.id)
     }
@@ -183,7 +190,12 @@ function SessionOptionPopover(props: {
     if (descriptor.id === 'effort') {
       setOpen(false)
     }
-    if (descriptor.defaultChoice?.selected || descriptor.kind.currentValue !== value) {
+    if (
+      descriptor.defaultChoice?.selected ||
+      descriptor.valueSource === 'unknown' ||
+      descriptor.valueSource === 'default' ||
+      descriptor.kind.currentValue !== value
+    ) {
       props.onSet(descriptor, value)
     }
   }
@@ -200,7 +212,7 @@ function SessionOptionPopover(props: {
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(next) => setOpen(next && canOpen)}>
       <PickerTrigger
         modelLabel={modelLabel}
         optionsLabel={optionsLabel}
@@ -219,7 +231,7 @@ function SessionOptionPopover(props: {
               ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel)}`
               : modelName
         }
-        disabled={props.isWorking && model.transport !== 'agent-session'}
+        disabled={!canOpen}
         disabledReason={modelReason ?? optionsReason}
         dispatched={
           sessionOptionDispatchUnconfirmed(model) || options.some(sessionOptionDispatchUnconfirmed)
@@ -227,7 +239,7 @@ function SessionOptionPopover(props: {
         triggerRef={focusReturn.triggerRef}
         // Why: a popover trigger opens on Enter and Space only; a menu also takes ArrowDown.
         onKeyDown={(event) => {
-          if (event.key === 'ArrowDown') {
+          if (event.key === 'ArrowDown' && canOpen) {
             event.preventDefault()
             setOpen(true)
           }

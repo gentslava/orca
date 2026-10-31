@@ -6,10 +6,6 @@ import { createGlobalSettingsFixture } from '../../shared/global-settings-test-f
 import { setupPtyIpcSuite } from './pty/pty-ipc-test-harness'
 import { createDaemonActiveProviderFixtures } from './pty/pty-ipc-daemon-provider-fixtures'
 
-vi.mock('../startup/login-shell-environment', () => ({
-  resolveLoginShellEnvironment: vi.fn(async () => ({}))
-}))
-
 vi.mock('electron', () => import('./pty/pty-ipc-mock-registry').then((m) => m.electronModuleMock()))
 vi.mock('fs', () => import('./pty/pty-ipc-mock-registry').then((m) => m.fsModuleMock()))
 vi.mock('node-pty', () => import('./pty/pty-ipc-mock-registry').then((m) => m.nodePtyModuleMock()))

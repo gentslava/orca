@@ -108,7 +108,6 @@ import Sidebar from './index'
 function setSidebarState(settings: GlobalSettings, statusBarVisible = true): void {
   mocks.state = {
     activeModal: null,
-    activeWorktreeId: null,
     agentDashboardDrawerOpen: false,
     setAgentDashboardDrawerOpen: vi.fn(),
     fetchAllWorktrees: vi.fn(),
@@ -117,7 +116,6 @@ function setSidebarState(settings: GlobalSettings, statusBarVisible = true): voi
     setSidebarWidth: vi.fn(),
     settings,
     sidebarOpen: true,
-    sidebarBody: 'workspaces',
     sidebarWidth: 320,
     statusBarVisible
   }

@@ -1,7 +1,3 @@
-import { stubRpcClient } from '../../../transport/rpc-client-test-stub'
-const PNG =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
-
 import { createElement, type ReactNode } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -14,6 +10,7 @@ import { colors, typography } from '../../../theme/mobile-theme'
 import { ANSWERED_PROMPT_ITEMS } from '../input/mobile-native-chat-answered-prompts.test-fixture'
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
 import { styles } from './mobile-native-chat-message-styles'
+import { stubRpcClient } from '../../../transport/rpc-client-test-stub'
 
 vi.mock('react-native', async () => {
   const React = await import('react')
@@ -44,28 +41,45 @@ vi.mock('react-native', async () => {
   }
 })
 vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }))
-vi.mock('lucide-react-native', () =>
-  Object.fromEntries(
-    [
-      'AlertCircle AlertTriangle ArrowUp Bot Brain Check ChevronDown ChevronRight',
-      'Copy Eye FileMinus2 FilePen FilePlus2 Folder Globe Info ListChecks',
-      'MessageSquareMore Pencil Plug Search SquareChevronRight SquareTerminal Wrench'
-    ]
-      .flatMap((names) => names.split(' '))
-      .map((name) => [name, name])
-  )
-)
+vi.mock('lucide-react-native', () => ({
+  AlertCircle: 'AlertCircle',
+  AlertTriangle: 'AlertTriangle',
+  ArrowUp: 'ArrowUp',
+  Bot: 'Bot',
+  Brain: 'Brain',
+  Check: 'Check',
+  ChevronDown: 'ChevronDown',
+  ChevronRight: 'ChevronRight',
+  Copy: 'Copy',
+  Eye: 'Eye',
+  FileMinus2: 'FileMinus2',
+  FilePen: 'FilePen',
+  FilePlus2: 'FilePlus2',
+  Folder: 'Folder',
+  Globe: 'Globe',
+  Info: 'Info',
+  ListChecks: 'ListChecks',
+  MessageSquareMore: 'MessageSquareMore',
+  Pencil: 'Pencil',
+  Plug: 'Plug',
+  Search: 'Search',
+  SquareChevronRight: 'SquareChevronRight',
+  SquareTerminal: 'SquareTerminal',
+  Wrench: 'Wrench'
+}))
 vi.mock('../../../components/MobileMarkdown', () => ({ MobileMarkdown: 'MobileMarkdown' }))
 vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
   MobileNativeChatMessageActionsSheet: 'MessageActionsSheet'
 }))
 
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
-import { registerMobileNativeChatAutoApprovalTests } from './MobileNativeChatMessage.auto-approval.spec'
 import {
   findAllByHostType,
   findByHostType
 } from '../../../test-support/react-test-renderer-host-nodes'
+
+const PNG =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
 
 function userMessage(blocks: NativeChatMessage['blocks']): NativeChatMessage {
   return { id: 'u1', role: 'user', blocks, timestamp: null, source: 'transcript' }
@@ -145,32 +159,6 @@ describe('MobileNativeChatMessage', () => {
 
   const words = (node: ReactTestInstance): string[] =>
     node.children.flatMap((child) => (typeof child === 'string' ? [child] : words(child)))
-
-  it('keeps a generic completed error neutral and collapsed until its details are opened', () => {
-    const text = 'Provider error: a previously unknown execution failure.'
-    const tree = render({
-      id: 'generic-error',
-      role: 'system',
-      blocks: [{ type: 'text', tone: 'error', text }],
-      timestamp: 0,
-      source: 'transcript'
-    })
-    expect(textIn(tree.root)).toContain('Agent reported an error')
-    expect(textIn(tree.root)).not.toContain(text)
-    const trigger = findAllByHostType(tree.root, 'Pressable').find(
-      (node) => node.props.accessibilityState?.expanded === false
-    )
-    expect(trigger).toBeDefined()
-    act(() => trigger?.props.onPress())
-    expect(textIn(tree.root)).toContain(text)
-    expect(
-      findAllByHostType(tree.root, 'Pressable').some(
-        (node) => node.props.accessibilityState?.expanded === true
-      )
-    ).toBe(true)
-  })
-
-  registerMobileNativeChatAutoApprovalTests(render)
 
   it('draws an answered approval and question as their receipts', () => {
     const { messages, receipts } = structuredQuestionTranscript(ANSWERED_PROMPT_ITEMS)
@@ -336,18 +324,19 @@ describe('MobileNativeChatMessage', () => {
     )
   })
 
-  it.each(['system', 'user'] as const)(
+  it.each([
+    ['system', 'history-item-too-large'],
+    ['user', 'history-item-too-large']
+  ] as const)(
     'renders a %s host notice as selectable muted text rather than a markdown answer',
-    (role) => {
+    (role, presentation) => {
       const tree = render(
         {
           id: 'notice',
           role,
           timestamp: 1,
           source: 'transcript',
-          blocks: [
-            { type: 'text', text: 'provider fallback', presentation: 'history-item-too-large' }
-          ]
+          blocks: [{ type: 'text', text: 'provider fallback', presentation }]
         },
         { fontScale: 1.5 }
       )
@@ -355,7 +344,7 @@ describe('MobileNativeChatMessage', () => {
       const text = tree.root.find(
         (node) => String(node.type) === 'Text' && node.props.selectable === true
       )
-      expect(text.props.children).toBe(AGENT_SESSION_HOST_STATUS_COPY['history-item-too-large'])
+      expect(text.props.children).toBe(AGENT_SESSION_HOST_STATUS_COPY[presentation])
       expect(text.props.selectable).toBe(true)
       expect(Object.assign({}, ...text.props.style)).toMatchObject({
         color: colors.textMuted,

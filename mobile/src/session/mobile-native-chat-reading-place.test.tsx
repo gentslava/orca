@@ -306,7 +306,6 @@ function Chat(props: {
     ref: tail.pageListProps.ref,
     rows: turns.listMessages,
     rowKeys: keys,
-    runs: turns.presentation.workRuns.heads,
     isFollowing:
       props.following === undefined
         ? tail.pageListProps.isFollowing
@@ -599,7 +598,7 @@ it("holds a row's look with its messages: what the chat's state adds lands once 
   expect(chat0.scroller.top(mobileNativeChatRowId('m4'))).toBe(line)
 })
 
-it('draws a run once when an older page brings in its start while the reader moves', () => {
+it('defers an older run head until rest, then draws its members once', () => {
   const call = (id: string): NativeChatMessage => ({
     ...say(id, 'assistant', ''),
     blocks: [{ type: 'tool-call', name: 'Bash', callId: id, input: { command: id } }]
@@ -611,9 +610,10 @@ it('draws a run once when an older page brings in its start while the reader mov
   const chat0 = mount([thought, call('b'), ...later], { following: false, live: false, runs: true })
   chat0.scroller.showFrom(40)
   chat0.scrolled()
+  const before = chat0.rows()
   chat0.show([say('u', 'user', 'go'), call('a'), thought, call('b'), ...later])
   const once = ['u', 'a', 'm0'].map(mobileNativeChatRowId)
-  expect(chat0.rows().slice(0, 3)).toEqual(once)
+  expect(chat0.rows()).toEqual(before)
   expect(chat0.drawn('chat-member:run')).toBe(1)
   chat0.rest()
   expect(chat0.rows().slice(0, 3)).toEqual(once)

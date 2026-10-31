@@ -1,3 +1,4 @@
+import type { EmulatorOpeningSettings } from './emulator-opening-preferences'
 import type { BrowserExtensionGlobalSettings } from './browser-extension-settings'
 import type { ClaudeAgentViewSettings } from './claude-agent-view'
 import type { BrowserLinkOpeningSettings } from './browser-link-opening-settings'
@@ -9,13 +10,13 @@ import type { PluginFileTypeSuggestionSettings } from './plugins/contributions/p
 import type { PluginUpdatePolicySettings } from './plugins/catalog/plugin-update-policy'
 import type { PluginSystemSettings } from './plugins/plugin-system-settings'
 import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
+import type { HoldQuitSettings } from './mac-hold-quit'
 import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
 import type { WorkerRoleSettings } from './orchestration-worker-roles'
-import type { HoldQuitSettings } from './mac-hold-quit'
-import type { OrchestrationHeartbeatSettings } from './orchestration-heartbeat'
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
-export type GlobalSettingsBase = ClaudeAgentViewSettings &
+export type GlobalSettingsBase = EmulatorOpeningSettings &
+  ClaudeAgentViewSettings &
   NativeChatGlobalSettings &
   WorktreeDeletionPreferences &
   ClaudeAccountSwitchSettings &
@@ -24,7 +25,6 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   BrowserLinkOpeningSettings &
   WorkerRoleSettings &
   HoldQuitSettings &
-  OrchestrationHeartbeatSettings &
   BrowserExtensionGlobalSettings &
   PluginAppearanceSettings &
   PluginFileTypeSuggestionSettings &

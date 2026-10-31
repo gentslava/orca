@@ -1,4 +1,3 @@
-import { unrefTimer } from './timer-unref'
 // Retain one isolated user-data directory across launches; the ordinary per-test fixture deletes it on close.
 
 import {
@@ -46,7 +45,7 @@ type RestartSession = {
 async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => {
     const timeout = setTimeout(resolve, ms)
-    unrefTimer(timeout)
+    timeout.unref?.()
   })
 }
 

@@ -13,7 +13,6 @@ import {
   getFolderWorkspaceWorktreeHostId
 } from '../../../../shared/folder-workspace-worktree'
 import type { ProjectHostSetupProjection } from '../../../../shared/project-host-setup-projection'
-import type { PersonalProjectOrder } from '../../../../shared/personal-project-order'
 import type { ProjectOrderBy, ManualRepoOrderEntry } from '../../../../shared/ui-chrome-types'
 import {
   getRepoExecutionHostId,
@@ -29,10 +28,7 @@ import {
   getProjectGroupingForRepo,
   type ProjectSectionEntry
 } from '../../../../shared/project-section-grouping'
-import {
-  getLogicalRepoOrderRankById,
-  sortProjectEntries
-} from '../../../../shared/project-section-order'
+import { sortProjectEntries } from '../../../../shared/project-section-order'
 
 type ConversationItem = { session: AiVaultSession; repo: Repo; lastActivityAt?: number }
 export type ConversationProjectGroup = {
@@ -43,7 +39,6 @@ export type ConversationProjectGroup = {
   repoIds: Set<string>
   workspaceId?: string
   executionHostId: ExecutionHostId
-  pinned?: boolean
 }
 export function buildConversationProjectGroups(args: {
   sessions: readonly AiVaultSession[]
@@ -52,7 +47,6 @@ export function buildConversationProjectGroups(args: {
   worktrees: readonly Worktree[]
   folders?: readonly FolderWorkspace[]
   catalog: ProjectHostSetupProjection
-  personalOrder?: PersonalProjectOrder
   order: ProjectOrderBy
   manualOrder?: ManualRepoOrderEntry[]
   activeWorkspaceId: string | null
@@ -85,10 +79,9 @@ export function buildConversationProjectGroups(args: {
   }
   const projectIndex = buildProjectGroupingIndex({
     projects: args.catalog.projects,
-    projectHostSetups: args.catalog.setups,
-    personalProjectOrder: args.personalOrder
+    projectHostSetups: args.catalog.setups
   })
-  const repoOrder = getLogicalRepoOrderRankById(orderedRepos.map((repo) => repo.id))
+  const repoOrder = new Map(orderedRepos.map((repo, index) => [repo.id, index]))
   const assigned = new Set<string>()
   const entries: [string, ProjectSectionEntry<ConversationItem>][] = []
   const hostByKey = new Map<string, ExecutionHostId>()
@@ -96,7 +89,7 @@ export function buildConversationProjectGroups(args: {
     const repoMap = new Map(repos.map((repo) => [repo.id, repo]))
     const reposByProject = new Map<string, Repo[]>()
     for (const repo of repos) {
-      const grouping = getProjectGroupingForRepo(repo.id, repoMap, projectIndex, repo)
+      const grouping = getProjectGroupingForRepo(repo.id, repoMap, projectIndex)
       for (const key of new Set([grouping.key, toAiVaultProjectKey(grouping.projectId, repo.id)])) {
         if (key) {
           reposByProject.set(key, [...(reposByProject.get(key) ?? []), repo])
@@ -114,9 +107,8 @@ export function buildConversationProjectGroups(args: {
         : candidates?.length &&
             candidates.every(
               (candidate) =>
-                getProjectGroupingForRepo(candidate.id, repoMap, projectIndex, candidate).key ===
-                getProjectGroupingForRepo(candidates[0]!.id, repoMap, projectIndex, candidates[0])
-                  .key
+                getProjectGroupingForRepo(candidate.id, repoMap, projectIndex).key ===
+                getProjectGroupingForRepo(candidates[0]!.id, repoMap, projectIndex).key
             )
           ? candidates[0]
           : undefined
@@ -145,7 +137,6 @@ export function buildConversationProjectGroups(args: {
     for (const [key, section] of buildProjectSections({
       items,
       repoIdOf: (item) => item.repo.id,
-      repoOfItem: (item) => item.repo,
       repoMap,
       projectIndex: scopedIndex,
       placeholderRepoIds: repoMap.keys(),
@@ -179,8 +170,7 @@ export function buildConversationProjectGroups(args: {
         repo: section.repo,
         repoIds: section.repoIds,
         workspaceId: target?.id,
-        executionHostId,
-        pinned: section.projectPreference?.pinned
+        executionHostId
       }
     }
   )

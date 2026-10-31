@@ -6,7 +6,7 @@ import type {
   OrchestrationChildExecutionHost,
   OrchestrationChildMetadata
 } from '../../../shared/orchestration-session-children'
-import { FederationWorkerLaunchParams } from '../../../shared/rpc-contract/orchestration-federation-start-params'
+import { FederationAttachStartParams } from '../../../shared/rpc-contract/orchestration-federation-start-params'
 import {
   readWorkerTerminalHostScope,
   type WorkerTerminalHostScopeRead
@@ -14,14 +14,14 @@ import {
 import type { DispatchContextRow, FederatedDispatchRow, WorkerDispatchRow } from './types'
 import type { WorkerTerminalResourceRow } from './worker-terminal-ownership'
 
-const launchAgent = FederationWorkerLaunchParams.pick({ agent: true })
+const launchAgent = FederationAttachStartParams.pick({ agent: true })
 
 export function structuredSessionChildMetadata(args: {
   dispatch: DispatchContextRow
   worker: WorkerDispatchRow | undefined
   resource: WorkerTerminalResourceRow | undefined
   federation: FederatedDispatchRow | undefined
-  session: Pick<AgentSessionConversationView, 'provider' | 'location'> | null
+  session: AgentSessionConversationView | null
 }): OrchestrationChildMetadata | undefined {
   const scopes = [args.dispatch.host_scope, args.resource?.host_scope]
     .map(readWorkerTerminalHostScope)
@@ -96,7 +96,7 @@ function scopeHost(
 }
 
 function recordHost(
-  record: Pick<AgentSessionConversationView, 'location'>
+  record: AgentSessionConversationView
 ): OrchestrationChildExecutionHost | undefined {
   const host = parseRoutableExecutionHostId(record.location.executionHostId)
   if (host?.kind === 'local') {

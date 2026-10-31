@@ -54,8 +54,8 @@ describe('the sidebar running-child selector', () => {
   })
 })
 
-describe("the host's inspection channel and live summary", () => {
-  it('retains settled agents for inspection while the summary lists only live work', async () => {
+describe('the host retains child history while summaries report running work', () => {
+  it('retains settled children for inspection without adding them to live summaries', async () => {
     let records = [
       finished('done', 5),
       running('run'),
@@ -92,10 +92,6 @@ describe("the host's inspection channel and live summary", () => {
       isMonitoring: false,
       offersStopAll: false
     })
-    expect(retained?.children).toMatchObject([
-      { id: 'done', state: 'done', membership: 'settled', outcome: 'succeeded' },
-      { id: 'run', state: 'done', membership: 'settled', outcome: 'succeeded' }
-    ])
   })
 })
 

@@ -26,8 +26,7 @@ import { NativeChatFindBar } from './NativeChatFindBar'
 import { useNativeChatCanSend } from './use-native-chat-can-send'
 import { NativeChatInteractiveCard } from './NativeChatInteractiveCard'
 import { nativeChatAskRequiresTerminal } from '../../../../shared/native-chat-agent-support'
-import { useNativeChatInteractivePromptCard } from './use-native-chat-interactive-prompt-card'
-import { useNativeChatPromptCardPresentation } from './use-native-chat-prompt-card-presentation'
+import { useNativeChatTerminalPromptCard } from './use-native-chat-interactive-prompt-card'
 import { NativeChatPromptStrip } from './NativeChatPromptCollapse'
 import { NativeChatEmptyState } from './NativeChatEmptyState'
 import { useNativeChatInteractiveSend } from './use-native-chat-interactive-send'
@@ -74,8 +73,7 @@ export function NativeChatResolvedView({
   contextMenuActions
 }: NativeChatResolvedViewProps): React.JSX.Element {
   const childMessageListRef = useRef<NativeChatMessageListHandle>(null)
-  // Primitive owner selection (no useShallow): routes the pane's read/subscribe to
-  // the remote runtime host for a runtime-owned pane; null keeps the local path.
+  // Route reads/subscriptions through the pane’s runtime owner; null retains local routing.
   const selectOwner = useMemo(() => createNativeChatRuntimeSelector(terminalTabId), [terminalTabId])
   const runtimeEnvironmentId = useAppStore(selectOwner)
   const childNavigator = useNativeChatChildNavigator(
@@ -123,8 +121,7 @@ export function NativeChatResolvedView({
   const composerRef = useRef<NativeChatComposerHandle>(null)
   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
   const activeComposerRef = childNavigator.child ? readOnlyComposerRef : composerRef
-  // The question card's free-text row; keeps Paste working while the card
-  // replaces the composer.
+  // Keep Paste targeted while the question card replaces the composer.
   const questionAnswerInputRef = useRef<HTMLInputElement>(null)
   const readOnlyQuestionAnswerInputRef = useRef<HTMLInputElement>(null)
   const activeQuestionAnswerInputRef = childNavigator.child
@@ -144,8 +141,7 @@ export function NativeChatResolvedView({
   )
   const delivery = useNativeChatPendingDelivery({ paneKey, agent, session })
   const { record, clear } = delivery
-  // Slash commands aren't chat turns, so they get a small local "Ran /clear"
-  // system line instead of a user bubble. Capped + cached per conversation.
+  // Slash commands are local session-scoped feedback, not user turns; cap and cache their markers.
   const [commandMarkers, setCommandMarkers] = useState<NativeChatCommandMarker[]>(() =>
     readCommandMarkerCache(commandMarkerScope)
   )
@@ -184,18 +180,20 @@ export function NativeChatResolvedView({
       working: liveWorking,
       previewIsToolOutput: hookPreviewIsToolOutput
     })
-  const promptCard = useNativeChatInteractivePromptCard({
-    paneKey,
-    messages: sessionAfterCommandBoundaries.messages,
-    transcriptSettled: session.readPhase === 'ready'
-  })
-  // A prompt card and composer must never share the input region: composer text would answer the agent’s selector.
-  const promptCardPresentation = useNativeChatPromptCardPresentation({
+  const {
+    promptCard,
+    presentation: promptCardPresentation,
+    actionKey
+  } = useNativeChatTerminalPromptCard({
     paneKey,
     targetPtyId,
-    card: promptCard,
-    canSend,
-    transcriptSettled: session.readPhase === 'ready'
+    runtimeEnvironmentId,
+    agent,
+    sessionId,
+    transcriptPath: transcriptPath ?? null,
+    messages: sessionAfterCommandBoundaries.messages,
+    transcriptSettled: session.readPhase === 'ready',
+    canSend
   })
   const { card: shownPromptCard, collapsedCard } = promptCardPresentation
   const mountedPromptCard = shownPromptCard ?? collapsedCard
@@ -210,9 +208,7 @@ export function NativeChatResolvedView({
       shownPromptCard === null && targetPtyId !== null && canSend && childNavigator.child === null
   })
 
-  // Derive the view state from the pending-augmented session so a send into an
-  // otherwise-empty conversation flips to the list (showing the queued bubble)
-  // instead of staying on the empty state.
+  // Include pending sends when selecting view state so the first echo leaves the empty screen immediately.
   const viewState = selectNativeChatViewState(sessionWithPending)
 
   const isConversation = viewState.kind === 'ready'
@@ -357,7 +353,7 @@ export function NativeChatResolvedView({
               className="contents"
             >
               <NativeChatInteractiveCard
-                key={promptCardPresentation.occurrenceKey ?? 'prompt'}
+                key={actionKey}
                 card={mountedPromptCard}
                 send={interactiveSend}
                 requiresTerminal={nativeChatAskRequiresTerminal(agent)}
@@ -372,10 +368,7 @@ export function NativeChatResolvedView({
           {collapsedCard ? (
             <NativeChatPromptStrip card={collapsedCard} onExpand={promptCardPresentation.expand} />
           ) : null}
-          {/* canSend reflects the mobile presence-lock: when a mobile client holds
-          the pty, the composer shows its guarded state instead of racing the
-          mobile driver (R8). Under a card it stays mounted but hidden, so its state survives;
-          detaching the ref keeps root typing, paste and reveal focus off it. */}
+          {/* Honor mobile PTY ownership; retain the hidden composer’s state but detach its ref from typing, paste and focus routes. */}
           <div hidden={shownPromptCard !== null} className="contents">
             <NativeChatComposer
               ref={shownPromptCard ? undefined : composerRef}

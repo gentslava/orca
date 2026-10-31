@@ -1,7 +1,6 @@
-import { delimiter, resolve } from 'node:path'
 import { wslDistroForCommand } from '../../shared/wsl-paths'
 import { spawnProcess } from '@orca/process-host'
-import { withCliRuntimeOnPath } from '../../shared/node-cli-command-resolution'
+import { pathEnvRelativeTo, withCliRuntimeOnPath } from '../../shared/node-cli-command-resolution'
 import { resolveCliCommand, resolveGuestNativeAgentCommand } from '../codex-cli/command'
 import { createProviderSpawnSpec } from '../provider-process/provider-process-supervisor'
 import { guardSupervisedProviderGroup } from '../provider-process/provider-group-orphan-guard'
@@ -99,25 +98,18 @@ function spawnSupervisedAgent(
   input: SourceControlAgentSpawnInput,
   spawnEnv: NodeJS.ProcessEnv
 ): SpawnedSourceControlAgentProcess {
+  // On a WSL-host orcad, a missing CLI must fail rather than run a Windows shim found via PATH.
   const env = guestNativeSpawnEnv(spawnEnv)
-  const cwd = input.useCwdForNative && input.cwd !== undefined ? input.cwd : process.cwd()
-  const pathEnv = (env.PATH ?? env.Path ?? process.env.PATH ?? '')
-    .split(delimiter)
-    .map((entry) => resolve(cwd, entry))
-    .join(delimiter)
+  const cwd = input.useCwdForNative ? input.cwd : undefined
+  // Match native chats' install discovery from the agent's cwd, not Orca's.
   const binary = input.binary.includes('/')
     ? input.binary
     : resolveGuestNativeAgentCommand(input.binary, {
-        pathEnv,
-        homePath: env.HOME ?? env.USERPROFILE
+        pathEnv: pathEnvRelativeTo(env.PATH, cwd ?? process.cwd()),
+        homePath: env.HOME
       })
   const spec = createProviderSpawnSpec(
-    {
-      command: binary,
-      args: input.args,
-      ...(input.useCwdForNative && input.cwd !== undefined ? { cwd: input.cwd } : {})
-    },
-    // On a WSL-host orcad, a missing CLI must fail rather than run a Windows shim found via PATH.
+    { command: binary, args: input.args, ...(cwd !== undefined ? { cwd } : {}) },
     withCliRuntimeOnPath(binary, env),
     process.platform,
     { lifetime: 'one-shot' }

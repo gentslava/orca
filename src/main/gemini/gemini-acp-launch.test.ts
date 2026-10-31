@@ -61,7 +61,7 @@ describe('original Gemini CLI ACP launch', () => {
       expect(
         decideAgentLaunchMode({
           placement: { agent: 'gemini', workspaceKind },
-          settings: { experimentalNativeChat: true }
+          settings: { agentDefaultSurface: 'chat' }
         }).mode
       ).toBe('structured')
     }

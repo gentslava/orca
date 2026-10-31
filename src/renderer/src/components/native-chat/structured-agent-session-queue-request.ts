@@ -1,27 +1,58 @@
 import type { StructuredAgentSessionHostCapabilityState } from '@/runtime/structured-agent-session-host-capability'
+import {
+  structuredAgentSessionFollowUpsQueue,
+  structuredAgentSessionQueueEnabled
+} from '../../../../shared/structured-agent-session-queued-cards'
 
+/** What decides, per send, whether it asks the host to hold it as a card. */
 export type StructuredAgentSessionQueueDelivery = {
   capability: StructuredAgentSessionHostCapabilityState
-  enabled: boolean
+  /** The follow-up setting reads Queue. */
+  followUpsQueue: boolean
+  isWorking: boolean
+  stopping: boolean
+  session: Parameters<typeof structuredAgentSessionQueueEnabled>[1]
+  prompts: Parameters<typeof structuredAgentSessionQueueEnabled>[2]
+}
+
+/** The alternate flips the setting first; a waiting command and unanswerable prompts still decide after it. */
+export function structuredAgentSessionSendQueues(
+  queue: StructuredAgentSessionQueueDelivery,
+  alternate?: boolean
+): boolean {
+  const followUpsQueue = structuredAgentSessionFollowUpsQueue(queue.followUpsQueue, {
+    alternate,
+    isWorking: queue.isWorking,
+    stopping: queue.stopping
+  })
+  return (
+    queue.capability === 'supported' &&
+    structuredAgentSessionQueueEnabled(followUpsQueue, queue.session, queue.prompts)
+  )
+}
+
+export function structuredAgentSessionQueueRequest(
+  queue: StructuredAgentSessionQueueDelivery,
+  alternate?: boolean
+): 'queue-if-active' | undefined {
+  return structuredAgentSessionSendQueues(queue, alternate) ? 'queue-if-active' : undefined
 }
 
 export function structuredAgentSessionRequestedDelivery(
   queue: StructuredAgentSessionQueueDelivery,
   isWorking: boolean,
-  requested?: 'immediate' | 'queue-if-active'
+  requested?: 'immediate' | 'queue-if-active',
+  alternate?: boolean
 ): 'immediate' | 'queue-if-active' | undefined {
-  return requested ?? (isWorking ? (queue.enabled ? 'queue-if-active' : 'immediate') : undefined)
-}
-
-/** Whether a send made now asks to be queued: a host known to queue, with queueing enabled. */
-export function structuredAgentSessionNewSendsQueue(
-  queue: StructuredAgentSessionQueueDelivery
-): boolean {
-  return queue.capability === 'supported' && queue.enabled
-}
-
-export function structuredAgentSessionQueueRequest(
-  queue: StructuredAgentSessionQueueDelivery
-): 'queue-if-active' | undefined {
-  return structuredAgentSessionNewSendsQueue(queue) ? 'queue-if-active' : undefined
+  return (
+    requested ??
+    (isWorking &&
+    structuredAgentSessionFollowUpsQueue(queue.followUpsQueue, {
+      alternate,
+      isWorking,
+      stopping: queue.stopping
+    })
+      ? 'queue-if-active'
+      : undefined)
+  )
 }

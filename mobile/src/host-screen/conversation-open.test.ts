@@ -7,7 +7,7 @@ import { conversationOpenPane } from './conversation-open'
 import type { ConversationRow } from './project-conversations'
 import { conversationHistory, conversationWorkspace } from './project-conversations.test-fixture'
 
-function saved(): ConversationRow {
+function saved(): ConversationRow & { workspace: ReturnType<typeof conversationWorkspace> } {
   const workspace = conversationWorkspace({ hostId: 'runtime:server' })
   return {
     key: 'saved',

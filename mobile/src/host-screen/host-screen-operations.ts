@@ -118,6 +118,18 @@ export const worktreeActivate = bindDeferredRpcOperation(
   })
 )
 
+export const conversationPreferenceWrite = bindDeferredRpcOperation(
+  defineRpcOperation({
+    name: 'ui.set-conversation-preference',
+    method: 'ui.setConversationPreference',
+    acceptance: 'success-result-or-skip',
+    barrier: 'after-caller-barrier',
+    read: rpcResultVariant(
+      'conversation-preference-written',
+      z.object({ preferences: ConversationPreferencesSchema })
+    )
+  })
+)
 export const projectOpenWrite = bindDeferredRpcOperation(
   defineRpcOperation({
     name: 'ui.record-personal-project-open',
@@ -134,18 +146,5 @@ export const projectPinWrite = bindDeferredRpcOperation(
     acceptance: 'success-result-or-skip',
     barrier: 'after-caller-barrier',
     read: rpcResultVariant('project-pin-written', hostViewSettingsSchema)
-  })
-)
-
-export const conversationPreferenceWrite = bindDeferredRpcOperation(
-  defineRpcOperation({
-    name: 'ui.set-conversation-preference',
-    method: 'ui.setConversationPreference',
-    acceptance: 'success-result-or-skip',
-    barrier: 'after-caller-barrier',
-    read: rpcResultVariant(
-      'conversation-preference-written',
-      z.object({ preferences: ConversationPreferencesSchema })
-    )
   })
 )

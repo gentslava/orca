@@ -46,9 +46,6 @@ export default withWorkspaceRoute(function MobileAgentSessionHistoryScreen() {
   if (route === null) {
     return <PageRouteUnavailableScreen hostId={hostId} />
   }
-  // Keyed on the route: a host captures the grants its session was opened with, so a screen
-  // reused across a route change would keep authorising frames under the grants of the route the
-  // page has left. The key is what makes the change a remount, which disposes that bridge in the
-  // commit, and the new session starts with no grants until its own `init`.
+  // Key by route to dispose the old grant-bearing bridge and await fresh init; prop changes would retain the previous route’s grants.
   return <MobileWebShellScreen key={shellScreenRouteKey(route)} hostId={hostId} route={route} />
 })

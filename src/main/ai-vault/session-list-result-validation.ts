@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { isAiVaultProjectKey } from '../../shared/ai-vault-project-key'
+import { AiVaultSessionAccountHomeSchema } from '../../shared/ai-vault-session-account-home'
 import {
   AI_VAULT_AGENTS,
   AI_VAULT_SCOPE_PATHS_MAX_COUNT,
@@ -49,6 +49,8 @@ const sessionPreviewMessageSchema = z.object({
 const aiVaultSessionSchema = z.object({
   source: z.literal('structured-record').optional(),
   conversationContent: z.enum(['empty', 'present', 'unknown']).optional().catch(undefined),
+  accountHome: AiVaultSessionAccountHomeSchema,
+  accountWslDistro: z.string().nullable().optional().catch(undefined),
   id: z.string(),
   executionHostId: executionHostIdSchema,
   executionHostPlatform: nodePlatformSchema.nullable().optional(),
@@ -62,7 +64,6 @@ const aiVaultSessionSchema = z.object({
     .max(AI_VAULT_SCOPE_PATHS_MAX_COUNT)
     .optional()
     .catch(undefined),
-  projectOwnerKey: z.string().refine(isAiVaultProjectKey).nullable().optional().catch(undefined),
   branch: z.string().nullable(),
   model: z.string().nullable(),
   filePath: z.string(),

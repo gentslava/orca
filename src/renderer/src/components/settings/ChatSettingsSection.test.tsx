@@ -42,12 +42,11 @@ beforeEach(() => {
 })
 
 function renderChat(
-  enabled: boolean | undefined,
   showDesktopOnlySettings = true,
   hasUnsavedChatPromptChanges = false,
   overrides: Partial<GlobalSettings> = {}
 ) {
-  const settings = { ...getDefaultSettings('/tmp'), experimentalNativeChat: enabled, ...overrides }
+  const settings = { ...getDefaultSettings('/tmp'), ...overrides }
   state.settings = settings
   const updateSettings = vi.fn(async (updates: Partial<GlobalSettings>) => {
     if (state.settings) {
@@ -81,22 +80,21 @@ describe('Chat settings page', () => {
     renderChat(true)
     expect(screen.queryByText('Providers')).toBeNull()
     expect(screen.queryByRole('switch', { name: /as a chat/ })).toBeNull()
-    const results = (nativeChatEnabled: boolean) =>
+    const results = (isWebClient: boolean) =>
       buildCmdJSettingsResults(
         buildSettingsNavigationMetadata({
           isMac: true,
           isWindows: false,
-          isWebClient: false,
-          nativeChatEnabled,
+          isWebClient,
           repos: []
         })
       ).filter((entry) => entry.targetSectionId === 'agents-installed')
-    const [choice] = results(true)
+    const [choice] = results(false)
     expect(choice?.sectionId).toBe('agents')
     for (const term of ['chat', 'cli', 'terminal', 'provider']) {
       expect(choice?.configKeywords.some((keyword) => keyword.includes(term))).toBe(true)
     }
-    expect(results(false)).toEqual([])
+    expect(results(true)).toEqual([])
   })
 
   it.each([false, true])(
@@ -113,7 +111,6 @@ describe('Chat settings page', () => {
         isMac: true,
         isWindows: false,
         isWebClient: false,
-        nativeChatEnabled: true,
         hostQueuesMessages,
         repos: []
       })
@@ -144,7 +141,7 @@ describe('Chat settings page', () => {
   )
 
   it('retains the unsaved naming draft when search no longer matches Chat', () => {
-    const { element, rerender, container } = renderChat(true, true, true)
+    const { element, rerender, container } = renderChat(true, true)
     const naming = container.querySelector('#chat-names')
     if (!naming) {
       throw new Error('Chat naming section is missing')
@@ -169,14 +166,13 @@ describe('Chat settings page', () => {
 
   it('searches a moved row and resolves its deep link within the Chat page', () => {
     state.settingsSearchQuery = 'Code text size'
-    const { container, element, rerender } = renderChat(true)
+    const { container, element, rerender } = renderChat()
     expect(screen.queryByRole('spinbutton', { name: 'Text size' })).toBeNull()
     expect(screen.getByRole('spinbutton', { name: 'Code text size' })).toBeTruthy()
     const sections = buildSettingsNavigationMetadata({
       isMac: true,
       isWindows: false,
       isWebClient: false,
-      nativeChatEnabled: true,
       repos: []
     })
     const result = buildCmdJSettingsResults(sections).find(

@@ -1,11 +1,15 @@
-import { applyOrchestrationSettingUpdates } from './orchestration-settings-update'
 import { publishSettingsUpdate } from './settings-update-effects'
 import { legacyChatPermissionWrite } from './legacy-chat-permission-write'
 import { stampDefaultOnMigrationGuards } from './default-on-migration-guards'
 import { normalizeNativeChatAppearanceSettings } from '../../../shared/native-chat/native-chat-appearance-settings'
 import type { GlobalSettings } from '../../../shared/global-settings-types'
 import { normalizeDisabledTuiAgents } from '../../../shared/tui-agent-selection'
-import { normalizeNativeChatProviderChoices } from '../../../shared/native-chat/native-chat-providers'
+import {
+  normalizeAgentDefaultSurface,
+  normalizeNativeChatProviderChoices
+} from '../../../shared/native-chat/native-chat-providers'
+import { resolveNestedWorkerMaxDepth } from '../../../shared/nested-worker-depth'
+import { sanitizeWorkerRoleProfileUpdates } from '../../../shared/orchestration-worker-roles'
 import { sanitizeAgentLaunchProfileUpdates } from '../../../shared/tui-agent-launch-defaults'
 import { normalizeTerminalQuickCommands } from '../../../shared/terminal-quick-commands'
 import { assertTerminalQuickCommandsStorable } from '../../../shared/terminal-quick-command-prompt-limit'
@@ -73,14 +77,18 @@ export function updateSettings(
   if ('holdQuitWhileAgentsWork' in updates) {
     sanitizedUpdates.holdQuitWhileAgentsWork = updates.holdQuitWhileAgentsWork === true
   }
-  // Why: the artifact publish capability must be an exact boolean on disk; no truthy value grants it.
   if ('artifactSharingEnabled' in updates) {
     sanitizedUpdates.artifactSharingEnabled = updates.artifactSharingEnabled === true
   }
   if ('agentSkillSharingEnabled' in updates) {
     sanitizedUpdates.agentSkillSharingEnabled = updates.agentSkillSharingEnabled === true
   }
-  applyOrchestrationSettingUpdates(updates, sanitizedUpdates)
+  if ('nestedWorkerMaxDepth' in updates) {
+    sanitizedUpdates.nestedWorkerMaxDepth = resolveNestedWorkerMaxDepth({
+      nestedWorkerMaxDepth: updates.nestedWorkerMaxDepth
+    })
+  }
+  sanitizeWorkerRoleProfileUpdates(sanitizedUpdates, updates)
   if ('nativeChatAppearance' in updates) {
     sanitizedUpdates.nativeChatAppearance = normalizeNativeChatAppearanceSettings(
       updates.nativeChatAppearance
@@ -88,6 +96,9 @@ export function updateSettings(
   }
   if ('disabledTuiAgents' in updates) {
     sanitizedUpdates.disabledTuiAgents = normalizeDisabledTuiAgents(updates.disabledTuiAgents)
+  }
+  if ('agentDefaultSurface' in updates) {
+    sanitizedUpdates.agentDefaultSurface = normalizeAgentDefaultSurface(updates.agentDefaultSurface)
   }
   if ('nativeChatProviders' in updates) {
     sanitizedUpdates.nativeChatProviders = normalizeNativeChatProviderChoices(

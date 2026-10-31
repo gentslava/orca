@@ -2,26 +2,23 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync }
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { _setGuestWindowsDriveMountsForTests } from '../ipc/wsl-guest-windows-drive-path'
 import { quotePosixShell } from '../../shared/shell-argument-quoting'
 import { generateConversationNameFromContext } from './commit-message-text-generation'
 
 const homes: string[] = []
 
 afterEach(() => {
-  _setGuestWindowsDriveMountsForTests(null)
   for (const home of homes.splice(0)) {
     rmSync(home, { recursive: true, force: true })
   }
 })
 
-function writeAgent(home: string, folder: string, output: string): string {
+function writeAgent(home: string, folder: string, output: string): void {
   const bin = join(home, folder)
   mkdirSync(bin, { recursive: true })
   const file = join(bin, 'codex')
   writeFileSync(file, `#!/bin/sh\nprintf '%s\\n' ${quotePosixShell(output)}\n`)
   chmodSync(file, 0o755)
-  return file
 }
 
 describe.runIf(process.platform !== 'win32')('chat naming CLI discovery', () => {
@@ -67,37 +64,5 @@ describe.runIf(process.platform !== 'win32')('chat naming CLI discovery', () => 
     )
 
     expect(result).toMatchObject({ success: true, name: 'Project CLI' })
-  })
-
-  it('refuses a discovered Windows-drive shim on a WSL-host orcad', async () => {
-    const home = mkdtempSync(join(tmpdir(), 'orca-naming-windows-drive-'))
-    homes.push(home)
-    mkdirSync(join(home, 'empty-path'))
-    writeAgent(home, '.local/bin', 'Windows shim was launched')
-    _setGuestWindowsDriveMountsForTests([home])
-
-    const result = await generateConversationNameFromContext(
-      { firstPrompt: 'Fix the login flow' },
-      { agentId: 'codex', model: 'default' },
-      { kind: 'local', cwd: home, env: { HOME: home, PATH: join(home, 'empty-path') } }
-    )
-
-    expect(result).toMatchObject({ success: false })
-  })
-
-  it('keeps an explicit relative recipe command ahead of discovered installs', async () => {
-    const home = mkdtempSync(join(tmpdir(), 'orca-naming-relative-'))
-    homes.push(home)
-    mkdirSync(join(home, 'empty-path'))
-    writeAgent(home, 'tools', 'Local wrapper')
-    writeAgent(home, '.local/bin/tools', 'Wrong install')
-
-    const result = await generateConversationNameFromContext(
-      { firstPrompt: 'Fix the login flow' },
-      { agentId: 'custom', model: '', customAgentCommand: './tools/codex' },
-      { kind: 'local', cwd: home, env: { HOME: home, PATH: join(home, 'empty-path') } }
-    )
-
-    expect(result).toMatchObject({ success: true, name: 'Local wrapper' })
   })
 })

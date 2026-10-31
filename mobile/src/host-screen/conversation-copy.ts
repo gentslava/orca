@@ -13,9 +13,7 @@ const english = {
   projectOrder: 'Project order',
   projectOrderLabels: {
     manual: 'Manual',
-    recent: 'Recent openings',
-    frequent: 'Frequent openings',
-    name: 'Name, A to Z'
+    recent: 'Recent activity'
   },
   projectOptions: 'Project options',
   hideProject: 'Hide project from list',
@@ -41,7 +39,7 @@ const english = {
   failed: 'Some conversations could not be loaded. Pull to refresh.',
   failedState: 'Failed',
   legacy:
-    'This host lists open chats and saved transcripts. Update Orca to also list closed, empty chats.',
+    'This host lists open chats and saved transcripts. Update Orca to also list closed chats.',
   ssh: 'Open chats on this SSH host. Transcript history is not available through this connection.',
   noAgents: 'No supported agents found on this host.',
   update: 'Update Orca on this host to start or reopen this conversation.',
@@ -80,9 +78,7 @@ const russian: typeof english = {
   projectOrder: 'Порядок проектов',
   projectOrderLabels: {
     manual: 'Вручную',
-    recent: 'Недавно открытые',
-    frequent: 'Часто открываемые',
-    name: 'По алфавиту'
+    recent: 'Недавняя активность'
   },
   projectOptions: 'Действия с проектом',
   hideProject: 'Скрыть проект из списка',
@@ -108,7 +104,7 @@ const russian: typeof english = {
   failed: 'Часть разговоров не загрузилась. Потяните список для обновления.',
   failedState: 'Ошибка',
   legacy:
-    'Этот хост показывает открытые чаты и сохранённую переписку. Обновите Orca, чтобы видеть также закрытые пустые чаты.',
+    'Этот хост показывает открытые чаты и сохранённую переписку. Обновите Orca, чтобы видеть также закрытые чаты.',
   ssh: 'Открытые чаты на этом SSH-хосте. История переписки недоступна через это подключение.',
   noAgents: 'На этом хосте не найдено поддерживаемых агентов.',
   update: 'Обновите Orca на этом хосте, чтобы начать или открыть разговор.',

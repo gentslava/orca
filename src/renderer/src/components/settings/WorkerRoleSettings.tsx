@@ -12,7 +12,7 @@ import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { WorkerRoleProfileEditor } from './WorkerRoleProfileEditor'
-import { isNativeChatDefaultFor } from '../../../../shared/structured-native-chat-launch-route'
+import { nativeChatPreferenceFor } from '../../../../shared/structured-native-chat-launch-route'
 
 export function WorkerRoleSettings({
   settings,
@@ -101,7 +101,7 @@ export function WorkerRoleSettings({
             detectedIds={detectedIds}
             structuredFast={
               (profiles[role]?.agent === 'claude' || profiles[role]?.agent === 'codex') &&
-              isNativeChatDefaultFor(settings, profiles[role].agent)
+              nativeChatPreferenceFor(settings, profiles[role].agent)
             }
             onChange={(profile) => void save(role, profile)}
           />

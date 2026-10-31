@@ -23,12 +23,14 @@ import {
 import { NativeChatContextClearFade } from './NativeChatContextClearFade'
 import { useStructuredNativeChatSubmitReveal } from './use-structured-native-chat-submit-reveal'
 import { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
+import { nativeChatStructuredAsyncQuestion } from './NativeChatStructuredAsyncQuestion'
 import { NativeChatStructuredPromptSlot } from './NativeChatStructuredPromptSlot'
 import { selectNativeChatViewState, structuredChatHistoryPhase } from './native-chat-view-state'
 import { useNativeChatRootInputRouting } from './use-native-chat-root-input-routing'
 import { useNativeChatFontSize } from './use-native-chat-font-size'
 import { useNativeChatFind } from './use-native-chat-find'
 import { NativeChatFindBar } from './NativeChatFindBar'
+import { nativeChatQueueFollowUps } from '../../../../shared/native-chat-follow-up-behavior'
 import { LinkActionPopover } from '@/components/link-actions/LinkActionPopover'
 import { useNativeChatLinkActions } from './use-native-chat-link-actions'
 import { useNativeChatFileLinkContext } from './use-native-chat-file-link-context'
@@ -39,7 +41,6 @@ import { useNativeChatImageRuntimeContext } from './native-chat-image-runtime-co
 import { useStructuredNativeChatPaneCommands } from './use-structured-native-chat-pane-commands'
 import type { NativeChatStructuredViewProps } from './native-chat-view-types'
 import { NativeChatStructuredSessionStatus } from './NativeChatStructuredSessionStatus'
-import { useNativeChatLaunchDraftSignal } from './use-native-chat-launch-draft-adoption'
 import { useNativeChatInterruptedContinuation } from './NativeChatInterruptedContinue'
 import { structuredSessionNotices } from './native-chat-structured-session-notices'
 import { NativeChatPromptSlotNotices } from './NativeChatComposerNotices'
@@ -53,7 +54,7 @@ import { nativeChatStructuredStopControls } from './native-chat-structured-stop-
 import { useAppStore } from '../../store'
 import { structuredAgentLabel } from '@/lib/structured-agent-session-launch-label'
 import { useNativeChatStructuredComposerTransport } from './use-native-chat-structured-composer-transport'
-import { NativeChatStructuredGoalStrip } from './NativeChatStructuredGoalStrip'
+import { NativeChatStructuredComposerTabStrips } from './NativeChatStructuredComposerTabStrips'
 import { nativeChatPaneHeader } from './NativeChatPaneHeader'
 import { structuredAgentSessionReadFailureNotice } from './structured-agent-session-read-failure-notice'
 import { useStructuredAgentSessionDeliveryNotices } from './use-structured-agent-session-delivery-notices'
@@ -78,8 +79,8 @@ export function NativeChatStructuredSession(
   const childNavigator = useNativeChatChildNavigator(JSON.stringify([paneKey, props.target]))
   const childMessageListRef = useRef<NativeChatMessageListHandle>(null)
   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
-  // Chat-wide: absent means on; only an explicit off keeps mid-turn sends immediate.
-  const queueFollowUps = useAppStore((store) => store.settings?.nativeChatQueueFollowUps !== false)
+  // Chat-wide preference; an alternate send flips it for one message.
+  const queueFollowUps = useAppStore((store) => nativeChatQueueFollowUps(store.settings))
   const composerRef = useRef<NativeChatComposerHandle>(null)
   // Paste target while a question card replaces the composer.
   const questionAnswerInputRef = useRef<HTMLInputElement>(null)
@@ -101,13 +102,6 @@ export function NativeChatStructuredSession(
   })
   useRecheckNativeChatFileLinksWhenTurnEnds(controller.isWorking)
   const stopControls = nativeChatStructuredStopControls(controller, hostExecution.stopping)
-  const launchDraftSignal = useNativeChatLaunchDraftSignal({
-    terminalTabId: props.tabId,
-    agent: props.agent,
-    messages: controller.messages,
-    // Pre-read idle/loading states cannot establish a launch draft baseline from an empty transcript.
-    transcriptLoading: controller.status === 'idle' || controller.status === 'loading'
-  })
   const { composerError, reportComposerError } = useNativeChatComposerError(
     controller.commandRefusalCauses
   )
@@ -341,8 +335,8 @@ export function NativeChatStructuredSession(
                 stopBackgroundTask={controller.stopBackgroundTask}
               />
               {prompt ? null : (
-                <NativeChatStructuredGoalStrip
-                  sessionId={props.sessionId}
+                <NativeChatStructuredComposerTabStrips
+                  tabId={props.tabId}
                   threadGoal={controller.threadGoal}
                   transport={transport}
                   isWorking={controller.isWorking}
@@ -365,7 +359,12 @@ export function NativeChatStructuredSession(
                   childNavigator.child === null
                 }
                 answerInputRef={questionAnswerInputRef}
-                asyncQuestion={{ paneKey, session, send: transport.send }}
+                asyncQuestion={nativeChatStructuredAsyncQuestion(
+                  props,
+                  controller,
+                  session,
+                  transport.send
+                )}
                 {...fileLinkProps}
               />
               {composerShown && (
@@ -381,11 +380,10 @@ export function NativeChatStructuredSession(
                   agent={props.agent}
                   {...stopControls.composer}
                   unavailableHint={install.unavailableHint}
-                  steerQueued={
-                    stopControls.stopping ? undefined : submits.queuedMessages.steerNewest
+                  steerHead={
+                    stopControls.stopping ? undefined : submits.queuedMessages.steerHead
                   }
                   structuredTransport={transport}
-                  launchSeed={{ ...launchDraftSignal, ownsTabWideLaunchDraft: true }}
                   notices={notices}
                   recallSource={{ messages: session.messages, withoutImageMarkers: true }}
                 />

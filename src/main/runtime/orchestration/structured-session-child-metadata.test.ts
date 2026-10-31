@@ -95,10 +95,7 @@ function children() {
   return structuredSessionChildWorkers({
     db,
     records: {
-      getRecord: (id) => {
-        const record = records.get(id)
-        return record ? agentSessionConversationView(record) : null
-      },
+      getRecord: (id) => (records.has(id) ? agentSessionConversationView(records.get(id)!) : null),
       listRecords: () => [...records.values()].map(agentSessionConversationView)
     },
     sessionId: PARENT

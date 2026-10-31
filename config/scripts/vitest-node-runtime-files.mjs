@@ -29,7 +29,6 @@ const NODE_RUNTIME_INCLUDE = [
   'src/main/host/electron-http-client.test.ts',
   'src/main/browser/extensions/browser-extension-native-host-process-backpressure.test.ts',
   'src/main/daemon/daemon-init-provider-installation.test.ts',
-  'src/main/daemon/repro-13767-shell-ready-marker-lost-to-exec.test.ts',
   'src/main/orcad/orcad-daemon-teardown-linux.test.ts',
   'src/renderer/src/components/terminal-pane/pty-input-write-queue.test.ts',
   'src/renderer/src/lib/react-commit-cascade-observer.test.ts',
@@ -207,7 +206,6 @@ const NODE_RUNTIME_INCLUDE = [
   // Real fs.watch file bindings; Bun's watcher is not the one Electron runs.
   'src/main/ipc/rebinding-file-watch.test.ts',
   'src/main/ipc/parcel-watcher-shallow-file-subscription.test.ts',
-  'src/main/ipc/runtime-environments/runtime-environment-transport-routing-tailscale-hint.test.ts',
   'src/renderer/src/components/emulator-pane/emulator-device-frame-visibility.test.tsx',
   'src/main/claude/claude-agent-sdk-contract-pins.test.ts',
   'config/scripts/profile-state-worker-smoke.test.mjs',

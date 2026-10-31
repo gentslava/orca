@@ -10,7 +10,6 @@ import {
   projectConversationTitle,
   isGenericConversationTitle
 } from '../../../src/shared/project-conversation-list'
-import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
 import {
   buildProjectGroupingIndex,
   getProjectGroupingForRepo
@@ -85,7 +84,11 @@ export function buildProjectConversations(args: {
   const projectIndex = buildProjectGroupingIndex(catalog?.grouping ?? undefined)
   const groupingFor = (hostId: ExecutionHostId, repoId: string) => {
     const repo = repos.find((repo) => repo.id === repoId && getRepoExecutionHostId(repo) === hostId)
-    return getProjectGroupingForRepo(repoId, repoMap, projectIndex, repo)
+    return getProjectGroupingForRepo(
+      repoId,
+      repo ? new Map(repoMap).set(repoId, repo) : repoMap,
+      projectIndex
+    )
   }
   const projectKey = (hostId: ExecutionHostId, repoId: string) =>
     `${hostId}\0${groupingFor(hostId, repoId).key}`
@@ -102,18 +105,12 @@ export function buildProjectConversations(args: {
     if (projects.has(key)) {
       continue
     }
-    const preferenceKey = catalog?.grouping
-      ? resolveProjectPreferenceKey(repo.id, catalog.grouping.projectHostSetups, hostId)
-      : null
     projects.set(key, {
       key,
       visibilityKey: conversationProjectVisibilityKey(hostId, groupingFor(hostId, repo.id).key),
       title: groupingFor(hostId, repo.id).label,
       hostId,
       repo,
-      projectPreference: preferenceKey
-        ? (catalog?.grouping?.personalProjectOrder?.projects[preferenceKey] ?? {})
-        : undefined,
       workspaces: [],
       data: []
     })

@@ -54,11 +54,13 @@ export const AI_VAULT_METHODS = [
     permission: 'workspace',
     params: AiVaultSearchRequestSchema,
     handler: (params, context) => {
-      const response = searchSessionService(params, context.clientKind ? 'relay' : 'runtime')
+      const transport = context.clientKind ? 'relay' : 'runtime'
+      const response = searchSessionService(params, transport)
       // A client that reads no structured sessions keeps the transcript hit, as before.
       return supportsStructuredAgentSessions(context)
         ? searchWithStructuredOwners(response, {
             ensureHost: () => context.runtime.ensureStructuredAgentSessionHost(),
+            transport,
             opensChat: (agent) => clientOpensStructuredChatFromHistory(context, agent)
           })
         : response
@@ -131,8 +133,7 @@ export const AI_VAULT_METHODS = [
         }
         throw new Error(describeAiVaultScanError(String(error)))
       }
-      // Why: web clients consume this response directly (no parent-side retag),
-      // so sessions must come back stamped as the runtime host they addressed.
+      // Web clients have no parent retagging, so stamp sessions with the runtime host they addressed.
       const projected = projectStructuredAiVaultSessions(
         result,
         (agent) => clientOpensStructuredChatFromHistory({ clientKind, clientCapabilities }, agent),

@@ -21,7 +21,8 @@ describe('mobile RPC method routing census', () => {
     expect(MOBILE_RPC_METHOD_ROUTES.get('status.get')).toBe('execution-host')
   })
 
-  it('reads chat attachment bytes from the execution host that owns their store', () => {
-    expect(MOBILE_RPC_METHOD_ROUTES.get('agentSessionAttachment.read')).toBe('execution-host')
+  it('keeps discovery and explicit PATH refresh on the selected answering host', () => {
+    expect(MOBILE_RPC_METHOD_ROUTES.get('preflight.detectAgents')).toBe('execution-host')
+    expect(MOBILE_RPC_METHOD_ROUTES.get('preflight.refreshAgents')).toBe('execution-host')
   })
 })

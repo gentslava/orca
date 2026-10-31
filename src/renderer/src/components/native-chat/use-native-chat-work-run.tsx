@@ -7,7 +7,8 @@ import {
   nativeChatWorkRunEntries
 } from '../../../../shared/native-chat/native-chat-work-run'
 import { NativeChatReasoningRow } from './NativeChatReasoningRow'
-import { NativeChatAutoApprovalNotice } from './NativeChatAutoApprovalNotice'
+import { ProviderFrameRow } from './NativeChatTranscriptChrome'
+import { translate } from '@/i18n/i18n'
 import type { NativeChatToolRunAsides } from './NativeChatToolRun'
 import type { NativeChatDiffReveal } from './native-chat-turn-diffs'
 
@@ -44,12 +45,13 @@ export function useNativeChatWorkRun(
         <div key={`notice:${message.id}`} data-native-chat-activity-message-id={message.id}>
           {message.blocks.map((block, index) =>
             block.type === 'text' ? (
-              <NativeChatAutoApprovalNotice
-                key={index}
-                block={block}
-                messageId={message.id}
-                disclosed
-              />
+              <div key={index} className="space-y-1 py-1 text-sm text-chat-foreground-faint">
+                <p className="whitespace-pre-wrap break-words">{block.text}</p>
+                <ProviderFrameRow
+                  block={block}
+                  summary={translate('components.native-chat.notices.details', 'Details')}
+                />
+              </div>
             ) : null
           )}
         </div>

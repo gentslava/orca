@@ -2,15 +2,29 @@
 
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useState } from 'react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { CODEX_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-claude-codex'
 import { OMP_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-omp'
+import type { AcpThinkingOptionsFixtureModule } from '../../../../shared/acp-thinking-options.test-fixture-contract'
+import { structuredAgentSessionOptionView } from '../../../../shared/structured-agent-session-option-view'
 import {
+  applyStructuredAgentSessionModelCatalog,
   applyStructuredAgentSessionOptions,
+  canSetStructuredAgentSessionOption,
   createStructuredAgentSessionOptionState,
+  structuredAgentSessionOptionPicks,
   structuredAgentSessionOptionSnapshot
 } from '../../../../shared/structured-agent-session-options'
 import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
 import { RuntimeRpcCallError } from '@/runtime/runtime-rpc-result'
+
+let recordedOmpOptions: AcpThinkingOptionsFixtureModule['recordedOmpOptions']
+beforeAll(async () => {
+  const fixtures = await vi.importActual<AcpThinkingOptionsFixtureModule>(
+    '../../../../main/acp/acp-thinking-options.test-fixture'
+  )
+  recordedOmpOptions = fixtures.recordedOmpOptions
+})
 
 const toastError = vi.hoisted(() => vi.fn())
 vi.mock('sonner', () => ({ toast: { error: toastError } }))
@@ -95,6 +109,33 @@ const pickEffort = (key = 'Home'): boolean => fireEvent.keyDown(effortSlider(), 
 afterEach(() => cleanup())
 
 describe('NativeChatSessionOptionPickers', () => {
+  it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
+    const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
+    const { container } = render(
+      <NativeChatSessionOptionPickers
+        surface={busySurface}
+        snapshot={[
+          model({ transport: 'agent-session' }),
+          { ...effort, transport: 'agent-session' },
+          { ...fast, transport: 'agent-session' }
+        ]}
+        isWorking
+      />
+    )
+    expect(container.querySelector('[data-disabled=true]')).toBeNull()
+    expect(container.textContent).not.toContain('Running and queued messages keep their choices.')
+    fireEvent.click(screen.getByRole('option', { name: /Sonnet 5/ }))
+    await settle()
+    pickEffort()
+    await settle()
+    fireEvent.click(screen.getByRole('switch'))
+    await settle()
+    expect(busySurface.setOption.mock.calls).toEqual([
+      ['model', 'sonnet'],
+      ['effort', 'low'],
+      ['fastMode', false]
+    ])
+  })
   it('shows the proven Default model and its description while retaining the current explicit model', () => {
     render(
       <NativeChatSessionOptionPickers
@@ -138,7 +179,7 @@ describe('NativeChatSessionOptionPickers', () => {
       <NativeChatSessionOptionPickers
         surface={{ ...surface, resetOption }}
         snapshot={[model({ transport: 'agent-session', defaultChoice: { selected: false } })]}
-        isWorking
+        isWorking={false}
       />
     )
     fireEvent.click(screen.getByRole('option', { name: /Default/ }))
@@ -147,36 +188,6 @@ describe('NativeChatSessionOptionPickers', () => {
     expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
   })
 
-  it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
-    const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
-    const { container } = render(
-      <NativeChatSessionOptionPickers
-        surface={busySurface}
-        snapshot={[
-          model({ transport: 'agent-session' }),
-          { ...effort, transport: 'agent-session' },
-          { ...fast, transport: 'agent-session' }
-        ]}
-        isWorking
-      />
-    )
-    expect(container.querySelector('[data-disabled=true]')).toBeNull()
-    expect(container.textContent).not.toContain('Running and queued messages keep their choices.')
-    expect(pill('Next turn: Model Opus 4.8, Effort High · Fast').textContent).toBe(
-      'Opus 4.8High · Fast'
-    )
-    fireEvent.click(screen.getByRole('option', { name: /Sonnet 5/ }))
-    await settle()
-    pickEffort()
-    await settle()
-    fireEvent.click(screen.getByRole('switch'))
-    await settle()
-    expect(busySurface.setOption.mock.calls).toEqual([
-      ['model', 'sonnet'],
-      ['effort', 'low'],
-      ['fastMode', false]
-    ])
-  })
   it.each(['model', 'effort'])(
     'opens the one picker when a slash command asks for the %s',
     async (id) => {
@@ -592,6 +603,59 @@ describe('NativeChatSessionOptionPickers', () => {
     expect(screen.queryByText('Default')).toBeNull()
   })
 
+  it.each(['new', 'loaded'] as const)(
+    'offers recorded OMP thinking choices for a non-running model in a %s chat without picking a default',
+    async (origin) => {
+      const projected = recordedOmpOptions(origin).read()
+      expect(projected.models[1]).toMatchObject({ effortsKnown: false })
+      expect(projected.models[1]).not.toHaveProperty('defaultEffort')
+      const state = applyStructuredAgentSessionModelCatalog(
+        createStructuredAgentSessionOptionState('omp'),
+        OMP_SESSION_OPTION_CATALOG,
+        { origin: 'probe', fetchedAt: 1, models: projected.models },
+        { newLaunch: origin === 'new' }
+      )
+      const view = structuredAgentSessionOptionView(state, undefined, { model: 'target' })
+      const snapshot = structuredAgentSessionOptionSnapshot(view)
+      expect(snapshot.find((entry) => entry.id === 'effort')).toMatchObject({
+        valueSource: 'unknown',
+        settable: true,
+        kind: {
+          type: 'select',
+          choices: [
+            { value: 'off', label: 'Off' },
+            expect.objectContaining({ value: 'auto', label: 'Auto' })
+          ]
+        }
+      })
+      expect(snapshot.find((entry) => entry.id === 'effort')?.kind).not.toHaveProperty(
+        'currentValue'
+      )
+      expect(view.record.values.effort).toBeUndefined()
+      expect(structuredAgentSessionOptionPicks(view, { model: 'target' })).toEqual([
+        { modelId: 'target', optionId: 'model', value: 'target' }
+      ])
+      const remembered = structuredAgentSessionOptionView(state, undefined, {
+        model: 'target',
+        effort: 'high'
+      })
+      expect(canSetStructuredAgentSessionOption(remembered, 'effort', 'high')).toBe(true)
+
+      const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
+      render(
+        <NativeChatSessionOptionPickers
+          surface={{ ...surface, setOption }}
+          snapshot={snapshot}
+          isWorking={false}
+        />
+      )
+      fireEvent.click(pill('Model Target'))
+      expect(setOption).not.toHaveBeenCalled()
+      fireEvent.click(screen.getByRole('radio', { name: 'Auto' }))
+      await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'auto'))
+    }
+  )
+
   it('uses one slider tab stop and commits exact supported effort IDs with the keyboard', async () => {
     const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
     render(
@@ -684,6 +748,39 @@ describe('NativeChatSessionOptionPickers', () => {
     expect(effortSlider().getAttribute('aria-valuetext')).toBe('High')
     pickEffort('Home')
     await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'low'))
+  })
+
+  it('keeps an unlisted reported effort read-only through the actual snapshot pipeline', () => {
+    const state = applyStructuredAgentSessionOptions(
+      createStructuredAgentSessionOptionState('codex'),
+      CODEX_SESSION_OPTION_CATALOG,
+      {
+        models: [
+          {
+            id: 'account-model',
+            label: 'Account Model',
+            isDefault: true,
+            efforts: [
+              { value: 'low', label: 'Low' },
+              { value: 'high', label: 'High' }
+            ]
+          }
+        ],
+        current: { model: 'account-model', effort: 'unsupported-level', confirmed: ['effort'] }
+      }
+    )
+    const setOption = vi.fn()
+    render(
+      <NativeChatSessionOptionPickers
+        surface={{ ...surface, setOption }}
+        snapshot={structuredAgentSessionOptionSnapshot(state)}
+        isWorking={false}
+      />
+    )
+    expect(screen.queryByRole('slider', { name: 'Effort' })).toBeNull()
+    expect(screen.queryByRole('radio', { name: 'unsupported-level' })).toBeNull()
+    expect(screen.getAllByText('unsupported-level').length).toBeGreaterThan(0)
+    expect(setOption).not.toHaveBeenCalled()
   })
 
   it('keeps an unknown effort unreported until a supported choice is committed', async () => {

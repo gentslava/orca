@@ -84,7 +84,7 @@ function rig() {
 }
 
 describe('structured chat naming runtime', () => {
-  it.each(['grok', 'antigravity', 'gemini'] as const)(
+  it.each(['grok', 'antigravity'] as const)(
     'codes %s native naming failures without exposing provider text',
     async (provider) => {
       const state = rig()
@@ -97,11 +97,8 @@ describe('structured chat naming runtime', () => {
           mocks.native.mockResolvedValueOnce('')
         }
         expect(await state.deps.generate(record, 'Repair login')).toEqual({
-          errorCode: provider === 'gemini' ? 'agentNotRun' : `${provider}Failed`,
-          error:
-            provider === 'gemini'
-              ? 'Orca could not run the chat-name agent.'
-              : `${provider === 'grok' ? 'Grok' : 'Antigravity'} could not name this chat. Try generating the name again.`
+          errorCode: `${provider}Failed`,
+          error: `${provider === 'grok' ? 'Grok' : 'Antigravity'} could not name this chat. Try generating the name again.`
         })
       }
     }
@@ -241,14 +238,12 @@ describe('structured chat naming runtime', () => {
                     ? 'GROK_HOME'
                     : provider === 'antigravity'
                       ? 'GEMINI_HOME'
-                      : provider === 'gemini'
-                        ? 'GEMINI_CLI_HOME'
-                        : 'PI_CODING_AGENT_DIR',
+                      : 'PI_CODING_AGENT_DIR',
             path: '/pinned-account'
           }
     const shouldExecute = () => true
     await state.deps.generate(record, 'Repair login', shouldExecute)
-    if (provider === 'grok' || provider === 'antigravity' || provider === 'gemini') {
+    if (provider === 'grok' || provider === 'antigravity') {
       expect(mocks.native).toHaveBeenCalledWith(
         expect.objectContaining({ accountHome: record.accountHome, shouldExecute })
       )

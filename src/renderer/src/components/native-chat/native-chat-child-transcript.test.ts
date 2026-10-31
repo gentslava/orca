@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { NativeChatMessage } from '../../../../shared/native-chat-types'
-import { projectNativeChatTranscriptMessages } from '../../../../shared/native-chat-transcript-projection'
 import { stripNoiseMessages } from '../../../../shared/native-chat-noise'
-import { orchestrationNoticeMessage } from '../../../../shared/native-chat-orchestration-notice.test-fixture'
+import { projectNativeChatTranscriptMessages } from '../../../../shared/native-chat-transcript-projection'
 import { nativeChatChildTranscript } from './native-chat-child-transcript'
 
 function message(id: string, agentId?: string, parentAgentId?: string): NativeChatMessage {
@@ -54,9 +53,20 @@ describe('a child conversation', () => {
     expect(nativeChatChildTranscript([assignment, response], 'child')[0]?.id).toBe(rows[0]?.id)
     expect(nativeChatChildTranscript([assignment, response], 'unrelated')).toEqual([])
 
-    const notice = {
-      ...orchestrationNoticeMessage(),
-      blocks: [{ type: 'text' as const, text: '<system-reminder>Mail pointer</system-reminder>' }]
+    const notice: NativeChatMessage = {
+      ...message('mail-pointer'),
+      role: 'user',
+      blocks: [{ type: 'text', text: '<system-reminder>Mail pointer</system-reminder>' }],
+      from: {
+        kind: 'agent',
+        senders: [],
+        orchestration: {
+          message: 'mail-notice',
+          mailbox: 'terminal',
+          dispatchId: null,
+          messages: []
+        }
+      }
     }
     expect(stripNoiseMessages([notice])).toEqual([])
     const native: NativeChatMessage = {

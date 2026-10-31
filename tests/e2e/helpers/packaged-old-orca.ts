@@ -1,7 +1,4 @@
-/**
- * A released, packaged Orca build (the "old" side of a mixed-version test). CI downloads a pinned
- * release and points ORCA_CROSS_VERSION_PACKAGED_EXECUTABLE at its executable; specs skip without it.
- */
+// Use the pinned packaged build named by ORCA_CROSS_VERSION_PACKAGED_EXECUTABLE; skip when it is unavailable.
 import { assertMacGuiLaunchAllowed } from '../../../config/scripts/macos-gui-launch-preflight.mjs'
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer, type AddressInfo } from 'node:net'

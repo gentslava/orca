@@ -1,9 +1,8 @@
-import type { ComponentProps, RefObject } from 'react'
+import type { ComponentProps, ReactElement, RefObject } from 'react'
 import type { StructuredAgentId } from '../../../../shared/agent-session-provider-handle'
 import { agentSessionPromptQuestions } from '../../../../shared/agent-session-question-answer'
 import { NativeChatApprovalCard } from './NativeChatApprovalCard'
 import { NativeChatStructuredQuestionCard } from './NativeChatStructuredQuestionCard'
-import { NativeChatStructuredAsyncQuestion } from './NativeChatStructuredAsyncQuestion'
 import { chatApprovalFromJournal } from '../../../../shared/native-chat-interactive-prompt'
 import type {
   StructuredPromptItem,
@@ -27,7 +26,7 @@ export function NativeChatStructuredPromptSlot({
   response: ReturnType<typeof useStructuredPromptResponseHold>
   shouldFocus: boolean
   answerInputRef: RefObject<HTMLInputElement | null>
-  asyncQuestion: ComponentProps<typeof NativeChatStructuredAsyncQuestion>
+  asyncQuestion: ReactElement
 } & Pick<
   ComponentProps<typeof NativeChatApprovalCard>,
   'onLinkClick' | 'allowFileUriLinks'
@@ -66,7 +65,7 @@ export function NativeChatStructuredPromptSlot({
           answerInputRef={answerInputRef}
         />
       ) : null}
-      {prompt ? null : <NativeChatStructuredAsyncQuestion {...asyncQuestion} />}
+      {asyncQuestion}
     </>
   )
 }

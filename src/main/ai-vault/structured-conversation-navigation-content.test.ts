@@ -31,7 +31,10 @@ beforeEach(() => {
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: projection reads only this host's catalog and journal database.
   setStructuredAgentSessionHost({
     deps: {
-      store: { listConversations: () => [agentSessionConversationView(record)] },
+      store: {
+        listRecords: () => [record],
+        listConversations: () => [agentSessionConversationView(record)]
+      },
       journalDatabase: { db }
     }
   } as never)

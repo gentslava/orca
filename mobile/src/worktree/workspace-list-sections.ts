@@ -22,11 +22,11 @@ import {
   PR_GROUP_ORDER
 } from '../../../src/shared/workspace-view/workspace-pr-groups'
 import type { FilterState, Section, SectionRepo, Worktree } from './workspace-list-types'
+import { NO_PROJECT_SECTION_CATALOG, type ProjectSectionCatalog } from './project-section-catalog'
 import type {
   WorkspaceGroupBy,
   WorkspaceSortBy
 } from '../../../src/shared/workspace-view/workspace-view-options'
-import { NO_PROJECT_SECTION_CATALOG, type ProjectSectionCatalog } from './project-section-catalog'
 import { hostSortsByStamps, sortWorktrees } from './workspace-list-ordering'
 import { getWorktreeRowIdentity } from './worktree-host-row-identity'
 import { resolveWorktreeHostId } from './worktree-host-context-labels'
@@ -44,7 +44,6 @@ import {
 import { translate } from '../i18n/mobile-i18n'
 
 export type { FilterState, Section, SectionRepo, Worktree } from './workspace-list-types'
-
 export { NO_PROJECT_SECTION_CATALOG, type ProjectSectionCatalog } from './project-section-catalog'
 
 export function buildSectionRepoMap(

@@ -95,6 +95,7 @@ function EffortSlider({
 }): React.JSX.Element {
   const { kind } = descriptor
   const [draft, setDraft] = useState<string | null>(null)
+  const selectCurrentOnRelease = useRef(false)
   const currentIndex = gone
     ? -1
     : kind.choices.findIndex((choice) => choice.value === kind.currentValue)
@@ -135,13 +136,39 @@ function EffortSlider({
         thumbValueLabels={[
           [gone ? '—' : valueLabel, choice?.description].filter(Boolean).join(' · ')
         ]}
+        onPointerDownCapture={() => {
+          selectCurrentOnRelease.current = !disabled && descriptor.valueSource === 'default'
+        }}
+        onPointerUpCapture={() => {
+          if (selectCurrentOnRelease.current && draft === null && choice) {
+            onSet(choice.value)
+          }
+          selectCurrentOnRelease.current = false
+        }}
+        onKeyDown={(event) => {
+          if (
+            !disabled &&
+            descriptor.valueSource === 'default' &&
+            choice &&
+            (event.key === 'Enter' || event.key === ' ')
+          ) {
+            event.preventDefault()
+            onSet(choice.value)
+          }
+        }}
         onValueChange={([nextIndex]) => {
           if (nextIndex !== undefined) {
             setDraft(kind.choices[nextIndex]?.value ?? null)
           }
         }}
-        onPointerCancel={() => setDraft(null)}
-        onLostPointerCapture={() => setDraft(null)}
+        onPointerCancel={() => {
+          selectCurrentOnRelease.current = false
+          setDraft(null)
+        }}
+        onLostPointerCapture={() => {
+          selectCurrentOnRelease.current = false
+          setDraft(null)
+        }}
         onValueCommit={([nextIndex]) => {
           setDraft(null)
           const next = nextIndex === undefined ? undefined : kind.choices[nextIndex]

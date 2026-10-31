@@ -114,7 +114,6 @@ describe('convertImageBlobToPng', () => {
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:decode-owned')
     }
   )
-
   it('rejects excessive source bytes before creating a decode URL', async () => {
     await expect(
       convertImageBlobToPng(new Blob([new Uint8Array(CLIPBOARD_IMAGE_MAX_SOURCE_BYTES + 1)]))

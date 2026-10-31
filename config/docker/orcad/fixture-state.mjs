@@ -48,31 +48,6 @@ async function main() {
   if (create) {
     await writeFile('/workspaces/docker-fixture.txt', marker)
     await writeFile(file, secrets.encryptString(marker), { mode: 0o600 })
-    const sessions = join(home, '.codex', 'sessions', '2026', '10', '24')
-    await mkdir(sessions, { recursive: true })
-    const tokens = {
-      input_tokens: 1000,
-      cached_input_tokens: 900,
-      output_tokens: 200,
-      reasoning_output_tokens: 150,
-      total_tokens: 1200
-    }
-    const transcript = [
-      { type: 'session_meta', payload: { id: 'usage-fixture', cwd: '/workspaces' } },
-      { type: 'turn_context', payload: { cwd: '/workspaces', model: 'gpt-5.4' } },
-      {
-        timestamp: '2026-10-24T10:00:00.000Z',
-        type: 'event_msg',
-        payload: {
-          type: 'token_count',
-          info: { total_token_usage: tokens, last_token_usage: tokens }
-        }
-      }
-    ]
-    await writeFile(
-      join(sessions, 'rollout-fixture.jsonl'),
-      `${transcript.map((row) => JSON.stringify(row)).join('\n')}\n`
-    )
   }
   assert.equal(await readFile('/workspaces/docker-fixture.txt', 'utf8'), marker)
   assert.equal(secrets.decryptString(await readFile(file)), marker)

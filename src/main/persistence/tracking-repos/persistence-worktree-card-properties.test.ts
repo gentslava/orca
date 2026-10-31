@@ -155,7 +155,20 @@ describe('Store', () => {
     })
     const store = await createStore()
 
-    expect(store.getUI().worktreeCardProperties).toEqual(['status', 'unread'])
+    expect(store.getUI().worktreeCardProperties).toEqual([
+      'status',
+      'unread',
+      'issue',
+      'linear-issue',
+      'jira-issue',
+      'pr',
+      'automation',
+      'cli',
+      'comment',
+      'ports',
+      'inline-agents',
+      'host'
+    ])
     expect(store.getUI().worktreeCardProperties).not.toContain('branch')
     expect(store.getUI()._worktreeCardModeDefaulted).toBe(true)
   })
@@ -351,7 +364,7 @@ describe('Store', () => {
     expect(store.getUI().worktreeCardProperties).not.toContain('jira-issue')
   })
 
-  it('leaves fresh compact profiles without jira-issue', async () => {
+  it('leaves fresh default profiles with a single jira-issue entry', async () => {
     writeDataFile({
       schemaVersion: 1,
       repos: [],
@@ -365,7 +378,7 @@ describe('Store', () => {
 
     expect(
       store.getUI().worktreeCardProperties?.filter((property) => property === 'jira-issue')
-    ).toHaveLength(0)
+    ).toHaveLength(1)
     expect(store.getUI()._jiraIssueWorktreeCardPropertyDefaulted).toBe(true)
   })
 

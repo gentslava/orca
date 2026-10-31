@@ -12,7 +12,6 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@/i18n/i18n', () => ({
-  getIntlLocale: () => 'en',
   translate: (_key: string, fallback: string) => fallback
 }))
 vi.mock('@/lib/agent-catalog', () => ({

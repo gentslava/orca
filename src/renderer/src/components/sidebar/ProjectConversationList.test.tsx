@@ -29,9 +29,6 @@ const state = vi.hoisted(() => {
   }
 })
 vi.mock('./use-conversation-preferences', () => ({ useConversationPreferences: () => state }))
-vi.mock('@/hooks/use-personal-project-order', () => ({
-  usePersonalProjectOrderSupported: () => true
-}))
 vi.mock('./SidebarConversationStart', () => ({
   SidebarConversationStart: ({
     worktreeId,

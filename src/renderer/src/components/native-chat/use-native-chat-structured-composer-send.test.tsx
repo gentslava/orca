@@ -18,9 +18,6 @@ import type { NativeChatComposerImageAttachment } from './NativeChatComposerFiel
 import { useNativeChatStructuredComposerSend } from './use-native-chat-structured-composer-send'
 
 vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
-vi.mock('@/lib/worker-terminal-takeover-report', () => ({
-  reportStructuredSessionUserInput: vi.fn()
-}))
 
 const ATTACHMENT = { id: 'a1', path: '/tmp/shot.png' } as NativeChatComposerImageAttachment
 
@@ -143,7 +140,14 @@ describe('attachment guard follows what the host claims', () => {
     'retains the default busy queue draft when support is %s',
     async (capability) => {
       const { send, structuredTransport, setDraft } = harness('codex')
-      structuredTransport.queue = { enabled: true, capability }
+      structuredTransport.queue = {
+        followUpsQueue: true,
+        capability,
+        isWorking: true,
+        stopping: false,
+        session: { queuedMessages: [] },
+        prompts: []
+      }
       structuredTransport.isWorking = true
       updateNativeChatComposerDraft(
         'tab-1:pane',
@@ -166,7 +170,14 @@ describe('attachment guard follows what the host claims', () => {
     'keeps an explicit queued draft when queue support is %s',
     async (capability) => {
       const { send, structuredTransport, setDraft } = harness('codex')
-      structuredTransport.queue = { enabled: false, capability }
+      structuredTransport.queue = {
+        followUpsQueue: false,
+        capability,
+        isWorking: true,
+        stopping: false,
+        session: { queuedMessages: [] },
+        prompts: []
+      }
       updateNativeChatComposerDraft(
         'tab-1:pane',
         { text: 'Keep for later', images: [ATTACHMENT] },

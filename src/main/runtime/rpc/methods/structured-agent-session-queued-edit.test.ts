@@ -43,13 +43,10 @@ beforeEach(() => {
 afterEach(clearStructuredHostStub)
 
 describe('queued edit methods', () => {
-  it('advertised queue and edit methods reach the host over the authenticated transport', async () => {
+  it('the host advertises editing and mid-turn queueing, never the v1 name released clients read', () => {
     expect(RUNTIME_CAPABILITIES).toContain(AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY)
     expect(RUNTIME_CAPABILITIES).toContain(AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY)
-    expect(await call('agentSession.queuedMessageUpdate', update, STRUCTURED_CLIENT)).toMatchObject(
-      { ok: true }
-    )
-    expect(hostCalls.queuedMessageUpdate).toHaveBeenCalledOnce()
+    expect(RUNTIME_CAPABILITIES).not.toContain('agent-session.queued-messages.v1')
   })
 
   it.each([

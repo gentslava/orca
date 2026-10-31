@@ -381,8 +381,7 @@ describeRender('the Route A page in a real browser', () => {
     expect(layout.rootHeight).toBe(layout.viewportHeight)
     expect(layout.controlTop).toBeGreaterThan(0)
     expect(layout.controlBottom).toBeLessThanOrEqual(layout.viewportHeight)
-    // Laid out is not reachable. A row inside a scroller the collapse clipped keeps its rect and
-    // takes no taps, which is what both phones found before this file could say so.
+    // Require reachable tap: clipped scroller rows retain layout rects.
     expect(layout.reachesTheControl).toBe(true)
   }, 60_000)
 

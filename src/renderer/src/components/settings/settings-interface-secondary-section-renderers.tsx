@@ -1,4 +1,4 @@
-import { StatsPane } from '../stats/StatsPane'
+import { AccountQuotaStatsPane as StatsPane } from '../stats/AccountQuotaStatsPane'
 import { AppearancePane } from './AppearancePane'
 import { ChatSettingsSection } from './ChatSettingsSection'
 import { InputPane } from './InputPane'

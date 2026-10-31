@@ -32,7 +32,14 @@ vi.mock('./native-chat-session-option-settings-write', () => ({
 }))
 
 const TARGET = { kind: 'local' } as const
-const QUEUE = { capability: 'supported', enabled: true } as const
+const QUEUE = {
+  capability: 'supported',
+  followUpsQueue: true,
+  isWorking: true,
+  stopping: false,
+  session: { queuedMessages: [] },
+  prompts: []
+} as const
 const pending = () =>
   Promise.withResolvers<{
     ok: true

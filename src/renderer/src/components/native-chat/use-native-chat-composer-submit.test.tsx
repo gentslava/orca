@@ -86,14 +86,21 @@ it.each([true, false])(
     const { hook, calls } = harness({
       draft: 'Check the screenshot',
       imageAttachments: [attachment],
-      queue: { capability: 'supported', enabled }
+      queue: {
+        capability: 'supported',
+        followUpsQueue: enabled,
+        isWorking: true,
+        stopping: false,
+        session: { queuedMessages: [] },
+        prompts: []
+      }
     })
-    act(() => hook.result.current.sendAlternate())
+    act(() => hook.result.current.send({ alternate: true }))
     expect(calls.sendStructured).toHaveBeenCalledExactlyOnceWith(
       'Check the screenshot',
       [attachment],
       {
-        delivery: enabled ? 'immediate' : 'queue-if-active'
+        alternate: true
       }
     )
   }

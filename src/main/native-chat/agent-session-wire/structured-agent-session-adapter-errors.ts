@@ -46,8 +46,8 @@ export type AgentSessionPreSpawnReason = Extract<
   | 'agentCommandNotRunnable'
   | 'cliMissing'
   | 'runtimeNotInstalled'
-  | 'conversationOpenInTerminal'
   | 'providerResumeUnavailable'
+  | 'conversationOpenInTerminal'
   | 'launchPreparationFailed'
 >
 

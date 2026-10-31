@@ -1,9 +1,10 @@
+import { mobileNativeChatDraftDestination } from './native-chat/composer/mobile-native-chat-draft-inputs'
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import {
-  mobileNativeChatDraftDestination,
   updateMobileNativeChatDraftInputs,
   resetMobileNativeChatDraftInputsForTests
 } from './native-chat/composer/mobile-native-chat-draft-inputs'
+import { structuredSendResultFixture } from './structured-agent-send-result.test-fixture'
 import { createElement, useState } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -12,20 +13,10 @@ import type { RpcClient } from '../transport/rpc-client'
 import {
   fieldsOf,
   mutationOk,
-  seedMobileOperationStorage,
   ok,
   snapshotEvent
 } from './use-mobile-structured-agent-session-queued.test-fixture'
 import { markRpcDeliveryUnknown } from '../transport/rpc-delivery-ambiguity'
-import {
-  mobileSendReply as sendResult,
-  structuredSendResultFixture
-} from './structured-agent-send-result.test-fixture'
-import {
-  deferred,
-  SEND_MODEL_OPTIONS as MODEL_OPTIONS
-} from './use-mobile-structured-agent-options.test-fixture'
-import { stubRpcClient } from '../transport/rpc-client-test-stub'
 import { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
 import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
 import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
@@ -36,6 +27,7 @@ import {
   AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY,
   AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY
 } from '../../../src/shared/agent-session-create-capabilities'
+import { deferred, MODEL_OPTIONS, sendResult } from './structured-session-send-options.test-fixture'
 import type { RpcResponse } from '../transport/types'
 import type { MobileNativeChatSendOrigin } from './native-chat/mobile-native-chat-pending-echo'
 import {
@@ -71,10 +63,11 @@ describe('mobile structured send actions', () => {
   let menu: ReturnType<typeof useMobileNativeChatComposerMenu>
   let draft = ''
   let listener: ((value: unknown) => void) | null = null
+  let storedOperations: Map<string, string>
   let agent = 'codex'
-  let sessionId = 'session-1'
   let sessionCommands: readonly AgentSessionSlashCommand[] | undefined
   let sendOrdinary: ReturnType<typeof useMobileStructuredNativeChatSendBridge>['sendWithOutcome']
+  let sessionId = 'session-1'
   let hostSupport: StructuredAgentSessionHostSupport | null = null
   let bridge: ReturnType<typeof useMobileStructuredNativeChatSendBridge>
   const clearDraftForSend = vi.fn()
@@ -85,16 +78,28 @@ describe('mobile structured send actions', () => {
     draftEditGeneration: 0,
     pendingKey: 'pending',
     normalizedText: text,
-    boundary: {},
+    boundary: { afterEmptyTranscriptSessionId: sessionId },
     sentAt: 0
   }))
   const onSendError = vi.fn()
   const sendRequest = vi.fn<RpcClient['sendRequest']>()
   const subscribe = vi.fn<RpcClient['subscribe']>((_method, _params, onData) => {
-    listener = onData
+    if (_method === 'agentSession.subscribe') {
+      listener = onData
+    }
     return vi.fn()
   })
-  const client = stubRpcClient({ sendRequest, subscribe })
+  const client: RpcClient = {
+    sendRequest,
+    subscribe,
+    updateTerminalSubscriptionViewport: () => {},
+    getState: () => 'connected',
+    getReconnectAttempt: () => 0,
+    getLastConnectedAt: () => null,
+    onStateChange: () => () => {},
+    notifyForeground: () => {},
+    close: () => {}
+  }
 
   function Harness() {
     const [value, onChangeText] = useState('/skill:pl')
@@ -183,7 +188,16 @@ describe('mobile structured send actions', () => {
       banner?.show(message, details)
     )
 
-    seedMobileOperationStorage(asyncStorage)
+    storedOperations = new Map()
+    asyncStorage.getItem.mockImplementation(
+      async (key: string) => storedOperations.get(key) ?? null
+    )
+    asyncStorage.setItem.mockImplementation(async (key: string, value: string) => {
+      storedOperations.set(key, value)
+    })
+    asyncStorage.removeItem.mockImplementation(async (key: string) => {
+      storedOperations.delete(key)
+    })
     sendRequest.mockImplementation(async (method) =>
       method === 'agentSession.options' ? ok({ models: [], current: {} }) : ok({})
     )
@@ -196,47 +210,12 @@ describe('mobile structured send actions', () => {
     banner = null
     listener = null
     agent = 'codex'
-    sessionId = 'session-1'
     sessionCommands = undefined
+    sessionId = 'session-1'
     hostSupport = null
     resetMobileNativeChatDraftInputsForTests()
   })
 
-  it.each([true, false])(
-    'delivers async question answers immediately only with host support %s',
-    async (takesSteer) => {
-      hostSupport = structuredAgentSessionHostSupport([
-        AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
-        ...(takesSteer ? [AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY] : [])
-      ])
-      sendRequest.mockImplementation(async (method) =>
-        method === 'agentSession.send' ? sendResult('accepted') : ok({})
-      )
-      await mountSession()
-      await act(async () => {
-        expect(
-          await hook!.sendWithOutcome(
-            'The selected answer',
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            {
-              delivery: 'immediate'
-            }
-          )
-        ).toBe(takesSteer ? 'accepted' : 'rejected')
-      })
-      if (takesSteer) {
-        expect(calls()).toHaveLength(1)
-        expect(fieldsOf(calls()[0]![1])).not.toHaveProperty('delivery')
-        expect(fieldsOf(calls()[0]![1])).toHaveProperty('steer', true)
-      } else {
-        expect(calls()).toHaveLength(0)
-        expect(onSendError).toHaveBeenCalledWith(expect.stringContaining('answer'))
-      }
-    }
-  )
   it.each([10, 100])(
     'ordinary phone bridge and Send skip %i commands for prose but still route slash controls',
     async (count) => {
@@ -275,6 +254,41 @@ describe('mobile structured send actions', () => {
     }
   )
 
+  it.each([true, false])(
+    'delivers async question answers immediately only with host support %s',
+    async (takesSteer) => {
+      hostSupport = structuredAgentSessionHostSupport([
+        AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
+        ...(takesSteer ? [AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY] : [])
+      ])
+      sendRequest.mockImplementation(async (method) =>
+        method === 'agentSession.send' ? sendResult('accepted') : ok({})
+      )
+      await mountSession()
+      await act(async () => {
+        expect(
+          await hook!.sendWithOutcome(
+            'The selected answer',
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            {
+              delivery: 'immediate'
+            }
+          )
+        ).toBe(takesSteer ? 'accepted' : 'rejected')
+      })
+      if (takesSteer) {
+        expect(calls()).toHaveLength(1)
+        expect(fieldsOf(calls()[0]![1])).not.toHaveProperty('delivery')
+        expect(fieldsOf(calls()[0]![1])).toHaveProperty('steer', true)
+      } else {
+        expect(calls()).toHaveLength(0)
+        expect(onSendError).toHaveBeenCalledWith(expect.stringContaining('answer'))
+      }
+    }
+  )
   it('selects a native OMP skill and sends the exact token and arguments through RPC', async () => {
     agent = 'omp'
     sendRequest.mockImplementation(async (method) =>
@@ -503,6 +517,9 @@ describe('mobile structured send actions', () => {
 
   it('shows a recovered unknown once and a new Send and reply without replay', async () => {
     const original = structuredSendResultFixture('unknown')
+    if (!('submission' in original)) {
+      throw new Error('expected a submission answer')
+    }
     original.submission.recovered = true
     const event = snapshotEvent({
       items: [
@@ -523,6 +540,9 @@ describe('mobile structured send actions', () => {
       }
       const id = String(fieldsOf(fieldsOf(params).envelope).clientOperationId)
       const value = structuredSendResultFixture('accepted')
+      if (!('submission' in value)) {
+        throw new Error('expected a submission answer')
+      }
       value.clientMessageId = id
       value.submission.clientMessageId = id
       return ok({
@@ -548,6 +568,9 @@ describe('mobile structured send actions', () => {
     expect(hook!.session.messages.map((message) => message.id)).toEqual([messages[0]?.id, sent])
     expect(hook!.session.messages[0]).toEqual(messages[0])
     const followUp = structuredSendResultFixture('accepted')
+    if (!('submission' in followUp)) {
+      throw new Error('expected a submission answer')
+    }
     const newId = sentIds()[0]!
     expect(newId).not.toBe(original.submission.clientMessageId)
     followUp.submission.clientMessageId = newId
@@ -590,6 +613,9 @@ describe('mobile structured send actions', () => {
       const fact = { kind: 'notSignedIn' } as const
       const words = agentSessionFailureWords(fact, { agentName: 'Codex', surface: 'row' })
       const value = structuredSendResultFixture('rejected', words.text)
+      if (!('submission' in value)) {
+        throw new Error('expected submission')
+      }
       value.submission.rejection = fact
       const sentRow = agentJournalSubmissionKey(value.submission.clientMessageId)
       const event = snapshotEvent({
@@ -765,7 +791,7 @@ describe('mobile structured send actions', () => {
     expect(onSendError).not.toHaveBeenCalled()
   })
 
-  it.each(['invalid_argument', 'unauthorized', 'stale-fence'])(
+  it.each(['invalid_argument', 'unauthorized'])(
     'a later Send is independent after a %s refusal',
     async (code) => {
       let attempts = 0
@@ -773,23 +799,13 @@ describe('mobile structured send actions', () => {
         if (method !== 'agentSession.send') {
           return ok({ models: [], current: {} })
         }
-        if (++attempts > 1) {
-          return sendResult('accepted')
-        }
-        return code === 'stale-fence'
-          ? ok({
-              ok: false,
-              refusal: {
-                code: 'agent_session_checkpoint_stale',
-                message: 'Fence moved',
-                currentFence: 3
-              }
-            })
-          : {
+        return ++attempts === 1
+          ? {
               id: 'request-1',
               ok: false as const,
               error: { code, message: 'Message is not authorized' }
             }
+          : sendResult('accepted')
       })
       await mountSession()
       await act(async () => {
@@ -799,6 +815,31 @@ describe('mobile structured send actions', () => {
       expect(new Set(sentIds()).size).toBe(2)
     }
   )
+
+  it('a new Send goes through after a stale-fence refusal', async () => {
+    let attempts = 0
+    sendRequest.mockImplementation(async (method) => {
+      if (method !== 'agentSession.send') {
+        return ok({ models: [], current: {} })
+      }
+      return ++attempts === 1
+        ? ok({
+            ok: false,
+            refusal: {
+              code: 'agent_session_checkpoint_stale',
+              message: 'Fence moved',
+              currentFence: 3
+            }
+          })
+        : sendResult('accepted')
+    })
+    await mountSession()
+    await act(async () => {
+      expect(await hook!.sendWithOutcome('again')).toBe('rejected')
+      expect(await hook!.sendWithOutcome('again')).toBe('accepted')
+    })
+    expect(new Set(sentIds()).size).toBe(2)
+  })
 
   it('sends nothing once the action budget expires', async () => {
     await mountSession()

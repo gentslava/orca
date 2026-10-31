@@ -22,10 +22,8 @@ const CLEARED = testOrcaSessionId('2e8b4d61-5a3c-4e97-b0f2-7c1d9a6e3b54')
 let db: OrchestrationDb
 let records: Map<string, AgentSessionRecord>
 const reader = {
-  getRecord: (id: string) => {
-    const record = records.get(id)
-    return record ? agentSessionConversationView(record) : null
-  },
+  getRecord: (id: string) =>
+    records.has(id) ? agentSessionConversationView(records.get(id)!) : null,
   listRecords: () => [...records.values()].map(agentSessionConversationView)
 }
 

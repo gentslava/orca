@@ -1,4 +1,4 @@
-import { EyeOff, Folder, Pin, PinOff } from 'lucide-react-native'
+import { EyeOff, Folder } from 'lucide-react-native'
 import { ActionSheetModal } from '../components/ActionSheetModal'
 import type { HostScreenController } from './use-host-screen-controller'
 import type { ConversationProject } from './project-conversations'
@@ -6,7 +6,6 @@ import { conversationCopy } from './conversation-copy'
 
 export function ConversationProjectActionsSheet({
   project,
-  controller,
   onClose,
   onWorkspaces,
   onHide
@@ -18,29 +17,12 @@ export function ConversationProjectActionsSheet({
   onHide?: () => void
 }) {
   const copy = conversationCopy()
-  const pinned = project?.projectPreference?.pinned === true
   return (
     <ActionSheetModal
       visible={project !== null}
       title={project?.title}
       onClose={onClose}
       actions={[
-        ...(project?.repo
-          ? [
-              {
-                label: pinned ? copy.unpinProject : copy.pinProject,
-                icon: pinned ? PinOff : Pin,
-                disabled:
-                  controller.connState !== 'connected' ||
-                  !controller.settings.supportsPersonalProjectOrder,
-                onPress: () => {
-                  if (project.repo) {
-                    void controller.settings.toggleProjectPin(project.repo)
-                  }
-                }
-              }
-            ]
-          : []),
         { label: copy.workspaces, icon: Folder, onPress: onWorkspaces },
         {
           label: copy.hideProject,
