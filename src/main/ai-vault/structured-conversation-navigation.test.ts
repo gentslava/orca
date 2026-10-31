@@ -34,6 +34,8 @@ function install(records: readonly AgentSessionRecord[]): void {
     deps: {
       store: {
         listRecords: () => records,
+        hostId: 'local',
+        getRecord: (id: string) => records.find((record) => record.sessionId === id) ?? null,
         listConversations: () => records.map(agentSessionConversationView)
       }
     }
