@@ -32,6 +32,7 @@ export const AiVaultListSessionsParams = z
       .optional(),
     includeAntigravityIdeSessions: OptionalBoolean,
     includeStructuredSessions: OptionalBoolean,
+    selectedSessionId: z.string().min(1).max(8192).optional(),
     unlimited: OptionalBoolean,
     force: OptionalBoolean,
     afterFingerprint: z
