@@ -177,16 +177,16 @@ export function useEmulatorPaneSession({
           liveTargetRef.current = null
           resetVisualOrientation()
         }
-        const res = (await callRuntimeRpc({ kind: 'local' }, 'emulator.attach', {
+        const res = await callRuntimeRpc<{
+          attached?: boolean
+          info?: EmulatorPaneSession['info']
+          selectionRequired?: EmulatorSelectionRequired
+        }>({ kind: 'local' }, 'emulator.attach', {
           ...(target ? { device: target } : {}),
           ...(supportsPreferences ? { userInitiated: true } : {}),
           worktree: worktreeId,
           focus: false
-        })) as {
-          attached?: boolean
-          info?: EmulatorPaneSession['info']
-          selectionRequired?: EmulatorSelectionRequired
-        }
+        })
         if (request !== attachRequestRef.current) {
           return
         }
