@@ -2898,6 +2898,9 @@
       "ran_one": "Ran {{count}} subagent",
       "ran_other": "Ran {{count}} subagents",
       "tokens": "{{value0}} tokens"
+    },
+    "tool": {
+      "activity": "Activity"
     }
   },
   "sourceControl": {
