@@ -5206,7 +5206,6 @@
         },
         "StatsPane": {
           "42d3e0bdf7": "Usage analytics provider: {{value0}}",
-          "c79f073d4c": "Usage Analytics",
           "a58aba506f": "PRs created",
           "1c96f433e2": "Time agents worked",
           "9dbec9e675": "Agents spawned",
@@ -5219,25 +5218,7 @@
           "trackingSince": "Tracking since {{value0}}"
         },
         "UsageOverviewPane": {
-          "33f7b043d2": "Providers",
-          "70f36452d4": "Cache share",
-          "327603fe8b": "Active days",
-          "0eaf937335": "Est. cost",
-          "3887b94ce5": "Total tokens",
-          "2d13e57f72": "Enable OpenCode",
-          "2f1ee2878b": "Enable Codex",
-          "0ea0cae435": "Enable Claude",
-          "6c00c46815": "Enable a provider to scan local agent logs and build the combined token ledger.",
-          "49405ccc8d": "Start tracking tokens",
-          "ca6bc5fded": "Refresh",
-          "e06d1baf5c": "Refresh usage overview",
-          "c760c481c5": "Usage Overview",
-          "55c910f4f1": "- some model prices are unavailable",
-          "enableMuse": "Enable Muse",
-          "noLocalUsageYet": "No local Claude, Codex, OpenCode, or Muse usage found yet. The overview will populate after the next agent session writes token logs.",
-          "providersEnabledWithData": "{{enabled}} enabled - {{withData}} with data",
-          "sessionCount_one": "{{formatted}} session",
-          "sessionCount_other": "{{formatted}} sessions"
+          "3887b94ce5": "Total tokens"
         },
         "share": {
           "card": {
@@ -22864,9 +22845,7 @@
         "explanation": "Cache share = cache read / (new input + cache read + cache write). Cached input is included once; reasoning is already included in output."
       },
       "format": {
-        "notAvailable": "n/a",
-        "notScanned": "Not scanned yet",
-        "updated": "Updated {{time}}"
+        "notAvailable": "n/a"
       },
       "coverage": {
         "counts": "Recorded coverage: {{providers}} providers · {{models}} models · {{projects}} projects · {{days}} days.",
