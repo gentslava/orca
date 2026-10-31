@@ -64,10 +64,14 @@ export class RuntimeEmulatorAttach {
       ) {
         return
       }
-      const recent = this.host.getSettings().mobileEmulatorRecentDevices ?? []
-      this.host.updateEmulatorSettings?.({
-        mobileEmulatorRecentDevices: rememberEmulatorDevice(selectedDevice, recent)
-      })
+      try {
+        const recent = this.host.getSettings().mobileEmulatorRecentDevices ?? []
+        this.host.updateEmulatorSettings?.({
+          mobileEmulatorRecentDevices: rememberEmulatorDevice(selectedDevice, recent)
+        })
+      } catch (error) {
+        console.warn('[emulator] Could not save the last-used device', error)
+      }
     }
     try {
       const worktreeId = params.worktree

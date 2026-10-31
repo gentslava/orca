@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { EmulatorBridge } from '../emulator/emulator-bridge'
 import { RuntimeEmulatorCommands } from './orca-runtime-emulator'
+import { RuntimeEmulatorAttach } from './runtime-emulator-attach'
 import type { GlobalSettings } from '../../shared/global-settings-types'
 import type { EmulatorSessionInfo } from '../emulator/emulator-types'
 import type { EmulatorDevice } from '../emulator/backends/emulator-backend'
@@ -117,4 +118,52 @@ describe('user emulator opening', () => {
     expect(await first).toMatchObject({ code: 'emulator_attach_superseded' })
     expect(settings.mobileEmulatorRecentDevices?.[0].id).toBe('Pixel')
   })
+})
+
+describe('successful attach with unavailable preference storage', () => {
+  it.each([false, true])(
+    'still notifies and returns success when saving fails (reuse=%s)',
+    async (reuse) => {
+      const { bridge, settings } = setup()
+      if (reuse) {
+        vi.mocked(bridge.getReusableActiveForWorktree).mockResolvedValue(info('emulator-5558'))
+      }
+      const failure = new Error('preference storage unavailable')
+      const notified = vi.fn()
+      const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const attach = new RuntimeEmulatorAttach(
+        {
+          getEmulatorBridge: () => bridge,
+          getSettings: () => settings,
+          updateEmulatorSettings: () => {
+            throw failure
+          },
+          resolveEmulatorWorkspaceId: async (id) => id,
+          resolveEmulatorCleanupWorkspaceId: async (id) => id,
+          getAuthoritativeWindow: () => {
+            throw new Error('Headless test')
+          }
+        },
+        () => bridge,
+        notified
+      )
+      try {
+        await expect(
+          attach.attach({
+            device: 'emulator-5558',
+            worktree: 'project',
+            userInitiated: true,
+            focus: false
+          })
+        ).resolves.toMatchObject({ attached: true, info: { deviceUdid: 'emulator-5558' } })
+        expect(notified).toHaveBeenCalledWith('project', info('emulator-5558'), false)
+        expect(warning).toHaveBeenCalledWith(
+          '[emulator] Could not save the last-used device',
+          failure
+        )
+      } finally {
+        warning.mockRestore()
+      }
+    }
+  )
 })
