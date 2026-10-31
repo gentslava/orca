@@ -46,7 +46,9 @@ describe('listSimulatorDevices', () => {
                 name: 'iPhone 17 Pro',
                 udid: 'AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE',
                 state: 'Shutdown',
-                isAvailable: true
+                isAvailable: true,
+                lastUsedAt: '2026-10-31T02:39:45Z',
+                availabilityError: 'runtime not installed'
               }
             ]
           }
@@ -61,7 +63,9 @@ describe('listSimulatorDevices', () => {
         udid: 'AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE',
         state: 'Shutdown',
         runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-18-0',
-        isAvailable: true
+        isAvailable: true,
+        lastUsedAt: '2026-10-31T02:39:45Z',
+        availabilityError: 'runtime not installed'
       }
     ])
     expect(execFileMock).toHaveBeenCalledWith(

@@ -11,6 +11,8 @@ export type SimulatorDevice = {
   state: string
   runtime: string
   isAvailable?: boolean
+  lastUsedAt?: string
+  availabilityError?: string
 }
 
 type SimctlDevice = {
@@ -18,6 +20,8 @@ type SimctlDevice = {
   udid?: string
   state?: string
   isAvailable?: boolean
+  lastUsedAt?: string
+  availabilityError?: string
 }
 
 type SimctlDeviceList = {
@@ -38,7 +42,9 @@ function parseSimctlDevices(stdout: string): SimulatorDevice[] {
         udid: device.udid,
         state: device.state ?? 'unknown',
         runtime,
-        isAvailable: device.isAvailable
+        isAvailable: device.isAvailable,
+        lastUsedAt: device.lastUsedAt,
+        availabilityError: device.availabilityError
       })
     }
   }
