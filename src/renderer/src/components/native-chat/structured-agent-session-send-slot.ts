@@ -39,6 +39,7 @@ export type StructuredAgentSessionSendRequest = Pick<
 > & {
   /** An explicit keyboard choice overrides the Enter preference for this draft. */
   delivery?: 'immediate' | 'queue-if-active'
+  alternate?: true
   onSettled?: (outcome: StructuredAgentSessionSendOutcome) => void
 }
 

@@ -83,7 +83,8 @@ export function useNativeChatStructuredComposerSend({
         ? structuredAgentSessionRequestedDelivery(
             structuredTransport.queue,
             structuredTransport.isWorking === true,
-            request?.delivery
+            request?.delivery,
+            request?.alternate
           )
         : request?.delivery
       if (

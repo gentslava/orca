@@ -15,7 +15,14 @@ import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-cap
 import { AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY } from '../../../../shared/agent-session-runtime-capabilities'
 import { getStructuredAgentSessionPendingSends } from './structured-agent-session-pending-sends'
 
-const QUEUEING = { capability: 'supported', enabled: true } as const
+const QUEUEING = {
+  capability: 'supported',
+  followUpsQueue: true,
+  isWorking: true,
+  stopping: false,
+  session: { queuedMessages: [] },
+  prompts: []
+} as const
 
 afterEach(() => {
   resetStructuredAgentSessionSendsForTests()
@@ -26,7 +33,7 @@ afterEach(() => {
 it.each([
   ['a text follow-up while the agent works', QUEUEING, true, [], 'queued'],
   ['the same follow-up when the agent is idle', QUEUEING, false, [], true],
-  ['with the queue setting off', { capability: 'supported', enabled: false }, true, [], true],
+  ['with the queue setting off', { ...QUEUEING, followUpsQueue: false }, true, [], true],
   [
     'an image follow-up, which queues like text',
     QUEUEING,
@@ -46,7 +53,7 @@ it.each([
         fence: 1,
         submissions: [],
         queuedMessageIds: [],
-        queue,
+        queue: { ...queue, isWorking },
         historyLoaded: false,
         isWorking
       })
@@ -129,7 +136,7 @@ it('queues an explicit alternate send with images even when Enter sends immediat
       fence: 1,
       submissions: [],
       queuedMessageIds: [],
-      queue: { capability: 'supported', enabled: false },
+      queue: { ...QUEUEING, followUpsQueue: false },
       historyLoaded: false,
       isWorking: true,
       sendOptions: () => ({ model: 'future-model', effort: 'low' })
@@ -166,7 +173,7 @@ it('uses current-turn steering for the default immediate Enter action on a capab
       fence: 1,
       submissions: [],
       queuedMessageIds: [],
-      queue: { capability: 'supported', enabled: false },
+      queue: { ...QUEUEING, followUpsQueue: false },
       historyLoaded: false,
       isWorking: true
     })
@@ -241,10 +248,10 @@ it.each(['unknown', 'unsupported'] as const)(
 )
 
 it.each([
-  { capability: 'unknown', enabled: true },
-  { capability: 'unsupported', enabled: true },
-  { capability: 'unknown', enabled: false },
-  { capability: 'unsupported', enabled: false }
+  { ...QUEUEING, capability: 'unknown', followUpsQueue: true },
+  { ...QUEUEING, capability: 'unsupported', followUpsQueue: true },
+  { ...QUEUEING, capability: 'unknown', followUpsQueue: false },
+  { ...QUEUEING, capability: 'unsupported', followUpsQueue: false }
 ] as const)('keeps the default busy draft when its Enter action is unavailable: %j', (queue) => {
   setLocalRuntimeCapabilitiesForTests(queue.capability === 'unknown' ? null : [])
   const { result } = renderHook(() =>

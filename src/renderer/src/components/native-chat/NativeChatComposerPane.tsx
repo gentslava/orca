@@ -56,7 +56,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       readTerminalScreen,
       launchSeed,
       structuredTransport,
-      steerQueued,
+      steerHead,
       recallSource,
       inputOwnedByCard = false,
       notices: chatNotices,
@@ -138,10 +138,12 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       structuredWorktreeId: structuredTransport?.worktreeId
     })
 
-    const resolveTarget = useCallback(
-      () => (targetPtyId ? { ptyId: targetPtyId } : null),
-      [targetPtyId]
-    )
+    const resolveTarget = useCallback(() => {
+      if (!targetPtyId) {
+        return null
+      }
+      return { ptyId: targetPtyId }
+    }, [targetPtyId])
 
     const attachments = useNativeChatComposerAttachments({
       attachmentScopeKey: draftScopeKey,
@@ -292,7 +294,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       optimisticSendOutcome,
       terminalTabId
     })
-    const submit = useNativeChatComposerSubmit({
+    const { send: sendMessage, goalMode } = useNativeChatComposerSubmit({
       structuredTransport,
       draftScopeKey,
       draft,
@@ -305,8 +307,6 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       setDraft,
       setCaret
     })
-
-    const { sendAlternate, goalMode } = submit
 
     const { send, chooseEditItem, fieldOverrides, dispatchPickerCommand } =
       useNativeChatComposerEditSession({
@@ -322,7 +322,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
         sendStructured,
         ptyCommandRouting: { ...ptyCommandRouting, setActiveSuggestion },
         setNotice,
-        sendMessage: submit.send
+        sendMessage
       })
 
     const interrupt = useNativeChatComposerInterrupt({
@@ -348,10 +348,8 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       dismissPicker: dismiss,
       interrupt: editSession?.cancel ?? interrupt,
       send,
-      ...(!editSession && structuredTransport && isWorking ? { sendAlternate } : {}),
       hasAttachments: imageAttachments.length > 0,
-      steerQueued:
-        editSession || structuredTransport?.queue?.enabled === false ? undefined : steerQueued,
+      ...(!editSession && steerHead ? { steerHead } : {}),
       setActiveSuggestion,
       setDraft,
       setCaret

@@ -11,6 +11,7 @@ import type {
 } from '../../../../shared/native-chat-composer-autocomplete'
 import { isMacPlatform } from './native-chat-shortcut'
 import type { NativeChatMentionFiles } from './use-native-chat-mention-files'
+import type { NativeChatComposerSendIntent } from './native-chat-composer-types'
 import {
   isNativeChatRecallActive,
   nativeChatSentPrompts,
@@ -32,11 +33,9 @@ export type UseNativeChatComposerKeyDownArgs = {
   dispatchPickerCommand: (item: Extract<NativeChatPickerItem, { kind: 'command' }>) => void
   dismissPicker: (triggerKey: string) => void
   interrupt: () => void
-  send: () => void
-  /** Performs the opposite of the configured Enter action on the complete draft. */
-  sendAlternate?: (() => void) | undefined
-  /** Empty-composer Cmd/Ctrl+Enter steers the newest card; false falls through to send. */
-  steerQueued?: (() => boolean) | undefined
+  send: (intent?: NativeChatComposerSendIntent) => void
+  /** Cmd/Ctrl+Shift+Enter steers the head queued card, whatever the composer holds. */
+  steerHead?: (() => boolean) | undefined
   setActiveSuggestion: Dispatch<SetStateAction<number>>
   setDraft: Dispatch<SetStateAction<string>>
   setCaret: Dispatch<SetStateAction<number>>
@@ -56,8 +55,7 @@ export function useNativeChatComposerKeyDown({
   dismissPicker,
   interrupt,
   send,
-  sendAlternate,
-  steerQueued,
+  steerHead,
   setActiveSuggestion,
   setDraft,
   setCaret
@@ -78,10 +76,6 @@ export function useNativeChatComposerKeyDown({
       if (event.key === 'Escape' && event.defaultPrevented) {
         return
       }
-      if (event.key === 'Enter' && event.repeat && !event.shiftKey) {
-        event.preventDefault()
-        return
-      }
 
       if (autocomplete.mode !== 'none') {
         const items = autocomplete.mode === 'slash' ? autocomplete.items : mentionFiles.files
@@ -96,11 +90,7 @@ export function useNativeChatComposerKeyDown({
           return
         }
         // Shift keeps its own meaning: a newline for Enter, focus back for Tab.
-        const picks =
-          (event.key === 'Enter' || event.key === 'Tab') &&
-          !event.shiftKey &&
-          !event.metaKey &&
-          !event.ctrlKey
+        const picks = (event.key === 'Enter' || event.key === 'Tab') && !event.shiftKey
         if (picks && items.length > 0) {
           event.preventDefault()
           if (autocomplete.mode === 'mention') {
@@ -134,19 +124,23 @@ export function useNativeChatComposerKeyDown({
         interrupt()
         return
       }
-      if (event.key === 'Enter' && !event.shiftKey) {
-        const steerChord = isMacPlatform() ? event.metaKey : event.ctrlKey
-        // Only from an empty composer: the chord never sends a card past what the user just wrote.
-        const composerEmpty = draft.trim() === '' && !hasAttachments
-        if (steerChord && composerEmpty && steerQueued?.()) {
-          event.preventDefault()
-          return
-        }
+      const modified = event.key === 'Enter' && (isMacPlatform() ? event.metaKey : event.ctrlKey)
+      // Why before Shift+Enter: that adds a newline, and this chord leaves the draft alone.
+      if (modified && event.shiftKey) {
         event.preventDefault()
-        if (steerChord && sendAlternate) {
-          sendAlternate()
-        } else {
+        // A held chord would otherwise steer each card that becomes the head.
+        if (!event.repeat) {
+          steerHead?.()
+        }
+        return
+      }
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault()
+        if (!modified) {
           send()
+        } else if (draft.trim() !== '' || hasAttachments) {
+          // The other thing than the setting; an empty composer has nothing to send either way.
+          send({ alternate: true })
         }
         return
       }
@@ -192,8 +186,7 @@ export function useNativeChatComposerKeyDown({
       isComposing,
       mentionFiles,
       send,
-      sendAlternate,
-      steerQueued,
+      steerHead,
       setActiveSuggestion,
       setCaret,
       setDraft
