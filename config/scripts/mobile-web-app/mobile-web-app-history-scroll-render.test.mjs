@@ -198,6 +198,8 @@ run('production mobile PageList scrolling', () => {
         root.addEventListener('scroll', () => window.historyScrollPositions.push(root.scrollTop))
       })
       const before = await snapshot(page)
+      // Touch hit-testing needs a committed compositor frame after the first list layout.
+      await page.screenshot()
       await cdp.send('Input.synthesizeScrollGesture', {
         x: 190,
         y: 300,
