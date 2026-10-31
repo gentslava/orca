@@ -49,7 +49,7 @@ export function EmulatorDevicePicker({ devices, selectedUdid, disabled, onSelect
         value={device.udid}
         keywords={[device.name, description, device.udid, device.availabilityError ?? '']}
         disabled={device.isAvailable === false}
-        className="jump-palette-item gap-2"
+        selection="palette"
         data-current={device.udid === selectedUdid || undefined}
         onSelect={() => {
           onSelectDevice(device.udid)
@@ -87,11 +87,12 @@ export function EmulatorDevicePicker({ devices, selectedUdid, disabled, onSelect
       <PopoverTrigger asChild>
         <Button
           variant="outline"
+          size="xs"
           role="combobox"
           aria-expanded={open}
           aria-label={chooseLabel}
           disabled={disabled || devices.length === 0}
-          className="h-7 w-56 justify-between gap-2 text-xs"
+          className="h-7 w-56 justify-between"
         >
           <span className="truncate">
             {selected ? `${selected.name} · ${emulatorDeviceDescription(selected)}` : chooseLabel}
@@ -99,14 +100,14 @@ export function EmulatorDevicePicker({ devices, selectedUdid, disabled, onSelect
           <ChevronDown className="size-3.5 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)] p-0" wheelScroll>
+      <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)]" wheelScroll>
         <Command density="menu">
           <CommandInput
             value={search}
             onValueChange={setSearch}
             placeholder={translate('emulator.picker.search', 'Search devices…')}
           />
-          <CommandList className="scrollbar-sleek max-h-80">
+          <CommandList className="max-h-80">
             <CommandEmpty>{translate('emulator.picker.empty', 'No matching devices')}</CommandEmpty>
             {groups.used.length > 0 && (
               <CommandGroup heading={translate('emulator.picker.used', 'Used devices')}>
@@ -120,7 +121,7 @@ export function EmulatorDevicePicker({ devices, selectedUdid, disabled, onSelect
                     value="other-devices"
                     onSelect={() => setOtherOpen(!otherOpen)}
                     aria-expanded={otherOpen}
-                    className="jump-palette-item"
+                    selection="palette"
                   >
                     <ChevronRight className={otherOpen ? 'rotate-90' : ''} />
                     {translate('emulator.picker.other', 'Other devices on this computer')} (
@@ -137,7 +138,7 @@ export function EmulatorDevicePicker({ devices, selectedUdid, disabled, onSelect
                     value="unavailable-devices"
                     onSelect={() => setUnavailableOpen(!unavailableOpen)}
                     aria-expanded={unavailableOpen}
-                    className="jump-palette-item"
+                    selection="palette"
                   >
                     <ChevronRight className={unavailableOpen ? 'rotate-90' : ''} />
                     {translate('emulator.picker.unavailable', 'Unavailable runtimes')} (
