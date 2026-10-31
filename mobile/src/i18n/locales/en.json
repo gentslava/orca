@@ -2907,6 +2907,9 @@
       "ran_other": "Ran {{count}} subagents",
       "tokens": "{{value0}} tokens"
     },
+    "notices": {
+      "orchestrationMail": "Orchestration mail"
+    },
     "tool": {
       "activity": "Activity"
     }

@@ -600,6 +600,9 @@
       "imageTooLarge": "Изображение слишком большое для прикрепления",
       "permissionDenied": "Нет доступа к фото"
     },
+    "notices": {
+      "orchestrationMail": "Служебные сообщения агентов"
+    },
     "tool": {
       "activity": "Активность"
     }
