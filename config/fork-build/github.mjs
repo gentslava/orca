@@ -57,6 +57,16 @@ export function renderReport(plan) {
         )
       }
     }
+    if (plan.result.reviewedResolutions?.length) {
+      lines.push('', '## Reviewed integration patches', '')
+      for (const entry of plan.result.reviewedResolutions) {
+        for (const patch of entry.patches) {
+          lines.push(
+            `- #${entry.number}: \`${patch.path}\`; patch SHA-256 \`${patch.patchSha256}\`. ${patch.reason}`
+          )
+        }
+      }
+    }
     lines.push('', '## Conflicts and blockers', '')
     for (const conflict of plan.result.conflicts) {
       lines.push(

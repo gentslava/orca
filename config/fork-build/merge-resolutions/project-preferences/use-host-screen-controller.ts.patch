@@ -1,0 +1,32 @@
+--- a/mobile/src/host-screen/use-host-screen-controller.ts
++++ b/mobile/src/host-screen/use-host-screen-controller.ts
+@@ -64,7 +64,6 @@
+   const now = useNow(30_000)
+   const { hostCapabilities, floatingWorkspaceEnabled } = useHostProtocolGates()
+   const state = useHostScreenState(hostId)
+-  const settings = useHostViewSettings({ client, connState, state })
+   const connectionVerdict = classifyConnection({
+     state: connState,
+     reconnectAttempts,
+@@ -85,6 +84,13 @@
+     sidebarFeed?.feed.kind === 'ready'
+       ? (sidebarFeed.feed.domains.projectCatalog ?? state.servedProjectSections)
+       : state.servedProjectSections
++  const settings = useHostViewSettings({
++    client,
++    connState,
++    state,
++    hostCapabilities,
++    projectCatalog
++  })
+   // Read through a ref so the metadata refresh keeps its identity across installs.
+   const feedRef = useRef(sidebarFeed?.feed)
+   useEffect(() => {
+@@ -124,6 +130,7 @@
+     connState,
+     embedded,
+     fetchWorktrees: catalog.fetchWorktrees,
++    projectCatalog,
+     forgetHostClient,
+     hostCapabilities,
+     hostId,

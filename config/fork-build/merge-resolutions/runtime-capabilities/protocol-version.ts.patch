@@ -1,0 +1,18 @@
+--- a/src/shared/protocol-version.ts
++++ b/src/shared/protocol-version.ts
+@@ -3,6 +3,7 @@
+   CONVERSATION_PROJECT_VISIBILITY_CAPABILITY
+ } from './conversation-navigation-preferences'
+ import { PERSONAL_PROJECT_ORDER_CAPABILITY } from './personal-project-order'
++import { EMULATOR_RUNTIME_CAPABILITIES } from './emulator-runtime-capabilities'
+ import { ACCOUNT_RUNTIME_CAPABILITIES } from './account-runtime-capabilities'
+ import { USAGE_RUNTIME_CAPABILITIES } from './usage-history-rpc'
+ import * as agentLaunchCapabilities from './agent-launch-runtime-capability'
+@@ -140,6 +141,7 @@
+ 
+ export const RUNTIME_CAPABILITIES = [
+   CONVERSATION_NAVIGATION_CAPABILITY,
++  ...EMULATOR_RUNTIME_CAPABILITIES,
+   SAVED_RESUME_ORIGIN_RUNTIME_CAPABILITY,
+   CONVERSATION_NAVIGATION_CAPABILITY,
+   CONVERSATION_PROJECT_VISIBILITY_CAPABILITY,

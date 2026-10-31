@@ -1,0 +1,10 @@
+--- a/src/main/ai-vault/structured-conversation-navigation.ts
++++ b/src/main/ai-vault/structured-conversation-navigation.ts
+@@ -154,6 +154,7 @@
+   }
+   return {
+     ...result,
++    includesStructuredSessions: true,
+     sessions: [...otherRows, ...bySessionId.values()].sort((a, b) => rowTime(b) - rowTime(a))
+   }
+ }

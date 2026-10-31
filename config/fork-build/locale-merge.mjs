@@ -12,7 +12,7 @@ function object(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
-function parseCatalog(text) {
+export function parseCatalog(text) {
   const value = JSON.parse(text)
   const scopes = []
   for (const token of text.matchAll(/"(?:\\.|[^"\\])*"|[{}]/g)) {
