@@ -233,7 +233,7 @@ describe('AndroidEmulatorBackend', () => {
     })
 
     it('falls back to adb input once the control socket is gone', async () => {
-      sendControl.mockReturnValue(false)
+      sendControl.mockReturnValueOnce(false)
       await backend(runner).tap('emulator-5554', 0.5, 0.5)
       expect(runner).toHaveBeenCalledWith(SDK.adb, [
         '-s',
