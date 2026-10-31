@@ -77,13 +77,15 @@ try {
   }
   plan.result = compose(source, plan.upstream, plan.selections, { timestamp: plan.timestamp })
   for (const patch of config.compatibilityPatches) {
-    if (patch !== 'preview-updater-guard.patch') {
+    if (!['preview-updater-guard.patch', 'test-runner-registration.patch'].includes(patch)) {
       throw new Error('Unrecognized compatibility correction')
     }
     const path = join(here, patch)
-    plan.compatibility = [
-      { file: patch, sha256: createHash('sha256').update(readFileSync(path)).digest('hex') }
-    ]
+    plan.compatibility ??= []
+    plan.compatibility.push({
+      file: patch,
+      sha256: createHash('sha256').update(readFileSync(path)).digest('hex')
+    })
     try {
       git(source, ['apply', '--check', path])
       git(source, ['apply', '--index', path])

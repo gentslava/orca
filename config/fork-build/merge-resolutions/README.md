@@ -86,3 +86,7 @@ Advertise emulator recency/runtime support together with conversation navigation
 | File                             | Reviewed correction                                    |
 | -------------------------------- | ------------------------------------------------------ |
 | `src/shared/protocol-version.ts` | [Diff](runtime-capabilities/protocol-version.ts.patch) |
+
+## Upstream shared options refresh (2026-10-31)
+
+The `shared-options-upstream-refresh/` entries combine the refreshed #33362 and #33395 on upstream `002e975e960425eefd3d95af5957323334334c83`. Both capabilities and both picker regressions are retained. Default reset uses upstream's shared write owner and pending-choice fences; immediate question replies keep their explicit delivery guard. These entries use new three-blob identities, without weakening or replacing earlier guards.
