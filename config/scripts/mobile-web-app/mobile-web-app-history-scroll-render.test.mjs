@@ -202,7 +202,7 @@ run('production mobile PageList scrolling', () => {
       await page.screenshot()
       await cdp.send('Input.synthesizeScrollGesture', {
         x: 190,
-        y: 300,
+        y: 180,
         yDistance: 500,
         speed: 300,
         gestureSourceType: 'touch',
