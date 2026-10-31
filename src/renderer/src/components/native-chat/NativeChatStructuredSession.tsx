@@ -380,9 +380,7 @@ export function NativeChatStructuredSession(
                   agent={props.agent}
                   {...stopControls.composer}
                   unavailableHint={install.unavailableHint}
-                  steerHead={
-                    stopControls.stopping ? undefined : submits.queuedMessages.steerHead
-                  }
+                  steerHead={stopControls.stopping ? undefined : submits.queuedMessages.steerHead}
                   structuredTransport={transport}
                   notices={notices}
                   recallSource={{ messages: session.messages, withoutImageMarkers: true }}
