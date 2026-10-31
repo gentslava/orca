@@ -1,3 +1,4 @@
+import { getDefaultSettings } from '../../../../shared/constants'
 import { defineFixture } from '../../component-fixtures/component-fixture'
 import { EmulatorDevicePicker } from './emulator-device-picker'
 import type { SimulatorDeviceRow } from './emulator-pane-types'
@@ -33,6 +34,7 @@ const devices: SimulatorDeviceRow[] = [
   }
 ]
 export const usedDevices = defineFixture({
+  store: { settings: { ...getDefaultSettings('/tmp'), uiLanguage: 'en' } },
   width: 400,
   render: () => (
     <div className="p-4">
@@ -48,6 +50,7 @@ export const usedDevices = defineFixture({
   }
 })
 export const allDevices = defineFixture({
+  store: { settings: { ...getDefaultSettings('/tmp'), uiLanguage: 'en' } },
   width: 400,
   render: () => (
     <div className="p-4">

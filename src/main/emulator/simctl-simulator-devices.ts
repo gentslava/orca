@@ -20,6 +20,7 @@ type SimctlDevice = {
   udid?: string
   state?: string
   isAvailable?: boolean
+  lastBootedAt?: string
   lastUsedAt?: string
   availabilityError?: string
 }
@@ -43,7 +44,7 @@ function parseSimctlDevices(stdout: string): SimulatorDevice[] {
         state: device.state ?? 'unknown',
         runtime,
         isAvailable: device.isAvailable,
-        lastUsedAt: device.lastUsedAt,
+        lastUsedAt: device.lastUsedAt ?? device.lastBootedAt,
         availabilityError: device.availabilityError
       })
     }
