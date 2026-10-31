@@ -35,6 +35,7 @@ export const MobileNativeChatGrowthHoldContext =
 
 export type MobileNativeChatHeldRows = {
   rows: readonly NativeChatMessage[]
+  header: ReactElement | null
   footer: ReactElement | null
   // Freeze renderItem too: grouping/turn context changes a row even if its message is unchanged.
   renderItem: (row: { item: NativeChatMessage; index: number }) => ReactElement
@@ -43,8 +44,7 @@ export type MobileNativeChatHeldRows = {
 export function mobileNativeChatHeldRows(
   held: MobileNativeChatHeldRows | null,
   liveRows: readonly NativeChatMessage[],
-  rowKeys: Pick<MobileNativeChatRowKeys, 'keyOf'>,
-  runs?: ReadonlyMap<number, readonly NativeChatMessage[]>
+  rowKeys: Pick<MobileNativeChatRowKeys, 'keyOf'>
 ) {
   const unheld = { rows: liveRows, heldFrom: Infinity, heldAt: 0 }
   const head = held?.rows[0]
@@ -52,24 +52,6 @@ export function mobileNativeChatHeldRows(
   if (!held || at === -1) {
     return unheld
   }
-  // A newly prepended run head owns its held members; draw those members live.
-  let last: NativeChatMessage | undefined
-  for (const [index, members] of runs ?? []) {
-    if (index >= at) {
-      break
-    }
-    last = members.at(-1)
-  }
-  const from = Math.max(at, last ? liveRows.indexOf(last, at) + 1 : 0)
-  const kept = liveRows.slice(at, from).every((row, i) => {
-    const was = held.rows[i]
-    return was !== undefined && rowKeys.keyOf(was) === rowKeys.keyOf(row)
-  })
-  return kept
-    ? {
-        rows: [...liveRows.slice(0, from), ...held.rows.slice(from - at)],
-        heldFrom: from,
-        heldAt: at
-      }
-    : unheld
+  // Touch scrolling rebases its origin when history grows above it; insert only after rest.
+  return { rows: held.rows, heldFrom: 0, heldAt: 0 }
 }

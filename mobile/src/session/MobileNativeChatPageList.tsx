@@ -66,7 +66,6 @@ type Props = {
   rows: readonly NativeChatMessage[]
   rowKeys: Pick<MobileNativeChatRowKeys, 'scope' | 'keyOf' | 'current' | 'placement'>
   renderItem: (row: Row) => ReactElement
-  runs?: ReadonlyMap<number, readonly NativeChatMessage[]>
   // Regrouping changes layout, so preserve the reading place through the update.
   layoutKey: string
   contentContainerStyle: StyleProp<ViewStyle>
@@ -86,10 +85,9 @@ export function MobileNativeChatPageList({
   rows: liveRows,
   rowKeys,
   renderItem,
-  runs,
   layoutKey,
   contentContainerStyle,
-  header,
+  header: liveHeader,
   footer: liveFooter,
   emptyStateView,
   onScroll,
@@ -103,9 +101,10 @@ export function MobileNativeChatPageList({
   const [, release] = useState(0)
   const held = heldRef.current
   const { rows, heldFrom, heldAt } = useMemo(
-    () => mobileNativeChatHeldRows(held, liveRows, rowKeys, runs),
-    [held, liveRows, rowKeys, runs]
+    () => mobileNativeChatHeldRows(held, liveRows, rowKeys),
+    [held, liveRows, rowKeys]
   )
+  const header = held ? held.header : liveHeader
   const footer = held ? held.footer : liveFooter
   const keys = useMemo(() => rows.map(rowKeys.keyOf), [rows, rowKeys.keyOf])
   const indexOf = useMemo(() => new Map(keys.map((key, at) => [key, at])), [keys])
@@ -149,14 +148,14 @@ export function MobileNativeChatPageList({
   const place = useRef<MobileNativeChatReadingUnit[] | null>(null)
   const placedLayout = useRef(layoutKey)
   const settleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const live = useRef<Held>({ rows: liveRows, footer: liveFooter, renderItem })
+  const live = useRef<Held>({ rows: liveRows, header: liveHeader, footer: liveFooter, renderItem })
   const ask = useRef(onNearTop)
   // Read latest committed geometry from event handlers between renders.
   const latest = useRef({ first, opening, n, keys, indexOf, layoutKey, rowKeys, beforeRowsHeight })
   useLayoutEffect(() => {
     latest.current = { first, opening, n, keys, indexOf, layoutKey, rowKeys, beforeRowsHeight }
     ask.current = onNearTop
-    live.current = { rows: liveRows, footer: liveFooter, renderItem }
+    live.current = { rows: liveRows, header: liveHeader, footer: liveFooter, renderItem }
   })
 
   const write = useCallback((s: Scroller, to: number) => {
@@ -273,7 +272,7 @@ export function MobileNativeChatPageList({
         const cut = mobileNativeChatRowAbove(s, DRAW_AHEAD_SCREENS * s.clientHeight)
         next = Math.min(rowAt.get(cut ?? '') ?? at, opening)
       }
-      if (next !== at) {
+      if (next !== at && (isFollowing() || resting())) {
         const automatic = isFollowing()
         setDrawn((previous) => ({
           scope: current.scope,
@@ -288,7 +287,7 @@ export function MobileNativeChatPageList({
         ask.current?.()
       }
     },
-    [isFollowing]
+    [isFollowing, resting]
   )
 
   useImperativeHandle(

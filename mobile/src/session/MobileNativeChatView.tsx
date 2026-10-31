@@ -353,7 +353,6 @@ export function MobileNativeChatView({
                   {...{ tail, rowKeys, renderItem, footer, emptyStateView, onScroll, layoutKey }}
                   {...{ header, onNearTop: loadEarlierNearTop }}
                   rows={turns.listMessages}
-                  runs={turns.presentation.workRuns.heads}
                   roots={disclosures.roots}
                   contentContainerStyle={styles.listContent}
                 />
