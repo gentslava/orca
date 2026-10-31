@@ -1,5 +1,4 @@
 import type { ExecutionHostId } from '../../../src/shared/execution-host'
-import type { ProjectPreference } from '../../../src/shared/personal-project-order'
 import type { AgentDotState } from '../worktree/agent-row-display'
 import type { SectionRepo, Worktree } from '../worktree/workspace-list-types'
 import type { ConversationHistory } from './conversation-records'
@@ -24,7 +23,6 @@ export type ConversationProject = {
   hostHealthLabel?: string
   repo?: SectionRepo
   visibilityKey?: string
-  projectPreference?: ProjectPreference
   workspaces: Worktree[]
   data: ConversationRow[]
 }

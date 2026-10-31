@@ -27,7 +27,6 @@ import { agentSendDisabledReasonLabel } from '@/lib/agent-send-disabled-reason-l
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { activateRetainedAgentRow } from './activate-retained-agent-row'
 import { selectAgentRowsUnread } from './worktree-card-agent-ack-inputs'
-import { formatSummaryAgentCount } from './worktree-card-agent-summary'
 import { opensClaudeParentConversation } from '@/lib/claude-agent-row-view'
 
 export const SUPPRESS_WORKTREE_LIST_SCROLL_ADJUSTMENT_EVENT =
@@ -328,7 +327,10 @@ const WorktreeCardAgentsBody = React.memo(function WorktreeCardAgentsBody({
     const summaryAgents = hasLineage ? rootAgents : agents
     // Collapse compact multi-agent lists except when their rows are the send-target picker.
     const shouldUseSummaryRow = summaryAgents.length > 1 && !isAgentSendTargetModeActive
-    const subjectLabel = formatSummaryAgentCount(hasLineage ? rootAgents.length : agents.length)
+    const subjectLabel = translate('sidebar.agentSummary.agentCount', '{{count}} agents', {
+      count: hasLineage ? rootAgents.length : agents.length,
+      defaultValue_one: '{{count}} agent'
+    })
 
     return (
       <div

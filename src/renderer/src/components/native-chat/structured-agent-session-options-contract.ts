@@ -12,8 +12,8 @@ export type StructuredAgentSessionOptionsArgs = {
   target: RuntimeClientTarget
   transportEnabled: boolean
   isVisible: boolean
-  providerVisible: boolean
   isWorking?: boolean
+  providerVisible: boolean
   providerStarting?: boolean
   providerRunning?: boolean
   hostOptionStamp?: string

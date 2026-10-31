@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
-import { ChevronRight, Pin } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { RepoIconGlyph } from '@/components/repo/repo-icon'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
@@ -16,8 +15,6 @@ export function ProjectConversationSection({
   children,
   more,
   onMore,
-  pinned,
-  onPin,
   menu
 }: {
   label: string
@@ -28,13 +25,8 @@ export function ProjectConversationSection({
   children: ReactNode
   more: boolean
   onMore: () => void
-  pinned?: boolean
-  onPin?: () => void
   menu?: ReactNode
 }): React.JSX.Element {
-  const pinLabel = pinned
-    ? translate('projectConversations.unpinProject', 'Unpin project')
-    : translate('projectConversations.pinProject', 'Pin project')
   return (
     <section className="mb-3" aria-label={label}>
       <div className="group/project flex min-w-0 items-center gap-1 rounded-md px-1 hover:bg-sidebar-accent focus-within:bg-sidebar-accent">
@@ -59,21 +51,8 @@ export function ProjectConversationSection({
             />
           </span>
           <span className="truncate font-medium">{label}</span>
-          {pinned ? (
-            <Pin className="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
-          ) : null}
         </button>
         <div className="flex shrink-0 items-center opacity-0 group-hover/project:opacity-100 group-focus-within/project:opacity-100 [@media(hover:none)]:opacity-100">
-          {onPin ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon-xs" aria-label={pinLabel} onClick={onPin}>
-                  <Pin className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{pinLabel}</TooltipContent>
-            </Tooltip>
-          ) : null}
           {menu}
           {newChat}
         </div>

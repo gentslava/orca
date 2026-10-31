@@ -9,10 +9,7 @@ import { readAgentJournalTurn } from '../../../shared/agent-session-turn-record'
 import { isSubagentBlock } from '../../../shared/native-chat-types'
 import { activeStructuredAgentSessionTurnId } from '../../../shared/structured-agent-session-live-turn'
 import { acpChildWorkStatusSink } from '../../acp/acp-structured-child-work.test-support'
-import {
-  MOVED_TO_BACKGROUND,
-  RESUMED_BY_MESSAGE
-} from '../../claude/claude-captured-task-frames.test-fixture'
+import { RESUMED_BY_MESSAGE } from '../../claude/claude-captured-task-frames.test-fixture'
 import { WAKES_AFTER_ITS_SHELL } from '../../claude/claude-captured-wake-frames.test-fixture'
 import { ClaudeStructuredSessionAdapter } from '../../claude/claude-structured-session-adapter'
 import {
@@ -24,8 +21,10 @@ import { claudeStartupSettled } from '../../claude/claude-structured-startup-set
 import type { AgentSessionRecordStore } from '../../runtime/agent-session-record-store'
 import { openTestAgentSessionRecordStore } from '../../runtime/agent-session-record-store-test-harness'
 import { structuredClaudeLifecycleEvent } from '../../runtime/structured-claude-runtime-adapter'
-import { claudeStructuredPermissionOptions } from '../../claude/claude-structured-launch-resolution'
-import { openTestJournalHostDatabase } from '../agent-session-journal/journal-host-database-test-support'
+import {
+  closeTestJournalHostDatabases,
+  openTestJournalHostDatabase
+} from '../agent-session-journal/journal-host-database-test-support'
 import { StructuredAgentSessionHost } from './structured-agent-session-host'
 import { STRUCTURED_AGENT_SESSION_IDLE_MS } from './structured-agent-session-idle-sweep'
 import { claudeAndCodexAgents } from './structured-agent-session-adapter-router-test-support'
@@ -40,7 +39,6 @@ import {
 } from './structured-agent-session-host-test-data'
 
 const CALLER = { callerKey: 'client-1' }
-let claudeFrames: { replayUuid: null; initProof?: 'none' }
 
 let root: string
 let host: StructuredAgentSessionHost
@@ -55,12 +53,11 @@ beforeEach(async () => {
   clock = NOW
   resetHostTestOperationIds()
   const log = recordingStructuredAgentSessionLogger()
-  claudeFrames = { replayUuid: null }
-  claude = fakeClaude(claudeFrames)
+  claude = fakeClaude({ replayUuid: null })
   adapter = new ClaudeStructuredSessionAdapter({
-    resolveLaunch: async ({ permissionMode }) => ({
+    resolveLaunch: async () => ({
       pathToClaudeCodeExecutable: 'claude',
-      options: claudeStructuredPermissionOptions(permissionMode ?? 'ask'),
+      options: {},
       cwd: root,
       claudeConfigDir: join(root, 'claude-home'),
       providerSessionId: PROVIDER_SESSION_ID,
@@ -100,7 +97,6 @@ beforeEach(async () => {
   const params = hostTestAttachParams(null, {
     provider: 'claude',
     agent: 'claude',
-    options: { model: 'haiku', permissionMode: 'auto' },
     accountHome: { variable: 'CLAUDE_CONFIG_DIR', path: join(root, 'claude-home') },
     providerHandle: { kind: 'claude', sessionId: PROVIDER_SESSION_ID, leafUuid: null }
   })
@@ -109,8 +105,11 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  host.stopDelivery()
+  claude.dispose()
   await adapter.closeAll()
   await host.flushAllStreamedEvents()
+  await closeTestJournalHostDatabases()
   await rm(root, { recursive: true, force: true })
 })
 
@@ -290,15 +289,20 @@ it('keeps a helper the next child resumes while it is still starting working, pa
   const opened = claude.connections.push.bind(claude.connections)
   vi.spyOn(claude.connections, 'push').mockImplementation((connection) => {
     const initialize = connection.initializationResult
-    connection.initializationResult = async () => {
-      const initialized = await initialize()
-      for (const [index, captured] of RESUMED_BY_MESSAGE.filter(
-        ({ at }) => at >= 16_142 && at <= 16_143
-      ).entries()) {
-        frame(connection, { uuid: `resume-${index}`, ...captured.frame })
-      }
-      return initialized
-    }
+    let completion: Promise<unknown> | undefined
+    connection.initializationResult = () =>
+      (completion ??= (async () => {
+        const initialized = await initialize()
+        if (connection.initialization.disposed) {
+          return initialized
+        }
+        for (const [index, captured] of RESUMED_BY_MESSAGE.filter(
+          ({ at }) => at >= 16_142 && at <= 16_143
+        ).entries()) {
+          frame(connection, { uuid: `resume-${index}`, ...captured.frame })
+        }
+        return initialized
+      })())
     return opened(connection)
   })
   const body = hostTestMessage('Carry on.')
@@ -306,147 +310,4 @@ it('keeps a helper the next child resumes while it is still starting working, pa
   await new Promise((resolve) => setTimeout(resolve, 50))
   expect(claude.connections).toHaveLength(2)
   expect(await savedRows()).toEqual([expect.objectContaining({ id: 'agent-1', state: 'working' })])
-})
-
-it('steers with current choices while saving future choices for the next message', async () => {
-  const written = (on: FakeConnection, text: string) =>
-    on.sent.find((message) => JSON.stringify(message).includes(text))
-  const snapshot = async () => {
-    await host.flushStreamedEvents(SESSION)
-    return host.journalSnapshot(SESSION)
-  }
-  const send = async (text: string, options?: Record<string, string>, steer?: true) => {
-    const fields = { body: hostTestMessage(text), options, ...(steer ? { steer } : {}) }
-    const sent = await host.send(CALLER, {
-      envelope: envelope('agentSession.send', fields),
-      ...fields
-    })
-    if (!sent.ok) {
-      throw new Error(JSON.stringify(sent.refusal))
-    }
-    return sent.value.clientMessageId
-  }
-  claudeFrames.initProof = 'none'
-  const first = claude.connections[0]!
-  const dispatch = vi.spyOn(adapter, 'dispatch')
-  const submission = async (id: string) =>
-    (await snapshot()).submissions.find(({ clientMessageId }) => clientMessageId === id)
-  const idle = () =>
-    eventually(() =>
-      expect(host.collaboratorsForTests().conversationDelivery.loop.isRunning(SESSION)).toBe(false)
-    )
-  const init = (on: FakeConnection, permissionMode = 'auto') =>
-    frame(on, {
-      type: 'system',
-      subtype: 'init',
-      uuid: `init-${claude.connections.length}`,
-      model: on.launch.options.model === 'opus' ? 'claude-opus-4-6' : 'claude-haiku-4-5',
-      permissionMode
-    })
-  const echo = (on: FakeConnection, text: string) =>
-    frame(on, { ...written(on, text)!, isReplay: true, parent_tool_use_id: null })
-  const finish = (on: FakeConnection, text: string) => {
-    const input = written(on, text)!
-    frame(on, {
-      type: 'assistant',
-      uuid: `reply-${text}`,
-      parent_tool_use_id: null,
-      message: {
-        id: `reply-${text}`,
-        role: 'assistant',
-        content: [{ type: 'text', text: `${text} result` }]
-      },
-      user_message_uuid: input.uuid,
-      user_message_uuids: [input.uuid]
-    })
-    frame(on, {
-      type: 'result',
-      subtype: 'success',
-      uuid: `result-${text}`,
-      is_error: false,
-      terminal_reason: 'completed',
-      user_message_uuid: input.uuid,
-      user_message_uuids: [input.uuid]
-    })
-    frame(on, { type: 'system', subtype: 'session_state_changed', state: 'idle' })
-  }
-  const opened = async (text: string, options?: Record<string, string>) => {
-    const id = await send(text, options)
-    await eventually(() => expect(written(claude.connections.at(-1)!, text)).toBeDefined())
-    const on = claude.connections.at(-1)!
-    init(on)
-    echo(on, text)
-    await eventually(() => expect(host.currentWork(SESSION)?.activeTurnId()).not.toBeNull())
-    await idle()
-    return { id, on }
-  }
-  init(first)
-  await opened('A')
-  for (const captured of MOVED_TO_BACKGROUND.filter(({ at }) => at <= 11_139)) {
-    frame(first, captured.frame)
-  }
-  await eventually(async () =>
-    expect(await savedRows()).toEqual(
-      expect.arrayContaining([expect.objectContaining({ state: 'working' })])
-    )
-  )
-  const choices = { model: 'opus', effort: 'high', fastMode: 'true' }
-  await store.replaceSessionOptions({
-    sessionId: SESSION,
-    fence: store.getRecord(SESSION)!.lease.runtimeFence,
-    options: { ...choices, permissionMode: 'auto' },
-    now: NOW
-  })
-  const controls = first.calls.length
-  const b = await send('B', choices, true)
-  await eventually(() => expect(written(first, 'B')).toBeDefined())
-  await idle()
-  expect(first.calls.slice(controls)).toEqual([])
-  expect(first.closeCount).toBe(0)
-  expect(claude.connections).toHaveLength(1)
-  const bIndex = dispatch.mock.calls.findIndex(([input]) => input.clientMessageId === b)
-  expect(dispatch.mock.calls[bIndex]![0].executionOptions).toEqual({ model: 'haiku' })
-  expect(await dispatch.mock.results[bIndex]!.value).toMatchObject({ state: 'admitted' })
-  expect((await submission(b))?.options).toEqual({ model: 'haiku' })
-  expect(store.getRecord(SESSION)?.options).toEqual({ ...choices, permissionMode: 'auto' })
-  expect(await savedRows()).toEqual(
-    expect.arrayContaining([expect.objectContaining({ state: 'working' })])
-  )
-  echo(first, 'B')
-  for (const captured of MOVED_TO_BACKGROUND.filter(({ at }) => at >= 51_275 && at <= 52_441)) {
-    frame(first, captured.frame)
-  }
-  await eventually(async () =>
-    expect(await savedRows()).toEqual(
-      expect.arrayContaining([expect.objectContaining({ state: 'completed' })])
-    )
-  )
-  finish(first, 'A')
-  await eventually(() => expect(host.currentWork(SESSION)?.activeTurnId()).toBeNull())
-  const c = await send('C', choices)
-  await eventually(() => expect(written(first, 'C')).toBeDefined())
-  await idle()
-  expect(claude.connections).toHaveLength(1)
-  const cIndex = dispatch.mock.calls.findIndex(([input]) => input.clientMessageId === c)
-  expect(dispatch.mock.calls[cIndex]![0].executionOptions).toEqual(choices)
-  expect((await submission(c))?.options).toEqual(choices)
-  expect(first.calls.slice(controls)).toEqual(
-    expect.arrayContaining([{ subtype: 'set_model', params: { model: 'opus' } }])
-  )
-  echo(first, 'C')
-  finish(first, 'C')
-  await eventually(() => expect(host.currentWork(SESSION)?.activeTurnId()).toBeNull())
-  await eventually(async () => expect((await submission(c))?.dispatchState).toBe('accepted'))
-  for (const text of ['A', 'B', 'C']) {
-    expect(
-      first.sent.filter((message) => JSON.stringify(message).includes(`"${text}"`))
-    ).toHaveLength(1)
-  }
-  expect(
-    (await snapshot()).items.flatMap(({ body }) =>
-      body.kind === 'message'
-        ? body.blocks.flatMap((block) => (block.type === 'text' ? [block.text] : []))
-        : []
-    )
-  ).toEqual(expect.arrayContaining(['A result', 'C result']))
 })

@@ -1,30 +1,23 @@
+import {
+  agentModelCatalogReadRecords,
+  agentModelCatalogScopedRecord
+} from './agent-model-catalog-read-scope'
+import { onLiveAccount } from './agent-model-catalog-running-account'
 import { agentModelCatalogFingerprintForRecord } from './agent-model-catalog-fingerprint'
 import { agentSessionPinnedLaunchDirectory } from '../../runtime/agent-session-record-launch-directory'
-import type { AgentSessionConversationView } from '../../../shared/agent-session-conversation-view'
+import {
+  agentSessionConversationView,
+  type AgentSessionConversationView
+} from '../../../shared/agent-session-conversation-view'
 import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import type { AgentSessionModelCatalogResult } from '../../../shared/agent-session-wire'
 import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
 import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
 import type {
+  AgentModelCatalogBinding,
   AgentModelCatalogReadParams,
   AgentModelCatalogServiceDeps
 } from './agent-model-catalog-service-contract'
-
-export type AgentModelCatalogBinding = {
-  identity: string
-  params: AgentModelCatalogReadParams
-  workspaceId?: string
-  current: () => boolean
-  cancel: () => void
-  fingerprint: string
-  base: string
-  exact: boolean
-  folder?: string
-  cwd?: string
-  workspacePath?: string | null
-  keepDefault: boolean
-  projecting?: Promise<void>
-}
 
 export function agentModelCatalogReleasedOwner(
   record: AgentSessionConversationView | undefined
@@ -38,7 +31,7 @@ export function agentModelCatalogRequestKey(
   deps: AgentModelCatalogServiceDeps,
   params: AgentModelCatalogReadParams
 ): string {
-  const record = params.sessionId ? deps.getConversation(params.sessionId) : undefined
+  const record = agentModelCatalogScopedRecord(deps, params)
   const inWorkspace =
     record &&
     !params.workspace &&
@@ -84,11 +77,14 @@ export function agentModelCatalogMemoryBinding(
   bindings: ReadonlyMap<string, AgentModelCatalogBinding>,
   capture: (params: AgentModelCatalogReadParams) => string
 ): AgentModelCatalogBinding | undefined {
+  if (!agentModelCatalogReadRecords(deps, params)) {
+    return
+  }
   const held = bindings.get(agentModelCatalogRequestKey(deps, params))
   if (held?.current() && held.identity === capture(params)) {
     return held
   }
-  const record = params.sessionId ? deps.getConversation(params.sessionId) : undefined
+  const record = agentModelCatalogScopedRecord(deps, params)
   if (!record || record.provider !== params.agent || !deps.drivesRecord(record)) {
     return
   }
@@ -146,6 +142,9 @@ export function createAgentModelCatalogSnapshot(
   stopped: () => boolean
 ) {
   return (params: AgentModelCatalogReadParams): AgentSessionModelCatalogResult => {
+    if (params.records === null || params.operation?.current() === false) {
+      return { origin: 'unknown' }
+    }
     const bound = binding(params)
     if (stopped() || !bound) {
       return {
@@ -259,11 +258,13 @@ export function expireAgentModelCatalogBoundFailure(
   record: AgentSessionRecord,
   source?: () => boolean
 ): void {
+  const view = agentSessionConversationView(record)
   const bound = bindings.get(
     agentModelCatalogRequestKey(deps, {
       agent: record.provider,
       sessionId: record.sessionId,
-      inSessionWorkspace: true
+      inSessionWorkspace: true,
+      records: { record: view, scoped: onLiveAccount(deps, view), savedOnly: false }
     })
   )
   if (bound?.current() && source?.() !== false) {
@@ -277,17 +278,20 @@ export function agentModelCatalogSessionPeek(
 ) {
   return (sessionId: string, verifiedOnly?: boolean) => {
     const record = deps.getConversation(sessionId)
-    const bound = record && binding({ agent: record.provider, sessionId, inSessionWorkspace: true })
+    const bound =
+      record &&
+      binding({
+        agent: record.provider,
+        sessionId,
+        inSessionWorkspace: true,
+        records: { record, scoped: onLiveAccount(deps, record), savedOnly: false }
+      })
     const entry = bound ? deps.store.observation(bound.fingerprint) : null
     return entry && (!verifiedOnly || deps.store.verified(entry)) ? entry : null
   }
 }
 
-export type AgentModelCatalogClaim = Pick<
+export type {
   AgentModelCatalogBinding,
-  'identity' | 'params' | 'current'
-> & {
-  controller: AbortController
-  promise: Promise<void>
-  ready: Promise<void>
-}
+  AgentModelCatalogClaim
+} from './agent-model-catalog-service-contract'

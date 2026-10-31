@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 
 import { act, createElement } from 'react'
-import userEvent from '@testing-library/user-event'
 import { fireEvent, screen, within } from '@testing-library/react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -139,9 +138,7 @@ describe('NativeChatImageAttachments', () => {
         await flushPromises()
       })
       expect(container.querySelector('img')).toBeNull()
-      expect(container.querySelector('[data-native-chat-copy-image-src]')).toBeNull()
-      expect(within(container).queryByRole('button', { name: /^View image:/ })).toBeNull()
-      expect(within(container).getByRole('button', { name: 'image.png' })).toBeTruthy()
+      expect(container.querySelector('button')).toBeNull()
       expect(container.textContent).toContain('image.png')
       expect(window.api.fs.readFile).toHaveBeenCalledTimes(1)
       expect(mocks.callRuntimeRpc).toHaveBeenCalledTimes(1)
@@ -472,66 +469,4 @@ describe('NativeChatImageAttachments', () => {
     })
     root.unmount()
   })
-})
-
-it('reveals the full unavailable image filename from the keyboard', async () => {
-  const label = 'a-very-long-unavailable-screenshot-filename-for-keyboard-inspection.png'
-  const container = document.body.appendChild(document.createElement('div'))
-  const root = createRoot(container)
-  try {
-    await act(async () => {
-      root.render(
-        createElement(NativeChatImageAttachments, {
-          blocks: [{ type: 'image-ref', path: `/missing/${label}` }],
-          runtimeContext: null
-        })
-      )
-      await flushPromises()
-    })
-    const trigger = within(container).getByRole('button', { name: label })
-    trigger.focus()
-    const keyboard = userEvent.setup()
-    await keyboard.keyboard('{Enter}')
-    const details = screen.getByRole('dialog', { name: label })
-    expect(within(details).getByText(label).textContent).toBe(label)
-    await keyboard.keyboard('{Escape}')
-    expect(screen.queryByRole('dialog')).toBeNull()
-    expect(document.activeElement).toBe(trigger)
-  } finally {
-    await act(async () => root.unmount())
-    container.remove()
-  }
-})
-
-it('keeps the focused image control when a pending read becomes a preview', async () => {
-  const pending = Promise.withResolvers<{ content: string; isBinary: boolean; mimeType: string }>()
-  vi.mocked(window.api.fs.readFile).mockReturnValueOnce(pending.promise)
-  const container = document.body.appendChild(document.createElement('div'))
-  const root = createRoot(container)
-  try {
-    await act(async () => {
-      root.render(
-        createElement(NativeChatImageAttachments, {
-          blocks: [{ type: 'image-ref', path: '/repo/loading.png' }],
-          runtimeContext: runtimeContext('wt-1')
-        })
-      )
-      await flushPromises()
-    })
-    const trigger = within(container).getByRole('button', { name: 'loading.png' })
-    trigger.focus()
-    await act(async () => {
-      pending.resolve({ content: 'AA==', isBinary: true, mimeType: 'image/png' })
-      await flushPromises()
-    })
-    const preview = within(container).getByRole('button', { name: 'View image: loading.png' })
-    expect(preview).toBe(trigger)
-    expect(document.activeElement).toBe(preview)
-    const keyboard = userEvent.setup()
-    await keyboard.keyboard('{Enter}')
-    expect(screen.getByRole('dialog', { name: 'loading.png' })).toBeTruthy()
-  } finally {
-    await act(async () => root.unmount())
-    container.remove()
-  }
 })

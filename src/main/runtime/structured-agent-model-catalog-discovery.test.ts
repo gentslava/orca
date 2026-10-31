@@ -73,7 +73,7 @@ describe('the model catalog contract on every registration', () => {
       (registration) => registration.modelCatalog(context()).kind === 'probe'
     ).map((registration) => registration.definition.agent)
     expect(Object.keys(probes).sort()).toEqual([...listing].sort())
-    // Gemini and Antigravity list models only in a signed-in session.
+    // Antigravity and Gemini expose their catalogs only inside a chat.
     expect(listing.sort()).toEqual(
       STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map((registration) => registration.definition.agent)
         .filter((agent) => agent !== 'antigravity' && agent !== 'gemini')

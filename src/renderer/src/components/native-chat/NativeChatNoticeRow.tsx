@@ -1,5 +1,4 @@
 import { agentSessionGoalControlWords } from './agent-session-goal-control-words'
-import { NativeChatErrorNotice } from './NativeChatErrorNotice'
 import { AlertCircle, AlertTriangle, Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
@@ -21,7 +20,7 @@ import { useNativeChatOrcaStopView } from './native-chat-orca-stop-context'
 import { NativeChatInterruptedContinueButton } from './NativeChatInterruptedContinue'
 import { nativeChatOrcaStopRowText } from '../../../../shared/native-chat/native-chat-orca-stop-words'
 import { sayNativeChatOrcaStopTranslated } from './native-chat-orca-stop-words-text'
-import { ProviderFrameRow } from './NativeChatTranscriptChrome'
+import { NativeChatDetailsDisclosure, ProviderFrameRow } from './NativeChatTranscriptChrome'
 import { Button } from '@/components/ui/button'
 import {
   isClaudeSignInFailureKind,
@@ -36,8 +35,6 @@ import { agentSessionFailureSentence } from '../../../../shared/agent-session-fa
 import { sayAgentSessionFailureTranslated } from './agent-session-failure-words-text'
 import { nativeChatAntigravitySignInContent } from './native-chat-antigravity-settings'
 import { formatUsageLimitResetClock } from '../../../../shared/agent-session-usage-limit'
-import { nativeChatAutoApprovalOutcome } from '../../../../shared/native-chat-auto-approval'
-import { NativeChatAutoApprovalNotice } from './NativeChatAutoApprovalNotice'
 
 const HOST_STATUS_WORDS: Record<AgentSessionHostStatusPresentation, () => string> = {
   'history-repaired': () =>
@@ -80,9 +77,6 @@ export function NativeChatNoticeRow({
   const orcaStopView = useNativeChatOrcaStopView()
   const claudeSignIn = useNativeChatClaudeSignInView()
   const look = nativeChatNoticeLook(block)
-  if (nativeChatAutoApprovalOutcome(block) !== null) {
-    return <NativeChatAutoApprovalNotice block={block} messageId={messageId} />
-  }
   if (look.kind === 'divider') {
     const label =
       look.label === 'contextCleared'
@@ -140,6 +134,39 @@ export function NativeChatNoticeRow({
           />
         </CardContent>
       </Card>
+    )
+  }
+  if (look.kind === 'settled-permission') {
+    const agent = agentName ?? look.agent
+    const summary =
+      look.decision === 'denied'
+        ? translate(
+            'components.native-chat.notices.permissionDenied',
+            '{{agent}} denied permission. View details.',
+            { agent }
+          )
+        : translate(
+            'components.native-chat.notices.safetyReview',
+            '{{agent}} reported a safety review warning. View details.',
+            { agent }
+          )
+    const payload = block.providerFrame?.payload
+    return (
+      <NativeChatDetailsDisclosure
+        summary={summary}
+        bodyClassName={look.tone === 'error' ? 'text-destructive' : 'text-chat-warning'}
+      >
+        {block.text}
+        {payload ? '\n\n' : ''}
+        {payload?.truncated
+          ? `${translate(
+              'components.native-chat.notices.truncatedResponse',
+              'Provider response truncated (original size: {{bytes}} bytes).',
+              { bytes: payload.byteLength }
+            )}\n`
+          : ''}
+        {payload?.head}
+      </NativeChatDetailsDisclosure>
     )
   }
   // Name Orca and its host as the stop cause; without host context, preserve the original words.
@@ -202,14 +229,6 @@ export function NativeChatNoticeRow({
   const failureDetail = agentSessionFailureDetailText(failure)
   const detail = failureDetail?.trim() !== text.trim() ? failureDetail : undefined
   const tone = named ? 'notice' : look.kind === 'line' ? look.tone : null
-  if (
-    tone === 'error' &&
-    !continueOffered &&
-    !antigravitySignInContent &&
-    !(claudeSignIn && isClaudeSignInFailureKind(block.failure?.kind))
-  ) {
-    return <NativeChatErrorNotice block={block} messageId={messageId} text={text} detail={detail} />
-  }
   const Icon =
     tone === 'warning'
       ? AlertTriangle

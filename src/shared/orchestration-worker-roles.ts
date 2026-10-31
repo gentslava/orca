@@ -72,3 +72,12 @@ export function resolveWorkerRoleParams<T extends WorkerRoleParams>(
     fastMode: params.fastMode ?? inherited.fastMode
   }
 }
+
+export function sanitizeWorkerRoleProfileUpdates(
+  target: Partial<WorkerRoleSettings>,
+  updates: Partial<WorkerRoleSettings>
+): void {
+  if ('orchestrationWorkerRoles' in updates) {
+    target.orchestrationWorkerRoles = parseWorkerRoleProfiles(updates.orchestrationWorkerRoles)
+  }
+}

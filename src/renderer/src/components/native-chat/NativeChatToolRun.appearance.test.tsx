@@ -43,8 +43,7 @@ import { i18n } from '@/i18n/i18n'
         </div>
       )
 
-      const summary = container.querySelector('span.truncate')
-      expect(summary).toHaveClass('truncate')
+      const summary = container.querySelector('[data-native-chat-tool-run-state]')
       expect(summary?.textContent).toContain('printf')
       expect(summary?.textContent?.length).toBeLessThan(command.length)
       expect(container.querySelector('pre')).toBeNull()
@@ -52,7 +51,9 @@ import { i18n } from '@/i18n/i18n'
       fireEvent.click(screen.getByRole('button'))
       openToolRunMembers()
 
-      expect(container.querySelector('pre')).toHaveTextContent(command)
+      expect(
+        [...container.querySelectorAll('pre')].find((pre) => pre.textContent === command)
+      ).toHaveTextContent(command)
     })
   })
 }

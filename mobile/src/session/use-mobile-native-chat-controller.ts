@@ -1,3 +1,4 @@
+import { asyncQuestionSourceScope } from '../../../src/shared/native-chat/input/native-chat-ask'
 import { useLayoutEffect, useRef } from 'react'
 import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
 import { useMobileNativeChatWorkspaceCatalog } from './native-chat/composer/use-mobile-native-chat-workspace-catalog'
@@ -17,8 +18,6 @@ import { mobileNativeChatScopeKey } from './native-chat/mobile-native-chat-scope
 
 export type { MobileNativeChatController } from './mobile-native-chat-controller-contract'
 
-/** Owns mobile native-chat state and teardown outside the already dense session
- *  route. The route remains responsible only for choosing and rendering the view. */
 export function useMobileNativeChatController(
   args: MobileNativeChatControllerArgs
 ): MobileNativeChatController {
@@ -120,6 +119,14 @@ export function useMobileNativeChatController(
     scopeKey: mobileNativeChatScopeKey(hostId, worktreeId, activeSessionTabId),
     sessionId: activeChatSessionId,
     streamIdentity,
+    asyncSourceScope: activeChatStructured
+      ? structuredNativeChat.asyncQuestionSourceScope
+      : asyncQuestionSourceScope({
+          kind: 'transcript',
+          agent: activeChatAgent,
+          sessionId: activeChatSessionId,
+          transcriptPath: activeChatResolution?.transcriptPath ?? null
+        }),
     visible: showNativeChat,
     terminal: bridgePromptWrites,
     onSendResolved
@@ -186,7 +193,6 @@ export function useMobileNativeChatController(
       reportedModel: activeSessionTab?.agentStatus?.model ?? null,
       modelSwitchCommand: activeSessionTab?.agentStatus?.modelSwitchCommand,
       structured: {
-        allowsWorkingPicks: structuredNativeChat.allowsWorkingPicks,
         optionPickerRequest: structuredNativeChat.optionPickerRequest,
         optionSurface: structuredNativeChat.optionSurface,
         conversationCommands: structuredNativeChat.conversationCommands,
@@ -240,6 +246,7 @@ export function useMobileNativeChatController(
     nativeChatActionablePromptIds: structuredNativeChat.actionablePromptIds,
     nativeChatCommandRefusalCauses: structuredNativeChat.commandRefusalCauses,
     nativeChatCanStop: activeChatStructured ? structuredNativeChat.canStop : nativeChatAgentWorking,
+    nativeChatSendFollowUp: activeChatStructured ? structuredNativeChat.sendFollowUp : null,
     nativeChatStreamingText: terminalTurn.streamingText,
     ...prompts,
     handleNativeChatStop: activeChatStructured ? structuredNativeChat.cancel : terminalTurn.stop,

@@ -1,4 +1,3 @@
-import { unrefTimer } from './timer-unref'
 // Retain one isolated user-data directory across launches; the ordinary per-test fixture deletes it on close.
 
 import {
@@ -26,6 +25,7 @@ import {
   type ElectronHomeIsolation
 } from './electron-home-isolation'
 import type { LaunchOptions } from './orca-restart-launch-options'
+import { selectSidebarBody } from './store'
 
 type LaunchedOrca = {
   app: ElectronApplication
@@ -46,7 +46,7 @@ type RestartSession = {
 async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => {
     const timeout = setTimeout(resolve, ms)
-    unrefTimer(timeout)
+    timeout.unref?.()
   })
 }
 
@@ -171,6 +171,9 @@ export function createRestartSession(
       const page = await app.firstWindow({ timeout: 120_000 })
       await page.waitForLoadState('domcontentloaded')
       await page.waitForFunction(() => Boolean(window.__store), null, { timeout: 30_000 })
+      if (options?.sidebarBody !== null) {
+        await selectSidebarBody(page, options?.sidebarBody ?? 'workspaces')
+      }
       return { app, page }
     } catch (error) {
       await closeElectronAppForE2E(app)

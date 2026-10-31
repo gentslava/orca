@@ -3,13 +3,14 @@ import { translate } from '@/i18n/i18n'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import {
   useChatSettingsOwnPermissions,
-  useStructuredAgentSessionHostQueuesMessagesState
+  useStructuredAgentSessionHostQueuesMessages
 } from '@/runtime/structured-agent-session-host-capability'
 import { useAppStore } from '../../store'
 import { Card, CardContent } from '../ui/card'
 import { ChatPermissionSetting } from './ChatPermissionSetting'
 import { NativeChatShellEnvironmentSetting } from './NativeChatShellEnvironmentSetting'
 import { SearchableSetting } from './SearchableSetting'
+import { nativeChatQueueFollowUps } from '../../../../shared/native-chat-follow-up-behavior'
 import { SettingsSubsectionHeader, SettingsSwitchRow } from './SettingsFormControls'
 import { getChatBehaviorEntriesByKey, getChatBehaviorTitle } from './chat-behavior-search'
 import { getChatPermissionSearchEntry } from './chat-permission-search'
@@ -31,8 +32,7 @@ export function ChatBehaviorSetting({
 }: ChatBehaviorSettingProps): React.JSX.Element | null {
   const typedPermissions = useChatSettingsOwnPermissions()
   const query = useAppStore((state) => state.settingsSearchQuery)
-  const queueCapability = useStructuredAgentSessionHostQueuesMessagesState(STRUCTURED_CHAT_HOST)
-  const hostQueuesMessages = queueCapability === 'supported'
+  const hostQueuesMessages = useStructuredAgentSessionHostQueuesMessages(STRUCTURED_CHAT_HOST)
   const entries = getChatBehaviorEntriesByKey()
   const rows = [
     ...(settings.nativeChatPermissionMode !== undefined
@@ -47,7 +47,7 @@ export function ChatBehaviorSetting({
     return null
   }
   const resumeOnRestartEnabled = settings.nativeChatResumeWorkOnRestart === true
-  const queueFollowUpsEnabled = settings.nativeChatQueueFollowUps !== false
+  const queueFollowUps = nativeChatQueueFollowUps(settings)
   const linkPreviewsEnabled = settings.nativeChatLinkPreviews !== false
   return (
     <section id="chat-behavior" className="space-y-3">
@@ -87,33 +87,11 @@ export function ChatBehaviorSetting({
             >
               <SettingsSwitchRow
                 label={entries.queueFollowUps.title}
-                description={
-                  <>
-                    {entries.queueFollowUps.description}
-                    {!hostQueuesMessages ? (
-                      <span className="mt-1 block">
-                        {queueCapability === 'unknown'
-                          ? translate(
-                              'components.settings.nativeChat.queueFollowUpsChecking',
-                              'Checking whether this host supports queued messages…'
-                            )
-                          : translate(
-                              'components.settings.nativeChat.queueFollowUpsUnsupported',
-                              'Update Orca on this host to queue messages. While an agent is working, drafts stay in the composer until queueing is supported.'
-                            )}
-                      </span>
-                    ) : null}
-                  </>
-                }
-                checked={queueFollowUpsEnabled}
+                description={entries.queueFollowUps.description}
+                checked={queueFollowUps}
                 disabled={!hostQueuesMessages}
-                ariaLabel={translate(
-                  'components.settings.nativeChat.queueFollowUpsToggleLabel',
-                  'Toggle queue follow-ups'
-                )}
-                onChange={() =>
-                  updateSettings({ nativeChatQueueFollowUps: !queueFollowUpsEnabled })
-                }
+                ariaLabel={entries.queueFollowUps.title}
+                onChange={() => updateSettings({ nativeChatQueueFollowUps: !queueFollowUps })}
               />
             </SearchableSetting>
             <SearchableSetting

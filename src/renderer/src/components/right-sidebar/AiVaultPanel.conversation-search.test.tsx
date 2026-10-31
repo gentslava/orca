@@ -2,6 +2,7 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import AiVaultPanel from './AiVaultPanel'
 import { conversationSessions } from '../sidebar/ProjectConversationList.test-fixture'
 import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
 import type { AiVaultSession } from '../../../../shared/ai-vault-types'
@@ -101,7 +102,6 @@ beforeEach(() => {
 afterEach(cleanup)
 
 it('keeps recoverable provider history with unknown content despite the saved empty-session filter', async () => {
-  const { default: AiVaultPanel } = await import('./AiVaultPanel')
   const unknown: AiVaultSession = {
     ...conversationSessions[0]!,
     id: 'provider-unknown',
@@ -125,7 +125,6 @@ it('keeps recoverable provider history with unknown content despite the saved em
 })
 
 it('shows primary project chats despite legacy hidden-agent filters and searches their durable prompts without an index hit', async () => {
-  const { default: AiVaultPanel } = await import('./AiVaultPanel')
   render(<AiVaultPanel conversationNavigation />)
   expect(observeRefresh).toHaveBeenLastCalledWith('unlimited')
   expect(screen.queryByText('Show more sessions')).toBeNull()

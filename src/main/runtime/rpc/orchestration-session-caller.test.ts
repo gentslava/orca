@@ -53,10 +53,15 @@ const NAMES_NO_RESOLVED_PARTY: Readonly<Record<string, string>> = {
   'orchestration.dispatchShow from': '`from` only fills the preview preamble text',
   'orchestration.federationAttachStart terminal': 'names the remote worker terminal',
   'orchestration.workerTerminalUserInput terminal': 'names the worker terminal',
-  'orchestration.workerLaunchPreflight terminal':
-    'launch input only; no party lookup or ownership change',
   'orchestration.workerTerminalUserInput sessionId':
-    'names the worker session, as its terminal does'
+    'names the worker session, as its terminal does',
+  'orchestration.workerAutoClose terminal': 'names the worker terminal',
+  'orchestration.workerAutoClose sessionId': 'names the worker session, as its terminal does',
+  'orchestration.workerKeepOpen terminal': 'names the worker terminal',
+  'orchestration.workerKeepOpen sessionId': 'names the worker session, as its terminal does',
+  'orchestration.workerLaunchPreflight terminal': 'names the worker terminal for launch planning',
+  'orchestration.workerChatTouch terminal': 'names the worker terminal',
+  'orchestration.workerChatTouch sessionId': 'names the worker session, as its terminal does'
 }
 
 /** One request per identity-consulting method, valid enough to reach the dispatcher entry. */

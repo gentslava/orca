@@ -1,4 +1,3 @@
-import { unrefTimer } from './helpers/timer-unref'
 import {
   readPersistedProfileState,
   mutateStoppedProfileState
@@ -74,7 +73,7 @@ function waitForExit(proc: ChildProcess, timeoutMs = 5000): Promise<void> {
   }
   return new Promise((resolve) => {
     const timeout = setTimeout(resolve, timeoutMs)
-    unrefTimer(timeout)
+    timeout.unref?.()
     proc.once('exit', () => {
       clearTimeout(timeout)
       resolve()

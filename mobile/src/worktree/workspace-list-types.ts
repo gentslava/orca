@@ -1,4 +1,3 @@
-import type { ProjectOrderBy } from '../../../src/shared/ui-chrome-types'
 import type { SmartTier } from '../../../src/shared/sidebar-list/sort-stamps'
 import type { ExecutionHostId } from '../../../src/shared/execution-host'
 import type { AgentWorkingMode } from '../../../src/shared/agent-status-types'
@@ -10,6 +9,7 @@ import type {
   ProjectSectionModel,
   ProjectSectionRepo
 } from '../../../src/shared/project-section-grouping'
+import type { ProjectOrderBy } from '../../../src/shared/ui-chrome-types'
 import type { WorkspaceRowFilters } from '../../../src/shared/workspace-view/workspace-row-filters'
 
 export type Worktree = {

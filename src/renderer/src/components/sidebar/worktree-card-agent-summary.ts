@@ -238,10 +238,7 @@ export function summarizeAgents(agents: DashboardAgentRowData[], subjectLabel: s
 export function summarizeAgentIdentities(agents: DashboardAgentRowData[]): string {
   return agents
     .map((agent) => {
-      const agentLabel =
-        agent.agentType && agent.agentType !== 'unknown'
-          ? formatAgentTypeLabel(agent.agentType)
-          : translate('worktreeAgentSummary.unknownAgent', 'Agent')
+      const agentLabel = formatAgentTypeLabel(agent.agentType)
       const stateLabel = formatSummaryStateLabel(getAgentDotState(agent))
       return translate('sidebar.agentSummary.agentIdentityState', '{{agent}} {{status}}', {
         agent: agentLabel,
@@ -276,11 +273,4 @@ export function selectSummaryGroupIconAgents(
     selected.push(group.agents[0])
   }
   return selected
-}
-
-export function formatSummaryAgentCount(count: number): string {
-  return translate('sidebar.agentSummary.agentCount', '{{count}} agents', {
-    count,
-    defaultValue_one: '{{count}} agent'
-  })
 }

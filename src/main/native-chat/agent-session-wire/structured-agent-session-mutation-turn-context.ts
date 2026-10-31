@@ -53,10 +53,10 @@ export function mutationReplayContext<TValue>(
     sessionId: record.sessionId,
     journal,
     fence: record.currentFence,
+    defaultModelSelected: record.defaultModelOptions !== undefined,
     agent: record.provider,
     ...(request.currentWork ? { currentWork: request.currentWork } : {}),
     ...(persistedOptions ? { persistedOptions } : {}),
-    defaultModelSelected: record.defaultModelOptions !== undefined,
     now: request.now
   }
 }

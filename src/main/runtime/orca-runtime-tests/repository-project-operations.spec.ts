@@ -188,12 +188,11 @@ describe('OrcaRuntimeService', () => {
         setupMethod: 'imported-existing-folder'
       })
 
-      const canonicalPath = await realpath(tempRoot)
       expect(result.project.id).toBe('github:stablyai/orca')
-      expect(result.repo.path).toBe(canonicalPath)
+      expect(result.repo.path).toBe(tempRoot)
       expect(result.setup).toMatchObject({
         projectId: 'github:stablyai/orca',
-        path: canonicalPath,
+        path: tempRoot,
         setupMethod: 'imported-existing-folder'
       })
     } finally {
@@ -383,20 +382,19 @@ describe('OrcaRuntimeService', () => {
         setupMethod: 'imported-existing-folder'
       })
 
-      const canonicalPath = await realpath(tempRoot)
       expect(repos).toHaveLength(2)
       expect(repos).toEqual([
         expect.objectContaining({
-          path: canonicalPath,
+          path: tempRoot,
           executionHostId: 'runtime:env-1'
         }),
         expect.objectContaining({
-          path: canonicalPath,
+          path: tempRoot,
           executionHostId: 'runtime:env-2'
         })
       ])
       expect(first.repo).toMatchObject({
-        path: canonicalPath,
+        path: tempRoot,
         executionHostId: 'runtime:env-1'
       })
       expect(first.setup).toMatchObject({
@@ -404,7 +402,7 @@ describe('OrcaRuntimeService', () => {
         hostId: 'runtime:env-1'
       })
       expect(second.repo).toMatchObject({
-        path: canonicalPath,
+        path: tempRoot,
         executionHostId: 'runtime:env-2'
       })
       expect(second.setup).toMatchObject({

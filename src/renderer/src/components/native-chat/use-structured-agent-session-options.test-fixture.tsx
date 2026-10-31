@@ -118,7 +118,10 @@ vi.mock('@/lib/structured-agent-session-launch-options', async () => {
 })
 
 import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
-import type { StructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
+import {
+  useStructuredAgentSessionMutate,
+  type StructuredAgentSessionMutate
+} from './use-structured-agent-session-mutate'
 import { useStructuredAgentSessionOptions } from './use-structured-agent-session-options'
 import { useStructuredAgentSessionSendOptions } from './use-structured-agent-session-send-options'
 
@@ -166,6 +169,7 @@ function mutateWith(reply: MutateCall): {
 }
 
 type RenderProps = {
+  isWorking?: boolean
   sessionId?: string
   transportEnabled: boolean
   fence: number | null
@@ -177,7 +181,8 @@ type RenderProps = {
   agent?: 'claude' | 'codex' | 'pi' | 'antigravity'
   providerStarting?: boolean
   paired?: boolean
-  isWorking?: boolean
+  /** Pass the production presentation scope, which is closed while transport is disabled. */
+  presentation?: boolean
 }
 
 const PROVISIONAL: RenderProps = { transportEnabled: false, fence: null, launch: 'new' }
@@ -192,19 +197,26 @@ function renderOptions(initial: RenderProps, mutate: StructuredAgentSessionMutat
   mocks.agent = initial.agent ?? 'codex'
   return renderHook(
     (props: RenderProps) => {
+      const { capturePresentation } = useStructuredAgentSessionMutate({
+        sessionId: props.sessionId ?? 'session-1',
+        target: props.paired ? PAIRED_TARGET : LOCAL_TARGET,
+        stateRef: { current: { fence: props.fence } },
+        enabled: props.transportEnabled
+      })
       const options = useStructuredAgentSessionOptions({
         agent: props.agent ?? 'codex',
         sessionId: props.sessionId ?? 'session-1',
         target: props.paired ? PAIRED_TARGET : LOCAL_TARGET,
         transportEnabled: props.transportEnabled,
-        isVisible: !props.hidden,
         isWorking: props.isWorking,
+        isVisible: !props.hidden,
         providerVisible: props.transportEnabled && !props.hidden,
         ...(props.providerStarting ? { providerStarting: true } : {}),
         fence: props.fence,
         turnId: props.turnId ?? null,
         unloadedTurnRevisions: undefined,
         mutate,
+        ...(props.presentation ? { capturePresentation } : {}),
         ...(props.launch
           ? {
               launch: {

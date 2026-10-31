@@ -1,4 +1,5 @@
-import type { AgentSessionConversationView } from '../../shared/agent-session-conversation-view'
+import type { AgentSessionRecord } from '../../shared/agent-session-record'
+import { agentSessionConversationView } from '../../shared/agent-session-conversation-view'
 import { defaultAgentChatLabel } from '../../shared/agent-session/agent-session-chat-label'
 import {
   isAiVaultAgent,
@@ -38,7 +39,7 @@ export function boundedAiVaultConversationList(
 /** Project the existing record catalog; provider files remain optional evidence, never identity. */
 export function projectDurableAiVaultConversations(
   result: AiVaultListResult,
-  records: readonly AgentSessionConversationView[],
+  records: readonly AgentSessionRecord[],
   opensChat: StructuredChatOpener,
   childSessionIds: ReadonlySet<string> = new Set(),
   journalDatabase?: JournalHostDatabase
@@ -47,7 +48,7 @@ export function projectDurableAiVaultConversations(
   const recordsById = new Map(records.map((record) => [record.sessionId, record]))
   for (const id of excluded) {
     const record = recordsById.get(id)
-    const successor = record && clearedInto(record)
+    const successor = record && clearedInto(agentSessionConversationView(record))
     if (successor) {
       excluded.add(successor)
     }

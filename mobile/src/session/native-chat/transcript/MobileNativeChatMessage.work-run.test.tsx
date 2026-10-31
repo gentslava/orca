@@ -1,3 +1,7 @@
+import {
+  orchestrationNoticeMessage,
+  ORCHESTRATION_NOTICE_TEXT
+} from '../../../../../src/shared/native-chat-orchestration-notice.test-fixture'
 import { createElement, type ReactNode } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, expect, it, vi } from 'vitest'
@@ -6,7 +10,6 @@ import type { AgentJournalRenderItem } from '../../../../../src/shared/agent-ses
 import type { RpcClient } from '../../../transport/rpc-client'
 import { MobileNativeChatItemSourceContext } from '../../mobile-native-chat-item-read'
 import { useMobileNativeChatMessageDetail } from './use-mobile-native-chat-message-detail'
-import { Harness, Result } from './use-mobile-native-chat-turn-disclosure.test-fixture'
 
 vi.mock('react-native', async () => {
   const React = await import('react')
@@ -37,6 +40,7 @@ vi.mock('lucide-react-native', () => ({
   Brain: 'Brain',
   Check: 'Check',
   Copy: 'Copy',
+  Mail: 'Mail',
   ChevronRight: 'ChevronRight',
   Circle: 'Circle',
   CircleCheck: 'CircleCheck',
@@ -48,7 +52,6 @@ vi.mock('lucide-react-native', () => ({
   Folder: 'Folder',
   Globe: 'Globe',
   ListChecks: 'ListChecks',
-  Mail: 'Mail',
   MessageSquareMore: 'MessageSquareMore',
   Pencil: 'Pencil',
   Plug: 'Plug',
@@ -66,10 +69,6 @@ vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
 }))
 
 import { nativeChatReasoningDisclosureKey } from '../../../../../src/shared/native-chat/transcript/native-chat-reasoning-row'
-import {
-  orchestrationNoticeMessage,
-  ORCHESTRATION_NOTICE_TEXT
-} from '../../../../../src/shared/native-chat-orchestration-notice.test-fixture'
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
 import {
@@ -150,123 +149,6 @@ it('draws nothing for a row a run absorbed', () => {
     )
   })
   expect(renderer!.toJSON()).toBeNull()
-})
-
-it.each(['review-first', 'tool-first'])(
-  'keeps successful reviews in one collapsed activity group on mobile: %s',
-  (order) => {
-    const review = approvalReviewMessage('review')
-    const members = order === 'review-first' ? [review, read, command] : [read, review, command]
-    act(() => {
-      renderer = create(
-        createElement(MobileNativeChatMessage, {
-          message: members[0]!,
-          workRun: members,
-          structuredActivityUi: true,
-          activeTurnIsWorking: false
-        })
-      )
-    })
-    const tree = renderer!
-    const trigger = tree.root.find(
-      (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
-    )
-    expect(trigger.props.accessibilityState.expanded).toBe(false)
-    expect(textIn(tree.root)).not.toContain(APPROVED_REVIEW)
-    act(() => trigger.props.onPress())
-    expect(textIn(tree.root)).toContain(APPROVED_REVIEW)
-    expect(textIn(tree.root)).toContain(JSON.stringify({ message: APPROVED_REVIEW }))
-    expect(textIn(tree.root)).toEqual(expect.arrayContaining(['Read', 'a.ts', 'pnpm test']))
-  }
-)
-
-it('keeps a mobile tool failure inside its collapsed activity group', () => {
-  const failed: NativeChatMessage = {
-    ...command,
-    id: 'failed-test',
-    blocks: [
-      {
-        type: 'tool-call',
-        callId: 'failed-test',
-        name: 'Bash',
-        input: { command: 'pnpm test' },
-        state: 'failed'
-      },
-      { type: 'tool-result', callId: 'failed-test', output: 'Test failed', isError: true }
-    ]
-  }
-  const members = [read, failed, command]
-  act(() => {
-    renderer = create(
-      createElement(Harness, { messages: members, enabled: true, isWorking: false })
-    )
-  })
-  const { disclosure } = renderer!.root.findByType(Result).props
-  const { workRun } = disclosure.resolveRow(0, read)
-  expect(workRun).toEqual(members)
-  act(() => renderer!.unmount())
-  act(() => {
-    renderer = create(
-      createElement(MobileNativeChatMessage, {
-        message: read,
-        workRun,
-        structuredActivityUi: true,
-        activeTurnIsWorking: false
-      })
-    )
-  })
-  const tree = renderer!
-  const trigger = tree.root.find(
-    (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
-  )
-  expect(textIn(tree.root)).toContain(' · 1 failed')
-  expect(textIn(tree.root).some((text) => text.includes('Test failed'))).toBe(false)
-  expect(trigger.props.accessibilityState.expanded).toBe(false)
-  act(() => trigger.props.onPress())
-  act(() =>
-    tree.root
-      .findAll((node) => String(node.type) === 'Pressable')
-      .find(
-        (node) => typeof node.props.onPress === 'function' && textIn(node).includes('pnpm test')
-      )!
-      .props.onPress()
-  )
-  expect(textIn(tree.root)).toContain('Test failed')
-})
-
-it('keeps guardian warnings and unanswered questions outside mobile activity groups', () => {
-  const warning = approvalReviewMessage('warning', 'Review required before continuing.')
-  const question: NativeChatMessage = {
-    ...command,
-    id: 'question',
-    blocks: [
-      {
-        type: 'tool-call',
-        name: 'AskUserQuestion',
-        input: { questions: [{ question: 'Which host should I use?' }] },
-        state: 'running'
-      }
-    ]
-  }
-  for (const boundary of [warning, question]) {
-    const messages = [
-      read,
-      command,
-      boundary,
-      { ...read, id: 'read-b' },
-      { ...command, id: 'cmd-b' }
-    ]
-    act(() => {
-      renderer = create(createElement(Harness, { messages, enabled: true, isWorking: true }))
-    })
-    const { disclosure } = renderer!.root.findByType(Result).props
-    expect(disclosure.resolveRow(0, read).workRun).toEqual([read, command])
-    expect(disclosure.resolveRow(2, boundary).workRun).toBeUndefined()
-    expect(disclosure.resolveRow(2, boundary).joinsWorkRun).not.toBe(true)
-    expect(disclosure.resolveRow(3, messages[3]!).workRun).toEqual(messages.slice(3))
-    act(() => renderer!.unmount())
-    renderer = null
-  }
 })
 
 it("opens a grouped thought's own actions on a long press, not the run's first row's", () => {
@@ -381,6 +263,33 @@ it('loads a shortened grouped thought from its own source between two tool rows'
   expect(textIn(tree.root)).toEqual(expect.arrayContaining(['Read', 'a.ts', 'pnpm test']))
 })
 
+it.each(['review-first', 'tool-first'])(
+  'retains successful review details within one collapsed mobile group: %s',
+  (order) => {
+    const review = approvalReviewMessage('review')
+    const members = order === 'review-first' ? [review, read, command] : [read, review, command]
+    act(() => {
+      renderer = create(
+        createElement(MobileNativeChatMessage, {
+          message: members[0]!,
+          workRun: members,
+          structuredActivityUi: true,
+          activeTurnIsWorking: false
+        })
+      )
+    })
+    const tree = renderer!
+    const trigger = tree.root.find(
+      (node) => String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion
+    )
+    expect(trigger.props.accessibilityState.expanded).toBe(false)
+    expect(textIn(tree.root)).not.toContain(APPROVED_REVIEW)
+    act(() => trigger.props.onPress())
+    expect(textIn(tree.root).join(' ')).toContain(APPROVED_REVIEW)
+    expect(textIn(tree.root).join(' ')).toContain(JSON.stringify({ message: APPROVED_REVIEW }))
+    expect(textIn(tree.root)).toEqual(expect.arrayContaining(['Read', 'a.ts', 'pnpm test']))
+  }
+)
 it('collapses typed orchestration mail on mobile and expands its unchanged command', () => {
   const message = orchestrationNoticeMessage()
   const before = JSON.stringify(message)

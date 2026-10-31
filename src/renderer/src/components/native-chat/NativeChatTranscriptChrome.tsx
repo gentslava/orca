@@ -9,7 +9,6 @@ import { NativeChatMessageTimestamp } from './NativeChatMessageTimestamp'
 import { nativeChatProviderFrameSummary } from '../../../../shared/native-chat/native-chat-provider-frame-summary'
 import { withoutNativeChatVisualDirectiveLines } from '../../../../shared/native-chat/native-chat-visual-directive'
 import { PanZoomImageDialog } from '@/components/editor/PanZoomImageDialog'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   getLocalImageCacheKey,
   getLocalImageSrcCacheKey,
@@ -108,7 +107,6 @@ function TranscriptImagePreview({
   runtimeContext: RuntimeFileOperationArgs | null | undefined
 }): React.JSX.Element {
   const [open, setOpen] = useState(false)
-  const [filenameOpen, setFilenameOpen] = useState(false)
   const [near, setNear] = useState(false)
   const [thumbnailErrorSrc, setThumbnailErrorSrc] = useState<string | null>(null)
   const ref = useRef<HTMLDivElement>(null)
@@ -128,10 +126,13 @@ function TranscriptImagePreview({
   const label = nativeChatImageLabel(block)
   const viewImageLabel = translate('components.native-chat.composer.viewAttachment', 'View image')
   const fallback = (
-    <>
+    <div
+      className="flex max-w-full items-center gap-1.5 rounded-md border border-border bg-chat-canvas px-2 py-1 text-xs text-chat-foreground-faint"
+      title={label}
+    >
       <ImageIcon className="size-3.5 shrink-0" />
       <span className="truncate">{label}</span>
-    </>
+    </div>
   )
 
   useEffect(() => {
@@ -152,68 +153,54 @@ function TranscriptImagePreview({
     return () => releaseLocalImageSrcByKey(releaseKey)
   }, [leaseActive, releaseKey])
 
+  const previewable = Boolean(source) && (external || runtimeContext !== null)
   const showPreview =
-    leaseActive &&
-    Boolean(displaySrc) &&
-    displaySrc !== thumbnailErrorSrc &&
-    Boolean(source) &&
-    (external || runtimeContext !== null)
+    previewable && leaseActive && Boolean(displaySrc) && displaySrc !== thumbnailErrorSrc
 
-  if (showPreview && filenameOpen) {
-    setFilenameOpen(false)
+  if (!previewable) {
+    return <div ref={ref}>{fallback}</div>
   }
-
+  // Offscreen or loading keeps the thumbnail's square so scrolling never rewraps the row.
+  if (!showPreview) {
+    return (
+      <div
+        ref={ref}
+        className="flex size-20 shrink-0 flex-col items-center justify-center gap-1 rounded-md border border-border bg-chat-canvas px-1.5 text-xs text-chat-foreground-faint"
+        title={label}
+      >
+        <ImageIcon className="size-4 shrink-0" />
+        <span className="max-w-full truncate">{label}</span>
+      </div>
+    )
+  }
   return (
-    <div ref={ref} className="relative flex size-20 shrink-0 items-center justify-center">
-      <Popover open={!showPreview && filenameOpen} onOpenChange={setFilenameOpen}>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            aria-label={showPreview ? `${viewImageLabel}: ${label}` : label}
-            title={label}
-            data-native-chat-copy-image-src={showPreview ? copySrc : undefined}
-            onClick={(event) => {
-              if (showPreview) {
-                event.preventDefault()
-                setOpen(true)
-              }
-            }}
-            className={cn(
-              'flex items-center justify-center rounded-md border border-border bg-chat-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-              showPreview
-                ? 'size-full overflow-hidden transition-colors hover:border-ring'
-                : 'max-w-full gap-1.5 px-2 py-1 text-xs text-chat-foreground-faint hover:bg-accent'
-            )}
-          >
-            {showPreview ? (
-              <img
-                src={displaySrc}
-                alt={label}
-                loading="lazy"
-                onError={() => setThumbnailErrorSrc(displaySrc ?? null)}
-                className="size-full object-cover"
-              />
-            ) : (
-              fallback
-            )}
-          </button>
-        </PopoverTrigger>
-        <PopoverContent side="top" aria-label={label} className="max-w-72">
-          <p className="break-all p-2 text-sm">{label}</p>
-        </PopoverContent>
-      </Popover>
-      {showPreview && (
-        <PanZoomImageDialog
-          open={open}
-          onOpenChange={setOpen}
+    <div ref={ref} className="relative size-20 shrink-0">
+      <button
+        type="button"
+        aria-label={`${viewImageLabel}: ${label}`}
+        title={label}
+        data-native-chat-copy-image-src={copySrc}
+        onClick={() => setOpen(true)}
+        className="flex size-full items-center justify-center overflow-hidden rounded-md border border-border bg-chat-canvas transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <img
           src={displaySrc}
-          title={label}
-          showTitle
-          onInteractOutside={keepPreviewOpenForChatMenu}
-          data-native-chat-copy-image-src={copySrc}
-          fallback={fallback}
+          alt={label}
+          loading="lazy"
+          onError={() => setThumbnailErrorSrc(displaySrc ?? null)}
+          className="size-full object-cover"
         />
-      )}
+      </button>
+      <PanZoomImageDialog
+        open={open}
+        onOpenChange={setOpen}
+        src={displaySrc}
+        title={label}
+        showTitle
+        onInteractOutside={keepPreviewOpenForChatMenu}
+        data-native-chat-copy-image-src={copySrc}
+        fallback={fallback}
+      />
     </div>
   )
 }
@@ -368,11 +355,13 @@ export function NativeChatDetailsDisclosure({
   summary,
   lead,
   trail,
+  bodyClassName,
   children
 }: {
   summary: string
   lead?: React.ReactNode
   trail?: React.ReactNode
+  bodyClassName?: string
   children: React.ReactNode
 }): React.JSX.Element {
   return (
@@ -382,12 +371,15 @@ export function NativeChatDetailsDisclosure({
           ›
         </span>
         {lead}
-        <span className="truncate">{summary}</span>
+        <span className="min-w-0 truncate">{summary}</span>
         {trail}
       </summary>
       <pre
         data-native-chat-code-content
-        className="scrollbar-sleek mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-border bg-muted p-2 font-mono text-chat-code text-foreground"
+        className={cn(
+          'scrollbar-sleek mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-border bg-muted p-2 font-mono text-chat-code text-foreground',
+          bodyClassName
+        )}
       >
         {children}
       </pre>

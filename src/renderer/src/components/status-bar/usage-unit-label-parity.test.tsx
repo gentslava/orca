@@ -5,7 +5,6 @@ import { ProviderSegment } from './StatusBarProviderSegment'
 import { usageChipShowsPercentage } from './usage-unit-label'
 
 vi.mock('@/i18n/i18n', () => ({
-  getIntlLocale: () => 'en',
   translate: (_key: string, fallback: string, values: Record<string, string> = {}) =>
     Object.entries(values).reduce(
       (text, [key, value]) => text.replace(`{{${key}}}`, value),

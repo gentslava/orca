@@ -51,7 +51,7 @@ function App(): React.JSX.Element {
 
   useAppShellServices()
   useHoldQuitActivity()
-  // Why before the startup chain: its effect runs first, and no startup step can skip the load.
+  // Load drafts before the startup chain so no failed step can skip them.
   useEffect(startNativeChatDraftLoad, [])
   // Committed WSL moves only: the list is empty otherwise, and always with the internal gate closed.
   useEffect(() => void runWslMoveRendererStoreRewrites(), [])

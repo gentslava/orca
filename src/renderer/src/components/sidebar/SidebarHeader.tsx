@@ -71,8 +71,7 @@ const SidebarHeader = React.memo(function SidebarHeader({
             <Button
               variant="ghost"
               size="xs"
-              // Why truncate: the action cluster is shrink-0, so a long localized title
-              // (es "Espacios de trabajo") otherwise wraps out of the h-8 row.
+              // Truncate localized titles because fixed-width actions cannot shrink inside the short header row.
               className="min-w-0"
               data-sidebar-section-title={
                 sidebarBody === 'conversations'

@@ -1,4 +1,4 @@
-export function nextRecord(current, plan, { runId, attempt, publication }) {
+export function nextRecord(current, plan, { runId, attempt, publication, branchSync }) {
   if (Number(current.runId || 0) > Number(runId)) {
     return null
   }
@@ -7,7 +7,8 @@ export function nextRecord(current, plan, { runId, attempt, publication }) {
       ? {
           tag: `personal-${runId}-${attempt}`,
           fingerprint: plan.fingerprint,
-          commit: plan.result.commit
+          commit: plan.result.commit,
+          promoted: branchSync === 'success'
         }
       : current.lastGood
   return {

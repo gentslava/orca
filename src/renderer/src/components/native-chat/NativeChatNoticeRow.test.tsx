@@ -74,7 +74,7 @@ function renderStatus(
     }
   ])
   const view = orcaStopView(hostLabel, continueAvailable, remoteHost, offer)
-  const rendered = render(
+  return render(
     <TooltipProvider>
       <NativeChatOrcaStopContext.Provider value={view}>
         <MessageRow
@@ -86,11 +86,6 @@ function renderStatus(
       </NativeChatOrcaStopContext.Provider>
     </TooltipProvider>
   )
-  const generic = screen.queryByRole('button', { name: 'Agent reported an error' })
-  if (generic) {
-    fireEvent.click(generic)
-  }
-  return rendered
 }
 
 const LEGACY_TEXT =
@@ -220,7 +215,9 @@ describe('the row an Orca stop leaves', () => {
   it('keeps the host words for a stop Orca did not cause', () => {
     const { orcaStop: _orcaStop, presentation: _presentation, ...agentExit } = orcaStopRow('update')
     renderStatus(agentExit, 'studio-mac')
-    expect(screen.getByText(LEGACY_TEXT).parentElement).toHaveClass('text-destructive')
+    expect(screen.getByText(LEGACY_TEXT).parentElement?.parentElement).toHaveClass(
+      'text-destructive'
+    )
   })
 })
 
@@ -321,10 +318,6 @@ describe('notice rows', () => {
         agentName="Grok"
       />
     )
-    const generic = screen.queryByRole('button', { name: 'Agent reported an error' })
-    if (generic) {
-      fireEvent.click(generic)
-    }
     expect(screen.getByText(text)).toBeInTheDocument()
   })
 
@@ -591,10 +584,7 @@ describe('Codex installation in notice rows', () => {
         'Codex'
       )
       expect(screen.getByText(text)).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Agent reported an error' })).toHaveAttribute(
-        'aria-expanded',
-        'true'
-      )
+      expect(screen.queryByRole('button')).toBeNull()
     }
   )
 })
@@ -674,3 +664,56 @@ it('renders the localized unacknowledged goal pause through the existing Stop no
     )
   ).toBeInTheDocument()
 })
+
+// Protocol-shaped synthetic notices; no exact recorded review/denial capture is available.
+it.each([
+  [
+    'codex',
+    'notification:guardianWarning',
+    'warning',
+    'Codex reported a safety review warning. View details.',
+    'Codex a signalé un avertissement de sécurité. Voir les détails.'
+  ],
+  [
+    'claude',
+    'message:system:permission_denied',
+    'error',
+    'Claude denied permission. View details.',
+    'Claude a refusé la permission. Voir les détails.'
+  ]
+] as const)(
+  'compacts the declared %s notice while retaining every available diagnostic',
+  async (provider, kind, tone, heading, french) => {
+    const text = `${'安全 '.repeat(1500)}EXPLANATION_SENTINEL`
+    const head = `{"partial":"${'é'.repeat(4500)}PAYLOAD_SENTINEL`
+    renderStatus({
+      kind: 'status',
+      tone,
+      text,
+      providerFrame: {
+        provider,
+        kind,
+        payload: { head, byteLength: 99999, digest: 'synthetic', truncated: true }
+      }
+    })
+    const summary = screen.getByText(heading).closest('summary')!
+    const disclosure = summary.closest('details')!
+    expect(disclosure.open).toBe(false)
+    expect(summary).not.toHaveTextContent(/SENTINEL|99999/)
+    expect(disclosure.parentElement).not.toHaveClass('text-destructive', 'text-chat-warning')
+    fireEvent.click(summary)
+    expect(disclosure.open).toBe(true)
+    const detail = disclosure.querySelector('pre')!
+    expect(detail.textContent).toContain(text)
+    expect(detail.textContent).toContain(head)
+    expect(detail).toHaveTextContent('Provider response truncated (original size: 99999 bytes).')
+    expect(detail).toHaveClass(tone === 'error' ? 'text-destructive' : 'text-chat-warning')
+    expect(screen.queryByText('Show full output')).toBeNull()
+    await act(() => i18n.changeLanguage('fr'))
+    expect(summary).toHaveTextContent(french)
+    expect(detail).toHaveTextContent(
+      'Réponse du fournisseur tronquée (taille d’origine : 99999 octets).'
+    )
+    expect(disclosure.open).toBe(true)
+  }
+)

@@ -151,6 +151,7 @@ describe('MobileNativeChatView: history paging and anchoring', () => {
 
     afterEach(() => {
       platform.OS = 'ios'
+      vi.useRealTimers()
     })
 
     function readerScrollsTo(y: number) {
@@ -186,6 +187,7 @@ describe('MobileNativeChatView: history paging and anchoring', () => {
     })
 
     it('asks for older history ahead of the top, and after a failure only the retry asks', async () => {
+      vi.useFakeTimers()
       const onLoadEarlier = vi.fn()
       const folded = [assistantTurn('a1', 'Latest')]
       await render({ folded, hasMore: true, onLoadEarlier })
@@ -200,6 +202,10 @@ describe('MobileNativeChatView: history paging and anchoring', () => {
       await update({ folded, hasMore: true, olderPages: 'failed', onLoadEarlier })
       readerScrollsTo(-19_500)
       expect(onLoadEarlier).not.toHaveBeenCalled()
+
+      act(() => {
+        vi.advanceTimersByTime(300)
+      })
 
       const retry = root().find(
         (node) => hostType(node) === 'Pressable' && node.props.accessibilityRole === 'button'

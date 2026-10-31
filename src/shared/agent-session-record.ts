@@ -1,3 +1,4 @@
+import type { AgentSessionDeathEvidence } from './agent-session-death-evidence'
 import { isAgentSessionRewindRecord, type AgentSessionRewindRecord } from './agent-session-rewind'
 import { isAgentSessionLaunchArgs } from './agent-session-launch-args'
 import { isAgentSessionConversationName } from './agent-session/agent-session-conversation-name'
@@ -32,6 +33,7 @@ import {
   type AgentSessionAccountHome
 } from './agent-session-account-home'
 
+export type { AgentSessionDeathEvidence } from './agent-session-death-evidence'
 export type { AgentSessionAccountHome } from './agent-session-account-home'
 export type { AgentSessionOptionsReplacement } from './agent-session-options-replacement'
 
@@ -75,19 +77,6 @@ export type AgentSessionProcessIdentity = {
 /** released has no owner; conflicted retains a legacy terminal owner that recovery waits for and never stops because it is the user's agent. */
 export type AgentSessionClaimStatus = 'reserved' | 'live' | 'conflicted' | 'released'
 
-export type AgentSessionDeathEvidence = {
-  kind: 'exit-observed' | 'kill-delivered' | 'pid-absent' | 'identity-mismatch'
-  detail: string
-  observedAt: number
-  /** Fence of the owner (or reservation) this death is about; a fence names exactly one. Absent on
-   *  evidence older builds wrote, which then speaks for no turn. */
-  ownerFence?: number
-  /** Last liveness proof by the transport holder; absent for surface release, failed start or older evidence. */
-  lastProvenAliveAt?: number
-  /** Quit/update/crash when the provider died with its runtime; absent for independent/unknown death. Keep open strings and read with isAgentSessionOrcaStopCause. */
-  runtimeEnd?: string
-}
-
 export type AgentSessionLease = {
   sessionId: string
   runtimeKind: AgentSessionOwnerRuntimeKind
@@ -125,6 +114,8 @@ export type AgentSessionRecord = {
   providerHandleChain: AgentSessionProviderHandleLink[]
   providerContextBoundary?: AgentSessionProviderContextBoundary
   accountHome: AgentSessionAccountHome
+  /** Optional host-written construction observation; checked independently of record readability. */
+  acquiredAccount?: unknown
   /** Initial launch directory in host path syntax. Floating sessions resume here; worktree/folder IDs resolve their durable location. */
   launchDirectory?: string
   /** Provider options the user chose, replayed whenever a new owner starts the session. */
@@ -159,8 +150,9 @@ const MAX_LAUNCH_ENV_ENTRIES = 256
 const MAX_LAUNCH_ENV_VALUE_LENGTH = 65_536
 const SESSION_ID_PATTERN = /^[A-Za-z0-9_-]{8,128}$/
 
-const isBoundedString = (value: unknown, max: number): value is string =>
-  typeof value === 'string' && value.length > 0 && value.length <= max
+function isBoundedString(value: unknown, max: number): value is string {
+  return typeof value === 'string' && value.length > 0 && value.length <= max
+}
 
 export function isAgentSessionId(value: unknown): value is string {
   return typeof value === 'string' && SESSION_ID_PATTERN.test(value)

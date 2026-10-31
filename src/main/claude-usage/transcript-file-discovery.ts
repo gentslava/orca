@@ -1,8 +1,8 @@
-import { isDirectory } from '../claude-accounts/claude-profile-homes'
 import {
   claudeProfileHistoryDirs,
   claudeAccountHistoryRoots
 } from '../claude-accounts/claude-profile-installed-router'
+import { isDirectory } from '../claude-accounts/claude-profile-homes'
 import type { UsageAccountRoot } from '../usage/usage-account-attribution'
 import { homedir } from 'node:os'
 import { join } from 'node:path'

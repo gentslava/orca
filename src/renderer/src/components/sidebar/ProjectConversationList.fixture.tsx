@@ -50,11 +50,7 @@ function fixture(
         liveLeafCount: 0,
         runtimeProtocolVersion: 3,
         minCompatibleRuntimeClientVersion: 2,
-        capabilities: [
-          'ui.personalProjectOrder.v1',
-          'ui.conversationPreferences.v1',
-          'ui.conversationProjectVisibility.v1'
-        ]
+        capabilities: ['ui.conversationPreferences.v1', 'ui.conversationProjectVisibility.v1']
       })
       window.api.runtime.call = async (request) => {
         let result: unknown = {

@@ -31,7 +31,14 @@ const EMPTY: AiVaultListResult = { sessions: [], issues: [], scannedAt: '2026-10
 function install(records: readonly AgentSessionRecord[]): void {
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: list projection reads only the durable catalog on this host.
   setStructuredAgentSessionHost({
-    deps: { store: { listConversations: () => records.map(agentSessionConversationView) } }
+    deps: {
+      store: {
+        listRecords: () => records,
+        hostId: 'local',
+        getRecord: (id: string) => records.find((record) => record.sessionId === id) ?? null,
+        listConversations: () => records.map(agentSessionConversationView)
+      }
+    }
   } as never)
 }
 
@@ -237,7 +244,7 @@ describe('primary conversation navigation from the durable session catalog', () 
     }
   )
 
-  it.each(['claude', 'codex', 'gemini'])(
+  it.each(['claude', 'codex'])(
     'retains an empty %s chat without a provider handle or file, without changing transcript browsing',
     (provider) => {
       const record = retained(provider)

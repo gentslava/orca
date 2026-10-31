@@ -74,7 +74,7 @@ export function useNativeChatStructuredComposerSend({
 }: UseNativeChatStructuredComposerSendArgs): NativeChatStructuredComposerSend {
   return useCallback<NativeChatStructuredComposerSend>(
     async (text, attachments = imageAttachments, request): Promise<void> => {
-      // A picked command is held like Send: it would carry attachments still uploading, pathless.
+      // Picked commands must also wait for pending attachments to acquire paths.
       if (!structuredTransport || attachments.some((attachment) => attachment.pending)) {
         return
       }
@@ -83,7 +83,8 @@ export function useNativeChatStructuredComposerSend({
         ? structuredAgentSessionRequestedDelivery(
             structuredTransport.queue,
             structuredTransport.isWorking === true,
-            request?.delivery
+            request?.delivery,
+            request?.alternate
           )
         : request?.delivery
       if (
@@ -116,8 +117,7 @@ export function useNativeChatStructuredComposerSend({
         return
       }
       text = resolveNativeChatPastedText(draftScopeKey, text)
-      // A held host takes no turn, and its notice says why; an option command only changes what
-      // the next turn runs with.
+      // Blocked hosts cannot take turns/conversation commands; option commands only configure later turns.
       if (
         structuredTransport.sendBlockedReason !== undefined &&
         (!hostCommand || structuredAgentSessionCommandChangesConversation(text))

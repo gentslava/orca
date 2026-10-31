@@ -4,6 +4,7 @@ import { isRpcDeliveryUnknown } from '../../transport/rpc-delivery-ambiguity'
 import {
   BRIDGE_MAX_MESSAGE_BYTES,
   BRIDGE_MAX_PENDING_REQUESTS,
+  BRIDGE_MAX_FORWARDED_REQUESTS,
   BRIDGE_MAX_SUBSCRIPTIONS
 } from './bridge-caps'
 import { createFakeBridgePortPair } from './bridge-port-pair-test-harness'
@@ -36,9 +37,11 @@ afterEach(() => {
 })
 
 describe('bridge client handshake', () => {
-  it('asks for a session as soon as it exists, declaring nothing', () => {
+  it('asks for a session immediately and declares the storage keys it can read', () => {
     const page = createPageClient()
-    expect(page.frames()).toEqual([{ v: BRIDGE_PROTOCOL_VERSION, type: 'ready' }])
+    expect(page.frames()).toEqual([
+      { v: BRIDGE_PROTOCOL_VERSION, type: 'ready', storageKeys: ['orca:terminalSplitLayout'] }
+    ])
   })
 
   it('keeps asking on a widening backoff until init answers', () => {
@@ -123,7 +126,11 @@ describe('bridge client handshake', () => {
       safeAreaInsets: { top: 0, right: 0, bottom: 0, left: 0 },
       keyboardInset: 0,
       colorScheme: 'dark',
+      foldDivision: null,
+      pageGeometry: { occlusions: [], sideRail: false },
+      terminalKeyRail: [],
       uiLocale: null,
+      // And no host and no stored keys, which is what `host-store.web.ts` then answers with.
       host: null,
       storage: {},
       storageOversize: [],
@@ -457,12 +464,12 @@ describe('bridge client caps', () => {
     const page = createPageClient()
     page.start()
     const answers: Promise<unknown>[] = []
-    for (let index = 0; index < BRIDGE_MAX_PENDING_REQUESTS; index += 1) {
+    for (let index = 0; index < BRIDGE_MAX_FORWARDED_REQUESTS; index += 1) {
       answers.push(page.client.sendRequest('worktree.ps'))
     }
     const refused = page.client.sendRequest('worktree.ps')
     await expect(refused).rejects.toThrow(BridgeClientCapExceededError)
-    expect(page.sent).toHaveLength(1 + BRIDGE_MAX_PENDING_REQUESTS)
+    expect(page.sent).toHaveLength(1 + BRIDGE_MAX_FORWARDED_REQUESTS)
     page.client.close()
     await Promise.allSettled(answers)
   })

@@ -195,7 +195,7 @@ describe('projects containing conversations', () => {
     ).toHaveLength(1)
   })
 
-  it('uses personal project openings, pins, names and catalog order independently of agent activity', () => {
+  it('uses canonical recent and manual ordering from the served project catalog', () => {
     const repos = ['Beta', 'Alpha', 'Pinned'].map((displayName) => ({
       id: displayName,
       displayName,
@@ -213,15 +213,7 @@ describe('projects containing conversations', () => {
           path: repo.path,
           displayName: repo.displayName,
           setupMethod: 'imported-existing-folder'
-        })),
-        personalProjectOrder: {
-          projects: {
-            'github:Beta': { lastOpenedAt: 200, openCount: 1 },
-            'github:Alpha': { lastOpenedAt: 100, openCount: 8 },
-            'github:Pinned': { pinned: true }
-          },
-          settledOperations: []
-        }
+        }))
       },
       repoOrder: new Map(repos.map((repo, index) => [repo.id, index])),
       projectOrderBy: 'recent'
@@ -240,13 +232,9 @@ describe('projects containing conversations', () => {
         (project) => project.title
       )
 
-    expect(titles()).toEqual(['Pinned', 'Beta', 'Alpha'])
-    projectCatalog.projectOrderBy = 'frequent'
-    expect(titles()).toEqual(['Pinned', 'Alpha', 'Beta'])
-    projectCatalog.projectOrderBy = 'name'
-    expect(titles()).toEqual(['Pinned', 'Alpha', 'Beta'])
+    expect(titles()).toEqual(['Alpha', 'Beta', 'Pinned'])
     projectCatalog.projectOrderBy = 'manual'
-    expect(titles()).toEqual(['Pinned', 'Beta', 'Alpha'])
+    expect(titles()).toEqual(['Beta', 'Alpha', 'Pinned'])
   })
 
   it('shares chat pins and archive identity while hiding only confirmed empty history', () => {

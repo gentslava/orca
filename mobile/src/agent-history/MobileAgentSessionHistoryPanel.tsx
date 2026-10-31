@@ -1,11 +1,14 @@
-import { MobileAgentHistoryFilters } from './MobileAgentHistoryFilters'
+import { scopeSegments } from './agent-history-scope-segments'
 import { loadMobileResumeMetadata } from './mobile-agent-history-resume-metadata'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Pressable, Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { ChevronLeft, RefreshCw } from 'lucide-react-native'
-import { colors } from '../theme/mobile-theme'
+import { View } from 'react-native'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ChevronLeft, CircleAlert, History, RefreshCw, SearchX } from 'lucide-react-native'
 import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+import { MobileSegmentedControl } from '../components/MobileSegmentedControl'
+import { BottomSearchBar } from '../components/nav-bar/BottomSearchBar'
+import { NavBar } from '../components/nav-bar/NavBar'
+import { NavBarButton } from '../components/nav-bar/NavBarButton'
 import { useWorkspaceClient } from '../transport/use-workspace-client'
 import { useWorkspaceRouteHandoff } from '../navigation/workspace-route-handoff'
 import { useSessionScreenHandlers } from '../session/session-screen-handlers'
@@ -30,6 +33,8 @@ import { MobileAgentSessionHistoryList } from './MobileAgentSessionHistoryList'
 import { resolveMobileAiVaultSessionResumeTarget } from './agent-history-resume-target'
 import { buildMobileAgentHistoryResumeActionState } from './agent-history-session-card'
 import { styles } from './agent-history-styles'
+import { AgentHistoryStateView } from './AgentHistoryStateView'
+import { AgentHistoryResumeNotice, AgentHistorySkippedNotice } from './AgentHistoryNotices'
 import { useNow } from '../hooks/use-now'
 import { useMobileResumeOperationOwnership } from './use-mobile-resume-operation-ownership'
 import { conversationCopy } from '../host-screen/conversation-copy'
@@ -70,6 +75,8 @@ function MobileAgentSessionHistoryPanelContent({
   const [worktreesLoaded, setWorktreesLoaded] = useState(false)
   const [query, setQuery] = useState('')
   const effectiveQuery = conversationId ? '' : query
+  const [searchBarHeight, setSearchBarHeight] = useState(0)
+  const insets = useSafeAreaInsets()
   const [resumingSessionId, setResumingSessionId] = useState<string | null>(null)
   const [resumeMessage, setResumeMessage] = useState<string | null>(null)
   const now = useNow(30_000)
@@ -129,7 +136,6 @@ function MobileAgentSessionHistoryPanelContent({
     return conversationId ? all.filter((session) => session.id === conversationId) : all
   }, [screenState, conversationId])
   const issues = screenState.kind === 'ready' ? screenState.issues : EMPTY_ISSUES
-  const count = issues.length
   const sessionsById = useMemo(
     () => new Map(sessions.map((session) => [session.id, session])),
     [sessions]
@@ -284,109 +290,98 @@ function MobileAgentSessionHistoryPanelContent({
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.header} edges={['top']}>
-        <View style={styles.topBar}>
-          <Pressable
-            style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
-            onPress={() => router.back()}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={t('common.back', 'Back')}
-          >
-            <ChevronLeft size={22} color={colors.textSecondary} strokeWidth={2.2} />
-          </Pressable>
-          <View style={styles.titleBlock}>
-            <Text style={styles.title} numberOfLines={1}>
-              {conversationId
-                ? conversationCopy().history
-                : t('agentHistory.panel.title', 'Agent Session History')}
-            </Text>
-            <Text style={styles.meta} numberOfLines={1}>
-              {worktreeLabel}
-            </Text>
-          </View>
-          <Pressable
-            style={({ pressed }) => [styles.refreshButton, pressed && styles.refreshButtonPressed]}
-            onPress={() => void onRefresh()}
-            hitSlop={8}
-            accessibilityLabel={t('agentHistory.panel.refreshSessions', 'Refresh agent sessions')}
-          >
-            <RefreshCw size={18} color={colors.textSecondary} strokeWidth={2.1} />
-          </Pressable>
-        </View>
+        <NavBar
+          leading={
+            <NavBarButton
+              icon={ChevronLeft}
+              onPress={() => router.back()}
+              accessibilityLabel={t('common.back', 'Back')}
+            />
+          }
+          title={
+            conversationId
+              ? conversationCopy().history
+              : t('agentHistory.panel.title', 'Agent Session History')
+          }
+          subtitle={worktreeLabel}
+          trailing={
+            <NavBarButton
+              icon={RefreshCw}
+              onPress={() => void onRefresh()}
+              accessibilityLabel={t('agentHistory.panel.refreshSessions', 'Refresh agent sessions')}
+            />
+          }
+          accessory={
+            screenState.kind === 'ready' && !conversationId ? (
+              <MobileSegmentedControl
+                segments={scopeSegments(t)}
+                selected={scope}
+                onSelect={onSelectScope}
+                fill
+                style={styles.scopeTabs}
+              />
+            ) : null
+          }
+        />
       </SafeAreaView>
 
       {screenState.kind === 'loading' ? (
-        <View style={styles.state}>
-          <ActivityIndicator size="small" color={colors.textSecondary} />
-        </View>
+        <AgentHistoryStateView
+          loading
+          title={t('agentHistory.panel.loading', 'Loading agent sessions…')}
+        />
       ) : screenState.kind === 'unsupported' ? (
-        <View style={styles.state}>
-          <Text style={styles.stateTitle}>
-            {t('agentHistory.panel.unavailable', 'Agent Session History Unavailable')}
-          </Text>
-          <Text style={styles.stateText}>
-            {t(
-              'agentHistory.panel.updateHost',
-              'Update Orca on this host to browse agent session history.'
-            )}
-          </Text>
-        </View>
+        <AgentHistoryStateView
+          icon={History}
+          title={t('agentHistory.panel.unavailable', 'Agent Session History Unavailable')}
+          message={t(
+            'agentHistory.panel.updateHost',
+            'Update Orca on this host to browse agent session history.'
+          )}
+        />
       ) : screenState.kind === 'error' ? (
-        <View style={styles.state}>
-          <Text style={styles.stateTitle}>
-            {t('agentHistory.panel.loadFailed', 'Unable to Load')}
-          </Text>
-          <Text style={styles.stateText}>{screenState.message}</Text>
-          {retry ? (
-            <Pressable style={styles.retryButton} onPress={retry}>
-              <Text style={styles.retryText}>{t('common.retry', 'Retry')}</Text>
-            </Pressable>
-          ) : null}
-        </View>
+        <AgentHistoryStateView
+          icon={CircleAlert}
+          title={t('agentHistory.panel.loadFailed', 'Unable to Load')}
+          message={screenState.message}
+          action={retry ? { label: t('common.retry', 'Retry'), onPress: retry } : undefined}
+        />
       ) : (
         <>
-          {!conversationId && (
-            <MobileAgentHistoryFilters
-              scope={scope}
-              onSelectScope={onSelectScope}
-              query={query}
-              setQuery={setQuery}
-            />
-          )}
-          {issues.length > 0 ? (
-            <View style={styles.noticeBanner}>
-              <Text style={styles.noticeText}>
-                {count === 1
-                  ? t('agentHistory.panel.skipped_one', '{{count}} transcript skipped', {
-                      count
-                    })
-                  : t('agentHistory.panel.skipped_other', '{{count}} transcripts skipped', {
-                      count
-                    })}
-              </Text>
-            </View>
-          ) : null}
+          {issues.length > 0 ? <AgentHistorySkippedNotice issues={issues} /> : null}
           {resumeMessage ? (
-            <View style={styles.resumeBanner}>
-              <Text style={styles.resumeBannerText}>{resumeMessage}</Text>
-            </View>
+            <AgentHistoryResumeNotice
+              message={resumeMessage}
+              onDismiss={() => setResumeMessage(null)}
+            />
           ) : null}
           {sections.length === 0 ? (
-            <View style={styles.state}>
-              <Text style={styles.stateTitle}>
-                {t('agentHistory.panel.noSessions', 'No agent sessions')}
-              </Text>
-              <Text style={styles.stateText}>
-                {conversationId
-                  ? t(
-                      'agentHistory.panel.conversationUnavailable',
-                      "This conversation's history is unavailable on this host."
-                    )
-                  : effectiveQuery
-                    ? t('agentHistory.panel.noSearchResults', 'No sessions match your search.')
-                    : t('agentHistory.panel.emptyScope', 'No past agent sessions in this scope.')}
-              </Text>
-            </View>
+            effectiveQuery ? (
+              <AgentHistoryStateView
+                icon={SearchX}
+                title={t('agentHistory.panel.noMatches', 'No matches')}
+                message={t('agentHistory.panel.noSearchResults', 'No sessions match your search.')}
+                action={{
+                  label: t('agentHistory.panel.clearSearch', 'Clear search'),
+                  onPress: () => setQuery('')
+                }}
+                bottomInset={searchBarHeight}
+              />
+            ) : (
+              <AgentHistoryStateView
+                icon={History}
+                title={t('agentHistory.panel.noSessions', 'No agent sessions')}
+                message={
+                  conversationId
+                    ? t(
+                        'agentHistory.panel.conversationUnavailable',
+                        "This conversation's history is unavailable on this host."
+                      )
+                    : t('agentHistory.panel.emptyScope', 'No past agent sessions in this scope.')
+                }
+                bottomInset={searchBarHeight}
+              />
+            )
           ) : (
             <MobileAgentSessionHistoryList
               key={conversationId ?? 'history'}
@@ -401,6 +396,16 @@ function MobileAgentSessionHistoryPanelContent({
               resumeActionStateBySessionId={resumeActionStateBySessionId}
               onResume={onResumeSession}
               onRefresh={() => void onRefresh()}
+              bottomPadding={searchBarHeight}
+            />
+          )}
+          {!conversationId && (
+            <BottomSearchBar
+              value={query}
+              onChangeText={setQuery}
+              placeholder={t('agentHistory.panel.placeholder', 'Search sessions, repo:, path:')}
+              bottomInset={insets.bottom}
+              onCoveredHeightChange={setSearchBarHeight}
             />
           )}
         </>

@@ -33,7 +33,3 @@ export function actionableStructuredQuestion(state: PromptState): StructuredQues
     ) ?? null
   )
 }
-
-export function actionableStructuredPromptPair(state: PromptState) {
-  return [actionableStructuredApproval(state), actionableStructuredQuestion(state)] as const
-}

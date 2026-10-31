@@ -206,7 +206,7 @@ export function NativeChatToolRun({
               className={cn(
                 'min-w-0 truncate text-sm leading-relaxed transition-colors',
                 live
-                  ? 'max-w-[72%] shrink-0 animate-pulse text-chat-foreground motion-reduce:animate-none'
+                  ? 'max-w-[72%] animate-pulse text-chat-foreground motion-reduce:animate-none'
                   : 'min-w-0 text-chat-foreground-faint group-hover/tool-run:text-chat-foreground'
               )}
             >
@@ -229,13 +229,15 @@ export function NativeChatToolRun({
                 </span>
               </span>
             ) : null}
-            <ChevronRight
-              aria-hidden="true"
-              className={cn(
-                'ml-auto size-3.5 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
-                open && 'rotate-90'
-              )}
-            />
+            <span className="ml-auto flex h-[1lh] shrink-0 items-center">
+              <ChevronRight
+                aria-hidden="true"
+                className={cn(
+                  'size-3.5 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
+                  open && 'rotate-90'
+                )}
+              />
+            </span>
           </button>
           <NativeChatBrowserRunPageButton calls={headerBlocks.filter(isToolCallBlock)} />
         </div>

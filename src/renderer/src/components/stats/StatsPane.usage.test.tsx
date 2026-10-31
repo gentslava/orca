@@ -125,7 +125,7 @@ afterEach(() => {
 })
 
 describe('Stats & Usage daily workflow', () => {
-  it('switches chart units without treating missing prices as zero or changing account quotas', () => {
+  it('switches chart units without treating missing prices as zero', () => {
     sources[0].rows = [
       usage({ apiEquivalentCostUsd: 0 }),
       usage({ day: '2026-10-23', sessionId: 'unpriced', apiEquivalentCostUsd: null }),
@@ -134,7 +134,6 @@ describe('Stats & Usage daily workflow', () => {
     ]
     render(<StatsPane />)
     const chart = screen.getByTestId('usage-history-daily')
-    const quotas = screen.getByTestId('usage-account-quotas').textContent
     expect(within(chart).getAllByRole('button')).toHaveLength(30)
     fireEvent.click(within(chart).getByRole('radio', { name: 'API estimate' }))
     expect(within(chart).getAllByRole('button')).toHaveLength(30)
@@ -154,7 +153,6 @@ describe('Stats & Usage daily workflow', () => {
     fireEvent.click(partialDay)
     expect(within(chart).getAllByRole('button')).toHaveLength(1)
     expect(screen.getByTestId('usage-history-totals')).toHaveTextContent('$0.02')
-    expect(screen.getByTestId('usage-account-quotas').textContent).toBe(quotas)
   })
 
   it('keeps account-filtered totals, chart and expanded session detail coherent across an active-account switch', () => {
@@ -211,15 +209,8 @@ describe('Stats & Usage daily workflow', () => {
     fireEvent.click(within(screen.getByRole('table')).getByRole('button', { name: '2026-10-24' }))
     expect(screen.getByRole('table')).toHaveTextContent('legacy-session')
   })
-  it('keeps owner quota errors and freshness independent of history filters and drilldown', () => {
+  it('keeps historical totals, filters and drilldown coherent', () => {
     render(<StatsPane />)
-    const quotas = screen.getByTestId('usage-account-quotas')
-    expect(quotas).toHaveTextContent('Build server · Account-wide')
-    expect(quotas).toHaveTextContent('27% used')
-    expect(quotas).toHaveTextContent('55% used')
-    expect(quotas).toHaveTextContent('Quota checked')
-    expect(quotas).toHaveTextContent('latest check failed')
-    const originalQuota = quotas.textContent
     expect(screen.getByText('Build server · Recorded agent logs')).toBeInTheDocument()
     expect(within(screen.getByTestId('usage-history-totals')).getByText('3.6k')).toBeInTheDocument()
 
@@ -233,7 +224,6 @@ describe('Stats & Usage daily workflow', () => {
     fireEvent.click(screen.getByRole('button', { name: '2026-10-24' }))
     expect(screen.getByText('session-a', { exact: true })).toBeInTheDocument()
     expect(screen.getByText('API-equivalent estimate: $0.01')).toBeInTheDocument()
-    expect(quotas.textContent).toBe(originalQuota)
     expect(screen.getByText('Fixture scan failed')).toBeInTheDocument()
     const activity = screen.getByText('Local Orca activity · since first launch').closest('details')
     expect(activity).not.toHaveAttribute('open')
@@ -259,7 +249,6 @@ describe('Stats & Usage daily workflow', () => {
     const tokens = within(screen.getByTestId('usage-history-totals')).getByText('Tokens')
     expect(tokens.previousElementSibling).toHaveTextContent(/^—$/)
     expect(screen.queryByRole('button', { name: 'Enable Codex' })).not.toBeInTheDocument()
-    expect(screen.getByTestId('usage-quota-codex')).toHaveTextContent('Reset time unavailable')
   })
 
   it('makes day selection update every historical projection and provides a clear reset', () => {

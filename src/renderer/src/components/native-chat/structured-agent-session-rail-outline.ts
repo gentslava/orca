@@ -46,8 +46,7 @@ export function selectStructuredRailOutline(
   if (outline.humanMessagesOnly !== true) {
     return { kind: 'unattributed' }
   }
-  // The rail's merge sees one array until the covered entries change. A trimmed live
-  // window moves its edge on every new row, and usually past no user message.
+  // Reuse view identity until covered entries change; streaming often moves the edge without crossing a prompt.
   const prior = views.get(outline)
   const cached = prior?.floor === contextFloor ? prior : undefined
   if (cached?.edge === oldestLoadedSequence) {

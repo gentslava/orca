@@ -1,9 +1,9 @@
+import { agentSessionConversationView } from '../../shared/agent-session-conversation-view'
 import { homedir } from 'node:os'
 import { EventEmitter } from 'node:events'
 import { join, sep } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { agentSessionRecordFixture } from '../../shared/agent-session-record.test-fixture'
-import { agentSessionConversationView } from '../../shared/agent-session-conversation-view'
 import { setStructuredAgentSessionHost } from '../native-chat/agent-session-wire/structured-agent-session-registry'
 import type { AiVaultListResult, AiVaultSession } from '../../shared/ai-vault-types'
 import type * as CachedSessionListModule from '../ai-vault/cached-session-list'
@@ -91,7 +91,12 @@ describe('listAiVaultSessions host routing', () => {
     }
     // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the list boundary reads only this catalog, and no provider is started.
     setStructuredAgentSessionHost({
-      deps: { store: { listConversations: () => [agentSessionConversationView(record)] } }
+      deps: {
+        store: {
+          listRecords: () => [record],
+          listConversations: () => [agentSessionConversationView(record)]
+        }
+      }
     } as never)
     return record
   }

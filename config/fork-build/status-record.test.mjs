@@ -14,5 +14,13 @@ test('failed builds retain the last good release and all previously tracked PRs'
   const published = nextRecord(old, plan, { runId: '11', attempt: '2', publication: 'success' })
   assert.equal(published.lastGood.tag, 'personal-11-2')
   assert.equal(published.lastGood.fingerprint, 'new')
+  assert.equal(published.lastGood.promoted, false)
+  const synced = nextRecord(published, plan, {
+    runId: '12',
+    attempt: '1',
+    publication: 'success',
+    branchSync: 'success'
+  })
+  assert.equal(synced.lastGood.promoted, true)
   assert.equal(nextRecord(published, plan, { runId: '10', publication: 'success' }), null)
 })

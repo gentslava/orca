@@ -1,5 +1,6 @@
 // Command receipts prove acceptance; other plans use ledger rows and journal replay.
 
+import { readNoChoiceOptionResult } from './structured-agent-session-option-observation'
 import type { AgentChildWorkEvidence } from '../../../shared/agent-status-child-work-evidence'
 import type { AgentChildWorkView } from '../../../shared/agent-status-child-work-view'
 import type { AgentJournalMessageItem } from '../../../shared/agent-session-journal-types'
@@ -304,29 +305,30 @@ export function promptPlan(
   }
 }
 
-export function setOptionPlan(params: {
-  key: string
-  value: string | null
-}): MutationPlan<AgentSessionOptionResult> {
+export function setOptionPlan({ key, value }: { key: string; value: string | null }) {
   return {
     method: 'agentSession.setOption',
-    fields: { key: params.key, value: params.value },
-    run: async (ctx) => {
-      const options =
-        params.value === null ? {} : { ...ctx.persistedOptions, [params.key]: params.value }
+    fields: { key: key, value: value },
+    run: async (ctx): Promise<TurnOutcome<AgentSessionOptionResult>> => {
+      const options = value === null ? {} : { ...ctx.persistedOptions, [key]: value }
       await ctx.persistOptions(options)
       ctx.publish()
-      return { ok: true, value: { ...params, options } }
+      return { ok: true, value: { key, value, options } }
     },
-    // Only settled success replays directly; unsettled picks must run again.
-    replay: (ctx, outcome) =>
-      outcome.status === 'succeeded'
-        ? {
-            key: params.key,
-            value: params.value,
-            ...(params.value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
-            ...(ctx.persistedOptions ? { options: { ...ctx.persistedOptions } } : {})
-          }
-        : null
-  }
+    // Reapply unsettled picks; only a settled success can be replayed directly.
+    replay: (ctx, outcome) => {
+      if (outcome.status !== 'succeeded') {
+        return null
+      }
+      if (value !== null && Object.hasOwn(outcome, 'optionResult')) {
+        return readNoChoiceOptionResult(outcome.optionResult, { key, value })
+      }
+      return {
+        key,
+        value,
+        ...(value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
+        ...(ctx.persistedOptions ? { options: { ...ctx.persistedOptions } } : {})
+      }
+    }
+  } satisfies MutationPlan<AgentSessionOptionResult>
 }

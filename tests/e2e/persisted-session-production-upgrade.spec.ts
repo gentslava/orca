@@ -1,4 +1,3 @@
-import { unrefTimer } from './helpers/timer-unref'
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import {
@@ -175,7 +174,7 @@ async function launchPackagedOldProfile(args: {
               candidate.evaluate(() => Boolean(window.api?.settings?.get)).catch(() => false),
               new Promise<boolean>((resolve) => {
                 const timeout = setTimeout(() => resolve(false), 2_000)
-                unrefTimer(timeout)
+                timeout.unref?.()
               })
             ])
             if (hasSettingsApi) {

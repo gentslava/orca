@@ -114,7 +114,13 @@ async function expectNothingStartsTheStoppedDistro(
   await wsl(['--terminate', DISTRO], 30_000)
   timeline('terminated')
   // WSL1 instances can live only seconds, so watch the running list from the terminate on.
-  const watcher = watchDistroRunning(DISTRO, SPAWN_LOG)
+  const watcher = watchDistroRunning(DISTRO, SPAWN_LOG, {
+    spawnsBefore,
+    retryTerminate: async () => {
+      await wsl(['--terminate', DISTRO], 30_000)
+      timeline('terminated (retry)')
+    }
+  })
   let watched: { seenRunning: boolean; reads: number } | undefined
   try {
     // The window starts only once a read has seen it stopped, within the grace.
@@ -177,6 +183,7 @@ test.describe('E9: background work on a stopped real WSL distro', () => {
       workspace = await openWslWorkspace(electronApp, page)
       const { repoId } = workspace
       await activate(page, localWorktreeId)
+      await waitForWslLaunchesToSettle(SPAWN_LOG)
       await expectNothingStartsTheStoppedDistro(page, testInfo, workspace, async () => {
         for (let round = 0; round < 2; round += 1) {
           timeline(`round ${round}: focus and workspace switches`)

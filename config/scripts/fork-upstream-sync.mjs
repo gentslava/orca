@@ -200,12 +200,44 @@ export function promoteCandidate(
   ) {
     throw new Error('Bundle is not the pinned fast-forward candidate')
   }
+  pushPinnedForkRefs(
+    cwd,
+    [{ ref: 'refs/heads/master', before: plan.forkSha, after: candidate.candidateSha }],
+    { forkUrl, env }
+  )
+  return 'promoted'
+}
+
+export function pushPinnedForkRefs(
+  cwd,
+  updates,
+  { forkUrl = FORK_WRITE_URL, env = process.env } = {}
+) {
+  if (!updates.length || new Set(updates.map((entry) => entry.ref)).size !== updates.length) {
+    throw new Error('Expected distinct fork branch updates')
+  }
+  for (const update of updates) {
+    if (!['refs/heads/master', 'refs/heads/main'].includes(update.ref)) {
+      throw new Error('Only fork master and main may be promoted')
+    }
+    assertSha(update.before)
+    assertSha(update.after)
+    if (!ancestor(cwd, update.before, update.after, { env })) {
+      throw new Error(`Promotion would rewind ${update.ref}`)
+    }
+  }
   const hooks = mkdtempSync(join(tmpdir(), 'orca-fork-promotion-'))
   try {
     // Check the push advertisement too; a fetch followed by an ordinary push has a race window.
+    const cases = updates
+      .map(
+        (entry) =>
+          `    ${entry.ref}) test "$local_sha" = "${entry.after}"; test "$remote_sha" = "${entry.before}" ;;`
+      )
+      .join('\n')
     writeFileSync(
       join(hooks, 'pre-push'),
-      `#!/bin/sh\nset -eu\nwhile read -r local_ref local_sha remote_ref remote_sha; do\n  test "$local_sha" = "${candidate.candidateSha}"\n  test "$remote_ref" = refs/heads/master\n  test "$remote_sha" = "${plan.forkSha}"\ndone\n`
+      `#!/bin/sh\nset -eu\nwhile read -r local_ref local_sha remote_ref remote_sha; do\n  case "$remote_ref" in\n${cases}\n    *) exit 1 ;;\n  esac\ndone\n`
     )
     chmodSync(join(hooks, 'pre-push'), 0o755)
     git(
@@ -214,15 +246,15 @@ export function promoteCandidate(
         '-c',
         `core.hooksPath=${hooks}`,
         'push',
+        '--atomic',
         forkUrl,
-        `${candidate.candidateSha}:refs/heads/master`
+        ...updates.map((entry) => `${entry.after}:${entry.ref}`)
       ],
       { env }
     )
   } finally {
     rmSync(hooks, { recursive: true, force: true })
   }
-  return 'promoted'
 }
 
 export async function recoverIntegration(

@@ -157,7 +157,7 @@ export async function scanOpenCodeUsageDatabases(
   const sourceAccounts = new Map(
     await Promise.all(dbPaths.map(async (path) => [path, await resolveAccount(path)] as const))
   )
-  // Why: one resolver for the whole scan so every database shares the per-cwd memo.
+  // Share per-cwd resolution memoization across databases.
   const resolveWorktree = await createUsageWorktreeResolver(worktrees)
 
   const currentPaths = new Set(dbPaths)

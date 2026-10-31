@@ -23,7 +23,6 @@ import {
   isWorktreeHostIdentity
 } from '../../../shared/worktree/host-qualified-identity'
 import type { WslMoveRewriteScope } from './wsl-move-rewrite-scope'
-import { wslMovePersonalProjectOrderUpdate } from './wsl-move-personal-project-order'
 
 export type WslMoveUiRoutingState = Pick<
   PersistedUIState,
@@ -32,7 +31,6 @@ export type WslMoveUiRoutingState = Pick<
   | 'explorerDisplayRootByWorktree'
   | 'workspaceCleanup'
   | 'manualRepoOrder'
-  | 'personalProjectOrder'
   | 'workspaceHostScope'
   | 'visibleWorkspaceHostIds'
   | 'agentsVisibleHostIds'
@@ -51,10 +49,7 @@ export function rewriteWslMoveUiRouting(
   ui: WslMoveUiRoutingState,
   scope: WslMoveRewriteScope
 ): Partial<WslMoveUiRoutingState> {
-  const updates: Partial<WslMoveUiRoutingState> = {
-    ...wslMoveLastActiveWorktreeUpdate(ui, scope),
-    ...wslMovePersonalProjectOrderUpdate(ui, scope)
-  }
+  const updates: Partial<WslMoveUiRoutingState> = { ...wslMoveLastActiveWorktreeUpdate(ui, scope) }
   const hostWorktreeKey = (key: string): string =>
     scope.inScope(key) ? scope.worktreeId(key) : key
   const dotfiles = withHostKeys(

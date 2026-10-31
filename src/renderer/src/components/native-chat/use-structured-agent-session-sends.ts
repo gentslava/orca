@@ -14,7 +14,6 @@ import type {
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import {
   structuredAgentSessionQueueRequest,
-  structuredAgentSessionRequestedDelivery,
   type StructuredAgentSessionQueueDelivery
 } from './structured-agent-session-queue-request'
 import {
@@ -121,22 +120,22 @@ export function useStructuredAgentSessionSends(args: {
       if (!text.trim() && attachments.length === 0) {
         return false
       }
-      const intent = structuredAgentSessionRequestedDelivery(queue, isWorking, request?.delivery)
-      const explicitQueue = intent === 'queue-if-active'
-      if (explicitQueue && queue.capability !== 'supported') {
+      if (isWorking && queue.capability !== 'supported' && steerCapability !== 'supported') {
         return false
       }
-      const steers =
-        intent === 'immediate' ||
-        (!request?.delivery && !queue.enabled && steerCapability === 'supported')
-      if (steers && steerCapability !== 'supported') {
+      if (request?.delivery === 'queue-if-active' && queue.capability !== 'supported') {
         return false
       }
-      const delivery = explicitQueue
-        ? 'queue-if-active'
-        : steers
+      if (request?.delivery === 'immediate' && steerCapability !== 'supported') {
+        return false
+      }
+      const delivery =
+        request?.delivery === 'immediate'
           ? undefined
-          : structuredAgentSessionQueueRequest(queue)
+          : (request?.delivery ?? structuredAgentSessionQueueRequest(queue, request?.alternate))
+      const steers =
+        request?.delivery === 'immediate' ||
+        (!delivery && isWorking && steerCapability === 'supported')
       const captured = sendSelection ? sendSelection() : { options: sendOptions?.() }
       if (captured === undefined) {
         return false

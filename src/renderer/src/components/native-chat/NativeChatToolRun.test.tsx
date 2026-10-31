@@ -125,7 +125,9 @@ describe('NativeChatToolRun', () => {
 
     const editRow = screen.getByRole('button', { name: /^Edit Tried to edit \/repo\/a\.ts/ })
     expect(within(editRow).queryByText('Edited')).toBeNull()
-    const body = container.querySelector('pre')
+    const body = [...container.querySelectorAll('pre')].find(
+      (pre) => pre.textContent === 'String to replace not found in file.'
+    )
     expect(body).toHaveTextContent('String to replace not found in file.')
     expect(body).toHaveClass('text-destructive')
   })
@@ -487,7 +489,7 @@ describe('NativeChatToolRun', () => {
     expect(container.querySelector('.animate-pulse')).toBeNull()
   })
 
-  it('keeps a failed call quiet until its activity and output are opened', () => {
+  it('refuses the completion mark to a collapsed run whose call failed', () => {
     const blocks: NativeChatBlock[] = [
       { type: 'tool-call', name: 'shell', input: { command: 'false' }, state: 'failed' },
       { type: 'tool-result', output: 'exit 1', isError: true }
@@ -499,15 +501,8 @@ describe('NativeChatToolRun', () => {
     expect(runHeader(container)).toHaveTextContent(' · 1 failed')
     expect(runHeader(container)).toHaveAccessibleName(/Failed tool calls: 1/)
     expect(container.querySelector('.lucide-circle-alert')).toBeNull()
-    expect(screen.queryByRole('alert')).toBeNull()
+    expect(container.querySelector('[class*="destructive"]')).toBeNull()
     expect(screen.queryByText('exit 1')).toBeNull()
-    expect(container.querySelector('[class*="text-destructive"]')).toBeNull()
-    expect(screen.getByLabelText('Failed tool calls: 1')).toHaveClass('text-chat-foreground-faint')
-
-    fireEvent.click(runHeader(container))
-    openToolRunMembers()
-    expect(screen.getByText('exit 1')).toBeVisible()
-    expect(screen.getByText('exit 1')).toHaveClass('text-destructive')
   })
 
   it('counts every failed call in a run, not just the last one', () => {

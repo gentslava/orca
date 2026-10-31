@@ -220,6 +220,15 @@ export async function ensureTerminal(page, { allowCreate = true, timeoutMs = 60_
 async function createWorkspaceFromSeededRepo(page, timeoutMs) {
   // Share one deadline across creation rather than reset each step’s budget.
   const deadline = Date.now() + timeoutMs
+  const sidebarTitle = page.locator('[data-sidebar-section-title]').first()
+  if ((await sidebarTitle.getAttribute('data-sidebar-section-title')) !== 'workspaces') {
+    if (!(await tryClickWithKnownOverlayRetry(page, sidebarTitle, deadline - Date.now()))) {
+      await sidebarTitle.click({ timeout: 1 })
+    }
+    await page.getByRole('menuitem', { name: 'Workspaces', exact: true }).click({
+      timeout: Math.max(1, deadline - Date.now())
+    })
+  }
   const newWorkspace = page
     .getByRole(NEW_WORKSPACE_BUTTON.role, { name: NEW_WORKSPACE_BUTTON.name })
     .first()
@@ -242,6 +251,7 @@ async function createWorkspaceFromSeededRepo(page, timeoutMs) {
 
 const OVERLAY_DISMISS_LABELS = ['Got it', 'Dismiss setup scripts', 'Dismiss tip', 'Dismiss update']
 const FEATURE_TIP_DIALOG_TITLES = [
+  'Chat UI is here',
   'Let agents drive Orca with the Orca CLI',
   'Search every agent session'
 ]

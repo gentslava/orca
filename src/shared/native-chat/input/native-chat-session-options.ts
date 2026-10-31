@@ -44,8 +44,7 @@ export type SessionOptionDescriptor = {
   disabledReason?: SessionOptionDisabledReason
   /** A reset action, separate from catalog model IDs. Absent on older hosts and PTY surfaces. */
   defaultChoice?: { selected: boolean; model?: SessionOptionSelectChoice }
-  /** Why: picker-only and toggle-only PTY commands cannot be represented as
-   * a truthful radio/checkbox state, so the producer exposes an action row. */
+  /** Picker-only/flip-only PTY commands need action rows rather than invented absolute control states. */
   action?: { type: 'agent-picker' | 'toggle-command' }
 }
 

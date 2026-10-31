@@ -65,7 +65,6 @@ export function useHostViewSettings(args: {
     applyViewState(next)
   }, [client, applyViewState])
 
-  // Merge the desktop's shared view settings (PersistedUIState) onto local state so desktop changes appear here.
   const syncViewSettingsFromDesktop = useCallback(
     async (options: { resend?: boolean } = {}) => {
       if (!client || connState !== 'connected') {

@@ -263,8 +263,6 @@ import type { NativeChatMessage } from '../../../../shared/native-chat-types'
       renderJournal(items)
 
       expect(screen.queryByText('Thinking about fruit.')).toBeNull()
-      expect(screen.queryByText('The agent exited unexpectedly.')).toBeNull()
-      fireEvent.click(screen.getByRole('button', { name: 'Agent reported an error' }))
       expect(screen.getByText('The agent exited unexpectedly.')).toBeInTheDocument()
     })
 

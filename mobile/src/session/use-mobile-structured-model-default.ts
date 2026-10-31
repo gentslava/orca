@@ -58,7 +58,7 @@ export function useMobileStructuredModelDefault(args: {
     | 'optionPicks'
     | 'updateOptionState'
     | 'writes'
-    | 'readRef'
+    | 'beginOptionWrite'
     | 'isCurrentContext'
   >
 }) {
@@ -71,7 +71,7 @@ export function useMobileStructuredModelDefault(args: {
     controller,
     updateOptionState,
     writes,
-    readRef,
+    beginOptionWrite,
     isCurrentContext
   } = args.source
   return useCallback(
@@ -102,8 +102,8 @@ export function useMobileStructuredModelDefault(args: {
         false
       )
       const sameRecord = () => isCurrentContext() && activeOptionRecordRef.current === targetRecord
-      writes.current.count += 1
-      updateOptionState((state) => ({ ...state, pendingId: id }))
+      const finish = beginOptionWrite(id)
+      updateOptionState((state) => ({ ...state }))
       let readsBack = false
       try {
         const result = await mutate<AgentSessionOptionResult>(
@@ -137,17 +137,9 @@ export function useMobileStructuredModelDefault(args: {
       } finally {
         if (sameRecord()) {
           settleStructuredOptionPick(optionPicks.current, pick)
-          updateOptionState((state) =>
-            state.pendingId === id ? { ...state, pendingId: null } : state
-          )
+          updateOptionState((state) => ({ ...state }))
         }
-        if (isCurrentContext() && activeOptionRecordRef.current === targetRecord) {
-          writes.current.count -= 1
-          writes.current.readback ||= readsBack
-          if (!writes.current.count && writes.current.readback) {
-            readRef.current?.()
-          }
-        }
+        finish(readsBack)
       }
     },
     [
@@ -162,7 +154,7 @@ export function useMobileStructuredModelDefault(args: {
       optionStateRef,
       optionPicks,
       controller,
-      readRef,
+      beginOptionWrite,
       sessionId,
       updateOptionState,
       writes

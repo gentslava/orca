@@ -40,7 +40,6 @@ export function readNativeChatContextMenuTarget(
     !child || child.getAttribute('data-native-chat-inherit-link-context') === 'true'
       ? linkContext
       : null
-  // Offered only where the selection quote popover would offer it.
   const quotable = root && composer?.acceptsText() ? readNativeChatQuotableSelection(root) : null
   // The attribute, not the resolved `href` property, which rewrites chat file links into page URLs.
   const link = element?.closest('a[href], [data-native-chat-link-href]')

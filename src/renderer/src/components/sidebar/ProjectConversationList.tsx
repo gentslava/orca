@@ -38,7 +38,6 @@ import {
   buildConversationProjectGroups,
   type ConversationProjectGroup
 } from './project-conversation-groups'
-import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
 
 export type ProjectConversationListProps = ComponentProps<typeof AiVaultSessionVirtualList> & {
   sessionProjects?: ReadonlyMap<string, AiVaultSessionProject>
@@ -51,7 +50,6 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
   const folderWorkspaces = useAppStore(selectFolderWorkspaces)
   const activeExecutionHostId = useAppStore((state) => state.activeWorkspaceExecutionHostId)
   const catalog = useProjectHostSetupProjection()
-  const personalOrder = useAppStore((state) => state.personalProjectOrder)
   const order = useAppStore((state) => state.projectOrderBy)
   const manualOrder = useAppStore((state) => state.manualRepoOrder)
   const setOrder = useAppStore((state) => state.setProjectOrderBy)
@@ -59,7 +57,6 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
   const activeTab = useAppStore((state) =>
     state.activeWorktreeId ? state.getActiveTab(state.activeWorktreeId) : null
   )
-  const personalOrderSupported = usePersonalProjectOrderSupported()
   const { preferences, setPreference, projectVisibilitySupported, setProjectHidden } =
     useConversationPreferences()
   const [archived, setArchived] = useState(false)
@@ -84,7 +81,6 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
         activeExecutionHostId,
         executionHostScope: props.executionHostScope,
         catalog,
-        personalOrder,
         order,
         manualOrder,
         activeWorkspaceId
@@ -98,7 +94,6 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
       activeExecutionHostId,
       props.executionHostScope,
       catalog,
-      personalOrder,
       order,
       manualOrder,
       activeWorkspaceId
@@ -219,22 +214,13 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
             <DropdownMenuRadioGroup
               value={order}
               onValueChange={(value) => {
-                if (
-                  value === 'recent' ||
-                  value === 'frequent' ||
-                  value === 'name' ||
-                  value === 'manual'
-                ) {
+                if (value === 'recent' || value === 'manual') {
                   setOrder(value)
                 }
               }}
             >
-              {(['recent', 'frequent', 'name', 'manual'] as const).map((value) => (
-                <DropdownMenuRadioItem
-                  key={value}
-                  value={value}
-                  disabled={!personalOrderSupported && (value === 'frequent' || value === 'name')}
-                >
+              {(['recent', 'manual'] as const).map((value) => (
+                <DropdownMenuRadioItem key={value} value={value}>
                   {orderLabels.get(value)}
                 </DropdownMenuRadioItem>
               ))}
@@ -299,7 +285,6 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
               icon={group.repo?.repoIcon}
               collapsed={collapsed}
               onToggle={() => props.onToggleGroup(group.key)}
-              pinned={group.pinned}
               more={group.sessions.length > size}
               onMore={() =>
                 setPageSizes((current) => ({

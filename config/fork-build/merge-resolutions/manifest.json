@@ -440,5 +440,102 @@
     "resultSha256": "85e07a65bf6fc0737f7253e56cba356ade45ab0ea82c7cffcf3389261a2b2e6f",
     "reason": "Retain shared preference contracts and initialize view settings after the canonical project catalog is available.",
     "pr": 33502
+  },
+  {
+    "path": "mobile/src/session/mobile-native-chat-controller-contract.ts",
+    "blobs": [
+      "23af8c7c5341b16071d15812748caa169ba9dd06",
+      "0a9aa130c5ab67bd97bcd71c2118b38a0cb02341",
+      "860a7475e30689b34406111d045d2094a2412780"
+    ],
+    "patch": "shared-options-upstream-refresh/mobile-native-chat-controller-contract.ts.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "c786f5f6b64eb7dce213b205551fd2a6be72436d74afa3ad39c3ae3830f02c6e",
+    "reason": "Combine Default reset fencing with upstream shared option writes and immediate replies; retain both feature regressions."
+  },
+  {
+    "path": "mobile/src/session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "d77ea520393765e86f8b3147b5123664a4600ec4",
+      "523715331119b9db803b72920889c528d1e122d0",
+      "fe9306bb2a8ab4f5b8332f3bf469559bb97d8494"
+    ],
+    "patch": "shared-options-upstream-refresh/mobile-structured-agent-session-host-support.ts.patch",
+    "patchSha256": "175e7773e4498cf993b095f06a507695e317815b01e330f83cd05561980354ac",
+    "resultSha256": "d737bd80d16cc23d831951da04b578adfb3a243a586fde6fd3c62ee408799a31",
+    "reason": "Combine Default reset fencing with upstream shared option writes and immediate replies; retain both feature regressions."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/native-chat-session-option-copy.ts",
+    "blobs": [
+      "57674e8329e3137459929932d601936a3949cace",
+      "bd4e42af2c78a20dc68947ac324e2fee4673d33f",
+      "2340aeed930b7596a387cb252b0427c5c3ea51a9"
+    ],
+    "patch": "shared-options-upstream-refresh/native-chat-session-option-copy.ts.patch",
+    "patchSha256": "0f4961342db26e9b83e64d42ee80cd74e047a6eea084b566c9fa4f51662cb94d",
+    "resultSha256": "b425b3421e25b8d8689310774e4089f852f0b3ad18b0e2b329b50b85ca8b5beb",
+    "reason": "Combine Default reset fencing with upstream shared option writes and immediate replies; retain both feature regressions."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "8c455dfe933045a3f9db3d38579c72d7d5dd4f12",
+      "97d367000a80966de3ce318217f4bbb7bd97182c",
+      "3c5b91f6ef8522965018f7854c310b893d5f91b2"
+    ],
+    "patch": "shared-options-upstream-refresh/NativeChatSessionOptionPickers.test.tsx.patch",
+    "patchSha256": "bf0718539f99f9b82f95d0e1bfe8f3822159555aa78bde982e36c4c97fccf507",
+    "resultSha256": "02fb7a07f5414e04519833df487e04bb526cf0e4f0ca96d4e195c7fe79f79454",
+    "reason": "Combine Default reset fencing with upstream shared option writes and immediate replies; retain both feature regressions."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
+    "blobs": [
+      "9740b18e6eafe965184aca6f81659c7ce446dab2",
+      "9e5c2d3c8d5b172f75f108f2a42e723386f7f7e8",
+      "c3dda978a842ef91b878709089e409c254b93bd0"
+    ],
+    "patch": "shared-options-upstream-refresh/use-structured-agent-session-options.ts.patch",
+    "patchSha256": "279c880f9b6e056d73156c0cec69f011c912e27a8706a239aaddd6a4ac675dac",
+    "resultSha256": "6b526fa7b7d545856b74fff05aa13891db3ee6caef904adcba3404e0e24defef",
+    "reason": "Combine Default reset fencing with upstream shared option writes and immediate replies; retain both feature regressions."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "2e203c6e9a6057cb4b982692dbcdb149ca844b5c",
+      "fbfb27a4e91147cfdb6efc5eae62e796ee7ab218",
+      "d2cebd8426f75efe48fe96fa9199a9d649aa21ed"
+    ],
+    "patch": "shared-options-upstream-refresh/use-structured-agent-session-send-options.ts.patch",
+    "patchSha256": "02107f6b86cb2ff4e4fd74a4e19c204dee767c9b786bc13aff44ac159c267db3",
+    "resultSha256": "74245ab0f72d66958895a56f9ac47b44b790ca979a8501c9e82af046745cae04",
+    "reason": "Combine Default reset fencing with upstream shared option writes and immediate replies; retain both feature regressions."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-sends.ts",
+    "blobs": [
+      "246dfa13235967533fbafc7cb74615318307dc9a",
+      "3b89a958f033a99b88d88c2a8f76a4fe9a36204e",
+      "e0faaf9a751af03a29a993d367520b6f2e58bfe7"
+    ],
+    "patch": "shared-options-upstream-refresh/use-structured-agent-session-sends.ts.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "9b4ef2eef81b862d8bd60b92cd5d3ead802c5b9394342b82953c6d68f98257b1",
+    "reason": "Combine Default reset fencing with upstream shared option writes and immediate replies; retain both feature regressions."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation-content.test.ts",
+    "blobs": [
+      null,
+      "dc8c6c27fa710396a80b2f48d67617864a6cd073",
+      "a6911f91628a37a2e5f5914bb07c792718da74c3"
+    ],
+    "patch": "conversation-navigation/structured-conversation-navigation-content.test.ts.patch",
+    "resultSha256": "63c8cc3078bdc97078ba040514c5f5ab71c51f6bfd7048529dd417534eb7c5ff",
+    "reason": "Preserve account-owned content lookup in the desktop/mobile navigation fixture; both branches otherwise contain the same test.",
+    "pr": 33383,
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 ]

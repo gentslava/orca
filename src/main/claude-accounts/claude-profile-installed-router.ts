@@ -1,6 +1,6 @@
 import { basename, dirname, join } from 'node:path'
-import { isDirectory } from './claude-profile-homes'
 import type { UsageAccountRoot } from '../usage/usage-account-attribution'
+import { isDirectory } from './claude-profile-homes'
 // Keep the router setup graph out of scan workers.
 import type { ClaudeProfileRouter } from './claude-profile-router'
 import type { ClaudeWslProfileRouter } from './claude-profile-wsl-router'

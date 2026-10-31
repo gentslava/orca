@@ -11,7 +11,7 @@ import {
 
 const harness = createOrchestrationRpcHarness()
 let state: ReturnType<typeof harness.setup>
-let experimentalNativeChat = false
+let structuredChat = false
 const profiles = {
   research: { agent: 'claude', model: 'sonnet', effort: 'high' },
   implementation: { agent: 'codex', model: 'gpt-5.5', effort: 'high' },
@@ -20,12 +20,15 @@ const profiles = {
 }
 
 beforeEach(() => {
-  experimentalNativeChat = false
+  structuredChat = false
   state = harness.setup()
   const { runtime } = state
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: these handlers read only settings from the store fixture.
   vi.spyOn(runtime, 'requireStore').mockReturnValue({
-    getSettings: () => ({ experimentalNativeChat, orchestrationWorkerRoles: profiles })
+    getSettings: () => ({
+      agentDefaultSurface: structuredChat ? 'chat' : 'terminal',
+      orchestrationWorkerRoles: profiles
+    })
   } as never)
   vi.spyOn(runtime, 'validateOrchestrationAgentLauncher').mockImplementation(() => {})
   vi.spyOn(runtime, 'preflightOrchestrationWorkerLaunch').mockResolvedValue(undefined)
@@ -147,7 +150,7 @@ describe('worker role routing through durable worker-start', () => {
   it.each(['new-child', 'new-top-level'])(
     'validates terminal fallback preferences before creating a structured %s worker',
     async (worktree) => {
-      experimentalNativeChat = true
+      structuredChat = true
       // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: creation admission reads only the parent workspace and repository ids.
       vi.spyOn(state.runtime, 'showManagedWorktree').mockResolvedValue({
         id: 'repo::parent',

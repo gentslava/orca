@@ -1,4 +1,5 @@
-import { createElement, type ReactNode } from 'react'
+import { createElement, type ReactNode, type ReactElement } from 'react'
+import { Pressable, Text } from 'react-native'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, expect, it, vi } from 'vitest'
 import { ConversationProjectHeader } from './ConversationProjectHeader'
@@ -40,7 +41,7 @@ afterEach(() =>
     trees.length = 0
   })
 )
-async function mount(element: ReactNode) {
+async function mount(element: ReactElement) {
   let tree: ReactTestRenderer | undefined
   await act(async () => {
     tree = create(element)
@@ -70,7 +71,7 @@ it('offers accessible options on a discovered group without inventing a new-chat
       onOptions
     })
   )
-  const buttons = tree.root.findAll((node) => node.type === 'Pressable')
+  const buttons = tree.root.findAll((node) => node.type === Pressable)
   expect(buttons).toHaveLength(1)
   expect(buttons[0]?.props).toMatchObject({
     accessibilityRole: 'button',
@@ -89,7 +90,7 @@ it('offers accessible options on a discovered group without inventing a new-chat
       })
     )
   )
-  expect(tree.root.findAll((node) => node.type === 'Pressable')).toHaveLength(2)
+  expect(tree.root.findAll((node) => node.type === Pressable)).toHaveLength(2)
 })
 
 it('uses neutral hide and restore actions and exposes disabled state on older hosts', async () => {
@@ -103,14 +104,14 @@ it('uses neutral hide and restore actions and exposes disabled state on older ho
       onWorkspaces: vi.fn()
     })
   )
-  const hide = () => tree.root.findAll((node) => node.type === 'Pressable').at(-1)
+  const hide = () => tree.root.findAll((node) => node.type === Pressable).at(-1)
   expect(hide()?.props).toMatchObject({
     accessibilityRole: 'button',
     disabled: true,
     accessibilityState: { disabled: true }
   })
   expect(
-    tree.root.findAll((node) => node.type === 'Text').map((node) => node.props.children)
+    tree.root.findAll((node) => node.type === Text).map((node) => node.props.children)
   ).toContain(conversationCopy().keepFiles)
   await act(async () =>
     tree.update(
@@ -140,6 +141,6 @@ it('uses neutral hide and restore actions and exposes disabled state on older ho
       })
     )
   )
-  act(() => tree.root.find((node) => node.type === 'Pressable').props.onPress())
+  act(() => tree.root.find((node) => node.type === Pressable).props.onPress())
   expect(onRestore).toHaveBeenCalledWith('notes', 'Notes')
 })

@@ -9,11 +9,13 @@ import { countAiVaultViewAdjustments } from './ai-vault-view-defaults'
 import {
   useAiVaultPanelProjectContext,
   useAiVaultPanelSessionProjects,
-  useAiVaultPanelScopePaths
+  useAiVaultPanelScopePaths,
+  useAiVaultPanelSearchWithin
 } from './use-ai-vault-panel-projects'
 import { useAiVaultSessionLaunchActions } from './ai-vault-session-launch-actions'
 import { openAiVaultSessionLogInOrca } from './ai-vault-session-log-open'
-import { revealAiVaultSessionPath, copyAiVaultSessionText } from './ai-vault-session-path-actions'
+import { revealAiVaultSessionPath } from './ai-vault-session-path-actions'
+import { copyAiVaultSessionText } from './ai-vault-copy-session-text'
 import { useAiVaultOriginalPaneActions } from './ai-vault-original-pane-actions'
 import { translate } from '@/i18n/i18n'
 import { AiVaultPanelHeader } from './AiVaultPanelHeader'
@@ -41,6 +43,7 @@ import { AiVaultScanProgressStrip } from './AiVaultScanProgressStrip'
 import { useAiVaultScanProgress } from './ai-vault-scan-progress-store'
 import { aiVaultLocalScanKey } from '../../../../shared/ai-vault-local-scan-key'
 import { useAiVaultPanelWorkspace } from './use-ai-vault-panel-workspace'
+import { useAiVaultPanelQuery } from './use-ai-vault-panel-query'
 import {
   aiVaultPanelKeyboardRootProps,
   type AiVaultSessionListKeyboard
@@ -82,7 +85,6 @@ export default function AiVaultPanel({
   const settings = useAppStore((s) => s.settings)
   const agentCmdOverrides = settings?.agentCmdOverrides
   const paneActions = useAiVaultOriginalPaneActions()
-  const [query, setQuery] = useState(initialQuery)
   const [focusSearchRequestId, setFocusSearchRequestId] = useState(0)
   const listKeyboardRef = useRef<AiVaultSessionListKeyboard>(null)
   // Why: scope depends on current workspace/project availability, so only stable view options persist.
@@ -119,6 +121,7 @@ export default function AiVaultPanel({
     })
   const {
     scope: panelScope,
+    preferredScope,
     handleScopeChange,
     collapsedGroups,
     toggleGroup
@@ -127,14 +130,18 @@ export default function AiVaultPanel({
     activeWorktreePath,
     local: workspace !== undefined
   })
-  const scope = conversationNavigation ? 'all' : panelScope
-  const { scopePaths, searchWithin } = useAiVaultPanelScopePaths({
-    activeWorktree: conversationNavigation ? null : activeWorktree,
-    worktrees: allWorktrees,
-    projectHostSetupProjection,
-    scope,
+  const [query, setQuery] = useAiVaultPanelQuery(initialQuery, {
+    preferredScope,
+    activeWorktreeId,
     activeProjectKey
   })
+  const scope = conversationNavigation ? 'all' : panelScope
+  const scopePaths = useAiVaultPanelScopePaths(
+    conversationNavigation ? null : activeWorktree,
+    allWorktrees,
+    { projectHostSetupProjection, scope, activeProjectKey }
+  )
+  const searchWithin = useAiVaultPanelSearchWithin(scope, activeWorktree?.id, activeProjectKey)
   const {
     error,
     loading,

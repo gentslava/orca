@@ -15,6 +15,8 @@ import {
 import { journalNativeChatComposerDraftAddition } from './native-chat-composer-draft-journal'
 import {
   clearDraftMemoryForTests,
+  installNativeChatDraftRecord,
+  type NativeChatDraftPosition,
   dirtyScopes,
   hasLocalChange,
   load,
@@ -133,7 +135,8 @@ export function updateNativeChatComposerDraft(
   scopeKey: string,
   change: NativeChatComposerDraftChange,
   persist: 'immediate' | 'deferred',
-  append?: DraftAppend
+  append?: DraftAppend,
+  position?: NativeChatDraftPosition
 ): void {
   if (isNativeChatEditDraft(scopeKey) && !ephemeralDrafts.has(scopeKey)) {
     return
@@ -164,7 +167,7 @@ export function updateNativeChatComposerDraft(
     return
   }
   if (isEmptyDraft({ text, images })) {
-    records.delete(scopeKey)
+    installNativeChatDraftRecord(scopeKey)
     reconcileRestoredImageChecks(scopeKey, [])
     notifyScope(scopeKey)
     if (!isNativeChatEditDraft(scopeKey)) {
@@ -187,7 +190,7 @@ export function updateNativeChatComposerDraft(
     ...(owner ? { owner } : {}),
     ...(unsavedText === undefined ? {} : { unsavedText })
   }
-  records.set(scopeKey, record)
+  installNativeChatDraftRecord(scopeKey, record, position)
   reconcileRestoredImageChecks(scopeKey, record.images)
   notifyScope(scopeKey)
   if (isNativeChatEditDraft(scopeKey)) {
@@ -280,7 +283,7 @@ function deleteDraftsWhere(
   for (const scopeKey of new Set([...records.keys(), ...scopeListeners.keys()])) {
     const draft = records.get(scopeKey)
     if (matches(scopeKey, draft)) {
-      records.delete(scopeKey)
+      installNativeChatDraftRecord(scopeKey)
       reconcileRestoredImageChecks(scopeKey, [])
       notifyScope(scopeKey)
       if (draft) {

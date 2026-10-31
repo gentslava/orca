@@ -42,7 +42,7 @@ describe('host-owned mobile chat images', () => {
     const value = {
       openImage,
       openActions: () => {},
-      imageSource: client ? { client, worktreeId } : null
+      imageSource: client ? { client, worktreeId } : undefined
     }
     return createElement(
       MobileNativeChatRowOverlaysContext.Provider,

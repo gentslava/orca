@@ -205,8 +205,7 @@ export function orderProjectSections<
   for (const section of sections.values()) {
     section.repo = getManualOrderAnchorRepo(section, repoMap, repoOrder)
   }
-  // Why: project header order is its own user choice (projectOrderBy), decoupled from workspace
-  // sortBy. Manual uses canonical repoOrder; personal Recent comes from the view owner.
+  // Project header order is independent of workspace sortBy.
   return sortProjectEntries(
     withRepoSectionDisplayLabels(Array.from(sections.entries())),
     projectOrderBy,

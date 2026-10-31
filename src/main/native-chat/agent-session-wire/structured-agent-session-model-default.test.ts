@@ -7,6 +7,7 @@ import {
   type QueuedMessageTestRig
 } from './structured-agent-session-queued-message-rig.test-fixture'
 import {
+  hostTestCatalogReadOperation,
   HOST_TEST_SESSION as SESSION,
   hostTestOperationId
 } from './structured-agent-session-host-test-data'
@@ -68,6 +69,7 @@ function catalog(namesConfigured: boolean) {
     ]
   }))
   rig.host.deps.modelCatalog = {
+    captureRead: hostTestCatalogReadOperation,
     snapshot: () => ({ origin: 'unknown', models: [] }),
     demand: async () => {},
     prepareSaved: read,

@@ -95,7 +95,7 @@ export function isSkippedFile(root, filePath) {
   return relative.split('/').some((part) => SKIP_PATH_PARTS.has(part))
 }
 
-export async function collectSourceFiles(root, dir) {
+async function collectSourceFiles(root, dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true })
   const files = []
 

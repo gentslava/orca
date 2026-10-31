@@ -176,6 +176,9 @@
           "automationCount_one": "{{count}} automation",
           "automationCount_other": "{{count}} automations"
         },
+        "capturedOwner": {
+          "hostReselection": "Edit the automation and reselect its host before running it."
+        },
         "externalScope": {
           "uncheckedHostCount_one": "External automation managers on {{count}} host could not be checked.",
           "uncheckedHostCount_other": "External automation managers on {{count}} hosts could not be checked."
@@ -247,7 +250,6 @@
           "skippedConflictsExcluded_other": "{{count}} unresolved conflicts were excluded from this diff view."
         },
         "ConflictComponents": {
-          "unresolvedConflicts": "{{count}} unresolved conflicts",
           "unresolvedConflicts_one": "{{count}} unresolved conflict",
           "unresolvedConflicts_other": "{{count}} unresolved conflicts"
         },
@@ -376,10 +378,8 @@
           "AiVaultScanProgressStrip": {
             "agentCheckedCount_one": "{{agent}}: {{settled}} of {{total}} history candidate checked",
             "agentCheckedCount_other": "{{agent}}: {{settled}} of {{total}} history candidates checked",
-            "databaseCount": "{{value0}} databases",
             "databaseCount_one": "{{value0}} database",
             "databaseCount_other": "{{value0}} databases",
-            "fileCount": "{{value0}} files",
             "fileCount_one": "{{value0}} file",
             "fileCount_other": "{{value0}} files"
           },
@@ -414,7 +414,6 @@
             "compareBaseCommitsAhead_other": "{{count}} commits ahead of {{ref}}",
             "compareBaseCommitsBehind_one": "{{count}} commit behind {{ref}}",
             "compareBaseCommitsBehind_other": "{{count}} commits behind {{ref}}",
-            "conflictCount": "{{count}} conflicts",
             "conflictCount_one": "{{count}} conflict",
             "conflictCount_other": "{{count}} conflicts",
             "conflictsSection": "Conflicts",
@@ -432,21 +431,18 @@
               "content": {
                 "commitsBehind_one": "{{count}} commit behind",
                 "commitsBehind_other": "{{count}} commits behind",
-                "failingChecks": "{{count}} failing checks",
                 "failingChecks_one": "{{count}} failing check",
                 "failingChecks_other": "{{count}} failing checks",
                 "failingCount_one": "{{count}} failing",
                 "failingCount_other": "{{count}} failing",
                 "passingCount_one": "{{count}} passing",
                 "passingCount_other": "{{count}} passing",
-                "pendingChecks": "{{count}} checks pending",
                 "pendingChecks_one": "{{count}} check pending",
                 "pendingChecks_other": "{{count}} checks pending",
                 "pendingCount_one": "{{count}} pending",
                 "pendingCount_other": "{{count}} pending",
                 "sendQueuedCommentsToAi_one": "Send {{count}} queued comment to AI",
                 "sendQueuedCommentsToAi_other": "Send {{count}} queued comments to AI",
-                "unresolvedChecks": "{{count}} checks unresolved",
                 "unresolvedChecks_one": "{{count}} check unresolved",
                 "unresolvedChecks_other": "{{count}} checks unresolved",
                 "unresolvedCount_one": "{{count}} unresolved",
@@ -582,25 +578,18 @@
               },
               "dropdown": {
                 "items": {
-                  "fastForwardCount": "Fast-forward {{count}} commits",
                   "fastForwardCount_one": "Fast-forward {{count}} commit",
                   "fastForwardCount_other": "Fast-forward {{count}} commits",
-                  "pullCount": "Pull {{count}} commits",
                   "pullCount_one": "Pull {{count}} commit",
                   "pullCount_other": "Pull {{count}} commits",
-                  "pushCount": "Push {{count}} commits",
                   "pushCount_one": "Push {{count}} commit",
                   "pushCount_other": "Push {{count}} commits",
-                  "titleForcePushOlderCopiesCount": "Remote only has older copies of local commits. Force push {{count}} branch commits with lease to update {{upstreamName}}.",
                   "titleForcePushOlderCopiesCount_one": "Remote only has older copies of local commits. Force push {{count}} branch commit with lease to update {{upstreamName}}.",
                   "titleForcePushOlderCopiesCount_other": "Remote only has older copies of local commits. Force push {{count}} branch commits with lease to update {{upstreamName}}.",
-                  "titleManualForcePush": "Force push {{count}} local commits with lease to update {{upstreamName}}.",
-                  "titleManualForcePushReplaceRemote": "Force push {{count}} local commits with lease to update {{upstreamName}} and replace remote-only commits.",
                   "titleManualForcePushReplaceRemote_one": "Force push {{count}} local commit with lease to update {{upstreamName}} and replace remote-only commits.",
                   "titleManualForcePushReplaceRemote_other": "Force push {{count}} local commits with lease to update {{upstreamName}} and replace remote-only commits.",
                   "titleManualForcePush_one": "Force push {{count}} local commit with lease to update {{upstreamName}}.",
                   "titleManualForcePush_other": "Force push {{count}} local commits with lease to update {{upstreamName}}.",
-                  "titleUnpublishedForcePushCount": "Force push {{count}} branch commits with lease and set an upstream if needed.",
                   "titleUnpublishedForcePushCount_one": "Force push {{count}} branch commit with lease and set an upstream if needed.",
                   "titleUnpublishedForcePushCount_other": "Force push {{count}} branch commits with lease and set an upstream if needed."
                 }
@@ -647,11 +636,8 @@
           "detectedServers_other": "{{detected}} detected · {{count}} servers"
         },
         "OrchestrationPane": {
-          "chatErrorEscalationKeywordChat": "chat",
-          "chatErrorEscalationKeywordError": "error",
-          "heartbeatKeywordHeartbeat": "heartbeat",
-          "heartbeatKeywordInterval": "interval",
-          "heartbeatKeywordStalled": "stalled"
+          "workerAutoReleaseKeywordClose": "close",
+          "workerAutoReleaseKeywordRelease": "release"
         },
         "OrchestrationSkillAgentCoverage": {
           "fullCoverage_one": "All 1 detected agent has the skill.",
@@ -1026,7 +1012,6 @@
           "updated_other": "Updated {{count}} skills"
         },
         "SkillInstallReviewContent": {
-          "placementsChecked": "{{count}} placements checked.",
           "placementsChecked_one": "{{count}} placement checked.",
           "placementsChecked_other": "{{count}} placements checked."
         },
@@ -1654,7 +1639,6 @@
         "stopUnconfirmed": "Codex could not confirm Stop. Check the chat before continuing."
       },
       "notices": {
-        "agentError": "Agent reported an error",
         "compaction": "Context compacted",
         "contextCleared": "Context cleared",
         "continuedOutside": "Continued outside this chat.",
@@ -2128,6 +2112,10 @@
   },
   "settings": {
     "agents": {
+      "defaultSurfaceKeptChat_one": "{{agents}} stays as a chat, as you set.",
+      "defaultSurfaceKeptChat_other": "{{agents}} stay as chats, as you set.",
+      "defaultSurfaceKeptTerminal_one": "{{agents}} stays in the terminal, as you set.",
+      "defaultSurfaceKeptTerminal_other": "{{agents}} stay in the terminal, as you set.",
       "permissionOverrideMore_one": "and {{count}} more",
       "permissionOverrideMore_other": "and {{count}} more",
       "permissionOverridesFollow_one": "{{count}} agent now follows {{mode}}",
@@ -2392,12 +2380,6 @@
     }
   },
   "stats": {
-    "usage": {
-      "format": {
-        "notScanned": "Not scanned yet",
-        "updated": "Updated {{time}}"
-      }
-    },
     "usageBreakdown": {
       "events_one": "{{count}} event",
       "events_other": "{{count}} events",

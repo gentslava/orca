@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path'
 import { api, readLedger, renderReport } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
 import { assertFrozenHead, compose, git } from './composition.mjs'
+import { controlFingerprint } from './promotion.mjs'
 import { createLocalBuildVersion } from '../scripts/build-mac-local.mjs'
 
 const here = import.meta.dirname
@@ -54,6 +55,7 @@ try {
   const source = join(directory, 'source')
   mkdirSync(source)
   git(source, ['init'])
+  git(source, ['config', 'gc.auto', '0'])
   if (process.env.FORK_BUILD_REFERENCE) {
     const reference = resolve(process.env.FORK_BUILD_REFERENCE)
     const objects = resolve(reference, git(reference, ['rev-parse', '--git-path', 'objects']))
@@ -76,13 +78,21 @@ try {
   }
   plan.result = compose(source, plan.upstream, plan.selections, { timestamp: plan.timestamp })
   for (const patch of config.compatibilityPatches) {
-    if (patch !== 'preview-updater-guard.patch') {
+    if (
+      ![
+        'preview-updater-guard.patch',
+        'test-runner-registration.patch',
+        'integration-module-boundaries.patch'
+      ].includes(patch)
+    ) {
       throw new Error('Unrecognized compatibility correction')
     }
     const path = join(here, patch)
-    plan.compatibility = [
-      { file: patch, sha256: createHash('sha256').update(readFileSync(path)).digest('hex') }
-    ]
+    plan.compatibility ??= []
+    plan.compatibility.push({
+      file: patch,
+      sha256: createHash('sha256').update(readFileSync(path)).digest('hex')
+    })
     try {
       git(source, ['apply', '--check', path])
       git(source, ['apply', '--index', path])
@@ -108,7 +118,7 @@ try {
   plan.fingerprint = createHash('sha256')
     .update(
       JSON.stringify({
-        configuration,
+        configuration: controlFingerprint(process.cwd(), configuration),
         upstream: plan.upstream,
         heads: plan.selections.map((pr) => [pr.number, pr.state, pr.head.sha, pr.merge_commit_sha]),
         outputs: config.outputs,
@@ -117,7 +127,7 @@ try {
     )
     .digest('hex')
   plan.reuse =
-    !!ledger.lastGood &&
+    ledger.lastGood?.promoted === true &&
     ledger.lastGood.fingerprint === plan.fingerprint &&
     process.env.FORCE_BUILD !== 'true'
   if (plan.result.publishable && !plan.auditOnly && !plan.reuse) {
@@ -152,6 +162,6 @@ try {
   if (existsSync(join(directory, 'source'))) {
     // The source checkout is not an artifact; only the frozen bundle and receipts are uploaded.
     const { rmSync } = await import('node:fs')
-    rmSync(join(directory, 'source'), { recursive: true, force: true })
+    rmSync(join(directory, 'source'), { recursive: true, force: true, maxRetries: 3 })
   }
 }

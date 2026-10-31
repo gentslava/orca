@@ -3,8 +3,6 @@ import { translate } from '../../../i18n/mobile-i18n'
 
 export const sayMobileNativeChatSessionOption: NativeChatSessionOptionSay = (id, values) => {
   switch (id) {
-    case 'model':
-      return translate('chat.sessionOptionCopy.model', 'Model')
     case 'defaultModel':
       return translate('chat.sessionOptionCopy.defaultModel', 'Default')
     case 'futureOptionsRequireUpdate':
@@ -12,6 +10,8 @@ export const sayMobileNativeChatSessionOption: NativeChatSessionOptionSay = (id,
         'chat.sessionOptionCopy.futureOptionsRequireUpdate',
         'Update Orca on this host to change future-turn choices while the agent works.'
       )
+    case 'model':
+      return translate('chat.sessionOptionCopy.model', 'Model')
     case 'effort':
       return translate('chat.sessionOptionCopy.effort', 'Effort')
     case 'fastMode':
