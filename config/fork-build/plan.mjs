@@ -55,6 +55,7 @@ try {
   const source = join(directory, 'source')
   mkdirSync(source)
   git(source, ['init'])
+  git(source, ['config', 'gc.auto', '0'])
   if (process.env.FORK_BUILD_REFERENCE) {
     const reference = resolve(process.env.FORK_BUILD_REFERENCE)
     const objects = resolve(reference, git(reference, ['rev-parse', '--git-path', 'objects']))
@@ -161,6 +162,6 @@ try {
   if (existsSync(join(directory, 'source'))) {
     // The source checkout is not an artifact; only the frozen bundle and receipts are uploaded.
     const { rmSync } = await import('node:fs')
-    rmSync(join(directory, 'source'), { recursive: true, force: true })
+    rmSync(join(directory, 'source'), { recursive: true, force: true, maxRetries: 3 })
   }
 }
