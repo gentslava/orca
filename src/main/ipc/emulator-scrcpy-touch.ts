@@ -31,6 +31,8 @@ export function registerEmulatorScrcpyTouchHandler(): void {
     if (!BrowserWindow.fromWebContents(event.sender) || !isScrcpyTouchMessage(touch)) {
       return
     }
+    // No adb fallback per phase: a v2.4 server stops its video when the control socket ends,
+    // so a pane that still streams has a live socket, and adb would add ~150 ms per event.
     const control = scrcpyVideoRegistry.control(touch.deviceId)
     if (control) {
       sendScrcpyTouch(control, touch.type, touch.x, touch.y)
