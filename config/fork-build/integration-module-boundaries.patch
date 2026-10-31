@@ -134,7 +134,7 @@ index a8e32b348db..d92ff05cb78 100644
 @@ -775,77 +775,12 @@ describe('mobile structured send actions', () => {
      })
    })
- 
+
 -  it('reports a send stopped before the agent started it without sending it twice', async () => {
 -    sendRequest.mockImplementation(async (method) =>
 -      method === 'agentSession.send'
@@ -286,7 +286,7 @@ index ef022bef45f..b70207e5f7e 100644
 @@ -18,27 +19,6 @@ import {
    type AgentModelCatalogSuccess
  } from './agent-model-catalog-store'
- 
+
 -function record(accountHomePath: string): AgentSessionRecord {
 -  return agentSessionRecordFixture({
 -    sessionId: 'session-1',
@@ -314,7 +314,7 @@ index ef022bef45f..b70207e5f7e 100644
 @@ -56,11 +36,6 @@ function discover(
    return service.read(params)
  }
- 
+
 -const GROK_HOME = (path: string): { variable: 'GROK_HOME'; path: string } => ({
 -  variable: 'GROK_HOME',
 -  path
@@ -335,7 +335,7 @@ index ae69460a3b0..ca2424fb300 100644
    AgentModelCatalogReadParams,
    AgentModelCatalogServiceDeps
  } from './agent-model-catalog-service-contract'
- 
+
 -export type AgentModelCatalogBinding = {
 -  identity: string
 -  params: AgentModelCatalogReadParams
@@ -358,7 +358,7 @@ index ae69460a3b0..ca2424fb300 100644
 @@ -306,11 +291,7 @@ export function agentModelCatalogSessionPeek(
    }
  }
- 
+
 -export type AgentModelCatalogClaim = Pick<
 +export type {
    AgentModelCatalogBinding,
@@ -412,7 +412,7 @@ index c756aadb2be..946eab8dfc1 100644
 @@ -305,31 +305,28 @@ export function promptPlan(
    }
  }
- 
+
 -export function setOptionPlan(params: { key: string; value: string | null }) {
 +export function setOptionPlan({ key, value }: { key: string; value: string | null }) {
    return {
@@ -502,7 +502,7 @@ index ee7fab0e24a..6272f68d456 100644
 --- a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
 @@ -2,6 +2,7 @@
- 
+
  import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
  import { useState } from 'react'
 +import { defineStructuredModelPickerCases } from './native-chat-structured-model-picker.test-fixture'
@@ -511,7 +511,7 @@ index ee7fab0e24a..6272f68d456 100644
  import { OMP_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-omp'
 @@ -109,84 +110,7 @@ const pickEffort = (key = 'Home'): boolean => fireEvent.keyDown(effortSlider(),
  afterEach(() => cleanup())
- 
+
  describe('NativeChatSessionOptionPickers', () => {
 -  it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
 -    const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
@@ -592,7 +592,7 @@ index ee7fab0e24a..6272f68d456 100644
 -    expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
 -  })
 +  defineStructuredModelPickerCases(surface, settle, pickEffort)
- 
+
    it.each(['model', 'effort'])(
      'opens the one picker when a slash command asks for the %s',
 diff --git a/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx b/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx
@@ -732,3 +732,38 @@ index 00000000000..9ad0088b442
 +    expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
 +  })
 +}
+diff --git a/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts b/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts
+index 4d28a35409a..21d31abaee2 100644
+--- a/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts
++++ b/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts
+@@ -372,6 +372,7 @@ describe('local watcher lifecycle (randomized model)', () => {
+     expect(liveSubscriptions).toBe(0)
+   })
+
++  // Runs 1,000 seeded native-subscription lifecycle histories with deterministic fake timers.
+   it('never leaks listeners, roots or native subscriptions across random watch histories', async () => {
+     for (let run = 0; run < RUNS; run += 1) {
+       const seed = 7_000_000 + run
+diff --git a/src/main/ipc/filesystem/watchers/filesystem-watcher-real.test.ts b/src/main/ipc/filesystem/watchers/filesystem-watcher-real.test.ts
+index 26b320da678..517b5c01082 100644
+--- a/src/main/ipc/filesystem/watchers/filesystem-watcher-real.test.ts
++++ b/src/main/ipc/filesystem/watchers/filesystem-watcher-real.test.ts
+@@ -25,14 +25,10 @@ type FsChangedCall = { worktreePath: string; events: { kind: string; absolutePat
+
+ // Poll native delivery and batching rather than assuming a fixed delay.
+ async function waitFor(predicate: () => boolean, timeoutMs = 8_000, stepMs = 50): Promise<void> {
+-  const deadline = Date.now() + timeoutMs
+-  while (Date.now() < deadline) {
+-    if (predicate()) {
+-      return
+-    }
+-    await new Promise((resolve) => setTimeout(resolve, stepMs))
+-  }
+-  throw new Error('waitFor: condition not met within timeout')
++  await vi.waitFor(() => expect(predicate()).toBe(true), {
++    timeout: timeoutMs,
++    interval: stepMs
++  })
+ }
+
+ describe('filesystem-watcher real @parcel/watcher integration', () => {
