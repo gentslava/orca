@@ -266,8 +266,8 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
       await page.getByText('Advanced: workspaces', { exact: true }).click()
       await page.waitForFunction(
         (name) =>
-          globalThis.__orcaRenderCheckNotifies.filter((frame) => frame.name === name).at(-1)
-            ?.claimed === false,
+          globalThis.__orcaRenderCheckNotifies.findLast((frame) => frame.name === name)?.claimed ===
+          false,
         backNames.claim
       )
       await page.evaluate(() => {
