@@ -324,10 +324,10 @@ index ef022bef45f..b70207e5f7e 100644
    it('omits stale original-default proof on passive verified reads without starting a probe', async () => {
      let now = 1_000
 diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
-index ae69460a3b0..ca2424fb300 100644
+index 324bff2e4df..9d5ede72ec2 100644
 --- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
 +++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
-@@ -14,26 +14,11 @@ import type { AgentSessionModelCatalogResult } from '../../../shared/agent-sessi
+@@ -10,26 +10,11 @@ import type { AgentSessionModelCatalogResult } from '../../../shared/agent-sessi
  import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
  import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
  import type {
@@ -352,10 +352,10 @@ index ae69460a3b0..ca2424fb300 100644
 -  projecting?: Promise<void>
 -}
 -
- export function agentModelCatalogReleasedOwner(
-   record: AgentSessionConversationView | undefined
- ): boolean {
-@@ -306,11 +291,7 @@ export function agentModelCatalogSessionPeek(
+ /** Canonical authority survives folder churn and preliminary same-account refreshes until replacement. */
+ export function bindAgentModelCatalogScope(
+   bindings: Map<string, AgentModelCatalogBinding>,
+@@ -310,11 +295,7 @@ export function agentModelCatalogSessionPeek(
    }
  }
 
