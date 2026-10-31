@@ -792,3 +792,40 @@ index 58d168c8f82..f575744a1bf 100644
    )
  }
  
+diff --git a/config/scripts/check-focus-read-ratchet.mjs b/config/scripts/check-focus-read-ratchet.mjs
+index 9e56ec49312..c477f44c6bf 100644
+--- a/config/scripts/check-focus-read-ratchet.mjs
++++ b/config/scripts/check-focus-read-ratchet.mjs
+@@ -345,7 +345,7 @@ const ADVICE =
+ 
+ // Why test support too: harnesses and fixtures seed settings for tests; they never route host work.
+ const TEST_SUPPORT_PATH =
+-  /(?:\.(?:test|spec)(?:-fixture|-support)?|-test-(?:harness|fixtures?))\.tsx?$/
++  /(?:\.(?:(?:test|spec)(?:-fixture|-support)?|fixture)|-test-(?:harness|fixtures?))\.tsx?$/
+ 
+ export function isScannedPath(rel) {
+   return /\.(ts|tsx)$/.test(rel) && !TEST_SUPPORT_PATH.test(rel)
+diff --git a/config/scripts/check-focus-read-ratchet.test.mjs b/config/scripts/check-focus-read-ratchet.test.mjs
+index 4c10a7434c1..e0d0dd4dbb4 100644
+--- a/config/scripts/check-focus-read-ratchet.test.mjs
++++ b/config/scripts/check-focus-read-ratchet.test.mjs
+@@ -290,6 +290,7 @@ describe('isScannedPath', () => {
+     expect(isScannedPath('src/renderer/src/a.spec.tsx')).toBe(false)
+     expect(isScannedPath('src/renderer/src/a.test-fixture.ts')).toBe(false)
+     expect(isScannedPath('src/renderer/src/a.test-support.tsx')).toBe(false)
++    expect(isScannedPath('src/renderer/src/a.fixture.tsx')).toBe(false)
+     expect(isScannedPath('src/renderer/src/a-test-harness.ts')).toBe(false)
+     expect(isScannedPath('src/renderer/src/a-test-fixture.ts')).toBe(false)
+     expect(isScannedPath('src/renderer/src/a-test-fixtures.ts')).toBe(false)
+diff --git a/config/tsconfig.e2e.json b/config/tsconfig.e2e.json
+index 20ba08e8535..9a1e5138980 100644
+--- a/config/tsconfig.e2e.json
++++ b/config/tsconfig.e2e.json
+@@ -27,6 +27,7 @@
+       // installed and then load React Native's globals (numeric timers, a required NODE_ENV).
+       // An empty stub keeps the error count the same with or without mobile's install.
+       "expo-crypto": ["./e2e-typecheck-mobile-native-stub.ts"],
++      "react-native": ["./e2e-typecheck-mobile-native-stub.ts"],
+       "@react-native-async-storage/async-storage": ["./e2e-typecheck-mobile-native-stub.ts"]
+     }
+   }
