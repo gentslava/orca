@@ -136,6 +136,7 @@ async function openHostRoute({
   const menu = page.getByRole('button', { name: 'More options', exact: true })
   if (route === HOST_ROUTE) {
     await menu.click()
+    await page.getByText('Advanced: workspaces', { exact: true }).click()
   }
   return { page, errors, jsResponses }
 }

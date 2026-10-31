@@ -160,6 +160,8 @@ describeDrawer('the bottom drawer on the page', () => {
           { timeout: 30_000, polling: 250 }
         )
         // Use header’s Workspace options sheet; same drawer implementation without row-layout prerequisites.
+        await page.getByRole('button', { name: 'More options', exact: true }).click()
+        await page.getByText('Advanced: workspaces', { exact: true }).click()
         const button = workspaceOptionsButton(page)
         // Wait for actionability before resetting counters; CI WebKit dropped clicks sent as soon as the label existed.
         await button.click({ trial: true, timeout: 30_000 })
@@ -260,6 +262,17 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
       // Closed sheet claims nothing; shell retains its existing pop fallback.
       expect(await page.evaluate(notifyNames)).not.toContain(backNames.claim)
 
+      await page.getByRole('button', { name: 'More options', exact: true }).click()
+      await page.getByText('Advanced: workspaces', { exact: true }).click()
+      await page.waitForFunction(
+        (name) =>
+          globalThis.__orcaRenderCheckNotifies.filter((frame) => frame.name === name).at(-1)
+            ?.claimed === false,
+        backNames.claim
+      )
+      await page.evaluate(() => {
+        globalThis.__orcaRenderCheckNotifies = []
+      })
       await workspaceOptionsButton(page).click({ timeout: 30_000 })
       await page.waitForFunction(
         () => document.querySelector('[aria-label="Dismiss drawer"]') !== null,
