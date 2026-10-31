@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path'
 import { api, readLedger, renderReport } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
 import { assertFrozenHead, compose, git } from './composition.mjs'
+import { controlFingerprint } from './promotion.mjs'
 import { createLocalBuildVersion } from '../scripts/build-mac-local.mjs'
 
 const here = import.meta.dirname
@@ -108,7 +109,7 @@ try {
   plan.fingerprint = createHash('sha256')
     .update(
       JSON.stringify({
-        configuration,
+        configuration: controlFingerprint(process.cwd(), configuration),
         upstream: plan.upstream,
         heads: plan.selections.map((pr) => [pr.number, pr.state, pr.head.sha, pr.merge_commit_sha]),
         outputs: config.outputs,
@@ -117,7 +118,7 @@ try {
     )
     .digest('hex')
   plan.reuse =
-    !!ledger.lastGood &&
+    ledger.lastGood?.promoted === true &&
     ledger.lastGood.fingerprint === plan.fingerprint &&
     process.env.FORCE_BUILD !== 'true'
   if (plan.result.publishable && !plan.auditOnly && !plan.reuse) {

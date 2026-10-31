@@ -5,14 +5,14 @@ import { tmpdir } from 'node:os'
 import { composableLocalePaths, mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { reviewedMergePatches, applyReviewedMergePatch } from './reviewed-merge-patches.mjs'
 
-export function git(cwd, args, extra = {}, { raw = false } = {}) {
+export function git(cwd, args, extra = {}, { raw = false, inheritEnv = true } = {}) {
   const output = execFileSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], {
     cwd,
     encoding: 'utf8',
     maxBuffer: 16 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
-      ...process.env,
+      ...(inheritEnv ? process.env : {}),
       GIT_AUTHOR_NAME: 'Orca Plus',
       GIT_AUTHOR_EMAIL: 'plus@users.noreply.github.com',
       GIT_COMMITTER_NAME: 'Orca Plus',

@@ -1,6 +1,6 @@
 # Personal Orca builds
 
-`main` is the upstream mirror. `master` owns the daily/manual workflow and this selection. There is no additional integration branch.
+`main` is the upstream mirror. `master` contains the last successfully built application, the daily/manual workflow and this selection. There is no additional integration branch.
 
 The workflow freezes fresh `stablyai/orca:main`, discovers all open main-targeted PRs by the configured authors (including drafts), and adds explicitly selected community PRs. `seed` and the persistent fork status issue retain previously selected PRs after closure. Closed unmerged PRs block publication until a replacement or a reasoned exclusion is recorded. Merged PRs are omitted only after their merge commit is proven to be in the frozen upstream.
 
@@ -14,12 +14,14 @@ When every conflicted path is an English or Russian desktop/mobile translation c
 - `audit_only`: resolve lifecycle and test composition; never package.
 - `force_build`: bypass reuse of an identical last successful composition.
 - Persistent [status issue](https://github.com/gentslava/orca/issues/12): current report, lifecycle ledger, and last successful downloads.
-- Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, checksums, archive/app proofs, the source plan and a Git bundle. No application source is promoted back to master by this workflow.
+- Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, checksums, archive/app proofs, the source plan and a Git bundle. After successful independent package verification and release publication, a trusted job promotes the built application to `master` and its frozen upstream to `main` in one atomic fast-forward push.
 - Required conflicts or failed checks preserve previous releases. No silent subset build or automatic substitution/closing of upstream issues/PRs.
 
 The package lane builds/typechecks the production desktop/CLI/web/mobile resources and native helpers. Trusted verification independently re-extracts DMG/ZIP, checks ARM64, code signatures, embedded source/version identity, the app-tree manifest and package digests. It does not launch the application. Component/unit checks do not establish physical-device or provider acceptance.
 
 Packages use ad hoc integrity signatures, without Developer ID/notarization. Download/install manually; the explicit `preview-updater-guard.patch` disables official desktop updates for this version namespace. This existing fork policy is a required, hash-recorded packaging correction, not an implicit import of old master features. Standard official builds are unaffected. The GitHub release tag identifies the configuration commit; `plan.json` identifies the composed application commit/tree. The source bundle contains the exact application source relative to its recorded upstream prerequisite.
+
+Promotion preserves only the pinned fork workflow, pipeline scripts/tests, preview updater test and `AGENTS.md` over the built source. The promotion commit has the previous master and built source as parents; old application changes are never implicitly carried into the new composition. Both old branch identities are checked against the push advertisement. A concurrent update or a newer/divergent mirror blocks both updates without force-pushing. Audit-only, failed and unchanged-input runs do not promote. Configuration fingerprints use the controlled files rather than the master commit, so source promotion alone does not force another build.
 
 Build jobs execute the composed source with read-only repository permissions and no publishing/signing secrets. Publication uses a separate fresh runner and trusted master scripts. It checks only artifacts from the same workflow run. Previous successful releases are never deleted or replaced.
 
@@ -30,7 +32,7 @@ Edit `selection.json` on master. Keep community PR numbers in `include`, with a 
 Tests run without application dependencies:
 
 ```sh
-node --test config/fork-build/composition.test.mjs config/fork-build/status-record.test.mjs
+node --test config/fork-build/composition.test.mjs config/fork-build/status-record.test.mjs config/fork-build/promotion.test.mjs
 actionlint .github/workflows/personal-build.yml
 ```
 

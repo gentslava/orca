@@ -13,7 +13,8 @@ const plan = existsSync(join(directory, 'plan.json'))
 const ledger = nextRecord(current, plan || { tracked: config.seed }, {
   runId: process.env.GITHUB_RUN_ID,
   attempt: process.env.GITHUB_RUN_ATTEMPT,
-  publication: process.env.PUBLICATION
+  publication: process.env.PUBLICATION,
+  branchSync: process.env.BRANCH_SYNC
 })
 if (!ledger) {
   process.exit(0)
@@ -22,6 +23,6 @@ const { lastGood } = ledger
 const report = existsSync(join(directory, 'report.md'))
   ? readFileSync(join(directory, 'report.md'), 'utf8')
   : `Planning failed before a receipt was produced. See [Actions](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}).`
-const body = `${report}\n\nPackage job: **${process.env.PACKAGE_RESULT}**. Publication: **${process.env.PUBLICATION}**.${plan?.reuse ? ' Inputs unchanged; reusing last successful release.' : ''}\n\n${lastGood ? `Last successful release: [${lastGood.tag}](https://github.com/${process.env.GITHUB_REPOSITORY}/releases/tag/${lastGood.tag}).` : 'No successful personal release yet.'}\n\n<!-- orca-personal-ledger\n${JSON.stringify(ledger)}\n-->`
+const body = `${report}\n\nPackage job: **${process.env.PACKAGE_RESULT}**. Publication: **${process.env.PUBLICATION}**. Master/main promotion: **${process.env.BRANCH_SYNC}**.${plan?.reuse ? ' Inputs unchanged; reusing last successful release.' : ''}\n\n${lastGood ? `Last successful release: [${lastGood.tag}](https://github.com/${process.env.GITHUB_REPOSITORY}/releases/tag/${lastGood.tag}).` : 'No successful personal release yet.'}\n\n<!-- orca-personal-ledger\n${JSON.stringify(ledger)}\n-->`
 api(path, { body })
 writeFileSync(join(directory, 'status-ledger.json'), JSON.stringify(ledger, null, 2))

@@ -42,7 +42,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Test composition policy with real Git fixtures
-        run: node --test config/fork-build/composition.test.mjs config/fork-build/status-record.test.mjs
+        run: node --test config/fork-build/composition.test.mjs config/fork-build/status-record.test.mjs config/fork-build/promotion.test.mjs
       - name: Freeze upstream and PR identities; compose required selection
         id: compose
         env:
@@ -172,8 +172,43 @@ jobs:
           tag="personal-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title "Orca personal ARM64 ${GITHUB_RUN_NUMBER}" --notes-file personal-build/report.md personal-packages/* personal-build/plan.json personal-build/source.bundle
 
+  sync:
+    needs: [plan, publish]
+    if: needs.publish.result == 'success' && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Promote verified application to master and mirror upstream to main atomically
+        env:
+          FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
+        run: node config/fork-build/promotion.mjs personal-build
+      - name: Remove temporary SSH credentials even after cancellation
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
+      - name: Preserve the exact branch promotion receipt
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-branch-promotion
+          path: personal-build/promotion.json
+          if-no-files-found: warn
+          retention-days: 14
+
   status:
-    needs: [plan, macos, publish]
+    needs: [plan, macos, publish, sync]
     if: always() && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -199,6 +234,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PACKAGE_RESULT: ${{ needs.macos.result }}
           PUBLICATION: ${{ needs.publish.result }}
+          BRANCH_SYNC: ${{ needs.sync.result }}
         run: |
           mkdir -p personal-build
           node config/fork-build/status.mjs personal-build
