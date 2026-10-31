@@ -20497,9 +20497,7 @@
         "collapse": "Свернуть",
         "expand": "Развернуть",
         "queued": "В очереди",
-        "clearAll": "Очистить всё",
-        "moveEarlier": "Переместить выше",
-        "moveLater": "Переместить ниже"
+        "clearAll": "Очистить всё"
       },
       "thought": "Размышлял",
       "thoughtForDuration": "Размышлял {{duration}}",
@@ -21079,9 +21077,6 @@
         }
       },
       "nativeChat": {
-        "queueFollowUpsTitle": "Ставить сообщения в очередь по Enter",
-        "queueFollowUpsCopy": "Пока агент работает, Enter ставит текст и изображения в очередь, а Cmd/Ctrl+Enter отправляет сразу. Выключите настройку, чтобы поменять сочетания местами. Сообщения в очереди можно изменить, удалить, переставить или отправить сейчас.",
-        "queueFollowUpsToggleLabel": "Включить очередь сообщений",
         "followUpBehaviorTitle": "Ставить следующие сообщения в очередь",
         "inlineVisualsTitle": "Визуализации в чате",
         "inlineVisualsCopy": "Агент сможет показывать графики, схемы и макеты прямо в ответах. Применяется к новым чатам.",
@@ -21094,9 +21089,7 @@
         "queueSearchSteer": "направить агента",
         "shellEnvSearchVariables": "переменные окружения",
         "shellEnvSearchPath": "PATH",
-        "shellEnvSearchProxy": "прокси",
-        "queueFollowUpsChecking": "Проверяем поддержку очереди сообщений на этом сервере…",
-        "queueFollowUpsUnsupported": "Обновите Orca на этом сервере для поддержки очереди. Пока агент работает, черновик останется в поле ввода, если очередь недоступна."
+        "shellEnvSearchProxy": "прокси"
       }
     },
     "agentChildRow": {
