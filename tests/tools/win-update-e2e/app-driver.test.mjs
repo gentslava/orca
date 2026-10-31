@@ -263,7 +263,9 @@ describe('dismissOverlays', () => {
     unintendedDialogClose.first.mockReturnValue(unintendedDialogClose)
     const page = {
       locator: vi.fn((selector) => {
-        if (selector === '[data-sidebar-section-title]') return workspaceSidebarTitle()
+        if (selector === '[data-sidebar-section-title]') {
+          return workspaceSidebarTitle()
+        }
         return selector.includes('dialog-close') ? unintendedDialogClose : terminalSurface
       }),
       getByRole: vi.fn((role, { name }) => {
