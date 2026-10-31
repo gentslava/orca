@@ -54,14 +54,22 @@ try {
   const source = join(directory, 'source')
   mkdirSync(source)
   git(source, ['init'])
+  if (process.env.FORK_BUILD_REFERENCE) {
+    const reference = resolve(process.env.FORK_BUILD_REFERENCE)
+    const objects = resolve(reference, git(reference, ['rev-parse', '--git-path', 'objects']))
+    writeFileSync(join(source, '.git/objects/info/alternates'), `${objects}\n`)
+  }
   git(source, ['remote', 'add', 'origin', `https://github.com/${config.upstream}.git`])
-  git(source, ['fetch', '--no-tags', 'origin', plan.upstream])
+  git(source, ['config', 'remote.origin.promisor', 'true'])
+  git(source, ['config', 'remote.origin.partialclonefilter', 'blob:none'])
+  git(source, ['fetch', '--filter=blob:none', '--no-tags', 'origin', plan.upstream])
   for (const pr of plan.selections) {
     if (pr.merged_at) {
-      git(source, ['fetch', '--no-tags', 'origin', pr.merge_commit_sha])
+      git(source, ['fetch', '--filter=blob:none', '--no-tags', 'origin', pr.merge_commit_sha])
     } else {
       git(source, [
         'fetch',
+        '--filter=blob:none',
         '--no-tags',
         'origin',
         `refs/pull/${pr.number}/head:refs/personal/pr-${pr.number}`

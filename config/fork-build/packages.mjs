@@ -25,7 +25,9 @@ if (command === 'prepare') {
   mkdirSync(application, { recursive: true })
   git(application, ['init'])
   git(application, ['remote', 'add', 'origin', `https://github.com/${plan.repository}.git`])
-  git(application, ['fetch', '--no-tags', 'origin', plan.upstream])
+  git(application, ['config', 'remote.origin.promisor', 'true'])
+  git(application, ['config', 'remote.origin.partialclonefilter', 'blob:none'])
+  git(application, ['fetch', '--filter=blob:none', '--no-tags', 'origin', plan.upstream])
   git(application, ['bundle', 'verify', join(resolve(input, '..'), 'source.bundle')])
   git(application, [
     'fetch',
