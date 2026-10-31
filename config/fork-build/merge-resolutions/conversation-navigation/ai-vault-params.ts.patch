@@ -1,0 +1,10 @@
+--- a/src/shared/rpc-contract/ai-vault-params.ts
++++ b/src/shared/rpc-contract/ai-vault-params.ts
+@@ -32,6 +32,7 @@
+       .optional(),
+     includeAntigravityIdeSessions: OptionalBoolean,
+     includeStructuredSessions: OptionalBoolean,
++    selectedSessionId: z.string().min(1).max(8192).optional(),
+     unlimited: OptionalBoolean,
+     force: OptionalBoolean,
+     afterFingerprint: z

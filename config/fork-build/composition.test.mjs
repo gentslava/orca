@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -171,13 +172,17 @@ test('real Git: combines independent locale keys and still blocks divergent tran
   fixture((cwd) => {
     const path = 'src/renderer/src/i18n/locales/en.json'
     mkdirSync(join(cwd, 'src/renderer/src/i18n/locales'), { recursive: true })
-    writeFileSync(join(cwd, path), JSON.stringify({ settings: { existing: 'Existing' } }, null, 2))
+    const padding = 'x'.repeat(1024 * 1024)
+    writeFileSync(
+      join(cwd, path),
+      JSON.stringify({ padding, settings: { existing: 'Existing' } }, null, 2)
+    )
     git(cwd, 'add', '.')
     git(cwd, 'commit', '-m', 'locale base')
     const upstream = git(cwd, 'rev-parse', 'HEAD')
     function branch(name, values) {
       git(cwd, 'checkout', '-B', name, upstream)
-      writeFileSync(join(cwd, path), JSON.stringify({ settings: values }, null, 2))
+      writeFileSync(join(cwd, path), JSON.stringify({ padding, settings: values }, null, 2))
       git(cwd, 'add', '.')
       git(cwd, 'commit', '-m', name)
       return git(cwd, 'rev-parse', 'HEAD')
@@ -197,7 +202,15 @@ test('real Git: combines independent locale keys and still blocks divergent tran
       result.included.map((entry) => entry.number),
       [1, 2]
     )
-    assert.deepEqual(JSON.parse(git(cwd, 'show', `HEAD:${path}`)), {
+    const merged = JSON.parse(
+      execFileSync('git', ['show', `HEAD:${path}`], {
+        cwd,
+        encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024
+      })
+    )
+    assert.deepEqual(merged, {
+      padding,
       settings: { existing: 'Existing', first: 'One', second: 'Two' }
     })
     assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
@@ -226,3 +239,98 @@ test('locale policy retains removals but refuses delete/edit races, duplicate ke
   assert.throws(() => mergeTranslationCatalogs('{}', '{"a":"One","a":"Two"}', '{}'), /Duplicate/)
   assert.throws(() => mergeTranslationCatalogs('{}', '{"a":true}', '{}'), /string leaves/)
 })
+
+test('real Git: reuses only a reviewed three-blob resolution and refuses changed inputs', () =>
+  fixture((cwd) => {
+    const upstream = git(cwd, 'rev-parse', 'HEAD')
+    const heads = []
+    for (const text of ['one', 'two']) {
+      git(cwd, 'checkout', '-B', text, upstream)
+      writeFileSync(join(cwd, 'file'), `${text}\n`)
+      git(cwd, 'add', 'file')
+      git(cwd, 'commit', '-m', text)
+      heads.push(git(cwd, 'rev-parse', 'HEAD'))
+    }
+    git(cwd, 'checkout', '--detach', heads[0])
+    assert.throws(() => git(cwd, 'merge', '--no-commit', heads[1]))
+    const blobs = git(cwd, 'ls-files', '-u', '--', 'file')
+      .split('\n')
+      .map((line) => line.split(' ')[1])
+    git(cwd, 'reset', '--hard', heads[0])
+    const directory = join(cwd, '.git', 'reviewed-patches')
+    mkdirSync(directory)
+    const patch = '--- a/file\n+++ b/file\n@@ -1 +1 @@\n-one\n+both\n'
+    const hash = (text) => createHash('sha256').update(text).digest('hex')
+    const name = `${hash(patch)}.patch`
+    writeFileSync(join(directory, name), patch)
+    writeFileSync(
+      join(directory, 'manifest.json'),
+      JSON.stringify([
+        {
+          path: 'file',
+          blobs,
+          patch: name,
+          patchSha256: hash(patch),
+          resultSha256: hash('both\n'),
+          reason: 'Reviewed union'
+        }
+      ])
+    )
+    const selection = (values) => values.map((sha, index) => ({ ...pr(index + 1), head: { sha } }))
+    const result = compose(cwd, upstream, selection(heads), { resolutionsDirectory: directory })
+    assert.equal(result.publishable, true)
+    assert.equal(git(cwd, 'show', 'HEAD:file'), 'both')
+    assert.equal(result.reviewedResolutions[0].patches[0].patchSha256, hash(patch))
+    git(cwd, 'checkout', '-B', 'changed', heads[0])
+    writeFileSync(join(cwd, 'file'), 'changed\n')
+    git(cwd, 'add', 'file')
+    git(cwd, 'commit', '-m', 'changed input')
+    const changed = git(cwd, 'rev-parse', 'HEAD')
+    const refused = compose(cwd, upstream, selection([changed, heads[1]]), {
+      resolutionsDirectory: directory
+    })
+    assert.equal(refused.publishable, false)
+    assert.equal(git(cwd, 'show', 'HEAD:file'), 'changed')
+  }))
+
+test('real Git: a text-clean merge with duplicate catalog keys cannot become a build candidate', () =>
+  fixture((cwd) => {
+    const path = 'mobile/src/i18n/locales/en.json'
+    mkdirSync(join(cwd, 'mobile/src/i18n/locales'), { recursive: true })
+    const base = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`key${i}`, `Value ${i}`]))
+    writeFileSync(join(cwd, path), `${JSON.stringify(base, null, 2)}\n`)
+    git(cwd, 'add', path)
+    git(cwd, 'commit', '-m', 'valid catalog')
+    const upstream = git(cwd, 'rev-parse', 'HEAD')
+    const heads = []
+    for (const [name, after] of [
+      ['One', 'key1'],
+      ['Two', 'key18']
+    ]) {
+      git(cwd, 'checkout', '-B', name, upstream)
+      const rows = []
+      for (const row of Object.entries(base)) {
+        rows.push(row)
+        if (row[0] === after) {
+          rows.push(['duplicate', name])
+        }
+      }
+      writeFileSync(join(cwd, path), `${JSON.stringify(Object.fromEntries(rows), null, 2)}\n`)
+      git(cwd, 'add', path)
+      git(cwd, 'commit', '-m', name)
+      heads.push(git(cwd, 'rev-parse', 'HEAD'))
+    }
+    assert.throws(
+      () =>
+        compose(
+          cwd,
+          upstream,
+          heads.map((sha, index) => ({
+            ...pr(index + 1),
+            head: { sha }
+          }))
+        ),
+      /Duplicate translation key/
+    )
+    assert.equal(JSON.parse(git(cwd, 'show', `HEAD:${path}`)).duplicate, 'One')
+  }))

@@ -1,0 +1,10 @@
+--- a/src/main/runtime/rpc/methods/ui-state-schema-parity-checks.ts
++++ b/src/main/runtime/rpc/methods/ui-state-schema-parity-checks.ts
+@@ -7,6 +7,7 @@
+ // Main-only UI fields never arrive from clients; parity checks enforce their deliberate omission from the strict schema.
+ type MainOwnedUIState =
+   | 'conversationPreferences'
++  | 'personalProjectOrder'
+   | 'jiraSavedFilterState'
+   | 'jiraQuickFilterState'
+   | '_explorerDisplayRootMigrated'

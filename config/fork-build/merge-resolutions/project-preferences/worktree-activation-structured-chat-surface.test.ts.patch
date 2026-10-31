@@ -1,0 +1,10 @@
+--- a/src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts
++++ b/src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts
+@@ -21,6 +21,7 @@
+ 
+ afterEach(async () => {
+   await import('@/runtime/web-runtime-terminal-rename')
++  await vi.dynamicImportSettled()
+   vi.restoreAllMocks()
+   useAppStore.setState(initialAppStoreState, true)
+ })

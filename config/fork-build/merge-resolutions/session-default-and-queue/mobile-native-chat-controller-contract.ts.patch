@@ -1,0 +1,18 @@
+--- a/mobile/src/session/mobile-native-chat-controller-contract.ts
++++ b/mobile/src/session/mobile-native-chat-controller-contract.ts
+@@ -29,6 +29,7 @@
+ import type { useMobileNativeChatSessionLane } from './use-mobile-native-chat-session-lane'
+ 
+ export type MobileNativeChatControllerArgs = {
++  onQueuedEditNotice?: (message: string) => void
+   client: RpcClient | null
+   hostId: string
+   worktreeId: string
+@@ -46,7 +47,6 @@
+   onSendError: Parameters<typeof useMobileNativeChatSessionLane>[0]['onSendError']
+   /** Retires a held failure banner. Any accepted chat write clears it — a delivered
+    *  answer or permission reply must not sit under a stale "not sent". */
+-  onQueuedEditNotice?: (message: string) => void
+   onSendResolved: () => void
+ }
+ 

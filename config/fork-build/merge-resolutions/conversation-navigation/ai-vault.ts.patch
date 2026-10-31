@@ -1,0 +1,31 @@
+--- a/src/main/runtime/rpc/methods/ai-vault.ts
++++ b/src/main/runtime/rpc/methods/ai-vault.ts
+@@ -109,6 +109,10 @@
+       await ensureStructuredAgentSessionHostUnlessRefused(() =>
+         runtime.ensureStructuredAgentSessionHost()
+       )
++      const selectedSessionId =
++        params.executionHostId && params.selectedSessionId?.startsWith(`${params.executionHostId}:`)
++          ? `${LOCAL_EXECUTION_HOST_ID}:${params.selectedSessionId.slice(params.executionHostId.length + 1)}`
++          : params.selectedSessionId
+       let result
+       try {
+         result = await runtime.listAiVaultSessions(
+@@ -117,6 +121,7 @@
+             unlimited: params.unlimited,
+             force: params.force,
+             scopePaths: params.scopePaths,
++            selectedSessionId,
+             includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
+           },
+           signal
+@@ -147,7 +152,8 @@
+         ? truncateAiVaultListResult(
+             projected,
+             requestedAiVaultSessionDepth(params),
+-            params.scopePaths
++            params.scopePaths,
++            selectedSessionId
+           )
+         : projected
+       return conditionalAiVaultListResult(

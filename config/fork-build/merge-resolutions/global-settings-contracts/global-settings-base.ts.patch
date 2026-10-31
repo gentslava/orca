@@ -1,0 +1,18 @@
+--- a/src/shared/global-settings-base.ts
++++ b/src/shared/global-settings-base.ts
+@@ -9,6 +9,7 @@
+ import type { PluginUpdatePolicySettings } from './plugins/catalog/plugin-update-policy'
+ import type { PluginSystemSettings } from './plugins/plugin-system-settings'
+ import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
++import type { HoldQuitSettings } from './mac-hold-quit'
+ import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
+ import type { WorkerRoleSettings } from './orchestration-worker-roles'
+ 
+@@ -21,6 +22,7 @@
+   ExternalConversationSettings &
+   BrowserLinkOpeningSettings &
+   WorkerRoleSettings &
++  HoldQuitSettings &
+   BrowserExtensionGlobalSettings &
+   PluginAppearanceSettings &
+   PluginFileTypeSuggestionSettings &

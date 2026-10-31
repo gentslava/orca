@@ -1,0 +1,146 @@
+--- a/src/renderer/src/components/native-chat/use-structured-agent-session-options.ts
++++ b/src/renderer/src/components/native-chat/use-structured-agent-session-options.ts
+@@ -1,3 +1,7 @@
++import { structuredAgentSessionDefaultModelChoice } from '../../../../shared/structured-agent-session-default-model-choice'
++import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../../shared/agent-session-default-model'
++import { useStructuredAgentSessionHostCapability } from '@/runtime/structured-agent-session-host-capability'
++import { useStructuredAgentSessionModelDefault } from './use-structured-agent-session-model-default'
+ import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
+ import type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
+ import { toast } from 'sonner'
+@@ -27,6 +31,7 @@
+   const { agent, fence, launch, providerVisible, sessionId, transportEnabled, turnId } = args
+   const environmentId = args.target.kind === 'environment' ? args.target.environmentId : null
+   const target = useMemo(() => runtimeTargetForOwnerEnvironment(environmentId), [environmentId])
++  const mutate = args.mutate
+   const capturePresentation = args.capturePresentation
+   const providerStarting = args.providerStarting ?? false
+   const newLaunch = launch?.kind === 'new'
+@@ -39,6 +44,9 @@
+     optionStateRef,
+     activeOptionRecordRef,
+     controller,
++    optionPicks,
++    writes,
++    beginOptionWrite,
+     takesSelection,
+     updateOptionState,
+     rereadOptions,
+@@ -88,22 +96,41 @@
+     receiveCatalog
+   })
+ 
++  const takesModelDefault = useStructuredAgentSessionHostCapability(
++    target,
++    AGENT_SESSION_DEFAULT_MODEL_CAPABILITY
++  )
+   const acceptsTurnPicks =
+     acceptsPicks && (!(args.isWorking ?? turnId !== null) || takesSendOptions || takesSelection)
+   const interactionReadyRef = useRef(acceptsTurnPicks)
+   const lockSnapshotRef = useRef(
+     (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => snapshot
+   )
+-  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) =>
+-    !acceptsPicks
+-      ? lockedStructuredAgentSessionOptionSnapshot(snapshot)
++  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => {
++    const choices =
++      takesModelDefault && fence !== null
++        ? snapshot.map((descriptor) =>
++            descriptor.id === 'model'
++              ? {
++                  ...descriptor,
++                  settable: true,
++                  defaultChoice: structuredAgentSessionDefaultModelChoice(
++                    optionView(optionStateRef.current, launchSeedOptions, launch?.explicitOptions)
++                  )
++                }
++              : descriptor
++          )
++        : snapshot
++    return !acceptsPicks
++      ? lockedStructuredAgentSessionOptionSnapshot(choices)
+       : !acceptsTurnPicks
+-        ? snapshot.map((descriptor) =>
++        ? choices.map((descriptor) =>
+             descriptor.id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
+               ? descriptor
+               : { ...descriptor, settable: false, disabledReason: 'host-update-required' as const }
+           )
+-        : snapshot
++        : choices
++  }
+   useLayoutEffect(() => {
+     interactionReadyRef.current = acceptsTurnPicks
+     lockSnapshotRef.current = lockSnapshot
+@@ -132,6 +159,7 @@
+           !view.permissionOwnSupported) ||
+         !isCurrentContext() ||
+         !acceptsTurnPicks ||
++        writes.current.count > 0 ||
+         !optionCatalog ||
+         encoded === null ||
+         !canSetStructuredAgentSessionOption(
+@@ -181,6 +209,7 @@
+       controller,
+       capturePresentation,
+       acceptsTurnPicks,
++      writes,
+       fence,
+       launch?.explicitOptions,
+       launchSeedOptions,
+@@ -209,15 +238,37 @@
+     },
+     [launch?.explicitOptions, launchSeedOptions, optionStateRef, optionView, setStructuredOption]
+   )
++  const resetOption = useStructuredAgentSessionModelDefault({
++    agent,
++    target,
++    mutate,
++    takesModelDefault,
++    acceptsPicks: acceptsTurnPicks,
++    fence,
++    launchSeedOptions,
++    lockSnapshotRef,
++    source: {
++      optionView,
++      optionStateRef,
++      activeOptionRecordRef,
++      controller,
++      optionPicks,
++      writes,
++      beginOptionWrite,
++      isCurrentContext,
++      updateOptionState
++    }
++  })
+   const optionSurface = useMemo<SessionOptionsSurface>(
+     () => ({
++      ...(takesModelDefault ? { resetOption } : {}),
+       getSnapshot: () => optionSnapshot,
+       demandModelCatalog: hostCatalog.demandModelCatalog,
+       setOption,
+       invokeAction: async () => ({ snapshot: optionSnapshot }),
+       subscribe: () => () => {}
+     }),
+-    [setOption, optionSnapshot, hostCatalog.demandModelCatalog]
++    [setOption, optionSnapshot, hostCatalog.demandModelCatalog, resetOption, takesModelDefault]
+   )
+ 
+   const support =
+@@ -237,7 +288,14 @@
+     optionSnapshot,
+     optionSurface,
+     setStructuredOption,
+-    sendSource: { optionStateRef, optionView, controller, takesSendOptions, takesSelection },
++    sendSource: {
++      optionStateRef,
++      optionPicks,
++      optionView,
++      controller,
++      takesSendOptions,
++      takesSelection
++    },
+     unavailable: hostCatalog.unavailable
+   }
+ }
