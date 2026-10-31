@@ -1,5 +1,8 @@
+import { withTimeout } from '../../../../src/shared/promise-timeout-fallback'
 import { BRIDGE_MEDIA_MAX_LIVE_HANDLES, mediaReleaseParamsSchema } from './bridge-media-verbs'
 import type { BridgeRpcClient } from './bridge-rpc-client'
+
+const RETRY_BUDGET_MS = 250
 
 type ReleaseDeps = {
   sessionId: () => string | null
@@ -11,6 +14,7 @@ export class NativeMediaReleaseQueue {
   private readonly pending = new Set<string>()
   private sessionId: string | null = null
   private generation = 0
+  private retrying: Promise<void> | null = null
 
   constructor(private readonly deps: ReleaseDeps) {}
 
@@ -18,6 +22,7 @@ export class NativeMediaReleaseQueue {
     const current = this.deps.sessionId()
     if (current !== this.sessionId) {
       this.pending.clear()
+      this.retrying = null
       this.sessionId = current
       this.generation += 1
     }
@@ -47,10 +52,27 @@ export class NativeMediaReleaseQueue {
 
   async retry(): Promise<void> {
     const generation = this.syncSession()
+    if (this.retrying === null) {
+      const retry = withTimeout(
+        this.retryPending(generation).finally(() => {
+          if (this.retrying === retry) {
+            this.retrying = null
+          }
+        }),
+        RETRY_BUDGET_MS,
+        undefined
+      )
+      this.retrying = retry
+    }
+    await this.retrying
+  }
+
+  private async retryPending(generation: number): Promise<void> {
+    const deadline = Date.now() + RETRY_BUDGET_MS
     // Snapshot before awaiting so concurrent failures wait for the next bounded pass.
     const handles = [...this.pending]
     for (const handle of handles) {
-      if (this.syncSession() !== generation) {
+      if (this.syncSession() !== generation || Date.now() >= deadline) {
         return
       }
       try {

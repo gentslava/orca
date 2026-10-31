@@ -30,11 +30,17 @@ afterEach(() => {
     close()
   }
   vi.restoreAllMocks()
+  vi.useRealTimers()
 })
 
 async function setup() {
   vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-  const state = { failRelease: true, picks: 0, releases: 0 }
+  const state: {
+    failRelease: boolean
+    picks: number
+    releases: number
+    stallNextRelease: Promise<void> | null
+  } = { failRelease: true, picks: 0, releases: 0, stallNextRelease: null }
   const registry = new MediaHandleRegistry({ now: () => 1000, discard: () => {} })
   const serve = createNativeMediaVerbServer({
     registry,
@@ -79,6 +85,9 @@ async function setup() {
         if (state.failRelease) {
           throw new Error('injected cleanup transport failure')
         }
+        const stalled = state.stallNextRelease
+        state.stallNextRelease = null
+        await stalled
       }
       return serve(verb, params)
     }
@@ -110,6 +119,7 @@ async function setup() {
     state,
     registry,
     client: pair.client,
+    flush: pair.flush,
     pick: async () => {
       if (held.picker === null) {
         throw new Error('missing picker')
@@ -172,4 +182,33 @@ it('keeps a staged handle still owned by another reader alive', async () => {
   await expect(probe.pick()).resolves.toMatchObject({ base64: PNG })
   expect(probe.registry.liveCount()).toBe(1)
   expect(probe.registry.read(handle, 0, 1).uri).toBe('file:///cache/photo.png')
+})
+
+it('lets later picks finish while one cleanup reply remains stalled', async () => {
+  vi.useFakeTimers()
+  const probe = await setup()
+  await expect(probe.pick()).resolves.toMatchObject({ base64: PNG })
+  const stalled = Promise.withResolvers<void>()
+  probe.state.failRelease = false
+  probe.state.stallNextRelease = stalled.promise
+  try {
+    for (let index = 0; index < 3; index += 1) {
+      let completed = false
+      const picked = probe.pick().then((image) => {
+        completed = true
+        return image
+      })
+      await probe.flush()
+      await vi.advanceTimersByTimeAsync(1000)
+      expect(completed).toBe(true)
+      await expect(picked).resolves.toMatchObject({ base64: PNG })
+    }
+    expect(probe.state.picks).toBe(4)
+    expect(probe.registry.liveCount()).toBe(1)
+    expect(probe.state.releases).toBe(5)
+  } finally {
+    stalled.resolve()
+    await probe.flush()
+  }
+  expect(probe.registry.liveCount()).toBe(0)
 })
