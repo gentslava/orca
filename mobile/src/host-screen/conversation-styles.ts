@@ -21,7 +21,7 @@ export const conversationStyles = themedStyleSheet(() => ({
     minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radii.button
+    borderRadius: radii.control
   },
   pressed: { backgroundColor: colors.bgRaised },
   search: {
@@ -48,12 +48,12 @@ export const conversationStyles = themedStyleSheet(() => ({
     gap: spacing.xs,
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    borderRadius: radii.button,
+    borderRadius: radii.control,
     backgroundColor: colors.bgRaised
   },
   actionText: { color: colors.textPrimary, fontSize: typography.bodySize },
   disabled: { opacity: 0.5 },
-  row: { flexDirection: 'row', alignItems: 'center', borderRadius: radii.row },
+  row: { flexDirection: 'row', alignItems: 'center', borderRadius: radii.control },
   rowButton: {
     flex: 1,
     minHeight: 64,
@@ -83,7 +83,7 @@ export const conversationStyles = themedStyleSheet(() => ({
     minHeight: 48,
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    borderRadius: radii.button
+    borderRadius: radii.control
   },
   spinner: { marginVertical: spacing.lg }
 }))

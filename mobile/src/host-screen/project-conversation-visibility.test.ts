@@ -110,6 +110,7 @@ it('maps canonical host-local keys to registered project sections with mobile vi
     projectCatalog: {
       repos: [repo],
       projectOrderBy: 'manual',
+      repoOrder: undefined,
       grouping: { projects: projection.projects, projectHostSetups: projection.setups }
     }
   })

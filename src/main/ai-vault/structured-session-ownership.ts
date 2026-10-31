@@ -1,9 +1,14 @@
+import { projectedAccountHome } from './structured-session-history-account'
 import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import { agentSessionOwnerObservationIsLive } from '../../shared/agent-session-lease-adjudication'
 import { defaultAgentChatLabel } from '../../shared/agent-session/agent-session-chat-label'
 import type { AiVaultListResult } from '../../shared/ai-vault-types'
 import { historyRowFallsBackToChatLabel } from '../../shared/structured-chat-row-name'
 import type { AiVaultSearchResponse } from '../../shared/ai-vault-search-types'
+import {
+  redactForTransport,
+  type SessionSearchTransport
+} from '../../shared/ai-vault-search-transport'
 import type { AiVaultPrepareSessionResumeArgs } from '../../shared/ai-vault-resume-preparation'
 import { getStructuredAgentSessionHost } from '../native-chat/agent-session-wire/structured-agent-session-registry'
 import { ensureStructuredAgentSessionHostUnlessRefused } from '../runtime/structured-agent-session-host-refusal'
@@ -67,7 +72,8 @@ export function projectStructuredAiVaultSessions(
 /** Owned search hits open their chat and omit terminal resume commands, matching history rows. */
 export function projectStructuredAiVaultSearchResponse(
   response: AiVaultSearchResponse,
-  opensChat: StructuredChatOpener
+  opensChat: StructuredChatOpener,
+  transport: SessionSearchTransport = 'ipc'
 ): AiVaultSearchResponse {
   const owner = response.kind === 'results' ? ownershipLookup() : null
   if (!owner || response.kind !== 'results') {
@@ -84,7 +90,7 @@ export function projectStructuredAiVaultSearchResponse(
         return []
       }
       const { resumeCommand: _resumeCommand, ...owned } = hit
-      return [{ ...owned, ...ownedRow(hit, ownership) }]
+      return [redactForTransport({ ...owned, ...ownedRow(hit, ownership) }, transport)]
     })
   }
 }
@@ -95,6 +101,7 @@ export async function searchWithStructuredOwners(
   options: {
     ensureHost?: (() => Promise<unknown>) | undefined
     opensChat: StructuredChatOpener
+    transport?: SessionSearchTransport
   }
 ): Promise<AiVaultSearchResponse> {
   const { ensureHost } = options
@@ -109,7 +116,7 @@ export async function searchWithStructuredOwners(
     : true
   const response = await search
   return (await hostReady)
-    ? projectStructuredAiVaultSearchResponse(response, options.opensChat)
+    ? projectStructuredAiVaultSearchResponse(response, options.opensChat, options.transport)
     : response
 }
 
@@ -121,6 +128,10 @@ function ownedRow(
     sessionId: ownership.sessionId,
     workspaceId: ownership.workspaceId
   }
+  const account = {
+    accountHome: projectedAccountHome(ownership),
+    accountWslDistro: ownership.wslDistro
+  }
   const name = ownership.conversationName?.trim()
   const title =
     name && !isGenericConversationTitle(name)
@@ -131,7 +142,9 @@ function ownedRow(
           (historyRowFallsBackToChatLabel(row.agent)
             ? defaultAgentChatLabel(ownership.provider)
             : null)
-  return title === null ? { structuredSession } : { title, structuredSession }
+  return title === null
+    ? { structuredSession, ...account }
+    : { title, structuredSession, ...account }
 }
 
 // Build one lookup per projection to avoid scanning all chat records for every row.

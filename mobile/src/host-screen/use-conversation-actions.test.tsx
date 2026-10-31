@@ -127,12 +127,16 @@ describe('conversation action ownership and selection', () => {
     'switches transcripts on the same tablet workspace route for %s',
     async (hostId) => {
       const probe = await mount(session())
+      if (!probe.row.workspace) {
+        throw new Error('missing fixture workspace')
+      }
+      const workspace = probe.row.workspace
       for (const id of ['first', 'second']) {
         await act(async () => {
           probe.read().open({
             ...probe.row,
             title: id,
-            workspace: { ...probe.row.workspace, hostId },
+            workspace: { ...workspace, hostId },
             history: conversationHistory({ id, executionHostId: hostId })
           })
         })

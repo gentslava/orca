@@ -148,6 +148,15 @@ function navigates(page) {
 }
 
 // Race navigation wait with page errors; React Navigation throws once blanked document and hid behind a bare 30s timeout.
+/** Tasks sits in the host header's ⋯ menu; open the menu and pick it, as a user does. */
+async function openTasksFromHeader(
+  page,
+  more = page.getByRole('button', { name: 'More actions', exact: true }).first()
+) {
+  await more.click()
+  await page.getByRole('menuitem', { name: 'Tasks', exact: true }).click()
+}
+
 async function waitForTasksRoute(page, opened, clickedAt) {
   try {
     await page.waitForFunction(() => location.pathname.endsWith('/tasks'), {
@@ -179,8 +188,8 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
       grants: [faultGrant, 'navigate', 'storage', 'haptics']
     })
     const { page, errors, jsResponses } = opened
-    // The header's own control, by the name a user reads; it is the sidebar's on a wide layout.
-    await page.getByRole('button', { name: 'Tasks', exact: true }).first().click()
+    // The header's own menu, by the names a user reads; it is the sidebar's on a wide layout.
+    await openTasksFromHeader(page)
     await expect
       .poll(() => navigates(page))
       .toEqual([
@@ -211,7 +220,7 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
     })
     const { page, errors } = opened
     const clickedAt = opened.jsResponses.length
-    await page.getByRole('button', { name: 'Tasks', exact: true }).first().click()
+    await openTasksFromHeader(page)
     await waitForTasksRoute(page, opened, clickedAt)
     expect(await navigates(page)).toEqual([])
     expect(errors).toEqual([])
@@ -225,10 +234,10 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
       grants: [faultGrant, 'navigate', 'storage', 'haptics']
     })
     const { page, errors, jsResponses } = opened
-    const tasks = page.getByRole('button', { name: 'Tasks', exact: true })
-    // Require one narrow toolbar control or selecting among duplicates could hide a stray wide header.
-    expect(await tasks.count()).toBe(1)
-    await tasks.click()
+    const more = page.getByRole('button', { name: 'More actions', exact: true })
+    // Require one narrow header menu or selecting among duplicates could hide a stray wide header.
+    expect(await more.count()).toBe(1)
+    await openTasksFromHeader(page, more)
     await expect
       .poll(() => navigates(page))
       .toEqual([
@@ -252,7 +261,7 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
     })
     const { page, errors } = opened
     const clickedAt = opened.jsResponses.length
-    await page.getByRole('button', { name: 'Tasks', exact: true }).first().click()
+    await openTasksFromHeader(page)
     await waitForTasksRoute(page, opened, clickedAt)
     expect(await navigates(page)).toEqual([])
     expect(errors).toEqual([])
@@ -272,7 +281,7 @@ describeRender('the sidebar hop to tasks, under the session it was opened with',
     expect(
       await page.evaluate((name) => document.body.innerText.includes(name), SHELL_HOST.name)
     ).toBe(false)
-    expect(await page.getByRole('button', { name: 'Tasks', exact: true }).count()).toBe(0)
+    expect(await page.getByRole('button', { name: 'Back to hosts', exact: true }).count()).toBe(0)
     expect(errors).toEqual([])
     await page.close()
   }, 60_000)
