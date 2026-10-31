@@ -1,0 +1,57 @@
+--- a/src/main/updater/updater-setup.ts
++++ b/src/main/updater/updater-setup.ts
+@@ -37,20 +37,44 @@
+   onBeforeQuitFailure?: PreQuitCleanupFailureMode
+ }
+ 
++function isForkPreviewBuild(): boolean {
++  return /(?:-|\.)local\.forkpreview\.\d+\.[0-9a-f]{1,12}$/.test(app.getVersion())
++}
++
+ export class UpdaterSetup extends UpdaterDownloadInstall {
++  private rejectForkPreviewUpdate(userInitiated = false): boolean {
++    if (!isForkPreviewBuild()) {
++      return false
++    }
++    this.sendStatus({ state: 'not-available', userInitiated })
++    return true
++  }
++
+   checkForUpdates(): void {
++    if (this.rejectForkPreviewUpdate()) {
++      return
++    }
+     this.checkForUpdatesInBackground()
+   }
+ 
+   checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
++    if (this.rejectForkPreviewUpdate(true)) {
++      return
++    }
+     super.checkForUpdatesFromMenu(options)
+   }
+ 
+   downloadUpdate(): void {
++    if (this.rejectForkPreviewUpdate(true)) {
++      return
++    }
+     super.downloadUpdate()
+   }
+ 
+   quitAndInstall(): void {
++    if (this.rejectForkPreviewUpdate(true)) {
++      return
++    }
+     super.quitAndInstall()
+   }
+ 
+@@ -59,6 +83,9 @@
+   }
+ 
+   getUpdateStatus(): UpdateStatus {
++    if (isForkPreviewBuild()) {
++      return { state: 'not-available' }
++    }
+     return super.getUpdateStatus()
+   }
+ 

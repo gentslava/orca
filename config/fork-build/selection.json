@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "upstream": "stablyai/orca",
+  "base": "main",
+  "authors": ["gentslava"],
+  "seed": [
+    33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
+    33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
+    36574, 36593, 36606, 36607
+  ],
+  "include": [
+    {
+      "number": 36530,
+      "reason": "scrcpy input latency fixes requested for the Android emulator"
+    }
+  ],
+  "exclude": {
+    "34365": "Diagnostic-only candidate on hold; not required for the daily product build."
+  },
+  "replacements": {},
+  "dependencies": {},
+  "outputs": ["macos-arm64-dmg", "macos-arm64-zip"],
+  "statusIssue": 12,
+  "compatibilityPatches": ["preview-updater-guard.patch"]
+}
