@@ -1,0 +1,734 @@
+diff --git a/config/flaky-test-pattern-baseline.txt b/config/flaky-test-pattern-baseline.txt
+index 63d34f8951b..984b02895bb 100644
+--- a/config/flaky-test-pattern-baseline.txt
++++ b/config/flaky-test-pattern-baseline.txt
+@@ -45,7 +45,7 @@
+ 5 test-no-in-test-import-actual:src/main/ssh/config/ssh-config-loader-regression.test.ts
+ 2 test-no-in-test-import-actual:src/main/ssh/connection/ssh-connection-auth-fallback.test.ts
+ 1 test-no-in-test-import-actual:src/main/ssh/orcad-snapshot-room.test.ts
+-2 test-no-in-test-import-actual:src/main/window/dropped-path-preparation.test.ts
++1 test-no-in-test-import-actual:src/main/window/dropped-path-preparation.test.ts
+ 1 test-no-in-test-import-actual:src/renderer/src/components/native-chat/use-native-chat-context-menu.test.tsx
+ 1 test-no-in-test-import-actual:src/renderer/src/components/right-sidebar/git-status-push-signal-refresh.test.ts
+ 5 test-no-in-test-import-actual:src/renderer/src/components/right-sidebar/useGitStatusPolling.test.ts
+diff --git a/mobile/src/session/mobile-send-refusals.test-fixture.ts b/mobile/src/session/mobile-send-refusals.test-fixture.ts
+new file mode 100644
+index 00000000000..f6d277bb16d
+--- /dev/null
++++ b/mobile/src/session/mobile-send-refusals.test-fixture.ts
+@@ -0,0 +1,97 @@
++import { act } from 'react-test-renderer'
++import { expect, it, type Mock } from 'vitest'
++import type { RpcClient } from '../transport/rpc-client'
++import type { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
++import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/structured-agent-session-dispatch-rejection'
++import { sendResult } from './structured-session-send-options.test-fixture'
++import { ok } from './use-mobile-structured-agent-session-queued.test-fixture'
++
++export function defineMobileSendRefusalCases({
++  getHook,
++  sendRequest,
++  mountSession,
++  calls,
++  sentIds,
++  onSendError
++}: {
++  getHook: () => ReturnType<typeof useMobileStructuredAgentSession>
++  sendRequest: Mock<RpcClient['sendRequest']>
++  mountSession: () => Promise<void>
++  calls: () => Parameters<RpcClient['sendRequest']>[]
++  sentIds: () => string[]
++  onSendError: unknown
++}): void {
++  it('reports a send stopped before the agent started it without sending it twice', async () => {
++    sendRequest.mockImplementation(async (method) =>
++      method === 'agentSession.send'
++        ? sendResult('rejected', DISPATCH_REJECTED_CANCELLED)
++        : ok({ models: [], current: {} })
++    )
++    await mountSession()
++    await act(async () => {
++      expect(await getHook().sendWithOutcome('stopped')).toBe('accepted')
++      expect(await getHook().sendWithOutcome('stopped')).toBe('accepted')
++    })
++    expect(calls()).toHaveLength(2)
++    expect(new Set(sentIds()).size).toBe(2)
++    expect(onSendError).not.toHaveBeenCalled()
++  })
++
++  it.each(['invalid_argument', 'unauthorized'])(
++    'a later Send is independent after a %s refusal',
++    async (code) => {
++      let attempts = 0
++      sendRequest.mockImplementation(async (method) => {
++        if (method !== 'agentSession.send') {
++          return ok({ models: [], current: {} })
++        }
++        return ++attempts === 1
++          ? {
++              id: 'request-1',
++              ok: false as const,
++              error: { code, message: 'Message is not authorized' }
++            }
++          : sendResult('accepted')
++      })
++      await mountSession()
++      await act(async () => {
++        expect(await getHook().sendWithOutcome('again')).toBe('rejected')
++        expect(await getHook().sendWithOutcome('again')).toBe('accepted')
++      })
++      expect(new Set(sentIds()).size).toBe(2)
++    }
++  )
++
++  it('a new Send goes through after a stale-fence refusal', async () => {
++    let attempts = 0
++    sendRequest.mockImplementation(async (method) => {
++      if (method !== 'agentSession.send') {
++        return ok({ models: [], current: {} })
++      }
++      return ++attempts === 1
++        ? ok({
++            ok: false,
++            refusal: {
++              code: 'agent_session_checkpoint_stale',
++              message: 'Fence moved',
++              currentFence: 3
++            }
++          })
++        : sendResult('accepted')
++    })
++    await mountSession()
++    await act(async () => {
++      expect(await getHook().sendWithOutcome('again')).toBe('rejected')
++      expect(await getHook().sendWithOutcome('again')).toBe('accepted')
++    })
++    expect(new Set(sentIds()).size).toBe(2)
++  })
++
++  it('sends nothing once the action budget expires', async () => {
++    await mountSession()
++    await act(async () => {
++      expect(await getHook().sendWithOutcome('never attempted', undefined, 0)).toBe('rejected')
++    })
++    expect(calls()).toHaveLength(0)
++  })
++}
+diff --git a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
+index a8e32b348db..d92ff05cb78 100644
+--- a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
++++ b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
+@@ -1,3 +1,4 @@
++import { defineMobileSendRefusalCases } from './mobile-send-refusals.test-fixture'
+ import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
+ import {
+   mobileNativeChatDraftDestination,
+@@ -8,7 +9,6 @@ import { structuredSendResultFixture } from './structured-agent-send-result.test
+ import { createElement, useState } from 'react'
+ import { act, create, type ReactTestRenderer } from 'react-test-renderer'
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+-import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/structured-agent-session-dispatch-rejection'
+ import type { RpcClient } from '../transport/rpc-client'
+ import {
+   fieldsOf,
+@@ -775,77 +775,12 @@ describe('mobile structured send actions', () => {
+     })
+   })
+ 
+-  it('reports a send stopped before the agent started it without sending it twice', async () => {
+-    sendRequest.mockImplementation(async (method) =>
+-      method === 'agentSession.send'
+-        ? sendResult('rejected', DISPATCH_REJECTED_CANCELLED)
+-        : ok({ models: [], current: {} })
+-    )
+-    await mountSession()
+-    await act(async () => {
+-      expect(await hook!.sendWithOutcome('stopped')).toBe('accepted')
+-      expect(await hook!.sendWithOutcome('stopped')).toBe('accepted')
+-    })
+-    expect(calls()).toHaveLength(2)
+-    expect(new Set(sentIds()).size).toBe(2)
+-    expect(onSendError).not.toHaveBeenCalled()
+-  })
+-
+-  it.each(['invalid_argument', 'unauthorized'])(
+-    'a later Send is independent after a %s refusal',
+-    async (code) => {
+-      let attempts = 0
+-      sendRequest.mockImplementation(async (method) => {
+-        if (method !== 'agentSession.send') {
+-          return ok({ models: [], current: {} })
+-        }
+-        return ++attempts === 1
+-          ? {
+-              id: 'request-1',
+-              ok: false as const,
+-              error: { code, message: 'Message is not authorized' }
+-            }
+-          : sendResult('accepted')
+-      })
+-      await mountSession()
+-      await act(async () => {
+-        expect(await hook!.sendWithOutcome('again')).toBe('rejected')
+-        expect(await hook!.sendWithOutcome('again')).toBe('accepted')
+-      })
+-      expect(new Set(sentIds()).size).toBe(2)
+-    }
+-  )
+-
+-  it('a new Send goes through after a stale-fence refusal', async () => {
+-    let attempts = 0
+-    sendRequest.mockImplementation(async (method) => {
+-      if (method !== 'agentSession.send') {
+-        return ok({ models: [], current: {} })
+-      }
+-      return ++attempts === 1
+-        ? ok({
+-            ok: false,
+-            refusal: {
+-              code: 'agent_session_checkpoint_stale',
+-              message: 'Fence moved',
+-              currentFence: 3
+-            }
+-          })
+-        : sendResult('accepted')
+-    })
+-    await mountSession()
+-    await act(async () => {
+-      expect(await hook!.sendWithOutcome('again')).toBe('rejected')
+-      expect(await hook!.sendWithOutcome('again')).toBe('accepted')
+-    })
+-    expect(new Set(sentIds()).size).toBe(2)
+-  })
+-
+-  it('sends nothing once the action budget expires', async () => {
+-    await mountSession()
+-    await act(async () => {
+-      expect(await hook!.sendWithOutcome('never attempted', undefined, 0)).toBe('rejected')
+-    })
+-    expect(calls()).toHaveLength(0)
++  defineMobileSendRefusalCases({
++    getHook: () => hook!,
++    sendRequest,
++    mountSession,
++    calls,
++    sentIds,
++    onSendError
+   })
+ })
+diff --git a/src/main/ipc/register-core-handlers/register-core-handlers.ts b/src/main/ipc/register-core-handlers/register-core-handlers.ts
+index 2191491bd01..c9a329eda52 100644
+--- a/src/main/ipc/register-core-handlers/register-core-handlers.ts
++++ b/src/main/ipc/register-core-handlers/register-core-handlers.ts
+@@ -300,9 +300,7 @@ export function registerCoreHandlers(
+   registerNativeChatHandlers()
+   registerClipboardHandlers(store, {
+     localChatAttachmentStore: async () => {
+-      await ensureStructuredAgentSessionHostUnlessRefused(() =>
+-        runtime.ensureStructuredAgentSessionHost()
+-      )
++      await ensureStructuredSessionOwnership()
+       return getAgentSessionAttachmentStore()
+     }
+   })
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-service-contract.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-service-contract.ts
+index d6d7be1962c..15959589653 100644
+--- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-service-contract.ts
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-service-contract.ts
+@@ -91,3 +91,28 @@ export type AgentModelCatalogReadParams = {
+   /** Old options readers need account-default presentation, never launch or admission proof. */
+   legacyOptionsDisplay?: true
+ }
++
++export type AgentModelCatalogBinding = {
++  identity: string
++  params: AgentModelCatalogReadParams
++  workspaceId?: string
++  current: () => boolean
++  cancel: () => void
++  fingerprint: string
++  base: string
++  exact: boolean
++  folder?: string
++  cwd?: string
++  workspacePath?: string | null
++  keepDefault: boolean
++  projecting?: Promise<void>
++}
++
++export type AgentModelCatalogClaim = Pick<
++  AgentModelCatalogBinding,
++  'identity' | 'params' | 'current'
++> & {
++  controller: AbortController
++  promise: Promise<void>
++  ready: Promise<void>
++}
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
+index ef022bef45f..b70207e5f7e 100644
+--- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
+@@ -1,4 +1,6 @@
+ import { agentSessionRecordFixture } from '../agent-session-record-test-fixture'
++import type { AgentSessionRecord } from '../../../shared/agent-session-record'
++import { record, listing, GROK_HOME } from './agent-model-catalog.test-fixture'
+ import { agentSessionConversationView } from '../../../shared/agent-session-conversation-view'
+ import {
+   joinHostModelListingWait,
+@@ -6,7 +8,6 @@ import {
+ } from '../../../shared/host-model-listing-waits'
+ import type { AgentSessionAccountHome } from '../../../shared/agent-session-account-home'
+ import { describe, expect, it, onTestFinished, vi } from 'vitest'
+-import type { AgentSessionRecord } from '../../../shared/agent-session-record'
+ import {
+   agentModelCatalogFingerprint,
+   agentModelCatalogFingerprintForRecord
+@@ -18,27 +19,6 @@ import {
+   type AgentModelCatalogSuccess
+ } from './agent-model-catalog-store'
+ 
+-function record(accountHomePath: string): AgentSessionRecord {
+-  return agentSessionRecordFixture({
+-    sessionId: 'session-1',
+-    provider: 'grok',
+-    accountHome: { variable: 'GROK_HOME', path: accountHomePath },
+-    location: {
+-      executionHostId: 'local',
+-      wslDistro: null,
+-      workspaceId: 'ws-1',
+-      workspaceKind: 'git-worktree'
+-    }
+-  })
+-}
+-
+-function listing(id: string): AgentModelCatalogSuccess {
+-  return {
+-    models: [{ id, label: id, isDefault: true, efforts: [] }],
+-    origin: 'probe'
+-  }
+-}
+-
+ function selectedHomeFingerprint(path: string): string {
+   return agentModelCatalogFingerprint({
+     agent: 'grok',
+@@ -56,11 +36,6 @@ function discover(
+   return service.read(params)
+ }
+ 
+-const GROK_HOME = (path: string): { variable: 'GROK_HOME'; path: string } => ({
+-  variable: 'GROK_HOME',
+-  path
+-})
+-
+ describe('agent model catalog service', () => {
+   it('omits stale original-default proof on passive verified reads without starting a probe', async () => {
+     let now = 1_000
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
+index ae69460a3b0..ca2424fb300 100644
+--- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
+@@ -14,26 +14,11 @@ import type { AgentSessionModelCatalogResult } from '../../../shared/agent-sessi
+ import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
+ import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
+ import type {
++  AgentModelCatalogBinding,
+   AgentModelCatalogReadParams,
+   AgentModelCatalogServiceDeps
+ } from './agent-model-catalog-service-contract'
+ 
+-export type AgentModelCatalogBinding = {
+-  identity: string
+-  params: AgentModelCatalogReadParams
+-  workspaceId?: string
+-  current: () => boolean
+-  cancel: () => void
+-  fingerprint: string
+-  base: string
+-  exact: boolean
+-  folder?: string
+-  cwd?: string
+-  workspacePath?: string | null
+-  keepDefault: boolean
+-  projecting?: Promise<void>
+-}
+-
+ export function agentModelCatalogReleasedOwner(
+   record: AgentSessionConversationView | undefined
+ ): boolean {
+@@ -306,11 +291,7 @@ export function agentModelCatalogSessionPeek(
+   }
+ }
+ 
+-export type AgentModelCatalogClaim = Pick<
++export type {
+   AgentModelCatalogBinding,
+-  'identity' | 'params' | 'current'
+-> & {
+-  controller: AbortController
+-  promise: Promise<void>
+-  ready: Promise<void>
+-}
++  AgentModelCatalogClaim
++} from './agent-model-catalog-service-contract'
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog.test-fixture.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog.test-fixture.ts
+new file mode 100644
+index 00000000000..7955b03edb5
+--- /dev/null
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog.test-fixture.ts
+@@ -0,0 +1,29 @@
++import { agentSessionRecordFixture } from '../agent-session-record-test-fixture'
++import type { AgentSessionRecord } from '../../../shared/agent-session-record'
++import type { AgentModelCatalogSuccess } from './agent-model-catalog-store'
++
++export function record(accountHomePath: string): AgentSessionRecord {
++  return agentSessionRecordFixture({
++    sessionId: 'session-1',
++    provider: 'grok',
++    accountHome: { variable: 'GROK_HOME', path: accountHomePath },
++    location: {
++      executionHostId: 'local',
++      wslDistro: null,
++      workspaceId: 'ws-1',
++      workspaceKind: 'git-worktree'
++    }
++  })
++}
++
++export function listing(id: string): AgentModelCatalogSuccess {
++  return {
++    models: [{ id, label: id, isDefault: true, efforts: [] }],
++    origin: 'probe'
++  }
++}
++
++export const GROK_HOME = (path: string): { variable: 'GROK_HOME'; path: string } => ({
++  variable: 'GROK_HOME',
++  path
++})
+diff --git a/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts b/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
+index c756aadb2be..946eab8dfc1 100644
+--- a/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
++++ b/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
+@@ -305,31 +305,28 @@ export function promptPlan(
+   }
+ }
+ 
+-export function setOptionPlan(params: { key: string; value: string | null }) {
++export function setOptionPlan({ key, value }: { key: string; value: string | null }) {
+   return {
+     method: 'agentSession.setOption',
+-    fields: { key: params.key, value: params.value },
++    fields: { key: key, value: value },
+     run: async (ctx): Promise<TurnOutcome<AgentSessionOptionResult>> => {
+-      const options =
+-        params.value === null ? {} : { ...ctx.persistedOptions, [params.key]: params.value }
++      const options = value === null ? {} : { ...ctx.persistedOptions, [key]: value }
+       await ctx.persistOptions(options)
+       ctx.publish()
+-      return { ok: true, value: { ...params, options } }
++      return { ok: true, value: { key, value, options } }
+     },
+     // Reapply unsettled picks; only a settled success can be replayed directly.
+     replay: (ctx, outcome) => {
+       if (outcome.status !== 'succeeded') {
+         return null
+       }
+-      if (params.value !== null && Object.hasOwn(outcome, 'optionResult')) {
+-        return readNoChoiceOptionResult(outcome.optionResult, {
+-          key: params.key,
+-          value: params.value
+-        })
++      if (value !== null && Object.hasOwn(outcome, 'optionResult')) {
++        return readNoChoiceOptionResult(outcome.optionResult, { key, value })
+       }
+       return {
+-        ...params,
+-        ...(params.value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
++        key,
++        value,
++        ...(value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
+         ...(ctx.persistedOptions ? { options: { ...ctx.persistedOptions } } : {})
+       }
+     }
+diff --git a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx b/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
+index fc5d7ab1de9..805f7feee50 100644
+--- a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
+@@ -15,18 +15,13 @@ import { desktopStructuredTranscript } from './structured-agent-session-message-
+ import { nativeChatTaskListPredecessors } from '../../../../shared/native-chat/input/native-chat-task-list-history'
+ import { NativeChatDockedTaskList } from './NativeChatDockedTaskList'
+ import { useNativeChatTurnStatus } from './use-native-chat-turn-status'
+-import { NativeChatAwaitingInputRow } from './NativeChatAwaitingInputRow'
+ import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client-types'
+ import type { NativeChatTurnActivity } from '../../../../shared/native-chat/transcript/native-chat-turn-activity'
+-import { NativeChatTurnActivityLine } from './NativeChatTurnActivityLine'
+ import {
+   NativeChatDisclosureContext,
+   useNativeChatDisclosures
+ } from './native-chat-disclosure-store'
+-import {
+-  NativeChatTranscriptItems,
+-  NativeChatWaitingTranscriptItems
+-} from './NativeChatTranscriptItems'
++import { NativeChatTranscriptItems, NativeChatTranscriptTail } from './NativeChatTranscriptItems'
+ import { useNativeChatTranscriptRowContext } from './use-native-chat-transcript-row-context'
+ import type { StructuredAgentSessionHostWork } from './use-structured-agent-session-transport-state'
+ import type { NativeChatDeliveryNotice } from './NativeChatMessageRow'
+@@ -404,16 +399,12 @@ export function NativeChatMessageList({
+                   newRowsMarker={newRowsMarker}
+                   forwardGesture={readerInput.forwardedGesture}
+                 />
+-                {liveLine ? (
+-                  <NativeChatTurnActivityLine
+-                    line={liveLine}
+-                    onLinkClick={onLinkClick}
+-                    allowFileUriLinks={allowFileUriLinks}
+-                  />
+-                ) : tailRow === 'awaiting-input' ? (
+-                  <NativeChatAwaitingInputRow subject={null} pending />
+-                ) : null}
+-                <NativeChatWaitingTranscriptItems slots={waitingSlots} context={rowContext} />
++                <NativeChatTranscriptTail
++                  line={liveLine}
++                  awaitingInput={tailRow === 'awaiting-input'}
++                  slots={waitingSlots}
++                  context={rowContext}
++                />
+               </div>
+             </div>
+           </div>
+diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
+index ee7fab0e24a..6272f68d456 100644
+--- a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
+@@ -2,6 +2,7 @@
+ 
+ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+ import { useState } from 'react'
++import { defineStructuredModelPickerCases } from './native-chat-structured-model-picker.test-fixture'
+ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+ import { CODEX_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-claude-codex'
+ import { OMP_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session-option-catalog-omp'
+@@ -109,84 +110,7 @@ const pickEffort = (key = 'Home'): boolean => fireEvent.keyDown(effortSlider(),
+ afterEach(() => cleanup())
+ 
+ describe('NativeChatSessionOptionPickers', () => {
+-  it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
+-    const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
+-    const { container } = render(
+-      <NativeChatSessionOptionPickers
+-        surface={busySurface}
+-        snapshot={[
+-          model({ transport: 'agent-session' }),
+-          { ...effort, transport: 'agent-session' },
+-          { ...fast, transport: 'agent-session' }
+-        ]}
+-        isWorking
+-      />
+-    )
+-    expect(container.querySelector('[data-disabled=true]')).toBeNull()
+-    expect(container.textContent).not.toContain('Running and queued messages keep their choices.')
+-    fireEvent.click(screen.getByRole('option', { name: /Sonnet 5/ }))
+-    await settle()
+-    pickEffort()
+-    await settle()
+-    fireEvent.click(screen.getByRole('switch'))
+-    await settle()
+-    expect(busySurface.setOption.mock.calls).toEqual([
+-      ['model', 'sonnet'],
+-      ['effort', 'low'],
+-      ['fastMode', false]
+-    ])
+-  })
+-  it('shows the proven Default model and its description while retaining the current explicit model', () => {
+-    render(
+-      <NativeChatSessionOptionPickers
+-        isWorking={false}
+-        surface={{ ...surface, resetOption: vi.fn() }}
+-        snapshot={[
+-          model({
+-            transport: 'agent-session',
+-            defaultChoice: {
+-              selected: false,
+-              model: { value: 'opus', label: 'Opus 5.5', description: 'Most capable model' }
+-            }
+-          })
+-        ]}
+-      />
+-    )
+-    const row = screen.getByRole('option', { name: /Default/ })
+-    expect(within(row).getByText('Opus 5.5')).toBeDefined()
+-    expect(within(row).getByText('Most capable model')).toBeDefined()
+-    expect(row.getAttribute('aria-current')).not.toBe('true')
+-  })
+-
+-  it('states when the host has not reported its Default model', () => {
+-    render(
+-      <NativeChatSessionOptionPickers
+-        isWorking={false}
+-        surface={{ ...surface, resetOption: vi.fn() }}
+-        snapshot={[model({ transport: 'agent-session', defaultChoice: { selected: false } })]}
+-      />
+-    )
+-    expect(
+-      within(screen.getByRole('option', { name: /Default/ })).getByText(
+-        'Default model not reported'
+-      )
+-    ).toBeDefined()
+-  })
+-
+-  it('offers Default as a reset action without sending a synthetic model id', async () => {
+-    const resetOption = vi.fn(async () => ({ snapshot: [] }))
+-    render(
+-      <NativeChatSessionOptionPickers
+-        surface={{ ...surface, resetOption }}
+-        snapshot={[model({ transport: 'agent-session', defaultChoice: { selected: false } })]}
+-        isWorking={false}
+-      />
+-    )
+-    fireEvent.click(screen.getByRole('option', { name: /Default/ }))
+-    await settle()
+-    expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
+-    expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
+-  })
++  defineStructuredModelPickerCases(surface, settle, pickEffort)
+ 
+   it.each(['model', 'effort'])(
+     'opens the one picker when a slash command asks for the %s',
+diff --git a/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx b/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx
+index 3f6d6531440..a997b2eac11 100644
+--- a/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx
+@@ -1,3 +1,6 @@
++import type { NativeChatLiveLine } from '../../../../shared/native-chat/transcript/native-chat-live-line'
++import { NativeChatAwaitingInputRow } from './NativeChatAwaitingInputRow'
++import { NativeChatTurnActivityLine } from './NativeChatTurnActivityLine'
+ import { Fragment, useMemo } from 'react'
+ import {
+   NativeChatTranscriptRow,
+@@ -89,3 +92,30 @@ export function NativeChatWaitingTranscriptItems({
+     </>
+   )
+ }
++
++export function NativeChatTranscriptTail({
++  line,
++  awaitingInput,
++  slots,
++  context
++}: {
++  line: NativeChatLiveLine | null
++  awaitingInput: boolean
++  slots: readonly NativeChatTranscriptSlot[]
++  context: NativeChatTranscriptRowContext
++}): React.JSX.Element {
++  return (
++    <>
++      {line ? (
++        <NativeChatTurnActivityLine
++          line={line}
++          onLinkClick={context.onLinkClick}
++          allowFileUriLinks={context.allowFileUriLinks}
++        />
++      ) : awaitingInput ? (
++        <NativeChatAwaitingInputRow subject={null} pending />
++      ) : null}
++      <NativeChatWaitingTranscriptItems slots={slots} context={context} />
++    </>
++  )
++}
+diff --git a/src/renderer/src/components/native-chat/native-chat-structured-model-picker.test-fixture.tsx b/src/renderer/src/components/native-chat/native-chat-structured-model-picker.test-fixture.tsx
+new file mode 100644
+index 00000000000..9ad0088b442
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/native-chat-structured-model-picker.test-fixture.tsx
+@@ -0,0 +1,89 @@
++import { fireEvent, render, screen, within } from '@testing-library/react'
++import { expect, it, vi } from 'vitest'
++import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
++import { model, effort, fast } from './native-chat-option-picker.test-fixture'
++
++export function defineStructuredModelPickerCases(
++  surface: NonNullable<Parameters<typeof NativeChatSessionOptionPickers>[0]['surface']>,
++  settle: () => Promise<void>,
++  pickEffort: () => boolean
++): void {
++  it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
++    const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
++    const { container } = render(
++      <NativeChatSessionOptionPickers
++        surface={busySurface}
++        snapshot={[
++          model({ transport: 'agent-session' }),
++          { ...effort, transport: 'agent-session' },
++          { ...fast, transport: 'agent-session' }
++        ]}
++        isWorking
++      />
++    )
++    expect(container.querySelector('[data-disabled=true]')).toBeNull()
++    expect(container.textContent).not.toContain('Running and queued messages keep their choices.')
++    fireEvent.click(screen.getByRole('option', { name: /Sonnet 5/ }))
++    await settle()
++    pickEffort()
++    await settle()
++    fireEvent.click(screen.getByRole('switch'))
++    await settle()
++    expect(busySurface.setOption.mock.calls).toEqual([
++      ['model', 'sonnet'],
++      ['effort', 'low'],
++      ['fastMode', false]
++    ])
++  })
++  it('shows the proven Default model and its description while retaining the current explicit model', () => {
++    render(
++      <NativeChatSessionOptionPickers
++        isWorking={false}
++        surface={{ ...surface, resetOption: vi.fn() }}
++        snapshot={[
++          model({
++            transport: 'agent-session',
++            defaultChoice: {
++              selected: false,
++              model: { value: 'opus', label: 'Opus 5.5', description: 'Most capable model' }
++            }
++          })
++        ]}
++      />
++    )
++    const row = screen.getByRole('option', { name: /Default/ })
++    expect(within(row).getByText('Opus 5.5')).toBeDefined()
++    expect(within(row).getByText('Most capable model')).toBeDefined()
++    expect(row.getAttribute('aria-current')).not.toBe('true')
++  })
++
++  it('states when the host has not reported its Default model', () => {
++    render(
++      <NativeChatSessionOptionPickers
++        isWorking={false}
++        surface={{ ...surface, resetOption: vi.fn() }}
++        snapshot={[model({ transport: 'agent-session', defaultChoice: { selected: false } })]}
++      />
++    )
++    expect(
++      within(screen.getByRole('option', { name: /Default/ })).getByText(
++        'Default model not reported'
++      )
++    ).toBeDefined()
++  })
++
++  it('offers Default as a reset action without sending a synthetic model id', async () => {
++    const resetOption = vi.fn(async () => ({ snapshot: [] }))
++    render(
++      <NativeChatSessionOptionPickers
++        surface={{ ...surface, resetOption }}
++        snapshot={[model({ transport: 'agent-session', defaultChoice: { selected: false } })]}
++        isWorking={false}
++      />
++    )
++    fireEvent.click(screen.getByRole('option', { name: /Default/ }))
++    await settle()
++    expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
++    expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
++  })
++}

@@ -21,5 +21,9 @@
   "dependencies": {},
   "outputs": ["macos-arm64-dmg", "macos-arm64-zip"],
   "statusIssue": 12,
-  "compatibilityPatches": ["preview-updater-guard.patch", "test-runner-registration.patch"]
+  "compatibilityPatches": [
+    "preview-updater-guard.patch",
+    "test-runner-registration.patch",
+    "integration-module-boundaries.patch"
+  ]
 }

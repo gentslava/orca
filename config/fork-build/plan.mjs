@@ -77,7 +77,13 @@ try {
   }
   plan.result = compose(source, plan.upstream, plan.selections, { timestamp: plan.timestamp })
   for (const patch of config.compatibilityPatches) {
-    if (!['preview-updater-guard.patch', 'test-runner-registration.patch'].includes(patch)) {
+    if (
+      ![
+        'preview-updater-guard.patch',
+        'test-runner-registration.patch',
+        'integration-module-boundaries.patch'
+      ].includes(patch)
+    ) {
       throw new Error('Unrecognized compatibility correction')
     }
     const path = join(here, patch)
