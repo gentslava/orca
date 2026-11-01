@@ -39,6 +39,7 @@ import {
   composerInputStyles as inputStyles
 } from '../../../components/composer-input/composer-input-styles'
 import { MobileNativeChatSendButton } from './MobileNativeChatSendButton'
+import { MobileNativeChatSaveButton } from './MobileNativeChatSaveButton'
 import type { MobileNativeChatSendIntent } from '../mobile-native-chat-send'
 import {
   MobileNativeChatComposerMic,
@@ -316,7 +317,10 @@ export function MobileNativeChatComposer({
             // The lock gates sending; the draft survives and rides the next send.
             textAlignVertical="top"
           />
-          <View style={inputStyles.actionRow} testID="native-chat-composer-actions">
+          <View
+            style={[inputStyles.actionRow, editSession && inputStyles.editActionRow]}
+            testID="native-chat-composer-actions"
+          >
             {attachPress ? (
               <Pressable
                 accessibilityLabel={attachLabel}
@@ -364,7 +368,11 @@ export function MobileNativeChatComposer({
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t('chat.composer.cancelEditing', 'Cancel editing')}
-                style={({ pressed }) => [inputStyles.ghostButton, pressed && inputStyles.pressed]}
+                style={({ pressed }) => [
+                  inputStyles.ghostButton,
+                  inputStyles.textButton,
+                  pressed && inputStyles.pressed
+                ]}
                 onPress={editSession.cancel}
                 hitSlop={COMPOSER_CONTROL_HIT_SLOP}
               >
@@ -378,21 +386,7 @@ export function MobileNativeChatComposer({
                 // Only this phone's own request holds Stop: a repeat is how a stuck stop escalates.
                 <MobileNativeChatStopButton onStop={stop.onStop} held={stop.held} />
               ) : editSession ? (
-                <Pressable
-                  accessibilityLabel={t('chat.composer.saveEditedMessage', 'Save edited message')}
-                  style={({ pressed }) => [
-                    inputStyles.sendButton,
-                    !canSend && inputStyles.sendButtonDisabled,
-                    pressed && canSend && inputStyles.pressed
-                  ]}
-                  onPress={() => void handleSend()}
-                  disabled={!canSend}
-                  hitSlop={COMPOSER_CONTROL_HIT_SLOP}
-                >
-                  <Text style={{ color: canSend ? colors.bgBase : colors.textMuted }}>
-                    {t('common.save', 'Save')}
-                  </Text>
-                </Pressable>
+                <MobileNativeChatSaveButton canSave={canSend} onSave={() => void handleSend()} />
               ) : (
                 <MobileNativeChatSendButton
                   canSend={canSend}
