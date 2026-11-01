@@ -783,11 +783,10 @@ index 09abfc4e3c8dc8c17184a1b24d8dc1190436c930..c54bd62279f5efd8fc811a84e797602c
 diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
 --- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
 +++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
-@@ -6,32 +6,16 @@
+@@ -6,31 +6,16 @@
  import { onLiveAccount } from './agent-model-catalog-running-account'
  import { agentModelCatalogFingerprintForRecord } from './agent-model-catalog-fingerprint'
  import { agentSessionPinnedLaunchDirectory } from '../../runtime/agent-session/records/agent-session-record-launch-directory'
--import type { AgentSessionConversationView } from '../../../shared/agent-session-conversation-view'
  import type { AgentSessionModelCatalogResult } from '../../../shared/agent-session/agent-session-wire'
  import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
  import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
@@ -817,7 +816,7 @@ diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapsh
  
  /** Canonical authority survives folder churn and preliminary same-account refreshes until replacement. */
  export function bindAgentModelCatalogScope(
-@@ -305,11 +289,7 @@
+@@ -304,11 +289,7 @@
    }
  }
  
