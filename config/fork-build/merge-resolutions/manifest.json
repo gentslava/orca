@@ -1276,30 +1276,6 @@
     "reason": "Combine default-model discovery/reset with future-turn choices, immediate steering and queued delivery; retain current runtime paths and pending model-write fencing."
   },
   {
-    "path": "src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts",
-    "blobs": [
-      "5441f177700171d448a2119a077f34b3c321badd",
-      "5ee8ea06862b74b32a106386c9ee93625774069f",
-      "451b5c2b443b6ad2bd01ad9381c60ee2f098979e"
-    ],
-    "patch": "refresh-20261102/pr33395-4d38695056.patch",
-    "patchSha256": "079c2e116d0c3cac3fd133e7449c729ed79feee2fde69987d1e7e0d3ff9d5815",
-    "resultSha256": "68723a9b412a78d119bfa13398f715d9fcc29ae4d4b979701f24791707095591",
-    "reason": "Combine default-model discovery/reset with future-turn choices, immediate steering and queued delivery; retain current runtime paths and pending model-write fencing."
-  },
-  {
-    "path": "src/main/runtime/agent-session/records/agent-session-record-options.ts",
-    "blobs": [
-      "38516a3a6365116242c90e1be6416045b8c422bd",
-      "b18359952ae5787bb68121351fef32162bfe6ebb",
-      "3238354834996d1a8283a6dd48732b85b9d1d6b5"
-    ],
-    "patch": "refresh-20261102/pr33395-14d2b23210.patch",
-    "patchSha256": "e652f0a97b6199a4df61c53da5b033c1b0313dc726693aa7d2a28df2c59df4c6",
-    "resultSha256": "72eb32b49969a3a77ae6b64765cdaf3ce1830fb9a34c94924ccf3e5094448457",
-    "reason": "Combine default-model discovery/reset with future-turn choices, immediate steering and queued delivery; retain current runtime paths and pending model-write fencing."
-  },
-  {
     "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
     "blobs": [
       "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
