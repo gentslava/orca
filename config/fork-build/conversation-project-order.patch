@@ -1,8 +1,8 @@
 diff --git a/mobile/src/host-screen/HostConversations.tsx b/mobile/src/host-screen/HostConversations.tsx
-index 87a6c276280..d8df85a7530 100644
+index d4f5aa9e336af975ac360b6cdb87578a371f10d5..e2aec316f7cb312ee943c368c311a3d32a51e4e5 100644
 --- a/mobile/src/host-screen/HostConversations.tsx
 +++ b/mobile/src/host-screen/HostConversations.tsx
-@@ -73,7 +73,8 @@ export function HostConversations({
+@@ -72,7 +72,8 @@ export function HostConversations({
          controller.projectCatalog,
          [...controller.sectionsResult.repoById.values()],
          state.view.filters.visibleHostIds,
@@ -13,7 +13,7 @@ index 87a6c276280..d8df85a7530 100644
      [
        controller.projectCatalog,
 diff --git a/mobile/src/host-screen/conversation-project-order-sheet.tsx b/mobile/src/host-screen/conversation-project-order-sheet.tsx
-index 3eacfe967b3..70db778d770 100644
+index 3eacfe967b3b027167e7c2ab8a73119f789965d1..70db778d7704ba7c42dbf2201e3885ada7d4a08f 100644
 --- a/mobile/src/host-screen/conversation-project-order-sheet.tsx
 +++ b/mobile/src/host-screen/conversation-project-order-sheet.tsx
 @@ -26,7 +26,10 @@ export function ConversationProjectOrderSheet({
@@ -29,7 +29,7 @@ index 3eacfe967b3..70db778d770 100644
      />
    )
 diff --git a/mobile/src/host-screen/project-conversation-order.ts b/mobile/src/host-screen/project-conversation-order.ts
-index a552734c2f9..9b2c44d4c7f 100644
+index c33099bb3ec45f5280d2f6438a0f73635311e67c..ae0c3226b4f2bfbd4db108207871c4e44d6e2c08 100644
 --- a/mobile/src/host-screen/project-conversation-order.ts
 +++ b/mobile/src/host-screen/project-conversation-order.ts
 @@ -1,3 +1,4 @@
@@ -84,7 +84,7 @@ index a552734c2f9..9b2c44d4c7f 100644
      .map(([, project]) => project)
      .map((project) => ({
 diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
-index 5923b6d50ce..ec08cf4c36c 100644
+index bb11351f88b9180f9d8d5bcddd1df517e319b06d..2219cd1a772da03031a40098e38006d2587b2ef9 100644
 --- a/mobile/src/host-screen/project-conversations.test.ts
 +++ b/mobile/src/host-screen/project-conversations.test.ts
 @@ -1,3 +1,4 @@
@@ -156,7 +156,7 @@ index 5923b6d50ce..ec08cf4c36c 100644
 +  }
 +)
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
-index 899587323e4..be147e74aca 100644
+index 899587323e44417562df885adc4b56f3948603af..be147e74aca84acab77aaffee380925c6093e677 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
 @@ -50,7 +50,11 @@ function fixture(
@@ -174,7 +174,7 @@ index 899587323e4..be147e74aca 100644
          let result: unknown = {
 @@ -123,3 +127,15 @@ export const discoveredProjectActions = fixture(320, 'discovered')
  export const hiddenProjectRestore = fixture(320, 'hidden')
-
+ 
  export const registeredProjectActions = fixture(320, 'registered')
 +
 +export const projectOrderModes = defineFixture({
@@ -189,7 +189,7 @@ index 899587323e4..be147e74aca 100644
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
-index 903e81c3e68..eb7928e07d7 100644
+index 903e81c3e680847133a09b5254980b2b32e8d56b..9aedb874f66f23e1004075bbc906bc3916e63d64 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 @@ -23,11 +23,15 @@ const state = vi.hoisted(() => {
@@ -289,7 +289,7 @@ index 903e81c3e68..eb7928e07d7 100644
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
-index ebb3fded58a..46ca748effb 100644
+index ebb3fded58a863e1bb2fd7fc992ca1bf7c41008f..46ca748effb17af667784b311eb5fd3dcfe2d6ca 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 @@ -13,8 +13,6 @@ import {
@@ -358,7 +358,7 @@ index ebb3fded58a..46ca748effb 100644
          <Button
 diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 new file mode 100644
-index 00000000000..28f6abb3003
+index 0000000000000000000000000000000000000000..28f6abb300392381a8cbf10ca1add85e2eaca906
 --- /dev/null
 +++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 @@ -0,0 +1,45 @@
@@ -408,7 +408,7 @@ index 00000000000..28f6abb3003
 +  )
 +}
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
-index 43985f8316e..d5e4c666450 100644
+index 43985f8316ee8df70ffdbca7c14c4a0eda2532c7..d5e4c6664501309d884903d19876d64b83c8547b 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 @@ -131,3 +131,34 @@ describe('project conversation ownership', () => {
@@ -447,7 +447,7 @@ index 43985f8316e..d5e4c666450 100644
 +  expect(result.map((group) => group.executionHostId)).toEqual(['runtime:remote', 'local'])
 +})
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ts
-index 72540191974..aa56fcb3752 100644
+index 72540191974026c90de25b0f9af6cbd010c1d5c0..aa56fcb3752fb32fa4d944487eb7799d380becee 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ts
 @@ -28,6 +28,7 @@ import {
@@ -456,7 +456,7 @@ index 72540191974..aa56fcb3752 100644
  } from '../../../../shared/project-section-grouping'
 +import type { PersonalProjectOrder } from '../../../../shared/personal-project-order'
  import { sortProjectEntries } from '../../../../shared/project-section-order'
-
+ 
  type ConversationItem = { session: AiVaultSession; repo: Repo; lastActivityAt?: number }
 @@ -49,6 +50,7 @@ export function buildConversationProjectGroups(args: {
    catalog: ProjectHostSetupProjection
@@ -515,7 +515,7 @@ index 72540191974..aa56fcb3752 100644
    for (const group of result) {
      const hosts = hostsByLabel.get(group.label) ?? new Set<ExecutionHostId>()
 diff --git a/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx b/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
-index f4a25ad4244..fd1db50471b 100644
+index f4a25ad424402fae0466f6c5931fbad5160bc62a..fd1db50471b135f43f729b1e9f9d88c0cf738a36 100644
 --- a/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
 +++ b/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
 @@ -1,4 +1,4 @@
@@ -526,7 +526,7 @@ index f4a25ad4244..fd1db50471b 100644
  import {
 @@ -148,9 +148,7 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
  }
-
+ 
  function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.Element {
 -  const supportsPersonalOrder = usePersonalProjectOrderSupported()
    const projectOrderBy = useAppStore((s) => s.projectOrderBy)
