@@ -1,0 +1,12 @@
+--- a/mobile/src/i18n/locales/en.json
++++ b/mobile/src/i18n/locales/en.json
+@@ -2994,6 +2994,9 @@
+       "updateFromWorker": "Update from worker",
+       "messageFrom": "Message from",
+       "showMore": "Show more"
++    },
++    "notices": {
++      "orchestrationMail": "Orchestration mail"
+     },
+     "tool": {
+       "activity": "Activity"
