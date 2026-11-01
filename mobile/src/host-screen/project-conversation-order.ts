@@ -1,3 +1,4 @@
+import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
 import type { ConversationPreferences } from '../../../src/shared/conversation-navigation-preferences'
 import { sortProjectEntries } from '../../../src/shared/project-section-order'
 import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
@@ -14,18 +15,33 @@ export function orderProjectConversations(
 ): ConversationProject[] {
   const catalog = args.projectCatalog
   const query = args.query?.trim().toLocaleLowerCase()
-  const entries = [...projects].map(
-    (project) =>
-      [
-        project.key,
-        {
-          ...project,
-          label: project.title,
-          items: project.workspaces,
-          repoIds: new Set(project.workspaces.map((workspace) => workspace.repoId))
-        }
-      ] as const
-  )
+  const entries = [...projects].map((project) => {
+    const personal = catalog?.grouping?.personalProjectOrder
+    const preferenceKey = project.repo
+      ? resolveProjectPreferenceKey(
+          project.repo.id,
+          catalog?.grouping?.projectHostSetups ?? [],
+          project.hostId
+        )
+      : null
+    return [
+      project.key,
+      {
+        ...project,
+        label: project.title,
+        projectPreference: personal
+          ? preferenceKey
+            ? (personal.projects[preferenceKey] ?? {})
+            : {}
+          : undefined,
+        items: project.workspaces,
+        repoIds: new Set([
+          ...project.workspaces.map((workspace) => workspace.repoId),
+          ...(project.repo ? [project.repo.id] : [])
+        ])
+      }
+    ] as const
+  })
   return sortProjectEntries(entries, catalog?.projectOrderBy ?? 'manual', catalog?.repoOrder)
     .map(([, project]) => project)
     .map((project) => ({
