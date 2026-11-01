@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { resolveSelection, orderSelections } from './selection.mjs'
 import { compose, assertFrozenHead } from './composition.mjs'
-import { mergeTranslationCatalogs } from './locale-merge.mjs'
+import { mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { renderReport } from './github.mjs'
 
 const pr = (number, extra = {}) => ({
@@ -365,4 +365,44 @@ test('real Git: a text-clean merge with duplicate catalog keys cannot become a b
       /Duplicate translation key/
     )
     assert.equal(JSON.parse(git(cwd, 'show', `HEAD:${path}`)).duplicate, 'One')
+  }))
+
+test('real Git: repairs text-clean duplicate scopes from valid independent catalog additions', () =>
+  fixture((cwd) => {
+    const path = 'src/renderer/src/i18n/locales/en.json'
+    mkdirSync(join(cwd, 'src/renderer/src/i18n/locales'), { recursive: true })
+    const base = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`key${i}`, `Value ${i}`]))
+    writeFileSync(join(cwd, path), `${JSON.stringify(base, null, 2)}\n`)
+    git(cwd, 'add', path)
+    git(cwd, 'commit', '-m', 'valid catalog')
+    const upstream = git(cwd, 'rev-parse', 'HEAD')
+    const heads = []
+    for (const [name, after, values] of [
+      ['one', 'key1', { pin: 'Pin', saveFailed: 'Could not save' }],
+      ['two', 'key18', { saveFailed: 'Could not save' }]
+    ]) {
+      git(cwd, 'checkout', '-B', name, upstream)
+      const rows = Object.entries(base).flatMap((row) =>
+        row[0] === after ? [row, ['projectOrder', values]] : [row]
+      )
+      writeFileSync(join(cwd, path), `${JSON.stringify(Object.fromEntries(rows), null, 2)}\n`)
+      git(cwd, 'add', path)
+      git(cwd, 'commit', '-m', name)
+      heads.push(git(cwd, 'rev-parse', 'HEAD'))
+    }
+    git(cwd, 'merge', '--no-commit', '--no-ff', heads[0])
+    assert.equal(git(cwd, 'diff', '--name-only', '--diff-filter=U'), '')
+    assert.throws(() => parseCatalog(git(cwd, 'show', `:${path}`)), /Duplicate/)
+    git(cwd, 'merge', '--abort')
+    const result = compose(
+      cwd,
+      upstream,
+      heads.map((sha, i) => ({ ...pr(i + 1), head: { sha } }))
+    )
+    assert.equal(result.publishable, true)
+    assert.deepEqual(parseCatalog(git(cwd, 'show', `HEAD:${path}`)), {
+      ...base,
+      projectOrder: { pin: 'Pin', saveFailed: 'Could not save' }
+    })
+    assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
   }))

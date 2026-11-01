@@ -1,6 +1,11 @@
 import type { RpcClient, SendRequestOptions } from '../../transport/rpc-client'
 import type { ConnectionState, RpcResponse, RpcSuccess } from '../../transport/types'
-import { BRIDGE_MAX_SUBSCRIPTIONS, isBridgeFrameWithinCap, utf8ByteLength } from './bridge-caps'
+import {
+  BRIDGE_MAX_SUBSCRIPTIONS,
+  bridgePendingRequestCap,
+  isBridgeFrameWithinCap,
+  utf8ByteLength
+} from './bridge-caps'
 import { BridgeConnectionCache, type BridgeSnapshotOutcome } from './bridge-client-connection-cache'
 import type { BridgeConnectionPathSource } from './bridge-connection-snapshot'
 import type { BridgeRpcClientDiagnostic } from './bridge-client-diagnostics'
@@ -212,15 +217,14 @@ export function createBridgeRpcClient(options: BridgeRpcClientOptions): BridgeRp
       return Promise.reject(new BridgeClientClosedError())
     }
     const [method, params, requestOptions] = args
-    const native = isBridgeNativeMethod(method)
-    const capacityError = requests.capacityError(native)
-    if (capacityError !== null) {
-      return Promise.reject(capacityError)
+    const cap = bridgePendingRequestCap(isBridgeNativeMethod(method))
+    if (requests.size >= cap) {
+      return Promise.reject(new BridgeClientCapExceededError(`over ${cap} requests in flight`))
     }
     return new Promise<RpcResponse>((resolve, reject) => {
       const frameOptions = readBridgeRequestFrameOptions(requestOptions, hasGrant)
       const id = nextId()
-      requests.open(id, { resolve, reject, native })
+      requests.open(id, { resolve, reject })
       const outcome = sendFrame({
         v: BRIDGE_PROTOCOL_VERSION,
         type: 'request',

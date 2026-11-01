@@ -18,56 +18,18 @@ export function readOrcaBridgePageChannel(): OrcaBridgePageChannel | null {
 
 // One onmessage slot requires one page client; a second would silently steal the first client’s frames.
 export function createOrcaBridgePageTransport(
-  channel: OrcaBridgePageChannel,
-  readCurrent: () => OrcaBridgePageChannel | null = () => channel
+  channel: OrcaBridgePageChannel
 ): Pick<BridgeRpcClientOptions, 'send' | 'onMessage'> {
-  let handler: ((json: string) => void) | null = null
-  let binding: {
-    channel: OrcaBridgePageChannel
-    receive: NonNullable<OrcaBridgePageChannel['onmessage']>
-  } | null = null
-
-  function detach(): void {
-    if (binding !== null && binding.channel.onmessage === binding.receive) {
-      binding.channel.onmessage = null
-    }
-    binding = null
-  }
-
-  function bind(current: OrcaBridgePageChannel | null): void {
-    if (binding?.channel === current) {
-      return
-    }
-    detach()
-    if (current === null || handler === null) {
-      return
-    }
-    const receive = (event: { data: string }): void => {
-      if (binding?.receive === receive && readCurrent() === current) {
-        handler?.(event.data)
-      }
-    }
-    binding = { channel: current, receive }
-    current.onmessage = receive
-  }
-
   return {
     send: (json) => {
-      const current = readCurrent()
-      bind(current)
-      if (current === null) {
-        throw new Error('the native bridge channel is unavailable')
-      }
-      current.postMessage(json)
+      channel.postMessage(json)
     },
-    onMessage: (received) => {
-      handler = received
-      bind(readCurrent())
+    onMessage: (handler) => {
+      channel.onmessage = (event) => {
+        handler(event.data)
+      }
       return () => {
-        if (handler === received) {
-          handler = null
-          detach()
-        }
+        channel.onmessage = null
       }
     }
   }

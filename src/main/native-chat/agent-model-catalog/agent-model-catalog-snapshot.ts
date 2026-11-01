@@ -15,6 +15,8 @@ import type {
   AgentModelCatalogServiceDeps
 } from './agent-model-catalog-service-contract'
 
+export { agentModelCatalogReleasedOwner }
+
 /** Canonical authority survives folder churn and preliminary same-account refreshes until replacement. */
 export function bindAgentModelCatalogScope(
   bindings: Map<string, AgentModelCatalogBinding>,

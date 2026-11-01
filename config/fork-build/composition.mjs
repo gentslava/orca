@@ -44,7 +44,9 @@ export function assertFrozenHead(cwd, number, expected) {
   }
 }
 
-function assertMergedCatalogs(cwd) {
+function mergeAndValidateCatalogs(cwd, before, incoming) {
+  const repaired = []
+  let base
   for (const path of composableLocalePaths) {
     if (!existsSync(join(cwd, path))) {
       continue
@@ -52,9 +54,32 @@ function assertMergedCatalogs(cwd) {
     try {
       parseCatalog(readFileSync(join(cwd, path), 'utf8'))
     } catch (error) {
-      throw new Error(`Invalid merged translation catalog ${path}: ${error.message}`)
+      try {
+        base ??= git(cwd, ['merge-base', '--all', before, incoming])
+        if (!/^[a-f0-9]{40}$/.test(base)) {
+          throw new Error('Translation merge requires one common ancestor')
+        }
+        repaired.push([
+          path,
+          mergeTranslationCatalogs(
+            git(cwd, ['show', `${base}:${path}`]),
+            git(cwd, ['show', `${before}:${path}`]),
+            git(cwd, ['show', `${incoming}:${path}`])
+          )
+        ])
+      } catch {
+        throw new Error(`Invalid merged translation catalog ${path}: ${error.message}`)
+      }
     }
   }
+  for (const [path, text] of repaired) {
+    writeFileSync(join(cwd, path), text)
+  }
+  const paths = repaired.map(([path]) => path)
+  if (paths.length) {
+    git(cwd, ['add', '--', ...paths])
+  }
+  return paths
 }
 
 export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory) {
@@ -150,20 +175,28 @@ export function compose(
         GIT_AUTHOR_DATE: timestamp,
         GIT_COMMITTER_DATE: timestamp
       })
-      assertMergedCatalogs(cwd)
+      const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha)
+      if (repaired.length) {
+        git(cwd, ['commit', '-m', `fork: merge independent translation keys for PR ${pr.number}`], {
+          GIT_AUTHOR_DATE: timestamp,
+          GIT_COMMITTER_DATE: timestamp
+        })
+        localeMerges.push({ number: pr.number, paths: repaired })
+      }
       included.push({ number: pr.number, head: pr.head.sha })
     } catch (error) {
       const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
       const resolution = resolveSelectedFeatureConflicts(cwd, resolutionsDirectory)
       if (resolution) {
+        const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha)
         git(cwd, ['commit', '-m', message], {
           GIT_AUTHOR_DATE: timestamp,
           GIT_COMMITTER_DATE: timestamp
         })
-        assertMergedCatalogs(cwd)
         included.push({ number: pr.number, head: pr.head.sha })
-        if (resolution.localePaths.length) {
-          localeMerges.push({ number: pr.number, paths: resolution.localePaths })
+        const localePaths = [...new Set([...resolution.localePaths, ...repaired])]
+        if (localePaths.length) {
+          localeMerges.push({ number: pr.number, paths: localePaths })
         }
         if (resolution.patches.length) {
           reviewedResolutions.push({ number: pr.number, patches: resolution.patches })
