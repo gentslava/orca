@@ -349,16 +349,16 @@ index d6d7be1962c..15959589653 100644
 +  ready: Promise<void>
 +}
 diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
-index 0d29bb8abcb..2a5b9b18ab5 100644
+index a79abea35853706d86a124201e409d28372f36e4..482ce842929a7c479ed4111de70673d915fb3468 100644
 --- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
 +++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
 @@ -1,3 +1,5 @@
 +import { record, listing, GROK_HOME } from './agent-model-catalog.test-fixture'
 +import type { AgentSessionRecord } from '../../../shared/agent-session-record'
- import { AGENT_MODEL_CATALOG_FRESH_MS } from './agent-model-catalog-store'
  import { agentSessionRecordFixture } from '../agent-session-record-test-fixture'
  import { agentSessionConversationView } from '../../../shared/agent-session-conversation-view'
-@@ -7,7 +9,6 @@ import {
+ import {
+@@ -6,7 +8,6 @@
  } from '../../../shared/host-model-listing-waits'
  import type { AgentSessionAccountHome } from '../../../shared/agent-session-account-home'
  import { describe, expect, it, onTestFinished, vi } from 'vitest'
@@ -366,9 +366,9 @@ index 0d29bb8abcb..2a5b9b18ab5 100644
  import {
    agentModelCatalogFingerprint,
    agentModelCatalogFingerprintForRecord
-@@ -15,27 +16,6 @@ import {
- import { createAgentModelCatalogService } from './agent-model-catalog-service'
- import { AgentModelCatalogStore, type AgentModelCatalogSuccess } from './agent-model-catalog-store'
+@@ -18,27 +19,6 @@
+   type AgentModelCatalogSuccess
+ } from './agent-model-catalog-store'
  
 -function record(accountHomePath: string): AgentSessionRecord {
 -  return agentSessionRecordFixture({
@@ -394,7 +394,8 @@ index 0d29bb8abcb..2a5b9b18ab5 100644
  function selectedHomeFingerprint(path: string): string {
    return agentModelCatalogFingerprint({
      agent: 'grok',
-@@ -53,11 +33,6 @@ function discover(
+@@ -55,11 +35,6 @@
+   void service.demand(params)
    return service.read(params)
  }
  
@@ -405,7 +406,6 @@ index 0d29bb8abcb..2a5b9b18ab5 100644
 -
  describe('agent model catalog service', () => {
    it('answers unknown and kicks one probe for a session whose key has never listed', async () => {
-     const store = new AgentModelCatalogStore()
 diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
 index f6cd71c25fc..0a9dd1a364c 100644
 --- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
