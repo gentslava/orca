@@ -305,31 +305,28 @@ export function promptPlan(
   }
 }
 
-export function setOptionPlan(params: { key: string; value: string | null }) {
+export function setOptionPlan({ key, value }: { key: string; value: string | null }) {
   return {
     method: 'agentSession.setOption',
-    fields: { key: params.key, value: params.value },
+    fields: { key: key, value: value },
     run: async (ctx): Promise<TurnOutcome<AgentSessionOptionResult>> => {
-      const options =
-        params.value === null ? {} : { ...ctx.persistedOptions, [params.key]: params.value }
+      const options = value === null ? {} : { ...ctx.persistedOptions, [key]: value }
       await ctx.persistOptions(options)
       ctx.publish()
-      return { ok: true, value: { ...params, options } }
+      return { ok: true, value: { key, value, options } }
     },
     // Reapply unsettled picks; only a settled success can be replayed directly.
     replay: (ctx, outcome) => {
       if (outcome.status !== 'succeeded') {
         return null
       }
-      if (params.value !== null && Object.hasOwn(outcome, 'optionResult')) {
-        return readNoChoiceOptionResult(outcome.optionResult, {
-          key: params.key,
-          value: params.value
-        })
+      if (value !== null && Object.hasOwn(outcome, 'optionResult')) {
+        return readNoChoiceOptionResult(outcome.optionResult, { key, value })
       }
       return {
-        ...params,
-        ...(params.value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
+        key,
+        value,
+        ...(value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
         ...(ctx.persistedOptions ? { options: { ...ctx.persistedOptions } } : {})
       }
     }
