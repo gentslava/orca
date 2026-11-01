@@ -41,7 +41,7 @@ export function createShellPageClient(): BridgeRpcClient | null {
     return null
   }
   return createBridgeRpcClient({
-    ...createOrcaBridgePageTransport(channel, readOrcaBridgePageChannel),
+    ...createOrcaBridgePageTransport(channel),
     onDiagnostic: createPageDiagnosticReporter()
   })
 }

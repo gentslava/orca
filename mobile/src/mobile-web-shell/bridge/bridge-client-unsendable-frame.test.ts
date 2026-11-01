@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { BRIDGE_MAX_FORWARDED_REQUESTS } from './bridge-caps'
+import { BRIDGE_MAX_PENDING_DESKTOP_REQUESTS, BRIDGE_MAX_PENDING_REQUESTS } from './bridge-caps'
 import { createFakeBridgePortPair as createPair } from './bridge-port-pair-test-harness'
 
 const resources = new Set<ReturnType<typeof createPair>>()
@@ -29,7 +29,7 @@ function cyclicParams(): Record<string, unknown> {
 async function acceptedRequestCount(client: {
   sendRequest: (method: string, params?: unknown) => Promise<unknown>
 }): Promise<number> {
-  const attempts = BRIDGE_MAX_FORWARDED_REQUESTS + 4
+  const attempts = BRIDGE_MAX_PENDING_REQUESTS + 4
   const refusals: string[] = []
   for (let index = 0; index < attempts; index += 1) {
     void client.sendRequest('git.status', { index }).catch((error: Error) => {
@@ -78,11 +78,11 @@ describe('a request frame the page cannot serialize', () => {
       await pair.flush()
       void pair.client.sendRequest('git.status', params()).catch(() => undefined)
 
-      // Assert all 64 slots remain usable; leaking the unserializable request leaves only 63.
+      // Assert every desktop slot remains usable; leaking the unserializable request leaves one fewer.
       const clean = createFakeBridgePortPair()
       await clean.flush()
-      expect(await acceptedRequestCount(clean.client)).toBe(BRIDGE_MAX_FORWARDED_REQUESTS)
-      expect(await acceptedRequestCount(pair.client)).toBe(BRIDGE_MAX_FORWARDED_REQUESTS)
+      expect(await acceptedRequestCount(clean.client)).toBe(BRIDGE_MAX_PENDING_DESKTOP_REQUESTS)
+      expect(await acceptedRequestCount(pair.client)).toBe(BRIDGE_MAX_PENDING_DESKTOP_REQUESTS)
     }
   )
 })
