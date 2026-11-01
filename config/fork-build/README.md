@@ -40,6 +40,7 @@ Build jobs execute the composed source with read-only repository permissions and
 ## Editing selection
 
 Edit `selection.json` on master. Keep community PR numbers in `include`, with a reason. Use `exclude` for a deliberate retirement/hold, `replacements` for reviewed closed-PR successor mappings, and `dependencies` when application order matters. Required compatibility corrections are listed explicitly. Pins and optional silent fallbacks are intentionally not supported: maintain compatibility in the actual atomic PR instead.
+Mobile media lifecycle: PR 36922 in upstream supersedes PRs 36569 and 36574 by reserving four of the existing 64 bridge slots for native verbs. PR 36572 is retired because shipped shells install their channel per document, rather than replacing it inside a live document. These lifecycle decisions retain the historical Attach Photos investigation; they do not claim its original handset failure was reproduced or fixed.
 
 Tests run without application dependencies:
 

@@ -19,9 +19,13 @@
     }
   ],
   "exclude": {
-    "34365": "Diagnostic-only candidate on hold; not required for the daily product build."
+    "34365": "Diagnostic-only candidate on hold; not required for the daily product build.",
+    "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle."
   },
-  "replacements": {},
+  "replacements": {
+    "36569": 36922,
+    "36574": 36922
+  },
   "dependencies": {},
   "outputs": ["macos-arm64-dmg", "macos-arm64-zip"],
   "statusIssue": 12,
