@@ -20,3 +20,13 @@ diff --git a/src/main/runtime/rpc/methods/ai-vault.ts b/src/main/runtime/rpc/met
              includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
            },
            signal
+@@ -147,7 +152,8 @@
+         ? truncateAiVaultListResult(
+             projected,
+             requestedAiVaultSessionDepth(params),
+-            params.scopePaths
++            params.scopePaths,
++            selectedSessionId
+           )
+         : projected
+       return conditionalAiVaultListResult(

@@ -152,7 +152,8 @@ export const AI_VAULT_METHODS = [
         ? truncateAiVaultListResult(
             projected,
             requestedAiVaultSessionDepth(params),
-            params.scopePaths
+            params.scopePaths,
+            selectedSessionId
           )
         : projected
       return conditionalAiVaultListResult(
