@@ -2990,6 +2990,9 @@
       "messageFrom": "Message from",
       "showMore": "Show more"
     },
+    "notices": {
+      "orchestrationMail": "Orchestration mail"
+    },
     "tool": {
       "activity": "Activity"
     }
