@@ -73,7 +73,8 @@ export function HostConversations({
         controller.projectCatalog,
         [...controller.sectionsResult.repoById.values()],
         state.view.filters.visibleHostIds,
-        controller.projectOrderBy
+        controller.projectOrderBy,
+        state.view.personalProjectOrder
       ),
     [
       controller.projectCatalog,

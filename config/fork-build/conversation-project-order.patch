@@ -1,3 +1,160 @@
+diff --git a/mobile/src/host-screen/HostConversations.tsx b/mobile/src/host-screen/HostConversations.tsx
+index 87a6c276280..d8df85a7530 100644
+--- a/mobile/src/host-screen/HostConversations.tsx
++++ b/mobile/src/host-screen/HostConversations.tsx
+@@ -73,7 +73,8 @@ export function HostConversations({
+         controller.projectCatalog,
+         [...controller.sectionsResult.repoById.values()],
+         state.view.filters.visibleHostIds,
+-        controller.projectOrderBy
++        controller.projectOrderBy,
++        state.view.personalProjectOrder
+       ),
+     [
+       controller.projectCatalog,
+diff --git a/mobile/src/host-screen/conversation-project-order-sheet.tsx b/mobile/src/host-screen/conversation-project-order-sheet.tsx
+index 3eacfe967b3..70db778d770 100644
+--- a/mobile/src/host-screen/conversation-project-order-sheet.tsx
++++ b/mobile/src/host-screen/conversation-project-order-sheet.tsx
+@@ -26,7 +26,10 @@ export function ConversationProjectOrderSheet({
+         onPress: () => {
+           void controller.settings.setProjectOrderBy(choice.id)
+         },
+-        disabled: !connected
++        disabled:
++          !connected ||
++          (!controller.settings.supportsPersonalProjectOrder &&
++            (choice.id === 'name' || choice.id === 'frequent'))
+       }))}
+     />
+   )
+diff --git a/mobile/src/host-screen/project-conversation-order.ts b/mobile/src/host-screen/project-conversation-order.ts
+index a552734c2f9..9b2c44d4c7f 100644
+--- a/mobile/src/host-screen/project-conversation-order.ts
++++ b/mobile/src/host-screen/project-conversation-order.ts
+@@ -1,3 +1,4 @@
++import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
+ import type { ConversationPreferences } from '../../../src/shared/conversation-navigation-preferences'
+ import { sortProjectEntries } from '../../../src/shared/project-section-order'
+ import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
+@@ -14,18 +15,33 @@ export function orderProjectConversations(
+ ): ConversationProject[] {
+   const catalog = args.projectCatalog
+   const query = args.query?.trim().toLocaleLowerCase()
+-  const entries = [...projects].map(
+-    (project) =>
+-      [
+-        project.key,
+-        {
+-          ...project,
+-          label: project.title,
+-          items: project.workspaces,
+-          repoIds: new Set(project.workspaces.map((workspace) => workspace.repoId))
+-        }
+-      ] as const
+-  )
++  const entries = [...projects].map((project) => {
++    const personal = catalog?.grouping?.personalProjectOrder
++    const preferenceKey = project.repo
++      ? resolveProjectPreferenceKey(
++          project.repo.id,
++          catalog?.grouping?.projectHostSetups ?? [],
++          project.hostId
++        )
++      : null
++    return [
++      project.key,
++      {
++        ...project,
++        label: project.title,
++        projectPreference: personal
++          ? preferenceKey
++            ? (personal.projects[preferenceKey] ?? {})
++            : {}
++          : undefined,
++        items: project.workspaces,
++        repoIds: new Set([
++          ...project.workspaces.map((workspace) => workspace.repoId),
++          ...(project.repo ? [project.repo.id] : [])
++        ])
++      }
++    ] as const
++  })
+   return sortProjectEntries(entries, catalog?.projectOrderBy ?? 'manual', catalog?.repoOrder)
+     .map(([, project]) => project)
+     .map((project) => ({
+diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
+index 5923b6d50ce..ec08cf4c36c 100644
+--- a/mobile/src/host-screen/project-conversations.test.ts
++++ b/mobile/src/host-screen/project-conversations.test.ts
+@@ -1,3 +1,4 @@
++import { projectHostSetupProjectionFromRepos } from '../../../src/shared/project-host-setup-projection'
+ import { describe, expect, it } from 'vitest'
+ import { conversationPreferenceKey } from '../../../src/shared/conversation-navigation-preferences'
+ import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
+@@ -295,3 +296,62 @@ describe('projects containing conversations', () => {
+     ).toBe(true)
+   })
+ })
++
++it.each([
++  ['manual', ['Beta', 'Alpha']],
++  ['recent', ['Alpha', 'Beta']],
++  ['frequent', ['Beta', 'Alpha']],
++  ['name', ['Alpha', 'Beta']]
++] as const)(
++  'uses personal project summaries in mobile %s order without changing manual order',
++  (mode, expected) => {
++    const repos = [
++      {
++        id: 'beta',
++        displayName: 'Beta',
++        path: '/beta',
++        badgeColor: '',
++        addedAt: 0,
++        executionHostId: 'local' as const
++      },
++      {
++        id: 'alpha',
++        displayName: 'Alpha',
++        path: '/alpha',
++        badgeColor: '',
++        addedAt: 0,
++        executionHostId: 'local' as const
++      }
++    ]
++    const projection = projectHostSetupProjectionFromRepos(repos)
++    const projects = buildProjectConversations({
++      workspaces: [],
++      repos,
++      tabs: new Map(),
++      history: [],
++      now: 0,
++      untitled: 'Untitled',
++      projectCatalog: {
++        repos,
++        repoOrder: new Map([
++          ['beta', 0],
++          ['alpha', 1]
++        ]),
++        projectOrderBy: mode,
++        grouping: {
++          projects: projection.projects,
++          projectHostSetups: projection.setups,
++          personalProjectOrder: {
++            projects: {
++              '["local","local","repo:beta"]': { openCount: 9, lastOpenedAt: 100 },
++              '["local","local","repo:alpha"]': { openCount: 1, lastOpenedAt: 200 }
++            },
++            settledOperations: []
++          }
++        }
++      }
++    })
++    expect(projects.map((project) => project.title)).toEqual(expected)
++    expect(repos.map((repo) => repo.id)).toEqual(['beta', 'alpha'])
++  }
++)
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
 index 899587323e4..be147e74aca 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
