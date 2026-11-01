@@ -1,4 +1,3 @@
-import { STRUCTURED_MODEL_DEFAULT_PICK } from '../../../../shared/structured-agent-session-option-pick-book'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../shared/agent-chat-permission-mode'
 import { structuredAgentSessionDefaultModelChoice } from '../../../../shared/structured-agent-session-default-model-choice'
 import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../../shared/agent-session-default-model'
@@ -146,10 +145,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       record: optionStateRef.current.record,
       view,
       snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
-      ready:
-        acceptsTurnPicks &&
-        optionPicks.current.pending.model !== STRUCTURED_MODEL_DEFAULT_PICK &&
-        interactionReadyRef.current,
+      ready: acceptsTurnPicks && interactionReadyRef.current,
       providerStarting,
       isCurrentContext,
       ...(!transportEnabled || fence === null

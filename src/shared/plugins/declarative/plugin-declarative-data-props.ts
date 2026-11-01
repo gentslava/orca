@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { isPluginJsonObject } from '../manifest/plugin-json-object'
 import { PLUGIN_DECLARATIVE_LIMITS as LIMITS } from './plugin-declarative-limits'
+import { pluginRelativeTimeCellSchema } from './plugin-declarative-relative-time'
 import {
   callback,
   component,
@@ -16,7 +17,13 @@ import {
 /** Data components added in catalog 2 (Orca 1.4.247): their content is data, not child nodes. */
 
 const columnKey = z.string().min(1).max(64)
-const cell = z.union([z.string().max(LIMITS.maxLabelLength), z.number(), z.boolean(), z.null()])
+const cell = z.union([
+  z.string().max(LIMITS.maxLabelLength),
+  z.number(),
+  z.boolean(),
+  z.null(),
+  pluginRelativeTimeCellSchema
+])
 const uniqueKeys = (items: readonly { key: string }[]): boolean =>
   new Set(items.map((item) => item.key)).size === items.length
 
@@ -31,6 +38,10 @@ const tableProps = z
             label: requiredLabel,
             align: z.enum(['start', 'center', 'end']).optional(),
             width: z.enum(['auto', 'xs', 'sm', 'md', 'lg']).optional(),
+            /** An `auto` column's floor, so the main column keeps room in a narrow panel. */
+            minWidth: z.enum(['auto', 'xs', 'sm', 'md']).optional(),
+            /** Drop this column while the table is narrower than this (sm 360px, md 480px). */
+            hideBelow: z.enum(['sm', 'md']).optional(),
             sortable: flag
           })
           .strict()

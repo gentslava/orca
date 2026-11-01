@@ -1,11 +1,11 @@
 import { ExecutionLocation } from './structured-agent-session-location-params'
 export { ExecutionHostId, ExecutionLocation } from './structured-agent-session-location-params'
+import { AgentSessionSelectionSchema } from '../agent-session/options/agent-session-execution-options'
 import {
   SendBody,
   MAX_OPTION_LABEL,
   AgentSessionOptions
 } from './structured-agent-session-message-params'
-import { AgentSessionSelectionSchema } from '../agent-session/options/agent-session-execution-options'
 import { TerminalClose } from './terminal-unary-params'
 import { Identifier, JournalCursor, SessionId } from './structured-agent-session-identifiers'
 import { z } from 'zod'

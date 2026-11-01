@@ -24,11 +24,15 @@ export const PLUGIN_DECLARATIVE_MESSAGES = {
   /** guest → host, `{ entries: [{ scope, key, version, value }] }`: persisted atoms changed. */
   persist: 'ui.persist',
   /** guest → host, `{ document, entries: [{ key, version, value? }] }`: keyed memory atoms changed. */
-  retain: 'ui.retain'
+  retain: 'ui.retain',
+  /** host → guest, `{ document }`: remember every atom's value before `orca plugin shot --act`. */
+  snapshot: 'ui.snapshot',
+  /** host → guest, `{ document }`: put the atoms back to the last `ui.snapshot`. */
+  restore: 'ui.restore'
 } as const
 
 /** Grows with the component catalog, so plugins can feature-detect with `ui.catalog`. */
-export const PLUGIN_DECLARATIVE_CATALOG_VERSION = 2
+export const PLUGIN_DECLARATIVE_CATALOG_VERSION = 3
 
 /** Each catalog component's prop names, mirrored by the zod catalog (parity-tested). */
 export const PLUGIN_DECLARATIVE_COMPONENT_PROPS = {
@@ -149,7 +153,9 @@ export const PLUGIN_DECLARATIVE_COMPONENT_PROPS = {
   Image: ['src', 'alt', 'size', 'fit', 'rounded'],
   KeyValue: ['label', 'items'],
   Callout: ['tone', 'title', 'icon'],
-  Skeleton: ['shape', 'lines', 'label']
+  Skeleton: ['shape', 'lines', 'label'],
+  // Catalog 3 (also Orca 1.4.247).
+  RelativeTime: ['at', 'format', 'tone', 'muted']
 } as const satisfies Record<string, readonly string[]>
 
 export type PluginDeclarativeComponentTag = keyof typeof PLUGIN_DECLARATIVE_COMPONENT_PROPS

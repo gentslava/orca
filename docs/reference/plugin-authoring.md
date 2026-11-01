@@ -173,6 +173,12 @@ panels hears it once it has subscribed with `orca.on(event, …)`; with neither,
 Installed plugins are refused. `--json` prints `{ pluginKey, event, delivered: { worker, panels } }`.
 A handler's errors land in `orca plugin logs` and `orca plugin dev watch`.
 
+To call a worker's `orca.panels.handle(name, …)` handler without opening its panel, use
+`orca plugin dev request . <name> --data '<json>'`. It goes through the same path as a panel's
+`plugin.request` (approved development plugin with `main`; the worker starts if needed) and
+prints `{ pluginKey, name, result }`. A handler failure exits `1` with `plugin_request_failed` and
+the worker's code (`unknown_method`, `timeout`, ...) in `error.data.requestCode`.
+
 A worker's `main` is an ES module: `.js`/`.mjs`, or `.ts`/`.mts` with no build step (needs
 `engines.orca` `>=1.4.246`). Orca transpiles TypeScript files in your plugin folder as Node loads
 them, keeping line numbers, so stack traces point at your `.ts` lines; enums and parameter
@@ -269,7 +275,8 @@ To show the workspace's agents, list them once with `agents.list` (`agent:read`)
 `workspace.readContext` lists (with each terminal's `title`) and `terminal.sendText` takes; an
 event's `paneKey` is Orca's own pane id. `workspace.changed` (`workspace:read`) carries the new
 `workspace.readContext` answer whenever focus moves to another workspace or its terminals open,
-close or are renamed, so a panel never polls.
+close or are renamed, and once right when a panel or worker subscribes, so a panel never polls
+and never starts out stale.
 
 ```ts
 import { atom, host, on, read, set, update } from 'orca'
@@ -352,24 +359,66 @@ to exit at once. With `--json` it prints one JSON object per line, with a `type`
 prints what each components panel drew or threw, with `file:line:col`; it reports a failure while
 Orca does not run the plugin (pending approval, errored, invalid), even when the panels render
 (`ok` false, `checkOk` true, and `pluginStatus`). Like `orca plugin check`,
-it runs your code on this machine outside Orca's sandbox, and it needs a local folder. The first load needs approval like `orca plugin dev load` (it exits with code 3 and
-prints the command to re-run with `--approve`; with `--json`, as one line). The re-run owns the
-folder the refused attempt added, so its Ctrl-C unloads it.
+it runs your code on this machine outside Orca's sandbox, and it needs a local folder. When the first load needs approval and you run it in a terminal, it prints what the plugin
+would be granted (execution, each capability, what it adds) and asks `Approve and load? [y/N]`;
+`y` loads it with that approval and keeps watching. Any other answer, Ctrl-C, `--json`, or
+output that is not a terminal (a coding agent, a pipe) fails like `orca plugin dev load`: it
+exits with code 3 and prints the command to re-run with `--approve` (with `--json`, as one line).
+It never approves on its own. The re-run owns the folder the refused attempt added, so its
+Ctrl-C unloads it.
 
 ### See the panel
 
 `orca plugin shot <plugin-key>` saves a PNG of a panel exactly as Orca draws it, cropped to the
-panel, to `.orca/shots/<plugin-key>-<panel>.png` (or `--out <file>`). It opens the panel in the
+panel, to `.orca/shots/<plugin-key>-<panel>.png` (or `--out <file>`): in the plugin folder when
+you run it inside one (the nearest `orca-plugin.json`, up to the repository root), else in the
+current folder. It opens the panel in the
 right sidebar, waits until the current code has drawn (a components panel's first tree, an HTML
-panel's page loaded; up to 15 seconds), and captures it even while Orca's window is hidden or
+panel's page loaded; up to 15 seconds) and, for a components panel, until its host calls such as
+`plugin.request` have answered and redrawn (at most 3 seconds more), and captures it even while Orca's window is hidden or
 behind others, without showing, raising or focusing it. `--width <px>` sizes the panel for that
 capture only. `--theme light|dark` paints Orca in that mode for that capture only, and only while
 its window is hidden or minimized: with the window on screen, the shot keeps the current theme
 rather than repaint the app in front of you, and says so (`themeApplied: false` and a
 `themeReason`). Your width and theme setting are always put back. `--json` prints `{ path, width,
-height, theme, themeApplied, themeReason?, settled, errors }`, where `errors` holds the error
-banner the panel shows and the errors it logged during the capture. A coding agent reads the
+height, theme, themeApplied, themeReason?, settled, errors, pendingRequests?, actions?,
+restored? }`, where `errors` holds the error banner the panel shows and the errors it logged
+during the capture, and `pendingRequests` counts host calls still unanswered (above 0, the image
+may show the panel still loading). A coding agent reads the
 image to see what it built.
+
+`--act '<json>'` drives a components panel before the capture, with the test kit's verbs: a list
+(at most 20) such as `[{"type":{"label":"New task"},"text":"Ship","submit":true},
+{"press":{"text":"Add"}},{"select":{"label":"View"},"value":"done"},{"toggle":{"label":"Hide
+done"}}]`, whose queries match like the kit's (`text`, `label`, `testId`, `type`, `role`). The
+kit's Slider, Table and Tree verbs work too: `{"slide":Q,"value":7}`, `{"sort":Q,"column":"name"}`,
+`{"selectRows":Q,"keys":["a"]}`, `{"activateRow":Q,"key":"a"}`, `{"loadMore":Q}`, and
+`expand`, `collapse`, `selectItem`, `activateItem` with a `key`. Each act goes through Orca's own
+control, as your typing or click would, and waits for the panel to redraw and its host calls to
+answer. `actions` in the result has one `{ ok, error? }` per act; the first failure skips the
+rest, the PNG shows the panel at that point, and the command exits 1. Once captured, Orca puts
+the panel's atoms back, persisted ones included, so later shots and you see the panel as it was
+(`restored: true`; false when it reloaded during the acts). What handlers did outside the panel
+is not rolled back: a press whose handler sends `plugin.request('counter.add')` leaves the
+worker's storage changed. It acts only on that
+plugin's panel and only while Orca's window is hidden or minimized, so it never clicks under you;
+html panels refuse it. An act is not a person's press: a Link's href stays unopened and calls
+that need a gesture (`shell.openExternal`, `files.saveAs`) are refused.
+
+`orca plugin shot <dir> --scenario <name>` shoots the panel in one scenario of its
+`<entry>.check.ts` (see check fixtures) instead of the live panel. The CLI renders that scenario
+the way `orca plugin check` does, with the panel and its worker against a stand-in host, so the
+scenario's data never reaches the plugin's real panel, storage, settings or worker. Orca then
+draws the resulting tree in a preview of its own, apart from the plugin, and captures it; the
+right sidebar is not opened or switched. Like `orca plugin check`, it runs the plugin's code on
+your machine without Orca's sandbox, so use it only on code you trust. Pass the plugin folder,
+or a development plugin's key when you run it inside that folder; installed plugins are refused.
+The result adds `replay: true` and `scenario`, `errors` lists what the render reported, and an
+unknown name fails and lists the panel's scenarios. A replay is a still frame: controls whose
+value Orca owns start from the tree's props, images show their placeholder, it takes no `--act`,
+it works only on this machine (no `--environment`), and it needs Orca's window hidden or
+minimized because the preview is drawn inside it. It writes
+`.orca/shots/<plugin-key>-<panel>.<scenario>.png` in the plugin folder unless you pass `--out`.
 
 `orca plugin dev watch . --shot ./.orca/shots` opens one panel (the first, or
 `--shot-panel <id>`) in the right sidebar once, then after the load and after each reload that
@@ -442,7 +491,7 @@ pnpm validate:plugin path/to/plugin
 orca plugin validate path/to/plugin
 ```
 
-`orca plugin create <dir> --template <theme|terminal-theme|icon-theme|syntax|language-pack|editor|panel|components>`
+`orca plugin create <dir> --template <theme|terminal-theme|icon-theme|syntax|language-pack|editor|panel|components|worker-panel>`
 scaffolds a plugin that passes these checks, and `orca plugin inspect <dir>` shows what it would be
 allowed to do and its content hash.
 

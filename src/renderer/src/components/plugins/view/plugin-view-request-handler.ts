@@ -22,9 +22,12 @@ import {
   measurePluginPanelGuest,
   measurePluginPanelSurface,
   nextPaintedFrames,
+  waitForColorScheme,
   waitForPluginPanelDraw
 } from './plugin-view-panel-settle'
+import { restoreActedPanel, settleAndActOnPanel } from './plugin-view-capture-acts'
 import { pluginPanelNotShownReason } from './plugin-view-shown'
+import { endPluginShotReplay, replayPluginPanel } from './plugin-view-replay'
 
 type Failure = Extract<PluginViewReply, { ok: false }>
 
@@ -98,13 +101,19 @@ async function capturePanel(
   if (status.value?.failure) {
     return fail(requestId, 'panel_failed', `The plugin panel ${status.value.failure}.`)
   }
-  await nextPaintedFrames()
+  await waitForColorScheme(wantDark)
+  const prepared = await settleAndActOnPanel(tabKey, status.value?.ui, capture.acts)
+  if (!prepared.ok) {
+    return fail(requestId, 'act_unsupported', 'Only a drawn components panel takes --act.')
+  }
   let rect = measurePluginPanelSurface(tabKey)
   // The panel sits inside the sidebar's border; one correction makes it exactly --width wide.
   if (rect && capture.width !== undefined && Math.round(rect.width) !== capture.width) {
     usePluginViewCaptureStore
       .getState()
       .setPanelWidth(capture.width + (capture.width - Math.round(rect.width)))
+    // A resize relayouts the panel; let it paint before main captures.
+    await nextPaintedFrames()
     await nextPaintedFrames()
     rect = measurePluginPanelSurface(tabKey)
   }
@@ -124,7 +133,11 @@ async function capturePanel(
       issue: status.value?.issue ?? null,
       colorScheme: dark ? 'dark' : 'light',
       themeApplied: wantDark !== null && dark === wantDark,
-      settled: status.settled
+      settled: status.settled,
+      ...(prepared.pendingRequests === undefined
+        ? {}
+        : { pendingRequests: prepared.pendingRequests }),
+      ...(prepared.actions ? { actions: prepared.actions } : {})
     }
   }
 }
@@ -175,9 +188,18 @@ export async function handlePluginViewRequest(
         return await openPanel(request)
       case 'open-editor':
         return await openEditor(request)
-      case 'end-capture':
+      case 'replay-panel':
+        return await replayPluginPanel(request)
+      case 'end-capture': {
+        endPluginShotReplay()
         usePluginViewCaptureStore.getState().end()
-        return { requestId: request.requestId, ok: true }
+        const restored = await restoreActedPanel()
+        return {
+          requestId: request.requestId,
+          ok: true,
+          ...(restored === undefined ? {} : { restored })
+        }
+      }
     }
   } catch (error) {
     return fail(

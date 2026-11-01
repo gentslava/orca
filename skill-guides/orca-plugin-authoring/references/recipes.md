@@ -6,7 +6,8 @@ Hand-written companion to the `orca-plugin-authoring` guide.
 
 A plugin's panels and its worker are one program. Use this when a panel needs Node, long work,
 secrets or state the worker also uses; a panel alone needs none of it. It needs `main`, so the
-plugin is `trusted-worker` (example `hello-worker-panel`).
+plugin is `trusted-worker`. `ORCA plugin create <dir> --template worker-panel` scaffolds one
+(protocol, worker, panel and tests for both); example `hello-worker-panel` adds settings and events.
 
 - Declare the contract once in a file both include (`src/protocol.ts`):
   `declare module 'orca' { interface PluginRequests { 'todos.list': { input: { done?: boolean }; output: Todo[] } } interface PluginPanelEvents { 'todos.changed': { count: number } } }`.
@@ -22,6 +23,8 @@ plugin is `trusted-worker` (example `hello-worker-panel`).
   `export function activate` is never called. It runs once when the worker starts; an optional
   `export function deactivate()` is awaited before it stops. An idle worker stops and restarts on
   its next command, event or panel request.
+- `ORCA plugin dev request <dir|plugin-key> <name> --data '<json>'` calls a handler the way
+  `plugin.request` does and prints its answer, with no panel open.
 
 ## Storage, settings and secrets
 
@@ -43,9 +46,11 @@ agent events with `on(...)` (frames: `orca.on`) without `contributes.events`.
 2. Push `on('agent.status.changed', ({ terminalId, title, state }) => ...)` into
    `ctx.subscriptions` and update the row with that `terminalId` (the id `workspace.readContext`
    lists and `terminal.sendText` takes; `paneKey` is Orca's own id).
-3. Push `on('workspace.changed', ...)` too and re-run `agents.list`: it fires when focus moves or
-   terminals open, close or are renamed, with the new `readContext` answer in `context`.
-4. Keep the rows in an atom and render them as `List`/`ListItem`. Never poll.
+3. Push `on('workspace.changed', ...)` too and re-run `agents.list`: it fires once with the
+   current context as you subscribe, then when focus moves or terminals open, close or are
+   renamed, with the new `readContext` answer in `context`.
+4. Keep the rows in an atom and render them as a `Table` (or `List`/`ListItem`); show "since" with
+   a `{ type: 'relative', at: stateStartedAt }` cell, which Orca keeps current. Never poll.
 5. Test it with `mockHost({ results: { 'agents.list': { agents: [...] } } })` and
    `panel.emit('agent.status.changed', payload)`.
 

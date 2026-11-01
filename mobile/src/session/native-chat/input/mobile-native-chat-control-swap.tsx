@@ -58,10 +58,7 @@ export function MobileNativeChatControlSwap({
     <View pointerEvents={touches} style={styles.slot}>
       <Animated.View
         pointerEvents={touches}
-        style={[
-          styles.content,
-          { opacity: progress, transform: [{ scale: scale(SWAP_FROM_SCALE, 1) }] }
-        ]}
+        style={{ opacity: progress, transform: [{ scale: scale(SWAP_FROM_SCALE, 1) }] }}
       >
         {children}
       </Animated.View>
@@ -87,7 +84,6 @@ export function MobileNativeChatControlSwap({
 }
 
 const styles = StyleSheet.create({
-  slot: { alignItems: 'center', justifyContent: 'center', maxWidth: '100%' },
-  content: { maxWidth: '100%' },
+  slot: { alignItems: 'center', justifyContent: 'center' },
   leaving: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' }
 })

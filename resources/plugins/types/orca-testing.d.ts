@@ -127,6 +127,9 @@ declare module 'orca/testing' {
     findAll(query: TestQuery): TestElement[]
     /** The drawn tree as plain data, for snapshots; handlers show as `[handler]`. */
     tree(): TreeSnapshot | string | null
+    /** One line per thing a person notices first: headings, callouts, empty states, table and
+     *  tree sizes, the selected tab, loading placeholders, danger or warning text. */
+    summary(): string[]
     /** Each act grants one gesture (a press) and resolves once the panel has settled. */
     press(target: Target): Promise<void>
     /** Types after what the field holds (`replace` clears it first); `submit` presses Enter. */
@@ -156,6 +159,8 @@ declare module 'orca/testing' {
     activateItem(target: Target, key: string): Promise<void>
     /** Tree: the items Orca shows expanded. */
     expandedOf(target: Target): string[]
+    /** Table: the column keys Orca shows at `width` px (wide when omitted), after `hideBelow`. */
+    columnsOf(target: Target, view?: { width?: number }): string[]
     /** Table: row keys in the order Orca draws them. */
     rowsOf(target: Target): string[]
     /** What Orca shows in a value control: text, a flag, a number, a tab, or selected keys. */
@@ -231,6 +236,22 @@ declare module 'orca/testing' {
     module: WorkerModule,
     options?: MountWorkerOptions
   ): Promise<TestWorker>
+
+  /** One render `orca plugin check` makes: the host it runs on, persisted values, and Orca events
+   *  delivered after it first draws. */
+  export type CheckScenario = MockHostOptions & {
+    persisted?: MountOptions['persisted']
+    theme?: 'light' | 'dark'
+    events?: readonly {
+      [E in keyof OrcaEvents]: { event: E; payload: OrcaEvents[E] }
+    }[keyof OrcaEvents][]
+  }
+  /**
+   * Named scenarios for `orca plugin check`, as the default export of `<entry>.check.ts` beside the
+   * panel (`src/panel.check.ts` for `src/panel.tsx`). Check renders the panel once per scenario,
+   * with the plugin's worker on the same host; without the file it renders once with defaults.
+   */
+  export function defineCheck<S extends Record<string, CheckScenario>>(scenarios: S): S
 
   /** Node's `node:test`, re-exported so a test type-checks without the Node typings. */
   export function test(name: string, fn: () => unknown): Promise<void>
