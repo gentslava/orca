@@ -407,10 +407,10 @@ index a79abea35853706d86a124201e409d28372f36e4..482ce842929a7c479ed4111de70673d9
  describe('agent model catalog service', () => {
    it('answers unknown and kicks one probe for a session whose key has never listed', async () => {
 diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
-index f6cd71c25fc..0a9dd1a364c 100644
+index f673ae696637ba57e6c6157a28b0a00cb3286db7..fc61b86d7043aefffc6900643e7a317e19b7dac8 100644
 --- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
 +++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
-@@ -10,26 +10,11 @@ import type { AgentSessionModelCatalogResult } from '../../../shared/agent-sessi
+@@ -10,27 +10,12 @@
  import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
  import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
  import type {
@@ -418,7 +418,10 @@ index f6cd71c25fc..0a9dd1a364c 100644
    AgentModelCatalogReadParams,
    AgentModelCatalogServiceDeps
  } from './agent-model-catalog-service-contract'
- 
+-
++
+ export { agentModelCatalogReleasedOwner }
+-
 -export type AgentModelCatalogBinding = {
 -  identity: string
 -  params: AgentModelCatalogReadParams
@@ -435,13 +438,14 @@ index f6cd71c25fc..0a9dd1a364c 100644
 -  projecting?: Promise<void>
 -}
 -
++
  /** Canonical authority survives folder churn and preliminary same-account refreshes until replacement. */
  export function bindAgentModelCatalogScope(
-   bindings: Map<string, AgentModelCatalogBinding>,
-@@ -302,11 +287,7 @@ export function agentModelCatalogSessionPeek(
+@@ -304,11 +289,7 @@
    }
  }
- 
+-
++
 -export type AgentModelCatalogClaim = Pick<
 +export type {
    AgentModelCatalogBinding,
