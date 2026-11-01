@@ -537,5 +537,330 @@
     "reason": "Preserve account-owned content lookup in the desktop/mobile navigation fixture; both branches otherwise contain the same test.",
     "pr": 33383,
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
+    "blobs": [
+      null,
+      "edd833efa38785b0aeedcf1acea56044ed70a27b",
+      "08ca15ee2b6ac01c850339a2c3b9dfa87f601a2a"
+    ],
+    "patch": "refresh-20261101/pr-33383-f4c36aae-structured-conversation-navigation.test.ts.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "92274fee8c2b09797134e54b027f9974531a4337563ffdbc4b6b090789620b0e",
+    "reason": "Combine desktop and mobile conversation navigation while retaining empty-chat filters, host-qualified opening, and both keyboard entry paths.",
+    "pr": 33383
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx",
+    "blobs": [
+      "117720fdedc4bcfc0ddd562c0650630cd72fb290",
+      "a35bc088a341af5b316c8bb5266ccc033d337c24",
+      "95e6c3b791d9b598840b59f2a40d6f6d32ae343e"
+    ],
+    "patch": "refresh-20261101/pr-33383-341a0a41-AiVaultSessionVirtualList.keyboard.test.tsx.patch",
+    "patchSha256": "a999011315809712e0a274aafc16c81d85d34ccd336a36280983559eaadc0432",
+    "resultSha256": "694768e750d25b39185c23787e2ce6e9f95a76655a9c66126dc7588c25e7be12",
+    "reason": "Combine desktop and mobile conversation navigation while retaining empty-chat filters, host-qualified opening, and both keyboard entry paths.",
+    "pr": 33383
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "d3cd6fa4c011910005a8c73b1f917d28ce2ea183",
+      "a9dc9f1a4cdd272b828656233a82a3c654505ac4",
+      "0146efc43dc14c8cc0ef2657ddc57d1ec2bd01bd"
+    ],
+    "patch": "refresh-20261101/pr-33395-d8bbab45-en.json.patch",
+    "patchSha256": "fc78c5fe784d1cd9b3f02149c8d85724d64397f9763bb03193ea553d598c43ec",
+    "resultSha256": "efc01597328cefb39559f64a761da9ce99b0388a4ea25859e13b8d5cea905ff3",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "48686ae6d7dbd888b26f9a9909f1580edd4b0b20",
+      "fbec5427858fb4a64faec2aed426b889ce757650",
+      "0f312c3b983ce47994a731dce4a69c962ae37f7b"
+    ],
+    "patch": "refresh-20261101/pr-33395-00934582-ru.json.patch",
+    "patchSha256": "b5fbfcd695c629f99050a56e946300098890218a4bf686f5c4f2939d1ec4d8cf",
+    "resultSha256": "b3f46d7adda845eefc9d900fb911562715c449298910a9a3b8d51b617fedd28d",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "mobile/src/session/mobile-native-chat-controller-contract.ts",
+    "blobs": [
+      "811b1c020021dd61c99593124cced8c8e0d09094",
+      "59632df0957951b5a895486ab43bbd73c55a2d63",
+      "6e7d399630f31ee2426be4fd9e0a9aef4487ec7b"
+    ],
+    "patch": "refresh-20261101/pr-33395-fd2a929a-mobile-native-chat-controller-contract.ts.patch",
+    "patchSha256": "527bd8bb9d7c481654562399597958f735a99959a2a15d408b05b3e20a6c4fbb",
+    "resultSha256": "01ae0bf85a8d78ba2b643b40fa7c7f7bb7660dfe08d533191171000746a0c521",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "ca4adfa8a0eb19d29a8528304a6145b1dc0a8e59",
+      "cc6c15cf8b9a05a4fb6d16d08ca623e316618787"
+    ],
+    "patch": "refresh-20261101/pr-33395-c4f272e3-NativeChatSessionOptionPickers.test.tsx.patch",
+    "patchSha256": "eaf0ee70e33ac1b822092c167d35a5cafe56ee0080b53ce746e0e5eeaba21bb2",
+    "resultSha256": "b3b10d759335374631c257a20da67f56b132577cc95b8265ed52ae3e5569f847",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
+    "blobs": [
+      "975ed9cad93f6f6b9a7ebb36f6891c51f68afd4f",
+      "c8ce59d624df770caf123b9edfc28e95299cd3ff",
+      "3b943a795d3bd9dc69deaeeb5eebba2aff201d77"
+    ],
+    "patch": "refresh-20261101/pr-33395-4a20a86a-use-structured-agent-session-options.ts.patch",
+    "patchSha256": "eade0fc1c813982c6b722c9362f372f19ee06c8dd3923235e479453d5e195136",
+    "resultSha256": "cb565e52a363f33c280a73a4b7341cbe5c9b0eedeb057bed47c57d99449432ac",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "b87adbc760b800ddfe1c7e2ea3c7db95f4bc1519",
+      "e3a1854f3f8f32a8b8a0db3503d77b7e57e1d8f8",
+      "10ff36eb660e0644092211b5afc8a80ec254bd42"
+    ],
+    "patch": "refresh-20261101/pr-33395-fbe37a0d-use-structured-agent-session-send-options.ts.patch",
+    "patchSha256": "02107f6b86cb2ff4e4fd74a4e19c204dee767c9b786bc13aff44ac159c267db3",
+    "resultSha256": "50fd47d0cf57d04c01bc8411cd4823987257cff34784feec5e3485ba80d10acf",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "ab6d68218e31b6510c7b90c5a41f4e89c8dc33b0",
+      "8a1c4a10a559a05b9a7b46dd5008fb6be108c61a",
+      "fd7b217afde6802a7039178a806d1346eb275aa5"
+    ],
+    "patch": "refresh-20261101/pr-33395-927f1d2c-en.json.patch",
+    "patchSha256": "ed7be69529c8db60dca4ad8e2e91635b9746ff4582d776744286db7bb627b609",
+    "resultSha256": "8fa9e865ebed3393b316bdb7a70687d93de19b8e560034aff6785612959115f6",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "06e8127dd132171c5ecaac28a21bd92a6f757e2f",
+      "d22f1470ba3ef0b05440f148b7991ee39ddcd29f",
+      "4e4e6eceb8fca0149c1d161b2fb11e2dee703378"
+    ],
+    "patch": "refresh-20261101/pr-33395-58923bac-ru.json.patch",
+    "patchSha256": "fd37accc785187eec09ef3577ad1cc8b208b8006f2d46fda5f71462b87ca6b3b",
+    "resultSha256": "874a5a65b14f4863fec46274c7d62e22e378f88262d8d73a55dfc08864bd8c0d",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session-params.ts",
+    "blobs": [
+      "2866aa0410aebf9ad9f4ce58e7c8753a006b7b69",
+      "ebb5841130a2f10e4c6c312330ed9e683e578383",
+      "3b45896bacb92a46c5077cc3568e09f74b2b119d"
+    ],
+    "patch": "refresh-20261101/pr-33395-d1ba05ab-structured-agent-session-params.ts.patch",
+    "patchSha256": "3dcbd15c3b736d7b716ed66b43c430f01509d36cca2cbbcd893a540ea3812aed",
+    "resultSha256": "77bece619c88a5948f3b1f954030734f184282d90a1692558680a41010d1ecb7",
+    "reason": "Preserve Default model reset fencing alongside future-turn queue selections and shared option writes; retain both regression suites and all locale keys.",
+    "pr": 33395
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "d3cd6fa4c011910005a8c73b1f917d28ce2ea183",
+      "1a9decfcb5b4d0cf298a0808df8d354a0d263633",
+      "962abb3557bfcba200ef6fa1f3c217663ae7bb85"
+    ],
+    "patch": "refresh-20261101/pr-33403-d8bbab45-en.json.patch",
+    "patchSha256": "b1625d6d05d929cb70bad4f5fc30a4a9ebb947ff5e92fd7791274d5fd1bfb135",
+    "resultSha256": "8c7481c3833dd149809ea449debaeccdeac1f15651245ea08ab015006d091be5",
+    "reason": "Keep successful-review activity grouping and compact orchestration mail together, including sender cards and both mobile regression cases.",
+    "pr": 33403
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "48686ae6d7dbd888b26f9a9909f1580edd4b0b20",
+      "78a4b1ff1b4a80045a30ea7deb5752f8f953110b",
+      "7539ade695d58a2d2987f7250d4ffd0fec1155c5"
+    ],
+    "patch": "refresh-20261101/pr-33403-00934582-ru.json.patch",
+    "patchSha256": "c557e823ec122509ddfa84365fed24069e605f1f9287999090c19feefb4daac6",
+    "resultSha256": "1b956d9399d25c40d82fbcba6c7f204e3c7a4eee7a03b5e44f6622916090820f",
+    "reason": "Keep successful-review activity grouping and compact orchestration mail together, including sender cards and both mobile regression cases.",
+    "pr": 33403
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx",
+    "blobs": [
+      "64ab1ff2eb80dacb76df3e0e6376bba67e6cd1d3",
+      "e2dd2b0891f97e0f11b05b4fe61d7173296db950",
+      "6e1a6c45fc7bb1ffeb4300808963daf7bcd16b64"
+    ],
+    "patch": "refresh-20261101/pr-33403-7c235bae-MobileNativeChatMessage.tsx.patch",
+    "patchSha256": "1366da37efa475f0d3131eece3b76b91a81145357dc97ace3c82f88697a35f3d",
+    "resultSha256": "2a8a6ee00b925141cf08179794133e2574eadbf965a083e5f8c4d2a95ab5f3a1",
+    "reason": "Keep successful-review activity grouping and compact orchestration mail together, including sender cards and both mobile regression cases.",
+    "pr": 33403
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx",
+    "blobs": [
+      "79a08ce6c04ab0366ae29079a6e6de081aee9762",
+      "ecfd011608b2ca4976b74ccb05960884fb66ca94",
+      "bbd5fb11c90dab1390165e9f7a8cee96d53b93de"
+    ],
+    "patch": "refresh-20261101/pr-33403-3d40fb77-MobileNativeChatMessage.work-run.test.tsx.patch",
+    "patchSha256": "3509c570f61237ba1e223a9535011ae1ba86b8a67cc7ea0c5c192db978dddd36",
+    "resultSha256": "c4496e9d02540e08872bc11a6e3d6250c086d056e69ab909004105687002bf1b",
+    "reason": "Keep successful-review activity grouping and compact orchestration mail together, including sender cards and both mobile regression cases.",
+    "pr": 33403
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-operations.ts",
+    "blobs": [
+      "555da3f5583d05f70b9959ca8f78c077b51187a4",
+      "2960c34a1c8b46f332645301119ee6533e774267",
+      "84035db33d21bdd7d7058f0faae243cde61ffeef"
+    ],
+    "patch": "refresh-20261101/pr-33502-8ed7da83-host-screen-operations.ts.patch",
+    "patchSha256": "5b6dbcb230a27f3d9893385b47c5eb40e886dad715fd01f0e98b6a28e695f9f1",
+    "resultSha256": "32eb35112f0df786c6b1394370b2370719300c90c65deb79fed4cb2027c562b8",
+    "reason": "Preserve conversation preferences and personal project ordering in shared settings/RPC contracts; initialize settings after project catalog resolution.",
+    "pr": 33502
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "024225aba2e819bdbc35482bc945452cd913c941",
+      "357642fc98130fff04c7543d8f8d879984c976ad",
+      "b15b36867786f85d65d3d9dc81a210ab3a67c88d"
+    ],
+    "patch": "refresh-20261101/pr-33502-71397d9b-host-screen-reply-schema.ts.patch",
+    "patchSha256": "5571a9fe65a49085339da967fb4b4615d976cf1473f0ae30af04338e30133cdc",
+    "resultSha256": "b34e853d102cafb38a80236490d8dea146b674d8b2bbef5c526d54cd6d525232",
+    "reason": "Preserve conversation preferences and personal project ordering in shared settings/RPC contracts; initialize settings after project catalog resolution.",
+    "pr": 33502
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "6e1c8d6ed8891fe89057ea5bdce13b0a42656543",
+      "b220b853084133242df852f990f73df01755bb8d",
+      "61d5d1eac5c784e077fcc9f74b44e595ef448804"
+    ],
+    "patch": "refresh-20261101/pr-33502-bbedafb0-use-host-screen-controller.ts.patch",
+    "patchSha256": "8b471ea69fb8ae4bd5d577b43ad178702172b9ff02f316bad96120ab0a6d25dc",
+    "resultSha256": "7bc6cca3c9b30a77986a88f5b957047a158d999b3e791bf038f1f4d4967a22a7",
+    "reason": "Preserve conversation preferences and personal project ordering in shared settings/RPC contracts; initialize settings after project catalog resolution.",
+    "pr": 33502
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "ab6d68218e31b6510c7b90c5a41f4e89c8dc33b0",
+      "887b0fd0f68afa95bbd09f25f2ad5f9afb01c12d",
+      "78f3082f91b34cdd1c1a4d2248663d95993633ad"
+    ],
+    "patch": "refresh-20261101/pr-33502-927f1d2c-en.json.patch",
+    "patchSha256": "e811c341512a3f0459a5769558fb9ecbb76495d861b87492900e2c87262432d4",
+    "resultSha256": "8cea773decedff9d34c58ccea6e85929adb483011e3b91e90cef22bf7168a3f1",
+    "reason": "Preserve conversation preferences and personal project ordering in shared settings/RPC contracts; initialize settings after project catalog resolution.",
+    "pr": 33502
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "06e8127dd132171c5ecaac28a21bd92a6f757e2f",
+      "51cd5926bb5112a41889813c7b9f72e94545fd12",
+      "ade1261db4a51ba674e03923d936325f8767d38b"
+    ],
+    "patch": "refresh-20261101/pr-33502-58923bac-ru.json.patch",
+    "patchSha256": "a491d588dec55555051ced13a504308997677a457c574b79645bdeb90a8f8de1",
+    "resultSha256": "543cf528bc5f9a7265dd7227bbe47eb31a62f7907f728d58ee1accc87a37e889",
+    "reason": "Preserve conversation preferences and personal project ordering in shared settings/RPC contracts; initialize settings after project catalog resolution.",
+    "pr": 33502
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "44f296eeb4fa82324e711f939d87bbeb2197ed74",
+      "8f0cd5dd9924a4a6b2074ee080b33ead57ca99f9",
+      "10ec0f4b1e51a329b89f1ec13497b5b430ed3568"
+    ],
+    "patch": "refresh-20261101/pr-33512-927f1d2c-en.json.patch",
+    "patchSha256": "738eb7cb47b750ea2a204a00e94c97bb409e01eb2a3198ee9404041aae675c70",
+    "resultSha256": "4bb4dd3720797e88927791bd0034103fbcb9dc6dbc4e51ef1065fd4a92b588c0",
+    "reason": "Retain both saved worker role settings and hold-to-quit settings, with all translations.",
+    "pr": 33512
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "5cab79f67796457d88213c4d45d7069d4b3074d9",
+      "168b7568d00fe0f1ccfec890191754ef420f23e4",
+      "ed08ceac76b595f7a8e825d9f45c57c033009bb2"
+    ],
+    "patch": "refresh-20261101/pr-33512-58923bac-ru.json.patch",
+    "patchSha256": "9246fc0cbed1b7ca14dd9e7798ebc9ebc05055118f73e2572454ab2191ba623e",
+    "resultSha256": "b307a781f67912ddf73d9c3afb06023abc2195833ea417e5c4287726f062aca1",
+    "reason": "Retain both saved worker role settings and hold-to-quit settings, with all translations.",
+    "pr": 33512
+  },
+  {
+    "path": "src/shared/global-settings-base.ts",
+    "blobs": [
+      "f84482239e54cdea2516f0b59a3cb52a1060239c",
+      "828bf36d373300eb3bee513e66077bd5ea038f9b",
+      "d324b446139e86c29acc209422ac6579ccec8b51"
+    ],
+    "patch": "refresh-20261101/pr-33512-43b1136c-global-settings-base.ts.patch",
+    "patchSha256": "50f178e5aaca5882f8b9fee590fc983592bb4e21b6ecb573ea9c2629788e3b66",
+    "resultSha256": "25f46d862f0c49bcdd7f6fb961955b3329960e25bac5efda3b60c17618f5ed42",
+    "reason": "Retain both saved worker role settings and hold-to-quit settings, with all translations.",
+    "pr": 33512
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "f161ee40d4bab25b0b45823726d522837fb4bb3d",
+      "3ec1f3e33fb85f0c8ed1ccf77541d6ffcdc75f55"
+    ],
+    "patch": "refresh-20261101/pr-34866-c4f272e3-NativeChatSessionOptionPickers.test.tsx.patch",
+    "patchSha256": "71daa742a319cb2b1e198a639913cc5f7f9988f14664c88d5a380cdc3c90d4d0",
+    "resultSha256": "c4b3db3cf72a22cebaade5b9c80cccd669346592f9aee11c2618b4fd13dab3fa",
+    "reason": "Use the shared picker fixtures once while retaining busy-queue, Default reset, and effort-slider interaction coverage.",
+    "pr": 34866
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultPanel.tsx",
+    "blobs": [
+      "895613cad374174471c57c9b3558b92a558ea2fd",
+      "81bdec8eec70cf1512c4e774e600125ad3bcd0da",
+      "5848b5188da57b98a99488fb3742222d1a368471"
+    ],
+    "patch": "refresh-20261101/pr-36858-a858792d-AiVaultPanel.tsx.patch",
+    "patchSha256": "74ce429684fd7d35ea6c5f55ab374e1e001ef7cb0302bbb5493c1f24821ead30",
+    "resultSha256": "4c578960d68326328ea0f51dbe5856da30a9fc8cc89dafe925a7d8ddf38fbc79",
+    "reason": "Keep dismissed history notices mounted across search while preserving metadata-search matches from project navigation.",
+    "pr": 36858
   }
 ]

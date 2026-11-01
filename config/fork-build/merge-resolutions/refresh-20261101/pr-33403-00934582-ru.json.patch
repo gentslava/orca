@@ -1,0 +1,12 @@
+--- a/mobile/src/i18n/locales/ru.json
++++ b/mobile/src/i18n/locales/ru.json
+@@ -599,6 +599,9 @@
+       "disconnected": "Не удалось прикрепить (нет соединения)",
+       "imageTooLarge": "Изображение слишком большое для прикрепления",
+       "permissionDenied": "Нет доступа к фото"
++    },
++    "notices": {
++      "orchestrationMail": "Служебные сообщения агентов"
+     },
+     "tool": {
+       "activity": "Активность"
