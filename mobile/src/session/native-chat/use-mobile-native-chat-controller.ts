@@ -171,6 +171,7 @@ export function useMobileNativeChatController(
     agent: activeChatResolution?.agent,
     sessionCommands: nativeChatLane.sessionCommands.commands,
     sendStructured: structuredNativeChat.sendWithOutcome,
+    isModelWritePending: structuredNativeChat.isModelWritePending,
     captureSendOrigin,
     clearDraftForSend,
     restoreRejectedDraft,
