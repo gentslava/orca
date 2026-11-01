@@ -50,7 +50,7 @@ index 20ba08e8535..9a1e5138980 100644
    }
 diff --git a/mobile/src/session/mobile-send-refusals.test-fixture.ts b/mobile/src/session/mobile-send-refusals.test-fixture.ts
 new file mode 100644
-index 00000000000..f6d277bb16d
+index 00000000000..075954a882f
 --- /dev/null
 +++ b/mobile/src/session/mobile-send-refusals.test-fixture.ts
 @@ -0,0 +1,97 @@
@@ -152,7 +152,7 @@ index 00000000000..f6d277bb16d
 +  })
 +}
 diff --git a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
-index 37e618a4f98..8c020487f54 100644
+index 4df16313baa..67f50a391b2 100644
 --- a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
 +++ b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
 @@ -1,3 +1,4 @@
@@ -160,16 +160,15 @@ index 37e618a4f98..8c020487f54 100644
  import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
  import {
    mobileNativeChatDraftDestination,
-@@ -8,8 +9,6 @@ import { structuredSendResultFixture } from './structured-agent-send-result.test
+@@ -8,7 +9,6 @@ import { structuredSendResultFixture } from './structured-agent-send-result.test
  import { createElement, useState } from 'react'
  import { act, create, type ReactTestRenderer } from 'react-test-renderer'
  import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
--import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
 -import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
  import type { RpcClient } from '../transport/rpc-client'
  import {
    fieldsOf,
-@@ -776,77 +775,12 @@ describe('mobile structured send actions', () => {
+@@ -775,77 +775,12 @@ describe('mobile structured send actions', () => {
      })
    })
  
@@ -490,7 +489,7 @@ index 00000000000..7955b03edb5
 +  path
 +})
 diff --git a/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts b/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
-index 782a485772f..5c757c56b70 100644
+index 72e0ba77508..deb09905912 100644
 --- a/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
 +++ b/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
 @@ -305,31 +305,28 @@ export function promptPlan(
