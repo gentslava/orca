@@ -1,3 +1,4 @@
+import { agentModelCatalogReleasedOwner } from './agent-model-catalog-read-scope'
 import { seedAccountList } from './agent-model-catalog-account-list'
 import type { PrioritySemaphore } from '../../../shared/priority-semaphore'
 import type {
@@ -17,7 +18,6 @@ import {
 import { resolveAgentModelCatalogScope } from './agent-model-catalog-scope'
 import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
 import {
-  agentModelCatalogReleasedOwner,
   bindAgentModelCatalogScope,
   type AgentModelCatalogBinding
 } from './agent-model-catalog-snapshot'
@@ -209,8 +209,15 @@ export function createAgentModelCatalogLookup(
         probeHome,
         workspacePath: cwd ?? folder
       })
-      if (probe && probeHome && deps.store.probeDue(fingerprint)) {
-        void deps.store.refresh(fingerprint, params.agent, list, current, signal)
+      if (
+        probe &&
+        probeHome &&
+        (params.requireConfiguredDefault || deps.store.probeDue(fingerprint))
+      ) {
+        const listing = deps.store.refresh(fingerprint, params.agent, list, current, signal)
+        if (params.requireConfiguredDefault) {
+          await listing
+        }
       }
       // Demand owns ingestion until settlement, even when its caller only needs the snapshot.
       ready.resolve()

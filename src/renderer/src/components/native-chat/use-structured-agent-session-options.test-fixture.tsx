@@ -3,6 +3,7 @@
 import { renderHook } from '@testing-library/react'
 import { vi, type Mock } from 'vitest'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+import type * as RuntimeRpcClient from '@/runtime/runtime-rpc-client'
 import type * as LaunchOptions from '@/lib/structured-agent-session-launch-options'
 import type * as HostCapability from '@/runtime/structured-agent-session-host-capability'
 import type { SelectionOutcome } from '../../../../shared/structured-agent-session-selection-operations'
@@ -22,6 +23,7 @@ type OptionsFixtureMocks = {
     ) => Promise<SelectionOutcome> | null
   >
   toastError: Mock<(message: string) => void>
+  supportsRemote: Mock
   coherentCatalog: boolean
   sendSelection: boolean
 }
@@ -48,12 +50,17 @@ const mocks: OptionsFixtureMocks = vi.hoisted(() => {
       ) => Promise<SelectionOutcome> | null
     >(),
     toastError: vi.fn<(message: string) => void>(),
+    supportsRemote: vi.fn(),
     coherentCatalog: false,
     sendSelection: false
   }
 })
 
 vi.mock('sonner', () => ({ toast: { error: mocks.toastError } }))
+vi.mock('@/runtime/runtime-rpc-client', async (original) => ({
+  ...(await original<typeof RuntimeRpcClient>()),
+  runtimeEnvironmentSupportsCapability: mocks.supportsRemote
+}))
 
 vi.mock('@/runtime/structured-agent-session-host-capability', async () => {
   const actual = await vi.importActual<typeof HostCapability>(
