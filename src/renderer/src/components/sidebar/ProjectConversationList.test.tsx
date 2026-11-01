@@ -272,7 +272,7 @@ it('moves only the selected host project when adjacent projects share a repo id'
     'local'
   ])
   expect(screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))).toEqual(
-    [...originalLabels].reverse()
+    originalLabels.toReversed()
   )
   expect(persist).toHaveBeenCalledWith({
     manualRepoOrder: [
