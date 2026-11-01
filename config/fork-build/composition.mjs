@@ -13,10 +13,10 @@ export function git(cwd, args, extra = {}, { raw = false, inheritEnv = true } = 
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...(inheritEnv ? process.env : {}),
-      GIT_AUTHOR_NAME: 'Orca Plus',
-      GIT_AUTHOR_EMAIL: 'plus@users.noreply.github.com',
-      GIT_COMMITTER_NAME: 'Orca Plus',
-      GIT_COMMITTER_EMAIL: 'plus@users.noreply.github.com',
+      GIT_AUTHOR_NAME: 'github-actions[bot]',
+      GIT_AUTHOR_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com',
+      GIT_COMMITTER_NAME: 'github-actions[bot]',
+      GIT_COMMITTER_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com',
       ...extra
     }
   })
@@ -100,7 +100,7 @@ export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory) {
 }
 
 function directConflicts(cwd, upstream, sha) {
-  const directory = mkdtempSync(join(tmpdir(), 'plus-conflict-'))
+  const directory = mkdtempSync(join(tmpdir(), 'personal-conflict-'))
   try {
     git(directory, ['clone', '--shared', '--no-checkout', cwd, '.'])
     git(directory, ['checkout', '--detach', upstream])
@@ -152,7 +152,7 @@ export function compose(
           '--no-ff',
           '--no-edit',
           '-m',
-          `Orca Plus: #${pr.number} ${pr.head.sha}`,
+          `fork: integrate stablyai/orca#${pr.number} ${pr.head.sha}`,
           pr.head.sha
         ],
         { GIT_AUTHOR_DATE: timestamp, GIT_COMMITTER_DATE: timestamp }

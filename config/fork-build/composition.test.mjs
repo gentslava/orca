@@ -88,11 +88,11 @@ function git(cwd, ...args) {
   }).trim()
 }
 function fixture(run) {
-  const cwd = mkdtempSync(join(tmpdir(), 'plus-test-'))
+  const cwd = mkdtempSync(join(tmpdir(), 'personal-build-test-'))
   try {
     git(cwd, 'init', '-b', 'main')
-    git(cwd, 'config', 'user.name', 'Plus test')
-    git(cwd, 'config', 'user.email', 'plus@example.invalid')
+    git(cwd, 'config', 'user.name', 'Fork build fixture')
+    git(cwd, 'config', 'user.email', 'fork-build@example.invalid')
     writeFileSync(join(cwd, 'file'), 'base\n')
     git(cwd, 'add', '.')
     git(cwd, 'commit', '-m', 'base')
@@ -141,6 +141,14 @@ test('real Git: clean merge, direct conflict, combination conflict and merged an
     assert.deepEqual(result.suppliedByUpstream, [4])
     assert.equal(result.publishable, false)
     assert.equal(git(cwd, 'show', `${result.commit}:file`), 'one')
+    assert.equal(
+      git(cwd, 'show', '--no-patch', '--format=%an <%ae>%n%cn <%ce>%n%s', result.commit),
+      `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\ngithub-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\nfork: integrate stablyai/orca#1 ${one}`
+    )
+    assert.equal(
+      git(cwd, 'show', '--no-patch', '--format=%an <%ae>', one),
+      'Fork build fixture <fork-build@example.invalid>'
+    )
   }))
 test('real Git: merged after frozen upstream blocks publication', () =>
   fixture((cwd) => {
@@ -214,6 +222,10 @@ test('real Git: combines independent locale keys and still blocks divergent tran
       settings: { existing: 'Existing', first: 'One', second: 'Two' }
     })
     assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
+    assert.equal(
+      git(cwd, 'show', '--no-patch', '--format=%ae%n%ce', result.commit),
+      '41898282+github-actions[bot]@users.noreply.github.com\n41898282+github-actions[bot]@users.noreply.github.com'
+    )
     assert.deepEqual(
       result.conflicts.map((entry) => [entry.number, entry.kind]),
       [[3, 'combination']]
