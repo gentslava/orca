@@ -62,6 +62,10 @@ test('promotes the exact built application, preserves control and ancestry, and 
     assert.equal(git(cwd, ['show', `${candidate.commit}:application`]), 'fresh upstream')
     assert.equal(git(cwd, ['show', `${candidate.commit}:selected-feature`]), 'required PR')
     assert.equal(git(cwd, ['show', `${candidate.commit}:AGENTS.md`]), 'fork agent guidance')
+    assert.equal(
+      git(cwd, ['show', '--no-patch', '--format=%an <%ae>%n%cn <%ce>', candidate.commit]),
+      'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\ngithub-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+    )
     assert.throws(() => git(cwd, ['show', `${candidate.commit}:retired-feature`]))
     assert.deepEqual(git(cwd, ['rev-list', '--parents', '-1', candidate.commit]).split(' '), [
       candidate.commit,

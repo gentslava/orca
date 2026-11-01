@@ -68,6 +68,8 @@ If changing code around `git`, `gh`, source-control, or review behavior read [`d
 
 For a failed GitHub Actions run, inspect the failed jobs and retry with `gh run rerun <run-id> --failed --repo stablyai/orca`. Preserve successful jobs; use a full rerun only when the failure requires revalidating them. A code fix needs a new push and fresh checks, not a retry of the old SHA.
 
+Keep personal build, packaging and combined-fork CI reports in the fork. Upstream PRs describe and validate their own atomic changes. Generated fork commits and status discussions must use plain PR numbers without mention syntax or upstream PR URLs; preserve provenance in build plans and Git ancestry.
+
 # Tests
 
 Avoid adding low-value tests. These might be fine for development but offer negative value when checked in. [Anti-patterns](./docs/agents-md-refs/test-antipatterns.md)

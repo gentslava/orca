@@ -13,10 +13,10 @@ export function git(cwd, args, extra = {}, { raw = false, inheritEnv = true } = 
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...(inheritEnv ? process.env : {}),
-      GIT_AUTHOR_NAME: 'Orca Plus',
-      GIT_AUTHOR_EMAIL: 'plus@users.noreply.github.com',
-      GIT_COMMITTER_NAME: 'Orca Plus',
-      GIT_COMMITTER_EMAIL: 'plus@users.noreply.github.com',
+      GIT_AUTHOR_NAME: 'github-actions[bot]',
+      GIT_AUTHOR_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com',
+      GIT_COMMITTER_NAME: 'github-actions[bot]',
+      GIT_COMMITTER_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com',
       ...extra
     }
   })
@@ -40,7 +40,7 @@ export function isAncestor(cwd, ancestor, head) {
 
 export function assertFrozenHead(cwd, number, expected) {
   if (git(cwd, ['rev-parse', `refs/personal/pr-${number}`]) !== expected) {
-    throw new Error(`PR #${number} moved after snapshot; rerun planning`)
+    throw new Error(`PR ${number} moved after snapshot; rerun planning`)
   }
 }
 
@@ -100,7 +100,7 @@ export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory) {
 }
 
 function directConflicts(cwd, upstream, sha) {
-  const directory = mkdtempSync(join(tmpdir(), 'plus-conflict-'))
+  const directory = mkdtempSync(join(tmpdir(), 'personal-conflict-'))
   try {
     git(directory, ['clone', '--shared', '--no-checkout', cwd, '.'])
     git(directory, ['checkout', '--detach', upstream])
@@ -144,26 +144,19 @@ export function compose(
       continue
     }
     const before = git(cwd, ['rev-parse', 'HEAD'])
+    const message = `fork: integrate PR ${pr.number}`
     try {
-      git(
-        cwd,
-        [
-          'merge',
-          '--no-ff',
-          '--no-edit',
-          '-m',
-          `Orca Plus: #${pr.number} ${pr.head.sha}`,
-          pr.head.sha
-        ],
-        { GIT_AUTHOR_DATE: timestamp, GIT_COMMITTER_DATE: timestamp }
-      )
+      git(cwd, ['merge', '--no-ff', '--no-edit', '-m', message, pr.head.sha], {
+        GIT_AUTHOR_DATE: timestamp,
+        GIT_COMMITTER_DATE: timestamp
+      })
       assertMergedCatalogs(cwd)
       included.push({ number: pr.number, head: pr.head.sha })
     } catch (error) {
       const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
       const resolution = resolveSelectedFeatureConflicts(cwd, resolutionsDirectory)
       if (resolution) {
-        git(cwd, ['commit', '--no-edit'], {
+        git(cwd, ['commit', '-m', message], {
           GIT_AUTHOR_DATE: timestamp,
           GIT_COMMITTER_DATE: timestamp
         })

@@ -8,6 +8,7 @@ import { join } from 'node:path'
 import { resolveSelection, orderSelections } from './selection.mjs'
 import { compose, assertFrozenHead } from './composition.mjs'
 import { mergeTranslationCatalogs } from './locale-merge.mjs'
+import { renderReport } from './github.mjs'
 
 const pr = (number, extra = {}) => ({
   number,
@@ -88,11 +89,11 @@ function git(cwd, ...args) {
   }).trim()
 }
 function fixture(run) {
-  const cwd = mkdtempSync(join(tmpdir(), 'plus-test-'))
+  const cwd = mkdtempSync(join(tmpdir(), 'personal-build-test-'))
   try {
     git(cwd, 'init', '-b', 'main')
-    git(cwd, 'config', 'user.name', 'Plus test')
-    git(cwd, 'config', 'user.email', 'plus@example.invalid')
+    git(cwd, 'config', 'user.name', 'Fork build fixture')
+    git(cwd, 'config', 'user.email', 'fork-build@example.invalid')
     writeFileSync(join(cwd, 'file'), 'base\n')
     git(cwd, 'add', '.')
     git(cwd, 'commit', '-m', 'base')
@@ -141,6 +142,14 @@ test('real Git: clean merge, direct conflict, combination conflict and merged an
     assert.deepEqual(result.suppliedByUpstream, [4])
     assert.equal(result.publishable, false)
     assert.equal(git(cwd, 'show', `${result.commit}:file`), 'one')
+    assert.equal(
+      git(cwd, 'show', '--no-patch', '--format=%an <%ae>%n%cn <%ce>%n%B', result.commit),
+      'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\ngithub-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\nfork: integrate PR 1'
+    )
+    assert.equal(
+      git(cwd, 'show', '--no-patch', '--format=%an <%ae>', one),
+      'Fork build fixture <fork-build@example.invalid>'
+    )
   }))
 test('real Git: merged after frozen upstream blocks publication', () =>
   fixture((cwd) => {
@@ -214,11 +223,34 @@ test('real Git: combines independent locale keys and still blocks divergent tran
       settings: { existing: 'Existing', first: 'One', second: 'Two' }
     })
     assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
+    assert.equal(
+      git(cwd, 'show', '--no-patch', '--format=%ae%n%ce', result.commit),
+      '41898282+github-actions[bot]@users.noreply.github.com\n41898282+github-actions[bot]@users.noreply.github.com'
+    )
+    assert.equal(
+      git(cwd, 'show', '--no-patch', '--format=%B', result.commit),
+      'fork: integrate PR 2'
+    )
     assert.deepEqual(
       result.conflicts.map((entry) => [entry.number, entry.kind]),
       [[3, 'combination']]
     )
     assert.equal(result.publishable, false)
+    const report = renderReport({
+      repository: 'stablyai/orca',
+      selections: [one, two, conflict].map((sha, index) => ({
+        ...pr(index + 1),
+        head: { sha }
+      })),
+      result,
+      blockers: [{ number: 4, reason: 'Required change unavailable' }],
+      lifecycle: [{ number: 5, disposition: 'replaced', replacement: 6 }]
+    })
+    assert.match(report, /\| PR 2 \| open \|/)
+    assert.match(report, /PR 2: independent keys merged/)
+    assert.match(report, /PR 3: \*\*combination\*\* conflict/)
+    assert.match(report, /PR 5: replaced → PR 6/)
+    assert.doesNotMatch(report, /#\d|github\.com\/stablyai\/orca/)
   }))
 
 test('locale policy retains removals but refuses delete/edit races, duplicate keys and non-catalog values', () => {

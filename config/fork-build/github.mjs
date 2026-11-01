@@ -58,14 +58,14 @@ export function renderReport(plan) {
     )
     for (const pr of plan.selections) {
       lines.push(
-        `| [#${pr.number}](https://github.com/${plan.repository}/pull/${pr.number}) | ${pr.merged_at ? 'merged (ancestry checked)' : pr.draft ? 'open draft' : 'open'} | \`${pr.head.sha}\` |`
+        `| PR ${pr.number} | ${pr.merged_at ? 'merged (ancestry checked)' : pr.draft ? 'open draft' : 'open'} | \`${pr.head.sha}\` |`
       )
     }
     if (plan.result.localeMerges?.length) {
       lines.push('', '## Translation catalog merges', '')
       for (const entry of plan.result.localeMerges) {
         lines.push(
-          `- #${entry.number}: independent keys merged in ${entry.paths.map((path) => `\`${path}\``).join(', ')}.`
+          `- PR ${entry.number}: independent keys merged in ${entry.paths.map((path) => `\`${path}\``).join(', ')}.`
         )
       }
     }
@@ -74,7 +74,7 @@ export function renderReport(plan) {
       for (const entry of plan.result.reviewedResolutions) {
         for (const patch of entry.patches) {
           lines.push(
-            `- #${entry.number}: \`${patch.path}\`; patch SHA-256 \`${patch.patchSha256}\`. ${patch.reason}`
+            `- PR ${entry.number}: \`${patch.path}\`; patch SHA-256 \`${patch.patchSha256}\`. ${patch.reason}`
           )
         }
       }
@@ -82,11 +82,11 @@ export function renderReport(plan) {
     lines.push('', '## Conflicts and blockers', '')
     for (const conflict of plan.result.conflicts) {
       lines.push(
-        `- #${conflict.number}: **${conflict.kind}** conflict; ${conflict.paths.map((path) => `\`${path}\``).join(', ')}. Prior integrated PRs: ${conflict.preceding.join(', ') || 'none'}.`
+        `- PR ${conflict.number}: **${conflict.kind}** conflict; ${conflict.paths.map((path) => `\`${path}\``).join(', ')}. Prior integrated PRs: ${conflict.preceding.join(', ') || 'none'}.`
       )
     }
     for (const blocker of [...plan.blockers, ...plan.result.blockers]) {
-      lines.push(`- ${blocker.number ? `#${blocker.number}: ` : ''}${blocker.reason}`)
+      lines.push(`- ${blocker.number ? `PR ${blocker.number}: ` : ''}${blocker.reason}`)
     }
     if (plan.result.publishable) {
       lines.push(
@@ -95,13 +95,13 @@ export function renderReport(plan) {
     }
     lines.push(
       '',
-      `Already supplied by upstream: ${plan.result.suppliedByUpstream.map((n) => `#${n}`).join(', ') || 'none'}.`
+      `Already supplied by upstream: ${plan.result.suppliedByUpstream.map((n) => `PR ${n}`).join(', ') || 'none'}.`
     )
   }
   lines.push('', '## Lifecycle', '')
   for (const entry of plan.lifecycle || []) {
     lines.push(
-      `- #${entry.number}: ${entry.disposition}${entry.replacement ? ` → #${entry.replacement}` : ''}${entry.reason ? ` — ${entry.reason}` : ''}`
+      `- PR ${entry.number}: ${entry.disposition}${entry.replacement ? ` → PR ${entry.replacement}` : ''}${entry.reason ? ` — ${entry.reason}` : ''}`
     )
   }
   lines.push(
