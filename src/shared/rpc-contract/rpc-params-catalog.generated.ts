@@ -60,6 +60,7 @@ import {
   RemoveAccountParams,
   RemoveDataAccountParams,
   SelectAccountParams,
+  SelectClaudeAccountParams,
   SelectCodexAccountForTargetParams,
   SelectDataAccountParams
 } from './accounts-params'
@@ -757,7 +758,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'accounts.removeClaude': RemoveAccountParams,
   'accounts.removeCodex': RemoveAccountParams,
   'accounts.removeData': RemoveDataAccountParams,
-  'accounts.selectClaude': SelectAccountParams,
+  'accounts.selectClaude': SelectClaudeAccountParams,
   'accounts.selectCodex': SelectAccountParams,
   'accounts.selectCodexForTarget': SelectCodexAccountForTargetParams,
   'accounts.selectData': SelectDataAccountParams,

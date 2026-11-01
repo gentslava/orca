@@ -546,8 +546,14 @@
   z-index: var(--toaster-z-index, 47) !important;
 }
 
-/* Keep errors above modal backdrops. Overlay attributes come from body-overlay-attributes.ts: body:has() made every DOM mutation restyle the whole app. */
-body[data-modal-overlay-open] {
+/* Behind a modal's backdrop (z-50) toasts read as dimmed and inert; toaster-modal-layer.ts raises
+   them above it on a press or a new toast. Overlay attributes come from body-overlay-attributes.ts:
+   body:has() made every DOM mutation restyle the whole app. */
+body[data-modal-overlay-open] [data-sonner-toaster] {
+  --toaster-z-index: 49;
+}
+
+body[data-modal-overlay-open] [data-toasts-raised] [data-sonner-toaster] {
   --toaster-z-index: 60;
 }
 

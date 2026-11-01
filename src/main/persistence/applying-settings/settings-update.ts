@@ -15,6 +15,7 @@ import { normalizeTerminalQuickCommands } from '../../../shared/terminal-quick-c
 import { assertTerminalQuickCommandsStorable } from '../../../shared/terminal-quick-command-prompt-limit'
 import { normalizeTerminalCustomThemes } from '../../../shared/terminal-custom-themes'
 import { normalizePluginOwnedSettings } from '../../../shared/plugins/capabilities/plugin-owned-settings'
+import { legacyMatchTerminalSidebarWrite } from '../../../shared/plugin-theme-settings'
 import { normalizeTerminalDefaultShell } from '../../../shared/terminal-default-shell'
 import { normalizeTerminalCursorStyleDefault } from '../../../shared/terminal-cursor-style-settings'
 import { normalizeDesktopTerminalScrollbackRows } from '../../../shared/terminal-scrollback-policy'
@@ -136,6 +137,10 @@ export function updateSettings(
     )
   }
   Object.assign(sanitizedUpdates, normalizePluginOwnedSettings(updates))
+  Object.assign(
+    sanitizedUpdates,
+    legacyMatchTerminalSidebarWrite(operations.state.settings, sanitizedUpdates)
+  )
   if ('terminalCursorStyle' in updates) {
     Object.assign(
       sanitizedUpdates,
