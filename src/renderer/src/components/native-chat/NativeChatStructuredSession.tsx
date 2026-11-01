@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from './use-native-chat-store-appearance-style'
 import { useRef, useState } from 'react'
-import { structuredAgentSessionPaneKey } from '../../../../shared/structured-agent-session-projection'
+import { structuredAgentSessionPaneKey } from '../../../../shared/agent-session/view/structured-agent-session-projection'
 import { useStructuredChatLiveSession } from './use-structured-chat-live-session'
 import { NativeChatComposer, type NativeChatComposerHandle } from './NativeChatComposer'
 import type { NativeChatOptionPickerRequest } from './native-chat-composer-types'
@@ -52,7 +52,7 @@ import { useNativeChatRewindHost } from './use-native-chat-rewind-host'
 import { NativeChatQueuedMessageList } from './NativeChatQueuedMessageList'
 import { nativeChatStructuredStopControls } from './native-chat-structured-stop-controls'
 import { useAppStore } from '../../store'
-import { structuredAgentLabel } from '@/lib/structured-agent-session-launch-label'
+import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
 import { useNativeChatStructuredComposerTransport } from './use-native-chat-structured-composer-transport'
 import { NativeChatStructuredComposerTabStrips } from './NativeChatStructuredComposerTabStrips'
 import { nativeChatPaneHeader } from './NativeChatPaneHeader'
@@ -64,7 +64,7 @@ import { useNativeChatHostOutageNotice } from './use-native-chat-host-outage-not
 import { useNativeChatHostSendGate } from './use-native-chat-host-send-gate'
 import { useNativeChatAvailabilityNotice } from './use-native-chat-availability-notice'
 import { useStructuredAgentSessionStartFailureFacts } from './use-structured-agent-session-start-failure-facts'
-import { pendingPromptsAllUnanswerableHere } from '../../../../shared/agent-session-approval-subject'
+import { pendingPromptsAllUnanswerableHere } from '../../../../shared/agent-session/agent-session-approval-subject'
 import { isClaudeSignInFailureKind, useNativeChatClaudeSignIn } from './native-chat-claude-sign-in'
 
 export function NativeChatStructuredSession(
@@ -365,7 +365,8 @@ export function NativeChatStructuredSession(
                   props,
                   controller,
                   session,
-                  transport.send
+                  transport,
+                  submits
                 )}
                 {...fileLinkProps}
               />

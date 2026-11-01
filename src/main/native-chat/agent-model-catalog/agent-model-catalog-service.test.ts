@@ -1,13 +1,13 @@
 import { record, listing, GROK_HOME } from './agent-model-catalog.test-fixture'
-import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import { agentSessionRecordFixture } from '../agent-session-record-test-fixture'
 import { agentSessionConversationView } from '../../../shared/agent-session-conversation-view'
 import {
   joinHostModelListingWait,
   isHostModelListingWaitInFlight
 } from '../../../shared/host-model-listing-waits'
-import type { AgentSessionAccountHome } from '../../../shared/agent-session-account-home'
+import type { AgentSessionAccountHome } from '../../../shared/agent-session/lifecycle/agent-session-account-home'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
+import type { AgentSessionRecord } from '../../../shared/agent-session/lifecycle/agent-session-record'
 import {
   agentModelCatalogFingerprint,
   agentModelCatalogFingerprintForRecord

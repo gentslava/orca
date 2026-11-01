@@ -10,7 +10,7 @@ import * as agentLaunchCapabilities from './agent-launch-runtime-capability'
 import {
   AGENT_SESSION_BOUNDARY_RUNTIME_CAPABILITY,
   AGENT_SESSION_RUNTIME_CAPABILITIES
-} from './agent-session-runtime-capabilities'
+} from './agent-session/agent-session-runtime-capabilities'
 import { AI_VAULT_RUNTIME_CAPABILITIES } from './ai-vault-runtime-capabilities'
 import {
   AUTOMATION_RUNTIME_CAPABILITIES,
@@ -50,9 +50,6 @@ export const MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION = 2
 export const MIN_COMPATIBLE_RUNTIME_SERVER_VERSION = 2
 
 // Why stars: importers keep reading every capability from here while each area owns its module.
-export * from './agent-session-runtime-capabilities'
-export * from './agent-session-resume-runtime-capabilities'
-export * from './agent-session-stop-capabilities'
 export * from './ai-vault-runtime-capabilities'
 export * from './browser-runtime-capabilities'
 export * from './files-runtime-capabilities'
@@ -77,23 +74,6 @@ export {
   AUTOMATION_EXTRA_AGENT_ARGS_RUNTIME_CAPABILITY,
   AUTOMATION_SURFACE_RUNTIME_CAPABILITY
 } from './automation-runtime-capabilities'
-export {
-  STRUCTURED_AGENT_SESSION_HOLD_RUNTIME_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_REVEAL_RUNTIME_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_REGENERATE_NAME_RUNTIME_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_RENAME_RUNTIME_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_REGISTERED_AGENTS_RUNTIME_CAPABILITY,
-  PI_STRUCTURED_DIALOGS_RUNTIME_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_RESUME_HISTORY_RUNTIME_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_RESUME_LINKED_CWD_RUNTIME_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_CLI_SOURCE_RUNTIME_CAPABILITY,
-  STRUCTURED_AGENT_SESSION_AVAILABILITY_RUNTIME_CAPABILITY
-} from './structured-agent-session-surface-capabilities'
-export {
-  AGENT_SESSION_STATUS_FEED_RUNTIME_CAPABILITY,
-  AGENT_SESSION_TURN_COMPLETION_RUNTIME_CAPABILITY,
-  AGENT_SESSION_ATTENTION_ACK_RUNTIME_CAPABILITY
-} from './agent-session-attention-capabilities'
 export {
   ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY,
   ORCHESTRATION_FEDERATION_CONTROL_MAIL_RUNTIME_CAPABILITY,
@@ -143,7 +123,6 @@ export const RUNTIME_CAPABILITIES = [
   CONVERSATION_NAVIGATION_CAPABILITY,
   ...EMULATOR_RUNTIME_CAPABILITIES,
   SAVED_RESUME_ORIGIN_RUNTIME_CAPABILITY,
-  CONVERSATION_NAVIGATION_CAPABILITY,
   CONVERSATION_PROJECT_VISIBILITY_CAPABILITY,
   PERSONAL_PROJECT_ORDER_CAPABILITY,
 

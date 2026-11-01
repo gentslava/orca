@@ -15,6 +15,7 @@ import type { HoldQuitSettings } from './mac-hold-quit'
 import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
 import type { WorkerRoleSettings } from './orchestration-worker-roles'
 import type { TerminalColorOverrideGlobalSettings } from './terminal-color-overrides'
+import type { WindowMaterialSettings } from './window-material'
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = EmulatorOpeningSettings &
@@ -33,4 +34,5 @@ export type GlobalSettingsBase = EmulatorOpeningSettings &
   PluginFileTypeSuggestionSettings &
   PluginUpdatePolicySettings &
   PluginSystemSettings &
-  TerminalColorOverrideGlobalSettings
+  TerminalColorOverrideGlobalSettings &
+  WindowMaterialSettings

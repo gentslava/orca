@@ -3,7 +3,7 @@ import { structuredAgentSessionBlocksTooLarge } from '../../../../shared/rpc-con
 import { structuredAgentSessionSendBody } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
 import { AGENT_SESSION_MESSAGE_TOO_LARGE_PARTS } from '../../../../shared/agent-session/failures/agent-session-refusal-notice'
 import { agentSessionWriteNoticeText } from './agent-session-write-notice-text'
-import type { StructuredAgentSessionCommandOutcome } from '../../../../shared/structured-agent-session-composer'
+import type { StructuredAgentSessionCommandOutcome } from '../../../../shared/agent-session/view/structured-agent-session-composer'
 import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
 import type { NativeChatComposerImageAttachment } from './NativeChatComposerField'
 import type { StructuredAgentSessionSendRequest } from './structured-agent-session-send-slot'

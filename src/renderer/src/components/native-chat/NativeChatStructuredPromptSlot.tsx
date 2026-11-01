@@ -1,13 +1,11 @@
 import type { ComponentProps, ReactElement, RefObject } from 'react'
-import type { StructuredAgentId } from '../../../../shared/agent-session-provider-handle'
-import { agentSessionPromptQuestions } from '../../../../shared/agent-session-question-answer'
+import type { StructuredAgentId } from '../../../../shared/agent-session/lifecycle/agent-session-provider-handle'
+import { agentSessionPromptQuestions } from '../../../../shared/agent-session/agent-session-question-answer'
 import { NativeChatApprovalCard } from './NativeChatApprovalCard'
 import { NativeChatStructuredQuestionCard } from './NativeChatStructuredQuestionCard'
 import { chatApprovalFromJournal } from '../../../../shared/native-chat-interactive-prompt'
-import type {
-  StructuredPromptItem,
-  useStructuredAgentSession
-} from './use-structured-agent-session'
+import type { useStructuredAgentSession } from './use-structured-agent-session'
+import type { StructuredPromptItem } from '../../../../shared/agent-session/view/structured-agent-session-message-projection'
 import type { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
 
 export function NativeChatStructuredPromptSlot({

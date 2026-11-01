@@ -685,13 +685,6 @@
         "terminalControlledHint": "Set by terminal interface.",
         "terminalControlledTooltip": "Matching your terminal interface. Turn off Match terminal interface to change this."
       },
-      "holdQuit": {
-        "title": "Hold ⌘Q while agents are working",
-        "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
-        "keyword": {
-          "quit": "quit"
-        }
-      },
       "editorTheme": {
         "light": "Light editor theme",
         "lightDescription": "Code editor, diff and notebook colors while the app is light.",
@@ -705,6 +698,24 @@
           "code": "code",
           "monaco": "monaco",
           "syntax": "syntax"
+        }
+      },
+      "reduceVisualEffects": {
+        "title": "Reduce Visual Effects",
+        "description": "Turn off blur behind dialogs and menus, and window translucency after a restart. Helps remote desktops and machines without a GPU.",
+        "keywords": {
+          "blur": "blur",
+          "transparency": "transparency",
+          "performance": "performance",
+          "remote": "remote",
+          "gpu": "gpu"
+        }
+      },
+      "holdQuit": {
+        "title": "Hold ⌘Q while agents are working",
+        "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
+        "keyword": {
+          "quit": "quit"
         }
       }
     },
@@ -1049,6 +1060,22 @@
         "unsupportedImage": "Choose a PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF image.",
         "sourceTooLarge": "Repo icon image must be 10MB or smaller."
       }
+    },
+    "windowMaterial": {
+      "title": "Window Material",
+      "description": "What shows behind translucent terminals. Requires restart.",
+      "off": "Opaque",
+      "translucent": "Translucent",
+      "acrylic": "Acrylic blur",
+      "blur": "Blurred",
+      "reducedEffects": "Off while Reduce Visual Effects or the system Reduce Transparency setting is on.",
+      "needsOpacity": "Lower Background Opacity below 1 to see the desktop through terminals.",
+      "linuxCompositor": "Your compositor decides whether to blur it. Requires restart.",
+      "restartDescription": "Restart Orca to apply the window material change.",
+      "keywords": {
+        "acrylic": "acrylic"
+      },
+      "windowsUnsupported": "Requires Windows 11 version 22H2 or later."
     },
     "orchestration": {
       "roles": {
@@ -9481,10 +9508,7 @@
           "1afcc1d973": "Vertical Padding",
           "25e2f8e8e1": "Horizontal padding around the terminal grid in pixels.",
           "36b8402015": "Horizontal Padding",
-          "53ce336e15": "Restart Orca to apply the window blur change.",
           "c65bb9ce63": "Restart required",
-          "97950bb087": "Apply background blur to the terminal window. Requires restart.",
-          "2b82242f43": "Window Blur",
           "809f37738d": "Controls the transparency of the terminal background. 1 is fully opaque, 0 is fully transparent.",
           "ea7b1a158e": "Background Opacity",
           "03acb60aa0": "Controls the transparency of the terminal background.",
@@ -11142,8 +11166,6 @@
             "f6dd9ff606": "background",
             "71eb45e293": "blur",
             "0838b3717b": "window",
-            "bc2054657a": "Apply background blur to the terminal window. Requires restart.",
-            "72d0482137": "Window Blur",
             "7db59c4738": "alpha",
             "46d99ef4bb": "opacity",
             "4c643695aa": "Controls the transparency of the terminal background.",
@@ -13417,7 +13439,8 @@
           "worktreeCreated": "When a workspace is created",
           "worktreeRemoved": "When a workspace is removed",
           "agentStatusChanged": "When an agent’s status changes",
-          "detail": "Background code runs"
+          "detail": "Background code runs",
+          "workspaceChanged": "When you switch workspace or its terminals change"
         },
         "pluginInstallAction": {
           "installed": "{{value0}} installed",
@@ -13549,6 +13572,10 @@
           "smoothingKw": "smoothing",
           "antialiasingKw": "antialiasing",
           "thinKw": "thin text"
+        },
+        "PluginSettingsSection": {
+          "reset": "Reset",
+          "title": "Settings"
         }
       },
       "right": {
@@ -18415,8 +18442,12 @@
           "tooManyRequests": "Too many requests."
         },
         "PluginDeclarativePanel": {
+          "dismissLoadError": "Dismiss",
           "invalidTree": "The panel sent a layout Orca cannot show.",
-          "pluginMessage": "Message from {{value0}}: {{value1}}"
+          "loadFailed": "{{value0}} failed to load.",
+          "loadFailedKeptLastGood": "{{value0}} failed to load. Showing the last version that loaded.",
+          "pluginMessage": "Message from {{value0}}: {{value1}}",
+          "reloaded": "Reloaded"
         }
       },
       "link": {
@@ -19111,6 +19142,21 @@
         "declarative": {
           "PluginDeclarativeView": {
             "unsupported": "{{value0}} is not available in this version of Orca"
+          },
+          "KeyValue": {
+            "yes": "Yes",
+            "no": "No"
+          },
+          "Skeleton": {
+            "loading": "Loading"
+          },
+          "Table": {
+            "yes": "Yes",
+            "empty": "No rows",
+            "loading": "Loading more…"
+          },
+          "Tree": {
+            "loading": "Loading…"
           }
         }
       }
@@ -23604,10 +23650,6 @@
     "terminalStopped": "The WSL distro {{distro}} is stopped, so Orca didn't start this terminal. Start the distro, then try again.",
     "terminalUnverifiable": "Orca couldn't check whether the WSL distro {{distro}} is running, so it didn't start this terminal. Start the distro, then try again."
   },
-  "holdQuit": {
-    "hint": "Agents are still working. Hold ⌘Q to quit.",
-    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
-  },
   "plugins": {
     "frameSaveAs": {
       "title": "Save File",
@@ -23619,6 +23661,10 @@
       "message": "{{plugin}} wants to open {{host}}",
       "alwaysAllow": "Always allow {{host}} for this plugin"
     }
+  },
+  "holdQuit": {
+    "hint": "Agents are still working. Hold ⌘Q to quit.",
+    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
   },
   "projectConversations": {
     "defaultGroupName": "{{project}} group",

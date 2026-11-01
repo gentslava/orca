@@ -25,6 +25,7 @@ import { installOsFileDropCancellationGuard } from './lib/os-file-drop-cancellat
 import { HoldQuitNotice } from './components/HoldQuitNotice'
 import { Toaster } from './components/ui/sonner'
 import { installBodyOverlayAttributes } from './lib/body-overlay-attributes'
+import { useReduceVisualEffects } from './hooks/use-reduce-visual-effects'
 
 const disposeOsFileDropGuard = installOsFileDropCancellationGuard()
 import.meta.hot?.dispose(disposeOsFileDropGuard)
@@ -64,6 +65,7 @@ if (!rootElement) {
 
 function PopoutSettingsSync(): null {
   const settings = useAppStore((state) => state.settings)
+  useReduceVisualEffects(settings?.reduceVisualEffects)
 
   useEffect(() => {
     let disposed = false

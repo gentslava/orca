@@ -1,5 +1,5 @@
 import { agentSessionRecordFixture } from '../agent-session-record-test-fixture'
-import type { AgentSessionRecord } from '../../../shared/agent-session-record'
+import type { AgentSessionRecord } from '../../../shared/agent-session/lifecycle/agent-session-record'
 import type { AgentModelCatalogSuccess } from './agent-model-catalog-store'
 
 export function record(accountHomePath: string): AgentSessionRecord {

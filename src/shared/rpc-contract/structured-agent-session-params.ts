@@ -1,21 +1,21 @@
 import { ExecutionLocation } from './structured-agent-session-location-params'
 export { ExecutionHostId, ExecutionLocation } from './structured-agent-session-location-params'
-import { AgentSessionSelectionSchema } from '../agent-session/options/agent-session-execution-options'
 import {
   SendBody,
   MAX_OPTION_LABEL,
   AgentSessionOptions
 } from './structured-agent-session-message-params'
+import { AgentSessionSelectionSchema } from '../agent-session/options/agent-session-execution-options'
 import { TerminalClose } from './terminal-unary-params'
 import { Identifier, JournalCursor, SessionId } from './structured-agent-session-identifiers'
 import { z } from 'zod'
 import { CREATE_TAB_FIELDS } from './structured-agent-session-create-tab-params'
-import { isStructuredAgentId } from '../agent-session-provider-handle-encoding'
-import { AGENT_SESSION_RESPONSE_OPTION_ID_MAX_LENGTH } from '../agent-session-question-answer'
+import { isStructuredAgentId } from '../agent-session/lifecycle/agent-session-provider-handle-encoding'
+import { AGENT_SESSION_RESPONSE_OPTION_ID_MAX_LENGTH } from '../agent-session/agent-session-question-answer'
 import {
   AGENT_SESSION_HISTORY_DIRECTIONS,
   AGENT_SESSION_HISTORY_MAX_LIMIT
-} from '../agent-session-wire'
+} from '../agent-session/agent-session-wire'
 import { AGENT_SESSION_THREAD_GOAL_OBJECTIVE_MAX_LENGTH } from '../agent-session/agent-session-thread-goal-wire'
 import { MutationEnvelope } from './structured-agent-session-mutation-envelope'
 
@@ -30,6 +30,7 @@ export {
   ContinuationContextParams,
   Identifier,
   JournalCursor,
+  MAX_ID_LENGTH,
   SessionId
 } from './structured-agent-session-identifiers'
 

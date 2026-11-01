@@ -290,7 +290,6 @@ it.each(['review-first', 'tool-first'])(
     expect(textIn(tree.root)).toEqual(expect.arrayContaining(['Read', 'a.ts', 'pnpm test']))
   }
 )
-
 it('collapses typed orchestration mail on mobile and expands its unchanged command', () => {
   const message = orchestrationNoticeMessage()
   const before = JSON.stringify(message)

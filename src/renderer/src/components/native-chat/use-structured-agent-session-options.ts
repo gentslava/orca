@@ -1,3 +1,4 @@
+import { STRUCTURED_MODEL_DEFAULT_PICK } from '../../../../shared/structured-agent-session-option-pick-book'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../shared/agent-chat-permission-mode'
 import { structuredAgentSessionDefaultModelChoice } from '../../../../shared/structured-agent-session-default-model-choice'
 import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../../shared/agent-session-default-model'
@@ -21,7 +22,7 @@ import { agentSessionWriteFailureText } from './agent-session-write-notice-text'
 import {
   flushStructuredSessionSelectionOptions,
   holdStructuredAgentSessionLaunchOption
-} from '@/lib/structured-agent-session-launch-options'
+} from '@/lib/agent-session/launch/structured-agent-session-launch-options'
 
 export type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
 
@@ -145,7 +146,10 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       record: optionStateRef.current.record,
       view,
       snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
-      ready: acceptsTurnPicks && writes.current.count === 0 && interactionReadyRef.current,
+      ready:
+        acceptsTurnPicks &&
+        optionPicks.current.pending.model !== STRUCTURED_MODEL_DEFAULT_PICK &&
+        interactionReadyRef.current,
       providerStarting,
       isCurrentContext,
       ...(!transportEnabled || fence === null
