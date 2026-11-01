@@ -1,3 +1,5 @@
+import { record, listing, GROK_HOME } from './agent-model-catalog.test-fixture'
+import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import { AGENT_MODEL_CATALOG_FRESH_MS } from './agent-model-catalog-store'
 import { agentSessionRecordFixture } from '../agent-session-record-test-fixture'
 import { agentSessionConversationView } from '../../../shared/agent-session-conversation-view'
@@ -7,34 +9,12 @@ import {
 } from '../../../shared/host-model-listing-waits'
 import type { AgentSessionAccountHome } from '../../../shared/agent-session-account-home'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import {
   agentModelCatalogFingerprint,
   agentModelCatalogFingerprintForRecord
 } from './agent-model-catalog-fingerprint'
 import { createAgentModelCatalogService } from './agent-model-catalog-service'
 import { AgentModelCatalogStore, type AgentModelCatalogSuccess } from './agent-model-catalog-store'
-
-function record(accountHomePath: string): AgentSessionRecord {
-  return agentSessionRecordFixture({
-    sessionId: 'session-1',
-    provider: 'grok',
-    accountHome: { variable: 'GROK_HOME', path: accountHomePath },
-    location: {
-      executionHostId: 'local',
-      wslDistro: null,
-      workspaceId: 'ws-1',
-      workspaceKind: 'git-worktree'
-    }
-  })
-}
-
-function listing(id: string): AgentModelCatalogSuccess {
-  return {
-    models: [{ id, label: id, isDefault: true, efforts: [] }],
-    origin: 'probe'
-  }
-}
 
 function selectedHomeFingerprint(path: string): string {
   return agentModelCatalogFingerprint({
@@ -52,11 +32,6 @@ function discover(
   void service.demand(params)
   return service.read(params)
 }
-
-const GROK_HOME = (path: string): { variable: 'GROK_HOME'; path: string } => ({
-  variable: 'GROK_HOME',
-  path
-})
 
 describe('agent model catalog service', () => {
   it('answers unknown and kicks one probe for a session whose key has never listed', async () => {

@@ -1,3 +1,6 @@
+import type { NativeChatLiveLine } from '../../../../shared/native-chat/transcript/native-chat-live-line'
+import { NativeChatAwaitingInputRow } from './NativeChatAwaitingInputRow'
+import { NativeChatTurnActivityLine } from './NativeChatTurnActivityLine'
 import { Fragment, useMemo } from 'react'
 import {
   NativeChatTranscriptRow,
@@ -86,6 +89,33 @@ export function NativeChatWaitingTranscriptItems({
       {slots.map((slot) => (
         <NativeChatTranscriptRow key={nativeChatSlotKey(slot)} slot={slot} context={context} />
       ))}
+    </>
+  )
+}
+
+export function NativeChatTranscriptTail({
+  line,
+  awaitingInput,
+  slots,
+  context
+}: {
+  line: NativeChatLiveLine | null
+  awaitingInput: boolean
+  slots: readonly NativeChatTranscriptSlot[]
+  context: NativeChatTranscriptRowContext
+}): React.JSX.Element {
+  return (
+    <>
+      {line ? (
+        <NativeChatTurnActivityLine
+          line={line}
+          onLinkClick={context.onLinkClick}
+          allowFileUriLinks={context.allowFileUriLinks}
+        />
+      ) : awaitingInput ? (
+        <NativeChatAwaitingInputRow subject={null} pending />
+      ) : null}
+      <NativeChatWaitingTranscriptItems slots={slots} context={context} />
     </>
   )
 }
