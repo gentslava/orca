@@ -2,7 +2,7 @@ import { act } from 'react-test-renderer'
 import { expect, it, type Mock } from 'vitest'
 import type { RpcClient } from '../transport/rpc-client'
 import type { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
-import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/structured-agent-session-dispatch-rejection'
+import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
 import { sendResult } from './structured-session-send-options.test-fixture'
 import { ok } from './use-mobile-structured-agent-session-queued.test-fixture'
 

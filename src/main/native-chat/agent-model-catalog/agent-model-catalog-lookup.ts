@@ -1,3 +1,4 @@
+import { agentModelCatalogReleasedOwner } from './agent-model-catalog-read-scope'
 import { seedAccountList } from './agent-model-catalog-account-list'
 import type { PrioritySemaphore } from '../../../shared/priority-semaphore'
 import type {
@@ -17,7 +18,6 @@ import {
 import { resolveAgentModelCatalogScope } from './agent-model-catalog-scope'
 import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
 import {
-  agentModelCatalogReleasedOwner,
   bindAgentModelCatalogScope,
   type AgentModelCatalogBinding
 } from './agent-model-catalog-snapshot'

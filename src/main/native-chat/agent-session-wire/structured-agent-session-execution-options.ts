@@ -1,11 +1,14 @@
 import {
   readAgentSessionExecutionOptions,
   type AgentSessionExecutionOptions
-} from '../../../shared/agent-session-execution-options'
-import { refuse, type AgentSessionWireRefusal } from '../../../shared/agent-session-wire'
+} from '../../../shared/agent-session/options/agent-session-execution-options'
+import {
+  refuse,
+  type AgentSessionWireRefusal
+} from '../../../shared/agent-session/failures/agent-session-wire-refusals'
 import type { AgentSessionTurnContext } from './structured-agent-session-turns'
 import { structuredAgentSessionOptionOverridesRefusal } from './structured-agent-session-options-read'
-import { agentJournalSubmissionKey } from '../../../shared/agent-session-journal-item-key'
+import { agentJournalSubmissionKey } from '../../../shared/agent-session/journal/agent-session-journal-item-key'
 import { contextStructuredAgentSessionCurrentWork } from './structured-agent-session-current-work'
 import { latestStructuredChildOptionsSubmission } from './structured-agent-session-message-options'
 

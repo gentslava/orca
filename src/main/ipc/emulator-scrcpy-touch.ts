@@ -11,17 +11,16 @@ function isUnitCoordinate(value: unknown): value is number {
 }
 
 function isScrcpyTouchMessage(value: unknown): value is ScrcpyTouchMessage {
-  if (typeof value !== 'object' || value === null) {
-    return false
-  }
   return (
+    typeof value === 'object' &&
+    value !== null &&
     'deviceId' in value &&
-    typeof value.deviceId === 'string' &&
     'type' in value &&
-    TOUCH_PHASES.has(value.type) &&
     'x' in value &&
-    isUnitCoordinate(value.x) &&
     'y' in value &&
+    typeof value.deviceId === 'string' &&
+    TOUCH_PHASES.has(value.type) &&
+    isUnitCoordinate(value.x) &&
     isUnitCoordinate(value.y)
   )
 }

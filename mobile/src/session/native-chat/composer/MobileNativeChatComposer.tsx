@@ -1,4 +1,4 @@
-import { getNativeChatAgentProfile } from '../../../../../src/shared/native-chat-agent-profiles'
+import { getNativeChatAgentProfile } from '../../../../../src/shared/native-chat/native-chat-agent-profiles'
 import type { NativeChatSendFollowUp } from '../../../../../src/shared/native-chat-follow-up-behavior'
 import {
   recordMobileNativeChatSkillPick,
@@ -32,9 +32,14 @@ import type { MobileComposerStructuredCatalog } from './mobile-native-chat-compo
 import { useMobileNativeChatComposerMenu } from './use-mobile-native-chat-composer-menu'
 import { mobileNativeChatComposerShowsStop } from './mobile-native-chat-composer-layout'
 import { MobileNativeChatStopButton } from '../input/MobileNativeChatStopButton'
+import { MobileNativeChatControlSwap } from '../input/mobile-native-chat-control-swap'
 import { mobileNativeChatComposerStyles as styles } from './mobile-native-chat-composer-styles'
-import { composerInputStyles as inputStyles } from '../../../components/composer-input/composer-input-styles'
+import {
+  COMPOSER_CONTROL_HIT_SLOP,
+  composerInputStyles as inputStyles
+} from '../../../components/composer-input/composer-input-styles'
 import { MobileNativeChatSendButton } from './MobileNativeChatSendButton'
+import { MobileNativeChatSaveButton } from './MobileNativeChatSaveButton'
 import type { MobileNativeChatSendIntent } from '../mobile-native-chat-send'
 import {
   MobileNativeChatComposerMic,
@@ -322,6 +327,7 @@ export function MobileNativeChatComposer({
                 style={({ pressed }) => [inputStyles.controlButton, pressed && inputStyles.pressed]}
                 onPress={attachPress}
                 disabled={isAttaching || disabled}
+                hitSlop={COMPOSER_CONTROL_HIT_SLOP}
               >
                 {isAttaching ? (
                   <ActivityIndicator size="small" color={colors.textSecondary} />
@@ -362,39 +368,33 @@ export function MobileNativeChatComposer({
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t('chat.composer.cancelEditing', 'Cancel editing')}
-                style={[inputStyles.ghostButton, inputStyles.textButton]}
+                style={({ pressed }) => [
+                  inputStyles.ghostButton,
+                  inputStyles.textButton,
+                  pressed && inputStyles.pressed
+                ]}
                 onPress={editSession.cancel}
+                hitSlop={COMPOSER_CONTROL_HIT_SLOP}
               >
                 <Text style={{ color: colors.textSecondary }}>{t('common.cancel', 'Cancel')}</Text>
               </Pressable>
             ) : null}
-            {showsStop && stop ? (
-              // Only this phone's own request holds Stop: a repeat is how a stuck stop escalates.
-              <MobileNativeChatStopButton onStop={stop.onStop} held={stop.held} />
-            ) : editSession ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t('chat.composer.saveEditedMessage', 'Save edited message')}
-                style={({ pressed }) => [
-                  inputStyles.sendButton,
-                  inputStyles.textButton,
-                  !canSend && inputStyles.sendButtonDisabled,
-                  pressed && canSend && inputStyles.pressed
-                ]}
-                onPress={() => void handleSend()}
-                disabled={!canSend}
-              >
-                <Text style={{ color: canSend ? colors.bgBase : colors.textMuted }}>
-                  {t('common.save', 'Save')}
-                </Text>
-              </Pressable>
-            ) : (
-              <MobileNativeChatSendButton
-                canSend={canSend}
-                sendFollowUp={sendFollowUp}
-                onSend={(intent) => void handleSend(intent)}
-              />
-            )}
+            <MobileNativeChatControlSwap
+              swapKey={showsStop && stop ? 'stop' : editSession ? 'save' : 'send'}
+            >
+              {showsStop && stop ? (
+                // Only this phone's own request holds Stop: a repeat is how a stuck stop escalates.
+                <MobileNativeChatStopButton onStop={stop.onStop} held={stop.held} />
+              ) : editSession ? (
+                <MobileNativeChatSaveButton canSave={canSend} onSave={() => void handleSend()} />
+              ) : (
+                <MobileNativeChatSendButton
+                  canSend={canSend}
+                  sendFollowUp={sendFollowUp}
+                  onSend={(intent) => void handleSend(intent)}
+                />
+              )}
+            </MobileNativeChatControlSwap>
           </View>
         </View>
       </View>

@@ -509,6 +509,7 @@ import {
   PluginReadPanelEntryParams,
   PluginRpcConsentParams,
   PluginSetEnabledParams,
+  PluginSetSystemEnabledParams,
   PluginsPanelActionParams
 } from './plugins-params'
 import {
@@ -538,6 +539,7 @@ import {
   RepoCreate,
   RepoHooksCheck,
   RepoIssueCommandWrite,
+  RepoList,
   RepoPath,
   RepoReorder,
   RepoSearchRefs,
@@ -584,6 +586,7 @@ import {
   SshTargetAdd,
   SshTargetUpdate
 } from './ssh-params'
+import { StatusGetParams } from './status-params'
 import { ContinueInterruptedParams } from './structured-agent-session-continue-params'
 import { ContinuationContextParams } from './structured-agent-session-identifiers'
 import {
@@ -607,6 +610,7 @@ import {
   RespondToQuestionParams,
   RestartResumableParams,
   RestartResumeParams,
+  RevealParams,
   RewindParams,
   SendParams,
   SetOptionParams,
@@ -800,7 +804,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.restartResumable': RestartResumableParams,
   'agentSession.restartResumableDismiss': RestartResumableParams,
   'agentSession.restartResume': RestartResumeParams,
-  'agentSession.reveal': OptionsParams,
+  'agentSession.reveal': RevealParams,
   'agentSession.rewind': RewindParams,
   'agentSession.send': SendParams,
   'agentSession.setOption': SetOptionParams,
@@ -1325,6 +1329,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'plugins.readPanelEntry': PluginReadPanelEntryParams,
   'plugins.refresh': null,
   'plugins.setEnabled': PluginSetEnabledParams,
+  'plugins.setSystemEnabled': PluginSetSystemEnabledParams,
   'preflight.check': PreflightCheck,
   'preflight.detectAgents': PreflightProjectAgentDetection,
   'preflight.detectRemoteAgents': PreflightDetectRemoteAgents,
@@ -1358,7 +1363,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'repo.hooksCheck': RepoHooksCheck,
   'repo.issueCommandRead': RepoIssueCommandRead,
   'repo.issueCommandWrite': RepoIssueCommandWrite,
-  'repo.list': null,
+  'repo.list': RepoList,
   'repo.reorder': RepoReorder,
   'repo.rm': RepoSelector,
   'repo.saveSparsePreset': RepoSparsePresetSave,
@@ -1446,7 +1451,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'ssh.removeTarget': SshTarget,
   'ssh.updateTarget': SshTargetUpdate,
   'stats.summary': null,
-  'status.get': null,
+  'status.get': StatusGetParams,
   'terminal.adoptOrphans': TerminalAdoptOrphans,
   'terminal.agentStatus': TerminalHandle,
   'terminal.clearBuffer': TerminalHandle,

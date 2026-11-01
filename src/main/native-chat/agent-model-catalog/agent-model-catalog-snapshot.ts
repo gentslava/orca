@@ -1,11 +1,11 @@
 import {
   agentModelCatalogReadRecords,
+  agentModelCatalogReleasedOwner,
   agentModelCatalogScopedRecord
 } from './agent-model-catalog-read-scope'
 import { onLiveAccount } from './agent-model-catalog-running-account'
 import { agentModelCatalogFingerprintForRecord } from './agent-model-catalog-fingerprint'
 import { agentSessionPinnedLaunchDirectory } from '../../runtime/agent-session-record-launch-directory'
-import type { AgentSessionConversationView } from '../../../shared/agent-session-conversation-view'
 import type { AgentSessionModelCatalogResult } from '../../../shared/agent-session-wire'
 import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
 import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
@@ -41,14 +41,6 @@ export function bindAgentModelCatalogScope(
       }
     }
   }
-}
-
-export function agentModelCatalogReleasedOwner(
-  record: AgentSessionConversationView | undefined
-): boolean {
-  return (
-    record?.ownerObservation.claimStatus === 'released' && !!record.ownerObservation.deathEvidence
-  )
 }
 
 export function agentModelCatalogRequestKey(

@@ -1,4 +1,4 @@
-// Measure actual request slots through real shell lanes: per-event forwarding nearly fills 64 slots on a two-second link, while batched reads preserve room for other work.
+// Measure actual request slots through real shell lanes: per-event forwarding nearly fills the forwarded request window on a two-second link, while batched reads preserve room for other work.
 import type { ReactElement } from 'react'
 import { act, create } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,8 +15,8 @@ vi.mock('../transport/host-client-hooks', () => ({
 
 import { RpcClientProvider } from '../transport/client-context.web'
 import {
-  BRIDGE_MAX_PENDING_REQUESTS,
-  BRIDGE_MAX_FORWARDED_REQUESTS
+  BRIDGE_MAX_FORWARDED_REQUESTS,
+  BRIDGE_MAX_PENDING_REQUESTS
 } from '../mobile-web-shell/bridge/bridge-caps'
 import { useNativeVerbs, type NativeVerbs } from '../mobile-web-shell/bridge/use-native-verbs'
 import {
@@ -136,10 +136,9 @@ async function runDictation(
   }
   const framesToShell = pair.toShell.length - framesBefore.toShell
   const framesToPage = pair.toPage.length - framesBefore.toPage
-  const ending = capture.end()
-  await pair.flush()
-  await ending
   const freeSlots = await probeFreeSlots(pair)
+  capture.end()
+  await pair.flush()
   return {
     peakInFlight,
     freeSlots,

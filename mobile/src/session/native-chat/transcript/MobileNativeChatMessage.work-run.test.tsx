@@ -5,8 +5,8 @@ import {
 import { createElement, type ReactNode } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, expect, it, vi } from 'vitest'
-import type { NativeChatMessage } from '../../../../../src/shared/native-chat-types'
-import type { AgentJournalRenderItem } from '../../../../../src/shared/agent-session-journal-types'
+import type { NativeChatMessage } from '../../../../../src/shared/native-chat/native-chat-types'
+import type { AgentJournalRenderItem } from '../../../../../src/shared/agent-session/journal/agent-session-journal-types'
 import type { RpcClient } from '../../../transport/rpc-client'
 import { MobileNativeChatItemSourceContext } from '../../mobile-native-chat-item-read'
 import { useMobileNativeChatMessageDetail } from './use-mobile-native-chat-message-detail'
@@ -290,6 +290,7 @@ it.each(['review-first', 'tool-first'])(
     expect(textIn(tree.root)).toEqual(expect.arrayContaining(['Read', 'a.ts', 'pnpm test']))
   }
 )
+
 it('collapses typed orchestration mail on mobile and expands its unchanged command', () => {
   const message = orchestrationNoticeMessage()
   const before = JSON.stringify(message)
