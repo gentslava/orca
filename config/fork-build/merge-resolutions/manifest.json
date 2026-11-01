@@ -1251,5 +1251,17 @@
     "patchSha256": "88b17aeb3ca89d1a0d2aa0d2424081db8f3dfabb30f83226a25c371729551557",
     "resultSha256": "bd0e62707ff9498fc8e89a194a8adeef7cd0ccd3b071fbc7302c09252728c702",
     "reason": "Preserve exclusive Default reset and future-turn send capture while adopting the colocated renderer launch option owner and RPC test seam."
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/MobileNativeChatMessage.test.ts",
+    "blobs": [
+      "12cb42f57ed1b16aa543c74998073f38f34471be",
+      "ef1e41fcb647be9293f8a64dac3704a2fdc8008f",
+      "b27940f516dadc744d001e6331bd7bbafb5d402e"
+    ],
+    "patch": "refresh-20261101/pr33403-MobileNativeChatMessage.test.ts-3864bd6179.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "0f87d88dba58bd7833cc65c1f414cba5a2a4382b24bda612e55759f60fd109ef",
+    "reason": "Preserve upstream removal of redundant host-notice cases and unused imports while retaining compact mail and successful-review behavior and regression coverage."
   }
 ]
