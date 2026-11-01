@@ -862,5 +862,187 @@
     "resultSha256": "4c578960d68326328ea0f51dbe5856da30a9fc8cc89dafe925a7d8ddf38fbc79",
     "reason": "Keep dismissed history notices mounted across search while preserving metadata-search matches from project navigation.",
     "pr": 36858
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "294507fab59f9e5d179056897d9aaa8328636260",
+      "053ecd7d35b4448fb91ec655e0d4ef405d9d2da9",
+      "caaf3f025bef32a9adf67260612cb35c8b69b579"
+    ],
+    "patch": "refresh-20261101b/pr-33395-d8bbab45-en.json.patch",
+    "patchSha256": "ad27cb77f7300cc43f914f18ecbb1fc9a08dd0fe2e6b9b6a755c49c1a981aa72",
+    "resultSha256": "b4ecde10a52cf60c098e757c5afc309edf53d72757cf5ac553ede9aae02f900d",
+    "reason": "Preserve queued delivery and model write barriers across the new module layout.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "1918fca8f3b7419c44ab652858ced0ac7f9b5876",
+      "e1ef6baa6f87e2ee799c1b9a7d33bc806986ae4b",
+      "e3113d86b588141ca5b09151a1aec52499c035fe"
+    ],
+    "patch": "refresh-20261101b/pr-33395-fbe37a0d-use-structured-agent-session-send-options.ts.patch",
+    "patchSha256": "6a2efa1709dfd27d451f81c08dcbeff351c916a226025974c0d6dfe0086889b2",
+    "resultSha256": "198731f799c80dc33fd99a37c40c60c274352a9e4859d09cc838994c64656fad",
+    "reason": "Preserve queued delivery and model write barriers across the new module layout.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-sends.ts",
+    "blobs": [
+      "fd58dbea3f59069199ee98d39db0b5700462d844",
+      "da94566de4b7d137309f55ee48ad92251dfdec0e",
+      "af00ef6afee65091e911b342b27dd8cadff2afea"
+    ],
+    "patch": "refresh-20261101b/pr-33395-7b52f59c-use-structured-agent-session-sends.ts.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ace4c0e0ad32041e9f661f2fe4e54ebf047c9199e45939cd6dbcffbdc5f14c01",
+    "reason": "Preserve queued delivery and model write barriers across the new module layout.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "446c96b7d970468a3e21a3c3e115c57a2a5d68de",
+      "8a1c4a10a559a05b9a7b46dd5008fb6be108c61a",
+      "86110f434ee4250f69b3beb251003ae1fd895b43"
+    ],
+    "patch": "refresh-20261101b/pr-33395-927f1d2c-en.json.patch",
+    "patchSha256": "ed7be69529c8db60dca4ad8e2e91635b9746ff4582d776744286db7bb627b609",
+    "resultSha256": "8fa9e865ebed3393b316bdb7a70687d93de19b8e560034aff6785612959115f6",
+    "reason": "Preserve queued delivery and model write barriers across the new module layout.",
+    "pr": 33395
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "88a9e76a3c8c69bc0e269e9e3b59d0ac20de5b67",
+      "d22f1470ba3ef0b05440f148b7991ee39ddcd29f",
+      "0dda3f7cc9c03e835d5b7fa615fa91312d3775f4"
+    ],
+    "patch": "refresh-20261101b/pr-33395-58923bac-ru.json.patch",
+    "patchSha256": "fd37accc785187eec09ef3577ad1cc8b208b8006f2d46fda5f71462b87ca6b3b",
+    "resultSha256": "874a5a65b14f4863fec46274c7d62e22e378f88262d8d73a55dfc08864bd8c0d",
+    "reason": "Preserve queued delivery and model write barriers across the new module layout.",
+    "pr": 33395
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "d3cd6fa4c011910005a8c73b1f917d28ce2ea183",
+      "3204f02b1df0bb3324b622885397e7ae0fd5c010",
+      "962abb3557bfcba200ef6fa1f3c217663ae7bb85"
+    ],
+    "patch": "refresh-20261101b/pr-33403-d8bbab45-en.json.patch",
+    "patchSha256": "6029d8c49aaf64741fd00181dcfeda571fb6d9c27799f5c2c23f2b07a48c7e52",
+    "resultSha256": "faf659a3ae1bce9d6940a74e8c0787677b76c78fd160a03d6699da2839c45458",
+    "reason": "Retain successful review expansion and typed mail tests with relocated journal imports.",
+    "pr": 33403
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx",
+    "blobs": [
+      "79a08ce6c04ab0366ae29079a6e6de081aee9762",
+      "7a2b2e152e7db2945c17d711135eb1a12686418e",
+      "bbd5fb11c90dab1390165e9f7a8cee96d53b93de"
+    ],
+    "patch": "refresh-20261101b/pr-33403-3d40fb77-MobileNativeChatMessage.work-run.test.tsx.patch",
+    "patchSha256": "3509c570f61237ba1e223a9535011ae1ba86b8a67cc7ea0c5c192db978dddd36",
+    "resultSha256": "9ad66402de6d70d6ae0b9750358ced3db13a629a306bbbc165279e922ad700dd",
+    "reason": "Retain successful review expansion and typed mail tests with relocated journal imports.",
+    "pr": 33403
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-operations.ts",
+    "blobs": [
+      "4ad7c4fc0e89e5319cb266ca7bacbf0bd5372c69",
+      "0db7777138d4b694ccbd7d63b8df205241981ca8",
+      "7315923c0b277e487db75e0812433100c89b4dda"
+    ],
+    "patch": "refresh-20261101b/pr-33502-8ed7da83-host-screen-operations.ts.patch",
+    "patchSha256": "dae1e90d8f997250ff85bf69d928bb03bf069752e6857a5c7d52d12c3bcf6d70",
+    "resultSha256": "d99a8eb5061aebd381108952d24b00bfaea457e252f93a015183842d85f82bf1",
+    "reason": "Keep both conversation preferences and personal project order with the new archive-hook operations.",
+    "pr": 33502
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "6e543225259bb7c1f97139f39623a9cbea7bdf6b",
+      "8d850a8f0d40202f2144711a6beb4f07284b7f7a",
+      "24829c0151ebb8714588eefdbb90ec2df0dcb32f"
+    ],
+    "patch": "refresh-20261101b/pr-33502-71397d9b-host-screen-reply-schema.ts.patch",
+    "patchSha256": "5571a9fe65a49085339da967fb4b4615d976cf1473f0ae30af04338e30133cdc",
+    "resultSha256": "9e04ed43adbcf832b9aab161e7d384402f35715931fcc99c89e3ade784bcaca0",
+    "reason": "Keep both conversation preferences and personal project order with the new archive-hook operations.",
+    "pr": 33502
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "446c96b7d970468a3e21a3c3e115c57a2a5d68de",
+      "887b0fd0f68afa95bbd09f25f2ad5f9afb01c12d",
+      "7040b472c0d11f69d7455009f6bee58a074fd116"
+    ],
+    "patch": "refresh-20261101b/pr-33502-927f1d2c-en.json.patch",
+    "patchSha256": "e811c341512a3f0459a5769558fb9ecbb76495d861b87492900e2c87262432d4",
+    "resultSha256": "8cea773decedff9d34c58ccea6e85929adb483011e3b91e90cef22bf7168a3f1",
+    "reason": "Keep both conversation preferences and personal project order with the new archive-hook operations.",
+    "pr": 33502
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "88a9e76a3c8c69bc0e269e9e3b59d0ac20de5b67",
+      "51cd5926bb5112a41889813c7b9f72e94545fd12",
+      "dc8e924431193912c00fe7dc5037d78d2e131a86"
+    ],
+    "patch": "refresh-20261101b/pr-33502-58923bac-ru.json.patch",
+    "patchSha256": "a491d588dec55555051ced13a504308997677a457c574b79645bdeb90a8f8de1",
+    "resultSha256": "543cf528bc5f9a7265dd7227bbe47eb31a62f7907f728d58ee1accc87a37e889",
+    "reason": "Keep both conversation preferences and personal project order with the new archive-hook operations.",
+    "pr": 33502
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "446c96b7d970468a3e21a3c3e115c57a2a5d68de",
+      "8f0cd5dd9924a4a6b2074ee080b33ead57ca99f9",
+      "5f5e8ecf3d2848c439ab7e2567cccb2e243614b2"
+    ],
+    "patch": "refresh-20261101b/pr-33512-927f1d2c-en.json.patch",
+    "patchSha256": "738eb7cb47b750ea2a204a00e94c97bb409e01eb2a3198ee9404041aae675c70",
+    "resultSha256": "4bb4dd3720797e88927791bd0034103fbcb9dc6dbc4e51ef1065fd4a92b588c0",
+    "reason": "Retain worker role settings and hold-to-quit settings as independent global settings sections.",
+    "pr": 33512
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "88a9e76a3c8c69bc0e269e9e3b59d0ac20de5b67",
+      "168b7568d00fe0f1ccfec890191754ef420f23e4",
+      "dea334d4c76971d5fc77d40a4dd3bd49635813d4"
+    ],
+    "patch": "refresh-20261101b/pr-33512-58923bac-ru.json.patch",
+    "patchSha256": "9246fc0cbed1b7ca14dd9e7798ebc9ebc05055118f73e2572454ab2191ba623e",
+    "resultSha256": "b307a781f67912ddf73d9c3afb06023abc2195833ea417e5c4287726f062aca1",
+    "reason": "Retain worker role settings and hold-to-quit settings as independent global settings sections.",
+    "pr": 33512
+  },
+  {
+    "path": "src/shared/global-settings-base.ts",
+    "blobs": [
+      "a5cb9449efb2db87f39e1bf47d1ea434c485f529",
+      "828bf36d373300eb3bee513e66077bd5ea038f9b",
+      "72aada1d33de3f190aabce805258586dd90abcd9"
+    ],
+    "patch": "refresh-20261101b/pr-33512-43b1136c-global-settings-base.ts.patch",
+    "patchSha256": "50f178e5aaca5882f8b9fee590fc983592bb4e21b6ecb573ea9c2629788e3b66",
+    "resultSha256": "25f46d862f0c49bcdd7f6fb961955b3329960e25bac5efda3b60c17618f5ed42",
+    "reason": "Retain worker role settings and hold-to-quit settings as independent global settings sections.",
+    "pr": 33512
   }
 ]

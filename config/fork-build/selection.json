@@ -12,6 +12,10 @@
     {
       "number": 36530,
       "reason": "scrcpy input latency fixes requested for the Android emulator"
+    },
+    {
+      "number": 36905,
+      "reason": "Opaque mobile scrollers proposed for the reported Android selection flash; retain handset confirmation as pending."
     }
   ],
   "exclude": {
