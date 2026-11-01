@@ -1179,5 +1179,77 @@
     "patchSha256": "07864338fe5f6f7a6eeeb0341fc3a226fb08798cc1117ee3427ab25a373abfcc",
     "resultSha256": "ad11c334af4ef649cd002e5bf15e7873d6d39f8d3b81ec33a3dc46ca55eb56a4",
     "reason": "Retain worker-role, hold-to-quit and window material settings after both source branches adopt the current session-contract layout."
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault-session-resume-here.ts",
+    "blobs": [
+      "dd42790b3a3e896ebc640983a33abfb24fbe5294",
+      "1dfed80c94fd3146e05edaf0461f6f142f2858f4",
+      "fcba8cce2144cf2b7e73325a855ca8bda1ca645d"
+    ],
+    "patch": "refresh-20261101/pr33361-ai-vault-session-resume-here.ts.patch",
+    "patchSha256": "ef6f61e854dfa80f8931f5e0c02d416dccf3aa4b755ecd2a682349a5c9a1360d",
+    "resultSha256": "4ba29d19d24fc7bab3ad6c76cb52e3dca9ed3bdb89b1bb018e7a307011dee5ad",
+    "reason": "Retain explicit resume target typing while using the newly colocated renderer launch failure owner."
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx",
+    "blobs": [
+      "c850a4e8689445b0aace0176408e61d7d11aa575",
+      "1975e8e3fb277f87f68776bba74adffe7b36b07d",
+      "869e5244f6dac003ae4964197a2e5dca56c18ea8"
+    ],
+    "patch": "refresh-20261101/pr33383-AiVaultSessionVirtualList.keyboard.test.tsx-dcd8a496b4.patch",
+    "patchSha256": "84bf6e4dd2841e5c7ec4465540835a1e83d9a8f111082172f0c4be8734fa33ab",
+    "resultSha256": "86a99d2cd007ad18d642f4bdbf4b582154c3d2c597b235fbc3e1f797b39b734d",
+    "reason": "Keep durable chat keyboard routing and mobile conversation retention while adopting the renderer launch owner relocation."
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault-session-resume-here.ts",
+    "blobs": [
+      "dd42790b3a3e896ebc640983a33abfb24fbe5294",
+      "edb75c78ee2da03ab0c6ad858851be4df4795ce3",
+      "fcba8cce2144cf2b7e73325a855ca8bda1ca645d"
+    ],
+    "patch": "refresh-20261101/pr33383-ai-vault-session-resume-here.ts-8c286baee0.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "4ba29d19d24fc7bab3ad6c76cb52e3dca9ed3bdb89b1bb018e7a307011dee5ad",
+    "reason": "Keep durable chat keyboard routing and mobile conversation retention while adopting the renderer launch owner relocation."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.test-fixture.tsx",
+    "blobs": [
+      "cb9430e881acdfd9c8577715fdfa42f38092292c",
+      "d613241a65adeaf70dfdfacb4252cfe51b4d3b44",
+      "1726bfa0edc006755c6da05040a37a39fc4f59cf"
+    ],
+    "patch": "refresh-20261101/pr33395-use-structured-agent-session-options.test-fixture.tsx-249b54b38d.patch",
+    "patchSha256": "c066f37ac0ff9ac7c006f2482b2223b6eddb747a82f0617d4f67684e11ef165f",
+    "resultSha256": "3909112db1ab22df4adaa3094207912ea9eaf9a57f10e01cf2706aef8fd29ffc",
+    "reason": "Preserve exclusive Default reset and future-turn send capture while adopting the colocated renderer launch option owner and RPC test seam."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
+    "blobs": [
+      "975ed9cad93f6f6b9a7ebb36f6891c51f68afd4f",
+      "1744678802d9da4d632b21f38466092e43832daa",
+      "3b943a795d3bd9dc69deaeeb5eebba2aff201d77"
+    ],
+    "patch": "refresh-20261101/pr33395-use-structured-agent-session-options.ts-b5f15df243.patch",
+    "patchSha256": "c02ad055762ebccbe3eb36d458dbac019b29f8641aa0d711ffaf3d17b5a9fec1",
+    "resultSha256": "af6891b817212140317b0d32307b415fc8c5037cd34f9a17c28a35ca8c067dd1",
+    "reason": "Preserve exclusive Default reset and future-turn send capture while adopting the colocated renderer launch option owner and RPC test seam."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "1918fca8f3b7419c44ab652858ced0ac7f9b5876",
+      "05e2caab1fd1cb5cf013b8389a0f76e22fe02e0d",
+      "e3113d86b588141ca5b09151a1aec52499c035fe"
+    ],
+    "patch": "refresh-20261101/pr33395-use-structured-agent-session-send-options.ts-75bfa4a0c9.patch",
+    "patchSha256": "88b17aeb3ca89d1a0d2aa0d2424081db8f3dfabb30f83226a25c371729551557",
+    "resultSha256": "bd0e62707ff9498fc8e89a194a8adeef7cd0ccd3b071fbc7302c09252728c702",
+    "reason": "Preserve exclusive Default reset and future-turn send capture while adopting the colocated renderer launch option owner and RPC test seam."
   }
 ]

@@ -803,3 +803,149 @@ index 0000000000000000000000000000000000000000..9ad0088b442c1c746b84499d7dc35eb7
 +    expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
 +  })
 +}
+diff --git a/mobile/src/session/MobileNativeChatPageList.tsx b/mobile/src/session/MobileNativeChatPageList.tsx
+index d9c3c6319dfc492af83ee5e1bf5ee8f3d1809ce9..164ba4821ae758afa354db37a4943d0946dc5ff1 100644
+--- a/mobile/src/session/MobileNativeChatPageList.tsx
++++ b/mobile/src/session/MobileNativeChatPageList.tsx
+@@ -1,3 +1,4 @@
++import type { MobileNativeChatPageListProps } from './mobile-native-chat-page-list-props'
+ import {
+   useCallback,
+   useEffect,
+@@ -6,18 +7,9 @@ import {
+   useMemo,
+   useRef,
+   useState,
+-  type ReactElement,
+-  type Ref
++  type ReactElement
+ } from 'react'
+-import type {
+-  NativeScrollEvent,
+-  NativeSyntheticEvent,
+-  ScrollView,
+-  StyleProp,
+-  ViewStyle
+-} from 'react-native'
+-import type { NativeChatMessage } from '../../../src/shared/native-chat/native-chat-types'
+-import type { MobileNativeChatRowKeys } from './native-chat/transcript/mobile-native-chat-row-keys'
++import type { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native'
+ import { MobileNativeChatPageScroll } from './MobileNativeChatPageScroll'
+ import {
+   mobileNativeChatReadingDrift,
+@@ -30,8 +22,6 @@ import {
+   type MobileNativeChatDrawnWindow,
+   type MobileNativeChatScrollNode
+ } from './mobile-native-chat-reading-place'
+-import type { MobileNativeChatListHandle } from './use-mobile-native-chat-tail-follow'
+-import type { MobileNativeChatScrollRoots } from './mobile-native-chat-scroll-roots'
+ import { scrollWritesStopMomentum } from './mobile-native-chat-scroll-motion'
+ import {
+   createMobileNativeChatGrowthHold,
+@@ -51,7 +41,6 @@ const FETCH_REACH_SCREENS = 10
+ // Wait for scroll and touch rest before corrections so iOS momentum is not interrupted.
+ const REST_MS = 300
+ 
+-type Row = { item: NativeChatMessage; index: number }
+ type Listen = (type: string, listener: () => void, options: AddEventListenerOptions) => void
+ type Scroller = MobileNativeChatScrollNode & {
+   addEventListener: Listen
+@@ -59,24 +48,6 @@ type Scroller = MobileNativeChatScrollNode & {
+ }
+ type ReadScroller = () => Scroller | null
+ 
+-type Props = {
+-  roots?: MobileNativeChatScrollRoots
+-  ref: Ref<MobileNativeChatListHandle>
+-  isFollowing: () => boolean
+-  onEndDistance: (fromEnd: number, byReader: boolean) => void
+-  rows: readonly NativeChatMessage[]
+-  rowKeys: Pick<MobileNativeChatRowKeys, 'scope' | 'keyOf' | 'current' | 'placement'>
+-  renderItem: (row: Row) => ReactElement
+-  // Regrouping changes layout, so preserve the reading place through the update.
+-  layoutKey: string
+-  contentContainerStyle: StyleProp<ViewStyle>
+-  header: ReactElement | null
+-  footer: ReactElement | null
+-  emptyStateView: ReactElement | null
+-  onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+-  onNearTop?: () => void
+-}
+-
+ // End anchoring preserves position when history prepends; restore after below-reader changes only at rest or on regroup.
+ export function MobileNativeChatPageList({
+   ref,
+@@ -93,7 +64,7 @@ export function MobileNativeChatPageList({
+   emptyStateView,
+   onScroll,
+   onNearTop
+-}: Props): ReactElement {
++}: MobileNativeChatPageListProps): ReactElement {
+   const scroll = useRef<ScrollView>(null)
+   const scroller = useCallback<ReadScroller>(() => scroll.current?.getScrollableNode() ?? null, [])
+ 
+diff --git a/mobile/src/session/mobile-native-chat-page-list-props.ts b/mobile/src/session/mobile-native-chat-page-list-props.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..4da50e2cb6b0829da45c7cb6ec6afb1df1827b7b
+--- /dev/null
++++ b/mobile/src/session/mobile-native-chat-page-list-props.ts
+@@ -0,0 +1,20 @@
++import type { ReactElement, Ref } from 'react'
++import type { NativeScrollEvent, NativeSyntheticEvent, StyleProp, ViewStyle } from 'react-native'
++import type { MobileNativeChatRowKeys } from './native-chat/transcript/mobile-native-chat-row-keys'
++import type { MobileNativeChatListHandle } from './use-mobile-native-chat-tail-follow'
++import type { MobileNativeChatScrollRoots } from './mobile-native-chat-scroll-roots'
++import type { MobileNativeChatHeldRows } from './mobile-native-chat-growth-hold'
++
++export type MobileNativeChatPageListProps = MobileNativeChatHeldRows & {
++  roots?: MobileNativeChatScrollRoots
++  ref: Ref<MobileNativeChatListHandle>
++  isFollowing: () => boolean
++  onEndDistance: (fromEnd: number, byReader: boolean) => void
++  rowKeys: Pick<MobileNativeChatRowKeys, 'scope' | 'keyOf' | 'current' | 'placement'>
++  // Regrouping changes layout, so preserve the reading place through the update.
++  layoutKey: string
++  contentContainerStyle: StyleProp<ViewStyle>
++  emptyStateView: ReactElement | null
++  onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
++  onNearTop?: () => void
++}
+diff --git a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
+index a88db9b9ab4b0808014ac975f2d9da1aaf9edc12..eea2e882d257960fb0819d6941dbc666f051692c 100644
+--- a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
+@@ -1,7 +1,7 @@
+ import { useTranslation } from 'react-i18next'
+ import { translate } from '@/i18n/i18n'
+ import { selectExecutionHostDisplayLabel } from '@/lib/execution-host-display-label'
+-import { structuredAgentLabel } from '@/lib/structured-agent-session-launch-label'
++import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
+ import { useAppStore } from '@/store'
+ import { executionHostIdForStructuredTarget } from '@/runtime/structured-agent-session-owner'
+ import { isStructuredAgentId } from '../../../../shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
+diff --git a/src/renderer/src/components/sidebar/SidebarConversationStart.test.tsx b/src/renderer/src/components/sidebar/SidebarConversationStart.test.tsx
+index 82026e8f45094bcdc759218bcef2eda902cf6a6a..ce353dfdd2b7c12700131227c78923e8613bb122 100644
+--- a/src/renderer/src/components/sidebar/SidebarConversationStart.test.tsx
++++ b/src/renderer/src/components/sidebar/SidebarConversationStart.test.tsx
+@@ -8,7 +8,7 @@ import {
+   makeCreatedAgentWorktree,
+   seedEmptyActivatableWorktree
+ } from '@/lib/worktree-activation-created-agent.test-fixture'
+-import { openStructuredAgentSessionProvisionalTab } from '@/lib/structured-agent-session-launch-surface'
++import { openStructuredAgentSessionProvisionalTab } from '@/lib/agent-session/launch/structured-agent-session-launch-surface'
+ import type * as AgentLaunchPlanModule from '@/lib/agent-session-launch-plan'
+ import type { ProvisionalLaunchArgs } from '@/lib/agent-session/structured-agent-session-provisional-tab'
+ import { SidebarConversationStart } from './SidebarConversationStart'
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
+index 09abfc4e3c8dc8c17184a1b24d8dc1190436c930..c54bd62279f5efd8fc811a84e797602ca5994f68 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
+@@ -45,7 +45,7 @@ const transport = vi.hoisted(() => ({
+   capability: 'supported'
+ }))
+ 
+-vi.mock('@/lib/structured-agent-session-launch', () =>
++vi.mock('@/lib/agent-session/launch/structured-agent-session-launch', () =>
+   moduleFactories.structuredAgentSessionLaunch()
+ )
+ vi.mock('./use-structured-agent-session', () => moduleFactories.useStructuredAgentSession())
