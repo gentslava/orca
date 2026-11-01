@@ -235,6 +235,12 @@ export function buildConversationProjectGroups(args: {
     orphans.set(key, group)
   }
   const sectionsByKey = new Map(entries)
+  const qualifiedRepoOrder = new Map(
+    orderedRepos.map((repo, index) => [
+      JSON.stringify([getRepoExecutionHostId(repo), repo.id]),
+      index
+    ])
+  )
   const result = sortProjectEntries(
     [...groups, ...folderGroups.values(), ...orphans.values()].map(
       (
@@ -247,6 +253,9 @@ export function buildConversationProjectGroups(args: {
         {
           ...group,
           group,
+          repoIds: new Set(
+            [...group.repoIds].map((repoId) => JSON.stringify([group.executionHostId, repoId]))
+          ),
           projectPreference: sectionsByKey.get(group.key)?.projectPreference,
           items: group.sessions.map((session) => ({
             lastActivityAt: Date.parse(session.updatedAt ?? session.modifiedAt) || undefined
@@ -255,7 +264,7 @@ export function buildConversationProjectGroups(args: {
       ]
     ),
     args.order,
-    repoOrder
+    qualifiedRepoOrder
   ).map(([, section]) => section.group)
   const hostsByLabel = new Map<string, Set<ExecutionHostId>>()
   for (const group of result) {

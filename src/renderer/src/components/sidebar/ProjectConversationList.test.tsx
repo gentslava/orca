@@ -259,6 +259,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
     executionHostScope: 'all'
   })
   const [first, second] = screen.getAllByRole('region')
+  const originalLabels = screen
+    .getAllByRole('region')
+    .map((region) => region.getAttribute('aria-label'))
   if (!first || !second) {
     throw new Error('Expected both host-qualified projects')
   }
@@ -268,6 +271,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
     'ssh:box',
     'local'
   ])
+  expect(screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))).toEqual(
+    [...originalLabels].reverse()
+  )
   expect(persist).toHaveBeenCalledWith({
     manualRepoOrder: [
       { hostId: 'ssh:box', repoId: 'same' },
