@@ -5,13 +5,13 @@ export function orderSelections(selections, dependencies = {}) {
     visited = new Set()
   function visit(number) {
     if (visiting.has(number)) {
-      throw new Error(`Dependency cycle at #${number}`)
+      throw new Error(`Dependency cycle at PR ${number}`)
     }
     if (visited.has(number)) {
       return
     }
     if (!records.has(number)) {
-      throw new Error(`Dependency missing: #${number}`)
+      throw new Error(`Dependency missing: PR ${number}`)
     }
     visiting.add(number)
     for (const dependency of dependencies[number] || []) {
@@ -55,10 +55,10 @@ export async function resolveSelection(config, { openOwn, previous = [], readPr 
     }
     const pr = await readPr(number)
     if (!['open', 'closed'].includes(pr.state) || pr.number !== number) {
-      throw new Error(`Invalid PR state/identity: #${number}`)
+      throw new Error(`Invalid PR state/identity: PR ${number}`)
     }
     if (pr.base.ref !== config.base) {
-      throw new Error(`Unsupported PR base: #${number}`)
+      throw new Error(`Unsupported PR base: PR ${number}`)
     }
     if (pr.state === 'closed' && !pr.merged_at) {
       const replacement = config.replacements[number]

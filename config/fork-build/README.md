@@ -2,7 +2,7 @@
 
 `main` is the upstream mirror. `master` contains the last successfully built application, the daily/manual workflow and this selection. There is no additional integration branch.
 
-Generated integration, packaging and promotion commits use GitHub's standard `github-actions[bot]` identity. Original upstream and PR commits retain their authors. Integration subjects use `fork: integrate stablyai/orca#NUMBER SHA`.
+Generated integration, packaging and promotion commits use GitHub's standard `github-actions[bot]` identity. Original upstream and PR commits retain their authors. Integration subjects use `fork: integrate PR NUMBER`; the source SHA remains in the merge parent and build plan. Fork status reports use plain PR numbers without issue mentions or upstream URLs, so routine builds do not add cross-reference events to upstream discussions. Keep personal package and CI reports in this fork; upstream PRs describe and validate only their own changes.
 
 The workflow freezes fresh `stablyai/orca:main`, discovers all open main-targeted PRs by the configured authors (including drafts), and adds explicitly selected community PRs. `seed` and the persistent fork status issue retain previously selected PRs after closure. Closed unmerged PRs block publication until a replacement or a reasoned exclusion is recorded. Merged PRs are omitted only after their merge commit is proven to be in the frozen upstream.
 

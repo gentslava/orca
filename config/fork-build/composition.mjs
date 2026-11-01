@@ -40,7 +40,7 @@ export function isAncestor(cwd, ancestor, head) {
 
 export function assertFrozenHead(cwd, number, expected) {
   if (git(cwd, ['rev-parse', `refs/personal/pr-${number}`]) !== expected) {
-    throw new Error(`PR #${number} moved after snapshot; rerun planning`)
+    throw new Error(`PR ${number} moved after snapshot; rerun planning`)
   }
 }
 
@@ -144,26 +144,19 @@ export function compose(
       continue
     }
     const before = git(cwd, ['rev-parse', 'HEAD'])
+    const message = `fork: integrate PR ${pr.number}`
     try {
-      git(
-        cwd,
-        [
-          'merge',
-          '--no-ff',
-          '--no-edit',
-          '-m',
-          `fork: integrate stablyai/orca#${pr.number} ${pr.head.sha}`,
-          pr.head.sha
-        ],
-        { GIT_AUTHOR_DATE: timestamp, GIT_COMMITTER_DATE: timestamp }
-      )
+      git(cwd, ['merge', '--no-ff', '--no-edit', '-m', message, pr.head.sha], {
+        GIT_AUTHOR_DATE: timestamp,
+        GIT_COMMITTER_DATE: timestamp
+      })
       assertMergedCatalogs(cwd)
       included.push({ number: pr.number, head: pr.head.sha })
     } catch (error) {
       const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
       const resolution = resolveSelectedFeatureConflicts(cwd, resolutionsDirectory)
       if (resolution) {
-        git(cwd, ['commit', '--no-edit'], {
+        git(cwd, ['commit', '-m', message], {
           GIT_AUTHOR_DATE: timestamp,
           GIT_COMMITTER_DATE: timestamp
         })
