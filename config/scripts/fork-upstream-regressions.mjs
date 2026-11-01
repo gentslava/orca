@@ -89,7 +89,7 @@ const desktop = [
   'src/renderer/src/components/native-chat/NativeChatQueuedMessageList.inline-edit.test.tsx',
   'src/main/native-chat/agent-session-wire/structured-agent-session-goal-steering.test.ts',
   'src/renderer/src/components/native-chat/use-structured-agent-session-queued-messages.test.tsx',
-  'src/main/runtime/rpc/methods/structured-agent-session-queued-edit.test.ts',
+  'src/main/native-chat/agent-session-wire/structured-agent-session-queued-edit.test.ts',
   'src/main/native-chat/agent-session-wire/structured-agent-session-queued-move.test.ts',
   'src/shared/orchestration-worker-roles.test.ts',
   'src/cli/handlers/orchestration-worker-role-cli.test.ts',
