@@ -82,7 +82,8 @@ try {
       ![
         'preview-updater-guard.patch',
         'test-runner-registration.patch',
-        'integration-module-boundaries.patch'
+        'integration-module-boundaries.patch',
+        'conversation-project-order.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')

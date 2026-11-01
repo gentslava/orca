@@ -49,3 +49,5 @@ actionlint .github/workflows/personal-build.yml
 ```
 
 The old fork-upstream preview workflow remains available manually for recovery. Its automatic promotion schedule is retired when this workflow is installed, so two automation paths cannot race to update master.
+
+The explicit `conversation-project-order.patch` connects conversation navigation (#33361) to personal project order (#33502). Desktop views reuse one four-mode menu. The paired mobile conversation list reads the same stored opening statistics and gates unsupported modes; manual order also covers empty project placeholders. The patch preserves folder/history-only group ordering. It is fork-only integration glue while those atomic upstream features are reviewed independently. A changed preimage blocks the build.

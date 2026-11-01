@@ -24,6 +24,7 @@
   "compatibilityPatches": [
     "preview-updater-guard.patch",
     "test-runner-registration.patch",
-    "integration-module-boundaries.patch"
+    "integration-module-boundaries.patch",
+    "conversation-project-order.patch"
   ]
 }

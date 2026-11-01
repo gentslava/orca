@@ -1,0 +1,576 @@
+diff --git a/mobile/src/host-screen/HostConversations.tsx b/mobile/src/host-screen/HostConversations.tsx
+index 87a6c276280..d8df85a7530 100644
+--- a/mobile/src/host-screen/HostConversations.tsx
++++ b/mobile/src/host-screen/HostConversations.tsx
+@@ -73,7 +73,8 @@ export function HostConversations({
+         controller.projectCatalog,
+         [...controller.sectionsResult.repoById.values()],
+         state.view.filters.visibleHostIds,
+-        controller.projectOrderBy
++        controller.projectOrderBy,
++        state.view.personalProjectOrder
+       ),
+     [
+       controller.projectCatalog,
+diff --git a/mobile/src/host-screen/conversation-project-order-sheet.tsx b/mobile/src/host-screen/conversation-project-order-sheet.tsx
+index 3eacfe967b3..70db778d770 100644
+--- a/mobile/src/host-screen/conversation-project-order-sheet.tsx
++++ b/mobile/src/host-screen/conversation-project-order-sheet.tsx
+@@ -26,7 +26,10 @@ export function ConversationProjectOrderSheet({
+         onPress: () => {
+           void controller.settings.setProjectOrderBy(choice.id)
+         },
+-        disabled: !connected
++        disabled:
++          !connected ||
++          (!controller.settings.supportsPersonalProjectOrder &&
++            (choice.id === 'name' || choice.id === 'frequent'))
+       }))}
+     />
+   )
+diff --git a/mobile/src/host-screen/project-conversation-order.ts b/mobile/src/host-screen/project-conversation-order.ts
+index a552734c2f9..9b2c44d4c7f 100644
+--- a/mobile/src/host-screen/project-conversation-order.ts
++++ b/mobile/src/host-screen/project-conversation-order.ts
+@@ -1,3 +1,4 @@
++import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
+ import type { ConversationPreferences } from '../../../src/shared/conversation-navigation-preferences'
+ import { sortProjectEntries } from '../../../src/shared/project-section-order'
+ import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
+@@ -14,18 +15,33 @@ export function orderProjectConversations(
+ ): ConversationProject[] {
+   const catalog = args.projectCatalog
+   const query = args.query?.trim().toLocaleLowerCase()
+-  const entries = [...projects].map(
+-    (project) =>
+-      [
+-        project.key,
+-        {
+-          ...project,
+-          label: project.title,
+-          items: project.workspaces,
+-          repoIds: new Set(project.workspaces.map((workspace) => workspace.repoId))
+-        }
+-      ] as const
+-  )
++  const entries = [...projects].map((project) => {
++    const personal = catalog?.grouping?.personalProjectOrder
++    const preferenceKey = project.repo
++      ? resolveProjectPreferenceKey(
++          project.repo.id,
++          catalog?.grouping?.projectHostSetups ?? [],
++          project.hostId
++        )
++      : null
++    return [
++      project.key,
++      {
++        ...project,
++        label: project.title,
++        projectPreference: personal
++          ? preferenceKey
++            ? (personal.projects[preferenceKey] ?? {})
++            : {}
++          : undefined,
++        items: project.workspaces,
++        repoIds: new Set([
++          ...project.workspaces.map((workspace) => workspace.repoId),
++          ...(project.repo ? [project.repo.id] : [])
++        ])
++      }
++    ] as const
++  })
+   return sortProjectEntries(entries, catalog?.projectOrderBy ?? 'manual', catalog?.repoOrder)
+     .map(([, project]) => project)
+     .map((project) => ({
+diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
+index 5923b6d50ce..ec08cf4c36c 100644
+--- a/mobile/src/host-screen/project-conversations.test.ts
++++ b/mobile/src/host-screen/project-conversations.test.ts
+@@ -1,3 +1,4 @@
++import { projectHostSetupProjectionFromRepos } from '../../../src/shared/project-host-setup-projection'
+ import { describe, expect, it } from 'vitest'
+ import { conversationPreferenceKey } from '../../../src/shared/conversation-navigation-preferences'
+ import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
+@@ -295,3 +296,62 @@ describe('projects containing conversations', () => {
+     ).toBe(true)
+   })
+ })
++
++it.each([
++  ['manual', ['Beta', 'Alpha']],
++  ['recent', ['Alpha', 'Beta']],
++  ['frequent', ['Beta', 'Alpha']],
++  ['name', ['Alpha', 'Beta']]
++] as const)(
++  'uses personal project summaries in mobile %s order without changing manual order',
++  (mode, expected) => {
++    const repos = [
++      {
++        id: 'beta',
++        displayName: 'Beta',
++        path: '/beta',
++        badgeColor: '',
++        addedAt: 0,
++        executionHostId: 'local' as const
++      },
++      {
++        id: 'alpha',
++        displayName: 'Alpha',
++        path: '/alpha',
++        badgeColor: '',
++        addedAt: 0,
++        executionHostId: 'local' as const
++      }
++    ]
++    const projection = projectHostSetupProjectionFromRepos(repos)
++    const projects = buildProjectConversations({
++      workspaces: [],
++      repos,
++      tabs: new Map(),
++      history: [],
++      now: 0,
++      untitled: 'Untitled',
++      projectCatalog: {
++        repos,
++        repoOrder: new Map([
++          ['beta', 0],
++          ['alpha', 1]
++        ]),
++        projectOrderBy: mode,
++        grouping: {
++          projects: projection.projects,
++          projectHostSetups: projection.setups,
++          personalProjectOrder: {
++            projects: {
++              '["local","local","repo:beta"]': { openCount: 9, lastOpenedAt: 100 },
++              '["local","local","repo:alpha"]': { openCount: 1, lastOpenedAt: 200 }
++            },
++            settledOperations: []
++          }
++        }
++      }
++    })
++    expect(projects.map((project) => project.title)).toEqual(expected)
++    expect(repos.map((repo) => repo.id)).toEqual(['beta', 'alpha'])
++  }
++)
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
+index 899587323e4..be147e74aca 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
+@@ -50,7 +50,11 @@ function fixture(
+         liveLeafCount: 0,
+         runtimeProtocolVersion: 3,
+         minCompatibleRuntimeClientVersion: 2,
+-        capabilities: ['ui.conversationPreferences.v1', 'ui.conversationProjectVisibility.v1']
++        capabilities: [
++          'ui.conversationPreferences.v1',
++          'ui.conversationProjectVisibility.v1',
++          'ui.personalProjectOrder.v1'
++        ]
+       })
+       window.api.runtime.call = async (request) => {
+         let result: unknown = {
+@@ -123,3 +127,15 @@ export const discoveredProjectActions = fixture(320, 'discovered')
+ export const hiddenProjectRestore = fixture(320, 'hidden')
+
+ export const registeredProjectActions = fixture(320, 'registered')
++
++export const projectOrderModes = defineFixture({
++  ...fixture(),
++  interact: async (frame) => {
++    const trigger = frame.querySelector<HTMLButtonElement>('button[aria-label="Project order"]')
++    trigger?.focus()
++    trigger?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
++    await new Promise<void>((resolve) =>
++      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
++    )
++  }
++})
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
+index 903e81c3e68..eb7928e07d7 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
+@@ -23,11 +23,15 @@ const state = vi.hoisted(() => {
+   const preferences: ConversationPreferences = { revision: 0, entries: {} }
+   return {
+     preferences,
++    personalOrderSupported: true,
+     setPreference: vi.fn(),
+     projectVisibilitySupported: true,
+     setProjectHidden: vi.fn()
+   }
+ })
++vi.mock('@/hooks/use-personal-project-order', () => ({
++  usePersonalProjectOrderSupported: () => state.personalOrderSupported
++}))
+ vi.mock('./use-conversation-preferences', () => ({ useConversationPreferences: () => state }))
+ vi.mock('./SidebarConversationStart', () => ({
+   SidebarConversationStart: ({
+@@ -43,6 +47,7 @@ vi.mock('../right-sidebar/use-ai-vault-session-display-title', () => ({
+ }))
+ beforeEach(() => {
+   state.preferences = { revision: 0, entries: {} }
++  state.personalOrderSupported = true
+   state.projectVisibilitySupported = true
+   state.setPreference.mockReset().mockResolvedValue(undefined)
+   state.setProjectHidden
+@@ -254,6 +259,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
+     executionHostScope: 'all'
+   })
+   const [first, second] = screen.getAllByRole('region')
++  const originalLabels = screen
++    .getAllByRole('region')
++    .map((region) => region.getAttribute('aria-label'))
+   if (!first || !second) {
+     throw new Error('Expected both host-qualified projects')
+   }
+@@ -263,6 +271,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
+     'ssh:box',
+     'local'
+   ])
++  expect(screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))).toEqual(
++    originalLabels.toReversed()
++  )
+   expect(persist).toHaveBeenCalledWith({
+     manualRepoOrder: [
+       { hostId: 'ssh:box', repoId: 'same' },
+@@ -271,3 +282,51 @@ it('moves only the selected host project when adjacent projects share a repo id'
+   })
+   vi.restoreAllMocks()
+ })
++
++it('offers every project order mode and applies it without rewriting manual order', async () => {
++  const setOrder = vi.fn((projectOrderBy) => useAppStore.setState({ projectOrderBy }))
++  useAppStore.setState({
++    personalProjectOrder: {
++      projects: {
++        '["local","local","repo:orca"]': { openCount: 5, lastOpenedAt: 100 },
++        '["local","local","repo:djinn"]': { openCount: 1, lastOpenedAt: 200 }
++      },
++      settledOperations: []
++    },
++    setProjectOrderBy: setOrder
++  })
++  const originalRepos = useAppStore.getState().repos
++  const originalManual = useAppStore.getState().manualRepoOrder
++  mount()
++  for (const [label, expected] of [
++    ['Name', ['Djinn', 'Orca']],
++    ['Frequent', ['Orca', 'Djinn']],
++    ['Recent', ['Djinn', 'Orca']],
++    ['Manual', ['Orca', 'Djinn']]
++  ] as const) {
++    await userEvent.click(screen.getByRole('button', { name: 'Project order' }))
++    expect(screen.getAllByRole('menuitemradio')).toHaveLength(4)
++    await userEvent.click(screen.getByRole('menuitemradio', { name: label }))
++    expect(
++      screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))
++    ).toEqual(expected)
++  }
++  expect(useAppStore.getState().repos).toBe(originalRepos)
++  expect(useAppStore.getState().manualRepoOrder).toBe(originalManual)
++})
++
++it('shows unsupported project modes disabled on older hosts', async () => {
++  state.personalOrderSupported = false
++  mount()
++  await userEvent.click(screen.getByRole('button', { name: 'Project order' }))
++  for (const label of ['Name', 'Frequent']) {
++    expect(screen.getByRole('menuitemradio', { name: label }).getAttribute('aria-disabled')).toBe(
++      'true'
++    )
++  }
++  for (const label of ['Manual', 'Recent']) {
++    expect(
++      screen.getByRole('menuitemradio', { name: label }).getAttribute('aria-disabled')
++    ).not.toBe('true')
++  }
++})
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
+index ebb3fded58a..46ca748effb 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
+@@ -13,8 +13,6 @@ import {
+   DropdownMenuContent,
+   DropdownMenuTrigger,
+   DropdownMenuItem,
+-  DropdownMenuRadioGroup,
+-  DropdownMenuRadioItem,
+   DropdownMenuSeparator
+ } from '@/components/ui/dropdown-menu'
+ import { translate } from '@/i18n/i18n'
+@@ -30,6 +28,7 @@ import {
+   PROJECT_CONVERSATION_PAGE_SIZE
+ } from '../../../../shared/project-conversation-list'
+ import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
++import { ProjectOrderMenuItems } from './ProjectOrderMenuItems'
+ import { useConversationPreferences } from './use-conversation-preferences'
+ import { ProjectConversationRow } from './ProjectConversationRow'
+ import { ProjectConversationSection } from './ProjectConversationSection'
+@@ -52,7 +51,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+   const catalog = useProjectHostSetupProjection()
+   const order = useAppStore((state) => state.projectOrderBy)
+   const manualOrder = useAppStore((state) => state.manualRepoOrder)
+-  const setOrder = useAppStore((state) => state.setProjectOrderBy)
++  const personalProjectOrder = useAppStore((state) => state.personalProjectOrder)
+   const activeWorkspaceId = useAppStore((state) => state.activeWorktreeId)
+   const activeTab = useAppStore((state) =>
+     state.activeWorktreeId ? state.getActiveTab(state.activeWorktreeId) : null
+@@ -83,6 +82,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+         catalog,
+         order,
+         manualOrder,
++        personalProjectOrder,
+         activeWorkspaceId
+       }),
+     [
+@@ -96,6 +96,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+       catalog,
+       order,
+       manualOrder,
++      personalProjectOrder,
+       activeWorkspaceId
+     ]
+   )
+@@ -211,20 +212,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+             </Button>
+           </DropdownMenuTrigger>
+           <DropdownMenuContent align="start">
+-            <DropdownMenuRadioGroup
+-              value={order}
+-              onValueChange={(value) => {
+-                if (value === 'recent' || value === 'manual') {
+-                  setOrder(value)
+-                }
+-              }}
+-            >
+-              {(['recent', 'manual'] as const).map((value) => (
+-                <DropdownMenuRadioItem key={value} value={value}>
+-                  {orderLabels.get(value)}
+-                </DropdownMenuRadioItem>
+-              ))}
+-            </DropdownMenuRadioGroup>
++            <ProjectOrderMenuItems />
+           </DropdownMenuContent>
+         </DropdownMenu>
+         <Button
+diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+new file mode 100644
+index 00000000000..28f6abb3003
+--- /dev/null
++++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+@@ -0,0 +1,45 @@
++import { useAppStore } from '@/store'
++import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
++import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
++import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
++import { translate } from '@/i18n/i18n'
++import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
++
++export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
++  const order = useAppStore((state) => state.projectOrderBy)
++  const setOrder = useAppStore((state) => state.setProjectOrderBy)
++  const supported = usePersonalProjectOrderSupported()
++  return (
++    <DropdownMenuRadioGroup
++      value={order}
++      onValueChange={(value) => {
++        const next = PROJECT_ORDER_OPTIONS.find((option) => option.id === value)
++        if (next && (supported || next.id === 'manual' || next.id === 'recent')) {
++          setOrder(next.id)
++        }
++      }}
++    >
++      {PROJECT_ORDER_OPTIONS.map((option) => (
++        <Tooltip key={option.id}>
++          <TooltipTrigger asChild>
++            <DropdownMenuRadioItem
++              value={option.id}
++              disabled={!supported && (option.id === 'name' || option.id === 'frequent')}
++              onSelect={keepOpen ? (event) => event.preventDefault() : undefined}
++            >
++              {option.label}
++            </DropdownMenuRadioItem>
++          </TooltipTrigger>
++          <TooltipContent side="right" sideOffset={6}>
++            {!supported && option.id === 'recent'
++              ? translate(
++                  'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
++                  'Most recent workspace activity'
++                )
++              : option.description}
++          </TooltipContent>
++        </Tooltip>
++      ))}
++    </DropdownMenuRadioGroup>
++  )
++}
+diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
+index 43985f8316e..d5e4c666450 100644
+--- a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
++++ b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
+@@ -131,3 +131,34 @@ describe('project conversation ownership', () => {
+     expect(result.every((group) => group.workspaceId === undefined)).toBe(true)
+   })
+ })
++
++it('orders folder and history-only groups by name together with registered projects', () => {
++  const result = groups({
++    order: 'name',
++    repos: conversationRepos,
++    catalog: projectHostSetupProjectionFromRepos(conversationRepos),
++    folders: [localFolder],
++    sessions: [{ ...chat('lost', 'local', 'folder:missing'), cwd: '/Apple' }]
++  })
++  expect(result.map((group) => group.label)).toEqual(['Apple', 'Djinn', 'Notes', 'Orca'])
++})
++
++it('keeps host-local personal rankings separate when repo IDs collide', () => {
++  const repos = [
++    conversationRepos[0]!,
++    { ...conversationRepos[0]!, executionHostId: 'runtime:remote' as const }
++  ]
++  const result = groups({
++    order: 'frequent',
++    repos,
++    catalog: projectHostSetupProjectionFromRepos(repos),
++    personalProjectOrder: {
++      projects: {
++        '["local","local","repo:orca"]': { openCount: 1 },
++        '["runtime:remote","runtime:remote","repo:orca"]': { openCount: 9 }
++      },
++      settledOperations: []
++    }
++  })
++  expect(result.map((group) => group.executionHostId)).toEqual(['runtime:remote', 'local'])
++})
+diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ts
+index 72540191974..aa56fcb3752 100644
+--- a/src/renderer/src/components/sidebar/project-conversation-groups.ts
++++ b/src/renderer/src/components/sidebar/project-conversation-groups.ts
+@@ -28,6 +28,7 @@ import {
+   getProjectGroupingForRepo,
+   type ProjectSectionEntry
+ } from '../../../../shared/project-section-grouping'
++import type { PersonalProjectOrder } from '../../../../shared/personal-project-order'
+ import { sortProjectEntries } from '../../../../shared/project-section-order'
+
+ type ConversationItem = { session: AiVaultSession; repo: Repo; lastActivityAt?: number }
+@@ -49,6 +50,7 @@ export function buildConversationProjectGroups(args: {
+   catalog: ProjectHostSetupProjection
+   order: ProjectOrderBy
+   manualOrder?: ManualRepoOrderEntry[]
++  personalProjectOrder?: PersonalProjectOrder
+   activeWorkspaceId: string | null
+   activeExecutionHostId?: ExecutionHostId | null
+   executionHostScope?: ExecutionHostScope
+@@ -78,6 +80,7 @@ export function buildConversationProjectGroups(args: {
+     return hosts?.size === 1 ? [...hosts][0]! : null
+   }
+   const projectIndex = buildProjectGroupingIndex({
++    personalProjectOrder: args.personalProjectOrder,
+     projects: args.catalog.projects,
+     projectHostSetups: args.catalog.setups
+   })
+@@ -231,7 +234,38 @@ export function buildConversationProjectGroups(args: {
+     group.sessions.push(session)
+     orphans.set(key, group)
+   }
+-  const result = [...groups, ...folderGroups.values(), ...orphans.values()]
++  const sectionsByKey = new Map(entries)
++  const qualifiedRepoOrder = new Map(
++    orderedRepos.map((repo, index) => [
++      JSON.stringify([getRepoExecutionHostId(repo), repo.id]),
++      index
++    ])
++  )
++  const result = sortProjectEntries(
++    [...groups, ...folderGroups.values(), ...orphans.values()].map(
++      (
++        group
++      ): [
++        string,
++        ProjectSectionEntry<{ lastActivityAt?: number }> & { group: ConversationProjectGroup }
++      ] => [
++        group.key,
++        {
++          ...group,
++          group,
++          repoIds: new Set(
++            [...group.repoIds].map((repoId) => JSON.stringify([group.executionHostId, repoId]))
++          ),
++          projectPreference: sectionsByKey.get(group.key)?.projectPreference,
++          items: group.sessions.map((session) => ({
++            lastActivityAt: Date.parse(session.updatedAt ?? session.modifiedAt) || undefined
++          }))
++        }
++      ]
++    ),
++    args.order,
++    qualifiedRepoOrder
++  ).map(([, section]) => section.group)
+   const hostsByLabel = new Map<string, Set<ExecutionHostId>>()
+   for (const group of result) {
+     const hosts = hostsByLabel.get(group.label) ?? new Set<ExecutionHostId>()
+diff --git a/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx b/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
+index f4a25ad4244..fd1db50471b 100644
+--- a/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
++++ b/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
+@@ -1,4 +1,4 @@
+-import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
++import { ProjectOrderMenuItems } from './ProjectOrderMenuItems'
+ import { Fragment, useMemo, type ComponentType, type JSX } from 'react'
+ import { useAppStore } from '@/store'
+ import {
+@@ -148,9 +148,7 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
+ }
+
+ function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.Element {
+-  const supportsPersonalOrder = usePersonalProjectOrderSupported()
+   const projectOrderBy = useAppStore((s) => s.projectOrderBy)
+-  const setProjectOrderBy = useAppStore((s) => s.setProjectOrderBy)
+   const projectOrderLabel =
+     PROJECT_ORDER_OPTIONS.find((opt) => opt.id === projectOrderBy)?.label ?? 'Manual'
+   return (
+@@ -170,38 +168,7 @@ function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps)
+         className="w-44"
+         data-workspace-board-preserve-open={preserveWorkspaceBoardOpen ? '' : undefined}
+       >
+-        <DropdownMenuRadioGroup
+-          value={projectOrderBy}
+-          onValueChange={(value) => {
+-            const next = PROJECT_ORDER_OPTIONS.find((opt) => opt.id === value)
+-            if (next) {
+-              setProjectOrderBy(next.id)
+-            }
+-          }}
+-        >
+-          {PROJECT_ORDER_OPTIONS.map((opt) => (
+-            <Tooltip key={opt.id}>
+-              <TooltipTrigger asChild>
+-                <DropdownMenuRadioItem
+-                  value={opt.id}
+-                  disabled={!supportsPersonalOrder && (opt.id === 'name' || opt.id === 'frequent')}
+-                  // Keep the menu open so people can compare order modes.
+-                  onSelect={(e) => e.preventDefault()}
+-                >
+-                  {opt.label}
+-                </DropdownMenuRadioItem>
+-              </TooltipTrigger>
+-              <TooltipContent side="right" sideOffset={6}>
+-                {!supportsPersonalOrder && opt.id === 'recent'
+-                  ? translate(
+-                      'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
+-                      'Most recent workspace activity'
+-                    )
+-                  : opt.description}
+-              </TooltipContent>
+-            </Tooltip>
+-          ))}
+-        </DropdownMenuRadioGroup>
++        <ProjectOrderMenuItems keepOpen />
+       </DropdownMenuSubContent>
+     </DropdownMenuSub>
+   )
