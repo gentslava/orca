@@ -21,13 +21,15 @@ const NON_UNIT_TEST_RUNNERS = [
     include: [
       'config/fork-build/composition.test.mjs',
       'config/fork-build/status-record.test.mjs',
-      'config/fork-build/promotion.test.mjs'
+      'config/fork-build/promotion.test.mjs',
+      'config/fork-build/install.test.mjs'
     ],
     sources: ['.github/workflows/personal-build.yml'],
     mirrors: [
       'config/fork-build/composition.test.mjs',
       'config/fork-build/status-record.test.mjs',
-      'config/fork-build/promotion.test.mjs'
+      'config/fork-build/promotion.test.mjs',
+      'config/fork-build/install.test.mjs'
     ]
   },
   {
