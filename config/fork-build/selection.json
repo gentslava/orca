@@ -24,7 +24,9 @@
   },
   "replacements": {
     "36569": 36922,
-    "36574": 36922
+    "36574": 36922,
+    "36606": 36928,
+    "36607": 36928
   },
   "dependencies": {},
   "outputs": ["macos-arm64-dmg", "macos-arm64-zip"],
