@@ -792,8 +792,8 @@
       "7c70d4002732e1294daf08dfb101c43feafda816"
     ],
     "patch": "refresh-20261101/pr33383-ai-vault.ts.patch",
-    "patchSha256": "f99d3c33196d23b752b19c9e33816a6a5bf996c0f2b82585013bec7c834212b8",
-    "resultSha256": "72d95f6b8758122d68cb708563290ce8e9c7f5fec0b1e510134ae3022c2e0947",
+    "patchSha256": "172e420249b3962092d0f051fd79325b920934641cde459368e3dc571e1e30ad",
+    "resultSha256": "f42e6f21fecf27a532d5038d2e69ad88a2515918a78d5231fce55e9d4e5d922c",
     "reason": "Retain durable conversation depth and empty-chat routing together with selected-session retention and mobile conversation previews; deduplicate the shared navigation capability."
   },
   {
