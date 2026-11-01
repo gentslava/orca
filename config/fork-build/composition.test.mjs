@@ -8,6 +8,7 @@ import { join } from 'node:path'
 import { resolveSelection, orderSelections } from './selection.mjs'
 import { compose, assertFrozenHead } from './composition.mjs'
 import { mergeTranslationCatalogs } from './locale-merge.mjs'
+import { renderReport } from './github.mjs'
 
 const pr = (number, extra = {}) => ({
   number,
@@ -142,8 +143,8 @@ test('real Git: clean merge, direct conflict, combination conflict and merged an
     assert.equal(result.publishable, false)
     assert.equal(git(cwd, 'show', `${result.commit}:file`), 'one')
     assert.equal(
-      git(cwd, 'show', '--no-patch', '--format=%an <%ae>%n%cn <%ce>%n%s', result.commit),
-      `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\ngithub-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\nfork: integrate stablyai/orca#1 ${one}`
+      git(cwd, 'show', '--no-patch', '--format=%an <%ae>%n%cn <%ce>%n%B', result.commit),
+      'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\ngithub-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\nfork: integrate PR 1'
     )
     assert.equal(
       git(cwd, 'show', '--no-patch', '--format=%an <%ae>', one),
@@ -226,11 +227,30 @@ test('real Git: combines independent locale keys and still blocks divergent tran
       git(cwd, 'show', '--no-patch', '--format=%ae%n%ce', result.commit),
       '41898282+github-actions[bot]@users.noreply.github.com\n41898282+github-actions[bot]@users.noreply.github.com'
     )
+    assert.equal(
+      git(cwd, 'show', '--no-patch', '--format=%B', result.commit),
+      'fork: integrate PR 2'
+    )
     assert.deepEqual(
       result.conflicts.map((entry) => [entry.number, entry.kind]),
       [[3, 'combination']]
     )
     assert.equal(result.publishable, false)
+    const report = renderReport({
+      repository: 'stablyai/orca',
+      selections: [one, two, conflict].map((sha, index) => ({
+        ...pr(index + 1),
+        head: { sha }
+      })),
+      result,
+      blockers: [{ number: 4, reason: 'Required change unavailable' }],
+      lifecycle: [{ number: 5, disposition: 'replaced', replacement: 6 }]
+    })
+    assert.match(report, /\| PR 2 \| open \|/)
+    assert.match(report, /PR 2: independent keys merged/)
+    assert.match(report, /PR 3: \*\*combination\*\* conflict/)
+    assert.match(report, /PR 5: replaced → PR 6/)
+    assert.doesNotMatch(report, /#\d|github\.com\/stablyai\/orca/)
   }))
 
 test('locale policy retains removals but refuses delete/edit races, duplicate keys and non-catalog values', () => {
