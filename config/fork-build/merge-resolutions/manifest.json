@@ -430,17 +430,5 @@
     "patchSha256": "39e5ce4cde49fab9ce0edfc4d16d8da6bdea6d23f33409d07e7cb0e0c537e9ca",
     "resultSha256": "30294b03b25ed2ea4ed8dc98aae1cdff4c8e699d10ef3f687e36d3fe41978af5",
     "reason": "Keep current emulator capability aggregate together with conversation and project-order capabilities, once each."
-  },
-  {
-    "path": "src/renderer/src/components/right-sidebar/AiVaultPanel.tsx",
-    "blobs": [
-      "895613cad374174471c57c9b3558b92a558ea2fd",
-      "81bdec8eec70cf1512c4e774e600125ad3bcd0da",
-      "5848b5188da57b98a99488fb3742222d1a368471"
-    ],
-    "patch": "refresh-main54b/pr36858-a858792d75.patch",
-    "patchSha256": "8b083450219b88735b012a011d7ab385106c97d6b6cfd02937679f73a473cf4e",
-    "resultSha256": "4c578960d68326328ea0f51dbe5856da30a9fc8cc89dafe925a7d8ddf38fbc79",
-    "reason": "Preserve upstream recovered-transcript handling and translated whole-transcript failures; keep notice disclosure state during metadata search."
   }
 ]
