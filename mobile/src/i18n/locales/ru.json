@@ -368,6 +368,7 @@
       "ultra": "Предельный",
       "xhigh": "Очень высокий",
       "xhighShort": "Очень выс.",
+      "defaultModel": "По умолчанию",
       "futureOptionsRequireUpdate": "Обновите Orca на этом компьютере, чтобы выбирать параметры следующих сообщений."
     },
     "sessionOptionPickers": {
@@ -599,12 +600,12 @@
       "imageTooLarge": "Изображение слишком большое для прикрепления",
       "permissionDenied": "Нет доступа к фото"
     },
-    "tool": {
-      "activity": "Активность"
-    },
     "agentMessage": {
       "handedOffToAgent": "Передано агенту",
       "startedAgent": "Агент запущен"
+    },
+    "tool": {
+      "activity": "Активность"
     }
   },
   "common": {
