@@ -96,7 +96,18 @@ export function measurePreviewApp(app, expected) {
   const identity = JSON.parse(
     readFileSync(join(resources, MAC_BUILD_COMPATIBILITY_FILENAME), 'utf8')
   )
-  const contract = createMacBuildCompatibility({ ...expected, architecture: 'arm64' })
+  const identityFields = createMacBuildCompatibility({ ...expected, architecture: 'arm64' })
+  const contract = expected.compatibilityContract
+    ? {
+        ...identityFields,
+        ...expected.compatibilityContract,
+        buildId: identityFields.buildId,
+        version: identityFields.version,
+        commit: identityFields.commit,
+        platform: identityFields.platform,
+        architecture: identityFields.architecture
+      }
+    : identityFields
   if (
     Object.entries(contract).some(
       ([key, value]) => JSON.stringify(identity[key]) !== JSON.stringify(value)
@@ -201,10 +212,12 @@ export function stagePreviewArchives({
   commit,
   version,
   formats,
+  compatibilityContract,
   metadata = {}
 }) {
   assertExpectedIdentity({ commit, version })
-  const unpacked = measurePreviewApp(app, { commit, version })
+  const expected = { commit, version, compatibilityContract }
+  const unpacked = measurePreviewApp(app, expected)
   const proof = appProof(unpacked)
   const files = requestedFormats(formats).map((format) => {
     const matches = readdirSync(dist).filter(
@@ -219,7 +232,7 @@ export function stagePreviewArchives({
   const archives = files.map((file) => {
     const staged = join(directory, file)
     copyFileSync(join(dist, file), staged)
-    const measured = measureArchive(staged, { commit, version })
+    const measured = measureArchive(staged, expected)
     sameApp(measured, proof)
     return { file, sha256: hashFile(staged), app: measured }
   })
@@ -229,6 +242,7 @@ export function stagePreviewArchives({
     version: unpacked.identity.version,
     architecture: unpacked.identity.architecture,
     formats,
+    ...(compatibilityContract ? { compatibilityContract } : {}),
     files,
     validation: { schemaVersion: 1, unpacked: proof, archives }
   }
@@ -254,6 +268,9 @@ export function verifyStagedArchives(directory, expected) {
     info.version !== expected.version ||
     info.architecture !== 'arm64' ||
     info.formats !== expected.formats ||
+    (expected.compatibilityContract &&
+      JSON.stringify(info.compatibilityContract) !==
+        JSON.stringify(expected.compatibilityContract)) ||
     info.forkMaster !== expected.forkSha ||
     info.upstreamMain !== expected.upstreamSha ||
     validation?.schemaVersion !== 1 ||

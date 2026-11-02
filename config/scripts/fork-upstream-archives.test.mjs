@@ -182,6 +182,39 @@ describe.skipIf(process.platform !== 'darwin')('real headless macOS preview arch
     expect(() => stagePreviewArchives({ ...f.options, formats: 'dmg' })).toThrow()
   })
 
+  it('binds archive compatibility to the frozen source when its daemon protocol advances', () => {
+    const f = fixture()
+    const path = join(f.resources, 'orca-local-build.json')
+    const identity = JSON.parse(readFileSync(path, 'utf8'))
+    const compatibilityContract = {
+      formatVersion: identity.formatVersion,
+      appId: identity.appId,
+      stateSchemaVersion: identity.stateSchemaVersion,
+      readableStateSchemaVersions: identity.readableStateSchemaVersions,
+      daemonProtocolVersion: identity.daemonProtocolVersion + 1,
+      attachableDaemonProtocolVersions: [
+        ...identity.attachableDaemonProtocolVersions,
+        identity.daemonProtocolVersion + 1
+      ]
+    }
+    writeFileSync(path, JSON.stringify({ ...identity, ...compatibilityContract }))
+    sign(f.app)
+    expect(() => measurePreviewApp(f.app, expected)).toThrow(/Embedded app source/)
+    archive(f)
+    archive(f, 'dmg')
+    stagePreviewArchives({ ...f.options, compatibilityContract })
+    expect(verifyStagedArchives(f.directory, { ...expected, compatibilityContract })).toBeDefined()
+    expect(() =>
+      verifyStagedArchives(f.directory, {
+        ...expected,
+        compatibilityContract: { ...compatibilityContract, daemonProtocolVersion: 999 }
+      })
+    ).toThrow(/Archive metadata/)
+    expect(() =>
+      measurePreviewApp(f.app, { ...expected, commit: 'd'.repeat(40), compatibilityContract })
+    ).toThrow()
+  })
+
   it.each([
     ['commit', 'd'.repeat(40)],
     ['version', '1.2.3'],
