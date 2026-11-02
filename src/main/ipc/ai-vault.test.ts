@@ -1,4 +1,4 @@
-import { agentSessionConversationView } from '../../shared/agent-session-conversation-view'
+import { agentSessionConversationView } from '../../shared/agent-session/lifecycle/agent-session-conversation-view'
 import { homedir } from 'node:os'
 import { EventEmitter } from 'node:events'
 import { join, sep } from 'node:path'

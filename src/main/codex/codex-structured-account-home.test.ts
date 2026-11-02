@@ -6,9 +6,9 @@ import {
   acquiredAccountAcrossLease,
   acquiredCodexSessionAccount,
   withAcquiredAgentSessionAccount
-} from '../../shared/agent-session-acquired-account'
+} from '../../shared/agent-session/lifecycle/agent-session-acquired-account'
 import { codexProviderHandle } from '../../shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
-import type { AgentSessionJournalIdentity } from '../../shared/agent-session-journal-identity'
+import type { AgentSessionJournalIdentity } from '../../shared/agent-session/journal/agent-session-journal-identity'
 import { agentSessionRecordFixture } from '../native-chat/agent-session-record-test-fixture'
 import { createCodexStructuredLaunchResolver } from '../runtime/structured-agent-launch-composition.test-support'
 import { prepareCodexStructuredAccountHome } from './codex-structured-account-home'

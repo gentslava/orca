@@ -1,8 +1,14 @@
-import { aiVaultScanIssueText } from '../../shared/ai-vault-scan-issue-copy'
 import { yieldToEventLoop } from '../../shared/event-loop-yield'
 import { isConversationNameRequestSession } from './conversation-name-request-sessions'
 import { candidateFileTime } from './antigravity-transcript-candidates'
-import type { AiVaultScanIssue, AiVaultSession } from '../../shared/ai-vault-types'
+import {
+  aiVaultAgentLabel,
+  isAiVaultSessionResumableContent,
+  isAiVaultSessionRecoverableEmpty,
+  type AiVaultScanIssue,
+  type AiVaultSession
+} from '../../shared/ai-vault-types'
+import { aiVaultScanIssueText } from '../../shared/ai-vault-scan-issue-copy'
 import type { ExecutionHostId } from '../../shared/execution-host'
 import { ScannedSessionCollection } from './session-root-dedup'
 import type { AntigravityWorkspaceResolver } from './session-scanner-antigravity-history'
@@ -17,11 +23,6 @@ import {
   noteSessionParseCacheListed,
   sessionParseCacheKey
 } from './session-parse-cache-store'
-import {
-  MAX_SESSION_TRANSCRIPT_RECORD_BYTES,
-  describeSkippedTranscriptRecords,
-  describeSkippedTranscriptRecordPositions
-} from './session-transcript-record-budget'
 import { canStopParsingSessions } from './session-scan-cutoff'
 import type { SessionFileCandidate, SessionParseResult } from './session-scanner-types'
 import { throwIfAiVaultScanCancelled } from './ai-vault-scan-cancellation'
@@ -151,7 +152,7 @@ export async function parseSessionCandidate(
     }
     return {
       session: session ? withSessionExecutionHost(session, executionHostId) : null,
-      issue: skippedRecordIssue(candidate, executionHostId)
+      issue: unreadableTranscriptIssue(candidate, session, executionHostId)
     }
   } catch (err) {
     return {
@@ -166,29 +167,34 @@ export async function parseSessionCandidate(
   }
 }
 
-// Partial record loss is a notice because the transcript still appears in History.
-function skippedRecordIssue(
+// A filename-derived row does not prove that any conversation was read.
+function unreadableTranscriptIssue(
   candidate: SessionFileCandidate,
+  session: AiVaultSession | null,
   executionHostId: ExecutionHostId
 ): AiVaultScanIssue | null {
+  if (
+    !session ||
+    isAiVaultSessionResumableContent(session) ||
+    isAiVaultSessionRecoverableEmpty(session)
+  ) {
+    return null
+  }
   const entry = getSessionParseCacheEntry(
     sessionParseCacheKey(candidate.agent, candidate.file.path)
   )
   const skipped = entry?.resume?.skippedRecords ?? entry?.skippedRecords
-  const message = skipped ? describeSkippedTranscriptRecords(skipped) : null
-  if (message === null || !skipped) {
+  if (!skipped?.length) {
     return null
   }
   return {
     executionHostId,
     agent: candidate.agent,
-    kind: 'notice',
     path: candidate.file.path,
-    ...aiVaultScanIssueText('oversizedTranscriptRecords', {
-      params: { count: skipped.length, limit: MAX_SESSION_TRANSCRIPT_RECORD_BYTES / (1024 * 1024) },
-      detail: describeSkippedTranscriptRecordPositions(skipped)
-    }),
-    message
+    // Name the parsed writer: a shared discovery root (OMP files under Pi's) can differ from it.
+    ...aiVaultScanIssueText('transcriptTooLarge', {
+      params: { label: aiVaultAgentLabel(session.agent) }
+    })
   }
 }
 

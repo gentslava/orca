@@ -294,9 +294,7 @@ export default function AiVaultPanel({
         </div>
       ) : null}
 
-      <div hidden={searching} className="shrink-0">
-        <AiVaultScanIssueBanners scanResult={scanResult} />
-      </div>
+      {!searching && <AiVaultScanIssueBanners scanResult={scanResult} />}
       <AiVaultPanelSearch
         search={search}
         noAgents={agents.length === 0}

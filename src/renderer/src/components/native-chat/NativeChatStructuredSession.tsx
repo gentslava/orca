@@ -67,9 +67,9 @@ import { useStructuredAgentSessionStartFailureFacts } from './use-structured-age
 import { pendingPromptsAllUnanswerableHere } from '../../../../shared/agent-session/agent-session-approval-subject'
 import { isClaudeSignInFailureKind, useNativeChatClaudeSignIn } from './native-chat-claude-sign-in'
 
-export function NativeChatStructuredSession(
-  props: Omit<NativeChatStructuredViewProps, 'mode'>
-): React.JSX.Element {
+type StructuredSessionProps = Omit<NativeChatStructuredViewProps, 'mode'>
+
+export function NativeChatStructuredSession(props: StructuredSessionProps): React.JSX.Element {
   const ownerWorktreeId = useNativeChatTabOwnerWorktreeId(props.tabId)
   const fileLinkContext = useNativeChatFileLinkContext(props.tabId)
   const provisionalLaunch = useNativeChatProvisionalLaunch(ownerWorktreeId, props.sessionId)
@@ -193,7 +193,9 @@ export function NativeChatStructuredSession(
     questionAnswerInputRef: activeAnswerInputRef,
     isVisible: props.isVisible,
     isFocusedGroup: props.isFocusedGroup,
-    composerReady: composerShown && install.slot.kind !== 'install' && childNavigator.child === null
+    composerReady:
+      composerShown && install.slot.kind !== 'install' && childNavigator.child === null,
+    surfaceReady: !composerShown || install.slot.kind === 'install' || childNavigator.child !== null
   })
   const transport = useNativeChatStructuredComposerTransport({
     props,
@@ -354,12 +356,7 @@ export function NativeChatStructuredSession(
                 agent={props.agent}
                 controller={controller}
                 response={promptResponse}
-                shouldFocus={
-                  !promptsUnanswerable &&
-                  props.isVisible &&
-                  props.isFocusedGroup &&
-                  childNavigator.child === null
-                }
+                shouldFocus={!promptsUnanswerable && paneActive && childNavigator.child === null}
                 answerInputRef={questionAnswerInputRef}
                 asyncQuestion={nativeChatStructuredAsyncQuestion(
                   props,

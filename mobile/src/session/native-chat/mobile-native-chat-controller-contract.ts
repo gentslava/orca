@@ -34,6 +34,8 @@ import type { useMobileNativeChatSessionLane } from './use-mobile-native-chat-se
 
 export type MobileNativeChatControllerArgs = {
   client: RpcClient | null
+  /** The route's paired host can differ from the workspace's execution server. */
+  pairedHostClient: RpcClient | null
   hostId: string
   worktreeId: string
   activeSessionTab: MobileNativeChatTab | null

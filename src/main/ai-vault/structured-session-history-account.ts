@@ -1,6 +1,6 @@
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { acquiredAgentSessionAccount } from '../../shared/agent-session-acquired-account'
+import { acquiredAgentSessionAccount } from '../../shared/agent-session/lifecycle/agent-session-acquired-account'
 import { CLAUDE_STRUCTURED_AGENT } from '../claude/structured/claude-structured-agent-definition'
 import { getStructuredAgentSessionHost } from '../native-chat/agent-session-wire/structured-agent-session-registry'
 import {

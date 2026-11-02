@@ -125,6 +125,7 @@ describe('mobile structured send actions', () => {
     banner.bannerMountedRef.current = true
     hook = useMobileStructuredAgentSession({
       client,
+      pairedHostClient: client,
       sessionId,
       sourceIdentity: 'host-a\0workspace-a',
       composerScopeKey: 'ordinary-draft',

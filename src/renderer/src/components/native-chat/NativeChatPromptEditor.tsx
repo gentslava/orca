@@ -35,6 +35,10 @@ import type {
 import { mountedEditorView } from './native-chat-mounted-editor-view'
 import { NativeChatUnkernedRunDecorations } from './native-chat-unkerned-run-decorations'
 
+import { useNativeChatComposerMount } from './native-chat-composer-mount'
+
+const NOT_COMPOSING = (): boolean => false
+
 // `initialValue` only seeds the editor at mount; keep the other props referentially stable or this memo stops helping.
 export const NativeChatPromptEditor = memo(
   NativePromptEditor,
@@ -47,6 +51,7 @@ function NativePromptEditor({
   positionTarget,
   imageRow: _imageRow,
   inputRef,
+  isComposing = NOT_COMPOSING,
   initialValue,
   disabled,
   placeholder,
@@ -62,7 +67,7 @@ function NativePromptEditor({
   const claimSelection = () => {
     userOwned.current = true
     const position = adopted.current && nativeChatDraftPositions.get(adopted.current)
-    if (position?.at === 'end' && position.target === positionTarget) {
+    if (position && position.at !== 'start' && position.target === positionTarget) {
       position.pending = false
     }
   }
@@ -177,12 +182,12 @@ function NativePromptEditor({
         !editor ||
         !position?.pending ||
         appliedPosition.current === position ||
-        (position.at === 'end' && position.target !== positionTarget)
+        (position.at !== 'start' && position.target !== positionTarget)
       ) {
         return
       }
       if (userOwned.current) {
-        if (position.at === 'end') {
+        if (position.at !== 'start') {
           position.pending = false
         } else if (previousRange) {
           editor.commands.setTextSelection({
@@ -196,13 +201,19 @@ function NativePromptEditor({
       editor.view.dispatch(
         editor.state.tr
           .setSelection(
-            position.at === 'end'
-              ? TextSelection.atEnd(editor.state.doc)
-              : TextSelection.atStart(editor.state.doc)
+            position.at === 'selection'
+              ? TextSelection.create(
+                  editor.state.doc,
+                  promptTextPosition(editor.state.doc, position.from),
+                  promptTextPosition(editor.state.doc, position.to)
+                )
+              : position.at === 'end'
+                ? TextSelection.atEnd(editor.state.doc)
+                : TextSelection.atStart(editor.state.doc)
           )
           .setMeta('preventUpdate', true)
       )
-      if (position.at === 'end') {
+      if (position.at !== 'start') {
         position.pending = false
       }
     },
@@ -369,6 +380,7 @@ function NativePromptEditor({
     [editor, scopeKey, applyPosition]
   )
   useImperativeHandle(inputRef, () => input!, [input])
+  useNativeChatComposerMount(scopeKey ?? '', input, isComposing, disabled)
 
   return (
     <NativeChatPastedTextScopeProvider value={scopeKey ?? ''}>

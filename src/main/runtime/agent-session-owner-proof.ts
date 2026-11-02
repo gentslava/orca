@@ -4,7 +4,7 @@ import type { AgentSessionAccountHome } from '../../shared/agent-session/lifecyc
 import {
   withAcquiredAgentSessionAccount,
   type ClaudeAccountRecipe
-} from '../../shared/agent-session-acquired-account'
+} from '../../shared/agent-session/lifecycle/agent-session-acquired-account'
 import { proveAgentSessionOwner } from './agent-session/ownership/agent-session-lease-transitions'
 
 /** Construction observation and owner proof share the record's existing transaction. */

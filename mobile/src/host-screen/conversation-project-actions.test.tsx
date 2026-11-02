@@ -18,7 +18,7 @@ vi.mock('react-native', () => ({
   ActivityIndicator: 'ActivityIndicator',
   StyleSheet: { create: (value: unknown) => value, hairlineWidth: 1 }
 }))
-vi.mock('../components/BottomDrawer', () => ({
+vi.mock('../components/bottom-drawer/BottomDrawer', () => ({
   BottomDrawer: ({ children }: { children: ReactNode }) => children
 }))
 vi.mock('../components/MobileRepoIcon', () => ({ MobileRepoIcon: 'MobileRepoIcon' }))

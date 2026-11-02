@@ -65,6 +65,7 @@ import { registerUIHandlers, setTrustedUIRendererWebContentsId } from '../ui'
 import { registerEmulatorFrameStreamHandlers } from '../emulator-frame-stream'
 import { registerEmulatorVideoStreamHandlers } from '../emulator-video-stream'
 import { registerEmulatorScrcpyTouchHandler } from '../emulator-scrcpy-touch'
+import { registerEmulatorScrcpyKeyboardHandler } from '../emulator-scrcpy-keyboard'
 import { registerSpeechHandlers } from '../speech'
 import { registerTerminalRenderDesyncEvidenceHandler } from '../terminal-render-desync-evidence'
 import { registerOrcaProfileHandlers } from '../orca-profiles'
@@ -95,10 +96,7 @@ import type { AutomationService } from '../../automations/service'
 import type { AgentAwakeService } from '../../agent-awake-service'
 import type { CrashReportStore } from '../../crash-reporting/crash-report-store'
 import type { KeybindingService } from '../../keybindings/keybinding-service'
-import type {
-  AiVaultPrepareSessionResumeArgs,
-  AiVaultPrepareSessionResumeResult
-} from '../../../shared/ai-vault-resume-preparation'
+import type { AiVaultResumeHandlerOptions } from '../ai-vault-resume'
 import {
   getSavedRuntimeAiVaultHostInfos,
   deleteRuntimeAiVaultSession,
@@ -138,9 +136,7 @@ type CoreHandlerLifecycleOptions = {
   onBeforeOrcaProfileSignOut?: () => void
   onAfterOrcaProfileSignOut?: () => void
   getAdditionalAiVaultCodexHomePaths?: () => readonly string[]
-  prepareAiVaultSessionResume?: (
-    args: AiVaultPrepareSessionResumeArgs
-  ) => Promise<AiVaultPrepareSessionResumeResult>
+  prepareAiVaultSessionResume?: AiVaultResumeHandlerOptions['prepareSessionResume']
 }
 
 export function registerCoreHandlers(
@@ -253,6 +249,7 @@ export function registerCoreHandlers(
   registerEmulatorFrameStreamHandlers()
   registerEmulatorVideoStreamHandlers()
   registerEmulatorScrcpyTouchHandler()
+  registerEmulatorScrcpyKeyboardHandler()
   registerWorkspaceSpaceHandlers(store)
   registerWorkspacePortHandlers(store)
   registerLinkPreviewHandlers()

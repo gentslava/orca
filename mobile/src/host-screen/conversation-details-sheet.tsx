@@ -3,7 +3,7 @@ import type {
   ConversationPreference,
   ConversationPreferences
 } from '../../../src/shared/conversation-navigation-preferences'
-import { BottomDrawer } from '../components/BottomDrawer'
+import { BottomDrawer } from '../components/bottom-drawer/BottomDrawer'
 import type { ConversationRow } from './project-conversations'
 import { conversationCopy } from './conversation-copy'
 import { conversationStyles as styles } from './conversation-styles'

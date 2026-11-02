@@ -20,16 +20,12 @@ type Values = {
 // null = required values missing; caller shows the host's English `message`.
 const COPY: Record<AiVaultScanIssueCode, (values: Values) => string | null> = {
   issuesOmitted: () => translate('aiVault.scanIssues.issuesOmitted', EN.issuesOmitted),
-  oversizedTranscriptRecords: ({ count, limit }) =>
-    count === null || limit === null
-      ? null
-      : translate('aiVault.scanIssues.oversizedTranscriptRecords', EN.oversizedTranscriptRecords, {
-          count,
-          limit,
-          defaultValue_one: EN_ONE.oversizedTranscriptRecords
-        }),
   sessionMetadataUnreadable: () =>
     translate('aiVault.scanIssues.sessionMetadataUnreadable', EN.sessionMetadataUnreadable),
+  transcriptTooLarge: ({ label }) =>
+    label === null
+      ? null
+      : translate('aiVault.scanIssues.transcriptTooLarge', EN.transcriptTooLarge, { label }),
   openCodeScannerUnavailable: () =>
     translate('aiVault.scanIssues.openCodeScannerUnavailable', EN.openCodeScannerUnavailable),
   openCodeScanIncomplete: ({ detail }) =>

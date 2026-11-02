@@ -1,9 +1,5 @@
-import { agentSessionConversationView } from '../../shared/agent-session-conversation-view'
-import { isGenericConversationTitle } from '../../shared/project-conversation-list'
-import { conversationNameSeed } from '../../shared/conversation-name-generation'
-import type { JournalHostDatabase } from '../native-chat/agent-session-journal/journal-host-database'
-import { structuredConversationJournalPreview } from './structured-conversation-journal-preview'
 import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
+import { agentSessionConversationView } from '../../shared/agent-session/lifecycle/agent-session-conversation-view'
 import { defaultAgentChatLabel } from '../../shared/agent-session/agent-session-chat-label'
 import {
   isAiVaultAgent,
@@ -25,6 +21,10 @@ import {
 } from '../../shared/ai-vault-session-depth'
 import { conditionalAiVaultListResult } from './session-list-fingerprint'
 import { clearedInto } from '../runtime/orchestration/structured-session-lineage'
+import { isGenericConversationTitle } from '../../shared/project-conversation-list'
+import { conversationNameSeed } from '../../shared/conversation-name-generation'
+import type { JournalHostDatabase } from '../native-chat/agent-session-journal/journal-host-database'
+import { structuredConversationJournalPreview } from './structured-conversation-journal-preview'
 
 export function boundedAiVaultConversationList(
   result: AiVaultListResult,

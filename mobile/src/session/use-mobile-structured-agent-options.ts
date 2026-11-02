@@ -4,7 +4,7 @@ import {
   mobileStructuredModelDefaultSnapshot,
   useMobileStructuredModelDefault
 } from './use-mobile-structured-model-default'
-import { structuredOptionPickIsPending } from '../../../src/shared/structured-agent-session-option-pick-book'
+import { structuredOptionPickIsPending } from '../../../src/shared/agent-session/options/structured-agent-session-option-pick-book'
 import type { AgentSessionConversationCommand } from '../../../src/shared/agent-session/agent-session-conversation-command'
 import { useMobileStructuredOptionState } from './use-mobile-structured-option-state'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
@@ -25,7 +25,7 @@ import { mobileCreatedStructuredSession } from './mobile-created-structured-sess
 import {
   acceptedStructuredSessionSelectionOutcome,
   createStructuredAgentSessionOptionsWriteOwner
-} from '../../../src/shared/structured-agent-session-options-write-owner'
+} from '../../../src/shared/agent-session/options/structured-agent-session-options-write-owner'
 import { useMobileStructuredOptionSurface } from './use-mobile-structured-option-surface'
 
 const NO_COMMANDS: readonly AgentSessionConversationCommand[] = []
@@ -58,7 +58,7 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
     coherentCatalog: hostSupport?.coherentModelCatalog === true
   })
   const {
-    projectPermission,
+    projectRuntimeReports,
     optionState,
     optionStateRef,
     activeOptionRecordRef,
@@ -66,7 +66,6 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
     updateOptionState,
     conversationSupport,
     imageSupport,
-    awaitingOptions,
     receiveCatalog,
     isCurrentContext,
     controller,
@@ -96,19 +95,19 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
     imageSupport?.sessionId === sessionId &&
     !imageSupport.statesPermissionMode &&
     optionState.permissionMode === null
-  const interactionReadyRef = useRef(!awaitingOptions)
+  const interactionReadyRef = useRef(writes.current.count === 0)
   const lockSnapshotRef = useRef(
     (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) => snapshot
   )
   const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) =>
-    awaitingOptions ? lockedStructuredAgentSessionOptionSnapshot(snapshot) : snapshot
+    writes.current.count > 0 ? lockedStructuredAgentSessionOptionSnapshot(snapshot) : snapshot
   useLayoutEffect(() => {
-    interactionReadyRef.current = !awaitingOptions
+    interactionReadyRef.current = writes.current.count === 0
     lockSnapshotRef.current = lockSnapshot
   })
   const readOptionState = useCallback(
     () =>
-      projectPermission({
+      projectRuntimeReports({
         ...structuredAgentSessionOptionView(
           optionStateRef.current,
           undefined,
@@ -116,14 +115,13 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
         ),
         permissionOwnSupported: hostSupport ? hostSupport.permissionOwn === true : null
       }),
-    [controller, projectPermission, hostSupport?.permissionOwn]
+    [controller, projectRuntimeReports, hostSupport?.permissionOwn]
   )
   const shown = lockSnapshot(
     mobileStructuredModelDefaultSnapshot(
       structuredAgentSessionShownSnapshot(readOptionState()),
       readOptionState(),
-      hostSupport?.defaultModel === true,
-      awaitingOptions
+      hostSupport?.defaultModel === true
     )
   )
   const optionSnapshot = legacyHostPermissions
@@ -131,7 +129,7 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
     : shown
 
   const readWriteContext = () => {
-    const currentState = projectPermission({
+    const currentState = projectRuntimeReports({
       ...optionStateRef.current,
       permissionOwnSupported: hostSupport ? hostSupport.permissionOwn === true : null
     })
@@ -141,12 +139,7 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
       record: optionStateRef.current.record,
       view,
       snapshot: lockSnapshotRef.current(structuredAgentSessionShownSnapshot(view)),
-      ready:
-        !awaitingOptions &&
-        writes.current.count === 0 &&
-        !!client &&
-        !!sessionId &&
-        interactionReadyRef.current,
+      ready: writes.current.count === 0 && !!client && !!sessionId && interactionReadyRef.current,
       providerStarting,
       isCurrentContext,
       flush: (isCurrent: () => boolean) => {
@@ -208,7 +201,6 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
     sessionId,
     mutate,
     takesModelDefault: hostSupport?.defaultModel === true,
-    awaitingOptions,
     lockSnapshotRef,
     source: optionSource
   })
@@ -216,7 +208,6 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
     useMobileStructuredOptionSurface({
       optionSnapshot,
       demandModelCatalog,
-      lockSnapshot: (snapshot) => lockSnapshotRef.current(snapshot),
       setStructuredOption,
       readOptionState,
       resetOption: hostSupport?.defaultModel === true ? resetOption : undefined

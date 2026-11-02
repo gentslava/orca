@@ -14,7 +14,7 @@ import {
   beginStructuredOptionPick,
   isLatestStructuredOptionPick,
   settleStructuredOptionPick
-} from '../../../../shared/structured-agent-session-option-pick-book'
+} from '../../../../shared/agent-session/options/structured-agent-session-option-pick-book'
 import type { StructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
 import type { useStructuredAgentSessionOptionState } from './use-structured-agent-session-option-state'
 import { enqueueSessionOptionSettingsWrite } from './native-chat-session-option-settings-write'

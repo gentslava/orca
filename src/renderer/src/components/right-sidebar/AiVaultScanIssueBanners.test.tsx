@@ -1,81 +1,64 @@
 // @vitest-environment happy-dom
-import userEvent from '@testing-library/user-event'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, expect, it } from 'vitest'
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { i18n } from '@/i18n/i18n'
+import es from '@/i18n/locales/es.json'
+import type {
+  AiVaultListResult,
+  AiVaultScanIssue,
+  AiVaultSession
+} from '../../../../shared/ai-vault-types'
+import { aiVaultScanIssueText } from '../../../../shared/ai-vault-scan-issue-copy'
+import { makeTabSessionHistoryRow } from '../tab-bar/tab-session-history-test-fixture'
 import { AiVaultScanIssueBanners } from './AiVaultScanIssueBanners'
-import type { AiVaultListResult, AiVaultScanIssue } from '../../../../shared/ai-vault-types'
 
-const notice: AiVaultScanIssue = {
-  executionHostId: 'ssh:build',
-  agent: 'codex',
-  kind: 'notice',
-  path: '/sessions/large.jsonl',
-  message: 'Skipped 2 oversized transcript records. The rest of the session was read.'
-}
-function result(issues: AiVaultScanIssue[]): AiVaultListResult {
-  return { sessions: [], issues, scannedAt: '2026-11-01T00:00:00Z' }
-}
-function view(scanResult: AiVaultListResult) {
-  return (
-    <TooltipProvider>
-      <AiVaultScanIssueBanners scanResult={scanResult} />
-    </TooltipProvider>
-  )
-}
-afterEach(cleanup)
+const originalLanguage = i18n.language
 
-it('keeps partial-history diagnostics compact and reveals their host and source on demand', async () => {
-  render(view(result([notice])))
-  expect(screen.queryByText(notice.message)).toBeNull()
-  const trigger = screen.getByRole('button', { name: 'History notices · 1' })
-  expect(trigger.getAttribute('aria-expanded')).toBe('false')
-  await userEvent.click(trigger)
-  expect(screen.getByText(notice.message)).toBeTruthy()
-  expect(screen.getByText('/sessions/large.jsonl')).toBeTruthy()
-  expect(screen.getByText('Codex · ssh:build')).toBeTruthy()
+afterEach(async () => {
+  cleanup()
+  await i18n.changeLanguage(originalLanguage)
 })
 
-it('dismisses the same notices across refreshes and reveals newly changed diagnostics', async () => {
-  const { rerender } = render(view(result([notice])))
-  await userEvent.click(screen.getByRole('button', { name: 'Dismiss history notices' }))
-  rerender(view({ ...result([{ ...notice }]), scannedAt: '2026-11-01T01:00:00Z' }))
-  expect(screen.queryByRole('button', { name: 'History notices · 1' })).toBeNull()
-  rerender(view(result([{ ...notice, message: 'Skipped 3 oversized records.' }])))
-  await userEvent.click(screen.getByRole('button', { name: 'History notices · 1' }))
-  expect(screen.getByText('Skipped 3 oversized records.')).toBeTruthy()
-})
-
-it('never hides host, scope or whole-transcript failures when notices are dismissed', async () => {
-  render(
-    view(
-      result([
-        notice,
-        { ...notice, kind: 'host', message: 'Host unreachable' },
-        { ...notice, kind: 'scope', message: 'Project history unavailable' },
-        { ...notice, kind: undefined, message: 'Transcript unreadable' }
-      ])
-    )
-  )
-  await userEvent.click(screen.getByRole('button', { name: 'Dismiss history notices' }))
-  for (const message of [
-    'Host unreachable',
-    'Project history unavailable',
-    'Transcript unreadable'
-  ]) {
-    expect(screen.getByText(message)).toBeTruthy()
+function result(sessions: AiVaultSession[], issues: AiVaultScanIssue[]): AiVaultListResult {
+  return {
+    sessions,
+    issues,
+    scannedAt: '2026-11-01T00:00:00.000Z'
   }
+}
+
+const recovered = makeTabSessionHistoryRow()
+const emptyRow = makeTabSessionHistoryRow({ messageCount: 0, previewMessages: [] })
+
+const tooLarge: AiVaultScanIssue = {
+  executionHostId: 'local',
+  agent: 'codex',
+  path: '/sessions/rollout.jsonl',
+  ...aiVaultScanIssueText('transcriptTooLarge', { params: { label: 'Codex' } })
+}
+
+it('shows no notice rows for a recovered conversation', () => {
+  render(<AiVaultScanIssueBanners scanResult={result([recovered], [])} />)
+
+  expect(screen.queryByTestId('ai-vault-scan-notices')).toBeNull()
 })
 
-it('keeps reordered notices dismissed but reveals changed diagnostic details', async () => {
-  const first = { ...notice, messageParams: { count: 2, limit: 10 }, messageDetail: 'at byte 42' }
-  const second = { ...notice, path: '/sessions/other.jsonl' }
-  const { rerender } = render(view(result([first, second])))
-  await userEvent.click(screen.getByRole('button', { name: 'Dismiss history notices' }))
-  rerender(view(result([second, { ...first, messageParams: { limit: 10, count: 2 } }])))
-  expect(screen.queryByRole('button', { name: 'History notices · 2' })).toBeNull()
-  rerender(view(result([second, { ...first, messageDetail: 'at byte 84' }])))
-  await userEvent.click(screen.getByRole('button', { name: 'History notices · 1' }))
-  expect(screen.getByText('at byte 84')).toBeTruthy()
-  expect(screen.queryByText(second.path)).toBeNull()
+it('names the agent of a conversation too large to load, in English and translated', async () => {
+  const { rerender } = render(
+    <AiVaultScanIssueBanners scanResult={result([emptyRow], [tooLarge])} />
+  )
+
+  const notices = screen.getByTestId('ai-vault-scan-notices')
+  expect(notices.textContent).toBe(`1 transcript skipped${tooLarge.message}`)
+  expect(tooLarge.message).toBe(
+    'A Codex conversation is too large to load in Session History. Try resuming it in Codex directly.'
+  )
+
+  i18n.addResourceBundle('es', 'translation', es)
+  await i18n.changeLanguage('es')
+  rerender(<AiVaultScanIssueBanners scanResult={result([emptyRow], [tooLarge])} />)
+
+  expect(screen.getByTestId('ai-vault-scan-notices').textContent).toBe(
+    `1 transcripción omitida${es.aiVault.scanIssues.transcriptTooLarge.replaceAll('{{label}}', 'Codex')}`
+  )
 })

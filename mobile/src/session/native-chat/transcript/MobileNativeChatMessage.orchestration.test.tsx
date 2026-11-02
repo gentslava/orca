@@ -74,13 +74,15 @@ it.each(['started', 'task', 'coordinator', 'worker', 'generic'] as const)(
     }
     const headings = {
       started: 'Started worker',
+      'handed-off': 'Handed off to agent',
+      'started-agent': 'Started agent',
       task: 'Task from coordinator',
       coordinator: 'Message from coordinator',
       worker: 'Update from worker',
       generic: 'Message from'
     }
     expect(textIn(tree.root).slice(mailNotice ? 1 : 0, mailNotice ? 3 : 2)).toEqual([
-      headings[agentMessageHeading(from, message.agentStart === true)],
+      headings[agentMessageHeading(from, message)],
       agentMessageSenderLabel({
         localChat: false,
         snapshotName: from.senders[0].name,

@@ -1,3 +1,4 @@
+import { AgentHistoryLoadState } from './AgentHistoryLoadState'
 import { scopeSegments } from './agent-history-scope-segments'
 import { openMobileAgentHistoryChat } from './open-mobile-agent-history-chat'
 import { mobileStructuredSessionOpenMessage } from '../session/mobile-structured-session-open-message'
@@ -33,13 +34,13 @@ import { shouldShowMobileCurrentWorktreeBadge } from './agent-history-current-wo
 import { MobileAgentSessionHistoryList } from './MobileAgentSessionHistoryList'
 import { buildMobileAgentHistoryResumeActionState } from './agent-history-session-card'
 import { styles } from './agent-history-styles'
+import { MobileNoMatchState, MobileStateView } from '../components/MobileStateView'
 import {
-  MobileLoadErrorState,
-  MobileNoMatchState,
-  MobileOfflineState,
-  MobileStateView
-} from '../components/MobileStateView'
-import { AgentHistoryResumeNotice, AgentHistorySkippedNotice } from './AgentHistoryNotices'
+  AgentHistoryResumeNotice,
+  AgentHistoryResumeToast,
+  AgentHistorySkippedNotice,
+  useAgentHistoryResumeToast
+} from './AgentHistoryNotices'
 import { useNow } from '../hooks/use-now'
 import { useMobileResumeOperationOwnership } from './use-mobile-resume-operation-ownership'
 import { conversationCopy } from '../host-screen/conversation-copy'
@@ -84,6 +85,7 @@ function MobileAgentSessionHistoryPanelContent({
   const insets = useSafeAreaInsets()
   const [resumingSessionId, setResumingSessionId] = useState<string | null>(null)
   const [resumeMessage, setResumeMessage] = useState<string | null>(null)
+  const { message: resumeToast, showToast: showResumeToast } = useAgentHistoryResumeToast()
   const now = useNow(30_000)
   const resumeLaunchInFlightRef = useRef(false)
   const resumeMutationRegistryRef = useRef(
@@ -197,9 +199,17 @@ function MobileAgentSessionHistoryPanelContent({
               triggerSuccess()
               router.replace(href)
             },
-            failed: (reason) => {
+            failed: (reason, workspaceKind) => {
               triggerError()
-              setResumeMessage(mobileStructuredSessionOpenMessage(reason, session.agent))
+              const message = mobileStructuredSessionOpenMessage(
+                reason,
+                session.agent,
+                undefined,
+                workspaceKind
+              )
+              const showMessage =
+                reason === 'workspace-missing' ? showResumeToast : setResumeMessage
+              showMessage(message)
             }
           })
         ) {
@@ -289,6 +299,7 @@ function MobileAgentSessionHistoryPanelContent({
       worktreeId,
       worktrees,
       claimResumeOwnership,
+      showResumeToast,
       t
     ]
   )
@@ -331,83 +342,68 @@ function MobileAgentSessionHistoryPanelContent({
         />
       </SafeAreaView>
 
-      {screenState.kind === 'loading' ? (
-        <MobileStateView
-          loading
-          title={t('agentHistory.panel.loading', 'Loading agent sessions…')}
-        />
-      ) : screenState.kind === 'unsupported' ? (
-        <MobileStateView
-          icon={History}
-          title={t('agentHistory.panel.unavailable', 'Agent Session History Unavailable')}
-          message={t(
-            'agentHistory.panel.updateHost',
-            'Update Orca on this host to browse agent session history.'
-          )}
-        />
-      ) : screenState.kind === 'error' && connState !== 'connected' ? (
-        <MobileOfflineState onReconnect={retry} />
-      ) : screenState.kind === 'error' ? (
-        <MobileLoadErrorState error={screenState.message} onRetry={retry} />
-      ) : (
-        <>
-          {issues.length > 0 ? <AgentHistorySkippedNotice issues={issues} /> : null}
-          {resumeMessage ? (
-            <AgentHistoryResumeNotice
-              message={resumeMessage}
-              onDismiss={() => setResumeMessage(null)}
+      <AgentHistoryLoadState
+        state={screenState}
+        connected={connState === 'connected'}
+        onRetry={retry}
+      >
+        {issues.length > 0 ? <AgentHistorySkippedNotice issues={issues} /> : null}
+        {resumeMessage ? (
+          <AgentHistoryResumeNotice
+            message={resumeMessage}
+            onDismiss={() => setResumeMessage(null)}
+          />
+        ) : null}
+        {sections.length === 0 ? (
+          effectiveQuery ? (
+            <MobileNoMatchState
+              message={t('agentHistory.panel.noSearchResults', 'No sessions match your search.')}
+              onClear={() => setQuery('')}
+              bottomInset={searchBarHeight}
             />
-          ) : null}
-          {sections.length === 0 ? (
-            effectiveQuery ? (
-              <MobileNoMatchState
-                message={t('agentHistory.panel.noSearchResults', 'No sessions match your search.')}
-                onClear={() => setQuery('')}
-                bottomInset={searchBarHeight}
-              />
-            ) : (
-              <MobileStateView
-                icon={History}
-                title={t('agentHistory.panel.noSessions', 'No agent sessions')}
-                message={
-                  conversationId
-                    ? t(
-                        'agentHistory.panel.conversationUnavailable',
-                        "This conversation's history is unavailable on this host."
-                      )
-                    : t('agentHistory.panel.emptyScope', 'No past agent sessions in this scope.')
-                }
-                bottomInset={searchBarHeight}
-              />
-            )
           ) : (
-            <MobileAgentSessionHistoryList
-              key={conversationId ?? 'history'}
-              sections={sections}
-              sessionsById={sessionsById}
-              refreshing={refreshing}
-              showCurrentWorktreeBadges={
-                !conversationId && shouldShowMobileCurrentWorktreeBadge(scope)
+            <MobileStateView
+              icon={History}
+              title={t('agentHistory.panel.noSessions', 'No agent sessions')}
+              message={
+                conversationId
+                  ? t(
+                      'agentHistory.panel.conversationUnavailable',
+                      "This conversation's history is unavailable on this host."
+                    )
+                  : t('agentHistory.panel.emptyScope', 'No past agent sessions in this scope.')
               }
-              initialExpandedId={conversationId}
-              hideSectionHeaders={Boolean(conversationId)}
-              resumeActionStateBySessionId={resumeActionStateBySessionId}
-              onResume={onResumeSession}
-              onRefresh={() => void onRefresh()}
-              bottomPadding={searchBarHeight}
+              bottomInset={searchBarHeight}
             />
-          )}
-          {!conversationId && (
-            <BottomSearchBar
-              value={query}
-              onChangeText={setQuery}
-              placeholder={t('agentHistory.panel.placeholder', 'Search sessions, repo:, path:')}
-              bottomInset={insets.bottom}
-              onCoveredHeightChange={setSearchBarHeight}
-            />
-          )}
-        </>
-      )}
+          )
+        ) : (
+          <MobileAgentSessionHistoryList
+            key={conversationId ?? 'history'}
+            sections={sections}
+            sessionsById={sessionsById}
+            refreshing={refreshing}
+            showCurrentWorktreeBadges={
+              !conversationId && shouldShowMobileCurrentWorktreeBadge(scope)
+            }
+            initialExpandedId={conversationId}
+            hideSectionHeaders={Boolean(conversationId)}
+            resumeActionStateBySessionId={resumeActionStateBySessionId}
+            onResume={onResumeSession}
+            onRefresh={() => void onRefresh()}
+            bottomPadding={searchBarHeight}
+          />
+        )}
+        {!conversationId && (
+          <BottomSearchBar
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t('agentHistory.panel.placeholder', 'Search sessions, repo:, path:')}
+            bottomInset={insets.bottom}
+            onCoveredHeightChange={setSearchBarHeight}
+          />
+        )}
+      </AgentHistoryLoadState>
+      <AgentHistoryResumeToast message={resumeToast} bottomInset={searchBarHeight} />
     </View>
   )
 }

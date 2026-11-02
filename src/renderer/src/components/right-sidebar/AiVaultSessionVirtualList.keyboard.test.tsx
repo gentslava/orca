@@ -35,6 +35,7 @@ vi.mock('@/lib/activate-ai-vault-structured-session', async (importOriginal) => 
     activateAiVaultStructuredSession: vi.fn(original.activateAiVaultStructuredSession)
   }
 })
+
 const VIEWPORT_PX = 600
 const ROW_PX = 98
 

@@ -9,7 +9,6 @@ import type {
 
 export function useMobileStructuredOptionSurface(args: {
   demandModelCatalog: () => void
-  lockSnapshot: (snapshot: SessionOptionDescriptor[]) => SessionOptionDescriptor[]
   optionSnapshot: SessionOptionDescriptor[]
   resetOption?: SessionOptionsSurface['resetOption']
   setStructuredOption: (id: string, value: SessionOptionValue) => Promise<boolean>
@@ -36,9 +35,9 @@ export function useMobileStructuredOptionSurface(args: {
   const setOption = useCallback(
     async (id: string, value: SessionOptionValue) => {
       await setStructuredOption(id, value)
-      return { snapshot: args.lockSnapshot(structuredAgentSessionShownSnapshot(readOptionState())) }
+      return { snapshot: structuredAgentSessionShownSnapshot(readOptionState()) }
     },
-    [args.lockSnapshot, readOptionState, setStructuredOption]
+    [readOptionState, setStructuredOption]
   )
 
   const optionSurface = useMemo<SessionOptionsSurface>(

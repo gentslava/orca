@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { acquiredCodexSessionAccount } from '../../shared/agent-session-acquired-account'
+import { acquiredCodexSessionAccount } from '../../shared/agent-session/lifecycle/agent-session-acquired-account'
 import {
   agentSessionAccountHomesEqual,
   requireLegacyAgentSessionAccountHome,
