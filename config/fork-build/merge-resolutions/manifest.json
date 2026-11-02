@@ -48,222 +48,6 @@
     "reason": "Retain collapsed typed orchestration mail, grouped review disclosures and upstream viewed-image attachments without repeating grouped notices."
   },
   {
-    "path": "src/shared/project-conversation-list.ts",
-    "blobs": [
-      null,
-      "78e6f0da0432928e715fced21373efec80d96da5",
-      "953875cc1fde8b54aca944fc6a6ac608a079adc4"
-    ],
-    "patch": "refresh-main54b/pr33383-2e95bcc60e.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "6fe4aac5172762847ca5b17e6e3dc1217417254d08307881125c5011fa0589ad",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
-    "blobs": [
-      null,
-      "efe6e791de3ca6bccb7ef98a576edec977cdd202",
-      "a80010a968c8c92066290dc08752333e4b9e89c2"
-    ],
-    "patch": "refresh-main54b/pr33383-31ab9448b6.patch",
-    "patchSha256": "781e52610c1c252c25783efbbe2f824da07bfe42052250904595dafa59372ad3",
-    "resultSha256": "2a830b783b8bcee99ecc8466585c4b18245dd613167dc58eafb7e2631203ae9c",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx",
-    "blobs": [
-      "9d3ff7faa003d0d023e28a7dc43f12ac60263ad4",
-      "1975e8e3fb277f87f68776bba74adffe7b36b07d",
-      "5a4a47643810ea02ed6c03820968c3d0cd9224f2"
-    ],
-    "patch": "refresh-main54b/pr33383-341a0a41b3.patch",
-    "patchSha256": "63452585a9c5ce67b62e4c1516bae35aa47c97f248663307fc8a8faa4389b462",
-    "resultSha256": "ee8aa74d22477370fb6f07a5dd0ace71865ad744fba614cf7be82085154242ea",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/main/ipc/ai-vault.ts",
-    "blobs": [
-      "bc696c11aa7451018156dc478af62134e8233b52",
-      "99615b551e2228c9d2eb04f0be426426359e58fc",
-      "d49cc09606dcad0d2282624d09ea98f4f2ad21bd"
-    ],
-    "patch": "refresh-main54b/pr33383-4081362002.patch",
-    "patchSha256": "062d0977319c875f119c500b9e05af9fc75b1cc806afaec952c23fade6f31c59",
-    "resultSha256": "bb2cedaf72b0553ef566e545c15c3e102a9d4163730b8f259d5bdb13aa9d1240",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/main/ipc/ai-vault-local-scan.ts",
-    "blobs": [
-      null,
-      "f86d83c27f3b2e3fc17e775852212a35f4c9d180",
-      "90d14b2da23bfdc4876d5b241bd0549bff1eea48"
-    ],
-    "patch": "refresh-main54b/pr33383-5b4a3b922e.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "0e8a32da78fce7819fdfc8ba8775371d788626e8b3c7f6d4b0c1d96a41f347d1",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/shared/ai-vault-types.ts",
-    "blobs": [
-      "8b073a5f86e5e8d493ec08ccc9a1924e2165a272",
-      "6c198235fe6f588815b940a89a53b068573dd34d",
-      "0823be6e2afafa6b7e6cf9eb83ec1b34b1ad8271"
-    ],
-    "patch": "refresh-main54b/pr33383-aec65543b4.patch",
-    "patchSha256": "5755b8eb54f67f34813572741691624eee64f9817cc73b81b62728358d64fb1f",
-    "resultSha256": "4c4b0eedc1e768fde1f5048876e72d7b4e27ff88ceb000cfbda855781d722eae",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/shared/rpc-contract/ai-vault-params.ts",
-    "blobs": [
-      "eeca524e47d9322bb17adf00406771e4b2fcf66d",
-      "ad75e326f8285c7defe4f8d8ce233f97bc6a7eca",
-      "214db3be3a4e4527663db7269519b6e00c751dda"
-    ],
-    "patch": "refresh-main54b/pr33383-b68f1da9b7.patch",
-    "patchSha256": "b3cb411252e343be9af96b615ce17772c2414af7d6eaa3684c88dfb5972537f2",
-    "resultSha256": "0403cac170b4acd29b53aa91bbaf16121b290f5efa49a4f45453412ced285bf7",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/shared/protocol-version.ts",
-    "blobs": [
-      "0c7aac80ddf1e495ccc6bde42114cd528d8edf7e",
-      "bc0fcc19b3d97559f0f02a42868b2fabdbf5351e",
-      "472223cfa3f62ed5b9ff6e8df69c00c61441151d"
-    ],
-    "patch": "refresh-main54b/pr33383-efda56db3f.patch",
-    "patchSha256": "6507c821dc77f6754fb5fe23f690a48223ad4732a8e7864882ffe4f1f8aa1ec4",
-    "resultSha256": "58bf83c18f43800276308ff517e56643c3858a96a1c65f13a5947068442afa92",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
-    "blobs": [
-      null,
-      "7d72e2f17862525c4be4b2244b8a64af59e6caac",
-      "392861b5e6528fc2687fd82d4b321dfd67ff0722"
-    ],
-    "patch": "refresh-main54b/pr33383-f4c36aaee2.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "a86b929b55e19aa3a2d90930adea28e2caa55512be3c100ec7e0c71a5fd1eba2",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "src/main/runtime/rpc/methods/ai-vault.ts",
-    "blobs": [
-      "fdb08a979f4e195ae4ffee665d6c8c37387bf776",
-      "64404e5240207c57d9c017982e86dd57cadf36f0",
-      "e426f632aab606e3805b2af13d161e80e97bc3fb"
-    ],
-    "patch": "refresh-main54b/pr33383-f7a867ec28.patch",
-    "patchSha256": "172e420249b3962092d0f051fd79325b920934641cde459368e3dc571e1e30ad",
-    "resultSha256": "9a231d61efb592048c1edb386f05f3e889a264fba0987e6c91ba0d25539ab5a4",
-    "reason": "Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution."
-  },
-  {
-    "path": "mobile/src/session/native-chat/input/native-chat-session-option-copy.ts",
-    "blobs": [
-      "57674e8329e3137459929932d601936a3949cace",
-      "bd4e42af2c78a20dc68947ac324e2fee4673d33f",
-      "2340aeed930b7596a387cb252b0427c5c3ea51a9"
-    ],
-    "patch": "refresh-main54b/pr33395-412c906a4e.patch",
-    "patchSha256": "10705ac71a90af0d7ab3c7cb75612382dc842505ff497c073cf6015534e19a5e",
-    "resultSha256": "b425b3421e25b8d8689310774e4089f852f0b3ad18b0e2b329b50b85ca8b5beb",
-    "reason": "Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
-    "blobs": [
-      "4dbab50122dfdddd71ec97813cdb974878adfe79",
-      "9e3f80ab5c5f01c2a3ba9f5570a503f8a9bdb426",
-      "0a463813b17dbae16549a91e2703618d9fc1e99d"
-    ],
-    "patch": "refresh-main54b/pr33395-4a20a86a2c.patch",
-    "patchSha256": "ba0d3208afecab3dfe4ad4fb02aff1485a638afeed7a570e45ef1c0ac86c8ef7",
-    "resultSha256": "a0be7d2be76428317da67e3dd8e30fd98075b4e02425c8c83ed575122153c012",
-    "reason": "Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-sends.ts",
-    "blobs": [
-      "e55013f32cc6af0e176745b4d15af85eadfc70ce",
-      "138fc84a67894c75dc1e048c91e2e43f82c051e4",
-      "58ca3b54f677166ca604fcfe0d563b18f5456b4a"
-    ],
-    "patch": "refresh-main54b/pr33395-7b52f59cb0.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "d0a62fba162ae2b15b739b819de3dc5984f3362f4e41e199fb9a0c60c7f29e28",
-    "reason": "Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations."
-  },
-  {
-    "path": "mobile/src/session/native-chat/mobile-native-chat-controller-contract.ts",
-    "blobs": [
-      "248b648412ee09f0a77b89615728f3b77d07dbaf",
-      "520e37e7e5cc23947e7eb3831615f1b268e36ce9",
-      "8ad761fa54ea2b817e4abf9b3bad9992d67cb6a9"
-    ],
-    "patch": "refresh-main54b/pr33395-8b5da6168f.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "0fae05ceaae4aa78edb7cecc7dd0f269c6bc0d5b935b222264a51683debdd0c5",
-    "reason": "Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
-    "blobs": [
-      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
-      "ca4adfa8a0eb19d29a8528304a6145b1dc0a8e59",
-      "cc6c15cf8b9a05a4fb6d16d08ca623e316618787"
-    ],
-    "patch": "refresh-main54b/pr33395-c4f272e39d.patch",
-    "patchSha256": "543423de0a3dda255b85123d63b3ebb0a1523be529cc4f65b95dc8dc786fb53b",
-    "resultSha256": "177d76f71525e3bba74f012fd52889d8f16c738ef544eb6708a4fcb12a12f15d",
-    "reason": "Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations."
-  },
-  {
-    "path": "src/shared/rpc-contract/structured-agent-session-params.ts",
-    "blobs": [
-      "3e184c9ca67eb27ea52584c9cd97c24de66aae0a",
-      "62dacccf616489fa053279a2929e43d10d22ec1b",
-      "a1802b832d8776bc1e4081d55e1c8d33bde9de00"
-    ],
-    "patch": "refresh-main54b/pr33395-d1ba05ab16.patch",
-    "patchSha256": "fbfe39b5d652488b0203d086b3d6d1e7ebdfedc4e6e069bbc6768db2d733bfbc",
-    "resultSha256": "1a79c6afd44bab29ea22801c1c77570b9c7c551ad83ca9f4e1516ea17db17061",
-    "reason": "Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations."
-  },
-  {
-    "path": "mobile/src/session/mobile-structured-agent-session-host-support.ts",
-    "blobs": [
-      "5646760e5d6b9a67e9418efc048cae1e1d8ae3ae",
-      "0216ed3f190763716c385a5f4801b6ab44fbb06c",
-      "44cef7289cd48a2df78b1236e7e237277777ab8c"
-    ],
-    "patch": "refresh-main54b/pr33395-e0108b9193.patch",
-    "patchSha256": "371c0b24001ab7b9a1437428a9e3e217ae6d3053338ea0305595fbca5154b099",
-    "resultSha256": "cf05060c94479454ee360309567dc3b147420c9e58a283acd82ee14ae2ac7bc3",
-    "reason": "Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts",
-    "blobs": [
-      "e0f99014186e8aca39a486b286092ba644ea8ac8",
-      "05e2caab1fd1cb5cf013b8389a0f76e22fe02e0d",
-      "6106be5cb9331bc368ebe1840ccefd871bbf6cbd"
-    ],
-    "patch": "refresh-main54b/pr33395-fbe37a0d3a.patch",
-    "patchSha256": "88b17aeb3ca89d1a0d2aa0d2424081db8f3dfabb30f83226a25c371729551557",
-    "resultSha256": "bd0e62707ff9498fc8e89a194a8adeef7cd0ccd3b071fbc7302c09252728c702",
-    "reason": "Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations."
-  },
-  {
     "path": "src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts",
     "blobs": [
       "d084dd2e23d984601bb307fee1462faba28237cc",
@@ -430,5 +214,221 @@
     "patchSha256": "39e5ce4cde49fab9ce0edfc4d16d8da6bdea6d23f33409d07e7cb0e0c537e9ca",
     "resultSha256": "30294b03b25ed2ea4ed8dc98aae1cdff4c8e699d10ef3f687e36d3fe41978af5",
     "reason": "Keep current emulator capability aggregate together with conversation and project-order capabilities, once each."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
+    "blobs": [
+      null,
+      "c9fdadbf67844dddae623f02948d37de8e037afc",
+      "dc5d92c64135c080a4deb1d8b696cca71c7d7eda"
+    ],
+    "patch": "refresh-main2fb/pr33383-f4c36aaee2.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "b0f5825cbabe3c1b1f923ce6f2d5f7da9e863a8d9b3ae0789ecac64230e4c7c7",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
+    "blobs": [
+      null,
+      "83fe87f48cfdaec85d6108fe5420fed927604620",
+      "a39c2a64672acead48b2bda6b89494344a414f65"
+    ],
+    "patch": "refresh-main2fb/pr33383-31ab9448b6.patch",
+    "patchSha256": "781e52610c1c252c25783efbbe2f824da07bfe42052250904595dafa59372ad3",
+    "resultSha256": "c9f9e1ff8f5c76dcb877d3f386b045eb671dc7b808b1a0c5b05f324f3ecee40b",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/main/ipc/ai-vault-local-scan.ts",
+    "blobs": [
+      null,
+      "f86d83c27f3b2e3fc17e775852212a35f4c9d180",
+      "90d14b2da23bfdc4876d5b241bd0549bff1eea48"
+    ],
+    "patch": "refresh-main2fb/pr33383-5b4a3b922e.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "0e8a32da78fce7819fdfc8ba8775371d788626e8b3c7f6d4b0c1d96a41f347d1",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/main/ipc/ai-vault.ts",
+    "blobs": [
+      "bc696c11aa7451018156dc478af62134e8233b52",
+      "99615b551e2228c9d2eb04f0be426426359e58fc",
+      "d49cc09606dcad0d2282624d09ea98f4f2ad21bd"
+    ],
+    "patch": "refresh-main2fb/pr33383-4081362002.patch",
+    "patchSha256": "062d0977319c875f119c500b9e05af9fc75b1cc806afaec952c23fade6f31c59",
+    "resultSha256": "bb2cedaf72b0553ef566e545c15c3e102a9d4163730b8f259d5bdb13aa9d1240",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/ai-vault.ts",
+    "blobs": [
+      "fdb08a979f4e195ae4ffee665d6c8c37387bf776",
+      "64404e5240207c57d9c017982e86dd57cadf36f0",
+      "e426f632aab606e3805b2af13d161e80e97bc3fb"
+    ],
+    "patch": "refresh-main2fb/pr33383-f7a867ec28.patch",
+    "patchSha256": "172e420249b3962092d0f051fd79325b920934641cde459368e3dc571e1e30ad",
+    "resultSha256": "9a231d61efb592048c1edb386f05f3e889a264fba0987e6c91ba0d25539ab5a4",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx",
+    "blobs": [
+      "9d3ff7faa003d0d023e28a7dc43f12ac60263ad4",
+      "1975e8e3fb277f87f68776bba74adffe7b36b07d",
+      "5a4a47643810ea02ed6c03820968c3d0cd9224f2"
+    ],
+    "patch": "refresh-main2fb/pr33383-341a0a41b3.patch",
+    "patchSha256": "63452585a9c5ce67b62e4c1516bae35aa47c97f248663307fc8a8faa4389b462",
+    "resultSha256": "ee8aa74d22477370fb6f07a5dd0ace71865ad744fba614cf7be82085154242ea",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/shared/ai-vault-types.ts",
+    "blobs": [
+      "8b073a5f86e5e8d493ec08ccc9a1924e2165a272",
+      "6c198235fe6f588815b940a89a53b068573dd34d",
+      "0823be6e2afafa6b7e6cf9eb83ec1b34b1ad8271"
+    ],
+    "patch": "refresh-main2fb/pr33383-aec65543b4.patch",
+    "patchSha256": "5755b8eb54f67f34813572741691624eee64f9817cc73b81b62728358d64fb1f",
+    "resultSha256": "4c4b0eedc1e768fde1f5048876e72d7b4e27ff88ceb000cfbda855781d722eae",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/shared/project-conversation-list.ts",
+    "blobs": [
+      null,
+      "78e6f0da0432928e715fced21373efec80d96da5",
+      "953875cc1fde8b54aca944fc6a6ac608a079adc4"
+    ],
+    "patch": "refresh-main2fb/pr33383-2e95bcc60e.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "6fe4aac5172762847ca5b17e6e3dc1217417254d08307881125c5011fa0589ad",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "0c7aac80ddf1e495ccc6bde42114cd528d8edf7e",
+      "bc0fcc19b3d97559f0f02a42868b2fabdbf5351e",
+      "472223cfa3f62ed5b9ff6e8df69c00c61441151d"
+    ],
+    "patch": "refresh-main2fb/pr33383-efda56db3f.patch",
+    "patchSha256": "6507c821dc77f6754fb5fe23f690a48223ad4732a8e7864882ffe4f1f8aa1ec4",
+    "resultSha256": "58bf83c18f43800276308ff517e56643c3858a96a1c65f13a5947068442afa92",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault-params.ts",
+    "blobs": [
+      "eeca524e47d9322bb17adf00406771e4b2fcf66d",
+      "ad75e326f8285c7defe4f8d8ce233f97bc6a7eca",
+      "214db3be3a4e4527663db7269519b6e00c751dda"
+    ],
+    "patch": "refresh-main2fb/pr33383-b68f1da9b7.patch",
+    "patchSha256": "b3cb411252e343be9af96b615ce17772c2414af7d6eaa3684c88dfb5972537f2",
+    "resultSha256": "0403cac170b4acd29b53aa91bbaf16121b290f5efa49a4f45453412ced285bf7",
+    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
+  },
+  {
+    "path": "mobile/src/session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "5646760e5d6b9a67e9418efc048cae1e1d8ae3ae",
+      "0216ed3f190763716c385a5f4801b6ab44fbb06c",
+      "44cef7289cd48a2df78b1236e7e237277777ab8c"
+    ],
+    "patch": "refresh-main2fb/pr33395-e0108b9193.patch",
+    "patchSha256": "371c0b24001ab7b9a1437428a9e3e217ae6d3053338ea0305595fbca5154b099",
+    "resultSha256": "cf05060c94479454ee360309567dc3b147420c9e58a283acd82ee14ae2ac7bc3",
+    "reason": "Retain reviewed Default reset and queued/immediate send integration after verified module relocations; preserve the new paired-host client in the controller contract."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/native-chat-session-option-copy.ts",
+    "blobs": [
+      "57674e8329e3137459929932d601936a3949cace",
+      "bd4e42af2c78a20dc68947ac324e2fee4673d33f",
+      "2340aeed930b7596a387cb252b0427c5c3ea51a9"
+    ],
+    "patch": "refresh-main2fb/pr33395-412c906a4e.patch",
+    "patchSha256": "10705ac71a90af0d7ab3c7cb75612382dc842505ff497c073cf6015534e19a5e",
+    "resultSha256": "b425b3421e25b8d8689310774e4089f852f0b3ad18b0e2b329b50b85ca8b5beb",
+    "reason": "Retain reviewed Default reset and queued/immediate send integration after verified module relocations; preserve the new paired-host client in the controller contract."
+  },
+  {
+    "path": "mobile/src/session/native-chat/mobile-native-chat-controller-contract.ts",
+    "blobs": [
+      "248b648412ee09f0a77b89615728f3b77d07dbaf",
+      "532b0561e6474daadbf5cdeee1bbfe0d32a229cd",
+      "1a53cd05dc7f485b8a85b21192aa01649674311f"
+    ],
+    "patch": "refresh-main2fb/pr33395-8b5da6168f.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "0602cfe49ef57954dbbf7a543fb00eaa62d0aa61723a949b9009b8e4370a489c",
+    "reason": "Retain reviewed Default reset and queued/immediate send integration after verified module relocations; preserve the new paired-host client in the controller contract."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "ca4adfa8a0eb19d29a8528304a6145b1dc0a8e59",
+      "cc6c15cf8b9a05a4fb6d16d08ca623e316618787"
+    ],
+    "patch": "refresh-main2fb/pr33395-c4f272e39d.patch",
+    "patchSha256": "543423de0a3dda255b85123d63b3ebb0a1523be529cc4f65b95dc8dc786fb53b",
+    "resultSha256": "177d76f71525e3bba74f012fd52889d8f16c738ef544eb6708a4fcb12a12f15d",
+    "reason": "Retain reviewed Default reset and queued/immediate send integration after verified module relocations; preserve the new paired-host client in the controller contract."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
+    "blobs": [
+      "6e823314208563b96112dd239b53284c2edaf8b3",
+      "1394d283b6150f4e75b36e2018f4420a69b71ee8",
+      "802d18ed6c7a92df173c18e37fc46487e16eaf08"
+    ],
+    "patch": "refresh-main2fb/pr33395-4a20a86a2c.patch",
+    "patchSha256": "ba0d3208afecab3dfe4ad4fb02aff1485a638afeed7a570e45ef1c0ac86c8ef7",
+    "resultSha256": "ed6493ecac28439dab8de8ae55ea6c8428c2993601007cda265cb37a1051cb14",
+    "reason": "Retain reviewed Default reset and queued/immediate send integration after verified module relocations; preserve the new paired-host client in the controller contract."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "e0f99014186e8aca39a486b286092ba644ea8ac8",
+      "05e2caab1fd1cb5cf013b8389a0f76e22fe02e0d",
+      "6dc000a83dbe7e554abc59bed329b3731520ae91"
+    ],
+    "patch": "refresh-main2fb/pr33395-fbe37a0d3a.patch",
+    "patchSha256": "80ff1610395102b4617ed4feed540a83ff2f4aa76088b257f96b85c74a431681",
+    "resultSha256": "ca7a2faa5d6ddf6ef07511deeaf59a33ce551b14bd5f9d99cfe0f6108af76a4d",
+    "reason": "Retain reviewed Default reset and queued/immediate send integration after verified module relocations; preserve the new paired-host client in the controller contract."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-sends.ts",
+    "blobs": [
+      "192522895f1e5636f4c7cc10eac125f15c4844ab",
+      "627cc90ca3d036ba90c5db085d28481192cad190",
+      "46350cf26477459e6fb889702afac81b0d6f24d3"
+    ],
+    "patch": "refresh-main2fb/pr33395-7b52f59cb0.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "8ec743824227e0777c58275e0f1289a45b48b995cdc0c841bcb83b66da6b983c",
+    "reason": "Retain reviewed Default reset and queued/immediate send integration after verified module relocations; preserve the new paired-host client in the controller contract."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session-params.ts",
+    "blobs": [
+      "3e184c9ca67eb27ea52584c9cd97c24de66aae0a",
+      "62dacccf616489fa053279a2929e43d10d22ec1b",
+      "a1802b832d8776bc1e4081d55e1c8d33bde9de00"
+    ],
+    "patch": "refresh-main2fb/pr33395-d1ba05ab16.patch",
+    "patchSha256": "fbfe39b5d652488b0203d086b3d6d1e7ebdfedc4e6e069bbc6768db2d733bfbc",
+    "resultSha256": "1a79c6afd44bab29ea22801c1c77570b9c7c551ad83ca9f4e1516ea17db17061",
+    "reason": "Retain reviewed Default reset and queued/immediate send integration after verified module relocations; preserve the new paired-host client in the controller contract."
   }
 ]

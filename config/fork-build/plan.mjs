@@ -109,6 +109,12 @@ try {
   }
   plan.result.commit = git(source, ['rev-parse', 'HEAD'])
   plan.result.tree = git(source, ['rev-parse', 'HEAD^{tree}'])
+  plan.compatibilityContract = JSON.parse(
+    git(source, [
+      'show',
+      `${plan.result.commit}:src/shared/local-build-compatibility-contract.json`
+    ])
+  )
   plan.result.publishable &&= !plan.blockers.length
   const baseVersion = JSON.parse(git(source, ['show', 'HEAD:package.json'])).version
   plan.version = createLocalBuildVersion(

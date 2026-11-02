@@ -20,6 +20,9 @@ const expected = {
   forkSha: plan.configuration,
   upstreamSha: plan.upstream
 }
+if (plan.compatibilityContract) {
+  expected.compatibilityContract = plan.compatibilityContract
+}
 if (command === 'prepare') {
   const application = resolve(location)
   mkdirSync(application, { recursive: true })
