@@ -1,92 +1,45 @@
-# Reviewed integration corrections for the personal build
+# Reviewed integration corrections
 
-These corrections belong to `gentslava/orca`. They reconcile the selected feature combination while keeping upstream feature PRs separate. Each entry is admitted only when the conflicted path and all three Git blob identities match. Both the patch and the resolved file have checked SHA-256 digests. New or changed conflict inputs stop publication.
+These fork-only patches reconcile selected atomic features. A resolution requires the exact path and all three Git blob identities. Both the patch and resulting file must match their SHA-256 digests. Unknown or changed preimages stop publication.
 
-The application source bundle contains the resolved files. The build plan names every applied correction and its digest. Translation catalogs use the separate strict key merge; these records do not silently choose a side for new conflicts.
+Only resolutions used by the current validated selection remain here. Upstream-compatible repairs belong to their source PRs; obsolete variants are removed. Translation catalogs use the separate strict merge by key.
 
-## With stablyai/orca#33383
-
-Combine desktop durable conversation projection with mobile selected-session reads; retain host-qualified reopening and both keyboard paths.
-
-| File                                                                                    | Reviewed correction                                                               |
-| --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `src/main/ai-vault/structured-conversation-navigation.test.ts`                          | [Diff](conversation-navigation/structured-conversation-navigation.test.ts.patch)  |
-| `src/main/ai-vault/structured-conversation-navigation.ts`                               | [Diff](conversation-navigation/structured-conversation-navigation.ts.patch)       |
-| `src/main/runtime/rpc/methods/ai-vault.ts`                                              | [Diff](conversation-navigation/ai-vault.ts.patch)                                 |
-| `src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx` | [Diff](conversation-navigation/AiVaultSessionVirtualList.keyboard.test.tsx.patch) |
-| `src/renderer/src/components/right-sidebar/ai-vault-session-resume-here.ts`             | [Diff](conversation-navigation/ai-vault-session-resume-here.ts.patch)             |
-| `src/shared/ai-vault-types.ts`                                                          | [Diff](conversation-navigation/ai-vault-types.ts.patch)                           |
-| `src/shared/project-conversation-list.ts`                                               | [Diff](conversation-navigation/project-conversation-list.ts.patch)                |
-| `src/shared/protocol-version.ts`                                                        | [Diff](conversation-navigation/protocol-version.ts.patch)                         |
-| `src/shared/rpc-contract/ai-vault-params.ts`                                            | [Diff](conversation-navigation/ai-vault-params.ts.patch)                          |
-
-## With stablyai/orca#33395
-
-Combine Default model reset fencing with future-turn model/effort/Fast choices and immediate-versus-queued delivery capability checks.
-
-| File                                                                                   | Reviewed correction                                                                     |
-| -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `mobile/src/session/mobile-native-chat-controller-contract.ts`                         | [Diff](session-default-and-queue/mobile-native-chat-controller-contract.ts.patch)       |
-| `mobile/src/session/mobile-structured-agent-session-host-support.ts`                   | [Diff](session-default-and-queue/mobile-structured-agent-session-host-support.ts.patch) |
-| `mobile/src/session/native-chat/input/native-chat-session-option-copy.ts`              | [Diff](session-default-and-queue/native-chat-session-option-copy.ts.patch)              |
-| `src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx`      | [Diff](session-default-and-queue/NativeChatSessionOptionPickers.test.tsx.patch)         |
-| `src/renderer/src/components/native-chat/use-structured-agent-session-options.ts`      | [Diff](session-default-and-queue/use-structured-agent-session-options.ts.patch)         |
-| `src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts` | [Diff](session-default-and-queue/use-structured-agent-session-send-options.ts.patch)    |
-| `src/renderer/src/components/native-chat/use-structured-agent-session-sends.ts`        | [Diff](session-default-and-queue/use-structured-agent-session-sends.ts.patch)           |
-
-## With stablyai/orca#33403
-
-Wrap typed orchestration mail without exposing grouped approval review content outside the tool disclosure; retain both regression suites.
-
-| File                                                                                  | Reviewed correction                                                                   |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx`               | [Diff](orchestration-mail-and-review/MobileNativeChatMessage.tsx.patch)               |
-| `mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx` | [Diff](orchestration-mail-and-review/MobileNativeChatMessage.work-run.test.tsx.patch) |
-
-## With stablyai/orca#33502
-
-Keep conversation visibility/preferences alongside personal project openings/pins across persistence, mobile schemas, RPC methods and WSL ownership dispositions.
-
-| File                                                                        | Reviewed correction                                                                   |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `mobile/src/host-screen/host-screen-operations.ts`                          | [Diff](project-preferences/host-screen-operations.ts.patch)                           |
-| `mobile/src/host-screen/host-screen-reply-schema.ts`                        | [Diff](project-preferences/host-screen-reply-schema.ts.patch)                         |
-| `mobile/src/host-screen/use-host-screen-controller.ts`                      | [Diff](project-preferences/use-host-screen-controller.ts.patch)                       |
-| `mobile/src/worktree/workspace-view-settings.ts`                            | [Diff](project-preferences/workspace-view-settings.ts.patch)                          |
-| `src/main/persistence/applying-settings/ui-state-read.ts`                   | [Diff](project-preferences/ui-state-read.ts.patch)                                    |
-| `src/main/persistence/applying-settings/ui-state-update.ts`                 | [Diff](project-preferences/ui-state-update.ts.patch)                                  |
-| `src/main/runtime/rpc/methods/client-ui.ts`                                 | [Diff](project-preferences/client-ui.ts.patch)                                        |
-| `src/main/runtime/rpc/methods/ui-state-schema-parity-checks.ts`             | [Diff](project-preferences/ui-state-schema-parity-checks.ts.patch)                    |
-| `src/main/runtime/runtime-rpc/runtime-rpc-mobile-paired-desktop-methods.ts` | [Diff](project-preferences/runtime-rpc-mobile-paired-desktop-methods.ts.patch)        |
-| `src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts`  | [Diff](project-preferences/worktree-activation-structured-chat-surface.test.ts.patch) |
-| `src/shared/persisted-ui-state-types.ts`                                    | [Diff](project-preferences/persisted-ui-state-types.ts.patch)                         |
-| `src/shared/protocol-version.ts`                                            | [Diff](project-preferences/protocol-version.ts.patch)                                 |
-| `src/shared/wsl-move/wsl-move-ui-dispositions.ts`                           | [Diff](project-preferences/wsl-move-ui-dispositions.ts.patch)                         |
-
-## With stablyai/orca#33512
-
-Retain both independent global settings contracts: saved worker roles and hold-to-quit policy.
-
-| File                                 | Reviewed correction                                             |
-| ------------------------------------ | --------------------------------------------------------------- |
-| `src/shared/global-settings-base.ts` | [Diff](global-settings-contracts/global-settings-base.ts.patch) |
-
-## With stablyai/orca#34866
-
-Keep one picker fixture import and adapt the future-turn effort regression to the selected slider UI.
-
-| File                                                                              | Reviewed correction                                                       |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx` | [Diff](effort-picker-tests/NativeChatSessionOptionPickers.test.tsx.patch) |
-
-## With stablyai/orca#36558
-
-Advertise emulator recency/runtime support together with conversation navigation and personal project capabilities.
-
-| File                             | Reviewed correction                                    |
-| -------------------------------- | ------------------------------------------------------ |
-| `src/shared/protocol-version.ts` | [Diff](runtime-capabilities/protocol-version.ts.patch) |
-
-## Upstream shared options refresh (2026-10-31)
-
-The `shared-options-upstream-refresh/` entries combine the refreshed #33362 and #33395 on upstream `002e975e960425eefd3d95af5957323334334c83`. Both capabilities and both picker regressions are retained. Default reset uses upstream's shared write owner and pending-choice fences; immediate question replies keep their explicit delivery guard. These entries use new three-blob identities, without weakening or replacing earlier guards.
+| File                                                                                    | Correction                                                                                                                                     | Patch                                                                          |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `src/shared/global-settings-base.ts`                                                    | Retain worker-role, hold-to-quit and window material settings after both source branches adopt the current session-contract layout.            | [Diff](refresh-20261101/pr33512-global-settings-base.ts.patch)                 |
+| `src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx`       | Keep the canonical option-picker fixture import once when combining effort-slider and Default-model coverage.                                  | [Diff](refresh-20261101/pr34866-NativeChatSessionOptionPickers.test.tsx.patch) |
+| `mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx`   | Retain collapsed typed orchestration mail, grouped review disclosures and upstream viewed-image attachments without repeating grouped notices. | [Diff](refresh-20261102/pr33403-3d40fb77b4.patch)                              |
+| `mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx`                 | Retain collapsed typed orchestration mail, grouped review disclosures and upstream viewed-image attachments without repeating grouped notices. | [Diff](refresh-20261102/pr33403-7c235baee9.patch)                              |
+| `src/shared/project-conversation-list.ts`                                               | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-2e95bcc60e.patch)                               |
+| `src/main/ai-vault/structured-conversation-navigation.ts`                               | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-31ab9448b6.patch)                               |
+| `src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx` | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-341a0a41b3.patch)                               |
+| `src/main/ipc/ai-vault.ts`                                                              | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-4081362002.patch)                               |
+| `src/main/ipc/ai-vault-local-scan.ts`                                                   | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-5b4a3b922e.patch)                               |
+| `src/shared/ai-vault-types.ts`                                                          | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-aec65543b4.patch)                               |
+| `src/shared/rpc-contract/ai-vault-params.ts`                                            | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-b68f1da9b7.patch)                               |
+| `src/shared/protocol-version.ts`                                                        | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-efda56db3f.patch)                               |
+| `src/main/ai-vault/structured-conversation-navigation.test.ts`                          | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-f4c36aaee2.patch)                               |
+| `src/main/runtime/rpc/methods/ai-vault.ts`                                              | Compose bounded structured desktop history with selected-session retention, mobile navigation and existing host attribution.                   | [Diff](refresh-main54b/pr33383-f7a867ec28.patch)                               |
+| `mobile/src/session/native-chat/input/native-chat-session-option-copy.ts`               | Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations.                   | [Diff](refresh-main54b/pr33395-412c906a4e.patch)                               |
+| `src/renderer/src/components/native-chat/use-structured-agent-session-options.ts`       | Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations.                   | [Diff](refresh-main54b/pr33395-4a20a86a2c.patch)                               |
+| `src/renderer/src/components/native-chat/use-structured-agent-session-sends.ts`         | Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations.                   | [Diff](refresh-main54b/pr33395-7b52f59cb0.patch)                               |
+| `mobile/src/session/native-chat/mobile-native-chat-controller-contract.ts`              | Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations.                   | [Diff](refresh-main54b/pr33395-8b5da6168f.patch)                               |
+| `src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx`       | Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations.                   | [Diff](refresh-main54b/pr33395-c4f272e39d.patch)                               |
+| `src/shared/rpc-contract/structured-agent-session-params.ts`                            | Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations.                   | [Diff](refresh-main54b/pr33395-d1ba05ab16.patch)                               |
+| `mobile/src/session/mobile-structured-agent-session-host-support.ts`                    | Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations.                   | [Diff](refresh-main54b/pr33395-e0108b9193.patch)                               |
+| `src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts`  | Retain Default reset/write fencing together with queued and immediate message delivery and current shared request locations.                   | [Diff](refresh-main54b/pr33395-fbe37a0d3a.patch)                               |
+| `src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts`              | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-2d951286fc.patch)                               |
+| `src/main/persistence/applying-settings/ui-state-update.ts`                             | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-67eb309998.patch)                               |
+| `mobile/src/worktree/workspace-view-settings.ts`                                        | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-6f2f481632.patch)                               |
+| `mobile/src/host-screen/host-screen-reply-schema.ts`                                    | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-71397d9b26.patch)                               |
+| `src/shared/wsl-move/wsl-move-ui-dispositions.ts`                                       | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-71b259c8d2.patch)                               |
+| `src/main/persistence/applying-settings/ui-state-read.ts`                               | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-81efb3a955.patch)                               |
+| `mobile/src/host-screen/host-screen-operations.ts`                                      | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-8ed7da83e6.patch)                               |
+| `mobile/src/host-screen/use-host-screen-controller.ts`                                  | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-bbedafb075.patch)                               |
+| `src/main/runtime/runtime-rpc/runtime-rpc-mobile-paired-desktop-methods.ts`             | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-c90a7e7b49.patch)                               |
+| `src/main/runtime/rpc/methods/client-ui.ts`                                             | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-dea398db49.patch)                               |
+| `src/shared/protocol-version.ts`                                                        | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-efda56db3f.patch)                               |
+| `src/shared/persisted-ui-state-types.ts`                                                | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-f7e3da05db.patch)                               |
+| `src/main/runtime/rpc/methods/ui-state-schema-parity-checks.ts`                         | Compose host-qualified personal project ordering/pins and conversation visibility preferences through existing UI state/RPC owners.            | [Diff](refresh-main54b/pr33502-fdd0d1b555.patch)                               |
+| `src/shared/protocol-version.ts`                                                        | Keep current emulator capability aggregate together with conversation and project-order capabilities, once each.                               | [Diff](refresh-main54b/pr36558-efda56db3f.patch)                               |
+| `src/renderer/src/components/right-sidebar/AiVaultPanel.tsx`                            | Preserve upstream recovered-transcript handling and translated whole-transcript failures; keep notice disclosure state during metadata search. | [Diff](refresh-main54b/pr36858-a858792d75.patch)                               |

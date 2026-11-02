@@ -1,28 +1,3 @@
-diff --git a/config/scripts/check-focus-read-ratchet.mjs b/config/scripts/check-focus-read-ratchet.mjs
-index 9e56ec4931216e8e9c910fa02debfb7527e08069..c477f44c6bf31e6b54c4ffe08cee97f3116feba0 100644
---- a/config/scripts/check-focus-read-ratchet.mjs
-+++ b/config/scripts/check-focus-read-ratchet.mjs
-@@ -345,7 +345,7 @@ const ADVICE =
- 
- // Why test support too: harnesses and fixtures seed settings for tests; they never route host work.
- const TEST_SUPPORT_PATH =
--  /(?:\.(?:test|spec)(?:-fixture|-support)?|-test-(?:harness|fixtures?))\.tsx?$/
-+  /(?:\.(?:(?:test|spec)(?:-fixture|-support)?|fixture)|-test-(?:harness|fixtures?))\.tsx?$/
- 
- export function isScannedPath(rel) {
-   return /\.(ts|tsx)$/.test(rel) && !TEST_SUPPORT_PATH.test(rel)
-diff --git a/config/scripts/check-focus-read-ratchet.test.mjs b/config/scripts/check-focus-read-ratchet.test.mjs
-index 4c10a7434c179837b4fa6309b7b4930e855e63f7..e0d0dd4dbb479ca7d809911ce05efb0378b2ba17 100644
---- a/config/scripts/check-focus-read-ratchet.test.mjs
-+++ b/config/scripts/check-focus-read-ratchet.test.mjs
-@@ -290,6 +290,7 @@ describe('isScannedPath', () => {
-     expect(isScannedPath('src/renderer/src/a.spec.tsx')).toBe(false)
-     expect(isScannedPath('src/renderer/src/a.test-fixture.ts')).toBe(false)
-     expect(isScannedPath('src/renderer/src/a.test-support.tsx')).toBe(false)
-+    expect(isScannedPath('src/renderer/src/a.fixture.tsx')).toBe(false)
-     expect(isScannedPath('src/renderer/src/a-test-harness.ts')).toBe(false)
-     expect(isScannedPath('src/renderer/src/a-test-fixture.ts')).toBe(false)
-     expect(isScannedPath('src/renderer/src/a-test-fixtures.ts')).toBe(false)
 diff --git a/config/tsconfig.e2e.json b/config/tsconfig.e2e.json
 index 20ba08e8535a755982fa4fb76f529c576a2a40ba..9a1e513898030bbdc0cb8c1d05abdb456360bd67 100644
 --- a/config/tsconfig.e2e.json
@@ -138,8 +113,24 @@ index 0000000000000000000000000000000000000000..075954a882f3c84deba813148e139f8b
 +    expect(calls()).toHaveLength(0)
 +  })
 +}
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
+index 9e09962f61040e654a3c88e284711cdbf90984a0..18cd41224ecf1783f1fdfacfd1b4afc2dfe95fa1 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
+@@ -1,8 +1,8 @@
+ import type { Ref } from 'react'
+ import { ScrollView, View, type ScrollViewProps, type ViewStyle } from 'react-native'
+-import { colors } from '../theme/mobile-theme'
+-import { themedStyleSheet } from '../theme/themed-styles'
+-import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
++import { colors } from '../../../theme/mobile-theme'
++import { themedStyleSheet } from '../../../theme/themed-styles'
++import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
+ 
+ // Reverse anchoring gives scrollTop=0 at the tail and negative offsets above; disable browser anchoring because the list restores parked readers itself.
+ export function MobileNativeChatPageScroll({
 diff --git a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
-index 1eb7507654b22dd34e5fc9267e0debb0832a87a7..5e997f58eff6c4a38f8deb4298e0295a5eee5bd4 100644
+index e287aa6d1ee281a86cd19af202e33151de2374b4..d912b3fa05e3dc20abf3ad94ec0d133208e1aa18 100644
 --- a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
 +++ b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
 @@ -1,3 +1,4 @@
@@ -267,6 +258,24 @@ index 50b724390f781aeb8a3692db2c51420640d61b84..e5ddb7ea9b27781e8f3c963f94d826fb
        "ee559224b6047d01db02d9aabdfbcc94475394e6f11f4076ce785c42faee63c6",
        "f3bae76495657f27458969fe2d6510098f39b429580870f5e79fac3493f891ee",
        "f7da0dd40d8681e2b0303fa0fa2f7ee4e36f2eca6495a4af57b92b9857dff732"
+diff --git a/src/main/ai-vault/structured-conversation-navigation.ts b/src/main/ai-vault/structured-conversation-navigation.ts
+index 449a4bcb07adf4873f6b31398ebc24ece715b286..1a8d8836dd5cb236fe49f4428a9dcd85b8560484 100644
+--- a/src/main/ai-vault/structured-conversation-navigation.ts
++++ b/src/main/ai-vault/structured-conversation-navigation.ts
+@@ -31,7 +31,12 @@ export function boundedAiVaultConversationList(
+   args?: AiVaultListArgs
+ ): AiVaultListResult {
+   return conditionalAiVaultListResult(
+-    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths, args?.selectedSessionId),
++    truncateAiVaultListResult(
++      result,
++      requestedAiVaultSessionDepth(args),
++      args?.scopePaths,
++      args?.selectedSessionId
++    ),
+     null
+   )
+ }
 diff --git a/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts b/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts
 index 4d28a35409ae8b25420cb73b29678e46e4fc644b..21d31abaee2698cebc796cfd64c62fe3bcec0db3 100644
 --- a/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts
@@ -336,7 +345,7 @@ index fc7dadb897e62e53fdfdbf85f0bd6375daa8991c..388d61ce08c4db647541396df28895ca
 +  ready: Promise<void>
 +}
 diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
-index 8ca95b072fa5b816e1d0303f53bc2e93006c2fbc..064b311b18615ab2a60ff42e4562b6b8928b85f4 100644
+index 93ef0f3a9b7ee647e996f6f5b9b23da15bec9dc4..85c5d60246a18d78eaafb47b027cb3e9aecea22a 100644
 --- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
 +++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-service.test.ts
 @@ -1,3 +1,4 @@
@@ -384,6 +393,55 @@ index 8ca95b072fa5b816e1d0303f53bc2e93006c2fbc..064b311b18615ab2a60ff42e4562b6b8
  describe('agent model catalog service', () => {
    it('answers unknown and kicks one probe for a session whose key has never listed', async () => {
      const store = new AgentModelCatalogStore()
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
+index 047aca648f9894ab306a5ae58769341ee0213180..0ad6f3b89ba0e1d6c69ccba546e5f59ce356ee8a 100644
+--- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
+@@ -10,28 +10,13 @@ import type { AgentSessionModelCatalogResult } from '../../../shared/agent-sessi
+ import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
+ import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
+ import type {
++  AgentModelCatalogBinding,
+   AgentModelCatalogReadParams,
+   AgentModelCatalogServiceDeps
+ } from './agent-model-catalog-service-contract'
+ 
+ export { agentModelCatalogReleasedOwner }
+ 
+-export type AgentModelCatalogBinding = {
+-  identity: string
+-  params: AgentModelCatalogReadParams
+-  workspaceId?: string
+-  current: () => boolean
+-  cancel: () => void
+-  fingerprint: string
+-  base: string
+-  exact: boolean
+-  folder?: string
+-  cwd?: string
+-  workspacePath?: string | null
+-  keepDefault: boolean
+-  projecting?: Promise<void>
+-}
+-
+ /** Canonical authority survives folder churn and preliminary same-account refreshes until replacement. */
+ export function bindAgentModelCatalogScope(
+   bindings: Map<string, AgentModelCatalogBinding>,
+@@ -304,11 +289,7 @@ export function agentModelCatalogSessionPeek(
+   }
+ }
+ 
+-export type AgentModelCatalogClaim = Pick<
++export type {
+   AgentModelCatalogBinding,
+-  'identity' | 'params' | 'current'
+-> & {
+-  controller: AbortController
+-  promise: Promise<void>
+-  ready: Promise<void>
+-}
++  AgentModelCatalogClaim
++} from './agent-model-catalog-service-contract'
 diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog.test-fixture.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog.test-fixture.ts
 new file mode 100644
 index 0000000000000000000000000000000000000000..badb87059bd62fbe9687cc59c62f22921350a3b5
@@ -617,6 +675,19 @@ index 99d4d3857172a4a98e04c1b2b286317dd41c7927..73abb670a0cc619c4b70dc81086f72c8
  
    it.each(['model', 'effort'])(
      'opens the one picker when a slash command asks for the %s',
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
+index 09abfc4e3c8dc8c17184a1b24d8dc1190436c930..c54bd62279f5efd8fc811a84e797602ca5994f68 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
+@@ -45,7 +45,7 @@ const transport = vi.hoisted(() => ({
+   capability: 'supported'
+ }))
+ 
+-vi.mock('@/lib/structured-agent-session-launch', () =>
++vi.mock('@/lib/agent-session/launch/structured-agent-session-launch', () =>
+   moduleFactories.structuredAgentSessionLaunch()
+ )
+ vi.mock('./use-structured-agent-session', () => moduleFactories.useStructuredAgentSession())
 diff --git a/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx b/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx
 index 3f6d65314403df58a5024827962ab77c0fe0c8a0..a997b2eac118bf294ed92a0f377ad33557c289fb 100644
 --- a/src/renderer/src/components/native-chat/NativeChatTranscriptItems.tsx
@@ -754,95 +825,3 @@ index 0000000000000000000000000000000000000000..9ad0088b442c1c746b84499d7dc35eb7
 +    expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
 +  })
 +}
-diff --git a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
-index a88db9b9ab4b0808014ac975f2d9da1aaf9edc12..eea2e882d257960fb0819d6941dbc666f051692c 100644
---- a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
-@@ -1,7 +1,7 @@
- import { useTranslation } from 'react-i18next'
- import { translate } from '@/i18n/i18n'
- import { selectExecutionHostDisplayLabel } from '@/lib/execution-host-display-label'
--import { structuredAgentLabel } from '@/lib/structured-agent-session-launch-label'
-+import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
- import { useAppStore } from '@/store'
- import { executionHostIdForStructuredTarget } from '@/runtime/structured-agent-session-owner'
- import { isStructuredAgentId } from '../../../../shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
-diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
-index 09abfc4e3c8dc8c17184a1b24d8dc1190436c930..c54bd62279f5efd8fc811a84e797602ca5994f68 100644
---- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
-@@ -45,7 +45,7 @@ const transport = vi.hoisted(() => ({
-   capability: 'supported'
- }))
- 
--vi.mock('@/lib/structured-agent-session-launch', () =>
-+vi.mock('@/lib/agent-session/launch/structured-agent-session-launch', () =>
-   moduleFactories.structuredAgentSessionLaunch()
- )
- vi.mock('./use-structured-agent-session', () => moduleFactories.useStructuredAgentSession())
-diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
---- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
-+++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts
-@@ -6,31 +6,16 @@
- import { onLiveAccount } from './agent-model-catalog-running-account'
- import { agentModelCatalogFingerprintForRecord } from './agent-model-catalog-fingerprint'
- import { agentSessionPinnedLaunchDirectory } from '../../runtime/agent-session/records/agent-session-record-launch-directory'
- import type { AgentSessionModelCatalogResult } from '../../../shared/agent-session/agent-session-wire'
- import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
- import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
- import type {
-+  AgentModelCatalogBinding,
-   AgentModelCatalogReadParams,
-   AgentModelCatalogServiceDeps
- } from './agent-model-catalog-service-contract'
- 
- export { agentModelCatalogReleasedOwner }
--
--export type AgentModelCatalogBinding = {
--  identity: string
--  params: AgentModelCatalogReadParams
--  workspaceId?: string
--  current: () => boolean
--  cancel: () => void
--  fingerprint: string
--  base: string
--  exact: boolean
--  folder?: string
--  cwd?: string
--  workspacePath?: string | null
--  keepDefault: boolean
--  projecting?: Promise<void>
--}
- 
- /** Canonical authority survives folder churn and preliminary same-account refreshes until replacement. */
- export function bindAgentModelCatalogScope(
-@@ -304,11 +289,7 @@
-   }
- }
- 
--export type AgentModelCatalogClaim = Pick<
-+export type {
-   AgentModelCatalogBinding,
--  'identity' | 'params' | 'current'
--> & {
--  controller: AbortController
--  promise: Promise<void>
--  ready: Promise<void>
--}
-+  AgentModelCatalogClaim
-+} from './agent-model-catalog-service-contract'
-diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
---- a/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
-+++ b/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
-@@ -1,8 +1,8 @@
- import type { Ref } from 'react'
- import { ScrollView, View, type ScrollViewProps, type ViewStyle } from 'react-native'
--import { colors } from '../theme/mobile-theme'
--import { themedStyleSheet } from '../theme/themed-styles'
--import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
-+import { colors } from '../../../theme/mobile-theme'
-+import { themedStyleSheet } from '../../../theme/themed-styles'
-+import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
- 
- // Reverse anchoring gives scrollTop=0 at the tail and negative offsets above; disable browser anchoring because the list restores parked readers itself.
- export function MobileNativeChatPageScroll({
