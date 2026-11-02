@@ -28,7 +28,7 @@ diff --git a/src/renderer/src/components/native-chat/use-structured-agent-sessio
      takesSelection,
      updateOptionState,
      rereadOptions,
-@@ -86,22 +94,41 @@
+@@ -84,22 +92,41 @@
      receiveCatalog
    })
  
@@ -75,7 +75,16 @@ diff --git a/src/renderer/src/components/native-chat/use-structured-agent-sessio
    useLayoutEffect(() => {
      interactionReadyRef.current = acceptsTurnPicks
      lockSnapshotRef.current = lockSnapshot
-@@ -162,15 +189,37 @@
+@@ -116,7 +143,7 @@
+       record: optionStateRef.current.record,
+       view,
+       snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
+-      ready: acceptsTurnPicks && interactionReadyRef.current,
++      ready: acceptsTurnPicks && writes.current.count === 0 && interactionReadyRef.current,
+       providerStarting,
+       isCurrentContext,
+       ...(!transportEnabled || fence === null
+@@ -160,15 +187,37 @@
      },
      [launch?.explicitOptions, launchSeedOptions, optionStateRef, optionView, setStructuredOption]
    )
@@ -114,7 +123,7 @@ diff --git a/src/renderer/src/components/native-chat/use-structured-agent-sessio
    )
  
    return {
-@@ -189,7 +238,14 @@
+@@ -187,7 +236,14 @@
      optionSnapshot,
      optionSurface,
      setStructuredOption,

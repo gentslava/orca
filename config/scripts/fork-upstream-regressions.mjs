@@ -83,7 +83,7 @@ const desktop = [
   'src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-composer-keydown.steer.test.tsx',
   'src/renderer/src/components/native-chat/native-chat-structured-send-composition-clear.test.tsx',
-  'src/main/claude/claude-structured-dispatch-content.test.ts',
+  'src/main/claude/structured/claude-structured-dispatch-content.test.ts',
   'src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx',
   'src/renderer/src/components/native-chat/use-structured-agent-session-queue-working.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatQueuedMessageList.inline-edit.test.tsx',

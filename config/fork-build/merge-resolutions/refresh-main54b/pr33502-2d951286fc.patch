@@ -1,3 +1,4 @@
+diff --git a/src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts b/src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts
 --- a/src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts
 +++ b/src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts
 @@ -21,6 +21,7 @@

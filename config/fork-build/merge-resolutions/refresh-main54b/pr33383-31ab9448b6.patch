@@ -1,6 +1,15 @@
 diff --git a/src/main/ai-vault/structured-conversation-navigation.ts b/src/main/ai-vault/structured-conversation-navigation.ts
 --- a/src/main/ai-vault/structured-conversation-navigation.ts
 +++ b/src/main/ai-vault/structured-conversation-navigation.ts
+@@ -31,7 +31,7 @@
+   args?: AiVaultListArgs
+ ): AiVaultListResult {
+   return conditionalAiVaultListResult(
+-    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths),
++    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths, args?.selectedSessionId),
+     null
+   )
+ }
 @@ -154,6 +154,7 @@
    }
    return {

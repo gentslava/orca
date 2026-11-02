@@ -1,6 +1,7 @@
+diff --git a/src/shared/protocol-version.ts b/src/shared/protocol-version.ts
 --- a/src/shared/protocol-version.ts
 +++ b/src/shared/protocol-version.ts
-@@ -138,6 +138,7 @@
+@@ -119,6 +119,7 @@
    'agent-session.saved-resume-origin.v1' as const
  
  export const RUNTIME_CAPABILITIES = [
