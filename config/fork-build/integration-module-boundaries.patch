@@ -825,3 +825,18 @@ index 0000000000000000000000000000000000000000..9ad0088b442c1c746b84499d7dc35eb7
 +    expect(surface.setOption).not.toHaveBeenCalledWith('model', 'default')
 +  })
 +}
+diff --git a/src/renderer/src/components/native-chat/native-chat-agent-message-sender-host.test.tsx b/src/renderer/src/components/native-chat/native-chat-agent-message-sender-host.test.tsx
+index 3a63f875028f95d18c20155faef592e82b79b4d7..83058eb5714efc3507bc649194bfc4ae9108c4a0 100644
+--- a/src/renderer/src/components/native-chat/native-chat-agent-message-sender-host.test.tsx
++++ b/src/renderer/src/components/native-chat/native-chat-agent-message-sender-host.test.tsx
+@@ -166,6 +166,10 @@ async function mount(): Promise<ReturnType<typeof render>> {
+       </TooltipProvider>
+     )
+   })
++  const mail = screen.getByRole('button', { name: 'Orchestration mail' })
++  expect(mail).toHaveAttribute('aria-expanded', 'false')
++  act(() => fireEvent.click(mail))
++  expect(mail).toHaveAttribute('aria-expanded', 'true')
+   return view!
+ }
+ function publish(host: string, sessionId: string = ROOT): void {
