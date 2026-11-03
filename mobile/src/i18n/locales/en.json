@@ -625,7 +625,6 @@
       "agentActivitySortDescription": "Agents that need attention, then most recent activity.",
       "manualWorkspaceOrderDescription": "Drag workspaces to arrange them within each group.",
       "manualProjectOrderDescription": "Drag projects to arrange them",
-      "recentProjectOrderDescription": "Most recent workspace activity",
       "detailed": "Detailed",
       "compact": "Compact",
       "fullList": "Full list",
@@ -650,7 +649,10 @@
       "searchProjectsPlaceholder": "Search projects…",
       "searchProjects": "Search projects",
       "hover": "Hover",
-      "agentActivityLayout": "Agent activity layout"
+      "agentActivityLayout": "Agent activity layout",
+      "frequent": "Frequently used",
+      "frequentProjectOrderDescription": "Most project openings by you",
+      "recentProjectOpeningDescription": "Most recently opened by you"
     },
     "workspaceOptionsSheet": {
       "hosts": "Hosts",
@@ -691,6 +693,10 @@
     },
     "identity": {
       "hostNotFound": "Host not found"
+    },
+    "project": {
+      "unpin": "Unpin project",
+      "pin": "Pin project"
     }
   },
   "webShell": {
@@ -4536,5 +4542,8 @@
         }
       }
     }
+  },
+  "workspaceOptions": {
+    "recentActivity": "Most recent workspace activity"
   }
 }
