@@ -31,7 +31,7 @@ export function boundedAiVaultConversationList(
   args?: AiVaultListArgs
 ): AiVaultListResult {
   return conditionalAiVaultListResult(
-    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths),
+    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths, args?.selectedSessionId),
     null
   )
 }
@@ -154,6 +154,7 @@ export function projectDurableAiVaultConversations(
   }
   return {
     ...result,
+    includesStructuredSessions: true,
     sessions: [...otherRows, ...bySessionId.values()].sort((a, b) => rowTime(b) - rowTime(a))
   }
 }
