@@ -95,6 +95,9 @@ export function useMobileStructuredOptionState(args: {
   const { optionState, support } = useSyncExternalStore(reader.subscribe, reader.getSnapshot)
   const {
     optionStateRef,
+    optionPicks,
+    writes,
+    beginOptionWrite,
     activeOptionRecordRef,
     updateOptionState,
     receiveCatalog,
@@ -206,6 +209,9 @@ export function useMobileStructuredOptionState(args: {
     isCurrentContext,
     optionState,
     optionStateRef,
+    optionPicks,
+    writes,
+    beginOptionWrite,
     activeOptionRecordRef,
     providerStarting,
     updateOptionState
