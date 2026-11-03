@@ -50,7 +50,11 @@ function fixture(
         liveLeafCount: 0,
         runtimeProtocolVersion: 3,
         minCompatibleRuntimeClientVersion: 2,
-        capabilities: ['ui.conversationPreferences.v1', 'ui.conversationProjectVisibility.v1']
+        capabilities: [
+          'ui.conversationPreferences.v1',
+          'ui.conversationProjectVisibility.v1',
+          'ui.personalProjectOrder.v1'
+        ]
       })
       window.api.runtime.call = async (request) => {
         let result: unknown = {
@@ -123,3 +127,15 @@ export const discoveredProjectActions = fixture(320, 'discovered')
 export const hiddenProjectRestore = fixture(320, 'hidden')
 
 export const registeredProjectActions = fixture(320, 'registered')
+
+export const projectOrderModes = defineFixture({
+  ...fixture(),
+  interact: async (frame) => {
+    const trigger = frame.querySelector<HTMLButtonElement>('button[aria-label="Project order"]')
+    trigger?.focus()
+    trigger?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    )
+  }
+})
