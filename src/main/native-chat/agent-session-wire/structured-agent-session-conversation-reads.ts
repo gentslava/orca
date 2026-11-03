@@ -1,3 +1,5 @@
+import type { StructuredAgentSessionConversations } from './structured-agent-session-conversations'
+import { structuredAgentSessionNeverSent } from './structured-agent-session-never-sent'
 import {
   createStructuredAgentSessionCatalogReads,
   structuredAgentSessionCatalogScopeOwned
@@ -17,7 +19,7 @@ import {
 
 type ReadContext = {
   deps: StructuredAgentSessionHostDeps
-  sessions: Map<string, StructuredAgentSessionHostSession>
+  sessions: Pick<StructuredAgentSessionConversations, 'get' | 'observeConversationPublications'>
   serialize: <T>(id: string, task: () => Promise<T>) => Promise<T>
   readCommands: StructuredAgentSessionClientDelivery['readCommandsSettled']
   conversation: (id: string) => Promise<StructuredAgentSessionHostSession>
@@ -55,6 +57,9 @@ export function createStructuredAgentSessionConversationReads(context: () => Rea
   const journalOf = async (id: string) => (await context().conversation(id)).journal
   return {
     readModelCatalog,
+    observeConversationPublications: (
+      ...args: Parameters<StructuredAgentSessionConversations['observeConversationPublications']>
+    ) => context().sessions.observeConversationPublications(...args),
     queuedSendAnswer: async (id: string, messageId: string) =>
       queuedSendAnswer(await journalOf(id), messageId),
     sendAnswer: async (id: string, messageId: string) =>
@@ -73,6 +78,14 @@ export function createStructuredAgentSessionConversationReads(context: () => Rea
     revealSession: (id: string) => {
       const { deps, conversation } = context()
       return revealStructuredAgentSession(deps, id, conversation)
+    },
+    sessionNeverSent: (id: string): boolean => {
+      const { deps, sessions } = context()
+      const session = sessions.get(id)
+      return (
+        !!session &&
+        structuredAgentSessionNeverSent(deps.store.getConversation(id), session.journal)
+      )
     },
     sessionAgent: (id: string) => context().deps.store.getConversation(id)?.provider ?? null,
     childAccountHome: (id: string) => context().sessions.get(id)?.child?.accountHome,
