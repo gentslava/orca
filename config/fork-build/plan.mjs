@@ -85,7 +85,8 @@ try {
         'integration-module-boundaries.patch',
         'conversation-project-order.patch',
         'settings-owner-relocations.patch',
-        'model-fallback-default-selection.patch'
+        'model-fallback-default-selection.patch',
+        'reviewed-merge-target-paths.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')

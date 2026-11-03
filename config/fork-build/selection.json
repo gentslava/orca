@@ -42,7 +42,8 @@
     "integration-module-boundaries.patch",
     "conversation-project-order.patch",
     "settings-owner-relocations.patch",
-    "model-fallback-default-selection.patch"
+    "model-fallback-default-selection.patch",
+    "reviewed-merge-target-paths.patch"
   ],
   "retainClosed": {
     "36892": "Retained after the 2026-11-03 handset comparison: main with the opaque-scroller change still flashed in 2/2 runs; the native selection fix passed 2/2. Upstream reopen requested; keep reading the PR head at build time."
