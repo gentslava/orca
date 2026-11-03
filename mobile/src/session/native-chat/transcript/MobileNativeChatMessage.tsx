@@ -44,7 +44,7 @@ import { useMobileNativeChatFullMessage } from '../MobileNativeChatFullContent'
 import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
 import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
 import { MobileNativeChatPacedProse } from './MobileNativeChatPacedProse'
-import { Prose } from './MobileNativeChatProse'
+import { MobileNativeChatViewedImages, Prose } from './MobileNativeChatProse'
 
 function MobileNativeChatMessageImpl({
   message: rowMessage,
@@ -361,18 +361,13 @@ function MobileNativeChatMessageImpl({
             fontScale={fontScale}
             onOpenFile={onOpenFile}
             viewedImages={
-              viewedImages.length > 0
-                ? // Keyed by path: a read finishing late inserts above images already loaded.
-                  viewedImages.map((image) => (
-                    <Prose
-                      key={image.path}
-                      block={image}
-                      text=""
-                      fontScale={fontScale}
-                      onLongPress={onLongPress}
-                    />
-                  ))
-                : undefined
+              viewedImages.length > 0 ? (
+                <MobileNativeChatViewedImages
+                  images={viewedImages}
+                  fontScale={fontScale}
+                  onLongPress={onLongPress}
+                />
+              ) : undefined
             }
           />
         ) : null}
