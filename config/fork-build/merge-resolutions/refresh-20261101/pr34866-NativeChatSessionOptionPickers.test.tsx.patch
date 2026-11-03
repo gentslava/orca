@@ -37,6 +37,15 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPick
  
  afterEach(() => cleanup())
  
+@@ -128,7 +128,7 @@
+     expect(container.textContent).not.toContain('Running and queued messages keep their choices.')
+     fireEvent.click(screen.getByRole('option', { name: /Sonnet 5/ }))
+     await settle()
+-    fireEvent.click(effortLevels()[0])
++    pickEffort()
+     await settle()
+     fireEvent.click(screen.getByRole('switch'))
+     await settle()
 @@ -240,7 +240,7 @@
        />
      )

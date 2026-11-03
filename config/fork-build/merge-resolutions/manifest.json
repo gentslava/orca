@@ -403,9 +403,9 @@
       "3ec1f3e33fb85f0c8ed1ccf77541d6ffcdc75f55"
     ],
     "patch": "refresh-20261101/pr34866-NativeChatSessionOptionPickers.test.tsx.patch",
-    "patchSha256": "89622957e0753f7524761540aabe04cf285d7e80d7af060910a10978fc45957f",
-    "resultSha256": "1487ffb48a5e14814a6633445c915bc296810684d03f7ff4bc3130d10c621eda",
-    "reason": "Keep the canonical option-picker fixture import once when combining effort-slider and Default-model coverage."
+    "patchSha256": "6dc0f78714180bfccb28507a2bc22fe99eefeed229a927ed0c9732f0d45d1fd8",
+    "resultSha256": "1712fdc626d02f601f4bab65dab1c5b08ec83c239eb6ddceca6558e64423f105",
+    "reason": "Retain Default-model and busy-option coverage while adapting all effort interactions to the composed slider."
   },
   {
     "path": "src/shared/protocol-version.ts",
