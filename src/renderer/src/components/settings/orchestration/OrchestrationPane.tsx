@@ -28,7 +28,7 @@ import {
   getNestedWorkerDepthDescription,
   getNestedWorkerDepthTitle
 } from './nested-worker-depth-copy'
-import { WorkerRoleSettings } from './WorkerRoleSettings'
+import { WorkerRoleSettings } from '../WorkerRoleSettings'
 import { OrchestrationWorkerAutoReleaseSetting } from './OrchestrationWorkerAutoReleaseSetting'
 
 const EXAMPLE_ICONS = {
