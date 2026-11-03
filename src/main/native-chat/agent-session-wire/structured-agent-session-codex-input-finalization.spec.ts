@@ -46,12 +46,12 @@ export function registerCodexInputFinalization(current: typeof codexInputFinaliz
     } = current()
     Object.defineProperty(process, 'platform', { configurable: true, value: 'win32' })
     const uncertain = failure.startsWith('lost-')
-    const written = uncertain || failure === 'post-write-stop'
     const { sessions, runtimeState } = host.collaboratorsForTests()
     const journal = sessions.get(SESSION)!.journal
     const persisted = vi.spyOn(journal, 'resolveDispatch')
     if (failure === 'lost-steer') {
       await began(await permissionSend('running', { personality: 'friendly' }))
+      await pick('auto')
     }
     const paused = Promise.withResolvers<void>()
     const preparing = Promise.withResolvers<void>()
@@ -198,7 +198,7 @@ export function registerCodexInputFinalization(current: typeof codexInputFinaliz
       )
     }
     expect(continuingStructuredAgentSessionInput(journal, id)).toBe(false)
-    expect(starts()).toHaveLength(written ? 1 : 0)
+    expect(starts()).toHaveLength(uncertain || failure === 'post-write-stop' ? 1 : 0)
     lost.resolve({})
     await responseObserved
     expect(codex.connections).toHaveLength(
