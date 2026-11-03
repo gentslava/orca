@@ -3082,7 +3082,10 @@
       "resolved": "Resolved",
       "cancelled": "Cancelled",
       "resolver": "Answered on {{device}}",
-      "cancelledBy": "Cancelled on {{device}}"
+      "cancelledBy": "Cancelled on {{device}}",
+      "thisPhone": "this phone",
+      "computer": "the computer",
+      "otherDevice": "another device"
     },
     "subagentGroup": {
       "stateCompleted": "completed",
@@ -3133,7 +3136,8 @@
       "messageFromCoordinator": "Message from coordinator",
       "updateFromWorker": "Update from worker",
       "messageFrom": "Message from",
-      "showMore": "Show more"
+      "showMore": "Show more",
+      "sessionLink": "Link"
     },
     "notices": {
       "orchestrationMail": "Orchestration mail"

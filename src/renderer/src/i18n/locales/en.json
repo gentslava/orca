@@ -1112,6 +1112,23 @@
       "keywordCooldown": "cooldown",
       "keywordSecurity": "security"
     },
+    "editorFormatOnSave": {
+      "title": "Format on Save",
+      "description": "Format text before manual saves and auto save. Configure a formatter command in Settings > Projects. Off by default.",
+      "keywords": "formatter format on save prettier biome gofmt"
+    },
+    "repositoryFormatter": {
+      "title": "Formatter Command",
+      "description": "Use this project’s formatter for Format on Save.",
+      "saveFailed": "Could not save formatter settings.",
+      "command": "Command",
+      "commandHelp": "Runs on the file’s host in the workspace root. Reads the buffer from stdin and must print only formatted text to stdout. Use ${file} or ${relativeFile} for the path. Arguments are passed directly, without a shell. Do not use --write. Leave empty to disable for this project.",
+      "include": "Include globs (one per line)",
+      "includeHelp": "Match paths relative to the workspace root. No matching glob means no formatting. * and ** skip dot-prefixed names; list them explicitly, e.g. .github/**/*.yml. Enable Format on Save in General > Editor to use this command.",
+      "saving": "Saving…",
+      "save": "Save formatter",
+      "placeholder": "npx --no-install prettier --stdin-filepath \"${file}\""
+    },
     "orchestration": {
       "roles": {
         "modelsUnavailable": "No models reported by this host.",
@@ -8143,6 +8160,9 @@
           "browserExtensions": {
             "copy": "Adds Settings › Browser › Extensions for local browser profiles.",
             "toggleLabel": "Toggle browser extensions"
+          },
+          "orchestrationPanel": {
+            "toggleLabel": "Toggle orchestration panel"
           }
         },
         "FloatingWorkspacePane": {
@@ -10353,6 +10373,14 @@
               "extension": "extension",
               "chrome": "chrome",
               "password": "password manager"
+            },
+            "orchestrationPanel": {
+              "title": "Orchestration panel",
+              "description": "Shows which agents each agent is working with, beside its chat or terminal.",
+              "orchestration": "orchestration",
+              "agents": "agents",
+              "workers": "workers",
+              "manager": "manager"
             }
           }
         },
@@ -19662,7 +19690,10 @@
         "cancelled": "Cancelled",
         "resolved": "Resolved",
         "resolver": "Answered on {{device}}",
-        "cancelledBy": "Cancelled on {{device}}"
+        "cancelledBy": "Cancelled on {{device}}",
+        "thisComputer": "this computer",
+        "computer": "the computer",
+        "otherDevice": "another device"
       },
       "notices": {
         "contextCleared": "Context cleared",
@@ -21047,8 +21078,91 @@
         "keepOpen": "Keep open"
       }
     },
+    "sessionLink": {
+      "partner": "Partner session",
+      "search": "Search agent, chat, workspace or branch…",
+      "empty": "No available local Claude or Codex chats.",
+      "story": "Shared story",
+      "storyPlaceholder": "Goal, issue link or local plan path; existing spending and privacy boundaries…",
+      "noAutomaticRead": "Links and plan files are references. Their contents are not read or shared automatically.",
+      "roles": "Roles",
+      "implementer": "Implements",
+      "reviewer": "Leads and reviews",
+      "swap": "Swap roles",
+      "limits": "Up to 6 automatic turns, including introductions, or 12 agent messages before the owner continues. Agent messages do not grant permissions. Transport and journal stay on this host; model requests use each session’s provider and account.",
+      "sameWorkspace": "Both sessions use the same workspace. Coordinate file writes before editing.",
+      "creating": "Creating link…",
+      "create": "Create link and introduce agents",
+      "linked": "Linked with",
+      "paused": "Paused",
+      "endedShort": "Ended",
+      "waitingShort": "Waiting",
+      "workTogether": "Work together…",
+      "description": "Connect two existing local chats. You control the story, permissions and continuation.",
+      "retry": "Retry the unconfirmed action",
+      "resume": "Continue for 6 more turns",
+      "pause": "Pause",
+      "stop": "Stop link turns",
+      "end": "End link",
+      "turns": "automatic turns",
+      "messages": "agent messages",
+      "ownerMessage": "Your message to both agents",
+      "sendBoth": "Send to both",
+      "history": "Previous links",
+      "loading": "Loading available sessions…",
+      "you": "You",
+      "journal": "Link journal",
+      "details": "Delivery details",
+      "reasonPause": "Paused by the owner",
+      "reasonStop": "Urgent stop requested",
+      "reasonEnd": "Link ended",
+      "reasonTurns": "Automatic turn limit reached",
+      "reasonMessages": "Agent message limit reached",
+      "reasonRepeated": "Repeated messages; owner review needed",
+      "reasonOwner": "Owner decision needed. Write your answer, then continue.",
+      "reasonParticipant": "A chat closed or changed context. Verify both chats before continuing.",
+      "reasonHeld": "Delivery held before dispatch. Review and continue to retry.",
+      "reasonRefused": "The session refused delivery. Review the chat before retrying.",
+      "reasonUnknown": "Delivery is unconfirmed. Check the chat; this message will not be sent again.",
+      "stopPending": "Stop requested",
+      "stopAcknowledged": "Link turn stopped",
+      "stopUnconfirmed": "Stop unconfirmed. Use Stop in the agent chat.",
+      "control": "Link control",
+      "introduction": "Introduction",
+      "message": "Message",
+      "question": "Question",
+      "checkpoint": "Checkpoint",
+      "reply": "Reply",
+      "ownerRequest": "Owner decision",
+      "ownerNote": "Owner message",
+      "recorded": "Recorded",
+      "queued": "Queued",
+      "dispatching": "Sending",
+      "accepted": "Delivered",
+      "blocked": "Needs review",
+      "cancelled": "Cancelled",
+      "ended": "Link ended. The journal is retained.",
+      "waiting": "Waiting for a reply",
+      "active": "Link active. Busy agents receive messages after their current turn.",
+      "retryFirst": "The previous action is unconfirmed. Retry that action before starting another.",
+      "link": "Link",
+      "stopUnrelated": "The current turn was started outside this link and was left running.",
+      "reasonResume": "Continued by the owner",
+      "stopIdle": "No active turn to stop",
+      "reviewDelivery": "Review unconfirmed delivery",
+      "reviewDeliveryHelp": "This message may already have reached the agent. Check the recipient chat. Marking it reviewed keeps the link paused and allows later messages after you continue; this message will never be resent.",
+      "checkedRecipient": "I checked the recipient chat",
+      "resolveDelivery": "Mark reviewed; do not resend",
+      "deliveryReviewed": "Delivery reviewed by the owner; automatic resend is disabled.",
+      "reviewBeforeContinue": "Review the unconfirmed delivery before continuing"
+    },
     "wslHostMark": {
       "runsOn": "Runs on WSL: {{distro}} (Linux)"
+    },
+    "editor": {
+      "formatOnSave": {
+        "failed": "Could not format {{file}}. Saving without formatting: {{reason}}"
+      }
     },
     "tab-bar": {}
   },
@@ -23451,6 +23565,13 @@
     }
   },
   "agentPicker": {
+    "catalogUnsupported": "{{agent}} models are unavailable on this host. You can keep your current choices or use Arguments.",
+    "catalogFailed": "Could not load {{agent}} models. Close and reopen the agent picker to try again.",
+    "catalogSignIn": "Sign in to {{agent}} to load its models, then close and reopen the agent picker.",
+    "catalogInstall": "Install {{agent}} on this host to load its models, then close and reopen the agent picker.",
+    "catalogUnresolved": "{{agent}} models have not loaded. Close and reopen the agent picker to try again.",
+    "catalogEmpty": "{{agent}} has no available models.",
+    "workspaceStartupFailed": "Could not start {{agent}}. Check Arguments in this setup and try again.",
     "search": "Search agents and setups…",
     "configure": "Configure {{agent}}",
     "arguments": "Arguments",
@@ -23463,8 +23584,11 @@
     "legacyModels": "Legacy models",
     "toggleArguments": "Toggle Arguments",
     "argumentsTerminalHint": "Only applies to terminal (CLI) launches",
+    "chatChoicesNote": "{{agent}} model or effort choices without a CLI flag apply to chats.",
+    "composedChoicesNote": "{{agent}} effort and speed choices are included in the model argument.",
     "searchAgentModels": "Search {{agent}} models…",
     "legacyModelCount": "{{total}} models",
+    "select": "Select agent",
     "promptPlaceholder": "Add a prompt (optional): / for skills, @ for files",
     "promptPlaceholderFilesOnly": "Add a prompt (optional): @ for files"
   },
