@@ -1,7 +1,4 @@
-import {
-  nativeChatTextAttachmentPaths,
-  chatTextAttachmentName
-} from '../../../../../src/shared/native-chat-text-attachment-references'
+import { MobileNativeChatTextAttachmentActions } from './MobileNativeChatTextAttachmentActions'
 import { memo, useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react'
 import { Text, View } from 'react-native'
 import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection'
@@ -131,33 +128,44 @@ function MobileNativeChatMessageImpl({
     if (!run) {
       return undefined
     }
-    const thought = (thoughtMessage: Chat.NativeChatMessage): React.JSX.Element => (
-      // Key by thought so later calls cannot remount it.
-      <MobileNativeChatGroupedThought
-        key={`thought:${thoughtMessage.id}`}
-        message={thoughtMessage}
-        fontScale={fontScale}
-        live={activeTurnIsWorking === true}
-        expanded={openReasoning?.has(nativeChatReasoningDisclosureKey(thoughtMessage.id)) === true}
-        onToggle={onToggleReasoning}
-        onOpenFile={onOpenFile}
-        onLongPress={INLINE_TEXT_SELECTION ? undefined : () => openSheet(thoughtMessage)}
-      />
-    )
+    const aside = (thoughtMessage: Chat.NativeChatMessage): React.JSX.Element =>
+      thoughtMessage.role === 'system' ? (
+        <View key={`notice:${thoughtMessage.id}`}>
+          <MobileNativeChatNoticeRow
+            blocks={thoughtMessage.blocks}
+            disclosed
+            fontScale={fontScale}
+          />
+        </View>
+      ) : (
+        // Key by thought so later calls cannot remount it.
+        <MobileNativeChatGroupedThought
+          key={`thought:${thoughtMessage.id}`}
+          message={thoughtMessage}
+          fontScale={fontScale}
+          live={activeTurnIsWorking === true}
+          expanded={
+            openReasoning?.has(nativeChatReasoningDisclosureKey(thoughtMessage.id)) === true
+          }
+          onToggle={onToggleReasoning}
+          onOpenFile={onOpenFile}
+          onLongPress={INLINE_TEXT_SELECTION ? undefined : () => openSheet(thoughtMessage)}
+        />
+      )
     const before = new Map<Chat.NativeChatBlock, React.JSX.Element[]>()
-    for (const [block, thoughts] of run.thoughtsBefore) {
-      before.set(block, thoughts.map(thought))
+    for (const [block, thoughts] of run.asidesBefore) {
+      before.set(block, thoughts.map(aside))
     }
-    return { before, after: run.thoughtsAfter.map(thought) }
+    return { before, after: run.asidesAfter.map(aside) }
   }, [run, fontScale, activeTurnIsWorking, openReasoning, onToggleReasoning, onOpenFile, openSheet])
-  // Asks and prose read no files, so the run's own blocks or this message's give the same images.
   const viewedImages = useMemo(
     () => nativeChatToolRunViewedImages(run?.blocks ?? message.blocks),
     [run, message.blocks]
   )
-  const drawnProse = isReasoning ? [] : withoutSubagentGroupTwins(prose)
+  const drawnProse =
+    isReasoning || (message.role === 'system' && workRun) ? [] : withoutSubagentGroupTwins(prose)
   const isSystem = message.role === 'system'
-  const showToolRun = tools.length > 0
+  const showToolRun = tools.length > 0 || workRun !== undefined
   const askPending = structuredActivityUi
     ? selectActiveToolCall(unansweredAsks, { activeTurnIsWorking }) !== null
     : unansweredAsks.length > 0
@@ -259,7 +267,7 @@ function MobileNativeChatMessageImpl({
           onLongPress={onLongPress}
           text={text}
         />
-        <TextAttachmentActions
+        <MobileNativeChatTextAttachmentActions
           text={text}
           onOpenFile={onOpenFile}
           pastedText={t('chat.textAttachmentPreview.pastedText', 'Pasted text')}
@@ -304,7 +312,7 @@ function MobileNativeChatMessageImpl({
           ) : (
             <>
               {/* A roster is not tool activity, so it stays out of the settled-tools collapse. */}
-              {isSystem ? (
+              {isSystem && !workRun ? (
                 <MobileNativeChatNoticeRow
                   blocks={drawnProse}
                   fontScale={fontScale}
@@ -392,22 +400,3 @@ function MobileNativeChatMessageImpl({
 }
 
 export const MobileNativeChatMessage = memo(MobileNativeChatMessageImpl)
-
-const TextAttachmentActions = memo(function TextAttachmentActions(props: {
-  text: string
-  pastedText: string
-  onOpenFile?: (path: string) => void
-}) {
-  const { text, pastedText, onOpenFile } = props
-  const paths = useMemo(() => nativeChatTextAttachmentPaths(text), [text])
-  return paths.map((path) => (
-    <Text
-      key={path}
-      accessibilityRole="button"
-      onPress={() => onOpenFile?.(path)}
-      style={styles.agentAttribution}
-    >
-      {chatTextAttachmentName(path, pastedText)}
-    </Text>
-  ))
-})
