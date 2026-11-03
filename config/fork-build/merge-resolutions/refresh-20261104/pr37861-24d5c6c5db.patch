@@ -1,0 +1,34 @@
+--- a/mobile/src/i18n/en-runtime-required.json
++++ b/mobile/src/i18n/en-runtime-required.json
+@@ -56,8 +56,8 @@
+     }
+   },
+   "chat": {
+-    "notices": {
+-      "orchestrationMail": "Orchestration mail"
++    "notice": {
++      "modelFallback": "Claude switched models: {{from}} → {{to}}."
+     },
+     "subagentGroup": {
+       "ran_one": "Ran {{count}} subagent",
+@@ -124,6 +124,9 @@
+     "turnStatus": {
+       "seconds_one": "{{count}}s",
+       "seconds_other": "{{count}}s"
++    },
++    "notices": {
++      "orchestrationMail": "Orchestration mail"
+     }
+   },
+   "components": {
+@@ -283,10 +286,6 @@
+     "queuedMessageCardRow": {
+       "images_one": "{{count}} image",
+       "images_other": "{{count}} images"
+-    },
+-    "structuredOpen": {
+-      "worktreeDeleted": "The worktree was deleted.",
+-      "folderWorkspaceRemoved": "The folder workspace was removed."
+     }
+   },
+   "settings": {

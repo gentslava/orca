@@ -1,0 +1,10 @@
+--- a/src/main/native-chat/agent-session-wire/structured-agent-session-status-summary-equality.ts
++++ b/src/main/native-chat/agent-session-wire/structured-agent-session-status-summary-equality.ts
+@@ -28,6 +28,7 @@
+     a.latestPrompt === b.latestPrompt &&
+     a.model === b.model &&
+     a.modelDefault === b.modelDefault &&
++    a.reportedModel === b.reportedModel &&
+     a.permissionMode === b.permissionMode &&
+     a.runtimePermission?.fence === b.runtimePermission?.fence &&
+     a.runtimePermission?.mode === b.runtimePermission?.mode &&

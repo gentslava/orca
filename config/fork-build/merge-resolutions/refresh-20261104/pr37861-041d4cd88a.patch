@@ -1,0 +1,21 @@
+--- a/src/main/native-chat/agent-session-wire/structured-agent-session-status-summary.ts
++++ b/src/main/native-chat/agent-session-wire/structured-agent-session-status-summary.ts
+@@ -1,4 +1,7 @@
+-import { structuredAgentSessionRuntimePermission } from './structured-agent-session-ran-options'
++import {
++  structuredAgentSessionChildRan,
++  structuredAgentSessionRuntimePermission
++} from './structured-agent-session-ran-options'
+ import type { AgentSessionConversationView } from '../../../shared/agent-session/lifecycle/agent-session-conversation-view'
+ import type { AgentSessionStatusSummary } from '../../../shared/agent-session/agent-session-wire'
+ import { normalizeOptionalField } from '../../../shared/agent-status-field-normalization'
+@@ -85,6 +88,9 @@
+       : {}),
+     ...(model ? { model } : {}),
+     ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
++    ...(session.child
++      ? { reportedModel: structuredAgentSessionChildRan(session.child)?.model }
++      : {}),
+     ...(isAgentChatPermissionMode(permissionMode) ? { permissionMode } : {}),
+     ...(effort ? { effort } : {}),
+     ...(fastMode ? { fastMode } : {}),
