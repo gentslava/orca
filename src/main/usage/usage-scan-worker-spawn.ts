@@ -1,4 +1,7 @@
-import { claudeProfileTranscriptDirs } from '../claude-usage/transcript-file-discovery'
+import {
+  claudeProfileTranscriptDirs,
+  claudeProfileTranscriptSources
+} from '../claude-usage/transcript-file-discovery'
 import { existsSync } from 'node:fs'
 import { Worker } from 'node:worker_threads'
 import {
@@ -8,6 +11,7 @@ import {
 import type { ClaudeUsageDailyAggregate, ClaudeUsageSession } from '../claude-usage/types'
 import type { CodexUsageDailyAggregate, CodexUsageSession } from '../codex-usage/types'
 import type { OpenCodeUsageDailyAggregate, OpenCodeUsageSession } from '../opencode-usage/types'
+import { openCodeUsageAccountRoots } from '../opencode-usage/opencode-usage-account-roots'
 import type { MuseUsageDailyAggregate, MuseUsageSession } from '../muse-usage/types'
 import type { UsageScanWorktreeRef } from './usage-provider-contract'
 import type {
@@ -57,7 +61,11 @@ export function scanClaudeUsageFilesViaWorker(
     (body) =>
       getSharedClient().scan(
         body.providerId === 'claude'
-          ? { ...body, profileDirs: claudeProfileTranscriptDirs() }
+          ? {
+              ...body,
+              profileDirs: claudeProfileTranscriptDirs(),
+              accountRoots: claudeProfileTranscriptSources()
+            }
           : body
       ),
     worktrees,
@@ -82,7 +90,16 @@ export function scanOpenCodeUsageDatabasesViaWorker(
   sessions: OpenCodeUsageSession[]
   dailyAggregates: OpenCodeUsageDailyAggregate[]
 }> {
-  return scanOpenCodeUsageOnWorker((body) => getSharedClient().scan(body), worktrees, sourceCache)
+  return scanOpenCodeUsageOnWorker(
+    (body) =>
+      getSharedClient().scan(
+        body.providerId === 'opencode'
+          ? { ...body, accountRoots: openCodeUsageAccountRoots() }
+          : body
+      ),
+    worktrees,
+    sourceCache
+  )
 }
 
 export function scanMuseUsageFilesViaWorker(
