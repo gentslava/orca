@@ -396,18 +396,6 @@
     "reason": "Retain worker-role, hold-to-quit and window material settings after both source branches adopt the current session-contract layout."
   },
   {
-    "path": "src/renderer/src/components/agent/AgentLaunchSetupPanel.test.tsx",
-    "blobs": [
-      "c7cf2fae558583a24b2b6f7aedbfda2cf751424d",
-      "f67e4f71069c35b9c50f537a0ff9cde4fb33c539",
-      "48747214404cf7f487fe4bee76aef1dca1f5734c"
-    ],
-    "patchSha256": "b8ee71d34ed343d489466d4559e630875e0189f4bfa42dad2703e1dd636a95b8",
-    "resultSha256": "49fcbbc07c938377f3faf1b469cac90b45762aea1a946e70c8cd68e3182536f7",
-    "reason": "Retain effort slider keyboard and Default-model coverage while adopting the fresh upstream native submenu launch-button queries; preserve existing regression assertions and launch choice payloads.",
-    "patch": "refresh-20261103/pr34866-6f08936a6b.patch"
-  },
-  {
     "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
     "blobs": [
       "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
