@@ -3,6 +3,8 @@ import { translate } from '../../../i18n/mobile-i18n'
 
 export const sayMobileNativeChatSessionOption: NativeChatSessionOptionSay = (id, values) => {
   switch (id) {
+    case 'defaultModel':
+      return translate('chat.sessionOptionCopy.defaultModel', 'Default')
     case 'futureOptionsRequireUpdate':
       return translate(
         'chat.sessionOptionCopy.futureOptionsRequireUpdate',
