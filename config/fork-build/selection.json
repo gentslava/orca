@@ -15,7 +15,7 @@
     },
     {
       "number": 36905,
-      "reason": "Opaque mobile scrollers proposed for the reported Android selection flash; retain handset confirmation as pending."
+      "reason": "Merged opaque-scroller improvement for Android selection; the 2026-11-03 handset comparison still requires the explicitly retained native fix in PR 36892."
     }
   ],
   "exclude": {
@@ -30,7 +30,9 @@
     "37279": 37276,
     "36858": 37211
   },
-  "dependencies": {},
+  "dependencies": {
+    "36593": [36634]
+  },
   "outputs": ["macos-arm64-dmg", "macos-arm64-zip"],
   "statusIssue": 12,
   "compatibilityPatches": [
@@ -38,5 +40,8 @@
     "test-runner-registration.patch",
     "integration-module-boundaries.patch",
     "conversation-project-order.patch"
-  ]
+  ],
+  "retainClosed": {
+    "36892": "Retained after the 2026-11-03 handset comparison: main with the opaque-scroller change still flashed in 2/2 runs; the native selection fix passed 2/2. Upstream reopen requested; keep reading the PR head at build time."
+  }
 }

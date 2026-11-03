@@ -6,6 +6,8 @@ Generated integration, packaging and promotion commits use GitHub's standard `gi
 
 The workflow freezes fresh `stablyai/orca:main`, discovers all open main-targeted PRs by the configured authors (including drafts), and adds explicitly selected community PRs. `seed` and the persistent fork status issue retain previously selected PRs after closure. Closed unmerged PRs block publication until a replacement or a reasoned exclusion is recorded. Merged PRs are omitted only after their merge commit is proven to be in the frozen upstream.
 
+A deliberately retained closed PR must be listed in `retainClosed` with a nonempty reason. Its freshly resolved head is composed with the same identity and conflict checks as an open PR, and reports label it as retained closed. Exclusion/replacement and retention cannot coexist for one PR. PR 36892 is retained after the 2026-11-03 physical-handset comparison confirmed black flashes without its native fix, despite the merged opaque-scroller improvement. No head is pinned in configuration.
+
 Every selection is required. Dependencies are explicit PR-number arrays; ties use ascending PR numbers. No dependencies are inferred from titles or reviews. A moved PR head fails planning. Direct upstream conflicts and conflicts caused by the selected combination are reported separately. The diagnostic composition may continue after a conflict to list further failures, but cannot be packaged or published. An outdated compatibility patch is a blocker as well.
 
 When every conflicted path is an English or Russian desktop/mobile translation catalog, composition attempts a strict three-way merge by key. Independent additions and unchanged-side removals are retained; different edits to one key, delete/edit races, duplicate keys and non-catalog values fail. Source-code conflicts require a reviewed integration patch in `merge-resolutions/manifest.json`: the path and all three Git blob identities must match exactly. The patch and resulting file are SHA-256 checked. This preserves atomic upstream PRs while recording the explicit corrections required only by their selected combination; changed or unknown preimages block publication. `plan.json` records each successful locale merge in `result.localeMerges`, with its PR number and exact paths. Every resulting catalog is also checked after text-clean merges; duplicate keys stop planning. See [the reviewed integration corrections](merge-resolutions/README.md) for the fork-only source resolutions.
@@ -51,7 +53,7 @@ Mobile queue lifecycle: merged PR 36928 supersedes PRs 36606 and 36607 for the e
 Tests run without application dependencies:
 
 ```sh
-node --test config/fork-build/composition.test.mjs config/fork-build/status-record.test.mjs config/fork-build/promotion.test.mjs
+node --test config/fork-build/selection-retained.test.mjs config/fork-build/composition.test.mjs config/fork-build/status-record.test.mjs config/fork-build/promotion.test.mjs
 actionlint .github/workflows/personal-build.yml
 ```
 

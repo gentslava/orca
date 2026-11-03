@@ -58,7 +58,7 @@ export function renderReport(plan) {
     )
     for (const pr of plan.selections) {
       lines.push(
-        `| PR ${pr.number} | ${pr.merged_at ? 'merged (ancestry checked)' : pr.draft ? 'open draft' : 'open'} | \`${pr.head.sha}\` |`
+        `| PR ${pr.number} | ${pr.merged_at ? 'merged (ancestry checked)' : pr.state === 'closed' ? 'retained closed' : pr.draft ? 'open draft' : 'open'} | \`${pr.head.sha}\` |`
       )
     }
     if (plan.result.localeMerges?.length) {

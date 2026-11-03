@@ -28,8 +28,20 @@ export function orderSelections(selections, dependencies = {}) {
 }
 
 export async function resolveSelection(config, { openOwn, previous = [], readPr }) {
+  const retained = config.retainClosed || {}
+  for (const [number, reason] of Object.entries(retained)) {
+    if (
+      typeof reason !== 'string' ||
+      !reason.trim() ||
+      config.exclude[number] ||
+      config.replacements[number]
+    ) {
+      throw new Error(`Invalid closed PR retention: PR ${number}`)
+    }
+  }
   const numbers = new Set([
     ...config.seed,
+    ...Object.keys(retained).map(Number),
     ...previous,
     ...config.include.map((entry) => entry.number),
     ...openOwn
@@ -59,6 +71,16 @@ export async function resolveSelection(config, { openOwn, previous = [], readPr 
     }
     if (pr.base.ref !== config.base) {
       throw new Error(`Unsupported PR base: PR ${number}`)
+    }
+    if (pr.state === 'closed' && !pr.merged_at && retained[number]) {
+      records.set(number, pr)
+      lifecycle.push({
+        number,
+        disposition: 'retained-closed',
+        head: pr.head.sha,
+        reason: retained[number]
+      })
+      return
     }
     if (pr.state === 'closed' && !pr.merged_at) {
       const replacement = config.replacements[number]
