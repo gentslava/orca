@@ -604,6 +604,9 @@
       "handedOffToAgent": "Передано агенту",
       "startedAgent": "Агент запущен"
     },
+    "notices": {
+      "orchestrationMail": "Служебные сообщения агентов"
+    },
     "tool": {
       "activity": "Активность"
     }
