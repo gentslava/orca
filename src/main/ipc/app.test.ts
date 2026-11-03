@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type * as AppRelaunch from '../app-relaunch'
+import type * as AppRelaunch from '../startup/quit/app-relaunch'
 import { detectUiLanguage } from '../../shared/ui-locale'
 
 const {
@@ -111,7 +111,7 @@ vi.mock('../i18n/system-language', () => ({
 }))
 vi.mock('../i18n/main-i18n', () => ({ setMainUiLanguage: setMainUiLanguageMock }))
 
-vi.mock('../app-relaunch', async (importOriginal) => ({
+vi.mock('../startup/quit/app-relaunch', async (importOriginal) => ({
   ...(await importOriginal<typeof AppRelaunch>()),
   relaunchApp: relaunchAppMock
 }))
@@ -148,7 +148,7 @@ vi.mock('../wsl', () => ({
   listWslDistrosAsync: windowsProbes.listWslDistrosAsync
 }))
 
-vi.mock('../pwsh', () => ({
+vi.mock('../pty/shell-startup/pwsh', () => ({
   isPwshAvailable: windowsProbes.isPwshAvailable,
   isPwshAvailableAsync: windowsProbes.isPwshAvailableAsync
 }))

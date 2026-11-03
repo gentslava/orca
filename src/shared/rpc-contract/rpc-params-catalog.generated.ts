@@ -70,6 +70,7 @@ import { AgentLaunch, AgentLaunchReplay } from './agent-launch-params'
 import { AgentLaunchSettingsMutation } from './agent-launch-settings-params'
 import {
   AttachmentReadParams,
+  AttachmentTextReadParams,
   AttachmentUploadAppendParams,
   AttachmentUploadIdParams,
   AttachmentUploadStartParams
@@ -327,7 +328,13 @@ import {
   UpdatePrState,
   UpdatePrTitle
 } from './github-pull-request-update-params'
-import { RepoIssueCommandRead, RepoSelector, RepoShow, SlugRepo } from './github-repo-target-params'
+import {
+  RepoIssueCommandRead,
+  RepoSelector,
+  RepoShow,
+  RepoWithGitHubAccountExpectation,
+  SlugRepo
+} from './github-repo-target-params'
 import {
   IssuesList,
   RateLimit,
@@ -561,7 +568,7 @@ import {
   RepoSparsePresetSave,
   RepoUpdate
 } from './repo-params'
-import { BrowserTarget } from './rpc-param-primitives'
+import { BrowserTarget, ExpectUrlBrowserTarget } from './rpc-param-primitives'
 import { ClientCapabilitiesUpdate } from './runtime-client-capabilities-params'
 import { SessionTabsUnsubscribeAllParams } from './session-tabs-params'
 import {
@@ -690,6 +697,7 @@ import {
   UsageSetEnabledParams,
   UsageSnapshotParams
 } from './usage-history-params'
+import { CancelUsageLimitContinueParams } from './usage-limit-continue-params'
 import { LayoutReopenHeldPanesParams } from './workspace-layout-held-panes-params'
 import {
   LayoutApplyParams,
@@ -786,6 +794,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.acknowledgeAttention': AcknowledgeAttentionParams,
   'agentSession.agents': AgentsParams,
   'agentSession.cancel': CancelParams,
+  'agentSession.cancelUsageLimitContinue': CancelUsageLimitContinueParams,
   'agentSession.close': OptionsParams,
   'agentSession.commands': OptionsParams,
   'agentSession.continuationContext': ContinuationContextParams,
@@ -830,6 +839,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.threadGoal': ThreadGoalParams,
   'agentSession.unsubscribe': UnsubscribeParams,
   'agentSessionAttachment.read': AttachmentReadParams,
+  'agentSessionAttachment.readTextChunk': AttachmentTextReadParams,
   'agentSessionAttachment.uploadAbort': AttachmentUploadIdParams,
   'agentSessionAttachment.uploadAppend': AttachmentUploadAppendParams,
   'agentSessionAttachment.uploadCommit': AttachmentUploadIdParams,
@@ -857,7 +867,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'automation.runs': AutomationRuns,
   'automation.show': AutomationId,
   'automation.update': AutomationUpdate,
-  'browser.back': BrowserTarget,
+  'browser.back': ExpectUrlBrowserTarget,
   'browser.capture.start': BrowserTarget,
   'browser.capture.stop': BrowserTarget,
   'browser.certificate.proceed': CertificateProceed,
@@ -878,7 +888,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'browser.cookie.set': CookieSet,
   'browser.dblclick': Element,
   'browser.dialogAccept': DialogAccept,
-  'browser.dialogDismiss': BrowserTarget,
+  'browser.dialogDismiss': ExpectUrlBrowserTarget,
   'browser.download': SelectorPath,
   'browser.drag': Drag,
   'browser.eval': Eval,
@@ -886,7 +896,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'browser.fill': Fill,
   'browser.find': Find,
   'browser.focus': Element,
-  'browser.forward': BrowserTarget,
+  'browser.forward': ExpectUrlBrowserTarget,
   'browser.fullScreenshot': FullScreenshot,
   'browser.geolocation': Geolocation,
   'browser.get': Get,
@@ -916,7 +926,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'browser.profileDetectBrowsers': null,
   'browser.profileImportFromBrowser': ProfileImportFromBrowser,
   'browser.profileList': null,
-  'browser.reload': BrowserTarget,
+  'browser.reload': ExpectUrlBrowserTarget,
   'browser.screencast': Screencast,
   'browser.screencast.unsubscribe': ScreencastUnsubscribe,
   'browser.screenshot': Screenshot,
@@ -930,10 +940,10 @@ export const RPC_PARAMS_BY_METHOD = {
   'browser.setMedia': SetMedia,
   'browser.setOffline': SetOffline,
   'browser.snapshot': Snapshot,
-  'browser.storage.local.clear': BrowserTarget,
+  'browser.storage.local.clear': ExpectUrlBrowserTarget,
   'browser.storage.local.get': StorageKey,
   'browser.storage.local.set': StorageKeyValue,
-  'browser.storage.session.clear': BrowserTarget,
+  'browser.storage.session.clear': ExpectUrlBrowserTarget,
   'browser.storage.session.get': StorageKey,
   'browser.storage.session.set': StorageKeyValue,
   'browser.tabClose': TabClose,
@@ -1086,10 +1096,10 @@ export const RPC_PARAMS_BY_METHOD = {
   'github.countWorkItems': WorkItemsCount,
   'github.createIssue': CreateIssue,
   'github.issue': Issue,
-  'github.listAssignableUsers': RepoSelector,
+  'github.listAssignableUsers': RepoWithGitHubAccountExpectation,
   'github.listBindableAccounts': BindableAccounts,
   'github.listIssues': IssuesList,
-  'github.listLabels': RepoSelector,
+  'github.listLabels': RepoWithGitHubAccountExpectation,
   'github.listWorkItems': WorkItemsList,
   'github.markPRDraft': MarkPrDraft,
   'github.markPRReadyForReview': MarkPrReadyForReview,
@@ -1305,6 +1315,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.gateResolve': GateResolveParams,
   'orchestration.inbox': InboxParams,
   'orchestration.partyLocation': PartyLocationParams,
+  'orchestration.partyOpen': PartyLocationParams,
   'orchestration.reply': ReplyParams,
   'orchestration.requestShow': RequestShowParams,
   'orchestration.reset': ResetParams,

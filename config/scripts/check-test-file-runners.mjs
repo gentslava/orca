@@ -19,6 +19,7 @@ const NON_UNIT_TEST_RUNNERS = [
   {
     name: 'personal build node:test',
     include: [
+      'config/fork-build/selection-retained.test.mjs',
       'config/fork-build/composition.test.mjs',
       'config/fork-build/status-record.test.mjs',
       'config/fork-build/promotion.test.mjs',
@@ -26,6 +27,7 @@ const NON_UNIT_TEST_RUNNERS = [
     ],
     sources: ['.github/workflows/personal-build.yml'],
     mirrors: [
+      'config/fork-build/selection-retained.test.mjs',
       'config/fork-build/composition.test.mjs',
       'config/fork-build/status-record.test.mjs',
       'config/fork-build/promotion.test.mjs',

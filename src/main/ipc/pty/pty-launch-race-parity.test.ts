@@ -18,7 +18,7 @@ import { getHiddenRendererPtyIds, isHiddenRendererPty } from './delivery/pty-hid
 import { ptySizes } from './delivery/visibility-state'
 import { clearProviderPtyState } from './provider/state-cleanup'
 import * as paneSpawnReservations from './pane/spawn-reservation'
-import { WORKTREE_TERMINALS_SLEEPING_ERROR } from '../../runtime/worktree-terminals-sleeping-error'
+import { WORKTREE_TERMINALS_SLEEPING_ERROR } from '../../../shared/workspace-sleep'
 import { RestoredPaneStarter } from '../../runtime/terminal/recovery/restored-pane-start'
 import {
   LAUNCH_RACE_LANES,
@@ -59,7 +59,9 @@ vi.mock('../../agent-hooks/server', () =>
 vi.mock('../../pi/titlebar-extension-service', () =>
   import('./pty-ipc-mock-registry').then((m) => m.piTitlebarExtensionModuleMock())
 )
-vi.mock('../../pwsh', () => import('./pty-ipc-mock-registry').then((m) => m.pwshModuleMock()))
+vi.mock('../../pty/shell-startup/pwsh', () =>
+  import('./pty-ipc-mock-registry').then((m) => m.pwshModuleMock())
+)
 vi.mock('../../wsl', async (importOriginal) =>
   (await import('./pty-ipc-mock-registry')).wslModuleMock(await importOriginal())
 )

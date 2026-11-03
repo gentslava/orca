@@ -168,6 +168,7 @@ vi.mock('../runtime/orca-runtime', () => ({
       return null
     }
     syncWindowGraph() {}
+    setAgentSenderPeerKey() {}
     setMobilePushRegistrar(
       registrar: Parameters<RuntimeMobileNotificationController['setPushRegistrar']>[0]
     ) {

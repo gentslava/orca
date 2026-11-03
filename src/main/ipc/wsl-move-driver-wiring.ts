@@ -65,15 +65,21 @@ import { registerWslMoveHandlers } from './wsl-move-handlers'
 import { registerWslMoveOrchestrator } from './wsl-move-orchestrator-wiring'
 import { createWslMoveUndoPorts } from './wsl-move-undo-wiring'
 import { connectWslMoveHostService, type WslMoveHostConnectMode } from './wsl-move-host-connect'
-import { wslMoveReloadableWindow } from './wsl-move-reloadable-window'
-import { setWslMoveReloadableWindow } from '../persistence/moving-wsl-projects/wsl-move-window-write-hold'
+import {
+  leaveSettingsForWslMoveReload,
+  wslMoveReloadableWindow
+} from './wsl-move-reloadable-window'
+import {
+  setWslMoveReloadLanding,
+  setWslMoveReloadableWindow
+} from '../persistence/moving-wsl-projects/wsl-move-window-write-hold'
 import {
   commitRemoteOrcadMigrationCatalog,
   listRemoteOrcadRepositories,
   stageRemoteOrcadMigrationBlobChunk
 } from '../ssh/orcad-migration-catalog-client'
 import { listRemoteOrcadFolderCatalog } from '../ssh/orcad-server-folder-workspaces'
-import { makeTerminalScrollbackSnapshotRef } from '../terminal-scrollback-snapshots'
+import { makeTerminalScrollbackSnapshotRef } from '../pty/scrollback/terminal-scrollback-snapshots'
 import { pauseWorkspacesForProjectMove } from '../window/project-move-pause'
 import { getWslHostService } from '../wsl/wsl-host-service-instance'
 import { readWslGuestProcessTable } from '../wsl/wsl-guest-process-table'
@@ -88,6 +94,7 @@ export function registerWslMoveWiring(store: Store, runtime: OrcaRuntimeService)
     const contents = getTrustedUIRendererWebContents()
     return contents && wslMoveReloadableWindow(contents)
   })
+  setWslMoveReloadLanding(() => leaveSettingsForWslMoveReload(store))
   registerWslMoveHandlers(
     () => app.getPath('userData'),
     (senderId) => getTrustedUIRendererWebContents()?.id === senderId,

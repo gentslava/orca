@@ -31,12 +31,7 @@ export function boundedAiVaultConversationList(
   args?: AiVaultListArgs
 ): AiVaultListResult {
   return conditionalAiVaultListResult(
-    truncateAiVaultListResult(
-      result,
-      requestedAiVaultSessionDepth(args),
-      args?.scopePaths,
-      args?.selectedSessionId
-    ),
+    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths, args?.selectedSessionId),
     null
   )
 }
