@@ -168,18 +168,18 @@ it('refreshes the composer model from host execution reports without changing ca
   }
   const { rerender } = render(<Composer stamp={reportedModel} />)
   await waitFor(() =>
-    expect(screen.getByRole('button', { name: /^Model (Claude )?Opus 5\.5$/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 5\.5$/ })).toBeTruthy()
   )
   reportedModel = 'claude-opus-4-8'
   rerender(<Composer stamp={reportedModel} />)
   await waitFor(() =>
-    expect(screen.getByRole('button', { name: /^Model (Claude )?Opus 4\.8$/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 4\.8$/ })).toBeTruthy()
   )
   fireEvent.click(screen.getByText('Capture next message'))
   expect(sent).toEqual([{ selection: { model: 'claude-opus-5-5' } }])
   reportedModel = 'claude-opus-5-5'
   rerender(<Composer stamp={reportedModel} />)
   await waitFor(() =>
-    expect(screen.getByRole('button', { name: /^Model (Claude )?Opus 5\.5$/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 5\.5$/ })).toBeTruthy()
   )
 })
