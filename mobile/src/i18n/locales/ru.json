@@ -601,6 +601,9 @@
     "agentMessage": {
       "handedOffToAgent": "Передано агенту",
       "startedAgent": "Агент запущен"
+    },
+    "tool": {
+      "activity": "Активность"
     }
   },
   "common": {
