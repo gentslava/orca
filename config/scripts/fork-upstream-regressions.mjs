@@ -138,7 +138,7 @@ const desktop = [
   'src/shared/hold-quit-activity.test.ts',
   'src/renderer/src/app-shell/use-hold-quit-activity.test.tsx',
   'src/renderer/src/components/HoldQuitNotice.test.tsx',
-  'src/renderer/src/components/settings/AppearancePane.test.tsx',
+  'src/renderer/src/components/settings/appearance/AppearancePane.test.tsx',
   'src/main/menu/app-menu-hold-quit.test.ts',
   'src/main/menu/register-app-menu.test.ts',
   'src/main/persistence/applying-settings/persistence-settings-ui-defaults.test.ts',
