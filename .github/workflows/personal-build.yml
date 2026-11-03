@@ -111,6 +111,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build and typecheck desktop, CLI, web and mobile resources
         run: pnpm run build:desktop:ci
+      - name: Verify regressions from all composed features
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/regressions.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Verify preview updater policy against the composed application
         run: |
           set -euo pipefail
