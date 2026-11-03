@@ -24,30 +24,6 @@
     "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
   },
   {
-    "path": "src/main/ipc/ai-vault-local-scan.ts",
-    "blobs": [
-      null,
-      "f86d83c27f3b2e3fc17e775852212a35f4c9d180",
-      "90d14b2da23bfdc4876d5b241bd0549bff1eea48"
-    ],
-    "patch": "refresh-main2fb/pr33383-5b4a3b922e.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "0e8a32da78fce7819fdfc8ba8775371d788626e8b3c7f6d4b0c1d96a41f347d1",
-    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
-  },
-  {
-    "path": "src/main/ipc/ai-vault.ts",
-    "blobs": [
-      "bc696c11aa7451018156dc478af62134e8233b52",
-      "99615b551e2228c9d2eb04f0be426426359e58fc",
-      "d49cc09606dcad0d2282624d09ea98f4f2ad21bd"
-    ],
-    "patch": "refresh-main2fb/pr33383-4081362002.patch",
-    "patchSha256": "062d0977319c875f119c500b9e05af9fc75b1cc806afaec952c23fade6f31c59",
-    "resultSha256": "bb2cedaf72b0553ef566e545c15c3e102a9d4163730b8f259d5bdb13aa9d1240",
-    "reason": "Preserve the reviewed bounded desktop history and mobile selected-session retention composition; both feature parents are identical except verified lifecycle import relocation after the main refactor."
-  },
-  {
     "path": "src/main/runtime/rpc/methods/ai-vault.ts",
     "blobs": [
       "fdb08a979f4e195ae4ffee665d6c8c37387bf776",
@@ -502,5 +478,29 @@
     "patchSha256": "a531bdea88131a54b3e60db362a29ec6f07c4c60922dadc0847a2c717b9c5719",
     "resultSha256": "27abf26be0c92d654d6d49b119df30db1b218c93f98a161725b45506618610c4",
     "reason": "Compose reported execution model with saved Default-model selection and existing orchestration notice translations; preserve independent input and display state."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "7c3c94f1aabf519de15cafc6ea5338448c5a8bce",
+      "d902e5f2053ff393d065ab31761db0cf8c4d20aa",
+      "4b0dd362b1e2b661106eeab12e8cc8f3d802c145"
+    ],
+    "patch": "refresh-20261104/pr33383-ai-vault.patch",
+    "patchSha256": "3ed82f08ea8ce40954a308cb75c89278113ccc014791d498c4265e11cceda539",
+    "resultSha256": "7acff80d7b08ebcd28939266cc8b20217855c9ae93f67c38a02083d4af224fcb",
+    "reason": "Preserve the validated bounded desktop history and mobile selected-session retention combination after upstream moved AI Vault IPC owners; only relative imports change from the prior combined result."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault-local-scan.ts",
+    "blobs": [
+      null,
+      "f6df7fb3f9c1eff1c931c5de6f36242ec09f8541",
+      "dc0b4375d3380a5bac63ebf866444c01816add2d"
+    ],
+    "patch": "refresh-20261104/pr33383-ai-vault-local-scan.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "11ee1785a0f5dfcd6900d8687e9f13faf7248e9d0c8484f64150ef963998f99f",
+    "reason": "Preserve the validated bounded desktop history and mobile selected-session retention combination after upstream moved AI Vault IPC owners; only relative imports change from the prior combined result."
   }
 ]
