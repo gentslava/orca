@@ -111,9 +111,11 @@ export function MobileNativeChatNoticeRow({
   blocks,
   fontScale,
   onOpenFile,
-  onLongPress
+  onLongPress,
+  disclosed = false
 }: {
   blocks: readonly NativeChatBlock[]
+  disclosed?: boolean
   fontScale: number
   onOpenFile?: (relativePath: string) => void
   onLongPress?: () => void
@@ -156,14 +158,16 @@ export function MobileNativeChatNoticeRow({
       const payload = notice.providerFrame?.payload
       return (
         <View>
-          <NoticeDisclosureSummary
-            summary={summary}
-            expanded={expanded}
-            fontScale={fontScale}
-            onPress={() => setExpanded((open) => !open)}
-            onLongPress={onLongPress}
-          />
-          {expanded ? (
+          {disclosed ? null : (
+            <NoticeDisclosureSummary
+              summary={summary}
+              expanded={expanded}
+              fontScale={fontScale}
+              onPress={() => setExpanded((open) => !open)}
+              onLongPress={onLongPress}
+            />
+          )}
+          {disclosed || expanded ? (
             <MobileNativeChatOwnedScrollView
               positionKey={detailId}
               style={[toolStyles.codeBox, toolStyles.codeScroll]}
