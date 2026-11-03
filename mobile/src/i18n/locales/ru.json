@@ -606,7 +606,8 @@
     },
     "agentMessage": {
       "handedOffToAgent": "Передано агенту",
-      "startedAgent": "Агент запущен"
+      "startedAgent": "Агент запущен",
+      "sessionLink": "Связь"
     },
     "notices": {
       "orchestrationMail": "Служебные сообщения агентов"
