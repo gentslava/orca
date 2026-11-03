@@ -531,7 +531,7 @@ index 99d4d3857172a4a98e04c1b2b286317dd41c7927..73abb670a0cc619c4b70dc81086f72c8
 -    expect(container.textContent).not.toContain('Running and queued messages keep their choices.')
 -    fireEvent.click(screen.getByRole('option', { name: /Sonnet 5/ }))
 -    await settle()
--    fireEvent.click(effortLevels()[0])
+-    pickEffort()
 -    await settle()
 -    fireEvent.click(screen.getByRole('switch'))
 -    await settle()
