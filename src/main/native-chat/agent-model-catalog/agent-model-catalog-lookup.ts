@@ -1,3 +1,7 @@
+import {
+  agentModelCatalogReleasedOwner,
+  agentModelCatalogReadRecords
+} from './agent-model-catalog-read-scope'
 import { seedAccountList } from './agent-model-catalog-account-list'
 import type { PrioritySemaphore } from '../../../shared/priority-semaphore'
 import type {
@@ -5,7 +9,6 @@ import type {
   AgentModelCatalogServiceDeps
 } from './agent-model-catalog-service-contract'
 import type { AgentModelCatalogReadOperation } from './agent-model-catalog-operation'
-import { agentModelCatalogReadRecords } from './agent-model-catalog-read-scope'
 import { recordCatalogKey } from './agent-model-catalog-fingerprint'
 import { scopedAgentModelCatalogLister } from './agent-model-catalog-lister'
 import { newChatCatalogKey } from './agent-model-catalog-prewarm'
@@ -17,7 +20,6 @@ import {
 import { resolveAgentModelCatalogScope } from './agent-model-catalog-scope'
 import { independentAgentModelCatalog } from './agent-model-catalog-discovery'
 import {
-  agentModelCatalogReleasedOwner,
   bindAgentModelCatalogScope,
   type AgentModelCatalogBinding
 } from './agent-model-catalog-snapshot'
@@ -210,8 +212,12 @@ export function createAgentModelCatalogLookup(
         probeHome,
         workspacePath: cwd ?? folder
       })
-      if (probe && probeHome && deps.store.probeDue(fingerprint)) {
-        void deps.store.refresh(
+      if (
+        probe &&
+        probeHome &&
+        (params.requireConfiguredDefault || deps.store.probeDue(fingerprint))
+      ) {
+        const listing = deps.store.refresh(
           fingerprint,
           params.agent,
           () => {
@@ -223,6 +229,9 @@ export function createAgentModelCatalogLookup(
           current,
           signal
         )
+        if (params.requireConfiguredDefault) {
+          await listing
+        }
       }
       // Demand owns ingestion until settlement, even when its caller only needs the snapshot.
       ready.resolve()
