@@ -19716,6 +19716,7 @@
         "permissionDenied": "{{agent}} denied permission. View details.",
         "safetyReview": "{{agent}} reported a safety review warning. View details.",
         "truncatedResponse": "Provider response truncated (original size: {{bytes}} bytes).",
+        "modelFallback": "Claude switched models: {{from}} → {{to}}.",
         "orchestrationMail": "Orchestration mail"
       },
       "composer": {
@@ -21078,6 +21079,14 @@
         "keepOpen": "Keep open"
       }
     },
+    "wslHostMark": {
+      "runsOn": "Runs on WSL: {{distro}} (Linux)"
+    },
+    "editor": {
+      "formatOnSave": {
+        "failed": "Could not format {{file}}. Saving without formatting: {{reason}}"
+      }
+    },
     "sessionLink": {
       "partner": "Partner session",
       "search": "Search agent, chat, workspace or branch…",
@@ -21155,14 +21164,6 @@
       "resolveDelivery": "Mark reviewed; do not resend",
       "deliveryReviewed": "Delivery reviewed by the owner; automatic resend is disabled.",
       "reviewBeforeContinue": "Review the unconfirmed delivery before continuing"
-    },
-    "wslHostMark": {
-      "runsOn": "Runs on WSL: {{distro}} (Linux)"
-    },
-    "editor": {
-      "formatOnSave": {
-        "failed": "Could not format {{file}}. Saving without formatting: {{reason}}"
-      }
     },
     "tab-bar": {}
   },

@@ -153,6 +153,8 @@ export async function readStructuredAgentSessionOptions(
   const model = saved.model ?? (options.current.model || selected.current.model || displayDefault)
   const projected = live?.projectCurrent?.({ ...saved, ...(model ? { model } : {}) })
   const reportedEffort = projected?.confirmed?.includes('effort') ? projected.effort : undefined
+  const reportedModel =
+    live && options.current.confirmed?.includes('model') ? options.current.model : undefined
   const current = {
     ...selected.current,
     ...options.current,
@@ -244,6 +246,7 @@ export async function readStructuredAgentSessionOptions(
       ...current,
       ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
       acceptedInputSources,
+      ...(reportedModel ? { reportedModel } : {}),
       ...(reportedEffort !== undefined ? { reportedEffort } : {}),
       defaulted,
       confirmed,
