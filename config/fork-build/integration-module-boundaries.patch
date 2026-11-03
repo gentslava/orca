@@ -113,22 +113,6 @@ index 0000000000000000000000000000000000000000..075954a882f3c84deba813148e139f8b
 +    expect(calls()).toHaveLength(0)
 +  })
 +}
-diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
-index 9e09962f61040e654a3c88e284711cdbf90984a0..18cd41224ecf1783f1fdfacfd1b4afc2dfe95fa1 100644
---- a/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
-+++ b/mobile/src/session/native-chat/transcript/MobileNativeChatPageScroll.tsx
-@@ -1,8 +1,8 @@
- import type { Ref } from 'react'
- import { ScrollView, View, type ScrollViewProps, type ViewStyle } from 'react-native'
--import { colors } from '../theme/mobile-theme'
--import { themedStyleSheet } from '../theme/themed-styles'
--import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
-+import { colors } from '../../../theme/mobile-theme'
-+import { themedStyleSheet } from '../../../theme/themed-styles'
-+import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
- 
- // Reverse anchoring gives scrollTop=0 at the tail and negative offsets above; disable browser anchoring because the list restores parked readers itself.
- export function MobileNativeChatPageScroll({
 diff --git a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
 index e287aa6d1ee281a86cd19af202e33151de2374b4..d912b3fa05e3dc20abf3ad94ec0d133208e1aa18 100644
 --- a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
@@ -258,24 +242,6 @@ index 50b724390f781aeb8a3692db2c51420640d61b84..e5ddb7ea9b27781e8f3c963f94d826fb
        "ee559224b6047d01db02d9aabdfbcc94475394e6f11f4076ce785c42faee63c6",
        "f3bae76495657f27458969fe2d6510098f39b429580870f5e79fac3493f891ee",
        "f7da0dd40d8681e2b0303fa0fa2f7ee4e36f2eca6495a4af57b92b9857dff732"
-diff --git a/src/main/ai-vault/structured-conversation-navigation.ts b/src/main/ai-vault/structured-conversation-navigation.ts
-index 449a4bcb07adf4873f6b31398ebc24ece715b286..1a8d8836dd5cb236fe49f4428a9dcd85b8560484 100644
---- a/src/main/ai-vault/structured-conversation-navigation.ts
-+++ b/src/main/ai-vault/structured-conversation-navigation.ts
-@@ -31,7 +31,12 @@ export function boundedAiVaultConversationList(
-   args?: AiVaultListArgs
- ): AiVaultListResult {
-   return conditionalAiVaultListResult(
--    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths, args?.selectedSessionId),
-+    truncateAiVaultListResult(
-+      result,
-+      requestedAiVaultSessionDepth(args),
-+      args?.scopePaths,
-+      args?.selectedSessionId
-+    ),
-     null
-   )
- }
 diff --git a/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts b/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts
 index 4d28a35409ae8b25420cb73b29678e46e4fc644b..21d31abaee2698cebc796cfd64c62fe3bcec0db3 100644
 --- a/src/main/ipc/filesystem/watchers/filesystem-watcher-lifecycle-model.test.ts
@@ -477,51 +443,6 @@ index 0000000000000000000000000000000000000000..badb87059bd62fbe9687cc59c62f2292
 +  variable: 'GROK_HOME',
 +  path
 +})
-diff --git a/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts b/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
-index 20748b0e3521ae767500508f2787253dd9409893..3960a7ce4020360c5c8cec56817cf48b183688df 100644
---- a/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
-+++ b/src/main/native-chat/agent-session-wire/structured-agent-session-mutation-plans.ts
-@@ -305,31 +305,28 @@ export function promptPlan(
-   }
- }
- 
--export function setOptionPlan(params: { key: string; value: string | null }) {
-+export function setOptionPlan({ key, value }: { key: string; value: string | null }) {
-   return {
-     method: 'agentSession.setOption',
--    fields: { key: params.key, value: params.value },
-+    fields: { key: key, value: value },
-     run: async (ctx): Promise<TurnOutcome<AgentSessionOptionResult>> => {
--      const options =
--        params.value === null ? {} : { ...ctx.persistedOptions, [params.key]: params.value }
-+      const options = value === null ? {} : { ...ctx.persistedOptions, [key]: value }
-       await ctx.persistOptions(options)
-       ctx.publish()
--      return { ok: true, value: { ...params, options } }
-+      return { ok: true, value: { key, value, options } }
-     },
-     // Reapply unsettled picks; only a settled success can be replayed directly.
-     replay: (ctx, outcome) => {
-       if (outcome.status !== 'succeeded') {
-         return null
-       }
--      if (params.value !== null && Object.hasOwn(outcome, 'optionResult')) {
--        return readNoChoiceOptionResult(outcome.optionResult, {
--          key: params.key,
--          value: params.value
--        })
-+      if (value !== null && Object.hasOwn(outcome, 'optionResult')) {
-+        return readNoChoiceOptionResult(outcome.optionResult, { key, value })
-       }
-       return {
--        ...params,
--        ...(params.value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
-+        key,
-+        value,
-+        ...(value === null ? { modelDefault: ctx.defaultModelSelected === true } : {}),
-         ...(ctx.persistedOptions ? { options: { ...ctx.persistedOptions } } : {})
-       }
-     }
 diff --git a/src/main/skills/bundled-skill-install/bundled-skill-sources.ts b/src/main/skills/bundled-skill-install/bundled-skill-sources.ts
 index 602aedee09b9f1e81ebb8980c6848c3af818ed23..8c021b02a6691c2426f465448b8c56f571965ee7 100644
 --- a/src/main/skills/bundled-skill-install/bundled-skill-sources.ts
@@ -840,3 +761,77 @@ index 3a63f875028f95d18c20155faef592e82b79b4d7..83058eb5714efc3507bc649194bfc4ae
    return view!
  }
  function publish(host: string, sessionId: string = ROOT): void {
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx
+index 439d9a5bc50..d843603727d 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx
+@@ -44,7 +44,7 @@ import { useMobileNativeChatFullMessage } from '../MobileNativeChatFullContent'
+ import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
+ import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
+ import { MobileNativeChatPacedProse } from './MobileNativeChatPacedProse'
+-import { Prose } from './MobileNativeChatProse'
++import { MobileNativeChatViewedImages, Prose } from './MobileNativeChatProse'
+
+ function MobileNativeChatMessageImpl({
+   message: rowMessage,
+@@ -361,18 +361,13 @@ function MobileNativeChatMessageImpl({
+             fontScale={fontScale}
+             onOpenFile={onOpenFile}
+             viewedImages={
+-              viewedImages.length > 0
+-                ? // Keyed by path: a read finishing late inserts above images already loaded.
+-                  viewedImages.map((image) => (
+-                    <Prose
+-                      key={image.path}
+-                      block={image}
+-                      text=""
+-                      fontScale={fontScale}
+-                      onLongPress={onLongPress}
+-                    />
+-                  ))
+-                : undefined
++              viewedImages.length > 0 ? (
++                <MobileNativeChatViewedImages
++                  images={viewedImages}
++                  fontScale={fontScale}
++                  onLongPress={onLongPress}
++                />
++              ) : undefined
+             }
+           />
+         ) : null}
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatProse.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatProse.tsx
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatProse.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatProse.tsx
+@@ -26,6 +26,31 @@
+ import { isRasterImagePath } from '../../../../../src/shared/file-preview-kind'
+ import { isKnownRasterImageMimeType } from '../../../../../src/shared/raster-image-preview-limits'
+ import { isSvgFilePath } from '../../../../../src/shared/svg-document'
++
++export function MobileNativeChatViewedImages({
++  images,
++  fontScale,
++  onLongPress
++}: {
++  images: readonly NativeChatImageRefBlock[]
++  fontScale: number
++  onLongPress?: () => void
++}): React.JSX.Element {
++  return (
++    <>
++      {/* Keyed by path: a read finishing late inserts above images already loaded. */}
++      {images.map((image) => (
++        <Prose
++          key={image.path}
++          block={image}
++          text=""
++          fontScale={fontScale}
++          onLongPress={onLongPress}
++        />
++      ))}
++    </>
++  )
++}
+
+ /** Raster https, data and absolute-path images draw on the phone (paths through the chat's host); anything else stays a link.
+  *  The shell's CSP refuses plain http, and React Native's Image cannot draw SVG. */

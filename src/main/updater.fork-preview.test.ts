@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { loadUpdaterModule, warmUpdaterModule } from './updater-test-module-loader'
+import { loadUpdaterModule, warmUpdaterModule } from './updater/testing/updater-test-module-loader'
 
 const {
   appMock,
@@ -12,7 +12,7 @@ const {
   listReleaseBuildsMock,
   resolveTargetBuildMock
 } = await vi.hoisted(async () => {
-  const mocks = (await import('./updater-test-harness')).createUpdaterMocks()
+  const mocks = (await import('./updater/testing/updater-test-harness')).createUpdaterMocks()
   return {
     ...mocks,
     loadAutoUpdaterMock: vi.fn(() => mocks.autoUpdaterMock),
@@ -23,17 +23,23 @@ const {
 
 vi.mock('electron', () => moduleFactories.electron())
 vi.mock('electron-updater', () => moduleFactories.electronUpdater())
-vi.mock('./electron-updater-loader', () => ({ loadElectronAutoUpdater: loadAutoUpdaterMock }))
+vi.mock('./updater/electron-updater-loader', () => ({
+  loadElectronAutoUpdater: loadAutoUpdaterMock
+}))
 vi.mock('./ipc/pty/kill-all', () => moduleFactories.ptyKillAll())
-vi.mock('./linux-update-package-type', () => moduleFactories.linuxUpdatePackageType())
-vi.mock('./updater-lifecycle-diagnostics', () => moduleFactories.updaterLifecycleDiagnostics())
-vi.mock('./updater-changelog', () => moduleFactories.updaterChangelog())
-vi.mock('./updater-nudge', () => moduleFactories.updaterNudge())
-vi.mock('./update-install-exit-watchdog', () => moduleFactories.updateInstallExitWatchdog())
-vi.mock('./updater-prerelease-feed', () => moduleFactories.updaterPrereleaseFeed())
+vi.mock('./updater/linux-package/linux-update-package-type', () =>
+  moduleFactories.linuxUpdatePackageType()
+)
+vi.mock('./updater/updater-lifecycle-diagnostics', () =>
+  moduleFactories.updaterLifecycleDiagnostics()
+)
+vi.mock('./updater/releases/updater-changelog', () => moduleFactories.updaterChangelog())
+vi.mock('./updater/nudges/nudge-campaign', () => moduleFactories.updaterNudge())
+vi.mock('./updater/update-install-exit-watchdog', () => moduleFactories.updateInstallExitWatchdog())
+vi.mock('./updater/releases/updater-prerelease-feed', () => moduleFactories.updaterPrereleaseFeed())
 vi.mock('./local-builds/local-build-switch', () => moduleFactories.localBuildSwitch())
 vi.mock('./local-builds/local-build-feed-server', () => moduleFactories.localBuildFeedServer())
-vi.mock('./updater-release-builds', () => ({
+vi.mock('./updater/releases/updater-release-builds', () => ({
   listReleaseBuilds: listReleaseBuildsMock,
   resolveTargetBuild: resolveTargetBuildMock
 }))

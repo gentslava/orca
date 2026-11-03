@@ -1,4 +1,3 @@
-diff --git a/src/main/persistence/applying-settings/ui-state-update.ts b/src/main/persistence/applying-settings/ui-state-update.ts
 --- a/src/main/persistence/applying-settings/ui-state-update.ts
 +++ b/src/main/persistence/applying-settings/ui-state-update.ts
 @@ -1,4 +1,5 @@

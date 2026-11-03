@@ -1,5 +1,5 @@
---- a/src/main/updater/updater-setup.ts
-+++ b/src/main/updater/updater-setup.ts
+--- a/src/main/updater/lifecycle/updater-setup.ts
++++ b/src/main/updater/lifecycle/updater-setup.ts
 @@ -37,20 +37,44 @@
    onBeforeQuitFailure?: PreQuitCleanupFailureMode
  }
