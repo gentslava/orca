@@ -418,5 +418,17 @@
     "resultSha256": "c342868b2ad2023d39412b4655a64f8a37a60198c2101ecccd26f1929cfc0b4f",
     "reason": "Advertise emulator capabilities alongside conversation, project ordering and usage capabilities while retaining the upstream pure aggregate wrapper and exactly one copy of each capability.",
     "patch": "refresh-20261103/pr36558-efda56db3f.patch"
+  },
+  {
+    "path": "src/shared/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "977fbe814abccdf3eee6796dba50ba06a5ee6132",
+      "30b9b086fd81090401400114a025bb5e8183d29a",
+      "6bbe1f99bcc26973452f08b06522f3b755910684"
+    ],
+    "patch": "refresh-20261103/pr37744-orchestration-capabilities.patch",
+    "patchSha256": "4b3909d3f943223c7e7aa673062b5e111ba49c5ca58f55248a1037519a1f56a6",
+    "resultSha256": "6c9d0de8eba08b0bfe506134998f4caaa595c500d2589801e883edb86320fdbf",
+    "reason": "Retain the session-link, session-children and worker-role capability advertisements together; preserve every existing orchestration capability."
   }
 ]
