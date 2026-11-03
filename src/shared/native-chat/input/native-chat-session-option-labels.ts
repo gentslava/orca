@@ -160,7 +160,7 @@ export function nativeChatModelPillLabel(
   descriptor: SessionOptionDescriptor,
   say: NativeChatSessionOptionSay
 ): string {
-  if (descriptor.defaultChoice?.selected) {
+  if (descriptor.defaultChoice?.selected && !descriptor.reportedModel) {
     return say('defaultModel')
   }
   // The tooltip names the category; default sources still identify a model, while unknown sources do not.
