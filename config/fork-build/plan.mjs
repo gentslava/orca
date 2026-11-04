@@ -85,7 +85,7 @@ try {
         'integration-module-boundaries.patch',
         'conversation-project-order.patch',
         'settings-owner-relocations.patch',
-        'model-fallback-default-selection.patch',
+        'model-fallback-next-turn-test.patch',
         'reviewed-merge-target-paths.patch'
       ].includes(patch)
     ) {

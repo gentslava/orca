@@ -180,30 +180,6 @@
     "patch": "refresh-20261103/pr33395-d1ba05ab16.patch"
   },
   {
-    "path": "mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx",
-    "blobs": [
-      "3df9003f3e9669933d2027e67bfbb6c1b080ada9",
-      "47df45e44921543976baf1f36fef02ce56ef64dc",
-      "eb0a6b6c18421778abc2ae18e97b31176a1e5035"
-    ],
-    "patchSha256": "f9b89c414010b486aa15a1468179bd5ada7cf2bebbb601254bded8fe97c7e791",
-    "resultSha256": "af6ff6913a04cb3b0381c725a5f356c2ea6ea964a0af09dd7ab66c6cfae0f899",
-    "reason": "Preserve collapsed typed orchestration mail, successful grouped approval details, current viewed images and text attachment actions after canonical chat-block import changes; retain every regression assertion.",
-    "patch": "refresh-20261103/pr33403-7c235baee9.patch"
-  },
-  {
-    "path": "mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx",
-    "blobs": [
-      "7a7b10d8991cdf66fec1dcc88bc79d6c52d00023",
-      "78014d9a843b7645604e0e8059c8a5635663d04e",
-      "a015137a91a32ada6109198a4ed2e98b50f4c876"
-    ],
-    "patch": "refresh-20261102/pr33403-3d40fb77b4.patch",
-    "patchSha256": "231752987db0461f5954c6ea34d0b8f5a87b1369c4531b12c175a508ef995e49",
-    "resultSha256": "651cf2656b0b9f47689736d33e45cfc833271ec01a63e255629e2738512e798b",
-    "reason": "Retain collapsed typed orchestration mail, grouped review disclosures and upstream viewed-image attachments without repeating grouped notices."
-  },
-  {
     "path": "mobile/src/host-screen/host-screen-operations.ts",
     "blobs": [
       "4ad7c4fc0e89e5319cb266ca7bacbf0bd5372c69",
@@ -406,78 +382,6 @@
     "patchSha256": "4b3909d3f943223c7e7aa673062b5e111ba49c5ca58f55248a1037519a1f56a6",
     "resultSha256": "6c9d0de8eba08b0bfe506134998f4caaa595c500d2589801e883edb86320fdbf",
     "reason": "Retain the session-link, session-children and worker-role capability advertisements together; preserve every existing orchestration capability."
-  },
-  {
-    "path": "mobile/src/i18n/en-runtime-required.json",
-    "blobs": [
-      "3fdb868905c4272e32e6a537203e07378a6d008f",
-      "d6ef032d7681256d4f67aeaac43f0ff841a2ab74",
-      "d4bf64852c213232d4660a8e13b6b261acc50e36"
-    ],
-    "patch": "refresh-20261104/pr37861-24d5c6c5db.patch",
-    "patchSha256": "466e5375859a55550f47f70908582c96c1cfcc47c1fd1ce0ea93126c8d567fc8",
-    "resultSha256": "522d06ddfb6d586f9914cb051eef840b40f25a76545ef24a04b6f8fe9e63fa7d",
-    "reason": "Compose reported execution model with saved Default-model selection and existing orchestration notice translations; preserve independent input and display state."
-  },
-  {
-    "path": "src/main/native-chat/agent-session-wire/structured-agent-session-status-summary-equality.ts",
-    "blobs": [
-      "95c32c8fe73a81d841cfaa92b9fd278b5bd0e3ce",
-      "026086cd369947093283a5ceb3e6e5b697afb6a4",
-      "418a6d6f28fc326984b56d3a33adab0e3d7ccf90"
-    ],
-    "patch": "refresh-20261104/pr37861-0f11497a00.patch",
-    "patchSha256": "0a70bec388ed3fe253baad96e0a4686ba98c2e576f882a9b051a5394f39714c2",
-    "resultSha256": "d4de9b129f34b08336be80a155460dd214d7702f700df4bd37b206112c157b6d",
-    "reason": "Compose reported execution model with saved Default-model selection and existing orchestration notice translations; preserve independent input and display state."
-  },
-  {
-    "path": "src/main/native-chat/agent-session-wire/structured-agent-session-status-summary.ts",
-    "blobs": [
-      "0b711a26350e04aace58ebefcd41d24b8daa7747",
-      "0f0edc1c2218466da6751d14c2fd4f2f69b01ad3",
-      "d5a3d23dab69f6dd3812c9c546db33824e99baf6"
-    ],
-    "patch": "refresh-20261104/pr37861-041d4cd88a.patch",
-    "patchSha256": "fad69d208f3ac2fce4a37409f13c88eb988008e173b192843842a9df20ff5088",
-    "resultSha256": "9d747ed67884474f2c9bb4d93b8d02a7d684dcfdfb3e31c44444eac542262516",
-    "reason": "Compose reported execution model with saved Default-model selection and existing orchestration notice translations; preserve independent input and display state."
-  },
-  {
-    "path": "src/shared/agent-session/agent-session-wire.ts",
-    "blobs": [
-      "67b1da6e3ee4278aec71c3571f996da2200dff1b",
-      "df95884486fe2d227a868957f04637cdde0fcdb8",
-      "ffda5f7f17a546e28c1fa77e119f9c263947758f"
-    ],
-    "patch": "refresh-20261104/pr37861-837561311b.patch",
-    "patchSha256": "f3be83427748db0f8974edb4ef86009ab2096ec9beb770e4123c221a245c3059",
-    "resultSha256": "d8f939486b86b2ed589a1bf3fc75fa86e7e82734848de960fcdbcb31df1e7d61",
-    "reason": "Compose reported execution model with saved Default-model selection and existing orchestration notice translations; preserve independent input and display state."
-  },
-  {
-    "path": "src/shared/agent-session/options/agent-session-options-result.ts",
-    "blobs": [
-      "9053936f637d22c7aa00c2d3c84921edce13b0ab",
-      "8d49d15bd61a9fdf9fea6c014cadca86f8081c64",
-      "ae3a6b5420f7ed3f62a4083c6865cf5a4b77ccf7"
-    ],
-    "patch": "refresh-20261104/pr37861-306fc78daf.patch",
-    "patchSha256": "8a86f861de03e15bf81a2df909fa10fd31e7f64a6a694bd78920b3326b4e3674",
-    "resultSha256": "903979db0ee9099ab7c04a3e7a7df5f811fcb223699139f3d2eac94aa963868d",
-    "reason": "Compose reported execution model with saved Default-model selection and existing orchestration notice translations; preserve independent input and display state."
-  },
-  {
-    "path": "src/shared/agent-session/options/structured-agent-session-option-state.ts",
-    "blobs": [
-      "08848cd0dcacb665a98f308a3291fde8029c24cd",
-      "429cddd3d81afea361f3817b02e4f1e8db84557e",
-      "043220e66d205d6a0d503478b7bc5fe721b70998"
-    ],
-    "patch": "refresh-20261104/pr37861-34195932cd.patch",
-    "patchSha256": "a531bdea88131a54b3e60db362a29ec6f07c4c60922dadc0847a2c717b9c5719",
-    "resultSha256": "27abf26be0c92d654d6d49b119df30db1b218c93f98a161725b45506618610c4",
-    "reason": "Compose reported execution model with saved Default-model selection and existing orchestration notice translations; preserve independent input and display state."
   },
   {
     "path": "src/main/ipc/ai-vault/ai-vault.ts",

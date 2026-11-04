@@ -6,7 +6,7 @@
   "seed": [
     33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
     33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
-    36574, 36593, 36606, 36607, 36858, 37279, 37717
+    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717
   ],
   "include": [
     {
@@ -15,7 +15,11 @@
     },
     {
       "number": 36905,
-      "reason": "Merged opaque-scroller improvement for Android selection; the 2026-11-03 handset comparison still requires the explicitly retained native fix in PR 36892."
+      "reason": "Opaque-scroller improvement supplied upstream; physical handset testing still requires native magnifier protection, now tracked by replacement PR 38022."
+    },
+    {
+      "number": 37968,
+      "reason": "Merged compact orchestration cards on desktop and mobile; PR 33403 now retains only human-authored chat navigation."
     }
   ],
   "exclude": {
@@ -29,7 +33,9 @@
     "36607": 36928,
     "37279": 37276,
     "36858": 37211,
-    "37717": 37711
+    "37717": 37711,
+    "37861": 37958,
+    "36892": 38022
   },
   "dependencies": {
     "36593": [36634]
@@ -42,10 +48,8 @@
     "integration-module-boundaries.patch",
     "conversation-project-order.patch",
     "settings-owner-relocations.patch",
-    "model-fallback-default-selection.patch",
+    "model-fallback-next-turn-test.patch",
     "reviewed-merge-target-paths.patch"
   ],
-  "retainClosed": {
-    "36892": "Retained after the 2026-11-03 handset comparison: main with the opaque-scroller change still flashed in 2/2 runs; the native selection fix passed 2/2. Upstream reopen requested; keep reading the PR head at build time."
-  }
+  "retainClosed": {}
 }
