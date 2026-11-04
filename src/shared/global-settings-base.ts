@@ -1,3 +1,4 @@
+import type { EmulatorOpeningSettings } from './emulator-opening-preferences'
 import type { BrowserExtensionGlobalSettings } from './browser/extensions/browser-extension-settings'
 import type { ClaudeAgentViewSettings } from './claude-agent-view'
 import type { BrowserLinkOpeningSettings } from './browser-link-opening-settings'
@@ -19,7 +20,8 @@ import type { WindowMaterialSettings } from './window-material'
 import type { EditorSaveSettings } from './editor-save-settings'
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
-export type GlobalSettingsBase = ClaudeAgentViewSettings &
+export type GlobalSettingsBase = EmulatorOpeningSettings &
+  ClaudeAgentViewSettings &
   NativeChatGlobalSettings &
   WorktreeDeletionPreferences &
   ClaudeAccountSwitchSettings &
