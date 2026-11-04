@@ -1,7 +1,8 @@
 diff --git a/src/main/runtime/rpc/methods/ai-vault.ts b/src/main/runtime/rpc/methods/ai-vault.ts
+index 8d85f91469a..71f616e98c4 100644
 --- a/src/main/runtime/rpc/methods/ai-vault.ts
 +++ b/src/main/runtime/rpc/methods/ai-vault.ts
-@@ -109,6 +109,10 @@
+@@ -109,6 +109,10 @@ export const AI_VAULT_METHODS = [
        await ensureStructuredAgentSessionHostUnlessRefused(() =>
          runtime.ensureStructuredAgentSessionHost()
        )
@@ -12,7 +13,7 @@ diff --git a/src/main/runtime/rpc/methods/ai-vault.ts b/src/main/runtime/rpc/met
        let result
        try {
          result = await runtime.listAiVaultSessions(
-@@ -117,6 +121,7 @@
+@@ -117,6 +121,7 @@ export const AI_VAULT_METHODS = [
              unlimited: params.unlimited,
              force: params.force,
              scopePaths: params.scopePaths,
@@ -20,7 +21,7 @@ diff --git a/src/main/runtime/rpc/methods/ai-vault.ts b/src/main/runtime/rpc/met
              includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
            },
            signal
-@@ -147,7 +152,8 @@
+@@ -147,7 +152,8 @@ export const AI_VAULT_METHODS = [
          ? truncateAiVaultListResult(
              projected,
              requestedAiVaultSessionDepth(params),

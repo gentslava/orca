@@ -1,6 +1,8 @@
+diff --git a/src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx
+index 8b88a884b28..e8bb64e7cc5 100644
 --- a/src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx
-@@ -41,7 +41,9 @@
+@@ -41,7 +41,9 @@ const VIEWPORT_PX = 600
  const ROW_PX = 98
  
  vi.mock('./AiVaultSessionRow', () => ({
@@ -11,7 +13,7 @@
  }))
  // The host's side of a resumed chat: it admits the chat, then the launch settles as the test says.
  const launch = vi.hoisted(
-@@ -338,6 +340,52 @@
+@@ -338,6 +340,52 @@ afterEach(() => {
  })
  
  describe('Session History keyboard selection', () => {

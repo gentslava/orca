@@ -1,3 +1,5 @@
+diff --git a/src/main/persistence/applying-settings/ui-state-update.ts b/src/main/persistence/applying-settings/ui-state-update.ts
+index da3f0d55d68..feba69fc925 100644
 --- a/src/main/persistence/applying-settings/ui-state-update.ts
 +++ b/src/main/persistence/applying-settings/ui-state-update.ts
 @@ -1,4 +1,5 @@
@@ -6,7 +8,7 @@
  import { normalizeExplorerDisplayRootByWorktree } from '../../../shared/file-explorer-display-root'
  import type { PersistedState } from '../../../shared/persisted-state-types'
  import {
-@@ -122,6 +123,9 @@
+@@ -122,6 +123,9 @@ export function updatePersistedUI(
      conversationPreferences: normalizeConversationPreferences(
        durableUpdates.conversationPreferences ?? currentUI.conversationPreferences
      ),

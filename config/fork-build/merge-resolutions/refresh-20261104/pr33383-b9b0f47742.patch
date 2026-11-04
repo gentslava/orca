@@ -1,7 +1,8 @@
-diff --git a/src/shared/ai-vault-types.ts b/src/shared/ai-vault-types.ts
---- a/src/shared/ai-vault-types.ts
-+++ b/src/shared/ai-vault-types.ts
-@@ -227,6 +227,7 @@
+diff --git a/src/shared/ai-vault/contracts/ai-vault-types.ts b/src/shared/ai-vault/contracts/ai-vault-types.ts
+index eaccb78f92c..73899f31cc8 100644
+--- a/src/shared/ai-vault/contracts/ai-vault-types.ts
++++ b/src/shared/ai-vault/contracts/ai-vault-types.ts
+@@ -227,6 +227,7 @@ export type AiVaultScanIssue = {
  } & Omit<AiVaultScanIssueText, 'message'>
  
  export type AiVaultListArgs = {
@@ -9,7 +10,7 @@ diff --git a/src/shared/ai-vault-types.ts b/src/shared/ai-vault-types.ts
    /** Primary conversation navigation includes durable chats without provider files. */
    includeStructuredSessions?: boolean
    historyOwnership?: { projectKey?: string }
-@@ -244,6 +245,8 @@
+@@ -244,6 +245,8 @@ export type AiVaultListArgs = {
  }
  
  export type AiVaultListResult = {

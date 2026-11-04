@@ -1,6 +1,8 @@
+diff --git a/mobile/src/session/native-chat/input/native-chat-session-option-copy.ts b/mobile/src/session/native-chat/input/native-chat-session-option-copy.ts
+index 8ab233c9d22..2082b298e56 100644
 --- a/mobile/src/session/native-chat/input/native-chat-session-option-copy.ts
 +++ b/mobile/src/session/native-chat/input/native-chat-session-option-copy.ts
-@@ -3,6 +3,8 @@
+@@ -3,6 +3,8 @@ import { translate } from '../../../i18n/mobile-i18n'
  
  export const sayMobileNativeChatSessionOption: NativeChatSessionOptionSay = (id, values) => {
    switch (id) {

@@ -1,4 +1,5 @@
 diff --git a/src/shared/persisted-ui-state-types.ts b/src/shared/persisted-ui-state-types.ts
+index ad53f2bdd9b..b796f1e68fa 100644
 --- a/src/shared/persisted-ui-state-types.ts
 +++ b/src/shared/persisted-ui-state-types.ts
 @@ -1,4 +1,5 @@
@@ -7,7 +8,7 @@ diff --git a/src/shared/persisted-ui-state-types.ts b/src/shared/persisted-ui-st
  import type { JiraQuickFilterState } from './jira/jira-quick-filters'
  import type { BrowserDevToolsDockLayout } from './browser-devtools-dock'
  import type { JiraSavedFilterState } from './jira/jira-saved-filters'
-@@ -51,6 +52,7 @@
+@@ -51,6 +52,7 @@ export type PersistedUIState = {
    groupBy: 'none' | 'workspace-status' | 'repo' | 'pr-status'
    sortBy: 'name' | 'smart' | 'recent' | 'repo' | 'manual'
    conversationPreferences?: ConversationPreferences

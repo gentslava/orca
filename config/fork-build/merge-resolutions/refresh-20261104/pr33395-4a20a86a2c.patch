@@ -1,7 +1,10 @@
+diff --git a/src/renderer/src/components/native-chat/use-structured-agent-session-options.ts b/src/renderer/src/components/native-chat/use-structured-agent-session-options.ts
+index 756c84c81a0..49c5bb22480 100644
 --- a/src/renderer/src/components/native-chat/use-structured-agent-session-options.ts
 +++ b/src/renderer/src/components/native-chat/use-structured-agent-session-options.ts
-@@ -1,4 +1,8 @@
- import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../shared/agent-chat-permission-mode'
+@@ -1,4 +1,9 @@
++import { structuredOptionPickIsPending } from '../../../../shared/agent-session/options/structured-agent-session-option-pick-book'
+ import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../shared/agent-launch/permissions/agent-chat-permission-mode'
 +import { structuredAgentSessionDefaultModelChoice } from '../../../../shared/structured-agent-session-default-model-choice'
 +import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../../shared/agent-session-default-model'
 +import { useStructuredAgentSessionHostCapability } from '@/runtime/structured-agent-session-host-capability'
@@ -9,7 +12,7 @@
  import { runtimeTargetForOwnerEnvironment } from '@/runtime/runtime-client-target'
  import type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
  import { toast } from 'sonner'
-@@ -25,6 +29,7 @@
+@@ -25,6 +30,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
    const { agent, fence, launch, providerVisible, sessionId, transportEnabled, turnId } = args
    const environmentId = args.target.kind === 'environment' ? args.target.environmentId : null
    const target = useMemo(() => runtimeTargetForOwnerEnvironment(environmentId), [environmentId])
@@ -17,7 +20,7 @@
    const capturePresentation = args.capturePresentation
    const providerStarting = args.providerStarting ?? false
    const newLaunch = launch?.kind === 'new'
-@@ -37,6 +42,9 @@
+@@ -37,6 +43,9 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
      optionStateRef,
      activeOptionRecordRef,
      controller,
@@ -27,9 +30,9 @@
      takesSelection,
      updateOptionState,
      rereadOptions,
-@@ -84,22 +92,41 @@
-     receiveCatalog
-   })
+@@ -65,22 +74,41 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
+ 
+   const acceptsPicks = (!transportEnabled || fence !== null) && launch?.seedPending !== true
  
 +  const takesModelDefault = useStructuredAgentSessionHostCapability(
 +    target,
@@ -44,10 +47,11 @@
 -  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) =>
 -    !acceptsPicks
 -      ? lockedStructuredAgentSessionOptionSnapshot(snapshot)
+-      : !acceptsTurnPicks
 +  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => {
 +    const choices =
 +      takesModelDefault && fence !== null
-+        ? snapshot.map((descriptor) =>
+         ? snapshot.map((descriptor) =>
 +            descriptor.id === 'model'
 +              ? {
 +                  ...descriptor,
@@ -61,8 +65,7 @@
 +        : snapshot
 +    return !acceptsPicks
 +      ? lockedStructuredAgentSessionOptionSnapshot(choices)
-       : !acceptsTurnPicks
--        ? snapshot.map((descriptor) =>
++      : !acceptsTurnPicks
 +        ? choices.map((descriptor) =>
              descriptor.id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
                ? descriptor
@@ -74,16 +77,19 @@
    useLayoutEffect(() => {
      interactionReadyRef.current = acceptsTurnPicks
      lockSnapshotRef.current = lockSnapshot
-@@ -116,7 +143,7 @@
+@@ -118,7 +146,10 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
        record: optionStateRef.current.record,
        view,
        snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
 -      ready: acceptsTurnPicks && interactionReadyRef.current,
-+      ready: acceptsTurnPicks && writes.current.count === 0 && interactionReadyRef.current,
++      ready:
++        acceptsTurnPicks &&
++        interactionReadyRef.current &&
++        !structuredOptionPickIsPending(optionPicks.current, 'model'),
        providerStarting,
        isCurrentContext,
        ...(!transportEnabled || fence === null
-@@ -160,15 +187,37 @@
+@@ -162,15 +193,37 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
      },
      [launch?.explicitOptions, launchSeedOptions, optionStateRef, optionView, setStructuredOption]
    )
@@ -122,7 +128,7 @@
    )
  
    return {
-@@ -188,7 +237,14 @@
+@@ -190,7 +243,14 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
      optionSnapshot,
      optionSurface,
      setStructuredOption,
