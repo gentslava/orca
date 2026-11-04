@@ -51,6 +51,23 @@ describe('structured AI Vault ownership', () => {
     })
   })
 
+  it('retains local WSL ownership while excluding records owned by another execution host', () => {
+    const result = listResult()
+    installOwnership({ conversationName: 'WSL conversation', location: { wslDistro: 'Ubuntu' } })
+    expect(
+      projectStructuredAiVaultSessions(result, OPENS_EVERY_STRUCTURED_CHAT).sessions[0]
+    ).toMatchObject({
+      title: 'WSL conversation',
+      structuredSession: { sessionId: 'session-alpha' }
+    })
+    expect(projectStructuredAiVaultSessions(result, () => false).sessions).toEqual([])
+    installOwnership({
+      conversationName: 'Remote conversation',
+      location: { executionHostId: 'runtime:other' }
+    })
+    expect(projectStructuredAiVaultSessions(result, OPENS_EVERY_STRUCTURED_CHAT)).toBe(result)
+  })
+
   it('uses the owning record name while leaving an unowned row alone', () => {
     installOwnership({ conversationName: 'auth/login' })
     const result = listResult()
@@ -219,7 +236,7 @@ describe('structured AI Vault ownership', () => {
   })
 
   it.each(['claude', 'codex'] as const)(
-    'keeps an unnamed %s chat at its ordinary label',
+    'keeps a meaningful provider title for an unnamed %s chat',
     (provider) => {
       installOwnership({ provider })
       const result = listResult()
@@ -230,7 +247,7 @@ describe('structured AI Vault ownership', () => {
       }))
       expect(
         projectStructuredAiVaultSessions(result, OPENS_EVERY_STRUCTURED_CHAT).sessions[0]?.title
-      ).toBe(provider === 'claude' ? 'Claude Chat' : 'Codex Chat')
+      ).toBe('First prompt')
     }
   )
 
