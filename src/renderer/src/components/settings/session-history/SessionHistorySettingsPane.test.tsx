@@ -4,8 +4,8 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
 import { getDefaultSettings } from '../../../../../shared/constants'
-import { unavailableSessionSearchStatus } from '../../../../../shared/ai-vault-search-client'
-import type { AiVaultSearchStatus } from '../../../../../shared/ai-vault-search-types'
+import { unavailableSessionSearchStatus } from '../../../../../shared/ai-vault/search/ai-vault-search-client'
+import type { AiVaultSearchStatus } from '../../../../../shared/ai-vault/search/ai-vault-search-types'
 import { ConfirmationDialogContext } from '@/components/confirmation-dialog-context'
 import { SessionHistorySettingsPane } from './SessionHistorySettingsPane'
 
@@ -27,7 +27,7 @@ const mocks = vi.hoisted(() => {
     markFeatureTipsSeen: vi.fn()
   }
 })
-vi.mock('../use-runtime-environment-catalog', () => ({
+vi.mock('../runtime-environments/catalog/use-runtime-environment-catalog', () => ({
   useRuntimeEnvironmentCatalog: () => ({
     environments: mocks.environments,
     isLoading: false,

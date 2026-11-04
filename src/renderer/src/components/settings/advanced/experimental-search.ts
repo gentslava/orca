@@ -3,10 +3,9 @@ import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 import { translate } from '@/i18n/i18n'
 import { translateSearchKeyword } from '../search/settings-search-keywords'
 import { getNewWorktreeCardStyleSearchEntry } from './new-worktree-card-style-search-entry'
-import { getEphemeralVmsSearchEntry } from '../ephemeral-vms-search'
+import { getEphemeralVmsSearchEntry } from '../virtual-machines/recipes/ephemeral-vms-search'
 import { getBrowserExtensionsExperimentalSearchEntry } from '../browser/extensions/browser-extensions-experimental-search'
-import { getWslHostsExperimentalSearchEntry } from '../wsl-hosts-experimental-search'
-import { getOrchestrationPanelExperimentalSearchEntry } from '../orchestration-panel-experimental-search'
+import { getWslHostsExperimentalSearchEntry } from '../wsl/hosts/wsl-hosts-experimental-search'
 
 export const getExperimentalPaneSearchEntries = createLocalizedCatalog(
   (): SettingsSearchEntry[] => [
@@ -183,7 +182,6 @@ export const getExperimentalPaneSearchEntries = createLocalizedCatalog(
     getNewWorktreeCardStyleSearchEntry(),
     getEphemeralVmsSearchEntry(),
     getBrowserExtensionsExperimentalSearchEntry(),
-    getOrchestrationPanelExperimentalSearchEntry(),
     // Index WSL toggles only on Windows desktops that expose them.
     ...(typeof window !== 'undefined' && window.api?.runtimeEnvironments?.wslHosts
       ? [getWslHostsExperimentalSearchEntry()]
@@ -231,12 +229,6 @@ export function getExperimentalSearchEntry() {
       translate(
         'auto.components.settings.experimental.search.browserExtensions.title',
         'Browser extensions'
-      )
-    ),
-    orchestrationPanel: findEntry(
-      translate(
-        'auto.components.settings.experimental.search.orchestrationPanel.title',
-        'Orchestration panel'
       )
     )
   } as const

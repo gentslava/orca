@@ -3,7 +3,10 @@ import type { NativeChatSendFollowUp } from '../../../../src/shared/native-chat/
 import type { StructuredMobileSendAttachment } from '../use-mobile-structured-send-with-outcome'
 import type { MobileSessionView } from '../../storage/session-view-preferences'
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react'
-import type { AskAnswerSelection } from '../../../../src/shared/native-chat/input/native-chat-ask-answer'
+import type {
+  AskAnswerSelection,
+  NativeChatAnswerSource
+} from '../../../../src/shared/native-chat/input/native-chat-ask-answer'
 import type { AskPrompt } from '../../../../src/shared/native-chat/input/native-chat-ask-types'
 import type { MobileChatPermission } from './input/mobile-native-chat-permission'
 import type { MobileChatQuestion } from './input/mobile-native-chat-question'
@@ -33,6 +36,7 @@ import type { StructuredAgentSessionHostSupport } from '../mobile-structured-age
 import type { useMobileNativeChatSessionLane } from './use-mobile-native-chat-session-lane'
 
 export type MobileNativeChatControllerArgs = {
+  onQueuedEditNotice?: (message: string) => void
   client: RpcClient | null
   /** The route's paired host can differ from the workspace's execution server. */
   pairedHostClient: RpcClient | null
@@ -52,7 +56,6 @@ export type MobileNativeChatControllerArgs = {
   onSendError: Parameters<typeof useMobileNativeChatSessionLane>[0]['onSendError']
   /** Retires a held failure banner. Any accepted chat write clears it — a delivered
    *  answer or permission reply must not sit under a stale "not sent". */
-  onQueuedEditNotice?: (message: string) => void
   onSendResolved: () => void
 }
 
@@ -97,11 +100,14 @@ export type MobileNativeChatController = {
   nativeChatQuestion: MobileChatQuestion | null
   // Keep dismissal above chat-view unmounts so toggling views cannot resurrect an answered ask.
   nativeChatAsk: AskPrompt | null
+  nativeChatAskSendSource?: NativeChatAnswerSource
+  nativeChatAskPending?: boolean
   nativeChatAskKey: string | null
   dismissNativeChatAsk: () => void
   handleNativeChatAnswerAsk: (
     prompt: AskPrompt,
-    selections: AskAnswerSelection[]
+    selections: AskAnswerSelection[],
+    onCreated?: (id: string) => void
   ) => Promise<boolean>
   handleNativeChatCancelAsk: () => Promise<boolean>
   // Collapse writes nothing to the terminal and frees Send.

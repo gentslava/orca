@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { PublicKnownRuntimeEnvironment } from '../../../../../shared/runtime-environments'
+import type { PublicKnownRuntimeEnvironment } from '../../../../../shared/remote-runtime/host-catalog/runtime-environments'
 import { toRuntimeExecutionHostId } from '../../../../../shared/execution-host'
 import { useMountedRef } from '@/hooks/useMountedRef'
 import { translate } from '@/i18n/i18n'
@@ -8,7 +8,7 @@ import {
   getRuntimeServerConnectionState,
   isRuntimeServerTransportConnected,
   type RuntimeHostDetails
-} from '../runtime-environment-host-details'
+} from '../runtime-environments/catalog/runtime-environment-host-details'
 import { SessionHistoryComputerRow } from './SessionHistoryComputerRow'
 import type { SessionSearchComputerState } from './session-search-computer-rollup'
 import {

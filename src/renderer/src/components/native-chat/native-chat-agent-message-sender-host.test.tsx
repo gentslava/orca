@@ -166,10 +166,6 @@ async function mount(): Promise<ReturnType<typeof render>> {
       </TooltipProvider>
     )
   })
-  const mail = screen.getByRole('button', { name: 'Orchestration mail' })
-  expect(mail).toHaveAttribute('aria-expanded', 'false')
-  act(() => fireEvent.click(mail))
-  expect(mail).toHaveAttribute('aria-expanded', 'true')
   return view!
 }
 function publish(host: string, sessionId: string = ROOT): void {

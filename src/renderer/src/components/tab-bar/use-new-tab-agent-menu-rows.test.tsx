@@ -1,9 +1,14 @@
 // @vitest-environment happy-dom
+import {
+  NEW_TAB_TWIN_HOSTS,
+  NEW_TAB_PAIRED_STATUS,
+  newTabTwinHostWorkspaces
+} from './new-tab-agent-menu-twin-host.test-fixture'
 import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { resolveAgentMenuSelection } from '@/lib/agent-menu-selection'
 import { useAppStore } from '@/store'
-import type { TuiAgent } from '../../../../shared/tui-agent'
+import type { TuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
 import { getDefaultSettings } from '../../../../shared/constants'
 import {
@@ -14,9 +19,10 @@ import {
 import type * as RouteInput from '@/lib/agent-launch-route-input'
 import type * as ChatProgram from '@/lib/host-chat-program'
 import type * as MenuRows from '@/lib/new-tab-agent-menu-rows'
+import type * as AgentPickerRowsModule from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import type * as ZustandShallow from 'zustand/react/shallow'
-import type * as HostAgentSettingsTransport from '@/components/settings/agent-launch-settings-transport'
-import type { RuntimeEnvironmentStatus } from '../../../../shared/runtime-host-status'
+import type * as HostAgentSettingsTransport from '@/runtime/agent-launch-settings/agent-launch-settings-transport'
+import type { RuntimeEnvironmentStatus } from '../../../../shared/remote-runtime/host-status/runtime-host-status'
 import { useTabBarCreateMenuController } from './use-tab-bar-create-menu-controller'
 import {
   buildTabAgentLaunchOptionsFromRows,
@@ -67,15 +73,24 @@ vi.mock('zustand/react/shallow', async (importOriginal) => {
       })
   }
 })
+vi.mock(
+  '../../../../shared/agent-launch/picker/agent-launch-picker-rows',
+  async (importOriginal) => {
+    const actual = await importOriginal<typeof AgentPickerRowsModule>()
+    return {
+      ...actual,
+      buildNewTabAgentMenuRows: (...args: Parameters<typeof actual.buildNewTabAgentMenuRows>) => {
+        const rows = actual.buildNewTabAgentMenuRows(...args)
+        mocks.metadata += rows.length
+        return rows
+      }
+    }
+  }
+)
 vi.mock('@/lib/new-tab-agent-menu-rows', async (importOriginal) => {
   const actual = await importOriginal<typeof MenuRows>()
   return {
     ...actual,
-    buildNewTabAgentMenuRows: (...args: Parameters<typeof actual.buildNewTabAgentMenuRows>) => {
-      const rows = actual.buildNewTabAgentMenuRows(...args)
-      mocks.metadata += rows.length
-      return rows
-    },
     hostChatAnswer: (input: Parameters<typeof actual.hostChatAnswer>[0]) => {
       mocks.answers.push(input)
       if (mocks.realRoutes) {
@@ -90,10 +105,13 @@ vi.mock('@/lib/new-tab-agent-menu-rows', async (importOriginal) => {
     }
   }
 })
-vi.mock('@/components/settings/agent-launch-settings-transport', async (importOriginal) => {
-  const actual = await importOriginal<typeof HostAgentSettingsTransport>()
-  return { ...actual, readHostAgentLaunchSettings: vi.fn().mockResolvedValue(null) }
-})
+vi.mock(
+  '@/runtime/agent-launch-settings/agent-launch-settings-transport',
+  async (importOriginal) => {
+    const actual = await importOriginal<typeof HostAgentSettingsTransport>()
+    return { ...actual, readHostAgentLaunchSettings: vi.fn().mockResolvedValue(null) }
+  }
+)
 vi.mock('@/runtime/runtime-rpc-subscribe', () => ({ subscribeRuntimeRpc: mocks.subscribe }))
 vi.mock('@/lib/agent-session/launch/structured-agent-session-host-admission', () => ({
   askHostCreateSupport: mocks.support
@@ -687,30 +705,12 @@ it.each(['git-worktree', 'folder'] as const)(
   async (kind) => {
     mocks.realRoutes = true
     const worktreeId = kind === 'folder' ? 'folder:twins' : `${TEST_REPO.id}::/work/twins`
-    const hosts = ['local', 'runtime:paired'] as const
-    const status: RuntimeEnvironmentStatus = {
-      checkedAt: 1,
-      status: {
-        runtimeId: 'paired-runtime',
-        capabilities: [CHAT, CLIENT, CATALOG],
-        rendererGraphEpoch: 0,
-        graphStatus: 'ready',
-        authoritativeWindowId: null,
-        liveTabCount: 0,
-        liveLeafCount: 0
-      }
-    }
+    const hosts = NEW_TAB_TWIN_HOSTS
+    const twinWorkspaces = newTabTwinHostWorkspaces(worktreeId)
     useAppStore.setState({
       repos: hosts.map((executionHostId) => ({ ...TEST_REPO, executionHostId })),
-      worktreesByRepo: {
-        [TEST_REPO.id]: hosts.map((hostId) =>
-          makeWorktree({ id: worktreeId, repoId: TEST_REPO.id, hostId, path: '/work/twins' })
-        )
-      },
-      folderWorkspaces: hosts.map((executionHostId) =>
-        makeFolderWorkspace({ id: 'twins', executionHostId, folderPath: '/work/twins' })
-      ),
-      runtimeStatusByEnvironmentId: new Map([['paired', status]]),
+      ...twinWorkspaces,
+      runtimeStatusByEnvironmentId: new Map([['paired', NEW_TAB_PAIRED_STATUS]]),
       detectedWorktreesByRepo: {}
     })
     for (const executionHostId of hosts) {
@@ -762,16 +762,7 @@ it.each(['git-worktree', 'folder'] as const)(
       const stale = hook.result.current.menu.model
       expect(stale.state === 'settled' && stale.rows.some((row) => row.kind === 'chat')).toBe(false)
       hook.unmount()
-      useAppStore.setState({
-        worktreesByRepo: {
-          [TEST_REPO.id]: hosts.map((hostId) =>
-            makeWorktree({ id: worktreeId, repoId: TEST_REPO.id, hostId, path: '/work/twins' })
-          )
-        },
-        folderWorkspaces: hosts.map((hostId) =>
-          makeFolderWorkspace({ id: 'twins', executionHostId: hostId, folderPath: '/work/twins' })
-        )
-      })
+      useAppStore.setState(twinWorkspaces)
     }
   }
 )

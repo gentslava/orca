@@ -13,7 +13,7 @@ import type {
 } from './terminal-wait-permission'
 import { withTimeout } from '../../runtime-async-boundaries'
 import { TERMINAL_INTERACTIVE_WAIT_PROBE_TIMEOUT_MS } from '../../orca-runtime-core'
-import { parsePaneKey } from '../../../../shared/stable-pane-id'
+import { parsePaneKey } from '../../../../shared/workspace-layout/stable-pane-id'
 import type { ExactWorkerProviderSession } from '../../../../shared/orchestration-worker-output'
 import { selectExactWorkerProviderSession } from '../../orchestration/worker-provider-session'
 import type { RuntimePtyWorktreeRecord } from '../../runtime-terminal-state-records'

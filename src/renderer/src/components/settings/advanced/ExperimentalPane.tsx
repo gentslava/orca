@@ -8,11 +8,10 @@ import { getExperimentalSearchEntry } from './experimental-search'
 import { HiddenExperimentalGroup } from './HiddenExperimentalGroup'
 import { NumberField, SettingsSwitch } from '../form-controls/SettingsFormControls'
 import { translate } from '@/i18n/i18n'
-import { AgentDashboardExperimentalSetting } from '../AgentDashboardExperimentalSetting'
-import { EphemeralVmsExperimentalSetting } from '../EphemeralVmsExperimentalSetting'
+import { AgentDashboardExperimentalSetting } from '../../dashboard/AgentDashboardExperimentalSetting'
+import { EphemeralVmsExperimentalSetting } from '../virtual-machines/recipes/EphemeralVmsExperimentalSetting'
 import { BrowserExtensionsExperimentalSetting } from '../browser/extensions/BrowserExtensionsExperimentalSetting'
-import { OrchestrationPanelExperimentalSetting } from '../OrchestrationPanelExperimentalSetting'
-import { WslHostsExperimentalSetting } from '../WslHostsExperimentalSetting'
+import { WslHostsExperimentalSetting } from '../wsl/hosts/WslHostsExperimentalSetting'
 import { wslHostsAvailable } from '../../sidebar/use-wsl-hosts-enabled'
 import {
   MAX_AGENT_HIBERNATION_IDLE_MS,
@@ -260,8 +259,6 @@ export function ExperimentalPane({
       <EphemeralVmsExperimentalSetting settings={settings} updateSettings={updateSettings} />
 
       <BrowserExtensionsExperimentalSetting settings={settings} updateSettings={updateSettings} />
-
-      <OrchestrationPanelExperimentalSetting settings={settings} updateSettings={updateSettings} />
 
       {wslHostsAvailable() ? (
         <WslHostsExperimentalSetting settings={settings} updateSettings={updateSettings} />
