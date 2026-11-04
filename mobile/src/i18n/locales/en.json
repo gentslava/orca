@@ -3110,6 +3110,9 @@
       "updateFromWorker": "Update from worker",
       "messageFrom": "Message from",
       "showMore": "Show more"
+    },
+    "tool": {
+      "activity": "Activity"
     }
   },
   "sourceControl": {
