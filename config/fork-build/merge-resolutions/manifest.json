@@ -1472,5 +1472,151 @@
     "resultSha256": null,
     "reason": "Preserve upstream removal of the broad General section retention fixture; focused hold-to-quit behavior and settings owner tests remain.",
     "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatComposerActions.test.tsx",
+    "blobs": [
+      "6e13a84e7671b8fa320a33bcd83b919a18c33b9a",
+      null,
+      "fb8f92be87418748a5b957827365c42638e9e14a"
+    ],
+    "patch": "startup-refresh-20261105/pr33362-ac5ab0e20e3d.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Retain upstream removal of the generic composer-actions suite; keep busy-delivery coverage in a focused integration test.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "7d4fe0633e50c0c78f504a428b7d0e031bc8a8b6",
+      "ca4adfa8a0eb19d29a8528304a6145b1dc0a8e59"
+    ],
+    "patch": "startup-refresh-20261105/pr33362-755657b9f8d1.patch",
+    "patchSha256": "f84c8d70aa304edacd0c4bd93f796930f45bc1c3de76f9c7a16fafab1e617446",
+    "resultSha256": "450c81cb5fa81e1a35c378e050cb3b912dd4310945e8c70463a617cd5ae946a8",
+    "reason": "Retain the upstream focused picker suite and the selected future-turn busy-option behavior without restoring removed generic cases."
+  },
+  {
+    "path": "config/scripts/orcad-distribution/server-bundle/build-orcad.mjs",
+    "blobs": [
+      "e00b67c8105d47734446179ef558a4bc9fb32e6c",
+      "3ce66c06bac526da84a86706f68ec12eec150d0d",
+      "ff1879e48ddb0ffda60d50ab511f50e34e919a84"
+    ],
+    "patch": "startup-refresh-20261105/pr33365-8b0e5bcad3a3.patch",
+    "patchSha256": "827e5d8d4e66f450e11e5847b014cc07651e1c84f0ef51c0a8d63cd072b9fb19",
+    "resultSha256": "e158a6de80b58a4b6c6c0e283fb796784543d5320b4af386ebf0062e13d2beb5",
+    "reason": "Retain the Docker archive source-commit override and adapt its import to the relocated server-bundle owner."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "5aca066a5b2363eb221c404fb32ee7faf66afd21",
+      "cc6c15cf8b9a05a4fb6d16d08ca623e316618787"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-15dbc76855aa.patch",
+    "patchSha256": "7f944866d0d19995dde63a1620c5af3cdd7e2c80b212fb0eeb9f075e225ac046",
+    "resultSha256": "b4d2028568ccf75c78d00e14283bc0856e854b2ac01a652f7863433d764a3f16",
+    "reason": "Keep the focused upstream picker-write case, selected future-turn controls, and explicit Default-model proof/reset coverage using the selected shared fixture."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.older-history.test.tsx",
+    "blobs": [
+      "b9e21f86a08a4f585b147df5f8036a67b7491259",
+      "7bb4b526bef049ecb997efd0ab35259df2438a24",
+      "7f3b5d41fc520cb7a2f1f66c4b88f71b5fdb4234"
+    ],
+    "patch": "startup-refresh-20261105/pr33576-ea330a82ddcd.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "a1dc9ab180d639ac14f99b9f3b69d17e0428ecacad6cde94919713639587ce8e",
+    "reason": "Keep the upstream focused paging suite after its generic layout-test removal; selected turn-fold and mobile disclosure regressions retain regrouping coverage."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.focus-return.test.tsx",
+    "blobs": [
+      "2876a7109a07fd911684751dcce2f096c1ea1676",
+      null,
+      "b19b21fb3902de4e3c29cb3ec8820411c0828e4b"
+    ],
+    "patch": "startup-refresh-20261105/pr34866-30acc09e403f.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Retain upstream removal of the generic focus suite; preserve the selected pending-effort guard in a focused integration case.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "63c3f42c8849f5c49fea652c4d809c7aa6fb72da",
+      "3ec1f3e33fb85f0c8ed1ccf77541d6ffcdc75f55"
+    ],
+    "patch": "startup-refresh-20261105/pr34866-3c466c87effd.patch",
+    "patchSha256": "273ab59c4f9dfba7bef9deb39142800da91979911cd261544ce4f3affc44bf33",
+    "resultSha256": "f8244594c80ca4c785a100233892a9b4a7986b5c664d7696305c6b691920a6db",
+    "reason": "Retain focused Default and concurrent-write cases and adapt the selected busy-option path to the current effort slider instead of restoring purged generic assertions."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts",
+    "blobs": [
+      "2a34209296955898b8a79cd912314d5256e9bee9",
+      "877e98516cb49d3d0500f2b1935bc6c2ebf2c91e",
+      "3bfddb8961e2b9ec88b5a18f4fbe599fa180b554"
+    ],
+    "patch": "startup-refresh-20261105/pr34895-5ad59b0c7044.patch",
+    "patchSha256": "2ed1983db2631f9e74d1cc8f63a8569b227c47771fe273393c3629ccc1e1b755",
+    "resultSha256": "36f6b63e6e6841ca523af1454df3a58b754931402dcfb67c0fd24c64cd022859",
+    "reason": "Preserve the selected stale/hidden answer guard for both current input and textarea question owners."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx",
+    "blobs": [
+      "d3df422b684338cc592e62995962713e00b9cbef",
+      "03c576e4d28ccf21dbbc68a0b38818a500c02846",
+      "8f315ad73630394e9945b82520868f48ea6e23da"
+    ],
+    "patch": "startup-refresh-20261105/pr34895-489ee6c9071d.patch",
+    "patchSha256": "4ed0c63e8b57348c6eeb2cf49736d2f55a0ff496adf8014f1ddcb4cfb286a1bc",
+    "resultSha256": "c4e3e055d0edadf3287720289962fc1f42dfecca5dc5e3e42462d6e3fe2e2bcf",
+    "reason": "Keep the upstream focused child sections and the selected direct parent-patch disclosure regression without attributing child prose or opening a child conversation."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolLine.test.tsx",
+    "blobs": [
+      "4e0cefb74f39a785a78359f0cb7fa197db1366bb",
+      "7cfc39704cc26ea5aaa457dbe619941ad14010ae",
+      "ad74345e454546de56f509590ea971c538299bb2"
+    ],
+    "patch": "startup-refresh-20261105/pr36634-bba3dbe57ec9.patch",
+    "patchSha256": "f6d917384380a3950188e89d76a959563fa2828b428bf35e0b17021248971c24",
+    "resultSha256": "db33123577ff753620f811cc59ae0e6317dd42f27c8353dbaf1d2abecbedce35",
+    "reason": "Retain the upstream focused tool-error case and prove full invocation inspection without an output; do not restore removed generic syntax cases."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolRun.appearance.test.tsx",
+    "blobs": [
+      "624bd08d9351ea1886cf8e002c2101cd91572e63",
+      "93844d513bce589c6c6ad6b09a918efa556fdc6b",
+      "b001e92587ab9adaa2c2e5716b23c48bbac50ca8"
+    ],
+    "patch": "startup-refresh-20261105/pr36634-96cc30954101.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "3e42e2e89a8ba9cb8b85217f95ddf70fa5c346c4fd11f5644b069a0c9e8fbac5",
+    "reason": "Keep the upstream focused tool-run suite after generic syntax assertions were removed; invocation inspection has its own focused row regression."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolRun.appearance.test.tsx",
+    "blobs": [
+      "624bd08d9351ea1886cf8e002c2101cd91572e63",
+      "93844d513bce589c6c6ad6b09a918efa556fdc6b",
+      "9ed95aa238445787adff6ab868ffc1cc2fb55a2f"
+    ],
+    "patch": "startup-refresh-20261105/pr36593-2f4621e8fb8a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "3e42e2e89a8ba9cb8b85217f95ddf70fa5c346c4fd11f5644b069a0c9e8fbac5",
+    "reason": "Retain the current upstream tool-run interaction suite instead of restoring removed class-string layout assertions for compact headers."
   }
 ]

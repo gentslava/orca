@@ -11,6 +11,17 @@ index 6b330f077dd..5028ff6e129 100644
  
  function InstalledSkill(): React.JSX.Element {
    useTranslation()
+diff --git a/src/renderer/src/components/settings/ManageInstalledSkillsButton.tsx b/src/renderer/src/components/settings/ManageInstalledSkillsButton.tsx
+index da605f3ff16..a8c0cf29ee6 100644
+--- a/src/renderer/src/components/settings/ManageInstalledSkillsButton.tsx
++++ b/src/renderer/src/components/settings/ManageInstalledSkillsButton.tsx
+@@ -1,5 +1,5 @@
+ import { BookOpen } from 'lucide-react'
+-import { isRuntimeHostContactRevoked } from '../../../../shared/runtime-host-status'
++import { isRuntimeHostContactRevoked } from '../../../../shared/remote-runtime/host-status/runtime-host-status'
+ import { useAppStore } from '@/store'
+ import { translate } from '@/i18n/i18n'
+ import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'
 diff --git a/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx b/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx
 index 67ea74e38d9..c2bf6ba7a61 100644
 --- a/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx
@@ -39,14 +50,3 @@ index 2326f62db25..f0b9d320855 100644
  import { resolveAccountOwner } from '@/lib/wsl-host-account-owner'
  import { isWebClientLocation } from '@/lib/web-client-location'
  import {
-diff --git a/src/renderer/src/components/settings/ManageInstalledSkillsButton.tsx b/src/renderer/src/components/settings/ManageInstalledSkillsButton.tsx
-index da605f3ff16..a8c0cf29ee6 100644
---- a/src/renderer/src/components/settings/ManageInstalledSkillsButton.tsx
-+++ b/src/renderer/src/components/settings/ManageInstalledSkillsButton.tsx
-@@ -1,5 +1,5 @@
- import { BookOpen } from 'lucide-react'
--import { isRuntimeHostContactRevoked } from '../../../../shared/runtime-host-status'
-+import { isRuntimeHostContactRevoked } from '../../../../shared/remote-runtime/host-status/runtime-host-status'
- import { useAppStore } from '@/store'
- import { translate } from '@/i18n/i18n'
- import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'

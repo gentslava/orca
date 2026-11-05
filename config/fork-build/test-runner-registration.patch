@@ -1,6 +1,8 @@
+diff --git a/config/scripts/check-test-file-runners.mjs b/config/scripts/check-test-file-runners.mjs
+index 6dff7e14009..0b96de0ed6c 100644
 --- a/config/scripts/check-test-file-runners.mjs
 +++ b/config/scripts/check-test-file-runners.mjs
-@@ -16,6 +16,26 @@
+@@ -16,6 +16,26 @@ const TEST_FILE_NAME = /\.(?:test|spec|e2e|bench)\.[cm]?[jt]sx?$/
  
  // Mirror literals must appear in runner sources; list manual rows each run so their lack of CI remains visible.
  const NON_UNIT_TEST_RUNNERS = [
