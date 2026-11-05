@@ -570,17 +570,26 @@ index 80ded426032..eeb95cc31ee 100644
      await render()
      const original = latest?.scanResult
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
-index 12a6f29f349..a2aaa1bc534 100644
+index 12a6f29f349..71f06640428 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
-@@ -20,6 +20,7 @@ import {
+@@ -20,6 +20,8 @@ import {
  import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refresh-key'
  import { useAiVaultAssociationObservation } from './ai-vault-association-observation'
  import { createBrowserUuid } from '@/lib/browser-uuid'
 +import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
++import { useAiVaultForcedRescan } from './use-ai-vault-forced-rescan'
  import {
    useAiVaultConversationRefresh,
    useAiVaultProviderSessionRefresh
+@@ -28,7 +30,6 @@ import {
+ // Share the forced-rescan budget across remounts so session creation cannot amplify full scans.
+ import {
+   claimAiVaultForcedRescan,
+-  aiVaultForcedRescanDelay,
+   resetAiVaultForcedRescanBudgetForTest
+ } from './ai-vault-forced-rescan-budget'
+ import {
 @@ -108,6 +109,7 @@ export function useAiVaultSessionRefresh(
        )}\n${sessionLimitRef.current}`,
      []
@@ -608,7 +617,7 @@ index 12a6f29f349..a2aaa1bc534 100644
          const previous = conditionalSnapshotRef.current
          const result = await refreshAiVaultSessionList(
            request,
-@@ -237,7 +251,7 @@ export function useAiVaultSessionRefresh(
+@@ -237,25 +251,10 @@ export function useAiVaultSessionRefresh(
        }
        // Read changing scope through refs; recursion requires a stable refresh identity.
      },
@@ -616,7 +625,75 @@ index 12a6f29f349..a2aaa1bc534 100644
 +    [applyScan, currentScanScopeKey, loadStartupCatalog]
    )
  
-   // Defer throttled new-session rescans until budget frees so sessions cannot remain invisible indefinitely.
+-  // Defer throttled new-session rescans until budget frees so sessions cannot remain invisible indefinitely.
+-  const forcedRescanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+-  const requestForcedRescan = useCallback(() => {
+-    if (claimAiVaultForcedRescan()) {
+-      void refresh({ background: true, force: true })
+-      return
+-    }
+-    const waitMs = aiVaultForcedRescanDelay()
+-    if (forcedRescanTimerRef.current !== null) {
+-      return
+-    }
+-    forcedRescanTimerRef.current = setTimeout(() => {
+-      forcedRescanTimerRef.current = null
+-      requestForcedRescan()
+-    }, waitMs)
+-  }, [refresh])
++  const requestForcedRescan = useAiVaultForcedRescan(refresh)
+ 
+   useEffect(() => {
+     mountedRef.current = true
+@@ -272,10 +271,6 @@ export function useAiVaultSessionRefresh(
+       void window.api.aiVault.cancelListSessions({
+         requestToken
+       })
+-      if (forcedRescanTimerRef.current !== null) {
+-        clearTimeout(forcedRescanTimerRef.current)
+-        forcedRescanTimerRef.current = null
+-      }
+     }
+   }, [])
+ 
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts
+new file mode 100644
+index 00000000000..47aedeb7625
+--- /dev/null
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts
+@@ -0,0 +1,32 @@
++import { useCallback, useEffect, useRef } from 'react'
++import { claimAiVaultForcedRescan, aiVaultForcedRescanDelay } from './ai-vault-forced-rescan-budget'
++
++export function useAiVaultForcedRescan(
++  refresh: (args: { background: boolean; force: boolean }) => Promise<void>
++) {
++  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
++  const requestForcedRescan = useCallback(() => {
++    if (claimAiVaultForcedRescan()) {
++      void refresh({ background: true, force: true })
++      return
++    }
++    if (timer.current !== null) {
++      return
++    }
++    timer.current = setTimeout(() => {
++      timer.current = null
++      requestForcedRescan()
++    }, aiVaultForcedRescanDelay())
++  }, [refresh])
++
++  useEffect(
++    () => () => {
++      if (timer.current !== null) {
++        clearTimeout(timer.current)
++        timer.current = null
++      }
++    },
++    []
++  )
++  return requestForcedRescan
++}
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
 new file mode 100644
 index 00000000000..2c89984801b
