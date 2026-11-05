@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readdir, readFile, readlink } from 'node:fs/promises'
 import { join } from 'node:path'
-import { isDirectInvocation } from '../../scripts/script-entry-detection.mjs'
+import { isDirectInvocation } from '../../scripts/tool-invocation/script-entry-detection.mjs'
 
 const excluded = new Set([
   'node_modules',

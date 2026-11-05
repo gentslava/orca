@@ -19948,6 +19948,7 @@
         "imageAttachAgainLabel": "Attach again",
         "pastedImageNotKeptLabel": "Not kept",
         "imageNumber": "Image #{{number}}",
+        "imageReferenceMissing": "Image removed",
         "imagePasteFailed": "Image paste failed.",
         "imageSaving": "Saving pasted image…",
         "worktreeNotReady": "Worktree not ready — try again in a moment.",
@@ -20014,11 +20015,10 @@
           "xhigh": "XHigh"
         },
         "imageUnavailable": "Preview unavailable",
-        "nextTurnOptionsLabel": "Next turn: {{options}}",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+        "nextTurnOptionsLabel": "Next turn: {{options}}",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
-        "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept.",
-        "imageReferenceMissing": "Image removed"
+        "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
       },
       "tool": {
         "exitCode": "exit {{value0}}",
@@ -20651,7 +20651,6 @@
         "scheduled": "Orca will continue this chat at {{time}}.",
         "cancel": "Don't continue"
       },
-      "editDeliveryNotice": "Edit",
       "children": {
         "metadata": {
           "localHost": "Local execution host",
@@ -20678,6 +20677,7 @@
         "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
       },
       "settings": "Chat settings",
+      "editDeliveryNotice": "Edit",
       "creationChatNotOpened": "Your worktree is ready, but the chat could not open. Retry to open it with your message."
     },
     "tab": {
@@ -21291,7 +21291,10 @@
       "workerAutoClose": {
         "running": "Temporary orchestration worker · Closes 2 minutes after it finishes",
         "finished": "Temporary orchestration worker finished · Closes in {{countdown}}",
-        "keepOpen": "Keep open"
+        "keepOpen": "Keep open",
+        "bannerRunning": "Orchestration worker · Closes 2 minutes after it finishes",
+        "bannerFinished": "Orchestration worker finished · Closes in {{countdown}}",
+        "temporaryBadge": "Temporary"
       }
     },
     "sessionLink": {
