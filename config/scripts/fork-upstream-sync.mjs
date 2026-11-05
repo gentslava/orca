@@ -10,10 +10,10 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { createLocalBuildVersion } from './build-mac-local.mjs'
+import { createLocalBuildVersion } from './desktop-distribution/macos/build-mac-local.mjs'
 import { verifyStagedArchives } from './fork-upstream-archives.mjs'
 import { withForkSyncSsh } from './fork-upstream-ssh.mjs'
-import { isDirectInvocation } from './script-entry-detection.mjs'
+import { isDirectInvocation } from './tool-invocation/script-entry-detection.mjs'
 
 const FORK = 'gentslava/orca'
 const FORK_URL = `https://github.com/${FORK}.git`

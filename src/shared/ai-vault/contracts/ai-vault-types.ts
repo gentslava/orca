@@ -230,6 +230,8 @@ export type AiVaultListArgs = {
   selectedSessionId?: string
   /** Primary conversation navigation includes durable chats without provider files. */
   includeStructuredSessions?: boolean
+  /** Return the durable chat catalog without scanning provider transcripts. */
+  structuredOnly?: boolean
   historyOwnership?: { projectKey?: string }
   /** Opts a selected runtime-host refresh into content-conditional replies. */
   afterFingerprint?: string | null

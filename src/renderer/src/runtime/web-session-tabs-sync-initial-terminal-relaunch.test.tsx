@@ -87,14 +87,6 @@ const runtimeSubscribe = vi.fn<RuntimeSubscribe>(async (request, callbacks) => {
   return { unsubscribe, sendBinary: vi.fn() }
 })
 
-function createDeferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
-  let resolve = (_value: T): void => {}
-  const promise = new Promise<T>((done) => {
-    resolve = done
-  })
-  return { promise, resolve }
-}
-
 async function settle(): Promise<void> {
   await Promise.resolve()
   await Promise.resolve()
@@ -179,7 +171,7 @@ function seedRemoteMirrorState(connectionGeneration: number): void {
   )
 }
 
-describe('useWebSessionTabsSync initial-terminal bootstrap across an effect re-run', () => {
+describe('empty paired workspace across an effect re-run', () => {
   beforeEach(() => {
     subscriptions.length = 0
     runtimeCall.mockClear()
@@ -207,18 +199,11 @@ describe('useWebSessionTabsSync initial-terminal bootstrap across an effect re-r
     resetStaleDocumentVisibilityForTesting()
   })
 
-  // Effect reinstall during workspace switch must not rearm initial-terminal creation while its predecessor is pending (STA-6173).
-  it('does not seed a second terminal when the effect re-runs before the first create settles', async () => {
-    const pendingCreate = createDeferred<unknown>()
-    mocks.createTerminal.mockReturnValue(pendingCreate.promise)
-
+  it('keeps an empty workspace unseeded across new snapshots and reconnects', async () => {
     const hook = renderHook(() => useWebSessionTabsSync())
     await act(settle)
-
     await publish(findActiveSubscription(0), { type: 'snapshot', ...emptyActiveSnapshot(1) })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
-
-    // Reinstall the active effect while create is pending, as on workspace switch.
+    expect(mocks.createTerminal).not.toHaveBeenCalled()
     act(() => {
       useAppStore.setState({ runtimeStatusByEnvironmentId: runtimeStatusMap(2) })
     })
@@ -226,55 +211,10 @@ describe('useWebSessionTabsSync initial-terminal bootstrap across an effect re-r
     expect(
       subscriptions.filter(({ request }) => request.method === 'session.tabs.subscribe')
     ).toHaveLength(2)
-
     await publish(findActiveSubscription(1), { type: 'snapshot', ...emptyActiveSnapshot(2) })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
-
-    pendingCreate.resolve(undefined)
-    await act(settle)
-    hook.unmount()
-  })
-
-  // Returned failure must leave both module and closure-local guards retryable, like throws; releasing only the shared latch suppresses this subscription forever.
-  it('retries on the next frame of the same subscription after a create that returned failed', async () => {
-    mocks.createTerminal.mockResolvedValue({ status: 'failed', message: 'host unreachable' })
-
-    const hook = renderHook(() => useWebSessionTabsSync())
-    await act(settle)
-
-    const subscription = findActiveSubscription(0)
-    await publish(subscription, { type: 'snapshot', ...emptyActiveSnapshot(1) })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
-    expect(useAppStore.getState().tabsByWorktree[WORKTREE]).toBeUndefined()
-
-    // Same closure must retry its next accepted empty frame after failure.
-    await publish(subscription, { type: 'snapshot', ...emptyActiveSnapshot(2) })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(2)
-    hook.unmount()
-  })
-
-  // Success without publication cannot hold forever: next accepted frame releases awaiting-mirror without seeding, then a later confirmed empty frame may retry.
-  it('retries after a successful create that never mirrored a row, once the mirror has answered', async () => {
-    mocks.createTerminal.mockResolvedValue({ status: 'created' })
-
-    const hook = renderHook(() => useWebSessionTabsSync())
-    await act(settle)
-
-    await publish(findActiveSubscription(0), { type: 'snapshot', ...emptyActiveSnapshot(1) })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
-    expect(useAppStore.getState().tabsByWorktree[WORKTREE]).toBeUndefined()
-
-    // The mirror's answer: still empty. Releases the parked bootstrap; must not itself seed.
-    await publish(findActiveSubscription(0), { type: 'snapshot', ...emptyActiveSnapshot(2) })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
-
-    // A later focus installs a fresh closure; with the latch released, its empty frame may retry.
-    act(() => {
-      useAppStore.setState({ runtimeStatusByEnvironmentId: runtimeStatusMap(2) })
-    })
-    await act(settle)
     await publish(findActiveSubscription(1), { type: 'snapshot', ...emptyActiveSnapshot(3) })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(2)
+    expect(mocks.createTerminal).not.toHaveBeenCalled()
+    expect(useAppStore.getState().tabsByWorktree[WORKTREE] ?? []).toEqual([])
     hook.unmount()
   })
 })
@@ -311,7 +251,7 @@ describe('activating a host-owned workspace before the host has answered', () =>
     resetStaleDocumentVisibilityForTesting()
   })
 
-  it('opens one terminal when the host first says "ask me later" and then answers empty', async () => {
+  it('keeps the action page when an unpublished host later confirms an empty workspace', async () => {
     const hook = renderHook(() => useWebSessionTabsSync())
     await act(settle)
 
@@ -329,7 +269,7 @@ describe('activating a host-owned workspace before the host has answered', () =>
       publicationEpoch: 'empty:1'
     })
 
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
+    expect(mocks.createTerminal).not.toHaveBeenCalled()
     hook.unmount()
   })
 })

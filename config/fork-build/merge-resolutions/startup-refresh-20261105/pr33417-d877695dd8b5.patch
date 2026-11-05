@@ -1,0 +1,20 @@
+--- a/src/renderer/src/i18n/locales/ru.json
++++ b/src/renderer/src/i18n/locales/ru.json
+@@ -20015,7 +20015,6 @@
+         "imageAttachAgainLabel": "Прикрепить снова",
+         "pastedImageNotKeptLabel": "Не сохранено",
+         "imageNumber": "Изображение №{{number}}",
+-        "imageReferenceMissing": "Изображение удалено",
+         "imagePasteFailed": "Не удалось вставить изображение.",
+         "imageSaving": "Сохраняем вставленное изображение…",
+         "worktreeNotReady": "Рабочее дерево ещё не готово. Повторите через несколько секунд.",
+@@ -20086,7 +20085,8 @@
+         "nextTurnOptionsLabel": "Для следующего сообщения: {{options}}",
+         "futureOptionsRequireUpdate": "Обновите Orca на этом сервере, чтобы менять параметры следующих ответов во время работы агента.",
+         "steerUnavailable": "На этом сервере пока недоступна немедленная отправка. Обновите Orca на сервере или измените действие Enter в настройках чата.",
+-        "queueUnavailable": "На этом сервере пока недоступна очередь сообщений. Обновите Orca на сервере; ваш черновик сохранён."
++        "queueUnavailable": "На этом сервере пока недоступна очередь сообщений. Обновите Orca на сервере; ваш черновик сохранён.",
++        "imageReferenceMissing": "Изображение удалено"
+       },
+       "tool": {
+         "exitCode": "код {{value0}}",

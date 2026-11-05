@@ -152,7 +152,7 @@ jobs:
             both) targets=(dmg zip) ;;
             *) echo '::error::Unsupported preview format'; exit 2 ;;
           esac
-          node config/scripts/pinned-node-downloads.mjs darwin-arm64
+          node config/scripts/orcad-distribution/prebuilds/pinned-node-downloads.mjs darwin-arm64
           pnpm run ensure:electron-runtime
           # Local preview mode permits an absent server deployment template; no partial template is substituted.
           pnpm exec electron-builder --config config/electron-builder.config.cjs \

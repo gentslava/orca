@@ -1,14 +1,14 @@
-diff --git a/config/scripts/check-path-literal-ratchet.mjs b/config/scripts/check-path-literal-ratchet.mjs
-index 96c929c1071..d56e8a1d73e 100644
---- a/config/scripts/check-path-literal-ratchet.mjs
-+++ b/config/scripts/check-path-literal-ratchet.mjs
-@@ -10,7 +10,11 @@ const SCAN_ROOTS = ['config', '.github', 'tests']
+diff --git a/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs b/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
+index 8afc5698007..a95aaac30c6 100644
+--- a/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
++++ b/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
+@@ -14,7 +14,11 @@ const SCAN_ROOTS = ['config', '.github', 'tests']
  const SOURCE_ROOTS = 'main|renderer|shared|cli|preload|packages|types|wsl-guest'
  const RESOLVED_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '/index.ts']
  // Generated timings; a stale row only skews shard balance and is rewritten by its generator.
--const EXCLUDED_FILES = new Set(['config/scripts/ci-shard-timings.json'])
+-const EXCLUDED_FILES = new Set(['config/scripts/ci/sharding/ci-shard-timings.json'])
 +const EXCLUDED_FILES = new Set([
-+  'config/scripts/ci-shard-timings.json',
++  'config/scripts/ci/sharding/ci-shard-timings.json',
 +  // Merge targets are checked against composed Git blobs, not this control checkout.
 +  'config/fork-build/merge-resolutions/manifest.json'
 +])

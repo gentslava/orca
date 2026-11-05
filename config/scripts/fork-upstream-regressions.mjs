@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { isDirectInvocation } from './script-entry-detection.mjs'
+import { isDirectInvocation } from './tool-invocation/script-entry-detection.mjs'
 
 const desktop = [
   'config/scripts/fork-upstream-sync.test.mjs',
@@ -29,7 +29,6 @@ const desktop = [
   'src/renderer/src/components/status-bar/provider-segment-stale-warning.test.tsx',
   'src/renderer/src/lib/activate-ai-vault-structured-session-reveal.test.ts',
   'src/renderer/src/lib/activate-ai-vault-structured-session-host.test.ts',
-  'src/renderer/src/components/right-sidebar/ai-vault/session-list/AiVaultSessionVirtualList.keyboard.test.tsx',
   'src/renderer/src/components/right-sidebar/right-sidebar-titlebar-drag-regions.render.test.tsx',
   'src/renderer/src/components/native-chat/native-chat-child-navigation.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx',
@@ -66,7 +65,6 @@ const desktop = [
   'src/renderer/src/components/native-chat/native-chat-composer-workspace-file-drop.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-composer-preview-lifetime.test.tsx',
-  'src/renderer/src/components/native-chat/use-native-chat-menu-paste-lifetime.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-composer-paste.test.tsx',
   'src/renderer/src/components/native-chat/native-chat-composer-composition.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-pasted-text-file.test.tsx',
@@ -78,7 +76,6 @@ const desktop = [
   'src/renderer/src/components/native-chat/use-structured-agent-session-queue-working.test.tsx',
   'src/renderer/src/components/native-chat/NativeChatQueuedMessageList.inline-edit.test.tsx',
   'src/main/native-chat/agent-session-wire/structured-agent-session-goal-steering.test.ts',
-  'src/renderer/src/components/native-chat/use-structured-agent-session-queued-messages.test.tsx',
   'src/main/native-chat/agent-session-wire/structured-agent-session-queued-edit.test.ts',
   'src/main/native-chat/agent-session-wire/structured-agent-session-queued-move.test.ts',
   'src/shared/orchestration-worker-roles.test.ts',
@@ -145,21 +142,17 @@ const mobile = [
   'src/agent-history/agent-history-retry.test.tsx',
   'src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx',
   'src/session/native-chat/transcript/MobileNativeChatMessage.test.ts',
-  'src/session/native-chat/transcript/MobileNativeChatMessage.android.test.ts',
   'src/session/native-chat/mobile-native-chat-reading-place.test.tsx',
   'src/host-screen/project-conversations.test.ts',
   'src/host-screen/use-project-conversations.test.tsx',
   'src/host-screen/use-conversation-actions.test.tsx',
   'src/host-screen/conversation-open.test.ts',
   'src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx',
-  'src/session/mobile-agent-message-attribution.test.ts',
   'src/session/native-chat/input/MobileNativeChatSessionOptionPickers.test.ts',
   'src/session/use-mobile-structured-agent-options.test.ts',
   'src/session/use-mobile-structured-agent-session-send.test.tsx',
   'src/session/use-mobile-structured-native-chat-send-bridge.test.ts',
-  'src/host-screen/host-worktree-child-navigation.test.tsx',
   'src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx',
-  'src/session/native-chat/composer/use-mobile-native-chat-composer-tray.test.tsx',
   'src/host-screen/personal-project-order.test.tsx',
   'src/worktree/personal-project-opening.test.ts',
   'src/worktree/personal-project-route-intent.test.ts'
@@ -187,7 +180,7 @@ export function runForkRegressions(root = process.cwd()) {
   execFileSync(
     process.execPath,
     [
-      resolve(root, 'config/scripts/run-vitest.mjs'),
+      resolve(root, 'config/scripts/test-runtime/execution-policy/run-vitest.mjs'),
       'run',
       '--config',
       'config/vitest.config.ts',
@@ -199,7 +192,7 @@ export function runForkRegressions(root = process.cwd()) {
   execFileSync(
     process.execPath,
     [
-      resolve(root, 'config/scripts/run-vitest.mjs'),
+      resolve(root, 'config/scripts/test-runtime/execution-policy/run-vitest.mjs'),
       'run',
       '--config',
       'mobile/vitest.config.ts',

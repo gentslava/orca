@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path'
 import { git, isAncestor } from './composition.mjs'
 import { pushPinnedForkRefs, requireForkMaster } from '../scripts/fork-upstream-sync.mjs'
 import { withForkSyncSsh } from '../scripts/fork-upstream-ssh.mjs'
-import { isDirectInvocation } from '../scripts/script-entry-detection.mjs'
+import { isDirectInvocation } from '../scripts/tool-invocation/script-entry-detection.mjs'
 
 const controlPaths = [
   'AGENTS.md',

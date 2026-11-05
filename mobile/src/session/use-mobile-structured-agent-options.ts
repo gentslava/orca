@@ -151,6 +151,7 @@ export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptio
       snapshot: readOptionSnapshot(),
       ready: acceptsPicks && writes.current.count === 0 && interactionReadyRef.current,
       providerStarting,
+      existingChat: createdHere === undefined || args.hasTurn === true,
       isCurrentContext,
       flush: (isCurrent: () => boolean) => {
         controller.flush(async (pick) => {

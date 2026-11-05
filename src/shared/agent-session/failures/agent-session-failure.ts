@@ -213,18 +213,7 @@ export function providerDiagnostic(
 
 export function agentSessionFailureFact<TKind extends AgentSessionFailureKind>(
   kind: TKind,
-  extra: {
-    account?: AgentSessionAccountKind
-    detail?: ProviderDiagnostic
-    refusal?: AgentSessionRefusalReference
-    attachment?: AgentSessionAttachmentProblem
-    retry?: AgentSessionProviderRetry
-    usageLimit?: AgentSessionUsageLimit
-    argumentProblem?: AgentSessionArgumentProblem
-    neverReachedAgent?: true
-    backgroundStop?: AgentSessionBackgroundStop
-    requestTimeout?: AgentSessionRequestTimeout
-  } = {}
+  extra: Omit<AgentSessionFailureFact, 'kind'> = {}
 ): AgentSessionFailureFact & { kind: TKind } {
   // Re-bounded here, so no writer can store more than the cap however it built the detail.
   const detail = extra.detail

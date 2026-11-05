@@ -69,14 +69,7 @@ export function NativeChatStructuredPromptSlot({
           {...fileLinkProps}
         />
       ) : null}
-      {nativeChatStructuredQuestions(
-        pane,
-        controller,
-        session,
-        transport,
-        submits,
-        fileLinkProps
-      )}
+      {nativeChatStructuredQuestions(pane, controller, session, transport, submits, fileLinkProps)}
     </>
   )
 }

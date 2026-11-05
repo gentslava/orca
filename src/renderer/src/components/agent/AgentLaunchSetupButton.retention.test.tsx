@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 import { act } from 'react'
 import { fireEvent, getByRole } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -139,21 +138,19 @@ describe('setup records exist only for authored setups', () => {
         </TooltipProvider>
       )
     )
-    const user = userEvent.setup()
     const [plain, searched] = document.querySelectorAll<HTMLButtonElement>(
       'button[aria-label="Configure claude"]'
     )
     const prompt = () =>
       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
-    const effort = (label: string) =>
-      getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
+    const effort = () => getByRole(document.body, 'slider').getAttribute('aria-valuetext')
     const model = () => document.querySelector('[cmdk-item][data-current="true"]')?.textContent
     const close = () => fireEvent.keyDown(document.querySelector('textarea')!, { key: 'Escape' })
 
     // Opening a preset saves nothing, and the plain row still shows defaults.
     fireEvent.click(searched)
     expect(model()).toBe('opus')
-    expect(effort('High')).toBe('on')
+    expect(effort()).toBe('High')
     close()
     expect(sourceCount()).toBe(0)
     fireEvent.click(plain)
@@ -164,14 +161,14 @@ describe('setup records exist only for authored setups', () => {
 
     // A real change saves into that preset's slot only and survives close and reopen.
     fireEvent.click(searched)
-    await user.click(getByRole(document.body, 'radio', { name: 'Low' }))
-    expect(effort('Low')).toBe('on')
+    fireEvent.keyDown(getByRole(document.body, 'slider'), { key: 'Home' })
+    expect(effort()).toBe('Low')
     expect(sourceCount()).toBe(1)
     changePrompt(prompt(), 'review the diff')
     close()
     fireEvent.click(searched)
     expect(model()).toBe('opus')
-    expect(effort('Low')).toBe('on')
+    expect(effort()).toBe('Low')
     close()
 
     // The plain row keeps its own options but shares the workspace's typed prompt.

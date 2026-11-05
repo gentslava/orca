@@ -128,7 +128,7 @@ jobs:
       - name: Package ad hoc ARM64 DMG and ZIP
         run: |
           set -euo pipefail
-          node config/scripts/pinned-node-downloads.mjs darwin-arm64
+          node config/scripts/orcad-distribution/prebuilds/pinned-node-downloads.mjs darwin-arm64
           pnpm run ensure:electron-runtime
           pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 --config.mac.identity=- --publish never
       - name: Measure archives against the exact source and stage downloads

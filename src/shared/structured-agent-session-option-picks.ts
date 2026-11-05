@@ -1,21 +1,11 @@
 import type { StructuredAgentSessionOptionState } from './agent-session/options/structured-agent-session-options'
 import type { SessionOptionValue } from './native-chat/input/native-chat-session-options'
 import { STRUCTURED_LAUNCH_SEED_OPTION_IDS } from './native-chat/input/native-chat-session-option-defaults'
-import { structuredAgentSessionShownModel } from './agent-session/options/structured-agent-session-option-snapshot'
+import { structuredAgentSessionRememberedPickModel } from './agent-session/options/structured-agent-session-remembered-pick-model'
 import {
   decodeStructuredAgentSessionOptionValue,
   encodeStructuredAgentSessionOptionValue
 } from './agent-session/options/structured-agent-session-option-codec'
-
-/** The model a pick's other values were chosen under: the chat's own, else the default shown. */
-function structuredAgentSessionControlsModelId(
-  state: StructuredAgentSessionOptionState
-): string | null {
-  return state.catalog
-    ? structuredAgentSessionShownModel(state.catalog, state.catalog.models, state.record)
-        .controlsModelId
-    : null
-}
 
 export type StructuredSessionOptionPick = {
   modelId: string
@@ -28,17 +18,17 @@ export type StructuredSessionOptionPick = {
 export function structuredAgentSessionOptionPicks(
   state: StructuredAgentSessionOptionState,
   committed: Readonly<Record<string, string>>,
-  pickedOptionId?: string
+  existingChat = false
 ): StructuredSessionOptionPick[] {
   if (!state.catalog) {
     return []
   }
-  const committedModel = committed.model
-  const modelId =
-    typeof committedModel === 'string' && committedModel.trim()
-      ? committedModel
-      : structuredAgentSessionControlsModelId(state)
-  if (!modelId) {
+  const remembered = structuredAgentSessionRememberedPickModel(
+    state,
+    committed.model,
+    existingChat || (state.modelDefault === true && committed.model === undefined)
+  )
+  if (!remembered) {
     return []
   }
   return STRUCTURED_LAUNCH_SEED_OPTION_IDS.flatMap((optionId) => {
@@ -51,15 +41,6 @@ export function structuredAgentSessionOptionPicks(
       (typeof decoded === 'string' && !decoded.trim()) ||
       encodeStructuredAgentSessionOptionValue(optionId, decoded) === null
       ? []
-      : [
-          {
-            modelId,
-            optionId,
-            value: decoded,
-            ...(state.modelDefault && pickedOptionId !== 'model'
-              ? { adoptModelAsLaunchDefault: false }
-              : {})
-          }
-        ]
+      : [{ ...remembered, optionId, value: decoded }]
   })
 }

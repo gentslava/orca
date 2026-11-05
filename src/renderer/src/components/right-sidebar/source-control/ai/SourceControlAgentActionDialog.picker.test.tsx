@@ -268,13 +268,13 @@ it.each(['global', 'repo'] as const)(
         target: { value: '--model claude-sonnet-5-5 --accepted' }
       })
       fireEvent.blur(screen.getByRole('textbox', { name: 'Arguments' }))
-      fireEvent.click(screen.getByRole('radio', { name: 'High' }))
+      fireEvent.keyDown(screen.getByRole('slider'), { key: 'End' })
       fireEvent.change(screen.getByRole('textbox', { name: 'Arguments' }), {
         target: { value: '--latest-pending' }
       })
       const search = screen.getByLabelText('Search models')
       fireEvent.change(search, { target: { value: 'son' } })
-      expect(screen.getByRole('radio', { name: 'High' }).getAttribute('aria-checked')).toBe('true')
+      expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('High')
       const permission = screen.getByRole('button', { name: 'Claude permissions' })
       const accepted = mounted.controller.recipe
       const pendingInput = screen.getByRole('textbox', { name: 'Arguments' })
@@ -284,7 +284,7 @@ it.each(['global', 'repo'] as const)(
       expect(pendingInput).toHaveProperty('value', '--latest-pending')
       expect(screen.getByRole('button', { name: 'Iniciar chat' })).toBeTruthy()
       expect(screen.getByRole('button', { name: 'Iniciar terminal' })).toBeTruthy()
-      expect(screen.getByRole('radio', { name: 'Alto' }).getAttribute('aria-checked')).toBe('true')
+      expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Alto')
       expect(screen.getByRole('button', { name: 'Permisos de Claude' })).toBe(permission)
       expect(mounted.controller.recipe).toBe(accepted)
       expect(mounted.persist).not.toHaveBeenCalled()
@@ -316,7 +316,7 @@ it.each(['global', 'repo'] as const)(
       expect(screen.getByRole('textbox', { name: 'Argumentos actualizados' })).toBe(pendingInput)
       expect(pendingInput).toHaveProperty('value', '--latest-pending')
       expect(search).toHaveProperty('value', 'son')
-      expect(screen.getByRole('button', { name: /claude-sonnet-5-5/ })).toBeTruthy()
+      expect(screen.getByRole('option', { name: 'sonnet' })).toBeTruthy()
       expect(mounted.controller.recipe).toBe(accepted)
       await act(() => i18n.changeLanguage('en'))
       fireEvent.keyDown(screen.getByRole('textbox', { name: 'Arguments' }), { key: 'Escape' })
@@ -327,7 +327,7 @@ it.each(['global', 'repo'] as const)(
         'value',
         '--latest-pending'
       )
-      expect(screen.getByRole('button', { name: 'Remove --model claude-sonnet-5-5' })).toBeDefined()
+      expect(screen.getByRole('button', { name: 'Remove --model sonnet' })).toBeDefined()
       fireEvent.click(screen.getByRole('button', { name: 'Launch terminal' }))
       expect(mounted.controller.recipe.commandInputTemplate).toBe('CURRENT {basePrompt}')
       expect(mounted.controller.recipe.agentArgs).toBe('--latest-pending')

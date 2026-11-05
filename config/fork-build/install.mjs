@@ -15,7 +15,7 @@ import { basename, dirname, join, resolve } from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import { api, readLedger } from './github.mjs'
 import { measurePreviewApp } from '../scripts/fork-upstream-archives.mjs'
-import { isDirectInvocation } from '../scripts/script-entry-detection.mjs'
+import { isDirectInvocation } from '../scripts/tool-invocation/script-entry-detection.mjs'
 
 const repository = 'gentslava/orca'
 

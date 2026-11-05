@@ -1472,5 +1472,519 @@
     "resultSha256": null,
     "reason": "Preserve upstream removal of the broad General section retention fixture; focused hold-to-quit behavior and settings owner tests remain.",
     "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatComposerActions.test.tsx",
+    "blobs": [
+      "6e13a84e7671b8fa320a33bcd83b919a18c33b9a",
+      null,
+      "fb8f92be87418748a5b957827365c42638e9e14a"
+    ],
+    "patch": "startup-refresh-20261105/pr33362-ac5ab0e20e3d.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Retain upstream removal of the generic composer-actions suite; keep busy-delivery coverage in a focused integration test.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "7d4fe0633e50c0c78f504a428b7d0e031bc8a8b6",
+      "ca4adfa8a0eb19d29a8528304a6145b1dc0a8e59"
+    ],
+    "patch": "startup-refresh-20261105/pr33362-755657b9f8d1.patch",
+    "patchSha256": "f84c8d70aa304edacd0c4bd93f796930f45bc1c3de76f9c7a16fafab1e617446",
+    "resultSha256": "450c81cb5fa81e1a35c378e050cb3b912dd4310945e8c70463a617cd5ae946a8",
+    "reason": "Retain the upstream focused picker suite and the selected future-turn busy-option behavior without restoring removed generic cases."
+  },
+  {
+    "path": "config/scripts/orcad-distribution/server-bundle/build-orcad.mjs",
+    "blobs": [
+      "e00b67c8105d47734446179ef558a4bc9fb32e6c",
+      "3ce66c06bac526da84a86706f68ec12eec150d0d",
+      "ff1879e48ddb0ffda60d50ab511f50e34e919a84"
+    ],
+    "patch": "startup-refresh-20261105/pr33365-8b0e5bcad3a3.patch",
+    "patchSha256": "827e5d8d4e66f450e11e5847b014cc07651e1c84f0ef51c0a8d63cd072b9fb19",
+    "resultSha256": "e158a6de80b58a4b6c6c0e283fb796784543d5320b4af386ebf0062e13d2beb5",
+    "reason": "Retain the Docker archive source-commit override and adapt its import to the relocated server-bundle owner."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "5aca066a5b2363eb221c404fb32ee7faf66afd21",
+      "cc6c15cf8b9a05a4fb6d16d08ca623e316618787"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-15dbc76855aa.patch",
+    "patchSha256": "7f944866d0d19995dde63a1620c5af3cdd7e2c80b212fb0eeb9f075e225ac046",
+    "resultSha256": "b4d2028568ccf75c78d00e14283bc0856e854b2ac01a652f7863433d764a3f16",
+    "reason": "Keep the focused upstream picker-write case, selected future-turn controls, and explicit Default-model proof/reset coverage using the selected shared fixture."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.older-history.test.tsx",
+    "blobs": [
+      "b9e21f86a08a4f585b147df5f8036a67b7491259",
+      "7bb4b526bef049ecb997efd0ab35259df2438a24",
+      "7f3b5d41fc520cb7a2f1f66c4b88f71b5fdb4234"
+    ],
+    "patch": "startup-refresh-20261105/pr33576-ea330a82ddcd.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "a1dc9ab180d639ac14f99b9f3b69d17e0428ecacad6cde94919713639587ce8e",
+    "reason": "Keep the upstream focused paging suite after its generic layout-test removal; selected turn-fold and mobile disclosure regressions retain regrouping coverage."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.focus-return.test.tsx",
+    "blobs": [
+      "2876a7109a07fd911684751dcce2f096c1ea1676",
+      null,
+      "b19b21fb3902de4e3c29cb3ec8820411c0828e4b"
+    ],
+    "patch": "startup-refresh-20261105/pr34866-30acc09e403f.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Retain upstream removal of the generic focus suite; preserve the selected pending-effort guard in a focused integration case.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx",
+    "blobs": [
+      "4fd0ed90b6a3a44d49c7bf898831d3ba73b2434b",
+      "63c3f42c8849f5c49fea652c4d809c7aa6fb72da",
+      "3ec1f3e33fb85f0c8ed1ccf77541d6ffcdc75f55"
+    ],
+    "patch": "startup-refresh-20261105/pr34866-3c466c87effd.patch",
+    "patchSha256": "273ab59c4f9dfba7bef9deb39142800da91979911cd261544ce4f3affc44bf33",
+    "resultSha256": "f8244594c80ca4c785a100233892a9b4a7986b5c664d7696305c6b691920a6db",
+    "reason": "Retain focused Default and concurrent-write cases and adapt the selected busy-option path to the current effort slider instead of restoring purged generic assertions."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts",
+    "blobs": [
+      "2a34209296955898b8a79cd912314d5256e9bee9",
+      "877e98516cb49d3d0500f2b1935bc6c2ebf2c91e",
+      "3bfddb8961e2b9ec88b5a18f4fbe599fa180b554"
+    ],
+    "patch": "startup-refresh-20261105/pr34895-5ad59b0c7044.patch",
+    "patchSha256": "2ed1983db2631f9e74d1cc8f63a8569b227c47771fe273393c3629ccc1e1b755",
+    "resultSha256": "36f6b63e6e6841ca523af1454df3a58b754931402dcfb67c0fd24c64cd022859",
+    "reason": "Preserve the selected stale/hidden answer guard for both current input and textarea question owners."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx",
+    "blobs": [
+      "d3df422b684338cc592e62995962713e00b9cbef",
+      "03c576e4d28ccf21dbbc68a0b38818a500c02846",
+      "8f315ad73630394e9945b82520868f48ea6e23da"
+    ],
+    "patch": "startup-refresh-20261105/pr34895-489ee6c9071d.patch",
+    "patchSha256": "4ed0c63e8b57348c6eeb2cf49736d2f55a0ff496adf8014f1ddcb4cfb286a1bc",
+    "resultSha256": "c4e3e055d0edadf3287720289962fc1f42dfecca5dc5e3e42462d6e3fe2e2bcf",
+    "reason": "Keep the upstream focused child sections and the selected direct parent-patch disclosure regression without attributing child prose or opening a child conversation."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolLine.test.tsx",
+    "blobs": [
+      "4e0cefb74f39a785a78359f0cb7fa197db1366bb",
+      "7cfc39704cc26ea5aaa457dbe619941ad14010ae",
+      "ad74345e454546de56f509590ea971c538299bb2"
+    ],
+    "patch": "startup-refresh-20261105/pr36634-bba3dbe57ec9.patch",
+    "patchSha256": "f6d917384380a3950188e89d76a959563fa2828b428bf35e0b17021248971c24",
+    "resultSha256": "db33123577ff753620f811cc59ae0e6317dd42f27c8353dbaf1d2abecbedce35",
+    "reason": "Retain the upstream focused tool-error case and prove full invocation inspection without an output; do not restore removed generic syntax cases."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolRun.appearance.test.tsx",
+    "blobs": [
+      "624bd08d9351ea1886cf8e002c2101cd91572e63",
+      "93844d513bce589c6c6ad6b09a918efa556fdc6b",
+      "b001e92587ab9adaa2c2e5716b23c48bbac50ca8"
+    ],
+    "patch": "startup-refresh-20261105/pr36634-96cc30954101.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "3e42e2e89a8ba9cb8b85217f95ddf70fa5c346c4fd11f5644b069a0c9e8fbac5",
+    "reason": "Keep the upstream focused tool-run suite after generic syntax assertions were removed; invocation inspection has its own focused row regression."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolRun.appearance.test.tsx",
+    "blobs": [
+      "624bd08d9351ea1886cf8e002c2101cd91572e63",
+      "93844d513bce589c6c6ad6b09a918efa556fdc6b",
+      "9ed95aa238445787adff6ab868ffc1cc2fb55a2f"
+    ],
+    "patch": "startup-refresh-20261105/pr36593-2f4621e8fb8a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "3e42e2e89a8ba9cb8b85217f95ddf70fa5c346c4fd11f5644b069a0c9e8fbac5",
+    "reason": "Retain the current upstream tool-run interaction suite instead of restoring removed class-string layout assertions for compact headers."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/native-chat-composer-ime-file-drop.test.tsx",
+    "blobs": [
+      "02ff00442d9c3b54169fc389411c6760294ee8ad",
+      "b3a38779a5f5e67f08fcc9c9e90df43a7af7f7be",
+      "4bd16c3b49d2f0368b85d5f966e8ca30cd30df35"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-bad465c4023b.patch",
+    "patchSha256": "6ef57ff489fc83d6dd2956be6d5511a5c983122315bba1ce4f5294aecb36ddf5",
+    "resultSha256": "2ff09b61b83a1ce3652b97f985abf2c141f1fd375d2327de6a9f576011c4f1c5",
+    "reason": "Combine current chip-aware attachment cases with refreshed upload ownership and draft-lifetime regressions; preserve upstream removal of redundant image-order coverage."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/native-chat-composer-workspace-file-drop.test.tsx",
+    "blobs": [
+      "6416b2be73b194945c39665b4da814842e5df0d8",
+      "5806dafa1dc02f0dba5d0ac7c38082788a880059",
+      "cd60a0a452717a2321ccbe5dc26c6f69126b1739"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-f9503fc13383.patch",
+    "patchSha256": "263a35241a4b183777391a8c6a60e8aff6ca05da22fe5cc5978a3e1ea0471704",
+    "resultSha256": "949b2291b12e1573dfe9e29f81d540f2d0decb9b05a74f601129da34326c09ae",
+    "reason": "Combine current chip-aware attachment cases with refreshed upload ownership and draft-lifetime regressions; preserve upstream removal of redundant image-order coverage."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/native-chat-image-references.test.tsx",
+    "blobs": [
+      "13fb254893ac7b01dff0fc2924f80dabf74dd48a",
+      "35115f1a716fa9f2cef0e1ce38db93e3f33c5b92",
+      "0d442719b2745a06553a543580c19e508c2abdb2"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-be0283f73cfd.patch",
+    "patchSha256": "716b1c004053d1a511c58946008247609f32224e21a1cd4ae7245815105de8ec",
+    "resultSha256": "deb9217a7d334f87a0485fdb0896bb1e6f68b8d30e105d96b869d2a2d0b83c19",
+    "reason": "Retain the selected image-tray representation and its text/selection preservation, literal file-reference, hand-back and delayed upload regressions; upstream chip-editing expectations describe the behavior this feature deliberately replaces."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx",
+    "blobs": [
+      "56e0fa9985d4877022f2bd7906713ee3fb291d1f",
+      "768a85f16bf51f90b90bceb4bd021c217c95e3a8",
+      "d189e47eb3adad5647f4d789d540c00633fa2019"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-6330c872ca6f.patch",
+    "patchSha256": "a45803b94c886aada18c49aca333c59d862a5df52ac1f03b440f304b937edd92",
+    "resultSha256": "a209174475422880550b4cc6591e5f6e84a8c6aebebd1b5333cbdad24313b9cc",
+    "reason": "Combine current chip-aware attachment cases with refreshed upload ownership and draft-lifetime regressions; preserve upstream removal of redundant image-order coverage."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-menu-paste-lifetime.test.tsx",
+    "blobs": [
+      "6ef7393a238dd1527635dbf36cb28bee83c83b74",
+      null,
+      "fa5574831e7d7f69482313e0ef41dad5486254e3"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-e7b799aeb53c.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the old full paste lifetime fixture; current focused paste routing and attachment lifetime regressions remain.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-context-menu.targets.test.tsx",
+    "blobs": [
+      "745e572c3319a9b795b944110200626a00a3fc39",
+      "37d578b207e509cbb55dc9db05f8b9c547e06ab5",
+      "c213e6bb17f09935c97aa7f9af39329ef4b2d8c4"
+    ],
+    "patch": "startup-refresh-20261105/pr34895-6a6a962c8094.patch",
+    "patchSha256": "3566ed80d9b0ba3a8e66f0b83ae4d3bf4e5717603ffecd244e560b1a30f1f067",
+    "resultSha256": "2c0f57fc3820df11a79de7314ab18129eae0513ced6e769ef9e3eb0ae0bb225e",
+    "reason": "Retain the focused current right-click target lifetime cases and child workspace guards; do not restore the generic context-menu inventory removed upstream."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.test.tsx",
+    "blobs": [
+      "77f737dcfeb6f7f083b594f295ce69d6a233575e",
+      "6878df04d41a9b977ec952602cdc4659b5a420a1",
+      "60f2d0f709a90026ab33fe5f664f41f0344dcba2"
+    ],
+    "patch": "startup-refresh-20261105/pr33362-7c94a557f426.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "272280d873cbb324da6f9d63248aa5b4bc08134b1f51f7e24104c9c8fcef98a5",
+    "reason": "Keep current upstream removal of broad option and Pi refresh fixtures; the incoming capture null guard only changes a retired fixture, while focused default and send regressions remain separate."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "085cdd411f43ac1638f4e115d971106f42804d7f",
+      "309692df6f8611ad6b97ed8a89684f429a77987a",
+      "c77dd0572a0ec4ac98e1953c39640e64de8b2c9e"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-27b7434a7ea1.patch",
+    "patchSha256": "36bc8778a3d6a1e28cce0de47f7ed1b25be0b38640265002221126d0177fb03c",
+    "resultSha256": "032fcadcf9d6164fb9ea98997056753501d6ba1a680db5a5149a2768a0099f69",
+    "reason": "Retain current future-turn queue messages and add Default model translations without duplicate keys."
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "42853815ba248e8a6aa7b87d081c75e51d239c88",
+      "8c51af6039fc1a28585374e12ff90f06a2f21bc7",
+      "d9a6be64059fd0890b707aae22f1fc85fc397514"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-53ad438855c7.patch",
+    "patchSha256": "343bad8eaac74613efe9cedee759a1a1b909949aee513cc839737837917e776d",
+    "resultSha256": "f4572bef1e4d6526f77f7c5584388c56b4a2cc6ff05f5a951159992d7e104819",
+    "reason": "Retain current future-turn queue messages and add Default model translations without duplicate keys."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "559941f3332d44932ee68bf5788bcdc9e720006c",
+      "0eab75a970cfb2337ae4c38b40cad32d9dff709f",
+      "27168b155a195c060961a7246079a09a2524a351"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-b26ffefd8a5c.patch",
+    "patchSha256": "e785639d22b39596af35a035c222b584f3b4d4ed1fe100df6dab66aff5ce9f9e",
+    "resultSha256": "bbad700ba90e7d65e72ed8b1c0c2118b22c787addcbf7c8f509da8507fbf0b92",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionRows.tsx",
+    "blobs": [
+      "437782b2977821e6f1b957cbc00f44c36d36629e",
+      "6dbb0c821c1b8063665ef6b69b86f7993bc8832d",
+      "234a1240fe2ab53c42c92a80636adb6776cd9180"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-f6d1a23fc593.patch",
+    "patchSha256": "c07e1abf1f11b1bcf625af1f47726687e3211aadd81ad052de963c5b464e63fb",
+    "resultSha256": "f14cb7feeab7aa17d491ec0c3a236bf7ef7de151ed168ea43caa3715f03aab38",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "mobile/src/session/use-mobile-structured-agent-options.ts",
+    "blobs": [
+      "f8497ea3c98e8fbe48f9bc7cd856aba2e5277920",
+      "90272ddc021374fc5d3fc922f9dbf8a4dc5f7c5c",
+      "d0511d87c7450494bce4c9b48ba0dbf967518e05"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-e3ebbb4dfb5c.patch",
+    "patchSha256": "4883e4a8e006be2082ba60b3443441c7fa0155fd5e5ba7955b46d01fd29acf28",
+    "resultSha256": "259979c20758041f0dcd5cc3a1bbc2c8d0f566c46d86d9c52776bc9518c4000f",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatModelCombobox.tsx",
+    "blobs": [
+      "cde8e4f57c66e43556977dac9ce97eda2bad71a7",
+      "32234da72519d7babcaa3367d1194faa7ea6815d",
+      "6e3f1973ceae0efd5c5e684f36072ddb44b216a4"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-9727d05f75a3.patch",
+    "patchSha256": "5c5dd1ab1de48c96cdd219b41c280341ecf016d8973fc8214cc720945044cd81",
+    "resultSha256": "5b7c9439cadc2986985ceb81bf199277332e1b6591154f8a219ada232fccaa96",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.test.tsx",
+    "blobs": [
+      "77f737dcfeb6f7f083b594f295ce69d6a233575e",
+      "6878df04d41a9b977ec952602cdc4659b5a420a1",
+      "c24414a6b09c5e973e5585685bdc6645821c8441"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-996c1a996bc7.patch",
+    "patchSha256": "3b0ede612ac66a265ef15edca75838b332b03ea396d59c94923d806811e4c90c",
+    "resultSha256": "c8a4683a7716425038bec95667834d63e733e56401a59b691f6e3ce37e3de949",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
+    "blobs": [
+      "8494a243d1e8d654cfc4842391a6dc3804792651",
+      "0e644dfdc97dca5560787388ef9bade4552d8397",
+      "47d4953d94b0a6ec0d02b80ff9a071324134796f"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-653f737c99c1.patch",
+    "patchSha256": "bf89200ac567cdcd29ccf5c47a121645dd56632b7278d2cf5daaae0187a417e5",
+    "resultSha256": "3dd97856ef07d251eb6d22fb1872477b03b795648a980534bc4fed78471b6fb4",
+    "reason": "Combine Default reset and alias visibility with current host-owned picks; fence normal picks while any option/reset write is in flight so Default reset stays serialized."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "a9a8ea06a57dd57147f0222479421ac026093dc6",
+      "5adf00d49f7dfd2d3ffe5f8f6a9e4456968e7911",
+      "67608ef24c172bae67ed7870519661d6eb206269"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-48c63bb87b37.patch",
+    "patchSha256": "5ad1eaaa0c53ceb9c3200e4a89b461a54c3d87f6810dd985e908c5f30201cc1c",
+    "resultSha256": "b275de0227db3cfafae91b8380637bd4a512c4cf00165c9f421e1cc359600a4f",
+    "reason": "Retain current future-turn queue messages and add Default model translations without duplicate keys."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "dccc41ba77b7422711b79170beb1c1667dff8ddd",
+      "fa3a3b2e10908544bf60967a3bfcff55e0ec7151",
+      "bf6eb4753d0f10a680032867f6b956083d068379"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-71e921189a2e.patch",
+    "patchSha256": "04335e873cb4c297e4af0bba3799ee076a0889952bdfd2e111ab44511f843f1d",
+    "resultSha256": "d6eb83e662752a9bae6c765de5565238ef9307c8cf318b3162a602914dbcf60a",
+    "reason": "Retain current future-turn queue messages and add Default model translations without duplicate keys."
+  },
+  {
+    "path": "src/shared/agent-session/options/structured-agent-session-options.ts",
+    "blobs": [
+      "767ac4d62c1d3bb537ec7503bfb94ad661ff380d",
+      "60e1e1226fe9f10ee0ed6e42b944f372929dfed5",
+      "070ac63bdb1e392eb87f919ad0d4bbffd3ae0758"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-7556f4e37b97.patch",
+    "patchSha256": "248e7ce47b96b64764833d0dd9918c29fce01472f1a2d87baf1fab2c2b1ac5df",
+    "resultSha256": "b425a1929df10dd97cae2fcdf1937921de1ee0b3d5ad96fb19a77777d4bef205",
+    "reason": "Keep Default state and move option pick projection to its new owner; the required owner compatibility patch retains current remembered-model semantics."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx",
+    "blobs": [
+      "99af0ddad4ab59ef77d87981d109f11003206b34",
+      "eb49988585bfc1fee0f836e65b1813be3d74cda2",
+      "98a5a2e22f3c93c552b93fc655349e66794a1e0b"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-f7b41788ec59.patch",
+    "patchSha256": "875d0990e0fe7197bbbafc4ff5f8872d326b19fb381f205282d3794e947db061",
+    "resultSha256": "e4358a29e857f85a6dc2918319024db8865a96a7bdddd7b04a8d3eb56a312fc4",
+    "reason": "Preserve literal typed image references in the focused queued-edit recovery test and retain both image-removal and future-turn translations."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "5307f0b81e2869032c989ffcab1a6c30f0a67ff5",
+      "1824336a5bcf429fad4829ad1560bb30b2026282",
+      "712292a1d7824b95417811be43e4a205ae6553ef"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-10b28b08f80e.patch",
+    "patchSha256": "a2187cbf901aa6371ef8d7ccc668ade993560b59b949707a00041182cb52e9c9",
+    "resultSha256": "428f5b98e9da4eef205f30e8d55facd91b1af22bedb6064173af541e22604003",
+    "reason": "Preserve literal typed image references in the focused queued-edit recovery test and retain both image-removal and future-turn translations."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "45406e0e40c252c636b944ed6c53817b01e33abc",
+      "a8c2207cd4a2e428a42c83d70ebd8de49281f10e",
+      "f260a68d9154ac1a12eb9d655de8bb6605a776af"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-d877695dd8b5.patch",
+    "patchSha256": "33da6032bd08be5bf2d9dd2d9497ebd74da418d6d386af40f673bbd622e31fac",
+    "resultSha256": "9db89b3f22d5ca224e6aac0876521cecbe7a32dbdd93f1683e483a46cffa0c8e",
+    "reason": "Preserve literal typed image references in the focused queued-edit recovery test and retain both image-removal and future-turn translations."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.first-frame.test.tsx",
+    "blobs": [
+      "0cfa96c0bee46977ec309440d17ca3e951cd5be2",
+      null,
+      "dd11bdee77cd3e2e0930929920cb0edbc9af71ed"
+    ],
+    "patch": "startup-refresh-20261105/pr34866-58ffc43a0077.patch",
+    "patchSha256": "9f34145209dc541a03e260a0853bd643ba69ee5deefd87fa4912aa09a674e82c",
+    "resultSha256": "6699b6b8de71a709f88bd84dc96fb9e8c8a564e00cfb2d021435fe3a9d705843",
+    "reason": "Retain only the selected PR quiet-refresh regression for an unsupported saved effort, reusing the current hook fixture; do not resurrect the retired broad first-frame suite."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session.test.tsx",
+    "blobs": [
+      "67f6880c99ac04e3ef8162db68a812f2d2286869",
+      null,
+      "e8c3545707d17ca8e59b2ccc1c1138eb360e14be"
+    ],
+    "patch": "startup-refresh-20261105/pr33362-9526d0c5cb5a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream deletion of the broad session hook suite; this PR only adjusted a capability fixture there, while busy/queued option behavior is covered by focused working-options and queue-working suites.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx",
+    "blobs": [
+      "7d62f7dec373102152df2da386f1fabb9588a6f6",
+      null,
+      "8b88a884b28aff9e40f97754d07628f159c301d6"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-73cac8b7ce61.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault suite; retain chat-first production behavior and focused project navigation tests, with ownership cases ported into current test owners.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultVirtualRow.test.tsx",
+    "blobs": [
+      "8a5157daf5303fb8d52ca6ced88924d22531b122",
+      null,
+      "53337469171a05798bd599138d173981aa59c1f2"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-c3e714e62e37.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault suite; retain chat-first production behavior and focused project navigation tests, with ownership cases ported into current test owners.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault-session-projects.test.ts",
+    "blobs": [
+      "4376d7b4515526989da3a901e3c59d2e775c60bc",
+      null,
+      "8e9779a6099411d624707cc093c52351a14bd696"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-5607b8155b50.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault suite; retain chat-first production behavior and focused project navigation tests, with ownership cases ported into current test owners.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault-session-worktree.test.ts",
+    "blobs": [
+      "efeccab246cfa8a57247793f69cbb964ca619760",
+      null,
+      "2f8fcd9435b3d0bedd38a7f9c12c80c43a58abcf"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-ecf85d263345.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault suite; retain chat-first production behavior and focused project navigation tests, with ownership cases ported into current test owners.",
+    "deleted": true
+  },
+  {
+    "path": "config/scripts/orcad-distribution/server-bundle/build-orcad.mjs",
+    "blobs": [
+      "e00b67c8105d47734446179ef558a4bc9fb32e6c",
+      "6d9f68c2046993a6326b83f290b5b8d67965e453",
+      "ff1879e48ddb0ffda60d50ab511f50e34e919a84"
+    ],
+    "patch": "startup-refresh-20261105/pr33365-99bf605b7e46.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "80ebe4bdc1bc528f2f1f082a55cfd169fd71504f8206aa2679f622920d791e5d",
+    "reason": "Keep canonical upstream build-source identity and process-failure owners while retaining the selected release packaging changes."
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx",
+    "blobs": [
+      "7d62f7dec373102152df2da386f1fabb9588a6f6",
+      null,
+      "fa8281dd20c9da8ff1ae405d44d27c59eb209fba"
+    ],
+    "patch": "startup-refresh-20261105/pr33383-d941b8cd363d.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault test owner; selected-session ownership remains in current host, navigation, scanner and mobile regression owners.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault-session-worktree.test.ts",
+    "blobs": [
+      "efeccab246cfa8a57247793f69cbb964ca619760",
+      null,
+      "ac00214230a814b95044ed68e1d2f1bc4a778278"
+    ],
+    "patch": "startup-refresh-20261105/pr33383-94c29c63e01b.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault test owner; selected-session ownership remains in current host, navigation, scanner and mobile regression owners.",
+    "deleted": true
   }
 ]

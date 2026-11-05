@@ -45,23 +45,164 @@ index e53ffc59aab..11a898bdfa5 100644
  import { RemoteRuntimeRequestConnection } from '../../../src/shared/remote-runtime/requests/remote-runtime-request-connection.ts'
  import { checkDaemonHealthWithCoverage } from '../../../src/main/daemon/daemon-health.ts'
  import { resolveDaemonUnixSocketPath } from '../../../src/main/daemon/daemon-socket-endpoint-path.ts'
+diff --git a/config/docker/orcad/source-metadata.mjs b/config/docker/orcad/source-metadata.mjs
+index 57be5124750..384dc7f48ac 100644
+--- a/config/docker/orcad/source-metadata.mjs
++++ b/config/docker/orcad/source-metadata.mjs
+@@ -1,7 +1,7 @@
+ import { createHash } from 'node:crypto'
+ import { readdir, readFile, readlink } from 'node:fs/promises'
+ import { join } from 'node:path'
+-import { isDirectInvocation } from '../../scripts/script-entry-detection.mjs'
++import { isDirectInvocation } from '../../scripts/tool-invocation/script-entry-detection.mjs'
+ 
+ const excluded = new Set([
+   'node_modules',
+diff --git a/config/scripts/development/launch/run-electron-vite-dev.mjs b/config/scripts/development/launch/run-electron-vite-dev.mjs
+index 3bfaa56ee91..a78ae676ac6 100644
+--- a/config/scripts/development/launch/run-electron-vite-dev.mjs
++++ b/config/scripts/development/launch/run-electron-vite-dev.mjs
+@@ -17,7 +17,7 @@ import { createRequire } from 'node:module'
+ import os from 'node:os'
+ import path from 'node:path'
+ 
+-import { assertMacGuiLaunchAllowed } from './macos-gui-launch-preflight.mjs'
++import { assertMacGuiLaunchAllowed } from '../../macos-gui-launch-preflight.mjs'
+ import { prepareDevCliTerminalWrappers } from './dev-cli-terminal-wrapper.mjs'
+ import {
+   DEV_BUNDLE_MARKER_FILENAME,
 diff --git a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
-index 91221ee691a..3d44d8f5157 100644
+index 91221ee691a..63de40b6ae9 100644
 --- a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
 +++ b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
-@@ -16,9 +16,9 @@ const entry = `
+@@ -8,7 +8,7 @@ import {
+   mobileWebAppBuildOptions,
+   MOBILE_WEB_APP_ROOT_RESET,
+   MOBILE_WEB_APP_NATIVE_PARITY_STYLE
+-} from '../build-mobile-web-app-bundle.mjs'
++} from '../build/mobile-web-app/build-mobile-web-app-bundle.mjs'
+ import { mobileWebAppDependenciesPresent } from './mobile-web-app-bundle-dependencies.mjs'
+ import { createBundleServer, readShellCsp } from './preview/mobile-web-app-render-harness.mjs'
+ const mobileDir = fileURLToPath(new URL('../../../mobile', import.meta.url))
+@@ -16,8 +16,8 @@ const entry = `
  import { useState, useCallback, useMemo } from 'react'
  import { createRoot } from 'react-dom/client'
  import { View, Text, Pressable } from 'react-native'
 -import { MobileNativeChatPageList } from './src/session/MobileNativeChatPageList'
 -import { useMobileNativeChatTailFollow } from './src/session/use-mobile-native-chat-tail-follow'
--import { useMobileNativeChatRowKeys } from './src/session/native-chat/transcript/mobile-native-chat-row-keys'
-+import { MobileNativeChatPageList } from '../../../mobile/src/session/native-chat/transcript/MobileNativeChatPageList'
-+import { useMobileNativeChatTailFollow } from '../../../mobile/src/session/native-chat/transcript/use-mobile-native-chat-tail-follow'
-+import { useMobileNativeChatRowKeys } from '../../../mobile/src/session/native-chat/transcript/mobile-native-chat-row-keys'
++import { MobileNativeChatPageList } from './src/session/native-chat/transcript/MobileNativeChatPageList'
++import { useMobileNativeChatTailFollow } from './src/session/native-chat/transcript/use-mobile-native-chat-tail-follow'
+ import { useMobileNativeChatRowKeys } from './src/session/native-chat/transcript/mobile-native-chat-row-keys'
  function App() {
    const [start, setStart] = useState(80)
-   const [older, setOlder] = useState(false)
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+index 1adebfdd925..51d99ba0a91 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
+ import { join } from 'node:path'
+ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+ import { chromium } from 'playwright-core'
+-import { buildMobileWebAppBundle } from '../build-mobile-web-app-bundle.mjs'
++import { buildMobileWebAppBundle } from '../build/mobile-web-app/build-mobile-web-app-bundle.mjs'
+ import { mobileWebAppDependenciesPresent } from './mobile-web-app-bundle-dependencies.mjs'
+ import {
+   createBundleServer,
+@@ -186,8 +186,8 @@ async function open(replies = REPLIES, locale = 'ru-RU') {
+     replies
+   })
+   await page.goto(origin)
+-  await page.getByRole('button', { name: 'Clearer conversation navigation', exact: true }).waitFor()
+-  await page.getByRole('button', { name: 'A saved empty conversation', exact: true }).waitFor()
++  await page.getByRole('button', { name: /^Clearer conversation navigation(?:\. |$)/ }).waitFor()
++  await page.getByRole('button', { name: /^A saved empty conversation(?:\. |$)/ }).waitFor()
+   return { page, errors }
+ }
+ 
+@@ -266,7 +266,7 @@ describeRender('the actual mobile project conversation list', () => {
+ 
+   it('opens the selected pane and targets new chat creation at the project main workspace', async () => {
+     const { page, errors } = await open()
+-    await page.getByRole('button', { name: 'Clearer conversation navigation', exact: true }).click()
++    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\. |$)/ }).click()
+     await expect
+       .poll(() => notifies(page))
+       .toEqual([
+@@ -300,7 +300,7 @@ describeRender('the actual mobile project conversation list', () => {
+ 
+   it('reopens a durable empty conversation and routes a transcript to its specific history entry', async () => {
+     const { page, errors } = await open()
+-    await page.getByRole('button', { name: 'A saved empty conversation', exact: true }).click()
++    await page.getByRole('button', { name: /^A saved empty conversation(?:\. |$)/ }).click()
+     await expect
+       .poll(async () =>
+         (await requests(page)).filter((request) => request.method === 'agentSession.reveal')
+@@ -313,7 +313,7 @@ describeRender('the actual mobile project conversation list', () => {
+           href: expect.stringContaining('paneKey=structured-agent-session-saved-empty')
+         })
+       ])
+-    await page.getByRole('button', { name: 'Review the onboarding plan', exact: true }).click()
++    await page.getByRole('button', { name: /^Review the onboarding plan(?:\. |$)/ }).click()
+     await expect
+       .poll(() => notifies(page))
+       .toEqual(
+@@ -340,9 +340,7 @@ describeRender('the actual mobile project conversation list', () => {
+     await page.getByText('master', { exact: true }).first().waitFor()
+     await proof(page, 'before-workspaces-preserved')
+     await page.getByRole('button', { name: 'К проектам', exact: true }).click()
+-    await page
+-      .getByRole('button', { name: 'Clearer conversation navigation', exact: true })
+-      .waitFor()
++    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\. |$)/ }).waitFor()
+     expect(errors).toEqual([])
+     await page.close()
+   }, 60_000)
+diff --git a/config/scripts/orcad-docker-source-metadata.test.mjs b/config/scripts/orcad-docker-source-metadata.test.mjs
+index fbddc549143..a79f35727d9 100644
+--- a/config/scripts/orcad-docker-source-metadata.test.mjs
++++ b/config/scripts/orcad-docker-source-metadata.test.mjs
+@@ -68,13 +68,13 @@ it.skipIf(process.platform === 'win32')(
+   async () => {
+     const docker = resolve(import.meta.dirname, '../docker/orcad')
+     await mkdir(join(root, 'config/docker/orcad'), { recursive: true })
+-    await mkdir(join(root, 'config/scripts'), { recursive: true })
++    await mkdir(join(root, 'config/scripts/tool-invocation'), { recursive: true })
+     for (const file of ['build-support.mjs', 'source-metadata.mjs']) {
+       await copyFile(join(docker, file), join(root, 'config/docker/orcad', file))
+     }
+     await copyFile(
+-      resolve(import.meta.dirname, 'script-entry-detection.mjs'),
+-      join(root, 'config/scripts/script-entry-detection.mjs')
++      resolve(import.meta.dirname, 'tool-invocation/script-entry-detection.mjs'),
++      join(root, 'config/scripts/tool-invocation/script-entry-detection.mjs')
+     )
+     await mkdir(join(root, 'node_modules/esbuild'), { recursive: true })
+     await writeFile(
+diff --git a/config/scripts/orcad-source-commit.mjs b/config/scripts/orcad-source-commit.mjs
+index 40d120bde1b..f7287ff6cb9 100644
+--- a/config/scripts/orcad-source-commit.mjs
++++ b/config/scripts/orcad-source-commit.mjs
+@@ -1,4 +1,4 @@
+-import { resolveBuildSourceCommit } from './build-source-commit.mjs'
++import { resolveBuildSourceCommit } from './build-identity/build-source-commit.mjs'
+ 
+ export function resolveOrcadSourceCommit(
+   env = process.env,
+diff --git a/mobile/package.json b/mobile/package.json
+index 486fa1cda28..d864d79e6a5 100644
+--- a/mobile/package.json
++++ b/mobile/package.json
+@@ -10,8 +10,8 @@
+     "native": "node scripts/native-client.mjs",
+     "postinstall": "node scripts/build-terminal-webview-engine.mjs && node scripts/build-mermaid-page-engine.mjs && node scripts/build-terminal-document-script.mjs",
+     "test": "vitest run",
+-    "typecheck": "node ../config/scripts/run-typecheck-projects-in-parallel.mjs --project=mobile/tsconfig.json",
+-    "typecheck:tests": "node ../config/scripts/run-typecheck-projects-in-parallel.mjs --project=mobile/tsconfig.test.json",
++    "typecheck": "node ../config/scripts/typecheck/project-execution/run-typecheck-projects-in-parallel.mjs --project=mobile/tsconfig.json",
++    "typecheck:tests": "node ../config/scripts/typecheck/project-execution/run-typecheck-projects-in-parallel.mjs --project=mobile/tsconfig.test.json",
+     "check:tests-typecheck": "node scripts/check-tests-typecheck-ratchet.mjs",
+     "rpc:record": "tsx --conditions=orca-source scripts/rpc-recording.mts",
+     "rpc:diff": "tsx --conditions=orca-source scripts/rpc-diff.mts",
 diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
 index 2219cd1a772..d1a51b84c6f 100644
 --- a/mobile/src/host-screen/project-conversations.test.ts
@@ -882,6 +1023,33 @@ index 10522d92816..00000000000
 -    expect(vi.getTimerCount()).toBe(0)
 -  })
 -})
+diff --git a/mobile/src/session/mobile-structured-agent-session-contract.ts b/mobile/src/session/mobile-structured-agent-session-contract.ts
+index 7efe63cf18a..45efdf9327a 100644
+--- a/mobile/src/session/mobile-structured-agent-session-contract.ts
++++ b/mobile/src/session/mobile-structured-agent-session-contract.ts
+@@ -97,6 +97,7 @@ export type MobileStructuredAgentOptionsArgs = {
+   mutate: StructuredAgentSessionMutate
+   optionStamp?: string
+   turnId: string | null
++  hasTurn?: boolean
+   hostSupport: Pick<
+     StructuredAgentSessionHostSupport,
+     | 'permissionModes'
+diff --git a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
+index e27bb8b61f8..786a63286f7 100644
+--- a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
++++ b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
+@@ -315,9 +315,7 @@ export function MobileNativeChatSessionOptionPickers({
+                     onToggle: () => setMoreModelsShown((shown) => !shown)
+                   },
+                   onReset: controller.optionSurface?.resetOption
+-                    ? () => {
+-                        void controller.optionSurface?.resetOption?.(activeDescriptor.id)
+-                      }
++                    ? () => void controller.optionSurface?.resetOption?.(activeDescriptor.id)
+                     : undefined,
+                   ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
+                 },
 diff --git a/mobile/src/session/native-chat/mobile-native-chat-reading-place.test.tsx b/mobile/src/session/native-chat/mobile-native-chat-reading-place.test.tsx
 index 97fee314823..9e324bafce0 100644
 --- a/mobile/src/session/native-chat/mobile-native-chat-reading-place.test.tsx
@@ -927,6 +1095,18 @@ index 97fee314823..9e324bafce0 100644
  it('retains already-displayed prose when an async older page supplies its settled turn opener', async () => {
    const rows = Array.from({ length: 60 }, (_, i) => ({
      ...say(`m${i}`, i % 30 === 0 ? 'user' : 'assistant', `Message ${i}`),
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx
+index 271068121b0..b624dbec6fa 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx
+@@ -64,7 +64,6 @@ vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
+ 
+ import { nativeChatReasoningDisclosureKey } from '../../../../../src/shared/native-chat/transcript/native-chat-reasoning-row'
+ import { MobileNativeChatMessage } from './MobileNativeChatMessage'
+-import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
+ import {
+   APPROVED_REVIEW,
+   approvalReviewMessage
 diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatToolRun.test.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatToolRun.test.tsx
 index edbbb5cdfe7..59a2509838d 100644
 --- a/mobile/src/session/native-chat/transcript/MobileNativeChatToolRun.test.tsx
@@ -980,6 +1160,39 @@ index edbbb5cdfe7..59a2509838d 100644
    function openRun(tree: ReactTestRenderer): void {
      act(() => {
        tree.root.findAll((node) => String(node.type) === 'Pressable')[0]!.props.onPress()
+diff --git a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
+index 188d801b8d6..521ff2346ab 100644
+--- a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
++++ b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
+@@ -8,9 +8,6 @@ import { structuredSendResultFixture } from './structured-agent-send-result.test
+ import { createElement, useState } from 'react'
+ import { act, create, type ReactTestRenderer } from 'react-test-renderer'
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+-import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
+-import '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
+-import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
+ import type { RpcClient } from '../transport/rpc-client'
+ import {
+   fieldsOf,
+@@ -23,10 +20,6 @@ import { useMobileStructuredAgentSession } from './use-mobile-structured-agent-s
+ import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
+ import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
+ import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
+-import {
+-  AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
+-  AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY
+-} from '../../../src/shared/agent-session/agent-session-runtime-capabilities'
+ import {
+   AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY,
+   AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY
+@@ -68,7 +61,6 @@ describe('mobile structured send actions', () => {
+   let storedOperations: Map<string, string>
+   let agent = 'codex'
+   let sessionCommands: readonly AgentSessionSlashCommand[] | undefined
+-  let sendOrdinary: ReturnType<typeof useMobileStructuredNativeChatSendBridge>['sendWithOutcome']
+   let sessionId = 'session-1'
+   let hostSupport: StructuredAgentSessionHostSupport | null = null
+   let bridge: ReturnType<typeof useMobileStructuredNativeChatSendBridge>
 diff --git a/mobile/src/session/use-mobile-structured-native-chat-send-bridge.ts b/mobile/src/session/use-mobile-structured-native-chat-send-bridge.ts
 index b9eea896c86..5d0d0c711da 100644
 --- a/mobile/src/session/use-mobile-structured-native-chat-send-bridge.ts
@@ -989,6 +1202,119 @@ index b9eea896c86..5d0d0c711da 100644
  import { useCallback } from 'react'
  import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
  import type { StructuredAgentId } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle'
+diff --git a/mobile/src/test-support/rpc-recording/subscription-recording.test.ts b/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
+index cd79e4d187a..c41a3e56e07 100644
+--- a/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
++++ b/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
+@@ -330,7 +330,7 @@ describe('actual stream result partitions', () => {
+                     crash: captureValue(null)
+                   }
+             )
+-            expect(run.requests).toHaveLength(operation === 'session.live-worktree-name' ? 1 : 0)
++            expect(run.requests).toHaveLength(operation === 'session.live-worktree-name' ? 2 : 0)
+             expect(run.effects.filter((effect) => effect.name === 'stream-listener-crash')).toEqual(
+               []
+             )
+@@ -350,7 +350,13 @@ describe('actual stream result partitions', () => {
+                 name: 'Feature Work Renamed',
+                 resolution: 'present'
+               })
+-              expect(run.requests).toHaveLength(2)
++              expect(
++                run.requests.map((request) => (Array.isArray(request) ? request[0] : null))
++              ).toEqual([
++                { name: 'method', value: 'worktree.show' },
++                { name: 'method', value: 'repo.show' },
++                { name: 'method', value: 'worktree.show' }
++              ])
+             } else if (operation === 'session.native-chat-page') {
+               expect(last.state).toMatchObject({
+                 messageIds:
+diff --git a/src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-entry.ts b/src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-entry.ts
+index dc558d263c1..05cd9573afe 100644
+--- a/src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-entry.ts
++++ b/src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-entry.ts
+@@ -1,5 +1,6 @@
+ import { existsSync } from 'node:fs'
+-import { Worker } from 'node:worker_threads'
++import type { Worker } from 'node:worker_threads'
++import { spawnWorkerThread } from '../../../../worker-threads/worker-thread-spawn'
+ import { findForeignSqliteReaderEntry } from '../../../../foreign-sqlite-readers/foreign-sqlite-reader-entry-path'
+ 
+ export function resolveOpenCodeSqliteWorkerEntryPath(
+@@ -15,5 +16,5 @@ export function createOpenCodeSqliteWorker(): Worker {
+   if (!existsSync(workerPath)) {
+     throw new Error(`OpenCode SQLite worker entry not found: ${workerPath}`)
+   }
+-  return new Worker(workerPath)
++  return spawnWorkerThread(workerPath)
+ }
+diff --git a/src/main/codex/structured/acquisition/codex-structured-acquisition-lifecycle.ts b/src/main/codex/structured/acquisition/codex-structured-acquisition-lifecycle.ts
+index f3458d3d7e4..720ed96e8ab 100644
+--- a/src/main/codex/structured/acquisition/codex-structured-acquisition-lifecycle.ts
++++ b/src/main/codex/structured/acquisition/codex-structured-acquisition-lifecycle.ts
+@@ -1,3 +1,9 @@
++import {
++  agentSessionFailureFact,
++  providerDiagnosticOf
++} from '../../../../shared/agent-session/failures/agent-session-failure'
++import { providerSpawnAbsent } from '../../../provider-process/provider-executable-missing'
++import { providerStartupFailureFact } from '../../../native-chat/agent-session-wire/structured-agent-session-failure-text'
+ import '../../../native-chat/agent-session-wire/structured-agent-session-adapter'
+ import {
+   AgentSessionAcquisitionExitUnprovenError,
+@@ -61,3 +67,11 @@ export async function closeFailedCodexAcquisition(input: {
+   }
+   throw input.cause
+ }
++
++export function codexAcquisitionExitFailure(error: Error, cancelled: boolean) {
++  return cancelled
++    ? agentSessionFailureFact('hostFault')
++    : providerSpawnAbsent(error)
++      ? providerStartupFailureFact(error)
++      : agentSessionFailureFact('providerExited', { detail: providerDiagnosticOf(error) })
++}
+diff --git a/src/main/codex/structured/acquisition/codex-structured-session-acquire.ts b/src/main/codex/structured/acquisition/codex-structured-session-acquire.ts
+index 8b52f2f0642..a4dc156a793 100644
+--- a/src/main/codex/structured/acquisition/codex-structured-session-acquire.ts
++++ b/src/main/codex/structured/acquisition/codex-structured-session-acquire.ts
+@@ -10,6 +10,7 @@ import type {
+ import { launchPreparationFailure } from '../../../native-chat/agent-session-wire/structured-agent-session-adapter-errors'
+ import {
+   closeFailedCodexAcquisition,
++  codexAcquisitionExitFailure,
+   stopSupersededCodexAcquisition
+ } from './codex-structured-acquisition-lifecycle'
+ import { CodexSubagentExecutions } from '../background-work/codex-subagent-executions'
+@@ -22,12 +23,6 @@ import {
+   handleCodexSessionExit
+ } from '../session-lifecycle/codex-structured-session-close'
+ import { openCodexStructuredSession } from '../session-lifecycle/codex-structured-session-start'
+-import {
+-  agentSessionFailureFact,
+-  providerDiagnosticOf
+-} from '../../../../shared/agent-session/failures/agent-session-failure'
+-import { providerSpawnAbsent } from '../../../provider-process/provider-executable-missing'
+-import { providerStartupFailureFact } from '../../../native-chat/agent-session-wire/structured-agent-session-failure-text'
+ import {
+   assertCodexConnectionOpen,
+   mintCodexAcquisitionGeneration,
+@@ -197,13 +192,7 @@ export async function acquireCodexStructuredSession(input: {
+                   attempt.cancelled && attempt.requestedClose !== false
+                     ? 'requested-close'
+                     : 'unexpected-exit',
+-                failure: attempt.cancelled
+-                  ? agentSessionFailureFact('hostFault')
+-                  : providerSpawnAbsent(error)
+-                    ? providerStartupFailureFact(error)
+-                    : agentSessionFailureFact('providerExited', {
+-                        detail: providerDiagnosticOf(error)
+-                      }),
++                failure: codexAcquisitionExitFailure(error, attempt.cancelled),
+                 observedAt: deps.now?.() ?? Date.now()
+               })
+             }
 diff --git a/src/main/native-chat/agent-session-wire/structured-agent-session-codex-input-finalization.spec.ts b/src/main/native-chat/agent-session-wire/structured-agent-session-codex-input-finalization.spec.ts
 index ad84e711862..41cdcdd03b7 100644
 --- a/src/main/native-chat/agent-session-wire/structured-agent-session-codex-input-finalization.spec.ts
@@ -1032,41 +1358,376 @@ index 00000000000..4156e2a59cf
 +  })
 +  return !turned
 +}
-diff --git a/src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx b/src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx
-index 9bdb67b0036..3396359e920 100644
---- a/src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx
-@@ -59,7 +59,7 @@ import {
-   windowState
- } from './NativeChatMessageList.windowing-test-support'
+diff --git a/src/main/runtime/agent-session/codex-turn-end-settlement.test-fixture.ts b/src/main/runtime/agent-session/codex-turn-end-settlement.test-fixture.ts
+new file mode 100644
+index 00000000000..bd77b2d233f
+--- /dev/null
++++ b/src/main/runtime/agent-session/codex-turn-end-settlement.test-fixture.ts
+@@ -0,0 +1,15 @@
++import { classifyDispatchRejection } from '../../../shared/agent-session/requests/structured-agent-session-dispatch-rejection'
++import type { AgentJournalSubmission } from '../../../shared/agent-session/journal/agent-session-journal-types'
++
++export function verdictOf(submissions: readonly AgentJournalSubmission[], clientMessageId: string) {
++  const submission = submissions.find((entry) => entry.clientMessageId === clientMessageId)
++  return submission?.dispatchState === 'rejected'
++    ? classifyDispatchRejection(submission).category
++    : submission?.dispatchState
++}
++
++let operations = 0
++
++/** The durable ledger stamps its own clock and refuses an id far from it. */
++export const operationId = (): string =>
++  `${Date.now()}-${(++operations).toString(16).padStart(32, '0')}`
+diff --git a/src/main/runtime/agent-session/structured-agent-session-codex-turn-end-settlement.test.ts b/src/main/runtime/agent-session/structured-agent-session-codex-turn-end-settlement.test.ts
+index 901d4776208..7b60dfd13b6 100644
+--- a/src/main/runtime/agent-session/structured-agent-session-codex-turn-end-settlement.test.ts
++++ b/src/main/runtime/agent-session/structured-agent-session-codex-turn-end-settlement.test.ts
+@@ -1,6 +1,6 @@
+ import { AGENT_SESSION_GOAL_CONTROL_COPY } from '../../../shared/agent-session/view/agent-session-goal-control-copy'
+ import { readAgentJournalTurn } from '../../../shared/agent-session/lifecycle/agent-session-turn-record'
+-import { classifyDispatchRejection } from '../../../shared/agent-session/requests/structured-agent-session-dispatch-rejection'
++import { operationId, verdictOf } from './codex-turn-end-settlement.test-fixture'
+ import type { AgentJournalSubmission } from '../../../shared/agent-session/journal/agent-session-journal-types'
+ import { computeAgentSessionPayloadFingerprint } from '../../../shared/agent-session/lifecycle/agent-session-mutation-envelope'
+ import { CODEX_TURN_OPEN_WAIT_MS } from '../../codex/structured/turns/codex-structured-turn-open-wait'
+@@ -95,10 +95,6 @@ let interruptsFail: boolean
+ /** Codex takes the interrupt and answers it; the test sends that turn's end later. */
+ let interruptEndHeld: boolean
+ let turns: ReturnType<typeof codexTurnLifecycleFake>
+-let operations = 0
+-
+-/** The durable ledger stamps its own clock and refuses an id far from it. */
+-const operationId = (): string => `${Date.now()}-${(++operations).toString(16).padStart(32, '0')}`
  
--const childNavigation = { open: () => {} }
-+const childNavigation = { open: vi.fn() }
+ function envelope(method: string, fields: Record<string, unknown>) {
+   return {
+@@ -199,13 +195,6 @@ async function expectUnconfirmedOriginal(id: string, text: string): Promise<void
+   expect(journal.queuedMessages.get(`recovery:${id}`)).toBeNull()
+ }
  
- {
-   function journalItem(
-@@ -261,7 +261,7 @@ const childNavigation = { open: () => {} }
-       expect(screen.getByRole('button', { name: /Ran 1 subagent/, expanded: false })).toBeVisible()
-     })
+-function verdictOf(submissions: readonly AgentJournalSubmission[], clientMessageId: string) {
+-  const submission = submissions.find((entry) => entry.clientMessageId === clientMessageId)
+-  return submission?.dispatchState === 'rejected'
+-    ? classifyDispatchRejection(submission).category
+-    : submission?.dispatchState
+-}
+-
+ beforeEach(async () => {
+   root = await mkdtemp(join(tmpdir(), 'orca-codex-turn-end-'))
+   openWaits.turnIds.length = 0
+diff --git a/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts b/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
+index 36369fd6c5a..14b4bc6db77 100644
+--- a/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
++++ b/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
+@@ -252,9 +252,17 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+     }
+     await sendGroupMessage({
+       params: { subject: 's', body: 'b', type: 'status', priority: 'normal' },
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides every runtime method used by discovery and notification.
+       runtime: runtime as never,
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides each query and insert used by the exercised send path.
+       db: db as never,
+       from: 'term_sender',
++      sender: {
++        address: 'term_sender',
++        terminalHandle: 'term_sender',
++        paneKey: null,
++        orcaSessionId: null
++      },
+       // `@worktree:` is the one group that still enumerates agents; the Run groups read
+       // Dispatch rows, where a structured worker's identity is looked up by this same handle.
+       groupAddress: '@worktree:wt_2',
+@@ -265,7 +273,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       revalidateLegacyCoordinator: undefined,
+       recordMutationReceipt: undefined,
+       withSendWarnings: (receipt) => receipt
+-    } as never)
++    })
+     expect(inserted.map((row) => row.to)).toEqual([handle])
+   })
  
--    it('reveals a child edit from the parent rollup when child conversation navigation is available', () => {
-+    it('shows the child patch from the parent rollup without opening its conversation', () => {
-       vi.spyOn(HTMLElement.prototype, 'scrollTo').mockImplementation(() => {})
-       render(
-         <NativeChatChildNavigationContext.Provider value={childNavigation}>
-@@ -269,10 +269,10 @@ const childNavigation = { open: () => {} }
-         </NativeChatChildNavigationContext.Provider>
+@@ -314,10 +322,11 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       getOrchestrationDb: () => db,
+       notifyMessageArrived: () => {}
+     }
+-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the stub cast is unchanged; the gate flags it only because this diff adds the sender field inside its span.
+     await sendGroupMessage({
+       params: { subject: 's', body: 'b', type: 'status', priority: 'normal' },
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides every runtime method used by discovery and notification.
+       runtime: runtime as never,
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides each query and insert used by the exercised send path.
+       db: db as never,
+       from: 'term_sender',
+       groupAddress: '@codex',
+@@ -334,7 +343,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       revalidateLegacyCoordinator: undefined,
+       recordMutationReceipt: undefined,
+       withSendWarnings: (receipt) => receipt
+-    } as never)
++    })
+     expect(inserted.map((row) => row.to)).toEqual(['dispatch:ctx_structured'])
+   })
+ })
+diff --git a/src/main/runtime/rpc/methods/orchestration/messaging/mutation-replay-nudge.ts b/src/main/runtime/rpc/methods/orchestration/messaging/mutation-replay-nudge.ts
+index 2ccf77ff8a1..1e72ee86c78 100644
+--- a/src/main/runtime/rpc/methods/orchestration/messaging/mutation-replay-nudge.ts
++++ b/src/main/runtime/rpc/methods/orchestration/messaging/mutation-replay-nudge.ts
+@@ -1,6 +1,8 @@
+ import type { OrcaRuntimeService } from '../../../../orca-runtime'
+ import {
+   attachMutationReplayNudge,
++  readMutationReplayNudge,
++  readWorkerDoneReplayNudge,
+   type MutationReplayNudge
+ } from '../../../orchestration-mutation-receipt'
+ 
+@@ -63,3 +65,14 @@ export function replayMutationNudge(
+     runtime.notifyMessageArrived(target.to, target.type)
+   }
+ }
++
++export function readSendReplayNudge(
++  params: unknown,
++  receipt: unknown
++): MutationReplayNudge | undefined {
++  const legacy = readWorkerDoneReplayNudge('orchestration.send', params, receipt)
++  return (
++    readMutationReplayNudge(receipt) ??
++    (legacy ? { kind: 'messages', targets: [legacy] } : undefined)
++  )
++}
+diff --git a/src/main/runtime/rpc/methods/orchestration/messaging/send-methods.ts b/src/main/runtime/rpc/methods/orchestration/messaging/send-methods.ts
+index 525cc1c25de..16fd53c9b1c 100644
+--- a/src/main/runtime/rpc/methods/orchestration/messaging/send-methods.ts
++++ b/src/main/runtime/rpc/methods/orchestration/messaging/send-methods.ts
+@@ -20,12 +20,8 @@ import {
+   resolveRunBoundDispatchRecipient,
+   type SendRecipientWarning
+ } from './recipient-routing'
+-import {
+-  readMutationReplayNudge,
+-  readWorkerDoneReplayNudge,
+-  stripMutationReplayNudge
+-} from '../../../orchestration-mutation-receipt'
+-import { replayMutationNudge } from './mutation-replay-nudge'
++import { stripMutationReplayNudge } from '../../../orchestration-mutation-receipt'
++import { readSendReplayNudge, replayMutationNudge } from './mutation-replay-nudge'
+ import { handBackReplayTargets } from '../../../../orchestration/db/messages/helper-mailbox-hand-back'
+ import { sendRemoteMessage } from './send-remote'
+ import { mayNameSession } from './session-recipient'
+@@ -64,16 +60,7 @@ export const ORCHESTRATION_SEND_METHODS = [
+       }
+     ) => {
+       const db = runtime.getOrchestrationDb()
+-      const legacyReplayNudge = readWorkerDoneReplayNudge(
+-        'orchestration.send',
+-        params,
+-        replayedMutationReceipt
+-      )
+-      const replayNudge =
+-        readMutationReplayNudge(replayedMutationReceipt) ??
+-        (legacyReplayNudge
+-          ? { kind: 'messages' as const, targets: [legacyReplayNudge] }
+-          : undefined)
++      const replayNudge = readSendReplayNudge(params, replayedMutationReceipt)
+       if (replayNudge) {
+         replayMutationNudge(runtime, replayNudge)
+         const settled =
+diff --git a/src/main/runtime/rpc/methods/structured-agent-session-options-perf.test.ts b/src/main/runtime/rpc/methods/structured-agent-session-options-perf.test.ts
+index efc2a3da1dd..fc75d9cb2a5 100644
+--- a/src/main/runtime/rpc/methods/structured-agent-session-options-perf.test.ts
++++ b/src/main/runtime/rpc/methods/structured-agent-session-options-perf.test.ts
+@@ -77,7 +77,7 @@ it.each([100, 1_000])(
+     const elapsedMs = performance.now() - started
+     expect(copies).toBe(models) // Getter observes actual spread copies in the production fallback map.
+     expect(fallbackModels).toHaveBeenCalledTimes(1)
+-    expect(catalogRead).toHaveBeenCalledTimes(2) // Scoped inventory and proof; atRest is reused.
++    expect(catalogRead).toHaveBeenCalledTimes(3) // Scope identity, inventory and proof; atRest is reused.
+     expect(answer.models).toHaveLength(models)
+     expect(answer.models.every((row) => !row.isDefault)).toBe(true)
+     expect(answer.current.model).toBeUndefined()
+diff --git a/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx b/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
+index a0267c3fa62..83928ec8c46 100644
+--- a/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
++++ b/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
+@@ -265,7 +265,7 @@ async function open(agent: string) {
+   fireEvent.click(configure)
+   await waitFor(() => expect(textarea()).not.toBeNull())
+   await waitFor(() =>
+-    expect(screen.getByRole('radio', { name: 'Low' }).hasAttribute('disabled')).toBe(false)
++    expect(screen.getByRole('slider').getAttribute('aria-disabled')).not.toBe('true')
+   )
+ }
+ async function useDraft(surface: 'chat' | 'terminal' = 'terminal') {
+@@ -324,23 +324,24 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
+   render(<NewWorkspaceComposerModal />, { wrapper: TooltipProvider })
+   await open('Claude')
+   const start = snapshot('w1-before')
+-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
++  fireEvent.keyDown(screen.getByRole('slider'), { key: 'Home' })
+   fireEvent.change(textarea(), { target: { value: '--verbose' } })
+   await useDraft()
+   evidence.phase = 'w1-immediate-reopen'
+   await open('Claude')
+   expect(textarea().value).toBe('--verbose')
+-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+   const echo = snapshot('w1-echo')
+   expect(echo.initial?.choices.options?.effort).toBe('low')
+   expect(echo.initial?.arguments).toBe('--verbose')
+   await visit('W2 folder')
+   evidence.phase = 'w2-codex'
+   await open('Codex')
+-  fireEvent.click(screen.getByRole('radio', { name: 'Med' }))
++  fireEvent.keyDown(screen.getByRole('slider'), { key: 'Home' })
++  fireEvent.keyDown(screen.getByRole('slider'), { key: 'ArrowRight' })
+   await useDraft()
+   await open('Codex')
+-  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
++  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Medium')
+   const w2 = last('codex')
+   await visit('W1 git')
+   evidence.phase = 'w1-return'
+@@ -350,17 +351,17 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
+   expect(returned.authority).toBe(start.authority)
+   expect(returned.initial).toBeUndefined()
+   expect.soft(textarea().value).toBe('--verbose')
+-  expect.soft(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect.soft(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+   fireEvent.change(textarea(), { target: { value: '--pending-after-accepted' } })
+   await visit('W2 folder')
+   await open('Codex')
+-  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
++  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Medium')
+   expect(last('codex').authority).toBe(w2.authority)
+   expect(textarea().value).toBe('')
+   await visit('W1 git')
+   await open('Claude')
+   expect(textarea().value).toBe('--pending-after-accepted')
+-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+   expect(evidence.submit).not.toHaveBeenCalled()
+ })
+ 
+diff --git a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
+index 70b0928631e..99b456f192b 100644
+--- a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
++++ b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
+@@ -1,7 +1,6 @@
+ // @vitest-environment happy-dom
+ import { act } from 'react'
+ import { fireEvent, getByRole } from '@testing-library/react'
+-import userEvent from '@testing-library/user-event'
+ import { createRoot, type Root } from 'react-dom/client'
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+ import { TooltipProvider } from '@/components/ui/tooltip'
+@@ -139,21 +138,19 @@ describe('setup records exist only for authored setups', () => {
+         </TooltipProvider>
        )
-       expect(screen.queryByText('The PR is CLEAN.')).toBeNull()
--      fireEvent.click(screen.getByRole('button', { name: /1 changed file/ }))
-       fireEvent.click(screen.getByRole('button', { name: /src\/a.ts/ }))
-       expect(screen.getByText('Edited')).toBeVisible()
--      expect(screen.getByText('The PR is CLEAN.')).toBeVisible()
-+      expect(screen.queryByText('The PR is CLEAN.')).toBeNull()
-+      expect(childNavigation.open).not.toHaveBeenCalled()
-     })
+     )
+-    const user = userEvent.setup()
+     const [plain, searched] = document.querySelectorAll<HTMLButtonElement>(
+       'button[aria-label="Configure claude"]'
+     )
+     const prompt = () =>
+       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
+-    const effort = (label: string) =>
+-      getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
++    const effort = () => getByRole(document.body, 'slider').getAttribute('aria-valuetext')
+     const model = () => document.querySelector('[cmdk-item][data-current="true"]')?.textContent
+     const close = () => fireEvent.keyDown(document.querySelector('textarea')!, { key: 'Escape' })
  
-     // Journal turn records own subagent edits, even when a newer send is queued or the opener is unloaded.
+     // Opening a preset saves nothing, and the plain row still shows defaults.
+     fireEvent.click(searched)
+     expect(model()).toBe('opus')
+-    expect(effort('High')).toBe('on')
++    expect(effort()).toBe('High')
+     close()
+     expect(sourceCount()).toBe(0)
+     fireEvent.click(plain)
+@@ -164,14 +161,14 @@ describe('setup records exist only for authored setups', () => {
+ 
+     // A real change saves into that preset's slot only and survives close and reopen.
+     fireEvent.click(searched)
+-    await user.click(getByRole(document.body, 'radio', { name: 'Low' }))
+-    expect(effort('Low')).toBe('on')
++    fireEvent.keyDown(getByRole(document.body, 'slider'), { key: 'Home' })
++    expect(effort()).toBe('Low')
+     expect(sourceCount()).toBe(1)
+     changePrompt(prompt(), 'review the diff')
+     close()
+     fireEvent.click(searched)
+     expect(model()).toBe('opus')
+-    expect(effort('Low')).toBe('on')
++    expect(effort()).toBe('Low')
+     close()
+ 
+     // The plain row keeps its own options but shares the workspace's typed prompt.
+diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
+index 961db140cea..f78dc23b197 100644
+--- a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
++++ b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
+@@ -49,7 +49,7 @@ it.each(['omitted', 'efforts replaced'])(
+     })
+     fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
+     fireEvent.click(screen.getByRole('option', { name: 'GPT-6.1 Sol' }))
+-    fireEvent.click(screen.getByRole('radio', { name: 'High' }))
++    fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'End' })
+     act(() =>
+       useAppStore.setState(({ settings }) => ({
+         settings: {
+diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
+index 6ba15a3e597..65060b426f0 100644
+--- a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
++++ b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
+@@ -47,7 +47,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
+   })
+   fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
+   fireEvent.click(screen.getByRole('option', { name: 'GPT-5.4' }))
+-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
++  fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'Home' })
+   fireEvent.click(screen.getByRole('button', { name: /^Use$/ }))
+   await waitFor(() =>
+     expect(useAppStore.getState().settings?.commitMessageAi).toMatchObject({
+diff --git a/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx b/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx
+new file mode 100644
+index 00000000000..4c4e83238db
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx
+@@ -0,0 +1,32 @@
++// @vitest-environment happy-dom
++import '@testing-library/jest-dom/vitest'
++import { cleanup, fireEvent, screen } from '@testing-library/react'
++import { render } from './native-chat-tooltip-test-harness'
++import { afterEach, it, expect, vi } from 'vitest'
++import { NativeChatComposerActions } from './NativeChatComposerActions'
++afterEach(cleanup)
++it('keeps delivery preferences out of the busy composer', () => {
++  const onStop = vi.fn()
++  render(
++    <NativeChatComposerActions
++      attachDisabled={false}
++      dictationDisabled={false}
++      sendDisabled={false}
++      isWorking
++      isDictating={false}
++      isDictationHoldMode={false}
++      onAttach={vi.fn()}
++      onDictationToggle={vi.fn()}
++      onDictationHoldStart={vi.fn()}
++      onDictationHoldEnd={vi.fn()}
++      onSend={vi.fn()}
++      onStop={onStop}
++      sessionOptionsSurface={null}
++      sessionOptionsSnapshot={[]}
++    />
++  )
++  expect(screen.queryByRole('button', { name: 'Queue' })).toBeNull()
++  expect(screen.queryByRole('button', { name: 'Draft actions' })).toBeNull()
++  fireEvent.click(screen.getByRole('button', { name: 'Stop the agent' }))
++  expect(onStop).toHaveBeenCalledOnce()
++})
 diff --git a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx b/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
 index 620770211ab..1b8398a59e4 100644
 --- a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
@@ -1081,18 +1742,297 @@ index 620770211ab..1b8398a59e4 100644
  import {
    useNativeChatPendingDelivery,
    useNativeChatOptimisticSend
+diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx
+new file mode 100644
+index 00000000000..4019f5438b5
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx
+@@ -0,0 +1,93 @@
++// @vitest-environment happy-dom
++import '@testing-library/jest-dom/vitest'
++import './native-chat-option-picker-ui.test-fixture'
++import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
++import { afterEach, it, expect, vi } from 'vitest'
++import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
++import { model, effort, unknownEffort } from './native-chat-option-picker.test-fixture'
++import { CODEX_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session/options/agent-session-option-catalog-claude-codex'
++import {
++  applyStructuredAgentSessionOptions,
++  createStructuredAgentSessionOptionState
++} from '../../../../shared/agent-session/options/structured-agent-session-options'
++import { structuredAgentSessionOptionSnapshot } from '../../../../shared/agent-session/options/structured-agent-session-option-snapshot'
++const surface = {
++  getSnapshot: () => [],
++  setOption: vi.fn(),
++  invokeAction: vi.fn(),
++  subscribe: () => () => {}
++}
++const effortSlider = (): HTMLElement => screen.getByRole('slider', { name: 'Effort' })
++const pickEffort = (key = 'Home'): boolean => fireEvent.keyDown(effortSlider(), { key })
++afterEach(cleanup)
++it('keeps the current effort passive and adjusts it only through the slider', async () => {
++  const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
++  render(
++    <NativeChatSessionOptionPickers
++      surface={{ ...surface, setOption }}
++      snapshot={[model(), effort]}
++      isWorking={false}
++    />
++  )
++  expect(screen.queryByRole('button', { name: 'High' })).toBeNull()
++  fireEvent.click(screen.getAllByText('High')[0]!)
++  expect(setOption).not.toHaveBeenCalled()
++  expect(effortSlider().tabIndex).toBe(0)
++  expect(effortSlider().getAttribute('aria-valuetext')).toBe('High')
++  pickEffort('Home')
++  await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'low'))
++})
++
++it('keeps an unlisted reported effort read-only through the actual snapshot pipeline', () => {
++  const state = applyStructuredAgentSessionOptions(
++    createStructuredAgentSessionOptionState('codex'),
++    CODEX_SESSION_OPTION_CATALOG,
++    {
++      models: [
++        {
++          id: 'account-model',
++          label: 'Account Model',
++          isDefault: true,
++          efforts: [
++            { value: 'low', label: 'Low' },
++            { value: 'high', label: 'High' }
++          ]
++        }
++      ],
++      current: { model: 'account-model', effort: 'unsupported-level', confirmed: ['effort'] }
++    }
++  )
++  const setOption = vi.fn()
++  render(
++    <NativeChatSessionOptionPickers
++      surface={{ ...surface, setOption }}
++      snapshot={structuredAgentSessionOptionSnapshot(state)}
++      isWorking={false}
++    />
++  )
++  expect(screen.queryByRole('slider', { name: 'Effort' })).toBeNull()
++  expect(screen.queryByRole('radio', { name: 'unsupported-level' })).toBeNull()
++  expect(screen.getAllByText('unsupported-level').length).toBeGreaterThan(0)
++  expect(setOption).not.toHaveBeenCalled()
++})
++
++it('keeps an unknown effort unreported until a supported choice is committed', async () => {
++  const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
++  render(
++    <NativeChatSessionOptionPickers
++      surface={{ ...surface, setOption }}
++      snapshot={[model(), unknownEffort]}
++      isWorking={false}
++    />
++  )
++  const group = screen.getByRole('radiogroup', { name: 'Effort' })
++  expect(screen.queryByRole('slider')).toBeNull()
++  expect(
++    within(group)
++      .getAllByRole('radio')
++      .every((radio) => radio.getAttribute('aria-checked') === 'false')
++  ).toBe(true)
++  expect(setOption).not.toHaveBeenCalled()
++  fireEvent.click(within(group).getByRole('radio', { name: 'High' }))
++  await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'high'))
++})
+diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx
+new file mode 100644
+index 00000000000..216670e2382
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx
+@@ -0,0 +1,73 @@
++// @vitest-environment happy-dom
++import '@testing-library/jest-dom/vitest'
++import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
++import { afterEach, it, expect, vi } from 'vitest'
++import { TooltipProvider } from '@/components/ui/tooltip'
++import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
++import type { NativeChatOptionPickerRequest } from './native-chat-composer-types'
++import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
++import {
++  model as createModel,
++  effort as baseEffort
++} from './native-chat-option-picker.test-fixture'
++const model = createModel()
++const effort: SessionOptionDescriptor = {
++  ...baseEffort,
++  kind: {
++    type: 'select',
++    currentValue: 'low',
++    choices: [
++      { value: 'low', label: 'Low' },
++      { value: 'high', label: 'High' }
++    ]
++  }
++}
++const surface = {
++  getSnapshot: () => [],
++  setOption: vi.fn(),
++  invokeAction: vi.fn(),
++  subscribe: () => () => {}
++}
++const settle = () => act(async () => {})
++async function openPicker() {
++  fireEvent.click(screen.getByRole('button', { name: /Opus 4.8/ }))
++  await settle()
++}
++afterEach(cleanup)
++it('does not focus or change a pending effort when /effort reopens the picker', async () => {
++  let finish = () => {}
++  const setOption = vi.fn(
++    () =>
++      new Promise<{ snapshot: SessionOptionDescriptor[] }>((resolve) => {
++        finish = () => resolve({ snapshot: [] })
++      })
++  )
++  const view = (request: NativeChatOptionPickerRequest | null) => (
++    <TooltipProvider>
++      <NativeChatSessionOptionPickers
++        surface={{ ...surface, setOption }}
++        snapshot={[model, effort]}
++        isWorking={false}
++        pickerRequest={request}
++      />
++    </TooltipProvider>
++  )
++  const { rerender } = render(view(null))
++  await openPicker()
++  fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'End' })
++  await settle()
++  expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'high')
++  rerender(view({ id: 'effort', consume: () => {} }))
++  await settle()
++  const slider = screen.getByRole('slider', { name: 'Effort' })
++  expect(slider.closest('[aria-disabled="true"]')).not.toBeNull()
++  expect(document.activeElement).toBe(screen.getByRole('combobox'))
++  expect(slider.tabIndex).toBe(-1)
++  fireEvent.keyDown(slider, { key: 'Home' })
++  if (document.activeElement) {
++    fireEvent.keyDown(document.activeElement, { key: 'Home' })
++  }
++  expect(slider.getAttribute('aria-valuetext')).toBe('High')
++  expect(setOption).toHaveBeenCalledTimes(1)
++  await act(async () => finish())
++})
 diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
-index 85a43855532..4718c8dcd1d 100644
+index 9f9ee195344..687eeddf1ef 100644
 --- a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
-@@ -99,7 +99,6 @@ const surface = {
-   subscribe: vi.fn(() => vi.fn())
- }
+@@ -6,64 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
  
--import { effort, fast, model, unknownEffort } from './native-chat-option-picker.test-fixture'
+ import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
  
- const settle = (): Promise<void> => act(async () => {})
+-const toastError = vi.hoisted(() => vi.fn())
+-vi.mock('sonner', () => ({ toast: { error: toastError } }))
+-
+-vi.mock('@/i18n/i18n', () => ({
+-  translate: (_key: string, fallback: string, values?: Record<string, string | number>) => {
+-    if (!values) {
+-      return fallback
+-    }
+-    return Object.entries(values).reduce(
+-      (text, [name, value]) => text.replaceAll(`{{${name}}}`, String(value)),
+-      fallback
+-    )
+-  }
+-}))
+-
+-vi.mock('@/components/ui/button', () => ({
+-  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+-    <button {...props}>{children}</button>
+-  )
+-}))
+-
+-vi.mock('@/components/ui/tooltip', () => ({
+-  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+-  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+-  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+-}))
+-
+-// Keep mocked rows mounted for assertions.
+-vi.mock('@/components/ui/popover', () => ({
+-  Popover: ({ children, open }: { children: React.ReactNode; open?: boolean }) => (
+-    <div data-testid="picker-root" data-open={open ? 'true' : 'false'}>
+-      {children}
+-    </div>
+-  ),
+-  PopoverTrigger: ({ children, disabled }: { children: React.ReactNode; disabled?: boolean }) => (
+-    <div data-disabled={disabled || undefined}>{children}</div>
+-  ),
+-  PopoverContent: ({
+-    children,
+-    side,
+-    align,
+-    collisionPadding
+-  }: {
+-    children: React.ReactNode
+-    side?: string
+-    align?: string
+-    collisionPadding?: number
+-  }) => (
+-    <div
+-      data-testid="picker-content"
+-      data-side={side}
+-      data-align={align}
+-      data-collision-padding={collisionPadding}
+-    >
+-      {children}
+-    </div>
+-  )
+-}))
++import './native-chat-option-picker-ui.test-fixture'
  
+ import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
+ import { model, effort } from './native-chat-option-picker.test-fixture'
+@@ -136,13 +79,25 @@ describe('NativeChatSessionOptionPickers', () => {
+   it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
+     const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
+     const fast: SessionOptionDescriptor = {
+-      id: 'fastMode', label: 'Fast mode', category: 'mode',
+-      kind: { type: 'boolean', currentValue: true }, valueSource: 'applied',
+-      transport: 'agent-session', settable: true
++      id: 'fastMode',
++      label: 'Fast mode',
++      category: 'mode',
++      kind: { type: 'boolean', currentValue: true },
++      valueSource: 'applied',
++      transport: 'agent-session',
++      settable: true
+     }
+-    render(<NativeChatSessionOptionPickers surface={busySurface}
+-      snapshot={[model({ transport: 'agent-session' }), { ...effort, transport: 'agent-session' }, fast]}
+-      isWorking />)
++    render(
++      <NativeChatSessionOptionPickers
++        surface={busySurface}
++        snapshot={[
++          model({ transport: 'agent-session' }),
++          { ...effort, transport: 'agent-session' },
++          fast
++        ]}
++        isWorking
++      />
++    )
+     screen.getByRole('option', { name: 'Sonnet 5' }).click()
+     await waitFor(() => expect(busySurface.setOption).toHaveBeenCalledWith('model', 'sonnet'))
+     pickEffort()
+@@ -180,9 +135,7 @@ describe('NativeChatSessionOptionPickers', () => {
+     expect(held()).toEqual(['false', 'false'])
+ 
+     pickEffort()
+-    await waitFor(() =>
+-      expect(effortSlider().getAttribute('aria-valuetext')).toBe('Low')
+-    )
++    await waitFor(() => expect(effortSlider().getAttribute('aria-valuetext')).toBe('Low'))
+     expect(pill('Model Opus 4.8, Effort Low')).not.toBeNull()
+     expect(held()).toEqual(['false', 'true'])
+     screen.getByRole('option', { name: 'Sonnet 5' }).click()
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx
 index f10d63388a2..b1f83bfe4f9 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx
@@ -1129,7 +2069,7 @@ index f10d63388a2..b1f83bfe4f9 100644
          controller,
          session,
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
-index c54bd62279f..ea7d19b3a8f 100644
+index 09abfc4e3c8..646f33ff159 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
 @@ -94,6 +94,7 @@ vi.mock('./NativeChatMessageList', () => ({
@@ -1153,6 +2093,128 @@ index e51dd72d32d..3af82b3cb16 100644
  import { buildNativeChatTranscriptSlots } from './native-chat-transcript-slots'
  import {
    buildNativeChatRailItems,
+diff --git a/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx b/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx
+new file mode 100644
+index 00000000000..c4a70d8bcc0
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx
+@@ -0,0 +1,60 @@
++import type React from 'react'
++import { vi } from 'vitest'
++const toastError = vi.hoisted(() => vi.fn())
++vi.mock('sonner', () => ({ toast: { error: toastError } }))
++
++vi.mock('@/i18n/i18n', () => ({
++  translate: (_key: string, fallback: string, values?: Record<string, string | number>) => {
++    if (!values) {
++      return fallback
++    }
++    return Object.entries(values).reduce(
++      (text, [name, value]) => text.replaceAll(`{{${name}}}`, String(value)),
++      fallback
++    )
++  }
++}))
++
++vi.mock('@/components/ui/button', () => ({
++  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
++    <button {...props}>{children}</button>
++  )
++}))
++
++vi.mock('@/components/ui/tooltip', () => ({
++  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
++  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
++  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
++}))
++
++// Keep mocked rows mounted for assertions.
++vi.mock('@/components/ui/popover', () => ({
++  Popover: ({ children, open }: { children: React.ReactNode; open?: boolean }) => (
++    <div data-testid="picker-root" data-open={open ? 'true' : 'false'}>
++      {children}
++    </div>
++  ),
++  PopoverTrigger: ({ children, disabled }: { children: React.ReactNode; disabled?: boolean }) => (
++    <div data-disabled={disabled || undefined}>{children}</div>
++  ),
++  PopoverContent: ({
++    children,
++    side,
++    align,
++    collisionPadding
++  }: {
++    children: React.ReactNode
++    side?: string
++    align?: string
++    collisionPadding?: number
++  }) => (
++    <div
++      data-testid="picker-content"
++      data-side={side}
++      data-align={align}
++      data-collision-padding={collisionPadding}
++    >
++      {children}
++    </div>
++  )
++}))
+diff --git a/src/renderer/src/components/native-chat/native-chat-rail-loaded-history.test-fixture.ts b/src/renderer/src/components/native-chat/native-chat-rail-loaded-history.test-fixture.ts
+new file mode 100644
+index 00000000000..622d461636e
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/native-chat-rail-loaded-history.test-fixture.ts
+@@ -0,0 +1,41 @@
++import type {
++  AgentJournalRenderItem,
++  AgentJournalSubmission
++} from '../../../../shared/agent-session/journal/agent-session-journal-types'
++import { nativeChatRowsInDrawOrder } from '../../../../shared/native-chat/transcript/native-chat-turn-grouping'
++import { nativeChatTurnMembership } from '../../../../shared/native-chat/transcript/native-chat-turn-membership'
++import { projectNativeChatTaskListFrames } from '../../../../shared/native-chat/input/native-chat-task-list-frames'
++import { buildNativeChatRailItems } from './native-chat-message-rail-items'
++import { createNativeChatMessageListProjection } from './native-chat-message-list-projection'
++import { nativeChatSubagentSections } from './native-chat-subagent-sections'
++import { omitNativeChatThreadGoalRows } from './native-chat-thread-goal-rows'
++import { buildNativeChatTranscriptSlots } from './native-chat-transcript-slots'
++import { projectStructuredAgentSessionMessages } from './structured-agent-session-message-projection'
++
++export function loadedRailItems(
++  items: AgentJournalRenderItem[],
++  submissions: AgentJournalSubmission[]
++) {
++  const projection = createNativeChatMessageListProjection()(
++    projectStructuredAgentSessionMessages(items, [], submissions)
++  )
++  const messages = omitNativeChatThreadGoalRows(
++    projectNativeChatTaskListFrames(projection.conversation)
++  )
++  const membership = nativeChatTurnMembership(messages, { items, submissions })
++  return buildNativeChatRailItems(
++    buildNativeChatTranscriptSlots({
++      messages: nativeChatRowsInDrawOrder(messages, membership.drawOrder),
++      turnKeys: nativeChatRowsInDrawOrder(membership.turnKeys, membership.drawOrder),
++      liveTurnKey: membership.liveTurnKey,
++      receipts: new Map(),
++      turnStatuses: { active: null, completedByTurn: {} },
++      turnDiffs: new Map(),
++      expandedTurnKeys: new Set(),
++      isWorking: false,
++      lifecycleWorking: false,
++      subagentSections: nativeChatSubagentSections(messages, projection.subagentRows),
++      subagentChoices: { sections: new Map(), rosters: new Map() }
++    })
++  )
++}
+diff --git a/src/renderer/src/components/native-chat/native-chat-rail-outline-parity.test.ts b/src/renderer/src/components/native-chat/native-chat-rail-outline-parity.test.ts
+index fd2ab995fa1..b2640e9e981 100644
+--- a/src/renderer/src/components/native-chat/native-chat-rail-outline-parity.test.ts
++++ b/src/renderer/src/components/native-chat/native-chat-rail-outline-parity.test.ts
+@@ -1,3 +1,4 @@
++import { loadedRailItems } from './native-chat-rail-loaded-history.test-fixture'
+ import { readAgentMessageSource } from '../../../../shared/agent-session/agent-session-message-source'
+ import {
+   ORCHESTRATION_NOTICE_SOURCE,
 diff --git a/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts b/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts
 index 5e037f9af65..aabdfe6247b 100644
 --- a/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts
@@ -1166,19 +2228,23 @@ index 5e037f9af65..aabdfe6247b 100644
      ? transport.send(prompt, attachments, sendRequest)
      : transport.send(prompt, attachments)
    if (admission instanceof Promise) {
-diff --git a/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts b/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts
-index 32d63c3078e..fe58673eb21 100644
---- a/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts
-+++ b/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts
-@@ -22,7 +22,7 @@ type NativeChatPasteBridgeRefs = {
-   questionAnswerInputRef?: RefObject<HTMLInputElement | HTMLTextAreaElement | null>
- }
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx b/src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx
+index c8588167f12..d50b74105c9 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx
++++ b/src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx
+@@ -1,3 +1,4 @@
++import { recheckNativeChatComposerDraftImagesIn } from './native-chat-composer-draft-image-check'
+ // @vitest-environment happy-dom
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import { act } from 'react'
+@@ -8,7 +9,6 @@ import {
+ } from './use-native-chat-composer-attachments'
  
--function canPasteIntoAnswerInput(input: HTMLInputElement): boolean {
-+function canPasteIntoAnswerInput(input: HTMLInputElement | HTMLTextAreaElement): boolean {
-   return input.isConnected && !input.disabled && !input.closest('[hidden], [inert]')
- }
+ import { readNativeChatDraftCache } from './native-chat-draft-cache'
+-import { NATIVE_FILE_DROP_MAX_PATHS } from '../../../../shared/native-file-drop'
+ import type * as RemoteRuntimePtyIdModule from '../../../../shared/remote-runtime/remote-runtime-pty-id'
  
+ import { useAppStore } from '@/store'
 diff --git a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts b/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
 index 9c67cef2cda..c8753805ab6 100644
 --- a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
@@ -1207,6 +2273,96 @@ index f4b8aafc444..850e594feea 100644
  
  vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
  
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.ts b/src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.ts
+index 4b2da9a7c0f..52476b1b36e 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.ts
++++ b/src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.ts
+@@ -10,7 +10,10 @@ import { isTuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent-co
+ import { MAX_SKILL_REFS } from '../../../../shared/rpc-contract/structured-agent-session-message-params'
+ import { SkillRefLimitError } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
+ import { promptSkillRefs } from './native-chat-prompt-document'
+-import type { StructuredAgentSessionAttachmentPreparation } from './structured-agent-session-send-slot'
++import type {
++  StructuredAgentSessionAttachmentPreparation,
++  StructuredAgentSessionSendRequest
++} from './structured-agent-session-send-slot'
+ import { useCallback } from 'react'
+ import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
+ import {
+@@ -34,7 +37,6 @@ import {
+   updateNativeChatComposerDraft
+ } from './native-chat-composer-draft-store'
+ import { nativeChatComposerDraftLeftAfterSend } from './native-chat-composer-draft-comparison'
+-import type { StructuredAgentSessionSendRequest } from './structured-agent-session-send-slot'
+ import {
+   admitNativeChatPastedText,
+   projectNativeChatPastedText
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts b/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
+index f24f3174ba9..721bb84b1fe 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
++++ b/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
+@@ -74,24 +74,22 @@ export function useNativeChatTerminalTranscript({
+       ),
+     [delivery.pending, sessionAfterCommandBoundaries.messages, workingEpoch]
+   )
++  const previewMessages = useMemo(
++    () =>
++      pendingMessages.length > 0
++        ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
++        : sessionAfterCommandBoundaries.messages,
++    [sessionAfterCommandBoundaries.messages, pendingMessages]
++  )
+   const streamingText = useMemo(
+     () =>
+       deriveNativeChatStreamingText({
+-        messages:
+-          pendingMessages.length > 0
+-            ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
+-            : sessionAfterCommandBoundaries.messages,
++        messages: previewMessages,
+         previewText,
+         working,
+         previewIsToolOutput
+       }),
+-    [
+-      sessionAfterCommandBoundaries.messages,
+-      pendingMessages,
+-      previewText,
+-      working,
+-      previewIsToolOutput
+-    ]
++    [previewMessages, previewText, working, previewIsToolOutput]
+   )
+   const sessionWithPending = useMemo<NativeChatLiveSession>(() => {
+     if (delivery.pending.length === 0 && commandMarkers.length === 0 && !streamingText) {
+diff --git a/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx b/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
+index 8ee542fac48..a267fbe97ff 100644
+--- a/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
++++ b/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
+@@ -23,6 +23,7 @@ afterEach(() => {
+ it.each([true, false])(
+   'discovers a draft-held target only on a capable paired host (%s)',
+   async (capable) => {
++    mocks.supportsRemote.mockResolvedValue(false)
+     mocks.effortDiscovery = capable
+     mocks.call.mockReset()
+     mocks.hold.mockReset()
+diff --git a/src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx b/src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx
+index cc94e155ffd..b571448df91 100644
+--- a/src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx
++++ b/src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx
+@@ -21,7 +21,10 @@ import { describe, expect, it, vi } from 'vitest'
+ import { toast } from 'sonner'
+ 
+ import { agentSessionSendBodyFingerprint } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
+-import type { AgentSessionQueuedMessageEditHoldResult } from '../../../../shared/agent-session/requests/agent-session-queued-message-wire'
++import type {
++  AgentSessionQueuedMessage,
++  AgentSessionQueuedMessageEditHoldResult
++} from '../../../../shared/agent-session/requests/agent-session-queued-message-wire'
+ 
+ import {
+   appendNativeChatAttachmentCache,
 diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
 index 4e121aec933..01c7fda5761 100644
 --- a/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
@@ -1343,6 +2499,106 @@ index fa4024fe6d4..12a6f29f349 100644
  
  // Share the forced-rescan budget across remounts so session creation cannot amplify full scans.
  import {
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
+index b71d37ed2f5..dc2fe3f08cc 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
+@@ -35,6 +35,34 @@ const baseSession: AiVaultSession = {
+ }
+ 
+ describe('buildAiVaultProjectContext', () => {
++  it('attributes a structured chat to its stored workspace on its own host even when its cwd matches another project', () => {
++    const repo = makeRepo({ id: 'saved-repo', path: '/saved', displayName: 'Saved project' })
++    const worktree = makeWorktree({
++      id: 'saved-workspace',
++      repoId: repo.id,
++      projectId: 'saved-project',
++      path: '/saved'
++    })
++    const session = {
++      ...baseSession,
++      cwd: '/elsewhere',
++      structuredSession: { sessionId: 'stored-chat', workspaceId: worktree.id }
++    }
++    const args = {
++      repos: [repo],
++      worktrees: [worktree],
++      projectHostSetupProjection: makeProjection({
++        projects: [makeProject({ id: 'saved-project', displayName: 'Saved project' })]
++      })
++    }
++    expect(
++      buildAiVaultSessionProjectById({ ...args, sessions: [session] }).get(session.id)
++    ).toMatchObject({ key: 'project:saved-project' })
++    const remote = { ...session, executionHostId: 'runtime:remote' as const }
++    expect(
++      buildAiVaultSessionProjectById({ ...args, sessions: [remote] }).get(remote.id)?.key
++    ).not.toBe('project:saved-project')
++  })
+   it('uses durable worktree project ids before repo fallback', () => {
+     const repo = makeRepo({ id: 'repo-1', displayName: 'Legacy Repo', path: '/Users/ada/orca' })
+     const project = makeProject({ id: 'project-1', displayName: 'Canonical Orca' })
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
+index 3e5a6936975..edb5db46047 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
+@@ -4,6 +4,8 @@ import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts
+ import type { Repo } from '../../../../../../shared/repo-types'
+ import type { Worktree } from '../../../../../../shared/worktree/types'
+ 
++import { MIXED_FOLDER } from '../../../../../../shared/folder-workspaces/folder-workspace-host-routing.test-fixture'
++import { aiVaultSessionOwnerWorkspaces } from './ai-vault-session-worktree'
+ import { resolveAiVaultSessionWorktreeInfo } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-worktree'
+ 
+ const baseSession: AiVaultSession = {
+@@ -66,6 +68,47 @@ function makeRepo(overrides: Partial<Repo> = {}): Repo {
+ }
+ 
+ describe('resolveAiVaultSessionWorktreeInfo', () => {
++  it('resolves a record-only chat by stored folder identity without a cwd and keeps host twins separate', () => {
++    const folder = { ...MIXED_FOLDER, id: 'folder-1', name: 'Notes', folderPath: '/work/notes' }
++    const saved = {
++      ...baseSession,
++      source: 'structured-record' as const,
++      cwd: null,
++      filePath: '',
++      structuredSession: { sessionId: 'saved-empty', workspaceId: 'folder:folder-1' }
++    }
++    const worktrees = aiVaultSessionOwnerWorkspaces([], [folder])
++    expect(
++      resolveAiVaultSessionWorktreeInfo({ session: saved, worktrees, activeWorktreeId: null })
++    ).toMatchObject({ worktreeId: 'folder:folder-1', path: '/work/notes', label: 'Notes' })
++    expect(
++      resolveAiVaultSessionWorktreeInfo({
++        session: { ...saved, executionHostId: 'runtime:remote' },
++        worktrees,
++        activeWorktreeId: null
++      })
++    ).toBeNull()
++  })
++  it.each([
++    { filePath: String.raw`\\wsl.localhost\Ubuntu\home\ada\.codex\session.jsonl`, owner: 'Ubuntu' },
++    { filePath: String.raw`\\wsl.localhost\Debian\home\ada\.codex\session.jsonl`, owner: 'Debian' },
++    { filePath: '/home/ada/.codex/session.jsonl', owner: undefined }
++  ])('requires transcript namespace proof for WSL Linux cwd: $owner', ({ filePath, owner }) => {
++    const worktrees = ['Debian', 'Ubuntu'].map((distro) =>
++      makeWorktree({
++        id: `folder:${distro}`,
++        path: `\\\\wsl.localhost\\${distro}\\home\\ada\\orca`
++      })
++    )
++    const found = resolveAiVaultSessionWorktreeInfo({
++      session: { ...baseSession, cwd: '/home/ada/orca/src', filePath },
++      worktrees,
++      activeWorktreeId: null
++    })
++    expect(found?.worktreeId).toBe(owner ? `folder:${owner}` : undefined)
++    expect(found?.status).toBe(owner ? 'active' : 'unavailable')
++  })
++
+   it('ranks each same-host candidate by its closest cwd spelling, independent of link length or alias order', () => {
+     const parent = makeWorktree({ id: 'parent', path: '/a-very-long-parent-link' })
+     const child = makeWorktree({ id: 'child', path: '/short', priorWorktreeIds: ['repo-1::/old'] })
 diff --git a/src/renderer/src/components/right-sidebar/use-ai-vault-panel-projects.ts b/src/renderer/src/components/right-sidebar/use-ai-vault-panel-projects.ts
 index fc7542685de..925fca4e4ef 100644
 --- a/src/renderer/src/components/right-sidebar/use-ai-vault-panel-projects.ts
@@ -1589,6 +2845,72 @@ index e6bed3d4cb8..cc4730aaf4b 100644
  import { getDefaultUIState } from '../../../shared/constants'
  import { mutatePersonalProjectOrder } from '../../../shared/personal-project-order-writes'
  import { RecordProjectOpenParams } from '../../../shared/rpc-contract/personal-project-order-params'
+diff --git a/src/shared/agent-session/failures/agent-session-failure.ts b/src/shared/agent-session/failures/agent-session-failure.ts
+index 1ac723c5dfd..2a71315eb1f 100644
+--- a/src/shared/agent-session/failures/agent-session-failure.ts
++++ b/src/shared/agent-session/failures/agent-session-failure.ts
+@@ -213,18 +213,7 @@ export function providerDiagnostic(
+ 
+ export function agentSessionFailureFact<TKind extends AgentSessionFailureKind>(
+   kind: TKind,
+-  extra: {
+-    account?: AgentSessionAccountKind
+-    detail?: ProviderDiagnostic
+-    refusal?: AgentSessionRefusalReference
+-    attachment?: AgentSessionAttachmentProblem
+-    retry?: AgentSessionProviderRetry
+-    usageLimit?: AgentSessionUsageLimit
+-    argumentProblem?: AgentSessionArgumentProblem
+-    neverReachedAgent?: true
+-    backgroundStop?: AgentSessionBackgroundStop
+-    requestTimeout?: AgentSessionRequestTimeout
+-  } = {}
++  extra: Omit<AgentSessionFailureFact, 'kind'> = {}
+ ): AgentSessionFailureFact & { kind: TKind } {
+   // Re-bounded here, so no writer can store more than the cap however it built the detail.
+   const detail = extra.detail
+diff --git a/src/shared/agent-session/options/structured-agent-session-option-values.test-fixture.ts b/src/shared/agent-session/options/structured-agent-session-option-values.test-fixture.ts
+new file mode 100644
+index 00000000000..3e5def30d5b
+--- /dev/null
++++ b/src/shared/agent-session/options/structured-agent-session-option-values.test-fixture.ts
+@@ -0,0 +1,11 @@
++import { structuredAgentSessionOptionView } from './structured-agent-session-option-view'
++import { structuredAgentSessionOptionSnapshot } from './structured-agent-session-option-snapshot'
++
++export function shownModelAndEffort(...args: Parameters<typeof structuredAgentSessionOptionView>) {
++  const snapshot = structuredAgentSessionOptionSnapshot(structuredAgentSessionOptionView(...args))
++  const value = (id: string) => {
++    const kind = snapshot.find((descriptor) => descriptor.id === id)?.kind
++    return kind?.type === 'select' ? kind.currentValue : undefined
++  }
++  return { model: value('model'), effort: value('effort') }
++}
+diff --git a/src/shared/agent-session/options/structured-agent-session-option-view.test.ts b/src/shared/agent-session/options/structured-agent-session-option-view.test.ts
+index 031d944e5cb..793d5a5127f 100644
+--- a/src/shared/agent-session/options/structured-agent-session-option-view.test.ts
++++ b/src/shared/agent-session/options/structured-agent-session-option-view.test.ts
+@@ -1,3 +1,4 @@
++import { shownModelAndEffort as shown } from './structured-agent-session-option-values.test-fixture'
+ import { structuredAgentSessionSeedCatalog } from './structured-agent-session-seed-catalog'
+ import { describe, expect, it } from 'vitest'
+ import {
+@@ -68,15 +69,6 @@ const stopped = (
+     current: { model, effort }
+   })
+ 
+-function shown(...args: Parameters<typeof structuredAgentSessionOptionView>) {
+-  const snapshot = structuredAgentSessionOptionSnapshot(structuredAgentSessionOptionView(...args))
+-  const value = (id: string) => {
+-    const kind = snapshot.find((descriptor) => descriptor.id === id)?.kind
+-    return kind?.type === 'select' ? kind.currentValue : undefined
+-  }
+-  return { model: value('model'), effort: value('effort') }
+-}
+-
+ const carried = (
+   state: StructuredAgentSessionOptionState,
+   seed?: Readonly<Record<string, string>>,
 diff --git a/src/shared/rpc-contract/structured-agent-session-params.ts b/src/shared/rpc-contract/structured-agent-session-params.ts
 index 13de82bc35b..21635c38825 100644
 --- a/src/shared/rpc-contract/structured-agent-session-params.ts
@@ -1599,3 +2921,98 @@ index 13de82bc35b..21635c38825 100644
  import {
    SendBody,
    MAX_OPTION_LABEL,
+diff --git a/src/shared/structured-agent-session-option-picks.ts b/src/shared/structured-agent-session-option-picks.ts
+index a916046fdd1..dbe8bf639ec 100644
+--- a/src/shared/structured-agent-session-option-picks.ts
++++ b/src/shared/structured-agent-session-option-picks.ts
+@@ -1,22 +1,12 @@
+ import type { StructuredAgentSessionOptionState } from './agent-session/options/structured-agent-session-options'
+ import type { SessionOptionValue } from './native-chat/input/native-chat-session-options'
+ import { STRUCTURED_LAUNCH_SEED_OPTION_IDS } from './native-chat/input/native-chat-session-option-defaults'
+-import { structuredAgentSessionShownModel } from './agent-session/options/structured-agent-session-option-snapshot'
++import { structuredAgentSessionRememberedPickModel } from './agent-session/options/structured-agent-session-remembered-pick-model'
+ import {
+   decodeStructuredAgentSessionOptionValue,
+   encodeStructuredAgentSessionOptionValue
+ } from './agent-session/options/structured-agent-session-option-codec'
+ 
+-/** The model a pick's other values were chosen under: the chat's own, else the default shown. */
+-function structuredAgentSessionControlsModelId(
+-  state: StructuredAgentSessionOptionState
+-): string | null {
+-  return state.catalog
+-    ? structuredAgentSessionShownModel(state.catalog, state.catalog.models, state.record)
+-        .controlsModelId
+-    : null
+-}
+-
+ export type StructuredSessionOptionPick = {
+   modelId: string
+   optionId: string
+@@ -28,17 +18,17 @@ export type StructuredSessionOptionPick = {
+ export function structuredAgentSessionOptionPicks(
+   state: StructuredAgentSessionOptionState,
+   committed: Readonly<Record<string, string>>,
+-  pickedOptionId?: string
++  existingChat = false
+ ): StructuredSessionOptionPick[] {
+   if (!state.catalog) {
+     return []
+   }
+-  const committedModel = committed.model
+-  const modelId =
+-    typeof committedModel === 'string' && committedModel.trim()
+-      ? committedModel
+-      : structuredAgentSessionControlsModelId(state)
+-  if (!modelId) {
++  const remembered = structuredAgentSessionRememberedPickModel(
++    state,
++    committed.model,
++    existingChat || (state.modelDefault === true && committed.model === undefined)
++  )
++  if (!remembered) {
+     return []
+   }
+   return STRUCTURED_LAUNCH_SEED_OPTION_IDS.flatMap((optionId) => {
+@@ -51,15 +41,6 @@ export function structuredAgentSessionOptionPicks(
+       (typeof decoded === 'string' && !decoded.trim()) ||
+       encodeStructuredAgentSessionOptionValue(optionId, decoded) === null
+       ? []
+-      : [
+-          {
+-            modelId,
+-            optionId,
+-            value: decoded,
+-            ...(state.modelDefault && pickedOptionId !== 'model'
+-              ? { adoptModelAsLaunchDefault: false }
+-              : {})
+-          }
+-        ]
++      : [{ ...remembered, optionId, value: decoded }]
+   })
+ }
+diff --git a/tests/e2e/helpers/paired-electron-client.ts b/tests/e2e/helpers/paired-electron-client.ts
+index aada32aa60f..3ce8d6058dd 100644
+--- a/tests/e2e/helpers/paired-electron-client.ts
++++ b/tests/e2e/helpers/paired-electron-client.ts
+@@ -24,6 +24,7 @@ import {
+ } from './nested-runtime-same-id-pairing'
+ import { createPairedWebClientUrl, type PairedWebClientOptions } from './paired-web-client-url'
+ import { selectPairedRuntimeEnvironment } from './paired-client-runtime-environment'
++import { selectSidebarBody } from './store'
+ 
+ export { rePairPairedElectronClient } from './paired-client-runtime-environment'
+ 
+@@ -153,6 +154,12 @@ export async function launchPairedWebClient(
+     )
+     page = await pagePromise
+     if (options.waitForWorkspace !== false) {
++      await page.waitForFunction(
++        () => window.__store?.getState().workspaceSessionReady === true,
++        null,
++        { timeout: 30_000 }
++      )
++      await selectSidebarBody(page, 'workspaces')
+       await page.locator('[data-worktree-sidebar]').waitFor({ state: 'visible', timeout: 30_000 })
+     }
+     return { page, dispose: () => page?.close() ?? Promise.resolve() }

@@ -15908,8 +15908,6 @@
           "AiCommitPrSettingsCard": {
             "8d4152701a": "e.g. ollama run llama3.1 {{value0}}",
             "9ee54037a4": "Custom command",
-            "4b2fc4b80c": "Thinking effort",
-            "be8917699e": "Model",
             "560d4feb00": "Custom",
             "29d119fe95": "Agent",
             "f9382b48a1": "Enable AI author",
@@ -21293,7 +21291,10 @@
       "workerAutoClose": {
         "running": "Temporary orchestration worker · Closes 2 minutes after it finishes",
         "finished": "Temporary orchestration worker finished · Closes in {{countdown}}",
-        "keepOpen": "Keep open"
+        "keepOpen": "Keep open",
+        "bannerRunning": "Orchestration worker · Closes 2 minutes after it finishes",
+        "bannerFinished": "Orchestration worker finished · Closes in {{countdown}}",
+        "temporaryBadge": "Temporary"
       }
     },
     "sessionLink": {
@@ -22656,6 +22657,12 @@
       "checksPending": "{{review}} checks: Pending",
       "checksPassing": "{{review}} checks: Passing",
       "open": "{{review}}: Open"
+    },
+    "start": {
+      "title": "What would you like to open?",
+      "description": "Choose an agent or a tool for this project.",
+      "agents": "Agents",
+      "manageAgents": "Manage agents"
     }
   },
   "tabHoverCard": {

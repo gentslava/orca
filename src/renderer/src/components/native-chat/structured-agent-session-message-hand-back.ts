@@ -40,9 +40,7 @@ export function returnMessageToComposer(
       ? [unavailableNativeChatComposerDraftImage({ id, path: block.path })]
       : [{ id, path: block.path, ...(connectionId ? { connectionId } : {}) }]
   })
-  const text = structuredAgentSessionMessageText(
-    { kind: 'message', role: 'user', blocks }
-  )
+  const text = structuredAgentSessionMessageText({ kind: 'message', role: 'user', blocks })
   if (text === '' && images.length === 0) {
     return true
   }
