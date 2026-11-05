@@ -45,12 +45,14 @@ function Chat({
   acceptsText = true,
   rewind,
   onFind,
-  actions
+  actions,
+  childInheritsLinkContext = false
 }: {
   acceptsText?: boolean
   rewind?: NativeChatRewindSurface
   onFind?: () => void
   actions?: Partial<NativeChatContextMenuActions>
+  childInheritsLinkContext?: boolean
 }): React.JSX.Element {
   const rootRef = useRef<HTMLDivElement>(null)
   const composerRef = useRef<NativeChatComposerHandle | null>({
@@ -80,6 +82,13 @@ function Chat({
       <div data-native-chat-rewind-item="ask-1">
         <p>User prompt</p>
       </div>
+      <section
+        data-native-chat-child-transcript="child-worker"
+        data-native-chat-inherit-link-context={childInheritsLinkContext ? 'true' : 'false'}
+      >
+        <a href="src/app.ts">child file</a>
+        <div data-native-chat-rewind-item="ask-1">Child prompt</div>
+      </section>
       <p>Empty area</p>
       <textarea aria-label="composer" />
       {menu}
