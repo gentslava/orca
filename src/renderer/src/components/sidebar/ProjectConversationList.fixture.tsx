@@ -136,7 +136,6 @@ export const registeredProjectActions = fixture(320, 'registered')
 
 export const loadingProjects = fixture(320, 'loading')
 
-
 export const projectOrderModes = defineFixture({
   ...fixture(),
   interact: async (frame) => {

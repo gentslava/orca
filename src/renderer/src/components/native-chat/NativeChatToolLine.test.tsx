@@ -13,13 +13,21 @@ afterEach(cleanup)
 
 describe('tool sentence rows', () => {
   it('opens the complete invocation even when a tool has returned no output', () => {
-    const { container } = render(<NativeChatToolLine block={{
-      type: 'tool-call', name: 'lookup_ticket', input: { ticket: 'ORC-1', includeComments: true }
-    }} />)
+    const { container } = render(
+      <NativeChatToolLine
+        block={{
+          type: 'tool-call',
+          name: 'lookup_ticket',
+          input: { ticket: 'ORC-1', includeComments: true }
+        }}
+      />
+    )
     const button = screen.getByRole('button')
     expect(button).toHaveAttribute('aria-expanded', 'false')
     fireEvent.click(button)
-    expect(container.querySelector('pre')?.textContent).toBe('{\n  "ticket": "ORC-1",\n  "includeComments": true\n}')
+    expect(container.querySelector('pre')?.textContent).toBe(
+      '{\n  "ticket": "ORC-1",\n  "includeComments": true\n}'
+    )
   })
   it('keeps metadata and errors while toggling output behind the sentence', () => {
     render(

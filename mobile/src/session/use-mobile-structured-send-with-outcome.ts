@@ -272,7 +272,7 @@ export function useMobileStructuredSendWithOutcome(args: {
       controller,
       enabled,
       reject,
-        isModelWritePending,
+      isModelWritePending,
       onSendError,
       queueCapable,
       steerCapable,
