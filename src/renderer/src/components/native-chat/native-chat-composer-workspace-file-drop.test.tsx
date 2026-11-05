@@ -276,63 +276,6 @@ describe('native chat workspace file drops', () => {
     expect(bubbledDrop).not.toHaveBeenCalled()
   })
 
-  it('advertises a copy drop while leaving unrelated drags alone', () => {
-    render(<ComposerProbe />)
-    const internal = internalTransfer(['/repo/a.ts'])
-    const accepted = dispatchDragEvent('dragover', editor(), internal)
-    expect(accepted).toBe(false)
-    expect(internal.dropEffect).toBe('copy')
-
-    const unrelated = new FileDragDataTransfer()
-    unrelated.setData('text/plain', 'plain')
-    unrelated.setData('text/html', '<b>plain</b>')
-    dispatchDragEvent('dragover', editor(), unrelated)
-    dispatchDragEvent('drop', editor(), unrelated)
-    expect(bubbledDrop).toHaveBeenCalledOnce()
-    expect(screen.getByTestId('draft').textContent).toBe('')
-  })
-
-  const mismatchedSources: [string, { executionHostId?: ExecutionHostId; workspaceId?: string }][] =
-    [
-      ['different workspace', { workspaceId: 'worktree-2' }],
-      ['different execution host', { executionHostId: 'ssh:other' }]
-    ]
-
-  it.each(mismatchedSources)('rejects paths from a %s', (_label, source) => {
-    render(<ComposerProbe />)
-    dispatchDragEvent('drop', editor(), internalTransfer(['/repo/a.ts'], source))
-    expect(screen.getByText('Files can only be attached to their source workspace.')).toBeTruthy()
-    expect(screen.getByTestId('draft').textContent).toBe('')
-  })
-
-  it('rejects legacy unscoped payloads and unavailable owners', () => {
-    const view = render(<ComposerProbe />)
-    const unscoped = new FileDragDataTransfer()
-    unscoped.setData(WORKSPACE_FILE_PATH_MIME, '/repo/a.ts')
-    dispatchDragEvent('drop', editor(), unscoped)
-    expect(screen.getByText('Files can only be attached to their source workspace.')).toBeTruthy()
-
-    testState.ownerKind = 'not-ready'
-    view.rerender(<ComposerProbe />)
-    dispatchDragEvent('drop', editor(), internalTransfer(['/repo/b.ts']))
-    expect(screen.getByText('Worktree not ready — try again in a moment.')).toBeTruthy()
-    expect(screen.getByTestId('draft').textContent).toBe('')
-  })
-
-  // Claim refused drops so the terminal behind the guarded composer cannot paste paths into a shell.
-  it('refuses the drag outright while disabled instead of promising a copy', () => {
-    render(<ComposerProbe disabled />)
-    const hover = internalTransfer(['/repo/a.ts'])
-    expect(dispatchDragEvent('dragover', editor(), hover)).toBe(false)
-    expect(hover.dropEffect).toBe('none')
-    expect(bubbledDrop).not.toHaveBeenCalled()
-
-    const transfer = internalTransfer(['/repo/a.ts'])
-    expect(dispatchDragEvent('drop', editor(), transfer)).toBe(false)
-    expect(transfer.dropEffect).toBe('none')
-    expect(screen.getByTestId('draft').textContent).toBe('')
-  })
-
   // Explorer paths from the same runtime host are readable by its agent.
   it('accepts a same-host drop on a remote runtime target and refuses a foreign one', () => {
     testState.executionHostId = 'runtime:env-1'

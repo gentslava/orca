@@ -62,6 +62,16 @@ index 91221ee691a..3d44d8f5157 100644
  function App() {
    const [start, setStart] = useState(80)
    const [older, setOlder] = useState(false)
+diff --git a/config/scripts/orcad-source-commit.mjs b/config/scripts/orcad-source-commit.mjs
+index 40d120bde1b..f7287ff6cb9 100644
+--- a/config/scripts/orcad-source-commit.mjs
++++ b/config/scripts/orcad-source-commit.mjs
+@@ -1,4 +1,4 @@
+-import { resolveBuildSourceCommit } from './build-source-commit.mjs'
++import { resolveBuildSourceCommit } from './build-identity/build-source-commit.mjs'
+ 
+ export function resolveOrcadSourceCommit(
+   env = process.env,
 diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
 index 2219cd1a772..d1a51b84c6f 100644
 --- a/mobile/src/host-screen/project-conversations.test.ts
@@ -1032,6 +1042,44 @@ index 00000000000..4156e2a59cf
 +  })
 +  return !turned
 +}
+diff --git a/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx b/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx
+new file mode 100644
+index 00000000000..4c4e83238db
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx
+@@ -0,0 +1,32 @@
++// @vitest-environment happy-dom
++import '@testing-library/jest-dom/vitest'
++import { cleanup, fireEvent, screen } from '@testing-library/react'
++import { render } from './native-chat-tooltip-test-harness'
++import { afterEach, it, expect, vi } from 'vitest'
++import { NativeChatComposerActions } from './NativeChatComposerActions'
++afterEach(cleanup)
++it('keeps delivery preferences out of the busy composer', () => {
++  const onStop = vi.fn()
++  render(
++    <NativeChatComposerActions
++      attachDisabled={false}
++      dictationDisabled={false}
++      sendDisabled={false}
++      isWorking
++      isDictating={false}
++      isDictationHoldMode={false}
++      onAttach={vi.fn()}
++      onDictationToggle={vi.fn()}
++      onDictationHoldStart={vi.fn()}
++      onDictationHoldEnd={vi.fn()}
++      onSend={vi.fn()}
++      onStop={onStop}
++      sessionOptionsSurface={null}
++      sessionOptionsSnapshot={[]}
++    />
++  )
++  expect(screen.queryByRole('button', { name: 'Queue' })).toBeNull()
++  expect(screen.queryByRole('button', { name: 'Draft actions' })).toBeNull()
++  fireEvent.click(screen.getByRole('button', { name: 'Stop the agent' }))
++  expect(onStop).toHaveBeenCalledOnce()
++})
 diff --git a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx b/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
 index 620770211ab..1b8398a59e4 100644
 --- a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
@@ -1046,6 +1094,297 @@ index 620770211ab..1b8398a59e4 100644
  import {
    useNativeChatPendingDelivery,
    useNativeChatOptimisticSend
+diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx
+new file mode 100644
+index 00000000000..4019f5438b5
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx
+@@ -0,0 +1,93 @@
++// @vitest-environment happy-dom
++import '@testing-library/jest-dom/vitest'
++import './native-chat-option-picker-ui.test-fixture'
++import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
++import { afterEach, it, expect, vi } from 'vitest'
++import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
++import { model, effort, unknownEffort } from './native-chat-option-picker.test-fixture'
++import { CODEX_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session/options/agent-session-option-catalog-claude-codex'
++import {
++  applyStructuredAgentSessionOptions,
++  createStructuredAgentSessionOptionState
++} from '../../../../shared/agent-session/options/structured-agent-session-options'
++import { structuredAgentSessionOptionSnapshot } from '../../../../shared/agent-session/options/structured-agent-session-option-snapshot'
++const surface = {
++  getSnapshot: () => [],
++  setOption: vi.fn(),
++  invokeAction: vi.fn(),
++  subscribe: () => () => {}
++}
++const effortSlider = (): HTMLElement => screen.getByRole('slider', { name: 'Effort' })
++const pickEffort = (key = 'Home'): boolean => fireEvent.keyDown(effortSlider(), { key })
++afterEach(cleanup)
++it('keeps the current effort passive and adjusts it only through the slider', async () => {
++  const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
++  render(
++    <NativeChatSessionOptionPickers
++      surface={{ ...surface, setOption }}
++      snapshot={[model(), effort]}
++      isWorking={false}
++    />
++  )
++  expect(screen.queryByRole('button', { name: 'High' })).toBeNull()
++  fireEvent.click(screen.getAllByText('High')[0]!)
++  expect(setOption).not.toHaveBeenCalled()
++  expect(effortSlider().tabIndex).toBe(0)
++  expect(effortSlider().getAttribute('aria-valuetext')).toBe('High')
++  pickEffort('Home')
++  await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'low'))
++})
++
++it('keeps an unlisted reported effort read-only through the actual snapshot pipeline', () => {
++  const state = applyStructuredAgentSessionOptions(
++    createStructuredAgentSessionOptionState('codex'),
++    CODEX_SESSION_OPTION_CATALOG,
++    {
++      models: [
++        {
++          id: 'account-model',
++          label: 'Account Model',
++          isDefault: true,
++          efforts: [
++            { value: 'low', label: 'Low' },
++            { value: 'high', label: 'High' }
++          ]
++        }
++      ],
++      current: { model: 'account-model', effort: 'unsupported-level', confirmed: ['effort'] }
++    }
++  )
++  const setOption = vi.fn()
++  render(
++    <NativeChatSessionOptionPickers
++      surface={{ ...surface, setOption }}
++      snapshot={structuredAgentSessionOptionSnapshot(state)}
++      isWorking={false}
++    />
++  )
++  expect(screen.queryByRole('slider', { name: 'Effort' })).toBeNull()
++  expect(screen.queryByRole('radio', { name: 'unsupported-level' })).toBeNull()
++  expect(screen.getAllByText('unsupported-level').length).toBeGreaterThan(0)
++  expect(setOption).not.toHaveBeenCalled()
++})
++
++it('keeps an unknown effort unreported until a supported choice is committed', async () => {
++  const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
++  render(
++    <NativeChatSessionOptionPickers
++      surface={{ ...surface, setOption }}
++      snapshot={[model(), unknownEffort]}
++      isWorking={false}
++    />
++  )
++  const group = screen.getByRole('radiogroup', { name: 'Effort' })
++  expect(screen.queryByRole('slider')).toBeNull()
++  expect(
++    within(group)
++      .getAllByRole('radio')
++      .every((radio) => radio.getAttribute('aria-checked') === 'false')
++  ).toBe(true)
++  expect(setOption).not.toHaveBeenCalled()
++  fireEvent.click(within(group).getByRole('radio', { name: 'High' }))
++  await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'high'))
++})
+diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx
+new file mode 100644
+index 00000000000..216670e2382
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx
+@@ -0,0 +1,73 @@
++// @vitest-environment happy-dom
++import '@testing-library/jest-dom/vitest'
++import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
++import { afterEach, it, expect, vi } from 'vitest'
++import { TooltipProvider } from '@/components/ui/tooltip'
++import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
++import type { NativeChatOptionPickerRequest } from './native-chat-composer-types'
++import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
++import {
++  model as createModel,
++  effort as baseEffort
++} from './native-chat-option-picker.test-fixture'
++const model = createModel()
++const effort: SessionOptionDescriptor = {
++  ...baseEffort,
++  kind: {
++    type: 'select',
++    currentValue: 'low',
++    choices: [
++      { value: 'low', label: 'Low' },
++      { value: 'high', label: 'High' }
++    ]
++  }
++}
++const surface = {
++  getSnapshot: () => [],
++  setOption: vi.fn(),
++  invokeAction: vi.fn(),
++  subscribe: () => () => {}
++}
++const settle = () => act(async () => {})
++async function openPicker() {
++  fireEvent.click(screen.getByRole('button', { name: /Opus 4.8/ }))
++  await settle()
++}
++afterEach(cleanup)
++it('does not focus or change a pending effort when /effort reopens the picker', async () => {
++  let finish = () => {}
++  const setOption = vi.fn(
++    () =>
++      new Promise<{ snapshot: SessionOptionDescriptor[] }>((resolve) => {
++        finish = () => resolve({ snapshot: [] })
++      })
++  )
++  const view = (request: NativeChatOptionPickerRequest | null) => (
++    <TooltipProvider>
++      <NativeChatSessionOptionPickers
++        surface={{ ...surface, setOption }}
++        snapshot={[model, effort]}
++        isWorking={false}
++        pickerRequest={request}
++      />
++    </TooltipProvider>
++  )
++  const { rerender } = render(view(null))
++  await openPicker()
++  fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'End' })
++  await settle()
++  expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'high')
++  rerender(view({ id: 'effort', consume: () => {} }))
++  await settle()
++  const slider = screen.getByRole('slider', { name: 'Effort' })
++  expect(slider.closest('[aria-disabled="true"]')).not.toBeNull()
++  expect(document.activeElement).toBe(screen.getByRole('combobox'))
++  expect(slider.tabIndex).toBe(-1)
++  fireEvent.keyDown(slider, { key: 'Home' })
++  if (document.activeElement) {
++    fireEvent.keyDown(document.activeElement, { key: 'Home' })
++  }
++  expect(slider.getAttribute('aria-valuetext')).toBe('High')
++  expect(setOption).toHaveBeenCalledTimes(1)
++  await act(async () => finish())
++})
+diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
+index 9f9ee195344..687eeddf1ef 100644
+--- a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
+@@ -6,64 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
+ 
+ import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
+ 
+-const toastError = vi.hoisted(() => vi.fn())
+-vi.mock('sonner', () => ({ toast: { error: toastError } }))
+-
+-vi.mock('@/i18n/i18n', () => ({
+-  translate: (_key: string, fallback: string, values?: Record<string, string | number>) => {
+-    if (!values) {
+-      return fallback
+-    }
+-    return Object.entries(values).reduce(
+-      (text, [name, value]) => text.replaceAll(`{{${name}}}`, String(value)),
+-      fallback
+-    )
+-  }
+-}))
+-
+-vi.mock('@/components/ui/button', () => ({
+-  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+-    <button {...props}>{children}</button>
+-  )
+-}))
+-
+-vi.mock('@/components/ui/tooltip', () => ({
+-  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+-  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+-  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+-}))
+-
+-// Keep mocked rows mounted for assertions.
+-vi.mock('@/components/ui/popover', () => ({
+-  Popover: ({ children, open }: { children: React.ReactNode; open?: boolean }) => (
+-    <div data-testid="picker-root" data-open={open ? 'true' : 'false'}>
+-      {children}
+-    </div>
+-  ),
+-  PopoverTrigger: ({ children, disabled }: { children: React.ReactNode; disabled?: boolean }) => (
+-    <div data-disabled={disabled || undefined}>{children}</div>
+-  ),
+-  PopoverContent: ({
+-    children,
+-    side,
+-    align,
+-    collisionPadding
+-  }: {
+-    children: React.ReactNode
+-    side?: string
+-    align?: string
+-    collisionPadding?: number
+-  }) => (
+-    <div
+-      data-testid="picker-content"
+-      data-side={side}
+-      data-align={align}
+-      data-collision-padding={collisionPadding}
+-    >
+-      {children}
+-    </div>
+-  )
+-}))
++import './native-chat-option-picker-ui.test-fixture'
+ 
+ import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
+ import { model, effort } from './native-chat-option-picker.test-fixture'
+@@ -136,13 +79,25 @@ describe('NativeChatSessionOptionPickers', () => {
+   it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
+     const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
+     const fast: SessionOptionDescriptor = {
+-      id: 'fastMode', label: 'Fast mode', category: 'mode',
+-      kind: { type: 'boolean', currentValue: true }, valueSource: 'applied',
+-      transport: 'agent-session', settable: true
++      id: 'fastMode',
++      label: 'Fast mode',
++      category: 'mode',
++      kind: { type: 'boolean', currentValue: true },
++      valueSource: 'applied',
++      transport: 'agent-session',
++      settable: true
+     }
+-    render(<NativeChatSessionOptionPickers surface={busySurface}
+-      snapshot={[model({ transport: 'agent-session' }), { ...effort, transport: 'agent-session' }, fast]}
+-      isWorking />)
++    render(
++      <NativeChatSessionOptionPickers
++        surface={busySurface}
++        snapshot={[
++          model({ transport: 'agent-session' }),
++          { ...effort, transport: 'agent-session' },
++          fast
++        ]}
++        isWorking
++      />
++    )
+     screen.getByRole('option', { name: 'Sonnet 5' }).click()
+     await waitFor(() => expect(busySurface.setOption).toHaveBeenCalledWith('model', 'sonnet'))
+     pickEffort()
+@@ -180,9 +135,7 @@ describe('NativeChatSessionOptionPickers', () => {
+     expect(held()).toEqual(['false', 'false'])
+ 
+     pickEffort()
+-    await waitFor(() =>
+-      expect(effortSlider().getAttribute('aria-valuetext')).toBe('Low')
+-    )
++    await waitFor(() => expect(effortSlider().getAttribute('aria-valuetext')).toBe('Low'))
+     expect(pill('Model Opus 4.8, Effort Low')).not.toBeNull()
+     expect(held()).toEqual(['false', 'true'])
+     screen.getByRole('option', { name: 'Sonnet 5' }).click()
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx
 index f10d63388a2..b1f83bfe4f9 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx
@@ -1081,6 +1420,18 @@ index f10d63388a2..b1f83bfe4f9 100644
          pane,
          controller,
          session,
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
+index 09abfc4e3c8..646f33ff159 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
+@@ -94,6 +94,7 @@ vi.mock('./NativeChatMessageList', () => ({
+     subagentRoster?: StructuredAgentSubagentRoster
+   }) => {
+     useImperativeHandle(ref, () => ({
++      readerAtEnd: () => true,
+       revealLatest: () => {},
+       revealFindMatch: () => {},
+       messageCopyText: () => null
 diff --git a/src/renderer/src/components/native-chat/native-chat-message-rail-items.test.ts b/src/renderer/src/components/native-chat/native-chat-message-rail-items.test.ts
 index e51dd72d32d..3af82b3cb16 100644
 --- a/src/renderer/src/components/native-chat/native-chat-message-rail-items.test.ts
@@ -1094,6 +1445,72 @@ index e51dd72d32d..3af82b3cb16 100644
  import { buildNativeChatTranscriptSlots } from './native-chat-transcript-slots'
  import {
    buildNativeChatRailItems,
+diff --git a/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx b/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx
+new file mode 100644
+index 00000000000..c4a70d8bcc0
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx
+@@ -0,0 +1,60 @@
++import type React from 'react'
++import { vi } from 'vitest'
++const toastError = vi.hoisted(() => vi.fn())
++vi.mock('sonner', () => ({ toast: { error: toastError } }))
++
++vi.mock('@/i18n/i18n', () => ({
++  translate: (_key: string, fallback: string, values?: Record<string, string | number>) => {
++    if (!values) {
++      return fallback
++    }
++    return Object.entries(values).reduce(
++      (text, [name, value]) => text.replaceAll(`{{${name}}}`, String(value)),
++      fallback
++    )
++  }
++}))
++
++vi.mock('@/components/ui/button', () => ({
++  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
++    <button {...props}>{children}</button>
++  )
++}))
++
++vi.mock('@/components/ui/tooltip', () => ({
++  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
++  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
++  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
++}))
++
++// Keep mocked rows mounted for assertions.
++vi.mock('@/components/ui/popover', () => ({
++  Popover: ({ children, open }: { children: React.ReactNode; open?: boolean }) => (
++    <div data-testid="picker-root" data-open={open ? 'true' : 'false'}>
++      {children}
++    </div>
++  ),
++  PopoverTrigger: ({ children, disabled }: { children: React.ReactNode; disabled?: boolean }) => (
++    <div data-disabled={disabled || undefined}>{children}</div>
++  ),
++  PopoverContent: ({
++    children,
++    side,
++    align,
++    collisionPadding
++  }: {
++    children: React.ReactNode
++    side?: string
++    align?: string
++    collisionPadding?: number
++  }) => (
++    <div
++      data-testid="picker-content"
++      data-side={side}
++      data-align={align}
++      data-collision-padding={collisionPadding}
++    >
++      {children}
++    </div>
++  )
++}))
 diff --git a/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts b/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts
 index 5e037f9af65..aabdfe6247b 100644
 --- a/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts
@@ -1527,420 +1944,109 @@ index 13de82bc35b..21635c38825 100644
  import {
    SendBody,
    MAX_OPTION_LABEL,
-diff --git a/config/scripts/orcad-source-commit.mjs b/config/scripts/orcad-source-commit.mjs
-index 40d120bde1b..f7287ff6cb9 100644
---- a/config/scripts/orcad-source-commit.mjs
-+++ b/config/scripts/orcad-source-commit.mjs
-@@ -1,4 +1,4 @@
--import { resolveBuildSourceCommit } from './build-source-commit.mjs'
-+import { resolveBuildSourceCommit } from './build-identity/build-source-commit.mjs'
- 
- export function resolveOrcadSourceCommit(
-   env = process.env,
-diff --git a/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx b/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx
+diff --git a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
+index 188d801b8d6..521ff2346ab 100644
+--- a/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
++++ b/mobile/src/session/use-mobile-structured-agent-session-send.test.tsx
+@@ -8,9 +8,6 @@ import { structuredSendResultFixture } from './structured-agent-send-result.test
+ import { createElement, useState } from 'react'
+ import { act, create, type ReactTestRenderer } from 'react-test-renderer'
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+-import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
+-import '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
+-import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
+ import type { RpcClient } from '../transport/rpc-client'
+ import {
+   fieldsOf,
+@@ -23,10 +20,6 @@ import { useMobileStructuredAgentSession } from './use-mobile-structured-agent-s
+ import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
+ import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
+ import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
+-import {
+-  AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
+-  AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY
+-} from '../../../src/shared/agent-session/agent-session-runtime-capabilities'
+ import {
+   AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY,
+   AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY
+@@ -68,7 +61,6 @@ describe('mobile structured send actions', () => {
+   let storedOperations: Map<string, string>
+   let agent = 'codex'
+   let sessionCommands: readonly AgentSessionSlashCommand[] | undefined
+-  let sendOrdinary: ReturnType<typeof useMobileStructuredNativeChatSendBridge>['sendWithOutcome']
+   let sessionId = 'session-1'
+   let hostSupport: StructuredAgentSessionHostSupport | null = null
+   let bridge: ReturnType<typeof useMobileStructuredNativeChatSendBridge>
+diff --git a/src/renderer/src/components/native-chat/native-chat-rail-loaded-history.test-fixture.ts b/src/renderer/src/components/native-chat/native-chat-rail-loaded-history.test-fixture.ts
 new file mode 100644
-index 00000000000..4c4e83238db
+index 00000000000..622d461636e
 --- /dev/null
-+++ b/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx
-@@ -0,0 +1,32 @@
-+// @vitest-environment happy-dom
-+import '@testing-library/jest-dom/vitest'
-+import { cleanup, fireEvent, screen } from '@testing-library/react'
-+import { render } from './native-chat-tooltip-test-harness'
-+import { afterEach, it, expect, vi } from 'vitest'
-+import { NativeChatComposerActions } from './NativeChatComposerActions'
-+afterEach(cleanup)
-+it('keeps delivery preferences out of the busy composer', () => {
-+  const onStop = vi.fn()
-+  render(
-+    <NativeChatComposerActions
-+      attachDisabled={false}
-+      dictationDisabled={false}
-+      sendDisabled={false}
-+      isWorking
-+      isDictating={false}
-+      isDictationHoldMode={false}
-+      onAttach={vi.fn()}
-+      onDictationToggle={vi.fn()}
-+      onDictationHoldStart={vi.fn()}
-+      onDictationHoldEnd={vi.fn()}
-+      onSend={vi.fn()}
-+      onStop={onStop}
-+      sessionOptionsSurface={null}
-+      sessionOptionsSnapshot={[]}
-+    />
++++ b/src/renderer/src/components/native-chat/native-chat-rail-loaded-history.test-fixture.ts
+@@ -0,0 +1,41 @@
++import type {
++  AgentJournalRenderItem,
++  AgentJournalSubmission
++} from '../../../../shared/agent-session/journal/agent-session-journal-types'
++import { nativeChatRowsInDrawOrder } from '../../../../shared/native-chat/transcript/native-chat-turn-grouping'
++import { nativeChatTurnMembership } from '../../../../shared/native-chat/transcript/native-chat-turn-membership'
++import { projectNativeChatTaskListFrames } from '../../../../shared/native-chat/input/native-chat-task-list-frames'
++import { buildNativeChatRailItems } from './native-chat-message-rail-items'
++import { createNativeChatMessageListProjection } from './native-chat-message-list-projection'
++import { nativeChatSubagentSections } from './native-chat-subagent-sections'
++import { omitNativeChatThreadGoalRows } from './native-chat-thread-goal-rows'
++import { buildNativeChatTranscriptSlots } from './native-chat-transcript-slots'
++import { projectStructuredAgentSessionMessages } from './structured-agent-session-message-projection'
++
++export function loadedRailItems(
++  items: AgentJournalRenderItem[],
++  submissions: AgentJournalSubmission[]
++) {
++  const projection = createNativeChatMessageListProjection()(
++    projectStructuredAgentSessionMessages(items, [], submissions)
 +  )
-+  expect(screen.queryByRole('button', { name: 'Queue' })).toBeNull()
-+  expect(screen.queryByRole('button', { name: 'Draft actions' })).toBeNull()
-+  fireEvent.click(screen.getByRole('button', { name: 'Stop the agent' }))
-+  expect(onStop).toHaveBeenCalledOnce()
-+})
-diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx
-new file mode 100644
-index 00000000000..4019f5438b5
---- /dev/null
-+++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.effort-state.test.tsx
-@@ -0,0 +1,93 @@
-+// @vitest-environment happy-dom
-+import '@testing-library/jest-dom/vitest'
-+import './native-chat-option-picker-ui.test-fixture'
-+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-+import { afterEach, it, expect, vi } from 'vitest'
-+import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
-+import { model, effort, unknownEffort } from './native-chat-option-picker.test-fixture'
-+import { CODEX_SESSION_OPTION_CATALOG } from '../../../../shared/agent-session/options/agent-session-option-catalog-claude-codex'
-+import {
-+  applyStructuredAgentSessionOptions,
-+  createStructuredAgentSessionOptionState
-+} from '../../../../shared/agent-session/options/structured-agent-session-options'
-+import { structuredAgentSessionOptionSnapshot } from '../../../../shared/agent-session/options/structured-agent-session-option-snapshot'
-+const surface = {
-+  getSnapshot: () => [],
-+  setOption: vi.fn(),
-+  invokeAction: vi.fn(),
-+  subscribe: () => () => {}
++  const messages = omitNativeChatThreadGoalRows(
++    projectNativeChatTaskListFrames(projection.conversation)
++  )
++  const membership = nativeChatTurnMembership(messages, { items, submissions })
++  return buildNativeChatRailItems(
++    buildNativeChatTranscriptSlots({
++      messages: nativeChatRowsInDrawOrder(messages, membership.drawOrder),
++      turnKeys: nativeChatRowsInDrawOrder(membership.turnKeys, membership.drawOrder),
++      liveTurnKey: membership.liveTurnKey,
++      receipts: new Map(),
++      turnStatuses: { active: null, completedByTurn: {} },
++      turnDiffs: new Map(),
++      expandedTurnKeys: new Set(),
++      isWorking: false,
++      lifecycleWorking: false,
++      subagentSections: nativeChatSubagentSections(messages, projection.subagentRows),
++      subagentChoices: { sections: new Map(), rosters: new Map() }
++    })
++  )
 +}
-+const effortSlider = (): HTMLElement => screen.getByRole('slider', { name: 'Effort' })
-+const pickEffort = (key = 'Home'): boolean => fireEvent.keyDown(effortSlider(), { key })
-+afterEach(cleanup)
-+it('keeps the current effort passive and adjusts it only through the slider', async () => {
-+  const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
-+  render(
-+    <NativeChatSessionOptionPickers
-+      surface={{ ...surface, setOption }}
-+      snapshot={[model(), effort]}
-+      isWorking={false}
-+    />
-+  )
-+  expect(screen.queryByRole('button', { name: 'High' })).toBeNull()
-+  fireEvent.click(screen.getAllByText('High')[0]!)
-+  expect(setOption).not.toHaveBeenCalled()
-+  expect(effortSlider().tabIndex).toBe(0)
-+  expect(effortSlider().getAttribute('aria-valuetext')).toBe('High')
-+  pickEffort('Home')
-+  await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'low'))
-+})
-+
-+it('keeps an unlisted reported effort read-only through the actual snapshot pipeline', () => {
-+  const state = applyStructuredAgentSessionOptions(
-+    createStructuredAgentSessionOptionState('codex'),
-+    CODEX_SESSION_OPTION_CATALOG,
-+    {
-+      models: [
-+        {
-+          id: 'account-model',
-+          label: 'Account Model',
-+          isDefault: true,
-+          efforts: [
-+            { value: 'low', label: 'Low' },
-+            { value: 'high', label: 'High' }
-+          ]
-+        }
-+      ],
-+      current: { model: 'account-model', effort: 'unsupported-level', confirmed: ['effort'] }
-+    }
-+  )
-+  const setOption = vi.fn()
-+  render(
-+    <NativeChatSessionOptionPickers
-+      surface={{ ...surface, setOption }}
-+      snapshot={structuredAgentSessionOptionSnapshot(state)}
-+      isWorking={false}
-+    />
-+  )
-+  expect(screen.queryByRole('slider', { name: 'Effort' })).toBeNull()
-+  expect(screen.queryByRole('radio', { name: 'unsupported-level' })).toBeNull()
-+  expect(screen.getAllByText('unsupported-level').length).toBeGreaterThan(0)
-+  expect(setOption).not.toHaveBeenCalled()
-+})
-+
-+it('keeps an unknown effort unreported until a supported choice is committed', async () => {
-+  const setOption = vi.fn().mockResolvedValue({ snapshot: [] })
-+  render(
-+    <NativeChatSessionOptionPickers
-+      surface={{ ...surface, setOption }}
-+      snapshot={[model(), unknownEffort]}
-+      isWorking={false}
-+    />
-+  )
-+  const group = screen.getByRole('radiogroup', { name: 'Effort' })
-+  expect(screen.queryByRole('slider')).toBeNull()
-+  expect(
-+    within(group)
-+      .getAllByRole('radio')
-+      .every((radio) => radio.getAttribute('aria-checked') === 'false')
-+  ).toBe(true)
-+  expect(setOption).not.toHaveBeenCalled()
-+  fireEvent.click(within(group).getByRole('radio', { name: 'High' }))
-+  await waitFor(() => expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'high'))
-+})
-diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx
-new file mode 100644
-index 00000000000..216670e2382
---- /dev/null
-+++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.pending-effort.test.tsx
-@@ -0,0 +1,73 @@
-+// @vitest-environment happy-dom
-+import '@testing-library/jest-dom/vitest'
-+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-+import { afterEach, it, expect, vi } from 'vitest'
-+import { TooltipProvider } from '@/components/ui/tooltip'
-+import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
-+import type { NativeChatOptionPickerRequest } from './native-chat-composer-types'
-+import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
-+import {
-+  model as createModel,
-+  effort as baseEffort
-+} from './native-chat-option-picker.test-fixture'
-+const model = createModel()
-+const effort: SessionOptionDescriptor = {
-+  ...baseEffort,
-+  kind: {
-+    type: 'select',
-+    currentValue: 'low',
-+    choices: [
-+      { value: 'low', label: 'Low' },
-+      { value: 'high', label: 'High' }
-+    ]
-+  }
-+}
-+const surface = {
-+  getSnapshot: () => [],
-+  setOption: vi.fn(),
-+  invokeAction: vi.fn(),
-+  subscribe: () => () => {}
-+}
-+const settle = () => act(async () => {})
-+async function openPicker() {
-+  fireEvent.click(screen.getByRole('button', { name: /Opus 4.8/ }))
-+  await settle()
-+}
-+afterEach(cleanup)
-+it('does not focus or change a pending effort when /effort reopens the picker', async () => {
-+  let finish = () => {}
-+  const setOption = vi.fn(
-+    () =>
-+      new Promise<{ snapshot: SessionOptionDescriptor[] }>((resolve) => {
-+        finish = () => resolve({ snapshot: [] })
-+      })
-+  )
-+  const view = (request: NativeChatOptionPickerRequest | null) => (
-+    <TooltipProvider>
-+      <NativeChatSessionOptionPickers
-+        surface={{ ...surface, setOption }}
-+        snapshot={[model, effort]}
-+        isWorking={false}
-+        pickerRequest={request}
-+      />
-+    </TooltipProvider>
-+  )
-+  const { rerender } = render(view(null))
-+  await openPicker()
-+  fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'End' })
-+  await settle()
-+  expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'high')
-+  rerender(view({ id: 'effort', consume: () => {} }))
-+  await settle()
-+  const slider = screen.getByRole('slider', { name: 'Effort' })
-+  expect(slider.closest('[aria-disabled="true"]')).not.toBeNull()
-+  expect(document.activeElement).toBe(screen.getByRole('combobox'))
-+  expect(slider.tabIndex).toBe(-1)
-+  fireEvent.keyDown(slider, { key: 'Home' })
-+  if (document.activeElement) {
-+    fireEvent.keyDown(document.activeElement, { key: 'Home' })
-+  }
-+  expect(slider.getAttribute('aria-valuetext')).toBe('High')
-+  expect(setOption).toHaveBeenCalledTimes(1)
-+  await act(async () => finish())
-+})
-diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
-index 9f9ee195344..687eeddf1ef 100644
---- a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
-@@ -6,64 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
+diff --git a/src/renderer/src/components/native-chat/native-chat-rail-outline-parity.test.ts b/src/renderer/src/components/native-chat/native-chat-rail-outline-parity.test.ts
+index fd2ab995fa1..b2640e9e981 100644
+--- a/src/renderer/src/components/native-chat/native-chat-rail-outline-parity.test.ts
++++ b/src/renderer/src/components/native-chat/native-chat-rail-outline-parity.test.ts
+@@ -1,3 +1,4 @@
++import { loadedRailItems } from './native-chat-rail-loaded-history.test-fixture'
+ import { readAgentMessageSource } from '../../../../shared/agent-session/agent-session-message-source'
+ import {
+   ORCHESTRATION_NOTICE_SOURCE,
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx b/src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx
+index c8588167f12..d50b74105c9 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx
++++ b/src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx
+@@ -1,3 +1,4 @@
++import { recheckNativeChatComposerDraftImagesIn } from './native-chat-composer-draft-image-check'
+ // @vitest-environment happy-dom
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import { act } from 'react'
+@@ -8,7 +9,6 @@ import {
+ } from './use-native-chat-composer-attachments'
  
- import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
+ import { readNativeChatDraftCache } from './native-chat-draft-cache'
+-import { NATIVE_FILE_DROP_MAX_PATHS } from '../../../../shared/native-file-drop'
+ import type * as RemoteRuntimePtyIdModule from '../../../../shared/remote-runtime/remote-runtime-pty-id'
  
--const toastError = vi.hoisted(() => vi.fn())
--vi.mock('sonner', () => ({ toast: { error: toastError } }))
--
--vi.mock('@/i18n/i18n', () => ({
--  translate: (_key: string, fallback: string, values?: Record<string, string | number>) => {
--    if (!values) {
--      return fallback
--    }
--    return Object.entries(values).reduce(
--      (text, [name, value]) => text.replaceAll(`{{${name}}}`, String(value)),
--      fallback
--    )
--  }
--}))
--
--vi.mock('@/components/ui/button', () => ({
--  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
--    <button {...props}>{children}</button>
--  )
--}))
--
--vi.mock('@/components/ui/tooltip', () => ({
--  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
--  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
--  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
--}))
--
--// Keep mocked rows mounted for assertions.
--vi.mock('@/components/ui/popover', () => ({
--  Popover: ({ children, open }: { children: React.ReactNode; open?: boolean }) => (
--    <div data-testid="picker-root" data-open={open ? 'true' : 'false'}>
--      {children}
--    </div>
--  ),
--  PopoverTrigger: ({ children, disabled }: { children: React.ReactNode; disabled?: boolean }) => (
--    <div data-disabled={disabled || undefined}>{children}</div>
--  ),
--  PopoverContent: ({
--    children,
--    side,
--    align,
--    collisionPadding
--  }: {
--    children: React.ReactNode
--    side?: string
--    align?: string
--    collisionPadding?: number
--  }) => (
--    <div
--      data-testid="picker-content"
--      data-side={side}
--      data-align={align}
--      data-collision-padding={collisionPadding}
--    >
--      {children}
--    </div>
--  )
--}))
-+import './native-chat-option-picker-ui.test-fixture'
- 
- import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
- import { model, effort } from './native-chat-option-picker.test-fixture'
-@@ -136,13 +79,25 @@ describe('NativeChatSessionOptionPickers', () => {
-   it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
-     const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
-     const fast: SessionOptionDescriptor = {
--      id: 'fastMode', label: 'Fast mode', category: 'mode',
--      kind: { type: 'boolean', currentValue: true }, valueSource: 'applied',
--      transport: 'agent-session', settable: true
-+      id: 'fastMode',
-+      label: 'Fast mode',
-+      category: 'mode',
-+      kind: { type: 'boolean', currentValue: true },
-+      valueSource: 'applied',
-+      transport: 'agent-session',
-+      settable: true
-     }
--    render(<NativeChatSessionOptionPickers surface={busySurface}
--      snapshot={[model({ transport: 'agent-session' }), { ...effort, transport: 'agent-session' }, fast]}
--      isWorking />)
-+    render(
-+      <NativeChatSessionOptionPickers
-+        surface={busySurface}
-+        snapshot={[
-+          model({ transport: 'agent-session' }),
-+          { ...effort, transport: 'agent-session' },
-+          fast
-+        ]}
-+        isWorking
-+      />
-+    )
-     screen.getByRole('option', { name: 'Sonnet 5' }).click()
-     await waitFor(() => expect(busySurface.setOption).toHaveBeenCalledWith('model', 'sonnet'))
-     pickEffort()
-@@ -180,9 +135,7 @@ describe('NativeChatSessionOptionPickers', () => {
-     expect(held()).toEqual(['false', 'false'])
- 
-     pickEffort()
--    await waitFor(() =>
--      expect(effortSlider().getAttribute('aria-valuetext')).toBe('Low')
--    )
-+    await waitFor(() => expect(effortSlider().getAttribute('aria-valuetext')).toBe('Low'))
-     expect(pill('Model Opus 4.8, Effort Low')).not.toBeNull()
-     expect(held()).toEqual(['false', 'true'])
-     screen.getByRole('option', { name: 'Sonnet 5' }).click()
-diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
-index 09abfc4e3c8..646f33ff159 100644
---- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
-@@ -94,6 +94,7 @@ vi.mock('./NativeChatMessageList', () => ({
-     subagentRoster?: StructuredAgentSubagentRoster
-   }) => {
-     useImperativeHandle(ref, () => ({
-+      readerAtEnd: () => true,
-       revealLatest: () => {},
-       revealFindMatch: () => {},
-       messageCopyText: () => null
-diff --git a/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx b/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx
-new file mode 100644
-index 00000000000..c4a70d8bcc0
---- /dev/null
-+++ b/src/renderer/src/components/native-chat/native-chat-option-picker-ui.test-fixture.tsx
-@@ -0,0 +1,60 @@
-+import type React from 'react'
-+import { vi } from 'vitest'
-+const toastError = vi.hoisted(() => vi.fn())
-+vi.mock('sonner', () => ({ toast: { error: toastError } }))
-+
-+vi.mock('@/i18n/i18n', () => ({
-+  translate: (_key: string, fallback: string, values?: Record<string, string | number>) => {
-+    if (!values) {
-+      return fallback
-+    }
-+    return Object.entries(values).reduce(
-+      (text, [name, value]) => text.replaceAll(`{{${name}}}`, String(value)),
-+      fallback
-+    )
-+  }
-+}))
-+
-+vi.mock('@/components/ui/button', () => ({
-+  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
-+    <button {...props}>{children}</button>
-+  )
-+}))
-+
-+vi.mock('@/components/ui/tooltip', () => ({
-+  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-+  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-+  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
-+}))
-+
-+// Keep mocked rows mounted for assertions.
-+vi.mock('@/components/ui/popover', () => ({
-+  Popover: ({ children, open }: { children: React.ReactNode; open?: boolean }) => (
-+    <div data-testid="picker-root" data-open={open ? 'true' : 'false'}>
-+      {children}
-+    </div>
-+  ),
-+  PopoverTrigger: ({ children, disabled }: { children: React.ReactNode; disabled?: boolean }) => (
-+    <div data-disabled={disabled || undefined}>{children}</div>
-+  ),
-+  PopoverContent: ({
-+    children,
-+    side,
-+    align,
-+    collisionPadding
-+  }: {
-+    children: React.ReactNode
-+    side?: string
-+    align?: string
-+    collisionPadding?: number
-+  }) => (
-+    <div
-+      data-testid="picker-content"
-+      data-side={side}
-+      data-align={align}
-+      data-collision-padding={collisionPadding}
-+    >
-+      {children}
-+    </div>
-+  )
-+}))
+ import { useAppStore } from '@/store'
