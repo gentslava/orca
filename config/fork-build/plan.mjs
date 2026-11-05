@@ -5,6 +5,7 @@ import { api, readLedger, renderReport } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
 import { assertFrozenHead, compose, git } from './composition.mjs'
 import { controlFingerprint } from './promotion.mjs'
+import { currentCompatibilityPatch } from './retired-test-fixtures.mjs'
 import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/build-mac-local.mjs'
 
 const here = import.meta.dirname
@@ -97,12 +98,34 @@ try {
       sha256: createHash('sha256').update(readFileSync(path)).digest('hex')
     })
     try {
-      git(source, ['apply', '--check', path])
-      git(source, ['apply', '--index', path])
-      git(source, ['commit', '-m', `Personal packaging policy: ${patch}`], {
-        GIT_AUTHOR_DATE: plan.timestamp,
-        GIT_COMMITTER_DATE: plan.timestamp
-      })
+      const current = currentCompatibilityPatch(
+        source,
+        plan.upstream,
+        readFileSync(path, 'utf8'),
+        git
+      )
+      if (!current.text && !current.retirements.length) {
+        throw new Error('Empty required compatibility correction')
+      }
+      let applicable = path
+      if (current.retirements.length) {
+        Object.assign(plan.compatibility.at(-1), {
+          retiredTestFixtures: current.retirements,
+          appliedSha256: createHash('sha256').update(current.text).digest('hex')
+        })
+        const filtered = join(source, '.git/fork-compatibility-patches')
+        mkdirSync(filtered, { recursive: true })
+        applicable = join(filtered, patch)
+        writeFileSync(applicable, current.text)
+      }
+      if (current.text) {
+        git(source, ['apply', '--check', applicable])
+        git(source, ['apply', '--index', applicable])
+        git(source, ['commit', '-m', `Personal packaging policy: ${patch}`], {
+          GIT_AUTHOR_DATE: plan.timestamp,
+          GIT_COMMITTER_DATE: plan.timestamp
+        })
+      }
     } catch (error) {
       plan.blockers.push({
         reason: `Required compatibility correction failed: ${patch}: ${error.message}`

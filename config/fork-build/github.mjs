@@ -80,6 +80,26 @@ export function renderReport(plan) {
         }
       }
     }
+    if (
+      plan.result.retiredFixtures?.length ||
+      plan.compatibility?.some((entry) => entry.retiredTestFixtures?.length)
+    ) {
+      lines.push('', '## Preserved upstream test retirements', '')
+      for (const entry of plan.result.retiredFixtures || []) {
+        for (const retirement of entry.paths) {
+          lines.push(
+            `- PR ${entry.number}: \`${retirement.path}\`; fixture delta SHA-256 \`${retirement.deltaSha256}\`.`
+          )
+        }
+      }
+      for (const entry of plan.compatibility || []) {
+        for (const retirement of entry.retiredTestFixtures || []) {
+          lines.push(
+            `- \`${entry.file}\`: \`${retirement.path}\`; removed by \`${retirement.removedBy}\`; correction SHA-256 \`${retirement.patchSha256}\`.`
+          )
+        }
+      }
+    }
     lines.push('', '## Conflicts and blockers', '')
     for (const conflict of plan.result.conflicts) {
       lines.push(

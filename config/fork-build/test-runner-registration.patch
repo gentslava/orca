@@ -2,7 +2,7 @@ diff --git a/config/scripts/ci/unit-selection/check-test-file-runners.mjs b/conf
 index ea66cced727..78e620b265e 100644
 --- a/config/scripts/ci/unit-selection/check-test-file-runners.mjs
 +++ b/config/scripts/ci/unit-selection/check-test-file-runners.mjs
-@@ -16,6 +16,26 @@ const TEST_FILE_NAME = /\.(?:test|spec|e2e|bench)\.[cm]?[jt]sx?$/
+@@ -16,6 +16,28 @@ const TEST_FILE_NAME = /\.(?:test|spec|e2e|bench)\.[cm]?[jt]sx?$/
  
  // Mirror literals must appear in runner sources; list manual rows each run so their lack of CI remains visible.
  const NON_UNIT_TEST_RUNNERS = [
@@ -14,7 +14,8 @@ index ea66cced727..78e620b265e 100644
 +      'config/fork-build/status-record.test.mjs',
 +      'config/fork-build/promotion.test.mjs',
 +      'config/fork-build/install.test.mjs',
-+      'config/fork-build/reviewed-deletion.test.mjs'
++      'config/fork-build/reviewed-deletion.test.mjs',
++      'config/fork-build/retired-test-fixtures.test.mjs'
 +    ],
 +    sources: ['.github/workflows/personal-build.yml'],
 +    mirrors: [
@@ -23,7 +24,8 @@ index ea66cced727..78e620b265e 100644
 +      'config/fork-build/status-record.test.mjs',
 +      'config/fork-build/promotion.test.mjs',
 +      'config/fork-build/install.test.mjs',
-+      'config/fork-build/reviewed-deletion.test.mjs'
++      'config/fork-build/reviewed-deletion.test.mjs',
++      'config/fork-build/retired-test-fixtures.test.mjs'
 +    ]
 +  },
    {
