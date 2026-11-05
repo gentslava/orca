@@ -391,7 +391,9 @@
     },
     "sessionOptionRows": {
       "defaultMarker": "По умолчанию",
-      "notReportedMarker": "Нет данных"
+      "notReportedMarker": "Нет данных",
+      "moreModels": "Другие модели",
+      "fewerModels": "Меньше моделей"
     },
     "sessionOptionSegments": {
       "dispatchUnconfirmed": "Отправлено агенту — получение не подтверждено"
