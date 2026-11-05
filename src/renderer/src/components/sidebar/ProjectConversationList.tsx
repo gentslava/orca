@@ -13,8 +13,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
 import { translate } from '@/i18n/i18n'
@@ -30,6 +28,7 @@ import {
   PROJECT_CONVERSATION_PAGE_SIZE
 } from '../../../../shared/project-conversation-list'
 import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
+import { ProjectOrderMenuItems } from './ProjectOrderMenuItems'
 import { useConversationPreferences } from './use-conversation-preferences'
 import { ProjectConversationRow } from './ProjectConversationRow'
 import { ProjectConversationSection } from './ProjectConversationSection'
@@ -52,7 +51,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
   const catalog = useProjectHostSetupProjection()
   const order = useAppStore((state) => state.projectOrderBy)
   const manualOrder = useAppStore((state) => state.manualRepoOrder)
-  const setOrder = useAppStore((state) => state.setProjectOrderBy)
+  const personalProjectOrder = useAppStore((state) => state.personalProjectOrder)
   const activeWorkspaceId = useAppStore((state) => state.activeWorktreeId)
   const activeTab = useAppStore((state) =>
     state.activeWorktreeId ? state.getActiveTab(state.activeWorktreeId) : null
@@ -83,6 +82,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
         catalog,
         order,
         manualOrder,
+        personalProjectOrder,
         activeWorkspaceId
       }),
     [
@@ -96,6 +96,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
       catalog,
       order,
       manualOrder,
+      personalProjectOrder,
       activeWorkspaceId
     ]
   )
@@ -211,20 +212,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            <DropdownMenuRadioGroup
-              value={order}
-              onValueChange={(value) => {
-                if (value === 'recent' || value === 'manual') {
-                  setOrder(value)
-                }
-              }}
-            >
-              {(['recent', 'manual'] as const).map((value) => (
-                <DropdownMenuRadioItem key={value} value={value}>
-                  {orderLabels.get(value)}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
+            <ProjectOrderMenuItems />
           </DropdownMenuContent>
         </DropdownMenu>
         <Button

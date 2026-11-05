@@ -1,3 +1,4 @@
+import { projectHostSetupProjectionFromRepos } from '../../../src/shared/project-host-setup-projection'
 import { describe, expect, it } from 'vitest'
 import { conversationPreferenceKey } from '../../../src/shared/conversation-navigation-preferences'
 import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
@@ -295,3 +296,62 @@ describe('projects containing conversations', () => {
     ).toBe(true)
   })
 })
+
+it.each([
+  ['manual', ['Beta', 'Alpha']],
+  ['recent', ['Alpha', 'Beta']],
+  ['frequent', ['Beta', 'Alpha']],
+  ['name', ['Alpha', 'Beta']]
+] as const)(
+  'uses personal project summaries in mobile %s order without changing manual order',
+  (mode, expected) => {
+    const repos = [
+      {
+        id: 'beta',
+        displayName: 'Beta',
+        path: '/beta',
+        badgeColor: '',
+        addedAt: 0,
+        executionHostId: 'local' as const
+      },
+      {
+        id: 'alpha',
+        displayName: 'Alpha',
+        path: '/alpha',
+        badgeColor: '',
+        addedAt: 0,
+        executionHostId: 'local' as const
+      }
+    ]
+    const projection = projectHostSetupProjectionFromRepos(repos)
+    const projects = buildProjectConversations({
+      workspaces: [],
+      repos,
+      tabs: new Map(),
+      history: [],
+      now: 0,
+      untitled: 'Untitled',
+      projectCatalog: {
+        repos,
+        repoOrder: new Map([
+          ['beta', 0],
+          ['alpha', 1]
+        ]),
+        projectOrderBy: mode,
+        grouping: {
+          projects: projection.projects,
+          projectHostSetups: projection.setups,
+          personalProjectOrder: {
+            projects: {
+              '["local","local","repo:beta"]': { openCount: 9, lastOpenedAt: 100 },
+              '["local","local","repo:alpha"]': { openCount: 1, lastOpenedAt: 200 }
+            },
+            settledOperations: []
+          }
+        }
+      }
+    })
+    expect(projects.map((project) => project.title)).toEqual(expected)
+    expect(repos.map((repo) => repo.id)).toEqual(['beta', 'alpha'])
+  }
+)
