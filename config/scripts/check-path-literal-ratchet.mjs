@@ -1,7 +1,11 @@
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
 import { parse } from 'jsonc-parser'
-import { listTrackedFiles, readTrackedSources, runEntryRatchet } from './ratchet-baseline.mjs'
+import {
+  listTrackedFiles,
+  readTrackedSources,
+  runEntryRatchet
+} from './static-analysis/ratchet-baseline/ratchet-baseline.mjs'
 
 // Ratchet stale src/... references in CI/workflows/e2e downward before folder moves can orphan routes, gate manifests or workflow paths.
 
@@ -11,7 +15,7 @@ const SOURCE_ROOTS = 'main|renderer|shared|cli|preload|packages|types|wsl-guest'
 const RESOLVED_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '/index.ts']
 // Generated timings; a stale row only skews shard balance and is rewritten by its generator.
 const EXCLUDED_FILES = new Set([
-  'config/scripts/ci-shard-timings.json',
+  'config/scripts/ci/sharding/ci-shard-timings.json',
   // Merge targets are checked against composed Git blobs, not this control checkout.
   'config/fork-build/merge-resolutions/manifest.json'
 ])

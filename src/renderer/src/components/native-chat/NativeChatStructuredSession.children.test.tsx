@@ -45,7 +45,7 @@ const transport = vi.hoisted(() => ({
   capability: 'supported'
 }))
 
-vi.mock('@/lib/agent-session/launch/structured-agent-session-launch', () =>
+vi.mock('@/lib/structured-agent-session-launch', () =>
   moduleFactories.structuredAgentSessionLaunch()
 )
 vi.mock('./use-structured-agent-session', () => moduleFactories.useStructuredAgentSession())
