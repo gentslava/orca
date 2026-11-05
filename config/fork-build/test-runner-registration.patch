@@ -1,6 +1,6 @@
 --- a/config/scripts/check-test-file-runners.mjs
 +++ b/config/scripts/check-test-file-runners.mjs
-@@ -16,6 +16,24 @@
+@@ -16,6 +16,26 @@
  
  // Mirror literals must appear in runner sources; list manual rows each run so their lack of CI remains visible.
  const NON_UNIT_TEST_RUNNERS = [
@@ -11,7 +11,8 @@
 +      'config/fork-build/composition.test.mjs',
 +      'config/fork-build/status-record.test.mjs',
 +      'config/fork-build/promotion.test.mjs',
-+      'config/fork-build/install.test.mjs'
++      'config/fork-build/install.test.mjs',
++      'config/fork-build/reviewed-deletion.test.mjs'
 +    ],
 +    sources: ['.github/workflows/personal-build.yml'],
 +    mirrors: [
@@ -19,7 +20,8 @@
 +      'config/fork-build/composition.test.mjs',
 +      'config/fork-build/status-record.test.mjs',
 +      'config/fork-build/promotion.test.mjs',
-+      'config/fork-build/install.test.mjs'
++      'config/fork-build/install.test.mjs',
++      'config/fork-build/reviewed-deletion.test.mjs'
 +    ]
 +  },
    {

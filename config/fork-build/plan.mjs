@@ -62,17 +62,12 @@ try {
     writeFileSync(join(source, '.git/objects/info/alternates'), `${objects}\n`)
   }
   git(source, ['remote', 'add', 'origin', `https://github.com/${config.upstream}.git`])
-  git(source, ['fetch', '--no-tags', 'origin', plan.upstream])
+  const selectedRefs = plan.selections.map((pr) =>
+    pr.merged_at ? pr.merge_commit_sha : `refs/pull/${pr.number}/head:refs/personal/pr-${pr.number}`
+  )
+  git(source, ['fetch', '--no-tags', 'origin', plan.upstream, ...new Set(selectedRefs)])
   for (const pr of plan.selections) {
-    if (pr.merged_at) {
-      git(source, ['fetch', '--no-tags', 'origin', pr.merge_commit_sha])
-    } else {
-      git(source, [
-        'fetch',
-        '--no-tags',
-        'origin',
-        `refs/pull/${pr.number}/head:refs/personal/pr-${pr.number}`
-      ])
+    if (!pr.merged_at) {
       assertFrozenHead(source, pr.number, pr.head.sha)
     }
   }

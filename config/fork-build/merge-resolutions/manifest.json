@@ -1420,5 +1420,44 @@
     "resultSha256": null,
     "reason": "Preserve upstream removal of legacy full picker suites; incoming changes only replace radio shape assertions with sliders.",
     "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/settings/chat/ChatSettingsSection.test.tsx",
+    "blobs": [
+      "79694552a7bd3217597f2af7b7e22c1d27d31b1c",
+      "9e2d07a6b283b8fd35d005a88b2975b3cb4a9476",
+      "0a2bfbd90eed72ef75eb80780a57b9b3dc5dea13"
+    ],
+    "patch": "refresh-20261105/pr33362-6f017f780b41.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of legacy settings inventory suite; queue behavior remains covered by ChatBehaviorSetting tests.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/settings/chat/ChatBehaviorSetting.test.tsx",
+    "blobs": [
+      "df91a211b0f0e0a0073ad9a9064bc9b75178e5ac",
+      null,
+      "c46ee0e50eff53b5f12ccedcf5ab971b2e5acf6e"
+    ],
+    "patch": "refresh-20261105/pr33362-d78c6990d3a8.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of the legacy shell/settings suite; incoming delta only adjusts disabled-state assertions for unsupported queue capability.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/settings/appearance/AppearancePane.test.tsx",
+    "blobs": [
+      "0131d31e1033a29083823e00cc71a5aaa4c25f08",
+      null,
+      "7ca781cdf512ef3b82ce1ce24b908a5cb83652be"
+    ],
+    "patch": "refresh-20261105/pr33512-7e08ada0d4a1.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of broad appearance settings suite; hold-to-quit policy keeps its focused gesture, settings-owner and activity coverage.",
+    "deleted": true
   }
 ]

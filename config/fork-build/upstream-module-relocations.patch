@@ -1032,6 +1032,41 @@ index 00000000000..4156e2a59cf
 +  })
 +  return !turned
 +}
+diff --git a/src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx b/src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx
+index 9bdb67b0036..3396359e920 100644
+--- a/src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatMessageList.subagent-sections.test.tsx
+@@ -59,7 +59,7 @@ import {
+   windowState
+ } from './NativeChatMessageList.windowing-test-support'
+ 
+-const childNavigation = { open: () => {} }
++const childNavigation = { open: vi.fn() }
+ 
+ {
+   function journalItem(
+@@ -261,7 +261,7 @@ const childNavigation = { open: () => {} }
+       expect(screen.getByRole('button', { name: /Ran 1 subagent/, expanded: false })).toBeVisible()
+     })
+ 
+-    it('reveals a child edit from the parent rollup when child conversation navigation is available', () => {
++    it('shows the child patch from the parent rollup without opening its conversation', () => {
+       vi.spyOn(HTMLElement.prototype, 'scrollTo').mockImplementation(() => {})
+       render(
+         <NativeChatChildNavigationContext.Provider value={childNavigation}>
+@@ -269,10 +269,10 @@ const childNavigation = { open: () => {} }
+         </NativeChatChildNavigationContext.Provider>
+       )
+       expect(screen.queryByText('The PR is CLEAN.')).toBeNull()
+-      fireEvent.click(screen.getByRole('button', { name: /1 changed file/ }))
+       fireEvent.click(screen.getByRole('button', { name: /src\/a.ts/ }))
+       expect(screen.getByText('Edited')).toBeVisible()
+-      expect(screen.getByText('The PR is CLEAN.')).toBeVisible()
++      expect(screen.queryByText('The PR is CLEAN.')).toBeNull()
++      expect(childNavigation.open).not.toHaveBeenCalled()
+     })
+ 
+     // Journal turn records own subagent edits, even when a newer send is queued or the opener is unloaded.
 diff --git a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx b/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
 index 620770211ab..1b8398a59e4 100644
 --- a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
@@ -1118,6 +1153,19 @@ index e51dd72d32d..3af82b3cb16 100644
  import { buildNativeChatTranscriptSlots } from './native-chat-transcript-slots'
  import {
    buildNativeChatRailItems,
+diff --git a/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts b/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts
+index 5e037f9af65..aabdfe6247b 100644
+--- a/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts
++++ b/src/renderer/src/components/native-chat/native-chat-structured-composer-dispatch.ts
+@@ -35,7 +35,7 @@ export async function dispatchNativeChatStructuredComposerText(
+     }
+   }
+   const sendRequest = skills.length > 0 ? { ...request, skills } : request
+-  const admission = sendRequest
++  const admission = sendRequest && Object.keys(sendRequest).length > 0
+     ? transport.send(prompt, attachments, sendRequest)
+     : transport.send(prompt, attachments)
+   if (admission instanceof Promise) {
 diff --git a/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts b/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts
 index 32d63c3078e..fe58673eb21 100644
 --- a/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts
@@ -1160,7 +1208,7 @@ index f4b8aafc444..850e594feea 100644
  vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
  
 diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
-index 4e121aec933..04f8a088fcf 100644
+index 4e121aec933..01c7fda5761 100644
 --- a/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
 @@ -2,9 +2,9 @@
@@ -1175,6 +1223,33 @@ index 4e121aec933..04f8a088fcf 100644
  import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
  
  const state = {
+@@ -41,7 +41,7 @@ const sessions: AiVaultSession[] = [
+   }
+ ]
+ const observeRefresh = vi.hoisted(() => vi.fn())
+-vi.mock('./ai-vault-session-refresh', () => ({
++vi.mock('./ai-vault/scanning/ai-vault-session-refresh', () => ({
+   useAiVaultSessionRefresh: (_paths: string[], _scope: string, limit: number | 'unlimited') => {
+     observeRefresh(limit)
+     return {
+@@ -54,7 +54,7 @@ vi.mock('./ai-vault-session-refresh', () => ({
+     }
+   }
+ }))
+-vi.mock('./use-persisted-ai-vault-view-options', () => ({
++vi.mock('./ai-vault/scope/use-persisted-ai-vault-view-options', () => ({
+   usePersistedAiVaultViewOptions: () => ({
+     agents: [],
+     sort: 'updated',
+@@ -81,7 +81,7 @@ vi.mock('../sidebar/ProjectConversationList', () => ({
+     </ul>
+   )
+ }))
+-vi.mock('./ai-vault-session-delete-action', () => ({
++vi.mock('./ai-vault/session-actions/ai-vault-session-delete-action', () => ({
+   useAiVaultSessionDeleteAction: () => vi.fn()
+ }))
+ const searchSessions = vi.fn()
 diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
 index a8cb6019000..d642824f0e4 100644
 --- a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx

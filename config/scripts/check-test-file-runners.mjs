@@ -23,7 +23,8 @@ const NON_UNIT_TEST_RUNNERS = [
       'config/fork-build/composition.test.mjs',
       'config/fork-build/status-record.test.mjs',
       'config/fork-build/promotion.test.mjs',
-      'config/fork-build/install.test.mjs'
+      'config/fork-build/install.test.mjs',
+      'config/fork-build/reviewed-deletion.test.mjs'
     ],
     sources: ['.github/workflows/personal-build.yml'],
     mirrors: [
@@ -31,7 +32,8 @@ const NON_UNIT_TEST_RUNNERS = [
       'config/fork-build/composition.test.mjs',
       'config/fork-build/status-record.test.mjs',
       'config/fork-build/promotion.test.mjs',
-      'config/fork-build/install.test.mjs'
+      'config/fork-build/install.test.mjs',
+      'config/fork-build/reviewed-deletion.test.mjs'
     ]
   },
   {
