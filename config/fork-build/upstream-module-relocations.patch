@@ -2820,3 +2820,18 @@ index 031d944e5cb..793d5a5127f 100644
  const carried = (
    state: StructuredAgentSessionOptionState,
    seed?: Readonly<Record<string, string>>,
+diff --git a/mobile/package.json b/mobile/package.json
+index 486fa1cda28..d864d79e6a5 100644
+--- a/mobile/package.json
++++ b/mobile/package.json
+@@ -10,8 +10,8 @@
+     "native": "node scripts/native-client.mjs",
+     "postinstall": "node scripts/build-terminal-webview-engine.mjs && node scripts/build-mermaid-page-engine.mjs && node scripts/build-terminal-document-script.mjs",
+     "test": "vitest run",
+-    "typecheck": "node ../config/scripts/run-typecheck-projects-in-parallel.mjs --project=mobile/tsconfig.json",
+-    "typecheck:tests": "node ../config/scripts/run-typecheck-projects-in-parallel.mjs --project=mobile/tsconfig.test.json",
++    "typecheck": "node ../config/scripts/typecheck/project-execution/run-typecheck-projects-in-parallel.mjs --project=mobile/tsconfig.json",
++    "typecheck:tests": "node ../config/scripts/typecheck/project-execution/run-typecheck-projects-in-parallel.mjs --project=mobile/tsconfig.test.json",
+     "check:tests-typecheck": "node scripts/check-tests-typecheck-ratchet.mjs",
+     "rpc:record": "tsx --conditions=orca-source scripts/rpc-recording.mts",
+     "rpc:diff": "tsx --conditions=orca-source scripts/rpc-diff.mts",
