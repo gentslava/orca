@@ -20115,6 +20115,11 @@
         "runPlan_one": "Updated the plan {{count}} time",
         "runLiveBrowser_one": "Using the browser {{count}} time",
         "runLivePlan_one": "Updating the plan {{count}} time",
+        "input": "Input",
+        "output": "Output",
+        "copyInput": "Copy input",
+        "showFullInput": "Show full input",
+        "inputUnavailable": "Input is not available in this transcript.",
         "activity": "Activity"
       },
       "providerFrame": {
@@ -20391,7 +20396,6 @@
         "orcaSessionIdTooltip": "Orca's ID for this chat, separate from the agent CLI's own session ID. Agents use it to refer to each other through Orca."
       },
       "dismissDeliveryNotice": "Dismiss",
-      "editDeliveryNotice": "Edit",
       "addSelectionToChat": "Add to chat",
       "messageNotSent": "Message not sent",
       "messageSending": "Sending…",
@@ -20602,31 +20606,6 @@
         "commandCanceled": "Chat UI command was canceled because the composer closed.",
         "commandRejected": "The terminal did not accept the command."
       },
-      "children": {
-        "metadata": {
-          "localHost": "Local execution host",
-          "environment": "Environment {{value0}}",
-          "wsl": "WSL · {{value0}}",
-          "ssh": "SSH · {{value0}}",
-          "unknown": "Unknown",
-          "agent": "Agent",
-          "host": "Execution host"
-        },
-        "back": "Back to conversation",
-        "started": "Started {{value0}}",
-        "finished": "Finished {{value0}}",
-        "loading": "Loading agent history…",
-        "unavailable": "This host has not supplied the agent’s conversation history.",
-        "loadEarlier": "Load earlier history",
-        "result": "Recorded result",
-        "starting": "Starting",
-        "unavailableState": "Unavailable",
-        "workersUnavailable": "This host’s worker history is unavailable.",
-        "identityUnavailable": "This worker’s conversation identity could not be verified.",
-        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
-        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
-        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
-      },
       "sessionOptionErrors": {
         "startOnly": "This option can only be set when the session starts.",
         "modelRejected": "Claude kept the current model.",
@@ -20671,6 +20650,32 @@
         "cancelled": "Orca won't continue this chat automatically.",
         "scheduled": "Orca will continue this chat at {{time}}.",
         "cancel": "Don't continue"
+      },
+      "editDeliveryNotice": "Edit",
+      "children": {
+        "metadata": {
+          "localHost": "Local execution host",
+          "environment": "Environment {{value0}}",
+          "wsl": "WSL · {{value0}}",
+          "ssh": "SSH · {{value0}}",
+          "unknown": "Unknown",
+          "agent": "Agent",
+          "host": "Execution host"
+        },
+        "back": "Back to conversation",
+        "started": "Started {{value0}}",
+        "finished": "Finished {{value0}}",
+        "loading": "Loading agent history…",
+        "unavailable": "This host has not supplied the agent’s conversation history.",
+        "loadEarlier": "Load earlier history",
+        "result": "Recorded result",
+        "starting": "Starting",
+        "unavailableState": "Unavailable",
+        "workersUnavailable": "This host’s worker history is unavailable.",
+        "identityUnavailable": "This worker’s conversation identity could not be verified.",
+        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
+        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
+        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
       },
       "settings": "Chat settings",
       "creationChatNotOpened": "Your worktree is ready, but the chat could not open. Retry to open it with your message."
