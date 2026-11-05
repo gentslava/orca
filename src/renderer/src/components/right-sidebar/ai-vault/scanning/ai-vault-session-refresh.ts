@@ -186,9 +186,17 @@ export function useAiVaultSessionRefresh(
         sessionLimit: selectedLimit
       }
       try {
-        await loadStartupCatalog(request, requestTokenRef.current, scanKey, requestCurrent)
-        if (!requestCurrent()) {
-          return
+        const startupCatalog = loadStartupCatalog(
+          request,
+          requestTokenRef.current,
+          scanKey,
+          requestCurrent
+        )
+        if (startupCatalog) {
+          await startupCatalog
+          if (!requestCurrent()) {
+            return
+          }
         }
         const previous = conditionalSnapshotRef.current
         const result = await refreshAiVaultSessionList(

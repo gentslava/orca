@@ -352,7 +352,10 @@ export default function TabGroupPanel({
             data-active-content-type={activeTab?.contentType}
           />
         ) : null}
-        {isVisible && model.groupTabs.length === 0 && clientHostedRows.length === 0 ? (
+        {isVisible &&
+        !activeTab &&
+        model.groupTabs.length === 0 &&
+        clientHostedRows.length === 0 ? (
           <WorkspaceStartPage
             worktreeId={worktreeId}
             groupId={groupId}

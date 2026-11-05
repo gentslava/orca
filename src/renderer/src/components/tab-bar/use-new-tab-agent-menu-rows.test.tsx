@@ -660,7 +660,7 @@ it('preserves per-agent published answers and direct route inputs across context
                 agent,
                 state: agent === refused ? 'refused' : 'available',
                 reason: 'agent',
-                chatProgram: 'installable'
+                chatProgram: 'available'
               }))
             })
           )

@@ -570,7 +570,7 @@ index 80ded426032..eeb95cc31ee 100644
      await render()
      const original = latest?.scanResult
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
-index 12a6f29f349..5bb780891de 100644
+index 12a6f29f349..a2aaa1bc534 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
 @@ -20,6 +20,7 @@ import {
@@ -589,18 +589,26 @@ index 12a6f29f349..5bb780891de 100644
    const refresh = useCallback(
      async (args: AiVaultRefreshArgs = {}): Promise<void> => {
        const observation = associationsRef.current
-@@ -184,6 +186,10 @@ export function useAiVaultSessionRefresh(
+@@ -184,6 +186,18 @@ export function useAiVaultSessionRefresh(
          sessionLimit: selectedLimit
        }
        try {
-+        await loadStartupCatalog(request, requestTokenRef.current, scanKey, requestCurrent)
-+        if (!requestCurrent()) {
-+          return
++        const startupCatalog = loadStartupCatalog(
++          request,
++          requestTokenRef.current,
++          scanKey,
++          requestCurrent
++        )
++        if (startupCatalog) {
++          await startupCatalog
++          if (!requestCurrent()) {
++            return
++          }
 +        }
          const previous = conditionalSnapshotRef.current
          const result = await refreshAiVaultSessionList(
            request,
-@@ -237,7 +243,7 @@ export function useAiVaultSessionRefresh(
+@@ -237,7 +251,7 @@ export function useAiVaultSessionRefresh(
        }
        // Read changing scope through refs; recursion requires a stable refresh identity.
      },
@@ -611,10 +619,10 @@ index 12a6f29f349..5bb780891de 100644
    // Defer throttled new-session rescans until budget frees so sessions cannot remain invisible indefinitely.
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
 new file mode 100644
-index 00000000000..68da73f250c
+index 00000000000..2c89984801b
 --- /dev/null
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,52 @@
 +import { useCallback, useRef, type Dispatch, type RefObject, type SetStateAction } from 'react'
 +import { isAiVaultScanCancelledError } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
 +import type { useAppliedAiVaultScan } from './ai-vault-applied-scan'
@@ -631,36 +639,38 @@ index 00000000000..68da73f250c
 +) {
 +  const scope = useRef<string | null>(null)
 +  return useCallback(
-+    async (
++    (
 +      request: AiVaultSessionListRequest,
 +      requestToken: string,
 +      scopeKey: string,
 +      current: () => boolean
-+    ): Promise<void> => {
++    ): Promise<void> | undefined => {
 +      if (!request.includeStructuredSessions || scope.current === scopeKey) {
 +        return
 +      }
 +      scope.current = scopeKey
-+      try {
-+        const catalog = await window.api.aiVault.listSessions({
-+          ...aiVaultSessionListArgs(request, { requestToken }),
-+          executionHostScope:
-+            request.executionHostScope === 'all' ? 'local' : request.executionHostScope,
-+          structuredOnly: true
-+        })
-+        if (current() && !catalog.cancelled && catalog.sessions.length > 0) {
-+          gate.current.publish(catalog, (published) => {
-+            if (current()) {
-+              applyScan(published, request.sessionLimit, scopeKey)
-+              setLoading(false)
-+            }
++      return (async () => {
++        try {
++          const catalog = await window.api.aiVault.listSessions({
++            ...aiVaultSessionListArgs(request, { requestToken }),
++            executionHostScope:
++              request.executionHostScope === 'all' ? 'local' : request.executionHostScope,
++            structuredOnly: true
 +          })
++          if (current() && !catalog.cancelled && catalog.sessions.length > 0) {
++            gate.current.publish(catalog, (published) => {
++              if (current()) {
++                applyScan(published, request.sessionLimit, scopeKey)
++                setLoading(false)
++              }
++            })
++          }
++        } catch (error) {
++          if (!isAiVaultScanCancelledError(error)) {
++            console.warn('Could not load the chat catalog before history', error)
++          }
 +        }
-+      } catch (error) {
-+        if (!isAiVaultScanCancelledError(error)) {
-+          console.warn('Could not load the chat catalog before history', error)
-+        }
-+      }
++      })()
 +    },
 +    [applyScan, gate, setLoading]
 +  )
