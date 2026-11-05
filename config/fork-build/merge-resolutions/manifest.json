@@ -1618,5 +1618,78 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "3e42e2e89a8ba9cb8b85217f95ddf70fa5c346c4fd11f5644b069a0c9e8fbac5",
     "reason": "Retain the current upstream tool-run interaction suite instead of restoring removed class-string layout assertions for compact headers."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/native-chat-composer-ime-file-drop.test.tsx",
+    "blobs": [
+      "02ff00442d9c3b54169fc389411c6760294ee8ad",
+      "b3a38779a5f5e67f08fcc9c9e90df43a7af7f7be",
+      "4bd16c3b49d2f0368b85d5f966e8ca30cd30df35"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-bad465c4023b.patch",
+    "patchSha256": "6ef57ff489fc83d6dd2956be6d5511a5c983122315bba1ce4f5294aecb36ddf5",
+    "resultSha256": "2ff09b61b83a1ce3652b97f985abf2c141f1fd375d2327de6a9f576011c4f1c5",
+    "reason": "Combine current chip-aware attachment cases with refreshed upload ownership and draft-lifetime regressions; preserve upstream removal of redundant image-order coverage."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/native-chat-composer-workspace-file-drop.test.tsx",
+    "blobs": [
+      "6416b2be73b194945c39665b4da814842e5df0d8",
+      "5806dafa1dc02f0dba5d0ac7c38082788a880059",
+      "cd60a0a452717a2321ccbe5dc26c6f69126b1739"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-f9503fc13383.patch",
+    "patchSha256": "263a35241a4b183777391a8c6a60e8aff6ca05da22fe5cc5978a3e1ea0471704",
+    "resultSha256": "949b2291b12e1573dfe9e29f81d540f2d0decb9b05a74f601129da34326c09ae",
+    "reason": "Combine current chip-aware attachment cases with refreshed upload ownership and draft-lifetime regressions; preserve upstream removal of redundant image-order coverage."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/native-chat-image-references.test.tsx",
+    "blobs": [
+      "13fb254893ac7b01dff0fc2924f80dabf74dd48a",
+      "35115f1a716fa9f2cef0e1ce38db93e3f33c5b92",
+      "0d442719b2745a06553a543580c19e508c2abdb2"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-be0283f73cfd.patch",
+    "patchSha256": "716b1c004053d1a511c58946008247609f32224e21a1cd4ae7245815105de8ec",
+    "resultSha256": "deb9217a7d334f87a0485fdb0896bb1e6f68b8d30e105d96b869d2a2d0b83c19",
+    "reason": "Retain the selected image-tray representation and its text/selection preservation, literal file-reference, hand-back and delayed upload regressions; upstream chip-editing expectations describe the behavior this feature deliberately replaces."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx",
+    "blobs": [
+      "56e0fa9985d4877022f2bd7906713ee3fb291d1f",
+      "768a85f16bf51f90b90bceb4bd021c217c95e3a8",
+      "d189e47eb3adad5647f4d789d540c00633fa2019"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-6330c872ca6f.patch",
+    "patchSha256": "a45803b94c886aada18c49aca333c59d862a5df52ac1f03b440f304b937edd92",
+    "resultSha256": "a209174475422880550b4cc6591e5f6e84a8c6aebebd1b5333cbdad24313b9cc",
+    "reason": "Combine current chip-aware attachment cases with refreshed upload ownership and draft-lifetime regressions; preserve upstream removal of redundant image-order coverage."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-menu-paste-lifetime.test.tsx",
+    "blobs": [
+      "6ef7393a238dd1527635dbf36cb28bee83c83b74",
+      null,
+      "fa5574831e7d7f69482313e0ef41dad5486254e3"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-e7b799aeb53c.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the old full paste lifetime fixture; current focused paste routing and attachment lifetime regressions remain.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-context-menu.targets.test.tsx",
+    "blobs": [
+      "745e572c3319a9b795b944110200626a00a3fc39",
+      "37d578b207e509cbb55dc9db05f8b9c547e06ab5",
+      "c213e6bb17f09935c97aa7f9af39329ef4b2d8c4"
+    ],
+    "patch": "startup-refresh-20261105/pr34895-6a6a962c8094.patch",
+    "patchSha256": "3566ed80d9b0ba3a8e66f0b83ae4d3bf4e5717603ffecd244e560b1a30f1f067",
+    "resultSha256": "2c0f57fc3820df11a79de7314ab18129eae0513ced6e769ef9e3eb0ae0bb225e",
+    "reason": "Retain the focused current right-click target lifetime cases and child workspace guards; do not restore the generic context-menu inventory removed upstream."
   }
 ]
