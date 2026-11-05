@@ -1896,5 +1896,95 @@
     "resultSha256": null,
     "reason": "Preserve upstream deletion of the broad session hook suite; this PR only adjusted a capability fixture there, while busy/queued option behavior is covered by focused working-options and queue-working suites.",
     "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx",
+    "blobs": [
+      "7d62f7dec373102152df2da386f1fabb9588a6f6",
+      null,
+      "8b88a884b28aff9e40f97754d07628f159c301d6"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-73cac8b7ce61.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault suite; retain chat-first production behavior and focused project navigation tests, with ownership cases ported into current test owners.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultVirtualRow.test.tsx",
+    "blobs": [
+      "8a5157daf5303fb8d52ca6ced88924d22531b122",
+      null,
+      "53337469171a05798bd599138d173981aa59c1f2"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-c3e714e62e37.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault suite; retain chat-first production behavior and focused project navigation tests, with ownership cases ported into current test owners.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault-session-projects.test.ts",
+    "blobs": [
+      "4376d7b4515526989da3a901e3c59d2e775c60bc",
+      null,
+      "8e9779a6099411d624707cc093c52351a14bd696"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-5607b8155b50.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault suite; retain chat-first production behavior and focused project navigation tests, with ownership cases ported into current test owners.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault-session-worktree.test.ts",
+    "blobs": [
+      "efeccab246cfa8a57247793f69cbb964ca619760",
+      null,
+      "2f8fcd9435b3d0bedd38a7f9c12c80c43a58abcf"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-ecf85d263345.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault suite; retain chat-first production behavior and focused project navigation tests, with ownership cases ported into current test owners.",
+    "deleted": true
+  },
+  {
+    "path": "config/scripts/orcad-distribution/server-bundle/build-orcad.mjs",
+    "blobs": [
+      "e00b67c8105d47734446179ef558a4bc9fb32e6c",
+      "6d9f68c2046993a6326b83f290b5b8d67965e453",
+      "ff1879e48ddb0ffda60d50ab511f50e34e919a84"
+    ],
+    "patch": "startup-refresh-20261105/pr33365-99bf605b7e46.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "80ebe4bdc1bc528f2f1f082a55cfd169fd71504f8206aa2679f622920d791e5d",
+    "reason": "Keep canonical upstream build-source identity and process-failure owners while retaining the selected release packaging changes."
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/AiVaultSessionVirtualList.keyboard.test.tsx",
+    "blobs": [
+      "7d62f7dec373102152df2da386f1fabb9588a6f6",
+      null,
+      "fa8281dd20c9da8ff1ae405d44d27c59eb209fba"
+    ],
+    "patch": "startup-refresh-20261105/pr33383-d941b8cd363d.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault test owner; selected-session ownership remains in current host, navigation, scanner and mobile regression owners.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault-session-worktree.test.ts",
+    "blobs": [
+      "efeccab246cfa8a57247793f69cbb964ca619760",
+      null,
+      "ac00214230a814b95044ed68e1d2f1bc4a778278"
+    ],
+    "patch": "startup-refresh-20261105/pr33383-94c29c63e01b.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream retirement of the legacy AI Vault test owner; selected-session ownership remains in current host, navigation, scanner and mobile regression owners.",
+    "deleted": true
   }
 ]

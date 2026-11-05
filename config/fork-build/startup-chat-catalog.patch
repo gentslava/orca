@@ -493,7 +493,7 @@ index d642824f0e4..0d7ccad38ff 100644
    expect(listSessions.mock.lastCall?.[0].force).toBe(true)
    expect(project.querySelectorAll('[data-conversation-id]')).toHaveLength(7)
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
-index 2df02f5ac08..d9d53de8a37 100644
+index 80ded426032..eeb95cc31ee 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
 @@ -98,15 +98,17 @@ function Probe({
@@ -566,9 +566,9 @@ index 2df02f5ac08..d9d53de8a37 100644
 +    expect(latest?.sessions[0]?.filePath).toBe('/session.jsonl')
 +  })
 +
-   it('keeps scope changes loading through actual publication and settles failures, cancellation and empty results', async () => {
-     const show = async (paths: string[], noAgentsSelected = false) => {
-       pendingRenders.length = 0
+   it('keeps rows and updates the proof even when React reuses the old result identity', async () => {
+     await render()
+     const original = latest?.scanResult
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
 index 12a6f29f349..5bb780891de 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts

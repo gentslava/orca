@@ -2499,6 +2499,106 @@ index fa4024fe6d4..12a6f29f349 100644
  
  // Share the forced-rescan budget across remounts so session creation cannot amplify full scans.
  import {
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
+index b71d37ed2f5..dc2fe3f08cc 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
+@@ -35,6 +35,34 @@ const baseSession: AiVaultSession = {
+ }
+ 
+ describe('buildAiVaultProjectContext', () => {
++  it('attributes a structured chat to its stored workspace on its own host even when its cwd matches another project', () => {
++    const repo = makeRepo({ id: 'saved-repo', path: '/saved', displayName: 'Saved project' })
++    const worktree = makeWorktree({
++      id: 'saved-workspace',
++      repoId: repo.id,
++      projectId: 'saved-project',
++      path: '/saved'
++    })
++    const session = {
++      ...baseSession,
++      cwd: '/elsewhere',
++      structuredSession: { sessionId: 'stored-chat', workspaceId: worktree.id }
++    }
++    const args = {
++      repos: [repo],
++      worktrees: [worktree],
++      projectHostSetupProjection: makeProjection({
++        projects: [makeProject({ id: 'saved-project', displayName: 'Saved project' })]
++      })
++    }
++    expect(
++      buildAiVaultSessionProjectById({ ...args, sessions: [session] }).get(session.id)
++    ).toMatchObject({ key: 'project:saved-project' })
++    const remote = { ...session, executionHostId: 'runtime:remote' as const }
++    expect(
++      buildAiVaultSessionProjectById({ ...args, sessions: [remote] }).get(remote.id)?.key
++    ).not.toBe('project:saved-project')
++  })
+   it('uses durable worktree project ids before repo fallback', () => {
+     const repo = makeRepo({ id: 'repo-1', displayName: 'Legacy Repo', path: '/Users/ada/orca' })
+     const project = makeProject({ id: 'project-1', displayName: 'Canonical Orca' })
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
+index 3e5a6936975..edb5db46047 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
+@@ -4,6 +4,8 @@ import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts
+ import type { Repo } from '../../../../../../shared/repo-types'
+ import type { Worktree } from '../../../../../../shared/worktree/types'
+ 
++import { MIXED_FOLDER } from '../../../../../../shared/folder-workspaces/folder-workspace-host-routing.test-fixture'
++import { aiVaultSessionOwnerWorkspaces } from './ai-vault-session-worktree'
+ import { resolveAiVaultSessionWorktreeInfo } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-worktree'
+ 
+ const baseSession: AiVaultSession = {
+@@ -66,6 +68,47 @@ function makeRepo(overrides: Partial<Repo> = {}): Repo {
+ }
+ 
+ describe('resolveAiVaultSessionWorktreeInfo', () => {
++  it('resolves a record-only chat by stored folder identity without a cwd and keeps host twins separate', () => {
++    const folder = { ...MIXED_FOLDER, id: 'folder-1', name: 'Notes', folderPath: '/work/notes' }
++    const saved = {
++      ...baseSession,
++      source: 'structured-record' as const,
++      cwd: null,
++      filePath: '',
++      structuredSession: { sessionId: 'saved-empty', workspaceId: 'folder:folder-1' }
++    }
++    const worktrees = aiVaultSessionOwnerWorkspaces([], [folder])
++    expect(
++      resolveAiVaultSessionWorktreeInfo({ session: saved, worktrees, activeWorktreeId: null })
++    ).toMatchObject({ worktreeId: 'folder:folder-1', path: '/work/notes', label: 'Notes' })
++    expect(
++      resolveAiVaultSessionWorktreeInfo({
++        session: { ...saved, executionHostId: 'runtime:remote' },
++        worktrees,
++        activeWorktreeId: null
++      })
++    ).toBeNull()
++  })
++  it.each([
++    { filePath: String.raw`\\wsl.localhost\Ubuntu\home\ada\.codex\session.jsonl`, owner: 'Ubuntu' },
++    { filePath: String.raw`\\wsl.localhost\Debian\home\ada\.codex\session.jsonl`, owner: 'Debian' },
++    { filePath: '/home/ada/.codex/session.jsonl', owner: undefined }
++  ])('requires transcript namespace proof for WSL Linux cwd: $owner', ({ filePath, owner }) => {
++    const worktrees = ['Debian', 'Ubuntu'].map((distro) =>
++      makeWorktree({
++        id: `folder:${distro}`,
++        path: `\\\\wsl.localhost\\${distro}\\home\\ada\\orca`
++      })
++    )
++    const found = resolveAiVaultSessionWorktreeInfo({
++      session: { ...baseSession, cwd: '/home/ada/orca/src', filePath },
++      worktrees,
++      activeWorktreeId: null
++    })
++    expect(found?.worktreeId).toBe(owner ? `folder:${owner}` : undefined)
++    expect(found?.status).toBe(owner ? 'active' : 'unavailable')
++  })
++
+   it('ranks each same-host candidate by its closest cwd spelling, independent of link length or alias order', () => {
+     const parent = makeWorktree({ id: 'parent', path: '/a-very-long-parent-link' })
+     const child = makeWorktree({ id: 'child', path: '/short', priorWorktreeIds: ['repo-1::/old'] })
 diff --git a/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.picker.test.tsx b/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.picker.test.tsx
 index f7a75d440a0..ff2805e4478 100644
 --- a/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.picker.test.tsx
