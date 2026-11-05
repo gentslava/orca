@@ -22,7 +22,7 @@ import { useNativeChatAsyncQuestions } from './use-native-chat-async-questions'
 const NO_SUBMISSIONS: readonly AgentJournalSubmission[] = []
 type QuestionLinkProps = Pick<NativeChatQuestionCardProps, 'onLinkClick'>
 
-/** Async questions leave the composer usable; the next ordinary send answers them and Cancel only hides them. */
+/** Async questions keep the composer usable; card answers reach the current turn immediately. */
 export function NativeChatStructuredAsyncQuestion({
   paneKey,
   session,
