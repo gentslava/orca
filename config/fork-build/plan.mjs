@@ -83,7 +83,8 @@ try {
         'model-fallback-next-turn-test.patch',
         'reviewed-merge-target-paths.patch',
         'upstream-module-relocations.patch',
-        'startup-chat-catalog.patch'
+        'startup-chat-catalog.patch',
+        'composed-format.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')

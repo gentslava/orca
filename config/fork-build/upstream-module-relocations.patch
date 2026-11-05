@@ -2613,3 +2613,69 @@ index 7f978d7117e..3fb1853ce5c 100644
      await user.click(screen.getByRole('button', { name: `${label} permissions` }))
      await user.click(screen.getByRole('menuitemradio', { name: /^Full access/ }))
      await user.click(
+diff --git a/config/scripts/development/launch/run-electron-vite-dev.mjs b/config/scripts/development/launch/run-electron-vite-dev.mjs
+index 3bfaa56ee91..a78ae676ac6 100644
+--- a/config/scripts/development/launch/run-electron-vite-dev.mjs
++++ b/config/scripts/development/launch/run-electron-vite-dev.mjs
+@@ -17,7 +17,7 @@ import { createRequire } from 'node:module'
+ import os from 'node:os'
+ import path from 'node:path'
+ 
+-import { assertMacGuiLaunchAllowed } from './macos-gui-launch-preflight.mjs'
++import { assertMacGuiLaunchAllowed } from '../../macos-gui-launch-preflight.mjs'
+ import { prepareDevCliTerminalWrappers } from './dev-cli-terminal-wrapper.mjs'
+ import {
+   DEV_BUNDLE_MARKER_FILENAME,
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+index adec544f3a0..e7c9403bc74 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+@@ -186,8 +186,8 @@ async function open(replies = REPLIES, locale = 'ru-RU') {
+     replies
+   })
+   await page.goto(origin)
+-  await page.getByRole('button', { name: 'Clearer conversation navigation', exact: true }).waitFor()
+-  await page.getByRole('button', { name: 'A saved empty conversation', exact: true }).waitFor()
++  await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).waitFor()
++  await page.getByRole('button', { name: /^A saved empty conversation(?:\s|$)/ }).waitFor()
+   return { page, errors }
+ }
+ 
+@@ -266,7 +266,7 @@ describeRender('the actual mobile project conversation list', () => {
+ 
+   it('opens the selected pane and targets new chat creation at the project main workspace', async () => {
+     const { page, errors } = await open()
+-    await page.getByRole('button', { name: 'Clearer conversation navigation', exact: true }).click()
++    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).click()
+     await expect
+       .poll(() => notifies(page))
+       .toEqual([
+@@ -300,7 +300,7 @@ describeRender('the actual mobile project conversation list', () => {
+ 
+   it('reopens a durable empty conversation and routes a transcript to its specific history entry', async () => {
+     const { page, errors } = await open()
+-    await page.getByRole('button', { name: 'A saved empty conversation', exact: true }).click()
++    await page.getByRole('button', { name: /^A saved empty conversation(?:\s|$)/ }).click()
+     await expect
+       .poll(async () =>
+         (await requests(page)).filter((request) => request.method === 'agentSession.reveal')
+@@ -313,7 +313,7 @@ describeRender('the actual mobile project conversation list', () => {
+           href: expect.stringContaining('paneKey=structured-agent-session-saved-empty')
+         })
+       ])
+-    await page.getByRole('button', { name: 'Review the onboarding plan', exact: true }).click()
++    await page.getByRole('button', { name: /^Review the onboarding plan(?:\s|$)/ }).click()
+     await expect
+       .poll(() => notifies(page))
+       .toEqual(
+@@ -340,9 +340,7 @@ describeRender('the actual mobile project conversation list', () => {
+     await page.getByText('master', { exact: true }).first().waitFor()
+     await proof(page, 'before-workspaces-preserved')
+     await page.getByRole('button', { name: 'К проектам', exact: true }).click()
+-    await page
+-      .getByRole('button', { name: 'Clearer conversation navigation', exact: true })
+-      .waitFor()
++    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).waitFor()
+     expect(errors).toEqual([])
+     await page.close()
+   }, 60_000)
