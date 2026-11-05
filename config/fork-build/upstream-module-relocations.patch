@@ -3016,3 +3016,97 @@ index aada32aa60f..3ce8d6058dd 100644
        await page.locator('[data-worktree-sidebar]').waitFor({ state: 'visible', timeout: 30_000 })
      }
      return { page, dispose: () => page?.close() ?? Promise.resolve() }
+diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
+new file mode 100644
+index 00000000000..507a8a3f0fa
+--- /dev/null
++++ b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
+@@ -0,0 +1,75 @@
++import { expect, it } from 'vitest'
++import type { Repo } from '../../../../../../shared/repo-types'
++import type { Row } from '../../../../../../shared/sidebar-list/row-types'
++import {
++  getSidebarOrderedRepoHeaderRowsByBucket,
++  getSidebarOrderedRepoHeaderIdsByBucket
++} from './project-header-drop'
++
++it('keeps pinned and unpinned project drag targets in separate fixed tiers', () => {
++  const a: Repo = { id: 'a', path: '/a', displayName: 'a', badgeColor: '', addedAt: 0 }
++  const b: Repo = { ...a, id: 'b', path: '/b' }
++  const headers: Row[] = [
++    {
++      type: 'header',
++      key: 'a',
++      label: 'a',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: a,
++      projectPinned: true
++    },
++    {
++      type: 'header',
++      key: 'b',
++      label: 'b',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: b,
++      projectPinned: false
++    }
++  ]
++  const buckets = getSidebarOrderedRepoHeaderIdsByBucket(headers)
++  expect([...buckets.values()]).toEqual([['a'], ['b']])
++})
++
++it('resolves rendered same-id headers by their own membership and pin tier', () => {
++  const repo: Repo = { id: 'same', path: '/same', displayName: 'Same', badgeColor: '', addedAt: 0 }
++  const rows: Row[] = [
++    {
++      type: 'header',
++      key: 'local',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: { ...repo, executionHostId: 'local' },
++      projectPinned: true
++    },
++    {
++      type: 'header',
++      key: 'remote',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: { ...repo, executionHostId: 'runtime:remote' },
++      projectPinned: false
++    },
++    {
++      type: 'header',
++      key: 'other-group',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: { ...repo, projectGroupId: 'other' }
++    }
++  ]
++  const buckets = getSidebarOrderedRepoHeaderIdsByBucket(rows)
++  expect(
++    [...getSidebarOrderedRepoHeaderRowsByBucket(rows)].map(([bucket, headers]) => [
++      bucket,
++      headers.map((row) => row.key)
++    ])
++  ).toEqual([
++    [JSON.stringify(['ungrouped', true]), ['local']],
++    [JSON.stringify(['ungrouped', false]), ['remote']],
++    ['group:other', ['other-group']]
++  ])
++  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
++})
+diff --git a/src/main/runtime/terminal/launch/orchestration-agent-launch.ts b/src/main/runtime/terminal/launch/orchestration-agent-launch.ts
+index 9208c5b5cb8..851e178ec34 100644
+--- a/src/main/runtime/terminal/launch/orchestration-agent-launch.ts
++++ b/src/main/runtime/terminal/launch/orchestration-agent-launch.ts
+@@ -13,7 +13,7 @@ import {
+ } from '../../../../shared/agent-launch/startup/tui-agent-startup-shell'
+ import { isTuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent-config'
+ import { resolveConfiguredWorkerAgent } from '../../orchestration/configured-worker-agent-selector'
+-import { newWorktreeLaunchScope, resolveAgentLaunchRuntime } from '../../agent-launch-scope-runtime'
++import { newWorktreeLaunchScope, resolveAgentLaunchRuntime } from './agent-launch-scope-runtime'
+ import { parseWslUncPath } from '../../../../shared/wsl-paths'
+ import { resolveOpenCodeModelLaunchRoute } from '../../../opencode/opencode-model-startup-plan'
+ import { resolveAgentStartupPlanInputs } from '../../../../shared/agent-launch/startup/agent-startup-plan-inputs'
