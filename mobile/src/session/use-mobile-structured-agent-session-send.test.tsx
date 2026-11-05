@@ -8,9 +8,6 @@ import { structuredSendResultFixture } from './structured-agent-send-result.test
 import { createElement, useState } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
-import '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
-import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
 import type { RpcClient } from '../transport/rpc-client'
 import {
   fieldsOf,
@@ -23,10 +20,6 @@ import { useMobileStructuredAgentSession } from './use-mobile-structured-agent-s
 import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
 import { useMobileNativeChatDrafts } from './native-chat/composer/use-mobile-native-chat-drafts'
 import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
-import {
-  AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
-  AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY
-} from '../../../src/shared/agent-session/agent-session-runtime-capabilities'
 import {
   AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY,
   AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY
@@ -68,7 +61,6 @@ describe('mobile structured send actions', () => {
   let storedOperations: Map<string, string>
   let agent = 'codex'
   let sessionCommands: readonly AgentSessionSlashCommand[] | undefined
-  let sendOrdinary: ReturnType<typeof useMobileStructuredNativeChatSendBridge>['sendWithOutcome']
   let sessionId = 'session-1'
   let hostSupport: StructuredAgentSessionHostSupport | null = null
   let bridge: ReturnType<typeof useMobileStructuredNativeChatSendBridge>
