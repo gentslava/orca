@@ -2991,3 +2991,28 @@ index a916046fdd1..dbe8bf639ec 100644
 +      : [{ ...remembered, optionId, value: decoded }]
    })
  }
+diff --git a/tests/e2e/helpers/paired-electron-client.ts b/tests/e2e/helpers/paired-electron-client.ts
+index aada32aa60f..3ce8d6058dd 100644
+--- a/tests/e2e/helpers/paired-electron-client.ts
++++ b/tests/e2e/helpers/paired-electron-client.ts
+@@ -24,6 +24,7 @@ import {
+ } from './nested-runtime-same-id-pairing'
+ import { createPairedWebClientUrl, type PairedWebClientOptions } from './paired-web-client-url'
+ import { selectPairedRuntimeEnvironment } from './paired-client-runtime-environment'
++import { selectSidebarBody } from './store'
+ 
+ export { rePairPairedElectronClient } from './paired-client-runtime-environment'
+ 
+@@ -153,6 +154,12 @@ export async function launchPairedWebClient(
+     )
+     page = await pagePromise
+     if (options.waitForWorkspace !== false) {
++      await page.waitForFunction(
++        () => window.__store?.getState().workspaceSessionReady === true,
++        null,
++        { timeout: 30_000 }
++      )
++      await selectSidebarBody(page, 'workspaces')
+       await page.locator('[data-worktree-sidebar]').waitFor({ state: 'visible', timeout: 30_000 })
+     }
+     return { page, dispose: () => page?.close() ?? Promise.resolve() }
