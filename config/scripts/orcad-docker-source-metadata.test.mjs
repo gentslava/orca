@@ -68,13 +68,13 @@ it.skipIf(process.platform === 'win32')(
   async () => {
     const docker = resolve(import.meta.dirname, '../docker/orcad')
     await mkdir(join(root, 'config/docker/orcad'), { recursive: true })
-    await mkdir(join(root, 'config/scripts'), { recursive: true })
+    await mkdir(join(root, 'config/scripts/tool-invocation'), { recursive: true })
     for (const file of ['build-support.mjs', 'source-metadata.mjs']) {
       await copyFile(join(docker, file), join(root, 'config/docker/orcad', file))
     }
     await copyFile(
-      resolve(import.meta.dirname, 'script-entry-detection.mjs'),
-      join(root, 'config/scripts/script-entry-detection.mjs')
+      resolve(import.meta.dirname, 'tool-invocation/script-entry-detection.mjs'),
+      join(root, 'config/scripts/tool-invocation/script-entry-detection.mjs')
     )
     await mkdir(join(root, 'node_modules/esbuild'), { recursive: true })
     await writeFile(
