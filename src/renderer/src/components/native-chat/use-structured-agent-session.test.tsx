@@ -550,7 +550,7 @@ describe('useStructuredAgentSession options', () => {
     )
   })
 
-  it('pins the model an effort-only pick was made against', async () => {
+  it('remembers an opened chat’s effort under its model, leaving the new-chat model alone', async () => {
     mocks.call.mockImplementation((_target, method) =>
       method === 'agentSession.options'
         ? Promise.resolve(OPTIONS)
@@ -566,11 +566,15 @@ describe('useStructuredAgentSession options', () => {
       expect(await result.current.setStructuredOption('effort', 'high')).toBe(true)
     })
 
-    // Without the model the launch resolves nothing, so the remembered effort would be dead.
-    expect(seededByNextLaunch(mocks.enqueueSettingsWrite.mock.calls)).toEqual({
-      model: 'gpt-live',
-      effort: 'high'
+    // An existing chat's pick never moves new chats onto its model; its effort waits under that model.
+    expect(mocks.enqueueSettingsWrite).toHaveBeenCalledWith(LOCAL_TARGET, {
+      type: 'apply-picks',
+      agent: 'codex',
+      picks: [
+        { modelId: 'gpt-live', optionId: 'effort', value: 'high', adoptModelAsLaunchDefault: false }
+      ]
     })
+    expect(seededByNextLaunch(mocks.enqueueSettingsWrite.mock.calls)).toBeUndefined()
   })
 
   it('remembers nothing when the transport leaves the pick unconfirmed', async () => {
@@ -659,11 +663,9 @@ describe('useStructuredAgentSession options', () => {
     expect(mocks.enqueueSettingsWrite).toHaveBeenCalledWith(LOCAL_TARGET, {
       type: 'apply-picks',
       agent: 'codex',
-      picks: [{ modelId: 'gpt-live', optionId: 'fastMode', value: true }]
-    })
-    expect(seededByNextLaunch(mocks.enqueueSettingsWrite.mock.calls)).toEqual({
-      model: 'gpt-live',
-      fastMode: 'true'
+      picks: [
+        { modelId: 'gpt-live', optionId: 'fastMode', value: true, adoptModelAsLaunchDefault: false }
+      ]
     })
   })
 

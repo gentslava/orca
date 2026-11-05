@@ -316,7 +316,7 @@ it.each(['global', 'repo'] as const)(
       expect(screen.getByRole('textbox', { name: 'Argumentos actualizados' })).toBe(pendingInput)
       expect(pendingInput).toHaveProperty('value', '--latest-pending')
       expect(search).toHaveProperty('value', 'son')
-      expect(screen.getByRole('option', { name: 'sonnet', exact: true })).toBeTruthy()
+      expect(screen.getByRole('option', { name: 'sonnet' })).toBeTruthy()
       expect(mounted.controller.recipe).toBe(accepted)
       await act(() => i18n.changeLanguage('en'))
       fireEvent.keyDown(screen.getByRole('textbox', { name: 'Arguments' }), { key: 'Escape' })
