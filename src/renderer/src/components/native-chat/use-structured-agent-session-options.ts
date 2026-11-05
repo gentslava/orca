@@ -145,7 +145,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       record: optionStateRef.current.record,
       view,
       snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
-      ready: acceptsTurnPicks && interactionReadyRef.current,
+      ready: acceptsTurnPicks && writes.current.count === 0 && interactionReadyRef.current,
       providerStarting,
       existingChat: !newLaunch || args.hasTurn === true,
       isCurrentContext,
