@@ -80,6 +80,10 @@ vi.mock('../components/Terminal', () => ({
       <div role="log" aria-label="Workspace terminal">
         {activeWorktreeId}
       </div>
+    ) : activeWorktreeId ? (
+      <div role="region" aria-label="Empty workspace">
+        {activeWorktreeId}
+      </div>
     ) : null
   }
 }))
@@ -166,7 +170,7 @@ describe('worktree creation chat handoff', () => {
       checkout.resolve({ worktree, startupTerminal: { spawned: false } })
     })
     await waitFor(() =>
-      expect(screen.getByRole('log', { name: 'Workspace terminal' }).textContent).toBe(
+      expect(screen.getByRole('region', { name: 'Empty workspace' }).textContent).toBe(
         expectedFolderWorkspaceId
       )
     )

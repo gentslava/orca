@@ -21848,6 +21848,12 @@
       "draft": "{{review}}: Entwurf",
       "merged": "{{review}}: gemergt",
       "open": "{{review}}: offen"
+    },
+    "start": {
+      "title": "Was möchtest du öffnen?",
+      "description": "Wähle einen Agenten oder ein Werkzeug für dieses Projekt.",
+      "agents": "Agenten",
+      "manageAgents": "Agenten verwalten"
     }
   },
   "tabHoverCard": {
