@@ -21,6 +21,7 @@ import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refres
 import { useAiVaultAssociationObservation } from './ai-vault-association-observation'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
+import { useAiVaultForcedRescan } from './use-ai-vault-forced-rescan'
 import {
   useAiVaultConversationRefresh,
   useAiVaultProviderSessionRefresh
@@ -29,7 +30,6 @@ import {
 // Share the forced-rescan budget across remounts so session creation cannot amplify full scans.
 import {
   claimAiVaultForcedRescan,
-  aiVaultForcedRescanDelay,
   resetAiVaultForcedRescanBudgetForTest
 } from './ai-vault-forced-rescan-budget'
 import {
@@ -254,22 +254,7 @@ export function useAiVaultSessionRefresh(
     [applyScan, currentScanScopeKey, loadStartupCatalog]
   )
 
-  // Defer throttled new-session rescans until budget frees so sessions cannot remain invisible indefinitely.
-  const forcedRescanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const requestForcedRescan = useCallback(() => {
-    if (claimAiVaultForcedRescan()) {
-      void refresh({ background: true, force: true })
-      return
-    }
-    const waitMs = aiVaultForcedRescanDelay()
-    if (forcedRescanTimerRef.current !== null) {
-      return
-    }
-    forcedRescanTimerRef.current = setTimeout(() => {
-      forcedRescanTimerRef.current = null
-      requestForcedRescan()
-    }, waitMs)
-  }, [refresh])
+  const requestForcedRescan = useAiVaultForcedRescan(refresh)
 
   useEffect(() => {
     mountedRef.current = true
@@ -286,10 +271,6 @@ export function useAiVaultSessionRefresh(
       void window.api.aiVault.cancelListSessions({
         requestToken
       })
-      if (forcedRescanTimerRef.current !== null) {
-        clearTimeout(forcedRescanTimerRef.current)
-        forcedRescanTimerRef.current = null
-      }
     }
   }, [])
 
