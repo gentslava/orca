@@ -386,6 +386,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
           dispatcher.dispatch(
             makeRequest('aiVault.listSessions', {
               includeStructuredSessions: true,
+              structuredOnly: true,
               executionHostId
             })
           )
@@ -402,6 +403,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
             ]
           }
         })
+        expect(scanAiVaultSessionsInService).not.toHaveBeenCalled()
         const transcriptOnly = await dispatcher.dispatch(
           makeRequest('aiVault.listSessions', { executionHostId })
         )
