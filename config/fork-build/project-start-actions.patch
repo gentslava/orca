@@ -1,8 +1,8 @@
 diff --git a/config/flaky-test-pattern-baseline.txt b/config/flaky-test-pattern-baseline.txt
-index 5211a2d8f88..6647c52da49 100644
+index 15659dcfa58..77863a040d0 100644
 --- a/config/flaky-test-pattern-baseline.txt
 +++ b/config/flaky-test-pattern-baseline.txt
-@@ -547,7 +547,6 @@
+@@ -540,7 +540,6 @@
  1 test-no-wall-clock:src/renderer/src/components/task-page/jira/task-page-jira-saved-filter-load-failure.test.tsx
  1 test-no-wall-clock:src/renderer/src/components/terminal-pane/cache-timer-seeding.test.ts
  1 test-no-wall-clock:src/renderer/src/components/terminal-pane/terminal-link-worktree-root-activation.test.ts
@@ -10,7 +10,7 @@ index 5211a2d8f88..6647c52da49 100644
  1 test-no-wall-clock:src/renderer/src/components/worktree-jump/WorktreeJumpPalette.test.tsx
  1 test-no-wall-clock:src/renderer/src/hooks/useIpcEvents-agent-status-hook-titles.test.ts
  1 test-no-wall-clock:src/renderer/src/hooks/useIpcEvents-ssh-disconnect-cleanup.test.ts
-@@ -931,7 +930,7 @@
+@@ -923,7 +922,7 @@
  2 test-no-real-time-wait:tests/e2e/paired-remote-browser-ghost-subscriber-rejoin.spec.ts
  2 test-no-real-time-wait:tests/e2e/paired-remote-browser-stream-reconnect.spec.ts
  2 test-no-real-time-wait:tests/e2e/paired-two-client-emptied-workspace-reseed.spec.ts
@@ -35,10 +35,10 @@ index 385c834a424..42282be53a6 100644
  1 src/renderer/src/components/task-page/jira/task-page-jira-status-order.ts
  2 src/renderer/src/components/task-page/jira/IssueAssigneeField.tsx
 diff --git a/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx b/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
-index a5ef3ecfdcc..4950e3028a2 100644
+index 4bfb8fb3a6f..196e568fe5f 100644
 --- a/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
 +++ b/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
-@@ -81,6 +81,10 @@ vi.mock('../components/Terminal', () => ({
+@@ -80,6 +80,10 @@ vi.mock('../components/Terminal', () => ({
        <div role="log" aria-label="Workspace terminal">
          {activeWorktreeId}
        </div>
@@ -49,17 +49,8 @@ index a5ef3ecfdcc..4950e3028a2 100644
      ) : null
    }
  }))
-@@ -167,7 +171,7 @@ describe('worktree creation chat handoff', () => {
+@@ -166,7 +170,7 @@ describe('worktree creation chat handoff', () => {
        checkout.resolve({ worktree, startupTerminal: { spawned: false } })
-     })
-     await waitFor(() =>
--      expect(screen.getByRole('log', { name: 'Workspace terminal' }).textContent).toBe(
-+      expect(screen.getByRole('region', { name: 'Empty workspace' }).textContent).toBe(
-         expectedFolderWorkspaceId
-       )
-     )
-@@ -242,7 +246,7 @@ describe('worktree creation chat handoff', () => {
-       checkout.resolve({ worktree })
      })
      await waitFor(() =>
 -      expect(screen.getByRole('log', { name: 'Workspace terminal' }).textContent).toBe(
@@ -971,10 +962,10 @@ index abc272fd8ce..90f6f791a8b 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index 629ba10817f..7a8adc61b61 100644
+index 6efbcbb580d..0764ac8ade7 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -22657,6 +22657,12 @@
+@@ -22668,6 +22668,12 @@
        "checksPending": "{{review}} checks: Pending",
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
