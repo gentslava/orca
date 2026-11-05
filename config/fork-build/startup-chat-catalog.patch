@@ -477,6 +477,21 @@ index 71f616e98c4..4364d912059 100644
              includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
            },
            signal
+diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
+index d642824f0e4..0d7ccad38ff 100644
+--- a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
++++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
+@@ -101,7 +101,9 @@ it('keeps the loaded project list and expanded chats while navigating across pro
+     expect(list.scrollTop).toBe(240)
+   }
+ 
+-  fireEvent.click(screen.getByRole('button', { name: 'Refresh Session History' }))
++  await act(async () => {
++    fireEvent.click(screen.getByRole('button', { name: 'Refresh Session History' }))
++  })
+   expect(listSessions).toHaveBeenCalledTimes(requests + 1)
+   expect(listSessions.mock.lastCall?.[0].force).toBe(true)
+   expect(project.querySelectorAll('[data-conversation-id]')).toHaveLength(7)
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
 index 2df02f5ac08..d9d53de8a37 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
