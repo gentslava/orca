@@ -19,6 +19,54 @@ index 5211a2d8f88..6647c52da49 100644
  2 test-no-real-time-wait:tests/e2e/setup-script-prompt-unreadable-orca-yaml.spec.ts
  2 test-no-real-time-wait:tests/e2e/sidebar-desktop-reads-main.spec.ts
  2 test-no-real-time-wait:tests/e2e/sidebar-sort-stamps-order.spec.ts
+diff --git a/config/focus-setting-read-baseline.txt b/config/focus-setting-read-baseline.txt
+index 385c834a424..42282be53a6 100644
+--- a/config/focus-setting-read-baseline.txt
++++ b/config/focus-setting-read-baseline.txt
+@@ -152,10 +152,7 @@
+ 1 src/renderer/src/components/status-bar/use-workspace-space-git-refresh-action.ts
+ 1 src/renderer/src/components/status-bar/use-workspace-space-manager-panel.ts
+ 1 src/renderer/src/components/status-bar/workspace-space-decision-details.ts
+-1 src/renderer/src/components/tab-bar/TabBar.tsx
+-2 src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
+ 1 src/renderer/src/components/tab-bar/web-runtime-tab-move-mirror.ts
+-1 src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
+ 3 src/renderer/src/components/tab-group/useTabGroupCreationCommands.ts
+ 1 src/renderer/src/components/task-page/jira/task-page-jira-status-order.ts
+ 2 src/renderer/src/components/task-page/jira/IssueAssigneeField.tsx
+diff --git a/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx b/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
+index a5ef3ecfdcc..4950e3028a2 100644
+--- a/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
++++ b/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
+@@ -81,6 +81,10 @@ vi.mock('../components/Terminal', () => ({
+       <div role="log" aria-label="Workspace terminal">
+         {activeWorktreeId}
+       </div>
++    ) : activeWorktreeId ? (
++      <div role="region" aria-label="Empty workspace">
++        {activeWorktreeId}
++      </div>
+     ) : null
+   }
+ }))
+@@ -167,7 +171,7 @@ describe('worktree creation chat handoff', () => {
+       checkout.resolve({ worktree, startupTerminal: { spawned: false } })
+     })
+     await waitFor(() =>
+-      expect(screen.getByRole('log', { name: 'Workspace terminal' }).textContent).toBe(
++      expect(screen.getByRole('region', { name: 'Empty workspace' }).textContent).toBe(
+         expectedFolderWorkspaceId
+       )
+     )
+@@ -242,7 +246,7 @@ describe('worktree creation chat handoff', () => {
+       checkout.resolve({ worktree })
+     })
+     await waitFor(() =>
+-      expect(screen.getByRole('log', { name: 'Workspace terminal' }).textContent).toBe(
++      expect(screen.getByRole('region', { name: 'Empty workspace' }).textContent).toBe(
+         expectedFolderWorkspaceId
+       )
+     )
 diff --git a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx b/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
 index 14d0b85a81f..2630f8ff327 100644
 --- a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
@@ -53,20 +101,167 @@ index 14d0b85a81f..2630f8ff327 100644
        {workspaceSurfaces
          .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
          .map((workspace) => {
-diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.pane-actions.test.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.pane-actions.test.tsx
-index fc0466aa72b..582d9462666 100644
---- a/src/renderer/src/components/tab-group/TabGroupPanel.pane-actions.test.tsx
-+++ b/src/renderer/src/components/tab-group/TabGroupPanel.pane-actions.test.tsx
-@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => {
- vi.mock('@/store', () => ({ useAppStore: mocks.useAppStore }))
- vi.mock('../../store', () => ({ useAppStore: mocks.useAppStore }))
- vi.mock('../tab-bar/TabBar', () => ({ default: () => null }))
-+vi.mock('../workspace-start/WorkspaceStartPage', () => ({ WorkspaceStartPage: () => null }))
- vi.mock('../tab-bar/TabBarQuickCommandsButton', () => ({
-   TabBarQuickCommandsButton: () => null
- }))
+diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows.test.tsx
+index 113daf2e76a..66c8a2da8d8 100644
+--- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows.test.tsx
++++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows.test.tsx
+@@ -660,7 +660,7 @@ it('preserves per-agent published answers and direct route inputs across context
+                 agent,
+                 state: agent === refused ? 'refused' : 'available',
+                 reason: 'agent',
+-                chatProgram: 'installable'
++                chatProgram: 'available'
+               }))
+             })
+           )
+diff --git a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
+index 16b4e761baf..1863b5afa96 100644
+--- a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
++++ b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
+@@ -26,7 +26,7 @@ import {
+ } from './tab-agent-types-by-tab-id'
+ import { shouldShowWindowsShellMenu } from './windows-shell-menu-visibility'
+ import { createUnifiedTabLookup } from './tab-bar-item-model'
+-import { getClientCreationActionPolicy } from '@/lib/client-creation-action-policy'
++import { getWorkspaceClientCreationActionPolicy } from '@/lib/client-creation-action-policy'
+ import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
+ 
+ const isWindows = navigator.userAgent.includes('Windows')
+@@ -123,7 +123,7 @@ export function useTabBarRuntimeModel({
+   )
+   const settings = useAppStore((s) => s.settings)
+   // Why: use the worktree's owning host so offered Windows shells match the host that actually runs the terminal.
+-  const activeRuntimeEnvironmentId = useAppStore((s) =>
++  const runtimeEnvironmentId = useAppStore((s) =>
+     runtimeEnvironmentIdOrLocalUnlessTwin(s, worktreeId)
+   )
+   // Why: retained tab strips rerun selectors on every store write; reuse canonical indexes, don't flatten both slices here.
+@@ -138,16 +138,16 @@ export function useTabBarRuntimeModel({
+   })
+   const isWebClient = (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ === true
+   const windowsTerminalCapabilityOwnerKey = getWindowsTerminalCapabilityOwnerKey(
+-    activeRuntimeEnvironmentId,
++    runtimeEnvironmentId,
+     worktreeConnectionId
+   )
+   const runtimeTarget = useMemo(
+-    () => runtimeTargetForOwnerEnvironment(activeRuntimeEnvironmentId),
+-    [activeRuntimeEnvironmentId]
++    () => runtimeTargetForOwnerEnvironment(runtimeEnvironmentId),
++    [runtimeEnvironmentId]
+   )
+   const shouldProbeWindowsShellCapabilities =
+     isWindows ||
+-    Boolean(activeRuntimeEnvironmentId?.trim()) ||
++    Boolean(runtimeEnvironmentId?.trim()) ||
+     isWebClient ||
+     Boolean(worktreeConnectionId)
+   const windowsTerminalCapabilities = useWindowsTerminalCapabilities(
+@@ -161,14 +161,14 @@ export function useTabBarRuntimeModel({
+     ? (worktreeRemotePlatform ?? windowsTerminalCapabilities.hostPlatform)
+     : windowsTerminalCapabilities.hostPlatform
+   const showWindowsShellMenu = shouldShowWindowsShellMenu({
+-    activeRuntimeEnvironmentId,
++    runtimeEnvironmentId,
+     hostPlatform: shellMenuHostPlatform,
+     isWindowsClient: isWindows,
+     worktreeHasRemoteConnection: Boolean(worktreeConnectionId)
+   })
+   // Subscribe to project/worktree maps only for the local shell menu; their routine writes otherwise repaint every retained strip.
+   const needsLocalProjectRuntime =
+-    showWindowsShellMenu && !activeRuntimeEnvironmentId?.trim() && !worktreeConnectionId
++    showWindowsShellMenu && !runtimeEnvironmentId?.trim() && !worktreeConnectionId
+   const projects = useAppStore((s) => (needsLocalProjectRuntime ? s.projects : EMPTY_PROJECTS))
+   const repos = useAppStore((s) => (needsLocalProjectRuntime ? s.repos : EMPTY_REPOS))
+   const worktreesByRepo = useAppStore((s) =>
+@@ -222,7 +222,7 @@ export function useTabBarRuntimeModel({
+   )
+   const [managedBrowserCreationEnabled, mobileEmulatorCreationEnabled] = useAppStore(
+     useShallow((state) => {
+-      const policy = getClientCreationActionPolicy(state, worktreeId)
++      const policy = getWorkspaceClientCreationActionPolicy(state, worktreeId)
+       return [
+         policy['managed-browser'].state === 'enabled',
+         policy['mobile-emulator'].state === 'enabled'
+diff --git a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.test.ts b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.test.ts
+index e196f888138..09794e8db6e 100644
+--- a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.test.ts
++++ b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.test.ts
+@@ -5,7 +5,7 @@ describe('shouldShowWindowsShellMenu', () => {
+   it('shows local Windows shells for a local Windows client without a runtime owner', () => {
+     expect(
+       shouldShowWindowsShellMenu({
+-        activeRuntimeEnvironmentId: null,
++        runtimeEnvironmentId: null,
+         hostPlatform: null,
+         isWindowsClient: true,
+         worktreeHasRemoteConnection: false
+@@ -16,7 +16,7 @@ describe('shouldShowWindowsShellMenu', () => {
+   it('keeps the menu hidden while a runtime host platform is unknown', () => {
+     expect(
+       shouldShowWindowsShellMenu({
+-        activeRuntimeEnvironmentId: 'serve-env-1',
++        runtimeEnvironmentId: 'serve-env-1',
+         hostPlatform: null,
+         isWindowsClient: true,
+         worktreeHasRemoteConnection: false
+@@ -27,7 +27,7 @@ describe('shouldShowWindowsShellMenu', () => {
+   it('shows runtime Windows shells only after the runtime host is known to be Windows', () => {
+     expect(
+       shouldShowWindowsShellMenu({
+-        activeRuntimeEnvironmentId: 'serve-env-1',
++        runtimeEnvironmentId: 'serve-env-1',
+         hostPlatform: 'win32',
+         isWindowsClient: false,
+         worktreeHasRemoteConnection: false
+@@ -38,7 +38,7 @@ describe('shouldShowWindowsShellMenu', () => {
+   it('hides local Windows shells for a non-Windows runtime host', () => {
+     expect(
+       shouldShowWindowsShellMenu({
+-        activeRuntimeEnvironmentId: 'serve-env-1',
++        runtimeEnvironmentId: 'serve-env-1',
+         hostPlatform: 'linux',
+         isWindowsClient: true,
+         worktreeHasRemoteConnection: false
+@@ -49,7 +49,7 @@ describe('shouldShowWindowsShellMenu', () => {
+   it('shows Windows shells for SSH worktrees when the remote host is Windows', () => {
+     expect(
+       shouldShowWindowsShellMenu({
+-        activeRuntimeEnvironmentId: null,
++        runtimeEnvironmentId: null,
+         hostPlatform: 'win32',
+         isWindowsClient: true,
+         worktreeHasRemoteConnection: true
+@@ -60,7 +60,7 @@ describe('shouldShowWindowsShellMenu', () => {
+   it('hides Windows shells for SSH worktrees when the remote host is Linux', () => {
+     expect(
+       shouldShowWindowsShellMenu({
+-        activeRuntimeEnvironmentId: null,
++        runtimeEnvironmentId: null,
+         hostPlatform: 'linux',
+         isWindowsClient: true,
+         worktreeHasRemoteConnection: true
+diff --git a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
+index 0aba10115a4..779e66cd8a6 100644
+--- a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
++++ b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
+@@ -1,12 +1,12 @@
+ export function shouldShowWindowsShellMenu(args: {
+-  activeRuntimeEnvironmentId: string | null | undefined
++  runtimeEnvironmentId: string | null | undefined
+   hostPlatform: NodeJS.Platform | null
+   isWindowsClient: boolean
+   worktreeHasRemoteConnection: boolean
+ }): boolean {
+   // Offer Windows shells only after the execution host is known Windows, independent of client platform.
+   const runtimeHostIsNotKnownWindows =
+-    Boolean(args.activeRuntimeEnvironmentId?.trim()) && args.hostPlatform !== 'win32'
++    Boolean(args.runtimeEnvironmentId?.trim()) && args.hostPlatform !== 'win32'
+   if (args.worktreeHasRemoteConnection) {
+     return args.hostPlatform === 'win32'
+   }
 diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-index eb7c5a227f9..97dd9d891a6 100644
+index eb7c5a227f9..4ed602dfad6 100644
 --- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 +++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 @@ -1,4 +1,5 @@
@@ -75,11 +270,14 @@ index eb7c5a227f9..97dd9d891a6 100644
  import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
  import { useDroppable } from '@dnd-kit/core'
  import { useAppStore } from '../../store'
-@@ -351,6 +352,17 @@ export default function TabGroupPanel({
+@@ -351,6 +352,20 @@ export default function TabGroupPanel({
              data-active-content-type={activeTab?.contentType}
            />
          ) : null}
-+        {isVisible && model.groupTabs.length === 0 && clientHostedRows.length === 0 ? (
++        {isVisible &&
++        !activeTab &&
++        model.groupTabs.length === 0 &&
++        clientHostedRows.length === 0 ? (
 +          <WorkspaceStartPage
 +            worktreeId={worktreeId}
 +            groupId={groupId}
@@ -942,6 +1140,27 @@ index a12e0ce14e7..0242a46993b 100644
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/lib/launch-agent-session-continuation-toast.test.tsx b/src/renderer/src/lib/launch-agent-session-continuation-toast.test.tsx
+index c7adbb8dec5..fec5ca0b6f1 100644
+--- a/src/renderer/src/lib/launch-agent-session-continuation-toast.test.tsx
++++ b/src/renderer/src/lib/launch-agent-session-continuation-toast.test.tsx
+@@ -127,7 +127,7 @@ it.each([
+ )
+ 
+ it.each(['target', 'folder:local-folder'])(
+-  'recovers an empty %s when the continuation closes before clicking the toast',
++  'opens an empty %s without starting another terminal after the continuation closes',
+   async (worktreeId) => {
+     render(<Toaster closeButton />)
+     await act(async () => {
+@@ -154,6 +154,6 @@ it.each(['target', 'folder:local-folder'])(
+ 
+     expect(useAppStore.getState().activeWorktreeId).toBe(worktreeId)
+     expect(useAppStore.getState().activeWorkspaceExecutionHostId).toBe('local')
+-    expect(useAppStore.getState().tabsByWorktree[worktreeId]).toHaveLength(1)
++    expect(useAppStore.getState().tabsByWorktree[worktreeId] ?? []).toEqual([])
+   }
+ )
 diff --git a/src/renderer/src/lib/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
 index 956caa1adf8..16c682b1511 100644
 --- a/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
@@ -1129,6 +1348,22 @@ index e7dddd9fbe6..c93238f20d1 100644
 -    expect(useAppStore.getState().tabsByWorktree[FOLDER_KEY]).toHaveLength(1)
 +    expect(useAppStore.getState().tabsByWorktree[FOLDER_KEY]).toHaveLength(0)
      expect(useAppStore.getState().activeWorkspaceExecutionHostId).toBe(SSH_HOST_ID)
+   })
+ })
+diff --git a/src/renderer/src/lib/worktree-agent-activation-seam.test.ts b/src/renderer/src/lib/worktree-agent-activation-seam.test.ts
+index 8d856c66ed6..799043a7f57 100644
+--- a/src/renderer/src/lib/worktree-agent-activation-seam.test.ts
++++ b/src/renderer/src/lib/worktree-agent-activation-seam.test.ts
+@@ -239,9 +239,7 @@ describe('worktree agent activation seam', () => {
+     activateAndRevealWorktree(worktree.id)
+     await expect(waitForWorktreeAgentActivationGateForTests(worktree.id)).resolves.toBe('empty')
+     expect(listSessions.mock.calls).toEqual([[{ connectionId: 'box' }], [{ connectionId: 'box' }]])
+-    await vi.waitFor(() =>
+-      expect(useAppStore.getState().tabsByWorktree[worktree.id] ?? []).toHaveLength(1)
+-    )
+-    expect(useAppStore.getState().tabsByWorktree[worktree.id]?.[0]?.ptyId).toBeNull()
++    expect(useAppStore.getState().activeWorktreeId).toBe(worktree.id)
++    expect(useAppStore.getState().tabsByWorktree[worktree.id] ?? []).toEqual([])
    })
  })
 diff --git a/src/renderer/src/lib/worktree-initial-terminal-seeding.ts b/src/renderer/src/lib/worktree-initial-terminal-seeding.ts
@@ -1659,6 +1894,32 @@ index 3d5ab51dd20..ed22ab21b90 100644
      if (answer === 'yes' && canOpen(agent)) {
        runnable.push(agent)
      } else {
+diff --git a/tests/e2e/completed-worker-retirement-resume.unit.test.ts b/tests/e2e/completed-worker-retirement-resume.unit.test.ts
+index c5428065664..48d27cbc394 100644
+--- a/tests/e2e/completed-worker-retirement-resume.unit.test.ts
++++ b/tests/e2e/completed-worker-retirement-resume.unit.test.ts
+@@ -400,7 +400,9 @@ describe('completed background-worker retirement resume matrix', () => {
+   it('does not cold-resume an explicitly completed and retired worker on first activation', async () => {
+     const ownedRecord = recordCompletedWorker()
+     expect(resumeSleepingAgentSessionsForWorktree(WORKTREE_ID)).toBe(0)
+-    expect(useAppStore.getState().tabsByWorktree[WORKTREE_ID]).toHaveLength(1)
++    expect(useAppStore.getState().tabsByWorktree[WORKTREE_ID]).toEqual([
++      expect.objectContaining({ id: ORIGINAL_TAB_ID, ptyId: ORIGINAL_PTY_ID })
++    ])
+     expect(useAppStore.getState().sleepingAgentSessionsByPaneKey[ORIGINAL_PANE_KEY]).toBe(
+       ownedRecord
+     )
+@@ -560,9 +562,7 @@ describe('completed background-worker retirement resume matrix', () => {
+     expect(activationResult).not.toBe(false)
+     const activated = useAppStore.getState()
+ 
+-    const replacementTabs = activated.tabsByWorktree[WORKTREE_ID] ?? []
+-    expect(replacementTabs).toHaveLength(1)
+-    expect(replacementTabs[0]?.id).not.toBe(ORIGINAL_TAB_ID)
++    expect(activated.tabsByWorktree[WORKTREE_ID] ?? []).toEqual([])
+     expect(activated.terminalLayoutsByTabId[ORIGINAL_TAB_ID]).toBeUndefined()
+     expect(activated.ptyIdsByTabId[ORIGINAL_TAB_ID]).toBeUndefined()
+     expectCanaryUnchanged()
 diff --git a/tests/e2e/relaunch-first-terminal.spec.ts b/tests/e2e/relaunch-first-terminal.spec.ts
 index 72ceee412e3..5af48521be0 100644
 --- a/tests/e2e/relaunch-first-terminal.spec.ts

@@ -400,7 +400,9 @@ describe('completed background-worker retirement resume matrix', () => {
   it('does not cold-resume an explicitly completed and retired worker on first activation', async () => {
     const ownedRecord = recordCompletedWorker()
     expect(resumeSleepingAgentSessionsForWorktree(WORKTREE_ID)).toBe(0)
-    expect(useAppStore.getState().tabsByWorktree[WORKTREE_ID]).toHaveLength(1)
+    expect(useAppStore.getState().tabsByWorktree[WORKTREE_ID]).toEqual([
+      expect.objectContaining({ id: ORIGINAL_TAB_ID, ptyId: ORIGINAL_PTY_ID })
+    ])
     expect(useAppStore.getState().sleepingAgentSessionsByPaneKey[ORIGINAL_PANE_KEY]).toBe(
       ownedRecord
     )
@@ -560,9 +562,7 @@ describe('completed background-worker retirement resume matrix', () => {
     expect(activationResult).not.toBe(false)
     const activated = useAppStore.getState()
 
-    const replacementTabs = activated.tabsByWorktree[WORKTREE_ID] ?? []
-    expect(replacementTabs).toHaveLength(1)
-    expect(replacementTabs[0]?.id).not.toBe(ORIGINAL_TAB_ID)
+    expect(activated.tabsByWorktree[WORKTREE_ID] ?? []).toEqual([])
     expect(activated.terminalLayoutsByTabId[ORIGINAL_TAB_ID]).toBeUndefined()
     expect(activated.ptyIdsByTabId[ORIGINAL_TAB_ID]).toBeUndefined()
     expectCanaryUnchanged()

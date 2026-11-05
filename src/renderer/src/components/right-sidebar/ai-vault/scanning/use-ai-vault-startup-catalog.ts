@@ -14,36 +14,38 @@ export function useAiVaultStartupCatalog(
 ) {
   const scope = useRef<string | null>(null)
   return useCallback(
-    async (
+    (
       request: AiVaultSessionListRequest,
       requestToken: string,
       scopeKey: string,
       current: () => boolean
-    ): Promise<void> => {
+    ): Promise<void> | undefined => {
       if (!request.includeStructuredSessions || scope.current === scopeKey) {
         return
       }
       scope.current = scopeKey
-      try {
-        const catalog = await window.api.aiVault.listSessions({
-          ...aiVaultSessionListArgs(request, { requestToken }),
-          executionHostScope:
-            request.executionHostScope === 'all' ? 'local' : request.executionHostScope,
-          structuredOnly: true
-        })
-        if (current() && !catalog.cancelled && catalog.sessions.length > 0) {
-          gate.current.publish(catalog, (published) => {
-            if (current()) {
-              applyScan(published, request.sessionLimit, scopeKey)
-              setLoading(false)
-            }
+      return (async () => {
+        try {
+          const catalog = await window.api.aiVault.listSessions({
+            ...aiVaultSessionListArgs(request, { requestToken }),
+            executionHostScope:
+              request.executionHostScope === 'all' ? 'local' : request.executionHostScope,
+            structuredOnly: true
           })
+          if (current() && !catalog.cancelled && catalog.sessions.length > 0) {
+            gate.current.publish(catalog, (published) => {
+              if (current()) {
+                applyScan(published, request.sessionLimit, scopeKey)
+                setLoading(false)
+              }
+            })
+          }
+        } catch (error) {
+          if (!isAiVaultScanCancelledError(error)) {
+            console.warn('Could not load the chat catalog before history', error)
+          }
         }
-      } catch (error) {
-        if (!isAiVaultScanCancelledError(error)) {
-          console.warn('Could not load the chat catalog before history', error)
-        }
-      }
+      })()
     },
     [applyScan, gate, setLoading]
   )

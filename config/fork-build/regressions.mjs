@@ -38,6 +38,9 @@ export function runComposedRegressions(planPath, application) {
     .split('\n')
     .filter(Boolean)
   const suites = selectComposedRegressionSuites(paths)
+  if (plan.compatibility?.some(({ file }) => file === 'startup-chat-catalog.patch')) {
+    suites.desktop.push('tests/e2e/ai-vault-manual-name-clear.unit.test.ts')
+  }
   const runner = join(root, 'config/scripts/test-runtime/execution-policy/run-vitest.mjs')
   for (const [name, files] of Object.entries(suites)) {
     for (const file of files) {
