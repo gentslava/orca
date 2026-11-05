@@ -15,7 +15,7 @@ import { useAppStore } from '@/store'
 import {
   resetAiVaultForcedRescanThrottleForTest,
   useAiVaultSessionRefresh
-} from './ai-vault-session-refresh'
+} from './ai-vault/scanning/ai-vault-session-refresh'
 
 const feeds = vi.hoisted(
   () =>

@@ -1,5 +1,4 @@
 // @vitest-environment happy-dom
-// @vitest-environment happy-dom
 
 import {
   clearNativeChatComposerDraftsForTests,
@@ -17,7 +16,6 @@ import type { NativeChatStructuredComposerTransport } from './native-chat-compos
 
 import { useNativeChatStructuredComposerSend } from './use-native-chat-structured-composer-send'
 
-import { ATTACHMENT, harness } from './use-native-chat-structured-composer-send.test-fixture'
 
 vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
 

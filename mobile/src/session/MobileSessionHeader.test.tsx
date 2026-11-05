@@ -90,7 +90,7 @@ function renderHeader(
     titleRef: { current: null },
     boundaryRefs: { current: [] },
     active: false,
-    titleRequestedOpen: false,
+    requestedOpen: false,
     closeFirst: () => false,
     onAnchorLayout: () => {},
     toggle: () => {}

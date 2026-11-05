@@ -1,3 +1,5 @@
+import { ExecutionLocation } from './structured-agent-session-location-params'
+export { ExecutionHostId, ExecutionLocation } from './structured-agent-session-location-params'
 import {
   SendBody,
   MAX_OPTION_LABEL,
