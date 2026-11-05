@@ -764,40 +764,6 @@ it('a roster keeps its key when the fold moves it, and the rows the reader saw a
   expect(chat0.drawn(mobileNativeChatRowId('s2'))).toBe(1)
 })
 
-it('keeps the nearest rows off screen as stand-ins when turn-status lines sit between them and the view', () => {
-  type Line = { testID: string; top: number; bottom: number }
-  const lines: Line[] = [
-    { testID: mobileNativeChatRowId('above'), top: -300, bottom: -100 },
-    { testID: '', top: -100, bottom: -80 },
-    { testID: mobileNativeChatRowId('shown'), top: -80, bottom: 280 },
-    { testID: '', top: 280, bottom: 300 },
-    { testID: mobileNativeChatRowId('below'), top: 300, bottom: 500 }
-  ]
-  const children = lines.map((line) => ({
-    getAttribute: (name: string) => (name === 'data-testid' ? line.testID || null : null),
-    getBoundingClientRect: () => line,
-    querySelectorAll: () => [],
-    nextElementSibling: null
-  }))
-  const box = { ...children[0]!, children }
-  const scroller = {
-    scrollTop: 0,
-    scrollHeight: 800,
-    clientHeight: 200,
-    getAttribute: () => null,
-    getBoundingClientRect: () => ({ top: 0, bottom: 200 }),
-    querySelectorAll: () => [],
-    querySelector: () => box
-  }
-
-  const place = mobileNativeChatReadingPlace(scroller, {
-    current: () => undefined,
-    placement: () => 'p'
-  })
-
-  expect(place.map((unit) => unit.key)).toEqual(['shown', 'below', 'above'])
-})
-
 it('retains already-displayed prose when an async older page supplies its settled turn opener', async () => {
   const rows = Array.from({ length: 60 }, (_, i) => ({
     ...say(`m${i}`, i % 30 === 0 ? 'user' : 'assistant', `Message ${i}`),

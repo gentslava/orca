@@ -87,7 +87,7 @@ it.each(['claude', 'codex'] as const)(
     await user.click(trigger)
     await user.click(screen.getByRole('button', { name: `Configure ${label}` }))
     await user.click(screen.getByRole('option', { name: model }))
-    await user.click(screen.getByRole('radio', { name: 'Low' }))
+    fireEvent.keyDown(screen.getByRole('slider'), { key: 'Home' })
     await user.click(screen.getByRole('button', { name: `${label} permissions` }))
     await user.click(screen.getByRole('menuitemradio', { name: /^Full access/ }))
     await user.click(

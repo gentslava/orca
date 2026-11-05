@@ -1,3 +1,4 @@
+import { recheckNativeChatComposerDraftImagesIn } from './native-chat-composer-draft-image-check'
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act } from 'react'
@@ -8,7 +9,6 @@ import {
 } from './use-native-chat-composer-attachments'
 
 import { readNativeChatDraftCache } from './native-chat-draft-cache'
-import { NATIVE_FILE_DROP_MAX_PATHS } from '../../../../shared/native-file-drop'
 import type * as RemoteRuntimePtyIdModule from '../../../../shared/remote-runtime/remote-runtime-pty-id'
 
 import { useAppStore } from '@/store'

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 
-import { createProjectHeaderDragSession } from './project-header-drag-start'
+import { createProjectHeaderDragSession } from './worktree-list/drag/project-header-drag-start'
 import type { Repo } from '../../../../shared/repo-types'
 
 function createRepo(id: string, projectGroupId: string | null = null): Repo {

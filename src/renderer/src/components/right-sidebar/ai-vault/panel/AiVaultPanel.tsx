@@ -1,8 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { AI_VAULT_AGENTS } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
-import { useAiVaultConversationSearch } from './ai-vault-conversation-search'
+import { useAiVaultConversationSearch } from '../../ai-vault-conversation-search'
 import { useShallow } from 'zustand/react/shallow'
-import { toast } from 'sonner'
 import { useAppStore } from '@/store/index'
 import { useAllWorktrees, useProjectHostSetupProjection, useRepos } from '@/store/selectors'
 import { useAiVaultPanelSessions } from '../session-list/ai-vault-session-filters'
@@ -32,7 +31,6 @@ import { AiVaultScanIssueBanners } from '../scanning/AiVaultScanIssueBanners'
 import { useAiVaultSessionDeleteAction } from '../session-actions/ai-vault-session-delete-action'
 import { useAiVaultPanelSearch } from '../search/use-ai-vault-search'
 import { withAiVaultHistoryPreviews } from '../search/ai-vault-search-session'
-import { aiVaultSearchScopeIdentity } from '../search/ai-vault-search-scope-identity'
 import { AiVaultPanelSearch } from '../search/AiVaultPanelSearch'
 import { useAiVaultPanelSessionResume } from '../session-actions/use-ai-vault-panel-session-resume'
 import { AiVaultScanProgressStrip } from '../scanning/AiVaultScanProgressStrip'
@@ -318,7 +316,7 @@ export default function AiVaultPanel({
         {(!searching || sessions.length > 0 || search.loading) && (
           <SessionList
             sessionProjects={sessionProjectById}
-            executionHostScope={executionHostScope}
+            {...(conversationNavigation ? { executionHostScope } : {})}
             conversationNavigation={conversationNavigation}
             key={searching ? search.resetKey : 'history'}
             searchHits={searching ? searchHits : undefined}

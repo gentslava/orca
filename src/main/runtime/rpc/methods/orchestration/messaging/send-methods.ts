@@ -20,12 +20,8 @@ import {
   resolveRunBoundDispatchRecipient,
   type SendRecipientWarning
 } from './recipient-routing'
-import {
-  readMutationReplayNudge,
-  readWorkerDoneReplayNudge,
-  stripMutationReplayNudge
-} from '../../../orchestration-mutation-receipt'
-import { replayMutationNudge } from './mutation-replay-nudge'
+import { stripMutationReplayNudge } from '../../../orchestration-mutation-receipt'
+import { readSendReplayNudge, replayMutationNudge } from './mutation-replay-nudge'
 import { handBackReplayTargets } from '../../../../orchestration/db/messages/helper-mailbox-hand-back'
 import { sendRemoteMessage } from './send-remote'
 import { mayNameSession } from './session-recipient'
@@ -64,16 +60,7 @@ export const ORCHESTRATION_SEND_METHODS = [
       }
     ) => {
       const db = runtime.getOrchestrationDb()
-      const legacyReplayNudge = readWorkerDoneReplayNudge(
-        'orchestration.send',
-        params,
-        replayedMutationReceipt
-      )
-      const replayNudge =
-        readMutationReplayNudge(replayedMutationReceipt) ??
-        (legacyReplayNudge
-          ? { kind: 'messages' as const, targets: [legacyReplayNudge] }
-          : undefined)
+      const replayNudge = readSendReplayNudge(params, replayedMutationReceipt)
       if (replayNudge) {
         replayMutationNudge(runtime, replayNudge)
         const settled =
