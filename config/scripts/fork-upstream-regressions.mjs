@@ -66,7 +66,6 @@ const desktop = [
   'src/renderer/src/components/native-chat/native-chat-composer-workspace-file-drop.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-composer-attachments.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-composer-preview-lifetime.test.tsx',
-  'src/renderer/src/components/native-chat/use-native-chat-menu-paste-lifetime.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-composer-paste.test.tsx',
   'src/renderer/src/components/native-chat/native-chat-composer-composition.test.tsx',
   'src/renderer/src/components/native-chat/use-native-chat-pasted-text-file.test.tsx',

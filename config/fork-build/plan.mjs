@@ -84,6 +84,7 @@ try {
         'reviewed-merge-target-paths.patch',
         'upstream-module-relocations.patch',
         'startup-chat-catalog.patch',
+        'composed-format.patch',
         'project-start-actions.patch'
       ].includes(patch)
     ) {

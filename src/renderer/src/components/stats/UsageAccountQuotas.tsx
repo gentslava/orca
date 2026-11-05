@@ -7,9 +7,7 @@ import { Button } from '../ui/button'
 import { Progress } from '../ui/progress'
 import { getWindowSections, ProviderIcon } from '../status-bar/tooltip'
 import { formatPlanLabel } from '../status-bar/usage-roster-formatting'
-import {
-  getProviderUsageErrorMessage
-} from '../status-bar/usage-error-copy'
+import { getProviderUsageErrorMessage } from '../status-bar/usage-error-copy'
 import { getProviderDisplayName } from '../../../../shared/usage-provider-windows'
 import { formatWindowLabel } from '../../../../shared/rate-limit-window-label'
 import { getIntlLocale, translate } from '@/i18n/i18n'

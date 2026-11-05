@@ -2322,3 +2322,411 @@ index 1ac723c5dfd..2a71315eb1f 100644
  ): AgentSessionFailureFact & { kind: TKind } {
    // Re-bounded here, so no writer can store more than the cap however it built the detail.
    const detail = extra.detail
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
+index 3d44d8f5157..63de40b6ae9 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
+@@ -8,7 +8,7 @@ import {
+   mobileWebAppBuildOptions,
+   MOBILE_WEB_APP_ROOT_RESET,
+   MOBILE_WEB_APP_NATIVE_PARITY_STYLE
+-} from '../build-mobile-web-app-bundle.mjs'
++} from '../build/mobile-web-app/build-mobile-web-app-bundle.mjs'
+ import { mobileWebAppDependenciesPresent } from './mobile-web-app-bundle-dependencies.mjs'
+ import { createBundleServer, readShellCsp } from './preview/mobile-web-app-render-harness.mjs'
+ const mobileDir = fileURLToPath(new URL('../../../mobile', import.meta.url))
+@@ -16,9 +16,9 @@ const entry = `
+ import { useState, useCallback, useMemo } from 'react'
+ import { createRoot } from 'react-dom/client'
+ import { View, Text, Pressable } from 'react-native'
+-import { MobileNativeChatPageList } from '../../../mobile/src/session/native-chat/transcript/MobileNativeChatPageList'
+-import { useMobileNativeChatTailFollow } from '../../../mobile/src/session/native-chat/transcript/use-mobile-native-chat-tail-follow'
+-import { useMobileNativeChatRowKeys } from '../../../mobile/src/session/native-chat/transcript/mobile-native-chat-row-keys'
++import { MobileNativeChatPageList } from './src/session/native-chat/transcript/MobileNativeChatPageList'
++import { useMobileNativeChatTailFollow } from './src/session/native-chat/transcript/use-mobile-native-chat-tail-follow'
++import { useMobileNativeChatRowKeys } from './src/session/native-chat/transcript/mobile-native-chat-row-keys'
+ function App() {
+   const [start, setStart] = useState(80)
+   const [older, setOlder] = useState(false)
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+index 1adebfdd925..adec544f3a0 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
+ import { join } from 'node:path'
+ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+ import { chromium } from 'playwright-core'
+-import { buildMobileWebAppBundle } from '../build-mobile-web-app-bundle.mjs'
++import { buildMobileWebAppBundle } from '../build/mobile-web-app/build-mobile-web-app-bundle.mjs'
+ import { mobileWebAppDependenciesPresent } from './mobile-web-app-bundle-dependencies.mjs'
+ import {
+   createBundleServer,
+diff --git a/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts b/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
+index 36369fd6c5a..346addd626a 100644
+--- a/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
++++ b/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
+@@ -255,6 +255,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       runtime: runtime as never,
+       db: db as never,
+       from: 'term_sender',
++      sender: { handle: 'term_sender', orcaSessionId: null },
+       // `@worktree:` is the one group that still enumerates agents; the Run groups read
+       // Dispatch rows, where a structured worker's identity is looked up by this same handle.
+       groupAddress: '@worktree:wt_2',
+diff --git a/src/main/runtime/rpc/methods/structured-agent-session-options-perf.test.ts b/src/main/runtime/rpc/methods/structured-agent-session-options-perf.test.ts
+index efc2a3da1dd..fc75d9cb2a5 100644
+--- a/src/main/runtime/rpc/methods/structured-agent-session-options-perf.test.ts
++++ b/src/main/runtime/rpc/methods/structured-agent-session-options-perf.test.ts
+@@ -77,7 +77,7 @@ it.each([100, 1_000])(
+     const elapsedMs = performance.now() - started
+     expect(copies).toBe(models) // Getter observes actual spread copies in the production fallback map.
+     expect(fallbackModels).toHaveBeenCalledTimes(1)
+-    expect(catalogRead).toHaveBeenCalledTimes(2) // Scoped inventory and proof; atRest is reused.
++    expect(catalogRead).toHaveBeenCalledTimes(3) // Scope identity, inventory and proof; atRest is reused.
+     expect(answer.models).toHaveLength(models)
+     expect(answer.models.every((row) => !row.isDefault)).toBe(true)
+     expect(answer.current.model).toBeUndefined()
+diff --git a/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx b/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
+index a0267c3fa62..83928ec8c46 100644
+--- a/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
++++ b/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
+@@ -265,7 +265,7 @@ async function open(agent: string) {
+   fireEvent.click(configure)
+   await waitFor(() => expect(textarea()).not.toBeNull())
+   await waitFor(() =>
+-    expect(screen.getByRole('radio', { name: 'Low' }).hasAttribute('disabled')).toBe(false)
++    expect(screen.getByRole('slider').getAttribute('aria-disabled')).not.toBe('true')
+   )
+ }
+ async function useDraft(surface: 'chat' | 'terminal' = 'terminal') {
+@@ -324,23 +324,24 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
+   render(<NewWorkspaceComposerModal />, { wrapper: TooltipProvider })
+   await open('Claude')
+   const start = snapshot('w1-before')
+-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
++  fireEvent.keyDown(screen.getByRole('slider'), { key: 'Home' })
+   fireEvent.change(textarea(), { target: { value: '--verbose' } })
+   await useDraft()
+   evidence.phase = 'w1-immediate-reopen'
+   await open('Claude')
+   expect(textarea().value).toBe('--verbose')
+-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+   const echo = snapshot('w1-echo')
+   expect(echo.initial?.choices.options?.effort).toBe('low')
+   expect(echo.initial?.arguments).toBe('--verbose')
+   await visit('W2 folder')
+   evidence.phase = 'w2-codex'
+   await open('Codex')
+-  fireEvent.click(screen.getByRole('radio', { name: 'Med' }))
++  fireEvent.keyDown(screen.getByRole('slider'), { key: 'Home' })
++  fireEvent.keyDown(screen.getByRole('slider'), { key: 'ArrowRight' })
+   await useDraft()
+   await open('Codex')
+-  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
++  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Medium')
+   const w2 = last('codex')
+   await visit('W1 git')
+   evidence.phase = 'w1-return'
+@@ -350,17 +351,17 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
+   expect(returned.authority).toBe(start.authority)
+   expect(returned.initial).toBeUndefined()
+   expect.soft(textarea().value).toBe('--verbose')
+-  expect.soft(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect.soft(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+   fireEvent.change(textarea(), { target: { value: '--pending-after-accepted' } })
+   await visit('W2 folder')
+   await open('Codex')
+-  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
++  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Medium')
+   expect(last('codex').authority).toBe(w2.authority)
+   expect(textarea().value).toBe('')
+   await visit('W1 git')
+   await open('Claude')
+   expect(textarea().value).toBe('--pending-after-accepted')
+-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+   expect(evidence.submit).not.toHaveBeenCalled()
+ })
+ 
+diff --git a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
+index 70b0928631e..99b456f192b 100644
+--- a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
++++ b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
+@@ -1,7 +1,6 @@
+ // @vitest-environment happy-dom
+ import { act } from 'react'
+ import { fireEvent, getByRole } from '@testing-library/react'
+-import userEvent from '@testing-library/user-event'
+ import { createRoot, type Root } from 'react-dom/client'
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+ import { TooltipProvider } from '@/components/ui/tooltip'
+@@ -139,21 +138,19 @@ describe('setup records exist only for authored setups', () => {
+         </TooltipProvider>
+       )
+     )
+-    const user = userEvent.setup()
+     const [plain, searched] = document.querySelectorAll<HTMLButtonElement>(
+       'button[aria-label="Configure claude"]'
+     )
+     const prompt = () =>
+       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
+-    const effort = (label: string) =>
+-      getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
++    const effort = () => getByRole(document.body, 'slider').getAttribute('aria-valuetext')
+     const model = () => document.querySelector('[cmdk-item][data-current="true"]')?.textContent
+     const close = () => fireEvent.keyDown(document.querySelector('textarea')!, { key: 'Escape' })
+ 
+     // Opening a preset saves nothing, and the plain row still shows defaults.
+     fireEvent.click(searched)
+     expect(model()).toBe('opus')
+-    expect(effort('High')).toBe('on')
++    expect(effort()).toBe('High')
+     close()
+     expect(sourceCount()).toBe(0)
+     fireEvent.click(plain)
+@@ -164,14 +161,14 @@ describe('setup records exist only for authored setups', () => {
+ 
+     // A real change saves into that preset's slot only and survives close and reopen.
+     fireEvent.click(searched)
+-    await user.click(getByRole(document.body, 'radio', { name: 'Low' }))
+-    expect(effort('Low')).toBe('on')
++    fireEvent.keyDown(getByRole(document.body, 'slider'), { key: 'Home' })
++    expect(effort()).toBe('Low')
+     expect(sourceCount()).toBe(1)
+     changePrompt(prompt(), 'review the diff')
+     close()
+     fireEvent.click(searched)
+     expect(model()).toBe('opus')
+-    expect(effort('Low')).toBe('on')
++    expect(effort()).toBe('Low')
+     close()
+ 
+     // The plain row keeps its own options but shares the workspace's typed prompt.
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts b/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
+index f24f3174ba9..721bb84b1fe 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
++++ b/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
+@@ -74,24 +74,22 @@ export function useNativeChatTerminalTranscript({
+       ),
+     [delivery.pending, sessionAfterCommandBoundaries.messages, workingEpoch]
+   )
++  const previewMessages = useMemo(
++    () =>
++      pendingMessages.length > 0
++        ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
++        : sessionAfterCommandBoundaries.messages,
++    [sessionAfterCommandBoundaries.messages, pendingMessages]
++  )
+   const streamingText = useMemo(
+     () =>
+       deriveNativeChatStreamingText({
+-        messages:
+-          pendingMessages.length > 0
+-            ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
+-            : sessionAfterCommandBoundaries.messages,
++        messages: previewMessages,
+         previewText,
+         working,
+         previewIsToolOutput
+       }),
+-    [
+-      sessionAfterCommandBoundaries.messages,
+-      pendingMessages,
+-      previewText,
+-      working,
+-      previewIsToolOutput
+-    ]
++    [previewMessages, previewText, working, previewIsToolOutput]
+   )
+   const sessionWithPending = useMemo<NativeChatLiveSession>(() => {
+     if (delivery.pending.length === 0 && commandMarkers.length === 0 && !streamingText) {
+diff --git a/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx b/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
+index 8ee542fac48..a267fbe97ff 100644
+--- a/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
++++ b/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
+@@ -23,6 +23,7 @@ afterEach(() => {
+ it.each([true, false])(
+   'discovers a draft-held target only on a capable paired host (%s)',
+   async (capable) => {
++    mocks.supportsRemote.mockResolvedValue(false)
+     mocks.effortDiscovery = capable
+     mocks.call.mockReset()
+     mocks.hold.mockReset()
+diff --git a/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.picker.test.tsx b/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.picker.test.tsx
+index f7a75d440a0..0bf1dd955ef 100644
+--- a/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.picker.test.tsx
++++ b/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.picker.test.tsx
+@@ -268,13 +268,13 @@ it.each(['global', 'repo'] as const)(
+         target: { value: '--model claude-sonnet-5-5 --accepted' }
+       })
+       fireEvent.blur(screen.getByRole('textbox', { name: 'Arguments' }))
+-      fireEvent.click(screen.getByRole('radio', { name: 'High' }))
++      fireEvent.keyDown(screen.getByRole('slider'), { key: 'End' })
+       fireEvent.change(screen.getByRole('textbox', { name: 'Arguments' }), {
+         target: { value: '--latest-pending' }
+       })
+       const search = screen.getByLabelText('Search models')
+       fireEvent.change(search, { target: { value: 'son' } })
+-      expect(screen.getByRole('radio', { name: 'High' }).getAttribute('aria-checked')).toBe('true')
++      expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('High')
+       const permission = screen.getByRole('button', { name: 'Claude permissions' })
+       const accepted = mounted.controller.recipe
+       const pendingInput = screen.getByRole('textbox', { name: 'Arguments' })
+@@ -284,7 +284,7 @@ it.each(['global', 'repo'] as const)(
+       expect(pendingInput).toHaveProperty('value', '--latest-pending')
+       expect(screen.getByRole('button', { name: 'Iniciar chat' })).toBeTruthy()
+       expect(screen.getByRole('button', { name: 'Iniciar terminal' })).toBeTruthy()
+-      expect(screen.getByRole('radio', { name: 'Alto' }).getAttribute('aria-checked')).toBe('true')
++      expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Alto')
+       expect(screen.getByRole('button', { name: 'Permisos de Claude' })).toBe(permission)
+       expect(mounted.controller.recipe).toBe(accepted)
+       expect(mounted.persist).not.toHaveBeenCalled()
+@@ -316,7 +316,7 @@ it.each(['global', 'repo'] as const)(
+       expect(screen.getByRole('textbox', { name: 'Argumentos actualizados' })).toBe(pendingInput)
+       expect(pendingInput).toHaveProperty('value', '--latest-pending')
+       expect(search).toHaveProperty('value', 'son')
+-      expect(screen.getByRole('button', { name: /claude-sonnet-5-5/ })).toBeTruthy()
++      expect(screen.getByRole('option', { name: 'sonnet', exact: true })).toBeTruthy()
+       expect(mounted.controller.recipe).toBe(accepted)
+       await act(() => i18n.changeLanguage('en'))
+       fireEvent.keyDown(screen.getByRole('textbox', { name: 'Arguments' }), { key: 'Escape' })
+@@ -327,7 +327,7 @@ it.each(['global', 'repo'] as const)(
+         'value',
+         '--latest-pending'
+       )
+-      expect(screen.getByRole('button', { name: 'Remove --model claude-sonnet-5-5' })).toBeDefined()
++      expect(screen.getByRole('button', { name: 'Remove --model sonnet' })).toBeDefined()
+       fireEvent.click(screen.getByRole('button', { name: 'Launch terminal' }))
+       expect(mounted.controller.recipe.commandInputTemplate).toBe('CURRENT {basePrompt}')
+       expect(mounted.controller.recipe.agentArgs).toBe('--latest-pending')
+diff --git a/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.settings.test.tsx b/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.settings.test.tsx
+index 7f978d7117e..3fb1853ce5c 100644
+--- a/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.settings.test.tsx
++++ b/src/renderer/src/components/right-sidebar/source-control/ai/SourceControlAgentActionDialog.settings.test.tsx
+@@ -87,7 +87,7 @@ it.each(['claude', 'codex'] as const)(
+     await user.click(trigger)
+     await user.click(screen.getByRole('button', { name: `Configure ${label}` }))
+     await user.click(screen.getByRole('option', { name: model }))
+-    await user.click(screen.getByRole('radio', { name: 'Low' }))
++    fireEvent.keyDown(screen.getByRole('slider'), { key: 'Home' })
+     await user.click(screen.getByRole('button', { name: `${label} permissions` }))
+     await user.click(screen.getByRole('menuitemradio', { name: /^Full access/ }))
+     await user.click(
+diff --git a/config/scripts/development/launch/run-electron-vite-dev.mjs b/config/scripts/development/launch/run-electron-vite-dev.mjs
+index 3bfaa56ee91..a78ae676ac6 100644
+--- a/config/scripts/development/launch/run-electron-vite-dev.mjs
++++ b/config/scripts/development/launch/run-electron-vite-dev.mjs
+@@ -17,7 +17,7 @@ import { createRequire } from 'node:module'
+ import os from 'node:os'
+ import path from 'node:path'
+ 
+-import { assertMacGuiLaunchAllowed } from './macos-gui-launch-preflight.mjs'
++import { assertMacGuiLaunchAllowed } from '../../macos-gui-launch-preflight.mjs'
+ import { prepareDevCliTerminalWrappers } from './dev-cli-terminal-wrapper.mjs'
+ import {
+   DEV_BUNDLE_MARKER_FILENAME,
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+index adec544f3a0..e7c9403bc74 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+@@ -186,8 +186,8 @@ async function open(replies = REPLIES, locale = 'ru-RU') {
+     replies
+   })
+   await page.goto(origin)
+-  await page.getByRole('button', { name: 'Clearer conversation navigation', exact: true }).waitFor()
+-  await page.getByRole('button', { name: 'A saved empty conversation', exact: true }).waitFor()
++  await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).waitFor()
++  await page.getByRole('button', { name: /^A saved empty conversation(?:\s|$)/ }).waitFor()
+   return { page, errors }
+ }
+ 
+@@ -266,7 +266,7 @@ describeRender('the actual mobile project conversation list', () => {
+ 
+   it('opens the selected pane and targets new chat creation at the project main workspace', async () => {
+     const { page, errors } = await open()
+-    await page.getByRole('button', { name: 'Clearer conversation navigation', exact: true }).click()
++    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).click()
+     await expect
+       .poll(() => notifies(page))
+       .toEqual([
+@@ -300,7 +300,7 @@ describeRender('the actual mobile project conversation list', () => {
+ 
+   it('reopens a durable empty conversation and routes a transcript to its specific history entry', async () => {
+     const { page, errors } = await open()
+-    await page.getByRole('button', { name: 'A saved empty conversation', exact: true }).click()
++    await page.getByRole('button', { name: /^A saved empty conversation(?:\s|$)/ }).click()
+     await expect
+       .poll(async () =>
+         (await requests(page)).filter((request) => request.method === 'agentSession.reveal')
+@@ -313,7 +313,7 @@ describeRender('the actual mobile project conversation list', () => {
+           href: expect.stringContaining('paneKey=structured-agent-session-saved-empty')
+         })
+       ])
+-    await page.getByRole('button', { name: 'Review the onboarding plan', exact: true }).click()
++    await page.getByRole('button', { name: /^Review the onboarding plan(?:\s|$)/ }).click()
+     await expect
+       .poll(() => notifies(page))
+       .toEqual(
+@@ -340,9 +340,7 @@ describeRender('the actual mobile project conversation list', () => {
+     await page.getByText('master', { exact: true }).first().waitFor()
+     await proof(page, 'before-workspaces-preserved')
+     await page.getByRole('button', { name: 'К проектам', exact: true }).click()
+-    await page
+-      .getByRole('button', { name: 'Clearer conversation navigation', exact: true })
+-      .waitFor()
++    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).waitFor()
+     expect(errors).toEqual([])
+     await page.close()
+   }, 60_000)
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+index e7c9403bc74..51d99ba0a91 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+@@ -186,8 +186,8 @@ async function open(replies = REPLIES, locale = 'ru-RU') {
+     replies
+   })
+   await page.goto(origin)
+-  await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).waitFor()
+-  await page.getByRole('button', { name: /^A saved empty conversation(?:\s|$)/ }).waitFor()
++  await page.getByRole('button', { name: /^Clearer conversation navigation(?:\. |$)/ }).waitFor()
++  await page.getByRole('button', { name: /^A saved empty conversation(?:\. |$)/ }).waitFor()
+   return { page, errors }
+ }
+ 
+@@ -266,7 +266,7 @@ describeRender('the actual mobile project conversation list', () => {
+ 
+   it('opens the selected pane and targets new chat creation at the project main workspace', async () => {
+     const { page, errors } = await open()
+-    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).click()
++    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\. |$)/ }).click()
+     await expect
+       .poll(() => notifies(page))
+       .toEqual([
+@@ -300,7 +300,7 @@ describeRender('the actual mobile project conversation list', () => {
+ 
+   it('reopens a durable empty conversation and routes a transcript to its specific history entry', async () => {
+     const { page, errors } = await open()
+-    await page.getByRole('button', { name: /^A saved empty conversation(?:\s|$)/ }).click()
++    await page.getByRole('button', { name: /^A saved empty conversation(?:\. |$)/ }).click()
+     await expect
+       .poll(async () =>
+         (await requests(page)).filter((request) => request.method === 'agentSession.reveal')
+@@ -313,7 +313,7 @@ describeRender('the actual mobile project conversation list', () => {
+           href: expect.stringContaining('paneKey=structured-agent-session-saved-empty')
+         })
+       ])
+-    await page.getByRole('button', { name: /^Review the onboarding plan(?:\s|$)/ }).click()
++    await page.getByRole('button', { name: /^Review the onboarding plan(?:\. |$)/ }).click()
+     await expect
+       .poll(() => notifies(page))
+       .toEqual(
+@@ -340,7 +340,7 @@ describeRender('the actual mobile project conversation list', () => {
+     await page.getByText('master', { exact: true }).first().waitFor()
+     await proof(page, 'before-workspaces-preserved')
+     await page.getByRole('button', { name: 'К проектам', exact: true }).click()
+-    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\s|$)/ }).waitFor()
++    await page.getByRole('button', { name: /^Clearer conversation navigation(?:\. |$)/ }).waitFor()
+     expect(errors).toEqual([])
+     await page.close()
+   }, 60_000)

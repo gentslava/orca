@@ -8,7 +8,7 @@ import {
   mobileWebAppBuildOptions,
   MOBILE_WEB_APP_ROOT_RESET,
   MOBILE_WEB_APP_NATIVE_PARITY_STYLE
-} from '../build-mobile-web-app-bundle.mjs'
+} from '../build/mobile-web-app/build-mobile-web-app-bundle.mjs'
 import { mobileWebAppDependenciesPresent } from './mobile-web-app-bundle-dependencies.mjs'
 import { createBundleServer, readShellCsp } from './preview/mobile-web-app-render-harness.mjs'
 const mobileDir = fileURLToPath(new URL('../../../mobile', import.meta.url))
@@ -16,9 +16,9 @@ const entry = `
 import { useState, useCallback, useMemo } from 'react'
 import { createRoot } from 'react-dom/client'
 import { View, Text, Pressable } from 'react-native'
-import { MobileNativeChatPageList } from '../../../mobile/src/session/native-chat/transcript/MobileNativeChatPageList'
-import { useMobileNativeChatTailFollow } from '../../../mobile/src/session/native-chat/transcript/use-mobile-native-chat-tail-follow'
-import { useMobileNativeChatRowKeys } from '../../../mobile/src/session/native-chat/transcript/mobile-native-chat-row-keys'
+import { MobileNativeChatPageList } from './src/session/native-chat/transcript/MobileNativeChatPageList'
+import { useMobileNativeChatTailFollow } from './src/session/native-chat/transcript/use-mobile-native-chat-tail-follow'
+import { useMobileNativeChatRowKeys } from './src/session/native-chat/transcript/mobile-native-chat-row-keys'
 function App() {
   const [start, setStart] = useState(80)
   const [older, setOlder] = useState(false)
