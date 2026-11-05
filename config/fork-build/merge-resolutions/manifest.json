@@ -1883,5 +1883,18 @@
     "patchSha256": "9f34145209dc541a03e260a0853bd643ba69ee5deefd87fa4912aa09a674e82c",
     "resultSha256": "6699b6b8de71a709f88bd84dc96fb9e8c8a564e00cfb2d021435fe3a9d705843",
     "reason": "Retain only the selected PR quiet-refresh regression for an unsupported saved effort, reusing the current hook fixture; do not resurrect the retired broad first-frame suite."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session.test.tsx",
+    "blobs": [
+      "67f6880c99ac04e3ef8162db68a812f2d2286869",
+      null,
+      "e8c3545707d17ca8e59b2ccc1c1138eb360e14be"
+    ],
+    "patch": "startup-refresh-20261105/pr33362-9526d0c5cb5a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream deletion of the broad session hook suite; this PR only adjusted a capability fixture there, while busy/queued option behavior is covered by focused working-options and queue-working suites.",
+    "deleted": true
   }
 ]
