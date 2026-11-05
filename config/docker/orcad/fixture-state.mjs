@@ -7,7 +7,10 @@ import { AGENT_JOURNAL_THREAD_SCOPE } from '../../../src/shared/agent-session/jo
 import { codexProviderHandle } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
 import { createOrcadSecretStore } from '../../../src/main/orcad/orcad-secret-store.ts'
 import { resolveStructuredAgentCommand } from '../../../src/main/native-chat/structured-agent-command-resolution.ts'
-import { encodePairingOffer, parsePairingCode } from '../../../src/shared/remote-runtime/pairing/pairing'
+import {
+  encodePairingOffer,
+  parsePairingCode
+} from '../../../src/shared/remote-runtime/pairing/pairing'
 
 async function main() {
   const create = process.argv.includes('--create')

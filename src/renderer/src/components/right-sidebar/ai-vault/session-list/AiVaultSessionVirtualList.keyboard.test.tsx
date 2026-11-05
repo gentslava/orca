@@ -20,7 +20,10 @@ import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
 import type { AiVaultSessionListKeyboard } from './use-ai-vault-session-keyboard-navigation'
 import type { AiVaultResumeHere } from '../session-actions/ai-vault-session-resume-here'
 import * as resumeHere from '../session-actions/ai-vault-session-resume-here'
-import { activateAiVaultStructuredSession, openDesktopStructuredSession } from '@/lib/activate-ai-vault-structured-session'
+import {
+  activateAiVaultStructuredSession,
+  openDesktopStructuredSession
+} from '@/lib/activate-ai-vault-structured-session'
 
 vi.mock('@/lib/activate-ai-vault-structured-session', async (importOriginal) => {
   const original = await importOriginal<{
