@@ -157,6 +157,7 @@ vi.mock('../runtime/orca-runtime', () => ({
       pairingReader.current = deps.getPairedDeviceName
     }
     readonly sidebarFacts = null
+    readonly usageHistory = { setStores() {} }
     readonly agentTransitions = { seedRestoredRows() {} }
     attachAgentStatusStore() {
       return () => {}
