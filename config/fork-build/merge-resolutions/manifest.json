@@ -1986,5 +1986,44 @@
     "resultSha256": null,
     "reason": "Preserve upstream retirement of the legacy AI Vault test owner; selected-session ownership remains in current host, navigation, scanner and mobile regression owners.",
     "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/sidebar/NonGitFolderDialog.test.tsx",
+    "blobs": [
+      "b8c61d97eb36f640c059ed1f9651f702370902a2",
+      null,
+      "4d25d7a455d60e1862839cf1b3962992283cb793"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-dd96f97e34be.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Keep the deliberate upstream retirement of the broad sidebar test suite; the selected change only adapted existing setup or navigation arguments.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/sidebar/SidebarNav.test.tsx",
+    "blobs": [
+      "da0e90dbfc0eaef5106da6060337828ebea48e9c",
+      null,
+      "1d55a34bfd49d3e6028d182804b0d7fceba2abce"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-39a8b7027c20.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Keep the deliberate upstream retirement of the broad sidebar test suite; the selected change only adapted existing setup or navigation arguments.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/sidebar/project-added-default-checkout.test.ts",
+    "blobs": [
+      "9871c255ca4726f271b757724bc126fd1fccc35c",
+      null,
+      "2e0fb8fe0090d5aab387156bb8f00c9182f54643"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-e7193e9eed59.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Keep the deliberate upstream retirement of the broad sidebar test suite; the selected change only adapted existing setup or navigation arguments.",
+    "deleted": true
   }
 ]
