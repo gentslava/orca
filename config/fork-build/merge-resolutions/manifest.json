@@ -2025,5 +2025,67 @@
     "resultSha256": null,
     "reason": "Keep the deliberate upstream retirement of the broad sidebar test suite; the selected change only adapted existing setup or navigation arguments.",
     "deleted": true
+  },
+  {
+    "path": "src/main/runtime/orca-runtime-create-agent-session.ts",
+    "blobs": [
+      "b5dc745537fc5800d008ff3fab6a0452ff488e1d",
+      "04bf8e5e886475ab10bd68235bd026bd873406da",
+      "64b82b62a2c14002270bf2cd73016a1a691358c6"
+    ],
+    "patch": "startup-refresh-20261105/pr33369-f50106c34ab0.patch",
+    "patchSha256": "656c246ab08c21fd3cbc9d4fc20975cc816b2fc150021dadf37fd23130aa6769",
+    "resultSha256": "981be5cda2f8542b5ec21f72ded2581ce96c4704520f52fb2f851de9b9294736",
+    "reason": "Keep session options and extra arguments alongside fast-mode and service-tier identity inputs."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts",
+    "blobs": [
+      "2c69730de21ae62eca821d949a291c37a0cf172a",
+      "dc95a6f91fb79d54759a6fd33586d09f1633a27f",
+      "94e524d923fdba62b4f5ba4a177342ced0a27756"
+    ],
+    "patch": "startup-refresh-20261105/pr33369-ee49b4106cd2.patch",
+    "patchSha256": "36888561d9d2a7f3f5aec1041e89d5893136717a48c0b425ee92edaf90af289c",
+    "resultSha256": "40f0f59599b761984447d4ea647211e50f9b1e2c359866a9937dfa07d62bb052",
+    "reason": "Keep the current worker preflights and relocated composer-readiness owner while composing launch preferences."
+  },
+  {
+    "path": "src/main/runtime/terminal/wait/terminal-interactive-wait.ts",
+    "blobs": [
+      "e87d7bfb13caf7cdfaf89ef203f9d5349a3548bd",
+      "b315a4c8912e6186cb5653cdef994772524995a6",
+      "51620a024e6f32157303d2d6e9ae05420ac1e3be"
+    ],
+    "patch": "startup-refresh-20261105/pr33369-aaafb5383ae0.patch",
+    "patchSha256": "56cb726b6f6e0715abc6f091b4bbc0281dbe6ccdebbcc8e240ddde34f6c4cfc3",
+    "resultSha256": "3670440b28e1f31e40389131a0dee4d6645f45ec4010f25fd5e0de893744ef56",
+    "reason": "Retain the relocated terminal wait record owner while keeping the extracted agent-launch implementation in its current launch owner."
+  },
+  {
+    "path": "src/renderer/src/components/sidebar/host-section-rows.test.ts",
+    "blobs": [
+      "8d375ca592de943fdedaa7684b9b922cc14fa0ca",
+      null,
+      "d785e5b38c67b8d0a0c24d71aa2f3edf0df43ead"
+    ],
+    "patch": "startup-refresh-20261105/pr33502-9f1cd46c0f36.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Retain the upstream retirement of broad host-section fixture assertions; current host-qualified row coverage remains in its concrete owner.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/sidebar/project-header-drop.test.ts",
+    "blobs": [
+      "8cbd6053390daad4cbcd334cbd66c0abf8efdbc4",
+      null,
+      "ed61d6d0a574faef02edf044b76986d5a193fb33"
+    ],
+    "patch": "startup-refresh-20261105/pr33502-1413b46f3290.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Retain the upstream retirement of the broad project-drop suite; port the two selected pin-tier and same-id membership cases into a focused current-owner suite.",
+    "deleted": true
   }
 ]
