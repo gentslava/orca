@@ -1459,5 +1459,18 @@
     "resultSha256": null,
     "reason": "Preserve upstream removal of broad appearance settings suite; hold-to-quit policy keeps its focused gesture, settings-owner and activity coverage.",
     "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/settings/general/GeneralPane.section-lifetime.test.tsx",
+    "blobs": [
+      "8ad5b590c1f654eea8c8a9af45fb59a975ae9504",
+      null,
+      "bb4f6196e856ddf3304261c5eca9a6c7d2d22c9c"
+    ],
+    "patch": "refresh-20261105/pr33512-89074b101a59.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of the broad General section retention fixture; focused hold-to-quit behavior and settings owner tests remain.",
+    "deleted": true
   }
 ]
