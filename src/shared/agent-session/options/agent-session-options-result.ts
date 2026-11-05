@@ -33,6 +33,8 @@ export type AgentSessionOptionsResult = {
   /** This session takes image attachments. Absent = unknown (an older host). */
   acceptsImages?: boolean
   models: AgentSessionModelOption[]
+  /** Original host/workspace configuration, or the saved Default baseline; never a recommendation. */
+  defaultModel?: { id: string; label: string; description?: string }
   /** False means inventory is unknown; retain existing rows. Absent keeps older hosts' authoritative-list behavior. */
   modelsKnown?: false
   /** The `models` ids the agent's own finished listing names, excluding host-added rows and
@@ -44,6 +46,7 @@ export type AgentSessionOptionsResult = {
     /** Accepted input origins; an empty map excludes all display-only observations. */
     acceptedInputSources?: AgentSessionAcceptedInputSources
     model?: string
+    modelDefault?: boolean
     /** Current child reports this model for display; it is never a next-turn selection. */
     reportedModel?: string
     effort?: string
@@ -64,4 +67,12 @@ export type AgentSessionOptionsResult = {
     /** Catalog-supplied values, outside chat intent/provider reports; absent from older hosts, whose answers retain their prior interpretation. */
     defaulted?: readonly ('model' | 'effort')[]
   }
+}
+
+export type AgentSessionOptionResult = {
+  key: string
+  value: string | null
+  modelDefault?: boolean
+  /** Full effective next-turn values when the provider reconciled related options. */
+  options?: Record<string, string>
 }
