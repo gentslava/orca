@@ -1,0 +1,708 @@
+diff --git a/mobile/src/host-screen/project-conversation-history-refresh.ts b/mobile/src/host-screen/project-conversation-history-refresh.ts
+index c87cb2b96fe..7c482718bcc 100644
+--- a/mobile/src/host-screen/project-conversation-history-refresh.ts
++++ b/mobile/src/host-screen/project-conversation-history-refresh.ts
+@@ -1,4 +1,7 @@
+-import { AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY } from '../../../src/shared/ai-vault/contracts/ai-vault-runtime-capabilities'
++import {
++  AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY,
++  AI_VAULT_STRUCTURED_CATALOG_CAPABILITY
++} from '../../../src/shared/ai-vault/contracts/ai-vault-runtime-capabilities'
+ import type { RpcClient } from '../transport/rpc-client'
+ import {
+   agentHistoryHostStatusRead,
+@@ -11,7 +14,11 @@ export type ProjectConversationHistorySnapshot = ReturnType<typeof readConversat
+ export async function refreshProjectConversationHistory(
+   client: RpcClient,
+   force: boolean,
+-  previous?: ProjectConversationHistorySnapshot
++  previous?: ProjectConversationHistorySnapshot,
++  onCatalog?: (snapshot: {
++    capabilities: readonly string[]
++    history: ProjectConversationHistorySnapshot
++  }) => void
+ ) {
+   const status = agentHistoryHostStatusRead.interpret(
+     await agentHistoryHostStatusRead.request(client)
+@@ -29,6 +36,18 @@ export async function refreshProjectConversationHistory(
+     includeStructuredSessions: true,
+     force
+   }
++  if (!previous && onCatalog && capabilities.includes(AI_VAULT_STRUCTURED_CATALOG_CAPABILITY)) {
++    try {
++      const history = readConversationHistory(
++        agentHistorySessionScan.interpret(
++          await agentHistorySessionScan.request(client, { ...request, structuredOnly: true })
++        )
++      )
++      onCatalog({ capabilities, history })
++    } catch (error) {
++      console.warn('Could not load the chat catalog before history', error)
++    }
++  }
+   const afterFingerprint = force ? undefined : previous?.fingerprint
+   const read = async (conditional: boolean) =>
+     readConversationHistory(
+diff --git a/mobile/src/host-screen/project-conversation-snapshot.ts b/mobile/src/host-screen/project-conversation-snapshot.ts
+new file mode 100644
+index 00000000000..90228358bef
+--- /dev/null
++++ b/mobile/src/host-screen/project-conversation-snapshot.ts
+@@ -0,0 +1,55 @@
++import type { ExecutionHostId } from '../../../src/shared/execution-host'
++import type { ProjectConversationHistorySnapshot } from './project-conversation-history-refresh'
++import type { ConversationHistory, ConversationTab } from './project-conversations'
++
++export type ConversationSnapshot = {
++  tabs: Map<string, ConversationTab[]>
++  history: ConversationHistory[]
++  historyByHost: Map<ExecutionHostId, ProjectConversationHistorySnapshot>
++  capabilities: Map<ExecutionHostId, readonly string[]>
++  complete: boolean
++  failed: boolean
++}
++export function mergeConversationSnapshot(
++  next: ConversationSnapshot,
++  previous: ConversationSnapshot | undefined,
++  failedSources: ReadonlySet<ExecutionHostId>,
++  failedTabs: ReadonlySet<string>
++): ConversationSnapshot {
++  const tabs = new Map(next.tabs)
++  const capabilities = new Map(next.capabilities)
++  const historyByHost = new Map(next.historyByHost)
++  let history = next.history
++  if (previous) {
++    for (const source of failedSources) {
++      const priorHistory = previous.historyByHost.get(source)
++      if (priorHistory && !historyByHost.has(source)) {
++        historyByHost.set(source, priorHistory)
++      }
++      const retained = previous.capabilities.get(source)
++      if (!capabilities.has(source) && retained) {
++        capabilities.set(source, retained)
++      }
++    }
++    for (const key of failedTabs) {
++      const retained = previous.tabs.get(key)
++      if (retained) {
++        tabs.set(key, retained)
++      }
++    }
++    history = [
++      ...history,
++      ...previous.history.filter(
++        (session) =>
++          session.executionHostId &&
++          !next.historyByHost.has(
++            session.executionHostId.startsWith('runtime:') ? session.executionHostId : 'local'
++          ) &&
++          failedSources.has(
++            session.executionHostId.startsWith('runtime:') ? session.executionHostId : 'local'
++          )
++      )
++    ]
++  }
++  return { ...next, tabs, capabilities, history, historyByHost }
++}
+diff --git a/mobile/src/host-screen/use-project-conversations.test.tsx b/mobile/src/host-screen/use-project-conversations.test.tsx
+index 8693d08edfa..4dc79619f00 100644
+--- a/mobile/src/host-screen/use-project-conversations.test.tsx
++++ b/mobile/src/host-screen/use-project-conversations.test.tsx
+@@ -84,6 +84,60 @@ async function mount(initial: ProjectConversationsSource) {
+ }
+ 
+ describe('host-owned conversation snapshots', () => {
++  it('shows the durable catalog before provider history completes and replaces it after enrichment', async () => {
++    let finish: (reply: RpcResponse) => void = () => {}
++    const { client, sendRequest } = replies()
++    sendRequest.mockImplementation(async (method, params) => {
++      if (method === 'status.get') {
++        return {
++          id: 'status',
++          ok: true,
++          result: { capabilities: ['aiVault.v1', 'aiVault.structured-catalog.v1'] }
++        }
++      }
++      if (method === 'aiVault.listSessions') {
++        if (
++          typeof params === 'object' &&
++          params !== null &&
++          'structuredOnly' in params &&
++          params.structuredOnly
++        ) {
++          return {
++            id: 'catalog',
++            ok: true,
++            result: {
++              sessions: [conversationHistory()],
++              issues: [],
++              includesStructuredSessions: true
++            }
++          }
++        }
++        return new Promise<RpcResponse>((resolve) => {
++          finish = resolve
++        })
++      }
++      return { id: 'tabs', ok: true, result: { tabs: [] } }
++    })
++    const probe = await mount(source(client))
++    expect(probe.read().loading).toBe(false)
++    expect(probe.read().history).toHaveLength(1)
++    expect(probe.read().complete).toBe(true)
++    expect(probe.read().failed).toBe(false)
++    await act(async () =>
++      finish({
++        id: 'history',
++        ok: true,
++        result: {
++          sessions: [conversationHistory({ title: 'Enriched chat' })],
++          issues: [],
++          includesStructuredSessions: true
++        }
++      })
++    )
++    expect(probe.read().history).toHaveLength(1)
++    expect(probe.read().history[0]?.title).toBe('Enriched chat')
++  })
++
+   it('shows the warm list immediately on return and refreshes stale rows in the background', async () => {
+     vi.useFakeTimers()
+     const { client, sendRequest } = replies()
+diff --git a/mobile/src/host-screen/use-project-conversations.ts b/mobile/src/host-screen/use-project-conversations.ts
+index 2509e629744..47a59139146 100644
+--- a/mobile/src/host-screen/use-project-conversations.ts
++++ b/mobile/src/host-screen/use-project-conversations.ts
+@@ -12,22 +12,14 @@ import {
+ import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
+ import { resolveWorktreeHostId } from '../worktree/worktree-host-context-labels'
+ import { isConversationHistoryNotice } from './conversation-records'
++import {
++  mergeConversationSnapshot,
++  type ConversationSnapshot
++} from './project-conversation-snapshot'
+ import { sessionTabsListRead } from '../session/mobile-session-read-operations'
+ import type { HostScreenController } from './use-host-screen-controller'
+-import {
+-  readConversationTabs,
+-  type ConversationHistory,
+-  type ConversationTab
+-} from './project-conversations'
++import { readConversationTabs } from './project-conversations'
+ 
+-type ConversationSnapshot = {
+-  tabs: Map<string, ConversationTab[]>
+-  history: ConversationHistory[]
+-  historyByHost: Map<ExecutionHostId, ProjectConversationHistorySnapshot>
+-  capabilities: Map<ExecutionHostId, readonly string[]>
+-  complete: boolean
+-  failed: boolean
+-}
+ const EMPTY: ConversationSnapshot = {
+   tabs: new Map(),
+   history: [],
+@@ -143,6 +135,44 @@ export function useProjectConversations(controller: ProjectConversationsSource)
+         complete: true,
+         failed: false
+       }
++      const publish = (pending = false) => {
++        if (current()) {
++          const value = mergeConversationSnapshot(
++            next,
++            sameAuthority ? previous.value : undefined,
++            failedSources,
++            failedTabs
++          )
++          const loaded = {
++            client,
++            hostId,
++            generation,
++            authority,
++            workspaceStamp,
++            at: pending ? Date.now() - REFRESH_MS : Date.now(),
++            value
++          }
++          snapshots.set(client, loaded)
++          setLoaded(loaded)
++        }
++      }
++      const acceptHistory = (
++        sourceHost: ExecutionHostId,
++        capabilities: readonly string[],
++        history: ProjectConversationHistorySnapshot
++      ) => {
++        next.capabilities.set(sourceHost, capabilities)
++        next.historyByHost.set(sourceHost, history)
++        next.history = [...next.historyByHost].flatMap(([host, snapshot]) =>
++          snapshot.sessions.map((session) => ({
++            ...session,
++            executionHostId:
++              host !== 'local' && session.executionHostId === 'local'
++                ? host
++                : session.executionHostId
++          }))
++        )
++      }
+       try {
+         const historyRequests = Promise.all(
+           [...sources].map(async ([sourceHost, sourceClient]) => {
+@@ -150,14 +180,20 @@ export function useProjectConversations(controller: ProjectConversationsSource)
+               const { capabilities, history } = await refreshProjectConversationHistory(
+                 sourceClient,
+                 force,
+-                sameAuthority ? previous.value.historyByHost.get(sourceHost) : undefined
++                sameAuthority ? previous.value.historyByHost.get(sourceHost) : undefined,
++                ({ capabilities, history }) => {
++                  acceptHistory(sourceHost, capabilities, history)
++                  if (next.history.length > 0) {
++                    publish(true)
++                  }
++                }
+               )
+               next.capabilities.set(sourceHost, capabilities)
+               if (!history) {
+                 next.complete = false
+                 return
+               }
+-              next.historyByHost.set(sourceHost, history)
++              acceptHistory(sourceHost, capabilities, history)
+               const historyFailed = history.issues.some(
+                 (issue) => !isConversationHistoryNotice(issue)
+               )
+@@ -165,15 +201,6 @@ export function useProjectConversations(controller: ProjectConversationsSource)
+                 next.complete = false
+               }
+               next.failed ||= historyFailed
+-              next.history.push(
+-                ...history.sessions.map((session) => ({
+-                  ...session,
+-                  executionHostId:
+-                    sourceHost !== 'local' && session.executionHostId === 'local'
+-                      ? sourceHost
+-                      : session.executionHostId
+-                }))
+-              )
+             } catch {
+               failedSources.add(sourceHost)
+               next.failed = true
+@@ -208,56 +235,7 @@ export function useProjectConversations(controller: ProjectConversationsSource)
+           )
+         }
+         await historyRequests
+-        if (current()) {
+-          const value = (() => {
+-            const tabs = new Map(next.tabs)
+-            const capabilities = new Map(next.capabilities)
+-            const historyByHost = new Map(next.historyByHost)
+-            let history = next.history
+-            if (sameAuthority) {
+-              for (const source of failedSources) {
+-                const priorHistory = previous.value.historyByHost.get(source)
+-                if (priorHistory) {
+-                  historyByHost.set(source, priorHistory)
+-                }
+-                const retained = previous.value.capabilities.get(source)
+-                if (!capabilities.has(source) && retained) {
+-                  capabilities.set(source, retained)
+-                }
+-              }
+-              for (const key of failedTabs) {
+-                const retained = previous.value.tabs.get(key)
+-                if (retained) {
+-                  tabs.set(key, retained)
+-                }
+-              }
+-              history = [
+-                ...history,
+-                ...previous.value.history.filter(
+-                  (session) =>
+-                    session.executionHostId &&
+-                    failedSources.has(
+-                      session.executionHostId.startsWith('runtime:')
+-                        ? session.executionHostId
+-                        : 'local'
+-                    )
+-                )
+-              ]
+-            }
+-            return { ...next, tabs, capabilities, history, historyByHost }
+-          })()
+-          const loaded = {
+-            client,
+-            hostId,
+-            generation,
+-            authority,
+-            workspaceStamp,
+-            at: Date.now(),
+-            value
+-          }
+-          snapshots.set(client, loaded)
+-          setLoaded(loaded)
+-        }
++        publish()
+       } finally {
+         running = false
+         if (current()) {
+diff --git a/src/main/ai-vault/ai-vault-runtime-scan.ts b/src/main/ai-vault/ai-vault-runtime-scan.ts
+index 9b6193fdd7e..9613393f488 100644
+--- a/src/main/ai-vault/ai-vault-runtime-scan.ts
++++ b/src/main/ai-vault/ai-vault-runtime-scan.ts
+@@ -68,6 +68,9 @@ function runtimeScanArgs(
+   const scanArgs: AiVaultListArgs = { executionHostScope: hostInfo.executionHostId }
+   if (listArgs?.includeStructuredSessions) {
+     scanArgs.includeStructuredSessions = true
++    if (listArgs.structuredOnly) {
++      scanArgs.structuredOnly = true
++    }
+   }
+   if (listArgs?.afterFingerprint !== undefined) {
+     scanArgs.afterFingerprint = listArgs.afterFingerprint
+diff --git a/src/main/ai-vault/cached-session-list.ts b/src/main/ai-vault/cached-session-list.ts
+index 3f99e9c40af..24ed253ced0 100644
+--- a/src/main/ai-vault/cached-session-list.ts
++++ b/src/main/ai-vault/cached-session-list.ts
+@@ -138,6 +138,9 @@ export async function listAiVaultSessions(
+   args?: AiVaultListArgs,
+   options: { signal?: AbortSignal } = {}
+ ): Promise<AiVaultListResult> {
++  if (args?.includeStructuredSessions && args.structuredOnly) {
++    return { sessions: [], issues: [], scannedAt: new Date().toISOString() }
++  }
+   const key = aiVaultLocalScanScopeKey(args)
+   const depth = requestedAiVaultSessionDepth(args)
+   const scanKey = aiVaultLocalScanKey(args)
+diff --git a/src/main/ai-vault/runtime-session-scanner.ts b/src/main/ai-vault/runtime-session-scanner.ts
+index cb0f923d016..59ccc09472c 100644
+--- a/src/main/ai-vault/runtime-session-scanner.ts
++++ b/src/main/ai-vault/runtime-session-scanner.ts
+@@ -83,6 +83,7 @@ export async function scanRuntimeAiVaultSessions(
+     {
+       includeAntigravityIdeSessions: args.includeAntigravityIdeSessions,
+       ...(args.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
++      ...(args.structuredOnly ? { structuredOnly: true } : {}),
+       limit: args.limit,
+       unlimited: args.unlimited,
+       force: args.force,
+diff --git a/src/main/ipc/ai-vault/ai-vault.test.ts b/src/main/ipc/ai-vault/ai-vault.test.ts
+index 8ed8f5f6290..fc68f9f4257 100644
+--- a/src/main/ipc/ai-vault/ai-vault.test.ts
++++ b/src/main/ipc/ai-vault/ai-vault.test.ts
+@@ -177,6 +177,44 @@ describe('listAiVaultSessions host routing', () => {
+     expect(renamed.fingerprint).not.toBe(first.fingerprint)
+     expect(mocks.scanLocalSessions).toHaveBeenCalledTimes(1)
+   })
++
++  it('opens the durable catalog while a provider scan is still pending without caching it as history', async () => {
++    installLocalRecord()
++    let finishScan: (value: AiVaultListResult) => void = () => {}
++    mocks.scanLocalSessions.mockImplementationOnce(
++      () =>
++        new Promise<AiVaultListResult>((resolve) => {
++          finishScan = resolve
++        })
++    )
++    registerAiVaultHandlers()
++    const event = { sender: Object.assign(new EventEmitter(), { id: 1 }) }
++    const history = handler()(event, {
++      executionHostScope: 'local',
++      includeStructuredSessions: true,
++      requestToken: 'history'
++    })
++    await vi.waitFor(() => expect(mocks.scanLocalSessions).toHaveBeenCalledOnce())
++    const catalog = await handler()(event, {
++      executionHostScope: 'local',
++      includeStructuredSessions: true,
++      structuredOnly: true,
++      requestToken: 'catalog'
++    })
++    expect(catalog).toMatchObject({
++      includesStructuredSessions: true,
++      sessions: [{ source: 'structured-record', title: 'Local retained chat' }]
++    })
++    finishScan(result([session('local', 'provider-chat')]))
++    const complete = await history
++    expect(complete.sessions).toHaveLength(2)
++    const cached = await handler()(event, {
++      executionHostScope: 'local',
++      includeStructuredSessions: true
++    })
++    expect(cached.sessions).toHaveLength(2)
++    expect(mocks.scanLocalSessions).toHaveBeenCalledOnce()
++  })
+   it('routes local scope to the local scanner', async () => {
+     await _internals.listAiVaultSessions({
+       executionHostScope: 'local',
+diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.ts
+index dab22c197b3..11fa5223331 100644
+--- a/src/main/ipc/ai-vault/ai-vault.ts
++++ b/src/main/ipc/ai-vault/ai-vault.ts
+@@ -119,6 +119,7 @@ async function listAiVaultSessions(
+     executionHostScope,
+     includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
+     includeStructuredSessions: args?.includeStructuredSessions === true,
++    structuredOnly: args?.structuredOnly === true,
+     selectedSessionId: args?.selectedSessionId
+   })
+   const depth = requestedAiVaultSessionDepth(args)
+diff --git a/src/main/runtime/rpc/methods/ai-vault.test.ts b/src/main/runtime/rpc/methods/ai-vault.test.ts
+index c326f0d4092..822959276fc 100644
+--- a/src/main/runtime/rpc/methods/ai-vault.test.ts
++++ b/src/main/runtime/rpc/methods/ai-vault.test.ts
+@@ -386,6 +386,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
+           dispatcher.dispatch(
+             makeRequest('aiVault.listSessions', {
+               includeStructuredSessions: true,
++              structuredOnly: true,
+               executionHostId
+             })
+           )
+@@ -402,6 +403,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
+             ]
+           }
+         })
++        expect(scanAiVaultSessionsInService).not.toHaveBeenCalled()
+         const transcriptOnly = await dispatcher.dispatch(
+           makeRequest('aiVault.listSessions', { executionHostId })
+         )
+diff --git a/src/main/runtime/rpc/methods/ai-vault.ts b/src/main/runtime/rpc/methods/ai-vault.ts
+index 71f616e98c4..4364d912059 100644
+--- a/src/main/runtime/rpc/methods/ai-vault.ts
++++ b/src/main/runtime/rpc/methods/ai-vault.ts
+@@ -122,6 +122,8 @@ export const AI_VAULT_METHODS = [
+             force: params.force,
+             scopePaths: params.scopePaths,
+             selectedSessionId,
++            includeStructuredSessions: params.includeStructuredSessions,
++            structuredOnly: params.structuredOnly,
+             includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
+           },
+           signal
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
+index 2df02f5ac08..d9d53de8a37 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
+@@ -98,15 +98,17 @@ function Probe({
+   limit,
+   paths,
+   showList = false,
++  includeStructuredSessions = false,
+   noAgentsSelected = false
+ }: {
+   host: ExecutionHostScope
+   limit: number
+   paths: readonly string[]
+   showList?: boolean
++  includeStructuredSessions?: boolean
+   noAgentsSelected?: boolean
+ }): React.JSX.Element | null {
+-  latest = useAiVaultSessionRefresh(paths, host, limit)
++  latest = useAiVaultSessionRefresh(paths, host, limit, includeStructuredSessions)
+   if (!showList) {
+     return null
+   }
+@@ -206,6 +208,53 @@ afterEach(() => {
+ })
+ 
+ describe('conditional panel publication', () => {
++  it('publishes usable chat records before the blocked provider history and then enriches them', async () => {
++    const catalog = {
++      ...first,
++      includesStructuredSessions: true as const,
++      sessions: [
++        {
++          ...session,
++          id: 'local:structured:owner',
++          executionHostId: 'local' as const,
++          title: 'Saved chat',
++          filePath: '',
++          source: 'structured-record' as const,
++          structuredSession: { sessionId: 'owner', workspaceId: 'workspace' }
++        }
++      ]
++    }
++    let deliver: (value: AiVaultListResult) => void = () => {}
++    list.mockResolvedValueOnce(catalog).mockImplementationOnce(
++      () =>
++        new Promise<AiVaultListResult>((resolve) => {
++          deliver = resolve
++        })
++    )
++    await act(async () =>
++      root?.render(<Probe host="all" limit={250} paths={['/repo']} includeStructuredSessions />)
++    )
++    await settle()
++    expect(latest?.sessions[0]?.title).toBe('Saved chat')
++    expect(latest?.scopePending).toBe(false)
++    expect(latest?.loading).toBe(false)
++    expect(list.mock.calls[0]?.[0]).toMatchObject({
++      structuredOnly: true,
++      executionHostScope: 'local'
++    })
++    expect(list.mock.calls[1]?.[0]).toMatchObject({ executionHostScope: 'all' })
++    expect(list.mock.calls[1]?.[0]).not.toHaveProperty('structuredOnly')
++    await act(async () =>
++      deliver({
++        ...catalog,
++        sessions: [{ ...catalog.sessions[0], filePath: '/session.jsonl', title: 'Enriched chat' }]
++      })
++    )
++    await settle()
++    expect(latest?.sessions[0]?.title).toBe('Enriched chat')
++    expect(latest?.sessions[0]?.filePath).toBe('/session.jsonl')
++  })
++
+   it('keeps scope changes loading through actual publication and settles failures, cancellation and empty results', async () => {
+     const show = async (paths: string[], noAgentsSelected = false) => {
+       pendingRenders.length = 0
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
+index 12a6f29f349..5bb780891de 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
+@@ -20,6 +20,7 @@ import {
+ import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refresh-key'
+ import { useAiVaultAssociationObservation } from './ai-vault-association-observation'
+ import { createBrowserUuid } from '@/lib/browser-uuid'
++import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
+ import {
+   useAiVaultConversationRefresh,
+   useAiVaultProviderSessionRefresh
+@@ -108,6 +109,7 @@ export function useAiVaultSessionRefresh(
+       )}\n${sessionLimitRef.current}`,
+     []
+   )
++  const loadStartupCatalog = useAiVaultStartupCatalog(applyScan, publicationGateRef, setLoading)
+   const refresh = useCallback(
+     async (args: AiVaultRefreshArgs = {}): Promise<void> => {
+       const observation = associationsRef.current
+@@ -184,6 +186,10 @@ export function useAiVaultSessionRefresh(
+         sessionLimit: selectedLimit
+       }
+       try {
++        await loadStartupCatalog(request, requestTokenRef.current, scanKey, requestCurrent)
++        if (!requestCurrent()) {
++          return
++        }
+         const previous = conditionalSnapshotRef.current
+         const result = await refreshAiVaultSessionList(
+           request,
+@@ -237,7 +243,7 @@ export function useAiVaultSessionRefresh(
+       }
+       // Read changing scope through refs; recursion requires a stable refresh identity.
+     },
+-    [applyScan, currentScanScopeKey]
++    [applyScan, currentScanScopeKey, loadStartupCatalog]
+   )
+ 
+   // Defer throttled new-session rescans until budget frees so sessions cannot remain invisible indefinitely.
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
+new file mode 100644
+index 00000000000..68da73f250c
+--- /dev/null
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
+@@ -0,0 +1,50 @@
++import { useCallback, useRef, type Dispatch, type RefObject, type SetStateAction } from 'react'
++import { isAiVaultScanCancelledError } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
++import type { useAppliedAiVaultScan } from './ai-vault-applied-scan'
++import type { AiVaultSessionPublicationGate } from './ai-vault-session-publication-gate'
++import {
++  aiVaultSessionListArgs,
++  type AiVaultSessionListRequest
++} from './ai-vault-session-list-request'
++
++export function useAiVaultStartupCatalog(
++  applyScan: ReturnType<typeof useAppliedAiVaultScan>['applyScan'],
++  gate: RefObject<AiVaultSessionPublicationGate>,
++  setLoading: Dispatch<SetStateAction<boolean>>
++) {
++  const scope = useRef<string | null>(null)
++  return useCallback(
++    async (
++      request: AiVaultSessionListRequest,
++      requestToken: string,
++      scopeKey: string,
++      current: () => boolean
++    ): Promise<void> => {
++      if (!request.includeStructuredSessions || scope.current === scopeKey) {
++        return
++      }
++      scope.current = scopeKey
++      try {
++        const catalog = await window.api.aiVault.listSessions({
++          ...aiVaultSessionListArgs(request, { requestToken }),
++          executionHostScope:
++            request.executionHostScope === 'all' ? 'local' : request.executionHostScope,
++          structuredOnly: true
++        })
++        if (current() && !catalog.cancelled && catalog.sessions.length > 0) {
++          gate.current.publish(catalog, (published) => {
++            if (current()) {
++              applyScan(published, request.sessionLimit, scopeKey)
++              setLoading(false)
++            }
++          })
++        }
++      } catch (error) {
++        if (!isAiVaultScanCancelledError(error)) {
++          console.warn('Could not load the chat catalog before history', error)
++        }
++      }
++    },
++    [applyScan, gate, setLoading]
++  )
++}
+diff --git a/src/renderer/src/web/preload-api/web-ai-vault-api.ts b/src/renderer/src/web/preload-api/web-ai-vault-api.ts
+index df53d3003e5..1fdee28d12b 100644
+--- a/src/renderer/src/web/preload-api/web-ai-vault-api.ts
++++ b/src/renderer/src/web/preload-api/web-ai-vault-api.ts
+@@ -70,6 +70,7 @@ export function createWebAiVaultApi(): NonNullable<Partial<PreloadApi>['aiVault'
+       return callRuntimeResult<AiVaultListResult>('aiVault.listSessions', {
+         includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions,
+         ...(args?.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
++        ...(args?.structuredOnly ? { structuredOnly: true } : {}),
+         limit: args?.limit,
+         unlimited: args?.unlimited,
+         force: args?.force,
+diff --git a/src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts b/src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts
+index ea8590662a7..e2d44ad2238 100644
+--- a/src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts
++++ b/src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts
+@@ -6,6 +6,7 @@ export const AI_VAULT_SESSION_TITLES_RUNTIME_CAPABILITY = 'aiVault.session-title
+ export const AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY = 'aiVault.selected-session.v1' as const
+ /** The host deletes its own history rows through aiVault.deleteSession. */
+ export const AI_VAULT_DELETE_SESSION_RUNTIME_CAPABILITY = 'aiVault.delete-session.v1' as const
++export const AI_VAULT_STRUCTURED_CATALOG_CAPABILITY = 'aiVault.structured-catalog.v1' as const
+ 
+ /** Older hosts may annotate canonical history ownership. */
+ export const AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY =
+@@ -16,5 +17,6 @@ export const AI_VAULT_RUNTIME_CAPABILITIES = [
+   AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY,
+   AI_VAULT_SESSION_TITLES_RUNTIME_CAPABILITY,
+   AI_VAULT_DELETE_SESSION_RUNTIME_CAPABILITY,
++  AI_VAULT_STRUCTURED_CATALOG_CAPABILITY,
+   AI_VAULT_CHAT_FORK_SOURCE_CAPABILITY
+ ] as const
+diff --git a/src/shared/ai-vault/contracts/ai-vault-types.ts b/src/shared/ai-vault/contracts/ai-vault-types.ts
+index 73899f31cc8..2dceeaf8fbf 100644
+--- a/src/shared/ai-vault/contracts/ai-vault-types.ts
++++ b/src/shared/ai-vault/contracts/ai-vault-types.ts
+@@ -230,6 +230,8 @@ export type AiVaultListArgs = {
+   selectedSessionId?: string
+   /** Primary conversation navigation includes durable chats without provider files. */
+   includeStructuredSessions?: boolean
++  /** Return the durable chat catalog without scanning provider transcripts. */
++  structuredOnly?: boolean
+   historyOwnership?: { projectKey?: string }
+   /** Opts a selected runtime-host refresh into content-conditional replies. */
+   afterFingerprint?: string | null
+diff --git a/src/shared/rpc-contract/ai-vault-params.ts b/src/shared/rpc-contract/ai-vault-params.ts
+index 6ee4b0c253e..fd1916ded4c 100644
+--- a/src/shared/rpc-contract/ai-vault-params.ts
++++ b/src/shared/rpc-contract/ai-vault-params.ts
+@@ -35,6 +35,7 @@ export const AiVaultListSessionsParams = z
+       .optional(),
+     includeAntigravityIdeSessions: OptionalBoolean,
+     includeStructuredSessions: OptionalBoolean,
++    structuredOnly: OptionalBoolean,
+     selectedSessionId: z.string().min(1).max(8192).optional(),
+     unlimited: OptionalBoolean,
+     force: OptionalBoolean,

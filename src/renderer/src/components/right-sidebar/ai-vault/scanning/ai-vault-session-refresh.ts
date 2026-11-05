@@ -20,6 +20,7 @@ import {
 import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refresh-key'
 import { useAiVaultAssociationObservation } from './ai-vault-association-observation'
 import { createBrowserUuid } from '@/lib/browser-uuid'
+import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
 import {
   useAiVaultConversationRefresh,
   useAiVaultProviderSessionRefresh
@@ -108,6 +109,7 @@ export function useAiVaultSessionRefresh(
       )}\n${sessionLimitRef.current}`,
     []
   )
+  const loadStartupCatalog = useAiVaultStartupCatalog(applyScan, publicationGateRef, setLoading)
   const refresh = useCallback(
     async (args: AiVaultRefreshArgs = {}): Promise<void> => {
       const observation = associationsRef.current
@@ -184,6 +186,10 @@ export function useAiVaultSessionRefresh(
         sessionLimit: selectedLimit
       }
       try {
+        await loadStartupCatalog(request, requestTokenRef.current, scanKey, requestCurrent)
+        if (!requestCurrent()) {
+          return
+        }
         const previous = conditionalSnapshotRef.current
         const result = await refreshAiVaultSessionList(
           request,
@@ -237,7 +243,7 @@ export function useAiVaultSessionRefresh(
       }
       // Read changing scope through refs; recursion requires a stable refresh identity.
     },
-    [applyScan, currentScanScopeKey]
+    [applyScan, currentScanScopeKey, loadStartupCatalog]
   )
 
   // Defer throttled new-session rescans until budget frees so sessions cannot remain invisible indefinitely.

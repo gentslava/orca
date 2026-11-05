@@ -82,7 +82,8 @@ try {
         'settings-owner-relocations.patch',
         'model-fallback-next-turn-test.patch',
         'reviewed-merge-target-paths.patch',
-        'upstream-module-relocations.patch'
+        'upstream-module-relocations.patch',
+        'startup-chat-catalog.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')
