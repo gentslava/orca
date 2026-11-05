@@ -1,7 +1,7 @@
-diff --git a/config/scripts/check-path-literal-ratchet.mjs b/config/scripts/check-path-literal-ratchet.mjs
+diff --git a/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs b/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
 index 89bfb9af700..6ca219fb8ff 100644
---- a/config/scripts/check-path-literal-ratchet.mjs
-+++ b/config/scripts/check-path-literal-ratchet.mjs
+--- a/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
++++ b/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
 @@ -14,7 +14,11 @@ const SCAN_ROOTS = ['config', '.github', 'tests']
  const SOURCE_ROOTS = 'main|renderer|shared|cli|preload|packages|types|wsl-guest'
  const RESOLVED_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '/index.ts']
