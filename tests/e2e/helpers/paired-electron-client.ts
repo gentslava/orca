@@ -24,6 +24,7 @@ import {
 } from './nested-runtime-same-id-pairing'
 import { createPairedWebClientUrl, type PairedWebClientOptions } from './paired-web-client-url'
 import { selectPairedRuntimeEnvironment } from './paired-client-runtime-environment'
+import { selectSidebarBody } from './store'
 
 export { rePairPairedElectronClient } from './paired-client-runtime-environment'
 
@@ -153,6 +154,12 @@ export async function launchPairedWebClient(
     )
     page = await pagePromise
     if (options.waitForWorkspace !== false) {
+      await page.waitForFunction(
+        () => window.__store?.getState().workspaceSessionReady === true,
+        null,
+        { timeout: 30_000 }
+      )
+      await selectSidebarBody(page, 'workspaces')
       await page.locator('[data-worktree-sidebar]').waitFor({ state: 'visible', timeout: 30_000 })
     }
     return { page, dispose: () => page?.close() ?? Promise.resolve() }

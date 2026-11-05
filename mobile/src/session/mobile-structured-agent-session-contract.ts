@@ -97,6 +97,7 @@ export type MobileStructuredAgentOptionsArgs = {
   mutate: StructuredAgentSessionMutate
   optionStamp?: string
   turnId: string | null
+  hasTurn?: boolean
   hostSupport: Pick<
     StructuredAgentSessionHostSupport,
     | 'permissionModes'

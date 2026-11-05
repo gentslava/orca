@@ -1,3 +1,4 @@
+import { loadedRailItems } from './native-chat-rail-loaded-history.test-fixture'
 import { readAgentMessageSource } from '../../../../shared/agent-session/agent-session-message-source'
 import {
   ORCHESTRATION_NOTICE_SOURCE,

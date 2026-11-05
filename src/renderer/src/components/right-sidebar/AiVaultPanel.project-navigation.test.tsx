@@ -9,8 +9,8 @@ import type {
   AiVaultListArgs,
   AiVaultListResult
 } from '../../../../shared/ai-vault/contracts/ai-vault-types'
-import AiVaultPanel from './AiVaultPanel'
-import { resetAiVaultForcedRescanThrottleForTest } from './ai-vault-session-refresh'
+import AiVaultPanel from './ai-vault/panel/AiVaultPanel'
+import { resetAiVaultForcedRescanThrottleForTest } from './ai-vault/scanning/ai-vault-session-refresh'
 import { resetInputQuietSchedulerForTest } from '@/lib/input-quiet-scheduler'
 import {
   conversationSessions,

@@ -6,64 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { SessionOptionDescriptor } from '../../../../shared/native-chat/input/native-chat-session-options'
 
-const toastError = vi.hoisted(() => vi.fn())
-vi.mock('sonner', () => ({ toast: { error: toastError } }))
-
-vi.mock('@/i18n/i18n', () => ({
-  translate: (_key: string, fallback: string, values?: Record<string, string | number>) => {
-    if (!values) {
-      return fallback
-    }
-    return Object.entries(values).reduce(
-      (text, [name, value]) => text.replaceAll(`{{${name}}}`, String(value)),
-      fallback
-    )
-  }
-}))
-
-vi.mock('@/components/ui/button', () => ({
-  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
-    <button {...props}>{children}</button>
-  )
-}))
-
-vi.mock('@/components/ui/tooltip', () => ({
-  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
-}))
-
-// Keep mocked rows mounted for assertions.
-vi.mock('@/components/ui/popover', () => ({
-  Popover: ({ children, open }: { children: React.ReactNode; open?: boolean }) => (
-    <div data-testid="picker-root" data-open={open ? 'true' : 'false'}>
-      {children}
-    </div>
-  ),
-  PopoverTrigger: ({ children, disabled }: { children: React.ReactNode; disabled?: boolean }) => (
-    <div data-disabled={disabled || undefined}>{children}</div>
-  ),
-  PopoverContent: ({
-    children,
-    side,
-    align,
-    collisionPadding
-  }: {
-    children: React.ReactNode
-    side?: string
-    align?: string
-    collisionPadding?: number
-  }) => (
-    <div
-      data-testid="picker-content"
-      data-side={side}
-      data-align={align}
-      data-collision-padding={collisionPadding}
-    >
-      {children}
-    </div>
-  )
-}))
+import './native-chat-option-picker-ui.test-fixture'
 
 import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
 import { model, effort } from './native-chat-option-picker.test-fixture'
@@ -136,13 +79,25 @@ describe('NativeChatSessionOptionPickers', () => {
   it('keeps structured model, effort and Fast choices available for future messages while busy', async () => {
     const busySurface = { ...surface, setOption: vi.fn(async () => ({ snapshot: [] })) }
     const fast: SessionOptionDescriptor = {
-      id: 'fastMode', label: 'Fast mode', category: 'mode',
-      kind: { type: 'boolean', currentValue: true }, valueSource: 'applied',
-      transport: 'agent-session', settable: true
+      id: 'fastMode',
+      label: 'Fast mode',
+      category: 'mode',
+      kind: { type: 'boolean', currentValue: true },
+      valueSource: 'applied',
+      transport: 'agent-session',
+      settable: true
     }
-    render(<NativeChatSessionOptionPickers surface={busySurface}
-      snapshot={[model({ transport: 'agent-session' }), { ...effort, transport: 'agent-session' }, fast]}
-      isWorking />)
+    render(
+      <NativeChatSessionOptionPickers
+        surface={busySurface}
+        snapshot={[
+          model({ transport: 'agent-session' }),
+          { ...effort, transport: 'agent-session' },
+          fast
+        ]}
+        isWorking
+      />
+    )
     screen.getByRole('option', { name: 'Sonnet 5' }).click()
     await waitFor(() => expect(busySurface.setOption).toHaveBeenCalledWith('model', 'sonnet'))
     pickEffort()
@@ -180,9 +135,7 @@ describe('NativeChatSessionOptionPickers', () => {
     expect(held()).toEqual(['false', 'false'])
 
     pickEffort()
-    await waitFor(() =>
-      expect(effortSlider().getAttribute('aria-valuetext')).toBe('Low')
-    )
+    await waitFor(() => expect(effortSlider().getAttribute('aria-valuetext')).toBe('Low'))
     expect(pill('Model Opus 4.8, Effort Low')).not.toBeNull()
     expect(held()).toEqual(['false', 'true'])
     screen.getByRole('option', { name: 'Sonnet 5' }).click()

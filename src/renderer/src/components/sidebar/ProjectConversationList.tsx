@@ -18,8 +18,8 @@ import {
 import { translate } from '@/i18n/i18n'
 import { ConversationProjectMenu } from './ConversationProjectMenu'
 import { HiddenConversationProjects } from './HiddenConversationProjects'
-import type { AiVaultSessionVirtualList } from '../right-sidebar/AiVaultSessionVirtualList'
-import { resolveAiVaultSessionRowChatActions } from '../right-sidebar/ai-vault-session-chat-action'
+import type { AiVaultSessionVirtualList } from '../right-sidebar/ai-vault/session-list/AiVaultSessionVirtualList'
+import { resolveAiVaultSessionRowChatActions } from '../right-sidebar/ai-vault/session-actions/ai-vault-session-chat-action'
 import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
 import type { AiVaultSessionProject } from '../../../../shared/ai-vault/session-display/ai-vault-session-filters'
 import { conversationPreferenceKey } from '../../../../shared/conversation-navigation-preferences'
@@ -27,7 +27,7 @@ import {
   projectConversations,
   PROJECT_CONVERSATION_PAGE_SIZE
 } from '../../../../shared/project-conversation-list'
-import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
+import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
 import { ProjectOrderMenuItems } from './ProjectOrderMenuItems'
 import { useConversationPreferences } from './use-conversation-preferences'
 import { ProjectConversationRow } from './ProjectConversationRow'

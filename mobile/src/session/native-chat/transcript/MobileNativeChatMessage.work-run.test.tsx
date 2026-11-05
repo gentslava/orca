@@ -64,7 +64,6 @@ vi.mock('./MobileNativeChatMessageActionsSheet', () => ({
 
 import { nativeChatReasoningDisclosureKey } from '../../../../../src/shared/native-chat/transcript/native-chat-reasoning-row'
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
-import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
 import {
   APPROVED_REVIEW,
   approvalReviewMessage

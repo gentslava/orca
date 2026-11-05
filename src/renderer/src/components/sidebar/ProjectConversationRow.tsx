@@ -9,7 +9,7 @@ import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-va
 import type { AgentDotState } from '@/components/AgentStateDot'
 import type { ConversationPreference } from '../../../../shared/conversation-navigation-preferences'
 import { projectConversationTitle } from '../../../../shared/project-conversation-list'
-import { useAiVaultSessionDisplayTitle } from '../right-sidebar/use-ai-vault-session-display-title'
+import { useAiVaultSessionDisplayTitle } from '../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-title'
 
 export function ProjectConversationRow({
   session,

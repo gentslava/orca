@@ -1,3 +1,9 @@
+import {
+  agentSessionFailureFact,
+  providerDiagnosticOf
+} from '../../../../shared/agent-session/failures/agent-session-failure'
+import { providerSpawnAbsent } from '../../../provider-process/provider-executable-missing'
+import { providerStartupFailureFact } from '../../../native-chat/agent-session-wire/structured-agent-session-failure-text'
 import '../../../native-chat/agent-session-wire/structured-agent-session-adapter'
 import {
   AgentSessionAcquisitionExitUnprovenError,
@@ -60,4 +66,12 @@ export async function closeFailedCodexAcquisition(input: {
     throw new AgentSessionAcquisitionRootExitObservedError(input.cause, 'kill-delivered')
   }
   throw input.cause
+}
+
+export function codexAcquisitionExitFailure(error: Error, cancelled: boolean) {
+  return cancelled
+    ? agentSessionFailureFact('hostFault')
+    : providerSpawnAbsent(error)
+      ? providerStartupFailureFact(error)
+      : agentSessionFailureFact('providerExited', { detail: providerDiagnosticOf(error) })
 }

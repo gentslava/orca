@@ -252,9 +252,17 @@ describe('sendGroupMessage actually composes structured workers in', () => {
     }
     await sendGroupMessage({
       params: { subject: 's', body: 'b', type: 'status', priority: 'normal' },
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides every runtime method used by discovery and notification.
       runtime: runtime as never,
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides each query and insert used by the exercised send path.
       db: db as never,
       from: 'term_sender',
+      sender: {
+        address: 'term_sender',
+        terminalHandle: 'term_sender',
+        paneKey: null,
+        orcaSessionId: null
+      },
       // `@worktree:` is the one group that still enumerates agents; the Run groups read
       // Dispatch rows, where a structured worker's identity is looked up by this same handle.
       groupAddress: '@worktree:wt_2',
@@ -265,7 +273,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
       revalidateLegacyCoordinator: undefined,
       recordMutationReceipt: undefined,
       withSendWarnings: (receipt) => receipt
-    } as never)
+    })
     expect(inserted.map((row) => row.to)).toEqual([handle])
   })
 
@@ -314,10 +322,11 @@ describe('sendGroupMessage actually composes structured workers in', () => {
       getOrchestrationDb: () => db,
       notifyMessageArrived: () => {}
     }
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the stub cast is unchanged; the gate flags it only because this diff adds the sender field inside its span.
     await sendGroupMessage({
       params: { subject: 's', body: 'b', type: 'status', priority: 'normal' },
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides every runtime method used by discovery and notification.
       runtime: runtime as never,
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides each query and insert used by the exercised send path.
       db: db as never,
       from: 'term_sender',
       groupAddress: '@codex',
@@ -334,7 +343,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
       revalidateLegacyCoordinator: undefined,
       recordMutationReceipt: undefined,
       withSendWarnings: (receipt) => receipt
-    } as never)
+    })
     expect(inserted.map((row) => row.to)).toEqual(['dispatch:ctx_structured'])
   })
 })

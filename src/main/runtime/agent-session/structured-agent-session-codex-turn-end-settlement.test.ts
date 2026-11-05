@@ -1,6 +1,6 @@
 import { AGENT_SESSION_GOAL_CONTROL_COPY } from '../../../shared/agent-session/view/agent-session-goal-control-copy'
 import { readAgentJournalTurn } from '../../../shared/agent-session/lifecycle/agent-session-turn-record'
-import { classifyDispatchRejection } from '../../../shared/agent-session/requests/structured-agent-session-dispatch-rejection'
+import { operationId, verdictOf } from './codex-turn-end-settlement.test-fixture'
 import type { AgentJournalSubmission } from '../../../shared/agent-session/journal/agent-session-journal-types'
 import { computeAgentSessionPayloadFingerprint } from '../../../shared/agent-session/lifecycle/agent-session-mutation-envelope'
 import { CODEX_TURN_OPEN_WAIT_MS } from '../../codex/structured/turns/codex-structured-turn-open-wait'
@@ -95,10 +95,6 @@ let interruptsFail: boolean
 /** Codex takes the interrupt and answers it; the test sends that turn's end later. */
 let interruptEndHeld: boolean
 let turns: ReturnType<typeof codexTurnLifecycleFake>
-let operations = 0
-
-/** The durable ledger stamps its own clock and refuses an id far from it. */
-const operationId = (): string => `${Date.now()}-${(++operations).toString(16).padStart(32, '0')}`
 
 function envelope(method: string, fields: Record<string, unknown>) {
   return {
@@ -197,13 +193,6 @@ async function expectUnconfirmedOriginal(id: string, text: string): Promise<void
   expect(journal.submissionBody(id)).toEqual(hostTestMessage(text))
   expect(host.currentWork(SESSION)?.working()).toBe(false)
   expect(journal.queuedMessages.get(`recovery:${id}`)).toBeNull()
-}
-
-function verdictOf(submissions: readonly AgentJournalSubmission[], clientMessageId: string) {
-  const submission = submissions.find((entry) => entry.clientMessageId === clientMessageId)
-  return submission?.dispatchState === 'rejected'
-    ? classifyDispatchRejection(submission).category
-    : submission?.dispatchState
 }
 
 beforeEach(async () => {
