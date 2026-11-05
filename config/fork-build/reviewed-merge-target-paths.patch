@@ -1,5 +1,5 @@
 diff --git a/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs b/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
-index 89bfb9af700..6ca219fb8ff 100644
+index 8afc5698007..a95aaac30c6 100644
 --- a/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
 +++ b/config/scripts/static-analysis/ratchets/source-budget/check-path-literal-ratchet.mjs
 @@ -14,7 +14,11 @@ const SCAN_ROOTS = ['config', '.github', 'tests']

@@ -1691,5 +1691,197 @@
     "patchSha256": "3566ed80d9b0ba3a8e66f0b83ae4d3bf4e5717603ffecd244e560b1a30f1f067",
     "resultSha256": "2c0f57fc3820df11a79de7314ab18129eae0513ced6e769ef9e3eb0ae0bb225e",
     "reason": "Retain the focused current right-click target lifetime cases and child workspace guards; do not restore the generic context-menu inventory removed upstream."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.test.tsx",
+    "blobs": [
+      "77f737dcfeb6f7f083b594f295ce69d6a233575e",
+      "6878df04d41a9b977ec952602cdc4659b5a420a1",
+      "60f2d0f709a90026ab33fe5f664f41f0344dcba2"
+    ],
+    "patch": "startup-refresh-20261105/pr33362-7c94a557f426.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "272280d873cbb324da6f9d63248aa5b4bc08134b1f51f7e24104c9c8fcef98a5",
+    "reason": "Keep current upstream removal of broad option and Pi refresh fixtures; the incoming capture null guard only changes a retired fixture, while focused default and send regressions remain separate."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "085cdd411f43ac1638f4e115d971106f42804d7f",
+      "309692df6f8611ad6b97ed8a89684f429a77987a",
+      "c77dd0572a0ec4ac98e1953c39640e64de8b2c9e"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-27b7434a7ea1.patch",
+    "patchSha256": "36bc8778a3d6a1e28cce0de47f7ed1b25be0b38640265002221126d0177fb03c",
+    "resultSha256": "032fcadcf9d6164fb9ea98997056753501d6ba1a680db5a5149a2768a0099f69",
+    "reason": "Retain current future-turn queue messages and add Default model translations without duplicate keys."
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "42853815ba248e8a6aa7b87d081c75e51d239c88",
+      "8c51af6039fc1a28585374e12ff90f06a2f21bc7",
+      "d9a6be64059fd0890b707aae22f1fc85fc397514"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-53ad438855c7.patch",
+    "patchSha256": "343bad8eaac74613efe9cedee759a1a1b909949aee513cc839737837917e776d",
+    "resultSha256": "f4572bef1e4d6526f77f7c5584388c56b4a2cc6ff05f5a951159992d7e104819",
+    "reason": "Retain current future-turn queue messages and add Default model translations without duplicate keys."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "559941f3332d44932ee68bf5788bcdc9e720006c",
+      "0eab75a970cfb2337ae4c38b40cad32d9dff709f",
+      "27168b155a195c060961a7246079a09a2524a351"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-b26ffefd8a5c.patch",
+    "patchSha256": "e785639d22b39596af35a035c222b584f3b4d4ed1fe100df6dab66aff5ce9f9e",
+    "resultSha256": "bbad700ba90e7d65e72ed8b1c0c2118b22c787addcbf7c8f509da8507fbf0b92",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionRows.tsx",
+    "blobs": [
+      "437782b2977821e6f1b957cbc00f44c36d36629e",
+      "6dbb0c821c1b8063665ef6b69b86f7993bc8832d",
+      "234a1240fe2ab53c42c92a80636adb6776cd9180"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-f6d1a23fc593.patch",
+    "patchSha256": "c07e1abf1f11b1bcf625af1f47726687e3211aadd81ad052de963c5b464e63fb",
+    "resultSha256": "f14cb7feeab7aa17d491ec0c3a236bf7ef7de151ed168ea43caa3715f03aab38",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "mobile/src/session/use-mobile-structured-agent-options.ts",
+    "blobs": [
+      "f8497ea3c98e8fbe48f9bc7cd856aba2e5277920",
+      "90272ddc021374fc5d3fc922f9dbf8a4dc5f7c5c",
+      "d0511d87c7450494bce4c9b48ba0dbf967518e05"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-e3ebbb4dfb5c.patch",
+    "patchSha256": "4883e4a8e006be2082ba60b3443441c7fa0155fd5e5ba7955b46d01fd29acf28",
+    "resultSha256": "259979c20758041f0dcd5cc3a1bbc2c8d0f566c46d86d9c52776bc9518c4000f",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatModelCombobox.tsx",
+    "blobs": [
+      "cde8e4f57c66e43556977dac9ce97eda2bad71a7",
+      "32234da72519d7babcaa3367d1194faa7ea6815d",
+      "6e3f1973ceae0efd5c5e684f36072ddb44b216a4"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-9727d05f75a3.patch",
+    "patchSha256": "5c5dd1ab1de48c96cdd219b41c280341ecf016d8973fc8214cc720945044cd81",
+    "resultSha256": "5b7c9439cadc2986985ceb81bf199277332e1b6591154f8a219ada232fccaa96",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.test.tsx",
+    "blobs": [
+      "77f737dcfeb6f7f083b594f295ce69d6a233575e",
+      "6878df04d41a9b977ec952602cdc4659b5a420a1",
+      "c24414a6b09c5e973e5585685bdc6645821c8441"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-996c1a996bc7.patch",
+    "patchSha256": "3b0ede612ac66a265ef15edca75838b332b03ea396d59c94923d806811e4c90c",
+    "resultSha256": "c8a4683a7716425038bec95667834d63e733e56401a59b691f6e3ce37e3de949",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
+    "blobs": [
+      "8494a243d1e8d654cfc4842391a6dc3804792651",
+      "0e644dfdc97dca5560787388ef9bade4552d8397",
+      "47d4953d94b0a6ec0d02b80ff9a071324134796f"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-653f737c99c1.patch",
+    "patchSha256": "40b25b0c09d047102609e90cd8d058044f8c5de8ec1feb72b26aac450dab5186",
+    "resultSha256": "f30ead01cafc658b7131068285762278ffbd1183dd2b0490c2f94ab1b6a1cd03",
+    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "a9a8ea06a57dd57147f0222479421ac026093dc6",
+      "5adf00d49f7dfd2d3ffe5f8f6a9e4456968e7911",
+      "67608ef24c172bae67ed7870519661d6eb206269"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-48c63bb87b37.patch",
+    "patchSha256": "5ad1eaaa0c53ceb9c3200e4a89b461a54c3d87f6810dd985e908c5f30201cc1c",
+    "resultSha256": "b275de0227db3cfafae91b8380637bd4a512c4cf00165c9f421e1cc359600a4f",
+    "reason": "Retain current future-turn queue messages and add Default model translations without duplicate keys."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "dccc41ba77b7422711b79170beb1c1667dff8ddd",
+      "fa3a3b2e10908544bf60967a3bfcff55e0ec7151",
+      "bf6eb4753d0f10a680032867f6b956083d068379"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-71e921189a2e.patch",
+    "patchSha256": "04335e873cb4c297e4af0bba3799ee076a0889952bdfd2e111ab44511f843f1d",
+    "resultSha256": "d6eb83e662752a9bae6c765de5565238ef9307c8cf318b3162a602914dbcf60a",
+    "reason": "Retain current future-turn queue messages and add Default model translations without duplicate keys."
+  },
+  {
+    "path": "src/shared/agent-session/options/structured-agent-session-options.ts",
+    "blobs": [
+      "767ac4d62c1d3bb537ec7503bfb94ad661ff380d",
+      "60e1e1226fe9f10ee0ed6e42b944f372929dfed5",
+      "070ac63bdb1e392eb87f919ad0d4bbffd3ae0758"
+    ],
+    "patch": "startup-refresh-20261105/pr33395-7556f4e37b97.patch",
+    "patchSha256": "248e7ce47b96b64764833d0dd9918c29fce01472f1a2d87baf1fab2c2b1ac5df",
+    "resultSha256": "b425a1929df10dd97cae2fcdf1937921de1ee0b3d5ad96fb19a77777d4bef205",
+    "reason": "Keep Default state and move option pick projection to its new owner; the required owner compatibility patch retains current remembered-model semantics."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-queued-edit.test.tsx",
+    "blobs": [
+      "99af0ddad4ab59ef77d87981d109f11003206b34",
+      "eb49988585bfc1fee0f836e65b1813be3d74cda2",
+      "98a5a2e22f3c93c552b93fc655349e66794a1e0b"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-f7b41788ec59.patch",
+    "patchSha256": "875d0990e0fe7197bbbafc4ff5f8872d326b19fb381f205282d3794e947db061",
+    "resultSha256": "e4358a29e857f85a6dc2918319024db8865a96a7bdddd7b04a8d3eb56a312fc4",
+    "reason": "Preserve literal typed image references in the focused queued-edit recovery test and retain both image-removal and future-turn translations."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "5307f0b81e2869032c989ffcab1a6c30f0a67ff5",
+      "1824336a5bcf429fad4829ad1560bb30b2026282",
+      "712292a1d7824b95417811be43e4a205ae6553ef"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-10b28b08f80e.patch",
+    "patchSha256": "a2187cbf901aa6371ef8d7ccc668ade993560b59b949707a00041182cb52e9c9",
+    "resultSha256": "428f5b98e9da4eef205f30e8d55facd91b1af22bedb6064173af541e22604003",
+    "reason": "Preserve literal typed image references in the focused queued-edit recovery test and retain both image-removal and future-turn translations."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "45406e0e40c252c636b944ed6c53817b01e33abc",
+      "a8c2207cd4a2e428a42c83d70ebd8de49281f10e",
+      "f260a68d9154ac1a12eb9d655de8bb6605a776af"
+    ],
+    "patch": "startup-refresh-20261105/pr33417-d877695dd8b5.patch",
+    "patchSha256": "33da6032bd08be5bf2d9dd2d9497ebd74da418d6d386af40f673bbd622e31fac",
+    "resultSha256": "9db89b3f22d5ca224e6aac0876521cecbe7a32dbdd93f1683e483a46cffa0c8e",
+    "reason": "Preserve literal typed image references in the focused queued-edit recovery test and retain both image-removal and future-turn translations."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.first-frame.test.tsx",
+    "blobs": [
+      "0cfa96c0bee46977ec309440d17ca3e951cd5be2",
+      null,
+      "dd11bdee77cd3e2e0930929920cb0edbc9af71ed"
+    ],
+    "patch": "startup-refresh-20261105/pr34866-58ffc43a0077.patch",
+    "patchSha256": "9f34145209dc541a03e260a0853bd643ba69ee5deefd87fa4912aa09a674e82c",
+    "resultSha256": "6699b6b8de71a709f88bd84dc96fb9e8c8a564e00cfb2d021435fe3a9d705843",
+    "reason": "Retain only the selected PR quiet-refresh regression for an unsupported saved effort, reusing the current hook fixture; do not resurrect the retired broad first-frame suite."
   }
 ]
