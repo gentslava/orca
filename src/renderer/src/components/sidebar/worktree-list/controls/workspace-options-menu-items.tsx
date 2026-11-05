@@ -1,4 +1,4 @@
-import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
+import { ProjectOrderMenuItems } from '../../ProjectOrderMenuItems'
 import { Fragment, useMemo, type ComponentType, type JSX } from 'react'
 import { useAppStore } from '@/store'
 import {
@@ -148,9 +148,7 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
 }
 
 function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.Element {
-  const supportsPersonalOrder = usePersonalProjectOrderSupported()
   const projectOrderBy = useAppStore((s) => s.projectOrderBy)
-  const setProjectOrderBy = useAppStore((s) => s.setProjectOrderBy)
   const projectOrderLabel =
     PROJECT_ORDER_OPTIONS.find((opt) => opt.id === projectOrderBy)?.label ?? 'Manual'
   return (
@@ -170,38 +168,7 @@ function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps)
         className="w-44"
         data-workspace-board-preserve-open={preserveWorkspaceBoardOpen ? '' : undefined}
       >
-        <DropdownMenuRadioGroup
-          value={projectOrderBy}
-          onValueChange={(value) => {
-            const next = PROJECT_ORDER_OPTIONS.find((opt) => opt.id === value)
-            if (next) {
-              setProjectOrderBy(next.id)
-            }
-          }}
-        >
-          {PROJECT_ORDER_OPTIONS.map((opt) => (
-            <Tooltip key={opt.id}>
-              <TooltipTrigger asChild>
-                <DropdownMenuRadioItem
-                  value={opt.id}
-                  disabled={!supportsPersonalOrder && (opt.id === 'name' || opt.id === 'frequent')}
-                  // Keep the menu open so people can compare order modes.
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  {opt.label}
-                </DropdownMenuRadioItem>
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={6}>
-                {!supportsPersonalOrder && opt.id === 'recent'
-                  ? translate(
-                      'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
-                      'Most recent workspace activity'
-                    )
-                  : opt.description}
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </DropdownMenuRadioGroup>
+        <ProjectOrderMenuItems keepOpen />
       </DropdownMenuSubContent>
     </DropdownMenuSub>
   )
