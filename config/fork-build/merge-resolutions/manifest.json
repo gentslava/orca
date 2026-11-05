@@ -1381,5 +1381,44 @@
     "patchSha256": "0e2afcf4a9c68cb3f1bf95749c95ba491b07c2e1260803c41197493fa07b5361",
     "resultSha256": "75bff3f0bb6372d05beecd0065527e2d5051b9efb6e5e20426423719261d0684",
     "reason": "Retain current extracted prompt slot and child navigation shell, composing session-link capabilities with orchestration child navigation; owner question is rendered through the extracted slot adapter."
+  },
+  {
+    "path": "src/renderer/src/components/settings/agents/permissions/agent-permission-conversion-persistence.test.tsx",
+    "blobs": [
+      "db50de98786a7c6f6b4554d926f2b4107f84dd38",
+      null,
+      "442fb0eb87af6d0b1094557621344f1eca62e063"
+    ],
+    "patch": "refresh-20261105/pr33360-228991d27a87.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of the legacy permission persistence fixture; Gemini production permission support and focused host tests remain included.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/agent/AgentLaunchPickerMenu.test.tsx",
+    "blobs": [
+      "8e3ebf78fefd593ac9b9ff1977728b75a1ce55ce",
+      null,
+      "42db1aa06bd3ed134823378d9234c69e8d2c2212"
+    ],
+    "patch": "refresh-20261105/pr34866-a985452361e7.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of legacy full picker suites; incoming changes only replace radio shape assertions with sliders.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/agent/AgentLaunchSetupPanel.test.tsx",
+    "blobs": [
+      "974aff7f385c9af33ebdc018f6090f4da8034aa9",
+      null,
+      "9e9de2e76df44c8377414f8fc7d357dd33714bb6"
+    ],
+    "patch": "refresh-20261105/pr34866-14867d70ae42.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of legacy full picker suites; incoming changes only replace radio shape assertions with sliders.",
+    "deleted": true
   }
 ]
