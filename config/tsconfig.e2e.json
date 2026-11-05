@@ -27,6 +27,7 @@
       // installed and then load React Native's globals (numeric timers, a required NODE_ENV).
       // An empty stub keeps the error count the same with or without mobile's install.
       "expo-crypto": ["./e2e-typecheck-mobile-native-stub.ts"],
+      "react-native": ["./e2e-typecheck-mobile-native-stub.ts"],
       "@react-native-async-storage/async-storage": ["./e2e-typecheck-mobile-native-stub.ts"]
     }
   }
