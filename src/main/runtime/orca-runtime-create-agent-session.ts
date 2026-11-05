@@ -73,6 +73,10 @@ export abstract class OrcaRuntimeWithCreateAgentSession extends OrcaRuntimeWithG
           request.launchPreferences?.model ?? null,
           request.launchPreferences?.effort ?? null,
           request.launchPreferences?.mode ?? null,
+          request.sessionOptions === undefined
+            ? null
+            : Object.entries(request.sessionOptions).sort(),
+          request.extraAgentArgs ?? null,
           ...(request.launchPreferences?.fastMode !== undefined
             ? ['fastMode', request.launchPreferences.fastMode]
             : []),
@@ -145,6 +149,10 @@ export abstract class OrcaRuntimeWithCreateAgentSession extends OrcaRuntimeWithG
             request.launchPreferences?.model ?? null,
             request.launchPreferences?.effort ?? null,
             request.launchPreferences?.mode ?? null,
+            request.sessionOptions === undefined
+              ? null
+              : Object.entries(request.sessionOptions).sort(),
+            request.extraAgentArgs ?? null,
             ...(request.launchPreferences?.fastMode !== undefined
               ? ['fastMode', request.launchPreferences.fastMode]
               : []),
@@ -195,6 +203,12 @@ export abstract class OrcaRuntimeWithCreateAgentSession extends OrcaRuntimeWithG
           // TEMPORARY: see `startupPromptCarry`.
           startupPromptCarry: 'force-line',
           ...(request.agentArgs !== undefined ? { agentArgs: request.agentArgs } : {}),
+          ...(request.sessionOptions !== undefined
+            ? { sessionOptions: request.sessionOptions }
+            : {}),
+          ...(request.extraAgentArgs !== undefined
+            ? { extraAgentArgs: request.extraAgentArgs }
+            : {}),
           launchPreferences: request.launchPreferences,
           // Account env is re-prepared per attempt; exclude from fingerprints and let first spawn win.
           accountEnv: request.accountEnv,

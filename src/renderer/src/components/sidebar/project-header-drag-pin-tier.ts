@@ -1,4 +1,4 @@
-import type { ProjectHeaderDragSession } from './project-header-drag-contract'
+import type { ProjectHeaderDragSession } from './worktree-list/drag/project-header-drag-contract'
 
 export function isPointerInsideProjectPinTier(
   session: ProjectHeaderDragSession,

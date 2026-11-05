@@ -2,9 +2,9 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import AiVaultPanel from './AiVaultPanel'
+import AiVaultPanel from './ai-vault/panel/AiVaultPanel'
 import { conversationSessions } from '../sidebar/ProjectConversationList.test-fixture'
-import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
+import type { AiVaultSessionListGroup } from './ai-vault/session-list/ai-vault-session-filters'
 import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
 
 const state = {
@@ -41,7 +41,7 @@ const sessions: AiVaultSession[] = [
   }
 ]
 const observeRefresh = vi.hoisted(() => vi.fn())
-vi.mock('./ai-vault-session-refresh', () => ({
+vi.mock('./ai-vault/scanning/ai-vault-session-refresh', () => ({
   useAiVaultSessionRefresh: (_paths: string[], _scope: string, limit: number | 'unlimited') => {
     observeRefresh(limit)
     return {
@@ -54,7 +54,7 @@ vi.mock('./ai-vault-session-refresh', () => ({
     }
   }
 }))
-vi.mock('./use-persisted-ai-vault-view-options', () => ({
+vi.mock('./ai-vault/scope/use-persisted-ai-vault-view-options', () => ({
   usePersistedAiVaultViewOptions: () => ({
     agents: [],
     sort: 'updated',
@@ -81,7 +81,7 @@ vi.mock('../sidebar/ProjectConversationList', () => ({
     </ul>
   )
 }))
-vi.mock('./ai-vault-session-delete-action', () => ({
+vi.mock('./ai-vault/session-actions/ai-vault-session-delete-action', () => ({
   useAiVaultSessionDeleteAction: () => vi.fn()
 }))
 const searchSessions = vi.fn()

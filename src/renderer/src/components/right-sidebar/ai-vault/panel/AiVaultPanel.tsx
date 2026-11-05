@@ -1,0 +1,399 @@
+import { useMemo, useRef, useState } from 'react'
+import { AI_VAULT_AGENTS } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
+import { useAiVaultConversationSearch } from '../../ai-vault-conversation-search'
+import { useShallow } from 'zustand/react/shallow'
+import { useAppStore } from '@/store/index'
+import { useAllWorktrees, useProjectHostSetupProjection, useRepos } from '@/store/selectors'
+import { useAiVaultPanelSessions } from '../session-list/ai-vault-session-filters'
+import { countAiVaultViewAdjustments } from '../scope/ai-vault-view-defaults'
+import { useAiVaultSessionLaunchActions } from '../session-actions/ai-vault-session-launch-actions'
+import { openAiVaultSessionLogInOrca } from '../session-actions/ai-vault-session-log-open'
+import { revealAiVaultSessionPath } from '../session-actions/ai-vault-session-path-actions'
+import { useAiVaultOriginalPaneActions } from '../session-actions/ai-vault-original-pane-actions'
+import { useAiVaultPanelProjectContext, useAiVaultPanelSessionProjects, useAiVaultPanelScopePaths, useAiVaultPanelSearchWithin } from '@/components/right-sidebar/use-ai-vault-panel-projects'
+import { copyAiVaultSessionText } from '@/components/right-sidebar/ai-vault-copy-session-text'
+import { translate } from '@/i18n/i18n'
+import { AiVaultPanelHeader } from './AiVaultPanelHeader'
+import {
+  aiVaultResultCountLabel,
+  AiVaultSessionListBar,
+  aiVaultSessionCountLabel
+} from '../session-list/AiVaultSessionListBar'
+import { aiVaultBrowseSortMenu, aiVaultSearchSortMenu } from '../scope/ai-vault-sort-options'
+import { AiVaultShowMoreSessionsRow } from '../session-list/AiVaultShowMoreSessionsRow'
+import { AiVaultSessionVirtualList } from '../session-list/AiVaultSessionVirtualList'
+import { useAiVaultSessionRefresh } from '../scanning/ai-vault-session-refresh'
+import { useAiVaultPanelHostScope } from '../scope/ai-vault-host-scope'
+import { useAiVaultPanelScope } from '../scope/use-ai-vault-panel-scope'
+import { usePersistedAiVaultViewOptions } from '../scope/use-persisted-ai-vault-view-options'
+import { AgentSessionContinuationDialog } from '@/components/agent-session-continuation/AgentSessionContinuationDialog'
+import { AiVaultScanIssueBanners } from '../scanning/AiVaultScanIssueBanners'
+import { useAiVaultSessionDeleteAction } from '../session-actions/ai-vault-session-delete-action'
+import { useAiVaultPanelSearch } from '../search/use-ai-vault-search'
+import { withAiVaultHistoryPreviews } from '../search/ai-vault-search-session'
+import { AiVaultPanelSearch } from '../search/AiVaultPanelSearch'
+import { useAiVaultPanelSessionResume } from '../session-actions/use-ai-vault-panel-session-resume'
+import { AiVaultScanProgressStrip } from '../scanning/AiVaultScanProgressStrip'
+import { useAiVaultScanProgress } from '../scanning/ai-vault-scan-progress-store'
+import { aiVaultLocalScanKey } from '../../../../../../shared/ai-vault/scanning/ai-vault-local-scan-key'
+import { useAiVaultPanelWorkspace } from '../scope/use-ai-vault-panel-workspace'
+import { useAiVaultPanelQuery } from '../scope/use-ai-vault-panel-query'
+import { ProjectConversationList } from '@/components/sidebar/ProjectConversationList'
+import {
+  aiVaultPanelKeyboardRootProps,
+  type AiVaultSessionListKeyboard
+} from '../session-list/use-ai-vault-session-keyboard-navigation'
+import { useAiVaultPanelHandle, type AiVaultPanelProps } from '../scope/ai-vault-panel-handle'
+import { aiVaultSearchHitHostLabels } from '../search/ai-vault-search-hit-hosts'
+import { selectFolderWorkspaces, selectWorktreesByRepo } from '@/store/workspace-record-selectors'
+import { formatClipboardFilePath } from '@/lib/clipboard-file-path'
+
+export default function AiVaultPanel({
+  ref,
+  workspace,
+  initialQuery = '',
+  initialAgents,
+  headerAction,
+  onSessionOpened,
+  resumeHere,
+  conversationNavigation = false
+}: AiVaultPanelProps): React.JSX.Element {
+  const {
+    workspaceId: activeWorktreeId,
+    worktree: activeWorktree,
+    repo: activeRepo
+  } = useAiVaultPanelWorkspace(workspace)
+  const repos = useRepos()
+  const allWorktrees = useAllWorktrees()
+  const projectFolderWorkspaces = useAppStore(selectFolderWorkspaces)
+  const projectHostSetupProjection = useProjectHostSetupProjection()
+  const resumeTargetState = useAppStore(
+    useShallow((state) => ({
+      projects: state.projects,
+      settings: state.settings,
+      folderWorkspaces: selectFolderWorkspaces(state),
+      projectGroups: state.projectGroups,
+      repos: state.repos,
+      worktreesByRepo: selectWorktreesByRepo(state)
+    }))
+  )
+  const settings = useAppStore((s) => s.settings)
+  const agentCmdOverrides = settings?.agentCmdOverrides
+  const paneActions = useAiVaultOriginalPaneActions()
+  const [focusSearchRequestId, setFocusSearchRequestId] = useState(0)
+  const listKeyboardRef = useRef<AiVaultSessionListKeyboard>(null)
+  // Why: scope depends on current workspace/project availability, so only stable view options persist.
+  const {
+    agents: historyAgents,
+    sort,
+    searchSort,
+    group,
+    hideEmptySessions,
+    sessionLimit: historySessionLimit,
+    setSort,
+    setSearchSort,
+    setGroup,
+    setHideEmptySessions,
+    setSessionLimit,
+    setAgentEnabled,
+    setAllAgentsEnabled,
+    resetViewOptions
+  } = usePersistedAiVaultViewOptions(initialAgents)
+  const sessionLimit = conversationNavigation ? 'unlimited' : historySessionLimit
+  const agents = conversationNavigation ? AI_VAULT_AGENTS : historyAgents
+  const { executionHostScope, onExecutionHostScopeChange, hostScopeOptions } =
+    useAiVaultPanelHostScope(activeWorktreeId ?? null, resumeTargetState)
+  const activeWorktreePath = activeWorktree?.path ?? null
+  const { activeWorktreePaths, activeProjectKey, projectLabelByKey } =
+    useAiVaultPanelProjectContext({
+      folderWorkspaces: projectFolderWorkspaces,
+      repos,
+      worktrees: allWorktrees,
+      projectHostSetupProjection,
+      settings: settings ?? undefined,
+      activeRepo,
+      activeWorktree
+    })
+  const {
+    scope: panelScope,
+    preferredScope,
+    handleScopeChange,
+    collapsedGroups,
+    toggleGroup
+  } = useAiVaultPanelScope({
+    activeProjectKey,
+    activeWorktreePath,
+    local: workspace !== undefined
+  })
+  const [query, setQuery] = useAiVaultPanelQuery(initialQuery, {
+    preferredScope,
+    activeWorktreeId,
+    activeProjectKey
+  })
+  const scope = conversationNavigation ? 'all' : panelScope
+  const scopePaths = useAiVaultPanelScopePaths(
+    conversationNavigation ? null : activeWorktree,
+    allWorktrees,
+    { projectHostSetupProjection, scope, activeProjectKey }
+  )
+  const searchWithin = useAiVaultPanelSearchWithin(scope, activeWorktree?.id, activeProjectKey)
+  const {
+    error,
+    loading,
+    scopePending,
+    refresh,
+    scanResult,
+    sessions: history,
+    loadedSessionLimit
+  } = useAiVaultSessionRefresh(scopePaths, executionHostScope, sessionLimit, conversationNavigation)
+  const search = useAiVaultPanelSearch(query, agents, searchWithin, executionHostScope, searchSort)
+  const { searching, searchHits } = search
+  const searchSessions = useMemo(
+    () => withAiVaultHistoryPreviews(search.sessions, history),
+    [history, search.sessions]
+  )
+  const requestedScanKey = aiVaultLocalScanKey({
+    scopePaths,
+    includeAntigravityIdeSessions: true,
+    limit: sessionLimit === 'unlimited' ? undefined : sessionLimit,
+    unlimited: sessionLimit === 'unlimited'
+  })
+  const scanProgress = useAiVaultScanProgress(executionHostScope, requestedScanKey)
+  const stripProgress = searching || conversationNavigation ? null : scanProgress
+  const sessionProjectById = useAiVaultPanelSessionProjects(
+    {
+      folderWorkspaces: projectFolderWorkspaces,
+      repos,
+      worktrees: allWorktrees,
+      projectHostSetupProjection,
+      settings: settings ?? undefined
+    },
+    history,
+    searchSessions,
+    searching,
+    conversationNavigation
+  )
+  const filters = {
+    query,
+    agents,
+    scope,
+    sort,
+    activeWorktreePaths,
+    activeProjectKey,
+    sessionProjectById,
+    projectLabelByKey,
+    hideEmptySessions: conversationNavigation ? false : hideEmptySessions,
+    preserveStructuredSessions: conversationNavigation
+  }
+  const metadataSearch = useAiVaultConversationSearch(
+    conversationNavigation && searching,
+    searchSessions,
+    history,
+    filters
+  )
+  const sessions = metadataSearch?.sessions ?? (searching ? searchSessions : history)
+  const effectiveActiveWorktreeId = activeWorktreeId ?? activeWorktree?.id ?? null
+  const {
+    getSessionWorktreeInfo,
+    getSessionResumeState,
+    getSessionResumeActions,
+    getSessionResumeInChat
+  } = useAiVaultPanelSessionResume({
+    sessions,
+    repos,
+    allWorktrees,
+    workspaceId: effectiveActiveWorktreeId,
+    resumeTargetState,
+    settings
+  })
+  const launchActions = useAiVaultSessionLaunchActions({
+    activeWorktree: activeWorktree ?? null,
+    activeWorktreeId: effectiveActiveWorktreeId,
+    targetState: resumeTargetState,
+    agentCmdOverrides
+  })
+  const viewAdjustmentCount = countAiVaultViewAdjustments({
+    agents,
+    group,
+    hideEmptySessions,
+    sessionLimit
+  })
+
+  const SessionList = conversationNavigation ? ProjectConversationList : AiVaultSessionVirtualList
+  const { filteredSessions, groups } = useAiVaultPanelSessions(
+    sessions,
+    searching,
+    conversationNavigation ? 'project' : group,
+    filters
+  )
+  const searchHitHostLabels = useMemo(
+    () => (searching ? aiVaultSearchHitHostLabels(filteredSessions, hostScopeOptions) : null),
+    [filteredSessions, hostScopeOptions, searching]
+  )
+
+  useAiVaultPanelHandle(ref, {
+    query,
+    setQuery,
+    changeScope: handleScopeChange,
+    setFocusSearchRequestId
+  })
+
+  const requestDelete = useAiVaultSessionDeleteAction({
+    refresh,
+    onDeleted: search.onDeleted
+  })
+
+  return (
+    <div
+      className="@container/ai-vault flex h-full min-h-0 flex-col bg-sidebar outline-none"
+      {...aiVaultPanelKeyboardRootProps(onSessionOpened ? listKeyboardRef : undefined)}
+    >
+      <AiVaultPanelHeader
+        conversationNavigation={conversationNavigation}
+        query={query}
+        searching={searching}
+        loading={searching ? search.loading : loading}
+        hasScanResult={Boolean(scanResult)}
+        activeWorktreePath={activeWorktreePath}
+        activeProjectKey={activeProjectKey}
+        scope={scope}
+        executionHostScope={executionHostScope}
+        hostScopeOptions={hostScopeOptions}
+        agents={agents}
+        group={group}
+        hideEmptySessions={hideEmptySessions}
+        sessionLimit={sessionLimit}
+        adjustmentCount={viewAdjustmentCount}
+        focusSearchRequestId={focusSearchRequestId}
+        headerAction={headerAction}
+        onSearchKeyDown={
+          onSessionOpened ? (event) => listKeyboardRef.current?.handleKeyDown(event) : undefined
+        }
+        onQueryChange={setQuery}
+        onScopeChange={handleScopeChange}
+        onExecutionHostScopeChange={onExecutionHostScopeChange}
+        onAgentEnabledChange={setAgentEnabled}
+        onAllAgentsEnabledChange={setAllAgentsEnabled}
+        onGroupChange={setGroup}
+        onHideEmptySessionsChange={setHideEmptySessions}
+        onSessionLimitChange={setSessionLimit}
+        onReset={resetViewOptions}
+        onRefresh={() => (searching ? search.retry() : void refresh({ force: true }))}
+      />
+
+      {stripProgress ? <AiVaultScanProgressStrip {...stripProgress} /> : null}
+
+      {!searching && error ? (
+        <div className="border-b border-sidebar-border px-3 py-2 text-xs text-destructive">
+          {error}
+        </div>
+      ) : null}
+
+      {!searching && <AiVaultScanIssueBanners scanResult={scanResult} />}
+      <AiVaultPanelSearch
+        search={search}
+        noAgents={agents.length === 0}
+        hasMetadataMatches={metadataSearch?.hasMetadataMatches}
+      >
+        {searching
+          ? filteredSessions.length > 0 && (
+              <AiVaultSessionListBar
+                label={aiVaultResultCountLabel(filteredSessions.length)}
+                value={searchSort}
+                menu={aiVaultSearchSortMenu()}
+                onChange={setSearchSort}
+              />
+            )
+          : !conversationNavigation &&
+            sessions.length > 0 && (
+              <AiVaultSessionListBar
+                label={aiVaultSessionCountLabel(filteredSessions.length, sessions.length)}
+                value={sort}
+                menu={aiVaultBrowseSortMenu()}
+                onChange={setSort}
+              />
+            )}
+        {(!searching || sessions.length > 0 || search.loading) && (
+          <SessionList
+            sessionProjects={sessionProjectById}
+            {...(conversationNavigation ? { executionHostScope } : {})}
+            conversationNavigation={conversationNavigation}
+            key={searching ? search.resetKey : 'history'}
+            searchHits={searching ? searchHits : undefined}
+            searchHitHostLabels={searchHitHostLabels}
+            groups={groups}
+            collapsedGroups={collapsedGroups}
+            loading={searching ? search.loading : loading}
+            scopePending={!searching && scopePending}
+            scanProgressShown={stripProgress !== null}
+            sessionsCount={sessions.length}
+            filteredSessionsCount={filteredSessions.length}
+            noAgentsSelected={agents.length === 0}
+            error={error}
+            vaultScope={scope}
+            buildResumeStartup={launchActions.buildResumeStartup}
+            getSessionResumeState={getSessionResumeState}
+            getSessionResumeActions={getSessionResumeActions}
+            getOriginalPaneTarget={paneActions.getOriginalPaneTarget}
+            isStructuredSessionOpen={paneActions.isStructuredSessionOpen}
+            getSessionLiveState={paneActions.getSessionLiveState}
+            getWorktreeInfo={getSessionWorktreeInfo}
+            onToggleGroup={toggleGroup}
+            keyboardRef={onSessionOpened ? listKeyboardRef : undefined}
+            query={query}
+            resumeHere={resumeHere}
+            onJumpToOriginalPane={(session) =>
+              void paneActions.jumpToOriginalPane(session).then((opened) => {
+                if (opened) {
+                  onSessionOpened?.()
+                }
+              })
+            }
+            onJumpToWorktree={paneActions.jumpToWorktree}
+            onResume={launchActions.handleResume}
+            getSessionResumeInChat={getSessionResumeInChat}
+            onContinueInNewSession={launchActions.handleContinueInNewSession}
+            onResumeInNewChat={launchActions.handleResumeInNewChat}
+            onResumeInNewCli={launchActions.handleResumeInNewCli}
+            onCopyResume={(session, worktreeId) =>
+              void launchActions.copyResumeCommand(session, worktreeId)
+            }
+            onCopyId={(session) =>
+              void copyAiVaultSessionText(
+                session.sessionId,
+                translate('auto.components.right.sidebar.AiVaultPanel.sessionId', 'Session ID')
+              )
+            }
+            onCopyPath={(session) =>
+              void copyAiVaultSessionText(
+                formatClipboardFilePath(session.filePath, session.executionHostId),
+                translate('auto.components.right.sidebar.AiVaultPanel.logPath', 'Log path')
+              )
+            }
+            onOpenLog={(session) => void openAiVaultSessionLogInOrca(session)}
+            onRevealLog={(session) => void revealAiVaultSessionPath(session, session.filePath)}
+            onOpenCwd={(session) => void revealAiVaultSessionPath(session, session.cwd)}
+            onRequestDelete={(session) => void requestDelete(session)}
+          />
+        )}
+        {!searching && !conversationNavigation && (
+          <AiVaultShowMoreSessionsRow
+            loaded={sessions.length}
+            loadedSessionLimit={loadedSessionLimit}
+            loading={loading}
+            sessionLimit={sessionLimit}
+            onSessionLimitChange={setSessionLimit}
+          />
+        )}
+      </AiVaultPanelSearch>
+      {launchActions.continuationRequest && (
+        <AgentSessionContinuationDialog
+          open
+          request={launchActions.continuationRequest}
+          onOpenChange={launchActions.handleContinuationDialogOpenChange}
+          onStarted={onSessionOpened}
+        />
+      )}
+    </div>
+  )
+}

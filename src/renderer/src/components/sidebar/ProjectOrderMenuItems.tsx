@@ -3,7 +3,7 @@ import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-o
 import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
-import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
+import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
 
 export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
   const order = useAppStore((state) => state.projectOrderBy)

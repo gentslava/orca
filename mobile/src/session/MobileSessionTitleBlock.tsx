@@ -31,8 +31,8 @@ export function MobileSessionTitleBlock({
   onRetry: () => void
 }): React.JSX.Element {
   const t = useMobileTranslation()
-  // Why: the title opens the same card as a tab, so its tap must keep a focused field's keyboard
-  // too. 'always' because the whole block is one button; 'handled' would let its own text through.
+  // Why: opening the card must keep a focused field's keyboard. 'always' because the whole block
+  // is one button; 'handled' would let its own text through.
   const titleKeepsKeyboard = useKeyboardPersistingTaps('always')
   const { openerRef } = details
   const attachOpener = useCallback(
@@ -44,7 +44,7 @@ export function MobileSessionTitleBlock({
   )
   return (
     <>
-      <DetailCardFocusBoundary refs={details.boundaryRefs} index={0} active={details.titleActive} />
+      <DetailCardFocusBoundary refs={details.boundaryRefs} index={0} active={details.active} />
       <Fragment key="title">
         <Pressable
           style={({ pressed }) => [
@@ -59,7 +59,7 @@ export function MobileSessionTitleBlock({
           ref={attachOpener}
           onLayout={details.onAnchorLayout}
           onPress={details.toggle}
-          aria-expanded={details.titleRequestedOpen}
+          aria-expanded={details.requestedOpen}
           accessibilityRole="button"
           accessibilityLabel={`${title}, ${MOBILE_SESSION_STATUS_LABELS[connState]}`}
           accessibilityHint={t(
@@ -98,7 +98,7 @@ export function MobileSessionTitleBlock({
           ) : null}
         </Pressable>
       </Fragment>
-      <DetailCardFocusBoundary refs={details.boundaryRefs} index={1} active={details.titleActive} />
+      <DetailCardFocusBoundary refs={details.boundaryRefs} index={1} active={details.active} />
     </>
   )
 }

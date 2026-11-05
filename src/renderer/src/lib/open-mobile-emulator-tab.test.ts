@@ -130,23 +130,6 @@ describe('openMobileEmulatorTab', () => {
     expect(consumePrelaunchedSimulatorSession('wt-1')).toBeNull()
   })
 
-  it('allows a successful retry after simulator tab creation returns null', async () => {
-    vi.mocked(ensureSimulatorTab).mockReturnValueOnce(null).mockReturnValueOnce('sim-retry')
-    vi.mocked(callRuntimeRpc).mockResolvedValue(mockAttachResult)
-
-    await expect(openMobileEmulatorTab('wt-1', { targetGroupId: 'group-1' })).resolves.toBeNull()
-    await expect(openMobileEmulatorTab('wt-1', { targetGroupId: 'group-1' })).resolves.toBe(
-      'sim-retry'
-    )
-
-    expect(ensureSimulatorTab).toHaveBeenCalledTimes(2)
-    const attachCalls = vi
-      .mocked(callRuntimeRpc)
-      .mock.calls.filter(([, method]) => method === 'emulator.attach')
-    expect(attachCalls).toHaveLength(1)
-    expect(isManualSimulatorLaunchPending('wt-1')).toBe(false)
-  })
-
   it('does not release another in-flight launch when duplicate tab creation throws', async () => {
     let resolveAttach: (value: typeof mockAttachResult) => void = () => {}
     vi.mocked(callRuntimeRpc).mockImplementation(

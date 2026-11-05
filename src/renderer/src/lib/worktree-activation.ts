@@ -137,12 +137,9 @@ export function activateAndRevealFolderWorkspace(
   }
   const primaryTabId = shouldGateAgentActivation
     ? null
-    : ensureFolderWorkspaceInitialTerminal(
-        folderWorkspace,
-        opts?.startup,
-        providesInitialSurface,
+    : ensureFolderWorkspaceInitialTerminal(folderWorkspace, opts?.startup, providesInitialSurface, {
         seedUserDefaultSurface
-      )
+      })
 
   if (opts?.showWorkspaceList) {
     state.setSidebarBody('workspaces')
@@ -247,6 +244,7 @@ export function activateAndRevealWorktree(
     gateAndReseedEmptyWorkspace(worktreeId, {
       callerProvidesSurface: opts?.providesInitialSurface === true,
       seedUserDefaultSurface,
+      ...(opts?.initialCwd ? { initialCwd: opts.initialCwd } : {}),
       ...(opts?.executionHostId ? { executionHostId: opts.executionHostId } : {})
     })
   }
@@ -267,6 +265,7 @@ export function activateAndRevealWorktree(
             ...(opts?.createNewTerminalForStartup ? { createNewTerminalForStartup: true } : {}),
             ...(providesInitialSurface ? { callerProvidesSurface: true } : {}),
             ...(seedUserDefaultSurface ? { seedUserDefaultSurface: true } : {}),
+            ...(opts?.initialCwd ? { initialCwd: opts.initialCwd } : {}),
             reseedEmptiedWorkspace: !providesInitialSurface
           }
         )

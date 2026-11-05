@@ -35,7 +35,10 @@ import { shouldClearNativeChatWorkingSuppression } from '../../../../shared/nati
 import { resolveNativeChatTerminalTurn } from '../../../../shared/native-chat/native-chat-terminal-turn'
 import { useNativeChatTerminalTurnTiming } from './use-native-chat-terminal-turn-timing'
 import { shouldPruneLaunchPrompt } from './native-chat-pending'
-import { useNativeChatPendingDelivery } from './use-native-chat-pending-delivery'
+import {
+  useNativeChatPendingDelivery,
+  useNativeChatOptimisticSend
+} from './use-native-chat-pending-delivery'
 import {
   appendCommandMarkerCache,
   readCommandMarkerCache,
@@ -120,8 +123,8 @@ export function NativeChatResolvedView({
   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
   const activeComposerRef = childNavigator.child ? readOnlyComposerRef : composerRef
   // Keep Paste targeted while the question card replaces the composer.
-  const questionAnswerInputRef = useRef<HTMLInputElement>(null)
-  const readOnlyQuestionAnswerInputRef = useRef<HTMLInputElement>(null)
+  const questionAnswerInputRef = useRef<HTMLTextAreaElement>(null)
+  const readOnlyQuestionAnswerInputRef = useRef<HTMLTextAreaElement>(null)
   const activeQuestionAnswerInputRef = childNavigator.child
     ? readOnlyQuestionAnswerInputRef
     : questionAnswerInputRef
@@ -141,6 +144,7 @@ export function NativeChatResolvedView({
     paneKey,
     agent,
     session,
+    composerRef,
     workingEpoch: sendWorkingEpoch
   })
   const { record, clear } = delivery
@@ -158,13 +162,7 @@ export function NativeChatResolvedView({
     }
     clearNativeChatLaunchPrompt(terminalTabId)
   }, [clearNativeChatLaunchPrompt, paneLaunchPrompt, session.messages, terminalTabId])
-  const onOptimisticSend = useCallback(
-    (text: string, imagePaths?: string[]) => {
-      setWorkingInterrupted(false)
-      return record(text, imagePaths)
-    },
-    [record]
-  )
+  const onOptimisticSend = useNativeChatOptimisticSend(record, setWorkingInterrupted)
   const onSlashCommand = useCallback(
     (command: string, output?: string) => {
       setCommandMarkers(appendCommandMarkerCache(commandMarkerScope, command, Date.now(), output))

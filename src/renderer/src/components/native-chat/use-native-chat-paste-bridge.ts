@@ -19,15 +19,18 @@ type NativeChatPasteBridgeRefs = {
   rootRef: RefObject<HTMLDivElement | null>
   composerRef: RefObject<NativeChatComposerHandle | null>
   /** Paste here while the question card owns input and the composer is unmounted. */
-  questionAnswerInputRef?: RefObject<HTMLInputElement | null>
+  questionAnswerInputRef?: RefObject<HTMLInputElement | HTMLTextAreaElement | null>
 }
 
-function canPasteIntoAnswerInput(input: HTMLInputElement): boolean {
+function canPasteIntoAnswerInput(input: HTMLInputElement | HTMLTextAreaElement): boolean {
   return input.isConnected && !input.disabled && !input.closest('[hidden], [inert]')
 }
 
 /** Text-only on purpose: an answer input takes no image attachments. */
-function pasteClipboardTextInto(input: HTMLInputElement, stillTarget: () => boolean): void {
+function pasteClipboardTextInto(
+  input: HTMLInputElement | HTMLTextAreaElement,
+  stillTarget: () => boolean
+): void {
   const canContinue = () => canPasteIntoAnswerInput(input) && stillTarget()
   if (!canContinue()) {
     return

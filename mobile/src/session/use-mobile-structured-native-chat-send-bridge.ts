@@ -1,7 +1,8 @@
-import { useCallback } from 'react'
-import type { StructuredAgentId } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle'
-import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
 import { isStructuredAgentSessionComposerCommand } from '../../../src/shared/agent-session/view/structured-agent-session-composer'
+import { useCallback } from 'react'
+import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
+import type { StructuredAgentId } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle'
+
 import type {
   MobileNativeChatSendIntent,
   MobileNativeChatSendOutcome
@@ -75,8 +76,8 @@ export function useMobileStructuredNativeChatSendBridge(args: {
       const outcome = await (intent
         ? sendStructured(text, images, deadline, attachments, skills, intent)
         : sendStructured(text, images, deadline, attachments, skills))
-      // Accepted messages remain host-owned; restore commands whose reply was lost.
-      if (outcome === 'rejected' || (outcome === 'unknown' && isHostCommand)) {
+      // Only a definite refusal returns input; uncertainty remains ordinary transcript content.
+      if (outcome === 'rejected') {
         restoreRejectedDraft(origin, text)
         restoreMobileNativeChatPickedSkills(origin.draftDestination, skills)
       }

@@ -142,10 +142,9 @@ describe('projects containing conversations', () => {
   it('does not cross host boundaries when workspace ids and paths are identical', () => {
     const local = conversationWorkspace()
     const remote = conversationWorkspace({
-      hostId: 'runtime:server',
-      hostContextLabel: 'Build server'
+      hostId: 'runtime:server'
     })
-    const ssh = conversationWorkspace({ hostId: 'ssh:target', hostContextLabel: 'SSH' })
+    const ssh = conversationWorkspace({ hostId: 'ssh:target' })
     const saved = conversationHistory({ executionHostId: 'runtime:server' })
     const projects = buildProjectConversations({
       ...defaults,

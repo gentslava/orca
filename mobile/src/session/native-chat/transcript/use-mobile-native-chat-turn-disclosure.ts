@@ -1,3 +1,5 @@
+import { useMobileNativeChatTurnDiffs } from './use-mobile-native-chat-turn-diffs'
+import type { MobileNativeChatTurnRow } from './use-mobile-native-chat-row-props'
 import { useCallback, useMemo } from 'react'
 import { useMobileNativeChatScopedOpenKeys } from './mobile-native-chat-disclosure-store'
 import {
@@ -30,29 +32,6 @@ import {
 import { useMobileNativeChatTurnStatus } from './use-mobile-native-chat-turn-status'
 
 const NO_TURN_KEYS: readonly undefined[] = []
-
-export type MobileNativeChatTurnRow = {
-  turnStatus: NativeChatTurnStatus | null
-  turnStatusAbove?: boolean
-  turnExpanded: boolean
-  turnKey?: string
-  activeTurnIsWorking: boolean
-  trailingRun: boolean
-  workRun?: readonly NativeChatMessage[]
-  joinsWorkRun?: boolean
-  foldedAway?: boolean
-  openReasoning?: ReadonlySet<string>
-  mayStillGrow: boolean
-  reasoningIsLive: boolean
-  reasoningExpanded: boolean
-  onToggleReasoning: (key: string) => void
-  // Pass roster disclosure only to roster rows so toggles cannot rerender every transcript row.
-  subagentGroupsOpen?: ReadonlySet<string>
-  onToggleSubagentGroup: (groupId: string) => void
-  // Hold expanded user messages above recycled rows so scrolling away cannot collapse them.
-  userMessageOpen: boolean
-  onToggleUserMessage: (messageId: string) => void
-}
 
 export type MobileNativeChatLiveLine = NativeChatLiveLine & { reasoningExpanded: boolean }
 
@@ -93,13 +72,14 @@ export function useMobileNativeChatTurnDisclosure({
   liveLine: MobileNativeChatLiveLine | null
   onToggleReasoning: (key: string) => void
 } {
-  const { rows, turnKeys, liveTurnKey, unresolvedRowIds } = useMemo(() => {
+  const { rows, turnKeys, liveTurnKey, unresolvedRowIds, partialTurnKey } = useMemo(() => {
     if (!enabled) {
       return {
         rows: messages,
         turnKeys: NO_TURN_KEYS,
         liveTurnKey: undefined,
-        unresolvedRowIds: undefined
+        unresolvedRowIds: undefined,
+        partialTurnKey: undefined
       }
     }
     const membership = nativeChatTurnMembership(messages, turnJournal)
@@ -107,9 +87,11 @@ export function useMobileNativeChatTurnDisclosure({
       rows: nativeChatRowsInDrawOrder(messages, membership.drawOrder),
       turnKeys: nativeChatRowsInDrawOrder(membership.turnKeys, membership.drawOrder),
       liveTurnKey: membership.liveTurnKey,
+      partialTurnKey: membership.partialTurnKey,
       unresolvedRowIds: membership.unresolvedRowIds
     }
   }, [enabled, messages, turnJournal])
+  const summaries = useMobileNativeChatTurnDiffs(rows, enabled, turnKeys, partialTurnKey)
   const waiting = useMemo(() => {
     const ids = enabled
       ? nativeChatMessagesWaitingBehindLiveTurn(
@@ -220,6 +202,7 @@ export function useMobileNativeChatTurnDisclosure({
             : (completedByTurn[turnKey] ?? null)
           : null
       return {
+        turnDiff: summaries.get(message.id),
         turnStatus,
         ...(bar?.above === true && turnStatus !== null ? { turnStatusAbove: true } : {}),
         turnExpanded: turnKey ? historyExpandedTurns.has(turnKey) : false,
@@ -253,6 +236,7 @@ export function useMobileNativeChatTurnDisclosure({
     },
     [
       turnKeys,
+      summaries,
       waiting,
       bars,
       enabled,

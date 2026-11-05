@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
 import { activateAndRevealWorktree } from './worktree-activation'
-import { repo, worktree } from '../components/sidebar/worktree-list-groups-test-fixtures'
+import { repo, worktree } from '../components/sidebar/worktree-list/grouping/worktree-list-groups-test-fixtures'
 import { getDefaultUIState } from '../../../shared/constants'
 import { mutatePersonalProjectOrder } from '../../../shared/personal-project-order-writes'
 import { RecordProjectOpenParams } from '../../../shared/rpc-contract/personal-project-order-params'

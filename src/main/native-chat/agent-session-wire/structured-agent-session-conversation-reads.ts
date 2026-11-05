@@ -57,6 +57,9 @@ export function createStructuredAgentSessionConversationReads(context: () => Rea
   }))
   const journalOf = async (id: string) => (await context().conversation(id)).journal
   return {
+    journalCurrentRead: async (sessionId: string, inputIds?: readonly string[]) =>
+      (await context().conversation(sessionId)).journal.currentRead(inputIds),
+
     readModelCatalog,
     observeConversationPublications: (
       ...args: Parameters<StructuredAgentSessionConversations['observeConversationPublications']>

@@ -36,7 +36,6 @@ import type { StructuredAgentSessionHostSupport } from '../mobile-structured-age
 import type { useMobileNativeChatSessionLane } from './use-mobile-native-chat-session-lane'
 
 export type MobileNativeChatControllerArgs = {
-  onQueuedEditNotice?: (message: string) => void
   client: RpcClient | null
   /** The route's paired host can differ from the workspace's execution server. */
   pairedHostClient: RpcClient | null
@@ -56,6 +55,7 @@ export type MobileNativeChatControllerArgs = {
   onSendError: Parameters<typeof useMobileNativeChatSessionLane>[0]['onSendError']
   /** Retires a held failure banner. Any accepted chat write clears it — a delivered
    *  answer or permission reply must not sit under a stale "not sent". */
+  onQueuedEditNotice?: (message: string) => void
   onSendResolved: () => void
 }
 

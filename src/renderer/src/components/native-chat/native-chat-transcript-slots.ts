@@ -21,7 +21,7 @@ import {
   nativeChatRowContentMetrics
 } from './native-chat-row-height-estimate'
 import type { NativeChatResolvedPrompt } from '../../../../shared/native-chat/native-chat-resolution-receipt'
-import type { NativeChatTurnDiff } from './native-chat-turn-diffs'
+import type { NativeChatTurnDiff } from '../../../../shared/native-chat/tools/native-chat-turn-diffs'
 import {
   NO_NATIVE_CHAT_SUBAGENT_CHOICES,
   NO_NATIVE_CHAT_SUBAGENT_SECTIONS,
@@ -211,6 +211,7 @@ export function buildNativeChatTranscriptSlots(
             hasReceipt: receipt !== undefined,
             hasStatus: status !== undefined,
             hasTurnDiff: turnDiff !== undefined,
+            turnDiffFileCount: turnDiff?.files.length,
             folded
           },
           typography

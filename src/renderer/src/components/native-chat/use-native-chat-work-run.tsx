@@ -13,7 +13,7 @@ import { NativeChatReasoningRow } from './NativeChatReasoningRow'
 import { ProviderFrameRow } from './NativeChatTranscriptChrome'
 import { translate } from '@/i18n/i18n'
 import type { NativeChatToolRunAsides } from './NativeChatToolRun'
-import type { NativeChatDiffReveal } from './native-chat-turn-diffs'
+import type { NativeChatDiffReveal } from '../../../../shared/native-chat/tools/native-chat-turn-diffs'
 
 export type NativeChatWorkRun = {
   /** Every member's tool blocks, in order: the run's one block list. */

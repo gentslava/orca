@@ -109,9 +109,7 @@ export async function performSend(
     selection?: Readonly<Record<string, string>>
   }
 ): Promise<TurnOutcome<AgentSessionSendResult>> {
-  const existing = ctx.journal
-    .submissions()
-    .find((entry) => entry.clientMessageId === input.clientMessageId)
+  const existing = ctx.journal.submission(input.clientMessageId)
   if (existing && existing.payloadFingerprint !== input.payloadFingerprint) {
     return invalid(
       'messageIdReused',
@@ -174,9 +172,7 @@ function requireSubmission(
   ctx: AgentSessionTurnContext,
   clientMessageId: string
 ): AgentJournalSubmission {
-  const submission = ctx.journal
-    .submissions()
-    .find((entry) => entry.clientMessageId === clientMessageId)
+  const submission = ctx.journal.submission(clientMessageId)
   if (!submission) {
     throw new Error('agent_session_submission_lost')
   }
@@ -196,6 +192,6 @@ export type AgentSessionReplayContext = Pick<
 > & {
   journal: Pick<
     AgentSessionJournal,
-    'cursor' | 'submission' | 'submissions' | 'epoch' | 'threadGoal' | 'inputOrder'
+    'cursor' | 'submission' | 'inputOrder' | 'epoch' | 'threadGoal'
   > & { queuedMessages: Pick<AgentSessionJournal['queuedMessages'], 'get'> }
 }

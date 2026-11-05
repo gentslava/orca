@@ -7,7 +7,7 @@ import {
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { getStructuredAgentSessionStatusFeed } from '@/runtime/structured-agent-session-status-feed'
 import { useAppStore } from '@/store'
-import { getAgentSessionIdsKey } from './ai-vault-agent-session-refresh-key'
+import { getAgentSessionIdsKey } from './ai-vault/scanning/ai-vault-agent-session-refresh-key'
 
 /** Names and new journal identities change independently of provider files and tab visibility. */
 export function useAiVaultConversationRefresh(

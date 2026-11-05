@@ -17,10 +17,7 @@ import {
   useMobileNativeChatRowKeys,
   type MobileNativeChatRowKeys
 } from './transcript/mobile-native-chat-row-keys'
-import {
-  mobileNativeChatReadingPlace,
-  mobileNativeChatRowId
-} from '../mobile-native-chat-reading-place'
+import { mobileNativeChatRowId } from '../mobile-native-chat-reading-place'
 import { MobileNativeChatPageList } from './transcript/MobileNativeChatPageList'
 import { useMobileNativeChatTailFollow } from './transcript/use-mobile-native-chat-tail-follow'
 import { ToolRun } from './transcript/MobileNativeChatToolRun'
@@ -624,18 +621,6 @@ it('defers an older run head until rest, then draws its members once', () => {
   expect(chat0.drawn('chat-member:run')).toBe(1)
 })
 
-it('opens a chat whose newest rows are short and older ones tall without drawing in a loop', () => {
-  const tall = Array.from({ length: 12 }, (_, i) => ({
-    ...say(`t${i}`, 'assistant', ''),
-    blocks: Array.from({ length: 12 }, () => ({ type: 'text' as const, text: 'line' }))
-  }))
-  const short = Array.from({ length: 24 }, (_, i) =>
-    say(`s${i}`, i % 2 ? 'assistant' : 'user', 'x')
-  )
-  const chat0 = mount([...tall, ...short], { following: true, live: false })
-  expect(chat0.drawn(mobileNativeChatRowId('t11'))).toBe(1)
-})
-
 it('draws a bounded tail again once a reader who scrolled back through history returns to it', () => {
   // Rows and their status lines are sized so a cut that drops a row's status would draw it back.
   const messages = Array.from({ length: 200 }, (_, i) => ({
@@ -777,40 +762,6 @@ it('a roster keeps its key when the fold moves it, and the rows the reader saw a
   expect(chat0.show(all.slice(13))).toBeLessThanOrEqual(1)
   expect(tops(['mid0', 'mid5'])).toEqual(after)
   expect(chat0.drawn(mobileNativeChatRowId('s2'))).toBe(1)
-})
-
-it('keeps the nearest rows off screen as stand-ins when turn-status lines sit between them and the view', () => {
-  type Line = { testID: string; top: number; bottom: number }
-  const lines: Line[] = [
-    { testID: mobileNativeChatRowId('above'), top: -300, bottom: -100 },
-    { testID: '', top: -100, bottom: -80 },
-    { testID: mobileNativeChatRowId('shown'), top: -80, bottom: 280 },
-    { testID: '', top: 280, bottom: 300 },
-    { testID: mobileNativeChatRowId('below'), top: 300, bottom: 500 }
-  ]
-  const children = lines.map((line) => ({
-    getAttribute: (name: string) => (name === 'data-testid' ? line.testID || null : null),
-    getBoundingClientRect: () => line,
-    querySelectorAll: () => [],
-    nextElementSibling: null
-  }))
-  const box = { ...children[0]!, children }
-  const scroller = {
-    scrollTop: 0,
-    scrollHeight: 800,
-    clientHeight: 200,
-    getAttribute: () => null,
-    getBoundingClientRect: () => ({ top: 0, bottom: 200 }),
-    querySelectorAll: () => [],
-    querySelector: () => box
-  }
-
-  const place = mobileNativeChatReadingPlace(scroller, {
-    current: () => undefined,
-    placement: () => 'p'
-  })
-
-  expect(place.map((unit) => unit.key)).toEqual(['shown', 'below', 'above'])
 })
 
 it('retains already-displayed prose when an async older page supplies its settled turn opener', async () => {

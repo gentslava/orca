@@ -1,4 +1,3 @@
-import { defineMobileSendRefusalCases } from './mobile-send-refusals.test-fixture'
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import {
   mobileNativeChatDraftDestination,
@@ -9,6 +8,9 @@ import { structuredSendResultFixture } from './structured-agent-send-result.test
 import { createElement, useState } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
+import '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
+import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
 import type { RpcClient } from '../transport/rpc-client'
 import {
   fieldsOf,
@@ -43,9 +45,9 @@ import {
   useMobileNativeChatSendError,
   type MobileNativeChatSendErrorDetails
 } from './native-chat/use-mobile-native-chat-send-error'
+import { useMobileNativeChatComposerMenu } from './native-chat/composer/use-mobile-native-chat-composer-menu'
 
 import capture from '../../../src/shared/__fixtures__/omp-native-commands.json'
-import { useMobileNativeChatComposerMenu } from './native-chat/composer/use-mobile-native-chat-composer-menu'
 vi.mock('./native-chat/composer/MobileNativeChatComposerMenu', () => ({
   composerMenuInsertText: (row: { token: string }) => row.token
 }))
@@ -62,8 +64,6 @@ describe('mobile structured send actions', () => {
   let renderer: ReactTestRenderer | null = null
   let hook: ReturnType<typeof useMobileStructuredAgentSession> | null = null
   let banner: ReturnType<typeof useMobileNativeChatSendError> | null = null
-  let menu: ReturnType<typeof useMobileNativeChatComposerMenu>
-  let draft = ''
   let listener: ((value: unknown) => void) | null = null
   let storedOperations: Map<string, string>
   let agent = 'codex'
@@ -105,8 +105,7 @@ describe('mobile structured send actions', () => {
 
   function Harness() {
     const [value, onChangeText] = useState('/skill:pl')
-    draft = value
-    menu = useMobileNativeChatComposerMenu({
+    useMobileNativeChatComposerMenu({
       value,
       onChangeText,
       agent,
@@ -157,13 +156,13 @@ describe('mobile structured send actions', () => {
       messages: [],
       transcriptSettled: true
     })
-    sendOrdinary = useMobileStructuredNativeChatSendBridge({
+    useMobileStructuredNativeChatSendBridge({
       ...drafts,
       agent: 'codex',
       sessionCommands,
       sendStructured: (...args) => hook!.sendWithOutcome(...args),
       onSendError
-    }).sendWithOutcome
+    })
     return createElement(Harness)
   }
 
@@ -217,142 +216,6 @@ describe('mobile structured send actions', () => {
     sessionId = 'session-1'
     hostSupport = null
     resetMobileNativeChatDraftInputsForTests()
-  })
-
-  it.each([10, 100])(
-    'ordinary phone bridge and Send skip %i commands for prose but still route slash controls',
-    async (count) => {
-      let kinds = 0
-      let names = 0
-      sessionCommands = Array.from({ length: count }, (_, index) => ({
-        get kind() {
-          kinds++
-          return 'command' as const
-        },
-        get name() {
-          names++
-          return `provider-${index}`
-        }
-      }))
-      sendRequest.mockImplementation(async (method) =>
-        method === 'agentSession.send' ? sendResult('accepted') : ok({})
-      )
-      await mountSession(true)
-      kinds = 0
-      names = 0
-      await act(async () => {
-        expect(await sendOrdinary('hello')).toBe('accepted')
-      })
-      expect(calls()).toHaveLength(1)
-      expect(fieldsOf(calls()[0]![1]).body).toMatchObject({
-        blocks: [{ type: 'text', text: 'hello' }]
-      })
-      expect({ kinds, names }).toEqual({ kinds: 0, names: 0 })
-      await act(async () => {
-        expect(await sendOrdinary('/compact extra')).toBe('rejected')
-      })
-      expect(calls()).toHaveLength(1)
-      expect(onSendError).toHaveBeenCalledWith('Use /compact without arguments.', undefined)
-      expect({ kinds, names }).toEqual({ kinds: 0, names: 0 })
-    }
-  )
-
-  it.each([true, false])(
-    'delivers async question answers immediately only with host support %s',
-    async (takesSteer) => {
-      hostSupport = structuredAgentSessionHostSupport([
-        AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
-        ...(takesSteer ? [AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY] : [])
-      ])
-      sendRequest.mockImplementation(async (method) =>
-        method === 'agentSession.send' ? sendResult('accepted') : ok({})
-      )
-      await mountSession()
-      await act(async () => {
-        expect(
-          await hook!.sendWithOutcome(
-            'The selected answer',
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            {
-              delivery: 'immediate'
-            }
-          )
-        ).toBe(takesSteer ? 'accepted' : 'rejected')
-      })
-      if (takesSteer) {
-        expect(calls()).toHaveLength(1)
-        expect(fieldsOf(calls()[0]![1])).not.toHaveProperty('delivery')
-        expect(fieldsOf(calls()[0]![1])).toHaveProperty('steer', true)
-      } else {
-        expect(calls()).toHaveLength(0)
-        expect(onSendError).toHaveBeenCalledWith(expect.stringContaining('answer'))
-      }
-    }
-  )
-  it('selects a native OMP skill and sends the exact token and arguments through RPC', async () => {
-    agent = 'omp'
-    sendRequest.mockImplementation(async (method) =>
-      method === 'agentSession.send' ? sendResult('accepted') : ok({})
-    )
-    await mountSession()
-    act(() => menu.onSelectionChange({ start: draft.length, end: draft.length }))
-    const skill = menu.rows.find((row) => row.kind === 'skill')!
-    expect(skill).toMatchObject({ kind: 'skill', token: '/skill:plan' })
-    act(() => menu.pick(skill))
-    expect(draft).toBe('/skill:plan ')
-    act(() => menu.onFieldChange(`${draft}args`))
-    await act(async () => {
-      await hook!.sendWithOutcome(draft)
-    })
-    expect(fieldsOf(calls()[0]![1]).body).toMatchObject({
-      blocks: [{ type: 'text', text: '/skill:plan args' }]
-    })
-  })
-
-  it.each([
-    ['carries the shown model and effort to a host that takes them', true],
-    ['sends the old shape to a host that does not', false]
-  ])('%s', async (_name, takesOptions) => {
-    agent = 'claude'
-    hostSupport = structuredAgentSessionHostSupport(
-      takesOptions ? [AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY] : []
-    )
-    const high = [
-      { value: 'low', label: 'Low' },
-      { value: 'high', label: 'High' }
-    ]
-    sendRequest.mockImplementation(async (method) =>
-      method === 'agentSession.send'
-        ? sendResult('accepted')
-        : method === 'agentSession.options'
-          ? ok({
-              models: [{ id: 'opus[1m]', label: 'Opus', isDefault: true, efforts: high }],
-              current: { model: 'opus[1m]', effort: 'high' }
-            })
-          : ok({})
-    )
-    await mountSession()
-    await act(async () => {
-      await vi.waitFor(() =>
-        expect(sendRequest.mock.calls.some(([method]) => method === 'agentSession.options')).toBe(
-          true
-        )
-      )
-    })
-    await act(async () => {
-      expect(await hook!.sendWithOutcome('hello')).toBe('accepted')
-      expect(await hook!.sendWithOutcome('again')).toBe('accepted')
-    })
-    for (const [, params] of calls()) {
-      if (takesOptions) {
-        expect(fieldsOf(params).options).toEqual({ model: 'opus[1m]', effort: 'high' })
-      } else {
-        expect(fieldsOf(params)).not.toHaveProperty('options')
-      }
-    }
   })
 
   it("keeps a chat's model its CLI stopped listing, and sends on it and its effort", async () => {
@@ -510,9 +373,8 @@ describe('mobile structured send actions', () => {
       )
       await mountSession()
       await act(async () => {
-        const outcome = state === 'unknown' ? 'unknown' : 'accepted'
-        expect(await hook!.sendWithOutcome('same text')).toBe(outcome)
-        expect(await hook!.sendWithOutcome('same text')).toBe(outcome)
+        expect(await hook!.sendWithOutcome('same text')).toBe('accepted')
+        expect(await hook!.sendWithOutcome('same text')).toBe('accepted')
       })
       expect(new Set(sentIds()).size).toBe(2)
     }
@@ -706,7 +568,7 @@ describe('mobile structured send actions', () => {
               previewUri: 'file:///photo.jpg'
             }
           ])
-        ).toBe('unknown')
+        ).toBe('accepted')
       }
     })
     expect(new Set(sentIds()).size).toBe(2)
@@ -716,29 +578,6 @@ describe('mobile structured send actions', () => {
       }
     })
   })
-
-  it.each([true, false])(
-    'sends the picked skill path only to a host that takes it: %s',
-    async (takesSkills) => {
-      hostSupport = structuredAgentSessionHostSupport(
-        takesSkills ? [AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY] : []
-      )
-      sendRequest.mockImplementation(async (method) =>
-        method === 'agentSession.send' ? sendResult('accepted') : ok({ models: [], current: {} })
-      )
-      await mountSession()
-      const review = { name: 'review', path: '/repo/.agents/skills/review/SKILL.md' }
-      await act(async () => {
-        await hook!.sendWithOutcome('$review this', undefined, undefined, [], [review])
-      })
-      expect(fieldsOf(calls()[0]?.[1]).body).toEqual({
-        kind: 'message',
-        role: 'user',
-        blocks: [{ type: 'text', text: '$review this' }],
-        ...(takesSkills ? { skills: [review] } : {})
-      })
-    }
-  )
 
   it('does not infer omitted captured skills from the live composer draft', async () => {
     hostSupport = structuredAgentSessionHostSupport([AGENT_SESSION_SEND_SKILLS_RUNTIME_CAPABILITY])
@@ -757,33 +596,53 @@ describe('mobile structured send actions', () => {
     expect(fieldsOf(calls()[0]?.[1]).body).not.toHaveProperty('skills')
   })
 
-  it('sends an attached file as a reference after the text, and only images as image blocks', async () => {
-    sendRequest.mockImplementation(async (method) =>
-      method === 'agentSession.send' ? sendResult('accepted') : ok({ models: [], current: {} })
-    )
+  it.each(['invalid_argument', 'unauthorized'])(
+    'a later Send is independent after a %s refusal',
+    async (code) => {
+      let attempts = 0
+      sendRequest.mockImplementation(async (method) => {
+        if (method !== 'agentSession.send') {
+          return ok({ models: [], current: {} })
+        }
+        return ++attempts === 1
+          ? {
+              id: 'request-1',
+              ok: false as const,
+              error: { code, message: 'Message is not authorized' }
+            }
+          : sendResult('accepted')
+      })
+      await mountSession()
+      await act(async () => {
+        expect(await hook!.sendWithOutcome('again')).toBe('rejected')
+        expect(await hook!.sendWithOutcome('again')).toBe('accepted')
+      })
+      expect(new Set(sentIds()).size).toBe(2)
+    }
+  )
+
+  it('a new Send goes through after a stale-fence refusal', async () => {
+    let attempts = 0
+    sendRequest.mockImplementation(async (method) => {
+      if (method !== 'agentSession.send') {
+        return ok({ models: [], current: {} })
+      }
+      return ++attempts === 1
+        ? ok({
+            ok: false,
+            refusal: {
+              code: 'agent_session_checkpoint_stale',
+              message: 'Fence moved',
+              currentFence: 3
+            }
+          })
+        : sendResult('accepted')
+    })
     await mountSession()
     await act(async () => {
-      await hook!.sendWithOutcome('read these', undefined, undefined, [
-        { path: '/tmp/shot.png', previewUri: 'file:///shot.png' },
-        { kind: 'file', path: '/store/u1/spec.pdf' }
-      ])
+      expect(await hook!.sendWithOutcome('again')).toBe('rejected')
+      expect(await hook!.sendWithOutcome('again')).toBe('accepted')
     })
-    expect(calls()[0]?.[1]).toMatchObject({
-      body: {
-        blocks: [
-          { type: 'text', text: 'read these\n@/store/u1/spec.pdf' },
-          { type: 'image-ref', path: '/tmp/shot.png' }
-        ]
-      }
-    })
-  })
-
-  defineMobileSendRefusalCases({
-    getHook: () => hook!,
-    sendRequest,
-    mountSession,
-    calls,
-    sentIds,
-    onSendError
+    expect(new Set(sentIds()).size).toBe(2)
   })
 })

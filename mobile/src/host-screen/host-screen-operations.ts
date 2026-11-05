@@ -143,7 +143,6 @@ export const conversationPreferenceWrite = bindDeferredRpcOperation(
     )
   })
 )
-
 export const projectOpenWrite = bindDeferredRpcOperation(
   defineRpcOperation({
     name: 'ui.record-personal-project-open',

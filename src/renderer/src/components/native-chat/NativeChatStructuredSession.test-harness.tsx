@@ -148,6 +148,7 @@ export function createStructuredSessionMocks() {
   const moduleFactories = {
     structuredAgentSessionClient: () => ({
       callStructuredAgentSession: mocks.call,
+      structuredAgentSessionHostSupports: async () => false,
       // The pane activates the host status feed for its startup phase; nothing here drives it.
       subscribeStructuredAgentSessionStatus: async () => ({ unsubscribe: () => {} })
     }),
@@ -306,6 +307,7 @@ export function createStructuredSessionMocks() {
         mocks.messageListProps = props
         useImperativeHandle(props?.ref, () => ({
           revealLatest: mocks.revealLatest,
+          readerAtEnd: () => true,
           revealFindMatch: () => {},
           messageCopyText: () => null
         }))

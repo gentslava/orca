@@ -144,6 +144,7 @@ export function useStructuredAgentSessionSends(args: {
         onCreated: request?.onCreated,
         text,
         attachments,
+        ...(request?.prepareAttachments ? { prepareAttachments: request.prepareAttachments } : {}),
         ...(steers ? { steer: true as const } : {}),
         ...(request?.callerKeepsText ? { callerKeepsText: request.callerKeepsText } : {}),
         ...(request?.usageLimitContinuationOfTurnItemId
