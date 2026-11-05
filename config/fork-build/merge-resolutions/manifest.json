@@ -1796,9 +1796,9 @@
       "47d4953d94b0a6ec0d02b80ff9a071324134796f"
     ],
     "patch": "startup-refresh-20261105/pr33395-653f737c99c1.patch",
-    "patchSha256": "40b25b0c09d047102609e90cd8d058044f8c5de8ec1feb72b26aac450dab5186",
-    "resultSha256": "f30ead01cafc658b7131068285762278ffbd1183dd2b0490c2f94ab1b6a1cd03",
-    "reason": "Combine explicit Default/reset with current model search-only aliases and host-owned future-turn selection; retain upstream retirement of broad fixtures."
+    "patchSha256": "bf89200ac567cdcd29ccf5c47a121645dd56632b7278d2cf5daaae0187a417e5",
+    "resultSha256": "3dd97856ef07d251eb6d22fb1872477b03b795648a980534bc4fed78471b6fb4",
+    "reason": "Combine Default reset and alias visibility with current host-owned picks; fence normal picks while any option/reset write is in flight so Default reset stays serialized."
   },
   {
     "path": "src/renderer/src/i18n/locales/en.json",

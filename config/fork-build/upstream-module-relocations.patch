@@ -2763,3 +2763,60 @@ index 0bf1dd955ef..ff2805e4478 100644
        expect(mounted.controller.recipe).toBe(accepted)
        await act(() => i18n.changeLanguage('en'))
        fireEvent.keyDown(screen.getByRole('textbox', { name: 'Arguments' }), { key: 'Escape' })
+diff --git a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
+index e27bb8b61f8..786a63286f7 100644
+--- a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
++++ b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
+@@ -315,9 +315,7 @@ export function MobileNativeChatSessionOptionPickers({
+                     onToggle: () => setMoreModelsShown((shown) => !shown)
+                   },
+                   onReset: controller.optionSurface?.resetOption
+-                    ? () => {
+-                        void controller.optionSurface?.resetOption?.(activeDescriptor.id)
+-                      }
++                    ? () => void controller.optionSurface?.resetOption?.(activeDescriptor.id)
+                     : undefined,
+                   ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
+                 },
+diff --git a/src/shared/agent-session/options/structured-agent-session-option-values.test-fixture.ts b/src/shared/agent-session/options/structured-agent-session-option-values.test-fixture.ts
+new file mode 100644
+index 00000000000..3e5def30d5b
+--- /dev/null
++++ b/src/shared/agent-session/options/structured-agent-session-option-values.test-fixture.ts
+@@ -0,0 +1,11 @@
++import { structuredAgentSessionOptionView } from './structured-agent-session-option-view'
++import { structuredAgentSessionOptionSnapshot } from './structured-agent-session-option-snapshot'
++
++export function shownModelAndEffort(...args: Parameters<typeof structuredAgentSessionOptionView>) {
++  const snapshot = structuredAgentSessionOptionSnapshot(structuredAgentSessionOptionView(...args))
++  const value = (id: string) => {
++    const kind = snapshot.find((descriptor) => descriptor.id === id)?.kind
++    return kind?.type === 'select' ? kind.currentValue : undefined
++  }
++  return { model: value('model'), effort: value('effort') }
++}
+diff --git a/src/shared/agent-session/options/structured-agent-session-option-view.test.ts b/src/shared/agent-session/options/structured-agent-session-option-view.test.ts
+index 031d944e5cb..793d5a5127f 100644
+--- a/src/shared/agent-session/options/structured-agent-session-option-view.test.ts
++++ b/src/shared/agent-session/options/structured-agent-session-option-view.test.ts
+@@ -1,3 +1,4 @@
++import { shownModelAndEffort as shown } from './structured-agent-session-option-values.test-fixture'
+ import { structuredAgentSessionSeedCatalog } from './structured-agent-session-seed-catalog'
+ import { describe, expect, it } from 'vitest'
+ import {
+@@ -68,15 +69,6 @@ const stopped = (
+     current: { model, effort }
+   })
+ 
+-function shown(...args: Parameters<typeof structuredAgentSessionOptionView>) {
+-  const snapshot = structuredAgentSessionOptionSnapshot(structuredAgentSessionOptionView(...args))
+-  const value = (id: string) => {
+-    const kind = snapshot.find((descriptor) => descriptor.id === id)?.kind
+-    return kind?.type === 'select' ? kind.currentValue : undefined
+-  }
+-  return { model: value('model'), effort: value('effort') }
+-}
+-
+ const carried = (
+   state: StructuredAgentSessionOptionState,
+   seed?: Readonly<Record<string, string>>,
