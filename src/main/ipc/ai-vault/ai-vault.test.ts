@@ -177,6 +177,44 @@ describe('listAiVaultSessions host routing', () => {
     expect(renamed.fingerprint).not.toBe(first.fingerprint)
     expect(mocks.scanLocalSessions).toHaveBeenCalledTimes(1)
   })
+
+  it('opens the durable catalog while a provider scan is still pending without caching it as history', async () => {
+    installLocalRecord()
+    let finishScan: (value: AiVaultListResult) => void = () => {}
+    mocks.scanLocalSessions.mockImplementationOnce(
+      () =>
+        new Promise<AiVaultListResult>((resolve) => {
+          finishScan = resolve
+        })
+    )
+    registerAiVaultHandlers()
+    const event = { sender: Object.assign(new EventEmitter(), { id: 1 }) }
+    const history = handler()(event, {
+      executionHostScope: 'local',
+      includeStructuredSessions: true,
+      requestToken: 'history'
+    })
+    await vi.waitFor(() => expect(mocks.scanLocalSessions).toHaveBeenCalledOnce())
+    const catalog = await handler()(event, {
+      executionHostScope: 'local',
+      includeStructuredSessions: true,
+      structuredOnly: true,
+      requestToken: 'catalog'
+    })
+    expect(catalog).toMatchObject({
+      includesStructuredSessions: true,
+      sessions: [{ source: 'structured-record', title: 'Local retained chat' }]
+    })
+    finishScan(result([session('local', 'provider-chat')]))
+    const complete = await history
+    expect(complete.sessions).toHaveLength(2)
+    const cached = await handler()(event, {
+      executionHostScope: 'local',
+      includeStructuredSessions: true
+    })
+    expect(cached.sessions).toHaveLength(2)
+    expect(mocks.scanLocalSessions).toHaveBeenCalledOnce()
+  })
   it('routes local scope to the local scanner', async () => {
     await _internals.listAiVaultSessions({
       executionHostScope: 'local',
