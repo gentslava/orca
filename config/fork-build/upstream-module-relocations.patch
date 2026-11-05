@@ -1417,17 +1417,58 @@ index 901d4776208..7b60dfd13b6 100644
    root = await mkdtemp(join(tmpdir(), 'orca-codex-turn-end-'))
    openWaits.turnIds.length = 0
 diff --git a/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts b/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
-index 36369fd6c5a..346addd626a 100644
+index 36369fd6c5a..14b4bc6db77 100644
 --- a/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
 +++ b/src/main/runtime/orchestration/structured-worker-group-addressing.test.ts
-@@ -255,6 +255,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+@@ -252,9 +252,17 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+     }
+     await sendGroupMessage({
+       params: { subject: 's', body: 'b', type: 'status', priority: 'normal' },
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides every runtime method used by discovery and notification.
        runtime: runtime as never,
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides each query and insert used by the exercised send path.
        db: db as never,
        from: 'term_sender',
-+      sender: { handle: 'term_sender', orcaSessionId: null },
++      sender: {
++        address: 'term_sender',
++        terminalHandle: 'term_sender',
++        paneKey: null,
++        orcaSessionId: null
++      },
        // `@worktree:` is the one group that still enumerates agents; the Run groups read
        // Dispatch rows, where a structured worker's identity is looked up by this same handle.
        groupAddress: '@worktree:wt_2',
+@@ -265,7 +273,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       revalidateLegacyCoordinator: undefined,
+       recordMutationReceipt: undefined,
+       withSendWarnings: (receipt) => receipt
+-    } as never)
++    })
+     expect(inserted.map((row) => row.to)).toEqual([handle])
+   })
+ 
+@@ -314,10 +322,11 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       getOrchestrationDb: () => db,
+       notifyMessageArrived: () => {}
+     }
+-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the stub cast is unchanged; the gate flags it only because this diff adds the sender field inside its span.
+     await sendGroupMessage({
+       params: { subject: 's', body: 'b', type: 'status', priority: 'normal' },
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides every runtime method used by discovery and notification.
+       runtime: runtime as never,
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: this group fixture provides each query and insert used by the exercised send path.
+       db: db as never,
+       from: 'term_sender',
+       groupAddress: '@codex',
+@@ -334,7 +343,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       revalidateLegacyCoordinator: undefined,
+       recordMutationReceipt: undefined,
+       withSendWarnings: (receipt) => receipt
+-    } as never)
++    })
+     expect(inserted.map((row) => row.to)).toEqual(['dispatch:ctx_structured'])
+   })
+ })
 diff --git a/src/main/runtime/rpc/methods/orchestration/messaging/mutation-replay-nudge.ts b/src/main/runtime/rpc/methods/orchestration/messaging/mutation-replay-nudge.ts
 index 2ccf77ff8a1..1e72ee86c78 100644
 --- a/src/main/runtime/rpc/methods/orchestration/messaging/mutation-replay-nudge.ts
@@ -1623,6 +1664,32 @@ index 70b0928631e..99b456f192b 100644
      close()
  
      // The plain row keeps its own options but shares the workspace's typed prompt.
+diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
+index 961db140cea..f78dc23b197 100644
+--- a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
++++ b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
+@@ -49,7 +49,7 @@ it.each(['omitted', 'efforts replaced'])(
+     })
+     fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
+     fireEvent.click(screen.getByRole('option', { name: 'GPT-6.1 Sol' }))
+-    fireEvent.click(screen.getByRole('radio', { name: 'High' }))
++    fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'End' })
+     act(() =>
+       useAppStore.setState(({ settings }) => ({
+         settings: {
+diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
+index 6ba15a3e597..65060b426f0 100644
+--- a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
++++ b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
+@@ -47,7 +47,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
+   })
+   fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
+   fireEvent.click(screen.getByRole('option', { name: 'GPT-5.4' }))
+-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
++  fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'Home' })
+   fireEvent.click(screen.getByRole('button', { name: /^Use$/ }))
+   await waitFor(() =>
+     expect(useAppStore.getState().settings?.commitMessageAi).toMatchObject({
 diff --git a/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx b/src/renderer/src/components/native-chat/NativeChatComposerActions.busy-delivery.test.tsx
 new file mode 100644
 index 00000000000..4c4e83238db
