@@ -36,6 +36,7 @@ export type MobileNativeChatSendOutcome = 'accepted' | 'rejected' | 'unknown' | 
 /** How one send goes: `alternate` does the other thing than the host's follow-up setting. */
 export type MobileNativeChatSendIntent = {
   alternate?: true
+  delivery?: 'immediate'
   onCreated?: (clientMessageId: string) => void
 }
 
