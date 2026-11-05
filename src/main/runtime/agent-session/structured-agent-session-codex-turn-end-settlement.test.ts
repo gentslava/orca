@@ -31,7 +31,10 @@ import {
 } from './structured-agent-session-runtime'
 import { createStructuredAgentSessionLogger } from '../../native-chat/agent-session-wire/structured-agent-session-logger'
 import { createCoordinatorMailObservationClock } from '../structured-chat-coordinator-observation-clock.test-fixture'
-import { scriptedCodexTransport } from '../scripted-codex-transport.test-fixture'
+import {
+  SCRIPTED_CODEX_MODEL as MODEL,
+  scriptedCodexTransport
+} from '../scripted-codex-transport.test-fixture'
 // A Codex send without an exact receipt stays in doubt after Stop; execution still ends. A send made while that turn runs, a
 // queued card's Send-now included, goes in as `turn/steer` naming it. A Stop made before Codex
 // opens that turn interrupts it at once; refused before Codex's thread runs it, the Stop waits
@@ -74,14 +77,6 @@ vi.mock('../../codex/structured/turns/codex-structured-turn-open-wait', async (i
 })
 
 const CALLER = { callerKey: 'codex-turn-end-test' }
-const MODEL = {
-  model: 'gpt-test',
-  displayName: 'GPT Test',
-  hidden: false,
-  supportedReasoningEfforts: [],
-  defaultReasoningEffort: null,
-  isDefault: true
-}
 
 let root: string
 let host: StructuredAgentSessionHost
@@ -342,6 +337,23 @@ async function runningTurn(): Promise<string> {
 }
 
 describe('a Codex send its turn ended without taking it', () => {
+  it('steers an explicit draft once using the running execution snapshot after future choices change', async () => {
+    await runningTurn()
+    const option = { key: 'model', value: 'future-model' }
+    const update = { envelope: envelope('agentSession.setOption', option), ...option }
+    expect(await host.setOption(CALLER, update)).toMatchObject({ ok: true })
+    const body = hostTestMessage('steer')
+    const fields = { body, steer: true as const, options: { model: option.value } }
+    const params = { envelope: envelope('agentSession.send', fields), ...fields }
+    await expect(host.send(CALLER, params)).resolves.toMatchObject({
+      ok: true,
+      value: { submission: { options: { model: MODEL.model } } }
+    })
+    await vi.waitFor(() => expect(steers).toBe(1))
+    expect(answers).toBe(1)
+    expect(await host.send(CALLER, params)).toMatchObject({ ok: true, replayed: true })
+    expect(steers).toBe(1)
+  })
   it('stays pending after a Stop before any echo, and nothing reads as working after', async () => {
     const sent = await send('look around')
     await vi.waitFor(() => expect(answers).toBe(1))
