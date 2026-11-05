@@ -1,6 +1,11 @@
+import { createMemoryNativeChatComposerDraftStorage, setNativeChatComposerDraftStorageForTests } from './native-chat-composer-draft-storage'
+import { structuredAgentSessionSendBody } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
+import { writeNativeChatDraftCache } from './native-chat-draft-cache'
+import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
+import { dispatchNativeChatStructuredComposerText } from './native-chat-structured-composer-dispatch'
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, render, waitFor } from '@testing-library/react'
+import { act, cleanup, render } from '@testing-library/react'
 import { useRef, type RefObject } from 'react'
 import type { JSONContent } from '@tiptap/react'
 import { NativeChatPromptEditor } from './NativeChatPromptEditor'
@@ -11,12 +16,13 @@ import {
 } from './use-native-chat-composer-attachments'
 import {
   readNativeChatComposerDraft,
+  hydrateNativeChatComposerDrafts,
   structuredAgentSessionDraftScopeKey,
   updateNativeChatComposerDraft
 } from './native-chat-composer-draft-store'
 import { handBackStructuredAgentSessionMessage } from './structured-agent-session-message-hand-back'
 
-import { fileReferenceContent } from './native-chat-prompt-document'
+import { fileReferenceContent, promptSkillRefs } from './native-chat-prompt-document'
 
 import { formatNativeChatFileReference } from '../../../../shared/agent-image-paste'
 import { promptEditor, promptValue } from './native-chat-prompt-editor.test-support'
@@ -41,7 +47,6 @@ function Composer({
   const api = useNativeChatComposerAttachments({
     attachmentScopeKey: scopeKey,
     allowWithoutTarget: true,
-    imageReferences: true,
     caret: 0,
     disabled: false,
     isComposing: () => false,
@@ -56,7 +61,6 @@ function Composer({
     <NativeChatPromptEditor
       key={scopeKey}
       scopeKey={scopeKey}
-      imageRow={api.imageAttachments.map(({ id }) => id)}
       inputRef={inputRef}
       initialValue={readNativeChatComposerDraft(scopeKey).text}
       disabled={false}
@@ -121,6 +125,7 @@ function fileReferences(document: JSONContent | undefined): string[] {
 afterEach(() => {
   cleanup()
   clearNativeChatAttachmentCacheForTests()
+  setNativeChatComposerDraftStorageForTests(null)
 })
 
 describe('composer image chips', () => {
@@ -245,13 +250,99 @@ describe('composer image chips', () => {
     const upload = begin(composer)
     const fromA = composer.api()
     composer.show('chat-b')
-
     act(() => fromA.resolvePendingImageAttachment(upload, '/up/a.png'))
-
     expect(readNativeChatComposerDraft('chat-a')).toMatchObject({
-      text: `${chip(upload)} `,
+      text: 'A draft',
       images: [{ id: upload, path: '/up/a.png' }]
     })
     expect(promptValue(composer.textbox())).toBe('B draft')
+    composer.show('chat-a')
+    expect(promptValue(composer.textbox())).toBe('A draft')
+    expect(composer.api().imageAttachments.map(({ id }) => id)).toEqual([upload])
+    expect(composer.chips()).toEqual([])
+  })
+
+  it('keeps literal image references as editable text when restored or pasted', () => {
+    const text = `compare [Image #1] with ${chip('typed')}`
+    writeNativeChatDraftCache('chat-a', text)
+    const composer = renderComposer('chat-a')
+    expect(composer.chips()).toEqual([])
+    expect(promptValue(composer.textbox())).toBe(text)
+    act(() => composer.input().setSelectionRange(text.length, text.length))
+    act(() => composer.input().insertText?.(` ${chip('pasted')}`))
+    expect(composer.chips()).toEqual([])
+    expect(promptValue(composer.textbox())).toBe(`${text} ${chip('pasted')}`)
+  })
+
+  it('restores legacy image nodes as a clean draft while retaining picked file and skill nodes', async () => {
+    const token = chip('a')
+    const file = fileReferenceContent('/repo/a.md')
+    const skill = {
+      type: 'nativeChatSkill',
+      attrs: { token: '$review', path: '/skills/review.md' }
+    }
+    const storage = createMemoryNativeChatComposerDraftStorage()
+    storage.drafts.set('chat-a', {
+      text: `look ${token} ${formatNativeChatFileReference('/repo/a.md')} $review [Image #1]`,
+      document: {
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: 'look ' },
+              { type: 'nativeChatImageReference', attrs: { attachmentId: 'a' } },
+              { type: 'text', text: ' ' },
+              file,
+              { type: 'text', text: ' ' },
+              skill,
+              { type: 'text', text: ' [Image #1]' }
+            ]
+          }
+        ]
+      },
+      images: [{ id: 'a', path: '/repo/a.png', connectionId: 'server-a' }],
+      savedAt: 1
+    })
+    setNativeChatComposerDraftStorageForTests(storage)
+    await hydrateNativeChatComposerDrafts()
+    const composer = renderComposer('chat-a')
+    expect(composer.chips()).toEqual([])
+    expect(promptValue(composer.textbox())).toBe(
+      `look ${formatNativeChatFileReference('/repo/a.md')} $review [Image #1]`
+    )
+    const draft = readNativeChatComposerDraft('chat-a')
+    expect(draft.images).toEqual([{ id: 'a', path: '/repo/a.png', connectionId: 'server-a' }])
+    expect(fileReferences(draft.document)).toEqual(['/repo/a.md'])
+    expect(promptSkillRefs(draft.document)).toEqual([{ name: 'review', path: '/skills/review.md' }])
+  })
+
+  it('restores text-only legacy drafts without broken automatic references or lost images', async () => {
+    const storage = createMemoryNativeChatComposerDraftStorage()
+    storage.drafts.set('chat-a', {
+      text: `${chip('a')} look ${chip('gone')} [Image #1]`,
+      images: [{ id: 'a', path: '/repo/a.png' }],
+      savedAt: 1
+    })
+    setNativeChatComposerDraftStorageForTests(storage)
+    await hydrateNativeChatComposerDrafts()
+    expect(readNativeChatComposerDraft('chat-a')).toMatchObject({
+      text: 'look [Image #1]',
+      images: [{ id: 'a', path: '/repo/a.png' }]
+    })
+  })
+
+  it('returns text and attachments together exactly once without turning typed labels into chips', () => {
+    const scope = structuredAgentSessionDraftScopeKey('s1')
+    const returned = message('compare [Image #1] with [Image #2]', ['/up/a.png', '/up/b.png'])
+    handBackStructuredAgentSessionMessage('s1', 'm1', returned)
+    handBackStructuredAgentSessionMessage('s1', 'm1', returned)
+    const composer = renderComposer(scope)
+    expect(promptValue(composer.textbox())).toBe('compare [Image #1] with [Image #2]')
+    expect(composer.chips()).toEqual([])
+    expect(readNativeChatComposerDraft(scope).images.map(({ path }) => path)).toEqual([
+      '/up/a.png',
+      '/up/b.png'
+    ])
   })
 })
