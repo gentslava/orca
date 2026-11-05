@@ -70,6 +70,7 @@ export function createWebAiVaultApi(): NonNullable<Partial<PreloadApi>['aiVault'
       return callRuntimeResult<AiVaultListResult>('aiVault.listSessions', {
         includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions,
         ...(args?.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
+        ...(args?.structuredOnly ? { structuredOnly: true } : {}),
         limit: args?.limit,
         unlimited: args?.unlimited,
         force: args?.force,
