@@ -18,8 +18,6 @@ export type HostChatAnswer =
   | 'not-on-host'
   | 'no-chats'
 export type ChatProgramObservation = AgentSessionChatProgram | 'unlearned'
-const chatProgramOffered = (program: ChatProgramObservation) =>
-  program === 'available' || program === 'installable'
 
 export function orderAgentLaunchPickerAgents(
   defaultAgent: TuiAgent | 'blank' | null | undefined,
@@ -72,10 +70,14 @@ export function buildNewTabAgentMenuRows(args: {
   const unavailable = new Map<TuiAgent, ChatUnavailableReason>()
   const chatAgents = filterEnabledTuiAgents(args.chatAgents, settings?.disabledTuiAgents)
   const canOpen = (agent: TuiAgent): boolean =>
-    chatProgramOffered(args.chatProgram(agent)) ||
-    (args.chatProgram(agent) === 'unknown' && installed.includes(agent))
+    args.chatProgram(agent) === 'available' ||
+    (installed.includes(agent) && ['installable', 'unknown'].includes(args.chatProgram(agent)))
   const chatToo = new Set<TuiAgent>()
   for (const agent of chatAgents) {
+    const program = args.chatProgram(agent)
+    if (!installed.includes(agent) && (program === 'missing' || program === 'installable')) {
+      continue
+    }
     const displayed = nativeChatPreferenceFor(settings, agent)
     if (!displayed && (!installed.includes(agent) || !canOpen(agent))) {
       continue
@@ -87,7 +89,6 @@ export function buildNewTabAgentMenuRows(args: {
       }
       continue
     }
-    const program = args.chatProgram(agent)
     if (answer === 'yes' && canOpen(agent)) {
       runnable.push(agent)
     } else {

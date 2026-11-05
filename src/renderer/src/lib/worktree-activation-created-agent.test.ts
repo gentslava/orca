@@ -22,8 +22,6 @@ vi.mock('@/runtime/runtime-rpc-client', async (importOriginal) =>
 
 const initialAppStoreState = useAppStore.getState()
 
-/** Activates and asserts a focusable tab appeared with no queued startup, returning its id. */
-
 afterEach(() => {
   delete (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__
   vi.unstubAllGlobals()
@@ -39,12 +37,9 @@ describe('activateAndRevealWorktree', () => {
 
     const result = activateAndRevealWorktree(worktree.id)
     const state = useAppStore.getState()
-    const reopenedTab = state.tabsByWorktree[worktree.id]?.[0]
-
-    // A focusable surface still appears — it is just a plain shell, with no queued agent launch.
-    expect(result).toEqual({ primaryTabId: reopenedTab?.id })
-    expect(reopenedTab).toBeDefined()
-    expect(state.pendingStartupByTabId[reopenedTab!.id]).toBeUndefined()
+    expect(result).toEqual({ primaryTabId: null })
+    expect(state.tabsByWorktree[worktree.id] ?? []).toEqual([])
+    expect(state.pendingStartupByTabId).toEqual({})
     expect(revealWorktreeInSidebar).toHaveBeenCalledWith(worktree.id)
   })
 })

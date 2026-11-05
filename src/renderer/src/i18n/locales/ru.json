@@ -22762,6 +22762,12 @@
       "draft": "{{review}}: черновик",
       "merged": "{{review}}: слит",
       "open": "{{review}}: открыт"
+    },
+    "start": {
+      "title": "С чего начнём?",
+      "description": "Выберите агента или инструмент для этого проекта.",
+      "agents": "Агенты",
+      "manageAgents": "Настроить агентов"
     }
   },
   "tabHoverCard": {
