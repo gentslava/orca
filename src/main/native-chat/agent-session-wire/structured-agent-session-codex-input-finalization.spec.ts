@@ -169,7 +169,9 @@ export function registerCodexInputFinalization(current: typeof codexInputFinaliz
     const writes = await Promise.allSettled(persisted.mock.results.map((result) => result.value))
     expect(writes.filter((result) => result.status === 'rejected')).toEqual([])
     await vi.waitFor(async () =>
-      expect((await row(id))?.dispatchState).toBe(uncertain || failure === 'post-write-stop' ? 'unknown' : 'rejected')
+      expect((await row(id))?.dispatchState).toBe(
+        uncertain || failure === 'post-write-stop' ? 'unknown' : 'rejected'
+      )
     )
     if (failure === 'unproven-exit') {
       expect((await row(id))?.rejection).toMatchObject({

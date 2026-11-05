@@ -10,7 +10,12 @@ import { useAiVaultSessionLaunchActions } from '../session-actions/ai-vault-sess
 import { openAiVaultSessionLogInOrca } from '../session-actions/ai-vault-session-log-open'
 import { revealAiVaultSessionPath } from '../session-actions/ai-vault-session-path-actions'
 import { useAiVaultOriginalPaneActions } from '../session-actions/ai-vault-original-pane-actions'
-import { useAiVaultPanelProjectContext, useAiVaultPanelSessionProjects, useAiVaultPanelScopePaths, useAiVaultPanelSearchWithin } from '@/components/right-sidebar/use-ai-vault-panel-projects'
+import {
+  useAiVaultPanelProjectContext,
+  useAiVaultPanelSessionProjects,
+  useAiVaultPanelScopePaths,
+  useAiVaultPanelSearchWithin
+} from '@/components/right-sidebar/use-ai-vault-panel-projects'
 import { copyAiVaultSessionText } from '@/components/right-sidebar/ai-vault-copy-session-text'
 import { translate } from '@/i18n/i18n'
 import { AiVaultPanelHeader } from './AiVaultPanelHeader'
