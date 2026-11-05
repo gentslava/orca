@@ -1,3 +1,4 @@
+import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
 // @vitest-environment happy-dom
 import {
   mocks,
@@ -14,13 +15,15 @@ import {
 } from './use-structured-agent-session-options.test-fixture'
 import type { AgentSessionOptionsResult } from '../../../../shared/agent-session/options/agent-session-options-result'
 import { act, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { forgetStructuredSessionSelection } from '@/lib/structured-agent-session-selection-controller'
 
 import { resetHostModelCatalogSnapshotsForTests } from '@/runtime/host-model-catalog-snapshots'
 describe('useStructuredAgentSessionOptions', () => {
+  afterEach(() => setLocalRuntimeCapabilitiesForTests(null))
   beforeEach(() => {
+    mocks.supportsRemote.mockReset().mockResolvedValue(false)
     mocks.sendSelection = false
     forgetStructuredSessionSelection('session-1')
     mocks.call.mockReset()

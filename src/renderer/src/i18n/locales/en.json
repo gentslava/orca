@@ -19887,6 +19887,8 @@
         "modelFallback": "Claude switched models: {{from}} → {{to}}."
       },
       "composer": {
+        "defaultModel": "Default",
+        "defaultModelNotReported": "Default model not reported",
         "send": "Send",
         "alternateSteerHint": "{{shortcut}} to steer",
         "alternateQueueHint": "{{shortcut}} to queue",
@@ -20001,8 +20003,8 @@
           "xhigh": "XHigh"
         },
         "imageUnavailable": "Preview unavailable",
-        "nextTurnOptionsLabel": "Next turn: {{options}}",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+        "nextTurnOptionsLabel": "Next turn: {{options}}",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
         "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
       },
@@ -20377,7 +20379,6 @@
         "orcaSessionIdTooltip": "Orca's ID for this chat, separate from the agent CLI's own session ID. Agents use it to refer to each other through Orca."
       },
       "dismissDeliveryNotice": "Dismiss",
-      "editDeliveryNotice": "Edit",
       "addSelectionToChat": "Add to chat",
       "messageNotSent": "Message not sent",
       "messageSending": "Sending…",
@@ -20634,6 +20635,7 @@
         "cancel": "Don't continue"
       },
       "settings": "Chat settings",
+      "editDeliveryNotice": "Edit",
       "creationChatNotOpened": "Your worktree is ready, but the chat could not open. Retry to open it with your message."
     },
     "tab": {
