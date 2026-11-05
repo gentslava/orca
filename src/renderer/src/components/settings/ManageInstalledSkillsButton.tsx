@@ -1,5 +1,5 @@
 import { BookOpen } from 'lucide-react'
-import { isRuntimeHostContactRevoked } from '../../../../shared/runtime-host-status'
+import { isRuntimeHostContactRevoked } from '../../../../shared/remote-runtime/host-status/runtime-host-status'
 import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
 import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'
