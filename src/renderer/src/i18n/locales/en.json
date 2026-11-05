@@ -19887,6 +19887,8 @@
         "modelFallback": "Claude switched models: {{from}} → {{to}}."
       },
       "composer": {
+        "defaultModel": "Default",
+        "defaultModelNotReported": "Default model not reported",
         "send": "Send",
         "alternateSteerHint": "{{shortcut}} to steer",
         "alternateQueueHint": "{{shortcut}} to queue",
