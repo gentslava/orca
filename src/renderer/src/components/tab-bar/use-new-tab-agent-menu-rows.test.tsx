@@ -1,4 +1,9 @@
 // @vitest-environment happy-dom
+import {
+  NEW_TAB_TWIN_HOSTS,
+  NEW_TAB_PAIRED_STATUS,
+  newTabTwinHostWorkspaces
+} from './new-tab-agent-menu-twin-host.test-fixture'
 import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { resolveAgentMenuSelection } from '@/lib/agent-menu-selection'
@@ -695,6 +700,72 @@ it('preserves per-agent published answers and direct route inputs across context
   }
 })
 
+it.each(['git-worktree', 'folder'] as const)(
+  'keeps %s discovery and chat rows on the named twin host',
+  async (kind) => {
+    mocks.realRoutes = true
+    const worktreeId = kind === 'folder' ? 'folder:twins' : `${TEST_REPO.id}::/work/twins`
+    const hosts = NEW_TAB_TWIN_HOSTS
+    const twinWorkspaces = newTabTwinHostWorkspaces(worktreeId)
+    useAppStore.setState({
+      repos: hosts.map((executionHostId) => ({ ...TEST_REPO, executionHostId })),
+      ...twinWorkspaces,
+      runtimeStatusByEnvironmentId: new Map([['paired', NEW_TAB_PAIRED_STATUS]]),
+      detectedWorktreesByRepo: {}
+    })
+    for (const executionHostId of hosts) {
+      act(() =>
+        useAppStore.setState({
+          activeWorktreeId: 'elsewhere',
+          activeWorkspaceExecutionHostId: null
+        })
+      )
+      const workspace = { kind, worktreeId, executionHostId }
+      const hook = renderHook(() => {
+        const target = useAgentDetectionTargetForWorktree(worktreeId, executionHostId)
+        return { target, menu: useAgentMenuObservation({ workspace }, true, target) }
+      })
+      await act(async () => {})
+      for (const activeHost of [null, ...hosts]) {
+        act(() =>
+          useAppStore.setState({
+            activeWorktreeId: activeHost === null ? 'elsewhere' : worktreeId,
+            activeWorkspaceExecutionHostId: activeHost
+          })
+        )
+        expect(hook.result.current.target).toEqual(
+          executionHostId === 'local'
+            ? { kind: 'local' }
+            : { kind: 'runtime', environmentId: 'paired', worktreeId }
+        )
+        const model = hook.result.current.menu.model
+        expect(model.state).toBe('settled')
+        expect(model.state === 'settled' && model.rows).toContainEqual({
+          kind: 'chat',
+          agent: 'codex',
+          executionHostId
+        })
+      }
+      act(() =>
+        useAppStore.setState({
+          worktreesByRepo: {
+            [TEST_REPO.id]: useAppStore
+              .getState()
+              .worktreesByRepo[TEST_REPO.id].filter((row) => row.hostId !== executionHostId)
+          },
+          folderWorkspaces: useAppStore
+            .getState()
+            .folderWorkspaces.filter((row) => row.executionHostId !== executionHostId)
+        })
+      )
+      expect(hook.result.current.target).toBeUndefined()
+      const stale = hook.result.current.menu.model
+      expect(stale.state === 'settled' && stale.rows.some((row) => row.kind === 'chat')).toBe(false)
+      hook.unmount()
+      useAppStore.setState(twinWorkspaces)
+    }
+  }
+)
 it('keeps explicit Chat separate from provider defaults and pending/CLI support', () => {
   const input = {
     agent: 'codex' as const,
