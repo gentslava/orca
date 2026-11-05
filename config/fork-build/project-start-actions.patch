@@ -1,3 +1,15 @@
+diff --git a/config/flaky-test-pattern-baseline.txt b/config/flaky-test-pattern-baseline.txt
+index 5211a2d8f88..c92ac65a6e8 100644
+--- a/config/flaky-test-pattern-baseline.txt
++++ b/config/flaky-test-pattern-baseline.txt
+@@ -547,7 +547,6 @@
+ 1 test-no-wall-clock:src/renderer/src/components/task-page/jira/task-page-jira-saved-filter-load-failure.test.tsx
+ 1 test-no-wall-clock:src/renderer/src/components/terminal-pane/cache-timer-seeding.test.ts
+ 1 test-no-wall-clock:src/renderer/src/components/terminal-pane/terminal-link-worktree-root-activation.test.ts
+-1 test-no-wall-clock:src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
+ 1 test-no-wall-clock:src/renderer/src/components/worktree-jump/WorktreeJumpPalette.test.tsx
+ 1 test-no-wall-clock:src/renderer/src/hooks/useIpcEvents-agent-status-hook-titles.test.ts
+ 1 test-no-wall-clock:src/renderer/src/hooks/useIpcEvents-ssh-disconnect-cleanup.test.ts
 diff --git a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx b/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
 index 14d0b85a81f..2630f8ff327 100644
 --- a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
@@ -32,6 +44,18 @@ index 14d0b85a81f..2630f8ff327 100644
        {workspaceSurfaces
          .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
          .map((workspace) => {
+diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.pane-actions.test.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.pane-actions.test.tsx
+index fc0466aa72b..582d9462666 100644
+--- a/src/renderer/src/components/tab-group/TabGroupPanel.pane-actions.test.tsx
++++ b/src/renderer/src/components/tab-group/TabGroupPanel.pane-actions.test.tsx
+@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => {
+ vi.mock('@/store', () => ({ useAppStore: mocks.useAppStore }))
+ vi.mock('../../store', () => ({ useAppStore: mocks.useAppStore }))
+ vi.mock('../tab-bar/TabBar', () => ({ default: () => null }))
++vi.mock('../workspace-start/WorkspaceStartPage', () => ({ WorkspaceStartPage: () => null }))
+ vi.mock('../tab-bar/TabBarQuickCommandsButton', () => ({
+   TabBarQuickCommandsButton: () => null
+ }))
 diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 index eb7c5a227f9..97dd9d891a6 100644
 --- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
@@ -723,10 +747,10 @@ index 00000000000..6c77735d92e
 +  )
 +}
 diff --git a/src/renderer/src/i18n/locales/de.json b/src/renderer/src/i18n/locales/de.json
-index 43c98fc1aab..ecbc20c77ee 100644
+index abc272fd8ce..90f6f791a8b 100644
 --- a/src/renderer/src/i18n/locales/de.json
 +++ b/src/renderer/src/i18n/locales/de.json
-@@ -21845,6 +21845,12 @@
+@@ -21848,6 +21848,12 @@
        "draft": "{{review}}: Entwurf",
        "merged": "{{review}}: gemergt",
        "open": "{{review}}: offen"
@@ -740,10 +764,10 @@ index 43c98fc1aab..ecbc20c77ee 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index 39ea9ecf0cd..bec9f6f9f7a 100644
+index 629ba10817f..7a8adc61b61 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -22654,6 +22654,12 @@
+@@ -22657,6 +22657,12 @@
        "checksPending": "{{review}} checks: Pending",
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
@@ -757,10 +781,10 @@ index 39ea9ecf0cd..bec9f6f9f7a 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
-index 9ca53c4ad85..ef988e56b6e 100644
+index 21f75cd430f..98a9d7e3ad7 100644
 --- a/src/renderer/src/i18n/locales/es.json
 +++ b/src/renderer/src/i18n/locales/es.json
-@@ -22292,6 +22292,12 @@
+@@ -22295,6 +22295,12 @@
        "draft": "{{review}}: Borrador",
        "merged": "{{review}}: Fusionada",
        "open": "{{review}}: Abierta"
@@ -774,10 +798,10 @@ index 9ca53c4ad85..ef988e56b6e 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/fr.json b/src/renderer/src/i18n/locales/fr.json
-index 940b3e5f923..65607844136 100644
+index f15fbb3e85e..dc797f1a6d5 100644
 --- a/src/renderer/src/i18n/locales/fr.json
 +++ b/src/renderer/src/i18n/locales/fr.json
-@@ -22292,6 +22292,12 @@
+@@ -22295,6 +22295,12 @@
        "draft": "{{review}} : brouillon",
        "merged": "{{review}} : fusionnée",
        "open": "{{review}} : ouverte"
@@ -791,10 +815,10 @@ index 940b3e5f923..65607844136 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ja.json b/src/renderer/src/i18n/locales/ja.json
-index 9b5b34652a0..3780f73e2be 100644
+index 324403925cf..52a508d45c0 100644
 --- a/src/renderer/src/i18n/locales/ja.json
 +++ b/src/renderer/src/i18n/locales/ja.json
-@@ -21570,6 +21570,12 @@
+@@ -21573,6 +21573,12 @@
        "draft": "{{review}}: 下書き",
        "merged": "{{review}}: マージ済み",
        "open": "{{review}}: オープン"
@@ -808,10 +832,10 @@ index 9b5b34652a0..3780f73e2be 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
-index 21dbd1e7c8c..aa6887180a3 100644
+index 700ee4db0d3..c4d75c3d6ce 100644
 --- a/src/renderer/src/i18n/locales/ko.json
 +++ b/src/renderer/src/i18n/locales/ko.json
-@@ -21570,6 +21570,12 @@
+@@ -21573,6 +21573,12 @@
        "draft": "{{review}}: 초안",
        "merged": "{{review}}: 병합됨",
        "open": "{{review}}: 열림"
@@ -825,10 +849,10 @@ index 21dbd1e7c8c..aa6887180a3 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/pt.json b/src/renderer/src/i18n/locales/pt.json
-index 865dff6ff52..acd55d70246 100644
+index fe03a198dc5..f950247995d 100644
 --- a/src/renderer/src/i18n/locales/pt.json
 +++ b/src/renderer/src/i18n/locales/pt.json
-@@ -22210,6 +22210,12 @@
+@@ -22213,6 +22213,12 @@
        "draft": "{{review}}: Rascunho",
        "merged": "{{review}}: Mergeado",
        "open": "{{review}}: Aberto"
@@ -842,10 +866,10 @@ index 865dff6ff52..acd55d70246 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
-index ed4e8fac4ba..5a5f23d6187 100644
+index 6064e358c56..8a3fb43e654 100644
 --- a/src/renderer/src/i18n/locales/ru.json
 +++ b/src/renderer/src/i18n/locales/ru.json
-@@ -22759,6 +22759,12 @@
+@@ -22762,6 +22762,12 @@
        "draft": "{{review}}: черновик",
        "merged": "{{review}}: слит",
        "open": "{{review}}: открыт"
@@ -859,10 +883,10 @@ index ed4e8fac4ba..5a5f23d6187 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/locales/tr.json
-index 1af595a24c6..965ce93706f 100644
+index aa4e7ef2b19..d0e11e067aa 100644
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
-@@ -21828,6 +21828,12 @@
+@@ -21831,6 +21831,12 @@
        "draft": "{{review}}: Taslak",
        "merged": "{{review}}: Merge edildi",
        "open": "{{review}}: Açık"
@@ -876,10 +900,10 @@ index 1af595a24c6..965ce93706f 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh-Hant.json b/src/renderer/src/i18n/locales/zh-Hant.json
-index c963846841c..917900e6231 100644
+index b299126a53f..7a734737dab 100644
 --- a/src/renderer/src/i18n/locales/zh-Hant.json
 +++ b/src/renderer/src/i18n/locales/zh-Hant.json
-@@ -21519,6 +21519,12 @@
+@@ -21522,6 +21522,12 @@
        "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合併",
        "open": "{{review}}：開放"
@@ -893,10 +917,10 @@ index c963846841c..917900e6231 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh.json b/src/renderer/src/i18n/locales/zh.json
-index 92baf17ce40..539a1a12b54 100644
+index a12e0ce14e7..0242a46993b 100644
 --- a/src/renderer/src/i18n/locales/zh.json
 +++ b/src/renderer/src/i18n/locales/zh.json
-@@ -21571,6 +21571,12 @@
+@@ -21574,6 +21574,12 @@
        "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合并",
        "open": "{{review}}：开放"
@@ -1276,6 +1300,42 @@ index 91d2e8407cd..f91f88ae4fb 100644
      hook.unmount()
    })
  })
+diff --git a/src/renderer/src/runtime/web-session-tabs-sync-window-visibility.test.tsx b/src/renderer/src/runtime/web-session-tabs-sync-window-visibility.test.tsx
+index db79d454949..bd44768f135 100644
+--- a/src/renderer/src/runtime/web-session-tabs-sync-window-visibility.test.tsx
++++ b/src/renderer/src/runtime/web-session-tabs-sync-window-visibility.test.tsx
+@@ -332,9 +332,7 @@ describe('useWebSessionTabsSync window visibility', () => {
+     hook.unmount()
+   })
+ 
+-  it('does not bootstrap twice when global snapshots race active resume', async () => {
+-    const pendingCreate = createDeferred<unknown>()
+-    mocks.createTerminal.mockReturnValue(pendingCreate.promise)
++  it('leaves empty workspaces idle when global snapshots race active resume', async () => {
+     const hook = renderHook(() => useWebSessionTabsSync())
+     await act(settle)
+     const snapshot = makeEmptySnapshot()
+@@ -347,7 +345,7 @@ describe('useWebSessionTabsSync window visibility', () => {
+       type: 'snapshot',
+       ...snapshot
+     })
+-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
++    expect(mocks.createTerminal).not.toHaveBeenCalled()
+ 
+     act(() => {
+       setDocumentVisibility('hidden')
+@@ -365,10 +363,8 @@ describe('useWebSessionTabsSync window visibility', () => {
+       type: 'snapshot',
+       ...snapshot
+     })
+-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
++    expect(mocks.createTerminal).not.toHaveBeenCalled()
+ 
+-    pendingCreate.resolve(undefined)
+-    await act(settle)
+     hook.unmount()
+   })
+ 
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync-worktree-switch.test.tsx b/src/renderer/src/runtime/web-session-tabs-sync-worktree-switch.test.tsx
 index 05feb7ed64e..4b780e3df4f 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync-worktree-switch.test.tsx

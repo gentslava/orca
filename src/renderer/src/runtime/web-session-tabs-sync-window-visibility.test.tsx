@@ -332,9 +332,7 @@ describe('useWebSessionTabsSync window visibility', () => {
     hook.unmount()
   })
 
-  it('does not bootstrap twice when global snapshots race active resume', async () => {
-    const pendingCreate = createDeferred<unknown>()
-    mocks.createTerminal.mockReturnValue(pendingCreate.promise)
+  it('leaves empty workspaces idle when global snapshots race active resume', async () => {
     const hook = renderHook(() => useWebSessionTabsSync())
     await act(settle)
     const snapshot = makeEmptySnapshot()
@@ -347,7 +345,7 @@ describe('useWebSessionTabsSync window visibility', () => {
       type: 'snapshot',
       ...snapshot
     })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
+    expect(mocks.createTerminal).not.toHaveBeenCalled()
 
     act(() => {
       setDocumentVisibility('hidden')
@@ -365,10 +363,8 @@ describe('useWebSessionTabsSync window visibility', () => {
       type: 'snapshot',
       ...snapshot
     })
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
+    expect(mocks.createTerminal).not.toHaveBeenCalled()
 
-    pendingCreate.resolve(undefined)
-    await act(settle)
     hook.unmount()
   })
 

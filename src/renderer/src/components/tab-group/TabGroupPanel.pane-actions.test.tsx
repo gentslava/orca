@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => {
 vi.mock('@/store', () => ({ useAppStore: mocks.useAppStore }))
 vi.mock('../../store', () => ({ useAppStore: mocks.useAppStore }))
 vi.mock('../tab-bar/TabBar', () => ({ default: () => null }))
+vi.mock('../workspace-start/WorkspaceStartPage', () => ({ WorkspaceStartPage: () => null }))
 vi.mock('../tab-bar/TabBarQuickCommandsButton', () => ({
   TabBarQuickCommandsButton: () => null
 }))
