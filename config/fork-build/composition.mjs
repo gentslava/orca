@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { composableLocalePaths, mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { reviewedMergePatches, applyReviewedMergePatch } from './reviewed-merge-patches.mjs'
+import { fixtureRetirement, reviewedTargetPaths } from './retired-test-fixtures.mjs'
 
 export function git(cwd, args, extra = {}, { raw = false, inheritEnv = true } = {}) {
   const output = execFileSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], {
@@ -82,7 +83,7 @@ function mergeAndValidateCatalogs(cwd, before, incoming) {
   return paths
 }
 
-export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory) {
+export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory, upstream) {
   const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
   if (!paths.length) {
     return null
@@ -92,13 +93,20 @@ export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory) {
     : new Map()
   const merged = [],
     localePaths = [],
-    patches = []
+    patches = [],
+    retirements = []
+  const reviewedPaths = reviewedTargetPaths(resolutionsDirectory)
   for (const path of paths) {
     if (reviewed.has(path)) {
       continue
     }
     if (!composableLocalePaths.has(path)) {
-      return null
+      const retirement = fixtureRetirement(cwd, path, upstream, git, reviewedPaths)
+      if (!retirement) {
+        return null
+      }
+      retirements.push(retirement)
+      continue
     }
     try {
       merged.push([
@@ -120,8 +128,11 @@ export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory) {
   for (const [path, text] of merged) {
     writeFileSync(join(cwd, path), text)
   }
+  for (const retirement of retirements) {
+    rmSync(join(cwd, retirement.path), { force: true })
+  }
   git(cwd, ['add', '--', ...paths])
-  return { localePaths, patches }
+  return { localePaths, patches, retirements }
 }
 
 function directConflicts(cwd, upstream, sha) {
@@ -136,7 +147,7 @@ function directConflicts(cwd, upstream, sha) {
       if (!git(directory, ['diff', '--name-only', '--diff-filter=U'])) {
         throw new Error('Direct merge failed without conflict paths')
       }
-      return !resolveSelectedFeatureConflicts(directory)
+      return !resolveSelectedFeatureConflicts(directory, undefined, upstream)
     }
   } finally {
     rmSync(directory, { recursive: true, force: true })
@@ -156,6 +167,7 @@ export function compose(
   const included = [],
     localeMerges = [],
     reviewedResolutions = [],
+    retiredFixtures = [],
     conflicts = [],
     suppliedByUpstream = [],
     blockers = []
@@ -186,7 +198,7 @@ export function compose(
       included.push({ number: pr.number, head: pr.head.sha })
     } catch (error) {
       const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
-      const resolution = resolveSelectedFeatureConflicts(cwd, resolutionsDirectory)
+      const resolution = resolveSelectedFeatureConflicts(cwd, resolutionsDirectory, upstream)
       if (resolution) {
         const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha)
         git(cwd, ['commit', '-m', message], {
@@ -200,6 +212,9 @@ export function compose(
         }
         if (resolution.patches.length) {
           reviewedResolutions.push({ number: pr.number, patches: resolution.patches })
+        }
+        if (resolution.retirements.length) {
+          retiredFixtures.push({ number: pr.number, paths: resolution.retirements })
         }
         continue
       }
@@ -223,6 +238,7 @@ export function compose(
     included,
     localeMerges,
     reviewedResolutions,
+    retiredFixtures,
     conflicts,
     suppliedByUpstream,
     blockers,

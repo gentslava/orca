@@ -2087,5 +2087,31 @@
     "resultSha256": null,
     "reason": "Retain the upstream retirement of the broad project-drop suite; port the two selected pin-tier and same-id membership cases into a focused current-owner suite.",
     "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows.test.tsx",
+    "blobs": [
+      "19fae27cb8bbe9372a1cba95f84c01b15aff2ba7",
+      null,
+      "113daf2e76a2f7ec63f5bc987ebcd61e01caadc8"
+    ],
+    "patch": "startup-refresh-20261105/pr33361-e5fd8148f455.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Retain the upstream retirement of the broad agent-menu suite; carry the two selected twin-host ownership cases into the retained owner suite.",
+    "deleted": true
+  },
+  {
+    "path": "src/renderer/src/components/settings/AgentSkillSetupPanel.test.tsx",
+    "blobs": [
+      "e1f80477a1f85942f8a0b93c37bbd3984cea3eae",
+      null,
+      "93a95a8c4d3eef82d9545de251b2ed0078667fd3"
+    ],
+    "patch": "startup-refresh-20261105/pr34471-2cde3d2592ae.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Retain the upstream retirement of the broad setup panel suite; this selected delta adapts existing mock fields and button labels, while skill manager ownership tests remain in their current owners.",
+    "deleted": true
   }
 ]
