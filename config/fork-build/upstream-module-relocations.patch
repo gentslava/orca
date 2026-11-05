@@ -2050,3 +2050,31 @@ index c8588167f12..d50b74105c9 100644
  import type * as RemoteRuntimePtyIdModule from '../../../../shared/remote-runtime/remote-runtime-pty-id'
  
  import { useAppStore } from '@/store'
+diff --git a/mobile/src/test-support/rpc-recording/subscription-recording.test.ts b/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
+index cd79e4d187a..c41a3e56e07 100644
+--- a/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
++++ b/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
+@@ -330,7 +330,7 @@ describe('actual stream result partitions', () => {
+                     crash: captureValue(null)
+                   }
+             )
+-            expect(run.requests).toHaveLength(operation === 'session.live-worktree-name' ? 1 : 0)
++            expect(run.requests).toHaveLength(operation === 'session.live-worktree-name' ? 2 : 0)
+             expect(run.effects.filter((effect) => effect.name === 'stream-listener-crash')).toEqual(
+               []
+             )
+@@ -350,7 +350,13 @@ describe('actual stream result partitions', () => {
+                 name: 'Feature Work Renamed',
+                 resolution: 'present'
+               })
+-              expect(run.requests).toHaveLength(2)
++              expect(
++                run.requests.map((request) => (Array.isArray(request) ? request[0] : null))
++              ).toEqual([
++                { name: 'method', value: 'worktree.show' },
++                { name: 'method', value: 'repo.show' },
++                { name: 'method', value: 'worktree.show' }
++              ])
+             } else if (operation === 'session.native-chat-page') {
+               expect(last.state).toMatchObject({
+                 messageIds:
