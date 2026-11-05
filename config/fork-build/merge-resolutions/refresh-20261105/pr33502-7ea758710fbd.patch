@@ -1,0 +1,11 @@
+--- a/src/main/runtime/runtime-rpc/runtime-rpc-mobile-paired-desktop-methods.ts
++++ b/src/main/runtime/runtime-rpc/runtime-rpc-mobile-paired-desktop-methods.ts
+@@ -38,6 +38,8 @@
+   'ui.get',
+   'ui.recordFeatureInteraction',
+   'ui.setConversationPreference',
++  'ui.recordProjectOpen',
++  'ui.setProjectPinned',
+   'ui.set',
+   // The desktop's accounts pane, Linear and project pickers target its active runtime, not a workspace's host.
+   'accounts.consumeCodexResetCredit',

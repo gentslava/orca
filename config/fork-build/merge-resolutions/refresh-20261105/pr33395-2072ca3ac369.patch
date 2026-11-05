@@ -1,0 +1,34 @@
+--- a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.test.ts
++++ b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.test.ts
+@@ -83,6 +83,7 @@
+   let renderer: ReactTestRenderer | null = null
+   const setOption = vi.fn<MobileNativeChatSessionOptionsController['setOption']>()
+   const invokeAction = vi.fn<MobileNativeChatSessionOptionsController['invokeAction']>()
++  const resetOption = vi.fn(async () => ({ snapshot: [] }))
+ 
+   const mount = (
+     snapshot: SessionOptionDescriptor[],
+@@ -95,7 +96,14 @@
+       pendingId: busy.pendingId ?? null,
+       setOption,
+       invokeAction,
+-      recordCommand: vi.fn()
++      recordCommand: vi.fn(),
++      optionSurface: {
++        getSnapshot: () => snapshot,
++        setOption: async () => ({ snapshot }),
++        invokeAction: async () => ({ snapshot }),
++        subscribe: () => () => {},
++        resetOption
++      }
+     }
+     function Pickers({ working }: { working: boolean }) {
+       const [presentation, setPresentation] = useState<MobileNativeChatPickerPresentation | null>(
+@@ -145,6 +153,7 @@
+   }
+ 
+   beforeEach(() => {
++    resetOption.mockClear()
+     Platform.OS = 'ios'
+     vi.mocked(AccessibilityInfo.announceForAccessibilityWithOptions).mockClear()
+     setOption.mockReset()

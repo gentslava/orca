@@ -1,0 +1,11 @@
+--- a/mobile/src/session/native-chat/input/native-chat-session-option-copy.ts
++++ b/mobile/src/session/native-chat/input/native-chat-session-option-copy.ts
+@@ -3,6 +3,8 @@
+ 
+ export const sayMobileNativeChatSessionOption: NativeChatSessionOptionSay = (id, values) => {
+   switch (id) {
++    case 'defaultModel':
++      return translate('chat.sessionOptionCopy.defaultModel', 'Default')
+     case 'futureOptionsRequireUpdate':
+       return translate(
+         'chat.sessionOptionCopy.futureOptionsRequireUpdate',

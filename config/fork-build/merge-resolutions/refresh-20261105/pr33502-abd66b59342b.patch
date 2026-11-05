@@ -1,0 +1,18 @@
+--- a/src/main/persistence/applying-settings/ui-state-update.ts
++++ b/src/main/persistence/applying-settings/ui-state-update.ts
+@@ -1,4 +1,5 @@
+ import { normalizeConversationPreferences } from '../../../shared/conversation-navigation-preferences'
++import { normalizePersonalProjectOrder } from '../../../shared/personal-project-order'
+ import { normalizeExplorerDisplayRootByWorktree } from '../../../shared/file-explorer-display-root'
+ import type { PersistedState } from '../../../shared/persisted-state-types'
+ import {
+@@ -122,6 +123,9 @@
+     conversationPreferences: normalizeConversationPreferences(
+       durableUpdates.conversationPreferences ?? currentUI.conversationPreferences
+     ),
++    personalProjectOrder: normalizePersonalProjectOrder(
++      durableUpdates.personalProjectOrder ?? currentUI.personalProjectOrder
++    ),
+     projectOrderBy: sanitizedUpdates.projectOrderBy
+       ? normalizeProjectOrderBy(sanitizedUpdates.projectOrderBy)
+       : normalizeProjectOrderBy(operations.state.ui?.projectOrderBy),

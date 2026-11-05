@@ -1,0 +1,1526 @@
+diff --git a/config/docker/orcad/fixture-client.mjs b/config/docker/orcad/fixture-client.mjs
+index 82205806660..8d351d74f6a 100644
+--- a/config/docker/orcad/fixture-client.mjs
++++ b/config/docker/orcad/fixture-client.mjs
+@@ -1,7 +1,7 @@
+ import assert from 'node:assert/strict'
+ import { readFile, writeFile } from 'node:fs/promises'
+-import { parsePairingCode } from '../../../src/shared/pairing.ts'
+-import { pairedRuntimeConnectionFromOffer } from '../../../src/shared/paired-runtime-connection.ts'
++import { parsePairingCode } from '../../../src/shared/remote-runtime/pairing/pairing'
++import { pairedRuntimeConnectionFromOffer } from '../../../src/shared/remote-runtime/pairing/paired-runtime-connection'
+ import { RemoteRuntimeRequestConnection } from '../../../src/shared/remote-runtime/requests/remote-runtime-request-connection.ts'
+ 
+ async function main() {
+diff --git a/config/docker/orcad/fixture-state.mjs b/config/docker/orcad/fixture-state.mjs
+index e667a018ebb..77163fa6c3e 100644
+--- a/config/docker/orcad/fixture-state.mjs
++++ b/config/docker/orcad/fixture-state.mjs
+@@ -3,11 +3,11 @@ import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
+ import { join } from 'node:path'
+ import { JournalHostDatabase } from '../../../src/main/native-chat/agent-session-journal/journal-host-database.ts'
+ import { openAgentSessionJournal } from '../../../src/main/native-chat/agent-session-journal/journal-store-factory.ts'
+-import { AGENT_JOURNAL_THREAD_SCOPE } from '../../../src/shared/agent-session-journal-types.ts'
+-import { codexProviderHandle } from '../../../src/shared/agent-session-provider-handle-encoding.ts'
++import { AGENT_JOURNAL_THREAD_SCOPE } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
++import { codexProviderHandle } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
+ import { createOrcadSecretStore } from '../../../src/main/orcad/orcad-secret-store.ts'
+ import { resolveStructuredAgentCommand } from '../../../src/main/native-chat/structured-agent-command-resolution.ts'
+-import { encodePairingOffer, parsePairingCode } from '../../../src/shared/pairing.ts'
++import { encodePairingOffer, parsePairingCode } from '../../../src/shared/remote-runtime/pairing/pairing'
+ 
+ async function main() {
+   const create = process.argv.includes('--create')
+diff --git a/config/docker/orcad/healthcheck.mjs b/config/docker/orcad/healthcheck.mjs
+index e53ffc59aab..11a898bdfa5 100644
+--- a/config/docker/orcad/healthcheck.mjs
++++ b/config/docker/orcad/healthcheck.mjs
+@@ -1,7 +1,7 @@
+ import { readFile } from 'node:fs/promises'
+ import { join } from 'node:path'
+-import { parsePairingCode } from '../../../src/shared/pairing.ts'
+-import { pairedRuntimeConnectionFromOffer } from '../../../src/shared/paired-runtime-connection.ts'
++import { parsePairingCode } from '../../../src/shared/remote-runtime/pairing/pairing'
++import { pairedRuntimeConnectionFromOffer } from '../../../src/shared/remote-runtime/pairing/paired-runtime-connection'
+ import { RemoteRuntimeRequestConnection } from '../../../src/shared/remote-runtime/requests/remote-runtime-request-connection.ts'
+ import { checkDaemonHealthWithCoverage } from '../../../src/main/daemon/daemon-health.ts'
+ import { resolveDaemonUnixSocketPath } from '../../../src/main/daemon/daemon-socket-endpoint-path.ts'
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
+index 91221ee691a..3d44d8f5157 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
+@@ -16,9 +16,9 @@ const entry = `
+ import { useState, useCallback, useMemo } from 'react'
+ import { createRoot } from 'react-dom/client'
+ import { View, Text, Pressable } from 'react-native'
+-import { MobileNativeChatPageList } from './src/session/MobileNativeChatPageList'
+-import { useMobileNativeChatTailFollow } from './src/session/use-mobile-native-chat-tail-follow'
+-import { useMobileNativeChatRowKeys } from './src/session/native-chat/transcript/mobile-native-chat-row-keys'
++import { MobileNativeChatPageList } from '../../../mobile/src/session/native-chat/transcript/MobileNativeChatPageList'
++import { useMobileNativeChatTailFollow } from '../../../mobile/src/session/native-chat/transcript/use-mobile-native-chat-tail-follow'
++import { useMobileNativeChatRowKeys } from '../../../mobile/src/session/native-chat/transcript/mobile-native-chat-row-keys'
+ function App() {
+   const [start, setStart] = useState(80)
+   const [older, setOlder] = useState(false)
+diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
+index 2219cd1a772..d1a51b84c6f 100644
+--- a/mobile/src/host-screen/project-conversations.test.ts
++++ b/mobile/src/host-screen/project-conversations.test.ts
+@@ -142,10 +142,9 @@ describe('projects containing conversations', () => {
+   it('does not cross host boundaries when workspace ids and paths are identical', () => {
+     const local = conversationWorkspace()
+     const remote = conversationWorkspace({
+-      hostId: 'runtime:server',
+-      hostContextLabel: 'Build server'
++      hostId: 'runtime:server'
+     })
+-    const ssh = conversationWorkspace({ hostId: 'ssh:target', hostContextLabel: 'SSH' })
++    const ssh = conversationWorkspace({ hostId: 'ssh:target' })
+     const saved = conversationHistory({ executionHostId: 'runtime:server' })
+     const projects = buildProjectConversations({
+       ...defaults,
+diff --git a/mobile/src/session/MobileSessionHeader.test.tsx b/mobile/src/session/MobileSessionHeader.test.tsx
+index bf7c9376e08..98c75374438 100644
+--- a/mobile/src/session/MobileSessionHeader.test.tsx
++++ b/mobile/src/session/MobileSessionHeader.test.tsx
+@@ -90,7 +90,7 @@ function renderHeader(
+     titleRef: { current: null },
+     boundaryRefs: { current: [] },
+     active: false,
+-    titleRequestedOpen: false,
++    requestedOpen: false,
+     closeFirst: () => false,
+     onAnchorLayout: () => {},
+     toggle: () => {}
+diff --git a/mobile/src/session/MobileSessionTabStrip.test.tsx b/mobile/src/session/MobileSessionTabStrip.test.tsx
+deleted file mode 100644
+index 10522d92816..00000000000
+--- a/mobile/src/session/MobileSessionTabStrip.test.tsx
++++ /dev/null
+@@ -1,784 +0,0 @@
+-import { createContext, createElement, useMemo, useRef, useState } from 'react'
+-import { Text } from 'react-native'
+-import { File, FileText, Globe, SquareTerminal } from 'lucide-react-native'
+-import { MobileAgentIcon } from '../components/MobileAgentIcon'
+-import { AgentStateDot } from '../components/AgentStateDot'
+-import { activateMobileUiLocale, getMobileUiLocale } from '../i18n/mobile-i18n'
+-import {
+-  applyMobileColorScheme,
+-  getMobileColorScheme,
+-  paletteForScheme
+-} from '../theme/mobile-theme'
+-import { mobileSessionFrameStyles } from './mobile-session-frame-styles'
+-import { MobileSessionTabCardFooter } from './MobileSessionTabCardFooter'
+-import { MobileSessionTitleBlock } from './MobileSessionTitleBlock'
+-import type * as NavBarButtonModule from '../components/nav-bar/NavBarButton'
+-import type * as TabModule from './MobileSessionTab'
+-import type * as FooterModule from './MobileSessionTabCardFooter'
+-import type * as TabContentModule from './mobile-session-tab-card-content'
+-import { act, create, type ReactTestInstance } from 'react-test-renderer'
+-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+-import { mountFixture } from '../test-support/rpc-recording/recorder-fixture-shape'
+-
+-type StripWork = {
+-  tabs: number
+-  content: number
+-  footer: number
+-  rows: number
+-  ids: number
+-  records: number
+-  measures: number
+-  landscape: boolean
+-  sideRail: boolean
+-  back: (() => boolean) | null
+-  removeAppState: ReturnType<typeof vi.fn>
+-}
+-
+-const work = vi.hoisted((): StripWork => ({
+-  tabs: 0,
+-  content: 0,
+-  footer: 0,
+-  rows: 0,
+-  ids: 0,
+-  records: 0,
+-  measures: 0,
+-  landscape: false,
+-  sideRail: false,
+-  back: null,
+-  removeAppState: vi.fn()
+-}))
+-vi.mock('react-native', () => ({
+-  AppState: { currentState: 'active', addEventListener: () => ({ remove: work.removeAppState }) },
+-  StyleSheet: { create: (styles: unknown) => styles, absoluteFillObject: {} },
+-  Platform: { OS: 'web', select: () => undefined },
+-  Easing: { out: () => () => 0, cubic: () => 0 },
+-  Animated: {
+-    View: 'AnimatedView',
+-    Value: class {
+-      value = 0
+-      stopAnimation(read?: (value: number) => void) {
+-        read?.(this.value)
+-      }
+-      interpolate() {
+-        return this
+-      }
+-    },
+-    timing: (value: { value: number }, config: { toValue: number }) => ({
+-      start: () => {
+-        value.value = config.toValue
+-      }
+-    })
+-  },
+-  View: 'View',
+-  Text: 'Text',
+-  ScrollView: 'ScrollView',
+-  Pressable: 'Pressable',
+-  useWindowDimensions: () => ({ width: 800, height: 600 })
+-}))
+-vi.mock('lucide-react-native', () => ({
+-  File: 'FileIcon',
+-  FileText: 'MarkdownIcon',
+-  Globe: 'BrowserIcon',
+-  ChevronLeft: 'Icon',
+-  Folder: 'Icon',
+-  GitBranch: 'Icon',
+-  MoreHorizontal: 'Icon',
+-  PanelLeftOpen: 'Icon',
+-  Plus: 'Icon',
+-  SquareTerminal: 'TerminalIcon',
+-  Columns2: 'Icon',
+-  SquareChevronRight: 'Icon'
+-}))
+-vi.mock('../navigation/use-back-claim', () => ({
+-  useBackClaim: (claim: (() => boolean) | null) => {
+-    work.back = claim
+-  }
+-}))
+-vi.mock('../layout/side-safe-area', () => ({
+-  useWindowSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 })
+-}))
+-vi.mock('../platform/haptics', () => ({ triggerMediumImpact: () => {} }))
+-vi.mock('../components/MobileAgentIcon', () => ({
+-  MobileAgentIcon: (props: Parameters<typeof MobileAgentIcon>[0]) =>
+-    createElement('AgentIcon', props)
+-}))
+-vi.mock('../components/AgentStateDot', () => ({
+-  AgentStateDot: (props: Parameters<typeof AgentStateDot>[0]) => createElement('StateDot', props)
+-}))
+-vi.mock('../components/nav-bar/NavBarButton', async (importOriginal) => ({
+-  ...(await importOriginal<typeof NavBarButtonModule>()),
+-  NavBarButton: (props: Parameters<typeof NavBarButtonModule.NavBarButton>[0]) =>
+-    createElement('HeaderButton', props)
+-}))
+-vi.mock('./mobile-session-styles', async () => {
+-  const { mobileSessionFrameStyles } = await import('./mobile-session-frame-styles')
+-  return {
+-    styles: {
+-      sessionTopBar: 'top-bar',
+-      get sessionMetaText() {
+-        return mobileSessionFrameStyles.sessionMetaText
+-      }
+-    }
+-  }
+-})
+-vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }))
+-vi.mock('../platform/use-reduced-motion', () => ({ useReducedMotionEnabled: () => true }))
+-vi.mock('../layout/host-sidebar-reveal', () => ({ useHostSidebarReveal: () => null }))
+-vi.mock('../layout/use-top-chrome-space', () => ({ useTopChromeSpace: () => ({}) }))
+-vi.mock('../layout/use-shell-side-rail', () => ({ useShellSideRail: () => work.sideRail }))
+-vi.mock('./MobileSessionHeaderMoreMenu', () => ({
+-  MobileSessionHeaderMoreMenu: () => null
+-}))
+-vi.mock('../layout/responsive-layout', () => ({
+-  useResponsiveLayout: () => ({ isLandscapePhone: work.landscape, width: 800 })
+-}))
+-vi.mock('../transport/use-workspace-client', () => ({
+-  WorkspaceServerContext: createContext(undefined)
+-}))
+-vi.mock('./MobileSessionAccessoryKeys', () => ({ MobileSessionAccessoryKeys: () => null }))
+-vi.mock('./MobileSessionCommandDock', () => ({ sessionCommandDockShown: () => false }))
+-vi.mock('./MobileSessionContentRow', () => ({
+-  MobileSessionContentRow: () => {
+-    work.rows++
+-    return null
+-  }
+-}))
+-vi.mock('./MobileSessionSheets', () => ({ MobileSessionSheets: () => null }))
+-vi.mock('./MobileWorkerAutoCloseStrip', () => ({ MobileWorkerAutoCloseStrip: () => null }))
+-vi.mock('./MobileSessionTab', async (original) => {
+-  const actual = await original<typeof TabModule>()
+-  return {
+-    MobileSessionTab: (props: Parameters<typeof actual.MobileSessionTab>[0]) => {
+-      work.tabs++
+-      return createElement(actual.MobileSessionTab, props)
+-    }
+-  }
+-})
+-vi.mock('./MobileSessionTabCardFooter', async (original) => {
+-  const actual = await original<typeof FooterModule>()
+-  return {
+-    MobileSessionTabCardFooter: (
+-      props: Parameters<typeof actual.MobileSessionTabCardFooter>[0]
+-    ) => {
+-      work.footer++
+-      return createElement(actual.MobileSessionTabCardFooter, props)
+-    }
+-  }
+-})
+-vi.mock('./mobile-session-tab-card-content', async (original) => {
+-  const actual = await original<typeof TabContentModule>()
+-  return {
+-    mobileSessionTabCardContent: (
+-      ...args: Parameters<typeof actual.mobileSessionTabCardContent>
+-    ) => {
+-      work.content++
+-      return actual.mobileSessionTabCardContent(...args)
+-    }
+-  }
+-})
+-vi.mock('../platform/keyboard-persisting-taps', () => ({
+-  useKeyboardPersistingTaps: () => () => {}
+-}))
+-vi.mock('../platform/keyboard-occlusion', () => ({
+-  useSoftKeyboard: () => ({ height: 0, visible: false })
+-}))
+-vi.mock('../terminal/terminal-viewport-refit', () => ({
+-  useTerminalViewportRefit: () => ({ notifyKeyboardVisibility: () => {} })
+-}))
+-vi.mock('../worktree/last-visited-worktree-repo', () => ({ writeLastVisitedWorktree: () => {} }))
+-
+-import { MobileSessionSurface } from './MobileSessionSurface'
+-import { AnchoredDetailCard } from '../components/AnchoredDetailCard'
+-import type { MobileSessionTabStrip } from './MobileSessionTabStrip'
+-import { useMobileSessionKeyboardState } from './use-mobile-session-keyboard-state'
+-
+-type Controller = Parameters<typeof MobileSessionTabStrip>[0]['controller']
+-type KeyboardScope = Parameters<typeof useMobileSessionKeyboardState>[0]
+-
+-const TAB_IDS = ['a', 'b', 'c', 'd', 'e']
+-const TAB_WIDTH = 100
+-const visibleTabs = TAB_IDS.map((id) => ({
+-  type: 'terminal' as const,
+-  id,
+-  terminal: `term-${id}`,
+-  title: id,
+-  isActive: id === 'a'
+-}))
+-
+-function mountStrip(
+-  terminals: Pick<Controller['terminals'][number], 'handle' | 'agentIdentity'>[] = [],
+-  initialTabs: Controller['visibleTabs'] = visibleTabs
+-) {
+-  const scrollTo = vi.fn()
+-  const setRenameTarget = vi.fn()
+-  const offsetRef = { current: 0 }
+-  let queued = false
+-  const measurements: (() => void)[] = []
+-  let suppliedTabs = initialTabs
+-  const positions = new Map(initialTabs.map((tab, index) => [tab.id, index * TAB_WIDTH]))
+-  function Harness({ inTopBar = false, removed = '' }: { inTopBar?: boolean; removed?: string }) {
+-    const [renameOpen, setRenameOpen] = useState(false)
+-    work.landscape = inTopBar
+-    const tabs = useMemo(
+-      () => suppliedTabs.filter((tab) => tab.id !== removed),
+-      [removed, suppliedTabs]
+-    )
+-    const [activeSessionTabId, setActiveSessionTabId] = useState('a')
+-    const activeSessionTabIdRef = useRef(activeSessionTabId)
+-    activeSessionTabIdRef.current = activeSessionTabId
+-    const strip = {
+-      activeSessionTabId,
+-      tabStripRef: useRef(null),
+-      tabStripOffsetRef: offsetRef,
+-      tabStripViewportWidthRef: useRef(0),
+-      tabStripContentWidthRef: useRef(0),
+-      tabLayoutsRef: useRef(new Map())
+-    }
+-    const keyboard = useMobileSessionKeyboardState(
+-      mountFixture<KeyboardScope>({ ...strip, terminals: [], setKeyboardHeight: () => {} })
+-    )
+-    const controller = mountFixture<Controller>({
+-      ...strip,
+-      ...keyboard,
+-      connState: 'connected',
+-      presentedConnState: 'connected',
+-      showConnectionRetry: false,
+-      connectionEscalated: false,
+-      worktreeName: 'workspace',
+-      bulkCloseConfirm: { visible: false },
+-      isFloatingWorkspaceRoute: true,
+-      renameTarget: renameOpen ? { handle: 'term', title: 'rename', isActive: true } : null,
+-      activeSessionTabIdRef,
+-      activeHandleRef: { current: null },
+-      switchSessionTab: (tab: { id: string }) => setActiveSessionTabId(tab.id),
+-      setRenameTarget: (target) => {
+-        setRenameTarget(target)
+-        setRenameOpen(true)
+-      },
+-      visibleTabs: tabs,
+-      terminals
+-    })
+-    return createElement(MobileSessionSurface, { controller })
+-  }
+-  let tree: ReturnType<typeof create> | undefined
+-  act(() => {
+-    tree = create(createElement(Harness), {
+-      createNodeMock: (node) => {
+-        const props = node.props
+-        if (!props || typeof props !== 'object') {
+-          throw new Error('expected host props')
+-        }
+-        const label =
+-          'accessibilityLabel' in props && typeof props.accessibilityLabel === 'string'
+-            ? props.accessibilityLabel
+-            : ''
+-        const layer = 'pointerEvents' in props && props.pointerEvents === 'box-none'
+-        return {
+-          scrollTo,
+-          measureInWindow: (
+-            done: (x: number, y: number, width: number, height: number) => void
+-          ) => {
+-            work.measures++
+-            const complete = () => {
+-              if ('accessibilityRole' in props && props.accessibilityRole === 'tab') {
+-                done((positions.get(label) ?? 0) - offsetRef.current, 50, 100, 40)
+-              } else if (layer) {
+-                done(0, 0, 800, 600)
+-              } else if ('style' in props && props.style === 'top-bar') {
+-                done(0, 10, 800, 40)
+-              } else {
+-                done(0, 50, 300, 40)
+-              }
+-            }
+-            if (queued && layer) {
+-              measurements.push(complete)
+-            } else {
+-              complete()
+-            }
+-          }
+-        }
+-      }
+-    })
+-  })
+-  const root = tree!.root
+-  const tabs = root.findAll((node) => node.props.accessibilityRole === 'tab')
+-  const strip = root.find((node) => node.props.horizontal === true)
+-  act(() => {
+-    root
+-      .findByProps({ pointerEvents: 'box-none' })
+-      .props.onLayout({ nativeEvent: { layout: { width: 800, height: 600 } } })
+-    strip.props.onLayout({ nativeEvent: { layout: { width: 300 } } })
+-    strip.props.onContentSizeChange(initialTabs.length * TAB_WIDTH)
+-    tabs.forEach((tab: ReactTestInstance, index: number) =>
+-      tab.props.onLayout({ nativeEvent: { layout: { x: index * TAB_WIDTH, width: TAB_WIDTH } } })
+-    )
+-  })
+-  const tapAt = (screenX: number) =>
+-    act(() => tabs[Math.floor((screenX + offsetRef.current) / TAB_WIDTH)].props.onPress())
+-  const wait = (ms: number) =>
+-    act(() => {
+-      vi.advanceTimersByTime(ms)
+-    })
+-  return {
+-    scrollTo,
+-    setRenameTarget,
+-    tapAt,
+-    wait,
+-    tabs,
+-    root,
+-    positions,
+-    card: () => root.findByType(AnchoredDetailCard),
+-    queue: () => {
+-      queued = true
+-    },
+-    flush: () =>
+-      act(() => {
+-        queued = false
+-        measurements.splice(0).forEach((done) => done())
+-      }),
+-    updateTabs: (next: Controller['visibleTabs']) => {
+-      suppliedTabs = next
+-      act(() => tree!.update(createElement(Harness)))
+-    },
+-    rotate: (removed = '') =>
+-      act(() => tree!.update(createElement(Harness, { inTopBar: true, removed }))),
+-    unmount: () => act(() => tree!.unmount())
+-  }
+-}
+-
+-describe('MobileSessionTabStrip edge taps', () => {
+-  beforeEach(() => {
+-    vi.useFakeTimers()
+-    vi.setSystemTime(1000)
+-    Object.assign(work, {
+-      tabs: 0,
+-      content: 0,
+-      footer: 0,
+-      rows: 0,
+-      ids: 0,
+-      records: 0,
+-      measures: 0,
+-      landscape: false,
+-      sideRail: false,
+-      back: null
+-    })
+-    work.removeAppState.mockClear()
+-    vi.stubGlobal('requestAnimationFrame', (cb: (at: number) => void) =>
+-      setTimeout(() => cb(Date.now()), 16)
+-    )
+-    vi.stubGlobal('cancelAnimationFrame', clearTimeout)
+-  })
+-  afterEach(() => {
+-    vi.useRealTimers()
+-    vi.unstubAllGlobals()
+-  })
+-
+-  it('opens tab details in the compact Duo header while its title is absent', () => {
+-    work.sideRail = true
+-    const strip = mountStrip()
+-    expect(strip.root.findAllByType(MobileSessionTitleBlock)).toHaveLength(0)
+-    strip.tapAt(50)
+-    expect(strip.card().props.active).toBe(true)
+-    expect(strip.card().props.title).toBe('a')
+-    expect(strip.card().props.obscured).toBe(false)
+-    act(() => expect(work.back?.()).toBe(true))
+-    expect(strip.card().props.active).toBe(false)
+-    expect(work.back).toBeNull()
+-    act(() => strip.card().props.onSettled(strip.card().props.motion))
+-    expect(strip.root.findAllByType(AnchoredDetailCard)).toHaveLength(0)
+-    strip.unmount()
+-  })
+-
+-  it('uses the host identity while retaining tab gestures', () => {
+-    const strip = mountStrip([{ handle: 'term-c', agentIdentity: 'cursor' }])
+-    expect(strip.tabs[2].findByType(MobileAgentIcon).props.agentId).toBe('cursor')
+-    strip.tapAt(295)
+-    strip.wait(100)
+-    strip.tapAt(295)
+-    expect(strip.setRenameTarget).toHaveBeenCalledWith(
+-      expect.objectContaining({ handle: 'term-c' })
+-    )
+-    strip.wait(1000)
+-    expect(strip.scrollTo.mock.calls).toEqual([[{ x: 112, animated: true }]])
+-    strip.unmount()
+-  })
+-
+-  it('keeps one card through selection, reveal, movement, reparenting and stale results', () => {
+-    const strip = mountStrip()
+-    const scroll = () => strip.root.find((node) => node.props.horizontal === true)
+-    const press = (id: string) =>
+-      act(() =>
+-        strip.root.findByProps({ accessibilityRole: 'tab', accessibilityLabel: id }).props.onPress()
+-      )
+-    act(() =>
+-      strip.root
+-        .findByProps({ accessibilityHint: 'Shows the full workspace name and where it is' })
+-        .props.onPress()
+-    )
+-    expect(strip.card().props.source.key).toBe('title')
+-    strip.tapAt(295)
+-    expect(strip.root.findAllByType(AnchoredDetailCard)).toHaveLength(1)
+-    expect(strip.tabs.map((tab) => tab.props.accessibilityState.selected)).toEqual([
+-      false,
+-      false,
+-      true,
+-      false,
+-      false
+-    ])
+-    expect(strip.card().props.source.key).toBe('tab:c')
+-    const entryMotion = strip.card().props.motion
+-    strip.wait(400)
+-    act(() => scroll().props.onScroll({ nativeEvent: { contentOffset: { x: 112 } } }))
+-    expect(strip.card().props).toMatchObject({
+-      active: true,
+-      motion: entryMotion,
+-      anchor: { trigger: { x: 88 }, top: 90 }
+-    })
+-    strip.positions.set('c', 240)
+-    act(() =>
+-      strip.root
+-        .findByProps({ accessibilityRole: 'tab', accessibilityLabel: 'c' })
+-        .props.onLayout({ nativeEvent: { layout: { x: 240, width: 100 } } })
+-    )
+-    expect(strip.card().props.anchor.trigger.x).toBe(128)
+-    strip.queue()
+-    act(() => scroll().props.onContentSizeChange(600))
+-    strip.rotate()
+-    strip.flush()
+-    expect(strip.card().props).toMatchObject({
+-      active: true,
+-      source: { key: 'tab:c' },
+-      anchor: { top: 50 }
+-    })
+-    strip.wait(400)
+-    press('b')
+-    expect(strip.card().props.source.key).toBe('tab:b')
+-    strip.wait(400)
+-    press('b')
+-    const exiting = strip.card().props.motion
+-    expect(strip.card().props.active).toBe(false)
+-    press('a')
+-    act(() => strip.card().props.onSettled(exiting))
+-    expect(strip.card().props).toMatchObject({ active: true, source: { key: 'tab:a' } })
+-    strip.queue()
+-    act(() => scroll().props.onContentSizeChange(650))
+-    act(() => scroll().props.onScrollBeginDrag())
+-    strip.flush()
+-    expect(strip.card().props.active).toBe(false)
+-    strip.wait(400)
+-    press('c')
+-    strip.queue()
+-    act(() => scroll().props.onContentSizeChange(700))
+-    strip.rotate('c')
+-    strip.flush()
+-    expect(strip.card().props.active).toBe(false)
+-    strip.wait(400)
+-    press('b')
+-    strip.queue()
+-    act(() => scroll().props.onContentSizeChange(750))
+-    strip.wait(100)
+-    press('b')
+-    strip.flush()
+-    expect(strip.setRenameTarget).toHaveBeenCalledWith(
+-      expect.objectContaining({ handle: 'term-b' })
+-    )
+-    expect(strip.card().props.active).toBe(false)
+-    strip.unmount()
+-  })
+-
+-  it('reanchors B on sibling-only resize events and preserves B when old A disappears', () => {
+-    const strip = mountStrip([], visibleTabs.slice(0, 3))
+-    strip.rotate()
+-    const tab = (id: string) =>
+-      strip.root.findByProps({ accessibilityRole: 'tab', accessibilityLabel: id })
+-    const layout = (id: string, x: number, width: number) =>
+-      act(() => tab(id).props.onLayout({ nativeEvent: { layout: { x, width } } }))
+-    layout('a', 0, 80)
+-    layout('b', 80, 80)
+-    layout('c', 160, 120)
+-    strip.positions.set('b', 80)
+-    act(() => tab('b').props.onPress())
+-    const motion = strip.card().props.motion
+-    strip.positions.set('b', 120)
+-    // RNWeb observes changed sizes of A/C; position-only B and the total width emit nothing.
+-    layout('a', 0, 120)
+-    layout('c', 200, 80)
+-    expect(strip.card().props).toMatchObject({ motion, anchor: { trigger: { x: 120 } } })
+-    act(() => tab('a').props.onPress())
+-    strip.wait(400)
+-    strip.queue()
+-    act(() => tab('b').props.onPress())
+-    strip.rotate('a')
+-    expect(strip.root.findAllByType(AnchoredDetailCard)).toHaveLength(0)
+-    expect(work.back).not.toBeNull()
+-    strip.flush()
+-    expect(strip.card().props).toMatchObject({ active: true, source: { key: 'tab:b' } })
+-    strip.unmount()
+-  })
+-
+-  it('keeps an empty terminal heading readable as its open row and locale change', async () => {
+-    const originalLocale = getMobileUiLocale()
+-    const empty = { ...visibleTabs[0], title: '' }
+-    const strip = mountStrip([], [empty])
+-    try {
+-      strip.tapAt(50)
+-      const source = strip.card().props.source
+-      const motion = strip.card().props.motion
+-      const now = Date.now()
+-      const heading = () => strip.card().findAllByType(Text)[0].props.children
+-      expect(heading()).toBe('Terminal')
+-      for (const title of ['First full shell title', '', 'Next full shell title']) {
+-        const row = { ...empty, title }
+-        strip.updateTabs([row])
+-        expect(heading()).toBe(title || 'Terminal')
+-        expect(row.title).toBe(title)
+-        expect(strip.card().props.active).toBe(true)
+-        expect(strip.card().props.source).toBe(source)
+-        expect(strip.card().props.motion).toBe(motion)
+-        expect(Date.now()).toBe(now)
+-        if (title === '') {
+-          await act(async () => activateMobileUiLocale('ja'))
+-          expect(heading()).toBe('ターミナル')
+-          expect(row.title).toBe('')
+-          expect(Date.now()).toBe(now)
+-          await act(async () => activateMobileUiLocale(originalLocale))
+-        }
+-      }
+-      expect(empty.title).toBe('')
+-    } finally {
+-      strip.unmount()
+-      await act(async () => activateMobileUiLocale(originalLocale))
+-    }
+-  })
+-
+-  it('renders representative per-kind content through Surface and the real footer', () => {
+-    const samples: {
+-      tab: Controller['visibleTabs'][number]
+-      title: string
+-      program: string
+-      icon: typeof File | typeof MobileAgentIcon
+-      agentId?: string
+-      state?: string
+-      detail?: string
+-    }[] = [
+-      {
+-        tab: {
+-          ...visibleTabs[0],
+-          title: '✳ Fix tabs',
+-          agentStatus: {
+-            state: 'working',
+-            agentType: 'claude',
+-            paneKey: 't:l',
+-            prompt: '',
+-            updatedAt: 1000,
+-            stateStartedAt: 1000,
+-            stateHistory: []
+-          }
+-        },
+-        title: 'Fix tabs',
+-        program: 'Claude',
+-        icon: MobileAgentIcon,
+-        agentId: 'claude',
+-        state: 'working'
+-      },
+-      {
+-        tab: { ...visibleTabs[0], title: '  Full shell name · work  ' },
+-        title: '  Full shell name · work  ',
+-        program: 'Terminal',
+-        icon: SquareTerminal
+-      },
+-      {
+-        tab: {
+-          type: 'agent-session',
+-          id: 'a',
+-          title: '✳ Chat',
+-          agent: 'codex',
+-          sessionId: 's',
+-          isActive: true
+-        },
+-        title: 'Chat',
+-        program: 'Codex',
+-        icon: MobileAgentIcon,
+-        agentId: 'codex'
+-      },
+-      ...(['file', 'markdown'] as const).map((type) => ({
+-        tab: {
+-          type,
+-          id: 'a',
+-          title: 'note.md',
+-          filePath: '/docs/note.md',
+-          relativePath: 'docs/note.md',
+-          isDirty: false,
+-          isActive: true,
+-          documentVersion: '1'
+-        },
+-        title: 'note.md',
+-        detail: 'docs/note.md',
+-        program: 'Editor',
+-        icon: type === 'file' ? File : FileText
+-      })),
+-      {
+-        tab: {
+-          type: 'browser',
+-          id: 'a',
+-          title: 'Search',
+-          url: 'https://example.com/search',
+-          browserWorkspaceId: 'w',
+-          browserPageId: 'p',
+-          loading: false,
+-          canGoBack: false,
+-          canGoForward: false,
+-          isActive: true
+-        },
+-        title: 'Search',
+-        program: 'example.com/search',
+-        icon: Globe
+-      }
+-    ]
+-    for (const sample of samples) {
+-      const strip = mountStrip([], [sample.tab])
+-      strip.tapAt(50)
+-      const card = strip.card()
+-      const text = card.findAllByType(Text).map((node) => node.props.children)
+-      expect(text).toEqual(
+-        sample.detail
+-          ? [sample.title, sample.detail, sample.program]
+-          : [sample.title, sample.program]
+-      )
+-      const icons = card.findAllByType(sample.icon)
+-      expect(icons).toHaveLength(1)
+-      if (sample.agentId) {
+-        expect(icons[0].props.agentId).toBe(sample.agentId)
+-      }
+-      expect(card.findAllByType(AgentStateDot).map((node) => node.props.state)).toEqual(
+-        sample.state ? [sample.state] : []
+-      )
+-      strip.unmount()
+-    }
+-  })
+-
+-  it('repaints the cached footer immediately on dark-light-dark appearance changes', () => {
+-    const originalScheme = getMobileColorScheme()
+-    let strip: ReturnType<typeof mountStrip> | undefined
+-    try {
+-      act(() => applyMobileColorScheme('dark'))
+-      strip = mountStrip([], [{ ...visibleTabs[0], title: 'Shell' }])
+-      strip.tapAt(50)
+-      const card = strip.card()
+-      const footerElement = card.props.footer
+-      const content = card.findByType(MobileSessionTabCardFooter).props.content
+-      const anchor = card.props.anchor
+-      const now = Date.now()
+-      for (const scheme of ['dark', 'light', 'dark'] as const) {
+-        act(() => applyMobileColorScheme(scheme))
+-        expect(card.props.footer).toBe(footerElement)
+-        expect(card.findByType(MobileSessionTabCardFooter).props.content).toBe(content)
+-        expect(card.props.anchor).toBe(anchor)
+-        expect(Date.now()).toBe(now)
+-        expect(card.findByType(SquareTerminal).props.color).toBe(
+-          paletteForScheme(scheme).textSecondary
+-        )
+-        const texts = card.findAllByType(Text)
+-        expect(texts.map((text) => text.props.children)).toEqual(['Shell', 'Terminal'])
+-        expect(texts[1].props.style).toBe(mobileSessionFrameStyles.sessionMetaText)
+-        expect(texts[1].props.style.color).toBe(paletteForScheme(scheme).textSecondary)
+-      }
+-    } finally {
+-      strip?.unmount()
+-      act(() => applyMobileColorScheme(originalScheme))
+-    }
+-  })
+-
+-  it.each([20, 200])('bounds real refresh/measurement work with %i tabs and records', (size) => {
+-    const tabs = Array.from({ length: size }, (_, i) => ({
+-      ...visibleTabs[0],
+-      get id() {
+-        work.ids++
+-        return `tab-${i}`
+-      },
+-      title: `tab-${i}`,
+-      terminal: `term-${i}`
+-    }))
+-    const terminals = tabs.map((_, i) => ({
+-      get handle() {
+-        work.records++
+-        return `term-${i}`
+-      },
+-      agentIdentity: 'cursor'
+-    }))
+-    const strip = mountStrip(terminals, tabs)
+-    const reset = () =>
+-      Object.assign(work, {
+-        tabs: 0,
+-        content: 0,
+-        footer: 0,
+-        rows: 0,
+-        ids: 0,
+-        records: 0,
+-        measures: 0
+-      })
+-    const scroll = (x: number) =>
+-      act(() =>
+-        strip.root
+-          .find((node) => node.props.horizontal === true)
+-          .props.onScroll({ nativeEvent: { contentOffset: { x } } })
+-      )
+-    strip.wait(16) // Settle the keyboard mount RAF before the clock baseline.
+-    // Settle the existing hidden-edge transition before measuring unchanged-edge work.
+-    scroll(10)
+-    scroll(10)
+-    reset()
+-    expect(vi.getTimerCount()).toBe(1) // Existing strip clock only, no closed-card clock.
+-    strip.wait(60_000)
+-    expect(work.content).toBe(0)
+-    expect(work.footer).toBe(0)
+-    expect(work.rows).toBe(0)
+-    expect(work.records).toBe(0)
+-    expect(work.tabs).toBe(size) // Pre-existing strip clock, linear in visible tabs.
+-    expect(work.ids).toBeLessThanOrEqual(8 * size)
+-    strip.tapAt(150)
+-    strip.wait(400)
+-    expect(vi.getTimerCount()).toBe(2)
+-    const motion = strip.card().props.motion
+-    for (const x of [10, 11, 12]) {
+-      strip.queue()
+-      reset()
+-      scroll(x)
+-      expect(work).toMatchObject({
+-        tabs: 0,
+-        content: 0,
+-        footer: 0,
+-        rows: 0,
+-        ids: 0,
+-        records: 0,
+-        measures: 1
+-      })
+-      strip.flush() // Measurement settlement has its own act turn.
+-      expect(work).toMatchObject({
+-        tabs: 0,
+-        content: 0,
+-        footer: 0,
+-        rows: 0,
+-        ids: 0,
+-        records: 0,
+-        measures: 3
+-      })
+-      expect(strip.card().props).toMatchObject({ motion, anchor: { trigger: { x: 100 - x } } })
+-      expect(strip.card().findByProps({ role: 'dialog' }).props.style[1].left).toBe(100 - x)
+-    }
+-    reset()
+-    strip.wait(60_000)
+-    expect(work).toMatchObject({ content: 1, footer: 1, rows: 0, records: 0, tabs: size })
+-    expect(work.ids).toBeLessThanOrEqual(8 * size)
+-    strip.updateTabs(
+-      tabs.map((tab, i) => (i === 1 ? { ...tab, title: 'Renamed current tab' } : tab))
+-    )
+-    expect(strip.card().findAllByProps({ children: 'Renamed current tab' })).toHaveLength(1)
+-    act(() => strip.root.find((node) => node.props.horizontal === true).props.onScrollBeginDrag())
+-    expect(vi.getTimerCount()).toBe(1)
+-    strip.unmount()
+-    expect(work.back).toBeNull()
+-    expect(work.removeAppState).toHaveBeenCalledTimes(1)
+-    expect(vi.getTimerCount()).toBe(0)
+-  })
+-})
+diff --git a/mobile/src/session/native-chat/mobile-native-chat-reading-place.test.tsx b/mobile/src/session/native-chat/mobile-native-chat-reading-place.test.tsx
+index 97fee314823..9e324bafce0 100644
+--- a/mobile/src/session/native-chat/mobile-native-chat-reading-place.test.tsx
++++ b/mobile/src/session/native-chat/mobile-native-chat-reading-place.test.tsx
+@@ -764,40 +764,6 @@ it('a roster keeps its key when the fold moves it, and the rows the reader saw a
+   expect(chat0.drawn(mobileNativeChatRowId('s2'))).toBe(1)
+ })
+ 
+-it('keeps the nearest rows off screen as stand-ins when turn-status lines sit between them and the view', () => {
+-  type Line = { testID: string; top: number; bottom: number }
+-  const lines: Line[] = [
+-    { testID: mobileNativeChatRowId('above'), top: -300, bottom: -100 },
+-    { testID: '', top: -100, bottom: -80 },
+-    { testID: mobileNativeChatRowId('shown'), top: -80, bottom: 280 },
+-    { testID: '', top: 280, bottom: 300 },
+-    { testID: mobileNativeChatRowId('below'), top: 300, bottom: 500 }
+-  ]
+-  const children = lines.map((line) => ({
+-    getAttribute: (name: string) => (name === 'data-testid' ? line.testID || null : null),
+-    getBoundingClientRect: () => line,
+-    querySelectorAll: () => [],
+-    nextElementSibling: null
+-  }))
+-  const box = { ...children[0]!, children }
+-  const scroller = {
+-    scrollTop: 0,
+-    scrollHeight: 800,
+-    clientHeight: 200,
+-    getAttribute: () => null,
+-    getBoundingClientRect: () => ({ top: 0, bottom: 200 }),
+-    querySelectorAll: () => [],
+-    querySelector: () => box
+-  }
+-
+-  const place = mobileNativeChatReadingPlace(scroller, {
+-    current: () => undefined,
+-    placement: () => 'p'
+-  })
+-
+-  expect(place.map((unit) => unit.key)).toEqual(['shown', 'below', 'above'])
+-})
+-
+ it('retains already-displayed prose when an async older page supplies its settled turn opener', async () => {
+   const rows = Array.from({ length: 60 }, (_, i) => ({
+     ...say(`m${i}`, i % 30 === 0 ? 'user' : 'assistant', `Message ${i}`),
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatToolRun.test.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatToolRun.test.tsx
+index edbbb5cdfe7..59a2509838d 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatToolRun.test.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatToolRun.test.tsx
+@@ -2,7 +2,15 @@ import { createElement, type ReactNode } from 'react'
+ import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ 
+-import type { NativeChatBlock } from '../../../../../src/shared/native-chat/native-chat-types'
++import type { AgentJournalToolCallItem } from '../../../../../src/shared/agent-session/journal/agent-session-journal-types'
++import { MAX_TOOL_DETAIL_LENGTH } from '../../../../../src/shared/native-chat/tools/native-chat-tool-summary'
++import { projectStructuredItemToNativeChat } from '../../../../../src/shared/agent-session/view/structured-agent-session-projection'
++import type {
++  NativeChatBlock,
++  NativeChatMessage,
++  NativeChatToolCallBlock
++} from '../../../../../src/shared/native-chat/native-chat-types'
++import { colors } from '../../../theme/mobile-theme'
+ 
+ const scrolls = vi.hoisted(() => ({ toEnd: vi.fn(), to: vi.fn() }))
+ 
+@@ -66,7 +74,7 @@ vi.mock('../../../components/MobileSourceCopyButton', () => ({
+ vi.mock('../../../platform/external-link', () => ({ openExternalLink: vi.fn() }))
+ vi.mock('../../../components/inline-text-selection', () => ({ INLINE_TEXT_SELECTION: false }))
+ 
+-import '../../../platform/external-link'
++import { openExternalLink } from '../../../platform/external-link'
+ import { ToolRun } from './MobileNativeChatToolRun'
+ import { MobileNativeChatToolInvocation } from './MobileNativeChatToolInvocation'
+ import {
+@@ -82,6 +90,22 @@ describe('ToolRun', () => {
+     renderer = null
+   })
+ 
++  function render(
++    blocks: NativeChatBlock[] | NativeChatMessage,
++    onOpenFile?: (path: string) => void
++  ): ReactTestRenderer {
++    act(() => {
++      renderer = create(
++        createElement(ToolRun, {
++          blocks: Array.isArray(blocks) ? blocks : blocks.blocks,
++          onOpenFile
++        })
++      )
++    })
++    openRun(renderer!)
++    return renderer!
++  }
++
+   function openRun(tree: ReactTestRenderer): void {
+     act(() => {
+       tree.root.findAll((node) => String(node.type) === 'Pressable')[0]!.props.onPress()
+diff --git a/mobile/src/session/use-mobile-structured-native-chat-send-bridge.ts b/mobile/src/session/use-mobile-structured-native-chat-send-bridge.ts
+index b9eea896c86..5d0d0c711da 100644
+--- a/mobile/src/session/use-mobile-structured-native-chat-send-bridge.ts
++++ b/mobile/src/session/use-mobile-structured-native-chat-send-bridge.ts
+@@ -1,3 +1,4 @@
++import { isStructuredAgentSessionComposerCommand } from '../../../src/shared/agent-session/view/structured-agent-session-composer'
+ import { useCallback } from 'react'
+ import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
+ import type { StructuredAgentId } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle'
+diff --git a/src/main/native-chat/agent-session-wire/structured-agent-session-codex-input-finalization.spec.ts b/src/main/native-chat/agent-session-wire/structured-agent-session-codex-input-finalization.spec.ts
+index ad84e711862..41cdcdd03b7 100644
+--- a/src/main/native-chat/agent-session-wire/structured-agent-session-codex-input-finalization.spec.ts
++++ b/src/main/native-chat/agent-session-wire/structured-agent-session-codex-input-finalization.spec.ts
+@@ -169,7 +169,7 @@ export function registerCodexInputFinalization(current: typeof codexInputFinaliz
+     const writes = await Promise.allSettled(persisted.mock.results.map((result) => result.value))
+     expect(writes.filter((result) => result.status === 'rejected')).toEqual([])
+     await vi.waitFor(async () =>
+-      expect((await row(id))?.dispatchState).toBe(written ? 'unknown' : 'rejected')
++      expect((await row(id))?.dispatchState).toBe(uncertain || failure === 'post-write-stop' ? 'unknown' : 'rejected')
+     )
+     if (failure === 'unproven-exit') {
+       expect((await row(id))?.rejection).toMatchObject({
+diff --git a/src/main/native-chat/agent-session-wire/structured-agent-session-never-sent.ts b/src/main/native-chat/agent-session-wire/structured-agent-session-never-sent.ts
+new file mode 100644
+index 00000000000..4156e2a59cf
+--- /dev/null
++++ b/src/main/native-chat/agent-session-wire/structured-agent-session-never-sent.ts
+@@ -0,0 +1,24 @@
++import type { AgentSessionRecord } from '../../../shared/agent-session/lifecycle/agent-session-record'
++import { readAgentJournalTurn } from '../../../shared/agent-session/lifecycle/agent-session-turn-record'
++import type { AgentSessionJournal } from '../agent-session-journal/journal-store'
++
++/** Prove local unsent history; adoption, prior turns, rewind or a replacement journal defeat proof. */
++export function structuredAgentSessionNeverSent(
++  record: Pick<AgentSessionRecord, 'providerHandleChain' | 'rewind'> | null,
++  journal: Pick<AgentSessionJournal, 'submissions' | 'visitItems' | 'wroteBeforeOpen'>
++): boolean {
++  if (
++    !record ||
++    record.providerHandleChain[0]?.origin === 'adopted' ||
++    record.rewind !== undefined ||
++    journal.submissions().length > 0 ||
++    (record.providerHandleChain.length > 0 && !journal.wroteBeforeOpen(1))
++  ) {
++    return false
++  }
++  let turned = false
++  journal.visitItems((_itemId, _sequence, body) => {
++    turned ||= readAgentJournalTurn(body) !== null
++  })
++  return !turned
++}
+diff --git a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx b/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
+index 620770211ab..1b8398a59e4 100644
+--- a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
+@@ -34,8 +34,7 @@ import { useNativeChatInteractiveSend } from './use-native-chat-interactive-send
+ import { shouldClearNativeChatWorkingSuppression } from '../../../../shared/native-chat/native-chat-working-suppression'
+ import { resolveNativeChatTerminalTurn } from '../../../../shared/native-chat/native-chat-terminal-turn'
+ import { useNativeChatTerminalTurnTiming } from './use-native-chat-terminal-turn-timing'
+-import { launchPromptAsMessage, shouldPruneLaunchPrompt } from './native-chat-pending'
+-import { pendingSendsAsMessages } from '../../../../shared/native-chat/transcript/native-chat-pending-sends'
++import { shouldPruneLaunchPrompt } from './native-chat-pending'
+ import {
+   useNativeChatPendingDelivery,
+   useNativeChatOptimisticSend
+diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
+index 85a43855532..4718c8dcd1d 100644
+--- a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.test.tsx
+@@ -99,7 +99,6 @@ const surface = {
+   subscribe: vi.fn(() => vi.fn())
+ }
+ 
+-import { effort, fast, model, unknownEffort } from './native-chat-option-picker.test-fixture'
+ 
+ const settle = (): Promise<void> => act(async () => {})
+ 
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx
+index f10d63388a2..b1f83bfe4f9 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredPromptSlot.tsx
+@@ -5,10 +5,10 @@ import { agentSessionPromptQuestions } from '../../../../shared/agent-session/ag
+ import { NativeChatApprovalCard } from './NativeChatApprovalCard'
+ import { NativeChatStructuredQuestionCard } from './NativeChatStructuredQuestionCard'
+ import { chatApprovalFromJournal } from '../../../../shared/native-chat/input/native-chat-interactive-prompt'
+-import { nativeChatStructuredAsyncQuestion } from './NativeChatStructuredAsyncQuestion'
++import { nativeChatStructuredQuestions } from './NativeChatStructuredAsyncQuestion'
+ import type { useStructuredAgentSession } from './use-structured-agent-session'
+ 
+-type AsyncQuestionContext = Parameters<typeof nativeChatStructuredAsyncQuestion>
++type AsyncQuestionContext = Parameters<typeof nativeChatStructuredQuestions>
+ import type { StructuredPromptItem } from '../../../../shared/agent-session/view/structured-agent-session-message-projection'
+ import type { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
+ 
+@@ -31,7 +31,7 @@ export function NativeChatStructuredPromptSlot({
+     Pick<ReturnType<typeof useStructuredAgentSession>, 'turnId' | 'cancel'>
+   response: ReturnType<typeof useStructuredPromptResponseHold>
+   shouldFocus: boolean
+-  answerInputRef: RefObject<HTMLInputElement | null>
++  answerInputRef: RefObject<HTMLTextAreaElement | null>
+   pane: AsyncQuestionContext[0]
+   session: AsyncQuestionContext[2]
+   transport: AsyncQuestionContext[3]
+@@ -69,7 +69,7 @@ export function NativeChatStructuredPromptSlot({
+           {...fileLinkProps}
+         />
+       ) : null}
+-      {nativeChatStructuredAsyncQuestion(
++      {nativeChatStructuredQuestions(
+         pane,
+         controller,
+         session,
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
+index c54bd62279f..ea7d19b3a8f 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.children.test.tsx
+@@ -94,6 +94,7 @@ vi.mock('./NativeChatMessageList', () => ({
+     subagentRoster?: StructuredAgentSubagentRoster
+   }) => {
+     useImperativeHandle(ref, () => ({
++      readerAtEnd: () => true,
+       revealLatest: () => {},
+       revealFindMatch: () => {},
+       messageCopyText: () => null
+diff --git a/src/renderer/src/components/native-chat/native-chat-message-rail-items.test.ts b/src/renderer/src/components/native-chat/native-chat-message-rail-items.test.ts
+index e51dd72d32d..3af82b3cb16 100644
+--- a/src/renderer/src/components/native-chat/native-chat-message-rail-items.test.ts
++++ b/src/renderer/src/components/native-chat/native-chat-message-rail-items.test.ts
+@@ -3,7 +3,7 @@ import { orchestrationNoticeMessage } from '../../../../shared/native-chat-orche
+ import { describe, expect, it } from 'vitest'
+ import type { NativeChatMessage } from '../../../../shared/native-chat/native-chat-types'
+ import type { NativeChatResolvedPrompt } from '../../../../shared/native-chat/native-chat-resolution-receipt'
+-import type { NativeChatTurnDiff } from './native-chat-turn-diffs'
++import type { NativeChatTurnDiff } from '../../../../shared/native-chat/tools/native-chat-turn-diffs'
+ import { buildNativeChatTranscriptSlots } from './native-chat-transcript-slots'
+ import {
+   buildNativeChatRailItems,
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts b/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts
+index 32d63c3078e..fe58673eb21 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts
++++ b/src/renderer/src/components/native-chat/use-native-chat-paste-bridge.ts
+@@ -22,7 +22,7 @@ type NativeChatPasteBridgeRefs = {
+   questionAnswerInputRef?: RefObject<HTMLInputElement | HTMLTextAreaElement | null>
+ }
+ 
+-function canPasteIntoAnswerInput(input: HTMLInputElement): boolean {
++function canPasteIntoAnswerInput(input: HTMLInputElement | HTMLTextAreaElement): boolean {
+   return input.isConnected && !input.disabled && !input.closest('[hidden], [inert]')
+ }
+ 
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts b/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
+index 9c67cef2cda..c8753805ab6 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
++++ b/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
+@@ -1,4 +1,4 @@
+-import { createCoalescedPollRunner } from '../right-sidebar/coalesced-poll-runner'
++import { createCoalescedPollRunner } from '../../lib/repository-refresh/coalesced-poll-runner'
+ import { useAppStore } from '@/store'
+ import { useEffect, useMemo, useState } from 'react'
+ import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.test.tsx b/src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.test.tsx
+index f4b8aafc444..850e594feea 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.test.tsx
++++ b/src/renderer/src/components/native-chat/use-native-chat-structured-composer-send.test.tsx
+@@ -1,5 +1,4 @@
+ // @vitest-environment happy-dom
+-// @vitest-environment happy-dom
+ 
+ import {
+   clearNativeChatComposerDraftsForTests,
+@@ -17,7 +16,6 @@ import type { NativeChatStructuredComposerTransport } from './native-chat-compos
+ 
+ import { useNativeChatStructuredComposerSend } from './use-native-chat-structured-composer-send'
+ 
+-import { ATTACHMENT, harness } from './use-native-chat-structured-composer-send.test-fixture'
+ 
+ vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
+ 
+diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
+index 4e121aec933..04f8a088fcf 100644
+--- a/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
++++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
+@@ -2,9 +2,9 @@
+ import { cleanup, render, screen, waitFor } from '@testing-library/react'
+ import userEvent from '@testing-library/user-event'
+ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+-import AiVaultPanel from './AiVaultPanel'
++import AiVaultPanel from './ai-vault/panel/AiVaultPanel'
+ import { conversationSessions } from '../sidebar/ProjectConversationList.test-fixture'
+-import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
++import type { AiVaultSessionListGroup } from './ai-vault/session-list/ai-vault-session-filters'
+ import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
+ 
+ const state = {
+diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
+index a8cb6019000..d642824f0e4 100644
+--- a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
++++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
+@@ -9,8 +9,8 @@ import type {
+   AiVaultListArgs,
+   AiVaultListResult
+ } from '../../../../shared/ai-vault/contracts/ai-vault-types'
+-import AiVaultPanel from './AiVaultPanel'
+-import { resetAiVaultForcedRescanThrottleForTest } from './ai-vault-session-refresh'
++import AiVaultPanel from './ai-vault/panel/AiVaultPanel'
++import { resetAiVaultForcedRescanThrottleForTest } from './ai-vault/scanning/ai-vault-session-refresh'
+ import { resetInputQuietSchedulerForTest } from '@/lib/input-quiet-scheduler'
+ import {
+   conversationSessions,
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault-conversation-refresh.test.tsx b/src/renderer/src/components/right-sidebar/ai-vault-conversation-refresh.test.tsx
+index cafadcb32b6..98a2801de8b 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault-conversation-refresh.test.tsx
++++ b/src/renderer/src/components/right-sidebar/ai-vault-conversation-refresh.test.tsx
+@@ -15,7 +15,7 @@ import { useAppStore } from '@/store'
+ import {
+   resetAiVaultForcedRescanThrottleForTest,
+   useAiVaultSessionRefresh
+-} from './ai-vault-session-refresh'
++} from './ai-vault/scanning/ai-vault-session-refresh'
+ 
+ const feeds = vi.hoisted(
+   () =>
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault-conversation-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault-conversation-refresh.ts
+index c8e4fb4bc98..0a23f3a6f34 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault-conversation-refresh.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault-conversation-refresh.ts
+@@ -7,7 +7,7 @@ import {
+ import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+ import { getStructuredAgentSessionStatusFeed } from '@/runtime/structured-agent-session-status-feed'
+ import { useAppStore } from '@/store'
+-import { getAgentSessionIdsKey } from './ai-vault-agent-session-refresh-key'
++import { getAgentSessionIdsKey } from './ai-vault/scanning/ai-vault-agent-session-refresh-key'
+ 
+ /** Names and new journal identities change independently of provider files and tab visibility. */
+ export function useAiVaultConversationRefresh(
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/panel/AiVaultPanel.tsx b/src/renderer/src/components/right-sidebar/ai-vault/panel/AiVaultPanel.tsx
+index e12c3e65998..d9aea3f7501 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/panel/AiVaultPanel.tsx
++++ b/src/renderer/src/components/right-sidebar/ai-vault/panel/AiVaultPanel.tsx
+@@ -1,8 +1,7 @@
+ import { useMemo, useRef, useState } from 'react'
+ import { AI_VAULT_AGENTS } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
+-import { useAiVaultConversationSearch } from './ai-vault-conversation-search'
++import { useAiVaultConversationSearch } from '../../ai-vault-conversation-search'
+ import { useShallow } from 'zustand/react/shallow'
+-import { toast } from 'sonner'
+ import { useAppStore } from '@/store/index'
+ import { useAllWorktrees, useProjectHostSetupProjection, useRepos } from '@/store/selectors'
+ import { useAiVaultPanelSessions } from '../session-list/ai-vault-session-filters'
+@@ -32,7 +31,6 @@ import { AiVaultScanIssueBanners } from '../scanning/AiVaultScanIssueBanners'
+ import { useAiVaultSessionDeleteAction } from '../session-actions/ai-vault-session-delete-action'
+ import { useAiVaultPanelSearch } from '../search/use-ai-vault-search'
+ import { withAiVaultHistoryPreviews } from '../search/ai-vault-search-session'
+-import { aiVaultSearchScopeIdentity } from '../search/ai-vault-search-scope-identity'
+ import { AiVaultPanelSearch } from '../search/AiVaultPanelSearch'
+ import { useAiVaultPanelSessionResume } from '../session-actions/use-ai-vault-panel-session-resume'
+ import { AiVaultScanProgressStrip } from '../scanning/AiVaultScanProgressStrip'
+@@ -318,7 +316,7 @@ export default function AiVaultPanel({
+         {(!searching || sessions.length > 0 || search.loading) && (
+           <SessionList
+             sessionProjects={sessionProjectById}
+-            executionHostScope={executionHostScope}
++            {...(conversationNavigation ? { executionHostScope } : {})}
+             conversationNavigation={conversationNavigation}
+             key={searching ? search.resetKey : 'history'}
+             searchHits={searching ? searchHits : undefined}
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
+index fa4024fe6d4..12a6f29f349 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
+@@ -2,7 +2,6 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
+ 
+ import { aiVaultScanErrorText } from './ai-vault-scan-issue-copy'
+ import type { ExecutionHostScope } from '../../../../../../shared/execution-host'
+-import { useAppStore } from '@/store/index'
+ import type { AiVaultSessionLimit } from '../session-list/ai-vault-session-limit'
+ import { AiVaultSessionPublicationGate } from './ai-vault-session-publication-gate'
+ import { EMPTY_AI_VAULT_SESSIONS } from '../session-list/ai-vault-session-identity'
+@@ -24,7 +23,7 @@ import { createBrowserUuid } from '@/lib/browser-uuid'
+ import {
+   useAiVaultConversationRefresh,
+   useAiVaultProviderSessionRefresh
+-} from './ai-vault-conversation-refresh'
++} from '../../ai-vault-conversation-refresh'
+ 
+ // Share the forced-rescan budget across remounts so session creation cannot amplify full scans.
+ import {
+diff --git a/src/renderer/src/components/right-sidebar/use-ai-vault-panel-projects.ts b/src/renderer/src/components/right-sidebar/use-ai-vault-panel-projects.ts
+index fc7542685de..925fca4e4ef 100644
+--- a/src/renderer/src/components/right-sidebar/use-ai-vault-panel-projects.ts
++++ b/src/renderer/src/components/right-sidebar/use-ai-vault-panel-projects.ts
+@@ -1,7 +1,7 @@
+-import { aiVaultSearchScopeIdentity } from './ai-vault-search-scope-identity'
++import { aiVaultSearchScopeIdentity } from './ai-vault/search/ai-vault-search-scope-identity'
+ import { useMemo } from 'react'
+ import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
+-import { withAiVaultHistoryPreviews } from './ai-vault-search-session'
++import { withAiVaultHistoryPreviews } from './ai-vault/search/ai-vault-search-session'
+ import {
+   deriveAiVaultScopeSessionPaths,
+   deriveAiVaultWorkspaceScopePaths
+@@ -9,7 +9,7 @@ import {
+ import {
+   buildAiVaultProjectContext,
+   buildAiVaultSessionProjectById
+-} from './ai-vault-session-projects'
++} from './ai-vault/scope/ai-vault-session-projects'
+ 
+ type ProjectContextArgs = Omit<Parameters<typeof buildAiVaultProjectContext>[0], 'sessions'>
+ type SessionProjectArgs = Omit<Parameters<typeof buildAiVaultSessionProjectById>[0], 'sessions'>
+diff --git a/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx b/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
+index 501098249cc..cf98fc7e338 100644
+--- a/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
++++ b/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
+@@ -14,7 +14,7 @@ import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+ import { getRepoOwnerWorktreeVisibilityDefaults } from '@/store/worktree-visibility-defaults-by-host'
+ import { RepoHeaderProjectActionsMenu } from './worktree-list/rows/repo-header-project-actions'
+ import { useProjectGroupDialogs } from './worktree-list/rows/use-project-group-dialogs'
+-import { ProjectGroupNameDialog } from './ProjectGroupNameDialog'
++import { ProjectGroupNameDialog } from './worktree-list/rows/ProjectGroupNameDialog'
+ import type { ConversationProjectGroup } from './project-conversation-groups'
+ 
+ export function ConversationProjectMenu({
+diff --git a/src/renderer/src/components/sidebar/PersonalProjectOrder.fixture.tsx b/src/renderer/src/components/sidebar/PersonalProjectOrder.fixture.tsx
+index 7cb1a6f0b95..06e92ebc023 100644
+--- a/src/renderer/src/components/sidebar/PersonalProjectOrder.fixture.tsx
++++ b/src/renderer/src/components/sidebar/PersonalProjectOrder.fixture.tsx
+@@ -4,8 +4,8 @@ import type { PersistedUIState } from '../../../../shared/persisted-ui-state-typ
+ import { useRef } from 'react'
+ import { z } from 'zod'
+ import { defineFixture } from '../../component-fixtures/component-fixture'
+-import WorktreeList from './WorktreeList'
+-import SidebarWorkspaceOptionsMenu from './SidebarWorkspaceOptionsMenu'
++import WorktreeList from './worktree-list/listing/WorktreeList'
++import SidebarWorkspaceOptionsMenu from './worktree-list/controls/SidebarWorkspaceOptionsMenu'
+ import { useAppStore } from '@/store'
+ import { getDefaultUIState } from '../../../../shared/constants'
+ import { projectHostSetupProjectionFromRepos } from '../../../../shared/project-host-setup-projection'
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
+index 2766af721d9..a1b4dc710c2 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
+@@ -18,8 +18,8 @@ import {
+ import { translate } from '@/i18n/i18n'
+ import { ConversationProjectMenu } from './ConversationProjectMenu'
+ import { HiddenConversationProjects } from './HiddenConversationProjects'
+-import type { AiVaultSessionVirtualList } from '../right-sidebar/AiVaultSessionVirtualList'
+-import { resolveAiVaultSessionRowChatActions } from '../right-sidebar/ai-vault-session-chat-action'
++import type { AiVaultSessionVirtualList } from '../right-sidebar/ai-vault/session-list/AiVaultSessionVirtualList'
++import { resolveAiVaultSessionRowChatActions } from '../right-sidebar/ai-vault/session-actions/ai-vault-session-chat-action'
+ import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
+ import type { AiVaultSessionProject } from '../../../../shared/ai-vault/session-display/ai-vault-session-filters'
+ import { conversationPreferenceKey } from '../../../../shared/conversation-navigation-preferences'
+@@ -27,7 +27,7 @@ import {
+   projectConversations,
+   PROJECT_CONVERSATION_PAGE_SIZE
+ } from '../../../../shared/project-conversation-list'
+-import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
++import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
+ import { ProjectOrderMenuItems } from './ProjectOrderMenuItems'
+ import { useConversationPreferences } from './use-conversation-preferences'
+ import { ProjectConversationRow } from './ProjectConversationRow'
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
+index 1acc77df7c5..404e7e99b4e 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
+@@ -9,7 +9,7 @@ import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-va
+ import type { AgentDotState } from '@/components/AgentStateDot'
+ import type { ConversationPreference } from '../../../../shared/conversation-navigation-preferences'
+ import { projectConversationTitle } from '../../../../shared/project-conversation-list'
+-import { useAiVaultSessionDisplayTitle } from '../right-sidebar/use-ai-vault-session-display-title'
++import { useAiVaultSessionDisplayTitle } from '../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-title'
+ 
+ export function ProjectConversationRow({
+   session,
+diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+index 28f6abb3003..3b8e2e3ae77 100644
+--- a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
++++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+@@ -3,7 +3,7 @@ import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-o
+ import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+ import { translate } from '@/i18n/i18n'
+-import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
++import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
+ 
+ export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
+   const order = useAppStore((state) => state.projectOrderBy)
+diff --git a/src/renderer/src/components/sidebar/index.tsx b/src/renderer/src/components/sidebar/index.tsx
+index d7ba80bb3e7..ed15b0ab75b 100644
+--- a/src/renderer/src/components/sidebar/index.tsx
++++ b/src/renderer/src/components/sidebar/index.tsx
+@@ -27,7 +27,7 @@ import { StartupWorktreeRefreshStatus } from './StartupWorktreeRefreshStatus'
+ 
+ // Keep the Agents activity pipeline out of the workspace view’s initial bundle.
+ const SidebarAgentsList = lazyWithRetry(() => import('./SidebarAgentsList'))
+-const ConversationHistory = lazyWithRetry(() => import('../right-sidebar/AiVaultPanel'))
++const ConversationHistory = lazyWithRetry(() => import('../right-sidebar/ai-vault/panel/AiVaultPanel'))
+ 
+ const WorktreeMetaDialog = lazyWithRetry(
+   () => import('./workspace-card/metadata/WorktreeMetaDialog')
+diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
+index ea145ebcf19..a56186a4062 100644
+--- a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
++++ b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
+@@ -8,7 +8,7 @@ import {
+ import { MIXED_FOLDER } from '../../../../shared/folder-workspaces/folder-workspace-host-routing.test-fixture'
+ import { folderWorkspaceToWorktree } from '../../../../shared/folder-workspaces/folder-workspace-worktree'
+ import { projectHostSetupProjectionFromRepos } from '../../../../shared/project-host-setup-projection'
+-import { buildAiVaultSessionProjectById } from '../right-sidebar/ai-vault-session-projects'
++import { buildAiVaultSessionProjectById } from '../right-sidebar/ai-vault/scope/ai-vault-session-projects'
+ import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
+ import type { ExecutionHostId } from '../../../../shared/execution-host'
+ 
+diff --git a/src/renderer/src/components/sidebar/project-header-drag-commit.test.ts b/src/renderer/src/components/sidebar/project-header-drag-commit.test.ts
+index 872a5ab5dcd..54d24d77321 100644
+--- a/src/renderer/src/components/sidebar/project-header-drag-commit.test.ts
++++ b/src/renderer/src/components/sidebar/project-header-drag-commit.test.ts
+@@ -1,20 +1,20 @@
+ // @vitest-environment happy-dom
+ import { describe, expect, it, vi } from 'vitest'
+ 
+-import { commitProjectHeaderDragDrop } from './project-header-drag-commit'
+-import type { ProjectHeaderDragSession } from './project-header-drag-contract'
++import { commitProjectHeaderDragDrop } from './worktree-list/drag/project-header-drag-commit'
++import type { ProjectHeaderDragSession } from './worktree-list/drag/project-header-drag-contract'
+ import {
+   getProjectHeaderDragBucketKey,
+   getSidebarOrderedRepoHeaderRowsByBucket,
+   getSidebarOrderedRepoHeaderIdsByBucket
+-} from './project-header-drop'
++} from './worktree-list/drag/project-header-drop'
+ import { planSidebarRows } from '../../../../shared/sidebar-list/sidebar-row-plan'
+ import { projectHostSetupProjectionFromRepos } from '../../../../shared/project-host-setup-projection'
+ import { cloneDefaultWorkspaceStatuses } from '../../../../shared/workspace-statuses'
+ import type { ProjectGroup } from '../../../../shared/project-group-types'
+-import type { RepoHeaderRow } from './project-header-drop'
++import type { RepoHeaderRow } from './worktree-list/drag/project-header-drop'
+ import type { Repo } from '../../../../shared/repo-types'
+-import { worktree } from './worktree-list-groups-test-fixtures'
++import { worktree } from './worktree-list/grouping/worktree-list-groups-test-fixtures'
+ 
+ function makeRepo(id: string, overrides: Partial<Repo> = {}): Repo {
+   return {
+diff --git a/src/renderer/src/components/sidebar/project-header-drag-pin-tier.ts b/src/renderer/src/components/sidebar/project-header-drag-pin-tier.ts
+index 9b6e4df18e9..8f95d405e72 100644
+--- a/src/renderer/src/components/sidebar/project-header-drag-pin-tier.ts
++++ b/src/renderer/src/components/sidebar/project-header-drag-pin-tier.ts
+@@ -1,4 +1,4 @@
+-import type { ProjectHeaderDragSession } from './project-header-drag-contract'
++import type { ProjectHeaderDragSession } from './worktree-list/drag/project-header-drag-contract'
+ 
+ export function isPointerInsideProjectPinTier(
+   session: ProjectHeaderDragSession,
+diff --git a/src/renderer/src/components/sidebar/project-header-drag-start.test.ts b/src/renderer/src/components/sidebar/project-header-drag-start.test.ts
+index 5fea56c5575..66e3e0cb0e2 100644
+--- a/src/renderer/src/components/sidebar/project-header-drag-start.test.ts
++++ b/src/renderer/src/components/sidebar/project-header-drag-start.test.ts
+@@ -1,7 +1,7 @@
+ // @vitest-environment happy-dom
+ import { describe, expect, it } from 'vitest'
+ 
+-import { createProjectHeaderDragSession } from './project-header-drag-start'
++import { createProjectHeaderDragSession } from './worktree-list/drag/project-header-drag-start'
+ import type { Repo } from '../../../../shared/repo-types'
+ 
+ function createRepo(id: string, projectGroupId: string | null = null): Repo {
+diff --git a/src/renderer/src/components/sidebar/worktree-header-section-boundaries.test.ts b/src/renderer/src/components/sidebar/worktree-header-section-boundaries.test.ts
+index 9b4950e1cab..7ee62f4beaa 100644
+--- a/src/renderer/src/components/sidebar/worktree-header-section-boundaries.test.ts
++++ b/src/renderer/src/components/sidebar/worktree-header-section-boundaries.test.ts
+@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
+ import {
+   getProjectGroupHeaderSectionEndByGroupId,
+   getRepoHeaderSectionEndByKey
+-} from './worktree-header-section-boundaries'
++} from './worktree-list/viewport/worktree-header-section-boundaries'
+ import type { RenderRow } from './worktree-list/listing/render-row'
+ 
+ const repoHeader = (id: string): RenderRow =>
+diff --git a/src/renderer/src/components/sidebar/worktree-list-groups-personal-project-order.test.ts b/src/renderer/src/components/sidebar/worktree-list-groups-personal-project-order.test.ts
+index 3755b29e579..1155206f55b 100644
+--- a/src/renderer/src/components/sidebar/worktree-list-groups-personal-project-order.test.ts
++++ b/src/renderer/src/components/sidebar/worktree-list-groups-personal-project-order.test.ts
+@@ -2,7 +2,7 @@ import { projectHostSetupProjectionFromRepos } from '../../../../shared/project-
+ import { planSidebarRows } from '../../../../shared/sidebar-list/sidebar-row-plan'
+ import { cloneDefaultWorkspaceStatuses } from '../../../../shared/workspace-statuses'
+ import { describe, expect, it } from 'vitest'
+-import { repo, worktree } from './worktree-list-groups-test-fixtures'
++import { repo, worktree } from './worktree-list/grouping/worktree-list-groups-test-fixtures'
+ import type { ProjectGroup } from '../../../../shared/project-group-types'
+ describe('personal project order through sidebar rows', () => {
+   const alpha = {
+diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/project-header-drag.ts b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-drag.ts
+index c006a8bad1e..0285cbebfd5 100644
+--- a/src/renderer/src/components/sidebar/worktree-list/drag/project-header-drag.ts
++++ b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-drag.ts
+@@ -1,4 +1,4 @@
+-import { isPointerInsideProjectPinTier } from './project-header-drag-pin-tier'
++import { isPointerInsideProjectPinTier } from '../../project-header-drag-pin-tier'
+ import { useCallback, useEffect, useRef, useState } from 'react'
+ 
+ import {
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+index cf008a7a8b7..632219db94d 100644
+--- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
++++ b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+@@ -8,10 +8,10 @@ import { Progress } from '../ui/progress'
+ import { getWindowSections, ProviderIcon } from '../status-bar/tooltip'
+ import { formatPlanLabel } from '../status-bar/usage-roster-formatting'
+ import {
+-  getProviderDisplayName,
+   getProviderUsageErrorMessage
+ } from '../status-bar/usage-error-copy'
+-import { formatWindowLabel } from '@/lib/window-label-formatter'
++import { getProviderDisplayName } from '../../../../shared/usage-provider-windows'
++import { formatWindowLabel } from '../../../../shared/rate-limit-window-label'
+ import { getIntlLocale, translate } from '@/i18n/i18n'
+ import type { ProviderAccountsSnapshot } from '@/runtime/runtime-provider-accounts-client'
+ import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'
+diff --git a/src/renderer/src/lib/worktree-activation-personal-project-order.test.ts b/src/renderer/src/lib/worktree-activation-personal-project-order.test.ts
+index e6bed3d4cb8..cc4730aaf4b 100644
+--- a/src/renderer/src/lib/worktree-activation-personal-project-order.test.ts
++++ b/src/renderer/src/lib/worktree-activation-personal-project-order.test.ts
+@@ -1,7 +1,7 @@
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import { useAppStore } from '@/store'
+ import { activateAndRevealWorktree } from './worktree-activation'
+-import { repo, worktree } from '../components/sidebar/worktree-list-groups-test-fixtures'
++import { repo, worktree } from '../components/sidebar/worktree-list/grouping/worktree-list-groups-test-fixtures'
+ import { getDefaultUIState } from '../../../shared/constants'
+ import { mutatePersonalProjectOrder } from '../../../shared/personal-project-order-writes'
+ import { RecordProjectOpenParams } from '../../../shared/rpc-contract/personal-project-order-params'
+diff --git a/src/shared/rpc-contract/structured-agent-session-params.ts b/src/shared/rpc-contract/structured-agent-session-params.ts
+index 13de82bc35b..21635c38825 100644
+--- a/src/shared/rpc-contract/structured-agent-session-params.ts
++++ b/src/shared/rpc-contract/structured-agent-session-params.ts
+@@ -1,3 +1,5 @@
++import { ExecutionLocation } from './structured-agent-session-location-params'
++export { ExecutionHostId, ExecutionLocation } from './structured-agent-session-location-params'
+ import {
+   SendBody,
+   MAX_OPTION_LABEL,

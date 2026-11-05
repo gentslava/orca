@@ -32,7 +32,7 @@ try {
     ? readLedger(api(`repos/${process.env.GITHUB_REPOSITORY}/issues/${config.statusIssue}`).body)
     : { tracked: [] }
   plan.previous = ledger
-  plan.upstream = api(`repos/${config.upstream}/commits/${config.base}`).sha
+  plan.upstream = api(`repos/${config.upstream}/git/ref/heads/${config.base}`).object.sha
   const own = []
   for (const author of config.authors) {
     const query = encodeURIComponent(
@@ -86,7 +86,8 @@ try {
         'conversation-project-order.patch',
         'settings-owner-relocations.patch',
         'model-fallback-next-turn-test.patch',
-        'reviewed-merge-target-paths.patch'
+        'reviewed-merge-target-paths.patch',
+        'upstream-module-relocations.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')

@@ -8,6 +8,7 @@ export function api(path, data) {
   return JSON.parse(
     execFileSync('gh', args, {
       encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
       input: data ? JSON.stringify(data) : undefined,
       stdio: ['pipe', 'pipe', 'pipe']
     })

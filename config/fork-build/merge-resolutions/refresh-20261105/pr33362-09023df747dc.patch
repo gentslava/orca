@@ -1,0 +1,24 @@
+--- a/src/renderer/src/components/settings/chat/ChatBehaviorSetting.test.tsx
++++ b/src/renderer/src/components/settings/chat/ChatBehaviorSetting.test.tsx
+@@ -160,18 +160,18 @@
+     expect(updateSettings).toHaveBeenCalledWith({ nativeChatQueueFollowUps: false })
+   })
+ 
+-  it('hides the switch until the host answers, then shows it', async () => {
++  it('keeps the choice disabled until the host confirms queue support', async () => {
+     setLocalRuntimeCapabilitiesForTests(null)
+     let answer: (status: { capabilities: string[] }) => void = () => {}
+     vi.stubGlobal('api', {
+       runtime: { getStatus: () => new Promise((resolve) => (answer = resolve)) }
+     })
+     const { container } = renderSetting({})
+-    expect(container.querySelector(FOLLOW_UP_SWITCH)).toBeNull()
++    expect(container.querySelector(FOLLOW_UP_SWITCH)?.hasAttribute('disabled')).toBe(true)
+     await act(async () =>
+       answer({ capabilities: [AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY] })
+     )
+-    expect(container.querySelector(FOLLOW_UP_SWITCH)).not.toBeNull()
++    expect(container.querySelector(FOLLOW_UP_SWITCH)?.hasAttribute('disabled')).toBe(false)
+   })
+ 
+   it.each([true, false, undefined])(

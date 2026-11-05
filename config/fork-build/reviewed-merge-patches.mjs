@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 
 export function reviewedMergePatches(cwd, paths, directory, git) {
@@ -30,11 +30,15 @@ export function reviewedMergePatches(cwd, paths, directory, git) {
     if (entry.patchSha256 !== hash) {
       throw new Error('Reviewed patch digest mismatch')
     }
+    if (entry.deleted === true && (entry.resultSha256 !== null || text.length !== 0)) {
+      throw new Error('Reviewed deletion must have an empty patch and no result digest')
+    }
     selected.set(path, {
       patch,
       ours: blobs[1] ? git(cwd, ['show', `:2:${path}`], {}, { raw: true }) : '',
       resultSha256: entry.resultSha256,
       hash,
+      deleted: entry.deleted === true,
       reason: entry.reason
     })
   }
@@ -42,6 +46,10 @@ export function reviewedMergePatches(cwd, paths, directory, git) {
 }
 
 export function applyReviewedMergePatch(cwd, path, entry, git) {
+  if (entry.deleted) {
+    rmSync(join(cwd, path), { force: true })
+    return { path, patchSha256: entry.hash, deleted: true, reason: entry.reason }
+  }
   writeFileSync(join(cwd, path), entry.ours)
   if (readFileSync(entry.patch).length) {
     git(cwd, ['apply', '--check', '--include', path, entry.patch])

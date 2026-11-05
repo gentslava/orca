@@ -1,5 +1,5 @@
 diff --git a/mobile/src/host-screen/HostConversations.tsx b/mobile/src/host-screen/HostConversations.tsx
-index d4f5aa9e336af975ac360b6cdb87578a371f10d5..e2aec316f7cb312ee943c368c311a3d32a51e4e5 100644
+index 5b8a2eed7cf..952ba67368d 100644
 --- a/mobile/src/host-screen/HostConversations.tsx
 +++ b/mobile/src/host-screen/HostConversations.tsx
 @@ -72,7 +72,8 @@ export function HostConversations({
@@ -13,7 +13,7 @@ index d4f5aa9e336af975ac360b6cdb87578a371f10d5..e2aec316f7cb312ee943c368c311a3d3
      [
        controller.projectCatalog,
 diff --git a/mobile/src/host-screen/conversation-project-order-sheet.tsx b/mobile/src/host-screen/conversation-project-order-sheet.tsx
-index 3eacfe967b3b027167e7c2ab8a73119f789965d1..70db778d7704ba7c42dbf2201e3885ada7d4a08f 100644
+index 3eacfe967b3..70db778d770 100644
 --- a/mobile/src/host-screen/conversation-project-order-sheet.tsx
 +++ b/mobile/src/host-screen/conversation-project-order-sheet.tsx
 @@ -26,7 +26,10 @@ export function ConversationProjectOrderSheet({
@@ -29,7 +29,7 @@ index 3eacfe967b3b027167e7c2ab8a73119f789965d1..70db778d7704ba7c42dbf2201e3885ad
      />
    )
 diff --git a/mobile/src/host-screen/project-conversation-order.ts b/mobile/src/host-screen/project-conversation-order.ts
-index c33099bb3ec45f5280d2f6438a0f73635311e67c..ae0c3226b4f2bfbd4db108207871c4e44d6e2c08 100644
+index c33099bb3ec..ae0c3226b4f 100644
 --- a/mobile/src/host-screen/project-conversation-order.ts
 +++ b/mobile/src/host-screen/project-conversation-order.ts
 @@ -1,3 +1,4 @@
@@ -84,7 +84,7 @@ index c33099bb3ec45f5280d2f6438a0f73635311e67c..ae0c3226b4f2bfbd4db108207871c4e4
      .map(([, project]) => project)
      .map((project) => ({
 diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
-index bb11351f88b9180f9d8d5bcddd1df517e319b06d..2219cd1a772da03031a40098e38006d2587b2ef9 100644
+index bb11351f88b..2219cd1a772 100644
 --- a/mobile/src/host-screen/project-conversations.test.ts
 +++ b/mobile/src/host-screen/project-conversations.test.ts
 @@ -1,3 +1,4 @@
@@ -156,10 +156,10 @@ index bb11351f88b9180f9d8d5bcddd1df517e319b06d..2219cd1a772da03031a40098e38006d2
 +  }
 +)
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
-index 899587323e44417562df885adc4b56f3948603af..be147e74aca84acab77aaffee380925c6093e677 100644
+index f4311272369..91faff612be 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
-@@ -50,7 +50,11 @@ function fixture(
+@@ -56,7 +56,11 @@ function fixture(
          liveLeafCount: 0,
          runtimeProtocolVersion: 3,
          minCompatibleRuntimeClientVersion: 2,
@@ -172,10 +172,11 @@ index 899587323e44417562df885adc4b56f3948603af..be147e74aca84acab77aaffee380925c
        })
        window.api.runtime.call = async (request) => {
          let result: unknown = {
-@@ -123,3 +127,15 @@ export const discoveredProjectActions = fixture(320, 'discovered')
- export const hiddenProjectRestore = fixture(320, 'hidden')
- 
+@@ -131,3 +135,16 @@ export const hiddenProjectRestore = fixture(320, 'hidden')
  export const registeredProjectActions = fixture(320, 'registered')
+ 
+ export const loadingProjects = fixture(320, 'loading')
++
 +
 +export const projectOrderModes = defineFixture({
 +  ...fixture(),
@@ -189,7 +190,7 @@ index 899587323e44417562df885adc4b56f3948603af..be147e74aca84acab77aaffee380925c
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
-index 903e81c3e680847133a09b5254980b2b32e8d56b..9aedb874f66f23e1004075bbc906bc3916e63d64 100644
+index dc26593c307..6811636b919 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 @@ -23,11 +23,15 @@ const state = vi.hoisted(() => {
@@ -216,7 +217,7 @@ index 903e81c3e680847133a09b5254980b2b32e8d56b..9aedb874f66f23e1004075bbc906bc39
    state.projectVisibilitySupported = true
    state.setPreference.mockReset().mockResolvedValue(undefined)
    state.setProjectHidden
-@@ -254,6 +259,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
+@@ -275,6 +280,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
      executionHostScope: 'all'
    })
    const [first, second] = screen.getAllByRole('region')
@@ -226,7 +227,7 @@ index 903e81c3e680847133a09b5254980b2b32e8d56b..9aedb874f66f23e1004075bbc906bc39
    if (!first || !second) {
      throw new Error('Expected both host-qualified projects')
    }
-@@ -263,6 +271,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
+@@ -284,6 +292,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
      'ssh:box',
      'local'
    ])
@@ -236,7 +237,7 @@ index 903e81c3e680847133a09b5254980b2b32e8d56b..9aedb874f66f23e1004075bbc906bc39
    expect(persist).toHaveBeenCalledWith({
      manualRepoOrder: [
        { hostId: 'ssh:box', repoId: 'same' },
-@@ -271,3 +282,51 @@ it('moves only the selected host project when adjacent projects share a repo id'
+@@ -292,3 +303,51 @@ it('moves only the selected host project when adjacent projects share a repo id'
    })
    vi.restoreAllMocks()
  })
@@ -289,7 +290,7 @@ index 903e81c3e680847133a09b5254980b2b32e8d56b..9aedb874f66f23e1004075bbc906bc39
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
-index ebb3fded58a863e1bb2fd7fc992ca1bf7c41008f..46ca748effb17af667784b311eb5fd3dcfe2d6ca 100644
+index 87af7ee97fa..2766af721d9 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 @@ -13,8 +13,6 @@ import {
@@ -358,7 +359,7 @@ index ebb3fded58a863e1bb2fd7fc992ca1bf7c41008f..46ca748effb17af667784b311eb5fd3d
          <Button
 diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..28f6abb300392381a8cbf10ca1add85e2eaca906
+index 00000000000..28f6abb3003
 --- /dev/null
 +++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 @@ -0,0 +1,45 @@
@@ -408,7 +409,7 @@ index 0000000000000000000000000000000000000000..28f6abb300392381a8cbf10ca1add85e
 +  )
 +}
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
-index 43985f8316ee8df70ffdbca7c14c4a0eda2532c7..d5e4c6664501309d884903d19876d64b83c8547b 100644
+index 41013a11e03..ea145ebcf19 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 @@ -131,3 +131,34 @@ describe('project conversation ownership', () => {
@@ -447,7 +448,7 @@ index 43985f8316ee8df70ffdbca7c14c4a0eda2532c7..d5e4c6664501309d884903d19876d64b
 +  expect(result.map((group) => group.executionHostId)).toEqual(['runtime:remote', 'local'])
 +})
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ts
-index 72540191974026c90de25b0f9af6cbd010c1d5c0..aa56fcb3752fb32fa4d944487eb7799d380becee 100644
+index 80075fa1143..482eaf1fa86 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ts
 @@ -28,6 +28,7 @@ import {
@@ -514,13 +515,13 @@ index 72540191974026c90de25b0f9af6cbd010c1d5c0..aa56fcb3752fb32fa4d944487eb7799d
    const hostsByLabel = new Map<string, Set<ExecutionHostId>>()
    for (const group of result) {
      const hosts = hostsByLabel.get(group.label) ?? new Set<ExecutionHostId>()
-diff --git a/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx b/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
-index f4a25ad424402fae0466f6c5931fbad5160bc62a..fd1db50471b135f43f729b1e9f9d88c0cf738a36 100644
---- a/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
-+++ b/src/renderer/src/components/sidebar/workspace-options-menu-items.tsx
+diff --git a/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx b/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
+index 2d1aaa08ac5..87813bc4a18 100644
+--- a/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
++++ b/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
 @@ -1,4 +1,4 @@
 -import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
-+import { ProjectOrderMenuItems } from './ProjectOrderMenuItems'
++import { ProjectOrderMenuItems } from '../../ProjectOrderMenuItems'
  import { Fragment, useMemo, type ComponentType, type JSX } from 'react'
  import { useAppStore } from '@/store'
  import {
