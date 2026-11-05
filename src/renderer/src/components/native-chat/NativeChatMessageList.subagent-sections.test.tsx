@@ -38,6 +38,8 @@ import type { NativeChatSubagentState } from '../../../../shared/native-chat/nat
 import { projectStructuredItemsToNativeChat } from '../../../../shared/agent-session/view/structured-agent-session-projection'
 
 import { NativeChatMessageList } from './NativeChatMessageList'
+import { NativeChatChildNavigationContext } from './native-chat-child-navigation'
+const childNavigation = { open: vi.fn() }
 
 import { session, stubLayout } from './native-chat-windowing-test-harness'
 
@@ -187,6 +189,20 @@ import { session, stubLayout } from './native-chat-windowing-test-harness'
     })
 
     // Journal turn records own subagent edits, even when a newer send is queued or the opener is unloaded.
+    it('shows the child patch from the parent rollup without opening its conversation', () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollTo').mockImplementation(() => {})
+      render(
+        <NativeChatChildNavigationContext.Provider value={childNavigation}>
+          {listOf('completed')}
+        </NativeChatChildNavigationContext.Provider>
+      )
+      expect(screen.queryByText('The PR is CLEAN.')).toBeNull()
+      fireEvent.click(screen.getByRole('button', { name: /src\/a.ts/ }))
+      expect(screen.getByText('Edited')).toBeVisible()
+      expect(screen.queryByText('The PR is CLEAN.')).toBeNull()
+      expect(childNavigation.open).not.toHaveBeenCalled()
+    })
+
     it("counts a subagent's edit in the turn the journal says it was made in", () => {
       const say = (itemId: string, role: 'user' | 'assistant', text: string, sequence: number) =>
         journalItem(itemId, { kind: 'message', role, blocks: [{ type: 'text', text }] }, sequence)
