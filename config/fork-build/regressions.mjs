@@ -38,7 +38,7 @@ export function runComposedRegressions(planPath, application) {
     .split('\n')
     .filter(Boolean)
   const suites = selectComposedRegressionSuites(paths)
-  const runner = join(root, 'config/scripts/run-vitest.mjs')
+  const runner = join(root, 'config/scripts/test-runtime/execution-policy/run-vitest.mjs')
   for (const [name, files] of Object.entries(suites)) {
     for (const file of files) {
       const path = name === 'mobile' ? join('mobile', file) : file

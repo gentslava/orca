@@ -5,7 +5,7 @@ import { api, readLedger, renderReport } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
 import { assertFrozenHead, compose, git } from './composition.mjs'
 import { controlFingerprint } from './promotion.mjs'
-import { createLocalBuildVersion } from '../scripts/build-mac-local.mjs'
+import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/build-mac-local.mjs'
 
 const here = import.meta.dirname
 const config = JSON.parse(readFileSync(join(here, 'selection.json'), 'utf8'))

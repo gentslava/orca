@@ -16,8 +16,8 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
-import macCompatibility from './mac-build-compatibility.cjs'
-import { isDirectInvocation } from './script-entry-detection.mjs'
+import macCompatibility from './desktop-distribution/macos/mac-build-compatibility.cjs'
+import { isDirectInvocation } from './tool-invocation/script-entry-detection.mjs'
 
 const { MAC_BUILD_COMPATIBILITY_FILENAME, createMacBuildCompatibility } = macCompatibility
 

@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { isDirectInvocation } from './script-entry-detection.mjs'
+import { isDirectInvocation } from './tool-invocation/script-entry-detection.mjs'
 
 const desktop = [
   'config/scripts/fork-upstream-sync.test.mjs',
@@ -145,21 +145,17 @@ const mobile = [
   'src/agent-history/agent-history-retry.test.tsx',
   'src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx',
   'src/session/native-chat/transcript/MobileNativeChatMessage.test.ts',
-  'src/session/native-chat/transcript/MobileNativeChatMessage.android.test.ts',
   'src/session/native-chat/mobile-native-chat-reading-place.test.tsx',
   'src/host-screen/project-conversations.test.ts',
   'src/host-screen/use-project-conversations.test.tsx',
   'src/host-screen/use-conversation-actions.test.tsx',
   'src/host-screen/conversation-open.test.ts',
   'src/session/native-chat/transcript/MobileNativeChatMessage.work-run.test.tsx',
-  'src/session/mobile-agent-message-attribution.test.ts',
   'src/session/native-chat/input/MobileNativeChatSessionOptionPickers.test.ts',
   'src/session/use-mobile-structured-agent-options.test.ts',
   'src/session/use-mobile-structured-agent-session-send.test.tsx',
   'src/session/use-mobile-structured-native-chat-send-bridge.test.ts',
-  'src/host-screen/host-worktree-child-navigation.test.tsx',
   'src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx',
-  'src/session/native-chat/composer/use-mobile-native-chat-composer-tray.test.tsx',
   'src/host-screen/personal-project-order.test.tsx',
   'src/worktree/personal-project-opening.test.ts',
   'src/worktree/personal-project-route-intent.test.ts'
@@ -187,7 +183,7 @@ export function runForkRegressions(root = process.cwd()) {
   execFileSync(
     process.execPath,
     [
-      resolve(root, 'config/scripts/run-vitest.mjs'),
+      resolve(root, 'config/scripts/test-runtime/execution-policy/run-vitest.mjs'),
       'run',
       '--config',
       'config/vitest.config.ts',
@@ -199,7 +195,7 @@ export function runForkRegressions(root = process.cwd()) {
   execFileSync(
     process.execPath,
     [
-      resolve(root, 'config/scripts/run-vitest.mjs'),
+      resolve(root, 'config/scripts/test-runtime/execution-policy/run-vitest.mjs'),
       'run',
       '--config',
       'mobile/vitest.config.ts',

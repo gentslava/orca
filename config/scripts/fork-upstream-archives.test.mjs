@@ -4,7 +4,7 @@ import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
-import macCompatibility from './mac-build-compatibility.cjs'
+import macCompatibility from './desktop-distribution/macos/mac-build-compatibility.cjs'
 import {
   measurePreviewApp,
   stagePreviewArchives,
