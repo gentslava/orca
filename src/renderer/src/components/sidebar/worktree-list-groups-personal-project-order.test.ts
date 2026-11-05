@@ -2,7 +2,7 @@ import { projectHostSetupProjectionFromRepos } from '../../../../shared/project-
 import { planSidebarRows } from '../../../../shared/sidebar-list/sidebar-row-plan'
 import { cloneDefaultWorkspaceStatuses } from '../../../../shared/workspace-statuses'
 import { describe, expect, it } from 'vitest'
-import { repo, worktree } from './worktree-list-groups-test-fixtures'
+import { repo, worktree } from './worktree-list/grouping/worktree-list-groups-test-fixtures'
 import type { ProjectGroup } from '../../../../shared/project-group-types'
 describe('personal project order through sidebar rows', () => {
   const alpha = {

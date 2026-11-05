@@ -21,6 +21,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
 
 import { agentSessionSendBodyFingerprint } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
+import type { AgentSessionQueuedMessage } from '../../../../shared/agent-session/requests/agent-session-queued-message-wire'
 import type { AgentSessionQueuedMessageEditHoldResult } from '../../../../shared/agent-session/requests/agent-session-queued-message-wire'
 
 import {

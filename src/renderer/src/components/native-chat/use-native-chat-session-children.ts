@@ -1,4 +1,4 @@
-import { createCoalescedPollRunner } from '../right-sidebar/coalesced-poll-runner'
+import { createCoalescedPollRunner } from '../../lib/repository-refresh/coalesced-poll-runner'
 import { useAppStore } from '@/store'
 import { useEffect, useMemo, useState } from 'react'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'

@@ -35,7 +35,7 @@ export async function dispatchNativeChatStructuredComposerText(
     }
   }
   const sendRequest = skills.length > 0 ? { ...request, skills } : request
-  const admission = sendRequest
+  const admission = sendRequest && Object.keys(sendRequest).length > 0
     ? transport.send(prompt, attachments, sendRequest)
     : transport.send(prompt, attachments)
   if (admission instanceof Promise) {

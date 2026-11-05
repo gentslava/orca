@@ -1,6 +1,8 @@
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import {
   attachMutationReplayNudge,
+  readMutationReplayNudge,
+  readWorkerDoneReplayNudge,
   type MutationReplayNudge
 } from '../../../orchestration-mutation-receipt'
 
@@ -62,4 +64,15 @@ export function replayMutationNudge(
   for (const target of replayNudge.targets) {
     runtime.notifyMessageArrived(target.to, target.type)
   }
+}
+
+export function readSendReplayNudge(
+  params: unknown,
+  receipt: unknown
+): MutationReplayNudge | undefined {
+  const legacy = readWorkerDoneReplayNudge('orchestration.send', params, receipt)
+  return (
+    readMutationReplayNudge(receipt) ??
+    (legacy ? { kind: 'messages', targets: [legacy] } : undefined)
+  )
 }

@@ -5,10 +5,10 @@ import { agentSessionPromptQuestions } from '../../../../shared/agent-session/ag
 import { NativeChatApprovalCard } from './NativeChatApprovalCard'
 import { NativeChatStructuredQuestionCard } from './NativeChatStructuredQuestionCard'
 import { chatApprovalFromJournal } from '../../../../shared/native-chat/input/native-chat-interactive-prompt'
-import { nativeChatStructuredAsyncQuestion } from './NativeChatStructuredAsyncQuestion'
+import { nativeChatStructuredQuestions } from './NativeChatStructuredAsyncQuestion'
 import type { useStructuredAgentSession } from './use-structured-agent-session'
 
-type AsyncQuestionContext = Parameters<typeof nativeChatStructuredAsyncQuestion>
+type AsyncQuestionContext = Parameters<typeof nativeChatStructuredQuestions>
 import type { StructuredPromptItem } from '../../../../shared/agent-session/view/structured-agent-session-message-projection'
 import type { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
 
@@ -31,7 +31,7 @@ export function NativeChatStructuredPromptSlot({
     Pick<ReturnType<typeof useStructuredAgentSession>, 'turnId' | 'cancel'>
   response: ReturnType<typeof useStructuredPromptResponseHold>
   shouldFocus: boolean
-  answerInputRef: RefObject<HTMLInputElement | null>
+  answerInputRef: RefObject<HTMLTextAreaElement | null>
   pane: AsyncQuestionContext[0]
   session: AsyncQuestionContext[2]
   transport: AsyncQuestionContext[3]
@@ -69,7 +69,7 @@ export function NativeChatStructuredPromptSlot({
           {...fileLinkProps}
         />
       ) : null}
-      {nativeChatStructuredAsyncQuestion(
+      {nativeChatStructuredQuestions(
         pane,
         controller,
         session,

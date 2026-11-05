@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   getProjectGroupHeaderSectionEndByGroupId,
   getRepoHeaderSectionEndByKey
-} from './worktree-header-section-boundaries'
+} from './worktree-list/viewport/worktree-header-section-boundaries'
 import type { RenderRow } from './worktree-list/listing/render-row'
 
 const repoHeader = (id: string): RenderRow =>

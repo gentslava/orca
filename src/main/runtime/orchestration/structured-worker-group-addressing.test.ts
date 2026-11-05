@@ -255,6 +255,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
       runtime: runtime as never,
       db: db as never,
       from: 'term_sender',
+      sender: { handle: 'term_sender', orcaSessionId: null },
       // `@worktree:` is the one group that still enumerates agents; the Run groups read
       // Dispatch rows, where a structured worker's identity is looked up by this same handle.
       groupAddress: '@worktree:wt_2',
