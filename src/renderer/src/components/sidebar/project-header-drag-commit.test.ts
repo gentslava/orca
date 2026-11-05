@@ -1,20 +1,20 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from 'vitest'
 
-import { commitProjectHeaderDragDrop } from './project-header-drag-commit'
-import type { ProjectHeaderDragSession } from './project-header-drag-contract'
+import { commitProjectHeaderDragDrop } from './worktree-list/drag/project-header-drag-commit'
+import type { ProjectHeaderDragSession } from './worktree-list/drag/project-header-drag-contract'
 import {
   getProjectHeaderDragBucketKey,
   getSidebarOrderedRepoHeaderRowsByBucket,
   getSidebarOrderedRepoHeaderIdsByBucket
-} from './project-header-drop'
+} from './worktree-list/drag/project-header-drop'
 import { planSidebarRows } from '../../../../shared/sidebar-list/sidebar-row-plan'
 import { projectHostSetupProjectionFromRepos } from '../../../../shared/project-host-setup-projection'
 import { cloneDefaultWorkspaceStatuses } from '../../../../shared/workspace-statuses'
 import type { ProjectGroup } from '../../../../shared/project-group-types'
-import type { RepoHeaderRow } from './project-header-drop'
+import type { RepoHeaderRow } from './worktree-list/drag/project-header-drop'
 import type { Repo } from '../../../../shared/repo-types'
-import { worktree } from './worktree-list-groups-test-fixtures'
+import { worktree } from './worktree-list/grouping/worktree-list-groups-test-fixtures'
 
 function makeRepo(id: string, overrides: Partial<Repo> = {}): Repo {
   return {

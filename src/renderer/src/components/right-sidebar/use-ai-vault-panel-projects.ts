@@ -1,7 +1,7 @@
-import { aiVaultSearchScopeIdentity } from './ai-vault-search-scope-identity'
+import { aiVaultSearchScopeIdentity } from './ai-vault/search/ai-vault-search-scope-identity'
 import { useMemo } from 'react'
 import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
-import { withAiVaultHistoryPreviews } from './ai-vault-search-session'
+import { withAiVaultHistoryPreviews } from './ai-vault/search/ai-vault-search-session'
 import {
   deriveAiVaultScopeSessionPaths,
   deriveAiVaultWorkspaceScopePaths
@@ -9,7 +9,7 @@ import {
 import {
   buildAiVaultProjectContext,
   buildAiVaultSessionProjectById
-} from './ai-vault-session-projects'
+} from './ai-vault/scope/ai-vault-session-projects'
 
 type ProjectContextArgs = Omit<Parameters<typeof buildAiVaultProjectContext>[0], 'sessions'>
 type SessionProjectArgs = Omit<Parameters<typeof buildAiVaultSessionProjectById>[0], 'sessions'>

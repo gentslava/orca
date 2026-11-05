@@ -99,7 +99,6 @@ const surface = {
   subscribe: vi.fn(() => vi.fn())
 }
 
-import { effort, fast, model, unknownEffort } from './native-chat-option-picker.test-fixture'
 
 const settle = (): Promise<void> => act(async () => {})
 

@@ -59,7 +59,7 @@ import {
   windowState
 } from './NativeChatMessageList.windowing-test-support'
 
-const childNavigation = { open: () => {} }
+const childNavigation = { open: vi.fn() }
 
 {
   function journalItem(
@@ -261,7 +261,7 @@ const childNavigation = { open: () => {} }
       expect(screen.getByRole('button', { name: /Ran 1 subagent/, expanded: false })).toBeVisible()
     })
 
-    it('reveals a child edit from the parent rollup when child conversation navigation is available', () => {
+    it('shows the child patch from the parent rollup without opening its conversation', () => {
       vi.spyOn(HTMLElement.prototype, 'scrollTo').mockImplementation(() => {})
       render(
         <NativeChatChildNavigationContext.Provider value={childNavigation}>
@@ -269,10 +269,10 @@ const childNavigation = { open: () => {} }
         </NativeChatChildNavigationContext.Provider>
       )
       expect(screen.queryByText('The PR is CLEAN.')).toBeNull()
-      fireEvent.click(screen.getByRole('button', { name: /1 changed file/ }))
       fireEvent.click(screen.getByRole('button', { name: /src\/a.ts/ }))
       expect(screen.getByText('Edited')).toBeVisible()
-      expect(screen.getByText('The PR is CLEAN.')).toBeVisible()
+      expect(screen.queryByText('The PR is CLEAN.')).toBeNull()
+      expect(childNavigation.open).not.toHaveBeenCalled()
     })
 
     // Journal turn records own subagent edits, even when a newer send is queued or the opener is unloaded.

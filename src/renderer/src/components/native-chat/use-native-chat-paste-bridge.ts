@@ -22,7 +22,7 @@ type NativeChatPasteBridgeRefs = {
   questionAnswerInputRef?: RefObject<HTMLInputElement | HTMLTextAreaElement | null>
 }
 
-function canPasteIntoAnswerInput(input: HTMLInputElement): boolean {
+function canPasteIntoAnswerInput(input: HTMLInputElement | HTMLTextAreaElement): boolean {
   return input.isConnected && !input.disabled && !input.closest('[hidden], [inert]')
 }
 

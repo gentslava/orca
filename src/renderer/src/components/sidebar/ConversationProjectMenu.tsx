@@ -14,7 +14,7 @@ import { getRepoExecutionHostId } from '../../../../shared/execution-host'
 import { getRepoOwnerWorktreeVisibilityDefaults } from '@/store/worktree-visibility-defaults-by-host'
 import { RepoHeaderProjectActionsMenu } from './worktree-list/rows/repo-header-project-actions'
 import { useProjectGroupDialogs } from './worktree-list/rows/use-project-group-dialogs'
-import { ProjectGroupNameDialog } from './ProjectGroupNameDialog'
+import { ProjectGroupNameDialog } from './worktree-list/rows/ProjectGroupNameDialog'
 import type { ConversationProjectGroup } from './project-conversation-groups'
 
 export function ConversationProjectMenu({
