@@ -1,3 +1,4 @@
+import { isStructuredAgentSessionComposerCommand } from '../../../src/shared/agent-session/view/structured-agent-session-composer'
 import { useCallback } from 'react'
 import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
 import type { StructuredAgentId } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle'

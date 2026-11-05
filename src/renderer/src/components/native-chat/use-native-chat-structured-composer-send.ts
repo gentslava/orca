@@ -10,7 +10,10 @@ import { isTuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent-co
 import { MAX_SKILL_REFS } from '../../../../shared/rpc-contract/structured-agent-session-message-params'
 import { SkillRefLimitError } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
 import { promptSkillRefs } from './native-chat-prompt-document'
-import type { StructuredAgentSessionAttachmentPreparation } from './structured-agent-session-send-slot'
+import type {
+  StructuredAgentSessionAttachmentPreparation,
+  StructuredAgentSessionSendRequest
+} from './structured-agent-session-send-slot'
 import { useCallback } from 'react'
 import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
 import {
@@ -34,7 +37,6 @@ import {
   updateNativeChatComposerDraft
 } from './native-chat-composer-draft-store'
 import { nativeChatComposerDraftLeftAfterSend } from './native-chat-composer-draft-comparison'
-import type { StructuredAgentSessionSendRequest } from './structured-agent-session-send-slot'
 import {
   admitNativeChatPastedText,
   projectNativeChatPastedText

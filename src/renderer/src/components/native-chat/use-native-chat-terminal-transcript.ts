@@ -74,24 +74,22 @@ export function useNativeChatTerminalTranscript({
       ),
     [delivery.pending, sessionAfterCommandBoundaries.messages, workingEpoch]
   )
+  const previewMessages = useMemo(
+    () =>
+      pendingMessages.length > 0
+        ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
+        : sessionAfterCommandBoundaries.messages,
+    [sessionAfterCommandBoundaries.messages, pendingMessages]
+  )
   const streamingText = useMemo(
     () =>
       deriveNativeChatStreamingText({
-        messages:
-          pendingMessages.length > 0
-            ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
-            : sessionAfterCommandBoundaries.messages,
+        messages: previewMessages,
         previewText,
         working,
         previewIsToolOutput
       }),
-    [
-      sessionAfterCommandBoundaries.messages,
-      pendingMessages,
-      previewText,
-      working,
-      previewIsToolOutput
-    ]
+    [previewMessages, previewText, working, previewIsToolOutput]
   )
   const sessionWithPending = useMemo<NativeChatLiveSession>(() => {
     if (delivery.pending.length === 0 && commandMarkers.length === 0 && !streamingText) {

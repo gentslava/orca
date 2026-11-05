@@ -27,7 +27,7 @@ import { StartupWorktreeRefreshStatus } from './StartupWorktreeRefreshStatus'
 
 // Keep the Agents activity pipeline out of the workspace view’s initial bundle.
 const SidebarAgentsList = lazyWithRetry(() => import('./SidebarAgentsList'))
-const ConversationHistory = lazyWithRetry(() => import('../right-sidebar/AiVaultPanel'))
+const ConversationHistory = lazyWithRetry(() => import('../right-sidebar/ai-vault/panel/AiVaultPanel'))
 
 const WorktreeMetaDialog = lazyWithRetry(
   () => import('./workspace-card/metadata/WorktreeMetaDialog')

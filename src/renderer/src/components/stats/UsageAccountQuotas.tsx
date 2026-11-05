@@ -8,10 +8,10 @@ import { Progress } from '../ui/progress'
 import { getWindowSections, ProviderIcon } from '../status-bar/tooltip'
 import { formatPlanLabel } from '../status-bar/usage-roster-formatting'
 import {
-  getProviderDisplayName,
   getProviderUsageErrorMessage
 } from '../status-bar/usage-error-copy'
-import { formatWindowLabel } from '@/lib/window-label-formatter'
+import { getProviderDisplayName } from '../../../../shared/usage-provider-windows'
+import { formatWindowLabel } from '../../../../shared/rate-limit-window-label'
 import { getIntlLocale, translate } from '@/i18n/i18n'
 import type { ProviderAccountsSnapshot } from '@/runtime/runtime-provider-accounts-client'
 import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'

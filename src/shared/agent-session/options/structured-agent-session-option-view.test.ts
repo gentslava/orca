@@ -1,3 +1,4 @@
+import { shownModelAndEffort as shown } from './structured-agent-session-option-values.test-fixture'
 import { structuredAgentSessionSeedCatalog } from './structured-agent-session-seed-catalog'
 import { describe, expect, it } from 'vitest'
 import {
@@ -67,15 +68,6 @@ const stopped = (
     listedModelIds: listed,
     current: { model, effort }
   })
-
-function shown(...args: Parameters<typeof structuredAgentSessionOptionView>) {
-  const snapshot = structuredAgentSessionOptionSnapshot(structuredAgentSessionOptionView(...args))
-  const value = (id: string) => {
-    const kind = snapshot.find((descriptor) => descriptor.id === id)?.kind
-    return kind?.type === 'select' ? kind.currentValue : undefined
-  }
-  return { model: value('model'), effort: value('effort') }
-}
 
 const carried = (
   state: StructuredAgentSessionOptionState,

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFile, writeFile } from 'node:fs/promises'
-import { parsePairingCode } from '../../../src/shared/pairing.ts'
-import { pairedRuntimeConnectionFromOffer } from '../../../src/shared/paired-runtime-connection.ts'
+import { parsePairingCode } from '../../../src/shared/remote-runtime/pairing/pairing'
+import { pairedRuntimeConnectionFromOffer } from '../../../src/shared/remote-runtime/pairing/paired-runtime-connection'
 import { RemoteRuntimeRequestConnection } from '../../../src/shared/remote-runtime/requests/remote-runtime-request-connection.ts'
 
 async function main() {

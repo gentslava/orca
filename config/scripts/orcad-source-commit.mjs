@@ -1,4 +1,4 @@
-import { resolveBuildSourceCommit } from './build-source-commit.mjs'
+import { resolveBuildSourceCommit } from './build-identity/build-source-commit.mjs'
 
 export function resolveOrcadSourceCommit(
   env = process.env,

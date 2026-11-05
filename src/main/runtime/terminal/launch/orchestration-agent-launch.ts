@@ -13,7 +13,7 @@ import {
 } from '../../../../shared/agent-launch/startup/tui-agent-startup-shell'
 import { isTuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent-config'
 import { resolveConfiguredWorkerAgent } from '../../orchestration/configured-worker-agent-selector'
-import { newWorktreeLaunchScope, resolveAgentLaunchRuntime } from '../../agent-launch-scope-runtime'
+import { newWorktreeLaunchScope, resolveAgentLaunchRuntime } from './agent-launch-scope-runtime'
 import { parseWslUncPath } from '../../../../shared/wsl-paths'
 import { resolveOpenCodeModelLaunchRoute } from '../../../opencode/opencode-model-startup-plan'
 import { resolveAgentStartupPlanInputs } from '../../../../shared/agent-launch/startup/agent-startup-plan-inputs'

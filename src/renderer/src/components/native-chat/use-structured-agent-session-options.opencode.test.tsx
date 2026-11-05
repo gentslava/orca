@@ -23,6 +23,7 @@ afterEach(() => {
 it.each([true, false])(
   'discovers a draft-held target only on a capable paired host (%s)',
   async (capable) => {
+    mocks.supportsRemote.mockResolvedValue(false)
     mocks.effortDiscovery = capable
     mocks.call.mockReset()
     mocks.hold.mockReset()
