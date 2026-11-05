@@ -1,8 +1,3 @@
-import { createMemoryNativeChatComposerDraftStorage, setNativeChatComposerDraftStorageForTests } from './native-chat-composer-draft-storage'
-import { structuredAgentSessionSendBody } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
-import { writeNativeChatDraftCache } from './native-chat-draft-cache'
-import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
-import { dispatchNativeChatStructuredComposerText } from './native-chat-structured-composer-dispatch'
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
@@ -21,12 +16,18 @@ import {
   updateNativeChatComposerDraft
 } from './native-chat-composer-draft-store'
 import { handBackStructuredAgentSessionMessage } from './structured-agent-session-message-hand-back'
-
+import { dispatchNativeChatStructuredComposerText } from './native-chat-structured-composer-dispatch'
+import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
 import { fileReferenceContent, promptSkillRefs } from './native-chat-prompt-document'
-
+import { writeNativeChatDraftCache } from './native-chat-draft-cache'
 import { formatNativeChatFileReference } from '../../../../shared/agent-image-paste'
-import { promptEditor, promptValue } from './native-chat-prompt-editor.test-support'
+import { promptValue } from './native-chat-prompt-editor.test-support'
 import { imageReferenceToken as chip } from '../../../../shared/native-chat/native-chat-image-reference'
+import { structuredAgentSessionSendBody } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
+import {
+  createMemoryNativeChatComposerDraftStorage,
+  setNativeChatComposerDraftStorageForTests
+} from './native-chat-composer-draft-storage'
 
 vi.mock('@/i18n/i18n', () => ({
   translate: (_key: string, fallback: string, values?: Record<string, unknown>) =>
@@ -122,129 +123,77 @@ function fileReferences(document: JSONContent | undefined): string[] {
   )
 }
 
+function transport(send: NativeChatStructuredComposerTransport['send']) {
+  const value: NativeChatStructuredComposerTransport = {
+    capturePresentation: () => () => true,
+    send,
+    dispatchCommand: async () => ({ handled: false, accepted: false, error: null }),
+    optionsSurface: {
+      getSnapshot: () => [],
+      setOption: vi.fn(),
+      invokeAction: vi.fn(),
+      subscribe: () => () => {}
+    },
+    optionSnapshot: [],
+    onError: vi.fn(),
+    runtime: 'local',
+    sessionId: 's1',
+    runtimeEnvironmentId: null
+  }
+  return value
+}
+
 afterEach(() => {
   cleanup()
   clearNativeChatAttachmentCacheForTests()
   setNativeChatComposerDraftStorageForTests(null)
 })
 
-describe('composer image chips', () => {
-  it('removes every chip of a removed thumbnail, and keeps the thumbnail when a chip is deleted', async () => {
-    const composer = renderComposer('tab-1:pane')
-    const kept = begin(composer)
-    const removed = begin(composer)
-    act(() => {
-      promptEditor(composer.textbox()).commands.insertContent({
-        type: 'nativeChatImageReference',
-        attrs: { attachmentId: removed }
-      })
-    })
-    await waitFor(() => expect(composer.chips()).toHaveLength(3))
-
-    act(() => composer.api().removeImageAttachment(removed))
-    await waitFor(() => expect(composer.chips()).toEqual(['Image #1']))
-
-    act(() => promptEditor(composer.textbox()).commands.setContent({ type: 'doc', content: [] }))
-    expect(composer.api().imageAttachments.map(({ id }) => id)).toEqual([kept])
-  })
-
-  it('takes a failed upload’s chip from its own conversation while another is shown', () => {
-    updateNativeChatComposerDraft('chat-b', { text: 'B draft' }, 'immediate')
+describe('composer image attachment context', () => {
+  it('keeps text and a selected range intact through pending, resolved, failed and removed images', () => {
+    updateNativeChatComposerDraft('chat-a', { text: 'before selected after' }, 'immediate')
     const composer = renderComposer('chat-a')
+    act(() => composer.input().setSelectionRange(7, 15))
+    const selection = () => [composer.input().selectionStart, composer.input().selectionEnd]
+    const first = begin(composer)
     const failed = begin(composer)
-    const fromA = composer.api()
-    composer.show('chat-b')
-
-    act(() => {
-      fromA.dropPendingImageAttachment(failed)
-    })
-
-    expect(promptValue(composer.textbox())).toBe('B draft')
-    expect(readNativeChatComposerDraft('chat-b').text).toBe('B draft')
-    expect(readNativeChatComposerDraft('chat-a').text).toBe('')
+    act(() => composer.api().resolvePendingImageAttachment(first, '/up/a.png'))
+    act(() => composer.api().dropPendingImageAttachment(failed))
+    expect(composer.api().imageAttachments.map(({ id }) => id)).toEqual([first])
+    expect(promptValue(composer.textbox())).toBe('before selected after')
+    expect(selection()).toEqual([7, 15])
+    expect(composer.chips()).toEqual([])
+    act(() => composer.api().removeImageAttachment(first))
+    expect(promptValue(composer.textbox())).toBe('before selected after')
+    expect(selection()).toEqual([7, 15])
   })
 
-  it('never touches a file pill named like a marker, in the editor or a stored draft', () => {
-    const pill = '/tmp/[Image #2].md'
+  it('keeps image order when uploads settle out of order and sends each image once', async () => {
     const composer = renderComposer('chat-a')
-    const shown = begin(composer)
-    act(() => {
-      promptEditor(composer.textbox()).commands.insertContent([fileReferenceContent(pill)])
-    })
-    const hidden = begin(composer)
-    const fromA = composer.api()
-    act(() => fromA.removeImageAttachment(shown))
-    expect(promptValue(composer.textbox())).toContain(formatNativeChatFileReference(pill))
-
-    composer.show('chat-b')
-    act(() => {
-      fromA.dropPendingImageAttachment(hidden)
-    })
-    const stored = readNativeChatComposerDraft('chat-a')
-    expect(stored.text).toBe(`${formatNativeChatFileReference(pill)} `)
-    expect(fileReferences(stored.document)).toEqual([pill])
+    const first = begin(composer)
+    const second = begin(composer)
+    act(() => composer.api().resolvePendingImageAttachment(second, '/up/b.png'))
+    act(() => composer.api().attachResolvedPaths(['/up/c.png']))
+    act(() => composer.api().resolvePendingImageAttachment(first, '/up/a.png'))
+    const images = composer.api().imageAttachments
+    expect(images.map(({ path }) => path)).toEqual(['/up/a.png', '/up/b.png', '/up/c.png'])
+    const send = vi.fn(() => true)
+    await dispatchNativeChatStructuredComposerText(transport(send), composer.input().value, images)
+    expect(send).toHaveBeenCalledWith('', images)
+    expect(
+      structuredAgentSessionSendBody(
+        '',
+        images.map((image) => ({ ...image, previewUri: '' }))
+      ).blocks
+    ).toEqual([
+      { type: 'image-ref', path: '/up/a.png' },
+      { type: 'image-ref', path: '/up/b.png' },
+      { type: 'image-ref', path: '/up/c.png' }
+    ])
   })
 
-  it('keeps one chip bound to an unavailable image attached again while it uploads', async () => {
-    updateNativeChatComposerDraft(
-      'tab-1:pane',
-      {
-        text: `look ${chip('missing')}`,
-        images: [{ id: 'missing', path: '', unavailableName: 'shot.png' }]
-      },
-      'immediate'
-    )
-    const composer = renderComposer('tab-1:pane')
-    const upload = begin(composer, 'shot.png')
-    act(() => composer.api().resolvePendingImageAttachment(upload, '/up/shot.png'))
-
-    expect(composer.api().imageAttachments).toMatchObject([{ id: 'missing', path: '/up/shot.png' }])
-    await waitFor(() => expect(composer.chips()).toEqual(['Image #1']))
-    expect(promptValue(composer.textbox())).toBe(`look ${chip('missing')}`)
-  })
-
-  it('leaves a file path that reads like a marker as typed when a message comes back', () => {
-    const scope = structuredAgentSessionDraftScopeKey('s1')
-    const file = formatNativeChatFileReference('/repo/[Image #1].md')
-    handBackStructuredAgentSessionMessage(
-      's1',
-      'm1',
-      message(`see ${file} and [Image #1]`, ['/up/a.png'])
-    )
-    expect(readNativeChatComposerDraft(scope).text).toBe(`see ${file} and ${chip('returned-m1-1')}`)
-  })
-
-  it('keeps a stored draft’s file reference when a message comes back', async () => {
-    const scope = structuredAgentSessionDraftScopeKey('s1')
-    const composer = renderComposer(scope)
-    act(() => {
-      promptEditor(composer.textbox()).commands.insertContent([fileReferenceContent('/repo/a.md')])
-    })
-    cleanup()
-    handBackStructuredAgentSessionMessage('s1', 'm1', message('see [Image #1]', ['/up/a.png']))
-
-    const back = renderComposer(scope)
-    expect(fileReferences(readNativeChatComposerDraft(scope).document)).toEqual(['/repo/a.md'])
-    await waitFor(() => expect(back.chips()).toEqual(['Image #1']))
-  })
-
-  it('adds a returned message once even after typing, by its image ids', () => {
-    const scope = structuredAgentSessionDraftScopeKey('s1')
-    const returned = message('see [Image #1]', ['/up/a.png'])
-    handBackStructuredAgentSessionMessage('s1', 'm1', returned)
-    updateNativeChatComposerDraft(
-      scope,
-      { text: `${readNativeChatComposerDraft(scope).text} and more` },
-      'immediate'
-    )
-    handBackStructuredAgentSessionMessage('s1', 'm1', returned)
-    expect(readNativeChatComposerDraft(scope)).toMatchObject({
-      text: `see ${chip('returned-m1-1')} and more`,
-      images: [{ id: 'returned-m1-1' }]
-    })
-  })
-
-  it('settles a late upload into its own conversation, bound by the same id, while another is shown', async () => {
+  it('settles a late upload into its original scope without changing either text draft', () => {
+    updateNativeChatComposerDraft('chat-a', { text: 'A draft' }, 'immediate')
     updateNativeChatComposerDraft('chat-b', { text: 'B draft' }, 'immediate')
     const composer = renderComposer('chat-a')
     const upload = begin(composer)
