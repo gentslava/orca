@@ -9,7 +9,6 @@ import { createElement, useState } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
-import '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
 import { DISPATCH_REJECTED_CANCELLED } from '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
 import type { RpcClient } from '../transport/rpc-client'
 import {
