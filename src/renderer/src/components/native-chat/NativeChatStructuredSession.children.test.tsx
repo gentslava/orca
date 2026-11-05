@@ -94,6 +94,7 @@ vi.mock('./NativeChatMessageList', () => ({
     subagentRoster?: StructuredAgentSubagentRoster
   }) => {
     useImperativeHandle(ref, () => ({
+      readerAtEnd: () => true,
       revealLatest: () => {},
       revealFindMatch: () => {},
       messageCopyText: () => null

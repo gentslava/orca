@@ -3,11 +3,11 @@ import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { JournalHostDatabase } from '../../../src/main/native-chat/agent-session-journal/journal-host-database.ts'
 import { openAgentSessionJournal } from '../../../src/main/native-chat/agent-session-journal/journal-store-factory.ts'
-import { AGENT_JOURNAL_THREAD_SCOPE } from '../../../src/shared/agent-session-journal-types.ts'
-import { codexProviderHandle } from '../../../src/shared/agent-session-provider-handle-encoding.ts'
+import { AGENT_JOURNAL_THREAD_SCOPE } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
+import { codexProviderHandle } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
 import { createOrcadSecretStore } from '../../../src/main/orcad/orcad-secret-store.ts'
 import { resolveStructuredAgentCommand } from '../../../src/main/native-chat/structured-agent-command-resolution.ts'
-import { encodePairingOffer, parsePairingCode } from '../../../src/shared/pairing.ts'
+import { encodePairingOffer, parsePairingCode } from '../../../src/shared/remote-runtime/pairing/pairing'
 
 async function main() {
   const create = process.argv.includes('--create')
