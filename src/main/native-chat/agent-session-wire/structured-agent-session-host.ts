@@ -1,3 +1,4 @@
+import { backgroundAdmission } from './structured-agent-session-background-message'
 import * as usageLimit from './structured-agent-session-host-background'
 import { createStructuredAgentSessionConversationReads } from './structured-agent-session-conversation-reads'
 import { continuationContextReader as contextReader } from './structured-agent-session-continuation-context'
@@ -320,6 +321,7 @@ export class StructuredAgentSessionHost {
   appendAgentStart = this.startJournal.appendAgentStart
 
   currentWork = this.clientDelivery.readCurrentWork
+  canAdmitBackgroundMessage = backgroundAdmission(() => this.sessions, this.currentWork)
   readCurrentRequests: BackgroundTasks['currentRequests'] = (...args) =>
     this.backgroundTasks.currentRequests(...args)
 
@@ -337,8 +339,7 @@ export class StructuredAgentSessionHost {
   /** Retains no per-session subscription. */
   subscribeStatus = this.clientDelivery.subscribeStatus
   publishConversationName = this.clientDelivery.publishConversationName
-  regenerateConversationName = (sessionId: string): boolean =>
-    this.deps.conversationNaming?.regenerate(sessionId) ?? false
+  regenerateConversationName = (id: string) => this.deps.conversationNaming?.regenerate(id) ?? false
   setUserConversationName: HostTypes.SetUserConversationName = (...args) =>
     this.deps.conversationNaming?.setUserName(...args) ?? Promise.resolve(null)
 
