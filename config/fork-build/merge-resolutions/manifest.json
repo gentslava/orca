@@ -96,18 +96,6 @@
     "reason": "Keep durable desktop navigation and filtering, mobile selected-session retention and catalog provenance; isolate selected-session cache keys while bypassing transcript cache for structured catalogs."
   },
   {
-    "path": "mobile/src/i18n/locales/en.json",
-    "blobs": [
-      "59ec102005379685abaea65d40ef138fb98e17c0",
-      "62478ded00da5884570d3fa61dc83ded3ec2529c",
-      "c704d7ba5eaf9342f55fa78943baa1e66d0fb83f"
-    ],
-    "patch": "refresh-20261106/pr33395-d8bbab451773.patch",
-    "patchSha256": "d9dbec7c578611436b9b9b540886aeeeeabdc3702b29c7ba42b46175d287bf00",
-    "resultSha256": "c070ac8a545d9bea07e3f6714f11830eae6fb725c6d4c0343d7bba670525490e",
-    "reason": "Combine explicit default model choices and pending-pick send fences with queue capability and immediate-steer routing; retain both capability fields and independent translation additions."
-  },
-  {
     "path": "mobile/src/i18n/locales/ru.json",
     "blobs": [
       "938242d3be9e0a20cdb3324338009d404e82b1ed",
@@ -117,42 +105,6 @@
     "patch": "refresh-20261106/pr33395-0093458208d8.patch",
     "patchSha256": "12983e75953a624cfd03055d5b425f76b12b0e474cb650aceee392e3f2191d94",
     "resultSha256": "3ff7495043a0713164fcab6302a672a0b2e64ccea70b8b63f491d186875a854c",
-    "reason": "Combine explicit default model choices and pending-pick send fences with queue capability and immediate-steer routing; retain both capability fields and independent translation additions."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
-    "blobs": [
-      "a5011e47b2af179a96040f72657d649c07476758",
-      "0a7b1d49a3cc9d7c50f127b6abe342f826c9f51b",
-      "006dd2cb3e90047b127677323a9c8d6de9cda00c"
-    ],
-    "patch": "refresh-20261106/pr33395-4a20a86a2c4e.patch",
-    "patchSha256": "e470db802df4505ace6f870de9a7496d95af6d457d894c9367c3341201e154a0",
-    "resultSha256": "471b141c2517100e7c73cd0f1c5329d6048c7b180ae60a76e718254957df2675",
-    "reason": "Combine explicit default model choices and pending-pick send fences with queue capability and immediate-steer routing; retain both capability fields and independent translation additions."
-  },
-  {
-    "path": "src/renderer/src/i18n/locales/en.json",
-    "blobs": [
-      "6839faba036799a676e04b615cd40a20baba14cc",
-      "3980c082c2b6a4871378e1d4c53794c9be6f4c45",
-      "68ce1dffffd7d5c013d202926951d12375650985"
-    ],
-    "patch": "refresh-20261106/pr33395-927f1d2c29b2.patch",
-    "patchSha256": "5b172d9dc622f752d3e75b7391843f47d8e3d31e8699260628b1bea7a82cab32",
-    "resultSha256": "f0a364cf47875f60e1e2c14cf8cef930f7991ce4f0dad25a2059715c843b396f",
-    "reason": "Combine explicit default model choices and pending-pick send fences with queue capability and immediate-steer routing; retain both capability fields and independent translation additions."
-  },
-  {
-    "path": "src/renderer/src/i18n/locales/ru.json",
-    "blobs": [
-      "9526985774870e78f1952e835f8b941761690edb",
-      "e7a9f01ebdfafd529fc583c6bd65fa45f3623eb3",
-      "7beebc0df1a5ae054afa4b10a1c62580b531db53"
-    ],
-    "patch": "refresh-20261106/pr33395-58923bac0eb0.patch",
-    "patchSha256": "73f8481ff511a5e3b543ec982c91370650e2923d7200c94857135d02b59f059f",
-    "resultSha256": "de2ddd1bfcb1200f2ab0b9f6f947b33d0f955d0c68b6b84c8f2baeb14c97b08d",
     "reason": "Combine explicit default model choices and pending-pick send fences with queue capability and immediate-steer routing; retain both capability fields and independent translation additions."
   },
   {
@@ -468,18 +420,6 @@
     "reason": "Connect the last-queued-message action to the retained parent composer without replacing child navigation or extracted owner-question prompts."
   },
   {
-    "path": "src/renderer/src/components/native-chat/use-structured-agent-session.ts",
-    "blobs": [
-      "e5623ea147316217264439b4af65240de9ecc00d",
-      "777c0ab86ef2c7a8c420c9fd73422db669918459",
-      "163d0ee144282f138c31d674409c3e43ba8f1549"
-    ],
-    "patch": "refresh-20261106/prbackground-5904705f252b.patch",
-    "patchSha256": "837351c3e5aa3fce364b49f9e78d1f871970f4cb27b0ce16f84ac90979cdc831",
-    "resultSha256": "b44195c848cd75c311dde13ba371fd61d1139fb7a92f72aa836fc96fd6c11b00",
-    "reason": "Preserve child transcript navigation, complete tool inspection and settled task history while adding native foreground actions; reuse existing prompt renderer with visible owner questions and task controls."
-  },
-  {
     "path": "mobile/src/i18n/locales/en.json",
     "blobs": [
       "59ec102005379685abaea65d40ef138fb98e17c0",
@@ -684,30 +624,6 @@
     "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
   },
   {
-    "path": "src/renderer/src/components/native-chat/NativeChatBackgroundTasksStatus.tsx",
-    "blobs": [
-      "ab08256e87dbe23f53cd8789a3169f8c4862ac77",
-      "10ed709c7bfa61d81613fe5d0376769b0845a4b9",
-      "75e7221e060b2c600d53dc3a8ddc2e34dd099d0a"
-    ],
-    "patch": "refresh-20261106/prbackground-a7c4e84f2a0d.patch",
-    "patchSha256": "bb7e426123bea45bb89f8f35ec9922c11d21f15eed5ebc5061149c99d9b576af",
-    "resultSha256": "33220053addf561bebde96ac912321001b526dd3f9cf66fdd46765f267b96cd5",
-    "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx",
-    "blobs": [
-      "acfd09d4c8652187ca65e4de8a226b9ca9bb0eaa",
-      "b27b3aa719ac22b8a65cb7ada8094dd81d311ace",
-      "98e6e003de434a8b6f3d23c40b0e10b6d1892786"
-    ],
-    "patch": "refresh-20261106/prbackground-e182788d3794.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "471b3d14771545eb712eb4ad09ac47c39cd8d9336a0c18010111b5d37ba464b4",
-    "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
-  },
-  {
     "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
     "blobs": [
       "88453e6f9ed8527e8155ccac28acb2b30e0b2bb6",
@@ -720,18 +636,6 @@
     "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
   },
   {
-    "path": "src/renderer/src/components/native-chat/NativeChatToolLine.tsx",
-    "blobs": [
-      "949f92c850a2262b46733356f6eeda3dc3f3c3b0",
-      "81f0a3883d7d56fb80e08155ad1bf46094fd6137",
-      "3df0ce15316ca68de36408723056824552044ef0"
-    ],
-    "patch": "refresh-20261106/prbackground-62f54203bace.patch",
-    "patchSha256": "6ecaeeaace4f8e3cbf7690300d2101779ac614369b100194f7805b338538594a",
-    "resultSha256": "18c960ddf82696fe3882a9f585a627fcd8a7f252e46f51c607cbde2093336bdc",
-    "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
-  },
-  {
     "path": "src/renderer/src/components/native-chat/use-structured-agent-session.ts",
     "blobs": [
       "e5623ea147316217264439b4af65240de9ecc00d",
@@ -741,18 +645,6 @@
     "patch": "refresh-20261106/prbackground-5904705f252b.patch",
     "patchSha256": "e636722723afb8cfb71c61ded522c558d2352351c30adced09a00e6ec1fae5e3",
     "resultSha256": "e9761937fa97a110ad16b6166f37069d0ac643c3ba70d59ad8916f6a2626eb92",
-    "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
-  },
-  {
-    "path": "src/shared/structured-session-background-tasks-view.ts",
-    "blobs": [
-      "4fa3e7efb1673e56870b17bf6183ec678c36d034",
-      "b9aa9401cbf0830b2daf8be31c9628e2651ac7da",
-      "2e35dfb89adf681a79d7b14bb8f817e3e843fff3"
-    ],
-    "patch": "refresh-20261106/prbackground-f029509343e0.patch",
-    "patchSha256": "34fae03557f7f13eb0d57a2c7ab6dae2db069b3d729e3102ec0dd03c1da0ae4a",
-    "resultSha256": "3489772b34e85d3f64e1f3cf6a42c6572a1bd76606345a729a6dedfd13ff12b2",
     "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
   },
   {
@@ -803,5 +695,77 @@
     "patchSha256": "b4937a093ce2c3edd00b77c5e9a523bfff246367b5e5fc0acb24739a08dcac61",
     "resultSha256": "f79ab9e8c5e87e01cded8549b2bb9fcca9e11a9a74f84c66747602674e77e8ff",
     "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatBackgroundTasksStatus.tsx",
+    "blobs": [
+      "ab08256e87dbe23f53cd8789a3169f8c4862ac77",
+      "10ed709c7bfa61d81613fe5d0376769b0845a4b9",
+      "75e7221e060b2c600d53dc3a8ddc2e34dd099d0a"
+    ],
+    "patch": "refresh-20261106/prbackground-a7c4e84f2a0d-e76c5dead1.patch",
+    "patchSha256": "bb7e426123bea45bb89f8f35ec9922c11d21f15eed5ebc5061149c99d9b576af",
+    "resultSha256": "33220053addf561bebde96ac912321001b526dd3f9cf66fdd46765f267b96cd5",
+    "reason": "Preserve current owner questions, retained child navigation and task history while exposing the same foreground invocation in tool rows and task controls."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "acfd09d4c8652187ca65e4de8a226b9ca9bb0eaa",
+      "b27b3aa719ac22b8a65cb7ada8094dd81d311ace",
+      "98e6e003de434a8b6f3d23c40b0e10b6d1892786"
+    ],
+    "patch": "refresh-20261106/prbackground-e182788d3794-84f6d1bec4.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "471b3d14771545eb712eb4ad09ac47c39cd8d9336a0c18010111b5d37ba464b4",
+    "reason": "Preserve current owner questions, retained child navigation and task history while exposing the same foreground invocation in tool rows and task controls."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "ec550a2c41725f17a4e3192c2e662e3b84c0eafe",
+      "2d7ee576a70cf3b530b676080993f7ef1d0583d7",
+      "a72f77df0aadc946018a9a75d12bffef9d28955c"
+    ],
+    "patch": "refresh-20261106/prbackground-1d7a4539911b-27ce2ac98c.patch",
+    "patchSha256": "bc25d20e472f7bddfcafdb45bd338700877ae7689fde68d40bd1a3d6d28b37ea",
+    "resultSha256": "26f6acb266cdb894d17b0f799a539a614ed7d5c6eb267e5914eaab9814244ae1",
+    "reason": "Preserve current owner questions, retained child navigation and task history while exposing the same foreground invocation in tool rows and task controls."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolLine.tsx",
+    "blobs": [
+      "949f92c850a2262b46733356f6eeda3dc3f3c3b0",
+      "81f0a3883d7d56fb80e08155ad1bf46094fd6137",
+      "3df0ce15316ca68de36408723056824552044ef0"
+    ],
+    "patch": "refresh-20261106/prbackground-62f54203bace-fdb40aab45.patch",
+    "patchSha256": "6ecaeeaace4f8e3cbf7690300d2101779ac614369b100194f7805b338538594a",
+    "resultSha256": "18c960ddf82696fe3882a9f585a627fcd8a7f252e46f51c607cbde2093336bdc",
+    "reason": "Preserve current owner questions, retained child navigation and task history while exposing the same foreground invocation in tool rows and task controls."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session.ts",
+    "blobs": [
+      "d3edc5e40531ef3abb20c2af5578c44748fbc532",
+      "9d415d54b4e7b1047d8ce02723305d9e6a5a4172",
+      "d173e2aa0a8c8f48b704afea2d989918f8e39df9"
+    ],
+    "patch": "refresh-20261106/prbackground-5904705f252b-fef5be244f.patch",
+    "patchSha256": "e636722723afb8cfb71c61ded522c558d2352351c30adced09a00e6ec1fae5e3",
+    "resultSha256": "e9761937fa97a110ad16b6166f37069d0ac643c3ba70d59ad8916f6a2626eb92",
+    "reason": "Preserve current owner questions, retained child navigation and task history while exposing the same foreground invocation in tool rows and task controls."
+  },
+  {
+    "path": "src/shared/structured-session-background-tasks-view.ts",
+    "blobs": [
+      "4fa3e7efb1673e56870b17bf6183ec678c36d034",
+      "b9aa9401cbf0830b2daf8be31c9628e2651ac7da",
+      "2e35dfb89adf681a79d7b14bb8f817e3e843fff3"
+    ],
+    "patch": "refresh-20261106/prbackground-f029509343e0-15f8287bf6.patch",
+    "patchSha256": "34fae03557f7f13eb0d57a2c7ab6dae2db069b3d729e3102ec0dd03c1da0ae4a",
+    "resultSha256": "3489772b34e85d3f64e1f3cf6a42c6572a1bd76606345a729a6dedfd13ff12b2",
+    "reason": "Preserve current owner questions, retained child navigation and task history while exposing the same foreground invocation in tool rows and task controls."
   }
 ]
