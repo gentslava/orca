@@ -22298,6 +22298,12 @@
       "draft": "{{review}} : brouillon",
       "merged": "{{review}} : fusionnée",
       "open": "{{review}} : ouverte"
+    },
+    "start": {
+      "title": "Que souhaitez-vous ouvrir ?",
+      "description": "Choisissez un agent ou un outil pour ce projet.",
+      "agents": "Agents",
+      "manageAgents": "Gérer les agents"
     }
   },
   "tabHoverCard": {

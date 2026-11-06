@@ -21833,6 +21833,12 @@
       "draft": "{{review}}: Taslak",
       "merged": "{{review}}: Merge edildi",
       "open": "{{review}}: Açık"
+    },
+    "start": {
+      "title": "Ne açmak istersiniz?",
+      "description": "Bu proje için bir aracı veya araç seçin.",
+      "agents": "Aracılar",
+      "manageAgents": "Aracıları yönet"
     }
   },
   "tabHoverCard": {

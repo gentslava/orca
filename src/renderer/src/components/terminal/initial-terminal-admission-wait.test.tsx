@@ -172,19 +172,6 @@ function expectNoShell(): void {
   expect(layoutApplyTestTransport.sentOfType('createTerminalTab')).toEqual([])
 }
 
-/** The watcher's shell create: here, or (switch-on) sent to main, whose frame draws it. */
-async function expectShellCreatedOnce(): Promise<void> {
-  if (ORCA_LAYOUT_OWNER_IS_MAIN) {
-    await layoutApplyTestTransport.settle()
-    expect(layoutApplyTestTransport.sentOfType('createTerminalTab')).toEqual([
-      expect.objectContaining({ workspace: 'wt-1' })
-    ])
-    return
-  }
-  expect(mocks.createTab).toHaveBeenCalledOnce()
-}
-
-/** Observe the original create/open request count; finishChat verifies the actual drawn row. */
 async function expectChatOpenedOnce(): Promise<void> {
   if (ORCA_LAYOUT_OWNER_IS_MAIN) {
     await layoutApplyTestTransport.settle()
@@ -267,7 +254,7 @@ function gateAnsweredLater(): {
 
 // While admission waits, no launch record exists yet; passive seeding must not add Terminal 1 beside the chat.
 describe('a local chat launch waiting on its host', () => {
-  it('defers the watcher shell for a live host launch, then permits a later ordinary mount', async () => {
+  it('keeps both a pending chat and an ordinary empty mount free of an unrequested shell', async () => {
     mocks.gate.mockResolvedValueOnce('blocked').mockResolvedValueOnce('empty')
     root = createRoot(document.createElement('div'))
     await act(async () => root?.render(createElement(Watcher)))
@@ -276,7 +263,7 @@ describe('a local chat launch waiting on its host', () => {
     await act(async () => root?.unmount())
     root = createRoot(document.createElement('div'))
     await act(async () => root?.render(createElement(Watcher)))
-    await expectShellCreatedOnce()
+    expectNoShell()
   })
 
   it('keeps a watched create free of a stray shell until its chat opens', async () => {
