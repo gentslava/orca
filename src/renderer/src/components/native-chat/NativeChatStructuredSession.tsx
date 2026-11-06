@@ -378,6 +378,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                   {...stopControls.composer}
                   unavailableHint={install.unavailableHint}
                   steerHead={stopControls.stopping ? undefined : submits.queuedMessages.steerHead}
+                  steerLast={stopControls.stopping ? undefined : submits.queuedMessages.steerLast}
                   structuredTransport={transport}
                   notices={notices}
                   recallSource={{ messages: session.messages, withoutImageMarkers: true }}
