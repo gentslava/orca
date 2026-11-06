@@ -13,6 +13,7 @@ import type { PluginUpdatePolicySettings } from './plugins/catalog/plugin-update
 import type { PluginSystemSettings } from './plugins/plugin-system-settings'
 import type { TerminalScrollSettings } from './terminal/appearance/terminal-scroll-settings'
 import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
+import type { HoldQuitSettings } from './mac-hold-quit'
 import type { AgentPermissionGlobalSettings } from './agent-launch/permissions/tui-agent-permission-choice'
 import type { WorkerRoleSettings } from './orchestration-worker-roles'
 import type { TerminalColorOverrideGlobalSettings } from './terminal-themes/terminal-color-overrides'
@@ -30,6 +31,7 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   ExternalConversationSettings &
   BrowserLinkOpeningSettings &
   WorkerRoleSettings &
+  HoldQuitSettings &
   BrowserExtensionGlobalSettings &
   PluginAppearanceSettings &
   EditorTypographySettings &
