@@ -64,6 +64,7 @@ import {
 import { allHostsRuntimeScanTimeoutMs } from './ai-vault-all-host-timeouts'
 import { registerAiVaultScanProgressBroadcast } from './ai-vault-scan-progress-broadcast'
 import { boundedAiVaultConversationList } from '../../ai-vault/structured-conversation-navigation'
+import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
 
 type AiVaultHandlerOptions = AiVaultSessionSources &
   AiVaultResumeHandlerOptions & {
@@ -118,7 +119,8 @@ async function listAiVaultSessions(
         : scopePaths,
     executionHostScope,
     includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
-    includeStructuredSessions: args?.includeStructuredSessions === true
+    includeStructuredSessions: args?.includeStructuredSessions === true,
+    selectedSessionId: args?.selectedSessionId
   })
   const depth = requestedAiVaultSessionDepth(args)
   const afterFingerprint =
@@ -144,6 +146,7 @@ async function listAiVaultSessions(
           dependency,
           depth,
           scopePaths,
+          selectedSessionId: args?.selectedSessionId,
           force: args?.force === true,
           afterFingerprint,
           scan
@@ -185,6 +188,7 @@ async function scanAiVaultSessionsByHostScope(
               dependency: dependency?.forHost(hostInfo.environmentId),
               depth,
               scopePaths,
+              selectedSessionId: args?.selectedSessionId,
               force: args?.force === true,
               scan
             })
@@ -194,7 +198,8 @@ async function scanAiVaultSessionsByHostScope(
       [...scannedResults, ...runtimeResults],
       args?.limit,
       args?.unlimited,
-      scopePaths
+      scopePaths,
+      args?.selectedSessionId
     )
   }
 
