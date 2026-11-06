@@ -54,7 +54,7 @@ export function NativeChatAssistantMessageRow({
   const toolRun = toolRunProps(props, content, run)
   const isSystem = message.role === 'system'
   // The same words slot construction chooses the turn's action holder by; Copy needs them.
-  const words = nativeChatAgentRowWords(message)
+  const words = isSystem && run ? '' : nativeChatAgentRowWords(message)
   // Hide controls on system asides and the still-working frontier, where more content may arrive. In
   // a turn they belong to its holder, which may draw only images when folding hid its words.
   const showControls =
