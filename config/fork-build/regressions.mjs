@@ -27,9 +27,16 @@ export function runComposedRegressions(planPath, application) {
     .split('\n')
     .filter(Boolean)
   const suites = selectComposedRegressionSuites(paths)
-  const effortAtRest =
-    'src/main/runtime/agent-session/launch/structured-agent-new-chat-effort-at-rest.test.ts'
-  if (existsSync(join(root, effortAtRest)) && !suites.desktop.includes(effortAtRest)) {
+  const effortAtRest = git(root, [
+    'ls-files',
+    '--',
+    '**/structured-agent-new-chat-effort-at-rest.test.ts'
+  ])
+  if (
+    effortAtRest &&
+    existsSync(join(root, effortAtRest)) &&
+    !suites.desktop.includes(effortAtRest)
+  ) {
     suites.desktop.push(effortAtRest)
   }
   if (plan.compatibility?.some(({ file }) => file === 'startup-chat-catalog.patch')) {

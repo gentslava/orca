@@ -480,30 +480,6 @@
     "reason": "Preserve child transcript navigation, complete tool inspection and settled task history while adding native foreground actions; reuse existing prompt renderer with visible owner questions and task controls."
   },
   {
-    "path": "src/main/acp/acp-structured-launch-resolution.ts",
-    "blobs": [
-      "97ddfbd131df05a468ce01fe8545520ea131cb7e",
-      "4729c293a49601f1da5b52a1848e9a27ba8eedf1",
-      "83520875a2c17da1d5deb7d44eb4c8005a97a59d"
-    ],
-    "patch": "refresh-20261106/pr33360-39e99e6d4552.patch",
-    "patchSha256": "3b81a6b1d65e5d468bdb1bacb592f19d295f06ae302d0073889743311c414685",
-    "resultSha256": "0c9129cc0d33ad2ec71657658faa8b4db7faef9fb2336c1c549848099173be06",
-    "reason": "Preserve current ACP launch-model handling, canonical version and restore-warning owners, while adding Gemini resume preflight and model-not-selected diagnostics."
-  },
-  {
-    "path": "src/shared/agent-session/failures/agent-session-failure.ts",
-    "blobs": [
-      "3cdce390fb8695a70ae5edf7ffdc31b9c2d18237",
-      "60981877dbc77625ef47dd4430d1c07a6c0bd5ff",
-      "6c5ed7807b7cbd631566d79f0039afdc36b9c188"
-    ],
-    "patch": "refresh-20261106/pr33360-b7439f2a3618.patch",
-    "patchSha256": "b4937a093ce2c3edd00b77c5e9a523bfff246367b5e5fc0acb24739a08dcac61",
-    "resultSha256": "f79ab9e8c5e87e01cded8549b2bb9fcca9e11a9a74f84c66747602674e77e8ff",
-    "reason": "Preserve current ACP launch-model handling, canonical version and restore-warning owners, while adding Gemini resume preflight and model-not-selected diagnostics."
-  },
-  {
     "path": "mobile/src/i18n/locales/en.json",
     "blobs": [
       "59ec102005379685abaea65d40ef138fb98e17c0",
@@ -778,5 +754,54 @@
     "patchSha256": "34fae03557f7f13eb0d57a2c7ab6dae2db069b3d729e3102ec0dd03c1da0ae4a",
     "resultSha256": "3489772b34e85d3f64e1f3cf6a42c6572a1bd76606345a729a6dedfd13ff12b2",
     "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
+  },
+  {
+    "path": "src/main/acp/acp-structured-launch-resolution.ts",
+    "blobs": [
+      "97ddfbd131df05a468ce01fe8545520ea131cb7e",
+      "4729c293a49601f1da5b52a1848e9a27ba8eedf1",
+      "83520875a2c17da1d5deb7d44eb4c8005a97a59d"
+    ],
+    "patch": "refresh-20261106/pr33360-39e99e6d4552.patch",
+    "patchSha256": "3b81a6b1d65e5d468bdb1bacb592f19d295f06ae302d0073889743311c414685",
+    "resultSha256": "0c9129cc0d33ad2ec71657658faa8b4db7faef9fb2336c1c549848099173be06",
+    "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests."
+  },
+  {
+    "path": "src/main/runtime/agent-session/model-catalog/structured-agent-model-catalog-discovery.test.ts",
+    "blobs": [
+      "c18c5b776b3a2163c766446d8228bc54c13e4fad",
+      null,
+      "9430bdb77ed7ce9e0850387bcdef23f6f7c1ceac"
+    ],
+    "patch": "refresh-20261106/pr33360-e09a9b85a2d2.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests.",
+    "deleted": true
+  },
+  {
+    "path": "src/main/runtime/agent-session/naming/structured-chat-naming-runtime.test.ts",
+    "blobs": [
+      "b25d9c9b540c93a42dcbce2445a81f3d3f6d5069",
+      "10c2f509b31b006dfef8096dc37cebc0c1f77b11",
+      "83060239a92ef9bfbb5d94051161e9c02e322205"
+    ],
+    "patch": "refresh-20261106/pr33360-aad0b5f41a7b.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ad704d3622997abd4839b098b5a27b386d92ae5b9f3d179cac0d17bfc4e45c26",
+    "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests."
+  },
+  {
+    "path": "src/shared/agent-session/failures/agent-session-failure.ts",
+    "blobs": [
+      "3cdce390fb8695a70ae5edf7ffdc31b9c2d18237",
+      "60981877dbc77625ef47dd4430d1c07a6c0bd5ff",
+      "6c5ed7807b7cbd631566d79f0039afdc36b9c188"
+    ],
+    "patch": "refresh-20261106/pr33360-b7439f2a3618.patch",
+    "patchSha256": "b4937a093ce2c3edd00b77c5e9a523bfff246367b5e5fc0acb24739a08dcac61",
+    "resultSha256": "f79ab9e8c5e87e01cded8549b2bb9fcca9e11a9a74f84c66747602674e77e8ff",
+    "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests."
   }
 ]
