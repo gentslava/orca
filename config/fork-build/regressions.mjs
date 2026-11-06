@@ -1,8 +1,8 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, appendFileSync } from 'node:fs'
+import { existsSync, appendFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { git } from './composition.mjs'
+import { git, readPublishableComposition } from './composition.mjs'
 
 export function selectComposedRegressionSuites(paths) {
   const tests = paths.filter((path) => /\.test\.[cm]?[jt]sx?$/.test(path))
@@ -13,18 +13,7 @@ export function selectComposedRegressionSuites(paths) {
 }
 
 export function runComposedRegressions(planPath, application) {
-  const root = resolve(application)
-  const plan = JSON.parse(readFileSync(resolve(planPath), 'utf8'))
-  if (
-    !plan.result?.publishable ||
-    plan.error ||
-    !/^[a-f0-9]{40}$/.test(plan.upstream || '') ||
-    !/^[a-f0-9]{40}$/.test(plan.result.commit || '') ||
-    git(root, ['rev-parse', 'HEAD']) !== plan.result.commit ||
-    git(root, ['rev-parse', 'HEAD^{tree}']) !== plan.result.tree
-  ) {
-    throw new Error('Regression source does not match a publishable composition')
-  }
+  const { root, plan } = readPublishableComposition(planPath, application)
   const paths = git(root, [
     'diff',
     '--name-only',
@@ -38,6 +27,11 @@ export function runComposedRegressions(planPath, application) {
     .split('\n')
     .filter(Boolean)
   const suites = selectComposedRegressionSuites(paths)
+  const effortAtRest =
+    'src/main/runtime/agent-session/launch/structured-agent-new-chat-effort-at-rest.test.ts'
+  if (existsSync(join(root, effortAtRest)) && !suites.desktop.includes(effortAtRest)) {
+    suites.desktop.push(effortAtRest)
+  }
   if (plan.compatibility?.some(({ file }) => file === 'startup-chat-catalog.patch')) {
     suites.desktop.push('tests/e2e/ai-vault-manual-name-clear.unit.test.ts')
   }
