@@ -21,7 +21,7 @@ import {
 import { useBundledSkillInstallAction } from '@/hooks/use-bundled-skill-install-action'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
-import { ManageInstalledSkillsButton } from '../../settings/ManageInstalledSkillsButton'
+import { ManageInstalledSkillsButton } from './ManageInstalledSkillsButton'
 
 function BundledAgentSkillSetupPanel({
   title,
