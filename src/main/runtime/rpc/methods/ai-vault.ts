@@ -123,6 +123,8 @@ export const AI_VAULT_METHODS = [
             force: params.force,
             scopePaths: params.scopePaths,
             selectedSessionId,
+            includeStructuredSessions: params.includeStructuredSessions,
+            structuredOnly: params.structuredOnly,
             includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
           },
           signal
