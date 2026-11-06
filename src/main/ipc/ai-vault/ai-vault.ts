@@ -119,6 +119,7 @@ async function listAiVaultSessions(
     executionHostScope,
     includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
     includeStructuredSessions: args?.includeStructuredSessions === true,
+    structuredOnly: args?.structuredOnly === true,
     selectedSessionId: args?.selectedSessionId
   })
   const depth = requestedAiVaultSessionDepth(args)
