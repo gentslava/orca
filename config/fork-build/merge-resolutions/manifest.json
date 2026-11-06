@@ -499,9 +499,9 @@
       "412b1226da19d11f0add6469df51d10d0ed3e012"
     ],
     "patch": "refresh-20261106/pr33363-74b65e8e2a1c.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "0604e3da17a36e6259ebd4015692fcf418da8dee145ebcabea89aa783f259235",
-    "reason": "Retain current canonical response words and fork/action slots while combining quiet thought and tool-run rendering; merge independent translations."
+    "patchSha256": "03e876307daf2c05b8512e723c8e9da0506490c7ae074472f7a3e14d6f3c5d11",
+    "resultSha256": "86f9232180cd306d004365742214a04384cd4fc0076848398057c95d926783e3",
+    "reason": "Preserve canonical response words and fork slots while hiding successful review text inside its folded activity run."
   },
   {
     "path": "mobile/src/i18n/locales/en.json",
