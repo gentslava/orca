@@ -29,6 +29,8 @@ export const AGENT_SESSION_FAILURE_KINDS = [
   'providerRejected',
   'pluginInputRequired',
   'modelUnavailable',
+  /** The agent had no model when the message reached it; why is unknown. */
+  'modelNotSelected',
   'claudeEffortInvalid',
   'attachmentInvalid',
   'attachmentUnreadable',

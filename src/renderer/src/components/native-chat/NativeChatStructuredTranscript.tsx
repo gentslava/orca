@@ -4,7 +4,7 @@ import type { NativeChatStructuredViewProps } from './native-chat-view-types'
 import { NativeChatUsageLimitActionsProvider } from './NativeChatUsageLimitActions'
 import type { ComponentProps, ReactNode, Ref } from 'react'
 import { NativeChatMessageList } from './NativeChatMessageList'
-import { NativeChatRewindContext } from './native-chat-rewind-context'
+import { NativeChatRowActionsProvider } from './NativeChatRowActionsProvider'
 import { NativeChatClaudeSignInContext } from './native-chat-claude-sign-in'
 import type { useNativeChatClaudeSignIn } from './native-chat-claude-sign-in'
 import type { useNativeChatInterruptedContinuation } from './NativeChatInterruptedContinue'
@@ -42,7 +42,7 @@ export function NativeChatStructuredTranscript({
   messageListRef: Ref<NativeChatMessageListHandle>
 }): React.JSX.Element {
   return (
-    <NativeChatRewindContext.Provider value={controller.rewind.surface}>
+    <NativeChatRowActionsProvider pane={pane} chat={controller}>
       <NativeChatUsageLimitActionsProvider
         recovery={controller}
         pane={pane}
@@ -70,7 +70,7 @@ export function NativeChatStructuredTranscript({
           />
         </NativeChatClaudeSignInContext.Provider>
       </NativeChatUsageLimitActionsProvider>
-    </NativeChatRewindContext.Provider>
+    </NativeChatRowActionsProvider>
   )
 }
 
