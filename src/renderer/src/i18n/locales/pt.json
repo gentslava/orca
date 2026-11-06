@@ -22222,6 +22222,12 @@
       "draft": "{{review}}: Rascunho",
       "merged": "{{review}}: Mergeado",
       "open": "{{review}}: Aberto"
+    },
+    "start": {
+      "title": "O que você quer abrir?",
+      "description": "Escolha um agente ou uma ferramenta para este projeto.",
+      "agents": "Agentes",
+      "manageAgents": "Gerenciar agentes"
     }
   },
   "tabHoverCard": {
