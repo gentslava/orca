@@ -1,10 +1,10 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { parsePairingCode } from '../../../src/shared/remote-runtime/pairing/pairing'
-import { pairedRuntimeConnectionFromOffer } from '../../../src/shared/remote-runtime/pairing/paired-runtime-connection'
+import { parsePairingCode } from '../../../src/shared/remote-runtime/pairing/pairing.ts'
+import { pairedRuntimeConnectionFromOffer } from '../../../src/shared/remote-runtime/pairing/paired-runtime-connection.ts'
 import { RemoteRuntimeRequestConnection } from '../../../src/shared/remote-runtime/requests/remote-runtime-request-connection.ts'
-import { checkDaemonHealthWithCoverage } from '../../../src/main/daemon/daemon-health.ts'
-import { resolveDaemonUnixSocketPath } from '../../../src/main/daemon/daemon-socket-endpoint-path.ts'
+import { checkDaemonHealthWithCoverage } from '../../../src/main/daemon/health/daemon-health.ts'
+import { resolveDaemonUnixSocketPath } from '../../../src/main/daemon/endpoint/publication/daemon-socket-endpoint-path.ts'
 
 async function main() {
   try {

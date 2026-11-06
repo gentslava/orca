@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { composableLocalePaths, mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { reviewedMergePatches, applyReviewedMergePatch } from './reviewed-merge-patches.mjs'
@@ -22,6 +22,22 @@ export function git(cwd, args, extra = {}, { raw = false, inheritEnv = true } = 
     }
   })
   return raw ? output : output.trim()
+}
+
+export function readPublishableComposition(planPath, application) {
+  const root = resolve(application)
+  const plan = JSON.parse(readFileSync(resolve(planPath), 'utf8'))
+  if (
+    !plan.result?.publishable ||
+    plan.error ||
+    !/^[a-f0-9]{40}$/.test(plan.upstream || '') ||
+    !/^[a-f0-9]{40}$/.test(plan.result.commit || '') ||
+    git(root, ['rev-parse', 'HEAD']) !== plan.result.commit ||
+    git(root, ['rev-parse', 'HEAD^{tree}']) !== plan.result.tree
+  ) {
+    throw new Error('Source does not match a publishable composition')
+  }
+  return { root, plan }
 }
 
 export function isAncestor(cwd, ancestor, head) {
