@@ -390,6 +390,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
           dispatcher.dispatch(
             makeRequest('aiVault.listSessions', {
               includeStructuredSessions: true,
+              structuredOnly: true,
               executionHostId
             })
           )
