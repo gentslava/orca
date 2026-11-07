@@ -23,7 +23,6 @@
     }
   ],
   "exclude": {
-    "34365": "Diagnostic-only candidate on hold; not required for the daily product build.",
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle."
   },
   "replacements": {
@@ -55,5 +54,8 @@
     "project-start-actions.patch",
     "composed-format.patch"
   ],
-  "retainClosed": {}
+  "retainClosed": {
+    "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
+    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
+  }
 }
