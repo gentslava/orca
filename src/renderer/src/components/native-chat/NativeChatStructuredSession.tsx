@@ -1,6 +1,6 @@
 import { NativeChatStructuredPrompts } from './NativeChatStructuredAsyncQuestion'
 import { NativeChatPaneFileDropScope } from './NativeChatPaneFileDropSurface'
-import { NativeChatForegroundTasksProvider } from './NativeChatForegroundTaskAction'
+import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
 import { useNativeChatHandOff } from './use-native-chat-hand-off'
 import { cn } from '@/lib/utils'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './native-chat-appearance-style'
@@ -409,15 +409,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   )
   return (
     <NativeChatLinkClickContext value={onLinkClick}>
-      <NativeChatForegroundTasksProvider
-        key={props.sessionId}
-        tasks={
-          controller.status === 'ready' ? controller.backgroundTasks.foregroundTasks : undefined
-        }
-        backgroundTask={controller.backgroundTask}
-      >
-        {root}
-      </NativeChatForegroundTasksProvider>
+      {nativeChatForegroundTasks(props.sessionId, controller, root)}
     </NativeChatLinkClickContext>
   )
 }
