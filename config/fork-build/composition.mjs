@@ -61,7 +61,7 @@ export function assertFrozenHead(cwd, number, expected) {
   }
 }
 
-function mergeAndValidateCatalogs(cwd, before, incoming) {
+function mergeAndValidateCatalogs(cwd, before, incoming, upstream) {
   const repaired = []
   let base
   for (const path of composableLocalePaths) {
@@ -72,7 +72,7 @@ function mergeAndValidateCatalogs(cwd, before, incoming) {
       parseCatalog(readFileSync(join(cwd, path), 'utf8'))
     } catch (error) {
       try {
-        base ??= git(cwd, ['merge-base', '--all', before, incoming])
+        base ??= git(cwd, ['merge-base', '--all', upstream, incoming])
         if (!/^[a-f0-9]{40}$/.test(base)) {
           throw new Error('Translation merge requires one common ancestor')
         }
@@ -151,13 +151,43 @@ export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory, upstr
   return { localePaths, patches, retirements }
 }
 
+export function prepareFeatureMerge(cwd, upstream, head, timestamp) {
+  const base = git(cwd, ['merge-base', '--all', upstream, head])
+  if (!/^[a-f0-9]{40}$/.test(base)) {
+    throw new Error('Selected feature requires one upstream merge base')
+  }
+  const dates = timestamp ? { GIT_AUTHOR_DATE: timestamp, GIT_COMMITTER_DATE: timestamp } : {}
+  const snapshot = git(
+    cwd,
+    ['commit-tree', `${head}^{tree}`, '-p', base, '-m', 'Temporary feature snapshot'],
+    dates
+  )
+  let failure
+  try {
+    git(cwd, ['merge', '--no-ff', '--no-commit', snapshot], dates)
+  } catch (error) {
+    failure = error
+  }
+  const mergeHead = resolve(cwd, git(cwd, ['rev-parse', '--git-path', 'MERGE_HEAD']))
+  if (existsSync(mergeHead)) {
+    if (readFileSync(mergeHead, 'utf8').trim() !== snapshot) {
+      throw new Error('Unexpected feature merge parent')
+    }
+    // Merge the isolated upstream delta, but retain the original PR as the actual parent.
+    writeFileSync(mergeHead, `${head}\n`)
+  }
+  if (failure) {
+    throw failure
+  }
+}
+
 function directConflicts(cwd, upstream, sha) {
   const directory = mkdtempSync(join(tmpdir(), 'personal-conflict-'))
   try {
     git(directory, ['clone', '--shared', '--no-checkout', cwd, '.'])
     git(directory, ['checkout', '--detach', upstream])
     try {
-      git(directory, ['merge', '--no-commit', '--no-ff', sha])
+      prepareFeatureMerge(directory, upstream, sha)
       return false
     } catch {
       if (!git(directory, ['diff', '--name-only', '--diff-filter=U'])) {
@@ -199,11 +229,12 @@ export function compose(
     const before = git(cwd, ['rev-parse', 'HEAD'])
     const message = `fork: integrate PR ${pr.number}`
     try {
-      git(cwd, ['merge', '--no-ff', '--no-edit', '-m', message, pr.head.sha], {
+      prepareFeatureMerge(cwd, upstream, pr.head.sha, timestamp)
+      git(cwd, ['commit', '-m', message], {
         GIT_AUTHOR_DATE: timestamp,
         GIT_COMMITTER_DATE: timestamp
       })
-      const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha)
+      const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha, upstream)
       if (repaired.length) {
         git(cwd, ['commit', '-m', `fork: merge independent translation keys for PR ${pr.number}`], {
           GIT_AUTHOR_DATE: timestamp,
@@ -216,7 +247,7 @@ export function compose(
       const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
       const resolution = resolveSelectedFeatureConflicts(cwd, resolutionsDirectory, upstream)
       if (resolution) {
-        const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha)
+        const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha, upstream)
         git(cwd, ['commit', '-m', message], {
           GIT_AUTHOR_DATE: timestamp,
           GIT_COMMITTER_DATE: timestamp
