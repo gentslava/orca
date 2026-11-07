@@ -23814,7 +23814,28 @@
       "turns_other": "{{count}} turns"
     },
     "usage": {
+      "quota": {
+        "used": "{{percent}}% used",
+        "resetsAt": "Resets {{time}}",
+        "resetUnavailable": "Reset time unavailable",
+        "unavailable": "Quota data unavailable",
+        "refreshing": "Refreshing quota…",
+        "updatedAt": "Quota checked {{time}}",
+        "neverUpdated": "Quota has not been checked",
+        "lastKnown": "Last known quota; the latest check failed.",
+        "title": "Current account quotas",
+        "scope": "{{host}} · Account-wide subscription windows. History filters do not change these limits.",
+        "refresh": "Refresh account quotas",
+        "accountCoverage": "Claude and Codex show connected accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.",
+        "partialAccounts": "The account list is unavailable or incomplete. Only reported accounts and current provider quota snapshots are shown.",
+        "noSources": "No account quota source is available. Manage provider accounts to check your subscription.",
+        "manage": "Manage accounts",
+        "ownerUnverifiable": "The account host cannot be verified.",
+        "defaultWsl": "WSL default",
+        "currentAccount": "Current account · identity unavailable"
+      },
       "localHost": "This device",
+      "refresh": "Refresh",
       "history": {
         "detail": "History detail",
         "providerDetails": "Original provider view",
@@ -23829,7 +23850,6 @@
         "title": "Local Orca activity · since first launch",
         "scope": "Local Orca events only. These counters use a different source and lifetime period from the historical log scan."
       },
-      "refresh": "Refresh",
       "breakdown": {
         "share": "Share of selected tokens"
       },
@@ -24376,10 +24396,6 @@
   "checks": {
     "rerunUnsuccessful": "Rerun unsuccessful"
   },
-  "holdQuit": {
-    "hint": "Agents are still working. Hold ⌘Q to quit.",
-    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
-  },
   "macosUpdateRequirement": {
     "title": "Orca updates now need macOS {{macos}}",
     "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
@@ -24399,6 +24415,10 @@
     "discussionAction": "Join the discussion",
     "checkAction": "Check compatibility",
     "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
+  },
+  "holdQuit": {
+    "hint": "Agents are still working. Hold ⌘Q to quit.",
+    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
   },
   "gitGraph": {
     "copyHash": "Copy commit hash",
