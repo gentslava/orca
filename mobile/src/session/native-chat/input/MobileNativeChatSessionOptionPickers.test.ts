@@ -11,7 +11,8 @@ import {
   settle
 } from '../../use-mobile-structured-agent-options.test-fixture'
 import { createElement, useState, type ReactNode } from 'react'
-import { act, create, type ReactTestRenderer } from 'react-test-renderer'
+import { act, type ReactTestRenderer } from 'react-test-renderer'
+import { createWithQueryClient } from '../../../test-support/query-client-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AccessibilityInfo, Platform } from 'react-native'
 
@@ -83,7 +84,6 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   let renderer: ReactTestRenderer | null = null
   const setOption = vi.fn<MobileNativeChatSessionOptionsController['setOption']>()
   const invokeAction = vi.fn<MobileNativeChatSessionOptionsController['invokeAction']>()
-  const resetOption = vi.fn(async () => ({ snapshot: [] }))
 
   const mount = (
     snapshot: SessionOptionDescriptor[],
@@ -96,14 +96,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
       pendingId: busy.pendingId ?? null,
       setOption,
       invokeAction,
-      recordCommand: vi.fn(),
-      optionSurface: {
-        getSnapshot: () => snapshot,
-        setOption: async () => ({ snapshot }),
-        invokeAction: async () => ({ snapshot }),
-        subscribe: () => () => {},
-        resetOption
-      }
+      recordCommand: vi.fn()
     }
     function Pickers({ working }: { working: boolean }) {
       const [presentation, setPresentation] = useState<MobileNativeChatPickerPresentation | null>(
@@ -119,7 +112,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
       })
     }
     act(() => {
-      renderer = create(createElement(Pickers, { working: isWorking }))
+      renderer = createWithQueryClient(createElement(Pickers, { working: isWorking }))
     })
     return (working: boolean, nextSnapshot = snapshot): void => {
       controller.snapshot = nextSnapshot
@@ -153,7 +146,6 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   }
 
   beforeEach(() => {
-    resetOption.mockClear()
     Platform.OS = 'ios'
     vi.mocked(AccessibilityInfo.announceForAccessibilityWithOptions).mockClear()
     setOption.mockReset()
@@ -166,6 +158,38 @@ describe('MobileNativeChatSessionOptionPickers', () => {
       renderer?.unmount()
     })
     renderer = null
+  })
+
+  it('omits interaction mode from the drawer and model summary', async () => {
+    mount(
+      [
+        MODEL_DESCRIPTOR,
+        {
+          id: 'interactionMode',
+          label: 'Mode',
+          category: 'mode',
+          kind: {
+            type: 'select',
+            currentValue: 'default',
+            choices: [
+              { value: 'default', label: 'Build' },
+              { value: 'plan', label: 'Plan' }
+            ]
+          },
+          valueSource: 'dispatched',
+          transport: 'agent-session',
+          settable: true
+        }
+      ],
+      true,
+      'interactionMode'
+    )
+    expect(findAllByHostType(renderer!.root, 'BottomDrawer')).toHaveLength(0)
+    expect(pill('Model').props.accessibilityLabel).not.toMatch(/Build|Plan/)
+    act(() => pill('Model').props.onPress())
+    expect(() => rowByText('Build')).toThrow('No row labeled Build')
+    expect(() => rowByText('Plan')).toThrow('No row labeled Plan')
+    expect(setOption).not.toHaveBeenCalled()
   })
 
   it('consumes a refused page without replay, then permits a fresh open and permission pick', async () => {
@@ -268,7 +292,7 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     }
     try {
       await act(async () => {
-        renderer = create(createElement(ActualPickers))
+        renderer = createWithQueryClient(createElement(ActualPickers))
       })
       for (const [index, value] of ['full-access', 'own'].entries()) {
         let pick!: Promise<boolean>

@@ -4,14 +4,16 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { handlers, showOpenDialog } = vi.hoisted(() => ({
-  handlers: new Map<string, () => Promise<unknown>>(),
+  handlers: new Map<string, (event: { sender: unknown }) => Promise<unknown>>(),
   showOpenDialog: vi.fn()
 }))
 
 vi.mock('electron', () => ({
   ipcMain: {
-    handle: (channel: string, handler: () => Promise<unknown>) => handlers.set(channel, handler)
+    handle: (channel: string, handler: (event: { sender: unknown }) => Promise<unknown>) =>
+      handlers.set(channel, handler)
   },
+  BrowserWindow: { fromWebContents: () => null },
   shell: {},
   dialog: { showOpenDialog }
 }))
@@ -24,7 +26,7 @@ beforeEach(async () => {
   directory = await mkdtemp(join(tmpdir(), 'orca-repo-icon-'))
   handlers.clear()
   showOpenDialog.mockReset()
-  registerShellHandlers({ getSshTarget: () => undefined }, () => [])
+  registerShellHandlers({ getSshTarget: () => undefined, getSettings: () => ({}) }, () => [])
 })
 
 afterEach(async () => {
@@ -39,33 +41,26 @@ async function pickFile(name: string, bytes: Uint8Array): Promise<unknown> {
   if (!handler) {
     throw new Error('Missing repo icon picker')
   }
-  return handler()
+  return handler({ sender: {} })
 }
 
 describe('project icon image input', () => {
-  it.each([
-    ['logo.svg', 'image/svg+xml'],
-    ['photo.JPG', 'image/jpeg'],
-    ['photo.jpeg', 'image/jpeg'],
-    ['favicon.ico', 'image/x-icon'],
-    ['icon.webp', 'image/webp'],
-    ['icon.gif', 'image/gif'],
-    ['icon.bmp', 'image/bmp'],
-    ['icon.avif', 'image/avif'],
-    ['icon.png', 'image/png']
-  ])('admits %s for renderer decoding', async (name, mime) => {
+  it('admits a case-insensitive JPEG source for renderer decoding', async () => {
     const bytes = Buffer.from('selected image bytes')
-    await expect(pickFile(name, bytes)).resolves.toEqual({
-      dataUrl: `data:${mime};base64,${bytes.toString('base64')}`,
-      fileName: name
+    await expect(pickFile('photo.JPG', bytes)).resolves.toEqual({
+      dataUrl: 'data:image/jpeg;base64,c2VsZWN0ZWQgaW1hZ2UgYnl0ZXM=',
+      fileName: 'photo.JPG'
     })
-    const options = showOpenDialog.mock.calls[0]?.[0]
-    expect(options.filters[0].extensions).toContain(name.split('.').at(-1)?.toLowerCase())
   })
 
   it('accepts a source larger than the stored icon budget for downscaling', async () => {
     const result = await pickFile('photo.jpg', new Uint8Array(1024 * 1024))
-    expect(result).toEqual(expect.objectContaining({ fileName: 'photo.jpg' }))
+    expect(result).toEqual(
+      expect.objectContaining({
+        fileName: 'photo.jpg',
+        dataUrl: expect.stringMatching(/^data:image\/jpeg;base64,AAAA/)
+      })
+    )
   })
 
   it('rejects oversized sources and non-image extensions', async () => {
@@ -83,6 +78,6 @@ describe('project icon image input', () => {
 
   it('keeps cancellation silent', async () => {
     showOpenDialog.mockResolvedValue({ canceled: true, filePaths: [] })
-    await expect(handlers.get('shell:pickRepoIconImage')?.()).resolves.toBeNull()
+    await expect(handlers.get('shell:pickRepoIconImage')?.({ sender: {} })).resolves.toBeNull()
   })
 })

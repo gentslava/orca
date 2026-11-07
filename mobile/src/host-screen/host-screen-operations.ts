@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 import { ConversationPreferencesSchema } from '../../../src/shared/conversation-navigation-preferences'
 import { bindDeferredRpcOperation, defineRpcOperation } from '../transport/rpc-operation'
 import { rpcResultVariant } from '../transport/rpc-operation-result-reader'
@@ -88,6 +88,17 @@ export const worktreePinWrite = bindDeferredRpcOperation(
   })
 )
 
+// Rename reports refusal so the sheet can keep the text and offer Retry.
+export const worktreeDisplayNameWrite = bindDeferredRpcOperation(
+  defineRpcOperation({
+    name: 'worktree.set-display-name',
+    method: 'worktree.set',
+    acceptance: 'require-result-or-throw-message',
+    barrier: 'after-caller-barrier',
+    read: rpcResultVariant('display-name-written', hostScreenUnreadReplySchema)
+  })
+)
+
 export const worktreeSleep = bindDeferredRpcOperation(
   defineRpcOperation({
     name: 'worktree.sleep-or-skip',
@@ -143,6 +154,7 @@ export const conversationPreferenceWrite = bindDeferredRpcOperation(
     )
   })
 )
+
 export const projectOpenWrite = bindDeferredRpcOperation(
   defineRpcOperation({
     name: 'ui.record-personal-project-open',

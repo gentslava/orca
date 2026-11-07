@@ -25,10 +25,14 @@ type FsChangedCall = { worktreePath: string; events: { kind: string; absolutePat
 
 // Poll native delivery and batching rather than assuming a fixed delay.
 async function waitFor(predicate: () => boolean, timeoutMs = 8_000, stepMs = 50): Promise<void> {
-  await vi.waitFor(() => expect(predicate()).toBe(true), {
-    timeout: timeoutMs,
-    interval: stepMs
-  })
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    if (predicate()) {
+      return
+    }
+    await new Promise((resolve) => setTimeout(resolve, stepMs))
+  }
+  throw new Error('waitFor: condition not met within timeout')
 }
 
 describe('filesystem-watcher real @parcel/watcher integration', () => {

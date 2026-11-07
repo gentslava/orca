@@ -6,7 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
 import { getDefaultSettings } from '../../../shared/constants'
 import { RUNTIME_CAPABILITIES } from '../../../shared/protocol-version'
-import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
+import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import NewWorkspaceComposerModal from './NewWorkspaceComposerModal'
 import type { NewWorkspaceComposerCardProps } from './new-workspace/new-workspace-composer-card-props'
@@ -72,7 +72,7 @@ vi.mock('@/runtime/structured-agent-session-client', () => ({
         }
       : { seedOptions: {} }
 }))
-vi.mock('@/runtime/runtime-rpc-client', () => ({
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({
   callRuntimeRpc: async () => ({
     agents: [
       { agent: 'claude', capabilities: {} },
@@ -265,7 +265,7 @@ async function open(agent: string) {
   fireEvent.click(configure)
   await waitFor(() => expect(textarea()).not.toBeNull())
   await waitFor(() =>
-    expect(screen.getByRole('slider').getAttribute('aria-disabled')).not.toBe('true')
+    expect(screen.getByRole('radio', { name: 'Low' }).hasAttribute('disabled')).toBe(false)
   )
 }
 async function useDraft(surface: 'chat' | 'terminal' = 'terminal') {
@@ -324,24 +324,23 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
   render(<NewWorkspaceComposerModal />, { wrapper: TooltipProvider })
   await open('Claude')
   const start = snapshot('w1-before')
-  fireEvent.keyDown(screen.getByRole('slider'), { key: 'Home' })
+  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
   fireEvent.change(textarea(), { target: { value: '--verbose' } })
   await useDraft()
   evidence.phase = 'w1-immediate-reopen'
   await open('Claude')
   expect(textarea().value).toBe('--verbose')
-  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
   const echo = snapshot('w1-echo')
   expect(echo.initial?.choices.options?.effort).toBe('low')
   expect(echo.initial?.arguments).toBe('--verbose')
   await visit('W2 folder')
   evidence.phase = 'w2-codex'
   await open('Codex')
-  fireEvent.keyDown(screen.getByRole('slider'), { key: 'Home' })
-  fireEvent.keyDown(screen.getByRole('slider'), { key: 'ArrowRight' })
+  fireEvent.click(screen.getByRole('radio', { name: 'Med' }))
   await useDraft()
   await open('Codex')
-  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Medium')
+  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
   const w2 = last('codex')
   await visit('W1 git')
   evidence.phase = 'w1-return'
@@ -351,17 +350,17 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
   expect(returned.authority).toBe(start.authority)
   expect(returned.initial).toBeUndefined()
   expect.soft(textarea().value).toBe('--verbose')
-  expect.soft(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+  expect.soft(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
   fireEvent.change(textarea(), { target: { value: '--pending-after-accepted' } })
   await visit('W2 folder')
   await open('Codex')
-  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Medium')
+  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
   expect(last('codex').authority).toBe(w2.authority)
   expect(textarea().value).toBe('')
   await visit('W1 git')
   await open('Claude')
   expect(textarea().value).toBe('--pending-after-accepted')
-  expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('Low')
+  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
   expect(evidence.submit).not.toHaveBeenCalled()
 })
 

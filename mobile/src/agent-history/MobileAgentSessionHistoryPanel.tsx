@@ -35,12 +35,8 @@ import { MobileAgentSessionHistoryList } from './MobileAgentSessionHistoryList'
 import { buildMobileAgentHistoryResumeActionState } from './agent-history-session-card'
 import { styles } from './agent-history-styles'
 import { MobileNoMatchState, MobileStateView } from '../components/MobileStateView'
-import {
-  AgentHistoryResumeNotice,
-  AgentHistoryResumeToast,
-  AgentHistorySkippedNotice,
-  useAgentHistoryResumeToast
-} from './AgentHistoryNotices'
+import { AgentHistoryResumeNotice, AgentHistoryScanNotices } from './AgentHistoryNotices'
+import { TransientToast, useTransientToast } from '../components/TransientToast'
 import { useNow } from '../hooks/use-now'
 import { useMobileResumeOperationOwnership } from './use-mobile-resume-operation-ownership'
 import { conversationCopy } from '../host-screen/conversation-copy'
@@ -85,7 +81,7 @@ function MobileAgentSessionHistoryPanelContent({
   const insets = useSafeAreaInsets()
   const [resumingSessionId, setResumingSessionId] = useState<string | null>(null)
   const [resumeMessage, setResumeMessage] = useState<string | null>(null)
-  const { message: resumeToast, showToast: showResumeToast } = useAgentHistoryResumeToast()
+  const { message: resumeToast, showToast: showResumeToast } = useTransientToast()
   const now = useNow(30_000)
   const resumeLaunchInFlightRef = useRef(false)
   const resumeMutationRegistryRef = useRef(
@@ -347,7 +343,7 @@ function MobileAgentSessionHistoryPanelContent({
         connected={connState === 'connected'}
         onRetry={retry}
       >
-        {issues.length > 0 ? <AgentHistorySkippedNotice issues={issues} /> : null}
+        <AgentHistoryScanNotices sessions={sessions} issues={issues} />
         {resumeMessage ? (
           <AgentHistoryResumeNotice
             message={resumeMessage}
@@ -403,13 +399,13 @@ function MobileAgentSessionHistoryPanelContent({
           />
         )}
       </AgentHistoryLoadState>
-      <AgentHistoryResumeToast message={resumeToast} bottomInset={searchBarHeight} />
+      <TransientToast message={resumeToast} bottomInset={searchBarHeight} />
     </View>
   )
 }
 
 const EMPTY_SESSIONS: AiVault.AiVaultSession[] = []
-const EMPTY_ISSUES: { agent: AiVault.AiVaultSession['agent']; path: string; message: string }[] = []
+const EMPTY_ISSUES: AiVault.AiVaultScanIssue[] = []
 
 function createMobileAiVaultResumeMutationId(sessionId: string): string {
   const sessionPart = sessionId.replace(/[^a-zA-Z0-9_.:-]/g, '_').slice(0, 64) || 'session'

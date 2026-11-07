@@ -1,3 +1,4 @@
+import { normalizeGitGraphFilters } from '../../../shared/git/history/git-graph-filters'
 import { normalizeConversationPreferences } from '../../../shared/conversation-navigation-preferences'
 import { normalizePersonalProjectOrder } from '../../../shared/personal-project-order'
 import { normalizeExplorerDisplayRootByWorktree } from '../../../shared/file-explorer-display-root'
@@ -76,6 +77,7 @@ export function getPersistedUI(
     explorerDisplayRootByWorktree: normalizeExplorerDisplayRootByWorktree(
       state.ui?.explorerDisplayRootByWorktree
     ),
+    gitGraphFiltersByWorktree: normalizeGitGraphFilters(state.ui?.gitGraphFiltersByWorktree),
     showDotfilesByWorktree: normalizeShowDotfilesByWorktree(state.ui?.showDotfilesByWorktree),
     featureTipsSeenIds: normalizeFeatureTipIds(state.ui?.featureTipsSeenIds),
     contextualToursSeenIds: normalizeContextualTourIds(state.ui?.contextualToursSeenIds),

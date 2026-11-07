@@ -20,15 +20,18 @@ import {
 type SidebarHeaderProps = {
   onWorkspaceBoardMenuOpenChange: (open: boolean) => void
   activityOptionsTarget?: React.Ref<HTMLDivElement>
+  projectsCollapseTarget?: React.Ref<HTMLDivElement>
 }
 
 const SidebarHeader = React.memo(function SidebarHeader({
   onWorkspaceBoardMenuOpenChange,
-  activityOptionsTarget
+  activityOptionsTarget,
+  projectsCollapseTarget
 }: SidebarHeaderProps) {
   // Subscribe this memoized header to locale changes before using translate().
   useTranslation()
   const sidebarBody = useAppStore((s) => s.sidebarBody ?? 'conversations')
+  const groupBy = useAppStore((s) => s.groupBy)
   const setSidebarBody = useAppStore((s) => s.setSidebarBody)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const agentsViewActive = sidebarBody === 'agents'
@@ -64,8 +67,11 @@ const SidebarHeader = React.memo(function SidebarHeader({
   )
 
   return (
-    <div className="mt-2 flex h-8 min-w-0 shrink-0 items-center justify-between gap-1.5 px-2">
-      <div className="flex min-w-0 items-center gap-1">
+    <div className="group/sidebar-header mt-2 flex h-8 min-w-0 shrink-0 items-center justify-between gap-1.5 px-2">
+      <div
+        className="flex min-w-0 items-center"
+        data-contextual-tour-target={groupBy === 'repo' ? 'projects-collapse-all' : undefined}
+      >
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -100,6 +106,8 @@ const SidebarHeader = React.memo(function SidebarHeader({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {/* WorktreeList portals the collapse-all toggle here; it owns the rendered project rows. */}
+        <div ref={projectsCollapseTarget} className="flex shrink-0 items-center empty:hidden" />
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <Popover

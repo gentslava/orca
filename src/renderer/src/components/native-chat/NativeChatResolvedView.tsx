@@ -54,11 +54,12 @@ import { createNativeChatRuntimeSelector } from './native-chat-runtime-owner'
 import { useNativeChatPasteBridge } from './use-native-chat-paste-bridge'
 import { LinkActionPopover } from '@/components/link-actions/LinkActionPopover'
 import { useNativeChatLinkActions } from './use-native-chat-link-actions'
+import { NativeChatLinkClickContext } from './native-chat-link-click-context'
 import type { NativeChatResolvedViewProps } from './native-chat-view-types'
 import { useNativeChatFileLinkContext } from './use-native-chat-file-link-context'
 import { useRecheckNativeChatFileLinksWhenTurnEnds } from './use-native-chat-file-link-existence'
 import { useNativeChatImageRuntimeContext } from './native-chat-image-runtime-context'
-import { handleNativeChatSplitShortcut } from './native-chat-split-shortcut'
+import { handleNativeChatPaneShortcut } from './native-chat-pane-shortcut'
 import { formatShortcutLabel } from '@/hooks/useShortcutLabel'
 
 export function NativeChatResolvedView({
@@ -140,29 +141,30 @@ export function NativeChatResolvedView({
     () => ({ paneKey, agent, sessionId }),
     [paneKey, agent, sessionId]
   )
-  const delivery = useNativeChatPendingDelivery({
+  const { clear: clearDelivery, ...delivery } = useNativeChatPendingDelivery({
     paneKey,
     agent,
     session,
     composerRef,
     workingEpoch: sendWorkingEpoch
   })
-  const { record, clear } = delivery
   // Slash commands are local session-scoped feedback, not user turns; cap and cache their markers.
   const [commandMarkers, setCommandMarkers] = useState<NativeChatCommandMarker[]>(() =>
     readCommandMarkerCache(commandMarkerScope)
   )
-  useEffect(() => {
+  const [prevCommandMarkerScope, setPrevCommandMarkerScope] = useState(commandMarkerScope)
+  if (prevCommandMarkerScope !== commandMarkerScope) {
+    setPrevCommandMarkerScope(commandMarkerScope)
     setCommandMarkers(readCommandMarkerCache(commandMarkerScope))
     setWorkingInterrupted(false)
-  }, [commandMarkerScope])
+  }
   useEffect(() => {
     if (!paneLaunchPrompt || !shouldPruneLaunchPrompt(paneLaunchPrompt, session.messages)) {
       return
     }
     clearNativeChatLaunchPrompt(terminalTabId)
   }, [clearNativeChatLaunchPrompt, paneLaunchPrompt, session.messages, terminalTabId])
-  const onOptimisticSend = useNativeChatOptimisticSend(record, setWorkingInterrupted)
+  const onOptimisticSend = useNativeChatOptimisticSend(delivery.record, setWorkingInterrupted)
   const onSlashCommand = useCallback(
     (command: string, output?: string) => {
       setCommandMarkers(appendCommandMarkerCache(commandMarkerScope, command, Date.now(), output))
@@ -207,8 +209,7 @@ export function NativeChatResolvedView({
     questionAnswerInputRef: activeQuestionAnswerInputRef,
     isVisible,
     isFocusedGroup,
-    composerReady:
-      shownPromptCard === null && targetPtyId !== null && canSend && childNavigator.child === null
+    composerReady: composerReady && childNavigator.child === null
   })
 
   // Include pending sends when selecting view state so the first echo leaves the empty screen immediately.
@@ -246,9 +247,9 @@ export function NativeChatResolvedView({
   const stopAgent = useCallback(() => {
     setWorkingInterrupted(true)
     // Stop can outlive its delayed-write handle; clear cached echoes explicitly to prevent ghost prompts.
-    clear()
+    clearDelivery()
     interactiveSend.cancel()
-  }, [interactiveSend, clear])
+  }, [interactiveSend, clearDelivery])
   const { onLinkClick, linkActionRequest, closeLinkActions } = useNativeChatLinkActions(
     fileLinkContext,
     rootRef,
@@ -278,7 +279,7 @@ export function NativeChatResolvedView({
   })
   const appearanceStyle = useNativeChatStoreAppearanceStyle()
 
-  return (
+  const root = (
     <NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
       <div
         ref={rootRef}
@@ -295,7 +296,7 @@ export function NativeChatResolvedView({
         }}
         onKeyDownCapture={(event) => {
           find.onKeyDownCapture(event)
-          if (handleNativeChatSplitShortcut(event, keybindings, contextMenuActions)) {
+          if (handleNativeChatPaneShortcut(event, keybindings, contextMenuActions)) {
             return
           }
           rootInput.onKeyDownCapture(event)
@@ -340,8 +341,6 @@ export function NativeChatResolvedView({
                   expandSignal={false}
                   {...turnTiming}
                   awaitingInput={awaitingInput}
-                  onLinkClick={onLinkClick}
-                  allowFileUriLinks={fileLinkContext !== null}
                   deliveryNotices={deliveryNotices}
                   runtimeContext={imageRuntimeContext}
                 />
@@ -363,8 +362,13 @@ export function NativeChatResolvedView({
                 onAnswerInTerminal={onSwitchToTerminal}
                 onDismiss={promptCardPresentation.dismiss}
                 onCollapse={promptCardPresentation.collapse}
-                shouldFocus={shownPromptCard !== null && isVisible && isFocusedGroup}
-                {...{ answerInputRef: questionAnswerInputRef, onLinkClick }}
+                shouldFocus={
+                  shownPromptCard !== null &&
+                  isVisible &&
+                  isFocusedGroup &&
+                  childNavigator.child === null
+                }
+                answerInputRef={questionAnswerInputRef}
               />
             </div>
           ) : null}
@@ -412,4 +416,5 @@ export function NativeChatResolvedView({
       </div>
     </NativeChatChildNavigationContext.Provider>
   )
+  return <NativeChatLinkClickContext value={onLinkClick}>{root}</NativeChatLinkClickContext>
 }

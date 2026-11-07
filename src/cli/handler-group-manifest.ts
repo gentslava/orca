@@ -1,9 +1,13 @@
+import { ORCHESTRATION_HANDLER_GROUP } from './orchestration-handler-group'
 import type { CommandHandler } from './dispatch'
 import { BROWSER_HANDLER_GROUPS } from './browser/browser-handler-groups'
 import { JIRA_HANDLER_GROUP } from './jira-handler-group'
 import { LINEAR_HANDLER_GROUP } from './linear-handler-group'
 import { REFERENCE_HANDLER_GROUP } from './reference-handler-group'
+import { SERVE_PAIRING_HANDLER_GROUPS } from './serve-pairing-handler-groups'
 import { PLUGIN_HANDLER_GROUPS } from './plugin-handler-groups'
+import { HOST_HANDLER_GROUPS } from './host-handler-groups'
+import { WORKTREE_HANDLER_GROUPS } from './worktree-handler-groups'
 
 export type HandlerGroup = {
   name: string
@@ -22,11 +26,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     keys: ['claude-teams', 'open', 'serve', 'status'],
     load: async () => (await import('./handlers/core.js')).CORE_HANDLERS
   },
-  {
-    name: 'serve-restore',
-    keys: ['serve restore resume'],
-    load: async () => (await import('./handlers/serve-restore.js')).SERVE_RESTORE_HANDLERS
-  },
+  ...SERVE_PAIRING_HANDLER_GROUPS,
   {
     name: 'serve-service',
     keys: ['serve service install', 'serve service status', 'serve service uninstall'],
@@ -86,19 +86,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     ],
     load: async () => (await import('./handlers/repo.js')).REPO_HANDLERS
   },
-  {
-    name: 'worktree',
-    keys: [
-      'worktree ps',
-      'worktree list',
-      'worktree show',
-      'worktree current',
-      'worktree create',
-      'worktree set',
-      'worktree rm'
-    ],
-    load: async () => (await import('./handlers/worktree.js')).WORKTREE_HANDLERS
-  },
+  ...WORKTREE_HANDLER_GROUPS,
   {
     name: 'file',
     keys: ['file open', 'file diff', 'file open-changed'],
@@ -123,46 +111,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     load: async () => (await import('./handlers/terminal.js')).TERMINAL_HANDLERS
   },
   ...BROWSER_HANDLER_GROUPS,
-  {
-    name: 'orchestration',
-    keys: [
-      'orchestration link-show',
-      'orchestration link-send',
-      'orchestration link-control',
-      'orchestration run-create',
-      'orchestration run-use',
-      'orchestration run-current',
-      'orchestration run-list',
-      'orchestration run-show',
-      'orchestration send',
-      'orchestration check',
-      'orchestration reply',
-      'orchestration inbox',
-      'orchestration task-create',
-      'orchestration task-list',
-      'orchestration task-update',
-      'orchestration worker-start',
-      'orchestration worker-show',
-      'orchestration worker-read',
-      'orchestration worker-stop',
-      'orchestration worker-abandon',
-      'orchestration worker-release',
-      'orchestration worker-keep-open',
-      'orchestration worker-retain',
-      'orchestration worker-list',
-      'orchestration dispatch',
-      'orchestration ask',
-      'orchestration dispatch-show',
-      'orchestration coordinator-start',
-      'orchestration coordinator-stop',
-      'orchestration request-show',
-      'orchestration gate-create',
-      'orchestration gate-resolve',
-      'orchestration gate-list',
-      'orchestration reset'
-    ],
-    load: async () => (await import('./handlers/orchestration.js')).ORCHESTRATION_HANDLERS
-  },
+  ORCHESTRATION_HANDLER_GROUP,
   {
     name: 'emulator',
     keys: [
@@ -216,6 +165,11 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     load: async () => (await import('./handlers/agent-launch.js')).AGENT_LAUNCH_HANDLERS
   },
   {
+    name: 'chat',
+    keys: ['chat rename'],
+    load: async () => (await import('./handlers/chat.js')).CHAT_HANDLERS
+  },
+  {
     name: 'connector',
     keys: [
       'connector start',
@@ -248,36 +202,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     keys: ['agent-context'],
     load: async () => (await import('./handlers/introspection.js')).INTROSPECTION_HANDLERS
   },
-  {
-    name: 'environment',
-    keys: [
-      'host name',
-      'host list',
-      'environment add',
-      'environment list',
-      'environment show',
-      'environment rm'
-    ],
-    load: async () => (await import('./handlers/environment.js')).ENVIRONMENT_HANDLERS
-  },
-  {
-    name: 'managed-server',
-    keys: [
-      'environment status',
-      'environment update',
-      'environment rollback',
-      'environment recover',
-      'environment stop',
-      'environment cancel-stop',
-      'environment forget'
-    ],
-    load: async () => (await import('./handlers/managed-server.js')).MANAGED_SERVER_HANDLERS
-  },
-  {
-    name: 'vm',
-    keys: ['vm recipe doctor'],
-    load: async () => (await import('./handlers/vm.js')).VM_HANDLERS
-  },
+  ...HOST_HANDLER_GROUPS,
   {
     name: 'skill-sharing',
     keys: ['skills installed', 'skills share'],

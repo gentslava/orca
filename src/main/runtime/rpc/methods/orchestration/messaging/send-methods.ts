@@ -1,18 +1,15 @@
 import { assertSessionLinkMailBoundary } from '../../../../orchestration/session-links/session-link-mail-boundary'
 import { defineMethod } from '../../../core'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
-import { isGroupAddress } from '../../../../orchestration/groups'
+import { isGroupAddress } from '../../../../orchestration/addressing/groups/group-addressing'
 import {
   dispatchReportMailbox,
   isDispatchReportType
-} from '../../../../orchestration/dispatch-report-mailbox'
+} from '../../../../orchestration/workers/reports/dispatch-report-mailbox'
 import { orchestrationSkillRecoveryData } from '../../../../../../shared/orchestration-rpc-contract'
-import {
-  SendParams,
-  isDispatchMutationMessageType,
-  isWorkerReportOutcome,
-  parseRemoteWorkerPayload
-} from '../schemas'
+import { SendParams } from './send-params'
+import { isDispatchMutationMessageType } from '../../../../../../shared/rpc-contract/orchestration-params'
+import { isWorkerReportOutcome, parseRemoteWorkerPayload } from './message-payload'
 import { resolveMessageRun } from '../routing'
 import {
   assertDispatchMailboxDeliverable,
@@ -20,8 +17,12 @@ import {
   resolveRunBoundDispatchRecipient,
   type SendRecipientWarning
 } from './recipient-routing'
-import { stripMutationReplayNudge } from '../../../orchestration-mutation-receipt'
-import { readSendReplayNudge, replayMutationNudge } from './mutation-replay-nudge'
+import {
+  readMutationReplayNudge,
+  readWorkerDoneReplayNudge,
+  stripMutationReplayNudge
+} from '../../../orchestration-mutation-receipt'
+import { replayMutationNudge } from './mutation-replay-nudge'
 import { handBackReplayTargets } from '../../../../orchestration/db/messages/helper-mailbox-hand-back'
 import { sendRemoteMessage } from './send-remote'
 import { mayNameSession } from './session-recipient'
@@ -60,7 +61,16 @@ export const ORCHESTRATION_SEND_METHODS = [
       }
     ) => {
       const db = runtime.getOrchestrationDb()
-      const replayNudge = readSendReplayNudge(params, replayedMutationReceipt)
+      const legacyReplayNudge = readWorkerDoneReplayNudge(
+        'orchestration.send',
+        params,
+        replayedMutationReceipt
+      )
+      const replayNudge =
+        readMutationReplayNudge(replayedMutationReceipt) ??
+        (legacyReplayNudge
+          ? { kind: 'messages' as const, targets: [legacyReplayNudge] }
+          : undefined)
       if (replayNudge) {
         replayMutationNudge(runtime, replayNudge)
         const settled =
@@ -274,11 +284,9 @@ export const ORCHESTRATION_SEND_METHODS = [
           withSendWarnings: (sent) =>
             finished?.receipt(withSendWarnings(sent)) ?? withSendWarnings(sent)
         })
-        followThroughWorkerReport(
-          runtime,
-          db,
+        const reportedDispatchId =
           params.type === 'worker_done' ? settledDispatchId(sent) : undefined
-        )
+        followThroughWorkerReport(runtime, db, reportedDispatchId)
         return sent
       }
       return sendGroupMessage({

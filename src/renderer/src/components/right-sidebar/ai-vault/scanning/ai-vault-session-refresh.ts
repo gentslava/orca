@@ -1,3 +1,5 @@
+import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
+import { useAiVaultForcedRescan } from './use-ai-vault-forced-rescan'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { aiVaultScanErrorText } from './ai-vault-scan-issue-copy'
@@ -19,13 +21,11 @@ import {
 } from './ai-vault-session-list-request'
 import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refresh-key'
 import { useAiVaultAssociationObservation } from './ai-vault-association-observation'
-import { createBrowserUuid } from '@/lib/browser-uuid'
-import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
-import { useAiVaultForcedRescan } from './use-ai-vault-forced-rescan'
+import { createNonSecureContextUuid as createBrowserUuid } from '../../../../../../shared/non-secure-context-uuid'
 import {
   useAiVaultConversationRefresh,
   useAiVaultProviderSessionRefresh
-} from '../../ai-vault-conversation-refresh'
+} from './ai-vault-conversation-refresh'
 
 // Share the forced-rescan budget across remounts so session creation cannot amplify full scans.
 import {

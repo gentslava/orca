@@ -1,6 +1,6 @@
 import type { AgentType } from '../../../../shared/agent-status/contracts/agent-status-types'
 import { useMemo } from 'react'
-import type { NativeChatLaunchPrompt } from '@/lib/native-chat-launch-prompt'
+import type { NativeChatLaunchPrompt } from '@/components/native-chat/drafts/native-chat-launch-prompt'
 
 import {
   deriveNativeChatStreamingText,
@@ -33,7 +33,7 @@ export function useNativeChatTerminalTranscript({
   launchPrompt: NativeChatLaunchPrompt | null
   agent: AgentType
   commandMarkers: NativeChatCommandMarker[]
-  delivery: ReturnType<typeof useNativeChatPendingDelivery>
+  delivery: Pick<ReturnType<typeof useNativeChatPendingDelivery>, 'pending' | 'notices'>
   workingEpoch?: number | null
 } & Omit<Parameters<typeof deriveNativeChatStreamingText>[0], 'messages'>) {
   const launchPromptMessage = useMemo(
@@ -74,22 +74,24 @@ export function useNativeChatTerminalTranscript({
       ),
     [delivery.pending, sessionAfterCommandBoundaries.messages, workingEpoch]
   )
-  const previewMessages = useMemo(
-    () =>
-      pendingMessages.length > 0
-        ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
-        : sessionAfterCommandBoundaries.messages,
-    [sessionAfterCommandBoundaries.messages, pendingMessages]
-  )
   const streamingText = useMemo(
     () =>
       deriveNativeChatStreamingText({
-        messages: previewMessages,
+        messages:
+          pendingMessages.length > 0
+            ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
+            : sessionAfterCommandBoundaries.messages,
         previewText,
         working,
         previewIsToolOutput
       }),
-    [previewMessages, previewText, working, previewIsToolOutput]
+    [
+      sessionAfterCommandBoundaries.messages,
+      pendingMessages,
+      previewText,
+      working,
+      previewIsToolOutput
+    ]
   )
   const sessionWithPending = useMemo<NativeChatLiveSession>(() => {
     if (delivery.pending.length === 0 && commandMarkers.length === 0 && !streamingText) {

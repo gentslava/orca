@@ -153,6 +153,7 @@ function Probe({
       onOpenLog={unused}
       onRevealLog={unused}
       onOpenCwd={unused}
+      onRevealArtifacts={unused}
       onRequestDelete={unused}
     />
   )

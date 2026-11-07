@@ -9,6 +9,7 @@ import {
   type TestInfo
 } from '@stablyai/playwright-test'
 
+import type { ContextualTourId } from '../../../src/shared/contextual-tours'
 import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-profile'
 import { getOrcaElectronLaunchArgs } from './electron-launch-args'
 import { cleanupE2EDaemons, closeElectronAppForE2E } from './electron-process-shutdown'
@@ -24,7 +25,6 @@ import {
 } from './nested-runtime-same-id-pairing'
 import { createPairedWebClientUrl, type PairedWebClientOptions } from './paired-web-client-url'
 import { selectPairedRuntimeEnvironment } from './paired-client-runtime-environment'
-import { selectSidebarBody } from './store'
 
 export { rePairPairedElectronClient } from './paired-client-runtime-environment'
 
@@ -154,12 +154,6 @@ export async function launchPairedWebClient(
     )
     page = await pagePromise
     if (options.waitForWorkspace !== false) {
-      await page.waitForFunction(
-        () => window.__store?.getState().workspaceSessionReady === true,
-        null,
-        { timeout: 30_000 }
-      )
-      await selectSidebarBody(page, 'workspaces')
       await page.locator('[data-worktree-sidebar]').waitFor({ state: 'visible', timeout: 30_000 })
     }
     return { page, dispose: () => page?.close() ?? Promise.resolve() }
@@ -175,17 +169,28 @@ export async function launchPairedElectronClient(
   testInfo: TestInfo,
   name: string,
   // Reuse the stored pairing credential/device id across relaunch, matching a real reopen.
-  options: { extraEnv?: Record<string, string>; reuseUserDataDir?: string } = {}
+  options: {
+    extraEnv?: Record<string, string>
+    reuseUserDataDir?: string
+    // One-time tours that would otherwise overlay the controls a spec drives.
+    seenContextualTourIds?: readonly ContextualTourId[]
+  } = {}
 ): Promise<PairedElectronClient> {
   const reusedProfile = options.reuseUserDataDir !== undefined
   const userDataDir =
     options.reuseUserDataDir ?? mkdtempSync(path.join(os.tmpdir(), 'orca-e2e-paired-desktop-'))
   const directSshProbePath = path.join(userDataDir, 'forbidden-local-ssh-connects.jsonl')
   if (!reusedProfile) {
-    writeFileSync(
-      path.join(userDataDir, 'orca-data.json'),
-      `${JSON.stringify(getE2ECompletedOnboardingProfile(), null, 2)}\n`
-    )
+    const completed = getE2ECompletedOnboardingProfile()
+    const seenContextualTourIds: readonly ContextualTourId[] = [
+      ...completed.ui.contextualToursSeenIds,
+      ...(options.seenContextualTourIds ?? [])
+    ]
+    const profile = {
+      ...completed,
+      ui: { ...completed.ui, contextualToursSeenIds: seenContextualTourIds }
+    }
+    writeFileSync(path.join(userDataDir, 'orca-data.json'), `${JSON.stringify(profile, null, 2)}\n`)
   }
   const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
   void _unused

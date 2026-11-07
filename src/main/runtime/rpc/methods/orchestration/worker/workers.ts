@@ -1,3 +1,4 @@
+import { stopHelperAfterStart } from './worker-stop'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import type { z } from 'zod'
 import { defineMethod, type RpcContext } from '../../../core'
@@ -8,7 +9,7 @@ import { withWorkerStartNext } from '../receipt-next'
 import {
   decideWorkerStartMode,
   readWorkerStartModeSettings
-} from '../../orchestration-worker-start-mode'
+} from '../structured-workers/orchestration-worker-start-mode'
 import { resolveOrchestrationCaller } from '../runs/run-scope'
 import {
   assertHelperStartScope,
@@ -17,7 +18,7 @@ import {
 } from './worker-start-authority'
 import { parseTaskDeps } from './task-deps-argument'
 import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
-import { FederationWorkerLaunchParams } from '../federation/federation-start-schema'
+import { FederationWorkerLaunchParams } from '../../../../../../shared/rpc-contract/orchestration-federation-start-params'
 import { prepareFederationWorkerLaunchOnHost } from './worker-opencode-model-preflight'
 import { WorkerStartParams } from '../../../../../../shared/rpc-contract/orchestration-worker-start-params'
 import {
@@ -216,6 +217,7 @@ export async function startWorker(
       orchestrationMutation,
       callerSession: orchestrationCaller
     })
+    await stopHelperAfterStart(runtime, receipt, orchestrationMutation)
     return withRun(receipt && typeof receipt === 'object' ? { ...receipt, mode } : receipt)
   }
   const receipt = await startLocalWorker({
@@ -232,5 +234,6 @@ export async function startWorker(
     helperCreator,
     followUp
   })
+  await stopHelperAfterStart(runtime, receipt, orchestrationMutation)
   return withRun(withWorkerStartNext(receipt))
 }

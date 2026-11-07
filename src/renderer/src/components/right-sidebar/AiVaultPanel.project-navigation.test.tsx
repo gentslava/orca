@@ -32,7 +32,7 @@ vi.mock('../sidebar/use-conversation-preferences', () => ({
 vi.mock('../sidebar/SidebarConversationStart', () => ({
   SidebarConversationStart: () => null
 }))
-vi.mock('./use-ai-vault-session-display-title', () => ({
+vi.mock('./ai-vault/session-list/use-ai-vault-session-display-title', () => ({
   useAiVaultSessionDisplayTitle: (session: { title: string }) => session.title
 }))
 const listSessions = vi.fn<(args: AiVaultListArgs) => Promise<AiVaultListResult>>()

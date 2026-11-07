@@ -1,9 +1,11 @@
+import { acceptedAnswerSender } from '../../../../orchestration/mailbox/senders/accepted-answer-sender'
+import { answerSenderRelayReport } from '../../../../orchestration/mailbox/senders/answer-sender-relay-report'
 import { defineMethod } from '../../../core'
-import { assertSessionLinkMailBoundary } from '../../../../orchestration/session-links/session-link-mail-boundary'
-import { deliverQuestionAnswer } from '../../../../orchestration/question-answer-delivery'
+import { deliverQuestionAnswer } from '../../../../orchestration/mailbox/questions/question-answer-delivery'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { ORCHESTRATION_LEGACY_RUN_ID } from '../../../../../../shared/orchestration-rpc-contract'
-import { resolveRunScope } from '../runs/run-scope'
+import { orchestrationCallerIdentity, resolveRunScope } from '../runs/run-scope'
+import { assertSessionLinkMailBoundary } from '../../../../orchestration/session-links/session-link-mail-boundary'
 import {
   readMutationReplayNudge,
   stripMutationReplayNudge
@@ -14,7 +16,7 @@ import { resolveReplyRecipient } from './recipient-routing'
 import { helperQuestionAnswerer } from './helper-question-answerer'
 import { replyToRemoteRunHome } from './reply-remote'
 import { withAnswerNext } from '../receipt-next'
-import { ReplyParams } from '../schemas'
+import { ReplyParams } from '../../../../../../shared/rpc-contract/orchestration-params'
 
 export const ORCHESTRATION_REPLY_METHOD = defineMethod({
   name: 'orchestration.reply',
@@ -81,6 +83,15 @@ export const ORCHESTRATION_REPLY_METHOD = defineMethod({
         messageId: question.message_id,
         runId: question.run_id,
         answeredBy: creatorAnswerer,
+        captureSender: acceptedAnswerSender(
+          runtime,
+          `dispatch:${creatorAnswerer.dispatchId}`,
+          orchestrationCallerIdentity(runtime, {
+            handle: params.from ?? '',
+            session: orchestrationCaller,
+            paneKey: orchestrationCaller ? undefined : runtime.getTerminalPaneKey(params.from ?? '')
+          })
+        ),
         body: params.body
       })
       return recordReceiptBeforeNudge(
@@ -102,6 +113,15 @@ export const ORCHESTRATION_REPLY_METHOD = defineMethod({
         messageId: question.message_id,
         runId: run.id,
         consumerGeneration: run.consumer_generation,
+        captureSender: acceptedAnswerSender(
+          runtime,
+          `run:${run.id}`,
+          orchestrationCallerIdentity(runtime, {
+            handle: params.from ?? '',
+            session: orchestrationCaller,
+            paneKey: orchestrationCaller ? undefined : runtime.getTerminalPaneKey(params.from ?? '')
+          })
+        ),
         body: params.body
       })
       const federated = db.getFederatedDispatch(question.dispatch_id)
@@ -115,6 +135,7 @@ export const ORCHESTRATION_REPLY_METHOD = defineMethod({
           dispatchId: question.dispatch_id,
           direction: 'to_worker',
           kind: 'reply',
+          answerSenderReport: answerSenderRelayReport(answered.message.answer_sender_snapshot),
           payload: JSON.stringify({
             questionId: question.message_id,
             answerMessageId: answered.message.id,

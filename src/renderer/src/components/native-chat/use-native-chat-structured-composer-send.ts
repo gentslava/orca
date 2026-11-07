@@ -9,11 +9,8 @@ import { formatAgentTypeLabel } from '../../../../shared/agent-status/presentati
 import { isTuiAgent } from '../../../../shared/agent-launch/catalog/tui-agent-config'
 import { MAX_SKILL_REFS } from '../../../../shared/rpc-contract/structured-agent-session-message-params'
 import { SkillRefLimitError } from '../../../../shared/agent-session/requests/structured-agent-session-send-mutation'
-import { promptSkillRefs } from './native-chat-prompt-document'
-import type {
-  StructuredAgentSessionAttachmentPreparation,
-  StructuredAgentSessionSendRequest
-} from './structured-agent-session-send-slot'
+import { promptHasInteractionModeSkill, promptSkillRefs } from './native-chat-prompt-document'
+import type { StructuredAgentSessionAttachmentPreparation } from './structured-agent-session-send-slot'
 import { useCallback } from 'react'
 import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
 import {
@@ -37,6 +34,7 @@ import {
   updateNativeChatComposerDraft
 } from './native-chat-composer-draft-store'
 import { nativeChatComposerDraftLeftAfterSend } from './native-chat-composer-draft-comparison'
+import type { StructuredAgentSessionSendRequest } from './structured-agent-session-send-slot'
 import {
   admitNativeChatPastedText,
   projectNativeChatPastedText
@@ -83,10 +81,15 @@ export function useNativeChatStructuredComposerSend({
       const submitted = readNativeChatComposerDraft(draftScopeKey)
       const submittedText = text
       text = projectNativeChatPastedText(text, submitted.pastedTextFiles)
-      const hostCommand = isStructuredAgentSessionHostCommand(
-        text,
-        structuredTransport.threadGoal !== undefined
-      )
+      const pickedModeSkill = promptHasInteractionModeSkill(agent, text, submitted.document)
+      const hostCommand =
+        !pickedModeSkill &&
+        isStructuredAgentSessionHostCommand(
+          text,
+          structuredTransport.threadGoal !== undefined,
+          agent,
+          structuredTransport.optionSnapshot
+        )
       const intent = structuredTransport.queue
         ? structuredAgentSessionRequestedDelivery(
             structuredTransport.queue,
@@ -228,7 +231,13 @@ export function useNativeChatStructuredComposerSend({
         {
           ...request,
           ...(prepareAttachments
-            ? { prepareAttachments, onSettled: () => stagedInput?.release() }
+            ? {
+                prepareAttachments,
+                onSettled: (outcome) => {
+                  stagedInput?.release()
+                  request?.onSettled?.(outcome)
+                }
+              }
             : {})
         },
         consume

@@ -1,4 +1,4 @@
-import { createCoalescedPollRunner } from '../../lib/repository-refresh/coalesced-poll-runner'
+import { createCoalescedPollRunner } from '@/lib/repository-refresh/coalesced-poll-runner'
 import { useAppStore } from '@/store'
 import { useEffect, useMemo, useState } from 'react'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
@@ -7,7 +7,7 @@ import {
   type OrchestrationSessionChild,
   type OrchestrationSessionChildren
 } from '../../../../shared/orchestration-session-children'
-import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import { useStructuredAgentSessionHostCapabilityState } from '@/runtime/structured-agent-session-host-capability'
 
 function workerLifecycleKey(state: ReturnType<typeof useAppStore.getState>): string {

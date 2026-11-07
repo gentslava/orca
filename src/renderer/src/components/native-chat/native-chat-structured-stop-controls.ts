@@ -1,7 +1,6 @@
 import { agentStopDisplayStatus } from '../../../../shared/agent-status/lifecycle/agent-stop-display-status'
 import type { useStructuredAgentSession } from './use-structured-agent-session'
 import type { NativeChatAfterStopSend } from './native-chat-composer-target'
-import type { AgentType } from '../../../../shared/agent-status/contracts/agent-status-types'
 
 type StopController = Pick<
   ReturnType<typeof useStructuredAgentSession>,
@@ -19,6 +18,7 @@ export function nativeChatStructuredStopControls(
     isStopping: boolean
     onStop: (() => void) | undefined
     steerHead: (() => boolean) | undefined
+    steerLast: (() => boolean) | undefined
     afterStop: NativeChatAfterStopSend | undefined
   }
 } {
@@ -37,6 +37,7 @@ export function nativeChatStructuredStopControls(
       isStopping: stopInFlight,
       onStop: controller.canStop ? () => void (stopInFlight || controller.stop()) : undefined,
       steerHead: stopping ? undefined : controller.queuedMessages.steerHead,
+      steerLast: stopping ? undefined : controller.queuedMessages.steerLast,
       afterStop: stopping ? (controller.sendsQueue ? 'queue' : 'send') : undefined
     }
   }
@@ -44,13 +45,12 @@ export function nativeChatStructuredStopControls(
 
 type Session = ReturnType<typeof useStructuredAgentSession>
 
-/** Cancel the shown prompt at its revision; without a turn only Pi takes the cancel. */
+/** Cancel the shown prompt at its revision; the host routes a card with no running turn. */
 export function cancelStructuredPrompt(
   controller: Pick<Session, 'cancel' | 'turnId'>,
-  prompt: Session['prompts'][number] | null,
-  agent: AgentType
+  prompt: Session['prompts'][number] | null
 ): void {
-  if (prompt && (controller.turnId || agent === 'pi')) {
+  if (prompt) {
     void controller.cancel(controller.turnId ?? undefined, {
       itemId: prompt.itemId,
       expectedRevision: prompt.revision

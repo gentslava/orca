@@ -47,7 +47,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
   })
   fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
   fireEvent.click(screen.getByRole('option', { name: 'GPT-5.4' }))
-  fireEvent.keyDown(screen.getByRole('slider', { name: 'Effort' }), { key: 'Home' })
+  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
   fireEvent.click(screen.getByRole('button', { name: /^Use$/ }))
   await waitFor(() =>
     expect(useAppStore.getState().settings?.commitMessageAi).toMatchObject({

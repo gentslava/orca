@@ -41,6 +41,7 @@ import { createHostWorkspaceStatusActions } from './ui-slice-host-workspace-stat
 /** Builds preference defaults and setters for the UI slice, leaving durable writes to the persistence layer. */
 export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Partial<UISlice> {
   return {
+    gitGraphFiltersByWorktree: {},
     sidebarBody: 'conversations',
     setSidebarBody: (body) => set({ sidebarBody: body }),
 
@@ -176,6 +177,10 @@ export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Par
         window.api.ui.set({ collapsedGroups: [...next] }).catch(console.error)
         return { collapsedGroups: next }
       }),
+    setCollapsedGroups: (keys) => {
+      set({ collapsedGroups: keys })
+      window.api.ui.set({ collapsedGroups: [...keys] }).catch(console.error)
+    },
 
     worktreeCardProperties: [...DEFAULT_WORKTREE_CARD_PROPERTIES],
     _worktreeCardModeDefaulted: true,

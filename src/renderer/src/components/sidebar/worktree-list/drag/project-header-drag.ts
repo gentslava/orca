@@ -1,4 +1,4 @@
-import { isPointerInsideProjectPinTier } from '../../project-header-drag-pin-tier'
+import { isPointerInsideProjectPinTier } from './project-header-drag-pin-tier'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {

@@ -117,10 +117,10 @@ async function listAiVaultSessions(
         ? [...new Set(scopePaths)].sort()
         : scopePaths,
     executionHostScope,
-    includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
-    includeStructuredSessions: args?.includeStructuredSessions === true,
     structuredOnly: args?.structuredOnly === true,
-    selectedSessionId: args?.selectedSessionId
+    selectedSessionId: args?.selectedSessionId,
+    includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
+    includeStructuredSessions: args?.includeStructuredSessions === true
   })
   const depth = requestedAiVaultSessionDepth(args)
   const afterFingerprint =

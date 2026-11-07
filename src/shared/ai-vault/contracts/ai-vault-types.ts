@@ -107,6 +107,9 @@ export type AiVaultSessionSubagentInfo = {
   status: AiVaultSubagentRunStatus | null
 }
 
+/** Where a title came from: the session's own name (a rename or provider-generated), or a stand-in such as its first prompt. */
+export type AiVaultSessionTitleKind = 'named' | 'fallback'
+
 export type AiVaultSession = {
   /** Legacy host affiliation; absence must retain local project attribution. */
   projectOwnerKey?: string | null
@@ -123,6 +126,8 @@ export type AiVaultSession = {
   agent: AiVaultAgent
   sessionId: string
   title: string
+  /** Claude and Codex only: whether `title` is the session's own name or a stand-in; absent means unclassified. */
+  titleKind?: AiVaultSessionTitleKind
   cwd: string | null
   /** Host-proven spellings of `cwd` for matching scopes and resume targets; launch paths remain separate. */
   cwdAliases?: string[]
@@ -140,6 +145,8 @@ export type AiVaultSession = {
   previewMessagesTruncated?: boolean
   /** Bounded opening-prompt identity for Antigravity history joins; never a rolling preview. */
   antigravityOpeningPrompt?: { hash: string; timestamp: string | null }
+  /** One top-level artifact file in the agy conversation folder; revealing it opens that folder. */
+  antigravityArtifactPath?: string
   /** Opening human prompt; durable journal previews are bounded, provider-file full reads remain on demand. */
   firstUserPrompt?: string | null
   /** Latest provider-authenticated user prompt; absent when the transcript has no trustworthy signal. */

@@ -25,6 +25,25 @@ const defaults = {
 }
 
 describe('projects containing conversations', () => {
+  it('does not duplicate a folder project as an empty catalog placeholder', () => {
+    const folder = conversationWorkspace({
+      workspaceKind: 'folder-workspace',
+      worktreeId: 'folder:notes',
+      repoId: 'notes',
+      repo: 'Notes',
+      displayName: 'Notes',
+      path: '/documents/notes',
+      agents: [conversationAgent({ taskTitle: 'Organize the release notes' })]
+    })
+    const projects = buildProjectConversations({
+      ...defaults,
+      workspaces: [folder],
+      repos: [{ id: 'notes', displayName: 'Notes', path: '/documents/notes', connectionId: null }]
+    })
+    expect(projects.map((project) => project.title)).toEqual(['Notes'])
+    expect(projects[0]?.data.map((row) => row.title)).toEqual(['Organize the release notes'])
+    expect(projectConversationTarget(projects[0]!)).toBe(folder)
+  })
   it.each([
     { type: 'terminal', id: 'child', terminal: 'worker', launchAgent: 'codex', title: 'Worker' },
     {
@@ -141,9 +160,7 @@ describe('projects containing conversations', () => {
 
   it('does not cross host boundaries when workspace ids and paths are identical', () => {
     const local = conversationWorkspace()
-    const remote = conversationWorkspace({
-      hostId: 'runtime:server'
-    })
+    const remote = conversationWorkspace({ hostId: 'runtime:server' })
     const ssh = conversationWorkspace({ hostId: 'ssh:target' })
     const saved = conversationHistory({ executionHostId: 'runtime:server' })
     const projects = buildProjectConversations({

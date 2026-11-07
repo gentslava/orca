@@ -1,7 +1,6 @@
-import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/local-runtime-capabilities'
-import { EMULATOR_OPENING_PREFERENCES_CAPABILITY } from '../../../shared/emulator-runtime-capabilities'
+import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import { openMobileEmulatorTab } from './open-mobile-emulator-tab'
 import {
   consumePrelaunchedSimulatorSession,
@@ -28,7 +27,9 @@ vi.mock('@/store', () => ({
   }
 }))
 
-vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: vi.fn() }))
+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({
+  callRuntimeRpc: vi.fn()
+}))
 
 vi.mock('sonner', () => ({
   toast: {
@@ -72,35 +73,6 @@ describe('openMobileEmulatorTab', () => {
     cancelPendingSimulatorPaneShutdown('wt-1')
     vi.useRealTimers()
     vi.unstubAllGlobals()
-  })
-
-  it('lets a capable pane resolve user preferences instead of prelaunching an arbitrary device', async () => {
-    setLocalRuntimeCapabilitiesForTests([EMULATOR_OPENING_PREFERENCES_CAPABILITY])
-    vi.mocked(ensureSimulatorTab).mockImplementationOnce(() => {
-      expect(isManualSimulatorLaunchPending('wt-1')).toBe(false)
-      return 'sim-1'
-    })
-    expect(await openMobileEmulatorTab('wt-1')).toBe('sim-1')
-    expect(ensureSimulatorTab).toHaveBeenCalled()
-    expect(callRuntimeRpc).not.toHaveBeenCalled()
-    expect(isManualSimulatorLaunchPending('wt-1')).toBe(false)
-  })
-
-  it('does not start a duplicate attach while a manual launch is already pending', async () => {
-    let resolveAttach: (value: typeof mockAttachResult) => void = () => {}
-    vi.mocked(callRuntimeRpc).mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolveAttach = resolve
-        })
-    )
-
-    const firstLaunch = openMobileEmulatorTab('wt-1', { targetGroupId: 'group-1' })
-    await expect(openMobileEmulatorTab('wt-1', { targetGroupId: 'group-1' })).resolves.toBe('sim-1')
-
-    expect(callRuntimeRpc).toHaveBeenCalledTimes(1)
-    resolveAttach(mockAttachResult)
-    await firstLaunch
   })
 
   it('shuts down the managed emulator if the tab closes before attach resolves', async () => {

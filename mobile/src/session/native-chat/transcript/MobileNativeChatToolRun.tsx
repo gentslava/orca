@@ -175,7 +175,6 @@ export function ToolRun({
   previousTodoWrite,
   previousUpdatePlan,
   fontScale = 1,
-  onOpenFile,
   viewedImages
 }: MobileNativeChatToolRunProps): React.JSX.Element {
   useMobileColorScheme()
@@ -264,7 +263,6 @@ export function ToolRun({
             disclosureId={disclosureId}
             asides={asides}
             fontScale={fontScale}
-            onOpenFile={onOpenFile}
           />
         </ToolRunMembers>
       ) : null}
@@ -279,8 +277,7 @@ function ToolRunMemberList({
   asides,
   previousTodoWrite,
   previousUpdatePlan,
-  fontScale,
-  onOpenFile
+  fontScale
 }: {
   blocks: NativeChatBlock[]
   disclosureId?: string
@@ -288,7 +285,6 @@ function ToolRunMemberList({
   previousTodoWrite?: NativeChatToolCallBlock
   previousUpdatePlan?: NativeChatToolCallBlock
   fontScale: number
-  onOpenFile?: (path: string) => void
 }): React.JSX.Element {
   const taskLists = useMemo(
     () =>
@@ -333,7 +329,6 @@ function ToolRunMemberList({
                 disclosureId === undefined ? undefined : `diff:${disclosureId}:${id}:${fileIndex}`
               }
               fontScale={fontScale}
-              onOpenFile={onOpenFile}
             />
           ))}
         </View>
@@ -358,7 +353,6 @@ function ToolRunMemberList({
           disclosureId === undefined ? undefined : `line:${disclosureId}:${lineIdentity}`
         }
         fontScale={fontScale}
-        onOpenFile={onOpenFile}
       />
     )
   }

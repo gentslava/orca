@@ -1,3 +1,4 @@
+import { NativeChatLinkClickContext } from './native-chat-link-click-context'
 import { NativeChatChildMediaScope } from './NativeChatChildMediaScope'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Bot, Loader2 } from 'lucide-react'
@@ -124,24 +125,24 @@ export function NativeChatChildTranscriptFrame({
         ) : null}
         {session.messages.length > 0 ? (
           <NativeChatRewindContext.Provider value={undefined}>
-            <NativeChatMessageList
-              ref={messageListRef}
-              session={session}
-              subagentRoster={roster}
-              journalItems={journal?.items}
-              journalSubmissions={journal?.submissions}
-              journalLatestTurn={journal?.latestTurn}
-              journalHostWork={presentation?.hostWork}
-              isVisible={isVisible && active}
-              isWorking={working}
-              workingStartedAt={presentation?.turnTiming.workingStartedAt ?? entry?.startedAt}
-              settledTurns={presentation?.turnTiming.settledTurns}
-              turnActivity={presentation?.turnActivity}
-              expandSignal={false}
-              onLinkClick={onLinkClick}
-              allowFileUriLinks={onLinkClick !== undefined}
-              runtimeContext={runtimeContext}
-            />
+            <NativeChatLinkClickContext value={onLinkClick}>
+              <NativeChatMessageList
+                ref={messageListRef}
+                session={session}
+                subagentRoster={roster}
+                journalItems={journal?.items}
+                journalSubmissions={journal?.submissions}
+                journalLatestTurn={journal?.latestTurn}
+                journalHostWork={presentation?.hostWork}
+                isVisible={isVisible && active}
+                isWorking={working}
+                workingStartedAt={presentation?.turnTiming.workingStartedAt ?? entry?.startedAt}
+                settledTurns={presentation?.turnTiming.settledTurns}
+                turnActivity={presentation?.turnActivity}
+                expandSignal={false}
+                runtimeContext={runtimeContext}
+              />
+            </NativeChatLinkClickContext>
           </NativeChatRewindContext.Provider>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-sm text-chat-foreground-faint">
@@ -183,8 +184,6 @@ export function NativeChatChildTranscriptFrame({
               <CollapsibleContent>
                 <CommentMarkdown
                   content={worker.result}
-                  onLinkClick={onLinkClick}
-                  allowFileUriLinks={onLinkClick !== undefined}
                   className="py-2 text-sm text-chat-foreground"
                 />
               </CollapsibleContent>

@@ -226,6 +226,7 @@ export function createStructuredSessionMocks() {
               pending: () => null,
               queuePending: null,
               steerHead: mocks.queuedSteerHead,
+              steerLast: () => false,
               isWorking: mocks.isWorking
             },
             threadGoal: mocks.threadGoal,
@@ -309,7 +310,8 @@ export function createStructuredSessionMocks() {
           revealLatest: mocks.revealLatest,
           readerAtEnd: () => true,
           revealFindMatch: () => {},
-          messageCopyText: () => null
+          messageCopyText: () => null,
+          revealSubagent: () => {}
         }))
         return <DeliveryNoticesMock notices={props?.deliveryNotices} />
       }

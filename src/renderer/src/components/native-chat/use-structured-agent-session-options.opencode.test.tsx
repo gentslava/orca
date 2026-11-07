@@ -9,7 +9,7 @@ import {
   renderOptions,
   descriptor
 } from './use-structured-agent-session-options.test-fixture'
-import { forgetStructuredSessionSelection } from '@/lib/structured-agent-session-selection-controller'
+import { forgetStructuredSessionSelection } from '@/lib/agent-session/options/structured-agent-session-selection-controller'
 import { resetHostModelCatalogSnapshotsForTests } from '@/runtime/host-model-catalog-snapshots'
 
 const A = 'opencode/crouton-alpha-free'
@@ -23,7 +23,6 @@ afterEach(() => {
 it.each([true, false])(
   'discovers a draft-held target only on a capable paired host (%s)',
   async (capable) => {
-    mocks.supportsRemote.mockResolvedValue(false)
     mocks.effortDiscovery = capable
     mocks.call.mockReset()
     mocks.hold.mockReset()

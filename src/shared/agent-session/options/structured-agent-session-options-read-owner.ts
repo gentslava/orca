@@ -1,3 +1,4 @@
+import { applyKeepingIdentity } from './structured-agent-session-option-state-identity'
 import type { AgentSessionOptionCatalog } from './agent-session-option-catalog-types'
 import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
 import type { AgentSessionOptionsResult } from './agent-session-options-result'
@@ -44,16 +45,6 @@ type ReadSnapshot = {
 }
 const same = (left: readonly unknown[], right: readonly unknown[]) =>
   left.length === right.length && left.every((value, index) => Object.is(value, right[index]))
-// Answers fill the record in place, so comparing starts before applying; JSON skips the catalog's fresh closures.
-const applyKeepingIdentity = (
-  current: StructuredAgentSessionOptionState,
-  apply: (current: StructuredAgentSessionOptionState) => StructuredAgentSessionOptionState
-) => {
-  const before = JSON.stringify(current)
-  const next = apply(current)
-  return JSON.stringify(next) === before ? current : next
-}
-
 /** One live scope owns capture, accepted publication and causal retirement on either surface. */
 export function createStructuredAgentSessionOptionsReadOwner(
   seed: StructuredAgentSessionOptionState
@@ -230,6 +221,8 @@ export function createStructuredAgentSessionOptionsReadOwner(
           reportedPermissionMode: undefined,
           reportedModel: undefined,
           reportedEffort: undefined,
+          sessionNeverStarted: undefined,
+          catalogNamesConfiguredModel: undefined,
           ...(current.acceptedInputSources ? { acceptedInputSources: {} } : {})
         }
       }
@@ -247,7 +240,8 @@ export function createStructuredAgentSessionOptionsReadOwner(
                 record: cloneStructuredAgentSessionOptionRecord(current.record),
                 reportedPermissionMode: undefined,
                 reportedModel: undefined,
-                reportedEffort: undefined
+                reportedEffort: undefined,
+                sessionNeverStarted: undefined
               }
             : context.seed()
         // Support stays tagged with its session; consumers filter by session, so it bridges a re-pair.
@@ -289,7 +283,10 @@ export function createStructuredAgentSessionOptionsReadOwner(
                 catalog,
                 context
               )
-            : settleStructuredAgentSessionBuiltinCatalog(current, false)
+            : settleStructuredAgentSessionBuiltinCatalog(
+                { ...current, catalogNamesConfiguredModel: undefined },
+                false
+              )
         )
       )
       if (

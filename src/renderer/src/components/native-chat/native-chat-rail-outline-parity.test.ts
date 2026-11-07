@@ -1,4 +1,3 @@
-import { loadedRailItems } from './native-chat-rail-loaded-history.test-fixture'
 import { readAgentMessageSource } from '../../../../shared/agent-session/agent-session-message-source'
 import {
   ORCHESTRATION_NOTICE_SOURCE,
@@ -168,7 +167,7 @@ describe('outline preview truncation', () => {
   })
 })
 
-it('retains only human authors in authoritative history and loaded rows, including future agent shapes', () => {
+it('retains only human authors in authoritative history, including future agent shapes', () => {
   const newer = readAgentMessageSource({
     kind: 'agent',
     senders: [],
@@ -206,5 +205,4 @@ it('retains only human authors in authoritative history and loaded rows, includi
     { itemId: 'item-1', sequence: 1 },
     { itemId: 'item-5', sequence: 5 }
   ])
-  expect(loadedRailItems(journal, []).map(({ id }) => id)).toEqual(['item-1', 'item-5'])
 })

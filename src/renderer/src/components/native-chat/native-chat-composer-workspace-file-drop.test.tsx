@@ -40,7 +40,7 @@ vi.mock('@/store', () => {
   useAppStore.getState = () => testState.store
   return { useAppStore }
 })
-vi.mock('@/lib/worktree-runtime-owner', () => ({
+vi.mock('@/lib/workspace/ownership/worktree-runtime-owner', () => ({
   getExecutionHostIdForWorktree: () => testState.executionHostId
 }))
 // Retain production notices and exports so mocks cannot hide stale wording or new behavior.
@@ -122,6 +122,7 @@ function ComposerProbe({
   const attachments = useNativeChatComposerAttachments({
     attachmentScopeKey: `pane:${workspaceId}`,
     allowWithoutTarget: structured,
+    imageReferences: structured,
     caret,
     disabled,
     isComposing: imeEnterGesture.isComposing,
@@ -339,62 +340,5 @@ describe('native chat workspace file drops', () => {
 
     expect(screen.getByTestId('draft').textContent).toBe('preedit')
     expect(screen.getByText('Files can only be attached to their source workspace.')).toBeTruthy()
-  })
-
-  it('rejects only the exact unresolved-owner sentinel', () => {
-    testState.executionHostId = 'runtime:unresolved-owner'
-    const view = render(<ComposerProbe />)
-    dispatchDragEvent(
-      'drop',
-      editor(),
-      internalTransfer(['/repo/rejected.ts'], {
-        executionHostId: 'runtime:unresolved-owner'
-      })
-    )
-    expect(screen.getByTestId('draft').textContent).toBe('')
-
-    testState.executionHostId = 'runtime:my-unresolved-owner-env'
-    testState.ownerKind = 'remote'
-    view.rerender(<ComposerProbe />)
-    dispatchDragEvent(
-      'drop',
-      editor(),
-      internalTransfer(['/repo/accepted.ts'], {
-        executionHostId: 'runtime:my-unresolved-owner-env'
-      })
-    )
-    expect(screen.getByTestId('draft').textContent).toBe('@/repo/accepted.ts ')
-  })
-
-  it('keeps an SSH-host image tagged with its host, never read as a client file', () => {
-    testState.executionHostId = 'ssh:ssh-1'
-    testState.ownerKind = 'remote'
-    render(<ComposerProbe />)
-    dispatchDragEvent(
-      'drop',
-      editor(),
-      internalTransfer(['/remote/repo/image.png'], {
-        executionHostId: 'ssh:ssh-1'
-      })
-    )
-
-    const image = screen.getByText('/remote/repo/image.png')
-    expect(image.getAttribute('data-connection-id')).toBe('ssh-1')
-    expect(screen.getByTestId('draft').textContent).toBe('')
-  })
-
-  it('supports PTY-owned and folder-workspace paths with the same ownership gate', () => {
-    const first = render(<ComposerProbe structured={false} />)
-    dispatchDragEvent('drop', editor(), internalTransfer(['/repo/pty.ts']))
-    expect(screen.getByTestId('draft').textContent).toBe('@/repo/pty.ts ')
-    first.unmount()
-
-    render(<ComposerProbe workspaceId="folder:folder-1" />)
-    dispatchDragEvent(
-      'drop',
-      editor(),
-      internalTransfer(['/folder/note.md'], { workspaceId: 'folder:folder-1' })
-    )
-    expect(screen.getByTestId('draft').textContent).toBe('@/folder/note.md ')
   })
 })

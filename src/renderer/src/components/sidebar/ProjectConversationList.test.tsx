@@ -42,7 +42,7 @@ vi.mock('./SidebarConversationStart', () => ({
     projectName: string
   }) => <button data-workspace={worktreeId}>New chat in {projectName}</button>
 }))
-vi.mock('../right-sidebar/use-ai-vault-session-display-title', () => ({
+vi.mock('../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-title', () => ({
   useAiVaultSessionDisplayTitle: (session: { title: string }) => session.title
 }))
 beforeEach(() => {

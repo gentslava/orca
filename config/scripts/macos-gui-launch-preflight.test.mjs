@@ -62,7 +62,7 @@ describe('macOS GUI launch preflight', () => {
     () => {
       const result = spawnSync(
         process.execPath,
-        [fileURLToPath(new URL('./run-electron-vite-dev.mjs', import.meta.url))],
+        [fileURLToPath(new URL('./development/launch/run-electron-vite-dev.mjs', import.meta.url))],
         {
           encoding: 'utf8',
           timeout: 10000,

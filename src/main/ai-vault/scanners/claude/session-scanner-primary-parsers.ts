@@ -192,7 +192,8 @@ export async function finalizeClaudeSessionParseState(
       snapshot.accumulator.filePath
     )
   }
-  const session = finalizeSession(snapshot.accumulator, platform, options)
+  const titleKind = snapshot.accumulator.title || snapshot.generatedTitle ? 'named' : 'fallback'
+  const session = finalizeSession(snapshot.accumulator, platform, { ...options, titleKind })
   return session
     ? {
         ...session,

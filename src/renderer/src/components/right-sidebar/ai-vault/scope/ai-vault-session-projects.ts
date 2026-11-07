@@ -29,13 +29,13 @@ import {
   resolveCandidateHostId,
   hasCandidatePath,
   type SessionProjectCandidate
-} from '@/components/right-sidebar/ai-vault-session-project-candidates'
+} from './ai-vault-session-project-candidates'
 import type { AiVaultSessionProject } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-filters'
 import {
   aiVaultCandidateProject,
   aiVaultFolderProject,
   resolveStructuredAiVaultSessionProject
-} from '@/components/right-sidebar/ai-vault-structured-session-project'
+} from './ai-vault-structured-session-project'
 
 export type { AiVaultSessionProject } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-filters'
 

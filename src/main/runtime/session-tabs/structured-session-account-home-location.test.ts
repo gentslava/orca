@@ -1,6 +1,6 @@
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { applyStructuredCodexWorkspaceTrust } from '../../agent-launch/trust/agent-workspace-trust-spawn'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, expect, it, vi } from 'vitest'
@@ -9,7 +9,8 @@ import { agentSessionRecordFixture } from '../../../shared/agent-session/lifecyc
 import { OrcaRuntimeWithStructuredSessionAccountHome } from './structured-session-account-home'
 import { installClaudeProfileRouter } from '../../claude-accounts/claude-profile-installed-router'
 
-vi.mock('../../agent-launch/trust/agent-workspace-trust-spawn', () => ({
+vi.mock(import('../../agent-launch/trust/agent-workspace-trust-spawn'), async (original) => ({
+  ...(await original()),
   applyStructuredCodexWorkspaceTrust: vi.fn(async () => {})
 }))
 vi.mock('./structured-session-cli-writer-host', () => ({
@@ -20,6 +21,18 @@ vi.mock('../../orca-profiles/profile-storage-paths', async () => {
   return { getProfileUserDataPath: () => tmpdir() }
 })
 const roots: string[] = []
+abstract class AccountHomeRuntime extends OrcaRuntimeWithStructuredSessionAccountHome {
+  resolveCreateHome(record: ReturnType<typeof agentSessionRecordFixture>) {
+    return this.structuredAgentAccountHomeResolver(
+      record.provider,
+      '',
+      'launch'
+    )?.({
+      launchEnv: {},
+      location: record.location
+    })
+  }
+}
 afterEach(() => {
   installClaudeProfileRouter(undefined)
   roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true }))
@@ -106,25 +119,23 @@ it('with a router names the selected account before its folder exists, through t
     runSetup
   })
   installClaudeProfileRouter(router)
-  const runtime: OrcaRuntimeWithStructuredSessionAccountHome = Object.assign(
-    Object.create(OrcaRuntimeWithStructuredSessionAccountHome.prototype),
-    {
-      accounts: { getClaudeConfigDirectory: () => router.systemDefaultHome() },
-      requireStore: () => ({ getSettings: () => settings }),
-      structuredAgentLaunchEnv: () => ({})
-    }
-  )
+  const runtime: AccountHomeRuntime = Object.assign(Object.create(AccountHomeRuntime.prototype), {
+    accounts: { getClaudeConfigDirectory: () => router.systemDefaultHome() },
+    requireStore: () => ({ getSettings: () => settings }),
+    structuredAgentLaunchEnv: () => ({})
+  })
   const record = agentSessionRecordFixture()
   const selected = { variable: 'CLAUDE_CONFIG_DIR', path: router.accountHome('a') }
   await expect(
     runtime.resolveStructuredAgentLaunchAccountHome(record, 'identity')
   ).resolves.toEqual(selected)
+  await expect(runtime.resolveCreateHome(record)).resolves.toEqual(selected)
   await expect(runtime.resolveStructuredAgentLaunchAccountHome(record)).rejects.toMatchObject({
     name: 'AgentSessionPreSpawnError',
     reason: 'claudeAccountFolderMissing'
   })
   // Neither read starts the account's setup; only a launch does.
-  expect(runSetup).not.toHaveBeenCalled()
+  expect(existsSync(selected.path)).toBe(false)
   mkdirSync(selected.path, { recursive: true })
   await expect(runtime.resolveStructuredAgentLaunchAccountHome(record)).resolves.toEqual(selected)
   await expect(

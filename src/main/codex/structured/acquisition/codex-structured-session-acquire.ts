@@ -6,11 +6,10 @@ import {
 import type {
   AgentSessionAcquisition,
   StructuredAgentSessionAcquireInput
-} from '../../../native-chat/agent-session-wire/structured-agent-session-adapter'
-import { launchPreparationFailure } from '../../../native-chat/agent-session-wire/structured-agent-session-adapter-errors'
+} from '../../../native-chat/agent-session-wire/providers/structured-agent-session-adapter'
+import { launchPreparationFailure } from '../../../native-chat/agent-session-wire/providers/structured-agent-session-adapter-errors'
 import {
   closeFailedCodexAcquisition,
-  codexAcquisitionExitFailure,
   stopSupersededCodexAcquisition
 } from './codex-structured-acquisition-lifecycle'
 import { CodexSubagentExecutions } from '../background-work/codex-subagent-executions'
@@ -23,6 +22,12 @@ import {
   handleCodexSessionExit
 } from '../session-lifecycle/codex-structured-session-close'
 import { openCodexStructuredSession } from '../session-lifecycle/codex-structured-session-start'
+import {
+  agentSessionFailureFact,
+  providerDiagnosticOf
+} from '../../../../shared/agent-session/failures/agent-session-failure'
+import { providerSpawnAbsent } from '../../../provider-process/provider-executable-missing'
+import { providerStartupFailureFact } from '../../../native-chat/agent-session-wire/startup/structured-agent-session-failure-text'
 import {
   assertCodexConnectionOpen,
   mintCodexAcquisitionGeneration,
@@ -192,7 +197,13 @@ export async function acquireCodexStructuredSession(input: {
                   attempt.cancelled && attempt.requestedClose !== false
                     ? 'requested-close'
                     : 'unexpected-exit',
-                failure: codexAcquisitionExitFailure(error, attempt.cancelled),
+                failure: attempt.cancelled
+                  ? agentSessionFailureFact('hostFault')
+                  : providerSpawnAbsent(error)
+                    ? providerStartupFailureFact(error)
+                    : agentSessionFailureFact('providerExited', {
+                        detail: providerDiagnosticOf(error)
+                      }),
                 observedAt: deps.now?.() ?? Date.now()
               })
             }
@@ -268,13 +279,10 @@ export async function acquireCodexStructuredSession(input: {
         },
         openInput
       )
-    return {
-      process,
-      acquisitionGeneration,
-      ...(launch.codexHome
-        ? { accountHome: { variable: 'CODEX_HOME' as const, path: launch.codexHome } }
-        : {})
-    }
+    const accountHome = launch.codexHome
+      ? { variable: 'CODEX_HOME' as const, path: launch.codexHome }
+      : undefined
+    return { process, acquisitionGeneration, ...(accountHome ? { accountHome } : {}) }
   } catch (error) {
     acquisitions.endings.retire(sessionId, acquisitionGeneration)
     if (sessions.get(sessionId)?.connection !== acquisition.connection) {

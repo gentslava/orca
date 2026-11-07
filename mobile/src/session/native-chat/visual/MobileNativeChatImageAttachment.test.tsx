@@ -42,6 +42,7 @@ describe('host-owned mobile chat images', () => {
     const value = {
       openImage,
       openActions: () => {},
+      openRewind: () => {},
       imageSource: client ? { client, worktreeId } : undefined
     }
     return createElement(

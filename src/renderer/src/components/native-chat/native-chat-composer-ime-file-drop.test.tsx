@@ -37,7 +37,9 @@ const testState: {
   }
 }))
 
-vi.mock('@/lib/native-chat-telemetry', () => ({ emitNativeChatMessageSent: vi.fn() }))
+vi.mock('@/components/native-chat/telemetry/native-chat-telemetry', () => ({
+  emitNativeChatMessageSent: vi.fn()
+}))
 
 vi.mock('@/store', () => {
   const useAppStore = (selector: (state: typeof testState.store) => unknown) =>
@@ -45,7 +47,7 @@ vi.mock('@/store', () => {
   useAppStore.getState = () => testState.store
   return { useAppStore }
 })
-vi.mock('@/lib/worktree-runtime-owner', () => ({
+vi.mock('@/lib/workspace/ownership/worktree-runtime-owner', () => ({
   getExecutionHostIdForWorktree: () => testState.executionHostId
 }))
 // Retain production notices and exports so mocks cannot hide stale wording or new behavior.
@@ -113,6 +115,7 @@ function ComposerProbe({
   const attachments = useNativeChatComposerAttachments({
     attachmentScopeKey: `pane:${workspaceId}`,
     allowWithoutTarget: structured,
+    imageReferences: structured,
     caret,
     disabled,
     isComposing: imeEnterGesture.isComposing,
@@ -330,10 +333,7 @@ describe('OS file drops through the real composing chat field', () => {
         [...editor.querySelectorAll('[data-native-chat-image-reference]')].map(
           (pill) => pill.textContent
         )
-      ).toEqual([])
-      expect(
-        [...document.querySelectorAll('[data-image-attachment]')].map((image) => image.textContent)
-      ).toEqual(['/drop/b.png', '/drop/a.png', '/drop/b.png'])
+      ).toEqual(['Image #1', 'Image #2', 'Image #3'])
     }
     assertDraftMatchesDocument()
     // Browser-native End movement is exercised in Electron; here selection uses real editor commands.
@@ -364,7 +364,7 @@ describe('OS file drops through the real composing chat field', () => {
     )
     const [text, images] = send.mock.calls[0] ?? []
     expect(text).toContain(question)
-    expect(text).toBe(submitted.text)
+    expect(text?.match(/\[Image #\d+\]/g)).toEqual(['[Image #1]', '[Image #2]', '[Image #3]'])
     expect(images?.map(({ path }) => path)).toEqual(['/drop/b.png', '/drop/a.png', '/drop/b.png'])
     expect(promptValue(editor)).toBe('')
     expect(readNativeChatComposerDraft('pane:worktree-1').text).toBe('')

@@ -6,13 +6,13 @@ import {
   agentSessionRecordFixture
 } from '../../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
 import { testOrcaSessionId } from '../../../shared/orca-session-address-test-fixture'
-import { OrchestrationDb } from './db'
+import { OrchestrationDb } from './db/orchestration-db'
 import { structuredSessionChildWorkers } from './structured-session-child-workers'
 import {
   mintStructuredWorkerHandle,
   mintStructuredWorkerPaneKey,
   structuredWorkerProcessIncarnation
-} from '../structured-worker-identity'
+} from './terminal-authority/structured-sessions/structured-worker-identity'
 
 const PARENT = testOrcaSessionId('4a1f6c2e-8b3d-4e7a-9c15-0d2b6e8f1a37')
 const WORKER = testOrcaSessionId('7e3b9d15-2c4a-4f86-a0b1-5c9e2d7f3b64')

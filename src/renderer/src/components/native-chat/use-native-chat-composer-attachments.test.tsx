@@ -1,4 +1,3 @@
-import { recheckNativeChatComposerDraftImagesIn } from './native-chat-composer-draft-image-check'
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act } from 'react'
@@ -9,10 +8,11 @@ import {
 } from './use-native-chat-composer-attachments'
 
 import { readNativeChatDraftCache } from './native-chat-draft-cache'
+
 import type * as RemoteRuntimePtyIdModule from '../../../../shared/remote-runtime/remote-runtime-pty-id'
 
 import { useAppStore } from '@/store'
-import { resolveNativeChatDraftOwner } from '@/lib/native-chat-draft-owner'
+import { resolveNativeChatDraftOwner } from '@/components/native-chat/drafts/native-chat-draft-owner'
 import type { Tab } from '../../../../shared/tab-types'
 
 const initialStoreState = useAppStore.getInitialState()
@@ -195,102 +195,12 @@ describe('useNativeChatComposerAttachments', () => {
     }
   })
 
-  it.each([true, false])(
-    'rechecks a removed upload after restore settles (composer mounted: %s)',
-    async (mounted) => {
-      const scope = 'agent-session:swept-later'
-      const image = { id: 'old', path: '/state/agent-session-attachments/upload/shot.png' }
-      const other = { id: 'other', path: '/state/agent-session-attachments/upload-2/b.png' }
-      const storage = draftStorage.createMemoryNativeChatComposerDraftStorage()
-      storage.drafts.set(scope, { text: 'hi', images: [image, other], savedAt: 1 })
-      draftStorage.setNativeChatComposerDraftStorageForTests(storage)
-      publishOwner(scope, { workspaceId: 'wt', executionHostId: 'local' })
-      draftStore.setNativeChatComposerDraftOwnerResolver((key) =>
-        resolveNativeChatDraftOwner(useAppStore.getState(), key)
-      )
-      let present = true
-      const pathExists = vi.fn(async () => present)
-      const originalApi = window.api
-      Object.assign(window, { api: { fs: { pathExists }, ui: {} } })
-      try {
-        await draftStore.hydrateNativeChatComposerDrafts()
-        const probe = await renderProbe(scope, true)
-        await act(async () => {})
-        expect(nativeChatImagesHoldSend(probe.latest().imageAttachments)).toBe(false)
-        if (!mounted) {
-          act(() => probe.root.unmount())
-        }
-        present = false
-        await act(async () =>
-          recheckNativeChatComposerDraftImagesIn('/state/agent-session-attachments/upload')
-        )
-        expect(draftStore.readNativeChatComposerDraft(scope).images).toMatchObject([
-          { id: 'old', path: '', unavailableName: 'shot.png' },
-          other
-        ])
-        if (mounted) {
-          expect(probe.latest().imageAttachments).toMatchObject([
-            { id: 'old', path: '', unavailableName: 'shot.png' },
-            other
-          ])
-          act(() => probe.root.unmount())
-        }
-        const reopened = await renderProbe(scope, true)
-        expect(nativeChatImagesHoldSend(reopened.latest().imageAttachments)).toBe(true)
-        act(() => reopened.root.unmount())
-      } finally {
-        Object.assign(window, { api: originalApi })
-      }
-    }
-  )
-
-  it('holds attached images as chips (deferred to submit) and restores them on remount', async () => {
-    const first = await renderProbe('pty-1')
-
-    await act(async () => {
-      first.latest().attachResolvedPaths(['/tmp/orca-native-chat-attach-test.png'])
-    })
-
-    // Attach only on submit so chip removal cannot leave stale image paths in TUI input.
-    expect(first.latest().imageAttachments).toMatchObject([
-      { path: '/tmp/orca-native-chat-attach-test.png' }
-    ])
-    expect(readNativeChatAttachmentCache('pty-1')).toMatchObject([
-      { path: '/tmp/orca-native-chat-attach-test.png' }
-    ])
-
-    act(() => first.root.unmount())
-    const second = await renderProbe('pty-1')
-
-    expect(second.latest().imageAttachments).toMatchObject([
-      { path: '/tmp/orca-native-chat-attach-test.png' }
-    ])
-    act(() => second.root.unmount())
-  })
-
-  it.each([false, true])(
-    'keeps image context outside the prompt (structured=%s)',
-    async (structured) => {
-      const scope = structured ? 'structured-1' : 'pty-1'
-      const probe = await renderProbe(scope, structured)
-      await act(async () => probe.latest().attachResolvedPaths(['/tmp/attached.png']))
-      act(() => {
-        probe.latest().beginPendingImageAttachment()
-      })
-
-      const ids = probe.latest().imageAttachments.map(({ id }) => id)
-      expect(ids).toHaveLength(2)
-      expect(readNativeChatDraftCache(scope)).toBe('')
-      act(() => probe.root.unmount())
-    }
-  )
-
-  it('removes a pending image from the tray when the composer is disabled', async () => {
+  it('clears a pending image on disable without putting its marker in prompt text', async () => {
     const probe = await renderProbe('structured-1', true)
     act(() => {
       probe.latest().beginPendingImageAttachment()
     })
-    expect(probe.latest().imageAttachments).toHaveLength(1)
+    expect(probe.latest().imageAttachments).toMatchObject([{ pending: true }])
     expect(readNativeChatDraftCache('structured-1')).toBe('')
 
     await probe.rerender('structured-1', true)

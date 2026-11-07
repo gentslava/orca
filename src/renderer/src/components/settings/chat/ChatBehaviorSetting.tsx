@@ -50,7 +50,7 @@ export function ChatBehaviorSetting({
     entries.resumeOnRestart,
     entries.idleStop,
     ...(hostContinuesUsageLimits ? [entries.autoContinueAfterUsageLimit] : []),
-    entries.queueFollowUps,
+    ...(hostQueuesMessages ? [entries.queueFollowUps] : []),
     entries.scrollToLatestOnSend,
     entries.linkPreviews,
     entries.shellEnvironment

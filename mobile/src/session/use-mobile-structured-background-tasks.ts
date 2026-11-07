@@ -1,3 +1,5 @@
+import { agentSessionWriteNoticeParts } from '../../../src/shared/agent-session/failures/agent-session-refusal-notice'
+import { mobileAgentSessionWriteNoticeText } from './agent-session-write-notice-copy'
 import { useCallback, useMemo } from 'react'
 import type { AgentChildRowContext } from '../../../src/shared/agent-status/presentation/agent-child-row-model'
 import type { AgentSessionCancelResult } from '../../../src/shared/agent-session/agent-session-wire'
@@ -10,6 +12,11 @@ import {
 import { structuredSessionForegroundCommands } from '../../../src/shared/structured-session-foreground-commands'
 import type { StructuredAgentSessionMutationResult } from './mobile-structured-agent-session-rpc'
 import type { MobileStructuredAgentMutate } from './use-mobile-structured-agent-mutation'
+import { mobileStructuredHostClockOffsetMs } from './mobile-structured-host-clock-offset'
+import type {
+  AgentSessionForegroundTask,
+  AgentSessionBackgroundResult
+} from '../../../src/shared/agent-session/agent-session-foreground-task'
 
 export type MobileStructuredBackgroundTasks = {
   // Scope strip expansion and stopping state to the conversation.
@@ -18,10 +25,8 @@ export type MobileStructuredBackgroundTasks = {
   // Treat retained rows as unverifiable off-stream; convert host timestamps with this offset.
   rowContext: AgentChildRowContext
   stop: (taskId?: string) => Promise<StructuredAgentSessionMutationResult<AgentSessionCancelResult>>
+  background?: (task: AgentSessionForegroundTask) => Promise<boolean>
 }
-
-// Ignore delivery jitter below the precision of displayed clocks.
-const OFFSET_GRAIN_MS = 1_000
 
 export function useMobileStructuredBackgroundTasks(args: {
   sessionKey: string
@@ -30,8 +35,9 @@ export function useMobileStructuredBackgroundTasks(args: {
   // Retained roster does not prove current liveness.
   connected: boolean
   mutate: MobileStructuredAgentMutate
+  onSendError: (message: string) => void
 }): MobileStructuredBackgroundTasks {
-  const { connected, mutate, sessionKey, state, turnId } = args
+  const { connected, mutate, onSendError, sessionKey, state, turnId } = args
   const { backgroundTasks, items, latestTurn } = state
   const view = useMemo(
     () =>
@@ -44,11 +50,7 @@ export function useMobileStructuredBackgroundTasks(args: {
   )
   // Keep the roster through stream failure without claiming its tasks still run.
   const streamLive = connected && state.status === 'ready'
-  // Use each host sample for restarts/clock corrections; round away jitter to preserve row memoization.
-  const hostClock = state.hostClock
-  const offsetMs = hostClock
-    ? Math.round((hostClock.receivedAt - hostClock.hostNow) / OFFSET_GRAIN_MS) * OFFSET_GRAIN_MS
-    : 0
+  const offsetMs = mobileStructuredHostClockOffsetMs(state.hostClock)
   const rowContext = useMemo(
     () => agentChildRowContextForSessionStream(streamLive, offsetMs),
     [streamLive, offsetMs]
@@ -62,8 +64,29 @@ export function useMobileStructuredBackgroundTasks(args: {
       }),
     [mutate]
   )
+  const background = useCallback(
+    async (target: AgentSessionForegroundTask) => {
+      if (!streamLive) {
+        return false
+      }
+      const result = await mutate<AgentSessionBackgroundResult>(
+        'agentSession.backgroundTask',
+        'agentSession.backgroundTask',
+        { target }
+      )
+      if (result.status === 'unknown') {
+        onSendError(
+          mobileAgentSessionWriteNoticeText(
+            agentSessionWriteNoticeParts({ kind: 'unconfirmed' }, 'background-task')
+          )
+        )
+      }
+      return result.status === 'accepted' && result.value.backgrounded && result.sameFence
+    },
+    [mutate, onSendError, streamLive]
+  )
   return useMemo(
-    () => ({ sessionKey, view, rowContext, stop }),
-    [sessionKey, view, rowContext, stop]
+    () => ({ sessionKey, view, rowContext, stop, background }),
+    [sessionKey, view, rowContext, stop, background]
   )
 }

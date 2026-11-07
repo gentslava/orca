@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { AI_VAULT_AGENTS } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
-import { useAiVaultConversationSearch } from '../../ai-vault-conversation-search'
+import { useAiVaultConversationSearch } from '../search/ai-vault-conversation-search'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '@/store/index'
 import { useAllWorktrees, useProjectHostSetupProjection, useRepos } from '@/store/selectors'
@@ -15,8 +15,8 @@ import {
   useAiVaultPanelSessionProjects,
   useAiVaultPanelScopePaths,
   useAiVaultPanelSearchWithin
-} from '@/components/right-sidebar/use-ai-vault-panel-projects'
-import { copyAiVaultSessionText } from '@/components/right-sidebar/ai-vault-copy-session-text'
+} from '../scope/use-ai-vault-panel-projects'
+import { copyAiVaultSessionText } from '../session-actions/ai-vault-copy-session-text'
 import { translate } from '@/i18n/i18n'
 import { AiVaultPanelHeader } from './AiVaultPanelHeader'
 import {
@@ -43,7 +43,7 @@ import { useAiVaultScanProgress } from '../scanning/ai-vault-scan-progress-store
 import { aiVaultLocalScanKey } from '../../../../../../shared/ai-vault/scanning/ai-vault-local-scan-key'
 import { useAiVaultPanelWorkspace } from '../scope/use-ai-vault-panel-workspace'
 import { useAiVaultPanelQuery } from '../scope/use-ai-vault-panel-query'
-import { ProjectConversationList } from '@/components/sidebar/ProjectConversationList'
+import { ProjectConversationList } from '../../../sidebar/ProjectConversationList'
 import {
   aiVaultPanelKeyboardRootProps,
   type AiVaultSessionListKeyboard
@@ -321,7 +321,7 @@ export default function AiVaultPanel({
         {(!searching || sessions.length > 0 || search.loading) && (
           <SessionList
             sessionProjects={sessionProjectById}
-            {...(conversationNavigation ? { executionHostScope } : {})}
+            executionHostScope={executionHostScope}
             conversationNavigation={conversationNavigation}
             key={searching ? search.resetKey : 'history'}
             searchHits={searching ? searchHits : undefined}
@@ -378,6 +378,9 @@ export default function AiVaultPanel({
             onOpenLog={(session) => void openAiVaultSessionLogInOrca(session)}
             onRevealLog={(session) => void revealAiVaultSessionPath(session, session.filePath)}
             onOpenCwd={(session) => void revealAiVaultSessionPath(session, session.cwd)}
+            onRevealArtifacts={(session) =>
+              void revealAiVaultSessionPath(session, session.antigravityArtifactPath ?? null)
+            }
             onRequestDelete={(session) => void requestDelete(session)}
           />
         )}
