@@ -7,7 +7,6 @@ import {
   CompactInstructions,
   AgentSessionOptions
 } from './structured-agent-session-message-params'
-import { AgentSessionSelectionSchema } from '../agent-session/options/agent-session-execution-options'
 import { TerminalClose } from './terminal-unary-params'
 import { Identifier, JournalCursor, SessionId } from './structured-agent-session-identifiers'
 import * as z from 'zod'

@@ -11,7 +11,7 @@ import { getProviderUsageErrorMessage } from '../status-bar/usage-error-copy'
 import { getProviderDisplayName } from '../../../../shared/usage-provider-windows'
 import { formatWindowLabel } from '../../../../shared/rate-limit-window-label'
 import { getIntlLocale, translate } from '@/i18n/i18n'
-import type { ProviderAccountsSnapshot } from '@/runtime/runtime-provider-accounts-client'
+import type { ProviderAccountsSnapshot } from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
 import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'
 
 export function UsageAccountQuotaCard({

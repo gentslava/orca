@@ -29,7 +29,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
 import { useStructuredAgentSessionOptions } from './use-structured-agent-session-options'
 import { useStructuredAgentSessionSendOptions } from './use-structured-agent-session-send-options'
-import { forgetStructuredSessionSelection } from '@/lib/structured-agent-session-selection-controller'
+import { forgetStructuredSessionSelection } from '@/lib/agent-session/options/structured-agent-session-selection-controller'
 
 const target = { kind: 'local' } as const
 const sessionId = 'mid-turn-picker'
@@ -87,18 +87,24 @@ it('refreshes the composer model from host execution reports without changing ca
   }
   const { rerender } = render(<Composer stamp={reportedModel} />)
   await waitFor(() =>
-    expect(screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 5\.5$/ })).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 5\.5$/ })
+    ).toBeTruthy()
   )
   reportedModel = 'claude-opus-4-8'
   rerender(<Composer stamp={reportedModel} />)
   await waitFor(() =>
-    expect(screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 4\.8$/ })).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 4\.8$/ })
+    ).toBeTruthy()
   )
   fireEvent.click(screen.getByText('Capture next message'))
   expect(sent).toEqual([{ selection: { model: 'claude-opus-5-5' } }])
   reportedModel = 'claude-opus-5-5'
   rerender(<Composer stamp={reportedModel} />)
   await waitFor(() =>
-    expect(screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 5\.5$/ })).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 5\.5$/ })
+    ).toBeTruthy()
   )
 })

@@ -4,7 +4,11 @@ import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
 import { getRuntimeAgentInventoryKey } from '@/store/slices/runtime-agent-inventory-key'
-import { NEW_TAB_TWIN_HOSTS, NEW_TAB_PAIRED_STATUS, newTabTwinHostWorkspaces } from './new-tab-agent-menu-twin-host.test-fixture'
+import {
+  NEW_TAB_TWIN_HOSTS,
+  NEW_TAB_PAIRED_STATUS,
+  newTabTwinHostWorkspaces
+} from './new-tab-agent-menu-twin-host.test-fixture'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
 import '@/lib/agent-session/launch/routing/agent-launch-route-input'
 import { workspaceKindForWorktreeId } from '../../../../shared/workspace-launch-kind'

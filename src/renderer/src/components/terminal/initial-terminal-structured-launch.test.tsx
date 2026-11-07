@@ -62,7 +62,6 @@ vi.mock(
   })
 )
 
-
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 let root: Root | undefined
 afterEach(async () => {
