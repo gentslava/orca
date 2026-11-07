@@ -1,3 +1,46 @@
+diff --git a/mobile/src/host-screen/conversation-open.ts b/mobile/src/host-screen/conversation-open.ts
+index 0899a18dfa1..2343176be41 100644
+--- a/mobile/src/host-screen/conversation-open.ts
++++ b/mobile/src/host-screen/conversation-open.ts
+@@ -1,4 +1,4 @@
+-import { z } from 'zod'
++import * as z from 'zod'
+ import { STRUCTURED_AGENT_SESSION_REVEAL_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session/structured-agent-session-surface-capabilities'
+ import {
+   structuredAgentSessionPaneKey,
+diff --git a/mobile/src/host-screen/conversation-records.ts b/mobile/src/host-screen/conversation-records.ts
+index 7e2b27baa28..c3a089e7c39 100644
+--- a/mobile/src/host-screen/conversation-records.ts
++++ b/mobile/src/host-screen/conversation-records.ts
+@@ -1,4 +1,4 @@
+-import { z } from 'zod'
++import * as z from 'zod'
+ import { normalizeExecutionHostId } from '../../../src/shared/execution-host'
+ 
+ const historySchema = z.looseObject({
+diff --git a/mobile/src/host-screen/host-screen-operations.ts b/mobile/src/host-screen/host-screen-operations.ts
+index 034a759b25d..eec0e8ef960 100644
+--- a/mobile/src/host-screen/host-screen-operations.ts
++++ b/mobile/src/host-screen/host-screen-operations.ts
+@@ -1,4 +1,4 @@
+-import { z } from 'zod'
++import * as z from 'zod'
+ import { ConversationPreferencesSchema } from '../../../src/shared/conversation-navigation-preferences'
+ import { bindDeferredRpcOperation, defineRpcOperation } from '../transport/rpc-operation'
+ import { rpcResultVariant } from '../transport/rpc-operation-result-reader'
+diff --git a/mobile/src/worktree/personal-project-route-intent.ts b/mobile/src/worktree/personal-project-route-intent.ts
+index bb7e521330c..2940e261d04 100644
+--- a/mobile/src/worktree/personal-project-route-intent.ts
++++ b/mobile/src/worktree/personal-project-route-intent.ts
+@@ -3,7 +3,7 @@ import {
+   readProbedHostCapabilities
+ } from '../transport/host-status-probe-operations'
+ import { randomUUID } from 'expo-crypto'
+-import { z } from 'zod'
++import * as z from 'zod'
+ import { normalizeExecutionHostId, type ExecutionHostId } from '../../../src/shared/execution-host'
+ import { PERSONAL_PROJECT_ORDER_CAPABILITY } from '../../../src/shared/personal-project-order'
+ import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
 diff --git a/src/main/codex/codex-structured-account-home.test.ts b/src/main/codex/codex-structured-account-home.test.ts
 index 87aa5fde03d..98159c202f9 100644
 --- a/src/main/codex/codex-structured-account-home.test.ts
@@ -245,6 +288,36 @@ index 0a8445c9974..a7bd4489732 100644
  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
  let root: Root | undefined
  afterEach(async () => {
+diff --git a/src/shared/agent-session/agent-session-foreground-task.ts b/src/shared/agent-session/agent-session-foreground-task.ts
+index 0cd331be167..f327f543b5d 100644
+--- a/src/shared/agent-session/agent-session-foreground-task.ts
++++ b/src/shared/agent-session/agent-session-foreground-task.ts
+@@ -1,4 +1,4 @@
+-import { z } from 'zod'
++import * as z from 'zod'
+ import { Identifier } from '../rpc-contract/structured-agent-session-identifiers'
+ 
+ export const AgentSessionForegroundTaskSchema = z
+diff --git a/src/shared/conversation-navigation-preferences.ts b/src/shared/conversation-navigation-preferences.ts
+index 529c58b0642..392a0cc0e53 100644
+--- a/src/shared/conversation-navigation-preferences.ts
++++ b/src/shared/conversation-navigation-preferences.ts
+@@ -1,4 +1,4 @@
+-import { z } from 'zod'
++import * as z from 'zod'
+ import type { AiVaultSession } from './ai-vault/contracts/ai-vault-types'
+ import { sessionFileExecutionNamespace } from './ai-vault/scanning/ai-vault-scope-cwd-match'
+ import { antigravitySessionOrigin } from './antigravity-session-origin'
+diff --git a/src/shared/personal-project-order.ts b/src/shared/personal-project-order.ts
+index f0118a4ca6d..ac2bc6032ce 100644
+--- a/src/shared/personal-project-order.ts
++++ b/src/shared/personal-project-order.ts
+@@ -1,4 +1,4 @@
+-import { z } from 'zod'
++import * as z from 'zod'
+ 
+ export const PERSONAL_PROJECT_ORDER_CAPABILITY = 'ui.personalProjectOrder.v1'
+ 
 diff --git a/src/shared/rpc-contract/structured-agent-session-params.ts b/src/shared/rpc-contract/structured-agent-session-params.ts
 index 88eea6f74d8..1ae6360b3b1 100644
 --- a/src/shared/rpc-contract/structured-agent-session-params.ts
