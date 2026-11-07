@@ -241,16 +241,17 @@ index aa3782d8cf8..79376423437 100644
      } finally {
 diff --git a/mobile/src/session/mobile-structured-agent-options-contract.ts b/mobile/src/session/mobile-structured-agent-options-contract.ts
 new file mode 100644
-index 00000000000..b53ee4273c6
+index 00000000000..e3085827914
 --- /dev/null
 +++ b/mobile/src/session/mobile-structured-agent-options-contract.ts
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,29 @@
 +import type { RpcClient } from '../transport/rpc-client'
 +import type { StructuredAgentSessionHostSupport } from './mobile-structured-agent-session-host-support'
 +import type { StructuredAgentSessionMutate } from './mobile-structured-agent-session-rpc'
++import type { HostModelCatalogCache } from './use-mobile-host-model-catalog-upgrade'
 +
 +export type MobileStructuredAgentOptionsArgs = {
-+  modelCatalogCache?: import('./use-mobile-host-model-catalog-upgrade').HostModelCatalogCache | null
++  modelCatalogCache?: HostModelCatalogCache | null
 +  agent: string | null
 +  client: RpcClient | null
 +  sessionId: string | null
