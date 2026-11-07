@@ -5,10 +5,6 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useTerminalWatcherEffects } from '../use-terminal-watcher-effects'
 import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
-import {
-  claimEmptyWorkspaceDefaultSurface,
-  releaseEmptyWorkspaceDefaultSurface
-} from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
 
 const mocks = vi.hoisted(() => {
   const storeTabsByWorktree: Record<string, unknown[]> = {}
@@ -66,7 +62,6 @@ vi.mock(
   })
 )
 
-const PENDING_INTENT = { callerProvidesSurface: false, seedUserDefaultSurface: true }
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 let root: Root | undefined
@@ -117,191 +112,29 @@ function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}
   return null
 }
 
-describe('passive terminal seeding during native chat creation', () => {
-  it('waits for worktree creation before checking whether a fallback shell is needed', async () => {
-    mocks.storePendingCreations['creation-1'] = {
-      creationId: 'creation-1',
-      worktreeId: 'wt-1',
-      phase: 'creating',
-      status: 'creating',
-      startedAt: 1,
-      indeterminate: false,
-      loaderVisible: true,
-      request: {
-        repoId: 'repo-1',
-        name: 'workspace',
-        setupDecision: 'inherit',
-        agent: 'codex',
-        pendingFirstAgentMessageRename: false,
-        note: '',
-        startupPlan: null,
-        quickPrompt: '',
-        quickTelemetry: null
-      }
-    }
+describe('empty workspace entry waits for an explicit action', () => {
+  it('does not start a shell after hydration, an empty host answer, or switching away and back', async () => {
     mocks.gate.mockResolvedValue('empty')
     root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher />))
-    expect(mocks.gate).not.toHaveBeenCalled()
+    await act(async () => root?.render(<Watcher hydrated />))
+    await act(async () => root?.render(<Watcher hydrated worktreeId="wt-2" />))
+    await act(async () => root?.render(<Watcher hydrated />))
     expect(mocks.createTab).not.toHaveBeenCalled()
-
-    mocks.storePendingCreations = {}
-    await act(async () => root?.render(<Watcher />))
-    expect(mocks.createTab).toHaveBeenCalledOnce()
+    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
+    expect(mocks.gate).toHaveBeenCalledWith('wt-2')
   })
-  it.each([
-    ['claude', 'pending', 0],
-    ['codex', 'pending', 0],
-    ['claude', 'unknown', 0],
-    ['codex', 'unknown', 0],
-    ['grok', 'pending', 0],
-    ['claude', 'idle', 1]
-  ] as const)('handles %s launch status %s', async (agent, status, expectedTabs) => {
-    let finishGate!: (outcome: 'empty') => void
-    mocks.gate.mockReturnValue(
-      new Promise((resolve) => {
-        finishGate = resolve
-      })
-    )
-    mocks.launchStatus.mockReturnValue('idle')
+
+  it('keeps an empty project empty under StrictMode', async () => {
+    mocks.gate.mockResolvedValue('empty')
     root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher />))
-
-    // A create starts after the inventory probe but before its empty result returns.
-    mocks.launchStatus.mockImplementation((_worktreeId, provider) =>
-      provider === agent ? status : 'idle'
-    )
-    await act(async () => finishGate('empty'))
-
-    expect(mocks.createTab).toHaveBeenCalledTimes(expectedTabs)
-  })
-})
-
-function deferredGate(): (outcome: 'empty' | 'blocked') => Promise<void> {
-  let finishGate!: (outcome: 'empty' | 'blocked') => void
-  // One shared promise, as the gate's in-flight dedupe hands every rerun.
-  mocks.gate.mockReturnValue(
-    new Promise((resolve) => {
-      finishGate = resolve
-    })
-  )
-  return async (outcome) => act(async () => finishGate(outcome))
-}
-
-describe('passive terminal seeding retries until a decision applies', () => {
-  it('seeds once after a StrictMode double run', async () => {
-    const finishGate = deferredGate()
-    const renderStrict = () =>
+    await act(async () =>
       root?.render(
         <StrictMode>
-          <Watcher />
+          <Watcher hydrated />
         </StrictMode>
       )
-    root = createRoot(document.createElement('div'))
-    await act(async () => renderStrict())
-    await finishGate('empty')
-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
-
-    // The applied decision is final: a later run neither re-checks nor seeds again.
-    await act(async () => renderStrict())
-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
-    expect(mocks.gate).toHaveBeenCalledTimes(2)
-  })
-
-  it('seeds once when an input changes mid-check', async () => {
-    const finishGate = deferredGate()
-    root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher />))
-    // Each render passes a fresh reconcile callback, so this rerun cancels the first check.
-    await act(async () => root?.render(<Watcher />))
-    await finishGate('empty')
-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
-    expect(mocks.gate).toHaveBeenCalledTimes(2)
-  })
-
-  it('seeds once across two empty checks separated by leaving the workspace', async () => {
-    const resolvers: ((outcome: 'empty') => void)[] = []
-    mocks.gate.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolvers.push(resolve)
-        })
     )
-    root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher />))
-    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
-    await act(async () => root?.render(<Watcher />))
-    await act(async () => resolvers.forEach((resolve) => resolve('empty')))
-    await act(async () => root?.render(<Watcher />))
-
-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
-    expect(mocks.gate).toHaveBeenCalledTimes(3)
-  })
-
-  it('does not seed a workspace whose last terminal closed during the check', async () => {
-    const finishGate = deferredGate()
-    root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher />))
-    // closeTab empties the row and records the close in the same store write.
-    mocks.storeTabsByWorktree = { 'wt-1': [] }
-    mocks.storeClosedRecords = { 'closed-tab': { worktreeId: 'wt-1', closedAt: Date.now() } }
-    await finishGate('empty')
     expect(mocks.createTab).not.toHaveBeenCalled()
-  })
-
-  it('seeds an empty row that has no close record, which legacy data leaves', async () => {
-    const finishGate = deferredGate()
-    root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher />))
-    mocks.storeTabsByWorktree = { 'wt-1': [] }
-    await finishGate('empty')
-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
-  })
-
-  it('leaves the seed to an activation reseed awaiting agent detection', async () => {
-    const finishGate = deferredGate()
-    root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher />))
-    claimEmptyWorkspaceDefaultSurface('wt-1', PENDING_INTENT)
-    try {
-      await finishGate('empty')
-      expect(mocks.createTab).not.toHaveBeenCalled()
-    } finally {
-      releaseEmptyWorkspaceDefaultSurface('wt-1')
-    }
-  })
-
-  // Leaving cancels reseed; returning must still seed the workspace.
-  it('seeds on return to a workspace left while a reseed awaited agent detection', async () => {
-    mocks.gate.mockResolvedValue('empty')
-    claimEmptyWorkspaceDefaultSurface('wt-1', PENDING_INTENT)
-    root = createRoot(document.createElement('div'))
-    try {
-      await act(async () => root?.render(<Watcher />))
-      expect(mocks.createTab).not.toHaveBeenCalled()
-    } finally {
-      releaseEmptyWorkspaceDefaultSurface('wt-1')
-    }
-
-    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
-    await act(async () => root?.render(<Watcher />))
-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
-  })
-
-  it('seeds after leaving and returning to a blocked workspace', async () => {
-    mocks.gate.mockResolvedValue('blocked')
-    root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher />))
-    expect(mocks.createTab).not.toHaveBeenCalled()
-
-    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
-    mocks.gate.mockResolvedValue('empty')
-    await act(async () => root?.render(<Watcher />))
-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
-    expect(mocks.createTab).toHaveBeenCalledWith('wt-1', undefined, undefined, {
-      pendingActivationSpawn: true
-    })
-    expect(mocks.gate.mock.calls.map(([id]) => id)).toEqual(['wt-1', 'wt-2', 'wt-1'])
   })
 })
 

@@ -236,11 +236,11 @@ describe('session-tabs streams across worktree switches on one host', () => {
     expect(closed()).toBe(closedBefore)
   })
 
-  it('seeds the first terminal once the user returns to a warm empty worktree', async () => {
+  it('keeps a warm empty worktree available for an explicit first action', async () => {
     await connect()
     const streamA = latestStream(WORKTREE_A)
     await selectWorktree(WORKTREE_B)
-    // A's first answer lands while B is selected, so its bootstrap waits.
+    // An empty host answer is data, without a request to launch a shell.
     await publish(streamA, {
       type: 'snapshot',
       ...terminalSnapshot(WORKTREE_A, 1),
@@ -254,13 +254,10 @@ describe('session-tabs streams across worktree switches on one host', () => {
     await selectWorktree(WORKTREE_A)
 
     expect(latestStream(WORKTREE_A)).toBe(streamA)
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
-    expect(mocks.createTerminal).toHaveBeenCalledWith(
-      expect.objectContaining({ worktreeId: WORKTREE_A, environmentId: ENV })
-    )
+    expect(mocks.createTerminal).not.toHaveBeenCalled()
     await selectWorktree(WORKTREE_B)
     await selectWorktree(WORKTREE_A)
-    expect(mocks.createTerminal).toHaveBeenCalledTimes(1)
+    expect(mocks.createTerminal).not.toHaveBeenCalled()
   })
 
   it('drops a warm stream when its host is re-paired while another host is selected', async () => {
