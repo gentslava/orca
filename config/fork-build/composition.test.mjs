@@ -406,3 +406,47 @@ test('real Git: repairs text-clean duplicate scopes from valid independent catal
     })
     assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
   }))
+
+test('real Git: shared integration ancestry cannot undo another selected feature', () =>
+  fixture((cwd) => {
+    const base = git(cwd, 'rev-parse', 'HEAD')
+    writeFileSync(join(cwd, 'file'), 'one\n')
+    writeFileSync(join(cwd, 'other'), 'two\n')
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'old combined fork')
+    const shared = git(cwd, 'rev-parse', 'HEAD')
+    git(cwd, 'checkout', '-B', 'upstream', base)
+    writeFileSync(join(cwd, 'main-only'), 'upstream\n')
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'upstream')
+    const upstream = git(cwd, 'rev-parse', 'HEAD')
+    const heads = []
+    for (const [name, path, text] of [
+      ['one', 'file', 'one\n'],
+      ['two', 'other', 'two\n']
+    ]) {
+      git(cwd, 'checkout', '-B', name, upstream)
+      writeFileSync(join(cwd, path), text)
+      git(cwd, 'add', '.')
+      heads.push(
+        git(cwd, 'commit-tree', git(cwd, 'write-tree'), '-p', upstream, '-p', shared, '-m', name)
+      )
+      git(cwd, 'reset', '--hard', upstream)
+    }
+    assert.equal(git(cwd, 'merge-base', '--all', ...heads).split('\n').length, 2)
+    const result = compose(
+      cwd,
+      upstream,
+      heads.map((sha, index) => ({ ...pr(index + 1), head: { sha } }))
+    )
+    assert.equal(result.publishable, true)
+    assert.equal(git(cwd, 'show', 'HEAD:file'), 'one')
+    assert.equal(git(cwd, 'show', 'HEAD:other'), 'two')
+    assert.equal(git(cwd, 'show', 'HEAD:main-only'), 'upstream')
+    for (const head of heads) {
+      git(cwd, 'merge-base', '--is-ancestor', head, result.commit)
+    }
+    const parents = git(cwd, 'show', '--format=%P', '--no-patch', result.commit).split(' ')
+    assert.equal(parents.length, 2)
+    assert.equal(parents[1], heads[1])
+  }))

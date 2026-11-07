@@ -1,8 +1,8 @@
 diff --git a/config/flaky-test-pattern-baseline.txt b/config/flaky-test-pattern-baseline.txt
-index 4bb4907522ed57988820265eb8f6a7b7accd9438..a4fa6bea2bc32d0c532022bc1ea73c9aaa4639ef 100644
+index c6aa8031a83..aabe68f8bdd 100644
 --- a/config/flaky-test-pattern-baseline.txt
 +++ b/config/flaky-test-pattern-baseline.txt
-@@ -467,7 +467,7 @@
+@@ -447,7 +447,7 @@
  1 test-no-real-time-wait:tests/e2e/pdf-find-counter.spec.ts
  1 test-no-real-time-wait:tests/e2e/pdf-viewer-rebuild-recovery.spec.ts
  1 test-no-real-time-wait:tests/e2e/project-group-manual-sort.spec.ts
@@ -11,19 +11,19 @@ index 4bb4907522ed57988820265eb8f6a7b7accd9438..a4fa6bea2bc32d0c532022bc1ea73c9a
  4 test-no-real-time-wait:tests/e2e/relaunch-sleeping-agents-resume-on-view.spec.ts
  1 test-no-real-time-wait:tests/e2e/resource-manager-local-pty-view.spec.ts
  1 test-no-real-time-wait:tests/e2e/settings-display-name-ime.spec.ts
-@@ -811,7 +811,6 @@
- 2 test-no-wall-clock:src/renderer/src/components/terminal-pane/remote-snapshot-alt-screen-host-chain.test.ts
- 3 test-no-wall-clock:src/renderer/src/components/terminal-pane/terminal-hidden-view-parking.test.ts
- 1 test-no-wall-clock:src/renderer/src/components/terminal-pane/terminal-link-worktree-root-activation.test.ts
+@@ -777,7 +777,6 @@
+ 2 test-no-wall-clock:src/renderer/src/components/terminal-pane/snapshots/remote-snapshot-alt-screen-host-chain.test.ts
+ 3 test-no-wall-clock:src/renderer/src/components/terminal-pane/parking/retention/terminal-hidden-view-parking.test.ts
+ 1 test-no-wall-clock:src/renderer/src/components/terminal-pane/links/files/terminal-link-worktree-root-activation.test.ts
 -1 test-no-wall-clock:src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
  2 test-no-wall-clock:src/renderer/src/components/workspace-cleanup/use-workspace-cleanup-removal.agent-stop.test.tsx
  7 test-no-wall-clock:src/renderer/src/components/worktree-jump/WorktreeJumpPalette.recent-tabs.behavior.test.tsx
  8 test-no-wall-clock:src/renderer/src/components/worktree-jump/WorktreeJumpPalette.recent-tabs.test.tsx
 diff --git a/config/focus-setting-read-baseline.txt b/config/focus-setting-read-baseline.txt
-index 385c834a4248f728818b681c0ade81c33e8b9256..42282be53a65786d49f9790f9c1ccc5e671f0206 100644
+index 3704292faed..246a9f03f71 100644
 --- a/config/focus-setting-read-baseline.txt
 +++ b/config/focus-setting-read-baseline.txt
-@@ -152,10 +152,7 @@
+@@ -150,10 +150,7 @@
  1 src/renderer/src/components/status-bar/use-workspace-space-git-refresh-action.ts
  1 src/renderer/src/components/status-bar/use-workspace-space-manager-panel.ts
  1 src/renderer/src/components/status-bar/workspace-space-decision-details.ts
@@ -32,10 +32,10 @@ index 385c834a4248f728818b681c0ade81c33e8b9256..42282be53a65786d49f9790f9c1ccc5e
  1 src/renderer/src/components/tab-bar/web-runtime-tab-move-mirror.ts
 -1 src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
  3 src/renderer/src/components/tab-group/useTabGroupCreationCommands.ts
- 1 src/renderer/src/components/task-page/jira/task-page-jira-status-order.ts
+ 11 src/renderer/src/components/task-page/TaskPage.tsx
  2 src/renderer/src/components/task-page/jira/IssueAssigneeField.tsx
 diff --git a/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx b/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
-index 4bfb8fb3a6f46739329129a9f6b20bb008a82b88..196e568fe5f09961be66c7af0ec24bdad56e533d 100644
+index d5fd985165e..706d74e21d7 100644
 --- a/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
 +++ b/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
 @@ -80,6 +80,10 @@ vi.mock('../components/Terminal', () => ({
@@ -59,14 +59,14 @@ index 4bfb8fb3a6f46739329129a9f6b20bb008a82b88..196e568fe5f09961be66c7af0ec24bda
        )
      )
 diff --git a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx b/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
-index 14d0b85a81f0310205420e67d7d47e9a3b86132a..2630f8ff327b90d9de0e3cf6c9698ca37cbf7a35 100644
+index f5a19383fa0..e8daa49aa54 100644
 --- a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
 +++ b/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
 @@ -1,3 +1,4 @@
 +import { WorkspaceStartPage } from './workspace-start/WorkspaceStartPage'
  import { createPortal } from 'react-dom'
  import TerminalPane from './terminal-pane/TerminalPane'
- import { TerminalRestoringPlaceholder } from './terminal-pane/TerminalRestoringPlaceholder'
+ import { TerminalRestoringPlaceholder } from './terminal-pane/mounting/TerminalRestoringPlaceholder'
 @@ -38,6 +39,24 @@ export function TerminalLegacyTerminalPanes({
            : ''
        }`}
@@ -93,7 +93,7 @@ index 14d0b85a81f0310205420e67d7d47e9a3b86132a..2630f8ff327b90d9de0e3cf6c9698ca3
          .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
          .map((workspace) => {
 diff --git a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-index 16b4e761baff795654e7d6099f8dcf03508acc52..1863b5afa96e430e195bac2a0b2f4d82256d54f8 100644
+index 2ae0c2158f7..52edf81e291 100644
 --- a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
 +++ b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
 @@ -26,7 +26,7 @@ import {
@@ -162,7 +162,7 @@ index 16b4e761baff795654e7d6099f8dcf03508acc52..1863b5afa96e430e195bac2a0b2f4d82
          policy['managed-browser'].state === 'enabled',
          policy['mobile-emulator'].state === 'enabled'
 diff --git a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.test.ts b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.test.ts
-index e196f888138bade1d27cbeea0b865ff8a449154e..09794e8db6e1e8ef6c5cef0c49a46b3912bc41f2 100644
+index e196f888138..09794e8db6e 100644
 --- a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.test.ts
 +++ b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.test.ts
 @@ -5,7 +5,7 @@ describe('shouldShowWindowsShellMenu', () => {
@@ -220,7 +220,7 @@ index e196f888138bade1d27cbeea0b865ff8a449154e..09794e8db6e1e8ef6c5cef0c49a46b39
          isWindowsClient: true,
          worktreeHasRemoteConnection: true
 diff --git a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
-index 0aba10115a4a1a98f228d3751d2a92fd1423f88b..779e66cd8a60abceba1dbb24628732087f0c1221 100644
+index 0aba10115a4..779e66cd8a6 100644
 --- a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
 +++ b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
 @@ -1,12 +1,12 @@
@@ -239,7 +239,7 @@ index 0aba10115a4a1a98f228d3751d2a92fd1423f88b..779e66cd8a60abceba1dbb2462873208
      return args.hostPlatform === 'win32'
    }
 diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-index eb7c5a227f9112ed4d7bda2a2bda584b2c2e2f6a..4ed602dfad6560c7026f9d68485a6a856e2a0d95 100644
+index eb7c5a227f9..4ed602dfad6 100644
 --- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 +++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 @@ -1,4 +1,5 @@
@@ -270,10 +270,10 @@ index eb7c5a227f9112ed4d7bda2a2bda584b2c2e2f6a..4ed602dfad6560c7026f9d68485a6a85
            activeTab.contentType !== 'terminal' &&
            activeTab.contentType !== 'agent-session' &&
 diff --git a/src/renderer/src/components/terminal/initial-terminal-admission-wait.test.tsx b/src/renderer/src/components/terminal/initial-terminal-admission-wait.test.tsx
-index 98b93e10473c36ea8775b647b357e13dd61e2ac6..147ba0308f493278f224c47270033c82c61037bd 100644
+index eb7ef5b4c0a..4c8159d41c2 100644
 --- a/src/renderer/src/components/terminal/initial-terminal-admission-wait.test.tsx
 +++ b/src/renderer/src/components/terminal/initial-terminal-admission-wait.test.tsx
-@@ -172,19 +172,6 @@ function expectNoShell(): void {
+@@ -182,19 +182,6 @@ function expectNoShell(): void {
    expect(layoutApplyTestTransport.sentOfType('createTerminalTab')).toEqual([])
  }
  
@@ -293,7 +293,7 @@ index 98b93e10473c36ea8775b647b357e13dd61e2ac6..147ba0308f493278f224c47270033c82
  async function expectChatOpenedOnce(): Promise<void> {
    if (ORCA_LAYOUT_OWNER_IS_MAIN) {
      await layoutApplyTestTransport.settle()
-@@ -267,7 +254,7 @@ function gateAnsweredLater(): {
+@@ -277,7 +264,7 @@ function gateAnsweredLater(): {
  
  // While admission waits, no launch record exists yet; passive seeding must not add Terminal 1 beside the chat.
  describe('a local chat launch waiting on its host', () => {
@@ -302,7 +302,7 @@ index 98b93e10473c36ea8775b647b357e13dd61e2ac6..147ba0308f493278f224c47270033c82
      mocks.gate.mockResolvedValueOnce('blocked').mockResolvedValueOnce('empty')
      root = createRoot(document.createElement('div'))
      await act(async () => root?.render(createElement(Watcher)))
-@@ -276,7 +263,7 @@ describe('a local chat launch waiting on its host', () => {
+@@ -286,7 +273,7 @@ describe('a local chat launch waiting on its host', () => {
      await act(async () => root?.unmount())
      root = createRoot(document.createElement('div'))
      await act(async () => root?.render(createElement(Watcher)))
@@ -312,30 +312,29 @@ index 98b93e10473c36ea8775b647b357e13dd61e2ac6..147ba0308f493278f224c47270033c82
  
    it('keeps a watched create free of a stray shell until its chat opens', async () => {
 diff --git a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-index 82ad0cde89f0ccf1be3e7d1e51a159c987031af2..c441c795338acd1b55d5a8ece8a75bcc484cc1ef 100644
+index 7b21bc07927..0a8445c9974 100644
 --- a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
 +++ b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-@@ -4,10 +4,6 @@ import { createRoot, type Root } from 'react-dom/client'
+@@ -5,10 +5,6 @@ import { createRoot, type Root } from 'react-dom/client'
  import { afterEach, describe, expect, it, vi } from 'vitest'
  import { useTerminalWatcherEffects } from '../use-terminal-watcher-effects'
- import type { PendingWorktreeCreation } from '@/lib/pending-worktree-creation'
+ import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
 -import {
 -  claimEmptyWorkspaceDefaultSurface,
 -  releaseEmptyWorkspaceDefaultSurface
--} from '@/lib/empty-workspace-default-surface-claims'
+-} from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
  
  const mocks = vi.hoisted(() => {
    const storeTabsByWorktree: Record<string, unknown[]> = {}
-@@ -58,8 +54,6 @@ vi.mock('../terminal-pane/terminal-parked-tab-watchers', () => ({
-   disposeAllParkedTerminalWatchers: vi.fn()
- }))
+@@ -66,7 +62,6 @@ vi.mock(
+   })
+ )
  
 -const PENDING_INTENT = { callerProvidesSurface: false, seedUserDefaultSurface: true }
--
+ 
  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
  let root: Root | undefined
- afterEach(async () => {
-@@ -109,192 +103,30 @@ function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}
+@@ -117,192 +112,30 @@ function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}
    return null
  }
  
@@ -375,7 +374,9 @@ index 82ad0cde89f0ccf1be3e7d1e51a159c987031af2..c441c795338acd1b55d5a8ece8a75bcc
 -    mocks.storePendingCreations = {}
 -    await act(async () => root?.render(<Watcher />))
 -    expect(mocks.createTab).toHaveBeenCalledOnce()
--  })
++    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
++    expect(mocks.gate).toHaveBeenCalledWith('wt-2')
+   })
 -  it.each([
 -    ['claude', 'pending', 0],
 -    ['codex', 'pending', 0],
@@ -399,13 +400,11 @@ index 82ad0cde89f0ccf1be3e7d1e51a159c987031af2..c441c795338acd1b55d5a8ece8a75bcc
 -      provider === agent ? status : 'idle'
 -    )
 -    await act(async () => finishGate('empty'))
--
--    expect(mocks.createTab).toHaveBeenCalledTimes(expectedTabs)
-+    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
-+    expect(mocks.gate).toHaveBeenCalledWith('wt-2')
-   })
--})
  
+-    expect(mocks.createTab).toHaveBeenCalledTimes(expectedTabs)
+-  })
+-})
+-
 -function deferredGate(): (outcome: 'empty' | 'blocked') => Promise<void> {
 -  let finishGate!: (outcome: 'empty' | 'blocked') => void
 -  // One shared promise, as the gate's in-flight dedupe hands every rerun.
@@ -541,26 +540,26 @@ index 82ad0cde89f0ccf1be3e7d1e51a159c987031af2..c441c795338acd1b55d5a8ece8a75bcc
  
  describe('startup agent recovery host inventory', () => {
 diff --git a/src/renderer/src/components/use-terminal-watcher-effects.ts b/src/renderer/src/components/use-terminal-watcher-effects.ts
-index 41b0c26567bbb5f98ac49f20e4143b15fd1b4f8e..58ae5d847d5f18af9c84a94a3dca2af9caced2bb 100644
+index c5fd018bc3d..e185cca4e1b 100644
 --- a/src/renderer/src/components/use-terminal-watcher-effects.ts
 +++ b/src/renderer/src/components/use-terminal-watcher-effects.ts
 @@ -1,7 +1,5 @@
  import { useEffect, useMemo, useRef } from 'react'
  import { findActivityTerminalPortal } from './activity/activity-terminal-portal'
 -import { shouldAutoCreateInitialTerminal } from './terminal/initial-terminal'
--import { findPendingWorktreeCreationId } from '@/lib/pending-worktree-creation'
+-import { findPendingWorktreeCreationId } from '@/lib/workspace/creation/pending-worktree-creation'
  import {
    canWatcherCoverParkedTerminalTab,
-   disposeAllParkedTerminalWatchers,
-@@ -11,15 +9,10 @@ import {
-   type ParkedTerminalTabWatcherSyncEntry
- } from './terminal-pane/terminal-parked-tab-watchers'
+   syncParkedTerminalTabWatchersForWorkspaces,
+@@ -14,15 +12,10 @@ import {
+ } from './terminal-pane/parking/output-watchers/terminal-parked-watcher-registry'
+ 
  import { useAppStore } from '@/store'
 -import { isTerminalWorkspaceEmptiedOnPurpose } from '../../../shared/workspace-layout/closed-terminal-tab-tombstones'
- import { gateWorktreeAgentActivation } from '@/lib/worktree-agent-activation-gate'
+ import { gateWorktreeAgentActivation } from '@/lib/workspace/activation/worktree-agent-activation-gate'
  import { createWorkspaceTerminalHostAuthoritySelector } from '@/lib/workspace-terminal-host-authority'
 -import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
--import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/empty-workspace-default-surface-claims'
+-import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
  import type { TerminalColdActivationController } from './terminal-cold-activation'
  import { selectParkedEquivalentMountTabIds } from './terminal/startup-terminal-tab-hold'
 -import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../shared/layout-owner-switch'
@@ -568,7 +567,7 @@ index 41b0c26567bbb5f98ac49f20e4143b15fd1b4f8e..58ae5d847d5f18af9c84a94a3dca2af9
  
  // Why shared: surfaces without watchable live tabs need no per-pass allocation.
  const NO_PARKED_TAB_IDS: ReadonlySet<string> = new Set()
-@@ -35,6 +28,7 @@ type TerminalWatcherController = Pick<
+@@ -38,6 +31,7 @@ type TerminalWatcherController = Pick<
    | 'anyMountedWorktreeHasLayout'
    | 'backgroundMountRevision'
    | 'createTab'
@@ -576,7 +575,7 @@ index 41b0c26567bbb5f98ac49f20e4143b15fd1b4f8e..58ae5d847d5f18af9c84a94a3dca2af9
    | 'effectiveParkedTerminalWorktreeIds'
    | 'evictionExemptTerminalTabIds'
    | 'getEffectiveLayoutForWorktree'
-@@ -44,7 +38,6 @@ type TerminalWatcherController = Pick<
+@@ -47,7 +41,6 @@ type TerminalWatcherController = Pick<
    | 'mountedWorktreeIdsRef'
    | 'pairedRuntimeParkingEnvironmentIds'
    | 'pendingStartupByTabId'
@@ -584,7 +583,7 @@ index 41b0c26567bbb5f98ac49f20e4143b15fd1b4f8e..58ae5d847d5f18af9c84a94a3dca2af9
    | 'renderedActiveWorktreeId'
    | 'startupTerminalTabHold'
    | 'tabsByWorktree'
-@@ -67,7 +60,6 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
+@@ -70,7 +63,6 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
      activityTerminalPortals,
      anyMountedWorktreeHasLayout,
      backgroundMountRevision,
@@ -592,7 +591,7 @@ index 41b0c26567bbb5f98ac49f20e4143b15fd1b4f8e..58ae5d847d5f18af9c84a94a3dca2af9
      effectiveParkedTerminalWorktreeIds,
      evictionExemptTerminalTabIds,
      getEffectiveLayoutForWorktree,
-@@ -77,7 +69,6 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
+@@ -80,7 +72,6 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
      mountedWorktreeIdsRef,
      pairedRuntimeParkingEnvironmentIds,
      pendingStartupByTabId,
@@ -600,7 +599,7 @@ index 41b0c26567bbb5f98ac49f20e4143b15fd1b4f8e..58ae5d847d5f18af9c84a94a3dca2af9
      renderedActiveWorktreeId,
      startupTerminalTabHold,
      tabsByWorktree,
-@@ -196,89 +187,12 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
+@@ -199,89 +190,12 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
    ])
    useEffect(() => () => disposeAllParkedTerminalWatchers(), [])
  
@@ -692,7 +691,7 @@ index 41b0c26567bbb5f98ac49f20e4143b15fd1b4f8e..58ae5d847d5f18af9c84a94a3dca2af9
      if (
 diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..83e9a892f8ba723b60e6d7bf7b197b575c8cb42a
+index 00000000000..83e9a892f8b
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx
 @@ -0,0 +1,45 @@
@@ -743,7 +742,7 @@ index 0000000000000000000000000000000000000000..83e9a892f8ba723b60e6d7bf7b197b57
 +})
 diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..f71ca64290169657e736db822cab16b11a3b81c6
+index 00000000000..f71ca642901
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 @@ -0,0 +1,114 @@
@@ -863,7 +862,7 @@ index 0000000000000000000000000000000000000000..f71ca64290169657e736db822cab16b1
 +}
 diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..6c77735d92ebfbb8ef890d74937846a9e6465c03
+index 00000000000..6c77735d92e
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx
 @@ -0,0 +1,64 @@
@@ -932,10 +931,10 @@ index 0000000000000000000000000000000000000000..6c77735d92ebfbb8ef890d74937846a9
 +  )
 +}
 diff --git a/src/renderer/src/i18n/locales/de.json b/src/renderer/src/i18n/locales/de.json
-index 64cec53699b3399815f4af6383edcffc26c3c0fe..9dc30440e0c15bd9c06127360b9d5a81479ff905 100644
+index 028c9584d23..996d8cf0dc0 100644
 --- a/src/renderer/src/i18n/locales/de.json
 +++ b/src/renderer/src/i18n/locales/de.json
-@@ -21849,6 +21849,12 @@
+@@ -22029,6 +22029,12 @@
        "draft": "{{review}}: Entwurf",
        "merged": "{{review}}: gemergt",
        "open": "{{review}}: offen"
@@ -949,10 +948,10 @@ index 64cec53699b3399815f4af6383edcffc26c3c0fe..9dc30440e0c15bd9c06127360b9d5a81
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index 160769aff6d7d505679a03e6046ada371c9e480b..ab10f34b8b405833fabfb0f4eca44c8592f9884a 100644
+index b1703c29f64..32df69d5332 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -22731,6 +22731,12 @@
+@@ -22902,6 +22902,12 @@
        "checksPending": "{{review}} checks: Pending",
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
@@ -966,10 +965,10 @@ index 160769aff6d7d505679a03e6046ada371c9e480b..ab10f34b8b405833fabfb0f4eca44c85
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
-index c51b1dccb14c3a2c97e86d2b262285dec0053852..99898977a5f61b6fd60b2270e64fcbc04f8a3b6e 100644
+index a3798fa7d12..62009babe79 100644
 --- a/src/renderer/src/i18n/locales/es.json
 +++ b/src/renderer/src/i18n/locales/es.json
-@@ -22296,6 +22296,12 @@
+@@ -22476,6 +22476,12 @@
        "draft": "{{review}}: Borrador",
        "merged": "{{review}}: Fusionada",
        "open": "{{review}}: Abierta"
@@ -983,10 +982,10 @@ index c51b1dccb14c3a2c97e86d2b262285dec0053852..99898977a5f61b6fd60b2270e64fcbc0
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/fr.json b/src/renderer/src/i18n/locales/fr.json
-index b2778b28356a7f95c27c8288755a6bb7085e32e8..24496175c1a805db25c281c564696b62097e5d27 100644
+index fe084ccdc98..adef609ec45 100644
 --- a/src/renderer/src/i18n/locales/fr.json
 +++ b/src/renderer/src/i18n/locales/fr.json
-@@ -22297,6 +22297,12 @@
+@@ -22476,6 +22476,12 @@
        "draft": "{{review}} : brouillon",
        "merged": "{{review}} : fusionnée",
        "open": "{{review}} : ouverte"
@@ -1000,10 +999,10 @@ index b2778b28356a7f95c27c8288755a6bb7085e32e8..24496175c1a805db25c281c564696b62
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ja.json b/src/renderer/src/i18n/locales/ja.json
-index 0d35c742846e06358ebd2eeed9276ed18bab3f5d..32383d4ea83c06e05b44f24752eea98e490687a0 100644
+index 1fd06d91b36..13e8b406d0d 100644
 --- a/src/renderer/src/i18n/locales/ja.json
 +++ b/src/renderer/src/i18n/locales/ja.json
-@@ -21574,6 +21574,12 @@
+@@ -21753,6 +21753,12 @@
        "draft": "{{review}}: 下書き",
        "merged": "{{review}}: マージ済み",
        "open": "{{review}}: オープン"
@@ -1017,10 +1016,10 @@ index 0d35c742846e06358ebd2eeed9276ed18bab3f5d..32383d4ea83c06e05b44f24752eea98e
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
-index 2f6b868041f6dd03fe15288291b64be01d1741fa..bae23ea9a637494c8ac15480f8914eab4f53f645 100644
+index 014bb3d00ac..7f717eccf24 100644
 --- a/src/renderer/src/i18n/locales/ko.json
 +++ b/src/renderer/src/i18n/locales/ko.json
-@@ -21574,6 +21574,12 @@
+@@ -21753,6 +21753,12 @@
        "draft": "{{review}}: 초안",
        "merged": "{{review}}: 병합됨",
        "open": "{{review}}: 열림"
@@ -1034,10 +1033,10 @@ index 2f6b868041f6dd03fe15288291b64be01d1741fa..bae23ea9a637494c8ac15480f8914eab
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/pt.json b/src/renderer/src/i18n/locales/pt.json
-index 03aba646f5626e2e2c10f5636a565c00581d4112..548a66ed24e1b16a56b9a1377efd29d92b6f5f8c 100644
+index 0ef2d429a5b..c8607fb1052 100644
 --- a/src/renderer/src/i18n/locales/pt.json
 +++ b/src/renderer/src/i18n/locales/pt.json
-@@ -22214,6 +22214,12 @@
+@@ -22394,6 +22394,12 @@
        "draft": "{{review}}: Rascunho",
        "merged": "{{review}}: Mergeado",
        "open": "{{review}}: Aberto"
@@ -1051,10 +1050,10 @@ index 03aba646f5626e2e2c10f5636a565c00581d4112..548a66ed24e1b16a56b9a1377efd29d9
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
-index 805aae641a1f7e365be4d950a7b0b4b787a74fa9..1ace31ba071ede48bbca7279ab7d2349627a53ae 100644
+index b13768afbb2..acc62376f2e 100644
 --- a/src/renderer/src/i18n/locales/ru.json
 +++ b/src/renderer/src/i18n/locales/ru.json
-@@ -22771,6 +22771,12 @@
+@@ -22953,6 +22953,12 @@
        "draft": "{{review}}: черновик",
        "merged": "{{review}}: слит",
        "open": "{{review}}: открыт"
@@ -1068,10 +1067,10 @@ index 805aae641a1f7e365be4d950a7b0b4b787a74fa9..1ace31ba071ede48bbca7279ab7d2349
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/locales/tr.json
-index b4995652d9445a54572ab196533724773f038adb..d59ec63a5480ec2b1d05f723778a102602d43150 100644
+index 1aa830d2d0d..95a806187f9 100644
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
-@@ -21832,6 +21832,12 @@
+@@ -22010,6 +22010,12 @@
        "draft": "{{review}}: Taslak",
        "merged": "{{review}}: Merge edildi",
        "open": "{{review}}: Açık"
@@ -1085,10 +1084,10 @@ index b4995652d9445a54572ab196533724773f038adb..d59ec63a5480ec2b1d05f723778a1026
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh-Hant.json b/src/renderer/src/i18n/locales/zh-Hant.json
-index 407286edf229231924ae8a5950e2cba97d0171ce..257052ff56947ca256fc595110d148faf5fec5b0 100644
+index f0b9e13c347..27926654fca 100644
 --- a/src/renderer/src/i18n/locales/zh-Hant.json
 +++ b/src/renderer/src/i18n/locales/zh-Hant.json
-@@ -21523,6 +21523,12 @@
+@@ -21701,6 +21701,12 @@
        "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合併",
        "open": "{{review}}：開放"
@@ -1102,10 +1101,10 @@ index 407286edf229231924ae8a5950e2cba97d0171ce..257052ff56947ca256fc595110d148fa
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh.json b/src/renderer/src/i18n/locales/zh.json
-index 79e43b8fa74a86dfe2a69b89320ba18528834544..21e1301365ca3655c19bb77e8fb06537d72a97a3 100644
+index 02b7f6a3bee..3862a826033 100644
 --- a/src/renderer/src/i18n/locales/zh.json
 +++ b/src/renderer/src/i18n/locales/zh.json
-@@ -21575,6 +21575,12 @@
+@@ -21753,6 +21753,12 @@
        "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合并",
        "open": "{{review}}：开放"
@@ -1118,11 +1117,11 @@ index 79e43b8fa74a86dfe2a69b89320ba18528834544..21e1301365ca3655c19bb77e8fb06537
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/lib/launch-agent-session-continuation-toast.test.tsx b/src/renderer/src/lib/launch-agent-session-continuation-toast.test.tsx
-index c7adbb8dec5a9009c4e13ac7c2a5a4d6e3baf93b..fec5ca0b6f10a4c9e209c76582a275d7c5591ad0 100644
---- a/src/renderer/src/lib/launch-agent-session-continuation-toast.test.tsx
-+++ b/src/renderer/src/lib/launch-agent-session-continuation-toast.test.tsx
-@@ -127,7 +127,7 @@ it.each([
+diff --git a/src/renderer/src/lib/agent-session/launch/continuation/launch-agent-session-continuation-toast.test.tsx b/src/renderer/src/lib/agent-session/launch/continuation/launch-agent-session-continuation-toast.test.tsx
+index 58f71574b32..438102a2740 100644
+--- a/src/renderer/src/lib/agent-session/launch/continuation/launch-agent-session-continuation-toast.test.tsx
++++ b/src/renderer/src/lib/agent-session/launch/continuation/launch-agent-session-continuation-toast.test.tsx
+@@ -129,7 +129,7 @@ it.each([
  )
  
  it.each(['target', 'folder:local-folder'])(
@@ -1131,7 +1130,7 @@ index c7adbb8dec5a9009c4e13ac7c2a5a4d6e3baf93b..fec5ca0b6f10a4c9e209c76582a275d7
    async (worktreeId) => {
      render(<Toaster closeButton />)
      await act(async () => {
-@@ -154,6 +154,6 @@ it.each(['target', 'folder:local-folder'])(
+@@ -156,6 +156,6 @@ it.each(['target', 'folder:local-folder'])(
  
      expect(useAppStore.getState().activeWorktreeId).toBe(worktreeId)
      expect(useAppStore.getState().activeWorkspaceExecutionHostId).toBe('local')
@@ -1140,7 +1139,7 @@ index c7adbb8dec5a9009c4e13ac7c2a5a4d6e3baf93b..fec5ca0b6f10a4c9e209c76582a275d7
    }
  )
 diff --git a/src/renderer/src/lib/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
-index 956caa1adf85cff4cd5600b564887daeba3037ff..16c682b1511f17c79c2d62ba407712ca62269ce4 100644
+index c8bea776294..8455c93d925 100644
 --- a/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
 +++ b/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
 @@ -84,24 +84,26 @@ function terminalTabCount(store: TestStore, worktreeId: string): number {
@@ -1220,11 +1219,64 @@ index 956caa1adf85cff4cd5600b564887daeba3037ff..16c682b1511f17c79c2d62ba407712ca
    })
  
    it('leaves terminal creation to the host of a paired runtime workspace', () => {
-diff --git a/src/renderer/src/lib/worktree-activation-created-agent.test.ts b/src/renderer/src/lib/worktree-activation-created-agent.test.ts
-index 56759edc307d9581c6961ea39596e9d06953aab7..f8b130d6cc8e1cdfaa634fde58f4a51e0b64b7b5 100644
---- a/src/renderer/src/lib/worktree-activation-created-agent.test.ts
-+++ b/src/renderer/src/lib/worktree-activation-created-agent.test.ts
-@@ -22,8 +22,6 @@ vi.mock('@/runtime/runtime-rpc-client', async (importOriginal) =>
+diff --git a/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts b/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
+index 9d5e93189ac..44a787b808a 100644
+--- a/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
++++ b/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
+@@ -25,7 +25,6 @@ import {
+   type IssueCommandLaunch
+ } from '@/lib/workspace/activation/initial-surface/worktree-setup-issue-command-queue'
+ import { applyDefaultTerminalTabs } from '@/lib/workspace/activation/initial-surface/worktree-default-terminal-tabs'
+-import { openDefaultAgentChatInEmptyWorkspace } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-agent-chat'
+ import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
+ import { findPendingWorktreeCreationId } from '../../creation/pending-worktree-creation'
+ 
+@@ -109,6 +108,9 @@ export function ensureWorktreeHasInitialTerminal(
+   opts?: InitialTerminalOptions
+ ): string | null {
+   const { renderableTabCount } = store.reconcileWorktreeTabModel(worktreeId)
++  if (!startup && !setup && !issueCommand && !defaultTabs?.tabs.length) {
++    return null
++  }
+   // Editor/browser-only workspaces need no extra terminal merely because the legacy terminal slice is empty.
+   const ownerState =
+     store.settings !== undefined || store.repos !== undefined || store.worktreesByRepo !== undefined
+@@ -253,30 +255,6 @@ export function ensureWorktreeHasInitialTerminal(
+   if (templatedTabId) {
+     return templatedTabId
+   }
+-  if (
+-    opts?.seedUserDefaultSurface === true &&
+-    !hasExplicitLaunchWork &&
+-    opts.activateCreatedTabs !== false
+-  ) {
+-    const defaultChat = openDefaultAgentChatInEmptyWorkspace(
+-      worktreeId,
+-      () =>
+-        ensureWorktreeHasInitialTerminal(
+-          store,
+-          worktreeId,
+-          startup,
+-          setup,
+-          issueCommand,
+-          defaultTabs,
+-          { ...opts, seedUserDefaultSurface: false }
+-        ) !== null,
+-      opts.initialCwd
+-    )
+-    if (defaultChat) {
+-      return defaultChat.primaryTabId
+-    }
+-  }
+-
+   // Activation-created PTY spawns must not count as activity and reshuffle Recent.
+   // Stamp before hooks so chat/provider chrome can resolve agent identity immediately.
+   const launchAgent =
+diff --git a/src/renderer/src/lib/workspace/activation/worktree-activation-created-agent.test.ts b/src/renderer/src/lib/workspace/activation/worktree-activation-created-agent.test.ts
+index eddd28eb118..d03d1250da6 100644
+--- a/src/renderer/src/lib/workspace/activation/worktree-activation-created-agent.test.ts
++++ b/src/renderer/src/lib/workspace/activation/worktree-activation-created-agent.test.ts
+@@ -22,8 +22,6 @@ vi.mock('@/runtime/rpc/calls/runtime-rpc-call', async (importOriginal) =>
  
  const initialAppStoreState = useAppStore.getState()
  
@@ -1249,10 +1301,10 @@ index 56759edc307d9581c6961ea39596e9d06953aab7..f8b130d6cc8e1cdfaa634fde58f4a51e
      expect(revealWorktreeInSidebar).toHaveBeenCalledWith(worktree.id)
    })
  })
-diff --git a/src/renderer/src/lib/worktree-activation-emptied-workspace-reseed.test.ts b/src/renderer/src/lib/worktree-activation-emptied-workspace-reseed.test.ts
-index e7dddd9fbe6eccc5711b5c529ede2fbcad5ff7d6..c93238f20d167f8a7c65e7eea906d0e03e57f4e1 100644
---- a/src/renderer/src/lib/worktree-activation-emptied-workspace-reseed.test.ts
-+++ b/src/renderer/src/lib/worktree-activation-emptied-workspace-reseed.test.ts
+diff --git a/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts b/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
+index 65cd634d338..51f7807c5c0 100644
+--- a/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
++++ b/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
 @@ -80,15 +80,7 @@ describe('activating a workspace whose last terminal was closed', () => {
      vi.spyOn(activationGate, 'gateWorktreeAgentActivation').mockReturnValue(pendingGate)
  
@@ -1328,11 +1380,11 @@ index e7dddd9fbe6eccc5711b5c529ede2fbcad5ff7d6..c93238f20d167f8a7c65e7eea906d0e0
      expect(useAppStore.getState().activeWorkspaceExecutionHostId).toBe(SSH_HOST_ID)
    })
  })
-diff --git a/src/renderer/src/lib/worktree-agent-activation-seam.test.ts b/src/renderer/src/lib/worktree-agent-activation-seam.test.ts
-index 8d856c66ed6b127eb0a5c280933edc1efd0f2f57..799043a7f570d8b57be6ca4c6d5e93ed5a21855d 100644
---- a/src/renderer/src/lib/worktree-agent-activation-seam.test.ts
-+++ b/src/renderer/src/lib/worktree-agent-activation-seam.test.ts
-@@ -239,9 +239,7 @@ describe('worktree agent activation seam', () => {
+diff --git a/src/renderer/src/lib/workspace/activation/worktree-agent-activation-seam.test.ts b/src/renderer/src/lib/workspace/activation/worktree-agent-activation-seam.test.ts
+index e4f6a4a799b..e2eb7017a46 100644
+--- a/src/renderer/src/lib/workspace/activation/worktree-agent-activation-seam.test.ts
++++ b/src/renderer/src/lib/workspace/activation/worktree-agent-activation-seam.test.ts
+@@ -237,9 +237,7 @@ describe('worktree agent activation seam', () => {
      activateAndRevealWorktree(worktree.id)
      await expect(waitForWorktreeAgentActivationGateForTests(worktree.id)).resolves.toBe('empty')
      expect(listSessions.mock.calls).toEqual([[{ connectionId: 'box' }], [{ connectionId: 'box' }]])
@@ -1344,64 +1396,11 @@ index 8d856c66ed6b127eb0a5c280933edc1efd0f2f57..799043a7f570d8b57be6ca4c6d5e93ed
 +    expect(useAppStore.getState().tabsByWorktree[worktree.id] ?? []).toEqual([])
    })
  })
-diff --git a/src/renderer/src/lib/worktree-initial-terminal-seeding.ts b/src/renderer/src/lib/worktree-initial-terminal-seeding.ts
-index f8c432100e68e10f7d3d1451b8c8449bde68341c..a4e97283151070be496373afcf594b680c78d205 100644
---- a/src/renderer/src/lib/worktree-initial-terminal-seeding.ts
-+++ b/src/renderer/src/lib/worktree-initial-terminal-seeding.ts
-@@ -25,7 +25,6 @@ import {
-   type IssueCommandLaunch
- } from '@/lib/worktree-setup-issue-command-queue'
- import { applyDefaultTerminalTabs } from '@/lib/worktree-default-terminal-tabs'
--import { openDefaultAgentChatInEmptyWorkspace } from '@/lib/empty-workspace-default-agent-chat'
- import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/empty-workspace-default-surface-claims'
- import { findPendingWorktreeCreationId } from './pending-worktree-creation'
- 
-@@ -109,6 +108,9 @@ export function ensureWorktreeHasInitialTerminal(
-   opts?: InitialTerminalOptions
- ): string | null {
-   const { renderableTabCount } = store.reconcileWorktreeTabModel(worktreeId)
-+  if (!startup && !setup && !issueCommand && !defaultTabs?.tabs.length) {
-+    return null
-+  }
-   // Editor/browser-only workspaces need no extra terminal merely because the legacy terminal slice is empty.
-   const ownerState =
-     store.settings !== undefined || store.repos !== undefined || store.worktreesByRepo !== undefined
-@@ -253,30 +255,6 @@ export function ensureWorktreeHasInitialTerminal(
-   if (templatedTabId) {
-     return templatedTabId
-   }
--  if (
--    opts?.seedUserDefaultSurface === true &&
--    !hasExplicitLaunchWork &&
--    opts.activateCreatedTabs !== false
--  ) {
--    const defaultChat = openDefaultAgentChatInEmptyWorkspace(
--      worktreeId,
--      () =>
--        ensureWorktreeHasInitialTerminal(
--          store,
--          worktreeId,
--          startup,
--          setup,
--          issueCommand,
--          defaultTabs,
--          { ...opts, seedUserDefaultSurface: false }
--        ) !== null,
--      opts.initialCwd
--    )
--    if (defaultChat) {
--      return defaultChat.primaryTabId
--    }
--  }
--
-   // Activation-created PTY spawns must not count as activity and reshuffle Recent.
-   // Stamp before hooks so chat/provider chrome can resolve agent identity immediately.
-   const launchAgent =
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync-initial-terminal-relaunch.test.tsx b/src/renderer/src/runtime/web-session-tabs-sync-initial-terminal-relaunch.test.tsx
-index 91d2e8407cd658537f42cec5c01e7db0bc96fb74..f91f88ae4fbaf4b73dbd63d6c3c322e886d3ee5a 100644
+index 03ddeef1a5d..b6f75136d53 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync-initial-terminal-relaunch.test.tsx
 +++ b/src/renderer/src/runtime/web-session-tabs-sync-initial-terminal-relaunch.test.tsx
-@@ -87,14 +87,6 @@ const runtimeSubscribe = vi.fn<RuntimeSubscribe>(async (request, callbacks) => {
+@@ -93,14 +93,6 @@ const runtimeSubscribe = vi.fn<RuntimeSubscribe>(async (request, callbacks) => {
    return { unsubscribe, sendBinary: vi.fn() }
  })
  
@@ -1416,7 +1415,7 @@ index 91d2e8407cd658537f42cec5c01e7db0bc96fb74..f91f88ae4fbaf4b73dbd63d6c3c322e8
  async function settle(): Promise<void> {
    await Promise.resolve()
    await Promise.resolve()
-@@ -179,7 +171,7 @@ function seedRemoteMirrorState(connectionGeneration: number): void {
+@@ -185,7 +177,7 @@ function seedRemoteMirrorState(connectionGeneration: number): void {
    )
  }
  
@@ -1425,7 +1424,7 @@ index 91d2e8407cd658537f42cec5c01e7db0bc96fb74..f91f88ae4fbaf4b73dbd63d6c3c322e8
    beforeEach(() => {
      subscriptions.length = 0
      runtimeCall.mockClear()
-@@ -207,18 +199,11 @@ describe('useWebSessionTabsSync initial-terminal bootstrap across an effect re-r
+@@ -213,18 +205,11 @@ describe('useWebSessionTabsSync initial-terminal bootstrap across an effect re-r
      resetStaleDocumentVisibilityForTesting()
    })
  
@@ -1446,7 +1445,7 @@ index 91d2e8407cd658537f42cec5c01e7db0bc96fb74..f91f88ae4fbaf4b73dbd63d6c3c322e8
      act(() => {
        useAppStore.setState({ runtimeStatusByEnvironmentId: runtimeStatusMap(2) })
      })
-@@ -226,55 +211,10 @@ describe('useWebSessionTabsSync initial-terminal bootstrap across an effect re-r
+@@ -232,55 +217,10 @@ describe('useWebSessionTabsSync initial-terminal bootstrap across an effect re-r
      expect(
        subscriptions.filter(({ request }) => request.method === 'session.tabs.subscribe')
      ).toHaveLength(2)
@@ -1504,7 +1503,7 @@ index 91d2e8407cd658537f42cec5c01e7db0bc96fb74..f91f88ae4fbaf4b73dbd63d6c3c322e8
      hook.unmount()
    })
  })
-@@ -311,7 +251,7 @@ describe('activating a host-owned workspace before the host has answered', () =>
+@@ -317,7 +257,7 @@ describe('activating a host-owned workspace before the host has answered', () =>
      resetStaleDocumentVisibilityForTesting()
    })
  
@@ -1513,7 +1512,7 @@ index 91d2e8407cd658537f42cec5c01e7db0bc96fb74..f91f88ae4fbaf4b73dbd63d6c3c322e8
      const hook = renderHook(() => useWebSessionTabsSync())
      await act(settle)
  
-@@ -329,7 +269,7 @@ describe('activating a host-owned workspace before the host has answered', () =>
+@@ -335,7 +275,7 @@ describe('activating a host-owned workspace before the host has answered', () =>
        publicationEpoch: 'empty:1'
      })
  
@@ -1523,10 +1522,10 @@ index 91d2e8407cd658537f42cec5c01e7db0bc96fb74..f91f88ae4fbaf4b73dbd63d6c3c322e8
    })
  })
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync-window-visibility.test.tsx b/src/renderer/src/runtime/web-session-tabs-sync-window-visibility.test.tsx
-index db79d45494901da2fa113a50f0667edb18f4fd48..bd44768f135be5a2b87d5f5df8eb44d351aaaffa 100644
+index 537b907afe1..4196d642f18 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync-window-visibility.test.tsx
 +++ b/src/renderer/src/runtime/web-session-tabs-sync-window-visibility.test.tsx
-@@ -332,9 +332,7 @@ describe('useWebSessionTabsSync window visibility', () => {
+@@ -333,9 +333,7 @@ describe('useWebSessionTabsSync window visibility', () => {
      hook.unmount()
    })
  
@@ -1537,7 +1536,7 @@ index db79d45494901da2fa113a50f0667edb18f4fd48..bd44768f135be5a2b87d5f5df8eb44d3
      const hook = renderHook(() => useWebSessionTabsSync())
      await act(settle)
      const snapshot = makeEmptySnapshot()
-@@ -347,7 +345,7 @@ describe('useWebSessionTabsSync window visibility', () => {
+@@ -348,7 +346,7 @@ describe('useWebSessionTabsSync window visibility', () => {
        type: 'snapshot',
        ...snapshot
      })
@@ -1546,7 +1545,7 @@ index db79d45494901da2fa113a50f0667edb18f4fd48..bd44768f135be5a2b87d5f5df8eb44d3
  
      act(() => {
        setDocumentVisibility('hidden')
-@@ -365,10 +363,8 @@ describe('useWebSessionTabsSync window visibility', () => {
+@@ -366,10 +364,8 @@ describe('useWebSessionTabsSync window visibility', () => {
        type: 'snapshot',
        ...snapshot
      })
@@ -1559,10 +1558,10 @@ index db79d45494901da2fa113a50f0667edb18f4fd48..bd44768f135be5a2b87d5f5df8eb44d3
    })
  
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync-worktree-switch.test.tsx b/src/renderer/src/runtime/web-session-tabs-sync-worktree-switch.test.tsx
-index 05feb7ed64e1aaa3376cfa240829be9e601479f9..4b780e3df4fd5ac194efdf57b678082c389cbf70 100644
+index 68f83ca0e07..c87f555f162 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync-worktree-switch.test.tsx
 +++ b/src/renderer/src/runtime/web-session-tabs-sync-worktree-switch.test.tsx
-@@ -233,11 +233,11 @@ describe('session-tabs streams across worktree switches on one host', () => {
+@@ -236,11 +236,11 @@ describe('session-tabs streams across worktree switches on one host', () => {
      expect(closed()).toBe(closedBefore)
    })
  
@@ -1576,7 +1575,7 @@ index 05feb7ed64e1aaa3376cfa240829be9e601479f9..4b780e3df4fd5ac194efdf57b678082c
      await publish(streamA, {
        type: 'snapshot',
        ...terminalSnapshot(WORKTREE_A, 1),
-@@ -251,13 +251,10 @@ describe('session-tabs streams across worktree switches on one host', () => {
+@@ -254,13 +254,10 @@ describe('session-tabs streams across worktree switches on one host', () => {
      await selectWorktree(WORKTREE_A)
  
      expect(latestStream(WORKTREE_A)).toBe(streamA)
@@ -1593,20 +1592,20 @@ index 05feb7ed64e1aaa3376cfa240829be9e601479f9..4b780e3df4fd5ac194efdf57b678082c
  
    it('drops a warm stream when its host is re-paired while another host is selected', async () => {
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts b/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
-index 6d2d829482b48e18bdaf10b91b7e304a649eb65a..0293fe6ffe77e5e4bb1cba9d8a9eaf76a16571d5 100644
+index 668e5640e21..64f792edd45 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
 +++ b/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
 @@ -38,10 +38,7 @@ import {
    shouldSkipWebRuntimeWakeTerminalRespawn
- } from '../web-runtime-wake-terminal-respawn'
- import { createWebRuntimeSessionTerminal } from '../web-runtime-terminal-creation'
--import { releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame } from '../web-runtime-initial-terminal-bootstrap'
+ } from '../hosted-terminals/restoration/web-runtime-wake-terminal-respawn'
+ import { createWebRuntimeSessionTerminal } from '../hosted-terminals/creation/web-runtime-terminal-creation'
+-import { releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame } from './initial-terminal/web-runtime-initial-terminal-bootstrap'
 -import { createInitialTerminalSeeder } from './initial-terminal-seeder'
  import { toRuntimeWorktreeSelector } from '../runtime-worktree-selector'
 -import { hostSnapshotAffirmsWorktreeContents } from '../host-session-snapshot-authority'
  import { isSessionTabsStreamEnd, type SessionTabsStreamEvent } from './state'
  import type { SessionTabsSnapshotHandler } from './visibility-resume-types'
- import { subscribeRuntimeEnvironment } from '../runtime-environment-pairing-refresh'
+ import { subscribeRuntimeEnvironment } from '../rpc/environment-revisions/runtime-environment-pairing-refresh'
 @@ -59,10 +56,7 @@ export type ActiveSubscriptionArgs = {
    visibilitySnapshotAccepted: Ref<SessionTabsSnapshotHandler<void>>
  }
@@ -1686,15 +1685,15 @@ index 6d2d829482b48e18bdaf10b91b7e304a649eb65a..0293fe6ffe77e5e4bb1cba9d8a9eaf76
  }
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts b/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts
 deleted file mode 100644
-index 1dc8f0d9852557188a9d502b3fb6208211c4f1fc..0000000000000000000000000000000000000000
+index 2b4454b7d34..00000000000
 --- a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts
 +++ /dev/null
 @@ -1,102 +0,0 @@
 -import { useAppStore } from '../../store'
 -import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
 -import { isFrameDrawnServerWorkspace } from './frame-drawn-server-workspaces'
--import { isWebRuntimeInitialTerminalBootstrapInFlight } from '../web-runtime-initial-terminal-bootstrap'
--import { dispatchWebRuntimeInitialTerminalBootstrap } from '../web-runtime-initial-terminal-bootstrap-dispatch'
+-import { isWebRuntimeInitialTerminalBootstrapInFlight } from './initial-terminal/web-runtime-initial-terminal-bootstrap'
+-import { dispatchWebRuntimeInitialTerminalBootstrap } from './initial-terminal/web-runtime-initial-terminal-bootstrap-dispatch'
 -import { shouldApplyRecoveredWebSessionTabsSnapshot } from './tracking'
 -import { shouldBootstrapInitialWebRuntimeTerminal } from './tracking-decisions'
 -import type { RuntimeMobileSessionTabsResult } from '../../../../shared/runtime-types'
@@ -1793,7 +1792,7 @@ index 1dc8f0d9852557188a9d502b3fb6208211c4f1fc..00000000000000000000000000000000
 -  }
 -}
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts b/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts
-index c94cda32703485f40a648fcbbd3f94cce03ba4cc..9397e298269f57426593b624f2dbf5fa65703768 100644
+index 7fd09309e1f..95797d3617b 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts
 +++ b/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts
 @@ -123,7 +123,6 @@ export function createWarmWorktreeSessionSubscriptions(
@@ -1806,7 +1805,7 @@ index c94cda32703485f40a648fcbbd3f94cce03ba4cc..9397e298269f57426593b624f2dbf5fa
          if (!subscription) {
 diff --git a/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts b/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..6a88038dae8013463c724499b7693646452f6984
+index 00000000000..6a88038dae8
 --- /dev/null
 +++ b/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts
 @@ -0,0 +1,24 @@
@@ -1835,11 +1834,11 @@ index 0000000000000000000000000000000000000000..6a88038dae8013463c724499b7693646
 +  }
 +)
 diff --git a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts b/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
-index 3d5ab51dd20f556121904d43f6a50163a4d79370..ed22ab21b90300995a4fc813a2894b4912aea9ae 100644
+index a51b600a3a0..b42da8e0835 100644
 --- a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
 +++ b/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
-@@ -18,8 +18,6 @@ export type HostChatAnswer =
-   | 'not-on-host'
+@@ -20,8 +20,6 @@ export type HostChatAnswer =
+   | 'windows'
    | 'no-chats'
  export type ChatProgramObservation = AgentSessionChatProgram | 'unlearned'
 -const chatProgramOffered = (program: ChatProgramObservation) =>
@@ -1847,7 +1846,7 @@ index 3d5ab51dd20f556121904d43f6a50163a4d79370..ed22ab21b90300995a4fc813a2894b49
  
  export function orderAgentLaunchPickerAgents(
    defaultAgent: TuiAgent | 'blank' | null | undefined,
-@@ -72,10 +70,14 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -75,10 +73,14 @@ export function buildNewTabAgentMenuRows(args: {
    const unavailable = new Map<TuiAgent, ChatUnavailableReason>()
    const chatAgents = filterEnabledTuiAgents(args.chatAgents, settings?.disabledTuiAgents)
    const canOpen = (agent: TuiAgent): boolean =>
@@ -1864,7 +1863,7 @@ index 3d5ab51dd20f556121904d43f6a50163a4d79370..ed22ab21b90300995a4fc813a2894b49
      const displayed = nativeChatPreferenceFor(settings, agent)
      if (!displayed && (!installed.includes(agent) || !canOpen(agent))) {
        continue
-@@ -87,7 +89,6 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -90,7 +92,6 @@ export function buildNewTabAgentMenuRows(args: {
        }
        continue
      }
@@ -1873,10 +1872,10 @@ index 3d5ab51dd20f556121904d43f6a50163a4d79370..ed22ab21b90300995a4fc813a2894b49
        runnable.push(agent)
      } else {
 diff --git a/tests/e2e/completed-worker-retirement-resume.unit.test.ts b/tests/e2e/completed-worker-retirement-resume.unit.test.ts
-index c542806566406a76a97293eeadc1c239d73babd5..48d27cbc394b54d667d12919befcab8c0867aa26 100644
+index 1a3e954f2e6..d423ebfbf3b 100644
 --- a/tests/e2e/completed-worker-retirement-resume.unit.test.ts
 +++ b/tests/e2e/completed-worker-retirement-resume.unit.test.ts
-@@ -400,7 +400,9 @@ describe('completed background-worker retirement resume matrix', () => {
+@@ -404,7 +404,9 @@ describe('completed background-worker retirement resume matrix', () => {
    it('does not cold-resume an explicitly completed and retired worker on first activation', async () => {
      const ownedRecord = recordCompletedWorker()
      expect(resumeSleepingAgentSessionsForWorktree(WORKTREE_ID)).toBe(0)
@@ -1887,7 +1886,7 @@ index c542806566406a76a97293eeadc1c239d73babd5..48d27cbc394b54d667d12919befcab8c
      expect(useAppStore.getState().sleepingAgentSessionsByPaneKey[ORIGINAL_PANE_KEY]).toBe(
        ownedRecord
      )
-@@ -560,9 +562,7 @@ describe('completed background-worker retirement resume matrix', () => {
+@@ -564,9 +566,7 @@ describe('completed background-worker retirement resume matrix', () => {
      expect(activationResult).not.toBe(false)
      const activated = useAppStore.getState()
  
@@ -1899,7 +1898,7 @@ index c542806566406a76a97293eeadc1c239d73babd5..48d27cbc394b54d667d12919befcab8c
      expect(activated.ptyIdsByTabId[ORIGINAL_TAB_ID]).toBeUndefined()
      expectCanaryUnchanged()
 diff --git a/tests/e2e/relaunch-first-terminal.spec.ts b/tests/e2e/relaunch-first-terminal.spec.ts
-index 72ceee412e398cc2b8101a7500b8edb02b205041..5af48521be01ce44e7d80127a6cb31ae246a0a0a 100644
+index 72ceee412e3..5af48521be0 100644
 --- a/tests/e2e/relaunch-first-terminal.spec.ts
 +++ b/tests/e2e/relaunch-first-terminal.spec.ts
 @@ -1,5 +1,4 @@

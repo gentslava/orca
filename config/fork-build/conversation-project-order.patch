@@ -1,5 +1,5 @@
 diff --git a/mobile/src/host-screen/HostConversations.tsx b/mobile/src/host-screen/HostConversations.tsx
-index 5b8a2eed7cf412064dd36dc2d9fd9ce5595eb7a7..952ba67368dc658c0ea72a31de71b8884809e10e 100644
+index 5b8a2eed7cf..952ba67368d 100644
 --- a/mobile/src/host-screen/HostConversations.tsx
 +++ b/mobile/src/host-screen/HostConversations.tsx
 @@ -72,7 +72,8 @@ export function HostConversations({
@@ -13,7 +13,7 @@ index 5b8a2eed7cf412064dd36dc2d9fd9ce5595eb7a7..952ba67368dc658c0ea72a31de71b888
      [
        controller.projectCatalog,
 diff --git a/mobile/src/host-screen/conversation-project-order-sheet.tsx b/mobile/src/host-screen/conversation-project-order-sheet.tsx
-index 3eacfe967b3b027167e7c2ab8a73119f789965d1..70db778d7704ba7c42dbf2201e3885ada7d4a08f 100644
+index 3eacfe967b3..70db778d770 100644
 --- a/mobile/src/host-screen/conversation-project-order-sheet.tsx
 +++ b/mobile/src/host-screen/conversation-project-order-sheet.tsx
 @@ -26,7 +26,10 @@ export function ConversationProjectOrderSheet({
@@ -29,7 +29,7 @@ index 3eacfe967b3b027167e7c2ab8a73119f789965d1..70db778d7704ba7c42dbf2201e3885ad
      />
    )
 diff --git a/mobile/src/host-screen/project-conversation-order.ts b/mobile/src/host-screen/project-conversation-order.ts
-index c33099bb3ec45f5280d2f6438a0f73635311e67c..ae0c3226b4f2bfbd4db108207871c4e44d6e2c08 100644
+index c33099bb3ec..ae0c3226b4f 100644
 --- a/mobile/src/host-screen/project-conversation-order.ts
 +++ b/mobile/src/host-screen/project-conversation-order.ts
 @@ -1,3 +1,4 @@
@@ -84,7 +84,7 @@ index c33099bb3ec45f5280d2f6438a0f73635311e67c..ae0c3226b4f2bfbd4db108207871c4e4
      .map(([, project]) => project)
      .map((project) => ({
 diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
-index 5d6a8c252dfdc5980f12c822f119b6d1e12b5d3f..88bd0f4f909088cedd3551d517e583306ff47804 100644
+index 5d6a8c252df..88bd0f4f909 100644
 --- a/mobile/src/host-screen/project-conversations.test.ts
 +++ b/mobile/src/host-screen/project-conversations.test.ts
 @@ -1,3 +1,4 @@
@@ -156,7 +156,7 @@ index 5d6a8c252dfdc5980f12c822f119b6d1e12b5d3f..88bd0f4f909088cedd3551d517e58330
 +  }
 +)
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
-index f431127236978c850bc5695b526b19e08660af2e..0c64fe631ee4a071e1751e4e44d1526c040177a1 100644
+index 6c762384f9b..d99acb18e1a 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
 @@ -56,7 +56,11 @@ function fixture(
@@ -189,7 +189,7 @@ index f431127236978c850bc5695b526b19e08660af2e..0c64fe631ee4a071e1751e4e44d1526c
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
-index c4dbe428f7d67da9f54e9d6d1730fc906cd88bcc..61cadd5e17ae0873bed6350f08896d1abd1e8304 100644
+index c4dbe428f7d..61cadd5e17a 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 @@ -23,11 +23,15 @@ const state = vi.hoisted(() => {
@@ -289,7 +289,7 @@ index c4dbe428f7d67da9f54e9d6d1730fc906cd88bcc..61cadd5e17ae0873bed6350f08896d1a
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
-index 7ed5eca5644cd3adaad7e6205367177f308e4ba8..a1b4dc710c2e90fda6451f08b9102ab0b416f353 100644
+index 7ed5eca5644..a1b4dc710c2 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 @@ -13,8 +13,6 @@ import {
@@ -358,7 +358,7 @@ index 7ed5eca5644cd3adaad7e6205367177f308e4ba8..a1b4dc710c2e90fda6451f08b9102ab0
          <Button
 diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..28f6abb300392381a8cbf10ca1add85e2eaca906
+index 00000000000..28f6abb3003
 --- /dev/null
 +++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 @@ -0,0 +1,45 @@
@@ -408,7 +408,7 @@ index 0000000000000000000000000000000000000000..28f6abb300392381a8cbf10ca1add85e
 +  )
 +}
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
-index 338ab091e03f8c6d9e390de810c4608a1d1a2359..a56186a40628980ea3c001967da235c21123b9e3 100644
+index 338ab091e03..a56186a4062 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 @@ -131,3 +131,34 @@ describe('project conversation ownership', () => {
@@ -447,7 +447,7 @@ index 338ab091e03f8c6d9e390de810c4608a1d1a2359..a56186a40628980ea3c001967da235c2
 +  expect(result.map((group) => group.executionHostId)).toEqual(['runtime:remote', 'local'])
 +})
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ts
-index 80075fa1143ac621df93597248ff1f04c0843d94..482eaf1fa86ca5c4ce2bef390bff6ea59a2286e1 100644
+index 80075fa1143..482eaf1fa86 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ts
 @@ -28,6 +28,7 @@ import {
@@ -515,7 +515,7 @@ index 80075fa1143ac621df93597248ff1f04c0843d94..482eaf1fa86ca5c4ce2bef390bff6ea5
    for (const group of result) {
      const hosts = hostsByLabel.get(group.label) ?? new Set<ExecutionHostId>()
 diff --git a/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx b/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
-index 2d1aaa08ac5718d5abbb5efbd7e1cb6818d976e6..87813bc4a188509e55a5a815316dcd79b00b938c 100644
+index 2d1aaa08ac5..87813bc4a18 100644
 --- a/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
 +++ b/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
 @@ -1,4 +1,4 @@

@@ -1,7 +1,8 @@
 diff --git a/mobile/src/test-support/rpc-recording/subscription-recording.test.ts b/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
+index fafe399fe04..a203b6b3a72 100644
 --- a/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
 +++ b/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
-@@ -96,7 +96,7 @@
+@@ -96,7 +96,7 @@ describe('subscription recordings', () => {
          ({ client }) => mount(client),
          vitestRecordingScheduler()
        )
@@ -10,33 +11,21 @@ diff --git a/mobile/src/test-support/rpc-recording/subscription-recording.test.t
      expect(listened).toEqual([])
    })
    it('observes a stream the product left registered at teardown, and nothing when it closes', async () => {
-@@ -330,7 +330,6 @@
-                     crash: captureValue(null)
-                   }
-             )
--            expect(run.requests).toHaveLength(operation === 'session.live-worktree-name' ? 1 : 0)
-             expect(run.effects.filter((effect) => effect.name === 'stream-listener-crash')).toEqual(
-               []
-             )
-@@ -350,16 +349,13 @@
-                 name: 'Feature Work Renamed',
-                 resolution: 'present'
-               })
--              expect(run.requests).toHaveLength(2)
-             } else if (operation === 'session.native-chat-page') {
-               expect(last.state).toMatchObject({
-                 messageIds:
-                   position === 'first' ? ['m-3', 'm-4', 'm-5'] : ['m-1', 'm-2', 'm-3', 'm-4']
-               })
--              expect(run.requests).toHaveLength(position === 'first' ? 0 : 1)
-             } else {
-               expect(last.state).toEqual({ running: false })
--              expect(run.requests).toHaveLength(position === 'first' ? 0 : 1)
-               const dismissed = run.effects.filter(
-                 (effect) => effect.name === 'notification-tray.dismiss'
-               )
+diff --git a/src/main/ipc/shell-repo-icon-image.test.ts b/src/main/ipc/shell-repo-icon-image.test.ts
+index 702598d88d5..7a390a5a3f0 100644
+--- a/src/main/ipc/shell-repo-icon-image.test.ts
++++ b/src/main/ipc/shell-repo-icon-image.test.ts
+@@ -26,7 +26,7 @@ beforeEach(async () => {
+   directory = await mkdtemp(join(tmpdir(), 'orca-repo-icon-'))
+   handlers.clear()
+   showOpenDialog.mockReset()
+-  registerShellHandlers({ getSshTarget: () => undefined }, () => [])
++  registerShellHandlers({ getSshTarget: () => undefined, getSettings: () => ({}) }, () => [])
+ })
+ 
+ afterEach(async () => {
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
-index b71d37ed2f5df1d922b6b739eff6e7058472a120..dc2fe3f08cc55ae5bf360f8f9da0deb20f81cdce 100644
+index b71d37ed2f5..dc2fe3f08cc 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 @@ -35,6 +35,34 @@ const baseSession: AiVaultSession = {
@@ -75,7 +64,7 @@ index b71d37ed2f5df1d922b6b739eff6e7058472a120..dc2fe3f08cc55ae5bf360f8f9da0deb2
      const repo = makeRepo({ id: 'repo-1', displayName: 'Legacy Repo', path: '/Users/ada/orca' })
      const project = makeProject({ id: 'project-1', displayName: 'Canonical Orca' })
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
-index 3e5a6936975dfdc136c97c84fe6b328103125e6f..edb5db4604768b3be16e18df66d2f102d0f0d635 100644
+index 3e5a6936975..edb5db46047 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
 @@ -4,6 +4,8 @@ import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts
@@ -136,7 +125,7 @@ index 3e5a6936975dfdc136c97c84fe6b328103125e6f..edb5db4604768b3be16e18df66d2f102
      const parent = makeWorktree({ id: 'parent', path: '/a-very-long-parent-link' })
      const child = makeWorktree({ id: 'child', path: '/short', priorWorktreeIds: ['repo-1::/old'] })
 diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
-index 28f6abb300392381a8cbf10ca1add85e2eaca906..3b8e2e3ae77cd937957570e59e0aab55ca46fd1f 100644
+index 28f6abb3003..3b8e2e3ae77 100644
 --- a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 @@ -3,7 +3,7 @@ import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-o
@@ -150,7 +139,7 @@ index 28f6abb300392381a8cbf10ca1add85e2eaca906..3b8e2e3ae77cd937957570e59e0aab55
    const order = useAppStore((state) => state.projectOrderBy)
 diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..507a8a3f0faf2263241189134f30b757fa9a8a94
+index 00000000000..507a8a3f0fa
 --- /dev/null
 +++ b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
 @@ -0,0 +1,75 @@
@@ -230,7 +219,7 @@ index 0000000000000000000000000000000000000000..507a8a3f0faf2263241189134f30b757
 +  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
 +})
 diff --git a/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx b/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx
-index c2bf6ba7a6138455dd74c53925e1c4b35b303edb..67ea74e38d9d61a11cfd3671814e40b717dd58bb 100644
+index c2bf6ba7a61..67ea74e38d9 100644
 --- a/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx
 +++ b/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx
 @@ -21,7 +21,7 @@ import {
@@ -243,23 +232,19 @@ index c2bf6ba7a6138455dd74c53925e1c4b35b303edb..67ea74e38d9d61a11cfd3671814e40b7
  function BundledAgentSkillSetupPanel({
    title,
 diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-index 4f7ab54ec97bf79bf093d071258a46e6d71acc21..a0ed6537e1db15d85a3b576699d4568eda2a3bf4 100644
+index 6777b8f6281..1c71544ed8a 100644
 --- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 +++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-@@ -3,6 +3,12 @@ import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-cha
+@@ -3,6 +3,8 @@ import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-cha
  import { act, cleanup, renderHook } from '@testing-library/react'
  import { afterEach, expect, it, vi } from 'vitest'
  import { useAppStore } from '@/store'
 +import { getRuntimeAgentInventoryKey } from '@/store/slices/runtime-agent-inventory-key'
-+import {
-+  NEW_TAB_TWIN_HOSTS,
-+  NEW_TAB_PAIRED_STATUS,
-+  newTabTwinHostWorkspaces
-+} from './new-tab-agent-menu-twin-host.test-fixture'
++import { NEW_TAB_TWIN_HOSTS, NEW_TAB_PAIRED_STATUS, newTabTwinHostWorkspaces } from './new-tab-agent-menu-twin-host.test-fixture'
  import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
- import { workspaceKindForWorktreeId } from '@/lib/agent-launch-route-input'
- import {
-@@ -121,3 +127,78 @@ it('settles ownerless continuation and plus inventory without borrowing agents,
+ import '@/lib/agent-session/launch/routing/agent-launch-route-input'
+ import { workspaceKindForWorktreeId } from '../../../../shared/workspace-launch-kind'
+@@ -122,3 +124,78 @@ it('settles ownerless continuation and plus inventory without borrowing agents,
      hook.unmount()
    }
  })
@@ -338,117 +323,3 @@ index 4f7ab54ec97bf79bf093d071258a46e6d71acc21..a0ed6537e1db15d85a3b576699d4568e
 +    }
 +  }
 +)
-diff --git a/src/main/acp/acp-resume-journal-evidence.ts b/src/main/acp/acp-resume-journal-evidence.ts
---- a/src/main/acp/acp-resume-journal-evidence.ts
-+++ b/src/main/acp/acp-resume-journal-evidence.ts
-@@ -1,14 +1,7 @@
- import type { AcpStructuredLaunchPartDeps } from './acp-structured-launch-resolution'
--import type { AgentSessionProviderHandleChain } from '../../shared/agent-session/lifecycle/agent-session-provider-handle'
- import type { JournalLoad } from '../native-chat/agent-session-journal/journal-open'
- import { readAgentJournalTurn } from '../../shared/agent-session/lifecycle/agent-session-turn-record'
--import { parseAgentJournalItemKey } from '../../shared/agent-session/journal/agent-session-journal-item-key'
--import {
--  isProviderTimelineTurnInNamespace,
--  providerTimelineKeyPart,
--  spelledProviderTimelineItemKey
--} from '../native-chat/agent-session-timeline/provider-timeline-identity'
--import { acpSessionNotRestoredItem } from './acp-session-reopen-failure'
-+import { isProviderTimelineTurnInNamespace } from '../native-chat/agent-session-timeline/provider-timeline-identity'
- 
- export function nothingExchangedOn(
-   readJournal: AcpStructuredLaunchPartDeps['readJournal'],
-@@ -35,40 +28,3 @@
-   }
-   return true
- }
--
--/** Retry missing loss-warning rows on successful starts; unreadable journals suppress new warnings. */
--export function unannouncedLosses(
--  readJournal: AcpStructuredLaunchPartDeps['readJournal'],
--  sessionId: string,
--  chain: AgentSessionProviderHandleChain
--): string[] {
--  const lost = chain.flatMap((link) =>
--    link.replaces?.reason === 'restore-failed' ? [link.replaces.key] : []
--  )
--  if (lost.length === 0) {
--    return []
--  }
--  let load: JournalLoad | null
--  try {
--    load = readJournal(sessionId)
--  } catch {
--    return []
--  }
--  if (!load) {
--    return lost
--  }
--  if (load.damage || load.newer) {
--    return []
--  }
--  const written = new Set<string>()
--  for (const itemId of load.state.items.keys()) {
--    const identity = parseAgentJournalItemKey(itemId)
--    const spelled =
--      identity?.provider === 'legacy' ? spelledProviderTimelineItemKey(identity.recordId) : null
--    if (spelled !== null) {
--      written.add(spelled)
--    }
--  }
--  // Warnings survive even if the replacement session that wrote them is superseded.
--  return lost.filter((key) => !written.has(providerTimelineKeyPart(acpSessionNotRestoredItem(key))))
--}
-diff --git a/src/shared/agent-session/failures/agent-session-failure-kinds.ts b/src/shared/agent-session/failures/agent-session-failure-kinds.ts
---- a/src/shared/agent-session/failures/agent-session-failure-kinds.ts
-+++ b/src/shared/agent-session/failures/agent-session-failure-kinds.ts
-@@ -29,6 +29,8 @@
-   'providerRejected',
-   'pluginInputRequired',
-   'modelUnavailable',
-+  /** The agent had no model when the message reached it; why is unknown. */
-+  'modelNotSelected',
-   'claudeEffortInvalid',
-   'attachmentInvalid',
-   'attachmentUnreadable',
-diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
---- a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
-@@ -4,7 +4,7 @@
- import { NativeChatUsageLimitActionsProvider } from './NativeChatUsageLimitActions'
- import type { ComponentProps, ReactNode, Ref } from 'react'
- import { NativeChatMessageList } from './NativeChatMessageList'
--import { NativeChatRewindContext } from './native-chat-rewind-context'
-+import { NativeChatRowActionsProvider } from './NativeChatRowActionsProvider'
- import { NativeChatClaudeSignInContext } from './native-chat-claude-sign-in'
- import type { useNativeChatClaudeSignIn } from './native-chat-claude-sign-in'
- import type { useNativeChatInterruptedContinuation } from './NativeChatInterruptedContinue'
-@@ -42,7 +42,7 @@
-   messageListRef: Ref<NativeChatMessageListHandle>
- }): React.JSX.Element {
-   return (
--    <NativeChatRewindContext.Provider value={controller.rewind.surface}>
-+    <NativeChatRowActionsProvider pane={pane} chat={controller}>
-       <NativeChatUsageLimitActionsProvider
-         recovery={controller}
-         pane={pane}
-@@ -70,7 +70,7 @@
-           />
-         </NativeChatClaudeSignInContext.Provider>
-       </NativeChatUsageLimitActionsProvider>
--    </NativeChatRewindContext.Provider>
-+    </NativeChatRowActionsProvider>
-   )
- }
- 
-diff --git a/src/main/ipc/shell-repo-icon-image.test.ts b/src/main/ipc/shell-repo-icon-image.test.ts
---- a/src/main/ipc/shell-repo-icon-image.test.ts
-+++ b/src/main/ipc/shell-repo-icon-image.test.ts
-@@ -26,7 +26,7 @@
-   directory = await mkdtemp(join(tmpdir(), 'orca-repo-icon-'))
-   handlers.clear()
-   showOpenDialog.mockReset()
--  registerShellHandlers({ getSshTarget: () => undefined }, () => [])
-+  registerShellHandlers({ getSshTarget: () => undefined, getSettings: () => ({}) }, () => [])
- })
- 
- afterEach(async () => {
