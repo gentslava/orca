@@ -5,6 +5,7 @@ import { NativeChatApprovalCard } from './NativeChatApprovalCard'
 import { agentSessionPromptQuestions } from '../../../../shared/agent-session/agent-session-question-answer'
 import type { RefObject } from 'react'
 import type { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
+import { sessionLinkOwnerQuestion } from './SessionLinkOwnerQuestion'
 import { asyncQuestionSourceScope } from '../../../../shared/native-chat/input/native-chat-ask'
 import { structuredAgentSessionPaneKey } from '../../../../shared/agent-session/view/structured-agent-session-projection'
 import { structuredAgentSessionHostKey } from '../../runtime/structured-agent-session-host-capability'
@@ -119,7 +120,10 @@ function NativeChatAsyncQuestionForm({
 }
 
 export function nativeChatStructuredAsyncQuestion(
-  props: Pick<NativeChatStructuredViewProps, 'target' | 'agent' | 'sessionId' | 'tabId'>,
+  props: Pick<
+    NativeChatStructuredViewProps,
+    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible'
+  >,
   controller: Pick<
     ReturnType<typeof useStructuredAgentSession>,
     'epoch' | 'prompts' | 'submissions'
@@ -131,23 +135,26 @@ export function nativeChatStructuredAsyncQuestion(
   const { agent, sessionId } = props
   const { epoch } = controller
   return (
-    <NativeChatStructuredAsyncQuestion
-      paneKey={structuredAgentSessionPaneKey(props.tabId, sessionId)}
-      session={session}
-      submissions={controller.submissions}
-      send={transport.send}
-      sendFollowUp={transport.sendFollowUp}
-      queuedCards={submits.queuedMessages.cards}
-      blocked={controller.prompts[0] != null}
-      sourceKey={JSON.stringify([
-        'journal',
-        structuredAgentSessionHostKey(props.target),
-        agent,
-        sessionId,
-        epoch
-      ])}
-      sourceScope={asyncQuestionSourceScope({ kind: 'journal', agent, sessionId, epoch })}
-    />
+    <>
+      <NativeChatStructuredAsyncQuestion
+        paneKey={structuredAgentSessionPaneKey(props.tabId, sessionId)}
+        session={session}
+        submissions={controller.submissions}
+        send={transport.send}
+        sendFollowUp={transport.sendFollowUp}
+        queuedCards={submits.queuedMessages.cards}
+        blocked={controller.prompts[0] != null}
+        sourceKey={JSON.stringify([
+          'journal',
+          structuredAgentSessionHostKey(props.target),
+          agent,
+          sessionId,
+          epoch
+        ])}
+        sourceScope={asyncQuestionSourceScope({ kind: 'journal', agent, sessionId, epoch })}
+      />
+      {sessionLinkOwnerQuestion(props)}
+    </>
   )
 }
 
