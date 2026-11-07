@@ -1,3 +1,5 @@
+import { structuredSessionBackgroundTasksView } from '../../shared/structured-session-background-tasks-view'
+import type { AgentSessionBackgroundTaskState } from '../../shared/agent-session/agent-session-background-task-wire'
 import { readAgentJournalTurn } from '../../shared/agent-session/lifecycle/agent-session-turn-record'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { _internals } from '../agent-hooks/server'
@@ -113,6 +115,13 @@ async function fixture() {
   }
 }
 
+function expectSettledStrip(state: AgentSessionBackgroundTaskState | null | undefined): void {
+  expect(state?.tasks ?? []).toEqual([])
+  expect(state?.children?.length).toBeGreaterThan(0)
+  expect(state?.children?.every((child) => child.membership === 'settled')).toBe(true)
+  expect(structuredSessionBackgroundTasksView(state, null).isMonitoring).toBe(false)
+}
+
 describe('Grok roster evidence through the existing host child store', () => {
   it.each([
     ['s7-subagent-foreground', 'Count note lines'],
@@ -180,9 +189,9 @@ describe('Grok roster evidence through the existing host child store', () => {
         )
       ).toEqual([])
     }
-    expect(
+    expectSettledStrip(
       (await hosted.host.history({ sessionId: SESSION, direction: 'tail' })).page.backgroundTasks
-    ).toBeNull()
+    )
   })
 
   it('uses the targeted extension for one owned child and awaits its finish without cancelling parent or sibling', async () => {
@@ -275,7 +284,7 @@ describe('Grok roster evidence through the existing host child store', () => {
       subagent_id: 'original',
       tokens_used: 111
     })
-    expect(await f.strip()).toBeNull()
+    expectSettledStrip(await f.strip())
     expect(f.childWork.views().find((view) => view.providerId === 'original')?.outcome).toBe(
       'cancelled'
     )
@@ -373,7 +382,7 @@ describe('Grok roster evidence through the existing host child store', () => {
         update: { sessionUpdate: 'subagent_progress', subagent_id: 'unresolved', tokens_used: 100 }
       })
       await f.rows()
-      expect(await f.strip()).toBeNull()
+      expectSettledStrip(await f.strip())
     } finally {
       child.exit()
     }

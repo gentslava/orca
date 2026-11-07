@@ -258,6 +258,12 @@ describe('sendGroupMessage actually composes structured workers in', () => {
       runtime: runtime as never,
       db: db as never,
       from: 'term_sender',
+      sender: {
+        address: 'term_sender',
+        terminalHandle: 'term_sender',
+        paneKey: null,
+        orcaSessionId: null
+      },
       // `@worktree:` is the one group that still enumerates agents; the Run groups read
       // Dispatch rows, where a structured worker's identity is looked up by this same handle.
       groupAddress: '@worktree:wt_2',
@@ -268,7 +274,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
       revalidateLegacyCoordinator: undefined,
       recordMutationReceipt: undefined,
       withSendWarnings: (receipt) => receipt
-    } as never)
+    })
     expect(inserted.map((row) => row.to)).toEqual([handle])
   })
 

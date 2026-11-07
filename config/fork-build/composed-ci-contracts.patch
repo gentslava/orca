@@ -1,0 +1,1046 @@
+diff --git a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
+index 5636b33035d..8f02c0aa5dd 100644
+--- a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
++++ b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
+@@ -1,14 +1,6 @@
+ import { useEffect, useRef, useState } from 'react'
+ import { AccessibilityInfo, Keyboard, Platform, Text, View } from 'react-native'
+-import {
+-  ChevronLeft,
+-  FilePenLine,
+-  Hand,
+-  LockKeyhole,
+-  ShieldAlert,
+-  ShieldCheck,
+-  type LucideIcon
+-} from 'lucide-react-native'
++import * as Icons from 'lucide-react-native'
+ import { BottomDrawer } from '../../../components/bottom-drawer/BottomDrawer'
+ import { ListGroup, LIST_LEADING_INSET, SectionHeader } from '../../../components/list/ListGroup'
+ import { NavBarButton } from '../../../components/nav-bar/NavBarButton'
+@@ -71,19 +63,19 @@ function permissionChoiceColor(value: string | undefined): string | undefined {
+   return value === 'full-access' ? colors.statusAmber : undefined
+ }
+ 
+-function permissionModeIcon(value: string): LucideIcon | undefined {
++function permissionModeIcon(value: string): Icons.LucideIcon | undefined {
+   if (!isAgentChatPermissionMode(value)) {
+     return undefined
+   }
+   switch (AGENT_CHAT_PERMISSION_MODE_ICON_NAMES[value]) {
+     case 'Hand':
+-      return Hand
++      return Icons.Hand
+     case 'FilePenLine':
+-      return FilePenLine
++      return Icons.FilePenLine
+     case 'ShieldCheck':
+-      return ShieldCheck
++      return Icons.ShieldCheck
+     case 'ShieldAlert':
+-      return ShieldAlert
++      return Icons.ShieldAlert
+   }
+ }
+ 
+@@ -278,7 +270,7 @@ export function MobileNativeChatSessionOptionPickers({
+               {homeView ? null : (
+                 <View style={styles.back}>
+                   <NavBarButton
+-                    icon={ChevronLeft}
++                    icon={Icons.ChevronLeft}
+                     accessibilityLabel={t(
+                       'chat.sessionOptionPickers.backToModels',
+                       'Back to models'
+@@ -290,7 +282,9 @@ export function MobileNativeChatSessionOptionPickers({
+             </View>
+             {showWorkingNotice ? (
+               <View style={styles.lockNotice} accessibilityLiveRegion="polite">
+-                {!forFutureTurn ? <LockKeyhole size={16} color={colors.textSecondary} /> : null}
++                {!forFutureTurn ? (
++                  <Icons.LockKeyhole size={16} color={colors.textSecondary} />
++                ) : null}
+                 <View style={styles.lockNoticeBody}>
+                   <Text style={styles.lockNoticeTitle}>
+                     {t('chat.sessionOptionPickers.agentWorking', 'Agent is working')}
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
+index 98f54373bd8..12172c416f7 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
+@@ -19,17 +19,7 @@ import type {
+ import type { NativeChatMessage } from '../../../../../src/shared/native-chat/native-chat-types'
+ import type { MobileNativeChatRowKeys } from './mobile-native-chat-row-keys'
+ import { MobileNativeChatPageScroll } from './MobileNativeChatPageScroll'
+-import {
+-  mobileNativeChatReadingDrift,
+-  measureMobileNativeChatPageRows,
+-  mobileNativeChatUndrawnHeight,
+-  mobileNativeChatReadingPlace,
+-  mobileNativeChatRowAbove,
+-  mobileNativeChatRowBoxProps,
+-  type MobileNativeChatReadingUnit,
+-  type MobileNativeChatDrawnWindow,
+-  type MobileNativeChatScrollNode
+-} from '../../mobile-native-chat-reading-place'
++import * as readingPlace from '../../mobile-native-chat-reading-place'
+ import type { MobileNativeChatListHandle } from './use-mobile-native-chat-tail-follow'
+ import type { MobileNativeChatScrollRoots } from './mobile-native-chat-scroll-roots'
+ import { scrollWritesStopMomentum } from '../../mobile-native-chat-scroll-motion'
+@@ -52,7 +42,7 @@ const FETCH_REACH_SCREENS = 10
+ const REST_MS = 300
+ 
+ type Row = { item: NativeChatMessage; index: number }
+-type Scroller = MobileNativeChatScrollNode & EventTarget
++type Scroller = readingPlace.MobileNativeChatScrollNode & EventTarget
+ type ReadScroller = () => Scroller | null
+ 
+ type Props = {
+@@ -106,7 +96,7 @@ export function MobileNativeChatPageList({
+   const keys = useMemo(() => rows.map(rowKeys.keyOf), [rows, rowKeys.keyOf])
+   const indexOf = useMemo(() => new Map(keys.map((key, at) => [key, at])), [keys])
+   const n = keys.length
+-  const [drawn, setDrawn] = useState<MobileNativeChatDrawnWindow>({
++  const [drawn, setDrawn] = useState<readingPlace.MobileNativeChatDrawnWindow>({
+     scope: rowKeys.scope,
+     firstKey: null,
+     count: 0
+@@ -125,9 +115,9 @@ export function MobileNativeChatPageList({
+           Math.max(0, n - (kept?.count ?? FIRST_ROWS)))
+ 
+   const rowHeights = useMemo(() => new Map<string, number>(), [rowKeys.scope, layoutKey])
+-  const beforeRowsHeight = mobileNativeChatUndrawnHeight(keys, first, rowHeights)
++  const beforeRowsHeight = readingPlace.mobileNativeChatUndrawnHeight(keys, first, rowHeights)
+   const measureDrawn = useCallback(
+-    (s: Scroller) => measureMobileNativeChatPageRows(s, rowHeights),
++    (s: Scroller) => readingPlace.measureMobileNativeChatPageRows(s, rowHeights),
+     [rowHeights]
+   )
+   useLayoutEffect(() => {
+@@ -142,7 +132,7 @@ export function MobileNativeChatPageList({
+   const own = useRef<number | null>(null)
+   const touching = useRef(false)
+   const readerScrolledAt = useRef(0)
+-  const place = useRef<MobileNativeChatReadingUnit[] | null>(null)
++  const place = useRef<readingPlace.MobileNativeChatReadingUnit[] | null>(null)
+   const placedLayout = useRef(layoutKey)
+   const settleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+   const live = useRef<Held>({ rows: liveRows, header: liveHeader, footer: liveFooter, renderItem })
+@@ -173,7 +163,7 @@ export function MobileNativeChatPageList({
+     (s: Scroller) => {
+       const { first, n, keys, layoutKey, rowKeys } = latest.current
+       const reading = !isFollowing()
+-      place.current = reading ? mobileNativeChatReadingPlace(s, rowKeys) : null
++      place.current = reading ? readingPlace.mobileNativeChatReadingPlace(s, rowKeys) : null
+       placedLayout.current = layoutKey
+       if (!reading) {
+         setDrawn((current) =>
+@@ -208,7 +198,12 @@ export function MobileNativeChatPageList({
+         notePlace(s)
+         return
+       }
+-      const drift = mobileNativeChatReadingDrift(held, s, latest.current.rowKeys, roots)
++      const drift = readingPlace.mobileNativeChatReadingDrift(
++        held,
++        s,
++        latest.current.rowKeys,
++        roots
++      )
+       if (Math.abs(drift) >= 0.5) {
+         write(s, s.scrollTop + drift)
+       }
+@@ -272,7 +267,7 @@ export function MobileNativeChatPageList({
+         next = Math.max(0, at - DRAW_BATCH)
+       } else if (at < opening && screens > TRIM_SCREENS && isFollowing()) {
+         // Cut at a row wholly above the draw-ahead line so drawing never wants it back.
+-        const cut = mobileNativeChatRowAbove(s, DRAW_AHEAD_SCREENS * s.clientHeight)
++        const cut = readingPlace.mobileNativeChatRowAbove(s, DRAW_AHEAD_SCREENS * s.clientHeight)
+         next = Math.min(rowAt.get(cut ?? '') ?? at, opening)
+       }
+       if (next !== at && (isFollowing() || resting())) {
+@@ -423,7 +418,7 @@ export function MobileNativeChatPageList({
+           emptyStateView
+         ) : (
+           // Key by chat to reset rows; persist disclosures above windowed rows. Block flow avoids relaying out every row for each streamed token.
+-          <div key={rowKeys.scope} {...mobileNativeChatRowBoxProps}>
++          <div key={rowKeys.scope} {...readingPlace.mobileNativeChatRowBoxProps}>
+             <div style={{ height: beforeRowsHeight }} />
+             {rows.slice(first).map((item, at) => {
+               const index = first + at
+diff --git a/mobile/src/session/use-mobile-structured-agent-session.ts b/mobile/src/session/use-mobile-structured-agent-session.ts
+index e32c6f41b2b..814b41a5c1b 100644
+--- a/mobile/src/session/use-mobile-structured-agent-session.ts
++++ b/mobile/src/session/use-mobile-structured-agent-session.ts
+@@ -8,14 +8,8 @@ import {
+   runningStructuredAgentSessionTurnId,
+   structuredAgentSessionQueueSendsNext
+ } from '../../../src/shared/agent-session/view/structured-agent-session-live-turn'
+-import {
+-  actionableStructuredApproval,
+-  actionableStructuredQuestion
+-} from './mobile-structured-actionable-prompt'
+-import {
+-  projectStructuredPermission,
+-  projectStructuredQuestion
+-} from './mobile-structured-agent-prompts'
++import * as actionablePrompts from './mobile-structured-actionable-prompt'
++import * as prompts from './mobile-structured-agent-prompts'
+ import type {
+   MobileStructuredAgentSessionArgs,
+   StructuredMobileSession
+@@ -205,7 +199,10 @@ export function useMobileStructuredAgentSession(
+   // Prefer host actionability: ended-agent prompts must receive no answer.
+   const [approvalPrompt, questionPrompt] = useMemo(() => {
+     const prompts = { items, currentRequests, actionablePromptIds }
+-    return [actionableStructuredApproval(prompts), actionableStructuredQuestion(prompts)] as const
++    return [
++      actionablePrompts.actionableStructuredApproval(prompts),
++      actionablePrompts.actionableStructuredQuestion(prompts)
++    ] as const
+   }, [items, currentRequests, actionablePromptIds])
+   const commandRefusalCauses = useMemo(
+     () => ({
+@@ -294,8 +291,8 @@ export function useMobileStructuredAgentSession(
+       requestCancel(prompt ?? pendingStructuredPromptIdentity(stateRef.current)),
+     receipts,
+     actionablePromptIds: state.actionablePromptIds,
+-    permission: projectStructuredPermission(approvalPrompt),
+-    question: projectStructuredQuestion(questionPrompt),
++    permission: prompts.projectStructuredPermission(approvalPrompt),
++    question: prompts.projectStructuredQuestion(questionPrompt),
+     respondPermission,
+     respondQuestion,
+     queued,
+diff --git a/src/main/acp/acp-structured-child-work.test.ts b/src/main/acp/acp-structured-child-work.test.ts
+index c77c637a63d..ec0e6cd3ad5 100644
+--- a/src/main/acp/acp-structured-child-work.test.ts
++++ b/src/main/acp/acp-structured-child-work.test.ts
+@@ -1,3 +1,5 @@
++import { structuredSessionBackgroundTasksView } from '../../shared/structured-session-background-tasks-view'
++import type { AgentSessionBackgroundTaskState } from '../../shared/agent-session/agent-session-background-task-wire'
+ import { readAgentJournalTurn } from '../../shared/agent-session/lifecycle/agent-session-turn-record'
+ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+ import { _internals } from '../agent-hooks/server'
+@@ -113,6 +115,13 @@ async function fixture() {
+   }
+ }
+ 
++function expectSettledStrip(state: AgentSessionBackgroundTaskState | null | undefined): void {
++  expect(state?.tasks ?? []).toEqual([])
++  expect(state?.children?.length).toBeGreaterThan(0)
++  expect(state?.children?.every((child) => child.membership === 'settled')).toBe(true)
++  expect(structuredSessionBackgroundTasksView(state, null).isMonitoring).toBe(false)
++}
++
+ describe('Grok roster evidence through the existing host child store', () => {
+   it.each([
+     ['s7-subagent-foreground', 'Count note lines'],
+@@ -180,9 +189,9 @@ describe('Grok roster evidence through the existing host child store', () => {
+         )
+       ).toEqual([])
+     }
+-    expect(
++    expectSettledStrip(
+       (await hosted.host.history({ sessionId: SESSION, direction: 'tail' })).page.backgroundTasks
+-    ).toBeNull()
++    )
+   })
+ 
+   it('uses the targeted extension for one owned child and awaits its finish without cancelling parent or sibling', async () => {
+@@ -275,7 +284,7 @@ describe('Grok roster evidence through the existing host child store', () => {
+       subagent_id: 'original',
+       tokens_used: 111
+     })
+-    expect(await f.strip()).toBeNull()
++    expectSettledStrip(await f.strip())
+     expect(f.childWork.views().find((view) => view.providerId === 'original')?.outcome).toBe(
+       'cancelled'
+     )
+@@ -373,7 +382,7 @@ describe('Grok roster evidence through the existing host child store', () => {
+         update: { sessionUpdate: 'subagent_progress', subagent_id: 'unresolved', tokens_used: 100 }
+       })
+       await f.rows()
+-      expect(await f.strip()).toBeNull()
++      expectSettledStrip(await f.strip())
+     } finally {
+       child.exit()
+     }
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
+index bd0bb38aa6b..6077fe24c44 100644
+--- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
+@@ -30,16 +30,13 @@ export type {
+ } from './agent-model-catalog-entry'
+ export { withLiveCatalogListing } from './agent-model-catalog-entry'
+ import {
+-  AGENT_MODEL_CATALOG_FAILURE_TTL_MS,
+   AgentModelCatalogFailures,
+   type AgentModelCatalogFailure
+ } from './agent-model-catalog-failures'
+-import {
+-  AGENT_MODEL_CATALOG_PICKER_WAIT_MS,
+-  AgentModelCatalogListingWaiters
+-} from './agent-model-catalog-listing-waiters'
++import { AgentModelCatalogListingWaiters } from './agent-model-catalog-listing-waiters'
+ 
+-export { AGENT_MODEL_CATALOG_FAILURE_TTL_MS, AGENT_MODEL_CATALOG_PICKER_WAIT_MS }
++export { AGENT_MODEL_CATALOG_FAILURE_TTL_MS } from './agent-model-catalog-failures'
++export { AGENT_MODEL_CATALOG_PICKER_WAIT_MS } from './agent-model-catalog-listing-waiters'
+ export type { AgentModelCatalogFailure }
+ 
+ // Persist successful display catalogs; launch proof requires fresh in-process discovery.
+diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
+index de2bb66ce48..5fa6bbb94bc 100644
+--- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
++++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
+@@ -19,7 +19,7 @@ import type { StructuredAgentSessionAttachContext } from '../acquisition/structu
+ import { createStructuredAgentSessionTabSurface as createTabs } from './structured-agent-session-host-tabs'
+ import { flushStructuredAgentSessionHost } from '../termination/structured-agent-session-host-teardown'
+ import type * as HostTypes from './structured-agent-session-host-types'
+-import { StructuredAgentSessionEventRecovery } from '../termination/structured-agent-session-event-recovery'
++import { StructuredAgentSessionEventRecovery as EventRecovery } from '../termination/structured-agent-session-event-recovery'
+ import { StructuredAgentSessionBackgroundTaskChannel as BackgroundTasks } from '../publication/subscribers/structured-agent-session-background-task-channel'
+ import { StructuredAgentSessionClientDelivery } from '../publication/subscribers/structured-agent-session-client-delivery'
+ import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
+@@ -54,14 +54,13 @@ export class StructuredAgentSessionHost {
+     this.sessions,
+     (sessionId) => this.usageLimitContinue?.readState(sessionId)
+   )
+-  private readonly subscribers = this.clientDelivery.subscribers
+   private readonly tasks = new StructuredAgentSessionTaskQueue()
+   private readonly runtimeState: StructuredAgentSessionHostRuntimeState
+   private readonly startup: ReturnType<typeof createStartupRecovery>
+   readonly reconcileRestartLeases = () => this.startup.reconcileRestartLeases()
+   private readonly lifetime: HostTypes.StructuredAgentSessionConversationLifetime
+   private readonly conversationDelivery: conversation.StructuredAgentSessionConversationDelivery
+-  private readonly eventRecovery: StructuredAgentSessionEventRecovery
++  private readonly eventRecovery: EventRecovery
+   private readonly backgroundTasks: BackgroundTasks
+   readonly restartResume: StructuredAgentSessionRestartResume
+ 
+@@ -74,7 +73,7 @@ export class StructuredAgentSessionHost {
+     this.backgroundTasks = new BackgroundTasks(
+       deps,
+       this.sessions,
+-      this.subscribers,
++      this.clientDelivery.subscribers,
+       (sessionId) => this.lifetime.conversation(sessionId),
+       this.clientDelivery.readChildWork,
+       this.clientDelivery.childWorkIncomplete
+@@ -103,7 +102,7 @@ export class StructuredAgentSessionHost {
+       clientDelivery: this.clientDelivery
+     })
+     this.startup = createStartupRecovery(deps, this.runtimeState.reconcileLeases, this.runtimeState)
+-    this.eventRecovery = new StructuredAgentSessionEventRecovery({
++    this.eventRecovery = new EventRecovery({
+       deps,
+       store: deps.store,
+       sessions: this.sessions,
+@@ -160,8 +159,7 @@ export class StructuredAgentSessionHost {
+   childAccountHome = this.reads.childAccountHome
+   prospectiveAccountHome = this.reads.prospectiveAccountHome
+ 
+-  handleAdapterEvent = (event: Parameters<StructuredAgentSessionEventRecovery['handle']>[0]) =>
+-    this.eventRecovery.handle(event)
++  handleAdapterEvent: EventRecovery['handle'] = (event) => this.eventRecovery.handle(event)
+ 
+   // Keep inference so publishStatus stays required in the attach-context spread.
+   private lifetimeContext() {
+@@ -179,7 +177,7 @@ export class StructuredAgentSessionHost {
+ 
+   private attachContext = (): StructuredAgentSessionAttachContext => ({
+     ...this.lifetimeContext(),
+-    subscribers: this.subscribers,
++    subscribers: this.clientDelivery.subscribers,
+     tasks: this.tasks,
+     reconcileLeases: (sessionId) => this.runtimeState.reconcileLeases(sessionId),
+     serialize: (sessionId, task) => this.serialize(sessionId, task),
+@@ -259,7 +257,7 @@ export class StructuredAgentSessionHost {
+     mutationWiring.createStructuredAgentSessionHostMutationContext({
+       deps: this.deps,
+       sessions: this.sessions,
+-      subscribers: this.subscribers,
++      subscribers: this.clientDelivery.subscribers,
+       lifetime: this.lifetime,
+       clientDelivery: this.clientDelivery,
+       conversationDelivery: this.conversationDelivery,
+@@ -336,7 +334,8 @@ export class StructuredAgentSessionHost {
+ 
+   publishForegroundTasks = (id: string): void => this.backgroundTasks.publish(id)
+   publishChildWorkEvidence = this.clientDelivery.publishChildWork
+-  unsubscribe = (sessionId: string, id: string): void => this.subscribers.close(sessionId, id)
++  unsubscribe = (sessionId: string, id: string): void =>
++    this.clientDelivery.subscribers.close(sessionId, id)
+ 
+   /** Retains no per-session subscription. */
+   subscribeStatus = this.clientDelivery.subscribeStatus
+@@ -351,7 +350,7 @@ export class StructuredAgentSessionHost {
+ 
+   collaboratorsForTests = () => ({
+     sessions: this.sessions,
+-    subscribers: this.subscribers,
++    subscribers: this.clientDelivery.subscribers,
+     runtimeState: this.runtimeState,
+     conversationDelivery: this.conversationDelivery,
+     lifetime: this.lifetime,
+diff --git a/src/main/runtime/orchestration/addressing/groups/structured-worker-group-addressing.test.ts b/src/main/runtime/orchestration/addressing/groups/structured-worker-group-addressing.test.ts
+index 32d71270b55..75ee6030eaf 100644
+--- a/src/main/runtime/orchestration/addressing/groups/structured-worker-group-addressing.test.ts
++++ b/src/main/runtime/orchestration/addressing/groups/structured-worker-group-addressing.test.ts
+@@ -258,6 +258,12 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       runtime: runtime as never,
+       db: db as never,
+       from: 'term_sender',
++      sender: {
++        address: 'term_sender',
++        terminalHandle: 'term_sender',
++        paneKey: null,
++        orcaSessionId: null
++      },
+       // `@worktree:` is the one group that still enumerates agents; the Run groups read
+       // Dispatch rows, where a structured worker's identity is looked up by this same handle.
+       groupAddress: '@worktree:wt_2',
+@@ -268,7 +274,7 @@ describe('sendGroupMessage actually composes structured workers in', () => {
+       revalidateLegacyCoordinator: undefined,
+       recordMutationReceipt: undefined,
+       withSendWarnings: (receipt) => receipt
+-    } as never)
++    })
+     expect(inserted.map((row) => row.to)).toEqual([handle])
+   })
+ 
+diff --git a/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx b/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
+index c583d7fe763..5b6318a2712 100644
+--- a/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
++++ b/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
+@@ -1,3 +1,8 @@
++import {
++  chooseEffort,
++  effortLabel,
++  effortSlider
++} from './native-chat/native-chat-effort-slider.test-fixture'
+ // @vitest-environment happy-dom
+ // Exercise production Modal/Card/Picker/inventory with synthetic composer targets.
+ import React, { useRef, useState } from 'react'
+@@ -265,7 +270,7 @@ async function open(agent: string) {
+   fireEvent.click(configure)
+   await waitFor(() => expect(textarea()).not.toBeNull())
+   await waitFor(() =>
+-    expect(screen.getByRole('radio', { name: 'Low' }).hasAttribute('disabled')).toBe(false)
++    expect(effortSlider().closest('[data-slot=slider]')?.hasAttribute('data-disabled')).toBe(false)
+   )
+ }
+ async function useDraft(surface: 'chat' | 'terminal' = 'terminal') {
+@@ -324,23 +329,23 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
+   render(<NewWorkspaceComposerModal />, { wrapper: TooltipProvider })
+   await open('Claude')
+   const start = snapshot('w1-before')
+-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
++  chooseEffort('Low')
+   fireEvent.change(textarea(), { target: { value: '--verbose' } })
+   await useDraft()
+   evidence.phase = 'w1-immediate-reopen'
+   await open('Claude')
+   expect(textarea().value).toBe('--verbose')
+-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect(effortLabel()).toBe('Low')
+   const echo = snapshot('w1-echo')
+   expect(echo.initial?.choices.options?.effort).toBe('low')
+   expect(echo.initial?.arguments).toBe('--verbose')
+   await visit('W2 folder')
+   evidence.phase = 'w2-codex'
+   await open('Codex')
+-  fireEvent.click(screen.getByRole('radio', { name: 'Med' }))
++  chooseEffort('Medium')
+   await useDraft()
+   await open('Codex')
+-  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
++  expect(effortLabel()).toBe('Medium')
+   const w2 = last('codex')
+   await visit('W1 git')
+   evidence.phase = 'w1-return'
+@@ -350,17 +355,17 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
+   expect(returned.authority).toBe(start.authority)
+   expect(returned.initial).toBeUndefined()
+   expect.soft(textarea().value).toBe('--verbose')
+-  expect.soft(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect.soft(effortLabel()).toBe('Low')
+   fireEvent.change(textarea(), { target: { value: '--pending-after-accepted' } })
+   await visit('W2 folder')
+   await open('Codex')
+-  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
++  expect(effortLabel()).toBe('Medium')
+   expect(last('codex').authority).toBe(w2.authority)
+   expect(textarea().value).toBe('')
+   await visit('W1 git')
+   await open('Claude')
+   expect(textarea().value).toBe('--pending-after-accepted')
+-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
++  expect(effortLabel()).toBe('Low')
+   expect(evidence.submit).not.toHaveBeenCalled()
+ })
+ 
+diff --git a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
+index 70b0928631e..089a07af862 100644
+--- a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
++++ b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
+@@ -1,7 +1,7 @@
++import { chooseEffort, effortLabel } from '../native-chat/native-chat-effort-slider.test-fixture'
+ // @vitest-environment happy-dom
+ import { act } from 'react'
+-import { fireEvent, getByRole } from '@testing-library/react'
+-import userEvent from '@testing-library/user-event'
++import { fireEvent } from '@testing-library/react'
+ import { createRoot, type Root } from 'react-dom/client'
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+ import { TooltipProvider } from '@/components/ui/tooltip'
+@@ -139,21 +139,18 @@ describe('setup records exist only for authored setups', () => {
+         </TooltipProvider>
+       )
+     )
+-    const user = userEvent.setup()
+     const [plain, searched] = document.querySelectorAll<HTMLButtonElement>(
+       'button[aria-label="Configure claude"]'
+     )
+     const prompt = () =>
+       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
+-    const effort = (label: string) =>
+-      getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
+     const model = () => document.querySelector('[cmdk-item][data-current="true"]')?.textContent
+     const close = () => fireEvent.keyDown(document.querySelector('textarea')!, { key: 'Escape' })
+ 
+     // Opening a preset saves nothing, and the plain row still shows defaults.
+     fireEvent.click(searched)
+     expect(model()).toBe('opus')
+-    expect(effort('High')).toBe('on')
++    expect(effortLabel()).toBe('High')
+     close()
+     expect(sourceCount()).toBe(0)
+     fireEvent.click(plain)
+@@ -164,14 +161,14 @@ describe('setup records exist only for authored setups', () => {
+ 
+     // A real change saves into that preset's slot only and survives close and reopen.
+     fireEvent.click(searched)
+-    await user.click(getByRole(document.body, 'radio', { name: 'Low' }))
+-    expect(effort('Low')).toBe('on')
++    chooseEffort('Low')
++    expect(effortLabel()).toBe('Low')
+     expect(sourceCount()).toBe(1)
+     changePrompt(prompt(), 'review the diff')
+     close()
+     fireEvent.click(searched)
+     expect(model()).toBe('opus')
+-    expect(effort('Low')).toBe('on')
++    expect(effortLabel()).toBe('Low')
+     close()
+ 
+     // The plain row keeps its own options but shares the workspace's typed prompt.
+diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
+index 961db140cea..67c646154a8 100644
+--- a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
++++ b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
+@@ -1,3 +1,4 @@
++import { chooseEffort } from '../native-chat/native-chat-effort-slider.test-fixture'
+ // @vitest-environment happy-dom
+ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+ import { expect, it } from 'vitest'
+@@ -49,7 +50,7 @@ it.each(['omitted', 'efforts replaced'])(
+     })
+     fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
+     fireEvent.click(screen.getByRole('option', { name: 'GPT-6.1 Sol' }))
+-    fireEvent.click(screen.getByRole('radio', { name: 'High' }))
++    chooseEffort('High')
+     act(() =>
+       useAppStore.setState(({ settings }) => ({
+         settings: {
+diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
+index 6ba15a3e597..4b1563b8d50 100644
+--- a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
++++ b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
+@@ -1,3 +1,4 @@
++import { chooseEffort } from '../native-chat/native-chat-effort-slider.test-fixture'
+ // @vitest-environment happy-dom
+ import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
+ import { expect, it } from 'vitest'
+@@ -47,7 +48,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
+   })
+   fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
+   fireEvent.click(screen.getByRole('option', { name: 'GPT-5.4' }))
+-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
++  chooseEffort('Low')
+   fireEvent.click(screen.getByRole('button', { name: /^Use$/ }))
+   await waitFor(() =>
+     expect(useAppStore.getState().settings?.commitMessageAi).toMatchObject({
+diff --git a/src/renderer/src/components/native-chat/NativeChatResolvedView.streaming-input.test.tsx b/src/renderer/src/components/native-chat/NativeChatResolvedView.streaming-input.test.tsx
+index 2f65105533c..718fc3bca95 100644
+--- a/src/renderer/src/components/native-chat/NativeChatResolvedView.streaming-input.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatResolvedView.streaming-input.test.tsx
+@@ -14,6 +14,11 @@ const probe = vi.hoisted<{
+   inputs: (readonly NativeChatMessage[])[]
+   shown: NativeChatMessage[]
+ }>(() => ({ session: null, inputs: [], shown: [] }))
++vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
++  loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
++    .loadNodeOniguruma
++}))
++
+ vi.mock('./use-native-chat-retained-session', () => ({
+   useNativeChatRetainedSession: () => probe.session
+ }))
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.test.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.test.tsx
+index 4b2762e4817..466fc092cb1 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.test.tsx
+@@ -10,6 +10,11 @@ const { mocks, moduleFactories, resetStructuredSessionMocks } = await vi.hoisted
+   (await import('./NativeChatStructuredSession.test-harness')).createStructuredSessionMocks()
+ )
+ 
++vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
++  loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
++    .loadNodeOniguruma
++}))
++
+ vi.mock('@/runtime/structured-agent-session-client', () =>
+   moduleFactories.structuredAgentSessionClient()
+ )
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+index c030a0cf44b..d37078f3215 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+@@ -20,10 +20,7 @@ import {
+ } from './NativeChatStructuredTranscript'
+ import { NativeChatChildTranscriptStack } from './NativeChatChildTranscript'
+ import type { NativeChatMessageListHandle } from './use-native-chat-reveal-latest'
+-import {
+-  NativeChatChildNavigationContext,
+-  useNativeChatChildNavigator
+-} from './native-chat-child-navigation'
++import * as childNavigation from './native-chat-child-navigation'
+ import { NativeChatContextClearFade } from './NativeChatContextClearFade'
+ import { useStructuredNativeChatSubmitReveal } from './use-structured-native-chat-submit-reveal'
+ import { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
+@@ -77,7 +74,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+   // The host's own word on whether the provider child has answered startup yet.
+   const hostExecution = useStructuredAgentSessionHostExecution(props.sessionId, props.target)
+   const paneKey = structuredAgentSessionPaneKey(props.tabId, props.sessionId)
+-  const childNavigator = useNativeChatChildNavigator(JSON.stringify([paneKey, props.target]))
++  const childNavigator = childNavigation.useNativeChatChildNavigator(
++    JSON.stringify([paneKey, props.target])
++  )
+   const childMessageListRef = useRef<NativeChatMessageListHandle>(null)
+   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
+   // Chat-wide preference; an alternate send flips it for one message.
+@@ -256,7 +255,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+     notices.push(hostNotice)
+   }
+   const root = (
+-    <NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
++    <childNavigation.NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
+       <div
+         ref={rootRef}
+         data-native-chat-root="true"
+@@ -405,7 +404,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+         {handOff.dialog}
+         <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
+       </div>
+-    </NativeChatChildNavigationContext.Provider>
++    </childNavigation.NativeChatChildNavigationContext.Provider>
+   )
+   return (
+     <NativeChatLinkClickContext value={onLinkClick}>
+diff --git a/src/renderer/src/components/native-chat/native-chat-composer-ime-file-drop.test.tsx b/src/renderer/src/components/native-chat/native-chat-composer-ime-file-drop.test.tsx
+index 9f06554622b..3f3644361eb 100644
+--- a/src/renderer/src/components/native-chat/native-chat-composer-ime-file-drop.test.tsx
++++ b/src/renderer/src/components/native-chat/native-chat-composer-ime-file-drop.test.tsx
+@@ -78,7 +78,11 @@ vi.mock('./NativeChatImageAttachmentPreview', () => ({
+   }: {
+     attachment: { connectionId?: string; path: string }
+   }) => (
+-    <output data-image-attachment data-connection-id={attachment.connectionId}>
++    <output
++      data-testid="attachment-preview"
++      data-image-attachment
++      data-connection-id={attachment.connectionId}
++    >
+       {attachment.path}
+     </output>
+   )
+@@ -115,7 +119,6 @@ function ComposerProbe({
+   const attachments = useNativeChatComposerAttachments({
+     attachmentScopeKey: `pane:${workspaceId}`,
+     allowWithoutTarget: structured,
+-    imageReferences: structured,
+     caret,
+     disabled,
+     isComposing: imeEnterGesture.isComposing,
+@@ -163,6 +166,7 @@ function ComposerProbe({
+           activeSuggestion={0}
+           notices={notices}
+           imageAttachments={attachments.imageAttachments}
++          numberImages
+           sendButtonDisabled={false}
+           isWorking={false}
+           attachDisabled={disabled}
+@@ -329,11 +333,10 @@ describe('OS file drops through the real composing chat field', () => {
+           (pill) => pill.textContent
+         )
+       ).toEqual(['notes.txt'])
++      expect(editor.querySelectorAll('[data-native-chat-image-reference]')).toHaveLength(0)
+       expect(
+-        [...editor.querySelectorAll('[data-native-chat-image-reference]')].map(
+-          (pill) => pill.textContent
+-        )
+-      ).toEqual(['Image #1', 'Image #2', 'Image #3'])
++        [...screen.getAllByTestId('attachment-preview')].map((preview) => preview.textContent)
++      ).toEqual(['/drop/b.png', '/drop/a.png', '/drop/b.png'])
+     }
+     assertDraftMatchesDocument()
+     // Browser-native End movement is exercised in Electron; here selection uses real editor commands.
+@@ -360,11 +363,12 @@ describe('OS file drops through the real composing chat field', () => {
+     expect(send).toHaveBeenCalledOnce()
+     expect(send).toHaveBeenCalledWith(
+       expect.stringContaining('@/drop/notes.txt'),
+-      expect.arrayContaining([expect.objectContaining({ path: '/drop/b.png' })])
++      expect.arrayContaining([expect.objectContaining({ path: '/drop/b.png' })]),
++      {}
+     )
+     const [text, images] = send.mock.calls[0] ?? []
+     expect(text).toContain(question)
+-    expect(text?.match(/\[Image #\d+\]/g)).toEqual(['[Image #1]', '[Image #2]', '[Image #3]'])
++    expect(text).not.toMatch(/\[Image #\d+\]/)
+     expect(images?.map(({ path }) => path)).toEqual(['/drop/b.png', '/drop/a.png', '/drop/b.png'])
+     expect(promptValue(editor)).toBe('')
+     expect(readNativeChatComposerDraft('pane:worktree-1').text).toBe('')
+diff --git a/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts b/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts
+new file mode 100644
+index 00000000000..cfdad63f3a3
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts
+@@ -0,0 +1,17 @@
++import { fireEvent, screen } from '@testing-library/react'
++
++export const effortSlider = (): HTMLElement => screen.getByRole('slider', { name: 'Effort' })
++export const effortLabel = (): string | undefined =>
++  effortSlider().getAttribute('aria-valuetext')?.split(' · ')[0]
++
++export function chooseEffort(label: string): void {
++  fireEvent.keyDown(effortSlider(), { key: 'Home' })
++  const maximum = Number(effortSlider().getAttribute('aria-valuemax'))
++  for (let step = 0; step <= maximum; step++) {
++    if (effortLabel() === label) {
++      return
++    }
++    fireEvent.keyDown(effortSlider(), { key: 'ArrowRight' })
++  }
++  throw new Error(`Effort slider does not offer ${label}`)
++}
+diff --git a/src/renderer/src/components/native-chat/native-chat-structured-send-composition-clear.test.tsx b/src/renderer/src/components/native-chat/native-chat-structured-send-composition-clear.test.tsx
+index 4b9397cee15..b05669336e0 100644
+--- a/src/renderer/src/components/native-chat/native-chat-structured-send-composition-clear.test.tsx
++++ b/src/renderer/src/components/native-chat/native-chat-structured-send-composition-clear.test.tsx
+@@ -179,7 +179,7 @@ describe('structured send racing the next IME composition', () => {
+     expect(readNativeChatDraftCache(pane)).toBe('하')
+ 
+     await act(async () => pressEnter(input))
+-    expect(structured.send).toHaveBeenLastCalledWith('하', [])
++    expect(structured.send).toHaveBeenLastCalledWith('하', [], {})
+   })
+ 
+   it('keeps the composed text when a mid-composition clear lands away from the caret', async () => {
+@@ -318,6 +318,6 @@ describe('the Enter that commits a Hangul composition', () => {
+     await act(async () => pressEnter(input))
+ 
+     expect(structured.send).toHaveBeenCalledOnce()
+-    expect(structured.send).toHaveBeenCalledWith('안녕하세요', [])
++    expect(structured.send).toHaveBeenCalledWith('안녕하세요', [], {})
+   })
+ })
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts b/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
+index 1cc288a23ad..64c86091d9c 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
++++ b/src/renderer/src/components/native-chat/use-native-chat-terminal-transcript.ts
+@@ -74,24 +74,22 @@ export function useNativeChatTerminalTranscript({
+       ),
+     [delivery.pending, sessionAfterCommandBoundaries.messages, workingEpoch]
+   )
++  const streamingMessages = useMemo(
++    () =>
++      pendingMessages.length > 0
++        ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
++        : sessionAfterCommandBoundaries.messages,
++    [sessionAfterCommandBoundaries.messages, pendingMessages]
++  )
+   const streamingText = useMemo(
+     () =>
+       deriveNativeChatStreamingText({
+-        messages:
+-          pendingMessages.length > 0
+-            ? [...sessionAfterCommandBoundaries.messages, ...pendingMessages]
+-            : sessionAfterCommandBoundaries.messages,
++        messages: streamingMessages,
+         previewText,
+         working,
+         previewIsToolOutput
+       }),
+-    [
+-      sessionAfterCommandBoundaries.messages,
+-      pendingMessages,
+-      previewText,
+-      working,
+-      previewIsToolOutput
+-    ]
++    [streamingMessages, previewText, working, previewIsToolOutput]
+   )
+   const sessionWithPending = useMemo<NativeChatLiveSession>(() => {
+     if (delivery.pending.length === 0 && commandMarkers.length === 0 && !streamingText) {
+diff --git a/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx b/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
+index 489cf8d5ddb..632f2e6fd6c 100644
+--- a/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
++++ b/src/renderer/src/components/native-chat/use-structured-agent-session-options.opencode.test.tsx
+@@ -24,6 +24,7 @@ it.each([true, false])(
+   'discovers a draft-held target only on a capable paired host (%s)',
+   async (capable) => {
+     mocks.effortDiscovery = capable
++    mocks.supportsRemote.mockResolvedValue(false)
+     mocks.call.mockReset()
+     mocks.hold.mockReset()
+     mocks.hold.mockReturnValue(new Promise(() => {}))
+diff --git a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts
+index 58641fb80f5..30920723cd6 100644
+--- a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts
++++ b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts
+@@ -3,11 +3,7 @@ import { vi, type Mock } from 'vitest'
+ import type { ExecutionHostId } from '../../../../../shared/execution-host'
+ import type { AgentJournalSubmission } from '../../../../../shared/agent-session/journal/agent-session-journal-types'
+ import type { AgentSessionHistoryPage } from '../../../../../shared/agent-session/agent-session-wire'
+-import {
+-  CreateIntentParams,
+-  SetOptionParams,
+-  SendParams
+-} from '../../../../../shared/rpc-contract/structured-agent-session-params'
++import * as intentParams from '../../../../../shared/rpc-contract/structured-agent-session-params'
+ import type { Tab } from '../../../../../shared/tab-types'
+ import type { HostCreateSupport } from './structured-agent-session-host-admission'
+ import { useAppStore } from '../../../store/index'
+@@ -156,7 +152,7 @@ function deferred<T>() {
+   return Promise.withResolvers<T>()
+ }
+ function createParams() {
+-  return CreateIntentParams.parse(
++  return intentParams.CreateIntentParams.parse(
+     mocks.call.mock.calls.find(([, method]) => method === 'agentSession.create')?.[2]
+   )
+ }
+@@ -226,7 +222,7 @@ function startLegacyActionLaunch(
+         ? { ok: false, refusal }
+         : { ok: true, value: { options: { model: launchOptions.model } } }
+     }
+-    const send = SendParams.parse(params)
++    const send = intentParams.SendParams.parse(params)
+     const clientMessageId = send.envelope.clientOperationId
+     return { ok: true, value: { clientMessageId, submission: submission(clientMessageId) } }
+   })
+@@ -268,7 +264,7 @@ export function legacyAction(
+       return create.promise
+     }
+     if (method === 'agentSession.setOption') {
+-      const { key, value } = SetOptionParams.parse(params)
++      const { key, value } = intentParams.SetOptionParams.parse(params)
+       if (value === null) {
+         throw new Error('This legacy action does not reset models')
+       }
+@@ -277,7 +273,7 @@ export function legacyAction(
+     if (method === 'agentSession.history') {
+       return { ok: true, page: { ...created().value.page, fence: 2 } }
+     }
+-    const send = SendParams.parse(params)
++    const send = intentParams.SendParams.parse(params)
+     return {
+       ok: true,
+       value: {
+@@ -309,4 +305,4 @@ export const refusedOption = {
+ export const optionCalls = () =>
+   mocks.call.mock.calls
+     .filter(([, method]) => method === 'agentSession.setOption')
+-    .map(([, , params]) => SetOptionParams.parse(params))
++    .map(([, , params]) => intentParams.SetOptionParams.parse(params))
+diff --git a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
+index 1c7536cc618..a82bb7bd711 100644
+--- a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
++++ b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
+@@ -100,7 +100,7 @@ describe('structured launch draft persistence', () => {
+         })
+       })
+       await act(() => composer.result.current(text))
+-      expect(send).toHaveBeenCalledExactlyOnceWith(text, [])
++      expect(send).toHaveBeenCalledExactlyOnceWith(text, [], {})
+       composer.unmount()
+       await nativeChatComposerDraftWritesSettled()
+       await restart()
+diff --git a/src/shared/agent-session/failures/agent-session-failure-words.ts b/src/shared/agent-session/failures/agent-session-failure-words.ts
+index 057b200da7c..82d378c0fed 100644
+--- a/src/shared/agent-session/failures/agent-session-failure-words.ts
++++ b/src/shared/agent-session/failures/agent-session-failure-words.ts
+@@ -1,10 +1,4 @@
+-import {
+-  isSubmissionRejectionFact,
+-  type AgentSessionFailureFact,
+-  type AgentSessionFailureKind,
+-  type SubmissionRejectionFact,
+-  type SubmissionRejectionKind
+-} from './agent-session-failure'
++import * as failureFacts from './agent-session-failure'
+ import type { AgentSessionConversationCommand } from '../agent-session-conversation-command'
+ import { cliMissingSentence, notSignedInSentence } from '../agent-session-availability-sentences'
+ import {
+@@ -40,13 +34,13 @@ export type AgentSessionFailureSentence = string & { readonly [failureSentence]:
+ 
+ export type AgentSessionFailureRowWords = {
+   text: AgentSessionFailureSentence
+-  failure: AgentSessionFailureFact
++  failure: failureFacts.AgentSessionFailureFact
+ }
+ 
+ /** Legacy sentence/hidden marker and the newer fact, written together by the host. */
+ export type AgentJournalDispatchRejection = {
+   reason: AgentSessionFailureSentence
+-  rejection: SubmissionRejectionFact
++  rejection: failureFacts.SubmissionRejectionFact
+ }
+ 
+ /** row describes the chat; rejection describes a rejected message; answer describes a refused approval/question answer. */
+@@ -72,7 +66,7 @@ export type AgentSessionFailureWordsContext = {
+ 
+ type Sentence = (
+   context: AgentSessionFailureWordsContext,
+-  fact: AgentSessionFailureFact,
++  fact: failureFacts.AgentSessionFailureFact,
+   surface: AgentSessionFailureSurface,
+   say: AgentSessionFailureSay
+ ) => string
+@@ -280,11 +274,11 @@ const FAILURE_SENTENCES = {
+     }),
+   previousExitUnverifiable: namingAgent('previousExitUnverifiable'),
+   sessionNotRestored: namingAgent('sessionNotRestored')
+-} satisfies Record<AgentSessionFailureKind, Sentence>
++} satisfies Record<failureFacts.AgentSessionFailureKind, Sentence>
+ 
+ /** The sentence a person reads for this fact on this surface; never a marker. */
+ export function agentSessionFailureSentence(
+-  fact: AgentSessionFailureFact,
++  fact: failureFacts.AgentSessionFailureFact,
+   surface: AgentSessionFailureSurface,
+   context: AgentSessionFailureWordsContext = {},
+   /** Desktop passes its translations; the host and the phone keep English. */
+@@ -296,7 +290,10 @@ export function agentSessionFailureSentence(
+ 
+ /** Preserve markers released clients hide. A write failure keeps the bare marker; its error stays in the log. */
+ const LEGACY_REJECTION_MARKERS: Partial<
+-  Record<SubmissionRejectionKind, (context: AgentSessionFailureWordsContext) => string | undefined>
++  Record<
++    failureFacts.SubmissionRejectionKind,
++    (context: AgentSessionFailureWordsContext) => string | undefined
++  >
+ > = {
+   cancelled: () => DISPATCH_REJECTED_CANCELLED,
+   writeFailed: () => DISPATCH_REJECTED_WRITE_FAILED,
+@@ -310,23 +307,23 @@ const LEGACY_REJECTION_MARKERS: Partial<
+ 
+ /** The words a status row reporting this fact records. */
+ export function agentSessionFailureWords(
+-  fact: AgentSessionFailureFact,
++  fact: failureFacts.AgentSessionFailureFact,
+   context: AgentSessionFailureWordsContext & { surface: 'row' }
+ ): AgentSessionFailureRowWords
+ /** The words a message rejected for this fact records. */
+ export function agentSessionFailureWords(
+-  fact: SubmissionRejectionFact,
++  fact: failureFacts.SubmissionRejectionFact,
+   context: AgentSessionFailureWordsContext & { surface: 'rejection' }
+ ): AgentJournalDispatchRejection
+ export function agentSessionFailureWords(
+-  fact: AgentSessionFailureFact,
++  fact: failureFacts.AgentSessionFailureFact,
+   context: AgentSessionFailureWordsContext & { surface: AgentSessionFailureSurface }
+ ): AgentSessionFailureRowWords | AgentJournalDispatchRejection {
+   if (context.surface === 'row') {
+     return { text: branded(agentSessionFailureSentence(fact, 'row', context)), failure: fact }
+   }
+   // The rejection overload admits only these; a caller that got past the types is Orca's bug.
+-  if (!isSubmissionRejectionFact(fact)) {
++  if (!failureFacts.isSubmissionRejectionFact(fact)) {
+     throw new Error(`agent session failure kind ${fact.kind} cannot reject a message`)
+   }
+   const words =
+diff --git a/tests/e2e/helpers/orca-app.ts b/tests/e2e/helpers/orca-app.ts
+index c9ca6b5180b..00619be0464 100644
+--- a/tests/e2e/helpers/orca-app.ts
++++ b/tests/e2e/helpers/orca-app.ts
+@@ -17,10 +17,7 @@ import { recordElectronShutdownTiming } from './electron-shutdown-timing'
+ import { getOrcaElectronLaunchArgs } from './electron-launch-args'
+ import { retryTransientMainEvaluate } from './electron-main-evaluate-retry'
+ import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-profile'
+-import {
+-  assertElectronResolvedIsolatedHome,
+-  createElectronHomeIsolation
+-} from './electron-home-isolation'
++import * as electronHome from './electron-home-isolation'
+ import {
+   createSeededTestRepo,
+   isValidGitRepo,
+@@ -165,7 +162,7 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
+     // Strip ELECTRON_RUN_AS_NODE or Node rejects Playwright’s remote-debugging switch before launch.
+     const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
+     void _unused
+-    const homeIsolation = createElectronHomeIsolation({
++    const homeIsolation = electronHome.createElectronHomeIsolation({
+       inheritedEnv: cleanEnv,
+       launchEnv,
+       extraEnv: orcaAppExtraEnv,
+@@ -194,7 +191,7 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
+       const resolvedHome = await retryTransientMainEvaluate(() =>
+         app.evaluate(({ app }) => app.getPath('home'))
+       )
+-      assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
++      electronHome.assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
+     } catch (error) {
+       await closeElectronAppForE2E(app, { cleanupDaemonsForUserDataDir: userDataDir })
+       await removeUserDataDirAfterShutdown(userDataDir)
+diff --git a/tests/e2e/helpers/orca-restart.ts b/tests/e2e/helpers/orca-restart.ts
+index 8dd5ac824e5..66cf5d7925a 100644
+--- a/tests/e2e/helpers/orca-restart.ts
++++ b/tests/e2e/helpers/orca-restart.ts
+@@ -19,11 +19,7 @@ import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-pro
+ import { getOrcaElectronLaunchArgs } from './electron-launch-args'
+ import { retryTransientMainEvaluate } from './electron-main-evaluate-retry'
+ import { cleanupE2EDaemons, closeElectronAppForE2E } from './electron-process-shutdown'
+-import {
+-  assertElectronResolvedIsolatedHome,
+-  createElectronHomeIsolation,
+-  type ElectronHomeIsolation
+-} from './electron-home-isolation'
++import * as electronHome from './electron-home-isolation'
+ import type { LaunchOptions } from './orca-restart-launch-options'
+ import { selectSidebarBody } from './store'
+ 
+@@ -89,10 +85,10 @@ function createRestartLaunchIsolation(
+   userDataDir: string,
+   headful: boolean,
+   extraEnv: Record<string, string>
+-): ElectronHomeIsolation {
++): electronHome.ElectronHomeIsolation {
+   const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
+   void _unused
+-  return createElectronHomeIsolation({
++  return electronHome.createElectronHomeIsolation({
+     inheritedEnv: cleanEnv,
+     launchEnv: {
+       NODE_ENV: 'development',
+@@ -166,7 +162,7 @@ export function createRestartSession(
+           return app.getPath('home')
+         })
+       )
+-      assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
++      electronHome.assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
+       await options?.beforeFirstWindow?.(app)
+       const page = await app.firstWindow({ timeout: 120_000 })
+       await page.waitForLoadState('domcontentloaded')

@@ -86,6 +86,7 @@ try {
         'upstream-module-relocations.patch',
         'startup-chat-catalog.patch',
         'composed-format.patch',
+        'composed-ci-contracts.patch',
         'project-start-actions.patch'
       ].includes(patch)
     ) {
