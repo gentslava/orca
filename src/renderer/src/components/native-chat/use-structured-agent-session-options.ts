@@ -86,7 +86,11 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   const lockSnapshotRef = useRef(
     (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => snapshot
   )
-  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => {
+  const renderedView = optionView(optionState, launchSeedOptions, launch?.explicitOptions)
+  const lockSnapshot = (
+    snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>,
+    view: typeof renderedView
+  ) => {
     const choices =
       takesModelDefault && fence !== null
         ? snapshot.map((descriptor) =>
@@ -94,9 +98,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
               ? {
                   ...descriptor,
                   settable: true,
-                  defaultChoice: structuredAgentSessionDefaultModelChoice(
-                    optionView(optionStateRef.current, launchSeedOptions, launch?.explicitOptions)
-                  )
+                  defaultChoice: structuredAgentSessionDefaultModelChoice(view)
                 }
               : descriptor
           )
@@ -113,13 +115,16 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   }
   useLayoutEffect(() => {
     interactionReadyRef.current = acceptsTurnPicks
-    lockSnapshotRef.current = lockSnapshot
+    lockSnapshotRef.current = (snapshot) =>
+      lockSnapshot(
+        snapshot,
+        optionView(optionStateRef.current, launchSeedOptions, launch?.explicitOptions)
+      )
   })
-  const renderedView = optionView(optionState, launchSeedOptions, launch?.explicitOptions)
   const optionSnapshot = structuredAgentSessionOptionAvailability({
     controller,
     view: renderedView,
-    snapshot: lockSnapshot(structuredAgentSessionShownSnapshot(renderedView)),
+    snapshot: lockSnapshot(structuredAgentSessionShownSnapshot(renderedView), renderedView),
     ready: acceptsPicks,
     providerStarting,
     isCurrentContext

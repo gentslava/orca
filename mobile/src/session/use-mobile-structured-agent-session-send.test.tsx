@@ -1,4 +1,6 @@
+import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import {
+  mobileNativeChatDraftDestination,
   updateMobileNativeChatDraftInputs,
   resetMobileNativeChatDraftInputsForTests
 } from './native-chat/composer/mobile-native-chat-draft-inputs'
@@ -9,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
 import '../../../src/shared/agent-session/requests/structured-agent-session-dispatch-rejection'
 import type { RpcClient } from '../transport/rpc-client'
+import type { MobileNativeChatSendOrigin } from './native-chat/mobile-native-chat-pending-echo'
 import {
   fieldsOf,
   ok,
@@ -69,6 +72,18 @@ describe('mobile structured send actions', () => {
   let agent = 'codex'
   let sessionCommands: readonly AgentSessionSlashCommand[] | undefined
   let hostSupport: StructuredAgentSessionHostSupport | null = null
+  let bridge: ReturnType<typeof useMobileStructuredNativeChatSendBridge>
+  const captureSendOrigin = vi.fn((text: string): MobileNativeChatSendOrigin => ({
+    draftKey: 'draft',
+    draftDestination: mobileNativeChatDraftDestination('draft'),
+    draftEditGeneration: 0,
+    pendingKey: 'pending',
+    normalizedText: text,
+    boundary: { afterMessageId: null },
+    sentAt: 0
+  }))
+  const clearDraftForSend = vi.fn()
+  const restoreRejectedDraft = vi.fn()
   const onSendError = vi.fn()
   const sendRequest = vi.fn<RpcClient['sendRequest']>()
   const subscribe = vi.fn<RpcClient['subscribe']>((_method, _params, onData) => {
@@ -119,6 +134,16 @@ describe('mobile structured send actions', () => {
       agent,
       sessionCommands,
       hostSupport,
+      onSendError
+    })
+    bridge = useMobileStructuredNativeChatSendBridge({
+      agent: 'claude',
+      sendStructured: hook.sendWithOutcome,
+      isModelWritePending: hook.isModelWritePending,
+      captureSendOrigin,
+      clearDraftForSend,
+      restoreRejectedDraft,
+      holdUnconfirmed: hook.holdUnconfirmed,
       onSendError
     })
     return createElement('span', null, banner.message)
@@ -193,6 +218,28 @@ describe('mobile structured send actions', () => {
     sessionCommands = undefined
     hostSupport = null
     resetMobileNativeChatDraftInputsForTests()
+  })
+
+  defineMobilePendingModelSendCases({
+    setAgent: (value) => {
+      agent = value
+    },
+    setHostSupport: (value) => {
+      hostSupport = value
+    },
+    getHook: () => {
+      if (!hook) {
+        throw new Error('Session is not mounted')
+      }
+      return hook
+    },
+    getBridge: () => bridge,
+    sendRequest,
+    mountSession,
+    calls,
+    captureSendOrigin,
+    clearDraftForSend,
+    restoreRejectedDraft
   })
 
   it("keeps a chat's model its CLI stopped listing, and sends on it and its effort", async () => {

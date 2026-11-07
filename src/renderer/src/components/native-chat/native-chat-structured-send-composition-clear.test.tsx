@@ -179,7 +179,7 @@ describe('structured send racing the next IME composition', () => {
     expect(readNativeChatDraftCache(pane)).toBe('하')
 
     await act(async () => pressEnter(input))
-    expect(structured.send).toHaveBeenLastCalledWith('하', [])
+    expect(structured.send).toHaveBeenLastCalledWith('하', [], {})
   })
 
   it('keeps the composed text when a mid-composition clear lands away from the caret', async () => {
@@ -318,6 +318,6 @@ describe('the Enter that commits a Hangul composition', () => {
     await act(async () => pressEnter(input))
 
     expect(structured.send).toHaveBeenCalledOnce()
-    expect(structured.send).toHaveBeenCalledWith('안녕하세요', [])
+    expect(structured.send).toHaveBeenCalledWith('안녕하세요', [], {})
   })
 })

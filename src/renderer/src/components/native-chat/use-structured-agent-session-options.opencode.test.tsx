@@ -24,6 +24,7 @@ it.each([true, false])(
   'discovers a draft-held target only on a capable paired host (%s)',
   async (capable) => {
     mocks.effortDiscovery = capable
+    mocks.supportsRemote.mockResolvedValue(false)
     mocks.call.mockReset()
     mocks.hold.mockReset()
     mocks.hold.mockReturnValue(new Promise(() => {}))

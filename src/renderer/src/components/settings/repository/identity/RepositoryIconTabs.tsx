@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { Suspense, useEffect, useImperativeHandle, useRef, useState, type RefObject } from 'react'
 import { toast } from 'sonner'
 import { Github, Image, Link2 } from 'lucide-react'
 import type { RepoIcon } from '../../../../../../shared/repo-icon'
@@ -41,6 +41,74 @@ type RepositoryIconTabsProps = {
   onUseGitHubAvatar: () => void
 }
 
+async function uploadRepositoryIcon({
+  uploadRequest,
+  mountedRef,
+  setUploading,
+  handleSetIcon,
+  cancelUpload
+}: {
+  uploadRequest: RefObject<symbol | null>
+  mountedRef: RefObject<boolean>
+  setUploading: (uploading: boolean) => void
+  handleSetIcon: (icon: RepoIcon | null) => void
+  cancelUpload: () => void
+}): Promise<void> {
+  if (uploadRequest.current) {
+    return
+  }
+  const request = Symbol()
+  uploadRequest.current = request
+  setUploading(true)
+  try {
+    const result = await window.api.shell.pickRepoIconImage()
+    if (!result || !mountedRef.current || uploadRequest.current !== request) {
+      return
+    }
+    if ('error' in result) {
+      toast.error(repoIconPickFailureText(result))
+      return
+    }
+    const source = await (await fetch(result.dataUrl)).blob()
+    const png = await convertImageBlobToPng(source, { maxEdge: 128 })
+    if (png.size > MAX_REPO_ICON_UPLOAD_BYTES) {
+      throw new Error('Repo icon image is too large.')
+    }
+    const dataUrl = `data:image/png;base64,${await blobToBase64(png)}`
+    if (!mountedRef.current || uploadRequest.current !== request) {
+      return
+    }
+    handleSetIcon({
+      type: 'image',
+      src: dataUrl,
+      source: 'upload',
+      label: result.fileName
+    })
+  } catch (error) {
+    if (!mountedRef.current || uploadRequest.current !== request) {
+      return
+    }
+    toast.error(
+      error instanceof Error
+        ? error.message === CLIPBOARD_IMAGE_TOO_LARGE_ERROR ||
+          error.message.endsWith('Repo icon image must be 10MB or smaller.')
+          ? translate(
+              'auto.components.settings.RepositoryIconPicker.imageTooLarge',
+              'Image exceeds the 10MB or 32-megapixel limit.'
+            )
+          : error.message
+        : translate(
+            'auto.components.settings.RepositoryIconPicker.868c5c9b56',
+            'Failed to import repo icon'
+          )
+    )
+  } finally {
+    if (mountedRef.current && uploadRequest.current === request) {
+      cancelUpload()
+    }
+  }
+}
+
 export function RepositoryIconTabs({
   ref,
   initialTab,
@@ -77,61 +145,8 @@ export function RepositoryIconTabs({
     onSetIcon(icon)
   }
 
-  const handleUploadImage = async () => {
-    if (uploadRequest.current) {
-      return
-    }
-    const request = Symbol()
-    uploadRequest.current = request
-    setUploading(true)
-    try {
-      const result = await window.api.shell.pickRepoIconImage()
-      if (!result || !mountedRef.current || uploadRequest.current !== request) {
-        return
-      }
-      if ('error' in result) {
-        toast.error(repoIconPickFailureText(result))
-        return
-      }
-      const source = await (await fetch(result.dataUrl)).blob()
-      const png = await convertImageBlobToPng(source, { maxEdge: 128 })
-      if (png.size > MAX_REPO_ICON_UPLOAD_BYTES) {
-        throw new Error('Repo icon image is too large.')
-      }
-      const dataUrl = `data:image/png;base64,${await blobToBase64(png)}`
-      if (!mountedRef.current || uploadRequest.current !== request) {
-        return
-      }
-      handleSetIcon({
-        type: 'image',
-        src: dataUrl,
-        source: 'upload',
-        label: result.fileName
-      })
-    } catch (error) {
-      if (!mountedRef.current || uploadRequest.current !== request) {
-        return
-      }
-      toast.error(
-        error instanceof Error
-          ? error.message === CLIPBOARD_IMAGE_TOO_LARGE_ERROR ||
-            error.message.endsWith('Repo icon image must be 10MB or smaller.')
-            ? translate(
-                'auto.components.settings.RepositoryIconPicker.imageTooLarge',
-                'Image exceeds the 10MB or 32-megapixel limit.'
-              )
-            : error.message
-          : translate(
-              'auto.components.settings.RepositoryIconPicker.868c5c9b56',
-              'Failed to import repo icon'
-            )
-      )
-    } finally {
-      if (mountedRef.current && uploadRequest.current === request) {
-        cancelUpload()
-      }
-    }
-  }
+  const handleUploadImage = () =>
+    uploadRepositoryIcon({ uploadRequest, mountedRef, setUploading, handleSetIcon, cancelUpload })
 
   const handleUseWebsiteFavicon = () => {
     const src = faviconUrlFromWebsite(website)

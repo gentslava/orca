@@ -14,6 +14,11 @@ const probe = vi.hoisted<{
   inputs: (readonly NativeChatMessage[])[]
   shown: NativeChatMessage[]
 }>(() => ({ session: null, inputs: [], shown: [] }))
+vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
+  loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
+    .loadNodeOniguruma
+}))
+
 vi.mock('./use-native-chat-retained-session', () => ({
   useNativeChatRetainedSession: () => probe.session
 }))

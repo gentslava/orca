@@ -78,7 +78,11 @@ vi.mock('./NativeChatImageAttachmentPreview', () => ({
   }: {
     attachment: { connectionId?: string; path: string }
   }) => (
-    <output data-image-attachment data-connection-id={attachment.connectionId}>
+    <output
+      data-testid="attachment-preview"
+      data-image-attachment
+      data-connection-id={attachment.connectionId}
+    >
       {attachment.path}
     </output>
   )
@@ -115,7 +119,6 @@ function ComposerProbe({
   const attachments = useNativeChatComposerAttachments({
     attachmentScopeKey: `pane:${workspaceId}`,
     allowWithoutTarget: structured,
-    imageReferences: structured,
     caret,
     disabled,
     isComposing: imeEnterGesture.isComposing,
@@ -163,6 +166,7 @@ function ComposerProbe({
           activeSuggestion={0}
           notices={notices}
           imageAttachments={attachments.imageAttachments}
+          numberImages
           sendButtonDisabled={false}
           isWorking={false}
           attachDisabled={disabled}
@@ -329,11 +333,10 @@ describe('OS file drops through the real composing chat field', () => {
           (pill) => pill.textContent
         )
       ).toEqual(['notes.txt'])
+      expect(editor.querySelectorAll('[data-native-chat-image-reference]')).toHaveLength(0)
       expect(
-        [...editor.querySelectorAll('[data-native-chat-image-reference]')].map(
-          (pill) => pill.textContent
-        )
-      ).toEqual(['Image #1', 'Image #2', 'Image #3'])
+        [...screen.getAllByTestId('attachment-preview')].map((preview) => preview.textContent)
+      ).toEqual(['/drop/b.png', '/drop/a.png', '/drop/b.png'])
     }
     assertDraftMatchesDocument()
     // Browser-native End movement is exercised in Electron; here selection uses real editor commands.
@@ -360,11 +363,12 @@ describe('OS file drops through the real composing chat field', () => {
     expect(send).toHaveBeenCalledOnce()
     expect(send).toHaveBeenCalledWith(
       expect.stringContaining('@/drop/notes.txt'),
-      expect.arrayContaining([expect.objectContaining({ path: '/drop/b.png' })])
+      expect.arrayContaining([expect.objectContaining({ path: '/drop/b.png' })]),
+      {}
     )
     const [text, images] = send.mock.calls[0] ?? []
     expect(text).toContain(question)
-    expect(text?.match(/\[Image #\d+\]/g)).toEqual(['[Image #1]', '[Image #2]', '[Image #3]'])
+    expect(text).not.toMatch(/\[Image #\d+\]/)
     expect(images?.map(({ path }) => path)).toEqual(['/drop/b.png', '/drop/a.png', '/drop/b.png'])
     expect(promptValue(editor)).toBe('')
     expect(readNativeChatComposerDraft('pane:worktree-1').text).toBe('')

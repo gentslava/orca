@@ -1,5 +1,5 @@
 import type { AgentSessionOptionResult } from '../../../src/shared/agent-session/options/agent-session-options-result'
-import type { MobileStructuredAgentOptionsArgs } from './mobile-structured-agent-session-contract'
+import type { MobileStructuredAgentOptionsArgs } from './mobile-structured-agent-options-contract'
 import {
   mobileStructuredModelDefaultSnapshot,
   useMobileStructuredModelDefault
