@@ -5,19 +5,22 @@ export function useAiVaultForcedRescan(
   refresh: (args: { background: boolean; force: boolean }) => Promise<void>
 ) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const requestForcedRescan = useCallback(() => {
-    if (claimAiVaultForcedRescan()) {
-      void refresh({ background: true, force: true })
-      return
-    }
-    if (timer.current !== null) {
-      return
-    }
-    timer.current = setTimeout(() => {
-      timer.current = null
-      requestForcedRescan()
-    }, aiVaultForcedRescanDelay())
-  }, [refresh])
+  const requestForcedRescan = useCallback(
+    function requestForcedRescan() {
+      if (claimAiVaultForcedRescan()) {
+        void refresh({ background: true, force: true })
+        return
+      }
+      if (timer.current !== null) {
+        return
+      }
+      timer.current = setTimeout(() => {
+        timer.current = null
+        requestForcedRescan()
+      }, aiVaultForcedRescanDelay())
+    },
+    [refresh]
+  )
 
   useEffect(
     () => () => {
