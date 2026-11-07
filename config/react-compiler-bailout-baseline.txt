@@ -219,7 +219,6 @@
 4 src/renderer/src/components/native-chat/NativeChatSessionGate.tsx
 1 src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.tsx
 1 src/renderer/src/components/native-chat/NativeChatSessionOptionRows.tsx
-1 src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 4 src/renderer/src/components/native-chat/NativeChatTextAttachmentPreview.tsx
 1 src/renderer/src/components/native-chat/NativeChatToolOutput.tsx
 1 src/renderer/src/components/native-chat/NativeChatTranscriptChrome.tsx
@@ -249,6 +248,8 @@
 1 src/renderer/src/components/native-chat/use-native-chat-session-option-command.ts
 2 src/renderer/src/components/native-chat/use-native-chat-skills.ts
 2 src/renderer/src/components/native-chat/use-native-chat-transcript-projection.ts
+12 src/renderer/src/components/native-chat/use-native-chat-transcript-row-keys.ts
+2 src/renderer/src/components/native-chat/use-native-chat-transcript-slots.ts
 1 src/renderer/src/components/native-chat/use-native-chat-transcript-window.ts
 1 src/renderer/src/components/native-chat/use-native-chat-visual-theme.ts
 1 src/renderer/src/components/native-chat/use-structured-agent-session-command-write.ts
@@ -556,6 +557,7 @@
 1 src/renderer/src/components/sparse/SparseCheckoutPresetSelect.tsx
 2 src/renderer/src/components/star-nag/StarNagAgentValueMomentObserver.tsx
 1 src/renderer/src/components/stats/ShareUsageButton.tsx
+1 src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
 2 src/renderer/src/components/status-bar/ClaudeSwitcherForOwner.tsx
 1 src/renderer/src/components/status-bar/PortsStatusSegment.tsx
 1 src/renderer/src/components/status-bar/RuntimeHostStatusRow.tsx
