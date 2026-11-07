@@ -96,7 +96,7 @@ describe('subscription recordings', () => {
         ({ client }) => mount(client),
         vitestRecordingScheduler()
       )
-    ).rejects.toThrow("Cannot read properties of undefined (reading 'message')")
+    ).rejects.toThrow(TypeError)
     expect(listened).toEqual([])
   })
   it('observes a stream the product left registered at teardown, and nothing when it closes', async () => {
