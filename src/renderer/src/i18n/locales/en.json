@@ -744,6 +744,13 @@
           "remote": "remote",
           "gpu": "gpu"
         }
+      },
+      "holdQuit": {
+        "title": "Hold ⌘Q while agents are working",
+        "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
+        "keyword": {
+          "quit": "quit"
+        }
       }
     },
     "browser": {
@@ -1041,48 +1048,6 @@
     "accounts": {
       "claudeRemoveFolder": "Orca deletes this account's Claude folder and its sign-in from this computer. Chat history shared with System default stays. If it is selected, the next Claude you start uses System default."
     },
-    "orchestration": {
-      "roles": {
-        "modelsUnavailable": "No models reported by this host.",
-        "unavailable": "Unavailable",
-        "notListed": "Not listed",
-        "checking": "Checking…",
-        "refreshingModels": "Refreshing models…",
-        "agent": "Agent",
-        "unconfigured": "Not configured",
-        "model": "Model",
-        "agentDefault": "Agent default",
-        "effort": "Reasoning effort",
-        "fast": "Fast",
-        "on": "On",
-        "off": "Off",
-        "title": "Worker roles",
-        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
-        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
-        "clear": "Clear profile",
-        "new": "Add a role",
-        "add": "Add",
-        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
-        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
-        "research": "Research",
-        "implementation": "Implementation",
-        "review": "Review",
-        "keyword": {
-          "role": "role",
-          "profile": "profile",
-          "research": "research",
-          "implementation": "implementation",
-          "review": "review",
-          "model": "model",
-          "effort": "effort",
-          "fast": "fast",
-          "provider": "provider"
-        },
-        "modelsFailed": "Could not load models.",
-        "modelErrorDetails": "Details",
-        "retryModels": "Retry"
-      }
-    },
     "sourceControl": {
       "gitOperationInAnotherWorkspace": "Git operation running elsewhere",
       "remoteOperationInAnotherWorkspace": "Another workspace is running a Git operation, such as push, pull, or force push. Wait for it to finish before using this action, so the two operations don't overlap.",
@@ -1273,7 +1238,49 @@
       "save": "Save formatter",
       "placeholder": "npx --no-install prettier --stdin-filepath \"${file}\""
     },
-    "experimental": {}
+    "experimental": {},
+    "orchestration": {
+      "roles": {
+        "modelsUnavailable": "No models reported by this host.",
+        "unavailable": "Unavailable",
+        "notListed": "Not listed",
+        "checking": "Checking…",
+        "refreshingModels": "Refreshing models…",
+        "agent": "Agent",
+        "unconfigured": "Not configured",
+        "model": "Model",
+        "agentDefault": "Agent default",
+        "effort": "Reasoning effort",
+        "fast": "Fast",
+        "on": "On",
+        "off": "Off",
+        "title": "Worker roles",
+        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
+        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
+        "clear": "Clear profile",
+        "new": "Add a role",
+        "add": "Add",
+        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
+        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
+        "research": "Research",
+        "implementation": "Implementation",
+        "review": "Review",
+        "keyword": {
+          "role": "role",
+          "profile": "profile",
+          "research": "research",
+          "implementation": "implementation",
+          "review": "review",
+          "model": "model",
+          "effort": "effort",
+          "fast": "fast",
+          "provider": "provider"
+        },
+        "modelsFailed": "Could not load models.",
+        "modelErrorDetails": "Details",
+        "retryModels": "Retry"
+      }
+    }
   },
   "menu": {
     "checkForUpdates": "Check for Updates...",
@@ -24341,6 +24348,30 @@
   "checks": {
     "rerunUnsuccessful": "Rerun unsuccessful"
   },
+  "holdQuit": {
+    "hint": "Agents are still working. Hold ⌘Q to quit.",
+    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
+  },
+  "macosUpdateRequirement": {
+    "title": "Orca updates now need macOS {{macos}}",
+    "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
+    "checking": "Checking whether this Mac can upgrade…",
+    "upgradeDescription": "Your Mac can upgrade. Update macOS to get the latest Orca.",
+    "unsupportedDescription": "Apple doesn’t support macOS {{macos}} on this Mac.",
+    "unknownDescription": "We couldn’t confirm an upgrade for this Mac. Apple’s compatibility guide can help.",
+    "whyTitle": "Why is this changing?",
+    "whyIntro": "We updated parts of Orca’s foundation, like Electron and the on-device speech engine, to bring:",
+    "whySecurity": "Ongoing security fixes from Electron and Chromium.",
+    "whyPerformance": "Faster startup and more efficient native API calls.",
+    "whySystemApis": "Support for current macOS notification APIs and secure Keychain storage.",
+    "whyRequirement": "That newer foundation requires macOS {{macos}} or later.",
+    "dismiss": "Got it",
+    "checkingAction": "Checking your Mac…",
+    "updateAction": "How to update macOS",
+    "discussionAction": "Join the discussion",
+    "checkAction": "Check compatibility",
+    "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
+  },
   "gitGraph": {
     "copyHash": "Copy commit hash",
     "parents": "Parents",
@@ -24367,26 +24398,6 @@
     "loadFailed": "Failed to load Git history",
     "updateHost": "Update Orca on {{host}} to open the Git Graph",
     "title": "Git Graph"
-  },
-  "macosUpdateRequirement": {
-    "title": "Orca updates now need macOS {{macos}}",
-    "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
-    "checking": "Checking whether this Mac can upgrade…",
-    "upgradeDescription": "Your Mac can upgrade. Update macOS to get the latest Orca.",
-    "unsupportedDescription": "Apple doesn’t support macOS {{macos}} on this Mac.",
-    "unknownDescription": "We couldn’t confirm an upgrade for this Mac. Apple’s compatibility guide can help.",
-    "whyTitle": "Why is this changing?",
-    "whyIntro": "We updated parts of Orca’s foundation, like Electron and the on-device speech engine, to bring:",
-    "whySecurity": "Ongoing security fixes from Electron and Chromium.",
-    "whyPerformance": "Faster startup and more efficient native API calls.",
-    "whySystemApis": "Support for current macOS notification APIs and secure Keychain storage.",
-    "whyRequirement": "That newer foundation requires macOS {{macos}} or later.",
-    "dismiss": "Got it",
-    "checkingAction": "Checking your Mac…",
-    "updateAction": "How to update macOS",
-    "discussionAction": "Join the discussion",
-    "checkAction": "Check compatibility",
-    "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
   },
   "remoteHostBrowserControl": {
     "title": "{{host}} is controlling a browser tab",
