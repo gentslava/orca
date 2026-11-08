@@ -1,6 +1,6 @@
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { RpcClientProvider } from '../../../transport/client-context.web'
+import { RpcClientProvider } from '../../../transport/connection/client-context.web'
 import {
   createFakeBridgePortPair,
   type BridgePortPair
@@ -8,7 +8,7 @@ import {
 import { useMobileNativeChatImageUpload } from './use-mobile-native-chat-image-upload'
 
 vi.mock('../../../platform/media-picker', async () => import('../../../platform/media-picker.web'))
-vi.mock('../../../transport/host-client-hooks', () => ({
+vi.mock('../../../transport/connection/host-client-hooks', () => ({
   useDisconnectHostClient: () => () => {},
   useForceReconnect: () => null,
   useForgetHostClient: () => () => {},

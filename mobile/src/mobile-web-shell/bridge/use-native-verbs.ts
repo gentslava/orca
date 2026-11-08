@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { NativeVerbError, NATIVE_VERB_REASONS, type NativeVerbReason } from './native-verb-error'
 import * as z from 'zod'
-import { usePageBridgeClient } from '../../transport/client-context.web'
+import { usePageBridgeClient } from '../../transport/connection/client-context.web'
 import {
   mediaNameResultSchema,
   mediaPickResultSchema,

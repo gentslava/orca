@@ -9,10 +9,10 @@ import {
   useMobileWebShellBridge,
   type MobileWebShellBridgeView
 } from './use-mobile-web-shell-bridge'
-import { connectionLogStore } from '../transport/persisted-connection-log-store'
+import { connectionLogStore } from '../diagnostics/connection/persisted-connection-log-store'
 
 const doubles = vi.hoisted((): { client: FakeRpcClient | null } => ({ client: null }))
-vi.mock('../transport/host-client-hooks', () => ({
+vi.mock('../transport/connection/host-client-hooks', () => ({
   useHostClient: () => ({ client: doubles.client })
 }))
 
