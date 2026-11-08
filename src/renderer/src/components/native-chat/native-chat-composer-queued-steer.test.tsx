@@ -4,13 +4,13 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { AgentSessionQueuedMessage } from '../../../../shared/agent-session/requests/agent-session-queued-message-wire'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
-import { useNativeChatComposerKeyDown } from './use-native-chat-composer-keydown'
-import { useStructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
-import { useStructuredAgentSessionQueuedMessages } from './use-structured-agent-session-queued-messages'
-import type { StructuredAgentSessionPendingSend } from './structured-agent-session-pending-sends'
+import { useNativeChatComposerKeyDown } from './composer/editor/use-native-chat-composer-keydown'
+import { useStructuredAgentSessionMutate } from './session/structured/writes/use-structured-agent-session-mutate'
+import { useStructuredAgentSessionQueuedMessages } from './queue/use-structured-agent-session-queued-messages'
+import type { StructuredAgentSessionPendingSend } from './session/structured/delivery/structured-agent-session-pending-sends'
 
 const transport = vi.hoisted(() => ({ call: vi.fn() }))
-vi.mock('@/runtime/structured-agent-session-client', () => ({
+vi.mock('@/runtime/native-chat/requests/structured-agent-session-call', () => ({
   callStructuredAgentSession: transport.call
 }))
 

@@ -1,6 +1,6 @@
 import { defineFixture } from '../../component-fixtures/component-fixture'
-import { NativeChatQueuedMessageList } from './NativeChatQueuedMessageList'
-import type { StructuredAgentSessionQueuedMessagesController } from './use-structured-agent-session-queued-messages'
+import { NativeChatQueuedMessageList } from './queue/NativeChatQueuedMessageList'
+import type { StructuredAgentSessionQueuedMessagesController } from './queue/use-structured-agent-session-queued-messages'
 
 const controller: StructuredAgentSessionQueuedMessagesController = {
   cards: ['Review the plan later', 'Actually, check the failing test now'].map(
