@@ -14,11 +14,21 @@ vi.mock('../../transport/connection/host-client-hooks', () => ({
 import { RpcClientProvider } from '../../transport/connection/client-context.web'
 import { BRIDGE_PROTOCOL_VERSION } from './bridge-envelope'
 import { BRIDGE_NATIVE_VERB_NAMES } from './bridge-native-verbs'
-import './bridge-port-pair-test-harness'
+import {
+  createFakeBridgePortPair,
+  disposeBridgePortPair,
+  type BridgePortPair
+} from './bridge-port-pair-test-harness'
 import { GRANTS, INIT, createPageClient } from './bridge-page-client-test-harness'
-import { NativeVerbError, useNativeVerbs, type NativeVerbs } from './use-native-verbs'
+import {
+  NATIVE_VERB_REASONS,
+  NativeVerbError,
+  useNativeVerbs,
+  type NativeVerbs
+} from './use-native-verbs'
 
 const mounted: ReactTestRenderer[] = []
+const pairs: BridgePortPair[] = []
 
 const held: { verbs: NativeVerbs | null } = { verbs: null }
 
@@ -27,16 +37,38 @@ function Screen(): null {
   return null
 }
 
+async function mount(pair: BridgePortPair): Promise<NativeVerbs> {
+  pairs.push(pair)
+  await pair.flush()
+  act(() => {
+    mounted.push(
+      create(
+        <RpcClientProvider client={pair.client}>
+          <Screen />
+        </RpcClientProvider>
+      )
+    )
+  })
+  const verbs = held.verbs
+  if (verbs === null) {
+    throw new Error('nothing mounted')
+  }
+  return verbs
+}
+
 beforeEach(() => {
   held.verbs = null
 })
 
-afterEach(() => {
+afterEach(async () => {
   act(() => {
     for (const tree of mounted.splice(0)) {
       tree.unmount()
     }
   })
+  for (const pair of pairs.splice(0)) {
+    await disposeBridgePortPair(pair)
+  }
   vi.useRealTimers()
 })
 
