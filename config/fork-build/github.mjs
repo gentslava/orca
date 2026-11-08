@@ -70,6 +70,24 @@ export function renderReport(plan) {
         )
       }
     }
+    const retainedBranches = plan.selections.filter((pr) => pr.retainedHeadSource)
+    if (retainedBranches.length) {
+      lines.push('', '## Retained fork branch snapshots', '')
+      for (const pr of retainedBranches) {
+        const source = pr.retainedHeadSource
+        lines.push(
+          `- PR ${pr.number}: \`${source.repository}:${source.ref}\`; closed head \`${source.closedHeadSha}\`; selected branch head \`${pr.head.sha}\`.`
+        )
+      }
+    }
+    if (plan.localizations?.length) {
+      lines.push('', '## Fork Russian translations', '')
+      for (const entry of plan.localizations) {
+        lines.push(
+          `- \`${entry.path}\`: ${entry.keys} fork keys; overlay SHA-256 \`${entry.sha256}\`.`
+        )
+      }
+    }
     if (plan.result.reviewedResolutions?.length) {
       lines.push('', '## Reviewed integration patches', '')
       for (const entry of plan.result.reviewedResolutions) {

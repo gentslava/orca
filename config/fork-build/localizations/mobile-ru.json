@@ -1,0 +1,33 @@
+{
+  "hostScreen": {
+    "workspaceOptionControls": {
+      "recentProjectOpeningDescription": "Последние открытые вами проекты",
+      "frequentProjectOrderDescription": "Проекты, которые вы открываете чаще всего",
+      "frequent": "Часто используемые"
+    },
+    "project": {
+      "pin": "Закрепить проект",
+      "unpin": "Открепить проект"
+    }
+  },
+  "workspaceOptions": {
+    "recentActivity": "Последняя активность в рабочих папках"
+  },
+  "chat": {
+    "nativeChatProse": {
+      "loadingImage": "Загрузка изображения",
+      "imageUnavailable": "Изображение недоступно",
+      "retryImageHint": "Загрузить изображение ещё раз",
+      "retryImage": "Изображение недоступно — нажмите, чтобы повторить"
+    },
+    "contextUsage": {
+      "deferredTitle": "По требованию",
+      "deferredDescription": "Не входят в текущий расход контекста. Загружаются при необходимости."
+    }
+  },
+  "agentHistory": {
+    "panel": {
+      "conversationUnavailable": "История этого чата недоступна на этом компьютере."
+    }
+  }
+}

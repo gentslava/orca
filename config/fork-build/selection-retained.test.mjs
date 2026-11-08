@@ -15,7 +15,7 @@ const config = {
 }
 const closed = (sha) => ({ number: 7, state: 'closed', base: { ref: 'main' }, head: { sha } })
 
-test('retains an explicitly reviewed closed PR using its freshly read head', async () => {
+test('retains an explicitly reviewed closed PR at its recorded API head', async () => {
   for (const sha of ['a'.repeat(40), 'b'.repeat(40)]) {
     const result = await resolveSelection(config, {
       openOwn: [],
@@ -82,4 +82,62 @@ test('fork reports identify retained closed PRs and show the explicit reason', (
   assert.match(report, /PR 7 \| retained closed/)
   assert.match(report, /Handset regression still reproduces on main/)
   assert.doesNotMatch(report, /PR 7 \| open/)
+})
+
+const retainedSource = { repository: 'owner/fork', ref: 'refs/heads/handset' }
+const retainedConfig = { ...config, retainedHeadSources: { 7: retainedSource } }
+const closedBranch = () => ({
+  ...closed('a'.repeat(40)),
+  head: { sha: 'a'.repeat(40), ref: 'handset', repo: { full_name: 'owner/fork' } }
+})
+
+test('pins a retained fork branch independently of GitHub frozen closed-PR metadata', async () => {
+  const result = await resolveSelection(retainedConfig, {
+    openOwn: [],
+    readPr: async () => closedBranch(),
+    readRetainedHead: async (source) => {
+      assert.deepEqual(source, retainedSource)
+      return 'b'.repeat(40)
+    }
+  })
+  assert.equal(result.selections[0].head.sha, 'b'.repeat(40))
+  assert.deepEqual(result.selections[0].retainedHeadSource, {
+    ...retainedSource,
+    closedHeadSha: 'a'.repeat(40)
+  })
+  assert.equal(result.lifecycle[0].head, 'b'.repeat(40))
+})
+
+test('a missing or mismatched retained branch never falls back to the closed PR head', async () => {
+  await assert.rejects(
+    resolveSelection(retainedConfig, {
+      openOwn: [],
+      readPr: async () => closedBranch(),
+      readRetainedHead: async () => {
+        throw new Error('branch missing')
+      }
+    }),
+    /branch missing/
+  )
+  await assert.rejects(
+    resolveSelection(
+      {
+        ...retainedConfig,
+        retainedHeadSources: { 7: { ...retainedSource, repository: 'other/fork' } }
+      },
+      {
+        openOwn: [],
+        readPr: async () => closedBranch(),
+        readRetainedHead: async () => 'b'.repeat(40)
+      }
+    ),
+    /identity/
+  )
+  await assert.rejects(
+    resolveSelection(retainedConfig, {
+      openOwn: [],
+      readPr: async () => closedBranch()
+    }),
+    /identity/
+  )
 })
