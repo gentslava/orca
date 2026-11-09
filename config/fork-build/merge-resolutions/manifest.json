@@ -1707,5 +1707,101 @@
     "patchSha256": "368bcc68c4e2744e3d403bed36a1f04af35d8abd0505afa0516296535481b161",
     "resultSha256": "4a8b84ac5f4473256193c0021bf5d81c4b28d6f30f44a793e9617c99f89f369e",
     "reason": "Preserve the new speech-model notice state while retaining the reviewed combination of conversation preferences and personal project ordering, including WSL move dispositions."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "171400b27eb07ff02e41a150bc51e63f1a3e4081",
+      "547d6d8b47e8e98b4b4bffbae0cc2fe1fe7c2354",
+      "a58fbd3516e21994bf8e279c68fb9f5c2d1dc6e0"
+    ],
+    "patch": "post78-20261110/cb7efd5bf8a3.patch",
+    "patchSha256": "0d258769feeef1ecf8e6fe29e628af6cb65a4374be35541b44d0d11d3b6ae98b",
+    "resultSha256": "cb3fa633a792df1b5ad1ac11394f0b9fcdeeab75db3a12b00beeb0e4b617942f",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "983fa99eb968b8f95c47c8872236219f835f5c21",
+      "495634b7c0e5eefa593ad32e1c8969cdd1ea2902",
+      "bf7dc89d44d83fc61ba00a027bdde2c4b8f7c3d5"
+    ],
+    "patch": "post78-20261110/9ae9c76de419.patch",
+    "patchSha256": "8143fd01e4e1318f9bf6c0be8c3c537c1061ef6049aec273cee1535648ac7f23",
+    "resultSha256": "fddc07bb9f1a2b917c795e1f301609c422e7d131dd4709dd74ec6362a3aafb4b",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "5ab95ff48dca896faddb955a3611daa5ddee4e2f",
+      "2c50c84a1926478cd5add51d0347d69b8ba8d6ef",
+      "eddfa79a74027bf795ba3862b529263a95c6973b"
+    ],
+    "patch": "post78-20261110/cf94665263ca.patch",
+    "patchSha256": "60935fd5a3e5278e6d87c036b718592362c1f6acfae74e155a1929da81ce0db3",
+    "resultSha256": "5fe1badf682370bc1c29da8695bd8a030b5e59776d2e22e68e7f33ef955de1ff",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "9a66b201341d221ee3926aa47b3eb297db0f9a2c",
+      "65f93b8c7346d99aae11657dc8dcf33145257447",
+      "bd380f890858d2376777275ac6c4b0a434421cc5"
+    ],
+    "patch": "post78-20261110/35094ecfb69e.patch",
+    "patchSha256": "202148fd19a48597f7bc43a414632f63f996e88ed813f8f64091703267ae7c50",
+    "resultSha256": "1eb0afcf974c98e832aac3bf868dee0ed311d76392d60135ee69a72417ee1b7b",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "c4f3f468c444bef8a4ade2f4752507558b881c26",
+      "d288ac33136242f145a82ad44ed6b6276455b87a",
+      "444368dae0dee91add0ad0895f871836d0d9440e"
+    ],
+    "patch": "post78-20261110/89ac926fcf4c.patch",
+    "patchSha256": "368bcc68c4e2744e3d403bed36a1f04af35d8abd0505afa0516296535481b161",
+    "resultSha256": "4a8b84ac5f4473256193c0021bf5d81c4b28d6f30f44a793e9617c99f89f369e",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "3a2b4dc1196a08f4a19152ba7e02c6dd5a763de4",
+      "2758bf5034b57650d95b262d42c2ced9467011ba",
+      "d6719315f16234b870e7b5449c18b6d89ece0b58"
+    ],
+    "patch": "post78-20261110/f46e99a0337d.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ce2abee92cd055f0a66557cb7447e221302186c36857baca70795e13ca102881",
+    "reason": "Preserve session-child navigation and the extracted structured prompt owner while adding session-link questions, RPC methods and mixed-version capabilities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "3a2b4dc1196a08f4a19152ba7e02c6dd5a763de4",
+      "7fe66a83cfc1cec081da335fb4ca5ef0bb3dca87",
+      "419001d5b7a80438ed3a681fbf3740fe34c63524"
+    ],
+    "patch": "post78-20261110/50f10cc52bba.patch",
+    "patchSha256": "f11545373f5659c87a2cc2a3ad850374471c5123e9f5c91f123163a28bc6b822",
+    "resultSha256": "f3fa3e2aba38329b969d1b698e3d1ec0c14df5a0af9578c45407822a15abb37d",
+    "reason": "Wrap the current child-navigation, retained newest-card queue and extracted owner-question composer in foreground-task controls; preserve existing transcript owners."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx",
+    "blobs": [
+      "54fb72e94fc454a71825ca0ce5674744de8eccc2",
+      "b0eac8a8a384f30068db99b12e5d8592db715ba3",
+      "cd5723139e0bdfd4636ab53dd915eb0a5bd90cc6"
+    ],
+    "patch": "post78-20261110/767a6e829eba.patch",
+    "patchSha256": "39a9baecb395a1f4537a652ec7cf3b804575644ea97c73ec8d32857ba062ade5",
+    "resultSha256": "491fcfa277fa712b67c98acc218ad9328239e43129ecefe03243addd6f947982",
+    "reason": "Keep local session-link access alongside the pane actions surface and fixed transcript inset; retain the corrected atomic runtime target import."
   }
 ]

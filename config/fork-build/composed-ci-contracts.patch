@@ -2418,7 +2418,7 @@ index 22fe3bf02c6..ff163e06567 100644
        await nativeChatComposerDraftWritesSettled()
        await restart()
 diff --git a/src/shared/agent-session/failures/agent-session-failure-words.ts b/src/shared/agent-session/failures/agent-session-failure-words.ts
-index 057b200da7c..82d378c0fed 100644
+index f3fc2a723c5..97706bd5437 100644
 --- a/src/shared/agent-session/failures/agent-session-failure-words.ts
 +++ b/src/shared/agent-session/failures/agent-session-failure-words.ts
 @@ -1,10 +1,4 @@
@@ -2433,7 +2433,7 @@ index 057b200da7c..82d378c0fed 100644
  import type { AgentSessionConversationCommand } from '../agent-session-conversation-command'
  import { cliMissingSentence, notSignedInSentence } from '../agent-session-availability-sentences'
  import {
-@@ -40,13 +34,13 @@ export type AgentSessionFailureSentence = string & { readonly [failureSentence]:
+@@ -42,13 +36,13 @@ export type AgentSessionFailureSentence = string & { readonly [failureSentence]:
 
  export type AgentSessionFailureRowWords = {
    text: AgentSessionFailureSentence
@@ -2449,7 +2449,7 @@ index 057b200da7c..82d378c0fed 100644
  }
 
  /** row describes the chat; rejection describes a rejected message; answer describes a refused approval/question answer. */
-@@ -72,7 +66,7 @@ export type AgentSessionFailureWordsContext = {
+@@ -74,7 +68,7 @@ export type AgentSessionFailureWordsContext = {
 
  type Sentence = (
    context: AgentSessionFailureWordsContext,
@@ -2471,7 +2471,7 @@ index 057b200da7c..82d378c0fed 100644
 +  fact: failureFacts.AgentSessionFailureFact,
    surface: AgentSessionFailureSurface,
    context: AgentSessionFailureWordsContext = {},
-   /** Desktop passes its translations; the host and the phone keep English. */
+   /** Desktop and phone pass their translations; the host keeps English. */
 @@ -296,7 +290,10 @@ export function agentSessionFailureSentence(
 
  /** Preserve markers released clients hide. A write failure keeps the bare marker; its error stays in the log. */
