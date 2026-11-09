@@ -43,6 +43,7 @@ function fixture(run) {
       runUrl: 'https://github.com/gentslava/orca/actions/runs/1',
       result: {
         publishable: true,
+        included: [{ number: 1, head: source }],
         upstream,
         commit: source,
         tree: git(cwd, ['rev-parse', 'HEAD^{tree}'])
@@ -172,4 +173,28 @@ test('audit, failed, reused, dirty and mismatched-source plans never become prom
     assert.throws(() => preparePromotion(f.cwd, f.plan), /differs from the built source/)
     assert.equal(git(f.remote, ['rev-parse', 'master']), f.plan.configuration)
     assert.equal(git(f.remote, ['rev-parse', 'main']), f.main)
+  }))
+
+test('unchanged application trees cannot smuggle previous master history into promotion', () =>
+  fixture((f) => {
+    const polluted = git(f.cwd, [
+      'commit-tree',
+      f.plan.result.tree,
+      '-p',
+      f.plan.result.commit,
+      '-p',
+      f.plan.configuration,
+      '-m',
+      'polluted history'
+    ])
+    git(f.cwd, ['checkout', '--detach', polluted])
+    assert.throws(
+      () =>
+        preparePromotion(f.cwd, {
+          ...f.plan,
+          result: { ...f.plan.result, commit: polluted }
+        }),
+      /linear selected-feature history/
+    )
+    assert.equal(git(f.remote, ['rev-parse', 'master']), f.plan.configuration)
   }))

@@ -57,6 +57,15 @@ export function preparePromotion(cwd, plan) {
   ) {
     throw new Error('Promotion checkout differs from the built source')
   }
+  const features = plan.result.included
+  const commits = Number(git(cwd, ['rev-list', '--count', `${plan.upstream}..HEAD`]))
+  if (
+    !Array.isArray(features) ||
+    ![features.length, features.length + 1].includes(commits) ||
+    git(cwd, ['rev-list', '--min-parents=2', `${plan.upstream}..HEAD`])
+  ) {
+    throw new Error('Built source must contain only the linear selected-feature history')
+  }
   const paths = git(cwd, [
     'ls-tree',
     '-r',
