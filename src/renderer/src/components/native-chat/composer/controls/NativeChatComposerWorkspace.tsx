@@ -188,3 +188,10 @@ function LocalMachineName({ name }: { name: string }): React.JSX.Element {
     </span>
   )
 }
+
+export function nativeChatComposerWorkspaceFooter(
+  visible: boolean,
+  props: Parameters<typeof NativeChatComposerWorkspace>[0]
+): React.JSX.Element | undefined {
+  return visible ? <NativeChatComposerWorkspace {...props} /> : undefined
+}

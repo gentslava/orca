@@ -141,3 +141,26 @@ test('a missing or mismatched retained branch never falls back to the closed PR 
     /identity/
   )
 })
+
+test('an explicit successor replaces an unmerged PR before its upstream closure', async () => {
+  for (const state of ['open', 'closed']) {
+    const successor = {
+      number: 8,
+      state: 'closed',
+      merged_at: '2026-11-09T00:00:00Z',
+      base: { ref: 'main' },
+      head: { sha: 'b'.repeat(40) }
+    }
+    const result = await resolveSelection(
+      { ...config, seed: [7], retainClosed: {}, replacements: { 7: 8 } },
+      {
+        openOwn: [],
+        readPr: async (number) => (number === 7 ? { ...closed('a'.repeat(40)), state } : successor)
+      }
+    )
+    assert.deepEqual(result.blockers, [])
+    assert.deepEqual(result.selections, [successor])
+    assert.deepEqual(result.lifecycle[0], { number: 7, disposition: 'replaced', replacement: 8 })
+    assert.deepEqual(result.tracked, [7, 8])
+  }
+})

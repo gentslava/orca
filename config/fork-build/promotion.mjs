@@ -18,6 +18,8 @@ const controlPaths = [
   'config/scripts/fork-upstream-ssh.mjs',
   'config/scripts/fork-upstream-sync.mjs',
   'config/scripts/fork-upstream-sync.test.mjs',
+  'config/scripts/locale-catalog/locale-plural-forms.mjs',
+  'config/scripts/release/versioning/stable-release-tags.mjs',
   'src/main/updater.fork-preview.test.ts'
 ]
 

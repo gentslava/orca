@@ -62,6 +62,7 @@ describe('fork preview updater isolation', () => {
 
   it.each([
     '1.4.214-local.forkpreview.123456.abcdef',
+    '1.4.255-local.forkpreview.123456.abcdef',
     '1.4.214-rc.1.local.forkpreview.123456.abcdef'
   ])('blocks setup and every public self-update entry point for %s', async (version) => {
     appMock.getVersion.mockReturnValue(version)

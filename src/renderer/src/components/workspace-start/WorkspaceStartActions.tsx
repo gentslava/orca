@@ -2,7 +2,7 @@ import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { FilePlus, FileText, Globe, Settings, Smartphone, TerminalSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AgentIcon } from '@/lib/agent-catalog'
-import { translate } from '@/i18n/i18n'
+import { useTranslate } from '@/i18n/use-translate'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import type { TabCreateMenuOption } from '../tab-bar/tab-create-menu-options'
 import { chatUnavailableLabel, rowId, rowLabel } from '../tab-bar/tab-agent-row-presentation'
@@ -40,35 +40,33 @@ export function WorkspaceStartActions({
   onSelect: (option: TabCreateMenuOption) => void
   onManageAgents: () => void
 }) {
+  const t = useTranslate()
   useUiLanguageRevision()
   return (
     <section className="@container mx-auto flex w-full max-w-2xl flex-col gap-6 p-6">
       <div className="space-y-2">
         <h1 className="text-xl font-semibold">
-          {translate('workspace.start.title', 'What would you like to open?')}
+          {t('workspace.start.title', 'What would you like to open?')}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {translate('workspace.start.description', 'Choose an agent or a tool for this project.')}
+          {t('workspace.start.description', 'Choose an agent or a tool for this project.')}
         </p>
       </div>
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-medium">{translate('workspace.start.agents', 'Agents')}</h2>
+          <h2 className="text-sm font-medium">{t('workspace.start.agents', 'Agents')}</h2>
           <Button variant="ghost" size="sm" onClick={onManageAgents}>
             <Settings />
-            {translate('workspace.start.manageAgents', 'Manage agents')}
+            {t('workspace.start.manageAgents', 'Manage agents')}
           </Button>
         </div>
         {loading ? (
           <p role="status" className="text-sm text-muted-foreground">
-            {translate('auto.components.tab.bar.QuickLaunchButton.agentsLoading', 'Loading agents')}
+            {t('auto.components.tab.bar.QuickLaunchButton.agentsLoading', 'Loading agents')}
           </p>
         ) : rows.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {translate(
-              'auto.components.tab.bar.QuickLaunchButton.e518f544b1',
-              'No agents detected'
-            )}
+            {t('auto.components.tab.bar.QuickLaunchButton.e518f544b1', 'No agents detected')}
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2">
@@ -83,10 +81,10 @@ export function WorkspaceStartActions({
               >
                 <AgentIcon agent={row.agent} size={16} />
                 <span className="min-w-0 break-words">
-                  {rowLabel(row)}
+                  {rowLabel(row, t)}
                   {row.kind === 'chat-unavailable' ? (
                     <span className="block text-xs text-muted-foreground">
-                      {chatUnavailableLabel(row.reason)}
+                      {chatUnavailableLabel(row.reason, t)}
                     </span>
                   ) : null}
                 </span>

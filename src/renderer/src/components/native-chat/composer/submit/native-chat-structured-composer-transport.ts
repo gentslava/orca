@@ -1,3 +1,4 @@
+import type { AgentType } from '../../../../../../shared/agent-status/contracts/agent-status-types'
 import type { StructuredAgentSessionQueueDelivery } from '../../queue/structured-agent-session-queue-request'
 import type { StructuredAgentSessionHostCapabilityState } from '../../../../../../shared/agent-session/structured-agent-session-host-capability'
 import type { CaptureStructuredAgentSessionPresentation } from '../../session/structured/writes/use-structured-agent-session-mutate'
@@ -15,6 +16,17 @@ import type { AgentSessionSlashCommand } from '../../../../../../shared/agent-se
 import type { StructuredAgentContextUsage } from '../../../../../../shared/agent-session/structured-agent-session-context-usage'
 import type { NativeChatComposerErrorDetail } from '../controls/native-chat-composer-error-detail'
 import type { NativeChatSideChat } from '../../messages/actions/use-native-chat-side-chat'
+
+export type UseNativeChatStructuredComposerSendArgs = {
+  agent: AgentType
+  draftScopeKey: string
+  imageAttachments: readonly NativeChatComposerImageAttachment[]
+  structuredTransport?: NativeChatStructuredComposerTransport
+  isComposing: () => boolean
+  clearSkillOrigin: () => void
+  setDraft: (value: string) => void
+  setCaret: (caret: number) => void
+}
 
 export type NativeChatStructuredComposerTransport = {
   queue?: StructuredAgentSessionQueueDelivery
@@ -34,7 +46,11 @@ export type NativeChatStructuredComposerTransport = {
   sendBlockedReason?: string
   /** What a plain send does now, and whether Cmd/Ctrl+Enter would send it the other way. */
   sendFollowUp?: NativeChatSendFollowUp
-  dispatchCommand: (text: string) => Promise<StructuredAgentSessionCommandOutcome>
+  /** `onSent` fires once a conversation command leaves for the host, before its reply. */
+  dispatchCommand: (
+    text: string,
+    onSent?: () => void
+  ) => Promise<StructuredAgentSessionCommandOutcome>
   optionsSurface: SessionOptionsSurface
   optionSnapshot: SessionOptionDescriptor[]
   optionPickerRequest?: NativeChatOptionPickerRequest | null

@@ -1,5 +1,33 @@
+diff --git a/.github/workflows/pr.yml b/.github/workflows/pr.yml
+index 578dcdd68d9..f2734fae73d 100644
+--- a/.github/workflows/pr.yml
++++ b/.github/workflows/pr.yml
+@@ -990,6 +990,10 @@ jobs:
+           filter: blob:none
+           persist-credentials: false
+
++      - name: Fetch upstream release tags for fork compatibility tests
++        if: github.repository != 'stablyai/orca'
++        run: git fetch --no-tags https://github.com/stablyai/orca.git 'refs/tags/v*:refs/tags/v*'
++
+       - uses: ./.github/actions/install-node-dependencies
+         with:
+           native-runtime: node
+diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
+index 45c12030430..5eeb6570bb2 100644
+--- a/config/main-sync-fs-baseline.txt
++++ b/config/main-sync-fs-baseline.txt
+@@ -20,7 +20,7 @@
+ 1 src/main/ai-vault/scan-service/session-scanner-service-spawn.ts
+ 1 src/main/ai-vault/scanners/omp/omp-session-root.ts
+ 1 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
+-2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn.ts
++2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-entry.ts
+ 8 src/main/amp/hook-service.ts
+ 2 src/main/amp/managed-plugin-install-status.ts
+ 1 src/main/antigravity/antigravity-host-acp.ts
 diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
-index b1a89fbefe0..dac7c8b2677 100644
+index d1bc3f33bea..9268c909aae 100644
 --- a/config/react-compiler-bailout-baseline.txt
 +++ b/config/react-compiler-bailout-baseline.txt
 @@ -1,5 +1,5 @@
@@ -34,7 +62,7 @@ index b1a89fbefe0..dac7c8b2677 100644
  1 src/renderer/src/components/native-chat/viewport/history/NativeChatOlderHistoryRow.tsx
  1 src/renderer/src/components/native-chat/viewport/history/use-native-chat-selected-history.ts
 @@ -556,6 +557,7 @@
- 1 src/renderer/src/components/sparse/SparseCheckoutPresetSelect.tsx
+ 1 src/renderer/src/components/ssh-host-recovery/SshHostMoveAnywayAction.tsx
  2 src/renderer/src/components/star-nag/StarNagAgentValueMomentObserver.tsx
  1 src/renderer/src/components/stats/ShareUsageButton.tsx
 +1 src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
@@ -61,7 +89,7 @@ index aa3782d8cf8..79376423437 100644
 @@ -111,6 +115,18 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
        // Closed sheet claims nothing; shell retains its existing pop fallback.
        expect(await page.evaluate(notifyNames)).not.toContain(backNames.claim)
- 
+
 +      await page.getByRole('button', { name: 'More options', exact: true }).click()
 +      await page.getByRole('button', { name: 'Advanced: workspaces', exact: true }).click()
 +      await page.waitForFunction(
@@ -103,6 +131,48 @@ index aa3782d8cf8..79376423437 100644
        expect(errors).toEqual([])
        await page.close()
      } finally {
+diff --git a/config/scripts/mobile-web-app/shell/mobile-web-app-open-target-render.test.mjs b/config/scripts/mobile-web-app/shell/mobile-web-app-open-target-render.test.mjs
+index 8f6899cc4fd..897e019c81f 100644
+--- a/config/scripts/mobile-web-app/shell/mobile-web-app-open-target-render.test.mjs
++++ b/config/scripts/mobile-web-app/shell/mobile-web-app-open-target-render.test.mjs
+@@ -82,7 +82,7 @@ async function openHostDocument({
+   pageRoutes = [HOST_PATTERN, SESSION_PATTERN],
+   backOnFirstClaim = false
+ }) {
+-  const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
++  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'en-US' })
+   await page.addInitScript(installShellDouble, {
+     version: bridgeVersion,
+     sessionId: 'open-target-session',
+@@ -204,21 +204,23 @@ describeRender('a host document asked to open a target', () => {
+     // The pop's slide has to settle, or the stack keeps refusing every tap.
+     await page.waitForFunction(
+       () => {
+-        const fab = [...document.querySelectorAll('[role="button"]')].find(
++        const action = [...document.querySelectorAll('[role="button"]')].find(
+           (element) =>
+-            element.getAttribute('aria-label') === 'New workspace' &&
++            element.getAttribute('aria-label') === 'More options' &&
+             element.getBoundingClientRect().width > 0
+         )
+-        if (fab === undefined) {
++        if (action === undefined) {
+           return false
+         }
+-        const box = fab.getBoundingClientRect()
++        const box = action.getBoundingClientRect()
+         const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)
+-        return hit !== null && fab.contains(hit)
++        return hit !== null && action.contains(hit)
+       },
+       undefined,
+       { timeout: 10_000, polling: 100 }
+     )
++    await page.getByRole('button', { name: 'More options', exact: true }).click()
++    await page.getByRole('button', { name: 'Advanced: workspaces', exact: true }).waitFor()
+     expect(errors).toEqual([])
+     await page.close()
+   }, 60_000)
 diff --git a/mobile/src/session/mobile-pending-model-send.test-fixture.ts b/mobile/src/session/mobile-pending-model-send.test-fixture.ts
 index a20107f7fcb..be693a12ded 100644
 --- a/mobile/src/session/mobile-pending-model-send.test-fixture.ts
@@ -160,7 +230,7 @@ index c1ea9e156b5..b5e2b73d7d8 100644
 @@ -106,30 +106,4 @@ export type MobileStructuredAgentSessionArgs = {
    onActionResolved?: () => void
  }
- 
+
 -import type { MobileStructuredAgentMutate } from './use-mobile-structured-agent-mutation'
 -
 -export type MobileStructuredAgentOptionsArgs = {
@@ -213,7 +283,7 @@ index ceac34e2b3b..bc7198a28bc 100644
 @@ -72,19 +63,19 @@ function permissionChoiceColor(value: string | undefined): string | undefined {
    return value === 'full-access' ? colors.statusAmber : undefined
  }
- 
+
 -function permissionModeIcon(value: string): LucideIcon | undefined {
 +function permissionModeIcon(value: string): Icons.LucideIcon | undefined {
    if (!isAgentChatPermissionMode(value)) {
@@ -234,7 +304,7 @@ index ceac34e2b3b..bc7198a28bc 100644
 +      return Icons.ShieldAlert
    }
  }
- 
+
 @@ -230,7 +221,7 @@ export function MobileNativeChatSessionOptionPickers({
          secondary={secondary}
          warning={permissionColor !== undefined}
@@ -289,12 +359,12 @@ index f3cffebf9cf..8b15bdd69c7 100644
  import { scrollWritesStopMomentum } from '../../mobile-native-chat-scroll-motion'
 @@ -52,7 +42,7 @@ const FETCH_REACH_SCREENS = 10
  const REST_MS = 300
- 
+
  type Row = { item: NativeChatMessage; index: number }
 -type Scroller = MobileNativeChatScrollNode & EventTarget
 +type Scroller = readingPlace.MobileNativeChatScrollNode & EventTarget
  type ReadScroller = () => Scroller | null
- 
+
  type Props = {
 @@ -106,7 +96,7 @@ export function MobileNativeChatPageList({
    const keys = useMemo(() => rows.map(rowKeys.keyOf), [rows, rowKeys.keyOf])
@@ -307,7 +377,7 @@ index f3cffebf9cf..8b15bdd69c7 100644
      count: 0
 @@ -125,9 +115,9 @@ export function MobileNativeChatPageList({
            Math.max(0, n - (kept?.count ?? FIRST_ROWS)))
- 
+
    const rowHeights = useMemo(() => new Map<string, number>(), [rowKeys.scope, layoutKey])
 -  const beforeRowsHeight = mobileNativeChatUndrawnHeight(keys, first, rowHeights)
 +  const beforeRowsHeight = readingPlace.mobileNativeChatUndrawnHeight(keys, first, rowHeights)
@@ -377,7 +447,7 @@ index 02388dddaca..d3d8ee8fbf4 100644
  import { MarkdownLinkHandlerContext } from '../../../components/markdown-link-handler'
 -import { stubRpcClient } from '../../../transport/rpc-client-test-stub'
 +import { stubRpcClient } from '../../../transport/rpc/rpc-client-test-stub'
- 
+
  vi.mock('react-native', async () => ({
    ...(await import('../../../test-support/react-native-motion-stub')).reactNativeMotionStub(),
 diff --git a/mobile/src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx b/mobile/src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx
@@ -406,7 +476,7 @@ index cf6eb3e0f56..94ed6cf669f 100644
    mobileStructuredModelDefaultSnapshot,
    useMobileStructuredModelDefault
 diff --git a/mobile/src/session/use-mobile-structured-agent-session.ts b/mobile/src/session/use-mobile-structured-agent-session.ts
-index 4da70f7074d..bb4fb815c3a 100644
+index 70185bae024..1fcc004b61c 100644
 --- a/mobile/src/session/use-mobile-structured-agent-session.ts
 +++ b/mobile/src/session/use-mobile-structured-agent-session.ts
 @@ -8,14 +8,8 @@ import {
@@ -426,7 +496,7 @@ index 4da70f7074d..bb4fb815c3a 100644
  import type {
    MobileStructuredAgentSessionArgs,
    StructuredMobileSession
-@@ -205,7 +199,10 @@ export function useMobileStructuredAgentSession(
+@@ -203,7 +197,10 @@ export function useMobileStructuredAgentSession(
    // Prefer host actionability: ended-agent prompts must receive no answer.
    const [approvalPrompt, questionPrompt] = useMemo(() => {
      const prompts = { items, currentRequests, actionablePromptIds }
@@ -438,7 +508,7 @@ index 4da70f7074d..bb4fb815c3a 100644
    }, [items, currentRequests, actionablePromptIds])
    const commandRefusalCauses = useMemo(
      () => ({
-@@ -294,8 +291,8 @@ export function useMobileStructuredAgentSession(
+@@ -293,8 +290,8 @@ export function useMobileStructuredAgentSession(
        requestCancel(prompt ?? pendingStructuredPromptIdentity(stateRef.current)),
      receipts,
      actionablePromptIds: state.actionablePromptIds,
@@ -451,6 +521,7 @@ index 4da70f7074d..bb4fb815c3a 100644
      queued,
 diff --git a/mobile/src/session/use-mobile-structured-model-default-send.test.tsx b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
 new file mode 100644
+index 00000000000..6c35b4a9082
 --- /dev/null
 +++ b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
 @@ -0,0 +1,130 @@
@@ -614,15 +685,15 @@ index bd0bb38aa6b..6077fe24c44 100644
 -  AgentModelCatalogListingWaiters
 -} from './agent-model-catalog-listing-waiters'
 +import { AgentModelCatalogListingWaiters } from './agent-model-catalog-listing-waiters'
- 
+
 -export { AGENT_MODEL_CATALOG_FAILURE_TTL_MS, AGENT_MODEL_CATALOG_PICKER_WAIT_MS }
 +export { AGENT_MODEL_CATALOG_FAILURE_TTL_MS } from './agent-model-catalog-failures'
 +export { AGENT_MODEL_CATALOG_PICKER_WAIT_MS } from './agent-model-catalog-listing-waiters'
  export type { AgentModelCatalogFailure }
- 
+
  // Persist successful display catalogs; launch proof requires fresh in-process discovery.
 diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-index f6f299ecfec..3c0076a04b1 100644
+index 0e6fa85290e..f03138dd572 100644
 --- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
 +++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
 @@ -19,7 +19,7 @@ import type { StructuredAgentSessionAttachContext } from '../acquisition/structu
@@ -649,7 +720,7 @@ index f6f299ecfec..3c0076a04b1 100644
 +  private readonly eventRecovery: EventRecovery
    private readonly backgroundTasks: BackgroundTasks
    readonly restartResume: StructuredAgentSessionRestartResume
- 
+
 @@ -75,7 +74,7 @@ export class StructuredAgentSessionHost {
      this.backgroundTasks = new BackgroundTasks(
        deps,
@@ -668,18 +739,18 @@ index f6f299ecfec..3c0076a04b1 100644
        deps,
        store: deps.store,
        sessions: this.sessions,
-@@ -161,8 +160,7 @@ export class StructuredAgentSessionHost {
+@@ -160,8 +159,7 @@ export class StructuredAgentSessionHost {
    childAccountHome = this.reads.childAccountHome
    prospectiveAccountHome = this.reads.prospectiveAccountHome
- 
+
 -  handleAdapterEvent = (event: Parameters<StructuredAgentSessionEventRecovery['handle']>[0]) =>
 -    this.eventRecovery.handle(event)
 +  handleAdapterEvent: EventRecovery['handle'] = (event) => this.eventRecovery.handle(event)
- 
+
    // Keep inference so publishStatus stays required in the attach-context spread.
    private lifetimeContext() {
-@@ -180,7 +178,7 @@ export class StructuredAgentSessionHost {
- 
+@@ -179,7 +177,7 @@ export class StructuredAgentSessionHost {
+
    private attachContext = (): StructuredAgentSessionAttachContext => ({
      ...this.lifetimeContext(),
 -    subscribers: this.subscribers,
@@ -687,7 +758,7 @@ index f6f299ecfec..3c0076a04b1 100644
      tasks: this.tasks,
      reconcileLeases: (sessionId) => this.runtimeState.reconcileLeases(sessionId),
      serialize: (sessionId, task) => this.serialize(sessionId, task),
-@@ -260,7 +258,7 @@ export class StructuredAgentSessionHost {
+@@ -259,7 +257,7 @@ export class StructuredAgentSessionHost {
      mutationWiring.createStructuredAgentSessionHostMutationContext({
        deps: this.deps,
        sessions: this.sessions,
@@ -696,18 +767,18 @@ index f6f299ecfec..3c0076a04b1 100644
        lifetime: this.lifetime,
        clientDelivery: this.clientDelivery,
        conversationDelivery: this.conversationDelivery,
-@@ -337,7 +335,8 @@ export class StructuredAgentSessionHost {
- 
+@@ -338,7 +336,8 @@ export class StructuredAgentSessionHost {
+
    publishForegroundTasks = (id: string): void => this.backgroundTasks.publish(id)
    publishChildWorkEvidence = this.clientDelivery.publishChildWork
 -  unsubscribe = (sessionId: string, id: string): void => this.subscribers.close(sessionId, id)
 +  unsubscribe = (sessionId: string, id: string): void =>
 +    this.clientDelivery.subscribers.close(sessionId, id)
- 
+
    /** Retains no per-session subscription. */
    subscribeStatus = this.clientDelivery.subscribeStatus
-@@ -352,7 +351,7 @@ export class StructuredAgentSessionHost {
- 
+@@ -353,7 +352,7 @@ export class StructuredAgentSessionHost {
+
    collaboratorsForTests = () => ({
      sessions: this.sessions,
 -    subscribers: this.subscribers,
@@ -715,8 +786,17 @@ index f6f299ecfec..3c0076a04b1 100644
      runtimeState: this.runtimeState,
      conversationDelivery: this.conversationDelivery,
      lifetime: this.lifetime,
+diff --git a/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts b/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
+index 4c0791ea20d..9584fab5f94 100644
+--- a/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
++++ b/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
+@@ -1,3 +1,4 @@
++// @orca-isolated-worker: native addon state cannot be reset between files.
+ // Exercise ConPTY under the hidden, job-detached process used by Windows SSH hosts.
+ import { createRequire } from 'node:module'
+ import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 diff --git a/src/main/skills/bundled-skill-install/bundled-skill-sources.ts b/src/main/skills/bundled-skill-install/bundled-skill-sources.ts
-index efc531b27ad..1d51f22d2e3 100644
+index 5be673dbb5e..43f9e2e56ea 100644
 --- a/src/main/skills/bundled-skill-install/bundled-skill-sources.ts
 +++ b/src/main/skills/bundled-skill-install/bundled-skill-sources.ts
 @@ -21,5 +21,5 @@ export const BUNDLED_SKILL_SOURCES: readonly BundledSkillSource[] = [
@@ -727,7 +807,7 @@ index efc531b27ad..1d51f22d2e3 100644
 +  {"name":"orchestration","text":"---\nname: orchestration\ndescription: >-\n  Run work in separate Orca worker agents and get their results back. Use when\n  the user asks for Orca workers or supervision (monitor, task DAGs, ask/reply,\n  decision gates), or when the work needs something your own subagents cannot\n  give: a different agent (such as Codex from Claude) or its own Orca workspace.\n  \"Have Codex (or Claude) review this and report back\" means an Orca worker of\n  that agent, even when you have your own model subagents.\n  Also use when you are a dispatched worker (a prompt with Task and Dispatch\n  IDs: ask, worker_done). Otherwise prefer your own subagents,\n  including for long or parallel work. Use `orca-cli` to hand work off with\n  nothing expected back (\"hand off\", \"handover\", \"give this to another agent\",\n  \"another worktree\"), and for terminal control, shell commands, worktree\n  management, and reading or waiting on terminals.\n---\n\n# Orca Orchestration\n\nThis discovery stub loads the version-matched guide from the Orca executable used for this session.\n\nNever substitute a non-Orca subagent tool when the user asked for Orca orchestration.\n\n## Resolve the CLI for this session\n\nChoose the executable once and reuse it for every later command:\n\n- If the `ORCA_CLI_COMMAND` environment variable is set, use its value. Orca exports this\n  for managed WSL sessions.\n- Otherwise, in a dev checkout whose session exposes `ORCA_DEV_REPO_ROOT`, use `orca-dev`.\n- Otherwise, on Linux outside an Orca-managed terminal, use `orca-ide`. Never run bare\n  `orca` there — outside Orca's terminals it normally resolves to the\n  GNOME Orca screen reader (`/usr/bin/orca`) and starts speech on the user's machine.\n- Otherwise, use `orca`.\n\nBelow, `ORCA` is a placeholder for the executable you resolved. Substitute it before\nrunning anything; do not create a shell variable or run `ORCA` literally. This works the\nsame way in POSIX shells, PowerShell, and cmd.exe.\n\nIf the selected executable cannot run, report its exact error and stop. Do not fall through\nto another executable, which could silently target a different Orca build.\n\n## Load the version-matched guide before running Orca commands\n\n```text\nORCA skills get orchestration\n```\n\nThat prints the compact, version-matched guide for the exact binary that will handle your\nnext commands. It covers the normal local coordinator loop and dispatched-worker\nobligations. For a conditional action gate such as remote placement, uncertain release\nrecovery, or expanded DAG work, load only the reference that gate names with\n`ORCA skills get orchestration --reference references/<file>.md`\n(`--references` lists the names). If that binary rejects `--reference`, run\n`ORCA skills get orchestration --full` and read the named bundled reference before acting.\n\nUse the selected executable's `--help` for commands or flags the guide does not cover. If a\ncommand reports that Orca is not running, start it with `ORCA open --json` and retry. If it\nfails with `runtime_access_denied`, your sandbox blocked the connection: re-run it with\nescalated permissions, and do not run `ORCA open` or restart Orca. If `skills get` is unknown,\nexplain that updating Orca restores the guide; use `--help` for read-only discovery and do not\nguess unsupported commands.\n","releasedDigests":["0cb898d37560ab7ac4cb477a2d7e8ba3e593d45affd6d7e9f99151879aaeb1a5","0cfb6a082625edc0d474bae430eb22c28bbe484e54fbfebedb4ff89d96e36305","1150a30d854ad1d6c4f107af4c115bac6afd00122e4b011ee5e8f9c49a9d9bab","19ffdc1fe0d2c97dae845e8d636edb16781453ce2ec26f65a323c492ef90da18","1cbb78d008e0a833150096dab7882fdae5b7e72b5b073d4cbcef9642fb421ab0","24c5392fe1734c3dcf63d1a05ab4ac75eaa70e4d880f590a4a33ec83e4a2cc6a","277dd8372f4b3b1773f8debe6e02eae575f01d568de328ae06d78ba71fc045cb","2c1ac3a94ef4ee085147ee48d813bdcce532f5f6c7040d7836ea7b3d2a882628","332b046294c2356d962cacb9b9f7bcd68919570c1cb69b90c100f0c08be94d99","36bc32f022447418b566db35f9ffcff75113eb023e37d06fd1bd609c5dd173ef","3899a8a6da1d7a962e1029d002f7187058543e47a230b6459756a41bc08af4a7","4b3e686cb2b106c2db8ecab53d4b000b4356cca63d4a7f7e3cf6db8798c38fed","4b7368462351274c4d7582786a48ef6c477e33a529fc3d1b1ac1d814b5ab3fee","4bb49dd8fb3062af4424f912909d52914f377e6dd3fcd12ed5296e7781bdabe4","58b954fe6ad604c926ed7ba4810f8ad04046be5030346b54eb3a210a6859125f","6053ed840323522c3bac235007b2241df897857a6974dfd784f7e539b2b98a10","66d4c60a3ead54eb063a57341278cccaf28e016c2847a6f1808a0d4d2d163606","68761e4b247b7a5bc22087eb4d801287e120b9a3746054b50c96d9f5e7e0bcca","6c38221cc0c280320264dbcba35af1371b3bf525d430a9d6b7a21c33bcda2223","8cf62f04390900bdfe0afe204a65fb4398f8516953a916b997c5c17ce63e4b51","9248461f4224081452ef8aed56748a456b99b79fb3f78a525857f8d12e44f7f1","937237cbb3449ff88f67efbcec0b6c6d64a23dbfb1b28c88260e4d0094f50954","9550fb923937729fbaa7d6edec8a22f5a88da556fa7834c6a78ba3c65e8cda67","9ca228137b9a442b98c761aa07adecc2265708132ab175ad7e22b163fdc0bd7f","a7e3350f037698ebbce36b2818d8383ec6e96c2a4825537caab39a83b4fb4b7f","abb639ec034ab3f50fddf3dc02c4a041876c34278f529ec2c044c0cda7b74059","b50c8ce4ea7317fad2ff9a0d8d56e16f4420d6ce6d6b1ea2534d60555a479c5f","b73c7c665aa233a782ba81982ebc954e220fdf1c1c6ca2b6bf38133c1cd76fc9","b790fb1701b28787e579cd97a5c72827eb4659077e7529003f175485fbcb3e17","cd1b364bf35781bad06bf75ab1766afa8d6cec69cb2060529691d89871a2098a","ce9a81cb2e6bbb8487107d2e088bf9fd6e0ba71ebc6bcc1929f827fde65fec6b","d2d5b72f52871142fa0ff440526ce8531afaf38f54f960beace196f6e0da759b","d37fa68601e6b383146976baf4ac28b1ecc8acef808394e9cede434a08be82ce","d6490454f5a2814e98bb3848f05574beb81b7c5111295efd8c1d26c8b16bee4a","d9ac622844f5d94c02e01d663833a04bd7db522b59385ac92ec5ab5e7cb017b3","e3b81f4d713f97a65a35ca5db0606939cebfdaade3daf1d709a76df1c869fd8a","e4aa2bde868fdb45f905189361ab09e613ea9d83875ba7e951b6f3addfb58c75","e72ecaf625b4a839189e8f13717b0c5b7a309fc82c9ed0dbfb8e861e31a2124a","e7d41851bdc188236fac52d8a8baa0ea57a840750b8c345408d49a563c9070fa","ee559224b6047d01db02d9aabdfbcc94475394e6f11f4076ce785c42faee63c6","f3bae76495657f27458969fe2d6510098f39b429580870f5e79fac3493f891ee","f7da0dd40d8681e2b0303fa0fa2f7ee4e36f2eca6495a4af57b92b9857dff732"]}
  ]
 diff --git a/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx b/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
-index 2dbb044..3ce75ac 100644
+index 2dbb0447b44..3ce75ac8510 100644
 --- a/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
 +++ b/src/renderer/src/components/NewWorkspaceComposerModal.retention.test.tsx
 @@ -1,3 +1,8 @@
@@ -796,7 +876,7 @@ index 2dbb044..3ce75ac 100644
 +  expect(effortLabel()).toBe('Low')
    expect(evidence.submit).not.toHaveBeenCalled()
  })
- 
+
 @@ -393,7 +398,7 @@ it('offers Reopen with the submitted target and picker and does not replace a ne
    )
    await open('Claude')
@@ -814,7 +894,7 @@ index 2dbb044..3ce75ac 100644
 +  expect(effortLabel()).toBe('Low')
  })
 diff --git a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
-index 175b9de..ff95ece 100644
+index 175b9de8cfa..ff95eced6ce 100644
 --- a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
 +++ b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
 @@ -1,7 +1,7 @@
@@ -850,7 +930,7 @@ index 175b9de..ff95ece 100644
 -    expect(effort('Low')).toBe('on')
 +    expect(effortLabel()).toBe('Low')
      close()
- 
+
      act(() =>
 @@ -140,7 +138,7 @@ describe('setup records exist only for authored setups', () => {
      show({ ...entry, worktreeId: 'repo::/new' })
@@ -859,7 +939,7 @@ index 175b9de..ff95ece 100644
 -    expect(effort('Low')).toBe('on')
 +    expect(effortLabel()).toBe('Low')
    })
- 
+
    it('keeps a search preset in its own options slot, saving only real changes, with one shared prompt', async () => {
 @@ -180,14 +178,11 @@ describe('setup records exist only for authored setups', () => {
          </InMenu>
@@ -886,7 +966,7 @@ index 175b9de..ff95ece 100644
      expect(sourceCount()).toBe(0)
      fireEvent.click(plain)
 @@ -206,14 +201,14 @@ describe('setup records exist only for authored setups', () => {
- 
+
      // A real change saves into that preset's slot only and survives close and reopen.
      fireEvent.click(searched)
 -    await user.click(getByRole(document.body, 'radio', { name: 'Low' }))
@@ -901,7 +981,7 @@ index 175b9de..ff95ece 100644
 -    expect(effort('Low')).toBe('on')
 +    expect(effortLabel()).toBe('Low')
      close()
- 
+
      // The plain row keeps its own options but shares the workspace's typed prompt.
 diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.discovery.test.tsx
 index 961db140cea..67c646154a8 100644
@@ -945,7 +1025,7 @@ index 71945ec102a..5b89e2f8dd5 100644
 +++ b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.mid-turn.test.tsx
 @@ -4,17 +4,19 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
  import { afterEach, expect, it, vi } from 'vitest'
- 
+
  const rpc = vi.hoisted(() => ({ call: vi.fn() }))
 -vi.mock('@/runtime/structured-agent-session-client', () => ({
 -  callStructuredAgentSession: rpc.call,
@@ -969,7 +1049,7 @@ index 71945ec102a..5b89e2f8dd5 100644
  vi.mock('@/i18n/i18n', () => ({
 @@ -26,10 +28,10 @@ vi.mock('@/i18n/i18n', () => ({
  }))
- 
+
  import { TooltipProvider } from '@/components/ui/tooltip'
 -import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
 -import { useStructuredAgentSessionOptions } from './use-structured-agent-session-options'
@@ -979,7 +1059,7 @@ index 71945ec102a..5b89e2f8dd5 100644
 +import { useStructuredAgentSessionOptions } from './session/options/structured/use-structured-agent-session-options'
 +import { useStructuredAgentSessionSendOptions } from './session/structured/delivery/use-structured-agent-session-send-options'
 +import { forgetStructuredSessionSelection } from '@/lib/agent-session/options/structured-agent-session-selection-controller'
- 
+
  const target = { kind: 'local' } as const
  const sessionId = 'mid-turn-picker'
 @@ -87,18 +89,24 @@ it('refreshes the composer model from host execution reports without changing ca
@@ -1011,7 +1091,7 @@ index 71945ec102a..5b89e2f8dd5 100644
    )
  })
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-index 72b0efa7d76..88f00e7005c 100644
+index 32d1ec65ce6..5be12ebc554 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 @@ -23,10 +23,7 @@ import {
@@ -1046,7 +1126,7 @@ index 72b0efa7d76..88f00e7005c 100644
        <div
          ref={rootRef}
          data-native-chat-root="true"
-@@ -399,7 +398,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+@@ -403,7 +402,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
          {handOff.dialog}
          <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
        </div>
@@ -1067,7 +1147,7 @@ index 79dd9d58add..7aa5f9b2d3b 100644
 +import { NativeChatToolLine } from './tools/lines/NativeChatToolLine'
 +import { NativeChatToolRun } from './tools/runs/NativeChatToolRun'
 +import { nativeChatAppearanceStyle } from './appearance/native-chat-appearance-style'
- 
+
  function Invocations() {
    return (
 diff --git a/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx b/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
@@ -1082,7 +1162,7 @@ index edb5003eefb..ca0e5403e75 100644
 -import { NativeChatToolRun } from './NativeChatToolRun'
 +import { NativeChatToolLine } from './tools/lines/NativeChatToolLine'
 +import { NativeChatToolRun } from './tools/runs/NativeChatToolRun'
- 
+
  vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
    loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
 diff --git a/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx b/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx
@@ -1095,25 +1175,25 @@ index 6fa097759d4..f504345b328 100644
  } from '../../../../shared/native-chat/tools/native-chat-tool-summary'
 -import { NativeChatCopyButton } from './NativeChatCopyButton'
 +import { NativeChatCopyButton } from './messages/actions/NativeChatCopyButton'
- 
+
  export function NativeChatToolInvocation({
    call
 diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
-index 2123ecd5ba3..7e0d4688c80 100644
+index 77fab9a8bf6..f4fc0f9adcd 100644
 --- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
 +++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
 @@ -190,7 +190,7 @@ describe('structured send racing the next IME composition', () => {
      expect(readNativeChatDraftCache(pane)).toBe('하')
- 
+
      await act(async () => pressEnter(input))
 -    expect(structured.send).toHaveBeenLastCalledWith('하', [])
 +    expect(structured.send).toHaveBeenLastCalledWith('하', [], {})
    })
- 
+
    it('keeps the composed text when a mid-composition clear lands away from the caret', async () => {
 @@ -329,6 +329,6 @@ describe('the Enter that commits a Hangul composition', () => {
      await act(async () => pressEnter(input))
- 
+
      expect(structured.send).toHaveBeenCalledOnce()
 -    expect(structured.send).toHaveBeenCalledWith('안녕하세요', [])
 +    expect(structured.send).toHaveBeenCalledWith('안녕하세요', [], {})
@@ -1121,6 +1201,7 @@ index 2123ecd5ba3..7e0d4688c80 100644
  })
 diff --git a/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts b/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts
 new file mode 100644
+index 00000000000..dee0b508007
 --- /dev/null
 +++ b/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts
 @@ -0,0 +1,20 @@
@@ -1245,7 +1326,7 @@ index 00000000000..03943cb7230
 +  }
 +}
 diff --git a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
-index bac9293fb33..06ea8c2d044 100644
+index 9224d40ce63..f84fb8e379e 100644
 --- a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
 +++ b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
 @@ -84,7 +84,11 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
@@ -1315,7 +1396,7 @@ index a87070dc4c9..64b1e925d0b 100644
 @@ -10,6 +10,11 @@ const { mocks, moduleFactories, resetStructuredSessionMocks } = await vi.hoisted
    (await import('./NativeChatStructuredSession.test-harness')).createStructuredSessionMocks()
  )
- 
+
 +vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
 +  loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
 +    .loadNodeOniguruma
@@ -1325,7 +1406,7 @@ index a87070dc4c9..64b1e925d0b 100644
    moduleFactories.structuredAgentSessionCall()
  )
 diff --git a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
-index 5edb9481323..4bdf74cf746 100644
+index f96825d348b..9cbfe12e7be 100644
 --- a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
 +++ b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
 @@ -28,7 +28,7 @@ import {
@@ -1335,7 +1416,7 @@ index 5edb9481323..4bdf74cf746 100644
 -import { NativeChatToolInvocation } from './NativeChatToolInvocation'
 +import { NativeChatToolInvocation } from '../../NativeChatToolInvocation'
  import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
- 
+
  const TARGET_CLASS =
 diff --git a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts b/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
 index 394caddd911..18cf99a1e81 100644
@@ -1344,7 +1425,7 @@ index 394caddd911..18cf99a1e81 100644
 @@ -28,6 +28,40 @@ function workerLifecycleKey(state: ReturnType<typeof useAppStore.getState>): str
    )
  }
- 
+
 +async function readSessionChildren(
 +  target: RuntimeClientTarget,
 +  sessionId: string,
@@ -1419,7 +1500,7 @@ index 394caddd911..18cf99a1e81 100644
        } catch {
          if (disposed) {
 diff --git a/src/renderer/src/components/native-chat/use-session-link.ts b/src/renderer/src/components/native-chat/use-session-link.ts
-index e894ea22348..a8fb69c39a0 100644
+index b8ce1ac2091..8d17200a40a 100644
 --- a/src/renderer/src/components/native-chat/use-session-link.ts
 +++ b/src/renderer/src/components/native-chat/use-session-link.ts
 @@ -1,3 +1,4 @@
@@ -1434,7 +1515,7 @@ index e894ea22348..a8fb69c39a0 100644
 -import { RuntimeRpcCallError } from '@/runtime/rpc/calls/runtime-rpc-result'
  import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
  import { structuredAgentSessionHostSupports } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
- 
+
 @@ -19,18 +19,6 @@ const Candidates = z.object({
    candidates: z.array(SessionLinkParticipant),
    history: z.array(SessionLink)
@@ -1451,13 +1532,13 @@ index e894ea22348..a8fb69c39a0 100644
 -    onSettled()
 -  }
 -}
- 
+
  export function useSessionLink(sessionId: string, target: RuntimeClientTarget, open: boolean) {
    const [supported, setSupported] = useState(false)
 @@ -169,60 +157,19 @@ export function useSessionLink(sessionId: string, target: RuntimeClientTarget, o
      }
    }, [open, sessionId, supported, destination])
- 
+
 -  const execute = async (operation: LinkMutation) => {
 -    if (inFlight.current) {
 -      return false
@@ -1535,7 +1616,7 @@ index d1351bd169b..cfaf5c82e79 100644
 @@ -19,7 +19,7 @@ import type { StructuredAgentSessionMutate } from './session/structured/writes/u
  import type { useStructuredAgentSessionOptionState } from './session/options/structured/use-structured-agent-session-option-state'
  import { enqueueSessionOptionSettingsWrite } from './session/options/native-chat-session-option-settings-write'
- 
+
 -export function useStructuredAgentSessionModelDefault(args: {
 +type ModelDefaultArgs = {
    agent: AgentType
@@ -1756,7 +1837,7 @@ index dac898b49a7..9a2c1dd7f2e 100644
 @@ -14,6 +14,29 @@ import { Button } from '../ui/button'
  import { WorkerRoleProfileEditor } from './WorkerRoleProfileEditor'
  import { nativeChatPreferenceFor } from '../../../../shared/structured-native-chat-launch-route'
- 
+
 +async function saveWorkerRoleProfile(
 +  profiles: NonNullable<GlobalSettings['orchestrationWorkerRoles']>,
 +  role: string,
@@ -1803,7 +1884,7 @@ index dac898b49a7..9a2c1dd7f2e 100644
 -    }
 +    )
    }
- 
+
    return (
 diff --git a/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.tsx b/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.tsx
 index acb8436447c..d9930d1cc2b 100644
@@ -1818,7 +1899,7 @@ index acb8436447c..d9930d1cc2b 100644
 @@ -41,6 +41,76 @@ type RepositoryIconTabsProps = {
    onUseGitHubAvatar: () => void
  }
- 
+
 +async function uploadRepositoryIcon({
 +  uploadRequest,
 +  mountedRef,
@@ -1895,7 +1976,7 @@ index acb8436447c..d9930d1cc2b 100644
 @@ -78,61 +148,15 @@ export function RepositoryIconTabs({
      onSetIcon(icon)
    }
- 
+
 -  const handleUploadImage = async () => {
 -    if (uploadRequest.current) {
 -      return
@@ -1960,7 +2041,7 @@ index acb8436447c..d9930d1cc2b 100644
 +      cancelUpload,
 +      t
 +    })
- 
+
    const handleUseWebsiteFavicon = () => {
      const src = faviconUrlFromWebsite(website)
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
@@ -1970,7 +2051,7 @@ index 404e7e99b4e..db2f082abcd 100644
 @@ -11,6 +11,18 @@ import type { ConversationPreference } from '../../../../shared/conversation-nav
  import { projectConversationTitle } from '../../../../shared/project-conversation-list'
  import { useAiVaultSessionDisplayTitle } from '../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-title'
- 
+
 +async function saveConversationPreference(
 +  onPreference: (patch: ConversationPreference) => Promise<void>,
 +  patch: ConversationPreference,
@@ -2143,7 +2224,7 @@ index 57502b90265..76d9fcf1538 100644
 +          await runNextTimeoutWithDelay(pending.delay)
          }
        }
- 
+
        let disposable: { dispose: () => void } | null = null
        try {
          const { connectPanePty } = await import('../connect-pane-pty')
@@ -2155,7 +2236,7 @@ index 57502b90265..76d9fcf1538 100644
 @@ -539,6 +543,8 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
          )
          await flushAsyncTicks(6)
- 
+
 +        let drainClock = 0
 +        vi.spyOn(performance, 'now').mockImplementation(() => (drainClock += 10))
          capturedDataCallback.current?.(hidden, { seq: hidden.length, rawLength: hidden.length })
@@ -2171,7 +2252,7 @@ index 57502b90265..76d9fcf1538 100644
 +          HIGH_PRIORITY_DRAIN_INTERVAL_MS,
 +          BACKGROUND_DRAIN_INTERVAL_MS
 +        ])
- 
+
          expect(getMainBufferSnapshot).toHaveBeenCalledTimes(4)
          expect(pane.terminal.write).toHaveBeenCalledWith(
 diff --git a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts
@@ -2263,23 +2344,23 @@ index 057b200da7c..82d378c0fed 100644
  import { cliMissingSentence, notSignedInSentence } from '../agent-session-availability-sentences'
  import {
 @@ -40,13 +34,13 @@ export type AgentSessionFailureSentence = string & { readonly [failureSentence]:
- 
+
  export type AgentSessionFailureRowWords = {
    text: AgentSessionFailureSentence
 -  failure: AgentSessionFailureFact
 +  failure: failureFacts.AgentSessionFailureFact
  }
- 
+
  /** Legacy sentence/hidden marker and the newer fact, written together by the host. */
  export type AgentJournalDispatchRejection = {
    reason: AgentSessionFailureSentence
 -  rejection: SubmissionRejectionFact
 +  rejection: failureFacts.SubmissionRejectionFact
  }
- 
+
  /** row describes the chat; rejection describes a rejected message; answer describes a refused approval/question answer. */
 @@ -72,7 +66,7 @@ export type AgentSessionFailureWordsContext = {
- 
+
  type Sentence = (
    context: AgentSessionFailureWordsContext,
 -  fact: AgentSessionFailureFact,
@@ -2293,7 +2374,7 @@ index 057b200da7c..82d378c0fed 100644
    sessionNotRestored: namingAgent('sessionNotRestored')
 -} satisfies Record<AgentSessionFailureKind, Sentence>
 +} satisfies Record<failureFacts.AgentSessionFailureKind, Sentence>
- 
+
  /** The sentence a person reads for this fact on this surface; never a marker. */
  export function agentSessionFailureSentence(
 -  fact: AgentSessionFailureFact,
@@ -2302,7 +2383,7 @@ index 057b200da7c..82d378c0fed 100644
    context: AgentSessionFailureWordsContext = {},
    /** Desktop passes its translations; the host and the phone keep English. */
 @@ -296,7 +290,10 @@ export function agentSessionFailureSentence(
- 
+
  /** Preserve markers released clients hide. A write failure keeps the bare marker; its error stays in the log. */
  const LEGACY_REJECTION_MARKERS: Partial<
 -  Record<SubmissionRejectionKind, (context: AgentSessionFailureWordsContext) => string | undefined>
@@ -2314,7 +2395,7 @@ index 057b200da7c..82d378c0fed 100644
    cancelled: () => DISPATCH_REJECTED_CANCELLED,
    writeFailed: () => DISPATCH_REJECTED_WRITE_FAILED,
 @@ -310,23 +307,23 @@ const LEGACY_REJECTION_MARKERS: Partial<
- 
+
  /** The words a status row reporting this fact records. */
  export function agentSessionFailureWords(
 -  fact: AgentSessionFailureFact,
@@ -2404,7 +2485,7 @@ index 8dd5ac824e5..66cf5d7925a 100644
 +import * as electronHome from './electron-home-isolation'
  import type { LaunchOptions } from './orca-restart-launch-options'
  import { selectSidebarBody } from './store'
- 
+
 @@ -89,10 +85,10 @@ function createRestartLaunchIsolation(
    userDataDir: string,
    headful: boolean,
@@ -2427,3 +2508,68 @@ index 8dd5ac824e5..66cf5d7925a 100644
        await options?.beforeFirstWindow?.(app)
        const page = await app.firstWindow({ timeout: 120_000 })
        await page.waitForLoadState('domcontentloaded')
+diff --git a/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx b/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx
+new file mode 100644
+--- /dev/null
++++ b/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx
+@@ -0,0 +1,60 @@
++import { act, create, type ReactTestRenderer } from 'react-test-renderer'
++import { expect, it, vi } from 'vitest'
++
++// Avoid Expo imports through re-exported screen hooks; this test calls none of them.
++vi.mock('../../transport/connection/host-client-hooks', () => ({
++  useDisconnectHostClient: () => () => {},
++  useForceReconnect: () => null,
++  useForgetHostClient: () => () => {},
++  useHostClient: () => ({ client: null, clientId: null, state: 'disconnected' }),
++  usePrimeHosts: () => () => {},
++  useRefreshHostClient: () => () => {}
++}))
++
++import { RpcClientProvider } from '../../transport/connection/client-context.web'
++import { createFakeBridgePortPair, disposeBridgePortPair } from './bridge-port-pair-test-harness'
++import { NativeVerbError, useNativeVerbs, type NativeVerbs } from './use-native-verbs'
++
++const held: { verbs: NativeVerbs | null } = { verbs: null }
++
++function Screen(): null {
++  held.verbs = useNativeVerbs()
++  return null
++}
++
++it('preserves a checked image permission refusal without exposing handler details', async () => {
++  const pair = createFakeBridgePortPair({
++    serveNativeVerb: () =>
++      Promise.reject(
++        Object.assign(new Error('device-private detail'), {
++          code: 'native_image_permission_denied'
++        })
++      )
++  })
++  let tree: ReactTestRenderer | null = null
++  try {
++    await pair.flush()
++    await act(async () => {
++      tree = create(
++        <RpcClientProvider client={pair.client}>
++          <Screen />
++        </RpcClientProvider>
++      )
++    })
++    const verbs = held.verbs
++    if (verbs === null) {
++      throw new Error('Native verbs did not mount')
++    }
++    const pending = verbs.readClipboardText().catch((error: unknown) => error)
++    await pair.flush()
++    const error = await pending
++    if (!(error instanceof NativeVerbError)) {
++      throw new Error('Native refusal lost its checked type')
++    }
++    expect(error.reason).toBe('native_image_permission_denied')
++    expect(error.message).not.toContain('device-private detail')
++  } finally {
++    await act(async () => tree?.unmount())
++    await disposeBridgePortPair(pair)
++  }
++})

@@ -1979,9 +1979,6 @@
           "discarded_other": "Unsaved edits in {{count}} files will be discarded:"
         }
       }
-    },
-    "sessionLink": {
-      "linked": "Linked with"
     }
   },
   "dashboard": {

@@ -25,7 +25,7 @@ function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex')
 }
 
-function hashFile(file) {
+export function hashFile(file) {
   const hash = createHash('sha256')
   const buffer = Buffer.alloc(1024 * 1024)
   const fd = openSync(file, 'r')
@@ -47,7 +47,7 @@ function macTool(program, args) {
   return execFileSync(program, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim()
 }
 
-function appManifest(app) {
+export function appManifest(app, { executableMode = true } = {}) {
   const entries = []
   function visit(directory) {
     for (const name of readdirSync(directory).sort()) {
@@ -65,7 +65,12 @@ function appManifest(app) {
         entries.push({ path, type: 'directory' })
         visit(file)
       } else if (stat.isFile()) {
-        entries.push({ path, type: 'file', executable: stat.mode & 0o111, sha256: hashFile(file) })
+        entries.push({
+          path,
+          type: 'file',
+          executable: executableMode ? stat.mode & 0o111 : 0,
+          sha256: hashFile(file)
+        })
       } else {
         throw new Error(`Unsupported app entry: ${path}`)
       }

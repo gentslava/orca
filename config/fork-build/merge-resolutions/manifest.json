@@ -1583,5 +1583,67 @@
     "patchSha256": "5ee25b79ebce7c905efe01a5b6a63d9ed095a04c5c2ea99bd73fdd3f7f217bdf",
     "resultSha256": "79516cdb49e2cacaca20f973d465774e9fe6dd4e567d45bbd3f8fb03bab18462",
     "reason": "Keep the mobile tree-shakeable Zod namespace while retaining both conversation preferences and project pin/open RPC contracts; the previous reviewed semantic union is unchanged."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/viewport/rail/structured-agent-session-rail-outline.test.ts",
+    "blobs": [
+      "da4f00632e0cfee74a4d277f5c56725ed2fc16ca",
+      null,
+      "7ebcd98471a61d473aa4a935ac310abc36657dc0"
+    ],
+    "patch": "refresh-20261109/newest-07bf5996686e.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal in 40174; legacy unattributed outlines remain exercised by the maintained use-structured-agent-session-rail-outline suite.",
+    "deleted": true
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatQueuedMessages.test.tsx",
+    "blobs": [
+      "b083cdfb3e80c450f696b9e5a1fb900c9d882023",
+      "b7cdfdd5a3c4348d452543a8d8bf639bee173926",
+      "65ce6635d32c15989066ea09c5aa34e817e779e4"
+    ],
+    "patch": "refresh-20261109/newest-48013e086d7a.patch",
+    "patchSha256": "df0e383aa53c5cc32e3d98ba3c1df89b1738b5f72de6713ca7da6c6a84e30a58",
+    "resultSha256": "a1e3bada6b0fa204a572ed47b2745e349619154075ab51739316c310accae794",
+    "reason": "Keep upstream sender-test removal while preserving the retained newest-card shortcut, cross-chat holds and sending/returned refusal checks."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "a05de71bc3e1af66b787ac6ebd56edd4307a08c8",
+      "9000bd1fd879bc85a40be2efbb7a7aa5f172bd9e",
+      "544d0a58f5b8a04759eef20b121b90fcae8445eb"
+    ],
+    "patch": "refresh-20261109/latest-f7e3da05dbfa.patch",
+    "patchSha256": "154a7dace36c0987902ac3e470096a3b70104777a99969d404aa99422dbb61dd",
+    "resultSha256": "d30310320adef9af9a16fffce62c1a94c8007cd1c1c40c2776132853fc68634d",
+    "reason": "Preserve current browser module relocation alongside independent durable conversation preferences and personal project ordering capabilities."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "d4bf7d2eb11221611374a0c732ae98cc1ff4e803",
+      "6685ad4b51567532e9faa3efe577036cf50db8ed",
+      "36101ec0b1a94301dbd6a49abe4d6de904c82c02"
+    ],
+    "patch": "refresh-20261109/latest-efda56db3fb5.patch",
+    "patchSha256": "297f7afa6a3764da614f9230186d238012272cc03f2359eddb217a2350dbf292",
+    "resultSha256": "36b24164d1bc7ed36463c57a3d2306df0a7376a5889005fce3305909afc9a0bd",
+    "reason": "Preserve current browser module relocation alongside independent durable conversation preferences and personal project ordering capabilities."
+  },
+  {
+    "path": "mobile/src/mobile-web-shell/bridge/use-native-verbs.test.tsx",
+    "blobs": [
+      "5939d383360a892ca0daf66c9396915ae37b139c",
+      null,
+      "175525232a0e7261c86e68e898640fcc58a01922"
+    ],
+    "patch": "refresh-20261109/native-verb-test-retirement.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "deleted": true,
+    "reason": "Preserve upstream removal of the old hook suite; retain the added image-permission refusal regression as one focused bridge test in the fork CI overlay."
   }
 ]

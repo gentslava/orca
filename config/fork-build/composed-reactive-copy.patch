@@ -1,0 +1,2481 @@
+diff --git a/src/renderer/src/components/HoldQuitNotice.tsx b/src/renderer/src/components/HoldQuitNotice.tsx
+index e7cbc53a834..1d754221419 100644
+--- a/src/renderer/src/components/HoldQuitNotice.tsx
++++ b/src/renderer/src/components/HoldQuitNotice.tsx
+@@ -1,10 +1,11 @@
+ import { useEffect, useState } from 'react'
+ import { toast } from 'sonner'
+ import { Progress } from './ui/progress'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { HOLD_QUIT_DURATION_MS, type HoldQuitNotice as Notice } from '../../../shared/mac-hold-quit'
+
+ export function HoldQuitHint({ phase }: { phase: Notice['phase'] }): React.JSX.Element {
++  const t = useTranslate()
+   const [progress, setProgress] = useState(0)
+   useEffect(() => {
+     if (phase !== 'holding') {
+@@ -22,12 +23,12 @@ export function HoldQuitHint({ phase }: { phase: Notice['phase'] }): React.JSX.E
+     frame = requestAnimationFrame(tick)
+     return () => cancelAnimationFrame(frame)
+   }, [phase])
+-  const hint = translate('holdQuit.hint', 'Agents are still working. Hold ⌘Q to quit.')
++  const hint = t('holdQuit.hint', 'Agents are still working. Hold ⌘Q to quit.')
+   return (
+     <div className="space-y-3">
+       <p role="status" className="text-sm">
+         {phase === 'unavailable'
+-          ? translate(
++          ? t(
+               'holdQuit.unavailable',
+               'Hold-to-quit is unavailable. Use the application menu to quit.'
+             )
+diff --git a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
+index 3526f38c9c6..74499d26a11 100644
+--- a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
+@@ -1,5 +1,5 @@
+ import { useTranslation } from 'react-i18next'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { selectExecutionHostDisplayLabel } from '@/lib/execution-host-display-label'
+ import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
+ import { useAppStore } from '@/store'
+@@ -18,6 +18,7 @@ export function NativeChatChildMetadata({
+   target?: RuntimeClientTarget
+   detailed?: boolean
+ }): React.JSX.Element | null {
++  const t = useTranslate()
+   useTranslation()
+   const agent =
+     worker.conversation.kind === 'journal' ? worker.conversation.agent : worker.metadata?.agent
+@@ -28,30 +29,23 @@ export function NativeChatChildMetadata({
+     switch (host?.kind) {
+       case 'local': {
+         if (!target) {
+-          return translate(
+-            'components.native-chat.children.metadata.localHost',
+-            'Local execution host'
+-          )
++          return t('components.native-chat.children.metadata.localHost', 'Local execution host')
+         }
+         const label = selectExecutionHostDisplayLabel(
+           state,
+           executionHostIdForStructuredTarget(target)
+         )
+         return target.kind === 'environment' && label === target.environmentId
+-          ? translate(
+-              'components.native-chat.children.metadata.environment',
+-              'Environment {{value0}}',
+-              {
+-                value0: target.environmentId
+-              }
+-            )
++          ? t('components.native-chat.children.metadata.environment', 'Environment {{value0}}', {
++              value0: target.environmentId
++            })
+           : label
+       }
+       case 'wsl':
+         if (typeof host.distro !== 'string' || !host.distro.trim()) {
+           return null
+         }
+-        return translate('components.native-chat.children.metadata.wsl', 'WSL · {{value0}}', {
++        return t('components.native-chat.children.metadata.wsl', 'WSL · {{value0}}', {
+           value0: host.distro
+         })
+       case 'ssh': {
+@@ -63,7 +57,7 @@ export function NativeChatChildMetadata({
+               sshEnvironmentId: target.kind === 'environment' ? target.environmentId : null
+             })
+           : host.targetId
+-        return translate('components.native-chat.children.metadata.ssh', 'SSH · {{value0}}', {
++        return t('components.native-chat.children.metadata.ssh', 'SSH · {{value0}}', {
+           value0: label === host.targetId ? label : `${label} (${host.targetId})`
+         })
+       }
+@@ -73,13 +67,9 @@ export function NativeChatChildMetadata({
+         }
+         return (
+           (typeof host.label === 'string' && host.label.trim()) ||
+-          translate(
+-            'components.native-chat.children.metadata.environment',
+-            'Environment {{value0}}',
+-            {
+-              value0: host.environmentId
+-            }
+-          )
++          t('components.native-chat.children.metadata.environment', 'Environment {{value0}}', {
++            value0: host.environmentId
++          })
+         )
+       case undefined:
+         return null
+@@ -91,16 +81,16 @@ export function NativeChatChildMetadata({
+   if (!detailed) {
+     return <>{[agentLabel, hostLabel].filter(Boolean).join(' · ')}</>
+   }
+-  const unknown = translate('components.native-chat.children.metadata.unknown', 'Unknown')
++  const unknown = t('components.native-chat.children.metadata.unknown', 'Unknown')
+   return (
+     <dl className="flex shrink-0 flex-wrap gap-x-4 gap-y-1 px-4 pt-2 text-xs text-chat-foreground-faint">
+       <div className="flex min-w-0 gap-1">
+-        <dt>{translate('components.native-chat.children.metadata.agent', 'Agent')}</dt>
++        <dt>{t('components.native-chat.children.metadata.agent', 'Agent')}</dt>
+         <dd className="min-w-0 break-words">{agentLabel ?? unknown}</dd>
+       </div>
+       <div className="flex min-w-0 gap-1">
+         <dt className="shrink-0">
+-          {translate('components.native-chat.children.metadata.host', 'Execution host')}
++          {t('components.native-chat.children.metadata.host', 'Execution host')}
+         </dt>
+         <dd className="min-w-0 break-words">{hostLabel ?? unknown}</dd>
+       </div>
+diff --git a/src/renderer/src/components/native-chat/NativeChatChildTranscriptFrame.tsx b/src/renderer/src/components/native-chat/NativeChatChildTranscriptFrame.tsx
+index d3c90443396..3a526186d6f 100644
+--- a/src/renderer/src/components/native-chat/NativeChatChildTranscriptFrame.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatChildTranscriptFrame.tsx
+@@ -5,7 +5,7 @@ import { ArrowLeft, Bot, Loader2 } from 'lucide-react'
+ import CommentMarkdown from '@/components/sidebar/CommentMarkdown'
+ import { Button } from '@/components/ui/button'
+ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+-import { getIntlLocale, translate } from '@/i18n/i18n'
++import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
+ import type { NativeChatSubagentEntry } from '../../../../shared/native-chat/native-chat-types'
+ import type { StructuredAgentSessionState } from '../../../../shared/agent-session/structured-agent-session-reducer'
+ import { normalizeSubagentState } from '../../../../shared/native-chat/transcript/native-chat-subagent-summary'
+@@ -44,10 +44,12 @@ export function NativeChatChildTranscriptFrame({
+   workerTarget?: RuntimeClientTarget
+   presentation?: ReturnType<typeof useStructuredAgentSessionTransportState>
+ }): React.JSX.Element {
++  const intlLocale = useIntlLocale()
++  const t = useTranslate()
+   useTranslation()
+   const state = entry ? normalizeSubagentState(entry.state) : null
+   const working = (presentation?.isWorking ?? state === 'working') && session.readCurrent !== false
+-  const dateFormat = new Intl.DateTimeFormat(getIntlLocale(), {
++  const dateFormat = new Intl.DateTimeFormat(intlLocale, {
+     dateStyle: 'short',
+     timeStyle: 'short'
+   })
+@@ -70,8 +72,7 @@ export function NativeChatChildTranscriptFrame({
+           <Button variant="ghost" size="sm" onClick={onBack}>
+             <ArrowLeft aria-hidden="true" />
+             <span className="max-w-48 truncate">
+-              {parent?.label ??
+-                translate('components.native-chat.children.back', 'Back to conversation')}
++              {parent?.label ?? t('components.native-chat.children.back', 'Back to conversation')}
+             </span>
+           </Button>
+           <Bot aria-hidden="true" className="size-4 shrink-0 text-chat-foreground-faint" />
+@@ -81,7 +82,9 @@ export function NativeChatChildTranscriptFrame({
+           {state ? (
+             <span className="ml-auto flex shrink-0 items-center gap-1.5 text-xs text-chat-foreground-faint">
+               <StatusDot state={state} pulsing={working} />
+-              {worker ? nativeChatWorkerStateLabel(worker) : subagentStateLabel(state, 1, 1, say)}
++              {worker
++                ? nativeChatWorkerStateLabel(worker, t)
++                : subagentStateLabel(state, 1, 1, say)}
+             </span>
+           ) : null}
+         </header>
+@@ -96,14 +99,14 @@ export function NativeChatChildTranscriptFrame({
+           <div className="flex flex-wrap gap-x-4 gap-y-1 px-4 py-2 text-xs text-chat-foreground-faint">
+             {entry.startedAt !== undefined ? (
+               <time dateTime={new Date(entry.startedAt).toISOString()}>
+-                {translate('components.native-chat.children.started', 'Started {{value0}}', {
++                {t('components.native-chat.children.started', 'Started {{value0}}', {
+                   value0: dateFormat.format(entry.startedAt)
+                 })}
+               </time>
+             ) : null}
+             {entry.settledAt !== undefined ? (
+               <time dateTime={new Date(entry.settledAt).toISOString()}>
+-                {translate('components.native-chat.children.finished', 'Finished {{value0}}', {
++                {t('components.native-chat.children.finished', 'Finished {{value0}}', {
+                   value0: dateFormat.format(entry.settledAt)
+                 })}
+               </time>
+@@ -149,8 +152,8 @@ export function NativeChatChildTranscriptFrame({
+             {!unavailable ? (
+               <p>
+                 {session.readPhase === 'loading' || session.loadingEarlier
+-                  ? translate('components.native-chat.children.loading', 'Loading agent history…')
+-                  : translate(
++                  ? t('components.native-chat.children.loading', 'Loading agent history…')
++                  : t(
+                       'components.native-chat.children.unavailable',
+                       'This host has not supplied the agent’s conversation history.'
+                     )}
+@@ -166,7 +169,7 @@ export function NativeChatChildTranscriptFrame({
+                 {session.loadingEarlier ? (
+                   <Loader2 aria-hidden="true" className="animate-spin" />
+                 ) : null}
+-                {translate('components.native-chat.children.loadEarlier', 'Load earlier history')}
++                {t('components.native-chat.children.loadEarlier', 'Load earlier history')}
+               </Button>
+             ) : null}
+           </div>
+@@ -178,7 +181,7 @@ export function NativeChatChildTranscriptFrame({
+             >
+               <CollapsibleTrigger asChild>
+                 <Button variant="ghost" size="sm">
+-                  {translate('components.native-chat.children.result', 'Recorded result')}
++                  {t('components.native-chat.children.result', 'Recorded result')}
+                 </Button>
+               </CollapsibleTrigger>
+               <CollapsibleContent>
+diff --git a/src/renderer/src/components/native-chat/NativeChatForegroundTaskAction.tsx b/src/renderer/src/components/native-chat/NativeChatForegroundTaskAction.tsx
+index b83e103251f..54f28388fc3 100644
+--- a/src/renderer/src/components/native-chat/NativeChatForegroundTaskAction.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatForegroundTaskAction.tsx
+@@ -8,7 +8,7 @@ import {
+   type ReactNode
+ } from 'react'
+ import { Button } from '@/components/ui/button'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import {
+   agentSessionForegroundTaskKey,
+   type AgentSessionForegroundTask,
+@@ -77,6 +77,7 @@ export function nativeChatForegroundTasks(
+
+ /** Both transcript calls and task rows name the same host-captured invocation. */
+ export function NativeChatForegroundTaskAction(props: { toolUseId?: string; taskId?: string }) {
++  const t = useTranslate()
+   const actions = useContext(Context)
+   const task = actions?.tasks.find(
+     (candidate) =>
+@@ -96,8 +97,8 @@ export function NativeChatForegroundTaskAction(props: { toolUseId?: string; task
+       onClick={() => actions.run(task)}
+     >
+       {pending
+-        ? translate('components.native-chat.backgroundTasks.backgrounding', 'Backgrounding…')
+-        : translate('components.native-chat.backgroundTasks.background', 'Background')}
++        ? t('components.native-chat.backgroundTasks.backgrounding', 'Backgrounding…')
++        : t('components.native-chat.backgroundTasks.background', 'Background')}
+     </Button>
+   )
+ }
+diff --git a/src/renderer/src/components/native-chat/NativeChatSessionChildren.tsx b/src/renderer/src/components/native-chat/NativeChatSessionChildren.tsx
+index f6b6dfda4f6..aac810f7310 100644
+--- a/src/renderer/src/components/native-chat/NativeChatSessionChildren.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatSessionChildren.tsx
+@@ -1,6 +1,7 @@
+ import { useMemo } from 'react'
+ import { useTranslation } from 'react-i18next'
+ import { translate } from '@/i18n/i18n'
++import { useTranslate, type Translate } from '@/i18n/use-translate'
+ import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+ import { NativeChatSubagentRun } from './subagents/NativeChatSubagentRun'
+ import { useNativeChatSessionChildren } from './use-native-chat-session-children'
+@@ -14,9 +15,12 @@ import { subagentStateLabel } from '../../../../shared/native-chat/transcript/na
+ import { sayNativeChatSubagentGroupTranslated as say } from './subagents/native-chat-subagent-group-words-text'
+ import { NativeChatChildMetadata } from './NativeChatChildMetadata'
+
+-export function nativeChatWorkerStateLabel(worker: OrchestrationSessionChild): string {
++export function nativeChatWorkerStateLabel(
++  worker: OrchestrationSessionChild,
++  t: Translate = translate
++): string {
+   return worker.workerState === 'starting'
+-    ? translate('components.native-chat.children.starting', 'Starting')
++    ? t('components.native-chat.children.starting', 'Starting')
+     : subagentStateLabel(worker.state, 1, 1, say)
+ }
+
+@@ -31,6 +35,7 @@ export function NativeChatSessionChildren({
+   dispatchId?: string
+   isVisible: boolean
+ }): React.JSX.Element | null {
++  const t = useTranslate()
+   useTranslation()
+   const { children, current } = useNativeChatSessionChildren({
+     sessionId,
+@@ -103,8 +108,8 @@ export function NativeChatSessionChildren({
+                 children.map((child) => [
+                   `dispatch:${child.dispatchId}`,
+                   current
+-                    ? nativeChatWorkerStateLabel(child)
+-                    : translate('components.native-chat.children.unavailableState', 'Unavailable')
++                    ? nativeChatWorkerStateLabel(child, t)
++                    : t('components.native-chat.children.unavailableState', 'Unavailable')
+                 ])
+               )
+             }
+@@ -112,7 +117,7 @@ export function NativeChatSessionChildren({
+         </NativeChatChildNavigationContext.Provider>
+         {!current ? (
+           <p className="text-xs text-chat-foreground-faint">
+-            {translate(
++            {t(
+               'components.native-chat.children.workersUnavailable',
+               'This host’s worker history is unavailable.'
+             )}
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredChildTranscript.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredChildTranscript.tsx
+index 221a71f34e7..a1594e77955 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredChildTranscript.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredChildTranscript.tsx
+@@ -3,6 +3,7 @@ import { useNativeChatChildHistory } from './use-native-chat-child-history'
+ import { useMemo } from 'react'
+ import { useTranslation } from 'react-i18next'
+ import { translate } from '@/i18n/i18n'
++import { useTranslate, type Translate } from '@/i18n/use-translate'
+ import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+ import type { NativeChatSubagentEntry } from '../../../../shared/native-chat/native-chat-types'
+ import type { OrchestrationSessionChild } from '../../../../shared/orchestration-session-children'
+@@ -71,6 +72,7 @@ function WorkerTranscript({
+   >
+   scopeAgentId?: string
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const worker = roster.children.find((child) => child.dispatchId === source.dispatchId)
+   const recorded = worker?.conversation
+   const conversation =
+@@ -111,7 +113,7 @@ function WorkerTranscript({
+       roster={undefined}
+       worker={journalSource ? undefined : worker}
+       entry={journalSource ? undefined : workerEntry(worker)}
+-      unavailable={roster.loading ? undefined : unavailableText(conversation)}
++      unavailable={roster.loading ? undefined : unavailableText(conversation, t)}
+     />
+   )
+ }
+@@ -131,27 +133,28 @@ function workerEntry(
+ }
+
+ function unavailableText(
+-  conversation: OrchestrationSessionChild['conversation'] | undefined
++  conversation: OrchestrationSessionChild['conversation'] | undefined,
++  t: Translate = translate
+ ): string {
+   if (conversation?.kind === 'unavailable' && conversation.reason === 'identity-unverifiable') {
+-    return translate(
++    return t(
+       'components.native-chat.children.identityUnavailable',
+       'This worker’s conversation identity could not be verified.'
+     )
+   }
+   if (conversation?.kind === 'unavailable' && conversation.reason === 'terminal-worker') {
+-    return translate(
++    return t(
+       'components.native-chat.children.terminalUnavailable',
+       'This worker runs in a terminal. Its conversation history is unavailable here.'
+     )
+   }
+   if (conversation?.kind === 'unavailable' && conversation.reason === 'remote-worker') {
+-    return translate(
++    return t(
+       'components.native-chat.children.remoteUnavailable',
+       'This worker’s execution host has not supplied an inspectable conversation.'
+     )
+   }
+-  return translate(
++  return t(
+     'components.native-chat.children.unavailable',
+     'This host has not supplied the agent’s conversation history.'
+   )
+@@ -167,6 +170,7 @@ function JournalTranscript({
+   scopeAgentId?: string
+   workerCurrent?: boolean
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const navigation = useNativeChatChildNavigation()
+   const read = useStructuredAgentSessionRead({
+     target: source.target,
+@@ -266,13 +270,13 @@ function JournalTranscript({
+         unavailable={
+           !workerCurrent
+             ? messages.length > 0
+-              ? translate(
++              ? t(
+                   'components.native-chat.children.retainedUnavailable',
+                   'The worker’s identity could not be verified. Showing retained history.'
+                 )
+-              : unavailableText({ kind: 'unavailable', reason: 'identity-unverifiable' })
++              : unavailableText({ kind: 'unavailable', reason: 'identity-unverifiable' }, t)
+             : read.state.status === 'error' || (read.state.epoch !== null && !read.readCurrent)
+-              ? unavailableText(undefined)
++              ? unavailableText(undefined, t)
+               : undefined
+         }
+       />
+diff --git a/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx b/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx
+index f504345b328..927596be11f 100644
+--- a/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx
+@@ -1,7 +1,7 @@
+ import { useMemo, useState } from 'react'
+ import { mcpToolIdentity } from '../../../../shared/native-chat/tools/native-chat-tool-identity'
+ import { Button } from '@/components/ui/button'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { NativeChatToolCallBlock } from '../../../../shared/native-chat/native-chat-types'
+ import {
+   formatToolInput,
+@@ -15,6 +15,7 @@ export function NativeChatToolInvocation({
+ }: {
+   call: NativeChatToolCallBlock
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const input = useMemo(() => formatToolInput(call.input), [call.input])
+   const [expanded, setExpanded] = useState(false)
+   const available = call.input !== null && call.input !== undefined
+@@ -33,11 +34,11 @@ export function NativeChatToolInvocation({
+         <>
+           <div className="flex items-center justify-between gap-2">
+             <span className="text-xs text-chat-foreground-faint">
+-              {translate('components.native-chat.tool.input', 'Input')}
++              {t('components.native-chat.tool.input', 'Input')}
+             </span>
+             <NativeChatCopyButton
+               text={input}
+-              label={translate('components.native-chat.tool.copyInput', 'Copy input')}
++              label={t('components.native-chat.tool.copyInput', 'Copy input')}
+             />
+           </div>
+           <pre
+@@ -48,13 +49,13 @@ export function NativeChatToolInvocation({
+           </pre>
+           {!expanded && input.length > MAX_TOOL_DETAIL_LENGTH ? (
+             <Button type="button" variant="ghost" size="xs" onClick={() => setExpanded(true)}>
+-              {translate('components.native-chat.tool.showFullInput', 'Show full input')}
++              {t('components.native-chat.tool.showFullInput', 'Show full input')}
+             </Button>
+           ) : null}
+         </>
+       ) : (
+         <p className="text-xs text-chat-foreground-faint">
+-          {translate(
++          {t(
+             'components.native-chat.tool.inputUnavailable',
+             'Input is not available in this transcript.'
+           )}
+diff --git a/src/renderer/src/components/native-chat/SessionLinkControl.tsx b/src/renderer/src/components/native-chat/SessionLinkControl.tsx
+index 6aa06cec4a3..86a6419fdfb 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkControl.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkControl.tsx
+@@ -1,6 +1,6 @@
+ import { useState } from 'react'
+ import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { Button } from '@/components/ui/button'
+ import {
+   Dialog,
+@@ -36,6 +36,8 @@ export function SessionLinkControl({
+   dialogOnly?: boolean
+   onDismiss?: () => void
+ }): React.JSX.Element | null {
++  const t = useTranslate()
++
+   const [open, setOpen] = useState(dialogOnly)
+   const [body, setBody] = useState('')
+   const state = useSessionLink(sessionId, target, open)
+diff --git a/src/renderer/src/components/native-chat/SessionLinkCreate.tsx b/src/renderer/src/components/native-chat/SessionLinkCreate.tsx
+index 99ed53c2daa..ac98774e386 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkCreate.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkCreate.tsx
+@@ -6,7 +6,7 @@ import {
+   SessionLinkPolicy,
+   type SessionLinkParticipant
+ } from '../../../../shared/session-link'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { SessionLinkPolicyField } from './SessionLinkPolicyField'
+ import { SessionLinkParticipantCard } from './SessionLinkParticipantCard'
+ import { Button } from '@/components/ui/button'
+@@ -40,6 +40,8 @@ export function SessionLinkCreate({
+     policy?: SessionLinkPolicy
+   ) => void
+ }): React.JSX.Element {
++  const t = useTranslate()
++
+   const [partner, setPartner] = useState(initialPartnerSessionId ?? '')
+   const [choosingPartner, setChoosingPartner] = useState(!initialPartnerSessionId)
+   const [story, setStory] = useState('')
+diff --git a/src/renderer/src/components/native-chat/SessionLinkDeliveryReview.tsx b/src/renderer/src/components/native-chat/SessionLinkDeliveryReview.tsx
+index b89c269d496..958a287df62 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkDeliveryReview.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkDeliveryReview.tsx
+@@ -3,7 +3,7 @@ import { useId, useState } from 'react'
+ import { Button } from '@/components/ui/button'
+ import { Checkbox } from '@/components/ui/checkbox'
+ import { Label } from '@/components/ui/label'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+
+ export function SessionLinkDeliveryReview({
+   disabled,
+@@ -12,6 +12,8 @@ export function SessionLinkDeliveryReview({
+   disabled: boolean
+   onResolve: () => void
+ }): React.JSX.Element {
++  const t = useTranslate()
++
+   const [checked, setChecked] = useState(false)
+   const id = useId()
+   return (
+diff --git a/src/renderer/src/components/native-chat/SessionLinkJournal.tsx b/src/renderer/src/components/native-chat/SessionLinkJournal.tsx
+index d65aaf70ba8..b437990753f 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkJournal.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkJournal.tsx
+@@ -1,7 +1,8 @@
+ import { SessionLinkDeliveryReview } from './SessionLinkDeliveryReview'
+ import { useEffect, useRef } from 'react'
+ import type { SessionLinkSnapshot } from '../../../../shared/session-link'
+-import { translate as t, getIntlLocale } from '@/i18n/i18n'
++
++import { useTranslate, useIntlLocale } from '@/i18n/use-translate'
+ import {
+   sessionLinkDeliveryState,
+   sessionLinkEventKind,
+@@ -17,6 +18,9 @@ export function SessionLinkJournal({
+   onResolve?: (eventId: string) => void
+   snapshot: SessionLinkSnapshot
+ }): React.JSX.Element {
++  const t = useTranslate()
++
++  const intlLocale = useIntlLocale()
+   const element = useRef<HTMLDivElement>(null)
+   const following = useRef(true)
+   useEffect(() => {
+@@ -43,7 +47,7 @@ export function SessionLinkJournal({
+       {snapshot.events.map((event) => (
+         <article key={event.id} className="space-y-1 border-l pl-3">
+           <p className="text-xs text-muted-foreground">
+-            {new Date(event.createdAt).toLocaleTimeString(getIntlLocale())} · {name(event.actor)}
++            {new Date(event.createdAt).toLocaleTimeString(intlLocale)} · {name(event.actor)}
+             {event.recipient ? ` → ${name(event.recipient)}` : ''} ·{' '}
+             {sessionLinkEventKind(event.kind)}
+           </p>
+diff --git a/src/renderer/src/components/native-chat/SessionLinkOwnerDecision.tsx b/src/renderer/src/components/native-chat/SessionLinkOwnerDecision.tsx
+index 9751cc706cc..75bc7a7b50f 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkOwnerDecision.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkOwnerDecision.tsx
+@@ -3,7 +3,7 @@ import type { SessionLink, SessionLinkEvent } from '../../../../shared/session-l
+ import type { AskPrompt } from '../../../../shared/native-chat/input/native-chat-ask-types'
+ import { formatAskAnswer } from '../../../../shared/native-chat/input/native-chat-ask-answer'
+ import { AI_VAULT_AGENT_LABELS } from '../../../../shared/ai-vault/contracts/ai-vault-types'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { SecuritySurface } from '@/components/ui/security-surface'
+ import { NativeChatQuestionCard } from './prompts/NativeChatQuestionCard'
+ import { NativeChatPromptStrip } from './prompts/NativeChatPromptCollapse'
+@@ -23,6 +23,8 @@ export function SessionLinkOwnerDecision({
+   shouldFocus?: boolean
+   onAnswer: (body: string) => Promise<boolean>
+ }): React.JSX.Element {
++  const t = useTranslate()
++
+   const [collapsed, setCollapsed] = useState(false)
+   const [submitting, setSubmitting] = useState(false)
+   const asker = link.participants.find((participant) => participant.sessionId === request.actor)
+diff --git a/src/renderer/src/components/native-chat/SessionLinkOwnerQuestion.tsx b/src/renderer/src/components/native-chat/SessionLinkOwnerQuestion.tsx
+index 3eba0c71324..8898e01ac4d 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkOwnerQuestion.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkOwnerQuestion.tsx
+@@ -1,6 +1,6 @@
+ import { sessionLinkOwnerRequest } from '../../../../shared/session-link-wait'
+ import type { NativeChatStructuredViewProps } from './native-chat-view-types'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { SecuritySurface } from '@/components/ui/security-surface'
+ import { Button } from '@/components/ui/button'
+ import { SessionLinkOwnerDecision } from './SessionLinkOwnerDecision'
+@@ -14,6 +14,8 @@ export function SessionLinkOwnerQuestion({
+   sessionId: string
+   shouldFocus?: boolean
+ }): React.JSX.Element | null {
++  const t = useTranslate()
++
+   const state = useSessionLink(sessionId, { kind: 'local' }, false)
+   const snapshot = state.snapshot
+   const request = snapshot && sessionLinkOwnerRequest(snapshot.events)
+diff --git a/src/renderer/src/components/native-chat/SessionLinkParticipantCard.tsx b/src/renderer/src/components/native-chat/SessionLinkParticipantCard.tsx
+index 762185c55b8..0de40c7c501 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkParticipantCard.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkParticipantCard.tsx
+@@ -1,6 +1,6 @@
+ import { AI_VAULT_AGENT_LABELS } from '../../../../shared/ai-vault/contracts/ai-vault-types'
+ import type { SessionLinkParticipant } from '../../../../shared/session-link'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+
+ export function SessionLinkParticipantCard({
+   participant,
+@@ -9,6 +9,8 @@ export function SessionLinkParticipantCard({
+   participant: SessionLinkParticipant
+   role: 'reviewer' | 'implementer'
+ }): React.JSX.Element {
++  const t = useTranslate()
++
+   return (
+     <div className="min-w-0 space-y-2 rounded-md border p-3">
+       <p className="text-xs font-medium text-muted-foreground">
+diff --git a/src/renderer/src/components/native-chat/SessionLinkPolicyField.tsx b/src/renderer/src/components/native-chat/SessionLinkPolicyField.tsx
+index e23817bb2be..df2b77d89a0 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkPolicyField.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkPolicyField.tsx
+@@ -3,7 +3,7 @@ import {
+   SESSION_LINK_DEFAULT_TURN_LIMIT,
+   type SessionLinkPolicy
+ } from '../../../../shared/session-link'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { SecuritySurface } from '@/components/ui/security-surface'
+ import { Input } from '@/components/ui/input'
+ import { Label } from '@/components/ui/label'
+@@ -24,6 +24,8 @@ export function SessionLinkPolicyField({
+   onChange: (value: SessionLinkPolicy) => void
+   disabled: boolean
+ }): React.JSX.Element {
++  const t = useTranslate()
++
+   const id = useId()
+   return (
+     <SecuritySurface>
+diff --git a/src/renderer/src/components/native-chat/SessionLinkPolicySettings.tsx b/src/renderer/src/components/native-chat/SessionLinkPolicySettings.tsx
+index bdaa468a756..28e0d3b5578 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkPolicySettings.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkPolicySettings.tsx
+@@ -4,7 +4,7 @@ import {
+   SessionLinkPolicy,
+   type SessionLink
+ } from '../../../../shared/session-link'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { Button } from '@/components/ui/button'
+ import { SessionLinkPolicyField } from './SessionLinkPolicyField'
+
+@@ -17,6 +17,8 @@ export function SessionLinkPolicySettings({
+   disabled: boolean
+   onSave: (policy: SessionLinkPolicy, resume: boolean) => void
+ }): React.JSX.Element {
++  const t = useTranslate()
++
+   const [policy, setPolicy] = useState<SessionLinkPolicy>(
+     link.policy ?? { turnLimit: SESSION_LINK_TURN_LIMIT }
+   )
+diff --git a/src/renderer/src/components/native-chat/SessionLinkTrigger.tsx b/src/renderer/src/components/native-chat/SessionLinkTrigger.tsx
+index bdb6965a15d..ac4a345bb91 100644
+--- a/src/renderer/src/components/native-chat/SessionLinkTrigger.tsx
++++ b/src/renderer/src/components/native-chat/SessionLinkTrigger.tsx
+@@ -7,7 +7,7 @@ import {
+ } from '../../../../shared/session-link-wait'
+ import { Button } from '@/components/ui/button'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { sessionLinkPauseReason } from './session-link-presentation'
+ import './session-link-trigger.css'
+
+@@ -20,6 +20,8 @@ export function SessionLinkTrigger({
+   sessionId: string
+   onOpen: () => void
+ }): React.JSX.Element {
++  const t = useTranslate()
++
+   const link = snapshot?.link
+   const partner = link?.participants.find((p) => p.sessionId !== sessionId)
+   const question = link?.state === 'paused' && snapshot && sessionLinkOwnerRequest(snapshot.events)
+diff --git a/src/renderer/src/components/native-chat/prompts/NativeChatQuestionHeader.tsx b/src/renderer/src/components/native-chat/prompts/NativeChatQuestionHeader.tsx
+index 88550a96d3c..d412ecddc3b 100644
+--- a/src/renderer/src/components/native-chat/prompts/NativeChatQuestionHeader.tsx
++++ b/src/renderer/src/components/native-chat/prompts/NativeChatQuestionHeader.tsx
+@@ -1,6 +1,6 @@
+ import type { ReactNode } from 'react'
+ import { X } from 'lucide-react'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { NativeChatQuestionText } from './NativeChatQuestionText'
+ import { NativeChatPromptCollapseToggle } from './NativeChatPromptCollapse'
+ export function NativeChatQuestionHeader({
+@@ -20,6 +20,7 @@ export function NativeChatQuestionHeader({
+   onCancel?: () => void
+   onCollapse?: () => void
+ }): React.JSX.Element {
++  const t = useTranslate()
+   return (
+     <>
+       <div className="flex items-start gap-2 px-3.5 py-2.5">
+@@ -40,7 +41,7 @@ export function NativeChatQuestionHeader({
+             type="button"
+             onClick={onCancel}
+             disabled={isCancelling}
+-            aria-label={translate('components.native-chat.question.cancel', 'Cancel')}
++            aria-label={t('components.native-chat.question.cancel', 'Cancel')}
+             className="flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+           >
+             <X className="size-4" />
+diff --git a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts b/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
+index 18cf99a1e81..a2a3ddfc245 100644
+--- a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
++++ b/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
+@@ -1,4 +1,5 @@
+ import { createCoalescedPollRunner } from '@/lib/repository-refresh/coalesced-poll-runner'
++import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
+ import { useAppStore } from '@/store'
+ import { useEffect, useMemo, useState } from 'react'
+ import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+@@ -108,7 +109,6 @@ export function useNativeChatSessionChildren(args: {
+       }
+     }
+     const runner = createCoalescedPollRunner(refresh, { minIntervalMs: 250 })
+-    runner.run()
+     let statuses = useAppStore.getState().agentStatusByPaneKey
+     let lifecycle = workerLifecycleKey(useAppStore.getState())
+     const unsubscribe = useAppStore.subscribe((state) => {
+@@ -124,10 +124,13 @@ export function useNativeChatSessionChildren(args: {
+       runner.run({ changeSignal: true })
+     })
+     // Status pushes drive updates; recover missed events from older hosts at a coarse interval.
+-    const timer = setInterval(() => runner.run(), 30_000)
++    const stopPolling = installWindowVisibilityInterval({
++      run: () => runner.run(),
++      intervalMs: 30_000
++    })
+     return () => {
+       disposed = true
+-      clearInterval(timer)
++      stopPolling()
+       unsubscribe()
+       runner.dispose()
+     }
+diff --git a/src/renderer/src/components/native-chat/use-session-link.ts b/src/renderer/src/components/native-chat/use-session-link.ts
+index 8d17200a40a..6a59f409b33 100644
+--- a/src/renderer/src/components/native-chat/use-session-link.ts
++++ b/src/renderer/src/components/native-chat/use-session-link.ts
+@@ -10,7 +10,8 @@ import {
+   SESSION_LINK_CAPABILITY
+ } from '../../../../shared/session-link'
+ import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+-import { translate as t } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
++import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
+ import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
+ import { structuredAgentSessionHostSupports } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
+
+@@ -21,6 +22,8 @@ const Candidates = z.object({
+ })
+
+ export function useSessionLink(sessionId: string, target: RuntimeClientTarget, open: boolean) {
++  const t = useTranslate()
++
+   const [supported, setSupported] = useState(false)
+   const [policySupported, setPolicySupported] = useState(false)
+   const [snapshot, setSnapshot] = useState<SessionLinkSnapshot | null>(null)
+@@ -125,12 +128,14 @@ export function useSessionLink(sessionId: string, target: RuntimeClientTarget, o
+         }
+       }
+     }
+-    void read()
+-    const timer = window.setInterval(() => void read(), open ? 1500 : 5000)
++    const stopPolling = installWindowVisibilityInterval({
++      run: () => void read(),
++      intervalMs: open ? 1500 : 5000
++    })
+     return () => {
+       cancelled = true
+       invalidateReads()
+-      window.clearInterval(timer)
++      stopPolling()
+     }
+   }, [open, refresh, supported, invalidateReads])
+
+diff --git a/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx b/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
+index 2087b5ce259..ed505d15f3d 100644
+--- a/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
++++ b/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
+@@ -1,6 +1,6 @@
+ import { sayNativeChatSessionOptionTranslated as say } from '../native-chat/session/options/controls/native-chat-session-option-labels-text'
+ import { getAgentCatalog } from '@/lib/agent-catalog'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import {
+   findCatalogModel,
+   findCatalogOption
+@@ -35,6 +35,7 @@ export function WorkerRoleProfileEditor({
+   structuredFast: boolean
+   onChange: (profile: WorkerRoleProfile | undefined) => void
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const agents = getAgentCatalog().filter(
+     (agent) => isTuiAgentEnabled(agent.id, disabledAgents) && detectedIds?.includes(agent.id)
+   )
+@@ -46,12 +47,12 @@ export function WorkerRoleProfileEditor({
+     error,
+     unavailable: catalogUnavailable
+   } = useWorkerRoleModelCatalog(profile?.agent, agentAvailable)
+-  const unavailable = translate('settings.orchestration.roles.unavailable', 'Unavailable')
+-  const notListed = translate('settings.orchestration.roles.notListed', 'Not listed')
++  const unavailable = t('settings.orchestration.roles.unavailable', 'Unavailable')
++  const notListed = t('settings.orchestration.roles.notListed', 'Not listed')
+   const agentLabel =
+     agents.find((agent) => agent.id === profile?.agent)?.label ?? profile?.agent ?? ''
+   const catalogError = error
+-    ? translate('settings.orchestration.roles.modelsFailed', 'Could not load models.')
++    ? t('settings.orchestration.roles.modelsFailed', 'Could not load models.')
+     : catalogUnavailable?.reason === 'cliMissing'
+       ? sayAgentSessionFailureTranslated('cliMissing', { agent: agentLabel })
+       : catalogUnavailable?.reason === 'notSignedIn'
+@@ -91,7 +92,7 @@ export function WorkerRoleProfileEditor({
+     <div className="grid gap-3 sm:grid-cols-2">
+       <div className="space-y-1">
+         <Label htmlFor={`worker-role-${role}-agent`}>
+-          {translate('settings.orchestration.roles.agent', 'Agent')}
++          {t('settings.orchestration.roles.agent', 'Agent')}
+         </Label>
+         <Select
+           value={profile?.agent ?? INHERIT}
+@@ -103,7 +104,7 @@ export function WorkerRoleProfileEditor({
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value={INHERIT}>
+-              {translate('settings.orchestration.roles.unconfigured', 'Not configured')}
++              {t('settings.orchestration.roles.unconfigured', 'Not configured')}
+             </SelectItem>
+             {profile && !agents.some((agent) => agent.id === profile.agent) ? (
+               <SelectItem value={profile.agent} disabled>
+@@ -111,7 +112,7 @@ export function WorkerRoleProfileEditor({
+                   profile.agent}{' '}
+                 ·{' '}
+                 {detectedIds === null
+-                  ? translate('settings.orchestration.roles.checking', 'Checking…')
++                  ? t('settings.orchestration.roles.checking', 'Checking…')
+                   : unavailable}
+               </SelectItem>
+             ) : null}
+@@ -125,7 +126,7 @@ export function WorkerRoleProfileEditor({
+       </div>
+       <div className="space-y-1">
+         <Label htmlFor={`worker-role-${role}-model`}>
+-          {translate('settings.orchestration.roles.model', 'Model')}
++          {t('settings.orchestration.roles.model', 'Model')}
+         </Label>
+         <Select
+           value={profile?.model ?? INHERIT}
+@@ -145,7 +146,7 @@ export function WorkerRoleProfileEditor({
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value={INHERIT}>
+-              {translate('settings.orchestration.roles.agentDefault', 'Agent default')}
++              {t('settings.orchestration.roles.agentDefault', 'Agent default')}
+             </SelectItem>
+             {profile?.model && !models.some((candidate) => candidate.id === profile.model) ? (
+               <SelectItem value={profile.model} disabled>
+@@ -154,12 +155,12 @@ export function WorkerRoleProfileEditor({
+             ) : null}
+             {isRefreshing ? (
+               <div role="status" className="px-2 py-1.5 text-xs text-muted-foreground">
+-                {translate('settings.orchestration.roles.refreshingModels', 'Refreshing models…')}
++                {t('settings.orchestration.roles.refreshingModels', 'Refreshing models…')}
+               </div>
+             ) : null}
+             {!isRefreshing && !catalogError && models.length === 0 ? (
+               <div role="status" className="px-2 py-1.5 text-xs text-muted-foreground">
+-                {translate(
++                {t(
+                   'settings.orchestration.roles.modelsUnavailable',
+                   'No models reported by this host.'
+                 )}
+@@ -184,7 +185,7 @@ export function WorkerRoleProfileEditor({
+             {error ? (
+               <details className="max-w-full text-xs text-muted-foreground">
+                 <summary className="cursor-pointer select-none">
+-                  {translate('settings.orchestration.roles.modelErrorDetails', 'Details')}
++                  {t('settings.orchestration.roles.modelErrorDetails', 'Details')}
+                 </summary>
+                 <div className="scrollbar-sleek mt-1 max-h-40 overflow-auto break-words whitespace-pre-wrap">
+                   {error}
+@@ -198,14 +199,14 @@ export function WorkerRoleProfileEditor({
+               disabled={disabled || isRefreshing}
+               onClick={refresh}
+             >
+-              {translate('settings.orchestration.roles.retryModels', 'Retry')}
++              {t('settings.orchestration.roles.retryModels', 'Retry')}
+             </Button>
+           </div>
+         ) : null}
+       </div>
+       <div className="space-y-1">
+         <Label htmlFor={`worker-role-${role}-effort`}>
+-          {translate('settings.orchestration.roles.effort', 'Reasoning effort')}
++          {t('settings.orchestration.roles.effort', 'Reasoning effort')}
+         </Label>
+         <Select
+           value={profile?.effort ?? INHERIT}
+@@ -219,7 +220,7 @@ export function WorkerRoleProfileEditor({
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value={INHERIT}>
+-              {translate('settings.orchestration.roles.agentDefault', 'Agent default')}
++              {t('settings.orchestration.roles.agentDefault', 'Agent default')}
+             </SelectItem>
+             {profile?.effort &&
+             (effort?.kind.type !== 'select' ||
+@@ -240,7 +241,7 @@ export function WorkerRoleProfileEditor({
+       </div>
+       <div className="space-y-1">
+         <Label htmlFor={`worker-role-${role}-fast`}>
+-          {translate('settings.orchestration.roles.fast', 'Fast')}
++          {t('settings.orchestration.roles.fast', 'Fast')}
+         </Label>
+         <Select
+           value={profile?.fastMode === undefined ? INHERIT : profile.fastMode ? 'on' : 'off'}
+@@ -254,13 +255,13 @@ export function WorkerRoleProfileEditor({
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value={INHERIT}>
+-              {translate('settings.orchestration.roles.agentDefault', 'Agent default')}
++              {t('settings.orchestration.roles.agentDefault', 'Agent default')}
+             </SelectItem>
+             <SelectItem value="on" disabled={!supportsFast}>
+-              {translate('settings.orchestration.roles.on', 'On')}
++              {t('settings.orchestration.roles.on', 'On')}
+             </SelectItem>
+             <SelectItem value="off" disabled={!supportsFast}>
+-              {translate('settings.orchestration.roles.off', 'Off')}
++              {t('settings.orchestration.roles.off', 'Off')}
+             </SelectItem>
+           </SelectContent>
+         </Select>
+diff --git a/src/renderer/src/components/settings/WorkerRoleSettings.tsx b/src/renderer/src/components/settings/WorkerRoleSettings.tsx
+index 9a2c1dd7f2e..483481f6d69 100644
+--- a/src/renderer/src/components/settings/WorkerRoleSettings.tsx
++++ b/src/renderer/src/components/settings/WorkerRoleSettings.tsx
+@@ -1,6 +1,6 @@
+ import { useState } from 'react'
+ import { useDetectedAgents } from '@/hooks/useDetectedAgents'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { GlobalSettings } from '../../../../shared/global-settings-types'
+ import {
+   INITIAL_WORKER_ROLE_NAMES,
+@@ -44,6 +44,7 @@ export function WorkerRoleSettings({
+   settings: GlobalSettings
+   updateSettings: (updates: Partial<GlobalSettings>) => void | Promise<void>
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const { detectedIds } = useDetectedAgents({ kind: 'local' })
+   const [pending, setPending] = useState(false)
+   const [error, setError] = useState<string | null>(null)
+@@ -64,20 +65,20 @@ export function WorkerRoleSettings({
+   return (
+     <section
+       className="space-y-4"
+-      aria-label={translate('settings.orchestration.roles.title', 'Worker roles')}
++      aria-label={t('settings.orchestration.roles.title', 'Worker roles')}
+     >
+       <div className="space-y-1">
+         <h3 className="text-sm font-medium">
+-          {translate('settings.orchestration.roles.title', 'Worker roles')}
++          {t('settings.orchestration.roles.title', 'Worker roles')}
+         </h3>
+         <p className="text-xs text-muted-foreground">
+-          {translate(
++          {t(
+             'settings.orchestration.roles.description',
+             'Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.'
+           )}
+         </p>
+         <p className="text-xs text-muted-foreground">
+-          {translate(
++          {t(
+             'settings.orchestration.roles.catalog',
+             'Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.'
+           )}
+@@ -88,11 +89,11 @@ export function WorkerRoleSettings({
+           <div className="flex items-center justify-between gap-3">
+             <span className="text-sm font-medium">
+               {role === 'research'
+-                ? translate('settings.orchestration.roles.research', 'Research')
++                ? t('settings.orchestration.roles.research', 'Research')
+                 : role === 'implementation'
+-                  ? translate('settings.orchestration.roles.implementation', 'Implementation')
++                  ? t('settings.orchestration.roles.implementation', 'Implementation')
+                   : role === 'review'
+-                    ? translate('settings.orchestration.roles.review', 'Review')
++                    ? t('settings.orchestration.roles.review', 'Review')
+                     : role}
+             </span>
+             {profiles[role] ? (
+@@ -102,7 +103,7 @@ export function WorkerRoleSettings({
+                 disabled={pending}
+                 onClick={() => void save(role, undefined)}
+               >
+-                {translate('settings.orchestration.roles.clear', 'Clear profile')}
++                {t('settings.orchestration.roles.clear', 'Clear profile')}
+               </Button>
+             ) : null}
+           </div>
+@@ -122,7 +123,7 @@ export function WorkerRoleSettings({
+       ))}
+       <div className="space-y-2">
+         <Label htmlFor="new-worker-role">
+-          {translate('settings.orchestration.roles.new', 'Add a role')}
++          {t('settings.orchestration.roles.new', 'Add a role')}
+         </Label>
+         <div className="flex gap-2">
+           <Input
+@@ -145,11 +146,11 @@ export function WorkerRoleSettings({
+               setNewRole('')
+             }}
+           >
+-            {translate('settings.orchestration.roles.add', 'Add')}
++            {t('settings.orchestration.roles.add', 'Add')}
+           </Button>
+         </div>
+         <p className="text-xs text-muted-foreground">
+-          {translate(
++          {t(
+             'settings.orchestration.roles.nameHint',
+             'Use lowercase letters, digits and hyphens. Select an agent to save the role.'
+           )}
+diff --git a/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx b/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
+index 1277f335391..9f110cd60df 100644
+--- a/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
++++ b/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
+@@ -9,7 +9,7 @@ import {
+   DropdownMenuTrigger
+ } from '@/components/ui/dropdown-menu'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+ import { getRepoOwnerWorktreeVisibilityDefaults } from '@/store/slices/worktrees/listing/worktree-visibility-defaults-by-host'
+ import { RepoHeaderProjectActionsMenu } from './worktree-list/rows/repo-header-project-actions'
+@@ -26,6 +26,7 @@ export function ConversationProjectMenu({
+   onHide?: () => void
+   children?: ReactNode
+ }) {
++  const t = useTranslate()
+   const repos = useAppStore((state) => state.repos)
+   const projectGroups = useAppStore((state) => state.projectGroups)
+   const repoMap = useMemo(() => new Map(repos.map((repo) => [repo.id, repo])), [repos])
+@@ -33,15 +34,13 @@ export function ConversationProjectMenu({
+   const hide = (
+     <DropdownMenuItem disabled={!onHide} onSelect={onHide}>
+       <EyeOff className="size-3.5" />
+-      {translate('projectConversations.hideProject', 'Hide project from list')}
++      {t('projectConversations.hideProject', 'Hide project from list')}
+     </DropdownMenuItem>
+   )
+   if (!group.repo) {
+-    const label = translate(
+-      'projectConversations.projectOptionsFor',
+-      'Project options for {{project}}',
+-      { project: group.label }
+-    )
++    const label = t('projectConversations.projectOptionsFor', 'Project options for {{project}}', {
++      project: group.label
++    })
+     return (
+       <DropdownMenu>
+         <Tooltip>
+@@ -109,15 +108,15 @@ export function ConversationProjectMenu({
+       </RepoHeaderProjectActionsMenu>
+       <ProjectGroupNameDialog
+         open={dialogs.nameDialog !== null}
+-        title={translate('auto.components.sidebar.WorktreeList.13757c053c', 'New Project Group')}
+-        description={translate(
++        title={t('auto.components.sidebar.WorktreeList.13757c053c', 'New Project Group')}
++        description={t(
+           'auto.components.sidebar.WorktreeList.d880ea0744',
+           'Create a group and move this project into it.'
+         )}
+-        initialName={translate('projectConversations.defaultGroupName', '{{project}} group', {
++        initialName={t('projectConversations.defaultGroupName', '{{project}} group', {
+           project: group.repo.displayName
+         })}
+-        confirmLabel={translate('auto.components.sidebar.ProjectGroupNameDialog.create', 'Create')}
++        confirmLabel={t('auto.components.sidebar.ProjectGroupNameDialog.create', 'Create')}
+         onOpenChange={(open) => {
+           if (!open) {
+             dialogs.setNameDialog(null)
+diff --git a/src/renderer/src/components/sidebar/HiddenConversationProjects.tsx b/src/renderer/src/components/sidebar/HiddenConversationProjects.tsx
+index 7fca451cc57..8f7c3f38e90 100644
+--- a/src/renderer/src/components/sidebar/HiddenConversationProjects.tsx
++++ b/src/renderer/src/components/sidebar/HiddenConversationProjects.tsx
+@@ -7,7 +7,7 @@ import {
+   DropdownMenuLabel,
+   DropdownMenuTrigger
+ } from '@/components/ui/dropdown-menu'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+
+ export function HiddenConversationProjects({
+   projects,
+@@ -16,6 +16,7 @@ export function HiddenConversationProjects({
+   projects: Record<string, string> | undefined
+   onRestore?: (key: string, label: string) => void
+ }) {
++  const t = useTranslate()
+   const entries = Object.entries(projects ?? {})
+   if (!entries.length) {
+     return null
+@@ -25,12 +26,12 @@ export function HiddenConversationProjects({
+       <DropdownMenuTrigger asChild>
+         <Button variant="ghost" size="xs">
+           <Eye className="size-3.5" />
+-          {translate('projectConversations.hiddenProjects', 'Hidden projects')}
++          {t('projectConversations.hiddenProjects', 'Hidden projects')}
+         </Button>
+       </DropdownMenuTrigger>
+       <DropdownMenuContent align="end">
+         <DropdownMenuLabel>
+-          {translate('projectConversations.keepFiles', 'Files and history are kept')}
++          {t('projectConversations.keepFiles', 'Files and history are kept')}
+         </DropdownMenuLabel>
+         {entries.map(([key, label]) => (
+           <DropdownMenuItem
+@@ -40,7 +41,7 @@ export function HiddenConversationProjects({
+           >
+             <Eye className="size-3.5" />
+             <span className="max-w-64 truncate">
+-              {translate('projectConversations.restoreProject', 'Restore {{project}}', {
++              {t('projectConversations.restoreProject', 'Restore {{project}}', {
+                 project: label
+               })}
+             </span>
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
+index 0db36261a6d..d68299d8835 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
+@@ -17,7 +17,7 @@ import {
+   DropdownMenuItem,
+   DropdownMenuSeparator
+ } from '@/components/ui/dropdown-menu'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { ConversationProjectMenu } from './ConversationProjectMenu'
+ import { HiddenConversationProjects } from './HiddenConversationProjects'
+ import type { AiVaultSessionVirtualList } from '../right-sidebar/ai-vault/session-list/AiVaultSessionVirtualList'
+@@ -45,6 +45,7 @@ export type ProjectConversationListProps = ComponentProps<typeof AiVaultSessionV
+   executionHostScope?: ExecutionHostScope
+ }
+ export function ProjectConversationList(props: ProjectConversationListProps): React.JSX.Element {
++  const t = useTranslate()
+   useTranslation()
+   const repos = useRepos()
+   const worktrees = useAllWorktrees()
+@@ -195,7 +196,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+         getManualRepoOrder(rest)
+       )
+       .catch(() =>
+-        toast.error(translate('sidebar.projectOrder.saveFailed', 'Could not save project order'))
++        toast.error(t('sidebar.projectOrder.saveFailed', 'Could not save project order'))
+       )
+   }
+   return (
+@@ -207,7 +208,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+               variant="ghost"
+               size="xs"
+               className="min-w-0"
+-              aria-label={translate('projectConversations.projectOrder', 'Project order')}
++              aria-label={t('projectConversations.projectOrder', 'Project order')}
+             >
+               {orderLabels.get(order)}
+               <ChevronDown className="size-3" />
+@@ -225,13 +226,13 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+         >
+           <Archive className="size-3.5" />
+           {archived
+-            ? translate('projectConversations.allChats', 'Chats')
+-            : translate('projectConversations.archived', 'Archived')}
++            ? t('projectConversations.allChats', 'Chats')
++            : t('projectConversations.archived', 'Archived')}
+         </Button>
+       </div>
+       {props.loading && visibleGroups.length > 0 ? (
+         <p role="status" className="px-3 py-2 text-xs text-muted-foreground">
+-          {translate('projectConversations.loading', 'Loading chats…')}
++          {t('projectConversations.loading', 'Loading chats…')}
+         </p>
+       ) : null}
+       <div className="flex justify-end px-3">
+@@ -310,14 +311,14 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+                       <DropdownMenuSeparator />
+                       <DropdownMenuItem disabled={index === 0} onSelect={() => move(group, -1)}>
+                         <ArrowUp />
+-                        {translate('projectConversations.moveUp', 'Move up')}
++                        {t('projectConversations.moveUp', 'Move up')}
+                       </DropdownMenuItem>
+                       <DropdownMenuItem
+                         disabled={index === visibleGroups.length - 1}
+                         onSelect={() => move(group, 1)}
+                       >
+                         <ArrowDown />
+-                        {translate('projectConversations.moveDown', 'Move down')}
++                        {t('projectConversations.moveDown', 'Move down')}
+                       </DropdownMenuItem>
+                     </>
+                   ) : null}
+@@ -341,7 +342,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+               ))}
+               {group.sessions.length === 0 && !props.loading ? (
+                 <p className="py-1 pl-7 text-xs text-muted-foreground">
+-                  {translate('projectConversations.noChats', 'No chats yet')}
++                  {t('projectConversations.noChats', 'No chats yet')}
+                 </p>
+               ) : null}
+             </ProjectConversationSection>
+@@ -350,10 +351,10 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+         {visibleGroups.length === 0 ? (
+           <p className="px-2 py-4 text-sm text-muted-foreground">
+             {props.loading
+-              ? translate('projectConversations.loading', 'Loading chats…')
++              ? t('projectConversations.loading', 'Loading chats…')
+               : archived
+-                ? translate('projectConversations.noArchived', 'No archived chats')
+-                : translate('projectConversations.noMatching', 'No matching chats')}
++                ? t('projectConversations.noArchived', 'No archived chats')
++                : t('projectConversations.noMatching', 'No matching chats')}
+           </p>
+         ) : null}
+       </div>
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
+index db2f082abcd..7e457d1ec4f 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
+@@ -3,7 +3,7 @@ import { Archive, ArchiveRestore, Pin, PinOff, Loader2 } from 'lucide-react'
+ import { Button } from '@/components/ui/button'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+ import { cn } from '@/lib/utils'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { AgentIcon } from '@/lib/agent-catalog'
+ import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
+ import type { AgentDotState } from '@/components/AgentStateDot'
+@@ -38,19 +38,20 @@ export function ProjectConversationRow({
+   onOpen: () => void
+   onPreference: (patch: ConversationPreference) => Promise<void>
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const savedTitle = useAiVaultSessionDisplayTitle(session)
+   const title =
+     projectConversationTitle(session, savedTitle) ||
+-    translate('projectConversations.untitled', 'Untitled chat')
++    t('projectConversations.untitled', 'Untitled chat')
+   const [busy, setBusy] = useState(false)
+   const pinned = preference?.pinned === true
+   const archived = preference?.archived === true
+   const pinLabel = pinned
+-    ? translate('projectConversations.unpin', 'Unpin chat')
+-    : translate('projectConversations.pin', 'Pin chat')
++    ? t('projectConversations.unpin', 'Unpin chat')
++    : t('projectConversations.pin', 'Pin chat')
+   const archiveLabel = archived
+-    ? translate('projectConversations.restore', 'Restore chat')
+-    : translate('projectConversations.archive', 'Archive chat')
++    ? t('projectConversations.restore', 'Restore chat')
++    : t('projectConversations.archive', 'Archive chat')
+   const change = async (patch: ConversationPreference) => {
+     if (busy) {
+       return
+@@ -85,14 +86,14 @@ export function ProjectConversationRow({
+             <span className="min-w-0 flex-1 truncate">{title}</span>
+             {liveState === 'working' ? (
+               <Loader2
+-                aria-label={translate('projectConversations.working', 'Working')}
++                aria-label={t('projectConversations.working', 'Working')}
+                 className="size-3 shrink-0 animate-spin text-muted-foreground"
+               />
+             ) : null}
+             {liveState === 'blocked' ? (
+               <span
+                 className="size-1.5 shrink-0 rounded-full bg-(--status-warning)"
+-                aria-label={translate('projectConversations.needsYou', 'Needs you')}
++                aria-label={t('projectConversations.needsYou', 'Needs you')}
+               />
+             ) : null}
+             {pinned ? (
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationSection.tsx b/src/renderer/src/components/sidebar/ProjectConversationSection.tsx
+index e8ba12a56b1..a350591dd87 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationSection.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationSection.tsx
+@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
+ import { Button } from '@/components/ui/button'
+ import { RepoIconGlyph } from '@/components/repo/repo-icon'
+ import { cn } from '@/lib/utils'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { RepoIcon } from '../../../../shared/repo-icon'
+
+ export function ProjectConversationSection({
+@@ -27,6 +27,7 @@ export function ProjectConversationSection({
+   onMore: () => void
+   menu?: ReactNode
+ }): React.JSX.Element {
++  const t = useTranslate()
+   return (
+     <section className="mb-3" aria-label={label}>
+       <div className="group/project flex min-w-0 items-center gap-1 rounded-md px-1 hover:bg-sidebar-accent focus-within:bg-sidebar-accent">
+@@ -68,7 +69,7 @@ export function ProjectConversationSection({
+               onClick={onMore}
+               className="ml-6 justify-start"
+             >
+-              {translate('projectConversations.showMore', 'Show more')}
++              {t('projectConversations.showMore', 'Show more')}
+             </Button>
+           ) : null}
+         </div>
+diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+index 3b8e2e3ae77..63940b22736 100644
+--- a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
++++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+@@ -2,10 +2,11 @@ import { useAppStore } from '@/store'
+ import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
+ import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
+
+ export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
++  const t = useTranslate()
+   const order = useAppStore((state) => state.projectOrderBy)
+   const setOrder = useAppStore((state) => state.setProjectOrderBy)
+   const supported = usePersonalProjectOrderSupported()
+@@ -32,7 +33,7 @@ export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean
+           </TooltipTrigger>
+           <TooltipContent side="right" sideOffset={6}>
+             {!supported && option.id === 'recent'
+-              ? translate(
++              ? t(
+                   'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
+                   'Most recent workspace activity'
+                 )
+diff --git a/src/renderer/src/components/sidebar/SidebarConversationStart.tsx b/src/renderer/src/components/sidebar/SidebarConversationStart.tsx
+index cdf3abd9b15..4d71bdafa80 100644
+--- a/src/renderer/src/components/sidebar/SidebarConversationStart.tsx
++++ b/src/renderer/src/components/sidebar/SidebarConversationStart.tsx
+@@ -12,7 +12,7 @@ import {
+   DropdownMenuTrigger
+ } from '@/components/ui/dropdown-menu'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
+ import { useAgentMenuObservation } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
+ import { AgentIcon, getAgentCatalog } from '@/lib/agent-catalog'
+@@ -32,6 +32,7 @@ export function SidebarConversationStart({
+   executionHostId: ExecutionHostId
+   projectName: string
+ }): React.JSX.Element | null {
++  const t = useTranslate()
+   useTranslation()
+   const [open, setOpen] = useState(false)
+   const resolvedHost = useAppStore((state) =>
+@@ -47,7 +48,7 @@ export function SidebarConversationStart({
+     ownsTarget ? target : undefined
+   )
+   const rows = model.state === 'settled' ? model.rows.filter((row) => row.kind === 'chat') : []
+-  const label = translate('projectConversations.newChatInProject', 'New chat in {{project}}', {
++  const label = t('projectConversations.newChatInProject', 'New chat in {{project}}', {
+     project: projectName
+   })
+   const launch = (row: NewTabAgentMenuRow): void => {
+@@ -103,11 +104,8 @@ export function SidebarConversationStart({
+         {rows.length === 0 ? (
+           <DropdownMenuItem disabled>
+             {model.state === 'loading'
+-              ? translate('dashboard.sidebar.loadingChatAgents', 'Loading chat agents…')
+-              : translate(
+-                  'dashboard.sidebar.noChatAgents',
+-                  'No chat agents available on this host'
+-                )}
++              ? t('dashboard.sidebar.loadingChatAgents', 'Loading chat agents…')
++              : t('dashboard.sidebar.noChatAgents', 'No chat agents available on this host')}
+           </DropdownMenuItem>
+         ) : null}
+       </DropdownMenuContent>
+diff --git a/src/renderer/src/components/sidebar/project-pin-menu-item.tsx b/src/renderer/src/components/sidebar/project-pin-menu-item.tsx
+index b513bc9994e..66225cce3b2 100644
+--- a/src/renderer/src/components/sidebar/project-pin-menu-item.tsx
++++ b/src/renderer/src/components/sidebar/project-pin-menu-item.tsx
+@@ -8,9 +8,10 @@ import { writePersonalProjectPreference } from '@/runtime/personal-project-order
+ import { resolveProjectPreferenceKey } from '../../../../shared/project-preference-identity'
+ import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+ import type { Repo } from '../../../../shared/repo-types'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+
+ export function ProjectPinMenuItem({ repo }: { repo: Repo }) {
++  const t = useTranslate()
+   const supported = usePersonalProjectOrderSupported()
+   const projectKey = useAppStore((state) =>
+     resolveProjectPreferenceKey(
+@@ -37,17 +38,15 @@ export function ProjectPinMenuItem({ repo }: { repo: Repo }) {
+             projectKey,
+             pinned: !pinned
+           }).catch(() =>
+-            toast.error(
+-              translate('sidebar.projectOrder.saveFailed', 'Could not save project order')
+-            )
++            toast.error(t('sidebar.projectOrder.saveFailed', 'Could not save project order'))
+           )
+         }
+       }}
+     >
+       {pinned ? <PinOff className="size-3.5" /> : <Pin className="size-3.5" />}
+       {pinned
+-        ? translate('sidebar.projectOrder.unpin', 'Unpin project')
+-        : translate('sidebar.projectOrder.pin', 'Pin project')}
++        ? t('sidebar.projectOrder.unpin', 'Unpin project')
++        : t('sidebar.projectOrder.pin', 'Pin project')}
+     </DropdownMenuItem>
+   )
+ }
+diff --git a/src/renderer/src/components/skills/setup/ManageInstalledSkillsButton.tsx b/src/renderer/src/components/skills/setup/ManageInstalledSkillsButton.tsx
+index 8e65a496ef1..d4cec3da03c 100644
+--- a/src/renderer/src/components/skills/setup/ManageInstalledSkillsButton.tsx
++++ b/src/renderer/src/components/skills/setup/ManageInstalledSkillsButton.tsx
+@@ -1,7 +1,7 @@
+ import { BookOpen } from 'lucide-react'
+ import { isRuntimeHostContactRevoked } from '../../../../../shared/remote-runtime/host-status/runtime-host-status'
+ import { useAppStore } from '@/store/index'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'
+ import { bundledSkillTargetKey, type BundledSkillTarget } from '@/lib/bundled-skill-target'
+ import { Button } from '../../ui/button'
+@@ -11,6 +11,7 @@ export function ManageInstalledSkillsButton({
+ }: {
+   target?: BundledSkillTarget | null
+ }): React.JSX.Element | null {
++  const t = useTranslate()
+   const openSkillsPage = useAppStore((state) => state.openSkillsPage)
+   const closeModal = useAppStore((state) => state.closeModal)
+   const { bundledSkillTarget: active, managerRuntimeTarget: manager } =
+@@ -45,7 +46,7 @@ export function ManageInstalledSkillsButton({
+       }}
+     >
+       <BookOpen className="size-3.5" />
+-      {translate('auto.components.settings.shareSkills.openSkills', 'Open Skills')}
++      {t('auto.components.settings.shareSkills.openSkills', 'Open Skills')}
+     </Button>
+   )
+ }
+diff --git a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+index a30e99db97b..ee7e1bcc3d1 100644
+--- a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
++++ b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+@@ -1,7 +1,7 @@
+ import type { ComponentType } from 'react'
+ import { StatsPane } from './StatsPane'
+ import { useAppStore } from '../../store'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { SettingsHostScope } from '../settings/host-scope/settings-host-scope'
+ import { SettingsHostScopeUnavailableNotice } from '../settings/host-scope/SettingsHostScopePicker'
+ import { resolveAccountOwner } from '@/runtime/provider-accounts/ownership/wsl-host-account-owner'
+@@ -26,6 +26,7 @@ export function AccountQuotaStatsPane({
+   )
+ }
+ function OwnedAccountQuotas({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
++  const t = useTranslate()
+   const localRateLimits = useAppStore((state) => state.rateLimits)
+   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
+   const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
+@@ -49,7 +50,7 @@ function OwnedAccountQuotas({ hostScope }: { hostScope?: SettingsHostScope }): R
+         accounts={accounts}
+         accountsUnverifiable={accountsUnverifiable}
+         localOwner={remoteOwner === null}
+-        ownerLabel={remoteOwner?.label ?? translate('stats.usage.localHost', 'This device')}
++        ownerLabel={remoteOwner?.label ?? t('stats.usage.localHost', 'This device')}
+         onRefresh={
+           refreshRemote ??
+           (async () => {
+diff --git a/src/renderer/src/components/stats/StatsPane.tsx b/src/renderer/src/components/stats/StatsPane.tsx
+index 188646876ae..d67003ec47f 100644
+--- a/src/renderer/src/components/stats/StatsPane.tsx
++++ b/src/renderer/src/components/stats/StatsPane.tsx
+@@ -271,7 +271,7 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
+                 <div className="grid gap-3 @sm:grid-cols-3">
+                   <StatCard
+                     label={t('auto.components.stats.StatsPane.9dbec9e675', 'Agents spawned')}
+-                    value={summary.totalAgentsSpawned.toLocaleString(getIntlLocale())}
++                    value={summary.totalAgentsSpawned.toLocaleString(intlLocale)}
+                     icon={<Bot className="size-4" />}
+                   />
+                   <StatCard
+@@ -281,7 +281,7 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
+                   />
+                   <StatCard
+                     label={t('auto.components.stats.StatsPane.a58aba506f', 'PRs created')}
+-                    value={summary.totalPRsCreated.toLocaleString(getIntlLocale())}
++                    value={summary.totalPRsCreated.toLocaleString(intlLocale)}
+                     icon={<GitPullRequest className="size-4" />}
+                   />
+                 </div>
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+index c59060dba45..61fd3bb0854 100644
+--- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
++++ b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+@@ -10,7 +10,7 @@ import { formatPlanLabel } from '../status-bar/usage-roster-formatting'
+ import { getProviderUsageErrorMessage } from '../status-bar/usage-error-copy'
+ import { getProviderDisplayName } from '../../../../shared/usage-provider-windows'
+ import { formatWindowLabel } from '../../../../shared/rate-limit-window-label'
+-import { getIntlLocale, translate } from '@/i18n/i18n'
++import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
+ import type { ProviderAccountsSnapshot } from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
+ import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'
+
+@@ -27,10 +27,12 @@ export function UsageAccountQuotaCard({
+   active?: boolean
+   quotaKey?: string
+ }): React.JSX.Element {
+-  const providerSections = getWindowSections(provider)
++  const t = useTranslate()
++  const intlLocale = useIntlLocale()
++  const providerSections = getWindowSections(provider, t)
+   const sections = [
+     ...providerSections,
+-    ...getWindowSections({ ...provider, buckets: [] }).filter(
++    ...getWindowSections({ ...provider, buckets: [] }, t).filter(
+       (section) => !providerSections.some((existing) => existing.window === section.window)
+     )
+   ].flatMap((section) =>
+@@ -38,7 +40,7 @@ export function UsageAccountQuotaCard({
+       ? [{ ...section, window: section.window }]
+       : []
+   )
+-  const error = provider.error ? getProviderUsageErrorMessage(provider) : null
++  const error = provider.error ? getProviderUsageErrorMessage(provider, t) : null
+   return (
+     <article
+       className="min-w-0 space-y-3 rounded-lg border border-border bg-card p-4"
+@@ -60,9 +62,7 @@ export function UsageAccountQuotaCard({
+       {runtimeLabel ? (
+         <p className="text-xs text-muted-foreground">
+           {runtimeLabel}
+-          {active
+-            ? ` · ${translate('auto.components.status.bar.StatusBar.ff0fbe9311', 'Active')}`
+-            : ''}
++          {active ? ` · ${t('auto.components.status.bar.StatusBar.ff0fbe9311', 'Active')}` : ''}
+         </p>
+       ) : null}
+       {sections.map(({ label, window }) => (
+@@ -76,8 +76,8 @@ export function UsageAccountQuotaCard({
+                 : ''}
+             </span>
+             <span className="tabular-nums text-foreground">
+-              {translate('stats.usage.quota.used', '{{percent}}% used', {
+-                percent: clampUsedPercent(window.usedPercent).toLocaleString(getIntlLocale(), {
++              {t('stats.usage.quota.used', '{{percent}}% used', {
++                percent: clampUsedPercent(window.usedPercent).toLocaleString(intlLocale, {
+                   maximumFractionDigits: 1
+                 })
+               })}
+@@ -86,27 +86,27 @@ export function UsageAccountQuotaCard({
+           <Progress value={clampUsedPercent(window.usedPercent)} aria-label={label} />
+           <p className="text-xs text-muted-foreground">
+             {window.resetsAt != null
+-              ? translate('stats.usage.quota.resetsAt', 'Resets {{time}}', {
+-                  time: new Date(window.resetsAt).toLocaleString(getIntlLocale())
++              ? t('stats.usage.quota.resetsAt', 'Resets {{time}}', {
++                  time: new Date(window.resetsAt).toLocaleString(intlLocale)
+                 })
+               : (window.resetDescription ??
+-                translate('stats.usage.quota.resetUnavailable', 'Reset time unavailable'))}
++                t('stats.usage.quota.resetUnavailable', 'Reset time unavailable'))}
+           </p>
+         </div>
+       ))}
+       {sections.length === 0 ? (
+         <p className="text-xs text-muted-foreground">
+-          {translate('stats.usage.quota.unavailable', 'Quota data unavailable')}
++          {t('stats.usage.quota.unavailable', 'Quota data unavailable')}
+         </p>
+       ) : null}
+       <p className="text-xs text-muted-foreground">
+         {provider.status === 'fetching'
+-          ? translate('stats.usage.quota.refreshing', 'Refreshing quota…')
++          ? t('stats.usage.quota.refreshing', 'Refreshing quota…')
+           : provider.updatedAt > 0
+-            ? translate('stats.usage.quota.updatedAt', 'Quota checked {{time}}', {
+-                time: new Date(provider.updatedAt).toLocaleString(getIntlLocale())
++            ? t('stats.usage.quota.updatedAt', 'Quota checked {{time}}', {
++                time: new Date(provider.updatedAt).toLocaleString(intlLocale)
+               })
+-            : translate('stats.usage.quota.neverUpdated', 'Quota has not been checked')}
++            : t('stats.usage.quota.neverUpdated', 'Quota has not been checked')}
+       </p>
+       {error ? (
+         <p role="status" className="break-words text-xs text-destructive">
+@@ -116,7 +116,7 @@ export function UsageAccountQuotaCard({
+       {sections.length > 0 &&
+       (provider.status === 'error' || provider.usageMetadata?.unverifiableOwner) ? (
+         <p className="text-xs text-muted-foreground">
+-          {translate('stats.usage.quota.lastKnown', 'Last known quota; the latest check failed.')}
++          {t('stats.usage.quota.lastKnown', 'Last known quota; the latest check failed.')}
+         </p>
+       ) : null}
+     </article>
+@@ -140,6 +140,7 @@ export function UsageAccountQuotas({
+   onRefresh: () => void | Promise<void>
+   onManage: () => void
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const settings = useAppStore((state) => (localOwner ? state.settings : null))
+   const fetchRateLimits = useAppStore((state) => state.fetchRateLimits)
+   const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
+@@ -156,17 +157,18 @@ export function UsageAccountQuotas({
+     accounts,
+     accountsUnverifiable,
+     settings,
+-    ownerLabel
++    ownerLabel,
++    t
+   )
+   return (
+     <section className="space-y-3" data-testid="usage-account-quotas">
+       <div className="flex items-start justify-between gap-3">
+         <div className="space-y-1">
+           <h3 className="text-sm font-semibold text-foreground">
+-            {translate('stats.usage.quota.title', 'Current account quotas')}
++            {t('stats.usage.quota.title', 'Current account quotas')}
+           </h3>
+           <p className="text-xs text-muted-foreground">
+-            {translate(
++            {t(
+               'stats.usage.quota.scope',
+               '{{host}} · Account-wide subscription windows. History filters do not change these limits.',
+               { host: ownerLabel }
+@@ -178,19 +180,19 @@ export function UsageAccountQuotas({
+           size="sm"
+           disabled={rows.some((row) => row.provider.status === 'fetching')}
+           onClick={() => void onRefresh()}
+-          aria-label={translate('stats.usage.quota.refresh', 'Refresh account quotas')}
++          aria-label={t('stats.usage.quota.refresh', 'Refresh account quotas')}
+         >
+           <RefreshCw className="size-3.5" />
+-          {translate('stats.usage.refresh', 'Refresh')}
++          {t('stats.usage.refresh', 'Refresh')}
+         </Button>
+       </div>
+       <p className="text-xs text-muted-foreground" data-testid="usage-quota-coverage">
+         {accounts && !accountsUnverifiable && !accounts.failedProviders?.length
+-          ? translate(
++          ? t(
+               'stats.usage.quota.reportedAccountCoverage',
+               'Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
+             )
+-          : translate(
++          : t(
+               'stats.usage.quota.partialAccounts',
+               'The account list is unavailable or incomplete. Only reported accounts and current provider quota snapshots are shown.'
+             )}
+@@ -210,14 +212,14 @@ export function UsageAccountQuotas({
+         </div>
+       ) : (
+         <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+-          {translate(
++          {t(
+             'stats.usage.quota.noSources',
+             'No account quota source is available. Manage provider accounts to check your subscription.'
+           )}
+         </p>
+       )}
+       <Button variant="link" size="sm" onClick={onManage} className="h-auto">
+-        {translate('stats.usage.quota.manage', 'Manage accounts')}
++        {t('stats.usage.quota.manage', 'Manage accounts')}
+       </Button>
+     </section>
+   )
+diff --git a/src/renderer/src/components/stats/UsageHistoryDailyChart.tsx b/src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
+index 4e4cb3004ed..c60eddb1b5c 100644
+--- a/src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
++++ b/src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
+@@ -11,7 +11,7 @@ import {
+ } from './usage-history-chart-model'
+ import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
+ import { formatUsageDayLabel } from './usage-formatters'
+-import { getIntlLocale, translate } from '@/i18n/i18n'
++import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
+ import { getAgentLabel } from '@/lib/agent-catalog'
+
+ export function UsageHistoryDailyChart({
+@@ -27,6 +27,8 @@ export function UsageHistoryDailyChart({
+   onDay: (day: string) => void
+   today?: string
+ }): React.JSX.Element {
++  const t = useTranslate()
++  const intlLocale = useIntlLocale()
+   const [metric, setMetric] = useState<'tokens' | 'cost'>('tokens')
+   const [hoveredDay, setHoveredDay] = useState<string | null>(null)
+   const [focusedDay, setFocusedDay] = useState<string | null>(null)
+@@ -68,8 +70,8 @@ export function UsageHistoryDailyChart({
+     metric === 'tokens'
+       ? amount === null
+         ? '—'
+-        : formatUsageTokens(amount)
+-      : formatUsageCost(amount)
++        : formatUsageTokens(amount, intlLocale)
++      : formatUsageCost(amount, t, intlLocale)
+   const tickIndices = [
+     ...new Set([
+       0,
+@@ -104,28 +106,28 @@ export function UsageHistoryDailyChart({
+     >
+       <div className="flex flex-wrap items-center justify-between gap-2">
+         <h4 className="text-sm font-medium text-foreground">
+-          {translate('stats.usage.daily.title', 'Daily usage')}
++          {t('stats.usage.daily.title', 'Daily usage')}
+         </h4>
+         <SettingsSegmentedControl<'tokens' | 'cost'>
+           value={metric}
+           onChange={setMetric}
+-          ariaLabel={translate('stats.usage.daily.metric', 'Chart metric')}
++          ariaLabel={t('stats.usage.daily.metric', 'Chart metric')}
+           options={[
+-            { value: 'tokens', label: translate('stats.usage.tokens', 'Tokens') },
+-            { value: 'cost', label: translate('stats.usage.daily.cost', 'API estimate') }
++            { value: 'tokens', label: t('stats.usage.tokens', 'Tokens') },
++            { value: 'cost', label: t('stats.usage.daily.cost', 'API estimate') }
+           ]}
+           size="sm"
+         />
+       </div>
+       <p className="text-xs text-muted-foreground">
+-        {translate(
++        {t(
+           'stats.usage.daily.description',
+           'Select a day to inspect its usage. Days without recorded usage are shown at zero.'
+         )}
+       </p>
+       <div
+         className="flex flex-wrap gap-x-5 gap-y-2 text-xs"
+-        aria-label={translate('stats.usage.daily.providers', 'Provider series')}
++        aria-label={t('stats.usage.daily.providers', 'Provider series')}
+       >
+         {series.map(({ provider }) => (
+           <span key={provider} className="inline-flex items-center gap-2">
+@@ -245,16 +247,16 @@ export function UsageHistoryDailyChart({
+                   aria-pressed={selectedDay === day}
+                   aria-label={
+                     metric === 'tokens'
+-                      ? translate('stats.usage.daily.inspect', '{{day}}: {{tokens}} tokens', {
++                      ? t('stats.usage.daily.inspect', '{{day}}: {{tokens}} tokens', {
+                           day,
+-                          tokens: (usage?.totalTokens ?? 0).toLocaleString(getIntlLocale())
++                          tokens: (usage?.totalTokens ?? 0).toLocaleString(intlLocale)
+                         })
+-                      : translate(
++                      : t(
+                           'stats.usage.daily.inspectCost',
+                           '{{day}}: {{cost}} API-equivalent estimate',
+                           {
+                             day,
+-                            cost: `${formatUsageCost(usage ? usage.apiEquivalentCostUsd : 0)}${usage?.hasPartialCost ? ' *' : ''}`
++                            cost: `${formatUsageCost(usage ? usage.apiEquivalentCostUsd : 0, t, intlLocale)}${usage?.hasPartialCost ? ' *' : ''}`
+                           }
+                         )
+                   }
+@@ -269,7 +271,9 @@ export function UsageHistoryDailyChart({
+           >
+             {tickIndices.map((index) =>
+               days[index] ? (
+-                <span key={index}>{formatUsageDayLabel(days[index].day, range === 'all')}</span>
++                <span key={index}>
++                  {formatUsageDayLabel(days[index].day, range === 'all', intlLocale)}
++                </span>
+               ) : null
+             )}
+           </div>
+@@ -281,7 +285,7 @@ export function UsageHistoryDailyChart({
+           data-testid="usage-history-readout"
+         >
+           <div className="flex flex-wrap items-center justify-between gap-2">
+-            <span className="font-medium">{formatUsageDayLabel(active.day, true)}</span>
++            <span className="font-medium">{formatUsageDayLabel(active.day, true, intlLocale)}</span>
+             <span className="tabular-nums">
+               {formatAmount(
+                 metric === 'tokens'
+@@ -307,8 +311,8 @@ export function UsageHistoryDailyChart({
+                   </span>
+                   <span className="tabular-nums text-muted-foreground">
+                     {point?.amount === null
+-                      ? translate('stats.usage.daily.unpriced', 'Price unavailable')
+-                      : `${metric === 'tokens' ? (point?.amount ?? 0).toLocaleString(getIntlLocale()) : formatUsageCost(point?.amount ?? 0)}${metric === 'cost' && point?.usage?.hasPartialCost ? ' *' : ''}`}
++                      ? t('stats.usage.daily.unpriced', 'Price unavailable')
++                      : `${metric === 'tokens' ? (point?.amount ?? 0).toLocaleString(intlLocale) : formatUsageCost(point?.amount ?? 0, t, intlLocale)}${metric === 'cost' && point?.usage?.hasPartialCost ? ' *' : ''}`}
+                   </span>
+                 </span>
+               )
+@@ -318,7 +322,7 @@ export function UsageHistoryDailyChart({
+       ) : null}
+       {partialCost ? (
+         <p role="status" className="text-xs text-muted-foreground">
+-          {translate(
++          {t(
+             'stats.usage.daily.partialCost',
+             'Some usage has no recorded price. The chart shows the priced portion; * marks a partial estimate. This is not a billing statement.'
+           )}
+diff --git a/src/renderer/src/components/stats/UsageHistoryDetails.tsx b/src/renderer/src/components/stats/UsageHistoryDetails.tsx
+index e5cc66c0bbc..8dceb005179 100644
+--- a/src/renderer/src/components/stats/UsageHistoryDetails.tsx
++++ b/src/renderer/src/components/stats/UsageHistoryDetails.tsx
+@@ -8,7 +8,8 @@ import {
+   type UsageHistoryGroup
+ } from './usage-history-model'
+ import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
+-import { getIntlLocale, translate } from '@/i18n/i18n'
++import { translate } from '@/i18n/i18n'
++import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
+ import { usageHistoryAccountLabel } from './usage-history-accounts'
+ import { USAGE_PROVIDER_COLORS } from './usage-history-chart-model'
+ import { getAgentLabel } from '@/lib/agent-catalog'
+@@ -24,17 +25,19 @@ function HistoryTotalsList({
+   rows: UsageHistoryGroup[]
+   onSelect: (value: string) => void
+ }): React.JSX.Element {
++  const t = useTranslate()
++  const intlLocale = useIntlLocale()
+   const totalTokens = rows.reduce((sum, row) => sum + row.totalTokens, 0)
+   return (
+     <section className="min-w-0 rounded-lg border border-border bg-card p-4">
+       <h4 className="text-sm font-medium text-foreground">{title}</h4>
+       <p className="mb-3 mt-1 text-xs text-muted-foreground">
+-        {translate('stats.usage.breakdown.share', 'Share of selected tokens')}
++        {t('stats.usage.breakdown.share', 'Share of selected tokens')}
+       </p>
+       <div className="max-h-64 space-y-1 overflow-y-auto scrollbar-sleek">
+         {rows.map((row) => {
+           const share = totalTokens > 0 ? (row.totalTokens / totalTokens) * 100 : 0
+-          const shareLabel = `${share.toLocaleString(getIntlLocale(), { maximumFractionDigits: 1 })}%`
++          const shareLabel = `${share.toLocaleString(intlLocale, { maximumFractionDigits: 1 })}%`
+           const providers = new Map<string, { tokens: number; color: string }>()
+           for (const entry of row.rows) {
+             const provider = providers.get(entry.provider) ?? {
+@@ -57,10 +60,10 @@ function HistoryTotalsList({
+                   {row.label}
+                 </span>
+                 <span className="shrink-0 text-right text-xs tabular-nums">
+-                  {formatUsageTokens(row.totalTokens)}
++                  {formatUsageTokens(row.totalTokens, intlLocale)}
+                   <span className="ml-2 text-muted-foreground">{shareLabel}</span>
+                   <span className="block text-muted-foreground">
+-                    {formatUsageCost(row.apiEquivalentCostUsd)}
++                    {formatUsageCost(row.apiEquivalentCostUsd, t, intlLocale)}
+                     {row.hasPartialCost ? ' *' : ''}
+                   </span>
+                 </span>
+@@ -107,24 +110,25 @@ export function UsageHistoryBreakdowns({
+   onAccount: (account: string) => void
+   accountLabels: ReadonlyMap<string, string>
+ }): React.JSX.Element {
+-  const unknown = translate('stats.usage.unknown', 'Unknown')
++  const t = useTranslate()
++  const unknown = t('stats.usage.unknown', 'Unknown')
+   return (
+     <div className="grid gap-3 @xl:grid-cols-3">
+       <HistoryTotalsList
+-        title={translate('stats.usage.accounts.title', 'By account · tokens / API estimate')}
++        title={t('stats.usage.accounts.title', 'By account · tokens / API estimate')}
+         rows={groupUsageHistory(rows, 'account', unknown).map((group) => ({
+           ...group,
+-          label: group.rows[0] ? usageHistoryAccountLabel(group.rows[0], accountLabels) : unknown
++          label: group.rows[0] ? usageHistoryAccountLabel(group.rows[0], accountLabels, t) : unknown
+         }))}
+         onSelect={onAccount}
+       />
+       <HistoryTotalsList
+-        title={translate('stats.usage.models.title', 'By model · tokens / API estimate')}
++        title={t('stats.usage.models.title', 'By model · tokens / API estimate')}
+         rows={groupUsageHistory(rows, 'model', unknown)}
+         onSelect={onModel}
+       />
+       <HistoryTotalsList
+-        title={translate('stats.usage.projects.title', 'By project · tokens / API estimate')}
++        title={t('stats.usage.projects.title', 'By project · tokens / API estimate')}
+         rows={groupUsageHistory(rows, 'project', unknown)}
+         onSelect={onProject}
+       />
+@@ -139,12 +143,13 @@ export function UsageHistorySessions({
+   rows: readonly UsageHistoryRow[]
+   accountLabels: ReadonlyMap<string, string>
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const [limit, setLimit] = useState(20)
+-  const unknown = translate('stats.usage.unknown', 'Unknown')
++  const unknown = t('stats.usage.unknown', 'Unknown')
+   const groups = groupUsageHistory(
+     rows,
+     'session',
+-    translate('stats.usage.session.unavailable', 'Session attribution unavailable')
++    t('stats.usage.session.unavailable', 'Session attribution unavailable')
+   )
+   const sessions = groups
+     .map((group) => {
+@@ -159,17 +164,17 @@ export function UsageHistorySessions({
+         provider: group.rows[0]?.provider,
+         accountLabel:
+           accounts.size === 1 && first
+-            ? `${first.accountId ? '' : `${getAgentLabel(first.provider)} · `}${usageHistoryAccountLabel(first, accountLabels)}`
+-            : translate('stats.usage.account.multiple', 'Multiple accounts'),
++            ? `${first.accountId ? '' : `${getAgentLabel(first.provider)} · `}${usageHistoryAccountLabel(first, accountLabels, t)}`
++            : t('stats.usage.account.multiple', 'Multiple accounts'),
+         lastActiveAt: days.at(-1) ?? '',
+         projectLabel:
+           projects.size === 1
+             ? (group.rows[0]?.projectLabel ?? unknown)
+-            : translate('stats.usage.session.multipleProjects', 'Multiple projects'),
++            : t('stats.usage.session.multipleProjects', 'Multiple projects'),
+         model:
+           models.size === 1
+             ? (group.rows[0]?.model ?? unknown)
+-            : translate('stats.usage.session.multipleModels', 'Multiple models'),
++            : t('stats.usage.session.multipleModels', 'Multiple models'),
+         inputTokens: group.newInputTokens + group.cacheReadTokens + group.cacheWriteTokens,
+         outputTokens: group.outputTokens,
+         group
+@@ -179,19 +184,19 @@ export function UsageHistorySessions({
+   return (
+     <div className="space-y-2">
+       <UsageRecentSessionsTable
+-        title={translate('stats.usage.session.title', 'Session drilldown')}
+-        description={translate(
++        title={t('stats.usage.session.title', 'Session drilldown')}
++        description={t(
+           'stats.usage.session.description',
+           'Tokens match the selected period, account, provider, model, project and day. Select the last recorded day to inspect a session.'
+         )}
+         headings={[
+-          translate('stats.usage.session.lastDay', 'Last recorded day'),
+-          translate('stats.usage.filter.project', 'Project'),
+-          translate('stats.usage.filter.model', 'Model'),
+-          translate('stats.usage.session.activity', 'Events / turns'),
+-          translate('stats.usage.session.input', 'All input'),
+-          translate('stats.usage.session.output', 'Output'),
+-          translate('stats.usage.tokens', 'Tokens')
++          t('stats.usage.session.lastDay', 'Last recorded day'),
++          t('stats.usage.filter.project', 'Project'),
++          t('stats.usage.filter.model', 'Model'),
++          t('stats.usage.session.activity', 'Events / turns'),
++          t('stats.usage.session.input', 'All input'),
++          t('stats.usage.session.output', 'Output'),
++          t('stats.usage.tokens', 'Tokens')
+         ]}
+         unknownModel={unknown}
+         rows={sessions.slice(0, limit)}
+@@ -205,7 +210,7 @@ export function UsageHistorySessions({
+       />
+       {sessions.length > limit ? (
+         <Button variant="outline" size="sm" onClick={() => setLimit((current) => current + 20)}>
+-          {translate('stats.usage.session.showMore', 'Show more sessions')}
++          {t('stats.usage.session.showMore', 'Show more sessions')}
+         </Button>
+       ) : null}
+     </div>
+diff --git a/src/renderer/src/components/stats/UsageHistoryFilter.tsx b/src/renderer/src/components/stats/UsageHistoryFilter.tsx
+index 7ecd586d2be..1a30be753e4 100644
+--- a/src/renderer/src/components/stats/UsageHistoryFilter.tsx
++++ b/src/renderer/src/components/stats/UsageHistoryFilter.tsx
+@@ -10,7 +10,7 @@ import {
+   CommandList
+ } from '../ui/command'
+ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+
+ export function UsageHistoryFilter({
+   label,
+@@ -25,6 +25,7 @@ export function UsageHistoryFilter({
+   options: readonly { value: string; label: string }[]
+   onChange: (value: string | null) => void
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const [open, setOpen] = useState(false)
+   const selectedLabel =
+     value === null ? allLabel : (options.find((option) => option.value === value)?.label ?? value)
+@@ -46,13 +47,13 @@ export function UsageHistoryFilter({
+       <PopoverContent className="w-72 max-w-[calc(100vw-2rem)]" align="start">
+         <Command>
+           <CommandInput
+-            placeholder={translate('stats.usage.filter.search', 'Search {{filter}}…', {
++            placeholder={t('stats.usage.filter.search', 'Search {{filter}}…', {
+               filter: label
+             })}
+             aria-label={label}
+           />
+           <CommandList>
+-            <CommandEmpty>{translate('stats.usage.filter.noMatches', 'No matches')}</CommandEmpty>
++            <CommandEmpty>{t('stats.usage.filter.noMatches', 'No matches')}</CommandEmpty>
+             <CommandGroup heading={label}>
+               {[{ value: null, label: allLabel }, ...options].map((option) => (
+                 <CommandItem
+diff --git a/src/renderer/src/components/stats/UsageHistoryFilters.tsx b/src/renderer/src/components/stats/UsageHistoryFilters.tsx
+index 0185a014334..d8d43af3e02 100644
+--- a/src/renderer/src/components/stats/UsageHistoryFilters.tsx
++++ b/src/renderer/src/components/stats/UsageHistoryFilters.tsx
+@@ -13,7 +13,7 @@ import {
+   type UsageHistorySelection
+ } from './usage-history-model'
+ import { usageHistoryAccountLabel } from './usage-history-accounts'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+
+ export function UsageHistoryFilters({
+   allRows,
+@@ -28,11 +28,12 @@ export function UsageHistoryFilters({
+   providers: readonly { value: UsageHistoryProvider; label: string }[]
+   accountLabels: ReadonlyMap<string, string>
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const optionRows = useMemo(
+     () => filterUsageHistory(allRows, { ...selection, model: null, project: null, day: null }),
+     [allRows, selection]
+   )
+-  const unknown = translate('stats.usage.unknown', 'Unknown')
++  const unknown = t('stats.usage.unknown', 'Unknown')
+   const accountRows = useMemo(
+     () =>
+       filterUsageHistory(allRows, {
+@@ -51,7 +52,7 @@ export function UsageHistoryFilters({
+         usageHistoryAccountKey(row),
+         {
+           value: usageHistoryAccountKey(row),
+-          label: usageHistoryAccountLabel(row, accountLabels)
++          label: usageHistoryAccountLabel(row, accountLabels, t)
+         }
+       ])
+     ).values()
+@@ -70,24 +71,24 @@ export function UsageHistoryFilters({
+     ).values()
+   ].sort((a, b) => a.label.localeCompare(b.label))
+   const rangeOptions: readonly { value: UsageHistoryRange; label: string }[] = [
+-    { value: '7d', label: translate('stats.usage.period.7d', '7 days') },
+-    { value: '30d', label: translate('stats.usage.period.30d', '30 days') },
+-    { value: '90d', label: translate('stats.usage.period.90d', '90 days') },
+-    { value: 'all', label: translate('stats.usage.period.all', 'All time') }
++    { value: '7d', label: t('stats.usage.period.7d', '7 days') },
++    { value: '30d', label: t('stats.usage.period.30d', '30 days') },
++    { value: '90d', label: t('stats.usage.period.90d', '90 days') },
++    { value: 'all', label: t('stats.usage.period.all', 'All time') }
+   ]
+   return (
+     <div className="space-y-3">
+       <SettingsSegmentedControl<UsageHistoryRange>
+         value={selection.range}
+         onChange={(range) => setSelection((current) => ({ ...current, range, day: null }))}
+-        ariaLabel={translate('stats.usage.filter.period', 'History period')}
++        ariaLabel={t('stats.usage.filter.period', 'History period')}
+         options={rangeOptions}
+         size="sm"
+       />
+       <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2 @3xl:grid-cols-4">
+         <UsageHistoryFilter
+-          label={translate('stats.usage.filter.provider', 'Provider')}
+-          allLabel={translate('stats.usage.filter.allProviders', 'All providers')}
++          label={t('stats.usage.filter.provider', 'Provider')}
++          allLabel={t('stats.usage.filter.allProviders', 'All providers')}
+           value={selection.provider === 'all' ? null : selection.provider}
+           options={providers}
+           onChange={(provider) => {
+@@ -103,8 +104,8 @@ export function UsageHistoryFilters({
+           }}
+         />
+         <UsageHistoryFilter
+-          label={translate('stats.usage.filter.account', 'Account')}
+-          allLabel={translate('stats.usage.filter.allAccounts', 'All accounts')}
++          label={t('stats.usage.filter.account', 'Account')}
++          allLabel={t('stats.usage.filter.allAccounts', 'All accounts')}
+           value={selection.account ?? null}
+           options={accountOptions}
+           onChange={(account) =>
+@@ -118,27 +119,27 @@ export function UsageHistoryFilters({
+           }
+         />
+         <UsageHistoryFilter
+-          label={translate('stats.usage.filter.model', 'Model')}
+-          allLabel={translate('stats.usage.filter.allModels', 'All models')}
++          label={t('stats.usage.filter.model', 'Model')}
++          allLabel={t('stats.usage.filter.allModels', 'All models')}
+           value={selection.model}
+           options={models}
+           onChange={(model) => setSelection((current) => ({ ...current, model }))}
+         />
+         <UsageHistoryFilter
+-          label={translate('stats.usage.filter.project', 'Project')}
+-          allLabel={translate('stats.usage.filter.allProjects', 'All projects')}
++          label={t('stats.usage.filter.project', 'Project')}
++          allLabel={t('stats.usage.filter.allProjects', 'All projects')}
+           value={selection.project}
+           options={projects}
+           onChange={(project) => setSelection((current) => ({ ...current, project }))}
+         />
+         <UsageHistoryFilter
+-          label={translate('stats.usage.filter.scope', 'Project scope')}
+-          allLabel={translate('stats.usage.filter.allLocal', 'All local projects')}
++          label={t('stats.usage.filter.scope', 'Project scope')}
++          allLabel={t('stats.usage.filter.allLocal', 'All local projects')}
+           value={selection.scope === 'all' ? null : 'orca'}
+           options={[
+             {
+               value: 'orca',
+-              label: translate('stats.usage.filter.orca', 'Orca projects and folders')
++              label: t('stats.usage.filter.orca', 'Orca projects and folders')
+             }
+           ]}
+           onChange={(scope) =>
+@@ -157,7 +158,7 @@ export function UsageHistoryFilters({
+           size="sm"
+           onClick={() => setSelection((current) => ({ ...current, day: null }))}
+         >
+-          {translate('stats.usage.filter.clearDay', '{{day}} · Clear day filter', {
++          {t('stats.usage.filter.clearDay', '{{day}} · Clear day filter', {
+             day: selection.day
+           })}
+         </Button>
+diff --git a/src/renderer/src/components/stats/UsageRecentSessionsTable.tsx b/src/renderer/src/components/stats/UsageRecentSessionsTable.tsx
+index bc671c60d73..eac4063129f 100644
+--- a/src/renderer/src/components/stats/UsageRecentSessionsTable.tsx
++++ b/src/renderer/src/components/stats/UsageRecentSessionsTable.tsx
+@@ -1,8 +1,7 @@
+ import { Fragment, useState } from 'react'
+ import { Button } from '../ui/button'
+-import { translate } from '@/i18n/i18n'
+ import { formatSessionTime, formatTokens } from './usage-formatters'
+-import { useIntlLocale } from '../../i18n/use-translate'
++import { useIntlLocale, useTranslate } from '../../i18n/use-translate'
+
+ type UsageRecentSession = {
+   sessionId: string
+@@ -50,6 +49,7 @@ export function UsageRecentSessionsTable<Row extends UsageRecentSession>({
+   getSessionTimeLabel,
+   renderDetails
+ }: UsageRecentSessionsTableProps<Row>): React.JSX.Element {
++  const t = useTranslate()
+   const [expanded, setExpanded] = useState<string | null>(null)
+   const intlLocale = useIntlLocale()
+   return (
+@@ -59,7 +59,7 @@ export function UsageRecentSessionsTable<Row extends UsageRecentSession>({
+         <p className="text-xs text-muted-foreground">{description}</p>
+         {rows.some((row) => row.totalsScope === 'lifetime') ? (
+           <p className="text-xs text-muted-foreground">
+-            {translate(
++            {t(
+               'stats.usage.session.lifetime',
+               'Some session rows show lifetime totals because period attribution is unavailable. Refresh the scan to rebuild their detail.'
+             )}
+diff --git a/src/renderer/src/components/stats/usage-account-quota-rows.ts b/src/renderer/src/components/stats/usage-account-quota-rows.ts
+index 1455da8aad1..25061d59396 100644
+--- a/src/renderer/src/components/stats/usage-account-quota-rows.ts
++++ b/src/renderer/src/components/stats/usage-account-quota-rows.ts
+@@ -15,6 +15,7 @@ import {
+   normalizeCodexStatusRuntimeTarget
+ } from '../status-bar/status-bar-codex-accounts'
+ import { translate } from '@/i18n/i18n'
++import type { Translate } from '@/i18n/use-translate'
+ import { USAGE_PROVIDER_KEYS } from '../status-bar/owner-usage-rate-limits'
+ import {
+   getVisibleUsageProvider,
+@@ -35,23 +36,26 @@ function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget
+   return left.runtime === right.runtime && left.wslDistro === right.wslDistro
+ }
+
+-function managedQuotaRows({
+-  provider,
+-  groups,
+-  current,
+-  inactive,
+-  target,
+-  systemIdentity,
+-  unverifiable
+-}: {
+-  provider: 'claude' | 'codex'
+-  groups: AccountGroup[]
+-  current: ProviderRateLimits | null
+-  inactive: InactiveAccountUsage[]
+-  target: RateLimitRuntimeTarget
+-  systemIdentity?: string | null
+-  unverifiable: boolean
+-}): UsageAccountQuotaRow[] {
++function managedQuotaRows(
++  {
++    provider,
++    groups,
++    current,
++    inactive,
++    target,
++    systemIdentity,
++    unverifiable
++  }: {
++    provider: 'claude' | 'codex'
++    groups: AccountGroup[]
++    current: ProviderRateLimits | null
++    inactive: InactiveAccountUsage[]
++    target: RateLimitRuntimeTarget
++    systemIdentity?: string | null
++    unverifiable: boolean
++  },
++  t: Translate = translate
++): UsageAccountQuotaRow[] {
+   return groups.flatMap((group) =>
+     group.targets.flatMap((account) => {
+       const currentAccount = account.active && sameRuntime(group.runtimeTarget, target)
+@@ -71,10 +75,7 @@ function managedQuotaRows({
+               status: !unverifiable && cached?.isFetching ? 'fetching' : 'unavailable',
+               error: unverifiable
+                 ? (current?.error ??
+-                  translate(
+-                    'stats.usage.quota.ownerUnverifiable',
+-                    'The account host cannot be verified.'
+-                  ))
++                  t('stats.usage.quota.ownerUnverifiable', 'The account host cannot be verified.'))
+                 : (account.hint ?? null),
+               ...(unverifiable ? { usageMetadata: { unverifiableOwner: true } } : {})
+             }
+@@ -88,11 +89,11 @@ function managedQuotaRows({
+           runtimeLabel:
+             group.runtimeTarget.runtime === 'host'
+               ? group.label === 'This device'
+-                ? translate('stats.usage.localHost', 'This device')
++                ? t('stats.usage.localHost', 'This device')
+                 : group.label
+               : group.runtimeTarget.wslDistro
+                 ? `WSL ${group.runtimeTarget.wslDistro}`
+-                : translate('stats.usage.quota.defaultWsl', 'WSL default'),
++                : t('stats.usage.quota.defaultWsl', 'WSL default'),
+           active: account.active,
+           provider: limits
+         }
+@@ -104,13 +105,13 @@ function managedQuotaRows({
+ function antigravityQuotaRows(
+   accounts: AntigravityAccountUsage[],
+   unverifiable: boolean,
+-  ownerLabel?: string
++  ownerLabel?: string,
++  t: Translate = translate
+ ): UsageAccountQuotaRow[] {
+   return accounts.map((account) => ({
+     key: `antigravity:${account.accountId}`,
+     identity:
+-      account.email ??
+-      translate('auto.components.status.bar.antigravity.unknownAccount', 'Google account'),
++      account.email ?? t('auto.components.status.bar.antigravity.unknownAccount', 'Google account'),
+     runtimeLabel: ownerLabel,
+     active: account.active,
+     provider:
+@@ -133,14 +134,15 @@ export function buildUsageAccountQuotaRows(
+   accounts: ProviderAccountsSnapshot | null,
+   unverifiable = false,
+   settings?: Partial<UsageProviderSettings> | null,
+-  ownerLabel?: string
++  ownerLabel?: string,
++  t: Translate = translate
+ ): UsageAccountQuotaRow[] {
+   const fallback = (provider: ProviderRateLimits | null): UsageAccountQuotaRow[] =>
+     provider && getVisibleUsageProvider(provider.provider, provider, { ...settings, ...limits })
+       ? [
+           {
+             key: `${provider.provider}:current`,
+-            identity: translate(
++            identity: t(
+               'stats.usage.quota.currentAccount',
+               'Current account · identity unavailable'
+             ),
+@@ -151,37 +153,43 @@ export function buildUsageAccountQuotaRows(
+       : []
+   const claude =
+     accounts?.claude && !accounts.failedProviders?.includes('claude')
+-      ? managedQuotaRows({
+-          provider: 'claude',
+-          groups: buildClaudeStatusSwitchGroups(accounts.claude, limits.claudeTarget, {
+-            hostLabel: ownerLabel
+-          }),
+-          current: limits.claude,
+-          inactive: limits.inactiveClaudeAccounts,
+-          target: normalizeClaudeStatusRuntimeTarget(accounts.claude, limits.claudeTarget),
+-          systemIdentity: accounts.claude.systemDefaultEmail,
+-          unverifiable
+-        })
++      ? managedQuotaRows(
++          {
++            provider: 'claude',
++            groups: buildClaudeStatusSwitchGroups(accounts.claude, limits.claudeTarget, {
++              hostLabel: ownerLabel
++            }),
++            current: limits.claude,
++            inactive: limits.inactiveClaudeAccounts,
++            target: normalizeClaudeStatusRuntimeTarget(accounts.claude, limits.claudeTarget),
++            systemIdentity: accounts.claude.systemDefaultEmail,
++            unverifiable
++          },
++          t
++        )
+       : fallback(limits.claude)
+   const codex =
+     accounts?.codex && !accounts.failedProviders?.includes('codex')
+-      ? managedQuotaRows({
+-          provider: 'codex',
+-          groups: buildCodexStatusSwitchGroups(accounts.codex, limits.codexTarget, {
+-            hostLabel: ownerLabel
+-          }),
+-          current: limits.codex,
+-          inactive: limits.inactiveCodexAccounts,
+-          target: normalizeCodexStatusRuntimeTarget(accounts.codex, limits.codexTarget),
+-          systemIdentity: accounts.codex.systemDefault?.email,
+-          unverifiable
+-        })
++      ? managedQuotaRows(
++          {
++            provider: 'codex',
++            groups: buildCodexStatusSwitchGroups(accounts.codex, limits.codexTarget, {
++              hostLabel: ownerLabel
++            }),
++            current: limits.codex,
++            inactive: limits.inactiveCodexAccounts,
++            target: normalizeCodexStatusRuntimeTarget(accounts.codex, limits.codexTarget),
++            systemIdentity: accounts.codex.systemDefault?.email,
++            unverifiable
++          },
++          t
++        )
+       : fallback(limits.codex)
+   return [
+     ...claude,
+     ...codex,
+     ...(limits.antigravityAccounts?.length
+-      ? antigravityQuotaRows(limits.antigravityAccounts, unverifiable, ownerLabel)
++      ? antigravityQuotaRows(limits.antigravityAccounts, unverifiable, ownerLabel, t)
+       : fallback(limits.antigravity)),
+     ...USAGE_PROVIDER_KEYS.filter(
+       (key) => key !== 'claude' && key !== 'codex' && key !== 'antigravity'
+diff --git a/src/renderer/src/components/stats/usage-formatters.ts b/src/renderer/src/components/stats/usage-formatters.ts
+index 3a13b867855..de403ec6602 100644
+--- a/src/renderer/src/components/stats/usage-formatters.ts
++++ b/src/renderer/src/components/stats/usage-formatters.ts
+@@ -20,11 +20,15 @@ export function formatTokens(value: number, intlLocale: string = getIntlLocale()
+   return value.toLocaleString(intlLocale)
+ }
+
+-export function formatCost(value: number | null): string {
++export function formatCost(
++  value: number | null,
++  t: Translate = translate,
++  intlLocale: string = getIntlLocale()
++): string {
+   if (value === null) {
+-    return translate('stats.usage.format.notAvailable', 'n/a')
++    return t('stats.usage.format.notAvailable', 'n/a')
+   }
+-  const locale = getIntlLocale()
++  const locale = intlLocale
+   if (locale.startsWith('ru')) {
+     const digits = value < 0.01 ? 4 : 2
+     return new Intl.NumberFormat(locale, {
+diff --git a/src/renderer/src/components/stats/usage-history-accounts.ts b/src/renderer/src/components/stats/usage-history-accounts.ts
+index 29cc7f0292f..f829d2a03cf 100644
+--- a/src/renderer/src/components/stats/usage-history-accounts.ts
++++ b/src/renderer/src/components/stats/usage-history-accounts.ts
+@@ -4,6 +4,7 @@ import { buildClaudeStatusSwitchGroups } from '../status-bar/status-bar-claude-a
+ import { buildCodexStatusSwitchGroups } from '../status-bar/status-bar-codex-accounts'
+ import { getAgentLabel } from '@/lib/agent-catalog'
+ import { translate } from '@/i18n/i18n'
++import type { Translate } from '@/i18n/use-translate'
+ import { usageHistoryAccountKey } from './usage-history-model'
+
+ export function usageHistoryAccountLabels(
+@@ -49,13 +50,14 @@ export function usageHistoryAccountLabels(
+
+ export function usageHistoryAccountLabel(
+   row: Pick<UsageHistoryRow, 'provider' | 'accountId'>,
+-  labels: ReadonlyMap<string, string>
++  labels: ReadonlyMap<string, string>,
++  t: Translate = translate
+ ): string {
+   if (!row.accountId) {
+-    return translate('stats.usage.account.unknown', 'Unknown account')
++    return t('stats.usage.account.unknown', 'Unknown account')
+   }
+   return (
+     labels.get(usageHistoryAccountKey(row)) ??
+-    `${getAgentLabel(row.provider)} · ${translate('stats.usage.account.recorded', 'Recorded account {{id}}', { id: row.accountId })}`
++    `${getAgentLabel(row.provider)} · ${t('stats.usage.account.recorded', 'Recorded account {{id}}', { id: row.accountId })}`
+   )
+ }
+diff --git a/src/renderer/src/components/tab-bar/SortableTabContextMenu.tsx b/src/renderer/src/components/tab-bar/SortableTabContextMenu.tsx
+index 8a2f15e23bc..31c4857928a 100644
+--- a/src/renderer/src/components/tab-bar/SortableTabContextMenu.tsx
++++ b/src/renderer/src/components/tab-bar/SortableTabContextMenu.tsx
+@@ -183,7 +183,7 @@ export function SortableTabContextMenu({
+       {onWorkTogether ? (
+         <ContextMenuItem onSelect={onWorkTogether}>
+           <Link2 className="size-3.5 shrink-0" />
+-          {translate('components.sessionLink.workTogether', 'Work together…')}
++          {t('components.sessionLink.workTogether', 'Work together…')}
+         </ContextMenuItem>
+       ) : null}
+       <TabSessionSurfaceSwitchMenuItems
+diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
+index f71ca642901..c06c9e25660 100644
+--- a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
++++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
+@@ -2,7 +2,7 @@ import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
+ import { FilePlus, FileText, Globe, Settings, Smartphone, TerminalSquare } from 'lucide-react'
+ import { Button } from '@/components/ui/button'
+ import { AgentIcon } from '@/lib/agent-catalog'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
+ import type { TabCreateMenuOption } from '../tab-bar/tab-create-menu-options'
+ import { chatUnavailableLabel, rowId, rowLabel } from '../tab-bar/tab-agent-row-presentation'
+@@ -40,35 +40,33 @@ export function WorkspaceStartActions({
+   onSelect: (option: TabCreateMenuOption) => void
+   onManageAgents: () => void
+ }) {
++  const t = useTranslate()
+   useUiLanguageRevision()
+   return (
+     <section className="@container mx-auto flex w-full max-w-2xl flex-col gap-6 p-6">
+       <div className="space-y-2">
+         <h1 className="text-xl font-semibold">
+-          {translate('workspace.start.title', 'What would you like to open?')}
++          {t('workspace.start.title', 'What would you like to open?')}
+         </h1>
+         <p className="text-sm text-muted-foreground">
+-          {translate('workspace.start.description', 'Choose an agent or a tool for this project.')}
++          {t('workspace.start.description', 'Choose an agent or a tool for this project.')}
+         </p>
+       </div>
+       <div className="space-y-3">
+         <div className="flex items-center justify-between gap-3">
+-          <h2 className="text-sm font-medium">{translate('workspace.start.agents', 'Agents')}</h2>
++          <h2 className="text-sm font-medium">{t('workspace.start.agents', 'Agents')}</h2>
+           <Button variant="ghost" size="sm" onClick={onManageAgents}>
+             <Settings />
+-            {translate('workspace.start.manageAgents', 'Manage agents')}
++            {t('workspace.start.manageAgents', 'Manage agents')}
+           </Button>
+         </div>
+         {loading ? (
+           <p role="status" className="text-sm text-muted-foreground">
+-            {translate('auto.components.tab.bar.QuickLaunchButton.agentsLoading', 'Loading agents')}
++            {t('auto.components.tab.bar.QuickLaunchButton.agentsLoading', 'Loading agents')}
+           </p>
+         ) : rows.length === 0 ? (
+           <p className="text-sm text-muted-foreground">
+-            {translate(
+-              'auto.components.tab.bar.QuickLaunchButton.e518f544b1',
+-              'No agents detected'
+-            )}
++            {t('auto.components.tab.bar.QuickLaunchButton.e518f544b1', 'No agents detected')}
+           </p>
+         ) : (
+           <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2">
+@@ -83,10 +81,10 @@ export function WorkspaceStartActions({
+               >
+                 <AgentIcon agent={row.agent} size={16} />
+                 <span className="min-w-0 break-words">
+-                  {rowLabel(row)}
++                  {rowLabel(row, t)}
+                   {row.kind === 'chat-unavailable' ? (
+                     <span className="block text-xs text-muted-foreground">
+-                      {chatUnavailableLabel(row.reason)}
++                      {chatUnavailableLabel(row.reason, t)}
+                     </span>
+                   ) : null}
+                 </span>

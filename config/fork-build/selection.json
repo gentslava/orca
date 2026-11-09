@@ -35,12 +35,19 @@
     "37717": 37711,
     "37861": 37958,
     "36892": 38022,
-    "39022": 39727
+    "39022": 39727,
+    "36736": 40148
   },
   "dependencies": {
     "36593": [36634]
   },
-  "outputs": ["macos-arm64-dmg", "macos-arm64-zip"],
+  "outputs": [
+    "macos-arm64-dmg",
+    "macos-arm64-zip",
+    "windows-x64-installer",
+    "windows-x64-zip",
+    "android-apk"
+  ],
   "statusIssue": 12,
   "compatibilityPatches": [
     "preview-updater-guard.patch",
@@ -52,7 +59,11 @@
     "upstream-module-relocations.patch",
     "startup-chat-catalog.patch",
     "project-start-actions.patch",
-    "composed-ci-contracts.patch"
+    "composed-ci-contracts.patch",
+    "codex-selected-account-read.patch",
+    "composed-source-modules.patch",
+    "composed-reactive-copy.patch",
+    "composed-localization-cleanup.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",

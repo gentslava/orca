@@ -9,6 +9,10 @@ import { resolveSelection, orderSelections } from './selection.mjs'
 import { compose, assertFrozenHead, freezeRetainedHead } from './composition.mjs'
 import { mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { renderReport } from './github.mjs'
+import { pruneTranslationsWithoutSource } from './fork-localizations.mjs'
+import { upstreamReleaseIdentity } from './upstream-release-identity.mjs'
+import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/build-mac-local.mjs'
+import { compareAppVersions } from '../../src/shared/app-version.ts'
 
 const pr = (number, extra = {}) => ({
   number,
@@ -485,3 +489,63 @@ test('real Git: retained branches freeze the fork tip and reject races, rewritte
     selected.retainedHeadSource.ref = 'refs/heads/missing'
     assert.throws(() => freezeRetainedHead(cwd, selected, transport))
   }))
+
+test('fork localization cleanup keeps Russian plural forms and removes only untranslated-source orphans', () => {
+  const english = new Map([
+    ['count_one', 'One'],
+    ['count_other', 'Many'],
+    ['section.keep', 'Keep']
+  ])
+  const original = {
+    count_one: 'Один',
+    count_few: 'Несколько',
+    count_many: 'Много',
+    count_other: 'Другие',
+    section: { keep: 'Сохранить', stale: 'Удалено upstream' },
+    removed: 'Старый ключ'
+  }
+  const pruned = pruneTranslationsWithoutSource(original, english, 'ru')
+  assert.deepEqual(pruned.catalog, {
+    count_one: 'Один',
+    count_few: 'Несколько',
+    count_many: 'Много',
+    count_other: 'Другие',
+    section: { keep: 'Сохранить' }
+  })
+  assert.deepEqual(pruned.removed, ['section.stale', 'removed'])
+  assert.equal(original.section.stale, 'Удалено upstream')
+  assert.equal(pruneTranslationsWithoutSource(original, english, 'en').catalog.count_few, undefined)
+})
+
+test('personal versions advance the released patch instead of the main package placeholder', () => {
+  const release = {
+    id: 254,
+    tag_name: 'v1.4.254',
+    draft: false,
+    prerelease: false,
+    published_at: '2026-11-08T23:25:31Z'
+  }
+  const identity = upstreamReleaseIdentity(release)
+  assert.equal(identity.baseVersion, '1.4.255')
+  const version = createLocalBuildVersion(identity.baseVersion, 123456, 'abcdef123456').replace(
+    /([.-])local\.(?=\d+\.)/,
+    '$1local.forkpreview.'
+  )
+  assert.equal(version, '1.4.255-local.forkpreview.123456.abcdef123456')
+  assert.ok(compareAppVersions(version, '1.4.254') > 0)
+  assert.equal(
+    compareAppVersions('1.4.214-local.forkpreview.123456.abcdef123456', '1.4.254') < 0,
+    true
+  )
+  for (const overrides of [
+    { tag_name: 'v1.4.255-beta.1' },
+    { tag_name: 'not-a-version' },
+    { draft: true },
+    { prerelease: true },
+    { id: undefined },
+    { published_at: null },
+    { tag_name: 'v1.4.9007199254740991' }
+  ]) {
+    assert.throws(() => upstreamReleaseIdentity({ ...release, ...overrides }))
+  }
+})

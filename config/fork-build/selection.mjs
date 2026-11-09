@@ -90,6 +90,12 @@ export async function resolveSelection(
     if (pr.base.ref !== config.base) {
       throw new Error(`Unsupported PR base: PR ${number}`)
     }
+    const replacement = config.replacements[number]
+    if (!pr.merged_at && replacement) {
+      lifecycle.push({ number, disposition: 'replaced', replacement })
+      await resolve(replacement, [...chain, number])
+      return
+    }
     if (pr.state === 'closed' && !pr.merged_at && retained[number]) {
       const source = retainedSources[number]
       let selected = pr
@@ -121,17 +127,8 @@ export async function resolveSelection(
       return
     }
     if (pr.state === 'closed' && !pr.merged_at) {
-      const replacement = config.replacements[number]
-      lifecycle.push({
-        number,
-        disposition: replacement ? 'replaced' : 'closed-needs-review',
-        ...(replacement ? { replacement } : {})
-      })
-      if (replacement) {
-        await resolve(replacement, [...chain, number])
-      } else {
-        blockers.push({ number, reason: 'Closed without a recorded replacement or retirement' })
-      }
+      lifecycle.push({ number, disposition: 'closed-needs-review' })
+      blockers.push({ number, reason: 'Closed without a recorded replacement or retirement' })
       return
     }
     records.set(number, pr)
