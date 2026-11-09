@@ -1,3 +1,4 @@
+import { assertSessionLinkMailBoundary } from '../../../../orchestration/session-links/session-link-mail-boundary'
 import { defineMethod } from '../../../core'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { isGroupAddress } from '../../../../orchestration/addressing/groups/group-addressing'
@@ -252,6 +253,7 @@ export const ORCHESTRATION_SEND_METHODS = [
             sendWarnings.push(runBound.warning)
           }
         }
+        assertSessionLinkMailBoundary(db, orchestrationCaller?.orcaSessionId, to)
         const federatedControl = sendFederatedControlMail({
           params,
           runtime,
@@ -283,11 +285,9 @@ export const ORCHESTRATION_SEND_METHODS = [
           withSendWarnings: (sent) =>
             finished?.receipt(withSendWarnings(sent)) ?? withSendWarnings(sent)
         })
-        followThroughWorkerReport(
-          runtime,
-          db,
+        const reportedDispatchId =
           params.type === 'worker_done' ? settledDispatchId(sent) : undefined
-        )
+        followThroughWorkerReport(runtime, db, reportedDispatchId)
         return sent
       }
       return sendGroupMessage({

@@ -1,4 +1,5 @@
 import { ORCHESTRATION_SESSION_CHILDREN_METHODS } from './session-children'
+import { SESSION_LINK_METHODS } from './session-link-methods'
 import { requiringOrcadFeature } from '../../orcad-feature-readiness'
 import { ORCHESTRATION_CREW_METHODS } from './crew-methods'
 import { ORCHESTRATION_RUN_METHODS } from './runs/runs'
@@ -30,5 +31,6 @@ export const ORCHESTRATION_METHODS = requiringOrcadFeature('orchestration', [
   ...ORCHESTRATION_GATE_METHODS,
   ...ORCHESTRATION_RESET_METHODS,
   ...ORCHESTRATION_CALLER_METHODS,
-  ...ORCHESTRATION_SESSION_CHILDREN_METHODS
+  ...ORCHESTRATION_SESSION_CHILDREN_METHODS,
+  ...SESSION_LINK_METHODS
 ])
