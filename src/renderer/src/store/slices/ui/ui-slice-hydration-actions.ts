@@ -269,6 +269,7 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
           codexTerminalServerIsolationNoticeSeen:
             ui.codexTerminalServerIsolationNoticeSeen === true,
           codexSharedSettingsNoticeSeen: ui.codexSharedSettingsNoticeSeen === true,
+          speechModelUpdateNoticeSeen: ui.speechModelUpdateNoticeSeen === true,
           claudeDiffPanelNoticeSeen: ui.claudeDiffPanelNoticeSeen === true,
           ...hydrateAgentReadState(ui),
           workspaceCleanupDismissals: sanitizeWorkspaceCleanupDismissals(
