@@ -16,11 +16,11 @@ import type { RenderRow } from '../listing/render-row'
 import {
   getProjectGroupHeaderSectionEndByGroupId,
   getRootProjectHeaderSectionEndByKey,
-  getRepoHeaderSectionEndByRepoId
+  getRepoHeaderSectionEndByKey
 } from '../viewport/worktree-header-section-boundaries'
 import { useHostHeaderDrag } from './host-header-drag'
 import { useRepoHeaderDrag } from './project-header-drag'
-import { getSidebarOrderedRepoHeaderIdsByBucket } from './project-header-drop'
+import { getSidebarOrderedRepoHeaderRowsByBucket } from './project-header-drop'
 import { useProjectGroupHeaderDrag } from './project-group-header-drag'
 import { getSidebarOrderedProjectGroupHeaderIdsByBucket } from './project-group-header-drop'
 import { USER_SCROLL_MEASUREMENT_ADJUSTMENT_SUPPRESS_MS } from '../viewport/use-scroll-suppression'
@@ -72,7 +72,6 @@ export function useWorktreeSidebarHeaderDrag(args: {
     renderRows,
     firstHeaderIndex,
     allRepoIds,
-    repoMap,
     projectGroups,
     groupBy,
     projectOrderBy,
@@ -146,12 +145,32 @@ export function useWorktreeSidebarHeaderDrag(args: {
   }, [hostDrag.state.draggingHostId, onHostDragActiveChange])
   useEffect(() => () => onHostDragActiveChange(false), [onHostDragActiveChange])
 
-  const sidebarRepoHeaderIdsByBucket = useMemo(
+  const sidebarRepoHeaderRowsByBucket = useMemo(
     () =>
-      getSidebarOrderedRepoHeaderIdsByBucket(
+      getSidebarOrderedRepoHeaderRowsByBucket(
         rows.filter((row): row is Row => row.type !== 'host-header')
       ),
     [rows]
+  )
+  const sidebarRepoHeaderIdsByBucket = useMemo(
+    () =>
+      new Map(
+        [...sidebarRepoHeaderRowsByBucket].map(([bucket, headers]) => [
+          bucket,
+          headers.map((row) => row.repo.id)
+        ])
+      ),
+    [sidebarRepoHeaderRowsByBucket]
+  )
+  const sidebarRepoHeaderKeysByBucket = useMemo(
+    () =>
+      new Map(
+        [...sidebarRepoHeaderRowsByBucket].map(([bucket, headers]) => [
+          bucket,
+          headers.map((row) => row.key)
+        ])
+      ),
+    [sidebarRepoHeaderRowsByBucket]
   )
   const sidebarProjectGroupHeaderIdsByBucket = useMemo(
     () =>
@@ -161,14 +180,22 @@ export function useWorktreeSidebarHeaderDrag(args: {
       ),
     [projectGroupByIdForHeaderDrag, rows]
   )
-  const repoHeaderIndexByRepoId = useMemo(
-    () => indexById(sidebarRepoHeaderIdsByBucket),
-    [sidebarRepoHeaderIdsByBucket]
-  )
-  const repoHeaderBucketByRepoId = useMemo(
-    () => bucketById(sidebarRepoHeaderIdsByBucket),
-    [sidebarRepoHeaderIdsByBucket]
-  )
+  const repoHeaderBucketByRowKey = useMemo(() => {
+    const byRow = new Map<string, string>()
+    for (const [bucket, headers] of sidebarRepoHeaderRowsByBucket) {
+      for (const row of headers) {
+        byRow.set(row.key, bucket)
+      }
+    }
+    return byRow
+  }, [sidebarRepoHeaderRowsByBucket])
+  const repoHeaderIndexByRowKey = useMemo(() => {
+    const byRow = new Map<string, number>()
+    for (const headers of sidebarRepoHeaderRowsByBucket.values()) {
+      headers.forEach((row, index) => byRow.set(row.key, index))
+    }
+    return byRow
+  }, [sidebarRepoHeaderRowsByBucket])
   const projectGroupHeaderIndexByGroupId = useMemo(
     () => indexById(sidebarProjectGroupHeaderIdsByBucket),
     [sidebarProjectGroupHeaderIdsByBucket]
@@ -224,7 +251,7 @@ export function useWorktreeSidebarHeaderDrag(args: {
   const repoDrag = useRepoHeaderDrag({
     orderedRepoIds: allRepoIds,
     sidebarRepoHeaderIdsByBucket,
-    repoById: repoMap,
+    sidebarRepoHeaderRowsByBucket,
     getLiveRepos: readLiveRepos,
     usesProjectGroupOrdering: hasProjectGroups,
     onCommitRepoOrder: commitRepoReorder,
@@ -241,13 +268,16 @@ export function useWorktreeSidebarHeaderDrag(args: {
     onCommitRootProjectOrder: commitRootProjectOrder,
     getScrollContainer: () => scrollRef.current
   })
-  const repoHeaderSectionEndByRepoId = useMemo(
+  const repoHeaderSectionEndByRowKey = useMemo(
     () =>
-      getRepoHeaderSectionEndByRepoId({
+      getRepoHeaderSectionEndByKey({
         rows: renderRows,
-        firstHeaderIndex
+        firstHeaderIndex,
+        sidebarRepoHeaderKeysByBucket,
+        repoHeaderBucketByKey: repoHeaderBucketByRowKey,
+        keyOf: (row) => row.key
       }),
-    [firstHeaderIndex, renderRows]
+    [firstHeaderIndex, renderRows, repoHeaderBucketByRowKey, sidebarRepoHeaderKeysByBucket]
   )
   const projectGroupHeaderSectionEndByGroupId = useMemo(
     () =>
@@ -274,11 +304,11 @@ export function useWorktreeSidebarHeaderDrag(args: {
     projectGroupDrag,
     sidebarRepoHeaderIdsByBucket,
     sidebarProjectGroupHeaderIdsByBucket,
-    repoHeaderIndexByRepoId,
-    repoHeaderBucketByRepoId,
+    repoHeaderIndexByRowKey,
+    repoHeaderBucketByRowKey,
     projectGroupHeaderIndexByGroupId,
     projectGroupHeaderBucketByGroupId,
-    repoHeaderSectionEndByRepoId,
+    repoHeaderSectionEndByRowKey,
     projectGroupHeaderSectionEndByGroupId
   }
 }

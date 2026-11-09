@@ -21,6 +21,7 @@ registerWorktreeActivationReset()
 
 afterEach(async () => {
   await import('@/runtime/hosted-terminals/actions/web-runtime-terminal-rename')
+  await vi.dynamicImportSettled()
   vi.restoreAllMocks()
   useAppStore.setState(initialAppStoreState, true)
 })
