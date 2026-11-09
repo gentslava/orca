@@ -2857,6 +2857,11 @@
       "sendQueueHint": "Runs after the current turn",
       "sendSteerHint": "Goes into what the agent is doing now"
     },
+    "contextUsage": {
+      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
+      "title": "Context",
+      "estimated": "Estimated from the last response."
+    },
     "composerAttachments": {
       "file": "File",
       "fileMeta": "{{type}} · {{size}}",
@@ -2991,6 +2996,7 @@
       "setWhenSessionStarts": "Set when the session starts.",
       "availableAfterSessionStarts": "Available after the session starts.",
       "sessionOptions": "Session options",
+      "defaultModel": "Default",
       "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works."
     },
     "streamFrame": {
@@ -3038,11 +3044,6 @@
       "forkedFrom": "Forked from",
       "signIn": "Sign in",
       "signInHint": "Opens a terminal on the computer running this chat"
-    },
-    "ciResultLine": {
-      "failingLead": "CI failing on",
-      "greenLead": "CI green on",
-      "at": "at"
     },
     "nativeChatProse": {
       "attachedImage": "Attached image",
@@ -3106,6 +3107,13 @@
       "remote": "Orca on {{machine}} stopped while this response was in progress.",
       "canContinue": "You can continue in this conversation.",
       "unnamedServer": "the remote server"
+    },
+    "interruptedContinue": {
+      "failed": "Couldn't continue this chat. Try again, or send a message.",
+      "explanation": "Continue, and the agent first checks whether its last step finished."
+    },
+    "sendError": {
+      "dismiss": "Dismiss"
     },
     "toolActivity": {
       "count_one": "{{count}} tool call",
@@ -3277,20 +3285,11 @@
       "updateFromWorker": "Update from worker",
       "messageFrom": "Message from"
     },
-    "tool": {
-      "activity": "Activity"
-    },
-    "contextUsage": {
-      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
-      "title": "Context",
-      "estimated": "Estimated from the last response."
-    },
-    "interruptedContinue": {
-      "failed": "Couldn't continue this chat. Try again, or send a message.",
-      "explanation": "Continue, and the agent first checks whether its last step finished."
-    },
-    "sendError": {
-      "dismiss": "Dismiss"
+    "fork": {
+      "busy": "Another chat or terminal is opening. Wait, then fork the {{agent}} chat again.",
+      "unconfirmed": "{{agent}} couldn't confirm the fork. It may have opened anyway; check Session History before forking again.",
+      "failed": "{{agent}} couldn't fork this chat. {{detail}}",
+      "unsupported": "This host runs an older Orca. Update Orca on the host, then try again."
     },
     "hostOutage": {
       "reconnecting": "{{hostName}} is reconnecting…",
@@ -3333,11 +3332,13 @@
       "timeout": "The chat didn't update after going back to this message. Reopen it to see the latest.",
       "pending": "Wait for the conversation to go back to the earlier message."
     },
-    "fork": {
-      "busy": "Another chat or terminal is opening. Wait, then fork the {{agent}} chat again.",
-      "unconfirmed": "{{agent}} couldn't confirm the fork. It may have opened anyway; check Session History before forking again.",
-      "failed": "{{agent}} couldn't fork this chat. {{detail}}",
-      "unsupported": "This host runs an older Orca. Update Orca on the host, then try again."
+    "ciResultLine": {
+      "failingLead": "CI failing on",
+      "greenLead": "CI green on",
+      "at": "at"
+    },
+    "tool": {
+      "activity": "Activity"
     }
   },
   "sourceControl": {
