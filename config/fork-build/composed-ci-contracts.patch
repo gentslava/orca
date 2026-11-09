@@ -2665,3 +2665,30 @@ index 9450ee3c3a9..bf23b33f636 100644
  export function writeHeadlessTerminal(term: Terminal, data: string | Uint8Array): Promise<void> {
    return new Promise((resolve) => term.write(data, resolve))
  }
+
+diff --git a/mobile/src/mobile-web-shell/bridge-host.ts b/mobile/src/mobile-web-shell/bridge-host.ts
+--- a/mobile/src/mobile-web-shell/bridge-host.ts
++++ b/mobile/src/mobile-web-shell/bridge-host.ts
+@@ -308,9 +308,7 @@
+       dispatch(read.message)
+     },
+     publishRoute: (next) => routes.publish(next, serving && initSent),
+-    publishSafeAreaInsets: (next) => {
+-      routes.publishSafeAreaInsets(next, deliverable())
+-    },
++    publishSafeAreaInsets: (next) => routes.publishSafeAreaInsets(next, deliverable()),
+     publishKeyboardInset: (next) => routes.publishKeyboardInset(next, deliverable()),
+     publishStorage: () => sendInit(true),
+     publishHostStatus: () => verdict.publish(() => deliverable() && sendInit(), dispatch),
+
+diff --git a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
+--- a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
++++ b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
+@@ -42,6 +42,7 @@
+   })
+ 
+   afterEach(() => {
++    setBrowserNetworkProxySettingsResolver(null)
+     vi.restoreAllMocks()
+   })
+ 
