@@ -89,7 +89,11 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
   it('closes the sheet instead of leaving the screen', async () => {
     const browser = await ENGINES[0].launch()
     try {
-      const page = await browser.newPage({ viewport: VIEWPORT, reducedMotion: 'no-preference' })
+      const page = await browser.newPage({
+        viewport: VIEWPORT,
+        reducedMotion: 'no-preference',
+        locale: 'en-US'
+      })
       const errors = []
       page.on('pageerror', (error) => errors.push(`${error.name}: ${error.message}`))
       await page.addInitScript(installShellDouble, {
@@ -111,6 +115,18 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
       // Closed sheet claims nothing; shell retains its existing pop fallback.
       expect(await page.evaluate(notifyNames)).not.toContain(backNames.claim)
 
+      await page.getByRole('button', { name: 'More options', exact: true }).click()
+      await page.getByRole('button', { name: 'Advanced: workspaces', exact: true }).click()
+      await page.waitForFunction(
+        (name) => {
+          const claims = globalThis.__orcaRenderCheckNotifies
+            .filter((frame) => frame.name === name)
+            .map((frame) => frame.claimed)
+          return claims.length === 2 && claims[0] === true && claims[1] === false
+        },
+        backNames.claim,
+        { timeout: 10_000, polling: 100 }
+      )
       await workspaceOptionsButton(page).click({ timeout: 30_000 })
       await page.waitForFunction(
         () => document.querySelector('[aria-label="Dismiss drawer"]') !== null,
@@ -118,10 +134,12 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
         { timeout: 10_000, polling: 100 }
       )
       const claimed = await page.waitForFunction(
-        (name) =>
-          globalThis.__orcaRenderCheckNotifies.find(
-            (frame) => frame.name === name && frame.claimed === true
-          ) ?? null,
+        (name) => {
+          const latest = globalThis.__orcaRenderCheckNotifies.findLast(
+            (frame) => frame.name === name
+          )
+          return latest?.claimed === true ? latest : null
+        },
         backNames.claim,
         { timeout: 10_000, polling: 100 }
       )
@@ -153,7 +171,7 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
             .map((frame) => frame.claimed),
         backNames.claim
       )
-      expect(claims).toEqual([true, false])
+      expect(claims).toEqual([true, false, true, false])
       expect(errors).toEqual([])
       await page.close()
     } finally {

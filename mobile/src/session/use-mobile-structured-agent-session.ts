@@ -8,14 +8,8 @@ import {
   runningStructuredAgentSessionTurnId,
   structuredAgentSessionQueueSendsNext
 } from '../../../src/shared/agent-session/view/structured-agent-session-live-turn'
-import {
-  actionableStructuredApproval,
-  actionableStructuredQuestion
-} from './mobile-structured-actionable-prompt'
-import {
-  projectStructuredPermission,
-  projectStructuredQuestion
-} from './mobile-structured-agent-prompts'
+import * as actionablePrompts from './mobile-structured-actionable-prompt'
+import * as prompts from './mobile-structured-agent-prompts'
 import type {
   MobileStructuredAgentSessionArgs,
   StructuredMobileSession
@@ -203,7 +197,10 @@ export function useMobileStructuredAgentSession(
   // Prefer host actionability: ended-agent prompts must receive no answer.
   const [approvalPrompt, questionPrompt] = useMemo(() => {
     const prompts = { items, currentRequests, actionablePromptIds }
-    return [actionableStructuredApproval(prompts), actionableStructuredQuestion(prompts)] as const
+    return [
+      actionablePrompts.actionableStructuredApproval(prompts),
+      actionablePrompts.actionableStructuredQuestion(prompts)
+    ] as const
   }, [items, currentRequests, actionablePromptIds])
   const commandRefusalCauses = useMemo(
     () => ({
@@ -293,8 +290,8 @@ export function useMobileStructuredAgentSession(
       requestCancel(prompt ?? pendingStructuredPromptIdentity(stateRef.current)),
     receipts,
     actionablePromptIds: state.actionablePromptIds,
-    permission: projectStructuredPermission(approvalPrompt),
-    question: projectStructuredQuestion(questionPrompt),
+    permission: prompts.projectStructuredPermission(approvalPrompt),
+    question: prompts.projectStructuredQuestion(questionPrompt),
     respondPermission,
     respondQuestion,
     queued,

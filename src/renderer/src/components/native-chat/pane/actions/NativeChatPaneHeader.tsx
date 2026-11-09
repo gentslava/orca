@@ -1,4 +1,4 @@
-import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+import type { RuntimeClientTarget } from '../../../../../../shared/runtime-client-target'
 import { SessionLinkControl } from '../../SessionLinkControl'
 import { Fragment } from 'react'
 import './native-chat-pane-header.css'

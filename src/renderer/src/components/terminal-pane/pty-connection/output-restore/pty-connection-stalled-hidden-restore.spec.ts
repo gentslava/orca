@@ -498,15 +498,19 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
         timeout.fn()
         await flushAsyncTicks(20)
       }
-      const drainTimeoutsWithDelay = async (delay: number): Promise<void> => {
-        while (pendingTimeouts.some((timeout) => !timeout.canceled && timeout.delay === delay)) {
-          await runNextTimeoutWithDelay(delay)
+      const drainTimeoutsWithDelays = async (delays: readonly number[]): Promise<void> => {
+        const nextPendingTimeout = () =>
+          pendingTimeouts.find((timeout) => !timeout.canceled && delays.includes(timeout.delay))
+        for (let pending = nextPendingTimeout(); pending; pending = nextPendingTimeout()) {
+          await runNextTimeoutWithDelay(pending.delay)
         }
       }
 
       let disposable: { dispose: () => void } | null = null
       try {
         const { connectPanePty } = await import('../connect-pane-pty')
+        const { BACKGROUND_DRAIN_INTERVAL_MS, HIGH_PRIORITY_DRAIN_INTERVAL_MS } =
+          await import('@/lib/pane-manager/pane-terminal-output-scheduler')
         const agentTitleMocks7 =
           await vi.importMock<PtyConnectionAgentTitleMocks>('@/lib/agent-status')
         const transport = createMockTransport('pty-id')
@@ -539,6 +543,8 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
         )
         await flushAsyncTicks(6)
 
+        let drainClock = 0
+        vi.spyOn(performance, 'now').mockImplementation(() => (drainClock += 10))
         capturedDataCallback.current?.(hidden, { seq: hidden.length, rawLength: hidden.length })
         ;(deps.isVisibleRef as { current: boolean }).current = true
         capturedDataCallback.current?.(live, {
@@ -556,7 +562,11 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
         await runNextTimeoutWithDelay(50)
         await runNextTimeoutWithDelay(50)
         await runNextTimeoutWithDelay(50)
-        await drainTimeoutsWithDelay(0)
+        await drainTimeoutsWithDelays([
+          0,
+          HIGH_PRIORITY_DRAIN_INTERVAL_MS,
+          BACKGROUND_DRAIN_INTERVAL_MS
+        ])
 
         expect(getMainBufferSnapshot).toHaveBeenCalledTimes(4)
         expect(pane.terminal.write).toHaveBeenCalledWith(

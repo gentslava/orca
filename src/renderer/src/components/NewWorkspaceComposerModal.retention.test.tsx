@@ -1,3 +1,8 @@
+import {
+  chooseEffort,
+  effortLabel,
+  effortSlider
+} from './native-chat/native-chat-effort-slider.test-fixture'
 // @vitest-environment happy-dom
 // Exercise production Modal/Card/Picker/inventory with synthetic composer targets.
 import React, { useRef, useState } from 'react'
@@ -267,7 +272,7 @@ async function open(agent: string) {
   fireEvent.click(configure)
   await waitFor(() => expect(textarea()).not.toBeNull())
   await waitFor(() =>
-    expect(screen.getByRole('radio', { name: 'Low' }).hasAttribute('disabled')).toBe(false)
+    expect(effortSlider().closest('[data-slot=slider]')?.hasAttribute('data-disabled')).toBe(false)
   )
 }
 async function useDraft(surface: 'chat' | 'terminal' = 'terminal') {
@@ -326,23 +331,23 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
   render(<NewWorkspaceComposerModal />, { wrapper: TooltipProvider })
   await open('Claude')
   const start = snapshot('w1-before')
-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
+  chooseEffort('Low')
   fireEvent.change(textarea(), { target: { value: '--verbose' } })
   await useDraft()
   evidence.phase = 'w1-immediate-reopen'
   await open('Claude')
   expect(textarea().value).toBe('--verbose')
-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
+  expect(effortLabel()).toBe('Low')
   const echo = snapshot('w1-echo')
   expect(echo.initial?.choices.options?.effort).toBe('low')
   expect(echo.initial?.arguments).toBe('--verbose')
   await visit('W2 folder')
   evidence.phase = 'w2-codex'
   await open('Codex')
-  fireEvent.click(screen.getByRole('radio', { name: 'Med' }))
+  chooseEffort('Medium')
   await useDraft()
   await open('Codex')
-  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
+  expect(effortLabel()).toBe('Medium')
   const w2 = last('codex')
   await visit('W1 git')
   evidence.phase = 'w1-return'
@@ -352,17 +357,17 @@ it('pr35802 retains ordinary W1 accepted Low/verbose after parent echo then W2 C
   expect(returned.authority).toBe(start.authority)
   expect(returned.initial).toBeUndefined()
   expect.soft(textarea().value).toBe('--verbose')
-  expect.soft(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
+  expect.soft(effortLabel()).toBe('Low')
   fireEvent.change(textarea(), { target: { value: '--pending-after-accepted' } })
   await visit('W2 folder')
   await open('Codex')
-  expect(screen.getByRole('radio', { name: 'Med' }).getAttribute('aria-checked')).toBe('true')
+  expect(effortLabel()).toBe('Medium')
   expect(last('codex').authority).toBe(w2.authority)
   expect(textarea().value).toBe('')
   await visit('W1 git')
   await open('Claude')
   expect(textarea().value).toBe('--pending-after-accepted')
-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
+  expect(effortLabel()).toBe('Low')
   expect(evidence.submit).not.toHaveBeenCalled()
 })
 
@@ -393,7 +398,7 @@ it('offers Reopen with the submitted target and picker and does not replace a ne
   )
   await open('Claude')
   fireEvent.change(textarea(), { target: { value: '--verbose' } })
-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
+  chooseEffort('Low')
   await useDraft()
   const create = await screen.findByRole('button', { name: 'Create worktree' })
   await waitFor(() => expect(create.hasAttribute('disabled')).toBe(false))
@@ -417,5 +422,5 @@ it('offers Reopen with the submitted target and picker and does not replace a ne
   })
   await open('Claude')
   expect(textarea().value).toBe('--verbose')
-  expect(screen.getByRole('radio', { name: 'Low' }).getAttribute('aria-checked')).toBe('true')
+  expect(effortLabel()).toBe('Low')
 })
