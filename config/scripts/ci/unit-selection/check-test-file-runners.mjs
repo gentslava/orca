@@ -24,9 +24,9 @@ const NON_UNIT_TEST_RUNNERS = [
       'config/fork-build/status-record.test.mjs',
       'config/fork-build/promotion.test.mjs',
       'config/fork-build/install.test.mjs',
+      'config/fork-build/package-provenance.test.mjs',
       'config/fork-build/reviewed-deletion.test.mjs',
-      'config/fork-build/retired-test-fixtures.test.mjs',
-      'config/fork-build/package-provenance.test.mjs'
+      'config/fork-build/retired-test-fixtures.test.mjs'
     ],
     sources: ['.github/workflows/personal-build.yml'],
     mirrors: [
@@ -35,9 +35,9 @@ const NON_UNIT_TEST_RUNNERS = [
       'config/fork-build/status-record.test.mjs',
       'config/fork-build/promotion.test.mjs',
       'config/fork-build/install.test.mjs',
+      'config/fork-build/package-provenance.test.mjs',
       'config/fork-build/reviewed-deletion.test.mjs',
-      'config/fork-build/retired-test-fixtures.test.mjs',
-      'config/fork-build/package-provenance.test.mjs'
+      'config/fork-build/retired-test-fixtures.test.mjs'
     ]
   },
   {
@@ -57,13 +57,6 @@ const NON_UNIT_TEST_RUNNERS = [
     include: ['tests/e2e/computer-*.e2e.ts'],
     sources: ['tests/e2e/vitest.config.ts'],
     mirrors: ["'tests/e2e/computer-*.e2e.ts'"]
-  },
-  {
-    name: 'agent-status benchmark',
-    manual: true,
-    include: ['config/scripts/performance/agent-lineage/agent-status-hot-path-benchmark.ts'],
-    sources: ['config/vitest.agent-status-benchmark.config.ts'],
-    mirrors: ["'config/scripts/performance/agent-lineage/agent-status-hot-path-benchmark.ts'"]
   },
   {
     name: 'mobile',

@@ -1,5 +1,3 @@
-import type { StructuredAgentSessionConversations } from './structured-agent-session-conversations'
-import { structuredAgentSessionNeverSent } from './structured-agent-session-never-sent'
 import {
   createStructuredAgentSessionCatalogReads,
   structuredAgentSessionCatalogScopeOwned
@@ -20,7 +18,7 @@ import {
 
 type ReadContext = {
   deps: StructuredAgentSessionHostDeps
-  sessions: Pick<StructuredAgentSessionConversations, 'get' | 'observeConversationPublications'>
+  sessions: Map<string, StructuredAgentSessionHostSession>
   serialize: <T>(id: string, task: () => Promise<T>) => Promise<T>
   readCommands: StructuredAgentSessionClientDelivery['readCommandsSettled']
   conversation: (id: string) => Promise<StructuredAgentSessionHostSession>
@@ -61,9 +59,6 @@ export function createStructuredAgentSessionConversationReads(context: () => Rea
       (await context().conversation(sessionId)).journal.currentRead(inputIds),
 
     readModelCatalog,
-    observeConversationPublications: (
-      ...args: Parameters<StructuredAgentSessionConversations['observeConversationPublications']>
-    ) => context().sessions.observeConversationPublications(...args),
     attentionReads: {
       workspace: async (
         location: AgentSessionExecutionLocation
@@ -109,14 +104,6 @@ export function createStructuredAgentSessionConversationReads(context: () => Rea
     revealSession: (id: string) => {
       const { deps, conversation } = context()
       return revealStructuredAgentSession(deps, id, conversation)
-    },
-    sessionNeverSent: (id: string): boolean => {
-      const { deps, sessions } = context()
-      const session = sessions.get(id)
-      return (
-        !!session &&
-        structuredAgentSessionNeverSent(deps.store.getConversation(id), session.journal)
-      )
     },
     sessionAgent: (id: string) => context().deps.store.getConversation(id)?.provider ?? null,
     childAccountHome: (id: string) => context().sessions.get(id)?.child?.accountHome,

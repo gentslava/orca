@@ -1,6 +1,5 @@
 import type { AgentSessionRecord } from '../../../../shared/agent-session/lifecycle/agent-session-record'
 import type { AgentSessionProviderHandleLink } from '../../../../shared/agent-session/lifecycle/agent-session-provider-handle'
-import type { AgentSessionAccountHome } from '../../../../shared/agent-session/lifecycle/agent-session-account-home'
 import {
   withAcquiredAgentSessionAccount,
   type ClaudeAccountRecipe
@@ -21,11 +20,7 @@ export function createAgentSessionOwnerProof(
     link?: AgentSessionProviderHandleLink
     now: number
     leaseTtlMs?: number
-    accountAcquisition?: {
-      generation: string
-      recipe?: ClaudeAccountRecipe
-      home?: AgentSessionAccountHome
-    }
+    accountAcquisition?: { generation: string; recipe: ClaudeAccountRecipe }
   }): Promise<AgentSessionRecord> =>
     mutate(args.sessionId, (record) =>
       withAcquiredAgentSessionAccount(

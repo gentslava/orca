@@ -96,7 +96,8 @@ function picksNewLaunchModel(
   )
 }
 
-/** Codex cannot use the old account when its selection is unreadable; other providers keep their child. */
+/** Loop-free while a start launches under the account `current` reads; a read that throws is no
+ *  answer, so unreadable account evidence replaces nothing. */
 async function launchedUnderOtherAccount(
   child: OutgrownChildReading['child'],
   current: (() => Promise<AgentSessionAccountHome | null>) | undefined

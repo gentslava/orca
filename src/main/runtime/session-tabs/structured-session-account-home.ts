@@ -1,5 +1,4 @@
 import type { StructuredAgentId } from '../../../shared/agent-session/lifecycle/agent-session-provider-handle'
-import { agentSessionPinnedLaunchDirectory } from '../agent-session/records/agent-session-record-launch-directory'
 import { structuredAgentRuntimeMetadata } from '../agent-session/installation/structured-agent-runtime-metadata'
 import { getProfileUserDataPath } from '../../orca-profiles/profile-storage-paths'
 import { resolveHostStructuredAgentLaunchEnvironment } from '../agent-session/launch/structured-agent-launch-support'
@@ -57,25 +56,32 @@ export abstract class OrcaRuntimeWithStructuredSessionAccountHome extends OrcaRu
 
   /** The account home a start of this chat would launch under now, read without side effects; null
    *  for an agent whose chats keep the account they were created on. `identity` names it before its
-   *  folder exists; the default read checks availability; `launch` prepares the account and folder. */
+   *  folder exists; the default read checks availability. */
   async resolveStructuredAgentLaunchAccountHome(
     record: AgentSessionRecord,
-    purpose: 'read' | 'identity' | 'launch' = 'read'
+    purpose: 'read' | 'identity' = 'read'
   ): Promise<AgentSessionAccountHome | null> {
     const { provider, location } = record
     if (!structuredAgentRuntimeMetadata(provider)?.launchFollowsSelection?.()) {
       return null
     }
-    if (purpose === 'launch') {
-      await this.accounts.prepareHostAgentLaunch(provider)
-    }
-    const read = this.structuredAgentAccountHomeResolver(
-      provider,
-      purpose === 'launch' ? `id:${location.workspaceId}` : '',
-      purpose,
-      agentSessionPinnedLaunchDirectory(record)
-    )
+    const read = this.structuredAgentAccountHomeResolver(provider, '', purpose)
     const launchEnv = this.structuredAgentLaunchEnv(provider, this.requireStore().getSettings())
     return (await read?.({ launchEnv, location })) ?? null
+  }
+
+  /** The same account, prepared for a start in `launchDirectory` as a create prepares it. */
+  async prepareStructuredAgentLaunchAccountHome(
+    record: AgentSessionRecord,
+    launchDirectory: string
+  ): Promise<AgentSessionAccountHome | null> {
+    const { provider, location } = record
+    if (!structuredAgentRuntimeMetadata(provider)?.launchFollowsSelection?.()) {
+      return null
+    }
+    const prepare = this.structuredAgentAccountHomeResolver(provider, '', 'launch', launchDirectory)
+    await this.accounts.prepareHostAgentLaunch(provider)
+    const launchEnv = this.structuredAgentLaunchEnv(provider, this.requireStore().getSettings())
+    return (await prepare?.({ launchEnv, location })) ?? null
   }
 }
