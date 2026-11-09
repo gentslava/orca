@@ -131,36 +131,47 @@ function MobileNativeChatMessageImpl({
     if (!run) {
       return undefined
     }
-    const thought = (thoughtMessage: Chat.NativeChatMessage): React.JSX.Element => (
-      // Key by thought so later calls cannot remount it.
-      <MobileNativeChatGroupedThought
-        key={`thought:${thoughtMessage.id}`}
-        message={thoughtMessage}
-        fontScale={fontScale}
-        live={activeTurnIsWorking === true}
-        expanded={openReasoning?.has(nativeChatReasoningDisclosureKey(thoughtMessage.id)) === true}
-        onToggle={onToggleReasoning}
-        onLongPress={INLINE_TEXT_SELECTION ? undefined : () => openSheet(thoughtMessage)}
-      />
-    )
+    const aside = (thoughtMessage: Chat.NativeChatMessage): React.JSX.Element =>
+      thoughtMessage.role === 'system' ? (
+        <View key={`notice:${thoughtMessage.id}`}>
+          <MobileNativeChatNoticeRow
+            blocks={thoughtMessage.blocks}
+            disclosed
+            fontScale={fontScale}
+          />
+        </View>
+      ) : (
+        // Key by thought so later calls cannot remount it.
+        <MobileNativeChatGroupedThought
+          key={`thought:${thoughtMessage.id}`}
+          message={thoughtMessage}
+          fontScale={fontScale}
+          live={activeTurnIsWorking === true}
+          expanded={
+            openReasoning?.has(nativeChatReasoningDisclosureKey(thoughtMessage.id)) === true
+          }
+          onToggle={onToggleReasoning}
+          onLongPress={INLINE_TEXT_SELECTION ? undefined : () => openSheet(thoughtMessage)}
+        />
+      )
     const before = new Map<Chat.NativeChatBlock, React.JSX.Element[]>()
-    for (const [block, thoughts] of run.thoughtsBefore) {
-      before.set(block, thoughts.map(thought))
+    for (const [block, thoughts] of run.asidesBefore) {
+      before.set(block, thoughts.map(aside))
     }
-    return { before, after: run.thoughtsAfter.map(thought) }
+    return { before, after: run.asidesAfter.map(aside) }
   }, [run, fontScale, activeTurnIsWorking, openReasoning, onToggleReasoning, openSheet])
-  // Asks and prose read no files, so the run's own blocks or this message's give the same images.
   const viewedImages = useMemo(
     () => nativeChatToolRunViewedImages(run?.blocks ?? message.blocks),
     [run, message.blocks]
   )
   // Task rows replace their plain-text twins, which the host writes for readers without task blocks.
   const { backgroundTasks } = deriveNativeChatRowContent(message.blocks)
-  const drawnProse = isReasoning
-    ? []
-    : withoutSubagentGroupTwins(
-        backgroundTasks.length > 0 ? withoutBackgroundTaskRows(prose) : prose
-      )
+  const drawnProse =
+    isReasoning || (message.role === 'system' && workRun)
+      ? []
+      : withoutSubagentGroupTwins(
+          backgroundTasks.length > 0 ? withoutBackgroundTaskRows(prose) : prose
+        )
   const isSystem = message.role === 'system'
   const pullRequestEvent = isSystem
     ? drawnProse.find(
@@ -168,7 +179,7 @@ function MobileNativeChatMessageImpl({
           Chat.isTextBlock(block) && block.presentation === PULL_REQUEST_EVENT_PRESENTATION
       )
     : undefined
-  const showToolRun = tools.length > 0
+  const showToolRun = tools.length > 0 || workRun !== undefined
   const askPending = structuredActivityUi
     ? selectActiveToolCall(unansweredAsks, { activeTurnIsWorking }) !== null
     : unansweredAsks.length > 0
@@ -316,7 +327,7 @@ function MobileNativeChatMessageImpl({
                   fontScale={fontScale}
                   onLongPress={onLongPress}
                 />
-              ) : isSystem ? (
+              ) : isSystem && !workRun ? (
                 <MobileNativeChatNoticeRow
                   blocks={drawnProse}
                   fontScale={fontScale}
