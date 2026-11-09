@@ -173,6 +173,72 @@ index 8f6899cc4fd..897e019c81f 100644
      expect(errors).toEqual([])
      await page.close()
    }, 60_000)
+diff --git a/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx b/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx
+new file mode 100644
+index 00000000000..4072cea2902
+--- /dev/null
++++ b/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx
+@@ -0,0 +1,60 @@
++import { act, create, type ReactTestRenderer } from 'react-test-renderer'
++import { expect, it, vi } from 'vitest'
++
++// Avoid Expo imports through re-exported screen hooks; this test calls none of them.
++vi.mock('../../transport/connection/host-client-hooks', () => ({
++  useDisconnectHostClient: () => () => {},
++  useForceReconnect: () => null,
++  useForgetHostClient: () => () => {},
++  useHostClient: () => ({ client: null, clientId: null, state: 'disconnected' }),
++  usePrimeHosts: () => () => {},
++  useRefreshHostClient: () => () => {}
++}))
++
++import { RpcClientProvider } from '../../transport/connection/client-context.web'
++import { createFakeBridgePortPair, disposeBridgePortPair } from './bridge-port-pair-test-harness'
++import { NativeVerbError, useNativeVerbs, type NativeVerbs } from './use-native-verbs'
++
++const held: { verbs: NativeVerbs | null } = { verbs: null }
++
++function Screen(): null {
++  held.verbs = useNativeVerbs()
++  return null
++}
++
++it('preserves a checked image permission refusal without exposing handler details', async () => {
++  const pair = createFakeBridgePortPair({
++    serveNativeVerb: () =>
++      Promise.reject(
++        Object.assign(new Error('device-private detail'), {
++          code: 'native_image_permission_denied'
++        })
++      )
++  })
++  let tree: ReactTestRenderer | null = null
++  try {
++    await pair.flush()
++    await act(async () => {
++      tree = create(
++        <RpcClientProvider client={pair.client}>
++          <Screen />
++        </RpcClientProvider>
++      )
++    })
++    const verbs = held.verbs
++    if (verbs === null) {
++      throw new Error('Native verbs did not mount')
++    }
++    const pending = verbs.readClipboardText().catch((error: unknown) => error)
++    await pair.flush()
++    const error = await pending
++    if (!(error instanceof NativeVerbError)) {
++      throw new Error('Native refusal lost its checked type')
++    }
++    expect(error.reason).toBe('native_image_permission_denied')
++    expect(error.message).not.toContain('device-private detail')
++  } finally {
++    await act(async () => tree?.unmount())
++    await disposeBridgePortPair(pair)
++  }
++})
 diff --git a/mobile/src/session/mobile-pending-model-send.test-fixture.ts b/mobile/src/session/mobile-pending-model-send.test-fixture.ts
 index a20107f7fcb..be693a12ded 100644
 --- a/mobile/src/session/mobile-pending-model-send.test-fixture.ts
@@ -1002,7 +1068,7 @@ index 961db140cea..67c646154a8 100644
        useAppStore.setState(({ settings }) => ({
          settings: {
 diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
-index 6ba15a3e597..4b1563b8d50 100644
+index 000d1eb987f..980e48cb7ae 100644
 --- a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
 +++ b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
 @@ -1,3 +1,4 @@
@@ -1010,7 +1076,7 @@ index 6ba15a3e597..4b1563b8d50 100644
  // @vitest-environment happy-dom
  import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
  import { expect, it } from 'vitest'
-@@ -47,7 +48,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
+@@ -49,7 +50,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
    })
    fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
    fireEvent.click(screen.getByRole('option', { name: 'GPT-5.4' }))
@@ -2186,7 +2252,7 @@ index c99c0451c6a..92e96e6d52e 100644
    return { preferences, setPreference, projectVisibilitySupported, setProjectHidden }
  }
 diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-index 7ec9fe6c970..f5ff499b60d 100644
+index 348a1be547f..d78fa166e87 100644
 --- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 +++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 @@ -12,7 +12,6 @@ import {
@@ -2207,10 +2273,10 @@ index 7ec9fe6c970..f5ff499b60d 100644
        ...twinWorkspaces,
        runtimeStatusByEnvironmentId: new Map([['paired', pairedStatus]]),
 diff --git a/src/renderer/src/components/terminal-pane/pty-connection/output-restore/pty-connection-stalled-hidden-restore.spec.ts b/src/renderer/src/components/terminal-pane/pty-connection/output-restore/pty-connection-stalled-hidden-restore.spec.ts
-index 57502b90265..76d9fcf1538 100644
+index e6ebf41d056..ffa824694b8 100644
 --- a/src/renderer/src/components/terminal-pane/pty-connection/output-restore/pty-connection-stalled-hidden-restore.spec.ts
 +++ b/src/renderer/src/components/terminal-pane/pty-connection/output-restore/pty-connection-stalled-hidden-restore.spec.ts
-@@ -498,15 +498,19 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
+@@ -504,15 +504,19 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
          timeout.fn()
          await flushAsyncTicks(20)
        }
@@ -2230,10 +2296,10 @@ index 57502b90265..76d9fcf1538 100644
          const { connectPanePty } = await import('../connect-pane-pty')
 +        const { BACKGROUND_DRAIN_INTERVAL_MS, HIGH_PRIORITY_DRAIN_INTERVAL_MS } =
 +          await import('@/lib/pane-manager/pane-terminal-output-scheduler')
-         const agentTitleMocks7 =
-           await vi.importMock<PtyConnectionAgentTitleMocks>('@/lib/agent-status')
-         const transport = createMockTransport('pty-id')
-@@ -539,6 +543,8 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
+         const agentTitleMocks7 = await vi.importMock<PtyConnectionAgentTitleMocks>(
+           '@/lib/agent-status/aggregation/worktree-agent-status'
+         )
+@@ -546,6 +550,8 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
          )
          await flushAsyncTicks(6)
 
@@ -2242,7 +2308,7 @@ index 57502b90265..76d9fcf1538 100644
          capturedDataCallback.current?.(hidden, { seq: hidden.length, rawLength: hidden.length })
          ;(deps.isVisibleRef as { current: boolean }).current = true
          capturedDataCallback.current?.(live, {
-@@ -556,7 +562,11 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
+@@ -563,7 +569,11 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
          await runNextTimeoutWithDelay(50)
          await runNextTimeoutWithDelay(50)
          await runNextTimeoutWithDelay(50)
@@ -2508,68 +2574,3 @@ index 8dd5ac824e5..66cf5d7925a 100644
        await options?.beforeFirstWindow?.(app)
        const page = await app.firstWindow({ timeout: 120_000 })
        await page.waitForLoadState('domcontentloaded')
-diff --git a/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx b/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx
-new file mode 100644
---- /dev/null
-+++ b/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx
-@@ -0,0 +1,60 @@
-+import { act, create, type ReactTestRenderer } from 'react-test-renderer'
-+import { expect, it, vi } from 'vitest'
-+
-+// Avoid Expo imports through re-exported screen hooks; this test calls none of them.
-+vi.mock('../../transport/connection/host-client-hooks', () => ({
-+  useDisconnectHostClient: () => () => {},
-+  useForceReconnect: () => null,
-+  useForgetHostClient: () => () => {},
-+  useHostClient: () => ({ client: null, clientId: null, state: 'disconnected' }),
-+  usePrimeHosts: () => () => {},
-+  useRefreshHostClient: () => () => {}
-+}))
-+
-+import { RpcClientProvider } from '../../transport/connection/client-context.web'
-+import { createFakeBridgePortPair, disposeBridgePortPair } from './bridge-port-pair-test-harness'
-+import { NativeVerbError, useNativeVerbs, type NativeVerbs } from './use-native-verbs'
-+
-+const held: { verbs: NativeVerbs | null } = { verbs: null }
-+
-+function Screen(): null {
-+  held.verbs = useNativeVerbs()
-+  return null
-+}
-+
-+it('preserves a checked image permission refusal without exposing handler details', async () => {
-+  const pair = createFakeBridgePortPair({
-+    serveNativeVerb: () =>
-+      Promise.reject(
-+        Object.assign(new Error('device-private detail'), {
-+          code: 'native_image_permission_denied'
-+        })
-+      )
-+  })
-+  let tree: ReactTestRenderer | null = null
-+  try {
-+    await pair.flush()
-+    await act(async () => {
-+      tree = create(
-+        <RpcClientProvider client={pair.client}>
-+          <Screen />
-+        </RpcClientProvider>
-+      )
-+    })
-+    const verbs = held.verbs
-+    if (verbs === null) {
-+      throw new Error('Native verbs did not mount')
-+    }
-+    const pending = verbs.readClipboardText().catch((error: unknown) => error)
-+    await pair.flush()
-+    const error = await pending
-+    if (!(error instanceof NativeVerbError)) {
-+      throw new Error('Native refusal lost its checked type')
-+    }
-+    expect(error.reason).toBe('native_image_permission_denied')
-+    expect(error.message).not.toContain('device-private detail')
-+  } finally {
-+    await act(async () => tree?.unmount())
-+    await disposeBridgePortPair(pair)
-+  }
-+})

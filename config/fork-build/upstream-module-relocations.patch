@@ -9,7 +9,7 @@ index 702598d88d5..7a390a5a3f0 100644
 -  registerShellHandlers({ getSshTarget: () => undefined }, () => [])
 +  registerShellHandlers({ getSshTarget: () => undefined, getSettings: () => ({}) }, () => [])
  })
- 
+
  afterEach(async () => {
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 index b71d37ed2f5..dc2fe3f08cc 100644
@@ -17,7 +17,7 @@ index b71d37ed2f5..dc2fe3f08cc 100644
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 @@ -35,6 +35,34 @@ const baseSession: AiVaultSession = {
  }
- 
+
  describe('buildAiVaultProjectContext', () => {
 +  it('attributes a structured chat to its stored workspace on its own host even when its cwd matches another project', () => {
 +    const repo = makeRepo({ id: 'saved-repo', path: '/saved', displayName: 'Saved project' })
@@ -57,15 +57,15 @@ index 3e5a6936975..edb5db46047 100644
 @@ -4,6 +4,8 @@ import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts
  import type { Repo } from '../../../../../../shared/repo-types'
  import type { Worktree } from '../../../../../../shared/worktree/types'
- 
+
 +import { MIXED_FOLDER } from '../../../../../../shared/folder-workspaces/folder-workspace-host-routing.test-fixture'
 +import { aiVaultSessionOwnerWorkspaces } from './ai-vault-session-worktree'
  import { resolveAiVaultSessionWorktreeInfo } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-worktree'
- 
+
  const baseSession: AiVaultSession = {
 @@ -66,6 +68,47 @@ function makeRepo(overrides: Partial<Repo> = {}): Repo {
  }
- 
+
  describe('resolveAiVaultSessionWorktreeInfo', () => {
 +  it('resolves a record-only chat by stored folder identity without a cwd and keeps host twins separate', () => {
 +    const folder = { ...MIXED_FOLDER, id: 'folder-1', name: 'Notes', folderPath: '/work/notes' }
@@ -121,7 +121,7 @@ index 28f6abb3003..3b8e2e3ae77 100644
  import { translate } from '@/i18n/i18n'
 -import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
 +import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
- 
+
  export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
    const order = useAppStore((state) => state.projectOrderBy)
 diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
@@ -206,11 +206,11 @@ index 00000000000..507a8a3f0fa
 +  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
 +})
 diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-index 0ded459a3da..7ec9fe6c970 100644
+index e7df911e774..348a1be547f 100644
 --- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 +++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 @@ -6,6 +6,17 @@ import { TooltipProvider } from '@/components/ui/tooltip'
- import { AGENT_CATALOG } from '@/lib/agent-catalog'
+ import { AGENT_CATALOG } from '@/lib/agent-catalog/agent-catalog'
  import { afterEach, expect, it, vi } from 'vitest'
  import { useAppStore } from '@/store'
 +import { getRuntimeAgentInventoryKey } from '@/store/slices/agent-inventory/runtime-agent-inventory-key'
@@ -224,12 +224,12 @@ index 0ded459a3da..7ec9fe6c970 100644
 +  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
 +  STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
 +} from '../../../../shared/agent-session/agent-session-runtime-capabilities'
- 
+
  import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
  import '@/lib/agent-session/launch/routing/agent-launch-route-input'
 @@ -220,3 +231,78 @@ it('waits on a paired server only while contact is checking without a reported O
  })
- 
+
  /** Copies whose owner-field reads (`id`, `executionHostId`) are counted. */
 +
 +it.each(['git-worktree', 'folder'] as const)(
