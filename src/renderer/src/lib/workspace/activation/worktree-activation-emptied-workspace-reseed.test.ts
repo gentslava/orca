@@ -109,12 +109,14 @@ describe('activating a workspace whose last terminal was closed', () => {
       activeView: 'terminal'
     })
 
-    activateAndRevealWorktree(worktree.id, {
+    const result = activateAndRevealWorktree(worktree.id, {
       executionHostId: 'local',
       notifyHostRuntime: false
     })
 
+    expect(result).toEqual({ primaryTabId: null })
     expect(useAppStore.getState().tabsByWorktree[worktree.id]).toHaveLength(0)
+    expect(useAppStore.getState().pendingStartupByTabId).toEqual({})
   })
 
   it('keeps a waiting split landing instead of re-seeding when the workspace is reopened', () => {

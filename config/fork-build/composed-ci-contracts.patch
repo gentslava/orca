@@ -2273,24 +2273,58 @@ index 348a1be547f..d78fa166e87 100644
        ...twinWorkspaces,
        runtimeStatusByEnvironmentId: new Map([['paired', pairedStatus]]),
 diff --git a/src/renderer/src/components/terminal-pane/pty-connection/output-restore/pty-connection-stalled-hidden-restore.spec.ts b/src/renderer/src/components/terminal-pane/pty-connection/output-restore/pty-connection-stalled-hidden-restore.spec.ts
-index e6ebf41d056..ffa824694b8 100644
+index e6ebf41d056..8e773a9350e 100644
 --- a/src/renderer/src/components/terminal-pane/pty-connection/output-restore/pty-connection-stalled-hidden-restore.spec.ts
 +++ b/src/renderer/src/components/terminal-pane/pty-connection/output-restore/pty-connection-stalled-hidden-restore.spec.ts
-@@ -504,15 +504,19 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
-         timeout.fn()
-         await flushAsyncTicks(20)
-       }
+@@ -4,7 +4,12 @@ import {
+   buildKittyKeyboardRestore,
+   RESET_AFTER_BYTE_GAP
+ } from '../../../../../../shared/terminal/protocol/input-modes/terminal-mode-reset-profiles'
+-import { flushAsyncTicks, createDeferred } from '../test-fixtures/pty-connection-test-async'
++import {
++  flushAsyncTicks,
++  createDeferred,
++  createPendingPtyTimeoutDrain,
++  type PendingPtyTimeout
++} from '../test-fixtures/pty-connection-test-async'
+ import { NORMAL_BUFFER_PROLOGUE } from '../test-fixtures/pty-connection-test-constants'
+ import {
+   createMockTransport,
+@@ -468,12 +473,7 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
+     })
+ 
+     it('keeps foreground output when hidden-backlog snapshot recovery is unavailable', async () => {
+-      const pendingTimeouts: {
+-        canceled: boolean
+-        delay: number
+-        fn: () => void
+-        id: number
+-      }[] = []
++      const pendingTimeouts: PendingPtyTimeout[] = []
+       const originalSetTimeout = globalThis.setTimeout
+       const originalClearTimeout = globalThis.clearTimeout
+       let nextTimeoutId = 1
+@@ -495,24 +495,14 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
+         }
+       }) as unknown as typeof clearTimeout
+ 
+-      const runNextTimeoutWithDelay = async (delay: number): Promise<void> => {
+-        const index = pendingTimeouts.findIndex(
+-          (timeout) => !timeout.canceled && timeout.delay === delay
+-        )
+-        expect(index).toBeGreaterThanOrEqual(0)
+-        const [timeout] = pendingTimeouts.splice(index, 1)
+-        timeout.fn()
+-        await flushAsyncTicks(20)
+-      }
 -      const drainTimeoutsWithDelay = async (delay: number): Promise<void> => {
 -        while (pendingTimeouts.some((timeout) => !timeout.canceled && timeout.delay === delay)) {
 -          await runNextTimeoutWithDelay(delay)
-+      const drainTimeoutsWithDelays = async (delays: readonly number[]): Promise<void> => {
-+        const nextPendingTimeout = () =>
-+          pendingTimeouts.find((timeout) => !timeout.canceled && delays.includes(timeout.delay))
-+        for (let pending = nextPendingTimeout(); pending; pending = nextPendingTimeout()) {
-+          await runNextTimeoutWithDelay(pending.delay)
-         }
-       }
-
+-        }
+-      }
++      const { runNextTimeoutWithDelay, drainTimeoutsWithDelays } =
++        createPendingPtyTimeoutDrain(pendingTimeouts)
+ 
        let disposable: { dispose: () => void } | null = null
        try {
          const { connectPanePty } = await import('../connect-pane-pty')
@@ -2299,16 +2333,16 @@ index e6ebf41d056..ffa824694b8 100644
          const agentTitleMocks7 = await vi.importMock<PtyConnectionAgentTitleMocks>(
            '@/lib/agent-status/aggregation/worktree-agent-status'
          )
-@@ -546,6 +550,8 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
+@@ -546,6 +536,8 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
          )
          await flushAsyncTicks(6)
-
+ 
 +        let drainClock = 0
 +        vi.spyOn(performance, 'now').mockImplementation(() => (drainClock += 10))
          capturedDataCallback.current?.(hidden, { seq: hidden.length, rawLength: hidden.length })
          ;(deps.isVisibleRef as { current: boolean }).current = true
          capturedDataCallback.current?.(live, {
-@@ -563,7 +569,11 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
+@@ -563,7 +555,11 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
          await runNextTimeoutWithDelay(50)
          await runNextTimeoutWithDelay(50)
          await runNextTimeoutWithDelay(50)
@@ -2318,7 +2352,7 @@ index e6ebf41d056..ffa824694b8 100644
 +          HIGH_PRIORITY_DRAIN_INTERVAL_MS,
 +          BACKGROUND_DRAIN_INTERVAL_MS
 +        ])
-
+ 
          expect(getMainBufferSnapshot).toHaveBeenCalledTimes(4)
          expect(pane.terminal.write).toHaveBeenCalledWith(
 diff --git a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts
@@ -2574,3 +2608,142 @@ index 8dd5ac824e5..66cf5d7925a 100644
        await options?.beforeFirstWindow?.(app)
        const page = await app.firstWindow({ timeout: 120_000 })
        await page.waitForLoadState('domcontentloaded')
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
+index 63de40b6ae9..2d69313cb9c 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
+@@ -165,7 +165,14 @@ run('production mobile PageList scrolling', () => {
+       await page.getByText('m99: Message history', { exact: true }).waitFor()
+       await page.mouse.move(180, 300)
+       await page.mouse.wheel(0, -500)
+-      await page.waitForTimeout(50)
++      await page.waitForFunction(() =>
++        [...document.querySelectorAll('div')].some(
++          (node) =>
++            getComputedStyle(node).flexDirection === 'column-reverse' &&
++            ['auto', 'scroll'].includes(getComputedStyle(node).overflowY) &&
++            node.scrollTop < 0
++        )
++      )
+       const before = await snapshot(page)
+       await page.waitForTimeout(500)
+       const after = await snapshot(page)
+diff --git a/src/renderer/src/components/terminal-pane/pty-connection/test-fixtures/pty-connection-test-async.ts b/src/renderer/src/components/terminal-pane/pty-connection/test-fixtures/pty-connection-test-async.ts
+index 9450ee3c3a9..bf23b33f636 100644
+--- a/src/renderer/src/components/terminal-pane/pty-connection/test-fixtures/pty-connection-test-async.ts
++++ b/src/renderer/src/components/terminal-pane/pty-connection/test-fixtures/pty-connection-test-async.ts
+@@ -1,4 +1,4 @@
+-import { vi } from 'vitest'
++import { expect, vi } from 'vitest'
+ import { Terminal } from '@xterm/headless'
+ 
+ // Drain fresh-spawn/reattach microtask chains before IPC assertions (docs/mobile-prefer-renderer-scrollback.md).
+@@ -37,6 +37,26 @@ export async function drainPendingTimeouts(
+   }
+ }
+ 
++export type PendingPtyTimeout = { canceled: boolean; delay: number; fn: () => void; id: number }
++
++export function createPendingPtyTimeoutDrain(pending: PendingPtyTimeout[]) {
++  const runNextTimeoutWithDelay = async (delay: number): Promise<void> => {
++    const index = pending.findIndex((timeout) => !timeout.canceled && timeout.delay === delay)
++    expect(index).toBeGreaterThanOrEqual(0)
++    const [timeout] = pending.splice(index, 1)
++    timeout.fn()
++    await flushAsyncTicks(20)
++  }
++  const drainTimeoutsWithDelays = async (delays: readonly number[]): Promise<void> => {
++    const nextPendingTimeout = () =>
++      pending.find((timeout) => !timeout.canceled && delays.includes(timeout.delay))
++    for (let timeout = nextPendingTimeout(); timeout; timeout = nextPendingTimeout()) {
++      await runNextTimeoutWithDelay(timeout.delay)
++    }
++  }
++  return { runNextTimeoutWithDelay, drainTimeoutsWithDelays }
++}
++
+ export function writeHeadlessTerminal(term: Terminal, data: string | Uint8Array): Promise<void> {
+   return new Promise((resolve) => term.write(data, resolve))
+ }
+
+diff --git a/mobile/src/mobile-web-shell/bridge-host.ts b/mobile/src/mobile-web-shell/bridge-host.ts
+--- a/mobile/src/mobile-web-shell/bridge-host.ts
++++ b/mobile/src/mobile-web-shell/bridge-host.ts
+@@ -308,9 +308,7 @@
+       dispatch(read.message)
+     },
+     publishRoute: (next) => routes.publish(next, serving && initSent),
+-    publishSafeAreaInsets: (next) => {
+-      routes.publishSafeAreaInsets(next, deliverable())
+-    },
++    publishSafeAreaInsets: (next) => routes.publishSafeAreaInsets(next, deliverable()),
+     publishKeyboardInset: (next) => routes.publishKeyboardInset(next, deliverable()),
+     publishStorage: () => sendInit(true),
+     publishHostStatus: () => verdict.publish(() => deliverable() && sendInit(), dispatch),
+
+diff --git a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
+--- a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
++++ b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
+@@ -42,6 +42,7 @@
+   })
+ 
+   afterEach(() => {
++    setBrowserNetworkProxySettingsResolver(null)
+     vi.restoreAllMocks()
+   })
+ 
+
+diff --git a/tests/e2e/github-project-board.spec.ts b/tests/e2e/github-project-board.spec.ts
+--- a/tests/e2e/github-project-board.spec.ts
++++ b/tests/e2e/github-project-board.spec.ts
+@@ -133,6 +133,7 @@
+         ),
+         settings: {
+           ...state.settings,
++          showTasksButton: true,
+           defaultTaskSource: 'github',
+           defaultRepoSelection: [repo.id],
+           githubProjects: {
+
+diff --git a/tests/e2e/runtime-host-status-recovery.spec.ts b/tests/e2e/runtime-host-status-recovery.spec.ts
+--- a/tests/e2e/runtime-host-status-recovery.spec.ts
++++ b/tests/e2e/runtime-host-status-recovery.spec.ts
+@@ -13,6 +13,7 @@
+   type RuntimeDesktopPairingOffer
+ } from './helpers/paired-electron-client'
+ import { launchHeadlessPairedRuntimeHost } from './helpers/headless-paired-runtime-host'
++import { showWorkspaceSidebar } from './helpers/sidebar-project-dialog'
+ 
+ async function interruptibleHost(offer: RuntimeDesktopPairingOffer) {
+   const pairing = decodePairingOffer(offer.pairingUrl)
+@@ -91,6 +92,7 @@
+   disconnected: boolean,
+   hostLabel?: string
+ ) {
++  await showWorkspaceSidebar(page)
+   const cards = page.locator('[data-worktree-card-surface="true"]')
+   const card = (
+     hostLabel ? cards.filter({ has: page.getByText(hostLabel, { exact: true }) }) : cards
+
+diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
+--- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
++++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
+@@ -97,8 +97,6 @@
+             ? ui.customSidekicks
+             : []
+         const petId = ui.petId ?? ui.sidekickId
+-        // Migration: one-shot old-'recent'→'smart' runs in main (_sortBySmartMigrated), not here, so a deliberate 'recent' choice survives restart.
+-        const sortBy = ui.sortBy
+         const statusBarItemsWithGrok = hydrateStatusBarItems(ui)
+         const hydrated = {
+           // Why: persisted widths may be stale/corrupt/hand-edited; clamp during hydration so invalid values can't break layout.
+@@ -126,7 +124,8 @@
+           rightSidebarOpen: typeof ui.rightSidebarOpen === 'boolean' ? ui.rightSidebarOpen : false,
+           ...normalizeRightSidebarRoute(ui.rightSidebarTab, ui.rightSidebarExplorerView),
+           groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
+-          sortBy,
++          // Migration runs in main; hydration preserves a deliberate recent choice.
++          sortBy: ui.sortBy,
+           // Why: main-process getUI() already normalized this (defaulting to 'manual'); read it through without migrating.
+           projectOrderBy: ui.projectOrderBy,
+           personalProjectOrder: newerPersonalProjectOrder(

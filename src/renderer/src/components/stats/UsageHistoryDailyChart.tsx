@@ -12,7 +12,7 @@ import {
 import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
 import { formatUsageDayLabel } from './usage-formatters'
 import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
-import { getAgentLabel } from '@/lib/agent-catalog'
+import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
 
 export function UsageHistoryDailyChart({
   rows,

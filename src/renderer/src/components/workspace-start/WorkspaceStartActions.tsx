@@ -1,7 +1,7 @@
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { FilePlus, FileText, Globe, Settings, Smartphone, TerminalSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AgentIcon } from '@/lib/agent-catalog'
+import { AgentIcon } from '@/components/agent/icons/AgentIcon'
 import { useTranslate } from '@/i18n/use-translate'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
 import type { TabCreateMenuOption } from '../tab-bar/tab-create-menu-options'

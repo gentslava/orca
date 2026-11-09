@@ -5,22 +5,25 @@ import { tmpdir } from 'node:os'
 import { composableLocalePaths, mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { reviewedMergePatches, applyReviewedMergePatch } from './reviewed-merge-patches.mjs'
 import { fixtureRetirement, reviewedTargetPaths } from './retired-test-fixtures.mjs'
+import { withGitHubReadRetry } from './github-read-retry.mjs'
 
 export function git(cwd, args, extra = {}, { raw = false, inheritEnv = true } = {}) {
-  const output = execFileSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], {
-    cwd,
-    encoding: 'utf8',
-    maxBuffer: 16 * 1024 * 1024,
-    stdio: ['ignore', 'pipe', 'pipe'],
-    env: {
-      ...(inheritEnv ? process.env : {}),
-      GIT_AUTHOR_NAME: 'github-actions[bot]',
-      GIT_AUTHOR_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com',
-      GIT_COMMITTER_NAME: 'github-actions[bot]',
-      GIT_COMMITTER_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com',
-      ...extra
-    }
-  })
+  const run = () =>
+    execFileSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], {
+      cwd,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: {
+        ...(inheritEnv ? process.env : {}),
+        GIT_AUTHOR_NAME: 'github-actions[bot]',
+        GIT_AUTHOR_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com',
+        GIT_COMMITTER_NAME: 'github-actions[bot]',
+        GIT_COMMITTER_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com',
+        ...extra
+      }
+    })
+  const output = ['fetch', 'ls-remote'].includes(args[0]) ? withGitHubReadRetry(run) : run()
   return raw ? output : output.trim()
 }
 

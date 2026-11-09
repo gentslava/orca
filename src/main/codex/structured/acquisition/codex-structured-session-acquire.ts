@@ -1,4 +1,5 @@
 import type { AgentSessionAccountKind } from '../../../../shared/agent-session/agent-session-availability'
+import { codexLaunchedAccountHome } from '../launch/codex-structured-launch-resolution'
 import {
   CODEX_STRUCTURED_HANDLE_NAMESPACE,
   isAgentSessionProviderHandleInNamespace
@@ -279,10 +280,7 @@ export async function acquireCodexStructuredSession(input: {
         },
         openInput
       )
-    const accountHome = launch.codexHome
-      ? { variable: 'CODEX_HOME' as const, path: launch.codexHome }
-      : undefined
-    return { process, acquisitionGeneration, ...(accountHome ? { accountHome } : {}) }
+    return { process, acquisitionGeneration, ...codexLaunchedAccountHome(launch) }
   } catch (error) {
     acquisitions.endings.retire(sessionId, acquisitionGeneration)
     if (sessions.get(sessionId)?.connection !== acquisition.connection) {
