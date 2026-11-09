@@ -14,19 +14,26 @@ import {
 
 export const WINDOWS_FILES = ['orca-windows-setup.exe', 'orca-windows-x64.zip']
 
-export function measureWindowsApp(app, expected, productVersion) {
+export function measureWindowsApp(app, expected, { productVersion, fileVersion }) {
   const identity = JSON.parse(readFileSync(join(app, 'resources/orca-personal-build.json'), 'utf8'))
   assertIdentity(identity, expected)
-  if (
-    productVersion !== expected.version ||
-    pe.readPeMachine(join(app, 'Orca.exe')) !== pe.PE_MACHINE.x64
-  ) {
-    throw new Error('Windows executable version or architecture differs from the source plan')
+  const expectedProductVersion = `${expected.version.split('-')[0]}.0`
+  if (productVersion !== expectedProductVersion || fileVersion !== expected.version) {
+    throw new Error(
+      `Windows executable version differs from the source plan: ${JSON.stringify({
+        expected: { productVersion: expectedProductVersion, fileVersion: expected.version },
+        actual: { productVersion, fileVersion }
+      })}`
+    )
+  }
+  if (pe.readPeMachine(join(app, 'Orca.exe')) !== pe.PE_MACHINE.x64) {
+    throw new Error('Windows executable architecture differs from the source plan')
   }
   const manifest = appManifest(app, { executableMode: false })
   return {
     identity,
     productVersion,
+    fileVersion,
     executableSha256: hashFile(join(app, 'Orca.exe')),
     appAsarSha256: hashFile(join(app, 'resources/app.asar')),
     treeSha256: createHash('sha256').update(JSON.stringify(manifest)).digest('hex'),
@@ -47,11 +54,7 @@ export function measureWindowsArchives(verification, expected) {
 export function stageWindowsPackages(plan, application, verification) {
   const expected = packageIdentity(plan, 'win32', 'x64')
   const proof = measureWindowsArchives(verification, expected)
-  const unpacked = measureWindowsApp(
-    join(application, 'dist/win-unpacked'),
-    expected,
-    proof.productVersion
-  )
+  const unpacked = measureWindowsApp(join(application, 'dist/win-unpacked'), expected, proof)
   if (JSON.stringify(proof) !== JSON.stringify(unpacked)) {
     throw new Error('Windows archives differ from the validated unpacked application')
   }

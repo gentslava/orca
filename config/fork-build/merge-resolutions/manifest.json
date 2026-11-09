@@ -1645,5 +1645,43 @@
     "resultSha256": null,
     "deleted": true,
     "reason": "Preserve upstream removal of the old hook suite; retain the added image-permission refusal regression as one focused bridge test in the fork CI overlay."
+  },
+  {
+    "path": "src/renderer/src/lib/workspace/activation/worktree-activation-structured-chat-surface.test.ts",
+    "blobs": [
+      "b71099c443514936823339818090ccf8c40105ff",
+      null,
+      "885f4dfc0fc720d6446707fc9862f982cdfeb0b4"
+    ],
+    "patch": "refresh-20261109/activation-test-retirement.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "deleted": true,
+    "reason": "Preserve upstream f10be535ca2a removal; 33361 and 33383 only add teardown import synchronization to this retired test."
+  },
+  {
+    "path": "src/renderer/src/lib/workspace/activation/worktree-activation-structured-chat-surface.test.ts",
+    "blobs": [
+      "b71099c443514936823339818090ccf8c40105ff",
+      null,
+      "075fecdda520e4fbdd6842d65176e19a5678082a"
+    ],
+    "patch": "refresh-20261109/activation-test-retirement.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "deleted": true,
+    "reason": "Preserve upstream f10be535ca2a removal; 33502 only adds teardown dynamic-import settling to this retired test."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "935f9124bc85f94cf0f16c5376afe0f1ccabb551",
+      "ed22e9676d1965cf70d7681662fceaee37ae8d0c",
+      "b6f28816be2c744be0e314a0241f84d182c96e43"
+    ],
+    "patch": "refresh-20261109/pr33512-en-0684.patch",
+    "patchSha256": "500cc8b63963ee4bd54d147416d4df0d31db6c85fee017797e4f39636234239f",
+    "resultSha256": "32ec4fc94c37b8da4f9dcc84605b776072e6fc514202598651416f02b15e84af",
+    "reason": "Combine hold-quit copy and all project-order keys; remove only the duplicate projectOrder subset with the identical saveFailed string."
   }
 ]

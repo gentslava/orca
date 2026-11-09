@@ -15,8 +15,12 @@ $payloads = @(Get-ChildItem (Join-Path $Verification 'nsis') -Recurse -Filter 'a
 if ($payloads.Count -ne 1) { throw 'Expected exactly one Windows x64 installer payload' }
 & $sevenZip x $payloads[0].FullName "-o$Verification/installer" -y | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Windows installer payload extraction failed' }
-$versions = @{
-  zip = (Get-Item (Join-Path $Verification 'zip/Orca.exe')).VersionInfo.ProductVersion
-  installer = (Get-Item (Join-Path $Verification 'installer/Orca.exe')).VersionInfo.ProductVersion
+function Get-ExecutableVersions([string]$Path) {
+  $info = (Get-Item $Path).VersionInfo
+  return @{ productVersion = $info.ProductVersion; fileVersion = $info.FileVersion }
 }
-$versions | ConvertTo-Json | Set-Content -Encoding utf8NoBOM (Join-Path $Verification 'product-versions.json')
+$versions = @{
+  zip = Get-ExecutableVersions (Join-Path $Verification 'zip/Orca.exe')
+  installer = Get-ExecutableVersions (Join-Path $Verification 'installer/Orca.exe')
+}
+$versions | ConvertTo-Json -Depth 3 | Set-Content -Encoding utf8NoBOM (Join-Path $Verification 'product-versions.json')

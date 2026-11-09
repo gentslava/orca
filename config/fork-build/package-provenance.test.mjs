@@ -17,7 +17,7 @@ const plan = {
   configuration: 'a'.repeat(40),
   upstream: 'b'.repeat(40),
   result: { commit: 'c'.repeat(40), tree: 'd'.repeat(40) },
-  version: '1.4.214-local.forkpreview.123.cccccccccccc',
+  version: '1.4.255-local.forkpreview.123.cccccccccccc',
   fingerprint: 'e'.repeat(64),
   mobile: { applicationId: 'com.stably.orca.mobile', mobileVersion: '0.0.64', versionCode: 28 },
   outputs: [
@@ -57,10 +57,8 @@ test('Windows extracted payloads must match in full, including source identity, 
     writeJson(join(app, 'resources/orca-personal-build.json'), identity)
     writeFileSync(join(app, 'resources/app.asar'), 'application')
   }
-  writeJson(join(directory, 'product-versions.json'), {
-    zip: plan.version,
-    installer: plan.version
-  })
+  const versions = { productVersion: '1.4.255.0', fileVersion: plan.version }
+  writeJson(join(directory, 'product-versions.json'), { zip: versions, installer: versions })
   assert.equal(measureWindowsArchives(directory, identity).treeEntries, 4)
   writeFileSync(join(directory, 'installer/resources/app.asar'), 'different application')
   assert.throws(() => measureWindowsArchives(directory, identity), /different applications/)
@@ -77,8 +75,13 @@ test('Windows extracted payloads must match in full, including source identity, 
   })
   assert.throws(() => measureWindowsArchives(directory, identity), /identity/)
   writeJson(join(directory, 'installer/resources/orca-personal-build.json'), identity)
-  writeJson(join(directory, 'product-versions.json'), { zip: plan.version, installer: '1.0.0' })
-  assert.throws(() => measureWindowsArchives(directory, identity), /version/)
+  for (const mismatch of [
+    { ...versions, productVersion: '1.4.254.0' },
+    { ...versions, fileVersion: '1.4.255-local.forkpreview.122.cccccccccccc' }
+  ]) {
+    writeJson(join(directory, 'product-versions.json'), { zip: versions, installer: mismatch })
+    assert.throws(() => measureWindowsArchives(directory, identity), /version/)
+  }
 })
 
 function platformReceipt(directory, name, identity, filenames) {
