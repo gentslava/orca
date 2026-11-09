@@ -11,6 +11,7 @@ import {
   verifyPackageReceipt
 } from './package-provenance.mjs'
 import { measureWindowsArchives, WINDOWS_FILES } from './windows-packages.mjs'
+import { androidSigningCertificate } from './android-packages.mjs'
 import { assembleReleasePackages } from './release-packages.mjs'
 
 const plan = {
@@ -150,4 +151,24 @@ test('checksum metadata cannot be silently replaced or point outside the package
     files: [{ file: '../outside.exe', sha256: 'f'.repeat(64) }]
   })
   assert.throws(() => verifyPackageReceipt(directory, 'windows', identity), /bytes/)
+})
+
+test('Android SDK signer labels preserve the pinned single-certificate policy', () => {
+  const digest = 'fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c'
+  const report = `V2 Signer: certificate DN: CN=Android Debug, OU=Android
+V2 Signer: certificate SHA-256 digest: ${digest}
+V2 Signer: certificate SHA-1 digest: 5e8f16062ea3cd2c4a0d547876baa6f38cabf625
+`
+  assert.equal(androidSigningCertificate(report), digest)
+  assert.equal(androidSigningCertificate(report.replaceAll('V2 Signer:', 'Signer #1')), digest)
+  assert.equal(androidSigningCertificate(report.replaceAll('\n', '\r\n')), digest)
+  for (const invalid of [
+    '',
+    report.replace(digest, 'a'.repeat(64)),
+    `${report}${report}`,
+    `${report}Unknown signer: certificate SHA-256 digest: ${'a'.repeat(64)}\n`,
+    report.replace('V2 Signer: certificate SHA-256', 'Unknown signer: certificate SHA-256')
+  ]) {
+    assert.throws(() => androidSigningCertificate(invalid), /certificate differs/)
+  }
 })

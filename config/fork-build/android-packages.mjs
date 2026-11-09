@@ -47,6 +47,24 @@ export function stampAndroidBuild(plan, application) {
   writeJson(join(assets, 'orca-personal-build.json'), androidIdentity(plan))
 }
 
+export function androidSigningCertificate(signerReport) {
+  const certificates = signerReport
+    .split(/\r?\n/)
+    .filter((line) => line.includes('certificate SHA-256 digest:'))
+  const certificate =
+    certificates.length === 1
+      ? /^(?:Signer #\d+|V2 Signer:) certificate SHA-256 digest: ([a-fA-F0-9]{64})$/
+          .exec(certificates[0])?.[1]
+          .toLowerCase()
+      : null
+  if (certificate !== EXPO_DEBUG_CERTIFICATE) {
+    throw new Error(
+      `Personal APK certificate differs from the existing Expo debug signing identity\n${signerReport}`
+    )
+  }
+  return certificate
+}
+
 export function measureAndroidPackage(plan, file) {
   const identity = JSON.parse(run('unzip', ['-p', file, 'assets/orca-personal-build.json']))
   assertIdentity(identity, androidIdentity(plan))
@@ -61,14 +79,7 @@ export function measureAndroidPackage(plan, file) {
     }
   }
   const signerReport = run(androidTool('apksigner'), ['verify', '--print-certs', file])
-  const certificates = [
-    ...signerReport.matchAll(/Signer #\d+ certificate SHA-256 digest: ([a-fA-F0-9]+)/g)
-  ].map((match) => match[1].toLowerCase())
-  if (certificates.length !== 1 || certificates[0] !== EXPO_DEBUG_CERTIFICATE) {
-    throw new Error(
-      `Personal APK certificate differs from the existing Expo debug signing identity: ${JSON.stringify(certificates)}\n${signerReport}`
-    )
-  }
+  const certificateSha256 = androidSigningCertificate(signerReport)
   const abis = [
     ...new Set(
       run('unzip', ['-Z1', file])
@@ -79,7 +90,7 @@ export function measureAndroidPackage(plan, file) {
   if (!abis.includes('arm64-v8a')) {
     throw new Error('APK must contain Android ARM64 native libraries')
   }
-  return { identity, sha256: hashFile(file), certificateSha256: certificates[0], abis }
+  return { identity, sha256: hashFile(file), certificateSha256, abis }
 }
 
 export function stageAndroidPackage(plan, application) {
