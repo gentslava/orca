@@ -406,7 +406,7 @@ index 42d48cdbf3e..e185cca4e1b 100644
  import { useAppStore } from '@/store'
 -import { isTerminalWorkspaceEmptiedOnPurpose } from '../../../shared/workspace-layout/closed-terminal-tab-tombstones'
  import { gateWorktreeAgentActivation } from '@/lib/workspace/activation/worktree-agent-activation-gate'
- import { createWorkspaceTerminalHostAuthoritySelector } from '@/lib/workspace-terminal-host-authority'
+ import { createWorkspaceTerminalHostAuthoritySelector } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
 -import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
 -import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
  import type { TerminalColdActivationController } from './terminal-cold-activation'
@@ -987,17 +987,17 @@ index 474baef3eaf..3027ca60028 100644
 +    expect(useAppStore.getState().tabsByWorktree[worktreeId] ?? []).toEqual([])
    }
  )
-diff --git a/src/renderer/src/lib/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
+diff --git a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
 index ec0f9b9..fbb84a8 100644
---- a/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
-+++ b/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
+--- a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
++++ b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
 @@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
  import type * as AgentStatusModule from '@/lib/agent-status'
  import { createTestStore } from '@/store/testing/app-store-test-fixture'
  import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
 +import { makeFolderWorkspace } from '@/store/folder-workspaces/folder-workspace.test-fixture'
  import { ensureWorktreeHasInitialTerminal } from '@/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding'
- import { resolveWorkspaceTerminalHostAuthority } from '@/lib/workspace-terminal-host-authority'
+ import { resolveWorkspaceTerminalHostAuthority } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
  
 @@ -21,6 +22,7 @@ vi.mock('@/lib/agent-status', async (importOriginal) => {
  
