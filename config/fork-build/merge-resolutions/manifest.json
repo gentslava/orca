@@ -1535,5 +1535,41 @@
     "patchSha256": "2047de7a637357e91e11f4e5205e502b5d0ead4f15a5db0637f768a0b237448d",
     "resultSha256": "fa5c14f73227ea94433e1412ebaa40af5a6df6ce9c01f09abf739b8ce4b74ac8",
     "reason": "Reuse the reviewed foreground/background task integration with current clear, prompt and child-navigation owners; preserve finished rows and hide only an otherwise empty early-call strip."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "7afeb0e3ceacd7528726da6a30057df99153c7ad",
+      "547d6d8b47e8e98b4b4bffbae0cc2fe1fe7c2354",
+      "3cfc695eee25b15b4bd762c6babab7bb5ec36f51"
+    ],
+    "patch": "refresh-20261109/pr33502-db64f07574c5.patch",
+    "patchSha256": "fe4dda8fa31cd69d0b360c1426515bcafaf7e54c3a0eccc7f98004f664cae6c7",
+    "resultSha256": "cb3fa633a792df1b5ad1ac11394f0b9fcdeeab75db3a12b00beeb0e4b617942f",
+    "reason": "Compose project-order and conversation preferences with upstream phone-owned host labels and status capability; retain a single settings hook and the new host-status readability gate."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "8d9b449a25edf0bc9af8c67525eead838bb12117",
+      "495634b7c0e5eefa593ad32e1c8969cdd1ea2902",
+      "843dec91db2cf497a97b33e55698b9f34f90a0f3"
+    ],
+    "patch": "refresh-20261109/pr33502-dff4a7fdb99a.patch",
+    "patchSha256": "95cbe2031696c6d78183fb5984f11d63f3134b7a8811adf8c665bdbdd59704f6",
+    "resultSha256": "fddc07bb9f1a2b917c795e1f301609c422e7d131dd4709dd74ec6362a3aafb4b",
+    "reason": "Compose project-order and conversation preferences with upstream phone-owned host labels and status capability; retain a single settings hook and the new host-status readability gate."
+  },
+  {
+    "path": "src/shared/native-chat/tools/native-chat-tool-line-view.ts",
+    "blobs": [
+      "ef7b593998ad32cc2ce492bcf28b140b0f128a35",
+      "0901681d4e1e17ae9a32f9a764d41d63c3fc0961",
+      "730de935b18a6c0450d0107b1f0249129104ad22"
+    ],
+    "patch": "refresh-20261109/pr36593-bc72bc5a308e.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "5f34fd169b156fb9dfa6875197a4fa35eb7c680ac5a002b6e622639c33c6640b",
+    "reason": "Retained tool-input disclosure already opens every call, including short pending commands; preserve that superset while the command-label owner supplies full commands with metadata."
   }
 ]
