@@ -1,4 +1,5 @@
 import { createCoalescedPollRunner } from '@/lib/repository-refresh/coalesced-poll-runner'
+import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
 import { useAppStore } from '@/store'
 import { useEffect, useMemo, useState } from 'react'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
@@ -108,7 +109,6 @@ export function useNativeChatSessionChildren(args: {
       }
     }
     const runner = createCoalescedPollRunner(refresh, { minIntervalMs: 250 })
-    runner.run()
     let statuses = useAppStore.getState().agentStatusByPaneKey
     let lifecycle = workerLifecycleKey(useAppStore.getState())
     const unsubscribe = useAppStore.subscribe((state) => {
@@ -124,10 +124,13 @@ export function useNativeChatSessionChildren(args: {
       runner.run({ changeSignal: true })
     })
     // Status pushes drive updates; recover missed events from older hosts at a coarse interval.
-    const timer = setInterval(() => runner.run(), 30_000)
+    const stopPolling = installWindowVisibilityInterval({
+      run: () => runner.run(),
+      intervalMs: 30_000
+    })
     return () => {
       disposed = true
-      clearInterval(timer)
+      stopPolling()
       unsubscribe()
       runner.dispose()
     }
