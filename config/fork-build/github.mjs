@@ -1,18 +1,19 @@
 import { execFileSync } from 'node:child_process'
+import { withGitHubReadRetry } from './github-read-retry.mjs'
 
 export function api(path, data) {
   const args = ['api', path]
   if (data) {
     args.push('--method', 'PATCH', '--input', '-')
   }
-  return JSON.parse(
+  const run = () =>
     execFileSync('gh', args, {
       encoding: 'utf8',
       maxBuffer: 16 * 1024 * 1024,
       input: data ? JSON.stringify(data) : undefined,
       stdio: ['pipe', 'pipe', 'pipe']
     })
-  )
+  return JSON.parse(data ? run() : withGitHubReadRetry(run))
 }
 
 export function readLedger(body = '') {

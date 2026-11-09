@@ -1,6 +1,6 @@
 # Personal Orca builds
 
-`main` is the upstream mirror. `master` contains the last successfully built application, the daily/manual workflow and this selection. There is no additional integration branch.
+`main` is the upstream mirror. `master` contains the qualified composed application, the daily/manual workflow and this selection. Source refreshes may land through a fully green pull request before packaging; the release ledger separately identifies the last successfully packaged application. There is no additional integration branch.
 
 Generated integration, packaging and promotion commits use GitHub's standard `github-actions[bot]` identity. Original upstream and PR commits retain their authors. Integration subjects use `fork: integrate PR NUMBER`; the source SHA remains in the merge parent and build plan. Fork status reports use plain PR numbers without issue mentions or upstream URLs, so routine builds do not add cross-reference events to upstream discussions. Keep personal package and CI reports in this fork; upstream PRs describe and validate only their own changes.
 
@@ -24,6 +24,8 @@ When every conflicted path is an English or Russian desktop/mobile translation c
 - Persistent [status issue](https://github.com/gentslava/orca/issues/12): current report, lifecycle ledger, and last successful downloads.
 - Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, Windows x64 installer and portable ZIP, Android APK, checksums, archive/app proofs, the source plan and a Git bundle. After successful independent package verification and release publication, a trusted job promotes the built application to `master` and its frozen upstream to `main` in one atomic fast-forward push.
 - Required conflicts or failed checks preserve previous releases. No silent subset build or automatic substitution/closing of upstream issues/PRs.
+
+Upstream mirror and source maintenance do not wait for hosted packaging capacity. A source refresh preserves upstream and feature ancestry and must pass the full pull-request checks before merge. Transient EOF, connection-reset, TLS-connection, timeout and HTTP 502/503/504 failures retry read-only GitHub metadata requests and Git fetch/ref discovery up to three times; pushes, API mutations and permanent failures are never retried automatically.
 
 The package lane builds/typechecks the production desktop/CLI/web/mobile resources and native helpers. Trusted verification independently re-extracts DMG/ZIP, checks ARM64, code signatures, embedded source/version identity, the app-tree manifest and package digests. It does not launch the application. Component/unit checks do not establish physical-device or provider acceptance.
 
