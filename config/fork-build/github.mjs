@@ -50,6 +50,7 @@ export function renderReport(plan) {
     '',
     `Configuration: \`${plan.configuration}\``,
     `Upstream: \`${plan.upstream || 'unresolved'}\``,
+    `Version base: \`${plan.upstreamRelease?.baseVersion || 'unresolved'}\` (upstream release \`${plan.upstreamRelease?.tag || 'unresolved'}\`)`,
     `Composition: **${plan.result?.publishable ? 'ready' : 'blocked'}**`,
     `Requested mode: ${plan.auditOnly ? 'audit only' : 'build'}`,
     ''

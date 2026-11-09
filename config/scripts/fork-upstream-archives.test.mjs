@@ -13,7 +13,7 @@ import {
 import { sealCandidate } from './fork-upstream-sync.mjs'
 
 const commit = 'a'.repeat(40)
-const version = `1.2.3-local.forkpreview.123.${commit.slice(0, 12)}`
+const version = `1.4.255-local.forkpreview.123.${commit.slice(0, 12)}`
 const expected = {
   commit,
   version,

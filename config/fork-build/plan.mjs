@@ -7,6 +7,7 @@ import { assertFrozenHead, compose, freezeRetainedHead, git } from './compositio
 import { controlFingerprint } from './promotion.mjs'
 import { currentCompatibilityPatch } from './retired-test-fixtures.mjs'
 import { applyForkLocalizations } from './fork-localizations.mjs'
+import { upstreamReleaseIdentity } from './upstream-release-identity.mjs'
 import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/build-mac-local.mjs'
 
 const here = import.meta.dirname
@@ -36,6 +37,7 @@ try {
     : { tracked: [] }
   plan.previous = ledger
   plan.upstream = api(`repos/${config.upstream}/git/ref/heads/${config.base}`).object.sha
+  plan.upstreamRelease = upstreamReleaseIdentity(api(`repos/${config.upstream}/releases/latest`))
   const own = []
   for (const author of config.authors) {
     const query = encodeURIComponent(
@@ -172,7 +174,7 @@ try {
     applicationId: mobile.android.package
   }
   plan.result.publishable &&= !plan.blockers.length
-  const baseVersion = JSON.parse(git(source, ['show', 'HEAD:package.json'])).version
+  const baseVersion = plan.upstreamRelease.baseVersion
   plan.version = createLocalBuildVersion(
     baseVersion,
     Date.parse(plan.timestamp),
@@ -183,6 +185,7 @@ try {
       JSON.stringify({
         configuration: controlFingerprint(process.cwd(), configuration),
         upstream: plan.upstream,
+        upstreamRelease: plan.upstreamRelease,
         heads: plan.selections.map((pr) => [
           pr.number,
           pr.state,

@@ -2482,3 +2482,39 @@ index e106b4f0b3b..46d95460010 100644
  8 src/main/amp/hook-service.ts
  2 src/main/amp/managed-plugin-install-status.ts
  1 src/main/antigravity/antigravity-host-acp.ts
+diff --git a/.github/workflows/pr.yml b/.github/workflows/pr.yml
+index c88dc0f782f..308c05ca842 100644
+--- a/.github/workflows/pr.yml
++++ b/.github/workflows/pr.yml
+@@ -991,6 +991,10 @@ jobs:
+           filter: blob:none
+           persist-credentials: false
+
++      - name: Fetch upstream release tags for fork compatibility tests
++        if: github.repository != 'stablyai/orca'
++        run: git fetch --no-tags https://github.com/stablyai/orca.git 'refs/tags/v*:refs/tags/v*'
++
+       - uses: ./.github/actions/install-node-dependencies
+         with:
+           native-runtime: node
+diff --git a/src/main/updater.fork-preview.test.ts b/src/main/updater.fork-preview.test.ts
+index 686fe15ac15..c022f342f13 100644
+--- a/src/main/updater.fork-preview.test.ts
++++ b/src/main/updater.fork-preview.test.ts
+@@ -62,6 +62,7 @@ describe('fork preview updater isolation', () => {
+
+   it.each([
+     '1.4.214-local.forkpreview.123456.abcdef',
++    '1.4.255-local.forkpreview.123456.abcdef',
+     '1.4.214-rc.1.local.forkpreview.123456.abcdef'
+   ])('blocks setup and every public self-update entry point for %s', async (version) => {
+     appMock.getVersion.mockReturnValue(version)
+diff --git a/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts b/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
+index 4c0791ea20d..9584fab5f94 100644
+--- a/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
++++ b/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
+@@ -1,3 +1,4 @@
++// @orca-isolated-worker: native addon state cannot be reset between files.
+ // Exercise ConPTY under the hidden, job-detached process used by Windows SSH hosts.
+ import { createRequire } from 'node:module'
+ import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
