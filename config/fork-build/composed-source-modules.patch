@@ -1101,8 +1101,8 @@ index 599d8ce56cd..71f0c8b9e6c 100644
 -}): React.JSX.Element {
 +}: NativeChatMessageListProps): React.JSX.Element {
    const t = useTranslate()
+   const questionTranscript = useMemo(() => desktopStructuredTranscript.stream(), [])
    const receipts = useMemo(
-     () =>
 diff --git a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx b/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
 index 059eb30b7a6..62e286c5f37 100644
 --- a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
