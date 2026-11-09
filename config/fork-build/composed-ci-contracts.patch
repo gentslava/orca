@@ -2692,3 +2692,15 @@ diff --git a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts b/src
      vi.restoreAllMocks()
    })
  
+
+diff --git a/tests/e2e/github-project-board.spec.ts b/tests/e2e/github-project-board.spec.ts
+--- a/tests/e2e/github-project-board.spec.ts
++++ b/tests/e2e/github-project-board.spec.ts
+@@ -133,6 +133,7 @@
+         ),
+         settings: {
+           ...state.settings,
++          showTasksButton: true,
+           defaultTaskSource: 'github',
+           defaultRepoSelection: [repo.id],
+           githubProjects: {
