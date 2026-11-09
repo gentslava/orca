@@ -2706,9 +2706,19 @@ diff --git a/tests/e2e/github-project-board.spec.ts b/tests/e2e/github-project-b
            githubProjects: {
 
 diff --git a/tests/e2e/runtime-host-status-recovery.spec.ts b/tests/e2e/runtime-host-status-recovery.spec.ts
+index 4c35bb3fa96..c0c5a2eff5f 100644
 --- a/tests/e2e/runtime-host-status-recovery.spec.ts
 +++ b/tests/e2e/runtime-host-status-recovery.spec.ts
-@@ -13,6 +13,7 @@
+@@ -5,6 +5,8 @@ import {
+   encodePairingOffer
+ } from '../../src/shared/remote-runtime/pairing/pairing'
+ import type { PairingCreateOfferResult } from '../../src/shared/remote-runtime/pairing/pairing-create-offer-contract'
++import { toRuntimeExecutionHostId } from '../../src/shared/execution-host'
++import { composeWorktreeHostIdentity } from '../../src/shared/worktree/host-qualified-identity'
+ import { expect, test } from './helpers/orca-app'
+ import {
+   createRuntimeDesktopPairingOffer,
+@@ -13,6 +15,7 @@ import {
    type RuntimeDesktopPairingOffer
  } from './helpers/paired-electron-client'
  import { launchHeadlessPairedRuntimeHost } from './helpers/headless-paired-runtime-host'
@@ -2716,15 +2726,45 @@ diff --git a/tests/e2e/runtime-host-status-recovery.spec.ts b/tests/e2e/runtime-
  
  async function interruptibleHost(offer: RuntimeDesktopPairingOffer) {
    const pairing = decodePairingOffer(offer.pairingUrl)
-@@ -91,6 +92,7 @@
+@@ -91,10 +94,22 @@ async function expectWorkspaceHostAppearance(
    disconnected: boolean,
    hostLabel?: string
  ) {
+-  const cards = page.locator('[data-worktree-card-surface="true"]')
+-  const card = (
+-    hostLabel ? cards.filter({ has: page.getByText(hostLabel, { exact: true }) }) : cards
+-  ).first()
 +  await showWorkspaceSidebar(page)
-   const cards = page.locator('[data-worktree-card-surface="true"]')
-   const card = (
-     hostLabel ? cards.filter({ has: page.getByText(hostLabel, { exact: true }) }) : cards
-
++  const environmentId = hostLabel
++    ? await page.evaluate((name) => {
++        const environment = window.__store
++          ?.getState()
++          .runtimeEnvironments.find((entry) => entry.name === name)
++        if (!environment) {
++          throw new Error(`Missing test host: ${name}`)
++        }
++        return environment.id
++      }, hostLabel)
++    : undefined
++  const hostPrefix = environmentId
++    ? `[data-worktree-host-identity^="${composeWorktreeHostIdentity(toRuntimeExecutionHostId(environmentId), '')}"] `
++    : ''
++  const card = page.locator(`${hostPrefix}[data-worktree-card-surface="true"]`).first()
+   await expect(card).toBeVisible()
+   await expect(card).toHaveCSS('opacity', disconnected ? '0.6' : '1')
+   const icon = card.locator(disconnected ? 'svg.lucide-server-off' : 'svg.lucide-server').first()
+@@ -182,7 +197,10 @@ for (const topology of ['desktop', 'headless'] as const) {
+           ...(result.webClientUrl ? { webClientUrl: result.webClientUrl } : {})
+         }
+       }
+-      browser = await launchPairedWebClient(electronApp, proxy.proxyPairingOffer(browserOffer))
++      browser = await launchPairedWebClient(electronApp, proxy.proxyPairingOffer(browserOffer), {
++        waitForWorkspace: false
++      })
++      await showWorkspaceSidebar(browser.page)
+       await expect
+         .poll(() => statusEvidence(browser!.page), { timeout: 30_000 })
+         .toMatchObject({ verification: 'verified', transport: 'ready' })
 diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 --- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 +++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
@@ -2747,3 +2787,19 @@ diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/sr
            // Why: main-process getUI() already normalized this (defaulting to 'manual'); read it through without migrating.
            projectOrderBy: ui.projectOrderBy,
            personalProjectOrder: newerPersonalProjectOrder(
+diff --git a/tests/e2e/windows-missing-appdata-startup.spec.ts b/tests/e2e/windows-missing-appdata-startup.spec.ts
+index b8852aeee88..cb6d8a82c61 100644
+--- a/tests/e2e/windows-missing-appdata-startup.spec.ts
++++ b/tests/e2e/windows-missing-appdata-startup.spec.ts
+@@ -61,7 +61,10 @@ test('orca serve starts on Windows when the home has no AppData folder', async (
+           try {
+             return (await client.getCliStatus()).result.app.desktopWindowStatus
+           } catch (error) {
+-            if (error instanceof RuntimeClientError && error.code === 'runtime_unavailable') {
++            if (
++              error instanceof RuntimeClientError &&
++              (error.code === 'runtime_unavailable' || error.code === 'runtime_timeout')
++            ) {
+               return 'starting'
+             }
+             throw error
