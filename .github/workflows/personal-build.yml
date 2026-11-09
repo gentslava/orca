@@ -208,7 +208,9 @@ jobs:
         run: |
           node "$env:RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stamp-windows personal-build/plan.json "$env:GITHUB_WORKSPACE"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          pnpm exec electron-builder --config "$env:RUNNER_TEMP/personal-control/config/fork-build/windows-builder.config.cjs" --win --x64 --publish never
+          pnpm exec electron-builder --config "$env:RUNNER_TEMP/personal-control/config/fork-build/windows-builder.config.cjs" --win nsis --x64 --publish never
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm exec electron-builder --config "$env:RUNNER_TEMP/personal-control/config/fork-build/windows-builder.config.cjs" --win zip --x64 --prepackaged dist/win-unpacked --publish never
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & "$env:RUNNER_TEMP/personal-control/config/fork-build/extract-windows-packages.ps1" -Packages dist -Verification "$env:RUNNER_TEMP/windows-stage"
           node "$env:RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-windows personal-build/plan.json "$env:GITHUB_WORKSPACE" "$env:RUNNER_TEMP/windows-stage"

@@ -61,6 +61,13 @@ test('Windows extracted payloads must match in full, including source identity, 
   const versions = { productVersion: '1.4.255.0', fileVersion: plan.version }
   writeJson(join(directory, 'product-versions.json'), { zip: versions, installer: versions })
   assert.equal(measureWindowsArchives(directory, identity).treeEntries, 4)
+  executable(join(directory, 'installer/resources/elevate.exe'))
+  assert.throws(() => measureWindowsArchives(directory, identity), /different applications/)
+  copyFileSync(
+    join(directory, 'installer/resources/elevate.exe'),
+    join(directory, 'zip/resources/elevate.exe')
+  )
+  assert.equal(measureWindowsArchives(directory, identity).treeEntries, 5)
   writeFileSync(join(directory, 'installer/resources/app.asar'), 'different application')
   assert.throws(() => measureWindowsArchives(directory, identity), /different applications/)
   copyFileSync(
