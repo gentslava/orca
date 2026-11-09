@@ -1,177 +1,166 @@
 {
-  "accounts": {
-    "screen": {
-      "agentLogin": "Использовать учётную запись самого агента",
-      "connecting": "Подключение к серверу…",
-      "connectingTo": "Подключение к {{name}}…",
-      "default": "Как в системе",
-      "fableWindow": "Fable",
-      "hostNotFound": "Сервер не найден",
-      "invalidSnapshot": "Некорректные данные учётных записей от сервера",
-      "loadingAccounts": "Загрузка учётных записей…",
-      "manageAccountsHint": "Для добавления учётных записей или повторного входа откройте «Настройки → Учётные записи» в приложении на компьютере.",
-      "mcpWindow": "MCP",
-      "otherAgents": "Другие агенты",
-      "refreshAccounts": "Обновить учётные записи",
-      "sessionWindow": "5 ч",
-      "switchFailed": "Не удалось переключить учётную запись",
-      "title": "Учётные записи",
-      "useReset": "Сбросить лимиты",
-      "weeklyWindow": "7 дн."
-    }
-  },
-  "agentHistory": {
-    "panel": {
-      "all": "Все",
-      "emptyScope": "В выбранной области нет предыдущих сессий агентов.",
-      "missingResumeId": "У этой сессии нет идентификатора для продолжения.",
-      "noSearchResults": "По вашему запросу сессий не найдено.",
-      "noSessions": "Нет сессий агентов",
-      "placeholder": "Поиск сессий, repo:, path:",
+  "hostScreen": {
+    "workspaceOptionControls": {
+      "recentProjectOpeningDescription": "Последние открытые вами проекты",
+      "frequentProjectOrderDescription": "Проекты, которые вы открываете чаще всего",
+      "frequent": "Часто используемые",
+      "agentActivity": "Активность агентов",
+      "agentActivityLayout": "Вид активности агентов",
+      "agentActivitySort": "Активность агентов",
+      "agentActivitySortDescription": "Сначала агенты, требующие внимания, затем по недавней активности.",
+      "agentStatuses": "Статусы агентов",
+      "allHosts": "Все серверы",
+      "allProjects": "Все проекты",
+      "automation": "Автоматизация",
+      "branchFolderPath": "Ветка / путь папки",
+      "branchName": "Название ветки",
+      "compact": "Компактно",
+      "detailed": "Подробно",
+      "fullList": "Полный список",
+      "githubIssues": "Задачи GitHub",
+      "githubTicket": "Задача GitHub",
+      "host": "Сервер",
+      "hover": "При наведении",
+      "jiraIssue": "Задача Jira",
+      "jiraIssues": "Задачи Jira",
+      "linearIssue": "Задача Linear",
+      "linearIssues": "Задачи Linear",
+      "manual": "Вручную",
+      "manualProjectOrderDescription": "Перетаскивайте проекты, чтобы менять их порядок",
+      "manualWorkspaceOrderDescription": "Перетаскивайте рабочие пространства, чтобы менять их порядок в каждой группе.",
+      "name": "Название",
+      "none": "Нет",
+      "notes": "Заметки",
+      "ports": "Порты",
+      "pr": "PR",
+      "prMrLink": "Ссылка на PR/MR",
       "project": "Проект",
-      "refreshSessions": "Обновить список сессий агентов",
-      "resumeFailed": "Не удалось продолжить сессию.",
-      "sessionQueued": "Сессия агента добавлена в очередь.",
-      "skipped_few": "Пропущено историй: {{count}}",
-      "skipped_many": "Пропущено историй: {{count}}",
-      "skipped_one": "Пропущено историй: {{count}}",
-      "skipped_other": "Пропущено историй: {{count}}",
-      "title": "История сессий агентов",
-      "unavailable": "История сессий агентов недоступна",
-      "unknownHostPlatform": "Не удалось определить платформу сервера.",
-      "updateHost": "Обновите Orca на этом сервере, чтобы просматривать историю сессий агентов.",
-      "waitingForHost": "Ожидание сервера…",
-      "workspace": "Рабочее пространство"
+      "recent": "Недавние",
+      "recentProjectOrderDescription": "Недавняя активность рабочих пространств",
+      "searchProjects": "Поиск проектов",
+      "searchProjectsPlaceholder": "Поиск проектов…",
+      "selectedCount": "{{count}} из {{total}}",
+      "status": "Статус"
     },
-    "resumeTarget": {
-      "differentHost": "Эта сессия принадлежит другому серверу. Откройте рабочее пространство на том же сервере, чтобы продолжить её.",
-      "openWorkspace": "Откройте рабочее пространство, прежде чем продолжить сессию.",
-      "runtimeUnavailable": "Для рабочих пространств в среде выполнения продолжение сессий из истории недоступно."
+    "project": {
+      "pin": "Закрепить проект",
+      "unpin": "Открепить проект"
     },
-    "sessionCard": {
-      "untitledSession": "Сессия без названия"
+    "hostListActionSheetActions": {
+      "connect": "Подключиться",
+      "disconnect": "Отключить",
+      "editHost": "Изменить сервер",
+      "networkDiagnostics": "Диагностика сети",
+      "reconnect": "Подключиться снова"
     },
-    "sessionHistoryList": {
-      "currentWorktree": "текущее рабочее дерево",
-      "messages_few": "{{count}} сообщения",
-      "messages_many": "{{count}} сообщений",
-      "messages_one": "{{count}} сообщение",
-      "messages_other": "{{count}} сообщения",
-      "resumeSession": "Продолжить сессию агента"
+    "hostPendingCreationRow": {
+      "creatingWorkspace": "Создание рабочего пространства…"
     },
-    "useAgentHistoryState": {
-      "hostUnreachable": "Не удалось связаться с сервером",
-      "loadFailed": "Не удалось загрузить сессии агентов",
-      "waitingForHost": "Ожидание сервера…"
+    "hostScreenHeader": {
+      "accounts": "Учётные записи",
+      "backToHosts": "Назад к серверам",
+      "floatingWorkspace": "Плавающее рабочее пространство",
+      "hideSidebar": "Скрыть боковую панель",
+      "reconnect": "Подключиться снова",
+      "tasks": "Задачи",
+      "automations": "Автоматизации"
     },
-    "worktreeNavigationActions": {
-      "agentSessionHistory": "История сессий агентов",
-      "sourceControl": "Управление версиями"
+    "hostScreenOverlays": {
+      "deleteConfirmMessage": "Удалить «{{name}}» ({{branch}})?",
+      "deleteWorktree": "Удалить рабочее дерево",
+      "pin": "Закрепить",
+      "primaryWorktreeDeleteHint": "Основное рабочее дерево нельзя удалить. Вместо этого уберите проект.",
+      "removeHost": "Удалить сервер",
+      "removeHostMessage": "Удалить «{{name}}»? Позже его можно подключить снова.",
+      "sleep": "Перевести в сон",
+      "unpin": "Открепить",
+      "rename": "Переименовать"
+    },
+    "workspaceDetailsSheet": {
+      "checksFailing": "Проверки: не пройдены",
+      "checksPassing": "Проверки: пройдены",
+      "checksPending": "Проверки: в ожидании",
+      "closed": "Закрыт",
+      "createdByAutomation": "Создано автоматизацией",
+      "createdByNamedAutomation": "Создано автоматизацией «{{name}}»",
+      "createdFromCli": "Создано через Orca CLI",
+      "draft": "Черновик",
+      "merged": "Слит",
+      "openLink": "Открыть {{label}}",
+      "openLinkWithTitle": "Открыть {{label}}, {{title}}",
+      "prOpen": "Открыт"
+    },
+    "workspaceOptionsSheet": {
+      "backToOptions": "Вернуться к параметрам рабочих пространств",
+      "cardDisplay": "Отображение карточек",
+      "cardLayout": "Вид карточек",
+      "exceptDefaultBranch": "Кроме ветки по умолчанию",
+      "filters": "Фильтры",
+      "groupBy": "Группировать по",
+      "hideAutomationCreated": "Скрыть созданные автоматизацией",
+      "hideCliCreated": "Скрыть созданные через CLI",
+      "hideDefaultBranch": "Скрыть ветку по умолчанию",
+      "hideDetachedHead": "Скрыть с отсоединённым HEAD",
+      "hideOtherClientWorkspaces": "Скрыть рабочие пространства других клиентов",
+      "hideSleeping": "Скрыть спящие рабочие пространства",
+      "hosts": "Серверы",
+      "localLinux": "Локальный ПК с Linux",
+      "localMac": "Локальный Mac",
+      "localWindows": "Локальный ПК с Windows",
+      "projectOrder": "Порядок проектов",
+      "projects": "Проекты",
+      "savingToDesktop": "Сохранение на компьютере",
+      "show": "Показать",
+      "showProperties": "Показывать свойства",
+      "sortBy": "Сортировать по",
+      "syncedAcrossDevices": "Синхронизация между вашими устройствами",
+      "thisComputer": "Этот компьютер",
+      "waitingForDesktop": "Всё ещё ждём ответа компьютера",
+      "workspaceOptions": "Параметры рабочих пространств"
+    },
+    "workspaceRenameSheet": {
+      "title": "Переименовать рабочее пространство",
+      "emptyUsesBranch": "Оставьте пустым, чтобы использовать имя ветки.",
+      "emptyUsesFolder": "Оставьте пустым, чтобы использовать имя папки.",
+      "failed": "Не удалось переименовать рабочее пространство. {{reason}}"
     }
   },
-  "app": {
-    "mobileOnboarding": {
-      "notificationSettingsFailed": "Не удалось обновить настройки уведомлений. Повторите попытку.",
-      "progress": "Ход первоначальной настройки",
-      "saveChoiceFailed": "Не удалось сохранить ваш выбор. Повторите попытку.",
-      "stepProgress": "Шаг {{step}} из {{total}}"
-    },
-    "notifications": {
-      "description": "Получайте уведомления от агентов, даже когда приложение закрыто. Они доставляются через сервис push-уведомлений Orca и службы Apple или Google."
-    },
-    "pair": {
-      "backToHome": "На главный экран",
-      "missingCode": "Отсутствует код сопряжения"
-    },
-    "pairConfirm": {
-      "backToHome": "На главный экран",
-      "connectTimedOut": "Не удалось подключиться за {{seconds}} с — посмотрите в журнале ниже, на каком этапе остановилось подключение",
-      "connecting": "Подключение…",
-      "description": "Вы открыли ссылку сопряжения, полученную с компьютера. Подтвердите, чтобы добавить его в список серверов.",
-      "pairButton": "Выполнить сопряжение",
-      "pairingFailed": "Не удалось выполнить сопряжение: {{error}}",
-      "pairingLog": "Журнал сопряжения",
-      "title": "Выполнить сопряжение с этим компьютером?"
-    },
-    "pairScan": {
-      "cameraDisabledDescription": "Разрешите доступ к камере в настройках или вставьте код сопряжения.",
-      "cameraDisabledTitle": "Доступ к камере отключён",
-      "cameraPermissionDescription": "Отсканируйте QR-код в Orca на компьютере или вставьте код сопряжения.",
-      "connectTimedOut": "Не удалось подключиться за {{seconds}} с — посмотрите в журнале ниже, на каком этапе остановилось подключение",
-      "connecting": "Подключение…",
-      "invalidPairingCode": "Неверный код сопряжения — скопируйте его с компьютера и вставьте ещё раз",
-      "invalidQrCode": "Неверный QR-код Orca",
-      "downloadQrCode": "Это код для скачивания. Отсканируйте код сопряжения на шаге 2 на компьютере.",
-      "openDesktopStep": "Откройте Orca на компьютере",
-      "openMobileSettingsStep": "Перейдите в «Настройки → Мобильный доступ»",
-      "openSettings": "Открыть настройки",
-      "pairingFailed": "Не удалось выполнить сопряжение: {{error}}",
-      "pairingLog": "Журнал сопряжения",
-      "pasteCodeMessage": "Скопируйте код, показанный под QR-кодом на компьютере.",
-      "pasteCodePlaceholder": "orca://pair?code=... или вставьте код",
-      "pasteCodeTitle": "Вставить код сопряжения",
-      "pasteInstead": "Вставить код",
-      "pastePairingCode": "Или вставить код сопряжения",
-      "scanCodeStep": "Отсканируйте QR-код",
-      "title": "Сопряжение с компьютером",
-      "tryAgain": "Повторить попытку",
-      "codeNoLongerValid": "Этот код сопряжения истёк, уже использован или был заменён. Покажите новый код на компьютере и отсканируйте его снова."
-    },
-    "terminalSettings": {
-      "defaultText": "По умолчанию (100%)",
-      "keepPhoneSize": "Сохранять размер для телефона (по умолчанию)",
-      "largeText": "Крупный (125%)",
-      "largerText": "Очень крупный (150%)",
-      "largestText": "Самый крупный (200%)",
-      "leaveAppDescription": "Когда вы используете терминал на телефоне, Orca уменьшает его до размеров экрана. Эта настройка определяет, что произойдёт при закрытии приложения или переходе в другое: терминал сохранит размер для телефона (чтобы интерфейс интерактивных CLI-инструментов не перестраивался) или вернётся к размеру для компьютера. Восстановить размер вручную можно в любой момент кнопкой «Восстановить» на баннере в приложении на компьютере.",
-      "leaveAppHeading": "ПРИ ВЫХОДЕ ИЗ ПРИЛОЖЕНИЯ",
-      "noPairedDesktops": "Пока нет сопряжённых компьютеров. Выполните сопряжение с компьютером, чтобы настроить поведение терминала.",
-      "restoreAfterMinutes_few": "Через {{count}} минуты",
-      "restoreAfterMinutes_many": "Через {{count}} минут",
-      "restoreAfterMinutes_one": "Через {{count}} минуту",
-      "restoreAfterMinutes_other": "Через {{count}} минуты",
-      "restoreAfterSeconds_few": "Через {{count}} с",
-      "restoreAfterSeconds_many": "Через {{count}} с",
-      "restoreAfterSeconds_one": "Через {{count}} с",
-      "restoreAfterSeconds_other": "Через {{count}} с",
-      "restoreHost": "Восстановление размера: {{name}}",
-      "smallerText": "Уменьшенный (75%)",
-      "smallestText": "Минимальный (50%)",
-      "textSize": "Размер текста",
-      "textSizeDescription": "Изменяйте размер текста в терминале. При мелком тексте помещается больше столбцов и остаются поля по бокам; при крупном — столбцов меньше. Для прокрутки по горизонтали проведите пальцем в сторону. Размер также можно менять жестом сведения или разведения пальцев в самом терминале — значение этой настройки обновится. Настройка влияет только на отображение на этом устройстве и не меняет терминал на компьютере.",
-      "textSizeHeading": "РАЗМЕР ТЕКСТА",
-      "textSizePickerTitle": "Размер текста терминала",
-      "title": "Терминал"
-    }
-  },
-  "browser": {
-    "addressField": {
-      "urlPlaceholder": "URL"
-    },
-    "pane": {
-      "invalidUrl": "Введите корректный URL."
-    },
-    "paneView": {
-      "dialogTitle": "Диалог браузера",
-      "forward": "Вперёд",
-      "keyboardPlaceholder": "Введите текст для страницы…",
-      "reload": "Перезагрузить",
-      "sendText": "Отправить текст в браузер"
-    },
-    "pointerModifiers": {
-      "clickModifier": "Модификатор {{key}} для щелчка"
-    },
-    "useBrowserCommands": {
-      "deliveryUnconfirmed": "Отправка не подтверждена — проверьте страницу перед повторной попыткой",
-      "dialogAnswerFailed": "Не удалось передать ответ странице.",
-      "sent": "Отправлено"
-    },
-    "viewModeSwitch": {
-      "mobileView": "Показать мобильную версию сайта",
-      "webView": "Показать версию сайта для компьютера"
-    }
+  "workspaceOptions": {
+    "recentActivity": "Последняя активность в рабочих папках"
   },
   "chat": {
+    "nativeChatProse": {
+      "loadingImage": "Загрузка изображения",
+      "imageUnavailable": "Изображение недоступно",
+      "retryImageHint": "Загрузить изображение ещё раз",
+      "retryImage": "Изображение недоступно — нажмите, чтобы повторить",
+      "attachedImage": "Прикреплённое изображение",
+      "image": "изображение",
+      "openImageHint": "Открывает изображение в полном размере"
+    },
+    "contextUsage": {
+      "deferredTitle": "По требованию",
+      "deferredDescription": "Не входят в текущий расход контекста. Загружаются при необходимости.",
+      "label": "Контекст: {{used}} из {{window}} токенов, использовано {{percent}}%",
+      "title": "Контекст",
+      "estimated": "Оценка по последнему ответу."
+    },
+    "agentMessage": {
+      "sessionLink": "Связь",
+      "handedOffToAgent": "Передано агенту",
+      "startedAgent": "Агент запущен"
+    },
+    "tool": {
+      "activity": "Активность"
+    },
+    "useImageUpload": {
+      "mediaUnavailable": "Здесь нельзя прикрепить медиафайлы",
+      "capacityReached": "Достигнут лимит вложений",
+      "attachFailed": "Не удалось прикрепить",
+      "disconnected": "Не удалось прикрепить (нет соединения)",
+      "imageTooLarge": "Изображение слишком большое для прикрепления",
+      "permissionDenied": "Нет доступа к фото"
+    },
     "ask": {
       "answerPlaceholder": "Введите ответ",
       "next": "Далее",
@@ -198,11 +187,6 @@
       "sendSteerQueued": "Направить следующее",
       "sendQueueHint": "Выполнится после текущего хода",
       "sendSteerHint": "Попадёт в то, что агент делает сейчас"
-    },
-    "contextUsage": {
-      "label": "Контекст: {{used}} из {{window}} токенов, использовано {{percent}}%",
-      "title": "Контекст",
-      "estimated": "Оценка по последнему ответу."
     },
     "composerAttachments": {
       "attachedImage": "Прикреплённое изображение",
@@ -252,11 +236,6 @@
       "shareFailed": "Не удалось поделиться изображением",
       "photosAccessDenied": "Разрешите Orca добавлять фото в Настройках",
       "imageTooLarge": "Изображение слишком большое"
-    },
-    "nativeChatProse": {
-      "attachedImage": "Прикреплённое изображение",
-      "image": "изображение",
-      "openImageHint": "Открывает изображение в полном размере"
     },
     "nativeChatToolLine": {
       "added": "Добавлено",
@@ -646,16 +625,6 @@
       "statusContinuesThen": "Orca продолжит тогда",
       "statusWontContinue": "Orca не продолжит автоматически"
     },
-    "useImageUpload": {
-      "attachFailed": "Не удалось прикрепить",
-      "disconnected": "Не удалось прикрепить (нет соединения)",
-      "imageTooLarge": "Изображение слишком большое для прикрепления",
-      "permissionDenied": "Нет доступа к фото"
-    },
-    "agentMessage": {
-      "handedOffToAgent": "Передано агенту",
-      "startedAgent": "Агент запущен"
-    },
     "textAttachmentPreview": {
       "unreadableReply": "Не удалось прочитать ответ для вложения. Повторите попытку.",
       "incompleteReply": "Вложение изменилось или ответ был неполным. Закройте его и повторите попытку.",
@@ -725,6 +694,1050 @@
       "failingLead": "CI с ошибками в",
       "greenLead": "CI зелёный в",
       "at": "на"
+    }
+  },
+  "agentHistory": {
+    "panel": {
+      "conversationUnavailable": "История этого чата недоступна на этом компьютере.",
+      "all": "Все",
+      "emptyScope": "В выбранной области нет предыдущих сессий агентов.",
+      "missingResumeId": "У этой сессии нет идентификатора для продолжения.",
+      "noSearchResults": "По вашему запросу сессий не найдено.",
+      "noSessions": "Нет сессий агентов",
+      "placeholder": "Поиск сессий, repo:, path:",
+      "project": "Проект",
+      "refreshSessions": "Обновить список сессий агентов",
+      "resumeFailed": "Не удалось продолжить сессию.",
+      "sessionQueued": "Сессия агента добавлена в очередь.",
+      "skipped_few": "Пропущено историй: {{count}}",
+      "skipped_many": "Пропущено историй: {{count}}",
+      "skipped_one": "Пропущено историй: {{count}}",
+      "skipped_other": "Пропущено историй: {{count}}",
+      "title": "История сессий агентов",
+      "unavailable": "История сессий агентов недоступна",
+      "unknownHostPlatform": "Не удалось определить платформу сервера.",
+      "updateHost": "Обновите Orca на этом сервере, чтобы просматривать историю сессий агентов.",
+      "waitingForHost": "Ожидание сервера…",
+      "workspace": "Рабочее пространство"
+    },
+    "resumeTarget": {
+      "differentHost": "Эта сессия принадлежит другому серверу. Откройте рабочее пространство на том же сервере, чтобы продолжить её.",
+      "openWorkspace": "Откройте рабочее пространство, прежде чем продолжить сессию.",
+      "runtimeUnavailable": "Для рабочих пространств в среде выполнения продолжение сессий из истории недоступно."
+    },
+    "sessionCard": {
+      "untitledSession": "Сессия без названия"
+    },
+    "sessionHistoryList": {
+      "currentWorktree": "текущее рабочее дерево",
+      "messages_few": "{{count}} сообщения",
+      "messages_many": "{{count}} сообщений",
+      "messages_one": "{{count}} сообщение",
+      "messages_other": "{{count}} сообщения",
+      "resumeSession": "Продолжить сессию агента"
+    },
+    "useAgentHistoryState": {
+      "hostUnreachable": "Не удалось связаться с сервером",
+      "loadFailed": "Не удалось загрузить сессии агентов",
+      "waitingForHost": "Ожидание сервера…"
+    },
+    "worktreeNavigationActions": {
+      "agentSessionHistory": "История сессий агентов",
+      "sourceControl": "Управление версиями"
+    }
+  },
+  "session": {
+    "backgroundTask": {
+      "background": "В фон",
+      "backgrounding": "В фон…",
+      "agent": "Фоновый агент",
+      "command": "Фоновая команда",
+      "countAgents_few": "{{count}} агента",
+      "countAgents_many": "{{count}} агентов",
+      "countAgents_one": "{{count}} агент",
+      "countAgents_other": "{{count}} агента",
+      "countMonitors_few": "{{count}} наблюдения",
+      "countMonitors_many": "{{count}} наблюдений",
+      "countMonitors_one": "{{count}} наблюдение",
+      "countMonitors_other": "{{count}} наблюдения",
+      "countShellCommandOne": "1 команда оболочки",
+      "countShell_few": "{{count}} оболочки",
+      "countShell_many": "{{count}} оболочек",
+      "countShell_one": "{{count}} оболочка",
+      "countShell_other": "{{count}} оболочки",
+      "countTasks_few": "{{count}} задачи",
+      "countTasks_many": "{{count}} задач",
+      "countTasks_one": "{{count}} задача",
+      "countTasks_other": "{{count}} задачи",
+      "countWorkflows_few": "{{count}} процесса",
+      "countWorkflows_many": "{{count}} процессов",
+      "countWorkflows_one": "{{count}} процесс",
+      "countWorkflows_other": "{{count}} процесса",
+      "detailsUnavailable": "Подробности задач в этой сессии недоступны.",
+      "outputFile": "Вывод: {{value0}}",
+      "groupAgents": "Агенты",
+      "groupMonitors": "Наблюдения",
+      "groupShell": "Оболочка",
+      "groupTasks": "Задачи",
+      "groupWorkflows": "Процессы",
+      "headerTotalCount_few": "{{count}} фоновые задачи",
+      "headerTotalCount_many": "{{count}} фоновых задач",
+      "headerTotalCount_one": "{{count}} фоновая задача",
+      "headerTotalCount_other": "{{count}} фоновой задачи",
+      "monitor": "Фоновое наблюдение",
+      "monitoring": "Наблюдает за фоновыми задачами",
+      "reasonBlocked": "ошибка",
+      "reasonWaiting": "нужно разрешение",
+      "stateBlocked": "заблокировано",
+      "stateBlockedCount_few": "Заблокировано: {{value0}}",
+      "stateBlockedCount_many": "Заблокировано: {{value0}}",
+      "stateBlockedCount_one": "Заблокировано: {{value0}}",
+      "stateBlockedCount_other": "Заблокировано: {{value0}}",
+      "stateDone": "готово",
+      "stateDoneCount_few": "Готово: {{value0}}",
+      "stateDoneCount_many": "Готово: {{value0}}",
+      "stateDoneCount_one": "Готово: {{value0}}",
+      "stateDoneCount_other": "Готово: {{value0}}",
+      "stateIdle": "остановлено",
+      "stateIdleCount_few": "Остановлено: {{value0}}",
+      "stateIdleCount_many": "Остановлено: {{value0}}",
+      "stateIdleCount_one": "Остановлено: {{value0}}",
+      "stateIdleCount_other": "Остановлено: {{value0}}",
+      "stateMonitoring": "наблюдает",
+      "stateMonitoringCount_few": "Наблюдение: {{value0}}",
+      "stateMonitoringCount_many": "Наблюдение: {{value0}}",
+      "stateMonitoringCount_one": "Наблюдение: {{value0}}",
+      "stateMonitoringCount_other": "Наблюдение: {{value0}}",
+      "stateUnverifiable": "статус недоступен",
+      "stateUnverifiableCount_few": "Статус недоступен: {{value0}}",
+      "stateUnverifiableCount_many": "Статус недоступен: {{value0}}",
+      "stateUnverifiableCount_one": "Статус недоступен: {{value0}}",
+      "stateUnverifiableCount_other": "Статус недоступен: {{value0}}",
+      "stateWaiting": "ожидает",
+      "stateWaitingCount_few": "В ожидании: {{value0}}",
+      "stateWaitingCount_many": "В ожидании: {{value0}}",
+      "stateWaitingCount_one": "В ожидании: {{value0}}",
+      "stateWaitingCount_other": "В ожидании: {{value0}}",
+      "stateWorking": "в работе",
+      "stateWorkingCount_few": "В работе: {{value0}}",
+      "stateWorkingCount_many": "В работе: {{value0}}",
+      "stateWorkingCount_one": "В работе: {{value0}}",
+      "stateWorkingCount_other": "В работе: {{value0}}",
+      "stop": "Остановить",
+      "stopAll": "Остановить фоновые задачи",
+      "stopTask": "Остановить {{value0}}",
+      "task": "Фоновая задача",
+      "workflow": "Фоновый процесс"
+    },
+    "writeNotice": {
+      "notDoneBackgroundTask": "Не удалось перевести задачу в фон.",
+      "agentRefused": "Агент отклонил запрос.",
+      "agentStarting": "Агент ещё запускается.",
+      "agentStillWorking": "Агент ещё работает.",
+      "answerFirst": "Сначала ответьте на вопрос или запрос разрешения.",
+      "attachmentExpired": "Срок хранения вложения истёк.",
+      "backgroundTasksRunning": "Фоновые задачи ещё выполняются.",
+      "cancelNotSaved": "Не удалось отменить вопрос или запрос разрешения.",
+      "cannotRunHere": "Здесь Orca не может запустить этого агента в чате.",
+      "capacity": "Orca на компьютере с этим чатом достигла лимита запросов. Обновите Orca на нём и повторите попытку.",
+      "chatNotFound": "Orca не может найти этот чат.",
+      "chatSavedByNewerOrca": "Этот чат сохранён более новой версией Orca.",
+      "clearAfterAnswer": "Ответьте на вопрос или запрос разрешения агента, затем выполните /clear.",
+      "clearAfterRetry": "Повторно отправьте предыдущее сообщение, затем выполните /clear.",
+      "clearAfterSending": "Предыдущее сообщение ещё отправляется. После его отправки выполните /clear.",
+      "clearUnfinished": "Последняя команда /clear не завершилась.",
+      "commandRunning": "Команда /compact или /clear ещё выполняется.",
+      "compactAfterAnswer": "Ответьте на вопрос или запрос разрешения агента, затем выполните /compact.",
+      "compactAfterRetry": "Повторно отправьте предыдущее сообщение, затем выполните /compact.",
+      "compactAfterSending": "Предыдущее сообщение ещё отправляется. После его отправки выполните /compact.",
+      "continuationSuperseded": "В чате уже есть новые сообщения. Прежде чем продолжить, проверьте последние сообщения.",
+      "conversationCleared": "Этот разговор очищен.",
+      "goalsUnsupported": "Этот агент не поддерживает цели.",
+      "historyUnavailable": "Сейчас Orca не удалось открыть историю чата.",
+      "historyUnreadable": "Orca не удалось прочитать сохранённую историю чата.",
+      "historyUnusable": "Не удалось загрузить этот чат.",
+      "hostReconciling": "После перезапуска Orca ещё проверяет состояние этого чата.",
+      "messageNotSaved": "Не удалось сохранить сообщение.",
+      "messageTooLarge": "Превышен лимит 256 КБ на одно сообщение.",
+      "messagesUnsettled": "Ранее отправленное сообщение ещё не подтверждено.",
+      "notAvailable": "В этом чате действие недоступно.",
+      "notDoneAnswer": "Ваш ответ не отправлен.",
+      "notDoneCommand": "Команда не выполнена.",
+      "notDoneGoalChangeIncomplete": "Не удалось завершить изменение цели. Проверьте чат.",
+      "notDoneOption": "Настройка не изменена.",
+      "notDoneQueuedEdit": "Ваши правки не сохранены.",
+      "notDoneReadHistory": "Не удалось загрузить историю этого чата.",
+      "notDoneSend": "Ваше сообщение не отправлено.",
+      "notDoneStop": "Агент не остановлен.",
+      "notDoneStopTask": "Фоновая задача не остановлена.",
+      "notDoneStopTasks": "Фоновые задачи не остановлены.",
+      "openCurrentConversation": "Откройте текущий разговор, чтобы продолжить.",
+      "optionRejected": "Агент не принял эту настройку.",
+      "outcomeUnknown": "Orca не удалось подтвердить результат. Проверьте чат.",
+      "ownerUnproven": "Предыдущий агент этого чата может всё ещё работать.",
+      "pendingWork": "Дождитесь завершения текущей работы и отправки сообщений перед выполнением этой команды.",
+      "promptPending": "Агент ждёт ответа на вопрос или запрос разрешения.",
+      "questionChanged": "На этот вопрос уже ответили либо он изменился.",
+      "queueTooLarge": "В очереди слишком много текста.",
+      "quitTerminalAgent": "Завершите работу этого агента, чтобы продолжить чат здесь.",
+      "reattachFile": "Удалите его и прикрепите снова.",
+      "reattachFiles": "Удалите их и прикрепите снова.",
+      "recordFailed": "Orca не удалось сохранить это в истории чата.",
+      "recordUnreadable": "Orca не удалось прочитать сохранённое состояние этого чата.",
+      "reopenChat": "Откройте чат заново для повторной проверки.",
+      "restartFailed": "Не удалось перезапустить агента.",
+      "runClearWhenDone": "После завершения выполните /clear.",
+      "runCompactWhenDone": "После завершения выполните /compact.",
+      "savedByNewerOrca": "Чаты сохранены более новой версией Orca.",
+      "sendOutcomeLost": "Orca не удалось подтвердить доставку сообщения агенту. Проверьте чат и при необходимости отправьте его снова.",
+      "settleEarlierMessage": "Дождитесь доставки предыдущего сообщения или повторите его отправку.",
+      "shortenMessage": "Сократите или разделите сообщение и отправьте снова.",
+      "shrinkQueue": "Удалите сообщение из очереди или дождитесь его отправки и повторите попытку.",
+      "startNewChat": "Создайте новый чат, чтобы продолжить.",
+      "terminalAgentHoldsChat": "Этот чат всё ещё открыт агентом в терминале.",
+      "tryAgain": "Повторите попытку.",
+      "tryAgainComposerSend": "Отправьте его снова.",
+      "turnActive": "Агент ещё отвечает.",
+      "unreachable": "Orca не удалось связаться с агентом.",
+      "unsupported": "На компьютере с этим чатом нужна более новая версия Orca. Обновите Orca на нём и повторите попытку.",
+      "updateOrcaToKeepUsing": "Обновите Orca, чтобы продолжить работу с ними.",
+      "updateOrcaToOpenChat": "Обновите Orca, чтобы открыть его.",
+      "waitForBackgroundTasks": "Дождитесь завершения фоновых задач.",
+      "waitForCommand": "Дождитесь завершения /compact или /clear.",
+      "waitForStart": "Дождитесь запуска агента.",
+      "waitForTurn": "Дождитесь ответа агента или остановите его.",
+      "waitMoment": "Подождите немного."
+    },
+    "accessoryKeys": {
+      "dismissKeyboard": "Скрыть клавиатуру",
+      "sendKey": "Отправить {{label}}",
+      "typeCharacter": "Ввести {{character}}",
+      "interrupt": "Прервать работу терминала",
+      "keysModeLabel": "Режим клавиш: ввод сразу отправляется в терминал. Переключиться в режим сообщений",
+      "messageModeLabel": "Режим сообщений: напишите, затем отправьте. Переключиться в режим клавиш",
+      "moreKeys": "Другие клавиши и действия",
+      "showKeyboard": "Показать клавиатуру",
+      "dismissKeyboardHint": "Скрывает экранную клавиатуру и оставляет текущую сессию терминала открытой.",
+      "switchToDesktopMode": "Переключиться в режим компьютера",
+      "switchToPhoneMode": "Переключить в режим телефона",
+      "pasteFromClipboard": "Вставить из буфера обмена",
+      "paste": "Вставить",
+      "addCustomShortcut": "Добавить пользовательское сочетание клавиш"
+    },
+    "activeContent": {
+      "createTab": "Создать вкладку",
+      "creatingTab": "Создание…",
+      "fileTitle": "Файл",
+      "loadingTerminal": "Загрузка терминала",
+      "noTabs": "В этой сессии нет вкладок",
+      "retryLoadingTerminal": "Повторить загрузку терминала",
+      "terminalTakingLonger": "Загрузка терминала занимает больше времени, чем ожидалось"
+    },
+    "agentChildRow": {
+      "agent": "Агент",
+      "days_few": "{{count}} д",
+      "days_many": "{{count}} д",
+      "days_one": "{{count}} д",
+      "days_other": "{{count}} д",
+      "ended": "Завершён",
+      "hours_few": "{{count}} ч",
+      "hours_many": "{{count}} ч",
+      "hours_one": "{{count}} ч",
+      "hours_other": "{{count}} ч",
+      "minutes_few": "{{count}} мин",
+      "minutes_many": "{{count}} мин",
+      "minutes_one": "{{count}} мин",
+      "minutes_other": "{{count}} мин",
+      "noRecentUpdate": "Давно не было обновлений",
+      "noUpdate": "Нет обновлений уже {{value0}}"
+    },
+    "agentMessageAttribution": {
+      "unnamedSender": "агента",
+      "fromSender": "От"
+    },
+    "aiVaultResumeLaunch": {
+      "createFailed": "Не удалось создать терминал",
+      "inputLocked": "Ввод в терминал заблокирован",
+      "sendFailed": "Не удалось отправить команду возобновления"
+    },
+    "aiVaultResumePreparation": {
+      "prepareFailed": "Не удалось подготовить эту сессию Codex старого формата. Попробуйте возобновить её ещё раз."
+    },
+    "browserTabActionSheet": {
+      "forward": "Вперёд",
+      "reload": "Перезагрузить",
+      "title": "Браузер"
+    },
+    "bulkCloseSheetActions": {
+      "closeOtherTabs": "Закрыть другие вкладки"
+    },
+    "bulkTabClose": {
+      "confirm": "Закрыть вкладки",
+      "description": "Выбранные вкладки закроются. Закреплённые вкладки останутся открытыми.",
+      "titleEditors": "Закрыть все вкладки редактора?",
+      "titleLeft": "Закрыть вкладки слева?",
+      "titleOthers": "Закрыть остальные вкладки?",
+      "titleRight": "Закрыть вкладки справа?"
+    },
+    "commandDock": {
+      "liveInputHint": "Вводимый текст отправляется прямо в активный терминал",
+      "liveInputLabel": "Прямой ввод в терминал"
+    },
+    "contentRow": {
+      "dismissCreationWarning": "Закрыть предупреждение о создании рабочего пространства"
+    },
+    "diffLineRow": {
+      "addNoteLabel": "Добавить заметку к строке {{line}}",
+      "deleteNoteLabel": "Удалить заметку к строке {{line}}",
+      "diffLineLabel": "Сравнение {{title}}, строка {{line}}",
+      "lineNumber": "Строка {{line}}",
+      "notePlaceholder": "Добавить заметку по проверке",
+      "saveNote": "Сохранить заметку"
+    },
+    "diffReviewLoaders": {
+      "committedChangesFailed": "Не удалось загрузить изменения в коммитах",
+      "committedChangesUnavailable": "Изменения в коммитах недоступны",
+      "committedDiffUnavailable": "Сравнение изменений в коммитах недоступно",
+      "desktopUpdateRequired": "Обновите Orca на компьютере, чтобы проверять изменения на мобильном устройстве.",
+      "diffLoadFailed": "Не удалось загрузить сравнение",
+      "reviewNotesLoadFailed": "Не удалось загрузить заметки к проверке"
+    },
+    "diffReviewQueue": {
+      "committedOnBranch": "В коммитах ветки",
+      "staged": "В индексе",
+      "unstaged": "Не в индексе"
+    },
+    "diffReviewScreenModel": {
+      "branch": "Ветка",
+      "staged": "В индексе",
+      "unstaged": "Не в индексе"
+    },
+    "failure": {
+      "accountSwitchInProgress": "Настройка {{agent}} на этом сервере меняется. Дождитесь завершения и повторите попытку.",
+      "agentCommandNotRunnable": "В поле «Команда» для {{agent}} в разделе «Настройки → Агенты» нужно указать путь к программе или её имя, по которому Orca сможет её найти, без аргументов и переменных. Измените или сбросьте значение этого поля.",
+      "agentCommandNotSignedIn": "Войдите в {{agent}} командой `{{loginCommand}}` на компьютере с этим чатом.",
+      "agentNotSignedIn": "Войдите в {{agent}}.",
+      "agentStarting": "Агент ещё запускается.",
+      "agentStillWorking": "Агент ещё работает.",
+      "answerUnconfirmed": "Ответ записан, но агент не подтвердил получение.",
+      "antigravityNotSignedIn": "Вход в Antigravity не выполнен. Выполните вход в разделе «Настройки → Учётные записи → Antigravity». Затем отправьте сообщение снова.",
+      "argumentsMissingValue": "В сохранённых аргументах отсутствует значение для {{option}}.",
+      "argumentsMultipleValues": "В сохранённых аргументах у {{option}} несколько значений.",
+      "argumentsPositionalPrompt": "Сохранённые аргументы содержат текст запроса.",
+      "argumentsUnsupportedOption": "Сохранённые аргументы содержат неподдерживаемый параметр {{option}}.",
+      "attachmentAtMost": "{{agent}} принимает не больше {{limit}} изображений в сообщении, поэтому оно не отправлено.",
+      "attachmentEmpty": "В сообщении пустое изображение, поэтому сообщение не отправлено.",
+      "attachmentInvalid": "Вложение в этом сообщении нельзя отправить агенту.",
+      "attachmentsExpired": "Срок хранения истёк: {{names}}.",
+      "attachmentLargerThan": "Размер изображения в сообщении превышает {{size}} МБ, поэтому сообщение не отправлено.",
+      "attachmentNoSource": "Для одного из изображений нет исходного файла, поэтому сообщение не отправлено.",
+      "attachmentNotAFile": "Одно из изображений в сообщении не является файлом, поэтому сообщение не отправлено.",
+      "attachmentTooLarge": "Изображение в сообщении слишком велико, поэтому сообщение не отправлено.",
+      "attachmentTooMany": "В сообщении слишком много изображений, поэтому оно не отправлено.",
+      "attachmentTotalMoreThan": "Общий размер изображений превышает {{size}} МБ, поэтому сообщение не отправлено.",
+      "attachmentTotalTooLarge": "Общий размер изображений слишком велик, поэтому сообщение не отправлено.",
+      "attachmentUnreadable": "Не удалось прочитать вложение, поэтому сообщение не отправлено.",
+      "attachmentUnsupportedType": "{{agent}} принимает только PNG, JPEG, GIF и WebP, поэтому сообщение не отправлено.",
+      "backgroundTaskNotStopped": "Фоновая задача не остановлена.",
+      "backgroundTasksNotStopped": "Фоновые задачи не остановлены.",
+      "backgroundTasksRunning": "Фоновые задачи ещё выполняются.",
+      "cancelUnconfirmed": "Отмена не подтверждена.",
+      "cancelled": "Сообщение отозвано до начала работы агента над ним.",
+      "chatClosed": "Чат закрылся до отправки сообщения.",
+      "chooseClaudeAccount": "Выберите или добавьте учётную запись в настройках учётных записей Claude.",
+      "chooseClaudeAccountThenRunCommand": "Выберите или добавьте учётную запись в настройках учётных записей Claude, затем выполните /{{command}} снова.",
+      "chooseClaudeAccountThenSend": "Выберите или добавьте учётную запись в настройках учётных записей Claude, затем отправьте сообщение снова.",
+      "claudeAccountFolderMissing": "Папка выбранной учётной записи Claude отсутствует. Войдите в неё снова или выберите другую учётную запись.",
+      "claudeAccountSetupFailed": "Не удалось настроить выбранную учётную запись Claude. Повторите попытку или выберите другую.",
+      "claudeEffortInvalid": "Задана недопустимая глубина рассуждений Claude. Выберите low, medium, high, xhigh или max и отправьте сообщение снова.",
+      "claudeManagedNotSignedIn": "Вход в эту учётную запись Claude не выполнен. Войдите снова в настройках учётных записей Claude.",
+      "claudeSystemNotSignedIn": "Вход в Claude не выполнен. Выполните `{{loginCommand}}` или выберите учётную запись в настройках учётных записей Claude.",
+      "cliMissing": "{{agent}} не найден на компьютере с этим чатом. Установите его или проверьте поле «Команда» в разделе «Настройки → Агенты».",
+      "cliMissingInWslDistro": "{{agent}} не установлен в дистрибутиве WSL {{distro}}. Установите его внутри {{distro}} или проверьте поле «Команда» в разделе «Настройки → Агенты».",
+      "cliTooOld": "Версия {{agent}} {{installedVersion}} не поддерживает чаты. Обновите до версии {{minimumVersion}} или более новой.",
+      "codexManagedNotSignedIn": "Вход в эту учётную запись Codex не выполнен. Войдите снова в настройках учётных записей Codex.",
+      "codexSystemNotSignedIn": "Вход в Codex не выполнен. Выполните `{{loginCommand}}`.",
+      "commandAfterAnswer": "Ответьте на вопрос или запрос разрешения агента, затем выполните /{{command}}.",
+      "commandRefused": "Эта команда не выполнена.",
+      "commandRefusedTryAgain": "Эта команда не выполнена. Повторите её.",
+      "commandUnavailable": "{{agent}}: эта команда недоступна в чатах, поэтому она не отправлена.",
+      "compactionFailed": "Не удалось сократить контекст.",
+      "compactionFailedQuoted": "Не удалось сократить контекст: {{detail}}.",
+      "compactionUnconfirmed": "Сокращение контекста не подтверждено.",
+      "conversationOpenElsewhere": "Codex всё ещё держит этот разговор открытым. Повторите попытку чуть позже или закройте другие терминалы Codex.",
+      "conversationOpenInTerminal": "{{agent}} уже работает с этим разговором в другом терминале. Завершите {{agent}} там или закройте этот терминал, чтобы продолжить здесь.",
+      "couldNotRestart": "{{agent}}: перезапуск не удался.",
+      "couldNotStart": "{{agent}}: запуск не удался.",
+      "couldNotStop": "Не удалось остановить {{agent}}.",
+      "couldNotStopTheAgent": "Не удалось остановить агента.",
+      "editSavedArguments": "Измените их в разделе «Настройки» > «Агенты» > «Аргументы».",
+      "emptyMessage": "Сообщение пустое, поэтому оно не отправлено.",
+      "fullAccessAsRoot": "{{agent}} не может работать в режиме «Полный доступ» от root. Выберите для {{agent}} другой режим доступа в разделе «Настройки → Агенты» на компьютере с этим чатом, затем начните новый чат.",
+      "historyInOtherAccount": "История этого чата находится в другой учётной записи Claude. Вернитесь в неё, чтобы продолжить.",
+      "historyTooLarge": "История разговора слишком велика для восстановления здесь.",
+      "hostFault": "В Orca произошла ошибка, поэтому действие не выполнено.",
+      "hostFaultTryAgain": "В Orca произошла ошибка, поэтому действие не выполнено. Повторите попытку.",
+      "hostRestarted": "Orca перезапустилась до отправки сообщения.",
+      "hostStopped": "{{agent}} не завершил запуск, поэтому Orca остановила его.",
+      "interactiveAgentNotSignedIn": "Войдите в {{agent}}: запустите `{{loginCommand}}` и выполните `{{slashCommand}}` на компьютере с этим чатом.",
+      "launchFolderMissing": "Папка, в которой работал этот чат, больше не существует. Восстановите её, чтобы продолжить чат.",
+      "launchPreparationFailed": "Orca не удалось подготовить запуск {{agent}} на компьютере, на котором работает этот чат.",
+      "managedAccountEnvOverride": "При этом запуске Claude используются собственные переменные окружения для входа в Anthropic. Удалите их, чтобы использовать управляемую учётную запись Claude.",
+      "managedAccountUnsupported": "Хотя учётная запись Claude добавлена в WSL, для чатов Claude нужна учётная запись Claude в Windows.",
+      "modelUnavailable": "{{agent}} не смог использовать {{detail}}. Выберите другую модель и отправьте сообщение снова.",
+      "modelUnavailableUpdate": "{{agent}} не смог использовать {{detail}}. Обновите {{agent}} до {{minimumVersion}} или новее, чтобы сохранить его после перезапуска, или выберите другую модель и отправьте сообщение снова.",
+      "modelNotSelected": "У {{agent}} не выбрана модель. Проверьте выбор модели и вход в {{agent}}, затем отправьте сообщение снова.",
+      "noTurnToStop": "{{agent}} сейчас не выполняет задачу, которую можно остановить.",
+      "notDelivered": "Это сообщение не доставлено.",
+      "notDeliveredSendAgain": "Это сообщение не доставлено. Отправьте его снова, чтобы продолжить.",
+      "notSignedIn": "{{agent}}: вход не выполнен.",
+      "previousExitUnverifiable": "{{agent}}: не удалось остановить предыдущий процесс.",
+      "providerExitedAnswer": "{{agent}} остановился, поэтому ваш ответ не отправлен. Отправьте сообщение, чтобы продолжить.",
+      "providerExitedRejection": "{{agent}} остановился до отправки этого сообщения.",
+      "providerExitedRow": "{{agent}} остановился во время ответа. Вы можете продолжить этот разговор.",
+      "providerRateLimited": "{{agent}} повторяет попытку из-за ограничения частоты запросов.",
+      "providerRejected": "{{agent}} не принял это сообщение.",
+      "providerRejectedQuoted": "{{agent}} не принял это сообщение: {{detail}}.",
+      "providerRetryLastError": "Последняя ошибка: {{detail}}.",
+      "providerRetryNumber": "Повторная попытка {{attempt}}.",
+      "providerRetryNumberOf": "Повторная попытка {{attempt}} из {{maxRetries}}.",
+      "providerRetrying": "{{agent}} столкнулся с временной неполадкой и повторяет попытку.",
+      "providerRetryingQuoted": "{{agent}} повторяет попытку: {{detail}}.",
+      "providerStartFailed": "{{agent}} остановился до завершения запуска.",
+      "providerResumeUnavailable": "{{agent}} не может безопасно открыть этот чат. Начните новый чат или продолжите в терминале.",
+      "savedConversationMissing": "{{agent}} не удалось найти сохранённую беседу этого чата.",
+      "queueFull": "Слишком много сообщений ожидает агента, поэтому это сообщение не отправлено.",
+      "quitTerminalAgent": "Завершите работу этого агента, чтобы продолжить чат здесь.",
+      "runCommandAgain": "Выполните /{{command}} снова.",
+      "runCommandWhenDone": "После завершения выполните /{{command}}.",
+      "runtimeNotInstalled": "{{agent}} не установлен на компьютере с этим чатом. Установите его из чата в актуальной версии Orca.",
+      "sendAgainToTryOnceMore": "Отправьте сообщение снова, чтобы повторить попытку.",
+      "sendToTryAgain": "Отправьте сообщение, чтобы повторить попытку.",
+      "sessionNotRestored": "{{agent}} не смог открыть прежнюю сессию, поэтому чат продолжится в новой. {{agent}} не помнит предыдущие сообщения.",
+      "signInFirst": "Сначала выполните вход.",
+      "signInThenRunCommand": "Войдите, затем выполните /{{command}} снова.",
+      "signInThenSend": "Войдите, затем отправьте сообщение снова.",
+      "startNewChat": "Создайте новый чат, чтобы продолжить.",
+      "startTimedOut": "{{agent}} запускается слишком долго: нет ответа на {{method}} за {{seconds}} с.",
+      "startTimedOutKeepsHappening": "Если это повторяется, возможно, компьютер с этим чатом перегружен.",
+      "stopRefused": "{{agent}} не остановился.",
+      "stopRefusedQuoted": "{{agent}} не остановился: {{detail}}.",
+      "terminalAgentHoldsChat": "Этот чат всё ещё открыт агентом в терминале.",
+      "theAgent": "Агент",
+      "thenSendAgain": "Затем отправьте сообщение снова.",
+      "usageLimitReached": "{{agent}} достиг лимита использования.",
+      "usageLimitReachedNamed": "{{agent}} достиг лимита: {{window}}.",
+      "usageLimitResetsAt": "Сброс: {{when}}.",
+      "usageLimitSendAfterReset": "После сброса лимита отправьте сообщение, чтобы продолжить.",
+      "usageLimitWindowCredits": "дополнительное использование",
+      "usageLimitWindowSession": "на сессию",
+      "usageLimitWindowWeekly": "на неделю",
+      "usageLimitWindowWeeklyModel": "на неделю для модели",
+      "waitForBackgroundTasks": "Дождитесь завершения фоновых задач.",
+      "waitForStart": "Дождитесь запуска агента.",
+      "writeFailed": "Orca не смогла передать сообщение агенту, поэтому оно не отправлено.",
+      "pluginInputRequired": "{{agent}} остановился, потому что плагин «{{plugin}}» ожидает ввода на панели терминала. Отключите плагин для сеансов чата или запустите задачу в терминале {{agent}}."
+    },
+    "fileReader": {
+      "copyReviewNotes": "Копировать заметки по проверке",
+      "imageLabel": "Изображение {{title}}",
+      "noReviewNotes": "Нет заметок по проверке",
+      "previewLabel": "Предпросмотр {{title}}",
+      "reviewNotes_few": "{{count}} заметки по проверке",
+      "reviewNotes_many": "{{count}} заметок по проверке",
+      "reviewNotes_one": "{{count}} заметка по проверке",
+      "reviewNotes_other": "{{count}} заметки по проверке",
+      "send": "Отправить",
+      "sendReviewNotes": "Отправить ИИ заметки по проверке"
+    },
+    "floatingWorkspace": {
+      "title": "Плавающее рабочее пространство"
+    },
+    "githubPrMutations": {
+      "reviewThreadUpdateFailed": "Не удалось обновить обсуждение в пул-реквесте.",
+      "titleUpdateFailed": "Не удалось обновить заголовок."
+    },
+    "githubPrRpc": {
+      "requestFailed": "Ошибка запроса: {{method}}"
+    },
+    "header": {
+      "workspaceDetailsHint": "Показывает полное название рабочего пространства и его расположение",
+      "backToWorktrees": "Вернуться к рабочим деревьям",
+      "moreActions": "Другие действия с сессией",
+      "openSourceControl": "Открыть управление версиями",
+      "reconnectToDesktop": "Переподключиться к компьютеру",
+      "showSidebar": "Показать боковую панель",
+      "terminalTitle": "Терминал",
+      "terminalLayout": "Расположение терминалов",
+      "fileExplorer": "Проводник файлов",
+      "sourceControl": "Управление исходным кодом",
+      "newTab": "Новая вкладка",
+      "quickCommands": "Быстрые команды"
+    },
+    "headerMoreActionsSheet": {
+      "agentHistory": "История агентов",
+      "agentHistoryHint": "Просмотр и возобновление сессий агентов",
+      "checks": "Проверки",
+      "checksHint": "Открыть проверки пул-реквеста"
+    },
+    "markdownReader": {
+      "changedOnDesktop": "Изменён на компьютере",
+      "copyLoaded": "Скопировать загруженное",
+      "copyLoadedSource": "Скопировать загруженный исходный текст Markdown",
+      "copyPath": "Скопировать путь",
+      "copyPathLabel": "Скопировать путь к файлу Markdown",
+      "copySource": "Скопировать исходный текст Markdown",
+      "discard": "Отменить изменения",
+      "previewTruncated": "Показана часть файла.",
+      "readOnly": "Только чтение"
+    },
+    "nativeChatAttachActions": {
+      "availableSkills": "Доступно: {{count}}",
+      "commands": "Команды",
+      "fileTypes": "PDF, текст, код…",
+      "files": "Файлы",
+      "photos": "Фото",
+      "skills": "Навыки",
+      "workspaceFile": "Файл рабочего пространства"
+    },
+    "nativeChatCardHeaderAction": {
+      "collapse": "Свернуть"
+    },
+    "nativeChatCliFork": {
+      "resumeInNewCli": "Продолжить в новом CLI"
+    },
+    "nativeChatFloatingControls": {
+      "scrollToLatest": "Прокрутить к последним сообщениям"
+    },
+    "nativeChatFullContent": {
+      "loadMessageFailed": "Показать сообщение целиком — не удалось загрузить, нажмите для повтора",
+      "loadOutputFailed": "Показать весь вывод — не удалось загрузить, нажмите для повтора",
+      "partialMessage": "Показана часть сообщения.",
+      "partialOutput": "Показано {{shown}} из {{total}}.",
+      "showFullMessage": "Показать сообщение целиком",
+      "showFullOutput": "Показать весь вывод"
+    },
+    "nativeChatRenderData": {
+      "defaultAgentLabel": "агент",
+      "emptySubtitle": "Отправьте запрос: {{agent}} может изучить код, объяснить вывод или внести изменения.",
+      "emptyTitle": "Начните чат ({{agent}})",
+      "errorSubtitle": "Не удалось прочитать историю. Вернитесь в терминал, чтобы продолжить работу.",
+      "errorTitle": "Не удалось загрузить разговор",
+      "notFoundSubtitle": "Отправьте сообщение, чтобы начать разговор, или откройте терминал и посмотрите, что делает {{agent}}.",
+      "notFoundTitle": "Пока не удаётся найти этот разговор"
+    },
+    "nativeChatToggleAction": {
+      "switchToChatView": "Переключиться на чат",
+      "switchToTerminalView": "Переключиться на терминал"
+    },
+    "newTabAgentHostLaunch": {
+      "notesNotSent": "Агент запущен, но заметки не отправлены.",
+      "notesSent": "Заметки отправлены",
+      "notesUnconfirmed": "Агент запущен, но подтвердить отправку заметок не удалось.",
+      "promptUnconfirmed": "Агент запущен, но подтвердить отправку запроса не удалось."
+    },
+    "prActionsEngine": {
+      "mergeFailed": "Не удалось слить пул-реквест.",
+      "refreshFailed": "Не удалось обновить запрос на слияние."
+    },
+    "prAiTriageLaunch": {
+      "agentStarted": "Агент запущен",
+      "agentStartedIn": "Агент запущен в «{{label}}»",
+      "emptyPrompt": "Сохранённый запрос для этого действия пуст. Измените настройки ИИ для управления версиями на компьютере.",
+      "loadFailed": "Не удалось загрузить список доступных агентов.",
+      "promptNotSent": "Агент запущен, но запрос не отправлен.",
+      "updateRequired": "Обновите Orca на компьютере, чтобы запускать агента с телефона."
+    },
+    "prSidebarState": {
+      "loadFailed": "Не удалось загрузить пул-реквест"
+    },
+    "queuedCardText": {
+      "showLess": "Свернуть",
+      "showLessHint": "Сворачивает сообщение",
+      "showMore": "Показать больше",
+      "showMoreHint": "Показывает сообщение целиком"
+    },
+    "queuedMessageCardRow": {
+      "deleteHint": "Удалить это сообщение из очереди",
+      "images_few": "{{count}} изображения",
+      "images_many": "{{count}} изображений",
+      "images_one": "{{count}} изображение",
+      "images_other": "{{count}} изображения",
+      "moreActions": "Другие действия",
+      "send": "Отправить",
+      "sendAgainHint": "Отправить это сообщение ещё раз",
+      "sendHint": "Отправить это сообщение",
+      "showLessHint": "Сворачивает сообщение",
+      "steer": "Сейчас",
+      "steerHint": "Отправить сообщение, не прерывая работу модели"
+    },
+    "queuedMessageComposer": {
+      "commandsNotAllowed": "Команды нельзя сохранять в сообщении в очереди.",
+      "editing": "Редактирование сообщения"
+    },
+    "quickCommandEditorForm": {
+      "action": "Действие",
+      "addQuickCommand": "Добавить быструю команду",
+      "advanced": "Дополнительно",
+      "agent": "Агент",
+      "agentPrompt": "Запрос агенту",
+      "appendEnter": "Добавить Enter",
+      "appendEnterDescription": "Отправлять сразу вместо простой вставки текста.",
+      "chooseAgent": "Выбрать агента",
+      "commandText": "Текст команды",
+      "globalScope": "Для всех проектов",
+      "label": "Название",
+      "labelPlaceholder": "Запустить сервер разработки",
+      "olderHostPromptTooLong": "Текст слишком длинный для этого сервера. Обновите на нём Orca, чтобы сохранять более длинные запросы.",
+      "projectScope": "Проект",
+      "prompt": "Запрос",
+      "promptHint": "Поддерживаются навыки, пути к файлам и встроенные команды.",
+      "promptPlaceholder": "Попросить агента исследовать это рабочее пространство",
+      "promptSizeCharacters": "{{used}} / {{max}} символов",
+      "promptSizeKilobytes": "{{used}} КБ / {{max}} КБ",
+      "promptTooLong": "Текст слишком длинный для сохранения.",
+      "scope": "Область",
+      "terminalCommand": "Команда терминала"
+    },
+    "quickCommandLaunch": {
+      "defaultLabel": "Быстрая команда",
+      "editBeforeRunning": "Измените эту быструю команду перед выполнением",
+      "runFailed": "Не удалось выполнить «{{label}}»"
+    },
+    "quickCommandRow": {
+      "copyCommand": "Скопировать «{{label}}»",
+      "copyFailed": "Не удалось скопировать",
+      "deleteCommand": "Удалить «{{label}}»",
+      "editCommand": "Изменить «{{label}}»",
+      "nothingToCopy": "Копировать нечего",
+      "runCommand": "Запустить «{{label}}»"
+    },
+    "quickCommandsList": {
+      "emptyState": "Быстрых команд пока нет.",
+      "globalGroup": "Для всех проектов",
+      "newCommand": "Создать быструю команду",
+      "noMatches": "Подходящих быстрых команд нет.",
+      "projectGroup": "Этот проект",
+      "searchPlaceholder": "Поиск быстрых команд…"
+    },
+    "quickCommandsSheet": {
+      "addTitle": "Добавить быструю команду",
+      "chooseAgentTitle": "Выбрать агента",
+      "deleteConfirmMessage": "Эта быстрая команда будет удалена из сохранённого списка.",
+      "deleteConfirmTitle": "Удалить «{{label}}»?",
+      "editTitle": "Изменить быструю команду",
+      "editorDescription": "Сохраняйте команды терминала или запросы агентам для быстрого доступа.",
+      "title": "Быстрые команды",
+      "untitled": "Без названия"
+    },
+    "routeHelpers": {
+      "connected": "Подключён",
+      "connecting": "Подключение",
+      "disconnected": "Отключён",
+      "pairingInvalid": "Сопряжение недействительно",
+      "reconnecting": "Повторное подключение",
+      "securing": "Защита соединения"
+    },
+    "routeScreen": {
+      "openingWorkspace": "Открытие рабочего пространства"
+    },
+    "sheets": {
+      "browser": "Браузер",
+      "browserUpdateRequired": "Для трансляции браузера на телефон обновите Orca на компьютере",
+      "chat": "Чат",
+      "copyAllAndLeave": "Скопировать всё и выйти",
+      "copyDraftsFailed": "Не удалось скопировать черновики",
+      "copyNotes": "Копировать заметки",
+      "copyNotesFailed": "Не удалось скопировать заметки",
+      "copyPath": "Копировать путь",
+      "discard": "Отменить изменения",
+      "discardAndLeave": "Удалить черновики и выйти",
+      "discardChanges": "Отменить изменения",
+      "discardMessage": "Заменить черновик на телефоне последней версией файла с компьютера?",
+      "draftsHint": "Перед выходом скопируйте или удалите черновики на телефоне.",
+      "file": "Файл",
+      "markdown": "Markdown",
+      "markdownNote": "Заметка Markdown",
+      "newBrowser": "Новый браузер",
+      "newTab": "Новая вкладка",
+      "notesCopied": "Заметки скопированы",
+      "notesHint": "Выберите сессию агента для текущих заметок.",
+      "removeShortcutMessage": "Удалить это пользовательское сочетание клавиш?",
+      "renameTerminal": "Переименовать терминал",
+      "sendReviewNotes": "Отправить заметки по проверке",
+      "shortcut": "Сочетание клавиш",
+      "terminal": "Терминал",
+      "terminalName": "Название терминала",
+      "unsavedMarkdown": "Несохранённые изменения в Markdown",
+      "urlPrompt": "Введите URL или оставьте поле пустым, чтобы открыть новую вкладку.",
+      "allowAutoClose": "Разрешить автоматическое закрытие",
+      "renameTerminalFailed": "Не удалось переименовать терминал. {{reason}}"
+    },
+    "sourceControlLaunchAgent": {
+      "noEnabledAgent": "На сервере этого рабочего пространства не найдено включённых ИИ-агентов.",
+      "savedAgentUnavailable": "Агент, выбранный для этого действия, недоступен на сервере этого рабочего пространства."
+    },
+    "structuredComposerCommand": {
+      "operationUnconfirmed": "Не удалось подтвердить выполнение команды чата.",
+      "removeAttachments": "Уберите вложения перед выполнением команды сессии чата."
+    },
+    "structuredSendDelivery": {
+      "messageNotSent": "Сообщение не отправлено"
+    },
+    "tabStrip": {
+      "checkingCapabilities": "Проверяем возможности Orca на компьютере — повторите попытку чуть позже",
+      "newTab": "Новая вкладка",
+      "quickCommandsUpdateRequired": "Для быстрых команд обновите Orca на компьютере",
+      "tabStatus": "{{title}}, {{status}}"
+    },
+    "terminalActionSheetActions": {
+      "clearTerminal": "Очистить терминал",
+      "rename": "Переименовать",
+      "switchToDesktop": "Включить режим компьютера",
+      "switchToPhone": "Включить режим телефона"
+    },
+    "terminalInputActions": {
+      "attachFileHint": "Нажмите и удерживайте, чтобы прикрепить файл вместо фото",
+      "attachPhoto": "Прикрепить фото",
+      "sendingImage": "Отправка изображения",
+      "startDictation": "Начать диктовку",
+      "startingDictation": "Запуск диктовки",
+      "stopDictation": "Остановить диктовку",
+      "transcribingDictation": "Распознавание диктовки"
+    },
+    "terminalLiveInputStatus": {
+      "listening": "Прослушивание",
+      "liveInput": "Прямой ввод",
+      "preparingMic": "Подготовка микрофона",
+      "processing": "Обработка",
+      "releaseMicHint": "Отпустите кнопку микрофона, чтобы остановить запись",
+      "startingMic": "Включение микрофона",
+      "stopHint": "Нажмите на микрофон, чтобы остановить",
+      "transcribing": "Распознавание на компьютере",
+      "uploadingImage": "Загрузка изображения на сервер",
+      "uploadingImageTitle": "Загрузка изображения"
+    },
+    "terminalRecords": {
+      "defaultTitle": "Терминал"
+    },
+    "terminalTabAgent": {
+      "browser": "Браузер",
+      "chat": "Чат",
+      "file": "Файл",
+      "markdown": "Markdown",
+      "newBrowser": "Новый браузер",
+      "terminal": "Терминал"
+    },
+    "terminalViewportResubscribe": {
+      "fitFailed": "Не удалось подогнать терминал под размер экрана"
+    },
+    "useAccessorySelection": {
+      "copyFailed": "Не удалось скопировать",
+      "selectionCleared": "Выделение снято (текст вышел за пределы буфера)"
+    },
+    "useAttachmentInputLeaseGate": {
+      "reconnecting": "Не удалось прикрепить (повторное подключение)"
+    },
+    "useContentCreateActions": {
+      "browserCommandFailed": "Не удалось выполнить команду браузера",
+      "browserCreateFailed": "Не удалось создать вкладку браузера",
+      "browserUnavailable": "Страница браузера пока недоступна.",
+      "browserUpdateRequired": "Для трансляции браузера на телефон обновите Orca на компьютере",
+      "invalidUrl": "Введите корректный URL",
+      "noteCreateFailed": "Не удалось создать заметку Markdown",
+      "untitledNoteCreateFailed": "Не удалось создать заметку Markdown без названия"
+    },
+    "useDiffComments": {
+      "copyNotesFailed": "Не удалось скопировать заметки",
+      "deleteNoteFailed": "Не удалось удалить заметку",
+      "noteAdded": "Заметка добавлена",
+      "notesCopied": "Заметки скопированы",
+      "saveNoteFailed": "Не удалось сохранить заметку",
+      "saveNotesFailed": "Не удалось сохранить заметки по проверке",
+      "waitingForDesktop": "Ожидание подключения к компьютеру…"
+    },
+    "useDiffReviewCommentActions": {
+      "saveFailed": "Не удалось сохранить проверку",
+      "saveStateFailed": "Не удалось сохранить состояние проверки",
+      "waitingForDesktop": "Ожидание подключения к компьютеру…"
+    },
+    "useDiffReviewController": {
+      "loadFailed": "Не удалось загрузить проверку",
+      "missingWorktree": "Не указано рабочее дерево",
+      "waitingForDesktop": "Ожидание подключения к компьютеру…"
+    },
+    "useDiffReviewDiffLoading": {
+      "loadFailed": "Не удалось загрузить изменения",
+      "waitingForDesktop": "Ожидание подключения к компьютеру…"
+    },
+    "useDiffReviewGitActions": {
+      "actionFailed": "Не удалось выполнить действие управления версиями",
+      "waitingForDesktop": "Ожидание подключения к компьютеру…"
+    },
+    "useDiffReviewInteractions": {
+      "openFailed": "Не удалось открыть в сессии"
+    },
+    "useDiffReviewSendActions": {
+      "copyFailed": "Не удалось скопировать заметки к проверке",
+      "inputLocked": "Ввод в терминале заблокирован",
+      "loadSessionsFailed": "Не удалось загрузить сессии агентов",
+      "notesCopied": "Заметки к проверке скопированы",
+      "notesSent": "Заметки к проверке отправлены",
+      "notesSentWithWarning": "Заметки к проверке отправлены. {{warning}}",
+      "promptNotSent": "Агент запущен, но заметки не отправлены. Нажмите «Скопировать заметки», чтобы вставить их.",
+      "sendFailed": "Не удалось отправить заметки",
+      "startingAgent": "Запуск агента…",
+      "waitingForDesktop": "Ожидание подключения к компьютеру…"
+    },
+    "useImageAttachment": {
+      "attachFailed": "Не удалось прикрепить изображение",
+      "disconnected": "Не удалось прикрепить (нет подключения)",
+      "imageTooLarge": "Изображение слишком большое для прикрепления",
+      "permissionDenied": "Нет доступа к фото"
+    },
+    "useMarkdownActions": {
+      "copyFailed": "Не удалось скопировать",
+      "copyPathFailed": "Не удалось скопировать путь",
+      "markdownTitle": "Markdown",
+      "pathCopied": "Путь скопирован",
+      "saveFailed": "Не удалось сохранить",
+      "saved": "Сохранено"
+    },
+    "useNativeChatDictation": {
+      "insertFailed": "Не удалось вставить текст диктовки",
+      "insertFailedCopied": "Не удалось вставить текст диктовки — он скопирован в буфер обмена",
+      "inserted": "Текст диктовки вставлен",
+      "stoppedAfterSilence": "Остановлено после минуты тишины"
+    },
+    "useNativeChatStop": {
+      "stopNotSent": "Команда остановки не отправлена",
+      "stopUnconfirmed": "Остановка не подтверждена — проверьте чат перед повторной попыткой",
+      "terminalNotReady": "Команда остановки не отправлена (терминал не готов)"
+    },
+    "usePanelRouteActions": {
+      "checkHostHint": "Проверьте подключение к серверу",
+      "copyNotesHint": "Вместо этого скопируйте заметки",
+      "detectingAgents": "Поиск агентов",
+      "newSessionHint": "Новая сессия агента",
+      "noEnabledAgents": "Нет включённых агентов",
+      "otherServerAgents": "Агенты на другом сервере",
+      "pairServerHint": "Подключите этот сервер напрямую",
+      "presetsUnavailable": "Предустановки агентов недоступны"
+    },
+    "usePrAiTriage": {
+      "launchFailed": "Не удалось запустить агента",
+      "waitingForDesktop": "Ожидание подключения к компьютеру…"
+    },
+    "usePrCommentActions": {
+      "actionFailed": "Не удалось выполнить действие с комментарием"
+    },
+    "usePrTitleAction": {
+      "disconnected": "Нет подключения к компьютеру."
+    },
+    "useQuickCommands": {
+      "loadFailed": "Не удалось загрузить быстрые команды",
+      "saveFailed": "Не удалось сохранить быструю команду"
+    },
+    "useSessionTerminalSendActions": {
+      "inputTooLarge": "Слишком большой объём ввода (макс. 256 КиБ)",
+      "liveInputInterrupted": "Ввод в реальном времени прерван. Поле очищено; проверьте терминал, прежде чем продолжить."
+    },
+    "useStartup": {
+      "wakeAgents": "Откройте Orca на сервере, чтобы разбудить спящих агентов."
+    },
+    "useTerminalCreateActions": {
+      "createFailed": "Не удалось создать терминал",
+      "forkBusy": "Открывается другой терминал. Подождите и повторите попытку открыть чат {{agentName}}.",
+      "forkUnavailable": "Откройте чат {{agentName}} на подключённом сервере с актуальной версией Orca и повторите попытку.",
+      "inputLocked": "Ввод в терминале заблокирован другим клиентом.",
+      "notesSent": "Заметки отправлены",
+      "sendNotesError": "Не удалось отправить заметки",
+      "sendNotesFailed": "Не удалось отправить заметки",
+      "terminalTitle": "Терминал"
+    },
+    "useTerminalInput": {
+      "clearFailed": "Не удалось очистить терминал",
+      "cleared": "Терминал очищен"
+    },
+    "useTerminalPaste": {
+      "clipboardReadFailed": "Не удалось прочитать буфер обмена",
+      "disconnected": "Не удалось вставить (нет подключения)",
+      "imageTooLarge": "Изображение слишком большое для вставки",
+      "pasteFailed": "Не удалось вставить",
+      "pasteTooLarge": "Слишком большой объём вставки (макс. 256 КиБ)",
+      "terminalChanged": "Вставка отменена (выбран другой терминал)"
+    },
+    "worktreeLabel": {
+      "fallback": "Рабочее дерево"
+    },
+    "workerAutoClose": {
+      "running": "Временный агент оркестрации · Закроется через 2 минуты после завершения",
+      "finished": "Временный агент оркестрации завершил работу · Закроется через {{countdown}}",
+      "keepOpen": "Оставить открытым"
+    },
+    "terminalLayoutSheet": {
+      "title": "Расположение терминалов",
+      "oneTerminal": "Один терминал",
+      "selected": "Выбрано",
+      "auto": "Авто",
+      "autoHint": "Разделить с учётом доступного места",
+      "sideBySide": "Рядом",
+      "sideBySideHint": "Два столбца, даже при открытой боковой панели",
+      "stacked": "Друг над другом",
+      "stackedHint": "Две строки при любой ориентации",
+      "selectedHint": "Выбрано · {{hint}}"
+    },
+    "terminalSplitLayout": {
+      "saveFailedTitle": "Не удалось сохранить расположение",
+      "saveFailedMessage": "Пока применяется это расположение. Выберите его ещё раз, чтобы повторить сохранение."
+    },
+    "terminalMoreKeys": {
+      "sendKey": "Отправить {{label}}",
+      "paste": "Вставить",
+      "sending": "Отправка…",
+      "photo": "Фото",
+      "file": "Файл",
+      "desktopWidth": "Ширина компьютера",
+      "phoneWidth": "Ширина телефона",
+      "keys": "Клавиши",
+      "combos": "Комбинации",
+      "yourKeys": "Ваши клавиши",
+      "deleteKeyHint": "Удерживайте, чтобы удалить эту клавишу",
+      "addCustomKey": "Добавить свою клавишу",
+      "addKey": "Добавить клавишу"
+    },
+    "terminalPaneView": {
+      "focusedPane": "{{title}}, в фокусе",
+      "terminal": "Терминал",
+      "tapToFocusPane": "{{title}}, нажмите для фокусировки",
+      "inputPane": "{{title}} · Ввод"
+    },
+    "structuredOpen": {
+      "worktreeDeleted": "Рабочее дерево удалено.",
+      "folderWorkspaceRemoved": "Рабочее пространство папки удалено."
+    }
+  },
+  "accounts": {
+    "screen": {
+      "agentLogin": "Использовать учётную запись самого агента",
+      "connecting": "Подключение к серверу…",
+      "connectingTo": "Подключение к {{name}}…",
+      "default": "Как в системе",
+      "fableWindow": "Fable",
+      "hostNotFound": "Сервер не найден",
+      "invalidSnapshot": "Некорректные данные учётных записей от сервера",
+      "loadingAccounts": "Загрузка учётных записей…",
+      "manageAccountsHint": "Для добавления учётных записей или повторного входа откройте «Настройки → Учётные записи» в приложении на компьютере.",
+      "mcpWindow": "MCP",
+      "otherAgents": "Другие агенты",
+      "refreshAccounts": "Обновить учётные записи",
+      "sessionWindow": "5 ч",
+      "switchFailed": "Не удалось переключить учётную запись",
+      "title": "Учётные записи",
+      "useReset": "Сбросить лимиты",
+      "weeklyWindow": "7 дн."
+    }
+  },
+  "app": {
+    "mobileOnboarding": {
+      "notificationSettingsFailed": "Не удалось обновить настройки уведомлений. Повторите попытку.",
+      "progress": "Ход первоначальной настройки",
+      "saveChoiceFailed": "Не удалось сохранить ваш выбор. Повторите попытку.",
+      "stepProgress": "Шаг {{step}} из {{total}}"
+    },
+    "notifications": {
+      "description": "Получайте уведомления от агентов, даже когда приложение закрыто. Они доставляются через сервис push-уведомлений Orca и службы Apple или Google."
+    },
+    "pair": {
+      "backToHome": "На главный экран",
+      "missingCode": "Отсутствует код сопряжения"
+    },
+    "pairConfirm": {
+      "backToHome": "На главный экран",
+      "connectTimedOut": "Не удалось подключиться за {{seconds}} с — посмотрите в журнале ниже, на каком этапе остановилось подключение",
+      "connecting": "Подключение…",
+      "description": "Вы открыли ссылку сопряжения, полученную с компьютера. Подтвердите, чтобы добавить его в список серверов.",
+      "pairButton": "Выполнить сопряжение",
+      "pairingFailed": "Не удалось выполнить сопряжение: {{error}}",
+      "pairingLog": "Журнал сопряжения",
+      "title": "Выполнить сопряжение с этим компьютером?"
+    },
+    "pairScan": {
+      "cameraDisabledDescription": "Разрешите доступ к камере в настройках или вставьте код сопряжения.",
+      "cameraDisabledTitle": "Доступ к камере отключён",
+      "cameraPermissionDescription": "Отсканируйте QR-код в Orca на компьютере или вставьте код сопряжения.",
+      "connectTimedOut": "Не удалось подключиться за {{seconds}} с — посмотрите в журнале ниже, на каком этапе остановилось подключение",
+      "connecting": "Подключение…",
+      "invalidPairingCode": "Неверный код сопряжения — скопируйте его с компьютера и вставьте ещё раз",
+      "invalidQrCode": "Неверный QR-код Orca",
+      "downloadQrCode": "Это код для скачивания. Отсканируйте код сопряжения на шаге 2 на компьютере.",
+      "openDesktopStep": "Откройте Orca на компьютере",
+      "openMobileSettingsStep": "Перейдите в «Настройки → Мобильный доступ»",
+      "openSettings": "Открыть настройки",
+      "pairingFailed": "Не удалось выполнить сопряжение: {{error}}",
+      "pairingLog": "Журнал сопряжения",
+      "pasteCodeMessage": "Скопируйте код, показанный под QR-кодом на компьютере.",
+      "pasteCodePlaceholder": "orca://pair?code=... или вставьте код",
+      "pasteCodeTitle": "Вставить код сопряжения",
+      "pasteInstead": "Вставить код",
+      "pastePairingCode": "Или вставить код сопряжения",
+      "scanCodeStep": "Отсканируйте QR-код",
+      "title": "Сопряжение с компьютером",
+      "tryAgain": "Повторить попытку",
+      "codeNoLongerValid": "Этот код сопряжения истёк, уже использован или был заменён. Покажите новый код на компьютере и отсканируйте его снова."
+    },
+    "terminalSettings": {
+      "defaultText": "По умолчанию (100%)",
+      "keepPhoneSize": "Сохранять размер для телефона (по умолчанию)",
+      "largeText": "Крупный (125%)",
+      "largerText": "Очень крупный (150%)",
+      "largestText": "Самый крупный (200%)",
+      "leaveAppDescription": "Когда вы используете терминал на телефоне, Orca уменьшает его до размеров экрана. Эта настройка определяет, что произойдёт при закрытии приложения или переходе в другое: терминал сохранит размер для телефона (чтобы интерфейс интерактивных CLI-инструментов не перестраивался) или вернётся к размеру для компьютера. Восстановить размер вручную можно в любой момент кнопкой «Восстановить» на баннере в приложении на компьютере.",
+      "leaveAppHeading": "ПРИ ВЫХОДЕ ИЗ ПРИЛОЖЕНИЯ",
+      "noPairedDesktops": "Пока нет сопряжённых компьютеров. Выполните сопряжение с компьютером, чтобы настроить поведение терминала.",
+      "restoreAfterMinutes_few": "Через {{count}} минуты",
+      "restoreAfterMinutes_many": "Через {{count}} минут",
+      "restoreAfterMinutes_one": "Через {{count}} минуту",
+      "restoreAfterMinutes_other": "Через {{count}} минуты",
+      "restoreAfterSeconds_few": "Через {{count}} с",
+      "restoreAfterSeconds_many": "Через {{count}} с",
+      "restoreAfterSeconds_one": "Через {{count}} с",
+      "restoreAfterSeconds_other": "Через {{count}} с",
+      "restoreHost": "Восстановление размера: {{name}}",
+      "smallerText": "Уменьшенный (75%)",
+      "smallestText": "Минимальный (50%)",
+      "textSize": "Размер текста",
+      "textSizeDescription": "Изменяйте размер текста в терминале. При мелком тексте помещается больше столбцов и остаются поля по бокам; при крупном — столбцов меньше. Для прокрутки по горизонтали проведите пальцем в сторону. Размер также можно менять жестом сведения или разведения пальцев в самом терминале — значение этой настройки обновится. Настройка влияет только на отображение на этом устройстве и не меняет терминал на компьютере.",
+      "textSizeHeading": "РАЗМЕР ТЕКСТА",
+      "textSizePickerTitle": "Размер текста терминала",
+      "title": "Терминал"
+    }
+  },
+  "browser": {
+    "addressField": {
+      "urlPlaceholder": "URL"
+    },
+    "pane": {
+      "invalidUrl": "Введите корректный URL."
+    },
+    "paneView": {
+      "dialogTitle": "Диалог браузера",
+      "forward": "Вперёд",
+      "keyboardPlaceholder": "Введите текст для страницы…",
+      "reload": "Перезагрузить",
+      "sendText": "Отправить текст в браузер"
+    },
+    "pointerModifiers": {
+      "clickModifier": "Модификатор {{key}} для щелчка"
+    },
+    "useBrowserCommands": {
+      "deliveryUnconfirmed": "Отправка не подтверждена — проверьте страницу перед повторной попыткой",
+      "dialogAnswerFailed": "Не удалось передать ответ странице.",
+      "sent": "Отправлено"
+    },
+    "viewModeSwitch": {
+      "mobileView": "Показать мобильную версию сайта",
+      "webView": "Показать версию сайта для компьютера"
     }
   },
   "common": {
@@ -1598,125 +2611,6 @@
       "title": "Изменить сервер"
     }
   },
-  "hostScreen": {
-    "hostListActionSheetActions": {
-      "connect": "Подключиться",
-      "disconnect": "Отключить",
-      "editHost": "Изменить сервер",
-      "networkDiagnostics": "Диагностика сети",
-      "reconnect": "Подключиться снова"
-    },
-    "hostPendingCreationRow": {
-      "creatingWorkspace": "Создание рабочего пространства…"
-    },
-    "hostScreenHeader": {
-      "accounts": "Учётные записи",
-      "backToHosts": "Назад к серверам",
-      "floatingWorkspace": "Плавающее рабочее пространство",
-      "hideSidebar": "Скрыть боковую панель",
-      "reconnect": "Подключиться снова",
-      "tasks": "Задачи",
-      "automations": "Автоматизации"
-    },
-    "hostScreenOverlays": {
-      "deleteConfirmMessage": "Удалить «{{name}}» ({{branch}})?",
-      "deleteWorktree": "Удалить рабочее дерево",
-      "pin": "Закрепить",
-      "primaryWorktreeDeleteHint": "Основное рабочее дерево нельзя удалить. Вместо этого уберите проект.",
-      "removeHost": "Удалить сервер",
-      "removeHostMessage": "Удалить «{{name}}»? Позже его можно подключить снова.",
-      "sleep": "Перевести в сон",
-      "unpin": "Открепить",
-      "rename": "Переименовать"
-    },
-    "workspaceDetailsSheet": {
-      "checksFailing": "Проверки: не пройдены",
-      "checksPassing": "Проверки: пройдены",
-      "checksPending": "Проверки: в ожидании",
-      "closed": "Закрыт",
-      "createdByAutomation": "Создано автоматизацией",
-      "createdByNamedAutomation": "Создано автоматизацией «{{name}}»",
-      "createdFromCli": "Создано через Orca CLI",
-      "draft": "Черновик",
-      "merged": "Слит",
-      "openLink": "Открыть {{label}}",
-      "openLinkWithTitle": "Открыть {{label}}, {{title}}",
-      "prOpen": "Открыт"
-    },
-    "workspaceOptionControls": {
-      "agentActivity": "Активность агентов",
-      "agentActivityLayout": "Вид активности агентов",
-      "agentActivitySort": "Активность агентов",
-      "agentActivitySortDescription": "Сначала агенты, требующие внимания, затем по недавней активности.",
-      "agentStatuses": "Статусы агентов",
-      "allHosts": "Все серверы",
-      "allProjects": "Все проекты",
-      "automation": "Автоматизация",
-      "branchFolderPath": "Ветка / путь папки",
-      "branchName": "Название ветки",
-      "compact": "Компактно",
-      "detailed": "Подробно",
-      "fullList": "Полный список",
-      "githubIssues": "Задачи GitHub",
-      "githubTicket": "Задача GitHub",
-      "host": "Сервер",
-      "hover": "При наведении",
-      "jiraIssue": "Задача Jira",
-      "jiraIssues": "Задачи Jira",
-      "linearIssue": "Задача Linear",
-      "linearIssues": "Задачи Linear",
-      "manual": "Вручную",
-      "manualProjectOrderDescription": "Перетаскивайте проекты, чтобы менять их порядок",
-      "manualWorkspaceOrderDescription": "Перетаскивайте рабочие пространства, чтобы менять их порядок в каждой группе.",
-      "name": "Название",
-      "none": "Нет",
-      "notes": "Заметки",
-      "ports": "Порты",
-      "pr": "PR",
-      "prMrLink": "Ссылка на PR/MR",
-      "project": "Проект",
-      "recent": "Недавние",
-      "recentProjectOrderDescription": "Недавняя активность рабочих пространств",
-      "searchProjects": "Поиск проектов",
-      "searchProjectsPlaceholder": "Поиск проектов…",
-      "selectedCount": "{{count}} из {{total}}",
-      "status": "Статус"
-    },
-    "workspaceOptionsSheet": {
-      "backToOptions": "Вернуться к параметрам рабочих пространств",
-      "cardDisplay": "Отображение карточек",
-      "cardLayout": "Вид карточек",
-      "exceptDefaultBranch": "Кроме ветки по умолчанию",
-      "filters": "Фильтры",
-      "groupBy": "Группировать по",
-      "hideAutomationCreated": "Скрыть созданные автоматизацией",
-      "hideCliCreated": "Скрыть созданные через CLI",
-      "hideDefaultBranch": "Скрыть ветку по умолчанию",
-      "hideDetachedHead": "Скрыть с отсоединённым HEAD",
-      "hideOtherClientWorkspaces": "Скрыть рабочие пространства других клиентов",
-      "hideSleeping": "Скрыть спящие рабочие пространства",
-      "hosts": "Серверы",
-      "localLinux": "Локальный ПК с Linux",
-      "localMac": "Локальный Mac",
-      "localWindows": "Локальный ПК с Windows",
-      "projectOrder": "Порядок проектов",
-      "projects": "Проекты",
-      "savingToDesktop": "Сохранение на компьютере",
-      "show": "Показать",
-      "showProperties": "Показывать свойства",
-      "sortBy": "Сортировать по",
-      "syncedAcrossDevices": "Синхронизация между вашими устройствами",
-      "thisComputer": "Этот компьютер",
-      "waitingForDesktop": "Всё ещё ждём ответа компьютера",
-      "workspaceOptions": "Параметры рабочих пространств"
-    },
-    "workspaceRenameSheet": {
-      "title": "Переименовать рабочее пространство",
-      "emptyUsesBranch": "Оставьте пустым, чтобы использовать имя ветки.",
-      "emptyUsesFolder": "Оставьте пустым, чтобы использовать имя папки.",
-      "failed": "Не удалось переименовать рабочее пространство. {{reason}}"
-    }
-  },
   "navigation": {
     "hostStackScreens": {
       "accounts": "Учётные записи",
@@ -1973,874 +2867,6 @@
       "requested": "Проверка запрошена",
       "reviewed": "Проверено",
       "title": "Рецензенты"
-    }
-  },
-  "session": {
-    "accessoryKeys": {
-      "dismissKeyboard": "Скрыть клавиатуру",
-      "sendKey": "Отправить {{label}}",
-      "typeCharacter": "Ввести {{character}}",
-      "interrupt": "Прервать работу терминала",
-      "keysModeLabel": "Режим клавиш: ввод сразу отправляется в терминал. Переключиться в режим сообщений",
-      "messageModeLabel": "Режим сообщений: напишите, затем отправьте. Переключиться в режим клавиш",
-      "moreKeys": "Другие клавиши и действия",
-      "showKeyboard": "Показать клавиатуру",
-      "dismissKeyboardHint": "Скрывает экранную клавиатуру и оставляет текущую сессию терминала открытой.",
-      "switchToDesktopMode": "Переключиться в режим компьютера",
-      "switchToPhoneMode": "Переключить в режим телефона",
-      "pasteFromClipboard": "Вставить из буфера обмена",
-      "paste": "Вставить",
-      "addCustomShortcut": "Добавить пользовательское сочетание клавиш"
-    },
-    "activeContent": {
-      "createTab": "Создать вкладку",
-      "creatingTab": "Создание…",
-      "fileTitle": "Файл",
-      "loadingTerminal": "Загрузка терминала",
-      "noTabs": "В этой сессии нет вкладок",
-      "retryLoadingTerminal": "Повторить загрузку терминала",
-      "terminalTakingLonger": "Загрузка терминала занимает больше времени, чем ожидалось"
-    },
-    "agentChildRow": {
-      "agent": "Агент",
-      "days_few": "{{count}} д",
-      "days_many": "{{count}} д",
-      "days_one": "{{count}} д",
-      "days_other": "{{count}} д",
-      "ended": "Завершён",
-      "hours_few": "{{count}} ч",
-      "hours_many": "{{count}} ч",
-      "hours_one": "{{count}} ч",
-      "hours_other": "{{count}} ч",
-      "minutes_few": "{{count}} мин",
-      "minutes_many": "{{count}} мин",
-      "minutes_one": "{{count}} мин",
-      "minutes_other": "{{count}} мин",
-      "noRecentUpdate": "Давно не было обновлений",
-      "noUpdate": "Нет обновлений уже {{value0}}"
-    },
-    "agentMessageAttribution": {
-      "unnamedSender": "агента",
-      "fromSender": "От"
-    },
-    "aiVaultResumeLaunch": {
-      "createFailed": "Не удалось создать терминал",
-      "inputLocked": "Ввод в терминал заблокирован",
-      "sendFailed": "Не удалось отправить команду возобновления"
-    },
-    "aiVaultResumePreparation": {
-      "prepareFailed": "Не удалось подготовить эту сессию Codex старого формата. Попробуйте возобновить её ещё раз."
-    },
-    "backgroundTask": {
-      "agent": "Фоновый агент",
-      "command": "Фоновая команда",
-      "countAgents_few": "{{count}} агента",
-      "countAgents_many": "{{count}} агентов",
-      "countAgents_one": "{{count}} агент",
-      "countAgents_other": "{{count}} агента",
-      "countMonitors_few": "{{count}} наблюдения",
-      "countMonitors_many": "{{count}} наблюдений",
-      "countMonitors_one": "{{count}} наблюдение",
-      "countMonitors_other": "{{count}} наблюдения",
-      "countShellCommandOne": "1 команда оболочки",
-      "countShell_few": "{{count}} оболочки",
-      "countShell_many": "{{count}} оболочек",
-      "countShell_one": "{{count}} оболочка",
-      "countShell_other": "{{count}} оболочки",
-      "countTasks_few": "{{count}} задачи",
-      "countTasks_many": "{{count}} задач",
-      "countTasks_one": "{{count}} задача",
-      "countTasks_other": "{{count}} задачи",
-      "countWorkflows_few": "{{count}} процесса",
-      "countWorkflows_many": "{{count}} процессов",
-      "countWorkflows_one": "{{count}} процесс",
-      "countWorkflows_other": "{{count}} процесса",
-      "detailsUnavailable": "Подробности задач в этой сессии недоступны.",
-      "outputFile": "Вывод: {{value0}}",
-      "groupAgents": "Агенты",
-      "groupMonitors": "Наблюдения",
-      "groupShell": "Оболочка",
-      "groupTasks": "Задачи",
-      "groupWorkflows": "Процессы",
-      "headerTotalCount_few": "{{count}} фоновые задачи",
-      "headerTotalCount_many": "{{count}} фоновых задач",
-      "headerTotalCount_one": "{{count}} фоновая задача",
-      "headerTotalCount_other": "{{count}} фоновой задачи",
-      "monitor": "Фоновое наблюдение",
-      "monitoring": "Наблюдает за фоновыми задачами",
-      "reasonBlocked": "ошибка",
-      "reasonWaiting": "нужно разрешение",
-      "stateBlocked": "заблокировано",
-      "stateBlockedCount_few": "Заблокировано: {{value0}}",
-      "stateBlockedCount_many": "Заблокировано: {{value0}}",
-      "stateBlockedCount_one": "Заблокировано: {{value0}}",
-      "stateBlockedCount_other": "Заблокировано: {{value0}}",
-      "stateDone": "готово",
-      "stateDoneCount_few": "Готово: {{value0}}",
-      "stateDoneCount_many": "Готово: {{value0}}",
-      "stateDoneCount_one": "Готово: {{value0}}",
-      "stateDoneCount_other": "Готово: {{value0}}",
-      "stateIdle": "остановлено",
-      "stateIdleCount_few": "Остановлено: {{value0}}",
-      "stateIdleCount_many": "Остановлено: {{value0}}",
-      "stateIdleCount_one": "Остановлено: {{value0}}",
-      "stateIdleCount_other": "Остановлено: {{value0}}",
-      "stateMonitoring": "наблюдает",
-      "stateMonitoringCount_few": "Наблюдение: {{value0}}",
-      "stateMonitoringCount_many": "Наблюдение: {{value0}}",
-      "stateMonitoringCount_one": "Наблюдение: {{value0}}",
-      "stateMonitoringCount_other": "Наблюдение: {{value0}}",
-      "stateUnverifiable": "статус недоступен",
-      "stateUnverifiableCount_few": "Статус недоступен: {{value0}}",
-      "stateUnverifiableCount_many": "Статус недоступен: {{value0}}",
-      "stateUnverifiableCount_one": "Статус недоступен: {{value0}}",
-      "stateUnverifiableCount_other": "Статус недоступен: {{value0}}",
-      "stateWaiting": "ожидает",
-      "stateWaitingCount_few": "В ожидании: {{value0}}",
-      "stateWaitingCount_many": "В ожидании: {{value0}}",
-      "stateWaitingCount_one": "В ожидании: {{value0}}",
-      "stateWaitingCount_other": "В ожидании: {{value0}}",
-      "stateWorking": "в работе",
-      "stateWorkingCount_few": "В работе: {{value0}}",
-      "stateWorkingCount_many": "В работе: {{value0}}",
-      "stateWorkingCount_one": "В работе: {{value0}}",
-      "stateWorkingCount_other": "В работе: {{value0}}",
-      "stop": "Остановить",
-      "stopAll": "Остановить фоновые задачи",
-      "stopTask": "Остановить {{value0}}",
-      "task": "Фоновая задача",
-      "workflow": "Фоновый процесс"
-    },
-    "browserTabActionSheet": {
-      "forward": "Вперёд",
-      "reload": "Перезагрузить",
-      "title": "Браузер"
-    },
-    "bulkCloseSheetActions": {
-      "closeOtherTabs": "Закрыть другие вкладки"
-    },
-    "bulkTabClose": {
-      "confirm": "Закрыть вкладки",
-      "description": "Выбранные вкладки закроются. Закреплённые вкладки останутся открытыми.",
-      "titleEditors": "Закрыть все вкладки редактора?",
-      "titleLeft": "Закрыть вкладки слева?",
-      "titleOthers": "Закрыть остальные вкладки?",
-      "titleRight": "Закрыть вкладки справа?"
-    },
-    "commandDock": {
-      "liveInputHint": "Вводимый текст отправляется прямо в активный терминал",
-      "liveInputLabel": "Прямой ввод в терминал"
-    },
-    "contentRow": {
-      "dismissCreationWarning": "Закрыть предупреждение о создании рабочего пространства"
-    },
-    "diffLineRow": {
-      "addNoteLabel": "Добавить заметку к строке {{line}}",
-      "deleteNoteLabel": "Удалить заметку к строке {{line}}",
-      "diffLineLabel": "Сравнение {{title}}, строка {{line}}",
-      "lineNumber": "Строка {{line}}",
-      "notePlaceholder": "Добавить заметку по проверке",
-      "saveNote": "Сохранить заметку"
-    },
-    "diffReviewLoaders": {
-      "committedChangesFailed": "Не удалось загрузить изменения в коммитах",
-      "committedChangesUnavailable": "Изменения в коммитах недоступны",
-      "committedDiffUnavailable": "Сравнение изменений в коммитах недоступно",
-      "desktopUpdateRequired": "Обновите Orca на компьютере, чтобы проверять изменения на мобильном устройстве.",
-      "diffLoadFailed": "Не удалось загрузить сравнение",
-      "reviewNotesLoadFailed": "Не удалось загрузить заметки к проверке"
-    },
-    "diffReviewQueue": {
-      "committedOnBranch": "В коммитах ветки",
-      "staged": "В индексе",
-      "unstaged": "Не в индексе"
-    },
-    "diffReviewScreenModel": {
-      "branch": "Ветка",
-      "staged": "В индексе",
-      "unstaged": "Не в индексе"
-    },
-    "failure": {
-      "accountSwitchInProgress": "Настройка {{agent}} на этом сервере меняется. Дождитесь завершения и повторите попытку.",
-      "agentCommandNotRunnable": "В поле «Команда» для {{agent}} в разделе «Настройки → Агенты» нужно указать путь к программе или её имя, по которому Orca сможет её найти, без аргументов и переменных. Измените или сбросьте значение этого поля.",
-      "agentCommandNotSignedIn": "Войдите в {{agent}} командой `{{loginCommand}}` на компьютере с этим чатом.",
-      "agentNotSignedIn": "Войдите в {{agent}}.",
-      "agentStarting": "Агент ещё запускается.",
-      "agentStillWorking": "Агент ещё работает.",
-      "answerUnconfirmed": "Ответ записан, но агент не подтвердил получение.",
-      "antigravityNotSignedIn": "Вход в Antigravity не выполнен. Выполните вход в разделе «Настройки → Учётные записи → Antigravity». Затем отправьте сообщение снова.",
-      "argumentsMissingValue": "В сохранённых аргументах отсутствует значение для {{option}}.",
-      "argumentsMultipleValues": "В сохранённых аргументах у {{option}} несколько значений.",
-      "argumentsPositionalPrompt": "Сохранённые аргументы содержат текст запроса.",
-      "argumentsUnsupportedOption": "Сохранённые аргументы содержат неподдерживаемый параметр {{option}}.",
-      "attachmentAtMost": "{{agent}} принимает не больше {{limit}} изображений в сообщении, поэтому оно не отправлено.",
-      "attachmentEmpty": "В сообщении пустое изображение, поэтому сообщение не отправлено.",
-      "attachmentInvalid": "Вложение в этом сообщении нельзя отправить агенту.",
-      "attachmentsExpired": "Срок хранения истёк: {{names}}.",
-      "attachmentLargerThan": "Размер изображения в сообщении превышает {{size}} МБ, поэтому сообщение не отправлено.",
-      "attachmentNoSource": "Для одного из изображений нет исходного файла, поэтому сообщение не отправлено.",
-      "attachmentNotAFile": "Одно из изображений в сообщении не является файлом, поэтому сообщение не отправлено.",
-      "attachmentTooLarge": "Изображение в сообщении слишком велико, поэтому сообщение не отправлено.",
-      "attachmentTooMany": "В сообщении слишком много изображений, поэтому оно не отправлено.",
-      "attachmentTotalMoreThan": "Общий размер изображений превышает {{size}} МБ, поэтому сообщение не отправлено.",
-      "attachmentTotalTooLarge": "Общий размер изображений слишком велик, поэтому сообщение не отправлено.",
-      "attachmentUnreadable": "Не удалось прочитать вложение, поэтому сообщение не отправлено.",
-      "attachmentUnsupportedType": "{{agent}} принимает только PNG, JPEG, GIF и WebP, поэтому сообщение не отправлено.",
-      "backgroundTaskNotStopped": "Фоновая задача не остановлена.",
-      "backgroundTasksNotStopped": "Фоновые задачи не остановлены.",
-      "backgroundTasksRunning": "Фоновые задачи ещё выполняются.",
-      "cancelUnconfirmed": "Отмена не подтверждена.",
-      "cancelled": "Сообщение отозвано до начала работы агента над ним.",
-      "chatClosed": "Чат закрылся до отправки сообщения.",
-      "chooseClaudeAccount": "Выберите или добавьте учётную запись в настройках учётных записей Claude.",
-      "chooseClaudeAccountThenRunCommand": "Выберите или добавьте учётную запись в настройках учётных записей Claude, затем выполните /{{command}} снова.",
-      "chooseClaudeAccountThenSend": "Выберите или добавьте учётную запись в настройках учётных записей Claude, затем отправьте сообщение снова.",
-      "claudeAccountFolderMissing": "Папка выбранной учётной записи Claude отсутствует. Войдите в неё снова или выберите другую учётную запись.",
-      "claudeAccountSetupFailed": "Не удалось настроить выбранную учётную запись Claude. Повторите попытку или выберите другую.",
-      "claudeEffortInvalid": "Задана недопустимая глубина рассуждений Claude. Выберите low, medium, high, xhigh или max и отправьте сообщение снова.",
-      "claudeManagedNotSignedIn": "Вход в эту учётную запись Claude не выполнен. Войдите снова в настройках учётных записей Claude.",
-      "claudeSystemNotSignedIn": "Вход в Claude не выполнен. Выполните `{{loginCommand}}` или выберите учётную запись в настройках учётных записей Claude.",
-      "cliMissing": "{{agent}} не найден на компьютере с этим чатом. Установите его или проверьте поле «Команда» в разделе «Настройки → Агенты».",
-      "cliMissingInWslDistro": "{{agent}} не установлен в дистрибутиве WSL {{distro}}. Установите его внутри {{distro}} или проверьте поле «Команда» в разделе «Настройки → Агенты».",
-      "cliTooOld": "Версия {{agent}} {{installedVersion}} не поддерживает чаты. Обновите до версии {{minimumVersion}} или более новой.",
-      "codexManagedNotSignedIn": "Вход в эту учётную запись Codex не выполнен. Войдите снова в настройках учётных записей Codex.",
-      "codexSystemNotSignedIn": "Вход в Codex не выполнен. Выполните `{{loginCommand}}`.",
-      "commandAfterAnswer": "Ответьте на вопрос или запрос разрешения агента, затем выполните /{{command}}.",
-      "commandRefused": "Эта команда не выполнена.",
-      "commandRefusedTryAgain": "Эта команда не выполнена. Повторите её.",
-      "commandUnavailable": "{{agent}}: эта команда недоступна в чатах, поэтому она не отправлена.",
-      "compactionFailed": "Не удалось сократить контекст.",
-      "compactionFailedQuoted": "Не удалось сократить контекст: {{detail}}.",
-      "compactionUnconfirmed": "Сокращение контекста не подтверждено.",
-      "conversationOpenElsewhere": "Codex всё ещё держит этот разговор открытым. Повторите попытку чуть позже или закройте другие терминалы Codex.",
-      "conversationOpenInTerminal": "{{agent}} уже работает с этим разговором в другом терминале. Завершите {{agent}} там или закройте этот терминал, чтобы продолжить здесь.",
-      "couldNotRestart": "{{agent}}: перезапуск не удался.",
-      "couldNotStart": "{{agent}}: запуск не удался.",
-      "couldNotStop": "Не удалось остановить {{agent}}.",
-      "couldNotStopTheAgent": "Не удалось остановить агента.",
-      "editSavedArguments": "Измените их в разделе «Настройки» > «Агенты» > «Аргументы».",
-      "emptyMessage": "Сообщение пустое, поэтому оно не отправлено.",
-      "fullAccessAsRoot": "{{agent}} не может работать в режиме «Полный доступ» от root. Выберите для {{agent}} другой режим доступа в разделе «Настройки → Агенты» на компьютере с этим чатом, затем начните новый чат.",
-      "historyInOtherAccount": "История этого чата находится в другой учётной записи Claude. Вернитесь в неё, чтобы продолжить.",
-      "historyTooLarge": "История разговора слишком велика для восстановления здесь.",
-      "hostFault": "В Orca произошла ошибка, поэтому действие не выполнено.",
-      "hostFaultTryAgain": "В Orca произошла ошибка, поэтому действие не выполнено. Повторите попытку.",
-      "hostRestarted": "Orca перезапустилась до отправки сообщения.",
-      "hostStopped": "{{agent}} не завершил запуск, поэтому Orca остановила его.",
-      "interactiveAgentNotSignedIn": "Войдите в {{agent}}: запустите `{{loginCommand}}` и выполните `{{slashCommand}}` на компьютере с этим чатом.",
-      "launchFolderMissing": "Папка, в которой работал этот чат, больше не существует. Восстановите её, чтобы продолжить чат.",
-      "launchPreparationFailed": "Orca не удалось подготовить запуск {{agent}} на компьютере, на котором работает этот чат.",
-      "managedAccountEnvOverride": "При этом запуске Claude используются собственные переменные окружения для входа в Anthropic. Удалите их, чтобы использовать управляемую учётную запись Claude.",
-      "managedAccountUnsupported": "Хотя учётная запись Claude добавлена в WSL, для чатов Claude нужна учётная запись Claude в Windows.",
-      "modelUnavailable": "{{agent}} не смог использовать {{detail}}. Выберите другую модель и отправьте сообщение снова.",
-      "modelUnavailableUpdate": "{{agent}} не смог использовать {{detail}}. Обновите {{agent}} до {{minimumVersion}} или новее, чтобы сохранить его после перезапуска, или выберите другую модель и отправьте сообщение снова.",
-      "modelNotSelected": "У {{agent}} не выбрана модель. Проверьте выбор модели и вход в {{agent}}, затем отправьте сообщение снова.",
-      "noTurnToStop": "{{agent}} сейчас не выполняет задачу, которую можно остановить.",
-      "notDelivered": "Это сообщение не доставлено.",
-      "notDeliveredSendAgain": "Это сообщение не доставлено. Отправьте его снова, чтобы продолжить.",
-      "notSignedIn": "{{agent}}: вход не выполнен.",
-      "previousExitUnverifiable": "{{agent}}: не удалось остановить предыдущий процесс.",
-      "providerExitedAnswer": "{{agent}} остановился, поэтому ваш ответ не отправлен. Отправьте сообщение, чтобы продолжить.",
-      "providerExitedRejection": "{{agent}} остановился до отправки этого сообщения.",
-      "providerExitedRow": "{{agent}} остановился во время ответа. Вы можете продолжить этот разговор.",
-      "providerRateLimited": "{{agent}} повторяет попытку из-за ограничения частоты запросов.",
-      "providerRejected": "{{agent}} не принял это сообщение.",
-      "providerRejectedQuoted": "{{agent}} не принял это сообщение: {{detail}}.",
-      "providerRetryLastError": "Последняя ошибка: {{detail}}.",
-      "providerRetryNumber": "Повторная попытка {{attempt}}.",
-      "providerRetryNumberOf": "Повторная попытка {{attempt}} из {{maxRetries}}.",
-      "providerRetrying": "{{agent}} столкнулся с временной неполадкой и повторяет попытку.",
-      "providerRetryingQuoted": "{{agent}} повторяет попытку: {{detail}}.",
-      "providerStartFailed": "{{agent}} остановился до завершения запуска.",
-      "providerResumeUnavailable": "{{agent}} не может безопасно открыть этот чат. Начните новый чат или продолжите в терминале.",
-      "savedConversationMissing": "{{agent}} не удалось найти сохранённую беседу этого чата.",
-      "queueFull": "Слишком много сообщений ожидает агента, поэтому это сообщение не отправлено.",
-      "quitTerminalAgent": "Завершите работу этого агента, чтобы продолжить чат здесь.",
-      "runCommandAgain": "Выполните /{{command}} снова.",
-      "runCommandWhenDone": "После завершения выполните /{{command}}.",
-      "runtimeNotInstalled": "{{agent}} не установлен на компьютере с этим чатом. Установите его из чата в актуальной версии Orca.",
-      "sendAgainToTryOnceMore": "Отправьте сообщение снова, чтобы повторить попытку.",
-      "sendToTryAgain": "Отправьте сообщение, чтобы повторить попытку.",
-      "sessionNotRestored": "{{agent}} не смог открыть прежнюю сессию, поэтому чат продолжится в новой. {{agent}} не помнит предыдущие сообщения.",
-      "signInFirst": "Сначала выполните вход.",
-      "signInThenRunCommand": "Войдите, затем выполните /{{command}} снова.",
-      "signInThenSend": "Войдите, затем отправьте сообщение снова.",
-      "startNewChat": "Создайте новый чат, чтобы продолжить.",
-      "startTimedOut": "{{agent}} запускается слишком долго: нет ответа на {{method}} за {{seconds}} с.",
-      "startTimedOutKeepsHappening": "Если это повторяется, возможно, компьютер с этим чатом перегружен.",
-      "stopRefused": "{{agent}} не остановился.",
-      "stopRefusedQuoted": "{{agent}} не остановился: {{detail}}.",
-      "terminalAgentHoldsChat": "Этот чат всё ещё открыт агентом в терминале.",
-      "theAgent": "Агент",
-      "thenSendAgain": "Затем отправьте сообщение снова.",
-      "usageLimitReached": "{{agent}} достиг лимита использования.",
-      "usageLimitReachedNamed": "{{agent}} достиг лимита: {{window}}.",
-      "usageLimitResetsAt": "Сброс: {{when}}.",
-      "usageLimitSendAfterReset": "После сброса лимита отправьте сообщение, чтобы продолжить.",
-      "usageLimitWindowCredits": "дополнительное использование",
-      "usageLimitWindowSession": "на сессию",
-      "usageLimitWindowWeekly": "на неделю",
-      "usageLimitWindowWeeklyModel": "на неделю для модели",
-      "waitForBackgroundTasks": "Дождитесь завершения фоновых задач.",
-      "waitForStart": "Дождитесь запуска агента.",
-      "writeFailed": "Orca не смогла передать сообщение агенту, поэтому оно не отправлено.",
-      "pluginInputRequired": "{{agent}} остановился, потому что плагин «{{plugin}}» ожидает ввода на панели терминала. Отключите плагин для сеансов чата или запустите задачу в терминале {{agent}}."
-    },
-    "fileReader": {
-      "copyReviewNotes": "Копировать заметки по проверке",
-      "imageLabel": "Изображение {{title}}",
-      "noReviewNotes": "Нет заметок по проверке",
-      "previewLabel": "Предпросмотр {{title}}",
-      "reviewNotes_few": "{{count}} заметки по проверке",
-      "reviewNotes_many": "{{count}} заметок по проверке",
-      "reviewNotes_one": "{{count}} заметка по проверке",
-      "reviewNotes_other": "{{count}} заметки по проверке",
-      "send": "Отправить",
-      "sendReviewNotes": "Отправить ИИ заметки по проверке"
-    },
-    "floatingWorkspace": {
-      "title": "Плавающее рабочее пространство"
-    },
-    "githubPrMutations": {
-      "reviewThreadUpdateFailed": "Не удалось обновить обсуждение в пул-реквесте.",
-      "titleUpdateFailed": "Не удалось обновить заголовок."
-    },
-    "githubPrRpc": {
-      "requestFailed": "Ошибка запроса: {{method}}"
-    },
-    "header": {
-      "workspaceDetailsHint": "Показывает полное название рабочего пространства и его расположение",
-      "backToWorktrees": "Вернуться к рабочим деревьям",
-      "moreActions": "Другие действия с сессией",
-      "openSourceControl": "Открыть управление версиями",
-      "reconnectToDesktop": "Переподключиться к компьютеру",
-      "showSidebar": "Показать боковую панель",
-      "terminalTitle": "Терминал",
-      "terminalLayout": "Расположение терминалов",
-      "fileExplorer": "Проводник файлов",
-      "sourceControl": "Управление исходным кодом",
-      "newTab": "Новая вкладка",
-      "quickCommands": "Быстрые команды"
-    },
-    "headerMoreActionsSheet": {
-      "agentHistory": "История агентов",
-      "agentHistoryHint": "Просмотр и возобновление сессий агентов",
-      "checks": "Проверки",
-      "checksHint": "Открыть проверки пул-реквеста"
-    },
-    "markdownReader": {
-      "changedOnDesktop": "Изменён на компьютере",
-      "copyLoaded": "Скопировать загруженное",
-      "copyLoadedSource": "Скопировать загруженный исходный текст Markdown",
-      "copyPath": "Скопировать путь",
-      "copyPathLabel": "Скопировать путь к файлу Markdown",
-      "copySource": "Скопировать исходный текст Markdown",
-      "discard": "Отменить изменения",
-      "previewTruncated": "Показана часть файла.",
-      "readOnly": "Только чтение"
-    },
-    "nativeChatAttachActions": {
-      "availableSkills": "Доступно: {{count}}",
-      "commands": "Команды",
-      "fileTypes": "PDF, текст, код…",
-      "files": "Файлы",
-      "photos": "Фото",
-      "skills": "Навыки",
-      "workspaceFile": "Файл рабочего пространства"
-    },
-    "nativeChatCardHeaderAction": {
-      "collapse": "Свернуть"
-    },
-    "nativeChatCliFork": {
-      "resumeInNewCli": "Продолжить в новом CLI"
-    },
-    "nativeChatFloatingControls": {
-      "scrollToLatest": "Прокрутить к последним сообщениям"
-    },
-    "nativeChatFullContent": {
-      "loadMessageFailed": "Показать сообщение целиком — не удалось загрузить, нажмите для повтора",
-      "loadOutputFailed": "Показать весь вывод — не удалось загрузить, нажмите для повтора",
-      "partialMessage": "Показана часть сообщения.",
-      "partialOutput": "Показано {{shown}} из {{total}}.",
-      "showFullMessage": "Показать сообщение целиком",
-      "showFullOutput": "Показать весь вывод"
-    },
-    "nativeChatRenderData": {
-      "defaultAgentLabel": "агент",
-      "emptySubtitle": "Отправьте запрос: {{agent}} может изучить код, объяснить вывод или внести изменения.",
-      "emptyTitle": "Начните чат ({{agent}})",
-      "errorSubtitle": "Не удалось прочитать историю. Вернитесь в терминал, чтобы продолжить работу.",
-      "errorTitle": "Не удалось загрузить разговор",
-      "notFoundSubtitle": "Отправьте сообщение, чтобы начать разговор, или откройте терминал и посмотрите, что делает {{agent}}.",
-      "notFoundTitle": "Пока не удаётся найти этот разговор"
-    },
-    "nativeChatToggleAction": {
-      "switchToChatView": "Переключиться на чат",
-      "switchToTerminalView": "Переключиться на терминал"
-    },
-    "newTabAgentHostLaunch": {
-      "notesNotSent": "Агент запущен, но заметки не отправлены.",
-      "notesSent": "Заметки отправлены",
-      "notesUnconfirmed": "Агент запущен, но подтвердить отправку заметок не удалось.",
-      "promptUnconfirmed": "Агент запущен, но подтвердить отправку запроса не удалось."
-    },
-    "prActionsEngine": {
-      "mergeFailed": "Не удалось слить пул-реквест.",
-      "refreshFailed": "Не удалось обновить запрос на слияние."
-    },
-    "prAiTriageLaunch": {
-      "agentStarted": "Агент запущен",
-      "agentStartedIn": "Агент запущен в «{{label}}»",
-      "emptyPrompt": "Сохранённый запрос для этого действия пуст. Измените настройки ИИ для управления версиями на компьютере.",
-      "loadFailed": "Не удалось загрузить список доступных агентов.",
-      "promptNotSent": "Агент запущен, но запрос не отправлен.",
-      "updateRequired": "Обновите Orca на компьютере, чтобы запускать агента с телефона."
-    },
-    "prSidebarState": {
-      "loadFailed": "Не удалось загрузить пул-реквест"
-    },
-    "queuedCardText": {
-      "showLess": "Свернуть",
-      "showLessHint": "Сворачивает сообщение",
-      "showMore": "Показать больше",
-      "showMoreHint": "Показывает сообщение целиком"
-    },
-    "queuedMessageCardRow": {
-      "deleteHint": "Удалить это сообщение из очереди",
-      "images_few": "{{count}} изображения",
-      "images_many": "{{count}} изображений",
-      "images_one": "{{count}} изображение",
-      "images_other": "{{count}} изображения",
-      "moreActions": "Другие действия",
-      "send": "Отправить",
-      "sendAgainHint": "Отправить это сообщение ещё раз",
-      "sendHint": "Отправить это сообщение",
-      "showLessHint": "Сворачивает сообщение",
-      "steer": "Сейчас",
-      "steerHint": "Отправить сообщение, не прерывая работу модели"
-    },
-    "queuedMessageComposer": {
-      "commandsNotAllowed": "Команды нельзя сохранять в сообщении в очереди.",
-      "editing": "Редактирование сообщения"
-    },
-    "quickCommandEditorForm": {
-      "action": "Действие",
-      "addQuickCommand": "Добавить быструю команду",
-      "advanced": "Дополнительно",
-      "agent": "Агент",
-      "agentPrompt": "Запрос агенту",
-      "appendEnter": "Добавить Enter",
-      "appendEnterDescription": "Отправлять сразу вместо простой вставки текста.",
-      "chooseAgent": "Выбрать агента",
-      "commandText": "Текст команды",
-      "globalScope": "Для всех проектов",
-      "label": "Название",
-      "labelPlaceholder": "Запустить сервер разработки",
-      "olderHostPromptTooLong": "Текст слишком длинный для этого сервера. Обновите на нём Orca, чтобы сохранять более длинные запросы.",
-      "projectScope": "Проект",
-      "prompt": "Запрос",
-      "promptHint": "Поддерживаются навыки, пути к файлам и встроенные команды.",
-      "promptPlaceholder": "Попросить агента исследовать это рабочее пространство",
-      "promptSizeCharacters": "{{used}} / {{max}} символов",
-      "promptSizeKilobytes": "{{used}} КБ / {{max}} КБ",
-      "promptTooLong": "Текст слишком длинный для сохранения.",
-      "scope": "Область",
-      "terminalCommand": "Команда терминала"
-    },
-    "quickCommandLaunch": {
-      "defaultLabel": "Быстрая команда",
-      "editBeforeRunning": "Измените эту быструю команду перед выполнением",
-      "runFailed": "Не удалось выполнить «{{label}}»"
-    },
-    "quickCommandRow": {
-      "copyCommand": "Скопировать «{{label}}»",
-      "copyFailed": "Не удалось скопировать",
-      "deleteCommand": "Удалить «{{label}}»",
-      "editCommand": "Изменить «{{label}}»",
-      "nothingToCopy": "Копировать нечего",
-      "runCommand": "Запустить «{{label}}»"
-    },
-    "quickCommandsList": {
-      "emptyState": "Быстрых команд пока нет.",
-      "globalGroup": "Для всех проектов",
-      "newCommand": "Создать быструю команду",
-      "noMatches": "Подходящих быстрых команд нет.",
-      "projectGroup": "Этот проект",
-      "searchPlaceholder": "Поиск быстрых команд…"
-    },
-    "quickCommandsSheet": {
-      "addTitle": "Добавить быструю команду",
-      "chooseAgentTitle": "Выбрать агента",
-      "deleteConfirmMessage": "Эта быстрая команда будет удалена из сохранённого списка.",
-      "deleteConfirmTitle": "Удалить «{{label}}»?",
-      "editTitle": "Изменить быструю команду",
-      "editorDescription": "Сохраняйте команды терминала или запросы агентам для быстрого доступа.",
-      "title": "Быстрые команды",
-      "untitled": "Без названия"
-    },
-    "routeHelpers": {
-      "connected": "Подключён",
-      "connecting": "Подключение",
-      "disconnected": "Отключён",
-      "pairingInvalid": "Сопряжение недействительно",
-      "reconnecting": "Повторное подключение",
-      "securing": "Защита соединения"
-    },
-    "routeScreen": {
-      "openingWorkspace": "Открытие рабочего пространства"
-    },
-    "sheets": {
-      "browser": "Браузер",
-      "browserUpdateRequired": "Для трансляции браузера на телефон обновите Orca на компьютере",
-      "chat": "Чат",
-      "copyAllAndLeave": "Скопировать всё и выйти",
-      "copyDraftsFailed": "Не удалось скопировать черновики",
-      "copyNotes": "Копировать заметки",
-      "copyNotesFailed": "Не удалось скопировать заметки",
-      "copyPath": "Копировать путь",
-      "discard": "Отменить изменения",
-      "discardAndLeave": "Удалить черновики и выйти",
-      "discardChanges": "Отменить изменения",
-      "discardMessage": "Заменить черновик на телефоне последней версией файла с компьютера?",
-      "draftsHint": "Перед выходом скопируйте или удалите черновики на телефоне.",
-      "file": "Файл",
-      "markdown": "Markdown",
-      "markdownNote": "Заметка Markdown",
-      "newBrowser": "Новый браузер",
-      "newTab": "Новая вкладка",
-      "notesCopied": "Заметки скопированы",
-      "notesHint": "Выберите сессию агента для текущих заметок.",
-      "removeShortcutMessage": "Удалить это пользовательское сочетание клавиш?",
-      "renameTerminal": "Переименовать терминал",
-      "sendReviewNotes": "Отправить заметки по проверке",
-      "shortcut": "Сочетание клавиш",
-      "terminal": "Терминал",
-      "terminalName": "Название терминала",
-      "unsavedMarkdown": "Несохранённые изменения в Markdown",
-      "urlPrompt": "Введите URL или оставьте поле пустым, чтобы открыть новую вкладку.",
-      "allowAutoClose": "Разрешить автоматическое закрытие",
-      "renameTerminalFailed": "Не удалось переименовать терминал. {{reason}}"
-    },
-    "sourceControlLaunchAgent": {
-      "noEnabledAgent": "На сервере этого рабочего пространства не найдено включённых ИИ-агентов.",
-      "savedAgentUnavailable": "Агент, выбранный для этого действия, недоступен на сервере этого рабочего пространства."
-    },
-    "structuredComposerCommand": {
-      "operationUnconfirmed": "Не удалось подтвердить выполнение команды чата.",
-      "removeAttachments": "Уберите вложения перед выполнением команды сессии чата."
-    },
-    "structuredSendDelivery": {
-      "messageNotSent": "Сообщение не отправлено"
-    },
-    "tabStrip": {
-      "checkingCapabilities": "Проверяем возможности Orca на компьютере — повторите попытку чуть позже",
-      "newTab": "Новая вкладка",
-      "quickCommandsUpdateRequired": "Для быстрых команд обновите Orca на компьютере",
-      "tabStatus": "{{title}}, {{status}}"
-    },
-    "terminalActionSheetActions": {
-      "clearTerminal": "Очистить терминал",
-      "rename": "Переименовать",
-      "switchToDesktop": "Включить режим компьютера",
-      "switchToPhone": "Включить режим телефона"
-    },
-    "terminalInputActions": {
-      "attachFileHint": "Нажмите и удерживайте, чтобы прикрепить файл вместо фото",
-      "attachPhoto": "Прикрепить фото",
-      "sendingImage": "Отправка изображения",
-      "startDictation": "Начать диктовку",
-      "startingDictation": "Запуск диктовки",
-      "stopDictation": "Остановить диктовку",
-      "transcribingDictation": "Распознавание диктовки"
-    },
-    "terminalLiveInputStatus": {
-      "listening": "Прослушивание",
-      "liveInput": "Прямой ввод",
-      "preparingMic": "Подготовка микрофона",
-      "processing": "Обработка",
-      "releaseMicHint": "Отпустите кнопку микрофона, чтобы остановить запись",
-      "startingMic": "Включение микрофона",
-      "stopHint": "Нажмите на микрофон, чтобы остановить",
-      "transcribing": "Распознавание на компьютере",
-      "uploadingImage": "Загрузка изображения на сервер",
-      "uploadingImageTitle": "Загрузка изображения"
-    },
-    "terminalRecords": {
-      "defaultTitle": "Терминал"
-    },
-    "terminalTabAgent": {
-      "browser": "Браузер",
-      "chat": "Чат",
-      "file": "Файл",
-      "markdown": "Markdown",
-      "newBrowser": "Новый браузер",
-      "terminal": "Терминал"
-    },
-    "terminalViewportResubscribe": {
-      "fitFailed": "Не удалось подогнать терминал под размер экрана"
-    },
-    "useAccessorySelection": {
-      "copyFailed": "Не удалось скопировать",
-      "selectionCleared": "Выделение снято (текст вышел за пределы буфера)"
-    },
-    "useAttachmentInputLeaseGate": {
-      "reconnecting": "Не удалось прикрепить (повторное подключение)"
-    },
-    "useContentCreateActions": {
-      "browserCommandFailed": "Не удалось выполнить команду браузера",
-      "browserCreateFailed": "Не удалось создать вкладку браузера",
-      "browserUnavailable": "Страница браузера пока недоступна.",
-      "browserUpdateRequired": "Для трансляции браузера на телефон обновите Orca на компьютере",
-      "invalidUrl": "Введите корректный URL",
-      "noteCreateFailed": "Не удалось создать заметку Markdown",
-      "untitledNoteCreateFailed": "Не удалось создать заметку Markdown без названия"
-    },
-    "useDiffComments": {
-      "copyNotesFailed": "Не удалось скопировать заметки",
-      "deleteNoteFailed": "Не удалось удалить заметку",
-      "noteAdded": "Заметка добавлена",
-      "notesCopied": "Заметки скопированы",
-      "saveNoteFailed": "Не удалось сохранить заметку",
-      "saveNotesFailed": "Не удалось сохранить заметки по проверке",
-      "waitingForDesktop": "Ожидание подключения к компьютеру…"
-    },
-    "useDiffReviewCommentActions": {
-      "saveFailed": "Не удалось сохранить проверку",
-      "saveStateFailed": "Не удалось сохранить состояние проверки",
-      "waitingForDesktop": "Ожидание подключения к компьютеру…"
-    },
-    "useDiffReviewController": {
-      "loadFailed": "Не удалось загрузить проверку",
-      "missingWorktree": "Не указано рабочее дерево",
-      "waitingForDesktop": "Ожидание подключения к компьютеру…"
-    },
-    "useDiffReviewDiffLoading": {
-      "loadFailed": "Не удалось загрузить изменения",
-      "waitingForDesktop": "Ожидание подключения к компьютеру…"
-    },
-    "useDiffReviewGitActions": {
-      "actionFailed": "Не удалось выполнить действие управления версиями",
-      "waitingForDesktop": "Ожидание подключения к компьютеру…"
-    },
-    "useDiffReviewInteractions": {
-      "openFailed": "Не удалось открыть в сессии"
-    },
-    "useDiffReviewSendActions": {
-      "copyFailed": "Не удалось скопировать заметки к проверке",
-      "inputLocked": "Ввод в терминале заблокирован",
-      "loadSessionsFailed": "Не удалось загрузить сессии агентов",
-      "notesCopied": "Заметки к проверке скопированы",
-      "notesSent": "Заметки к проверке отправлены",
-      "notesSentWithWarning": "Заметки к проверке отправлены. {{warning}}",
-      "promptNotSent": "Агент запущен, но заметки не отправлены. Нажмите «Скопировать заметки», чтобы вставить их.",
-      "sendFailed": "Не удалось отправить заметки",
-      "startingAgent": "Запуск агента…",
-      "waitingForDesktop": "Ожидание подключения к компьютеру…"
-    },
-    "useImageAttachment": {
-      "attachFailed": "Не удалось прикрепить изображение",
-      "disconnected": "Не удалось прикрепить (нет подключения)",
-      "imageTooLarge": "Изображение слишком большое для прикрепления",
-      "permissionDenied": "Нет доступа к фото"
-    },
-    "useMarkdownActions": {
-      "copyFailed": "Не удалось скопировать",
-      "copyPathFailed": "Не удалось скопировать путь",
-      "markdownTitle": "Markdown",
-      "pathCopied": "Путь скопирован",
-      "saveFailed": "Не удалось сохранить",
-      "saved": "Сохранено"
-    },
-    "useNativeChatDictation": {
-      "insertFailed": "Не удалось вставить текст диктовки",
-      "insertFailedCopied": "Не удалось вставить текст диктовки — он скопирован в буфер обмена",
-      "inserted": "Текст диктовки вставлен",
-      "stoppedAfterSilence": "Остановлено после минуты тишины"
-    },
-    "useNativeChatStop": {
-      "stopNotSent": "Команда остановки не отправлена",
-      "stopUnconfirmed": "Остановка не подтверждена — проверьте чат перед повторной попыткой",
-      "terminalNotReady": "Команда остановки не отправлена (терминал не готов)"
-    },
-    "usePanelRouteActions": {
-      "checkHostHint": "Проверьте подключение к серверу",
-      "copyNotesHint": "Вместо этого скопируйте заметки",
-      "detectingAgents": "Поиск агентов",
-      "newSessionHint": "Новая сессия агента",
-      "noEnabledAgents": "Нет включённых агентов",
-      "otherServerAgents": "Агенты на другом сервере",
-      "pairServerHint": "Подключите этот сервер напрямую",
-      "presetsUnavailable": "Предустановки агентов недоступны"
-    },
-    "usePrAiTriage": {
-      "launchFailed": "Не удалось запустить агента",
-      "waitingForDesktop": "Ожидание подключения к компьютеру…"
-    },
-    "usePrCommentActions": {
-      "actionFailed": "Не удалось выполнить действие с комментарием"
-    },
-    "usePrTitleAction": {
-      "disconnected": "Нет подключения к компьютеру."
-    },
-    "useQuickCommands": {
-      "loadFailed": "Не удалось загрузить быстрые команды",
-      "saveFailed": "Не удалось сохранить быструю команду"
-    },
-    "useSessionTerminalSendActions": {
-      "inputTooLarge": "Слишком большой объём ввода (макс. 256 КиБ)",
-      "liveInputInterrupted": "Ввод в реальном времени прерван. Поле очищено; проверьте терминал, прежде чем продолжить."
-    },
-    "useStartup": {
-      "wakeAgents": "Откройте Orca на сервере, чтобы разбудить спящих агентов."
-    },
-    "useTerminalCreateActions": {
-      "createFailed": "Не удалось создать терминал",
-      "forkBusy": "Открывается другой терминал. Подождите и повторите попытку открыть чат {{agentName}}.",
-      "forkUnavailable": "Откройте чат {{agentName}} на подключённом сервере с актуальной версией Orca и повторите попытку.",
-      "inputLocked": "Ввод в терминале заблокирован другим клиентом.",
-      "notesSent": "Заметки отправлены",
-      "sendNotesError": "Не удалось отправить заметки",
-      "sendNotesFailed": "Не удалось отправить заметки",
-      "terminalTitle": "Терминал"
-    },
-    "useTerminalInput": {
-      "clearFailed": "Не удалось очистить терминал",
-      "cleared": "Терминал очищен"
-    },
-    "useTerminalPaste": {
-      "clipboardReadFailed": "Не удалось прочитать буфер обмена",
-      "disconnected": "Не удалось вставить (нет подключения)",
-      "imageTooLarge": "Изображение слишком большое для вставки",
-      "pasteFailed": "Не удалось вставить",
-      "pasteTooLarge": "Слишком большой объём вставки (макс. 256 КиБ)",
-      "terminalChanged": "Вставка отменена (выбран другой терминал)"
-    },
-    "worktreeLabel": {
-      "fallback": "Рабочее дерево"
-    },
-    "writeNotice": {
-      "agentRefused": "Агент отклонил запрос.",
-      "agentStarting": "Агент ещё запускается.",
-      "agentStillWorking": "Агент ещё работает.",
-      "answerFirst": "Сначала ответьте на вопрос или запрос разрешения.",
-      "attachmentExpired": "Срок хранения вложения истёк.",
-      "backgroundTasksRunning": "Фоновые задачи ещё выполняются.",
-      "cancelNotSaved": "Не удалось отменить вопрос или запрос разрешения.",
-      "cannotRunHere": "Здесь Orca не может запустить этого агента в чате.",
-      "capacity": "Orca на компьютере с этим чатом достигла лимита запросов. Обновите Orca на нём и повторите попытку.",
-      "chatNotFound": "Orca не может найти этот чат.",
-      "chatSavedByNewerOrca": "Этот чат сохранён более новой версией Orca.",
-      "clearAfterAnswer": "Ответьте на вопрос или запрос разрешения агента, затем выполните /clear.",
-      "clearAfterRetry": "Повторно отправьте предыдущее сообщение, затем выполните /clear.",
-      "clearAfterSending": "Предыдущее сообщение ещё отправляется. После его отправки выполните /clear.",
-      "clearUnfinished": "Последняя команда /clear не завершилась.",
-      "commandRunning": "Команда /compact или /clear ещё выполняется.",
-      "compactAfterAnswer": "Ответьте на вопрос или запрос разрешения агента, затем выполните /compact.",
-      "compactAfterRetry": "Повторно отправьте предыдущее сообщение, затем выполните /compact.",
-      "compactAfterSending": "Предыдущее сообщение ещё отправляется. После его отправки выполните /compact.",
-      "continuationSuperseded": "В чате уже есть новые сообщения. Прежде чем продолжить, проверьте последние сообщения.",
-      "conversationCleared": "Этот разговор очищен.",
-      "goalsUnsupported": "Этот агент не поддерживает цели.",
-      "historyUnavailable": "Сейчас Orca не удалось открыть историю чата.",
-      "historyUnreadable": "Orca не удалось прочитать сохранённую историю чата.",
-      "historyUnusable": "Не удалось загрузить этот чат.",
-      "hostReconciling": "После перезапуска Orca ещё проверяет состояние этого чата.",
-      "messageNotSaved": "Не удалось сохранить сообщение.",
-      "messageTooLarge": "Превышен лимит 256 КБ на одно сообщение.",
-      "messagesUnsettled": "Ранее отправленное сообщение ещё не подтверждено.",
-      "notAvailable": "В этом чате действие недоступно.",
-      "notDoneAnswer": "Ваш ответ не отправлен.",
-      "notDoneCommand": "Команда не выполнена.",
-      "notDoneGoalChangeIncomplete": "Не удалось завершить изменение цели. Проверьте чат.",
-      "notDoneOption": "Настройка не изменена.",
-      "notDoneQueuedEdit": "Ваши правки не сохранены.",
-      "notDoneReadHistory": "Не удалось загрузить историю этого чата.",
-      "notDoneSend": "Ваше сообщение не отправлено.",
-      "notDoneStop": "Агент не остановлен.",
-      "notDoneStopTask": "Фоновая задача не остановлена.",
-      "notDoneStopTasks": "Фоновые задачи не остановлены.",
-      "openCurrentConversation": "Откройте текущий разговор, чтобы продолжить.",
-      "optionRejected": "Агент не принял эту настройку.",
-      "outcomeUnknown": "Orca не удалось подтвердить результат. Проверьте чат.",
-      "ownerUnproven": "Предыдущий агент этого чата может всё ещё работать.",
-      "pendingWork": "Дождитесь завершения текущей работы и отправки сообщений перед выполнением этой команды.",
-      "promptPending": "Агент ждёт ответа на вопрос или запрос разрешения.",
-      "questionChanged": "На этот вопрос уже ответили либо он изменился.",
-      "queueTooLarge": "В очереди слишком много текста.",
-      "quitTerminalAgent": "Завершите работу этого агента, чтобы продолжить чат здесь.",
-      "reattachFile": "Удалите его и прикрепите снова.",
-      "reattachFiles": "Удалите их и прикрепите снова.",
-      "recordFailed": "Orca не удалось сохранить это в истории чата.",
-      "recordUnreadable": "Orca не удалось прочитать сохранённое состояние этого чата.",
-      "reopenChat": "Откройте чат заново для повторной проверки.",
-      "restartFailed": "Не удалось перезапустить агента.",
-      "runClearWhenDone": "После завершения выполните /clear.",
-      "runCompactWhenDone": "После завершения выполните /compact.",
-      "savedByNewerOrca": "Чаты сохранены более новой версией Orca.",
-      "sendOutcomeLost": "Orca не удалось подтвердить доставку сообщения агенту. Проверьте чат и при необходимости отправьте его снова.",
-      "settleEarlierMessage": "Дождитесь доставки предыдущего сообщения или повторите его отправку.",
-      "shortenMessage": "Сократите или разделите сообщение и отправьте снова.",
-      "shrinkQueue": "Удалите сообщение из очереди или дождитесь его отправки и повторите попытку.",
-      "startNewChat": "Создайте новый чат, чтобы продолжить.",
-      "terminalAgentHoldsChat": "Этот чат всё ещё открыт агентом в терминале.",
-      "tryAgain": "Повторите попытку.",
-      "tryAgainComposerSend": "Отправьте его снова.",
-      "turnActive": "Агент ещё отвечает.",
-      "unreachable": "Orca не удалось связаться с агентом.",
-      "unsupported": "На компьютере с этим чатом нужна более новая версия Orca. Обновите Orca на нём и повторите попытку.",
-      "updateOrcaToKeepUsing": "Обновите Orca, чтобы продолжить работу с ними.",
-      "updateOrcaToOpenChat": "Обновите Orca, чтобы открыть его.",
-      "waitForBackgroundTasks": "Дождитесь завершения фоновых задач.",
-      "waitForCommand": "Дождитесь завершения /compact или /clear.",
-      "waitForStart": "Дождитесь запуска агента.",
-      "waitForTurn": "Дождитесь ответа агента или остановите его.",
-      "waitMoment": "Подождите немного."
-    },
-    "workerAutoClose": {
-      "running": "Временный агент оркестрации · Закроется через 2 минуты после завершения",
-      "finished": "Временный агент оркестрации завершил работу · Закроется через {{countdown}}",
-      "keepOpen": "Оставить открытым"
-    },
-    "terminalLayoutSheet": {
-      "title": "Расположение терминалов",
-      "oneTerminal": "Один терминал",
-      "selected": "Выбрано",
-      "auto": "Авто",
-      "autoHint": "Разделить с учётом доступного места",
-      "sideBySide": "Рядом",
-      "sideBySideHint": "Два столбца, даже при открытой боковой панели",
-      "stacked": "Друг над другом",
-      "stackedHint": "Две строки при любой ориентации",
-      "selectedHint": "Выбрано · {{hint}}"
-    },
-    "terminalSplitLayout": {
-      "saveFailedTitle": "Не удалось сохранить расположение",
-      "saveFailedMessage": "Пока применяется это расположение. Выберите его ещё раз, чтобы повторить сохранение."
-    },
-    "terminalMoreKeys": {
-      "sendKey": "Отправить {{label}}",
-      "paste": "Вставить",
-      "sending": "Отправка…",
-      "photo": "Фото",
-      "file": "Файл",
-      "desktopWidth": "Ширина компьютера",
-      "phoneWidth": "Ширина телефона",
-      "keys": "Клавиши",
-      "combos": "Комбинации",
-      "yourKeys": "Ваши клавиши",
-      "deleteKeyHint": "Удерживайте, чтобы удалить эту клавишу",
-      "addCustomKey": "Добавить свою клавишу",
-      "addKey": "Добавить клавишу"
-    },
-    "terminalPaneView": {
-      "focusedPane": "{{title}}, в фокусе",
-      "terminal": "Терминал",
-      "tapToFocusPane": "{{title}}, нажмите для фокусировки",
-      "inputPane": "{{title}} · Ввод"
-    },
-    "structuredOpen": {
-      "worktreeDeleted": "Рабочее дерево удалено.",
-      "folderWorkspaceRemoved": "Рабочее пространство папки удалено."
     }
   },
   "settings": {
