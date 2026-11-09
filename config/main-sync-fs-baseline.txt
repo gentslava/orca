@@ -20,7 +20,7 @@
 1 src/main/ai-vault/scan-service/session-scanner-service-spawn.ts
 1 src/main/ai-vault/scanners/omp/omp-session-root.ts
 1 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
-2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn.ts
+2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-entry.ts
 8 src/main/amp/hook-service.ts
 2 src/main/amp/managed-plugin-install-status.ts
 1 src/main/antigravity/antigravity-host-acp.ts

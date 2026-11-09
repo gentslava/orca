@@ -308,9 +308,7 @@ export function createBridgeHost(options: BridgeHostOptions): BridgeHost {
       dispatch(read.message)
     },
     publishRoute: (next) => routes.publish(next, serving && initSent),
-    publishSafeAreaInsets: (next) => {
-      routes.publishSafeAreaInsets(next, deliverable())
-    },
+    publishSafeAreaInsets: (next) => routes.publishSafeAreaInsets(next, deliverable()),
     publishKeyboardInset: (next) => routes.publishKeyboardInset(next, deliverable()),
     publishStorage: () => sendInit(true),
     publishHostStatus: () => verdict.publish(() => deliverable() && sendInit(), dispatch),
