@@ -631,6 +631,7 @@ import {
 import { StatusGetParams } from './status-params'
 import { ContinueInterruptedParams } from './structured-agent-session-continue-params'
 import { ContinuationContextParams } from './structured-agent-session-identifiers'
+import { SendParams } from './structured-agent-session-message-params'
 import {
   AcknowledgeAttentionParams,
   AgentsParams,
@@ -653,7 +654,6 @@ import {
   RestartResumeParams,
   RevealParams,
   RewindParams,
-  SendParams,
   SetOptionParams,
   SleepWorkspaceParams,
   SubscribeTurnCompletionsParams,
