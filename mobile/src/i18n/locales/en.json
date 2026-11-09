@@ -2866,6 +2866,13 @@
       "sendQueueHint": "Runs after the current turn",
       "sendSteerHint": "Goes into what the agent is doing now"
     },
+    "contextUsage": {
+      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
+      "title": "Context",
+      "estimated": "Estimated from the last response.",
+      "deferredTitle": "Loaded on demand",
+      "deferredDescription": "Not included in current usage. Loaded when needed."
+    },
     "composerAttachments": {
       "file": "File",
       "fileMeta": "{{type}} · {{size}}",
@@ -3123,6 +3130,13 @@
       "canContinue": "You can continue in this conversation.",
       "unnamedServer": "the remote server"
     },
+    "interruptedContinue": {
+      "failed": "Couldn't continue this chat. Try again, or send a message.",
+      "explanation": "Continue, and the agent first checks whether its last step finished."
+    },
+    "sendError": {
+      "dismiss": "Dismiss"
+    },
     "toolActivity": {
       "count_one": "{{count}} tool call",
       "count_other": "{{count}} tool calls",
@@ -3293,18 +3307,6 @@
       "updateFromWorker": "Update from worker",
       "messageFrom": "Message from",
       "sessionLink": "Link"
-    },
-    "contextUsage": {
-      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
-      "title": "Context",
-      "estimated": "Estimated from the last response."
-    },
-    "interruptedContinue": {
-      "failed": "Couldn't continue this chat. Try again, or send a message.",
-      "explanation": "Continue, and the agent first checks whether its last step finished."
-    },
-    "sendError": {
-      "dismiss": "Dismiss"
     },
     "fork": {
       "busy": "Another chat or terminal is opening. Wait, then fork the {{agent}} chat again.",
