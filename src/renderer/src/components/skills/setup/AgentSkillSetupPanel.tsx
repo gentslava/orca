@@ -21,6 +21,7 @@ import {
 import { useBundledSkillInstallAction } from '@/hooks/use-bundled-skill-install-action'
 import { cn } from '@/lib/utils'
 import { useTranslate } from '@/i18n/use-translate'
+import { ManageInstalledSkillsButton } from './ManageInstalledSkillsButton'
 
 function BundledAgentSkillSetupPanel({
   title,
@@ -154,6 +155,9 @@ function BundledAgentSkillSetupPanel({
           <RefreshCw className={cn('size-3.5', loading && 'animate-spin')} />
           {t('auto.components.settings.AgentSkillSetupPanel.c689392435', 'Re-check')}
         </Button>
+      ) : null}
+      {effectivelyInstalled && !unsupported ? (
+        <ManageInstalledSkillsButton target={target} />
       ) : null}
       {ready ? null : (
         <p className="basis-full text-[12px] leading-snug text-muted-foreground">
