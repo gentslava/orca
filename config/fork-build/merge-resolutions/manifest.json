@@ -1632,5 +1632,18 @@
     "patchSha256": "297f7afa6a3764da614f9230186d238012272cc03f2359eddb217a2350dbf292",
     "resultSha256": "36b24164d1bc7ed36463c57a3d2306df0a7376a5889005fce3305909afc9a0bd",
     "reason": "Preserve current browser module relocation alongside independent durable conversation preferences and personal project ordering capabilities."
+  },
+  {
+    "path": "mobile/src/mobile-web-shell/bridge/use-native-verbs.test.tsx",
+    "blobs": [
+      "5939d383360a892ca0daf66c9396915ae37b139c",
+      null,
+      "175525232a0e7261c86e68e898640fcc58a01922"
+    ],
+    "patch": "refresh-20261109/native-verb-test-retirement.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "deleted": true,
+    "reason": "Preserve upstream removal of the old hook suite; retain the added image-permission refusal regression as one focused bridge test in the fork CI overlay."
   }
 ]
