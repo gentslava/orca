@@ -165,8 +165,8 @@ V2 Signer: certificate SHA-1 digest: 5e8f16062ea3cd2c4a0d547876baa6f38cabf625
   for (const invalid of [
     '',
     report.replace(digest, 'a'.repeat(64)),
-    report + report,
-    report + `Unknown signer: certificate SHA-256 digest: ${'a'.repeat(64)}\n`,
+    `${report}${report}`,
+    `${report}Unknown signer: certificate SHA-256 digest: ${'a'.repeat(64)}\n`,
     report.replace('V2 Signer: certificate SHA-256', 'Unknown signer: certificate SHA-256')
   ]) {
     assert.throws(() => androidSigningCertificate(invalid), /certificate differs/)
