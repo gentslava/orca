@@ -21761,6 +21761,12 @@
       "draft": "{{review}}：草稿",
       "merged": "{{review}}：已合併",
       "open": "{{review}}：開放"
+    },
+    "start": {
+      "title": "要開啟什麼？",
+      "description": "為此專案選擇代理或工具。",
+      "agents": "代理",
+      "manageAgents": "管理代理"
     }
   },
   "tabHoverCard": {

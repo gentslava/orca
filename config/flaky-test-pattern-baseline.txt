@@ -374,7 +374,7 @@
 1 test-no-real-time-wait:tests/e2e/pdf-find-counter.spec.ts
 1 test-no-real-time-wait:tests/e2e/pdf-viewer-rebuild-recovery.spec.ts
 1 test-no-real-time-wait:tests/e2e/project-group-manual-sort.spec.ts
-2 test-no-real-time-wait:tests/e2e/relaunch-first-terminal.spec.ts
+1 test-no-real-time-wait:tests/e2e/relaunch-first-terminal.spec.ts
 4 test-no-real-time-wait:tests/e2e/relaunch-sleeping-agents-resume-on-view.spec.ts
 1 test-no-real-time-wait:tests/e2e/resource-manager-local-pty-view.spec.ts
 1 test-no-real-time-wait:tests/e2e/settings-display-name-ime.spec.ts
@@ -644,7 +644,6 @@
 2 test-no-wall-clock:src/renderer/src/components/task-page/jira/task-page-jira-cache-selectors.test.ts
 2 test-no-wall-clock:src/renderer/src/components/terminal-pane/pty-connection/emulation/fish-color-scheme-child-stdin.node-pty.test.ts
 2 test-no-wall-clock:src/renderer/src/components/terminal-pane/snapshots/remote-snapshot-alt-screen-host-chain.test.ts
-1 test-no-wall-clock:src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
 2 test-no-wall-clock:src/renderer/src/components/workspace-cleanup/use-workspace-cleanup-removal.agent-stop.test.tsx
 1 test-no-wall-clock:src/renderer/src/components/worktree-jump/WorktreeJumpPalette.recent-tabs.behavior.test.tsx
 4 test-no-wall-clock:src/renderer/src/components/worktree-jump/WorktreeJumpPalette.recent-tabs.test.tsx
