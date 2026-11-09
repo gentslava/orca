@@ -1803,5 +1803,29 @@
     "patchSha256": "39a9baecb395a1f4537a652ec7cf3b804575644ea97c73ec8d32857ba062ade5",
     "resultSha256": "491fcfa277fa712b67c98acc218ad9328239e43129ecefe03243addd6f947982",
     "reason": "Keep local session-link access alongside the pane actions surface and fixed transcript inset; retain the corrected atomic runtime target import."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
+    "blobs": [
+      "57ab816b30dbf683ec7bb7c80037e9de182544d6",
+      "83a927543a88f7bd6cd595d569a0f50ed4fe94cd",
+      "71f1bbcfc5908716eb0f9ffd2dcc47e3d0d67c55"
+    ],
+    "patch": "post78-20261110/62a178ca9b98.patch",
+    "patchSha256": "c19964e46d000898f378478aff404800cfb7b313923f3f8906f952302268522e",
+    "resultSha256": "c61def931317c82affd46a8904fb7c8a14f28e8930ce1886f34e7d5ee784ae67",
+    "reason": "Retain current upstream peer-mail routing and capabilities alongside session-child RPC and local session-link methods, policies and owner choices."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "0fc0d688aa58e1cd44c0c66d974d0ebad4985713",
+      "9e9dc1043a5bb9e64e05256d4f6b011ad5d5a4b3",
+      "cd74fb5da353287ebea26df1f4db631aaed577d3"
+    ],
+    "patch": "post78-20261110/e9333ee0328b.patch",
+    "patchSha256": "f8bc31b65a5ab583b0a56d534913c9d8030d0989bff7d3c98d4b602fe6171fda",
+    "resultSha256": "4fbdb537bb3a7b51f6d9eb9abba3e00b4210fa3147cebb4646f6096854494f9e",
+    "reason": "Retain current upstream peer-mail routing and capabilities alongside session-child RPC and local session-link methods, policies and owner choices."
   }
 ]
