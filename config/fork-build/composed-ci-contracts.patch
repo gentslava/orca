@@ -2706,7 +2706,7 @@ diff --git a/tests/e2e/github-project-board.spec.ts b/tests/e2e/github-project-b
            githubProjects: {
 
 diff --git a/tests/e2e/runtime-host-status-recovery.spec.ts b/tests/e2e/runtime-host-status-recovery.spec.ts
-index 4c35bb3fa96..5465c4ae535 100644
+index 4c35bb3fa96..c0c5a2eff5f 100644
 --- a/tests/e2e/runtime-host-status-recovery.spec.ts
 +++ b/tests/e2e/runtime-host-status-recovery.spec.ts
 @@ -5,6 +5,8 @@ import {
@@ -2753,6 +2753,18 @@ index 4c35bb3fa96..5465c4ae535 100644
    await expect(card).toBeVisible()
    await expect(card).toHaveCSS('opacity', disconnected ? '0.6' : '1')
    const icon = card.locator(disconnected ? 'svg.lucide-server-off' : 'svg.lucide-server').first()
+@@ -182,7 +197,10 @@ for (const topology of ['desktop', 'headless'] as const) {
+           ...(result.webClientUrl ? { webClientUrl: result.webClientUrl } : {})
+         }
+       }
+-      browser = await launchPairedWebClient(electronApp, proxy.proxyPairingOffer(browserOffer))
++      browser = await launchPairedWebClient(electronApp, proxy.proxyPairingOffer(browserOffer), {
++        waitForWorkspace: false
++      })
++      await showWorkspaceSidebar(browser.page)
+       await expect
+         .poll(() => statusEvidence(browser!.page), { timeout: 30_000 })
+         .toMatchObject({ verification: 'verified', transport: 'ready' })
 diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 --- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 +++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts

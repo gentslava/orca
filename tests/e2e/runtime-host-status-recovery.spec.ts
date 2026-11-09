@@ -197,7 +197,10 @@ for (const topology of ['desktop', 'headless'] as const) {
           ...(result.webClientUrl ? { webClientUrl: result.webClientUrl } : {})
         }
       }
-      browser = await launchPairedWebClient(electronApp, proxy.proxyPairingOffer(browserOffer))
+      browser = await launchPairedWebClient(electronApp, proxy.proxyPairingOffer(browserOffer), {
+        waitForWorkspace: false
+      })
+      await showWorkspaceSidebar(browser.page)
       await expect
         .poll(() => statusEvidence(browser!.page), { timeout: 30_000 })
         .toMatchObject({ verification: 'verified', transport: 'ready' })
