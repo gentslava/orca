@@ -1172,9 +1172,9 @@
       "ed755a3bd08b22f0101a7d03e9696f3c5f07113c"
     ],
     "patch": "refresh-20261109/pr33395-3ce37abe29ff.patch",
-    "patchSha256": "c26462a1b27b751c98a3f09c66d9b26b58177222bc9715585f96f2be52202f69",
-    "resultSha256": "900220b94287019a2a534dee87075444c9ff2237e4d58251c85f52e665f9a121",
-    "reason": "Combine default-model capability/reset/pending-pick guards from 33395 with queue steering capability, explicit delivery and old-host guards from 33362; retain both mobile capabilities and one shared selection import."
+    "patchSha256": "4d6559636693b556406f70ae1049479c4c35e5d8d1e8c784925c8fc4c2479381",
+    "resultSha256": "42134e39c8eb9cef92ec5de7dda47ec0542e18d13ccb0c0275256417fb809250",
+    "reason": "Combine default-model capability/reset/pending-pick guards from 33395 with queue steering capability, explicit delivery and old-host guards from 33362; retain both mobile capabilities and one shared selection import. Keep reported permission changes admissible while legacy hosts lock future-turn model picks."
   },
   {
     "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
