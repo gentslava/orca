@@ -2,7 +2,6 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { git } from './composition.mjs'
 import { stagePreviewArchives, verifyStagedArchives } from '../scripts/fork-upstream-archives.mjs'
-
 import { packageIdentity, writeJson } from './package-provenance.mjs'
 import { stageWindowsPackages, verifyWindowsPackages } from './windows-packages.mjs'
 import {
@@ -74,7 +73,7 @@ if (command === 'prepare') {
     stageWindowsPackages(plan, application, resolve(extra))
   } else if (command === 'stage-android') {
     stageAndroidPackage(plan, application)
-  } else
+  } else {
     stagePreviewArchives({
       app: join(application, 'dist/mac-arm64/Orca.app'),
       dist: join(application, 'dist'),
@@ -91,6 +90,7 @@ if (command === 'prepare') {
         updater: 'disabled for fork-preview versions'
       }
     })
+  }
 } else if (command === 'verify-windows') {
   verifyWindowsPackages(plan, resolve(location), resolve(extra))
 } else if (command === 'verify-android') {
