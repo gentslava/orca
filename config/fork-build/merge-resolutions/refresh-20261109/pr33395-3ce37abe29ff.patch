@@ -1,5 +1,5 @@
 diff --git a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
-index d6279aa..bac9293 100644
+index d6279aa..9224d40 100644
 --- a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
 +++ b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
 @@ -1,5 +1,9 @@
@@ -30,7 +30,7 @@ index d6279aa..bac9293 100644
      takesSelection,
      updateOptionState,
      rereadOptions,
-@@ -66,24 +74,43 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
+@@ -66,22 +74,41 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
  
    const acceptsPicks = (!transportEnabled || fence !== null) && launch?.seedPending !== true
  
@@ -75,17 +75,14 @@ index d6279aa..bac9293 100644
 +        : choices
 +  }
    useLayoutEffect(() => {
--    interactionReadyRef.current = acceptsPicks
-+    interactionReadyRef.current = acceptsTurnPicks
+     interactionReadyRef.current = acceptsPicks
      lockSnapshotRef.current = lockSnapshot
-   })
-   const renderedView = optionView(optionState, launchSeedOptions, launch?.explicitOptions)
 @@ -124,7 +151,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
        record: optionStateRef.current.record,
        view,
        snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
 -      ready: acceptsPicks && interactionReadyRef.current,
-+      ready: acceptsTurnPicks && writes.current.count === 0 && interactionReadyRef.current,
++      ready: acceptsPicks && writes.current.count === 0 && interactionReadyRef.current,
        providerStarting,
        existingChat: !newLaunch || args.hasTurn === true,
        isCurrentContext,
