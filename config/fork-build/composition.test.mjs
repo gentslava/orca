@@ -9,6 +9,7 @@ import { resolveSelection, orderSelections } from './selection.mjs'
 import { compose, assertFrozenHead, freezeRetainedHead } from './composition.mjs'
 import { mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { renderReport } from './github.mjs'
+import { pruneTranslationsWithoutSource } from './fork-localizations.mjs'
 
 const pr = (number, extra = {}) => ({
   number,
@@ -485,3 +486,30 @@ test('real Git: retained branches freeze the fork tip and reject races, rewritte
     selected.retainedHeadSource.ref = 'refs/heads/missing'
     assert.throws(() => freezeRetainedHead(cwd, selected, transport))
   }))
+
+test('fork localization cleanup keeps Russian plural forms and removes only untranslated-source orphans', () => {
+  const english = new Map([
+    ['count_one', 'One'],
+    ['count_other', 'Many'],
+    ['section.keep', 'Keep']
+  ])
+  const original = {
+    count_one: 'Один',
+    count_few: 'Несколько',
+    count_many: 'Много',
+    count_other: 'Другие',
+    section: { keep: 'Сохранить', stale: 'Удалено upstream' },
+    removed: 'Старый ключ'
+  }
+  const pruned = pruneTranslationsWithoutSource(original, english, 'ru')
+  assert.deepEqual(pruned.catalog, {
+    count_one: 'Один',
+    count_few: 'Несколько',
+    count_many: 'Много',
+    count_other: 'Другие',
+    section: { keep: 'Сохранить' }
+  })
+  assert.deepEqual(pruned.removed, ['section.stale', 'removed'])
+  assert.equal(original.section.stale, 'Удалено upstream')
+  assert.equal(pruneTranslationsWithoutSource(original, english, 'en').catalog.count_few, undefined)
+})

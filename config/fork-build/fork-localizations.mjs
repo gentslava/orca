@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
+import { resolveLocaleSourceKey } from '../scripts/locale-catalog/locale-plural-forms.mjs'
 
 function leaves(catalog, prefix = '') {
   return Object.entries(catalog).flatMap(([key, value]) => {
@@ -11,6 +12,26 @@ function leaves(catalog, prefix = '') {
 }
 
 const placeholders = (text) => [...new Set(text.match(/\{\{[^}]+\}\}/g) ?? [])].sort()
+
+export function pruneTranslationsWithoutSource(catalog, english, localeName) {
+  const removed = []
+  function prune(node, prefix = '') {
+    return Object.fromEntries(
+      Object.entries(node).flatMap(([key, value]) => {
+        const path = prefix ? `${prefix}.${key}` : key
+        if (typeof value !== 'string') {
+          return [[key, prune(value, path)]]
+        }
+        if (resolveLocaleSourceKey(english, localeName, path)) {
+          return [[key, value]]
+        }
+        removed.push(path)
+        return []
+      })
+    )
+  }
+  return { catalog: prune(catalog), removed }
+}
 
 export function applyForkLocalizations(source, controls, git, timestamp) {
   const applied = []
@@ -36,7 +57,8 @@ export function applyForkLocalizations(source, controls, git, timestamp) {
     }
     const path = `${directory}/ru.json`
     const current = readFileSync(join(source, path), 'utf8')
-    const merged = mergeTranslationCatalogs('{}', current, overlayText)
+    const pruned = pruneTranslationsWithoutSource(parseCatalog(current), english, 'ru')
+    const merged = mergeTranslationCatalogs('{}', JSON.stringify(pruned.catalog), overlayText)
     if (merged !== current) {
       writeFileSync(join(source, path), merged)
       git(source, ['add', path])
@@ -45,6 +67,7 @@ export function applyForkLocalizations(source, controls, git, timestamp) {
       file,
       path,
       keys: rows.length,
+      removedOrphans: pruned.removed,
       sha256: createHash('sha256').update(overlayText).digest('hex')
     })
   }
