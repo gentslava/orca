@@ -1,25 +1,16 @@
 diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.ts
+index cfe11e2..40dc706 100644
 --- a/src/main/ipc/ai-vault/ai-vault.ts
 +++ b/src/main/ipc/ai-vault/ai-vault.ts
-@@ -64,6 +64,7 @@
- import { allHostsRuntimeScanTimeoutMs } from './ai-vault-all-host-timeouts'
- import { registerAiVaultScanProgressBroadcast } from './ai-vault-scan-progress-broadcast'
- import { boundedAiVaultConversationList } from '../../ai-vault/structured-conversation-navigation'
-+import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
- 
- type AiVaultHandlerOptions = AiVaultSessionSources &
-   AiVaultResumeHandlerOptions & {
-@@ -118,7 +119,8 @@
+@@ -117,6 +117,7 @@ async function listAiVaultSessions(
+         ? [...new Set(scopePaths)].sort()
          : scopePaths,
      executionHostScope,
++    selectedSessionId: args?.selectedSessionId,
      includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
--    includeStructuredSessions: args?.includeStructuredSessions === true
-+    includeStructuredSessions: args?.includeStructuredSessions === true,
-+    selectedSessionId: args?.selectedSessionId
-   })
-   const depth = requestedAiVaultSessionDepth(args)
-   const afterFingerprint =
-@@ -144,6 +146,7 @@
+     includeStructuredSessions: args?.includeStructuredSessions === true,
+     ...(args?.scopeOnly === true ? { scopeOnly: true } : {})
+@@ -145,6 +146,7 @@ async function listAiVaultSessions(
            dependency,
            depth,
            scopePaths,
@@ -27,7 +18,7 @@ diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.
            force: args?.force === true,
            afterFingerprint,
            scan
-@@ -185,6 +188,7 @@
+@@ -186,6 +188,7 @@ async function scanAiVaultSessionsByHostScope(
                dependency: dependency?.forHost(hostInfo.environmentId),
                depth,
                scopePaths,
@@ -35,7 +26,7 @@ diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.
                force: args?.force === true,
                scan
              })
-@@ -194,7 +198,8 @@
+@@ -195,7 +198,8 @@ async function scanAiVaultSessionsByHostScope(
        [...scannedResults, ...runtimeResults],
        args?.limit,
        args?.unlimited,

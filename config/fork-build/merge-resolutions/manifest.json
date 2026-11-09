@@ -595,10 +595,10 @@
       "8d561f158b522782c2ec9e6cee4d9e2f09f15577",
       "94a0ca8ad03f81d80692e1c38f565d307bda095d"
     ],
-    "patch": "refresh-20261107/pr33383-31ab9448b686.patch",
-    "patchSha256": "bc1016b731836c0063c40f49bc9e65a287641b237d2a9d819526fb324a060778",
-    "resultSha256": "900bae7fbbbfa83ff2b783e6bdce9c325baf8447d434360a42216154adb6f6f0",
-    "reason": "Combine bounded desktop conversation navigation with selected mobile-session retention and durable structured-chat projection; preserve local scan owner and project attribution."
+    "patch": "refresh-20261109/pr33383-b75a8d1bd66e.patch",
+    "patchSha256": "37110f8506098b713cc1c869b2e20d4743bf7292960e6d9f17ccc632e5bbeea1",
+    "resultSha256": "444010d30801f797a3700cb8d7f979d307b9137071985b462fdb117df59204bd",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
   },
   {
     "path": "src/main/ipc/ai-vault/ai-vault-local-scan.ts",
@@ -1388,9 +1388,9 @@
       "5d210a7d6b08621cf08e01ec6fdca60e8b44403d"
     ],
     "patch": "refresh-20261109/pr38963-46d89dcfbb1d.patch",
-    "patchSha256": "2b7673afa7f36410b491929fd34689c9d7b8d4802b641e6586c1355e8fe2f553",
-    "resultSha256": "db4eb9b2d2824901534081b3b69350147068333fa203331ebb23e9a64f29c9ad",
-    "reason": "Combine foreground-to-background actions with child-history navigation, current prompt/cancel owners and expanded command details; preserve finished child/task rows while hiding only an otherwise empty early-call strip."
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "d3c3eae941465e790e764dffaec1b98f2d7bb9e106adb2b24ccf17323808673b",
+    "reason": "Reuse the current prompt renderer, session-link owner questions and focus gate; omit the duplicate obsolete implementation."
   },
   {
     "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
@@ -1412,9 +1412,9 @@
       "609e2f2f735acd890ac61b9cdeb4db2dc53b9d78"
     ],
     "patch": "refresh-20261109/pr38963-4c43a0f2bac6.patch",
-    "patchSha256": "8a6f42dbe2719ba6c65d3710f7b0e3b0e97426d9a75a3a22d5fc72406b96a9de",
-    "resultSha256": "d69423dfe56444c22b9fd1ed258bc2278e32812500db6950965217bbfe3b3a2f",
-    "reason": "Combine foreground-to-background actions with child-history navigation, current prompt/cancel owners and expanded command details; preserve finished child/task rows while hiding only an otherwise empty early-call strip."
+    "patchSha256": "389996118651cb32a1ed497ab50b3a73e882c6ecb78fdf93176cecba11d6b24b",
+    "resultSha256": "550dcaed4a3434a95fd8f6b7172b488018a1f3e17d84c9861e846973b537facc",
+    "reason": "Preserve foreground task actions and expanded output details with a component-owned reactive translation hook."
   },
   {
     "path": "src/renderer/src/components/native-chat/tools/tasks/NativeChatBackgroundTasksStatus.tsx",
@@ -1439,5 +1439,101 @@
     "patchSha256": "b74f8cb98863148f5c12c66299a353b2dbe3112b8ca5be5827953c7dfc7d32ce",
     "resultSha256": "e2d525aa1d700a11e80e05adc89daaa066e96f8cf8f7167b9ed3c8ecc3dc585d",
     "reason": "Keep the session-link chain control inside the readable focused-pane toolbar; transcript top inset remains supplied by the pane feature."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "303166c2cf89d6e75b716705075484f6161d9d80",
+      "cfe11e2ec63324bdbbb81f59709bbe5ed67885d2",
+      "59043876529639795edf2013159518cc02a9595a"
+    ],
+    "patch": "refresh-20261109/pr33383-d5dc878ec744.patch",
+    "patchSha256": "30ef9589a66b46a23d14f0c5191f49baaad1463f51aff68700523c4b61e930aa",
+    "resultSha256": "4af7b7ee4eb6fe54bc0ec32b2700fa96b23d08adac3e3169cedf114350e701b8",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "0ec0a41183c36f97ee9d836dee94dc554ca5b832",
+      "08a2aba4730ae62cdde06903618f2d1e3a0e8c3d",
+      "eda33a8f59e75ce5686e241e7b076505a0fcdf17"
+    ],
+    "patch": "refresh-20261109/pr33383-5ed292ddac4e.patch",
+    "patchSha256": "ba5aa7ff05026a0a55e671dad016c3b1f57b32fb59a771fef176ff9fbb71624c",
+    "resultSha256": "6ee86e7cc5cd3b60b6894cad0a95dfa6dcf16526fdcb67f78c941606cf6e338f",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "25d6ccff17a5edd94ce8f2c5d14b97a42a55e071",
+      "c4cfbffb96b5e55776cb45bd9cd586c9937bf6ae",
+      "f73ca7ca965c47d1e270330c886fbd94b07899d5"
+    ],
+    "patch": "refresh-20261109/pr33383-bd0492c0889f.patch",
+    "patchSha256": "b2ccd184bb3468c6c892354f1f438c39eb34c92f388cbfa03944490c11f4e2b2",
+    "resultSha256": "ca7d5c062f162e37009181871cd54bf4411fe6d529830dea47fa7fe76c4b6cff",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault-params.ts",
+    "blobs": [
+      "0c113761afb073a934a81b40a42a8c2065b3c153",
+      "79e92147573eb7d9c5340e92acdece60019be7ed",
+      "89cfb0603393a3da0c397912fa6df5e595f97202"
+    ],
+    "patch": "refresh-20261109/pr33383-51f0fb718f7d.patch",
+    "patchSha256": "341d2b8fb95d634d81ecb52ff16115067c6600f78bff84ab81668cdd5b73f2f4",
+    "resultSha256": "f2348654e0b3518f9e1db6cb7470270d7017ca5241b40a3cd82cd54d0636883e",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "77fb10fbf0c23d0c337d010ab57adfe4c1f0d462",
+      "2758bf5034b57650d95b262d42c2ced9467011ba",
+      "04fff605b92c8dd409cb1bc3192f369af85e4afd"
+    ],
+    "patch": "refresh-20261109/pr37744-3759bcaf9cf2.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ce2abee92cd055f0a66557cb7447e221302186c36857baca70795e13ca102881",
+    "reason": "Preserve current child transcript navigation and immediate clear/find behavior while composing session-link RPC/capabilities and owner questions through the existing focused prompt renderer."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "77fb10fbf0c23d0c337d010ab57adfe4c1f0d462",
+      "2758bf5034b57650d95b262d42c2ced9467011ba",
+      "65ea822e70634b35a47a3a4ebba2c5990a5bab3b"
+    ],
+    "patch": "refresh-20261109/pr38848-c9fde6f9a5f4.patch",
+    "patchSha256": "e1bb7337a4e5bd282b7daa35eedd5ea0c291b18baa1451f4a61e9c006985478a",
+    "resultSha256": "7eb48b113dc8bb7029f7a6b6ce0ce9012bec8ff7d8838162434c9ebbe1811e63",
+    "reason": "Wire retained newest-card steering into the current child-navigation and owner-question composer while preserving immediate clear/find behavior."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "3a2b4dc1196a08f4a19152ba7e02c6dd5a763de4",
+      "7fe66a83cfc1cec081da335fb4ca5ef0bb3dca87",
+      "ed65ae49735bf845cd28319570e5785904c8d701"
+    ],
+    "patch": "refresh-20261109/pr38963-fc3c11dee89c.patch",
+    "patchSha256": "d4ae7be81d5ba2dbc1a5a48bfc1f78711efc98dd564fdee33f96f2f0263fff9a",
+    "resultSha256": "f3fa3e2aba38329b969d1b698e3d1ec0c14df5a0af9578c45407822a15abb37d",
+    "reason": "Reuse the reviewed foreground/background task integration with current clear, prompt and child-navigation owners; preserve finished rows and hide only an otherwise empty early-call strip."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "f476b79f90a6277e274b67bd6091df1518c508cc",
+      "764e0fce8d764bfcb150f1917e63bdf288307d9d",
+      "85b976340164e0bca96838420a1ae86a43295885"
+    ],
+    "patch": "refresh-20261109/pr38963-ee9317474b0d.patch",
+    "patchSha256": "2047de7a637357e91e11f4e5205e502b5d0ead4f15a5db0637f768a0b237448d",
+    "resultSha256": "fa5c14f73227ea94433e1412ebaa40af5a6df6ce9c01f09abf739b8ce4b74ac8",
+    "reason": "Reuse the reviewed foreground/background task integration with current clear, prompt and child-navigation owners; preserve finished rows and hide only an otherwise empty early-call strip."
   }
 ]

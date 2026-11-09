@@ -105,7 +105,7 @@ index 00000000000..90228358bef
 +  return { ...next, tabs, capabilities, history, historyByHost }
 +}
 diff --git a/mobile/src/host-screen/use-project-conversations.test.tsx b/mobile/src/host-screen/use-project-conversations.test.tsx
-index 1d230d4e288..18badd26d43 100644
+index 36c54a20985..21695f165b4 100644
 --- a/mobile/src/host-screen/use-project-conversations.test.tsx
 +++ b/mobile/src/host-screen/use-project-conversations.test.tsx
 @@ -84,6 +84,60 @@ async function mount(initial: ProjectConversationsSource) {
@@ -344,7 +344,7 @@ index 8755681ce21..e9adf5cbaf7 100644
          running = false
          if (current()) {
 diff --git a/src/main/ai-vault/ai-vault-runtime-scan.ts b/src/main/ai-vault/ai-vault-runtime-scan.ts
-index 9b6193fdd7e..9613393f488 100644
+index 9c38ebc7b91..a4f71628cb9 100644
 --- a/src/main/ai-vault/ai-vault-runtime-scan.ts
 +++ b/src/main/ai-vault/ai-vault-runtime-scan.ts
 @@ -68,6 +68,9 @@ function runtimeScanArgs(
@@ -358,7 +358,7 @@ index 9b6193fdd7e..9613393f488 100644
    if (listArgs?.afterFingerprint !== undefined) {
      scanArgs.afterFingerprint = listArgs.afterFingerprint
 diff --git a/src/main/ai-vault/cached-session-list.ts b/src/main/ai-vault/cached-session-list.ts
-index 3f99e9c40af..24ed253ced0 100644
+index 8a65e972ccb..003ab788512 100644
 --- a/src/main/ai-vault/cached-session-list.ts
 +++ b/src/main/ai-vault/cached-session-list.ts
 @@ -138,6 +138,9 @@ export async function listAiVaultSessions(
@@ -372,10 +372,10 @@ index 3f99e9c40af..24ed253ced0 100644
    const depth = requestedAiVaultSessionDepth(args)
    const scanKey = aiVaultLocalScanKey(args)
 diff --git a/src/main/ai-vault/runtime-session-scanner.ts b/src/main/ai-vault/runtime-session-scanner.ts
-index cb0f923d016..59ccc09472c 100644
+index 49b8016e0c7..1258692d997 100644
 --- a/src/main/ai-vault/runtime-session-scanner.ts
 +++ b/src/main/ai-vault/runtime-session-scanner.ts
-@@ -83,6 +83,7 @@ export async function scanRuntimeAiVaultSessions(
+@@ -84,6 +84,7 @@ export async function scanRuntimeAiVaultSessions(
      {
        includeAntigravityIdeSessions: args.includeAntigravityIdeSessions,
        ...(args.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
@@ -465,7 +465,7 @@ index caaaecc59ec..9d710b4a314 100644
 +  }
 +})
 diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.ts
-index 41c844dbba2..21b3e7d4f07 100644
+index 40dc7065181..3504da65587 100644
 --- a/src/main/ipc/ai-vault/ai-vault.ts
 +++ b/src/main/ipc/ai-vault/ai-vault.ts
 @@ -117,6 +117,7 @@ async function listAiVaultSessions(
@@ -475,7 +475,7 @@ index 41c844dbba2..21b3e7d4f07 100644
 +    structuredOnly: args?.structuredOnly === true,
      selectedSessionId: args?.selectedSessionId,
      includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
-     includeStructuredSessions: args?.includeStructuredSessions === true
+     includeStructuredSessions: args?.includeStructuredSessions === true,
 diff --git a/src/main/runtime/rpc/methods/history/ai-vault.test.ts b/src/main/runtime/rpc/methods/history/ai-vault.test.ts
 index 6f2b95ae96d..780cfef860a 100644
 --- a/src/main/runtime/rpc/methods/history/ai-vault.test.ts
@@ -489,7 +489,7 @@ index 6f2b95ae96d..780cfef860a 100644
              })
            )
 diff --git a/src/main/runtime/rpc/methods/history/ai-vault.ts b/src/main/runtime/rpc/methods/history/ai-vault.ts
-index 5218a893d91..3bc2d67d6bc 100644
+index eda33a8f59e..11972458a09 100644
 --- a/src/main/runtime/rpc/methods/history/ai-vault.ts
 +++ b/src/main/runtime/rpc/methods/history/ai-vault.ts
 @@ -117,6 +117,8 @@ export const AI_VAULT_METHODS = [
@@ -498,11 +498,11 @@ index 5218a893d91..3bc2d67d6bc 100644
              selectedSessionId,
 +            includeStructuredSessions: params.includeStructuredSessions,
 +            structuredOnly: params.structuredOnly,
+             scopeOnly: params.scopeOnly,
              includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
            },
-           signal
 diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
-index 465579122d2..a34138792e4 100644
+index 30f9e515edf..61b98d455f7 100644
 --- a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
 @@ -101,7 +101,9 @@ it('keeps the loaded project list and expanded chats while navigating across pro
@@ -517,7 +517,7 @@ index 465579122d2..a34138792e4 100644
    expect(listSessions.mock.lastCall?.[0].force).toBe(true)
    expect(project.querySelectorAll('[data-conversation-id]')).toHaveLength(7)
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
-index 6d084a61178..2b899c070e5 100644
+index 6d084a61178..96e8033af97 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
 @@ -98,15 +98,17 @@ function Probe({
@@ -535,7 +535,7 @@ index 6d084a61178..2b899c070e5 100644
    noAgentsSelected?: boolean
  }): React.JSX.Element | null {
 -  latest = useAiVaultSessionRefresh(paths, host, limit)
-+  latest = useAiVaultSessionRefresh(paths, host, limit, includeStructuredSessions)
++  latest = useAiVaultSessionRefresh(paths, host, limit, false, includeStructuredSessions)
    if (!showList) {
      return null
    }
@@ -594,24 +594,15 @@ index 6d084a61178..2b899c070e5 100644
      await render()
      const original = latest?.scanResult
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
-index e33cc1e45aa..2b3a6eb2054 100644
+index 9561dafdef6..540feca1bdd 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
-@@ -1,3 +1,5 @@
+@@ -1,3 +1,4 @@
 +import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
-+import { useAiVaultForcedRescan } from './use-ai-vault-forced-rescan'
  import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
  
  import { aiVaultScanErrorText } from './ai-vault-scan-issue-copy'
-@@ -28,7 +30,6 @@ import {
- // Share the forced-rescan budget across remounts so session creation cannot amplify full scans.
- import {
-   claimAiVaultForcedRescan,
--  aiVaultForcedRescanDelay,
-   resetAiVaultForcedRescanBudgetForTest
- } from './ai-vault-forced-rescan-budget'
- import {
-@@ -108,6 +109,7 @@ export function useAiVaultSessionRefresh(
+@@ -109,6 +110,7 @@ export function useAiVaultSessionRefresh(
        )}\n${sessionLimitRef.current}`,
      []
    )
@@ -619,18 +610,12 @@ index e33cc1e45aa..2b3a6eb2054 100644
    const refresh = useCallback(
      async (args: AiVaultRefreshArgs = {}): Promise<void> => {
        const observation = associationsRef.current
-@@ -184,6 +186,18 @@ export function useAiVaultSessionRefresh(
-         sessionLimit: selectedLimit
-       }
+@@ -198,6 +200,12 @@ export function useAiVaultSessionRefresh(
+         scanKey === currentScanScopeKey() &&
+         associationCurrent()
        try {
-+        const startupCatalog = loadStartupCatalog(
-+          request,
-+          requestTokenRef.current,
-+          scanKey,
-+          requestCurrent
-+        )
-+        if (startupCatalog) {
-+          await startupCatalog
++        if (!cachedResult) {
++          await loadStartupCatalog(request, requestTokenRef.current, scanKey, requestCurrent)
 +          if (!requestCurrent()) {
 +            return
 +          }
@@ -638,7 +623,7 @@ index e33cc1e45aa..2b3a6eb2054 100644
          const previous = conditionalSnapshotRef.current
          const result = await refreshAiVaultSessionList(
            request,
-@@ -237,25 +251,10 @@ export function useAiVaultSessionRefresh(
+@@ -247,7 +255,7 @@ export function useAiVaultSessionRefresh(
        }
        // Read changing scope through refs; recursion requires a stable refresh identity.
      },
@@ -646,81 +631,13 @@ index e33cc1e45aa..2b3a6eb2054 100644
 +    [applyScan, currentScanScopeKey, loadStartupCatalog]
    )
  
--  // Defer throttled new-session rescans until budget frees so sessions cannot remain invisible indefinitely.
--  const forcedRescanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
--  const requestForcedRescan = useCallback(() => {
--    if (claimAiVaultForcedRescan()) {
--      void refresh({ background: true, force: true })
--      return
--    }
--    const waitMs = aiVaultForcedRescanDelay()
--    if (forcedRescanTimerRef.current !== null) {
--      return
--    }
--    forcedRescanTimerRef.current = setTimeout(() => {
--      forcedRescanTimerRef.current = null
--      requestForcedRescan()
--    }, waitMs)
--  }, [refresh])
-+  const requestForcedRescan = useAiVaultForcedRescan(refresh)
- 
    useEffect(() => {
-     mountedRef.current = true
-@@ -272,10 +271,6 @@ export function useAiVaultSessionRefresh(
-       void window.api.aiVault.cancelListSessions({
-         requestToken
-       })
--      if (forcedRescanTimerRef.current !== null) {
--        clearTimeout(forcedRescanTimerRef.current)
--        forcedRescanTimerRef.current = null
--      }
-     }
-   }, [])
- 
-diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts
-new file mode 100644
-index 00000000000..47aedeb7625
---- /dev/null
-+++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts
-@@ -0,0 +1,32 @@
-+import { useCallback, useEffect, useRef } from 'react'
-+import { claimAiVaultForcedRescan, aiVaultForcedRescanDelay } from './ai-vault-forced-rescan-budget'
-+
-+export function useAiVaultForcedRescan(
-+  refresh: (args: { background: boolean; force: boolean }) => Promise<void>
-+) {
-+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
-+  const requestForcedRescan = useCallback(() => {
-+    if (claimAiVaultForcedRescan()) {
-+      void refresh({ background: true, force: true })
-+      return
-+    }
-+    if (timer.current !== null) {
-+      return
-+    }
-+    timer.current = setTimeout(() => {
-+      timer.current = null
-+      requestForcedRescan()
-+    }, aiVaultForcedRescanDelay())
-+  }, [refresh])
-+
-+  useEffect(
-+    () => () => {
-+      if (timer.current !== null) {
-+        clearTimeout(timer.current)
-+        timer.current = null
-+      }
-+    },
-+    []
-+  )
-+  return requestForcedRescan
-+}
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
 new file mode 100644
-index 00000000000..2c89984801b
+index 00000000000..c439e2d3a74
 --- /dev/null
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,57 @@
 +import { useCallback, useRef, type Dispatch, type RefObject, type SetStateAction } from 'react'
 +import { isAiVaultScanCancelledError } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
 +import type { useAppliedAiVaultScan } from './ai-vault-applied-scan'
@@ -758,7 +675,12 @@ index 00000000000..2c89984801b
 +          if (current() && !catalog.cancelled && catalog.sessions.length > 0) {
 +            gate.current.publish(catalog, (published) => {
 +              if (current()) {
-+                applyScan(published, request.sessionLimit, scopeKey)
++                applyScan({
++                  result: published,
++                  limit: request.sessionLimit,
++                  scopeKey,
++                  scopeOnly: request.scopeOnly === true
++                })
 +                setLoading(false)
 +              }
 +            })
@@ -774,7 +696,7 @@ index 00000000000..2c89984801b
 +  )
 +}
 diff --git a/src/renderer/src/web/preload-api/web-ai-vault-api.ts b/src/renderer/src/web/preload-api/web-ai-vault-api.ts
-index df53d3003e5..1fdee28d12b 100644
+index 276ba1df792..fbe987b0241 100644
 --- a/src/renderer/src/web/preload-api/web-ai-vault-api.ts
 +++ b/src/renderer/src/web/preload-api/web-ai-vault-api.ts
 @@ -70,6 +70,7 @@ export function createWebAiVaultApi(): NonNullable<Partial<PreloadApi>['aiVault'
@@ -802,7 +724,7 @@ index 87c1b3ef66c..7cde3ace665 100644
    AI_VAULT_SESSION_TITLES_RUNTIME_CAPABILITY,
    AI_VAULT_SESSION_TITLE_REFRESH_RUNTIME_CAPABILITY,
 diff --git a/src/shared/ai-vault/contracts/ai-vault-types.ts b/src/shared/ai-vault/contracts/ai-vault-types.ts
-index c1fcbaed546..d0bd670616e 100644
+index a26a357febb..f33906914be 100644
 --- a/src/shared/ai-vault/contracts/ai-vault-types.ts
 +++ b/src/shared/ai-vault/contracts/ai-vault-types.ts
 @@ -237,6 +237,8 @@ export type AiVaultListArgs = {
@@ -815,10 +737,10 @@ index c1fcbaed546..d0bd670616e 100644
    /** Opts a selected runtime-host refresh into content-conditional replies. */
    afterFingerprint?: string | null
 diff --git a/src/shared/rpc-contract/ai-vault-params.ts b/src/shared/rpc-contract/ai-vault-params.ts
-index 6ee4b0c253e..fd1916ded4c 100644
+index 89cfb060339..3a6ffb4ecab 100644
 --- a/src/shared/rpc-contract/ai-vault-params.ts
 +++ b/src/shared/rpc-contract/ai-vault-params.ts
-@@ -35,6 +35,7 @@ export const AiVaultListSessionsParams = z
+@@ -32,6 +32,7 @@ export const AiVaultListSessionsParams = z
        .optional(),
      includeAntigravityIdeSessions: OptionalBoolean,
      includeStructuredSessions: OptionalBoolean,

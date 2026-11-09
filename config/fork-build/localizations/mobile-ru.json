@@ -26,6 +26,13 @@
     },
     "agentMessage": {
       "sessionLink": "Связь"
+    },
+    "tool": {
+      "activity": "Активность"
+    },
+    "useImageUpload": {
+      "mediaUnavailable": "Здесь нельзя прикрепить медиафайлы",
+      "capacityReached": "Достигнут лимит вложений"
     }
   },
   "agentHistory": {

@@ -988,10 +988,49 @@ index 474baef3eaf..3027ca60028 100644
    }
  )
 diff --git a/src/renderer/src/lib/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
-index ec0f9b975f8..4879b9fac3c 100644
+index ec0f9b9..fbb84a8 100644
 --- a/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
 +++ b/src/renderer/src/lib/workspace-terminal-host-authority.test.ts
-@@ -67,7 +67,59 @@ function terminalTabCount(store: TestStore, worktreeId: string): number {
+@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import type * as AgentStatusModule from '@/lib/agent-status'
+ import { createTestStore } from '@/store/testing/app-store-test-fixture'
+ import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
++import { makeFolderWorkspace } from '@/store/folder-workspaces/folder-workspace.test-fixture'
+ import { ensureWorktreeHasInitialTerminal } from '@/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding'
+ import { resolveWorkspaceTerminalHostAuthority } from '@/lib/workspace-terminal-host-authority'
+ 
+@@ -21,6 +22,7 @@ vi.mock('@/lib/agent-status', async (importOriginal) => {
+ 
+ type TestStore = ReturnType<typeof createTestStore>
+ 
++const LOCAL_WORKTREE_ID = 'repoLocal::/tmp/local/feature'
+ const SSH_WORKTREE_ID = 'repoSsh::/srv/proj/feature'
+ const PAIRED_WORKTREE_ID = 'repoPaired::/srv/proj/paired'
+ const TARGET_ID = 'ssh-target-1'
+@@ -37,6 +39,22 @@ function repo(id: string, path: string, connectionId?: string): never {
+   } as never
+ }
+ 
++function seedLocal(store: TestStore): void {
++  store.setState({
++    repos: [repo('repoLocal', '/tmp/local')],
++    worktreesByRepo: {
++      repoLocal: [
++        makeWorktree({
++          id: LOCAL_WORKTREE_ID,
++          repoId: 'repoLocal',
++          path: '/tmp/local/feature',
++          hostId: 'local'
++        })
++      ]
++    }
++  })
++}
++
+ function seedDirectSsh(store: TestStore): void {
+   store.setState({
+     repos: [repo('repoSsh', '/srv/proj', TARGET_ID)],
+@@ -67,7 +85,59 @@ function terminalTabCount(store: TestStore, worktreeId: string): number {
  }
  
  describe('workspace terminal seeding authority', () => {
@@ -1052,7 +1091,7 @@ index ec0f9b975f8..4879b9fac3c 100644
      // Host workspace snapshots no longer answer after relay removal (#27214); waiting forever strands connected targets.
      const store = createTestStore()
      seedDirectSsh(store)
-@@ -77,7 +129,9 @@ describe('workspace terminal seeding authority', () => {
+@@ -77,7 +147,9 @@ describe('workspace terminal seeding authority', () => {
  
      connectTarget(store)
      expect(resolveWorkspaceTerminalHostAuthority(store.getState(), SSH_WORKTREE_ID)).toBe('none')
@@ -1063,7 +1102,7 @@ index ec0f9b975f8..4879b9fac3c 100644
      expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(1)
    })
  
-@@ -92,7 +146,7 @@ describe('workspace terminal seeding authority', () => {
+@@ -92,7 +164,7 @@ describe('workspace terminal seeding authority', () => {
        }
      })
  
@@ -1072,7 +1111,7 @@ index ec0f9b975f8..4879b9fac3c 100644
      expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeNull()
      expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(0)
      expect(
-@@ -105,7 +159,7 @@ describe('workspace terminal seeding authority', () => {
+@@ -105,7 +177,7 @@ describe('workspace terminal seeding authority', () => {
          undefined,
          { reseedEmptiedWorkspace: true }
        )

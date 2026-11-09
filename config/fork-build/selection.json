@@ -52,8 +52,7 @@
     "upstream-module-relocations.patch",
     "startup-chat-catalog.patch",
     "project-start-actions.patch",
-    "composed-ci-contracts.patch",
-    "composed-format.patch"
+    "composed-ci-contracts.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",

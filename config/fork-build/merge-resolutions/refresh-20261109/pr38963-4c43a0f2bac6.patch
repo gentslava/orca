@@ -1,5 +1,5 @@
 diff --git a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
-index b1ce76b..5edb948 100644
+index b1ce76b..f96825d 100644
 --- a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
 +++ b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
 @@ -29,6 +29,7 @@ import { NativeChatExpandable } from '../../messages/disclosure/NativeChatExpand
@@ -10,7 +10,24 @@ index b1ce76b..5edb948 100644
  
  const TARGET_CLASS =
    'min-w-0 text-chat-foreground transition-colors group-hover/tool-line:text-chat-foreground-strong'
-@@ -122,67 +123,76 @@ export function NativeChatToolLine({
+@@ -47,6 +48,7 @@ function ToolLineDetail({
+   commandLanguage: string | null
+   results: NativeChatWebSearchResult[]
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const diff = isToolCallBlock(block)
+     ? diffFromToolCall(block.name, block.input)
+     : isToolResultBlock(block)
+@@ -73,7 +75,7 @@ function ToolLineDetail({
+         <div className="space-y-1">
+           {isToolCallBlock(block) ? (
+             <p className="text-xs text-chat-foreground-faint">
+-              {translate('components.native-chat.tool.output', 'Output')}
++              {t('components.native-chat.tool.output', 'Output')}
+             </p>
+           ) : null}
+           <NativeChatToolOutput body={body} />
+@@ -122,67 +124,76 @@ export function NativeChatToolLine({
  
    return (
      <div>

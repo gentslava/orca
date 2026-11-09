@@ -1,5 +1,5 @@
 diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
-index 933ce4f0a05..67134b6cee1 100644
+index b1a89fbefe0..dac7c8b2677 100644
 --- a/config/react-compiler-bailout-baseline.txt
 +++ b/config/react-compiler-bailout-baseline.txt
 @@ -1,5 +1,5 @@
@@ -103,60 +103,6 @@ index aa3782d8cf8..79376423437 100644
        expect(errors).toEqual([])
        await page.close()
      } finally {
-diff --git a/mobile/src/host-screen/project-conversation-history-refresh.test.ts b/mobile/src/host-screen/project-conversation-history-refresh.test.ts
-index cdf28eb825e..f124b60ae54 100644
---- a/mobile/src/host-screen/project-conversation-history-refresh.test.ts
-+++ b/mobile/src/host-screen/project-conversation-history-refresh.test.ts
-@@ -1,5 +1,5 @@
- import { expect, it, vi } from 'vitest'
--import type { RpcClient } from '../transport/rpc-client'
-+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
- import { FakeSession } from '../transport/connection/mobile-endpoint-supervisor-test-fakes'
- import { conversationHistory } from './project-conversations.test-fixture'
- import { refreshProjectConversationHistory } from './project-conversation-history-refresh'
-diff --git a/mobile/src/host-screen/use-conversation-actions.test.tsx b/mobile/src/host-screen/use-conversation-actions.test.tsx
-index d748ac1d821..3f8eeb826d7 100644
---- a/mobile/src/host-screen/use-conversation-actions.test.tsx
-+++ b/mobile/src/host-screen/use-conversation-actions.test.tsx
-@@ -10,7 +10,7 @@ import { MOBILE_DESKTOP_RELAY_RUNTIME_CAPABILITY } from '../../../src/shared/mob
- import { PREFLIGHT_OTHER_RUNTIME_REFUSAL_RUNTIME_CAPABILITY } from '../../../src/shared/protocol-version'
- import { FakeSession } from '../transport/connection/mobile-endpoint-supervisor-test-fakes'
- import { createStableLogicalRpcClient } from '../transport/connection/stable-logical-rpc-client'
--import type { RpcResponse } from '../transport/types'
-+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
- import { buildProjectConversations } from './project-conversations'
- import { conversationHistory, conversationWorkspace } from './project-conversations.test-fixture'
- import { useConversationActions } from './use-conversation-actions'
-diff --git a/mobile/src/host-screen/use-conversation-preferences.test.tsx b/mobile/src/host-screen/use-conversation-preferences.test.tsx
-index 7798a99cce0..60f4457dcf8 100644
---- a/mobile/src/host-screen/use-conversation-preferences.test.tsx
-+++ b/mobile/src/host-screen/use-conversation-preferences.test.tsx
-@@ -7,8 +7,8 @@ import {
-   SetConversationPreferenceParams,
-   updateConversationPreference
- } from '../../../src/shared/conversation-navigation-preferences'
--import type { RpcClient } from '../transport/rpc-client'
--import type { RpcResponse } from '../transport/types'
-+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
-+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
- import { FakeSession } from '../transport/connection/mobile-endpoint-supervisor-test-fakes'
- import { INITIAL_MOBILE_VIEW, type MobileViewState } from '../worktree/workspace-view-settings'
- import { useConversationPreferences } from './use-conversation-preferences'
-diff --git a/mobile/src/host-screen/use-project-conversations.test.tsx b/mobile/src/host-screen/use-project-conversations.test.tsx
-index 18badd26d43..21695f165b4 100644
---- a/mobile/src/host-screen/use-project-conversations.test.tsx
-+++ b/mobile/src/host-screen/use-project-conversations.test.tsx
-@@ -2,8 +2,8 @@ import { createElement } from 'react'
- import { act, create, type ReactTestRenderer } from 'react-test-renderer'
- import { afterEach, describe, expect, it, vi } from 'vitest'
- import { MOBILE_DESKTOP_RELAY_RUNTIME_CAPABILITY } from '../../../src/shared/mobile-desktop-relay-contract'
--import type { RpcClient } from '../transport/rpc-client'
--import type { RpcResponse } from '../transport/types'
-+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
-+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
- import { FakeSession } from '../transport/connection/mobile-endpoint-supervisor-test-fakes'
- import { createStableLogicalRpcClient } from '../transport/connection/stable-logical-rpc-client'
- import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
 diff --git a/mobile/src/session/mobile-pending-model-send.test-fixture.ts b/mobile/src/session/mobile-pending-model-send.test-fixture.ts
 index a20107f7fcb..be693a12ded 100644
 --- a/mobile/src/session/mobile-pending-model-send.test-fixture.ts
@@ -449,18 +395,6 @@ index 8b946268231..8bc510ce5ec 100644
  import {
    findAllByHostType,
    findByHostType
-diff --git a/mobile/src/session/notification-pane-tab.test.ts b/mobile/src/session/notification-pane-tab.test.ts
-index cec7e764487..f53a273a957 100644
---- a/mobile/src/session/notification-pane-tab.test.ts
-+++ b/mobile/src/session/notification-pane-tab.test.ts
-@@ -1,6 +1,6 @@
- import { describe, expect, it } from 'vitest'
- import { notificationPaneTab } from './tabs/notification-pane-tab'
--import type { MobileSessionTab } from './mobile-session-route-types'
-+import type { MobileSessionTab } from './tabs/mobile-session-tabs'
- 
- const leaf = '10000000-0000-4000-8000-000000000001'
- const tabs: MobileSessionTab[] = [
 diff --git a/mobile/src/session/use-mobile-structured-agent-options.ts b/mobile/src/session/use-mobile-structured-agent-options.ts
 index cf6eb3e0f56..94ed6cf669f 100644
 --- a/mobile/src/session/use-mobile-structured-agent-options.ts
@@ -517,10 +451,9 @@ index 4da70f7074d..bb4fb815c3a 100644
      queued,
 diff --git a/mobile/src/session/use-mobile-structured-model-default-send.test.tsx b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
 new file mode 100644
-index 00000000000..f7530e97dd0
 --- /dev/null
 +++ b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
-@@ -0,0 +1,122 @@
+@@ -0,0 +1,130 @@
 +import { createElement } from 'react'
 +import { act, type ReactTestRenderer } from 'react-test-renderer'
 +import { afterEach, beforeEach, vi } from 'vitest'
@@ -571,7 +504,9 @@ index 00000000000..f7530e97dd0
 +const client = stubRpcClient({
 +  sendRequest,
 +  subscribe: (method, _params, receive) => {
-+    if (method === 'agentSession.subscribe') listener = receive
++    if (method === 'agentSession.subscribe') {
++      listener = receive
++    }
 +    return () => {}
 +  }
 +})
@@ -622,11 +557,15 @@ index 00000000000..f7530e97dd0
 +    hostSupport = value
 +  },
 +  getHook: () => {
-+    if (!hook) throw new Error('Session not mounted')
++    if (!hook) {
++      throw new Error('Session not mounted')
++    }
 +    return hook
 +  },
 +  getBridge: () => {
-+    if (!bridge) throw new Error('Bridge not mounted')
++    if (!bridge) {
++      throw new Error('Bridge not mounted')
++    }
 +    return bridge
 +  },
 +  sendRequest,
@@ -636,7 +575,9 @@ index 00000000000..f7530e97dd0
 +      renderer = createWithQueryClient(createElement(Harness))
 +    })
 +    const receive = listener
-+    if (!receive) throw new Error('Session subscription missing')
++    if (!receive) {
++      throw new Error('Session subscription missing')
++    }
 +    await act(async () => receive(snapshotEvent()))
 +  },
 +  captureSendOrigin,
@@ -857,21 +798,55 @@ index 2dbb0447b44..1a00ac2f1b5 100644
  })
  
 diff --git a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
-index 5bcb7caa207..ed3cc0b10cd 100644
+index 175b9de..ff95ece 100644
 --- a/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
 +++ b/src/renderer/src/components/agent/AgentLaunchSetupButton.retention.test.tsx
 @@ -1,7 +1,7 @@
-+import { chooseEffort, effortLabel } from '../native-chat/native-chat-effort-slider.test-fixture'
  // @vitest-environment happy-dom
- import { act } from 'react'
--import { fireEvent, getByRole } from '@testing-library/react'
+ import { act, type ReactElement, type ReactNode } from 'react'
+ import { fireEvent, getByRole } from '@testing-library/react'
 -import userEvent from '@testing-library/user-event'
-+import { fireEvent } from '@testing-library/react'
++import { chooseEffort, effortLabel } from '../native-chat/native-chat-effort-slider.test-fixture'
  import { createRoot, type Root } from 'react-dom/client'
  import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
  import { TooltipProvider } from '@/components/ui/tooltip'
-@@ -157,14 +157,11 @@ describe('setup records exist only for authored setups', () => {
-         </TooltipProvider>
+@@ -106,8 +106,6 @@ describe('setup records exist only for authored setups', () => {
+       document.querySelector<HTMLButtonElement>('button[aria-label="Configure codex"]')!
+     const prompt = () =>
+       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
+-    const effort = (label: string) =>
+-      getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
+     const close = () =>
+       fireEvent.keyDown(document.querySelector('[cmdk-input]')!, { key: 'Escape' })
+     show(entry)
+@@ -120,14 +118,14 @@ describe('setup records exist only for authored setups', () => {
+     // Arguments are agent settings, so the launch panel offers no editor for them.
+     expect(document.querySelector('textarea[aria-label="Arguments"]')).toBeNull()
+     fireEvent.click(getByRole(document.body, 'radio', { name: 'Low' }))
+-    expect(effort('Low')).toBe('on')
++    expect(effortLabel()).toBe('Low')
+     expect(sourceCount()).toBe(1)
+     changePrompt(prompt(), 'fix the flaky test')
+     close()
+     expect(document.querySelector('[cmdk-input]')).toBeNull()
+     fireEvent.click(configure())
+     expect(prompt().textContent).toBe('fix the flaky test')
+-    expect(effort('Low')).toBe('on')
++    expect(effortLabel()).toBe('Low')
+     close()
+ 
+     act(() =>
+@@ -140,7 +138,7 @@ describe('setup records exist only for authored setups', () => {
+     show({ ...entry, worktreeId: 'repo::/new' })
+     fireEvent.click(configure())
+     expect(prompt().textContent).toBe('fix the flaky test')
+-    expect(effort('Low')).toBe('on')
++    expect(effortLabel()).toBe('Low')
+   })
+ 
+   it('keeps a search preset in its own options slot, saving only real changes, with one shared prompt', async () => {
+@@ -180,14 +178,11 @@ describe('setup records exist only for authored setups', () => {
+         </InMenu>
        )
      )
 -    const user = userEvent.setup()
@@ -885,7 +860,7 @@ index 5bcb7caa207..ed3cc0b10cd 100644
      const model = () => document.querySelector('[cmdk-item][data-current="true"]')?.textContent
      const close = () =>
        fireEvent.keyDown(document.querySelector('[cmdk-input]')!, { key: 'Escape' })
-@@ -172,7 +169,7 @@ describe('setup records exist only for authored setups', () => {
+@@ -195,7 +190,7 @@ describe('setup records exist only for authored setups', () => {
      // Opening a preset saves nothing, and the plain row still shows defaults.
      fireEvent.click(searched)
      expect(model()).toBe('opus')
@@ -894,7 +869,7 @@ index 5bcb7caa207..ed3cc0b10cd 100644
      close()
      expect(sourceCount()).toBe(0)
      fireEvent.click(plain)
-@@ -183,14 +180,14 @@ describe('setup records exist only for authored setups', () => {
+@@ -206,14 +201,14 @@ describe('setup records exist only for authored setups', () => {
  
      // A real change saves into that preset's slot only and survives close and reopen.
      fireEvent.click(searched)
@@ -948,19 +923,6 @@ index 6ba15a3e597..4b1563b8d50 100644
    fireEvent.click(screen.getByRole('button', { name: /^Use$/ }))
    await waitFor(() =>
      expect(useAppStore.getState().settings?.commitMessageAi).toMatchObject({
-diff --git a/src/renderer/src/components/native-chat/NativeChatMessageRow.work-run.test.tsx b/src/renderer/src/components/native-chat/NativeChatMessageRow.work-run.test.tsx
-index 35488551e3f..145b91723fb 100644
---- a/src/renderer/src/components/native-chat/NativeChatMessageRow.work-run.test.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatMessageRow.work-run.test.tsx
-@@ -14,7 +14,7 @@ const unusedChatLeaves = vi.hoisted(() => ({
-     throw new Error('Unexpected sender navigation in transcript fixture')
-   })
- }))
--vi.mock('./NativeChatInlineVisual', () => ({
-+vi.mock('./media/visuals/NativeChatInlineVisual', () => ({
-   NativeChatInlineVisual: unusedChatLeaves.inlineVisual
- }))
- vi.mock('@/lib/open-agent-message-sender', () => ({
 diff --git a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.mid-turn.test.tsx b/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.mid-turn.test.tsx
 index 71945ec102a..5b89e2f8dd5 100644
 --- a/src/renderer/src/components/native-chat/NativeChatSessionOptionPickers.mid-turn.test.tsx
@@ -1143,10 +1105,9 @@ index 2123ecd5ba3..7e0d4688c80 100644
  })
 diff --git a/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts b/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts
 new file mode 100644
-index 00000000000..cfdad63f3a3
 --- /dev/null
 +++ b/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts
-@@ -0,0 +1,17 @@
+@@ -0,0 +1,20 @@
 +import { fireEvent, screen } from '@testing-library/react'
 +
 +export const effortSlider = (): HTMLElement => screen.getByRole('slider', { name: 'Effort' })
@@ -1154,13 +1115,16 @@ index 00000000000..cfdad63f3a3
 +  effortSlider().getAttribute('aria-valuetext')?.split(' · ')[0]
 +
 +export function chooseEffort(label: string): void {
-+  fireEvent.keyDown(effortSlider(), { key: 'Home' })
++  let key = 'Home'
++  fireEvent.keyDown(effortSlider(), { key })
 +  const maximum = Number(effortSlider().getAttribute('aria-valuemax'))
 +  for (let step = 0; step <= maximum; step++) {
 +    if (effortLabel() === label) {
++      fireEvent.keyDown(effortSlider(), { key: 'Enter' })
 +      return
 +    }
-+    fireEvent.keyDown(effortSlider(), { key: 'ArrowRight' })
++    key = 'ArrowRight'
++    fireEvent.keyDown(effortSlider(), { key })
 +  }
 +  throw new Error(`Effort slider does not offer ${label}`)
 +}
@@ -1453,7 +1417,7 @@ index e894ea22348..a8fb69c39a0 100644
  import { translate as t } from '@/i18n/i18n'
 -import { RuntimeRpcCallError } from '@/runtime/rpc/calls/runtime-rpc-result'
  import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
- import { structuredAgentSessionHostSupports } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-capability'
+ import { structuredAgentSessionHostSupports } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
  
 @@ -19,18 +19,6 @@ const Candidates = z.object({
    candidates: z.array(SessionLinkParticipant),
@@ -1769,89 +1733,6 @@ index e9dc2d87e88..564e6e2eff7 100644
  import { describe, expect, it } from 'vitest'
  import {
    nativeChatTurnReplyPreviews,
-diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
-index 01c7fda5761..bcbc4daed64 100644
---- a/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
-+++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.conversation-search.test.tsx
-@@ -22,14 +22,20 @@ vi.mock('@/store', () => ({
-     getState: () => state
-   })
- }))
--vi.mock('@/store/selectors', () => ({
-+vi.mock('@/store/repos/use-repository-catalog', () => ({
-   useActiveRepo: () => null,
--  useActiveWorktree: () => null,
--  useActiveWorktreeId: () => null,
--  useAllWorktrees: () => [],
--  useProjectHostSetupProjection: () => ({ projects: [], setups: [] }),
-   useRepos: () => []
- }))
-+vi.mock('@/store/workspaces/selection/use-selected-worktree', () => ({
-+  useActiveWorktree: () => null,
-+  useActiveWorktreeId: () => null
-+}))
-+vi.mock('@/store/slices/worktrees/listing/use-worktree-catalog', () => ({
-+  useAllWorktrees: () => []
-+}))
-+vi.mock('@/store/projects/use-project-host-setup-projection', () => ({
-+  useProjectHostSetupProjection: () => ({ projects: [], setups: [] })
-+}))
- const sessions: AiVaultSession[] = [
-   {
-     ...conversationSessions[0]!,
-diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
-index a34138792e4..61b98d455f7 100644
---- a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
-+++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
-@@ -18,7 +18,7 @@ import {
-   conversationWorktrees
- } from '../sidebar/ProjectConversationList.test-fixture'
- 
--vi.mock('@/runtime/structured-agent-session-client', () => ({
-+vi.mock('@/runtime/native-chat/requests/structured-agent-session-subscriptions', () => ({
-   subscribeStructuredAgentSessionStatus: async () => ({ unsubscribe: () => {} })
- }))
- vi.mock('../sidebar/use-conversation-preferences', () => ({
-diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts
-index 47aedeb7625..11d3d1db5ce 100644
---- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts
-+++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-forced-rescan.ts
-@@ -5,19 +5,22 @@ export function useAiVaultForcedRescan(
-   refresh: (args: { background: boolean; force: boolean }) => Promise<void>
- ) {
-   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
--  const requestForcedRescan = useCallback(() => {
--    if (claimAiVaultForcedRescan()) {
--      void refresh({ background: true, force: true })
--      return
--    }
--    if (timer.current !== null) {
--      return
--    }
--    timer.current = setTimeout(() => {
--      timer.current = null
--      requestForcedRescan()
--    }, aiVaultForcedRescanDelay())
--  }, [refresh])
-+  const requestForcedRescan = useCallback(
-+    function requestForcedRescan() {
-+      if (claimAiVaultForcedRescan()) {
-+        void refresh({ background: true, force: true })
-+        return
-+      }
-+      if (timer.current !== null) {
-+        return
-+      }
-+      timer.current = setTimeout(() => {
-+        timer.current = null
-+        requestForcedRescan()
-+      }, aiVaultForcedRescanDelay())
-+    },
-+    [refresh]
-+  )
- 
-   useEffect(
-     () => () => {
 diff --git a/src/renderer/src/components/settings/WorkerRoleSettings.tsx b/src/renderer/src/components/settings/WorkerRoleSettings.tsx
 index dac898b49a7..9a2c1dd7f2e 100644
 --- a/src/renderer/src/components/settings/WorkerRoleSettings.tsx
@@ -2102,19 +1983,6 @@ index 404e7e99b4e..db2f082abcd 100644
    }
    return (
      <div
-diff --git a/src/renderer/src/components/sidebar/SidebarConversationStart.test.tsx b/src/renderer/src/components/sidebar/SidebarConversationStart.test.tsx
-index 9cf6e6ba061..b9b08ab3871 100644
---- a/src/renderer/src/components/sidebar/SidebarConversationStart.test.tsx
-+++ b/src/renderer/src/components/sidebar/SidebarConversationStart.test.tsx
-@@ -17,7 +17,7 @@ import type { ExecutionHostId } from '../../../../shared/execution-host'
- import type { AgentMenuRowsTarget } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
- import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
- 
--vi.mock('@/runtime/runtime-rpc-client', async (importOriginal) =>
-+vi.mock('@/runtime/rpc/calls/runtime-rpc-call', async (importOriginal) =>
-   (
-     await import('@/runtime/workspace-layout/testing/layout-apply-test-transport.test-fixture')
-   ).runtimeRpcClientWithLayoutApply(await importOriginal())
 diff --git a/src/renderer/src/components/sidebar/use-conversation-preferences.ts b/src/renderer/src/components/sidebar/use-conversation-preferences.ts
 index c99c0451c6a..92e96e6d52e 100644
 --- a/src/renderer/src/components/sidebar/use-conversation-preferences.ts
