@@ -2,8 +2,9 @@ import type { UsageHistoryRow } from '../../../../shared/usage-history-types'
 import type { ProviderAccountsSnapshot } from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
 import { buildClaudeStatusSwitchGroups } from '../status-bar/status-bar-claude-accounts'
 import { buildCodexStatusSwitchGroups } from '../status-bar/status-bar-codex-accounts'
-import { getAgentLabel } from '@/lib/agent-catalog'
+import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
 import { translate } from '@/i18n/i18n'
+import type { Translate } from '@/i18n/use-translate'
 import { usageHistoryAccountKey } from './usage-history-model'
 
 export function usageHistoryAccountLabels(
@@ -49,13 +50,14 @@ export function usageHistoryAccountLabels(
 
 export function usageHistoryAccountLabel(
   row: Pick<UsageHistoryRow, 'provider' | 'accountId'>,
-  labels: ReadonlyMap<string, string>
+  labels: ReadonlyMap<string, string>,
+  t: Translate = translate
 ): string {
   if (!row.accountId) {
-    return translate('stats.usage.account.unknown', 'Unknown account')
+    return t('stats.usage.account.unknown', 'Unknown account')
   }
   return (
     labels.get(usageHistoryAccountKey(row)) ??
-    `${getAgentLabel(row.provider)} · ${translate('stats.usage.account.recorded', 'Recorded account {{id}}', { id: row.accountId })}`
+    `${getAgentLabel(row.provider)} · ${t('stats.usage.account.recorded', 'Recorded account {{id}}', { id: row.accountId })}`
   )
 }
