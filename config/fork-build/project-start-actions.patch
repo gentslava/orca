@@ -797,10 +797,9 @@ index 8fc64675881..6d173076973 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index eb8ec4005ec..4c56e606db2 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -23118,6 +23118,12 @@
+@@ -22932,6 +22932,12 @@
        "checksPending": "{{review}} checks: Pending",
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
@@ -810,9 +809,9 @@ index eb8ec4005ec..4c56e606db2 100644
 +      "description": "Choose an agent or a tool for this project.",
 +      "agents": "Agents",
 +      "manageAgents": "Manage agents"
-     }
-   },
-   "tabHoverCard": {
+     },
+     "vm": {
+       "menu": {
 diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
 index 80ee282c081..c8be50a9e8f 100644
 --- a/src/renderer/src/i18n/locales/es.json
