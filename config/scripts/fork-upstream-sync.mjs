@@ -211,7 +211,7 @@ export function promoteCandidate(
 export function pushPinnedForkRefs(
   cwd,
   updates,
-  { forkUrl = FORK_WRITE_URL, env = process.env } = {}
+  { forkUrl = FORK_WRITE_URL, env = process.env, replaceMaster = false } = {}
 ) {
   if (!updates.length || new Set(updates.map((entry) => entry.ref)).size !== updates.length) {
     throw new Error('Expected distinct fork branch updates')
@@ -222,14 +222,29 @@ export function pushPinnedForkRefs(
     }
     assertSha(update.before)
     assertSha(update.after)
-    if (!ancestor(cwd, update.before, update.after, { env })) {
+    if (
+      !(replaceMaster && update.ref === 'refs/heads/master') &&
+      !ancestor(cwd, update.before, update.after, { env })
+    ) {
       throw new Error(`Promotion would rewind ${update.ref}`)
     }
   }
+  const master = updates.find((entry) => entry.ref === 'refs/heads/master')
+  if (replaceMaster && !master) {
+    throw new Error('Clean-history promotion requires an exact master update')
+  }
+  const backup = replaceMaster
+    ? {
+        ref: `refs/heads/archive/master-${master.before}`,
+        before: '0'.repeat(40),
+        after: master.before
+      }
+    : null
+  const pinnedUpdates = backup ? [...updates, backup] : updates
   const hooks = mkdtempSync(join(tmpdir(), 'orca-fork-promotion-'))
   try {
     // Check the push advertisement too; a fetch followed by an ordinary push has a race window.
-    const cases = updates
+    const cases = pinnedUpdates
       .map(
         (entry) =>
           `    ${entry.ref}) test "$local_sha" = "${entry.after}"; test "$remote_sha" = "${entry.before}" ;;`
@@ -247,8 +262,14 @@ export function pushPinnedForkRefs(
         `core.hooksPath=${hooks}`,
         'push',
         '--atomic',
+        ...(backup
+          ? [
+              `--force-with-lease=refs/heads/master:${master.before}`,
+              `--force-with-lease=${backup.ref}:`
+            ]
+          : []),
         forkUrl,
-        ...updates.map((entry) => `${entry.after}:${entry.ref}`)
+        ...pinnedUpdates.map((entry) => `${entry.after}:${entry.ref}`)
       ],
       { env }
     )

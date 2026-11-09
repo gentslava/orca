@@ -102,8 +102,6 @@ export function preparePromotion(cwd, plan) {
     'commit-tree',
     tree,
     '-p',
-    plan.configuration,
-    '-p',
     plan.result.commit,
     '-m',
     `fork: promote verified personal build on upstream ${plan.upstream}\n\nBuilt source: ${plan.result.commit}\nWorkflow: ${plan.runUrl}`
@@ -133,8 +131,8 @@ export function promoteBranches(
     candidate.upstream !== plan.upstream ||
     candidate.configuration !== plan.configuration ||
     git(cwd, ['rev-parse', `${candidate.commit}^{tree}`]) !== candidate.tree ||
-    !isAncestor(cwd, plan.configuration, candidate.commit) ||
-    !isAncestor(cwd, plan.result.commit, candidate.commit)
+    git(cwd, ['show', '-s', '--format=%P', candidate.commit]) !== plan.result.commit ||
+    controlFingerprint(cwd, candidate.commit) !== controlFingerprint(cwd, plan.configuration)
   ) {
     throw new Error('Promotion does not match the built source and pinned master')
   }
@@ -156,9 +154,15 @@ export function promoteBranches(
       { ref: 'refs/heads/master', before: plan.configuration, after: candidate.commit },
       { ref: 'refs/heads/main', before: main, after: plan.upstream }
     ],
-    { forkUrl, env }
+    { forkUrl, env, replaceMaster: true }
   )
-  return { ...candidate, status: 'promoted', main: plan.upstream, master: candidate.commit }
+  return {
+    ...candidate,
+    status: 'promoted',
+    main: plan.upstream,
+    master: candidate.commit,
+    archive: `refs/heads/archive/master-${plan.configuration}`
+  }
 }
 
 async function main() {

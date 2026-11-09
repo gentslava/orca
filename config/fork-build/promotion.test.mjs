@@ -56,7 +56,7 @@ function fixture(run) {
   }
 }
 
-test('promotes the exact built application, preserves control and ancestry, and atomically mirrors main', () =>
+test('promotes the exact built application, preserves control without importing previous master history, and atomically mirrors main', () =>
   fixture((f) => {
     const { cwd, plan, candidate } = f
     assert.equal(git(cwd, ['show', `${candidate.commit}:application`]), 'fresh upstream')
@@ -69,7 +69,6 @@ test('promotes the exact built application, preserves control and ancestry, and 
     assert.throws(() => git(cwd, ['show', `${candidate.commit}:retired-feature`]))
     assert.deepEqual(git(cwd, ['rev-list', '--parents', '-1', candidate.commit]).split(' '), [
       candidate.commit,
-      plan.configuration,
       plan.result.commit
     ])
     assert.equal(
@@ -79,6 +78,13 @@ test('promotes the exact built application, preserves control and ancestry, and 
     assert.equal(controlFingerprint(cwd, plan.result.commit), controlFingerprint(cwd, f.main))
     const result = promoteBranches(cwd, plan, candidate, { forkUrl: f.remote })
     assert.equal(result.status, 'promoted')
+    assert.equal(
+      git(f.remote, ['rev-parse', `refs/heads/archive/master-${plan.configuration}`]),
+      plan.configuration
+    )
+    assert.throws(() =>
+      git(cwd, ['merge-base', '--is-ancestor', plan.configuration, candidate.commit])
+    )
     assert.equal(git(f.remote, ['rev-parse', 'master']), candidate.commit)
     assert.equal(git(f.remote, ['rev-parse', 'main']), plan.upstream)
   }))
