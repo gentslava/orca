@@ -97,6 +97,9 @@ export class StructuredAgentSessionAdapterRouter implements Adapter {
     }
   }
 
+  captureConversationTitleOwner: NonNullable<Adapter['captureConversationTitleOwner']> = (record) =>
+    this.liveOwnerOrNull(record.sessionId)?.captureConversationTitleOwner?.(record) ?? null
+
   renameProviderSession: NonNullable<Adapter['renameProviderSession']> = (input) =>
     this.capabilityOwner(
       input.record.sessionId,

@@ -25,7 +25,10 @@ import { getSidebarOrderedRepoHeaderRowsByBucket } from './project-header-drop'
 import { useProjectGroupHeaderDrag } from './project-group-header-drag'
 import { getSidebarOrderedProjectGroupHeaderIdsByBucket } from './project-group-header-drop'
 import { USER_SCROLL_MEASUREMENT_ADJUSTMENT_SUPPRESS_MS } from '../viewport/use-scroll-suppression'
-import { getSidebarRootProjectHeaderKeys } from './root-project-header-drop'
+import {
+  getRootProjectHeaderCountByOccurrenceKey,
+  getSidebarRootProjectHeaderKeys
+} from './root-project-header-drop'
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
 
@@ -84,6 +87,10 @@ export function useWorktreeSidebarHeaderDrag(args: {
   const projectGroupByIdForHeaderDrag = useMemo(
     () => new Map(projectGroups.map((group) => [group.id, group])),
     [projectGroups]
+  )
+  const rootProjectHeaderCountByOccurrenceKey = useMemo(
+    () => getRootProjectHeaderCountByOccurrenceKey(rootProjectHeaderKeys),
+    [rootProjectHeaderKeys]
   )
   // Why: an id shared by two hosts has no single owner, so leave it unrouted rather than guess.
   const projectGroupOwnerHostIdByGroupId = useMemo(() => {
@@ -270,11 +277,15 @@ export function useWorktreeSidebarHeaderDrag(args: {
   )
 
   const rootProjectHeaderSectionEndByKey = useMemo(
-    () => getRootProjectHeaderSectionEndByKey(renderRows, firstHeaderIndex),
-    [renderRows, firstHeaderIndex]
+    () =>
+      hasProjectGroups
+        ? getRootProjectHeaderSectionEndByKey(renderRows, firstHeaderIndex)
+        : new Map<string, number>(),
+    [hasProjectGroups, renderRows, firstHeaderIndex]
   )
 
   return {
+    rootProjectHeaderCountByOccurrenceKey,
     rootProjectHeaderSectionEndByKey,
     canReorderRepoHeaders,
     canReorderProjectGroupHeaders,

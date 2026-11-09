@@ -26,8 +26,9 @@ import {
   initializeSttWorker,
   waitForSttWorkerReady
 } from './stt-worker-startup'
-import { START_DICTATION_TIMEOUT_MS } from './stt-session-timeouts'
+import { START_DICTATION_TIMEOUT_MS } from '../../shared/dictation-finish-deadlines'
 import { STT_WORKER_EXITED_ERROR } from './stt-worker-process'
+import { sileroVadModelPath } from './speech-vad-model'
 
 export async function startSttDictation(
   state: SttSessionState,
@@ -153,6 +154,10 @@ async function acquireSttEngine(
     const current = state.engine
     // Bound in the same step it is chosen, so an idle teardown never sees it unused.
     if (current && sameSttRecognizerConfig(current, config)) {
+      if (current.draining) {
+        await current.draining
+        continue
+      }
       clearSttIdleTeardownTimer(state)
       return bindSttEngine(session, current)
     }
@@ -186,6 +191,8 @@ export function spawnSttEngine(
   if (!speechModulesDir) {
     throw new Error(LOCAL_SPEECH_UNAVAILABLE_ERROR)
   }
+  // A VAD fetched now reloads this engine once it is idle (SttService).
+  const vadModelPath = sileroVadModelPath(state.modelManager)
   clearSttIdleTeardownTimer(state)
   const worker = state.spawnWorker()
   const readyPromise = waitForSttWorkerReady(worker, START_DICTATION_TIMEOUT_MS)
@@ -207,7 +214,9 @@ export function spawnSttEngine(
     worker,
     detach,
     retired: false,
+    vadModelPath,
     onUnloaded: [],
+    draining: null,
     ready: readyPromise.catch((error: unknown) => {
       failSttEngine(state, engine, STT_WORKER_EXITED_ERROR)
       throw error
@@ -221,7 +230,8 @@ export function spawnSttEngine(
     modelDir: state.modelManager.getModelDir(config.modelId),
     sampleRate: manifest.sampleRate,
     files: manifest.files ?? [],
-    language: config.language
+    language: config.language,
+    vadModelPath
   })
   return engine
 }
