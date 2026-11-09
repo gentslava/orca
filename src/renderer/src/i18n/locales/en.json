@@ -23073,6 +23073,12 @@
       "checksPending": "{{review}} checks: Pending",
       "checksPassing": "{{review}} checks: Passing",
       "open": "{{review}}: Open"
+    },
+    "start": {
+      "title": "What would you like to open?",
+      "description": "Choose an agent or a tool for this project.",
+      "agents": "Agents",
+      "manageAgents": "Manage agents"
     }
   },
   "tabHoverCard": {

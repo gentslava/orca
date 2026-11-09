@@ -90,15 +90,7 @@ describe('activating a workspace whose last terminal was closed', () => {
     vi.spyOn(activationGate, 'gateWorktreeAgentActivation').mockReturnValue(pendingGate)
 
     activateAndRevealWorktree(worktree.id, { agent: 'codex', notifyHostRuntime: false })
-    const recoveredTabId = ensureWorktreeHasInitialTerminal(
-      useAppStore.getState(),
-      worktree.id,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { reseedEmptiedWorkspace: true }
-    )
+    const recoveredTabId = useAppStore.getState().createTab(worktree.id).id
     resolveGate('empty')
     await pendingGate
 
@@ -106,8 +98,8 @@ describe('activating a workspace whose last terminal was closed', () => {
     expect(useAppStore.getState().tabsByWorktree[worktree.id]?.[0]?.id).toBe(recoveredTabId)
   })
 
-  // Hydration can restore an emptied workspace active; clicking that row must reseed instead of preserving the blank surface.
-  it('re-seeds when the restored active workspace is reopened on the same host', () => {
+  // Reopening a restored empty workspace must still let the user choose its first action.
+  it('preserves the action page when an empty workspace is reopened on the same host', () => {
     const worktree = makeWorktree()
     seedEmptyActivatableWorktree(worktree)
     seedClosedLastTerminal(worktree.id)
@@ -122,7 +114,7 @@ describe('activating a workspace whose last terminal was closed', () => {
       notifyHostRuntime: false
     })
 
-    expect(useAppStore.getState().tabsByWorktree[worktree.id]).toHaveLength(1)
+    expect(useAppStore.getState().tabsByWorktree[worktree.id]).toHaveLength(0)
   })
 
   it('keeps a waiting split landing instead of re-seeding when the workspace is reopened', () => {
@@ -288,8 +280,8 @@ function seedEmptiedFolderWorkspaceOnTwoHosts(): void {
 describe('activating a folder workspace whose last terminal was closed', () => {
   // This must use the folder entry point; setActiveWorktree(folderWorkspaceKey(...)) takes the git path.
   it.each([
-    ['a local agent selection', { agent: 'codex' as const }, 'local' as const, 1],
-    ['an SSH agent selection', { agent: 'codex' as const }, SSH_HOST_ID, 1],
+    ['a local agent selection', { agent: 'codex' as const }, 'local' as const, 0],
+    ['an SSH agent selection', { agent: 'codex' as const }, SSH_HOST_ID, 0],
     [
       'an agent selection whose caller promised its own surface',
       { agent: 'codex' as const, providesInitialSurface: true },
@@ -297,7 +289,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
       0
     ]
   ])(
-    're-seeds a gate-reported empty workspace for %s',
+    'keeps a gate-reported empty workspace ready for %s',
     async (_label, selection, executionHostId, expectedTabs) => {
       seedEmptiedFolderWorkspaceOnTwoHosts()
       useAppStore.setState({
@@ -372,7 +364,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
     expect(useAppStore.getState().tabsByWorktree[FOLDER_KEY]).toEqual([])
   })
 
-  it('re-seeds the shared row when opening the same folder id on a different host', () => {
+  it('keeps an empty shared folder ready for an explicit action on a different host', () => {
     seedEmptiedFolderWorkspaceOnTwoHosts()
     useAppStore.setState({
       activeWorktreeId: FOLDER_KEY,
@@ -382,7 +374,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
     const result = activateAndRevealFolderWorkspace(FOLDER_ID, { executionHostId: SSH_HOST_ID })
 
     expect(result).not.toBe(false)
-    expect(useAppStore.getState().tabsByWorktree[FOLDER_KEY]).toHaveLength(1)
+    expect(useAppStore.getState().tabsByWorktree[FOLDER_KEY]).toHaveLength(0)
     expect(useAppStore.getState().activeWorkspaceExecutionHostId).toBe(SSH_HOST_ID)
   })
 })

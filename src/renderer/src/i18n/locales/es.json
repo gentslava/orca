@@ -22523,6 +22523,12 @@
       "draft": "{{review}}: Borrador",
       "merged": "{{review}}: Fusionada",
       "open": "{{review}}: Abierta"
+    },
+    "start": {
+      "title": "¿Qué quieres abrir?",
+      "description": "Elige un agente o una herramienta para este proyecto.",
+      "agents": "Agentes",
+      "manageAgents": "Gestionar agentes"
     }
   },
   "tabHoverCard": {

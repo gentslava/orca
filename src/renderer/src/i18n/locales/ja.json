@@ -21799,6 +21799,12 @@
       "draft": "{{review}}: 下書き",
       "merged": "{{review}}: マージ済み",
       "open": "{{review}}: オープン"
+    },
+    "start": {
+      "title": "何を開きますか？",
+      "description": "このプロジェクトで使う Agent やツールを選択してください。",
+      "agents": "Agent",
+      "manageAgents": "Agent を管理"
     }
   },
   "tabHoverCard": {

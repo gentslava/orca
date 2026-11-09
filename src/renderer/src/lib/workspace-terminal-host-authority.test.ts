@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type * as AgentStatusModule from '@/lib/agent-status'
 import { createTestStore } from '@/store/testing/app-store-test-fixture'
 import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
+import { makeFolderWorkspace } from '@/store/folder-workspaces/folder-workspace.test-fixture'
 import { ensureWorktreeHasInitialTerminal } from '@/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding'
 import { resolveWorkspaceTerminalHostAuthority } from '@/lib/workspace-terminal-host-authority'
 
@@ -21,6 +22,7 @@ vi.mock('@/lib/agent-status', async (importOriginal) => {
 
 type TestStore = ReturnType<typeof createTestStore>
 
+const LOCAL_WORKTREE_ID = 'repoLocal::/tmp/local/feature'
 const SSH_WORKTREE_ID = 'repoSsh::/srv/proj/feature'
 const PAIRED_WORKTREE_ID = 'repoPaired::/srv/proj/paired'
 const TARGET_ID = 'ssh-target-1'
@@ -35,6 +37,22 @@ function repo(id: string, path: string, connectionId?: string): never {
     addedAt: 0,
     ...(connectionId ? { connectionId } : {})
   } as never
+}
+
+function seedLocal(store: TestStore): void {
+  store.setState({
+    repos: [repo('repoLocal', '/tmp/local')],
+    worktreesByRepo: {
+      repoLocal: [
+        makeWorktree({
+          id: LOCAL_WORKTREE_ID,
+          repoId: 'repoLocal',
+          path: '/tmp/local/feature',
+          hostId: 'local'
+        })
+      ]
+    }
+  })
 }
 
 function seedDirectSsh(store: TestStore): void {
@@ -67,7 +85,59 @@ function terminalTabCount(store: TestStore, worktreeId: string): number {
 }
 
 describe('workspace terminal seeding authority', () => {
-  it('seeds once the SSH target connects, with no workspace snapshot to wait for', () => {
+  it('runs an explicit local startup immediately, exactly once', () => {
+    const store = createTestStore()
+    seedLocal(store)
+
+    expect(resolveWorkspaceTerminalHostAuthority(store.getState(), LOCAL_WORKTREE_ID)).toBe('none')
+
+    // No await, no host round trip: the client is the execution host for a local workspace.
+    const tabId = ensureWorktreeHasInitialTerminal(store.getState(), LOCAL_WORKTREE_ID, {
+      command: 'echo ready'
+    })
+    expect(tabId).toBeTruthy()
+    expect(terminalTabCount(store, LOCAL_WORKTREE_ID)).toBe(1)
+
+    // A second activation pass must not add another.
+    ensureWorktreeHasInitialTerminal(store.getState(), LOCAL_WORKTREE_ID, { command: 'echo ready' })
+    expect(terminalTabCount(store, LOCAL_WORKTREE_ID)).toBe(1)
+  })
+
+  it.each(['local', 'unstamped', 'missing', 'folder'] as const)(
+    'runs an explicit startup in a %s workspace while an unrelated runtime is selected',
+    (ownership) => {
+      const store = createTestStore()
+      seedLocal(store)
+      if (ownership === 'unstamped') {
+        store.setState({
+          worktreesByRepo: {
+            repoLocal: [makeWorktree({ id: LOCAL_WORKTREE_ID, repoId: 'repoLocal' })]
+          }
+        })
+      } else if (ownership === 'missing') {
+        store.setState({ repos: [], worktreesByRepo: {} })
+      }
+      if (ownership === 'folder') {
+        store.setState({ folderWorkspaces: [makeFolderWorkspace()] })
+      }
+      const worktreeId = ownership === 'folder' ? 'folder:folder-1' : LOCAL_WORKTREE_ID
+      const state = {
+        ...store.getState(),
+        settings: {
+          ...store.getState().settings,
+          activeRuntimeEnvironmentId: ENVIRONMENT_ID
+        },
+        runtimeEnvironments: [{ id: ENVIRONMENT_ID }]
+      }
+
+      expect(
+        ensureWorktreeHasInitialTerminal(state, worktreeId, { command: 'echo ready' })
+      ).toBeTruthy()
+      expect(terminalTabCount(store, worktreeId)).toBe(1)
+    }
+  )
+
+  it('runs an explicit startup once the SSH target connects', () => {
     // Host workspace snapshots no longer answer after relay removal (#27214); waiting forever strands connected targets.
     const store = createTestStore()
     seedDirectSsh(store)
@@ -77,7 +147,9 @@ describe('workspace terminal seeding authority', () => {
 
     connectTarget(store)
     expect(resolveWorkspaceTerminalHostAuthority(store.getState(), SSH_WORKTREE_ID)).toBe('none')
-    expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeTruthy()
+    expect(
+      ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID, { command: 'echo ready' })
+    ).toBeTruthy()
     expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(1)
   })
 
@@ -92,7 +164,7 @@ describe('workspace terminal seeding authority', () => {
       }
     })
 
-    // Startup restore passes no reseed option; only an explicit activation does.
+    // Reopening an empty workspace still leaves its first action to the user.
     expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeNull()
     expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(0)
     expect(
@@ -105,7 +177,7 @@ describe('workspace terminal seeding authority', () => {
         undefined,
         { reseedEmptiedWorkspace: true }
       )
-    ).toBeTruthy()
+    ).toBeNull()
   })
 
   /** Rival detected owners make authority unresolved, not local; the old live-paired-client guard incorrectly seeded alongside host creation (#15556). */

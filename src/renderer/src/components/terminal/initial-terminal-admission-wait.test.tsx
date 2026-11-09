@@ -266,6 +266,18 @@ function gateAnsweredLater(): {
 
 // While admission waits, no launch record exists yet; passive seeding must not add Terminal 1 beside the chat.
 describe('a local chat launch waiting on its host', () => {
+  it('keeps both a pending chat and an ordinary empty mount free of an unrequested shell', async () => {
+    mocks.gate.mockResolvedValueOnce('blocked').mockResolvedValueOnce('empty')
+    root = createRoot(document.createElement('div'))
+    await act(async () => root?.render(createElement(Watcher)))
+    expectNoShell()
+
+    await act(async () => root?.unmount())
+    root = createRoot(document.createElement('div'))
+    await act(async () => root?.render(createElement(Watcher)))
+    expectNoShell()
+  })
+
   it('keeps a watched create free of a stray shell until its chat opens', async () => {
     const { finish } = gateAnsweredLater()
     const launch = launchChat({

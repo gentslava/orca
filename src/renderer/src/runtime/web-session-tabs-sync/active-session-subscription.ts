@@ -41,9 +41,7 @@ import {
 } from '../hosted-terminals/restoration/web-runtime-wake-terminal-respawn'
 import { createWebRuntimeSessionTerminal } from '../hosted-terminals/creation/web-runtime-terminal-creation'
 import { releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame } from './initial-terminal/web-runtime-initial-terminal-bootstrap'
-import { createInitialTerminalSeeder } from './initial-terminal-seeder'
 import { toRuntimeWorktreeSelector } from '../rpc/targets/runtime-worktree-selector'
-import { hostSnapshotAffirmsWorktreeContents } from './hydration/host-session-snapshot-authority'
 
 import type { SessionTabsSnapshotHandler } from './visibility-resume-types'
 import { subscribeRuntimeEnvironment } from '../rpc/environment-revisions/runtime-environment-pairing-refresh'
@@ -61,10 +59,7 @@ export type ActiveSubscriptionArgs = {
   visibilitySnapshotAccepted: Ref<SessionTabsSnapshotHandler<void>>
 }
 
-export type ActiveSessionTabsSubscription = WindowVisibilitySubscriptionParking & {
-  /** The worktree became selected again while its stream stayed warm. */
-  reconsiderSelected: () => void
-}
+export type ActiveSessionTabsSubscription = WindowVisibilitySubscriptionParking
 
 export function installActiveSessionTabsSubscription({
   activeWorktreeId,
@@ -89,7 +84,7 @@ export function installActiveSessionTabsSubscription({
     return undefined
   }
   const expectedTrackingGeneration = getWebSessionTabsTrackingGeneration(environmentId)
-  // Warm streams outlive selection; seed only the selected worktree on this host because IDs can collide across hosts.
+  // Warm streams outlive selection; only the selected workspace may respawn after wake.
   const isSelected = (): boolean => {
     const state = useAppStore.getState()
     return (
@@ -97,9 +92,7 @@ export function installActiveSessionTabsSubscription({
       mirroredRuntimeEnvironmentIdForWorkspace(state, activeWorktreeId) === environmentId
     )
   }
-  const seeder = createInitialTerminalSeeder(environmentId, activeWorktreeId)
   let requestedRespawnAfterWake = false
-  let hostAffirmedWorktree = false
 
   const applyActiveSnapshot = async (
     event: RuntimeMobileSessionTabsResult & { type: 'snapshot' | 'updated' },
@@ -140,8 +133,6 @@ export function installActiveSessionTabsSubscription({
     const hasLiveLocalPty = localTabs.some(
       (tab) => (syncState.ptyIdsByTabId[tab.id] ?? []).length > 0
     )
-    const firstHostAnswer = !hostAffirmedWorktree
-    const bootstrap = decision.apply && seeder.decide(recoveredEvent, firstHostAnswer)
     const respawn = shouldRespawnWebRuntimeTerminalAfterWake({
       event: recoveredEvent,
       activeWorktreeId,
@@ -163,7 +154,6 @@ export function installActiveSessionTabsSubscription({
           trackingGeneration: expectedTrackingGeneration
         })
     if (decision.apply) {
-      hostAffirmedWorktree ||= hostSnapshotAffirmsWorktreeContents(recovered)
       const replayed = isRuntimeSubscriptionReplayResponse(response)
       settle = applyWebSessionTabsStorePatch(
         createWebSessionTabsSnapshotPatch(recovered, environmentId),
@@ -184,20 +174,10 @@ export function installActiveSessionTabsSubscription({
         event.type === 'updated' && !replayed
       )
       visibilitySnapshotAccepted.current(environmentId, recovered, receivedFrame, runtimeId)
-      // Applied frames release awaiting-mirror only after seeding checked the held latch; pending RPCs retain claims and later frames decide retries.
       releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame(environmentId, recovered.worktree)
     }
-    if (decision.apply && isCurrent()) {
-      // Warm streams may answer empty only while unselected; redecide on selection.
-      seeder.noteAppliedFrame(
-        bootstrap ? { event: recoveredEvent, firstHostAnswer, receivedFrame, runtimeId } : null,
-        isSelected()
-      )
-    }
     try {
-      if (isCurrent() && isSelected() && bootstrap) {
-        await seeder.seed()
-      } else if (
+      if (
         isCurrent() &&
         isSelected() &&
         respawn &&
@@ -294,14 +274,5 @@ export function installActiveSessionTabsSubscription({
       }
     }
   ])
-  return Object.assign(
-    () => {
-      seeder.dispose()
-      parking()
-    },
-    {
-      restartEnded: () => parking.restartEnded(),
-      reconsiderSelected: () => seeder.reconsiderSelected(isSelected())
-    }
-  )
+  return parking
 }
