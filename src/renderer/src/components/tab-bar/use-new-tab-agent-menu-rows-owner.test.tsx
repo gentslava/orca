@@ -12,7 +12,6 @@ import {
   NEW_TAB_PAIRED_STATUS,
   newTabTwinHostWorkspaces
 } from './new-tab-agent-menu-twin-host.test-fixture'
-import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat'
 import {
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
   STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
@@ -249,7 +248,7 @@ it.each(['git-worktree', 'folder'] as const)(
     setLocalRuntimeCapabilitiesForTests([CHAT, CLIENT])
     useAppStore.setState({
       ...initial,
-      settings: { ...getDefaultSettings('/home/me'), nativeChatProviders: EVERY_AGENT_CHAT },
+      settings: { ...getDefaultSettings('/home/me'), agentDefaultSurface: 'chat' },
       repos: NEW_TAB_TWIN_HOSTS.map((executionHostId) => ({ ...TEST_REPO, executionHostId })),
       ...twinWorkspaces,
       runtimeStatusByEnvironmentId: new Map([['paired', pairedStatus]]),

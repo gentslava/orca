@@ -106,30 +106,4 @@ export type MobileStructuredAgentSessionArgs = {
   onActionResolved?: () => void
 }
 
-import type { MobileStructuredAgentMutate } from './use-mobile-structured-agent-mutation'
-
-export type MobileStructuredAgentOptionsArgs = {
-  modelCatalogCache?: import('./use-mobile-host-model-catalog-upgrade').HostModelCatalogCache | null
-  agent: string | null
-  client: RpcClient | null
-  sessionId: string | null
-  enabled: boolean
-  fence: number | null
-  mutate: MobileStructuredAgentMutate
-  onOptionError?: (message: string) => void
-  optionStamp?: string
-  turnId: string | null
-  hasTurn?: boolean
-  unloadedTurnRevisions: number | undefined
-  hostSupport: Pick<
-    StructuredAgentSessionHostSupport,
-    | 'permissionModes'
-    | 'permissionOwn'
-    | 'coherentModelCatalog'
-    | 'statusFeed'
-    | 'defaultModel'
-    | 'modelEffortDiscovery'
-    | 'sendSelection'
-    | 'sendOptions'
-  > | null
-}
+export type { MobileStructuredAgentOptionsArgs } from './mobile-structured-agent-options-contract'

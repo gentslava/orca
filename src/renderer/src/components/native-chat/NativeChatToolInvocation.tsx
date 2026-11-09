@@ -8,7 +8,7 @@ import {
   MAX_TOOL_DETAIL_LENGTH,
   truncateToolDetail
 } from '../../../../shared/native-chat/tools/native-chat-tool-summary'
-import { NativeChatCopyButton } from './NativeChatCopyButton'
+import { NativeChatCopyButton } from './messages/actions/NativeChatCopyButton'
 
 export function NativeChatToolInvocation({
   call
