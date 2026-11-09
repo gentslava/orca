@@ -4,7 +4,12 @@ import {
   buildKittyKeyboardRestore,
   RESET_AFTER_BYTE_GAP
 } from '../../../../../../shared/terminal/protocol/input-modes/terminal-mode-reset-profiles'
-import { flushAsyncTicks, createDeferred } from '../test-fixtures/pty-connection-test-async'
+import {
+  flushAsyncTicks,
+  createDeferred,
+  createPendingPtyTimeoutDrain,
+  type PendingPtyTimeout
+} from '../test-fixtures/pty-connection-test-async'
 import { NORMAL_BUFFER_PROLOGUE } from '../test-fixtures/pty-connection-test-constants'
 import {
   createMockTransport,
@@ -468,12 +473,7 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
     })
 
     it('keeps foreground output when hidden-backlog snapshot recovery is unavailable', async () => {
-      const pendingTimeouts: {
-        canceled: boolean
-        delay: number
-        fn: () => void
-        id: number
-      }[] = []
+      const pendingTimeouts: PendingPtyTimeout[] = []
       const originalSetTimeout = globalThis.setTimeout
       const originalClearTimeout = globalThis.clearTimeout
       let nextTimeoutId = 1
@@ -495,22 +495,8 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
         }
       }) as unknown as typeof clearTimeout
 
-      const runNextTimeoutWithDelay = async (delay: number): Promise<void> => {
-        const index = pendingTimeouts.findIndex(
-          (timeout) => !timeout.canceled && timeout.delay === delay
-        )
-        expect(index).toBeGreaterThanOrEqual(0)
-        const [timeout] = pendingTimeouts.splice(index, 1)
-        timeout.fn()
-        await flushAsyncTicks(20)
-      }
-      const drainTimeoutsWithDelays = async (delays: readonly number[]): Promise<void> => {
-        const nextPendingTimeout = () =>
-          pendingTimeouts.find((timeout) => !timeout.canceled && delays.includes(timeout.delay))
-        for (let pending = nextPendingTimeout(); pending; pending = nextPendingTimeout()) {
-          await runNextTimeoutWithDelay(pending.delay)
-        }
-      }
+      const { runNextTimeoutWithDelay, drainTimeoutsWithDelays } =
+        createPendingPtyTimeoutDrain(pendingTimeouts)
 
       let disposable: { dispose: () => void } | null = null
       try {

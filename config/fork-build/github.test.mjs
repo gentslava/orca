@@ -28,7 +28,9 @@ test('a failed mutation is not replayed', () => {
   const failure = Object.assign(new Error('connection closed'), { stderr: 'EOF' })
   let attempted = false
   mock.method(childProcess, 'execFileSync', () => {
-    if (attempted) return '{}'
+    if (attempted) {
+      return '{}'
+    }
     attempted = true
     throw failure
   })
