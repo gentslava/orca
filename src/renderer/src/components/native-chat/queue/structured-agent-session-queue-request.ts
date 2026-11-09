@@ -37,3 +37,12 @@ export function structuredAgentSessionQueueRequest(
 ): 'queue-if-active' | undefined {
   return structuredAgentSessionSendQueues(queue, alternate) ? 'queue-if-active' : undefined
 }
+
+export function structuredAgentSessionRequestedDelivery(
+  queue: StructuredAgentSessionQueueDelivery,
+  isWorking: boolean,
+  requested?: 'immediate' | 'queue-if-active',
+  alternate?: boolean
+): 'immediate' | 'queue-if-active' | undefined {
+  return requested ?? structuredAgentSessionQueueRequest({ ...queue, isWorking }, alternate)
+}

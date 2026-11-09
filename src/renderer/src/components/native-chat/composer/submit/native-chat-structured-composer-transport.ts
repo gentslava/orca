@@ -1,3 +1,5 @@
+import type { StructuredAgentSessionQueueDelivery } from '../../queue/structured-agent-session-queue-request'
+import type { StructuredAgentSessionHostCapabilityState } from '../../../../../../shared/agent-session/structured-agent-session-host-capability'
 import type { CaptureStructuredAgentSessionPresentation } from '../../session/structured/writes/use-structured-agent-session-mutate'
 import type { AgentSessionConversationCommand } from '../../../../../../shared/agent-session/agent-session-conversation-command'
 import type { NativeChatComposerImageAttachment } from '../../attachments/chips/native-chat-image-attachment'
@@ -15,6 +17,9 @@ import type { NativeChatComposerErrorDetail } from '../controls/native-chat-comp
 import type { NativeChatSideChat } from '../../messages/actions/use-native-chat-side-chat'
 
 export type NativeChatStructuredComposerTransport = {
+  queue?: StructuredAgentSessionQueueDelivery
+  isWorking?: boolean
+  steerCapability?: StructuredAgentSessionHostCapabilityState
   capturePresentation: CaptureStructuredAgentSessionPresentation
   conversationCommands?: readonly AgentSessionConversationCommand[]
   compactInstructions?: boolean
