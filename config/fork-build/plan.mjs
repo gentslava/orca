@@ -87,7 +87,6 @@ try {
         'test-runner-registration.patch',
         'integration-module-boundaries.patch',
         'conversation-project-order.patch',
-        'settings-owner-relocations.patch',
         'model-fallback-next-turn-test.patch',
         'reviewed-merge-target-paths.patch',
         'upstream-module-relocations.patch',

@@ -23,11 +23,23 @@
     "contextUsage": {
       "deferredTitle": "По требованию",
       "deferredDescription": "Не входят в текущий расход контекста. Загружаются при необходимости."
+    },
+    "agentMessage": {
+      "sessionLink": "Связь"
     }
   },
   "agentHistory": {
     "panel": {
       "conversationUnavailable": "История этого чата недоступна на этом компьютере."
+    }
+  },
+  "session": {
+    "backgroundTask": {
+      "background": "В фон",
+      "backgrounding": "В фон…"
+    },
+    "writeNotice": {
+      "notDoneBackgroundTask": "Не удалось перевести задачу в фон."
     }
   }
 }

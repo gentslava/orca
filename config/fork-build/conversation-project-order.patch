@@ -1,8 +1,8 @@
 diff --git a/mobile/src/host-screen/HostConversations.tsx b/mobile/src/host-screen/HostConversations.tsx
-index 5b8a2eed7cf..952ba67368d 100644
+index df86dcef4af..86fecde9cc4 100644
 --- a/mobile/src/host-screen/HostConversations.tsx
 +++ b/mobile/src/host-screen/HostConversations.tsx
-@@ -72,7 +72,8 @@ export function HostConversations({
+@@ -74,7 +74,8 @@ export function HostConversations({
          controller.projectCatalog,
          [...controller.sectionsResult.repoById.values()],
          state.view.filters.visibleHostIds,
@@ -289,10 +289,10 @@ index c4dbe428f7d..61cadd5e17a 100644
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
-index 7ed5eca5644..a1b4dc710c2 100644
+index fb63de238e7..0db36261a6d 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
-@@ -13,8 +13,6 @@ import {
+@@ -15,8 +15,6 @@ import {
    DropdownMenuContent,
    DropdownMenuTrigger,
    DropdownMenuItem,
@@ -301,7 +301,7 @@ index 7ed5eca5644..a1b4dc710c2 100644
    DropdownMenuSeparator
  } from '@/components/ui/dropdown-menu'
  import { translate } from '@/i18n/i18n'
-@@ -30,6 +28,7 @@ import {
+@@ -32,6 +30,7 @@ import {
    PROJECT_CONVERSATION_PAGE_SIZE
  } from '../../../../shared/project-conversation-list'
  import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
@@ -309,7 +309,7 @@ index 7ed5eca5644..a1b4dc710c2 100644
  import { useConversationPreferences } from './use-conversation-preferences'
  import { ProjectConversationRow } from './ProjectConversationRow'
  import { ProjectConversationSection } from './ProjectConversationSection'
-@@ -52,7 +51,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -54,7 +53,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
    const catalog = useProjectHostSetupProjection()
    const order = useAppStore((state) => state.projectOrderBy)
    const manualOrder = useAppStore((state) => state.manualRepoOrder)
@@ -318,7 +318,7 @@ index 7ed5eca5644..a1b4dc710c2 100644
    const activeWorkspaceId = useAppStore((state) => state.activeWorktreeId)
    const activeTab = useAppStore((state) =>
      state.activeWorktreeId ? state.getActiveTab(state.activeWorktreeId) : null
-@@ -83,6 +82,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -85,6 +84,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
          catalog,
          order,
          manualOrder,
@@ -326,7 +326,7 @@ index 7ed5eca5644..a1b4dc710c2 100644
          activeWorkspaceId
        }),
      [
-@@ -96,6 +96,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -98,6 +98,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
        catalog,
        order,
        manualOrder,
@@ -334,7 +334,7 @@ index 7ed5eca5644..a1b4dc710c2 100644
        activeWorkspaceId
      ]
    )
-@@ -211,20 +212,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -213,20 +214,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
              </Button>
            </DropdownMenuTrigger>
            <DropdownMenuContent align="start">
@@ -515,7 +515,7 @@ index 80075fa1143..482eaf1fa86 100644
    for (const group of result) {
      const hosts = hostsByLabel.get(group.label) ?? new Set<ExecutionHostId>()
 diff --git a/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx b/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
-index 2d1aaa08ac5..87813bc4a18 100644
+index 13fa54db316..13fa93edfa2 100644
 --- a/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
 +++ b/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
 @@ -1,4 +1,4 @@
@@ -524,11 +524,12 @@ index 2d1aaa08ac5..87813bc4a18 100644
  import { Fragment, useMemo, type ComponentType, type JSX } from 'react'
  import { useAppStore } from '@/store'
  import {
-@@ -148,9 +148,7 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
+@@ -150,10 +150,8 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
  }
  
  function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.Element {
 -  const supportsPersonalOrder = usePersonalProjectOrderSupported()
+   const t = useTranslate()
    const projectOrderBy = useAppStore((s) => s.projectOrderBy)
 -  const setProjectOrderBy = useAppStore((s) => s.setProjectOrderBy)
    const projectOrderLabel =
@@ -561,7 +562,7 @@ index 2d1aaa08ac5..87813bc4a18 100644
 -              </TooltipTrigger>
 -              <TooltipContent side="right" sideOffset={6}>
 -                {!supportsPersonalOrder && opt.id === 'recent'
--                  ? translate(
+-                  ? t(
 -                      'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
 -                      'Most recent workspace activity'
 -                    )

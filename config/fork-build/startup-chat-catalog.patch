@@ -1,5 +1,5 @@
 diff --git a/mobile/src/host-screen/project-conversation-history-refresh.ts b/mobile/src/host-screen/project-conversation-history-refresh.ts
-index c87cb2b96fe..7c482718bcc 100644
+index 45e72f88fd6..05b264be194 100644
 --- a/mobile/src/host-screen/project-conversation-history-refresh.ts
 +++ b/mobile/src/host-screen/project-conversation-history-refresh.ts
 @@ -1,4 +1,7 @@
@@ -8,7 +8,7 @@ index c87cb2b96fe..7c482718bcc 100644
 +  AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY,
 +  AI_VAULT_STRUCTURED_CATALOG_CAPABILITY
 +} from '../../../src/shared/ai-vault/contracts/ai-vault-runtime-capabilities'
- import type { RpcClient } from '../transport/rpc-client'
+ import type { RpcClient } from '../transport/rpc/rpc-client-contract'
  import {
    agentHistoryHostStatusRead,
 @@ -11,7 +14,11 @@ export type ProjectConversationHistorySnapshot = ReturnType<typeof readConversat
@@ -105,7 +105,7 @@ index 00000000000..90228358bef
 +  return { ...next, tabs, capabilities, history, historyByHost }
 +}
 diff --git a/mobile/src/host-screen/use-project-conversations.test.tsx b/mobile/src/host-screen/use-project-conversations.test.tsx
-index 8693d08edfa..4dc79619f00 100644
+index 1d230d4e288..18badd26d43 100644
 --- a/mobile/src/host-screen/use-project-conversations.test.tsx
 +++ b/mobile/src/host-screen/use-project-conversations.test.tsx
 @@ -84,6 +84,60 @@ async function mount(initial: ProjectConversationsSource) {
@@ -170,7 +170,7 @@ index 8693d08edfa..4dc79619f00 100644
      vi.useFakeTimers()
      const { client, sendRequest } = replies()
 diff --git a/mobile/src/host-screen/use-project-conversations.ts b/mobile/src/host-screen/use-project-conversations.ts
-index 2509e629744..47a59139146 100644
+index 8755681ce21..e9adf5cbaf7 100644
 --- a/mobile/src/host-screen/use-project-conversations.ts
 +++ b/mobile/src/host-screen/use-project-conversations.ts
 @@ -12,22 +12,14 @@ import {
@@ -181,7 +181,7 @@ index 2509e629744..47a59139146 100644
 +  mergeConversationSnapshot,
 +  type ConversationSnapshot
 +} from './project-conversation-snapshot'
- import { sessionTabsListRead } from '../session/mobile-session-read-operations'
+ import { sessionTabsListRead } from '../session/tabs/mobile-session-tab-read-operations'
  import type { HostScreenController } from './use-host-screen-controller'
 -import {
 -  readConversationTabs,
@@ -477,10 +477,10 @@ index 41c844dbba2..21b3e7d4f07 100644
      includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
      includeStructuredSessions: args?.includeStructuredSessions === true
 diff --git a/src/main/runtime/rpc/methods/history/ai-vault.test.ts b/src/main/runtime/rpc/methods/history/ai-vault.test.ts
-index 1fe6e052d39..d7b151284fe 100644
+index 6f2b95ae96d..780cfef860a 100644
 --- a/src/main/runtime/rpc/methods/history/ai-vault.test.ts
 +++ b/src/main/runtime/rpc/methods/history/ai-vault.test.ts
-@@ -390,6 +390,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
+@@ -174,6 +174,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
            dispatcher.dispatch(
              makeRequest('aiVault.listSessions', {
                includeStructuredSessions: true,
@@ -502,7 +502,7 @@ index 5218a893d91..3bc2d67d6bc 100644
            },
            signal
 diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
-index 201092c1afb..4d2622903fa 100644
+index 465579122d2..a34138792e4 100644
 --- a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
 @@ -101,7 +101,9 @@ it('keeps the loaded project list and expanded chats while navigating across pro
@@ -517,7 +517,7 @@ index 201092c1afb..4d2622903fa 100644
    expect(listSessions.mock.lastCall?.[0].force).toBe(true)
    expect(project.querySelectorAll('[data-conversation-id]')).toHaveLength(7)
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
-index 04c9c28ea0a..e0b86dc0cde 100644
+index 6d084a61178..2b899c070e5 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-conditional-refresh-hook.test.tsx
 @@ -98,15 +98,17 @@ function Probe({
