@@ -27,6 +27,7 @@ const plan = {
   blockers: [],
   lifecycle: [],
   selections: [],
+  outputs: config.outputs,
   tracked: config.seed
 }
 try {
@@ -93,7 +94,8 @@ try {
         'startup-chat-catalog.patch',
         'composed-format.patch',
         'composed-ci-contracts.patch',
-        'project-start-actions.patch'
+        'project-start-actions.patch',
+        'codex-selected-account-read.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')
@@ -152,6 +154,20 @@ try {
       `${plan.result.commit}:src/shared/local-build-compatibility-contract.json`
     ])
   )
+  const mobile = JSON.parse(git(source, ['show', 'HEAD:mobile/app.json'])).expo
+  if (
+    !/^\d+\.\d+\.\d+$/.test(mobile.version || '') ||
+    !Number.isSafeInteger(mobile.android?.versionCode) ||
+    mobile.android.versionCode < 1 ||
+    typeof mobile.android.package !== 'string'
+  ) {
+    throw new Error('Invalid committed Android release identity')
+  }
+  plan.mobile = {
+    mobileVersion: mobile.version,
+    versionCode: mobile.android.versionCode,
+    applicationId: mobile.android.package
+  }
   plan.result.publishable &&= !plan.blockers.length
   const baseVersion = JSON.parse(git(source, ['show', 'HEAD:package.json'])).version
   plan.version = createLocalBuildVersion(

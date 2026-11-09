@@ -22,7 +22,7 @@ When every conflicted path is an English or Russian desktop/mobile translation c
 - `audit_only`: resolve lifecycle and test composition; never package.
 - `force_build`: bypass reuse of an identical last successful composition.
 - Persistent [status issue](https://github.com/gentslava/orca/issues/12): current report, lifecycle ledger, and last successful downloads.
-- Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, checksums, archive/app proofs, the source plan and a Git bundle. After successful independent package verification and release publication, a trusted job promotes the built application to `master` and its frozen upstream to `main` in one atomic fast-forward push.
+- Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, Windows x64 installer and portable ZIP, Android APK, checksums, archive/app proofs, the source plan and a Git bundle. After successful independent package verification and release publication, a trusted job promotes the built application to `master` and its frozen upstream to `main` in one atomic fast-forward push.
 - Required conflicts or failed checks preserve previous releases. No silent subset build or automatic substitution/closing of upstream issues/PRs.
 
 The package lane builds/typechecks the production desktop/CLI/web/mobile resources and native helpers. Trusted verification independently re-extracts DMG/ZIP, checks ARM64, code signatures, embedded source/version identity, the app-tree manifest and package digests. It does not launch the application. Component/unit checks do not establish physical-device or provider acceptance.
@@ -88,3 +88,13 @@ The removal work is recorded in [the atomic PR plans](atomic-pr-plans.md). The t
 ## Fork translations
 
 Feature branches own English copy. Sparse Russian desktop/mobile catalogs live in `localizations/` and are applied only to composed fork source. Planning validates English keys, placeholders and duplicate keys, and rejects a different existing translation. The plan and build fingerprint record each overlay digest. Missing or stale overlays block publication.
+
+## One source for macOS, Windows and Android
+
+Every run resolves the latest upstream main and live PR heads once, then shares that exact plan and Git bundle across all three required package jobs. Windows and Android are independently extracted and verified on fresh trusted runners before the common release can be published. A failure on any platform blocks publication and promotion; the status issue names every result. No partial release or older-upstream fallback is automatic.
+
+Windows uses the existing native build and electron-builder configuration with a fork-only unsigned x64 wrapper. No signing or publication secrets are available to the build jobs. Installer and ZIP must contain the same complete application tree, PE architecture, ProductVersion and embedded source receipt as the unpacked build. The updater preview guard also runs on Windows. Checksums are in `windows-SHA256SUMS`; use `Get-FileHash <download> -Algorithm SHA256` before installing the unsigned installer or extracting the portable ZIP. The macOS install script remains macOS-only.
+
+Android uses the existing Expo/Gradle release path with the committed mobile version/code and existing Expo debug certificate. Production signing requirements block this debug lane rather than being bypassed. Its APK manifest, ARM64 libraries, signing certificate, source receipt and digest are rechecked on a fresh Linux runner. Checksums are in `android-SHA256SUMS`. The shared desktop version and mobile version are recorded separately. Neither static package verification nor CI claims real-device acceptance.
+
+Replacement 36736 → 40148 adopts upstream account migration. The small `codex-selected-account-read.patch` retains only fail-closed unreadable Codex selection and its regression tests; Claude retains upstream behavior. The merged migration searches the target home first, preserving its existing rollout; absent targets still use the existing no-overwrite migration helper. Never-sent chats select their new home without requiring a saved rollout.

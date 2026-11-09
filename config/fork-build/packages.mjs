@@ -3,7 +3,16 @@ import { resolve, join } from 'node:path'
 import { git } from './composition.mjs'
 import { stagePreviewArchives, verifyStagedArchives } from '../scripts/fork-upstream-archives.mjs'
 
-const [command, input, location] = process.argv.slice(2)
+import { packageIdentity, writeJson } from './package-provenance.mjs'
+import { stageWindowsPackages, verifyWindowsPackages } from './windows-packages.mjs'
+import {
+  stampAndroidBuild,
+  stageAndroidPackage,
+  verifyAndroidPackage
+} from './android-packages.mjs'
+import { assembleReleasePackages } from './release-packages.mjs'
+
+const [command, input, location, extra, android] = process.argv.slice(2)
 const plan = JSON.parse(readFileSync(resolve(input), 'utf8'))
 if (!plan.result?.publishable || plan.error || plan.auditOnly || plan.reuse) {
   throw new Error('Plan is not eligible for packaging/publication')
@@ -46,7 +55,14 @@ if (command === 'prepare') {
     process.env.GITHUB_ENV,
     `ORCA_BUILD_COMMIT=${expected.commit}\nORCA_LOCAL_BUILD_VERSION=${expected.version}\n`
   )
-} else if (command === 'stage') {
+} else if (command === 'stamp-windows') {
+  writeJson(
+    join(resolve(location), '.git/orca-personal-build.json'),
+    packageIdentity(plan, 'win32', 'x64')
+  )
+} else if (command === 'stamp-android') {
+  stampAndroidBuild(plan, resolve(location))
+} else if (command === 'stage' || command === 'stage-windows' || command === 'stage-android') {
   const application = resolve(location)
   if (
     git(application, ['rev-parse', 'HEAD']) !== expected.commit ||
@@ -54,22 +70,33 @@ if (command === 'prepare') {
   ) {
     throw new Error('Build modified the frozen source')
   }
-  stagePreviewArchives({
-    app: join(application, 'dist/mac-arm64/Orca.app'),
-    dist: join(application, 'dist'),
-    directory: join(application, 'personal-packages'),
-    ...expected,
-    metadata: {
-      configurationCommit: plan.configuration,
-      forkMaster: plan.configuration,
-      upstreamMain: plan.upstream,
-      compositionTree: plan.result.tree,
-      fingerprint: plan.fingerprint,
-      developerIdSigned: false,
-      notarized: false,
-      updater: 'disabled for fork-preview versions'
-    }
-  })
+  if (command === 'stage-windows') {
+    stageWindowsPackages(plan, application, resolve(extra))
+  } else if (command === 'stage-android') {
+    stageAndroidPackage(plan, application)
+  } else
+    stagePreviewArchives({
+      app: join(application, 'dist/mac-arm64/Orca.app'),
+      dist: join(application, 'dist'),
+      directory: join(application, 'personal-packages'),
+      ...expected,
+      metadata: {
+        configurationCommit: plan.configuration,
+        forkMaster: plan.configuration,
+        upstreamMain: plan.upstream,
+        compositionTree: plan.result.tree,
+        fingerprint: plan.fingerprint,
+        developerIdSigned: false,
+        notarized: false,
+        updater: 'disabled for fork-preview versions'
+      }
+    })
+} else if (command === 'verify-windows') {
+  verifyWindowsPackages(plan, resolve(location), resolve(extra))
+} else if (command === 'verify-android') {
+  verifyAndroidPackage(plan, resolve(location))
+} else if (command === 'assemble-release') {
+  assembleReleasePackages(plan, resolve(location), resolve(extra), resolve(android))
 } else if (command === 'verify') {
   verifyStagedArchives(resolve(location), expected)
   const info = JSON.parse(readFileSync(join(location, 'build-info.json'), 'utf8'))
