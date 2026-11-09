@@ -13,6 +13,7 @@ import {
   type RuntimeDesktopPairingOffer
 } from './helpers/paired-electron-client'
 import { launchHeadlessPairedRuntimeHost } from './helpers/headless-paired-runtime-host'
+import { showWorkspaceSidebar } from './helpers/sidebar-project-dialog'
 
 async function interruptibleHost(offer: RuntimeDesktopPairingOffer) {
   const pairing = decodePairingOffer(offer.pairingUrl)
@@ -91,6 +92,7 @@ async function expectWorkspaceHostAppearance(
   disconnected: boolean,
   hostLabel?: string
 ) {
+  await showWorkspaceSidebar(page)
   const cards = page.locator('[data-worktree-card-surface="true"]')
   const card = (
     hostLabel ? cards.filter({ has: page.getByText(hostLabel, { exact: true }) }) : cards
