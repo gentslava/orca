@@ -255,7 +255,6 @@
       "turnLimitReached": "Достигнут предел ходов ({{count}})",
       "optionalNote": "Необязательная заметка обоим агентам",
       "sendResume": "Отправить и продолжить",
-      "linked": "Связан с",
       "paused": "На паузе",
       "endedShort": "Завершена",
       "workTogether": "Работать вместе…",

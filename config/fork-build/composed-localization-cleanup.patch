@@ -1,0 +1,120 @@
+diff --git a/mobile/src/i18n/locales/ru.json b/mobile/src/i18n/locales/ru.json
+index 89a96bed236..aebb0e0848a 100644
+--- a/mobile/src/i18n/locales/ru.json
++++ b/mobile/src/i18n/locales/ru.json
+@@ -36,7 +36,6 @@
+       "prMrLink": "Ссылка на PR/MR",
+       "project": "Проект",
+       "recent": "Недавние",
+-      "recentProjectOrderDescription": "Недавняя активность рабочих пространств",
+       "searchProjects": "Поиск проектов",
+       "searchProjectsPlaceholder": "Поиск проектов…",
+       "selectedCount": "{{count}} из {{total}}",
+diff --git a/src/renderer/src/i18n/en-runtime-required.json b/src/renderer/src/i18n/en-runtime-required.json
+index 358ab980c65..926f08a8c86 100644
+--- a/src/renderer/src/i18n/en-runtime-required.json
++++ b/src/renderer/src/i18n/en-runtime-required.json
+@@ -1586,12 +1586,12 @@
+         "couldNotStopTheAgent": "Couldn't stop the agent.",
+         "editSavedArguments": "Edit them in Settings > Agents > Arguments.",
+         "emptyMessage": "This message is empty, so it was not sent.",
++        "forkOriginalLatestOnly": "{{agent}} can only fork the latest response in the original chat. Open that chat and fork its latest response once it has finished.",
++        "forkOriginalLatestOnlyNamed": "{{agent}} can only fork the latest response in \"{{detail}}\". Open that chat and fork its latest response once it has finished.",
+         "forkOriginalMissing": "{{agent}} could not find this response in the original chat. Open it and fork from there.",
+-        "forkOriginalUnavailable": "{{agent}} cannot fork this response in the original chat. Open it and fork from there.",
+         "forkOriginalMissingNamed": "{{agent}} could not find this response in \"{{detail}}\". Open that chat and fork from there.",
++        "forkOriginalUnavailable": "{{agent}} cannot fork this response in the original chat. Open it and fork from there.",
+         "forkOriginalUnavailableNamed": "{{agent}} cannot fork this response in \"{{detail}}\". Open that chat and fork from there.",
+-        "forkOriginalLatestOnly": "{{agent}} can only fork the latest response in the original chat. Open that chat and fork its latest response once it has finished.",
+-        "forkOriginalLatestOnlyNamed": "{{agent}} can only fork the latest response in \"{{detail}}\". Open that chat and fork its latest response once it has finished.",
+         "fullAccessAsRoot": "{{agent}} won't use Full access while it runs as root. Choose another permission for {{agent}} in Settings → Agents for the computer running this chat, then start a new chat.",
+         "historyInOtherAccount": "This chat's history is in another Claude account. Switch back to that account to continue it.",
+         "historyTooLarge": "This conversation's history is too large to restore here.",
+@@ -1979,9 +1979,6 @@
+           "discarded_other": "Unsaved edits in {{count}} files will be discarded:"
+         }
+       }
+-    },
+-    "sessionLink": {
+-      "linked": "Linked with"
+     }
+   },
+   "dashboard": {
+diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
+index 4931f1fa6ae..dc3a59ec8d0 100644
+--- a/src/renderer/src/i18n/locales/en.json
++++ b/src/renderer/src/i18n/locales/en.json
+@@ -21614,7 +21614,6 @@
+       "endedShort": "Ended",
+       "waitingShort": "Waiting",
+       "title": "Work together",
+-      "linked": "Linked with",
+       "linkedAgent": "Linked with {{agent}} ({{role}})",
+       "roleReviewer": "reviewer",
+       "roleImplementer": "implementer",
+diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
+index 58b71f17677..568e58f8c80 100644
+--- a/src/renderer/src/i18n/locales/ru.json
++++ b/src/renderer/src/i18n/locales/ru.json
+@@ -980,7 +980,6 @@
+       "turnLimitReached": "Достигнут предел ходов ({{count}})",
+       "optionalNote": "Необязательная заметка обоим агентам",
+       "sendResume": "Отправить и продолжить",
+-      "linked": "Связан с",
+       "paused": "На паузе",
+       "endedShort": "Завершена",
+       "workTogether": "Работать вместе…",
+@@ -7621,7 +7620,6 @@
+         },
+         "StatsPane": {
+           "42d3e0bdf7": "Провайдер аналитики использования: {{value0}}",
+-          "c79f073d4c": "Аналитика использования",
+           "a58aba506f": "Создано PR",
+           "1c96f433e2": "Время работы агентов",
+           "9dbec9e675": "Запущено агентов",
+@@ -7634,27 +7632,7 @@
+           "trackingSince": "Учёт с {{value0}}"
+         },
+         "UsageOverviewPane": {
+-          "33f7b043d2": "Провайдеры",
+-          "70f36452d4": "Доля кеша",
+-          "327603fe8b": "Активные дни",
+-          "0eaf937335": "Оценка стоимости",
+-          "3887b94ce5": "Всего токенов",
+-          "2d13e57f72": "Включить OpenCode",
+-          "2f1ee2878b": "Включить Codex",
+-          "0ea0cae435": "Включить Claude",
+-          "6c00c46815": "Включите провайдера для сканирования локальных журналов агентов и общего учёта токенов.",
+-          "49405ccc8d": "Начать учёт токенов",
+-          "ca6bc5fded": "Обновить",
+-          "e06d1baf5c": "Обновить обзор использования",
+-          "c760c481c5": "Обзор использования",
+-          "55c910f4f1": "— тарифы некоторых моделей недоступны",
+-          "enableMuse": "Включить Muse",
+-          "noLocalUsageYet": "Локальные данные Claude, Codex, OpenCode и Muse пока не найдены. Обзор заполнится, когда следующая сессия агента запишет журнал токенов.",
+-          "providersEnabledWithData": "Включено: {{enabled}} - с данными: {{withData}}",
+-          "sessionCount_one": "{{formatted}} сессия",
+-          "sessionCount_few": "{{formatted}} сессии",
+-          "sessionCount_many": "{{formatted}} сессий",
+-          "sessionCount_other": "{{formatted}} сессии"
++          "3887b94ce5": "Всего токенов"
+         },
+         "share": {
+           "card": {
+diff --git a/src/shared/plugins/languages/protected-copy-keys.json b/src/shared/plugins/languages/protected-copy-keys.json
+index 7fe537c088b..96bb708cfc0 100644
+--- a/src/shared/plugins/languages/protected-copy-keys.json
++++ b/src/shared/plugins/languages/protected-copy-keys.json
+@@ -715,12 +715,6 @@
+     "components.native-chat.notices.details",
+     "components.native-chat.prompt.collapse",
+     "components.native-chat.prompt.expand",
+-    "components.native-chat.question.next",
+-    "components.native-chat.question.otherPlaceholder",
+-    "components.native-chat.question.send",
+-    "components.native-chat.question.sending",
+-    "components.native-chat.question.skip",
+-    "components.native-chat.question.step",
+     "components.native-chat.wrapLines",
+     "components.newWorkspace.directSetup.askRunDefaultTabs",
+     "components.newWorkspace.directSetup.askRunSetup",

@@ -61,7 +61,9 @@
     "project-start-actions.patch",
     "composed-ci-contracts.patch",
     "codex-selected-account-read.patch",
-    "composed-source-modules.patch"
+    "composed-source-modules.patch",
+    "composed-reactive-copy.patch",
+    "composed-localization-cleanup.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",

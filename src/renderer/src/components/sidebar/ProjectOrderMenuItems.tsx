@@ -2,10 +2,11 @@ import { useAppStore } from '@/store'
 import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
 import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { translate } from '@/i18n/i18n'
+import { useTranslate } from '@/i18n/use-translate'
 import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
 
 export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
+  const t = useTranslate()
   const order = useAppStore((state) => state.projectOrderBy)
   const setOrder = useAppStore((state) => state.setProjectOrderBy)
   const supported = usePersonalProjectOrderSupported()
@@ -32,7 +33,7 @@ export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={6}>
             {!supported && option.id === 'recent'
-              ? translate(
+              ? t(
                   'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
                   'Most recent workspace activity'
                 )

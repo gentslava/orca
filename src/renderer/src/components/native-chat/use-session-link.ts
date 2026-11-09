@@ -10,7 +10,8 @@ import {
   SESSION_LINK_CAPABILITY
 } from '../../../../shared/session-link'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
-import { translate as t } from '@/i18n/i18n'
+import { useTranslate } from '@/i18n/use-translate'
+import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
 import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
 import { structuredAgentSessionHostSupports } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
 
@@ -21,6 +22,8 @@ const Candidates = z.object({
 })
 
 export function useSessionLink(sessionId: string, target: RuntimeClientTarget, open: boolean) {
+  const t = useTranslate()
+
   const [supported, setSupported] = useState(false)
   const [policySupported, setPolicySupported] = useState(false)
   const [snapshot, setSnapshot] = useState<SessionLinkSnapshot | null>(null)
@@ -125,12 +128,14 @@ export function useSessionLink(sessionId: string, target: RuntimeClientTarget, o
         }
       }
     }
-    void read()
-    const timer = window.setInterval(() => void read(), open ? 1500 : 5000)
+    const stopPolling = installWindowVisibilityInterval({
+      run: () => void read(),
+      intervalMs: open ? 1500 : 5000
+    })
     return () => {
       cancelled = true
       invalidateReads()
-      window.clearInterval(timer)
+      stopPolling()
     }
   }, [open, refresh, supported, invalidateReads])
 

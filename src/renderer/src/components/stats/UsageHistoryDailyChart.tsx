@@ -11,7 +11,7 @@ import {
 } from './usage-history-chart-model'
 import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
 import { formatUsageDayLabel } from './usage-formatters'
-import { getIntlLocale, translate } from '@/i18n/i18n'
+import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
 import { getAgentLabel } from '@/lib/agent-catalog'
 
 export function UsageHistoryDailyChart({
@@ -27,6 +27,8 @@ export function UsageHistoryDailyChart({
   onDay: (day: string) => void
   today?: string
 }): React.JSX.Element {
+  const t = useTranslate()
+  const intlLocale = useIntlLocale()
   const [metric, setMetric] = useState<'tokens' | 'cost'>('tokens')
   const [hoveredDay, setHoveredDay] = useState<string | null>(null)
   const [focusedDay, setFocusedDay] = useState<string | null>(null)
@@ -68,8 +70,8 @@ export function UsageHistoryDailyChart({
     metric === 'tokens'
       ? amount === null
         ? '—'
-        : formatUsageTokens(amount)
-      : formatUsageCost(amount)
+        : formatUsageTokens(amount, intlLocale)
+      : formatUsageCost(amount, t, intlLocale)
   const tickIndices = [
     ...new Set([
       0,
@@ -104,28 +106,28 @@ export function UsageHistoryDailyChart({
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h4 className="text-sm font-medium text-foreground">
-          {translate('stats.usage.daily.title', 'Daily usage')}
+          {t('stats.usage.daily.title', 'Daily usage')}
         </h4>
         <SettingsSegmentedControl<'tokens' | 'cost'>
           value={metric}
           onChange={setMetric}
-          ariaLabel={translate('stats.usage.daily.metric', 'Chart metric')}
+          ariaLabel={t('stats.usage.daily.metric', 'Chart metric')}
           options={[
-            { value: 'tokens', label: translate('stats.usage.tokens', 'Tokens') },
-            { value: 'cost', label: translate('stats.usage.daily.cost', 'API estimate') }
+            { value: 'tokens', label: t('stats.usage.tokens', 'Tokens') },
+            { value: 'cost', label: t('stats.usage.daily.cost', 'API estimate') }
           ]}
           size="sm"
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        {translate(
+        {t(
           'stats.usage.daily.description',
           'Select a day to inspect its usage. Days without recorded usage are shown at zero.'
         )}
       </p>
       <div
         className="flex flex-wrap gap-x-5 gap-y-2 text-xs"
-        aria-label={translate('stats.usage.daily.providers', 'Provider series')}
+        aria-label={t('stats.usage.daily.providers', 'Provider series')}
       >
         {series.map(({ provider }) => (
           <span key={provider} className="inline-flex items-center gap-2">
@@ -245,16 +247,16 @@ export function UsageHistoryDailyChart({
                   aria-pressed={selectedDay === day}
                   aria-label={
                     metric === 'tokens'
-                      ? translate('stats.usage.daily.inspect', '{{day}}: {{tokens}} tokens', {
+                      ? t('stats.usage.daily.inspect', '{{day}}: {{tokens}} tokens', {
                           day,
-                          tokens: (usage?.totalTokens ?? 0).toLocaleString(getIntlLocale())
+                          tokens: (usage?.totalTokens ?? 0).toLocaleString(intlLocale)
                         })
-                      : translate(
+                      : t(
                           'stats.usage.daily.inspectCost',
                           '{{day}}: {{cost}} API-equivalent estimate',
                           {
                             day,
-                            cost: `${formatUsageCost(usage ? usage.apiEquivalentCostUsd : 0)}${usage?.hasPartialCost ? ' *' : ''}`
+                            cost: `${formatUsageCost(usage ? usage.apiEquivalentCostUsd : 0, t, intlLocale)}${usage?.hasPartialCost ? ' *' : ''}`
                           }
                         )
                   }
@@ -269,7 +271,9 @@ export function UsageHistoryDailyChart({
           >
             {tickIndices.map((index) =>
               days[index] ? (
-                <span key={index}>{formatUsageDayLabel(days[index].day, range === 'all')}</span>
+                <span key={index}>
+                  {formatUsageDayLabel(days[index].day, range === 'all', intlLocale)}
+                </span>
               ) : null
             )}
           </div>
@@ -281,7 +285,7 @@ export function UsageHistoryDailyChart({
           data-testid="usage-history-readout"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-medium">{formatUsageDayLabel(active.day, true)}</span>
+            <span className="font-medium">{formatUsageDayLabel(active.day, true, intlLocale)}</span>
             <span className="tabular-nums">
               {formatAmount(
                 metric === 'tokens'
@@ -307,8 +311,8 @@ export function UsageHistoryDailyChart({
                   </span>
                   <span className="tabular-nums text-muted-foreground">
                     {point?.amount === null
-                      ? translate('stats.usage.daily.unpriced', 'Price unavailable')
-                      : `${metric === 'tokens' ? (point?.amount ?? 0).toLocaleString(getIntlLocale()) : formatUsageCost(point?.amount ?? 0)}${metric === 'cost' && point?.usage?.hasPartialCost ? ' *' : ''}`}
+                      ? t('stats.usage.daily.unpriced', 'Price unavailable')
+                      : `${metric === 'tokens' ? (point?.amount ?? 0).toLocaleString(intlLocale) : formatUsageCost(point?.amount ?? 0, t, intlLocale)}${metric === 'cost' && point?.usage?.hasPartialCost ? ' *' : ''}`}
                   </span>
                 </span>
               )
@@ -318,7 +322,7 @@ export function UsageHistoryDailyChart({
       ) : null}
       {partialCost ? (
         <p role="status" className="text-xs text-muted-foreground">
-          {translate(
+          {t(
             'stats.usage.daily.partialCost',
             'Some usage has no recorded price. The chart shows the priced portion; * marks a partial estimate. This is not a billing statement.'
           )}
