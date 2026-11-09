@@ -98,15 +98,17 @@ function Probe({
   limit,
   paths,
   showList = false,
+  includeStructuredSessions = false,
   noAgentsSelected = false
 }: {
   host: ExecutionHostScope
   limit: number
   paths: readonly string[]
   showList?: boolean
+  includeStructuredSessions?: boolean
   noAgentsSelected?: boolean
 }): React.JSX.Element | null {
-  latest = useAiVaultSessionRefresh(paths, host, limit)
+  latest = useAiVaultSessionRefresh(paths, host, limit, false, includeStructuredSessions)
   if (!showList) {
     return null
   }
@@ -207,6 +209,53 @@ afterEach(() => {
 })
 
 describe('conditional panel publication', () => {
+  it('publishes usable chat records before the blocked provider history and then enriches them', async () => {
+    const catalog = {
+      ...first,
+      includesStructuredSessions: true as const,
+      sessions: [
+        {
+          ...session,
+          id: 'local:structured:owner',
+          executionHostId: 'local' as const,
+          title: 'Saved chat',
+          filePath: '',
+          source: 'structured-record' as const,
+          structuredSession: { sessionId: 'owner', workspaceId: 'workspace' }
+        }
+      ]
+    }
+    let deliver: (value: AiVaultListResult) => void = () => {}
+    list.mockResolvedValueOnce(catalog).mockImplementationOnce(
+      () =>
+        new Promise<AiVaultListResult>((resolve) => {
+          deliver = resolve
+        })
+    )
+    await act(async () =>
+      root?.render(<Probe host="all" limit={250} paths={['/repo']} includeStructuredSessions />)
+    )
+    await settle()
+    expect(latest?.sessions[0]?.title).toBe('Saved chat')
+    expect(latest?.scopePending).toBe(false)
+    expect(latest?.loading).toBe(false)
+    expect(list.mock.calls[0]?.[0]).toMatchObject({
+      structuredOnly: true,
+      executionHostScope: 'local'
+    })
+    expect(list.mock.calls[1]?.[0]).toMatchObject({ executionHostScope: 'all' })
+    expect(list.mock.calls[1]?.[0]).not.toHaveProperty('structuredOnly')
+    await act(async () =>
+      deliver({
+        ...catalog,
+        sessions: [{ ...catalog.sessions[0], filePath: '/session.jsonl', title: 'Enriched chat' }]
+      })
+    )
+    await settle()
+    expect(latest?.sessions[0]?.title).toBe('Enriched chat')
+    expect(latest?.sessions[0]?.filePath).toBe('/session.jsonl')
+  })
+
   it('keeps rows and updates the proof even when React reuses the old result identity', async () => {
     await render()
     const original = latest?.scanResult
