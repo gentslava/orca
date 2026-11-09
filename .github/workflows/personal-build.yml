@@ -62,7 +62,7 @@ jobs:
   macos:
     needs: plan
     if: needs.plan.outputs.build == 'true'
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 120
     env:
       ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
@@ -366,7 +366,7 @@ jobs:
   publish:
     needs: [plan, macos, windows, android, verify-windows, verify-android]
     if: needs.macos.result == 'success' && needs.verify-windows.result == 'success' && needs.verify-android.result == 'success'
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 25
     permissions:
       contents: write
