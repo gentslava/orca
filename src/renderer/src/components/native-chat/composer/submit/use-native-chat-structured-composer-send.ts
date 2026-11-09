@@ -13,7 +13,10 @@ import {
   promptHasInteractionModeSkill,
   promptSkillRefs
 } from '../editor/native-chat-prompt-document'
-import type { StructuredAgentSessionAttachmentPreparation } from '../../session/structured/delivery/structured-agent-session-send-slot'
+import type {
+  StructuredAgentSessionAttachmentPreparation,
+  StructuredAgentSessionSendRequest
+} from '../../session/structured/delivery/structured-agent-session-send-slot'
 import { useCallback } from 'react'
 import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
 import {
@@ -43,7 +46,6 @@ import {
   admitNativeChatPastedText,
   projectNativeChatPastedText
 } from '../../paste/native-chat-composer-pasted-text-references'
-import type { StructuredAgentSessionSendRequest } from '../../session/structured/delivery/structured-agent-session-send-slot'
 import { structuredAgentSessionRequestedDelivery } from '../../queue/structured-agent-session-queue-request'
 
 export type UseNativeChatStructuredComposerSendArgs = {
@@ -226,6 +228,14 @@ export function useNativeChatStructuredComposerSend({
         setCaret(composing ? 0 : left.text.length)
         clearSkillOrigin()
       }
+      // A refused command returns only to an empty composer; a lone command typed since would be replaced.
+      const recoversDraft = () => {
+        const current = readNativeChatComposerDraft(draftScopeKey)
+        return (
+          consumed &&
+          (!hostCommand || (current.text.trim() === '' && (current.images?.length ?? 0) === 0))
+        )
+      }
       const prepareAttachments: StructuredAgentSessionAttachmentPreparation | undefined =
         stagedInput ? (input) => stagedInput.prepare(input, structuredTransport) : undefined
       return dispatchNativeChatStructuredComposerText(
@@ -252,7 +262,7 @@ export function useNativeChatStructuredComposerSend({
             structuredTransport.onError(error, refusedWhile ? { refusedWhile } : undefined)
           }
           if (!accepted) {
-            finishNativeChatComposerSubmission(draftScopeKey, submission, consumed)
+            finishNativeChatComposerSubmission(draftScopeKey, submission, recoversDraft())
             return false
           }
           transferred = true
@@ -265,7 +275,7 @@ export function useNativeChatStructuredComposerSend({
           return true
         })
         .catch((error) => {
-          finishNativeChatComposerSubmission(draftScopeKey, submission, consumed)
+          finishNativeChatComposerSubmission(draftScopeKey, submission, recoversDraft())
           if (hostCommand && !isCurrent()) {
             return false
           }

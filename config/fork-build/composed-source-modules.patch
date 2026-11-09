@@ -169,12 +169,12 @@ index 2b1e7e6aab2..2a8bbcf55f2 100644
  import { workspaceRenameDraftKey } from './workspace-rename-sheet'
 -import { projectGroupHeaderIndent } from '../worktree/project-group-indent'
  import type { HostScreenController } from './use-host-screen-controller'
- 
+
  export function HostWorkspaceList({
 @@ -362,97 +349,6 @@ function unsavedRename(
    return draft?.trim() && draft !== row.displayName ? draft : undefined
  }
- 
+
 -// Takes the header's own fields, not the section, so a poll that rebuilds sections skips unchanged headers.
 -const HostSectionHeader = memo(function HostSectionHeader(props: {
 -  title: string
@@ -277,7 +277,7 @@ index 33bc9878021..6d0c3ffa5b3 100644
 +import { workspaceRename } from './workspace-rename-mutation'
  import type { HostWorktreeActionsArgs } from './host-worktree-actions-contract'
  import { PERSONAL_PROJECT_ORDER_CAPABILITY } from '../../../src/shared/personal-project-order'
- 
+
 @@ -11,47 +12,20 @@ import { ORCA_SIDEBAR_INPUTS_IS_MAIN } from '../../../src/shared/sidebar-inputs-
  import { floatingWorkspaceSessionPath } from '../session/floating-workspace'
  import { holdSessionLeave } from '../session/session-leave-guard'
@@ -325,7 +325,7 @@ index 33bc9878021..6d0c3ffa5b3 100644
 -  confirm: sendWorkspaceRename
 -})
 +import { useHostMutation, type HostMutationPhase } from '../query/host-mutation'
- 
+
  export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
    const {
 diff --git a/mobile/src/host-screen/workspace-rename-mutation.ts b/mobile/src/host-screen/workspace-rename-mutation.ts
@@ -549,11 +549,11 @@ index 8b15bdd69c7..7de46b3bd62 100644
 @@ -41,28 +31,9 @@ const FETCH_REACH_SCREENS = 10
  // Wait for scroll and touch rest before corrections so iOS momentum is not interrupted.
  const REST_MS = 300
- 
+
 -type Row = { item: NativeChatMessage; index: number }
  type Scroller = readingPlace.MobileNativeChatScrollNode & EventTarget
  type ReadScroller = () => Scroller | null
- 
+
 -type Props = {
 -  roots?: MobileNativeChatScrollRoots
 -  ref: Ref<MobileNativeChatListHandle>
@@ -583,7 +583,7 @@ index 8b15bdd69c7..7de46b3bd62 100644
 +}: MobileNativeChatPageListProps): ReactElement {
    const scroll = useRef<ScrollView>(null)
    const scroller = useCallback<ReadScroller>(() => scroll.current?.getScrollableNode() ?? null, [])
- 
+
 diff --git a/mobile/src/session/native-chat/transcript/mobile-native-chat-message-props.ts b/mobile/src/session/native-chat/transcript/mobile-native-chat-message-props.ts
 new file mode 100644
 index 00000000000..851c0209b00
@@ -683,7 +683,7 @@ index 59db623f522..42b54b1efe2 100644
 @@ -19,26 +16,9 @@ import { nativeChatPendingSendPlacement } from '../../../../src/shared/native-ch
  import { mobileNativeChatScopeKey } from './mobile-native-chat-scope-key'
  import { useMobileNativeChatCiResultLines } from '../use-mobile-native-chat-ci-result-lines'
- 
+
 -export function useMobileNativeChatController(args: {
 -  client: RpcClient | null
 -  /** The route's paired host; differs from `client` only when a server executes the workspace. */
@@ -754,7 +754,7 @@ index 760634af447..5002571f34c 100644
 @@ -46,46 +37,9 @@ export type StructuredMobileSendAttachment =
    | (StructuredAgentSessionAttachment & { kind?: 'image'; id?: string })
    | { kind: 'file'; id?: string; path: string }
- 
+
 -export function useMobileStructuredSendWithOutcome(args: {
 -  agent: string | null
 -  client: RpcClient | null
@@ -817,7 +817,7 @@ index f03138dd572..c5f893152fa 100644
 @@ -6,7 +6,6 @@ import { structuredAgentStartJournal } from '../acquisition/structured-agent-sta
  import { StructuredConversationCommandController as CommandController } from '../operations/structured-conversation-command-controller'
  // Serialize durable mutations per conversation; open at rest and start a child only when work needs it.
- 
+
 -import type { AgentSessionSubscribeInput } from '../publication/subscribers/agent-session-subscribe-input'
  import { createStartupRecovery } from '../recovery/structured-agent-session-restart-reconcile'
  import { StructuredAgentSessionTaskQueue } from './structured-agent-session-task-queue'
@@ -850,12 +850,12 @@ index f03138dd572..c5f893152fa 100644
        context: () => this.lifetimeContext(),
        sessions: this.sessions,
 @@ -328,7 +326,7 @@ export class StructuredAgentSessionHost {
- 
+
    observeJournalPublications = this.clientDelivery.observeJournalPublications
- 
+
 -  subscribe = (input: AgentSessionSubscribeInput) => this.backgroundTasks.subscribe(input)
 +  subscribe = (input: HostTypes.SubscribeInput) => this.backgroundTasks.subscribe(input)
- 
+
    settleLateDispatch = this.mutations.settleLateDispatch
    /** Republish row-free changes to held work. */
 diff --git a/src/main/native-chat/agent-session-wire/operations/structured-agent-session-chat-stop.ts b/src/main/native-chat/agent-session-wire/operations/structured-agent-session-chat-stop.ts
@@ -866,7 +866,7 @@ index 3dd0d7d1f8f..caa05424291 100644
 +import { agentSessionMutationAdmitsNow } from './structured-agent-session-mutation-admits-now'
  // Atomically accept Stop/withdrawals/receipt before acting on the captured target.
  // Queue session-ending wind-down in the mutation’s tick; saved failures answer from the receipt.
- 
+
 @@ -291,3 +292,25 @@ export function mutateWithChatStop<TValue>(
    void shutdown.catch(logChildEnd)
    return result
@@ -921,7 +921,7 @@ index 4138fd99f42..06129cf82b2 100644
 @@ -211,28 +205,6 @@ export function cancelStructuredAgentSessionTurn(
    )
  }
- 
+
 -/** Abort unnamed Stop’s startup waits immediately; named stale turns must leave newer starts alone. */
 -function abortProviderWaitForStop(
 -  context: StructuredAgentSessionMutationContext,
@@ -1048,7 +1048,7 @@ index 599d8ce56cd..71f0c8b9e6c 100644
 @@ -59,19 +54,12 @@ import {
  import { useNativeChatReaderScrollInput } from './viewport/scroll/native-chat-reader-scroll-input'
  import { useNativeChatMessageListHandle } from './messages/actions/use-native-chat-reveal-latest'
- 
+
 -import type {
 -  AgentJournalRenderItem,
 -  AgentJournalSubmission
@@ -1062,7 +1062,7 @@ index 599d8ce56cd..71f0c8b9e6c 100644
  import { transcriptTailRow } from './conversation/slots/native-chat-transcript-tail-row'
  import { useNativeChatInlineSubagentChoices } from './native-chat-child-navigation'
 -import type { NativeChatAwaitingInput } from '../../../../shared/native-chat/native-chat-terminal-turn'
- 
+
  export function NativeChatMessageList({
    ref,
 @@ -93,36 +81,7 @@ export function NativeChatMessageList({
@@ -1178,7 +1178,7 @@ index 059eb30b7a6..62e286c5f37 100644
 -    },
 -    [commandMarkerScope]
 -  )
- 
+
    const { launchPromptMessage, sessionAfterCommandBoundaries } = useNativeChatDeliveryProjection(
      paneLaunchPrompt,
      session,
@@ -1191,7 +1191,7 @@ index 059eb30b7a6..62e286c5f37 100644
 @@ -228,40 +202,15 @@ export function NativeChatResolvedView({
      composerReady: composerReady && childNavigator.child === null
    })
- 
+
 -  const { pending } = delivery
 -  const pendingMessages = useMemo(
 -    () => pendingSendsAsMessages(pending, sessionAfterCommandBoundaries.messages, sendWorkingEpoch),
@@ -1236,7 +1236,7 @@ index 059eb30b7a6..62e286c5f37 100644
 -  }, [sessionAfterCommandBoundaries, pending, pendingMessages, commandMarkers, streamingText])
    // Include pending sends when selecting view state so the first echo leaves the empty screen immediately.
    const viewState = selectNativeChatViewState(sessionWithPending)
- 
+
 diff --git a/src/renderer/src/components/native-chat/composer/NativeChatComposerPane.tsx b/src/renderer/src/components/native-chat/composer/NativeChatComposerPane.tsx
 index e1ee6a1f834..79a3ae27edc 100644
 --- a/src/renderer/src/components/native-chat/composer/NativeChatComposerPane.tsx
@@ -1287,13 +1287,13 @@ index e1ee6a1f834..79a3ae27edc 100644
 @@ -135,10 +130,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
        structuredWorktreeId: structuredTransport?.worktreeId
      })
- 
+
 -    const resolveTarget = useCallback(
 -      () => (targetPtyId ? { ptyId: targetPtyId } : null),
 -      [targetPtyId]
 -    )
 +    const resolveTarget = useNativeChatComposerTarget(targetPtyId)
- 
+
      const attachments = useNativeChatComposerAttachments({
        attachmentScopeKey: draftScopeKey,
 @@ -412,15 +404,11 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
@@ -1324,13 +1324,13 @@ index 9d93042109c..02311985072 100644
 @@ -44,7 +44,10 @@ const mocks = vi.hoisted(() => {
    return Object.assign(captured, fns, { sendNativeChatTypedCommand: vi.fn() })
  })
- 
+
 -vi.mock('./NativeChatComposerWorkspace', () => ({ NativeChatComposerWorkspace: () => null }))
 +vi.mock('./NativeChatComposerWorkspace', () => ({
 +  NativeChatComposerWorkspace: () => null,
 +  nativeChatComposerWorkspaceFooter: () => undefined
 +}))
- 
+
  vi.mock('../../../../store/index', () => {
    const state = {
 diff --git a/src/renderer/src/components/native-chat/composer/controls/NativeChatComposerWorkspace.tsx b/src/renderer/src/components/native-chat/composer/controls/NativeChatComposerWorkspace.tsx
@@ -1379,7 +1379,7 @@ index 4a76011e5ad..27060e9608a 100644
 @@ -1,3 +1,4 @@
 +import { useCallback } from 'react'
  import { isRemoteRuntimePtyId } from '../../../../../../shared/remote-runtime/remote-runtime-pty-id'
- 
+
  export type NativeChatResolvedTarget = {
 @@ -10,3 +11,7 @@ export type NativeChatAfterStopSend = 'queue' | 'send'
  export function nativeChatComposerTargetIsRemote(ptyId: string | null): boolean {
@@ -1395,27 +1395,51 @@ index f4fc0f9adcd..045110197f5 100644
 +++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
 @@ -9,7 +9,8 @@ import type { NativeChatStructuredComposerTransport } from './native-chat-struct
  import type * as RemoteRuntimePtyIdModule from '../../../../../../shared/remote-runtime/remote-runtime-pty-id'
- 
+
  vi.mock('../controls/NativeChatComposerWorkspace', () => ({
 -  NativeChatComposerWorkspace: () => null
 +  NativeChatComposerWorkspace: () => null,
 +  nativeChatComposerWorkspaceFooter: () => undefined
  }))
- 
+
  vi.mock('@/i18n/i18n', () => ({
+diff --git a/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts b/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
+index 119c489c5a4..495d01ea417 100644
+--- a/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
++++ b/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
+@@ -13,7 +13,10 @@ import {
+   promptHasInteractionModeSkill,
+   promptSkillRefs
+ } from '../editor/native-chat-prompt-document'
+-import type { StructuredAgentSessionAttachmentPreparation } from '../../session/structured/delivery/structured-agent-session-send-slot'
++import type {
++  StructuredAgentSessionAttachmentPreparation,
++  StructuredAgentSessionSendRequest
++} from '../../session/structured/delivery/structured-agent-session-send-slot'
+ import { useCallback } from 'react'
+ import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
+ import {
+@@ -43,7 +46,6 @@ import {
+   admitNativeChatPastedText,
+   projectNativeChatPastedText
+ } from '../../paste/native-chat-composer-pasted-text-references'
+-import type { StructuredAgentSessionSendRequest } from '../../session/structured/delivery/structured-agent-session-send-slot'
+ import { structuredAgentSessionRequestedDelivery } from '../../queue/structured-agent-session-queue-request'
+
+ export type UseNativeChatStructuredComposerSendArgs = {
 diff --git a/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx b/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
 index 181af6bfdfe..b2efce5f05b 100644
 --- a/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
 +++ b/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
 @@ -11,7 +11,8 @@ import type * as nativeChatAgentProfiles from '../../../../../shared/native-chat
  import type * as RemoteRuntimePtyIdModule from '../../../../../shared/remote-runtime/remote-runtime-pty-id'
- 
+
  vi.mock('../composer/controls/NativeChatComposerWorkspace', () => ({
 -  NativeChatComposerWorkspace: () => null
 +  NativeChatComposerWorkspace: () => null,
 +  nativeChatComposerWorkspaceFooter: () => undefined
  }))
- 
+
  vi.mock('@/i18n/i18n', () => ({
 diff --git a/src/renderer/src/components/native-chat/native-chat-message-list-props.ts b/src/renderer/src/components/native-chat/native-chat-message-list-props.ts
 new file mode 100644
@@ -1475,13 +1499,13 @@ index 81b1d096434..5438d0d4aa8 100644
 +++ b/src/renderer/src/components/native-chat/paste/NativeChatComposer.paste-remount.test.tsx
 @@ -37,7 +37,8 @@ const mocks = vi.hoisted(() => {
  })
- 
+
  vi.mock('../composer/controls/NativeChatComposerWorkspace', () => ({
 -  NativeChatComposerWorkspace: () => null
 +  NativeChatComposerWorkspace: () => null,
 +  nativeChatComposerWorkspaceFooter: () => undefined
  }))
- 
+
  vi.mock('../../../store/index', () => {
 diff --git a/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-command-markers.ts b/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-command-markers.ts
 new file mode 100644
@@ -1541,7 +1565,7 @@ index 2e9d71a09dc..e344faa862a 100644
 +  commandMarkersAsMessages,
    type NativeChatCommandMarker
  } from './native-chat-command-marker'
- 
+
  export function useNativeChatDeliveryProjection(
    paneLaunchPrompt: NativeChatLaunchPrompt | null,
    session: ReturnType<typeof useNativeChatRetainedSession>,
@@ -1644,9 +1668,9 @@ index 1f8bf7881c9..ce25f01fb53 100644
  import { useCallback, useEffect, useMemo } from 'react'
  import type React from 'react'
 @@ -32,26 +33,6 @@ const readLiveRepos = (): readonly Repo[] => useAppStore.getState().repos
- 
+
  export type WorktreeSidebarHeaderDrag = ReturnType<typeof useWorktreeSidebarHeaderDrag>
- 
+
 -function indexById(byBucket: ReadonlyMap<string, readonly string[]>): Map<string, number> {
 -  const map = new Map<string, number>()
 -  for (const ids of byBucket.values()) {
