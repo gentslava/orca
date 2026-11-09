@@ -1,6 +1,5 @@
 import { EventEmitter } from 'node:events'
 import type { MessagePortMain } from 'electron'
-import { speechEngineForModelFiles } from '../../shared/speech-model-engine'
 import { OFFLINE_DECODE_CHUNK_SECONDS } from './stt-offline-audio-chunker'
 import type { SttWorkerProcess, SttWorkerRequest } from './stt-worker-process'
 
@@ -13,6 +12,7 @@ export type SttGpuPolicy = {
 }
 
 type Feed = Extract<SttWorkerRequest, { type: 'feed' }>
+type Open = Extract<SttWorkerRequest, { type: 'open' }>
 type ChildMessage =
   | { type: 'chunk'; streamId: string; text: string; samples: number }
   | {
@@ -24,6 +24,7 @@ type ChildMessage =
 
 /** A dictation's audio the GPU has not decoded yet, kept for a CPU replay. */
 type StreamBacklog = {
+  open: Open | null
   feeds: Feed[]
   /** Input samples before feeds[0], in the stream's own count. */
   start: number
@@ -44,7 +45,6 @@ class SttCpuFallbackWorker extends EventEmitter implements SttWorkerProcess {
   private detachChild: () => void = () => undefined
   private cpuOnly: boolean
   private init: Extract<SttWorkerRequest, { type: 'init' }> | null = null
-  private transcribeCpp = false
   private ready = false
   private exitRequested = false
   private markOnCpuReady = false
@@ -63,7 +63,8 @@ class SttCpuFallbackWorker extends EventEmitter implements SttWorkerProcess {
   postMessage(msg: SttWorkerRequest): void {
     if (msg.type === 'init') {
       this.init = msg
-      this.transcribeCpp = speechEngineForModelFiles(msg.files) === 'transcribe-cpp'
+    } else if (msg.type === 'open' && this.canFallBack()) {
+      this.backlog(msg.streamId).open = msg
     } else if (msg.type === 'feed' && this.canFallBack()) {
       const stream = this.backlog(msg.streamId)
       stream.feeds.push(msg)
@@ -87,13 +88,13 @@ class SttCpuFallbackWorker extends EventEmitter implements SttWorkerProcess {
   }
 
   private canFallBack(): boolean {
-    return this.transcribeCpp && !this.cpuOnly && !this.exitRequested
+    return this.init !== null && !this.cpuOnly && !this.exitRequested
   }
 
   private backlog(streamId: string): StreamBacklog {
     let stream = this.streams.get(streamId)
     if (!stream) {
-      stream = { feeds: [], start: 0, seconds: 0, pending: null }
+      stream = { open: null, feeds: [], start: 0, seconds: 0, pending: null }
       this.streams.set(streamId, stream)
     }
     return stream
@@ -174,6 +175,9 @@ class SttCpuFallbackWorker extends EventEmitter implements SttWorkerProcess {
     for (const [streamId, stream] of this.streams) {
       // A canceled dictation wants no text, so its audio is not replayed.
       if (stream.pending !== 'discard') {
+        if (stream.open) {
+          this.child.postMessage(stream.open)
+        }
         for (const feed of stream.feeds) {
           this.child.postMessage(feed)
         }

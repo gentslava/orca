@@ -20,7 +20,6 @@ import {
   teardownIdleSttEngine,
   teardownSttEngine
 } from './stt-session-stop'
-import { speechEngineForModelFiles } from '../../shared/speech-model-engine'
 import { getSpeechEngineModulesDir, LOCAL_SPEECH_UNAVAILABLE_ERROR } from './stt-worker-paths'
 import {
   attachSttWorkerLifecycle,
@@ -34,7 +33,7 @@ export async function startSttDictation(
   state: SttSessionState,
   modelId: string,
   sink: SttEventSink,
-  hotwordsFilePath?: string,
+  vocabulary: string[] = [],
   owner = 'desktop',
   language?: string
 ): Promise<void> {
@@ -49,7 +48,7 @@ export async function startSttDictation(
   }
   if (existing?.phase === 'stopping') {
     await existing.stopPromise
-    return startSttDictation(state, modelId, sink, hotwordsFilePath, owner, language)
+    return startSttDictation(state, modelId, sink, vocabulary, owner, language)
   }
 
   const manifest = getCatalogModel(modelId)
@@ -59,7 +58,7 @@ export async function startSttDictation(
   const config: SttRecognizerConfig | null =
     manifest.provider !== 'local'
       ? null
-      : { modelId, hotwordsFilePath, language: engineDictationLanguage(manifest, language) }
+      : { modelId, language: engineDictationLanguage(manifest, language) }
   if (state.sessions.size >= MAX_STT_SESSIONS) {
     throw new Error('dictation_session_limit')
   }
@@ -73,6 +72,7 @@ export async function startSttDictation(
     sink,
     config,
     modelId,
+    vocabulary,
     engine: null,
     cloud: null,
     phase: 'starting',
@@ -154,16 +154,27 @@ async function acquireSttEngine(
     // Bound in the same step it is chosen, so an idle teardown never sees it unused.
     if (current && sameSttRecognizerConfig(current, config)) {
       clearSttIdleTeardownTimer(state)
-      session.engine = current
-      return current
+      return bindSttEngine(session, current)
     }
     if (!current) {
-      session.engine = spawnSttEngine(state, config, manifest)
-      return session.engine
+      return bindSttEngine(session, spawnSttEngine(state, config, manifest))
     }
     // No session uses a recognizer with another config, so it is idle.
     await teardownSttEngine(state, current)
   }
+}
+
+// The stream opens before this session can feed it, so all of its audio decodes with its vocabulary.
+function bindSttEngine(session: SttSession, engine: SttEngine): SttEngine {
+  session.engine = engine
+  if (session.vocabulary.length > 0) {
+    engine.worker.postMessage({
+      type: 'open',
+      streamId: session.streamId,
+      vocabulary: session.vocabulary
+    })
+  }
+  return engine
 }
 
 export function spawnSttEngine(
@@ -171,8 +182,7 @@ export function spawnSttEngine(
   config: SttRecognizerConfig,
   manifest: SpeechModelManifest
 ): SttEngine {
-  const files = manifest.files ?? []
-  const speechModulesDir = getSpeechEngineModulesDir(speechEngineForModelFiles(files))
+  const speechModulesDir = getSpeechEngineModulesDir()
   if (!speechModulesDir) {
     throw new Error(LOCAL_SPEECH_UNAVAILABLE_ERROR)
   }
@@ -209,12 +219,8 @@ export function spawnSttEngine(
   initializeSttWorker(worker, {
     speechModulesDir,
     modelDir: state.modelManager.getModelDir(config.modelId),
-    modelType: manifest.type,
-    streaming: manifest.streaming,
     sampleRate: manifest.sampleRate,
-    files,
-    hotwordsFilePath: config.hotwordsFilePath,
-    modelingUnit: manifest.modelingUnit,
+    files: manifest.files ?? [],
     language: config.language
   })
   return engine

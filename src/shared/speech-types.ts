@@ -1,3 +1,4 @@
+import type { DictationTerm } from './dictation-dictionary'
 export type SpeechModelType =
   | 'transducer'
   | 'paraformer'
@@ -6,8 +7,6 @@ export type SpeechModelType =
   | 'nemo-ctc'
   | 'openai'
 export type SpeechModelProvider = 'local' | 'openai' | 'openai-compatible'
-
-export type ModelingUnit = 'bpe' | 'cjkchar' | 'cjkchar+bpe'
 
 export type SpeechModelDownloadFile = {
   name: string
@@ -30,7 +29,6 @@ export type SpeechModelManifest = {
   legacyDownloadFiles?: SpeechModelDownloadFile[]
   sampleRate: number
   streaming: boolean
-  modelingUnit?: ModelingUnit
   recommended?: boolean
   /** Retired: never offered for selection, and a saved selection moves to this model on load. */
   replacedBy?: string
@@ -109,4 +107,12 @@ export type VoiceSettings = {
   unloadModelAfterMinutes: number | null
   /** 'off' keeps on-device recognition on the CPU, for machines whose GPU driver hard-crashes. Absent = 'auto'. */
   speechGpu?: SpeechGpuMode
+  /** Personal dictionary, used in every repo; each repo adds its own Repo.dictationTerms. */
+  dictationTerms?: DictationTerm[]
+}
+
+/** Where a dictation goes: an engine in the desktop's own process takes repoTerms, a host resolves worktreeId itself. */
+export type DictationContext = {
+  worktreeId?: string
+  repoTerms?: DictationTerm[]
 }
