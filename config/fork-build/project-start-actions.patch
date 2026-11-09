@@ -1173,37 +1173,8 @@ index 180fbe7abb5..9161f4bdc3f 100644
    // Activation-created PTY spawns must not count as activity and reshuffle Recent.
    // Stamp before hooks so chat/provider chrome can resolve agent identity immediately.
    const launchAgent =
-diff --git a/src/renderer/src/lib/workspace/activation/worktree-activation-created-agent.test.ts b/src/renderer/src/lib/workspace/activation/worktree-activation-created-agent.test.ts
-index a361afa410c..4c2b5acc6ef 100644
---- a/src/renderer/src/lib/workspace/activation/worktree-activation-created-agent.test.ts
-+++ b/src/renderer/src/lib/workspace/activation/worktree-activation-created-agent.test.ts
-@@ -22,8 +22,6 @@ vi.mock('@/runtime/rpc/calls/runtime-rpc-call', async (importOriginal) =>
- 
- const initialAppStoreState = useAppStore.getState()
- 
--/** Activates and asserts a focusable tab appeared with no queued startup, returning its id. */
--
- afterEach(() => {
-   delete (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__
-   vi.unstubAllGlobals()
-@@ -39,12 +37,9 @@ describe('activateAndRevealWorktree', () => {
- 
-     const result = activateAndRevealWorktree(worktree.id)
-     const state = useAppStore.getState()
--    const reopenedTab = state.tabsByWorktree[worktree.id]?.[0]
--
--    // A focusable surface still appears — it is just a plain shell, with no queued agent launch.
--    expect(result).toEqual({ primaryTabId: reopenedTab?.id })
--    expect(reopenedTab).toBeDefined()
--    expect(state.pendingStartupByTabId[reopenedTab!.id]).toBeUndefined()
-+    expect(result).toEqual({ primaryTabId: null })
-+    expect(state.tabsByWorktree[worktree.id] ?? []).toEqual([])
-+    expect(state.pendingStartupByTabId).toEqual({})
-     expect(revealWorktreeInSidebar).toHaveBeenCalledWith(worktree.id)
-   })
- })
 diff --git a/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts b/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
-index f210eda5912..dcee817e5ba 100644
+index f210eda5912..bf1a1daf73a 100644
 --- a/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
 +++ b/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
 @@ -90,15 +90,7 @@ describe('activating a workspace whose last terminal was closed', () => {
@@ -1234,16 +1205,24 @@ index f210eda5912..dcee817e5ba 100644
      const worktree = makeWorktree()
      seedEmptyActivatableWorktree(worktree)
      seedClosedLastTerminal(worktree.id)
-@@ -122,7 +114,7 @@ describe('activating a workspace whose last terminal was closed', () => {
+@@ -117,12 +109,14 @@ describe('activating a workspace whose last terminal was closed', () => {
+       activeView: 'terminal'
+     })
+
+-    activateAndRevealWorktree(worktree.id, {
++    const result = activateAndRevealWorktree(worktree.id, {
+       executionHostId: 'local',
        notifyHostRuntime: false
      })
  
 -    expect(useAppStore.getState().tabsByWorktree[worktree.id]).toHaveLength(1)
++    expect(result).toEqual({ primaryTabId: null })
 +    expect(useAppStore.getState().tabsByWorktree[worktree.id]).toHaveLength(0)
++    expect(useAppStore.getState().pendingStartupByTabId).toEqual({})
    })
  
    it('keeps a waiting split landing instead of re-seeding when the workspace is reopened', () => {
-@@ -288,8 +280,8 @@ function seedEmptiedFolderWorkspaceOnTwoHosts(): void {
+@@ -288,8 +282,8 @@ function seedEmptiedFolderWorkspaceOnTwoHosts(): void {
  describe('activating a folder workspace whose last terminal was closed', () => {
    // This must use the folder entry point; setActiveWorktree(folderWorkspaceKey(...)) takes the git path.
    it.each([
@@ -1254,7 +1233,7 @@ index f210eda5912..dcee817e5ba 100644
      [
        'an agent selection whose caller promised its own surface',
        { agent: 'codex' as const, providesInitialSurface: true },
-@@ -297,7 +289,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
+@@ -297,7 +291,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
        0
      ]
    ])(
@@ -1263,7 +1242,7 @@ index f210eda5912..dcee817e5ba 100644
      async (_label, selection, executionHostId, expectedTabs) => {
        seedEmptiedFolderWorkspaceOnTwoHosts()
        useAppStore.setState({
-@@ -372,7 +364,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
+@@ -372,7 +366,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
      expect(useAppStore.getState().tabsByWorktree[FOLDER_KEY]).toEqual([])
    })
  
@@ -1272,7 +1251,7 @@ index f210eda5912..dcee817e5ba 100644
      seedEmptiedFolderWorkspaceOnTwoHosts()
      useAppStore.setState({
        activeWorktreeId: FOLDER_KEY,
-@@ -382,7 +374,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
+@@ -382,7 +376,7 @@ describe('activating a folder workspace whose last terminal was closed', () => {
      const result = activateAndRevealFolderWorkspace(FOLDER_ID, { executionHostId: SSH_HOST_ID })
  
      expect(result).not.toBe(false)
