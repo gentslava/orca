@@ -320,9 +320,7 @@ export function MobileNativeChatSessionOptionPickers({
                     onToggle: () => setMoreModelsShown((shown) => !shown)
                   },
                   onReset: controller.optionSurface?.resetOption
-                    ? () => {
-                        void controller.optionSurface?.resetOption?.(activeDescriptor.id)
-                      }
+                    ? () => void controller.optionSurface?.resetOption?.(activeDescriptor.id)
                     : undefined,
                   ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
                 },
