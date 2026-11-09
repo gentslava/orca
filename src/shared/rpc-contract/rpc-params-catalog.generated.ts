@@ -632,6 +632,7 @@ import {
   SshTargetUpdate
 } from './ssh-params'
 import { StatusGetParams } from './status-params'
+import { BackgroundTaskParams } from './structured-agent-session-background-params'
 import { ContinueInterruptedParams } from './structured-agent-session-continue-params'
 import { ContinuationContextParams } from './structured-agent-session-identifiers'
 import { SendParams } from './structured-agent-session-message-params'
@@ -836,6 +837,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.accountUsage': OptionsParams,
   'agentSession.acknowledgeAttention': AcknowledgeAttentionParams,
   'agentSession.agents': AgentsParams,
+  'agentSession.backgroundTask': BackgroundTaskParams,
   'agentSession.cancel': CancelParams,
   'agentSession.cancelUsageLimitContinue': CancelUsageLimitContinueParams,
   'agentSession.close': OptionsParams,
