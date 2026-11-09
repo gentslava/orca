@@ -1,3 +1,4 @@
+import { indexById, bucketById } from './sidebar-header-order-index'
 import { enqueueRootProjectOrderForSidebarDrop } from './root-project-order-commit'
 import { useCallback, useEffect, useMemo } from 'react'
 import type React from 'react'
@@ -31,26 +32,6 @@ import { translate } from '@/i18n/i18n'
 const readLiveRepos = (): readonly Repo[] => useAppStore.getState().repos
 
 export type WorktreeSidebarHeaderDrag = ReturnType<typeof useWorktreeSidebarHeaderDrag>
-
-function indexById(byBucket: ReadonlyMap<string, readonly string[]>): Map<string, number> {
-  const map = new Map<string, number>()
-  for (const ids of byBucket.values()) {
-    ids.forEach((id, index) => {
-      map.set(id, index)
-    })
-  }
-  return map
-}
-
-function bucketById(byBucket: ReadonlyMap<string, readonly string[]>): Map<string, string> {
-  const map = new Map<string, string>()
-  for (const [bucketKey, ids] of byBucket) {
-    for (const id of ids) {
-      map.set(id, bucketKey)
-    }
-  }
-  return map
-}
 
 export function useWorktreeSidebarHeaderDrag(args: {
   rows: HostSectionRow[]

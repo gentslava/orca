@@ -9,7 +9,8 @@ import type { NativeChatStructuredComposerTransport } from './native-chat-struct
 import type * as RemoteRuntimePtyIdModule from '../../../../../../shared/remote-runtime/remote-runtime-pty-id'
 
 vi.mock('../controls/NativeChatComposerWorkspace', () => ({
-  NativeChatComposerWorkspace: () => null
+  NativeChatComposerWorkspace: () => null,
+  nativeChatComposerWorkspaceFooter: () => undefined
 }))
 
 vi.mock('@/i18n/i18n', () => ({
