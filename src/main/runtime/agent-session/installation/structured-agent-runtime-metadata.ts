@@ -147,6 +147,7 @@ export const STRUCTURED_AGENT_RUNTIME_CATALOG: readonly StructuredAgentRuntimeCa
       chatProgram: cliChatProgram('codex'),
       modelCatalog: codexModelCatalogDiscovery,
       ...CODEX_CLI_CONVERSATIONS,
+      launchFollowsSelection: () => true,
       supportsLocation: (location) => supportsCodexStructuredLocation(location),
       resolveAccountHome: async (request, services) =>
         agentSessionAccountHome(
