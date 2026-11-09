@@ -1683,5 +1683,29 @@
     "patchSha256": "500cc8b63963ee4bd54d147416d4df0d31db6c85fee017797e4f39636234239f",
     "resultSha256": "32ec4fc94c37b8da4f9dcc84605b776072e6fc514202598651416f02b15e84af",
     "reason": "Combine hold-quit copy and all project-order keys; remove only the duplicate projectOrder subset with the identical saveFailed string."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "a05de71bc3e1af66b787ac6ebd56edd4307a08c8",
+      "2c50c84a1926478cd5add51d0347d69b8ba8d6ef",
+      "544d0a58f5b8a04759eef20b121b90fcae8445eb"
+    ],
+    "patch": "refresh-20261109/latest-f7e3da05dbfa.patch",
+    "patchSha256": "154a7dace36c0987902ac3e470096a3b70104777a99969d404aa99422dbb61dd",
+    "resultSha256": "5fe1badf682370bc1c29da8695bd8a030b5e59776d2e22e68e7f33ef955de1ff",
+    "reason": "Preserve the new speech-model notice state while retaining the reviewed combination of conversation preferences and personal project ordering, including WSL move dispositions."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "9a0f6fbf548ada546cb6d132c7937820d539eb1f",
+      "d288ac33136242f145a82ad44ed6b6276455b87a",
+      "02a53621c862c52d0de2202fbfda4a3c22e6b232"
+    ],
+    "patch": "refresh-20261107/pr33502-71b259c8d23a.patch",
+    "patchSha256": "368bcc68c4e2744e3d403bed36a1f04af35d8abd0505afa0516296535481b161",
+    "resultSha256": "4a8b84ac5f4473256193c0021bf5d81c4b28d6f30f44a793e9617c99f89f369e",
+    "reason": "Preserve the new speech-model notice state while retaining the reviewed combination of conversation preferences and personal project ordering, including WSL move dispositions."
   }
 ]
