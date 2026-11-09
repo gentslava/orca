@@ -6,7 +6,7 @@ import {
 import { NativeChatJumpToLatest } from './viewport/scroll/NativeChatJumpToLatest'
 import { withoutPullRequestEventRows } from '../../../../shared/native-chat/native-chat-pull-request-event'
 import { useNativeChatRowTypography } from './viewport/virtualization/use-native-chat-row-typography'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from '@/i18n/use-translate'
 import { useAppStore } from '@/store'
 import {
@@ -40,7 +40,6 @@ import { useNativeChatTranscriptSlots } from './conversation/slots/use-native-ch
 import { useNativeChatTranscriptWindow } from './viewport/virtualization/use-native-chat-transcript-window'
 import { useNativeChatHistoryRetention } from './viewport/history/use-native-chat-history-retention'
 import { useNativeChatSubagentSections } from './subagents/use-native-chat-subagent-sections'
-import { toggleNativeChatExpandedKey } from './messages/disclosure/native-chat-expanded-keys'
 import { useNativeChatTurnMembership } from './conversation/slots/use-native-chat-turn-membership'
 import {
   useNativeChatSideChatForkOffer,
@@ -131,11 +130,7 @@ export function NativeChatMessageList({
   )
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
-  const [expandedTurnIds, setExpandedTurnIds] = useState<ReadonlySet<string>>(new Set())
   const disclosures = useNativeChatDisclosures()
-  const toggleExpandedTurn = useCallback((turnKey: string) => {
-    setExpandedTurnIds((current) => toggleNativeChatExpandedKey(current, turnKey))
-  }, [])
 
   const { hasMore, loadingEarlier, loadEarlier } = session
   const historyRetention = useNativeChatHistoryRetention({
@@ -202,10 +197,11 @@ export function NativeChatMessageList({
   })
   // Only unshown prompts need a waiting tail row; prompt cards explain their own wait.
   const tailRow = transcriptTailRow(isWorking, awaitingInput)
-  const lifecycleWorking = session.transcriptLifecycle?.state === 'working'
   const { measureContent, typography } = useNativeChatRowTypography(contentRef)
   const forkOffer = useNativeChatSideChatForkOffer(latestTurnKey)
   const transcript = useNativeChatTranscriptSlots({
+    scopeKey: `${session.agent}:${session.sessionId ?? ''}`,
+    historyHead: journalItems?.[0]?.itemId,
     typography,
     messages: rows,
     unresolvedRowIds: turnRows.unresolvedRowIds,
@@ -215,9 +211,8 @@ export function NativeChatMessageList({
     turnStatuses,
     turnDiffs,
     openedPullRequests: openedPullRequests.byTurn,
-    expandedTurnKeys: expandedTurnIds,
     isWorking,
-    lifecycleWorking,
+    lifecycleWorking: session.transcriptLifecycle?.state === 'working',
     subagentSections,
     subagentChoices,
     forkOffer,
@@ -228,7 +223,12 @@ export function NativeChatMessageList({
       activityText: turnActivity?.text
     }
   })
-  const { slots: allSlots, liveLine } = transcript
+  const {
+    slots: allSlots,
+    liveLine,
+    expandedTurnKeys: historyExpandedTurns,
+    toggleExpandedTurn
+  } = transcript
   useNativeChatSideChatForkPointReport(transcript.forkPoint)
   // A message waiting behind the live turn draws after that turn's live activity, not inside it.
   const { slots, waitingSlots } = useMemo(
@@ -246,6 +246,7 @@ export function NativeChatMessageList({
   const transcriptWindow = useNativeChatTranscriptWindow({
     scrollRef,
     slots,
+    messages: session.messages,
     isVisible,
     // Rail jumps, diff reveals and subagent reveals share one mutually exclusive pin.
     revealIndex: navigationRequest.revealIndex,
@@ -353,7 +354,7 @@ export function NativeChatMessageList({
     expandSignal,
     revealedDiff: navigationRequest.revealedDiff,
     taskListPredecessors,
-    expandedTurnIds,
+    expandedTurnIds: historyExpandedTurns,
     latestTurnKey,
     deliveryNotices,
     runtimeContext,
