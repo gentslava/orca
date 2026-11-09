@@ -311,6 +311,14 @@ jobs:
         run: ./gradlew assembleRelease --no-daemon
       - name: Verify APK identity, architecture and signing certificate
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-android personal-build/plan.json "$GITHUB_WORKSPACE"
+      - name: Preserve a rejected APK for signing diagnostics
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-android-rejected
+          path: mobile/android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: ignore
+          retention-days: 3
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: personal-android

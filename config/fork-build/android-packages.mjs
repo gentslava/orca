@@ -60,14 +60,13 @@ export function measureAndroidPackage(plan, file) {
       throw new Error('APK package/version differs from the committed mobile configuration')
     }
   }
+  const signerReport = run(androidTool('apksigner'), ['verify', '--print-certs', file])
   const certificates = [
-    ...run(androidTool('apksigner'), ['verify', '--print-certs', file]).matchAll(
-      /Signer #\d+ certificate SHA-256 digest: ([a-fA-F0-9]+)/g
-    )
+    ...signerReport.matchAll(/Signer #\d+ certificate SHA-256 digest: ([a-fA-F0-9]+)/g)
   ].map((match) => match[1].toLowerCase())
   if (certificates.length !== 1 || certificates[0] !== EXPO_DEBUG_CERTIFICATE) {
     throw new Error(
-      'Personal APK certificate differs from the existing Expo debug signing identity'
+      `Personal APK certificate differs from the existing Expo debug signing identity: ${JSON.stringify(certificates)}\n${signerReport}`
     )
   }
   const abis = [
