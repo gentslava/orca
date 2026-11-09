@@ -1871,21 +1871,6 @@ index d1351bd169b..cfaf5c82e79 100644
      [
        acceptsPicks,
        activeOptionRecordRef,
-diff --git a/src/renderer/src/components/native-chat/viewport/rail/native-chat-rail-outline-parity.test.ts b/src/renderer/src/components/native-chat/viewport/rail/native-chat-rail-outline-parity.test.ts
-index e9dc2d87e88..564e6e2eff7 100644
---- a/src/renderer/src/components/native-chat/viewport/rail/native-chat-rail-outline-parity.test.ts
-+++ b/src/renderer/src/components/native-chat/viewport/rail/native-chat-rail-outline-parity.test.ts
-@@ -1,8 +1,8 @@
--import { readAgentMessageSource } from '../../../../shared/agent-session/agent-session-message-source'
-+import { readAgentMessageSource } from '../../../../../../shared/agent-session/agent-session-message-source'
- import {
-   ORCHESTRATION_NOTICE_SOURCE,
-   ORCHESTRATION_NOTICE_TEXT
--} from '../../../../shared/native-chat-orchestration-notice.test-fixture'
-+} from '../../../../../../shared/native-chat-orchestration-notice.test-fixture'
- import { describe, expect, it } from 'vitest'
- import {
-   nativeChatTurnReplyPreviews,
 diff --git a/src/renderer/src/components/settings/WorkerRoleSettings.tsx b/src/renderer/src/components/settings/WorkerRoleSettings.tsx
 index dac898b49a7..9a2c1dd7f2e 100644
 --- a/src/renderer/src/components/settings/WorkerRoleSettings.tsx
