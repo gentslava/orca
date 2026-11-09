@@ -1571,5 +1571,17 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "5f34fd169b156fb9dfa6875197a4fa35eb7c680ac5a002b6e622639c33c6640b",
     "reason": "Retained tool-input disclosure already opens every call, including short pending commands; preserve that superset while the command-label owner supplies full commands with metadata."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-operations.ts",
+    "blobs": [
+      "27d363957529fded381e9a0fd34025faff9ca0a0",
+      "4eca3fbaa29a7ae4a729f86d2c91ab34dd8541df",
+      "7961ec09c7cc5480d76d811ee5d7ea23356d002c"
+    ],
+    "patch": "refresh-20261109/pr33502-8e2c0beaebd1.patch",
+    "patchSha256": "5ee25b79ebce7c905efe01a5b6a63d9ed095a04c5c2ea99bd73fdd3f7f217bdf",
+    "resultSha256": "79516cdb49e2cacaca20f973d465774e9fe6dd4e567d45bbd3f8fb03bab18462",
+    "reason": "Keep the mobile tree-shakeable Zod namespace while retaining both conversation preferences and project pin/open RPC contracts; the previous reviewed semantic union is unchanged."
   }
 ]
