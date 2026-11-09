@@ -228,6 +228,9 @@
       "existingTitle": "Add on the {{distro}} host (recommended)",
       "existingWhy": "{{distro}} already runs as a host, so Git, files and terminals run natively in Linux instead of across the Windows file share.",
       "existingAccept": "Add on host"
+    },
+    "projectOrder": {
+      "saveFailed": "Could not save project order"
     }
   },
   "app": {
@@ -21516,6 +21519,7 @@
         "failed": "Could not format {{file}}. Saving without formatting: {{reason}}"
       }
     },
+    "tab-bar": {},
     "contextualTours": {
       "agentSessions": {
         "newTab": {
@@ -21640,7 +21644,10 @@
       "openActivity": "View activity",
       "closeActivity": "Turn off activity view",
       "projects": "Projects",
-      "workspaces": "Workspaces"
+      "workspaces": "Workspaces",
+      "loadingChatAgents": "Loading chat agents…",
+      "noChatAgents": "No chat agents available on this host",
+      "activity": "Activity"
     }
   },
   "runtimeRpc": {
@@ -24348,6 +24355,55 @@
   "checks": {
     "rerunUnsuccessful": "Rerun unsuccessful"
   },
+  "projectConversations": {
+    "defaultGroupName": "{{project}} group",
+    "hideProject": "Hide project from list",
+    "hiddenProjects": "Hidden projects",
+    "keepFiles": "Files and history are kept",
+    "restoreProject": "Restore {{project}}",
+    "projectOptionsFor": "Project options for {{project}}",
+    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
+    "search": "Search chats",
+    "projectOrder": "Project order",
+    "allChats": "Chats",
+    "archived": "Archived",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "noChats": "No chats yet",
+    "loading": "Loading chats…",
+    "noArchived": "No archived chats",
+    "noMatching": "No matching chats",
+    "untitled": "Untitled chat",
+    "unpin": "Unpin chat",
+    "pin": "Pin chat",
+    "restore": "Restore chat",
+    "archive": "Archive chat",
+    "working": "Working",
+    "needsYou": "Needs you",
+    "showMore": "Show more",
+    "newChatInProject": "New chat in {{project}}",
+    "saveFailed": "Could not save chat preferences. Update Orca or try again."
+  },
+  "macosUpdateRequirement": {
+    "title": "Orca updates now need macOS {{macos}}",
+    "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
+    "checking": "Checking whether this Mac can upgrade…",
+    "upgradeDescription": "Your Mac can upgrade. Update macOS to get the latest Orca.",
+    "unsupportedDescription": "Apple doesn’t support macOS {{macos}} on this Mac.",
+    "unknownDescription": "We couldn’t confirm an upgrade for this Mac. Apple’s compatibility guide can help.",
+    "whyTitle": "Why is this changing?",
+    "whyIntro": "We updated parts of Orca’s foundation, like Electron and the on-device speech engine, to bring:",
+    "whySecurity": "Ongoing security fixes from Electron and Chromium.",
+    "whyPerformance": "Faster startup and more efficient native API calls.",
+    "whySystemApis": "Support for current macOS notification APIs and secure Keychain storage.",
+    "whyRequirement": "That newer foundation requires macOS {{macos}} or later.",
+    "dismiss": "Got it",
+    "checkingAction": "Checking your Mac…",
+    "updateAction": "How to update macOS",
+    "discussionAction": "Join the discussion",
+    "checkAction": "Check compatibility",
+    "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
+  },
   "gitGraph": {
     "copyHash": "Copy commit hash",
     "parents": "Parents",
@@ -24409,26 +24465,6 @@
     "branchName": "Branch name",
     "invalidBranchName": "This branch name is invalid. Choose a different name.",
     "createBranchFailed": "Orca couldn't create the branch. Check this repository in a terminal, then try again."
-  },
-  "macosUpdateRequirement": {
-    "title": "Orca updates now need macOS {{macos}}",
-    "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
-    "checking": "Checking whether this Mac can upgrade…",
-    "upgradeDescription": "Your Mac can upgrade. Update macOS to get the latest Orca.",
-    "unsupportedDescription": "Apple doesn’t support macOS {{macos}} on this Mac.",
-    "unknownDescription": "We couldn’t confirm an upgrade for this Mac. Apple’s compatibility guide can help.",
-    "whyTitle": "Why is this changing?",
-    "whyIntro": "We updated parts of Orca’s foundation, like Electron and the on-device speech engine, to bring:",
-    "whySecurity": "Ongoing security fixes from Electron and Chromium.",
-    "whyPerformance": "Faster startup and more efficient native API calls.",
-    "whySystemApis": "Support for current macOS notification APIs and secure Keychain storage.",
-    "whyRequirement": "That newer foundation requires macOS {{macos}} or later.",
-    "dismiss": "Got it",
-    "checkingAction": "Checking your Mac…",
-    "updateAction": "How to update macOS",
-    "discussionAction": "Join the discussion",
-    "checkAction": "Check compatibility",
-    "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
   },
   "remoteHostBrowserControl": {
     "title": "{{host}} is controlling a browser tab",
