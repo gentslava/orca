@@ -1389,6 +1389,33 @@ index 4a76011e5ad..27060e9608a 100644
 +export function useNativeChatComposerTarget(targetPtyId: string | null) {
 +  return useCallback(() => (targetPtyId ? { ptyId: targetPtyId } : null), [targetPtyId])
 +}
+diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-composer-transport.ts b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-composer-transport.ts
+index 46386c077ee..711d366ada1 100644
+--- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-composer-transport.ts
++++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-composer-transport.ts
+@@ -1,3 +1,4 @@
++import type { AgentType } from '../../../../../../shared/agent-status/contracts/agent-status-types'
+ import type { StructuredAgentSessionQueueDelivery } from '../../queue/structured-agent-session-queue-request'
+ import type { StructuredAgentSessionHostCapabilityState } from '../../../../../../shared/agent-session/structured-agent-session-host-capability'
+ import type { CaptureStructuredAgentSessionPresentation } from '../../session/structured/writes/use-structured-agent-session-mutate'
+@@ -16,6 +17,17 @@ import type { StructuredAgentContextUsage } from '../../../../../../shared/agent
+ import type { NativeChatComposerErrorDetail } from '../controls/native-chat-composer-error-detail'
+ import type { NativeChatSideChat } from '../../messages/actions/use-native-chat-side-chat'
+
++export type UseNativeChatStructuredComposerSendArgs = {
++  agent: AgentType
++  draftScopeKey: string
++  imageAttachments: readonly NativeChatComposerImageAttachment[]
++  structuredTransport?: NativeChatStructuredComposerTransport
++  isComposing: () => boolean
++  clearSkillOrigin: () => void
++  setDraft: (value: string) => void
++  setCaret: (caret: number) => void
++}
++
+ export type NativeChatStructuredComposerTransport = {
+   queue?: StructuredAgentSessionQueueDelivery
+   isWorking?: boolean
 diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
 index f4fc0f9adcd..045110197f5 100644
 --- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
@@ -1404,7 +1431,7 @@ index f4fc0f9adcd..045110197f5 100644
 
  vi.mock('@/i18n/i18n', () => ({
 diff --git a/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts b/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
-index 119c489c5a4..495d01ea417 100644
+index 119c489c5a4..a61cc94e2c7 100644
 --- a/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
 +++ b/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
 @@ -13,7 +13,10 @@ import {
@@ -1419,14 +1446,79 @@ index 119c489c5a4..495d01ea417 100644
  import { useCallback } from 'react'
  import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
  import {
-@@ -43,7 +46,6 @@ import {
+@@ -21,9 +24,8 @@ import {
+   isStructuredAgentSessionGoalCommand,
+   structuredAgentSessionCommandChangesConversation
+ } from '../../../../../../shared/agent-session/view/structured-agent-session-composer'
+-import type { AgentType } from '../../../../../../shared/agent-status/contracts/agent-status-types'
+ import { dispatchNativeChatStructuredComposerText } from './native-chat-structured-composer-dispatch'
+-import type { NativeChatStructuredComposerTransport } from './native-chat-structured-composer-transport'
++import type { UseNativeChatStructuredComposerSendArgs } from './native-chat-structured-composer-transport'
+ import type { NativeChatComposerImageAttachment } from '../../attachments/chips/native-chat-image-attachment'
+ import { nativeChatAttachImagesAgainReason } from '../../attachments/chips/native-chat-image-reattach'
+ import { nativeChatNoticeFromError } from '../controls/native-chat-composer-notice'
+@@ -35,6 +37,7 @@ import {
+ } from '../../drafts/native-chat-composer-draft-memory'
+ import {
+   finishNativeChatComposerSubmission,
++  isNativeChatComposerDraftBlank,
+   readNativeChatComposerDraft,
+   updateNativeChatComposerDraft
+ } from '../../drafts/native-chat-composer-draft-store'
+@@ -43,19 +46,9 @@ import {
    admitNativeChatPastedText,
    projectNativeChatPastedText
  } from '../../paste/native-chat-composer-pasted-text-references'
 -import type { StructuredAgentSessionSendRequest } from '../../session/structured/delivery/structured-agent-session-send-slot'
  import { structuredAgentSessionRequestedDelivery } from '../../queue/structured-agent-session-queue-request'
 
- export type UseNativeChatStructuredComposerSendArgs = {
+-export type UseNativeChatStructuredComposerSendArgs = {
+-  agent: AgentType
+-  draftScopeKey: string
+-  imageAttachments: readonly NativeChatComposerImageAttachment[]
+-  structuredTransport?: NativeChatStructuredComposerTransport
+-  isComposing: () => boolean
+-  clearSkillOrigin: () => void
+-  setDraft: (value: string) => void
+-  setCaret: (caret: number) => void
+-}
++export type { UseNativeChatStructuredComposerSendArgs } from './native-chat-structured-composer-transport'
+
+ export type NativeChatStructuredComposerSend = (
+   text: string,
+@@ -226,14 +219,8 @@ export function useNativeChatStructuredComposerSend({
+         setCaret(composing ? 0 : left.text.length)
+         clearSkillOrigin()
+       }
+-      // A refused command returns only to an empty composer; a lone command typed since would be replaced.
+-      const recoversDraft = () => {
+-        const current = readNativeChatComposerDraft(draftScopeKey)
+-        return (
+-          consumed &&
+-          (!hostCommand || (current.text.trim() === '' && (current.images?.length ?? 0) === 0))
+-        )
+-      }
++      const recoversDraft = () =>
++        consumed && (!hostCommand || isNativeChatComposerDraftBlank(draftScopeKey))
+       const prepareAttachments: StructuredAgentSessionAttachmentPreparation | undefined =
+         stagedInput ? (input) => stagedInput.prepare(input, structuredTransport) : undefined
+       return dispatchNativeChatStructuredComposerText(
+diff --git a/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts b/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
+index 6d65724feae..ebaf9acf9d8 100644
+--- a/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
++++ b/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
+@@ -93,6 +93,11 @@ export function readNativeChatComposerDraft(
+   return records.get(currentDraftScope(scopeKey)) ?? EMPTY_DRAFT
+ }
+
++export function isNativeChatComposerDraftBlank(scopeKey: string): boolean {
++  const current = readNativeChatComposerDraft(scopeKey)
++  return current.text.trim() === '' && (current.images?.length ?? 0) === 0
++}
++
+ export function finishNativeChatComposerSubmission(
+   scopeKey: string,
+   submission: DraftSubmission,
 diff --git a/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx b/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
 index 181af6bfdfe..b2efce5f05b 100644
 --- a/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx

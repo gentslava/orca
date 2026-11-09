@@ -24,9 +24,8 @@ import {
   isStructuredAgentSessionGoalCommand,
   structuredAgentSessionCommandChangesConversation
 } from '../../../../../../shared/agent-session/view/structured-agent-session-composer'
-import type { AgentType } from '../../../../../../shared/agent-status/contracts/agent-status-types'
 import { dispatchNativeChatStructuredComposerText } from './native-chat-structured-composer-dispatch'
-import type { NativeChatStructuredComposerTransport } from './native-chat-structured-composer-transport'
+import type { UseNativeChatStructuredComposerSendArgs } from './native-chat-structured-composer-transport'
 import type { NativeChatComposerImageAttachment } from '../../attachments/chips/native-chat-image-attachment'
 import { nativeChatAttachImagesAgainReason } from '../../attachments/chips/native-chat-image-reattach'
 import { nativeChatNoticeFromError } from '../controls/native-chat-composer-notice'
@@ -38,6 +37,7 @@ import {
 } from '../../drafts/native-chat-composer-draft-memory'
 import {
   finishNativeChatComposerSubmission,
+  isNativeChatComposerDraftBlank,
   readNativeChatComposerDraft,
   updateNativeChatComposerDraft
 } from '../../drafts/native-chat-composer-draft-store'
@@ -48,16 +48,7 @@ import {
 } from '../../paste/native-chat-composer-pasted-text-references'
 import { structuredAgentSessionRequestedDelivery } from '../../queue/structured-agent-session-queue-request'
 
-export type UseNativeChatStructuredComposerSendArgs = {
-  agent: AgentType
-  draftScopeKey: string
-  imageAttachments: readonly NativeChatComposerImageAttachment[]
-  structuredTransport?: NativeChatStructuredComposerTransport
-  isComposing: () => boolean
-  clearSkillOrigin: () => void
-  setDraft: (value: string) => void
-  setCaret: (caret: number) => void
-}
+export type { UseNativeChatStructuredComposerSendArgs } from './native-chat-structured-composer-transport'
 
 export type NativeChatStructuredComposerSend = (
   text: string,
@@ -228,14 +219,8 @@ export function useNativeChatStructuredComposerSend({
         setCaret(composing ? 0 : left.text.length)
         clearSkillOrigin()
       }
-      // A refused command returns only to an empty composer; a lone command typed since would be replaced.
-      const recoversDraft = () => {
-        const current = readNativeChatComposerDraft(draftScopeKey)
-        return (
-          consumed &&
-          (!hostCommand || (current.text.trim() === '' && (current.images?.length ?? 0) === 0))
-        )
-      }
+      const recoversDraft = () =>
+        consumed && (!hostCommand || isNativeChatComposerDraftBlank(draftScopeKey))
       const prepareAttachments: StructuredAgentSessionAttachmentPreparation | undefined =
         stagedInput ? (input) => stagedInput.prepare(input, structuredTransport) : undefined
       return dispatchNativeChatStructuredComposerText(
