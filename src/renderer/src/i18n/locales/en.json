@@ -147,6 +147,15 @@
         "removalUnrecorded": "Orca couldn’t record what this Remove left running: {{detail}}"
       }
     },
+    "projectOrder": {
+      "pin": "Pin project",
+      "unpin": "Unpin project",
+      "frequent": "Frequent",
+      "recentDescription": "Most recently opened by you",
+      "frequentDescription": "Most project openings by you",
+      "nameDescription": "Project name, A to Z",
+      "saveFailed": "Could not save project order"
+    },
     "agentSummary": {
       "state": {
         "waiting": "waiting",
@@ -228,9 +237,6 @@
       "existingTitle": "Add on the {{distro}} host (recommended)",
       "existingWhy": "{{distro}} already runs as a host, so Git, files and terminals run natively in Linux instead of across the Windows file share.",
       "existingAccept": "Add on host"
-    },
-    "projectOrder": {
-      "saveFailed": "Could not save project order"
     }
   },
   "app": {
@@ -24780,6 +24786,32 @@
     "disallowed": "{{host}} can no longer control browser tabs. Turn it back on in Settings > SSH.",
     "failed": "Couldn’t stop {{host}}. Turn off its browser control in Settings > SSH."
   },
+  "speechModelUpdate": {
+    "updateTitle": "Update your speech model",
+    "updateDescription": "Dictation now runs on a faster engine. {{model}} needs a one-time download ({{size}} MB) before you can dictate again.",
+    "update": "Update",
+    "replacedTitle": "Your speech model was replaced",
+    "replacedDescription": "{{old}} can't run on the new speech engine. {{model}} replaces it ({{size}} MB).",
+    "downloadReplacement": "Download {{model}}",
+    "later": "Later",
+    "dismiss": "Dismiss",
+    "updatingTitle": "Updating {{model}}",
+    "downloadingTitle": "Downloading {{model}}",
+    "downloadingDescription": "You can keep working. Dictation is back when this finishes.",
+    "progress": "{{done}} of {{total}} MB",
+    "cancel": "Cancel",
+    "doneTitle": "Dictation is ready",
+    "doneDescription": "{{model}} is updated. The old files were removed.",
+    "doneRetiredDescription": "{{model}} is set up. The old {{old}} files are still on disk.",
+    "keep": "Keep",
+    "deleteOld": "Delete old model",
+    "deleteFailed": "Failed to delete {{model}}.",
+    "updateFailedTitle": "Couldn't update {{model}}",
+    "downloadFailedTitle": "Couldn't download {{model}}",
+    "failedAtDescription": "The download stopped at {{mb}} MB. Check your connection and try again.",
+    "failedDescription": "The download stopped. Check your connection and try again.",
+    "tryAgain": "Try again"
+  },
   "projectConversations": {
     "defaultGroupName": "{{project}} group",
     "hideProject": "Hide project from list",
@@ -24808,31 +24840,5 @@
     "showMore": "Show more",
     "newChatInProject": "New chat in {{project}}",
     "saveFailed": "Could not save chat preferences. Update Orca or try again."
-  },
-  "speechModelUpdate": {
-    "updateTitle": "Update your speech model",
-    "updateDescription": "Dictation now runs on a faster engine. {{model}} needs a one-time download ({{size}} MB) before you can dictate again.",
-    "update": "Update",
-    "replacedTitle": "Your speech model was replaced",
-    "replacedDescription": "{{old}} can't run on the new speech engine. {{model}} replaces it ({{size}} MB).",
-    "downloadReplacement": "Download {{model}}",
-    "later": "Later",
-    "dismiss": "Dismiss",
-    "updatingTitle": "Updating {{model}}",
-    "downloadingTitle": "Downloading {{model}}",
-    "downloadingDescription": "You can keep working. Dictation is back when this finishes.",
-    "progress": "{{done}} of {{total}} MB",
-    "cancel": "Cancel",
-    "doneTitle": "Dictation is ready",
-    "doneDescription": "{{model}} is updated. The old files were removed.",
-    "doneRetiredDescription": "{{model}} is set up. The old {{old}} files are still on disk.",
-    "keep": "Keep",
-    "deleteOld": "Delete old model",
-    "deleteFailed": "Failed to delete {{model}}.",
-    "updateFailedTitle": "Couldn't update {{model}}",
-    "downloadFailedTitle": "Couldn't download {{model}}",
-    "failedAtDescription": "The download stopped at {{mb}} MB. Check your connection and try again.",
-    "failedDescription": "The download stopped. Check your connection and try again.",
-    "tryAgain": "Try again"
   }
 }
