@@ -1,3 +1,4 @@
+import { STRUCTURED_AGENT_SESSION_REVEAL_RUNTIME_CAPABILITY } from '../../../shared/agent-session/structured-agent-session-surface-capabilities'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { Tab } from '../../../shared/tab-types'
 
@@ -89,6 +90,49 @@ beforeEach(() => {
     return { ok: true, sessionId: 'sender', workspaceId: 'workspace', agent: 'claude' }
   })
 })
+
+it.each([false, true].map((olderLookup) => ({ olderLookup, rowHost: true })))(
+  'keeps the known host through lineage/refresh/reveal/activation without applying its snapshot as local; case=%j',
+  async ({ olderLookup, rowHost }) => {
+    if (olderLookup) {
+      const call = mocks.call.getMockImplementation()
+      if (!call) {
+        throw new Error('Missing fixture RPC implementation')
+      }
+      mocks.call.mockImplementation(async (...args) => {
+        if (args[1] === 'orchestration.partyLocation') {
+          throw Object.assign(new Error('old host'), { code: 'method_not_found' })
+        }
+        return call(...args)
+      })
+    }
+    await expect(
+      activateAiVaultStructuredSession(
+        {
+          structuredSession: { workspaceId: 'workspace', sessionId: 'sender' },
+          ...(rowHost ? { executionHostId: 'runtime:remote-2' as const } : {})
+        },
+        undefined,
+        rowHost ? undefined : TARGET
+      )
+    ).resolves.toBe(true)
+    expect(mocks.supports).toHaveBeenCalledWith(
+      'remote-2',
+      STRUCTURED_AGENT_SESSION_REVEAL_RUNTIME_CAPABILITY,
+      expect.any(Number)
+    )
+    expect(mocks.call.mock.calls.map(([host, method]) => [host, method])).toEqual([
+      [TARGET, 'session.tabs.list'],
+      [TARGET, 'orchestration.partyLocation'],
+      [TARGET, 'agentSession.reveal'],
+      [TARGET, 'session.tabs.list'],
+      [TARGET, 'session.tabs.activate']
+    ])
+    expect(mocks.apply).not.toHaveBeenCalled()
+    expect(mocks.activateTab).toHaveBeenCalledOnce()
+    expect(mocks.activateTab).toHaveBeenCalledWith('right-remote', { worktreeId: 'workspace' })
+  }
+)
 
 it('bounds a missing local History lookup and releases coalescing for a legitimate retry', async () => {
   vi.useFakeTimers()

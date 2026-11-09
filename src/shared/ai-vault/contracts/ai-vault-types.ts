@@ -234,6 +234,7 @@ export type AiVaultScanIssue = {
 } & Omit<AiVaultScanIssueText, 'message'>
 
 export type AiVaultListArgs = {
+  selectedSessionId?: string
   /** Primary conversation navigation includes durable chats without provider files. */
   includeStructuredSessions?: boolean
   historyOwnership?: { projectKey?: string }
@@ -268,6 +269,8 @@ export function boundedAiVaultScopeArgs(
 }
 
 export type AiVaultListResult = {
+  /** This host included durable Orca records, even when no provider transcript exists. */
+  includesStructuredSessions?: true
   /** Local scan entry that produced this result; absent for remote and merged results. */
   scanId?: string
   fingerprint?: string
