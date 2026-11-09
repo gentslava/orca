@@ -366,7 +366,7 @@ jobs:
   publish:
     needs: [plan, macos, windows, android, verify-windows, verify-android]
     if: needs.macos.result == 'success' && needs.verify-windows.result == 'success' && needs.verify-android.result == 'success'
-    runs-on: macos-26
+    runs-on: macos-26-intel
     timeout-minutes: 25
     permissions:
       contents: write
