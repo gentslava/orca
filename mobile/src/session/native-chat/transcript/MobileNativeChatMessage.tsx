@@ -1,3 +1,4 @@
+import type { MobileNativeChatMessageProps } from './mobile-native-chat-message-props'
 import { memo, useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react'
 import { Text, View } from 'react-native'
 import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection'
@@ -32,12 +33,10 @@ import {
   nativeChatAskRunBlocks,
   nativeChatAskRunSubject
 } from '../../../../../src/shared/native-chat/input/native-chat-ask-row'
-import type { NativeChatResolvedPrompt } from '../../../../../src/shared/native-chat/native-chat-resolution-receipt'
 import { MobileNativeChatSubagentGroup } from './MobileNativeChatSubagentGroup'
 import { MobileNativeChatBackgroundTaskRun } from './MobileNativeChatBackgroundTaskRun'
 import { withoutBackgroundTaskRows } from '../../../../../src/shared/native-chat/input/native-chat-background-task-row'
 import { ToolRun } from './MobileNativeChatToolRun'
-import type { NativeChatTurnStatus } from '../../../../../src/shared/native-chat/transcript/native-chat-turn-status'
 import { styles } from './mobile-native-chat-message-styles'
 import { MobileNativeChatAgentMessageCard } from './MobileNativeChatAgentMessageCard'
 import { MobileNativeChatVisualContext } from '../visual/mobile-native-chat-visual-context'
@@ -78,44 +77,7 @@ function MobileNativeChatMessageImpl({
   onToggleSubagentGroup,
   userMessageOpen,
   onToggleUserMessage
-}: {
-  message: Chat.NativeChatMessage
-  // Stable placement key survives older messages joining a folded row.
-  rowKey?: string
-  runOwner?: string
-  // Only the newest live assistant row can still grow.
-  mayStillGrow?: boolean
-  // Compare plan updates against the prior write, not an empty checklist.
-  previousTodoWrite?: Chat.NativeChatToolCallBlock
-  previousUpdatePlan?: Chat.NativeChatToolCallBlock
-  fontScale?: number
-  turnStatus?: NativeChatTurnStatus | null
-  turnStatusAbove?: boolean
-  turnExpanded?: boolean
-  turnKey?: string
-  /** The chat may rewind to this row, by desktop's `nativeChatRowOffersRewind`. */
-  rewindable?: true
-  onToggleTurn?: (turnKey: string) => void
-  activeTurnIsWorking?: boolean
-  trailingRun?: boolean
-  // The run’s first row draws all members; later members render no duplicate activity.
-  workRun?: readonly Chat.NativeChatMessage[]
-  joinsWorkRun?: boolean
-  foldedAway?: boolean
-  openReasoning?: ReadonlySet<string>
-  structuredActivityUi?: boolean
-  // Hide the reasoning row while the live activity line discloses the same block.
-  reasoningIsLive?: boolean
-  reasoningExpanded?: boolean
-  onToggleReasoning?: (key: string) => void
-  unsentNotice?: string
-  receipt?: NativeChatResolvedPrompt
-  awaiting?: boolean
-  subagentGroupsOpen?: ReadonlySet<string>
-  onToggleSubagentGroup?: (groupId: string) => void
-  userMessageOpen?: boolean
-  onToggleUserMessage?: (messageId: string) => void
-}): React.JSX.Element {
+}: MobileNativeChatMessageProps): React.JSX.Element {
   useMobileColorScheme()
   const t = useMobileTranslation()
   const { shown: message, showFull, recovery } = useMobileNativeChatFullMessage(rowMessage)
