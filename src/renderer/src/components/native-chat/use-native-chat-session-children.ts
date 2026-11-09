@@ -28,6 +28,40 @@ function workerLifecycleKey(state: ReturnType<typeof useAppStore.getState>): str
   )
 }
 
+async function readSessionChildren(
+  target: RuntimeClientTarget,
+  sessionId: string,
+  dispatchId: string | undefined,
+  isDisposed: () => boolean
+): Promise<OrchestrationSessionChild[] | null> {
+  const children: OrchestrationSessionChild[] = []
+  const visited = new Set<string>()
+  let cursor: string | null = null
+  do {
+    const page: OrchestrationSessionChildren = await callRuntimeRpc(
+      target,
+      'orchestration.sessionChildren',
+      {
+        sessionId,
+        ...(dispatchId ? { dispatchId } : {}),
+        ...(cursor ? { cursor } : {})
+      }
+    )
+    if (isDisposed()) {
+      return null
+    }
+    children.push(...page.children)
+    cursor = page.nextCursor
+    if (cursor && visited.has(cursor)) {
+      throw new Error('Repeated child history cursor')
+    }
+    if (cursor) {
+      visited.add(cursor)
+    }
+  } while (cursor !== null)
+  return children
+}
+
 export function useNativeChatSessionChildren(args: {
   sessionId: string
   target: RuntimeClientTarget
@@ -57,31 +91,10 @@ export function useNativeChatSessionChildren(args: {
     let disposed = false
     const refresh = async (): Promise<void> => {
       try {
-        const children: OrchestrationSessionChild[] = []
-        const visited = new Set<string>()
-        let cursor: string | null = null
-        do {
-          const page: OrchestrationSessionChildren = await callRuntimeRpc(
-            target,
-            'orchestration.sessionChildren',
-            {
-              sessionId,
-              ...(dispatchId ? { dispatchId } : {}),
-              ...(cursor ? { cursor } : {})
-            }
-          )
-          if (disposed) {
-            return
-          }
-          children.push(...page.children)
-          cursor = page.nextCursor
-          if (cursor && visited.has(cursor)) {
-            throw new Error('Repeated child history cursor')
-          }
-          if (cursor) {
-            visited.add(cursor)
-          }
-        } while (cursor !== null)
+        const children = await readSessionChildren(target, sessionId, dispatchId, () => disposed)
+        if (children === null) {
+          return
+        }
         setSnapshot({ key, children, current: true })
       } catch {
         if (disposed) {
