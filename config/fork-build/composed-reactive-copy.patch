@@ -31,7 +31,7 @@ index e7cbc53a834..1d754221419 100644
                'Hold-to-quit is unavailable. Use the application menu to quit.'
              )
 diff --git a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
-index 3526f38c9c6..74499d26a11 100644
+index 391a7426346..21d8a0a06de 100644
 --- a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
 @@ -1,5 +1,5 @@
@@ -783,14 +783,41 @@ index 8d17200a40a..6a59f409b33 100644
      }
    }, [open, refresh, supported, invalidateReads])
 
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/session-list/AiVaultSessionRow.tsx b/src/renderer/src/components/right-sidebar/ai-vault/session-list/AiVaultSessionRow.tsx
+index 3607e2c0e3e..a6a4b8cf0ac 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/session-list/AiVaultSessionRow.tsx
++++ b/src/renderer/src/components/right-sidebar/ai-vault/session-list/AiVaultSessionRow.tsx
+@@ -33,7 +33,7 @@ import type { AiVaultSearchHit } from '../../../../../../shared/ai-vault/search/
+ import { AiVaultSearchEvidence } from '../search/AiVaultSearchEvidence'
+ import { useAiVaultSessionDisplayTitle } from './use-ai-vault-session-display-title'
+ import { AgentStateDot } from '@/components/AgentStateDot'
+-import { AgentIcon } from '@/lib/agent-catalog'
++import { AgentIcon } from '@/components/agent/icons/AgentIcon'
+
+ export function VaultSessionRow({
+   compact = false,
+diff --git a/src/renderer/src/components/settings/WorkerRoleProfileEditor.test.tsx b/src/renderer/src/components/settings/WorkerRoleProfileEditor.test.tsx
+index de3e769f6cd..1fe07e90605 100644
+--- a/src/renderer/src/components/settings/WorkerRoleProfileEditor.test.tsx
++++ b/src/renderer/src/components/settings/WorkerRoleProfileEditor.test.tsx
+@@ -5,7 +5,7 @@ import { getAgentSessionOptionLaunchCatalog } from '../../../../shared/agent-ses
+ import { WorkerRoleProfileEditor } from './WorkerRoleProfileEditor'
+
+ const mocks = vi.hoisted(() => ({ refresh: vi.fn(), error: '' }))
+-vi.mock('@/lib/agent-catalog', () => ({
++vi.mock('@/lib/agent-catalog/agent-catalog', () => ({
+   getAgentCatalog: () => [
+     { id: 'claude', label: 'Claude' },
+     { id: 'codex', label: 'Codex' },
 diff --git a/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx b/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
-index 2087b5ce259..ed505d15f3d 100644
+index 2087b5ce259..54726274b7d 100644
 --- a/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
 +++ b/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
 @@ -1,6 +1,6 @@
  import { sayNativeChatSessionOptionTranslated as say } from '../native-chat/session/options/controls/native-chat-session-option-labels-text'
- import { getAgentCatalog } from '@/lib/agent-catalog'
+-import { getAgentCatalog } from '@/lib/agent-catalog'
 -import { translate } from '@/i18n/i18n'
++import { getAgentCatalog } from '@/lib/agent-catalog/agent-catalog'
 +import { useTranslate } from '@/i18n/use-translate'
  import {
    findCatalogModel,
@@ -1235,18 +1262,20 @@ index 0db36261a6d..d68299d8835 100644
          ) : null}
        </div>
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
-index db2f082abcd..7e457d1ec4f 100644
+index db2f082abcd..c3b7427f9e9 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
-@@ -3,7 +3,7 @@ import { Archive, ArchiveRestore, Pin, PinOff, Loader2 } from 'lucide-react'
+@@ -3,8 +3,8 @@ import { Archive, ArchiveRestore, Pin, PinOff, Loader2 } from 'lucide-react'
  import { Button } from '@/components/ui/button'
  import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
  import { cn } from '@/lib/utils'
 -import { translate } from '@/i18n/i18n'
+-import { AgentIcon } from '@/lib/agent-catalog'
 +import { useTranslate } from '@/i18n/use-translate'
- import { AgentIcon } from '@/lib/agent-catalog'
++import { AgentIcon } from '@/components/agent/icons/AgentIcon'
  import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
  import type { AgentDotState } from '@/components/AgentStateDot'
+ import type { ConversationPreference } from '../../../../shared/conversation-navigation-preferences'
 @@ -38,19 +38,20 @@ export function ProjectConversationRow({
    onOpen: () => void
    onPreference: (patch: ConversationPreference) => Promise<void>
@@ -1347,10 +1376,10 @@ index 3b8e2e3ae77..63940b22736 100644
                    'Most recent workspace activity'
                  )
 diff --git a/src/renderer/src/components/sidebar/SidebarConversationStart.tsx b/src/renderer/src/components/sidebar/SidebarConversationStart.tsx
-index cdf3abd9b15..4d71bdafa80 100644
+index cdf3abd9b15..57d49aac98e 100644
 --- a/src/renderer/src/components/sidebar/SidebarConversationStart.tsx
 +++ b/src/renderer/src/components/sidebar/SidebarConversationStart.tsx
-@@ -12,7 +12,7 @@ import {
+@@ -12,10 +12,11 @@ import {
    DropdownMenuTrigger
  } from '@/components/ui/dropdown-menu'
  import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -1358,8 +1387,13 @@ index cdf3abd9b15..4d71bdafa80 100644
 +import { useTranslate } from '@/i18n/use-translate'
  import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
  import { useAgentMenuObservation } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
- import { AgentIcon, getAgentCatalog } from '@/lib/agent-catalog'
-@@ -32,6 +32,7 @@ export function SidebarConversationStart({
+-import { AgentIcon, getAgentCatalog } from '@/lib/agent-catalog'
++import { AgentIcon } from '@/components/agent/icons/AgentIcon'
++import { getAgentCatalog } from '@/lib/agent-catalog/agent-catalog'
+ import { launchAgentInNewTab } from '@/lib/agent-session/launch/new-tab/launch-agent-in-new-tab'
+ import { activateAndRevealWorkspace } from '@/lib/workspace/activation/worktree-activation'
+ import { newAgentLaunchRequestId } from '@/lib/agent-session/launch/routing/agent-launch-request-id'
+@@ -32,6 +33,7 @@ export function SidebarConversationStart({
    executionHostId: ExecutionHostId
    projectName: string
  }): React.JSX.Element | null {
@@ -1367,7 +1401,7 @@ index cdf3abd9b15..4d71bdafa80 100644
    useTranslation()
    const [open, setOpen] = useState(false)
    const resolvedHost = useAppStore((state) =>
-@@ -47,7 +48,7 @@ export function SidebarConversationStart({
+@@ -47,7 +49,7 @@ export function SidebarConversationStart({
      ownsTarget ? target : undefined
    )
    const rows = model.state === 'settled' ? model.rows.filter((row) => row.kind === 'chat') : []
@@ -1376,7 +1410,7 @@ index cdf3abd9b15..4d71bdafa80 100644
      project: projectName
    })
    const launch = (row: NewTabAgentMenuRow): void => {
-@@ -103,11 +104,8 @@ export function SidebarConversationStart({
+@@ -103,11 +105,8 @@ export function SidebarConversationStart({
          {rows.length === 0 ? (
            <DropdownMenuItem disabled>
              {model.state === 'loading'
@@ -1488,7 +1522,7 @@ index a30e99db97b..ee7e1bcc3d1 100644
            refreshRemote ??
            (async () => {
 diff --git a/src/renderer/src/components/stats/StatsPane.tsx b/src/renderer/src/components/stats/StatsPane.tsx
-index 188646876ae..d67003ec47f 100644
+index 5c4f28b1527..c7cb2992163 100644
 --- a/src/renderer/src/components/stats/StatsPane.tsx
 +++ b/src/renderer/src/components/stats/StatsPane.tsx
 @@ -271,7 +271,7 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
@@ -1509,6 +1543,36 @@ index 188646876ae..d67003ec47f 100644
                      icon={<GitPullRequest className="size-4" />}
                    />
                  </div>
+diff --git a/src/renderer/src/components/stats/StatsPane.usage.test.tsx b/src/renderer/src/components/stats/StatsPane.usage.test.tsx
+index d7b8318fa2d..248fc4150da 100644
+--- a/src/renderer/src/components/stats/StatsPane.usage.test.tsx
++++ b/src/renderer/src/components/stats/StatsPane.usage.test.tsx
+@@ -66,8 +66,8 @@ vi.mock('./use-usage-history', () => ({
+     enable: noop
+   })
+ }))
+-vi.mock('@/lib/agent-catalog', () => ({
+-  AgentIcon: () => <span />,
++vi.mock('@/components/agent/icons/AgentIcon', () => ({ AgentIcon: () => <span /> }))
++vi.mock('@/lib/agent-catalog/agent-catalog', () => ({
+   getAgentLabel: (agent: string) =>
+     ({ claude: 'Claude', codex: 'Codex', opencode: 'OpenCode', muse: 'Muse' })[agent] ?? agent
+ }))
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
+index 48d6785febf..0da8fab1218 100644
+--- a/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
++++ b/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
+@@ -10,8 +10,8 @@ import { UsageAccountQuotas, UsageAccountQuotaCard } from './UsageAccountQuotas'
+ import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'
+
+ vi.mock('../../store', () => ({ useAppStore: () => vi.fn() }))
+-vi.mock('@/lib/agent-catalog', () => ({
+-  AgentIcon: () => <span />,
++vi.mock('@/components/agent/icons/AgentIcon', () => ({ AgentIcon: () => <span /> }))
++vi.mock('@/lib/agent-catalog/agent-catalog', () => ({
+   getAgentLabel: (agent: string) => agent
+ }))
+ vi.mock('@/i18n/i18n', () => ({
 diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
 index c59060dba45..61fd3bb0854 100644
 --- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
@@ -1685,18 +1749,20 @@ index c59060dba45..61fd3bb0854 100644
      </section>
    )
 diff --git a/src/renderer/src/components/stats/UsageHistoryDailyChart.tsx b/src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
-index 4e4cb3004ed..c60eddb1b5c 100644
+index 4e4cb3004ed..2d7d7cc122d 100644
 --- a/src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
 +++ b/src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
-@@ -11,7 +11,7 @@ import {
+@@ -11,8 +11,8 @@ import {
  } from './usage-history-chart-model'
  import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
  import { formatUsageDayLabel } from './usage-formatters'
 -import { getIntlLocale, translate } from '@/i18n/i18n'
+-import { getAgentLabel } from '@/lib/agent-catalog'
 +import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
- import { getAgentLabel } from '@/lib/agent-catalog'
++import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
 
  export function UsageHistoryDailyChart({
+   rows,
 @@ -27,6 +27,8 @@ export function UsageHistoryDailyChart({
    onDay: (day: string) => void
    today?: string
@@ -1814,10 +1880,10 @@ index 4e4cb3004ed..c60eddb1b5c 100644
              'Some usage has no recorded price. The chart shows the priced portion; * marks a partial estimate. This is not a billing statement.'
            )}
 diff --git a/src/renderer/src/components/stats/UsageHistoryDetails.tsx b/src/renderer/src/components/stats/UsageHistoryDetails.tsx
-index e5cc66c0bbc..8dceb005179 100644
+index e5cc66c0bbc..fc3ec8276a2 100644
 --- a/src/renderer/src/components/stats/UsageHistoryDetails.tsx
 +++ b/src/renderer/src/components/stats/UsageHistoryDetails.tsx
-@@ -8,7 +8,8 @@ import {
+@@ -8,10 +8,11 @@ import {
    type UsageHistoryGroup
  } from './usage-history-model'
  import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
@@ -1826,7 +1892,11 @@ index e5cc66c0bbc..8dceb005179 100644
 +import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
  import { usageHistoryAccountLabel } from './usage-history-accounts'
  import { USAGE_PROVIDER_COLORS } from './usage-history-chart-model'
- import { getAgentLabel } from '@/lib/agent-catalog'
+-import { getAgentLabel } from '@/lib/agent-catalog'
++import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
+
+ export { UsageHistoryDailyChart } from './UsageHistoryDailyChart'
+
 @@ -24,17 +25,19 @@ function HistoryTotalsList({
    rows: UsageHistoryGroup[]
    onSelect: (value: string) => void
@@ -2129,6 +2199,19 @@ index 0185a014334..d8d43af3e02 100644
              day: selection.day
            })}
          </Button>
+diff --git a/src/renderer/src/components/stats/UsageOverviewPane.tsx b/src/renderer/src/components/stats/UsageOverviewPane.tsx
+index 052b9b6cd9c..41dc7dc38f8 100644
+--- a/src/renderer/src/components/stats/UsageOverviewPane.tsx
++++ b/src/renderer/src/components/stats/UsageOverviewPane.tsx
+@@ -20,7 +20,7 @@ import {
+ import { formatUsageCost, formatUsageTokens } from './usage-overview-model'
+ import { useUsageHistory } from './use-usage-history'
+ import { usageHistoryAccountLabels } from './usage-history-accounts'
+-import { getAgentLabel } from '@/lib/agent-catalog'
++import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
+ import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
+
+ const PROVIDERS: readonly { value: UsageHistoryProvider; label: string }[] = [
 diff --git a/src/renderer/src/components/stats/UsageRecentSessionsTable.tsx b/src/renderer/src/components/stats/UsageRecentSessionsTable.tsx
 index bc671c60d73..eac4063129f 100644
 --- a/src/renderer/src/components/stats/UsageRecentSessionsTable.tsx
@@ -2368,12 +2451,15 @@ index 3a13b867855..de403ec6602 100644
      const digits = value < 0.01 ? 4 : 2
      return new Intl.NumberFormat(locale, {
 diff --git a/src/renderer/src/components/stats/usage-history-accounts.ts b/src/renderer/src/components/stats/usage-history-accounts.ts
-index 29cc7f0292f..f829d2a03cf 100644
+index 29cc7f0292f..c250b106b74 100644
 --- a/src/renderer/src/components/stats/usage-history-accounts.ts
 +++ b/src/renderer/src/components/stats/usage-history-accounts.ts
-@@ -4,6 +4,7 @@ import { buildClaudeStatusSwitchGroups } from '../status-bar/status-bar-claude-a
+@@ -2,8 +2,9 @@ import type { UsageHistoryRow } from '../../../../shared/usage-history-types'
+ import type { ProviderAccountsSnapshot } from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
+ import { buildClaudeStatusSwitchGroups } from '../status-bar/status-bar-claude-accounts'
  import { buildCodexStatusSwitchGroups } from '../status-bar/status-bar-codex-accounts'
- import { getAgentLabel } from '@/lib/agent-catalog'
+-import { getAgentLabel } from '@/lib/agent-catalog'
++import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
  import { translate } from '@/i18n/i18n'
 +import type { Translate } from '@/i18n/use-translate'
  import { usageHistoryAccountKey } from './usage-history-model'
@@ -2411,14 +2497,16 @@ index 8a2f15e23bc..31c4857928a 100644
        ) : null}
        <TabSessionSurfaceSwitchMenuItems
 diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
-index f71ca642901..c06c9e25660 100644
+index f71ca642901..a698fda1489 100644
 --- a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
-@@ -2,7 +2,7 @@ import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
+@@ -1,8 +1,8 @@
+ import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
  import { FilePlus, FileText, Globe, Settings, Smartphone, TerminalSquare } from 'lucide-react'
  import { Button } from '@/components/ui/button'
- import { AgentIcon } from '@/lib/agent-catalog'
+-import { AgentIcon } from '@/lib/agent-catalog'
 -import { translate } from '@/i18n/i18n'
++import { AgentIcon } from '@/components/agent/icons/AgentIcon'
 +import { useTranslate } from '@/i18n/use-translate'
  import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
  import type { TabCreateMenuOption } from '../tab-bar/tab-create-menu-options'
