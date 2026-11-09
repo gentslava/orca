@@ -1,16 +1,3 @@
-diff --git a/mobile/src/test-support/rpc-recording/subscription-recording.test.ts b/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
-index fafe399fe04..a203b6b3a72 100644
---- a/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
-+++ b/mobile/src/test-support/rpc-recording/subscription-recording.test.ts
-@@ -96,7 +96,7 @@ describe('subscription recordings', () => {
-         ({ client }) => mount(client),
-         vitestRecordingScheduler()
-       )
--    ).rejects.toThrow("Cannot read properties of undefined (reading 'message')")
-+    ).rejects.toThrow(TypeError)
-     expect(listened).toEqual([])
-   })
-   it('observes a stream the product left registered at teardown, and nothing when it closes', async () => {
 diff --git a/src/main/ipc/shell-repo-icon-image.test.ts b/src/main/ipc/shell-repo-icon-image.test.ts
 index 702598d88d5..7a390a5a3f0 100644
 --- a/src/main/ipc/shell-repo-icon-image.test.ts
@@ -218,36 +205,32 @@ index 00000000000..507a8a3f0fa
 +  ])
 +  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
 +})
-diff --git a/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx b/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx
-index c2bf6ba7a61..67ea74e38d9 100644
---- a/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx
-+++ b/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.tsx
-@@ -21,7 +21,7 @@ import {
- import { useBundledSkillInstallAction } from '@/hooks/use-bundled-skill-install-action'
- import { cn } from '@/lib/utils'
- import { translate } from '@/i18n/i18n'
--import { ManageInstalledSkillsButton } from '../../settings/ManageInstalledSkillsButton'
-+import { ManageInstalledSkillsButton } from './ManageInstalledSkillsButton'
- 
- function BundledAgentSkillSetupPanel({
-   title,
 diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-index 6777b8f6281..1c71544ed8a 100644
+index 0ded459a3da..7ec9fe6c970 100644
 --- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 +++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-@@ -3,6 +3,8 @@ import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-cha
- import { act, cleanup, renderHook } from '@testing-library/react'
+@@ -6,6 +6,17 @@ import { TooltipProvider } from '@/components/ui/tooltip'
+ import { AGENT_CATALOG } from '@/lib/agent-catalog'
  import { afterEach, expect, it, vi } from 'vitest'
  import { useAppStore } from '@/store'
-+import { getRuntimeAgentInventoryKey } from '@/store/slices/runtime-agent-inventory-key'
-+import { NEW_TAB_TWIN_HOSTS, NEW_TAB_PAIRED_STATUS, newTabTwinHostWorkspaces } from './new-tab-agent-menu-twin-host.test-fixture'
++import { getRuntimeAgentInventoryKey } from '@/store/slices/agent-inventory/runtime-agent-inventory-key'
++import {
++  NEW_TAB_TWIN_HOSTS,
++  NEW_TAB_PAIRED_STATUS,
++  newTabTwinHostWorkspaces
++} from './new-tab-agent-menu-twin-host.test-fixture'
++import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat'
++import {
++  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
++  STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
++} from '../../../../shared/agent-session/agent-session-runtime-capabilities'
+ 
  import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
  import '@/lib/agent-session/launch/routing/agent-launch-route-input'
- import { workspaceKindForWorktreeId } from '../../../../shared/workspace-launch-kind'
-@@ -122,3 +124,78 @@ it('settles ownerless continuation and plus inventory without borrowing agents,
-     hook.unmount()
-   }
+@@ -220,3 +231,78 @@ it('waits on a paired server only while contact is checking without a reported O
  })
+ 
+ /** Copies whose owner-field reads (`id`, `executionHostId`) are counted. */
 +
 +it.each(['git-worktree', 'folder'] as const)(
 +  'keeps %s discovery and chat rows on the explicitly named twin host',

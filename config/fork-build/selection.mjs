@@ -27,7 +27,10 @@ export function orderSelections(selections, dependencies = {}) {
   return ordered
 }
 
-export async function resolveSelection(config, { openOwn, previous = [], readPr }) {
+export async function resolveSelection(
+  config,
+  { openOwn, previous = [], readPr, readRetainedHead }
+) {
   const retained = config.retainClosed || {}
   for (const [number, reason] of Object.entries(retained)) {
     if (
@@ -37,6 +40,21 @@ export async function resolveSelection(config, { openOwn, previous = [], readPr 
       config.replacements[number]
     ) {
       throw new Error(`Invalid closed PR retention: PR ${number}`)
+    }
+  }
+  const retainedSources = config.retainedHeadSources || {}
+  for (const [number, source] of Object.entries(retainedSources)) {
+    if (
+      !retained[number] ||
+      !source ||
+      typeof source.repository !== 'string' ||
+      !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(source.repository) ||
+      typeof source.ref !== 'string' ||
+      !source.ref.startsWith('refs/heads/') ||
+      source.ref.includes(':') ||
+      /[\r\n]/.test(source.ref)
+    ) {
+      throw new Error(`Invalid retained PR branch source: PR ${number}`)
     }
   }
   const numbers = new Set([
@@ -73,11 +91,31 @@ export async function resolveSelection(config, { openOwn, previous = [], readPr 
       throw new Error(`Unsupported PR base: PR ${number}`)
     }
     if (pr.state === 'closed' && !pr.merged_at && retained[number]) {
-      records.set(number, pr)
+      const source = retainedSources[number]
+      let selected = pr
+      if (source) {
+        if (
+          pr.head.repo?.full_name !== source.repository ||
+          `refs/heads/${pr.head.ref}` !== source.ref ||
+          typeof readRetainedHead !== 'function'
+        ) {
+          throw new Error(`Retained PR branch identity cannot be verified: PR ${number}`)
+        }
+        const sha = await readRetainedHead(source)
+        if (!/^[a-f0-9]{40}$/.test(sha)) {
+          throw new Error(`Invalid retained PR branch head: PR ${number}`)
+        }
+        selected = {
+          ...pr,
+          head: { ...pr.head, sha },
+          retainedHeadSource: { ...source, closedHeadSha: pr.head.sha }
+        }
+      }
+      records.set(number, selected)
       lifecycle.push({
         number,
         disposition: 'retained-closed',
-        head: pr.head.sha,
+        head: selected.head.sha,
         reason: retained[number]
       })
       return

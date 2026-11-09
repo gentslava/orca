@@ -1,15 +1,33 @@
-diff --git a/src/renderer/src/components/native-chat/NativeChatToolLine.tsx b/src/renderer/src/components/native-chat/NativeChatToolLine.tsx
---- a/src/renderer/src/components/native-chat/NativeChatToolLine.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatToolLine.tsx
-@@ -29,6 +29,7 @@
- import { useNativeChatDisclosure } from './native-chat-disclosure-store'
+diff --git a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
+index b1ce76b..f96825d 100644
+--- a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
++++ b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
+@@ -29,6 +29,7 @@ import { NativeChatExpandable } from '../../messages/disclosure/NativeChatExpand
+ import { useNativeChatDisclosure } from '../../messages/disclosure/native-chat-disclosure-store'
  import { NativeChatToolOutput } from './NativeChatToolOutput'
  import { NativeChatToolInvocation } from './NativeChatToolInvocation'
-+import { NativeChatForegroundTaskAction } from './NativeChatForegroundTaskAction'
++import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
  
  const TARGET_CLASS =
-   'min-w-0 truncate text-chat-foreground transition-colors group-hover/tool-line:text-chat-foreground-strong'
-@@ -121,64 +122,73 @@
+   'min-w-0 text-chat-foreground transition-colors group-hover/tool-line:text-chat-foreground-strong'
+@@ -47,6 +48,7 @@ function ToolLineDetail({
+   commandLanguage: string | null
+   results: NativeChatWebSearchResult[]
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const diff = isToolCallBlock(block)
+     ? diffFromToolCall(block.name, block.input)
+     : isToolResultBlock(block)
+@@ -73,7 +75,7 @@ function ToolLineDetail({
+         <div className="space-y-1">
+           {isToolCallBlock(block) ? (
+             <p className="text-xs text-chat-foreground-faint">
+-              {translate('components.native-chat.tool.output', 'Output')}
++              {t('components.native-chat.tool.output', 'Output')}
+             </p>
+           ) : null}
+           <NativeChatToolOutput body={body} />
+@@ -122,67 +124,76 @@ export function NativeChatToolLine({
  
    return (
      <div>
@@ -46,6 +64,26 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatToolLine.tsx b/sr
 -          >
 -            {label?.verb ??
 -              (isCall ? <NativeChatToolName name={name} mcpIdentity={block.mcpIdentity} /> : name)}
+-          </span>
+-        )}
+-        {label?.filePath ? (
+-          <NativeChatToolFileTarget
+-            path={label.filePath}
+-            label={label.target}
+-            className={cn(TARGET_CLASS, 'truncate')}
+-          />
+-        ) : (label?.target ?? resultPreview) ? (
+-          <span
+-            className={cn(TARGET_CLASS, expanded ? 'whitespace-normal break-words' : 'truncate')}
+-            title={label?.title ?? resultPreview}
+-          >
+-            {label?.target ?? resultPreview}
+-          </span>
+-        ) : null}
+-        <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">
+-          {isCall ? <NativeChatCommandMetadata block={block} /> : null}
+-          {hasDetail ? (
+-            <ChevronRight
 +      <div className="flex min-w-0 items-center gap-2">
 +        <button
 +          type="button"
@@ -73,10 +111,12 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatToolLine.tsx b/sr
 +            <span className="sr-only">{label?.verb} </span>
 +          ) : (
 +            <span
-+              className={cn(
+               className={cn(
+-                'size-3.5 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
+-                expanded && 'rotate-90'
 +                'text-chat-foreground-faint transition-colors group-hover/tool-line:text-chat-foreground',
 +                label?.verb ? 'shrink-0' : 'min-w-0 truncate'
-+              )}
+               )}
 +            >
 +              {label?.verb ??
 +                (isCall ? (
@@ -90,13 +130,18 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatToolLine.tsx b/sr
 +            <NativeChatToolFileTarget
 +              path={label.filePath}
 +              label={label.target}
-+              className={TARGET_CLASS}
-+            />
++              className={cn(TARGET_CLASS, 'truncate')}
+             />
 +          ) : (label?.target ?? resultPreview) ? (
-+            <span className={TARGET_CLASS} title={label?.title ?? resultPreview}>
++            <span
++              className={cn(TARGET_CLASS, expanded ? 'whitespace-normal break-words' : 'truncate')}
++              title={label?.title ?? resultPreview}
++            >
 +              {label?.target ?? resultPreview}
 +            </span>
-+          ) : null}
+           ) : null}
+-        </span>
+-      </button>
 +          <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">
 +            {isCall ? <NativeChatCommandMetadata block={block} /> : null}
 +            {hasDetail ? (
@@ -107,34 +152,11 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatToolLine.tsx b/sr
 +                )}
 +              />
 +            ) : null}
-           </span>
--        )}
--        {label?.filePath ? (
--          <NativeChatToolFileTarget
--            path={label.filePath}
--            label={label.target}
--            className={TARGET_CLASS}
--          />
--        ) : (label?.target ?? resultPreview) ? (
--          <span className={TARGET_CLASS} title={label?.title ?? resultPreview}>
--            {label?.target ?? resultPreview}
--          </span>
++          </span>
 +        </button>
 +        {isCall && block.state === 'running' && !body ? (
 +          <NativeChatForegroundTaskAction toolUseId={block.callId} />
-         ) : null}
--        <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">
--          {isCall ? <NativeChatCommandMetadata block={block} /> : null}
--          {hasDetail ? (
--            <ChevronRight
--              className={cn(
--                'size-3.5 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
--                expanded && 'rotate-90'
--              )}
--            />
--          ) : null}
--        </span>
--      </button>
++        ) : null}
 +      </div>
        {hasDetail ? (
          <NativeChatExpandable open={expanded}>

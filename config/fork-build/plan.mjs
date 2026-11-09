@@ -3,9 +3,10 @@ import { createHash } from 'node:crypto'
 import { join, resolve } from 'node:path'
 import { api, readLedger, renderReport } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
-import { assertFrozenHead, compose, git } from './composition.mjs'
+import { assertFrozenHead, compose, freezeRetainedHead, git } from './composition.mjs'
 import { controlFingerprint } from './promotion.mjs'
 import { currentCompatibilityPatch } from './retired-test-fixtures.mjs'
+import { applyForkLocalizations } from './fork-localizations.mjs'
 import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/build-mac-local.mjs'
 
 const here = import.meta.dirname
@@ -50,7 +51,9 @@ try {
   const resolved = await resolveSelection(config, {
     openOwn: own,
     previous: ledger.tracked,
-    readPr: async (number) => api(`repos/${config.upstream}/pulls/${number}`)
+    readPr: async (number) => api(`repos/${config.upstream}/pulls/${number}`),
+    readRetainedHead: async ({ repository, ref }) =>
+      api(`repos/${repository}/git/ref/${ref.slice('refs/'.length)}`).object.sha
   })
   Object.assign(plan, resolved)
   const source = join(directory, 'source')
@@ -64,11 +67,15 @@ try {
   }
   git(source, ['remote', 'add', 'origin', `https://github.com/${config.upstream}.git`])
   const selectedRefs = plan.selections.map((pr) =>
-    pr.merged_at ? pr.merge_commit_sha : `refs/pull/${pr.number}/head:refs/personal/pr-${pr.number}`
+    pr.merged_at
+      ? pr.merge_commit_sha
+      : `refs/pull/${pr.number}/head:refs/personal/${pr.retainedHeadSource ? 'closed-pr' : 'pr'}-${pr.number}`
   )
   git(source, ['fetch', '--no-tags', 'origin', plan.upstream, ...new Set(selectedRefs)])
   for (const pr of plan.selections) {
-    if (!pr.merged_at) {
+    if (pr.retainedHeadSource) {
+      freezeRetainedHead(source, pr)
+    } else if (!pr.merged_at) {
       assertFrozenHead(source, pr.number, pr.head.sha)
     }
   }
@@ -80,7 +87,6 @@ try {
         'test-runner-registration.patch',
         'integration-module-boundaries.patch',
         'conversation-project-order.patch',
-        'settings-owner-relocations.patch',
         'model-fallback-next-turn-test.patch',
         'reviewed-merge-target-paths.patch',
         'upstream-module-relocations.patch',
@@ -133,6 +139,11 @@ try {
       })
     }
   }
+  try {
+    plan.localizations = applyForkLocalizations(source, here, git, plan.timestamp)
+  } catch (error) {
+    plan.blockers.push({ reason: `Required fork localization failed: ${error.message}` })
+  }
   plan.result.commit = git(source, ['rev-parse', 'HEAD'])
   plan.result.tree = git(source, ['rev-parse', 'HEAD^{tree}'])
   plan.compatibilityContract = JSON.parse(
@@ -153,9 +164,16 @@ try {
       JSON.stringify({
         configuration: controlFingerprint(process.cwd(), configuration),
         upstream: plan.upstream,
-        heads: plan.selections.map((pr) => [pr.number, pr.state, pr.head.sha, pr.merge_commit_sha]),
+        heads: plan.selections.map((pr) => [
+          pr.number,
+          pr.state,
+          pr.head.sha,
+          pr.merge_commit_sha,
+          pr.retainedHeadSource ?? null
+        ]),
         outputs: config.outputs,
-        compatibility: plan.compatibility
+        compatibility: plan.compatibility,
+        localizations: plan.localizations
       })
     )
     .digest('hex')

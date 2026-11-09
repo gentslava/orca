@@ -47,17 +47,25 @@
     "test-runner-registration.patch",
     "integration-module-boundaries.patch",
     "conversation-project-order.patch",
-    "settings-owner-relocations.patch",
     "model-fallback-next-turn-test.patch",
     "reviewed-merge-target-paths.patch",
     "upstream-module-relocations.patch",
     "startup-chat-catalog.patch",
     "project-start-actions.patch",
-    "composed-format.patch",
     "composed-ci-contracts.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
     "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
+  },
+  "retainedHeadSources": {
+    "34365": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/gentslava/android-picker-refusal-diagnostics"
+    },
+    "38848": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/fix/queue-last-message-shortcut-20261106"
+    }
   }
 }

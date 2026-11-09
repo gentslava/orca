@@ -1,7 +1,8 @@
 diff --git a/mobile/src/host-screen/host-screen-operations.ts b/mobile/src/host-screen/host-screen-operations.ts
+index 6c52274..e87741c 100644
 --- a/mobile/src/host-screen/host-screen-operations.ts
 +++ b/mobile/src/host-screen/host-screen-operations.ts
-@@ -154,3 +154,22 @@
+@@ -154,3 +154,22 @@ export const conversationPreferenceWrite = bindDeferredRpcOperation(
      )
    })
  )

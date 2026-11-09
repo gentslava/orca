@@ -1,8 +1,8 @@
 diff --git a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
-index 0d731e8dcd3..5636b33035d 100644
+index c68822adc6a..ceac34e2b3b 100644
 --- a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
 +++ b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
-@@ -316,9 +316,7 @@ export function MobileNativeChatSessionOptionPickers({
+@@ -320,9 +320,7 @@ export function MobileNativeChatSessionOptionPickers({
                      onToggle: () => setMoreModelsShown((shown) => !shown)
                    },
                    onReset: controller.optionSurface?.resetOption
@@ -14,10 +14,10 @@ index 0d731e8dcd3..5636b33035d 100644
                    ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
                  },
 diff --git a/resources/skills/released-digests.json b/resources/skills/released-digests.json
-index ecbc2710ac4..b715bd9b904 100644
+index d13be653f32..1a06c240405 100644
 --- a/resources/skills/released-digests.json
 +++ b/resources/skills/released-digests.json
-@@ -135,6 +135,7 @@
+@@ -136,6 +136,7 @@
        "36bc32f022447418b566db35f9ffcff75113eb023e37d06fd1bd609c5dd173ef",
        "3899a8a6da1d7a962e1029d002f7187058543e47a230b6459756a41bc08af4a7",
        "4b3e686cb2b106c2db8ecab53d4b000b4356cca63d4a7f7e3cf6db8798c38fed",
@@ -25,7 +25,7 @@ index ecbc2710ac4..b715bd9b904 100644
        "4bb49dd8fb3062af4424f912909d52914f377e6dd3fcd12ed5296e7781bdabe4",
        "58b954fe6ad604c926ed7ba4810f8ad04046be5030346b54eb3a210a6859125f",
        "6053ed840323522c3bac235007b2241df897857a6974dfd784f7e539b2b98a10",
-@@ -153,12 +154,14 @@
+@@ -154,12 +155,14 @@
        "b790fb1701b28787e579cd97a5c72827eb4659077e7529003f175485fbcb3e17",
        "cd1b364bf35781bad06bf75ab1766afa8d6cec69cb2060529691d89871a2098a",
        "ce9a81cb2e6bbb8487107d2e088bf9fd6e0ba71ebc6bcc1929f827fde65fec6b",
@@ -74,18 +74,19 @@ index 76f08928d19..b83e103251f 100644
  export function NativeChatForegroundTaskAction(props: { toolUseId?: string; taskId?: string }) {
    const actions = useContext(Context)
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-index 9c015af0303..c030a0cf44b 100644
+index 0622ee56b15..72b0efa7d76 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-@@ -1,6 +1,6 @@
- import { NativeChatStructuredPrompts } from './NativeChatStructuredAsyncQuestion'
- import { NativeChatPaneFileDropScope } from './NativeChatPaneFileDropSurface'
+@@ -3,7 +3,7 @@ import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPane
+ import { useNativeChatHandOff } from './pane/actions/use-native-chat-hand-off'
+ import { useNativeChatStructuredPaneNotices } from '@/components/native-chat/messages/notices/use-native-chat-structured-pane-notices'
+ import { useNativeChatPaneFork } from '@/components/native-chat/messages/actions/use-native-chat-fork'
 -import { NativeChatForegroundTasksProvider } from './NativeChatForegroundTaskAction'
 +import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
- import { useNativeChatHandOff } from './use-native-chat-hand-off'
  import { cn } from '@/lib/utils'
- import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './native-chat-appearance-style'
-@@ -409,15 +409,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+ import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from '@/components/native-chat/appearance/native-chat-appearance-style'
+ import { useNativeChatStoreAppearanceStyle } from '@/components/native-chat/appearance/use-native-chat-store-appearance-style'
+@@ -403,15 +403,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
    )
    return (
      <NativeChatLinkClickContext value={onLinkClick}>

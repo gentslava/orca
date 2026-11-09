@@ -1,7 +1,8 @@
 diff --git a/src/shared/rpc-contract/ai-vault-params.ts b/src/shared/rpc-contract/ai-vault-params.ts
+index 79e9214..89cfb06 100644
 --- a/src/shared/rpc-contract/ai-vault-params.ts
 +++ b/src/shared/rpc-contract/ai-vault-params.ts
-@@ -35,6 +35,7 @@
+@@ -32,6 +32,7 @@ export const AiVaultListSessionsParams = z
        .optional(),
      includeAntigravityIdeSessions: OptionalBoolean,
      includeStructuredSessions: OptionalBoolean,

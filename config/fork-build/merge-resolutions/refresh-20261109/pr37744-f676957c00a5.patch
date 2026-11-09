@@ -1,15 +1,16 @@
-diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx
---- a/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx
-@@ -5,6 +5,7 @@
- import { agentSessionPromptQuestions } from '../../../../shared/agent-session/agent-session-question-answer'
+diff --git a/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx b/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
+index c8b0404..7448c6d 100644
+--- a/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
++++ b/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
+@@ -5,6 +5,7 @@ import { NativeChatApprovalCard } from './NativeChatApprovalCard'
+ import { agentSessionPromptQuestions } from '../../../../../shared/agent-session/agent-session-question-answer'
  import type { RefObject } from 'react'
  import type { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
-+import { sessionLinkOwnerQuestion } from './SessionLinkOwnerQuestion'
- import { asyncQuestionSourceScope } from '../../../../shared/native-chat/input/native-chat-ask'
- import { structuredAgentSessionPaneKey } from '../../../../shared/agent-session/view/structured-agent-session-projection'
- import { structuredAgentSessionHostKey } from '../../runtime/structured-agent-session-host-capability'
-@@ -118,8 +119,11 @@
++import { sessionLinkOwnerQuestion } from '../SessionLinkOwnerQuestion'
+ import { asyncQuestionSourceScope } from '../../../../../shared/native-chat/input/native-chat-ask'
+ import { structuredAgentSessionPaneKey } from '../../../../../shared/agent-session/view/structured-agent-session-projection'
+ import { structuredAgentSessionHostKey } from '../../../runtime/native-chat/host-capabilities/structured-agent-session-host-capability'
+@@ -118,8 +119,11 @@ function NativeChatAsyncQuestionForm({
    )
  }
  
@@ -18,12 +19,12 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQu
 +export function nativeChatStructuredQuestions(
 +  props: Pick<
 +    NativeChatStructuredViewProps,
-+    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible'
++    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible' | 'isFocusedGroup'
 +  >,
    controller: Pick<
      ReturnType<typeof useStructuredAgentSession>,
      'epoch' | 'prompts' | 'submissions'
-@@ -131,23 +135,26 @@
+@@ -131,23 +135,26 @@ export function nativeChatStructuredAsyncQuestion(
    const { agent, sessionId } = props
    const { epoch } = controller
    return (
@@ -67,12 +68,18 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQu
    )
  }
  
-@@ -200,7 +207,7 @@
+@@ -200,7 +207,13 @@ export function NativeChatStructuredPrompts({
            answerInputRef={answerInputRef}
          />
        ) : null}
 -      {nativeChatStructuredAsyncQuestion(pane, controller, session, transport, submits)}
-+      {nativeChatStructuredQuestions(pane, controller, session, transport, submits)}
++      {nativeChatStructuredQuestions(
++        { ...pane, isFocusedGroup: shouldFocus },
++        controller,
++        session,
++        transport,
++        submits
++      )}
      </>
    )
  }

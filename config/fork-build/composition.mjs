@@ -61,6 +61,28 @@ export function assertFrozenHead(cwd, number, expected) {
   }
 }
 
+export function freezeRetainedHead(cwd, pr, runGit = git) {
+  const source = pr.retainedHeadSource
+  if (runGit(cwd, ['rev-parse', `refs/personal/closed-pr-${pr.number}`]) !== source.closedHeadSha) {
+    throw new Error(`Closed PR ${pr.number} moved after snapshot; rerun planning`)
+  }
+  runGit(cwd, ['check-ref-format', source.ref])
+  runGit(cwd, [
+    'fetch',
+    '--no-tags',
+    `https://github.com/${source.repository}.git`,
+    `${source.ref}:refs/personal/pr-${pr.number}`
+  ])
+  if (runGit(cwd, ['rev-parse', `refs/personal/pr-${pr.number}`]) !== pr.head.sha) {
+    throw new Error(`Retained PR ${pr.number} branch moved after snapshot; rerun planning`)
+  }
+  try {
+    runGit(cwd, ['merge-base', '--is-ancestor', source.closedHeadSha, pr.head.sha])
+  } catch {
+    throw new Error(`Retained PR ${pr.number} branch does not descend from its closed head`)
+  }
+}
+
 function mergeAndValidateCatalogs(cwd, before, incoming, upstream) {
   const repaired = []
   let base
