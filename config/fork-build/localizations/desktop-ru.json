@@ -351,10 +351,6 @@
       "ownerAnswered": "Владелец ответил"
     },
     "native-chat": {
-      "contextUsage": {
-        "deferredTitle": "По требованию",
-        "deferredDescription": "Не входят в текущий расход контекста. Загружаются при необходимости."
-      },
       "writeNotice": {
         "notDoneBackgroundTask": "Не удалось перевести задачу в фон."
       },
