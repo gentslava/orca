@@ -101,11 +101,15 @@ it('preserves a checked image permission refusal without exposing handler detail
       )
     })
     const verbs = held.verbs
-    if (verbs === null) throw new Error('Native verbs did not mount')
+    if (verbs === null) {
+      throw new Error('Native verbs did not mount')
+    }
     const pending = verbs.readClipboardText().catch((error: unknown) => error)
     await pair.flush()
     const error = await pending
-    if (!(error instanceof NativeVerbError)) throw new Error('Native refusal lost its checked type')
+    if (!(error instanceof NativeVerbError)) {
+      throw new Error('Native refusal lost its checked type')
+    }
     expect(error.reason).toBe('native_image_permission_denied')
     expect(error.message).not.toContain('device-private detail')
   } finally {
