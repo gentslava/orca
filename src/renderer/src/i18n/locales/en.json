@@ -21689,7 +21689,6 @@
       "endedShort": "Ended",
       "waitingShort": "Waiting",
       "title": "Work together",
-      "linked": "Linked with",
       "linkedAgent": "Linked with {{agent}} ({{role}})",
       "roleReviewer": "reviewer",
       "roleImplementer": "implementer",
