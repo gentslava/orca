@@ -1,7 +1,14 @@
+import type { HostWorktreeActionsArgs } from './host-worktree-actions-contract'
+import { PERSONAL_PROJECT_ORDER_CAPABILITY } from '../../../src/shared/personal-project-order'
+
+import {
+  captureMobilePersonalOpening,
+  applyAcknowledgedMobilePersonalOpening
+} from '../worktree/personal-project-opening'
 import { useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { ORCA_SIDEBAR_INPUTS_IS_MAIN } from '../../../src/shared/sidebar-inputs-switch'
-import type { useRouter } from 'expo-router'
+
 import { floatingWorkspaceSessionPath } from '../session/floating-workspace'
 import { holdSessionLeave } from '../session/session-leave-guard'
 import { savePinnedIds } from '../storage/preferences'
@@ -25,7 +32,6 @@ import {
   worktreePinWrite,
   worktreeSleep
 } from './host-screen-operations'
-import type { HostScreenState } from './use-host-screen-state'
 import { useHostWorktreeDelete } from './use-host-worktree-delete'
 import { defineHostMutation, useHostMutation, type HostMutationPhase } from '../query/host-mutation'
 
@@ -48,18 +54,7 @@ const workspaceRename = defineHostMutation({
   confirm: sendWorkspaceRename
 })
 
-export function useHostWorktreeActions(args: {
-  client: RpcClient | null
-  connState: ConnectionState
-  embedded: boolean
-  fetchWorktrees: (options?: { allowDuringModal?: boolean }) => Promise<void>
-  forgetHostClient: ReturnType<typeof useForgetHostClient>
-  hostCapabilities: readonly string[]
-  hostId: string | undefined
-  pathname: string
-  router: ReturnType<typeof useRouter>
-  state: HostScreenState
-}) {
+export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
   const {
     client,
     connState,
@@ -260,7 +255,7 @@ export function useHostWorktreeActions(args: {
   )
 
   const openWorktreeSession = useCallback(
-    (item: Worktree, paneKey?: string) => {
+    async (item: Worktree, paneKey?: string) => {
       const server = serverWorkspaces.hosts.find((host) => host.hostId === item.hostId)
       if (server?.relay === 'update-needed') {
         setServerNotice(serverUpdateNeededNotice(server.label))
@@ -270,6 +265,16 @@ export function useHostWorktreeActions(args: {
       if (routeHost === null) {
         return
       }
+      const personalOpening = hostCapabilities.includes(PERSONAL_PROJECT_ORDER_CAPABILITY)
+        ? await captureMobilePersonalOpening({
+            client,
+            hostId,
+            capabilities: hostCapabilities,
+            catalog: args.projectCatalog ?? state.servedProjectSections,
+            target: item,
+            rows: [...state.worktrees, ...serverWorkspaces.worktrees]
+          })
+        : null
       // Use an empty missing hostId: the shell refuses /h//session, whereas the string undefined would name an accepted host.
       const executionHost = routeHost ? `&executionHost=${encodeURIComponent(routeHost)}` : ''
       const pane = paneKey ? `&paneKey=${encodeURIComponent(paneKey)}` : ''
@@ -289,6 +294,9 @@ export function useHostWorktreeActions(args: {
               notifyClients: false,
               navigation: 'caller'
             })
+            .then((reply) =>
+              applyAcknowledgedMobilePersonalOpening(reply, personalOpening, state, client)
+            )
             .catch(() => null)
         }
       })
@@ -300,7 +308,13 @@ export function useHostWorktreeActions(args: {
       hostCapabilities,
       hostId,
       navigateFromHostList,
-      serverWorkspaces
+      serverWorkspaces,
+      state.servedProjectSections,
+      args.projectCatalog,
+      state.worktrees,
+      state.clientRef,
+      state.viewRef,
+      state.setView
     ]
   )
 
