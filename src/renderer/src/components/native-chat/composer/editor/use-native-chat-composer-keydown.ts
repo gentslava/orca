@@ -34,8 +34,11 @@ export type UseNativeChatComposerKeyDownArgs = {
   send: (intent?: NativeChatComposerSendIntent) => void
   /** Cmd/Ctrl+Shift+Enter steers the head queued card, whatever the composer holds. */
   steerHead?: (() => boolean) | undefined
-  /** Cmd/Ctrl+Enter on an empty composer sends the head card now: where its other way is a steer, or no turn runs (a stopped, paused queue). */
-  chordSteersHead?: boolean
+  /** Empty Cmd/Ctrl+Enter steers the last queued card. */
+  steerLast?: (() => boolean) | undefined
+  /** Empty Cmd/Ctrl+Enter can send a queued card into a turn or resume a stopped queue. */
+  chordSteersQueued?: boolean
+  sendHeld?: boolean
   setActiveSuggestion: Dispatch<SetStateAction<number>>
   setDraft: Dispatch<SetStateAction<string>>
   setCaret: Dispatch<SetStateAction<number>>
@@ -56,7 +59,9 @@ export function useNativeChatComposerKeyDown({
   interrupt,
   send,
   steerHead,
-  chordSteersHead = false,
+  steerLast,
+  chordSteersQueued = false,
+  sendHeld = false,
   setActiveSuggestion,
   setDraft,
   setCaret
@@ -131,7 +136,7 @@ export function useNativeChatComposerKeyDown({
       if (modified && event.shiftKey) {
         event.preventDefault()
         // A held chord would otherwise steer each card that becomes the head.
-        if (!event.repeat) {
+        if (!event.repeat && !sendHeld) {
           steerHead?.()
         }
         return
@@ -143,10 +148,8 @@ export function useNativeChatComposerKeyDown({
         } else if (draft.trim() !== '' || hasAttachments) {
           // The other thing than the setting, for this one message.
           send({ alternate: true })
-        } else if (chordSteersHead && !event.repeat) {
-          // Nothing of its own to steer, so the head card goes; never where the chord means queue,
-          // or a second press would steer the card the first one just queued.
-          steerHead?.()
+        } else if (chordSteersQueued && !sendHeld && !event.repeat) {
+          steerLast?.()
         }
         return
       }
@@ -193,7 +196,9 @@ export function useNativeChatComposerKeyDown({
       mentionFiles,
       send,
       steerHead,
-      chordSteersHead,
+      steerLast,
+      chordSteersQueued,
+      sendHeld,
       setActiveSuggestion,
       setCaret,
       setDraft
