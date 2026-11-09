@@ -1,8 +1,16 @@
+import type { MobileStructuredAgentOptionsArgs } from './mobile-structured-agent-session-contract'
+import {
+  mobileStructuredModelDefaultSnapshot,
+  useMobileStructuredModelDefault
+} from './use-mobile-structured-model-default'
+import { structuredOptionPickIsPending } from '../../../src/shared/agent-session/options/structured-agent-session-option-pick-book'
 import type { AgentSessionConversationCommand } from '../../../src/shared/agent-session/agent-session-conversation-command'
 import { useMobileStructuredOptionState } from './use-mobile-structured-option-state'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
 import { isAgentSessionHandleProvider } from '../../../src/shared/agent-session/lifecycle/agent-session-provider-handle'
 import { structuredAgentSessionSeedCatalog } from '../../../src/shared/agent-session/options/structured-agent-session-seed-catalog'
+
+import { lockedStructuredAgentSessionOptionSnapshot } from '../../../src/shared/agent-session/options/structured-agent-session-option-snapshot'
 import {
   structuredAgentSessionOptionView,
   structuredAgentSessionSendSelection,
@@ -11,51 +19,18 @@ import {
 } from '../../../src/shared/agent-session/options/structured-agent-session-option-view'
 import { agentChatPermissionModes } from '../../../src/shared/agent-launch/permissions/agent-chat-permission-support'
 import { legacyHostPermissionDescriptor } from '../../../src/shared/agent-session/options/structured-agent-session-permission-option'
-import type { RpcClient } from '../transport/rpc/rpc-client-contract'
-import type { StructuredAgentSessionHostSupport } from './mobile-structured-agent-session-host-support'
-import type { MobileStructuredAgentMutate } from './use-mobile-structured-agent-mutation'
 import { useMobileStructuredHeldOptionPicks } from './use-mobile-structured-held-option-picks'
-import {
-  useMobileHostModelCatalogUpgrade,
-  type HostModelCatalogCache
-} from './use-mobile-host-model-catalog-upgrade'
+import { useMobileHostModelCatalogUpgrade } from './use-mobile-host-model-catalog-upgrade'
 import { mobileCreatedStructuredSession } from './mobile-created-structured-sessions'
 import {
   structuredAgentSessionOptionAvailability,
   createStructuredAgentSessionOptionsWriteOwner
 } from '../../../src/shared/agent-session/options/structured-agent-session-options-write-owner'
 import { useMobileStructuredOptionSurface } from './use-mobile-structured-option-surface'
-import { lockedStructuredAgentSessionOptionSnapshot } from '../../../src/shared/agent-session/options/structured-agent-session-option-snapshot'
 
 const NO_COMMANDS: readonly AgentSessionConversationCommand[] = []
 
-export function useMobileStructuredAgentOptions(args: {
-  agent: string | null
-  /** This world's last host lists for the chat's agent; absent, the picker waits for the host. */
-  modelCatalogCache?: HostModelCatalogCache | null
-  client: RpcClient | null
-  sessionId: string | null
-  enabled: boolean
-  fence: number | null
-  turnId: string | null
-  /** The chat has a turn or a send: its value picks keep the remembered new-chat model. */
-  hasTurn?: boolean
-  unloadedTurnRevisions: number | undefined
-  mutate: MobileStructuredAgentMutate
-  /** Shows a pick held before attach that the chat refused once attached. */
-  onOptionError?: (message: string) => void
-  optionStamp?: string
-  hostSupport: Pick<
-    StructuredAgentSessionHostSupport,
-    | 'permissionModes'
-    | 'permissionOwn'
-    | 'coherentModelCatalog'
-    | 'modelEffortDiscovery'
-    | 'statusFeed'
-    | 'sendSelection'
-    | 'sendOptions'
-  > | null
-}) {
+export function useMobileStructuredAgentOptions(args: MobileStructuredAgentOptionsArgs) {
   const {
     agent,
     modelCatalogCache,
@@ -78,23 +53,7 @@ export function useMobileStructuredAgentOptions(args: {
     [sessionId]
   )
   // An options answer made before the account's listing landed listed none of it.
-  const {
-    projectRuntimeReports,
-    optionState,
-    optionStateRef,
-    activeOptionRecordRef,
-    providerStarting,
-    updateOptionState,
-    conversationSupport,
-    imageSupport,
-    threadGoalSupport,
-    rewindSupport,
-    rewindBlockedReason,
-    receiveCatalog,
-    isCurrentContext,
-    controller,
-    reread
-  } = useMobileStructuredOptionState({
+  const optionSource = useMobileStructuredOptionState({
     agent,
     enabled,
     statusFeed: hostSupport?.statusFeed === true,
@@ -111,6 +70,25 @@ export function useMobileStructuredAgentOptions(args: {
     worktree: createdHere?.worktree,
     coherentCatalog: hostSupport?.coherentModelCatalog === true
   })
+  const {
+    projectRuntimeReports,
+    optionState,
+    optionStateRef,
+    activeOptionRecordRef,
+    providerStarting,
+    updateOptionState,
+    conversationSupport,
+    imageSupport,
+    threadGoalSupport,
+    rewindSupport,
+    rewindBlockedReason,
+    receiveCatalog,
+    isCurrentContext,
+    controller,
+    optionPicks,
+    writes,
+    reread
+  } = optionSource
 
   // Pre-1.4.225 hosts lack per-chat modes; show their actual global agent mode.
   const legacyHostPermissions =
@@ -120,6 +98,16 @@ export function useMobileStructuredAgentOptions(args: {
     imageSupport?.sessionId === sessionId &&
     !imageSupport.statesPermissionMode &&
     optionState.permissionMode === null
+  const interactionReadyRef = useRef(writes.current.count === 0)
+  const lockSnapshotRef = useRef(
+    (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) => snapshot
+  )
+  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionShownSnapshot>) =>
+    writes.current.count > 0 ? lockedStructuredAgentSessionOptionSnapshot(snapshot) : snapshot
+  useLayoutEffect(() => {
+    interactionReadyRef.current = writes.current.count === 0
+    lockSnapshotRef.current = lockSnapshot
+  })
   const readOptionState = useCallback(
     () =>
       projectRuntimeReports({
@@ -137,7 +125,11 @@ export function useMobileStructuredAgentOptions(args: {
   const appliesOnAttach = acceptsPicks && fence === null
   const readBaseOptionSnapshot = useCallback(
     (view = readOptionState()) => {
-      const shown = structuredAgentSessionShownSnapshot(view)
+      const shown = mobileStructuredModelDefaultSnapshot(
+        structuredAgentSessionShownSnapshot(view),
+        view,
+        hostSupport?.defaultModel === true
+      )
       const snapshot = legacyHostPermissions ? [...shown, legacyHostPermissionDescriptor()] : shown
       if (!acceptsPicks) {
         return lockedStructuredAgentSessionOptionSnapshot(snapshot)
@@ -151,7 +143,13 @@ export function useMobileStructuredAgentOptions(args: {
           )
         : snapshot
     },
-    [acceptsPicks, appliesOnAttach, legacyHostPermissions, readOptionState]
+    [
+      acceptsPicks,
+      appliesOnAttach,
+      legacyHostPermissions,
+      readOptionState,
+      hostSupport?.defaultModel
+    ]
   )
   const readOptionSnapshot = useCallback(() => {
     const view = readOptionState()
@@ -159,7 +157,7 @@ export function useMobileStructuredAgentOptions(args: {
       controller,
       view,
       snapshot: readBaseOptionSnapshot(view),
-      ready: acceptsPicks,
+      ready: acceptsPicks && writes.current.count === 0,
       providerStarting,
       isCurrentContext
     })
@@ -169,7 +167,8 @@ export function useMobileStructuredAgentOptions(args: {
     readBaseOptionSnapshot,
     acceptsPicks,
     providerStarting,
-    isCurrentContext
+    isCurrentContext,
+    writes
   ])
   const optionSnapshot = readOptionSnapshot()
 
@@ -215,7 +214,7 @@ export function useMobileStructuredAgentOptions(args: {
       record: optionStateRef.current.record,
       view,
       snapshot: readBaseOptionSnapshot(),
-      ready: acceptsPicks,
+      ready: acceptsPicks && writes.current.count === 0 && interactionReadyRef.current,
       providerStarting,
       existingChat: createdHere === undefined || args.hasTurn === true,
       isCurrentContext,
@@ -254,13 +253,29 @@ export function useMobileStructuredAgentOptions(args: {
         : {}
   }, [controller, hostSupport?.sendSelection, hostSupport?.sendOptions])
 
+  const isModelWritePending = useCallback(
+    () =>
+      structuredOptionPickIsPending(optionPicks.current, 'model') ||
+      (!hostSupport?.sendSelection && controller.isPending('model')),
+    [controller, hostSupport?.sendSelection, optionPicks]
+  )
+  const resetOption = useMobileStructuredModelDefault({
+    agent,
+    client,
+    sessionId,
+    mutate,
+    takesModelDefault: hostSupport?.defaultModel === true,
+    lockSnapshotRef,
+    source: optionSource
+  })
   const { optionPickerRequest, invokeStructuredOption, optionSurface } =
     useMobileStructuredOptionSurface({
       optionSnapshot,
       admits: writer.admits,
       demandModelCatalog,
       setStructuredOption,
-      readOptionSnapshot
+      readOptionSnapshot,
+      resetOption: hostSupport?.defaultModel === true ? resetOption : undefined
     })
 
   return {
@@ -286,13 +301,16 @@ export function useMobileStructuredAgentOptions(args: {
     rewindBlockedReason,
     optionSnapshot,
     optionSurface,
-    pendingOptionId: writer.pendingOptionId(controller, optionState.record),
+    pendingOptionId: structuredOptionPickIsPending(optionPicks.current, 'model')
+      ? 'model'
+      : writer.pendingOptionId(controller, optionState.record),
     /** Picks are taken but wait for the chat to attach. */
     appliesOnAttach,
     /** A pick made before attach that has not gone out yet. */
     heldPick: held.heldPick,
     setStructuredOption,
     invokeStructuredOption,
-    sendSelection
+    sendSelection,
+    isModelWritePending
   }
 }
