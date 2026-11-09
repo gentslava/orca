@@ -5,6 +5,8 @@ import {
   encodePairingOffer
 } from '../../src/shared/remote-runtime/pairing/pairing'
 import type { PairingCreateOfferResult } from '../../src/shared/remote-runtime/pairing/pairing-create-offer-contract'
+import { toRuntimeExecutionHostId } from '../../src/shared/execution-host'
+import { composeWorktreeHostIdentity } from '../../src/shared/worktree/host-qualified-identity'
 import { expect, test } from './helpers/orca-app'
 import {
   createRuntimeDesktopPairingOffer,
@@ -93,10 +95,21 @@ async function expectWorkspaceHostAppearance(
   hostLabel?: string
 ) {
   await showWorkspaceSidebar(page)
-  const cards = page.locator('[data-worktree-card-surface="true"]')
-  const card = (
-    hostLabel ? cards.filter({ has: page.getByText(hostLabel, { exact: true }) }) : cards
-  ).first()
+  const environmentId = hostLabel
+    ? await page.evaluate((name) => {
+        const environment = window.__store
+          ?.getState()
+          .runtimeEnvironments.find((entry) => entry.name === name)
+        if (!environment) {
+          throw new Error(`Missing test host: ${name}`)
+        }
+        return environment.id
+      }, hostLabel)
+    : undefined
+  const hostPrefix = environmentId
+    ? `[data-worktree-host-identity^="${composeWorktreeHostIdentity(toRuntimeExecutionHostId(environmentId), '')}"] `
+    : ''
+  const card = page.locator(`${hostPrefix}[data-worktree-card-surface="true"]`).first()
   await expect(card).toBeVisible()
   await expect(card).toHaveCSS('opacity', disconnected ? '0.6' : '1')
   const icon = card.locator(disconnected ? 'svg.lucide-server-off' : 'svg.lucide-server').first()
