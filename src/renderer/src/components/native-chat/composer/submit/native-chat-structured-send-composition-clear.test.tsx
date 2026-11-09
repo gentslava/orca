@@ -9,7 +9,8 @@ import type { NativeChatStructuredComposerTransport } from './native-chat-struct
 import type * as RemoteRuntimePtyIdModule from '../../../../../../shared/remote-runtime/remote-runtime-pty-id'
 
 vi.mock('../controls/NativeChatComposerWorkspace', () => ({
-  NativeChatComposerWorkspace: () => null
+  NativeChatComposerWorkspace: () => null,
+  nativeChatComposerWorkspaceFooter: () => undefined
 }))
 
 vi.mock('@/i18n/i18n', () => ({
@@ -173,7 +174,7 @@ describe('structured send racing the next IME composition', () => {
 
     changePrompt(input, '/goal 안녕')
     pressEnter(input)
-    expect(structured.dispatchCommand).toHaveBeenCalledWith('/goal 안녕')
+    expect(structured.dispatchCommand).toHaveBeenCalledWith('/goal 안녕', expect.any(Function))
 
     fireEvent.compositionStart(input)
     changePrompt(input, '/goal 안녕하')

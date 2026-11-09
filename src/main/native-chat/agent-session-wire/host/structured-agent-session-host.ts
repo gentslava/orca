@@ -6,7 +6,6 @@ import { structuredAgentStartJournal } from '../acquisition/structured-agent-sta
 import { StructuredConversationCommandController as CommandController } from '../operations/structured-conversation-command-controller'
 // Serialize durable mutations per conversation; open at rest and start a child only when work needs it.
 
-import type { AgentSessionSubscribeInput } from '../publication/subscribers/agent-session-subscribe-input'
 import { createStartupRecovery } from '../recovery/structured-agent-session-restart-reconcile'
 import { StructuredAgentSessionTaskQueue } from './structured-agent-session-task-queue'
 import { StructuredAgentSessionHostRuntimeState } from './structured-agent-session-host-runtime-state'
@@ -25,7 +24,7 @@ import { StructuredAgentSessionClientDelivery } from '../publication/subscribers
 import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
 import * as resume from '../recovery/structured-agent-session-restart-resume-host'
 import type { StructuredAgentSessionRestartResume } from '../recovery/structured-agent-session-restart-resume-contract'
-import { structuredAgentSessionRestartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
+import { restartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
 import * as conversation from '../delivery/structured-agent-session-host-delivery'
 import { wireStructuredAgentSessionQueuedMessages as wireQueuedMessages } from '../delivery/structured-agent-session-queued-wiring'
 import * as sessionLogger from './structured-agent-session-logger'
@@ -117,12 +116,11 @@ export class StructuredAgentSessionHost {
       failStartingChild: (...args) => this.lifetime.failStartingChild(...args),
       trackOpen: (open) => this.tasks.trackAttach(open)
     })
-    this.restartResume = resume.createStructuredAgentSessionRestartResume(deps, this.sessions, {
-      ...structuredAgentSessionRestartResumeSurfaces(this, this.now),
-      readChildWork: this.clientDelivery.readChildWork,
-      childWorkOpen: this.clientDelivery.childWorkOpen,
-      publishStatus: this.clientDelivery.publishStatusAndSettlement
-    })
+    this.restartResume = resume.createStructuredAgentSessionRestartResume(
+      deps,
+      this.sessions,
+      restartResumeSurfaces(this, this.now, this.clientDelivery)
+    )
     this.lifetime = lifetime.createStructuredAgentSessionConversationLifetime({
       context: () => this.lifetimeContext(),
       sessions: this.sessions,
@@ -327,7 +325,7 @@ export class StructuredAgentSessionHost {
 
   observeJournalPublications = this.clientDelivery.observeJournalPublications
 
-  subscribe = (input: AgentSessionSubscribeInput) => this.backgroundTasks.subscribe(input)
+  subscribe = (input: HostTypes.SubscribeInput) => this.backgroundTasks.subscribe(input)
 
   settleLateDispatch = this.mutations.settleLateDispatch
   /** Republish row-free changes to held work. */

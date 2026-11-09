@@ -95,7 +95,8 @@ try {
         'composed-format.patch',
         'composed-ci-contracts.patch',
         'project-start-actions.patch',
-        'codex-selected-account-read.patch'
+        'codex-selected-account-read.patch',
+        'composed-source-modules.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')
