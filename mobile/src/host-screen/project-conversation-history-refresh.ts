@@ -1,4 +1,7 @@
-import { AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY } from '../../../src/shared/ai-vault/contracts/ai-vault-runtime-capabilities'
+import {
+  AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY,
+  AI_VAULT_STRUCTURED_CATALOG_CAPABILITY
+} from '../../../src/shared/ai-vault/contracts/ai-vault-runtime-capabilities'
 import type { RpcClient } from '../transport/rpc/rpc-client-contract'
 import {
   agentHistoryHostStatusRead,
@@ -11,7 +14,11 @@ export type ProjectConversationHistorySnapshot = ReturnType<typeof readConversat
 export async function refreshProjectConversationHistory(
   client: RpcClient,
   force: boolean,
-  previous?: ProjectConversationHistorySnapshot
+  previous?: ProjectConversationHistorySnapshot,
+  onCatalog?: (snapshot: {
+    capabilities: readonly string[]
+    history: ProjectConversationHistorySnapshot
+  }) => void
 ) {
   const status = agentHistoryHostStatusRead.interpret(
     await agentHistoryHostStatusRead.request(client)
@@ -28,6 +35,18 @@ export async function refreshProjectConversationHistory(
     includeAntigravityIdeSessions: true,
     includeStructuredSessions: true,
     force
+  }
+  if (!previous && onCatalog && capabilities.includes(AI_VAULT_STRUCTURED_CATALOG_CAPABILITY)) {
+    try {
+      const history = readConversationHistory(
+        agentHistorySessionScan.interpret(
+          await agentHistorySessionScan.request(client, { ...request, structuredOnly: true })
+        )
+      )
+      onCatalog({ capabilities, history })
+    } catch (error) {
+      console.warn('Could not load the chat catalog before history', error)
+    }
   }
   const afterFingerprint = force ? undefined : previous?.fingerprint
   const read = async (conditional: boolean) =>
