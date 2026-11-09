@@ -57,6 +57,7 @@ export function useMobileSessionFoundation() {
   const forceReconnectHost = useForceReconnect()
   const {
     name: worktreeName,
+    projectName: worktreeProjectName,
     path: worktreePath,
     hostId: worktreeHostId,
     resolution: worktreeResolution
@@ -122,6 +123,7 @@ export function useMobileSessionFoundation() {
     lastConnectedAt,
     forceReconnectHost,
     worktreeName,
+    worktreeProjectName,
     worktreePath,
     worktreeHostId,
     worktreeResolution,
