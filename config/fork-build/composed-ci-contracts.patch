@@ -1291,16 +1291,6 @@ index 00000000000..dee0b508007
 +  }
 +  throw new Error(`Effort slider does not offer ${label}`)
 +}
-diff --git a/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx b/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx
-index cbb6b976d98..06c8d6ea798 100644
---- a/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx
-+++ b/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx
-@@ -1,4 +1,4 @@
--import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
-+import type { RuntimeClientTarget } from '../../../../../../shared/runtime-client-target'
- import { SessionLinkControl } from '../../SessionLinkControl'
- import { Fragment } from 'react'
- import './native-chat-pane-header.css'
 diff --git a/src/renderer/src/components/native-chat/session-link-mutation.ts b/src/renderer/src/components/native-chat/session-link-mutation.ts
 new file mode 100644
 index 00000000000..03943cb7230
