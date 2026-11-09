@@ -4,8 +4,8 @@ import { mutatePersonalProjectOrder } from '../../../src/shared/personal-project
 import { RecordProjectOpenParams } from '../../../src/shared/rpc-contract/personal-project-order-params'
 import { projectHostSetupProjectionFromRepos } from '../../../src/shared/project-host-setup-projection'
 import { buildMobileProjectSectionCatalog } from '../../../src/shared/mobile-project-sections-contract'
-import { stubRpcClient } from '../transport/rpc-client-test-stub'
-import type { RpcResponse } from '../transport/types'
+import { stubRpcClient } from '../transport/rpc/rpc-client-test-stub'
+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
 import { recordPersonalProjectRouteIntent } from './personal-project-route-intent'
 
 it.each([null, 'a::/a'])(

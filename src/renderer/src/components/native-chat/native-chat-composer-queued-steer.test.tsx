@@ -4,13 +4,13 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { AgentSessionQueuedMessage } from '../../../../shared/agent-session/requests/agent-session-queued-message-wire'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
-import { useNativeChatComposerKeyDown } from './use-native-chat-composer-keydown'
-import { useStructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
-import { useStructuredAgentSessionQueuedMessages } from './use-structured-agent-session-queued-messages'
-import type { StructuredAgentSessionPendingSend } from './structured-agent-session-pending-sends'
+import { useNativeChatComposerKeyDown } from './composer/editor/use-native-chat-composer-keydown'
+import { useStructuredAgentSessionMutate } from './session/structured/writes/use-structured-agent-session-mutate'
+import { useStructuredAgentSessionQueuedMessages } from './queue/use-structured-agent-session-queued-messages'
+import type { StructuredAgentSessionPendingSend } from './session/structured/delivery/structured-agent-session-pending-sends'
 
 const transport = vi.hoisted(() => ({ call: vi.fn() }))
-vi.mock('@/runtime/structured-agent-session-client', () => ({
+vi.mock('@/runtime/native-chat/requests/structured-agent-session-call', () => ({
   callStructuredAgentSession: transport.call
 }))
 
@@ -44,6 +44,7 @@ type ComposerProps = {
   chordSteersQueued?: boolean
   enabled?: boolean
   composing?: boolean
+  sendHeld?: boolean
   sending?: StructuredAgentSessionPendingSend[]
 }
 
@@ -57,6 +58,7 @@ function Composer({
   chordSteersQueued = true,
   enabled = true,
   composing = false,
+  sendHeld = false,
   sending
 }: ComposerProps): React.JSX.Element {
   const writes = useStructuredAgentSessionMutate({
@@ -82,6 +84,7 @@ function Composer({
     draft,
     hasAttachments,
     chordSteersQueued,
+    sendHeld,
     mentionFiles: { files: [], loading: false, failed: false },
     completeMention: () => {},
     isComposing: () => composing,
@@ -165,6 +168,7 @@ it.each([
   { chordSteersQueued: false },
   { composing: true },
   { enabled: false },
+  { sendHeld: true },
   { cards: [] },
   {
     sending: [
@@ -191,3 +195,19 @@ it.each([
     expect(transport.call).not.toHaveBeenCalled()
   }
 )
+
+it('holds both queued-send chords until the composer can send again', () => {
+  vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Macintosh')
+  const view = render(<Composer sendHeld />)
+  const field = view.getByRole('textbox')
+  fireEvent.keyDown(field, { key: 'Enter', metaKey: true })
+  fireEvent.keyDown(field, { key: 'Enter', metaKey: true, shiftKey: true })
+  expect(transport.call).not.toHaveBeenCalled()
+  view.rerender(<Composer />)
+  fireEvent.keyDown(field, { key: 'Enter', metaKey: true })
+  expect(transport.call).toHaveBeenCalledWith(
+    { kind: 'local' },
+    'agentSession.queuedMessageSend',
+    expect.objectContaining({ messageId: 'just-queued' })
+  )
+})

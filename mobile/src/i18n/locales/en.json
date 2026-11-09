@@ -558,10 +558,6 @@
     "desktops": {
       "pairDesktop": "Pair a desktop"
     },
-    "jumpBackIn": {
-      "lastOpened": "Last opened",
-      "connectToOpen": "Connect {{desktop}} to open"
-    },
     "sections": {
       "tasks": "Tasks",
       "tasksSubtitle": "Browse your issues and reviews"
@@ -574,12 +570,6 @@
       "days": "{{days}}d",
       "hours": "{{hours}}h",
       "minutes": "{{minutes}}m"
-    },
-    "agents": {
-      "heading": "Agents",
-      "activeCount": "{{count}} active",
-      "showFewer": "Show fewer",
-      "showAll": "Show all {{count}}"
     },
     "automationsTab": {
       "newAutomation": "New automation",
@@ -599,7 +589,8 @@
       "automations": "Automations",
       "feed": "Feed",
       "chooseDesktop": "{{desktop}}, choose another desktop",
-      "usage": "Usage"
+      "usage": "Usage",
+      "agents": "Agents"
     },
     "usage": {
       "refresh": "Refresh usage",
@@ -612,6 +603,10 @@
       "active": "Active",
       "openAccountsHint": "Opens this desktop’s accounts",
       "emptyTitle": "No usage yet"
+    },
+    "needsYou": {
+      "heading": "Needs you",
+      "seeAll": "See all agents"
     }
   },
   "hooks": {
@@ -907,7 +902,8 @@
       "hours_other": "{{count}}h",
       "days_one": "{{count}}d",
       "days_other": "{{count}}d",
-      "done": "Done"
+      "done": "Done",
+      "permission": "Needs attention"
     },
     "hostWorkspaceListStates": {
       "checkHost": "Check that your computer is awake and Orca is running",
@@ -1319,7 +1315,8 @@
       "project": "Project {{repo}}",
       "child": "Child",
       "children_one": "{{count}} child",
-      "children_other": "{{count}} children"
+      "children_other": "{{count}} children",
+      "unsavedName": "Unsaved name: {{name}}"
     },
     "accountsSnapshot": {
       "invalidSnapshot": "Invalid accounts snapshot from host"
@@ -1432,6 +1429,14 @@
         "planMode": "Plan",
         "exitPlanMode": "Exit plan mode"
       }
+    },
+    "hostOfflineBanner": {
+      "offline": "{{host}} is offline",
+      "reconnecting": "Reconnecting to {{host}}…",
+      "asOf": "Showing what was here as of {{time}}"
+    },
+    "offlineAsOfTime": {
+      "yesterday": "yesterday, {{time}}"
     }
   },
   "pullRequest": {
@@ -1907,7 +1912,13 @@
       "openFolder": "Open folder {{name}}",
       "fileUnavailable": "{{name}} unavailable on mobile",
       "previewFile": "Preview file {{name}}",
-      "unavailable": "Unavailable on mobile"
+      "unavailable": "Unavailable on mobile",
+      "showMore": "Show {{rows}} more",
+      "loadedOfTotal": "{{loaded}} of {{total}}",
+      "searched": "Searched {{loaded}} of {{total}} in {{folder}}.",
+      "searching": "Searching {{folder}}… {{loaded}} of {{total}}",
+      "searchAll": "Search all",
+      "searchAllIn": "Search all of {{folder}}"
     },
     "fileExplorerRowActions": {
       "copyName": "Copy Name",
@@ -1928,6 +1939,13 @@
       "bytes": "{{size}} B",
       "kilobytes": "{{size}} KB",
       "megabytes": "{{size}} MB"
+    },
+    "unsavedEditsOffer": {
+      "unsavedFrom": "Unsaved edits from {{time}}",
+      "changedSince": "Changed on desktop since your edits from {{time}}",
+      "discard": "Discard",
+      "restore": "Restore",
+      "copyMyEdits": "Copy My Edits"
     }
   },
   "session": {
@@ -1951,8 +1969,7 @@
     "markdownReader": {
       "readOnly": "Read only",
       "changedOnDesktop": "Changed on desktop",
-      "dismissKeyboard": "Dismiss keyboard",
-      "dismissKeyboardHint": "Hides the software keyboard and keeps the markdown editor open.",
+      "previewTruncated": "Preview truncated.",
       "discard": "Discard",
       "copyLoadedSource": "Copy loaded Markdown source",
       "copySource": "Copy Markdown source",
@@ -2534,6 +2551,12 @@
       "fallback": "Worktree"
     },
     "failure": {
+      "forkOriginalMissing": "{{agent}} could not find this response in the original chat. Open it and fork from there.",
+      "forkOriginalUnavailable": "{{agent}} cannot fork this response in the original chat. Open it and fork from there.",
+      "forkOriginalMissingNamed": "{{agent}} could not find this response in \"{{detail}}\". Open that chat and fork from there.",
+      "forkOriginalUnavailableNamed": "{{agent}} cannot fork this response in \"{{detail}}\". Open that chat and fork from there.",
+      "forkOriginalLatestOnly": "{{agent}} can only fork the latest response in the original chat. Open that chat and fork its latest response once it has finished.",
+      "forkOriginalLatestOnlyNamed": "{{agent}} can only fork the latest response in \"{{detail}}\". Open that chat and fork its latest response once it has finished.",
       "backgroundTasksRunning": "Background tasks are still running.",
       "waitForBackgroundTasks": "Wait for the background tasks to finish.",
       "agentStarting": "The agent is still starting.",
@@ -2802,7 +2825,8 @@
     "contentState": {
       "connectingTo": "Connecting to {{host}}…",
       "connecting": "Connecting…",
-      "tabsStalled": "Tabs are taking longer than expected"
+      "tabsStalled": "Tabs are taking longer than expected",
+      "tabsAsOf": "Tabs as of {{time}}"
     },
     "presentation": {
       "loadingTabs": "Loading tabs",
@@ -2842,6 +2866,13 @@
       "sendQueueHint": "Runs after the current turn",
       "sendSteerHint": "Goes into what the agent is doing now"
     },
+    "contextUsage": {
+      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
+      "title": "Context",
+      "estimated": "Estimated from the last response.",
+      "deferredTitle": "Loaded on demand",
+      "deferredDescription": "Not included in current usage. Loaded when needed."
+    },
     "composerAttachments": {
       "file": "File",
       "fileMeta": "{{type}} · {{size}}",
@@ -2854,7 +2885,9 @@
       "disconnected": "Attach failed (disconnected)",
       "permissionDenied": "Photo permission denied",
       "imageTooLarge": "Image too large to attach",
-      "attachFailed": "Attach failed"
+      "attachFailed": "Attach failed",
+      "mediaUnavailable": "Media attachments unavailable here",
+      "capacityReached": "Attachment capacity reached"
     },
     "ask": {
       "submit": "Submit",
@@ -2895,6 +2928,13 @@
       "queuedState": "Queued",
       "editMessage": "Edit message"
     },
+    "offlineQueue": {
+      "failed": "Couldn't send — tap Send to retry",
+      "waitingFor": "Sends when {{host}} is back",
+      "waiting": "Sends when the desktop is back",
+      "behind": "Waiting — a message ahead needs attention",
+      "closed": "Not sent before Orca closed"
+    },
     "sessionOptionPickers": {
       "modelFullAccessLabel": "Model, {{value}}, full access",
       "modelLabel": "Model, {{value}}",
@@ -2905,6 +2945,8 @@
       "dispatchUnconfirmed": "Sent to the agent — not confirmed",
       "permissions": "Permissions",
       "applying": "Applying…",
+      "onAttach": "Applies when the chat attaches",
+      "heldPickRefused": "{{picked}} isn't available in this chat. Kept {{kept}}.",
       "optionsSection": "Options",
       "futureMessages": "Choices apply to future messages.",
       "workingWithDescription": "Agent is working. {{description}}"
@@ -3088,6 +3130,13 @@
       "canContinue": "You can continue in this conversation.",
       "unnamedServer": "the remote server"
     },
+    "interruptedContinue": {
+      "failed": "Couldn't continue this chat. Try again, or send a message.",
+      "explanation": "Continue, and the agent first checks whether its last step finished."
+    },
+    "sendError": {
+      "dismiss": "Dismiss"
+    },
     "toolActivity": {
       "count_one": "{{count}} tool call",
       "count_other": "{{count}} tool calls",
@@ -3169,7 +3218,6 @@
       "statusWontContinue": "Orca won't continue automatically"
     },
     "composerPlaceholder": {
-      "reconnecting": "Reconnecting…",
       "waitingForTerminal": "Waiting for terminal…",
       "prompt": "Ask anything, @ to mention files, / for commands"
     },
@@ -3260,18 +3308,6 @@
       "messageFrom": "Message from",
       "sessionLink": "Link"
     },
-    "contextUsage": {
-      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
-      "title": "Context",
-      "estimated": "Estimated from the last response."
-    },
-    "interruptedContinue": {
-      "failed": "Couldn't continue this chat. Try again, or send a message.",
-      "explanation": "Continue, and the agent first checks whether its last step finished."
-    },
-    "sendError": {
-      "dismiss": "Dismiss"
-    },
     "fork": {
       "busy": "Another chat or terminal is opening. Wait, then fork the {{agent}} chat again.",
       "unconfirmed": "{{agent}} couldn't confirm the fork. It may have opened anyway; check Session History before forking again.",
@@ -3318,6 +3354,11 @@
       "outcomeUnknownReturned": "Orca couldn't confirm whether the conversation went back to this message. Your message is back in the composer, and Orca checks the conversation before your next message is sent.",
       "timeout": "The chat didn't update after going back to this message. Reopen it to see the latest.",
       "pending": "Wait for the conversation to go back to the earlier message."
+    },
+    "ciResultLine": {
+      "failingLead": "CI failing on",
+      "greenLead": "CI green on",
+      "at": "at"
     },
     "tool": {
       "activity": "Activity"
@@ -3574,6 +3615,12 @@
     "panel": {
       "unavailableTitle": "Source Control Unavailable",
       "loading": "Loading changes…"
+    },
+    "folder": {
+      "emptyTitle": "No attached worktrees yet",
+      "emptyCopy": "Worktrees created from this workspace will show up here.",
+      "statusUnavailable": "Unavailable",
+      "backToFolder": "Back to folder"
     },
     "hostedReviewCopy": {
       "updatingBranch": "Updating branch...",
@@ -4739,6 +4786,90 @@
           }
         }
       }
+    }
+  },
+  "hostMutation": {
+    "renameOffline": "{{host}} is offline. Your text stays here until you can save.",
+    "renameUnconfirmed": "Not confirmed yet. Orca checks the name when {{host}} is back.",
+    "saving": "Saving",
+    "serverUnreachable": "Its server can't be reached."
+  },
+  "agents": {
+    "list": {
+      "idleCount": "{{count}} idle",
+      "offlineTitle": "{{desktop}} is offline",
+      "offlineMessage": "Reconnect it to open this agent.",
+      "actions": "Actions for {{title}}",
+      "workers_one": "{{count}} worker",
+      "workers_other": "{{count}} workers",
+      "noMatches": "No agents match “{{query}}”",
+      "emptyTitle": "No agents running",
+      "pairDesktop": "Pair a desktop to see its agents here.",
+      "emptyBody": "Start an agent in any workspace and it shows up here.",
+      "unread": "Unread",
+      "noDesktopTitle": "No desktop connected",
+      "noDesktopBody": "Agents show up here once a desktop connects.",
+      "hideWorkers": "Hide {{workers}}",
+      "showWorkers": "Show {{workers}}"
+    },
+    "actions": {
+      "offlineHint": "Its desktop is offline.",
+      "open": "Open",
+      "goToWorkspace": "Go to workspace",
+      "copyTitle": "Copy title",
+      "copied": "Copied",
+      "copyFailed": "Couldn’t copy the title",
+      "markRead": "Mark as read",
+      "markUnread": "Mark as unread",
+      "clear": "Clear from list"
+    },
+    "groupBy": {
+      "status": "Status",
+      "workspace": "Workspace",
+      "project": "Project",
+      "agent": "Agent",
+      "desktop": "Desktop"
+    },
+    "options": {
+      "groupBy": "Group by",
+      "showWorkers": "Show worker agents",
+      "open": "Agent list options",
+      "unreadOnly": "Unread only",
+      "markAllRead": "Mark all read",
+      "clearFinished": "Clear finished"
+    },
+    "search": {
+      "toggle": "Search agents",
+      "placeholder": "Search agents"
+    },
+    "desktops": {
+      "pickerTitle": "Show agents on",
+      "agents_one": "{{count}} agent",
+      "agents_other": "{{count}} agents",
+      "all": "All desktops",
+      "offline": "Offline",
+      "needsYou_one": "{{count}} needs you",
+      "needsYou_other": "{{count}} need you"
+    },
+    "sections": {
+      "needsYou": "Needs you",
+      "working": "Working",
+      "done": "Done",
+      "offline": "Offline",
+      "offlineSeenAgo": "Offline · seen {{ago}} ago",
+      "offlineSeenJustNow": "Offline · seen just now",
+      "seenAgo": "Seen {{ago}} ago",
+      "seenJustNow": "Seen just now",
+      "clear": "Clear"
+    },
+    "swipe": {
+      "read": "Read",
+      "unread": "Unread",
+      "clear": "Clear"
+    },
+    "activity": {
+      "needsWindow": "Couldn’t update. Open Orca on {{desktop}}.",
+      "failed": "Couldn’t update the agent list."
     }
   },
   "workspaceOptions": {

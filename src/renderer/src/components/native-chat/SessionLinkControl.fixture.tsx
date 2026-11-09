@@ -2,69 +2,15 @@ import { useAppStore } from '@/store'
 import { loadRendererUiLanguage, i18n } from '@/i18n/i18n'
 import { defineFixture } from '../../component-fixtures/component-fixture'
 import {
-  SessionLink,
-  SessionLinkEvent,
-  SessionLinkParticipant,
   SESSION_LINK_POLICY_CAPABILITY,
   SESSION_LINK_CAPABILITY
 } from '../../../../shared/session-link'
 import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 import { SessionLinkOwnerQuestion } from './SessionLinkOwnerQuestion'
 import { SessionLinkControl } from './SessionLinkControl'
+import { source, partner, link, report } from './session-link-ui.test-fixture'
 
-const source = SessionLinkParticipant.parse({
-  sessionId: 'codex-registry',
-  conversationId: 'codex-registry',
-  name: 'Reading registry implementation',
-  agent: 'codex',
-  role: 'implementer',
-  workspaceId: 'registry',
-  directory: '/projects/djinn/deid-reading-registry',
-  branch: 'deid-reading-registry',
-  task: 'Implement slice 1b; stop before paid corpus measurements.',
-  context: ''
-})
-const partner = SessionLinkParticipant.parse({
-  sessionId: 'claude-djinn',
-  conversationId: 'claude-djinn',
-  name: 'Slice 1b architecture and review',
-  agent: 'claude',
-  role: 'reviewer',
-  workspaceId: 'djinn',
-  directory: '/projects/djinn',
-  branch: 'main',
-  task: 'Review the privacy boundaries and tasks 1–5.',
-  context: ''
-})
-const link = SessionLink.parse({
-  id: 'demo-link',
-  story: 'De-identification · slice 1b',
-  policy: { turnLimit: null },
-  participants: [source, partner],
-  state: 'active',
-  reason: '',
-  version: 1,
-  turns: 3,
-  messages: 1,
-  createdAt: 1_800_000_000_000,
-  updatedAt: 1_800_000_001_000
-})
-const report = SessionLinkEvent.parse({
-  id: 'checkpoint',
-  linkId: link.id,
-  actor: source.sessionId,
-  recipient: partner.sessionId,
-  kind: 'checkpoint',
-  messageId: 'mail-report',
-  replyTo: null,
-  state: 'accepted',
-  operationId: 'report-operation',
-  createdAt: 1_800_000_001_000,
-  detail: '',
-  body: 'Tasks 1–5 are ready. Local checks pass. Please review before corpus measurements; no spending or holdout access has been authorized.'
-})
-
-function setup(state: 'create' | 'waiting' | 'paused' | 'ended' | 'unknown') {
+function setup(state: 'create' | 'waiting' | 'paused' | 'ended' | 'unknown' | 'limit') {
   setLocalRuntimeCapabilitiesForTests([SESSION_LINK_CAPABILITY, SESSION_LINK_POLICY_CAPABILITY])
   const snapshot =
     state === 'create'
@@ -72,15 +18,23 @@ function setup(state: 'create' | 'waiting' | 'paused' | 'ended' | 'unknown') {
       : {
           link: {
             ...link,
-            state: state === 'waiting' ? 'active' : state === 'unknown' ? 'paused' : state,
+            state:
+              state === 'waiting'
+                ? 'active'
+                : state === 'unknown' || state === 'limit'
+                  ? 'paused'
+                  : state,
+            ...(state === 'limit' ? { policy: { turnLimit: 20 }, turns: 20 } : {}),
             reason:
-              state === 'unknown'
-                ? 'delivery-unknown'
-                : state === 'paused'
-                  ? 'owner-decision'
-                  : state === 'ended'
-                    ? 'end'
-                    : ''
+              state === 'limit'
+                ? 'turn-limit'
+                : state === 'unknown'
+                  ? 'delivery-unknown'
+                  : state === 'paused'
+                    ? 'owner-decision'
+                    : state === 'ended'
+                      ? 'end'
+                      : ''
           },
           events: [
             ...(state === 'paused'
@@ -122,7 +76,7 @@ async function openDialog(frame: HTMLElement) {
 const render = () => (
   <div className="p-4">
     <div className="relative h-6">
-      <div className="pane-title-bar" data-chromeless="">
+      <div className="pane-title-bar" data-chromeless="" data-active-pane="">
         <div className="pane-title-actions ml-auto flex items-center">
           <SessionLinkControl sessionId={source.sessionId} target={{ kind: 'local' }} />
         </div>
@@ -187,7 +141,20 @@ export const fromTabs = defineFixture({
         dialogOnly
       />
     </div>
-  )
+  ),
+  interact: async () => {
+    for (let i = 0; i < 20; i++) {
+      const story = document.querySelector<HTMLTextAreaElement>('textarea')
+      if (story) {
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set
+        setter?.call(story, 'Checkout flow · slice 2')
+        story.dispatchEvent(new Event('input', { bubbles: true }))
+        return
+      }
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    }
+    throw new Error('Collaboration story field did not render')
+  }
 })
 
 export const ownerDecisionNarrow = defineFixture({
@@ -233,4 +200,77 @@ export const ownerQuestionRussian = defineFixture({
     await i18n.changeLanguage(await loadRendererUiLanguage('ru'))
   },
   render: () => <SessionLinkOwnerQuestion sessionId={source.sessionId} />
+})
+
+const longOwnerQuestion = `Offline checks passed. Should we run the next verification stage with a maximum budget of $0.10, or continue using offline evidence only?
+
+The implementation report is at /projects/acme/app/docs/reports/checkpoint.md. The reviewer recorded the remaining limits at https://example.test/reviews/checkout/slice-2/acceptance-boundary-and-verification.
+
+The run will use the configured provider and the existing data boundary. No paid verification or spending has been approved yet. Your choice will be delivered to both agents before the link resumes.`
+
+function setupLongOwnerQuestion() {
+  setup('paused')
+  window.api.runtime.call = async () => ({
+    id: 'fixture',
+    ok: true,
+    _meta: { runtimeId: 'fixture' },
+    result: {
+      link: { ...link, state: 'paused', reason: 'owner-decision' },
+      events: [
+        {
+          ...report,
+          id: 'owner-question',
+          actor: partner.sessionId,
+          recipient: null,
+          kind: 'owner-request',
+          messageId: null,
+          state: 'recorded',
+          body: longOwnerQuestion,
+          choices: [
+            {
+              label: 'Approve up to $0.10',
+              description: 'Run the verification within the existing data boundary.'
+            },
+            {
+              label: 'Continue offline only',
+              description: 'Keep working without provider calls or spending.'
+            },
+            {
+              label: 'Stop for review',
+              description: 'Leave the link paused until I review the report.'
+            }
+          ],
+          allowOther: true
+        }
+      ]
+    }
+  })
+}
+
+const renderOwnerQuestion = () => (
+  <div className="native-chat-appearance bg-chat-pane">
+    <SessionLinkOwnerQuestion sessionId={source.sessionId} />
+  </div>
+)
+export const ownerQuestion390 = defineFixture({
+  width: 390,
+  setup: setupLongOwnerQuestion,
+  render: renderOwnerQuestion
+})
+export const ownerQuestion560 = defineFixture({
+  width: 560,
+  setup: setupLongOwnerQuestion,
+  render: renderOwnerQuestion
+})
+export const ownerQuestion800 = defineFixture({
+  width: 800,
+  setup: setupLongOwnerQuestion,
+  render: renderOwnerQuestion
+})
+
+export const turnLimitReached = defineFixture({
+  width: 720,
+  setup: () => setup('limit'),
+  render,
+  interact: openDialog
 })

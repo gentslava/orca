@@ -1,4 +1,5 @@
 import { createLocalWorkerStartDispatch } from './local-worker-start-dispatch'
+import { refuseClaimedWorkerTerminal } from '../../../../orchestration/db/worker-dispatch/worker-terminal-claim'
 import { waitForWorkerAgentReady } from '../../../../terminal/wait/launched-agent-composer-readiness'
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import { describeTerminalWaitBlockedReason } from '../../../../../../shared/terminal/runtime-policy/terminal-wait-blocked-reason-legacy-alias'
@@ -9,7 +10,7 @@ import type {
   TaskRow
 } from '../../../../orchestration/db/orchestration-records'
 import type { OrchestrationSessionCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
-import type { OrchestrationPartyIdentity as OrchestrationCallerIdentity } from '../../../../../../shared/orchestration-party-identity'
+import type { OrchestrationPartyIdentity as OrchestrationCallerIdentity } from '../../../../../../shared/orchestration/mailbox/orchestration-party-identity'
 import { resolveDispatchCallerWorktreeId } from '../orchestration-caller-workspace'
 import { resolveWorkerStartModeOnHost } from '../structured-workers/orchestration-worker-start-mode'
 import type { AgentLaunchModeReceipt as WorkerStartModeReceipt } from '../../../../../../shared/agent-launch/contracts/agent-launch-intent'
@@ -124,10 +125,14 @@ export async function startLocalWorker(args: {
       launch.preferences,
       createsWorktree
         ? { repo: creationTarget?.repoSelector ?? params.repo }
-        : { worktree: `id:${resolvedWorktree!.id}` }
+        : resolvedWorktree
+          ? { worktree: `id:${resolvedWorktree.id}` }
+          : {}
     )
   }
 
+  // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
+  refuseClaimedWorkerTerminal(db, params.terminal, runtime, args.followUp?.of)
   const run = args.bindRun()
   const started = createLocalWorkerStartDispatch(args, {
     params,

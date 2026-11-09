@@ -35,7 +35,12 @@ export function useAiVaultStartupCatalog(
           if (current() && !catalog.cancelled && catalog.sessions.length > 0) {
             gate.current.publish(catalog, (published) => {
               if (current()) {
-                applyScan(published, request.sessionLimit, scopeKey)
+                applyScan({
+                  result: published,
+                  limit: request.sessionLimit,
+                  scopeKey,
+                  scopeOnly: request.scopeOnly === true
+                })
                 setLoading(false)
               }
             })

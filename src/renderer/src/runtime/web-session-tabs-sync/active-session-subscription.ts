@@ -3,7 +3,7 @@ import type { RuntimeMobileSessionTabsResult } from '../../../../shared/runtime-
 import { isRuntimeSubscriptionReplayResponse } from '../../../../shared/runtime-subscription-replay'
 import { useAppStore } from '../../store'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
-import { isFrameDrawnServerWorkspace } from './frame-drawn-server-workspaces'
+import { isFrameDrawnServerWorkspace } from './frame-drawn-server-workspace-set'
 import { mirroredRuntimeEnvironmentIdForWorkspace } from './mirrored-workspace-owner'
 import { getRuntimeEnvironmentRevision } from '../rpc/environment-revisions/runtime-environment-revision'
 import { recoverMirroredTerminalOrphansBeforeApply } from './mirror-terminal-orphan-recovery'
@@ -19,8 +19,10 @@ import {
 } from './tracking-decisions'
 import {
   acceptReplayedWebSessionTabsSnapshot,
-  getWebSessionTabsTrackingGeneration
-} from './tracking-lifecycle'
+  isSessionTabsStreamEnd,
+  type SessionTabsStreamEvent
+} from './state'
+import { getWebSessionTabsTrackingGeneration } from './tracking-lifecycle'
 import {
   acceptSessionTabsRuntimeId,
   getSessionTabsRuntimeIdFromResponse
@@ -38,8 +40,9 @@ import {
   shouldSkipWebRuntimeWakeTerminalRespawn
 } from '../hosted-terminals/restoration/web-runtime-wake-terminal-respawn'
 import { createWebRuntimeSessionTerminal } from '../hosted-terminals/creation/web-runtime-terminal-creation'
-import { toRuntimeWorktreeSelector } from '../runtime-worktree-selector'
-import { isSessionTabsStreamEnd, type SessionTabsStreamEvent } from './state'
+import { releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame } from './initial-terminal/web-runtime-initial-terminal-bootstrap'
+import { toRuntimeWorktreeSelector } from '../rpc/targets/runtime-worktree-selector'
+
 import type { SessionTabsSnapshotHandler } from './visibility-resume-types'
 import { subscribeRuntimeEnvironment } from '../rpc/environment-revisions/runtime-environment-pairing-refresh'
 
@@ -81,7 +84,7 @@ export function installActiveSessionTabsSubscription({
     return undefined
   }
   const expectedTrackingGeneration = getWebSessionTabsTrackingGeneration(environmentId)
-  // Warm streams outlive selection; seed only the selected worktree on this host because IDs can collide across hosts.
+  // Warm streams outlive selection; only the selected workspace may respawn after wake.
   const isSelected = (): boolean => {
     const state = useAppStore.getState()
     return (
@@ -171,6 +174,7 @@ export function installActiveSessionTabsSubscription({
         event.type === 'updated' && !replayed
       )
       visibilitySnapshotAccepted.current(environmentId, recovered, receivedFrame, runtimeId)
+      releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame(environmentId, recovered.worktree)
     }
     try {
       if (

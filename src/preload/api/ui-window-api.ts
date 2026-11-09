@@ -11,6 +11,8 @@ export type UiWindowApi = {
   onHoldQuitNotice?: (callback: (notice: HoldQuitNotice) => void) => () => void
   setHoldQuitActivity?: (busy: boolean) => void
   readClipboardText: (options?: ReadClipboardTextOptions) => Promise<string>
+  /** The clipboard's HTML when it may carry links; empty otherwise. */
+  readClipboardLinkHtml: () => Promise<string>
   readSelectionClipboardText: (options?: ReadClipboardTextOptions) => Promise<string>
   saveClipboardImageAsTempFile: (args?: {
     connectionId?: string | null
@@ -75,5 +77,7 @@ export type UiWindowApi = {
   popupMenu: () => void
   onWindowCloseRequested: (callback: (data: { isQuitting: boolean }) => void) => () => void
   confirmWindowClose: () => void
+  /** The user kept the window after a close request, which also cancels a pending quit. */
+  cancelWindowClose: () => void
   notifyWindowRevealed: () => void
 }

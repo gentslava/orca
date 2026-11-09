@@ -13,7 +13,7 @@ import { agentSessionRecordFixture } from '../native-chat/agent-session-record-t
 import { createCodexStructuredLaunchResolver } from '../runtime/agent-session/launch/structured-agent-launch-composition.test-support'
 import { prepareCodexStructuredAccountHome } from './codex-structured-account-home'
 import { createTrackedJournalOpener } from '../native-chat/agent-session-journal/store-lifecycle/journal-host-database-test-support'
-import { structuredAgentSessionNeverSent } from '../native-chat/agent-session-wire/structured-agent-session-never-sent'
+import { structuredAgentSessionNeverSent } from '../native-chat/agent-session-wire/host/structured-agent-session-never-sent'
 import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
 import { AGENT_JOURNAL_THREAD_SCOPE } from '../../shared/agent-session/journal/agent-session-journal-types'
 

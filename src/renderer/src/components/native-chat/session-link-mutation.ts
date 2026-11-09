@@ -2,7 +2,7 @@ import type { RefObject } from 'react'
 import { SessionLinkSnapshot } from '../../../../shared/session-link'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { RuntimeRpcCallError } from '@/runtime/rpc/calls/runtime-rpc-result'
-import { callStructuredAgentSession } from '@/runtime/structured-agent-session-client'
+import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
 
 export type LinkMutation = { method: string; fields: Record<string, unknown>; operationId: string }
 

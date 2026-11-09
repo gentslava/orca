@@ -1,5 +1,5 @@
 import type { StructuredAgentSessionConversations } from './structured-agent-session-conversations'
-import { structuredAgentSessionNeverSent } from '../structured-agent-session-never-sent'
+import { structuredAgentSessionNeverSent } from './structured-agent-session-never-sent'
 import {
   createStructuredAgentSessionCatalogReads,
   structuredAgentSessionCatalogScopeOwned

@@ -1,6 +1,6 @@
-import type { RpcClient } from '../transport/rpc-client'
+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
 import type { StructuredAgentSessionHostSupport } from './mobile-structured-agent-session-host-support'
-import type { StructuredAgentSessionMutate } from './mobile-structured-agent-session-rpc'
+import type { MobileStructuredAgentMutate } from './use-mobile-structured-agent-mutation'
 import type { HostModelCatalogCache } from './use-mobile-host-model-catalog-upgrade'
 
 export type MobileStructuredAgentOptionsArgs = {
@@ -10,7 +10,8 @@ export type MobileStructuredAgentOptionsArgs = {
   sessionId: string | null
   enabled: boolean
   fence: number | null
-  mutate: StructuredAgentSessionMutate
+  mutate: MobileStructuredAgentMutate
+  onOptionError?: (message: string) => void
   optionStamp?: string
   turnId: string | null
   hasTurn?: boolean

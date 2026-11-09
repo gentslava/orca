@@ -70,7 +70,10 @@ export function UsageAccountQuotaCard({
           <div className="flex flex-wrap items-baseline justify-between gap-2 text-xs">
             <span className="text-muted-foreground">
               {label}
-              {window.windowMinutes > 0 ? ` · ${formatWindowLabel(window.windowMinutes)}` : ''}
+              {window.windowMinutes > 0 &&
+              !(window === provider.weekly && window.windowMinutes === 10080)
+                ? ` · ${formatWindowLabel(window.windowMinutes)}`
+                : ''}
             </span>
             <span className="tabular-nums text-foreground">
               {translate('stats.usage.quota.used', '{{percent}}% used', {
@@ -184,8 +187,8 @@ export function UsageAccountQuotas({
       <p className="text-xs text-muted-foreground" data-testid="usage-quota-coverage">
         {accounts && !accountsUnverifiable && !accounts.failedProviders?.length
           ? translate(
-              'stats.usage.quota.accountCoverage',
-              'Claude and Codex show connected accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
+              'stats.usage.quota.reportedAccountCoverage',
+              'Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
             )
           : translate(
               'stats.usage.quota.partialAccounts',

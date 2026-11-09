@@ -36,7 +36,6 @@ export type QueuedMessageCardHold =
   /** The header owns queue-wide pause wording; answering a prompt does not resume draining. */
   | 'queue-paused'
   | 'paused'
-  | 'behind-returned'
   | 'returned'
   /** Disable actions until the host replaces this sending card under the same id. */
   | 'sending'
@@ -50,7 +49,7 @@ export type QueuedMessageCard = {
   images?: readonly NativeChatImageRefBlock[]
   state: 'waiting' | 'returned'
   hold: QueuedMessageCardHold
-  /** Visible unheld waiting work before an ordinary returned barrier in published order. */
+  /** Visible unheld waiting work. */
   resumeEligible?: true
   /** A conversation command such as /compact: it never steers into a running turn. */
   command?: true
@@ -84,21 +83,17 @@ export function projectQueuedMessageCards(
     submissions.filter((submission) => submission.dispatchState !== 'rejected')
   )
   const ordered = [...(queuedMessages ?? [])].sort((left, right) => left.position - right.position)
-  let behindReturned = false
   // Establish semantic membership before handoff filtering, including during catch-up.
   const cards = ordered.map((message) => {
-    const resumeEligible = message.state === 'waiting' && !message.paused && !behindReturned
+    const resumeEligible = message.state === 'waiting' && !message.paused
     const hold: QueuedMessageCardHold =
       message.state === 'returned'
         ? 'returned'
         : message.paused
           ? 'paused'
-          : behindReturned
-            ? 'behind-returned'
-            : session.queuePaused
-              ? 'queue-paused'
-              : 'turn'
-    behindReturned = behindReturned || message.state === 'returned'
+          : session.queuePaused
+            ? 'queue-paused'
+            : 'turn'
     const from = readAgentMessageSource(message.body.from)
     return {
       messageId: message.messageId,
@@ -188,6 +183,14 @@ export function headSteerableQueuedMessageCard(
 ): QueuedMessageCard | null {
   const head = cards[0]
   return head && head.hold !== 'sending' && queuedMessageCardSteers(head) ? head : null
+}
+
+/** Empty Cmd/Ctrl+Enter sends the newest card, never an older substitute. */
+export function lastSteerableQueuedMessageCard(
+  cards: readonly QueuedMessageCard[]
+): QueuedMessageCard | null {
+  const last = cards.at(-1)
+  return last && last.hold !== 'sending' && queuedMessageCardSteers(last) ? last : null
 }
 
 /** The card's line: its text, or for a card of images alone, the image's name or their count. */

@@ -7,6 +7,7 @@ import type {
 } from '../../../../shared/rate-limit-types'
 import { createEmptyRateLimitState } from '../../../../shared/rate-limit-state-factory'
 import { translate } from '@/i18n/i18n'
+import type { Translate } from '@/i18n/use-translate'
 import {
   createPendingProviderSnapshot,
   hasUsageProviderSettingsForProvider,
@@ -53,7 +54,7 @@ const USAGE_PROVIDER_IDS: Record<UsageProviderKey, ProviderRateLimits['provider'
 }
 
 // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the keys of a Record<UsageProviderKey, …>.
-const USAGE_PROVIDER_KEYS = Object.keys(USAGE_PROVIDER_IDS) as UsageProviderKey[]
+export const USAGE_PROVIDER_KEYS = Object.keys(USAGE_PROVIDER_IDS) as UsageProviderKey[]
 
 function mapProviders(
   build: (key: UsageProviderKey) => ProviderRateLimits | null
@@ -65,14 +66,18 @@ function mapProviders(
   >
 }
 
-function describeUnverifiableOwner(ownerLabel: string, reason: OwnerUsageFailureReason): string {
+function describeUnverifiableOwner(
+  ownerLabel: string,
+  reason: OwnerUsageFailureReason,
+  t: Translate = translate
+): string {
   return reason === 'usage-not-published'
-    ? translate(
+    ? t(
         'auto.components.status.bar.tooltip.remoteOwnerNoUsage',
         'Usage unavailable — {{server}} does not report usage. Update Orca on that host.',
         { server: ownerLabel }
       )
-    : translate(
+    : t(
         'auto.components.status.bar.tooltip.remoteOwnerUnreachable',
         'Usage unavailable — cannot reach {{server}}',
         { server: ownerLabel }
@@ -213,7 +218,8 @@ const ACCOUNT_OWNED_PROVIDERS: ReadonlySet<UsageProviderKey> = new Set(['claude'
 
 export function resolveOwnerUsageRateLimits(
   local: RateLimitState,
-  owner: OwnerUsageState
+  owner: OwnerUsageState,
+  t?: Translate
 ): RateLimitState {
   if (owner.kind === 'local') {
     return local
@@ -227,7 +233,7 @@ export function resolveOwnerUsageRateLimits(
       mapProviders((key) => createPendingProviderSnapshot(USAGE_PROVIDER_IDS[key]))
     )
   }
-  const message = describeUnverifiableOwner(owner.ownerLabel, owner.reason)
+  const message = describeUnverifiableOwner(owner.ownerLabel, owner.reason, t)
   const base = owner.lastKnown ? adoptRemoteRateLimits(owner.lastKnown) : null
   const stamp = (key: UsageProviderKey): ProviderRateLimits =>
     ownerPlaceholderSnapshot(key, message, { unverifiableOwner: true })

@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { createFakeRpcClient, type FakeRpcClient } from '../mobile-web-shell/bridge-host-test-fakes'
-import { useLiveWorktreeName, type LiveWorktreeName } from './use-live-worktree-name'
+import { useLiveWorktreeName, type LiveWorktreeName } from '../worktree/use-live-worktree-name'
 
 vi.mock('expo-router', async () => {
   const React = await import('react')
@@ -76,7 +76,7 @@ afterEach(async () => {
   vi.useRealTimers()
 })
 
-it('resolves the project on its workspace owner and refreshes renamed projects', async () => {
+it('resolves the owner project and refreshes renamed or cleared project names', async () => {
   const client = createFakeRpcClient()
   await mount(client)
   await replyWorkspace(client)
@@ -87,6 +87,10 @@ it('resolves the project on its workspace owner and refreshes renamed projects',
   await renameEvent(client)
   await reply(client, 'repo.show', { repo: { displayName: 'Renamed project' } })
   expect(live?.projectName).toBe('Renamed project')
+
+  await renameEvent(client)
+  await reply(client, 'repo.show', { repo: { displayName: '   ' } })
+  expect(live).toMatchObject({ name: 'master', projectName: null })
 })
 
 it('hides another client project and ignores its late reply for the same workspace id', async () => {

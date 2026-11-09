@@ -119,6 +119,17 @@
         }
       }
     },
+    "2914de8d7d6a": {
+      "name": "streams-registered-at-teardown",
+      "ordinal": 11,
+      "value": [
+        {
+          "cancelled": true,
+          "method": "runtime.clientEvents.subscribe",
+          "payload": "runtime.clientEvents.subscribe#3"
+        }
+      ]
+    },
     "3c0aff7108e3": {
       "name": "repo.show#1",
       "ordinal": 5,
@@ -141,6 +152,11 @@
           "payload": "runtime.clientEvents.subscribe#2"
         }
       ]
+    },
+    "6c42891acbf4": {
+      "name": "runtime.clientEvents.subscribe#3",
+      "ordinal": 10,
+      "json": "{\"id\":\"frame-7\",\"deviceToken\":\"recording-device\",\"method\":\"runtime.clientEvents.subscribe\",\"params\":null}"
     },
     "7681f1052840": {
       "name": "repo.show#2",
@@ -792,7 +808,8 @@
             "3c0aff7108e3",
             "b5675ae9a7e8",
             "bb675baf729c",
-            "e468e4d27a67"
+            "e468e4d27a67",
+            "6c42891acbf4"
           ],
           "settlements": {
             "mount": "eb79a9b3682a",
@@ -812,7 +829,8 @@
             "3c0aff7108e3",
             "b5675ae9a7e8",
             "bb675baf729c",
-            "e468e4d27a67"
+            "e468e4d27a67",
+            "6c42891acbf4"
           ],
           "settlements": {
             "mount": "eb79a9b3682a",
@@ -821,6 +839,28 @@
           },
           "state": "592ccd522724",
           "effects": []
+        }
+      },
+      {
+        "id": "live-worktree-name-stream.outer-refused:cleanup",
+        "observation": {
+          "sender": ["12087a0dcffa", "8cef45031109", "cbd40b0b5312"],
+          "payloads": [
+            "eef1ee3c2773",
+            "d3fd2d2ea215",
+            "3c0aff7108e3",
+            "b5675ae9a7e8",
+            "bb675baf729c",
+            "e468e4d27a67",
+            "6c42891acbf4"
+          ],
+          "settlements": {
+            "mount": "eb79a9b3682a",
+            "cutover": "eb79a9b3682a",
+            "unmount": "eb79a9b3682a"
+          },
+          "state": "592ccd522724",
+          "effects": ["2914de8d7d6a"]
         }
       },
       {
@@ -833,7 +873,8 @@
             "3c0aff7108e3",
             "b5675ae9a7e8",
             "bb675baf729c",
-            "e468e4d27a67"
+            "e468e4d27a67",
+            "6c42891acbf4"
           ],
           "settlements": {
             "mount": "eb79a9b3682a",
@@ -853,7 +894,8 @@
             "3c0aff7108e3",
             "b5675ae9a7e8",
             "bb675baf729c",
-            "e468e4d27a67"
+            "e468e4d27a67",
+            "6c42891acbf4"
           ],
           "settlements": {
             "mount": "eb79a9b3682a",
@@ -862,6 +904,28 @@
           },
           "state": "592ccd522724",
           "effects": []
+        }
+      },
+      {
+        "id": "live-worktree-name-stream.outer-refused-no-message:cleanup",
+        "observation": {
+          "sender": ["12087a0dcffa", "8cef45031109", "cbd40b0b5312"],
+          "payloads": [
+            "eef1ee3c2773",
+            "d3fd2d2ea215",
+            "3c0aff7108e3",
+            "b5675ae9a7e8",
+            "bb675baf729c",
+            "e468e4d27a67",
+            "6c42891acbf4"
+          ],
+          "settlements": {
+            "mount": "eb79a9b3682a",
+            "cutover": "eb79a9b3682a",
+            "unmount": "eb79a9b3682a"
+          },
+          "state": "592ccd522724",
+          "effects": ["2914de8d7d6a"]
         }
       },
       {
@@ -874,7 +938,8 @@
             "3c0aff7108e3",
             "b5675ae9a7e8",
             "bb675baf729c",
-            "e468e4d27a67"
+            "e468e4d27a67",
+            "6c42891acbf4"
           ],
           "settlements": {
             "mount": "eb79a9b3682a",
@@ -894,7 +959,8 @@
             "3c0aff7108e3",
             "b5675ae9a7e8",
             "bb675baf729c",
-            "e468e4d27a67"
+            "e468e4d27a67",
+            "6c42891acbf4"
           ],
           "settlements": {
             "mount": "eb79a9b3682a",
@@ -903,6 +969,28 @@
           },
           "state": "592ccd522724",
           "effects": []
+        }
+      },
+      {
+        "id": "live-worktree-name-stream.method-not-found:cleanup",
+        "observation": {
+          "sender": ["12087a0dcffa", "8cef45031109", "cbd40b0b5312"],
+          "payloads": [
+            "eef1ee3c2773",
+            "d3fd2d2ea215",
+            "3c0aff7108e3",
+            "b5675ae9a7e8",
+            "bb675baf729c",
+            "e468e4d27a67",
+            "6c42891acbf4"
+          ],
+          "settlements": {
+            "mount": "eb79a9b3682a",
+            "cutover": "eb79a9b3682a",
+            "unmount": "eb79a9b3682a"
+          },
+          "state": "592ccd522724",
+          "effects": ["2914de8d7d6a"]
         }
       }
     ]

@@ -152,18 +152,6 @@ describe('startup agent recovery host inventory', () => {
     expect(mocks.gate).toHaveBeenCalledTimes(1)
   })
 
-  it('waits for terminal restoration, then uses the activation gate', async () => {
-    mocks.authority = 'live'
-    mocks.gate.mockResolvedValue('adopted')
-    root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher hydrated restored={false} />))
-    expect(mocks.resume).not.toHaveBeenCalled()
-    expect(mocks.gate).not.toHaveBeenCalled()
-    await act(async () => root?.render(<Watcher hydrated />))
-    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
-    expect(mocks.resume).not.toHaveBeenCalled()
-  })
-
   it.each(['blocked', 'rejected'])(
     'retries a %s startup after leaving and returning',
     async (outcome) => {

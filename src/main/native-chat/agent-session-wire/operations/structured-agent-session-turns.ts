@@ -5,6 +5,10 @@ import {
   captureStructuredExecutionOptions,
   captureStructuredSteerOptions
 } from '../options/structured-agent-session-execution-options'
+import {
+  forgetNativeChatPrompt,
+  rememberNativeChatPrompt
+} from '../../../telemetry/native-chat-prompt-submissions'
 import type { AgentSessionFailureWordsContext } from '../../../../shared/agent-session/failures/agent-session-failure-words'
 import type {
   AgentJournalMessageItem,
@@ -91,6 +95,33 @@ export function agentSessionAttachmentExpiredRefusal(error: AgentSessionAttachme
   }
 }
 
+/** Both journal admission writes preserve refusal and receipt replay semantics before provider effects. */
+export function agentSessionAdmissionWriteRefusal(
+  ctx: Pick<AgentSessionTurnContext, 'sessionId' | 'logger'>,
+  error: unknown
+): { ok: false; refusal: AgentSessionWireRefusal } {
+  if (error instanceof CommandReceiptExistsError) {
+    throw error
+  }
+  ctx.logger.warn('recording a message failed', {
+    scope: 'send-journal-write',
+    sessionId: ctx.sessionId,
+    error
+  })
+  if (isAgentSessionAttachmentExpiredError(error)) {
+    return agentSessionAttachmentExpiredRefusal(error)
+  }
+  // Preserve typed refusals, corrupt-database errors and newer-version guards; never retry writes past them.
+  if (
+    isAgentSessionRefusalError(error) ||
+    classifyJournalOpenFailure(error) === 'journalCorrupt' ||
+    isJournalWrittenByNewerOrca(error)
+  ) {
+    return { ok: false, refusal: journalOpenRefusal(error) }
+  }
+  return invalid('journalWriteFailed', 'The message could not be recorded and was not sent.')
+}
+
 /** Accept once per ID; existing submissions replay without redelivery because unknown cannot prove non-delivery.
  * Delivery runs separately; a fresh send after terminal rejection needs a fresh ID. */
 export async function performSend(
@@ -107,7 +138,9 @@ export async function performSend(
     steer?: true
     keepCurrentOptions?: true
     selection?: Readonly<Record<string, string>>
-  }
+  },
+  userClient?: 'desktop' | 'mobile',
+  telemetryOwnerKey?: string
 ): Promise<TurnOutcome<AgentSessionSendResult>> {
   const existing = ctx.journal.submission(input.clientMessageId)
   if (existing && existing.payloadFingerprint !== input.payloadFingerprint) {
@@ -126,38 +159,29 @@ export async function performSend(
   const captured = keepCurrentOptions
     ? { options: undefined }
     : input.steer
-      ? captureStructuredSteerOptions(ctx, input.options)
+      ? captureStructuredSteerOptions(ctx, input.options, input.selection)
       : captureStructuredExecutionOptions(ctx, input.options, input.selection)
   if ('refusal' in captured) {
     return { ok: false, refusal: captured.refusal }
   }
   try {
+    if (!input.body.command) {
+      rememberNativeChatPrompt(
+        ctx.journal,
+        input.clientMessageId,
+        ctx.agent,
+        userClient,
+        telemetryOwnerKey
+      )
+    }
     await ctx.journal.appendSubmission(
       { ...submission, options: captured.options, fence: ctx.fence, handoverRecorded: true },
       undefined,
       ctx.operationReceipt
     )
   } catch (error) {
-    if (error instanceof CommandReceiptExistsError) {
-      throw error
-    }
-    ctx.logger.warn('recording a message failed', {
-      scope: 'send-journal-write',
-      sessionId: ctx.sessionId,
-      error
-    })
-    if (isAgentSessionAttachmentExpiredError(error)) {
-      return agentSessionAttachmentExpiredRefusal(error)
-    }
-    // Preserve typed refusals, corrupt-database errors and newer-version guards; never retry writes past them.
-    if (
-      isAgentSessionRefusalError(error) ||
-      classifyJournalOpenFailure(error) === 'journalCorrupt' ||
-      isJournalWrittenByNewerOrca(error)
-    ) {
-      return { ok: false, refusal: journalOpenRefusal(error) }
-    }
-    return invalid('journalWriteFailed', 'The message could not be recorded and was not sent.')
+    forgetNativeChatPrompt(ctx.journal, input.clientMessageId)
+    return agentSessionAdmissionWriteRefusal(ctx, error)
   }
   return {
     ok: true,

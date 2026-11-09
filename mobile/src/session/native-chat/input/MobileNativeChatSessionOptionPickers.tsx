@@ -221,6 +221,7 @@ export function MobileNativeChatSessionOptionPickers({
         secondary={secondary}
         warning={permissionColor !== undefined}
         icon={permissionIcon}
+        leading={controller.heldPick ? Icons.Clock : undefined}
         accessibleName={
           model
             ? permissionColor
@@ -263,7 +264,9 @@ export function MobileNativeChatSessionOptionPickers({
                 subtitle={
                   pendingId !== null
                     ? t('chat.sessionOptionPickers.applying', 'Applying…')
-                    : undefined
+                    : controller.appliesOnAttach
+                      ? t('chat.sessionOptionPickers.onAttach', 'Applies when the chat attaches')
+                      : undefined
                 }
                 trailing={{ label: t('common.done', 'Done'), onPress: closePicker }}
               />

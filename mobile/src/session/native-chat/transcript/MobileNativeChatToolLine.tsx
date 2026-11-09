@@ -24,7 +24,7 @@ import { MarkdownLinkHandlerContext } from '../../../components/markdown-link-ha
 import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection'
 import { colors, pressedStyle } from '../../../theme/mobile-theme'
 import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
-import { highlightMobileCode } from '../../mobile-file-syntax'
+import { highlightMobileCode } from '../../../files/session-documents/mobile-file-syntax'
 import { MobileNativeChatToolGlyph } from './MobileNativeChatToolIcon'
 import { MobileNativeChatToolOutput } from '../MobileNativeChatFullContent'
 import { MobileNativeChatToolInvocation } from './MobileNativeChatToolInvocation'
@@ -261,7 +261,7 @@ export function MobileNativeChatToolLine({
           {target ? (
             <Text
               style={[styles.lineTarget, type.row, filePath && onOpenFile && styles.lineLink]}
-              numberOfLines={1}
+              numberOfLines={expanded ? undefined : 1}
               onPress={filePath && onOpenFile ? () => onOpenFile(filePath) : undefined}
               suppressHighlighting={!(filePath && onOpenFile)}
               accessibilityRole={filePath && onOpenFile ? 'link' : undefined}

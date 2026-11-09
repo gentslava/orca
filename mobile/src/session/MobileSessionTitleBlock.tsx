@@ -1,14 +1,14 @@
 import { Fragment, useCallback } from 'react'
 import { DetailCardFocusBoundary } from '../components/detail-card-host'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
-import type { SessionTitleCard } from './use-session-title-card'
+import type { SessionTitleCard } from './tabs/use-session-title-card'
 import { StatusDot } from '../components/StatusDot'
-import type { ConnectionState } from '../transport/types'
+import type { ConnectionState } from '../transport/connection/connection-state'
 import { styles } from './mobile-session-styles'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import { pressedStyle, spacing } from '../theme/mobile-theme'
 import { useKeyboardPersistingTaps } from '../platform/keyboard-persisting-taps'
-import { MOBILE_SESSION_STATUS_LABELS } from './mobile-session-route-helpers'
+import { MOBILE_SESSION_STATUS_LABELS } from '../transport/connection/mobile-session-connection-copy'
 
 /** The session's title and status line. A tap opens a card with the full name, where it lives
  *  and its host, as desktop's tab card does, because a sideways phone cuts the title short. */

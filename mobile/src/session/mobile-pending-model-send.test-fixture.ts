@@ -1,7 +1,7 @@
 import { act } from 'react-test-renderer'
 import { expect, it, type Mock } from 'vitest'
-import type { RpcClient } from '../transport/rpc-client'
-import type { RpcResponse } from '../transport/types'
+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
 import type { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
 import type { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
 import {
@@ -11,7 +11,11 @@ import {
 import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../src/shared/agent-session-default-model'
 import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session/agent-session-create-capabilities'
 import { deferred, MODEL_OPTIONS, sendResult } from './structured-session-send-options.test-fixture'
-import { fieldsOf, mutationOk, ok } from './use-mobile-structured-agent-session-queued.test-fixture'
+import {
+  fieldsOf,
+  mutationOk,
+  ok
+} from './native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture'
 
 export function defineMobilePendingModelSendCases({
   setAgent,

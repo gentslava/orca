@@ -4,13 +4,13 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { makeWorktree } from '@/store/slices/worktrees-slice-test-fixtures'
+import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
 import { resetLocalImageCacheState as resetLocalImageSrcStateForTests } from '@/components/editor/document-images/local-image-src-cache'
 import { NativeChatChildTranscriptFrame } from './NativeChatChildTranscriptFrame'
-import { NativeChatMarkdown } from './NativeChatMarkdown'
-import { NativeChatMarkdownImageOwnerContext } from './native-chat-markdown-image-owner'
-import { NativeChatVisualOwnerContext } from './native-chat-visual-owner'
-import { clearNativeChatVisualCacheForTests } from './native-chat-visual-read-client'
+import { NativeChatMarkdown } from './markdown/NativeChatMarkdown'
+import { NativeChatMarkdownImageOwnerContext } from './media/images/native-chat-markdown-image-owner'
+import { NativeChatVisualOwnerContext } from './media/visuals/native-chat-visual-owner'
+import { clearNativeChatVisualCacheForTests } from './media/visuals/native-chat-visual-read-client'
 import type { NativeChatChildTranscriptProps } from './NativeChatChildTranscript'
 
 const reads = vi.hoisted(() => ({ image: vi.fn(), visual: vi.fn() }))
@@ -19,7 +19,7 @@ vi.mock('@/runtime/files/reads/runtime-file-read-client', () => ({
 }))
 vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({ callRuntimeRpc: reads.visual }))
 vi.mock('./NativeChatSessionChildren', () => ({ NativeChatSessionChildren: () => null }))
-vi.mock('./NativeChatTranscriptChrome', () => ({
+vi.mock('./media/images/native-chat-image-visibility', () => ({
   observeTranscriptVisibility: (_element: Element, onChange: (visible: boolean) => void) => {
     onChange(true)
     return () => {}

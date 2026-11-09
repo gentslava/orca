@@ -30,7 +30,7 @@ const feeds = vi.hoisted(
     >()
 )
 
-vi.mock('@/runtime/structured-agent-session-status-feed', () => ({
+vi.mock('@/runtime/native-chat/status/structured-agent-session-status-feed', () => ({
   getStructuredAgentSessionStatusFeed: (target: RuntimeClientTarget) => {
     const key = target.kind === 'local' ? 'local' : `runtime:${target.environmentId}`
     let feed = feeds.get(key)
@@ -62,7 +62,7 @@ let latest: ReturnType<typeof useAiVaultSessionRefresh> | undefined
 let response: AiVaultListResult
 
 function Probe({ scope = 'local' }: { scope?: ExecutionHostScope }): null {
-  latest = useAiVaultSessionRefresh([], scope, 500, true)
+  latest = useAiVaultSessionRefresh([], scope, 500, false, true)
   return null
 }
 

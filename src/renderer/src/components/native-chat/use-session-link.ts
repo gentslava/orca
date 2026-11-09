@@ -11,10 +11,8 @@ import {
 } from '../../../../shared/session-link'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { translate as t } from '@/i18n/i18n'
-import {
-  callStructuredAgentSession,
-  structuredAgentSessionHostSupports
-} from '@/runtime/structured-agent-session-client'
+import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
+import { structuredAgentSessionHostSupports } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
 
 const Candidates = z.object({
   source: SessionLinkParticipant,

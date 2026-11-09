@@ -1,21 +1,24 @@
-import { chooseEffort, effortLabel } from '../native-chat/native-chat-effort-slider.test-fixture'
 // @vitest-environment happy-dom
-import { act } from 'react'
-import { fireEvent } from '@testing-library/react'
+import { act, type ReactElement, type ReactNode } from 'react'
+import { fireEvent, getByRole } from '@testing-library/react'
+import { chooseEffort, effortLabel } from '../native-chat/native-chat-effort-slider.test-fixture'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { retireAgentPickerDrafts } from './agent-launch-picker-drafts'
 import { AgentLaunchSetupButton } from './AgentLaunchSetupButton'
 import { agentLaunchPromptScopeKey } from './AgentLaunchPromptComposer'
-import { changePrompt } from '../native-chat/native-chat-prompt-editor.test-support'
-import {
-  clearNativeChatComposerDraftsForTests,
-  readNativeChatComposerDraft,
-  writeLaunchSetupOptions
-} from '../native-chat/native-chat-composer-draft-store'
-import * as sources from '../native-chat/native-chat-launch-draft-source'
-import { transitionLaunchDrafts } from '../native-chat/native-chat-launch-draft-transition'
+import { changePrompt } from '../native-chat/composer/editor/native-chat-prompt-editor.test-support'
+import { clearNativeChatComposerDraftsForTests } from '../native-chat/drafts/native-chat-draft-reset'
+import { readNativeChatComposerDraft } from '../native-chat/drafts/native-chat-composer-draft-store'
+import { writeLaunchSetupOptions } from '../native-chat/drafts/native-chat-composer-draft-memory'
+import * as sources from '../native-chat/drafts/native-chat-launch-draft-source'
+import { transitionLaunchDrafts } from '../native-chat/drafts/native-chat-launch-draft-transition'
 import type { AgentPickerEntry } from '../../../../shared/agent-launch/picker/agent-launch-picker'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 
@@ -56,26 +59,55 @@ afterEach(() => {
   clearNativeChatComposerDraftsForTests()
 })
 
+const anchor = (trigger: ReactElement) => <div>{trigger}</div>
+
+function InMenu({ children }: { children: ReactNode }) {
+  return (
+    <TooltipProvider>
+      <DropdownMenu defaultOpen modal={false}>
+        <DropdownMenuTrigger>New tab</DropdownMenuTrigger>
+        <DropdownMenuContent>{children}</DropdownMenuContent>
+      </DropdownMenu>
+    </TooltipProvider>
+  )
+}
+
 describe('setup records exist only for authored setups', () => {
   it('keeps typed prompt and options through close, reopen and a rename', () => {
-    const entry = {
+    const entry: AgentPickerEntry = {
       ...row(0, 'codex'),
       worktreeId: 'repo::/old',
-      arguments: '--add-dir docs'
+      arguments: '--add-dir docs',
+      catalog: {
+        origin: 'probe',
+        fetchedAt: 1,
+        models: [
+          {
+            id: 'gpt',
+            label: 'gpt',
+            isDefault: true,
+            efforts: [
+              { value: 'low', label: 'Low' },
+              { value: 'high', label: 'High' }
+            ]
+          }
+        ]
+      }
     }
     const show = (value: AgentPickerEntry) =>
       act(() =>
         root.render(
-          <TooltipProvider>
-            <AgentLaunchSetupButton entry={value} onUse={vi.fn()} />
-          </TooltipProvider>
+          <InMenu>
+            <AgentLaunchSetupButton entry={value} onUse={vi.fn()} renderAnchor={anchor} />
+          </InMenu>
         )
       )
     const configure = () =>
       document.querySelector<HTMLButtonElement>('button[aria-label="Configure codex"]')!
     const prompt = () =>
       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
-    const close = () => fireEvent.keyDown(document.querySelector('textarea')!, { key: 'Escape' })
+    const close = () =>
+      fireEvent.keyDown(document.querySelector('[cmdk-input]')!, { key: 'Escape' })
     show(entry)
     fireEvent.click(configure())
     close()
@@ -83,15 +115,17 @@ describe('setup records exist only for authored setups', () => {
 
     // The open panel's first write is an option change; it shows at once and retains the setup.
     fireEvent.click(configure())
-    fireEvent.change(document.querySelector('textarea')!, { target: { value: '--add-dir src' } })
-    expect(document.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('--add-dir src')
+    // Arguments are agent settings, so the launch panel offers no editor for them.
+    expect(document.querySelector('textarea[aria-label="Arguments"]')).toBeNull()
+    fireEvent.click(getByRole(document.body, 'radio', { name: 'Low' }))
+    expect(effortLabel()).toBe('Low')
     expect(sourceCount()).toBe(1)
     changePrompt(prompt(), 'fix the flaky test')
     close()
-    expect(document.querySelector('textarea')).toBeNull()
+    expect(document.querySelector('[cmdk-input]')).toBeNull()
     fireEvent.click(configure())
     expect(prompt().textContent).toBe('fix the flaky test')
-    expect(document.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('--add-dir src')
+    expect(effortLabel()).toBe('Low')
     close()
 
     act(() =>
@@ -104,7 +138,7 @@ describe('setup records exist only for authored setups', () => {
     show({ ...entry, worktreeId: 'repo::/new' })
     fireEvent.click(configure())
     expect(prompt().textContent).toBe('fix the flaky test')
-    expect(document.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('--add-dir src')
+    expect(effortLabel()).toBe('Low')
   })
 
   it('keeps a search preset in its own options slot, saving only real changes, with one shared prompt', async () => {
@@ -133,10 +167,15 @@ describe('setup records exist only for authored setups', () => {
     }
     act(() =>
       root.render(
-        <TooltipProvider>
-          <AgentLaunchSetupButton entry={entry} onUse={vi.fn()} />
-          <AgentLaunchSetupButton entry={entry} initial={preset} onUse={vi.fn()} />
-        </TooltipProvider>
+        <InMenu>
+          <AgentLaunchSetupButton entry={entry} onUse={vi.fn()} renderAnchor={anchor} />
+          <AgentLaunchSetupButton
+            entry={entry}
+            initial={preset}
+            onUse={vi.fn()}
+            renderAnchor={anchor}
+          />
+        </InMenu>
       )
     )
     const [plain, searched] = document.querySelectorAll<HTMLButtonElement>(
@@ -145,7 +184,8 @@ describe('setup records exist only for authored setups', () => {
     const prompt = () =>
       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
     const model = () => document.querySelector('[cmdk-item][data-current="true"]')?.textContent
-    const close = () => fireEvent.keyDown(document.querySelector('textarea')!, { key: 'Escape' })
+    const close = () =>
+      fireEvent.keyDown(document.querySelector('[cmdk-input]')!, { key: 'Escape' })
 
     // Opening a preset saves nothing, and the plain row still shows defaults.
     fireEvent.click(searched)

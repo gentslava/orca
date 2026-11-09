@@ -16,7 +16,7 @@ import {
   useMobileQueuedCardActions,
   type MobileQueuedCardActions
 } from './mobile-queued-card-actions'
-import { headSteerableQueuedMessageCard } from '../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
+import { lastSteerableQueuedMessageCard } from '../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
 import type { AgentSessionQueuePause } from '../../../../../src/shared/agent-session/requests/agent-session-queued-message-wire'
 import type { MobileQueuedMessageEdit } from '../../use-mobile-structured-queued-message-controls'
 import type { MobileQueuedMessageInlineEditor } from '../../mobile-queued-message-edit-draft'
@@ -43,7 +43,7 @@ export function mobileNativeChatChordHeadId(
   // Mid-turn only where the chord's other way is steer, or a second press would steer the card
   // the first one just queued; with no turn running the card's own Send (a paused queue after Stop).
   const steers = !steerHeld && (alternateSteers || !agentWorking)
-  const head = cards && steers ? headSteerableQueuedMessageCard(cards) : null
+  const head = cards && steers ? lastSteerableQueuedMessageCard(cards) : null
   return head && editor?.messageId !== head.messageId ? head.messageId : null
 }
 
@@ -54,6 +54,8 @@ export type MobileNativeChatQueuedMessagesProps = {
   onSend?: (messageId: string) => Promise<boolean>
   onDelete?: (messageId: string) => Promise<boolean>
   onClearAll?: (messageIds: string[]) => Promise<boolean>
+  /** Offers Clear all while the queue still sends on its own; otherwise only a paused queue does. */
+  clearable?: boolean
   // Older hosts cannot edit inline; copy their draft to the composer.
   onEdit?: MobileQueuedMessageEdit
   editor?: MobileQueuedMessageInlineEditor
@@ -61,7 +63,7 @@ export type MobileNativeChatQueuedMessagesProps = {
   pause?: AgentSessionQueuePause | null
   onResume?: () => Promise<boolean>
   steerHeld?: boolean
-  /** Lights the head card while the composer previews sending it (Steer queued). */
+  /** Lights the newest card while the composer previews sending it (Steer queued). */
   headLight?: MobileQueuedHeadLight
   /** The agent is working: a steerable card's action reads Steer, otherwise Send. */
   agentWorking?: boolean
@@ -73,6 +75,7 @@ export function MobileNativeChatQueuedMessages({
   onSend,
   onDelete,
   onClearAll,
+  clearable = false,
   onEdit,
   editor,
   onMove,
@@ -99,7 +102,7 @@ export function MobileNativeChatQueuedMessages({
     return null
   }
   const queueBusy = busyIds.has(QUEUE_KEY)
-  const headId = headSteerableQueuedMessageCard(cards)?.messageId
+  const headId = lastSteerableQueuedMessageCard(cards)?.messageId
   const messageIds = cards.map((card) => card.messageId)
   // Clear all takes every card, so it waits for any card's own action rather than skip that card.
   const clearBusy = queueBusy || messageIds.some((messageId) => busyIds.has(messageId))
@@ -108,7 +111,8 @@ export function MobileNativeChatQueuedMessages({
   if (menuFor !== null && !menuCard) {
     setMenuFor(null)
   }
-  const headerActions = pause ? (
+  const actionable = pause || clearable
+  const headerActions = actionable ? (
     <>
       {onClearAll ? (
         <Pressable
@@ -127,24 +131,26 @@ export function MobileNativeChatQueuedMessages({
           <Text style={styles.actionLabel}>{t('chat.queuedMessages.clearAll', 'Clear all')}</Text>
         </Pressable>
       ) : null}
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ disabled: queueBusy }}
-        accessibilityLabel={t(
-          'chat.queuedMessages.resumeSending',
-          'Resume sending the queued messages'
-        )}
-        style={({ pressed }) => [
-          styles.headerAction,
-          pressed && styles.pressed,
-          queueBusy && styles.disabled
-        ]}
-        disabled={queueBusy}
-        onPress={() => void run(QUEUE_KEY, onResume && (() => onResume()))}
-      >
-        <Play size={12} color={colors.textPrimary} strokeWidth={2} />
-        <Text style={styles.actionLabel}>{t('chat.queuedMessages.resume', 'Resume')}</Text>
-      </Pressable>
+      {pause ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ disabled: queueBusy }}
+          accessibilityLabel={t(
+            'chat.queuedMessages.resumeSending',
+            'Resume sending the queued messages'
+          )}
+          style={({ pressed }) => [
+            styles.headerAction,
+            pressed && styles.pressed,
+            queueBusy && styles.disabled
+          ]}
+          disabled={queueBusy}
+          onPress={() => void run(QUEUE_KEY, onResume && (() => onResume()))}
+        >
+          <Play size={12} color={colors.textPrimary} strokeWidth={2} />
+          <Text style={styles.actionLabel}>{t('chat.queuedMessages.resume', 'Resume')}</Text>
+        </Pressable>
+      ) : null}
     </>
   ) : null
   const attentionCaption = !expanded ? cards.find((card) => card.needsAttention)?.caption : null

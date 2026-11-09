@@ -119,6 +119,7 @@ export const AI_VAULT_METHODS = [
             selectedSessionId,
             includeStructuredSessions: params.includeStructuredSessions,
             structuredOnly: params.structuredOnly,
+            scopeOnly: params.scopeOnly,
             includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
           },
           signal

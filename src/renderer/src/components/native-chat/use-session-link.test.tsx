@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import type * as SessionHostSupportModule from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SessionLinkSnapshot, LinkCreateParams } from '../../../../shared/session-link'
@@ -6,10 +7,16 @@ import { RuntimeRpcCallError } from '@/runtime/rpc/calls/runtime-rpc-result'
 import { useSessionLink } from './use-session-link'
 
 const rpc = vi.hoisted(() => ({ call: vi.fn(), supports: vi.fn(async () => true) }))
-vi.mock('@/runtime/structured-agent-session-client', () => ({
-  callStructuredAgentSession: rpc.call,
-  structuredAgentSessionHostSupports: rpc.supports
+vi.mock('@/runtime/native-chat/requests/structured-agent-session-call', () => ({
+  callStructuredAgentSession: rpc.call
 }))
+vi.mock(
+  '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support',
+  async (importOriginal) => ({
+    ...(await importOriginal<typeof SessionHostSupportModule>()),
+    structuredAgentSessionHostSupports: rpc.supports
+  })
+)
 const participant = (id: string) => ({
   sessionId: id,
   conversationId: id,
@@ -26,7 +33,7 @@ const snapshot = (id: string) =>
   SessionLinkSnapshot.parse({
     link: {
       id,
-      story: 'Slice 1b',
+      story: 'Checkout slice 2',
       participants: [participant('codex-work'), participant('claude-review')],
       state: 'active',
       reason: '',
@@ -41,7 +48,7 @@ const snapshot = (id: string) =>
 const fields = {
   sessionId: 'codex-work',
   partnerSessionId: 'claude-review',
-  story: 'Slice 1b',
+  story: 'Checkout slice 2',
   role: 'implementer'
 }
 
@@ -85,7 +92,7 @@ describe('session link mutation recovery', () => {
     })
     expect(calls[0]).toEqual(calls[1])
     expect(result.current.uncertain).toBe(false)
-    expect(result.current.snapshot?.link.story).toBe('Slice 1b')
+    expect(result.current.snapshot?.link.story).toBe('Checkout slice 2')
   })
 
   it('allows correction after a proved effect-free refusal', async () => {

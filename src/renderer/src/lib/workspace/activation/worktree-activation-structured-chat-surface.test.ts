@@ -11,7 +11,7 @@ import { registerWorktreeActivationReset } from './worktree-activation.test-fixt
 // Main's answer to the window's layout commands, as a switch-on build sends them.
 vi.mock('@/runtime/rpc/calls/runtime-rpc-call', async (importOriginal) =>
   (
-    await import('@/runtime/layout-apply-test-transport.test-fixture')
+    await import('@/runtime/workspace-layout/testing/layout-apply-test-transport.test-fixture')
   ).runtimeRpcClientWithLayoutApply(await importOriginal())
 )
 
@@ -21,6 +21,7 @@ registerWorktreeActivationReset()
 
 afterEach(async () => {
   await import('@/runtime/hosted-terminals/actions/web-runtime-terminal-rename')
+  await vi.dynamicImportSettled()
   vi.restoreAllMocks()
   useAppStore.setState(initialAppStoreState, true)
 })

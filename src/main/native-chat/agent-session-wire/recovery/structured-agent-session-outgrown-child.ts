@@ -15,6 +15,7 @@ import type { AgentChatPermissionChoice } from '../../../../shared/agent-launch/
 import { agentJournalSubmissionKey } from '../../../../shared/agent-session/journal/agent-session-journal-item-key'
 import {
   agentSessionAccountHomesEqual,
+  isLegacyAgentSessionAccountHome,
   type AgentSessionAccountHome
 } from '../../../../shared/agent-session/lifecycle/agent-session-account-home'
 
@@ -95,7 +96,7 @@ function picksNewLaunchModel(
   )
 }
 
-/** Unreadable selection evidence must refuse delivery rather than authorize the existing account. */
+/** Codex cannot use the old account when its selection is unreadable; other providers keep their child. */
 async function launchedUnderOtherAccount(
   child: OutgrownChildReading['child'],
   current: (() => Promise<AgentSessionAccountHome | null>) | undefined
@@ -103,8 +104,14 @@ async function launchedUnderOtherAccount(
   if (!child || child.phase === 'starting' || child.close || !child.accountHome || !current) {
     return false
   }
-  const home = await current()
-  return home !== null && !agentSessionAccountHomesEqual(home, child.accountHome)
+  const accountHome = child.accountHome
+  const home = await current().catch((error: unknown) => {
+    if (isLegacyAgentSessionAccountHome(accountHome) && accountHome.variable === 'CODEX_HOME') {
+      throw error
+    }
+    return null
+  })
+  return home !== null && !agentSessionAccountHomesEqual(home, accountHome)
 }
 
 /** Retire under serialization only when no work is owed; failed Stop leaves a close for startup to join. */
@@ -129,14 +136,14 @@ export async function retireOutgrownStructuredAgentSessionChild(
   if (
     !session ||
     !(
+      (await launchedUnderOtherAccount(session.child, deps.launchAccountHome)) ||
       structuredAgentSessionChildReportedSignedOut(session) ||
       picksNewLaunchModel(session, deps.next, deps.requiresModelTransitionRestart) ||
       (await launchedWithOtherPermissionMode(
         session.child,
         deps.launchPermission,
         deps.permissionRequiresAcquisition
-      )) ||
-      (await launchedUnderOtherAccount(session.child, deps.launchAccountHome))
+      ))
     ) ||
     structuredAgentSessionChildOwesWork(session.journal, deps.work)
   ) {

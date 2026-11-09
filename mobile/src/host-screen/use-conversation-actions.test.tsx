@@ -1,5 +1,6 @@
 import { createElement } from 'react'
-import { act, create, type ReactTestRenderer } from 'react-test-renderer'
+import { createWithQueryClient } from '../test-support/query-client-test-renderer'
+import { act, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   AGENT_LAUNCH_REPLAY_REQUIRED_RUNTIME_CAPABILITY,
@@ -7,9 +8,9 @@ import {
 } from '../../../src/shared/agent-launch/contracts/agent-launch-runtime-capability'
 import { MOBILE_DESKTOP_RELAY_RUNTIME_CAPABILITY } from '../../../src/shared/mobile-desktop-relay-contract'
 import { PREFLIGHT_OTHER_RUNTIME_REFUSAL_RUNTIME_CAPABILITY } from '../../../src/shared/protocol-version'
-import { FakeSession } from '../transport/mobile-endpoint-supervisor-test-fakes'
-import { createStableLogicalRpcClient } from '../transport/stable-logical-rpc-client'
-import type { RpcResponse } from '../transport/types'
+import { FakeSession } from '../transport/connection/mobile-endpoint-supervisor-test-fakes'
+import { createStableLogicalRpcClient } from '../transport/connection/stable-logical-rpc-client'
+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
 import { buildProjectConversations } from './project-conversations'
 import { conversationHistory, conversationWorkspace } from './project-conversations.test-fixture'
 import { useConversationActions } from './use-conversation-actions'
@@ -23,7 +24,9 @@ import {
 vi.mock('expo-router', () => ({}))
 vi.mock('react-native', () => ({ Platform: { OS: 'ios' } }))
 vi.mock('../storage/preferences', () => ({ savePinnedIds: async () => {} }))
-vi.mock('../transport/host-removal-lifecycle', () => ({ removeHostAndCloseClient: async () => {} }))
+vi.mock('../transport/hosts/host-removal-lifecycle', () => ({
+  removeHostAndCloseClient: async () => {}
+}))
 vi.mock('../host-route-exit', () => ({ leaveHostRoute: () => {} }))
 
 const trees: ReactTestRenderer[] = []
@@ -95,7 +98,7 @@ async function mount(client: ProjectConversationsSource['client']) {
     return null
   }
   await act(async () => {
-    trees.push(create(createElement(Probe)))
+    trees.push(createWithQueryClient(createElement(Probe)))
   })
   const [project] = buildProjectConversations({
     workspaces: [workspace],

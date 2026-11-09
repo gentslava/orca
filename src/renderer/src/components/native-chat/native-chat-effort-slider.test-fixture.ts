@@ -5,13 +5,16 @@ export const effortLabel = (): string | undefined =>
   effortSlider().getAttribute('aria-valuetext')?.split(' · ')[0]
 
 export function chooseEffort(label: string): void {
-  fireEvent.keyDown(effortSlider(), { key: 'Home' })
+  let key = 'Home'
+  fireEvent.keyDown(effortSlider(), { key })
   const maximum = Number(effortSlider().getAttribute('aria-valuemax'))
   for (let step = 0; step <= maximum; step++) {
     if (effortLabel() === label) {
+      fireEvent.keyDown(effortSlider(), { key: 'Enter' })
       return
     }
-    fireEvent.keyDown(effortSlider(), { key: 'ArrowRight' })
+    key = 'ArrowRight'
+    fireEvent.keyDown(effortSlider(), { key })
   }
   throw new Error(`Effort slider does not offer ${label}`)
 }

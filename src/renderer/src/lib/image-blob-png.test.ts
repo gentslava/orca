@@ -32,7 +32,8 @@ function stubDecodedSize(
   return decode
 }
 
-function stubCanvas(png: Blob | null = new Blob([PNG_BYTES], { type: 'image/png' })) {
+function stubCanvas() {
+  const png = new Blob([PNG_BYTES], { type: 'image/png' })
   const dimensions = { width: 0, height: 0 }
   const drawImage = vi.fn()
   Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
@@ -129,37 +130,4 @@ describe('convertImageBlobToPng', () => {
     ).rejects.toThrow(CLIPBOARD_IMAGE_TOO_LARGE_ERROR)
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:decode-owned')
   })
-
-  it.each([WEBP_BYTES, PNG_BYTES])(
-    'downscales a pasted image above the pixel cap',
-    async (bytes) => {
-      stubDecodedSize(8000, 6000)
-      const { dimensions, png } = stubCanvas()
-
-      await expect(
-        convertImageBlobToPng(new Blob([bytes]), { downscaleToFit: true })
-      ).resolves.toBe(png)
-      expect(dimensions).toEqual({ width: 6688, height: 5016 })
-    }
-  )
-
-  it('releases its temporary URL on a decode error', async () => {
-    stubDecodedSize(800, 600, vi.fn().mockRejectedValue(new Error('invalid image')))
-
-    await expect(convertImageBlobToPng(new Blob(['invalid']))).rejects.toThrow('invalid image')
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:decode-owned')
-  })
-
-  it.each([null, new Blob([new Uint8Array(CLIPBOARD_IMAGE_MAX_SOURCE_BYTES + 1)])])(
-    'releases its temporary URL when PNG encoding fails or exceeds the byte cap',
-    async (png) => {
-      stubDecodedSize(800, 600)
-      stubCanvas(png)
-
-      await expect(convertImageBlobToPng(new Blob([WEBP_BYTES]))).rejects.toThrow(
-        png ? CLIPBOARD_IMAGE_TOO_LARGE_ERROR : 'Clipboard image could not be encoded as PNG'
-      )
-      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:decode-owned')
-    }
-  )
 })

@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import type * as SessionHostCapabilityModule from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-capability'
 import { fireEvent, render, screen, cleanup, waitFor } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import type * as I18nModule from '@/i18n/i18n'
@@ -9,11 +10,17 @@ import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilitie
 import { useTabSessionLink } from './use-tab-session-link'
 
 const rpc = vi.hoisted(() => vi.fn())
-vi.mock('@/runtime/structured-agent-session-client', () => ({
-  callStructuredAgentSession: rpc,
-  structuredAgentSessionHostSupports: async () => true
+vi.mock('@/runtime/native-chat/requests/structured-agent-session-call', () => ({
+  callStructuredAgentSession: rpc
 }))
-vi.mock('@/runtime/structured-agent-session-status-feed', () => ({
+vi.mock(
+  '@/runtime/native-chat/host-capabilities/structured-agent-session-host-capability',
+  async (importOriginal) => ({
+    ...(await importOriginal<typeof SessionHostCapabilityModule>()),
+    structuredAgentSessionHostSupports: async () => true
+  })
+)
+vi.mock('@/runtime/native-chat/status/structured-agent-session-status-feed', () => ({
   getStructuredAgentSessionStatusFeed: () => ({ getNamingSnapshot: () => new Map() })
 }))
 vi.mock('@/i18n/i18n', async (importOriginal) => ({

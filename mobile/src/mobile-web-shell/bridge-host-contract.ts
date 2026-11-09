@@ -1,4 +1,4 @@
-import type { HostStatusReply } from '../transport/host-status-reply-schema'
+import type { HostStatusReply } from '../transport/hosts/host-status-reply-schema'
 import type {
   BridgeTerminalKeyId,
   BridgeTerminalToolbar,
@@ -6,7 +6,7 @@ import type {
 } from './bridge/bridge-terminal-key'
 import type { BridgePageGeometry } from './bridge/bridge-page-geometry'
 import type { TerminalBacklogEnd, TerminalBacklogTimers } from './bridge-terminal-output-backlog'
-import type { RpcClient } from '../transport/rpc-client'
+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
 import type { BridgeSessionBack } from './bridge-host-back'
 import type { BridgeRefusal } from './bridge/bridge-caps'
 import type {
@@ -23,11 +23,19 @@ import type { BridgeErrorCapture } from './bridge/bridge-error-capture'
 import type { BridgeNativeVerb } from './bridge/bridge-native-verbs'
 import type { BridgeNotifyRefusal } from './bridge/bridge-notify-grants'
 import type { PageStorageForInit } from './page-storage-keys'
+import type { BridgeMediaSource } from './bridge/bridge-media-verbs'
+import type { BridgeNativeRefusalCode } from './bridge-host-errors'
 
 // Only popped moves the stack; nothing-to-pop means root entry, while pop-pending means a duplicate frame before the queued pop commits.
 export type BridgeNavigateBackOutcome = 'popped' | 'nothing-to-pop' | 'pop-pending'
 
 export type BridgeHostDiagnostic =
+  | {
+      kind: 'native-media-pick-refused'
+      source: BridgeMediaSource | 'unreported'
+      stage: 'pre-dispatch' | 'handler' | 'result'
+      reason: BridgeNativeRefusalCode
+    }
   | { kind: 'refused'; refusal: BridgeRefusal }
   | { kind: 'post-failed'; error: unknown }
   // Only a leaked view can post after host disposal; log rather than silently hide it.

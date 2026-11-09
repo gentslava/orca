@@ -4,17 +4,19 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, expect, it, vi } from 'vitest'
 
 const rpc = vi.hoisted(() => ({ call: vi.fn() }))
-vi.mock('@/runtime/structured-agent-session-client', () => ({
-  callStructuredAgentSession: rpc.call,
+vi.mock('@/runtime/native-chat/requests/structured-agent-session-call', () => ({
+  callStructuredAgentSession: rpc.call
+}))
+vi.mock('@/runtime/native-chat/requests/structured-agent-session-subscriptions', () => ({
   subscribeStructuredAgentSessionStatus: async () => ({ unsubscribe: () => {} })
 }))
-vi.mock('@/runtime/structured-agent-session-host-capability', () => ({
+vi.mock('@/runtime/native-chat/host-capabilities/structured-agent-session-host-capability', () => ({
   useStructuredAgentSessionHostCapability: () => true,
   useStructuredAgentSessionOwnPermissionState: () => 'supported',
   useStructuredAgentSessionHostCapabilityState: () => 'unknown',
   structuredAgentSessionHostKey: () => 'local'
 }))
-vi.mock('./native-chat-session-option-settings-write', () => ({
+vi.mock('./session/options/native-chat-session-option-settings-write', () => ({
   enqueueSessionOptionSettingsWrite: () => Promise.resolve()
 }))
 vi.mock('@/i18n/i18n', () => ({
@@ -26,9 +28,9 @@ vi.mock('@/i18n/i18n', () => ({
 }))
 
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
-import { useStructuredAgentSessionOptions } from './use-structured-agent-session-options'
-import { useStructuredAgentSessionSendOptions } from './use-structured-agent-session-send-options'
+import { NativeChatSessionOptionPickers } from './session/options/controls/NativeChatSessionOptionPickers'
+import { useStructuredAgentSessionOptions } from './session/options/structured/use-structured-agent-session-options'
+import { useStructuredAgentSessionSendOptions } from './session/structured/delivery/use-structured-agent-session-send-options'
 import { forgetStructuredSessionSelection } from '@/lib/agent-session/options/structured-agent-session-selection-controller'
 
 const target = { kind: 'local' } as const

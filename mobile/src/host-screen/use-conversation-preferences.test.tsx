@@ -7,9 +7,9 @@ import {
   SetConversationPreferenceParams,
   updateConversationPreference
 } from '../../../src/shared/conversation-navigation-preferences'
-import type { RpcClient } from '../transport/rpc-client'
-import type { RpcResponse } from '../transport/types'
-import { FakeSession } from '../transport/mobile-endpoint-supervisor-test-fakes'
+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
+import { FakeSession } from '../transport/connection/mobile-endpoint-supervisor-test-fakes'
 import { INITIAL_MOBILE_VIEW, type MobileViewState } from '../worktree/workspace-view-settings'
 import { useConversationPreferences } from './use-conversation-preferences'
 
