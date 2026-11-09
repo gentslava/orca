@@ -46,7 +46,9 @@ export function measureWindowsArchives(verification, expected) {
   const zip = measureWindowsApp(join(verification, 'zip'), expected, versions.zip)
   const installer = measureWindowsApp(join(verification, 'installer'), expected, versions.installer)
   if (JSON.stringify(zip) !== JSON.stringify(installer)) {
-    throw new Error('Windows installer and ZIP contain different applications')
+    throw new Error(
+      `Windows installer and ZIP contain different applications: ${JSON.stringify({ zip, installer })}`
+    )
   }
   return zip
 }
