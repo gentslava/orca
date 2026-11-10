@@ -48,6 +48,8 @@ The retired hovercard fixture correction (PR 37279) is supplied by merged PR 372
 
 Mobile shared-reader lifecycle: merged PR 39727 carries the same four-file patch as closed PR 39022. The replacement records that maintainer port; composition verifies its merge ancestry before omitting it from the personal build.
 
+SSH test isolation: merged PR 40673 carries the exact patch from closed PR 40293, preserving its author, and also clears credential-decline holds in the shared connection fixture. The replacement prevents the closed original from blocking selection; composition requires the successor's merge ancestry before treating the fix as supplied by upstream.
+
 The noisy readable-transcript warning (PR 36858, issue 36856) is supplied by merged PR 37211. The current scanner reports a failure only for unreadable conversations. The retired PR’s separate older-host disclosure enhancement is omitted from the required product build.
 
 Mobile media lifecycle: PR 36922 in upstream supersedes PRs 36569 and 36574 by reserving four of the existing 64 bridge slots for native verbs. PR 36572 is retired because shipped shells install their channel per document, rather than replacing it inside a live document. These lifecycle decisions retain the historical Attach Photos investigation; they do not claim its original handset failure was reproduced or fixed.
