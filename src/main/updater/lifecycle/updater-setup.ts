@@ -39,20 +39,44 @@ export type UpdaterSetupOptions = {
   onBeforeQuitFailure?: PreQuitCleanupFailureMode
 }
 
+function isForkPreviewBuild(): boolean {
+  return /(?:-|\.)local\.forkpreview\.\d+\.[0-9a-f]{1,12}$/.test(app.getVersion())
+}
+
 export class UpdaterSetup extends UpdaterDownloadInstall {
+  private rejectForkPreviewUpdate(userInitiated = false): boolean {
+    if (!isForkPreviewBuild()) {
+      return false
+    }
+    this.sendStatus({ state: 'not-available', userInitiated })
+    return true
+  }
+
   checkForUpdates(): void {
+    if (this.rejectForkPreviewUpdate()) {
+      return
+    }
     this.checkForUpdatesInBackground()
   }
 
   checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
+    if (this.rejectForkPreviewUpdate(true)) {
+      return
+    }
     super.checkForUpdatesFromMenu(options)
   }
 
   downloadUpdate(): void {
+    if (this.rejectForkPreviewUpdate(true)) {
+      return
+    }
     super.downloadUpdate()
   }
 
   quitAndInstall(): void {
+    if (this.rejectForkPreviewUpdate(true)) {
+      return
+    }
     super.quitAndInstall()
   }
 
@@ -61,6 +85,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
   }
 
   getUpdateStatus(): UpdateStatus {
+    if (isForkPreviewBuild()) {
+      return { state: 'not-available' }
+    }
     return super.getUpdateStatus()
   }
 
@@ -103,6 +130,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
     channel: ReleaseChannel,
     options?: ReleaseBuildListOptions
   ): Promise<ReleaseBuild[]> {
+    if (this.rejectForkPreviewUpdate(true)) {
+      return []
+    }
     return super.listAvailableReleaseBuilds(channel, options)
   }
 
@@ -115,6 +145,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
   }
 
   setupAutoUpdater(mainWindow: BrowserWindow | null, opts?: UpdaterSetupOptions): void {
+    if (this.rejectForkPreviewUpdate()) {
+      return
+    }
     // Keep direct-window callers compatible; desktop composition supplies the lifecycle getter.
     this.getMainWindow = opts?.getMainWindow ?? (mainWindow ? () => mainWindow : this.getMainWindow)
     this.onBeforeQuitCleanup = opts?.onBeforeQuit ?? null

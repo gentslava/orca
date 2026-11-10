@@ -69,6 +69,15 @@ export const ENVIRONMENT_COMMAND_SPECS: CommandSpec[] = [
     allowedFlags: [...LOCAL_COMMAND_FLAGS, 'environment']
   },
   {
+    path: ['environment', 'rename'],
+    summary: 'Rename one saved Orca server on this client',
+    usage: 'orca environment rename --environment <selector> --name <name> [--json]',
+    allowedFlags: [...LOCAL_COMMAND_FLAGS, 'environment', 'name'],
+    notes: [
+      'Changes only the saved name on this client; the server identity and pairing stay the same. Works offline.'
+    ]
+  },
+  {
     path: ['environment', 'rm'],
     destructive: true,
     summary: 'Remove one saved Orca runtime environment',

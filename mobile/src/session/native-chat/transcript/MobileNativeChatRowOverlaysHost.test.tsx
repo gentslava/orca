@@ -9,7 +9,7 @@ import {
 } from './mobile-native-chat-row-overlays'
 import type { MobileNativeChatConversation } from '../use-mobile-native-chat-conversation-state'
 import { MarkdownLinkHandlerContext } from '../../../components/markdown-link-handler'
-import { stubRpcClient } from '../../../transport/rpc-client-test-stub'
+import { stubRpcClient } from '../../../transport/rpc/rpc-client-test-stub'
 
 vi.mock('react-native', async () => ({
   ...(await import('../../../test-support/react-native-motion-stub')).reactNativeMotionStub(),

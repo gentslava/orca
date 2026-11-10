@@ -93,6 +93,11 @@ export function readNativeChatComposerDraft(
   return records.get(currentDraftScope(scopeKey)) ?? EMPTY_DRAFT
 }
 
+export function isNativeChatComposerDraftBlank(scopeKey: string): boolean {
+  const current = readNativeChatComposerDraft(scopeKey)
+  return current.text.trim() === '' && (current.images?.length ?? 0) === 0
+}
+
 export function finishNativeChatComposerSubmission(
   scopeKey: string,
   submission: DraftSubmission,

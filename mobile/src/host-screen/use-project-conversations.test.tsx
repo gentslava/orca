@@ -84,6 +84,60 @@ async function mount(initial: ProjectConversationsSource) {
 }
 
 describe('host-owned conversation snapshots', () => {
+  it('shows the durable catalog before provider history completes and replaces it after enrichment', async () => {
+    let finish: (reply: RpcResponse) => void = () => {}
+    const { client, sendRequest } = replies()
+    sendRequest.mockImplementation(async (method, params) => {
+      if (method === 'status.get') {
+        return {
+          id: 'status',
+          ok: true,
+          result: { capabilities: ['aiVault.v1', 'aiVault.structured-catalog.v1'] }
+        }
+      }
+      if (method === 'aiVault.listSessions') {
+        if (
+          typeof params === 'object' &&
+          params !== null &&
+          'structuredOnly' in params &&
+          params.structuredOnly
+        ) {
+          return {
+            id: 'catalog',
+            ok: true,
+            result: {
+              sessions: [conversationHistory()],
+              issues: [],
+              includesStructuredSessions: true
+            }
+          }
+        }
+        return new Promise<RpcResponse>((resolve) => {
+          finish = resolve
+        })
+      }
+      return { id: 'tabs', ok: true, result: { tabs: [] } }
+    })
+    const probe = await mount(source(client))
+    expect(probe.read().loading).toBe(false)
+    expect(probe.read().history).toHaveLength(1)
+    expect(probe.read().complete).toBe(true)
+    expect(probe.read().failed).toBe(false)
+    await act(async () =>
+      finish({
+        id: 'history',
+        ok: true,
+        result: {
+          sessions: [conversationHistory({ title: 'Enriched chat' })],
+          issues: [],
+          includesStructuredSessions: true
+        }
+      })
+    )
+    expect(probe.read().history).toHaveLength(1)
+    expect(probe.read().history[0]?.title).toBe('Enriched chat')
+  })
+
   it('shows the warm list immediately on return and refreshes stale rows in the background', async () => {
     vi.useFakeTimers()
     const { client, sendRequest } = replies()

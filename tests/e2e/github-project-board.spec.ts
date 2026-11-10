@@ -133,6 +133,7 @@ test('board drops cross preload, settle optimistically, and roll back failures',
         ),
         settings: {
           ...state.settings,
+          showTasksButton: true,
           defaultTaskSource: 'github',
           defaultRepoSelection: [repo.id],
           githubProjects: {

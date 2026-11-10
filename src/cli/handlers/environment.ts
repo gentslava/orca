@@ -28,6 +28,7 @@ import type { RuntimeStatus } from '../../shared/runtime-session-contracts'
 import {
   addEnvironmentFromPairingCode,
   removeEnvironment,
+  renameEnvironment,
   resolveEnvironment,
   type EnvironmentAddResult,
   type EnvironmentRemoveResult
@@ -154,6 +155,17 @@ export const ENVIRONMENT_HANDLERS: Record<string, CommandHandler> = {
     const selector = getRequiredStringFlag(flags, 'environment')
     const environment = redactRuntimeEnvironment(
       resolveEnvironment(getDefaultUserDataPath(), selector)
+    )
+    printResult(localSuccess({ environment }), json, ({ environment: value }) =>
+      formatEnvironment(value)
+    )
+  },
+  'environment rename': async ({ flags, json }) => {
+    const selector = getRequiredStringFlag(flags, 'environment')
+    const name = getRequiredStringFlag(flags, 'name')
+    refuseReservedEnvironmentName(name)
+    const environment = redactRuntimeEnvironment(
+      renameEnvironment(getDefaultUserDataPath(), selector, name)
     )
     printResult(localSuccess({ environment }), json, ({ environment: value }) =>
       formatEnvironment(value)

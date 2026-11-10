@@ -5,16 +5,7 @@ import type {
 export type * from './mobile-native-chat-session-option-picker-contract'
 import { useEffect, useRef, useState } from 'react'
 import { AccessibilityInfo, Keyboard, Platform, Text, View } from 'react-native'
-import {
-  ChevronLeft,
-  Clock,
-  FilePenLine,
-  Hand,
-  LockKeyhole,
-  ShieldAlert,
-  ShieldCheck,
-  type LucideIcon
-} from 'lucide-react-native'
+import * as Icons from 'lucide-react-native'
 import { BottomDrawer } from '../../../components/bottom-drawer/BottomDrawer'
 import { ListGroup, LIST_LEADING_INSET, SectionHeader } from '../../../components/list/ListGroup'
 import { NavBarButton } from '../../../components/nav-bar/NavBarButton'
@@ -60,19 +51,19 @@ function permissionChoiceColor(value: string | undefined): string | undefined {
   return value === 'full-access' ? colors.statusAmber : undefined
 }
 
-function permissionModeIcon(value: string): LucideIcon | undefined {
+function permissionModeIcon(value: string): Icons.LucideIcon | undefined {
   if (!isAgentChatPermissionMode(value)) {
     return undefined
   }
   switch (AGENT_CHAT_PERMISSION_MODE_ICON_NAMES[value]) {
     case 'Hand':
-      return Hand
+      return Icons.Hand
     case 'FilePenLine':
-      return FilePenLine
+      return Icons.FilePenLine
     case 'ShieldCheck':
-      return ShieldCheck
+      return Icons.ShieldCheck
     case 'ShieldAlert':
-      return ShieldAlert
+      return Icons.ShieldAlert
   }
 }
 
@@ -218,7 +209,7 @@ export function MobileNativeChatSessionOptionPickers({
         secondary={secondary}
         warning={permissionColor !== undefined}
         icon={permissionIcon}
-        leading={controller.heldPick ? Clock : undefined}
+        leading={controller.heldPick ? Icons.Clock : undefined}
         accessibleName={
           model
             ? permissionColor
@@ -270,7 +261,7 @@ export function MobileNativeChatSessionOptionPickers({
               {homeView ? null : (
                 <View style={styles.back}>
                   <NavBarButton
-                    icon={ChevronLeft}
+                    icon={Icons.ChevronLeft}
                     accessibilityLabel={t(
                       'chat.sessionOptionPickers.backToModels',
                       'Back to models'
@@ -282,7 +273,9 @@ export function MobileNativeChatSessionOptionPickers({
             </View>
             {showWorkingNotice ? (
               <View style={styles.lockNotice} accessibilityLiveRegion="polite">
-                {!forFutureTurn ? <LockKeyhole size={16} color={colors.textSecondary} /> : null}
+                {!forFutureTurn ? (
+                  <Icons.LockKeyhole size={16} color={colors.textSecondary} />
+                ) : null}
                 <View style={styles.lockNoticeBody}>
                   <Text style={styles.lockNoticeTitle}>
                     {t('chat.sessionOptionPickers.agentWorking', 'Agent is working')}
@@ -308,9 +301,7 @@ export function MobileNativeChatSessionOptionPickers({
                     onToggle: () => setMoreModelsShown((shown) => !shown)
                   },
                   onReset: controller.optionSurface?.resetOption
-                    ? () => {
-                        void controller.optionSurface?.resetOption?.(activeDescriptor.id)
-                      }
+                    ? () => void controller.optionSurface?.resetOption?.(activeDescriptor.id)
                     : undefined,
                   ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
                 },

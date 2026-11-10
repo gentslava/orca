@@ -1,7 +1,8 @@
 import { SessionLinkDeliveryReview } from './SessionLinkDeliveryReview'
 import { useEffect, useRef } from 'react'
 import type { SessionLinkSnapshot } from '../../../../shared/session-link'
-import { translate as t, getIntlLocale } from '@/i18n/i18n'
+
+import { useTranslate, useIntlLocale } from '@/i18n/use-translate'
 import {
   sessionLinkDeliveryState,
   sessionLinkEventKind,
@@ -17,6 +18,9 @@ export function SessionLinkJournal({
   onResolve?: (eventId: string) => void
   snapshot: SessionLinkSnapshot
 }): React.JSX.Element {
+  const t = useTranslate()
+
+  const intlLocale = useIntlLocale()
   const element = useRef<HTMLDivElement>(null)
   const following = useRef(true)
   useEffect(() => {
@@ -43,7 +47,7 @@ export function SessionLinkJournal({
       {snapshot.events.map((event) => (
         <article key={event.id} className="space-y-1 border-l pl-3">
           <p className="text-xs text-muted-foreground">
-            {new Date(event.createdAt).toLocaleTimeString(getIntlLocale())} · {name(event.actor)}
+            {new Date(event.createdAt).toLocaleTimeString(intlLocale)} · {name(event.actor)}
             {event.recipient ? ` → ${name(event.recipient)}` : ''} ·{' '}
             {sessionLinkEventKind(event.kind)}
           </p>

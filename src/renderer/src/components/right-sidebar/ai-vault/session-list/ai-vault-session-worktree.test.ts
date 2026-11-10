@@ -4,6 +4,8 @@ import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts
 import type { Repo } from '../../../../../../shared/repo-types'
 import type { Worktree } from '../../../../../../shared/worktree/types'
 
+import { MIXED_FOLDER } from '../../../../../../shared/folder-workspaces/folder-workspace-host-routing.test-fixture'
+import { aiVaultSessionOwnerWorkspaces } from './ai-vault-session-worktree'
 import { resolveAiVaultSessionWorktreeInfo } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-worktree'
 
 const baseSession: AiVaultSession = {
@@ -66,6 +68,47 @@ function makeRepo(overrides: Partial<Repo> = {}): Repo {
 }
 
 describe('resolveAiVaultSessionWorktreeInfo', () => {
+  it('resolves a record-only chat by stored folder identity without a cwd and keeps host twins separate', () => {
+    const folder = { ...MIXED_FOLDER, id: 'folder-1', name: 'Notes', folderPath: '/work/notes' }
+    const saved = {
+      ...baseSession,
+      source: 'structured-record' as const,
+      cwd: null,
+      filePath: '',
+      structuredSession: { sessionId: 'saved-empty', workspaceId: 'folder:folder-1' }
+    }
+    const worktrees = aiVaultSessionOwnerWorkspaces([], [folder])
+    expect(
+      resolveAiVaultSessionWorktreeInfo({ session: saved, worktrees, activeWorktreeId: null })
+    ).toMatchObject({ worktreeId: 'folder:folder-1', path: '/work/notes', label: 'Notes' })
+    expect(
+      resolveAiVaultSessionWorktreeInfo({
+        session: { ...saved, executionHostId: 'runtime:remote' },
+        worktrees,
+        activeWorktreeId: null
+      })
+    ).toBeNull()
+  })
+  it.each([
+    { filePath: String.raw`\\wsl.localhost\Ubuntu\home\ada\.codex\session.jsonl`, owner: 'Ubuntu' },
+    { filePath: String.raw`\\wsl.localhost\Debian\home\ada\.codex\session.jsonl`, owner: 'Debian' },
+    { filePath: '/home/ada/.codex/session.jsonl', owner: undefined }
+  ])('requires transcript namespace proof for WSL Linux cwd: $owner', ({ filePath, owner }) => {
+    const worktrees = ['Debian', 'Ubuntu'].map((distro) =>
+      makeWorktree({
+        id: `folder:${distro}`,
+        path: `\\\\wsl.localhost\\${distro}\\home\\ada\\orca`
+      })
+    )
+    const found = resolveAiVaultSessionWorktreeInfo({
+      session: { ...baseSession, cwd: '/home/ada/orca/src', filePath },
+      worktrees,
+      activeWorktreeId: null
+    })
+    expect(found?.worktreeId).toBe(owner ? `folder:${owner}` : undefined)
+    expect(found?.status).toBe(owner ? 'active' : 'unavailable')
+  })
+
   it('ranks each same-host candidate by its closest cwd spelling, independent of link length or alias order', () => {
     const parent = makeWorktree({ id: 'parent', path: '/a-very-long-parent-link' })
     const child = makeWorktree({ id: 'child', path: '/short', priorWorktreeIds: ['repo-1::/old'] })

@@ -1,4 +1,4 @@
-import { NativeChatForegroundTasksProvider } from './NativeChatForegroundTaskAction'
+import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
 import { NativeChatStructuredPrompts } from './prompts/NativeChatStructuredAsyncQuestion'
 import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPaneFileDropSurface'
 import { useNativeChatHandOff } from './pane/actions/use-native-chat-hand-off'
@@ -23,10 +23,7 @@ import {
 } from './NativeChatStructuredTranscript'
 import { NativeChatChildTranscriptStack } from './NativeChatChildTranscript'
 import type { NativeChatMessageListHandle } from './messages/actions/use-native-chat-reveal-latest'
-import {
-  NativeChatChildNavigationContext,
-  useNativeChatChildNavigator
-} from './native-chat-child-navigation'
+import * as childNavigation from './native-chat-child-navigation'
 import { NativeChatContextClearFade } from './conversation/projection/NativeChatContextClearFade'
 import { useStructuredNativeChatSubmitReveal } from './pane/actions/use-structured-native-chat-submit-reveal'
 import { useStructuredPromptResponseHold } from './prompts/use-structured-prompt-response-hold'
@@ -83,7 +80,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   // The host's own word on whether the provider child has answered startup yet.
   const hostExecution = useStructuredAgentSessionHostExecution(props.sessionId, props.target)
   const paneKey = structuredAgentSessionPaneKey(props.tabId, props.sessionId)
-  const childNavigator = useNativeChatChildNavigator(JSON.stringify([paneKey, props.target]))
+  const childNavigator = childNavigation.useNativeChatChildNavigator(
+    JSON.stringify([paneKey, props.target])
+  )
   const childMessageListRef = useRef<NativeChatMessageListHandle>(null)
   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
   // Chat-wide preference; an alternate send flips it for one message.
@@ -249,7 +248,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
     hostNotice
   })
   const root = (
-    <NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
+    <childNavigation.NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
       <div
         ref={rootRef}
         data-native-chat-root="true"
@@ -403,19 +402,11 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
         {handOff.dialog}
         <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
       </div>
-    </NativeChatChildNavigationContext.Provider>
+    </childNavigation.NativeChatChildNavigationContext.Provider>
   )
   return (
     <NativeChatLinkClickContext value={onLinkClick}>
-      <NativeChatForegroundTasksProvider
-        key={props.sessionId}
-        tasks={
-          controller.status === 'ready' ? controller.backgroundTasks.foregroundTasks : undefined
-        }
-        backgroundTask={controller.backgroundTask}
-      >
-        {root}
-      </NativeChatForegroundTasksProvider>
+      {nativeChatForegroundTasks(props.sessionId, controller, root)}
     </NativeChatLinkClickContext>
   )
 }
