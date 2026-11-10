@@ -1971,5 +1971,17 @@
     "patchSha256": "90b4dc6fa2cdb67c5dd2b827fc3a38e1d27146f2dc2644c42b337154829d9ec3",
     "resultSha256": "3e739c6d0a31151b590358619701e6c9a19c9015bdc682d6f5bc788d7dcd080d",
     "reason": "Retain the existing pane action surface and spacing while showing the same-host session-link control for both local and paired-runtime chats."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "f476b79f90a6277e274b67bd6091df1518c508cc",
+      "9009652be760c7dc2b19bb49a0da7d9a99e80b5d",
+      "85b976340164e0bca96838420a1ae86a43295885"
+    ],
+    "patch": "latest-upstream-20261110c/pr38963-40eb13e22b70.patch",
+    "patchSha256": "44e95bfd2bb69974393f4a9d7bc39a86a4906b572a977e6131b9b828d51c3d05",
+    "resultSha256": "a103c9e201fbbf69039ac4a67968fdb30c784cdb423584a9fdbaf9aae6d80233",
+    "reason": "Preserve the verified background-task integration together with the atomic queued-send projection extraction."
   }
 ]
