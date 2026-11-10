@@ -174,7 +174,7 @@ index 6c762384f9b..d99acb18e1a 100644
          let result: unknown = {
 @@ -131,3 +135,15 @@ export const hiddenProjectRestore = fixture(320, 'hidden')
  export const registeredProjectActions = fixture(320, 'registered')
- 
+
  export const loadingProjects = fixture(320, 'loading')
 +
 +export const projectOrderModes = defineFixture({
@@ -456,7 +456,7 @@ index 80075fa1143..482eaf1fa86 100644
  } from '../../../../shared/project-section-grouping'
 +import type { PersonalProjectOrder } from '../../../../shared/personal-project-order'
  import { sortProjectEntries } from '../../../../shared/project-section-order'
- 
+
  type ConversationItem = { session: AiVaultSession; repo: Repo; lastActivityAt?: number }
 @@ -49,6 +50,7 @@ export function buildConversationProjectGroups(args: {
    catalog: ProjectHostSetupProjection
@@ -526,7 +526,7 @@ index 13fa54db316..13fa93edfa2 100644
  import {
 @@ -150,10 +150,8 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
  }
- 
+
  function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.Element {
 -  const supportsPersonalOrder = usePersonalProjectOrderSupported()
    const t = useTranslate()

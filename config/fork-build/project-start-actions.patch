@@ -1756,7 +1756,7 @@ diff --git a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts b/src/sh
  import { filterEnabledTuiAgents, TUI_AGENT_AUTO_PICK_ORDER } from '../catalog/tui-agent-selection'
  import type { AgentSessionChatProgram } from '../../agent-session/agent-session-agent-availability'
 -import { agentSessionInstallCommand } from '../../agent-session/lifecycle/agent-session-setup-commands'
- 
+
  export type HostChatAnswer =
    | 'yes'
 @@ -21,8 +20,6 @@
@@ -1765,7 +1765,7 @@ diff --git a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts b/src/sh
  export type ChatProgramObservation = AgentSessionChatProgram | 'unlearned'
 -const chatProgramOffered = (program: ChatProgramObservation) =>
 -  program === 'available' || program === 'installable'
- 
+
  export function orderAgentLaunchPickerAgents(
    defaultAgent: TuiAgent | 'blank' | null | undefined,
 @@ -62,7 +59,7 @@
@@ -1909,65 +1909,3 @@ index 72ceee412e3..5af48521be0 100644
      expect(await workspaceTabs(second.page, emptied)).toEqual({ terminals: 0, editors: 0 })
      expect(await workspaceTabs(second.page, editorOnly)).toEqual({ terminals: 0, editors: 1 })
      expect(await isReadOnly(second.page, notes)).toBe(null)
-
-diff --git a/src/shared/agent-launch/picker/agent-launch-picker-rows.test.ts b/src/shared/agent-launch/picker/agent-launch-picker-rows.test.ts
---- a/src/shared/agent-launch/picker/agent-launch-picker-rows.test.ts
-+++ b/src/shared/agent-launch/picker/agent-launch-picker-rows.test.ts
-@@ -22,47 +22,36 @@
- }
- 
- describe('new-tab rows for agents the host lacks', () => {
--  it('opens setup chats for missing agents when chat is preferred', () => {
-+  it('offers only installed agents even when upstream setup is enabled', () => {
-     expect(rows({ surface: 'chat', detected: ['claude'], offerAgentSetup: true })).toEqual([
--      'chat:claude',
--      'chat:codex'
-+      'chat:claude'
-     ])
--    expect(rows({ surface: 'chat', detected: ['claude'] })).toEqual([
--      'chat:claude',
--      'chat-unavailable:codex'
--    ])
-+    expect(rows({ surface: 'chat', detected: ['claude'] })).toEqual(['chat:claude'])
-   })
- 
--  it('offers setup chats to a terminal user only when the host has no agents', () => {
--    expect(rows({ surface: 'terminal', detected: [], offerAgentSetup: true })).toEqual([
--      'chat:claude',
--      'chat:codex'
--    ])
-+  it('keeps missing agents out of terminal defaults while offering installed CLIs', () => {
-+    expect(rows({ surface: 'terminal', detected: [], offerAgentSetup: true })).toEqual([])
-     expect(rows({ surface: 'terminal', detected: ['claude'], offerAgentSetup: true })).toEqual([
-       'cli:claude'
-     ])
-   })
- 
-   it('keeps hosts without chat to their own reason', () => {
--    expect(rows({ surface: 'chat', detected: [], answer: 'ssh', offerAgentSetup: true })).toEqual([
--      'chat-unavailable:claude',
--      'chat-unavailable:codex'
--    ])
-+    expect(
-+      rows({ surface: 'chat', detected: ['claude'], answer: 'ssh', offerAgentSetup: true })
-+    ).toEqual(['chat-unavailable:claude', 'cli:claude'])
-   })
- 
-   it('does not open setup for a missing agent without an installer', () => {
-     expect(
-       rows({ surface: 'chat', detected: [], offerAgentSetup: true, chatAgents: ['grok'] })
--    ).toEqual(['chat-unavailable:grok'])
-+    ).toEqual([])
-     expect(
-       rows({ surface: 'terminal', detected: [], offerAgentSetup: true, chatAgents: ['grok'] })
-     ).toEqual([])
-   })
- 
-   it.each(['win32', null])('does not offer an installer on host platform %s', (hostPlatform) => {
--    expect(rows({ surface: 'chat', detected: [], offerAgentSetup: true, hostPlatform })).toEqual([
--      'chat-unavailable:claude',
--      'chat-unavailable:codex'
--    ])
-+    expect(rows({ surface: 'chat', detected: [], offerAgentSetup: true, hostPlatform })).toEqual([])
-   })
- })

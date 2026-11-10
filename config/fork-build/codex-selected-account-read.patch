@@ -8,7 +8,7 @@ diff --git a/src/main/native-chat/agent-session-wire/recovery/structured-agent-s
 +  isLegacyAgentSessionAccountHome,
    type AgentSessionAccountHome
  } from '../../../../shared/agent-session/lifecycle/agent-session-account-home'
- 
+
 @@ -104,8 +105,14 @@
    if (!child || child.phase === 'starting' || child.close || !child.accountHome || !current) {
      return false
@@ -24,7 +24,7 @@ diff --git a/src/main/native-chat/agent-session-wire/recovery/structured-agent-s
 +  })
 +  return home !== null && !agentSessionAccountHomesEqual(home, accountHome)
  }
- 
+
  /** Retire under serialization only when no work is owed; failed Stop leaves a close for startup to join. */
 @@ -130,14 +137,14 @@
    if (

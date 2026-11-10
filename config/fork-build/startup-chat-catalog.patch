@@ -110,7 +110,7 @@ index 36c54a20985..21695f165b4 100644
 +++ b/mobile/src/host-screen/use-project-conversations.test.tsx
 @@ -84,6 +84,60 @@ async function mount(initial: ProjectConversationsSource) {
  }
- 
+
  describe('host-owned conversation snapshots', () => {
 +  it('shows the durable catalog before provider history completes and replaces it after enrichment', async () => {
 +    let finish: (reply: RpcResponse) => void = () => {}
@@ -189,7 +189,7 @@ index 8755681ce21..e9adf5cbaf7 100644
 -  type ConversationTab
 -} from './project-conversations'
 +import { readConversationTabs } from './project-conversations'
- 
+
 -type ConversationSnapshot = {
 -  tabs: Map<string, ConversationTab[]>
 -  history: ConversationHistory[]
@@ -508,7 +508,7 @@ index 30f9e515edf..61b98d455f7 100644
 @@ -101,7 +101,9 @@ it('keeps the loaded project list and expanded chats while navigating across pro
      expect(list.scrollTop).toBe(240)
    }
- 
+
 -  fireEvent.click(screen.getByRole('button', { name: 'Refresh Session History' }))
 +  await act(async () => {
 +    fireEvent.click(screen.getByRole('button', { name: 'Refresh Session History' }))
@@ -541,7 +541,7 @@ index 6d084a61178..96e8033af97 100644
    }
 @@ -207,6 +209,53 @@ afterEach(() => {
  })
- 
+
  describe('conditional panel publication', () => {
 +  it('publishes usable chat records before the blocked provider history and then enriches them', async () => {
 +    const catalog = {
@@ -600,7 +600,7 @@ index 9561dafdef6..540feca1bdd 100644
 @@ -1,3 +1,4 @@
 +import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
  import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
- 
+
  import { aiVaultScanErrorText } from './ai-vault-scan-issue-copy'
 @@ -109,6 +110,7 @@ export function useAiVaultSessionRefresh(
        )}\n${sessionLimitRef.current}`,
@@ -630,7 +630,7 @@ index 9561dafdef6..540feca1bdd 100644
 -    [applyScan, currentScanScopeKey]
 +    [applyScan, currentScanScopeKey, loadStartupCatalog]
    )
- 
+
    useEffect(() => {
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
 new file mode 100644
@@ -714,7 +714,7 @@ index 87c1b3ef66c..7cde3ace665 100644
 @@ -13,8 +13,11 @@ export const AI_VAULT_DELETE_SESSION_RUNTIME_CAPABILITY = 'aiVault.delete-sessio
  export const AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY =
    'aiVault.search.canonical-project.v1' as const
- 
+
 +export const AI_VAULT_STRUCTURED_CATALOG_CAPABILITY = 'aiVault.structured-catalog.v1' as const
 +
  export const AI_VAULT_RUNTIME_CAPABILITIES = [

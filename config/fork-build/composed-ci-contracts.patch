@@ -61,14 +61,6 @@ index d1bc3f33bea..9268c909aae 100644
  1 src/renderer/src/components/native-chat/viewport/find/use-native-chat-find.ts
  1 src/renderer/src/components/native-chat/viewport/history/NativeChatOlderHistoryRow.tsx
  1 src/renderer/src/components/native-chat/viewport/history/use-native-chat-selected-history.ts
-@@ -556,6 +557,7 @@
- 1 src/renderer/src/components/ssh-host-recovery/SshHostMoveAnywayAction.tsx
- 2 src/renderer/src/components/star-nag/StarNagAgentValueMomentObserver.tsx
- 1 src/renderer/src/components/stats/ShareUsageButton.tsx
-+1 src/renderer/src/components/stats/UsageHistoryDailyChart.tsx
- 2 src/renderer/src/components/status-bar/ClaudeSwitcherForOwner.tsx
- 1 src/renderer/src/components/status-bar/PortsStatusSegment.tsx
- 1 src/renderer/src/components/status-bar/RuntimeHostStatusRow.tsx
 diff --git a/config/scripts/mobile-web-app/shell/mobile-web-app-drawer-render.test.mjs b/config/scripts/mobile-web-app/shell/mobile-web-app-drawer-render.test.mjs
 index aa3782d8cf8..79376423437 100644
 --- a/config/scripts/mobile-web-app/shell/mobile-web-app-drawer-render.test.mjs
@@ -239,97 +231,11 @@ index 00000000000..4072cea2902
 +    await disposeBridgePortPair(pair)
 +  }
 +})
-diff --git a/mobile/src/session/mobile-pending-model-send.test-fixture.ts b/mobile/src/session/mobile-pending-model-send.test-fixture.ts
-index a20107f7fcb..be693a12ded 100644
---- a/mobile/src/session/mobile-pending-model-send.test-fixture.ts
-+++ b/mobile/src/session/mobile-pending-model-send.test-fixture.ts
-@@ -1,7 +1,7 @@
- import { act } from 'react-test-renderer'
- import { expect, it, type Mock } from 'vitest'
--import type { RpcClient } from '../transport/rpc-client'
--import type { RpcResponse } from '../transport/types'
-+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
-+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
- import type { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
- import type { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
- import {
-diff --git a/mobile/src/session/mobile-structured-agent-options-contract.ts b/mobile/src/session/mobile-structured-agent-options-contract.ts
-new file mode 100644
-index 00000000000..0bbd761dd5c
---- /dev/null
-+++ b/mobile/src/session/mobile-structured-agent-options-contract.ts
-@@ -0,0 +1,30 @@
-+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
-+import type { StructuredAgentSessionHostSupport } from './mobile-structured-agent-session-host-support'
-+import type { MobileStructuredAgentMutate } from './use-mobile-structured-agent-mutation'
-+import type { HostModelCatalogCache } from './use-mobile-host-model-catalog-upgrade'
-+
-+export type MobileStructuredAgentOptionsArgs = {
-+  modelCatalogCache?: HostModelCatalogCache | null
-+  agent: string | null
-+  client: RpcClient | null
-+  sessionId: string | null
-+  enabled: boolean
-+  fence: number | null
-+  mutate: MobileStructuredAgentMutate
-+  onOptionError?: (message: string) => void
-+  optionStamp?: string
-+  turnId: string | null
-+  hasTurn?: boolean
-+  unloadedTurnRevisions: number | undefined
-+  hostSupport: Pick<
-+    StructuredAgentSessionHostSupport,
-+    | 'permissionModes'
-+    | 'permissionOwn'
-+    | 'coherentModelCatalog'
-+    | 'statusFeed'
-+    | 'defaultModel'
-+    | 'modelEffortDiscovery'
-+    | 'sendSelection'
-+    | 'sendOptions'
-+  > | null
-+}
-diff --git a/mobile/src/session/mobile-structured-agent-session-contract.ts b/mobile/src/session/mobile-structured-agent-session-contract.ts
-index c1ea9e156b5..b5e2b73d7d8 100644
---- a/mobile/src/session/mobile-structured-agent-session-contract.ts
-+++ b/mobile/src/session/mobile-structured-agent-session-contract.ts
-@@ -106,30 +106,4 @@ export type MobileStructuredAgentSessionArgs = {
-   onActionResolved?: () => void
- }
-
--import type { MobileStructuredAgentMutate } from './use-mobile-structured-agent-mutation'
--
--export type MobileStructuredAgentOptionsArgs = {
--  modelCatalogCache?: import('./use-mobile-host-model-catalog-upgrade').HostModelCatalogCache | null
--  agent: string | null
--  client: RpcClient | null
--  sessionId: string | null
--  enabled: boolean
--  fence: number | null
--  mutate: MobileStructuredAgentMutate
--  onOptionError?: (message: string) => void
--  optionStamp?: string
--  turnId: string | null
--  hasTurn?: boolean
--  unloadedTurnRevisions: number | undefined
--  hostSupport: Pick<
--    StructuredAgentSessionHostSupport,
--    | 'permissionModes'
--    | 'permissionOwn'
--    | 'coherentModelCatalog'
--    | 'statusFeed'
--    | 'defaultModel'
--    | 'modelEffortDiscovery'
--    | 'sendSelection'
--    | 'sendOptions'
--  > | null
--}
-+export type { MobileStructuredAgentOptionsArgs } from './mobile-structured-agent-options-contract'
 diff --git a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
-index ceac34e2b3b..bc7198a28bc 100644
 --- a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
 +++ b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
-@@ -1,15 +1,6 @@
+@@ -5,16 +5,7 @@
+ export type * from './mobile-native-chat-session-option-picker-contract'
  import { useEffect, useRef, useState } from 'react'
  import { AccessibilityInfo, Keyboard, Platform, Text, View } from 'react-native'
 -import {
@@ -346,7 +252,7 @@ index ceac34e2b3b..bc7198a28bc 100644
  import { BottomDrawer } from '../../../components/bottom-drawer/BottomDrawer'
  import { ListGroup, LIST_LEADING_INSET, SectionHeader } from '../../../components/list/ListGroup'
  import { NavBarButton } from '../../../components/nav-bar/NavBarButton'
-@@ -72,19 +63,19 @@ function permissionChoiceColor(value: string | undefined): string | undefined {
+@@ -60,19 +51,19 @@
    return value === 'full-access' ? colors.statusAmber : undefined
  }
 
@@ -371,7 +277,7 @@ index ceac34e2b3b..bc7198a28bc 100644
    }
  }
 
-@@ -230,7 +221,7 @@ export function MobileNativeChatSessionOptionPickers({
+@@ -218,7 +209,7 @@
          secondary={secondary}
          warning={permissionColor !== undefined}
          icon={permissionIcon}
@@ -380,7 +286,7 @@ index ceac34e2b3b..bc7198a28bc 100644
          accessibleName={
            model
              ? permissionColor
-@@ -282,7 +273,7 @@ export function MobileNativeChatSessionOptionPickers({
+@@ -270,7 +261,7 @@
                {homeView ? null : (
                  <View style={styles.back}>
                    <NavBarButton
@@ -389,7 +295,7 @@ index ceac34e2b3b..bc7198a28bc 100644
                      accessibilityLabel={t(
                        'chat.sessionOptionPickers.backToModels',
                        'Back to models'
-@@ -294,7 +285,9 @@ export function MobileNativeChatSessionOptionPickers({
+@@ -282,7 +273,9 @@
              </View>
              {showWorkingNotice ? (
                <View style={styles.lockNotice} accessibilityLiveRegion="polite">
@@ -400,109 +306,6 @@ index ceac34e2b3b..bc7198a28bc 100644
                  <View style={styles.lockNoticeBody}>
                    <Text style={styles.lockNoticeTitle}>
                      {t('chat.sessionOptionPickers.agentWorking', 'Agent is working')}
-diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
-index f3cffebf9cf..8b15bdd69c7 100644
---- a/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
-+++ b/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
-@@ -19,17 +19,7 @@ import type {
- import type { NativeChatMessage } from '../../../../../src/shared/native-chat/native-chat-types'
- import type { MobileNativeChatRowKeys } from './mobile-native-chat-row-keys'
- import { MobileNativeChatPageScroll } from './MobileNativeChatPageScroll'
--import {
--  mobileNativeChatReadingDrift,
--  measureMobileNativeChatPageRows,
--  mobileNativeChatUndrawnHeight,
--  mobileNativeChatReadingPlace,
--  mobileNativeChatRowAbove,
--  mobileNativeChatRowBoxProps,
--  type MobileNativeChatReadingUnit,
--  type MobileNativeChatDrawnWindow,
--  type MobileNativeChatScrollNode
--} from '../../mobile-native-chat-reading-place'
-+import * as readingPlace from '../../mobile-native-chat-reading-place'
- import type { MobileNativeChatListHandle } from './use-mobile-native-chat-tail-follow'
- import type { MobileNativeChatScrollRoots } from './mobile-native-chat-scroll-roots'
- import { scrollWritesStopMomentum } from '../../mobile-native-chat-scroll-motion'
-@@ -52,7 +42,7 @@ const FETCH_REACH_SCREENS = 10
- const REST_MS = 300
-
- type Row = { item: NativeChatMessage; index: number }
--type Scroller = MobileNativeChatScrollNode & EventTarget
-+type Scroller = readingPlace.MobileNativeChatScrollNode & EventTarget
- type ReadScroller = () => Scroller | null
-
- type Props = {
-@@ -106,7 +96,7 @@ export function MobileNativeChatPageList({
-   const keys = useMemo(() => rows.map(rowKeys.keyOf), [rows, rowKeys.keyOf])
-   const indexOf = useMemo(() => new Map(keys.map((key, at) => [key, at])), [keys])
-   const n = keys.length
--  const [drawn, setDrawn] = useState<MobileNativeChatDrawnWindow>({
-+  const [drawn, setDrawn] = useState<readingPlace.MobileNativeChatDrawnWindow>({
-     scope: rowKeys.scope,
-     firstKey: null,
-     count: 0
-@@ -125,9 +115,9 @@ export function MobileNativeChatPageList({
-           Math.max(0, n - (kept?.count ?? FIRST_ROWS)))
-
-   const rowHeights = useMemo(() => new Map<string, number>(), [rowKeys.scope, layoutKey])
--  const beforeRowsHeight = mobileNativeChatUndrawnHeight(keys, first, rowHeights)
-+  const beforeRowsHeight = readingPlace.mobileNativeChatUndrawnHeight(keys, first, rowHeights)
-   const measureDrawn = useCallback(
--    (s: Scroller) => measureMobileNativeChatPageRows(s, rowHeights),
-+    (s: Scroller) => readingPlace.measureMobileNativeChatPageRows(s, rowHeights),
-     [rowHeights]
-   )
-   useLayoutEffect(() => {
-@@ -142,7 +132,7 @@ export function MobileNativeChatPageList({
-   const own = useRef<number | null>(null)
-   const touching = useRef(false)
-   const readerScrolledAt = useRef(0)
--  const place = useRef<MobileNativeChatReadingUnit[] | null>(null)
-+  const place = useRef<readingPlace.MobileNativeChatReadingUnit[] | null>(null)
-   const placedLayout = useRef(layoutKey)
-   const settleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-   const live = useRef<Held>({ rows: liveRows, header: liveHeader, footer: liveFooter, renderItem })
-@@ -173,7 +163,7 @@ export function MobileNativeChatPageList({
-     (s: Scroller) => {
-       const { first, n, keys, layoutKey, rowKeys } = latest.current
-       const reading = !isFollowing()
--      place.current = reading ? mobileNativeChatReadingPlace(s, rowKeys) : null
-+      place.current = reading ? readingPlace.mobileNativeChatReadingPlace(s, rowKeys) : null
-       placedLayout.current = layoutKey
-       if (!reading) {
-         setDrawn((current) =>
-@@ -208,7 +198,12 @@ export function MobileNativeChatPageList({
-         notePlace(s)
-         return
-       }
--      const drift = mobileNativeChatReadingDrift(held, s, latest.current.rowKeys, roots)
-+      const drift = readingPlace.mobileNativeChatReadingDrift(
-+        held,
-+        s,
-+        latest.current.rowKeys,
-+        roots
-+      )
-       if (Math.abs(drift) >= 0.5) {
-         write(s, s.scrollTop + drift)
-       }
-@@ -275,7 +270,7 @@ export function MobileNativeChatPageList({
-         next = Math.max(0, at - DRAW_BATCH)
-       } else if (at < opening && screens > TRIM_SCREENS && isFollowing()) {
-         // Cut at a row wholly above the draw-ahead line so drawing never wants it back.
--        const cut = mobileNativeChatRowAbove(s, DRAW_AHEAD_SCREENS * s.clientHeight)
-+        const cut = readingPlace.mobileNativeChatRowAbove(s, DRAW_AHEAD_SCREENS * s.clientHeight)
-         next = Math.min(rowAt.get(cut ?? '') ?? at, opening)
-       }
-       if (next !== at && (isFollowing() || resting())) {
-@@ -426,7 +421,7 @@ export function MobileNativeChatPageList({
-           emptyStateView
-         ) : (
-           // Key by chat to reset rows; persist disclosures above windowed rows. Block flow avoids relaying out every row for each streamed token.
--          <div key={rowKeys.scope} {...mobileNativeChatRowBoxProps}>
-+          <div key={rowKeys.scope} {...readingPlace.mobileNativeChatRowBoxProps}>
-             <div style={{ height: beforeRowsHeight }} />
-             {rows.slice(first).map((item, at) => {
-               const index = first + at
 diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx
 index 02388dddaca..d3d8ee8fbf4 100644
 --- a/mobile/src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx
@@ -531,38 +334,27 @@ index 8b946268231..8bc510ce5ec 100644
  import {
    findAllByHostType,
    findByHostType
-diff --git a/mobile/src/session/use-mobile-structured-agent-options.ts b/mobile/src/session/use-mobile-structured-agent-options.ts
-index cf6eb3e0f56..94ed6cf669f 100644
---- a/mobile/src/session/use-mobile-structured-agent-options.ts
-+++ b/mobile/src/session/use-mobile-structured-agent-options.ts
-@@ -1,4 +1,4 @@
--import type { MobileStructuredAgentOptionsArgs } from './mobile-structured-agent-session-contract'
-+import type { MobileStructuredAgentOptionsArgs } from './mobile-structured-agent-options-contract'
- import {
-   mobileStructuredModelDefaultSnapshot,
-   useMobileStructuredModelDefault
-diff --git a/mobile/src/session/use-mobile-structured-agent-session.ts b/mobile/src/session/use-mobile-structured-agent-session.ts
-index 70185bae024..1fcc004b61c 100644
---- a/mobile/src/session/use-mobile-structured-agent-session.ts
-+++ b/mobile/src/session/use-mobile-structured-agent-session.ts
-@@ -8,14 +8,8 @@ import {
+diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
+--- a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
++++ b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
+@@ -8,14 +8,8 @@
    runningStructuredAgentSessionTurnId,
    structuredAgentSessionQueueSendsNext
- } from '../../../src/shared/agent-session/view/structured-agent-session-live-turn'
+ } from '../../../../../src/shared/agent-session/view/structured-agent-session-live-turn'
 -import {
 -  actionableStructuredApproval,
 -  actionableStructuredQuestion
--} from './mobile-structured-actionable-prompt'
+-} from '../input/mobile-structured-actionable-prompt'
 -import {
 -  projectStructuredPermission,
 -  projectStructuredQuestion
--} from './mobile-structured-agent-prompts'
-+import * as actionablePrompts from './mobile-structured-actionable-prompt'
-+import * as prompts from './mobile-structured-agent-prompts'
+-} from '../input/mobile-structured-agent-prompts'
++import * as actionablePrompts from '../input/mobile-structured-actionable-prompt'
++import * as prompts from '../input/mobile-structured-agent-prompts'
  import type {
    MobileStructuredAgentSessionArgs,
    StructuredMobileSession
-@@ -203,7 +197,10 @@ export function useMobileStructuredAgentSession(
+@@ -202,7 +196,10 @@
    // Prefer host actionability: ended-agent prompts must receive no answer.
    const [approvalPrompt, questionPrompt] = useMemo(() => {
      const prompts = { items, currentRequests, actionablePromptIds }
@@ -574,7 +366,7 @@ index 70185bae024..1fcc004b61c 100644
    }, [items, currentRequests, actionablePromptIds])
    const commandRefusalCauses = useMemo(
      () => ({
-@@ -293,8 +290,8 @@ export function useMobileStructuredAgentSession(
+@@ -294,8 +291,8 @@
        requestCancel(prompt ?? pendingStructuredPromptIdentity(stateRef.current)),
      receipts,
      actionablePromptIds: state.actionablePromptIds,
@@ -597,9 +389,9 @@ index 00000000000..6c35b4a9082
 +import { createWithQueryClient } from '../test-support/query-client-test-renderer'
 +import { stubRpcClient } from '../transport/rpc/rpc-client-test-stub'
 +import type { RpcClient } from '../transport/rpc/rpc-client-contract'
-+import { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
-+import { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
-+import { structuredAgentSessionHostSupport } from './mobile-structured-agent-session-host-support'
++import { useMobileStructuredAgentSession } from './native-chat/agent-session/use-mobile-structured-agent-session'
++import { useMobileStructuredNativeChatSendBridge } from './native-chat/composer/use-mobile-structured-native-chat-send-bridge'
++import { structuredAgentSessionHostSupport } from './native-chat/agent-session/mobile-structured-agent-session-host-support'
 +import { snapshotEvent } from './native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture'
 +import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 +import { mobileNativeChatDraftDestination } from './native-chat/composer/mobile-native-chat-draft-inputs'
@@ -734,124 +526,6 @@ index 9d710b4a314..1134e5dd413 100644
  import { EventEmitter } from 'node:events'
  import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
  import type { AiVaultListResult } from '../../../shared/ai-vault/contracts/ai-vault-types'
-diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
-index bd0bb38aa6b..6077fe24c44 100644
---- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
-+++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
-@@ -30,16 +30,13 @@ export type {
- } from './agent-model-catalog-entry'
- export { withLiveCatalogListing } from './agent-model-catalog-entry'
- import {
--  AGENT_MODEL_CATALOG_FAILURE_TTL_MS,
-   AgentModelCatalogFailures,
-   type AgentModelCatalogFailure
- } from './agent-model-catalog-failures'
--import {
--  AGENT_MODEL_CATALOG_PICKER_WAIT_MS,
--  AgentModelCatalogListingWaiters
--} from './agent-model-catalog-listing-waiters'
-+import { AgentModelCatalogListingWaiters } from './agent-model-catalog-listing-waiters'
-
--export { AGENT_MODEL_CATALOG_FAILURE_TTL_MS, AGENT_MODEL_CATALOG_PICKER_WAIT_MS }
-+export { AGENT_MODEL_CATALOG_FAILURE_TTL_MS } from './agent-model-catalog-failures'
-+export { AGENT_MODEL_CATALOG_PICKER_WAIT_MS } from './agent-model-catalog-listing-waiters'
- export type { AgentModelCatalogFailure }
-
- // Persist successful display catalogs; launch proof requires fresh in-process discovery.
-diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-index 0e6fa85290e..f03138dd572 100644
---- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-+++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-@@ -19,7 +19,7 @@ import type { StructuredAgentSessionAttachContext } from '../acquisition/structu
- import { createStructuredAgentSessionTabSurface as createTabs } from './structured-agent-session-host-tabs'
- import { flushStructuredAgentSessionHost } from '../termination/structured-agent-session-host-teardown'
- import type * as HostTypes from './structured-agent-session-host-types'
--import { StructuredAgentSessionEventRecovery } from '../termination/structured-agent-session-event-recovery'
-+import { StructuredAgentSessionEventRecovery as EventRecovery } from '../termination/structured-agent-session-event-recovery'
- import { StructuredAgentSessionBackgroundTaskChannel as BackgroundTasks } from '../publication/subscribers/structured-agent-session-background-task-channel'
- import { StructuredAgentSessionClientDelivery } from '../publication/subscribers/structured-agent-session-client-delivery'
- import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
-@@ -55,14 +55,13 @@ export class StructuredAgentSessionHost {
-     this.sessions,
-     (sessionId) => this.usageLimitContinue?.readState(sessionId)
-   )
--  private readonly subscribers = this.clientDelivery.subscribers
-   private readonly tasks = new StructuredAgentSessionTaskQueue()
-   private readonly runtimeState: StructuredAgentSessionHostRuntimeState
-   private readonly startup: ReturnType<typeof createStartupRecovery>
-   readonly reconcileRestartLeases = () => this.startup.reconcileRestartLeases()
-   private readonly lifetime: HostTypes.StructuredAgentSessionConversationLifetime
-   private readonly conversationDelivery: conversation.StructuredAgentSessionConversationDelivery
--  private readonly eventRecovery: StructuredAgentSessionEventRecovery
-+  private readonly eventRecovery: EventRecovery
-   private readonly backgroundTasks: BackgroundTasks
-   readonly restartResume: StructuredAgentSessionRestartResume
-
-@@ -75,7 +74,7 @@ export class StructuredAgentSessionHost {
-     this.backgroundTasks = new BackgroundTasks(
-       deps,
-       this.sessions,
--      this.subscribers,
-+      this.clientDelivery.subscribers,
-       (sessionId) => this.lifetime.conversation(sessionId),
-       this.clientDelivery.readChildWork,
-       this.clientDelivery.childWorkIncomplete
-@@ -104,7 +103,7 @@ export class StructuredAgentSessionHost {
-       clientDelivery: this.clientDelivery
-     })
-     this.startup = createStartupRecovery(deps, this.runtimeState.reconcileLeases, this.runtimeState)
--    this.eventRecovery = new StructuredAgentSessionEventRecovery({
-+    this.eventRecovery = new EventRecovery({
-       deps,
-       store: deps.store,
-       sessions: this.sessions,
-@@ -160,8 +159,7 @@ export class StructuredAgentSessionHost {
-   childAccountHome = this.reads.childAccountHome
-   prospectiveAccountHome = this.reads.prospectiveAccountHome
-
--  handleAdapterEvent = (event: Parameters<StructuredAgentSessionEventRecovery['handle']>[0]) =>
--    this.eventRecovery.handle(event)
-+  handleAdapterEvent: EventRecovery['handle'] = (event) => this.eventRecovery.handle(event)
-
-   // Keep inference so publishStatus stays required in the attach-context spread.
-   private lifetimeContext() {
-@@ -179,7 +177,7 @@ export class StructuredAgentSessionHost {
-
-   private attachContext = (): StructuredAgentSessionAttachContext => ({
-     ...this.lifetimeContext(),
--    subscribers: this.subscribers,
-+    subscribers: this.clientDelivery.subscribers,
-     tasks: this.tasks,
-     reconcileLeases: (sessionId) => this.runtimeState.reconcileLeases(sessionId),
-     serialize: (sessionId, task) => this.serialize(sessionId, task),
-@@ -259,7 +257,7 @@ export class StructuredAgentSessionHost {
-     mutationWiring.createStructuredAgentSessionHostMutationContext({
-       deps: this.deps,
-       sessions: this.sessions,
--      subscribers: this.subscribers,
-+      subscribers: this.clientDelivery.subscribers,
-       lifetime: this.lifetime,
-       clientDelivery: this.clientDelivery,
-       conversationDelivery: this.conversationDelivery,
-@@ -338,7 +336,8 @@ export class StructuredAgentSessionHost {
-
-   publishForegroundTasks = (id: string): void => this.backgroundTasks.publish(id)
-   publishChildWorkEvidence = this.clientDelivery.publishChildWork
--  unsubscribe = (sessionId: string, id: string): void => this.subscribers.close(sessionId, id)
-+  unsubscribe = (sessionId: string, id: string): void =>
-+    this.clientDelivery.subscribers.close(sessionId, id)
-
-   /** Retains no per-session subscription. */
-   subscribeStatus = this.clientDelivery.subscribeStatus
-@@ -353,7 +352,7 @@ export class StructuredAgentSessionHost {
-
-   collaboratorsForTests = () => ({
-     sessions: this.sessions,
--    subscribers: this.subscribers,
-+    subscribers: this.clientDelivery.subscribers,
-     runtimeState: this.runtimeState,
-     conversationDelivery: this.conversationDelivery,
-     lifetime: this.lifetime,
 diff --git a/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts b/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
 index 4c0791ea20d..9584fab5f94 100644
 --- a/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
@@ -1201,49 +875,6 @@ index 32d1ec65ce6..5be12ebc554 100644
    )
    return (
      <NativeChatLinkClickContext value={onLinkClick}>
-diff --git a/src/renderer/src/components/native-chat/NativeChatToolInvocation.fixture.tsx b/src/renderer/src/components/native-chat/NativeChatToolInvocation.fixture.tsx
-index 79dd9d58add..7aa5f9b2d3b 100644
---- a/src/renderer/src/components/native-chat/NativeChatToolInvocation.fixture.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatToolInvocation.fixture.tsx
-@@ -1,7 +1,7 @@
- import { defineFixture } from '../../component-fixtures/component-fixture'
--import { NativeChatToolLine } from './NativeChatToolLine'
--import { NativeChatToolRun } from './NativeChatToolRun'
--import { nativeChatAppearanceStyle } from './native-chat-appearance-style'
-+import { NativeChatToolLine } from './tools/lines/NativeChatToolLine'
-+import { NativeChatToolRun } from './tools/runs/NativeChatToolRun'
-+import { nativeChatAppearanceStyle } from './appearance/native-chat-appearance-style'
-
- function Invocations() {
-   return (
-diff --git a/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx b/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
-index edb5003eefb..ca0e5403e75 100644
---- a/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
-@@ -2,8 +2,8 @@
- import '@testing-library/jest-dom/vitest'
- import { cleanup, fireEvent, render, screen } from '@testing-library/react'
- import { afterEach, describe, expect, it, vi } from 'vitest'
--import { NativeChatToolLine } from './NativeChatToolLine'
--import { NativeChatToolRun } from './NativeChatToolRun'
-+import { NativeChatToolLine } from './tools/lines/NativeChatToolLine'
-+import { NativeChatToolRun } from './tools/runs/NativeChatToolRun'
-
- vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
-   loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
-diff --git a/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx b/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx
-index 6fa097759d4..f504345b328 100644
---- a/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatToolInvocation.tsx
-@@ -8,7 +8,7 @@ import {
-   MAX_TOOL_DETAIL_LENGTH,
-   truncateToolDetail
- } from '../../../../shared/native-chat/tools/native-chat-tool-summary'
--import { NativeChatCopyButton } from './NativeChatCopyButton'
-+import { NativeChatCopyButton } from './messages/actions/NativeChatCopyButton'
-
- export function NativeChatToolInvocation({
-   call
 diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
 index 77fab9a8bf6..f4fc0f9adcd 100644
 --- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
@@ -1290,96 +921,6 @@ index 00000000000..dee0b508007
 +    fireEvent.keyDown(effortSlider(), { key })
 +  }
 +  throw new Error(`Effort slider does not offer ${label}`)
-+}
-diff --git a/src/renderer/src/components/native-chat/session-link-mutation.ts b/src/renderer/src/components/native-chat/session-link-mutation.ts
-new file mode 100644
-index 00000000000..03943cb7230
---- /dev/null
-+++ b/src/renderer/src/components/native-chat/session-link-mutation.ts
-@@ -0,0 +1,84 @@
-+import type { RefObject } from 'react'
-+import { SessionLinkSnapshot } from '../../../../shared/session-link'
-+import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
-+import { RuntimeRpcCallError } from '@/runtime/rpc/calls/runtime-rpc-result'
-+import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
-+
-+export type LinkMutation = { method: string; fields: Record<string, unknown>; operationId: string }
-+
-+type SessionLinkMutationState = {
-+  selected: RefObject<string | null>
-+  request: RefObject<LinkMutation | null>
-+  inFlight: RefObject<boolean>
-+  generation: RefObject<number>
-+  readSequence: RefObject<number>
-+  setBusy: (busy: boolean) => void
-+  setError: (error: string) => void
-+  setSnapshot: (snapshot: SessionLinkSnapshot) => void
-+  setUncertain: (uncertain: boolean) => void
-+}
-+
-+export async function executeSessionLinkMutation(
-+  operation: LinkMutation,
-+  destination: RuntimeClientTarget,
-+  state: SessionLinkMutationState
-+): Promise<boolean> {
-+  const {
-+    selected,
-+    request,
-+    inFlight,
-+    generation,
-+    readSequence,
-+    setBusy,
-+    setError,
-+    setSnapshot,
-+    setUncertain
-+  } = state
-+  if (inFlight.current) {
-+    return false
-+  }
-+  request.current = operation
-+  inFlight.current = true
-+  readSequence.current++
-+  const issuedAt = generation.current
-+  setBusy(true)
-+  setError('')
-+  try {
-+    const params =
-+      operation.method === 'orchestration.linkCreate'
-+        ? { ...operation.fields, id: operation.operationId }
-+        : { ...operation.fields, operationId: operation.operationId }
-+    const result = SessionLinkSnapshot.parse(
-+      await callStructuredAgentSession<unknown>(destination, operation.method, params)
-+    )
-+    if (issuedAt !== generation.current) {
-+      return false
-+    }
-+    selected.current = result.link.id
-+    setSnapshot(result)
-+    request.current = null
-+    setUncertain(false)
-+    return true
-+  } catch (e) {
-+    if (issuedAt !== generation.current) {
-+      return false
-+    }
-+    const data = e instanceof RuntimeRpcCallError ? e.response.error.data : undefined
-+    const refused =
-+      typeof data === 'object' &&
-+      data !== null &&
-+      'effectsApplied' in data &&
-+      data.effectsApplied === false
-+    if (refused || (e instanceof RuntimeRpcCallError && e.code === 'invalid_argument')) {
-+      request.current = null
-+    }
-+    setUncertain(request.current !== null)
-+    setError(e instanceof Error ? e.message : String(e))
-+    return false
-+  } finally {
-+    if (issuedAt === generation.current) {
-+      inFlight.current = false
-+      setBusy(false)
-+    }
-+  }
 +}
 diff --git a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
 index 9224d40ce63..f84fb8e379e 100644
@@ -1461,19 +1002,6 @@ index a87070dc4c9..64b1e925d0b 100644
  vi.mock('../../../../runtime/native-chat/requests/structured-agent-session-call', () =>
    moduleFactories.structuredAgentSessionCall()
  )
-diff --git a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
-index f96825d348b..9cbfe12e7be 100644
---- a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
-+++ b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
-@@ -28,7 +28,7 @@ import {
- import { NativeChatExpandable } from '../../messages/disclosure/NativeChatExpandable'
- import { useNativeChatDisclosure } from '../../messages/disclosure/native-chat-disclosure-store'
- import { NativeChatToolOutput } from './NativeChatToolOutput'
--import { NativeChatToolInvocation } from './NativeChatToolInvocation'
-+import { NativeChatToolInvocation } from '../../NativeChatToolInvocation'
- import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
-
- const TARGET_CLASS =
 diff --git a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts b/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
 index 394caddd911..18cf99a1e81 100644
 --- a/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
@@ -1555,116 +1083,6 @@ index 394caddd911..18cf99a1e81 100644
          setSnapshot({ key, children, current: true })
        } catch {
          if (disposed) {
-diff --git a/src/renderer/src/components/native-chat/use-session-link.ts b/src/renderer/src/components/native-chat/use-session-link.ts
-index b8ce1ac2091..8d17200a40a 100644
---- a/src/renderer/src/components/native-chat/use-session-link.ts
-+++ b/src/renderer/src/components/native-chat/use-session-link.ts
-@@ -1,3 +1,4 @@
-+import { executeSessionLinkMutation, type LinkMutation } from './session-link-mutation'
- import { createNonSecureContextUuid as createBrowserUuid } from '../../../../shared/non-secure-context-uuid'
- import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
- import { z } from 'zod'
-@@ -10,7 +11,6 @@ import {
- } from '../../../../shared/session-link'
- import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
- import { translate as t } from '@/i18n/i18n'
--import { RuntimeRpcCallError } from '@/runtime/rpc/calls/runtime-rpc-result'
- import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
- import { structuredAgentSessionHostSupports } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
-
-@@ -19,18 +19,6 @@ const Candidates = z.object({
-   candidates: z.array(SessionLinkParticipant),
-   history: z.array(SessionLink)
- })
--type LinkMutation = { method: string; fields: Record<string, unknown>; operationId: string }
--
--async function settleSessionLinkMutation(
--  run: () => Promise<boolean>,
--  onSettled: () => void
--): Promise<boolean> {
--  try {
--    return await run()
--  } finally {
--    onSettled()
--  }
--}
-
- export function useSessionLink(sessionId: string, target: RuntimeClientTarget, open: boolean) {
-   const [supported, setSupported] = useState(false)
-@@ -169,60 +157,19 @@ export function useSessionLink(sessionId: string, target: RuntimeClientTarget, o
-     }
-   }, [open, sessionId, supported, destination])
-
--  const execute = async (operation: LinkMutation) => {
--    if (inFlight.current) {
--      return false
--    }
--    request.current = operation
--    inFlight.current = true
--    readSequence.current++
--    const issuedAt = generation.current
--    setBusy(true)
--    setError('')
--    return settleSessionLinkMutation(
--      async () => {
--        try {
--          const params =
--            operation.method === 'orchestration.linkCreate'
--              ? { ...operation.fields, id: operation.operationId }
--              : { ...operation.fields, operationId: operation.operationId }
--          const result = SessionLinkSnapshot.parse(
--            await callStructuredAgentSession<unknown>(destination, operation.method, params)
--          )
--          if (issuedAt !== generation.current) {
--            return false
--          }
--          selected.current = result.link.id
--          setSnapshot(result)
--          request.current = null
--          setUncertain(false)
--          return true
--        } catch (e) {
--          if (issuedAt !== generation.current) {
--            return false
--          }
--          const data = e instanceof RuntimeRpcCallError ? e.response.error.data : undefined
--          const refused =
--            typeof data === 'object' &&
--            data !== null &&
--            'effectsApplied' in data &&
--            data.effectsApplied === false
--          if (refused || (e instanceof RuntimeRpcCallError && e.code === 'invalid_argument')) {
--            request.current = null
--          }
--          setUncertain(request.current !== null)
--          setError(e instanceof Error ? e.message : String(e))
--          return false
--        }
--      },
--      () => {
--        if (issuedAt === generation.current) {
--          inFlight.current = false
--          setBusy(false)
--        }
--      }
--    )
--  }
-+  const execute = (operation: LinkMutation) =>
-+    executeSessionLinkMutation(operation, destination, {
-+      selected,
-+      request,
-+      inFlight,
-+      generation,
-+      readSequence,
-+      setBusy,
-+      setError,
-+      setSnapshot,
-+      setUncertain
-+    })
-+
-   const mutate = (method: string, fields: Record<string, unknown>) => {
-     if (request.current) {
-       setError(
 diff --git a/src/renderer/src/components/native-chat/use-structured-agent-session-model-default.ts b/src/renderer/src/components/native-chat/use-structured-agent-session-model-default.ts
 index d1351bd169b..cfaf5c82e79 100644
 --- a/src/renderer/src/components/native-chat/use-structured-agent-session-model-default.ts
@@ -2248,65 +1666,6 @@ index 348a1be547f..d78fa166e87 100644
        ...twinWorkspaces,
        runtimeStatusByEnvironmentId: new Map([['paired', pairedStatus]]),
 
-diff --git a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts
-index 3d72be7935b..c3e5a1d65af 100644
---- a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts
-+++ b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-create-message.test-fixture.ts
-@@ -3,11 +3,7 @@ import { vi, type Mock } from 'vitest'
- import type { ExecutionHostId } from '../../../../../shared/execution-host'
- import type { AgentJournalSubmission } from '../../../../../shared/agent-session/journal/agent-session-journal-types'
- import type { AgentSessionHistoryPage } from '../../../../../shared/agent-session/agent-session-wire'
--import {
--  CreateIntentParams,
--  SetOptionParams,
--  SendParams
--} from '../../../../../shared/rpc-contract/structured-agent-session-params'
-+import * as intentParams from '../../../../../shared/rpc-contract/structured-agent-session-params'
- import type { Tab } from '../../../../../shared/tab-types'
- import type { HostCreateSupport } from './structured-agent-session-host-admission'
- import { useAppStore } from '../../../store/index'
-@@ -157,7 +153,7 @@ function deferred<T>() {
-   return Promise.withResolvers<T>()
- }
- function createParams() {
--  return CreateIntentParams.parse(
-+  return intentParams.CreateIntentParams.parse(
-     mocks.call.mock.calls.find(([, method]) => method === 'agentSession.create')?.[2]
-   )
- }
-@@ -227,7 +223,7 @@ function startLegacyActionLaunch(
-         ? { ok: false, refusal }
-         : { ok: true, value: { options: { model: launchOptions.model } } }
-     }
--    const send = SendParams.parse(params)
-+    const send = intentParams.SendParams.parse(params)
-     const clientMessageId = send.envelope.clientOperationId
-     return { ok: true, value: { clientMessageId, submission: submission(clientMessageId) } }
-   })
-@@ -269,7 +265,7 @@ export function legacyAction(
-       return create.promise
-     }
-     if (method === 'agentSession.setOption') {
--      const { key, value } = SetOptionParams.parse(params)
-+      const { key, value } = intentParams.SetOptionParams.parse(params)
-       if (value === null) {
-         throw new Error('This legacy action does not reset models')
-       }
-@@ -278,7 +274,7 @@ export function legacyAction(
-     if (method === 'agentSession.history') {
-       return { ok: true, page: { ...created().value.page, fence: 2 } }
-     }
--    const send = SendParams.parse(params)
-+    const send = intentParams.SendParams.parse(params)
-     return {
-       ok: true,
-       value: {
-@@ -310,4 +306,4 @@ export const refusedOption = {
- export const optionCalls = () =>
-   mocks.call.mock.calls
-     .filter(([, method]) => method === 'agentSession.setOption')
--    .map(([, , params]) => SetOptionParams.parse(params))
-+    .map(([, , params]) => intentParams.SetOptionParams.parse(params))
 diff --git a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
 index 22fe3bf02c6..ff163e06567 100644
 --- a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
@@ -2542,12 +1901,12 @@ diff --git a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts b/src
 +++ b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
 @@ -42,6 +42,7 @@
    })
- 
+
    afterEach(() => {
 +    setBrowserNetworkProxySettingsResolver(null)
      vi.restoreAllMocks()
    })
- 
+
 
 diff --git a/tests/e2e/github-project-board.spec.ts b/tests/e2e/github-project-board.spec.ts
 --- a/tests/e2e/github-project-board.spec.ts
@@ -2579,7 +1938,7 @@ index 4c35bb3fa96..c0c5a2eff5f 100644
  } from './helpers/paired-electron-client'
  import { launchHeadlessPairedRuntimeHost } from './helpers/headless-paired-runtime-host'
 +import { showWorkspaceSidebar } from './helpers/sidebar-project-dialog'
- 
+
  async function interruptibleHost(offer: RuntimeDesktopPairingOffer) {
    const pairing = decodePairingOffer(offer.pairingUrl)
 @@ -91,10 +94,22 @@ async function expectWorkspaceHostAppearance(

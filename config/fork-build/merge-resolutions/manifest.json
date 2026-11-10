@@ -1887,5 +1887,89 @@
     "patchSha256": "9c2c7b936085755fe3314676c34392187239c8531a1066ec0c19f38445d47369",
     "resultSha256": "0430e1e4d12efedda8f417f26c2ae2845eccf53c19942ed97aaef8130773861d",
     "reason": "Preserve the new upstream mobile locale-catalog RPC while retaining conversation preferences and project-open/pin mutations for paired mobile clients."
+  },
+  {
+    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "ab43f813b57598251d7e42bb035db2b85bc65c57",
+      "a06a013458a834e2425f59e8b3058ce78a451006",
+      "62975d36fb148fa079bc50fe75e7355f633e0ec5"
+    ],
+    "patch": "latest-upstream-20261110b/pr33395-2ac1241cdcf5.patch",
+    "patchSha256": "b3048f2a1f227f3cc29665f1aade8840a71347ae1d622bedf9a379a56b4cae74",
+    "resultSha256": "37bd95f9b8a90d6aadf8169063b1f5700c014f05a431d20fc8ec67fa31564ce8",
+    "reason": "Retain both immediate-steer and explicit-default-model mobile host capabilities when the independent PRs are composed."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.tsx",
+    "blobs": [
+      "c4fc8c4b958ae3d37fb88c51405bd92b77af736f",
+      "e8a18de7d14e9eb47e84d46d35f38d7d7682a551",
+      "fd9df09033101160eab0c51a2471c8bd309b3ade"
+    ],
+    "patch": "latest-upstream-20261110b/pr34895-8207d6bb601f.patch",
+    "patchSha256": "a603e03a05c7bf22cde3b62127dbd071e6a3082b1de13917b2f14d71b9a63d26",
+    "resultSha256": "0dda2d3df3ad48e8ee0f22483593cdb1bb077c0b73222b9fd4d82f85d9e62d64",
+    "reason": "Combine child navigation choices with extracted message-list props and reader-state hooks; the awaiting-input type remains owned by the props module."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "ab014e90a318a263beac439cb03e02be70f6a434",
+      "b28135f706789b5b3b10751d6bb258713f321f77",
+      "67e3abbb360d4383c5aeab01d6103d43e5d49dce"
+    ],
+    "patch": "latest-upstream-20261110b/pr38963-1d7a4539911b.patch",
+    "patchSha256": "cc035df6ba0cb38271ba7187014d385ed82b69b7330f965d674f75f3a7c011d9",
+    "resultSha256": "d49293cd0941aa7bc0133a7a6eabb42991a7f206a8a4d1030731fe79cef25991",
+    "reason": "Preserve child transcript navigation, owner prompts and extracted transcript/frame ownership while wiring foreground task actions; retain expanded command wrapping and invocation details beside the background action."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
+    "blobs": [
+      "a614fb7c200b21fc3bf9172ddc89df0bd0a9c8d0",
+      "08a3337ce0adc63133eaec5283f32b50f2fe1b36",
+      "609e2f2f735acd890ac61b9cdeb4db2dc53b9d78"
+    ],
+    "patch": "latest-upstream-20261110b/pr38963-d156c6004462.patch",
+    "patchSha256": "0e4b985211527ba86a60b6073d1f3f3b60b196c432d5615057029ed2e1f47b62",
+    "resultSha256": "e7b68afa53e8b53fddb3601c6a14b6146af9ac72869a7b67771dac50467c0a38",
+    "reason": "Preserve child transcript navigation, owner prompts and extracted transcript/frame ownership while wiring foreground task actions; retain expanded command wrapping and invocation details beside the background action."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.tsx",
+    "blobs": [
+      "c4fc8c4b958ae3d37fb88c51405bd92b77af736f",
+      "1ddf845ed11239e0c96b20c93cf36b42ca8081bc",
+      "fd9df09033101160eab0c51a2471c8bd309b3ade"
+    ],
+    "patch": "latest-upstream-20261110b/pr34895-7518a0ed7ea4.patch",
+    "patchSha256": "0a89ce15690440163eec829c4b33bb8a3a922951c7fe5cd6d9ede319d63f746d",
+    "resultSha256": "4e5e18c0cbd5af707fd39b65b4d08a3dacd23aca5c6f92eb876bf0c10e8d209d",
+    "reason": "Preserve current main tail-row accounting and reader folds while adding inline child navigation; the awaiting-input type stays in the extracted props module."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "0fc0d688aa58e1cd44c0c66d974d0ebad4985713",
+      "9e9dc1043a5bb9e64e05256d4f6b011ad5d5a4b3",
+      "9c557121cd26b5e42db600259ba07be7b5a4e8cf"
+    ],
+    "patch": "latest-upstream-20261110b/pr37744-cf4e08ad9642.patch",
+    "patchSha256": "db0e3692af55eef239b182272d7144577205e362bf82edae0c4613c9c7b899f7",
+    "resultSha256": "2d74f9ee6bd6e224a7f487af9b10f5ec2c4d04c2f7b34fe848719620b5d423a4",
+    "reason": "Advertise current upstream session-children and peer-mail capabilities together with local and paired-desktop session-link capabilities; preserve both independent features."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx",
+    "blobs": [
+      "54fb72e94fc454a71825ca0ce5674744de8eccc2",
+      "75bba05083a8bb5db3aa1852ca50a793f27ad864",
+      "cd5723139e0bdfd4636ab53dd915eb0a5bd90cc6"
+    ],
+    "patch": "latest-upstream-20261110b/pr39882-e6161f5141b2.patch",
+    "patchSha256": "90b4dc6fa2cdb67c5dd2b827fc3a38e1d27146f2dc2644c42b337154829d9ec3",
+    "resultSha256": "3e739c6d0a31151b590358619701e6c9a19c9015bdc682d6f5bc788d7dcd080d",
+    "reason": "Retain the existing pane action surface and spacing while showing the same-host session-link control for both local and paired-runtime chats."
   }
 ]
