@@ -182,6 +182,7 @@ export function useMobileStructuredAgentSession(
     enabled,
     queueCapable,
     queueFollowUps,
+    steerCapable: hostSupport?.steerDraft === true,
     commandsWait,
     stateRef,
     stopping: turnIndicator.stopping,
