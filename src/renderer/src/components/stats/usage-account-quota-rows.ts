@@ -15,6 +15,7 @@ import {
   normalizeCodexStatusRuntimeTarget
 } from '../status-bar/status-bar-codex-accounts'
 import { translate } from '@/i18n/i18n'
+import type { Translate } from '@/i18n/use-translate'
 import { USAGE_PROVIDER_KEYS } from '../status-bar/owner-usage-rate-limits'
 import {
   getVisibleUsageProvider,
@@ -35,23 +36,26 @@ function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget
   return left.runtime === right.runtime && left.wslDistro === right.wslDistro
 }
 
-function managedQuotaRows({
-  provider,
-  groups,
-  current,
-  inactive,
-  target,
-  systemIdentity,
-  unverifiable
-}: {
-  provider: 'claude' | 'codex'
-  groups: AccountGroup[]
-  current: ProviderRateLimits | null
-  inactive: InactiveAccountUsage[]
-  target: RateLimitRuntimeTarget
-  systemIdentity?: string | null
-  unverifiable: boolean
-}): UsageAccountQuotaRow[] {
+function managedQuotaRows(
+  {
+    provider,
+    groups,
+    current,
+    inactive,
+    target,
+    systemIdentity,
+    unverifiable
+  }: {
+    provider: 'claude' | 'codex'
+    groups: AccountGroup[]
+    current: ProviderRateLimits | null
+    inactive: InactiveAccountUsage[]
+    target: RateLimitRuntimeTarget
+    systemIdentity?: string | null
+    unverifiable: boolean
+  },
+  t: Translate = translate
+): UsageAccountQuotaRow[] {
   return groups.flatMap((group) =>
     group.targets.flatMap((account) => {
       const currentAccount = account.active && sameRuntime(group.runtimeTarget, target)
@@ -71,10 +75,7 @@ function managedQuotaRows({
               status: !unverifiable && cached?.isFetching ? 'fetching' : 'unavailable',
               error: unverifiable
                 ? (current?.error ??
-                  translate(
-                    'stats.usage.quota.ownerUnverifiable',
-                    'The account host cannot be verified.'
-                  ))
+                  t('stats.usage.quota.ownerUnverifiable', 'The account host cannot be verified.'))
                 : (account.hint ?? null),
               ...(unverifiable ? { usageMetadata: { unverifiableOwner: true } } : {})
             }
@@ -88,11 +89,11 @@ function managedQuotaRows({
           runtimeLabel:
             group.runtimeTarget.runtime === 'host'
               ? group.label === 'This device'
-                ? translate('stats.usage.localHost', 'This device')
+                ? t('stats.usage.localHost', 'This device')
                 : group.label
               : group.runtimeTarget.wslDistro
                 ? `WSL ${group.runtimeTarget.wslDistro}`
-                : translate('stats.usage.quota.defaultWsl', 'WSL default'),
+                : t('stats.usage.quota.defaultWsl', 'WSL default'),
           active: account.active,
           provider: limits
         }
@@ -104,13 +105,13 @@ function managedQuotaRows({
 function antigravityQuotaRows(
   accounts: AntigravityAccountUsage[],
   unverifiable: boolean,
-  ownerLabel?: string
+  ownerLabel?: string,
+  t: Translate = translate
 ): UsageAccountQuotaRow[] {
   return accounts.map((account) => ({
     key: `antigravity:${account.accountId}`,
     identity:
-      account.email ??
-      translate('auto.components.status.bar.antigravity.unknownAccount', 'Google account'),
+      account.email ?? t('auto.components.status.bar.antigravity.unknownAccount', 'Google account'),
     runtimeLabel: ownerLabel,
     active: account.active,
     provider:
@@ -133,14 +134,15 @@ export function buildUsageAccountQuotaRows(
   accounts: ProviderAccountsSnapshot | null,
   unverifiable = false,
   settings?: Partial<UsageProviderSettings> | null,
-  ownerLabel?: string
+  ownerLabel?: string,
+  t: Translate = translate
 ): UsageAccountQuotaRow[] {
   const fallback = (provider: ProviderRateLimits | null): UsageAccountQuotaRow[] =>
     provider && getVisibleUsageProvider(provider.provider, provider, { ...settings, ...limits })
       ? [
           {
             key: `${provider.provider}:current`,
-            identity: translate(
+            identity: t(
               'stats.usage.quota.currentAccount',
               'Current account · identity unavailable'
             ),
@@ -151,37 +153,43 @@ export function buildUsageAccountQuotaRows(
       : []
   const claude =
     accounts?.claude && !accounts.failedProviders?.includes('claude')
-      ? managedQuotaRows({
-          provider: 'claude',
-          groups: buildClaudeStatusSwitchGroups(accounts.claude, limits.claudeTarget, {
-            hostLabel: ownerLabel
-          }),
-          current: limits.claude,
-          inactive: limits.inactiveClaudeAccounts,
-          target: normalizeClaudeStatusRuntimeTarget(accounts.claude, limits.claudeTarget),
-          systemIdentity: accounts.claude.systemDefaultEmail,
-          unverifiable
-        })
+      ? managedQuotaRows(
+          {
+            provider: 'claude',
+            groups: buildClaudeStatusSwitchGroups(accounts.claude, limits.claudeTarget, {
+              hostLabel: ownerLabel
+            }),
+            current: limits.claude,
+            inactive: limits.inactiveClaudeAccounts,
+            target: normalizeClaudeStatusRuntimeTarget(accounts.claude, limits.claudeTarget),
+            systemIdentity: accounts.claude.systemDefaultEmail,
+            unverifiable
+          },
+          t
+        )
       : fallback(limits.claude)
   const codex =
     accounts?.codex && !accounts.failedProviders?.includes('codex')
-      ? managedQuotaRows({
-          provider: 'codex',
-          groups: buildCodexStatusSwitchGroups(accounts.codex, limits.codexTarget, {
-            hostLabel: ownerLabel
-          }),
-          current: limits.codex,
-          inactive: limits.inactiveCodexAccounts,
-          target: normalizeCodexStatusRuntimeTarget(accounts.codex, limits.codexTarget),
-          systemIdentity: accounts.codex.systemDefault?.email,
-          unverifiable
-        })
+      ? managedQuotaRows(
+          {
+            provider: 'codex',
+            groups: buildCodexStatusSwitchGroups(accounts.codex, limits.codexTarget, {
+              hostLabel: ownerLabel
+            }),
+            current: limits.codex,
+            inactive: limits.inactiveCodexAccounts,
+            target: normalizeCodexStatusRuntimeTarget(accounts.codex, limits.codexTarget),
+            systemIdentity: accounts.codex.systemDefault?.email,
+            unverifiable
+          },
+          t
+        )
       : fallback(limits.codex)
   return [
     ...claude,
     ...codex,
     ...(limits.antigravityAccounts?.length
-      ? antigravityQuotaRows(limits.antigravityAccounts, unverifiable, ownerLabel)
+      ? antigravityQuotaRows(limits.antigravityAccounts, unverifiable, ownerLabel, t)
       : fallback(limits.antigravity)),
     ...USAGE_PROVIDER_KEYS.filter(
       (key) => key !== 'claude' && key !== 'codex' && key !== 'antigravity'

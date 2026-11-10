@@ -21862,7 +21862,6 @@
       "endedShort": "Ended",
       "waitingShort": "Waiting",
       "title": "Work together",
-      "linked": "Linked with",
       "linkedAgent": "Linked with {{agent}} ({{role}})",
       "roleReviewer": "reviewer",
       "roleImplementer": "implementer",
@@ -23321,6 +23320,12 @@
       "checksPending": "{{review}} checks: Pending",
       "checksPassing": "{{review}} checks: Passing",
       "open": "{{review}}: Open"
+    },
+    "start": {
+      "title": "What would you like to open?",
+      "description": "Choose an agent or a tool for this project.",
+      "agents": "Agents",
+      "manageAgents": "Manage agents"
     },
     "vm": {
       "menu": {

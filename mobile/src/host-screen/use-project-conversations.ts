@@ -12,22 +12,14 @@ import {
 import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
 import { resolveWorktreeHostId } from '../worktree/worktree-host-context-labels'
 import { isConversationHistoryNotice } from './conversation-records'
+import {
+  mergeConversationSnapshot,
+  type ConversationSnapshot
+} from './project-conversation-snapshot'
 import { sessionTabsListRead } from '../session/tabs/mobile-session-tab-read-operations'
 import type { HostScreenController } from './use-host-screen-controller'
-import {
-  readConversationTabs,
-  type ConversationHistory,
-  type ConversationTab
-} from './project-conversations'
+import { readConversationTabs } from './project-conversations'
 
-type ConversationSnapshot = {
-  tabs: Map<string, ConversationTab[]>
-  history: ConversationHistory[]
-  historyByHost: Map<ExecutionHostId, ProjectConversationHistorySnapshot>
-  capabilities: Map<ExecutionHostId, readonly string[]>
-  complete: boolean
-  failed: boolean
-}
 const EMPTY: ConversationSnapshot = {
   tabs: new Map(),
   history: [],
@@ -143,6 +135,44 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
         complete: true,
         failed: false
       }
+      const publish = (pending = false) => {
+        if (current()) {
+          const value = mergeConversationSnapshot(
+            next,
+            sameAuthority ? previous.value : undefined,
+            failedSources,
+            failedTabs
+          )
+          const loaded = {
+            client,
+            hostId,
+            generation,
+            authority,
+            workspaceStamp,
+            at: pending ? Date.now() - REFRESH_MS : Date.now(),
+            value
+          }
+          snapshots.set(client, loaded)
+          setLoaded(loaded)
+        }
+      }
+      const acceptHistory = (
+        sourceHost: ExecutionHostId,
+        capabilities: readonly string[],
+        history: ProjectConversationHistorySnapshot
+      ) => {
+        next.capabilities.set(sourceHost, capabilities)
+        next.historyByHost.set(sourceHost, history)
+        next.history = [...next.historyByHost].flatMap(([host, snapshot]) =>
+          snapshot.sessions.map((session) => ({
+            ...session,
+            executionHostId:
+              host !== 'local' && session.executionHostId === 'local'
+                ? host
+                : session.executionHostId
+          }))
+        )
+      }
       try {
         const historyRequests = Promise.all(
           [...sources].map(async ([sourceHost, sourceClient]) => {
@@ -150,14 +180,20 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
               const { capabilities, history } = await refreshProjectConversationHistory(
                 sourceClient,
                 force,
-                sameAuthority ? previous.value.historyByHost.get(sourceHost) : undefined
+                sameAuthority ? previous.value.historyByHost.get(sourceHost) : undefined,
+                ({ capabilities, history }) => {
+                  acceptHistory(sourceHost, capabilities, history)
+                  if (next.history.length > 0) {
+                    publish(true)
+                  }
+                }
               )
               next.capabilities.set(sourceHost, capabilities)
               if (!history) {
                 next.complete = false
                 return
               }
-              next.historyByHost.set(sourceHost, history)
+              acceptHistory(sourceHost, capabilities, history)
               const historyFailed = history.issues.some(
                 (issue) => !isConversationHistoryNotice(issue)
               )
@@ -165,15 +201,6 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
                 next.complete = false
               }
               next.failed ||= historyFailed
-              next.history.push(
-                ...history.sessions.map((session) => ({
-                  ...session,
-                  executionHostId:
-                    sourceHost !== 'local' && session.executionHostId === 'local'
-                      ? sourceHost
-                      : session.executionHostId
-                }))
-              )
             } catch {
               failedSources.add(sourceHost)
               next.failed = true
@@ -208,56 +235,7 @@ export function useProjectConversations(controller: ProjectConversationsSource) 
           )
         }
         await historyRequests
-        if (current()) {
-          const value = (() => {
-            const tabs = new Map(next.tabs)
-            const capabilities = new Map(next.capabilities)
-            const historyByHost = new Map(next.historyByHost)
-            let history = next.history
-            if (sameAuthority) {
-              for (const source of failedSources) {
-                const priorHistory = previous.value.historyByHost.get(source)
-                if (priorHistory) {
-                  historyByHost.set(source, priorHistory)
-                }
-                const retained = previous.value.capabilities.get(source)
-                if (!capabilities.has(source) && retained) {
-                  capabilities.set(source, retained)
-                }
-              }
-              for (const key of failedTabs) {
-                const retained = previous.value.tabs.get(key)
-                if (retained) {
-                  tabs.set(key, retained)
-                }
-              }
-              history = [
-                ...history,
-                ...previous.value.history.filter(
-                  (session) =>
-                    session.executionHostId &&
-                    failedSources.has(
-                      session.executionHostId.startsWith('runtime:')
-                        ? session.executionHostId
-                        : 'local'
-                    )
-                )
-              ]
-            }
-            return { ...next, tabs, capabilities, history, historyByHost }
-          })()
-          const loaded = {
-            client,
-            hostId,
-            generation,
-            authority,
-            workspaceStamp,
-            at: Date.now(),
-            value
-          }
-          snapshots.set(client, loaded)
-          setLoaded(loaded)
-        }
+        publish()
       } finally {
         running = false
         if (current()) {

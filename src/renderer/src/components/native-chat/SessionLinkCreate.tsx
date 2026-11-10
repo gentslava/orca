@@ -6,7 +6,7 @@ import {
   SessionLinkPolicy,
   type SessionLinkParticipant
 } from '../../../../shared/session-link'
-import { translate as t } from '@/i18n/i18n'
+import { useTranslate } from '@/i18n/use-translate'
 import { SessionLinkPolicyField } from './SessionLinkPolicyField'
 import { SessionLinkParticipantCard } from './SessionLinkParticipantCard'
 import { Button } from '@/components/ui/button'
@@ -40,6 +40,8 @@ export function SessionLinkCreate({
     policy?: SessionLinkPolicy
   ) => void
 }): React.JSX.Element {
+  const t = useTranslate()
+
   const [partner, setPartner] = useState(initialPartnerSessionId ?? '')
   const [choosingPartner, setChoosingPartner] = useState(!initialPartnerSessionId)
   const [story, setStory] = useState('')
