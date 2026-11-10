@@ -1,0 +1,487 @@
+name: Personal upstream + PR build
+run-name: Personal build - ${{ inputs.audit_only && 'audit' || 'packages' }} - ${{ github.run_number }}
+
+on:
+  schedule:
+    - cron: '37 3 * * *'
+  workflow_dispatch:
+    inputs:
+      audit_only:
+        description: Resolve lifecycle and merge every selection without packaging
+        type: boolean
+        default: false
+      force_build:
+        description: Package even if the last successful release has identical inputs
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: personal-upstream-pr-build
+  cancel-in-progress: false
+
+env:
+  ORCA_BACKGROUND_LAUNCH: '1'
+
+jobs:
+  plan:
+    if: github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      build: ${{ steps.compose.outputs.build }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Test composition policy with real Git fixtures
+        run: node --test config/fork-build/*.test.mjs
+      - name: Freeze upstream and PR identities; compose required selection
+        id: compose
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUDIT_ONLY: ${{ inputs.audit_only || false }}
+          FORCE_BUILD: ${{ inputs.force_build || false }}
+        run: node config/fork-build/plan.mjs
+      - name: Preserve the exact plan and report even on conflict
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-source-plan
+          path: personal-build/
+          if-no-files-found: error
+          retention-days: 14
+
+  macos:
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: macos-26
+    timeout-minutes: 120
+    env:
+      ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
+      ORCA_MAC_RELEASE: '0'
+      ORCA_MAC_HOURLY: '0'
+      ORCA_MAC_DAILY: '0'
+      ORCA_MAC_ADHOC: '0'
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      CSC_NAME: '-'
+      ORCA_COMPUTER_MACOS_SIGN_IDENTITY: '-'
+      NODE_OPTIONS: --max-old-space-size=4096
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Restore the frozen source and require native ARM64
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = arm64
+          mv control "$RUNNER_TEMP/personal-control"
+          node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" prepare personal-build/plan.json "$GITHUB_WORKSPACE"
+          printf 'ORCA_USER_DATA_PATH=%s/primary-profile\nORCA_USER_DATA=%s/server-profile\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Install composed dependencies with read-only repository permissions
+        uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: electron
+          persist-native-cache: 'false'
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            mobile/pnpm-lock.yaml
+      - name: Install mobile dependencies
+        working-directory: mobile
+        run: pnpm install --frozen-lockfile
+      - name: Qualify formatting and source quality of the exact composition
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
+      - name: Build and typecheck desktop, CLI, web and mobile resources
+        run: pnpm run build:desktop:ci
+      - name: Verify regressions from all composed features
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/regressions.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
+      - name: Verify preview updater policy against the composed application
+        run: |
+          set -euo pipefail
+          test ! -e src/main/updater.fork-preview.test.ts
+          cp "$RUNNER_TEMP/personal-control/src/main/updater.fork-preview.test.ts" src/main/updater.fork-preview.test.ts
+          trap 'rm -f src/main/updater.fork-preview.test.ts' EXIT
+          pnpm exec vitest run --config config/vitest.config.ts src/main/updater.fork-preview.test.ts --maxWorkers=1
+      - name: Build and verify native helpers
+        run: |
+          set -euo pipefail
+          pnpm run build:native
+          pnpm run verify:computer-native
+      - name: Package ad hoc ARM64 DMG and ZIP
+        run: |
+          set -euo pipefail
+          node config/scripts/orcad-distribution/prebuilds/pinned-node-downloads.mjs darwin-arm64
+          pnpm run ensure:electron-runtime
+          pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 --config.mac.identity=- --publish never
+      - name: Measure archives against the exact source and stage downloads
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage personal-build/plan.json "$GITHUB_WORKSPACE"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-macos-arm64
+          path: personal-packages/
+          if-no-files-found: error
+          retention-days: 14
+
+  windows:
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: windows-2022
+    timeout-minutes: 120
+    env:
+      ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Restore the shared source plan on Windows x64
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_ARCH -ne 'X64') { throw 'Windows x64 is required' }
+          Move-Item control "$env:RUNNER_TEMP/personal-control"
+          node "$env:RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" prepare personal-build/plan.json "$env:GITHUB_WORKSPACE"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "ORCA_USER_DATA_PATH=$env:RUNNER_TEMP/primary-profile" >> $env:GITHUB_ENV
+          "ORCA_USER_DATA=$env:RUNNER_TEMP/server-profile" >> $env:GITHUB_ENV
+      - uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: electron
+          persist-native-cache: 'false'
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            mobile/pnpm-lock.yaml
+      - name: Install mobile dependencies
+        working-directory: mobile
+        run: pnpm install --frozen-lockfile
+      - name: Verify fork updater guard on Windows
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $test = 'src/main/updater.fork-preview.test.ts'
+          if (Test-Path $test) { throw 'Refusing to overwrite a source test' }
+          Copy-Item "$env:RUNNER_TEMP/personal-control/$test" $test
+          try {
+            pnpm exec vitest run --config config/vitest.config.ts $test --maxWorkers=1
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } finally { Remove-Item $test }
+      - name: Build existing Windows release resources and native helpers
+        shell: pwsh
+        run: |
+          pnpm run build:release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm run ensure:electron-runtime
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Package unsigned installer and portable ZIP
+        shell: pwsh
+        run: |
+          node "$env:RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stamp-windows personal-build/plan.json "$env:GITHUB_WORKSPACE"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm exec electron-builder --config "$env:RUNNER_TEMP/personal-control/config/fork-build/windows-builder.config.cjs" --win nsis --x64 --publish never
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm exec electron-builder --config "$env:RUNNER_TEMP/personal-control/config/fork-build/windows-builder.config.cjs" --win zip --x64 --prepackaged dist/win-unpacked --publish never
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & "$env:RUNNER_TEMP/personal-control/config/fork-build/extract-windows-packages.ps1" -Packages dist -Verification "$env:RUNNER_TEMP/windows-stage"
+          node "$env:RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-windows personal-build/plan.json "$env:GITHUB_WORKSPACE" "$env:RUNNER_TEMP/windows-stage"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-windows-x64
+          path: personal-packages/
+          if-no-files-found: error
+          retention-days: 14
+
+  verify-windows:
+    needs: [plan, windows]
+    if: needs.windows.result == 'success'
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-windows-x64
+          path: windows-packages
+      - name: Re-extract and verify both Windows downloads with trusted code
+        shell: pwsh
+        run: |
+          & ./config/fork-build/extract-windows-packages.ps1 -Packages windows-packages -Verification "$env:RUNNER_TEMP/windows-verify"
+          node config/fork-build/packages.mjs verify-windows personal-build/plan.json windows-packages "$env:RUNNER_TEMP/windows-verify"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-windows-verification
+          path: windows-packages/windows-verified.json
+          if-no-files-found: error
+          retention-days: 14
+
+  android:
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Restore the shared source and require the existing debug signing policy
+        env:
+          RELEASE_CERTIFICATE: ${{ vars.ORCA_ANDROID_RELEASE_CERT_SHA256 }}
+          REQUIRE_RELEASE_SIGNING: ${{ vars.ORCA_ANDROID_REQUIRE_RELEASE_SIGNING }}
+        run: |
+          set -euo pipefail
+          test -z "$RELEASE_CERTIFICATE"
+          case "${REQUIRE_RELEASE_SIGNING,,}" in
+            1|true|yes|on) echo '::error::Production signing is required; the debug APK lane is blocked'; exit 1 ;;
+          esac
+          mv control "$RUNNER_TEMP/personal-control"
+          node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" prepare personal-build/plan.json "$GITHUB_WORKSPACE"
+      - uses: ./.github/actions/setup-pnpm
+      - name: Install mobile dependencies
+        working-directory: mobile
+        run: pnpm install --frozen-lockfile
+      - name: Check committed mobile release version
+        working-directory: mobile
+        env:
+          MOBILE_ANDROID_PUBLISH_RELEASE: 'false'
+        run: node scripts/prepare-android-release.mjs
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Generate existing Expo Android project
+        working-directory: mobile
+        run: pnpm exec expo prebuild --platform android --no-install
+      - name: Embed the same source receipt as the desktop packages
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stamp-android personal-build/plan.json "$GITHUB_WORKSPACE"
+      - name: Build the release APK with the existing Expo debug key
+        working-directory: mobile/android
+        run: ./gradlew assembleRelease --no-daemon
+      - name: Verify APK identity, architecture and signing certificate
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-android personal-build/plan.json "$GITHUB_WORKSPACE"
+      - name: Preserve a rejected APK for signing diagnostics
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-android-rejected
+          path: mobile/android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: ignore
+          retention-days: 3
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-android
+          path: personal-packages/
+          if-no-files-found: error
+          retention-days: 14
+
+  verify-android:
+    needs: [plan, android]
+    if: needs.android.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-android
+          path: android-packages
+      - name: Independently verify the APK with the Android SDK
+        run: node config/fork-build/packages.mjs verify-android personal-build/plan.json android-packages
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-android-verification
+          path: android-packages/android-verified.json
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    needs: [plan, macos, windows, android, verify-windows, verify-android]
+    if: needs.macos.result == 'success' && needs.verify-windows.result == 'success' && needs.verify-android.result == 'success'
+    runs-on: macos-26-intel
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-macos-arm64
+          path: personal-packages
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-windows-x64
+          path: windows-packages
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-windows-verification
+          path: windows-packages
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-android
+          path: android-packages
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-android-verification
+          path: android-packages
+      - name: Independently verify packages with trusted configuration code
+        run: |
+          node config/fork-build/packages.mjs verify personal-build/plan.json personal-packages
+          node config/fork-build/packages.mjs assemble-release personal-build/plan.json personal-packages windows-packages android-packages
+      - name: Publish complete immutable downloads; preserve previous releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="personal-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title "Orca personal macOS + Windows + Android ${GITHUB_RUN_NUMBER}" --notes-file personal-build/report.md personal-packages/* personal-build/plan.json personal-build/source.bundle
+
+  sync:
+    needs: [plan, publish]
+    if: needs.publish.result == 'success' && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Promote verified application to master and mirror upstream to main atomically
+        env:
+          FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
+        run: node config/fork-build/promotion.mjs personal-build
+      - name: Remove temporary SSH credentials even after cancellation
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
+      - name: Preserve the exact branch promotion receipt
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-branch-promotion
+          path: personal-build/promotion.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  status:
+    needs: [plan, macos, windows, android, verify-windows, verify-android, publish, sync]
+    if: always() && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        continue-on-error: true
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Update the persistent lifecycle and last-successful-build record
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_RESULT: ${{ needs.macos.result }}
+          WINDOWS_RESULT: ${{ needs.windows.result }}
+          ANDROID_RESULT: ${{ needs.android.result }}
+          WINDOWS_VERIFICATION: ${{ needs.verify-windows.result }}
+          ANDROID_VERIFICATION: ${{ needs.verify-android.result }}
+          PUBLICATION: ${{ needs.publish.result }}
+          BRANCH_SYNC: ${{ needs.sync.result }}
+        run: |
+          mkdir -p personal-build
+          node config/fork-build/status.mjs personal-build

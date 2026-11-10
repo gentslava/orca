@@ -1,0 +1,164 @@
+import { execFileSync } from 'node:child_process'
+import { withGitHubReadRetry } from './github-read-retry.mjs'
+
+export function api(path, data) {
+  const args = ['api', path]
+  if (data) {
+    args.push('--method', 'PATCH', '--input', '-')
+  }
+  const run = () =>
+    execFileSync('gh', args, {
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+      input: data ? JSON.stringify(data) : undefined,
+      stdio: ['pipe', 'pipe', 'pipe']
+    })
+  return JSON.parse(data ? run() : withGitHubReadRetry(run))
+}
+
+export function readLedger(body = '') {
+  const match = body.match(/<!-- orca-personal-ledger\n([\s\S]*?)\n-->/)
+  return match ? JSON.parse(match[1]) : { tracked: [] }
+}
+
+export function renderReport(plan) {
+  const lines = [
+    '# Orca personal build',
+    '',
+    '## Install on your Mac',
+    '',
+    'These personal builds use ad hoc signatures. Browser downloads may be blocked by macOS quarantine; a paid Apple Developer account is not needed for the verified local installation below.',
+    '',
+    'From an updated checkout of `gentslava/orca`, run this in Terminal:',
+    '',
+    '```sh',
+    'node config/fork-build/install.mjs --wait --launch',
+    '```',
+    '',
+    'Quit Orca completely when prompted. The installer verifies the published download digest, embedded source identity, complete app manifest and signature, installs without propagating quarantine, and retains the previous application as a backup. It does not change global Gatekeeper settings.',
+    '',
+    '## Install on Windows x64',
+    '',
+    'Download `orca-windows-setup.exe` or extract `orca-windows-x64.zip`. Check the download against `windows-SHA256SUMS` with `Get-FileHash <file> -Algorithm SHA256`. These personal packages are unsigned; Windows may display a SmartScreen warning. Official updates are disabled for fork-preview versions.',
+    '',
+    '## Install on Android',
+    '',
+    'Check `orca-android.apk` against `android-SHA256SUMS`, then install it as an APK. It uses the existing Expo debug certificate, not a production signing identity. The committed mobile version/code are preserved; the embedded receipt binds it to the same source commit as the desktop packages.',
+    '',
+    'All three platforms are required. Packaging verifies artifacts without establishing acceptance on a user Windows machine or physical handset.',
+    '',
+    `Run: ${plan.runUrl}`,
+    '',
+    `Configuration: \`${plan.configuration}\``,
+    `Upstream: \`${plan.upstream || 'unresolved'}\``,
+    `Version base: \`${plan.upstreamRelease?.baseVersion || 'unresolved'}\` (upstream release \`${plan.upstreamRelease?.tag || 'unresolved'}\`)`,
+    `Composition: **${plan.result?.publishable ? 'ready' : 'blocked'}**`,
+    `Requested mode: ${plan.auditOnly ? 'audit only' : 'build'}`,
+    ''
+  ]
+  if (plan.error) {
+    lines.push(`Planning error: ${plan.error}`, '')
+  }
+  if (plan.result) {
+    lines.push(
+      `Source commit: \`${plan.result.commit}\``,
+      `Source tree: \`${plan.result.tree}\``,
+      '',
+      '## Selection',
+      '',
+      '| PR | State | Frozen head |',
+      '| --- | --- | --- |'
+    )
+    for (const pr of plan.selections) {
+      lines.push(
+        `| PR ${pr.number} | ${pr.merged_at ? 'merged (ancestry checked)' : pr.state === 'closed' ? 'retained closed' : pr.draft ? 'open draft' : 'open'} | \`${pr.head.sha}\` |`
+      )
+    }
+    if (plan.result.localeMerges?.length) {
+      lines.push('', '## Translation catalog merges', '')
+      for (const entry of plan.result.localeMerges) {
+        lines.push(
+          `- PR ${entry.number}: independent keys merged in ${entry.paths.map((path) => `\`${path}\``).join(', ')}.`
+        )
+      }
+    }
+    const retainedBranches = plan.selections.filter((pr) => pr.retainedHeadSource)
+    if (retainedBranches.length) {
+      lines.push('', '## Retained fork branch snapshots', '')
+      for (const pr of retainedBranches) {
+        const source = pr.retainedHeadSource
+        lines.push(
+          `- PR ${pr.number}: \`${source.repository}:${source.ref}\`; closed head \`${source.closedHeadSha}\`; selected branch head \`${pr.head.sha}\`.`
+        )
+      }
+    }
+    if (plan.localizations?.length) {
+      lines.push('', '## Fork Russian translations', '')
+      for (const entry of plan.localizations) {
+        lines.push(
+          `- \`${entry.path}\`: ${entry.keys} fork keys; overlay SHA-256 \`${entry.sha256}\`.`
+        )
+      }
+    }
+    if (plan.result.reviewedResolutions?.length) {
+      lines.push('', '## Reviewed integration patches', '')
+      for (const entry of plan.result.reviewedResolutions) {
+        for (const patch of entry.patches) {
+          lines.push(
+            `- PR ${entry.number}: \`${patch.path}\`; patch SHA-256 \`${patch.patchSha256}\`. ${patch.reason}`
+          )
+        }
+      }
+    }
+    if (
+      plan.result.retiredFixtures?.length ||
+      plan.compatibility?.some((entry) => entry.retiredTestFixtures?.length)
+    ) {
+      lines.push('', '## Preserved upstream test retirements', '')
+      for (const entry of plan.result.retiredFixtures || []) {
+        for (const retirement of entry.paths) {
+          lines.push(
+            `- PR ${entry.number}: \`${retirement.path}\`; fixture delta SHA-256 \`${retirement.deltaSha256}\`.`
+          )
+        }
+      }
+      for (const entry of plan.compatibility || []) {
+        for (const retirement of entry.retiredTestFixtures || []) {
+          lines.push(
+            `- \`${entry.file}\`: \`${retirement.path}\`; removed by \`${retirement.removedBy}\`; correction SHA-256 \`${retirement.patchSha256}\`.`
+          )
+        }
+      }
+    }
+    lines.push('', '## Conflicts and blockers', '')
+    for (const conflict of plan.result.conflicts) {
+      lines.push(
+        `- PR ${conflict.number}: **${conflict.kind}** conflict; ${conflict.paths.map((path) => `\`${path}\``).join(', ')}. Prior integrated PRs: ${conflict.preceding.join(', ') || 'none'}.`
+      )
+    }
+    for (const blocker of [...plan.blockers, ...plan.result.blockers]) {
+      lines.push(`- ${blocker.number ? `PR ${blocker.number}: ` : ''}${blocker.reason}`)
+    }
+    if (plan.result.publishable) {
+      lines.push(
+        'All required selected changes composed successfully. This does not yet establish a successful package build.'
+      )
+    }
+    lines.push(
+      '',
+      `Already supplied by upstream: ${plan.result.suppliedByUpstream.map((n) => `PR ${n}`).join(', ') || 'none'}.`
+    )
+  }
+  lines.push('', '## Lifecycle', '')
+  for (const entry of plan.lifecycle || []) {
+    lines.push(
+      `- PR ${entry.number}: ${entry.disposition}${entry.replacement ? ` → PR ${entry.replacement}` : ''}${entry.reason ? ` — ${entry.reason}` : ''}`
+    )
+  }
+  lines.push(
+    '',
+    'No required conflict is silently skipped for publication. Previous successful release remains available. Reports and artifacts identify the exact source; a clean merge is not runtime acceptance.',
+    ''
+  )
+  return lines.join('\n')
+}

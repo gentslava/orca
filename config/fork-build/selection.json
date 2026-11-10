@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "upstream": "stablyai/orca",
+  "base": "main",
+  "authors": ["gentslava"],
+  "seed": [
+    33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
+    33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
+    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717
+  ],
+  "include": [
+    {
+      "number": 36530,
+      "reason": "scrcpy input latency fixes requested for the Android emulator"
+    },
+    {
+      "number": 36905,
+      "reason": "Opaque-scroller improvement supplied upstream; physical handset testing still requires native magnifier protection, now tracked by replacement PR 38022."
+    },
+    {
+      "number": 37968,
+      "reason": "Merged compact orchestration cards on desktop and mobile; PR 33403 now retains only human-authored chat navigation."
+    }
+  ],
+  "exclude": {
+    "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle."
+  },
+  "replacements": {
+    "36569": 36922,
+    "36574": 36922,
+    "36606": 36928,
+    "36607": 36928,
+    "37279": 37276,
+    "36858": 37211,
+    "37717": 37711,
+    "37861": 37958,
+    "36892": 38022,
+    "39022": 39727,
+    "36736": 40148,
+    "40499": 40496
+  },
+  "dependencies": {
+    "36593": [36634]
+  },
+  "outputs": [
+    "macos-arm64-dmg",
+    "macos-arm64-zip",
+    "windows-x64-installer",
+    "windows-x64-zip",
+    "android-apk"
+  ],
+  "statusIssue": 12,
+  "compatibilityPatches": [
+    "preview-updater-guard.patch",
+    "test-runner-registration.patch",
+    "integration-module-boundaries.patch",
+    "conversation-project-order.patch",
+    "model-fallback-next-turn-test.patch",
+    "reviewed-merge-target-paths.patch",
+    "upstream-module-relocations.patch",
+    "startup-chat-catalog.patch",
+    "project-start-actions.patch",
+    "composed-ci-contracts.patch",
+    "codex-selected-account-read.patch",
+    "composed-source-modules.patch",
+    "composed-reactive-copy.patch",
+    "composed-localization-cleanup.patch"
+  ],
+  "retainClosed": {
+    "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
+    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
+  },
+  "retainedHeadSources": {
+    "34365": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/gentslava/android-picker-refusal-diagnostics"
+    },
+    "38848": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/fix/queue-last-message-shortcut-20261106"
+    }
+  }
+}

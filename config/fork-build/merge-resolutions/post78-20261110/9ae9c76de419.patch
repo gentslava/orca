@@ -1,0 +1,33 @@
+diff --git a/mobile/src/host-screen/use-host-screen-controller.ts b/mobile/src/host-screen/use-host-screen-controller.ts
+--- a/mobile/src/host-screen/use-host-screen-controller.ts
++++ b/mobile/src/host-screen/use-host-screen-controller.ts
+@@ -63,7 +63,6 @@
+   const { hostCapabilities, statusReadable, floatingWorkspaceEnabled, hostInstallationId } =
+     useHostProtocolGates()
+   const state = useHostScreenState(hostId, peekStoredHost(hostId))
+-  const settings = useHostViewSettings({ client, connState, state })
+   const connectionVerdict = classifyConnection({
+     state: connState,
+     reconnectAttempts,
+@@ -83,6 +82,13 @@
+     sidebarFeed?.feed.kind === 'ready'
+       ? (sidebarFeed.feed.domains.projectCatalog ?? state.servedProjectSections)
+       : state.servedProjectSections
++  const settings = useHostViewSettings({
++    client,
++    connState,
++    state,
++    hostCapabilities,
++    projectCatalog
++  })
+   const catalog = useHostWorktreeCatalog({
+     client,
+     connState,
+@@ -108,6 +114,7 @@
+     connState,
+     embedded,
+     fetchWorktrees: catalog.fetchWorktrees,
++    projectCatalog,
+     forgetHostClient,
+     hostCapabilities,
+     hostId,
