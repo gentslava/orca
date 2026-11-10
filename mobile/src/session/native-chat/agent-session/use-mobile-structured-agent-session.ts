@@ -20,7 +20,6 @@ import type {
   MobileStructuredAgentSessionArgs,
   StructuredMobileSession
 } from './mobile-structured-agent-session-contract'
-import type { MobileNativeChatVisualSource } from '../visual/mobile-native-chat-visual-read'
 import { useMobileStructuredAgentState } from './use-mobile-structured-agent-state'
 import { useMobileStructuredStopPress } from '../composer/use-mobile-structured-stop-press'
 import { useMobileStructuredSessionHostStopping } from './use-mobile-structured-session-host-stopping'
@@ -193,6 +192,7 @@ export function useMobileStructuredAgentSession(
     controller: goal.commands,
     sessionCommands: args.sessionCommands,
     onSendError,
+    isModelWritePending: options.isModelWritePending,
     queueSendsNext,
     sendSelection: options.sendSelection,
     takesSkills: hostSupport?.sendSkills === true
@@ -259,7 +259,7 @@ export function useMobileStructuredAgentSession(
   return {
     ...optionFields,
     contextUsage: useMobileStructuredContextUsage(state.items, contextUsageSupport, state.epoch),
-    visualSource: useMemo<MobileNativeChatVisualSource | null>(
+    visualSource: useMemo(
       () => (client && sessionId ? { client, sessionId } : null),
       [client, sessionId]
     ),

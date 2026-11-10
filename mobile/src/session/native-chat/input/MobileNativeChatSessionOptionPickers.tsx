@@ -1,3 +1,8 @@
+import type {
+  MobileNativeChatSessionOptionPickersProps,
+  PresentationProps
+} from './mobile-native-chat-session-option-picker-contract'
+export type * from './mobile-native-chat-session-option-picker-contract'
 import { useEffect, useRef, useState } from 'react'
 import { AccessibilityInfo, Keyboard, Platform, Text, View } from 'react-native'
 import {
@@ -49,25 +54,7 @@ import {
   AGENT_CHAT_PERMISSION_MODE_OPTION_ID,
   isAgentChatPermissionMode
 } from '../../../../../src/shared/agent-launch/permissions/agent-chat-permission-mode'
-import type { MobileNativeChatSessionOptionsController } from './use-mobile-native-chat-session-options'
 import { sessionOptionPickerStyles as styles } from './mobile-native-chat-session-option-picker-styles'
-
-export type MobileNativeChatPickerPresentation = { page: string | null; refocus: boolean }
-
-export type MobileNativeChatSessionOptionPickersProps = {
-  controller: MobileNativeChatSessionOptionsController
-  // Mid-turn terminal model commands would interleave with agent output.
-  isWorking: boolean
-  // Block applies during composer send: the host’s body/Enter delay could submit the setting as prompt text.
-  sendInFlight?: boolean
-}
-
-type PresentationProps = {
-  presentation: MobileNativeChatPickerPresentation | null
-  onNavigate: (page: string | null) => void
-  onDrawerOpen: (page: string) => void
-  onDrawerAfterClose?: () => void
-}
 
 function permissionChoiceColor(value: string | undefined): string | undefined {
   return value === 'full-access' ? colors.statusAmber : undefined
@@ -198,6 +185,7 @@ export function MobileNativeChatSessionOptionPickers({
     // A permission report can match a new explicit pick while the saved intent is Own.
     if (
       descriptor !== permission &&
+      !descriptor.defaultChoice?.selected &&
       descriptor.valueSource !== 'unknown' &&
       descriptor.valueSource !== 'default' &&
       descriptor.kind.type === 'select' &&
@@ -319,6 +307,11 @@ export function MobileNativeChatSessionOptionPickers({
                     shown: moreModelsShown,
                     onToggle: () => setMoreModelsShown((shown) => !shown)
                   },
+                  onReset: controller.optionSurface?.resetOption
+                    ? () => {
+                        void controller.optionSurface?.resetOption?.(activeDescriptor.id)
+                      }
+                    : undefined,
                   ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
                 },
                 t
