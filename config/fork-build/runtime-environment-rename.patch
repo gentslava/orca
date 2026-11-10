@@ -126,7 +126,7 @@ index 5342e21e429..973ef2240e1 100644
 @@ -30,6 +31,18 @@ export function addEnvironmentFromPairingCode(
    return translateStoreError(() => addEnvironmentFromPairingCodeInStore(userDataPath, args))
  }
- 
+
 +export function renameEnvironment(
 +  userDataPath: string,
 +  selector: string,
@@ -238,7 +238,7 @@ index f331aa16643..2943a2685f5 100644
 @@ -181,38 +181,16 @@ export function useRuntimeEnvironmentMutationActions({
      }
    }
- 
+
 -  const renameEnvironment = async (
 -    environment: PublicKnownRuntimeEnvironment,
 -    nextName: string
@@ -281,7 +281,7 @@ index f331aa16643..2943a2685f5 100644
 +      setRenameError,
 +      t
 +    })
- 
+
    return {
      isSaving,
 @@ -234,3 +212,49 @@ export function useRuntimeEnvironmentMutationActions({

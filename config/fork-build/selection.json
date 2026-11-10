@@ -72,7 +72,6 @@
     "codex-selected-account-read.patch",
     "composed-source-modules.patch",
     "composed-reactive-copy.patch",
-    "composed-localization-cleanup.patch",
     "runtime-environment-rename.patch"
   ],
   "retainClosed": {

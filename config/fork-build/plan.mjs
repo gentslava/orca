@@ -100,8 +100,7 @@ try {
         'codex-selected-account-read.patch',
         'runtime-environment-rename.patch',
         'composed-source-modules.patch',
-        'composed-reactive-copy.patch',
-        'composed-localization-cleanup.patch'
+        'composed-reactive-copy.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')

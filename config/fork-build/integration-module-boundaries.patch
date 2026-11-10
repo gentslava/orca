@@ -47,7 +47,7 @@ index 76f08928d19568ee09042ac4d989b954cc855d70..b83e103251f5ab15d52691cdb6cd7490
 @@ -53,6 +53,28 @@ export function NativeChatForegroundTasksProvider(props: {
    return <Context value={value}>{props.children}</Context>
  }
- 
+
 +export function nativeChatForegroundTasks(
 +  sessionId: string,
 +  session: {
@@ -100,3 +100,29 @@ index d3cf683cfcebdcdd17cbab4b4322400b52aa746c..ea003e7c9c1e03f8868e9cb9c59f5eb3
      </NativeChatLinkClickContext>
    )
  }
+diff --git a/config/tsconfig.e2e.json b/config/tsconfig.e2e.json
+--- a/config/tsconfig.e2e.json
++++ b/config/tsconfig.e2e.json
+@@ -26,6 +26,7 @@
+       // Why: specs reach mobile/src/transport, whose native imports resolve only once mobile is
+       // installed and then load React Native's globals (numeric timers, a required NODE_ENV).
+       // An empty stub keeps the error count the same with or without mobile's install.
++      "react-native": ["./e2e-typecheck-mobile-native-stub.ts"],
+       "expo-crypto": ["./e2e-typecheck-mobile-native-stub.ts"],
+       "@react-native-async-storage/async-storage": ["./e2e-typecheck-mobile-native-stub.ts"]
+     }
+diff --git a/config/e2e-typecheck-mobile-native-stub.ts b/config/e2e-typecheck-mobile-native-stub.ts
+--- a/config/e2e-typecheck-mobile-native-stub.ts
++++ b/config/e2e-typecheck-mobile-native-stub.ts
+@@ -1,2 +1,9 @@
+-// Stands in for mobile's native-only packages in config/tsconfig.e2e.json (see its `paths`).
+-export {}
++// E2E imports mobile readers, not a native app's global timer declarations.
++export declare const Platform: { OS: 'ios' | 'android' | 'web' | 'windows' | 'macos' }
++export declare const AppState: {
++  currentState: string
++  addEventListener(event: 'change', listener: (state: string) => void): { remove(): void }
++}
++export type TextInputSelectionChangeEvent = {
++  nativeEvent: { selection: { start: number; end: number }; text?: string }
++}
