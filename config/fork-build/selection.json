@@ -35,7 +35,8 @@
     }
   ],
   "exclude": {
-    "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle."
+    "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
+    "40816": "Draft welcome-screen shortcut repair is still under the requested local and remote tab-restoration audit. Include after that audit completes."
   },
   "replacements": {
     "36569": 36922,
