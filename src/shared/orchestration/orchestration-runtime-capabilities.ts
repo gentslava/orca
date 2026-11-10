@@ -6,6 +6,7 @@ export const SESSION_LINK_OWNER_CHOICES_CAPABILITY =
   'orchestration.session-link-owner-choices.v1' as const
 export const SESSION_LINK_POLICY_CAPABILITY = 'orchestration.session-link-policy.v1' as const
 export const SESSION_LINK_CAPABILITY = 'orchestration.session-links.v1' as const
+export const SESSION_LINK_GROUP_CAPABILITY = 'orchestration.session-link-groups.v1' as const
 export const ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY = 'orchestration.federation.v1' as const
 export const ORCHESTRATION_FEDERATION_CONTROL_MAIL_RUNTIME_CAPABILITY =
   'orchestration.federation-control-mail.v1' as const
@@ -54,6 +55,7 @@ export const ORCHESTRATION_PEER_MAIL_RUNTIME_CAPABILITY = 'orchestration.peer-ma
 export const ORCHESTRATION_RUNTIME_CAPABILITIES = [
   ORCHESTRATION_SESSION_CHILDREN_CAPABILITY,
   SESSION_LINK_CAPABILITY,
+  SESSION_LINK_GROUP_CAPABILITY,
   SESSION_LINK_PAIRED_DESKTOP_CAPABILITY,
   SESSION_LINK_POLICY_CAPABILITY,
   SESSION_LINK_OWNER_CHOICES_CAPABILITY,

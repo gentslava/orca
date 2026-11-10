@@ -1,5 +1,5 @@
 import { assertSessionLinkMailBoundary } from '../../../../orchestration/session-links/session-link-mail-boundary'
-import { defineMethod } from '../../../core'
+import { defineOrchestrationMethod } from '../access/orchestration-method-access'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { clampOrchestrationAskTimeoutMs } from '../../../../../../shared/orchestration/mailbox/orchestration-ask-timeout'
 import { isGroupAddress } from '../../../../orchestration/addressing/groups/group-addressing'
@@ -22,8 +22,13 @@ import {
 } from '../../../../orchestration/mailbox/questions/question-answer-delivery'
 
 export const ORCHESTRATION_ASK_METHODS = [
-  defineMethod({
+  defineOrchestrationMethod({
     name: 'orchestration.ask',
+    access: {
+      kind: 'writes',
+      caller: 'from',
+      targets: { to: 'party', resume: 'message', run: 'run' }
+    },
     permission: 'workspace',
     params: AskParams,
     handler: async (

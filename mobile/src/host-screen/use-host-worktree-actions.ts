@@ -13,8 +13,8 @@ import { ORCA_SIDEBAR_INPUTS_IS_MAIN } from '../../../src/shared/sidebar-inputs-
 import { floatingWorkspaceSessionPath } from '../session/floating-workspace'
 import { holdSessionLeave } from '../session/session-leave-guard'
 import { savePinnedIds } from '../storage/preferences'
-import { removeHostAndCloseClient } from '../transport/hosts/host-removal-lifecycle'
-import { isPageHostRemovalUnavailable } from '../transport/hosts/page-host-removal-refusal'
+import { removeHostAndCloseClient } from '../host-catalog/host-removal-lifecycle'
+import { isPageHostRemovalUnavailable } from '../host-catalog/page-host-removal-refusal'
 import {
   rpcClientForExecutionHost,
   workspaceRouteExecutionHost

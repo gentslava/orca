@@ -17,17 +17,6 @@ import type { StructuredAgentContextUsage } from '../../../../../../shared/agent
 import type { NativeChatComposerErrorDetail } from '../controls/native-chat-composer-error-detail'
 import type { NativeChatSideChat } from '../../messages/actions/use-native-chat-side-chat'
 
-export type UseNativeChatStructuredComposerSendArgs = {
-  agent: AgentType
-  draftScopeKey: string
-  imageAttachments: readonly NativeChatComposerImageAttachment[]
-  structuredTransport?: NativeChatStructuredComposerTransport
-  isComposing: () => boolean
-  clearSkillOrigin: () => void
-  setDraft: (value: string) => void
-  setCaret: (caret: number) => void
-}
-
 export type NativeChatStructuredComposerTransport = {
   queue?: StructuredAgentSessionQueueDelivery
   isWorking?: boolean
@@ -89,3 +78,20 @@ export type NativeChatStructuredComposerTransport = {
   sessionPending?: boolean
   sessionPendingNotice?: string
 }
+
+export type UseNativeChatStructuredComposerSendArgs = {
+  agent: AgentType
+  draftScopeKey: string
+  imageAttachments: readonly NativeChatComposerImageAttachment[]
+  structuredTransport?: NativeChatStructuredComposerTransport
+  isComposing: () => boolean
+  clearSkillOrigin: () => void
+  setDraft: (value: string) => void
+  setCaret: (caret: number) => void
+}
+
+export type NativeChatStructuredComposerSend = (
+  text: string,
+  attachments?: readonly NativeChatComposerImageAttachment[],
+  request?: StructuredAgentSessionSendRequest
+) => Promise<boolean>

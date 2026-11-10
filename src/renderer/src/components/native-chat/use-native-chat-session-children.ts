@@ -1,5 +1,5 @@
 import { createCoalescedPollRunner } from '@/lib/repository-refresh/coalesced-poll-runner'
-import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
+import { installWindowVisibilityInterval } from '@/lib/window-activity/window-visibility-interval'
 import { useAppStore } from '@/store'
 import { useEffect, useMemo, useState } from 'react'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'

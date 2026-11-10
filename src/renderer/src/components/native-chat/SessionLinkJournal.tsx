@@ -1,7 +1,6 @@
 import { SessionLinkDeliveryReview } from './SessionLinkDeliveryReview'
 import { useEffect, useRef } from 'react'
 import type { SessionLinkSnapshot } from '../../../../shared/session-link'
-
 import { useTranslate, useIntlLocale } from '@/i18n/use-translate'
 import {
   sessionLinkDeliveryState,
@@ -19,8 +18,8 @@ export function SessionLinkJournal({
   snapshot: SessionLinkSnapshot
 }): React.JSX.Element {
   const t = useTranslate()
-
   const intlLocale = useIntlLocale()
+
   const element = useRef<HTMLDivElement>(null)
   const following = useRef(true)
   useEffect(() => {
@@ -49,16 +48,20 @@ export function SessionLinkJournal({
           <p className="text-xs text-muted-foreground">
             {new Date(event.createdAt).toLocaleTimeString(intlLocale)} · {name(event.actor)}
             {event.recipient ? ` → ${name(event.recipient)}` : ''} ·{' '}
-            {sessionLinkEventKind(event.kind)}
+            {sessionLinkEventKind(event.kind, t)}
           </p>
           <p className="whitespace-pre-wrap break-words text-sm">
-            {event.body || sessionLinkReason(event.detail)}
+            {event.participantSessionIds
+              ? `${sessionLinkReason(event.detail, t)}: ${event.participantSessionIds.map(name).join(', ')}`
+              : event.body || sessionLinkReason(event.detail, t)}
             {event.policy
               ? ` · ${event.policy.turnLimit === null ? t('components.sessionLink.untilAccepted', 'Until the reviewer accepts the result') : event.policy.turnLimit}`
               : null}
           </p>
           {event.recipient && event.kind !== 'control' ? (
-            <p className="text-xs text-muted-foreground">{sessionLinkDeliveryState(event.state)}</p>
+            <p className="text-xs text-muted-foreground">
+              {sessionLinkDeliveryState(event.state, t)}
+            </p>
           ) : null}
           {onResolve &&
           snapshot.link.state === 'paused' &&
@@ -69,7 +72,7 @@ export function SessionLinkJournal({
           {event.body && event.detail ? (
             <details className="text-xs text-muted-foreground">
               <summary>{t('components.sessionLink.details', 'Delivery details')}</summary>
-              <p className="break-words">{sessionLinkReason(event.detail)}</p>
+              <p className="break-words">{sessionLinkReason(event.detail, t)}</p>
             </details>
           ) : null}
         </article>

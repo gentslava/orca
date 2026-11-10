@@ -1,5 +1,5 @@
-import { defineHostMutation } from '../query/host-mutation'
 import type { RpcClient } from '../transport/rpc/rpc-client-contract'
+import { defineHostMutation } from '../query/host-mutation'
 import { worktreeDisplayNameWrite } from './host-screen-operations'
 
 async function sendWorkspaceRename(

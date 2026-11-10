@@ -719,7 +719,7 @@
         "codeTextSize": "Code text size",
         "codeTextSizeDescription": "Code blocks, inline code, commands and tool output.",
         "width": "Width",
-        "widthDescription": "How wide messages and the message box can grow in a wide pane.",
+        "widthDescription": "How wide chats and Settings pages can grow.",
         "resetAppearance": "Reset chat appearance",
         "resetDescription": "Restore the defaults above.",
         "comfortable": "Comfortable",
@@ -1069,7 +1069,8 @@
       "defaultSurfaceSetAllTerminal": "Set all to Terminal",
       "sameAsChoice": "Same as {{agent}} · {{choice}}",
       "chatUnavailableOnWindows": "{{value0}} Chat isn't available on Windows yet, so {{value0}} opens in a terminal on this host. Chats on a macOS or Linux host still work.",
-      "undetectedCommandHint": "If the {{agent}} CLI is installed outside PATH, enter the full path to its executable on this host."
+      "undetectedCommandHint": "If the {{agent}} CLI is installed outside PATH, enter the full path to its executable on this host.",
+      "modelListFallback": "Built-in list. Orca could not get a model list from this host."
     },
     "followSymlinkedDirectoriesKeywords": {
       "symlink": "symlink",
@@ -1894,6 +1895,9 @@
             "creation": {
               "f3785eddc2": "New Browser Tab"
             }
+          },
+          "availability": {
+            "web": "The floating workspace runs on your own computer, so it is only available in the Orca desktop app."
           }
         }
       },
@@ -13852,7 +13856,8 @@
           "worktreeRemoved": "When a workspace is removed",
           "agentStatusChanged": "When an agent’s status changes",
           "detail": "Background code runs",
-          "workspaceChanged": "When you switch workspace or its terminals change"
+          "workspaceChanged": "When you switch workspace or its terminals change",
+          "editorTypographyChanged": "When the editor font or zoom changes"
         },
         "pluginInstallAction": {
           "installed": "{{value0}} installed",
@@ -14746,6 +14751,10 @@
                   "archived": {
                     "title": "Repository archived",
                     "body": "This repository is archived, so Orca is not refreshing {{reviewLabel}} status."
+                  },
+                  "host_off": {
+                    "title": "WSL host is off",
+                    "body": "Orca refreshes {{reviewLabel}} status through this project’s WSL host, which is off. Reconnect it to refresh."
                   },
                   "not_git": {
                     "title": "Not a Git repository",
@@ -21876,9 +21885,7 @@
       "reviewerRole": "reviewer",
       "implementerRole": "implementer",
       "goal": "Goal",
-      "partner": "Partner session",
       "search": "Search agent, chat, workspace or branch…",
-      "empty": "No available local Claude or Codex chats.",
       "story": "Shared story",
       "storyPlaceholder": "Goal, issue link or local plan path; existing spending and privacy boundaries…",
       "noAutomaticRead": "Links and plan files are references. Their contents are not read or shared automatically.",
@@ -21886,7 +21893,6 @@
       "reviewer": "Leads and reviews",
       "swap": "Swap roles",
       "limits": "Up to 6 automatic turns, including introductions, or 12 agent messages before the owner continues. Agent messages do not grant permissions. Transport and journal stay on this host; model requests use each session’s provider and account.",
-      "sameWorkspace": "Both sessions use the same workspace. Coordinate file writes before editing.",
       "creating": "Creating link…",
       "create": "Create link and introduce agents",
       "paused": "Paused",
@@ -21904,8 +21910,6 @@
       "end": "End link",
       "turns": "automatic turns",
       "messages": "agent messages",
-      "ownerMessage": "Your message to both agents",
-      "sendBoth": "Send to both",
       "history": "Previous links",
       "loading": "Loading available sessions…",
       "you": "You",
@@ -21918,7 +21922,6 @@
       "reasonMessages": "Agent message limit reached",
       "reasonRepeated": "Repeated messages; owner review needed",
       "reasonOwner": "Owner decision needed. Answer the question below to continue.",
-      "reasonParticipant": "A chat closed or changed context. Verify both chats before continuing.",
       "reasonHeld": "Delivery held before dispatch. Review and continue to retry.",
       "reasonRefused": "The session refused delivery. Review the chat before retrying.",
       "reasonUnknown": "Delivery is unconfirmed. Check the chat; this message will not be sent again.",
@@ -21954,7 +21957,6 @@
       "deliveryReviewed": "Delivery reviewed by the owner; automatic resend is disabled.",
       "reviewBeforeContinue": "Review the unconfirmed delivery before continuing",
       "partnerUnavailable": "The selected chat is no longer available. Choose another partner.",
-      "choosePartner": "Choose the other chat to connect.",
       "changePartner": "Change partner",
       "otherLink": "This chat is already linked to another partner. End that link before connecting these two chats.",
       "policyLabel": "Automatic collaboration",
@@ -21966,7 +21968,6 @@
       "saveResume": "Save and continue",
       "savePolicy": "Save limits",
       "ownerQuestion": "Question for you",
-      "ownerAnswer": "Your decision for both agents",
       "legacyAnswer": "This host needs two steps: send your answer, then continue the link. Update the desktop app for one-step continuation.",
       "answerResume": "Answer and continue",
       "localTransport": "Agent messages do not grant permissions. Transport and journal stay on this host; model requests use each session’s provider and account.",
@@ -21974,9 +21975,22 @@
       "policyChanged": "Collaboration limits changed by the owner",
       "policyResumed": "Collaboration limits changed and link continued",
       "ownerAnswered": "Answered by the owner",
-      "optionalNote": "Optional note to both agents",
       "sendResume": "Send and continue",
-      "hostDescription": "Connect two existing chats on this host. You control the story, permissions and continuation."
+      "addParticipants": "Add agents",
+      "addSelected": "Add selected agents",
+      "chooseParticipants": "Choose chats to connect.",
+      "chooseAgents": "Choose agents",
+      "groupSameWorkspace": "Some participants use the same workspace. Coordinate file writes before editing.",
+      "groupOptionalNote": "Optional note to all participants",
+      "groupOwnerMessage": "Your message to all participants",
+      "groupHostDescription": "Connect existing chats on this host. You control the story, permissions and continuation.",
+      "sendAll": "Send to all",
+      "linkedGroup": "Linked agents: {{agents}}",
+      "groupOwnerAnswer": "Your decision for all participants",
+      "participants": "Participants",
+      "availableEmpty": "No available chats on this host.",
+      "participantsAdded": "Agents added by the owner",
+      "reasonParticipants": "A chat closed or changed context. Verify the participant chats before continuing."
     },
     "wslHostMark": {
       "runsOn": "Runs on WSL: {{distro}} (Linux)"
@@ -25095,31 +25109,32 @@
     "disallowed": "{{host}} can no longer control browser tabs. Turn it back on in Settings > SSH.",
     "failed": "Couldn’t stop {{host}}. Turn off its browser control in Settings > SSH."
   },
+  "agents": {
+    "terminalModels": {
+      "connectionUnavailable": "Terminal model discovery is unavailable on this connection.",
+      "workspaceRequired": "Terminal model discovery requires a workspace on this host.",
+      "hostRequired": "Terminal model discovery requires a connected host."
+    }
+  },
   "speechModelUpdate": {
-    "updateTitle": "Update your speech model",
-    "updateDescription": "Dictation now runs on a faster engine. {{model}} needs a one-time download ({{size}} MB) before you can dictate again.",
     "update": "Update",
-    "replacedTitle": "Your speech model was replaced",
-    "replacedDescription": "{{old}} can't run on the new speech engine. {{model}} replaces it ({{size}} MB).",
-    "downloadReplacement": "Download {{model}}",
-    "later": "Later",
-    "dismiss": "Dismiss",
-    "updatingTitle": "Updating {{model}}",
-    "downloadingTitle": "Downloading {{model}}",
-    "downloadingDescription": "You can keep working. Dictation is back when this finishes.",
-    "progress": "{{done}} of {{total}} MB",
     "cancel": "Cancel",
-    "doneTitle": "Dictation is ready",
-    "doneDescription": "{{model}} is updated. The old files were removed.",
-    "doneRetiredDescription": "{{model}} is set up. The old {{old}} files are still on disk.",
-    "keep": "Keep",
-    "deleteOld": "Delete old model",
-    "deleteFailed": "Failed to delete {{model}}.",
-    "updateFailedTitle": "Couldn't update {{model}}",
-    "downloadFailedTitle": "Couldn't download {{model}}",
-    "failedAtDescription": "The download stopped at {{mb}} MB. Check your connection and try again.",
-    "failedDescription": "The download stopped. Check your connection and try again.",
-    "tryAgain": "Try again"
+    "pill": {
+      "updateNotice": "Faster dictation is ready to install",
+      "retiredNotice": "Dictation moved to a faster speech model",
+      "install": "Install",
+      "installTooltip": "One-time download · {{size}} MB",
+      "downloading": "Setting up dictation",
+      "downloadingTooltip": "{{done}} of {{size}} MB",
+      "ready": "Dictation is ready. Press <kbd></kbd>",
+      "readyNoShortcut": "Dictation is ready.",
+      "failed": "Download stopped. Check your connection.",
+      "tryAgain": "Try again",
+      "deleteOld": "Delete old model",
+      "deleteFailed": "Failed to delete {{model}}.",
+      "dismiss": "Dismiss",
+      "cancelDownload": "Cancel download"
+    }
   },
   "holdQuit": {
     "hint": "Agents are still working. Hold ⌘Q to quit.",

@@ -257,3 +257,36 @@ it('withholds previous-host chats while a newly selected remote host is still an
   )
   expect(latest?.sessions.map((row) => row.title)).toEqual(['Remote only'])
 })
+
+it('publishes the saved chat catalog before blocked history and then enriches it', async () => {
+  const catalog = {
+    ...response,
+    includesStructuredSessions: true as const,
+    sessions: [saved('Saved chat')]
+  }
+  let deliver: ((value: AiVaultListResult) => void) | undefined
+  list.mockImplementation(async (args) =>
+    args?.structuredOnly
+      ? catalog
+      : new Promise<AiVaultListResult>((resolve) => {
+          deliver = resolve
+        })
+  )
+  render(<Probe scope="all" />)
+  await act(async () => {})
+  expect(latest?.sessions).toEqual(catalog.sessions)
+  expect(latest?.scopePending).toBe(false)
+  expect(latest?.loading).toBe(false)
+  expect(list.mock.calls[0]?.[0]).toMatchObject({
+    structuredOnly: true,
+    executionHostScope: 'local'
+  })
+  expect(list.mock.calls[1]?.[0]?.structuredOnly).toBeUndefined()
+  expect(deliver).toBeTypeOf('function')
+  const enriched = {
+    ...catalog,
+    sessions: [{ ...saved('Enriched chat'), filePath: '/history.jsonl' }]
+  }
+  await act(async () => deliver?.(enriched))
+  expect(latest?.sessions).toEqual(enriched.sessions)
+})
