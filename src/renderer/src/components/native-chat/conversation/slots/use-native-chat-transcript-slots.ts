@@ -1,4 +1,10 @@
-import { useMemo } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { toggleNativeChatExpandedKey } from '../../messages/disclosure/native-chat-expanded-keys'
+import {
+  nativeChatHistoryTurnFold,
+  nativeChatTurnFoldRow,
+  type NativeChatTurnFoldHistory
+} from '../../../../../../shared/native-chat/transcript/native-chat-turn-fold'
 import {
   nativeChatLiveLine,
   type NativeChatLiveLine
@@ -14,13 +20,19 @@ import type { NativeChatTranscriptSlotsInput } from './native-chat-transcript-in
 /** Choose slots/activity together so reasoning shown by the activity line never also gets a transcript row. */
 export function useNativeChatTranscriptSlots({
   line,
+  scopeKey,
+  historyHead,
   ...input
-}: Omit<NativeChatTranscriptSlotsInput, 'liveReasoningId'> & {
+}: Omit<NativeChatTranscriptSlotsInput, 'liveReasoningId' | 'expandedTurnKeys' | 'turnFold'> & {
+  scopeKey: string
+  historyHead?: string
   line: { draws: boolean; thinking: boolean; stopping?: boolean; activityText?: string | null }
 }): {
   slots: NativeChatTranscriptSlot[]
-  forkPoint: NativeChatSideChatForkPoint | null
   liveLine: NativeChatLiveLine | null
+  expandedTurnKeys: ReadonlySet<string>
+  toggleExpandedTurn: (key: string) => void
+  forkPoint: NativeChatSideChatForkPoint | null
 } {
   const {
     messages,
@@ -32,13 +44,41 @@ export function useNativeChatTranscriptSlots({
     turnStatuses,
     turnDiffs,
     openedPullRequests,
-    expandedTurnKeys,
     isWorking,
     lifecycleWorking,
     subagentSections,
     subagentChoices,
     forkOffer
   } = input
+  const [expandedTurnKeys, setExpandedTurnKeys] = useState<ReadonlySet<string>>(new Set())
+  const committedFold = useRef<NativeChatTurnFoldHistory | null>(null)
+  const historyFold = useMemo(
+    () =>
+      nativeChatHistoryTurnFold(committedFold.current, {
+        scope: scopeKey,
+        historyHead,
+        messages,
+        rows: messages.map((message, index) =>
+          nativeChatTurnFoldRow(message, turnKeys[index], receipts.has(message.id))
+        ),
+        settledTurnKeys: new Set(
+          Object.entries(turnStatuses.completedByTurn).flatMap(([key, status]) =>
+            status.workedSeconds != null ? [key] : []
+          )
+        ),
+        expandedTurnKeys
+      }),
+    [scopeKey, historyHead, messages, turnKeys, receipts, turnStatuses, expandedTurnKeys]
+  )
+  useLayoutEffect(() => {
+    committedFold.current = historyFold
+  }, [historyFold])
+  const toggleExpandedTurn = useCallback(
+    (key: string) => {
+      setExpandedTurnKeys(toggleNativeChatExpandedKey(historyFold.expandedTurnKeys, key))
+    },
+    [historyFold.expandedTurnKeys]
+  )
   const { draws, thinking, stopping = false, activityText } = line
   const liveLine = useMemo(
     () =>
@@ -82,7 +122,8 @@ export function useNativeChatTranscriptSlots({
         turnStatuses,
         turnDiffs,
         openedPullRequests,
-        expandedTurnKeys,
+        expandedTurnKeys: historyFold.expandedTurnKeys,
+        turnFold: historyFold,
         isWorking,
         lifecycleWorking,
         subagentSections,
@@ -91,7 +132,7 @@ export function useNativeChatTranscriptSlots({
         forkOffer
       }),
     [
-      expandedTurnKeys,
+      historyFold,
       forkOffer,
       isWorking,
       lifecycleWorking,
@@ -109,5 +150,11 @@ export function useNativeChatTranscriptSlots({
       unresolvedRowIds
     ]
   )
-  return { slots, forkPoint, liveLine }
+  return {
+    slots,
+    forkPoint,
+    liveLine,
+    expandedTurnKeys: historyFold.expandedTurnKeys,
+    toggleExpandedTurn
+  }
 }
