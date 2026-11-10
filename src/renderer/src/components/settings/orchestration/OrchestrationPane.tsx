@@ -28,6 +28,7 @@ import {
   getNestedWorkerDepthDescription,
   getNestedWorkerDepthTitle
 } from './nested-worker-depth-copy'
+import { WorkerRoleSettings } from '../WorkerRoleSettings'
 import { OrchestrationWorkerAutoReleaseSetting } from './OrchestrationWorkerAutoReleaseSetting'
 import { SettingsGroup } from '../section-layout/SettingsGroup'
 
@@ -170,6 +171,9 @@ export function OrchestrationPane({
           />
         ) : null}
       </SettingsGroup>
+      {showLocalRuntimeSettings ? (
+        <WorkerRoleSettings settings={settings} updateSettings={updateSettings} />
+      ) : null}
 
       {/* COMPAT(wsl-bridge): removed when WSL runs as an orcad host. */}
       {activeSkillRuntime.agentRuntime?.runtime === 'wsl' ? (
