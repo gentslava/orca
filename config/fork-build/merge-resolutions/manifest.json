@@ -2151,5 +2151,41 @@
     "patchSha256": "49af3530f55024cfd83406a8a1db12fa543d98cc538a5c0ca70a1f99ae47ca41",
     "resultSha256": "09e36fc2dd5360167677e0d9dbb77cb9d110e069cad5409eaeec36467b942315",
     "reason": "Keep full expanded command wrapping and invocation details while rendering the foreground task action as a separate sibling button; retain the current class-names import owner."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "e5ea6277d43ccb7d3d04ad4b50b622548dfadd8a",
+      "9300ed971c063397c478750eedb4507670142882",
+      "19f59953d9fb98123bb3bb4247e5e0ada1f6a6f1"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-9300ed971c06.patch",
+    "patchSha256": "4f1fbe1d0c655ad28cd201dd15e23816639f93290bb6ea2ab3d1cefe18a50e47",
+    "resultSha256": "9d8cbfd18ba0df6d25ad1e500708296bc601fd785991f5d4dde892111b4c1f8a",
+    "reason": "Keep one settings hook after the current project catalog is resolved, supplying personal project ordering to the existing feed and navigation."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "945761935cd5a79bf520669947c8cfc9854db8d9",
+      "03691184423e001c9b1fae184a57fe35a316bc6a",
+      "3316ac8d7ee2babb004df905bb7771d1247914f8"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-03691184423e.patch",
+    "patchSha256": "222f6b2d85e42a98dfae8b389c74463bc1aaa91f8d0c8b04716e66150f4b99b7",
+    "resultSha256": "0430e1e4d12efedda8f417f26c2ae2845eccf53c19942ed97aaef8130773861d",
+    "reason": "Preserve conversation preference methods from 33383 alongside personal project open and pin methods from 33502 for paired mobile desktops."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "b2fb7d89ef25d3d08ae4f8ab0b58eacbb936ff8d",
+      "013e79f2faafb008a80b17897f846e4aedc8029d",
+      "2fc8ac71619821a2b792f43cdf961d52ec9a75e7"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-013e79f2faaf.patch",
+    "patchSha256": "ccee647265f23dd59eb3125e8f1aaa0d45e4ea55218d40c67b9a2515a2834676",
+    "resultSha256": "a44708c8828ce696ba6ae830f354e396a90ed4c04f49ea96a86b5dc0b0083a57",
+    "reason": "Preserve both conversationPreferences and personalProjectOrder and their canonical imports after current upstream module relocation."
   }
 ]
