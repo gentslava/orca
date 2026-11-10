@@ -20,6 +20,14 @@
     {
       "number": 37968,
       "reason": "Merged compact orchestration cards on desktop and mobile; PR 33403 now retains only human-authored chat navigation."
+    },
+    {
+      "number": 40297,
+      "reason": "Merged fix for owner issue 40202: wrap long artifact Update labels while preserving idle/busy button height."
+    },
+    {
+      "number": 40298,
+      "reason": "Owner-requested saved remote-server rename; issue 40221 was closed as duplicate, with matching earlier request 40165 and open implementation 40298. Include until upstream ships it."
     }
   ],
   "exclude": {
@@ -64,7 +72,8 @@
     "codex-selected-account-read.patch",
     "composed-source-modules.patch",
     "composed-reactive-copy.patch",
-    "composed-localization-cleanup.patch"
+    "composed-localization-cleanup.patch",
+    "runtime-environment-rename.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
