@@ -1827,5 +1827,41 @@
     "patchSha256": "f8bc31b65a5ab583b0a56d534913c9d8030d0989bff7d3c98d4b602fe6171fda",
     "resultSha256": "4fbdb537bb3a7b51f6d9eb9abba3e00b4210fa3147cebb4646f6096854494f9e",
     "reason": "Retain current upstream peer-mail routing and capabilities alongside session-child RPC and local session-link methods, policies and owner choices."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "3a2b4dc1196a08f4a19152ba7e02c6dd5a763de4",
+      "5028c0bc420b8eca988d81af88e64ba6596b9226",
+      "d6719315f16234b870e7b5449c18b6d89ece0b58"
+    ],
+    "patch": "history-cleanup-20261110/pr37744-structured-session.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "fd0a4469dd7da29f94b52036dc207e22129ccbceb84a17038836b18709f020fc",
+    "reason": "Keep the current host-setup and child-transcript frame; the existing reviewed async-prompt module renders session-link owner questions through NativeChatStructuredPrompts."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "ab014e90a318a263beac439cb03e02be70f6a434",
+      "5028c0bc420b8eca988d81af88e64ba6596b9226",
+      "ad174fe4aa9471efc9be7ef3db2cf7f5409885d8"
+    ],
+    "patch": "history-cleanup-20261110/pr38848-structured-session.patch",
+    "patchSha256": "069df209418790459a194b1e0d9ae4e970fe22307b62bb3e3e4fb1e727056a4a",
+    "resultSha256": "e3b81ab33edd4bb6a1a8e3a89f1a16025b8f01745aa58508920bdd42cdf78c82",
+    "reason": "Preserve child navigation, host setup and unified prompt rendering while wiring the retained last-card shortcut through steerLast."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "3a2b4dc1196a08f4a19152ba7e02c6dd5a763de4",
+      "b28135f706789b5b3b10751d6bb258713f321f77",
+      "419001d5b7a80438ed3a681fbf3740fe34c63524"
+    ],
+    "patch": "history-cleanup-20261110/pr38963-structured-session.patch",
+    "patchSha256": "cc035df6ba0cb38271ba7187014d385ed82b69b7330f965d674f75f3a7c011d9",
+    "resultSha256": "d49293cd0941aa7bc0133a7a6eabb42991a7f206a8a4d1030731fe79cef25991",
+    "reason": "Preserve current setup, child navigation, session-link prompts and last-card dispatch while installing the foreground/background task provider around the full pane."
   }
 ]

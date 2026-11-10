@@ -1786,3 +1786,251 @@ index 1f8bf7881c9..ce25f01fb53 100644
  export function useWorktreeSidebarHeaderDrag(args: {
    rows: HostSectionRow[]
    renderRows: readonly RenderRow[]
+
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatNoticeRow.tsx
+index 49e5b8811f5e55f6c73f01fb82ec382eb7a1e282..8382d191d266cfd8ceeb2aa80a1290e00a36edd9 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatNoticeRow.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatNoticeRow.tsx
+@@ -13,31 +13,27 @@ import {
+ } from '../../../../../src/shared/native-chat/native-chat-notice'
+ import {
+   isTextBlock,
+-  type NativeChatBlock,
+-  type NativeChatTextBlock
++  type NativeChatBlock
+ } from '../../../../../src/shared/native-chat/native-chat-types'
+ import {
+   agentSessionFailureDetailText,
+   readWholeAgentSessionFailureFact
+ } from '../../../../../src/shared/agent-session/failures/agent-session-failure'
+-import { agentSessionFailureSentence } from '../../../../../src/shared/agent-session/failures/agent-session-failure-words'
+ import { agentSessionSignInCommand } from '../../../../../src/shared/agent-session/lifecycle/agent-session-setup-commands'
+-import { nativeChatOrcaStopRowText } from '../../../../../src/shared/native-chat/native-chat-orca-stop-words'
+ import {
+   MobileNativeChatForkedFromContext,
+-  MobileNativeChatNoticeContext,
+-  type MobileNativeChatNoticeView
++  MobileNativeChatNoticeContext
+ } from '../../mobile-native-chat-notice-context'
+ import { MobileNativeChatMarkdown } from '../MobileNativeChatMarkdown'
+ import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection'
+ import { colors, radii, spacing, typography } from '../../../theme/mobile-theme'
+ import { themedStyleSheet } from '../../../theme/themed-styles'
+ import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
+-import { nativeChatHostStatusCopy, nativeChatNoticeCopy } from './native-chat-notice-copy'
+-import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
+-import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
+-import { sayMobileAgentSessionFailure } from '../../agent-session-failure-copy'
+-import type { Translate } from '../../../i18n/mobile-i18n'
++import {
++  nativeChatHostStatusCopy,
++  nativeChatNoticeCopy,
++  nativeChatNoticeLineText
++} from './native-chat-notice-copy'
+ import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
+ import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../src/shared/native-chat/native-chat-stopped-before-start'
+ import { MONO_SIZE, TEXT_SIZE, scaledType } from './mobile-native-chat-message-styles'
+@@ -51,47 +47,6 @@ function toneColor(tone: NativeChatNoticeTone): string {
+   return { warning: colors.statusAmber, error: colors.statusRed, notice: colors.textMuted }[tone]
+ }
+ 
+-// The phone always reads its Orca host as remote.
+-function noticeLineText(
+-  notice: NativeChatTextBlock,
+-  names: MobileNativeChatNoticeView,
+-  t: Translate
+-): string {
+-  if (notice.orcaStop) {
+-    const say = nativeChatOrcaStopSay(t)
+-    return nativeChatOrcaStopRowText(
+-      notice.orcaStop.cause,
+-      names.hostName ?? say('unnamedServer'),
+-      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
+-      say
+-    )
+-  }
+-  const failure = readWholeAgentSessionFailureFact(notice.failure)
+-  if (failure?.kind === 'usageLimitReached') {
+-    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
+-  }
+-  // Only reword text fully described by its fact; other host text stays as written.
+-  const context = { agentName: names.agentName }
+-  const surface =
+-    failure &&
+-    [
+-      'savedConversationMissing',
+-      'pluginInputRequired',
+-      'modelUnavailable',
+-      'providerUnavailable',
+-      'providerSafetyStopped',
+-      'providerResponseFailed'
+-    ].includes(failure.kind)
+-      ? (['row', 'rejection'] as const).find(
+-          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
+-        )
+-      : undefined
+-  return failure && surface
+-    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
+-    : notice.text
+-}
+-
+-// Render system notices separately so they cannot read as the agent’s own prose.
+ export function MobileNativeChatNoticeRow({
+   blocks,
+   fontScale,
+@@ -124,7 +79,7 @@ export function MobileNativeChatNoticeRow({
+     ) : null
+   }
+   const look = nativeChatNoticeLook(notice)
+-  const lineText = noticeLineText(notice, names, t)
++  const lineText = nativeChatNoticeLineText(notice, names, t)
+   const failure = readWholeAgentSessionFailureFact(notice.failure)
+   const failureDetail = agentSessionFailureDetailText(failure)
+   const signInCommand =
+diff --git a/mobile/src/session/native-chat/transcript/native-chat-notice-copy.ts b/mobile/src/session/native-chat/transcript/native-chat-notice-copy.ts
+index 30c86d9bae346dde0c0b1483fe2fb348d006ae73..a744639d11dd1ba139c0f1bb0922f2fee3da815e 100644
+--- a/mobile/src/session/native-chat/transcript/native-chat-notice-copy.ts
++++ b/mobile/src/session/native-chat/transcript/native-chat-notice-copy.ts
+@@ -1,3 +1,11 @@
++import type { NativeChatTextBlock } from '../../../../../src/shared/native-chat/native-chat-types'
++import type { MobileNativeChatNoticeView } from '../../mobile-native-chat-notice-context'
++import { readWholeAgentSessionFailureFact } from '../../../../../src/shared/agent-session/failures/agent-session-failure'
++import { agentSessionFailureSentence } from '../../../../../src/shared/agent-session/failures/agent-session-failure-words'
++import { nativeChatOrcaStopRowText } from '../../../../../src/shared/native-chat/native-chat-orca-stop-words'
++import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
++import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
++import { sayMobileAgentSessionFailure } from '../../agent-session-failure-copy'
+ import type { Translate } from '../../../i18n/mobile-i18n'
+ 
+ export function nativeChatNoticeCopy(t: Translate) {
+@@ -26,3 +34,45 @@ export function nativeChatHostStatusCopy(t: Translate) {
+     )
+   }
+ }
++
++// The phone always reads its Orca host as remote.
++export function nativeChatNoticeLineText(
++  notice: NativeChatTextBlock,
++  names: MobileNativeChatNoticeView,
++  t: Translate
++): string {
++  if (notice.orcaStop) {
++    const say = nativeChatOrcaStopSay(t)
++    return nativeChatOrcaStopRowText(
++      notice.orcaStop.cause,
++      names.hostName ?? say('unnamedServer'),
++      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
++      say
++    )
++  }
++  const failure = readWholeAgentSessionFailureFact(notice.failure)
++  if (failure?.kind === 'usageLimitReached') {
++    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
++  }
++  // Only reword text fully described by its fact; other host text stays as written.
++  const context = { agentName: names.agentName }
++  const surface =
++    failure &&
++    [
++      'savedConversationMissing',
++      'pluginInputRequired',
++      'modelUnavailable',
++      'providerUnavailable',
++      'providerSafetyStopped',
++      'providerResponseFailed'
++    ].includes(failure.kind)
++      ? (['row', 'rejection'] as const).find(
++          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
++        )
++      : undefined
++  return failure && surface
++    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
++    : notice.text
++}
++
++// Render system notices separately so they cannot read as the agent’s own prose.
+diff --git a/src/renderer/src/components/native-chat/viewport/virtualization/native-chat-transcript-window-types.ts b/src/renderer/src/components/native-chat/viewport/virtualization/native-chat-transcript-window-types.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..01569554ecd27c0a435adee74f1525dba7812ba0
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/viewport/virtualization/native-chat-transcript-window-types.ts
+@@ -0,0 +1,25 @@
++import type { VirtualItem } from '@tanstack/react-virtual'
++import type { NativeChatAlignEdge } from './use-native-chat-viewport-align'
++
++export type NativeChatTranscriptWindow = {
++  virtualItems: VirtualItem[]
++  totalSize: number
++  scrollMargin: number
++  sizerRef: (node: HTMLDivElement | null) => void
++  measureRow: (node: HTMLElement | null) => void
++  /** Scroll so this element's top meets the top of the viewport. */
++  alignToViewportTop: (element: HTMLElement, edge?: NativeChatAlignEdge) => void
++  /** Whether a jump is still settling as its target row is measured. */
++  isAlignPending: () => boolean
++  /** A reader gesture releases the jump's target. */
++  cancelAlign: () => void
++  releaseEndPin: () => void
++  /** Pin through the virtualizer’s scroll owner to avoid competing writes; its last-row end includes trailing chrome. */
++  scrollToEnd: () => void
++  /** Restore a detached reader offset through the virtualizer's scroll owner. */
++  restoreScrollOffset: (offset: number) => void
++  /** True when this scroll event is the echo of a registered application write. */
++  consumeProgrammaticScroll: (event: Event) => boolean
++  /** Rebase a pending end reconcile while the reader takes over this frame. */
++  reconcileReaderScroll: (isTakingOver: boolean) => void
++}
+diff --git a/src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts b/src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts
+index 949189e5ee30674c65076c5f63d46df563bd6401..fa8d26e687eecf7f0955cab357bb4def7727cfc9 100644
+--- a/src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts
++++ b/src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts
+@@ -1,7 +1,7 @@
+ // Virtualizer owns row anchoring; scroll hook owns follow intent. Use container coordinates and never reattach a parked reader from geometry alone.
+ 
+ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+-import { elementScroll, useVirtualizer, type VirtualItem } from '@tanstack/react-virtual'
++import { elementScroll, useVirtualizer } from '@tanstack/react-virtual'
+ import type { NativeChatMessage } from '../../../../../../shared/native-chat/native-chat-types'
+ import { createProgrammaticScrollMarks } from '@/hooks/programmatic-scroll-marks'
+ import {
+@@ -14,8 +14,7 @@ import { useNativeChatTranscriptRowKeys } from '../../use-native-chat-transcript
+ import type { NativeChatTranscriptSlot } from '../../conversation/slots/native-chat-transcript-slots'
+ import {
+   nativeChatScrollOffsetWithin,
+-  useNativeChatViewportAlign,
+-  type NativeChatAlignEdge
++  useNativeChatViewportAlign
+ } from './use-native-chat-viewport-align'
+ 
+ /** Overscan by row because chat rows vary widely in height and rendering cost. */
+@@ -27,28 +26,8 @@ const UNSEEN_SCROLL_PX = 1
+ /** Compact retired measurement keys before capped-transcript churn accumulates material stale state. */
+ export const MAX_RETIRED_NATIVE_CHAT_MEASUREMENTS = 512
+ 
+-export type NativeChatTranscriptWindow = {
+-  virtualItems: VirtualItem[]
+-  totalSize: number
+-  scrollMargin: number
+-  sizerRef: (node: HTMLDivElement | null) => void
+-  measureRow: (node: HTMLElement | null) => void
+-  /** Scroll so this element's top meets the top of the viewport. */
+-  alignToViewportTop: (element: HTMLElement, edge?: NativeChatAlignEdge) => void
+-  /** Whether a jump is still settling as its target row is measured. */
+-  isAlignPending: () => boolean
+-  /** A reader gesture releases the jump's target. */
+-  cancelAlign: () => void
+-  releaseEndPin: () => void
+-  /** Pin through the virtualizer’s scroll owner to avoid competing writes; its last-row end includes trailing chrome. */
+-  scrollToEnd: () => void
+-  /** Restore a detached reader offset through the virtualizer's scroll owner. */
+-  restoreScrollOffset: (offset: number) => void
+-  /** True when this scroll event is the echo of a registered application write. */
+-  consumeProgrammaticScroll: (event: Event) => boolean
+-  /** Rebase a pending end reconcile while the reader takes over this frame. */
+-  reconcileReaderScroll: (isTakingOver: boolean) => void
+-}
++import type { NativeChatTranscriptWindow } from './native-chat-transcript-window-types'
++export type { NativeChatTranscriptWindow } from './native-chat-transcript-window-types'
+ 
+ export function useNativeChatTranscriptWindow({
+   scrollRef,
