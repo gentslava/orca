@@ -1875,5 +1875,17 @@
     "patchSha256": "9c2c7b936085755fe3314676c34392187239c8531a1066ec0c19f38445d47369",
     "resultSha256": "70f172d1d792a9f8f7b7fbc6c134ecdc6cb63e322f517958713a0e7eb8e97a2b",
     "reason": "Preserve conversation preference RPC access and add project-open and pin mutations to the current paired-mobile method list."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "4949cef589fdbf6e56df4f2aec2f70b2340db876",
+      "03691184423e001c9b1fae184a57fe35a316bc6a",
+      "64f58135f4dd8604633c9024b56b74427913566b"
+    ],
+    "patch": "latest-upstream-20261110/pr33502-mobile-methods.patch",
+    "patchSha256": "9c2c7b936085755fe3314676c34392187239c8531a1066ec0c19f38445d47369",
+    "resultSha256": "0430e1e4d12efedda8f417f26c2ae2845eccf53c19942ed97aaef8130773861d",
+    "reason": "Preserve the new upstream mobile locale-catalog RPC while retaining conversation preferences and project-open/pin mutations for paired mobile clients."
   }
 ]
