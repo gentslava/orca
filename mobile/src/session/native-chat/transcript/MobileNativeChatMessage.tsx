@@ -336,7 +336,11 @@ function MobileNativeChatMessageImpl({
               ) : null}
               {isUser ? (
                 <>
-                  {proseRows(drawnProse.filter(Chat.isImageRefBlock))}
+                  {drawnProse.some(Chat.isImageRefBlock) ? (
+                    <View style={styles.userImageAttachments}>
+                      {proseRows(drawnProse.filter(Chat.isImageRefBlock))}
+                    </View>
+                  ) : null}
                   <MobileNativeChatUserMessageFold
                     text={deriveNativeChatRowContent(message.blocks).markdown}
                     fontScale={fontScale}
