@@ -220,6 +220,16 @@ describe('grants scoped to the route the page was opened for', () => {
     expect(bridge.nativeCalls).toEqual([])
     expect(reachedTheDesktop(bridge)).toEqual([])
     expect(refusal(bridge)?.code).toBe('native_verb_ungranted')
+    expect(
+      bridge.diagnostics.filter((entry) => entry.kind === 'native-media-pick-refused')
+    ).toEqual([
+      {
+        kind: 'native-media-pick-refused',
+        source: 'library',
+        stage: 'pre-dispatch',
+        reason: 'native_verb_ungranted'
+      }
+    ])
   })
 
   it('serves it for a route that did ask', async () => {
