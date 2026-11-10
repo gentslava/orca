@@ -1863,5 +1863,17 @@
     "patchSha256": "cc035df6ba0cb38271ba7187014d385ed82b69b7330f965d674f75f3a7c011d9",
     "resultSha256": "d49293cd0941aa7bc0133a7a6eabb42991a7f206a8a4d1030731fe79cef25991",
     "reason": "Preserve current setup, child navigation, session-link prompts and last-card dispatch while installing the foreground/background task provider around the full pane."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "4949cef589fdbf6e56df4f2aec2f70b2340db876",
+      "15180a2ea1040c10977b405ca19801e24c21d0af",
+      "64f58135f4dd8604633c9024b56b74427913566b"
+    ],
+    "patch": "latest-upstream-20261110/pr33502-mobile-methods.patch",
+    "patchSha256": "9c2c7b936085755fe3314676c34392187239c8531a1066ec0c19f38445d47369",
+    "resultSha256": "70f172d1d792a9f8f7b7fbc6c134ecdc6cb63e322f517958713a0e7eb8e97a2b",
+    "reason": "Preserve conversation preference RPC access and add project-open and pin mutations to the current paired-mobile method list."
   }
 ]

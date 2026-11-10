@@ -1,16 +1,3 @@
-diff --git a/src/main/ipc/shell-repo-icon-image.test.ts b/src/main/ipc/shell-repo-icon-image.test.ts
-index 702598d88d5..7a390a5a3f0 100644
---- a/src/main/ipc/shell-repo-icon-image.test.ts
-+++ b/src/main/ipc/shell-repo-icon-image.test.ts
-@@ -26,7 +26,7 @@ beforeEach(async () => {
-   directory = await mkdtemp(join(tmpdir(), 'orca-repo-icon-'))
-   handlers.clear()
-   showOpenDialog.mockReset()
--  registerShellHandlers({ getSshTarget: () => undefined }, () => [])
-+  registerShellHandlers({ getSshTarget: () => undefined, getSettings: () => ({}) }, () => [])
- })
-
- afterEach(async () => {
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 index b71d37ed2f5..dc2fe3f08cc 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
