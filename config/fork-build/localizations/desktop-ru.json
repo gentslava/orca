@@ -485,6 +485,8 @@
       "rightSidebar": {
         "FolderWorkspaceSourceControl": {
           "changeCount_one": "Изменений: {{count}}",
+          "changeCount_few": "Изменений: {{count}}",
+          "changeCount_many": "Изменений: {{count}}",
           "changeCount_other": "Изменений: {{count}}"
         }
       },

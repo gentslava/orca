@@ -21,7 +21,7 @@ test('reviewed translation replacements preserve unrelated keys and refuse upstr
         mkdirSync(join(source, path), { recursive: true })
         writeFileSync(
           join(source, path, 'en.json'),
-          JSON.stringify({ width: 'Width', keep: 'Keep' })
+          JSON.stringify({ width: 'Width', keep: 'Keep', count_other: '{{count}} changes' })
         )
         writeFileSync(
           join(source, path, 'ru.json'),
@@ -30,7 +30,13 @@ test('reviewed translation replacements preserve unrelated keys and refuse upstr
         writeFileSync(
           join(controls, 'localizations', `${name}-ru.json`),
           JSON.stringify(
-            name === 'desktop' && current !== 'missing replacement' ? { width: 'replacement' } : {}
+            name === 'desktop' && current !== 'missing replacement'
+              ? {
+                  width: 'replacement',
+                  count_few: '{{count}} изменения',
+                  count_many: '{{count}} изменений'
+                }
+              : {}
           )
         )
       }
@@ -49,7 +55,12 @@ test('reviewed translation replacements preserve unrelated keys and refuse upstr
         const receipt = apply()
         assert.deepEqual(
           JSON.parse(readFileSync(join(source, 'src/renderer/src/i18n/locales/ru.json'), 'utf8')),
-          { width: 'replacement', keep: 'untouched' }
+          {
+            width: 'replacement',
+            keep: 'untouched',
+            count_few: '{{count}} изменения',
+            count_many: '{{count}} изменений'
+          }
         )
         assert.match(receipt[0].baseSha256, /^[a-f0-9]{64}$/)
         assert.equal(receipt[1].baseSha256, undefined)

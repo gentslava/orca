@@ -57,7 +57,8 @@ export function applyForkLocalizations(source, controls, git, timestamp) {
       }
     }
     for (const [key, value] of rows) {
-      const original = english.get(key)
+      const sourceKey = resolveLocaleSourceKey(english, 'ru', key)
+      const original = sourceKey && english.get(sourceKey)
       if (original === undefined) {
         throw new Error(`Fork translation lacks English source: ${key}`)
       }
