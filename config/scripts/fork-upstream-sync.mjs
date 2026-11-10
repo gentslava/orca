@@ -1,0 +1,403 @@
+import { execFileSync, spawnSync } from 'node:child_process'
+import {
+  appendFileSync,
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { createLocalBuildVersion } from './desktop-distribution/macos/build-mac-local.mjs'
+import { verifyStagedArchives } from './fork-upstream-archives.mjs'
+import { withForkSyncSsh } from './fork-upstream-ssh.mjs'
+import { isDirectInvocation } from './tool-invocation/script-entry-detection.mjs'
+
+const FORK = 'gentslava/orca'
+const FORK_URL = `https://github.com/${FORK}.git`
+const FORK_WRITE_URL = `git@github.com:${FORK}.git`
+const UPSTREAM_URL = 'https://github.com/stablyai/orca.git'
+const CANDIDATE_REF = 'refs/heads/fork-upstream-candidate'
+const MIRROR_REF = 'refs/heads/gentslava/fork-upstream-main'
+
+function git(cwd, args, options = {}) {
+  return execFileSync('git', args, { cwd, encoding: 'utf8', ...options }).trim()
+}
+
+function ancestor(cwd, older, newer, options = {}) {
+  const result = spawnSync('git', ['merge-base', '--is-ancestor', older, newer], {
+    cwd,
+    ...options
+  })
+  if (result.status === 0) {
+    return true
+  }
+  if (result.status === 1) {
+    return false
+  }
+  throw new Error(`Could not compare ${older} with ${newer}`)
+}
+
+function assertSha(sha) {
+  if (typeof sha !== 'string' || !/^[0-9a-f]{40}$/.test(sha)) {
+    throw new Error('Expected a full Git SHA')
+  }
+}
+
+function assertPlan(plan) {
+  if (plan.repository !== FORK || !['schedule', 'workflow_dispatch'].includes(plan.event)) {
+    throw new Error('Only the fork master schedule/manual plan is supported')
+  }
+  assertSha(plan.forkSha)
+  assertSha(plan.upstreamSha)
+  if (typeof plan.build !== 'boolean') {
+    throw new Error('Invalid build decision')
+  }
+  if (
+    !['dmg', 'both'].includes(plan.formats) ||
+    (plan.event === 'schedule' && plan.formats !== 'dmg')
+  ) {
+    throw new Error('Invalid archive formats for the pinned plan')
+  }
+}
+
+export function requireForkMaster(env) {
+  if (
+    env.GITHUB_REPOSITORY !== FORK ||
+    env.GITHUB_REF !== 'refs/heads/master' ||
+    !['schedule', 'workflow_dispatch'].includes(env.GITHUB_EVENT_NAME)
+  ) {
+    throw new Error('This workflow only operates on gentslava/orca master')
+  }
+}
+
+export function planSync(
+  cwd,
+  { forkUrl = FORK_URL, upstreamUrl = UPSTREAM_URL, event, formats = 'dmg' }
+) {
+  if (!['schedule', 'workflow_dispatch'].includes(event)) {
+    throw new Error('Unsupported trigger')
+  }
+  if (!['dmg', 'both'].includes(formats)) {
+    throw new Error('Unsupported preview format')
+  }
+  git(cwd, ['fetch', '--no-tags', forkUrl, 'refs/heads/master'])
+  const forkSha = git(cwd, ['rev-parse', 'FETCH_HEAD^{commit}'])
+  git(cwd, ['fetch', '--no-tags', upstreamUrl, 'refs/heads/main'])
+  const upstreamSha = git(cwd, ['rev-parse', 'FETCH_HEAD^{commit}'])
+  return {
+    repository: FORK,
+    event,
+    forkSha,
+    upstreamSha,
+    formats: event === 'schedule' ? 'dmg' : formats,
+    build: event === 'workflow_dispatch' || !ancestor(cwd, upstreamSha, forkSha)
+  }
+}
+
+export function mergeCandidate(cwd, plan, upstreamUrl = UPSTREAM_URL) {
+  assertPlan(plan)
+  if (git(cwd, ['rev-parse', 'HEAD']) !== plan.forkSha) {
+    throw new Error('Checkout differs from pinned master')
+  }
+  if (git(cwd, ['status', '--porcelain'])) {
+    throw new Error('Candidate checkout must be clean')
+  }
+  git(cwd, ['fetch', '--no-tags', upstreamUrl, plan.upstreamSha])
+  git(cwd, [
+    '-c',
+    'user.name=github-actions[bot]',
+    '-c',
+    'user.email=41898282+github-actions[bot]@users.noreply.github.com',
+    'merge',
+    '--no-ff',
+    '--no-edit',
+    '-m',
+    `fork: integrate upstream main ${plan.upstreamSha}`,
+    plan.upstreamSha
+  ])
+  const candidateSha = git(cwd, ['rev-parse', 'HEAD'])
+  if (
+    !ancestor(cwd, plan.forkSha, candidateSha) ||
+    !ancestor(cwd, plan.upstreamSha, candidateSha)
+  ) {
+    throw new Error('Candidate lost fork or upstream history')
+  }
+  git(cwd, ['update-ref', CANDIDATE_REF, candidateSha])
+  return { ...plan, candidateSha, version: previewIdentity(cwd).version }
+}
+
+export function previewIdentity(cwd) {
+  const commit = git(cwd, ['rev-parse', 'HEAD'])
+  const { version: base } = JSON.parse(readFileSync(join(cwd, 'package.json'), 'utf8'))
+  const version = createLocalBuildVersion(base, Date.now(), commit).replace(
+    /([.-])local\.(?=\d+\.)/,
+    '$1local.forkpreview.'
+  )
+  return { commit, version }
+}
+
+export function sealCandidate(cwd, candidate, directory, archiveDirectory) {
+  assertPlan(candidate)
+  assertSha(candidate.candidateSha)
+  if (
+    git(cwd, ['rev-parse', 'HEAD']) !== candidate.candidateSha ||
+    git(cwd, ['status', '--porcelain', '--untracked-files=no'])
+  ) {
+    throw new Error('Build changed the tested source tree')
+  }
+  const archiveValidation = verifyStagedArchives(archiveDirectory, {
+    ...candidate,
+    commit: candidate.candidateSha
+  })
+  if (candidate.candidateSha !== candidate.forkSha) {
+    git(cwd, [
+      'bundle',
+      'create',
+      join(directory, 'candidate.bundle'),
+      CANDIDATE_REF,
+      `^${candidate.forkSha}`
+    ])
+  }
+  writeFileSync(
+    join(directory, 'candidate.json'),
+    `${JSON.stringify({ ...candidate, archiveValidation }, null, 2)}\n`
+  )
+}
+
+export function promoteCandidate(
+  cwd,
+  plan,
+  candidate,
+  directory,
+  { forkUrl = FORK_WRITE_URL, env = process.env } = {}
+) {
+  assertPlan(plan)
+  assertSha(candidate.candidateSha)
+  if (
+    candidate.forkSha !== plan.forkSha ||
+    candidate.upstreamSha !== plan.upstreamSha ||
+    candidate.formats !== plan.formats ||
+    !plan.build
+  ) {
+    throw new Error('Candidate does not match the plan')
+  }
+  git(cwd, ['fetch', '--no-tags', forkUrl, 'refs/heads/master'], { env })
+  if (git(cwd, ['rev-parse', 'FETCH_HEAD'], { env }) !== plan.forkSha) {
+    throw new Error('Master moved during the build; refusing promotion')
+  }
+  if (candidate.candidateSha === plan.forkSha) {
+    return 'unchanged'
+  }
+  git(cwd, ['bundle', 'verify', join(directory, 'candidate.bundle')], { env })
+  git(cwd, ['fetch', join(directory, 'candidate.bundle'), CANDIDATE_REF], { env })
+  if (
+    git(cwd, ['rev-parse', 'FETCH_HEAD'], { env }) !== candidate.candidateSha ||
+    !ancestor(cwd, plan.forkSha, candidate.candidateSha, { env }) ||
+    !ancestor(cwd, plan.upstreamSha, candidate.candidateSha, { env })
+  ) {
+    throw new Error('Bundle is not the pinned fast-forward candidate')
+  }
+  pushPinnedForkRefs(
+    cwd,
+    [{ ref: 'refs/heads/master', before: plan.forkSha, after: candidate.candidateSha }],
+    { forkUrl, env }
+  )
+  return 'promoted'
+}
+
+export function pushPinnedForkRefs(
+  cwd,
+  updates,
+  { forkUrl = FORK_WRITE_URL, env = process.env, replaceMaster = false } = {}
+) {
+  if (!updates.length || new Set(updates.map((entry) => entry.ref)).size !== updates.length) {
+    throw new Error('Expected distinct fork branch updates')
+  }
+  for (const update of updates) {
+    if (!['refs/heads/master', 'refs/heads/main'].includes(update.ref)) {
+      throw new Error('Only fork master and main may be promoted')
+    }
+    assertSha(update.before)
+    assertSha(update.after)
+    if (
+      !(replaceMaster && update.ref === 'refs/heads/master') &&
+      !ancestor(cwd, update.before, update.after, { env })
+    ) {
+      throw new Error(`Promotion would rewind ${update.ref}`)
+    }
+  }
+  const master = updates.find((entry) => entry.ref === 'refs/heads/master')
+  if (replaceMaster && !master) {
+    throw new Error('Clean-history promotion requires an exact master update')
+  }
+  const backup = replaceMaster
+    ? {
+        ref: `refs/heads/archive/master-${master.before}`,
+        before: '0'.repeat(40),
+        after: master.before
+      }
+    : null
+  const pinnedUpdates = backup ? [...updates, backup] : updates
+  const hooks = mkdtempSync(join(tmpdir(), 'orca-fork-promotion-'))
+  try {
+    // Check the push advertisement too; a fetch followed by an ordinary push has a race window.
+    const cases = pinnedUpdates
+      .map(
+        (entry) =>
+          `    ${entry.ref}) test "$local_sha" = "${entry.after}"; test "$remote_sha" = "${entry.before}" ;;`
+      )
+      .join('\n')
+    writeFileSync(
+      join(hooks, 'pre-push'),
+      `#!/bin/sh\nset -eu\nwhile read -r local_ref local_sha remote_ref remote_sha; do\n  case "$remote_ref" in\n${cases}\n    *) exit 1 ;;\n  esac\ndone\n`
+    )
+    chmodSync(join(hooks, 'pre-push'), 0o755)
+    git(
+      cwd,
+      [
+        '-c',
+        `core.hooksPath=${hooks}`,
+        'push',
+        '--atomic',
+        ...(backup
+          ? [
+              `--force-with-lease=refs/heads/master:${master.before}`,
+              `--force-with-lease=${backup.ref}:`
+            ]
+          : []),
+        forkUrl,
+        ...pinnedUpdates.map((entry) => `${entry.after}:${entry.ref}`)
+      ],
+      { env }
+    )
+  } finally {
+    rmSync(hooks, { recursive: true, force: true })
+  }
+}
+
+export async function recoverIntegration(
+  cwd,
+  plan,
+  {
+    forkUrl = FORK_WRITE_URL,
+    upstreamUrl = UPSTREAM_URL,
+    env = process.env,
+    token = process.env.GITHUB_TOKEN,
+    request = fetch
+  } = {}
+) {
+  assertPlan(plan)
+  if (!token) {
+    throw new Error('GITHUB_TOKEN with pull-requests: write is required for the integration PR API')
+  }
+  git(cwd, ['fetch', '--no-tags', upstreamUrl, plan.upstreamSha], { env })
+  git(cwd, ['fetch', '--no-tags', forkUrl, 'refs/heads/master'], { env })
+  if (ancestor(cwd, plan.upstreamSha, git(cwd, ['rev-parse', 'FETCH_HEAD'], { env }), { env })) {
+    console.log(
+      'Upstream is already integrated; no integration PR diff is available. Inspect the failed build diagnostics.'
+    )
+    return
+  }
+  // A single upstream mirror stays fast-forward across retries, including conflicted merges.
+  git(cwd, ['push', forkUrl, `${plan.upstreamSha}:${MIRROR_REF}`], { env })
+  const api = async (path, method = 'GET', data) => {
+    const response = await request(`https://api.github.com/repos/${FORK}/${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      ...(data ? { body: JSON.stringify(data) } : {})
+    })
+    if (!response.ok) {
+      throw new Error(
+        `Fork integration PR API failed (${response.status}): ${await response.text()}`
+      )
+    }
+    return response.json()
+  }
+  const pulls = await api(
+    'pulls?state=open&base=master&head=gentslava:gentslava%2Ffork-upstream-main'
+  )
+  const body = `Automated fork integration needs review. Master was not promoted.\n\nPinned fork master: ${plan.forkSha}\nPinned upstream main: ${plan.upstreamSha}\n\nDiagnostics: https://github.com/${FORK}/actions/runs/${process.env.GITHUB_RUN_ID}\n\nThis head mirrors upstream main so conflicts are visible against master. Resolve the integration and rerun the manual workflow; do not bypass failed checks.`
+  const pr = pulls[0]
+    ? await api(`pulls/${pulls[0].number}`, 'PATCH', { body })
+    : await api('pulls', 'POST', {
+        title: 'fork: integrate upstream main (verification required)',
+        head: MIRROR_REF.replace('refs/heads/', ''),
+        base: 'master',
+        body
+      })
+  console.log(`Fork integration PR: ${pr.html_url}`)
+}
+
+async function main() {
+  requireForkMaster(process.env)
+  const cwd = process.cwd()
+  const directory = join(process.env.RUNNER_TEMP, 'fork-sync')
+  mkdirSync(directory, { recursive: true })
+  const command = process.argv[2]
+  if (command === 'plan') {
+    const plan = planSync(cwd, {
+      event: process.env.GITHUB_EVENT_NAME,
+      formats: process.env.PREVIEW_FORMATS
+    })
+    writeFileSync(join(directory, 'plan.json'), `${JSON.stringify(plan, null, 2)}\n`)
+    appendFileSync(
+      process.env.GITHUB_OUTPUT,
+      `build=${plan.build}\nplan=${JSON.stringify(plan)}\nfork-sha=${plan.forkSha}\nformats=${plan.formats}\n`
+    )
+    appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      `Pinned fork master: ${plan.forkSha}\n\nPinned upstream main: ${plan.upstreamSha}\n\nBuild required: ${plan.build}\n`
+    )
+    return
+  }
+  const plan = JSON.parse(process.env.FORK_SYNC_PLAN)
+  assertPlan(plan)
+  if (command === 'merge') {
+    const candidate = mergeCandidate(cwd, plan)
+    writeFileSync(join(directory, 'candidate.json'), `${JSON.stringify(candidate, null, 2)}\n`)
+    appendFileSync(
+      process.env.GITHUB_ENV,
+      `ORCA_LOCAL_BUILD_VERSION=${candidate.version}\nORCA_BUILD_COMMIT=${candidate.candidateSha}\nFORK_MASTER_SHA=${plan.forkSha}\nUPSTREAM_MAIN_SHA=${plan.upstreamSha}\n`
+    )
+  } else if (command === 'seal') {
+    sealCandidate(
+      cwd,
+      JSON.parse(readFileSync(join(directory, 'candidate.json'), 'utf8')),
+      directory,
+      '.build/fork-preview'
+    )
+  } else if (command === 'promote') {
+    const candidate = JSON.parse(readFileSync(join(directory, 'candidate.json'), 'utf8'))
+    const result = await withForkSyncSsh(process.env, (env) =>
+      promoteCandidate(cwd, plan, candidate, directory, { env })
+    )
+    appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      `Promotion: ${result}\n\nBuilt source: ${candidate.candidateSha}\n`
+    )
+  } else if (command === 'recover') {
+    await withForkSyncSsh(process.env, (env) => recoverIntegration(cwd, plan, { env }))
+  } else {
+    throw new Error(`Unknown fork-sync command: ${command}`)
+  }
+}
+
+if (isDirectInvocation(import.meta.url, process.argv[1])) {
+  main().catch((error) => {
+    console.error(error)
+    if (process.env.RUNNER_TEMP) {
+      const directory = join(process.env.RUNNER_TEMP, 'fork-sync')
+      mkdirSync(directory, { recursive: true })
+      writeFileSync(join(directory, `${process.argv[2]}-failure.txt`), `${error.stack ?? error}\n`)
+    }
+    process.exitCode = 1
+  })
+}

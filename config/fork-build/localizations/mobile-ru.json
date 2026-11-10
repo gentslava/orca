@@ -1,0 +1,52 @@
+{
+  "hostScreen": {
+    "workspaceOptionControls": {
+      "recentProjectOpeningDescription": "Последние открытые вами проекты",
+      "frequentProjectOrderDescription": "Проекты, которые вы открываете чаще всего",
+      "frequent": "Часто используемые"
+    },
+    "project": {
+      "pin": "Закрепить проект",
+      "unpin": "Открепить проект"
+    }
+  },
+  "workspaceOptions": {
+    "recentActivity": "Последняя активность в рабочих папках"
+  },
+  "chat": {
+    "nativeChatProse": {
+      "loadingImage": "Загрузка изображения",
+      "imageUnavailable": "Изображение недоступно",
+      "retryImageHint": "Загрузить изображение ещё раз",
+      "retryImage": "Изображение недоступно — нажмите, чтобы повторить"
+    },
+    "contextUsage": {
+      "deferredTitle": "По требованию",
+      "deferredDescription": "Не входят в текущий расход контекста. Загружаются при необходимости."
+    },
+    "agentMessage": {
+      "sessionLink": "Связь"
+    },
+    "tool": {
+      "activity": "Активность"
+    },
+    "useImageUpload": {
+      "mediaUnavailable": "Здесь нельзя прикрепить медиафайлы",
+      "capacityReached": "Достигнут лимит вложений"
+    }
+  },
+  "agentHistory": {
+    "panel": {
+      "conversationUnavailable": "История этого чата недоступна на этом компьютере."
+    }
+  },
+  "session": {
+    "backgroundTask": {
+      "background": "В фон",
+      "backgrounding": "В фон…"
+    },
+    "writeNotice": {
+      "notDoneBackgroundTask": "Не удалось перевести задачу в фон."
+    }
+  }
+}

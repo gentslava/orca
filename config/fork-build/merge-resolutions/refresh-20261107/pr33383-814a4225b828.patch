@@ -1,0 +1,37 @@
+diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.ts
+--- a/src/main/ipc/ai-vault/ai-vault.ts
++++ b/src/main/ipc/ai-vault/ai-vault.ts
+@@ -117,6 +117,7 @@
+         ? [...new Set(scopePaths)].sort()
+         : scopePaths,
+     executionHostScope,
++    selectedSessionId: args?.selectedSessionId,
+     includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
+     includeStructuredSessions: args?.includeStructuredSessions === true
+   })
+@@ -144,6 +145,7 @@
+           dependency,
+           depth,
+           scopePaths,
++          selectedSessionId: args?.selectedSessionId,
+           force: args?.force === true,
+           afterFingerprint,
+           scan
+@@ -185,6 +187,7 @@
+               dependency: dependency?.forHost(hostInfo.environmentId),
+               depth,
+               scopePaths,
++              selectedSessionId: args?.selectedSessionId,
+               force: args?.force === true,
+               scan
+             })
+@@ -194,7 +197,8 @@
+       [...scannedResults, ...runtimeResults],
+       args?.limit,
+       args?.unlimited,
+-      scopePaths
++      scopePaths,
++      args?.selectedSessionId
+     )
+   }
+ 
