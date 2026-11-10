@@ -64,6 +64,7 @@ export type AcpLaunchSpec = {
    *  turns made outside it; absent, the replay is only dropped. */
   historyCatchUp?: AcpHistoryTurnIdentity
   modelDiscovery: AcpModelDiscovery
+  restingOptionKeys?: readonly ('model' | 'effort')[]
   visualsSkill?: AcpVisualsSkillLoader
   transcriptImport: StructuredAgentTranscriptImport | null
   sessionHistory: StructuredAgentSessionHistory
@@ -71,6 +72,8 @@ export type AcpLaunchSpec = {
   privateTempDirectory?: true
   /** Prefer session/resume even when loading is supported. */
   resumePreference?: 'resume'
+  /** The original protocol cannot distinguish loaded history from a new response. */
+  resumeUnavailable?: true
   launchGate?: AcpLaunchGate
   /** Writes sessions it cannot delete into the user's own history, so it runs no naming tasks. */
   keepsEverySession?: true
