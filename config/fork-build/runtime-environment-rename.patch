@@ -440,6 +440,21 @@ index 2518e932dac..a946b1ef709 100644
      disconnect: async ({ selector }) => {
        const environment = resolveEnvironment(selector)
        if (webRuntimeState.activeEnvironment?.id === environment.id) {
+diff --git a/src/shared/plugins/languages/protected-copy-keys.json b/src/shared/plugins/languages/protected-copy-keys.json
+index 61f954189d0..6c026e86013 100644
+--- a/src/shared/plugins/languages/protected-copy-keys.json
++++ b/src/shared/plugins/languages/protected-copy-keys.json
+@@ -353,6 +353,10 @@
+     "auto.components.settings.RuntimeEnvironmentsPane.d2e00809e4",
+     "auto.components.settings.RuntimeEnvironmentsPane.ed3e3f069d",
+     "auto.components.settings.RuntimeEnvironmentsPane.removeDefaultServerDescription",
++    "auto.components.settings.RuntimeEnvironmentsPane.renameConfirm",
++    "auto.components.settings.RuntimeEnvironmentsPane.renameDescription",
++    "auto.components.settings.RuntimeEnvironmentsPane.renameNameLabel",
++    "auto.components.settings.RuntimeEnvironmentsPane.renameTitle",
+     "auto.components.settings.SettingsFormControls.b661b034ec",
+     "auto.components.settings.SshDestructiveActionDialog.895b216267",
+     "auto.components.settings.SshDestructiveActionDialog.moreTargets",
 diff --git a/src/shared/remote-runtime/host-store/runtime-environment-store-selection.ts b/src/shared/remote-runtime/host-store/runtime-environment-store-selection.ts
 new file mode 100644
 index 00000000000..fbbef4140f3
