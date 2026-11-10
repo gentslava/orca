@@ -23,7 +23,7 @@ When every conflicted path is an English or Russian desktop/mobile translation c
 - `force_build`: bypass reuse of an identical last successful composition.
 - Persistent [status issue](https://github.com/gentslava/orca/issues/12): current report, lifecycle ledger, and last successful downloads.
 - Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, Windows x64 installer and portable ZIP, Android APK, checksums, archive/app proofs, the source plan and a Git bundle. After successful independent package verification and release publication, a trusted job promotes the built application to `master` and its frozen upstream to `main` in one atomic lease-protected push. Each selected PR contributes one linear commit over clean upstream main; original PR heads are recorded in commit messages and the build plan, not imported as parents. Required compatibility/localization corrections are folded into one commit. Promotion adds only the fork control commit, without the previous master as a parent. The replaced master is retained in an archive/master-<full-sha> branch in that same atomic push.
-- Required conflicts or failed checks preserve previous releases. No silent subset build or automatic substitution/closing of upstream issues/PRs.
+- Required conflicts or failed checks preserve the current verified release. No silent subset build or automatic substitution/closing of upstream issues/PRs.
 
 Upstream mirror and source maintenance do not wait for hosted packaging capacity. A source refresh preserves upstream and feature ancestry and must pass the full pull-request checks before merge. Transient EOF, connection-reset, TLS-connection, timeout and HTTP 502/503/504 failures retry read-only GitHub metadata requests and Git fetch/ref discovery up to three times; pushes, API mutations and permanent failures are never retried automatically.
 
@@ -131,3 +131,9 @@ The combined E2E reader graph additionally reaches React Native globals when mob
 Current-upstream follow-up: sidebar catalog imports and reactive row copy now live in atomic 33361; their three duplicate overlay sections are removed. The external rename feature remains adapted by the existing fork supplement.
 
 The existing client width preference now applies at the common Settings content container in atomic 40638: Comfortable, Wide and Full behave consistently across every page and search results. Its English description is owned by the upstream feature; the Russian description stays in the fork localization layer. No remote-server preference or new protocol is introduced.
+
+## One current internal release
+
+The fork keeps one published release: the latest fully verified multiplatform build, after successful master/main promotion and the persistent last-good ledger update. The trusted status job then deletes older published releases and their assets. Failed, audit-only, reused or unpromoted runs cannot trigger cleanup. Draft releases are left alone; a newer published release or changed live ledger blocks deletion. Git tags and source/archive branches are retained. The cleanup receipt records each deletion as it succeeds and is retained as an Actions artifact for 14 days; a failed deletion stops cleanup without retrying mutations.
+
+PR screenshots belong in GitHub user-attachments, not separate evidence releases. Historical binary download links expire when the next verified release replaces them; the status issue always links to the current verified release.
