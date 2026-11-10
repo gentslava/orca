@@ -54,6 +54,9 @@
         "keyword": {
           "quit": "выход"
         }
+      },
+      "chat": {
+        "widthDescription": "Максимальная ширина чатов и страниц настроек."
       }
     },
     "orchestration": {

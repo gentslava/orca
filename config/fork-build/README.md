@@ -129,3 +129,5 @@ Paired desktop collaboration: the session-link feature now reads and mutates thr
 The combined E2E reader graph additionally reaches React Native globals when mobile dependencies are installed. The integration type boundary declares only the Platform/AppState/selection-event interfaces used by those readers, preserving Node timer types in desktop tests. Native mobile type checking retains the real React Native declarations. No type-error baseline is increased. Upstream main by itself remains clean; this is a selected-combination boundary correction.
 
 Current-upstream follow-up: sidebar catalog imports and reactive row copy now live in atomic 33361; their three duplicate overlay sections are removed. The external rename feature remains adapted by the existing fork supplement.
+
+The existing client width preference now applies at the common Settings content container in atomic 40638: Comfortable, Wide and Full behave consistently across every page and search results. Its English description is owned by the upstream feature; the Russian description stays in the fork localization layer. No remote-server preference or new protocol is introduced.
