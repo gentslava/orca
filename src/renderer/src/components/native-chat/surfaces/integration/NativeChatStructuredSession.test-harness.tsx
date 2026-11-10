@@ -239,6 +239,7 @@ export function createStructuredSessionMocks() {
               pending: () => null,
               queuePending: null,
               steerHead: mocks.queuedSteerHead,
+              steerLast: () => false,
               isWorking: mocks.isWorking
             },
             threadGoal: mocks.threadGoal,
