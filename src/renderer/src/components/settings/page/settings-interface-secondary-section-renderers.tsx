@@ -150,7 +150,7 @@ export function renderStatsSettingsSection(
   context: SettingsRenderContext,
   t: Translate = translate
 ): React.JSX.Element {
-  const { navigation, view } = context
+  const { model, navigation, view } = context
   return (
     <SettingsSection
       id="stats"
@@ -161,7 +161,7 @@ export function renderStatsSettingsSection(
       )}
       searchEntries={navigation.getSectionSearchEntries('stats')}
     >
-      {view.isSectionMounted('stats') ? <StatsPane /> : null}
+      {view.isSectionMounted('stats') ? <StatsPane hostScope={model.settingsHostScope} /> : null}
     </SettingsSection>
   )
 }
