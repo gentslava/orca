@@ -482,6 +482,12 @@
       }
     },
     "components": {
+      "rightSidebar": {
+        "FolderWorkspaceSourceControl": {
+          "changeCount_one": "Изменений: {{count}}",
+          "changeCount_other": "Изменений: {{count}}"
+        }
+      },
       "terminal": {
         "pane": {
           "PinnedTabCloseDialog": {
