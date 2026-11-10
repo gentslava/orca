@@ -43,6 +43,8 @@ Build jobs execute the composed source with read-only repository permissions and
 
 ## Editing selection
 
+Antigravity terminal model discovery is supplied by required PR 40175. It reads the execution host's `agy models` catalog separately from Chat's ACP catalog, so a terminal can offer Claude and GPT-OSS without advertising them for a managed Chat server that cannot run them. The change preserves account, host and mixed-version boundaries; it does not alter Google's ACP client restrictions or switch existing chats to another account/backend.
+
 Edit `selection.json` on master. Keep community PR numbers in `include`, with a reason. Use `exclude` for a deliberate retirement/hold, `replacements` for reviewed unmerged-PR successor mappings (effective before upstream closure), and `dependencies` when application order matters. Required compatibility corrections are listed explicitly. Pins and optional silent fallbacks are intentionally not supported: maintain compatibility in the actual atomic PR instead.
 The retired hovercard fixture correction (PR 37279) is supplied by merged PR 37276. The changed file was verified identical to upstream; the obsolete PR is closed and recorded as a replacement.
 
