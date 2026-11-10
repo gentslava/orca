@@ -362,5 +362,26 @@
         "activity": "Активность"
       }
     }
+  },
+  "auto": {
+    "web": {
+      "webPreloadApi": {
+        "runtimeEnvironmentNameRequired": "Укажите имя сервера."
+      }
+    },
+    "components": {
+      "settings": {
+        "RuntimeEnvironmentsPane": {
+          "renameTitle": "Переименовать сервер",
+          "renameDescription": "Новое имя будет видно только на этом устройстве. Подключение к серверу не изменится.",
+          "renameNameLabel": "Имя",
+          "renameConfirm": "Переименовать",
+          "serverRenamed": "Сервер переименован в {{value0}}"
+        },
+        "serverList": {
+          "rename": "Переименовать…"
+        }
+      }
+    }
   }
 }

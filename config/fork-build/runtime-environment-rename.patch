@@ -1,0 +1,162 @@
+diff --git a/src/cli/handlers/environment-rename.test.ts b/src/cli/handlers/environment-rename.test.ts
+new file mode 100644
+index 00000000000..191ff49cc19
+--- /dev/null
++++ b/src/cli/handlers/environment-rename.test.ts
+@@ -0,0 +1,63 @@
++import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
++import { tmpdir } from 'node:os'
++import { join } from 'node:path'
++import { afterEach, expect, it, vi } from 'vitest'
++import { main } from '../index'
++import { encodePairingOffer } from '../../shared/remote-runtime/pairing/pairing'
++import {
++  addEnvironmentFromPairingCode,
++  resolveEnvironment
++} from '../../shared/remote-runtime/host-store/runtime-environment-store'
++import { getEnvironmentStorePath } from '../../shared/remote-runtime/host-store/runtime-environment-store-records'
++
++const directories: string[] = []
++const originalExitCode = process.exitCode
++
++afterEach(() => {
++  vi.unstubAllEnvs()
++  vi.restoreAllMocks()
++  process.exitCode = originalExitCode
++  for (const directory of directories.splice(0)) rmSync(directory, { recursive: true, force: true })
++})
++
++it('renames the selected saved server offline without changing pairing or unreadable entries', async () => {
++  const directory = mkdtempSync(join(tmpdir(), 'orca-environment-rename-'))
++  directories.push(directory)
++  vi.stubEnv('ORCA_USER_DATA_PATH', directory)
++  vi.stubEnv('ORCA_ENVIRONMENT', 'stale-selection')
++  const existing = addEnvironmentFromPairingCode(directory, {
++    name: 'Old server',
++    pairingCode: encodePairingOffer({
++      v: 2,
++      endpoint: 'ws://127.0.0.1:6768',
++      deviceToken: 'private-pairing-token',
++      publicKeyB64: Buffer.from(new Uint8Array(32).fill(1)).toString('base64')
++    })
++  })
++  const path = getEnvironmentStorePath(directory)
++  const store = JSON.parse(readFileSync(path, 'utf8'))
++  const unreadable = { id: 'newer-server', name: 'Future server', futureVersion: 2 }
++  store.environments.push(unreadable)
++  writeFileSync(path, JSON.stringify(store))
++  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
++
++  await main(
++    ['environment', 'rename', '--environment', existing.id, '--name', 'New server', '--json'],
++    directory
++  )
++
++  expect(process.exitCode ?? 0).toBe(0)
++  expect(resolveEnvironment(directory, existing.id)).toEqual({
++    ...existing,
++    name: 'New server',
++    updatedAt: expect.any(Number)
++  })
++  expect(JSON.parse(readFileSync(path, 'utf8')).environments).toContainEqual(unreadable)
++  const output = String(log.mock.calls[0]?.[0])
++  expect(JSON.parse(output)).toMatchObject({
++    ok: true,
++    result: { environment: { id: existing.id, name: 'New server' } }
++  })
++  expect(output).not.toContain('private-pairing-token')
++  expect(output).not.toContain('publicKeyB64')
++})
+diff --git a/src/cli/handlers/environment.ts b/src/cli/handlers/environment.ts
+index cea32095c3b..7aada54bb02 100644
+--- a/src/cli/handlers/environment.ts
++++ b/src/cli/handlers/environment.ts
+@@ -28,6 +28,7 @@ import type { RuntimeStatus } from '../../shared/runtime-session-contracts'
+ import {
+   addEnvironmentFromPairingCode,
+   removeEnvironment,
++  renameEnvironment,
+   resolveEnvironment,
+   type EnvironmentAddResult,
+   type EnvironmentRemoveResult
+@@ -159,6 +160,17 @@ export const ENVIRONMENT_HANDLERS: Record<string, CommandHandler> = {
+       formatEnvironment(value)
+     )
+   },
++  'environment rename': async ({ flags, json }) => {
++    const selector = getRequiredStringFlag(flags, 'environment')
++    const name = getRequiredStringFlag(flags, 'name')
++    refuseReservedEnvironmentName(name)
++    const environment = redactRuntimeEnvironment(
++      renameEnvironment(getDefaultUserDataPath(), selector, name)
++    )
++    printResult(localSuccess({ environment }), json, ({ environment: value }) =>
++      formatEnvironment(value)
++    )
++  },
+   'environment rm': async ({ flags, json }) => {
+     const selector = getRequiredStringFlag(flags, 'environment')
+     const removed = redactRuntimeEnvironment(removeEnvironment(getDefaultUserDataPath(), selector))
+diff --git a/src/cli/host-handler-groups.ts b/src/cli/host-handler-groups.ts
+index ed1ef7506b0..a4d388ec162 100644
+--- a/src/cli/host-handler-groups.ts
++++ b/src/cli/host-handler-groups.ts
+@@ -12,6 +12,7 @@ export const HOST_HANDLER_GROUPS: readonly HandlerGroup[] = [
+       'environment add',
+       'environment list',
+       'environment show',
++      'environment rename',
+       'environment rm'
+     ],
+     load: async () => (await import('./handlers/environment.js')).ENVIRONMENT_HANDLERS
+diff --git a/src/cli/runtime/environments.ts b/src/cli/runtime/environments.ts
+index 5342e21e429..973ef2240e1 100644
+--- a/src/cli/runtime/environments.ts
++++ b/src/cli/runtime/environments.ts
+@@ -1,6 +1,7 @@
+ import {
+   addEnvironmentFromPairingCode as addEnvironmentFromPairingCodeInStore,
+   removeEnvironment as removeEnvironmentFromStore,
++  renameEnvironment as renameEnvironmentInStore,
+   resolveEnvironment as resolveEnvironmentFromStore,
+   resolveEnvironmentPairingOffer as resolveEnvironmentPairingOfferFromStore
+ } from '../../shared/remote-runtime/host-store/runtime-environment-store'
+@@ -30,6 +31,18 @@ export function addEnvironmentFromPairingCode(
+   return translateStoreError(() => addEnvironmentFromPairingCodeInStore(userDataPath, args))
+ }
+ 
++export function renameEnvironment(
++  userDataPath: string,
++  selector: string,
++  name: string
++): KnownRuntimeEnvironment {
++  return translateStoreError(() => {
++    const existing = resolveEnvironmentFromStore(userDataPath, selector)
++    renameEnvironmentInStore(userDataPath, existing.id, { name })
++    return resolveEnvironmentFromStore(userDataPath, existing.id)
++  })
++}
++
+ export function removeEnvironment(userDataPath: string, selector: string): KnownRuntimeEnvironment {
+   return translateStoreError(() => removeEnvironmentFromStore(userDataPath, selector))
+ }
+diff --git a/src/cli/specs/environment.ts b/src/cli/specs/environment.ts
+index f44a0fa5e56..891cd5c89dc 100644
+--- a/src/cli/specs/environment.ts
++++ b/src/cli/specs/environment.ts
+@@ -68,6 +68,15 @@ export const ENVIRONMENT_COMMAND_SPECS: CommandSpec[] = [
+     usage: 'orca environment show --environment <selector> [--json]',
+     allowedFlags: [...LOCAL_COMMAND_FLAGS, 'environment']
+   },
++  {
++    path: ['environment', 'rename'],
++    summary: 'Rename one saved Orca server on this client',
++    usage: 'orca environment rename --environment <selector> --name <name> [--json]',
++    allowedFlags: [...LOCAL_COMMAND_FLAGS, 'environment', 'name'],
++    notes: [
++      'Changes only the saved name on this client; the server identity and pairing stay the same. Works offline.'
++    ]
++  },
+   {
+     path: ['environment', 'rm'],
+     destructive: true,

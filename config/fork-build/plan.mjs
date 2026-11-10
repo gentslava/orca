@@ -98,6 +98,7 @@ try {
         'composed-ci-contracts.patch',
         'project-start-actions.patch',
         'codex-selected-account-read.patch',
+        'runtime-environment-rename.patch',
         'composed-source-modules.patch',
         'composed-reactive-copy.patch',
         'composed-localization-cleanup.patch'

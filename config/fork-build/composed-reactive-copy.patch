@@ -1447,36 +1447,6 @@ index b513bc9994e..66225cce3b2 100644
      </DropdownMenuItem>
    )
  }
-diff --git a/src/renderer/src/components/skills/setup/ManageInstalledSkillsButton.tsx b/src/renderer/src/components/skills/setup/ManageInstalledSkillsButton.tsx
-index 8e65a496ef1..d4cec3da03c 100644
---- a/src/renderer/src/components/skills/setup/ManageInstalledSkillsButton.tsx
-+++ b/src/renderer/src/components/skills/setup/ManageInstalledSkillsButton.tsx
-@@ -1,7 +1,7 @@
- import { BookOpen } from 'lucide-react'
- import { isRuntimeHostContactRevoked } from '../../../../../shared/remote-runtime/host-status/runtime-host-status'
- import { useAppStore } from '@/store/index'
--import { translate } from '@/i18n/i18n'
-+import { useTranslate } from '@/i18n/use-translate'
- import { useActiveProjectSkillRuntime } from '@/hooks/useActiveProjectSkillRuntime'
- import { bundledSkillTargetKey, type BundledSkillTarget } from '@/lib/bundled-skill-target'
- import { Button } from '../../ui/button'
-@@ -11,6 +11,7 @@ export function ManageInstalledSkillsButton({
- }: {
-   target?: BundledSkillTarget | null
- }): React.JSX.Element | null {
-+  const t = useTranslate()
-   const openSkillsPage = useAppStore((state) => state.openSkillsPage)
-   const closeModal = useAppStore((state) => state.closeModal)
-   const { bundledSkillTarget: active, managerRuntimeTarget: manager } =
-@@ -45,7 +46,7 @@ export function ManageInstalledSkillsButton({
-       }}
-     >
-       <BookOpen className="size-3.5" />
--      {translate('auto.components.settings.shareSkills.openSkills', 'Open Skills')}
-+      {t('auto.components.settings.shareSkills.openSkills', 'Open Skills')}
-     </Button>
-   )
- }
 diff --git a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
 index a30e99db97b..ee7e1bcc3d1 100644
 --- a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
