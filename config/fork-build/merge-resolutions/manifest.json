@@ -2187,5 +2187,17 @@
     "patchSha256": "ccee647265f23dd59eb3125e8f1aaa0d45e4ea55218d40c67b9a2515a2834676",
     "resultSha256": "a44708c8828ce696ba6ae830f354e396a90ed4c04f49ea96a86b5dc0b0083a57",
     "reason": "Preserve both conversationPreferences and personalProjectOrder and their canonical imports after current upstream module relocation."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "945761935cd5a79bf520669947c8cfc9854db8d9",
+      "4e79d7ac514a3392c9869e71ffaf5572697fac4f",
+      "3316ac8d7ee2babb004df905bb7771d1247914f8"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-4e79d7ac514a.patch",
+    "patchSha256": "222f6b2d85e42a98dfae8b389c74463bc1aaa91f8d0c8b04716e66150f4b99b7",
+    "resultSha256": "822ec663fa824c7a0014d19e10eba625ec3f4dbfb618e510c6ee41c14153f01b",
+    "reason": "Keep upstream workspace-host session history routing; combine paired-desktop conversation preferences from 33383 with project-open and pin preferences from 33502."
   }
 ]

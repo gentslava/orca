@@ -78,7 +78,8 @@
     "codex-selected-account-read.patch",
     "composed-source-modules.patch",
     "composed-reactive-copy.patch",
-    "runtime-environment-rename.patch"
+    "runtime-environment-rename.patch",
+    "fork-ci-macos-arm64-image.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",

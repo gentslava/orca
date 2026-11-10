@@ -100,7 +100,8 @@ try {
         'codex-selected-account-read.patch',
         'runtime-environment-rename.patch',
         'composed-source-modules.patch',
-        'composed-reactive-copy.patch'
+        'composed-reactive-copy.patch',
+        'fork-ci-macos-arm64-image.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')
