@@ -20417,6 +20417,11 @@
         "runPlan_one": "Updated the plan {{count}} time",
         "runLiveBrowser_one": "Using the browser {{count}} time",
         "runLivePlan_one": "Updating the plan {{count}} time",
+        "input": "Input",
+        "output": "Output",
+        "copyInput": "Copy input",
+        "showFullInput": "Show full input",
+        "inputUnavailable": "Input is not available in this transcript.",
         "activity": "Activity"
       },
       "providerFrame": {
@@ -20492,8 +20497,6 @@
         "showAgent": "Show {{value0}} in the conversation"
       },
       "jumpToLatest": "Jump to latest",
-      "newRowsAnnouncement": "New messages arrived while you were away",
-      "newRowsMarker": "New",
       "find": {
         "label": "Find in chat",
         "noResults": "No results",
@@ -20905,31 +20908,6 @@
         "commandCanceled": "Chat UI command was canceled because the composer closed.",
         "commandRejected": "The terminal did not accept the command."
       },
-      "children": {
-        "metadata": {
-          "localHost": "Local execution host",
-          "environment": "Environment {{value0}}",
-          "wsl": "WSL · {{value0}}",
-          "ssh": "SSH · {{value0}}",
-          "unknown": "Unknown",
-          "agent": "Agent",
-          "host": "Execution host"
-        },
-        "back": "Back to conversation",
-        "started": "Started {{value0}}",
-        "finished": "Finished {{value0}}",
-        "loading": "Loading agent history…",
-        "unavailable": "This host has not supplied the agent’s conversation history.",
-        "loadEarlier": "Load earlier history",
-        "result": "Recorded result",
-        "starting": "Starting",
-        "unavailableState": "Unavailable",
-        "workersUnavailable": "This host’s worker history is unavailable.",
-        "identityUnavailable": "This worker’s conversation identity could not be verified.",
-        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
-        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
-        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
-      },
       "sessionOptionErrors": {
         "startOnly": "This option can only be set when the session starts.",
         "modelRejected": "Claude kept the current model.",
@@ -20976,31 +20954,7 @@
         "cancel": "Don't continue"
       },
       "settings": "Chat settings",
-      "composerWorkspace": {
-        "copyFailed": "Failed to copy",
-        "copyIdentity": "Copy {{value0}}",
-        "detachedCommit": "Commit {{head}} (not a branch)",
-        "folder": "Folder",
-        "mainCheckout": "Main checkout",
-        "turnWorking": "This chat's agent is working. Switch branches after its turn finishes.",
-        "worktree": "Worktree"
-      },
       "creationChatNotOpened": "Your worktree is ready, but the chat could not open. Retry to open it with your message.",
-      "fork": {
-        "action": "Fork from this response",
-        "pending": "Forking this chat…",
-        "checking": "Checking whether this chat can fork…",
-        "tooltip": "Fork from this response. The new chat includes this whole response, up to the end of its turn.",
-        "unconfirmed": "{{agent}} couldn't confirm the fork",
-        "unconfirmedDetail": "It may have opened anyway. Check Session History before forking again.",
-        "failed": "{{agent}} couldn't fork this chat",
-        "hostUnsupported": "This host runs an older Orca. Update Orca on the host, then try again.",
-        "failedDetail": "Your chat is unchanged. Try again.",
-        "commandDescription": "Fork this chat from its latest response",
-        "commandWorking": "Wait for the response to finish, then fork.",
-        "commandNothing": "There’s no response to fork yet.",
-        "commandTakesNoText": "Send /fork on its own, then write in the new chat."
-      },
       "usage": {
         "description": "Show usage for this chat’s Codex account",
         "loading": "Loading Codex usage…",
@@ -21019,6 +20973,57 @@
           "noCredit": "No Codex reset credit is left on this account.",
           "alreadyRedeemed": "That reset credit was already used."
         }
+      },
+      "newRowsAnnouncement": "New messages arrived while you were away",
+      "newRowsMarker": "New",
+      "children": {
+        "metadata": {
+          "localHost": "Local execution host",
+          "environment": "Environment {{value0}}",
+          "wsl": "WSL · {{value0}}",
+          "ssh": "SSH · {{value0}}",
+          "unknown": "Unknown",
+          "agent": "Agent",
+          "host": "Execution host"
+        },
+        "back": "Back to conversation",
+        "started": "Started {{value0}}",
+        "finished": "Finished {{value0}}",
+        "loading": "Loading agent history…",
+        "unavailable": "This host has not supplied the agent’s conversation history.",
+        "loadEarlier": "Load earlier history",
+        "result": "Recorded result",
+        "starting": "Starting",
+        "unavailableState": "Unavailable",
+        "workersUnavailable": "This host’s worker history is unavailable.",
+        "identityUnavailable": "This worker’s conversation identity could not be verified.",
+        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
+        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
+        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
+      },
+      "composerWorkspace": {
+        "copyFailed": "Failed to copy",
+        "copyIdentity": "Copy {{value0}}",
+        "detachedCommit": "Commit {{head}} (not a branch)",
+        "folder": "Folder",
+        "mainCheckout": "Main checkout",
+        "turnWorking": "This chat's agent is working. Switch branches after its turn finishes.",
+        "worktree": "Worktree"
+      },
+      "fork": {
+        "action": "Fork from this response",
+        "pending": "Forking this chat…",
+        "checking": "Checking whether this chat can fork…",
+        "tooltip": "Fork from this response. The new chat includes this whole response, up to the end of its turn.",
+        "unconfirmed": "{{agent}} couldn't confirm the fork",
+        "unconfirmedDetail": "It may have opened anyway. Check Session History before forking again.",
+        "failed": "{{agent}} couldn't fork this chat",
+        "hostUnsupported": "This host runs an older Orca. Update Orca on the host, then try again.",
+        "failedDetail": "Your chat is unchanged. Try again.",
+        "commandDescription": "Fork this chat from its latest response",
+        "commandWorking": "Wait for the response to finish, then fork.",
+        "commandNothing": "There’s no response to fork yet.",
+        "commandTakesNoText": "Send /fork on its own, then write in the new chat."
       },
       "cardKindHidden": {
         "description": "You can change this anytime in",
@@ -24845,6 +24850,26 @@
     "gitlabAllowedFailure": "Allowed to fail",
     "rerunUnsuccessful": "Rerun unsuccessful"
   },
+  "macosUpdateRequirement": {
+    "title": "Orca updates now need macOS {{macos}}",
+    "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
+    "checking": "Checking whether this Mac can upgrade…",
+    "upgradeDescription": "Your Mac can upgrade. Update macOS to get the latest Orca.",
+    "unsupportedDescription": "Apple doesn’t support macOS {{macos}} on this Mac.",
+    "unknownDescription": "We couldn’t confirm an upgrade for this Mac. Apple’s compatibility guide can help.",
+    "whyTitle": "Why is this changing?",
+    "whyIntro": "We updated parts of Orca’s foundation, like Electron and the on-device speech engine, to bring:",
+    "whySecurity": "Ongoing security fixes from Electron and Chromium.",
+    "whyPerformance": "Faster startup and more efficient native API calls.",
+    "whySystemApis": "Support for current macOS notification APIs and secure Keychain storage.",
+    "whyRequirement": "That newer foundation requires macOS {{macos}} or later.",
+    "dismiss": "Got it",
+    "checkingAction": "Checking your Mac…",
+    "updateAction": "How to update macOS",
+    "discussionAction": "Join the discussion",
+    "checkAction": "Check compatibility",
+    "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
+  },
   "gitGraph": {
     "copyHash": "Copy commit hash",
     "parents": "Parents",
@@ -24906,26 +24931,6 @@
     "branchName": "Branch name",
     "invalidBranchName": "This branch name is invalid. Choose a different name.",
     "createBranchFailed": "Orca couldn't create the branch. Check this repository in a terminal, then try again."
-  },
-  "macosUpdateRequirement": {
-    "title": "Orca updates now need macOS {{macos}}",
-    "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
-    "checking": "Checking whether this Mac can upgrade…",
-    "upgradeDescription": "Your Mac can upgrade. Update macOS to get the latest Orca.",
-    "unsupportedDescription": "Apple doesn’t support macOS {{macos}} on this Mac.",
-    "unknownDescription": "We couldn’t confirm an upgrade for this Mac. Apple’s compatibility guide can help.",
-    "whyTitle": "Why is this changing?",
-    "whyIntro": "We updated parts of Orca’s foundation, like Electron and the on-device speech engine, to bring:",
-    "whySecurity": "Ongoing security fixes from Electron and Chromium.",
-    "whyPerformance": "Faster startup and more efficient native API calls.",
-    "whySystemApis": "Support for current macOS notification APIs and secure Keychain storage.",
-    "whyRequirement": "That newer foundation requires macOS {{macos}} or later.",
-    "dismiss": "Got it",
-    "checkingAction": "Checking your Mac…",
-    "updateAction": "How to update macOS",
-    "discussionAction": "Join the discussion",
-    "checkAction": "Check compatibility",
-    "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
   },
   "remoteHostBrowserControl": {
     "title": "{{host}} is controlling a browser tab",
