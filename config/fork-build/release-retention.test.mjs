@@ -106,13 +106,19 @@ test('failed, unpromoted, audit, reused and foreign runs never read or delete re
 test('stale ledgers and newer releases abort before any deletion', () => {
   for (const kind of ['local', 'live', 'newer', 'configuration']) {
     const { input, releases, release, removed } = scenario()
-    if (kind === 'local') input.ledger = { lastGood: { tag: 'personal-19-1' } }
+    if (kind === 'local') {
+      input.ledger = { lastGood: { tag: 'personal-19-1' } }
+    }
     if (kind === 'live') {
       const read = input.read
       input.read = (path) => (path.includes('/issues/') ? { body: '' } : read(path))
     }
-    if (kind === 'newer') releases.push(release(22, 'personal-22-1', '2026-11-11T00:00:00Z'))
-    if (kind === 'configuration') releases[0].target_commitish = 'other'
+    if (kind === 'newer') {
+      releases.push(release(22, 'personal-22-1', '2026-11-11T00:00:00Z'))
+    }
+    if (kind === 'configuration') {
+      releases[0].target_commitish = 'other'
+    }
     assert.throws(() => retainCurrentRelease(input))
     assert.deepEqual(removed, [])
   }
@@ -120,10 +126,14 @@ test('stale ledgers and newer releases abort before any deletion', () => {
 
 test('paginates all releases and stops on the first failed deletion with a partial receipt', () => {
   const { input, releases, release, removed, records } = scenario()
-  for (let id = 30; id < 135; id++) releases.push(release(id, `old-${id}`, '2026-11-01T00:00:00Z'))
+  for (let id = 30; id < 135; id++) {
+    releases.push(release(id, `old-${id}`, '2026-11-01T00:00:00Z'))
+  }
   const remove = input.remove
   input.remove = (path) => {
-    if (removed.length === 100) throw new Error('GitHub unavailable')
+    if (removed.length === 100) {
+      throw new Error('GitHub unavailable')
+    }
     remove(path)
   }
   assert.throws(() => retainCurrentRelease(input), /GitHub unavailable/)

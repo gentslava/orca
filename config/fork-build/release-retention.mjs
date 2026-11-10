@@ -56,9 +56,13 @@ export function retainCurrentRelease({ plan, ledger, environment, read, remove, 
   const releases = []
   for (let page = 1; ; page++) {
     const batch = read(`repos/${repository}/releases?per_page=100&page=${page}`)
-    if (!Array.isArray(batch)) throw new Error('Invalid release inventory')
+    if (!Array.isArray(batch)) {
+      throw new Error('Invalid release inventory')
+    }
     releases.push(...batch)
-    if (batch.length < 100) break
+    if (batch.length < 100) {
+      break
+    }
   }
   const ids = new Set()
   for (const release of releases) {
