@@ -1,3 +1,4 @@
+import { newerPersonalProjectOrder } from '../../../src/shared/personal-project-order'
 // Sync phone view settings through the shared ui.get/ui.set store so edits converge across clients.
 
 import type { WorkspaceStatusDefinition } from '../../../src/shared/worktree/types'
@@ -40,6 +41,7 @@ export type WorkspaceViewSettings = {
     // Written with the card properties only: whether they are a Card layout preset.
     | '_worktreeCardModeDefaulted'
     | 'conversationPreferences'
+    | 'personalProjectOrder'
   >
 >
 
@@ -51,6 +53,7 @@ export type MobileViewState = {
   workspaceStatuses: readonly WorkspaceStatusDefinition[]
   /** Null until the desktop's value is read; the served project list's order stands in. */
   conversationPreferences?: PersistedUIState['conversationPreferences']
+  personalProjectOrder?: PersistedUIState['personalProjectOrder']
   projectOrderBy: ProjectOrderBy | null
   /** May hold a property a newer desktop added; it is carried back unchanged. */
   worktreeCardProperties: readonly WorktreeCardProperty[]
@@ -170,6 +173,10 @@ export function applyDesktopViewSettings(
       settings.workspaceHostScope
     )
   }
+  const personalProjectOrder = newerPersonalProjectOrder(
+    current.personalProjectOrder,
+    settings.personalProjectOrder
+  )
   return {
     groupBy: isGroupBy(settings.groupBy) ? settings.groupBy : current.groupBy,
     sortBy: isSortBy(settings.sortBy) ? settings.sortBy : current.sortBy,
@@ -183,6 +190,7 @@ export function applyDesktopViewSettings(
     settings.conversationPreferences.revision >= (current.conversationPreferences?.revision ?? 0)
       ? { conversationPreferences: settings.conversationPreferences }
       : {}),
+    ...(personalProjectOrder ? { personalProjectOrder } : {}),
     projectOrderBy: settings.projectOrderBy ?? current.projectOrderBy,
     worktreeCardProperties: settings.worktreeCardProperties ?? current.worktreeCardProperties,
     agentActivityDisplayMode: settings.agentActivityDisplayMode ?? current.agentActivityDisplayMode,
