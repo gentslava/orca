@@ -1,8 +1,8 @@
 diff --git a/config/flaky-test-pattern-baseline.txt b/config/flaky-test-pattern-baseline.txt
-index d2a8360f020..4497fc6ad0e 100644
+index 019286efc6972ed9e625c5f1be3b2e44d69274ec..6c672bca0797acebf70020e199d7312ea6188973 100644
 --- a/config/flaky-test-pattern-baseline.txt
 +++ b/config/flaky-test-pattern-baseline.txt
-@@ -375,7 +375,7 @@
+@@ -369,7 +369,7 @@
  1 test-no-real-time-wait:tests/e2e/pdf-find-counter.spec.ts
  1 test-no-real-time-wait:tests/e2e/pdf-viewer-rebuild-recovery.spec.ts
  1 test-no-real-time-wait:tests/e2e/project-group-manual-sort.spec.ts
@@ -11,14 +11,14 @@ index d2a8360f020..4497fc6ad0e 100644
  4 test-no-real-time-wait:tests/e2e/relaunch-sleeping-agents-resume-on-view.spec.ts
  1 test-no-real-time-wait:tests/e2e/resource-manager-local-pty-view.spec.ts
  1 test-no-real-time-wait:tests/e2e/settings-display-name-ime.spec.ts
-@@ -647,7 +647,6 @@
+@@ -639,7 +639,6 @@
  2 test-no-wall-clock:src/renderer/src/components/task-page/jira/task-page-jira-cache-selectors.test.ts
  2 test-no-wall-clock:src/renderer/src/components/terminal-pane/pty-connection/emulation/fish-color-scheme-child-stdin.node-pty.test.ts
  2 test-no-wall-clock:src/renderer/src/components/terminal-pane/snapshots/remote-snapshot-alt-screen-host-chain.test.ts
 -1 test-no-wall-clock:src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
  2 test-no-wall-clock:src/renderer/src/components/workspace-cleanup/use-workspace-cleanup-removal.agent-stop.test.tsx
  1 test-no-wall-clock:src/renderer/src/components/worktree-jump/WorktreeJumpPalette.recent-tabs.behavior.test.tsx
- 4 test-no-wall-clock:src/renderer/src/components/worktree-jump/WorktreeJumpPalette.recent-tabs.test.tsx
+ 2 test-no-wall-clock:src/renderer/src/hooks/ipc-events/agent-status-terminal-title-tab-write.test.ts
 diff --git a/config/focus-setting-read-baseline.txt b/config/focus-setting-read-baseline.txt
 index 4b3f4c25346..6f993013ed7 100644
 --- a/config/focus-setting-read-baseline.txt
