@@ -151,6 +151,28 @@ try {
   } catch (error) {
     plan.blockers.push({ reason: `Required fork localization failed: ${error.message}` })
   }
+  if (
+    plan.result.publishable &&
+    !plan.blockers.length &&
+    git(source, ['rev-parse', 'HEAD']) !== plan.result.commit
+  ) {
+    const overlays = git(
+      source,
+      [
+        'commit-tree',
+        git(source, ['write-tree']),
+        '-p',
+        plan.result.commit,
+        '-m',
+        'fork: apply required compatibility and localization'
+      ],
+      {
+        GIT_AUTHOR_DATE: plan.timestamp,
+        GIT_COMMITTER_DATE: plan.timestamp
+      }
+    )
+    git(source, ['reset', '--hard', overlays])
+  }
   plan.result.commit = git(source, ['rev-parse', 'HEAD'])
   plan.result.tree = git(source, ['rev-parse', 'HEAD^{tree}'])
   plan.compatibilityContract = JSON.parse(

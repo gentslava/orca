@@ -198,7 +198,7 @@ export function prepareFeatureMerge(cwd, upstream, head, timestamp) {
     if (readFileSync(mergeHead, 'utf8').trim() !== snapshot) {
       throw new Error('Unexpected feature merge parent')
     }
-    // Merge the isolated upstream delta, but retain the original PR as the actual parent.
+    // Resolve using the PR parent; seal the result as one linear feature commit afterwards.
     writeFileSync(mergeHead, `${head}\n`)
   }
   if (failure) {
@@ -223,6 +223,26 @@ function directConflicts(cwd, upstream, sha) {
   } finally {
     rmSync(directory, { recursive: true, force: true })
   }
+}
+
+function sealSelectedFeature(cwd, before, pr, timestamp) {
+  const tree = git(cwd, ['write-tree'])
+  const commit = git(
+    cwd,
+    [
+      'commit-tree',
+      tree,
+      '-p',
+      before,
+      '-m',
+      `fork: integrate PR ${pr.number}\n\nSource-Head: ${pr.head.sha}`
+    ],
+    {
+      GIT_AUTHOR_DATE: timestamp,
+      GIT_COMMITTER_DATE: timestamp
+    }
+  )
+  git(cwd, ['reset', '--hard', commit])
 }
 
 export function compose(
@@ -267,6 +287,7 @@ export function compose(
         })
         localeMerges.push({ number: pr.number, paths: repaired })
       }
+      sealSelectedFeature(cwd, before, pr, timestamp)
       included.push({ number: pr.number, head: pr.head.sha })
     } catch (error) {
       const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
@@ -277,6 +298,7 @@ export function compose(
           GIT_AUTHOR_DATE: timestamp,
           GIT_COMMITTER_DATE: timestamp
         })
+        sealSelectedFeature(cwd, before, pr, timestamp)
         included.push({ number: pr.number, head: pr.head.sha })
         const localePaths = [...new Set([...resolution.localePaths, ...repaired])]
         if (localePaths.length) {

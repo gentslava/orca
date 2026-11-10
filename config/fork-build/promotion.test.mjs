@@ -43,6 +43,7 @@ function fixture(run) {
       runUrl: 'https://github.com/gentslava/orca/actions/runs/1',
       result: {
         publishable: true,
+        included: [{ number: 1, head: source }],
         upstream,
         commit: source,
         tree: git(cwd, ['rev-parse', 'HEAD^{tree}'])
@@ -56,7 +57,7 @@ function fixture(run) {
   }
 }
 
-test('promotes the exact built application, preserves control and ancestry, and atomically mirrors main', () =>
+test('promotes the exact built application, preserves control without importing previous master history, and atomically mirrors main', () =>
   fixture((f) => {
     const { cwd, plan, candidate } = f
     assert.equal(git(cwd, ['show', `${candidate.commit}:application`]), 'fresh upstream')
@@ -69,7 +70,6 @@ test('promotes the exact built application, preserves control and ancestry, and 
     assert.throws(() => git(cwd, ['show', `${candidate.commit}:retired-feature`]))
     assert.deepEqual(git(cwd, ['rev-list', '--parents', '-1', candidate.commit]).split(' '), [
       candidate.commit,
-      plan.configuration,
       plan.result.commit
     ])
     assert.equal(
@@ -79,6 +79,13 @@ test('promotes the exact built application, preserves control and ancestry, and 
     assert.equal(controlFingerprint(cwd, plan.result.commit), controlFingerprint(cwd, f.main))
     const result = promoteBranches(cwd, plan, candidate, { forkUrl: f.remote })
     assert.equal(result.status, 'promoted')
+    assert.equal(
+      git(f.remote, ['rev-parse', `refs/heads/archive/master-${plan.configuration}`]),
+      plan.configuration
+    )
+    assert.throws(() =>
+      git(cwd, ['merge-base', '--is-ancestor', plan.configuration, candidate.commit])
+    )
     assert.equal(git(f.remote, ['rev-parse', 'master']), candidate.commit)
     assert.equal(git(f.remote, ['rev-parse', 'main']), plan.upstream)
   }))
@@ -166,4 +173,28 @@ test('audit, failed, reused, dirty and mismatched-source plans never become prom
     assert.throws(() => preparePromotion(f.cwd, f.plan), /differs from the built source/)
     assert.equal(git(f.remote, ['rev-parse', 'master']), f.plan.configuration)
     assert.equal(git(f.remote, ['rev-parse', 'main']), f.main)
+  }))
+
+test('unchanged application trees cannot smuggle previous master history into promotion', () =>
+  fixture((f) => {
+    const polluted = git(f.cwd, [
+      'commit-tree',
+      f.plan.result.tree,
+      '-p',
+      f.plan.result.commit,
+      '-p',
+      f.plan.configuration,
+      '-m',
+      'polluted history'
+    ])
+    git(f.cwd, ['checkout', '--detach', polluted])
+    assert.throws(
+      () =>
+        preparePromotion(f.cwd, {
+          ...f.plan,
+          result: { ...f.plan.result, commit: polluted }
+        }),
+      /linear selected-feature history/
+    )
+    assert.equal(git(f.remote, ['rev-parse', 'master']), f.plan.configuration)
   }))

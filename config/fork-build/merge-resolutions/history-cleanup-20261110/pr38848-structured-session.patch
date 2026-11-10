@@ -1,0 +1,10 @@
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+@@ -377,6 +377,7 @@
+                   {...stopControls.composer}
+                   unavailableHint={install.unavailableHint}
+                   steerHead={stopControls.stopping ? undefined : submits.queuedMessages.steerHead}
++                  steerLast={stopControls.stopping ? undefined : submits.queuedMessages.steerLast}
+                   structuredTransport={transport}
+                   notices={notices}
+                   recallSource={{ messages: session.messages, withoutImageMarkers: true }}

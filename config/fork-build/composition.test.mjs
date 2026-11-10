@@ -147,7 +147,7 @@ test('real Git: clean merge, direct conflict, combination conflict and merged an
     assert.equal(result.publishable, false)
     assert.equal(git(cwd, 'show', `${result.commit}:file`), 'one')
     assert.equal(
-      git(cwd, 'show', '--no-patch', '--format=%an <%ae>%n%cn <%ce>%n%B', result.commit),
+      git(cwd, 'show', '--no-patch', '--format=%an <%ae>%n%cn <%ce>%n%s', result.commit),
       'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\ngithub-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\nfork: integrate PR 1'
     )
     assert.equal(
@@ -232,7 +232,7 @@ test('real Git: combines independent locale keys and still blocks divergent tran
       '41898282+github-actions[bot]@users.noreply.github.com\n41898282+github-actions[bot]@users.noreply.github.com'
     )
     assert.equal(
-      git(cwd, 'show', '--no-patch', '--format=%B', result.commit),
+      git(cwd, 'show', '--no-patch', '--format=%s', result.commit),
       'fork: integrate PR 2'
     )
     assert.deepEqual(
@@ -448,11 +448,13 @@ test('real Git: shared integration ancestry cannot undo another selected feature
     assert.equal(git(cwd, 'show', 'HEAD:other'), 'two')
     assert.equal(git(cwd, 'show', 'HEAD:main-only'), 'upstream')
     for (const head of heads) {
-      git(cwd, 'merge-base', '--is-ancestor', head, result.commit)
+      assert.throws(() => git(cwd, 'merge-base', '--is-ancestor', head, result.commit))
+      assert.ok(git(cwd, 'log', '--format=%B', `${upstream}..HEAD`).includes(head))
     }
     const parents = git(cwd, 'show', '--format=%P', '--no-patch', result.commit).split(' ')
-    assert.equal(parents.length, 2)
-    assert.equal(parents[1], heads[1])
+    assert.equal(parents.length, 1)
+    assert.equal(git(cwd, 'rev-list', '--count', `${upstream}..HEAD`), '2')
+    assert.equal(git(cwd, 'rev-list', '--min-parents=2', `${upstream}..HEAD`), '')
   }))
 
 test('real Git: retained branches freeze the fork tip and reject races, rewritten ancestry and missing refs', () =>
