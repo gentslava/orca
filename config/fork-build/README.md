@@ -43,10 +43,14 @@ Build jobs execute the composed source with read-only repository permissions and
 
 ## Editing selection
 
+Antigravity terminal model discovery is supplied by required PR 40175. It reads the execution host's `agy models` catalog separately from Chat's ACP catalog, so a terminal can offer Claude and GPT-OSS without advertising them for a managed Chat server that cannot run them. The change preserves account, host and mixed-version boundaries; it does not alter Google's ACP client restrictions or switch existing chats to another account/backend.
+
 Edit `selection.json` on master. Keep community PR numbers in `include`, with a reason. Use `exclude` for a deliberate retirement/hold, `replacements` for reviewed unmerged-PR successor mappings (effective before upstream closure), and `dependencies` when application order matters. Required compatibility corrections are listed explicitly. Pins and optional silent fallbacks are intentionally not supported: maintain compatibility in the actual atomic PR instead.
 The retired hovercard fixture correction (PR 37279) is supplied by merged PR 37276. The changed file was verified identical to upstream; the obsolete PR is closed and recorded as a replacement.
 
 Mobile shared-reader lifecycle: merged PR 39727 carries the same four-file patch as closed PR 39022. The replacement records that maintainer port; composition verifies its merge ancestry before omitting it from the personal build.
+
+SSH test isolation: merged PR 40673 carries the exact patch from closed PR 40293, preserving its author, and also clears credential-decline holds in the shared connection fixture. The replacement prevents the closed original from blocking selection; composition requires the successor's merge ancestry before treating the fix as supplied by upstream.
 
 The noisy readable-transcript warning (PR 36858, issue 36856) is supplied by merged PR 37211. The current scanner reports a failure only for unreadable conversations. The retired PR’s separate older-host disclosure enhancement is omitted from the required product build.
 

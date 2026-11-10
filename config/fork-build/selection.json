@@ -10,6 +10,10 @@
   ],
   "include": [
     {
+      "number": 40175,
+      "reason": "Owner-reported Antigravity launch menu omits Claude and GPT-OSS available in agy. Use operation-specific catalogs: terminal reads agy models on its execution host, while Chat retains its actual ACP catalog."
+    },
+    {
       "number": 36530,
       "reason": "scrcpy input latency fixes requested for the Android emulator"
     },
@@ -45,7 +49,8 @@
     "36892": 38022,
     "39022": 39727,
     "36736": 40148,
-    "40499": 40496
+    "40499": 40496,
+    "40293": 40673
   },
   "dependencies": {
     "36593": [36634]
