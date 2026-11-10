@@ -97,6 +97,120 @@
         "modelErrorDetails": "Подробнее",
         "retryModels": "Повторить"
       }
+    },
+    "general": {
+      "openInMenu": {
+        "keyword": {
+          "windsurf": "windsurf",
+          "devin": "devin",
+          "devinDesktop": "devin desktop",
+          "antigravity": "antigravity"
+        }
+      },
+      "confirmations": {
+        "artifactHelp": "Все, у кого есть публичная ссылка, потеряют доступ.",
+        "pinned": "Закрытие закреплённой вкладки",
+        "workspace": "Удаление рабочей области",
+        "runningHelp": "Спрашивать перед остановкой работающего агента или команды.",
+        "artifact": "Удаление артефакта",
+        "automationHelp": "История её запусков тоже будет удалена.",
+        "automation": "Удаление автоматизации",
+        "title": "Подтверждения",
+        "running": "Закрытие работающего чата или терминала"
+      },
+      "pages": {
+        "folder": "Папка рабочих областей",
+        "editor": "Редактор и сравнение изменений",
+        "openIn": "Открыть в",
+        "worktrees": "Рабочие деревья из других инструментов"
+      },
+      "folder": {
+        "oneFolder": "Общая папка",
+        "perProject": "Папка для проекта"
+      },
+      "search": {
+        "keywords": {
+          "claude": "Claude",
+          "auto_save": "автосохранение auto save",
+          "source": "исходный код source",
+          "share": "поделиться share",
+          "star": "избранное star",
+          "gsd": "GSD",
+          "update": "обновление update",
+          "markdown": "markdown",
+          "diff": "сравнение изменений diff",
+          "whitespace": "пробельные символы whitespace",
+          "ask_before": "спрашивать перед действием ask before",
+          "confirmations": "подтверждения confirmations",
+          "command_line": "командная строка command line",
+          "artifact": "артефакт artifact",
+          "version": "версия version",
+          "spaces": "пробелы spaces",
+          "link": "ссылка link",
+          "tabs": "вкладки tabs",
+          "trim": "удалять пробелы trim",
+          "root": "корневая папка root",
+          "word_wrap": "перенос строк word wrap",
+          "wrap": "перенос wrap",
+          "location": "расположение location",
+          "custom": "свой custom",
+          "indentation": "отступы indentation",
+          "long_lines": "длинные строки long lines",
+          "about": "о приложении about"
+        }
+      },
+      "cli": {
+        "title": "Командная строка",
+        "otherTerminals": "{{command}} в других терминалах",
+        "skillTitle": "Навык Orca для агентов",
+        "description": "В терминалах Orca команда уже доступна."
+      },
+      "previewTabs": {
+        "title": "Предварительный просмотр во вкладках",
+        "description": "Одиночный щелчок открывает файл в общей вкладке предпросмотра, пока вы не измените или не закрепите его."
+      },
+      "autoSave": {
+        "title": "Автосохранение",
+        "description": "Сохранять изменения после короткой паузы."
+      },
+      "editorGroups": {
+        "saving": "Сохранение",
+        "markdown": "Markdown",
+        "editor": "Редактор",
+        "diffs": "Сравнение изменений"
+      },
+      "editor": {
+        "sideBySide": "Изменения в двух колонках",
+        "inline": "Изменения в одной колонке",
+        "description": "Сохранение, редактор, сравнение изменений и Markdown"
+      },
+      "workspaces": {
+        "title": "Рабочие области"
+      },
+      "worktrees": {
+        "addFolder": "Добавить папку…",
+        "customRules": "Свои правила",
+        "cancelAdd": "Отмена",
+        "hidden": "Все скрыты",
+        "description": "Claude Code, GSD и другие расположения",
+        "shown": "Показывать по умолчанию"
+      },
+      "openIn": {
+        "none": "Приложения не добавлены",
+        "description": "Приложения в меню «Открыть в» рабочей области"
+      },
+      "tabs": {
+        "title": "Вкладки"
+      },
+      "about": {
+        "title": "О приложении",
+        "version": "Orca {{version}}"
+      }
+    },
+    "breadcrumb": {
+      "settings": "Настройки",
+      "label": "Навигация по настройкам",
+      "close": "Закрыть настройки"
     }
   },
   "holdQuit": {
@@ -380,6 +494,14 @@
         },
         "serverList": {
           "rename": "Переименовать…"
+        },
+        "general": {
+          "search": {
+            "markdownDefaultViewDesc": "Режим, в котором открываются файлы Markdown. Его также можно изменить через контекстное меню переключателя во вкладке Markdown.",
+            "markdownSourceKw": "исходный код source",
+            "markdownRichKw": "форматированный текст rich",
+            "0f9304f821": "Режим просмотра Markdown по умолчанию"
+          }
         }
       }
     }

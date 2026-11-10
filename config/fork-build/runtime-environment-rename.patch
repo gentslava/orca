@@ -1,9 +1,9 @@
 diff --git a/src/cli/handlers/environment-rename.test.ts b/src/cli/handlers/environment-rename.test.ts
 new file mode 100644
-index 00000000000..191ff49cc19
+index 00000000000..137a7ffb140
 --- /dev/null
 +++ b/src/cli/handlers/environment-rename.test.ts
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,65 @@
 +import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 +import { tmpdir } from 'node:os'
 +import { join } from 'node:path'
@@ -23,7 +23,9 @@ index 00000000000..191ff49cc19
 +  vi.unstubAllEnvs()
 +  vi.restoreAllMocks()
 +  process.exitCode = originalExitCode
-+  for (const directory of directories.splice(0)) rmSync(directory, { recursive: true, force: true })
++  for (const directory of directories.splice(0)) {
++    rmSync(directory, { recursive: true, force: true })
++  }
 +})
 +
 +it('renames the selected saved server offline without changing pairing or unreadable entries', async () => {
@@ -160,3 +162,345 @@ index f44a0fa5e56..891cd5c89dc 100644
    {
      path: ['environment', 'rm'],
      destructive: true,
+diff --git a/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts b/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
+index 4d12eb7d25e..bb4541bc9dc 100644
+--- a/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
++++ b/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
+@@ -1,3 +1,4 @@
++import { renameSavedRuntimeEnvironment } from './runtime-environment-rename-handler'
+ import {
+   manuallyDisconnectedResponse,
+   runtimeEnvironmentCallFailure
+@@ -8,7 +9,6 @@ import {
+   addEnvironmentFromPairingCode,
+   listEnvironments,
+   removeEnvironment,
+-  renameEnvironment,
+   resolveEnvironment
+ } from '../../../shared/remote-runtime/host-store/runtime-environment-store'
+ import {
+@@ -152,23 +152,8 @@ export function registerRuntimeEnvironmentConnectivityHandlers({
+       return { removed: redactRuntimeEnvironment(removed) }
+     }
+   )
+-  ipcMain.handle(
+-    'runtimeEnvironments:rename',
+-    (
+-      _event,
+-      args: { selector: string; name: string }
+-    ): { environment: PublicKnownRuntimeEnvironment } => {
+-      // Resolve merged first: an unreadable sidecar hides the record rather than lose its links.
+-      const environment = resolveEnvironment(getUserDataPath(), args.selector)
+-      const renamed = renameEnvironment(getUserDataPath(), environment.id, { name: args.name })
+-      return {
+-        environment: redactRuntimeEnvironment({
+-          ...environment,
+-          name: renamed.name,
+-          updatedAt: renamed.updatedAt
+-        })
+-      }
+-    }
++  ipcMain.handle('runtimeEnvironments:rename', (_event, args: { selector: string; name: string }) =>
++    renameSavedRuntimeEnvironment(getUserDataPath(), args)
+   )
+   ipcMain.handle(
+     'runtimeEnvironments:disconnect',
+diff --git a/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts b/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts
+new file mode 100644
+index 00000000000..4fafc5dfcda
+--- /dev/null
++++ b/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts
+@@ -0,0 +1,20 @@
++import {
++  renameEnvironment,
++  resolveEnvironment
++} from '../../../shared/remote-runtime/host-store/runtime-environment-store'
++import { redactRuntimeEnvironment } from '../../../shared/remote-runtime/host-catalog/runtime-environments'
++
++export function renameSavedRuntimeEnvironment(
++  userDataPath: string,
++  args: { selector: string; name: string }
++) {
++  const environment = resolveEnvironment(userDataPath, args.selector)
++  const renamed = renameEnvironment(userDataPath, environment.id, { name: args.name })
++  return {
++    environment: redactRuntimeEnvironment({
++      ...environment,
++      name: renamed.name,
++      updatedAt: renamed.updatedAt
++    })
++  }
++}
+diff --git a/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts b/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
+index f331aa16643..2943a2685f5 100644
+--- a/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
++++ b/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
+@@ -181,38 +181,16 @@ export function useRuntimeEnvironmentMutationActions({
+     }
+   }
+ 
+-  const renameEnvironment = async (
+-    environment: PublicKnownRuntimeEnvironment,
+-    nextName: string
+-  ): Promise<boolean> => {
+-    const trimmedName = nextName.trim()
+-    setRenamingId(environment.id)
+-    setRenameError(null)
+-    try {
+-      await window.api.runtimeEnvironments.rename({ selector: environment.id, name: trimmedName })
+-      await loadEnvironments()
+-      if (mountedRef.current) {
+-        toast.success(
+-          t(
+-            'auto.components.settings.RuntimeEnvironmentsPane.serverRenamed',
+-            'Renamed to {{value0}}.',
+-            { value0: trimmedName }
+-          )
+-        )
+-      }
+-      return true
+-    } catch (error) {
+-      const message = error instanceof Error ? error.message : 'Failed to rename server.'
+-      if (mountedRef.current) {
+-        setRenameError(message)
+-      }
+-      return false
+-    } finally {
+-      if (mountedRef.current) {
+-        setRenamingId(null)
+-      }
+-    }
+-  }
++  const renameEnvironment = (environment: PublicKnownRuntimeEnvironment, nextName: string) =>
++    renameSavedRuntimeEnvironment({
++      environment,
++      nextName,
++      mountedRef,
++      loadEnvironments,
++      setRenamingId,
++      setRenameError,
++      t
++    })
+ 
+   return {
+     isSaving,
+@@ -234,3 +212,49 @@ export function useRuntimeEnvironmentMutationActions({
+     renameEnvironment
+   }
+ }
++
++async function renameSavedRuntimeEnvironment({
++  environment,
++  nextName,
++  mountedRef,
++  loadEnvironments,
++  setRenamingId,
++  setRenameError,
++  t
++}: {
++  environment: PublicKnownRuntimeEnvironment
++  nextName: string
++  mountedRef: MutableRefObject<boolean>
++  loadEnvironments: RuntimeEnvironmentMutationActionParams['loadEnvironments']
++  setRenamingId: (id: string | null) => void
++  setRenameError: (error: string | null) => void
++  t: ReturnType<typeof useTranslate>
++}): Promise<boolean> {
++  const trimmedName = nextName.trim()
++  setRenamingId(environment.id)
++  setRenameError(null)
++  try {
++    await window.api.runtimeEnvironments.rename({ selector: environment.id, name: trimmedName })
++    await loadEnvironments()
++    if (mountedRef.current) {
++      toast.success(
++        t(
++          'auto.components.settings.RuntimeEnvironmentsPane.serverRenamed',
++          'Renamed to {{value0}}.',
++          { value0: trimmedName }
++        )
++      )
++    }
++    return true
++  } catch (error) {
++    const message = error instanceof Error ? error.message : 'Failed to rename server.'
++    if (mountedRef.current) {
++      setRenameError(message)
++    }
++    return false
++  } finally {
++    if (mountedRef.current) {
++      setRenamingId(null)
++    }
++  }
++}
+diff --git a/src/renderer/src/web/preload-api/web-runtime-environment-mutations.ts b/src/renderer/src/web/preload-api/web-runtime-environment-mutations.ts
+new file mode 100644
+index 00000000000..7e3c5b03336
+--- /dev/null
++++ b/src/renderer/src/web/preload-api/web-runtime-environment-mutations.ts
+@@ -0,0 +1,42 @@
++import { translate } from '@/i18n/i18n'
++import {
++  redactStoredWebRuntimeEnvironment,
++  saveStoredWebRuntimeEnvironment
++} from '../web-runtime-environment'
++import {
++  resolveEnvironment,
++  webRuntimeState,
++  removeActiveRuntimeEnvironment,
++  manuallyDisconnectedEnvironmentIds
++} from './web-runtime-session'
++
++export function renameWebRuntimeEnvironment(selector: string, name: string) {
++  const environment = resolveEnvironment(selector)
++  const trimmed = name.trim()
++  if (!trimmed) {
++    throw new Error(
++      translate(
++        'auto.web.webPreloadApi.runtimeEnvironmentNameRequired',
++        'A server name is required.'
++      )
++    )
++  }
++  if (trimmed === environment.name) {
++    return { environment: redactStoredWebRuntimeEnvironment(environment) }
++  }
++  const next = { ...environment, name: trimmed, updatedAt: Date.now() }
++  saveStoredWebRuntimeEnvironment(next)
++  if (webRuntimeState.activeEnvironment?.id === environment.id) {
++    webRuntimeState.activeEnvironment = next
++  }
++  return { environment: redactStoredWebRuntimeEnvironment(next) }
++}
++
++export function removeWebRuntimeEnvironment(selector: string) {
++  const environment = resolveEnvironment(selector)
++  if (webRuntimeState.activeEnvironment?.id === environment.id) {
++    removeActiveRuntimeEnvironment()
++  }
++  manuallyDisconnectedEnvironmentIds.delete(environment.id)
++  return { removed: redactStoredWebRuntimeEnvironment(environment) }
++}
+diff --git a/src/renderer/src/web/preload-api/web-runtime-environments-api.ts b/src/renderer/src/web/preload-api/web-runtime-environments-api.ts
+index 2518e932dac..a946b1ef709 100644
+--- a/src/renderer/src/web/preload-api/web-runtime-environments-api.ts
++++ b/src/renderer/src/web/preload-api/web-runtime-environments-api.ts
+@@ -1,3 +1,7 @@
++import {
++  renameWebRuntimeEnvironment,
++  removeWebRuntimeEnvironment
++} from './web-runtime-environment-mutations'
+ import { pairedRuntimeConnectionFromOffer } from '../../../../shared/remote-runtime/pairing/paired-runtime-connection'
+ import {
+   createWebRuntimeSubscriptionApiControl,
+@@ -33,7 +37,6 @@ import {
+   disconnectActiveRuntimeEnvironment,
+   getClientForEnvironment,
+   manuallyDisconnectedEnvironmentIds,
+-  removeActiveRuntimeEnvironment,
+   requireActiveEnvironmentOrNull,
+   resolveEnvironment,
+   webRuntimeState,
+@@ -185,35 +188,8 @@ export function createRuntimeEnvironmentsApi(): PreloadApi['runtimeEnvironments'
+     }),
+     resolve: async ({ selector }) =>
+       redactStoredWebRuntimeEnvironment(resolveEnvironment(selector)),
+-    remove: async ({ selector }) => {
+-      const environment = resolveEnvironment(selector)
+-      if (webRuntimeState.activeEnvironment?.id === environment.id) {
+-        removeActiveRuntimeEnvironment()
+-      }
+-      manuallyDisconnectedEnvironmentIds.delete(environment.id)
+-      return { removed: redactStoredWebRuntimeEnvironment(environment) }
+-    },
+-    rename: async ({ selector, name }) => {
+-      const environment = resolveEnvironment(selector)
+-      const trimmed = name.trim()
+-      if (!trimmed) {
+-        throw new Error(
+-          translate(
+-            'auto.web.webPreloadApi.runtimeEnvironmentNameRequired',
+-            'A server name is required.'
+-          )
+-        )
+-      }
+-      if (trimmed === environment.name) {
+-        return { environment: redactStoredWebRuntimeEnvironment(environment) }
+-      }
+-      const next = { ...environment, name: trimmed, updatedAt: Date.now() }
+-      saveStoredWebRuntimeEnvironment(next)
+-      if (webRuntimeState.activeEnvironment?.id === environment.id) {
+-        webRuntimeState.activeEnvironment = next
+-      }
+-      return { environment: redactStoredWebRuntimeEnvironment(next) }
+-    },
++    remove: async ({ selector }) => removeWebRuntimeEnvironment(selector),
++    rename: async ({ selector, name }) => renameWebRuntimeEnvironment(selector, name),
+     disconnect: async ({ selector }) => {
+       const environment = resolveEnvironment(selector)
+       if (webRuntimeState.activeEnvironment?.id === environment.id) {
+diff --git a/src/shared/remote-runtime/host-store/runtime-environment-store-selection.ts b/src/shared/remote-runtime/host-store/runtime-environment-store-selection.ts
+new file mode 100644
+index 00000000000..fbbef4140f3
+--- /dev/null
++++ b/src/shared/remote-runtime/host-store/runtime-environment-store-selection.ts
+@@ -0,0 +1,23 @@
++import type { PersistedRuntimeEnvironment } from '../host-catalog/runtime-environments'
++import { RuntimeEnvironmentStoreError } from './runtime-environment-store-records'
++
++export function resolveEnvironmentFromStore<T extends PersistedRuntimeEnvironment>(
++  store: { environments: T[] },
++  selector: string
++): T {
++  const byId = store.environments.find((entry) => entry.id === selector)
++  if (byId) {
++    return byId
++  }
++  const matches = store.environments.filter((entry) => entry.name === selector)
++  if (matches.length === 1) {
++    return matches[0]!
++  }
++  if (matches.length > 1) {
++    throw new RuntimeEnvironmentStoreError(
++      'invalid_argument',
++      `Environment name "${selector}" is ambiguous; use the environment id.`
++    )
++  }
++  throw new RuntimeEnvironmentStoreError('invalid_argument', `Unknown environment: ${selector}`)
++}
+diff --git a/src/shared/remote-runtime/host-store/runtime-environment-store.ts b/src/shared/remote-runtime/host-store/runtime-environment-store.ts
+index 0f0d8e9278c..8a34611dd26 100644
+--- a/src/shared/remote-runtime/host-store/runtime-environment-store.ts
++++ b/src/shared/remote-runtime/host-store/runtime-environment-store.ts
+@@ -1,3 +1,5 @@
++import { resolveEnvironmentFromStore } from './runtime-environment-store-selection'
++export { resolveEnvironmentFromStore } from './runtime-environment-store-selection'
+ import { randomUUID } from 'node:crypto'
+ import { parsePairingCode } from '../pairing/pairing'
+ import type { PairingOffer } from '../pairing/mobile-relay-pairing-offer'
+@@ -325,24 +327,3 @@ function preferredDeviceToken(environment: PersistedRuntimeEnvironment): string
+     environment.endpoints[0]
+   )?.deviceToken
+ }
+-
+-export function resolveEnvironmentFromStore<T extends PersistedRuntimeEnvironment>(
+-  store: { environments: T[] },
+-  selector: string
+-): T {
+-  const byId = store.environments.find((entry) => entry.id === selector)
+-  if (byId) {
+-    return byId
+-  }
+-  const matches = store.environments.filter((entry) => entry.name === selector)
+-  if (matches.length === 1) {
+-    return matches[0]!
+-  }
+-  if (matches.length > 1) {
+-    throw new RuntimeEnvironmentStoreError(
+-      'invalid_argument',
+-      `Environment name "${selector}" is ambiguous; use the environment id.`
+-    )
+-  }
+-  throw new RuntimeEnvironmentStoreError('invalid_argument', `Unknown environment: ${selector}`)
+-}
