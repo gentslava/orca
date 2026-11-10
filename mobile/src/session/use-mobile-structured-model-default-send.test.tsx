@@ -11,7 +11,7 @@ import { snapshotEvent } from './native-chat/agent-session/use-mobile-structured
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import { mobileNativeChatDraftDestination } from './native-chat/composer/mobile-native-chat-draft-inputs'
 import { closeMobileNativeChatTabDraft } from './native-chat/composer/mobile-native-chat-draft-store'
-import type { MobileNativeChatSendOrigin } from './native-chat/mobile-native-chat-pending-echo'
+import type { MobileNativeChatSendOrigin } from './native-chat/transcript/mobile-native-chat-pending-echo'
 
 const storage = vi.hoisted(() => new Map<string, string>())
 vi.mock('@react-native-async-storage/async-storage', () => ({
