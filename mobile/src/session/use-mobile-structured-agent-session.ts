@@ -141,7 +141,8 @@ export function useMobileStructuredAgentSession(
     state,
     turnId,
     connected,
-    mutate
+    mutate,
+    onSendError
   })
   const hostStopping = useMobileStructuredSessionHostStopping({
     client,
