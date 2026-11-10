@@ -1,3 +1,4 @@
+import { WorkspaceStartPage } from './workspace-start/WorkspaceStartPage'
 import { createPortal } from 'react-dom'
 import TerminalPane from './terminal-pane/TerminalPane'
 import { TerminalRestoringPlaceholder } from './terminal-pane/mounting/TerminalRestoringPlaceholder'
@@ -38,6 +39,24 @@ export function TerminalLegacyTerminalPanes({
           : ''
       }`}
     >
+      {renderedActiveWorktreeId &&
+      !controller.effectiveActiveLayout &&
+      controller.workspaceSessionReady &&
+      controller.tabs.length === 0 &&
+      controller.worktreeFiles.length === 0 &&
+      controller.worktreeBrowserTabs.length === 0 &&
+      controller.worktreeClientHostedBrowserRows.length === 0 ? (
+        <WorkspaceStartPage
+          worktreeId={renderedActiveWorktreeId}
+          onNewTerminalTab={controller.handleNewTab}
+          onNewTerminalWithShell={controller.handleNewTab}
+          onNewBrowserTab={controller.handleNewBrowserTab}
+          onNewSimulatorTab={controller.handleNewSimulatorTab}
+          onNewFileTab={() => {
+            void controller.handleNewFile()
+          }}
+        />
+      ) : null}
       {workspaceSurfaces
         .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
         .map((workspace) => {

@@ -73,6 +73,9 @@ export async function listAiVaultSessions(
   args?: AiVaultListArgs,
   options: { signal?: AbortSignal } = {}
 ): Promise<AiVaultListResult> {
+  if (args?.includeStructuredSessions && args.structuredOnly) {
+    return { sessions: [], issues: [], scannedAt: new Date().toISOString() }
+  }
   const key = aiVaultLocalScanScopeKey(args)
   const depth = requestedAiVaultSessionDepth(args)
   const scanKey = aiVaultLocalScanKey(args)

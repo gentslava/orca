@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
-import { translate as t } from '@/i18n/i18n'
+import { useTranslate } from '@/i18n/use-translate'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -36,6 +36,8 @@ export function SessionLinkControl({
   dialogOnly?: boolean
   onDismiss?: () => void
 }): React.JSX.Element | null {
+  const t = useTranslate()
+
   const [open, setOpen] = useState(dialogOnly)
   const [body, setBody] = useState('')
   const state = useSessionLink(sessionId, target, open)

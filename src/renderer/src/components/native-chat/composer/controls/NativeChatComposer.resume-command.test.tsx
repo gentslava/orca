@@ -44,7 +44,10 @@ const mocks = vi.hoisted(() => {
   return Object.assign(captured, fns, { sendNativeChatTypedCommand: vi.fn() })
 })
 
-vi.mock('./NativeChatComposerWorkspace', () => ({ NativeChatComposerWorkspace: () => null }))
+vi.mock('./NativeChatComposerWorkspace', () => ({
+  NativeChatComposerWorkspace: () => null,
+  nativeChatComposerWorkspaceFooter: () => undefined
+}))
 
 vi.mock('../../../../store/index', () => {
   const state = {

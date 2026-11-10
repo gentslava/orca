@@ -28,7 +28,7 @@ import {
 import { NativeChatExpandable } from '../../messages/disclosure/NativeChatExpandable'
 import { useNativeChatDisclosure } from '../../messages/disclosure/native-chat-disclosure-store'
 import { NativeChatToolOutput } from './NativeChatToolOutput'
-import { NativeChatToolInvocation } from './NativeChatToolInvocation'
+import { NativeChatToolInvocation } from '../../NativeChatToolInvocation'
 import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
 
 const TARGET_CLASS =

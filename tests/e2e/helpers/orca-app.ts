@@ -17,10 +17,7 @@ import { recordElectronShutdownTiming } from './electron-shutdown-timing'
 import { getOrcaElectronLaunchArgs } from './electron-launch-args'
 import { retryTransientMainEvaluate } from './electron-main-evaluate-retry'
 import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-profile'
-import {
-  assertElectronResolvedIsolatedHome,
-  createElectronHomeIsolation
-} from './electron-home-isolation'
+import * as electronHome from './electron-home-isolation'
 import {
   createSeededTestRepo,
   isValidGitRepo,
@@ -165,7 +162,7 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
     // Strip ELECTRON_RUN_AS_NODE or Node rejects Playwright’s remote-debugging switch before launch.
     const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
     void _unused
-    const homeIsolation = createElectronHomeIsolation({
+    const homeIsolation = electronHome.createElectronHomeIsolation({
       inheritedEnv: cleanEnv,
       launchEnv,
       extraEnv: orcaAppExtraEnv,
@@ -194,7 +191,7 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
       const resolvedHome = await retryTransientMainEvaluate(() =>
         app.evaluate(({ app }) => app.getPath('home'))
       )
-      assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
+      electronHome.assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
     } catch (error) {
       await closeElectronAppForE2E(app, { cleanupDaemonsForUserDataDir: userDataDir })
       await removeUserDataDirAfterShutdown(userDataDir)

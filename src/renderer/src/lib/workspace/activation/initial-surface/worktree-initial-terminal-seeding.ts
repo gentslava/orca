@@ -26,7 +26,6 @@ import {
   type IssueCommandLaunch
 } from '@/lib/workspace/activation/initial-surface/worktree-setup-issue-command-queue'
 import { applyDefaultTerminalTabs } from '@/lib/workspace/activation/initial-surface/worktree-default-terminal-tabs'
-import { openDefaultAgentChatInEmptyWorkspace } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-agent-chat'
 import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
 import { findPendingWorktreeCreationId } from '../../creation/pending-worktree-creation'
 
@@ -110,6 +109,9 @@ export function ensureWorktreeHasInitialTerminal(
   opts?: InitialTerminalOptions
 ): string | null {
   const { renderableTabCount } = store.reconcileWorktreeTabModel(worktreeId)
+  if (!startup && !setup && !issueCommand && !defaultTabs?.tabs.length) {
+    return null
+  }
   // Editor/browser-only workspaces need no extra terminal merely because the legacy terminal slice is empty.
   const ownerState =
     store.settings !== undefined || store.repos !== undefined || store.worktreesByRepo !== undefined
@@ -256,30 +258,6 @@ export function ensureWorktreeHasInitialTerminal(
   if (templatedTabId) {
     return templatedTabId
   }
-  if (
-    opts?.seedUserDefaultSurface === true &&
-    !hasExplicitLaunchWork &&
-    opts.activateCreatedTabs !== false
-  ) {
-    const defaultChat = openDefaultAgentChatInEmptyWorkspace(
-      worktreeId,
-      () =>
-        ensureWorktreeHasInitialTerminal(
-          store,
-          worktreeId,
-          startup,
-          setup,
-          issueCommand,
-          defaultTabs,
-          { ...opts, seedUserDefaultSurface: false }
-        ) !== null,
-      opts.initialCwd
-    )
-    if (defaultChat) {
-      return defaultChat.primaryTabId
-    }
-  }
-
   // Activation-created PTY spawns must not count as activity and reshuffle Recent.
   // Stamp before hooks so chat/provider chrome can resolve agent identity immediately.
   const launchAgent =

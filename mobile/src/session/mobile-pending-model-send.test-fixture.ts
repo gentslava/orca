@@ -1,7 +1,7 @@
 import { act } from 'react-test-renderer'
 import { expect, it, type Mock } from 'vitest'
-import type { RpcClient } from '../transport/rpc-client'
-import type { RpcResponse } from '../transport/types'
+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
+import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
 import type { useMobileStructuredAgentSession } from './use-mobile-structured-agent-session'
 import type { useMobileStructuredNativeChatSendBridge } from './use-mobile-structured-native-chat-send-bridge'
 import {

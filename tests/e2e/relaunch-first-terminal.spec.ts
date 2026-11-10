@@ -1,5 +1,4 @@
-// After relaunch, preserve deliberately empty/editor-only workspaces and seed a terminal only when a never-opened workspace is shown.
-// Main’s terminal rows must give the same answer with or without window tab saves.
+// Empty workspaces offer actions after activation and relaunch; terminal creation is explicit.
 
 import path from 'node:path'
 import { writeFileSync } from 'node:fs'
@@ -87,7 +86,7 @@ async function worktreePath(page: Page, worktreeId: string): Promise<string> {
 
 // The editor-only workspace's file also opens read-only, then again for editing: a relaunch
 // restores it editable, as the reopen left it.
-test('a relaunch seeds only a workspace that was never opened', async ({
+test('empty workspaces offer actions before and after relaunch', async ({
   testRepoPath
 }, testInfo) => {
   const session = createRestartSession(testInfo)
@@ -111,12 +110,20 @@ test('a relaunch seeds only a workspace that was never opened', async ({
     const neverOpened = await createWorktree(first.page, `relaunch-never-${stamp}`)
 
     await switchToWorktree(first.page, emptied)
+    await waitForTabs(first.page, emptied, { terminals: 0, editors: 0 })
+    await expect(
+      first.page.getByRole('heading', { name: 'What would you like to open?' })
+    ).toBeVisible()
+    await first.page
+      .getByRole('button', { name: /^New Terminal/ })
+      .first()
+      .click()
     await waitForTabs(first.page, emptied, { terminals: 1, editors: 0 })
     await closeTerminals(first.page, emptied)
     await waitForTabs(first.page, emptied, { terminals: 0, editors: 0 })
 
     await switchToWorktree(first.page, editorOnly)
-    await waitForTabs(first.page, editorOnly, { terminals: 1, editors: 0 })
+    await waitForTabs(first.page, editorOnly, { terminals: 0, editors: 0 })
     const notes = path.join(await worktreePath(first.page, editorOnly), 'relaunch-notes.txt')
     writeFileSync(notes, 'notes\n')
     await openEditor(first.page, editorOnly, notes, true)
@@ -136,10 +143,13 @@ test('a relaunch seeds only a workspace that was never opened', async ({
     await waitForSessionReady(second.page)
     for (const worktreeId of [emptied, editorOnly, neverOpened]) {
       await switchToWorktree(second.page, worktreeId)
-      // A first terminal is created shortly after a workspace is shown, or not at all.
-      await second.page.waitForTimeout(3_000)
+      if (worktreeId !== editorOnly) {
+        await expect(
+          second.page.getByRole('heading', { name: 'What would you like to open?' })
+        ).toBeVisible()
+      }
     }
-    await waitForTabs(second.page, neverOpened, { terminals: 1, editors: 0 })
+    await waitForTabs(second.page, neverOpened, { terminals: 0, editors: 0 })
     expect(await workspaceTabs(second.page, emptied)).toEqual({ terminals: 0, editors: 0 })
     expect(await workspaceTabs(second.page, editorOnly)).toEqual({ terminals: 0, editors: 1 })
     expect(await isReadOnly(second.page, notes)).toBe(null)

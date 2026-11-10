@@ -237,9 +237,7 @@ describe('worktree agent activation seam', () => {
     activateAndRevealWorktree(worktree.id)
     await expect(waitForWorktreeAgentActivationGateForTests(worktree.id)).resolves.toBe('empty')
     expect(listSessions.mock.calls).toEqual([[{ connectionId: 'box' }], [{ connectionId: 'box' }]])
-    await vi.waitFor(() =>
-      expect(useAppStore.getState().tabsByWorktree[worktree.id] ?? []).toHaveLength(1)
-    )
-    expect(useAppStore.getState().tabsByWorktree[worktree.id]?.[0]?.ptyId).toBeNull()
+    expect(useAppStore.getState().activeWorktreeId).toBe(worktree.id)
+    expect(useAppStore.getState().tabsByWorktree[worktree.id] ?? []).toEqual([])
   })
 })

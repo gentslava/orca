@@ -1,3 +1,4 @@
+import { chooseEffort } from '../native-chat/native-chat-effort-slider.test-fixture'
 // @vitest-environment happy-dom
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
 import { expect, it } from 'vitest'
@@ -49,7 +50,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
   })
   fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
   fireEvent.click(screen.getByRole('option', { name: 'GPT-5.4' }))
-  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
+  chooseEffort('Low')
   fireEvent.click(screen.getByRole('button', { name: /^Use$/ }))
   await waitFor(() =>
     expect(useAppStore.getState().settings?.commitMessageAi).toMatchObject({

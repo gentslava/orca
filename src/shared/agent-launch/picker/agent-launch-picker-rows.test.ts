@@ -22,47 +22,36 @@ function rows(input: {
 }
 
 describe('new-tab rows for agents the host lacks', () => {
-  it('opens setup chats for missing agents when chat is preferred', () => {
+  it('offers only installed agents even when upstream setup is enabled', () => {
     expect(rows({ surface: 'chat', detected: ['claude'], offerAgentSetup: true })).toEqual([
-      'chat:claude',
-      'chat:codex'
+      'chat:claude'
     ])
-    expect(rows({ surface: 'chat', detected: ['claude'] })).toEqual([
-      'chat:claude',
-      'chat-unavailable:codex'
-    ])
+    expect(rows({ surface: 'chat', detected: ['claude'] })).toEqual(['chat:claude'])
   })
 
-  it('offers setup chats to a terminal user only when the host has no agents', () => {
-    expect(rows({ surface: 'terminal', detected: [], offerAgentSetup: true })).toEqual([
-      'chat:claude',
-      'chat:codex'
-    ])
+  it('keeps missing agents out of terminal defaults while offering installed CLIs', () => {
+    expect(rows({ surface: 'terminal', detected: [], offerAgentSetup: true })).toEqual([])
     expect(rows({ surface: 'terminal', detected: ['claude'], offerAgentSetup: true })).toEqual([
       'cli:claude'
     ])
   })
 
   it('keeps hosts without chat to their own reason', () => {
-    expect(rows({ surface: 'chat', detected: [], answer: 'ssh', offerAgentSetup: true })).toEqual([
-      'chat-unavailable:claude',
-      'chat-unavailable:codex'
-    ])
+    expect(
+      rows({ surface: 'chat', detected: ['claude'], answer: 'ssh', offerAgentSetup: true })
+    ).toEqual(['chat-unavailable:claude', 'cli:claude'])
   })
 
   it('does not open setup for a missing agent without an installer', () => {
     expect(
       rows({ surface: 'chat', detected: [], offerAgentSetup: true, chatAgents: ['grok'] })
-    ).toEqual(['chat-unavailable:grok'])
+    ).toEqual([])
     expect(
       rows({ surface: 'terminal', detected: [], offerAgentSetup: true, chatAgents: ['grok'] })
     ).toEqual([])
   })
 
   it.each(['win32', null])('does not offer an installer on host platform %s', (hostPlatform) => {
-    expect(rows({ surface: 'chat', detected: [], offerAgentSetup: true, hostPlatform })).toEqual([
-      'chat-unavailable:claude',
-      'chat-unavailable:codex'
-    ])
+    expect(rows({ surface: 'chat', detected: [], offerAgentSetup: true, hostPlatform })).toEqual([])
   })
 })

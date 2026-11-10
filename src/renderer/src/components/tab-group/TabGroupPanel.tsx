@@ -1,4 +1,5 @@
 import { Suspense, useCallback, useMemo } from 'react'
+import { WorkspaceStartPage } from '../workspace-start/WorkspaceStartPage'
 import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
 import { useDroppable } from '@dnd-kit/core'
 import { useAppStore } from '../../store'
@@ -355,6 +356,20 @@ export default function TabGroupPanel({
             data-contextual-tour-target="workspace-agent-terminal-tip"
             // Picks the chat or terminal split step of the agent-sessions tour.
             data-active-content-type={activeTab?.contentType}
+          />
+        ) : null}
+        {isVisible &&
+        !activeTab &&
+        model.groupTabs.length === 0 &&
+        clientHostedRows.length === 0 ? (
+          <WorkspaceStartPage
+            worktreeId={worktreeId}
+            groupId={groupId}
+            onNewTerminalTab={commands.newTerminalTab}
+            onNewTerminalWithShell={commands.newTerminalWithShell}
+            onNewBrowserTab={commands.newBrowserTab}
+            onNewSimulatorTab={commands.newSimulatorTab}
+            onNewFileTab={commands.newFileTab}
           />
         ) : null}
         {activeTab &&

@@ -1,3 +1,4 @@
+import { executeSessionLinkMutation, type LinkMutation } from './session-link-mutation'
 import { createNonSecureContextUuid as createBrowserUuid } from '../../../../shared/non-secure-context-uuid'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -9,8 +10,8 @@ import {
   SESSION_LINK_CAPABILITY
 } from '../../../../shared/session-link'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
-import { translate as t } from '@/i18n/i18n'
-import { RuntimeRpcCallError } from '@/runtime/rpc/calls/runtime-rpc-result'
+import { useTranslate } from '@/i18n/use-translate'
+import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
 import { callStructuredAgentSession } from '@/runtime/native-chat/requests/structured-agent-session-call'
 import { structuredAgentSessionHostSupports } from '@/runtime/native-chat/host-capabilities/structured-agent-session-host-support'
 
@@ -19,20 +20,10 @@ const Candidates = z.object({
   candidates: z.array(SessionLinkParticipant),
   history: z.array(SessionLink)
 })
-type LinkMutation = { method: string; fields: Record<string, unknown>; operationId: string }
-
-async function settleSessionLinkMutation(
-  run: () => Promise<boolean>,
-  onSettled: () => void
-): Promise<boolean> {
-  try {
-    return await run()
-  } finally {
-    onSettled()
-  }
-}
 
 export function useSessionLink(sessionId: string, target: RuntimeClientTarget, open: boolean) {
+  const t = useTranslate()
+
   const [supported, setSupported] = useState(false)
   const [policySupported, setPolicySupported] = useState(false)
   const [snapshot, setSnapshot] = useState<SessionLinkSnapshot | null>(null)
@@ -137,12 +128,14 @@ export function useSessionLink(sessionId: string, target: RuntimeClientTarget, o
         }
       }
     }
-    void read()
-    const timer = window.setInterval(() => void read(), open ? 1500 : 5000)
+    const stopPolling = installWindowVisibilityInterval({
+      run: () => void read(),
+      intervalMs: open ? 1500 : 5000
+    })
     return () => {
       cancelled = true
       invalidateReads()
-      window.clearInterval(timer)
+      stopPolling()
     }
   }, [open, refresh, supported, invalidateReads])
 
@@ -169,60 +162,19 @@ export function useSessionLink(sessionId: string, target: RuntimeClientTarget, o
     }
   }, [open, sessionId, supported, destination])
 
-  const execute = async (operation: LinkMutation) => {
-    if (inFlight.current) {
-      return false
-    }
-    request.current = operation
-    inFlight.current = true
-    readSequence.current++
-    const issuedAt = generation.current
-    setBusy(true)
-    setError('')
-    return settleSessionLinkMutation(
-      async () => {
-        try {
-          const params =
-            operation.method === 'orchestration.linkCreate'
-              ? { ...operation.fields, id: operation.operationId }
-              : { ...operation.fields, operationId: operation.operationId }
-          const result = SessionLinkSnapshot.parse(
-            await callStructuredAgentSession<unknown>(destination, operation.method, params)
-          )
-          if (issuedAt !== generation.current) {
-            return false
-          }
-          selected.current = result.link.id
-          setSnapshot(result)
-          request.current = null
-          setUncertain(false)
-          return true
-        } catch (e) {
-          if (issuedAt !== generation.current) {
-            return false
-          }
-          const data = e instanceof RuntimeRpcCallError ? e.response.error.data : undefined
-          const refused =
-            typeof data === 'object' &&
-            data !== null &&
-            'effectsApplied' in data &&
-            data.effectsApplied === false
-          if (refused || (e instanceof RuntimeRpcCallError && e.code === 'invalid_argument')) {
-            request.current = null
-          }
-          setUncertain(request.current !== null)
-          setError(e instanceof Error ? e.message : String(e))
-          return false
-        }
-      },
-      () => {
-        if (issuedAt === generation.current) {
-          inFlight.current = false
-          setBusy(false)
-        }
-      }
-    )
-  }
+  const execute = (operation: LinkMutation) =>
+    executeSessionLinkMutation(operation, destination, {
+      selected,
+      request,
+      inFlight,
+      generation,
+      readSequence,
+      setBusy,
+      setError,
+      setSnapshot,
+      setUncertain
+    })
+
   const mutate = (method: string, fields: Record<string, unknown>) => {
     if (request.current) {
       setError(

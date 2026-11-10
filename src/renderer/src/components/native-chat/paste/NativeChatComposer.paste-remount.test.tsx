@@ -37,7 +37,8 @@ const mocks = vi.hoisted(() => {
 })
 
 vi.mock('../composer/controls/NativeChatComposerWorkspace', () => ({
-  NativeChatComposerWorkspace: () => null
+  NativeChatComposerWorkspace: () => null,
+  nativeChatComposerWorkspaceFooter: () => undefined
 }))
 
 vi.mock('../../../store/index', () => {
