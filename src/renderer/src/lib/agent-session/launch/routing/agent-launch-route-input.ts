@@ -33,6 +33,7 @@ import {
 } from '@/store/workspaces/catalog/workspace-record-fields'
 import { readHostStructuredAgents } from '@/runtime/native-chat/agent-catalogs/host-structured-agents'
 import { lastVerifiedRuntimeStatus } from '../../../../../../shared/remote-runtime/host-status/runtime-host-status'
+import { getResolvedExecutionHostIdForWorktree } from '@/lib/resolved-worktree-execution-host'
 
 export type ProspectiveWorkspaceKind = NonNullable<AgentLaunchRoutingInput['workspaceKind']>
 
@@ -42,7 +43,7 @@ export type ProspectiveWorkspace = {
   kind: ProspectiveWorkspaceKind
   repoId?: string
   worktreeId?: string
-  /** Only for workspaces that do not exist yet; with `worktreeId` the store's owner resolution wins. */
+  /** Qualifies a listed workspace's owner; without a worktree this identifies the future host. */
   executionHostId?: string
   runtimeEnvironmentId?: string | null
 }
@@ -187,13 +188,31 @@ function hostStructuredAgentsInput(
   return agents ? { hostStructuredAgents: agents.map((row) => row.agent) } : {}
 }
 
+function launchOwnerStore(
+  store: AgentLaunchRouteStore,
+  workspace: ProspectiveWorkspace
+): AgentLaunchRouteStore {
+  const host = parseExecutionHostId(workspace.executionHostId)
+  return workspace.worktreeId && host
+    ? { ...store, activeWorktreeId: workspace.worktreeId, activeWorkspaceExecutionHostId: host.id }
+    : store
+}
+
 export function resolveAgentLaunchHost(
   store: AgentLaunchRouteStore,
   workspace: ProspectiveWorkspace
 ) {
-  const owner = workspace.worktreeId
-    ? resolveStructuredAgentSessionOwner(store, workspace.worktreeId)
-    : undefined
+  const host = parseExecutionHostId(workspace.executionHostId)
+  const resolved =
+    workspace.worktreeId && host
+      ? getResolvedExecutionHostIdForWorktree(store, workspace.worktreeId, host.id) === host.id
+      : true
+  store = launchOwnerStore(store, workspace)
+  const owner = !resolved
+    ? null
+    : workspace.worktreeId
+      ? resolveStructuredAgentSessionOwner(store, workspace.worktreeId)
+      : undefined
   const executionHostId = owner ?? resolveExecutionHostId(store, workspace)
   return {
     owner,
@@ -207,6 +226,7 @@ export function buildAgentLaunchRouteInput(
   args: AgentLaunchRouteArgs
 ): AgentLaunchRoutingInput {
   const { agent, workspace, tuiCustomization } = args
+  store = launchOwnerStore(store, workspace)
   const { executionHostId, hostCapabilities } = resolveAgentLaunchHost(store, workspace)
   return {
     agent,
