@@ -2031,5 +2031,65 @@
     "patchSha256": "d6e337e5c9c2cb78d49ad44e565906b33f791c4ab447d1a6e33b1dd1d1beb66b",
     "resultSha256": "2d74f9ee6bd6e224a7f487af9b10f5ec2c4d04c2f7b34fe848719620b5d423a4",
     "reason": "Preserve current access declarations and child history alongside collaboration capabilities; retain the extracted prompt wrapper that already combines owner and asynchronous questions in the composer slot."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "983fa99eb968b8f95c47c8872236219f835f5c21",
+      "9300ed971c063397c478750eedb4507670142882",
+      "bf7dc89d44d83fc61ba00a027bdde2c4b8f7c3d5"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-9300ed971c06.patch",
+    "patchSha256": "4f1fbe1d0c655ad28cd201dd15e23816639f93290bb6ea2ab3d1cefe18a50e47",
+    "resultSha256": "9d8cbfd18ba0df6d25ad1e500708296bc601fd785991f5d4dde892111b4c1f8a",
+    "reason": "Keep personal project-order settings after resolving the project catalog and retain the current host/sidebar feed used by other selected features."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "5ab95ff48dca896faddb955a3611daa5ddee4e2f",
+      "013e79f2faafb008a80b17897f846e4aedc8029d",
+      "eddfa79a74027bf795ba3862b529263a95c6973b"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-013e79f2faaf.patch",
+    "patchSha256": "ccee647265f23dd59eb3125e8f1aaa0d45e4ea55218d40c67b9a2515a2834676",
+    "resultSha256": "a44708c8828ce696ba6ae830f354e396a90ed4c04f49ea96a86b5dc0b0083a57",
+    "reason": "Retain conversation navigation preferences from 33395 and personal project order from 33502 in the same persisted UI schema."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "9aac5d474e3e572945011b0d5f0f343fc66b4028",
+      "9e9dc1043a5bb9e64e05256d4f6b011ad5d5a4b3",
+      "8694ac889548718058eda06fa4632b7f1fe44e4a"
+    ],
+    "patch": "latest-upstream-20261110e/pr37744-9e9dc1043a5b.patch",
+    "patchSha256": "cc79aa948d281ba553a6cea2118c76c069cf8a2d8101ebc29d0ff583c53e0ca3",
+    "resultSha256": "d32cefabfec1f27b238ad97dc2bcf238a489894b9997147919d5f7f9bfc5fa20",
+    "reason": "Advertise session children from 34895 together with grouped, paired-desktop, policy and owner-choice session links from 37744."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx",
+    "blobs": [
+      "54fb72e94fc454a71825ca0ce5674744de8eccc2",
+      "d936b2b387374ec40f2bf61b18eaa190e2b456ae",
+      "cd5723139e0bdfd4636ab53dd915eb0a5bd90cc6"
+    ],
+    "patch": "latest-upstream-20261110e/pr39882-d936b2b38737.patch",
+    "patchSha256": "2dfbaaa13f5b0794dacbce529f40de4ffd73ee1fa7dbaf6322924105b1615957",
+    "resultSha256": "7cd5fd708395a3f8bd2b7538d21b80f9301a669f857864839798553d7f63c443",
+    "reason": "Keep the panel chrome and focus rules from 39882 while retaining the registered-agent link control from 37744."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/rpc-method-registry.ts",
+    "blobs": [
+      "5b693508c20719ebeaed9e0e07526ee5fca1c61b",
+      "5c639781bc3b9b7a5bb893291ab7daf8e82c39d3",
+      "056e75548dd4009d1258979c316d466b2e3ac8e9"
+    ],
+    "patch": "latest-upstream-20261110e/pr40175-5c639781bc3b.patch",
+    "patchSha256": "786773ff4a7bffbda579afc808ce11248d0cf413e9bd619f0afb9f5fd5fad9df",
+    "resultSha256": "844036ff8bc0f978628391115530e3ab4fe8983742ec4e72ec1e67c238019858",
+    "reason": "Register terminal model discovery from 40175 alongside all previously selected runtime methods."
   }
 ]
