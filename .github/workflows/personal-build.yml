@@ -456,7 +456,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: read
+      contents: write
       issues: write
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -485,3 +485,18 @@ jobs:
         run: |
           mkdir -p personal-build
           node config/fork-build/status.mjs personal-build
+      - name: Keep only the current verified and promoted release
+        if: needs.publish.result == 'success' && needs.sync.result == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLICATION: ${{ needs.publish.result }}
+          BRANCH_SYNC: ${{ needs.sync.result }}
+        run: node config/fork-build/release-retention.mjs personal-build
+      - name: Preserve the release cleanup receipt
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-release-retention
+          path: personal-build/release-retention.json
+          if-no-files-found: ignore
+          retention-days: 14
