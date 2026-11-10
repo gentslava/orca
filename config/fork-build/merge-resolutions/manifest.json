@@ -2091,5 +2091,65 @@
     "patchSha256": "786773ff4a7bffbda579afc808ce11248d0cf413e9bd619f0afb9f5fd5fad9df",
     "resultSha256": "844036ff8bc0f978628391115530e3ab4fe8983742ec4e72ec1e67c238019858",
     "reason": "Register terminal model discovery from 40175 alongside all previously selected runtime methods."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.tsx",
+    "blobs": [
+      "53a0ebbc0a0e51b50b1ba9ef209aed6b3f26ef99",
+      "1ddf845ed11239e0c96b20c93cf36b42ca8081bc",
+      "d09628363e001f5e92b110d5cb56cee25ccc460b"
+    ],
+    "patch": "latest-upstream-20261110e/pr34895-1ddf845ed112.patch",
+    "patchSha256": "82e395392d94bda6c2c1fa5b17a4983d4b908eeb429e8c2fd22110e40ea4e993",
+    "resultSha256": "6a744975f8390c59ad6d840888c6acf5fab9399c174f9531c81dbef35a62a5ee",
+    "reason": "Keep the extracted message-list input contract and turn-thinking hook while adding the inline child navigation choices from 34895; retain current lifecycle and transcript projection."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "764cffb1f6a1f538183af2552e962f9b47591488",
+      "2bd79fed38193af276f84d9ef07ca8fa3cce2715",
+      "30e835fc59172684660959bc8a2dcd5c0022766a"
+    ],
+    "patch": "latest-upstream-20261110e/pr37744-2bd79fed3819.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "fdf2e633277290e8696f8ac68e0fe455160cb2ae537d13a791670fd90b7a7ce1",
+    "reason": "Keep child transcript navigation, file-drop scope and the extracted NativeChatStructuredPrompts owner. The separately resolved prompt owner renders the group owner question; do not restore the duplicated inline prompt/transcript markup from 37744."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "ab014e90a318a263beac439cb03e02be70f6a434",
+      "2bd79fed38193af276f84d9ef07ca8fa3cce2715",
+      "ad174fe4aa9471efc9be7ef3db2cf7f5409885d8"
+    ],
+    "patch": "latest-upstream-20261110e/pr38848-2bd79fed3819.patch",
+    "patchSha256": "069df209418790459a194b1e0d9ae4e970fe22307b62bb3e3e4fb1e727056a4a",
+    "resultSha256": "02db53103d5080dc1fa7413605e0ce3f126fa16dcfba004145571f4c1edf8adf",
+    "reason": "Keep child navigation, grouped owner prompts and the extracted transcript frame; wire the retained newest-card shortcut through steerLast beside steerHead."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "764cffb1f6a1f538183af2552e962f9b47591488",
+      "d55e70d8ac61222f5f7e911d9652914f205dee20",
+      "06fc626f3b4b2417a81fd227babd3af6137cf018"
+    ],
+    "patch": "latest-upstream-20261110e/pr38963-d55e70d8ac61.patch",
+    "patchSha256": "cc035df6ba0cb38271ba7187014d385ed82b69b7330f965d674f75f3a7c011d9",
+    "resultSha256": "010021719229201d84afe672baadc39f154df31b4131310528190d77df502007",
+    "reason": "Retain child transcripts, group owner prompts and newest-card steering while wrapping the extracted session frame in the foreground-task provider."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
+    "blobs": [
+      "7a21599f1f6b11e6b6e7a011f75386fe6f971e2e",
+      "822ccb075a5d3cf8d75cbd2fb06a92bbf450edc6",
+      "ee115ba88492670bd183b7cefd87c0aaefd53f59"
+    ],
+    "patch": "latest-upstream-20261110e/pr38963-822ccb075a5d.patch",
+    "patchSha256": "49af3530f55024cfd83406a8a1db12fa543d98cc538a5c0ca70a1f99ae47ca41",
+    "resultSha256": "09e36fc2dd5360167677e0d9dbb77cb9d110e069cad5409eaeec36467b942315",
+    "reason": "Keep full expanded command wrapping and invocation details while rendering the foreground task action as a separate sibling button; retain the current class-names import owner."
   }
 ]

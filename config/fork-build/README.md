@@ -39,7 +39,7 @@ Run this from Terminal and quit Orca completely when prompted. The installer sel
 
 Promotion preserves only the pinned fork workflow, pipeline scripts/tests, preview updater test and `AGENTS.md` over the built source. The promotion commit has only the built source as its parent; previous master history is retained in a separate archive branch. Both old branch identities are checked against the push advertisement. A concurrent update or a newer/divergent mirror blocks both updates. Only master may be replaced using its exact expected SHA lease, atomically with the archive backup; main must remain a fast-forward. Audit-only, failed and unchanged-input runs do not promote. Configuration fingerprints use the controlled files rather than the master commit, so source promotion alone does not force another build.
 
-Build jobs execute the composed source with read-only repository permissions and no publishing/signing secrets. Publication uses a separate fresh runner and trusted master scripts. It checks only artifacts from the same workflow run. Previous successful releases are never deleted or replaced.
+Build jobs execute the composed source with read-only repository permissions and no publishing/signing secrets. Publication uses a separate fresh runner and trusted master scripts. It checks only artifacts from the same workflow run. Publication never overwrites an existing release. After promotion, the trusted status job applies the single-release retention policy described below.
 
 ## Editing selection
 
@@ -96,6 +96,8 @@ Feature branches own English copy. Sparse Russian desktop/mobile catalogs live i
 
 ## One source for macOS, Windows and Android
 
+Publication rechecks the live upstream main against the source plan after all platforms and independent package checks finish. A moved main blocks publication and requires a fresh composition and checks; rerunning the old package jobs cannot make that source current.
+
 Every run resolves the latest upstream main and live PR heads once, then shares that exact plan and Git bundle across all three required package jobs. Windows and Android are independently extracted and verified on fresh trusted runners before the common release can be published. A failure on any platform blocks publication and promotion; the status issue names every result. No partial release or older-upstream fallback is automatic.
 
 macOS packaging uses the standard `macos-26` ARM64 image. The separate trusted publisher uses `macos-26-intel`: archive verification reads the ARM64 binaries with `lipo` and `codesign`, without launching them, so it does not need an ARM64 runner. The native ARM64 build guard, target architecture check, signatures, full app-tree comparison and common publication gate still apply. Infrastructure retries rerun failed jobs and preserve successful platform packages.
@@ -112,7 +114,7 @@ Merged 33403 is supplied directly by upstream. Explicit selections 40297 and 402
 
 Replacement 36736 → 40148 adopts upstream account migration. The small `codex-selected-account-read.patch` retains only fail-closed unreadable Codex selection and its regression tests; Claude retains upstream behavior. The merged migration searches the target home first, preserving its existing rollout; absent targets still use the existing no-overwrite migration helper. Never-sent chats select their new home without requiring a saved rollout.
 
-`composed-source-modules.patch` keeps the promoted fork eligible for the full PR checks without relaxing source budgets: chat list/message/send input contracts, the mobile section header, sidebar ordering indexes, rename mutation and restart/Stop wiring live in focused existing or adjacent domain modules. Markup, delivery ordering and public wire contracts are preserved. It also recognizes the existing `.test-harness` spelling alongside `-test-harness` in the test-only mocking policy. These corrections belong in their atomic feature branches during the planned cleanup; the composition overlay preserves them until then. No max-lines suppression or expanded budget is added.
+`composed-source-modules.patch` keeps the promoted fork eligible for the full PR checks without relaxing source budgets: chat list/message/send input contracts and restart/Stop wiring live in focused existing or adjacent domain modules. Markup, delivery ordering and public wire contracts are preserved. It also recognizes the existing `.test-harness` spelling alongside `-test-harness` in the test-only mocking policy. These corrections belong in their atomic feature branches during the planned cleanup; the composition overlay preserves them until then. No max-lines suppression or expanded budget is added.
 
 The timer-drain compatibility correction was retired after upstream 40512 removed its sole stalled-hidden-restore case. Its unused fixture helper was retired with it; maintained terminal restoration tests remain in the regression inventory.
 
@@ -147,3 +149,5 @@ PR screenshots belong in GitHub user-attachments, not separate evidence releases
 Atomic 34895 owns the terminal delivery/pending projection and command-marker hooks extracted from its enlarged view. Their three duplicate sections are removed from `composed-source-modules.patch`; source line budgets are unchanged. Its session-children RPC and the collaboration RPCs declare their access through the current upstream method factory while retaining existing authorization and mail boundaries.
 
 Sparse Russian overlays normally add missing translations. A changed existing string uses an optional `localizations/desktop-ru-base.json` (or mobile equivalent) containing only the reviewed previous values. Every base key must have an overlay replacement. The existing strict three-way catalog merge accepts the expected old value or an already-identical replacement and blocks divergent upstream translations; the plan records the base digest. The shared chat/Settings width description uses this guarded path.
+
+Atomic 33502 now owns the mobile project section header, rename mutation and sidebar ordering indexes. Their six duplicate sections are removed from `composed-source-modules.patch`; line budgets and behavior are unchanged.

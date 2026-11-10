@@ -374,7 +374,7 @@ index 18cf99a1e81..a2a3ddfc245 100644
 +++ b/src/renderer/src/components/native-chat/use-native-chat-session-children.ts
 @@ -1,4 +1,5 @@
  import { createCoalescedPollRunner } from '@/lib/repository-refresh/coalesced-poll-runner'
-+import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
++import { installWindowVisibilityInterval } from '@/lib/window-activity/window-visibility-interval'
  import { useAppStore } from '@/store'
  import { useEffect, useMemo, useState } from 'react'
  import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
@@ -860,7 +860,7 @@ index e8ba12a56b1..a350591dd87 100644
 @@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
  import { Button } from '@/components/ui/button'
  import { RepoIconGlyph } from '@/components/repo/repo-icon'
- import { cn } from '@/lib/utils'
+ import { cn } from '@/lib/class-names'
 -import { translate } from '@/i18n/i18n'
 +import { useTranslate } from '@/i18n/use-translate'
  import type { RepoIcon } from '../../../../shared/repo-icon'
@@ -998,21 +998,6 @@ index 5c4f28b1527..c7cb2992163 100644
                      icon={<GitPullRequest className="size-4" />}
                    />
                  </div>
-diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
-index 48d6785febf..0da8fab1218 100644
---- a/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
-+++ b/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
-@@ -10,8 +10,8 @@ import { UsageAccountQuotas, UsageAccountQuotaCard } from './UsageAccountQuotas'
- import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'
-
- vi.mock('../../store', () => ({ useAppStore: () => vi.fn() }))
--vi.mock('@/lib/agent-catalog', () => ({
--  AgentIcon: () => <span />,
-+vi.mock('@/components/agent/icons/AgentIcon', () => ({ AgentIcon: () => <span /> }))
-+vi.mock('@/lib/agent-catalog/agent-catalog', () => ({
-   getAgentLabel: (agent: string) => agent
- }))
- vi.mock('@/i18n/i18n', () => ({
 diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
 index c59060dba45..61fd3bb0854 100644
 --- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx

@@ -407,6 +407,8 @@ jobs:
         run: |
           node config/fork-build/packages.mjs verify personal-build/plan.json personal-packages
           node config/fork-build/packages.mjs assemble-release personal-build/plan.json personal-packages windows-packages android-packages
+      - name: Require current upstream before publication
+        run: node config/fork-build/upstream-freshness.mjs personal-build/plan.json
       - name: Publish complete immutable downloads; preserve previous releases
         env:
           GH_TOKEN: ${{ github.token }}
