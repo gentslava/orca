@@ -34,6 +34,7 @@ export function MobileSessionHeader({
     presentedConnState,
     forceReconnectHost,
     worktreeName,
+    worktreeProjectName,
     activePanel,
     setShowHeaderMoreActions,
     requestLeaveSession,
@@ -92,7 +93,7 @@ export function MobileSessionHeader({
   const titleBlock =
     !sideRail || !hasTabs || showConnectionRetry || connectionEscalated ? (
       <MobileSessionTitleBlock
-        title={worktreeName || t('session.header.terminalTitle', 'Terminal')}
+        title={worktreeProjectName || worktreeName || t('session.header.terminalTitle', 'Terminal')}
         connState={presentedConnState}
         details={details}
         meta={terminalSummary}
@@ -158,6 +159,7 @@ export function MobileSessionHeader({
             </>
           ) : (
             <NavBar
+              reserveTwoButtonSides
               leading={leading}
               center={titleBlock}
               trailing={trailing}
