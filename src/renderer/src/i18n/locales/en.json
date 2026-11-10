@@ -1566,7 +1566,8 @@
         "remotePairingUnreachable": "Cannot reach Orca at {{endpoint}}.",
         "remotePairingInvalidDetails": "This access link contains invalid connection details.",
         "remotePairingSaveFailed": "Orca verified the host but could not save it. Check browser storage and try again.",
-        "remotePairingRepairUnavailable": "Re-pairing is not available in the browser. Pair this browser with the server again."
+        "remotePairingRepairUnavailable": "Re-pairing is not available in the browser. Pair this browser with the server again.",
+        "runtimeEnvironmentNameRequired": "A server name is required."
       },
       "web": {
         "preload": {
@@ -7835,6 +7836,21 @@
         }
       },
       "settings": {
+        "keep": {
+          "local": {
+            "main": {
+              "up": {
+                "to": {
+                  "date": {
+                    "setting": {
+                      "f4c23aee76": "Keep local main up to date"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "AccountsPane": {
           "locationSaveFailed": "Account location could not be saved. Try again.",
           "dbb9626ed1": "Cancel",
@@ -8187,6 +8203,9 @@
           "79209b37b9": "If cookie import is not the right fit, Computer Use can control local apps and may use existing logged-in browser sessions where applicable. Install the Orca Computer Use skill; macOS also requires privacy permissions.",
           "333984cf90": "Use an existing browser session",
           "9895ed44de": "Open computer use"
+        },
+        "BrowserUseEnableSwitch": {
+          "ce4d6f80d8": "Enable agent browser use"
         },
         "BrowserUseExamples": {
           "1199258ace": "Copy",
@@ -9202,6 +9221,9 @@
           "d32b87e754": "Use review template when available",
           "981eae7e14": "Draft by default"
         },
+        "RepositorySourceControlAiSection": {
+          "112f3b934f": "Source control AI"
+        },
         "RuntimeAccessGrantList": {
           "sshAccessCaveat": "Revoking here doesn't stop someone with SSH access to this computer from pairing again. To cut them off, remove their SSH access.",
           "6f6d5188ed": "Revoke {{value0}}",
@@ -9267,6 +9289,11 @@
           "connectedNewProjectsHint": "Connected to {{value0}}. To create new projects there by default, choose it under New projects open on.",
           "removeDefaultServerBlocked": "This server is the default host for new projects. Choose another one under New projects open on before removing it.",
           "serverReplaced": "{{value0}} is not the Orca server this computer paired with: Orca connects to the host as a different SSH user, or its server was reinstalled. Open the ⋯ menu here and choose Forget…, then connect the SSH host to pair with its current server.",
+          "renameTitle": "Rename Server",
+          "renameDescription": "Only the display name changes. Pairing, connection details and projects stay as they are.",
+          "renameNameLabel": "Name",
+          "renameConfirm": "Rename",
+          "serverRenamed": "Renamed to {{value0}}.",
           "6f303a89a3": "Switch server",
           "4ae8a4a381": "Remove server"
         },
@@ -13385,6 +13412,7 @@
           "sshAccessLinked": "SSH route…",
           "sshAccess": "Connect through SSH…",
           "remove": "Remove…",
+          "rename": "Rename…",
           "connecting": "Connecting…",
           "disconnecting": "Disconnecting…",
           "needsUpdate": "Needs update",
@@ -13968,27 +13996,6 @@
           "noMatches": "No matches.",
           "searchHosts": "Search hosts…",
           "searchLanguages": "Search languages…"
-        },
-        "RepositorySourceControlAiSection": {
-          "112f3b934f": "Source control AI"
-        },
-        "keep": {
-          "local": {
-            "main": {
-              "up": {
-                "to": {
-                  "date": {
-                    "setting": {
-                      "f4c23aee76": "Keep local main up to date"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "BrowserUseEnableSwitch": {
-          "ce4d6f80d8": "Enable agent browser use"
         }
       },
       "right": {
@@ -24971,26 +24978,6 @@
     "gitlabAllowedFailure": "Allowed to fail",
     "rerunUnsuccessful": "Rerun unsuccessful"
   },
-  "macosUpdateRequirement": {
-    "title": "Orca updates now need macOS {{macos}}",
-    "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
-    "checking": "Checking whether this Mac can upgrade…",
-    "upgradeDescription": "Your Mac can upgrade. Update macOS to get the latest Orca.",
-    "unsupportedDescription": "Apple doesn’t support macOS {{macos}} on this Mac.",
-    "unknownDescription": "We couldn’t confirm an upgrade for this Mac. Apple’s compatibility guide can help.",
-    "whyTitle": "Why is this changing?",
-    "whyIntro": "We updated parts of Orca’s foundation, like Electron and the on-device speech engine, to bring:",
-    "whySecurity": "Ongoing security fixes from Electron and Chromium.",
-    "whyPerformance": "Faster startup and more efficient native API calls.",
-    "whySystemApis": "Support for current macOS notification APIs and secure Keychain storage.",
-    "whyRequirement": "That newer foundation requires macOS {{macos}} or later.",
-    "dismiss": "Got it",
-    "checkingAction": "Checking your Mac…",
-    "updateAction": "How to update macOS",
-    "discussionAction": "Join the discussion",
-    "checkAction": "Check compatibility",
-    "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
-  },
   "gitGraph": {
     "copyHash": "Copy commit hash",
     "parents": "Parents",
@@ -25052,6 +25039,26 @@
     "branchName": "Branch name",
     "invalidBranchName": "This branch name is invalid. Choose a different name.",
     "createBranchFailed": "Orca couldn't create the branch. Check this repository in a terminal, then try again."
+  },
+  "macosUpdateRequirement": {
+    "title": "Orca updates now need macOS {{macos}}",
+    "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",
+    "checking": "Checking whether this Mac can upgrade…",
+    "upgradeDescription": "Your Mac can upgrade. Update macOS to get the latest Orca.",
+    "unsupportedDescription": "Apple doesn’t support macOS {{macos}} on this Mac.",
+    "unknownDescription": "We couldn’t confirm an upgrade for this Mac. Apple’s compatibility guide can help.",
+    "whyTitle": "Why is this changing?",
+    "whyIntro": "We updated parts of Orca’s foundation, like Electron and the on-device speech engine, to bring:",
+    "whySecurity": "Ongoing security fixes from Electron and Chromium.",
+    "whyPerformance": "Faster startup and more efficient native API calls.",
+    "whySystemApis": "Support for current macOS notification APIs and secure Keychain storage.",
+    "whyRequirement": "That newer foundation requires macOS {{macos}} or later.",
+    "dismiss": "Got it",
+    "checkingAction": "Checking your Mac…",
+    "updateAction": "How to update macOS",
+    "discussionAction": "Join the discussion",
+    "checkAction": "Check compatibility",
+    "settingsStatus": "Orca {{version}} requires macOS {{macos}} or later. This is the latest version for this Mac."
   },
   "remoteHostBrowserControl": {
     "title": "{{host}} is controlling a browser tab",
