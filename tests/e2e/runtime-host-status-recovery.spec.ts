@@ -5,6 +5,8 @@ import {
   encodePairingOffer
 } from '../../src/shared/remote-runtime/pairing/pairing'
 import type { PairingCreateOfferResult } from '../../src/shared/remote-runtime/pairing/pairing-create-offer-contract'
+import { toRuntimeExecutionHostId } from '../../src/shared/execution-host'
+import { composeWorktreeHostIdentity } from '../../src/shared/worktree/host-qualified-identity'
 import { expect, test } from './helpers/orca-app'
 import {
   createRuntimeDesktopPairingOffer,
@@ -13,6 +15,7 @@ import {
   type RuntimeDesktopPairingOffer
 } from './helpers/paired-electron-client'
 import { launchHeadlessPairedRuntimeHost } from './helpers/headless-paired-runtime-host'
+import { showWorkspaceSidebar } from './helpers/sidebar-project-dialog'
 
 async function interruptibleHost(offer: RuntimeDesktopPairingOffer) {
   const pairing = decodePairingOffer(offer.pairingUrl)
@@ -91,10 +94,22 @@ async function expectWorkspaceHostAppearance(
   disconnected: boolean,
   hostLabel?: string
 ) {
-  const cards = page.locator('[data-worktree-card-surface="true"]')
-  const card = (
-    hostLabel ? cards.filter({ has: page.getByText(hostLabel, { exact: true }) }) : cards
-  ).first()
+  await showWorkspaceSidebar(page)
+  const environmentId = hostLabel
+    ? await page.evaluate((name) => {
+        const environment = window.__store
+          ?.getState()
+          .runtimeEnvironments.find((entry) => entry.name === name)
+        if (!environment) {
+          throw new Error(`Missing test host: ${name}`)
+        }
+        return environment.id
+      }, hostLabel)
+    : undefined
+  const hostPrefix = environmentId
+    ? `[data-worktree-host-identity^="${composeWorktreeHostIdentity(toRuntimeExecutionHostId(environmentId), '')}"] `
+    : ''
+  const card = page.locator(`${hostPrefix}[data-worktree-card-surface="true"]`).first()
   await expect(card).toBeVisible()
   await expect(card).toHaveCSS('opacity', disconnected ? '0.6' : '1')
   const icon = card.locator(disconnected ? 'svg.lucide-server-off' : 'svg.lucide-server').first()
@@ -182,7 +197,10 @@ for (const topology of ['desktop', 'headless'] as const) {
           ...(result.webClientUrl ? { webClientUrl: result.webClientUrl } : {})
         }
       }
-      browser = await launchPairedWebClient(electronApp, proxy.proxyPairingOffer(browserOffer))
+      browser = await launchPairedWebClient(electronApp, proxy.proxyPairingOffer(browserOffer), {
+        waitForWorkspace: false
+      })
+      await showWorkspaceSidebar(browser.page)
       await expect
         .poll(() => statusEvidence(browser!.page), { timeout: 30_000 })
         .toMatchObject({ verification: 'verified', transport: 'ready' })

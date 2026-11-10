@@ -130,7 +130,7 @@ it.each([
 )
 
 it.each(['target', 'folder:local-folder'])(
-  'recovers an empty %s when the continuation closes before clicking the toast',
+  'opens an empty %s without starting another terminal after the continuation closes',
   async (worktreeId) => {
     render(<Toaster closeButton />)
     await act(async () => {
@@ -157,6 +157,6 @@ it.each(['target', 'folder:local-folder'])(
 
     expect(useAppStore.getState().activeWorktreeId).toBe(worktreeId)
     expect(useAppStore.getState().activeWorkspaceExecutionHostId).toBe('local')
-    expect(useAppStore.getState().tabsByWorktree[worktreeId]).toHaveLength(1)
+    expect(useAppStore.getState().tabsByWorktree[worktreeId] ?? []).toEqual([])
   }
 )

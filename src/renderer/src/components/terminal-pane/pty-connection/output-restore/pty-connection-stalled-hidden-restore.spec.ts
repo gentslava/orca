@@ -4,7 +4,12 @@ import {
   buildKittyKeyboardRestore,
   RESET_AFTER_BYTE_GAP
 } from '../../../../../../shared/terminal/protocol/input-modes/terminal-mode-reset-profiles'
-import { flushAsyncTicks, createDeferred } from '../test-fixtures/pty-connection-test-async'
+import {
+  flushAsyncTicks,
+  createDeferred,
+  createPendingPtyTimeoutDrain,
+  type PendingPtyTimeout
+} from '../test-fixtures/pty-connection-test-async'
 import { NORMAL_BUFFER_PROLOGUE } from '../test-fixtures/pty-connection-test-constants'
 import {
   createMockTransport,
@@ -468,12 +473,7 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
     })
 
     it('keeps foreground output when hidden-backlog snapshot recovery is unavailable', async () => {
-      const pendingTimeouts: {
-        canceled: boolean
-        delay: number
-        fn: () => void
-        id: number
-      }[] = []
+      const pendingTimeouts: PendingPtyTimeout[] = []
       const originalSetTimeout = globalThis.setTimeout
       const originalClearTimeout = globalThis.clearTimeout
       let nextTimeoutId = 1
@@ -495,24 +495,14 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
         }
       }) as unknown as typeof clearTimeout
 
-      const runNextTimeoutWithDelay = async (delay: number): Promise<void> => {
-        const index = pendingTimeouts.findIndex(
-          (timeout) => !timeout.canceled && timeout.delay === delay
-        )
-        expect(index).toBeGreaterThanOrEqual(0)
-        const [timeout] = pendingTimeouts.splice(index, 1)
-        timeout.fn()
-        await flushAsyncTicks(20)
-      }
-      const drainTimeoutsWithDelay = async (delay: number): Promise<void> => {
-        while (pendingTimeouts.some((timeout) => !timeout.canceled && timeout.delay === delay)) {
-          await runNextTimeoutWithDelay(delay)
-        }
-      }
+      const { runNextTimeoutWithDelay, drainTimeoutsWithDelays } =
+        createPendingPtyTimeoutDrain(pendingTimeouts)
 
       let disposable: { dispose: () => void } | null = null
       try {
         const { connectPanePty } = await import('../connect-pane-pty')
+        const { BACKGROUND_DRAIN_INTERVAL_MS, HIGH_PRIORITY_DRAIN_INTERVAL_MS } =
+          await import('@/lib/pane-manager/pane-terminal-output-scheduler')
         const agentTitleMocks7 = await vi.importMock<PtyConnectionAgentTitleMocks>(
           '@/lib/agent-status/aggregation/worktree-agent-status'
         )
@@ -546,6 +536,8 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
         )
         await flushAsyncTicks(6)
 
+        let drainClock = 0
+        vi.spyOn(performance, 'now').mockImplementation(() => (drainClock += 10))
         capturedDataCallback.current?.(hidden, { seq: hidden.length, rawLength: hidden.length })
         ;(deps.isVisibleRef as { current: boolean }).current = true
         capturedDataCallback.current?.(live, {
@@ -563,7 +555,11 @@ export function registerPtyConnectionStalledHiddenRestoreTests(): void {
         await runNextTimeoutWithDelay(50)
         await runNextTimeoutWithDelay(50)
         await runNextTimeoutWithDelay(50)
-        await drainTimeoutsWithDelay(0)
+        await drainTimeoutsWithDelays([
+          0,
+          HIGH_PRIORITY_DRAIN_INTERVAL_MS,
+          BACKGROUND_DRAIN_INTERVAL_MS
+        ])
 
         expect(getMainBufferSnapshot).toHaveBeenCalledTimes(4)
         expect(pane.terminal.write).toHaveBeenCalledWith(

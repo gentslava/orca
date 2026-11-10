@@ -1,0 +1,16 @@
+diff --git a/config/scripts/ci/unit-selection/check-test-file-runners.mjs b/config/scripts/ci/unit-selection/check-test-file-runners.mjs
+--- a/config/scripts/ci/unit-selection/check-test-file-runners.mjs
++++ b/config/scripts/ci/unit-selection/check-test-file-runners.mjs
+@@ -16,6 +16,12 @@
+ 
+ // Mirror literals must appear in runner sources; list manual rows each run so their lack of CI remains visible.
+ const NON_UNIT_TEST_RUNNERS = [
++  {
++    name: 'personal build node:test',
++    include: ['config/fork-build/*.test.mjs'],
++    sources: ['.github/workflows/personal-build.yml'],
++    mirrors: ['config/fork-build/*.test.mjs']
++  },
+   {
+     name: 'Playwright e2e',
+     include: ['tests/e2e/**/*.spec.ts'],

@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { isRemoteRuntimePtyId } from '../../../../../../shared/remote-runtime/remote-runtime-pty-id'
 
 export type NativeChatResolvedTarget = {
@@ -9,4 +10,8 @@ export type NativeChatAfterStopSend = 'queue' | 'send'
 
 export function nativeChatComposerTargetIsRemote(ptyId: string | null): boolean {
   return ptyId !== null && isRemoteRuntimePtyId(ptyId)
+}
+
+export function useNativeChatComposerTarget(targetPtyId: string | null) {
+  return useCallback(() => (targetPtyId ? { ptyId: targetPtyId } : null), [targetPtyId])
 }

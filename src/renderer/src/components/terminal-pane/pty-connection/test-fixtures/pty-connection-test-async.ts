@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { expect, vi } from 'vitest'
 import { Terminal } from '@xterm/headless'
 
 // Drain fresh-spawn/reattach microtask chains before IPC assertions (docs/mobile-prefer-renderer-scrollback.md).
@@ -35,6 +35,26 @@ export async function drainPendingTimeouts(
     pendingTimeouts.shift()?.()
     await flushAsyncTicks()
   }
+}
+
+export type PendingPtyTimeout = { canceled: boolean; delay: number; fn: () => void; id: number }
+
+export function createPendingPtyTimeoutDrain(pending: PendingPtyTimeout[]) {
+  const runNextTimeoutWithDelay = async (delay: number): Promise<void> => {
+    const index = pending.findIndex((timeout) => !timeout.canceled && timeout.delay === delay)
+    expect(index).toBeGreaterThanOrEqual(0)
+    const [timeout] = pending.splice(index, 1)
+    timeout.fn()
+    await flushAsyncTicks(20)
+  }
+  const drainTimeoutsWithDelays = async (delays: readonly number[]): Promise<void> => {
+    const nextPendingTimeout = () =>
+      pending.find((timeout) => !timeout.canceled && delays.includes(timeout.delay))
+    for (let timeout = nextPendingTimeout(); timeout; timeout = nextPendingTimeout()) {
+      await runNextTimeoutWithDelay(timeout.delay)
+    }
+  }
+  return { runNextTimeoutWithDelay, drainTimeoutsWithDelays }
 }
 
 export function writeHeadlessTerminal(term: Terminal, data: string | Uint8Array): Promise<void> {

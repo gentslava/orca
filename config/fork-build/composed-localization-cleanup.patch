@@ -1,0 +1,37 @@
+diff --git a/src/renderer/src/i18n/en-runtime-required.json b/src/renderer/src/i18n/en-runtime-required.json
+index 358ab980c65..70417c10099 100644
+--- a/src/renderer/src/i18n/en-runtime-required.json
++++ b/src/renderer/src/i18n/en-runtime-required.json
+@@ -1980,7 +1980,4 @@
+         }
+       }
+-    },
+-    "sessionLink": {
+-      "linked": "Linked with"
+     }
+   },
+diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
+index 4931f1fa6ae..dc3a59ec8d0 100644
+--- a/src/renderer/src/i18n/locales/en.json
++++ b/src/renderer/src/i18n/locales/en.json
+@@ -21615,5 +21615,4 @@
+       "waitingShort": "Waiting",
+       "title": "Work together",
+-      "linked": "Linked with",
+       "linkedAgent": "Linked with {{agent}} ({{role}})",
+       "roleReviewer": "reviewer",
+diff --git a/src/shared/plugins/languages/protected-copy-keys.json b/src/shared/plugins/languages/protected-copy-keys.json
+index 7fe537c088b..96bb708cfc0 100644
+--- a/src/shared/plugins/languages/protected-copy-keys.json
++++ b/src/shared/plugins/languages/protected-copy-keys.json
+@@ -716,10 +716,4 @@
+     "components.native-chat.prompt.collapse",
+     "components.native-chat.prompt.expand",
+-    "components.native-chat.question.next",
+-    "components.native-chat.question.otherPlaceholder",
+-    "components.native-chat.question.send",
+-    "components.native-chat.question.sending",
+-    "components.native-chat.question.skip",
+-    "components.native-chat.question.step",
+     "components.native-chat.wrapLines",
+     "components.newWorkspace.directSetup.askRunDefaultTabs",

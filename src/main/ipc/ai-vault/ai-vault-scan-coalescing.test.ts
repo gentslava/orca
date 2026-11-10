@@ -1,3 +1,9 @@
+import { installChats } from '../../ai-vault/structured-session-ownership.test-support'
+import {
+  agentSessionLeaseFixture,
+  agentSessionRecordFixture
+} from '../../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
+import { setStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import { EventEmitter } from 'node:events'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AiVaultListResult } from '../../../shared/ai-vault/contracts/ai-vault-types'
@@ -351,4 +357,55 @@ it('orders forwarded association edges before new remote/All admissions and fenc
   frame({ type: 'status', session: summary })
   expect(sender.send).toHaveBeenCalledTimes(disposedSends)
   expect(retained.size).toBe(0)
+})
+
+it('serves saved chats while provider history is still waiting, then enriches the full list', async () => {
+  const record = agentSessionRecordFixture(
+    agentSessionLeaseFixture({
+      claimStatus: 'released',
+      ownerProcess: null,
+      provenHandleLinkId: null
+    })
+  )
+  installChats([{ ...record, providerHandleChain: [], conversationName: 'Saved catalog chat' }])
+  const began = Promise.withResolvers<void>()
+  const scan = Promise.withResolvers<AiVaultListResult>()
+  mocks.scanAiVaultSessionsInService.mockImplementationOnce(() => {
+    began.resolve()
+    return scan.promise
+  })
+  registerAiVaultHandlers()
+  const sender = Object.assign(new EventEmitter(), { id: 93 })
+  const list = (structuredOnly: boolean, requestToken: string) =>
+    ipcHandler('aiVault:listSessions')(
+      { sender },
+      {
+        executionHostScope: 'local',
+        includeStructuredSessions: true,
+        ...(structuredOnly ? { structuredOnly: true } : {}),
+        requestToken
+      }
+    )
+  const history = list(false, 'history')
+  try {
+    await began.promise
+    await expect(list(true, 'catalog')).resolves.toMatchObject({
+      includesStructuredSessions: true,
+      sessions: [{ source: 'structured-record', title: 'Saved catalog chat' }]
+    })
+    scan.resolve(EMPTY_RESULT)
+    await expect(history).resolves.toMatchObject({
+      sessions: [{ title: 'Saved catalog chat' }]
+    })
+    await expect(list(false, 'complete')).resolves.toMatchObject({
+      sessions: [{ title: 'Saved catalog chat' }]
+    })
+  } finally {
+    scan.resolve(EMPTY_RESULT)
+    try {
+      await history
+    } finally {
+      setStructuredAgentSessionHost(null)
+    }
+  }
 })
