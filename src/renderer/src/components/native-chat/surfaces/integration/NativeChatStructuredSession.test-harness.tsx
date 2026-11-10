@@ -93,6 +93,7 @@ export function createStructuredSessionMocks() {
     readRefusal: absent<AgentSessionRefusalReference>(),
     messages: null as null | unknown[],
     messageListProps: initialMessageListProps,
+    messageListRenders: 0,
     composerProps: nullable<{
       launchSeed?: NativeChatLaunchSeed
       structuredTransport?: Record<string, unknown> & {
@@ -309,6 +310,7 @@ export function createStructuredSessionMocks() {
     nativeChatMessageList: () => ({
       NativeChatMessageList: (props: typeof mocks.messageListProps) => {
         mocks.messageListProps = props
+        mocks.messageListRenders += 1
         useImperativeHandle(props?.ref, () => ({
           revealLatest: mocks.revealLatest,
           readerAtEnd: () => true,
@@ -353,6 +355,7 @@ export function createStructuredSessionMocks() {
     mocks.readRefusal = undefined
     mocks.messages = null
     mocks.messageListProps = null
+    mocks.messageListRenders = 0
     mocks.composerProps = null
     mocks.approvalCardProps = null
     mocks.questionCardProps = null
