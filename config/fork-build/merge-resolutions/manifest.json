@@ -1983,5 +1983,53 @@
     "patchSha256": "44e95bfd2bb69974393f4a9d7bc39a86a4906b572a977e6131b9b828d51c3d05",
     "resultSha256": "a103c9e201fbbf69039ac4a67968fdb30c784cdb423584a9fdbaf9aae6d80233",
     "reason": "Preserve the verified background-task integration together with the atomic queued-send projection extraction."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.tsx",
+    "blobs": [
+      "53a0ebbc0a0e51b50b1ba9ef209aed6b3f26ef99",
+      "1ddf845ed11239e0c96b20c93cf36b42ca8081bc",
+      "d09628363e001f5e92b110d5cb56cee25ccc460b"
+    ],
+    "patch": "latest-upstream-20261110d/pr34895-123e02affe61.patch",
+    "patchSha256": "7e9893b1a3fc32db694df375cb7f32d13c92e711fc6d695eafc8191c3d9989fd",
+    "resultSha256": "6a744975f8390c59ad6d840888c6acf5fab9399c174f9531c81dbef35a62a5ee",
+    "reason": "Combine the extracted message-list input contract with inline child choices and the shared turn-thinking hook; preserve upstream pull-request summaries and transcript navigation."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
+    "blobs": [
+      "377058c7526c7af6af40618f63f85e26aea26cdc",
+      "6f1204c53d50272cf4e2f5000e3b0bcdb9c814a2",
+      "9a1343fdf62bc262b870b5dd9cb7275311741e8a"
+    ],
+    "patch": "latest-upstream-20261110d/pr37744-53349ad9266e.patch",
+    "patchSha256": "674132a1354e28758062fc732ca891d2c39cb036860efcf5e3bba21f97429108",
+    "resultSha256": "17d04db671f421e843d858ad5945e9b4aa2acf132dcc3423e4bf9ffc2ac8feab",
+    "reason": "Preserve current access declarations and child history alongside collaboration capabilities; retain the extracted prompt wrapper that already combines owner and asynchronous questions in the composer slot."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "ab014e90a318a263beac439cb03e02be70f6a434",
+      "5028c0bc420b8eca988d81af88e64ba6596b9226",
+      "d1e9d3d152c8eac54036a32476c191ff52a6c4a3"
+    ],
+    "patch": "latest-upstream-20261110d/pr37744-3032bb446bb8.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "fd0a4469dd7da29f94b52036dc207e22129ccbceb84a17038836b18709f020fc",
+    "reason": "Preserve current access declarations and child history alongside collaboration capabilities; retain the extracted prompt wrapper that already combines owner and asynchronous questions in the composer slot."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "9aac5d474e3e572945011b0d5f0f343fc66b4028",
+      "9e9dc1043a5bb9e64e05256d4f6b011ad5d5a4b3",
+      "385ec7225f4e621b548e9736f19ca38413d7cf50"
+    ],
+    "patch": "latest-upstream-20261110d/pr37744-7020b1b4d952.patch",
+    "patchSha256": "d6e337e5c9c2cb78d49ad44e565906b33f791c4ab447d1a6e33b1dd1d1beb66b",
+    "resultSha256": "2d74f9ee6bd6e224a7f487af9b10f5ec2c4d04c2f7b34fe848719620b5d423a4",
+    "reason": "Preserve current access declarations and child history alongside collaboration capabilities; retain the extracted prompt wrapper that already combines owner and asynchronous questions in the composer slot."
   }
 ]

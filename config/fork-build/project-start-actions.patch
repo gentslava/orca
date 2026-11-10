@@ -388,70 +388,42 @@ index 9fad5456322..e961fff15e6 100644
  })
 
  describe('startup agent recovery host inventory', () => {
-diff --git a/src/renderer/src/components/use-terminal-watcher-effects.ts b/src/renderer/src/components/use-terminal-watcher-effects.ts
-index ccf5d42fd24..7ce6e47a60d 100644
---- a/src/renderer/src/components/use-terminal-watcher-effects.ts
-+++ b/src/renderer/src/components/use-terminal-watcher-effects.ts
-@@ -1,7 +1,5 @@
+diff --git a/src/renderer/src/components/terminal/use-terminal-startup-activation.ts b/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
+--- a/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
++++ b/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
+@@ -1,14 +1,7 @@
  import { useEffect, useMemo, useRef } from 'react'
- import { findActivityTerminalPortal } from './activity/activity-terminal-portal'
+ import { useAppStore } from '@/store'
 -import { shouldSeedDefaultSurface } from '@/lib/workspace/activation/initial-surface/automatic-default-surface'
 -import { findPendingWorktreeCreationId } from '@/lib/workspace/creation/pending-worktree-creation'
- import {
-   canWatcherCoverParkedTerminalTab,
-   syncParkedTerminalTabWatchersForWorkspaces,
-@@ -14,15 +12,10 @@ import {
- } from './terminal-pane/parking/output-watchers/terminal-parked-watcher-registry'
-
- import { useAppStore } from '@/store'
--import { isTerminalWorkspaceEmptiedOnPurpose } from '../../../shared/workspace-layout/closed-terminal-tab-tombstones'
+-import { isTerminalWorkspaceEmptiedOnPurpose } from '../../../../shared/workspace-layout/closed-terminal-tab-tombstones'
  import { gateWorktreeAgentActivation } from '@/lib/workspace/activation/worktree-agent-activation-gate'
  import { createWorkspaceTerminalHostAuthoritySelector } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
 -import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
 -import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
- import type { TerminalColdActivationController } from './terminal-cold-activation'
- import { selectParkedEquivalentMountTabIds } from './terminal/startup-terminal-tab-hold'
--import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../shared/layout-owner-switch'
+-import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
 -import { createInitialTerminalThroughLayoutOwner } from '@/store/terminals/terminal-tab-create-through-layout-owner'
+ import type { TerminalColdActivationController } from '../terminal-cold-activation'
 
- // Why shared: surfaces without watchable live tabs need no per-pass allocation.
- const NO_PARKED_TAB_IDS: ReadonlySet<string> = new Set()
-@@ -38,6 +31,7 @@ type TerminalWatcherController = Pick<
-   | 'anyMountedWorktreeHasLayout'
-   | 'backgroundMountRevision'
-   | 'createTab'
-+  | 'reconcileWorktreeTabModel'
-   | 'effectiveParkedTerminalWorktreeIds'
-   | 'evictionExemptTerminalTabIds'
-   | 'getEffectiveLayoutForWorktree'
-@@ -47,7 +41,6 @@ type TerminalWatcherController = Pick<
-   | 'mountedWorktreeIdsRef'
-   | 'pairedRuntimeParkingEnvironmentIds'
-   | 'pendingStartupByTabId'
+ type TerminalStartupController = Pick<
+@@ -17,8 +10,6 @@
+   | 'workspaceSessionReady'
+   | 'terminalStartupRestorationReady'
+   | 'hydrationSucceeded'
 -  | 'reconcileWorktreeTabModel'
-   | 'renderedActiveWorktreeId'
-   | 'startupTerminalTabHold'
-   | 'tabsByWorktree'
-@@ -70,7 +63,6 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
-     activityTerminalPortals,
-     anyMountedWorktreeHasLayout,
-     backgroundMountRevision,
--    createTab,
-     effectiveParkedTerminalWorktreeIds,
-     evictionExemptTerminalTabIds,
-     getEffectiveLayoutForWorktree,
-@@ -80,7 +72,6 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
-     mountedWorktreeIdsRef,
-     pairedRuntimeParkingEnvironmentIds,
-     pendingStartupByTabId,
--    reconcileWorktreeTabModel,
-     renderedActiveWorktreeId,
-     startupTerminalTabHold,
-     tabsByWorktree,
-@@ -199,89 +190,12 @@ export function useTerminalWatcherEffects(controller: TerminalWatcherController)
-   ])
-   useEffect(() => () => disposeAllParkedTerminalWatchers(), [])
+-  | 'createTab'
+ >
 
+ export function useTerminalStartupActivation(controller: TerminalStartupController): void {
+@@ -26,93 +17,14 @@
+     activeWorktreeId,
+     workspaceSessionReady,
+     terminalStartupRestorationReady,
+-    hydrationSucceeded,
+-    reconcileWorktreeTabModel,
+-    createTab
++    hydrationSucceeded
+   } = controller
 -  const startupActivationGateWorktreeIdsRef = useRef(new Set<string>())
    // Subscribe so host answers rerun the passes; retain owner resolution to avoid repeating catalog walks on every store write (STA-3363).
    const hostAuthoritySelector = useMemo(

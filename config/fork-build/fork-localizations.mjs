@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { resolveLocaleSourceKey } from '../scripts/locale-catalog/locale-plural-forms.mjs'
@@ -42,10 +42,20 @@ export function applyForkLocalizations(source, controls, git, timestamp) {
     const file = `localizations/${name}-ru.json`
     const overlayText = readFileSync(join(controls, file), 'utf8')
     const overlay = parseCatalog(overlayText)
+    const baseFile = `localizations/${name}-ru-base.json`
+    const basePath = join(controls, baseFile)
+    const baseText = existsSync(basePath) ? readFileSync(basePath, 'utf8') : '{}'
+    const baseRows = leaves(parseCatalog(baseText))
     const english = new Map(
       leaves(parseCatalog(readFileSync(join(source, directory, 'en.json'), 'utf8')))
     )
     const rows = leaves(overlay)
+    const overlayKeys = new Set(rows.map(([key]) => key))
+    for (const [key] of baseRows) {
+      if (!overlayKeys.has(key)) {
+        throw new Error(`Fork translation override lacks replacement: ${key}`)
+      }
+    }
     for (const [key, value] of rows) {
       const original = english.get(key)
       if (original === undefined) {
@@ -58,7 +68,7 @@ export function applyForkLocalizations(source, controls, git, timestamp) {
     const path = `${directory}/ru.json`
     const current = readFileSync(join(source, path), 'utf8')
     const pruned = pruneTranslationsWithoutSource(parseCatalog(current), english, 'ru')
-    const merged = mergeTranslationCatalogs('{}', JSON.stringify(pruned.catalog), overlayText)
+    const merged = mergeTranslationCatalogs(baseText, JSON.stringify(pruned.catalog), overlayText)
     if (merged !== current) {
       writeFileSync(join(source, path), merged)
       git(source, ['add', path])
@@ -68,7 +78,10 @@ export function applyForkLocalizations(source, controls, git, timestamp) {
       path,
       keys: rows.length,
       removedOrphans: pruned.removed,
-      sha256: createHash('sha256').update(overlayText).digest('hex')
+      sha256: createHash('sha256').update(overlayText).digest('hex'),
+      ...(baseRows.length
+        ? { baseFile, baseSha256: createHash('sha256').update(baseText).digest('hex') }
+        : {})
     })
   }
   if (git(source, ['diff', '--cached', '--name-only'])) {
