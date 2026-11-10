@@ -1,0 +1,2036 @@
+diff --git a/config/oxlint-anti-slop.json b/config/oxlint-anti-slop.json
+index 54485134c60..121166bc7a4 100644
+--- a/config/oxlint-anti-slop.json
++++ b/config/oxlint-anti-slop.json
+@@ -52,6 +52,7 @@
+         "**/*.spec.{ts,tsx}",
+         // Vitest support modules shared by split suites; only test files import them.
+         "**/*-test-harness.{ts,tsx}",
++        "**/*.test-harness.{ts,tsx}",
+         "**/*-test-fixture.{ts,tsx}",
+         "**/*-test-fixtures.{ts,tsx}",
+         "**/*.test-fixture.{ts,tsx}",
+diff --git a/mobile/src/host-screen/HostSectionHeader.tsx b/mobile/src/host-screen/HostSectionHeader.tsx
+new file mode 100644
+index 00000000000..ce4334985fb
+--- /dev/null
++++ b/mobile/src/host-screen/HostSectionHeader.tsx
+@@ -0,0 +1,105 @@
++import { memo } from 'react'
++import { ActivityIndicator, Pressable, Text, View } from 'react-native'
++import { ChevronRight, FolderTree, Pin } from 'lucide-react-native'
++import { DisclosureChevron } from '../components/DisclosureChevron'
++import { MobileRepoIcon } from '../components/MobileRepoIcon'
++import { WORKTREE_ROW_LAYOUT } from '../components/worktree-list-row-layout'
++import { colors } from '../theme/mobile-theme'
++import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
++import type { Section } from '../worktree/workspace-list-types'
++import { projectGroupHeaderIndent } from '../worktree/project-group-indent'
++import { hostScreenStyles as styles } from './host-screen-styles'
++import type { RepoLook } from './host-repo-looks'
++import { HostPendingCreationRow } from './host-pending-creation-row'
++import type { HostScreenController } from './use-host-screen-controller'
++
++// Takes the header's own fields, not the section, so a poll that rebuilds sections skips unchanged headers.
++export const HostSectionHeader = memo(function HostSectionHeader(props: {
++  title: string
++  icon: Section['icon']
++  isProjectGroup: boolean | undefined
++  projectGroupDepth: number | undefined
++  pendingCreations: Section['pendingCreations']
++  collapseKey: string
++  collapsed: boolean
++  count: number
++  pending: boolean
++  groupByRepo: boolean
++  repoLook: RepoLook | null | undefined
++  onToggle: (collapseKey: string) => void
++  pinRepo?: Section['repo']
++  pinLabel: string
++  projectPinned: boolean
++  onToggleProjectPin: HostScreenController['settings']['toggleProjectPin']
++}) {
++  useMobileColorScheme()
++  const pendingCreations = props.pendingCreations?.map((creation) => (
++    <HostPendingCreationRow key={creation.key} creation={creation} />
++  ))
++  if (!props.title) {
++    return pendingCreations ? <>{pendingCreations}</> : null
++  }
++  return (
++    <>
++      <Pressable
++        style={({ pressed }) => [
++          styles.sectionHeader,
++          props.projectGroupDepth
++            ? {
++                paddingLeft:
++                  WORKTREE_ROW_LAYOUT.indicatorInset +
++                  projectGroupHeaderIndent(props.projectGroupDepth)
++              }
++            : null,
++          pressed && { backgroundColor: colors.translucentFill }
++        ]}
++        onPress={() => props.onToggle(props.collapseKey)}
++      >
++        <View style={styles.sectionChevron}>
++          <DisclosureChevron expanded={!props.collapsed} collapsedDeg={0} expandedDeg={90}>
++            <ChevronRight size={12} color={colors.textMuted} />
++          </DisclosureChevron>
++        </View>
++        {props.icon === 'pin' && (
++          <Pin size={12} color={colors.textMuted} style={styles.sectionIcon} />
++        )}
++        {props.groupByRepo && props.isProjectGroup ? (
++          <FolderTree size={12} color={colors.textPrimary} style={styles.sectionIcon} />
++        ) : props.groupByRepo ? (
++          <View style={styles.sectionRepoIcon}>
++            <MobileRepoIcon
++              repoIcon={props.repoLook?.icon ?? null}
++              size={14}
++              color={props.repoLook?.color ?? colors.textSecondary}
++            />
++          </View>
++        ) : null}
++        <Text style={styles.sectionTitle}>{props.title}</Text>
++        <Text style={styles.sectionCount}>{props.count}</Text>
++        {props.pinRepo ? (
++          <Pressable
++            accessibilityRole="button"
++            accessibilityLabel={props.pinLabel}
++            hitSlop={8}
++            onPress={(event) => {
++              event.stopPropagation()
++              if (props.pinRepo) {
++                void props.onToggleProjectPin(props.pinRepo)
++              }
++            }}
++          >
++            <Pin size={14} color={props.projectPinned ? colors.textPrimary : colors.textMuted} />
++          </Pressable>
++        ) : null}
++        {props.pending && (
++          <ActivityIndicator
++            size="small"
++            color={colors.textMuted}
++            style={styles.sectionPendingSpinner}
++          />
++        )}
++      </Pressable>
++      {pendingCreations}
++    </>
++  )
++})
+diff --git a/mobile/src/host-screen/host-workspace-list.tsx b/mobile/src/host-screen/host-workspace-list.tsx
+index 2b1e7e6aab2..2a8bbcf55f2 100644
+--- a/mobile/src/host-screen/host-workspace-list.tsx
++++ b/mobile/src/host-screen/host-workspace-list.tsx
+@@ -1,28 +1,17 @@
+-import { memo, useCallback, useEffect, useMemo, type ReactElement } from 'react'
++import { HostSectionHeader } from './HostSectionHeader'
++import { useCallback, useEffect, useMemo, type ReactElement } from 'react'
+ import { useMobileTranslation } from '../i18n/use-mobile-translation'
+ import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
+ import { getRepoExecutionHostId } from '../../../src/shared/execution-host'
+-import {
+-  ActivityIndicator,
+-  Animated,
+-  Platform,
+-  Pressable,
+-  RefreshControl,
+-  Text,
+-  View
+-} from 'react-native'
+-import { ChevronRight, FolderTree, Pin } from 'lucide-react-native'
++import { Animated, Platform, RefreshControl, View } from 'react-native'
+ import { AuthFailedBanner } from '../components/AuthFailedBanner'
+ import { Presence } from '../components/AutoHeight'
+-import { DisclosureChevron } from '../components/DisclosureChevron'
+ import { HostDiagnosticsLink } from '../components/HostDiagnosticsLink'
+ import { HostOfflineBanner, useHostOfflineBanner } from '../components/HostOfflineBanner'
+ import { isConnectionOutage } from '../transport/connection/connection-health'
+ import { HostRouteNoticeBanner } from '../components/HostRouteNoticeBanner'
+-import { MobileRepoIcon } from '../components/MobileRepoIcon'
+ import type { CollapsingTitle } from '../components/nav-bar/PageTitle'
+ import { WorktreeListRow } from '../components/WorktreeListRow'
+-import { WORKTREE_ROW_LAYOUT } from '../components/worktree-list-row-layout'
+ import { colors, spacing } from '../theme/mobile-theme'
+ import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+ import { getWorktreeRowIdentity } from '../worktree/worktree-host-row-identity'
+@@ -35,12 +24,10 @@ import type { Section, WorkspaceListItem, Worktree } from '../worktree/workspace
+ import { DEFAULT_REPO_BADGE_COLOR } from '../../../src/shared/repo-badge-color'
+ import { getWorktreeCardDetails } from '../../../src/shared/worktree/card-properties'
+ import { hostScreenStyles as styles } from './host-screen-styles'
+-import { useRepoLookById, type RepoLook } from './host-repo-looks'
+-import { HostPendingCreationRow } from './host-pending-creation-row'
++import { useRepoLookById } from './host-repo-looks'
+ import { useSlowPendingKeys } from './use-slow-pending-keys'
+ import { useHostMutationDrafts } from '../query/host-mutation-drafts'
+ import { workspaceRenameDraftKey } from './workspace-rename-sheet'
+-import { projectGroupHeaderIndent } from '../worktree/project-group-indent'
+ import type { HostScreenController } from './use-host-screen-controller'
+
+ export function HostWorkspaceList({
+@@ -362,97 +349,6 @@ function unsavedRename(
+   return draft?.trim() && draft !== row.displayName ? draft : undefined
+ }
+
+-// Takes the header's own fields, not the section, so a poll that rebuilds sections skips unchanged headers.
+-const HostSectionHeader = memo(function HostSectionHeader(props: {
+-  title: string
+-  icon: Section['icon']
+-  isProjectGroup: boolean | undefined
+-  projectGroupDepth: number | undefined
+-  pendingCreations: Section['pendingCreations']
+-  collapseKey: string
+-  collapsed: boolean
+-  count: number
+-  pending: boolean
+-  groupByRepo: boolean
+-  repoLook: RepoLook | null | undefined
+-  onToggle: (collapseKey: string) => void
+-  pinRepo?: Section['repo']
+-  pinLabel: string
+-  projectPinned: boolean
+-  onToggleProjectPin: HostScreenController['settings']['toggleProjectPin']
+-}) {
+-  useMobileColorScheme()
+-  const pendingCreations = props.pendingCreations?.map((creation) => (
+-    <HostPendingCreationRow key={creation.key} creation={creation} />
+-  ))
+-  if (!props.title) {
+-    return pendingCreations ? <>{pendingCreations}</> : null
+-  }
+-  return (
+-    <>
+-      <Pressable
+-        style={({ pressed }) => [
+-          styles.sectionHeader,
+-          props.projectGroupDepth
+-            ? {
+-                paddingLeft:
+-                  WORKTREE_ROW_LAYOUT.indicatorInset +
+-                  projectGroupHeaderIndent(props.projectGroupDepth)
+-              }
+-            : null,
+-          pressed && { backgroundColor: colors.translucentFill }
+-        ]}
+-        onPress={() => props.onToggle(props.collapseKey)}
+-      >
+-        <View style={styles.sectionChevron}>
+-          <DisclosureChevron expanded={!props.collapsed} collapsedDeg={0} expandedDeg={90}>
+-            <ChevronRight size={12} color={colors.textMuted} />
+-          </DisclosureChevron>
+-        </View>
+-        {props.icon === 'pin' && (
+-          <Pin size={12} color={colors.textMuted} style={styles.sectionIcon} />
+-        )}
+-        {props.groupByRepo && props.isProjectGroup ? (
+-          <FolderTree size={12} color={colors.textPrimary} style={styles.sectionIcon} />
+-        ) : props.groupByRepo ? (
+-          <View style={styles.sectionRepoIcon}>
+-            <MobileRepoIcon
+-              repoIcon={props.repoLook?.icon ?? null}
+-              size={14}
+-              color={props.repoLook?.color ?? colors.textSecondary}
+-            />
+-          </View>
+-        ) : null}
+-        <Text style={styles.sectionTitle}>{props.title}</Text>
+-        <Text style={styles.sectionCount}>{props.count}</Text>
+-        {props.pinRepo ? (
+-          <Pressable
+-            accessibilityRole="button"
+-            accessibilityLabel={props.pinLabel}
+-            hitSlop={8}
+-            onPress={(event) => {
+-              event.stopPropagation()
+-              if (props.pinRepo) {
+-                void props.onToggleProjectPin(props.pinRepo)
+-              }
+-            }}
+-          >
+-            <Pin size={14} color={props.projectPinned ? colors.textPrimary : colors.textMuted} />
+-          </Pressable>
+-        ) : null}
+-        {props.pending && (
+-          <ActivityIndicator
+-            size="small"
+-            color={colors.textMuted}
+-            style={styles.sectionPendingSpinner}
+-          />
+-        )}
+-      </Pressable>
+-      {pendingCreations}
+-    </>
+-  )
+-})
+-
+ function ListSeparator() {
+   useMobileColorScheme()
+   return <View style={styles.separator} />
+diff --git a/mobile/src/host-screen/use-host-worktree-actions.ts b/mobile/src/host-screen/use-host-worktree-actions.ts
+index 33bc9878021..6d0c3ffa5b3 100644
+--- a/mobile/src/host-screen/use-host-worktree-actions.ts
++++ b/mobile/src/host-screen/use-host-worktree-actions.ts
+@@ -1,3 +1,4 @@
++import { workspaceRename } from './workspace-rename-mutation'
+ import type { HostWorktreeActionsArgs } from './host-worktree-actions-contract'
+ import { PERSONAL_PROJECT_ORDER_CAPABILITY } from '../../../src/shared/personal-project-order'
+
+@@ -11,47 +12,20 @@ import { ORCA_SIDEBAR_INPUTS_IS_MAIN } from '../../../src/shared/sidebar-inputs-
+ import { floatingWorkspaceSessionPath } from '../session/floating-workspace'
+ import { holdSessionLeave } from '../session/session-leave-guard'
+ import { savePinnedIds } from '../storage/preferences'
+-import type { useForgetHostClient } from '../transport/connection/host-client-hooks'
+ import { removeHostAndCloseClient } from '../transport/hosts/host-removal-lifecycle'
+ import { isPageHostRemovalUnavailable } from '../transport/hosts/page-host-removal-refusal'
+-import type { RpcClient } from '../transport/rpc/rpc-client-contract'
+ import {
+   rpcClientForExecutionHost,
+   workspaceRouteExecutionHost
+ } from '../worktree/execution-host-scoped-rpc-client'
+ import { serverUpdateNeededNotice } from '../host-route-notice'
+-import type { ConnectionState } from '../transport/connection/connection-state'
+ import { leaveHostRoute } from '../host-route-exit'
+ import { getWorktreeRowIdentity, isSameWorktreeRow } from '../worktree/worktree-host-row-identity'
+ import { noteLastVisitedWorktree } from '../worktree/last-visited-worktree-by-host'
+ import { isWorktreePinned, type Worktree } from '../worktree/workspace-list-sections'
+-import {
+-  worktreeActivate,
+-  worktreeDisplayNameWrite,
+-  worktreePinWrite,
+-  worktreeSleep
+-} from './host-screen-operations'
++import { worktreeActivate, worktreePinWrite, worktreeSleep } from './host-screen-operations'
+ import { useHostWorktreeDelete } from './use-host-worktree-delete'
+-import { defineHostMutation, useHostMutation, type HostMutationPhase } from '../query/host-mutation'
+-
+-async function sendWorkspaceRename(
+-  client: RpcClient,
+-  vars: { worktreeId: string; displayName: string }
+-): Promise<void> {
+-  worktreeDisplayNameWrite.interpret(
+-    await worktreeDisplayNameWrite.request(client, {
+-      worktree: `id:${vars.worktreeId}`,
+-      displayName: vars.displayName
+-    })
+-  )
+-}
+-
+-const workspaceRename = defineHostMutation({
+-  offline: 'draft',
+-  send: sendWorkspaceRename,
+-  // Renaming is idempotent, so a lost reply is settled by sending the same name again.
+-  confirm: sendWorkspaceRename
+-})
++import { useHostMutation, type HostMutationPhase } from '../query/host-mutation'
+
+ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
+   const {
+diff --git a/mobile/src/host-screen/workspace-rename-mutation.ts b/mobile/src/host-screen/workspace-rename-mutation.ts
+new file mode 100644
+index 00000000000..11b91e0d6b6
+--- /dev/null
++++ b/mobile/src/host-screen/workspace-rename-mutation.ts
+@@ -0,0 +1,22 @@
++import { defineHostMutation } from '../query/host-mutation'
++import type { RpcClient } from '../transport/rpc/rpc-client-contract'
++import { worktreeDisplayNameWrite } from './host-screen-operations'
++
++async function sendWorkspaceRename(
++  client: RpcClient,
++  vars: { worktreeId: string; displayName: string }
++): Promise<void> {
++  worktreeDisplayNameWrite.interpret(
++    await worktreeDisplayNameWrite.request(client, {
++      worktree: `id:${vars.worktreeId}`,
++      displayName: vars.displayName
++    })
++  )
++}
++
++export const workspaceRename = defineHostMutation({
++  offline: 'draft',
++  send: sendWorkspaceRename,
++  // Renaming is idempotent, so a lost reply is settled by sending the same name again.
++  confirm: sendWorkspaceRename
++})
+diff --git a/mobile/src/session/mobile-structured-send-input.ts b/mobile/src/session/mobile-structured-send-input.ts
+new file mode 100644
+index 00000000000..a4637acd182
+--- /dev/null
++++ b/mobile/src/session/mobile-structured-send-input.ts
+@@ -0,0 +1,49 @@
++import type { StructuredAgentSessionSendControl } from '../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
++import type { StructuredAgentSessionComposerOptions } from '../../../src/shared/agent-session/view/structured-agent-session-composer'
++import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
++import type { StructuredAgentSessionState } from '../../../src/shared/agent-session/structured-agent-session-reducer'
++import type { RpcClient } from '../transport/rpc/rpc-client-contract'
++import type { MobileNativeChatSendErrorReporter } from './native-chat/use-mobile-native-chat-send-error'
++import type { MobileStructuredSends } from './use-mobile-structured-sends'
++import type { MobileStructuredSendsOut } from './use-mobile-structured-stop-offer'
++
++export type MobileStructuredSendInput = {
++  agent: string | null
++  client: RpcClient | null
++  sessionId: string | null
++  enabled: boolean
++  queueCapable: boolean
++  steerCapable?: boolean
++  queueFollowUps: boolean
++  commandsWait: boolean
++  stateRef: { readonly current: StructuredAgentSessionState }
++  stopping: boolean
++  /** The host's queue sends next: commands that cannot wait in line read the chat as working. */
++  queueSendsNext: boolean
++  accept: MobileStructuredSends['accept']
++  acknowledge: MobileStructuredSends['acknowledge']
++  reject: MobileStructuredSends['reject']
++  holdUnconfirmed: MobileStructuredSends['holdUnconfirmed']
++  commandPending: { current: boolean }
++  onClearSent: () => () => void
++  /** This chat's message sends still out, which a command waits behind as on desktop. */
++  sendsOut: MobileStructuredSendsOut
++  controller: Pick<
++    StructuredAgentSessionComposerOptions,
++    | 'snapshot'
++    | 'setOption'
++    | 'invokeAction'
++    | 'conversationCommands'
++    | 'compactInstructions'
++    | 'changeThreadGoal'
++  >
++  sessionCommands?: readonly AgentSessionSlashCommand[]
++  onSendError: MobileNativeChatSendErrorReporter
++  // Older hosts accept neither per-chat model nor effort.
++  /** The chat's own model and effort each send carries; absent for an older host, which takes neither. */
++  sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'>
++  sendOptions?: () => Readonly<Record<string, string>> | undefined
++  isModelWritePending?: () => boolean
++  // An older host refuses a send body carrying `skills`; there the `$name` text stands alone.
++  takesSkills?: boolean
++}
+diff --git a/mobile/src/session/native-chat/mobile-native-chat-controller-input.ts b/mobile/src/session/native-chat/mobile-native-chat-controller-input.ts
+new file mode 100644
+index 00000000000..767a2aca8eb
+--- /dev/null
++++ b/mobile/src/session/native-chat/mobile-native-chat-controller-input.ts
+@@ -0,0 +1,27 @@
++import type { MutableRefObject } from 'react'
++import type { RpcClient } from '../../transport/rpc/rpc-client-contract'
++import type { ConnectionState } from '../../transport/connection/connection-state'
++import type { MobileNativeChatTab } from './mobile-native-chat-eligibility'
++import type { StructuredAgentSessionHostSupport } from '../mobile-structured-agent-session-host-support'
++import type { useMobileNativeChatSessionLane } from './use-mobile-native-chat-session-lane'
++
++export type MobileNativeChatControllerInput = {
++  client: RpcClient | null
++  /** The route's paired host; differs from `client` only when a server executes the workspace. */
++  pairedHostClient: RpcClient | null
++  hostId: string
++  worktreeId: string
++  activeSessionTab: MobileNativeChatTab | null
++  activeSessionTabId: string | null
++  activeHandleRef: MutableRefObject<string | null>
++  deviceTokenRef: MutableRefObject<string | null>
++  nativeChatTranscriptIsLocalReadable: boolean
++  nativeChatInputLeaseReady: boolean
++  /** Live socket state; the lease collapses on disconnect but one render later. */
++  connState: ConnectionState
++  agentSessionHostSupport?: StructuredAgentSessionHostSupport | null
++  onSendError: Parameters<typeof useMobileNativeChatSessionLane>[0]['onSendError']
++  // Any accepted chat write clears the held failure banner, including answers and permission replies.
++  onQueuedEditNotice?: (message: string) => void
++  onSendResolved: () => void
++}
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx
+index 674a2c7a5d9..04a802cf269 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatMessage.tsx
+@@ -1,3 +1,4 @@
++import type { MobileNativeChatMessageProps } from './mobile-native-chat-message-props'
+ import { memo, useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react'
+ import { Text, View } from 'react-native'
+ import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection'
+@@ -32,12 +33,10 @@ import {
+   nativeChatAskRunBlocks,
+   nativeChatAskRunSubject
+ } from '../../../../../src/shared/native-chat/input/native-chat-ask-row'
+-import type { NativeChatResolvedPrompt } from '../../../../../src/shared/native-chat/native-chat-resolution-receipt'
+ import { MobileNativeChatSubagentGroup } from './MobileNativeChatSubagentGroup'
+ import { MobileNativeChatBackgroundTaskRun } from './MobileNativeChatBackgroundTaskRun'
+ import { withoutBackgroundTaskRows } from '../../../../../src/shared/native-chat/input/native-chat-background-task-row'
+ import { ToolRun } from './MobileNativeChatToolRun'
+-import type { NativeChatTurnStatus } from '../../../../../src/shared/native-chat/transcript/native-chat-turn-status'
+ import { styles } from './mobile-native-chat-message-styles'
+ import { MobileNativeChatAgentMessageCard } from './MobileNativeChatAgentMessageCard'
+ import { MobileNativeChatVisualContext } from '../visual/mobile-native-chat-visual-context'
+@@ -78,44 +77,7 @@ function MobileNativeChatMessageImpl({
+   onToggleSubagentGroup,
+   userMessageOpen,
+   onToggleUserMessage
+-}: {
+-  message: Chat.NativeChatMessage
+-  // Stable placement key survives older messages joining a folded row.
+-  rowKey?: string
+-  runOwner?: string
+-  // Only the newest live assistant row can still grow.
+-  mayStillGrow?: boolean
+-  // Compare plan updates against the prior write, not an empty checklist.
+-  previousTodoWrite?: Chat.NativeChatToolCallBlock
+-  previousUpdatePlan?: Chat.NativeChatToolCallBlock
+-  fontScale?: number
+-  turnStatus?: NativeChatTurnStatus | null
+-  turnStatusAbove?: boolean
+-  turnExpanded?: boolean
+-  turnKey?: string
+-  /** The chat may rewind to this row, by desktop's `nativeChatRowOffersRewind`. */
+-  rewindable?: true
+-  onToggleTurn?: (turnKey: string) => void
+-  activeTurnIsWorking?: boolean
+-  trailingRun?: boolean
+-  // The run’s first row draws all members; later members render no duplicate activity.
+-  workRun?: readonly Chat.NativeChatMessage[]
+-  joinsWorkRun?: boolean
+-  foldedAway?: boolean
+-  openReasoning?: ReadonlySet<string>
+-  structuredActivityUi?: boolean
+-  // Hide the reasoning row while the live activity line discloses the same block.
+-  reasoningIsLive?: boolean
+-  reasoningExpanded?: boolean
+-  onToggleReasoning?: (key: string) => void
+-  unsentNotice?: string
+-  receipt?: NativeChatResolvedPrompt
+-  awaiting?: boolean
+-  subagentGroupsOpen?: ReadonlySet<string>
+-  onToggleSubagentGroup?: (groupId: string) => void
+-  userMessageOpen?: boolean
+-  onToggleUserMessage?: (messageId: string) => void
+-}): React.JSX.Element {
++}: MobileNativeChatMessageProps): React.JSX.Element {
+   useMobileColorScheme()
+   const t = useMobileTranslation()
+   const { shown: message, showFull, recovery } = useMobileNativeChatFullMessage(rowMessage)
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
+index 8b15bdd69c7..7de46b3bd62 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatPageList.tsx
+@@ -1,3 +1,4 @@
++import type { MobileNativeChatPageListProps } from './mobile-native-chat-page-list-props'
+ import {
+   useCallback,
+   useEffect,
+@@ -6,22 +7,11 @@ import {
+   useMemo,
+   useRef,
+   useState,
+-  type ReactElement,
+-  type Ref
++  type ReactElement
+ } from 'react'
+-import type {
+-  NativeScrollEvent,
+-  NativeSyntheticEvent,
+-  ScrollView,
+-  StyleProp,
+-  ViewStyle
+-} from 'react-native'
+-import type { NativeChatMessage } from '../../../../../src/shared/native-chat/native-chat-types'
+-import type { MobileNativeChatRowKeys } from './mobile-native-chat-row-keys'
++import type { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native'
+ import { MobileNativeChatPageScroll } from './MobileNativeChatPageScroll'
+ import * as readingPlace from '../../mobile-native-chat-reading-place'
+-import type { MobileNativeChatListHandle } from './use-mobile-native-chat-tail-follow'
+-import type { MobileNativeChatScrollRoots } from './mobile-native-chat-scroll-roots'
+ import { scrollWritesStopMomentum } from '../../mobile-native-chat-scroll-motion'
+ import {
+   createMobileNativeChatGrowthHold,
+@@ -41,28 +31,9 @@ const FETCH_REACH_SCREENS = 10
+ // Wait for scroll and touch rest before corrections so iOS momentum is not interrupted.
+ const REST_MS = 300
+
+-type Row = { item: NativeChatMessage; index: number }
+ type Scroller = readingPlace.MobileNativeChatScrollNode & EventTarget
+ type ReadScroller = () => Scroller | null
+
+-type Props = {
+-  roots?: MobileNativeChatScrollRoots
+-  ref: Ref<MobileNativeChatListHandle>
+-  isFollowing: () => boolean
+-  onEndDistance: (fromEnd: number, byReader: boolean) => void
+-  rows: readonly NativeChatMessage[]
+-  rowKeys: Pick<MobileNativeChatRowKeys, 'scope' | 'keyOf' | 'current' | 'placement'>
+-  renderItem: (row: Row) => ReactElement
+-  // Regrouping changes layout, so preserve the reading place through the update.
+-  layoutKey: string
+-  contentContainerStyle: StyleProp<ViewStyle>
+-  header: ReactElement | null
+-  footer: ReactElement | null
+-  emptyStateView: ReactElement | null
+-  onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+-  onNearTop?: () => void
+-}
+-
+ // End anchoring preserves position when history prepends; restore after below-reader changes only at rest or on regroup.
+ export function MobileNativeChatPageList({
+   ref,
+@@ -79,7 +50,7 @@ export function MobileNativeChatPageList({
+   emptyStateView,
+   onScroll,
+   onNearTop
+-}: Props): ReactElement {
++}: MobileNativeChatPageListProps): ReactElement {
+   const scroll = useRef<ScrollView>(null)
+   const scroller = useCallback<ReadScroller>(() => scroll.current?.getScrollableNode() ?? null, [])
+
+diff --git a/mobile/src/session/native-chat/transcript/mobile-native-chat-message-props.ts b/mobile/src/session/native-chat/transcript/mobile-native-chat-message-props.ts
+new file mode 100644
+index 00000000000..851c0209b00
+--- /dev/null
++++ b/mobile/src/session/native-chat/transcript/mobile-native-chat-message-props.ts
+@@ -0,0 +1,42 @@
++import type * as Chat from '../../../../../src/shared/native-chat/native-chat-types'
++import type { NativeChatResolvedPrompt } from '../../../../../src/shared/native-chat/native-chat-resolution-receipt'
++import type { NativeChatTurnStatus } from '../../../../../src/shared/native-chat/transcript/native-chat-turn-status'
++
++export type MobileNativeChatMessageProps = {
++  message: Chat.NativeChatMessage
++  // Stable placement key survives older messages joining a folded row.
++  rowKey?: string
++  runOwner?: string
++  // Only the newest live assistant row can still grow.
++  mayStillGrow?: boolean
++  // Compare plan updates against the prior write, not an empty checklist.
++  previousTodoWrite?: Chat.NativeChatToolCallBlock
++  previousUpdatePlan?: Chat.NativeChatToolCallBlock
++  fontScale?: number
++  turnStatus?: NativeChatTurnStatus | null
++  turnStatusAbove?: boolean
++  turnExpanded?: boolean
++  turnKey?: string
++  /** The chat may rewind to this row, by desktop's `nativeChatRowOffersRewind`. */
++  rewindable?: true
++  onToggleTurn?: (turnKey: string) => void
++  activeTurnIsWorking?: boolean
++  trailingRun?: boolean
++  // The run’s first row draws all members; later members render no duplicate activity.
++  workRun?: readonly Chat.NativeChatMessage[]
++  joinsWorkRun?: boolean
++  foldedAway?: boolean
++  openReasoning?: ReadonlySet<string>
++  structuredActivityUi?: boolean
++  // Hide the reasoning row while the live activity line discloses the same block.
++  reasoningIsLive?: boolean
++  reasoningExpanded?: boolean
++  onToggleReasoning?: (key: string) => void
++  unsentNotice?: string
++  receipt?: NativeChatResolvedPrompt
++  awaiting?: boolean
++  subagentGroupsOpen?: ReadonlySet<string>
++  onToggleSubagentGroup?: (groupId: string) => void
++  userMessageOpen?: boolean
++  onToggleUserMessage?: (messageId: string) => void
++}
+diff --git a/mobile/src/session/native-chat/transcript/mobile-native-chat-page-list-props.ts b/mobile/src/session/native-chat/transcript/mobile-native-chat-page-list-props.ts
+new file mode 100644
+index 00000000000..9e6d1fe6182
+--- /dev/null
++++ b/mobile/src/session/native-chat/transcript/mobile-native-chat-page-list-props.ts
+@@ -0,0 +1,26 @@
++import type { ReactElement, Ref } from 'react'
++import type { NativeScrollEvent, NativeSyntheticEvent, StyleProp, ViewStyle } from 'react-native'
++import type { NativeChatMessage } from '../../../../../src/shared/native-chat/native-chat-types'
++import type { MobileNativeChatRowKeys } from './mobile-native-chat-row-keys'
++import type { MobileNativeChatListHandle } from './use-mobile-native-chat-tail-follow'
++import type { MobileNativeChatScrollRoots } from './mobile-native-chat-scroll-roots'
++
++type Row = { item: NativeChatMessage; index: number }
++
++export type MobileNativeChatPageListProps = {
++  roots?: MobileNativeChatScrollRoots
++  ref: Ref<MobileNativeChatListHandle>
++  isFollowing: () => boolean
++  onEndDistance: (fromEnd: number, byReader: boolean) => void
++  rows: readonly NativeChatMessage[]
++  rowKeys: Pick<MobileNativeChatRowKeys, 'scope' | 'keyOf' | 'current' | 'placement'>
++  renderItem: (row: Row) => ReactElement
++  // Regrouping changes layout, so preserve the reading place through the update.
++  layoutKey: string
++  contentContainerStyle: StyleProp<ViewStyle>
++  header: ReactElement | null
++  footer: ReactElement | null
++  emptyStateView: ReactElement | null
++  onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
++  onNearTop?: () => void
++}
+diff --git a/mobile/src/session/native-chat/use-mobile-native-chat-controller.ts b/mobile/src/session/native-chat/use-mobile-native-chat-controller.ts
+index 59db623f522..42b54b1efe2 100644
+--- a/mobile/src/session/native-chat/use-mobile-native-chat-controller.ts
++++ b/mobile/src/session/native-chat/use-mobile-native-chat-controller.ts
+@@ -1,9 +1,6 @@
++import type { MobileNativeChatControllerInput } from './mobile-native-chat-controller-input'
+ import { asyncQuestionSourceScope } from '../../../../src/shared/native-chat/input/native-chat-ask'
+-import { useCallback, useLayoutEffect, useMemo, useRef, type MutableRefObject } from 'react'
+-import type { RpcClient } from '../../transport/rpc/rpc-client-contract'
+-import type { ConnectionState } from '../../transport/connection/connection-state'
+-import type { MobileNativeChatTab } from './mobile-native-chat-eligibility'
+-import type { StructuredAgentSessionHostSupport } from '../mobile-structured-agent-session-host-support'
++import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
+ import { useMobileNativeChatDrafts } from './composer/use-mobile-native-chat-drafts'
+ import { useMobileNativeChatWorkspaceCatalog } from './composer/use-mobile-native-chat-workspace-catalog'
+ import { useMobileNativeChatMessageSend } from './transcript/use-mobile-native-chat-message-send'
+@@ -19,26 +16,9 @@ import { nativeChatPendingSendPlacement } from '../../../../src/shared/native-ch
+ import { mobileNativeChatScopeKey } from './mobile-native-chat-scope-key'
+ import { useMobileNativeChatCiResultLines } from '../use-mobile-native-chat-ci-result-lines'
+
+-export function useMobileNativeChatController(args: {
+-  client: RpcClient | null
+-  /** The route's paired host; differs from `client` only when a server executes the workspace. */
+-  pairedHostClient: RpcClient | null
+-  hostId: string
+-  worktreeId: string
+-  activeSessionTab: MobileNativeChatTab | null
+-  activeSessionTabId: string | null
+-  activeHandleRef: MutableRefObject<string | null>
+-  deviceTokenRef: MutableRefObject<string | null>
+-  nativeChatTranscriptIsLocalReadable: boolean
+-  nativeChatInputLeaseReady: boolean
+-  /** Live socket state; the lease collapses on disconnect but one render later. */
+-  connState: ConnectionState
+-  agentSessionHostSupport?: StructuredAgentSessionHostSupport | null
+-  onSendError: Parameters<typeof useMobileNativeChatSessionLane>[0]['onSendError']
+-  // Any accepted chat write clears the held failure banner, including answers and permission replies.
+-  onQueuedEditNotice?: (message: string) => void
+-  onSendResolved: () => void
+-}): MobileNativeChatController {
++export function useMobileNativeChatController(
++  args: MobileNativeChatControllerInput
++): MobileNativeChatController {
+   const {
+     client,
+     hostId,
+diff --git a/mobile/src/session/use-mobile-structured-send-with-outcome.ts b/mobile/src/session/use-mobile-structured-send-with-outcome.ts
+index 760634af447..5002571f34c 100644
+--- a/mobile/src/session/use-mobile-structured-send-with-outcome.ts
++++ b/mobile/src/session/use-mobile-structured-send-with-outcome.ts
+@@ -1,3 +1,4 @@
++import type { MobileStructuredSendInput } from './mobile-structured-send-input'
+ import { agentSessionInteractionCommand } from '../../../src/shared/agent-session/options/agent-session-interaction-mode'
+ import { selectAgentSessionCurrentRequests } from '../../../src/shared/agent-session/requests/agent-session-current-requests'
+ import { useCallback } from 'react'
+@@ -10,29 +11,19 @@ import { pendingPromptsAllUnanswerableHere } from '../../../src/shared/agent-ses
+ import {
+   SkillRefLimitError,
+   structuredAgentSessionSendBody,
+-  type StructuredAgentSessionAttachment,
+-  type StructuredAgentSessionSendControl
++  type StructuredAgentSessionAttachment
+ } from '../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
+ import type { AgentJournalSkillRef } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
+ import { MAX_SKILL_REFS } from '../../../src/shared/rpc-contract/structured-agent-session-message-params'
+-import {
+-  structuredAgentSessionGoalObjective,
+-  type StructuredAgentSessionComposerOptions
+-} from '../../../src/shared/agent-session/view/structured-agent-session-composer'
++import { structuredAgentSessionGoalObjective } from '../../../src/shared/agent-session/view/structured-agent-session-composer'
+ import { translate } from '../i18n/mobile-i18n'
+-import type { AgentSessionSlashCommand } from '../../../src/shared/agent-session/agent-session-wire'
+-import type { StructuredAgentSessionState } from '../../../src/shared/agent-session/structured-agent-session-reducer'
+ import { mobileStructuredSendQueues } from './mobile-structured-send-queue-rule'
+-import type { RpcClient } from '../transport/rpc/rpc-client-contract'
+ import type {
+   MobileNativeChatSendIntent,
+   MobileNativeChatSendOutcome
+ } from './native-chat/mobile-native-chat-send'
+ import { dispatchMobileStructuredCommand } from './mobile-structured-composer-command'
+-import type { MobileNativeChatSendErrorReporter } from './native-chat/use-mobile-native-chat-send-error'
+ import { sendMobileStructuredAgentSessionMessage } from './mobile-structured-agent-session-send'
+-import type { MobileStructuredSends } from './use-mobile-structured-sends'
+-import type { MobileStructuredSendsOut } from './use-mobile-structured-stop-offer'
+ import { structuredSessionOperationId } from './structured-session-operation-id'
+ import { UNCONFIRMED_SEND_MESSAGE } from './native-chat/use-mobile-native-chat-unconfirmed-sends'
+ import { timeoutForDeadline } from './mobile-structured-agent-session-rpc'
+@@ -46,46 +37,9 @@ export type StructuredMobileSendAttachment =
+   | (StructuredAgentSessionAttachment & { kind?: 'image'; id?: string })
+   | { kind: 'file'; id?: string; path: string }
+
+-export function useMobileStructuredSendWithOutcome(args: {
+-  agent: string | null
+-  client: RpcClient | null
+-  sessionId: string | null
+-  enabled: boolean
+-  queueCapable: boolean
+-  steerCapable?: boolean
+-  queueFollowUps: boolean
+-  commandsWait: boolean
+-  stateRef: { readonly current: StructuredAgentSessionState }
+-  stopping: boolean
+-  /** The host's queue sends next: commands that cannot wait in line read the chat as working. */
+-  queueSendsNext: boolean
+-  accept: MobileStructuredSends['accept']
+-  acknowledge: MobileStructuredSends['acknowledge']
+-  reject: MobileStructuredSends['reject']
+-  holdUnconfirmed: MobileStructuredSends['holdUnconfirmed']
+-  commandPending: { current: boolean }
+-  onClearSent: () => () => void
+-  /** This chat's message sends still out, which a command waits behind as on desktop. */
+-  sendsOut: MobileStructuredSendsOut
+-  controller: Pick<
+-    StructuredAgentSessionComposerOptions,
+-    | 'snapshot'
+-    | 'setOption'
+-    | 'invokeAction'
+-    | 'conversationCommands'
+-    | 'compactInstructions'
+-    | 'changeThreadGoal'
+-  >
+-  sessionCommands?: readonly AgentSessionSlashCommand[]
+-  onSendError: MobileNativeChatSendErrorReporter
+-  // Older hosts accept neither per-chat model nor effort.
+-  /** The chat's own model and effort each send carries; absent for an older host, which takes neither. */
+-  sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'>
+-  sendOptions?: () => Readonly<Record<string, string>> | undefined
+-  isModelWritePending?: () => boolean
+-  // An older host refuses a send body carrying `skills`; there the `$name` text stands alone.
+-  takesSkills?: boolean
+-}): (
++export function useMobileStructuredSendWithOutcome(
++  args: MobileStructuredSendInput
++): (
+   text: string,
+   images?: string[],
+   deadline?: number,
+diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host-types.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host-types.ts
+index 47a2ed7ede4..289692708e7 100644
+--- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host-types.ts
++++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host-types.ts
+@@ -1,3 +1,4 @@
++export type { AgentSessionSubscribeInput as SubscribeInput } from '../publication/subscribers/agent-session-subscribe-input'
+ import type {
+   AgentModelCatalogSource,
+   AgentModelCatalogService
+diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
+index f03138dd572..c5f893152fa 100644
+--- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
++++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
+@@ -6,7 +6,6 @@ import { structuredAgentStartJournal } from '../acquisition/structured-agent-sta
+ import { StructuredConversationCommandController as CommandController } from '../operations/structured-conversation-command-controller'
+ // Serialize durable mutations per conversation; open at rest and start a child only when work needs it.
+
+-import type { AgentSessionSubscribeInput } from '../publication/subscribers/agent-session-subscribe-input'
+ import { createStartupRecovery } from '../recovery/structured-agent-session-restart-reconcile'
+ import { StructuredAgentSessionTaskQueue } from './structured-agent-session-task-queue'
+ import { StructuredAgentSessionHostRuntimeState } from './structured-agent-session-host-runtime-state'
+@@ -25,7 +24,7 @@ import { StructuredAgentSessionClientDelivery } from '../publication/subscribers
+ import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
+ import * as resume from '../recovery/structured-agent-session-restart-resume-host'
+ import type { StructuredAgentSessionRestartResume } from '../recovery/structured-agent-session-restart-resume-contract'
+-import { structuredAgentSessionRestartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
++import { restartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
+ import * as conversation from '../delivery/structured-agent-session-host-delivery'
+ import { wireStructuredAgentSessionQueuedMessages as wireQueuedMessages } from '../delivery/structured-agent-session-queued-wiring'
+ import * as sessionLogger from './structured-agent-session-logger'
+@@ -117,12 +116,11 @@ export class StructuredAgentSessionHost {
+       failStartingChild: (...args) => this.lifetime.failStartingChild(...args),
+       trackOpen: (open) => this.tasks.trackAttach(open)
+     })
+-    this.restartResume = resume.createStructuredAgentSessionRestartResume(deps, this.sessions, {
+-      ...structuredAgentSessionRestartResumeSurfaces(this, this.now),
+-      readChildWork: this.clientDelivery.readChildWork,
+-      childWorkOpen: this.clientDelivery.childWorkOpen,
+-      publishStatus: this.clientDelivery.publishStatusAndSettlement
+-    })
++    this.restartResume = resume.createStructuredAgentSessionRestartResume(
++      deps,
++      this.sessions,
++      restartResumeSurfaces(this, this.now, this.clientDelivery)
++    )
+     this.lifetime = lifetime.createStructuredAgentSessionConversationLifetime({
+       context: () => this.lifetimeContext(),
+       sessions: this.sessions,
+@@ -328,7 +326,7 @@ export class StructuredAgentSessionHost {
+
+   observeJournalPublications = this.clientDelivery.observeJournalPublications
+
+-  subscribe = (input: AgentSessionSubscribeInput) => this.backgroundTasks.subscribe(input)
++  subscribe = (input: HostTypes.SubscribeInput) => this.backgroundTasks.subscribe(input)
+
+   settleLateDispatch = this.mutations.settleLateDispatch
+   /** Republish row-free changes to held work. */
+diff --git a/src/main/native-chat/agent-session-wire/operations/structured-agent-session-chat-stop.ts b/src/main/native-chat/agent-session-wire/operations/structured-agent-session-chat-stop.ts
+index 3dd0d7d1f8f..caa05424291 100644
+--- a/src/main/native-chat/agent-session-wire/operations/structured-agent-session-chat-stop.ts
++++ b/src/main/native-chat/agent-session-wire/operations/structured-agent-session-chat-stop.ts
+@@ -1,3 +1,4 @@
++import { agentSessionMutationAdmitsNow } from './structured-agent-session-mutation-admits-now'
+ // Atomically accept Stop/withdrawals/receipt before acting on the captured target.
+ // Queue session-ending wind-down in the mutation’s tick; saved failures answer from the receipt.
+
+@@ -291,3 +292,25 @@ export function mutateWithChatStop<TValue>(
+   void shutdown.catch(logChildEnd)
+   return result
+ }
++
++/** Abort unnamed Stop’s startup waits immediately; named stale turns must leave newer starts alone. */
++export function abortProviderWaitForStop(
++  context: StructuredAgentSessionMutationContext,
++  caller: StructuredAgentSessionCaller,
++  envelope: AgentSessionMutationEnvelope,
++  plan: MutationPlan<AgentSessionCancelResult>
++): { reached: boolean; handedOver: boolean } | null {
++  const { store } = context.deps
++  if (
++    !agentSessionMutationAdmitsNow({
++      store,
++      callerKey: caller.callerKey,
++      envelope,
++      plan,
++      now: context.now
++    })
++  ) {
++    return null
++  }
++  return context.acquireAborts.abort(envelope.sessionId, 'stopped while starting')
++}
+diff --git a/src/main/native-chat/agent-session-wire/operations/structured-agent-session-host-mutations.ts b/src/main/native-chat/agent-session-wire/operations/structured-agent-session-host-mutations.ts
+index 4138fd99f42..06129cf82b2 100644
+--- a/src/main/native-chat/agent-session-wire/operations/structured-agent-session-host-mutations.ts
++++ b/src/main/native-chat/agent-session-wire/operations/structured-agent-session-host-mutations.ts
+@@ -35,18 +35,12 @@ import {
+   sendPreparation,
+   structuredAgentSessionSendBlock
+ } from './structured-agent-session-send-preparation'
+-import {
+-  cancelPlan,
+-  sendPlan,
+-  setOptionPlan,
+-  type MutationPlan
+-} from './structured-agent-session-mutation-plans'
++import { cancelPlan, sendPlan, setOptionPlan } from './structured-agent-session-mutation-plans'
+ import { promptPlan } from './structured-agent-session-prompt-plan'
+ import { resetStructuredAgentSessionModel } from '../structured-agent-session-model-default'
+-import { agentSessionMutationAdmitsNow } from './structured-agent-session-mutation-admits-now'
+ import { runQueueableStructuredAgentSessionSend } from '../delivery/structured-agent-session-queued-send'
+ import { cancelStructuredAgentSessionPrompt } from './structured-agent-session-prompt-cancel'
+-import { mutateWithChatStop } from './structured-agent-session-chat-stop'
++import { mutateWithChatStop, abortProviderWaitForStop } from './structured-agent-session-chat-stop'
+ import {
+   runWithReadyStructuredAgentSessionOperation,
+   runAfterRewindStart
+@@ -211,28 +205,6 @@ export function cancelStructuredAgentSessionTurn(
+   )
+ }
+
+-/** Abort unnamed Stop’s startup waits immediately; named stale turns must leave newer starts alone. */
+-function abortProviderWaitForStop(
+-  context: StructuredAgentSessionMutationContext,
+-  caller: StructuredAgentSessionCaller,
+-  envelope: AgentSessionMutationEnvelope,
+-  plan: MutationPlan<AgentSessionCancelResult>
+-): { reached: boolean; handedOver: boolean } | null {
+-  const { store } = context.deps
+-  if (
+-    !agentSessionMutationAdmitsNow({
+-      store,
+-      callerKey: caller.callerKey,
+-      envelope,
+-      plan,
+-      now: context.now
+-    })
+-  ) {
+-    return null
+-  }
+-  return context.acquireAborts.abort(envelope.sessionId, 'stopped while starting')
+-}
+-
+ export function respondToStructuredAgentSessionPrompt(
+   context: StructuredAgentSessionMutationContext,
+   caller: StructuredAgentSessionCaller,
+diff --git a/src/main/native-chat/agent-session-wire/recovery/structured-agent-session-restart-resume-wiring.ts b/src/main/native-chat/agent-session-wire/recovery/structured-agent-session-restart-resume-wiring.ts
+index 5894a162e58..08e97253a55 100644
+--- a/src/main/native-chat/agent-session-wire/recovery/structured-agent-session-restart-resume-wiring.ts
++++ b/src/main/native-chat/agent-session-wire/recovery/structured-agent-session-restart-resume-wiring.ts
+@@ -1,3 +1,4 @@
++import type { StructuredAgentSessionClientDelivery } from '../publication/subscribers/structured-agent-session-client-delivery'
+ import type { AgentJournalMessageItem } from '../../../../shared/agent-session/journal/agent-session-journal-types'
+ import type {
+   AgentSessionMutationEnvelope,
+@@ -72,3 +73,19 @@ export function structuredAgentSessionRestartResumeSurfaces(
+     now
+   }
+ }
++
++export function restartResumeSurfaces(
++  host: RestartResumeHostBindings,
++  now: () => number,
++  client: Pick<
++    StructuredAgentSessionClientDelivery,
++    'readChildWork' | 'childWorkOpen' | 'publishStatusAndSettlement'
++  >
++): StructuredAgentSessionRestartResumeSurfaces {
++  return {
++    ...structuredAgentSessionRestartResumeSurfaces(host, now),
++    readChildWork: client.readChildWork,
++    childWorkOpen: client.childWorkOpen,
++    publishStatus: client.publishStatusAndSettlement
++  }
++}
+diff --git a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
+index 84a18c6de18..52dcf525d7d 100644
+--- a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
++++ b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
+@@ -1,4 +1,4 @@
+-import { act, fireEvent, getByRole, waitFor } from '@testing-library/react'
++import { act, fireEvent, getByRole, queryByRole, waitFor } from '@testing-library/react'
+ import { expect } from 'vitest'
+ import type { Root } from 'react-dom/client'
+ import { useAppStore } from '@/store'
+@@ -125,8 +125,14 @@ export async function verifyOmniboxPresetIdentity(
+     await waitFor(() => expect(effort('Low')).not.toBeNull())
+   }
+   const close = () => fireEvent.keyDown(setupPanel()!, { key: 'Escape' })
+-  const effort = (label: string) =>
+-    getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
++  const effort = (label: string) => {
++    const slider = queryByRole(document.body, 'slider', { name: 'Effort' })
++    return slider
++      ? slider.getAttribute('aria-valuetext') === label
++        ? 'on'
++        : 'off'
++      : getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
++  }
+   try {
+     await showEntries(false)
+     await configure()
+diff --git a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx b/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
+index 599d8ce56cd..71f0c8b9e6c 100644
+--- a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
+@@ -1,3 +1,4 @@
++import type { NativeChatMessageListProps } from './native-chat-message-list-props'
+ import { copyChatMathSelection } from '../sidebar/chat-markdown-math-selection'
+ import {
+   nativeChatTranscriptOuterClass,
+@@ -14,15 +15,12 @@ import {
+   nativeChatShowsCiResultLines,
+   nativeChatShowsTurnDiffSummary
+ } from '../../../../shared/native-chat/native-chat-appearance-settings'
+-import type { NativeChatLiveSession } from './session/terminal/read/native-chat-live-session-contract'
+ import { useNativeChatTranscriptProjection } from './conversation/projection/use-native-chat-transcript-projection'
+ import { desktopStructuredTranscript } from './conversation/projection/structured-agent-session-message-projection'
+ import { nativeChatTaskListPredecessors } from '../../../../shared/native-chat/input/native-chat-task-list-history'
+ import { NativeChatDockedTaskList } from './tools/tasks/NativeChatDockedTaskList'
+ import { useNativeChatTurnStatus } from './conversation/turns/use-native-chat-turn-status'
+ import { NativeChatAwaitingInputRow } from './prompts/NativeChatAwaitingInputRow'
+-import type { RuntimeFileOperationArgs } from '@/runtime/files/runtime-file-client-types'
+-import type { NativeChatTurnActivity } from '../../../../shared/native-chat/transcript/native-chat-turn-activity'
+ import { NativeChatTurnActivityLine } from './messages/reasoning/NativeChatTurnActivityLine'
+ import {
+   NativeChatDisclosureContext,
+@@ -33,8 +31,6 @@ import {
+   NativeChatWaitingTranscriptItems
+ } from './viewport/virtualization/NativeChatTranscriptItems'
+ import { useNativeChatTranscriptRowContext } from './conversation/slots/use-native-chat-transcript-row-context'
+-import type { StructuredAgentSessionHostWork } from './session/structured/use-structured-agent-session-transport-state'
+-import type { NativeChatDeliveryNotice } from './messages/rows/NativeChatMessageRow'
+ import { splitNativeChatSlotsWaitingBehindLiveTurn } from './conversation/slots/native-chat-transcript-slot-selection'
+ import { useNativeChatTranscriptSlots } from './conversation/slots/use-native-chat-transcript-slots'
+ import { useNativeChatTranscriptWindow } from './viewport/virtualization/use-native-chat-transcript-window'
+@@ -51,7 +47,6 @@ import { NativeChatOlderHistoryRow } from './viewport/history/NativeChatOlderHis
+ import { useNativeChatMessageRail } from './viewport/rail/use-native-chat-message-rail'
+ import { NativeChatMessageRail } from './viewport/rail/NativeChatMessageRail'
+ import { useNativeChatRailWake } from './viewport/rail/use-native-chat-rail-wake'
+-import type { NativeChatRailOutlineEntry } from './viewport/rail/native-chat-message-rail-items'
+ import {
+   useNativeChatNavigation,
+   useNativeChatNavigationRequest
+@@ -59,19 +54,12 @@ import {
+ import { useNativeChatReaderScrollInput } from './viewport/scroll/native-chat-reader-scroll-input'
+ import { useNativeChatMessageListHandle } from './messages/actions/use-native-chat-reveal-latest'
+
+-import type {
+-  AgentJournalRenderItem,
+-  AgentJournalSubmission
+-} from '../../../../shared/agent-session/journal/agent-session-journal-types'
+-import type { AgentSessionLatestTurn } from '../../../../shared/agent-session/agent-session-wire'
+ import { isStructuredAgentSessionThinking } from '../../../../shared/agent-session/view/structured-agent-session-live-turn'
+-import type { NativeChatSettledTurns } from '../../../../shared/native-chat/transcript/native-chat-turn-status'
+ import { useNativeChatTurnDiffs } from './tools/diffs/use-native-chat-turn-diffs'
+ import { useNativeChatTurnOpenedPullRequests } from './tools/pull-requests/use-native-chat-turn-opened-pull-requests'
+ import { NativeChatPullRequestChangeContext } from './tools/pull-requests/NativeChatOpenedPullRequestCard'
+ import { transcriptTailRow } from './conversation/slots/native-chat-transcript-tail-row'
+ import { useNativeChatInlineSubagentChoices } from './native-chat-child-navigation'
+-import type { NativeChatAwaitingInput } from '../../../../shared/native-chat/native-chat-terminal-turn'
+
+ export function NativeChatMessageList({
+   ref,
+@@ -93,36 +81,7 @@ export function NativeChatMessageList({
+   stopping = false,
+   runtimeContext,
+   structuredAttachments = false
+-}: {
+-  ref?: Parameters<typeof useNativeChatMessageListHandle>[0]
+-  session: NativeChatLiveSession
+-  structuredAttachments?: boolean
+-  journalItems?: readonly AgentJournalRenderItem[]
+-  /** With the items, what places each row in its turn (structured lane). */
+-  journalSubmissions?: readonly AgentJournalSubmission[]
+-  /** The host's newest turn record, which places a live turn whose record is not loaded. */
+-  journalLatestTurn?: AgentSessionLatestTurn | null
+-  /** The host's prompts still waiting on the person and its working answer (an older host: none). */
+-  journalHostWork?: StructuredAgentSessionHostWork
+-  /** Every subagent the session's rosters named, whether or not its roster row is loaded. */
+-  subagentRoster?: Parameters<typeof useNativeChatSubagentSections>[2]
+-  /** User messages older than the loaded window, from the host's outline. */
+-  railOutline?: readonly NativeChatRailOutlineEntry[] | null
+-  isVisible?: boolean
+-  isWorking: boolean
+-  /** Toolbar-driven desired open state for every tool run; each flip re-syncs. */
+-  expandSignal: boolean
+-  workingStartedAt?: number | null
+-  /** Host durations by prompt id; otherwise fall back to a duration observed locally. */
+-  settledTurns?: NativeChatSettledTurns
+-  deliveryNotices?: ReadonlyMap<string, NativeChatDeliveryNotice>
+-  /** Set while the turn waits on the reader; the live activity line yields to it. */
+-  awaitingInput?: NativeChatAwaitingInput | null
+-  turnActivity?: NativeChatTurnActivity | null
+-  /** A person's Stop is ending the live turn: its tail line reads "Stopping…". */
+-  stopping?: boolean
+-  runtimeContext?: RuntimeFileOperationArgs | null
+-}): React.JSX.Element {
++}: NativeChatMessageListProps): React.JSX.Element {
+   const t = useTranslate()
+   const questionTranscript = useMemo(() => desktopStructuredTranscript.stream(), [])
+   const receipts = useMemo(
+diff --git a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx b/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
+index 059eb30b7a6..62e286c5f37 100644
+--- a/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatResolvedView.tsx
+@@ -1,4 +1,7 @@
+-import { useNativeChatDeliveryProjection } from './session/terminal/delivery/use-native-chat-delivery-projection'
++import {
++  useNativeChatDeliveryProjection,
++  useNativeChatPendingProjection
++} from './session/terminal/delivery/use-native-chat-delivery-projection'
+ import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPaneFileDropSurface'
+ import { NativeChatCrewFrame } from '../orchestration-crew/NativeChatCrewPanel'
+ import { TerminalChatCrewPanel } from '../orchestration-crew/TerminalChatCrewPanel'
+@@ -37,22 +40,11 @@ import { useNativeChatInteractiveSend } from './session/terminal/send/use-native
+ import { shouldClearNativeChatWorkingSuppression } from '../../../../shared/native-chat/native-chat-working-suppression'
+ import { resolveNativeChatTerminalTurn } from '../../../../shared/native-chat/native-chat-terminal-turn'
+ import { useNativeChatTerminalTurnTiming } from './conversation/turns/use-native-chat-terminal-turn-timing'
+-import { shouldPruneLaunchPrompt } from './session/terminal/delivery/native-chat-pending'
+-import { pendingSendsAsMessages } from '../../../../shared/native-chat/transcript/native-chat-pending-sends'
+ import {
+   useNativeChatPendingDelivery,
+   useNativeChatOptimisticSend
+ } from './session/terminal/delivery/use-native-chat-pending-delivery'
+-import {
+-  appendCommandMarkerCache,
+-  commandMarkersAsMessages,
+-  readCommandMarkerCache,
+-  type NativeChatCommandMarker
+-} from './session/terminal/delivery/native-chat-command-marker'
+-import {
+-  deriveNativeChatStreamingText,
+-  nativeChatStreamingMessage
+-} from '../../../../shared/native-chat/native-chat-streaming'
++import { useNativeChatCommandMarkers } from './session/terminal/delivery/use-native-chat-command-markers'
+ import { useNativeChatRootInputRouting } from './composer/focus/use-native-chat-root-input-routing'
+ import {
+   emptyNativeChatContextMenuActions,
+@@ -104,7 +96,6 @@ export function NativeChatResolvedView({
+     enabled: isVisible
+   })
+   const launchPrompt = useAppStore((s) => s.nativeChatLaunchPromptByTabId[terminalTabId] ?? null)
+-  const clearNativeChatLaunchPrompt = useAppStore((s) => s.clearNativeChatLaunchPrompt)
+   const paneLaunchPrompt = launchPrompt?.agent === agent ? launchPrompt : null
+   // Adopt the TUI’s unsent launch context into the GUI composer.
+   const launchDraftSignal = useNativeChatLaunchDraftSignal({ terminalTabId, agent, session })
+@@ -157,34 +148,17 @@ export function NativeChatResolvedView({
+     composerRef,
+     workingEpoch: sendWorkingEpoch
+   })
+-  // Slash commands are local session-scoped feedback, not user turns; cap and cache their markers.
+-  const [commandMarkers, setCommandMarkers] = useState<NativeChatCommandMarker[]>(() =>
+-    readCommandMarkerCache(commandMarkerScope)
++  const { commandMarkers, onSlashCommand } = useNativeChatCommandMarkers(
++    commandMarkerScope,
++    setWorkingInterrupted
+   )
+-  const [prevCommandMarkerScope, setPrevCommandMarkerScope] = useState(commandMarkerScope)
+-  if (prevCommandMarkerScope !== commandMarkerScope) {
+-    setPrevCommandMarkerScope(commandMarkerScope)
+-    setCommandMarkers(readCommandMarkerCache(commandMarkerScope))
+-    setWorkingInterrupted(false)
+-  }
+-  useEffect(() => {
+-    if (!paneLaunchPrompt || !shouldPruneLaunchPrompt(paneLaunchPrompt, session.messages)) {
+-      return
+-    }
+-    clearNativeChatLaunchPrompt(terminalTabId)
+-  }, [clearNativeChatLaunchPrompt, paneLaunchPrompt, session.messages, terminalTabId])
+   const onOptimisticSend = useNativeChatOptimisticSend(delivery.record, setWorkingInterrupted)
+-  const onSlashCommand = useCallback(
+-    (command: string, output?: string) => {
+-      setCommandMarkers(appendCommandMarkerCache(commandMarkerScope, command, Date.now(), output))
+-    },
+-    [commandMarkerScope]
+-  )
+
+   const { launchPromptMessage, sessionAfterCommandBoundaries } = useNativeChatDeliveryProjection(
+     paneLaunchPrompt,
+     session,
+-    commandMarkers
++    commandMarkers,
++    terminalTabId
+   )
+   // Why: answer from the conversation the pane shows, so a `/clear` sent here reads as reset.
+   const answerLocally = useNativeChatLocalCommandAnswer(agent, sessionAfterCommandBoundaries)
+@@ -228,40 +202,15 @@ export function NativeChatResolvedView({
+     composerReady: composerReady && childNavigator.child === null
+   })
+
+-  const { pending } = delivery
+-  const pendingMessages = useMemo(
+-    () => pendingSendsAsMessages(pending, sessionAfterCommandBoundaries.messages, sendWorkingEpoch),
+-    [pending, sessionAfterCommandBoundaries.messages, sendWorkingEpoch]
+-  )
+-  const messagesWithPending = useMemo(
+-    () =>
+-      pendingMessages.length === 0
+-        ? sessionAfterCommandBoundaries.messages
+-        : [...sessionAfterCommandBoundaries.messages, ...pendingMessages],
+-    [sessionAfterCommandBoundaries.messages, pendingMessages]
++  const sessionWithPending = useNativeChatPendingProjection(
++    sessionAfterCommandBoundaries,
++    delivery.pending,
++    commandMarkers,
++    sendWorkingEpoch,
++    hookPreview,
++    liveWorking,
++    hookPreviewIsToolOutput
+   )
+-  const streamingText = useMemo(() => {
+-    return deriveNativeChatStreamingText({
+-      messages: messagesWithPending,
+-      previewText: hookPreview,
+-      working: liveWorking,
+-      previewIsToolOutput: hookPreviewIsToolOutput
+-    })
+-  }, [messagesWithPending, hookPreview, liveWorking, hookPreviewIsToolOutput])
+-  const sessionWithPending = useMemo<typeof session>(() => {
+-    if (pending.length === 0 && commandMarkers.length === 0 && !streamingText) {
+-      return sessionAfterCommandBoundaries
+-    }
+-    return {
+-      ...sessionAfterCommandBoundaries,
+-      messages: [
+-        ...sessionAfterCommandBoundaries.messages,
+-        ...commandMarkersAsMessages(commandMarkers),
+-        ...(streamingText ? [nativeChatStreamingMessage(streamingText)] : []),
+-        ...pendingMessages
+-      ]
+-    }
+-  }, [sessionAfterCommandBoundaries, pending, pendingMessages, commandMarkers, streamingText])
+   // Include pending sends when selecting view state so the first echo leaves the empty screen immediately.
+   const viewState = selectNativeChatViewState(sessionWithPending)
+
+diff --git a/src/renderer/src/components/native-chat/composer/NativeChatComposerPane.tsx b/src/renderer/src/components/native-chat/composer/NativeChatComposerPane.tsx
+index e1ee6a1f834..79a3ae27edc 100644
+--- a/src/renderer/src/components/native-chat/composer/NativeChatComposerPane.tsx
++++ b/src/renderer/src/components/native-chat/composer/NativeChatComposerPane.tsx
+@@ -1,15 +1,15 @@
++import { useNativeChatComposerTarget } from './submit/native-chat-composer-target'
+ import { useNativeChatComposerEditSession } from '../queue/editing/use-native-chat-composer-edit-session'
+ import { useNativeChatComposerNotice } from './controls/use-native-chat-composer-notice'
+ import { useNativeChatMobileHoldNotice } from '../host-access/use-native-chat-mobile-hold-notice'
+-import { forwardRef, useCallback, useState, useRef } from 'react'
++import { forwardRef, useState, useRef } from 'react'
+ import { useNativeChatComposerInterrupt } from './submit/use-native-chat-composer-interrupt'
+ import { useNativeChatContextUsageSummary } from '../usage/use-native-chat-context-usage-summary'
+ import { useNativeChatMentionFiles } from './pickers/use-native-chat-mention-files'
+-import { useNativeChatDraft } from '../drafts/use-native-chat-draft'
++import { useNativeChatComposerDraftSession } from './editor/use-native-chat-composer-draft-session'
+ import { useNativeChatDraftEvents } from './editor/use-native-chat-draft-events'
+ import { useNativeChatComposerRecall } from '../drafts/use-native-chat-composer-recall'
+-import { useNativeChatLaunchDraftAdoption } from '../drafts/use-native-chat-launch-draft-adoption'
+-import { NativeChatComposerWorkspace } from './controls/NativeChatComposerWorkspace'
++import { nativeChatComposerWorkspaceFooter } from './controls/NativeChatComposerWorkspace'
+ import { NativeChatComposerField } from './editor/NativeChatComposerField'
+ import { useNativeChatComposerAttachments } from '../attachments/chips/use-native-chat-composer-attachments'
+ import { nativeChatComposerSendState } from './submit/native-chat-composer-send-state'
+@@ -68,17 +68,12 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
+   ): React.JSX.Element {
+     // Own drafts and attachments by pane/conversation so reconnect PTY replacement and UI mode changes cannot discard unsent input.
+     const imeEnterGesture = useImeEnterGestureOwnership()
+-    const draftState = useNativeChatDraft(draftScopeKey, imeEnterGesture.isComposing)
++    const { draftState, caret, setCaret } = useNativeChatComposerDraftSession(
++      draftScopeKey,
++      imeEnterGesture.isComposing,
++      { terminalTabId, agent, launchSeed }
++    )
+     const { draft, setDraft, flushDraftAppends } = draftState
+-    const [caret, setCaret] = useState(draft.length)
+-    useNativeChatLaunchDraftAdoption({
+-      terminalTabId,
+-      agent,
+-      launchSeed,
+-      draft,
+-      setDraft,
+-      setCaret
+-    })
+     const [activeSuggestion, setActiveSuggestion] = useState(0)
+     const holdNotice = useNativeChatMobileHoldNotice(
+       structuredTransport ? null : targetPtyId,
+@@ -135,10 +130,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
+       structuredWorktreeId: structuredTransport?.worktreeId
+     })
+
+-    const resolveTarget = useCallback(
+-      () => (targetPtyId ? { ptyId: targetPtyId } : null),
+-      [targetPtyId]
+-    )
++    const resolveTarget = useNativeChatComposerTarget(targetPtyId)
+
+     const attachments = useNativeChatComposerAttachments({
+       attachmentScopeKey: draftScopeKey,
+@@ -412,15 +404,11 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
+           sessionOptionsPickerRequest={structuredTransport?.optionPickerRequest ?? null}
+           agent={agent}
+           launchPrompt={launchPrompt}
+-          workspaceFooter={
+-            !editSession && !launchPrompt ? (
+-              <NativeChatComposerWorkspace
+-                terminalTabId={terminalTabId}
+-                structuredTransport={structuredTransport}
+-                isWorking={isWorking}
+-              />
+-            ) : undefined
+-          }
++          workspaceFooter={nativeChatComposerWorkspaceFooter(!editSession && !launchPrompt, {
++            terminalTabId,
++            structuredTransport,
++            isWorking
++          })}
+           {...fieldOverrides}
+         />
+       </div>
+diff --git a/src/renderer/src/components/native-chat/composer/controls/NativeChatComposer.resume-command.test.tsx b/src/renderer/src/components/native-chat/composer/controls/NativeChatComposer.resume-command.test.tsx
+index 9d93042109c..02311985072 100644
+--- a/src/renderer/src/components/native-chat/composer/controls/NativeChatComposer.resume-command.test.tsx
++++ b/src/renderer/src/components/native-chat/composer/controls/NativeChatComposer.resume-command.test.tsx
+@@ -44,7 +44,10 @@ const mocks = vi.hoisted(() => {
+   return Object.assign(captured, fns, { sendNativeChatTypedCommand: vi.fn() })
+ })
+
+-vi.mock('./NativeChatComposerWorkspace', () => ({ NativeChatComposerWorkspace: () => null }))
++vi.mock('./NativeChatComposerWorkspace', () => ({
++  NativeChatComposerWorkspace: () => null,
++  nativeChatComposerWorkspaceFooter: () => undefined
++}))
+
+ vi.mock('../../../../store/index', () => {
+   const state = {
+diff --git a/src/renderer/src/components/native-chat/composer/controls/NativeChatComposerWorkspace.tsx b/src/renderer/src/components/native-chat/composer/controls/NativeChatComposerWorkspace.tsx
+index 494c1ab1da8..3f71ae51da6 100644
+--- a/src/renderer/src/components/native-chat/composer/controls/NativeChatComposerWorkspace.tsx
++++ b/src/renderer/src/components/native-chat/composer/controls/NativeChatComposerWorkspace.tsx
+@@ -199,3 +199,10 @@ function LocalMachineName({ name }: { name: string }): React.JSX.Element {
+     </span>
+   )
+ }
++
++export function nativeChatComposerWorkspaceFooter(
++  visible: boolean,
++  props: Parameters<typeof NativeChatComposerWorkspace>[0]
++): React.JSX.Element | undefined {
++  return visible ? <NativeChatComposerWorkspace {...props} /> : undefined
++}
+diff --git a/src/renderer/src/components/native-chat/composer/editor/use-native-chat-composer-draft-session.ts b/src/renderer/src/components/native-chat/composer/editor/use-native-chat-composer-draft-session.ts
+new file mode 100644
+index 00000000000..39a5a07152d
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/composer/editor/use-native-chat-composer-draft-session.ts
+@@ -0,0 +1,18 @@
++import { useState } from 'react'
++import { useNativeChatDraft } from '../../drafts/use-native-chat-draft'
++import { useNativeChatLaunchDraftAdoption } from '../../drafts/use-native-chat-launch-draft-adoption'
++
++export function useNativeChatComposerDraftSession(
++  scope: string,
++  isComposing: Parameters<typeof useNativeChatDraft>[1],
++  launch: Pick<
++    Parameters<typeof useNativeChatLaunchDraftAdoption>[0],
++    'terminalTabId' | 'agent' | 'launchSeed'
++  >
++) {
++  const draftState = useNativeChatDraft(scope, isComposing)
++  const { draft, setDraft } = draftState
++  const [caret, setCaret] = useState(draft.length)
++  useNativeChatLaunchDraftAdoption({ ...launch, draft, setDraft, setCaret })
++  return { draftState, caret, setCaret }
++}
+diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-composer-target.ts b/src/renderer/src/components/native-chat/composer/submit/native-chat-composer-target.ts
+index 4a76011e5ad..27060e9608a 100644
+--- a/src/renderer/src/components/native-chat/composer/submit/native-chat-composer-target.ts
++++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-composer-target.ts
+@@ -1,3 +1,4 @@
++import { useCallback } from 'react'
+ import { isRemoteRuntimePtyId } from '../../../../../../shared/remote-runtime/remote-runtime-pty-id'
+
+ export type NativeChatResolvedTarget = {
+@@ -10,3 +11,7 @@ export type NativeChatAfterStopSend = 'queue' | 'send'
+ export function nativeChatComposerTargetIsRemote(ptyId: string | null): boolean {
+   return ptyId !== null && isRemoteRuntimePtyId(ptyId)
+ }
++
++export function useNativeChatComposerTarget(targetPtyId: string | null) {
++  return useCallback(() => (targetPtyId ? { ptyId: targetPtyId } : null), [targetPtyId])
++}
+diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-composer-transport.ts b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-composer-transport.ts
+index 46386c077ee..711d366ada1 100644
+--- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-composer-transport.ts
++++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-composer-transport.ts
+@@ -1,3 +1,4 @@
++import type { AgentType } from '../../../../../../shared/agent-status/contracts/agent-status-types'
+ import type { StructuredAgentSessionQueueDelivery } from '../../queue/structured-agent-session-queue-request'
+ import type { StructuredAgentSessionHostCapabilityState } from '../../../../../../shared/agent-session/structured-agent-session-host-capability'
+ import type { CaptureStructuredAgentSessionPresentation } from '../../session/structured/writes/use-structured-agent-session-mutate'
+@@ -16,6 +17,17 @@ import type { StructuredAgentContextUsage } from '../../../../../../shared/agent
+ import type { NativeChatComposerErrorDetail } from '../controls/native-chat-composer-error-detail'
+ import type { NativeChatSideChat } from '../../messages/actions/use-native-chat-side-chat'
+
++export type UseNativeChatStructuredComposerSendArgs = {
++  agent: AgentType
++  draftScopeKey: string
++  imageAttachments: readonly NativeChatComposerImageAttachment[]
++  structuredTransport?: NativeChatStructuredComposerTransport
++  isComposing: () => boolean
++  clearSkillOrigin: () => void
++  setDraft: (value: string) => void
++  setCaret: (caret: number) => void
++}
++
+ export type NativeChatStructuredComposerTransport = {
+   queue?: StructuredAgentSessionQueueDelivery
+   isWorking?: boolean
+diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
+index f4fc0f9adcd..045110197f5 100644
+--- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
++++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
+@@ -9,7 +9,8 @@ import type { NativeChatStructuredComposerTransport } from './native-chat-struct
+ import type * as RemoteRuntimePtyIdModule from '../../../../../../shared/remote-runtime/remote-runtime-pty-id'
+
+ vi.mock('../controls/NativeChatComposerWorkspace', () => ({
+-  NativeChatComposerWorkspace: () => null
++  NativeChatComposerWorkspace: () => null,
++  nativeChatComposerWorkspaceFooter: () => undefined
+ }))
+
+ vi.mock('@/i18n/i18n', () => ({
+diff --git a/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts b/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
+index 119c489c5a4..a61cc94e2c7 100644
+--- a/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
++++ b/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
+@@ -13,7 +13,10 @@ import {
+   promptHasInteractionModeSkill,
+   promptSkillRefs
+ } from '../editor/native-chat-prompt-document'
+-import type { StructuredAgentSessionAttachmentPreparation } from '../../session/structured/delivery/structured-agent-session-send-slot'
++import type {
++  StructuredAgentSessionAttachmentPreparation,
++  StructuredAgentSessionSendRequest
++} from '../../session/structured/delivery/structured-agent-session-send-slot'
+ import { useCallback } from 'react'
+ import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
+ import {
+@@ -21,9 +24,8 @@ import {
+   isStructuredAgentSessionGoalCommand,
+   structuredAgentSessionCommandChangesConversation
+ } from '../../../../../../shared/agent-session/view/structured-agent-session-composer'
+-import type { AgentType } from '../../../../../../shared/agent-status/contracts/agent-status-types'
+ import { dispatchNativeChatStructuredComposerText } from './native-chat-structured-composer-dispatch'
+-import type { NativeChatStructuredComposerTransport } from './native-chat-structured-composer-transport'
++import type { UseNativeChatStructuredComposerSendArgs } from './native-chat-structured-composer-transport'
+ import type { NativeChatComposerImageAttachment } from '../../attachments/chips/native-chat-image-attachment'
+ import { nativeChatAttachImagesAgainReason } from '../../attachments/chips/native-chat-image-reattach'
+ import { nativeChatNoticeFromError } from '../controls/native-chat-composer-notice'
+@@ -35,6 +37,7 @@ import {
+ } from '../../drafts/native-chat-composer-draft-memory'
+ import {
+   finishNativeChatComposerSubmission,
++  isNativeChatComposerDraftBlank,
+   readNativeChatComposerDraft,
+   updateNativeChatComposerDraft
+ } from '../../drafts/native-chat-composer-draft-store'
+@@ -43,19 +46,9 @@ import {
+   admitNativeChatPastedText,
+   projectNativeChatPastedText
+ } from '../../paste/native-chat-composer-pasted-text-references'
+-import type { StructuredAgentSessionSendRequest } from '../../session/structured/delivery/structured-agent-session-send-slot'
+ import { structuredAgentSessionRequestedDelivery } from '../../queue/structured-agent-session-queue-request'
+
+-export type UseNativeChatStructuredComposerSendArgs = {
+-  agent: AgentType
+-  draftScopeKey: string
+-  imageAttachments: readonly NativeChatComposerImageAttachment[]
+-  structuredTransport?: NativeChatStructuredComposerTransport
+-  isComposing: () => boolean
+-  clearSkillOrigin: () => void
+-  setDraft: (value: string) => void
+-  setCaret: (caret: number) => void
+-}
++export type { UseNativeChatStructuredComposerSendArgs } from './native-chat-structured-composer-transport'
+
+ export type NativeChatStructuredComposerSend = (
+   text: string,
+@@ -226,14 +219,8 @@ export function useNativeChatStructuredComposerSend({
+         setCaret(composing ? 0 : left.text.length)
+         clearSkillOrigin()
+       }
+-      // A refused command returns only to an empty composer; a lone command typed since would be replaced.
+-      const recoversDraft = () => {
+-        const current = readNativeChatComposerDraft(draftScopeKey)
+-        return (
+-          consumed &&
+-          (!hostCommand || (current.text.trim() === '' && (current.images?.length ?? 0) === 0))
+-        )
+-      }
++      const recoversDraft = () =>
++        consumed && (!hostCommand || isNativeChatComposerDraftBlank(draftScopeKey))
+       const prepareAttachments: StructuredAgentSessionAttachmentPreparation | undefined =
+         stagedInput ? (input) => stagedInput.prepare(input, structuredTransport) : undefined
+       return dispatchNativeChatStructuredComposerText(
+diff --git a/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts b/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
+index 6d65724feae..ebaf9acf9d8 100644
+--- a/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
++++ b/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
+@@ -93,6 +93,11 @@ export function readNativeChatComposerDraft(
+   return records.get(currentDraftScope(scopeKey)) ?? EMPTY_DRAFT
+ }
+
++export function isNativeChatComposerDraftBlank(scopeKey: string): boolean {
++  const current = readNativeChatComposerDraft(scopeKey)
++  return current.text.trim() === '' && (current.images?.length ?? 0) === 0
++}
++
+ export function finishNativeChatComposerSubmission(
+   scopeKey: string,
+   submission: DraftSubmission,
+diff --git a/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx b/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
+index 181af6bfdfe..b2efce5f05b 100644
+--- a/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
++++ b/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
+@@ -11,7 +11,8 @@ import type * as nativeChatAgentProfiles from '../../../../../shared/native-chat
+ import type * as RemoteRuntimePtyIdModule from '../../../../../shared/remote-runtime/remote-runtime-pty-id'
+
+ vi.mock('../composer/controls/NativeChatComposerWorkspace', () => ({
+-  NativeChatComposerWorkspace: () => null
++  NativeChatComposerWorkspace: () => null,
++  nativeChatComposerWorkspaceFooter: () => undefined
+ }))
+
+ vi.mock('@/i18n/i18n', () => ({
+diff --git a/src/renderer/src/components/native-chat/native-chat-message-list-props.ts b/src/renderer/src/components/native-chat/native-chat-message-list-props.ts
+new file mode 100644
+index 00000000000..4607bd69870
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/native-chat-message-list-props.ts
+@@ -0,0 +1,46 @@
++import type { NativeChatLiveSession } from './session/terminal/read/native-chat-live-session-contract'
++import type { RuntimeFileOperationArgs } from '@/runtime/files/runtime-file-client-types'
++import type { NativeChatTurnActivity } from '../../../../shared/native-chat/transcript/native-chat-turn-activity'
++import type { StructuredAgentSessionHostWork } from './session/structured/use-structured-agent-session-transport-state'
++import type { NativeChatDeliveryNotice } from './messages/rows/NativeChatMessageRow'
++import type { useNativeChatSubagentSections } from './subagents/use-native-chat-subagent-sections'
++import type { NativeChatRailOutlineEntry } from './viewport/rail/native-chat-message-rail-items'
++import type { useNativeChatMessageListHandle } from './messages/actions/use-native-chat-reveal-latest'
++import type {
++  AgentJournalRenderItem,
++  AgentJournalSubmission
++} from '../../../../shared/agent-session/journal/agent-session-journal-types'
++import type { AgentSessionLatestTurn } from '../../../../shared/agent-session/agent-session-wire'
++import type { NativeChatSettledTurns } from '../../../../shared/native-chat/transcript/native-chat-turn-status'
++import type { NativeChatAwaitingInput } from '../../../../shared/native-chat/native-chat-terminal-turn'
++
++export type NativeChatMessageListProps = {
++  ref?: Parameters<typeof useNativeChatMessageListHandle>[0]
++  session: NativeChatLiveSession
++  structuredAttachments?: boolean
++  journalItems?: readonly AgentJournalRenderItem[]
++  /** With the items, what places each row in its turn (structured lane). */
++  journalSubmissions?: readonly AgentJournalSubmission[]
++  /** The host's newest turn record, which places a live turn whose record is not loaded. */
++  journalLatestTurn?: AgentSessionLatestTurn | null
++  /** The host's prompts still waiting on the person and its working answer (an older host: none). */
++  journalHostWork?: StructuredAgentSessionHostWork
++  /** Every subagent the session's rosters named, whether or not its roster row is loaded. */
++  subagentRoster?: Parameters<typeof useNativeChatSubagentSections>[2]
++  /** User messages older than the loaded window, from the host's outline. */
++  railOutline?: readonly NativeChatRailOutlineEntry[] | null
++  isVisible?: boolean
++  isWorking: boolean
++  /** Toolbar-driven desired open state for every tool run; each flip re-syncs. */
++  expandSignal: boolean
++  workingStartedAt?: number | null
++  /** Host durations by prompt id; otherwise fall back to a duration observed locally. */
++  settledTurns?: NativeChatSettledTurns
++  deliveryNotices?: ReadonlyMap<string, NativeChatDeliveryNotice>
++  /** Set while the turn waits on the reader; the live activity line yields to it. */
++  awaitingInput?: NativeChatAwaitingInput | null
++  turnActivity?: NativeChatTurnActivity | null
++  /** A person's Stop is ending the live turn: its tail line reads "Stopping…". */
++  stopping?: boolean
++  runtimeContext?: RuntimeFileOperationArgs | null
++}
+diff --git a/src/renderer/src/components/native-chat/paste/NativeChatComposer.paste-remount.test.tsx b/src/renderer/src/components/native-chat/paste/NativeChatComposer.paste-remount.test.tsx
+index 81b1d096434..5438d0d4aa8 100644
+--- a/src/renderer/src/components/native-chat/paste/NativeChatComposer.paste-remount.test.tsx
++++ b/src/renderer/src/components/native-chat/paste/NativeChatComposer.paste-remount.test.tsx
+@@ -37,7 +37,8 @@ const mocks = vi.hoisted(() => {
+ })
+
+ vi.mock('../composer/controls/NativeChatComposerWorkspace', () => ({
+-  NativeChatComposerWorkspace: () => null
++  NativeChatComposerWorkspace: () => null,
++  nativeChatComposerWorkspaceFooter: () => undefined
+ }))
+
+ vi.mock('../../../store/index', () => {
+diff --git a/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-command-markers.ts b/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-command-markers.ts
+new file mode 100644
+index 00000000000..1577440514a
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-command-markers.ts
+@@ -0,0 +1,30 @@
++import { useCallback, useState, type Dispatch, type SetStateAction } from 'react'
++import {
++  appendCommandMarkerCache,
++  readCommandMarkerCache,
++  type NativeChatCommandMarker,
++  type NativeChatCommandMarkerScope
++} from './native-chat-command-marker'
++
++export function useNativeChatCommandMarkers(
++  commandMarkerScope: NativeChatCommandMarkerScope,
++  resetWorkingInterrupted: Dispatch<SetStateAction<boolean>>
++) {
++  // Slash commands are local session-scoped feedback, not user turns; cap and cache their markers.
++  const [commandMarkers, setCommandMarkers] = useState<NativeChatCommandMarker[]>(() =>
++    readCommandMarkerCache(commandMarkerScope)
++  )
++  const [prevCommandMarkerScope, setPrevCommandMarkerScope] = useState(commandMarkerScope)
++  if (prevCommandMarkerScope !== commandMarkerScope) {
++    setPrevCommandMarkerScope(commandMarkerScope)
++    setCommandMarkers(readCommandMarkerCache(commandMarkerScope))
++    resetWorkingInterrupted(false)
++  }
++  const onSlashCommand = useCallback(
++    (command: string, output?: string) => {
++      setCommandMarkers(appendCommandMarkerCache(commandMarkerScope, command, Date.now(), output))
++    },
++    [commandMarkerScope]
++  )
++  return { commandMarkers, onSlashCommand }
++}
+diff --git a/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-delivery-projection.ts b/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-delivery-projection.ts
+index 2e9d71a09dc..e344faa862a 100644
+--- a/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-delivery-projection.ts
++++ b/src/renderer/src/components/native-chat/session/terminal/delivery/use-native-chat-delivery-projection.ts
+@@ -1,17 +1,33 @@
+-import { useMemo } from 'react'
++import { pendingSendsAsMessages } from '../../../../../../../shared/native-chat/transcript/native-chat-pending-sends'
++import {
++  deriveNativeChatStreamingText,
++  nativeChatStreamingMessage
++} from '../../../../../../../shared/native-chat/native-chat-streaming'
++import { useEffect, useMemo } from 'react'
++import { useAppStore } from '@/store'
+ import type { NativeChatLaunchPrompt } from '../../../drafts/native-chat-launch-prompt'
+ import type { useNativeChatRetainedSession } from '../read/use-native-chat-retained-session'
+-import { launchPromptAsMessage } from './native-chat-pending'
++import { launchPromptAsMessage, shouldPruneLaunchPrompt } from './native-chat-pending'
+ import {
+   applyCommandMarkerBoundaries,
++  commandMarkersAsMessages,
+   type NativeChatCommandMarker
+ } from './native-chat-command-marker'
+
+ export function useNativeChatDeliveryProjection(
+   paneLaunchPrompt: NativeChatLaunchPrompt | null,
+   session: ReturnType<typeof useNativeChatRetainedSession>,
+-  commandMarkers: NativeChatCommandMarker[]
++  commandMarkers: NativeChatCommandMarker[],
++  terminalTabId: string
+ ) {
++  const clearNativeChatLaunchPrompt = useAppStore((s) => s.clearNativeChatLaunchPrompt)
++  useEffect(() => {
++    if (!paneLaunchPrompt || !shouldPruneLaunchPrompt(paneLaunchPrompt, session.messages)) {
++      return
++    }
++    clearNativeChatLaunchPrompt(terminalTabId)
++  }, [clearNativeChatLaunchPrompt, paneLaunchPrompt, session.messages, terminalTabId])
++
+   const launchPromptMessage = useMemo(
+     () => launchPromptAsMessage(paneLaunchPrompt, session.messages),
+     [paneLaunchPrompt, session.messages]
+@@ -31,3 +47,48 @@ export function useNativeChatDeliveryProjection(
+   }, [sessionWithLaunchPrompt, commandMarkers])
+   return { launchPromptMessage, sessionAfterCommandBoundaries }
+ }
++
++export function useNativeChatPendingProjection(
++  sessionAfterCommandBoundaries: ReturnType<typeof useNativeChatRetainedSession>,
++  pending: Parameters<typeof pendingSendsAsMessages>[0],
++  commandMarkers: NativeChatCommandMarker[],
++  sendWorkingEpoch: Parameters<typeof pendingSendsAsMessages>[2],
++  hookPreview: Parameters<typeof deriveNativeChatStreamingText>[0]['previewText'],
++  liveWorking: boolean,
++  hookPreviewIsToolOutput: boolean
++) {
++  const pendingMessages = useMemo(
++    () => pendingSendsAsMessages(pending, sessionAfterCommandBoundaries.messages, sendWorkingEpoch),
++    [pending, sessionAfterCommandBoundaries.messages, sendWorkingEpoch]
++  )
++  const messagesWithPending = useMemo(
++    () =>
++      pendingMessages.length === 0
++        ? sessionAfterCommandBoundaries.messages
++        : [...sessionAfterCommandBoundaries.messages, ...pendingMessages],
++    [sessionAfterCommandBoundaries.messages, pendingMessages]
++  )
++  const streamingText = useMemo(() => {
++    return deriveNativeChatStreamingText({
++      messages: messagesWithPending,
++      previewText: hookPreview,
++      working: liveWorking,
++      previewIsToolOutput: hookPreviewIsToolOutput
++    })
++  }, [messagesWithPending, hookPreview, liveWorking, hookPreviewIsToolOutput])
++  const sessionWithPending = useMemo<typeof sessionAfterCommandBoundaries>(() => {
++    if (pending.length === 0 && commandMarkers.length === 0 && !streamingText) {
++      return sessionAfterCommandBoundaries
++    }
++    return {
++      ...sessionAfterCommandBoundaries,
++      messages: [
++        ...sessionAfterCommandBoundaries.messages,
++        ...commandMarkersAsMessages(commandMarkers),
++        ...(streamingText ? [nativeChatStreamingMessage(streamingText)] : []),
++        ...pendingMessages
++      ]
++    }
++  }, [sessionAfterCommandBoundaries, pending, pendingMessages, commandMarkers, streamingText])
++  return sessionWithPending
++}
+diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/sidebar-header-order-index.ts b/src/renderer/src/components/sidebar/worktree-list/drag/sidebar-header-order-index.ts
+new file mode 100644
+index 00000000000..5089a8e685f
+--- /dev/null
++++ b/src/renderer/src/components/sidebar/worktree-list/drag/sidebar-header-order-index.ts
+@@ -0,0 +1,19 @@
++export function indexById(byBucket: ReadonlyMap<string, readonly string[]>): Map<string, number> {
++  const map = new Map<string, number>()
++  for (const ids of byBucket.values()) {
++    ids.forEach((id, index) => {
++      map.set(id, index)
++    })
++  }
++  return map
++}
++
++export function bucketById(byBucket: ReadonlyMap<string, readonly string[]>): Map<string, string> {
++  const map = new Map<string, string>()
++  for (const [bucketKey, ids] of byBucket) {
++    for (const id of ids) {
++      map.set(id, bucketKey)
++    }
++  }
++  return map
++}
+diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/use-header-drag.ts b/src/renderer/src/components/sidebar/worktree-list/drag/use-header-drag.ts
+index 1f8bf7881c9..ce25f01fb53 100644
+--- a/src/renderer/src/components/sidebar/worktree-list/drag/use-header-drag.ts
++++ b/src/renderer/src/components/sidebar/worktree-list/drag/use-header-drag.ts
+@@ -1,3 +1,4 @@
++import { indexById, bucketById } from './sidebar-header-order-index'
+ import { enqueueRootProjectOrderForSidebarDrop } from './root-project-order-commit'
+ import { useCallback, useEffect, useMemo } from 'react'
+ import type React from 'react'
+@@ -32,26 +33,6 @@ const readLiveRepos = (): readonly Repo[] => useAppStore.getState().repos
+
+ export type WorktreeSidebarHeaderDrag = ReturnType<typeof useWorktreeSidebarHeaderDrag>
+
+-function indexById(byBucket: ReadonlyMap<string, readonly string[]>): Map<string, number> {
+-  const map = new Map<string, number>()
+-  for (const ids of byBucket.values()) {
+-    ids.forEach((id, index) => {
+-      map.set(id, index)
+-    })
+-  }
+-  return map
+-}
+-
+-function bucketById(byBucket: ReadonlyMap<string, readonly string[]>): Map<string, string> {
+-  const map = new Map<string, string>()
+-  for (const [bucketKey, ids] of byBucket) {
+-    for (const id of ids) {
+-      map.set(id, bucketKey)
+-    }
+-  }
+-  return map
+-}
+-
+ export function useWorktreeSidebarHeaderDrag(args: {
+   rows: HostSectionRow[]
+   renderRows: readonly RenderRow[]
+
+diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatNoticeRow.tsx
+index 49e5b8811f5e55f6c73f01fb82ec382eb7a1e282..8382d191d266cfd8ceeb2aa80a1290e00a36edd9 100644
+--- a/mobile/src/session/native-chat/transcript/MobileNativeChatNoticeRow.tsx
++++ b/mobile/src/session/native-chat/transcript/MobileNativeChatNoticeRow.tsx
+@@ -13,31 +13,27 @@ import {
+ } from '../../../../../src/shared/native-chat/native-chat-notice'
+ import {
+   isTextBlock,
+-  type NativeChatBlock,
+-  type NativeChatTextBlock
++  type NativeChatBlock
+ } from '../../../../../src/shared/native-chat/native-chat-types'
+ import {
+   agentSessionFailureDetailText,
+   readWholeAgentSessionFailureFact
+ } from '../../../../../src/shared/agent-session/failures/agent-session-failure'
+-import { agentSessionFailureSentence } from '../../../../../src/shared/agent-session/failures/agent-session-failure-words'
+ import { agentSessionSignInCommand } from '../../../../../src/shared/agent-session/lifecycle/agent-session-setup-commands'
+-import { nativeChatOrcaStopRowText } from '../../../../../src/shared/native-chat/native-chat-orca-stop-words'
+ import {
+   MobileNativeChatForkedFromContext,
+-  MobileNativeChatNoticeContext,
+-  type MobileNativeChatNoticeView
++  MobileNativeChatNoticeContext
+ } from '../../mobile-native-chat-notice-context'
+ import { MobileNativeChatMarkdown } from '../MobileNativeChatMarkdown'
+ import { INLINE_TEXT_SELECTION } from '../../../components/inline-text-selection'
+ import { colors, radii, spacing, typography } from '../../../theme/mobile-theme'
+ import { themedStyleSheet } from '../../../theme/themed-styles'
+ import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
+-import { nativeChatHostStatusCopy, nativeChatNoticeCopy } from './native-chat-notice-copy'
+-import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
+-import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
+-import { sayMobileAgentSessionFailure } from '../../agent-session-failure-copy'
+-import type { Translate } from '../../../i18n/mobile-i18n'
++import {
++  nativeChatHostStatusCopy,
++  nativeChatNoticeCopy,
++  nativeChatNoticeLineText
++} from './native-chat-notice-copy'
+ import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
+ import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../src/shared/native-chat/native-chat-stopped-before-start'
+ import { MONO_SIZE, TEXT_SIZE, scaledType } from './mobile-native-chat-message-styles'
+@@ -51,47 +47,6 @@ function toneColor(tone: NativeChatNoticeTone): string {
+   return { warning: colors.statusAmber, error: colors.statusRed, notice: colors.textMuted }[tone]
+ }
+ 
+-// The phone always reads its Orca host as remote.
+-function noticeLineText(
+-  notice: NativeChatTextBlock,
+-  names: MobileNativeChatNoticeView,
+-  t: Translate
+-): string {
+-  if (notice.orcaStop) {
+-    const say = nativeChatOrcaStopSay(t)
+-    return nativeChatOrcaStopRowText(
+-      notice.orcaStop.cause,
+-      names.hostName ?? say('unnamedServer'),
+-      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
+-      say
+-    )
+-  }
+-  const failure = readWholeAgentSessionFailureFact(notice.failure)
+-  if (failure?.kind === 'usageLimitReached') {
+-    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
+-  }
+-  // Only reword text fully described by its fact; other host text stays as written.
+-  const context = { agentName: names.agentName }
+-  const surface =
+-    failure &&
+-    [
+-      'savedConversationMissing',
+-      'pluginInputRequired',
+-      'modelUnavailable',
+-      'providerUnavailable',
+-      'providerSafetyStopped',
+-      'providerResponseFailed'
+-    ].includes(failure.kind)
+-      ? (['row', 'rejection'] as const).find(
+-          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
+-        )
+-      : undefined
+-  return failure && surface
+-    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
+-    : notice.text
+-}
+-
+-// Render system notices separately so they cannot read as the agent’s own prose.
+ export function MobileNativeChatNoticeRow({
+   blocks,
+   fontScale,
+@@ -124,7 +79,7 @@ export function MobileNativeChatNoticeRow({
+     ) : null
+   }
+   const look = nativeChatNoticeLook(notice)
+-  const lineText = noticeLineText(notice, names, t)
++  const lineText = nativeChatNoticeLineText(notice, names, t)
+   const failure = readWholeAgentSessionFailureFact(notice.failure)
+   const failureDetail = agentSessionFailureDetailText(failure)
+   const signInCommand =
+diff --git a/mobile/src/session/native-chat/transcript/native-chat-notice-copy.ts b/mobile/src/session/native-chat/transcript/native-chat-notice-copy.ts
+index 30c86d9bae346dde0c0b1483fe2fb348d006ae73..a744639d11dd1ba139c0f1bb0922f2fee3da815e 100644
+--- a/mobile/src/session/native-chat/transcript/native-chat-notice-copy.ts
++++ b/mobile/src/session/native-chat/transcript/native-chat-notice-copy.ts
+@@ -1,3 +1,11 @@
++import type { NativeChatTextBlock } from '../../../../../src/shared/native-chat/native-chat-types'
++import type { MobileNativeChatNoticeView } from '../../mobile-native-chat-notice-context'
++import { readWholeAgentSessionFailureFact } from '../../../../../src/shared/agent-session/failures/agent-session-failure'
++import { agentSessionFailureSentence } from '../../../../../src/shared/agent-session/failures/agent-session-failure-words'
++import { nativeChatOrcaStopRowText } from '../../../../../src/shared/native-chat/native-chat-orca-stop-words'
++import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
++import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
++import { sayMobileAgentSessionFailure } from '../../agent-session-failure-copy'
+ import type { Translate } from '../../../i18n/mobile-i18n'
+ 
+ export function nativeChatNoticeCopy(t: Translate) {
+@@ -26,3 +34,45 @@ export function nativeChatHostStatusCopy(t: Translate) {
+     )
+   }
+ }
++
++// The phone always reads its Orca host as remote.
++export function nativeChatNoticeLineText(
++  notice: NativeChatTextBlock,
++  names: MobileNativeChatNoticeView,
++  t: Translate
++): string {
++  if (notice.orcaStop) {
++    const say = nativeChatOrcaStopSay(t)
++    return nativeChatOrcaStopRowText(
++      notice.orcaStop.cause,
++      names.hostName ?? say('unnamedServer'),
++      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
++      say
++    )
++  }
++  const failure = readWholeAgentSessionFailureFact(notice.failure)
++  if (failure?.kind === 'usageLimitReached') {
++    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
++  }
++  // Only reword text fully described by its fact; other host text stays as written.
++  const context = { agentName: names.agentName }
++  const surface =
++    failure &&
++    [
++      'savedConversationMissing',
++      'pluginInputRequired',
++      'modelUnavailable',
++      'providerUnavailable',
++      'providerSafetyStopped',
++      'providerResponseFailed'
++    ].includes(failure.kind)
++      ? (['row', 'rejection'] as const).find(
++          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
++        )
++      : undefined
++  return failure && surface
++    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
++    : notice.text
++}
++
++// Render system notices separately so they cannot read as the agent’s own prose.
+diff --git a/src/renderer/src/components/native-chat/viewport/virtualization/native-chat-transcript-window-types.ts b/src/renderer/src/components/native-chat/viewport/virtualization/native-chat-transcript-window-types.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..01569554ecd27c0a435adee74f1525dba7812ba0
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/viewport/virtualization/native-chat-transcript-window-types.ts
+@@ -0,0 +1,25 @@
++import type { VirtualItem } from '@tanstack/react-virtual'
++import type { NativeChatAlignEdge } from './use-native-chat-viewport-align'
++
++export type NativeChatTranscriptWindow = {
++  virtualItems: VirtualItem[]
++  totalSize: number
++  scrollMargin: number
++  sizerRef: (node: HTMLDivElement | null) => void
++  measureRow: (node: HTMLElement | null) => void
++  /** Scroll so this element's top meets the top of the viewport. */
++  alignToViewportTop: (element: HTMLElement, edge?: NativeChatAlignEdge) => void
++  /** Whether a jump is still settling as its target row is measured. */
++  isAlignPending: () => boolean
++  /** A reader gesture releases the jump's target. */
++  cancelAlign: () => void
++  releaseEndPin: () => void
++  /** Pin through the virtualizer’s scroll owner to avoid competing writes; its last-row end includes trailing chrome. */
++  scrollToEnd: () => void
++  /** Restore a detached reader offset through the virtualizer's scroll owner. */
++  restoreScrollOffset: (offset: number) => void
++  /** True when this scroll event is the echo of a registered application write. */
++  consumeProgrammaticScroll: (event: Event) => boolean
++  /** Rebase a pending end reconcile while the reader takes over this frame. */
++  reconcileReaderScroll: (isTakingOver: boolean) => void
++}
+diff --git a/src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts b/src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts
+index 949189e5ee30674c65076c5f63d46df563bd6401..fa8d26e687eecf7f0955cab357bb4def7727cfc9 100644
+--- a/src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts
++++ b/src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts
+@@ -1,7 +1,7 @@
+ // Virtualizer owns row anchoring; scroll hook owns follow intent. Use container coordinates and never reattach a parked reader from geometry alone.
+ 
+ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+-import { elementScroll, useVirtualizer, type VirtualItem } from '@tanstack/react-virtual'
++import { elementScroll, useVirtualizer } from '@tanstack/react-virtual'
+ import type { NativeChatMessage } from '../../../../../../shared/native-chat/native-chat-types'
+ import { createProgrammaticScrollMarks } from '@/hooks/programmatic-scroll-marks'
+ import {
+@@ -14,8 +14,7 @@ import { useNativeChatTranscriptRowKeys } from '../../use-native-chat-transcript
+ import type { NativeChatTranscriptSlot } from '../../conversation/slots/native-chat-transcript-slots'
+ import {
+   nativeChatScrollOffsetWithin,
+-  useNativeChatViewportAlign,
+-  type NativeChatAlignEdge
++  useNativeChatViewportAlign
+ } from './use-native-chat-viewport-align'
+ 
+ /** Overscan by row because chat rows vary widely in height and rendering cost. */
+@@ -27,28 +26,8 @@ const UNSEEN_SCROLL_PX = 1
+ /** Compact retired measurement keys before capped-transcript churn accumulates material stale state. */
+ export const MAX_RETIRED_NATIVE_CHAT_MEASUREMENTS = 512
+ 
+-export type NativeChatTranscriptWindow = {
+-  virtualItems: VirtualItem[]
+-  totalSize: number
+-  scrollMargin: number
+-  sizerRef: (node: HTMLDivElement | null) => void
+-  measureRow: (node: HTMLElement | null) => void
+-  /** Scroll so this element's top meets the top of the viewport. */
+-  alignToViewportTop: (element: HTMLElement, edge?: NativeChatAlignEdge) => void
+-  /** Whether a jump is still settling as its target row is measured. */
+-  isAlignPending: () => boolean
+-  /** A reader gesture releases the jump's target. */
+-  cancelAlign: () => void
+-  releaseEndPin: () => void
+-  /** Pin through the virtualizer’s scroll owner to avoid competing writes; its last-row end includes trailing chrome. */
+-  scrollToEnd: () => void
+-  /** Restore a detached reader offset through the virtualizer's scroll owner. */
+-  restoreScrollOffset: (offset: number) => void
+-  /** True when this scroll event is the echo of a registered application write. */
+-  consumeProgrammaticScroll: (event: Event) => boolean
+-  /** Rebase a pending end reconcile while the reader takes over this frame. */
+-  reconcileReaderScroll: (isTakingOver: boolean) => void
+-}
++import type { NativeChatTranscriptWindow } from './native-chat-transcript-window-types'
++export type { NativeChatTranscriptWindow } from './native-chat-transcript-window-types'
+ 
+ export function useNativeChatTranscriptWindow({
+   scrollRef,

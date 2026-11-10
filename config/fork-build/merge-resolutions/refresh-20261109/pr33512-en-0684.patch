@@ -1,0 +1,37 @@
+diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
+--- a/src/renderer/src/i18n/locales/en.json
++++ b/src/renderer/src/i18n/locales/en.json
+@@ -237,9 +237,6 @@
+       "existingTitle": "Add on the {{distro}} host (recommended)",
+       "existingWhy": "{{distro}} already runs as a host, so Git, files and terminals run natively in Linux instead of across the Windows file share.",
+       "existingAccept": "Add on host"
+-    },
+-    "projectOrder": {
+-      "saveFailed": "Could not save project order"
+     }
+   },
+   "app": {
+@@ -766,6 +763,13 @@
+           "tooBig": "Image must be at most {{max}}×{{max}} pixels.",
+           "undecodable": "Could not decode the selected image.",
+           "saveFailed": "Could not save the custom icon."
++        }
++      },
++      "holdQuit": {
++        "title": "Hold ⌘Q while agents are working",
++        "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
++        "keyword": {
++          "quit": "quit"
+         }
+       }
+     },
+@@ -24679,5 +24683,9 @@
+     "showMore": "Show more",
+     "newChatInProject": "New chat in {{project}}",
+     "saveFailed": "Could not save chat preferences. Update Orca or try again."
++  },
++  "holdQuit": {
++    "hint": "Agents are still working. Hold ⌘Q to quit.",
++    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
+   }
+ }

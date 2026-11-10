@@ -1,0 +1,21 @@
+diff --git a/src/main/native-chat/agent-session-wire/agent-session-conversation-outline.test.ts b/src/main/native-chat/agent-session-wire/agent-session-conversation-outline.test.ts
+--- a/src/main/native-chat/agent-session-wire/agent-session-conversation-outline.test.ts
++++ b/src/main/native-chat/agent-session-wire/agent-session-conversation-outline.test.ts
+@@ -0,0 +1,17 @@
++import { expect, it } from 'vitest'
++import { readAgentSessionConversationOutline } from './publication/history/agent-session-conversation-outline'
++
++it('marks even an empty successful outline as human-only', () => {
++  expect(readAgentSessionConversationOutline({
++    sessionId: 'session-1',
++    cursor: { epoch: 'epoch-1', sequence: 0 },
++    items: [],
++    submissions: []
++  })).toEqual({
++    sessionId: 'session-1',
++    humanMessagesOnly: true,
++    cursor: { epoch: 'epoch-1', sequence: 0 },
++    entries: [],
++    omittedEntries: 0
++  })
++})
