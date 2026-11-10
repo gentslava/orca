@@ -1,3 +1,4 @@
+import { agentModelCatalogReleasedOwner } from './agent-model-catalog-read-scope'
 import type { PrioritySemaphore } from '../../../shared/priority-semaphore'
 import { independentAgentModelCatalog } from '../../../shared/agent-session/options/agent-model-catalog-ownership'
 import type {
@@ -18,7 +19,6 @@ import { scopedAgentModelCatalogLister } from './agent-model-catalog-lister'
 import { seedAccountList } from './agent-model-catalog-account-list'
 import type { AgentModelCatalogEntry } from './agent-model-catalog-entry'
 import {
-  agentModelCatalogReleasedOwner,
   bindAgentModelCatalogScope,
   type AgentModelCatalogBinding
 } from './agent-model-catalog-snapshot'
@@ -36,6 +36,7 @@ export type AgentModelCatalogLaunch = {
   legacy?: boolean
   /** Resolves saved scope only and lists nothing (a saved-only read, or a deleted chat's). */
   passive: boolean
+  requireConfiguredDefault?: true
   bindingKey: string
   identity: string
 }
@@ -174,7 +175,8 @@ export function createAgentModelCatalogRefreshes(context: {
         list = (model) => {
           if (
             current() &&
-            (deps.store.probeDue(fingerprint) ||
+            (launch.requireConfiguredDefault ||
+              deps.store.probeDue(fingerprint) ||
               deps.store.efforts.due(fingerprint, model) ||
               deps.store.isListing(fingerprint))
           ) {
