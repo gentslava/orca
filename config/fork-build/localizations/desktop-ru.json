@@ -471,12 +471,25 @@
     }
   },
   "auto": {
+    "hooks": {
+      "useIpcEvents": {
+        "unsent_notes_close_canceled": "Во вкладке браузера {{value0}} есть неотправленные заметки; пользователь оставил её открытой"
+      }
+    },
     "web": {
       "webPreloadApi": {
         "runtimeEnvironmentNameRequired": "Укажите имя сервера."
       }
     },
     "components": {
+      "terminal": {
+        "pane": {
+          "PinnedTabCloseDialog": {
+            "unsent_notes_title": "Удалить неотправленные заметки?",
+            "unsent_notes_description": "В этой вкладке есть неотправленные заметки. При закрытии они будут удалены."
+          }
+        }
+      },
       "settings": {
         "RuntimeEnvironmentsPane": {
           "renameTitle": "Переименовать сервер",
