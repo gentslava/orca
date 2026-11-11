@@ -523,3 +523,39 @@ index 0f0d8e9278c..8a34611dd26 100644
 -  }
 -  throw new RuntimeEnvironmentStoreError('invalid_argument', `Unknown environment: ${selector}`)
 -}
+
+diff --git a/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts b/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
+index 86e1a1cc778..a884ccdba83 100644
+--- a/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
++++ b/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
+@@ -24,7 +24,7 @@ import { registerRuntimeEnvironmentConnectivityHandlers } from './runtime-enviro'
+
+ const environment = { id: 'environment-a', name: 'desk', runtimeId: 'runtime-a', endpoints: [] }
+
+-function renameHandler(): (event: unknown, args: { selector: string; name: string }) => unknown {
++function renameHandler(): (event: unknown, args: unknown) => unknown {
+   const call = handleMock.mock.calls.find(([channel]) => channel === 'runtimeEnvironments:rename')
+   expect(call).toBeTruthy()
+   return call![1]
+@@ -44,7 +44,7 @@ beforeEach(() => {
+
+ describe('runtime environment rename argument guard', () => {
+   it('rejects a non-string name before touching the store', () => {
+-    expect(() => renameHandler()(null, { selector: 'environment-a', name: 42 as never })).toThrow(
++    expect(() => renameHandler()(null, { selector: 'environment-a', name: 42 })).toThrow(
+       'Renaming a server requires a name.'
+     )
+     expect(resolveEnvironmentMock).not.toHaveBeenCalled()
+@@ -52,9 +52,9 @@ describe('runtime environment rename argument guard', () => {
+   })
+
+   it('passes a string name through to the store rename', () => {
+-    expect(
+-      renameHandler()(null, { selector: 'environment-a', name: 'desk-2' })
+-    ).toMatchObject({ environment: { name: 'desk-2' } })
++    expect(renameHandler()(null, { selector: 'environment-a', name: 'desk-2' })).toMatchObject({
++      environment: { name: 'desk-2' }
++    })
+     expect(renameEnvironmentMock).toHaveBeenCalledWith('/tmp/orca-user-data', 'environment-a', {
+       name: 'desk-2'
+     })
