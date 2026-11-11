@@ -248,6 +248,15 @@ describe('chat close CLI', () => {
       `Requested close of chat ${SESSION}; this older host does not confirm the session was found.`
     )
   })
+
+  it.each([undefined, true])('reports host confirmation in JSON: %s', async (found) => {
+    const client = fakeClient([ok({ ok: true, ...(found === true ? { found } : {}) })])
+
+    expect(await run('chat close', { session: SESSION }, client)).toMatchObject({
+      ok: true,
+      confirmed: found === true
+    })
+  })
 })
 
 describe('chat rename CLI', () => {

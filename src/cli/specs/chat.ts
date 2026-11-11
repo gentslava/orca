@@ -75,7 +75,8 @@ export const CHAT_COMMAND_SPECS: CommandSpec[] = [
     allowedFlags: [...GLOBAL_FLAGS, 'session'],
     notes: [
       '--session takes the chat session id `orca agent launch` prints, and is always required.',
-      "Closing stops the chat's agent and removes its tab, the same as closing the tab by hand. The conversation stays in Session History."
+      "Closing stops the chat's agent and removes its tab, the same as closing the tab by hand. The conversation stays in Session History.",
+      'JSON confirmed is true when the host found and closed the chat; older hosts only acknowledge the request, with confirmed false.'
     ],
     examples: ['orca chat close --session <sessionId> --json']
   }

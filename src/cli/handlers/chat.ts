@@ -99,8 +99,12 @@ export const CHAT_HANDLERS: Record<string, CommandHandler> = {
         `No chat with session id ${sessionId} on this host.`
       )
     }
-    printResult(result, json, (value) =>
-      value.found === true
+    const receipt = {
+      ...result,
+      result: { ...result.result, confirmed: result.result.found === true }
+    }
+    printResult(receipt, json, (value) =>
+      value.confirmed
         ? `Closed chat ${sessionId}.`
         : `Requested close of chat ${sessionId}; this older host does not confirm the session was found.`
     )
