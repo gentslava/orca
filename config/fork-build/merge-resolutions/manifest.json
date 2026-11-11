@@ -2475,5 +2475,125 @@
     "patchSha256": "69e8bf423b1dc4b1d3aa6298d2857adc95cd163556605f61a389bb3274b96742",
     "resultSha256": "57b693abd49d250259403a7fa557d69b451564fa0f9c5f0134485f1371130ec5",
     "reason": "Retain the exported CLI model adapter and Antigravity terminal catalogs while applying coherent native model menus from 40175."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.tsx",
+    "blobs": [
+      "ceaa522136bca88fa93b4dd2b8cd3c2b3d0a570e",
+      "7d84ce7a20547ac99622e3a108e269efe59b6532",
+      "8494acc3ec50f4f1806c5d8fb7f58e5c57d0b71d"
+    ],
+    "patch": "self-20261111/pr34895-62782096a0bd.patch",
+    "patchSha256": "078e8c3a18ca51698735ca259a6b039d06085ef6359ce470f7c11296123628f3",
+    "resultSha256": "a778f3bba5ea2a7b17b048ebc07375acb73f63d911ffa718cc53a15e65ea46a7",
+    "reason": "Combine retained child navigation with reader-position preservation, extracted transcript props and the existing shared thinking hook."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/ui-state-schema-parity-checks.ts",
+    "blobs": [
+      "e57c7df39500862d1db77771105895f0b0f3439a",
+      "37784023a851a534478d205fbf11a370ad57526e",
+      "04c5ce374d9f350fc18318f51694f9252a3b1523"
+    ],
+    "patch": "refresh-20261107/pr33502-172e891cf77c.patch",
+    "patchSha256": "9592457adec8792fd5154e8c34d4ee22acd492780cbf7a6698ca3c2d564bfc60",
+    "resultSha256": "54ea9fb47b4df5dc76f955743f6d93202ffc77fbf102bcf95da5587d9983c769",
+    "reason": "Preserve conversation preferences and personal project ordering and pins with current upstream, paired-mobile RPC and host-qualified persistence."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "601678adbdfedf31ee640a4bd53589502a3d0ab8",
+      "8a5eab96c0c8f94f5cd8f5d514e8e58e082cb0c1",
+      "8d115c482d6abc70fa3c2899cca0003adf3174b5"
+    ],
+    "patch": "current-20261111/pr33502-f7e3da05dbfa.patch",
+    "patchSha256": "a3dba917379e2c274ce50a59d34b159c3b2d6685ac523c53f850296cdfcea1f3",
+    "resultSha256": "e6eea2f3b3c253ba182818ae6c884a763af5aab78cec7ea6b6bfd1604da85f0a",
+    "reason": "Preserve conversation preferences and personal project ordering and pins with current upstream, paired-mobile RPC and host-qualified persistence."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "d38b088f223e336b9c0c91a6984aadbacd244d4c",
+      "6bd57a832aaa35d5206c291306eb1a467d8f2381",
+      "a89c53dd62349eb690d40674e433f7d093b24d6e"
+    ],
+    "patch": "current-20261111/pr33502-71b259c8d23a.patch",
+    "patchSha256": "65ea11fa78040432d36393545f734e3fc5065bf3fc8c6c2c3ebfc09b8d0b9d73",
+    "resultSha256": "eaca9993a5738bee027f11617511767146015c869d9e671881d264c9d36cb94e",
+    "reason": "Preserve conversation preferences and personal project ordering and pins with current upstream, paired-mobile RPC and host-qualified persistence."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "c8adbdf51abe50ea8caa82d5f33bb985c5604188",
+      "e0cf9ca9bbd9945e93e3516f41c1f2074abd3efa",
+      "8f97cdef4ab1deb15bd4ab8575a0797b09baa061"
+    ],
+    "patch": "self-20261111/pr37744-910fc3abbcab.patch",
+    "patchSha256": "4257cef3e77274211432aedebe80c9154f9a698a62170cc2d713386b66f44b30",
+    "resultSha256": "4a102a5b7d056e31e28e5d37a87c4ba6761eb683cb4e912dbfa93731f44d96d9",
+    "reason": "Preserve retained child transcripts and group owner questions in the existing composer slot, gate hidden parent interaction, and retain both RPC capability families."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "251d0ba9f49b9cb3fd0ae4d163189c62c384f14c",
+      "c57461194c5cdffc944ba8eaf030af32db28f8d2",
+      "a46c31f9ef13716008246d15a101f6a1254fadcb"
+    ],
+    "patch": "self-20261111/pr37744-f9f6c8837e8d.patch",
+    "patchSha256": "d163a92b2b07202738ed9f4312f234cf6aac49abe3b4138d761ae877d4e1c213",
+    "resultSha256": "3d27cd20f70744b76abe549a76db427d73f16894ee57c590b4daec3e617bffe5",
+    "reason": "Preserve retained child transcripts and group owner questions in the existing composer slot, gate hidden parent interaction, and retain both RPC capability families."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "43c3e0f836ddc920e25eefbd425c8c25a642b12c",
+      "a50a603a58498f1bc20b09471c39a5bec3a8defe",
+      "1b097b2ee5a5a4c9d455307ddb12a5253e99e4a0"
+    ],
+    "patch": "self-20261111/pr37744-f51a0cb2bde2.patch",
+    "patchSha256": "0828ba1706311286d58e5d2957ab6575745c373084e2781615f1998948016eb3",
+    "resultSha256": "95a043f5b441841265af944dbef525e40c881a7bbe9515eb9e89dd347856fd7e",
+    "reason": "Preserve retained child transcripts and group owner questions in the existing composer slot, gate hidden parent interaction, and retain both RPC capability families."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "ab014e90a318a263beac439cb03e02be70f6a434",
+      "3be94e4b90e5ce93f5a1fbdaa08b7a6d36e762e9",
+      "ad174fe4aa9471efc9be7ef3db2cf7f5409885d8"
+    ],
+    "patch": "latest-upstream-20261110e/pr38848-2bd79fed3819.patch",
+    "patchSha256": "069df209418790459a194b1e0d9ae4e970fe22307b62bb3e3e4fb1e727056a4a",
+    "resultSha256": "c4e261714917b06361cee08fe7d05175faeea34a11076f2a51553d97c5de1fab",
+    "reason": "Preserve the owner-selected newest queued message shortcut with current child transcripts, owner questions and upstream prompt cards."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "251d0ba9f49b9cb3fd0ae4d163189c62c384f14c",
+      "d0ce2c30a4e86c69fc5c50c50e4fa503e415b863",
+      "d6faea559cf126f99488996632c459b7aa6f9e68"
+    ],
+    "patch": "self-20261111/pr38963-5481f231b897.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "3d27cd20f70744b76abe549a76db427d73f16894ee57c590b4daec3e617bffe5",
+    "reason": "Reuse the existing upstream prompt-card wrapper and retain group owner questions while foreground task actions are composed."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "c8adbdf51abe50ea8caa82d5f33bb985c5604188",
+      "d02a0d1a220accdb208331490444fbf45be1e45f",
+      "1a96d8889bd8387d2ce04bd6f3630d1a23a8c5e5"
+    ],
+    "patch": "latest-upstream-20261110e/pr38963-d55e70d8ac61.patch",
+    "patchSha256": "cc035df6ba0cb38271ba7187014d385ed82b69b7330f965d674f75f3a7c011d9",
+    "resultSha256": "084430368604d34951a6547274c54559379c1c1355e640f13bc7ba99d5d27e92",
+    "reason": "Retain child transcript navigation and current upstream prompts with foreground task controls and the same host-bound task actions."
   }
 ]

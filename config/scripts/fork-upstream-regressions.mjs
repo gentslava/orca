@@ -94,8 +94,7 @@ const desktop = [
   'src/main/startup/serve-native-quit-guard.test.ts',
   'src/main/startup/main-window-actions-quit-and-stop-all-sessions.test.ts',
   'src/renderer/src/store/slices/hold-quit-settings-owner.test.ts',
-  'src/main/codex-usage/scanner.test.ts',
-  'src/main/codex-usage/store-persistence.test.ts'
+  'src/main/codex-usage/scanner.test.ts'
 ]
 const mobile = [
   'src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx',

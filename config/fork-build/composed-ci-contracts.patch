@@ -37,14 +37,6 @@ index d1bc3f33bea..9268c909aae 100644
  5 src/renderer/src/app-shell/TitlebarLeftControls.tsx
  3 src/renderer/src/app-shell/use-app-startup-hydration.ts
  2 src/renderer/src/components/FirstLaunchBanner.tsx
-@@ -207,7 +207,6 @@
- 2 src/renderer/src/components/mobile/use-mobile-page-paired-devices.ts
- 1 src/renderer/src/components/mobile/use-mobile-pairing-generation.ts
- 1 src/renderer/src/components/native-chat-recovery/offers/native-chat-restart-runtimes.ts
--1 src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
- 8 src/renderer/src/components/native-chat/attachments/chips/use-native-chat-composer-attachments.ts
- 2 src/renderer/src/components/native-chat/attachments/intake/use-native-chat-resolved-path-attachments.ts
- 2 src/renderer/src/components/native-chat/composer/controls/NativeChatComposerToolbar.tsx
 @@ -218,6 +217,7 @@
  2 src/renderer/src/components/native-chat/composer/pickers/use-native-chat-skills.ts
  1 src/renderer/src/components/native-chat/conversation/projection/use-native-chat-context-clear-floor.ts
@@ -1889,7 +1881,7 @@ index 4c35bb3fa96..c0c5a2eff5f 100644
 diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 --- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 +++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
-@@ -97,8 +97,6 @@
+@@ -100,8 +100,6 @@
              ? ui.customSidekicks
              : []
          const petId = ui.petId ?? ui.sidekickId
@@ -1898,9 +1890,9 @@ diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/sr
          const statusBarItemsWithGrok = hydrateStatusBarItems(ui)
          const hydrated = {
            // Why: persisted widths may be stale/corrupt/hand-edited; clamp during hydration so invalid values can't break layout.
-@@ -126,7 +124,8 @@
-           rightSidebarOpen: typeof ui.rightSidebarOpen === 'boolean' ? ui.rightSidebarOpen : false,
+@@ -121,7 +119,8 @@
            ...normalizeRightSidebarRoute(ui.rightSidebarTab, ui.rightSidebarExplorerView),
+           activityBarPosition: sanitizeActivityBarPosition(ui.activityBarPosition),
            groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
 -          sortBy,
 +          // Migration runs in main; hydration preserves a deliberate recent choice.
