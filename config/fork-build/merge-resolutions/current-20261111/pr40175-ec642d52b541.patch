@@ -7,12 +7,12 @@
 +import { firstFrameOptionState } from '@/components/native-chat/session/options/structured/structured-agent-session-option-first-frame'
 +import { structuredAgentSessionShownSnapshot } from '../../../../../shared/agent-session/options/structured-agent-session-option-view'
  import { installHostModelCatalogSnapshotsSync } from './host-model-catalog-snapshots-sync'
- 
+
  const LOCAL = { kind: 'local' } as const
 @@ -106,7 +108,18 @@
      })
    })
- 
+
 -  it("keeps a chat's answer that lands while an older preload is out", async () => {
 +  it('keeps preload misses pending and preserves chat answers that arrive during preload', async () => {
 +    mocks.call.mockResolvedValueOnce({ origin: 'unknown' })

@@ -988,10 +988,17 @@ index 245e10aa90a..a3e812f6da8 100644
    // Stamp before hooks so chat/provider chrome can resolve agent identity immediately.
    const launchAgent =
 diff --git a/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts b/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
-index f210eda5912..bf1a1daf73a 100644
 --- a/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
 +++ b/src/renderer/src/lib/workspace/activation/worktree-activation-emptied-workspace-reseed.test.ts
-@@ -90,15 +90,7 @@ describe('activating a workspace whose last terminal was closed', () => {
+@@ -2,7 +2,6 @@
+ import { useAppStore } from '@/store/index'
+ import { activateAndRevealWorktree } from './worktree-activation'
+ import * as activationGate from './worktree-agent-activation-gate'
+-import { ensureWorktreeHasInitialTerminal } from './initial-surface/worktree-initial-terminal-seeding'
+ import {
+   makeCreatedAgentWorktree as makeWorktree,
+   seedEmptyActivatableWorktree
+@@ -77,15 +76,7 @@
      vi.spyOn(activationGate, 'gateWorktreeAgentActivation').mockReturnValue(pendingGate)
 
      activateAndRevealWorktree(worktree.id, { agent: 'codex', notifyHostRuntime: false })

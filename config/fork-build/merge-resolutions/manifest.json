@@ -2340,7 +2340,7 @@
       "51a8423b3d96f0e2db542fddd0654d5f52940101"
     ],
     "patch": "current-20261111/pr40175-ec642d52b541.patch",
-    "patchSha256": "4d27a084f3e055830521cae8b9e51c6495e5815ee0bc9ec97f02533a6d708c62",
+    "patchSha256": "47b151501565d0a16073d7714a5b3e68d62393ca2e273179a6aa221e9d12f5fc",
     "resultSha256": "de1a6a2ed47a951424ff85cb52b8f1a82d0d6660821e787b47d226686bf8f910",
     "reason": "Combine 33369 listing/invalidation tests with the 40175 pending-preload regression; preserve upstream removal of the two obsolete workspace snapshot tests."
   }
