@@ -2259,5 +2259,89 @@
     "patchSha256": "be51d436841ac76f43c8d3abf9e02a617f5ff7c90dbc486326b4af7de0cbb42f",
     "resultSha256": "b6d4ce573b53f04ad0ad237df1623ebb4cb560082e336fc64f2d39b2ca275253",
     "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-read.ts",
+    "blobs": [
+      "a550fb1cf370b1ef92d6253d70461cd29e3232b5",
+      "e69d65d1c32c0eca3e5715412bdbfed5004a072b",
+      "c8cb391a8ef87138ac835b484b95a572aef80a4c"
+    ],
+    "patch": "current-20261111/pr33502-81efb3a955cb.patch",
+    "patchSha256": "114b064f02912d35a4b115f1bfd5dfd810a51cc391c0c02eaa1e2179d38a1844",
+    "resultSha256": "a56262964ac4d35fde676ff0efa3fa55ccf567608377133a8fb862820510e55b",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports. Rebase the verified combination delta onto current upstream owners without replacing their new fields."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-update.ts",
+    "blobs": [
+      "eb282c1c973fb83bd140a929cc97cbfe80cae6e4",
+      "94bb45a0a773ddaf26155d10472c5b6cf910a5a7",
+      "9b1e2250af86c7c68cefac21e7b684e12f1da07f"
+    ],
+    "patch": "current-20261111/pr33502-67eb309998ba.patch",
+    "patchSha256": "b36cfb306d2e71e8a5bffb3ec19ab1d3065adf38f1816be3e73370c23bf53b93",
+    "resultSha256": "b6de3b0dcd9441aba2b8fe55af76819c961cd329c8083e3b2b31f11949bd09a8",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports. Rebase the verified combination delta onto current upstream owners without replacing their new fields."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "57cfd9b2ee8270229dea7f7f0b9ee46d354dc7c9",
+      "7ecbd56ff4dfc3fb8349320d599e392bea53d148",
+      "eff94cfd81921bc6c2698d9f5e3a1a7368742a7b"
+    ],
+    "patch": "current-20261111/pr33502-f7e3da05dbfa.patch",
+    "patchSha256": "a3dba917379e2c274ce50a59d34b159c3b2d6685ac523c53f850296cdfcea1f3",
+    "resultSha256": "71d91b37c43980c176260e469c8d9070dca93862acfdb844df29cfa321716957",
+    "reason": "Preserve both conversationPreferences and personalProjectOrder and their canonical imports after current upstream module relocation. Rebase the verified combination delta onto current upstream owners without replacing their new fields."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "bb95889ad7d3491475cce1f96718d00f2cd34c91",
+      "9f1f76cccf63f8241cdb036d33b483e112a83def",
+      "aabe7a11daf40349953d5af23cbbf2612ca18841"
+    ],
+    "patch": "current-20261111/pr33502-71b259c8d23a.patch",
+    "patchSha256": "65ea11fa78040432d36393545f734e3fc5065bf3fc8c6c2c3ebfc09b8d0b9d73",
+    "resultSha256": "d5fda6ab1afcd1ce52d50af128de16cd8fac9e322d65380cc45e77ecc562a880",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities. Rebase the verified combination delta onto current upstream owners without replacing their new fields."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/pt.json",
+    "blobs": [
+      "81a0ed531deeb6dcbfa602336c9d319ebfbb2455",
+      "6479cfcec1049da8ba11b71f157975e5ed746ced",
+      "aa43d16aab938efacb9db814351eead0696afb5f"
+    ],
+    "patch": "current-20261111/pr40175-3758b63c9380.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "b770a1779f98f198f0b9c23d8894eb6852ac64a4a39cf5bd15e7df24213963f2",
+    "reason": "Keep current upstream fallback translations and combined feature copy; 40175 introduces no additional pt/zh values after the upstream translation refresh."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/zh.json",
+    "blobs": [
+      "b3f2f5f5a54d27f16b24bf2d7d7b63917a9bd65f",
+      "95ca6dd594397ddc0033e5f33a697ce80596be73",
+      "e0a844ac3568bf18658372fe8b70e6f97b2bd6a3"
+    ],
+    "patch": "current-20261111/pr40175-7aa1973811fc.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "c0d89bd497de57b86940e903caeb12898a6420822a0f85237c61d593862280ac",
+    "reason": "Keep current upstream fallback translations and combined feature copy; 40175 introduces no additional pt/zh values after the upstream translation refresh."
+  },
+  {
+    "path": "src/renderer/src/runtime/native-chat/model-catalogs/host-model-catalog-snapshots.test.ts",
+    "blobs": [
+      "7acc7efd8c103b4f5b9cc5076720748dcde38aa4",
+      "01d73bd6bd5de30386b4e8a73fdf116da9172a42",
+      "51a8423b3d96f0e2db542fddd0654d5f52940101"
+    ],
+    "patch": "current-20261111/pr40175-ec642d52b541.patch",
+    "patchSha256": "4d27a084f3e055830521cae8b9e51c6495e5815ee0bc9ec97f02533a6d708c62",
+    "resultSha256": "de1a6a2ed47a951424ff85cb52b8f1a82d0d6660821e787b47d226686bf8f910",
+    "reason": "Combine 33369 listing/invalidation tests with the 40175 pending-preload regression; preserve upstream removal of the two obsolete workspace snapshot tests."
   }
 ]

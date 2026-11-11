@@ -1307,7 +1307,7 @@ index bc671c60d73..eac4063129f 100644
  import { Fragment, useState } from 'react'
  import { Button } from '../ui/button'
 -import { translate } from '@/i18n/i18n'
- import { formatSessionTime, formatTokens } from './usage-formatters'
+ import { formatSessionTime, formatTokens, formatUsageProjectLabel } from './usage-formatters'
 -import { useIntlLocale } from '../../i18n/use-translate'
 +import { useIntlLocale, useTranslate } from '../../i18n/use-translate'
 

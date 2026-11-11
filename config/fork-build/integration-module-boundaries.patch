@@ -206,18 +206,6 @@ diff --git a/config/e2e-typecheck-mobile-native-stub.ts b/config/e2e-typecheck-m
      },
      "followSymlinkedDirectoriesKeywords": {
        "symlink": "심볼릭 링크",
---- a/src/renderer/src/i18n/locales/pt.json
-+++ b/src/renderer/src/i18n/locales/pt.json
-@@ -1630,8 +1630,7 @@
-       "sameAsChoice": "Igual a {{agent}} · {{choice}}",
-       "modelListFallback": "Lista integrada. O Orca não conseguiu obter uma lista de modelos deste host.",
-       "chatUnavailableOnWindows": "O {{value0}} Chat ainda não está disponível no Windows, então o {{value0}} abre em um terminal neste host. Chats em um host macOS ou Linux continuam funcionando.",
--      "undetectedCommandHint": "Se a CLI do {{agent}} estiver instalada fora do PATH, informe o caminho completo do executável neste host.",
--      "modelListFallback": "Lista integrada. O Orca não conseguiu obter uma lista de modelos deste host."
-+      "undetectedCommandHint": "Se a CLI do {{agent}} estiver instalada fora do PATH, informe o caminho completo do executável neste host."
-     },
-     "followSymlinkedDirectoriesKeywords": {
-       "symlink": "link simbólico",
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
 @@ -862,8 +862,7 @@
@@ -242,15 +230,3 @@ diff --git a/config/e2e-typecheck-mobile-native-stub.ts b/config/e2e-typecheck-m
      },
      "followSymlinkedDirectoriesKeywords": {
        "symlink": "符號連結",
---- a/src/renderer/src/i18n/locales/zh.json
-+++ b/src/renderer/src/i18n/locales/zh.json
-@@ -411,8 +411,7 @@
-       "sameAsChoice": "与 {{agent}} 相同 · {{choice}}",
-       "modelListFallback": "内置列表。Orca 无法从此主机获取模型列表。",
-       "chatUnavailableOnWindows": "{{value0}} Chat 暂不支持 Windows，因此 {{value0}} 会在此主机的终端中打开。macOS 或 Linux 主机上的聊天仍可正常使用。",
--      "undetectedCommandHint": "如果 {{agent}} CLI 安装在 PATH 之外，请输入其在此主机上的可执行文件完整路径。",
--      "modelListFallback": "内置列表。Orca 无法从此主机获取模型列表。"
-+      "undetectedCommandHint": "如果 {{agent}} CLI 安装在 PATH 之外，请输入其在此主机上的可执行文件完整路径。"
-     },
-     "followSymlinkedDirectoriesKeywords": {
-       "symlink": "符号链接",
