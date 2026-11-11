@@ -44,6 +44,10 @@
     {
       "number": 41114,
       "reason": "Keep account identities readable across the full menu width, with aligned one-line usage headings and reset countdowns for Codex and Claude."
+    },
+    {
+      "number": 41166,
+      "reason": "Reuse the existing shared start-failure defaults in mobile to reduce the verified web payload while preserving all translation keys and exact fallback text."
     }
   ],
   "exclude": {
