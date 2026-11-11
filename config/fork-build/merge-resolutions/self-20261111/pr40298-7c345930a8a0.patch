@@ -1,16 +1,20 @@
 diff --git a/src/shared/remote-runtime/host-store/runtime-environment-store.test.ts b/src/shared/remote-runtime/host-store/runtime-environment-store.test.ts
 --- a/src/shared/remote-runtime/host-store/runtime-environment-store.test.ts
 +++ b/src/shared/remote-runtime/host-store/runtime-environment-store.test.ts
-@@ -4,7 +4,7 @@
+@@ -4,7 +4,11 @@
  import { removeTempDirs } from '../../testing/remove-temp-dirs.test-support'
  import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
  import { encodePairingOffer } from '../pairing/pairing'
 -import { addEnvironmentFromPairingCode, listEnvironments } from './runtime-environment-store'
-+import { addEnvironmentFromPairingCode, listEnvironments, renameEnvironment } from './runtime-environment-store'
++import {
++  addEnvironmentFromPairingCode,
++  listEnvironments,
++  renameEnvironment
++} from './runtime-environment-store'
  import {
    RuntimeEnvironmentStoreError,
    getEnvironmentStorePath,
-@@ -77,4 +77,53 @@
+@@ -77,4 +81,53 @@
      expect(readdirSync(userDataPath)).toEqual(['orca-environments.json'])
      expect(readFileSync(getEnvironmentStorePath(userDataPath), 'utf8')).toBe(contents)
    })

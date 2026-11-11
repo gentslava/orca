@@ -2604,8 +2604,8 @@
       "910c54c821a04c27eeaf0de9fb0b5de7c7cbe0da"
     ],
     "patch": "self-20261111/pr40298-7c345930a8a0.patch",
-    "patchSha256": "7761ba73295683ad5940709b1c63d729e334dcc58a57c58c9e4efa1d9203148a",
-    "resultSha256": "25b3e42e4f5ea2da58ec13e57241a4b17f74f1d415bc80022194e454c17980d8",
+    "patchSha256": "f730d335d16b95876f3e17a9aed5b509766b7d25ea7e9f5f865bac24ecea9c74",
+    "resultSha256": "4bddeb7c2192e1d1e8ca34fc9fb0846171ad37042116bdab6c463edbe0801666",
     "reason": "Retain upstream 41144 test retirement and the two foreign 40298 rename regressions only; no foreign branch mutation."
   }
 ]
