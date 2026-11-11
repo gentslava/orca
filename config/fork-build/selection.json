@@ -65,6 +65,10 @@
     {
       "number": 40298,
       "reason": "Owner-requested saved remote-server rename; issue 40221 was closed as duplicate, with matching earlier request 40165 and open implementation 40298. Include until upstream ships it."
+    },
+    {
+      "number": 40980,
+      "reason": "Discover host agy models (Claude Sonnet/Opus, GPT-OSS 120B, Gemini) for new chat and terminal model pickers via sessionless CLI probe, unblocking owner's agy model selection."
     }
   ],
   "exclude": {
