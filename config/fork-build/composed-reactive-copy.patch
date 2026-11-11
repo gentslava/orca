@@ -1514,19 +1514,6 @@ index 1455da8aad1..25061d59396 100644
        : fallback(limits.antigravity)),
      ...USAGE_PROVIDER_KEYS.filter(
        (key) => key !== 'claude' && key !== 'codex' && key !== 'antigravity'
-diff --git a/src/renderer/src/components/tab-bar/SortableTabContextMenu.tsx b/src/renderer/src/components/tab-bar/SortableTabContextMenu.tsx
-index 8a2f15e23bc..31c4857928a 100644
---- a/src/renderer/src/components/tab-bar/SortableTabContextMenu.tsx
-+++ b/src/renderer/src/components/tab-bar/SortableTabContextMenu.tsx
-@@ -183,7 +183,7 @@ export function SortableTabContextMenu({
-       {onWorkTogether ? (
-         <ContextMenuItem onSelect={onWorkTogether}>
-           <Link2 className="size-3.5 shrink-0" />
--          {translate('components.sessionLink.workTogether', 'Work together…')}
-+          {t('components.sessionLink.workTogether', 'Work together…')}
-         </ContextMenuItem>
-       ) : null}
-       <TabSessionSurfaceSwitchMenuItems
 diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 index f71ca642901..a698fda1489 100644
 --- a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
