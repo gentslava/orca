@@ -4,7 +4,7 @@ export function withGitHubReadRetry(read) {
       return read()
     } catch (error) {
       const transient =
-        /\bEOF\b|ECONNRESET|ETIMEDOUT|HTTP 50[234]\b|SSL_ERROR_SYSCALL|Connection reset by peer|remote end hung up unexpectedly/i.test(
+        /\bEOF\b|ECONNRESET|ETIMEDOUT|TLS handshake timeout|HTTP 50[234]\b|SSL_ERROR_SYSCALL|Connection reset by peer|remote end hung up unexpectedly/i.test(
           String(error.stderr ?? '')
         )
       if (attempt >= 3 || !transient) {
