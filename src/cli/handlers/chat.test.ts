@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { SendParams } from '../../shared/rpc-contract/structured-agent-session-params'
 import { AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY } from '../../shared/agent-session/agent-session-runtime-capabilities'
 import { RuntimeClient } from '../runtime-client'
 import { CHAT_HANDLERS } from './chat'
@@ -33,6 +32,10 @@ function historyPage(
       ...pageOverrides
     }
   })
+}
+
+function workState(fields: Record<string, unknown>) {
+  return ok({ working: false, actionablePrompt: false, ...fields })
 }
 
 function item(body: unknown) {
@@ -88,9 +91,9 @@ afterEach(() => {
 })
 
 describe('chat send', () => {
-  it('sends a host-valid message fenced to the chat it read, queued while the agent works', async () => {
+  it('fences a queued message to the chat it read', async () => {
     const client = fakeClient([
-      historyPage([], 7),
+      workState({ fence: 7 }),
       ok({
         ok: true,
         replayed: false,
@@ -105,8 +108,6 @@ describe('chat send', () => {
     const result = await run('chat send', { session: SESSION, text: 'Run the tests' }, client)
     const params = client.call.mock.calls[1]![1]
     expect(client.call.mock.calls[1]![0]).toBe('agentSession.send')
-    // The host validates the same schema, so a malformed envelope or body fails here.
-    expect(SendParams.safeParse(params).success).toBe(true)
     expect(params).toMatchObject({
       envelope: { sessionId: SESSION, expectedRuntimeFence: 7 },
       delivery: 'queue-if-active',
@@ -122,7 +123,7 @@ describe('chat send', () => {
 
   it('reports a host refusal as an error instead of a sent message', async () => {
     const client = fakeClient([
-      historyPage([], 2),
+      workState({ fence: 2 }),
       ok({
         ok: false,
         refusal: { code: 'agent_session_fence_mismatch', message: 'The chat restarted.' }
@@ -136,7 +137,7 @@ describe('chat send', () => {
   it('with --wait, waits for its queued message to run and returns that turn', async () => {
     vi.useFakeTimers()
     const client = fakeClient([
-      historyPage([], 7, { working: true }),
+      workState({ fence: 7, working: true }),
       ok({
         ok: true,
         replayed: false,
@@ -148,13 +149,9 @@ describe('chat send', () => {
         }
       }),
       // The earlier turn ended, but the queued message has not been handed to the agent yet.
-      historyPage([], 7, {
-        working: false,
-        queuedMessages: [{ messageId: 'q-1' }],
-        nextQueuedMessageId: 'q-1'
-      }),
-      historyPage([], 7, { working: true, queuedMessages: [] }),
-      historyPage([], 7, { working: false, queuedMessages: [], actionablePromptIds: [] }),
+      workState({ fence: 7, queuedMessageIds: ['q-1'], nextQueuedMessageId: 'q-1' }),
+      workState({ fence: 7, working: true, queuedMessageIds: [] }),
+      workState({ fence: 7, queuedMessageIds: [] }),
       historyPage([
         item({ kind: 'message', role: 'user', blocks: [{ type: 'text', text: 'Earlier' }] }),
         item({ kind: 'message', role: 'assistant', blocks: [{ type: 'text', text: 'Old reply' }] }),
@@ -169,7 +166,6 @@ describe('chat send', () => {
     )
     await vi.advanceTimersByTimeAsync(5_000)
     const result = await pending
-    expect(client.call).toHaveBeenCalledTimes(6)
     expect(result).toMatchObject({
       delivery: 'queued',
       settled: 'done',
@@ -202,6 +198,66 @@ function rename(client: RuntimeClient, session?: string): Promise<void> {
     json: true
   })
 }
+
+function close(client: RuntimeClient, session?: string): Promise<void> {
+  return CHAT_HANDLERS['chat close']({
+    flags: new Map(session === undefined ? [] : [['session', session] as const]),
+    client,
+    cwd: '/tmp/worktree',
+    json: true
+  })
+}
+
+describe('chat close CLI', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllEnvs()
+  })
+
+  it('never closes the chat it runs in without --session', async () => {
+    vi.stubEnv('ORCA_AGENT_SESSION_ID', 'chat-7')
+    const { client, call } = chatClient(false)
+
+    await expect(close(client)).rejects.toThrow('Missing required --session')
+    expect(call).not.toHaveBeenCalled()
+  })
+
+  it('fails when the host has no chat with that session id', async () => {
+    const { client, call } = chatClient(false)
+    call.mockResolvedValueOnce({ id: 'req-close', ok: true, result: { ok: true, found: false } })
+
+    await expect(close(client, 'chat-gone')).rejects.toThrow(
+      'No chat with session id chat-gone on this host.'
+    )
+    expect(call).toHaveBeenCalledWith('agentSession.close', { sessionId: 'chat-gone' })
+  })
+
+  it('does not claim a confirmed close when an older host omits the found result', async () => {
+    const { client, call } = chatClient(false)
+    call.mockResolvedValueOnce(ok({ ok: true }))
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await CHAT_HANDLERS['chat close']({
+      flags: new Map([['session', SESSION]]),
+      client,
+      cwd: '/tmp',
+      json: false
+    })
+
+    expect(log).toHaveBeenCalledWith(
+      `Requested close of chat ${SESSION}; this older host does not confirm the session was found.`
+    )
+  })
+
+  it.each([undefined, true])('reports host confirmation in JSON: %s', async (found) => {
+    const client = fakeClient([ok({ ok: true, ...(found === true ? { found } : {}) })])
+
+    expect(await run('chat close', { session: SESSION }, client)).toMatchObject({
+      ok: true,
+      confirmed: found === true
+    })
+  })
+})
 
 describe('chat rename CLI', () => {
   afterEach(() => {

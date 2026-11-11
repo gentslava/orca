@@ -248,6 +248,12 @@ orca chat wait --session <session> --timeout-ms 600000 --json
 
 `chat send --wait` and `chat wait` return once the chat's own turn settles, in the words `chat list` uses: `settled: "done"`, or `settled: "blocked"` when an approval or question needs an answer. Background agents the chat started can still show as `working` or `waiting` in `chat list`. They print the entries since the last user message. A wait past `--timeout-ms` returns `settled: "timeout"`, and a message held in a stopped or failed queue returns `settled: "held"`; both exit 1. `chat read --json` returns a `cursor` for the newest row read, and `truncated: true` when older rows it needed were past the 200-row read. `chat list --state` takes `working`, `blocked`, `waiting` or `done`. Paired hosts (`--environment`, `--pairing-code`) can list chats but not read, send or wait yet.
 
+```bash
+orca chat close --session <sessionId> --json
+```
+
+Closes a chat tab and stops its agent, the same as closing the tab by hand. The conversation stays in Session History. `--session` is always required, so a chat never closes itself by accident.
+
 ## Files
 
 ```bash

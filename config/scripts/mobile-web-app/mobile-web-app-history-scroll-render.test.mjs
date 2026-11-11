@@ -1,4 +1,5 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { beforeAll, afterAll, describe, expect, it } from 'vitest'
@@ -92,8 +93,7 @@ beforeAll(async () => {
   if (!bundles) {
     return
   }
-  await mkdir(join(mobileDir, '.tmp'), { recursive: true })
-  scratch = await mkdtemp(join(mobileDir, '.tmp', 'history-scroll-'))
+  scratch = await mkdtemp(join(tmpdir(), 'orca-history-scroll-'))
   const outDir = join(scratch, 'bundle')
   await esbuild.build({
     ...mobileWebAppBuildOptions([]),

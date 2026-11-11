@@ -145,7 +145,7 @@ export const TERMINAL_LIFECYCLE_METHODS = [
     name: 'terminal.split',
     permission: 'workspace',
     params: TerminalSplit,
-    handler: async (params, { runtime }) => ({
+    handler: async (params, { runtime, caller }) => ({
       split:
         params.pane && !params.terminal
           ? await runtime.splitTerminalPane(params.pane, {
@@ -166,7 +166,7 @@ export const TERMINAL_LIFECYCLE_METHODS = [
               env: params.env,
               telemetrySource: params.telemetrySource,
               retrySplit: params.retrySplit,
-              activate: false,
+              ...(caller?.kind === 'local-cli' ? { activate: false } : {}),
               wslUserAct: true
             })
     })
