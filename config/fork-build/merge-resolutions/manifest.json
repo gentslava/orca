@@ -2199,5 +2199,17 @@
     "patchSha256": "222f6b2d85e42a98dfae8b389c74463bc1aaa91f8d0c8b04716e66150f4b99b7",
     "resultSha256": "822ec663fa824c7a0014d19e10eba625ec3f4dbfb618e510c6ee41c14153f01b",
     "reason": "Keep upstream workspace-host session history routing; combine paired-desktop conversation preferences from 33383 with project-open and pin preferences from 33502."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "12b4c117365bb1c7cf774c36116d177340971cc4",
+      "4e79d7ac514a3392c9869e71ffaf5572697fac4f",
+      "901158ba21d18e9dbb11e967a6712cacda576359"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-4e79d7ac514a.patch",
+    "patchSha256": "222f6b2d85e42a98dfae8b389c74463bc1aaa91f8d0c8b04716e66150f4b99b7",
+    "resultSha256": "822ec663fa824c7a0014d19e10eba625ec3f4dbfb618e510c6ee41c14153f01b",
+    "reason": "Keep upstream workspace-host session history routing; combine paired-desktop conversation preferences from 33383 with project-open and pin preferences from 33502."
   }
 ]
