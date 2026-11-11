@@ -2,7 +2,7 @@ import { Check } from 'lucide-react'
 import React from 'react'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { useTranslate } from '@/i18n/use-translate'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/class-names'
 
 export function AccountSwitchRowItem({
   label,
@@ -17,7 +17,7 @@ export function AccountSwitchRowItem({
   /** Secondary line, e.g. workspace or the ID that tells same-email accounts apart. */
   detail?: string | null
   active: boolean
-  /** Usage shown in the fixed-width right column so rows line up. */
+  /** Usage details beneath the account identity. */
   children?: React.ReactNode
   /** Rendered beside the item, not inside it, so its own menu item stays separately focusable. */
   action?: React.ReactNode
@@ -32,7 +32,7 @@ export function AccountSwitchRowItem({
         data-current={active ? 'true' : undefined}
         className={cn('min-h-9 min-w-0 flex-1', className)}
       >
-        <span className="flex w-4 shrink-0 justify-center">
+        <span className="flex w-4 shrink-0 self-start justify-center pt-0.5">
           {active ? (
             <>
               <Check className="size-3.5" />
@@ -42,13 +42,13 @@ export function AccountSwitchRowItem({
             </>
           ) : null}
         </span>
-        <span className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <span className="truncate">{label}</span>
           {detail ? (
             <span className="truncate text-2xs text-muted-foreground">{detail}</span>
           ) : null}
-        </span>
-        {children ? <div className="w-1/2 max-w-48 shrink-0 text-xs">{children}</div> : null}
+          {children ? <div className="mt-1 text-xs">{children}</div> : null}
+        </div>
       </DropdownMenuItem>
       {action ? <div className="shrink-0 pr-1.5">{action}</div> : null}
     </div>

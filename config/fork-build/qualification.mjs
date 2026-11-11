@@ -22,6 +22,27 @@ export async function runComposedSourceChecks(planPath, application) {
   execFileSync(formatter.command, [...formatter.prefixArgs, '--check', ...paths], options)
   execFileSync(
     process.execPath,
+    ['config/scripts/localization/catalog-validation/verify-mobile-localization.mjs'],
+    options
+  )
+  execFileSync(
+    process.execPath,
+    [
+      'config/scripts/localization/source-extraction/audit-localization-coverage.mjs',
+      '--check',
+      '--source-root',
+      'mobile/app',
+      '--source-root',
+      'mobile/src',
+      '--source-root',
+      'mobile/web-entry',
+      '--allowlist',
+      'config/mobile-localization-coverage-allowlist.json'
+    ],
+    options
+  )
+  execFileSync(
+    process.execPath,
     ['config/scripts/preflight/changed-checks/check-changed-code-quality.mjs', plan.upstream],
     options
   )

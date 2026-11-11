@@ -1,11 +1,8 @@
-import { chatApprovalFromJournal } from '../../../../../shared/native-chat/input/native-chat-interactive-prompt'
+import { sessionLinkOwnerQuestion } from '../SessionLinkOwnerQuestion'
+import { NativeChatStructuredPromptCard } from './NativeChatStructuredPromptCard'
 import { cancelStructuredPrompt } from '../session/structured/writes/native-chat-structured-stop-controls'
-import { NativeChatStructuredQuestionCard } from './NativeChatStructuredQuestionCard'
-import { NativeChatApprovalCard } from './NativeChatApprovalCard'
-import { agentSessionPromptQuestions } from '../../../../../shared/agent-session/agent-session-question-answer'
 import type { RefObject } from 'react'
 import type { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
-import { sessionLinkOwnerQuestion } from '../SessionLinkOwnerQuestion'
 import { asyncQuestionSourceScope } from '../../../../../shared/native-chat/input/native-chat-ask'
 import { structuredAgentSessionPaneKey } from '../../../../../shared/agent-session/view/structured-agent-session-projection'
 import { structuredAgentSessionHostKey } from '../../../runtime/native-chat/host-capabilities/structured-agent-session-host-capability'
@@ -119,11 +116,8 @@ function NativeChatAsyncQuestionForm({
   )
 }
 
-export function nativeChatStructuredQuestions(
-  props: Pick<
-    NativeChatStructuredViewProps,
-    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible' | 'isFocusedGroup'
-  >,
+export function nativeChatStructuredAsyncQuestion(
+  props: Pick<NativeChatStructuredViewProps, 'target' | 'agent' | 'sessionId' | 'tabId'>,
   controller: Pick<
     ReturnType<typeof useStructuredAgentSession>,
     'epoch' | 'prompts' | 'submissions'
@@ -135,26 +129,23 @@ export function nativeChatStructuredQuestions(
   const { agent, sessionId } = props
   const { epoch } = controller
   return (
-    <>
-      <NativeChatStructuredAsyncQuestion
-        paneKey={structuredAgentSessionPaneKey(props.tabId, sessionId)}
-        session={session}
-        submissions={controller.submissions}
-        send={transport.send}
-        sendFollowUp={transport.sendFollowUp}
-        queuedCards={submits.queuedMessages.cards}
-        blocked={controller.prompts[0] != null}
-        sourceKey={JSON.stringify([
-          'journal',
-          structuredAgentSessionHostKey(props.target),
-          agent,
-          sessionId,
-          epoch
-        ])}
-        sourceScope={asyncQuestionSourceScope({ kind: 'journal', agent, sessionId, epoch })}
-      />
-      {sessionLinkOwnerQuestion(props)}
-    </>
+    <NativeChatStructuredAsyncQuestion
+      paneKey={structuredAgentSessionPaneKey(props.tabId, sessionId)}
+      session={session}
+      submissions={controller.submissions}
+      send={transport.send}
+      sendFollowUp={transport.sendFollowUp}
+      queuedCards={submits.queuedMessages.cards}
+      blocked={controller.prompts[0] != null}
+      sourceKey={JSON.stringify([
+        'journal',
+        structuredAgentSessionHostKey(props.target),
+        agent,
+        sessionId,
+        epoch
+      ])}
+      sourceScope={asyncQuestionSourceScope({ kind: 'journal', agent, sessionId, epoch })}
+    />
   )
 }
 
@@ -170,7 +161,7 @@ export function NativeChatStructuredPrompts({
 }: {
   pane: Pick<
     NativeChatStructuredViewProps,
-    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible'
+    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible' | 'isFocusedGroup'
   >
   controller: ReturnType<typeof useStructuredAgentSession>
   response: ReturnType<typeof useStructuredPromptResponseHold>
@@ -181,39 +172,19 @@ export function NativeChatStructuredPrompts({
   answerInputRef: RefObject<HTMLTextAreaElement | null>
 }): React.JSX.Element {
   const prompt = controller.prompts[0] ?? null
-  const questionBody = prompt?.body.kind === 'question' ? prompt.body : null
-  const approval = prompt?.body.kind === 'approval' ? chatApprovalFromJournal(prompt.body) : null
   const cancelPrompt = () => cancelStructuredPrompt(controller, prompt)
   return (
     <>
-      {prompt && approval ? (
-        <NativeChatApprovalCard
-          key={`${prompt.itemId}:${prompt.revision}`}
-          approval={approval}
-          onChoose={(optionId) => void response.respond(prompt, { kind: 'option', optionId })}
-          isSubmitting={response.holds(prompt)}
-          onCancel={cancelPrompt}
-          shouldFocus={shouldFocus}
-        />
-      ) : null}
-      {prompt && questionBody ? (
-        <NativeChatStructuredQuestionCard
-          key={`${prompt.itemId}:${prompt.revision}`}
-          questions={agentSessionPromptQuestions(questionBody)}
-          onAnswer={(answer) => void response.respond(prompt, answer)}
-          isSubmitting={response.holds(prompt)}
-          onCancel={cancelPrompt}
-          shouldFocus={shouldFocus}
-          answerInputRef={answerInputRef}
-        />
-      ) : null}
-      {nativeChatStructuredQuestions(
-        { ...pane, isFocusedGroup: shouldFocus },
-        controller,
-        session,
-        transport,
-        submits
-      )}
+      <NativeChatStructuredPromptCard
+        key={prompt ? `${prompt.itemId}:${prompt.revision}` : undefined}
+        prompt={prompt}
+        promptResponse={response}
+        onCancel={cancelPrompt}
+        shouldFocus={shouldFocus}
+        answerInputRef={answerInputRef}
+      />
+      {nativeChatStructuredAsyncQuestion(pane, controller, session, transport, submits)}
+      {sessionLinkOwnerQuestion(pane)}
     </>
   )
 }

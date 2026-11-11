@@ -4,7 +4,7 @@ import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPane
 import { useNativeChatHandOff } from './pane/actions/use-native-chat-hand-off'
 import { useNativeChatStructuredPaneNotices } from '@/components/native-chat/messages/notices/use-native-chat-structured-pane-notices'
 import { useNativeChatPaneFork } from '@/components/native-chat/messages/actions/use-native-chat-fork'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/class-names'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from '@/components/native-chat/appearance/native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from '@/components/native-chat/appearance/use-native-chat-store-appearance-style'
 import { useRef, useState } from 'react'
@@ -62,7 +62,7 @@ import { nativeChatStructuredStopControls } from './session/structured/writes/na
 import { useAppStore } from '../../store'
 import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
 import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
-import { NativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
+import { nativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
 import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
 import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
 import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
@@ -72,6 +72,7 @@ import { useNativeChatHostOutageNotice } from '@/components/native-chat/host-acc
 import { useNativeChatHostSendGate } from '@/components/native-chat/host-access/use-native-chat-host-send-gate'
 import { useStructuredAgentSessionStartFailureFacts } from '@/components/native-chat/messages/notices/use-structured-agent-session-start-failure-facts'
 import { pendingPromptsAllUnanswerableHere } from '../../../../shared/agent-session/agent-session-approval-subject'
+import { useNativeChatWorkerApprovalSlots } from '@/components/native-chat/worker-approvals/NativeChatWorkerApprovals'
 
 export function NativeChatStructuredSession(props: Omit<NativeChatStructuredViewProps, 'mode'>) {
   const ownerWorktreeId = useNativeChatTabOwnerWorktreeId(props.tabId)
@@ -114,6 +115,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   const [optionPickerRequest, setOptionPickerRequest] =
     useState<NativeChatOptionPickerRequest | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  const workerApprovals = useNativeChatWorkerApprovalSlots(props, rootRef)
   const historyPhase = structuredChatHistoryPhase(provisionalLaunch, controller.status)
   const hostOutage = useNativeChatHostOutage(props.target)
   const hostNotice = useNativeChatHostOutageNotice(hostOutage)
@@ -315,6 +317,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                   stopping={stopControls.stopping}
                   runtimeContext={imageRuntimeContext}
                   deliveryNotices={deliveryNotices}
+                  trailing={workerApprovals.rows}
                 />
               )}
             </NativeChatContextClearFade>
@@ -338,22 +341,18 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                 tasks={controller}
                 messageListRef={submits.messageListRef}
               />
-              {prompt ? null : (
-                <NativeChatStructuredComposerTabStrips
-                  tabId={props.tabId}
-                  runtimeContext={imageRuntimeContext}
-                  threadGoal={controller.threadGoal}
-                  transport={transport}
-                  isWorking={controller.isWorking}
-                  isVisible={props.isVisible}
-                  turnId={controller.turnId}
-                  workingStartedAt={controller.workingStartedAt}
-                />
-              )}
+              {workerApprovals.strip}
+              {nativeChatStructuredComposerTabStrips({
+                shown: prompt === null,
+                pane: props,
+                controller,
+                runtimeContext: imageRuntimeContext,
+                transport
+              })}
               {/* Prompt cards take the composer's slot, below the background-task dock. */}
               {composerShown ? null : <NativeChatPromptSlotNotices notices={notices} />}
               <NativeChatStructuredPrompts
-                pane={props}
+                pane={{ ...props, isVisible: props.isVisible && childNavigator.child === null }}
                 controller={controller}
                 response={promptResponse}
                 session={session}

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import type { SettingsNavGroup } from '@/lib/settings-navigation-types'
+import type { SettingsNavGroup } from '@/components/settings/navigation/settings-navigation-types'
 import { translate } from '@/i18n/i18n'
 import type { Translate } from '@/i18n/use-translate'
 import type { SettingsStoreModel } from './use-settings-store-model'
@@ -130,18 +130,12 @@ export function buildSettingsViewModel(
     navigation.neededSectionIds.has(sectionId)
   const isFocusedShortcutsPane =
     model.activeSectionId === 'shortcuts' && model.settingsSearchQuery.trim() === ''
-  const isFocusedSetupGuidePane =
-    model.activeSectionId === 'setup-guide' && model.settingsSearchQuery.trim() === ''
-  // Why no query check: search still shows only the active section.
-  const isWidePluginsPane = model.activeSectionId === 'plugins'
 
   return {
     generalNavGroups,
     repoNavSections,
     isSectionMounted,
-    isFocusedShortcutsPane,
-    isFocusedSetupGuidePane,
-    isWidePluginsPane
+    isFocusedShortcutsPane
   }
 }
 

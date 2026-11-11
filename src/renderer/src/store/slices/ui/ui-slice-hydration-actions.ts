@@ -1,4 +1,5 @@
 import { newerPersonalProjectOrder } from '../../../../../shared/personal-project-order'
+import { normalizeStatusBarUsageFormat } from '../../../../../shared/status-bar-usage-format'
 import type { UISlice, UISliceGet, UISliceSet } from './ui-slice-contract'
 import type { AppState } from '../../types'
 import { normalizeRightSidebarRoute } from '../right-sidebar/right-sidebar-route'
@@ -42,7 +43,7 @@ import { isReleaseChannel } from '../../../../../shared/release-channel'
 import {
   filterSetupScriptPromptDismissalsToValidRepos,
   sanitizeSetupScriptPromptDismissals
-} from '../../../lib/setup-script-prompt'
+} from '../../../runtime/repo-hooks/setup-script-prompt'
 import { isBundledPetId, DEFAULT_PET_ID } from '../../../components/pet/pet-models'
 import { getRepoHostIdentity } from '../../../../../shared/repo-host-identity'
 import {
@@ -64,15 +65,17 @@ import {
   sanitizePersistedRepoIds,
   sanitizeExplorerPreferences,
   sanitizeWorkspaceCleanupDismissals,
-  sanitizePersistedSidebarWidth,
+  sanitizeActivityBarPosition,
   hydratedUIPartialMatchesState,
   clampPetSize
 } from './ui-slice-hydration-sanitizers'
-import { hydrateAgentReadState, sanitizeTaskResumeState } from './ui-slice-hydration-values'
+import {
+  hydrateAgentReadState,
+  hydrateSidebarWidths,
+  sanitizeTaskResumeState
+} from './ui-slice-hydration-values'
 import { hydrateStatusBarItems } from './ui-slice-hydration-status-bar-items'
 
-const MAX_LEFT_SIDEBAR_WIDTH = 500
-const MAX_RIGHT_SIDEBAR_WIDTH = 4000
 /** Builds hydration actions that reconcile authoritative UI state without discarding pending local edits. */
 export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Partial<UISlice> {
   return {
@@ -100,16 +103,7 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
         const statusBarItemsWithGrok = hydrateStatusBarItems(ui)
         const hydrated = {
           // Why: persisted widths may be stale/corrupt/hand-edited; clamp during hydration so invalid values can't break layout.
-          sidebarWidth: sanitizePersistedSidebarWidth(
-            ui.sidebarWidth,
-            s.sidebarWidth,
-            MAX_LEFT_SIDEBAR_WIDTH
-          ),
-          rightSidebarWidth: sanitizePersistedSidebarWidth(
-            ui.rightSidebarWidth,
-            s.rightSidebarWidth,
-            MAX_RIGHT_SIDEBAR_WIDTH
-          ),
+          ...hydrateSidebarWidths(ui, s),
           markdownTocPanelWidth: clampMarkdownTocPanelWidth(
             ui.markdownTocPanelWidth,
             undefined,
@@ -123,6 +117,7 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
           sidebarOpen: typeof ui.sidebarOpen === 'boolean' ? ui.sidebarOpen : true,
           rightSidebarOpen: typeof ui.rightSidebarOpen === 'boolean' ? ui.rightSidebarOpen : false,
           ...normalizeRightSidebarRoute(ui.rightSidebarTab, ui.rightSidebarExplorerView),
+          activityBarPosition: sanitizeActivityBarPosition(ui.activityBarPosition),
           groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
           // Migration runs in main; hydration preserves a deliberate recent choice.
           sortBy: ui.sortBy,
@@ -193,6 +188,7 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
           statusBarVisible: ui.statusBarVisible ?? true,
           usagePercentageDisplay: normalizeUsagePercentageDisplay(ui.usagePercentageDisplay),
           statusBarUsageMode: normalizeStatusBarUsageMode(ui.statusBarUsageMode),
+          statusBarUsageFormat: normalizeStatusBarUsageFormat(ui.statusBarUsageFormat),
           // Why: default true so existing users see the pet on first enabling the flag; only an explicit Hide persists false.
           petVisible: ui.petVisible ?? ui.sidekickVisible ?? true,
           petSize: clampPetSize(ui.petSize ?? ui.sidekickSize ?? PET_SIZE_DEFAULT, {
@@ -268,7 +264,6 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
           codexTerminalServerIsolationNoticeSeen:
             ui.codexTerminalServerIsolationNoticeSeen === true,
           codexSharedSettingsNoticeSeen: ui.codexSharedSettingsNoticeSeen === true,
-          speechModelUpdateNoticeSeen: ui.speechModelUpdateNoticeSeen === true,
           claudeDiffPanelNoticeSeen: ui.claudeDiffPanelNoticeSeen === true,
           ...hydrateAgentReadState(ui),
           workspaceCleanupDismissals: sanitizeWorkspaceCleanupDismissals(

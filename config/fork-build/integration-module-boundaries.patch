@@ -41,13 +41,13 @@ index eef111b58591d2893feef6d7402ee6e846b4968f..a74f73933d6bb87760d6ef9a89c1f4a2
        "f3bae76495657f27458969fe2d6510098f39b429580870f5e79fac3493f891ee",
        "f7da0dd40d8681e2b0303fa0fa2f7ee4e36f2eca6495a4af57b92b9857dff732"
 diff --git a/src/renderer/src/components/native-chat/NativeChatForegroundTaskAction.tsx b/src/renderer/src/components/native-chat/NativeChatForegroundTaskAction.tsx
-index 76f08928d19568ee09042ac4d989b954cc855d70..b83e103251f5ab15d52691cdb6cd7490c1dd1b6f 100644
 --- a/src/renderer/src/components/native-chat/NativeChatForegroundTaskAction.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatForegroundTaskAction.tsx
-@@ -53,6 +53,28 @@ export function NativeChatForegroundTasksProvider(props: {
+@@ -53,6 +53,28 @@
    return <Context value={value}>{props.children}</Context>
  }
-
+-
++
 +export function nativeChatForegroundTasks(
 +  sessionId: string,
 +  session: {
@@ -72,7 +72,7 @@ index 76f08928d19568ee09042ac4d989b954cc855d70..b83e103251f5ab15d52691cdb6cd7490
 +
  /** Both transcript calls and task rows name the same host-captured invocation. */
  export function NativeChatForegroundTaskAction(props: { toolUseId?: string; taskId?: string }) {
-   const actions = useContext(Context)
+   const t = useTranslate()
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 index d3cf683cfcebdcdd17cbab4b4322400b52aa746c..ea003e7c9c1e03f8868e9cb9c59f5eb32b87f067 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx

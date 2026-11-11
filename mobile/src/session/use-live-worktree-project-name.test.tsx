@@ -50,7 +50,11 @@ async function reply(client: FakeRpcClient, method: string, result: unknown) {
 
 async function replyWorkspace(client: FakeRpcClient): Promise<void> {
   await reply(client, 'worktree.show', {
-    worktree: { id: 'repo-1::/worktree', displayName: 'master', hostId: 'ssh:target' }
+    worktree: {
+      id: 'repo-1::/worktree',
+      displayName: 'master',
+      hostId: 'ssh:target'
+    }
   })
 }
 
@@ -98,18 +102,21 @@ it('hides another client project and ignores its late reply for the same workspa
   await mount(first)
   await replyWorkspace(first)
   await reply(first, 'repo.show', { repo: { displayName: 'First project' } })
-  expect(live?.projectName).toBe('First project')
+  expect(live).toMatchObject({ projectName: 'First project' })
   await renameEvent(first)
   const late = latestRequest(first, 'repo.show')
 
   const second = createFakeRpcClient()
   await act(async () => renderer?.update(createElement(Harness, { client: second })))
-  expect(live?.projectName).toBeNull()
+  expect(live).toMatchObject({ projectName: null })
   await replyWorkspace(second)
   await reply(second, 'repo.show', { repo: { displayName: 'Second project' } })
   expect(live?.projectName).toBe('Second project')
   await act(async () => {
     late.resolve({ id: 'late-project', ok: true, result: { repo: { displayName: 'Old reply' } } })
   })
-  expect(live).toMatchObject({ name: 'master', projectName: 'Second project' })
+  expect(live).toMatchObject({
+    name: 'master',
+    projectName: 'Second project'
+  })
 })

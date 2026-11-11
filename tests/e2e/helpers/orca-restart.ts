@@ -167,9 +167,7 @@ export function createRestartSession(
       const page = await app.firstWindow({ timeout: 120_000 })
       await page.waitForLoadState('domcontentloaded')
       await page.waitForFunction(() => Boolean(window.__store), null, { timeout: 30_000 })
-      if (options?.sidebarBody !== null) {
-        await selectSidebarBody(page, options?.sidebarBody ?? 'workspaces')
-      }
+      await selectSidebarBody(page, options?.sidebarBody)
       return { app, page }
     } catch (error) {
       await closeElectronAppForE2E(app)
@@ -245,11 +243,7 @@ export async function attachRepoAndOpenTerminal(page: Page, repoPath: string): P
               return false
             }
             // Show the seeded Git worktree external to Orca’s managed workspace root.
-            await store.getState().updateRepo(repo.id, {
-              externalWorktreeVisibility: 'show',
-              // Restart specs model an existing repo, which keeps pre-trust.
-              agentWorkspaceTrust: 'pre-trust'
-            })
+            await store.getState().updateRepo(repo.id, { externalWorktreeVisibility: 'show' })
             return true
           }, repoId)
         ),

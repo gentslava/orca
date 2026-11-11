@@ -6,7 +6,7 @@ import { ActiveSettingsSectionProvider } from '../section-layout/SettingsSection
 import { SettingsContentScrollElementProvider } from './settings-content-scroll-element'
 import { SettingsSidebar } from '../navigation/SettingsSidebar'
 import { PluginInstallTrustDialogHost } from '../../plugins/dialogs/PluginInstallTrustDialog'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/class-names'
 import { translate } from '@/i18n/i18n'
 import type { Translate } from '@/i18n/use-translate'
 import type { SettingsInteractionController } from './use-settings-interaction-controller'
@@ -87,8 +87,7 @@ export function renderSettingsPage(
   t: Translate = translate
 ): React.JSX.Element {
   const { model, interactions, navigation, actions, view } = context
-  const statsWidth = nativeChatContentMaxWidth(model.settings.nativeChatAppearance?.width)
-  const isStatsPage = model.activeSectionId === 'stats' && !model.settingsSearchQuery.trim()
+  const contentMaxWidth = nativeChatContentMaxWidth(model.settings.nativeChatAppearance?.width)
   return (
     <div
       ref={interactions.setSettingsRootNode}
@@ -149,16 +148,11 @@ export function renderSettingsPage(
           <div
             className={cn(
               'mx-auto flex w-full flex-col gap-6 px-8 pt-6',
-              view.isFocusedShortcutsPane ? 'h-full pb-6' : 'pb-24',
-              isStatsPage || view.isFocusedSetupGuidePane || view.isWidePluginsPane
-                ? 'max-w-6xl'
-                : 'max-w-[784px]'
+              view.isFocusedShortcutsPane ? 'h-full pb-6' : 'pb-24'
             )}
-            style={
-              isStatsPage
-                ? { maxWidth: statsWidth === 'none' ? 'none' : `calc(${statsWidth} + 4rem)` }
-                : undefined
-            }
+            style={{
+              maxWidth: contentMaxWidth === 'none' ? 'none' : `calc(${contentMaxWidth} + 4rem)`
+            }}
           >
             {navigation.visibleNavSections.length === 0 ? (
               <div className="flex min-h-[24rem] items-center justify-center rounded-2xl border border-dashed border-border/60 bg-card/30 text-sm text-muted-foreground">

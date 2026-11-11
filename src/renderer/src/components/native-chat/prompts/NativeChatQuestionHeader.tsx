@@ -21,6 +21,7 @@ export function NativeChatQuestionHeader({
   onCollapse?: () => void
 }): React.JSX.Element {
   const t = useTranslate()
+
   return (
     <>
       <div className="flex items-start gap-2 px-3.5 py-2.5">

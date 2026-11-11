@@ -6,6 +6,7 @@ export const SESSION_LINK_OWNER_CHOICES_CAPABILITY =
   'orchestration.session-link-owner-choices.v1' as const
 export const SESSION_LINK_POLICY_CAPABILITY = 'orchestration.session-link-policy.v1' as const
 export const SESSION_LINK_CAPABILITY = 'orchestration.session-links.v1' as const
+export const SESSION_LINK_GROUP_CAPABILITY = 'orchestration.session-link-groups.v1' as const
 export const ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY = 'orchestration.federation.v1' as const
 export const ORCHESTRATION_FEDERATION_CONTROL_MAIL_RUNTIME_CAPABILITY =
   'orchestration.federation-control-mail.v1' as const
@@ -50,10 +51,14 @@ export const ORCHESTRATION_CONTRACT_VERSION = 1 as const
 export const ORCHESTRATION_CONTRACT_RUNTIME_CAPABILITY = 'orchestration.contract.v1' as const
 /** Receives agent mail a paired Orca carries for its agents, and queues replies for it to pull. */
 export const ORCHESTRATION_PEER_MAIL_RUNTIME_CAPABILITY = 'orchestration.peer-mail.v1' as const
+/** Runs the workers a paired Orca places here as its own, coordinated from that Orca (wire v1). */
+export const ORCHESTRATION_REMOTE_OWNED_WORKERS_RUNTIME_CAPABILITY =
+  'orchestration.remote-owned-workers.v1' as const
 
 export const ORCHESTRATION_RUNTIME_CAPABILITIES = [
   ORCHESTRATION_SESSION_CHILDREN_CAPABILITY,
   SESSION_LINK_CAPABILITY,
+  SESSION_LINK_GROUP_CAPABILITY,
   SESSION_LINK_PAIRED_DESKTOP_CAPABILITY,
   SESSION_LINK_POLICY_CAPABILITY,
   SESSION_LINK_OWNER_CHOICES_CAPABILITY,
@@ -74,5 +79,6 @@ export const ORCHESTRATION_RUNTIME_CAPABILITIES = [
   ORCHESTRATION_WORKER_TURN_STOP_REPORTS_RUNTIME_CAPABILITY,
   ORCHESTRATION_ASK_RETURNS_AT_ONCE_RUNTIME_CAPABILITY,
   ORCHESTRATION_CONTRACT_RUNTIME_CAPABILITY,
-  ORCHESTRATION_PEER_MAIL_RUNTIME_CAPABILITY
+  ORCHESTRATION_PEER_MAIL_RUNTIME_CAPABILITY,
+  ORCHESTRATION_REMOTE_OWNED_WORKERS_RUNTIME_CAPABILITY
 ] as const

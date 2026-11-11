@@ -196,10 +196,14 @@ diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-own
 index e7df911e774..348a1be547f 100644
 --- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 +++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-@@ -6,6 +6,17 @@ import { TooltipProvider } from '@/components/ui/tooltip'
+@@ -3,9 +3,20 @@
+-import { cleanup, render, screen } from '@testing-library/react'
++import { act, cleanup, render, renderHook, screen } from '@testing-library/react'
+ import AgentCombobox from '@/components/agent/AgentCombobox'
+ import { TooltipProvider } from '@/components/ui/tooltip'
  import { AGENT_CATALOG } from '@/lib/agent-catalog/agent-catalog'
  import { afterEach, expect, it, vi } from 'vitest'
- import { useAppStore } from '@/store'
+ import { useAppStore } from '@/store/index'
 +import { getRuntimeAgentInventoryKey } from '@/store/slices/agent-inventory/runtime-agent-inventory-key'
 +import {
 +  NEW_TAB_TWIN_HOSTS,

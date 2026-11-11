@@ -10,8 +10,8 @@ import { structuredAgentSessionHostSupport } from './native-chat/agent-session/m
 import { snapshotEvent } from './native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture'
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
 import { mobileNativeChatDraftDestination } from './native-chat/composer/mobile-native-chat-draft-inputs'
-import { resetMobileNativeChatDraftStoreForTests } from './native-chat/composer/mobile-native-chat-draft-store'
-import type { MobileNativeChatSendOrigin } from './native-chat/mobile-native-chat-pending-echo'
+import { closeMobileNativeChatTabDraft } from './native-chat/composer/mobile-native-chat-draft-store'
+import type { MobileNativeChatSendOrigin } from './native-chat/transcript/mobile-native-chat-pending-echo'
 
 const storage = vi.hoisted(() => new Map<string, string>())
 vi.mock('@react-native-async-storage/async-storage', () => ({
@@ -84,7 +84,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   storage.clear()
   listener = null
-  resetMobileNativeChatDraftStoreForTests()
+  closeMobileNativeChatTabDraft('draft')
 })
 afterEach(async () => {
   await act(async () => renderer?.unmount())

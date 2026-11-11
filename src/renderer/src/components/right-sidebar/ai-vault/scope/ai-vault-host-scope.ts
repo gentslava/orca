@@ -13,9 +13,22 @@ import {
 import type { PublicKnownRuntimeEnvironment } from '../../../../../../shared/remote-runtime/host-catalog/runtime-environments'
 import type { AiVaultSessionResumeTargetState } from '../session-actions/ai-vault-session-resume'
 
+import { getTranslatedExecutionHostLabel } from '../../../sidebar/execution-host-label'
+import { translate } from '@/i18n/i18n'
+import type { Translate } from '@/i18n/use-translate'
+
 export type AiVaultHostScopeOption = {
   id: ExecutionHostScope
   label: string
+}
+
+export function aiVaultHostScopeLabel(
+  option: AiVaultHostScopeOption,
+  t: Translate = translate
+): string {
+  return option.id === LOCAL_EXECUTION_HOST_ID || option.id === ALL_EXECUTION_HOSTS_SCOPE
+    ? getTranslatedExecutionHostLabel(option.id, t)
+    : option.label
 }
 
 export function useAiVaultExecutionHostScope(args: {
@@ -52,23 +65,26 @@ export function useAiVaultExecutionHostScope(args: {
       userChangedHostScopeRef.current = false
       return
     }
-    if (!userChangedHostScopeRef.current && executionHostScope !== defaultExecutionHostScope) {
+    // Closing the last tab clears the workspace; it does not select this computer.
+    if (
+      args.activeWorktreeId !== null &&
+      !userChangedHostScopeRef.current &&
+      executionHostScope !== defaultExecutionHostScope
+    ) {
       setExecutionHostScope(defaultExecutionHostScope)
     }
   }, [
     activeExecutionHostScope,
+    args.activeWorktreeId,
     args.availableExecutionHostScopes,
     defaultExecutionHostScope,
     executionHostScope
   ])
 
-  const handleExecutionHostScopeChange = useCallback(
-    (nextScope: ExecutionHostScope) => {
-      userChangedHostScopeRef.current = nextScope !== defaultExecutionHostScope
-      setExecutionHostScope(nextScope)
-    },
-    [defaultExecutionHostScope]
-  )
+  const handleExecutionHostScopeChange = useCallback((nextScope: ExecutionHostScope) => {
+    userChangedHostScopeRef.current = true
+    setExecutionHostScope(nextScope)
+  }, [])
 
   return {
     executionHostScope,

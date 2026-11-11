@@ -163,7 +163,6 @@ index f44a0fa5e56..891cd5c89dc 100644
      path: ['environment', 'rm'],
      destructive: true,
 diff --git a/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts b/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
-index 4d12eb7d25e..bb4541bc9dc 100644
 --- a/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
 +++ b/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
 @@ -1,3 +1,4 @@
@@ -171,7 +170,7 @@ index 4d12eb7d25e..bb4541bc9dc 100644
  import {
    manuallyDisconnectedResponse,
    runtimeEnvironmentCallFailure
-@@ -8,7 +9,6 @@ import {
+@@ -8,7 +9,6 @@
    addEnvironmentFromPairingCode,
    listEnvironments,
    removeEnvironment,
@@ -179,7 +178,7 @@ index 4d12eb7d25e..bb4541bc9dc 100644
    resolveEnvironment
  } from '../../../shared/remote-runtime/host-store/runtime-environment-store'
  import {
-@@ -152,23 +152,8 @@ export function registerRuntimeEnvironmentConnectivityHandlers({
+@@ -152,26 +152,8 @@
        return { removed: redactRuntimeEnvironment(removed) }
      }
    )
@@ -189,6 +188,9 @@ index 4d12eb7d25e..bb4541bc9dc 100644
 -      _event,
 -      args: { selector: string; name: string }
 -    ): { environment: PublicKnownRuntimeEnvironment } => {
+-      if (typeof args.name !== 'string') {
+-        throw new Error('Renaming a server requires a name.')
+-      }
 -      // Resolve merged first: an unreadable sidecar hides the record rather than lose its links.
 -      const environment = resolveEnvironment(getUserDataPath(), args.selector)
 -      const renamed = renameEnvironment(getUserDataPath(), environment.id, { name: args.name })
@@ -207,10 +209,9 @@ index 4d12eb7d25e..bb4541bc9dc 100644
      'runtimeEnvironments:disconnect',
 diff --git a/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts b/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts
 new file mode 100644
-index 00000000000..4fafc5dfcda
 --- /dev/null
 +++ b/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,23 @@
 +import {
 +  renameEnvironment,
 +  resolveEnvironment
@@ -221,6 +222,9 @@ index 00000000000..4fafc5dfcda
 +  userDataPath: string,
 +  args: { selector: string; name: string }
 +) {
++  if (typeof args.name !== 'string') {
++    throw new Error('Renaming a server requires a name.')
++  }
 +  const environment = resolveEnvironment(userDataPath, args.selector)
 +  const renamed = renameEnvironment(userDataPath, environment.id, { name: args.name })
 +  return {
@@ -519,3 +523,39 @@ index 0f0d8e9278c..8a34611dd26 100644
 -  }
 -  throw new RuntimeEnvironmentStoreError('invalid_argument', `Unknown environment: ${selector}`)
 -}
+
+diff --git a/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts b/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
+index 86e1a1cc778..a884ccdba83 100644
+--- a/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
++++ b/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
+@@ -24,7 +24,7 @@ import { registerRuntimeEnvironmentConnectivityHandlers } from './runtime-enviro'
+
+ const environment = { id: 'environment-a', name: 'desk', runtimeId: 'runtime-a', endpoints: [] }
+
+-function renameHandler(): (event: unknown, args: { selector: string; name: string }) => unknown {
++function renameHandler(): (event: unknown, args: unknown) => unknown {
+   const call = handleMock.mock.calls.find(([channel]) => channel === 'runtimeEnvironments:rename')
+   expect(call).toBeTruthy()
+   return call![1]
+@@ -44,7 +44,7 @@ beforeEach(() => {
+
+ describe('runtime environment rename argument guard', () => {
+   it('rejects a non-string name before touching the store', () => {
+-    expect(() => renameHandler()(null, { selector: 'environment-a', name: 42 as never })).toThrow(
++    expect(() => renameHandler()(null, { selector: 'environment-a', name: 42 })).toThrow(
+       'Renaming a server requires a name.'
+     )
+     expect(resolveEnvironmentMock).not.toHaveBeenCalled()
+@@ -52,9 +52,9 @@ describe('runtime environment rename argument guard', () => {
+   })
+
+   it('passes a string name through to the store rename', () => {
+-    expect(
+-      renameHandler()(null, { selector: 'environment-a', name: 'desk-2' })
+-    ).toMatchObject({ environment: { name: 'desk-2' } })
++    expect(renameHandler()(null, { selector: 'environment-a', name: 'desk-2' })).toMatchObject({
++      environment: { name: 'desk-2' }
++    })
+     expect(renameEnvironmentMock).toHaveBeenCalledWith('/tmp/orca-user-data', 'environment-a', {
+       name: 'desk-2'
+     })

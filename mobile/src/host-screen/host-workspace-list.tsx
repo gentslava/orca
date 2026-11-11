@@ -1,4 +1,4 @@
-import { HostSectionHeader } from './HostSectionHeader'
+import { HostSectionHeader } from './host-section-header'
 import { useCallback, useEffect, useMemo, type ReactElement } from 'react'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'

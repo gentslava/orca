@@ -13,10 +13,7 @@ import {
   promptHasInteractionModeSkill,
   promptSkillRefs
 } from '../editor/native-chat-prompt-document'
-import type {
-  StructuredAgentSessionAttachmentPreparation,
-  StructuredAgentSessionSendRequest
-} from '../../session/structured/delivery/structured-agent-session-send-slot'
+import type { StructuredAgentSessionAttachmentPreparation } from '../../session/structured/delivery/structured-agent-session-send-slot'
 import { useCallback } from 'react'
 import { completeNativeChatStructuredUserAction } from './native-chat-structured-user-action'
 import {
@@ -25,8 +22,14 @@ import {
   structuredAgentSessionCommandChangesConversation
 } from '../../../../../../shared/agent-session/view/structured-agent-session-composer'
 import { dispatchNativeChatStructuredComposerText } from './native-chat-structured-composer-dispatch'
-import type { UseNativeChatStructuredComposerSendArgs } from './native-chat-structured-composer-transport'
-import type { NativeChatComposerImageAttachment } from '../../attachments/chips/native-chat-image-attachment'
+import type {
+  UseNativeChatStructuredComposerSendArgs,
+  NativeChatStructuredComposerSend
+} from './native-chat-structured-composer-transport'
+export type {
+  UseNativeChatStructuredComposerSendArgs,
+  NativeChatStructuredComposerSend
+} from './native-chat-structured-composer-transport'
 import { nativeChatAttachImagesAgainReason } from '../../attachments/chips/native-chat-image-reattach'
 import { nativeChatNoticeFromError } from '../controls/native-chat-composer-notice'
 import { agentSessionWriteNoticeText } from '../../messages/notices/agent-session-write-notice-text'
@@ -47,14 +50,6 @@ import {
   projectNativeChatPastedText
 } from '../../paste/native-chat-composer-pasted-text-references'
 import { structuredAgentSessionRequestedDelivery } from '../../queue/structured-agent-session-queue-request'
-
-export type { UseNativeChatStructuredComposerSendArgs } from './native-chat-structured-composer-transport'
-
-export type NativeChatStructuredComposerSend = (
-  text: string,
-  attachments?: readonly NativeChatComposerImageAttachment[],
-  request?: StructuredAgentSessionSendRequest
-) => Promise<boolean>
 
 /** Clear submitted composer content only after structured transport acceptance. */
 export function useNativeChatStructuredComposerSend({

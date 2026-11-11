@@ -21,14 +21,14 @@ import {
   type AgentModelCatalogSuccess
 } from './agent-model-catalog-entry'
 
-export type {
-  AgentModelCatalogEntry,
-  AgentModelCatalogListing,
-  AgentModelCatalogLiveListing,
-  AgentModelCatalogSource,
-  AgentModelCatalogSuccess
+export {
+  withLiveCatalogListing,
+  type AgentModelCatalogEntry,
+  type AgentModelCatalogListing,
+  type AgentModelCatalogLiveListing,
+  type AgentModelCatalogSource,
+  type AgentModelCatalogSuccess
 } from './agent-model-catalog-entry'
-export { withLiveCatalogListing } from './agent-model-catalog-entry'
 import {
   AgentModelCatalogFailures,
   type AgentModelCatalogFailure
@@ -173,16 +173,17 @@ export class AgentModelCatalogStore {
     this.failures.expire(fingerprint)
   }
 
-  expireAgent(agent: string): void {
+  expireAgent(agent: string, fingerprint?: string): void {
     this.retireListings(agent)
     retireAgentModelCatalogObservations(
       this.entries,
       this.dueEntries,
       this.retiredObservations,
       this.partialAttempts,
-      agent
+      agent,
+      fingerprint
     )
-    this.failures.expireAgent(agent)
+    this.failures.expireAgent(agent, fingerprint)
   }
 
   recordSuccess(

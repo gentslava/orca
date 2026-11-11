@@ -5,7 +5,7 @@ import {
 import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPaneFileDropSurface'
 import { NativeChatCrewFrame } from '../orchestration-crew/NativeChatCrewPanel'
 import { TerminalChatCrewPanel } from '../orchestration-crew/TerminalChatCrewPanel'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/class-names'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './appearance/native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from './appearance/use-native-chat-store-appearance-style'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -360,7 +360,11 @@ export function NativeChatResolvedView({
                 requiresTerminal={nativeChatAskRequiresTerminal(agent)}
                 onAnswerInTerminal={onSwitchToTerminal}
                 onDismiss={promptCardPresentation.dismiss}
-                onCollapse={promptCardPresentation.collapse}
+                onCollapse={
+                  mountedPromptCard?.kind === 'approval' && mountedPromptCard.approval.holdsComposer
+                    ? undefined
+                    : promptCardPresentation.collapse
+                }
                 shouldFocus={
                   shownPromptCard !== null &&
                   isVisible &&
@@ -379,12 +383,7 @@ export function NativeChatResolvedView({
             <NativeChatComposer
               ref={shownPromptCard ? undefined : composerRef}
               inputOwnedByCard={shownPromptCard !== null}
-              terminalTabId={terminalTabId}
-              paneKey={paneKey}
-              targetPtyId={targetPtyId}
-              agent={agent}
-              canSend={canSend}
-              isWorking={isWorking}
+              {...{ terminalTabId, paneKey, targetPtyId, agent, canSend, isWorking }}
               onStop={stopAgent}
               onOptimisticSend={onOptimisticSend}
               onOptimisticSendCanceled={delivery.cancel}

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { RepoIconGlyph } from '@/components/repo/repo-icon'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/class-names'
 import { useTranslate } from '@/i18n/use-translate'
 import type { RepoIcon } from '../../../../shared/repo-icon'
 

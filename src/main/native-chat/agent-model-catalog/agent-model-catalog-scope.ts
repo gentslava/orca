@@ -40,7 +40,8 @@ export async function resolveAgentModelCatalogScope(
   if (record && !isNativeLocalLocation(record.location)) {
     return { base, fingerprint: base, exact: false }
   }
-  const probe = deps.probes?.[params.agent]
+  const registeredProbe = deps.probes?.[params.agent]
+  const probe = registeredProbe?.supportsAccount?.(home) === false ? undefined : registeredProbe
   // Fixed when its readers asked: no chat closing later turns a shared refresh passive.
   const savedOnly = () => !!params.savedOnly
   if (params.legacy) {
@@ -62,7 +63,8 @@ export async function resolveAgentModelCatalogScope(
   // The list belongs to the account and the CLI a chat here would launch, not to this folder:
   // resolve the executable where the chat runs, but list from an empty Orca-owned folder so the
   // listing reads only account settings (a home folder can hold another account's settings as
-  // project settings) and every workspace sharing that invocation shares one listing.
+  // project settings) and every workspace sharing that invocation shares one listing. A command
+  // line that may name files in the chat's folder lists there instead (`catalogListingDirectory`).
   let listIn: string
   try {
     listIn = resolveHiddenProbeCwd()
