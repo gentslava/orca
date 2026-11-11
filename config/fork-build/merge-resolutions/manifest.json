@@ -2391,5 +2391,41 @@
     "patchSha256": "ced766688db31835a2d743481482dc5f67d9ca2a2b63de931400a577b7c3d5a4",
     "resultSha256": "0ddf171f1fe8c9edce18ff2a40d850b8f412e962b994b19157a8347003c6c915",
     "reason": "Combine foreign Antigravity host discovery with selected ACP model-effort launch and catalog probe rules."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/access/orchestration-access-outcomes.test.ts",
+    "blobs": [
+      "694ff102ae171ae664d6795798780f12a9cb5203",
+      "95ee543ef5d9886c430e255e6f4c1d016a39581f",
+      "5e6e7c1a12f74c22da4cea0fdf46977b3f01c0c3"
+    ],
+    "patch": "latest-upstream-20261111/pr33369-orchestration-access-outcomes.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "17ffc9b208f190becac4458c703b3af37beeb4639ffc9a8246640db393e4d94b",
+    "reason": "Preserve upstream retirement of CASES and EXPECTED test suite in orchestration access outcomes; worker preflight access remains covered by runtime orchestration checks."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/access/orchestration-access-outcomes.test.ts",
+    "blobs": [
+      "694ff102ae171ae664d6795798780f12a9cb5203",
+      "95ee543ef5d9886c430e255e6f4c1d016a39581f",
+      "cbd171d7bf11f87a09659f23e6962de3a50297e4"
+    ],
+    "patch": "latest-upstream-20261111/pr34895-orchestration-access-outcomes.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "17ffc9b208f190becac4458c703b3af37beeb4639ffc9a8246640db393e4d94b",
+    "reason": "Preserve upstream retirement of CASES and EXPECTED test suite in orchestration access outcomes; session children access remains covered by runtime orchestration checks."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/access/orchestration-access-outcomes.test.ts",
+    "blobs": [
+      "694ff102ae171ae664d6795798780f12a9cb5203",
+      "95ee543ef5d9886c430e255e6f4c1d016a39581f",
+      "8b5de9e61545e7d0a8553293f489501abcb90779"
+    ],
+    "patch": "latest-upstream-20261111/pr37744-orchestration-access-outcomes.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "17ffc9b208f190becac4458c703b3af37beeb4639ffc9a8246640db393e4d94b",
+    "reason": "Preserve upstream retirement of CASES and EXPECTED test suite in orchestration access outcomes; session link access remains covered by session link integration suites."
   }
 ]
