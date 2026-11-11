@@ -11,7 +11,8 @@
  
  export function agentPickerEntryOptions(
 -  entry: Pick<AgentPickerEntry, 'agent' | 'catalog' | 'terminal' | 'textGeneration'>,
-+  entry: Pick<AgentPickerEntry, 'agent' | 'catalog' | 'terminal' | 'textGeneration'> & Partial<AgentPickerEntry>,
++  entry: Pick<AgentPickerEntry, 'agent' | 'catalog' | 'terminal' | 'textGeneration'> &
++    Partial<AgentPickerEntry>,
    model: string | undefined,
    surface: AgentPickerSurface
  ): CatalogOption[] {
