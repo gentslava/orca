@@ -2219,7 +2219,7 @@
       "0d4430a502196564dbb9ed2b048385fb52914b80",
       "605071951e7ec94735d5f8aa7fbf240b550bff84"
     ],
-    "patch": "40175-current-AgentChoiceControls.patch",
+    "patch": "latest-upstream-20261111/pr40175-e72054041926.patch",
     "patchSha256": "293d4696493439426ef9b53f7e50fc87d0c359cc9a16dc76720cfae4ea624e9a",
     "resultSha256": "d4db01f2c22edf55d149b7fb14dd706c82d936907f3f98d975fc3d30e97b3556",
     "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
@@ -2231,7 +2231,7 @@
       "c37b4a846105f01ab6441086ff6ec363366f088f",
       "4476d87702565d14e543d3f97665d18ac6963c91"
     ],
-    "patch": "40175-current-AgentLaunchChoiceEditor.patch",
+    "patch": "latest-upstream-20261111/pr40175-5d2f05eee56f.patch",
     "patchSha256": "ceb391a07d2a61de2d520da267fbe62242461e13674b86ff265772d01523b45e",
     "resultSha256": "8f5f45682bb74ea08ac05901817a0ad358686991af2f0ddf0995780cad7e1c6d",
     "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
@@ -2243,7 +2243,7 @@
       "1dd125703b5a81f6a7d6550b011c5d96fd6a6d29",
       "9e7b773e6fde76cdedada5e9e2b29db008b1f844"
     ],
-    "patch": "40175-current-host-model-catalog-snapshots.patch",
+    "patch": "latest-upstream-20261111/pr40175-0426373c5111.patch",
     "patchSha256": "93b777f738662b69e77fcaa28150c7df4437f3641becd344b3a14d9af07ced4c",
     "resultSha256": "b87405e36150de9725eb29c071101be752a89e552ef3aefe99809333ce45ea6c",
     "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
@@ -2255,9 +2255,9 @@
       "471f07ffece405dada12cf79ec71894a4ffe0493",
       "b632ae1936c7b76759760d853748e2c36d91b2be"
     ],
-    "patch": "40175-current-agent-launch-picker-catalog.patch",
-    "patchSha256": "be51d436841ac76f43c8d3abf9e02a617f5ff7c90dbc486326b4af7de0cbb42f",
-    "resultSha256": "b6d4ce573b53f04ad0ad237df1623ebb4cb560082e336fc64f2d39b2ca275253",
+    "patch": "latest-upstream-20261111/pr40175-ab7f17d6e9ab.patch",
+    "patchSha256": "a79b10d972b4cb02b406ee061dcdc54ec87a5703a62796caa155f04b0778bbf4",
+    "resultSha256": "e82ae383d08ded438c4e8d97fb3fc80cbebaddff5c398793c582fc23fa2e23f5",
     "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
   },
   {
@@ -2339,9 +2339,57 @@
       "01d73bd6bd5de30386b4e8a73fdf116da9172a42",
       "51a8423b3d96f0e2db542fddd0654d5f52940101"
     ],
-    "patch": "current-20261111/pr40175-ec642d52b541.patch",
-    "patchSha256": "47b151501565d0a16073d7714a5b3e68d62393ca2e273179a6aa221e9d12f5fc",
+    "patch": "latest-upstream-20261111/pr40175-ec642d52b541.patch",
+    "patchSha256": "4d27a084f3e055830521cae8b9e51c6495e5815ee0bc9ec97f02533a6d708c62",
     "resultSha256": "de1a6a2ed47a951424ff85cb52b8f1a82d0d6660821e787b47d226686bf8f910",
     "reason": "Combine 33369 listing/invalidation tests with the 40175 pending-preload regression; preserve upstream removal of the two obsolete workspace snapshot tests."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/pt.json",
+    "blobs": [
+      "81a0ed531deeb6dcbfa602336c9d319ebfbb2455",
+      "790975c36fd84cff8db649876dfe985b1b106ad2",
+      "aa43d16aab938efacb9db814351eead0696afb5f"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-3758b63c9380.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "25d82222b33f4ab5dc4b64d9960d1b6a50ee4555e09602039f1704dcfc2991fa",
+    "reason": "Keep current upstream fallback translations and combined feature copy; 40175 introduces no additional pt/zh values after the upstream translation refresh."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/zh.json",
+    "blobs": [
+      "b3f2f5f5a54d27f16b24bf2d7d7b63917a9bd65f",
+      "8fc6b3fd531fd6a2f945c83ed3a17b07813c90df",
+      "e0a844ac3568bf18658372fe8b70e6f97b2bd6a3"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-7aa1973811fc.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "98109fe069826d88e701beccc8e63ec1852a2ee3f8eaea9ee07caaf9e17a8f34",
+    "reason": "Keep current upstream fallback translations and combined feature copy; 40175 introduces no additional pt/zh values after the upstream translation refresh."
+  },
+  {
+    "path": "src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts",
+    "blobs": [
+      "b737ff650172e3e808f84aaa3441a328aaeda50a",
+      "e28b7ff184d5b7a3ebb975c93fdaed8ffc46030d",
+      "1fb4fe0ae11a63b2f99abf33e6ae6d541a781edf"
+    ],
+    "patch": "latest-upstream-20261111/pr40980-4d386950564a.patch",
+    "patchSha256": "5c4fb176ae956f83fed269e9bd2227c7bf1e18ffa514c4c2de137e66fb572803",
+    "resultSha256": "06a5d1a6f72301f07c6c61d25d9b240a35a17371f6cf66812726ee4a344b9dac",
+    "reason": "Combine foreign Antigravity host discovery with selected ACP model-effort launch and catalog probe rules."
+  },
+  {
+    "path": "src/main/acp/discovery/acp-model-catalog-probe.ts",
+    "blobs": [
+      "7df8a4a31f99d6341b7becf817ece2f91f01903d",
+      "8b935339fc87716234f3a78c6894095c7f741cac",
+      "3451cfe9cbcd2071e718ac2ecaed3f2756969025"
+    ],
+    "patch": "latest-upstream-20261111/pr40980-f7af3161525b.patch",
+    "patchSha256": "ced766688db31835a2d743481482dc5f67d9ca2a2b63de931400a577b7c3d5a4",
+    "resultSha256": "0ddf171f1fe8c9edce18ff2a40d850b8f412e962b994b19157a8347003c6c915",
+    "reason": "Combine foreign Antigravity host discovery with selected ACP model-effort launch and catalog probe rules."
   }
 ]
