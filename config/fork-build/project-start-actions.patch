@@ -93,19 +93,18 @@ index f5a19383fa0..e8daa49aa54 100644
          .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
          .map((workspace) => {
 diff --git a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-index a55426ec7c7..c74ec5a510a 100644
 --- a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
 +++ b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-@@ -27,7 +27,7 @@ import {
- } from './tab-agent-types-by-tab-id'
+@@ -20,7 +20,7 @@
+ import type { TabBarAgentProjections } from './tab-agent-types-by-tab-id'
  import { shouldShowWindowsShellMenu } from './windows-shell-menu-visibility'
  import { createUnifiedTabLookup } from './tab-bar-item-model'
--import { getClientCreationActionPolicy } from '@/lib/client-creation-action-policy'
-+import { getWorkspaceClientCreationActionPolicy } from '@/lib/client-creation-action-policy'
+-import { getClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
++import { getWorkspaceClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
  import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
-
- const isWindows = navigator.userAgent.includes('Windows')
-@@ -124,7 +124,7 @@ export function useTabBarRuntimeModel({
+ import type { GitFileStatus } from '../../../../shared/git/status/git-status-types'
+ import type { GlobalSettings } from '../../../../shared/global-settings-types'
+@@ -122,7 +122,7 @@
    )
    const settings = useAppStore((s) => s.settings)
    // Why: use the worktree's owning host so offered Windows shells match the host that actually runs the terminal.
@@ -114,7 +113,7 @@ index a55426ec7c7..c74ec5a510a 100644
      runtimeEnvironmentIdOrLocalUnlessTwin(s, worktreeId)
    )
    // Why: retained tab strips rerun selectors on every store write; reuse canonical indexes, don't flatten both slices here.
-@@ -139,16 +139,16 @@ export function useTabBarRuntimeModel({
+@@ -137,16 +137,16 @@
    })
    const isWebClient = (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ === true
    const windowsTerminalCapabilityOwnerKey = getWindowsTerminalCapabilityOwnerKey(
@@ -135,7 +134,7 @@ index a55426ec7c7..c74ec5a510a 100644
      isWebClient ||
      Boolean(worktreeConnectionId)
    const windowsTerminalCapabilities = useWindowsTerminalCapabilities(
-@@ -162,14 +162,14 @@ export function useTabBarRuntimeModel({
+@@ -160,14 +160,14 @@
      ? (worktreeRemotePlatform ?? windowsTerminalCapabilities.hostPlatform)
      : windowsTerminalCapabilities.hostPlatform
    const showWindowsShellMenu = shouldShowWindowsShellMenu({
@@ -152,7 +151,7 @@ index a55426ec7c7..c74ec5a510a 100644
    const projects = useAppStore((s) => (needsLocalProjectRuntime ? s.projects : EMPTY_PROJECTS))
    const repos = useAppStore((s) => (needsLocalProjectRuntime ? s.repos : EMPTY_REPOS))
    const worktreesByRepo = useAppStore((s) =>
-@@ -223,7 +223,7 @@ export function useTabBarRuntimeModel({
+@@ -221,7 +221,7 @@
    )
    const [managedBrowserCreationEnabled, mobileEmulatorCreationEnabled] = useAppStore(
      useShallow((state) => {
@@ -211,29 +210,6 @@ index 2c71381b301..029015aa49b 100644
          {activeTab &&
            activeTab.contentType !== 'terminal' &&
            activeTab.contentType !== 'agent-session' &&
-diff --git a/src/renderer/src/components/terminal/initial-terminal-admission-wait.test.tsx b/src/renderer/src/components/terminal/initial-terminal-admission-wait.test.tsx
-index c7b739e02b9..8448d4c8f7c 100644
---- a/src/renderer/src/components/terminal/initial-terminal-admission-wait.test.tsx
-+++ b/src/renderer/src/components/terminal/initial-terminal-admission-wait.test.tsx
-@@ -266,6 +266,18 @@ function gateAnsweredLater(): {
-
- // While admission waits, no launch record exists yet; passive seeding must not add Terminal 1 beside the chat.
- describe('a local chat launch waiting on its host', () => {
-+  it('keeps both a pending chat and an ordinary empty mount free of an unrequested shell', async () => {
-+    mocks.gate.mockResolvedValueOnce('blocked').mockResolvedValueOnce('empty')
-+    root = createRoot(document.createElement('div'))
-+    await act(async () => root?.render(createElement(Watcher)))
-+    expectNoShell()
-+
-+    await act(async () => root?.unmount())
-+    root = createRoot(document.createElement('div'))
-+    await act(async () => root?.render(createElement(Watcher)))
-+    expectNoShell()
-+  })
-+
-   it('keeps a watched create free of a stray shell until its chat opens', async () => {
-     const { finish } = gateAnsweredLater()
-     const launch = launchChat({
 diff --git a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
 index 9fad5456322..e961fff15e6 100644
 --- a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
