@@ -144,20 +144,14 @@ export function agentPickerModels(
     if (entry.catalog.origin !== 'unknown') {
       return entry.catalog.models
     }
-    return (getAgentSessionOptionLaunchCatalog(entry.agent)?.models ?? []).map((model) => ({
-      id: model.id,
-      label: model.label,
-      description: model.description,
-      isDefault: model.isDefault === true,
-      efforts: model.options.flatMap((option) =>
-        option.id === 'effort' && option.kind.type === 'select' ? option.kind.choices : []
-      )
-    }))
+    return (getAgentSessionOptionLaunchCatalog(entry.agent)?.models ?? []).map(
+      agentPickerModelFromCatalogModel
+    )
   }
   return agentPickerModelMenu(entry, surface).rows
 }
 
-/** Antigravity terminals keep their CLI catalog instead of native-chat model policy. */
+/** Terminal discovery is a separate change; these menus keep their existing catalog policy. */
 export function agentPickerUsesComposerModelMenu(
   entry: ModelMenuEntry,
   surface: AgentPickerSurface
