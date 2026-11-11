@@ -122,6 +122,10 @@
     "39918": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/cli-chat-close-39918"
+    },
+    "40980": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/antigravity-models-40980"
     }
   }
 }

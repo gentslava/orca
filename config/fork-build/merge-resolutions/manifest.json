@@ -1165,18 +1165,6 @@
     "reason": "Combine default-model capability/reset/pending-pick guards from 33395 with queue steering capability, explicit delivery and old-host guards from 33362; retain both mobile capabilities and one shared selection import."
   },
   {
-    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
-    "blobs": [
-      "0a192e5b37400eecc3eb9bbafafafdfbf02b3c53",
-      "d6279aabe0435d3c8082a94d708f37446f740ad0",
-      "ed755a3bd08b22f0101a7d03e9696f3c5f07113c"
-    ],
-    "patch": "refresh-20261109/pr33395-3ce37abe29ff.patch",
-    "patchSha256": "4d6559636693b556406f70ae1049479c4c35e5d8d1e8c784925c8fc4c2479381",
-    "resultSha256": "42134e39c8eb9cef92ec5de7dda47ec0542e18d13ccb0c0275256417fb809250",
-    "reason": "Combine default-model capability/reset/pending-pick guards from 33395 with queue steering capability, explicit delivery and old-host guards from 33362; retain both mobile capabilities and one shared selection import. Keep reported permission changes admissible while legacy hosts lock future-turn model picks."
-  },
-  {
     "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
     "blobs": [
       "4c45f2ae1d9200ee09a0bd1133903203d30a018c",
@@ -2631,5 +2619,17 @@
     "patchSha256": "341d2b8fb95d634d81ecb52ff16115067c6600f78bff84ab81668cdd5b73f2f4",
     "resultSha256": "4ccf44dd4f42b135ceb472a3155b44644911e23eb5052e885797cd935aac4d8d",
     "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "0a192e5b37400eecc3eb9bbafafafdfbf02b3c53",
+      "d6279aabe0435d3c8082a94d708f37446f740ad0",
+      "3d5c0a90cc25a1a95457cc7d5fbd15918578e79f"
+    ],
+    "patch": "current-upstream-20261112/pr33395-options-current-view.patch",
+    "patchSha256": "07e2839e11222307e8bb6545801839f3ba8a03e7058784cb64cbaad7426197e2",
+    "resultSha256": "9175ebe9086bccaa0af75d3d968c59890117ebcfd1f9b825ee37cef5a79043fd",
+    "reason": "Combine immediate-steer option readiness with atomic Default reset and current render snapshots; preserve both pending-write fences. The resolved hook is byte-identical to the already qualified combined application."
   }
 ]
