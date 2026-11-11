@@ -231,6 +231,23 @@ describe('chat close CLI', () => {
     )
     expect(call).toHaveBeenCalledWith('agentSession.close', { sessionId: 'chat-gone' })
   })
+
+  it('does not claim a confirmed close when an older host omits the found result', async () => {
+    const { client, call } = chatClient(false)
+    call.mockResolvedValueOnce(ok({ ok: true }))
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await CHAT_HANDLERS['chat close']({
+      flags: new Map([['session', SESSION]]),
+      client,
+      cwd: '/tmp',
+      json: false
+    })
+
+    expect(log).toHaveBeenCalledWith(
+      `Requested close of chat ${SESSION}; this older host does not confirm the session was found.`
+    )
+  })
 })
 
 describe('chat rename CLI', () => {

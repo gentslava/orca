@@ -99,7 +99,11 @@ export const CHAT_HANDLERS: Record<string, CommandHandler> = {
         `No chat with session id ${sessionId} on this host.`
       )
     }
-    printResult(result, json, () => `Closed chat ${sessionId}.`)
+    printResult(result, json, (value) =>
+      value.found === true
+        ? `Closed chat ${sessionId}.`
+        : `Requested close of chat ${sessionId}; this older host does not confirm the session was found.`
+    )
   },
   'chat list': async ({ flags, client, cwd, json }) => {
     const state = getOptionalStringFlag(flags, 'state')
