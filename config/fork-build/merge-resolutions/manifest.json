@@ -2595,5 +2595,17 @@
     "patchSha256": "cc035df6ba0cb38271ba7187014d385ed82b69b7330f965d674f75f3a7c011d9",
     "resultSha256": "084430368604d34951a6547274c54559379c1c1355e640f13bc7ba99d5d27e92",
     "reason": "Retain child transcript navigation and current upstream prompts with foreground task controls and the same host-bound task actions."
+  },
+  {
+    "path": "src/shared/remote-runtime/host-store/runtime-environment-store.test.ts",
+    "blobs": [
+      "4ff59492fcc152dbdf9aac36e460ecb418d52085",
+      "db44dbd3935727a2599b061ca5063da3abe1349f",
+      "910c54c821a04c27eeaf0de9fb0b5de7c7cbe0da"
+    ],
+    "patch": "self-20261111/pr40298-7c345930a8a0.patch",
+    "patchSha256": "7761ba73295683ad5940709b1c63d729e334dcc58a57c58c9e4efa1d9203148a",
+    "resultSha256": "25b3e42e4f5ea2da58ec13e57241a4b17f74f1d415bc80022194e454c17980d8",
+    "reason": "Retain upstream 41144 test retirement and the two foreign 40298 rename regressions only; no foreign branch mutation."
   }
 ]
