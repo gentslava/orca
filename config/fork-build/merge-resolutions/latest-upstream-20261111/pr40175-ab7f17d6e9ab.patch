@@ -6,7 +6,7 @@
  import {
    discoveredModel,
    structuredModelEfforts
-@@ -24,7 +26,7 @@
+@@ -24,7 +26,8 @@ export function agentPickerOptions(
  }
  
  export function agentPickerEntryOptions(
@@ -16,7 +16,7 @@
    model: string | undefined,
    surface: AgentPickerSurface
  ): CatalogOption[] {
-@@ -43,9 +45,16 @@
+@@ -43,9 +46,16 @@ export function agentPickerEntryOptions(
        : []
    }
    let options = agentPickerOptions(entry.agent, model, surface)
@@ -36,7 +36,7 @@
    if (entry.catalog.origin === 'unknown' || !live) {
      return options.filter(
        (option) => option.kind.type !== 'select' || option.kind.choices.length > 0
-@@ -81,7 +90,7 @@
+@@ -81,7 +91,7 @@ export function agentPickerEntryOptions(
        return [option]
      }
      if (!live.efforts.length) {
@@ -45,7 +45,7 @@
      }
      return [
        {
-@@ -102,19 +111,60 @@
+@@ -102,19 +112,60 @@ export function agentPickerPermissions(agent: TuiAgent, surface: AgentPickerSurf
    )
  }
  
@@ -109,7 +109,7 @@
 -    )
 -  }))
 +  return agentPickerModelMenu(entry, surface).rows
- }
++}
 +
 +/** Terminal discovery is a separate change; these menus keep their existing catalog policy. */
 +export function agentPickerUsesComposerModelMenu(
@@ -117,4 +117,4 @@
 +  surface: AgentPickerSurface
 +) {
 +  return !entry.textGeneration && !(entry.agent === 'antigravity' && surface === 'terminal')
-+}
+ }

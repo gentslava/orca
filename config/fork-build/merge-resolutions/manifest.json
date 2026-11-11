@@ -2256,7 +2256,7 @@
       "b632ae1936c7b76759760d853748e2c36d91b2be"
     ],
     "patch": "latest-upstream-20261111/pr40175-ab7f17d6e9ab.patch",
-    "patchSha256": "56976182b5e74850dd252bd0b0c679c434e663cf27254e5ed027b68e1a5377f1",
+    "patchSha256": "dec486217568326c64ce52ec77b921404092fd9f3f4c81fe31d5f867cab2669a",
     "resultSha256": "c1810be2d4dbad5a316835c3603a4acd3fd53651b5612070508cf23cd0218d74",
     "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
   },
