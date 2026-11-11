@@ -36,6 +36,10 @@
     {
       "number": 40980,
       "reason": "Discover host agy models (Claude Sonnet/Opus, GPT-OSS 120B, Gemini) for new chat and terminal model pickers via sessionless CLI probe, unblocking owner's agy model selection."
+    },
+    {
+      "number": 41099,
+      "reason": "Require a deliberate second Escape within two seconds before stopping a working chat; protect long-running turns from accidental key presses while keeping the Stop button immediate."
     }
   ],
   "exclude": {
