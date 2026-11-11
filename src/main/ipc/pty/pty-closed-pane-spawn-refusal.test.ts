@@ -27,7 +27,7 @@ vi.mock('../../mimo/hook-service', () =>
 vi.mock('../../agent-hooks/server/agent-hook-server', () =>
   import('./pty-ipc-mock-registry').then((m) => m.agentHookServerModuleMock())
 )
-vi.mock('../../pi/titlebar-extension-service', () =>
+vi.mock('../../pi/managed-extensions/titlebar-extension-service', () =>
   import('./pty-ipc-mock-registry').then((m) => m.piTitlebarExtensionModuleMock())
 )
 vi.mock('../../pty/shell-startup/pwsh', () =>
@@ -42,7 +42,7 @@ vi.mock('../../telemetry/client', () =>
 vi.mock('../../telemetry/classify-error', () =>
   import('./pty-ipc-mock-registry').then((m) => m.classifyErrorModuleMock())
 )
-vi.mock('../../cli/linux-terminal-orca-cli-shim', () =>
+vi.mock('../../cli/launchers/linux-terminal-orca-cli-shim', () =>
   import('./pty-ipc-mock-registry').then((m) => m.linuxCliShimModuleMock())
 )
 vi.mock('../../memory/pty-registry', () =>
