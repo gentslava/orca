@@ -2607,5 +2607,29 @@
     "patchSha256": "f730d335d16b95876f3e17a9aed5b509766b7d25ea7e9f5f865bac24ecea9c74",
     "resultSha256": "4bddeb7c2192e1d1e8ca34fc9fb0846171ad37042116bdab6c463edbe0801666",
     "reason": "Retain upstream 41144 test retirement and the two foreign 40298 rename regressions only; no foreign branch mutation."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "0354adef06d7d6a407664140d34de3f09c6d4256",
+      "181ffe2e1041d253adbb178953c91627f7bbe09f",
+      "321745dc66a14496d37e7d09548f45328b1a1816"
+    ],
+    "patch": "refresh-20261109/pr33383-5ed292ddac4e.patch",
+    "patchSha256": "ba5aa7ff05026a0a55e671dad016c3b1f57b32fb59a771fef176ff9fbb71624c",
+    "resultSha256": "54c6f71d4fbf2f2c406ba88e553eaa505d905a857ededa5b40eedc26469a5f5f",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault-params.ts",
+    "blobs": [
+      "4ef3f897ad17d03e57fefa3d444fe16e30eaaabe",
+      "4655bdf0214206be93f18831106e8353da7bccc1",
+      "6421b94b0715da7db8553283edfeb60fde4813d8"
+    ],
+    "patch": "refresh-20261109/pr33383-51f0fb718f7d.patch",
+    "patchSha256": "341d2b8fb95d634d81ecb52ff16115067c6600f78bff84ab81668cdd5b73f2f4",
+    "resultSha256": "4ccf44dd4f42b135ceb472a3155b44644911e23eb5052e885797cd935aac4d8d",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
   }
 ]
