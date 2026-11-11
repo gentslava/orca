@@ -11,7 +11,7 @@
   "include": [
     {
       "number": 40175,
-      "reason": "Retain unified native Settings, launch and composer model-menu policy with host-owned catalogs. The current foreign PR intentionally leaves Antigravity terminal discovery unchanged; the owner-requested agy Claude and GPT-OSS listing remains separate follow-up work."
+      "reason": "Retain unified native Settings, launch and composer model-menu policy with host-owned catalogs while preserving upstream CLI discovery for terminal agents and the separately selected host agy model-catalog support."
     },
     {
       "number": 36530,
@@ -40,6 +40,10 @@
     {
       "number": 41099,
       "reason": "Require a deliberate second Escape within two seconds before stopping a working chat; protect long-running turns from accidental key presses while keeping the Stop button immediate."
+    },
+    {
+      "number": 41114,
+      "reason": "Keep account identities readable across the full menu width, with aligned one-line usage headings and reset countdowns for Codex and Claude."
     }
   ],
   "exclude": {

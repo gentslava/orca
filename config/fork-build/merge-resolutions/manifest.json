@@ -2451,5 +2451,29 @@
     "patchSha256": "65465ea40067aa9611843bbc474268cd2562042558dcfc03a67b5683e2602aa3",
     "resultSha256": "8dd68085a695e3032c47a5aa27eee936d1e8b0a1de0e4a3ee7efc32bb70481a1",
     "reason": "Preserve relocated body-overlay-attributes import from upstream 41024 while retaining Hold to Quit notice element."
+  },
+  {
+    "path": "src/renderer/src/components/agent/use-agent-launch-picker-inventory.ts",
+    "blobs": [
+      "d6f157a256e3a36db66dff9fbdfd3541b7f104d3",
+      "f30e32b0467c16084a5f8862465200fc3a336264",
+      "215bc878782f86dad7e2715517fd4e806ffe2db2"
+    ],
+    "patch": "self-20261111/pr40175-f30e32b0467c.patch",
+    "patchSha256": "a3c60a46e69c5e8da86b3ea27ff16ce935f78508474e00cfa0a7a421bdeed012",
+    "resultSha256": "bf2c637c3cd8240350e03c14429924f211b8d57b3217c9e9288e0c20050fdc56",
+    "reason": "Preserve current upstream CLI model discovery, local/remote workspace scope and null-target guards alongside 40175 coherent native reads and invalidation; retain one request owner."
+  },
+  {
+    "path": "src/shared/agent-launch/picker/agent-launch-picker-catalog.ts",
+    "blobs": [
+      "471f07ffece405dada12cf79ec71894a4ffe0493",
+      "a898eaca6b0b3c915f015d6bce53244909e85d9e",
+      "bcc5039c1bcb1381ad5088ed13088a0dacf06d88"
+    ],
+    "patch": "self-20261111/pr40175-a898eaca6b0b.patch",
+    "patchSha256": "69e8bf423b1dc4b1d3aa6298d2857adc95cd163556605f61a389bb3274b96742",
+    "resultSha256": "57b693abd49d250259403a7fa557d69b451564fa0f9c5f0134485f1371130ec5",
+    "reason": "Retain the exported CLI model adapter and Antigravity terminal catalogs while applying coherent native model menus from 40175."
   }
 ]
