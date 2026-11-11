@@ -1,6 +1,7 @@
 import '../../rpc/unused-default-rpc-methods.test-fixture'
 import { expect, it, vi } from 'vitest'
 import { RpcDispatcher } from '../../rpc/dispatcher'
+import type { RpcDispatchStreamingOptions } from '../../rpc/dispatcher-stream-options'
 import { STRUCTURED_AGENT_SESSION_REVEAL_METHODS } from '../../rpc/methods/structured-sessions/conversation/structured-agent-session-reveal'
 import { STRUCTURED_AGENT_SESSION_CLOSE_METHOD } from '../../rpc/methods/structured-sessions/conversation/structured-agent-session-close-method'
 import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from '../../../../shared/agent-session/agent-session-runtime-capabilities'
@@ -87,7 +88,7 @@ it.each([
     runtime: new AuthorityRuntime(profile),
     methods: [STRUCTURED_AGENT_SESSION_CLOSE_METHOD]
   })
-  const close = (ctx: object) =>
+  const close = (ctx: RpcDispatchStreamingOptions) =>
     rpc.dispatch(
       { id: 'close', authToken: 'token', method: 'agentSession.close', params: { sessionId: B } },
       ctx
