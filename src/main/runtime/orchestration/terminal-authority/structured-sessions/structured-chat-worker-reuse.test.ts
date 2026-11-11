@@ -1,4 +1,3 @@
-import '../../../rpc/unused-default-rpc-methods.test-fixture'
 // A finished structured worker takes follow-up work in its own chat through worker-start --terminal <handle>, or a send to its Dispatch.
 
 import { structuredMailboxCustody } from '../../mailbox/routing/structured-session-mail-target'
@@ -40,7 +39,10 @@ vi.mock(
     }) => {
       const rig = await import('./structured-chat-coordinator-mail-rig.test-fixture')
       const { attachParams } = await import('./structured-chat-coordinator-fake-codex-fixture')
-      const attached = await rig.host.attach(args.caller, attachParams(args.envelope.sessionId))
+      const attached = await rig.host.attach(
+        args.caller,
+        attachParams(args.envelope.sessionId, rig.root)
+      )
       await rig.host.setSessionTabVisibility(args.envelope.sessionId, true)
       rig.threadBySession.set(args.envelope.sessionId, rig.codex.connections.at(-1)!.threadId!)
       return attached

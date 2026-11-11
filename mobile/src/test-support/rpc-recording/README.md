@@ -42,8 +42,6 @@ inert. It renders its children and keeps its props where a projection can read t
 nothing else: no callback it is handed is ever invoked, nothing is measured and no navigation
 happens. `renderedElementProps` is the consequence — an inert list never calls `renderItem`, so the
 data it was handed is the only record of what the screen would have drawn.
-`screen-native-substitutes.test.ts` is the census; it renders every element with a callback prop and
-a render callback as children and fails if either is called.
 
 Nothing is listed ahead of a reader, and that is a rule rather than an oversight. A member
 provisioned before any recording reads it converts a refusal that would have forced a decision into
@@ -118,7 +116,7 @@ so the projection has a temporal dimension instead of relying on where a checkpo
 Any transition the product schedules for itself is recorded at the time it actually fires: change a
 request deadline or the search debounce by any amount, in either direction, and a recorded number
 moves. Granularity is exact milliseconds, because the fake timers fire at their scheduled time and
-never coalesce; `recording-runner.test.ts` pins a 5 ms deadline settling at exactly `settledAt: 5`.
+never coalesce.
 
 A checkpoint's own clock is not recorded. It is always the sum of the scripted `advance` steps, so
 it is a function of the scenario rather than of the code under test; `run-recording.ts` asserts that
@@ -315,8 +313,7 @@ only the uncommitted ones.
 
 Recording is deterministic and carries no header, so an unchanged behaviour re-records to the same
 bytes on any machine: recording everything is always safe, and `git diff` shows only what moved.
-Without `--prune`, a golden the manifest stopped deriving is listed and the census test
-(`derived-goldens.test.ts`) keeps failing on it; deleting coverage is always explicit.
+Without `--prune`, a golden the manifest stopped deriving is listed and remains on disk.
 
 Mutants are the defect evidence. `mutants/operation-mutations.ts` holds one anchored source edit
 per adapter family, and every family's recording must change visible state when its mutant is
@@ -592,7 +589,9 @@ of its own.
 An empty set is not recorded, so the corpus stays quiet and a family that starts leaking gains a
 checkpoint. Five goldens report a non-empty set today, and all five are the same non-leak: the two
 `runtime.clientEvents.subscribe` matrices and the `notifications.subscribe` matrix, on every
-partition whose subscribe reply is not a well-formed `ready`. With no `subscriptionId` to unsubscribe with, `disposeServerSubscription` marks
+partition whose subscribe reply is not a well-formed `ready`, plus the client-event partitions
+where the shared stream opens again after a refused frame and the script answers no `ready` for
+the reopened subscribe. With no `subscriptionId` to unsubscribe with, `disposeServerSubscription` marks
 the record cancelled and keeps it until the id arrives — the retention the per-session registry
 paragraph above describes. `cancelled` is in the observation so those are legible as what they are:
 a product cleanup that never ran records `cancelled: false`, and because the drain precedes the
