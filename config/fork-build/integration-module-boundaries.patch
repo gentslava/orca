@@ -126,3 +126,131 @@ diff --git a/config/e2e-typecheck-mobile-native-stub.ts b/config/e2e-typecheck-m
 +export type TextInputSelectionChangeEvent = {
 +  nativeEvent: { selection: { start: number; end: number }; text?: string }
 +}
+--- a/src/shared/agent-session/options/host-model-catalog-snapshot-rules.ts
++++ b/src/shared/agent-session/options/host-model-catalog-snapshot-rules.ts
+@@ -44,17 +44,6 @@
+ ): AgentSessionModelCatalogResult {
+   return catalog.origin === 'unknown' ||
+     catalog.models.length === 0 ||
+-    catalog.listingNamesConfiguredModel === false ||
+-    catalog.defaultHoldsInEveryWorkspace === true
+-    ? catalog
+-    : withoutNamedDefault(catalog)
+-}
+-
+-/** A default no workspace config could replace stays; any other can't be promised to a new launch. */
+-export function withoutUnprovenNewLaunchDefault(
+-  catalog: AgentSessionModelCatalogResult
+-): AgentSessionModelCatalogResult {
+-  return catalog.origin === 'unknown' ||
+     catalog.listingNamesConfiguredModel === false ||
+     catalog.defaultHoldsInEveryWorkspace === true
+     ? catalog
+--- a/src/renderer/src/i18n/locales/de.json
++++ b/src/renderer/src/i18n/locales/de.json
+@@ -870,8 +870,7 @@
+       "sameAsChoice": "Wie {{agent}} · {{choice}}",
+       "modelListFallback": "Integrierte Liste. Orca konnte von diesem Host keine Modellliste abrufen.",
+       "chatUnavailableOnWindows": "{{value0}} Chat ist unter Windows noch nicht verfügbar, daher öffnet sich {{value0}} auf diesem Host in einem Terminal. Chats auf einem macOS- oder Linux-Host funktionieren weiterhin.",
+-      "undetectedCommandHint": "Wenn die {{agent}}-CLI außerhalb von PATH installiert ist, gib den vollständigen Pfad zu ihrer ausführbaren Datei auf diesem Host ein.",
+-      "modelListFallback": "Integrierte Liste. Orca konnte von diesem Host keine Modellliste abrufen."
++      "undetectedCommandHint": "Wenn die {{agent}}-CLI außerhalb von PATH installiert ist, gib den vollständigen Pfad zu ihrer ausführbaren Datei auf diesem Host ein."
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "Symbolischer Link",
+--- a/src/renderer/src/i18n/locales/es.json
++++ b/src/renderer/src/i18n/locales/es.json
+@@ -416,8 +416,7 @@
+       "sameAsChoice": "Igual que {{agent}} · {{choice}}",
+       "modelListFallback": "Lista integrada. Orca no pudo obtener una lista de modelos de este host.",
+       "chatUnavailableOnWindows": "{{value0}} Chat aún no está disponible en Windows, así que {{value0}} se abre en una terminal en este host. Los chats en un host macOS o Linux siguen funcionando.",
+-      "undetectedCommandHint": "Si la CLI de {{agent}} está instalada fuera de PATH, introduce la ruta completa a su ejecutable en este host.",
+-      "modelListFallback": "Lista integrada. Orca no pudo obtener una lista de modelos de este host."
++      "undetectedCommandHint": "Si la CLI de {{agent}} está instalada fuera de PATH, introduce la ruta completa a su ejecutable en este host."
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "enlace simbólico",
+--- a/src/renderer/src/i18n/locales/fr.json
++++ b/src/renderer/src/i18n/locales/fr.json
+@@ -655,8 +655,7 @@
+       "sameAsChoice": "Identique à {{agent}} · {{choice}}",
+       "modelListFallback": "Liste intégrée. Orca n’a pas pu obtenir de liste de modèles depuis cet hôte.",
+       "chatUnavailableOnWindows": "{{value0}} Chat n’est pas encore disponible sous Windows : {{value0}} s’ouvre donc dans un terminal sur cet hôte. Les chats sur un hôte macOS ou Linux fonctionnent toujours.",
+-      "undetectedCommandHint": "Si la CLI {{agent}} est installée hors de PATH, saisissez le chemin complet de son exécutable sur cet hôte.",
+-      "modelListFallback": "Liste intégrée. Orca n’a pas pu obtenir la liste des modèles de cet hôte."
++      "undetectedCommandHint": "Si la CLI {{agent}} est installée hors de PATH, saisissez le chemin complet de son exécutable sur cet hôte."
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "lien symbolique",
+--- a/src/renderer/src/i18n/locales/ja.json
++++ b/src/renderer/src/i18n/locales/ja.json
+@@ -411,8 +411,7 @@
+       "sameAsChoice": "{{agent}} と同じ · {{choice}}",
+       "modelListFallback": "組み込みのリストです。Orca はこのホストからモデル一覧を取得できませんでした。",
+       "chatUnavailableOnWindows": "{{value0}} Chat はまだ Windows では利用できないため、このホストでは {{value0}} がターミナルで開きます。macOS または Linux ホストでのチャットは引き続き利用できます。",
+-      "undetectedCommandHint": "{{agent}} CLI が PATH 以外にインストールされている場合、このホスト上の実行ファイルのフルパスを入力してください。",
+-      "modelListFallback": "組み込みの一覧です。Orca はこのホストからモデル一覧を取得できませんでした。"
++      "undetectedCommandHint": "{{agent}} CLI が PATH 以外にインストールされている場合、このホスト上の実行ファイルのフルパスを入力してください。"
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "シンボリックリンク",
+--- a/src/renderer/src/i18n/locales/ko.json
++++ b/src/renderer/src/i18n/locales/ko.json
+@@ -411,8 +411,7 @@
+       "sameAsChoice": "{{agent}}와 동일 · {{choice}}",
+       "modelListFallback": "기본 제공 목록입니다. Orca가 이 호스트에서 모델 목록을 가져오지 못했습니다.",
+       "chatUnavailableOnWindows": "{{value0}} Chat은 아직 Windows에서 사용할 수 없으므로 이 호스트에서는 {{value0}}이(가) 터미널에서 열립니다. macOS 또는 Linux 호스트의 채팅은 계속 사용할 수 있습니다.",
+-      "undetectedCommandHint": "{{agent}} CLI가 PATH 외부에 설치되어 있다면 이 호스트의 실행 파일 전체 경로를 입력하세요.",
+-      "modelListFallback": "기본 제공 목록입니다. Orca가 이 호스트에서 모델 목록을 가져오지 못했습니다."
++      "undetectedCommandHint": "{{agent}} CLI가 PATH 외부에 설치되어 있다면 이 호스트의 실행 파일 전체 경로를 입력하세요."
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "심볼릭 링크",
+--- a/src/renderer/src/i18n/locales/pt.json
++++ b/src/renderer/src/i18n/locales/pt.json
+@@ -1630,8 +1630,7 @@
+       "sameAsChoice": "Igual a {{agent}} · {{choice}}",
+       "modelListFallback": "Lista integrada. O Orca não conseguiu obter uma lista de modelos deste host.",
+       "chatUnavailableOnWindows": "O {{value0}} Chat ainda não está disponível no Windows, então o {{value0}} abre em um terminal neste host. Chats em um host macOS ou Linux continuam funcionando.",
+-      "undetectedCommandHint": "Se a CLI do {{agent}} estiver instalada fora do PATH, informe o caminho completo do executável neste host.",
+-      "modelListFallback": "Lista integrada. O Orca não conseguiu obter uma lista de modelos deste host."
++      "undetectedCommandHint": "Se a CLI do {{agent}} estiver instalada fora do PATH, informe o caminho completo do executável neste host."
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "link simbólico",
+--- a/src/renderer/src/i18n/locales/tr.json
++++ b/src/renderer/src/i18n/locales/tr.json
+@@ -862,8 +862,7 @@
+       "sameAsChoice": "{{agent}} ile aynı · {{choice}}",
+       "modelListFallback": "Yerleşik liste. Orca bu ana makineden model listesi alamadı.",
+       "chatUnavailableOnWindows": "{{value0}} Chat henüz Windows'ta kullanılamıyor, bu nedenle {{value0}} bu ana makinede bir terminalde açılır. macOS veya Linux ana makinesindeki sohbetler çalışmaya devam eder.",
+-      "undetectedCommandHint": "{{agent}} CLI, PATH dışında kuruluysa bu ana makinedeki yürütülebilir dosyanın tam yolunu girin.",
+-      "modelListFallback": "Yerleşik liste. Orca bu ana bilgisayardan model listesini alamadı."
++      "undetectedCommandHint": "{{agent}} CLI, PATH dışında kuruluysa bu ana makinedeki yürütülebilir dosyanın tam yolunu girin."
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "sembolik bağlantı",
+--- a/src/renderer/src/i18n/locales/zh-Hant.json
++++ b/src/renderer/src/i18n/locales/zh-Hant.json
+@@ -835,8 +835,7 @@
+       "sameAsChoice": "與 {{agent}} 相同 · {{choice}}",
+       "modelListFallback": "內建清單。Orca 無法從此主機取得模型清單。",
+       "chatUnavailableOnWindows": "{{value0}} Chat 尚不支援 Windows，因此 {{value0}} 會在此主機的終端機中開啟。macOS 或 Linux 主機上的聊天仍可正常使用。",
+-      "undetectedCommandHint": "如果 {{agent}} CLI 安裝在 PATH 之外，請輸入其在此主機上的可執行檔完整路徑。",
+-      "modelListFallback": "內建清單。Orca 無法從此主機取得模型清單。"
++      "undetectedCommandHint": "如果 {{agent}} CLI 安裝在 PATH 之外，請輸入其在此主機上的可執行檔完整路徑。"
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "符號連結",
+--- a/src/renderer/src/i18n/locales/zh.json
++++ b/src/renderer/src/i18n/locales/zh.json
+@@ -411,8 +411,7 @@
+       "sameAsChoice": "与 {{agent}} 相同 · {{choice}}",
+       "modelListFallback": "内置列表。Orca 无法从此主机获取模型列表。",
+       "chatUnavailableOnWindows": "{{value0}} Chat 暂不支持 Windows，因此 {{value0}} 会在此主机的终端中打开。macOS 或 Linux 主机上的聊天仍可正常使用。",
+-      "undetectedCommandHint": "如果 {{agent}} CLI 安装在 PATH 之外，请输入其在此主机上的可执行文件完整路径。",
+-      "modelListFallback": "内置列表。Orca 无法从此主机获取模型列表。"
++      "undetectedCommandHint": "如果 {{agent}} CLI 安装在 PATH 之外，请输入其在此主机上的可执行文件完整路径。"
+     },
+     "followSymlinkedDirectoriesKeywords": {
+       "symlink": "符号链接",

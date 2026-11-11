@@ -11,7 +11,7 @@
   "include": [
     {
       "number": 40175,
-      "reason": "Owner-reported Antigravity launch menu omits Claude and GPT-OSS available in agy. Use operation-specific catalogs: terminal reads agy models on its execution host, while Chat retains its actual ACP catalog."
+      "reason": "Retain unified native Settings, launch and composer model-menu policy with host-owned catalogs. The current foreign PR intentionally leaves Antigravity terminal discovery unchanged; the owner-requested agy Claude and GPT-OSS listing remains separate follow-up work."
     },
     {
       "number": 36530,
