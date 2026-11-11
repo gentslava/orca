@@ -20038,6 +20038,9 @@
           "pipelinePending": "Pipeline pending",
           "pipelineUnresolved": "Pipeline unresolved"
         }
+      },
+      "NewWorkspaceComposerFooter": {
+        "create": "Create"
       }
     },
     "i18n": {
@@ -20222,7 +20225,6 @@
           "browsePlugins": "Browse plugins",
           "browseThemePlugins": "Browse theme plugins",
           "colorMode": "Color mode",
-          "colorModeCaption": "Light, dark, or follow your OS.",
           "darkLook": "Dark look",
           "darkLooks": "Dark looks",
           "lightLook": "Light look",
@@ -20238,10 +20240,9 @@
           "slotLabel": "Look to edit",
           "sourceBuiltIn": "Built in",
           "sourceCommunity": "Terminal palette",
-          "themes": "Theme",
-          "themesCaption": "Optional. Go further with app themes and terminal palettes."
+          "themes": "Theme"
         },
-        "subtitle": "Choose light or dark, then optionally a theme. Change either any time in Settings."
+        "changeAnyTime": "Change any time in Settings."
       },
       "integrations": {
         "capabilities": {
@@ -20611,8 +20612,7 @@
         "forkedFrom": "Forked from"
       },
       "composer": {
-        "defaultModel": "Default",
-        "defaultModelNotReported": "Default model not reported",
+        "confirmEscapeStop": "Press Esc again to stop",
         "send": "Send",
         "planMode": "Plan",
         "moreControls": "More chat controls",
@@ -20734,6 +20734,8 @@
           "xhigh": "XHigh"
         },
         "imageUnavailable": "Preview unavailable",
+        "defaultModel": "Default",
+        "defaultModelNotReported": "Default model not reported",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
         "nextTurnOptionsLabel": "Next turn: {{options}}",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
@@ -20911,9 +20913,6 @@
         "stateIdleCount_other": "{{value0}} stopped",
         "stateUnverifiableCount_one": "{{value0}} with status unavailable",
         "stateUnverifiableCount_other": "{{value0}} with status unavailable",
-        "background": "Background",
-        "backgrounding": "Backgrounding…",
-        "showAgent": "Show {{value0}} in the conversation",
         "headerTotal": "{{value0}} background tasks",
         "stateBlockedCount": "{{value0}} blocked",
         "stateDoneCount": "{{value0}} done",
@@ -20921,7 +20920,10 @@
         "stateMonitoringCount": "{{value0}} monitoring",
         "stateUnverifiableCount": "{{value0}} with status unavailable",
         "stateWaitingCount": "{{value0}} waiting",
-        "stateWorkingCount": "{{value0}} working"
+        "stateWorkingCount": "{{value0}} working",
+        "showAgent": "Show {{value0}} in the conversation",
+        "background": "Background",
+        "backgrounding": "Backgrounding…"
       },
       "jumpToLatest": "Jump to latest",
       "newRowsAnnouncement": "New messages arrived while you were away",
@@ -21007,13 +21009,39 @@
         "deny": "Deny",
         "cancel": "Cancel",
         "reason": "Reason",
+        "reasonSentAsMessage": "Reason, sent as a message",
         "needsAccess": "Needs access to",
         "needsNewerOrca": "This request needs a newer version of Orca.",
+        "folderTrust": {
+          "title": "Trust this folder?",
+          "hint": "The agent asks before it can read, edit and run files in this folder.",
+          "trust": "Trust folder",
+          "exit": "Exit"
+        },
+        "startupMenu": {
+          "title": "{{value0}} is waiting for a choice in the terminal"
+        },
         "plan": {
           "file": "Plan file",
           "reviewTitle": "Review proposed plan",
           "refineHint": "Refine plan closes the review so you can send what to change."
-        }
+        },
+        "worker": "Worker · {{name}}",
+        "openWorker": "Open worker",
+        "answerFailed": "{{name}}: {{detail}}",
+        "countdown": "Claude denies it on its own in {{time}} if nobody answers.",
+        "strip_one": "{{count}} approval",
+        "strip_other": "{{count}} approvals",
+        "show": "Show",
+        "allowedByYou": "Allowed by you",
+        "deniedByYou": "Denied by you",
+        "deniedByCoordinator": "Denied by coordinator",
+        "allowedInTerminal": "Allowed in the worker's terminal",
+        "deniedInTerminal": "Denied in the worker's terminal",
+        "answeredInChat": "Answered in the worker's chat",
+        "noLongerOpen": "No longer open",
+        "autoDenied": "Auto-denied by Claude after 2:00",
+        "answerInTerminal": "Answer it in the worker's terminal"
       },
       "launchPromptNotDelivered": "Not delivered — check the terminal",
       "subagents": {
@@ -21117,7 +21145,8 @@
       "fileLinks": {
         "notFound": "File not found: {{value0}}",
         "unverifiable": "Couldn't check {{value0}}: {{value1}}",
-        "unresolved": "Couldn't resolve {{value0}} in this workspace"
+        "unresolved": "Couldn't resolve {{value0}} in this workspace",
+        "folderUnavailable": "This computer can't open the folder {{value0}}"
       },
       "contextUsage": {
         "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
@@ -22350,6 +22379,38 @@
         "terminal": "Terminal"
       }
     },
+    "toastFallbacks": {
+      "filesDropFailed": "Failed to drop files.",
+      "filesUploadFailed": "Failed to upload files.",
+      "filesResolveDroppedFailed": "Failed to resolve dropped files.",
+      "markdownCreateFailed": "Failed to create untitled markdown file.",
+      "markdownOpenFailed": "Failed to open markdown file.",
+      "fileDuplicateFailed": "Failed to duplicate '{{name}}'.",
+      "fileCreateFailed": "Failed to create '{{name}}'.",
+      "fileMoveFailed": "Failed to move '{{name}}'.",
+      "fileRenameFailed": "Failed to rename '{{name}}'.",
+      "worktreeCreateFailed": "Failed to create worktree.",
+      "missingBaseBranchHelp": "Create an initial commit (for example on main), or select an existing branch in Create From, then try again.",
+      "dropTooManyPaths": "Drop contains too many paths.",
+      "dropPathsTooLarge": "Drop path list is too large.",
+      "fileOwnerResolveFailed": "Failed to resolve file owner."
+    },
+    "agentNotes": {
+      "targetSelected": "selected",
+      "targetActive": "active",
+      "empty": "No notes to send.",
+      "selectedTerminalUnavailable": "The selected terminal is no longer available.",
+      "activeTerminalUnavailable": "Open the agent terminal in this worktree, then send the notes again.",
+      "notAgentSession": "The {{target}} terminal is not a recognized agent session.",
+      "selectedAgentNeedsPermission": "The selected agent needs permission.",
+      "activeAgentNeedsPermission": "The active agent needs permission.",
+      "statusUnverified": "The {{target}} agent status could not be verified.",
+      "notReady": "The {{target}} agent was not ready for input yet.",
+      "notWritable": "The {{target}} agent did not accept the notes.",
+      "selectedSubmitFailed": "The notes may already be pasted in the selected terminal, but Orca could not submit them.",
+      "activeSubmitFailed": "The notes may already be pasted in the active terminal, but Orca could not submit them.",
+      "notWritableSelection": "The {{target}} agent did not accept the selection."
+    },
     "dictation": {
       "stoppedAfterSilenceSeconds": "Stopped after {{seconds}} seconds of silence"
     },
@@ -22465,39 +22526,7 @@
       "participantsAdded": "Agents added by the owner",
       "reasonParticipants": "A chat closed or changed context. Verify the participant chats before continuing."
     },
-    "tab-bar": {},
-    "toastFallbacks": {
-      "filesDropFailed": "Failed to drop files.",
-      "filesUploadFailed": "Failed to upload files.",
-      "filesResolveDroppedFailed": "Failed to resolve dropped files.",
-      "markdownCreateFailed": "Failed to create untitled markdown file.",
-      "markdownOpenFailed": "Failed to open markdown file.",
-      "fileDuplicateFailed": "Failed to duplicate '{{name}}'.",
-      "fileCreateFailed": "Failed to create '{{name}}'.",
-      "fileMoveFailed": "Failed to move '{{name}}'.",
-      "fileRenameFailed": "Failed to rename '{{name}}'.",
-      "worktreeCreateFailed": "Failed to create worktree.",
-      "missingBaseBranchHelp": "Create an initial commit (for example on main), or select an existing branch in Create From, then try again.",
-      "dropTooManyPaths": "Drop contains too many paths.",
-      "dropPathsTooLarge": "Drop path list is too large.",
-      "fileOwnerResolveFailed": "Failed to resolve file owner."
-    },
-    "agentNotes": {
-      "targetSelected": "selected",
-      "targetActive": "active",
-      "empty": "No notes to send.",
-      "selectedTerminalUnavailable": "The selected terminal is no longer available.",
-      "activeTerminalUnavailable": "Open the agent terminal in this worktree, then send the notes again.",
-      "notAgentSession": "The {{target}} terminal is not a recognized agent session.",
-      "selectedAgentNeedsPermission": "The selected agent needs permission.",
-      "activeAgentNeedsPermission": "The active agent needs permission.",
-      "statusUnverified": "The {{target}} agent status could not be verified.",
-      "notReady": "The {{target}} agent was not ready for input yet.",
-      "notWritable": "The {{target}} agent did not accept the notes.",
-      "selectedSubmitFailed": "The notes may already be pasted in the selected terminal, but Orca could not submit them.",
-      "activeSubmitFailed": "The notes may already be pasted in the active terminal, but Orca could not submit them.",
-      "notWritableSelection": "The {{target}} agent did not accept the selection."
-    }
+    "tab-bar": {}
   },
   "dashboardPopout": {
     "recoverableError": {

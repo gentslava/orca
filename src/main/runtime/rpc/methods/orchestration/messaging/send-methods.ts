@@ -2,10 +2,7 @@ import { assertSessionLinkMailBoundary } from '../../../../orchestration/session
 import { defineOrchestrationMethod } from '../access/orchestration-method-access'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { isGroupAddress } from '../../../../orchestration/addressing/groups/group-addressing'
-import {
-  dispatchReportMailbox,
-  isDispatchReportType
-} from '../../../../orchestration/workers/reports/dispatch-report-mailbox'
+import * as dispatchReport from '../../../../orchestration/workers/reports/dispatch-report-mailbox'
 import { orchestrationSkillRecoveryData } from '../../../../../../shared/orchestration/orchestration-rpc-contract'
 import { SendParams } from './send-params'
 import { isDispatchMutationMessageType } from '../../../../../../shared/rpc-contract/orchestration-params'
@@ -18,16 +15,17 @@ import {
   type SendRecipientWarning
 } from './recipient-routing'
 import { replayAcceptedSend } from './send-replay'
-import { sendRemoteMessage } from '../../../../orchestration/legacy-remote/legacy-remote'
+import { sendRemoteMessage } from '../../../../orchestration/legacy-remote/send-remote'
 import { withPeerMailSend } from './peer-mail-send'
 import { mayNameSession } from './session-recipient'
 import { sendPointToPointMessage } from './send-point-to-point'
 import { sendGroupMessage } from './send-group'
-import { sendFederatedControlMail } from '../../../../orchestration/legacy-remote-home/legacy-remote-home'
+import { sendFederatedControlMail } from '../../../../orchestration/legacy-remote-home/send-control-mail'
 import { orchestrationCallerIdentity } from '../runs/run-scope'
 import { assertLifecycleCallerIsNotAnotherParty } from './lifecycle-caller-fence'
 import { planWorkerFollowUp, startWorkerFollowUp } from './worker-follow-up'
 import { finishedWorkerSend, refuseFinishedRemoteWorker } from './finished-worker-mail'
+import { relayedDeliveryUnknownWarning, withDeliveryHoldWarning } from './send-delivery-hold'
 import {
   followThroughWorkerReport,
   passHeldWorkerMail,
@@ -145,10 +143,12 @@ export const ORCHESTRATION_SEND_METHODS = [
             ((params.type === 'worker_done' || params.type === 'heartbeat') && routing.dispatchId))
         ) {
           const reporting =
-            routing.dispatchId && isDispatchReportType(params.type)
+            routing.dispatchId && dispatchReport.isDispatchReportType(params.type)
               ? db.getDispatchContextById(routing.dispatchId)
               : undefined
-          to = reporting ? dispatchReportMailbox(db, reporting) : `run:${routing.run.id}`
+          to = reporting
+            ? dispatchReport.dispatchReportMailbox(db, reporting)
+            : `run:${routing.run.id}`
         }
         if (!to) {
           throw new OrchestrationError(
@@ -225,7 +225,7 @@ export const ORCHESTRATION_SEND_METHODS = [
                     message: params
                   })
                 : plan
-            // A dispatch: address carries no recipient warnings, so `next` stays last.
+            // The mail started the worker's next turn itself, so nothing holds it; `next` stays last.
             if (followUp?.kind === 'started') {
               if (typeof followUp.receipt.dispatchId === 'string') {
                 passHeldWorkerMail(runtime, db, followUp.receipt.dispatchId)
@@ -248,6 +248,9 @@ export const ORCHESTRATION_SEND_METHODS = [
               messageRunId = runBound.runId
               sendWarnings.push(runBound.warning)
             }
+          }
+          if (federatedTarget) {
+            sendWarnings.push(relayedDeliveryUnknownWarning(to))
           }
           const federatedControl = sendFederatedControlMail({
             params,
@@ -285,7 +288,10 @@ export const ORCHESTRATION_SEND_METHODS = [
             db,
             params.type === 'worker_done' ? settledDispatchId(sent) : undefined
           )
-          return sent
+          // Read only once the mail is stored: an await before it could let the worker settle and miss it.
+          return federatedTarget || params.type === 'worker_done' || params.type === 'heartbeat'
+            ? sent
+            : withDeliveryHoldWarning(sent, runtime, db, to)
         }
         return sendGroupMessage({
           params,

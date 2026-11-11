@@ -29,12 +29,18 @@ import { buildAgentLaunchRouteInput } from '@/lib/agent-session/launch/routing/a
 import { workspaceKindForWorktreeId } from '../../../../shared/agent-launch/contracts/workspace-launch-kind'
 import { structuredAgentSessionTargetForHost } from '@/runtime/native-chat/session-ownership/structured-agent-session-owner'
 import { readHostStructuredAgentsForRuntime } from '@/runtime/native-chat/agent-catalogs/host-structured-agents'
+import type { RuntimeGitContext } from '@/runtime/source-control/git/runtime-git-client-context'
+import { resolveWorktreeModelDiscoveryRuntime } from '../native-chat/session/options/catalog/native-chat-session-option-discovery'
+import {
+  agentPickerListsCliModels,
+  readAgentPickerCliModelCatalog
+} from './agent-launch-picker-cli-model-catalog'
+import { formatAgentTypeLabel } from '../../../../shared/agent-status/presentation/agent-type-label'
 import {
   agentPickerModelCatalogReads,
   readAgentPickerLaunchSupport
 } from './agent-launch-picker-host-reads'
 import { AGENT_SESSION_COHERENT_MODEL_CATALOG_CAPABILITY } from '../../../../shared/agent-session/structured-agent-session-surface-capabilities'
-import { formatAgentTypeLabel } from '../../../../shared/agent-status/presentation/agent-type-label'
 import {
   currentAgentPickerAcquisition,
   observeAgentPickerAcquisition
@@ -78,15 +84,16 @@ export function useAgentLaunchPickerInventorySource(
   }, [selected])
   const context = model.state === 'settled' ? model.pickerContext : undefined
   const settings = context ? context.settings : store.getState().settings
+  const workspace =
+    context?.workspace ??
+    ({
+      kind: worktreeId ? workspaceKindForWorktreeId(worktreeId) : 'floating',
+      ...(worktreeId ? { worktreeId } : {})
+    } as const)
+  const launchInput = { agent: 'claude', workspace } as const
   const executionHostId =
     context?.executionHostId ??
-    buildAgentLaunchRouteInput(store.getState(), {
-      agent: 'claude',
-      workspace: context?.workspace ?? {
-        kind: worktreeId ? workspaceKindForWorktreeId(worktreeId) : 'floating',
-        ...(worktreeId ? { worktreeId } : {})
-      }
-    }).executionHostId
+    buildAgentLaunchRouteInput(store.getState(), launchInput).executionHostId
   const target = structuredAgentSessionTargetForHost(executionHostId)
   const agentsVersion = useHostStructuredAgentsVersion()
   const registeredAgents = recomputeOn(
@@ -122,13 +129,7 @@ export function useAgentLaunchPickerInventorySource(
       ? localCapabilities.state === 'known'
         ? localCapabilities.capabilities
         : null
-      : buildAgentLaunchRouteInput(state, {
-          agent: 'claude',
-          workspace: context?.workspace ?? {
-            kind: worktreeId ? workspaceKindForWorktreeId(worktreeId) : 'floating',
-            ...(worktreeId ? { worktreeId } : {})
-          }
-        }).hostCapabilities
+      : buildAgentLaunchRouteInput(state, launchInput).hostCapabilities
   const coherentCatalog =
     hostCapabilities?.includes(AGENT_SESSION_COHERENT_MODEL_CATALOG_CAPABILITY) === true
   const draftTarget = useMemo(
@@ -193,6 +194,19 @@ export function useAgentLaunchPickerInventorySource(
       coherentCatalog
     ]
   )
+  // Without a concrete workspace, CLI discovery can only ask this machine, so other hosts keep the seed.
+  // SSH discovery has no route yet, so SSH workspaces keep it too.
+  const discoveryWorktreeId = draftTarget.worktreeId ?? null
+  const ownerRuntime =
+    discoveryWorktreeId || target?.kind === 'local'
+      ? resolveWorktreeModelDiscoveryRuntime(store.getState(), discoveryWorktreeId)
+      : null
+  const cliDiscoveryRuntime: RuntimeGitContext | null =
+    !ownerRuntime || ownerRuntime.connectionId
+      ? null
+      : discoveryWorktreeId
+        ? ownerRuntime
+        : { ...ownerRuntime, worktreePath: repo?.path ?? '' }
   const build = (defaults: AgentPickerDefaultSettings | null | undefined) =>
     model.state === 'settled'
       ? agentPickerEntriesFromRows(
@@ -204,7 +218,7 @@ export function useAgentLaunchPickerInventorySource(
         ).map((entry) => ({
           ...entry,
           coherentCatalog,
-          ...(!target ||
+          ...((!target && !(cliDiscoveryRuntime && agentPickerListsCliModels(entry))) ||
           !entry.surfaces.length ||
           (registeredAgents &&
             !registeredAgents.some(({ agent }) => agent === entry.agent) &&
@@ -240,16 +254,17 @@ export function useAgentLaunchPickerInventorySource(
     [key, open, fallback]
   )
   useEffect(() => {
-    if (!viewActive || !open || !target || model.state !== 'settled') {
+    if (!viewActive || !open || (!target && !cliDiscoveryRuntime) || model.state !== 'settled') {
       return
     }
     const controller = new AbortController()
+    const hostReads = target && agentPickerModelCatalogReads({ target, worktree: selector })
     return observeAgentPickerAcquisition(
       key,
       fallback,
       {
         settings:
-          target.kind !== 'environment'
+          target?.kind !== 'environment'
             ? undefined
             : async () => {
                 const defaults = await readHostAgentLaunchDefaults(
@@ -272,11 +287,13 @@ export function useAgentLaunchPickerInventorySource(
                     }))
                   : undefined
               },
-        ...agentPickerModelCatalogReads({
-          target,
-          worktree: selector
-        }),
-        support: (entry) => readAgentPickerLaunchSupport(target, selector, entry.agent)
+        ...hostReads,
+        catalog: async (entry, waitForListing, signal) =>
+          cliDiscoveryRuntime && agentPickerListsCliModels(entry)
+            ? readAgentPickerCliModelCatalog(entry.agent, cliDiscoveryRuntime)
+            : hostReads?.catalog(entry, waitForListing, signal),
+        support: async (entry) =>
+          target ? readAgentPickerLaunchSupport(target, selector, entry.agent) : undefined
       },
       {
         selected: () => selectedRef.current,

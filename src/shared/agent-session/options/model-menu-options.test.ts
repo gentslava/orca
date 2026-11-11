@@ -1,8 +1,7 @@
 import { expect, it } from 'vitest'
-import recording from '../../fixtures/agent-picker-cli-recordings.json'
+import { listedCodexModelMenu } from './model-menu-catalog.test-fixture'
 import { modelMenuOptions, type ModelMenuInput } from './model-menu-options'
 import { getAgentSessionOptionLaunchCatalog } from './agent-session-option-catalog'
-import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
 
 const seed = getAgentSessionOptionLaunchCatalog('codex')!
 const input: ModelMenuInput = {
@@ -13,21 +12,7 @@ const input: ModelMenuInput = {
   seedsModel: true,
   coherentCatalog: true
 }
-const recorded: AgentSessionModelCatalogResult = {
-  origin: 'probe',
-  fetchedAt: 1,
-  listingNamesConfiguredModel: true,
-  models: recording.modelList.data.map((row) => ({
-    id: row.id,
-    label: row.displayName,
-    isDefault: true,
-    defaultEffort: row.defaultReasoningEffort,
-    efforts: row.supportedReasoningEfforts.map((effort) => ({
-      value: effort.reasoningEffort,
-      label: effort.reasoningEffort
-    }))
-  }))
-}
+const recorded = listedCodexModelMenu
 
 it('uses listed membership and live efforts, including when a seed names the same model', () => {
   const menu = modelMenuOptions(recorded, {

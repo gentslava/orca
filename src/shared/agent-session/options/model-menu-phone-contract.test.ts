@@ -1,6 +1,5 @@
 import { expect, it } from 'vitest'
-import recording from '../../fixtures/agent-picker-cli-recordings.json'
-import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
+import { listedCodexModelMenu } from './model-menu-catalog.test-fixture'
 import { structuredAgentSessionSeedCatalog } from './structured-agent-session-seed-catalog'
 import { createStructuredAgentSessionOptionsReadOwner } from './structured-agent-session-options-read-owner'
 import { createStructuredSessionSelectionController } from './structured-agent-session-selection-operations'
@@ -12,21 +11,7 @@ import { structuredAgentSessionShownSnapshot } from './structured-agent-session-
 import { modelMenuOptions } from './model-menu-options'
 
 const seed = structuredAgentSessionSeedCatalog('codex')!
-const listed: AgentSessionModelCatalogResult = {
-  origin: 'probe',
-  fetchedAt: 1,
-  listingNamesConfiguredModel: true,
-  models: recording.modelList.data.map((row) => ({
-    id: row.id,
-    label: row.displayName,
-    isDefault: true,
-    defaultEffort: row.defaultReasoningEffort,
-    efforts: row.supportedReasoningEfforts.map((effort) => ({
-      value: effort.reasoningEffort,
-      label: effort.reasoningEffort
-    }))
-  }))
-}
+const listed = listedCodexModelMenu
 const input = {
   agent: 'codex',
   surface: 'chat' as const,

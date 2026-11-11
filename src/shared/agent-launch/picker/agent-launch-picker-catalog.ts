@@ -5,7 +5,10 @@ import {
   structuredModelEfforts
 } from '../../agent-session/options/structured-agent-session-discovered-model'
 import { createClaudeCatalogOptions } from '../../agent-session/options/agent-session-option-catalog-claude-codex'
-import type { CatalogOption } from '../../agent-session/options/agent-session-option-catalog-types'
+import type {
+  CatalogModel,
+  CatalogOption
+} from '../../agent-session/options/agent-session-option-catalog-types'
 import { getAgentSessionOptionLaunchCatalog } from '../../agent-session/options/agent-session-option-catalog'
 import { sourceControlActionOptions } from '../../source-control/ai/recipes/source-control-action-options'
 import {
@@ -154,10 +157,22 @@ export function agentPickerModels(
   return agentPickerModelMenu(entry, surface).rows
 }
 
-/** Terminal discovery is a separate change; these menus keep their existing catalog policy. */
+/** Antigravity terminals keep their CLI catalog instead of native-chat model policy. */
 export function agentPickerUsesComposerModelMenu(
   entry: ModelMenuEntry,
   surface: AgentPickerSurface
 ) {
   return !entry.textGeneration && !(entry.agent === 'antigravity' && surface === 'terminal')
+}
+
+export function agentPickerModelFromCatalogModel(model: CatalogModel): AgentPickerModel {
+  return {
+    id: model.id,
+    label: model.label,
+    description: model.description,
+    isDefault: model.isDefault === true,
+    efforts: model.options.flatMap((option) =>
+      option.id === 'effort' && option.kind.type === 'select' ? option.kind.choices : []
+    )
+  }
 }

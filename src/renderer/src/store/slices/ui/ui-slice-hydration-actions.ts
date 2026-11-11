@@ -65,6 +65,7 @@ import {
   sanitizePersistedRepoIds,
   sanitizeExplorerPreferences,
   sanitizeWorkspaceCleanupDismissals,
+  sanitizeActivityBarPosition,
   hydratedUIPartialMatchesState,
   clampPetSize
 } from './ui-slice-hydration-sanitizers'
@@ -116,6 +117,7 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
           sidebarOpen: typeof ui.sidebarOpen === 'boolean' ? ui.sidebarOpen : true,
           rightSidebarOpen: typeof ui.rightSidebarOpen === 'boolean' ? ui.rightSidebarOpen : false,
           ...normalizeRightSidebarRoute(ui.rightSidebarTab, ui.rightSidebarExplorerView),
+          activityBarPosition: sanitizeActivityBarPosition(ui.activityBarPosition),
           groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
           // Migration runs in main; hydration preserves a deliberate recent choice.
           sortBy: ui.sortBy,

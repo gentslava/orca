@@ -1,4 +1,6 @@
 import { defineFixture } from '../../component-fixtures/component-fixture'
+import { getDefaultSettings } from '../../../../shared/constants'
+import { i18n, loadRendererUiLanguage } from '@/i18n/i18n'
 import type { ProviderRateLimits } from '../../../../shared/rate-limit-types'
 import {
   DropdownMenu,
@@ -9,7 +11,7 @@ import { AccountSwitchList } from './AccountSwitchList'
 import { AccountSwitchRowItem } from './AccountSwitchRowItem'
 import { InlineUsageBars } from './InlineProviderUsage'
 
-function accountRows(provider: 'codex' | 'claude', width = 520) {
+function accountRows(provider: 'codex' | 'claude', width = 520, language: 'en' | 'ru' = 'en') {
   const limits: ProviderRateLimits = {
     provider,
     session: {
@@ -39,6 +41,14 @@ function accountRows(provider: 'codex' | 'claude', width = 520) {
   }
   return defineFixture({
     width,
+    store: {
+      settings: { ...getDefaultSettings('/home/fixture'), uiLanguage: language },
+      usagePercentageDisplay: 'used'
+    },
+    interact: async () => {
+      await loadRendererUiLanguage(language)
+      await i18n.changeLanguage(language)
+    },
     render: () => (
       <div className="h-[340px] bg-background p-3">
         <DropdownMenu defaultOpen modal={false}>
@@ -52,7 +62,8 @@ function accountRows(provider: 'codex' | 'claude', width = 520) {
               {['2cdb7eb6', '9a41e0d3'].map((id, index) => (
                 <AccountSwitchRowItem
                   key={id}
-                  label={`longaccountemail@example.com (Personal (Pro) · ${id})`}
+                  label="longaccountemail@example.com"
+                  detail={`Personal (Pro) · ${id}`}
                   active={index === 0}
                   disabled={index === 0}
                 >
@@ -71,3 +82,6 @@ export const codex = accountRows('codex')
 export const claude = accountRows('claude')
 export const narrowCodex = accountRows('codex', 336)
 export const narrowClaude = accountRows('claude', 336)
+
+export const russianCodex = accountRows('codex', 390, 'ru')
+export const russianClaude = accountRows('claude', 390, 'ru')
