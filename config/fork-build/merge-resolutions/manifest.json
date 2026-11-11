@@ -2427,5 +2427,29 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "17ffc9b208f190becac4458c703b3af37beeb4639ffc9a8246640db393e4d94b",
     "reason": "Preserve upstream retirement of CASES and EXPECTED test suite in orchestration access outcomes; session link access remains covered by session link integration suites."
+  },
+  {
+    "path": "src/renderer/src/popout.tsx",
+    "blobs": [
+      "f08bb7643750c3f2d7cfd11fa1349a3146839711",
+      "078feb77d041ca0091fa53402bd10874bc5197e7",
+      "9a8982327d69def0ef414f90a48209300cb271ed"
+    ],
+    "patch": "latest-upstream-20261111/pr33512-src-renderer-src-popout.tsx.patch",
+    "patchSha256": "111d8f1bc8784438955a2098265452a975e15e9137444cab95098c2a2884527e",
+    "resultSha256": "1fce023fa88f3edfcb4708faaff835dd5b9838cbe205eba4c64ad6bb9e9734ef",
+    "reason": "Preserve relocated body-overlay-attributes import from upstream 41024 while retaining Hold to Quit toast and notice container."
+  },
+  {
+    "path": "src/renderer/src/space.tsx",
+    "blobs": [
+      "a10354a6eb28b323307c0600e11b7a00586f4cc0",
+      "25ffc273e3ab9afa8a0044cea93a59f2db2633a3",
+      "60546e257ef690c12e534d7ad749b9bb667244b1"
+    ],
+    "patch": "latest-upstream-20261111/pr33512-src-renderer-src-space.tsx.patch",
+    "patchSha256": "65465ea40067aa9611843bbc474268cd2562042558dcfc03a67b5683e2602aa3",
+    "resultSha256": "8dd68085a695e3032c47a5aa27eee936d1e8b0a1de0e4a3ee7efc32bb70481a1",
+    "reason": "Preserve relocated body-overlay-attributes import from upstream 41024 while retaining Hold to Quit notice element."
   }
 ]
