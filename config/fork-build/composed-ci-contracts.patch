@@ -1774,19 +1774,6 @@ index f3fc2a723c5..97706bd5437 100644
      throw new Error(`agent session failure kind ${fact.kind} cannot reject a message`)
    }
    const words =
-diff --git a/tests/e2e/cross-version-wire/agent-session-kill-delivered-downgrade.unit.test.ts b/tests/e2e/cross-version-wire/agent-session-kill-delivered-downgrade.unit.test.ts
-index bdea85bf863..ec4cd6bb2d6 100644
---- a/tests/e2e/cross-version-wire/agent-session-kill-delivered-downgrade.unit.test.ts
-+++ b/tests/e2e/cross-version-wire/agent-session-kill-delivered-downgrade.unit.test.ts
-@@ -8,7 +8,7 @@ import {
-   agentSessionLeasePossiblyWriting
- } from '../../../src/shared/agent-session/lifecycle/agent-session-lease-adjudication'
- import { agentSessionRecordFixture } from '../../../src/shared/agent-session/lifecycle/agent-session-record.test-fixture'
--import { agentModelCatalogReleasedOwner } from '../../../src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot'
-+import { agentModelCatalogReleasedOwner } from '../../../src/main/native-chat/agent-model-catalog/agent-model-catalog-read-scope'
- import {
-   closeTestJournalHostDatabase,
-   openTestJournalHostDatabase
 diff --git a/tests/e2e/helpers/orca-app.ts b/tests/e2e/helpers/orca-app.ts
 index c9ca6b5180b..00619be0464 100644
 --- a/tests/e2e/helpers/orca-app.ts
