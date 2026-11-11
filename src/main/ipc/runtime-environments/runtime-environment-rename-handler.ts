@@ -8,6 +8,9 @@ export function renameSavedRuntimeEnvironment(
   userDataPath: string,
   args: { selector: string; name: string }
 ) {
+  if (typeof args.name !== 'string') {
+    throw new Error('Renaming a server requires a name.')
+  }
   const environment = resolveEnvironment(userDataPath, args.selector)
   const renamed = renameEnvironment(userDataPath, environment.id, { name: args.name })
   return {

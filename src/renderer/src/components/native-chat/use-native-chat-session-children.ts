@@ -1,4 +1,4 @@
-import { createCoalescedPollRunner } from '@/lib/repository-refresh/coalesced-poll-runner'
+import { createCoalescedPollRunner } from '@/lib/source-control/refresh/coalesced-poll-runner'
 import { installWindowVisibilityInterval } from '@/lib/window-activity/window-visibility-interval'
 import { useAppStore } from '@/store'
 import { useEffect, useMemo, useState } from 'react'

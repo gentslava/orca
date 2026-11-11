@@ -4,7 +4,6 @@ import './diagnostics/react-commits/react-commit-cascade-observer'
 import './assets/main.css'
 
 import { StrictMode, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { DashboardPopoutRoot } from './components/dashboard-popout/DashboardPopoutRoot'
 import { RecoverableRenderErrorBoundary } from './components/error-boundaries/RecoverableRenderErrorBoundary'
 import { installRendererCrashDiagnostics } from './diagnostics/crash-reporting/crash-diagnostics'
@@ -22,7 +21,7 @@ import { setReactCommitCascadeRendererSurface } from './diagnostics/react-commit
 import { installOsFileDropCancellationGuard } from './lib/files/drop/os-file-drop-cancellation-guard'
 import { HoldQuitNotice } from './components/HoldQuitNotice'
 import { Toaster } from './components/ui/sonner'
-import { installBodyOverlayAttributes } from './lib/body-overlay-attributes'
+import { installBodyOverlayAttributes } from './lib/overlay-interaction/body-overlay-attributes'
 import { useReduceVisualEffects } from './hooks/use-reduce-visual-effects'
 
 const disposeOsFileDropGuard = installOsFileDropCancellationGuard()
@@ -106,7 +105,9 @@ function PopoutSettingsSync(): null {
 
 function PopoutRoot(): React.JSX.Element {
   const t = useTranslate()
-  useTranslation()
+  useEffect(() => {
+    document.title = t('auto.main.window.dashboard.popout.window.title', 'Orca Agent Dashboard')
+  }, [t])
   return (
     <RecoverableRenderErrorBoundary
       boundaryId="dashboard-popout.root"

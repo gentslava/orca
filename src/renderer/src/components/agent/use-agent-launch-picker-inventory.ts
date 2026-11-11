@@ -1,4 +1,4 @@
-import { withAgentPickerCatalogAvailability } from './agent-picker-catalog-jobs'
+import { getAgentSessionOptionLaunchCatalog } from '../../../../shared/agent-session/options/agent-session-option-catalog'
 import { recomputeOn } from '@/lib/recompute-on'
 import { useHostStructuredAgentsVersion } from '@/runtime/native-chat/agent-catalogs/chat-provider-agents'
 import {
@@ -6,7 +6,15 @@ import {
   useAgentPickerInventoryEntries,
   type AgentPickerInventorySource
 } from './agent-picker-inventory-source'
-import { useAppStateView, useAppStateViewActive } from '@/store/retained-views/app-state-view'
+import {
+  useAppStateView,
+  useAppStateViewActive,
+  useAppViewExternalStore
+} from '@/store/retained-views/app-state-view'
+import {
+  readLocalRuntimeCapabilityObservation,
+  subscribeLocalRuntimeCapabilityObservation
+} from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 import { hostWorktreeTarget } from '../../../../shared/worktree/host-qualified-identity'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
 import { selectWorkspaceByHostTarget } from '@/store/workspaces/selection/workspace-host-target'
@@ -25,12 +33,6 @@ import {
   agentPickerModelCatalogReads,
   readAgentPickerLaunchSupport
 } from './agent-launch-picker-host-reads'
-import {
-  agentPickerUsesNativeRuntime,
-  agentPickerCatalogAvailability,
-  agentPickerHostPlatform,
-  agentPickerCliReadOptions
-} from './agent-launch-picker-runtime'
 import { AGENT_SESSION_COHERENT_MODEL_CATALOG_CAPABILITY } from '../../../../shared/agent-session/structured-agent-session-surface-capabilities'
 import { formatAgentTypeLabel } from '../../../../shared/agent-status/presentation/agent-type-label'
 import {
@@ -65,6 +67,11 @@ export function useAgentLaunchPickerInventorySource(
 ): AgentPickerInventorySource {
   const store = useAppStateView()
   const viewActive = useAppStateViewActive()
+  const localCapabilities = useAppViewExternalStore(
+    subscribeLocalRuntimeCapabilityObservation,
+    readLocalRuntimeCapabilityObservation,
+    readLocalRuntimeCapabilityObservation
+  )
   const selectedRef = useRef(selected)
   useLayoutEffect(() => {
     selectedRef.current = selected
@@ -110,21 +117,20 @@ export function useAgentLaunchPickerInventorySource(
     [workspaceId, hostId, worktrees, folders]
   )
   const concreteWorkspace = !!selectedWorkspace
-  const route = buildAgentLaunchRouteInput(state, {
-    agent: 'claude',
-    workspace: context?.workspace ?? {
-      kind: worktreeId ? workspaceKindForWorktreeId(worktreeId) : 'floating',
-      ...(worktreeId ? { worktreeId } : {})
-    }
-  })
-  const platform = agentPickerHostPlatform(target, state.runtimeStatusByEnvironmentId)
-  const nativeRuntime = agentPickerUsesNativeRuntime(
-    route,
-    platform,
-    context?.launchCwd ?? (selectedWorkspace ? selectedWorkspace.path : repo?.path) ?? ''
-  )
+  const hostCapabilities =
+    target?.kind === 'local'
+      ? localCapabilities.state === 'known'
+        ? localCapabilities.capabilities
+        : null
+      : buildAgentLaunchRouteInput(state, {
+          agent: 'claude',
+          workspace: context?.workspace ?? {
+            kind: worktreeId ? workspaceKindForWorktreeId(worktreeId) : 'floating',
+            ...(worktreeId ? { worktreeId } : {})
+          }
+        }).hostCapabilities
   const coherentCatalog =
-    route.hostCapabilities?.includes(AGENT_SESSION_COHERENT_MODEL_CATALOG_CAPABILITY) === true
+    hostCapabilities?.includes(AGENT_SESSION_COHERENT_MODEL_CATALOG_CAPABILITY) === true
   const draftTarget = useMemo(
     () => ({
       key: JSON.stringify([
@@ -159,7 +165,6 @@ export function useAgentLaunchPickerInventorySource(
         context?.workspace,
         context?.pairingRevision,
         context?.runtimeId,
-        nativeRuntime,
         registeredAgents,
         coherentCatalog,
         worktreeId,
@@ -169,7 +174,6 @@ export function useAgentLaunchPickerInventorySource(
         model.state === 'settled' ? model.detection.detectedIds : [],
         model.state === 'settled' ? model.defaultTuiAgent : undefined,
         settings && {
-          agentCmdOverrides: settings.agentCmdOverrides,
           agentDefaultArgs: settings.agentDefaultArgs,
           agentLaunchChoices: settings.agentLaunchChoices,
           agentPermissionDefault: settings.agentPermissionDefault,
@@ -185,7 +189,6 @@ export function useAgentLaunchPickerInventorySource(
       executionHostId,
       model,
       settings,
-      nativeRuntime,
       registeredAgents,
       coherentCatalog
     ]
@@ -198,13 +201,17 @@ export function useAgentLaunchPickerInventorySource(
           (agent) => agentPickerChoiceSeeds(agent, defaults),
           formatAgentTypeLabel,
           model.defaultTuiAgent
-        ).map((entry) =>
-          withAgentPickerCatalogAvailability(
-            { ...entry, coherentCatalog },
-            agentPickerCatalogAvailability(target, route, workspaceId, nativeRuntime),
-            registeredAgents
-          )
-        )
+        ).map((entry) => ({
+          ...entry,
+          coherentCatalog,
+          ...(!target ||
+          !entry.surfaces.length ||
+          (registeredAgents &&
+            !registeredAgents.some(({ agent }) => agent === entry.agent) &&
+            !getAgentSessionOptionLaunchCatalog(entry.agent))
+            ? { catalogRead: 'unsupported' as const }
+            : {})
+        }))
       : []
   const fallback = useMemo(
     () =>
@@ -237,24 +244,22 @@ export function useAgentLaunchPickerInventorySource(
       return
     }
     const controller = new AbortController()
-    let defaultsRead: ReturnType<typeof readHostAgentLaunchDefaults> | undefined
-    const readDefaults = () =>
-      (defaultsRead ??= readHostAgentLaunchDefaults(
-        {
-          environmentId: target.kind === 'environment' ? target.environmentId : '',
-          pairingRevision: context?.pairingRevision,
-          ...(context?.runtimeId ? { runtimeId: context.runtimeId } : {})
-        },
-        controller.signal
-      ).catch(() => null))
-    const stop = observeAgentPickerAcquisition(
+    return observeAgentPickerAcquisition(
       key,
       fallback,
       {
         settings:
-          target.kind === 'environment'
-            ? async () => {
-                const defaults = await readDefaults()
+          target.kind !== 'environment'
+            ? undefined
+            : async () => {
+                const defaults = await readHostAgentLaunchDefaults(
+                  {
+                    environmentId: target.environmentId,
+                    pairingRevision: context?.pairingRevision,
+                    ...(context?.runtimeId ? { runtimeId: context.runtimeId } : {})
+                  },
+                  controller.signal
+                ).catch(() => null)
                 return defaults
                   ? build(defaults.settings).map((entry) => ({
                       ...entry,
@@ -266,37 +271,18 @@ export function useAgentLaunchPickerInventorySource(
                       worktreeId
                     }))
                   : undefined
-              }
-            : undefined,
+              },
         ...agentPickerModelCatalogReads({
           target,
-          selector,
-          nativeRuntime,
-          ...agentPickerCliReadOptions(
-            target,
-            workspaceId,
-            context?.launchCwd ?? (selectedWorkspace ? selectedWorkspace.path : repo?.path) ?? '',
-            route,
-            [context?.runtimeId, context?.pairingRevision]
-          ),
-          platform,
-          settings,
-          serverSettings:
-            target.kind === 'environment' ? async () => (await readDefaults())?.settings : undefined
+          worktree: selector
         }),
         support: (entry) => readAgentPickerLaunchSupport(target, selector, entry.agent)
       },
       {
         selected: () => selectedRef.current,
-        usesSource: source.usesSource,
-        subscribeDemand: source.subscribeDemand,
         publish: source.publish
       }
     )
-    return () => {
-      controller.abort()
-      stop()
-    }
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- Only semantic inputs and visibility own observation; selected priority publishes independently after commit.
   }, [key, open, source, viewActive])
   return source
