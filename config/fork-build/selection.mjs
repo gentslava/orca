@@ -27,6 +27,18 @@ export function orderSelections(selections, dependencies = {}) {
   return ordered
 }
 
+function validBranchSource(source) {
+  return (
+    source &&
+    typeof source.repository === 'string' &&
+    /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(source.repository) &&
+    typeof source.ref === 'string' &&
+    source.ref.startsWith('refs/heads/') &&
+    !source.ref.includes(':') &&
+    !/[\r\n]/.test(source.ref)
+  )
+}
+
 export async function resolveSelection(
   config,
   { openOwn, previous = [], readPr, readRetainedHead }
@@ -44,17 +56,23 @@ export async function resolveSelection(
   }
   const retainedSources = config.retainedHeadSources || {}
   for (const [number, source] of Object.entries(retainedSources)) {
-    if (
-      !retained[number] ||
-      !source ||
-      typeof source.repository !== 'string' ||
-      !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(source.repository) ||
-      typeof source.ref !== 'string' ||
-      !source.ref.startsWith('refs/heads/') ||
-      source.ref.includes(':') ||
-      /[\r\n]/.test(source.ref)
-    ) {
+    if (!retained[number] || !validBranchSource(source)) {
       throw new Error(`Invalid retained PR branch source: PR ${number}`)
+    }
+  }
+  const foreignSources = config.foreignHeadSources || {}
+  for (const [number, source] of Object.entries(foreignSources)) {
+    const included = config.include.find((entry) => entry.number === Number(number))
+    if (
+      !validBranchSource(source) ||
+      !config.authors.includes(source.repository.split('/')[0]) ||
+      typeof included?.reason !== 'string' ||
+      !included.reason.trim() ||
+      retained[number] ||
+      config.exclude[number] ||
+      config.replacements[number]
+    ) {
+      throw new Error(`Invalid foreign PR branch source: PR ${number}`)
     }
   }
   const numbers = new Set([
@@ -129,6 +147,23 @@ export async function resolveSelection(
     if (pr.state === 'closed' && !pr.merged_at) {
       lifecycle.push({ number, disposition: 'closed-needs-review' })
       blockers.push({ number, reason: 'Closed without a recorded replacement or retirement' })
+      return
+    }
+    const source = foreignSources[number]
+    if (!pr.merged_at && source) {
+      if (config.authors.includes(pr.user.login) || typeof readRetainedHead !== 'function') {
+        throw new Error(`Foreign PR branch identity cannot be verified: PR ${number}`)
+      }
+      const sha = await readRetainedHead(source)
+      if (!/^[a-f0-9]{40}$/.test(sha)) {
+        throw new Error(`Invalid foreign PR branch head: PR ${number}`)
+      }
+      records.set(number, {
+        ...pr,
+        head: { ...pr.head, sha },
+        foreignHeadSource: { ...source, originalHeadSha: pr.head.sha }
+      })
+      lifecycle.push({ number, disposition: 'fork-integrated', head: sha })
       return
     }
     records.set(number, pr)

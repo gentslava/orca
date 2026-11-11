@@ -6,7 +6,7 @@ import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { resolveSelection, orderSelections } from './selection.mjs'
-import { compose, assertFrozenHead, freezeRetainedHead } from './composition.mjs'
+import { compose, assertFrozenHead, freezeRetainedHead, freezeForeignHead } from './composition.mjs'
 import { mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { renderReport } from './github.mjs'
 import { pruneTranslationsWithoutSource } from './fork-localizations.mjs'
@@ -457,40 +457,52 @@ test('real Git: shared integration ancestry cannot undo another selected feature
     assert.equal(git(cwd, 'rev-list', '--min-parents=2', `${upstream}..HEAD`), '')
   }))
 
-test('real Git: retained branches freeze the fork tip and reject races, rewritten ancestry and missing refs', () =>
-  fixture((cwd) => {
-    const closedHeadSha = git(cwd, 'rev-parse', 'HEAD')
-    git(cwd, 'update-ref', 'refs/personal/closed-pr-7', closedHeadSha)
-    writeFileSync(join(cwd, 'file'), 'retained update\n')
-    git(cwd, 'commit', '-am', 'retained update')
-    const head = git(cwd, 'rev-parse', 'HEAD')
-    git(cwd, 'branch', 'retained', head)
-    const selected = pr(7, {
-      state: 'closed',
-      head: { sha: head },
-      retainedHeadSource: { repository: 'owner/fork', ref: 'refs/heads/retained', closedHeadSha }
-    })
-    const transport = (directory, args) =>
-      git(
-        directory,
-        ...args.map((arg) => (arg === 'https://github.com/owner/fork.git' ? cwd : arg))
-      )
-    freezeRetainedHead(cwd, selected, transport)
-    assert.equal(git(cwd, 'rev-parse', 'refs/personal/pr-7'), head)
+for (const kind of ['closed', 'foreign']) {
+  test(`real Git: ${kind} branches freeze both heads and reject races, rewritten ancestry and missing refs`, () =>
+    fixture((cwd) => {
+      const closedHeadSha = git(cwd, 'rev-parse', 'HEAD')
+      git(cwd, 'update-ref', `refs/personal/${kind}-pr-7`, closedHeadSha)
+      writeFileSync(join(cwd, 'file'), 'retained update\n')
+      git(cwd, 'commit', '-am', 'retained update')
+      const head = git(cwd, 'rev-parse', 'HEAD')
+      git(cwd, 'branch', 'retained', head)
+      const property = kind === 'closed' ? 'retainedHeadSource' : 'foreignHeadSource'
+      const freeze = kind === 'closed' ? freezeRetainedHead : freezeForeignHead
+      const selected = pr(7, {
+        state: 'closed',
+        head: { sha: head },
+        [property]: {
+          repository: 'owner/fork',
+          ref: 'refs/heads/retained',
+          closedHeadSha,
+          originalHeadSha: closedHeadSha
+        }
+      })
+      const transport = (directory, args) =>
+        git(
+          directory,
+          ...args.map((arg) => (arg === 'https://github.com/owner/fork.git' ? cwd : arg))
+        )
+      freeze(cwd, selected, transport)
+      assert.equal(git(cwd, 'rev-parse', 'refs/personal/pr-7'), head)
+      git(cwd, 'update-ref', `refs/personal/${kind}-pr-7`, head)
+      assert.throws(() => freeze(cwd, selected, transport), /moved after snapshot/)
+      git(cwd, 'update-ref', `refs/personal/${kind}-pr-7`, closedHeadSha)
 
-    writeFileSync(join(cwd, 'file'), 'concurrent branch update\n')
-    git(cwd, 'commit', '-am', 'concurrent branch update')
-    git(cwd, 'update-ref', 'refs/heads/retained', git(cwd, 'rev-parse', 'HEAD'))
-    assert.throws(() => freezeRetainedHead(cwd, selected, transport), /moved after snapshot/)
+      writeFileSync(join(cwd, 'file'), 'concurrent branch update\n')
+      git(cwd, 'commit', '-am', 'concurrent branch update')
+      git(cwd, 'update-ref', 'refs/heads/retained', git(cwd, 'rev-parse', 'HEAD'))
+      assert.throws(() => freeze(cwd, selected, transport), /moved after snapshot/)
 
-    git(cwd, 'update-ref', '-d', 'refs/personal/pr-7')
-    const unrelated = git(cwd, 'commit-tree', 'HEAD^{tree}', '-m', 'unrelated root')
-    git(cwd, 'update-ref', 'refs/heads/retained', unrelated)
-    selected.head.sha = unrelated
-    assert.throws(() => freezeRetainedHead(cwd, selected, transport), /does not descend/)
-    selected.retainedHeadSource.ref = 'refs/heads/missing'
-    assert.throws(() => freezeRetainedHead(cwd, selected, transport))
-  }))
+      git(cwd, 'update-ref', '-d', 'refs/personal/pr-7')
+      const unrelated = git(cwd, 'commit-tree', 'HEAD^{tree}', '-m', 'unrelated root')
+      git(cwd, 'update-ref', 'refs/heads/retained', unrelated)
+      selected.head.sha = unrelated
+      assert.throws(() => freeze(cwd, selected, transport), /does not descend/)
+      selected[property].ref = 'refs/heads/missing'
+      assert.throws(() => freeze(cwd, selected, transport))
+    }))
+}
 
 test('fork localization cleanup keeps Russian plural forms and removes only untranslated-source orphans', () => {
   const english = new Map([
