@@ -242,7 +242,11 @@ export function projectAgentModelCatalogSnapshot(
     ...(!params.savedOnly &&
     !params.verifiedOnly &&
     (deps.store.isListing(bound.fingerprint) ||
-      (bound.canProbe && resolving && deps.store.probeDue(bound.fingerprint))) &&
+      (bound.canProbe &&
+        resolving &&
+        (deps.store.probeDue(bound.fingerprint) ||
+          // The picked model's menu is listed by the refresh this read just asked for.
+          deps.store.efforts.due(bound.fingerprint, params.selectedModel)))) &&
     (independent || !listed || usesModelSpecificAcpEfforts(params.agent))
       ? { listingInProgress: true as const }
       : {}),
