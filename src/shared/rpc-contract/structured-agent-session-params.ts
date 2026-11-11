@@ -1,12 +1,12 @@
 import { ExecutionLocation } from './structured-agent-session-location-params'
 export { ExecutionHostId, ExecutionLocation } from './structured-agent-session-location-params'
+import { AgentSessionSelectionSchema } from '../agent-session/options/agent-session-execution-options'
 import {
   SendBody,
   MAX_OPTION_LABEL,
   CompactInstructions,
   AgentSessionOptions
 } from './structured-agent-session-message-params'
-import { AgentSessionSelectionSchema } from '../agent-session/options/agent-session-execution-options'
 import { TerminalClose } from './terminal-unary-params'
 import { Identifier, JournalCursor, SessionId } from './structured-agent-session-identifiers'
 import * as z from 'zod'
@@ -299,6 +299,8 @@ export const HistoryParams = z
     limit: z.number().int().positive().max(AGENT_SESSION_HISTORY_MAX_LIMIT).optional()
   })
   .strict()
+
+export const WorkStateParams = z.object({ sessionId: SessionId }).strict()
 
 // Not strict: an older host ignores these params entirely, and this host must ignore a newer client's.
 export const SubscribeTurnCompletionsParams = z.object({ includePrompts: z.boolean().optional() })

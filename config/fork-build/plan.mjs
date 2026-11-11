@@ -3,7 +3,13 @@ import { createHash } from 'node:crypto'
 import { join, resolve } from 'node:path'
 import { api, readLedger, renderReport } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
-import { assertFrozenHead, compose, freezeRetainedHead, git } from './composition.mjs'
+import {
+  assertFrozenHead,
+  compose,
+  freezeForeignHead,
+  freezeRetainedHead,
+  git
+} from './composition.mjs'
 import { controlFingerprint } from './promotion.mjs'
 import { currentCompatibilityPatch } from './retired-test-fixtures.mjs'
 import { applyForkLocalizations } from './fork-localizations.mjs'
@@ -72,12 +78,14 @@ try {
   const selectedRefs = plan.selections.map((pr) =>
     pr.merged_at
       ? pr.merge_commit_sha
-      : `refs/pull/${pr.number}/head:refs/personal/${pr.retainedHeadSource ? 'closed-pr' : 'pr'}-${pr.number}`
+      : `refs/pull/${pr.number}/head:refs/personal/${pr.retainedHeadSource ? 'closed-pr' : pr.foreignHeadSource ? 'foreign-pr' : 'pr'}-${pr.number}`
   )
   git(source, ['fetch', '--no-tags', 'origin', plan.upstream, ...new Set(selectedRefs)])
   for (const pr of plan.selections) {
     if (pr.retainedHeadSource) {
       freezeRetainedHead(source, pr)
+    } else if (pr.foreignHeadSource) {
+      freezeForeignHead(source, pr)
     } else if (!pr.merged_at) {
       assertFrozenHead(source, pr.number, pr.head.sha)
     }
@@ -214,7 +222,7 @@ try {
           pr.state,
           pr.head.sha,
           pr.merge_commit_sha,
-          pr.retainedHeadSource ?? null
+          pr.retainedHeadSource ?? pr.foreignHeadSource ?? null
         ]),
         outputs: config.outputs,
         compatibility: plan.compatibility,

@@ -92,6 +92,16 @@ export function renderReport(plan) {
         )
       }
     }
+    const foreignBranches = plan.selections.filter((pr) => pr.foreignHeadSource)
+    if (foreignBranches.length) {
+      lines.push('', '## Integrated foreign PR snapshots', '')
+      for (const pr of foreignBranches) {
+        const source = pr.foreignHeadSource
+        lines.push(
+          `- PR ${pr.number}: original head \`${source.originalHeadSha}\`; \`${source.repository}:${source.ref}\`; selected branch head \`${pr.head.sha}\`.`
+        )
+      }
+    }
     if (plan.localizations?.length) {
       lines.push('', '## Fork Russian translations', '')
       for (const entry of plan.localizations) {

@@ -66,8 +66,17 @@ export function assertFrozenHead(cwd, number, expected) {
 
 export function freezeRetainedHead(cwd, pr, runGit = git) {
   const source = pr.retainedHeadSource
-  if (runGit(cwd, ['rev-parse', `refs/personal/closed-pr-${pr.number}`]) !== source.closedHeadSha) {
-    throw new Error(`Closed PR ${pr.number} moved after snapshot; rerun planning`)
+  freezeForkBranchHead(cwd, pr, source, 'closed', source.closedHeadSha, runGit)
+}
+
+export function freezeForeignHead(cwd, pr, runGit = git) {
+  const source = pr.foreignHeadSource
+  freezeForkBranchHead(cwd, pr, source, 'foreign', source.originalHeadSha, runGit)
+}
+
+function freezeForkBranchHead(cwd, pr, source, kind, originalHead, runGit) {
+  if (runGit(cwd, ['rev-parse', `refs/personal/${kind}-pr-${pr.number}`]) !== originalHead) {
+    throw new Error(`Original PR ${pr.number} moved after snapshot; rerun planning`)
   }
   runGit(cwd, ['check-ref-format', source.ref])
   runGit(cwd, [
@@ -77,12 +86,12 @@ export function freezeRetainedHead(cwd, pr, runGit = git) {
     `${source.ref}:refs/personal/pr-${pr.number}`
   ])
   if (runGit(cwd, ['rev-parse', `refs/personal/pr-${pr.number}`]) !== pr.head.sha) {
-    throw new Error(`Retained PR ${pr.number} branch moved after snapshot; rerun planning`)
+    throw new Error(`Fork PR ${pr.number} branch moved after snapshot; rerun planning`)
   }
   try {
-    runGit(cwd, ['merge-base', '--is-ancestor', source.closedHeadSha, pr.head.sha])
+    runGit(cwd, ['merge-base', '--is-ancestor', originalHead, pr.head.sha])
   } catch {
-    throw new Error(`Retained PR ${pr.number} branch does not descend from its closed head`)
+    throw new Error(`Fork PR ${pr.number} branch does not descend from its original head`)
   }
 }
 

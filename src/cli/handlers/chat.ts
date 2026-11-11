@@ -17,9 +17,9 @@ import { AGENT_STATUS_STATES } from '../../shared/agent-status/contracts/agent-s
 import { readInjectedAgentSessionId } from '../../shared/agent-session/lifecycle/agent-session-caller-env'
 import {
   DEFAULT_READ_LIMIT,
+  chatWorkStateReader,
   explainChatRefusal,
   formatSettled,
-  readHistory,
   readSettledTurn,
   readTranscript,
   requireWorkingFlag,
@@ -47,6 +47,7 @@ import { RuntimeClientError } from '../runtime-client'
 const MAX_READ_LIMIT = 100
 
 type ChatRenameResult = { name: string | null; applied: boolean }
+type ChatCloseResult = { ok: true; found?: boolean }
 
 // Paired CLIs lack the host's chat read/send capability; refuse before the host does with a bare code.
 function readSession(flags: Map<string, string | boolean>, client: RuntimeClient): string {
@@ -83,6 +84,30 @@ export const CHAT_HANDLERS: Record<string, CommandHandler> = {
       throw new RuntimeClientError('invalid_argument', 'Not renamed: the name has no visible text.')
     }
     printResult(result, json, (value) => `Renamed chat to "${value.name}".`)
+  },
+  'chat close': async ({ flags, client, json }) => {
+    // No default to the injected id: a chat closing itself would stop the agent running this command.
+    const sessionId = getRequiredStringFlag(flags, 'session')
+    const result = await client
+      .call<ChatCloseResult>('agentSession.close', { sessionId })
+      .catch((error: unknown) => {
+        throw explainChatRefusal(error, sessionId, 'close')
+      })
+    if (result.result.found === false) {
+      throw new RuntimeClientError(
+        'agent_session_identity_required',
+        `No chat with session id ${sessionId} on this host.`
+      )
+    }
+    const receipt = {
+      ...result,
+      result: { ...result.result, confirmed: result.result.found === true }
+    }
+    printResult(receipt, json, (value) =>
+      value.confirmed
+        ? `Closed chat ${sessionId}.`
+        : `Requested close of chat ${sessionId}; this older host does not confirm the session was found.`
+    )
   },
   'chat list': async ({ flags, client, cwd, json }) => {
     const state = getOptionalStringFlag(flags, 'state')
@@ -122,7 +147,7 @@ export const CHAT_HANDLERS: Record<string, CommandHandler> = {
   'chat wait': async ({ flags, client, json }) => {
     const session = readSession(flags, client)
     const timeoutMs = getOptionalPositiveIntegerFlag(flags, 'timeout-ms')
-    const settled = await waitForChat(client, session, timeoutMs)
+    const settled = await waitForChat(chatWorkStateReader(client, session), timeoutMs)
     printResult(await readSettledTurn(client, session, settled), json, formatSettled)
   },
   'chat send': async ({ flags, client, cwd, json }) => {
@@ -146,11 +171,12 @@ export const CHAT_HANDLERS: Record<string, CommandHandler> = {
         AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY
       ) === true
     // The send is fenced to the session's current runtime, so a restarted chat refuses it.
-    const { page } = (await readHistory(client, session, 1)).result
+    const readWorkState = chatWorkStateReader(client, session)
+    const state = await readWorkState()
     if (wait) {
-      requireWorkingFlag(page)
+      requireWorkingFlag(state)
     }
-    const { fence } = page
+    const { fence } = state
     if (fence === undefined) {
       throw new RuntimeClientError(
         'agent_session_not_running',
@@ -188,7 +214,7 @@ export const CHAT_HANDLERS: Record<string, CommandHandler> = {
       return
     }
     const queuedId = 'queued' in value ? value.queued.messageId : undefined
-    const settled = await waitForChat(client, session, timeoutMs, queuedId)
+    const settled = await waitForChat(readWorkState, timeoutMs, queuedId)
     const turn = await readSettledTurn(client, session, settled)
     printResult({ ...turn, result: { ...sent, ...turn.result } }, json, formatSettled)
   }

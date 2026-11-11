@@ -298,34 +298,6 @@ diff --git a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionP
                  <View style={styles.lockNoticeBody}>
                    <Text style={styles.lockNoticeTitle}>
                      {t('chat.sessionOptionPickers.agentWorking', 'Agent is working')}
-diff --git a/mobile/src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx b/mobile/src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx
-index 02388dddaca..d3d8ee8fbf4 100644
---- a/mobile/src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx
-+++ b/mobile/src/session/native-chat/transcript/MobileNativeChatRowOverlaysHost.test.tsx
-@@ -9,7 +9,7 @@ import {
- } from './mobile-native-chat-row-overlays'
- import type { MobileNativeChatConversation } from '../use-mobile-native-chat-conversation-state'
- import { MarkdownLinkHandlerContext } from '../../../components/markdown-link-handler'
--import { stubRpcClient } from '../../../transport/rpc-client-test-stub'
-+import { stubRpcClient } from '../../../transport/rpc/rpc-client-test-stub'
-
- vi.mock('react-native', async () => ({
-   ...(await import('../../../test-support/react-native-motion-stub')).reactNativeMotionStub(),
-diff --git a/mobile/src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx b/mobile/src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx
-index 8b946268231..8bc510ce5ec 100644
---- a/mobile/src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx
-+++ b/mobile/src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx
-@@ -2,8 +2,8 @@ import { createElement } from 'react'
- import { act, create, type ReactTestRenderer } from 'react-test-renderer'
- import { afterEach, describe, expect, it, vi } from 'vitest'
- import type { NativeChatImageRefBlock } from '../../../../../src/shared/native-chat/native-chat-types'
--import { stubRpcClient } from '../../../transport/rpc-client-test-stub'
--import type { RpcClient } from '../../../transport/rpc-client'
-+import { stubRpcClient } from '../../../transport/rpc/rpc-client-test-stub'
-+import type { RpcClient } from '../../../transport/rpc/rpc-client-contract'
- import {
-   findAllByHostType,
-   findByHostType
 diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
 --- a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
 +++ b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
@@ -1671,27 +1643,6 @@ index 8dd5ac824e5..66cf5d7925a 100644
        await options?.beforeFirstWindow?.(app)
        const page = await app.firstWindow({ timeout: 120_000 })
        await page.waitForLoadState('domcontentloaded')
-diff --git a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
-index 63de40b6ae9..2d69313cb9c 100644
---- a/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
-+++ b/config/scripts/mobile-web-app/mobile-web-app-history-scroll-render.test.mjs
-@@ -165,7 +165,14 @@ run('production mobile PageList scrolling', () => {
-       await page.getByText('m99: Message history', { exact: true }).waitFor()
-       await page.mouse.move(180, 300)
-       await page.mouse.wheel(0, -500)
--      await page.waitForTimeout(50)
-+      await page.waitForFunction(() =>
-+        [...document.querySelectorAll('div')].some(
-+          (node) =>
-+            getComputedStyle(node).flexDirection === 'column-reverse' &&
-+            ['auto', 'scroll'].includes(getComputedStyle(node).overflowY) &&
-+            node.scrollTop < 0
-+        )
-+      )
-       const before = await snapshot(page)
-       await page.waitForTimeout(500)
-       const after = await snapshot(page)
-
 diff --git a/mobile/src/mobile-web-shell/bridge-host.ts b/mobile/src/mobile-web-shell/bridge-host.ts
 --- a/mobile/src/mobile-web-shell/bridge-host.ts
 +++ b/mobile/src/mobile-web-shell/bridge-host.ts

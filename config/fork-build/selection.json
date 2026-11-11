@@ -10,6 +10,10 @@
   ],
   "include": [
     {
+      "number": 39918,
+      "reason": "Close CLI-launched agent chats through the existing host lifecycle, with explicit session IDs, unknown-session errors and narrowly scoped paired-client capability."
+    },
+    {
       "number": 40175,
       "reason": "Retain unified native Settings, launch and composer model-menu policy with host-owned catalogs while preserving upstream CLI discovery for terminal agents and the separately selected host agy model-catalog support."
     },
@@ -69,7 +73,8 @@
     "36736": 40148,
     "40499": 40496,
     "40293": 40673,
-    "40955": 40951
+    "40955": 40951,
+    "40870": 41203
   },
   "dependencies": {
     "36593": [36634]
@@ -111,6 +116,12 @@
     "38848": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/fix/queue-last-message-shortcut-20261106"
+    }
+  },
+  "foreignHeadSources": {
+    "39918": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/cli-chat-close-39918"
     }
   }
 }
