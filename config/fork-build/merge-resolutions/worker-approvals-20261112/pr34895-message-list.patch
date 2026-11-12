@@ -1,7 +1,13 @@
+diff --git a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx b/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
 --- a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatMessageList.tsx
-@@ -20,7 +20,7 @@
- import { desktopStructuredTranscript } from './conversation/projection/structured-agent-session-message-projection'
+@@ -1,3 +1,4 @@
++import { useNativeChatInlineSubagentChoices } from './native-chat-child-navigation'
+ import type { NativeChatMessageListProps } from './native-chat-message-list-props'
+ import { copyChatMathSelection } from '../sidebar/chat-markdown-math-selection'
+ import {
+@@ -20,7 +21,7 @@
+ import { useNativeChatQuestionReceipts } from './conversation/projection/use-native-chat-question-receipts'
  import { nativeChatTaskListPredecessors } from '../../../../shared/native-chat/input/native-chat-task-list-history'
  import { NativeChatDockedTaskList } from './tools/tasks/NativeChatDockedTaskList'
 -import { useNativeChatTurnStatus } from './conversation/turns/use-native-chat-turn-status'
@@ -9,20 +15,7 @@
  import { NativeChatAwaitingInputRow } from './prompts/NativeChatAwaitingInputRow'
  import { NativeChatTurnActivityLine } from './messages/reasoning/NativeChatTurnActivityLine'
  import {
-@@ -55,11 +55,11 @@
- import { useNativeChatReaderScrollInput } from './viewport/scroll/native-chat-reader-scroll-input'
- import { useNativeChatMessageListHandle } from './messages/actions/use-native-chat-reveal-latest'
-
--import { isStructuredAgentSessionThinking } from '../../../../shared/agent-session/view/structured-agent-session-live-turn'
- import { useNativeChatTurnDiffs } from './tools/diffs/use-native-chat-turn-diffs'
- import { useNativeChatTurnOpenedPullRequests } from './tools/pull-requests/use-native-chat-turn-opened-pull-requests'
- import { NativeChatPullRequestChangeContext } from './tools/pull-requests/NativeChatOpenedPullRequestCard'
- import { transcriptTailRow } from './conversation/slots/native-chat-transcript-tail-row'
-+import { useNativeChatInlineSubagentChoices } from './native-chat-child-navigation'
-
- export function NativeChatMessageList({
-   ref,
-@@ -115,6 +115,7 @@
+@@ -112,6 +113,7 @@
      subagentDisclosure,
      openSubagentSections
    } = useNativeChatSubagentSections(messages, subagentRows, subagentRoster)
@@ -30,7 +23,7 @@
    // Folded subagent rows stay loaded, so a reopened reply keeps its reveal.
    const loadedMessageIds = useMemo(
      () => new Set([...messages.map(({ id }) => id), ...subagentSections.pathOf.keys()]),
-@@ -143,11 +144,8 @@
+@@ -140,11 +142,8 @@
    )
    const openedPullRequests = useNativeChatTurnOpenedPullRequests(turnRows, subagentRowsInOrder)
    // Only real tail reasoning counts as thinking; an in-flight request with no output does not.
@@ -44,7 +37,7 @@
      turnKeys,
      liveTurnKey,
      isWorking,
-@@ -174,7 +172,7 @@
+@@ -171,7 +170,7 @@
      isWorking,
      lifecycleWorking: session.transcriptLifecycle?.state === 'working',
      subagentSections,

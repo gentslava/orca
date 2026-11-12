@@ -562,10 +562,9 @@ index 30c86d9bae346dde0c0b1483fe2fb348d006ae73..a744639d11dd1ba139c0f1bb0922f2fe
 +
 +// Render system notices separately so they cannot read as the agent’s own prose.
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-index d04131c72df..5d5504e0f50 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-@@ -62,7 +62,7 @@ import { nativeChatStructuredStopControls } from './session/structured/writes/na
+@@ -63,7 +63,7 @@
  import { useAppStore } from '../../store'
  import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
  import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
@@ -574,10 +573,10 @@ index d04131c72df..5d5504e0f50 100644
  import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
  import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
  import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
-@@ -342,18 +342,13 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
-                 messageListRef={submits.messageListRef}
+@@ -343,18 +343,13 @@
+                 pane={props}
+                 isVisible={props.isVisible && childNavigator.child === null}
                />
-               {workerApprovals.strip}
 -              {prompt ? null : (
 -                <NativeChatStructuredComposerTabStrips
 -                  tabId={props.tabId}
