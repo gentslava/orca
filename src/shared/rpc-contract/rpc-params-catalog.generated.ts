@@ -733,6 +733,11 @@ import {
   UsageCredentialApiKeyParams,
   UsageCredentialSessionCookieParams
 } from './usage-credentials-params'
+import {
+  UsageRefreshParams,
+  UsageSetEnabledParams,
+  UsageSnapshotParams
+} from './usage-history-params'
 import { CancelUsageLimitContinueParams } from './usage-limit-continue-params'
 import { WorkspaceCleanupScanParams } from './workspace-cleanup-scan-params'
 import { LayoutReopenHeldPanesParams } from './workspace-layout-held-panes-params'
@@ -1637,6 +1642,9 @@ export const RPC_PARAMS_BY_METHOD = {
   'updater.download': null,
   'updater.getStatus': null,
   'updater.install': null,
+  'usage.getSnapshot': UsageSnapshotParams,
+  'usage.refresh': UsageRefreshParams,
+  'usage.setEnabled': UsageSetEnabledParams,
   'workspaceCleanup.scan': WorkspaceCleanupScanParams,
   'workspacePorts.kill': WorkspacePortKillParams,
   'workspacePorts.killHost': WorkspacePortKillHostParams,
