@@ -2244,9 +2244,9 @@
       "59da66b64efd4b310dcd40f39e1e17bfbd1bbc9b"
     ],
     "patch": "worker-approvals-20261112/pr34895-message-list.patch",
-    "patchSha256": "dbf819f9faf6768fd70203952c538b446d3e69f73c9051437bbe2f467dd247eb",
-    "resultSha256": "994db4b2a4e0ef97548a2fbbf1cf86c944bd15e7c1a12f1b8f42b944088b7b05",
-    "reason": "Combine inline child navigation with the reader-owned extracted props and timed upstream worker-approval rows; keep the thinking hook and omit types already owned by the props module."
+    "patchSha256": "a7576eac7a9a616cc321ee093d6eb2449e875c8e1f69b7d6b0da8a59b3634a9b",
+    "resultSha256": "d6954e36ddad52f5b7c3180a3bed6de9f1be0b86717916967b01c18125abd56d",
+    "reason": "Combine inline child navigation with the reader-owned extracted props and timed upstream worker-approval rows; keep the thinking hook and omit types already owned by the props module. Remove the obsolete direct thinking import after selecting the extracted thinking hook."
   },
   {
     "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",

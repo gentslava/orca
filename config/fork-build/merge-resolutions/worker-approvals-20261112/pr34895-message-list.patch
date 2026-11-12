@@ -15,7 +15,15 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx b
  import { NativeChatAwaitingInputRow } from './prompts/NativeChatAwaitingInputRow'
  import { NativeChatTurnActivityLine } from './messages/reasoning/NativeChatTurnActivityLine'
  import {
-@@ -112,6 +113,7 @@
+@@ -55,7 +56,6 @@
+ import { useNativeChatReaderScrollInput } from './viewport/scroll/native-chat-reader-scroll-input'
+ import { useNativeChatMessageListHandle } from './messages/actions/use-native-chat-reveal-latest'
+
+-import { isStructuredAgentSessionThinking } from '../../../../shared/agent-session/view/structured-agent-session-live-turn'
+ import { useNativeChatTurnDiffs } from './tools/diffs/use-native-chat-turn-diffs'
+ import { useNativeChatTurnOpenedPullRequests } from './tools/pull-requests/use-native-chat-turn-opened-pull-requests'
+ import { NativeChatPullRequestChangeContext } from './tools/pull-requests/NativeChatOpenedPullRequestCard'
+@@ -112,6 +112,7 @@
      subagentDisclosure,
      openSubagentSections
    } = useNativeChatSubagentSections(messages, subagentRows, subagentRoster)
@@ -23,7 +31,7 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx b
    // Folded subagent rows stay loaded, so a reopened reply keeps its reveal.
    const loadedMessageIds = useMemo(
      () => new Set([...messages.map(({ id }) => id), ...subagentSections.pathOf.keys()]),
-@@ -140,11 +142,8 @@
+@@ -140,11 +141,8 @@
    )
    const openedPullRequests = useNativeChatTurnOpenedPullRequests(turnRows, subagentRowsInOrder)
    // Only real tail reasoning counts as thinking; an in-flight request with no output does not.
@@ -37,7 +45,7 @@ diff --git a/src/renderer/src/components/native-chat/NativeChatMessageList.tsx b
      turnKeys,
      liveTurnKey,
      isWorking,
-@@ -171,7 +170,7 @@
+@@ -171,7 +169,7 @@
      isWorking,
      lifecycleWorking: session.transcriptLifecycle?.state === 'working',
      subagentSections,
