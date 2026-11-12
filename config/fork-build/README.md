@@ -21,6 +21,7 @@ When every conflicted path is an English or Russian desktop/mobile translation c
 ## Operation
 
 - Daily at 03:37 UTC, plus manual **Personal upstream + PR build** on `master`.
+- Pull-request Linux qualification uses `pullRequestUpstreamCommit` from the selection. Refresh that full upstream SHA with the composed source before opening a maintenance PR. Scheduled builds still follow latest main; manual builds may choose `upstream_commit`. Every explicit baseline must pass the existing upstream ancestry checks.
 - `audit_only`: resolve lifecycle and test composition; never package.
 - `force_build`: bypass reuse of an identical last successful composition.
 - Persistent [status issue](https://github.com/gentslava/orca/issues/12): current report, lifecycle ledger, and last successful downloads.

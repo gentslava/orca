@@ -139,5 +139,6 @@
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/antigravity-models-40980"
     }
-  }
+  },
+  "pullRequestUpstreamCommit": "255b5c22c17ec91d1156db4e90049b754886d47e"
 }

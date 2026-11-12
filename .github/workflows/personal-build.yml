@@ -63,7 +63,11 @@ jobs:
           AUDIT_ONLY: ${{ inputs.audit_only || false }}
           FORCE_BUILD: ${{ inputs.force_build || false }}
           FORK_BUILD_UPSTREAM_COMMIT: ${{ inputs.upstream_commit || '' }}
-        run: node config/fork-build/plan.mjs
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            export FORK_BUILD_UPSTREAM_COMMIT="$(node -p "JSON.parse(require('node:fs').readFileSync('config/fork-build/selection.json', 'utf8')).pullRequestUpstreamCommit")"
+          fi
+          node config/fork-build/plan.mjs
       - name: Preserve the exact plan and report even on conflict
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
