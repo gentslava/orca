@@ -38,6 +38,8 @@ function measureLinuxApp(app, expected, format) {
   const common = manifest.filter(
     ({ path }) =>
       path !== 'resources/package-type' &&
+      path !== 'resources/app-update.yml' &&
+      (!['deb', 'rpm'].includes(format) || path !== 'resources/apparmor-profile') &&
       path !== 'resources/node-runtime' &&
       !path.startsWith('resources/node-runtime/') &&
       (format !== 'AppImage' ||
@@ -54,7 +56,8 @@ function measureLinuxApp(app, expected, format) {
     commonTreeSha256: hash(common),
     treeSha256: hash(manifest),
     treeEntries: manifest.length,
-    nativeFloor: floor.FLOOR_LABEL
+    nativeFloor: floor.FLOOR_LABEL,
+    commonManifest: common
   }
 }
 
@@ -87,8 +90,19 @@ export function stageLinuxPackages(plan, application, architecture) {
     expected,
     'unpacked'
   )
-  if (apps.some((app) => app.commonTreeSha256 !== unpacked.commonTreeSha256)) {
-    throw new Error('Linux package contents differ from the frozen unpacked application')
+  for (const app of apps) {
+    if (app.commonTreeSha256 === unpacked.commonTreeSha256) {
+      continue
+    }
+    const expectedEntries = new Map(unpacked.commonManifest.map((entry) => [entry.path, entry]))
+    const actualEntries = new Map(app.commonManifest.map((entry) => [entry.path, entry]))
+    const paths = new Set([...expectedEntries.keys(), ...actualEntries.keys()])
+    const differences = [...paths].filter(
+      (path) => !isDeepStrictEqual(expectedEntries.get(path), actualEntries.get(path))
+    )
+    throw new Error(
+      `Linux ${app.format} contents differ from the frozen unpacked application: ${differences.join(', ')}`
+    )
   }
   const directory = join(application, 'personal-packages')
   writePackageReceipt(directory, target.id, {
