@@ -52,6 +52,10 @@
     {
       "number": 41166,
       "reason": "Reuse the existing shared start-failure defaults in mobile to reduce the verified web payload while preserving all translation keys and exact fallback text."
+    },
+    {
+      "number": 41381,
+      "reason": "Keep model search, effort slider and other options visible in the mobile picker while only the model catalogue scrolls; match desktop structure and retain touch, keyboard, remote pending and model-specific choice behavior."
     }
   ],
   "exclude": {
