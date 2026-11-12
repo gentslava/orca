@@ -1,4 +1,3 @@
-import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
 import {
   captureRuntimeAiVaultProjectionDependency,
   type AiVaultProjectionDependency
@@ -116,6 +115,7 @@ async function listAiVaultSessions(
         ? [...new Set(scopePaths)].sort()
         : scopePaths,
     executionHostScope,
+    structuredOnly: args?.structuredOnly === true,
     selectedSessionId: args?.selectedSessionId,
     includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
     includeStructuredSessions: args?.includeStructuredSessions === true,

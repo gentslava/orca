@@ -122,6 +122,7 @@ function ownerUsage(): OwnerUsageRateLimits & { accounts: ProviderAccountsSnapsh
   return {
     rateLimits,
     accounts: { claude: { accounts: [], activeAccountId: null }, codex: accounts, rateLimits },
+    accountsUnverifiable: false,
     remoteOwner: { environmentId: 'laptop', label: 'Laptop' },
     refreshRemote: null
   }

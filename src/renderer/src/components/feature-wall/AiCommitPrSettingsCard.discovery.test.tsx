@@ -1,3 +1,4 @@
+import { chooseEffort } from '../native-chat/native-chat-effort-slider.test-fixture'
 // @vitest-environment happy-dom
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it } from 'vitest'
@@ -49,7 +50,7 @@ it.each(['omitted', 'efforts replaced'])(
     })
     fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
     fireEvent.click(screen.getByRole('option', { name: 'GPT-6.1 Sol' }))
-    fireEvent.click(screen.getByRole('radio', { name: 'High' }))
+    chooseEffort('High')
     act(() =>
       useAppStore.setState(({ settings }) => ({
         settings: {

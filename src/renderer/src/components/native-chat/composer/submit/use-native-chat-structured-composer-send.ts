@@ -40,6 +40,7 @@ import {
 } from '../../drafts/native-chat-composer-draft-memory'
 import {
   finishNativeChatComposerSubmission,
+  isNativeChatComposerDraftBlank,
   readNativeChatComposerDraft,
   updateNativeChatComposerDraft
 } from '../../drafts/native-chat-composer-draft-store'
@@ -213,14 +214,8 @@ export function useNativeChatStructuredComposerSend({
         setCaret(composing ? 0 : left.text.length)
         clearSkillOrigin()
       }
-      // A refused command returns only to an empty composer; a lone command typed since would be replaced.
-      const recoversDraft = () => {
-        const current = readNativeChatComposerDraft(draftScopeKey)
-        return (
-          consumed &&
-          (!hostCommand || (current.text.trim() === '' && (current.images?.length ?? 0) === 0))
-        )
-      }
+      const recoversDraft = () =>
+        consumed && (!hostCommand || isNativeChatComposerDraftBlank(draftScopeKey))
       const prepareAttachments: StructuredAgentSessionAttachmentPreparation | undefined =
         stagedInput ? (input) => stagedInput.prepare(input, structuredTransport) : undefined
       return dispatchNativeChatStructuredComposerText(

@@ -1,10 +1,4 @@
-import {
-  isSubmissionRejectionFact,
-  type AgentSessionFailureFact,
-  type AgentSessionFailureKind,
-  type SubmissionRejectionFact,
-  type SubmissionRejectionKind
-} from './agent-session-failure'
+import * as failureFacts from './agent-session-failure'
 import type { AgentSessionConversationCommand } from '../agent-session-conversation-command'
 import { cliMissingSentence, notSignedInSentence } from '../agent-session-availability-sentences'
 import {
@@ -42,13 +36,13 @@ export type AgentSessionFailureSentence = string & { readonly [failureSentence]:
 
 export type AgentSessionFailureRowWords = {
   text: AgentSessionFailureSentence
-  failure: AgentSessionFailureFact
+  failure: failureFacts.AgentSessionFailureFact
 }
 
 /** Legacy sentence/hidden marker and the newer fact, written together by the host. */
 export type AgentJournalDispatchRejection = {
   reason: AgentSessionFailureSentence
-  rejection: SubmissionRejectionFact
+  rejection: failureFacts.SubmissionRejectionFact
 }
 
 /** row describes the chat; rejection describes a rejected message; answer describes a refused approval/question answer. */
@@ -74,7 +68,7 @@ export type AgentSessionFailureWordsContext = {
 
 type Sentence = (
   context: AgentSessionFailureWordsContext,
-  fact: AgentSessionFailureFact,
+  fact: failureFacts.AgentSessionFailureFact,
   surface: AgentSessionFailureSurface,
   say: AgentSessionFailureSay
 ) => string
@@ -280,11 +274,11 @@ const FAILURE_SENTENCES = {
     }),
   previousExitUnverifiable: namingAgent('previousExitUnverifiable'),
   sessionNotRestored: namingAgent('sessionNotRestored')
-} satisfies Record<AgentSessionFailureKind, Sentence>
+} satisfies Record<failureFacts.AgentSessionFailureKind, Sentence>
 
 /** The sentence a person reads for this fact on this surface; never a marker. */
 export function agentSessionFailureSentence(
-  fact: AgentSessionFailureFact,
+  fact: failureFacts.AgentSessionFailureFact,
   surface: AgentSessionFailureSurface,
   context: AgentSessionFailureWordsContext = {},
   /** Desktop and phone pass their translations; the host keeps English. */
@@ -296,7 +290,10 @@ export function agentSessionFailureSentence(
 
 /** Preserve markers released clients hide. A write failure keeps the bare marker; its error stays in the log. */
 const LEGACY_REJECTION_MARKERS: Partial<
-  Record<SubmissionRejectionKind, (context: AgentSessionFailureWordsContext) => string | undefined>
+  Record<
+    failureFacts.SubmissionRejectionKind,
+    (context: AgentSessionFailureWordsContext) => string | undefined
+  >
 > = {
   cancelled: () => DISPATCH_REJECTED_CANCELLED,
   writeFailed: () => DISPATCH_REJECTED_WRITE_FAILED,
@@ -310,23 +307,23 @@ const LEGACY_REJECTION_MARKERS: Partial<
 
 /** The words a status row reporting this fact records. */
 export function agentSessionFailureWords(
-  fact: AgentSessionFailureFact,
+  fact: failureFacts.AgentSessionFailureFact,
   context: AgentSessionFailureWordsContext & { surface: 'row' }
 ): AgentSessionFailureRowWords
 /** The words a message rejected for this fact records. */
 export function agentSessionFailureWords(
-  fact: SubmissionRejectionFact,
+  fact: failureFacts.SubmissionRejectionFact,
   context: AgentSessionFailureWordsContext & { surface: 'rejection' }
 ): AgentJournalDispatchRejection
 export function agentSessionFailureWords(
-  fact: AgentSessionFailureFact,
+  fact: failureFacts.AgentSessionFailureFact,
   context: AgentSessionFailureWordsContext & { surface: AgentSessionFailureSurface }
 ): AgentSessionFailureRowWords | AgentJournalDispatchRejection {
   if (context.surface === 'row') {
     return { text: branded(agentSessionFailureSentence(fact, 'row', context)), failure: fact }
   }
   // The rejection overload admits only these; a caller that got past the types is Orca's bug.
-  if (!isSubmissionRejectionFact(fact)) {
+  if (!failureFacts.isSubmissionRejectionFact(fact)) {
     throw new Error(`agent session failure kind ${fact.kind} cannot reject a message`)
   }
   const words =

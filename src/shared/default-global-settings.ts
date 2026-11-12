@@ -16,7 +16,7 @@ import {
 } from './left-sidebar-appearance'
 import { DEFAULT_SOURCE_CONTROL_GROUP_ORDER } from './source-control/listing/source-control-group-order'
 import { DESKTOP_TERMINAL_SCROLLBACK_ROWS_DEFAULT } from './terminal/replay/terminal-scrollback-policy'
-import { NESTED_WORKER_MAX_DEPTH_DEFAULT } from './orchestration/workers/nested-worker-depth'
+import { getDefaultOrchestrationSettings } from './orchestration/orchestration-settings'
 import { getDefaultWorkspaceCleanupRules } from './workspace-cleanup/workspace-cleanup-policy'
 
 export function buildDefaultSettings(args: {
@@ -180,11 +180,7 @@ export function buildDefaultSettings(args: {
     // New profiles only; stored profiles without the key load as false (normalizeLoadedGlobalSettings).
     artifactSharingEnabled: true,
     agentSkillSharingEnabled: false,
-    nestedWorkerMaxDepth: NESTED_WORKER_MAX_DEPTH_DEFAULT,
-    nestedWorkerMaxDepthDefaultedToFour: true,
-    orchestrationWorkerRoles: {},
-    orchestrationWorkerAutoReleaseEnabled: true,
-    orchestrationCoordinatorApprovalsEnabled: false,
+    ...getDefaultOrchestrationSettings(),
     showArtifactsButton: false,
     showSkillsButton: false,
     showMobileButton: false,

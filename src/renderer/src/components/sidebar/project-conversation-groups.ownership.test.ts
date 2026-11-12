@@ -131,3 +131,34 @@ describe('project conversation ownership', () => {
     expect(result.every((group) => group.workspaceId === undefined)).toBe(true)
   })
 })
+
+it('orders folder and history-only groups by name together with registered projects', () => {
+  const result = groups({
+    order: 'name',
+    repos: conversationRepos,
+    catalog: projectHostSetupProjectionFromRepos(conversationRepos),
+    folders: [localFolder],
+    sessions: [{ ...chat('lost', 'local', 'folder:missing'), cwd: '/Apple' }]
+  })
+  expect(result.map((group) => group.label)).toEqual(['Apple', 'Djinn', 'Notes', 'Orca'])
+})
+
+it('keeps host-local personal rankings separate when repo IDs collide', () => {
+  const repos = [
+    conversationRepos[0]!,
+    { ...conversationRepos[0]!, executionHostId: 'runtime:remote' as const }
+  ]
+  const result = groups({
+    order: 'frequent',
+    repos,
+    catalog: projectHostSetupProjectionFromRepos(repos),
+    personalProjectOrder: {
+      projects: {
+        '["local","local","repo:orca"]': { openCount: 1 },
+        '["runtime:remote","runtime:remote","repo:orca"]': { openCount: 9 }
+      },
+      settledOperations: []
+    }
+  })
+  expect(result.map((group) => group.executionHostId)).toEqual(['runtime:remote', 'local'])
+})

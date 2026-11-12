@@ -128,7 +128,9 @@ export function InlineUsageBars({
             <span className="w-8 shrink-0 text-right tabular-nums">
               {formatBareUsagePercentage(window.used, display, t)}
             </span>
-            <span className="w-11 shrink-0 break-all text-right tabular-nums">{resetDuration}</span>
+            <span className="w-24 shrink-0 whitespace-nowrap text-right tabular-nums">
+              {resetDuration}
+            </span>
           </div>
         )
       })}
