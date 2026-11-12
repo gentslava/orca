@@ -142,3 +142,21 @@ it('keeps a shared listing for an earlier-ending reader of the same folder when 
   expect(await second).toMatchObject({ models: [{ id: 'shared' }] })
   expect(h.run).toHaveBeenCalledOnce()
 })
+
+it('re-reads configured defaults on explicit reset even while the catalog is fresh', async () => {
+  const h = sharedListingHarness()
+  h.discovery.resolve({ ...listing('initial'), complete: true, configured: {} })
+  await h.service.demand({ agent: 'codex' })
+  expect(h.run).toHaveBeenCalledOnce()
+  h.run.mockResolvedValue({ ...listing('configured'), complete: true, configured: {} })
+  const answer = await h.service.read({
+    agent: 'codex',
+    waitForListing: true,
+    requireConfiguredDefault: true
+  })
+  expect(h.run).toHaveBeenCalledTimes(2)
+  if (answer.origin === 'unknown') {
+    throw new Error('Configured default was not refreshed')
+  }
+  expect(answer.models.map((model) => model.id)).toEqual(['configured'])
+})
