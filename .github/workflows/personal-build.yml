@@ -14,6 +14,10 @@ on:
         description: Package even if the last successful release has identical inputs
         type: boolean
         default: false
+      upstream_commit:
+        description: Optional full upstream commit for a fixed build; empty follows latest main
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -49,6 +53,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           AUDIT_ONLY: ${{ inputs.audit_only || false }}
           FORCE_BUILD: ${{ inputs.force_build || false }}
+          FORK_BUILD_UPSTREAM_COMMIT: ${{ inputs.upstream_commit || '' }}
         run: node config/fork-build/plan.mjs
       - name: Preserve the exact plan and report even on conflict
         if: always()

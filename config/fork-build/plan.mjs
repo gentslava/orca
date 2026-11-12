@@ -14,6 +14,10 @@ import { controlFingerprint } from './promotion.mjs'
 import { currentCompatibilityPatch } from './retired-test-fixtures.mjs'
 import { applyForkLocalizations } from './fork-localizations.mjs'
 import { upstreamReleaseIdentity } from './upstream-release-identity.mjs'
+import {
+  selectUpstreamBuildCommit,
+  requireUpstreamBuildAncestor
+} from './upstream-build-baseline.mjs'
 import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/build-mac-local.mjs'
 
 const here = import.meta.dirname
@@ -42,7 +46,12 @@ try {
     ? readLedger(api(`repos/${process.env.GITHUB_REPOSITORY}/issues/${config.statusIssue}`).body)
     : { tracked: [] }
   plan.previous = ledger
-  plan.upstream = api(`repos/${config.upstream}/git/ref/heads/${config.base}`).object.sha
+  const observedUpstream = api(`repos/${config.upstream}/git/ref/heads/${config.base}`).object.sha
+  plan.upstream = selectUpstreamBuildCommit(
+    observedUpstream,
+    process.env.FORK_BUILD_UPSTREAM_COMMIT
+  )
+  plan.upstreamBaseline = { observed: observedUpstream, pinned: plan.upstream !== observedUpstream }
   plan.upstreamRelease = upstreamReleaseIdentity(api(`repos/${config.upstream}/releases/latest`))
   const own = []
   for (const author of config.authors) {
@@ -80,7 +89,13 @@ try {
       ? pr.merge_commit_sha
       : `refs/pull/${pr.number}/head:refs/personal/${pr.retainedHeadSource ? 'closed-pr' : pr.foreignHeadSource ? 'foreign-pr' : 'pr'}-${pr.number}`
   )
-  git(source, ['fetch', '--no-tags', 'origin', plan.upstream, ...new Set(selectedRefs)])
+  git(source, [
+    'fetch',
+    '--no-tags',
+    'origin',
+    ...new Set([plan.upstream, observedUpstream, ...selectedRefs])
+  ])
+  requireUpstreamBuildAncestor(source, plan.upstream, observedUpstream)
   for (const pr of plan.selections) {
     if (pr.retainedHeadSource) {
       freezeRetainedHead(source, pr)

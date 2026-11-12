@@ -562,10 +562,9 @@ index 30c86d9bae346dde0c0b1483fe2fb348d006ae73..a744639d11dd1ba139c0f1bb0922f2fe
 +
 +// Render system notices separately so they cannot read as the agent’s own prose.
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-index d04131c72df..5d5504e0f50 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-@@ -62,7 +62,7 @@ import { nativeChatStructuredStopControls } from './session/structured/writes/na
+@@ -63,7 +63,7 @@
  import { useAppStore } from '../../store'
  import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
  import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
@@ -574,10 +573,10 @@ index d04131c72df..5d5504e0f50 100644
  import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
  import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
  import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
-@@ -342,18 +342,13 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
-                 messageListRef={submits.messageListRef}
+@@ -343,18 +343,13 @@
+                 pane={props}
+                 isVisible={props.isVisible && childNavigator.child === null}
                />
-               {workerApprovals.strip}
 -              {prompt ? null : (
 -                <NativeChatStructuredComposerTabStrips
 -                  tabId={props.tabId}
@@ -639,4 +638,125 @@ index 4f59cfe777d..d931334fa14 100644
 +      workingStartedAt={controller.workingStartedAt}
 +    />
 +  ) : null
++}
+--- a/mobile/src/session/native-chat/input/MobileNativeChatModelList.tsx
++++ b/mobile/src/session/native-chat/input/MobileNativeChatModelList.tsx
+@@ -17,6 +17,7 @@
+   disabled: boolean
+   onSetOption: (value: SessionOptionValue) => void
+   onInvokeAction: () => void
++  onReset?: () => void
+ }): React.JSX.Element {
+   useMobileColorScheme()
+   const t = useMobileTranslation()
+diff --git a/src/cli/orchestration-handler-group.ts b/src/cli/orchestration-handler-group.ts
+--- a/src/cli/orchestration-handler-group.ts
++++ b/src/cli/orchestration-handler-group.ts
+@@ -22,6 +22,7 @@
+     'orchestration worker-show',
+     'orchestration worker-read',
+     'orchestration worker-stop',
++    'orchestration approve',
+     'orchestration deny',
+     'orchestration worker-abandon',
+     'orchestration worker-release',
+diff --git a/src/shared/default-global-settings.ts b/src/shared/default-global-settings.ts
+--- a/src/shared/default-global-settings.ts
++++ b/src/shared/default-global-settings.ts
+@@ -16,7 +16,7 @@
+ } from './left-sidebar-appearance'
+ import { DEFAULT_SOURCE_CONTROL_GROUP_ORDER } from './source-control/listing/source-control-group-order'
+ import { DESKTOP_TERMINAL_SCROLLBACK_ROWS_DEFAULT } from './terminal/replay/terminal-scrollback-policy'
+-import { NESTED_WORKER_MAX_DEPTH_DEFAULT } from './orchestration/workers/nested-worker-depth'
++import { getDefaultOrchestrationSettings } from './orchestration/orchestration-settings'
+ import { getDefaultWorkspaceCleanupRules } from './workspace-cleanup/workspace-cleanup-policy'
+
+ export function buildDefaultSettings(args: {
+@@ -180,11 +180,7 @@
+     // New profiles only; stored profiles without the key load as false (normalizeLoadedGlobalSettings).
+     artifactSharingEnabled: true,
+     agentSkillSharingEnabled: false,
+-    nestedWorkerMaxDepth: NESTED_WORKER_MAX_DEPTH_DEFAULT,
+-    nestedWorkerMaxDepthDefaultedToFour: true,
+-    orchestrationWorkerRoles: {},
+-    orchestrationWorkerAutoReleaseEnabled: true,
+-    orchestrationCoordinatorApprovalsEnabled: false,
++    ...getDefaultOrchestrationSettings(),
+     showArtifactsButton: false,
+     showSkillsButton: false,
+     showMobileButton: false,
+diff --git a/src/shared/global-settings-types.ts b/src/shared/global-settings-types.ts
+--- a/src/shared/global-settings-types.ts
++++ b/src/shared/global-settings-types.ts
+@@ -258,11 +258,6 @@
+   artifactSharingEnabled?: boolean
+   /** Capability gate for agent/CLI skill publishing; manual reviewed publishing remains available. */
+   agentSkillSharingEnabled?: boolean
+-  /** Escalate native-chat worker turn errors to the dispatching Run; absent means on. Renderer-only so workers cannot silence failures via CLI. */
+-  /** Close a finished worker's terminal or chat after a grace period; absent means on. The coordinator's runtime decides. */
+-  orchestrationWorkerAutoReleaseEnabled?: boolean
+-  /** Coordinator agents may allow workers' permission prompts on this machine; absent means off. Not in any agent-writable settings RPC. */
+-  orchestrationCoordinatorApprovalsEnabled?: boolean
+   /** Only toggles the sidebar shortcut; Artifacts stay reachable from Settings. */
+   showArtifactsButton?: boolean
+   /** Only toggles the sidebar shortcut; Skills stay reachable from Settings. */
+diff --git a/src/shared/global-settings-base.ts b/src/shared/global-settings-base.ts
+--- a/src/shared/global-settings-base.ts
++++ b/src/shared/global-settings-base.ts
+@@ -17,11 +17,10 @@
+ import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
+ import type { HoldQuitSettings } from './mac-hold-quit'
+ import type { AgentPermissionGlobalSettings } from './agent-launch/permissions/tui-agent-permission-choice'
+-import type { WorkerRoleSettings } from './orchestration-worker-roles'
++import type { OrchestrationGlobalSettings } from './orchestration/orchestration-settings'
+ import type { TerminalColorOverrideGlobalSettings } from './terminal-themes/terminal-color-overrides'
+ import type { WindowMaterialSettings } from './window-material'
+ import type { EditorSaveSettings } from './editor-save-settings'
+-import type { NestedWorkerDepthSettings } from './orchestration/workers/nested-worker-depth'
+ import type { SshRemoteControlSettings } from './ssh-remote-control-settings'
+ import type { AgentWorkspaceTrustSettings } from './agent-launch/permissions/agent-workspace-trust-decision'
+ import type { KeybindingGlobalSettings } from './keybindings/global-settings'
+@@ -38,7 +37,7 @@
+   AgentPermissionGlobalSettings &
+   ExternalConversationSettings &
+   BrowserLinkOpeningSettings &
+-  WorkerRoleSettings &
++  OrchestrationGlobalSettings &
+   HoldQuitSettings &
+   BrowserExtensionGlobalSettings &
+   PluginAppearanceSettings &
+@@ -51,6 +50,5 @@
+   WindowMaterialSettings &
+   EditorSaveSettings &
+   BrowserPasswordsGlobalSettings &
+-  NestedWorkerDepthSettings &
+   AgentWorkspaceTrustSettings &
+   KeybindingGlobalSettings
+diff --git a/src/shared/orchestration/orchestration-settings.ts b/src/shared/orchestration/orchestration-settings.ts
+new file mode 100644
+--- /dev/null
++++ b/src/shared/orchestration/orchestration-settings.ts
+@@ -0,0 +1,23 @@
++import type { WorkerRoleSettings } from '../orchestration-worker-roles'
++import {
++  NESTED_WORKER_MAX_DEPTH_DEFAULT,
++  type NestedWorkerDepthSettings
++} from './workers/nested-worker-depth'
++
++export type OrchestrationGlobalSettings = WorkerRoleSettings &
++  NestedWorkerDepthSettings & {
++    /** Close a finished worker's terminal or chat after a grace period; absent means on. The coordinator's runtime decides. */
++    orchestrationWorkerAutoReleaseEnabled?: boolean
++    /** Coordinator agents may allow workers' permission prompts on this machine; absent means off. Not in any agent-writable settings RPC. */
++    orchestrationCoordinatorApprovalsEnabled?: boolean
++  }
++
++export function getDefaultOrchestrationSettings(): Required<OrchestrationGlobalSettings> {
++  return {
++    nestedWorkerMaxDepth: NESTED_WORKER_MAX_DEPTH_DEFAULT,
++    nestedWorkerMaxDepthDefaultedToFour: true,
++    orchestrationWorkerRoles: {},
++    orchestrationWorkerAutoReleaseEnabled: true,
++    orchestrationCoordinatorApprovalsEnabled: false
++  }
 +}

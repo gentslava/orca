@@ -52,12 +52,17 @@
     {
       "number": 41166,
       "reason": "Reuse the existing shared start-failure defaults in mobile to reduce the verified web payload while preserving all translation keys and exact fallback text."
+    },
+    {
+      "number": 41381,
+      "reason": "Keep model search, effort slider and other options visible in the mobile picker while only the model catalogue scrolls; match desktop structure and retain touch, keyboard, remote pending and model-specific choice behavior."
     }
   ],
   "exclude": {
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "40816": "Draft welcome-screen shortcut repair is still under the requested local and remote tab-restoration audit. Include after that audit completes.",
-    "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision."
+    "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
+    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
   },
   "replacements": {
     "36569": 36922,
