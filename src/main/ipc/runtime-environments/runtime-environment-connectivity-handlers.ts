@@ -8,6 +8,7 @@ import {
   addEnvironmentFromPairingCode,
   listEnvironments,
   removeEnvironment,
+  renameEnvironment,
   resolveEnvironment
 } from '../../../shared/remote-runtime/host-store/runtime-environment-store'
 import {
@@ -149,6 +150,27 @@ export function registerRuntimeEnvironmentConnectivityHandlers({
       )
       closeLegacySelectorTransport(args.selector, removed.id)
       return { removed: redactRuntimeEnvironment(removed) }
+    }
+  )
+  ipcMain.handle(
+    'runtimeEnvironments:rename',
+    (
+      _event,
+      args: { selector: string; name: string }
+    ): { environment: PublicKnownRuntimeEnvironment } => {
+      if (typeof args.name !== 'string') {
+        throw new Error('Renaming a server requires a name.')
+      }
+      // Resolve merged first: an unreadable sidecar hides the record rather than lose its links.
+      const environment = resolveEnvironment(getUserDataPath(), args.selector)
+      const renamed = renameEnvironment(getUserDataPath(), environment.id, { name: args.name })
+      return {
+        environment: redactRuntimeEnvironment({
+          ...environment,
+          name: renamed.name,
+          updatedAt: renamed.updatedAt
+        })
+      }
     }
   )
   ipcMain.handle(
