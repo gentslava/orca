@@ -7,7 +7,10 @@ import {
   agentSessionRecordFixture
 } from '../../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
 import { setStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
-const mocks = vi.hoisted(() => ({ scanAiVaultSessionsInService: vi.fn(), ipcHandle: vi.fn() }))
+const mocks = vi.hoisted(() => {
+  vi.resetModules()
+  return { scanAiVaultSessionsInService: vi.fn(), ipcHandle: vi.fn() }
+})
 vi.mock('electron', () => ({
   app: { on: vi.fn() },
   ipcMain: { handle: mocks.ipcHandle, on: vi.fn() },
