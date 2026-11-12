@@ -16,6 +16,21 @@ import {
 import { linuxPackageTarget } from './package-targets.mjs'
 import { extractLinuxPackage } from './linux-package-extraction.mjs'
 
+export function linuxCommonManifest(manifest, format) {
+  return manifest.filter(
+    ({ path, type }) =>
+      type !== 'directory' &&
+      path !== 'resources/package-type' &&
+      path !== 'resources/app-update.yml' &&
+      (!['deb', 'rpm'].includes(format) || path !== 'resources/apparmor-profile') &&
+      path !== 'resources/node-runtime' &&
+      !path.startsWith('resources/node-runtime/') &&
+      (format !== 'AppImage' ||
+        (!['AppRun', '.DirIcon', 'orca-ide.desktop', 'orca-ide.png', 'usr'].includes(path) &&
+          !path.startsWith('usr/')))
+  )
+}
+
 function measureLinuxApp(app, expected, format) {
   const resources = join(app, 'resources')
   const identity = JSON.parse(readFileSync(join(resources, 'orca-personal-build.json'), 'utf8'))
@@ -35,17 +50,7 @@ function measureLinuxApp(app, expected, format) {
   }
   floor.verifyLinuxGlibcFloor(app, { targetArch: expected.architecture })
   const manifest = appManifest(app)
-  const common = manifest.filter(
-    ({ path }) =>
-      path !== 'resources/package-type' &&
-      path !== 'resources/app-update.yml' &&
-      (!['deb', 'rpm'].includes(format) || path !== 'resources/apparmor-profile') &&
-      path !== 'resources/node-runtime' &&
-      !path.startsWith('resources/node-runtime/') &&
-      (format !== 'AppImage' ||
-        (!['AppRun', '.DirIcon', 'orca-ide.desktop', 'orca-ide.png', 'usr'].includes(path) &&
-          !path.startsWith('usr/')))
-  )
+  const common = linuxCommonManifest(manifest, format)
   const hash = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
   return {
     identity,
