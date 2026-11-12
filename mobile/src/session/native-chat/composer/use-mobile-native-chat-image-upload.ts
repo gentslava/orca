@@ -23,6 +23,7 @@ import {
   type MobilePastedImages
 } from './mobile-native-chat-composer-paste'
 import { useClipboardReader } from '../../../platform/clipboard'
+import { fitMobileAgentImage } from '../../../files/attachments/mobile-agent-image-fit'
 
 type CurrentRef<T> = { readonly current: T }
 type UploadedNativeChatImage = Omit<PendingNativeChatImage, 'id'>
@@ -100,7 +101,8 @@ export function useMobileNativeChatImageUpload(args: {
             started = true
             attachingCount.current += 1
             setIsAttaching(true)
-          }
+          },
+          fitImage: fitMobileAgentImage
         })
       } catch (error) {
         uploadError = error

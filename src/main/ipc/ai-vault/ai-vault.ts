@@ -1,21 +1,18 @@
-import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
 import {
   captureRuntimeAiVaultProjectionDependency,
   type AiVaultProjectionDependency
 } from './ai-vault-projection-dependency'
 import { app, ipcMain } from 'electron'
-import {
-  configureAiVaultSessionSources,
-  resetAiVaultSessionListCacheForTests,
-  type AiVaultSessionSources
-} from '../../ai-vault/cached-session-list'
+import { configureAiVaultSessionSources } from '../../ai-vault/discovery/ai-vault-scan-roots'
+import { resetAiVaultSessionListCacheForTests } from '../../ai-vault/listing/cached-session-list'
+import type { AiVaultSessionSources } from '../../ai-vault/discovery/ai-vault-scan-roots'
 import { deleteAiVaultSession, registerAiVaultDeleteHandler } from './ai-vault-delete'
 import { listAiVaultSubagentSessions } from './ai-vault-subagent-list'
 import {
   aiVaultScanIssueResult,
   cancelledAiVaultListResult,
   mergeAiVaultListResults
-} from '../../ai-vault/session-list-results'
+} from '../../ai-vault/listing/session-list-results'
 import type { AiVaultDeleteSessionArgs } from '../../../shared/ai-vault/contracts/ai-vault-session-deletion'
 import {
   AI_VAULT_SCOPE_PATHS_MAX_COUNT,
@@ -26,7 +23,7 @@ import {
   type AiVaultSubagentListArgs,
   type AiVaultSubagentListResult
 } from '../../../shared/ai-vault/contracts/ai-vault-types'
-import { handleAiVaultGetFirstUserPrompt } from '../../ai-vault/session-first-user-prompt-handler'
+import { handleAiVaultGetFirstUserPrompt } from '../../ai-vault/prompts/session-first-user-prompt-handler'
 import { registerAiVaultResumeHandler, type AiVaultResumeHandlerOptions } from './ai-vault-resume'
 import {
   LOCAL_EXECUTION_HOST_ID,
@@ -41,7 +38,7 @@ import {
   scanRuntimeAiVaultSessions,
   type RuntimeAiVaultHostInfo,
   type RuntimeAiVaultScanner
-} from '../../ai-vault/ai-vault-runtime-scan'
+} from '../../ai-vault/runtime-hosts/ai-vault-runtime-scan'
 import {
   createAiVaultListScanCoordinator,
   invalidateAiVaultHostLegCache,
@@ -60,10 +57,11 @@ import {
 import {
   OPENS_EVERY_STRUCTURED_CHAT,
   projectStructuredAiVaultSessions
-} from '../../ai-vault/structured-session-ownership'
+} from '../../ai-vault/structured-sessions/structured-session-ownership'
 import { allHostsRuntimeScanTimeoutMs } from './ai-vault-all-host-timeouts'
 import { registerAiVaultScanProgressBroadcast } from './ai-vault-scan-progress-broadcast'
 import { boundedAiVaultConversationList } from '../../ai-vault/structured-conversation-navigation'
+import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
 
 type AiVaultHandlerOptions = AiVaultSessionSources &
   AiVaultResumeHandlerOptions & {

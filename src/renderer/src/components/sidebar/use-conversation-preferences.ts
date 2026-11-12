@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react'
 import { toast } from 'sonner'
-import { translate } from '@/i18n/i18n'
+import { useTranslate } from '@/i18n/use-translate'
 import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import { ensureLocalRuntimeCapabilities } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 import {
@@ -46,49 +46,8 @@ function refresh(): Promise<void> {
     })
   return flight
 }
-async function setPreference(key: string, patch: ConversationPreference): Promise<void> {
-  try {
-    await refresh()
-    if (!supported) {
-      throw new Error('host-update-required')
-    }
-    const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
-      { kind: 'local' },
-      'ui.setConversationPreference',
-      { key, ...patch }
-    )
-    accept(reply.preferences)
-  } catch {
-    toast.error(
-      translate(
-        'projectConversations.saveFailed',
-        'Could not save chat preferences. Update Orca or try again.'
-      )
-    )
-  }
-}
-async function setProjectHidden(projectKey: string, label: string, hidden: boolean): Promise<void> {
-  try {
-    await refresh()
-    if (!projectVisibilitySupported) {
-      throw new Error('host-update-required')
-    }
-    const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
-      { kind: 'local' },
-      'ui.setConversationPreference',
-      { projectKey, label, hidden }
-    )
-    accept(reply.preferences)
-  } catch {
-    toast.error(
-      translate(
-        'projectConversations.visibilityFailed',
-        'Could not save project visibility. Update Orca or try again.'
-      )
-    )
-  }
-}
 export function useConversationPreferences() {
+  const t = useTranslate()
   const preferences = useSyncExternalStore(
     (listener) => {
       listeners.add(listener)
@@ -106,5 +65,63 @@ export function useConversationPreferences() {
     window.addEventListener('focus', onFocus)
     return () => window.removeEventListener('focus', onFocus)
   }, [])
+  const setPreference = async (key: string, patch: ConversationPreference): Promise<void> => {
+    try {
+      await refresh()
+      if (!supported) {
+        toast.error(
+          t(
+            'projectConversations.saveFailed',
+            'Could not save chat preferences. Update Orca or try again.'
+          )
+        )
+        return
+      }
+      const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
+        { kind: 'local' },
+        'ui.setConversationPreference',
+        { key, ...patch }
+      )
+      accept(reply.preferences)
+    } catch {
+      toast.error(
+        t(
+          'projectConversations.saveFailed',
+          'Could not save chat preferences. Update Orca or try again.'
+        )
+      )
+    }
+  }
+  const setProjectHidden = async (
+    projectKey: string,
+    label: string,
+    hidden: boolean
+  ): Promise<void> => {
+    try {
+      await refresh()
+      if (!projectVisibilitySupported) {
+        toast.error(
+          t(
+            'projectConversations.visibilityFailed',
+            'Could not save project visibility. Update Orca or try again.'
+          )
+        )
+        return
+      }
+      const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
+        { kind: 'local' },
+        'ui.setConversationPreference',
+        { projectKey, label, hidden }
+      )
+      accept(reply.preferences)
+    } catch {
+      toast.error(
+        t(
+          'projectConversations.visibilityFailed',
+          'Could not save project visibility. Update Orca or try again.'
+        )
+      )
+    }
+  }
   return { preferences, setPreference, projectVisibilitySupported, setProjectHidden }
 }

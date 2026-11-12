@@ -226,55 +226,25 @@ export function descriptorRowElements(
       onPress={() => onSetOption(choice.value)}
     />
   )
-  const withDefault = (rows: ReactElement[]): ReactElement[] =>
-    descriptor.defaultChoice &&
-    onReset &&
-    (query === undefined ||
-      nativeChatModelSearchScore('default', query, [
-        t('chat.sessionOptionRows.defaultMarker', 'Default'),
-        descriptor.defaultChoice.model?.label ?? '',
-        descriptor.defaultChoice.model?.description ?? ''
-      ]) > 0)
-      ? [
-          <ListRow
-            key="model-default"
-            title={t('chat.sessionOptionRows.defaultMarker', 'Default')}
-            subtitle={[
-              descriptor.defaultChoice.model?.label ?? 'Default model not reported',
-              descriptor.defaultChoice.model?.description
-            ]
-              .filter(Boolean)
-              .join('\n')}
-            selected={descriptor.defaultChoice.selected}
-            disabled={locked}
-            onPress={onReset}
-          />,
-          ...rows
-        ]
-      : rows
   const terms = query?.toLowerCase().split(/\s+/).filter(Boolean) ?? []
-  if (query !== undefined) {
-    return withDefault(
-      choices
-        .filter((choice) => {
-          if (choice.searchOnly && terms.length === 0) {
-            return false
-          }
-          return (
-            nativeChatModelSearchScore(choice.value, query, [
-              nativeChatSessionChoiceLabel(choice, say, descriptor.id),
-              choice.description ?? ''
-            ]) > 0
-          )
-        })
-        .map(choiceRow)
-    )
+  if (query !== undefined && terms.length > 0) {
+    return choices
+      .filter((choice) => {
+        return (
+          nativeChatModelSearchScore(choice.value, query, [
+            nativeChatSessionChoiceLabel(choice, say, descriptor.id),
+            choice.description ?? ''
+          ]) > 0
+        )
+      })
+      .map(choiceRow)
   }
-  const more = moreChoices ? choices.filter((choice) => choice.searchOnly) : []
+  const more = moreChoices ? choices.filter((choice) => choice.legacy) : []
   const rows = [
-    ...choices.filter((choice) => !choice.searchOnly).map(choiceRow),
+    ...choices.filter((choice) => !choice.legacy).map(choiceRow),
     ...(more.length > 0 && moreChoices
       ? [
+          ...(moreChoices.shown ? more.map(choiceRow) : []),
           <ListRow
             key="more-choices"
             title={
@@ -283,12 +253,28 @@ export function descriptorRowElements(
                 : t('chat.sessionOptionRows.moreModels', 'More models')
             }
             onPress={moreChoices.onToggle}
-          />,
-          ...(moreChoices.shown ? more.map(choiceRow) : [])
+          />
         ]
       : [])
   ]
-  return withDefault(rows)
+  return descriptor.defaultChoice && onReset
+    ? [
+        <ListRow
+          key="model-default"
+          title={t('chat.sessionOptionRows.defaultMarker', 'Default')}
+          subtitle={[
+            descriptor.defaultChoice.model?.label ?? 'Default model not reported',
+            descriptor.defaultChoice.model?.description
+          ]
+            .filter(Boolean)
+            .join('\n')}
+          selected={descriptor.defaultChoice.selected}
+          disabled={locked}
+          onPress={onReset}
+        />,
+        ...rows
+      ]
+    : rows
 }
 
 export function DescriptorRows(props: DescriptorRowsProps): React.JSX.Element {

@@ -23,6 +23,7 @@ import { colors } from '../../../theme/mobile-theme'
 import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
 import { translate } from '../../../i18n/mobile-i18n'
 import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
+import { useMoreModelsShown } from './use-more-models-shown'
 import {
   sessionOptionDispatchUnconfirmed,
   type SessionOptionDescriptor,
@@ -114,6 +115,7 @@ export function MobileNativeChatSessionOptionPickers({
     }
   }, [open, hasControls, onNavigate])
   const model = snapshot.find((descriptor) => descriptor.category === 'model')
+  const moreModels = useMoreModelsShown(model)
   const permission = snapshot.find(
     (descriptor) => descriptor.id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
   )
@@ -237,7 +239,10 @@ export function MobileNativeChatSessionOptionPickers({
       <BottomDrawer
         visible={activeDescriptor !== undefined}
         onClose={closePicker}
-        onAfterClose={onDrawerAfterClose}
+        onAfterClose={() => {
+          moreModels.reset()
+          onDrawerAfterClose?.()
+        }}
         fillAvailable={modelHome}
         contentScrollable={!modelHome}
         dragContentToDismiss={!modelHome}
@@ -283,9 +288,7 @@ export function MobileNativeChatSessionOptionPickers({
             {modelHome ? (
               <MobileNativeChatModelList
                 descriptor={model}
-                disabled={locked(model)}
-                onSetOption={(value) => applyOption(model, value)}
-                onInvokeAction={() => invokeAction(model)}
+                moreChoices={moreModels}
                 onReset={
                   controller.optionSurface?.resetOption
                     ? () => {
@@ -293,6 +296,9 @@ export function MobileNativeChatSessionOptionPickers({
                       }
                     : undefined
                 }
+                disabled={locked(model)}
+                onSetOption={(value) => applyOption(model, value)}
+                onInvokeAction={() => invokeAction(model)}
               />
             ) : (
               <>
@@ -304,6 +310,7 @@ export function MobileNativeChatSessionOptionPickers({
                       disabled: locked(activeDescriptor),
                       onSetOption: (value) => applyOption(activeDescriptor, value),
                       onInvokeAction: () => invokeAction(activeDescriptor),
+                      moreChoices: moreModels,
                       onReset: controller.optionSurface?.resetOption
                         ? () => {
                             void controller.optionSurface?.resetOption?.(activeDescriptor.id)
