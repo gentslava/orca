@@ -2,7 +2,7 @@
 # Existing production source files importing child_process at runtime outside @orca/process-host.
 # Migration debt: this list may only shrink; new callers use the package public API.
 src/cli/handlers/core.ts
-src/cli/handlers/interactive-login-interruption.ts
+src/cli/accounts/interactive-login-interruption.ts
 src/cli/runtime/launch.ts
 src/main/agent-hooks/installation/locking/managed-hook-owner-identity.ts
 src/main/ai-vault/scan-service/session-scanner-service-spawn.ts
@@ -57,7 +57,6 @@ src/main/network/macos-tailscale-dns-diagnostic.ts
 src/main/plugins/workers/parent-process/plugin-host-process.ts
 src/main/plugins/catalog/plugin-private-marketplace-ssh-shim.cjs
 src/main/ports/port-scan-command-execution.ts
-src/main/providers/macos-login-session-pty-probe.ts
 src/main/providers/process-cwd.ts
 src/main/pty/process-retirement/pty-descendant-fresh-table.ts
 src/main/rate-limits/providers/gemini/gemini-cli-oauth-extractor.ts
