@@ -358,7 +358,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
               {/* Prompt cards take the composer's slot, below the background-task dock. */}
               {composerShown ? null : <NativeChatPromptSlotNotices notices={notices} />}
               <NativeChatStructuredPrompts
-                pane={props}
+                pane={{ ...props, isVisible: props.isVisible && childNavigator.child === null }}
                 controller={controller}
                 response={promptResponse}
                 session={session}

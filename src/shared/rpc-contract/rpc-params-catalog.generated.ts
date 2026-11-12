@@ -776,6 +776,16 @@ import {
   WorktreeTeardownMissingTerminalsParams
 } from './worktree-params'
 import { WorktreeAdoptProvisionedRoot } from './worktree-provisioned-root-params'
+import {
+  LinkAddParticipantsParams,
+  LinkControlParams,
+  LinkCreateParams,
+  LinkListParams,
+  LinkResolveParams,
+  LinkSendParams,
+  LinkSetPolicyParams,
+  LinkShowParams
+} from '../session-link'
 import { RepoIconDataUrlsParams } from '../sidebar-list/repo-icon-data-urls-contract'
 import { SidebarInputsReadParams } from '../sidebar-list/sidebar-inputs-feed-contract'
 import { SkillBundleInstallRequestSchema } from '../skill-bundle-install-contract'
@@ -1387,6 +1397,15 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.gateList': GateListParams,
   'orchestration.gateResolve': GateResolveParams,
   'orchestration.inbox': InboxParams,
+  'orchestration.linkAddParticipants': LinkAddParticipantsParams,
+  'orchestration.linkCandidates': LinkListParams,
+  'orchestration.linkControl': LinkControlParams,
+  'orchestration.linkCreate': LinkCreateParams,
+  'orchestration.linkCurrent': LinkListParams,
+  'orchestration.linkResolve': LinkResolveParams,
+  'orchestration.linkSend': LinkSendParams,
+  'orchestration.linkSetPolicy': LinkSetPolicyParams,
+  'orchestration.linkShow': LinkShowParams,
   'orchestration.partyLocation': PartyLocationParams,
   'orchestration.partyOpen': PartyLocationParams,
   'orchestration.peerMailAck': PeerMailAckParams,
