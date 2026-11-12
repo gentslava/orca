@@ -297,3 +297,11 @@ index e7df911e774..348a1be547f 100644
 +    }
 +  }
 +)
+diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.ts
+--- a/src/main/ipc/ai-vault/ai-vault.ts
++++ b/src/main/ipc/ai-vault/ai-vault.ts
+@@ -1,4 +1,3 @@
+-import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
+ import {
+   captureRuntimeAiVaultProjectionDependency,
+   type AiVaultProjectionDependency

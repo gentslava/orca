@@ -399,24 +399,49 @@ diff --git a/src/main/ipc/ai-vault/ai-vault-startup-catalog.test.ts b/src/main/i
 new file mode 100644
 --- /dev/null
 +++ b/src/main/ipc/ai-vault/ai-vault-startup-catalog.test.ts
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,95 @@
 +import { EventEmitter } from 'node:events'
 +import { beforeEach, afterEach, expect, it, vi } from 'vitest'
 +import type { AiVaultListResult } from '../../../shared/ai-vault/contracts/ai-vault-types'
 +import { installChats } from '../../ai-vault/structured-sessions/structured-session-ownership.test-support'
-+import { agentSessionLeaseFixture, agentSessionRecordFixture } from '../../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
++import {
++  agentSessionLeaseFixture,
++  agentSessionRecordFixture
++} from '../../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
 +import { setStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 +const mocks = vi.hoisted(() => ({ scanAiVaultSessionsInService: vi.fn(), ipcHandle: vi.fn() }))
-+vi.mock('electron', () => ({ app: { on: vi.fn() }, ipcMain: { handle: mocks.ipcHandle, on: vi.fn() }, BrowserWindow: { getAllWindows: () => [] } }))
-+vi.mock('../../ai-vault/scan-service/session-scanner-service-spawn', async (importOriginal) => ({ ...await importOriginal<object>(), scanAiVaultSessionsInService: mocks.scanAiVaultSessionsInService }))
-+vi.mock('../../wsl/discovery/distro-catalog', () => ({ listRunningWslHomeDirsAsync: vi.fn().mockResolvedValue([]), hasCachedWslDistros: vi.fn(() => false) }))
++vi.mock('electron', () => ({
++  app: { on: vi.fn() },
++  ipcMain: { handle: mocks.ipcHandle, on: vi.fn() },
++  BrowserWindow: { getAllWindows: () => [] }
++}))
++vi.mock('../../ai-vault/scan-service/session-scanner-service-spawn', async (importOriginal) => ({
++  ...(await importOriginal<object>()),
++  scanAiVaultSessionsInService: mocks.scanAiVaultSessionsInService
++}))
++vi.mock('../../wsl/discovery/distro-catalog', () => ({
++  listRunningWslHomeDirsAsync: vi.fn().mockResolvedValue([]),
++  hasCachedWslDistros: vi.fn(() => false)
++}))
 +const { _internals, registerAiVaultHandlers } = await import('./ai-vault')
-+const EMPTY_RESULT: AiVaultListResult = { sessions: [], issues: [], scannedAt: '2026-07-27T00:00:00.000Z' }
-+beforeEach(() => { vi.clearAllMocks(); _internals.resetAiVaultCacheForTests() })
-+afterEach(() => { _internals.resetAiVaultCacheForTests(); setStructuredAgentSessionHost(null) })
++const EMPTY_RESULT: AiVaultListResult = {
++  sessions: [],
++  issues: [],
++  scannedAt: '2026-07-27T00:00:00.000Z'
++}
++beforeEach(() => {
++  vi.clearAllMocks()
++  _internals.resetAiVaultCacheForTests()
++})
++afterEach(() => {
++  _internals.resetAiVaultCacheForTests()
++  setStructuredAgentSessionHost(null)
++})
 +function ipcHandler(channel: string): (...args: unknown[]) => unknown {
 +  const registration = mocks.ipcHandle.mock.calls.find(([registered]) => registered === channel)
-+  if (!registration) throw new Error(`${channel} was not registered`)
++  if (!registration) {
++    throw new Error(`${channel} was not registered`)
++  }
 +  return registration[1]
 +}
 +
