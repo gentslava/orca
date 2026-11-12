@@ -14,7 +14,7 @@
    rowKeys: MobileNativeChatRowKeys
 +  pinchGesture: LegacyComposedGesture
  }
- 
+
  export function MobileNativeChatRowList(props: Props): ReactElement {
 @@ -32,35 +35,39 @@
    if (Platform.OS === 'web') {

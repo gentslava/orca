@@ -2520,7 +2520,7 @@
       "f7cbe97c7d3a4e196c21066c675085ad62a3d522"
     ],
     "patch": "255b-41578-mobile_src_session_native-chat_transcript_MobileNativeChatRowList.tsx.patch",
-    "patchSha256": "88bea0332e81c19067e090f1590a3a9ad2dfab6af83096fd7d2a34009f7437ed",
+    "patchSha256": "b8a069578cb36a2a2cf74d0e69f9898e36c558fa7833cdd434b5805e55065d1d",
     "resultSha256": "956609c9077620a23d6b9923c5adb35c50f658d6cb48da0affe680811c4b769b",
     "reason": "Retain the composed reader window, row roots and existing native anchor contract; move the pinch gesture wrapper to the row list and permit browser horizontal and vertical touch panning, using the original 41578 pinch wrapper and touch regression unchanged."
   }
