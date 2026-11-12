@@ -82,7 +82,7 @@ async function openHostDocument({
   pageRoutes = [HOST_PATTERN, SESSION_PATTERN],
   backOnFirstClaim = false
 }) {
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'en-US' })
   await page.addInitScript(installShellDouble, {
     version: bridgeVersion,
     sessionId: 'open-target-session',
@@ -204,21 +204,23 @@ describeRender('a host document asked to open a target', () => {
     // The pop's slide has to settle, or the stack keeps refusing every tap.
     await page.waitForFunction(
       () => {
-        const fab = [...document.querySelectorAll('[role="button"]')].find(
+        const action = [...document.querySelectorAll('[role="button"]')].find(
           (element) =>
-            element.getAttribute('aria-label') === 'New workspace' &&
+            element.getAttribute('aria-label') === 'More options' &&
             element.getBoundingClientRect().width > 0
         )
-        if (fab === undefined) {
+        if (action === undefined) {
           return false
         }
-        const box = fab.getBoundingClientRect()
+        const box = action.getBoundingClientRect()
         const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)
-        return hit !== null && fab.contains(hit)
+        return hit !== null && action.contains(hit)
       },
       undefined,
       { timeout: 10_000, polling: 100 }
     )
+    await page.getByRole('button', { name: 'More options', exact: true }).click()
+    await page.getByRole('button', { name: 'Advanced: workspaces', exact: true }).waitFor()
     expect(errors).toEqual([])
     await page.close()
   }, 60_000)

@@ -230,7 +230,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15
+          - os: macos-26
             target: darwin-arm64
             cell: macos-arm64-local-sshd
           - os: macos-15-intel

@@ -8,7 +8,8 @@ import type * as nativeChatAgentProfiles from '../../../../../shared/native-chat
 import type * as RemoteRuntimePtyIdModule from '../../../../../shared/remote-runtime/remote-runtime-pty-id'
 
 vi.mock('../composer/controls/NativeChatComposerWorkspace', () => ({
-  NativeChatComposerWorkspace: () => null
+  NativeChatComposerWorkspace: () => null,
+  nativeChatComposerWorkspaceFooter: () => undefined
 }))
 
 vi.mock('@/i18n/i18n', () => ({

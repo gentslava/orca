@@ -1,4 +1,4 @@
-import { act, fireEvent, getByRole, waitFor } from '@testing-library/react'
+import { act, fireEvent, getByRole, queryByRole, waitFor } from '@testing-library/react'
 import { expect } from 'vitest'
 import type { Root } from 'react-dom/client'
 import { useAppStore } from '@/store'
@@ -125,8 +125,14 @@ export async function verifyOmniboxPresetIdentity(
     await waitFor(() => expect(effort('Low')).not.toBeNull())
   }
   const close = () => fireEvent.keyDown(setupPanel()!, { key: 'Escape' })
-  const effort = (label: string) =>
-    getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
+  const effort = (label: string) => {
+    const slider = queryByRole(document.body, 'slider', { name: 'Effort' })
+    return slider
+      ? slider.getAttribute('aria-valuetext') === label
+        ? 'on'
+        : 'off'
+      : getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
+  }
   try {
     await showEntries(false)
     await configure()

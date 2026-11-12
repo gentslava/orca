@@ -28,6 +28,7 @@ import {
   getProjectGroupingForRepo,
   type ProjectSectionEntry
 } from '../../../../shared/project-section-grouping'
+import type { PersonalProjectOrder } from '../../../../shared/personal-project-order'
 import { sortProjectEntries } from '../../../../shared/project-section-order'
 
 type ConversationItem = { session: AiVaultSession; repo: Repo; lastActivityAt?: number }
@@ -49,6 +50,7 @@ export function buildConversationProjectGroups(args: {
   catalog: ProjectHostSetupProjection
   order: ProjectOrderBy
   manualOrder?: ManualRepoOrderEntry[]
+  personalProjectOrder?: PersonalProjectOrder
   activeWorkspaceId: string | null
   activeExecutionHostId?: ExecutionHostId | null
   executionHostScope?: ExecutionHostScope
@@ -78,6 +80,7 @@ export function buildConversationProjectGroups(args: {
     return hosts?.size === 1 ? [...hosts][0]! : null
   }
   const projectIndex = buildProjectGroupingIndex({
+    personalProjectOrder: args.personalProjectOrder,
     projects: args.catalog.projects,
     projectHostSetups: args.catalog.setups
   })
@@ -231,7 +234,38 @@ export function buildConversationProjectGroups(args: {
     group.sessions.push(session)
     orphans.set(key, group)
   }
-  const result = [...groups, ...folderGroups.values(), ...orphans.values()]
+  const sectionsByKey = new Map(entries)
+  const qualifiedRepoOrder = new Map(
+    orderedRepos.map((repo, index) => [
+      JSON.stringify([getRepoExecutionHostId(repo), repo.id]),
+      index
+    ])
+  )
+  const result = sortProjectEntries(
+    [...groups, ...folderGroups.values(), ...orphans.values()].map(
+      (
+        group
+      ): [
+        string,
+        ProjectSectionEntry<{ lastActivityAt?: number }> & { group: ConversationProjectGroup }
+      ] => [
+        group.key,
+        {
+          ...group,
+          group,
+          repoIds: new Set(
+            [...group.repoIds].map((repoId) => JSON.stringify([group.executionHostId, repoId]))
+          ),
+          projectPreference: sectionsByKey.get(group.key)?.projectPreference,
+          items: group.sessions.map((session) => ({
+            lastActivityAt: Date.parse(session.updatedAt ?? session.modifiedAt) || undefined
+          }))
+        }
+      ]
+    ),
+    args.order,
+    qualifiedRepoOrder
+  ).map(([, section]) => section.group)
   const hostsByLabel = new Map<string, Set<ExecutionHostId>>()
   for (const group of result) {
     const hosts = hostsByLabel.get(group.label) ?? new Set<ExecutionHostId>()

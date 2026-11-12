@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store/index'
 import { activateAndRevealWorktree } from './worktree-activation'
 import * as activationGate from './worktree-agent-activation-gate'
-import { ensureWorktreeHasInitialTerminal } from './initial-surface/worktree-initial-terminal-seeding'
 import {
   makeCreatedAgentWorktree as makeWorktree,
   seedEmptyActivatableWorktree
@@ -77,15 +76,7 @@ describe('activating a workspace whose last terminal was closed', () => {
     vi.spyOn(activationGate, 'gateWorktreeAgentActivation').mockReturnValue(pendingGate)
 
     activateAndRevealWorktree(worktree.id, { agent: 'codex', notifyHostRuntime: false })
-    const recoveredTabId = ensureWorktreeHasInitialTerminal(
-      useAppStore.getState(),
-      worktree.id,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { reseedEmptiedWorkspace: true }
-    )
+    const recoveredTabId = useAppStore.getState().createTab(worktree.id).id
     resolveGate('empty')
     await pendingGate
 

@@ -17,6 +17,7 @@ export function MobileNativeChatModelList(props: {
   disabled: boolean
   onSetOption: (value: SessionOptionValue) => void
   onInvokeAction: () => void
+  onReset?: () => void
 }): React.JSX.Element {
   useMobileColorScheme()
   const t = useMobileTranslation()
