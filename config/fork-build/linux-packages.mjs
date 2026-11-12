@@ -39,7 +39,10 @@ function measureLinuxApp(app, expected, format) {
     ({ path }) =>
       path !== 'resources/package-type' &&
       path !== 'resources/node-runtime' &&
-      !path.startsWith('resources/node-runtime/')
+      !path.startsWith('resources/node-runtime/') &&
+      (format !== 'AppImage' ||
+        (!['AppRun', '.DirIcon', 'orca-ide.desktop', 'orca-ide.png', 'usr'].includes(path) &&
+          !path.startsWith('usr/')))
   )
   const hash = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
   return {
