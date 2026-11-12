@@ -11,18 +11,6 @@ import type { ConversationPreference } from '../../../../shared/conversation-nav
 import { projectConversationTitle } from '../../../../shared/project-conversation-list'
 import { useAiVaultSessionDisplayTitle } from '../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-title'
 
-async function saveConversationPreference(
-  onPreference: (patch: ConversationPreference) => Promise<void>,
-  patch: ConversationPreference,
-  onSettled: () => void
-): Promise<void> {
-  try {
-    await onPreference(patch)
-  } finally {
-    onSettled()
-  }
-}
-
 export function ProjectConversationRow({
   session,
   preference,
@@ -57,7 +45,7 @@ export function ProjectConversationRow({
       return
     }
     setBusy(true)
-    await saveConversationPreference(onPreference, patch, () => setBusy(false))
+    await onPreference(patch).finally(() => setBusy(false))
   }
   return (
     <div

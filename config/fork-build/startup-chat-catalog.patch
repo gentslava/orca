@@ -343,10 +343,10 @@ index 8755681ce21..e9adf5cbaf7 100644
        } finally {
          running = false
          if (current()) {
-diff --git a/src/main/ai-vault/ai-vault-runtime-scan.ts b/src/main/ai-vault/ai-vault-runtime-scan.ts
+diff --git a/src/main/ai-vault/runtime-hosts/ai-vault-runtime-scan.ts b/src/main/ai-vault/runtime-hosts/ai-vault-runtime-scan.ts
 index 9c38ebc7b91..a4f71628cb9 100644
---- a/src/main/ai-vault/ai-vault-runtime-scan.ts
-+++ b/src/main/ai-vault/ai-vault-runtime-scan.ts
+--- a/src/main/ai-vault/runtime-hosts/ai-vault-runtime-scan.ts
++++ b/src/main/ai-vault/runtime-hosts/ai-vault-runtime-scan.ts
 @@ -68,6 +68,9 @@ function runtimeScanArgs(
    const scanArgs: AiVaultListArgs = { executionHostScope: hostInfo.executionHostId }
    if (listArgs?.includeStructuredSessions) {
@@ -357,10 +357,10 @@ index 9c38ebc7b91..a4f71628cb9 100644
    }
    if (listArgs?.afterFingerprint !== undefined) {
      scanArgs.afterFingerprint = listArgs.afterFingerprint
-diff --git a/src/main/ai-vault/cached-session-list.ts b/src/main/ai-vault/cached-session-list.ts
+diff --git a/src/main/ai-vault/listing/cached-session-list.ts b/src/main/ai-vault/listing/cached-session-list.ts
 index 8a65e972ccb..003ab788512 100644
---- a/src/main/ai-vault/cached-session-list.ts
-+++ b/src/main/ai-vault/cached-session-list.ts
+--- a/src/main/ai-vault/listing/cached-session-list.ts
++++ b/src/main/ai-vault/listing/cached-session-list.ts
 @@ -138,6 +138,9 @@ export async function listAiVaultSessions(
    args?: AiVaultListArgs,
    options: { signal?: AbortSignal } = {}
@@ -371,10 +371,10 @@ index 8a65e972ccb..003ab788512 100644
    const key = aiVaultLocalScanScopeKey(args)
    const depth = requestedAiVaultSessionDepth(args)
    const scanKey = aiVaultLocalScanKey(args)
-diff --git a/src/main/ai-vault/runtime-session-scanner.ts b/src/main/ai-vault/runtime-session-scanner.ts
+diff --git a/src/main/ai-vault/runtime-hosts/runtime-session-scanner.ts b/src/main/ai-vault/runtime-hosts/runtime-session-scanner.ts
 index 49b8016e0c7..1258692d997 100644
---- a/src/main/ai-vault/runtime-session-scanner.ts
-+++ b/src/main/ai-vault/runtime-session-scanner.ts
+--- a/src/main/ai-vault/runtime-hosts/runtime-session-scanner.ts
++++ b/src/main/ai-vault/runtime-hosts/runtime-session-scanner.ts
 @@ -84,6 +84,7 @@ export async function scanRuntimeAiVaultSessions(
      {
        includeAntigravityIdeSessions: args.includeAntigravityIdeSessions,
@@ -383,10 +383,10 @@ index 49b8016e0c7..1258692d997 100644
        limit: args.limit,
        unlimited: args.unlimited,
        force: args.force,
-diff --git a/src/main/ai-vault/structured-session-ownership.test-support.ts b/src/main/ai-vault/structured-session-ownership.test-support.ts
+diff --git a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
 index 26b031cee94..48c8b8c4c76 100644
---- a/src/main/ai-vault/structured-session-ownership.test-support.ts
-+++ b/src/main/ai-vault/structured-session-ownership.test-support.ts
+--- a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
++++ b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
 @@ -135,6 +135,7 @@ export function installChats(records: AgentSessionRecord[]) {
    const byId = new Map(records.map((record) => [record.sessionId, record]))
    const store = {
@@ -395,24 +395,58 @@ index 26b031cee94..48c8b8c4c76 100644
      getRecord: vi.fn((sessionId: string) => byId.get(sessionId) ?? null),
      listConversations: vi.fn(() => records.map(agentSessionConversationView))
    }
-diff --git a/src/main/ipc/ai-vault/ai-vault-scan-coalescing.test.ts b/src/main/ipc/ai-vault/ai-vault-scan-coalescing.test.ts
-index caaaecc59ec..9d710b4a314 100644
---- a/src/main/ipc/ai-vault/ai-vault-scan-coalescing.test.ts
-+++ b/src/main/ipc/ai-vault/ai-vault-scan-coalescing.test.ts
-@@ -1,3 +1,9 @@
-+import { installChats } from '../../ai-vault/structured-session-ownership.test-support'
+diff --git a/src/main/ipc/ai-vault/ai-vault-startup-catalog.test.ts b/src/main/ipc/ai-vault/ai-vault-startup-catalog.test.ts
+new file mode 100644
+--- /dev/null
++++ b/src/main/ipc/ai-vault/ai-vault-startup-catalog.test.ts
+@@ -0,0 +1,98 @@
++import { EventEmitter } from 'node:events'
++import { beforeEach, afterEach, expect, it, vi } from 'vitest'
++import type { AiVaultListResult } from '../../../shared/ai-vault/contracts/ai-vault-types'
++import { installChats } from '../../ai-vault/structured-sessions/structured-session-ownership.test-support'
 +import {
 +  agentSessionLeaseFixture,
 +  agentSessionRecordFixture
 +} from '../../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
-+import { setStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/structured-agent-session-registry'
- import { EventEmitter } from 'node:events'
- import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
- import type { AiVaultListResult } from '../../../shared/ai-vault/contracts/ai-vault-types'
-@@ -352,3 +358,54 @@ it('orders forwarded association edges before new remote/All admissions and fenc
-   expect(sender.send).toHaveBeenCalledTimes(disposedSends)
-   expect(retained.size).toBe(0)
- })
++import { setStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
++const mocks = vi.hoisted(() => {
++  vi.resetModules()
++  return { scanAiVaultSessionsInService: vi.fn(), ipcHandle: vi.fn() }
++})
++vi.mock('electron', () => ({
++  app: { on: vi.fn() },
++  ipcMain: { handle: mocks.ipcHandle, on: vi.fn() },
++  BrowserWindow: { getAllWindows: () => [] }
++}))
++vi.mock('../../ai-vault/scan-service/session-scanner-service-spawn', async (importOriginal) => ({
++  ...(await importOriginal<object>()),
++  scanAiVaultSessionsInService: mocks.scanAiVaultSessionsInService
++}))
++vi.mock('../../wsl/discovery/distro-catalog', () => ({
++  listRunningWslHomeDirsAsync: vi.fn().mockResolvedValue([]),
++  hasCachedWslDistros: vi.fn(() => false)
++}))
++const { _internals, registerAiVaultHandlers } = await import('./ai-vault')
++const EMPTY_RESULT: AiVaultListResult = {
++  sessions: [],
++  issues: [],
++  scannedAt: '2026-07-27T00:00:00.000Z'
++}
++beforeEach(() => {
++  vi.clearAllMocks()
++  _internals.resetAiVaultCacheForTests()
++})
++afterEach(() => {
++  _internals.resetAiVaultCacheForTests()
++  setStructuredAgentSessionHost(null)
++})
++function ipcHandler(channel: string): (...args: unknown[]) => unknown {
++  const registration = mocks.ipcHandle.mock.calls.find(([registered]) => registered === channel)
++  if (!registration) {
++    throw new Error(`${channel} was not registered`)
++  }
++  return registration[1]
++}
 +
 +it('serves saved chats while provider history is still waiting, then enriches the full list', async () => {
 +  const record = agentSessionRecordFixture(

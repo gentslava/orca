@@ -2331,5 +2331,197 @@
     "patchSha256": "5b57ebfe70e19ff1e7c6099f64fda78f8a1826d3e85d53cea3464825ae36ebff",
     "resultSha256": "eba7d1eef96f5a4074d5078697cdc1549949aedbf95645e54f91c3577dea352d",
     "reason": "Retain the extracted session-link command routing from37744 alongside upstream41306 coordinator approvals. The existing source-module compatibility patch carries approve into the extracted key list; worker approval permissions remain owned by upstream."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
+    "blobs": [
+      null,
+      "736363b10f1c734c85ed7c41c56c4c3f456ff1e7",
+      "92325182ad19eb07bfafeca0bc5bd4d185460216"
+    ],
+    "patch": "255b-33383-src_main_ai-vault_structured-conversation-navigation.test.ts.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "efa8e9c263e2e5620f662aa711de31ebaf45080ea63861f5b48305b989a304b7",
+    "reason": "Combine current 33361 durable conversation ownership, bounded scans and project attribution with 33383 selected-session preservation and structured-result metadata. Retain filter assertions and the upstream local scan wrapper; preserve selectedSessionId in cached host legs and post-projection truncation."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
+    "blobs": [
+      null,
+      "0e2d9af56a2815c8f3a88fa8f3e8ffd77acd3e6d",
+      "d8ff5dedb6ccc27ba5dc6e35c14151361bb4bb1d"
+    ],
+    "patch": "255b-33383-src_main_ai-vault_structured-conversation-navigation.ts.patch",
+    "patchSha256": "dd77313a3e635e3933543fc555a5c8679f9e8b3a667096982b455950ccf36b78",
+    "resultSha256": "f53e6043b8550226d86eb8d2ebc461200dbb8e802a7f44f1c8f8975252c96438",
+    "reason": "Combine current 33361 durable conversation ownership, bounded scans and project attribution with 33383 selected-session preservation and structured-result metadata. Retain filter assertions and the upstream local scan wrapper; preserve selectedSessionId in cached host legs and post-projection truncation."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault-local-scan.ts",
+    "blobs": [
+      null,
+      "6912d3c39b85f04aab7405b286b25222116c8b9e",
+      "c284c74ae2a9e657caede2f2ac9a513a63a27295"
+    ],
+    "patch": "255b-33383-src_main_ipc_ai-vault_ai-vault-local-scan.ts.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "d0ca41b41e339f537afaf0e4730abf19a30bdd85444f3938c79bc813041977b1",
+    "reason": "Combine current 33361 durable conversation ownership, bounded scans and project attribution with 33383 selected-session preservation and structured-result metadata. Retain filter assertions and the upstream local scan wrapper; preserve selectedSessionId in cached host legs and post-projection truncation."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "63685c661f1e375cde0da1f457c45a04812db06c",
+      "5c8e50793b15b809dc272131ec9195f1cd655b4f",
+      "bf3e9b85172ed896d85f12bb17de642c54a4d177"
+    ],
+    "patch": "255b-33383-src_main_ipc_ai-vault_ai-vault.ts.patch",
+    "patchSha256": "3b0efa3d8b3f8ebad11ce9cb759bcfd460fd609ea2cd2d1d285667e81c756add",
+    "resultSha256": "034dcea26946c2ac5ad5c37ccdd3602d0b0beb12b936ee2f0da2116068ed7f5c",
+    "reason": "Combine current 33361 durable conversation ownership, bounded scans and project attribution with 33383 selected-session preservation and structured-result metadata. Retain filter assertions and the upstream local scan wrapper; preserve selectedSessionId in cached host legs and post-projection truncation."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "5790be633290482a86fa6534b58e045676ce8ce0",
+      "8a52b6aa42d222535d35528e342d58fde728edc0",
+      "6e1bfff58609122b27880c4f585f7cb2fdba0941"
+    ],
+    "patch": "255b-33383-src_main_runtime_rpc_methods_history_ai-vault.ts.patch",
+    "patchSha256": "c1179eec282acd12e249256e9f0a63cf1d6894b3a682994a6bdc2b2261a934d4",
+    "resultSha256": "235c2cccfcfd943cc332bdbc3aaf4f22fa114682b2406cf6ba06ed9c1143539b",
+    "reason": "Combine current 33361 durable conversation ownership, bounded scans and project attribution with 33383 selected-session preservation and structured-result metadata. Retain filter assertions and the upstream local scan wrapper; preserve selectedSessionId in cached host legs and post-projection truncation."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/client-ui.ts",
+    "blobs": [
+      "0e72f815ddf7e92cd39db3566afc0dd009d5c815",
+      "cff1d0305d9dd84949f34666381f5969f5cf53e0",
+      "d64355bdf3a814271e0d681cdf56657122b8a83a"
+    ],
+    "patch": "255b-33502-src_main_runtime_rpc_methods_client-state_client-ui.ts.patch",
+    "patchSha256": "c6436c5b03b52cb0bdd1424d84bd23b44ba906cd7d407f4e7ac2de907df633aa",
+    "resultSha256": "68ee5f9f8517204ab87554614cfb628d62e8ea738a6696fc18b0f2dcae9b5817",
+    "reason": "Retain independent conversationPreferences and personalProjectOrder across persistence, mobile view-setting merges, deferred writes, runtime RPC registration, capability negotiation and WSL migration dispositions. Preserve revision checks and host-qualified identities for both features; retain all three write methods and their existing ownership gates."
+  },
+  {
+    "path": "src/shared/global-settings-base.ts",
+    "blobs": [
+      "7a143d0c853f3dccbf5f5be786be0d35d91db356",
+      "c4bd54c55b200aea7788047008330c01c9ef7856",
+      "4e27052b1e09b3e13d7c7b352146b52cc5b3a372"
+    ],
+    "patch": "255b-33512-src_shared_global-settings-base.ts.patch",
+    "patchSha256": "a28f208780089a61f2a196cafe77a336867f5a9920721c41eb094774a45b023d",
+    "resultSha256": "5df235d62255cfade1e4c700ed1d06877a0fe0d8366d2f6fa20c7fa632ca969c",
+    "reason": "Preserve both host-owned worker role settings and hold-to-quit settings in the shared global settings intersection. Merge independent English catalog namespaces by the strict existing key merger; do not replace conversation navigation strings with quit hints."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
+    "blobs": [
+      "ebd3ab25c0d415e32eac624f56dbd75a29c40799",
+      "ab3a0c20e959d9ff222841540fb839e011c8b05f",
+      "e4097af173f41e9f08b49a63e77b38d3b2cd4ff3"
+    ],
+    "patch": "255b-37744-src_main_runtime_rpc_methods_orchestration_orchestration.ts.patch",
+    "patchSha256": "085c10c041402881cbd4a3d35e52d0fed7ab853842a9f562f291d79c9bbf0ba5",
+    "resultSha256": "060715fbbccd9273695952f49ce0f9923899b94b12c38272fd5d7610125f5a21",
+    "reason": "Register both supervised child-session and session-link RPC methods behind the current readiness gate. Preserve the current child transcript navigation and extracted prompt/composer layout: the reviewed NativeChatStructuredPrompts already renders sessionLinkOwnerQuestion, so do not duplicate the legacy inline prompt/composer tree or render the owner request twice."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "deaf0714d6b1c96fbcebb5f134c5ef0685297224",
+      "09b419a53b68de8cc6a16f590a229cf5ba2b1af4",
+      "b46e9e6cc3b828fd3b2ce3c8c4616221d86ce9b0"
+    ],
+    "patch": "255b-37744-src_renderer_src_components_native-chat_NativeChatStructuredSession.tsx.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "514b166a22bcc029ecfdba967fa65f9f4dc5ec68d7ec3daabd51abe1b480ff89",
+    "reason": "Register both supervised child-session and session-link RPC methods behind the current readiness gate. Preserve the current child transcript navigation and extracted prompt/composer layout: the reviewed NativeChatStructuredPrompts already renders sessionLinkOwnerQuestion, so do not duplicate the legacy inline prompt/composer tree or render the owner request twice."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "ab014e90a318a263beac439cb03e02be70f6a434",
+      "09b419a53b68de8cc6a16f590a229cf5ba2b1af4",
+      "ad174fe4aa9471efc9be7ef3db2cf7f5409885d8"
+    ],
+    "patch": "255b-38848-src_renderer_src_components_native-chat_NativeChatStructuredSession.tsx.patch",
+    "patchSha256": "f4973a7e44a80d1bbe8d176e60afdff305256079b50b9a9ae14fcab60ea85d33",
+    "resultSha256": "d1834985bbb9aa15395d728f8f80f7c2ac57168018d8a461b53651cf367a022a",
+    "reason": "Preserve extracted transcript, child navigation and shared prompt surface from earlier selected features while forwarding the incoming queue steerLast action to the existing composer. The incoming feature changes only steerLast and removes a superseded comment in this file."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "deaf0714d6b1c96fbcebb5f134c5ef0685297224",
+      "cfb4daf4a14813cb88dd6b887adb4f51a7713a51",
+      "b6112314b6cc7f6210d42ceb8e16347a006de2d9"
+    ],
+    "patch": "255b-38963-src_renderer_src_components_native-chat_NativeChatStructuredSession.tsx.patch",
+    "patchSha256": "486910774d4af5f2fa1aa3577996d0339b04c5f832706e9a2e8a4d8b9d8f301d",
+    "resultSha256": "f1e2bc2e460977684dca58c2e89b714e733ba5d6c9cfd165d856626845db39f0",
+    "reason": "Preserve the composed child navigation, queue steerLast and extracted shared prompts; reuse the incoming foreground-task provider around that same root. Existing reviewed exact tuples supply prompt integration, session controls and background task reconciliation."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "5cefb9f1add1f747d0aedafaf979242001ed3420",
+      "1a1545334d0a8bbe5058e88623d1be52ae5f16ed",
+      "30d211ff1833c8e1bead64e1d25562762c145c88"
+    ],
+    "patch": "255b-41381-mobile_src_session_native-chat_input_MobileNativeChatSessionOptionPickers.tsx.patch",
+    "patchSha256": "3336d946d6f034ebf93a01206d4baa877466102ecda0e8dba8ffe7d09e6e1da3",
+    "resultSha256": "b64182347f0f1aa9be8803b65c066e04b7e34d48f820ae4660da86170de0c183",
+    "reason": "Keep the pinned mobile search/model scroller and effort slider while carrying provider Default reset into both the model list and ordinary descriptor view. Retain query filtering and legacy disclosure alongside Default rows. The existing composed-source-modules overlay adds the model list optional reset prop."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionRows.tsx",
+    "blobs": [
+      "00dbbe2b6dcb7a9258e5087f2993398b8bde8a90",
+      "11d848e3939a289233440fa713d42cc2acf4139a",
+      "8f2cdb1752624af16d4a13c9526d0845284c2144"
+    ],
+    "patch": "255b-41381-mobile_src_session_native-chat_input_MobileNativeChatSessionOptionRows.tsx.patch",
+    "patchSha256": "2cce1a2ec8e2b859c504b17e13ded7576e7c65db8e3dc3de92607bba041ad9c7",
+    "resultSha256": "06464fc75a87f0999b5ddfc13cca349bd5250770323f9db6ca437eba55ab964f",
+    "reason": "Keep the pinned mobile search/model scroller and effort slider while carrying provider Default reset into both the model list and ordinary descriptor view. Retain query filtering and legacy disclosure alongside Default rows. The existing composed-source-modules overlay adds the model list optional reset prop."
+  },
+  {
+    "path": "src/renderer/src/components/status-bar/use-owner-usage-rate-limits.ts",
+    "blobs": [
+      "70256b50b4fa0edf4e24e30428a9cb29ad25ad0c",
+      "6e66fe7701e85043f1972ca4b02bba7a817022ff",
+      "199ca011adbd42a927cfcd6822438c36d97cd6c7"
+    ],
+    "patch": "255b-41540-src_renderer_src_components_status-bar_use-owner-usage-rate-limits.ts.patch",
+    "patchSha256": "b3de9b99432966bce4f08ededc43f53ca06095e64bb56a74c671ca9ae7ca8940",
+    "resultSha256": "863ba204a0b62d7cd2217210c94110c39be4c75dfd0d325782746c0d8f65aec8",
+    "reason": "Use a single owner-fenced provider accounts snapshot for roster and quota values while preserving history feature local-owner/includeAccounts routing, unverifiable state, retained last-known values and reconnect/manual-refresh generation fences. Missing published usage retains its roster and explicitly remains unverifiable."
+  },
+  {
+    "path": "mobile/src/session/native-chat/MobileNativeChatView.tsx",
+    "blobs": [
+      "5e701c297d3420d7c91b5652a7cb306127cd6a6b",
+      "cc7c7718447f7e3782b6f816d9d8e7c3c02e9dcc",
+      "5fae6bdcdae64111670d84f0de86a333f45ad3fb"
+    ],
+    "patch": "255b-41578-mobile_src_session_native-chat_MobileNativeChatView.tsx.patch",
+    "patchSha256": "d359aceee88c2ca0aa74260e0b840312f3a1a1d96174fbf2193220b7c0b03885",
+    "resultSha256": "941cf3e3ac0397f66b00a6c0855f5baf3c8c2ab559afa4bce105a708a5b72674",
+    "reason": "Retain the composed reader window, row roots and existing native anchor contract; move the pinch gesture wrapper to the row list and permit browser horizontal and vertical touch panning, using the original 41578 pinch wrapper and touch regression unchanged."
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/MobileNativeChatRowList.tsx",
+    "blobs": [
+      "23e0a96d184e6c98e15c0119c52e2fe048e32481",
+      "cdeb233f313439f8021e16cc083e9eb3b46bbf32",
+      "f7cbe97c7d3a4e196c21066c675085ad62a3d522"
+    ],
+    "patch": "255b-41578-mobile_src_session_native-chat_transcript_MobileNativeChatRowList.tsx.patch",
+    "patchSha256": "b8a069578cb36a2a2cf74d0e69f9898e36c558fa7833cdd434b5805e55065d1d",
+    "resultSha256": "956609c9077620a23d6b9923c5adb35c50f658d6cb48da0affe680811c4b769b",
+    "reason": "Retain the composed reader window, row roots and existing native anchor contract; move the pinch gesture wrapper to the row list and permit browser horizontal and vertical touch panning, using the original 41578 pinch wrapper and touch regression unchanged."
   }
 ]

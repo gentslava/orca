@@ -14,29 +14,6 @@ import { Button } from '../ui/button'
 import { WorkerRoleProfileEditor } from './WorkerRoleProfileEditor'
 import { nativeChatPreferenceFor } from '../../../../shared/structured-native-chat-launch-route'
 
-async function saveWorkerRoleProfile(
-  profiles: NonNullable<GlobalSettings['orchestrationWorkerRoles']>,
-  role: string,
-  profile: WorkerRoleProfile | undefined,
-  updateSettings: (updates: Partial<GlobalSettings>) => void | Promise<void>,
-  onError: (message: string) => void,
-  onSettled: () => void
-): Promise<void> {
-  try {
-    const next = { ...profiles }
-    if (profile) {
-      next[role] = profile
-    } else {
-      delete next[role]
-    }
-    await updateSettings({ orchestrationWorkerRoles: parseWorkerRoleProfiles(next) })
-  } catch (failure) {
-    onError(failure instanceof Error ? failure.message : String(failure))
-  } finally {
-    onSettled()
-  }
-}
-
 export function WorkerRoleSettings({
   settings,
   updateSettings
@@ -57,9 +34,18 @@ export function WorkerRoleSettings({
   const save = async (role: string, profile: WorkerRoleProfile | undefined) => {
     setPending(true)
     setError(null)
-    await saveWorkerRoleProfile(profiles, role, profile, updateSettings, setError, () =>
-      setPending(false)
-    )
+    try {
+      const next = { ...profiles }
+      if (profile) {
+        next[role] = profile
+      } else {
+        delete next[role]
+      }
+      await updateSettings({ orchestrationWorkerRoles: parseWorkerRoleProfiles(next) })
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : String(failure))
+    }
+    setPending(false)
   }
 
   return (

@@ -7,34 +7,25 @@ import {
   verifyPackageReceipt,
   writeJson
 } from './package-provenance.mjs'
+import { packageTargets } from './package-targets.mjs'
 
-export function assembleReleasePackages(plan, directory, windows, android) {
-  const outputs = [
-    'macos-arm64-dmg',
-    'macos-arm64-zip',
-    'windows-x64-installer',
-    'windows-x64-zip',
-    'android-apk'
-  ]
-  if (!isDeepStrictEqual(plan.outputs, outputs)) {
-    throw new Error('The release requires all five package formats')
+export function assembleReleasePackages(plan, directory, windows, android, linux) {
+  const targets = packageTargets(plan.outputs)
+  if (!isDeepStrictEqual(plan.targets, targets)) {
+    throw new Error('Release target matrix differs from the frozen source plan')
   }
-  const platforms = [
-    {
-      name: 'windows',
-      directory: windows,
-      platform: 'win32',
-      architecture: 'x64',
-      files: ['orca-windows-setup.exe', 'orca-windows-x64.zip']
-    },
-    {
-      name: 'android',
-      directory: android,
-      platform: 'android',
-      architecture: 'universal',
-      files: ['orca-android.apk']
-    }
-  ]
+  const platforms = targets
+    .filter((target) => target.platform !== 'darwin')
+    .map((target) => ({
+      ...target,
+      name: target.receipt ?? target.id,
+      directory:
+        target.platform === 'win32'
+          ? windows
+          : target.platform === 'android'
+            ? android
+            : join(linux, target.id)
+    }))
   const verified = []
   for (const platform of platforms) {
     const receiptName = `${platform.name}-verified.json`
@@ -76,7 +67,7 @@ export function assembleReleasePackages(plan, directory, windows, android) {
     upstream: plan.upstream,
     fingerprint: plan.fingerprint,
     outputs: plan.outputs,
-    platforms: ['macos-arm64', 'windows-x64', 'android'],
+    platforms: targets.map((target) => target.id),
     verified: true,
     receipts: verified.map(({ identity }) => identity)
   })

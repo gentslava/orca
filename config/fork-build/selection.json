@@ -56,6 +56,14 @@
     {
       "number": 41381,
       "reason": "Keep model search, effort slider and other options visible in the mobile picker while only the model catalogue scrolls; match desktop structure and retain touch, keyboard, remote pending and model-specific choice behavior."
+    },
+    {
+      "number": 41540,
+      "reason": "Require owner-fenced remote account rosters and quota values from the same accounts stream, including older-host failure visibility; retain this owner-requested fix across upstream lifecycle changes."
+    },
+    {
+      "number": 41578,
+      "reason": "Restore phone transcript touch panning while preserving horizontal code scrolling and text-size pinch. Backport only the upstream four-file feature to the frozen source; retain original head ancestry in the fork integration without unrelated later-main changes."
     }
   ],
   "exclude": {
@@ -89,7 +97,13 @@
     "macos-arm64-zip",
     "windows-x64-installer",
     "windows-x64-zip",
-    "android-apk"
+    "android-apk",
+    "linux-x64-appimage",
+    "linux-x64-deb",
+    "linux-x64-rpm",
+    "linux-arm64-appimage",
+    "linux-arm64-deb",
+    "linux-arm64-rpm"
   ],
   "statusIssue": 12,
   "compatibilityPatches": [
@@ -132,6 +146,11 @@
     "40980": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/antigravity-models-40980"
+    },
+    "41578": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
     }
-  }
+  },
+  "pullRequestUpstreamCommit": "255b5c22c17ec91d1156db4e90049b754886d47e"
 }
