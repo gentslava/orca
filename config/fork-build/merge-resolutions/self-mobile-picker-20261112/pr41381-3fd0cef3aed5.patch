@@ -1,0 +1,104 @@
+--- a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionRows.tsx
++++ b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionRows.tsx
+@@ -23,6 +23,7 @@
+ } from '../../../../../src/shared/native-chat/input/native-chat-session-speed-tiers'
+ import { sayMobileNativeChatSessionOption as say } from './native-chat-session-option-copy'
+ import { MobileSwitch } from '../../../components/MobileSwitch'
++import { nativeChatModelSearchScore } from '../../../../../src/shared/native-chat/input/native-chat-model-search'
+
+ export function SessionOptionCaption({ children }: { children: string }): React.JSX.Element {
+   useMobileColorScheme()
+@@ -131,6 +132,7 @@
+   onInvokeAction: () => void
+   /** A leading mark per choice, as each permission mode has its icon. */
+   choiceLeading?: (value: string) => ReactNode
++  query?: string
+   /** Whether search-only choices are revealed; without it they stay off the list. */
+   moreChoices?: { shown: boolean; onToggle: () => void }
+   onReset?: () => void
+@@ -158,6 +160,7 @@
+     onSetOption,
+     onInvokeAction,
+     choiceLeading,
++    query,
+     moreChoices,
+     onReset
+   }: DescriptorRowsProps,
+@@ -223,7 +226,50 @@
+       onPress={() => onSetOption(choice.value)}
+     />
+   )
+-  // No search here: search-only aliases follow a More models toggle, as compact pickers show them.
++  const withDefault = (rows: ReactElement[]): ReactElement[] =>
++    descriptor.defaultChoice &&
++    onReset &&
++    (query === undefined ||
++      nativeChatModelSearchScore('default', query, [
++        t('chat.sessionOptionRows.defaultMarker', 'Default'),
++        descriptor.defaultChoice.model?.label ?? '',
++        descriptor.defaultChoice.model?.description ?? ''
++      ]) > 0)
++      ? [
++          <ListRow
++            key="model-default"
++            title={t('chat.sessionOptionRows.defaultMarker', 'Default')}
++            subtitle={[
++              descriptor.defaultChoice.model?.label ?? 'Default model not reported',
++              descriptor.defaultChoice.model?.description
++            ]
++              .filter(Boolean)
++              .join('\n')}
++            selected={descriptor.defaultChoice.selected}
++            disabled={locked}
++            onPress={onReset}
++          />,
++          ...rows
++        ]
++      : rows
++  const terms = query?.toLowerCase().split(/\s+/).filter(Boolean) ?? []
++  if (query !== undefined) {
++    return withDefault(
++      choices
++        .filter((choice) => {
++          if (choice.searchOnly && terms.length === 0) {
++            return false
++          }
++          return (
++            nativeChatModelSearchScore(choice.value, query, [
++              nativeChatSessionChoiceLabel(choice, say, descriptor.id),
++              choice.description ?? ''
++            ]) > 0
++          )
++        })
++        .map(choiceRow)
++    )
++  }
+   const more = moreChoices ? choices.filter((choice) => choice.searchOnly) : []
+   const rows = [
+     ...choices.filter((choice) => !choice.searchOnly).map(choiceRow),
+@@ -242,24 +288,7 @@
+         ]
+       : [])
+   ]
+-  return descriptor.defaultChoice && onReset
+-    ? [
+-        <ListRow
+-          key="model-default"
+-          title={t('chat.sessionOptionRows.defaultMarker', 'Default')}
+-          subtitle={[
+-            descriptor.defaultChoice.model?.label ?? 'Default model not reported',
+-            descriptor.defaultChoice.model?.description
+-          ]
+-            .filter(Boolean)
+-            .join('\n')}
+-          selected={descriptor.defaultChoice.selected}
+-          disabled={locked}
+-          onPress={onReset}
+-        />,
+-        ...rows
+-      ]
+-    : rows
++  return withDefault(rows)
+ }
+
+ export function DescriptorRows(props: DescriptorRowsProps): React.JSX.Element {

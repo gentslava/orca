@@ -1,0 +1,43 @@
+--- a/src/main/ipc/ai-vault/ai-vault.ts
++++ b/src/main/ipc/ai-vault/ai-vault.ts
+@@ -62,6 +62,7 @@
+ import { allHostsRuntimeScanTimeoutMs } from './ai-vault-all-host-timeouts'
+ import { registerAiVaultScanProgressBroadcast } from './ai-vault-scan-progress-broadcast'
+ import { boundedAiVaultConversationList } from '../../ai-vault/structured-conversation-navigation'
++import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
+
+ type AiVaultHandlerOptions = AiVaultSessionSources &
+   AiVaultResumeHandlerOptions & {
+@@ -115,6 +116,7 @@
+         ? [...new Set(scopePaths)].sort()
+         : scopePaths,
+     executionHostScope,
++    selectedSessionId: args?.selectedSessionId,
+     includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
+     includeStructuredSessions: args?.includeStructuredSessions === true,
+     ...(args?.scopeOnly === true ? { scopeOnly: true } : {})
+@@ -143,6 +145,7 @@
+           dependency,
+           depth,
+           scopePaths,
++          selectedSessionId: args?.selectedSessionId,
+           force: args?.force === true,
+           afterFingerprint,
+           scan
+@@ -184,6 +187,7 @@
+               dependency: dependency?.forHost(hostInfo.environmentId),
+               depth,
+               scopePaths,
++              selectedSessionId: args?.selectedSessionId,
+               force: args?.force === true,
+               scan
+             })
+@@ -193,6 +197,7 @@
+       [...scannedResults, ...runtimeResults],
+       args?.limit,
+       args?.unlimited,
+-      scopePaths
++      scopePaths,
++      args?.selectedSessionId
+     )
+   }

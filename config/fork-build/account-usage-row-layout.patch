@@ -1,0 +1,74 @@
+diff --git a/src/renderer/src/components/status-bar/AccountSwitchList.tsx b/src/renderer/src/components/status-bar/AccountSwitchList.tsx
+index 4b37da91f32..7680860e665 100644
+--- a/src/renderer/src/components/status-bar/AccountSwitchList.tsx
++++ b/src/renderer/src/components/status-bar/AccountSwitchList.tsx
+@@ -26,12 +26,13 @@ export function AccountSwitchList({
+         <span className="flex items-center gap-2">
+           <span className="min-w-0 flex-1 truncate">{heading}</span>
+           <span className="flex shrink-0 items-end gap-1 text-right">
+-            <span className="min-w-8 whitespace-nowrap">
++            <span className="min-w-0 flex-1" />
++            <span className="min-w-8 shrink-0 whitespace-nowrap">
+               {display === 'used'
+                 ? t('auto.components.status.bar.AccountSwitchList.used', 'Used')
+                 : t('auto.components.status.bar.AccountSwitchList.left', 'Left')}
+             </span>
+-            <span className="w-11 shrink-0 whitespace-normal break-all">
++            <span className="w-24 shrink-0 whitespace-nowrap">
+               {t('auto.components.status.bar.AccountSwitchList.reset', 'Reset')}
+             </span>
+           </span>
+diff --git a/src/renderer/src/components/status-bar/AccountSwitchRowItem.tsx b/src/renderer/src/components/status-bar/AccountSwitchRowItem.tsx
+index 37c73d584ea..0e7a84851d4 100644
+--- a/src/renderer/src/components/status-bar/AccountSwitchRowItem.tsx
++++ b/src/renderer/src/components/status-bar/AccountSwitchRowItem.tsx
+@@ -17,7 +17,7 @@ export function AccountSwitchRowItem({
+   /** Secondary line, e.g. workspace or the ID that tells same-email accounts apart. */
+   detail?: string | null
+   active: boolean
+-  /** Usage shown in the fixed-width right column so rows line up. */
++  /** Usage details beneath the account identity. */
+   children?: React.ReactNode
+   /** Rendered beside the item, not inside it, so its own menu item stays separately focusable. */
+   action?: React.ReactNode
+@@ -32,7 +32,7 @@ export function AccountSwitchRowItem({
+         data-current={active ? 'true' : undefined}
+         className={cn('min-h-9 min-w-0 flex-1', className)}
+       >
+-        <span className="flex w-4 shrink-0 justify-center">
++        <span className="flex w-4 shrink-0 self-start justify-center pt-0.5">
+           {active ? (
+             <>
+               <Check className="size-3.5" />
+@@ -42,13 +42,13 @@ export function AccountSwitchRowItem({
+             </>
+           ) : null}
+         </span>
+-        <span className="flex min-w-0 flex-1 flex-col">
++        <div className="flex min-w-0 flex-1 flex-col">
+           <span className="truncate">{label}</span>
+           {detail ? (
+             <span className="truncate text-2xs text-muted-foreground">{detail}</span>
+           ) : null}
+-        </span>
+-        {children ? <div className="w-1/2 max-w-48 shrink-0 text-xs">{children}</div> : null}
++          {children ? <div className="mt-1 text-xs">{children}</div> : null}
++        </div>
+       </DropdownMenuItem>
+       {action ? <div className="shrink-0 pr-1.5">{action}</div> : null}
+     </div>
+diff --git a/src/renderer/src/components/status-bar/InlineProviderUsage.tsx b/src/renderer/src/components/status-bar/InlineProviderUsage.tsx
+index 65d865d91c3..9f47b387f26 100644
+--- a/src/renderer/src/components/status-bar/InlineProviderUsage.tsx
++++ b/src/renderer/src/components/status-bar/InlineProviderUsage.tsx
+@@ -128,7 +128,9 @@ export function InlineUsageBars({
+             <span className="w-8 shrink-0 text-right tabular-nums">
+               {formatBareUsagePercentage(window.used, display, t)}
+             </span>
+-            <span className="w-11 shrink-0 break-all text-right tabular-nums">{resetDuration}</span>
++            <span className="w-24 shrink-0 whitespace-nowrap text-right tabular-nums">
++              {resetDuration}
++            </span>
+           </div>
+         )
+       })}

@@ -1,0 +1,20 @@
+diff --git a/src/shared/orchestration-runtime-capabilities.ts b/src/shared/orchestration-runtime-capabilities.ts
+--- a/src/shared/orchestration-runtime-capabilities.ts
++++ b/src/shared/orchestration-runtime-capabilities.ts
+@@ -1,5 +1,7 @@
+ import { ORCHESTRATION_SESSION_CHILDREN_CAPABILITY } from './orchestration-session-children'
+ 
++export const SESSION_LINK_POLICY_CAPABILITY = 'orchestration.session-link-policy.v1' as const
++export const SESSION_LINK_CAPABILITY = 'orchestration.session-links.v1' as const
+ export const ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY = 'orchestration.federation.v1' as const
+ export const ORCHESTRATION_FEDERATION_CONTROL_MAIL_RUNTIME_CAPABILITY =
+   'orchestration.federation-control-mail.v1' as const
+@@ -45,6 +47,8 @@
+ 
+ export const ORCHESTRATION_RUNTIME_CAPABILITIES = [
+   ORCHESTRATION_SESSION_CHILDREN_CAPABILITY,
++  SESSION_LINK_CAPABILITY,
++  SESSION_LINK_POLICY_CAPABILITY,
+   ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY,
+   ORCHESTRATION_FEDERATION_CONTROL_MAIL_RUNTIME_CAPABILITY,
+   ORCHESTRATION_FEDERATION_LIFECYCLE_SETTLEMENT_RUNTIME_CAPABILITY,

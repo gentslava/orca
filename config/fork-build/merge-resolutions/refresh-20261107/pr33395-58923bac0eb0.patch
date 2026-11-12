@@ -1,0 +1,94 @@
+diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
+--- a/src/renderer/src/i18n/locales/ru.json
++++ b/src/renderer/src/i18n/locales/ru.json
+@@ -20181,13 +20181,15 @@
+           "xhigh": "Очень выс."
+         },
+         "imageUnavailable": "Предпросмотр недоступен",
+-        "nextTurnOptionsLabel": "Для следующего сообщения: {{options}}",
++        "defaultModel": "По умолчанию",
++        "defaultModelNotReported": "Модель по умолчанию не сообщена",
+         "futureOptionsRequireUpdate": "Обновите Orca на этом сервере, чтобы менять параметры следующих ответов во время работы агента.",
+-        "steerUnavailable": "На этом сервере пока недоступна немедленная отправка. Обновите Orca на сервере или измените действие Enter в настройках чата.",
+-        "queueUnavailable": "На этом сервере пока недоступна очередь сообщений. Обновите Orca на сервере; ваш черновик сохранён.",
+         "planMode": "Планирование",
+         "exitPlanMode": "Выйти из режима планирования",
+-        "moreControls": "Другие элементы управления чатом"
++        "moreControls": "Другие элементы управления чатом",
++        "nextTurnOptionsLabel": "Для следующего сообщения: {{options}}",
++        "steerUnavailable": "На этом сервере пока недоступна немедленная отправка. Обновите Orca на сервере или измените действие Enter в настройках чата.",
++        "queueUnavailable": "На этом сервере пока недоступна очередь сообщений. Обновите Orca на сервере; ваш черновик сохранён."
+       },
+       "tool": {
+         "exitCode": "код {{value0}}",
+@@ -24299,35 +24301,6 @@
+       "bundle": "Пакет питомца"
+     }
+   },
+-  "projectConversations": {
+-    "defaultGroupName": "Группа {{project}}",
+-    "hideProject": "Скрыть проект из списка",
+-    "hiddenProjects": "Скрытые проекты",
+-    "keepFiles": "Файлы и история сохраняются",
+-    "restoreProject": "Показать {{project}}",
+-    "projectOptionsFor": "Действия с проектом {{project}}",
+-    "visibilityFailed": "Не удалось сохранить видимость проекта. Обновите Orca или попробуйте ещё раз.",
+-    "search": "Поиск чатов",
+-    "projectOrder": "Порядок проектов",
+-    "allChats": "Чаты",
+-    "archived": "Архив",
+-    "moveUp": "Выше",
+-    "moveDown": "Ниже",
+-    "noChats": "Пока нет чатов",
+-    "loading": "Загрузка чатов…",
+-    "noArchived": "Архив пуст",
+-    "noMatching": "Чаты не найдены",
+-    "untitled": "Чат без названия",
+-    "unpin": "Открепить чат",
+-    "pin": "Закрепить чат",
+-    "restore": "Вернуть чат из архива",
+-    "archive": "Архивировать чат",
+-    "working": "Работает",
+-    "needsYou": "Требуется ваше действие",
+-    "showMore": "Показать больше",
+-    "newChatInProject": "Новый чат в {{project}}",
+-    "saveFailed": "Не удалось сохранить настройки чата. Обновите Orca или повторите попытку."
+-  },
+   "diffComments": {
+     "lineRangeMeta": "строки {{start}}-{{end}}",
+     "lineMeta": "строка {{line}}"
+@@ -24427,5 +24400,34 @@
+     "loadFailed": "Не удалось загрузить историю Git",
+     "updateHost": "Обновите Orca на {{host}}, чтобы открыть граф Git",
+     "title": "Граф Git"
++  },
++  "projectConversations": {
++    "defaultGroupName": "Группа {{project}}",
++    "hideProject": "Скрыть проект из списка",
++    "hiddenProjects": "Скрытые проекты",
++    "keepFiles": "Файлы и история сохраняются",
++    "restoreProject": "Показать {{project}}",
++    "projectOptionsFor": "Действия с проектом {{project}}",
++    "visibilityFailed": "Не удалось сохранить видимость проекта. Обновите Orca или попробуйте ещё раз.",
++    "search": "Поиск чатов",
++    "projectOrder": "Порядок проектов",
++    "allChats": "Чаты",
++    "archived": "Архив",
++    "moveUp": "Выше",
++    "moveDown": "Ниже",
++    "noChats": "Пока нет чатов",
++    "loading": "Загрузка чатов…",
++    "noArchived": "Архив пуст",
++    "noMatching": "Чаты не найдены",
++    "untitled": "Чат без названия",
++    "unpin": "Открепить чат",
++    "pin": "Закрепить чат",
++    "restore": "Вернуть чат из архива",
++    "archive": "Архивировать чат",
++    "working": "Работает",
++    "needsYou": "Требуется ваше действие",
++    "showMore": "Показать больше",
++    "newChatInProject": "Новый чат в {{project}}",
++    "saveFailed": "Не удалось сохранить настройки чата. Обновите Orca или повторите попытку."
+   }
+ }

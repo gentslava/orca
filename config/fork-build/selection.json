@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "upstream": "stablyai/orca",
+  "base": "main",
+  "authors": ["gentslava"],
+  "seed": [
+    33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
+    33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
+    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40816
+  ],
+  "include": [
+    {
+      "number": 39918,
+      "reason": "Close CLI-launched agent chats through the existing host lifecycle, with explicit session IDs, unknown-session errors and narrowly scoped paired-client capability."
+    },
+    {
+      "number": 40175,
+      "reason": "Retain unified native Settings, launch and composer model-menu policy with host-owned catalogs while preserving upstream CLI discovery for terminal agents and the separately selected host agy model-catalog support."
+    },
+    {
+      "number": 36530,
+      "reason": "scrcpy input latency fixes requested for the Android emulator"
+    },
+    {
+      "number": 36905,
+      "reason": "Opaque-scroller improvement supplied upstream; physical handset testing still requires native magnifier protection, now tracked by replacement PR 38022."
+    },
+    {
+      "number": 37968,
+      "reason": "Merged compact orchestration cards on desktop and mobile; PR 33403 now retains only human-authored chat navigation."
+    },
+    {
+      "number": 40297,
+      "reason": "Merged fix for owner issue 40202: wrap long artifact Update labels while preserving idle/busy button height."
+    },
+    {
+      "number": 40298,
+      "reason": "Owner-requested saved remote-server rename; issue 40221 was closed as duplicate, with matching earlier request 40165 and open implementation 40298. Include until upstream ships it."
+    },
+    {
+      "number": 40980,
+      "reason": "Discover host agy models (Claude Sonnet/Opus, GPT-OSS 120B, Gemini) for new chat and terminal model pickers via sessionless CLI probe, unblocking owner's agy model selection."
+    },
+    {
+      "number": 41099,
+      "reason": "Require a deliberate second Escape within two seconds before stopping a working chat; protect long-running turns from accidental key presses while keeping the Stop button immediate."
+    },
+    {
+      "number": 41114,
+      "reason": "Merged localized account-menu heading repair; retain full-width account identities and one-line reset countdowns through account-usage-row-layout.patch."
+    },
+    {
+      "number": 41166,
+      "reason": "Reuse the existing shared start-failure defaults in mobile to reduce the verified web payload while preserving all translation keys and exact fallback text."
+    },
+    {
+      "number": 41381,
+      "reason": "Keep model search, effort slider and other options visible in the mobile picker while only the model catalogue scrolls; match desktop structure and retain touch, keyboard, remote pending and model-specific choice behavior."
+    },
+    {
+      "number": 41540,
+      "reason": "Require owner-fenced remote account rosters and quota values from the same accounts stream, including older-host failure visibility; retain this owner-requested fix across upstream lifecycle changes."
+    },
+    {
+      "number": 41578,
+      "reason": "Restore phone transcript touch panning while preserving horizontal code scrolling and text-size pinch. Backport only the upstream four-file feature to the frozen source; retain original head ancestry in the fork integration without unrelated later-main changes."
+    }
+  ],
+  "exclude": {
+    "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
+    "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
+    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
+  },
+  "replacements": {
+    "36569": 36922,
+    "36574": 36922,
+    "36606": 36928,
+    "36607": 36928,
+    "37279": 37276,
+    "36858": 37211,
+    "37717": 37711,
+    "37861": 37958,
+    "36892": 38022,
+    "39022": 39727,
+    "36736": 40148,
+    "40499": 40496,
+    "40293": 40673,
+    "40955": 40951,
+    "40870": 41203,
+    "40816": 41430
+  },
+  "dependencies": {
+    "36593": [36634]
+  },
+  "outputs": [
+    "macos-arm64-dmg",
+    "macos-arm64-zip",
+    "windows-x64-installer",
+    "windows-x64-zip",
+    "android-apk",
+    "linux-x64-appimage",
+    "linux-x64-deb",
+    "linux-x64-rpm",
+    "linux-arm64-appimage",
+    "linux-arm64-deb",
+    "linux-arm64-rpm"
+  ],
+  "statusIssue": 12,
+  "compatibilityPatches": [
+    "preview-updater-guard.patch",
+    "test-runner-registration.patch",
+    "integration-module-boundaries.patch",
+    "conversation-project-order.patch",
+    "model-fallback-next-turn-test.patch",
+    "reviewed-merge-target-paths.patch",
+    "upstream-module-relocations.patch",
+    "startup-chat-catalog.patch",
+    "project-start-actions.patch",
+    "composed-ci-contracts.patch",
+    "codex-selected-account-read.patch",
+    "composed-source-modules.patch",
+    "composed-reactive-copy.patch",
+    "runtime-environment-rename.patch",
+    "account-usage-row-layout.patch",
+    "fork-ci-macos-arm64-image.patch"
+  ],
+  "retainClosed": {
+    "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
+    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
+  },
+  "retainedHeadSources": {
+    "34365": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/gentslava/android-picker-refusal-diagnostics"
+    },
+    "38848": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/fix/queue-last-message-shortcut-20261106"
+    }
+  },
+  "foreignHeadSources": {
+    "39918": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/cli-chat-close-39918"
+    },
+    "40980": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/antigravity-models-40980"
+    },
+    "41578": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
+    }
+  },
+  "pullRequestUpstreamCommit": "255b5c22c17ec91d1156db4e90049b754886d47e"
+}
