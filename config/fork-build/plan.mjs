@@ -51,7 +51,11 @@ try {
     observedUpstream,
     process.env.FORK_BUILD_UPSTREAM_COMMIT
   )
-  plan.upstreamBaseline = { observed: observedUpstream, pinned: plan.upstream !== observedUpstream }
+  plan.upstreamBaseline = {
+    observed: observedUpstream,
+    requested: Boolean(process.env.FORK_BUILD_UPSTREAM_COMMIT?.trim()),
+    pinned: plan.upstream !== observedUpstream
+  }
   plan.upstreamRelease = upstreamReleaseIdentity(api(`repos/${config.upstream}/releases/latest`))
   const own = []
   for (const author of config.authors) {
