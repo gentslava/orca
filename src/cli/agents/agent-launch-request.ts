@@ -22,6 +22,7 @@ import { parseAgentSessionOperationTimestamp } from '../../shared/agent-session/
 import type { RuntimeStatus } from '../../shared/runtime-session-contracts'
 import type { TuiAgent } from '../../shared/agent-launch/catalog/tui-agent'
 import { isTuiAgent } from '../../shared/agent-launch/catalog/tui-agent-config'
+import type { SessionOptionValue } from '../../shared/native-chat/input/native-chat-session-options'
 import {
   getOptionalStringFlag,
   getRequiredStringFlag,
@@ -43,7 +44,7 @@ export type CliAgentLaunchTarget =
 export type CliAgentLaunch = {
   agent: TuiAgent
   prompt?: AgentLaunchPrompt
-  sessionOptions?: Record<string, string>
+  sessionOptions?: Record<string, SessionOptionValue>
   operationId?: string
   surface?: AgentLaunchSurface
 }
