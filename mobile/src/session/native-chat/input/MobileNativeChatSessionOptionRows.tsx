@@ -133,6 +133,7 @@ type DescriptorRowsProps = {
   choiceLeading?: (value: string) => ReactNode
   /** Whether search-only choices are revealed; without it they stay off the list. */
   moreChoices?: { shown: boolean; onToggle: () => void }
+  onReset?: () => void
 }
 
 /** A Fast-only speed, which toggles on one row like Claude's Fast mode. */
@@ -157,7 +158,8 @@ export function descriptorRowElements(
     onSetOption,
     onInvokeAction,
     choiceLeading,
-    moreChoices
+    moreChoices,
+    onReset
   }: DescriptorRowsProps,
   t: Translate
 ): ReactElement[] {
@@ -216,14 +218,13 @@ export function descriptorRowElements(
       title={nativeChatSessionChoiceLabel(choice, say, descriptor.id)}
       subtitle={choice.description}
       leading={choiceLeading ? (choiceLeading(choice.value) ?? null) : undefined}
-      selected={choice.value === currentValue}
+      selected={!descriptor.defaultChoice?.selected && choice.value === currentValue}
       disabled={locked}
       onPress={() => onSetOption(choice.value)}
     />
   )
-  // No search here: search-only aliases follow a More models toggle, as compact pickers show them.
   const more = moreChoices ? choices.filter((choice) => choice.legacy) : []
-  return [
+  const rows = [
     ...choices.filter((choice) => !choice.legacy).map(choiceRow),
     ...(more.length > 0 && moreChoices
       ? [
@@ -240,6 +241,24 @@ export function descriptorRowElements(
         ]
       : [])
   ]
+  return descriptor.defaultChoice && onReset
+    ? [
+        <ListRow
+          key="model-default"
+          title={t('chat.sessionOptionRows.defaultMarker', 'Default')}
+          subtitle={[
+            descriptor.defaultChoice.model?.label ?? 'Default model not reported',
+            descriptor.defaultChoice.model?.description
+          ]
+            .filter(Boolean)
+            .join('\n')}
+          selected={descriptor.defaultChoice.selected}
+          disabled={locked}
+          onPress={onReset}
+        />,
+        ...rows
+      ]
+    : rows
 }
 
 export function DescriptorRows(props: DescriptorRowsProps): React.JSX.Element {

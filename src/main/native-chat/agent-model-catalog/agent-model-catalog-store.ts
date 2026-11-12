@@ -6,6 +6,7 @@ import {
   retireAgentModelCatalogObservations,
   agentModelCatalogLaunchAgents,
   agentModelCatalogEntryIsStale,
+  agentModelCatalogDefaultVerified,
   pruneAgentModelCatalogPartialAttempts
 } from './agent-model-catalog-entry-lifetime'
 import { independentAgentModelCatalog } from '../../../shared/agent-session/options/agent-model-catalog-ownership'
@@ -29,20 +30,16 @@ export type {
 } from './agent-model-catalog-entry'
 export { withLiveCatalogListing } from './agent-model-catalog-entry'
 import {
-  AGENT_MODEL_CATALOG_FAILURE_TTL_MS,
   AgentModelCatalogFailures,
   type AgentModelCatalogFailure
 } from './agent-model-catalog-failures'
-import {
-  AGENT_MODEL_CATALOG_PICKER_WAIT_MS,
-  AgentModelCatalogListingWaiters
-} from './agent-model-catalog-listing-waiters'
+import { AgentModelCatalogListingWaiters } from './agent-model-catalog-listing-waiters'
 
-export { AGENT_MODEL_CATALOG_FAILURE_TTL_MS, AGENT_MODEL_CATALOG_PICKER_WAIT_MS }
+export { AGENT_MODEL_CATALOG_FAILURE_TTL_MS } from './agent-model-catalog-failures'
+export { AGENT_MODEL_CATALOG_PICKER_WAIT_MS } from './agent-model-catalog-listing-waiters'
 export type { AgentModelCatalogFailure }
 
-// Persist successful catalogs only; failures/unavailability are held separately.
-// Saved display data may be stale, while launch proof requires fresh discovery in this process.
+// Persist successful display catalogs; launch proof requires fresh in-process discovery.
 
 export { AGENT_MODEL_CATALOG_FRESH_MS } from './agent-model-catalog-entry-lifetime'
 export const AGENT_MODEL_CATALOG_MAX_ENTRIES = 256
@@ -299,11 +296,12 @@ export class AgentModelCatalogStore {
     this.partialAttempts.clear()
   }
 
-  verified(entry: AgentModelCatalogEntry): boolean {
+  verified(entry: AgentModelCatalogEntry, requireConfiguredDefault = false): boolean {
     return (
       !this.isStale(entry) &&
       !this.hasActiveFailure(entry.fingerprint) &&
-      !this.failure(entry.fingerprint)?.unavailable
+      !this.failure(entry.fingerprint)?.unavailable &&
+      agentModelCatalogDefaultVerified(entry, this.partialAttempts, requireConfiguredDefault)
     )
   }
 
