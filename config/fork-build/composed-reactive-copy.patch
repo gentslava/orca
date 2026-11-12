@@ -1,0 +1,967 @@
+diff --git a/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx b/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
+index 2087b5ce259..54726274b7d 100644
+--- a/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
++++ b/src/renderer/src/components/settings/WorkerRoleProfileEditor.tsx
+@@ -1,6 +1,6 @@
+ import { sayNativeChatSessionOptionTranslated as say } from '../native-chat/session/options/controls/native-chat-session-option-labels-text'
+ import { getAgentCatalog } from '@/lib/agent-catalog/agent-catalog'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import {
+   findCatalogModel,
+   findCatalogOption
+@@ -35,6 +35,7 @@ export function WorkerRoleProfileEditor({
+   structuredFast: boolean
+   onChange: (profile: WorkerRoleProfile | undefined) => void
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const agents = getAgentCatalog().filter(
+     (agent) => isTuiAgentEnabled(agent.id, disabledAgents) && detectedIds?.includes(agent.id)
+   )
+@@ -46,12 +47,12 @@ export function WorkerRoleProfileEditor({
+     error,
+     unavailable: catalogUnavailable
+   } = useWorkerRoleModelCatalog(profile?.agent, agentAvailable)
+-  const unavailable = translate('settings.orchestration.roles.unavailable', 'Unavailable')
+-  const notListed = translate('settings.orchestration.roles.notListed', 'Not listed')
++  const unavailable = t('settings.orchestration.roles.unavailable', 'Unavailable')
++  const notListed = t('settings.orchestration.roles.notListed', 'Not listed')
+   const agentLabel =
+     agents.find((agent) => agent.id === profile?.agent)?.label ?? profile?.agent ?? ''
+   const catalogError = error
+-    ? translate('settings.orchestration.roles.modelsFailed', 'Could not load models.')
++    ? t('settings.orchestration.roles.modelsFailed', 'Could not load models.')
+     : catalogUnavailable?.reason === 'cliMissing'
+       ? sayAgentSessionFailureTranslated('cliMissing', { agent: agentLabel })
+       : catalogUnavailable?.reason === 'notSignedIn'
+@@ -91,7 +92,7 @@ export function WorkerRoleProfileEditor({
+     <div className="grid gap-3 sm:grid-cols-2">
+       <div className="space-y-1">
+         <Label htmlFor={`worker-role-${role}-agent`}>
+-          {translate('settings.orchestration.roles.agent', 'Agent')}
++          {t('settings.orchestration.roles.agent', 'Agent')}
+         </Label>
+         <Select
+           value={profile?.agent ?? INHERIT}
+@@ -103,7 +104,7 @@ export function WorkerRoleProfileEditor({
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value={INHERIT}>
+-              {translate('settings.orchestration.roles.unconfigured', 'Not configured')}
++              {t('settings.orchestration.roles.unconfigured', 'Not configured')}
+             </SelectItem>
+             {profile && !agents.some((agent) => agent.id === profile.agent) ? (
+               <SelectItem value={profile.agent} disabled>
+@@ -111,7 +112,7 @@ export function WorkerRoleProfileEditor({
+                   profile.agent}{' '}
+                 ·{' '}
+                 {detectedIds === null
+-                  ? translate('settings.orchestration.roles.checking', 'Checking…')
++                  ? t('settings.orchestration.roles.checking', 'Checking…')
+                   : unavailable}
+               </SelectItem>
+             ) : null}
+@@ -125,7 +126,7 @@ export function WorkerRoleProfileEditor({
+       </div>
+       <div className="space-y-1">
+         <Label htmlFor={`worker-role-${role}-model`}>
+-          {translate('settings.orchestration.roles.model', 'Model')}
++          {t('settings.orchestration.roles.model', 'Model')}
+         </Label>
+         <Select
+           value={profile?.model ?? INHERIT}
+@@ -145,7 +146,7 @@ export function WorkerRoleProfileEditor({
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value={INHERIT}>
+-              {translate('settings.orchestration.roles.agentDefault', 'Agent default')}
++              {t('settings.orchestration.roles.agentDefault', 'Agent default')}
+             </SelectItem>
+             {profile?.model && !models.some((candidate) => candidate.id === profile.model) ? (
+               <SelectItem value={profile.model} disabled>
+@@ -154,12 +155,12 @@ export function WorkerRoleProfileEditor({
+             ) : null}
+             {isRefreshing ? (
+               <div role="status" className="px-2 py-1.5 text-xs text-muted-foreground">
+-                {translate('settings.orchestration.roles.refreshingModels', 'Refreshing models…')}
++                {t('settings.orchestration.roles.refreshingModels', 'Refreshing models…')}
+               </div>
+             ) : null}
+             {!isRefreshing && !catalogError && models.length === 0 ? (
+               <div role="status" className="px-2 py-1.5 text-xs text-muted-foreground">
+-                {translate(
++                {t(
+                   'settings.orchestration.roles.modelsUnavailable',
+                   'No models reported by this host.'
+                 )}
+@@ -184,7 +185,7 @@ export function WorkerRoleProfileEditor({
+             {error ? (
+               <details className="max-w-full text-xs text-muted-foreground">
+                 <summary className="cursor-pointer select-none">
+-                  {translate('settings.orchestration.roles.modelErrorDetails', 'Details')}
++                  {t('settings.orchestration.roles.modelErrorDetails', 'Details')}
+                 </summary>
+                 <div className="scrollbar-sleek mt-1 max-h-40 overflow-auto break-words whitespace-pre-wrap">
+                   {error}
+@@ -198,14 +199,14 @@ export function WorkerRoleProfileEditor({
+               disabled={disabled || isRefreshing}
+               onClick={refresh}
+             >
+-              {translate('settings.orchestration.roles.retryModels', 'Retry')}
++              {t('settings.orchestration.roles.retryModels', 'Retry')}
+             </Button>
+           </div>
+         ) : null}
+       </div>
+       <div className="space-y-1">
+         <Label htmlFor={`worker-role-${role}-effort`}>
+-          {translate('settings.orchestration.roles.effort', 'Reasoning effort')}
++          {t('settings.orchestration.roles.effort', 'Reasoning effort')}
+         </Label>
+         <Select
+           value={profile?.effort ?? INHERIT}
+@@ -219,7 +220,7 @@ export function WorkerRoleProfileEditor({
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value={INHERIT}>
+-              {translate('settings.orchestration.roles.agentDefault', 'Agent default')}
++              {t('settings.orchestration.roles.agentDefault', 'Agent default')}
+             </SelectItem>
+             {profile?.effort &&
+             (effort?.kind.type !== 'select' ||
+@@ -240,7 +241,7 @@ export function WorkerRoleProfileEditor({
+       </div>
+       <div className="space-y-1">
+         <Label htmlFor={`worker-role-${role}-fast`}>
+-          {translate('settings.orchestration.roles.fast', 'Fast')}
++          {t('settings.orchestration.roles.fast', 'Fast')}
+         </Label>
+         <Select
+           value={profile?.fastMode === undefined ? INHERIT : profile.fastMode ? 'on' : 'off'}
+@@ -254,13 +255,13 @@ export function WorkerRoleProfileEditor({
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value={INHERIT}>
+-              {translate('settings.orchestration.roles.agentDefault', 'Agent default')}
++              {t('settings.orchestration.roles.agentDefault', 'Agent default')}
+             </SelectItem>
+             <SelectItem value="on" disabled={!supportsFast}>
+-              {translate('settings.orchestration.roles.on', 'On')}
++              {t('settings.orchestration.roles.on', 'On')}
+             </SelectItem>
+             <SelectItem value="off" disabled={!supportsFast}>
+-              {translate('settings.orchestration.roles.off', 'Off')}
++              {t('settings.orchestration.roles.off', 'Off')}
+             </SelectItem>
+           </SelectContent>
+         </Select>
+diff --git a/src/renderer/src/components/settings/WorkerRoleSettings.tsx b/src/renderer/src/components/settings/WorkerRoleSettings.tsx
+index 9a2c1dd7f2e..483481f6d69 100644
+--- a/src/renderer/src/components/settings/WorkerRoleSettings.tsx
++++ b/src/renderer/src/components/settings/WorkerRoleSettings.tsx
+@@ -1,6 +1,6 @@
+ import { useState } from 'react'
+ import { useDetectedAgents } from '@/hooks/useDetectedAgents'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { GlobalSettings } from '../../../../shared/global-settings-types'
+ import {
+   INITIAL_WORKER_ROLE_NAMES,
+@@ -44,6 +44,7 @@ export function WorkerRoleSettings({
+   settings: GlobalSettings
+   updateSettings: (updates: Partial<GlobalSettings>) => void | Promise<void>
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const { detectedIds } = useDetectedAgents({ kind: 'local' })
+   const [pending, setPending] = useState(false)
+   const [error, setError] = useState<string | null>(null)
+@@ -64,20 +65,20 @@ export function WorkerRoleSettings({
+   return (
+     <section
+       className="space-y-4"
+-      aria-label={translate('settings.orchestration.roles.title', 'Worker roles')}
++      aria-label={t('settings.orchestration.roles.title', 'Worker roles')}
+     >
+       <div className="space-y-1">
+         <h3 className="text-sm font-medium">
+-          {translate('settings.orchestration.roles.title', 'Worker roles')}
++          {t('settings.orchestration.roles.title', 'Worker roles')}
+         </h3>
+         <p className="text-xs text-muted-foreground">
+-          {translate(
++          {t(
+             'settings.orchestration.roles.description',
+             'Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.'
+           )}
+         </p>
+         <p className="text-xs text-muted-foreground">
+-          {translate(
++          {t(
+             'settings.orchestration.roles.catalog',
+             'Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.'
+           )}
+@@ -88,11 +89,11 @@ export function WorkerRoleSettings({
+           <div className="flex items-center justify-between gap-3">
+             <span className="text-sm font-medium">
+               {role === 'research'
+-                ? translate('settings.orchestration.roles.research', 'Research')
++                ? t('settings.orchestration.roles.research', 'Research')
+                 : role === 'implementation'
+-                  ? translate('settings.orchestration.roles.implementation', 'Implementation')
++                  ? t('settings.orchestration.roles.implementation', 'Implementation')
+                   : role === 'review'
+-                    ? translate('settings.orchestration.roles.review', 'Review')
++                    ? t('settings.orchestration.roles.review', 'Review')
+                     : role}
+             </span>
+             {profiles[role] ? (
+@@ -102,7 +103,7 @@ export function WorkerRoleSettings({
+                 disabled={pending}
+                 onClick={() => void save(role, undefined)}
+               >
+-                {translate('settings.orchestration.roles.clear', 'Clear profile')}
++                {t('settings.orchestration.roles.clear', 'Clear profile')}
+               </Button>
+             ) : null}
+           </div>
+@@ -122,7 +123,7 @@ export function WorkerRoleSettings({
+       ))}
+       <div className="space-y-2">
+         <Label htmlFor="new-worker-role">
+-          {translate('settings.orchestration.roles.new', 'Add a role')}
++          {t('settings.orchestration.roles.new', 'Add a role')}
+         </Label>
+         <div className="flex gap-2">
+           <Input
+@@ -145,11 +146,11 @@ export function WorkerRoleSettings({
+               setNewRole('')
+             }}
+           >
+-            {translate('settings.orchestration.roles.add', 'Add')}
++            {t('settings.orchestration.roles.add', 'Add')}
+           </Button>
+         </div>
+         <p className="text-xs text-muted-foreground">
+-          {translate(
++          {t(
+             'settings.orchestration.roles.nameHint',
+             'Use lowercase letters, digits and hyphens. Select an agent to save the role.'
+           )}
+diff --git a/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx b/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
+index 1277f335391..9f110cd60df 100644
+--- a/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
++++ b/src/renderer/src/components/sidebar/ConversationProjectMenu.tsx
+@@ -9,7 +9,7 @@ import {
+   DropdownMenuTrigger
+ } from '@/components/ui/dropdown-menu'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+ import { getRepoOwnerWorktreeVisibilityDefaults } from '@/store/slices/worktrees/listing/worktree-visibility-defaults-by-host'
+ import { RepoHeaderProjectActionsMenu } from './worktree-list/rows/repo-header-project-actions'
+@@ -26,6 +26,7 @@ export function ConversationProjectMenu({
+   onHide?: () => void
+   children?: ReactNode
+ }) {
++  const t = useTranslate()
+   const repos = useAppStore((state) => state.repos)
+   const projectGroups = useAppStore((state) => state.projectGroups)
+   const repoMap = useMemo(() => new Map(repos.map((repo) => [repo.id, repo])), [repos])
+@@ -33,15 +34,13 @@ export function ConversationProjectMenu({
+   const hide = (
+     <DropdownMenuItem disabled={!onHide} onSelect={onHide}>
+       <EyeOff className="size-3.5" />
+-      {translate('projectConversations.hideProject', 'Hide project from list')}
++      {t('projectConversations.hideProject', 'Hide project from list')}
+     </DropdownMenuItem>
+   )
+   if (!group.repo) {
+-    const label = translate(
+-      'projectConversations.projectOptionsFor',
+-      'Project options for {{project}}',
+-      { project: group.label }
+-    )
++    const label = t('projectConversations.projectOptionsFor', 'Project options for {{project}}', {
++      project: group.label
++    })
+     return (
+       <DropdownMenu>
+         <Tooltip>
+@@ -109,15 +108,15 @@ export function ConversationProjectMenu({
+       </RepoHeaderProjectActionsMenu>
+       <ProjectGroupNameDialog
+         open={dialogs.nameDialog !== null}
+-        title={translate('auto.components.sidebar.WorktreeList.13757c053c', 'New Project Group')}
+-        description={translate(
++        title={t('auto.components.sidebar.WorktreeList.13757c053c', 'New Project Group')}
++        description={t(
+           'auto.components.sidebar.WorktreeList.d880ea0744',
+           'Create a group and move this project into it.'
+         )}
+-        initialName={translate('projectConversations.defaultGroupName', '{{project}} group', {
++        initialName={t('projectConversations.defaultGroupName', '{{project}} group', {
+           project: group.repo.displayName
+         })}
+-        confirmLabel={translate('auto.components.sidebar.ProjectGroupNameDialog.create', 'Create')}
++        confirmLabel={t('auto.components.sidebar.ProjectGroupNameDialog.create', 'Create')}
+         onOpenChange={(open) => {
+           if (!open) {
+             dialogs.setNameDialog(null)
+diff --git a/src/renderer/src/components/sidebar/HiddenConversationProjects.tsx b/src/renderer/src/components/sidebar/HiddenConversationProjects.tsx
+index 7fca451cc57..8f7c3f38e90 100644
+--- a/src/renderer/src/components/sidebar/HiddenConversationProjects.tsx
++++ b/src/renderer/src/components/sidebar/HiddenConversationProjects.tsx
+@@ -7,7 +7,7 @@ import {
+   DropdownMenuLabel,
+   DropdownMenuTrigger
+ } from '@/components/ui/dropdown-menu'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+
+ export function HiddenConversationProjects({
+   projects,
+@@ -16,6 +16,7 @@ export function HiddenConversationProjects({
+   projects: Record<string, string> | undefined
+   onRestore?: (key: string, label: string) => void
+ }) {
++  const t = useTranslate()
+   const entries = Object.entries(projects ?? {})
+   if (!entries.length) {
+     return null
+@@ -25,12 +26,12 @@ export function HiddenConversationProjects({
+       <DropdownMenuTrigger asChild>
+         <Button variant="ghost" size="xs">
+           <Eye className="size-3.5" />
+-          {translate('projectConversations.hiddenProjects', 'Hidden projects')}
++          {t('projectConversations.hiddenProjects', 'Hidden projects')}
+         </Button>
+       </DropdownMenuTrigger>
+       <DropdownMenuContent align="end">
+         <DropdownMenuLabel>
+-          {translate('projectConversations.keepFiles', 'Files and history are kept')}
++          {t('projectConversations.keepFiles', 'Files and history are kept')}
+         </DropdownMenuLabel>
+         {entries.map(([key, label]) => (
+           <DropdownMenuItem
+@@ -40,7 +41,7 @@ export function HiddenConversationProjects({
+           >
+             <Eye className="size-3.5" />
+             <span className="max-w-64 truncate">
+-              {translate('projectConversations.restoreProject', 'Restore {{project}}', {
++              {t('projectConversations.restoreProject', 'Restore {{project}}', {
+                 project: label
+               })}
+             </span>
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
+index 0db36261a6d..d68299d8835 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
+@@ -17,7 +17,7 @@ import {
+   DropdownMenuItem,
+   DropdownMenuSeparator
+ } from '@/components/ui/dropdown-menu'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { ConversationProjectMenu } from './ConversationProjectMenu'
+ import { HiddenConversationProjects } from './HiddenConversationProjects'
+ import type { AiVaultSessionVirtualList } from '../right-sidebar/ai-vault/session-list/AiVaultSessionVirtualList'
+@@ -45,6 +45,7 @@ export type ProjectConversationListProps = ComponentProps<typeof AiVaultSessionV
+   executionHostScope?: ExecutionHostScope
+ }
+ export function ProjectConversationList(props: ProjectConversationListProps): React.JSX.Element {
++  const t = useTranslate()
+   useTranslation()
+   const repos = useRepos()
+   const worktrees = useAllWorktrees()
+@@ -195,7 +196,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+         getManualRepoOrder(rest)
+       )
+       .catch(() =>
+-        toast.error(translate('sidebar.projectOrder.saveFailed', 'Could not save project order'))
++        toast.error(t('sidebar.projectOrder.saveFailed', 'Could not save project order'))
+       )
+   }
+   return (
+@@ -207,7 +208,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+               variant="ghost"
+               size="xs"
+               className="min-w-0"
+-              aria-label={translate('projectConversations.projectOrder', 'Project order')}
++              aria-label={t('projectConversations.projectOrder', 'Project order')}
+             >
+               {orderLabels.get(order)}
+               <ChevronDown className="size-3" />
+@@ -225,13 +226,13 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+         >
+           <Archive className="size-3.5" />
+           {archived
+-            ? translate('projectConversations.allChats', 'Chats')
+-            : translate('projectConversations.archived', 'Archived')}
++            ? t('projectConversations.allChats', 'Chats')
++            : t('projectConversations.archived', 'Archived')}
+         </Button>
+       </div>
+       {props.loading && visibleGroups.length > 0 ? (
+         <p role="status" className="px-3 py-2 text-xs text-muted-foreground">
+-          {translate('projectConversations.loading', 'Loading chats…')}
++          {t('projectConversations.loading', 'Loading chats…')}
+         </p>
+       ) : null}
+       <div className="flex justify-end px-3">
+@@ -310,14 +311,14 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+                       <DropdownMenuSeparator />
+                       <DropdownMenuItem disabled={index === 0} onSelect={() => move(group, -1)}>
+                         <ArrowUp />
+-                        {translate('projectConversations.moveUp', 'Move up')}
++                        {t('projectConversations.moveUp', 'Move up')}
+                       </DropdownMenuItem>
+                       <DropdownMenuItem
+                         disabled={index === visibleGroups.length - 1}
+                         onSelect={() => move(group, 1)}
+                       >
+                         <ArrowDown />
+-                        {translate('projectConversations.moveDown', 'Move down')}
++                        {t('projectConversations.moveDown', 'Move down')}
+                       </DropdownMenuItem>
+                     </>
+                   ) : null}
+@@ -341,7 +342,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+               ))}
+               {group.sessions.length === 0 && !props.loading ? (
+                 <p className="py-1 pl-7 text-xs text-muted-foreground">
+-                  {translate('projectConversations.noChats', 'No chats yet')}
++                  {t('projectConversations.noChats', 'No chats yet')}
+                 </p>
+               ) : null}
+             </ProjectConversationSection>
+@@ -350,10 +351,10 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+         {visibleGroups.length === 0 ? (
+           <p className="px-2 py-4 text-sm text-muted-foreground">
+             {props.loading
+-              ? translate('projectConversations.loading', 'Loading chats…')
++              ? t('projectConversations.loading', 'Loading chats…')
+               : archived
+-                ? translate('projectConversations.noArchived', 'No archived chats')
+-                : translate('projectConversations.noMatching', 'No matching chats')}
++                ? t('projectConversations.noArchived', 'No archived chats')
++                : t('projectConversations.noMatching', 'No matching chats')}
+           </p>
+         ) : null}
+       </div>
+diff --git a/src/renderer/src/components/sidebar/ProjectConversationSection.tsx b/src/renderer/src/components/sidebar/ProjectConversationSection.tsx
+index e8ba12a56b1..a350591dd87 100644
+--- a/src/renderer/src/components/sidebar/ProjectConversationSection.tsx
++++ b/src/renderer/src/components/sidebar/ProjectConversationSection.tsx
+@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
+ import { Button } from '@/components/ui/button'
+ import { RepoIconGlyph } from '@/components/repo/repo-icon'
+ import { cn } from '@/lib/class-names'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { RepoIcon } from '../../../../shared/repo-icon'
+
+ export function ProjectConversationSection({
+@@ -27,6 +27,7 @@ export function ProjectConversationSection({
+   onMore: () => void
+   menu?: ReactNode
+ }): React.JSX.Element {
++  const t = useTranslate()
+   return (
+     <section className="mb-3" aria-label={label}>
+       <div className="group/project flex min-w-0 items-center gap-1 rounded-md px-1 hover:bg-sidebar-accent focus-within:bg-sidebar-accent">
+@@ -68,7 +69,7 @@ export function ProjectConversationSection({
+               onClick={onMore}
+               className="ml-6 justify-start"
+             >
+-              {translate('projectConversations.showMore', 'Show more')}
++              {t('projectConversations.showMore', 'Show more')}
+             </Button>
+           ) : null}
+         </div>
+diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+index 3b8e2e3ae77..63940b22736 100644
+--- a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
++++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+@@ -2,10 +2,11 @@ import { useAppStore } from '@/store'
+ import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
+ import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
+
+ export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
++  const t = useTranslate()
+   const order = useAppStore((state) => state.projectOrderBy)
+   const setOrder = useAppStore((state) => state.setProjectOrderBy)
+   const supported = usePersonalProjectOrderSupported()
+@@ -32,7 +33,7 @@ export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean
+           </TooltipTrigger>
+           <TooltipContent side="right" sideOffset={6}>
+             {!supported && option.id === 'recent'
+-              ? translate(
++              ? t(
+                   'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
+                   'Most recent workspace activity'
+                 )
+diff --git a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+index a30e99db97b..ee7e1bcc3d1 100644
+--- a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
++++ b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+@@ -1,7 +1,7 @@
+ import type { ComponentType } from 'react'
+ import { StatsPane } from './StatsPane'
+ import { useAppStore } from '../../store'
+-import { translate } from '@/i18n/i18n'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { SettingsHostScope } from '../settings/host-scope/settings-host-scope'
+ import { SettingsHostScopeUnavailableNotice } from '../settings/host-scope/SettingsHostScopePicker'
+ import { resolveAccountOwner } from '@/runtime/provider-accounts/ownership/wsl-host-account-owner'
+@@ -26,6 +26,7 @@ export function AccountQuotaStatsPane({
+   )
+ }
+ function OwnedAccountQuotas({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
++  const t = useTranslate()
+   const localRateLimits = useAppStore((state) => state.rateLimits)
+   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
+   const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
+@@ -49,7 +50,7 @@ function OwnedAccountQuotas({ hostScope }: { hostScope?: SettingsHostScope }): R
+         accounts={accounts}
+         accountsUnverifiable={accountsUnverifiable}
+         localOwner={remoteOwner === null}
+-        ownerLabel={remoteOwner?.label ?? translate('stats.usage.localHost', 'This device')}
++        ownerLabel={remoteOwner?.label ?? t('stats.usage.localHost', 'This device')}
+         onRefresh={
+           refreshRemote ??
+           (async () => {
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+index c59060dba45..61fd3bb0854 100644
+--- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
++++ b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+@@ -10,7 +10,7 @@ import { formatPlanLabel } from '../status-bar/usage-roster-formatting'
+ import { getProviderUsageErrorMessage } from '../status-bar/usage-error-copy'
+ import { getProviderDisplayName } from '../../../../shared/usage-provider-windows'
+ import { formatWindowLabel } from '../../../../shared/rate-limit-window-label'
+-import { getIntlLocale, translate } from '@/i18n/i18n'
++import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
+ import type { ProviderAccountsSnapshot } from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
+ import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'
+
+@@ -27,10 +27,12 @@ export function UsageAccountQuotaCard({
+   active?: boolean
+   quotaKey?: string
+ }): React.JSX.Element {
+-  const providerSections = getWindowSections(provider)
++  const t = useTranslate()
++  const intlLocale = useIntlLocale()
++  const providerSections = getWindowSections(provider, t)
+   const sections = [
+     ...providerSections,
+-    ...getWindowSections({ ...provider, buckets: [] }).filter(
++    ...getWindowSections({ ...provider, buckets: [] }, t).filter(
+       (section) => !providerSections.some((existing) => existing.window === section.window)
+     )
+   ].flatMap((section) =>
+@@ -38,7 +40,7 @@ export function UsageAccountQuotaCard({
+       ? [{ ...section, window: section.window }]
+       : []
+   )
+-  const error = provider.error ? getProviderUsageErrorMessage(provider) : null
++  const error = provider.error ? getProviderUsageErrorMessage(provider, t) : null
+   return (
+     <article
+       className="min-w-0 space-y-3 rounded-lg border border-border bg-card p-4"
+@@ -60,9 +62,7 @@ export function UsageAccountQuotaCard({
+       {runtimeLabel ? (
+         <p className="text-xs text-muted-foreground">
+           {runtimeLabel}
+-          {active
+-            ? ` · ${translate('auto.components.status.bar.StatusBar.ff0fbe9311', 'Active')}`
+-            : ''}
++          {active ? ` · ${t('auto.components.status.bar.StatusBar.ff0fbe9311', 'Active')}` : ''}
+         </p>
+       ) : null}
+       {sections.map(({ label, window }) => (
+@@ -76,8 +76,8 @@ export function UsageAccountQuotaCard({
+                 : ''}
+             </span>
+             <span className="tabular-nums text-foreground">
+-              {translate('stats.usage.quota.used', '{{percent}}% used', {
+-                percent: clampUsedPercent(window.usedPercent).toLocaleString(getIntlLocale(), {
++              {t('stats.usage.quota.used', '{{percent}}% used', {
++                percent: clampUsedPercent(window.usedPercent).toLocaleString(intlLocale, {
+                   maximumFractionDigits: 1
+                 })
+               })}
+@@ -86,27 +86,27 @@ export function UsageAccountQuotaCard({
+           <Progress value={clampUsedPercent(window.usedPercent)} aria-label={label} />
+           <p className="text-xs text-muted-foreground">
+             {window.resetsAt != null
+-              ? translate('stats.usage.quota.resetsAt', 'Resets {{time}}', {
+-                  time: new Date(window.resetsAt).toLocaleString(getIntlLocale())
++              ? t('stats.usage.quota.resetsAt', 'Resets {{time}}', {
++                  time: new Date(window.resetsAt).toLocaleString(intlLocale)
+                 })
+               : (window.resetDescription ??
+-                translate('stats.usage.quota.resetUnavailable', 'Reset time unavailable'))}
++                t('stats.usage.quota.resetUnavailable', 'Reset time unavailable'))}
+           </p>
+         </div>
+       ))}
+       {sections.length === 0 ? (
+         <p className="text-xs text-muted-foreground">
+-          {translate('stats.usage.quota.unavailable', 'Quota data unavailable')}
++          {t('stats.usage.quota.unavailable', 'Quota data unavailable')}
+         </p>
+       ) : null}
+       <p className="text-xs text-muted-foreground">
+         {provider.status === 'fetching'
+-          ? translate('stats.usage.quota.refreshing', 'Refreshing quota…')
++          ? t('stats.usage.quota.refreshing', 'Refreshing quota…')
+           : provider.updatedAt > 0
+-            ? translate('stats.usage.quota.updatedAt', 'Quota checked {{time}}', {
+-                time: new Date(provider.updatedAt).toLocaleString(getIntlLocale())
++            ? t('stats.usage.quota.updatedAt', 'Quota checked {{time}}', {
++                time: new Date(provider.updatedAt).toLocaleString(intlLocale)
+               })
+-            : translate('stats.usage.quota.neverUpdated', 'Quota has not been checked')}
++            : t('stats.usage.quota.neverUpdated', 'Quota has not been checked')}
+       </p>
+       {error ? (
+         <p role="status" className="break-words text-xs text-destructive">
+@@ -116,7 +116,7 @@ export function UsageAccountQuotaCard({
+       {sections.length > 0 &&
+       (provider.status === 'error' || provider.usageMetadata?.unverifiableOwner) ? (
+         <p className="text-xs text-muted-foreground">
+-          {translate('stats.usage.quota.lastKnown', 'Last known quota; the latest check failed.')}
++          {t('stats.usage.quota.lastKnown', 'Last known quota; the latest check failed.')}
+         </p>
+       ) : null}
+     </article>
+@@ -140,6 +140,7 @@ export function UsageAccountQuotas({
+   onRefresh: () => void | Promise<void>
+   onManage: () => void
+ }): React.JSX.Element {
++  const t = useTranslate()
+   const settings = useAppStore((state) => (localOwner ? state.settings : null))
+   const fetchRateLimits = useAppStore((state) => state.fetchRateLimits)
+   const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
+@@ -156,17 +157,18 @@ export function UsageAccountQuotas({
+     accounts,
+     accountsUnverifiable,
+     settings,
+-    ownerLabel
++    ownerLabel,
++    t
+   )
+   return (
+     <section className="space-y-3" data-testid="usage-account-quotas">
+       <div className="flex items-start justify-between gap-3">
+         <div className="space-y-1">
+           <h3 className="text-sm font-semibold text-foreground">
+-            {translate('stats.usage.quota.title', 'Current account quotas')}
++            {t('stats.usage.quota.title', 'Current account quotas')}
+           </h3>
+           <p className="text-xs text-muted-foreground">
+-            {translate(
++            {t(
+               'stats.usage.quota.scope',
+               '{{host}} · Account-wide subscription windows. History filters do not change these limits.',
+               { host: ownerLabel }
+@@ -178,19 +180,19 @@ export function UsageAccountQuotas({
+           size="sm"
+           disabled={rows.some((row) => row.provider.status === 'fetching')}
+           onClick={() => void onRefresh()}
+-          aria-label={translate('stats.usage.quota.refresh', 'Refresh account quotas')}
++          aria-label={t('stats.usage.quota.refresh', 'Refresh account quotas')}
+         >
+           <RefreshCw className="size-3.5" />
+-          {translate('stats.usage.refresh', 'Refresh')}
++          {t('stats.usage.refresh', 'Refresh')}
+         </Button>
+       </div>
+       <p className="text-xs text-muted-foreground" data-testid="usage-quota-coverage">
+         {accounts && !accountsUnverifiable && !accounts.failedProviders?.length
+-          ? translate(
++          ? t(
+               'stats.usage.quota.reportedAccountCoverage',
+               'Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
+             )
+-          : translate(
++          : t(
+               'stats.usage.quota.partialAccounts',
+               'The account list is unavailable or incomplete. Only reported accounts and current provider quota snapshots are shown.'
+             )}
+@@ -210,14 +212,14 @@ export function UsageAccountQuotas({
+         </div>
+       ) : (
+         <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+-          {translate(
++          {t(
+             'stats.usage.quota.noSources',
+             'No account quota source is available. Manage provider accounts to check your subscription.'
+           )}
+         </p>
+       )}
+       <Button variant="link" size="sm" onClick={onManage} className="h-auto">
+-        {translate('stats.usage.quota.manage', 'Manage accounts')}
++        {t('stats.usage.quota.manage', 'Manage accounts')}
+       </Button>
+     </section>
+   )
+diff --git a/src/renderer/src/components/stats/usage-account-quota-rows.ts b/src/renderer/src/components/stats/usage-account-quota-rows.ts
+index 1455da8aad1..25061d59396 100644
+--- a/src/renderer/src/components/stats/usage-account-quota-rows.ts
++++ b/src/renderer/src/components/stats/usage-account-quota-rows.ts
+@@ -15,6 +15,7 @@ import {
+   normalizeCodexStatusRuntimeTarget
+ } from '../status-bar/status-bar-codex-accounts'
+ import { translate } from '@/i18n/i18n'
++import type { Translate } from '@/i18n/use-translate'
+ import { USAGE_PROVIDER_KEYS } from '../status-bar/owner-usage-rate-limits'
+ import {
+   getVisibleUsageProvider,
+@@ -35,23 +36,26 @@ function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget
+   return left.runtime === right.runtime && left.wslDistro === right.wslDistro
+ }
+
+-function managedQuotaRows({
+-  provider,
+-  groups,
+-  current,
+-  inactive,
+-  target,
+-  systemIdentity,
+-  unverifiable
+-}: {
+-  provider: 'claude' | 'codex'
+-  groups: AccountGroup[]
+-  current: ProviderRateLimits | null
+-  inactive: InactiveAccountUsage[]
+-  target: RateLimitRuntimeTarget
+-  systemIdentity?: string | null
+-  unverifiable: boolean
+-}): UsageAccountQuotaRow[] {
++function managedQuotaRows(
++  {
++    provider,
++    groups,
++    current,
++    inactive,
++    target,
++    systemIdentity,
++    unverifiable
++  }: {
++    provider: 'claude' | 'codex'
++    groups: AccountGroup[]
++    current: ProviderRateLimits | null
++    inactive: InactiveAccountUsage[]
++    target: RateLimitRuntimeTarget
++    systemIdentity?: string | null
++    unverifiable: boolean
++  },
++  t: Translate = translate
++): UsageAccountQuotaRow[] {
+   return groups.flatMap((group) =>
+     group.targets.flatMap((account) => {
+       const currentAccount = account.active && sameRuntime(group.runtimeTarget, target)
+@@ -71,10 +75,7 @@ function managedQuotaRows({
+               status: !unverifiable && cached?.isFetching ? 'fetching' : 'unavailable',
+               error: unverifiable
+                 ? (current?.error ??
+-                  translate(
+-                    'stats.usage.quota.ownerUnverifiable',
+-                    'The account host cannot be verified.'
+-                  ))
++                  t('stats.usage.quota.ownerUnverifiable', 'The account host cannot be verified.'))
+                 : (account.hint ?? null),
+               ...(unverifiable ? { usageMetadata: { unverifiableOwner: true } } : {})
+             }
+@@ -88,11 +89,11 @@ function managedQuotaRows({
+           runtimeLabel:
+             group.runtimeTarget.runtime === 'host'
+               ? group.label === 'This device'
+-                ? translate('stats.usage.localHost', 'This device')
++                ? t('stats.usage.localHost', 'This device')
+                 : group.label
+               : group.runtimeTarget.wslDistro
+                 ? `WSL ${group.runtimeTarget.wslDistro}`
+-                : translate('stats.usage.quota.defaultWsl', 'WSL default'),
++                : t('stats.usage.quota.defaultWsl', 'WSL default'),
+           active: account.active,
+           provider: limits
+         }
+@@ -104,13 +105,13 @@ function managedQuotaRows({
+ function antigravityQuotaRows(
+   accounts: AntigravityAccountUsage[],
+   unverifiable: boolean,
+-  ownerLabel?: string
++  ownerLabel?: string,
++  t: Translate = translate
+ ): UsageAccountQuotaRow[] {
+   return accounts.map((account) => ({
+     key: `antigravity:${account.accountId}`,
+     identity:
+-      account.email ??
+-      translate('auto.components.status.bar.antigravity.unknownAccount', 'Google account'),
++      account.email ?? t('auto.components.status.bar.antigravity.unknownAccount', 'Google account'),
+     runtimeLabel: ownerLabel,
+     active: account.active,
+     provider:
+@@ -133,14 +134,15 @@ export function buildUsageAccountQuotaRows(
+   accounts: ProviderAccountsSnapshot | null,
+   unverifiable = false,
+   settings?: Partial<UsageProviderSettings> | null,
+-  ownerLabel?: string
++  ownerLabel?: string,
++  t: Translate = translate
+ ): UsageAccountQuotaRow[] {
+   const fallback = (provider: ProviderRateLimits | null): UsageAccountQuotaRow[] =>
+     provider && getVisibleUsageProvider(provider.provider, provider, { ...settings, ...limits })
+       ? [
+           {
+             key: `${provider.provider}:current`,
+-            identity: translate(
++            identity: t(
+               'stats.usage.quota.currentAccount',
+               'Current account · identity unavailable'
+             ),
+@@ -151,37 +153,43 @@ export function buildUsageAccountQuotaRows(
+       : []
+   const claude =
+     accounts?.claude && !accounts.failedProviders?.includes('claude')
+-      ? managedQuotaRows({
+-          provider: 'claude',
+-          groups: buildClaudeStatusSwitchGroups(accounts.claude, limits.claudeTarget, {
+-            hostLabel: ownerLabel
+-          }),
+-          current: limits.claude,
+-          inactive: limits.inactiveClaudeAccounts,
+-          target: normalizeClaudeStatusRuntimeTarget(accounts.claude, limits.claudeTarget),
+-          systemIdentity: accounts.claude.systemDefaultEmail,
+-          unverifiable
+-        })
++      ? managedQuotaRows(
++          {
++            provider: 'claude',
++            groups: buildClaudeStatusSwitchGroups(accounts.claude, limits.claudeTarget, {
++              hostLabel: ownerLabel
++            }),
++            current: limits.claude,
++            inactive: limits.inactiveClaudeAccounts,
++            target: normalizeClaudeStatusRuntimeTarget(accounts.claude, limits.claudeTarget),
++            systemIdentity: accounts.claude.systemDefaultEmail,
++            unverifiable
++          },
++          t
++        )
+       : fallback(limits.claude)
+   const codex =
+     accounts?.codex && !accounts.failedProviders?.includes('codex')
+-      ? managedQuotaRows({
+-          provider: 'codex',
+-          groups: buildCodexStatusSwitchGroups(accounts.codex, limits.codexTarget, {
+-            hostLabel: ownerLabel
+-          }),
+-          current: limits.codex,
+-          inactive: limits.inactiveCodexAccounts,
+-          target: normalizeCodexStatusRuntimeTarget(accounts.codex, limits.codexTarget),
+-          systemIdentity: accounts.codex.systemDefault?.email,
+-          unverifiable
+-        })
++      ? managedQuotaRows(
++          {
++            provider: 'codex',
++            groups: buildCodexStatusSwitchGroups(accounts.codex, limits.codexTarget, {
++              hostLabel: ownerLabel
++            }),
++            current: limits.codex,
++            inactive: limits.inactiveCodexAccounts,
++            target: normalizeCodexStatusRuntimeTarget(accounts.codex, limits.codexTarget),
++            systemIdentity: accounts.codex.systemDefault?.email,
++            unverifiable
++          },
++          t
++        )
+       : fallback(limits.codex)
+   return [
+     ...claude,
+     ...codex,
+     ...(limits.antigravityAccounts?.length
+-      ? antigravityQuotaRows(limits.antigravityAccounts, unverifiable, ownerLabel)
++      ? antigravityQuotaRows(limits.antigravityAccounts, unverifiable, ownerLabel, t)
+       : fallback(limits.antigravity)),
+     ...USAGE_PROVIDER_KEYS.filter(
+       (key) => key !== 'claude' && key !== 'codex' && key !== 'antigravity'
+diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
+index f71ca642901..a698fda1489 100644
+--- a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
++++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
+@@ -1,8 +1,8 @@
+ import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
+ import { FilePlus, FileText, Globe, Settings, Smartphone, TerminalSquare } from 'lucide-react'
+ import { Button } from '@/components/ui/button'
+-import { AgentIcon } from '@/lib/agent-catalog'
+-import { translate } from '@/i18n/i18n'
++import { AgentIcon } from '@/components/agent/icons/AgentIcon'
++import { useTranslate } from '@/i18n/use-translate'
+ import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
+ import type { TabCreateMenuOption } from '../tab-bar/tab-create-menu-options'
+ import { chatUnavailableLabel, rowId, rowLabel } from '../tab-bar/tab-agent-row-presentation'
+@@ -40,35 +40,33 @@ export function WorkspaceStartActions({
+   onSelect: (option: TabCreateMenuOption) => void
+   onManageAgents: () => void
+ }) {
++  const t = useTranslate()
+   useUiLanguageRevision()
+   return (
+     <section className="@container mx-auto flex w-full max-w-2xl flex-col gap-6 p-6">
+       <div className="space-y-2">
+         <h1 className="text-xl font-semibold">
+-          {translate('workspace.start.title', 'What would you like to open?')}
++          {t('workspace.start.title', 'What would you like to open?')}
+         </h1>
+         <p className="text-sm text-muted-foreground">
+-          {translate('workspace.start.description', 'Choose an agent or a tool for this project.')}
++          {t('workspace.start.description', 'Choose an agent or a tool for this project.')}
+         </p>
+       </div>
+       <div className="space-y-3">
+         <div className="flex items-center justify-between gap-3">
+-          <h2 className="text-sm font-medium">{translate('workspace.start.agents', 'Agents')}</h2>
++          <h2 className="text-sm font-medium">{t('workspace.start.agents', 'Agents')}</h2>
+           <Button variant="ghost" size="sm" onClick={onManageAgents}>
+             <Settings />
+-            {translate('workspace.start.manageAgents', 'Manage agents')}
++            {t('workspace.start.manageAgents', 'Manage agents')}
+           </Button>
+         </div>
+         {loading ? (
+           <p role="status" className="text-sm text-muted-foreground">
+-            {translate('auto.components.tab.bar.QuickLaunchButton.agentsLoading', 'Loading agents')}
++            {t('auto.components.tab.bar.QuickLaunchButton.agentsLoading', 'Loading agents')}
+           </p>
+         ) : rows.length === 0 ? (
+           <p className="text-sm text-muted-foreground">
+-            {translate(
+-              'auto.components.tab.bar.QuickLaunchButton.e518f544b1',
+-              'No agents detected'
+-            )}
++            {t('auto.components.tab.bar.QuickLaunchButton.e518f544b1', 'No agents detected')}
+           </p>
+         ) : (
+           <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2">
+@@ -83,10 +81,10 @@ export function WorkspaceStartActions({
+               >
+                 <AgentIcon agent={row.agent} size={16} />
+                 <span className="min-w-0 break-words">
+-                  {rowLabel(row)}
++                  {rowLabel(row, t)}
+                   {row.kind === 'chat-unavailable' ? (
+                     <span className="block text-xs text-muted-foreground">
+-                      {chatUnavailableLabel(row.reason)}
++                      {chatUnavailableLabel(row.reason, t)}
+                     </span>
+                   ) : null}
+                 </span>

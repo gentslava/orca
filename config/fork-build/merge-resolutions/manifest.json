@@ -1,0 +1,2335 @@
+[
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
+    "blobs": [
+      null,
+      "977a193ffe57aa78d5efb8d84c8caed03a4a440c",
+      "ec3f0f9dbf5c01e821962ff8237125edd109fbe9"
+    ],
+    "patch": "refresh-20261106/pr33383-f4c36aaee25a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "b9d2f6782434025d9c19375c423ab04947924c63f02c9e46f0339486976f4dab",
+    "reason": "Keep durable desktop navigation and filtering, mobile selected-session retention and catalog provenance; isolate selected-session cache keys while bypassing transcript cache for structured catalogs."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
+    "blobs": [
+      null,
+      "bf0a35f738f9385574819f8dcefa0659ba97b2cc",
+      "56d41f75fb0c2c8be78efdf1fa69a31e4c5cb36d"
+    ],
+    "patch": "refresh-20261106/pr33383-31ab9448b686.patch",
+    "patchSha256": "2c9ab83f89b12244263e1f34d6199abb5bf792c9f7d49cf2f8ff36296c51754e",
+    "resultSha256": "b5aa21ef3925a8b2feca007071f694072518b3acff7dbe3ff6ab322adfc8072d",
+    "reason": "Keep durable desktop navigation and filtering, mobile selected-session retention and catalog provenance; isolate selected-session cache keys while bypassing transcript cache for structured catalogs."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/ai-vault.ts",
+    "blobs": [
+      "2bc90f43abd78ce9db4355fa60370ffa3e87fd7b",
+      "72a0c541c5c7bf3138baed60b4fbc848327f2637",
+      "f5b0f7c667cccec045a0cf480fe8d2134ec3733a"
+    ],
+    "patch": "refresh-20261106/pr33383-f7a867ec28a6.patch",
+    "patchSha256": "66d575d15784f64ccaf9b7464063e2c4f76856b9fb31b2501f733cfdfa313219",
+    "resultSha256": "607a3205d5b11be0efcd2aa82f409b0391dc005b0b248296ee3ec65b5c2d8bf5",
+    "reason": "Keep durable desktop navigation and filtering, mobile selected-session retention and catalog provenance; isolate selected-session cache keys while bypassing transcript cache for structured catalogs."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "1d35fd7bf34631dffb5e8e566c3f356df18844e8",
+      "ba7f7167881ecf6892375119d38f12921f7b83bf",
+      "f78256468b7deebaba084d20f40c666725f000da"
+    ],
+    "patch": "refresh-20261106/pr33383-b9b0f4774227.patch",
+    "patchSha256": "5eb3e213751abb1848a00255ae0352a2119447558b874efa14c25ed3fb1363d1",
+    "resultSha256": "01bece1eb9e4f1abfcaf3afa973d4d6f1018613fb87d2bdfd5eb885de8ae9c32",
+    "reason": "Keep durable desktop navigation and filtering, mobile selected-session retention and catalog provenance; isolate selected-session cache keys while bypassing transcript cache for structured catalogs."
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "938242d3be9e0a20cdb3324338009d404e82b1ed",
+      "ca4f1ec1620ac6965c547085e3ef13aed2ce0755",
+      "3c32be0ffef17b1cd287035b1692fcf7d006f686"
+    ],
+    "patch": "refresh-20261106/pr33395-0093458208d8.patch",
+    "patchSha256": "12983e75953a624cfd03055d5b425f76b12b0e474cb650aceee392e3f2191d94",
+    "resultSha256": "3ff7495043a0713164fcab6302a672a0b2e64ccea70b8b63f491d186875a854c",
+    "reason": "Combine explicit default model choices and pending-pick send fences with queue capability and immediate-steer routing; retain both capability fields and independent translation additions."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session-params.ts",
+    "blobs": [
+      "805e8a4a6fd873e568ed84b3301e3bf582b8f4da",
+      "71d0993d784eb9b0c1dcd174098e0b8010c371eb",
+      "392c533498b74f994efcb0bda1d2c92176533ce2"
+    ],
+    "patch": "refresh-20261106/pr33395-d1ba05ab1645.patch",
+    "patchSha256": "583f054f6c294f36e7fd930dd1e4fca8bb9d4b406922be256b2ec164db184cfe",
+    "resultSha256": "110271e3c332ae16091cb8e7a99c806cec7568798f8f365661a5ce8920273b47",
+    "reason": "Combine explicit default model choices and pending-pick send fences with queue capability and immediate-steer routing; retain both capability fields and independent translation additions."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "6839faba036799a676e04b615cd40a20baba14cc",
+      "505aacbc7367c49b55855606bfbc48c8f7c96756",
+      "41c0d225ec6b2f430e6a34fd8c5103df14030847"
+    ],
+    "patch": "refresh-20261106/pr33417-927f1d2c29b2.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "f0a364cf47875f60e1e2c14cf8cef930f7991ce4f0dad25a2059715c843b396f",
+    "reason": "Merge independent image-tray translation additions without replacing queue, model-default or conversation copy."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "9526985774870e78f1952e835f8b941761690edb",
+      "bb88871abeeff278b075839d592700a15d7d0531",
+      "99d3b6c3609182c6fc1438df35c9e504a427f222"
+    ],
+    "patch": "refresh-20261106/pr33417-58923bac0eb0.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "de2ddd1bfcb1200f2ab0b9f6f947b33d0f955d0c68b6b84c8f2baeb14c97b08d",
+    "reason": "Merge independent image-tray translation additions without replacing queue, model-default or conversation copy."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "6e543225259bb7c1f97139f39623a9cbea7bdf6b",
+      "8d850a8f0d40202f2144711a6beb4f07284b7f7a",
+      "24829c0151ebb8714588eefdbb90ec2df0dcb32f"
+    ],
+    "patch": "refresh-20261106/pr33502-71397d9b2645.patch",
+    "patchSha256": "8e9fd2253725d8232b011fa7d98fc6d7f657cd4d795e35c7f4b5025219a4282e",
+    "resultSha256": "9e04ed43adbcf832b9aab161e7d384402f35715931fcc99c89e3ade784bcaca0",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-read.ts",
+    "blobs": [
+      "d95f8ee455980ef7908388ebfd147accf8096250",
+      "14a2b4b9255e0d270f85e93393cb8d094f4d1d3c",
+      "5cbe874f30f58cb2c427cec4c27a139747b68abe"
+    ],
+    "patch": "refresh-20261106/pr33502-81efb3a955cb.patch",
+    "patchSha256": "fe80b20e0cdeb1d2b24e398b1de4cce5fc579335d4c3f6a0bc12c58eef554dc7",
+    "resultSha256": "b0076e167050853f3847ffadbcaf8af01b212c9f4bdafc7aaa9e966edb515af8",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-update.ts",
+    "blobs": [
+      "7b456a14c3837e92cacb4b7765f36f8d7dfc2b5f",
+      "da3f0d55d685fd68db48006d93869782e8b74204",
+      "b3a8bf38d62021a7adbc941caa47965ee944c1c5"
+    ],
+    "patch": "refresh-20261106/pr33502-67eb309998ba.patch",
+    "patchSha256": "26ae73afbb104067ed752df10e9938fd791ada44fd159f4862903dab9531e816",
+    "resultSha256": "be8acfa441943b5de523e7263eaa8ee0d96d37be2d9aad2e51b125601dbf386d",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-ui.ts",
+    "blobs": [
+      "507f872619b041fa0228d5cdf70a5c150cd5fec3",
+      "68da2b458551308b387e9cf509132c33f89b8d12",
+      "79c8b14052225dba688c693866db225b16650677"
+    ],
+    "patch": "refresh-20261106/pr33502-dea398db4964.patch",
+    "patchSha256": "2c1e87bf07715f4517d2d8e22f40dec2bedaaf00f22308689f96cc3ffa0952af",
+    "resultSha256": "c81df99f7200ed76362b485dd287cf35f530e9954beffebedf051cf71b6c005e",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/ui-state-schema-parity-checks.ts",
+    "blobs": [
+      "460a1c489b16afc3dd5054abd9c4483005d00e9e",
+      "74358aa60cbe0412c6d2be248de40e1349d2df80",
+      "1c16074d452d5927d545a432a01acd8963fddf38"
+    ],
+    "patch": "refresh-20261106/pr33502-fdd0d1b555d2.patch",
+    "patchSha256": "9b623f5742837c6a0155c173779d8995ecb4099014b5defd11a495a1f19addcc",
+    "resultSha256": "2b0892d6dc2669ad52a4e1ab00b52a7a6a2d754302f18bc35f56dbb232dd3399",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "3623b24d35c56d4b55f5c7fb324102956150abd8",
+      "01257b4343ed717108cb6a0539e1d20bd445f8ed",
+      "2fff1f7477a449e4e72983f57f05820d3a755c3e"
+    ],
+    "patch": "refresh-20261106/pr33502-19ec9a337ad9.patch",
+    "patchSha256": "6ceb1325ffb58f539621e944ce028fa5c5b6804d6fa6fea26225d799abc394c1",
+    "resultSha256": "4716a97717dbcd78c4b66a7f90d9923e03c8c3505e92a4a006948a7acf3038e1",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "9526985774870e78f1952e835f8b941761690edb",
+      "bb88871abeeff278b075839d592700a15d7d0531",
+      "677f578e73ed016060026feb291497beb9dbdc6d"
+    ],
+    "patch": "refresh-20261106/pr33502-58923bac0eb0.patch",
+    "patchSha256": "4e3dd12691896beaa5822bb43dddd6c9aedd23bd30a54861222d1e83ee0dbae9",
+    "resultSha256": "31a2db319d836937f0f7749e0261050c1fef96a9532d1e1a5cc8b08e289de387",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/renderer/src/lib/worktree-activation-structured-chat-surface.test.ts",
+    "blobs": [
+      "5b37ed6af6c56c295fdb7af9260afabe812cb871",
+      "ee1c756647c4d0e176d6fbef9b54b7201280b011",
+      "7ff0a01ee51db986eb66fc4a8048ea5274e6f3b5"
+    ],
+    "patch": "refresh-20261106/pr33502-2d951286fce0.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "c0229ed5c20dc19b0a4c600762f6594d2091126deea2f3dfdd94479ce30a9ae6",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "ca1530696571d76a83318ab4c8a00df4b21985db",
+      "079ab1227f6209dbfd236289bec5aa0b56de716c",
+      "607fd9732280664c5c131c315588f22891160ee0"
+    ],
+    "patch": "refresh-20261106/pr33502-f7e3da05dbfa.patch",
+    "patchSha256": "ca8cf12c7245c79f75fcae01c04534ddd05f804b5562086aa49633e22d06d227",
+    "resultSha256": "b8b063e006d37e42339c87a5fda397d821f4be664bf9b4504b36809e7587505f",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "d0ab1698583ea252553d98c96b0157180d8230dd",
+      "a421baa8c3f0f76fecbdf14facfe346282c6f4bc",
+      "26142297cef85f7fba51d83cd6029599f41719f4"
+    ],
+    "patch": "refresh-20261106/pr33502-efda56db3fb5.patch",
+    "patchSha256": "ff3ff367d7d76bd74067f6a1c528e352f6ae3cc6a69609a8d7c64b3036fe3469",
+    "resultSha256": "04fec0461a7851666869701158d7c2a144416a7e1f831c18524e866ac21fb00d",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "7ad127fbcbb5831081ae7c99a2f82f3e6e94e5fe",
+      "72a70eeadf30783b0d6cc64785c0d05bb0281c77",
+      "fada163e67adc66a9a766266dc50f195607e8870"
+    ],
+    "patch": "refresh-20261106/pr33502-71b259c8d23a.patch",
+    "patchSha256": "368bcc68c4e2744e3d403bed36a1f04af35d8abd0505afa0516296535481b161",
+    "resultSha256": "c843d0c09a97489e20a33e76bf54f9ab0784b3d098353cc1d61537baaf49857b",
+    "reason": "Retain conversation preferences and personal project ordering as separate durable fields, RPC writes, mobile view settings and capabilities; preserve explicit module initialization in activation cleanup."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "9526985774870e78f1952e835f8b941761690edb",
+      "f7397afc67fba9d1ac01646de3ad66cb2566725b",
+      "ed6b3096650d6840f489d548d377926a913e5c36"
+    ],
+    "patch": "refresh-20261106/pr33512-58923bac0eb0.patch",
+    "patchSha256": "35ebb99e536231498c0250dd5362b91f82286c9b35000f7cbdf3603fb2998954",
+    "resultSha256": "241ee35a8baee0f48a45d8070e1c3916abb62a3dfcf93f03e313b1cee15a6d32",
+    "reason": "Preserve both worker role settings and hold-to-quit preferences; merge independent Russian quit-control copy."
+  },
+  {
+    "path": "src/shared/global-settings-base.ts",
+    "blobs": [
+      "7084ae27a8bec5f834c4d436857e69582942258e",
+      "aff350e2bb0e6d878c22cead5510ca8233d5c8ca",
+      "32ed5a1b7c42e5647fff5917ca7a671c9bbea739"
+    ],
+    "patch": "refresh-20261106/pr33512-43b1136cc6d6.patch",
+    "patchSha256": "fbc046d97ec666d3b82ab38918db9989fee7babb5a04738564e62d658ab44b64",
+    "resultSha256": "4324653b2cfefb11304132475655a0ad25ce953dcd894fe19021e24e3976aaf7",
+    "reason": "Preserve both worker role settings and hold-to-quit preferences; merge independent Russian quit-control copy."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "6839faba036799a676e04b615cd40a20baba14cc",
+      "b8cd47924ee500ccceb91b32a8e0781dcf8c132b",
+      "ba7e9b144dbdce9fb7200670851396b364ac50c1"
+    ],
+    "patch": "refresh-20261106/pr36558-927f1d2c29b2.patch",
+    "patchSha256": "5365fe35cc317f46a92abbe9df32ca96db4ae64422e45876f6569ab2a1002c25",
+    "resultSha256": "2d979519dd09df95a1dcdd45faa92bbb18ac874fd1b211ade5011fc700ce4dc3",
+    "reason": "Advertise emulator controls alongside durable conversation navigation and project ordering; keep independent emulator and usage translations."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "9526985774870e78f1952e835f8b941761690edb",
+      "4c1757bf176d9439d09fcf84f1f6d10894ee58f6",
+      "8a41f00ab1fac5d426f3dc30ffaeff65d9477f5b"
+    ],
+    "patch": "refresh-20261106/pr36558-58923bac0eb0.patch",
+    "patchSha256": "e2276aae31118b7276ad53874739e290391afa3c9033c79ac117f4c1ae4b724f",
+    "resultSha256": "ab565662ac3cdbff2eb815329bcde6f10f9cfb9344aa07c664d6151512d1be44",
+    "reason": "Advertise emulator controls alongside durable conversation navigation and project ordering; keep independent emulator and usage translations."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "d0ab1698583ea252553d98c96b0157180d8230dd",
+      "e9cb45945e50988db4aed045c64a17eec5440957",
+      "9aada6ccd9745b4c555c654f004c126a65b6b5db"
+    ],
+    "patch": "refresh-20261106/pr36558-efda56db3fb5.patch",
+    "patchSha256": "03e2cda05639612fbfb81ec529ed7bdb82ce64fc56944705eef792edc2ea3d30",
+    "resultSha256": "6d1005ec76458a51b724ba210227aef0f584d2c008f13008e16157f3d813e7d7",
+    "reason": "Advertise emulator controls alongside durable conversation navigation and project ordering; keep independent emulator and usage translations."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "59ec102005379685abaea65d40ef138fb98e17c0",
+      "9a3c90c5adf81b88502be7be1b405d4879a93efc",
+      "85d43f808c822cb3d7bce8e109dd0001d3aa4bce"
+    ],
+    "patch": "refresh-20261106/pr33363-d8bbab451773.patch",
+    "patchSha256": "7570aa6c9d9f4eb5bd3ed179e9943ba61e8b41de10efa6722490a2fdd1e7d754",
+    "resultSha256": "bf6fa69d9286d5071ce6d4c5810a38c9fdc22789b551e3fc900f09c9bb3c8685",
+    "reason": "Retain current canonical response words and fork/action slots while combining quiet thought and tool-run rendering; merge independent translations."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatAssistantMessageRow.tsx",
+    "blobs": [
+      "3c73640b257e2689410134fa6b7ad3079225f5d3",
+      "6d5f547f8cbfbbac8705f397da8b299cf7476bca",
+      "412b1226da19d11f0add6469df51d10d0ed3e012"
+    ],
+    "patch": "refresh-20261106/pr33363-74b65e8e2a1c.patch",
+    "patchSha256": "03e876307daf2c05b8512e723c8e9da0506490c7ae074472f7a3e14d6f3c5d11",
+    "resultSha256": "86f9232180cd306d004365742214a04384cd4fc0076848398057c95d926783e3",
+    "reason": "Preserve canonical response words and fork slots while hiding successful review text inside its folded activity run."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "59ec102005379685abaea65d40ef138fb98e17c0",
+      "c003f3b255cbe98bcd98c58d7fa969ae26e25e2e",
+      "c704d7ba5eaf9342f55fa78943baa1e66d0fb83f"
+    ],
+    "patch": "refresh-20261106/pr33395-d8bbab451773.patch",
+    "patchSha256": "a7e23b29f8c9231665ffda1987d1f2086099912e75e66d90f8d6441198c76990",
+    "resultSha256": "2dadae5d917916542ab868d2bd18cfb5b01e9732bdc6c412047d18c471e0fa9f",
+    "reason": "Combine default-model reset and in-flight selection fencing with current steering, fork support and execution-location contracts; retain latest-pick admission instead of blocking on previous option writes."
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "938242d3be9e0a20cdb3324338009d404e82b1ed",
+      "04a81053891bcae719fdf7e0d476dac11bd51c8d",
+      "3c32be0ffef17b1cd287035b1692fcf7d006f686"
+    ],
+    "patch": "refresh-20261106/pr33395-0093458208d8.patch",
+    "patchSha256": "12983e75953a624cfd03055d5b425f76b12b0e474cb650aceee392e3f2191d94",
+    "resultSha256": "b965f499b2d77102766b6928560c6f5593beadae62b334eff4f6db4d267c0c98",
+    "reason": "Combine default-model reset and in-flight selection fencing with current steering, fork support and execution-location contracts; retain latest-pick admission instead of blocking on previous option writes."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
+    "blobs": [
+      "a5011e47b2af179a96040f72657d649c07476758",
+      "c900df87fae000cf45c0bba438cf4bfe1aee5bd7",
+      "006dd2cb3e90047b127677323a9c8d6de9cda00c"
+    ],
+    "patch": "refresh-20261106/pr33395-4a20a86a2c4e.patch",
+    "patchSha256": "940e78d64fd16ed2a399b522bf76b8dc149d51902e075d5356e4131cef380abf",
+    "resultSha256": "ea140a1dca098b2a10f1845414ec85e2be02760aada21e39a5443b3e821939f7",
+    "reason": "Preserve default-model reset and pending-write fences with current fork support and steering contracts."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "6839faba036799a676e04b615cd40a20baba14cc",
+      "87fc0f2e65e60dadb981ea1c97588d646ce4a6bc",
+      "68ce1dffffd7d5c013d202926951d12375650985"
+    ],
+    "patch": "refresh-20261106/pr33395-927f1d2c29b2.patch",
+    "patchSha256": "b303618d3278f01257692a037e7641381c98702caf449a7e0a74dbdf01dc6574",
+    "resultSha256": "7bcee67acaec56f04b7b3a91624b894dfa36aeeb568293f3ac025e333da857f8",
+    "reason": "Combine default-model reset and in-flight selection fencing with current steering, fork support and execution-location contracts; retain latest-pick admission instead of blocking on previous option writes."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "9526985774870e78f1952e835f8b941761690edb",
+      "a139d1cb515e43b91031bc9c966b179213fb64b7",
+      "7beebc0df1a5ae054afa4b10a1c62580b531db53"
+    ],
+    "patch": "refresh-20261106/pr33395-58923bac0eb0.patch",
+    "patchSha256": "76b5ff97810cebd6fc89fb597d179772dacc66a68d9d1baa4c54c16e9e0b638a",
+    "resultSha256": "f7bffb6c5f04f40e06b36543d8da2a6f38d4e71c7194a7b87274f202e7a9e7c5",
+    "reason": "Combine default-model reset and in-flight selection fencing with current steering, fork support and execution-location contracts; retain latest-pick admission instead of blocking on previous option writes."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session-params.ts",
+    "blobs": [
+      "805e8a4a6fd873e568ed84b3301e3bf582b8f4da",
+      "fc7d7afdbb7c7140ba5c8b3320478a518fe0a60a",
+      "392c533498b74f994efcb0bda1d2c92176533ce2"
+    ],
+    "patch": "refresh-20261106/pr33395-d1ba05ab1645.patch",
+    "patchSha256": "583f054f6c294f36e7fd930dd1e4fca8bb9d4b406922be256b2ec164db184cfe",
+    "resultSha256": "aae2685f4623a01b648fe3966bedfd29f7afdca3853b3fbd18c56ecc31f576a6",
+    "reason": "Combine default-model reset and in-flight selection fencing with current steering, fork support and execution-location contracts; retain latest-pick admission instead of blocking on previous option writes."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-native-chat-transcript-slots.ts",
+    "blobs": [
+      "2cf8e054e7df632a82369e5c7a80e3f17cda83a3",
+      "b4e3529b803ba0d9bd891ee8ff22392d0522bf06",
+      "423fc60b988729514d96daf824493961987698ab"
+    ],
+    "patch": "refresh-20261106/pr33576-db3967376521.patch",
+    "patchSha256": "eeebc22dae04149c5fcd92347844e544c2d1761ac3b25fffc47c879710b036db",
+    "resultSha256": "50fd3bfb9c914386c2479c02b30bfe462609109fbd96269d6e06ed292f6fad03",
+    "reason": "Retain current opened-PR and fork response presentation while using historical turn-fold ownership and its expanded keys."
+  },
+  {
+    "path": "src/main/runtime/rpc/orchestration-session-caller.test.ts",
+    "blobs": [
+      "d493a130fa22554b7368d0e717b50ceebac3e378",
+      "17904e49c645395188694c25c3c2ae8d05c77961",
+      "99e29d638b14ec8b6b1f80bb8b8066e78873ee7f"
+    ],
+    "patch": "refresh-20261106/pr34895-132976bfb966.patch",
+    "patchSha256": "284bbbfff95f8fc956b9f78ae6d2ff172c317ff074153b74d4ffb7c91c271efc",
+    "resultSha256": "e51b504b459dc236e0e7ba6fbd3c0075df3691b5ad61a27977b10366962f4493",
+    "reason": "Preserve child transcript navigation and extracted prompt/transcript owners; remove stale registry work-count assertions rather than updating counts."
+  },
+  {
+    "path": "src/main/claude/structured/claude-structured-session-adapter.ts",
+    "blobs": [
+      "ca4787b11939e6d888e2d902920758afb6d77023",
+      "80a4c4dcce0a3e0513b4bac0e240f1864abbc255",
+      "0dd4643a908914ea6762391e074b01bc2dbb0dc5"
+    ],
+    "patch": "refresh-20261106/prbackground-eb17e8f416cb.patch",
+    "patchSha256": "69a552c5eb005c6858a1149c263a4a6666b5a05b85de78a6ea5f7b6e6e62d0f0",
+    "resultSha256": "651c5053f425284006466f8e9150990eea4468126f7b560ed951de43ba8b5aba",
+    "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session.ts",
+    "blobs": [
+      "e5623ea147316217264439b4af65240de9ecc00d",
+      "9d415d54b4e7b1047d8ce02723305d9e6a5a4172",
+      "163d0ee144282f138c31d674409c3e43ba8f1549"
+    ],
+    "patch": "refresh-20261106/prbackground-5904705f252b.patch",
+    "patchSha256": "e636722723afb8cfb71c61ded522c558d2352351c30adced09a00e6ec1fae5e3",
+    "resultSha256": "e9761937fa97a110ad16b6166f37069d0ac643c3ba70d59ad8916f6a2626eb92",
+    "reason": "Add native foreground controls without losing conversation fork/copy, child navigation, owner-question prompts or settled-task history."
+  },
+  {
+    "path": "src/main/acp/acp-structured-launch-resolution.ts",
+    "blobs": [
+      "97ddfbd131df05a468ce01fe8545520ea131cb7e",
+      "4729c293a49601f1da5b52a1848e9a27ba8eedf1",
+      "83520875a2c17da1d5deb7d44eb4c8005a97a59d"
+    ],
+    "patch": "refresh-20261106/pr33360-39e99e6d4552.patch",
+    "patchSha256": "3b81a6b1d65e5d468bdb1bacb592f19d295f06ae302d0073889743311c414685",
+    "resultSha256": "0c9129cc0d33ad2ec71657658faa8b4db7faef9fb2336c1c549848099173be06",
+    "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests."
+  },
+  {
+    "path": "src/main/runtime/agent-session/model-catalog/structured-agent-model-catalog-discovery.test.ts",
+    "blobs": [
+      "c18c5b776b3a2163c766446d8228bc54c13e4fad",
+      null,
+      "9430bdb77ed7ce9e0850387bcdef23f6f7c1ceac"
+    ],
+    "patch": "refresh-20261106/pr33360-e09a9b85a2d2.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests.",
+    "deleted": true
+  },
+  {
+    "path": "src/main/runtime/agent-session/naming/structured-chat-naming-runtime.test.ts",
+    "blobs": [
+      "b25d9c9b540c93a42dcbce2445a81f3d3f6d5069",
+      "10c2f509b31b006dfef8096dc37cebc0c1f77b11",
+      "83060239a92ef9bfbb5d94051161e9c02e322205"
+    ],
+    "patch": "refresh-20261106/pr33360-aad0b5f41a7b.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ad704d3622997abd4839b098b5a27b386d92ae5b9f3d179cac0d17bfc4e45c26",
+    "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests."
+  },
+  {
+    "path": "src/shared/agent-session/failures/agent-session-failure.ts",
+    "blobs": [
+      "3cdce390fb8695a70ae5edf7ffdc31b9c2d18237",
+      "60981877dbc77625ef47dd4430d1c07a6c0bd5ff",
+      "6c5ed7807b7cbd631566d79f0039afdc36b9c188"
+    ],
+    "patch": "refresh-20261106/pr33360-b7439f2a3618.patch",
+    "patchSha256": "b4937a093ce2c3edd00b77c5e9a523bfff246367b5e5fc0acb24739a08dcac61",
+    "resultSha256": "f79ab9e8c5e87e01cded8549b2bb9fcca9e11a9a74f84c66747602674e77e8ff",
+    "reason": "Preserve upstream removal of mocked model-discovery and naming work-count scenarios; keep reviewed Gemini production launch adaptation and the remaining upstream naming tests."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "acfd09d4c8652187ca65e4de8a226b9ca9bb0eaa",
+      "b27b3aa719ac22b8a65cb7ada8094dd81d311ace",
+      "98e6e003de434a8b6f3d23c40b0e10b6d1892786"
+    ],
+    "patch": "refresh-20261106/prbackground-e182788d3794-84f6d1bec4.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "471b3d14771545eb712eb4ad09ac47c39cd8d9336a0c18010111b5d37ba464b4",
+    "reason": "Preserve current owner questions, retained child navigation and task history while exposing the same foreground invocation in tool rows and task controls."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session.ts",
+    "blobs": [
+      "d3edc5e40531ef3abb20c2af5578c44748fbc532",
+      "9d415d54b4e7b1047d8ce02723305d9e6a5a4172",
+      "d173e2aa0a8c8f48b704afea2d989918f8e39df9"
+    ],
+    "patch": "refresh-20261106/prbackground-5904705f252b-fef5be244f.patch",
+    "patchSha256": "e636722723afb8cfb71c61ded522c558d2352351c30adced09a00e6ec1fae5e3",
+    "resultSha256": "e9761937fa97a110ad16b6166f37069d0ac643c3ba70d59ad8916f6a2626eb92",
+    "reason": "Preserve current owner questions, retained child navigation and task history while exposing the same foreground invocation in tool rows and task controls."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
+    "blobs": [
+      null,
+      "7ffd859448bf80f3dd9e103cbcd6dd9563cde59d",
+      "5bd58337362e27afb3e61014b0886ab613c4d3f2"
+    ],
+    "patch": "refresh-20261107/pr33383-f4c36aaee25a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "83444f343e50947153547b2d5e4184a29146fa190f7e92ccb7b7783116ddebe4",
+    "reason": "Combine bounded desktop conversation navigation with selected mobile-session retention and durable structured-chat projection; preserve local scan owner and project attribution."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
+    "blobs": [
+      null,
+      "8d561f158b522782c2ec9e6cee4d9e2f09f15577",
+      "94a0ca8ad03f81d80692e1c38f565d307bda095d"
+    ],
+    "patch": "refresh-20261109/pr33383-b75a8d1bd66e.patch",
+    "patchSha256": "37110f8506098b713cc1c869b2e20d4743bf7292960e6d9f17ccc632e5bbeea1",
+    "resultSha256": "444010d30801f797a3700cb8d7f979d307b9137071985b462fdb117df59204bd",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault-local-scan.ts",
+    "blobs": [
+      null,
+      "a2c40221b1072c04a1a433f8f5f571a0d4683f9a",
+      "b6457f05404b7dee38d2df3314339bd3a4c2998b"
+    ],
+    "patch": "refresh-20261107/pr33383-e95b9bf4aece.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "af3057fb6559c48b3314dc4eb22667a78d0418952c6ba0c05dcf30c539207cfa",
+    "reason": "Combine bounded desktop conversation navigation with selected mobile-session retention and durable structured-chat projection; preserve local scan owner and project attribution."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "007e0cb918848da77f135c4b238795b415a195ea",
+      "0b4c1bcf22d899efe4a93ed930d417003d56f5c9",
+      "78890228a643531693328b09a69da50ea6121bd0"
+    ],
+    "patch": "refresh-20261107/pr33383-814a4225b828.patch",
+    "patchSha256": "31f397137869ae5ce11ddb4e51d6272900f089db9ae1f0656bd5dea4ff0821b7",
+    "resultSha256": "2e9484c15dcc34a51be7aab55b3b28bc3173f577f0a43e84eba0d70fd7e37dcc",
+    "reason": "Combine bounded desktop conversation navigation with selected mobile-session retention and durable structured-chat projection; preserve local scan owner and project attribution."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "54006f3c7afe78ee10a735dec2be27c39ea2f73a",
+      "5cff8c835232f354471623db22b14f8a9ba912d7",
+      "5218a893d917234a8bee3b30c76e9e3e66bbe6cc"
+    ],
+    "patch": "refresh-20261107/pr33383-b0b361addc56.patch",
+    "patchSha256": "9d64e22d983a7735c2a61316e25d7d2a6c575a018fbf35dbed0533f1426bd3ea",
+    "resultSha256": "cb6348b58827f1d559520a35916ef3b12d82088803692f0bcfbcb376ea118f06",
+    "reason": "Combine bounded desktop conversation navigation with selected mobile-session retention and durable structured-chat projection; preserve local scan owner and project attribution."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "3ef4abbf83066b04df7019e83563bd75d0b4c60a",
+      "46dc2c752e1beca987223b894f163cefcdeb164b",
+      "d7d2921a2f1b3d9eabb1b7c6dc9034d32631cd8c"
+    ],
+    "patch": "refresh-20261107/pr33383-b9b0f4774227.patch",
+    "patchSha256": "cd33a785bd666e08adbf4f9ebcfe493c869c994ed28567365cfb76a6159b0aa5",
+    "resultSha256": "182bd1bd483d80f54c2e716988f8722c4be8426f48c590dd85f8dba855286723",
+    "reason": "Combine bounded desktop conversation navigation with selected mobile-session retention and durable structured-chat projection; preserve local scan owner and project attribution."
+  },
+  {
+    "path": "src/shared/project-conversation-list.ts",
+    "blobs": [
+      null,
+      "b0700a598740232738b47a28fddffb4142da750a",
+      "927a3fd1ec82eb9c453a91f2e2982ec87b2268f8"
+    ],
+    "patch": "refresh-20261107/pr33383-2e95bcc60e1a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "bdaf0914b40286dd380b6af8f80adcb47e41eb81a710f9733d3f087964c8a9b8",
+    "reason": "Combine bounded desktop conversation navigation with selected mobile-session retention and durable structured-chat projection; preserve local scan owner and project attribution."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault-params.ts",
+    "blobs": [
+      "e1414365608fc8d398220577f0231599deefc064",
+      "107fee9bd7e666c839c805e84828e9476105e7f4",
+      "6ee4b0c253e86f1c02bf4566fc1845aa03ecd4cc"
+    ],
+    "patch": "refresh-20261107/pr33383-b68f1da9b7e8.patch",
+    "patchSha256": "b18728cda26dc6d8356ff90a86b64b360aa043b7da0635dcba8b34677ae1d4d0",
+    "resultSha256": "dd5ccc91b186ea6a35b145af60c265acf1dec3a2862f8623ea51114433d5ce7e",
+    "reason": "Combine bounded desktop conversation navigation with selected mobile-session retention and durable structured-chat projection; preserve local scan owner and project attribution."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "cb461e3675bf7323ccc062e0d7ffd402228a4928",
+      "90b6699d8cb5b1a748c0a05a6d16e6370ff3b669",
+      "cb0974fe7da7f871083c6512d8d128d92b64e7d7"
+    ],
+    "patch": "refresh-20261107/pr33395-d8bbab451773.patch",
+    "patchSha256": "6d26b294ebc689649db762cb819dec5f1d05fa54c5bebc9162d7a64419d83052",
+    "resultSha256": "c502ad0e85af75a9c40ea5749898bc0c9be9fc470f32b1adb5a320a90b958bb3",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "e948fed320f0a11bf8310db8a478fe3ca340f69d",
+      "9d87c1f6671dde67d11d3ecd35d9c62c2a833ec3",
+      "0c4a6fd1d419e17ac4111e51d01324a0c834de69"
+    ],
+    "patch": "refresh-20261107/pr33395-0093458208d8.patch",
+    "patchSha256": "a9051cef0c5f3566812ed0762f24d8b5b4fb74285f4c6c2fee72ab8d09c30b9f",
+    "resultSha256": "2248949ed045f15f37eddb546986f610f5bc121bbb9186f2a36d875dc7d71e4e",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "mobile/src/session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "8dc7978f8087203db52cb04042ffc54a7166fbdc",
+      "6442694799613ee44774bc7cf85d8bb3e2013474",
+      "ff690beb4e6ed9c046eca20cfdfb222a47d31a27"
+    ],
+    "patch": "refresh-20261107/pr33395-e0108b91935d.patch",
+    "patchSha256": "e449883dc136bbbf90a3037eebb3a1cfb3e0c98f7e1eb2c95c7d9cdd10561ff3",
+    "resultSha256": "831fab5645232b1f6e6994b39286b24fba63cac02054dfcc6f07f1116108e894",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/native-chat-session-option-copy.ts",
+    "blobs": [
+      "2aaddf08f92023a90a979005c93d304d37b11275",
+      "8ab233c9d229703e27cdbbc24f04dd98193840a8",
+      "2082b298e565e57cf544963eb659f5c16c7070df"
+    ],
+    "patch": "refresh-20261107/pr33395-412c906a4e23.patch",
+    "patchSha256": "10705ac71a90af0d7ab3c7cb75612382dc842505ff497c073cf6015534e19a5e",
+    "resultSha256": "ac93ea2d2d1cd98d5376195ed4410a97236a38dbef2949feff5c1b3ceeec30ee",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-options.ts",
+    "blobs": [
+      "8b40d5731ae8748fbd7ed77b7b0089aae9189efb",
+      "eb5d5b63a0d4eab3c24af57759a716ddc681c96c",
+      "3c596e166cb9bb3b7a194c67cba289a8c70b23c0"
+    ],
+    "patch": "refresh-20261107/pr33395-4a20a86a2c4e.patch",
+    "patchSha256": "3eeac0326d3300fd2cbf59949949743c26343b7d76039363e34a7eb24a2315ff",
+    "resultSha256": "d68f10c6bee8ba93b94b1719292de0d835fe15f1ca0dbcf1e638bf96bdcb6900",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "e0f99014186e8aca39a486b286092ba644ea8ac8",
+      "05e2caab1fd1cb5cf013b8389a0f76e22fe02e0d",
+      "6dc000a83dbe7e554abc59bed329b3731520ae91"
+    ],
+    "patch": "refresh-20261107/pr33395-fbe37a0d3aec.patch",
+    "patchSha256": "80ff1610395102b4617ed4feed540a83ff2f4aa76088b257f96b85c74a431681",
+    "resultSha256": "ca7a2faa5d6ddf6ef07511deeaf59a33ce551b14bd5f9d99cfe0f6108af76a4d",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session-sends.ts",
+    "blobs": [
+      "00d114f66212beac243ccf8d7f3c6f0c2d4c503e",
+      "c5275e0188aae58e871773397a6b76b9607851b7",
+      "a963f573b7356e0260d033f9297b8cb12cc9da56"
+    ],
+    "patch": "refresh-20261107/pr33395-7b52f59cb09f.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "17ced924bfb7b905f6cff97d048185f48e0fa3245a5ac94892e57a0d1b8cac81",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "d18b85f88ec48740c6c9f2b93607dd8489860288",
+      "eb86a6637b70eda149becbb4e4ce6d765fad288f",
+      "1211bea6e766f179cace35bf62171b58cb33db8d"
+    ],
+    "patch": "refresh-20261107/pr33395-927f1d2c29b2.patch",
+    "patchSha256": "6111cc48ac70646a8ed3f2c70e88a5ba9c38d8639af72a6e8d745d80f282563b",
+    "resultSha256": "268352ec70ff09551c17f3d2b2f3b07f982839e8c47b7ec84466cb9ce1e0866e",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "78d2841bd94a1b5e1814962ea1220ac266f763a7",
+      "fbd67960e81edae9fc40ed8d56d847c84cda5b12",
+      "3daa519298f8627da92f301c6632544d9d64fb77"
+    ],
+    "patch": "refresh-20261107/pr33395-58923bac0eb0.patch",
+    "patchSha256": "8b89b3a8b712203985d1f9c9ac77610c6de31b0c5cb4b51f8dcf223ef1431655",
+    "resultSha256": "3b956ed3e6e478eeff4dc72d759c13080a3d4d7dcfaf200a0ed462e1fb7cca96",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session-params.ts",
+    "blobs": [
+      "463701398a6cb4558c086482e43c010162e7a33e",
+      "7585984837bbdb1944cd510a7b36a602dc89b198",
+      "f86fab72957b36824225756d5bdc4f044772e82a"
+    ],
+    "patch": "refresh-20261107/pr33395-d1ba05ab1645.patch",
+    "patchSha256": "740828d8191425664c6690d03340c4767de79a0e2c4ad992ed7ceb3d5ad8628c",
+    "resultSha256": "41d8fb98dedf662b7b498965838252e1f4de6d470da273f1bccb931696dadf9a",
+    "reason": "Preserve queued and immediate delivery guards while adding explicit model-default resets, pending-pick fencing and mixed-version capability checks."
+  },
+  {
+    "path": "src/main/native-chat/agent-session-wire/agent-session-conversation-outline.test.ts",
+    "blobs": [
+      "f636603fff5dd419a114a74fefc24897ed719b62",
+      null,
+      "bbd1b9c3454527431297d092a4c6e4a3d06abc29"
+    ],
+    "patch": "refresh-20261107/pr33403-13f898c1b740.patch",
+    "patchSha256": "5d5d624d2b695f5b2a0946f617502c30a4d93478ff2fe1479480dee8ca71cc91",
+    "resultSha256": "5eb0b85e7452365b7e630d88232f31c6b358433413e9cd79e26f6eca938fc99d",
+    "reason": "Retain the new human-only empty-outline assertion at the current history reader, without reviving the upstream-retired low-value cases."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-operations.ts",
+    "blobs": [
+      "70ae837d709a2fd575793fbb76dab1c24ed3ab6d",
+      "0baeaf9647665fe03b674e58837a90c06aa3c656",
+      "6269ae1e1961b08a620abffed749b9633fd147ce"
+    ],
+    "patch": "refresh-20261107/pr33502-8ed7da83e6d3.patch",
+    "patchSha256": "5da8293369d920c1d21a6598f50ee9eb738909d32e4928ecc7fc47f004788d24",
+    "resultSha256": "07d3e2f5812037b6abe82551a5f9d011c9c0125d2933f8b60ec75eda1917c968",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "16db7bf8847a7dcd10e9211ab77fd4d77d01eb64",
+      "8b2b29478ea552448c2e9eb433956390787c7882",
+      "ad831a2286c6edc475fda516ef0632f0b4251565"
+    ],
+    "patch": "refresh-20261107/pr33502-71397d9b2645.patch",
+    "patchSha256": "a36810f2aa5688daa0aa26972bae094f0627b395686403beff9d81cf0b045494",
+    "resultSha256": "d0b90133de2ecafff0bd7db990cd9964520a72cc3c3d02dc1f6d28211b7cd2e1",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "5300f91c766689bdf85f9ddafe6a773f1b25fc03",
+      "f5904d701ee7072399ef7fb712b7908f12c0a367",
+      "f25ad2d8f44d26d463ed82d4fee78bffcd23e6d7"
+    ],
+    "patch": "refresh-20261107/pr33502-bbedafb07531.patch",
+    "patchSha256": "84fbb2fc08cddfe9d93a2f8707bddd159a1b877320f7465bb140f848fc1641ca",
+    "resultSha256": "8fbdc231002f16e31744dd3f20c99e81d32ca8ba357a5e375750f2db1077a47f",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "mobile/src/worktree/workspace-view-settings.ts",
+    "blobs": [
+      "aeb9bc927a30dd8cd19e521962098e967b813ccc",
+      "27d9e2cad524bcc95fb4c97638d8ba09413a282b",
+      "29cdadb74f0b208e4261d32b12f968ef511e216e"
+    ],
+    "patch": "refresh-20261107/pr33502-6f2f481632cf.patch",
+    "patchSha256": "2dca81d89651ef9b41733dada86a27d7adce63f135cd456191b96683a2accc8e",
+    "resultSha256": "c5d14629ef7c103cffe6eb725fae78e90787ed0a03505468a61634d3c52e7ea4",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-read.ts",
+    "blobs": [
+      "7d91463a4751df0d6912e48afe321893fa8a1000",
+      "9cbff6cc2d0fba029d710caba2ccd00a5ea94d55",
+      "497227d0b215b986db9238b14f89f30da30fadbf"
+    ],
+    "patch": "refresh-20261107/pr33502-81efb3a955cb.patch",
+    "patchSha256": "aea99c30d8e3dbf63f0f313d8db5afc9324863e7fdc9e005dd139886e5c7115c",
+    "resultSha256": "7779e883364570f9ac7f691451873b8c72f549a48910aedabb47946fe1b66312",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-update.ts",
+    "blobs": [
+      "b294f577524fa6a0aeb65e584861e4c3d4a6f29d",
+      "d86f6e49e997b15bc348612c57e6a1e87f318c9a",
+      "717d0acf49fdb9369d6fbf66265f7741838fe5dd"
+    ],
+    "patch": "refresh-20261107/pr33502-67eb309998ba.patch",
+    "patchSha256": "c60f831a14d6c486e29a565416b5058e92346ff4cf7e9bd3cc77eb00972e9eba",
+    "resultSha256": "065ef7662fe1ded0f89dc1a1e8a422a9cc4b152a4fc58f512b34724904408e28",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/client-ui.ts",
+    "blobs": [
+      "85fff95b7aa4ba9c45ead9ad936f5edfa36acd89",
+      "60174f97d60f1123b455324a53e8e316694dd376",
+      "a7bcfd5a652f8952f213175da567ad36e2890d08"
+    ],
+    "patch": "refresh-20261107/pr33502-16f4b9fa6b07.patch",
+    "patchSha256": "35d7ba5eb373f1cd431a634427ada9c433404adfb2a70d98cf8fb6da3b6da6c4",
+    "resultSha256": "d02536e687397307701839d8fb689317d00cffd3ae45abf34fb790837b21516e",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/ui-state-schema-parity-checks.ts",
+    "blobs": [
+      "2d0b1607b1ce9afa6bc45555bb5dc13a79083dc1",
+      "f9b00c6e66e76596d2fda2760c8952b8d81921e0",
+      "702b24bd365593dfeb709c8f6b7d59d78a3466be"
+    ],
+    "patch": "refresh-20261107/pr33502-172e891cf77c.patch",
+    "patchSha256": "9592457adec8792fd5154e8c34d4ee22acd492780cbf7a6698ca3c2d564bfc60",
+    "resultSha256": "180adb4a76bb8324b8c82df511e338597ee3c8810c34e27faec704b81768399d",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "4949cef589fdbf6e56df4f2aec2f70b2340db876",
+      "40427b0f1ee2df5376eef5d1dd6e4879435cf46f",
+      "64f58135f4dd8604633c9024b56b74427913566b"
+    ],
+    "patch": "refresh-20261107/pr33502-19ec9a337ad9.patch",
+    "patchSha256": "5f7ddfe2b4a73b3e345aeb6a29794a69c7b5a8cb63c55ccb20590aee511dcff0",
+    "resultSha256": "1b58fbc9b4d7a4d21fc6e6f855734133793c5fdf7212c3812c089688fbf54a6a",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "78d2841bd94a1b5e1814962ea1220ac266f763a7",
+      "618dff09911cca7cbd49f50d411d36ef5dc6fceb",
+      "3776aab52bb10155dfd49a93d99b9fd118766874"
+    ],
+    "patch": "refresh-20261107/pr33502-58923bac0eb0.patch",
+    "patchSha256": "4e3dd12691896beaa5822bb43dddd6c9aedd23bd30a54861222d1e83ee0dbae9",
+    "resultSha256": "d72f19ac1a0b72217f8533d9db8d5cc8b57acb34ec32d4b039a82d42fb6064e5",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/renderer/src/lib/workspace/activation/worktree-activation-structured-chat-surface.test.ts",
+    "blobs": [
+      "878f3edd95127f51faa405d1c85951c244855052",
+      "60af138d46aab264ee7ad0411965e94397f79e97",
+      "559c342232758fedb95e2fef45981591cc286d58"
+    ],
+    "patch": "refresh-20261107/pr33502-000d5cd3b045.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "9a5918e469066d2970947bf5f9de76c9a6beda4977999c63fae1c40c57a3ef14",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "e3f40e0cd5f6f195006b08ea933b686b4aba9451",
+      "f65ef0cc90d7d83f7d94abb76afe9c6d887925f6",
+      "92282be717e8acccfa3377c02097bb93e2950a23"
+    ],
+    "patch": "refresh-20261107/pr33502-f7e3da05dbfa.patch",
+    "patchSha256": "5ba740eec059d5101714833df129a2fcd7b86a22eb9b1661eda6b10764e9f0d5",
+    "resultSha256": "e2810c6843feda1364a91690b7d7a1579489e3966e0a47ed09b03ce028982410",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "7398a28b8176b35cc855ad751753cd7e6a417fbf",
+      "807b06946779732de5ea8132f741c2ab817efc0f",
+      "4f0ea2932945ceaabd42fc734821c61b36c76067"
+    ],
+    "patch": "refresh-20261107/pr33502-efda56db3fb5.patch",
+    "patchSha256": "389b32cd5b6ddae5e6badd18190116a2e4387671f7d03433982abe5305507bb8",
+    "resultSha256": "cc44daa17e093aa9bff1431924e40c108132ebb1748439b0ef90498f3116a6d6",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "9a0f6fbf548ada546cb6d132c7937820d539eb1f",
+      "b258b2f5a3e47823011ab6786d6ce5bca84570f0",
+      "02a53621c862c52d0de2202fbfda4a3c22e6b232"
+    ],
+    "patch": "refresh-20261107/pr33502-71b259c8d23a.patch",
+    "patchSha256": "368bcc68c4e2744e3d403bed36a1f04af35d8abd0505afa0516296535481b161",
+    "resultSha256": "67fd91dd925565b25577a0c92a2a3eb78915d40ae58b46de9ccc50e6cd3e80cb",
+    "reason": "Combine conversation preferences and personal project ordering in current persistence, RPC and mobile owners; preserve both capabilities and host-qualified move dispositions."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "6839faba036799a676e04b615cd40a20baba14cc",
+      "f5edebfa766ec9dcc015c2c3daa87cb4873407a3",
+      "1dc5b514193398939f7390ccad6a995eef136471"
+    ],
+    "patch": "refresh-20261107/pr33512-927f1d2c29b2.patch",
+    "patchSha256": "acca8624c1fe624e9803ab0baba8b5a8fc6026ddc682f7231db87364119fe0c0",
+    "resultSha256": "4a7de23c23c1aa5fc0692ace0962696e885978e2d17b5ae7d8cdaf4566855a2e",
+    "reason": "Preserve worker-role settings and hold-to-quit settings; retain the Git Graph and hold-to-quit translation scopes."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "9526985774870e78f1952e835f8b941761690edb",
+      "09681162fac61622312f296565f5e6b07c39ce3b",
+      "ed6b3096650d6840f489d548d377926a913e5c36"
+    ],
+    "patch": "refresh-20261107/pr33512-58923bac0eb0.patch",
+    "patchSha256": "6f6ad9fdbb73ce5f7b6f9c7e44cc37149c8b767af0aa1e8f1a2d5ab27e398e2d",
+    "resultSha256": "08aebc72a9787ff0dec5b9c4adfdb388aba0bb8075ab7f50fe1bf4f6a5aeb00e",
+    "reason": "Preserve worker-role settings and hold-to-quit settings; retain the Git Graph and hold-to-quit translation scopes."
+  },
+  {
+    "path": "src/shared/global-settings-base.ts",
+    "blobs": [
+      "7084ae27a8bec5f834c4d436857e69582942258e",
+      "b5e905e81c5dcfb45ba060bc50ba74c1e8884e63",
+      "32ed5a1b7c42e5647fff5917ca7a671c9bbea739"
+    ],
+    "patch": "refresh-20261107/pr33512-43b1136cc6d6.patch",
+    "patchSha256": "9b802ac857a92cc38e2f153eb85ac8acc8193407798beb140eb0f4daa50904fd",
+    "resultSha256": "62708aefcd5f088abf26f61fbe5ac2604f288e1436b80da68ce5f3d3b6e8c7c3",
+    "reason": "Preserve worker-role settings and hold-to-quit settings; retain the Git Graph and hold-to-quit translation scopes."
+  },
+  {
+    "path": "src/main/runtime/rpc/orchestration-session-caller.test.ts",
+    "blobs": [
+      "58d33fbd7b51fa0ded650c517abf8ae4487ef8c0",
+      "ea5b694eaa86fd7bb6213d95b29dc76a9cdc3936",
+      "ce5d87b03323c8e277f1716f3d234e382c2a381a"
+    ],
+    "patch": "refresh-20261107/pr34895-132976bfb966.patch",
+    "patchSha256": "284bbbfff95f8fc956b9f78ae6d2ff172c317ff074153b74d4ffb7c91c271efc",
+    "resultSha256": "18aad5b64470ba19fa4e69636eb67f85fefd61bb646100204f8d1f2836e1a738",
+    "reason": "Keep exhaustive caller-field ownership assertions without fixed method-population counts that change when selected features register methods."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
+    "blobs": [
+      "57ab816b30dbf683ec7bb7c80037e9de182544d6",
+      "270e36fb12bd3255e009b71e4978ced3d230a2ef",
+      "71f1bbcfc5908716eb0f9ffd2dcc47e3d0d67c55"
+    ],
+    "patch": "refresh-20261107/pr37744-2979d6f0ecc7.patch",
+    "patchSha256": "55b30903f67ca2578d401dd41f7b72784f8a4f8dc9075a47323ffb6962c0d61f",
+    "resultSha256": "55e9cfe6ab2c23ec11b9a131d423b3c8e8ed3b35b64efc80ab0db441db87e67d",
+    "reason": "Register retained child history and session links together; surface owner questions through current extracted prompt rendering while preserving child navigation."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "acfd09d4c8652187ca65e4de8a226b9ca9bb0eaa",
+      "f01f9b87789bcf28154dafcb3aa7c276292b3867",
+      "8027d8b69a3f63091adf005d2b08135c0a60c4d9"
+    ],
+    "patch": "refresh-20261107/pr37744-e182788d3794.patch",
+    "patchSha256": "3c9f5ca1260e28c02dda1abd759bd34603fe225d83063763f1f86fd16e854c3d",
+    "resultSha256": "ef19e51e4e3b957af42a174fb6d15436bf34e83d55cea9d863364870523318f7",
+    "reason": "Register retained child history and session links together; surface owner questions through current extracted prompt rendering while preserving child navigation."
+  },
+  {
+    "path": "src/shared/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "0fc0d688aa58e1cd44c0c66d974d0ebad4985713",
+      "deb5622318cee5c863c59cebca7e58857afe932e",
+      "17ec75af85e361719b82fcd1842ea8fe1bfda16e"
+    ],
+    "patch": "refresh-20261107/pr37744-cb5799298bd8.patch",
+    "patchSha256": "fd64f34c514f1cc2d848798fd7cc6cf944ac3b30c82e6f386ff2f8fac542d176",
+    "resultSha256": "eb759517ccda85c42ca90e8e5390f84371957a0958fa825e9f05040c2115d7c3",
+    "reason": "Register retained child history and session links together; surface owner questions through current extracted prompt rendering while preserving child navigation."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatBackgroundTasksStatus.tsx",
+    "blobs": [
+      "ab08256e87dbe23f53cd8789a3169f8c4862ac77",
+      "10ed709c7bfa61d81613fe5d0376769b0845a4b9",
+      "75e7221e060b2c600d53dc3a8ddc2e34dd099d0a"
+    ],
+    "patch": "refresh-20261107/pr38963-a7c4e84f2a0d.patch",
+    "patchSha256": "bb7e426123bea45bb89f8f35ec9922c11d21f15eed5ebc5061149c99d9b576af",
+    "resultSha256": "33220053addf561bebde96ac912321001b526dd3f9cf66fdd46765f267b96cd5",
+    "reason": "Retain inspectable finished child history and owner questions while exposing running-command background actions in transcript and task roster; preserve current prompt-response owner."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "acfd09d4c8652187ca65e4de8a226b9ca9bb0eaa",
+      "cdf2c3f25ec7a975d0563a6279904181ff06295c",
+      "98e6e003de434a8b6f3d23c40b0e10b6d1892786"
+    ],
+    "patch": "refresh-20261107/pr38963-e182788d3794.patch",
+    "patchSha256": "33290b06d9fb40cb180e79c5105c111aec2fefef150cf8f5b81d639dd86d6677",
+    "resultSha256": "8f45fb94b785118ad7a103169d8b0e89605ee7c6f36d9d55f77b3717fda296ee",
+    "reason": "Retain inspectable finished child history and owner questions while exposing running-command background actions in transcript and task roster; preserve current prompt-response owner."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolLine.tsx",
+    "blobs": [
+      "949f92c850a2262b46733356f6eeda3dc3f3c3b0",
+      "81f0a3883d7d56fb80e08155ad1bf46094fd6137",
+      "3df0ce15316ca68de36408723056824552044ef0"
+    ],
+    "patch": "refresh-20261107/pr38963-62f54203bace.patch",
+    "patchSha256": "6ecaeeaace4f8e3cbf7690300d2101779ac614369b100194f7805b338538594a",
+    "resultSha256": "18c960ddf82696fe3882a9f585a627fcd8a7f252e46f51c607cbde2093336bdc",
+    "reason": "Retain inspectable finished child history and owner questions while exposing running-command background actions in transcript and task roster; preserve current prompt-response owner."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/use-structured-agent-session.ts",
+    "blobs": [
+      "f3431ac01ad5435759a9e7a5d105ae68e88f3367",
+      "98871e48e9580432df628e63dda78338b1dd9991",
+      "c7c785353eb2e44567c01656047837a886faacf7"
+    ],
+    "patch": "refresh-20261107/pr38963-5904705f252b.patch",
+    "patchSha256": "a7a088d6f44857b0e0942a4c6b8b480776650583cedce5c75b412840cb524541",
+    "resultSha256": "1c48bae6baf5d1e37efbc792b1ec56c9f56c25953932fdfe1d5251e00b8d006a",
+    "reason": "Retain inspectable finished child history and owner questions while exposing running-command background actions in transcript and task roster; preserve current prompt-response owner."
+  },
+  {
+    "path": "src/shared/structured-session-background-tasks-view.ts",
+    "blobs": [
+      "4fa3e7efb1673e56870b17bf6183ec678c36d034",
+      "b9aa9401cbf0830b2daf8be31c9628e2651ac7da",
+      "2e35dfb89adf681a79d7b14bb8f817e3e843fff3"
+    ],
+    "patch": "refresh-20261109/pr38963-fea32f6d012b.patch",
+    "patchSha256": "523d56010dce2f7f50595f14dfb8ef305ecfa41e99b63b275b918648dc7edc51",
+    "resultSha256": "f634dd22473e64517e0a184b5bbcd8fd45d578c178aae71e205a6d68cd52e1b4",
+    "reason": "Combine foreground-to-background actions with child-history navigation, current prompt/cancel owners and expanded command details; preserve finished child/task rows while hiding only an otherwise empty early-call strip."
+  },
+  {
+    "path": "mobile/src/session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "af40170fc5b90ca2a10c407c4cbcffc9c7372368",
+      "36578ed7d698c8a30d83a2ae6c7634b7364f8349",
+      "73c0cc2bb0efcc4385448c8a33ea9b888c6abbc5"
+    ],
+    "patch": "refresh-20261109/pr33395-76028a3703cd.patch",
+    "patchSha256": "90e4775298a827e935467708d6b65dc0bfd1eeaf6e4d52151e6b2c05a55508c7",
+    "resultSha256": "56f17e2e2d0f960ae1c23e653ef998c4a51bb5da39f93d529bcd2520e0ac28ee",
+    "reason": "Combine default-model capability/reset/pending-pick guards from 33395 with queue steering capability, explicit delivery and old-host guards from 33362; retain both mobile capabilities and one shared selection import."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "4c45f2ae1d9200ee09a0bd1133903203d30a018c",
+      "f88b03575ac92ab2c82c1820cf71e19a874d15e2",
+      "afb8620bd21443c9343521cb8adee9cd2fdc3380"
+    ],
+    "patch": "refresh-20261109/pr33395-2d8a563c2ea7.patch",
+    "patchSha256": "1ab3b0f429cac6005d7ff6416aaec55d5bfaa468a68ed9bb9a70c7acad011cab",
+    "resultSha256": "fa8457f52484d5439126483f626b67cba164156ba56ba9b1f5d13cfc867c519d",
+    "reason": "Combine default-model capability/reset/pending-pick guards from 33395 with queue steering capability, explicit delivery and old-host guards from 33362; retain both mobile capabilities and one shared selection import."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts",
+    "blobs": [
+      "b0c6983fc2119a2760b7d28b2a5959cef321d235",
+      "8c824afe63ca4e0a3d9ad34c38c268007e4ecba2",
+      "d5e8cacca75884897560ac69fc5f14e88aa8120f"
+    ],
+    "patch": "refresh-20261109/pr33395-d58d1e79f59a.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "c6bfc2b3d4b1b3519e2845c6f3598b1f0fba51485f62447ae68d22ac36dbb809",
+    "reason": "Combine default-model capability/reset/pending-pick guards from 33395 with queue steering capability, explicit delivery and old-host guards from 33362; retain both mobile capabilities and one shared selection import."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session-params.ts",
+    "blobs": [
+      "208bc6acba3347a8f6488a7dcd0163cd6272433e",
+      "d0d2ad32432f6cf1b012494a5c28d88e86c35b29",
+      "28fe390816ee8a34b49156053f90f7a8f0e10384"
+    ],
+    "patch": "refresh-20261109/pr33395-a51b347f5d55.patch",
+    "patchSha256": "2ab2605fe72edcca13b9bc3aec9d3e8fa1e1ef357f07ab479042a48a2708b00f",
+    "resultSha256": "bf0a26b4cedab0336737b164584c95f079881a941627d7a3ac775d423b7c916b",
+    "reason": "Combine default-model capability/reset/pending-pick guards from 33395 with queue steering capability, explicit delivery and old-host guards from 33362; retain both mobile capabilities and one shared selection import."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-operations.ts",
+    "blobs": [
+      "27d363957529fded381e9a0fd34025faff9ca0a0",
+      "6c52274dc339abd5c2c0384f9298fef47712ecfc",
+      "7961ec09c7cc5480d76d811ee5d7ea23356d002c"
+    ],
+    "patch": "refresh-20261109/pr33502-1965d5ce3f8b.patch",
+    "patchSha256": "52344707ab4928cb647494a13cf58f8e9ddbf5fa9a8ec7cb0ea0c8c931485009",
+    "resultSha256": "357144ed155fafe794f3fa118f340b8171b34dc37bf39230002459757e1c92a6",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "7afeb0e3ceacd7528726da6a30057df99153c7ad",
+      "a4eecd1ca860e400817f183708f4ffa5856d0d62",
+      "3cfc695eee25b15b4bd762c6babab7bb5ec36f51"
+    ],
+    "patch": "refresh-20261109/pr33502-05bb4a264b9d.patch",
+    "patchSha256": "706366f98146859408472c8adbb7a5586735b62be0e5d8e21d25b1230fdbfa19",
+    "resultSha256": "61ad0f7a1f2d270cc36a93cbb9825de63d0976399155ab5d73ffddb805e8f615",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "8d9b449a25edf0bc9af8c67525eead838bb12117",
+      "93f75369e420ca80b642bb3fd7600ece9185a09b",
+      "843dec91db2cf497a97b33e55698b9f34f90a0f3"
+    ],
+    "patch": "refresh-20261109/pr33502-fed4048a608b.patch",
+    "patchSha256": "2430b4857bf4c735df837a1c24de16d7490afa45fed20e432c7004dcddead044",
+    "resultSha256": "24a1c3f649414b75ae74fc65b2af7498b2e1c2bf0e118071a7a3902f177554e9",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-read.ts",
+    "blobs": [
+      "238f6ab67b3ab40f9d729f2511ec99cb684a3374",
+      "df9b1b2b05d45c9eee98d789e3c3f0ba05ad6dd7",
+      "3ecc6fb6595f6e344722a27bfdadcce1ad8204cb"
+    ],
+    "patch": "refresh-20261109/pr33502-23ba7259d065.patch",
+    "patchSha256": "5f211885644e741f8b85571285cb081c552eae2a588effdfe953f0a39f4bd2e9",
+    "resultSha256": "8fdf2e4037a885d8208e4f9d41947bc58fea80397d673704bf35ad59d5a44327",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-update.ts",
+    "blobs": [
+      "5d954d8ff2e83c53b34289a68ea750e28b05902e",
+      "389d566166494dcf8084ed2a069fa79f3ea5f329",
+      "80afe039028d13a0087215149d47d6adb269be81"
+    ],
+    "patch": "refresh-20261109/pr33502-3731de13c5a0.patch",
+    "patchSha256": "75763d623c906f134b5db26b9d001ea2fd72b287fb2501f358a9138f5c00f319",
+    "resultSha256": "e84aea3c5e837a2e442bf54f4efbd23765bed9724d010cdd76332ec1c875b539",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports."
+  },
+  {
+    "path": "src/renderer/src/lib/workspace/activation/worktree-activation-structured-chat-surface.test.ts",
+    "blobs": [
+      "b71099c443514936823339818090ccf8c40105ff",
+      "885f4dfc0fc720d6446707fc9862f982cdfeb0b4",
+      "075fecdda520e4fbdd6842d65176e19a5678082a"
+    ],
+    "patch": "refresh-20261109/pr33502-5cc9fe90714b.patch",
+    "patchSha256": "e96e35bb7ef63f42050d413372ff4f775085af513c8dd13e9cca6c4fbdc579ae",
+    "resultSha256": "a69646b6598c6489666fb22f6b09c342dc77e8b4508b452d6e052a02791276f9",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "a05de71bc3e1af66b787ac6ebd56edd4307a08c8",
+      "3613ff8d33b51cd02791b7779a7c944c8d56db3f",
+      "544d0a58f5b8a04759eef20b121b90fcae8445eb"
+    ],
+    "patch": "refresh-20261109/pr33502-04bd29c01c63.patch",
+    "patchSha256": "86e5646d268a994bac8e5d979c1eb2d0ed8fbb153c3dd095db80b792d57b3cad",
+    "resultSha256": "d060dcc4ac3da7faf08629e0e448e2dbb27727d360e13d7550ed91fed88a316e",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "d4bf7d2eb11221611374a0c732ae98cc1ff4e803",
+      "575af7288e5a43607d7e75c264e6905a8270dea6",
+      "36101ec0b1a94301dbd6a49abe4d6de904c82c02"
+    ],
+    "patch": "refresh-20261109/pr33502-8e467dec210d.patch",
+    "patchSha256": "554ce3a1a3916f5d88263fcf134650c5c8736ee37b32f8ec3a584b5a5a60b3ab",
+    "resultSha256": "333f1d5cd3adce03c3e0bc540f38efc3135475acbcf34656147a0d4bf8e45d99",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports."
+  },
+  {
+    "path": "src/shared/global-settings-base.ts",
+    "blobs": [
+      "73456e2311e188ad25cfe2036f6268433d52012b",
+      "7d4558ad760f2f790c8f8cffea1ae1aa49b8432d",
+      "5453543b3d0e1cf4be2c081464f1c98b27559418"
+    ],
+    "patch": "refresh-20261109/pr33512-916ed52fa988.patch",
+    "patchSha256": "6c61df7a90fc040e0707e7ed16d8c63c6557eb96d4b50ce9b39876bc8a335b4b",
+    "resultSha256": "731ac3ea239af1bdf05272586d44e4d8a7ea96f42c31e9ea72b766a1c163d510",
+    "reason": "Global settings must retain both worker-role configuration and hold-to-quit preferences."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "251d0ba9f49b9cb3fd0ae4d163189c62c384f14c",
+      "c8b040418afabb34dc3aaa3fb0dde3f30c47ad9d",
+      "a46c31f9ef13716008246d15a101f6a1254fadcb"
+    ],
+    "patch": "refresh-20261109/pr37744-f676957c00a5.patch",
+    "patchSha256": "02e60237a7e870db4b1ade1c6ef3decdbcc65bfc8c4a714128db10acefc87afd",
+    "resultSha256": "d3c3eae941465e790e764dffaec1b98f2d7bb9e106adb2b24ccf17323808673b",
+    "reason": "Retain child transcript/navigation and extracted prompt owner while adding session-link RPC/capabilities and owner questions; the current prompt focus gate also controls the owner card."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "0fc0d688aa58e1cd44c0c66d974d0ebad4985713",
+      "25bd568947c40843da8db16ace2ccaf56338f637",
+      "cd74fb5da353287ebea26df1f4db631aaed577d3"
+    ],
+    "patch": "refresh-20261109/pr37744-a81f3f923441.patch",
+    "patchSha256": "89464e5484e493e331eb0f233c978ce11b12f08dd499db8fb90700aac12860ce",
+    "resultSha256": "38df2744a63a0dca4c45bcccf1b02911ed404614930c8d025abea74f80b0770a",
+    "reason": "Retain child transcript/navigation and extracted prompt owner while adding session-link RPC/capabilities and owner questions; the current prompt focus gate also controls the owner card."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "251d0ba9f49b9cb3fd0ae4d163189c62c384f14c",
+      "7448c6d7f9baed7aa942ca27878bf5bbe0b24be3",
+      "5d210a7d6b08621cf08e01ec6fdca60e8b44403d"
+    ],
+    "patch": "refresh-20261109/pr38963-46d89dcfbb1d.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "d3c3eae941465e790e764dffaec1b98f2d7bb9e106adb2b24ccf17323808673b",
+    "reason": "Reuse the current prompt renderer, session-link owner questions and focus gate; omit the duplicate obsolete implementation."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "352e8cf64b96d99821b23c003f8019b0042a1fb6",
+      "13153767055dca413bb65a957cd4683e05c6a56b",
+      "bc38c4066be0444620142685e148683bf71cac44"
+    ],
+    "patch": "refresh-20261109/pr38963-6990aa0cc8dd.patch",
+    "patchSha256": "1e6bcfef6faa4b34d035a86b772eb28c0dfa9832779f6c5df2da8997e2e74428",
+    "resultSha256": "b41d17533ff5aa4d3d3ee8a1b4c791e3fb39a4938bb4c49f46b8a69a0d698397",
+    "reason": "Combine foreground-to-background actions with child-history navigation, current prompt/cancel owners and expanded command details; preserve finished child/task rows while hiding only an otherwise empty early-call strip."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
+    "blobs": [
+      "a614fb7c200b21fc3bf9172ddc89df0bd0a9c8d0",
+      "b1ce76bc2490a44c75b815122b94595ac875e296",
+      "609e2f2f735acd890ac61b9cdeb4db2dc53b9d78"
+    ],
+    "patch": "refresh-20261109/pr38963-4c43a0f2bac6.patch",
+    "patchSha256": "389996118651cb32a1ed497ab50b3a73e882c6ecb78fdf93176cecba11d6b24b",
+    "resultSha256": "550dcaed4a3434a95fd8f6b7172b488018a1f3e17d84c9861e846973b537facc",
+    "reason": "Preserve foreground task actions and expanded output details with a component-owned reactive translation hook."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/tasks/NativeChatBackgroundTasksStatus.tsx",
+    "blobs": [
+      "bb8528460f4a76887333355fe0ea4f11d963f6e7",
+      "18f3b9bdac2dad923c3515c4c2c2ddbcc04f86b8",
+      "8ba7c1acd30cffd9670121ca8f9db76d76aa03d5"
+    ],
+    "patch": "refresh-20261109/pr38963-ae2ce7fa1d42.patch",
+    "patchSha256": "a9ae7cf106d339d6466366ea1e7084590772c8b379c4af868209c1a6f309dfcb",
+    "resultSha256": "f9379aa5664f49f51d196c9ea7cd298c105e7fb25eadec7fd6d824eb380bbc58",
+    "reason": "Combine foreground-to-background actions with child-history navigation, current prompt/cancel owners and expanded command details; preserve finished child/task rows while hiding only an otherwise empty early-call strip."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx",
+    "blobs": [
+      "54fb72e94fc454a71825ca0ce5674744de8eccc2",
+      "648a88390d385316154a959a6fbdad7a49ea6da0",
+      "cd5723139e0bdfd4636ab53dd915eb0a5bd90cc6"
+    ],
+    "patch": "refresh-20261109/pr39882-87e8bf6d8ee2.patch",
+    "patchSha256": "b74f8cb98863148f5c12c66299a353b2dbe3112b8ca5be5827953c7dfc7d32ce",
+    "resultSha256": "e2d525aa1d700a11e80e05adc89daaa066e96f8cf8f7167b9ed3c8ecc3dc585d",
+    "reason": "Keep the session-link chain control inside the readable focused-pane toolbar; transcript top inset remains supplied by the pane feature."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "303166c2cf89d6e75b716705075484f6161d9d80",
+      "cfe11e2ec63324bdbbb81f59709bbe5ed67885d2",
+      "59043876529639795edf2013159518cc02a9595a"
+    ],
+    "patch": "refresh-20261109/pr33383-d5dc878ec744.patch",
+    "patchSha256": "30ef9589a66b46a23d14f0c5191f49baaad1463f51aff68700523c4b61e930aa",
+    "resultSha256": "4af7b7ee4eb6fe54bc0ec32b2700fa96b23d08adac3e3169cedf114350e701b8",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "0ec0a41183c36f97ee9d836dee94dc554ca5b832",
+      "08a2aba4730ae62cdde06903618f2d1e3a0e8c3d",
+      "eda33a8f59e75ce5686e241e7b076505a0fcdf17"
+    ],
+    "patch": "refresh-20261109/pr33383-5ed292ddac4e.patch",
+    "patchSha256": "ba5aa7ff05026a0a55e671dad016c3b1f57b32fb59a771fef176ff9fbb71624c",
+    "resultSha256": "6ee86e7cc5cd3b60b6894cad0a95dfa6dcf16526fdcb67f78c941606cf6e338f",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "25d6ccff17a5edd94ce8f2c5d14b97a42a55e071",
+      "c4cfbffb96b5e55776cb45bd9cd586c9937bf6ae",
+      "f73ca7ca965c47d1e270330c886fbd94b07899d5"
+    ],
+    "patch": "refresh-20261109/pr33383-bd0492c0889f.patch",
+    "patchSha256": "b2ccd184bb3468c6c892354f1f438c39eb34c92f388cbfa03944490c11f4e2b2",
+    "resultSha256": "ca7d5c062f162e37009181871cd54bf4411fe6d529830dea47fa7fe76c4b6cff",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault-params.ts",
+    "blobs": [
+      "0c113761afb073a934a81b40a42a8c2065b3c153",
+      "79e92147573eb7d9c5340e92acdece60019be7ed",
+      "89cfb0603393a3da0c397912fa6df5e595f97202"
+    ],
+    "patch": "refresh-20261109/pr33383-51f0fb718f7d.patch",
+    "patchSha256": "341d2b8fb95d634d81ecb52ff16115067c6600f78bff84ab81668cdd5b73f2f4",
+    "resultSha256": "f2348654e0b3518f9e1db6cb7470270d7017ca5241b40a3cd82cd54d0636883e",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "f476b79f90a6277e274b67bd6091df1518c508cc",
+      "764e0fce8d764bfcb150f1917e63bdf288307d9d",
+      "85b976340164e0bca96838420a1ae86a43295885"
+    ],
+    "patch": "refresh-20261109/pr38963-ee9317474b0d.patch",
+    "patchSha256": "2047de7a637357e91e11f4e5205e502b5d0ead4f15a5db0637f768a0b237448d",
+    "resultSha256": "fa5c14f73227ea94433e1412ebaa40af5a6df6ce9c01f09abf739b8ce4b74ac8",
+    "reason": "Reuse the reviewed foreground/background task integration with current clear, prompt and child-navigation owners; preserve finished rows and hide only an otherwise empty early-call strip."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "7afeb0e3ceacd7528726da6a30057df99153c7ad",
+      "547d6d8b47e8e98b4b4bffbae0cc2fe1fe7c2354",
+      "3cfc695eee25b15b4bd762c6babab7bb5ec36f51"
+    ],
+    "patch": "refresh-20261109/pr33502-db64f07574c5.patch",
+    "patchSha256": "fe4dda8fa31cd69d0b360c1426515bcafaf7e54c3a0eccc7f98004f664cae6c7",
+    "resultSha256": "cb3fa633a792df1b5ad1ac11394f0b9fcdeeab75db3a12b00beeb0e4b617942f",
+    "reason": "Compose project-order and conversation preferences with upstream phone-owned host labels and status capability; retain a single settings hook and the new host-status readability gate."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "8d9b449a25edf0bc9af8c67525eead838bb12117",
+      "495634b7c0e5eefa593ad32e1c8969cdd1ea2902",
+      "843dec91db2cf497a97b33e55698b9f34f90a0f3"
+    ],
+    "patch": "refresh-20261109/pr33502-dff4a7fdb99a.patch",
+    "patchSha256": "95cbe2031696c6d78183fb5984f11d63f3134b7a8811adf8c665bdbdd59704f6",
+    "resultSha256": "fddc07bb9f1a2b917c795e1f301609c422e7d131dd4709dd74ec6362a3aafb4b",
+    "reason": "Compose project-order and conversation preferences with upstream phone-owned host labels and status capability; retain a single settings hook and the new host-status readability gate."
+  },
+  {
+    "path": "src/shared/native-chat/tools/native-chat-tool-line-view.ts",
+    "blobs": [
+      "ef7b593998ad32cc2ce492bcf28b140b0f128a35",
+      "0901681d4e1e17ae9a32f9a764d41d63c3fc0961",
+      "730de935b18a6c0450d0107b1f0249129104ad22"
+    ],
+    "patch": "refresh-20261109/pr36593-bc72bc5a308e.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "5f34fd169b156fb9dfa6875197a4fa35eb7c680ac5a002b6e622639c33c6640b",
+    "reason": "Retained tool-input disclosure already opens every call, including short pending commands; preserve that superset while the command-label owner supplies full commands with metadata."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-operations.ts",
+    "blobs": [
+      "27d363957529fded381e9a0fd34025faff9ca0a0",
+      "4eca3fbaa29a7ae4a729f86d2c91ab34dd8541df",
+      "7961ec09c7cc5480d76d811ee5d7ea23356d002c"
+    ],
+    "patch": "refresh-20261109/pr33502-8e2c0beaebd1.patch",
+    "patchSha256": "5ee25b79ebce7c905efe01a5b6a63d9ed095a04c5c2ea99bd73fdd3f7f217bdf",
+    "resultSha256": "79516cdb49e2cacaca20f973d465774e9fe6dd4e567d45bbd3f8fb03bab18462",
+    "reason": "Keep the mobile tree-shakeable Zod namespace while retaining both conversation preferences and project pin/open RPC contracts; the previous reviewed semantic union is unchanged."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/viewport/rail/structured-agent-session-rail-outline.test.ts",
+    "blobs": [
+      "da4f00632e0cfee74a4d277f5c56725ed2fc16ca",
+      null,
+      "7ebcd98471a61d473aa4a935ac310abc36657dc0"
+    ],
+    "patch": "refresh-20261109/newest-07bf5996686e.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "reason": "Preserve upstream removal in 40174; legacy unattributed outlines remain exercised by the maintained use-structured-agent-session-rail-outline suite.",
+    "deleted": true
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatQueuedMessages.test.tsx",
+    "blobs": [
+      "b083cdfb3e80c450f696b9e5a1fb900c9d882023",
+      "b7cdfdd5a3c4348d452543a8d8bf639bee173926",
+      "65ce6635d32c15989066ea09c5aa34e817e779e4"
+    ],
+    "patch": "refresh-20261109/newest-48013e086d7a.patch",
+    "patchSha256": "df0e383aa53c5cc32e3d98ba3c1df89b1738b5f72de6713ca7da6c6a84e30a58",
+    "resultSha256": "a1e3bada6b0fa204a572ed47b2745e349619154075ab51739316c310accae794",
+    "reason": "Keep upstream sender-test removal while preserving the retained newest-card shortcut, cross-chat holds and sending/returned refusal checks."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "a05de71bc3e1af66b787ac6ebd56edd4307a08c8",
+      "9000bd1fd879bc85a40be2efbb7a7aa5f172bd9e",
+      "544d0a58f5b8a04759eef20b121b90fcae8445eb"
+    ],
+    "patch": "refresh-20261109/latest-f7e3da05dbfa.patch",
+    "patchSha256": "154a7dace36c0987902ac3e470096a3b70104777a99969d404aa99422dbb61dd",
+    "resultSha256": "d30310320adef9af9a16fffce62c1a94c8007cd1c1c40c2776132853fc68634d",
+    "reason": "Preserve current browser module relocation alongside independent durable conversation preferences and personal project ordering capabilities."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "d4bf7d2eb11221611374a0c732ae98cc1ff4e803",
+      "6685ad4b51567532e9faa3efe577036cf50db8ed",
+      "36101ec0b1a94301dbd6a49abe4d6de904c82c02"
+    ],
+    "patch": "refresh-20261109/latest-efda56db3fb5.patch",
+    "patchSha256": "297f7afa6a3764da614f9230186d238012272cc03f2359eddb217a2350dbf292",
+    "resultSha256": "36b24164d1bc7ed36463c57a3d2306df0a7376a5889005fce3305909afc9a0bd",
+    "reason": "Preserve current browser module relocation alongside independent durable conversation preferences and personal project ordering capabilities."
+  },
+  {
+    "path": "mobile/src/mobile-web-shell/bridge/use-native-verbs.test.tsx",
+    "blobs": [
+      "5939d383360a892ca0daf66c9396915ae37b139c",
+      null,
+      "175525232a0e7261c86e68e898640fcc58a01922"
+    ],
+    "patch": "refresh-20261109/native-verb-test-retirement.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "deleted": true,
+    "reason": "Preserve upstream removal of the old hook suite; retain the added image-permission refusal regression as one focused bridge test in the fork CI overlay."
+  },
+  {
+    "path": "src/renderer/src/lib/workspace/activation/worktree-activation-structured-chat-surface.test.ts",
+    "blobs": [
+      "b71099c443514936823339818090ccf8c40105ff",
+      null,
+      "885f4dfc0fc720d6446707fc9862f982cdfeb0b4"
+    ],
+    "patch": "refresh-20261109/activation-test-retirement.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "deleted": true,
+    "reason": "Preserve upstream f10be535ca2a removal; 33361 and 33383 only add teardown import synchronization to this retired test."
+  },
+  {
+    "path": "src/renderer/src/lib/workspace/activation/worktree-activation-structured-chat-surface.test.ts",
+    "blobs": [
+      "b71099c443514936823339818090ccf8c40105ff",
+      null,
+      "075fecdda520e4fbdd6842d65176e19a5678082a"
+    ],
+    "patch": "refresh-20261109/activation-test-retirement.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": null,
+    "deleted": true,
+    "reason": "Preserve upstream f10be535ca2a removal; 33502 only adds teardown dynamic-import settling to this retired test."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "935f9124bc85f94cf0f16c5376afe0f1ccabb551",
+      "ed22e9676d1965cf70d7681662fceaee37ae8d0c",
+      "b6f28816be2c744be0e314a0241f84d182c96e43"
+    ],
+    "patch": "refresh-20261109/pr33512-en-0684.patch",
+    "patchSha256": "500cc8b63963ee4bd54d147416d4df0d31db6c85fee017797e4f39636234239f",
+    "resultSha256": "32ec4fc94c37b8da4f9dcc84605b776072e6fc514202598651416f02b15e84af",
+    "reason": "Combine hold-quit copy and all project-order keys; remove only the duplicate projectOrder subset with the identical saveFailed string."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "a05de71bc3e1af66b787ac6ebd56edd4307a08c8",
+      "2c50c84a1926478cd5add51d0347d69b8ba8d6ef",
+      "544d0a58f5b8a04759eef20b121b90fcae8445eb"
+    ],
+    "patch": "refresh-20261109/latest-f7e3da05dbfa.patch",
+    "patchSha256": "154a7dace36c0987902ac3e470096a3b70104777a99969d404aa99422dbb61dd",
+    "resultSha256": "5fe1badf682370bc1c29da8695bd8a030b5e59776d2e22e68e7f33ef955de1ff",
+    "reason": "Preserve the new speech-model notice state while retaining the reviewed combination of conversation preferences and personal project ordering, including WSL move dispositions."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "9a0f6fbf548ada546cb6d132c7937820d539eb1f",
+      "d288ac33136242f145a82ad44ed6b6276455b87a",
+      "02a53621c862c52d0de2202fbfda4a3c22e6b232"
+    ],
+    "patch": "refresh-20261107/pr33502-71b259c8d23a.patch",
+    "patchSha256": "368bcc68c4e2744e3d403bed36a1f04af35d8abd0505afa0516296535481b161",
+    "resultSha256": "4a8b84ac5f4473256193c0021bf5d81c4b28d6f30f44a793e9617c99f89f369e",
+    "reason": "Preserve the new speech-model notice state while retaining the reviewed combination of conversation preferences and personal project ordering, including WSL move dispositions."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "171400b27eb07ff02e41a150bc51e63f1a3e4081",
+      "547d6d8b47e8e98b4b4bffbae0cc2fe1fe7c2354",
+      "a58fbd3516e21994bf8e279c68fb9f5c2d1dc6e0"
+    ],
+    "patch": "post78-20261110/cb7efd5bf8a3.patch",
+    "patchSha256": "0d258769feeef1ecf8e6fe29e628af6cb65a4374be35541b44d0d11d3b6ae98b",
+    "resultSha256": "cb3fa633a792df1b5ad1ac11394f0b9fcdeeab75db3a12b00beeb0e4b617942f",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "983fa99eb968b8f95c47c8872236219f835f5c21",
+      "495634b7c0e5eefa593ad32e1c8969cdd1ea2902",
+      "bf7dc89d44d83fc61ba00a027bdde2c4b8f7c3d5"
+    ],
+    "patch": "post78-20261110/9ae9c76de419.patch",
+    "patchSha256": "8143fd01e4e1318f9bf6c0be8c3c537c1061ef6049aec273cee1535648ac7f23",
+    "resultSha256": "fddc07bb9f1a2b917c795e1f301609c422e7d131dd4709dd74ec6362a3aafb4b",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "5ab95ff48dca896faddb955a3611daa5ddee4e2f",
+      "2c50c84a1926478cd5add51d0347d69b8ba8d6ef",
+      "eddfa79a74027bf795ba3862b529263a95c6973b"
+    ],
+    "patch": "post78-20261110/cf94665263ca.patch",
+    "patchSha256": "60935fd5a3e5278e6d87c036b718592362c1f6acfae74e155a1929da81ce0db3",
+    "resultSha256": "5fe1badf682370bc1c29da8695bd8a030b5e59776d2e22e68e7f33ef955de1ff",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "src/shared/protocol-version.ts",
+    "blobs": [
+      "9a66b201341d221ee3926aa47b3eb297db0f9a2c",
+      "65f93b8c7346d99aae11657dc8dcf33145257447",
+      "bd380f890858d2376777275ac6c4b0a434421cc5"
+    ],
+    "patch": "post78-20261110/35094ecfb69e.patch",
+    "patchSha256": "202148fd19a48597f7bc43a414632f63f996e88ed813f8f64091703267ae7c50",
+    "resultSha256": "1eb0afcf974c98e832aac3bf868dee0ed311d76392d60135ee69a72417ee1b7b",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "c4f3f468c444bef8a4ade2f4752507558b881c26",
+      "d288ac33136242f145a82ad44ed6b6276455b87a",
+      "444368dae0dee91add0ad0895f871836d0d9440e"
+    ],
+    "patch": "post78-20261110/89ac926fcf4c.patch",
+    "patchSha256": "368bcc68c4e2744e3d403bed36a1f04af35d8abd0505afa0516296535481b161",
+    "resultSha256": "4a8b84ac5f4473256193c0021bf5d81c4b28d6f30f44a793e9617c99f89f369e",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx",
+    "blobs": [
+      "54fb72e94fc454a71825ca0ce5674744de8eccc2",
+      "b0eac8a8a384f30068db99b12e5d8592db715ba3",
+      "cd5723139e0bdfd4636ab53dd915eb0a5bd90cc6"
+    ],
+    "patch": "post78-20261110/767a6e829eba.patch",
+    "patchSha256": "39a9baecb395a1f4537a652ec7cf3b804575644ea97c73ec8d32857ba062ade5",
+    "resultSha256": "491fcfa277fa712b67c98acc218ad9328239e43129ecefe03243addd6f947982",
+    "reason": "Keep local session-link access alongside the pane actions surface and fixed transcript inset; retain the corrected atomic runtime target import."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
+    "blobs": [
+      "57ab816b30dbf683ec7bb7c80037e9de182544d6",
+      "83a927543a88f7bd6cd595d569a0f50ed4fe94cd",
+      "71f1bbcfc5908716eb0f9ffd2dcc47e3d0d67c55"
+    ],
+    "patch": "post78-20261110/62a178ca9b98.patch",
+    "patchSha256": "c19964e46d000898f378478aff404800cfb7b313923f3f8906f952302268522e",
+    "resultSha256": "c61def931317c82affd46a8904fb7c8a14f28e8930ce1886f34e7d5ee784ae67",
+    "reason": "Retain current upstream peer-mail routing and capabilities alongside session-child RPC and local session-link methods, policies and owner choices."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "0fc0d688aa58e1cd44c0c66d974d0ebad4985713",
+      "9e9dc1043a5bb9e64e05256d4f6b011ad5d5a4b3",
+      "cd74fb5da353287ebea26df1f4db631aaed577d3"
+    ],
+    "patch": "post78-20261110/e9333ee0328b.patch",
+    "patchSha256": "f8bc31b65a5ab583b0a56d534913c9d8030d0989bff7d3c98d4b602fe6171fda",
+    "resultSha256": "4fbdb537bb3a7b51f6d9eb9abba3e00b4210fa3147cebb4646f6096854494f9e",
+    "reason": "Retain current upstream peer-mail routing and capabilities alongside session-child RPC and local session-link methods, policies and owner choices."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "4949cef589fdbf6e56df4f2aec2f70b2340db876",
+      "15180a2ea1040c10977b405ca19801e24c21d0af",
+      "64f58135f4dd8604633c9024b56b74427913566b"
+    ],
+    "patch": "latest-upstream-20261110/pr33502-mobile-methods.patch",
+    "patchSha256": "9c2c7b936085755fe3314676c34392187239c8531a1066ec0c19f38445d47369",
+    "resultSha256": "70f172d1d792a9f8f7b7fbc6c134ecdc6cb63e322f517958713a0e7eb8e97a2b",
+    "reason": "Preserve conversation preference RPC access and add project-open and pin mutations to the current paired-mobile method list."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "4949cef589fdbf6e56df4f2aec2f70b2340db876",
+      "03691184423e001c9b1fae184a57fe35a316bc6a",
+      "64f58135f4dd8604633c9024b56b74427913566b"
+    ],
+    "patch": "latest-upstream-20261110/pr33502-mobile-methods.patch",
+    "patchSha256": "9c2c7b936085755fe3314676c34392187239c8531a1066ec0c19f38445d47369",
+    "resultSha256": "0430e1e4d12efedda8f417f26c2ae2845eccf53c19942ed97aaef8130773861d",
+    "reason": "Preserve the new upstream mobile locale-catalog RPC while retaining conversation preferences and project-open/pin mutations for paired mobile clients."
+  },
+  {
+    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "ab43f813b57598251d7e42bb035db2b85bc65c57",
+      "a06a013458a834e2425f59e8b3058ce78a451006",
+      "62975d36fb148fa079bc50fe75e7355f633e0ec5"
+    ],
+    "patch": "latest-upstream-20261110b/pr33395-2ac1241cdcf5.patch",
+    "patchSha256": "b3048f2a1f227f3cc29665f1aade8840a71347ae1d622bedf9a379a56b4cae74",
+    "resultSha256": "37bd95f9b8a90d6aadf8169063b1f5700c014f05a431d20fc8ec67fa31564ce8",
+    "reason": "Retain both immediate-steer and explicit-default-model mobile host capabilities when the independent PRs are composed."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
+    "blobs": [
+      "a614fb7c200b21fc3bf9172ddc89df0bd0a9c8d0",
+      "08a3337ce0adc63133eaec5283f32b50f2fe1b36",
+      "609e2f2f735acd890ac61b9cdeb4db2dc53b9d78"
+    ],
+    "patch": "latest-upstream-20261110b/pr38963-d156c6004462.patch",
+    "patchSha256": "0e4b985211527ba86a60b6073d1f3f3b60b196c432d5615057029ed2e1f47b62",
+    "resultSha256": "e7b68afa53e8b53fddb3601c6a14b6146af9ac72869a7b67771dac50467c0a38",
+    "reason": "Preserve child transcript navigation, owner prompts and extracted transcript/frame ownership while wiring foreground task actions; retain expanded command wrapping and invocation details beside the background action."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "0fc0d688aa58e1cd44c0c66d974d0ebad4985713",
+      "9e9dc1043a5bb9e64e05256d4f6b011ad5d5a4b3",
+      "9c557121cd26b5e42db600259ba07be7b5a4e8cf"
+    ],
+    "patch": "latest-upstream-20261110b/pr37744-cf4e08ad9642.patch",
+    "patchSha256": "db0e3692af55eef239b182272d7144577205e362bf82edae0c4613c9c7b899f7",
+    "resultSha256": "2d74f9ee6bd6e224a7f487af9b10f5ec2c4d04c2f7b34fe848719620b5d423a4",
+    "reason": "Advertise current upstream session-children and peer-mail capabilities together with local and paired-desktop session-link capabilities; preserve both independent features."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx",
+    "blobs": [
+      "54fb72e94fc454a71825ca0ce5674744de8eccc2",
+      "75bba05083a8bb5db3aa1852ca50a793f27ad864",
+      "cd5723139e0bdfd4636ab53dd915eb0a5bd90cc6"
+    ],
+    "patch": "latest-upstream-20261110b/pr39882-e6161f5141b2.patch",
+    "patchSha256": "90b4dc6fa2cdb67c5dd2b827fc3a38e1d27146f2dc2644c42b337154829d9ec3",
+    "resultSha256": "3e739c6d0a31151b590358619701e6c9a19c9015bdc682d6f5bc788d7dcd080d",
+    "reason": "Retain the existing pane action surface and spacing while showing the same-host session-link control for both local and paired-runtime chats."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "f476b79f90a6277e274b67bd6091df1518c508cc",
+      "9009652be760c7dc2b19bb49a0da7d9a99e80b5d",
+      "85b976340164e0bca96838420a1ae86a43295885"
+    ],
+    "patch": "latest-upstream-20261110c/pr38963-40eb13e22b70.patch",
+    "patchSha256": "44e95bfd2bb69974393f4a9d7bc39a86a4906b572a977e6131b9b828d51c3d05",
+    "resultSha256": "a103c9e201fbbf69039ac4a67968fdb30c784cdb423584a9fdbaf9aae6d80233",
+    "reason": "Preserve the verified background-task integration together with the atomic queued-send projection extraction."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
+    "blobs": [
+      "377058c7526c7af6af40618f63f85e26aea26cdc",
+      "6f1204c53d50272cf4e2f5000e3b0bcdb9c814a2",
+      "9a1343fdf62bc262b870b5dd9cb7275311741e8a"
+    ],
+    "patch": "latest-upstream-20261110d/pr37744-53349ad9266e.patch",
+    "patchSha256": "674132a1354e28758062fc732ca891d2c39cb036860efcf5e3bba21f97429108",
+    "resultSha256": "17d04db671f421e843d858ad5945e9b4aa2acf132dcc3423e4bf9ffc2ac8feab",
+    "reason": "Preserve current access declarations and child history alongside collaboration capabilities; retain the extracted prompt wrapper that already combines owner and asynchronous questions in the composer slot."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "9aac5d474e3e572945011b0d5f0f343fc66b4028",
+      "9e9dc1043a5bb9e64e05256d4f6b011ad5d5a4b3",
+      "385ec7225f4e621b548e9736f19ca38413d7cf50"
+    ],
+    "patch": "latest-upstream-20261110d/pr37744-7020b1b4d952.patch",
+    "patchSha256": "d6e337e5c9c2cb78d49ad44e565906b33f791c4ab447d1a6e33b1dd1d1beb66b",
+    "resultSha256": "2d74f9ee6bd6e224a7f487af9b10f5ec2c4d04c2f7b34fe848719620b5d423a4",
+    "reason": "Preserve current access declarations and child history alongside collaboration capabilities; retain the extracted prompt wrapper that already combines owner and asynchronous questions in the composer slot."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "983fa99eb968b8f95c47c8872236219f835f5c21",
+      "9300ed971c063397c478750eedb4507670142882",
+      "bf7dc89d44d83fc61ba00a027bdde2c4b8f7c3d5"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-9300ed971c06.patch",
+    "patchSha256": "4f1fbe1d0c655ad28cd201dd15e23816639f93290bb6ea2ab3d1cefe18a50e47",
+    "resultSha256": "9d8cbfd18ba0df6d25ad1e500708296bc601fd785991f5d4dde892111b4c1f8a",
+    "reason": "Keep personal project-order settings after resolving the project catalog and retain the current host/sidebar feed used by other selected features."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "5ab95ff48dca896faddb955a3611daa5ddee4e2f",
+      "013e79f2faafb008a80b17897f846e4aedc8029d",
+      "eddfa79a74027bf795ba3862b529263a95c6973b"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-013e79f2faaf.patch",
+    "patchSha256": "ccee647265f23dd59eb3125e8f1aaa0d45e4ea55218d40c67b9a2515a2834676",
+    "resultSha256": "a44708c8828ce696ba6ae830f354e396a90ed4c04f49ea96a86b5dc0b0083a57",
+    "reason": "Retain conversation navigation preferences from 33395 and personal project order from 33502 in the same persisted UI schema."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "9aac5d474e3e572945011b0d5f0f343fc66b4028",
+      "9e9dc1043a5bb9e64e05256d4f6b011ad5d5a4b3",
+      "8694ac889548718058eda06fa4632b7f1fe44e4a"
+    ],
+    "patch": "latest-upstream-20261110e/pr37744-9e9dc1043a5b.patch",
+    "patchSha256": "cc79aa948d281ba553a6cea2118c76c069cf8a2d8101ebc29d0ff583c53e0ca3",
+    "resultSha256": "d32cefabfec1f27b238ad97dc2bcf238a489894b9997147919d5f7f9bfc5fa20",
+    "reason": "Advertise session children from 34895 together with grouped, paired-desktop, policy and owner-choice session links from 37744."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx",
+    "blobs": [
+      "54fb72e94fc454a71825ca0ce5674744de8eccc2",
+      "d936b2b387374ec40f2bf61b18eaa190e2b456ae",
+      "cd5723139e0bdfd4636ab53dd915eb0a5bd90cc6"
+    ],
+    "patch": "latest-upstream-20261110e/pr39882-d936b2b38737.patch",
+    "patchSha256": "2dfbaaa13f5b0794dacbce529f40de4ffd73ee1fa7dbaf6322924105b1615957",
+    "resultSha256": "7cd5fd708395a3f8bd2b7538d21b80f9301a669f857864839798553d7f63c443",
+    "reason": "Keep the panel chrome and focus rules from 39882 while retaining the registered-agent link control from 37744."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/rpc-method-registry.ts",
+    "blobs": [
+      "5b693508c20719ebeaed9e0e07526ee5fca1c61b",
+      "5c639781bc3b9b7a5bb893291ab7daf8e82c39d3",
+      "056e75548dd4009d1258979c316d466b2e3ac8e9"
+    ],
+    "patch": "latest-upstream-20261110e/pr40175-5c639781bc3b.patch",
+    "patchSha256": "786773ff4a7bffbda579afc808ce11248d0cf413e9bd619f0afb9f5fd5fad9df",
+    "resultSha256": "844036ff8bc0f978628391115530e3ab4fe8983742ec4e72ec1e67c238019858",
+    "reason": "Register terminal model discovery from 40175 alongside all previously selected runtime methods."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
+    "blobs": [
+      "7a21599f1f6b11e6b6e7a011f75386fe6f971e2e",
+      "822ccb075a5d3cf8d75cbd2fb06a92bbf450edc6",
+      "ee115ba88492670bd183b7cefd87c0aaefd53f59"
+    ],
+    "patch": "latest-upstream-20261110e/pr38963-822ccb075a5d.patch",
+    "patchSha256": "49af3530f55024cfd83406a8a1db12fa543d98cc538a5c0ca70a1f99ae47ca41",
+    "resultSha256": "09e36fc2dd5360167677e0d9dbb77cb9d110e069cad5409eaeec36467b942315",
+    "reason": "Keep full expanded command wrapping and invocation details while rendering the foreground task action as a separate sibling button; retain the current class-names import owner."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "e5ea6277d43ccb7d3d04ad4b50b622548dfadd8a",
+      "9300ed971c063397c478750eedb4507670142882",
+      "19f59953d9fb98123bb3bb4247e5e0ada1f6a6f1"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-9300ed971c06.patch",
+    "patchSha256": "4f1fbe1d0c655ad28cd201dd15e23816639f93290bb6ea2ab3d1cefe18a50e47",
+    "resultSha256": "9d8cbfd18ba0df6d25ad1e500708296bc601fd785991f5d4dde892111b4c1f8a",
+    "reason": "Keep one settings hook after the current project catalog is resolved, supplying personal project ordering to the existing feed and navigation."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "945761935cd5a79bf520669947c8cfc9854db8d9",
+      "03691184423e001c9b1fae184a57fe35a316bc6a",
+      "3316ac8d7ee2babb004df905bb7771d1247914f8"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-03691184423e.patch",
+    "patchSha256": "222f6b2d85e42a98dfae8b389c74463bc1aaa91f8d0c8b04716e66150f4b99b7",
+    "resultSha256": "0430e1e4d12efedda8f417f26c2ae2845eccf53c19942ed97aaef8130773861d",
+    "reason": "Preserve conversation preference methods from 33383 alongside personal project open and pin methods from 33502 for paired mobile desktops."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "b2fb7d89ef25d3d08ae4f8ab0b58eacbb936ff8d",
+      "013e79f2faafb008a80b17897f846e4aedc8029d",
+      "2fc8ac71619821a2b792f43cdf961d52ec9a75e7"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-013e79f2faaf.patch",
+    "patchSha256": "ccee647265f23dd59eb3125e8f1aaa0d45e4ea55218d40c67b9a2515a2834676",
+    "resultSha256": "a44708c8828ce696ba6ae830f354e396a90ed4c04f49ea96a86b5dc0b0083a57",
+    "reason": "Preserve both conversationPreferences and personalProjectOrder and their canonical imports after current upstream module relocation."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "945761935cd5a79bf520669947c8cfc9854db8d9",
+      "4e79d7ac514a3392c9869e71ffaf5572697fac4f",
+      "3316ac8d7ee2babb004df905bb7771d1247914f8"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-4e79d7ac514a.patch",
+    "patchSha256": "222f6b2d85e42a98dfae8b389c74463bc1aaa91f8d0c8b04716e66150f4b99b7",
+    "resultSha256": "822ec663fa824c7a0014d19e10eba625ec3f4dbfb618e510c6ee41c14153f01b",
+    "reason": "Keep upstream workspace-host session history routing; combine paired-desktop conversation preferences from 33383 with project-open and pin preferences from 33502."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "12b4c117365bb1c7cf774c36116d177340971cc4",
+      "4e79d7ac514a3392c9869e71ffaf5572697fac4f",
+      "901158ba21d18e9dbb11e967a6712cacda576359"
+    ],
+    "patch": "latest-upstream-20261110e/pr33502-4e79d7ac514a.patch",
+    "patchSha256": "222f6b2d85e42a98dfae8b389c74463bc1aaa91f8d0c8b04716e66150f4b99b7",
+    "resultSha256": "822ec663fa824c7a0014d19e10eba625ec3f4dbfb618e510c6ee41c14153f01b",
+    "reason": "Keep upstream workspace-host session history routing; combine paired-desktop conversation preferences from 33383 with project-open and pin preferences from 33502."
+  },
+  {
+    "path": "src/renderer/src/components/agent/launch-settings/AgentChoiceControls.tsx",
+    "blobs": [
+      "f79f0fc0178ee4092941ec5f099e4013158fd675",
+      "0d4430a502196564dbb9ed2b048385fb52914b80",
+      "605071951e7ec94735d5f8aa7fbf240b550bff84"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-e72054041926.patch",
+    "patchSha256": "293d4696493439426ef9b53f7e50fc87d0c359cc9a16dc76720cfae4ea624e9a",
+    "resultSha256": "d4db01f2c22edf55d149b7fb14dd706c82d936907f3f98d975fc3d30e97b3556",
+    "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
+  },
+  {
+    "path": "src/renderer/src/components/agent/launch-settings/AgentLaunchChoiceEditor.tsx",
+    "blobs": [
+      "6e95245b19c43c03f121cc2dd21aed6db52e9af2",
+      "c37b4a846105f01ab6441086ff6ec363366f088f",
+      "4476d87702565d14e543d3f97665d18ac6963c91"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-5d2f05eee56f.patch",
+    "patchSha256": "ceb391a07d2a61de2d520da267fbe62242461e13674b86ff265772d01523b45e",
+    "resultSha256": "8f5f45682bb74ea08ac05901817a0ad358686991af2f0ddf0995780cad7e1c6d",
+    "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
+  },
+  {
+    "path": "src/renderer/src/runtime/native-chat/model-catalogs/host-model-catalog-snapshots.ts",
+    "blobs": [
+      "b34dbf76faf70681680aa216385181ed8e050741",
+      "1dd125703b5a81f6a7d6550b011c5d96fd6a6d29",
+      "9e7b773e6fde76cdedada5e9e2b29db008b1f844"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-0426373c5111.patch",
+    "patchSha256": "93b777f738662b69e77fcaa28150c7df4437f3641becd344b3a14d9af07ced4c",
+    "resultSha256": "b87405e36150de9725eb29c071101be752a89e552ef3aefe99809333ce45ea6c",
+    "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
+  },
+  {
+    "path": "src/shared/agent-launch/picker/agent-launch-picker-catalog.ts",
+    "blobs": [
+      "e79be6149ef7f6f06b48d0d3e66799b58f69bff3",
+      "471f07ffece405dada12cf79ec71894a4ffe0493",
+      "b632ae1936c7b76759760d853748e2c36d91b2be"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-ab7f17d6e9ab.patch",
+    "patchSha256": "dec486217568326c64ce52ec77b921404092fd9f3f4c81fe31d5f867cab2669a",
+    "resultSha256": "c1810be2d4dbad5a316835c3603a4acd3fd53651b5612070508cf23cd0218d74",
+    "reason": "Combine foreign native model-menu policy from 40175 with current Settings callers and 33369 host catalog loading; retain one request owner, literal choices and host-wide/per-agent invalidation without changing Antigravity terminal discovery."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-read.ts",
+    "blobs": [
+      "a550fb1cf370b1ef92d6253d70461cd29e3232b5",
+      "e69d65d1c32c0eca3e5715412bdbfed5004a072b",
+      "c8cb391a8ef87138ac835b484b95a572aef80a4c"
+    ],
+    "patch": "current-20261111/pr33502-81efb3a955cb.patch",
+    "patchSha256": "114b064f02912d35a4b115f1bfd5dfd810a51cc391c0c02eaa1e2179d38a1844",
+    "resultSha256": "a56262964ac4d35fde676ff0efa3fa55ccf567608377133a8fb862820510e55b",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports. Rebase the verified combination delta onto current upstream owners without replacing their new fields."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-update.ts",
+    "blobs": [
+      "eb282c1c973fb83bd140a929cc97cbfe80cae6e4",
+      "94bb45a0a773ddaf26155d10472c5b6cf910a5a7",
+      "9b1e2250af86c7c68cefac21e7b684e12f1da07f"
+    ],
+    "patch": "current-20261111/pr33502-67eb309998ba.patch",
+    "patchSha256": "b36cfb306d2e71e8a5bffb3ec19ab1d3065adf38f1816be3e73370c23bf53b93",
+    "resultSha256": "b6de3b0dcd9441aba2b8fe55af76819c961cd329c8083e3b2b31f11949bd09a8",
+    "reason": "Retain independent conversation preferences and personal project order across persistence, RPC schemas, capabilities and mobile settings; keep targeted teardown import plus settled dynamic imports. Rebase the verified combination delta onto current upstream owners without replacing their new fields."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "57cfd9b2ee8270229dea7f7f0b9ee46d354dc7c9",
+      "7ecbd56ff4dfc3fb8349320d599e392bea53d148",
+      "eff94cfd81921bc6c2698d9f5e3a1a7368742a7b"
+    ],
+    "patch": "current-20261111/pr33502-f7e3da05dbfa.patch",
+    "patchSha256": "a3dba917379e2c274ce50a59d34b159c3b2d6685ac523c53f850296cdfcea1f3",
+    "resultSha256": "71d91b37c43980c176260e469c8d9070dca93862acfdb844df29cfa321716957",
+    "reason": "Preserve both conversationPreferences and personalProjectOrder and their canonical imports after current upstream module relocation. Rebase the verified combination delta onto current upstream owners without replacing their new fields."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "bb95889ad7d3491475cce1f96718d00f2cd34c91",
+      "9f1f76cccf63f8241cdb036d33b483e112a83def",
+      "aabe7a11daf40349953d5af23cbbf2612ca18841"
+    ],
+    "patch": "current-20261111/pr33502-71b259c8d23a.patch",
+    "patchSha256": "65ea11fa78040432d36393545f734e3fc5065bf3fc8c6c2c3ebfc09b8d0b9d73",
+    "resultSha256": "d5fda6ab1afcd1ce52d50af128de16cd8fac9e322d65380cc45e77ecc562a880",
+    "reason": "Combine conversation-navigation preferences with personal project ordering; preserve current upstream group capabilities and independent persistence, paired-host and WSL identities. Rebase the verified combination delta onto current upstream owners without replacing their new fields."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/pt.json",
+    "blobs": [
+      "81a0ed531deeb6dcbfa602336c9d319ebfbb2455",
+      "6479cfcec1049da8ba11b71f157975e5ed746ced",
+      "aa43d16aab938efacb9db814351eead0696afb5f"
+    ],
+    "patch": "current-20261111/pr40175-3758b63c9380.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "b770a1779f98f198f0b9c23d8894eb6852ac64a4a39cf5bd15e7df24213963f2",
+    "reason": "Keep current upstream fallback translations and combined feature copy; 40175 introduces no additional pt/zh values after the upstream translation refresh."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/zh.json",
+    "blobs": [
+      "b3f2f5f5a54d27f16b24bf2d7d7b63917a9bd65f",
+      "95ca6dd594397ddc0033e5f33a697ce80596be73",
+      "e0a844ac3568bf18658372fe8b70e6f97b2bd6a3"
+    ],
+    "patch": "current-20261111/pr40175-7aa1973811fc.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "c0d89bd497de57b86940e903caeb12898a6420822a0f85237c61d593862280ac",
+    "reason": "Keep current upstream fallback translations and combined feature copy; 40175 introduces no additional pt/zh values after the upstream translation refresh."
+  },
+  {
+    "path": "src/renderer/src/runtime/native-chat/model-catalogs/host-model-catalog-snapshots.test.ts",
+    "blobs": [
+      "7acc7efd8c103b4f5b9cc5076720748dcde38aa4",
+      "01d73bd6bd5de30386b4e8a73fdf116da9172a42",
+      "51a8423b3d96f0e2db542fddd0654d5f52940101"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-ec642d52b541.patch",
+    "patchSha256": "4d27a084f3e055830521cae8b9e51c6495e5815ee0bc9ec97f02533a6d708c62",
+    "resultSha256": "de1a6a2ed47a951424ff85cb52b8f1a82d0d6660821e787b47d226686bf8f910",
+    "reason": "Combine 33369 listing/invalidation tests with the 40175 pending-preload regression; preserve upstream removal of the two obsolete workspace snapshot tests."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/pt.json",
+    "blobs": [
+      "81a0ed531deeb6dcbfa602336c9d319ebfbb2455",
+      "790975c36fd84cff8db649876dfe985b1b106ad2",
+      "aa43d16aab938efacb9db814351eead0696afb5f"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-3758b63c9380.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "25d82222b33f4ab5dc4b64d9960d1b6a50ee4555e09602039f1704dcfc2991fa",
+    "reason": "Keep current upstream fallback translations and combined feature copy; 40175 introduces no additional pt/zh values after the upstream translation refresh."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/zh.json",
+    "blobs": [
+      "b3f2f5f5a54d27f16b24bf2d7d7b63917a9bd65f",
+      "8fc6b3fd531fd6a2f945c83ed3a17b07813c90df",
+      "e0a844ac3568bf18658372fe8b70e6f97b2bd6a3"
+    ],
+    "patch": "latest-upstream-20261111/pr40175-7aa1973811fc.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "98109fe069826d88e701beccc8e63ec1852a2ee3f8eaea9ee07caaf9e17a8f34",
+    "reason": "Keep current upstream fallback translations and combined feature copy; 40175 introduces no additional pt/zh values after the upstream translation refresh."
+  },
+  {
+    "path": "src/main/native-chat/agent-model-catalog/agent-model-catalog-snapshot.ts",
+    "blobs": [
+      "b737ff650172e3e808f84aaa3441a328aaeda50a",
+      "e28b7ff184d5b7a3ebb975c93fdaed8ffc46030d",
+      "1fb4fe0ae11a63b2f99abf33e6ae6d541a781edf"
+    ],
+    "patch": "latest-upstream-20261111/pr40980-4d386950564a.patch",
+    "patchSha256": "5c4fb176ae956f83fed269e9bd2227c7bf1e18ffa514c4c2de137e66fb572803",
+    "resultSha256": "06a5d1a6f72301f07c6c61d25d9b240a35a17371f6cf66812726ee4a344b9dac",
+    "reason": "Combine foreign Antigravity host discovery with selected ACP model-effort launch and catalog probe rules."
+  },
+  {
+    "path": "src/main/acp/discovery/acp-model-catalog-probe.ts",
+    "blobs": [
+      "7df8a4a31f99d6341b7becf817ece2f91f01903d",
+      "8b935339fc87716234f3a78c6894095c7f741cac",
+      "3451cfe9cbcd2071e718ac2ecaed3f2756969025"
+    ],
+    "patch": "latest-upstream-20261111/pr40980-f7af3161525b.patch",
+    "patchSha256": "ced766688db31835a2d743481482dc5f67d9ca2a2b63de931400a577b7c3d5a4",
+    "resultSha256": "0ddf171f1fe8c9edce18ff2a40d850b8f412e962b994b19157a8347003c6c915",
+    "reason": "Combine foreign Antigravity host discovery with selected ACP model-effort launch and catalog probe rules."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/access/orchestration-access-outcomes.test.ts",
+    "blobs": [
+      "694ff102ae171ae664d6795798780f12a9cb5203",
+      "95ee543ef5d9886c430e255e6f4c1d016a39581f",
+      "5e6e7c1a12f74c22da4cea0fdf46977b3f01c0c3"
+    ],
+    "patch": "latest-upstream-20261111/pr33369-orchestration-access-outcomes.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "17ffc9b208f190becac4458c703b3af37beeb4639ffc9a8246640db393e4d94b",
+    "reason": "Preserve upstream retirement of CASES and EXPECTED test suite in orchestration access outcomes; worker preflight access remains covered by runtime orchestration checks."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/access/orchestration-access-outcomes.test.ts",
+    "blobs": [
+      "694ff102ae171ae664d6795798780f12a9cb5203",
+      "95ee543ef5d9886c430e255e6f4c1d016a39581f",
+      "cbd171d7bf11f87a09659f23e6962de3a50297e4"
+    ],
+    "patch": "latest-upstream-20261111/pr34895-orchestration-access-outcomes.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "17ffc9b208f190becac4458c703b3af37beeb4639ffc9a8246640db393e4d94b",
+    "reason": "Preserve upstream retirement of CASES and EXPECTED test suite in orchestration access outcomes; session children access remains covered by runtime orchestration checks."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/access/orchestration-access-outcomes.test.ts",
+    "blobs": [
+      "694ff102ae171ae664d6795798780f12a9cb5203",
+      "95ee543ef5d9886c430e255e6f4c1d016a39581f",
+      "8b5de9e61545e7d0a8553293f489501abcb90779"
+    ],
+    "patch": "latest-upstream-20261111/pr37744-orchestration-access-outcomes.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "17ffc9b208f190becac4458c703b3af37beeb4639ffc9a8246640db393e4d94b",
+    "reason": "Preserve upstream retirement of CASES and EXPECTED test suite in orchestration access outcomes; session link access remains covered by session link integration suites."
+  },
+  {
+    "path": "src/renderer/src/popout.tsx",
+    "blobs": [
+      "f08bb7643750c3f2d7cfd11fa1349a3146839711",
+      "078feb77d041ca0091fa53402bd10874bc5197e7",
+      "9a8982327d69def0ef414f90a48209300cb271ed"
+    ],
+    "patch": "latest-upstream-20261111/pr33512-src-renderer-src-popout.tsx.patch",
+    "patchSha256": "111d8f1bc8784438955a2098265452a975e15e9137444cab95098c2a2884527e",
+    "resultSha256": "1fce023fa88f3edfcb4708faaff835dd5b9838cbe205eba4c64ad6bb9e9734ef",
+    "reason": "Preserve relocated body-overlay-attributes import from upstream 41024 while retaining Hold to Quit toast and notice container."
+  },
+  {
+    "path": "src/renderer/src/space.tsx",
+    "blobs": [
+      "a10354a6eb28b323307c0600e11b7a00586f4cc0",
+      "25ffc273e3ab9afa8a0044cea93a59f2db2633a3",
+      "60546e257ef690c12e534d7ad749b9bb667244b1"
+    ],
+    "patch": "latest-upstream-20261111/pr33512-src-renderer-src-space.tsx.patch",
+    "patchSha256": "65465ea40067aa9611843bbc474268cd2562042558dcfc03a67b5683e2602aa3",
+    "resultSha256": "8dd68085a695e3032c47a5aa27eee936d1e8b0a1de0e4a3ee7efc32bb70481a1",
+    "reason": "Preserve relocated body-overlay-attributes import from upstream 41024 while retaining Hold to Quit notice element."
+  },
+  {
+    "path": "src/renderer/src/components/agent/use-agent-launch-picker-inventory.ts",
+    "blobs": [
+      "d6f157a256e3a36db66dff9fbdfd3541b7f104d3",
+      "f30e32b0467c16084a5f8862465200fc3a336264",
+      "215bc878782f86dad7e2715517fd4e806ffe2db2"
+    ],
+    "patch": "self-20261111/pr40175-f30e32b0467c.patch",
+    "patchSha256": "a3c60a46e69c5e8da86b3ea27ff16ce935f78508474e00cfa0a7a421bdeed012",
+    "resultSha256": "bf2c637c3cd8240350e03c14429924f211b8d57b3217c9e9288e0c20050fdc56",
+    "reason": "Preserve current upstream CLI model discovery, local/remote workspace scope and null-target guards alongside 40175 coherent native reads and invalidation; retain one request owner."
+  },
+  {
+    "path": "src/shared/agent-launch/picker/agent-launch-picker-catalog.ts",
+    "blobs": [
+      "471f07ffece405dada12cf79ec71894a4ffe0493",
+      "a898eaca6b0b3c915f015d6bce53244909e85d9e",
+      "bcc5039c1bcb1381ad5088ed13088a0dacf06d88"
+    ],
+    "patch": "self-20261111/pr40175-a898eaca6b0b.patch",
+    "patchSha256": "69e8bf423b1dc4b1d3aa6298d2857adc95cd163556605f61a389bb3274b96742",
+    "resultSha256": "57b693abd49d250259403a7fa557d69b451564fa0f9c5f0134485f1371130ec5",
+    "reason": "Retain the exported CLI model adapter and Antigravity terminal catalogs while applying coherent native model menus from 40175."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/ui-state-schema-parity-checks.ts",
+    "blobs": [
+      "e57c7df39500862d1db77771105895f0b0f3439a",
+      "37784023a851a534478d205fbf11a370ad57526e",
+      "04c5ce374d9f350fc18318f51694f9252a3b1523"
+    ],
+    "patch": "refresh-20261107/pr33502-172e891cf77c.patch",
+    "patchSha256": "9592457adec8792fd5154e8c34d4ee22acd492780cbf7a6698ca3c2d564bfc60",
+    "resultSha256": "54ea9fb47b4df5dc76f955743f6d93202ffc77fbf102bcf95da5587d9983c769",
+    "reason": "Preserve conversation preferences and personal project ordering and pins with current upstream, paired-mobile RPC and host-qualified persistence."
+  },
+  {
+    "path": "src/shared/persisted-ui-state-types.ts",
+    "blobs": [
+      "601678adbdfedf31ee640a4bd53589502a3d0ab8",
+      "8a5eab96c0c8f94f5cd8f5d514e8e58e082cb0c1",
+      "8d115c482d6abc70fa3c2899cca0003adf3174b5"
+    ],
+    "patch": "current-20261111/pr33502-f7e3da05dbfa.patch",
+    "patchSha256": "a3dba917379e2c274ce50a59d34b159c3b2d6685ac523c53f850296cdfcea1f3",
+    "resultSha256": "e6eea2f3b3c253ba182818ae6c884a763af5aab78cec7ea6b6bfd1604da85f0a",
+    "reason": "Preserve conversation preferences and personal project ordering and pins with current upstream, paired-mobile RPC and host-qualified persistence."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "d38b088f223e336b9c0c91a6984aadbacd244d4c",
+      "6bd57a832aaa35d5206c291306eb1a467d8f2381",
+      "a89c53dd62349eb690d40674e433f7d093b24d6e"
+    ],
+    "patch": "current-20261111/pr33502-71b259c8d23a.patch",
+    "patchSha256": "65ea11fa78040432d36393545f734e3fc5065bf3fc8c6c2c3ebfc09b8d0b9d73",
+    "resultSha256": "eaca9993a5738bee027f11617511767146015c869d9e671881d264c9d36cb94e",
+    "reason": "Preserve conversation preferences and personal project ordering and pins with current upstream, paired-mobile RPC and host-qualified persistence."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "251d0ba9f49b9cb3fd0ae4d163189c62c384f14c",
+      "c57461194c5cdffc944ba8eaf030af32db28f8d2",
+      "a46c31f9ef13716008246d15a101f6a1254fadcb"
+    ],
+    "patch": "self-20261111/pr37744-f9f6c8837e8d.patch",
+    "patchSha256": "d163a92b2b07202738ed9f4312f234cf6aac49abe3b4138d761ae877d4e1c213",
+    "resultSha256": "3d27cd20f70744b76abe549a76db427d73f16894ee57c590b4daec3e617bffe5",
+    "reason": "Preserve retained child transcripts and group owner questions in the existing composer slot, gate hidden parent interaction, and retain both RPC capability families."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "43c3e0f836ddc920e25eefbd425c8c25a642b12c",
+      "a50a603a58498f1bc20b09471c39a5bec3a8defe",
+      "1b097b2ee5a5a4c9d455307ddb12a5253e99e4a0"
+    ],
+    "patch": "self-20261111/pr37744-f51a0cb2bde2.patch",
+    "patchSha256": "0828ba1706311286d58e5d2957ab6575745c373084e2781615f1998948016eb3",
+    "resultSha256": "95a043f5b441841265af944dbef525e40c881a7bbe9515eb9e89dd347856fd7e",
+    "reason": "Preserve retained child transcripts and group owner questions in the existing composer slot, gate hidden parent interaction, and retain both RPC capability families."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "251d0ba9f49b9cb3fd0ae4d163189c62c384f14c",
+      "d0ce2c30a4e86c69fc5c50c50e4fa503e415b863",
+      "d6faea559cf126f99488996632c459b7aa6f9e68"
+    ],
+    "patch": "self-20261111/pr38963-5481f231b897.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "3d27cd20f70744b76abe549a76db427d73f16894ee57c590b4daec3e617bffe5",
+    "reason": "Reuse the existing upstream prompt-card wrapper and retain group owner questions while foreground task actions are composed."
+  },
+  {
+    "path": "src/shared/remote-runtime/host-store/runtime-environment-store.test.ts",
+    "blobs": [
+      "4ff59492fcc152dbdf9aac36e460ecb418d52085",
+      "db44dbd3935727a2599b061ca5063da3abe1349f",
+      "910c54c821a04c27eeaf0de9fb0b5de7c7cbe0da"
+    ],
+    "patch": "self-20261111/pr40298-7c345930a8a0.patch",
+    "patchSha256": "f730d335d16b95876f3e17a9aed5b509766b7d25ea7e9f5f865bac24ecea9c74",
+    "resultSha256": "4bddeb7c2192e1d1e8ca34fc9fb0846171ad37042116bdab6c463edbe0801666",
+    "reason": "Retain upstream 41144 test retirement and the two foreign 40298 rename regressions only; no foreign branch mutation."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "0354adef06d7d6a407664140d34de3f09c6d4256",
+      "181ffe2e1041d253adbb178953c91627f7bbe09f",
+      "321745dc66a14496d37e7d09548f45328b1a1816"
+    ],
+    "patch": "refresh-20261109/pr33383-5ed292ddac4e.patch",
+    "patchSha256": "ba5aa7ff05026a0a55e671dad016c3b1f57b32fb59a771fef176ff9fbb71624c",
+    "resultSha256": "54c6f71d4fbf2f2c406ba88e553eaa505d905a857ededa5b40eedc26469a5f5f",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault-params.ts",
+    "blobs": [
+      "4ef3f897ad17d03e57fefa3d444fe16e30eaaabe",
+      "4655bdf0214206be93f18831106e8353da7bccc1",
+      "6421b94b0715da7db8553283edfeb60fde4813d8"
+    ],
+    "patch": "refresh-20261109/pr33383-51f0fb718f7d.patch",
+    "patchSha256": "341d2b8fb95d634d81ecb52ff16115067c6600f78bff84ab81668cdd5b73f2f4",
+    "resultSha256": "4ccf44dd4f42b135ceb472a3155b44644911e23eb5052e885797cd935aac4d8d",
+    "reason": "Preserve project navigation and selected-session bounded projection/cache identity alongside durable structured conversations on current upstream."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "0a192e5b37400eecc3eb9bbafafafdfbf02b3c53",
+      "d6279aabe0435d3c8082a94d708f37446f740ad0",
+      "3d5c0a90cc25a1a95457cc7d5fbd15918578e79f"
+    ],
+    "patch": "current-upstream-20261112/pr33395-options-current-view.patch",
+    "patchSha256": "07e2839e11222307e8bb6545801839f3ba8a03e7058784cb64cbaad7426197e2",
+    "resultSha256": "9175ebe9086bccaa0af75d3d968c59890117ebcfd1f9b825ee37cef5a79043fd",
+    "reason": "Combine immediate-steer option readiness with atomic Default reset and current render snapshots; preserve both pending-write fences. The resolved hook is byte-identical to the already qualified combined application."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatMessageList.tsx",
+    "blobs": [
+      "91f07967fda1c1bdf5c724670dca5ccc37b90179",
+      "755c92043c99e6e4f07593d4a9491e4ba504d075",
+      "59da66b64efd4b310dcd40f39e1e17bfbd1bbc9b"
+    ],
+    "patch": "worker-approvals-20261112/pr34895-message-list.patch",
+    "patchSha256": "a7576eac7a9a616cc321ee093d6eb2449e875c8e1f69b7d6b0da8a59b3634a9b",
+    "resultSha256": "d6954e36ddad52f5b7c3180a3bed6de9f1be0b86717916967b01c18125abd56d",
+    "reason": "Combine inline child navigation with the reader-owned extracted props and timed upstream worker-approval rows; keep the thinking hook and omit types already owned by the props module. Remove the obsolete direct thinking import after selecting the extracted thinking hook."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "c8adbdf51abe50ea8caa82d5f33bb985c5604188",
+      "09b419a53b68de8cc6a16f590a229cf5ba2b1af4",
+      "8f97cdef4ab1deb15bd4ab8575a0797b09baa061"
+    ],
+    "patch": "self-20261111/pr37744-910fc3abbcab.patch",
+    "patchSha256": "4257cef3e77274211432aedebe80c9154f9a698a62170cc2d713386b66f44b30",
+    "resultSha256": "ae925c13499a382c75ca0963aa71c74d3c8849728d7eeca6938c01f83c56f3ac",
+    "reason": "Reuse the reviewed owner-question visibility fence with current child navigation and upstream worker-approval lanes; preserve both prompt owners."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "ab014e90a318a263beac439cb03e02be70f6a434",
+      "45cf51b39e0f690c78cc77c62dd1e8bc8214a6c6",
+      "ad174fe4aa9471efc9be7ef3db2cf7f5409885d8"
+    ],
+    "patch": "latest-upstream-20261110e/pr38848-2bd79fed3819.patch",
+    "patchSha256": "069df209418790459a194b1e0d9ae4e970fe22307b62bb3e3e4fb1e727056a4a",
+    "resultSha256": "8dbd0acecf983cd2c8bb590fdcedd2b0e9dc9de02b10ce565c950c0010d3274d",
+    "reason": "Reuse the reviewed 38848 combination correction with current upstream worker-approval lanes and retained child navigation; preserve every current prompt and runtime owner."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "c8adbdf51abe50ea8caa82d5f33bb985c5604188",
+      "dae7840fb9cb1f1834a20d07d3ec326186d14e71",
+      "1a96d8889bd8387d2ce04bd6f3630d1a23a8c5e5"
+    ],
+    "patch": "latest-upstream-20261110e/pr38963-d55e70d8ac61.patch",
+    "patchSha256": "cc035df6ba0cb38271ba7187014d385ed82b69b7330f965d674f75f3a7c011d9",
+    "resultSha256": "4dcb7d586f85d969b08b938ad7249ff5a87cf1af6db520d73ba53369f7ea03cb",
+    "reason": "Reuse the reviewed 38963 combination correction with current upstream worker-approval lanes and retained child navigation; preserve every current prompt and runtime owner."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "deaf0714d6b1c96fbcebb5f134c5ef0685297224",
+      "dae7840fb9cb1f1834a20d07d3ec326186d14e71",
+      "b6112314b6cc7f6210d42ceb8e16347a006de2d9"
+    ],
+    "patch": "self-cli-redesign-20261112/pr38963-dae7840fb9cb.patch",
+    "patchSha256": "486910774d4af5f2fa1aa3577996d0339b04c5f832706e9a2e8a4d8b9d8f301d",
+    "resultSha256": "31d66994091b2f94b840d91ae37488958e8dc102d814f04da1557a807205def7",
+    "reason": "Preserve current worker approval prompts, linked-agent owner questions and nested child navigation while wiring the foreground-task provider through the existing atomic wrapper, keeping the component under its module boundary."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "973ee4010c18b8c4c9f132043b30244c9f7586be",
+      "703f92e9414e9ab42a8de148e7d5a6e099e6793e",
+      "582efc6c0d0de63affd94820485cb776cb597a04"
+    ],
+    "patch": "self-mobile-picker-20261112/pr41381-703f92e9414e.patch",
+    "patchSha256": "679be6de628f5bb96e57ea662848cb2aba381cf265e5154218c847a376038f06",
+    "resultSha256": "6b0b4a1a8a2ddcb348553e9e34e74bf2c8b226df95643e654777dc4a5775b823",
+    "reason": "Compose pinned model search/options and the descriptor effort slider with explicit Default resets from33395, existing working-transport notices from40175 and the bounded picker contract. Keep Default searchable and preserve reset admission/callback ownership."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionRows.tsx",
+    "blobs": [
+      "63c69893624221a76d4a7beb49e10ad7d0eb2cb0",
+      "3fd0cef3aed514092ceffc74141afbe7276b5239",
+      "3e6c7cea92b3a5fadaca688fefbb51fd07a09f8a"
+    ],
+    "patch": "self-mobile-picker-20261112/pr41381-3fd0cef3aed5.patch",
+    "patchSha256": "392e3d48ce44cfee20398440eb61df0ca6a3a6a246070b6b03f4fe67201d0be0",
+    "resultSha256": "b86fa84dba0d9e2abb0c32dcbd284964a21163ba3dba96458e8c8be6b1386f72",
+    "reason": "Compose pinned model search/options and the descriptor effort slider with explicit Default resets from33395, existing working-transport notices from40175 and the bounded picker contract. Keep Default searchable and preserve reset admission/callback ownership."
+  },
+  {
+    "path": "src/cli/handler-group-manifest.ts",
+    "blobs": [
+      "83a35a06b45dd644cd42f91b575522d70a1c4d39",
+      "23266e2d1bff037ac01fee2a9e25b468ec2f54a2",
+      "6983a9d5ac0fe900e2674e0c2aef772062818291"
+    ],
+    "patch": "self-coordinator-approvals-20261112/pr37744-23266e2d1bff.patch",
+    "patchSha256": "5b57ebfe70e19ff1e7c6099f64fda78f8a1826d3e85d53cea3464825ae36ebff",
+    "resultSha256": "eba7d1eef96f5a4074d5078697cdc1549949aedbf95645e54f91c3577dea352d",
+    "reason": "Retain the extracted session-link command routing from37744 alongside upstream41306 coordinator approvals. The existing source-module compatibility patch carries approve into the extracted key list; worker approval permissions remain owned by upstream."
+  }
+]

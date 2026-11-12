@@ -1,0 +1,24 @@
+diff --git a/.github/workflows/performance-contracts.yml b/.github/workflows/performance-contracts.yml
+--- a/.github/workflows/performance-contracts.yml
++++ b/.github/workflows/performance-contracts.yml
+@@ -47,7 +47,7 @@
+       matrix:
+         os: [ubuntu-latest, macos-latest, windows-latest]
+     # Operation-count and retention contracts, not wall-clock budgets: use the hosted images the cache warmers seed.
+-    runs-on: ${{ fromJSON('{"ubuntu-latest":"ubuntu-24.04","macos-latest":"macos-15","windows-latest":"windows-2022"}')[matrix.os] || matrix.os }}
++    runs-on: ${{ fromJSON('{"ubuntu-latest":"ubuntu-24.04","macos-latest":"macos-26","windows-latest":"windows-2022"}')[matrix.os] || matrix.os }}
+     timeout-minutes: 20
+     steps:
+       - uses: actions/checkout@v6
+diff --git a/.github/workflows/ssh-hostile-hosts.yml b/.github/workflows/ssh-hostile-hosts.yml
+--- a/.github/workflows/ssh-hostile-hosts.yml
++++ b/.github/workflows/ssh-hostile-hosts.yml
+@@ -230,7 +230,7 @@
+       fail-fast: false
+       matrix:
+         include:
+-          - os: macos-15
++          - os: macos-26
+             target: darwin-arm64
+             cell: macos-arm64-local-sshd
+           - os: macos-15-intel

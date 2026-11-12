@@ -1,0 +1,18 @@
+diff --git a/src/shared/persisted-ui-state-types.ts b/src/shared/persisted-ui-state-types.ts
+--- a/src/shared/persisted-ui-state-types.ts
++++ b/src/shared/persisted-ui-state-types.ts
+@@ -1,5 +1,6 @@
+ import type { GitHistoryRefs } from './git/history/git-history-types'
+ import type { ConversationPreferences } from './conversation-navigation-preferences'
++import type { PersonalProjectOrder } from './personal-project-order'
+ import type { JiraQuickFilterState } from './jira/jira-quick-filters'
+ import type { BrowserDevToolsDockLayout } from './browser/devtools/browser-devtools-dock'
+ import type { JiraSavedFilterState } from './jira/jira-saved-filters'
+@@ -53,6 +54,7 @@
+   groupBy: 'none' | 'workspace-status' | 'repo' | 'pr-status'
+   sortBy: 'name' | 'smart' | 'recent' | 'repo' | 'manual'
+   conversationPreferences?: ConversationPreferences
++  personalProjectOrder?: PersonalProjectOrder
+   /** Project-header order in repo grouping, independent of workspace sort: manual permits drag, recent follows visible activity. */
+   projectOrderBy: ProjectOrderBy
+   /** Deprecated; the Active only filter is retired and ignored on hydration. */
