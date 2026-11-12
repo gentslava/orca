@@ -1,3 +1,4 @@
+import { sessionLinkOwnerQuestion } from '../SessionLinkOwnerQuestion'
 import { NativeChatStructuredPromptCard } from './NativeChatStructuredPromptCard'
 import { cancelStructuredPrompt } from '../session/structured/writes/native-chat-structured-stop-controls'
 import type { RefObject } from 'react'
@@ -160,7 +161,7 @@ export function NativeChatStructuredPrompts({
 }: {
   pane: Pick<
     NativeChatStructuredViewProps,
-    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible'
+    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible' | 'isFocusedGroup'
   >
   controller: ReturnType<typeof useStructuredAgentSession>
   response: ReturnType<typeof useStructuredPromptResponseHold>
@@ -183,6 +184,7 @@ export function NativeChatStructuredPrompts({
         answerInputRef={answerInputRef}
       />
       {nativeChatStructuredAsyncQuestion(pane, controller, session, transport, submits)}
+      {sessionLinkOwnerQuestion(pane)}
     </>
   )
 }
