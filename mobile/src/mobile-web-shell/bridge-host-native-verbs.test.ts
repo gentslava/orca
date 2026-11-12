@@ -91,3 +91,19 @@ describe('a native method the page asks for', () => {
     expect(reachedTheDesktop(bridge)).toEqual([])
   })
 })
+
+it('records a checked picker refusal when the route did not grant media access', async () => {
+  const bridge = harness({ routeGrants: ['navigate', 'storage'], ready: true })
+  bridge.host.receive(request('native.media.pick', { source: 'library', multiple: false }))
+  await flushBridge()
+  expect(refusal(bridge)?.code).toBe('native_verb_ungranted')
+  expect(bridge.nativeCalls).toEqual([])
+  expect(bridge.diagnostics.filter((entry) => entry.kind === 'native-media-pick-refused')).toEqual([
+    {
+      kind: 'native-media-pick-refused',
+      source: 'library',
+      stage: 'pre-dispatch',
+      reason: 'native_verb_ungranted'
+    }
+  ])
+})
