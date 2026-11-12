@@ -4,6 +4,8 @@ import { printResult } from '../format'
 import { RuntimeClientError } from '../runtime-client'
 import { readInjectedAgentSessionId } from '../../shared/agent-session/lifecycle/agent-session-caller-env'
 
+type ChatCloseResult = { ok: true; found?: boolean }
+
 type ChatRenameResult = { name: string | null; applied: boolean }
 
 export const CHAT_HANDLERS: Record<string, CommandHandler> = {
@@ -24,17 +26,45 @@ export const CHAT_HANDLERS: Record<string, CommandHandler> = {
     const result = await client
       .call<ChatRenameResult>('agentSession.rename', { sessionId, name })
       .catch((error: unknown) => {
-        throw explainRenameRefusal(error, sessionId)
+        throw explainChatRefusal(error, sessionId, 'rename')
       })
     if (!result.result.applied) {
       throw new RuntimeClientError('invalid_argument', 'Not renamed: the name has no visible text.')
     }
     printResult(result, json, (value) => `Renamed chat to "${value.name}".`)
+  },
+  'chat close': async ({ flags, client, json }) => {
+    // No default to the injected id: a chat closing itself would stop the agent running this command.
+    const sessionId = getRequiredStringFlag(flags, 'session')
+    const result = await client
+      .call<ChatCloseResult>('agentSession.close', { sessionId })
+      .catch((error: unknown) => {
+        throw explainChatRefusal(error, sessionId, 'close')
+      })
+    if (result.result.found === false) {
+      throw new RuntimeClientError(
+        'agent_session_identity_required',
+        `No chat with session id ${sessionId} on this host.`
+      )
+    }
+    const receipt = {
+      ...result,
+      result: { ...result.result, confirmed: result.result.found === true }
+    }
+    printResult(receipt, json, (value) =>
+      value.confirmed
+        ? `Closed chat ${sessionId}.`
+        : `Requested close of chat ${sessionId}; this older host does not confirm the session was found.`
+    )
   }
 }
 
 // The host answers with bare wire codes; say what they mean for this command.
-function explainRenameRefusal(error: unknown, sessionId: string): unknown {
+function explainChatRefusal(
+  error: unknown,
+  sessionId: string,
+  action: 'rename' | 'close'
+): unknown {
   if (!(error instanceof RuntimeClientError)) {
     return error
   }
@@ -50,7 +80,7 @@ function explainRenameRefusal(error: unknown, sessionId: string): unknown {
   ) {
     return new RuntimeClientError(
       'incompatible_runtime',
-      'This Orca host cannot rename chats from the CLI. Update Orca on that host, or check that it has chats turned on.'
+      `This Orca host cannot ${action} chats from the CLI. Update Orca on that host, or check that it has chats turned on.`
     )
   }
   return error
