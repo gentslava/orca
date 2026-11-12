@@ -47,7 +47,7 @@
     },
     {
       "number": 41114,
-      "reason": "Keep account identities readable across the full menu width, with aligned one-line usage headings and reset countdowns for Codex and Claude."
+      "reason": "Merged localized account-menu heading repair; retain full-width account identities and one-line reset countdowns through account-usage-row-layout.patch."
     },
     {
       "number": 41166,
@@ -107,6 +107,7 @@
     "composed-source-modules.patch",
     "composed-reactive-copy.patch",
     "runtime-environment-rename.patch",
+    "account-usage-row-layout.patch",
     "fork-ci-macos-arm64-image.patch"
   ],
   "retainClosed": {
