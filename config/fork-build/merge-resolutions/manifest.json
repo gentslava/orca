@@ -2295,5 +2295,29 @@
     "patchSha256": "486910774d4af5f2fa1aa3577996d0339b04c5f832706e9a2e8a4d8b9d8f301d",
     "resultSha256": "31d66994091b2f94b840d91ae37488958e8dc102d814f04da1557a807205def7",
     "reason": "Preserve current worker approval prompts, linked-agent owner questions and nested child navigation while wiring the foreground-task provider through the existing atomic wrapper, keeping the component under its module boundary."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "973ee4010c18b8c4c9f132043b30244c9f7586be",
+      "703f92e9414e9ab42a8de148e7d5a6e099e6793e",
+      "582efc6c0d0de63affd94820485cb776cb597a04"
+    ],
+    "patch": "self-mobile-picker-20261112/pr41381-703f92e9414e.patch",
+    "patchSha256": "679be6de628f5bb96e57ea662848cb2aba381cf265e5154218c847a376038f06",
+    "resultSha256": "6b0b4a1a8a2ddcb348553e9e34e74bf2c8b226df95643e654777dc4a5775b823",
+    "reason": "Compose pinned model search/options and the descriptor effort slider with explicit Default resets from33395, existing working-transport notices from40175 and the bounded picker contract. Keep Default searchable and preserve reset admission/callback ownership."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/MobileNativeChatSessionOptionRows.tsx",
+    "blobs": [
+      "63c69893624221a76d4a7beb49e10ad7d0eb2cb0",
+      "3fd0cef3aed514092ceffc74141afbe7276b5239",
+      "3e6c7cea92b3a5fadaca688fefbb51fd07a09f8a"
+    ],
+    "patch": "self-mobile-picker-20261112/pr41381-3fd0cef3aed5.patch",
+    "patchSha256": "392e3d48ce44cfee20398440eb61df0ca6a3a6a246070b6b03f4fe67201d0be0",
+    "resultSha256": "b86fa84dba0d9e2abb0c32dcbd284964a21163ba3dba96458e8c8be6b1386f72",
+    "reason": "Compose pinned model search/options and the descriptor effort slider with explicit Default resets from33395, existing working-transport notices from40175 and the bounded picker contract. Keep Default searchable and preserve reset admission/callback ownership."
   }
 ]

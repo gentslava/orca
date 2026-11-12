@@ -639,3 +639,13 @@ index 4f59cfe777d..d931334fa14 100644
 +    />
 +  ) : null
 +}
+--- a/mobile/src/session/native-chat/input/MobileNativeChatModelList.tsx
++++ b/mobile/src/session/native-chat/input/MobileNativeChatModelList.tsx
+@@ -17,6 +17,7 @@
+   disabled: boolean
+   onSetOption: (value: SessionOptionValue) => void
+   onInvokeAction: () => void
++  onReset?: () => void
+ }): React.JSX.Element {
+   useMobileColorScheme()
+   const t = useMobileTranslation()
