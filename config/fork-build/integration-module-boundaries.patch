@@ -1,18 +1,3 @@
-diff --git a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
-index c68822adc6a32ab7165e9574413c7c805ac1c5d9..ceac34e2b3b9936106640f7725c4bc6df216f449 100644
---- a/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
-+++ b/mobile/src/session/native-chat/input/MobileNativeChatSessionOptionPickers.tsx
-@@ -320,9 +320,7 @@ export function MobileNativeChatSessionOptionPickers({
-                     onToggle: () => setMoreModelsShown((shown) => !shown)
-                   },
-                   onReset: controller.optionSurface?.resetOption
--                    ? () => {
--                        void controller.optionSurface?.resetOption?.(activeDescriptor.id)
--                      }
-+                    ? () => void controller.optionSurface?.resetOption?.(activeDescriptor.id)
-                     : undefined,
-                   ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
-                 },
 diff --git a/resources/skills/released-digests.json b/resources/skills/released-digests.json
 index eef111b58591d2893feef6d7402ee6e846b4968f..a74f73933d6bb87760d6ef9a89c1f4a2213c87c5 100644
 --- a/resources/skills/released-digests.json

@@ -370,7 +370,7 @@ diff --git a/src/renderer/src/components/terminal/use-terminal-startup-activatio
  import { useAppStore } from '@/store'
 -import { shouldSeedDefaultSurface } from '@/lib/workspace/activation/initial-surface/automatic-default-surface'
 -import { findPendingWorktreeCreationId } from '@/lib/workspace/creation/pending-worktree-creation'
--import { isTerminalWorkspaceEmptiedOnPurpose } from '../../../../shared/workspace-layout/closed-terminal-tab-tombstones'
+-import { isTerminalWorkspaceEmptiedOnPurpose } from '../../../../shared/workspace-layout/terminal-surfaces/closed-terminal-tab-tombstones'
  import { gateWorktreeAgentActivation } from '@/lib/workspace/activation/worktree-agent-activation-gate'
  import { createWorkspaceTerminalHostAuthoritySelector } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
 -import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
@@ -1013,22 +1013,6 @@ diff --git a/src/renderer/src/lib/workspace/activation/worktree-activation-empti
      resolveGate('empty')
      await pendingGate
 
-diff --git a/src/renderer/src/lib/workspace/activation/worktree-agent-activation-seam.test.ts b/src/renderer/src/lib/workspace/activation/worktree-agent-activation-seam.test.ts
-index 49b661deb96..805476dda3d 100644
---- a/src/renderer/src/lib/workspace/activation/worktree-agent-activation-seam.test.ts
-+++ b/src/renderer/src/lib/workspace/activation/worktree-agent-activation-seam.test.ts
-@@ -237,9 +237,7 @@ describe('worktree agent activation seam', () => {
-     activateAndRevealWorktree(worktree.id)
-     await expect(waitForWorktreeAgentActivationGateForTests(worktree.id)).resolves.toBe('empty')
-     expect(listSessions.mock.calls).toEqual([[{ connectionId: 'box' }], [{ connectionId: 'box' }]])
--    await vi.waitFor(() =>
--      expect(useAppStore.getState().tabsByWorktree[worktree.id] ?? []).toHaveLength(1)
--    )
--    expect(useAppStore.getState().tabsByWorktree[worktree.id]?.[0]?.ptyId).toBeNull()
-+    expect(useAppStore.getState().activeWorktreeId).toBe(worktree.id)
-+    expect(useAppStore.getState().tabsByWorktree[worktree.id] ?? []).toEqual([])
-   })
- })
 diff --git a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
 index dab14a46146..856004ff59d 100644
 --- a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
