@@ -18,6 +18,11 @@ export const UI_STATE_DISPOSITIONS = {
     38,
     'Conversation preferences retain their execution-host-qualified identities.'
   ),
+  personalProjectOrder: {
+    disposition: 'rewrite-desktop',
+    item: 38,
+    note: 'Non-Git project keys name the setup owner and execution host; both need the WSL host rewrite.'
+  },
   manualRepoOrder: moveDisposition(38, {
     rewriteDesktopCopy: true,
     note: "The desktop copy's hostId changes from 'local' to the WSL host."
