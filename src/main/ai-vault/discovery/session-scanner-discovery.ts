@@ -4,15 +4,16 @@ import { mapWithConcurrency } from '../../../shared/map-with-concurrency'
 import { PrioritySemaphore } from '../../../shared/priority-semaphore'
 import { isWslUncPath } from '../../../shared/wsl-paths'
 import { SessionNewestFiles } from './session-newest-files'
-import type { SessionSidecarObservation } from '../parse-cache/session-sidecar-stat'
 import type {
   AiVaultAgent,
   AiVaultScanIssue
 } from '../../../shared/ai-vault/contracts/ai-vault-types'
-import { wslGatedReaddir, wslGatedStat } from '../../native-chat/wsl-transcript-fs-access'
+import { wslGatedReaddir } from '../../native-chat/wsl-transcript-fs-access'
 import { WslTranscriptFsError } from '../../native-chat/wsl-transcript-fs-error'
 import { recordSessionScanIssue, scanIssueTextFromError } from '../parsing/session-scan-issues'
 import { aiVaultScanIssueText } from '../../../shared/ai-vault/scanning/ai-vault-scan-issue-copy'
+import { isSelectedSessionFile } from '../session-scanner-selection'
+import { observeSessionFile, type SessionFileObservation } from '../session-file-observation'
 import type {
   FileWithMtime,
   SessionFileDiscovery,
@@ -30,10 +31,6 @@ import { isMissingTranscriptPathError } from './session-path-absence'
 const NATIVE_DISCOVERY_CONCURRENCY = 4
 const NATIVE_DISCOVERY_BATCH_SIZE = 16
 const nativeDiscoverySlots = new PrioritySemaphore(8)
-
-type SessionFileObservation =
-  | { file: Omit<FileWithMtime, 'modifiedAt'>; sidecarPath?: string }
-  | { issue: Omit<AiVaultScanIssue, 'agent' | 'kind' | 'executionHostId'> }
 
 async function withNativeDiscoverySlot<T>(read: () => Promise<T>): Promise<T> {
   const release = await nativeDiscoverySlots.acquire(0)
@@ -57,9 +54,12 @@ export async function discoverFiles(args: {
   onDirectoryEntries?: (dirPath: string, entries: readonly Dirent[]) => void
   // A scoped scan walks every file this agent has, not only the newest `limit`.
   keepScopeFiles?: boolean
+  selectedSessionId?: string
+  executionHostId?: string
   signal?: AbortSignal
 }): Promise<SessionFileDiscovery> {
   const files = new SessionNewestFiles(args.limit)
+  const selectedFiles: FileWithMtime[] = []
   const scopeFiles: FileWithMtime[] | undefined = args.keepScopeFiles ? [] : undefined
   let refusedSidecar = false
   let paths: string[] = []
@@ -89,6 +89,17 @@ export async function discoverFiles(args: {
       }
       try {
         const modifiedAt = new Date(observation.file.mtimeMs)
+        if (
+          selectedFiles.length === 0 &&
+          isSelectedSessionFile(
+            args.selectedSessionId,
+            args.agent,
+            observation.file.path,
+            args.executionHostId
+          )
+        ) {
+          selectedFiles.push({ ...observation.file, modifiedAt: modifiedAt.toISOString() })
+        }
         if (
           Number.isNaN(modifiedAt.getTime()) ||
           files.wouldRetain(observation.file.mtimeMs) ||
@@ -205,52 +216,12 @@ export async function discoverFiles(args: {
   } finally {
     source.close()
   }
-  return { agent: args.agent, rootDir: args.rootDir, files: files.newest(), scopeFiles }
-}
-
-async function observeSessionFile(
-  path: string,
-  contentDependencyPath?: (path: string) => string | undefined | Promise<string | undefined>,
-  signal?: AbortSignal
-): Promise<SessionFileObservation> {
-  try {
-    const fileStat = await wslGatedStat(path, 'scan', signal)
-    const sidecarPath = contentDependencyPath ? await contentDependencyPath(path) : undefined
-    const sidecar = sidecarPath ? await observeSessionSidecar(sidecarPath, signal) : 'none'
-    return {
-      file: {
-        path,
-        mtimeMs: fileStat.mtimeMs,
-        sizeBytes: fileStat.size,
-        sidecar,
-        dev: fileStat.dev,
-        ino: fileStat.ino,
-        nlink: fileStat.nlink
-      },
-      sidecarPath
-    }
-  } catch (err) {
-    return { issue: { path, ...scanIssueTextFromError(err) } }
-  }
-}
-
-/** Only missing sidecars are none; other stat failures stay unknown so cached enrichment can retry. */
-async function observeSessionSidecar(
-  filePath: string | undefined,
-  signal?: AbortSignal
-): Promise<SessionSidecarObservation> {
-  if (!filePath) {
-    return 'none'
-  }
-  try {
-    const fileStat = await wslGatedStat(filePath, 'scan', signal)
-    return {
-      path: filePath,
-      mtimeMs: fileStat.mtimeMs,
-      sizeBytes: fileStat.size
-    }
-  } catch (error) {
-    return isMissingTranscriptPathError(error) ? 'none' : 'unknown'
+  return {
+    agent: args.agent,
+    rootDir: args.rootDir,
+    files: files.newest(),
+    scopeFiles,
+    selectedFiles
   }
 }
 
