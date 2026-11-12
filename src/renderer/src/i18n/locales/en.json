@@ -20852,6 +20852,11 @@
         "runPlan_one": "Updated the plan {{count}} time",
         "runLiveBrowser_one": "Using the browser {{count}} time",
         "runLivePlan_one": "Updating the plan {{count}} time",
+        "input": "Input",
+        "output": "Output",
+        "copyInput": "Copy input",
+        "showFullInput": "Show full input",
+        "inputUnavailable": "Input is not available in this transcript.",
         "activity": "Activity"
       },
       "providerFrame": {
@@ -21386,31 +21391,6 @@
         "commandCanceled": "Chat UI command was canceled because the composer closed.",
         "commandRejected": "The terminal did not accept the command."
       },
-      "children": {
-        "metadata": {
-          "localHost": "Local execution host",
-          "environment": "Environment {{value0}}",
-          "wsl": "WSL · {{value0}}",
-          "ssh": "SSH · {{value0}}",
-          "unknown": "Unknown",
-          "agent": "Agent",
-          "host": "Execution host"
-        },
-        "back": "Back to conversation",
-        "started": "Started {{value0}}",
-        "finished": "Finished {{value0}}",
-        "loading": "Loading agent history…",
-        "unavailable": "This host has not supplied the agent’s conversation history.",
-        "loadEarlier": "Load earlier history",
-        "result": "Recorded result",
-        "starting": "Starting",
-        "unavailableState": "Unavailable",
-        "workersUnavailable": "This host’s worker history is unavailable.",
-        "identityUnavailable": "This worker’s conversation identity could not be verified.",
-        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
-        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
-        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
-      },
       "sessionOptionErrors": {
         "startOnly": "This option can only be set when the session starts.",
         "modelRejected": "Claude kept the current model.",
@@ -21534,6 +21514,31 @@
         "questionNotSentDetail": "Your question is still in this chat. Send /btw again to retry.",
         "questionUnconfirmed": "{{agent}} couldn't confirm the side chat got your question",
         "questionUnconfirmedDetail": "Check the side chat before asking again. Your question is still in this chat."
+      },
+      "children": {
+        "metadata": {
+          "localHost": "Local execution host",
+          "environment": "Environment {{value0}}",
+          "wsl": "WSL · {{value0}}",
+          "ssh": "SSH · {{value0}}",
+          "unknown": "Unknown",
+          "agent": "Agent",
+          "host": "Execution host"
+        },
+        "back": "Back to conversation",
+        "started": "Started {{value0}}",
+        "finished": "Finished {{value0}}",
+        "loading": "Loading agent history…",
+        "unavailable": "This host has not supplied the agent’s conversation history.",
+        "loadEarlier": "Load earlier history",
+        "result": "Recorded result",
+        "starting": "Starting",
+        "unavailableState": "Unavailable",
+        "workersUnavailable": "This host’s worker history is unavailable.",
+        "identityUnavailable": "This worker’s conversation identity could not be verified.",
+        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
+        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
+        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
       }
     },
     "tab": {
@@ -22392,6 +22397,9 @@
         "terminal": "Terminal"
       }
     },
+    "dictation": {
+      "stoppedAfterSilenceSeconds": "Stopped after {{seconds}} seconds of silence"
+    },
     "toastFallbacks": {
       "filesDropFailed": "Failed to drop files.",
       "filesUploadFailed": "Failed to upload files.",
@@ -22423,9 +22431,6 @@
       "selectedSubmitFailed": "The notes may already be pasted in the selected terminal, but Orca could not submit them.",
       "activeSubmitFailed": "The notes may already be pasted in the active terminal, but Orca could not submit them.",
       "notWritableSelection": "The {{target}} agent did not accept the selection."
-    },
-    "dictation": {
-      "stoppedAfterSilenceSeconds": "Stopped after {{seconds}} seconds of silence"
     },
     "tab-bar": {}
   },
