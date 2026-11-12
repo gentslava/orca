@@ -2319,5 +2319,17 @@
     "patchSha256": "392e3d48ce44cfee20398440eb61df0ca6a3a6a246070b6b03f4fe67201d0be0",
     "resultSha256": "b86fa84dba0d9e2abb0c32dcbd284964a21163ba3dba96458e8c8be6b1386f72",
     "reason": "Compose pinned model search/options and the descriptor effort slider with explicit Default resets from33395, existing working-transport notices from40175 and the bounded picker contract. Keep Default searchable and preserve reset admission/callback ownership."
+  },
+  {
+    "path": "src/cli/handler-group-manifest.ts",
+    "blobs": [
+      "83a35a06b45dd644cd42f91b575522d70a1c4d39",
+      "23266e2d1bff037ac01fee2a9e25b468ec2f54a2",
+      "6983a9d5ac0fe900e2674e0c2aef772062818291"
+    ],
+    "patch": "self-coordinator-approvals-20261112/pr37744-23266e2d1bff.patch",
+    "patchSha256": "5b57ebfe70e19ff1e7c6099f64fda78f8a1826d3e85d53cea3464825ae36ebff",
+    "resultSha256": "eba7d1eef96f5a4074d5078697cdc1549949aedbf95645e54f91c3577dea352d",
+    "reason": "Retain the extracted session-link command routing from37744 alongside upstream41306 coordinator approvals. The existing source-module compatibility patch carries approve into the extracted key list; worker approval permissions remain owned by upstream."
   }
 ]

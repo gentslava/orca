@@ -649,3 +649,14 @@ index 4f59cfe777d..d931334fa14 100644
  }): React.JSX.Element {
    useMobileColorScheme()
    const t = useMobileTranslation()
+diff --git a/src/cli/orchestration-handler-group.ts b/src/cli/orchestration-handler-group.ts
+--- a/src/cli/orchestration-handler-group.ts
++++ b/src/cli/orchestration-handler-group.ts
+@@ -22,6 +22,7 @@
+     'orchestration worker-show',
+     'orchestration worker-read',
+     'orchestration worker-stop',
++    'orchestration approve',
+     'orchestration deny',
+     'orchestration worker-abandon',
+     'orchestration worker-release',
