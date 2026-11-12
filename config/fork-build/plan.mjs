@@ -19,6 +19,7 @@ import {
   requireUpstreamBuildAncestor
 } from './upstream-build-baseline.mjs'
 import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/build-mac-local.mjs'
+import { packageTargets } from './package-targets.mjs'
 
 const here = import.meta.dirname
 const config = JSON.parse(readFileSync(join(here, 'selection.json'), 'utf8'))
@@ -42,6 +43,7 @@ const plan = {
   tracked: config.seed
 }
 try {
+  plan.targets = packageTargets(plan.outputs)
   const ledger = config.statusIssue
     ? readLedger(api(`repos/${process.env.GITHUB_REPOSITORY}/issues/${config.statusIssue}`).body)
     : { tracked: [] }
@@ -126,6 +128,7 @@ try {
         'project-start-actions.patch',
         'codex-selected-account-read.patch',
         'runtime-environment-rename.patch',
+        'account-usage-row-layout.patch',
         'composed-source-modules.patch',
         'composed-reactive-copy.patch',
         'fork-ci-macos-arm64-image.patch'
@@ -276,7 +279,7 @@ try {
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(
       process.env.GITHUB_OUTPUT,
-      `build=${build}\nconfiguration=${configuration}\nupstream=${plan.upstream || ''}\n`
+      `build=${build}\nconfiguration=${configuration}\nupstream=${plan.upstream || ''}\nsource=${plan.result?.commit || ''}\nlinux_matrix=${JSON.stringify(plan.targets?.filter((target) => target.platform === 'linux') ?? [])}\n`
     )
   }
   if (!plan.result?.publishable) {

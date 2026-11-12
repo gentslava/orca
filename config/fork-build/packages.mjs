@@ -10,8 +10,10 @@ import {
   verifyAndroidPackage
 } from './android-packages.mjs'
 import { assembleReleasePackages } from './release-packages.mjs'
+import { stageLinuxPackages, verifyLinuxPackages } from './linux-packages.mjs'
+import { linuxPackageTarget } from './package-targets.mjs'
 
-const [command, input, location, extra, android] = process.argv.slice(2)
+const [command, input, location, extra, android, linux] = process.argv.slice(2)
 const plan = JSON.parse(readFileSync(resolve(input), 'utf8'))
 if (!plan.result?.publishable || plan.error || plan.auditOnly || plan.reuse) {
   throw new Error('Plan is not eligible for packaging/publication')
@@ -61,7 +63,18 @@ if (command === 'prepare') {
   )
 } else if (command === 'stamp-android') {
   stampAndroidBuild(plan, resolve(location))
-} else if (command === 'stage' || command === 'stage-windows' || command === 'stage-android') {
+} else if (command === 'stamp-linux') {
+  linuxPackageTarget(plan, extra)
+  writeJson(
+    join(resolve(location), '.git/orca-personal-build.json'),
+    packageIdentity(plan, 'linux', extra)
+  )
+} else if (
+  command === 'stage' ||
+  command === 'stage-windows' ||
+  command === 'stage-android' ||
+  command === 'stage-linux'
+) {
   const application = resolve(location)
   if (
     git(application, ['rev-parse', 'HEAD']) !== expected.commit ||
@@ -71,6 +84,8 @@ if (command === 'prepare') {
   }
   if (command === 'stage-windows') {
     stageWindowsPackages(plan, application, resolve(extra))
+  } else if (command === 'stage-linux') {
+    stageLinuxPackages(plan, application, extra)
   } else if (command === 'stage-android') {
     stageAndroidPackage(plan, application)
   } else {
@@ -95,8 +110,10 @@ if (command === 'prepare') {
   verifyWindowsPackages(plan, resolve(location), resolve(extra))
 } else if (command === 'verify-android') {
   verifyAndroidPackage(plan, resolve(location))
+} else if (command === 'verify-linux') {
+  verifyLinuxPackages(plan, resolve(location), extra)
 } else if (command === 'assemble-release') {
-  assembleReleasePackages(plan, resolve(location), resolve(extra), resolve(android))
+  assembleReleasePackages(plan, resolve(location), resolve(extra), resolve(android), resolve(linux))
 } else if (command === 'verify') {
   verifyStagedArchives(resolve(location), expected)
   const info = JSON.parse(readFileSync(join(location, 'build-info.json'), 'utf8'))

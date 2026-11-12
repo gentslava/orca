@@ -2,6 +2,11 @@ name: Personal upstream + PR build
 run-name: Personal build - ${{ inputs.audit_only && 'audit' || 'packages' }} - ${{ github.run_number }}
 
 on:
+  pull_request:
+    branches: [master]
+    paths:
+      - config/fork-build/**
+      - .github/workflows/personal-build.yml
   schedule:
     - cron: '37 3 * * *'
   workflow_dispatch:
@@ -28,14 +33,18 @@ concurrency:
 
 env:
   ORCA_BACKGROUND_LAUNCH: '1'
+  ORCA_RELEASE_JAVASCRIPT_BUILD_IDENTITY: dev
+  ORCA_DIAGNOSTICS_TOKEN_URL: https://www.onorca.dev/diagnostics/token
 
 jobs:
   plan:
-    if: github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    if: github.repository == 'gentslava/orca' && (github.ref == 'refs/heads/master' || github.event_name == 'pull_request')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
       build: ${{ steps.compose.outputs.build }}
+      source: ${{ steps.compose.outputs.source }}
+      linux_matrix: ${{ steps.compose.outputs.linux_matrix }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -64,12 +73,59 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  macos:
+  javascript:
     needs: plan
     if: needs.plan.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
+      ORCA_RELEASE_JAVASCRIPT_SOURCE_SHA: ${{ needs.plan.outputs.source }}
+      ORCA_CLI_BUILD_COMPILER: tsrs
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Restore the immutable source for the shared JavaScript bundle
+        run: |
+          mv control "$RUNNER_TEMP/personal-control"
+          node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" prepare personal-build/plan.json "$GITHUB_WORKSPACE"
+      - uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: node
+          persist-native-cache: 'false'
+      - uses: ./.github/actions/install-mobile-dependencies
+      - name: Qualify and build shared release resources with the upstream artifact implementation
+        run: |
+          node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
+          pnpm run build:release:javascript:parallel
+          node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs pack
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-javascript
+          path: .build/release-javascript/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 14
+
+  macos:
+    needs: [plan, javascript]
+    if: needs.plan.outputs.build == 'true' && github.ref == 'refs/heads/master'
     runs-on: macos-26
     timeout-minutes: 120
     env:
+      ORCA_RELEASE_JAVASCRIPT_SOURCE_SHA: ${{ needs.plan.outputs.source }}
       ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
       ORCA_MAC_RELEASE: '0'
       ORCA_MAC_HOURLY: '0'
@@ -116,8 +172,15 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Qualify formatting and source quality of the exact composition
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-javascript
+          path: .build/release-javascript
       - name: Build and typecheck desktop, CLI, web and mobile resources
-        run: pnpm run build:desktop:ci
+        run: |
+          pnpm run typecheck:ci --bun-concurrency=2 --bun-threads=2
+          node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs restore
+          pnpm run build:release:host
       - name: Verify regressions from all composed features
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/regressions.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Verify preview updater policy against the composed application
@@ -148,11 +211,12 @@ jobs:
           retention-days: 14
 
   windows:
-    needs: plan
-    if: needs.plan.outputs.build == 'true'
+    needs: [plan, javascript]
+    if: needs.plan.outputs.build == 'true' && github.ref == 'refs/heads/master'
     runs-on: windows-2022
     timeout-minutes: 120
     env:
+      ORCA_RELEASE_JAVASCRIPT_SOURCE_SHA: ${{ needs.plan.outputs.source }}
       ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       NODE_OPTIONS: --max-old-space-size=4096
@@ -201,10 +265,16 @@ jobs:
             pnpm exec vitest run --config config/vitest.config.ts $test --maxWorkers=1
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           } finally { Remove-Item $test }
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-javascript
+          path: .build/release-javascript
       - name: Build existing Windows release resources and native helpers
         shell: pwsh
         run: |
-          pnpm run build:release
+          node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm run build:release:host
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           pnpm run ensure:electron-runtime
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -264,7 +334,7 @@ jobs:
 
   android:
     needs: plan
-    if: needs.plan.outputs.build == 'true'
+    if: needs.plan.outputs.build == 'true' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -368,9 +438,129 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  linux:
+    needs: [plan, javascript]
+    if: needs.plan.outputs.build == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.linux_matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    env:
+      ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
+      ORCA_RELEASE_JAVASCRIPT_SOURCE_SHA: ${{ needs.plan.outputs.source }}
+      ORCA_LINUX_BUILD_ARCH: ${{ matrix.architecture }}
+      ORCA_LINUX_ARM64_RELEASE: ${{ matrix.architecture == 'arm64' && '1' || '0' }}
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - name: Restore the same planned source on its native Linux architecture
+        run: |
+          test "$(node -p process.arch)" = "$ORCA_LINUX_BUILD_ARCH"
+          mv control "$RUNNER_TEMP/personal-control"
+          node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" prepare personal-build/plan.json "$GITHUB_WORKSPACE"
+          node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stamp-linux personal-build/plan.json "$GITHUB_WORKSPACE" "$ORCA_LINUX_BUILD_ARCH"
+      - name: Install upstream Linux provider and package dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-gi gir1.2-atspi-2.0 at-spi2-core xclip xdotool rpm cpio binutils
+          npm install -g node-gyp@11.5.0
+          echo "npm_config_node_gyp=$(npm root -g)/node-gyp/bin/node-gyp.js" >> "$GITHUB_ENV"
+      - uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: electron
+          persist-native-cache: 'false'
+      - uses: ./.github/actions/install-mobile-dependencies
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-javascript
+          path: .build/release-javascript
+      - name: Restore upstream JavaScript and build native host resources
+        run: |
+          node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs restore
+          pnpm run build:release:host
+          pnpm run ensure:electron-runtime
+      - name: Package the upstream AppImage, DEB and RPM targets
+        env:
+          APP_DIRECTORY: ${{ matrix.architecture == 'arm64' && 'dist/linux-arm64-unpacked' || 'dist/linux-unpacked' }}
+        run: |
+          configuration="$RUNNER_TEMP/personal-control/config/fork-build/linux-builder.config.cjs"
+          pnpm exec electron-builder --config "$configuration" --linux dir "--$ORCA_LINUX_BUILD_ARCH" --publish never
+          for format in AppImage deb rpm; do
+            pnpm exec electron-builder --config "$configuration" --linux "$format" "--$ORCA_LINUX_BUILD_ARCH" --prepackaged "$APP_DIRECTORY" --publish never
+          done
+      - name: Verify packaged PTY loading on the supported glibc floor
+        env:
+          APP_DIRECTORY: ${{ matrix.architecture == 'arm64' && 'dist/linux-arm64-unpacked' || 'dist/linux-unpacked' }}
+        run: node config/scripts/desktop-distribution/runtime-verification/run-linux-packaged-node-pty-floor-smoke.mjs --app-dir "$APP_DIRECTORY"
+      - name: Extract and measure every Linux format against its source receipt
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-linux personal-build/plan.json "$GITHUB_WORKSPACE" "$ORCA_LINUX_BUILD_ARCH"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-${{ matrix.id }}
+          path: personal-packages/
+          if-no-files-found: error
+          retention-days: 14
+
+  verify-linux:
+    needs: [plan, linux]
+    if: needs.linux.result == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.linux_matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-source-plan
+          path: personal-build
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-${{ matrix.id }}
+          path: linux-packages/${{ matrix.id }}
+      - name: Install trusted archive inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm cpio binutils
+      - name: Independently extract and verify all three native packages
+        env:
+          ARCHITECTURE: ${{ matrix.architecture }}
+          TARGET_ID: ${{ matrix.id }}
+        run: node config/fork-build/packages.mjs verify-linux personal-build/plan.json "linux-packages/$TARGET_ID" "$ARCHITECTURE"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: personal-${{ matrix.id }}-verification
+          path: linux-packages/${{ matrix.id }}/${{ matrix.id }}-verified.json
+          if-no-files-found: error
+          retention-days: 14
+
   publish:
-    needs: [plan, macos, windows, android, verify-windows, verify-android]
-    if: needs.macos.result == 'success' && needs.verify-windows.result == 'success' && needs.verify-android.result == 'success'
+    needs: [plan, macos, windows, android, linux, verify-windows, verify-android, verify-linux]
+    if: github.ref == 'refs/heads/master' && needs.macos.result == 'success' && needs.verify-windows.result == 'success' && needs.verify-android.result == 'success' && needs.verify-linux.result == 'success'
     runs-on: macos-26-intel
     timeout-minutes: 25
     permissions:
@@ -408,10 +598,26 @@ jobs:
         with:
           name: personal-android-verification
           path: android-packages
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-linux-x64
+          path: linux-packages/linux-x64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-linux-x64-verification
+          path: linux-packages/linux-x64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-linux-arm64
+          path: linux-packages/linux-arm64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: personal-linux-arm64-verification
+          path: linux-packages/linux-arm64
       - name: Independently verify packages with trusted configuration code
         run: |
           node config/fork-build/packages.mjs verify personal-build/plan.json personal-packages
-          node config/fork-build/packages.mjs assemble-release personal-build/plan.json personal-packages windows-packages android-packages
+          node config/fork-build/packages.mjs assemble-release personal-build/plan.json personal-packages windows-packages android-packages linux-packages
       - name: Require current upstream before publication
         run: node config/fork-build/upstream-freshness.mjs personal-build/plan.json
       - name: Publish complete immutable downloads; preserve previous releases
@@ -420,7 +626,7 @@ jobs:
         run: |
           set -euo pipefail
           tag="personal-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title "Orca personal macOS + Windows + Android ${GITHUB_RUN_NUMBER}" --notes-file personal-build/report.md personal-packages/* personal-build/plan.json personal-build/source.bundle
+          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title "Orca personal macOS + Windows + Linux + Android ${GITHUB_RUN_NUMBER}" --notes-file personal-build/report.md personal-packages/* personal-build/plan.json personal-build/source.bundle
 
   sync:
     needs: [plan, publish]
@@ -458,7 +664,20 @@ jobs:
           retention-days: 14
 
   status:
-    needs: [plan, macos, windows, android, verify-windows, verify-android, publish, sync]
+    needs:
+      [
+        plan,
+        javascript,
+        macos,
+        windows,
+        android,
+        linux,
+        verify-windows,
+        verify-android,
+        verify-linux,
+        publish,
+        sync
+      ]
     if: always() && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -485,6 +704,8 @@ jobs:
           PACKAGE_RESULT: ${{ needs.macos.result }}
           WINDOWS_RESULT: ${{ needs.windows.result }}
           ANDROID_RESULT: ${{ needs.android.result }}
+          LINUX_RESULT: ${{ needs.linux.result }}
+          LINUX_VERIFICATION: ${{ needs.verify-linux.result }}
           WINDOWS_VERIFICATION: ${{ needs.verify-windows.result }}
           ANDROID_VERIFICATION: ${{ needs.verify-android.result }}
           PUBLICATION: ${{ needs.publish.result }}

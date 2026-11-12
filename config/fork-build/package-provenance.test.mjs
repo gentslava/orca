@@ -13,6 +13,7 @@ import {
 import { measureWindowsArchives, WINDOWS_FILES } from './windows-packages.mjs'
 import { androidSigningCertificate } from './android-packages.mjs'
 import { assembleReleasePackages } from './release-packages.mjs'
+import { packageTargets } from './package-targets.mjs'
 
 const plan = {
   configuration: 'a'.repeat(40),
@@ -26,9 +27,16 @@ const plan = {
     'macos-arm64-zip',
     'windows-x64-installer',
     'windows-x64-zip',
-    'android-apk'
+    'android-apk',
+    'linux-x64-appimage',
+    'linux-x64-deb',
+    'linux-x64-rpm',
+    'linux-arm64-appimage',
+    'linux-arm64-deb',
+    'linux-arm64-rpm'
   ]
 }
+plan.targets = packageTargets(plan.outputs)
 const roots = []
 function temporary() {
   const directory = mkdtempSync(join(tmpdir(), 'orca-package-proof-'))
@@ -107,6 +115,7 @@ test('publication requires all platforms from the same source, and rejects alter
   const root = temporary()
   const windows = join(root, 'windows')
   const android = join(root, 'android')
+  const linux = join(root, 'linux')
   const release = join(root, 'release')
   mkdirSync(release)
   writeJson(join(release, 'verified.json'), {
@@ -115,36 +124,42 @@ test('publication requires all platforms from the same source, and rejects alter
     verified: true
   })
   platformReceipt(windows, 'windows', packageIdentity(plan, 'win32', 'x64'), WINDOWS_FILES)
-  assert.throws(() => assembleReleasePackages(plan, release, windows, android), /ENOENT/)
+  assert.throws(() => assembleReleasePackages(plan, release, windows, android, linux), /ENOENT/)
   platformReceipt(
     android,
     'android',
     { ...packageIdentity(plan, 'android', 'universal'), ...plan.mobile },
     ['orca-android.apk']
   )
-  assembleReleasePackages(plan, release, windows, android)
-  assert.throws(
-    () =>
-      assembleReleasePackages(
-        { ...plan, outputs: plan.outputs.slice(0, 2) },
-        release,
-        windows,
-        android
-      ),
-    /all five/
-  )
+  assert.throws(() => assembleReleasePackages(plan, release, windows, android, linux), /ENOENT/)
+  platformReceipt(join(linux, 'linux-x64'), 'linux-x64', packageIdentity(plan, 'linux', 'x64'), [
+    'orca-linux.AppImage',
+    'orca-linux-x64.deb',
+    'orca-linux-x64.rpm'
+  ])
+  assert.throws(() => assembleReleasePackages(plan, release, windows, android, linux), /ENOENT/)
+  const armFiles = ['orca-linux-arm64.AppImage', 'orca-linux-arm64.deb', 'orca-linux-arm64.rpm']
+  const armDirectory = join(linux, 'linux-arm64')
+  platformReceipt(armDirectory, 'linux-arm64', packageIdentity(plan, 'linux', 'x64'), armFiles)
+  assert.throws(() => assembleReleasePackages(plan, release, windows, android, linux), /identity/)
+  platformReceipt(armDirectory, 'linux-arm64', packageIdentity(plan, 'linux', 'arm64'), armFiles)
+  assembleReleasePackages(plan, release, windows, android, linux)
   assert.throws(
     () =>
       assembleReleasePackages(
         { ...plan, result: { ...plan.result, commit: 'f'.repeat(40) } },
         release,
         windows,
-        android
+        android,
+        linux
       ),
     /identity/
   )
   writeFileSync(join(windows, WINDOWS_FILES[0]), 'tampered')
-  assert.throws(() => assembleReleasePackages(plan, release, windows, android), /bytes/)
+  assert.throws(() => assembleReleasePackages(plan, release, windows, android, linux), /bytes/)
+  platformReceipt(windows, 'windows', packageIdentity(plan, 'win32', 'x64'), WINDOWS_FILES)
+  writeFileSync(join(armDirectory, 'orca-linux-arm64.rpm'), 'tampered Linux archive')
+  assert.throws(() => assembleReleasePackages(plan, release, windows, android, linux), /bytes/)
 })
 
 test('checksum metadata cannot be silently replaced or point outside the package directory', () => {

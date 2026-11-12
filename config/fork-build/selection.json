@@ -89,7 +89,13 @@
     "macos-arm64-zip",
     "windows-x64-installer",
     "windows-x64-zip",
-    "android-apk"
+    "android-apk",
+    "linux-x64-appimage",
+    "linux-x64-deb",
+    "linux-x64-rpm",
+    "linux-arm64-appimage",
+    "linux-arm64-deb",
+    "linux-arm64-rpm"
   ],
   "statusIssue": 12,
   "compatibilityPatches": [
