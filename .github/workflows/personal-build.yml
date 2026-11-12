@@ -65,7 +65,8 @@ jobs:
           FORK_BUILD_UPSTREAM_COMMIT: ${{ inputs.upstream_commit || '' }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
-            export FORK_BUILD_UPSTREAM_COMMIT="$(node -p "JSON.parse(require('node:fs').readFileSync('config/fork-build/selection.json', 'utf8')).pullRequestUpstreamCommit")"
+            FORK_BUILD_UPSTREAM_COMMIT="$(node -p "JSON.parse(require('node:fs').readFileSync('config/fork-build/selection.json', 'utf8')).pullRequestUpstreamCommit")"
+            export FORK_BUILD_UPSTREAM_COMMIT
           fi
           node config/fork-build/plan.mjs
       - name: Preserve the exact plan and report even on conflict
