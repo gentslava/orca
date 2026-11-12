@@ -20637,8 +20637,7 @@
         "forkedFrom": "Forked from"
       },
       "composer": {
-        "defaultModel": "Default",
-        "defaultModelNotReported": "Default model not reported",
+        "confirmEscapeStop": "Press Esc again to stop",
         "send": "Send",
         "planMode": "Plan",
         "moreControls": "More chat controls",
@@ -20760,6 +20759,8 @@
           "xhigh": "XHigh"
         },
         "imageUnavailable": "Preview unavailable",
+        "defaultModel": "Default",
+        "defaultModelNotReported": "Default model not reported",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
         "nextTurnOptionsLabel": "Next turn: {{options}}",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
@@ -22353,6 +22354,95 @@
         "temporaryBadge": "Temporary"
       }
     },
+    "wslHostMark": {
+      "runsOn": "Runs on WSL: {{distro}} (Linux)"
+    },
+    "editor": {
+      "formatOnSave": {
+        "failed": "Could not format {{file}}. Saving without formatting: {{reason}}"
+      }
+    },
+    "contextualTours": {
+      "agentSessions": {
+        "newTab": {
+          "title": "New agents start here",
+          "body": "Click + to start an agent, a terminal, or a browser tab."
+        },
+        "splitChat": {
+          "body": "Press {terminal.splitRight}, or click the split button at the top of the chat. Each side gets its own tabs.",
+          "bodyWithoutShortcut": "Click the split button at the top of the chat. Each side gets its own tabs."
+        },
+        "split": {
+          "bodyWithoutShortcut": "Right-click the pane for split options."
+        },
+        "splitChatPane": {
+          "title": "Open a pane beside the chat",
+          "action": "Split pane"
+        }
+      },
+      "badgeNew": "New",
+      "projectsCollapseAll": {
+        "intro": {
+          "title": "Collapse all projects at once",
+          "body": "Press {sidebar.projects.toggleCollapse}, click this button, or {{modifier}}-click any project header.",
+          "bodyWithoutShortcut": "Click this button, or {{modifier}}-click any project header.",
+          "action": "Got it"
+        }
+      }
+    },
+    "tabGroup": {
+      "splitPaneLanding": {
+        "agents": "Agents",
+        "browser": "Browser",
+        "chooseAgent": "Choose agent",
+        "closePane": "Close pane",
+        "files": "Files",
+        "keyboardHint": "↑↓ Enter to open · → agents · / to search",
+        "markdown": "Markdown",
+        "mobileEmulator": "Mobile emulator",
+        "new": "New",
+        "newAgent": "New Agent",
+        "newNamedAgent": "New {{agent}} agent",
+        "noMatches": "No matches",
+        "searchPlaceholder": "Open agent, terminal, or file…",
+        "terminal": "Terminal"
+      }
+    },
+    "toastFallbacks": {
+      "filesDropFailed": "Failed to drop files.",
+      "filesUploadFailed": "Failed to upload files.",
+      "filesResolveDroppedFailed": "Failed to resolve dropped files.",
+      "markdownCreateFailed": "Failed to create untitled markdown file.",
+      "markdownOpenFailed": "Failed to open markdown file.",
+      "fileDuplicateFailed": "Failed to duplicate '{{name}}'.",
+      "fileCreateFailed": "Failed to create '{{name}}'.",
+      "fileMoveFailed": "Failed to move '{{name}}'.",
+      "fileRenameFailed": "Failed to rename '{{name}}'.",
+      "worktreeCreateFailed": "Failed to create worktree.",
+      "missingBaseBranchHelp": "Create an initial commit (for example on main), or select an existing branch in Create From, then try again.",
+      "dropTooManyPaths": "Drop contains too many paths.",
+      "dropPathsTooLarge": "Drop path list is too large.",
+      "fileOwnerResolveFailed": "Failed to resolve file owner."
+    },
+    "agentNotes": {
+      "targetSelected": "selected",
+      "targetActive": "active",
+      "empty": "No notes to send.",
+      "selectedTerminalUnavailable": "The selected terminal is no longer available.",
+      "activeTerminalUnavailable": "Open the agent terminal in this worktree, then send the notes again.",
+      "notAgentSession": "The {{target}} terminal is not a recognized agent session.",
+      "selectedAgentNeedsPermission": "The selected agent needs permission.",
+      "activeAgentNeedsPermission": "The active agent needs permission.",
+      "statusUnverified": "The {{target}} agent status could not be verified.",
+      "notReady": "The {{target}} agent was not ready for input yet.",
+      "notWritable": "The {{target}} agent did not accept the notes.",
+      "selectedSubmitFailed": "The notes may already be pasted in the selected terminal, but Orca could not submit them.",
+      "activeSubmitFailed": "The notes may already be pasted in the active terminal, but Orca could not submit them.",
+      "notWritableSelection": "The {{target}} agent did not accept the selection."
+    },
+    "dictation": {
+      "stoppedAfterSilenceSeconds": "Stopped after {{seconds}} seconds of silence"
+    },
     "sessionLink": {
       "agentAsksYou": "{{agent}} asks you",
       "reviewerRole": "reviewer",
@@ -22464,95 +22554,6 @@
       "availableEmpty": "No available chats on this host.",
       "participantsAdded": "Agents added by the owner",
       "reasonParticipants": "A chat closed or changed context. Verify the participant chats before continuing."
-    },
-    "wslHostMark": {
-      "runsOn": "Runs on WSL: {{distro}} (Linux)"
-    },
-    "editor": {
-      "formatOnSave": {
-        "failed": "Could not format {{file}}. Saving without formatting: {{reason}}"
-      }
-    },
-    "contextualTours": {
-      "agentSessions": {
-        "newTab": {
-          "title": "New agents start here",
-          "body": "Click + to start an agent, a terminal, or a browser tab."
-        },
-        "splitChat": {
-          "body": "Press {terminal.splitRight}, or click the split button at the top of the chat. Each side gets its own tabs.",
-          "bodyWithoutShortcut": "Click the split button at the top of the chat. Each side gets its own tabs."
-        },
-        "split": {
-          "bodyWithoutShortcut": "Right-click the pane for split options."
-        },
-        "splitChatPane": {
-          "title": "Open a pane beside the chat",
-          "action": "Split pane"
-        }
-      },
-      "badgeNew": "New",
-      "projectsCollapseAll": {
-        "intro": {
-          "title": "Collapse all projects at once",
-          "body": "Press {sidebar.projects.toggleCollapse}, click this button, or {{modifier}}-click any project header.",
-          "bodyWithoutShortcut": "Click this button, or {{modifier}}-click any project header.",
-          "action": "Got it"
-        }
-      }
-    },
-    "tabGroup": {
-      "splitPaneLanding": {
-        "agents": "Agents",
-        "browser": "Browser",
-        "chooseAgent": "Choose agent",
-        "closePane": "Close pane",
-        "files": "Files",
-        "keyboardHint": "↑↓ Enter to open · → agents · / to search",
-        "markdown": "Markdown",
-        "mobileEmulator": "Mobile emulator",
-        "new": "New",
-        "newAgent": "New Agent",
-        "newNamedAgent": "New {{agent}} agent",
-        "noMatches": "No matches",
-        "searchPlaceholder": "Open agent, terminal, or file…",
-        "terminal": "Terminal"
-      }
-    },
-    "dictation": {
-      "stoppedAfterSilenceSeconds": "Stopped after {{seconds}} seconds of silence"
-    },
-    "toastFallbacks": {
-      "filesDropFailed": "Failed to drop files.",
-      "filesUploadFailed": "Failed to upload files.",
-      "filesResolveDroppedFailed": "Failed to resolve dropped files.",
-      "markdownCreateFailed": "Failed to create untitled markdown file.",
-      "markdownOpenFailed": "Failed to open markdown file.",
-      "fileDuplicateFailed": "Failed to duplicate '{{name}}'.",
-      "fileCreateFailed": "Failed to create '{{name}}'.",
-      "fileMoveFailed": "Failed to move '{{name}}'.",
-      "fileRenameFailed": "Failed to rename '{{name}}'.",
-      "worktreeCreateFailed": "Failed to create worktree.",
-      "missingBaseBranchHelp": "Create an initial commit (for example on main), or select an existing branch in Create From, then try again.",
-      "dropTooManyPaths": "Drop contains too many paths.",
-      "dropPathsTooLarge": "Drop path list is too large.",
-      "fileOwnerResolveFailed": "Failed to resolve file owner."
-    },
-    "agentNotes": {
-      "targetSelected": "selected",
-      "targetActive": "active",
-      "empty": "No notes to send.",
-      "selectedTerminalUnavailable": "The selected terminal is no longer available.",
-      "activeTerminalUnavailable": "Open the agent terminal in this worktree, then send the notes again.",
-      "notAgentSession": "The {{target}} terminal is not a recognized agent session.",
-      "selectedAgentNeedsPermission": "The selected agent needs permission.",
-      "activeAgentNeedsPermission": "The active agent needs permission.",
-      "statusUnverified": "The {{target}} agent status could not be verified.",
-      "notReady": "The {{target}} agent was not ready for input yet.",
-      "notWritable": "The {{target}} agent did not accept the notes.",
-      "selectedSubmitFailed": "The notes may already be pasted in the selected terminal, but Orca could not submit them.",
-      "activeSubmitFailed": "The notes may already be pasted in the active terminal, but Orca could not submit them.",
-      "notWritableSelection": "The {{target}} agent did not accept the selection."
     },
     "tab-bar": {}
   },
