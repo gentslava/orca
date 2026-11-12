@@ -487,6 +487,7 @@ it('rederives generated attachments when the shipping transcript gains or loses 
     }
   ]
   const input = {
+    scopeKey: 'session',
     messages,
     turnKeys: ['u', 'u'],
     liveTurnKey: undefined,
