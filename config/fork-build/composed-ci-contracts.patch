@@ -1,8 +1,8 @@
 diff --git a/.github/workflows/pr.yml b/.github/workflows/pr.yml
-index 578dcdd68d9..f2734fae73d 100644
+index 4ff1830475a..ea5d793a1f9 100644
 --- a/.github/workflows/pr.yml
 +++ b/.github/workflows/pr.yml
-@@ -990,6 +990,10 @@ jobs:
+@@ -998,6 +998,10 @@ jobs:
            filter: blob:none
            persist-credentials: false
 
@@ -13,21 +13,8 @@ index 578dcdd68d9..f2734fae73d 100644
        - uses: ./.github/actions/install-node-dependencies
          with:
            native-runtime: node
-diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
-index 45c12030430..5eeb6570bb2 100644
---- a/config/main-sync-fs-baseline.txt
-+++ b/config/main-sync-fs-baseline.txt
-@@ -20,7 +20,7 @@
- 1 src/main/ai-vault/scan-service/session-scanner-service-spawn.ts
- 3 src/main/ai-vault/scanners/omp/omp-session-root.ts # small fixed profile-dir probes mirroring OMP dirs.ts; one readdir + per-profile candidate checks, not a per-file sweep
- 1 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
--2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn.ts
-+2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-entry.ts
- 8 src/main/amp/hook-service.ts
- 2 src/main/amp/managed-plugin-install-status.ts
- 1 src/main/antigravity/antigravity-host-acp.ts
 diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
-index d1bc3f33bea..9268c909aae 100644
+index e22071fd6c5..3a90ec75317 100644
 --- a/config/react-compiler-bailout-baseline.txt
 +++ b/config/react-compiler-bailout-baseline.txt
 @@ -1,5 +1,5 @@
@@ -37,7 +24,7 @@ index d1bc3f33bea..9268c909aae 100644
  5 src/renderer/src/app-shell/TitlebarLeftControls.tsx
  3 src/renderer/src/app-shell/use-app-startup-hydration.ts
  2 src/renderer/src/components/FirstLaunchBanner.tsx
-@@ -218,6 +217,7 @@
+@@ -216,6 +216,7 @@
  2 src/renderer/src/components/native-chat/composer/pickers/use-native-chat-skills.ts
  1 src/renderer/src/components/native-chat/conversation/projection/use-native-chat-context-clear-floor.ts
  2 src/renderer/src/components/native-chat/conversation/projection/use-native-chat-transcript-projection.ts
@@ -45,7 +32,7 @@ index d1bc3f33bea..9268c909aae 100644
  4 src/renderer/src/components/native-chat/host-access/NativeChatSessionGate.tsx
  1 src/renderer/src/components/native-chat/host-access/use-native-chat-mobile-hold-notice.ts
  2 src/renderer/src/components/native-chat/host-access/use-native-chat-provisional-launch.ts
-@@ -255,6 +255,7 @@
+@@ -253,6 +254,7 @@
  1 src/renderer/src/components/native-chat/tools/lines/NativeChatToolOutput.tsx
  1 src/renderer/src/components/native-chat/usage/NativeChatAccountUsageCard.tsx
  2 src/renderer/src/components/native-chat/usage/use-native-chat-account-usage.ts
@@ -157,6 +144,21 @@ index 8f6899cc4fd..897e019c81f 100644
      expect(errors).toEqual([])
      await page.close()
    }, 60_000)
+diff --git a/mobile/src/mobile-web-shell/bridge-host.ts b/mobile/src/mobile-web-shell/bridge-host.ts
+index d61a035d6c5..7609401b3a5 100644
+--- a/mobile/src/mobile-web-shell/bridge-host.ts
++++ b/mobile/src/mobile-web-shell/bridge-host.ts
+@@ -303,9 +303,7 @@ export function createBridgeHost(options: BridgeHostOptions): BridgeHost {
+       dispatch(read.message)
+     },
+     publishRoute: (next) => routes.publish(next, serving && initSent),
+-    publishSafeAreaInsets: (next) => {
+-      routes.publishSafeAreaInsets(next, deliverable())
+-    },
++    publishSafeAreaInsets: (next) => routes.publishSafeAreaInsets(next, deliverable()),
+     publishKeyboardInset: (next) => routes.publishKeyboardInset(next, deliverable()),
+     publishStorage: () => sendInit(true),
+     publishHostStatus: () => verdict.publish(() => deliverable() && sendInit(), dispatch),
 diff --git a/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx b/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx
 new file mode 100644
 index 00000000000..4072cea2902
@@ -224,9 +226,10 @@ index 00000000000..4072cea2902
 +  }
 +})
 diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
+index b74bd45d88d..3dbfd1ed0bd 100644
 --- a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
 +++ b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
-@@ -8,14 +8,8 @@
+@@ -8,14 +8,8 @@ import {
    runningStructuredAgentSessionTurnId,
    structuredAgentSessionQueueSendsNext
  } from '../../../../../src/shared/agent-session/view/structured-agent-session-live-turn'
@@ -243,7 +246,7 @@ diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-
  import type {
    MobileStructuredAgentSessionArgs,
    StructuredMobileSession
-@@ -202,7 +196,10 @@
+@@ -201,7 +195,10 @@ export function useMobileStructuredAgentSession(
    // Prefer host actionability: ended-agent prompts must receive no answer.
    const [approvalPrompt, questionPrompt] = useMemo(() => {
      const prompts = { items, currentRequests, actionablePromptIds }
@@ -255,7 +258,7 @@ diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-
    }, [items, currentRequests, actionablePromptIds])
    const commandRefusalCauses = useMemo(
      () => ({
-@@ -294,8 +291,8 @@
+@@ -293,8 +290,8 @@ export function useMobileStructuredAgentSession(
        requestCancel(prompt ?? pendingStructuredPromptIdentity(stateRef.current)),
      receipts,
      actionablePromptIds: state.actionablePromptIds,
@@ -268,7 +271,7 @@ diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-
      queued,
 diff --git a/mobile/src/session/use-mobile-structured-model-default-send.test.tsx b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
 new file mode 100644
-index 00000000000..6c35b4a9082
+index 00000000000..a12bb3c1be1
 --- /dev/null
 +++ b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
 @@ -0,0 +1,130 @@
@@ -402,19 +405,18 @@ index 00000000000..6c35b4a9082
 +  clearDraftForSend,
 +  restoreRejectedDraft
 +})
-diff --git a/src/main/ipc/ai-vault/ai-vault-scan-coalescing.test.ts b/src/main/ipc/ai-vault/ai-vault-scan-coalescing.test.ts
-index 9d710b4a314..1134e5dd413 100644
---- a/src/main/ipc/ai-vault/ai-vault-scan-coalescing.test.ts
-+++ b/src/main/ipc/ai-vault/ai-vault-scan-coalescing.test.ts
-@@ -3,7 +3,7 @@ import {
-   agentSessionLeaseFixture,
-   agentSessionRecordFixture
- } from '../../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
--import { setStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/structured-agent-session-registry'
-+import { setStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
- import { EventEmitter } from 'node:events'
- import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
- import type { AiVaultListResult } from '../../../shared/ai-vault/contracts/ai-vault-types'
+diff --git a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
+index ff182459a9d..6ba086be2cd 100644
+--- a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
++++ b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
+@@ -42,6 +42,7 @@ describe('browser session proxy', () => {
+   })
+
+   afterEach(() => {
++    setBrowserNetworkProxySettingsResolver(null)
+     vi.restoreAllMocks()
+   })
+
 diff --git a/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts b/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
 index 4c0791ea20d..9584fab5f94 100644
 --- a/src/main/orcad/orcad-windows-conpty-breakaway.integration.test.ts
@@ -425,7 +427,7 @@ index 4c0791ea20d..9584fab5f94 100644
  import { createRequire } from 'node:module'
  import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 diff --git a/src/main/skills/bundled-skill-install/bundled-skill-sources.ts b/src/main/skills/bundled-skill-install/bundled-skill-sources.ts
-index 5be673dbb5e..43f9e2e56ea 100644
+index f0c284ef0cf..2fbe4d6b8fe 100644
 --- a/src/main/skills/bundled-skill-install/bundled-skill-sources.ts
 +++ b/src/main/skills/bundled-skill-install/bundled-skill-sources.ts
 @@ -21,5 +21,5 @@ export const BUNDLED_SKILL_SOURCES: readonly BundledSkillSource[] = [
@@ -544,7 +546,7 @@ index 961db140cea..67c646154a8 100644
        useAppStore.setState(({ settings }) => ({
          settings: {
 diff --git a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
-index 000d1eb987f..980e48cb7ae 100644
+index 09079e1480a..445cc6065ed 100644
 --- a/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
 +++ b/src/renderer/src/components/feature-wall/AiCommitPrSettingsCard.test.tsx
 @@ -1,3 +1,4 @@
@@ -552,9 +554,9 @@ index 000d1eb987f..980e48cb7ae 100644
  // @vitest-environment happy-dom
  import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
  import { expect, it } from 'vitest'
-@@ -49,7 +50,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
-   })
+@@ -51,7 +52,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
    fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
+   // The draft still names legacy GPT-5.4, so its section opens by itself.
    fireEvent.click(screen.getByRole('option', { name: 'GPT-5.4' }))
 -  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
 +  chooseEffort('Low')
@@ -633,10 +635,10 @@ index 71945ec102a..5b89e2f8dd5 100644
    )
  })
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-index 32d1ec65ce6..5be12ebc554 100644
+index 4fbe20465c4..24649cd9ecc 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-@@ -23,10 +23,7 @@ import {
+@@ -24,10 +24,7 @@ import {
  } from './NativeChatStructuredTranscript'
  import { NativeChatChildTranscriptStack } from './NativeChatChildTranscript'
  import type { NativeChatMessageListHandle } from './messages/actions/use-native-chat-reveal-latest'
@@ -648,7 +650,7 @@ index 32d1ec65ce6..5be12ebc554 100644
  import { NativeChatContextClearFade } from './conversation/projection/NativeChatContextClearFade'
  import { useStructuredNativeChatSubmitReveal } from './pane/actions/use-structured-native-chat-submit-reveal'
  import { useStructuredPromptResponseHold } from './prompts/use-structured-prompt-response-hold'
-@@ -83,7 +80,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+@@ -84,7 +81,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
    // The host's own word on whether the provider child has answered startup yet.
    const hostExecution = useStructuredAgentSessionHostExecution(props.sessionId, props.target)
    const paneKey = structuredAgentSessionPaneKey(props.tabId, props.sessionId)
@@ -659,7 +661,7 @@ index 32d1ec65ce6..5be12ebc554 100644
    const childMessageListRef = useRef<NativeChatMessageListHandle>(null)
    const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
    // Chat-wide preference; an alternate send flips it for one message.
-@@ -249,7 +248,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+@@ -250,7 +249,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
      hostNotice
    })
    const root = (
@@ -668,7 +670,7 @@ index 32d1ec65ce6..5be12ebc554 100644
        <div
          ref={rootRef}
          data-native-chat-root="true"
-@@ -403,7 +402,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+@@ -408,7 +407,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
          {handOff.dialog}
          <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
        </div>
@@ -678,7 +680,7 @@ index 32d1ec65ce6..5be12ebc554 100644
    return (
      <NativeChatLinkClickContext value={onLinkClick}>
 diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
-index 77fab9a8bf6..f4fc0f9adcd 100644
+index c799652cd52..5c702c20cc0 100644
 --- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
 +++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
 @@ -190,7 +190,7 @@ describe('structured send racing the next IME composition', () => {
@@ -724,27 +726,11 @@ index 00000000000..dee0b508007
 +  }
 +  throw new Error(`Effort slider does not offer ${label}`)
 +}
-diff --git a/src/renderer/src/components/native-chat/surfaces/integration/NativeChatResolvedView.streaming-input.test.tsx b/src/renderer/src/components/native-chat/surfaces/integration/NativeChatResolvedView.streaming-input.test.tsx
-index f5769543dcb..135283a06c0 100644
---- a/src/renderer/src/components/native-chat/surfaces/integration/NativeChatResolvedView.streaming-input.test.tsx
-+++ b/src/renderer/src/components/native-chat/surfaces/integration/NativeChatResolvedView.streaming-input.test.tsx
-@@ -14,6 +14,11 @@ const probe = vi.hoisted<{
-   inputs: (readonly NativeChatMessage[])[]
-   shown: NativeChatMessage[]
- }>(() => ({ session: null, inputs: [], shown: [] }))
-+vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
-+  loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
-+    .loadNodeOniguruma
-+}))
-+
- vi.mock('../../session/terminal/read/use-native-chat-retained-session', () => ({
-   useNativeChatRetainedSession: () => probe.session
- }))
 diff --git a/src/renderer/src/components/native-chat/surfaces/integration/NativeChatStructuredSession.test.tsx b/src/renderer/src/components/native-chat/surfaces/integration/NativeChatStructuredSession.test.tsx
-index a87070dc4c9..64b1e925d0b 100644
+index a87e02f97b4..66b4126129a 100644
 --- a/src/renderer/src/components/native-chat/surfaces/integration/NativeChatStructuredSession.test.tsx
 +++ b/src/renderer/src/components/native-chat/surfaces/integration/NativeChatStructuredSession.test.tsx
-@@ -10,6 +10,11 @@ const { mocks, moduleFactories, resetStructuredSessionMocks } = await vi.hoisted
+@@ -7,6 +7,11 @@ const { mocks, moduleFactories, resetStructuredSessionMocks } = await vi.hoisted
    (await import('./NativeChatStructuredSession.test-harness')).createStructuredSessionMocks()
  )
 
@@ -756,64 +742,8 @@ index a87070dc4c9..64b1e925d0b 100644
  vi.mock('../../../../runtime/native-chat/requests/structured-agent-session-call', () =>
    moduleFactories.structuredAgentSessionCall()
  )
-diff --git a/src/renderer/src/components/settings/WorkerRoleSettings.tsx b/src/renderer/src/components/settings/WorkerRoleSettings.tsx
-index dac898b49a7..9a2c1dd7f2e 100644
---- a/src/renderer/src/components/settings/WorkerRoleSettings.tsx
-+++ b/src/renderer/src/components/settings/WorkerRoleSettings.tsx
-@@ -14,6 +14,29 @@ import { Button } from '../ui/button'
- import { WorkerRoleProfileEditor } from './WorkerRoleProfileEditor'
- import { nativeChatPreferenceFor } from '../../../../shared/structured-native-chat-launch-route'
-
-+async function saveWorkerRoleProfile(
-+  profiles: NonNullable<GlobalSettings['orchestrationWorkerRoles']>,
-+  role: string,
-+  profile: WorkerRoleProfile | undefined,
-+  updateSettings: (updates: Partial<GlobalSettings>) => void | Promise<void>,
-+  onError: (message: string) => void,
-+  onSettled: () => void
-+): Promise<void> {
-+  try {
-+    const next = { ...profiles }
-+    if (profile) {
-+      next[role] = profile
-+    } else {
-+      delete next[role]
-+    }
-+    await updateSettings({ orchestrationWorkerRoles: parseWorkerRoleProfiles(next) })
-+  } catch (failure) {
-+    onError(failure instanceof Error ? failure.message : String(failure))
-+  } finally {
-+    onSettled()
-+  }
-+}
-+
- export function WorkerRoleSettings({
-   settings,
-   updateSettings
-@@ -33,19 +56,9 @@ export function WorkerRoleSettings({
-   const save = async (role: string, profile: WorkerRoleProfile | undefined) => {
-     setPending(true)
-     setError(null)
--    try {
--      const next = { ...profiles }
--      if (profile) {
--        next[role] = profile
--      } else {
--        delete next[role]
--      }
--      await updateSettings({ orchestrationWorkerRoles: parseWorkerRoleProfiles(next) })
--    } catch (failure) {
--      setError(failure instanceof Error ? failure.message : String(failure))
--    } finally {
-+    await saveWorkerRoleProfile(profiles, role, profile, updateSettings, setError, () =>
-       setPending(false)
--    }
-+    )
-   }
-
-   return (
 diff --git a/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.tsx b/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.tsx
-index acb8436447c..d9930d1cc2b 100644
+index 9b2a4e476af..500fd62ea73 100644
 --- a/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.tsx
 +++ b/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.tsx
 @@ -1,4 +1,4 @@
@@ -970,149 +900,8 @@ index acb8436447c..d9930d1cc2b 100644
 
    const handleUseWebsiteFavicon = () => {
      const src = faviconUrlFromWebsite(website)
-diff --git a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
-index 404e7e99b4e..db2f082abcd 100644
---- a/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
-+++ b/src/renderer/src/components/sidebar/ProjectConversationRow.tsx
-@@ -11,6 +11,18 @@ import type { ConversationPreference } from '../../../../shared/conversation-nav
- import { projectConversationTitle } from '../../../../shared/project-conversation-list'
- import { useAiVaultSessionDisplayTitle } from '../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-title'
-
-+async function saveConversationPreference(
-+  onPreference: (patch: ConversationPreference) => Promise<void>,
-+  patch: ConversationPreference,
-+  onSettled: () => void
-+): Promise<void> {
-+  try {
-+    await onPreference(patch)
-+  } finally {
-+    onSettled()
-+  }
-+}
-+
- export function ProjectConversationRow({
-   session,
-   preference,
-@@ -44,11 +56,7 @@ export function ProjectConversationRow({
-       return
-     }
-     setBusy(true)
--    try {
--      await onPreference(patch)
--    } finally {
--      setBusy(false)
--    }
-+    await saveConversationPreference(onPreference, patch, () => setBusy(false))
-   }
-   return (
-     <div
-diff --git a/src/renderer/src/components/sidebar/use-conversation-preferences.ts b/src/renderer/src/components/sidebar/use-conversation-preferences.ts
-index c99c0451c6a..92e96e6d52e 100644
---- a/src/renderer/src/components/sidebar/use-conversation-preferences.ts
-+++ b/src/renderer/src/components/sidebar/use-conversation-preferences.ts
-@@ -46,6 +46,48 @@ function refresh(): Promise<void> {
-     })
-   return flight
- }
-+async function setPreference(key: string, patch: ConversationPreference): Promise<void> {
-+  try {
-+    await refresh()
-+    if (!supported) {
-+      throw new Error('host-update-required')
-+    }
-+    const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
-+      { kind: 'local' },
-+      'ui.setConversationPreference',
-+      { key, ...patch }
-+    )
-+    accept(reply.preferences)
-+  } catch {
-+    toast.error(
-+      translate(
-+        'projectConversations.saveFailed',
-+        'Could not save chat preferences. Update Orca or try again.'
-+      )
-+    )
-+  }
-+}
-+async function setProjectHidden(projectKey: string, label: string, hidden: boolean): Promise<void> {
-+  try {
-+    await refresh()
-+    if (!projectVisibilitySupported) {
-+      throw new Error('host-update-required')
-+    }
-+    const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
-+      { kind: 'local' },
-+      'ui.setConversationPreference',
-+      { projectKey, label, hidden }
-+    )
-+    accept(reply.preferences)
-+  } catch {
-+    toast.error(
-+      translate(
-+        'projectConversations.visibilityFailed',
-+        'Could not save project visibility. Update Orca or try again.'
-+      )
-+    )
-+  }
-+}
- export function useConversationPreferences() {
-   const preferences = useSyncExternalStore(
-     (listener) => {
-@@ -64,51 +106,5 @@ export function useConversationPreferences() {
-     window.addEventListener('focus', onFocus)
-     return () => window.removeEventListener('focus', onFocus)
-   }, [])
--  const setPreference = async (key: string, patch: ConversationPreference): Promise<void> => {
--    try {
--      await refresh()
--      if (!supported) {
--        throw new Error('host-update-required')
--      }
--      const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
--        { kind: 'local' },
--        'ui.setConversationPreference',
--        { key, ...patch }
--      )
--      accept(reply.preferences)
--    } catch {
--      toast.error(
--        translate(
--          'projectConversations.saveFailed',
--          'Could not save chat preferences. Update Orca or try again.'
--        )
--      )
--    }
--  }
--  const setProjectHidden = async (
--    projectKey: string,
--    label: string,
--    hidden: boolean
--  ): Promise<void> => {
--    try {
--      await refresh()
--      if (!projectVisibilitySupported) {
--        throw new Error('host-update-required')
--      }
--      const reply = await callRuntimeRpc<{ preferences: ConversationPreferences }>(
--        { kind: 'local' },
--        'ui.setConversationPreference',
--        { projectKey, label, hidden }
--      )
--      accept(reply.preferences)
--    } catch {
--      toast.error(
--        translate(
--          'projectConversations.visibilityFailed',
--          'Could not save project visibility. Update Orca or try again.'
--        )
--      )
--    }
--  }
-   return { preferences, setPreference, projectVisibilitySupported, setProjectHidden }
- }
 diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-index 348a1be547f..d78fa166e87 100644
+index 96e2148a789..96321c2210c 100644
 --- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 +++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 @@ -12,7 +12,6 @@ import {
@@ -1123,7 +912,7 @@ index 348a1be547f..d78fa166e87 100644
  import {
    STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
    STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
-@@ -249,7 +248,7 @@ it.each(['git-worktree', 'folder'] as const)(
+@@ -204,7 +203,7 @@ it.each(['git-worktree', 'folder'] as const)(
      setLocalRuntimeCapabilitiesForTests([CHAT, CLIENT])
      useAppStore.setState({
        ...initial,
@@ -1132,7 +921,6 @@ index 348a1be547f..d78fa166e87 100644
        repos: NEW_TAB_TWIN_HOSTS.map((executionHostId) => ({ ...TEST_REPO, executionHostId })),
        ...twinWorkspaces,
        runtimeStatusByEnvironmentId: new Map([['paired', pairedStatus]]),
-
 diff --git a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
 index 22fe3bf02c6..ff163e06567 100644
 --- a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
@@ -1146,6 +934,29 @@ index 22fe3bf02c6..ff163e06567 100644
        composer.unmount()
        await nativeChatComposerDraftWritesSettled()
        await restart()
+diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
+index e9f7e6211a5..619ca3d10f0 100644
+--- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
++++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
+@@ -100,8 +100,6 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
+             ? ui.customSidekicks
+             : []
+         const petId = ui.petId ?? ui.sidekickId
+-        // Migration: one-shot old-'recent'→'smart' runs in main (_sortBySmartMigrated), not here, so a deliberate 'recent' choice survives restart.
+-        const sortBy = ui.sortBy
+         const statusBarItemsWithGrok = hydrateStatusBarItems(ui)
+         const hydrated = {
+           // Why: persisted widths may be stale/corrupt/hand-edited; clamp during hydration so invalid values can't break layout.
+@@ -121,7 +119,8 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
+           ...normalizeRightSidebarRoute(ui.rightSidebarTab, ui.rightSidebarExplorerView),
+           activityBarPosition: sanitizeActivityBarPosition(ui.activityBarPosition),
+           groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
+-          sortBy,
++          // Migration runs in main; hydration preserves a deliberate recent choice.
++          sortBy: ui.sortBy,
+           // Why: main-process getUI() already normalized this (defaulting to 'manual'); read it through without migrating.
+           projectOrderBy: ui.projectOrderBy,
+           personalProjectOrder: newerPersonalProjectOrder(
 diff --git a/src/shared/agent-session/failures/agent-session-failure-words.ts b/src/shared/agent-session/failures/agent-session-failure-words.ts
 index f3fc2a723c5..97706bd5437 100644
 --- a/src/shared/agent-session/failures/agent-session-failure-words.ts
@@ -1241,8 +1052,45 @@ index f3fc2a723c5..97706bd5437 100644
      throw new Error(`agent session failure kind ${fact.kind} cannot reject a message`)
    }
    const words =
+diff --git a/src/shared/agent-session/options/model-menu-catalog.test-fixture.ts b/src/shared/agent-session/options/model-menu-catalog.test-fixture.ts
+new file mode 100644
+index 00000000000..ef95435cfb5
+--- /dev/null
++++ b/src/shared/agent-session/options/model-menu-catalog.test-fixture.ts
+@@ -0,0 +1,19 @@
++import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
++
++export const listedCodexModelMenu: AgentSessionModelCatalogResult = {
++  origin: 'probe',
++  fetchedAt: 1,
++  listingNamesConfiguredModel: true,
++  models: [
++    {
++      id: 'gpt-5.6-sol',
++      label: 'GPT-5.6-Sol',
++      isDefault: true,
++      defaultEffort: 'low',
++      efforts: ['low', 'medium', 'high', 'xhigh', 'max', 'ultra'].map((value) => ({
++        value,
++        label: value
++      }))
++    }
++  ]
++}
+diff --git a/tests/e2e/github-project-board.spec.ts b/tests/e2e/github-project-board.spec.ts
+index 056793d3028..66a478abded 100644
+--- a/tests/e2e/github-project-board.spec.ts
++++ b/tests/e2e/github-project-board.spec.ts
+@@ -133,6 +133,7 @@ test('board drops cross preload, settle optimistically, and roll back failures',
+         ),
+         settings: {
+           ...state.settings,
++          showTasksButton: true,
+           defaultTaskSource: 'github',
+           defaultRepoSelection: [repo.id],
+           githubProjects: {
 diff --git a/tests/e2e/helpers/orca-app.ts b/tests/e2e/helpers/orca-app.ts
-index c9ca6b5180b..00619be0464 100644
+index b3f5d6e78ee..d9b951c78bd 100644
 --- a/tests/e2e/helpers/orca-app.ts
 +++ b/tests/e2e/helpers/orca-app.ts
 @@ -17,10 +17,7 @@ import { recordElectronShutdownTiming } from './electron-shutdown-timing'
@@ -1276,7 +1124,7 @@ index c9ca6b5180b..00619be0464 100644
        await closeElectronAppForE2E(app, { cleanupDaemonsForUserDataDir: userDataDir })
        await removeUserDataDirAfterShutdown(userDataDir)
 diff --git a/tests/e2e/helpers/orca-restart.ts b/tests/e2e/helpers/orca-restart.ts
-index 8dd5ac824e5..66cf5d7925a 100644
+index aad59f2ab22..26de08a3de2 100644
 --- a/tests/e2e/helpers/orca-restart.ts
 +++ b/tests/e2e/helpers/orca-restart.ts
 @@ -19,11 +19,7 @@ import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-pro
@@ -1314,45 +1162,6 @@ index 8dd5ac824e5..66cf5d7925a 100644
        await options?.beforeFirstWindow?.(app)
        const page = await app.firstWindow({ timeout: 120_000 })
        await page.waitForLoadState('domcontentloaded')
-diff --git a/mobile/src/mobile-web-shell/bridge-host.ts b/mobile/src/mobile-web-shell/bridge-host.ts
---- a/mobile/src/mobile-web-shell/bridge-host.ts
-+++ b/mobile/src/mobile-web-shell/bridge-host.ts
-@@ -308,9 +308,7 @@
-       dispatch(read.message)
-     },
-     publishRoute: (next) => routes.publish(next, serving && initSent),
--    publishSafeAreaInsets: (next) => {
--      routes.publishSafeAreaInsets(next, deliverable())
--    },
-+    publishSafeAreaInsets: (next) => routes.publishSafeAreaInsets(next, deliverable()),
-     publishKeyboardInset: (next) => routes.publishKeyboardInset(next, deliverable()),
-     publishStorage: () => sendInit(true),
-     publishHostStatus: () => verdict.publish(() => deliverable() && sendInit(), dispatch),
-
-diff --git a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
---- a/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
-+++ b/src/main/browser/sessions/proxy/browser-session-proxy.test.ts
-@@ -42,6 +42,7 @@
-   })
-
-   afterEach(() => {
-+    setBrowserNetworkProxySettingsResolver(null)
-     vi.restoreAllMocks()
-   })
-
-
-diff --git a/tests/e2e/github-project-board.spec.ts b/tests/e2e/github-project-board.spec.ts
---- a/tests/e2e/github-project-board.spec.ts
-+++ b/tests/e2e/github-project-board.spec.ts
-@@ -133,6 +133,7 @@
-         ),
-         settings: {
-           ...state.settings,
-+          showTasksButton: true,
-           defaultTaskSource: 'github',
-           defaultRepoSelection: [repo.id],
-           githubProjects: {
-
 diff --git a/tests/e2e/runtime-host-status-recovery.spec.ts b/tests/e2e/runtime-host-status-recovery.spec.ts
 index 4c35bb3fa96..c0c5a2eff5f 100644
 --- a/tests/e2e/runtime-host-status-recovery.spec.ts
@@ -1413,28 +1222,6 @@ index 4c35bb3fa96..c0c5a2eff5f 100644
        await expect
          .poll(() => statusEvidence(browser!.page), { timeout: 30_000 })
          .toMatchObject({ verification: 'verified', transport: 'ready' })
-diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
---- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
-+++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
-@@ -100,8 +100,6 @@
-             ? ui.customSidekicks
-             : []
-         const petId = ui.petId ?? ui.sidekickId
--        // Migration: one-shot old-'recent'→'smart' runs in main (_sortBySmartMigrated), not here, so a deliberate 'recent' choice survives restart.
--        const sortBy = ui.sortBy
-         const statusBarItemsWithGrok = hydrateStatusBarItems(ui)
-         const hydrated = {
-           // Why: persisted widths may be stale/corrupt/hand-edited; clamp during hydration so invalid values can't break layout.
-@@ -121,7 +119,8 @@
-           ...normalizeRightSidebarRoute(ui.rightSidebarTab, ui.rightSidebarExplorerView),
-           activityBarPosition: sanitizeActivityBarPosition(ui.activityBarPosition),
-           groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
--          sortBy,
-+          // Migration runs in main; hydration preserves a deliberate recent choice.
-+          sortBy: ui.sortBy,
-           // Why: main-process getUI() already normalized this (defaulting to 'manual'); read it through without migrating.
-           projectOrderBy: ui.projectOrderBy,
-           personalProjectOrder: newerPersonalProjectOrder(
 diff --git a/tests/e2e/windows-missing-appdata-startup.spec.ts b/tests/e2e/windows-missing-appdata-startup.spec.ts
 index b8852aeee88..cb6d8a82c61 100644
 --- a/tests/e2e/windows-missing-appdata-startup.spec.ts
@@ -1451,103 +1238,3 @@ index b8852aeee88..cb6d8a82c61 100644
                return 'starting'
              }
              throw error
-diff --git a/src/shared/agent-session/options/model-menu-catalog.test-fixture.ts b/src/shared/agent-session/options/model-menu-catalog.test-fixture.ts
-new file mode 100644
-index 00000000000..ef95435cfb5
---- /dev/null
-+++ b/src/shared/agent-session/options/model-menu-catalog.test-fixture.ts
-@@ -0,0 +1,19 @@
-+import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
-+
-+export const listedCodexModelMenu: AgentSessionModelCatalogResult = {
-+  origin: 'probe',
-+  fetchedAt: 1,
-+  listingNamesConfiguredModel: true,
-+  models: [
-+    {
-+      id: 'gpt-5.6-sol',
-+      label: 'GPT-5.6-Sol',
-+      isDefault: true,
-+      defaultEffort: 'low',
-+      efforts: ['low', 'medium', 'high', 'xhigh', 'max', 'ultra'].map((value) => ({
-+        value,
-+        label: value
-+      }))
-+    }
-+  ]
-+}
-diff --git a/src/shared/agent-session/options/model-menu-options.test.ts b/src/shared/agent-session/options/model-menu-options.test.ts
-index 10633dcbb38..263a5889c9e 100644
---- a/src/shared/agent-session/options/model-menu-options.test.ts
-+++ b/src/shared/agent-session/options/model-menu-options.test.ts
-@@ -1,8 +1,7 @@
- import { expect, it } from 'vitest'
--import recording from '../../fixtures/agent-picker-cli-recordings.json'
-+import { listedCodexModelMenu } from './model-menu-catalog.test-fixture'
- import { modelMenuOptions, type ModelMenuInput } from './model-menu-options'
- import { getAgentSessionOptionLaunchCatalog } from './agent-session-option-catalog'
--import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
--
-+
- const seed = getAgentSessionOptionLaunchCatalog('codex')!
- const input: ModelMenuInput = {
-@@ -13,21 +12,7 @@ const input: ModelMenuInput = {
-   seedsModel: true,
-   coherentCatalog: true
- }
--const recorded: AgentSessionModelCatalogResult = {
--  origin: 'probe',
--  fetchedAt: 1,
--  listingNamesConfiguredModel: true,
--  models: recording.modelList.data.map((row) => ({
--    id: row.id,
--    label: row.displayName,
--    isDefault: true,
--    defaultEffort: row.defaultReasoningEffort,
--    efforts: row.supportedReasoningEfforts.map((effort) => ({
--      value: effort.reasoningEffort,
--      label: effort.reasoningEffort
--    }))
--  }))
--}
-+const recorded = listedCodexModelMenu
--
-+
- it('uses listed membership and live efforts, including when a seed names the same model', () => {
-   const menu = modelMenuOptions(recorded, {
-diff --git a/src/shared/agent-session/options/model-menu-phone-contract.test.ts b/src/shared/agent-session/options/model-menu-phone-contract.test.ts
-index 266be1998ad..2d1b1543a8f 100644
---- a/src/shared/agent-session/options/model-menu-phone-contract.test.ts
-+++ b/src/shared/agent-session/options/model-menu-phone-contract.test.ts
-@@ -1,6 +1,5 @@
- import { expect, it } from 'vitest'
--import recording from '../../fixtures/agent-picker-cli-recordings.json'
--import type { AgentSessionModelCatalogResult } from '../agent-session-wire'
-+import { listedCodexModelMenu } from './model-menu-catalog.test-fixture'
- import { structuredAgentSessionSeedCatalog } from './structured-agent-session-seed-catalog'
- import { createStructuredAgentSessionOptionsReadOwner } from './structured-agent-session-options-read-owner'
- import { createStructuredSessionSelectionController } from './structured-agent-session-selection-operations'
-@@ -12,21 +11,7 @@ import { structuredAgentSessionShownSnapshot } from './structured-agent-session-
- import { modelMenuOptions } from './model-menu-options'
--
-+
- const seed = structuredAgentSessionSeedCatalog('codex')!
--const listed: AgentSessionModelCatalogResult = {
--  origin: 'probe',
--  fetchedAt: 1,
--  listingNamesConfiguredModel: true,
--  models: recording.modelList.data.map((row) => ({
--    id: row.id,
--    label: row.displayName,
--    isDefault: true,
--    defaultEffort: row.defaultReasoningEffort,
--    efforts: row.supportedReasoningEfforts.map((effort) => ({
--      value: effort.reasoningEffort,
--      label: effort.reasoningEffort
--    }))
--  }))
--}
-+const listed = listedCodexModelMenu
- const input = {
-   agent: 'codex',
-   surface: 'chat' as const,

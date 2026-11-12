@@ -505,9 +505,7 @@ jobs:
         run: |
           configuration="$RUNNER_TEMP/personal-control/config/fork-build/linux-builder.config.cjs"
           pnpm exec electron-builder --config "$configuration" --linux dir "--$ORCA_LINUX_BUILD_ARCH" --publish never
-          for format in AppImage deb rpm; do
-            pnpm exec electron-builder --config "$configuration" --linux "$format" "--$ORCA_LINUX_BUILD_ARCH" --prepackaged "$APP_DIRECTORY" --publish never
-          done
+          node "$RUNNER_TEMP/personal-control/config/fork-build/linux-packaging.mjs" "$ORCA_LINUX_BUILD_ARCH"
       - name: Verify packaged PTY loading on the supported glibc floor
         env:
           APP_DIRECTORY: ${{ matrix.architecture == 'arm64' && 'dist/linux-arm64-unpacked' || 'dist/linux-unpacked' }}

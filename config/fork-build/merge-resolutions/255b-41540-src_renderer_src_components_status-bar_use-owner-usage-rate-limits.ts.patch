@@ -1,0 +1,67 @@
+--- a/src/renderer/src/components/status-bar/use-owner-usage-rate-limits.ts
++++ b/src/renderer/src/components/status-bar/use-owner-usage-rate-limits.ts
+@@ -26,8 +26,7 @@
+ /** A snapshot only counts under the owner it came from, so A's numbers never render as B's. */
+ type OwnedUsage = {
+   ownerId: string | null
+-  rateLimits: RateLimitState | null
+-  accounts: ProviderAccountsSnapshot | null
++  snapshot: ProviderAccountsSnapshot | null
+   failure: OwnerUsageFailureReason | null
+ }
+
+@@ -84,8 +83,7 @@
+       const current = ownedRef.current
+       apply({
+         ownerId: owner,
+-        rateLimits: current?.ownerId === owner ? current.rateLimits : null,
+-        accounts: current?.ownerId === owner ? current.accounts : null,
++        snapshot: current?.ownerId === owner ? current.snapshot : null,
+         failure
+       })
+     },
+@@ -97,16 +95,14 @@
+       if (snapshot.rateLimits) {
+         apply({
+           ownerId: owner,
+-          rateLimits: snapshot.rateLimits,
+-          accounts: snapshot,
++          snapshot,
+           failure: null
+         })
+       } else {
+         // Why: a host that predates published usage answers without it; say so, never spin.
+         apply({
+           ownerId: owner,
+-          rateLimits: null,
+-          accounts: snapshot,
++          snapshot,
+           failure: 'usage-not-published'
+         })
+       }
+@@ -217,11 +213,11 @@
+         kind: 'remote-unverifiable',
+         ownerLabel,
+         reason: owned.failure,
+-        lastKnown: owned.rateLimits
+-      }
+-    }
+-    return owned.rateLimits
+-      ? { kind: 'remote', ownerLabel, rateLimits: owned.rateLimits }
++        lastKnown: owned.snapshot?.rateLimits ?? null
++      }
++    }
++    return owned.snapshot?.rateLimits
++      ? { kind: 'remote', ownerLabel, rateLimits: owned.snapshot.rateLimits }
+       : { kind: 'remote-pending' }
+   }, [remoteOwner, includeAccounts, ownerId, owned, localOwnerLabel])
+
+@@ -231,7 +227,7 @@
+   )
+   return {
+     rateLimits,
+-    accounts: owned?.ownerId === ownerId ? owned.accounts : null,
++    accounts: owned?.ownerId === ownerId ? owned.snapshot : null,
+     accountsUnverifiable: owned?.ownerId === ownerId && owned.failure !== null,
+     remoteOwner,
+     refreshRemote: ownerId ? refreshRemote : null

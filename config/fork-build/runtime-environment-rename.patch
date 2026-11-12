@@ -1,8 +1,8 @@
-diff --git a/src/cli/handlers/environment-rename.test.ts b/src/cli/handlers/environment-rename.test.ts
+diff --git a/src/cli/hosts/environment-rename.test.ts b/src/cli/hosts/environment-rename.test.ts
 new file mode 100644
 index 00000000000..137a7ffb140
 --- /dev/null
-+++ b/src/cli/handlers/environment-rename.test.ts
++++ b/src/cli/hosts/environment-rename.test.ts
 @@ -0,0 +1,65 @@
 +import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 +import { tmpdir } from 'node:os'
@@ -69,10 +69,10 @@ index 00000000000..137a7ffb140
 +  expect(output).not.toContain('private-pairing-token')
 +  expect(output).not.toContain('publicKeyB64')
 +})
-diff --git a/src/cli/handlers/environment.ts b/src/cli/handlers/environment.ts
+diff --git a/src/cli/hosts/environment.ts b/src/cli/hosts/environment.ts
 index cea32095c3b..7aada54bb02 100644
---- a/src/cli/handlers/environment.ts
-+++ b/src/cli/handlers/environment.ts
+--- a/src/cli/hosts/environment.ts
++++ b/src/cli/hosts/environment.ts
 @@ -28,6 +28,7 @@ import type { RuntimeStatus } from '../../shared/runtime-session-contracts'
  import {
    addEnvironmentFromPairingCode,
@@ -99,10 +99,10 @@ index cea32095c3b..7aada54bb02 100644
    'environment rm': async ({ flags, json }) => {
      const selector = getRequiredStringFlag(flags, 'environment')
      const removed = redactRuntimeEnvironment(removeEnvironment(getDefaultUserDataPath(), selector))
-diff --git a/src/cli/host-handler-groups.ts b/src/cli/host-handler-groups.ts
+diff --git a/src/cli/hosts/host-handler-groups.ts b/src/cli/hosts/host-handler-groups.ts
 index ed1ef7506b0..a4d388ec162 100644
---- a/src/cli/host-handler-groups.ts
-+++ b/src/cli/host-handler-groups.ts
+--- a/src/cli/hosts/host-handler-groups.ts
++++ b/src/cli/hosts/host-handler-groups.ts
 @@ -12,6 +12,7 @@ export const HOST_HANDLER_GROUPS: readonly HandlerGroup[] = [
        'environment add',
        'environment list',
@@ -110,7 +110,7 @@ index ed1ef7506b0..a4d388ec162 100644
 +      'environment rename',
        'environment rm'
      ],
-     load: async () => (await import('./handlers/environment.js')).ENVIRONMENT_HANDLERS
+     load: async () => (await import('./environment.js')).ENVIRONMENT_HANDLERS
 diff --git a/src/cli/runtime/environments.ts b/src/cli/runtime/environments.ts
 index 5342e21e429..973ef2240e1 100644
 --- a/src/cli/runtime/environments.ts
