@@ -6,7 +6,7 @@
   "seed": [
     33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
     33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
-    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717
+    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40816
   ],
   "include": [
     {
@@ -60,7 +60,6 @@
   ],
   "exclude": {
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
-    "40816": "Draft welcome-screen shortcut repair is still under the requested local and remote tab-restoration audit. Include after that audit completes.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
     "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
   },
@@ -79,7 +78,8 @@
     "40499": 40496,
     "40293": 40673,
     "40955": 40951,
-    "40870": 41203
+    "40870": 41203,
+    "40816": 41430
   },
   "dependencies": {
     "36593": [36634]
