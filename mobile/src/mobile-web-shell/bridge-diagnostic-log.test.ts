@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest'
-import { createBridgeDiagnosticReporter } from './bridge-diagnostic-log'
+import { createBridgeDiagnosticReporter } from './diagnostics/bridge-diagnostic-log'
 
 let warned: MockInstance<typeof console.warn>
 
