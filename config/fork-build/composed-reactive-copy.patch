@@ -24,56 +24,28 @@ index 3b8e2e3ae77..63940b22736 100644
                    'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
                    'Most recent workspace activity'
                  )
-diff --git a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
-index a30e99db97b..ee7e1bcc3d1 100644
---- a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
-+++ b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
-@@ -1,7 +1,7 @@
- import type { ComponentType } from 'react'
- import { StatsPane } from './StatsPane'
- import { useAppStore } from '../../store'
--import { translate } from '@/i18n/i18n'
-+import { useTranslate } from '@/i18n/use-translate'
- import type { SettingsHostScope } from '../settings/host-scope/settings-host-scope'
- import { SettingsHostScopeUnavailableNotice } from '../settings/host-scope/SettingsHostScopePicker'
- import { resolveAccountOwner } from '@/runtime/provider-accounts/ownership/wsl-host-account-owner'
-@@ -26,6 +26,7 @@ export function AccountQuotaStatsPane({
-   )
- }
- function OwnedAccountQuotas({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
-+  const t = useTranslate()
-   const localRateLimits = useAppStore((state) => state.rateLimits)
-   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
-   const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
-@@ -49,7 +50,7 @@ function OwnedAccountQuotas({ hostScope }: { hostScope?: SettingsHostScope }): R
-         accounts={accounts}
-         accountsUnverifiable={accountsUnverifiable}
-         localOwner={remoteOwner === null}
--        ownerLabel={remoteOwner?.label ?? translate('stats.usage.localHost', 'This device')}
-+        ownerLabel={remoteOwner?.label ?? t('stats.usage.localHost', 'This device')}
-         onRefresh={
-           refreshRemote ??
-           (async () => {
 diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
-index c59060dba45..61fd3bb0854 100644
+index 28863ecbc60..bdf0b58f0c1 100644
 --- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
 +++ b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
-@@ -10,7 +10,7 @@ import { formatPlanLabel } from '../status-bar/usage-roster-formatting'
- import { getProviderUsageErrorMessage } from '../status-bar/usage-error-copy'
+@@ -5,9 +5,9 @@ import { clampUsedPercent } from '../../../../shared/usage-percentage-display'
+ import { useAppStore } from '../../store'
+ import { Button } from '../ui/button'
+ import { Progress } from '../ui/progress'
+-import { getWindowSections, ProviderIcon } from '../status-bar/tooltip'
+-import { formatPlanLabel } from '../status-bar/usage-roster-formatting'
+-import { getProviderUsageErrorMessage } from '../status-bar/usage-error-copy'
++import { getWindowSections, ProviderIcon } from '../status-bar/usage/provider-usage-panel'
++import { formatPlanLabel } from '../status-bar/usage/usage-roster-formatting'
++import { getProviderUsageErrorMessage } from '../status-bar/usage/usage-error-copy'
  import { getProviderDisplayName } from '../../../../shared/usage-provider-windows'
  import { formatWindowLabel } from '../../../../shared/rate-limit-window-label'
--import { getIntlLocale, translate } from '@/i18n/i18n'
-+import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
- import type { ProviderAccountsSnapshot } from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
- import { buildUsageAccountQuotaRows } from './usage-account-quota-rows'
-
-@@ -27,10 +27,12 @@ export function UsageAccountQuotaCard({
-   active?: boolean
-   quotaKey?: string
+ import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
+@@ -29,10 +29,10 @@ export function UsageAccountQuotaCard({
  }): React.JSX.Element {
+   const t = useTranslate()
+   const intlLocale = useIntlLocale()
 -  const providerSections = getWindowSections(provider)
-+  const t = useTranslate()
-+  const intlLocale = useIntlLocale()
 +  const providerSections = getWindowSections(provider, t)
    const sections = [
      ...providerSections,
@@ -82,7 +54,7 @@ index c59060dba45..61fd3bb0854 100644
        (section) => !providerSections.some((existing) => existing.window === section.window)
      )
    ].flatMap((section) =>
-@@ -38,7 +40,7 @@ export function UsageAccountQuotaCard({
+@@ -40,7 +40,7 @@ export function UsageAccountQuotaCard({
        ? [{ ...section, window: section.window }]
        : []
    )
@@ -91,82 +63,7 @@ index c59060dba45..61fd3bb0854 100644
    return (
      <article
        className="min-w-0 space-y-3 rounded-lg border border-border bg-card p-4"
-@@ -60,9 +62,7 @@ export function UsageAccountQuotaCard({
-       {runtimeLabel ? (
-         <p className="text-xs text-muted-foreground">
-           {runtimeLabel}
--          {active
--            ? ` · ${translate('auto.components.status.bar.StatusBar.ff0fbe9311', 'Active')}`
--            : ''}
-+          {active ? ` · ${t('auto.components.status.bar.StatusBar.ff0fbe9311', 'Active')}` : ''}
-         </p>
-       ) : null}
-       {sections.map(({ label, window }) => (
-@@ -76,8 +76,8 @@ export function UsageAccountQuotaCard({
-                 : ''}
-             </span>
-             <span className="tabular-nums text-foreground">
--              {translate('stats.usage.quota.used', '{{percent}}% used', {
--                percent: clampUsedPercent(window.usedPercent).toLocaleString(getIntlLocale(), {
-+              {t('stats.usage.quota.used', '{{percent}}% used', {
-+                percent: clampUsedPercent(window.usedPercent).toLocaleString(intlLocale, {
-                   maximumFractionDigits: 1
-                 })
-               })}
-@@ -86,27 +86,27 @@ export function UsageAccountQuotaCard({
-           <Progress value={clampUsedPercent(window.usedPercent)} aria-label={label} />
-           <p className="text-xs text-muted-foreground">
-             {window.resetsAt != null
--              ? translate('stats.usage.quota.resetsAt', 'Resets {{time}}', {
--                  time: new Date(window.resetsAt).toLocaleString(getIntlLocale())
-+              ? t('stats.usage.quota.resetsAt', 'Resets {{time}}', {
-+                  time: new Date(window.resetsAt).toLocaleString(intlLocale)
-                 })
-               : (window.resetDescription ??
--                translate('stats.usage.quota.resetUnavailable', 'Reset time unavailable'))}
-+                t('stats.usage.quota.resetUnavailable', 'Reset time unavailable'))}
-           </p>
-         </div>
-       ))}
-       {sections.length === 0 ? (
-         <p className="text-xs text-muted-foreground">
--          {translate('stats.usage.quota.unavailable', 'Quota data unavailable')}
-+          {t('stats.usage.quota.unavailable', 'Quota data unavailable')}
-         </p>
-       ) : null}
-       <p className="text-xs text-muted-foreground">
-         {provider.status === 'fetching'
--          ? translate('stats.usage.quota.refreshing', 'Refreshing quota…')
-+          ? t('stats.usage.quota.refreshing', 'Refreshing quota…')
-           : provider.updatedAt > 0
--            ? translate('stats.usage.quota.updatedAt', 'Quota checked {{time}}', {
--                time: new Date(provider.updatedAt).toLocaleString(getIntlLocale())
-+            ? t('stats.usage.quota.updatedAt', 'Quota checked {{time}}', {
-+                time: new Date(provider.updatedAt).toLocaleString(intlLocale)
-               })
--            : translate('stats.usage.quota.neverUpdated', 'Quota has not been checked')}
-+            : t('stats.usage.quota.neverUpdated', 'Quota has not been checked')}
-       </p>
-       {error ? (
-         <p role="status" className="break-words text-xs text-destructive">
-@@ -116,7 +116,7 @@ export function UsageAccountQuotaCard({
-       {sections.length > 0 &&
-       (provider.status === 'error' || provider.usageMetadata?.unverifiableOwner) ? (
-         <p className="text-xs text-muted-foreground">
--          {translate('stats.usage.quota.lastKnown', 'Last known quota; the latest check failed.')}
-+          {t('stats.usage.quota.lastKnown', 'Last known quota; the latest check failed.')}
-         </p>
-       ) : null}
-     </article>
-@@ -140,6 +140,7 @@ export function UsageAccountQuotas({
-   onRefresh: () => void | Promise<void>
-   onManage: () => void
- }): React.JSX.Element {
-+  const t = useTranslate()
-   const settings = useAppStore((state) => (localOwner ? state.settings : null))
-   const fetchRateLimits = useAppStore((state) => state.fetchRateLimits)
-   const fetchInactiveClaude = useAppStore((state) => state.fetchInactiveClaudeAccountUsage)
-@@ -156,17 +157,18 @@ export function UsageAccountQuotas({
+@@ -157,7 +157,8 @@ export function UsageAccountQuotas({
      accounts,
      accountsUnverifiable,
      settings,
@@ -176,71 +73,33 @@ index c59060dba45..61fd3bb0854 100644
    )
    return (
      <section className="space-y-3" data-testid="usage-account-quotas">
-       <div className="flex items-start justify-between gap-3">
-         <div className="space-y-1">
-           <h3 className="text-sm font-semibold text-foreground">
--            {translate('stats.usage.quota.title', 'Current account quotas')}
-+            {t('stats.usage.quota.title', 'Current account quotas')}
-           </h3>
-           <p className="text-xs text-muted-foreground">
--            {translate(
-+            {t(
-               'stats.usage.quota.scope',
-               '{{host}} · Account-wide subscription windows. History filters do not change these limits.',
-               { host: ownerLabel }
-@@ -178,19 +180,19 @@ export function UsageAccountQuotas({
-           size="sm"
-           disabled={rows.some((row) => row.provider.status === 'fetching')}
-           onClick={() => void onRefresh()}
--          aria-label={translate('stats.usage.quota.refresh', 'Refresh account quotas')}
-+          aria-label={t('stats.usage.quota.refresh', 'Refresh account quotas')}
-         >
-           <RefreshCw className="size-3.5" />
--          {translate('stats.usage.refresh', 'Refresh')}
-+          {t('stats.usage.refresh', 'Refresh')}
-         </Button>
-       </div>
-       <p className="text-xs text-muted-foreground" data-testid="usage-quota-coverage">
-         {accounts && !accountsUnverifiable && !accounts.failedProviders?.length
--          ? translate(
-+          ? t(
-               'stats.usage.quota.reportedAccountCoverage',
-               'Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
-             )
--          : translate(
-+          : t(
-               'stats.usage.quota.partialAccounts',
-               'The account list is unavailable or incomplete. Only reported accounts and current provider quota snapshots are shown.'
-             )}
-@@ -210,14 +212,14 @@ export function UsageAccountQuotas({
-         </div>
-       ) : (
-         <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
--          {translate(
-+          {t(
-             'stats.usage.quota.noSources',
-             'No account quota source is available. Manage provider accounts to check your subscription.'
-           )}
-         </p>
-       )}
-       <Button variant="link" size="sm" onClick={onManage} className="h-auto">
--        {translate('stats.usage.quota.manage', 'Manage accounts')}
-+        {t('stats.usage.quota.manage', 'Manage accounts')}
-       </Button>
-     </section>
-   )
 diff --git a/src/renderer/src/components/stats/usage-account-quota-rows.ts b/src/renderer/src/components/stats/usage-account-quota-rows.ts
-index 1455da8aad1..25061d59396 100644
+index 1455da8aad1..398dceca97e 100644
 --- a/src/renderer/src/components/stats/usage-account-quota-rows.ts
 +++ b/src/renderer/src/components/stats/usage-account-quota-rows.ts
-@@ -15,6 +15,7 @@ import {
+@@ -9,17 +9,18 @@ import type { ProviderAccountsSnapshot } from '@/runtime/provider-accounts/obser
+ import {
+   buildClaudeStatusSwitchGroups,
+   normalizeClaudeStatusRuntimeTarget
+-} from '../status-bar/status-bar-claude-accounts'
++} from '../status-bar/accounts/status-bar-claude-accounts'
+ import {
+   buildCodexStatusSwitchGroups,
    normalizeCodexStatusRuntimeTarget
- } from '../status-bar/status-bar-codex-accounts'
+-} from '../status-bar/status-bar-codex-accounts'
++} from '../status-bar/accounts/status-bar-codex-accounts'
  import { translate } from '@/i18n/i18n'
+-import { USAGE_PROVIDER_KEYS } from '../status-bar/owner-usage-rate-limits'
 +import type { Translate } from '@/i18n/use-translate'
- import { USAGE_PROVIDER_KEYS } from '../status-bar/owner-usage-rate-limits'
++import { USAGE_PROVIDER_KEYS } from '../status-bar/usage/owner-usage-rate-limits'
  import {
    getVisibleUsageProvider,
+   type UsageProviderSettings
+-} from '../status-bar/status-bar-provider-visibility'
++} from '../status-bar/composition/status-bar-provider-visibility'
+
+ export type UsageAccountQuotaRow = {
+   key: string
 @@ -35,23 +36,26 @@ function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget
    return left.runtime === right.runtime && left.wslDistro === right.wslDistro
  }

@@ -1,5 +1,5 @@
 diff --git a/mobile/src/host-screen/HostConversations.tsx b/mobile/src/host-screen/HostConversations.tsx
-index df86dcef4af..86fecde9cc4 100644
+index 7081e91b646..7ece2386967 100644
 --- a/mobile/src/host-screen/HostConversations.tsx
 +++ b/mobile/src/host-screen/HostConversations.tsx
 @@ -74,7 +74,8 @@ export function HostConversations({
@@ -13,7 +13,7 @@ index df86dcef4af..86fecde9cc4 100644
      [
        controller.projectCatalog,
 diff --git a/mobile/src/host-screen/conversation-project-order-sheet.tsx b/mobile/src/host-screen/conversation-project-order-sheet.tsx
-index 3eacfe967b3..70db778d770 100644
+index 7a9d1feba0c..613a73c3c49 100644
 --- a/mobile/src/host-screen/conversation-project-order-sheet.tsx
 +++ b/mobile/src/host-screen/conversation-project-order-sheet.tsx
 @@ -26,7 +26,10 @@ export function ConversationProjectOrderSheet({
@@ -29,14 +29,14 @@ index 3eacfe967b3..70db778d770 100644
      />
    )
 diff --git a/mobile/src/host-screen/project-conversation-order.ts b/mobile/src/host-screen/project-conversation-order.ts
-index c33099bb3ec..ae0c3226b4f 100644
+index 92bea0b8657..5f8f43d425c 100644
 --- a/mobile/src/host-screen/project-conversation-order.ts
 +++ b/mobile/src/host-screen/project-conversation-order.ts
 @@ -1,3 +1,4 @@
 +import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
  import type { ConversationPreferences } from '../../../src/shared/conversation-navigation-preferences'
  import { sortProjectEntries } from '../../../src/shared/project-section-order'
- import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
+ import type { ProjectSectionCatalog } from '../worktree/workspace-list/workspace-list-sections'
 @@ -14,18 +15,33 @@ export function orderProjectConversations(
  ): ConversationProject[] {
    const catalog = args.projectCatalog
@@ -84,14 +84,14 @@ index c33099bb3ec..ae0c3226b4f 100644
      .map(([, project]) => project)
      .map((project) => ({
 diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
-index 5d6a8c252df..88bd0f4f909 100644
+index 8bb4a9fc9d5..b2bd0128da1 100644
 --- a/mobile/src/host-screen/project-conversations.test.ts
 +++ b/mobile/src/host-screen/project-conversations.test.ts
 @@ -1,3 +1,4 @@
 +import { projectHostSetupProjectionFromRepos } from '../../../src/shared/project-host-setup-projection'
  import { describe, expect, it } from 'vitest'
  import { conversationPreferenceKey } from '../../../src/shared/conversation-navigation-preferences'
- import type { ProjectSectionCatalog } from '../worktree/workspace-list-sections'
+ import type { ProjectSectionCatalog } from '../worktree/workspace-list/workspace-list-sections'
 @@ -311,3 +312,62 @@ describe('projects containing conversations', () => {
      ).toBe(true)
    })
@@ -289,7 +289,7 @@ index c4dbe428f7d..61cadd5e17a 100644
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
-index fb63de238e7..0db36261a6d 100644
+index 1c5633c80ca..d68299d8835 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 @@ -15,8 +15,6 @@ import {
@@ -309,7 +309,7 @@ index fb63de238e7..0db36261a6d 100644
  import { useConversationPreferences } from './use-conversation-preferences'
  import { ProjectConversationRow } from './ProjectConversationRow'
  import { ProjectConversationSection } from './ProjectConversationSection'
-@@ -54,7 +53,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -55,7 +54,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
    const catalog = useProjectHostSetupProjection()
    const order = useAppStore((state) => state.projectOrderBy)
    const manualOrder = useAppStore((state) => state.manualRepoOrder)
@@ -318,7 +318,7 @@ index fb63de238e7..0db36261a6d 100644
    const activeWorkspaceId = useAppStore((state) => state.activeWorktreeId)
    const activeTab = useAppStore((state) =>
      state.activeWorktreeId ? state.getActiveTab(state.activeWorktreeId) : null
-@@ -85,6 +84,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -86,6 +85,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
          catalog,
          order,
          manualOrder,
@@ -326,7 +326,7 @@ index fb63de238e7..0db36261a6d 100644
          activeWorkspaceId
        }),
      [
-@@ -98,6 +98,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -99,6 +99,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
        catalog,
        order,
        manualOrder,
@@ -334,7 +334,7 @@ index fb63de238e7..0db36261a6d 100644
        activeWorkspaceId
      ]
    )
-@@ -213,20 +214,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -214,20 +215,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
              </Button>
            </DropdownMenuTrigger>
            <DropdownMenuContent align="start">
@@ -515,7 +515,7 @@ index 80075fa1143..482eaf1fa86 100644
    for (const group of result) {
      const hosts = hostsByLabel.get(group.label) ?? new Set<ExecutionHostId>()
 diff --git a/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx b/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
-index 13fa54db316..13fa93edfa2 100644
+index 61936e8a41b..74d0b57134c 100644
 --- a/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
 +++ b/src/renderer/src/components/sidebar/worktree-list/controls/workspace-options-menu-items.tsx
 @@ -1,4 +1,4 @@
@@ -524,7 +524,7 @@ index 13fa54db316..13fa93edfa2 100644
  import { Fragment, useMemo, type ComponentType, type JSX } from 'react'
  import { useAppStore } from '@/store'
  import {
-@@ -150,10 +150,8 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
+@@ -194,10 +194,8 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
  }
 
  function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.Element {
@@ -535,7 +535,7 @@ index 13fa54db316..13fa93edfa2 100644
    const projectOrderLabel =
      PROJECT_ORDER_OPTIONS.find((opt) => opt.id === projectOrderBy)?.label ?? 'Manual'
    return (
-@@ -170,38 +168,7 @@ function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps)
+@@ -214,38 +212,7 @@ function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps)
          className="w-44"
          data-workspace-board-preserve-open={preserveWorkspaceBoardOpen ? '' : undefined}
        >
