@@ -582,3 +582,21 @@ index 0f0d8e9278c..8a34611dd26 100644
 -  }
 -  throw new RuntimeEnvironmentStoreError('invalid_argument', `Unknown environment: ${selector}`)
 -}
+diff --git a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
+--- a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
++++ b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
+@@ -1,10 +1,13 @@
++import type { StoredWebRuntimeEnvironment } from '../web-runtime-environment'
+ import { beforeEach, describe, expect, it } from 'vitest'
+ import { installApi } from '../web-preload-api-test-harness'
+ import { webRuntimeState } from './web-runtime-session'
+
+ const ENV_KEY = 'orca.web.runtimeEnvironment.v1'
+
+-function storedEnvironment(overrides: Record<string, unknown> = {}) {
++function storedEnvironment(
++  overrides: Partial<StoredWebRuntimeEnvironment> = {}
++): StoredWebRuntimeEnvironment {
+   return {
+     id: 'web-env-1',
+     name: 'Test runtime',

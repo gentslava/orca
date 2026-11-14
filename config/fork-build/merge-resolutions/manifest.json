@@ -2381,18 +2381,6 @@
     "reason": "Retain the Default-model disabled-reason translation alongside current option-copy behavior."
   },
   {
-    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
-    "blobs": [
-      "a670db8e297b30f9e942553a495d5f943b316797",
-      "45e7c245b7444db30e91b173fb1962dcca763694",
-      "6ac022f9e6ecd3bb0a2bdda9bcd7450e055737dc"
-    ],
-    "patch": "refresh-20261115/33395-use-structured-agent-session-options-4f5e3020bfbb.patch",
-    "patchSha256": "012d82937e32f1c63a0d4c01d8b24a2e04bb28b00b4c8359177463daf53ba9b7",
-    "resultSha256": "edf4ab937171a276d794c46ad1392ca5910de6d43b121ebd6c531dda3bb77f3f",
-    "reason": "Keep current permission-row locking and live interaction readiness, adding Default-model capability and pending pick state."
-  },
-  {
     "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
     "blobs": [
       "1756c670cc72fd10fcb5caa459241bf22f6a5b67",
@@ -2909,18 +2897,6 @@
     "reason": "Combine Claude foreground/background task controls with existing child navigation, owner questions and full tool invocation details; retain settled background task rows and current prompt cancellation ownership."
   },
   {
-    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
-    "blobs": [
-      "cd7bf09e6a00fc9730579f5641e3a6fddcabf711",
-      "b9255d1896844dc280a489bc0daa3a19a5b26217",
-      "6c040c570bdaef7fde54b0cb296d0601c4b7f351"
-    ],
-    "patch": "refresh-20261115/38963-NativeChatStructuredAsyncQuestion-74c8bdcd306e.patch",
-    "patchSha256": "f66f8b9da65e3731c9815337fc95758d6f4c97b406300006ad1491f9168233ad",
-    "resultSha256": "40ffc6e0d99b1b3cbd6ab792881723e1a6ca6ca96a7e8af510087b66a9134e10",
-    "reason": "Combine Claude foreground/background task controls with existing child navigation, owner questions and full tool invocation details; retain settled background task rows and current prompt cancellation ownership."
-  },
-  {
     "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
     "blobs": [
       "974e8e6e2457efa546af2753eff63e113043d520",
@@ -3015,5 +2991,29 @@
     "patchSha256": "bfbe52a79ab1fbfda58880883cdd44455a7efec2a45e6403a215fe64769614b0",
     "resultSha256": "6015b00c013cd54265d40fcf86d497545a90d34031ca46b43d0cf6ff09df78b0",
     "reason": "Retain the selected content-width policy together with current upstream native-chat typography and app font defaults."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "a670db8e297b30f9e942553a495d5f943b316797",
+      "45e7c245b7444db30e91b173fb1962dcca763694",
+      "6ac022f9e6ecd3bb0a2bdda9bcd7450e055737dc"
+    ],
+    "patch": "refresh-20261115/33395-use-structured-agent-session-options-4f5e3020bfbb.patch",
+    "patchSha256": "0acc81fc7c9cf6220a5401880fe9f6549823adb576945e09c2ff081154ff54b1",
+    "resultSha256": "1ec7f5cb1a0860b2473d157f219f84c5f38cf66502b24d2226803f564a78115b",
+    "reason": "Reuse the current single implementation; preserve model-default readiness/permission guards, owner questions, focus boundaries and task cancellation without duplicate snapshot or prompt wrappers."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "cd7bf09e6a00fc9730579f5641e3a6fddcabf711",
+      "b9255d1896844dc280a489bc0daa3a19a5b26217",
+      "6c040c570bdaef7fde54b0cb296d0601c4b7f351"
+    ],
+    "patch": "refresh-20261115/38963-NativeChatStructuredAsyncQuestion-74c8bdcd306e.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "4c9bd3f5402214fc607fc398c85ab77fe123c8c9e524db058fe09c4214d2bd2c",
+    "reason": "Reuse the current single implementation; preserve model-default readiness/permission guards, owner questions, focus boundaries and task cancellation without duplicate snapshot or prompt wrappers."
   }
 ]
