@@ -3003,5 +3003,17 @@
     "patchSha256": "1e8cfa61ef1672461d0e1b713954846e75558f0c70cd6c3c8bb62c67078debfa",
     "resultSha256": "be02cc446c316bfb0fb4b454bc2a883d82e7512eb6c3ff7e081bcd5c32d029ba",
     "reason": "Read limits and account rosters from one owner-fenced snapshot; preserve local and selected-host support, refresh fencing and unverifiable-account disclosure."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/appearance/native-chat-appearance-style.ts",
+    "blobs": [
+      "1158d85a4826c81d2d217998f6551f79c0394614",
+      "f074536d5a785081109086a032bd602fadae86e8",
+      "75316ecd8adee255675ca9c76602e8e4b8dee91e"
+    ],
+    "patch": "refresh-20261115/40638-native-chat-appearance-style-c7d80fcc999e.patch",
+    "patchSha256": "bfbe52a79ab1fbfda58880883cdd44455a7efec2a45e6403a215fe64769614b0",
+    "resultSha256": "6015b00c013cd54265d40fcf86d497545a90d34031ca46b43d0cf6ff09df78b0",
+    "reason": "Retain the selected content-width policy together with current upstream native-chat typography and app font defaults."
   }
 ]
