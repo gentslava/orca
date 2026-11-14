@@ -293,7 +293,8 @@ export function createStructuredSessionMocks() {
         mocks.retryLaunch(worktreeId, sessionId)
         mocks.relaunchWithMessage(worktreeId, sessionId, text)
         return new Promise(() => {})
-      }
+      },
+      sendMessageToStartingStructuredAgentSession: () => null
     }),
     useNativeChatFontSize: () => ({
       useNativeChatFontSize: () => undefined
@@ -315,8 +316,7 @@ export function createStructuredSessionMocks() {
           revealLatest: mocks.revealLatest,
           readerAtEnd: () => true,
           revealFindMatch: () => {},
-          messageCopyText: () => null,
-          revealSubagent: () => {}
+          messageCopyText: () => null
         }))
         return <DeliveryNoticesMock notices={props?.deliveryNotices} />
       }
