@@ -1031,3 +1031,21 @@ index 4c35bb3fa96..c0c5a2eff5f 100644
        await expect
          .poll(() => statusEvidence(browser!.page), { timeout: 30_000 })
          .toMatchObject({ verification: 'verified', transport: 'ready' })
+diff --git a/mobile/src/mobile-web-shell/native-media-pick-diagnostics.test.ts b/mobile/src/mobile-web-shell/native-media-pick-diagnostics.test.ts
+--- a/mobile/src/mobile-web-shell/native-media-pick-diagnostics.test.ts
++++ b/mobile/src/mobile-web-shell/native-media-pick-diagnostics.test.ts
+@@ -66,7 +66,13 @@
+   })
+   held.view = view
+   useLayoutEffect(() => {
+-    view.viewRef({ postBridgeMessage: async () => {} })
++    view.viewRef({
++      postBridgeMessage: async () => {},
++      createVisualDocument: async () => {
++        throw new Error('This media picker fixture creates no visual')
++      },
++      releaseVisualDocument: async () => {}
++    })
+     return () => view.viewRef(null)
+   }, [view.viewRef])
+   return null
