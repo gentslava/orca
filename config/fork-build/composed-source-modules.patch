@@ -827,24 +827,9 @@ index 4f59cfe777d..d931334fa14 100644
 +  ) : null
 +}
 diff --git a/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usage.test.tsx b/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usage.test.tsx
-index 35399ff759a..ac486559f42 100644
 --- a/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usage.test.tsx
 +++ b/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usage.test.tsx
-@@ -7,8 +7,11 @@ import type { ProviderRateLimits } from '../../../../shared/rate-limit-types'
- import type * as ProviderAccountsClient from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
- import type { ProviderAccountsSnapshot } from '@/runtime/provider-accounts/observations/runtime-provider-accounts-client'
- import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
--import { useOwnerUsageRateLimits, type OwnerUsageRateLimits } from './use-owner-usage-rate-limits'
--import { CodexSwitcherMenu } from './CodexSwitcherMenu'
-+import {
-+  useOwnerUsageRateLimits,
-+  type OwnerUsageRateLimits
-+} from './usage/use-owner-usage-rate-limits'
-+import { CodexSwitcherMenu } from './accounts/CodexSwitcherMenu'
-
- const mocks = vi.hoisted(() => {
-   const watchers: Parameters<typeof ProviderAccountsClient.watchProviderAccounts>[1][] = []
-@@ -122,6 +125,7 @@ function ownerUsage(): OwnerUsageRateLimits & { accounts: ProviderAccountsSnapsh
+@@ -125,6 +125,7 @@
    return {
      rateLimits,
      accounts: { claude: { accounts: [], activeAccountId: null }, codex: accounts, rateLimits },

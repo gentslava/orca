@@ -23,30 +23,6 @@ index 610ce97ff88..c45c5b5a2ee 100644
  3 src/renderer/src/components/tab-group/useTabGroupCreationCommands.ts
  11 src/renderer/src/components/task-page/TaskPage.tsx
  2 src/renderer/src/components/task-page/jira/creation/IssueAssigneeField.tsx
-diff --git a/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx b/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
-index a4b286a9039..25883cafb6d 100644
---- a/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
-+++ b/src/renderer/src/app-shell/worktree-creation-chat-handoff.test.tsx
-@@ -80,6 +80,10 @@ vi.mock('../components/Terminal', () => ({
-       <div role="log" aria-label="Workspace terminal">
-         {activeWorktreeId}
-       </div>
-+    ) : activeWorktreeId ? (
-+      <div role="region" aria-label="Empty workspace">
-+        {activeWorktreeId}
-+      </div>
-     ) : null
-   }
- }))
-@@ -166,7 +170,7 @@ describe('worktree creation chat handoff', () => {
-       checkout.resolve({ worktree, startupTerminal: { spawned: false } })
-     })
-     await waitFor(() =>
--      expect(screen.getByRole('log', { name: 'Workspace terminal' }).textContent).toBe(
-+      expect(screen.getByRole('region', { name: 'Empty workspace' }).textContent).toBe(
-         expectedFolderWorkspaceId
-       )
-     )
 diff --git a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx b/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
 index f5a19383fa0..e8daa49aa54 100644
 --- a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
