@@ -5,9 +5,12 @@ import {
   createFakeBridgePortPair,
   type BridgePortPair
 } from '../../../mobile-web-shell/bridge/bridge-port-pair-test-harness'
-import { useMobileNativeChatImageUpload } from './use-mobile-native-chat-image-upload'
+import { useMobileNativeChatImageUpload } from './attachments/use-mobile-native-chat-image-upload'
 
-vi.mock('../../../platform/media-picker', async () => import('../../../platform/media-picker.web'))
+vi.mock(
+  '../../../platform/media-picking/media-picker',
+  async () => import('../../../platform/media-picking/media-picker.web')
+)
 vi.mock('../../../transport/connection/host-client-hooks', () => ({
   useDisconnectHostClient: () => () => {},
   useForceReconnect: () => null,
