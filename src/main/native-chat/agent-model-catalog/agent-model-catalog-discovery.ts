@@ -37,6 +37,8 @@ export type AgentModelCatalogProbe = ((
     publish?: AgentModelCatalogProgress
   }
 ) => Promise<AgentModelCatalogSuccess>) & {
+  /** False when this account's runtime has no out-of-session listing (such as a managed fallback). */
+  supportsAccount?: (home: AgentSessionAccountHome) => boolean
   resolveLegacy?: (
     home: AgentSessionAccountHome,
     operation?: StructuredAgentResolutionOperation,
