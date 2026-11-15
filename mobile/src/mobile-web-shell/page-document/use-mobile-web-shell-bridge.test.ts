@@ -60,7 +60,11 @@ function FakeShellView(props: {
       postBridgeMessage: (json: string) => {
         props.posted.push({ sessionId: props.sessionId, json })
         return Promise.resolve()
-      }
+      },
+      createVisualDocument: async () => {
+        throw new Error('This bridge fixture creates no visual')
+      },
+      releaseVisualDocument: async () => {}
     }),
     [props.posted, props.sessionId]
   )

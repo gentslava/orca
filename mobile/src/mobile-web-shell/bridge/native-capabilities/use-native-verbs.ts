@@ -28,6 +28,11 @@ import {
 } from './bridge-native-verbs'
 import { imageResultSchema, type BridgeImageRunParams } from './bridge-image-verbs'
 import {
+  BRIDGE_VISUAL_DOCUMENT_VERB,
+  visualDocumentResultSchema,
+  type BridgeVisualOpen
+} from '../bridge-visual-verbs'
+import {
   BRIDGE_SPEECH_VERB,
   speechCancelResultSchema,
   speechFinishResultSchema,
@@ -79,6 +84,9 @@ export type NativeVerbs = {
   canAnnounce: boolean
   // True when the shell spoke it.
   announce: (message: string) => Promise<boolean>
+  canOpenVisualDocument: boolean
+  openVisualDocument: (params: BridgeVisualOpen) => Promise<{ url: string; channel: string }>
+  releaseVisualDocument: (url: string) => Promise<void>
 }
 
 // Parse arbitrary rejection code into its checked shape; Error itself declares no code property.
@@ -176,6 +184,28 @@ export function useNativeVerbs(): NativeVerbs {
         await call(BRIDGE_SPEECH_VERB, { action: 'cancel' }, speechCancelResultSchema)
       },
       canAnnounce: has('native.a11y.announce'),
+      canOpenVisualDocument: has(BRIDGE_VISUAL_DOCUMENT_VERB),
+      openVisualDocument: async (params) => {
+        const result = await call(
+          BRIDGE_VISUAL_DOCUMENT_VERB,
+          { action: 'open', ...params },
+          visualDocumentResultSchema
+        )
+        if (result.kind !== 'ready') {
+          throw new NativeVerbError('unreported', 'The visual did not open')
+        }
+        return { url: result.url, channel: result.channel }
+      },
+      releaseVisualDocument: async (url) => {
+        const result = await call(
+          BRIDGE_VISUAL_DOCUMENT_VERB,
+          { action: 'release', url },
+          visualDocumentResultSchema
+        )
+        if (result.kind !== 'released') {
+          throw new NativeVerbError('unreported', 'The visual was not released')
+        }
+      },
       announce: async (message) =>
         (await call('native.a11y.announce', { message }, a11yAnnounceResultSchema)).announced
     }
