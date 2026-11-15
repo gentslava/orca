@@ -70,10 +70,10 @@ index 00000000000..137a7ffb140
 +  expect(output).not.toContain('publicKeyB64')
 +})
 diff --git a/src/cli/hosts/environment.ts b/src/cli/hosts/environment.ts
-index cea32095c3b..7aada54bb02 100644
+index 518fe41b140..23a4b890ae5 100644
 --- a/src/cli/hosts/environment.ts
 +++ b/src/cli/hosts/environment.ts
-@@ -28,6 +28,7 @@ import type { RuntimeStatus } from '../../shared/runtime-session-contracts'
+@@ -21,6 +21,7 @@ import type { RuntimeStatus } from '../../shared/runtime-session-contracts'
  import {
    addEnvironmentFromPairingCode,
    removeEnvironment,
@@ -81,7 +81,7 @@ index cea32095c3b..7aada54bb02 100644
    resolveEnvironment,
    type EnvironmentAddResult,
    type EnvironmentRemoveResult
-@@ -159,6 +160,17 @@ export const ENVIRONMENT_HANDLERS: Record<string, CommandHandler> = {
+@@ -152,6 +153,17 @@ export const ENVIRONMENT_HANDLERS: Record<string, CommandHandler> = {
        formatEnvironment(value)
      )
    },
@@ -100,7 +100,7 @@ index cea32095c3b..7aada54bb02 100644
      const selector = getRequiredStringFlag(flags, 'environment')
      const removed = redactRuntimeEnvironment(removeEnvironment(getDefaultUserDataPath(), selector))
 diff --git a/src/cli/hosts/host-handler-groups.ts b/src/cli/hosts/host-handler-groups.ts
-index ed1ef7506b0..a4d388ec162 100644
+index bc1531b8948..a3d98ef2ca2 100644
 --- a/src/cli/hosts/host-handler-groups.ts
 +++ b/src/cli/hosts/host-handler-groups.ts
 @@ -12,6 +12,7 @@ export const HOST_HANDLER_GROUPS: readonly HandlerGroup[] = [
@@ -111,10 +111,10 @@ index ed1ef7506b0..a4d388ec162 100644
        'environment rm'
      ],
      load: async () => (await import('./environment.js')).ENVIRONMENT_HANDLERS
-diff --git a/src/cli/runtime/environments.ts b/src/cli/runtime/environments.ts
-index 5342e21e429..973ef2240e1 100644
---- a/src/cli/runtime/environments.ts
-+++ b/src/cli/runtime/environments.ts
+diff --git a/src/cli/runtime/pairing/environments.ts b/src/cli/runtime/pairing/environments.ts
+index 897e05a9f1b..de2d866a012 100644
+--- a/src/cli/runtime/pairing/environments.ts
++++ b/src/cli/runtime/pairing/environments.ts
 @@ -1,6 +1,7 @@
  import {
    addEnvironmentFromPairingCode as addEnvironmentFromPairingCodeInStore,
@@ -122,7 +122,7 @@ index 5342e21e429..973ef2240e1 100644
 +  renameEnvironment as renameEnvironmentInStore,
    resolveEnvironment as resolveEnvironmentFromStore,
    resolveEnvironmentPairingOffer as resolveEnvironmentPairingOfferFromStore
- } from '../../shared/remote-runtime/host-store/runtime-environment-store'
+ } from '../../../shared/remote-runtime/host-store/runtime-environment-store'
 @@ -30,6 +31,18 @@ export function addEnvironmentFromPairingCode(
    return translateStoreError(() => addEnvironmentFromPairingCodeInStore(userDataPath, args))
  }
@@ -143,10 +143,10 @@ index 5342e21e429..973ef2240e1 100644
    return translateStoreError(() => removeEnvironmentFromStore(userDataPath, selector))
  }
 diff --git a/src/cli/specs/environment.ts b/src/cli/specs/environment.ts
-index f44a0fa5e56..891cd5c89dc 100644
+index b2db0124550..f713d86e3e7 100644
 --- a/src/cli/specs/environment.ts
 +++ b/src/cli/specs/environment.ts
-@@ -68,6 +68,15 @@ export const ENVIRONMENT_COMMAND_SPECS: CommandSpec[] = [
+@@ -69,6 +69,15 @@ export const ENVIRONMENT_COMMAND_SPECS: CommandSpec[] = [
      usage: 'orca environment show --environment <selector> [--json]',
      allowedFlags: [...LOCAL_COMMAND_FLAGS, 'environment']
    },
@@ -162,23 +162,35 @@ index f44a0fa5e56..891cd5c89dc 100644
    {
      path: ['environment', 'rm'],
      destructive: true,
-diff --git a/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts b/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
---- a/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
-+++ b/src/main/ipc/runtime-environments/runtime-environment-connectivity-handlers.ts
+diff --git a/src/main/ipc/runtime-environments/connectivity/runtime-environment-connectivity-handlers.ts b/src/main/ipc/runtime-environments/connectivity/runtime-environment-connectivity-handlers.ts
+index 6b55ac122b4..3370ed1f0bf 100644
+--- a/src/main/ipc/runtime-environments/connectivity/runtime-environment-connectivity-handlers.ts
++++ b/src/main/ipc/runtime-environments/connectivity/runtime-environment-connectivity-handlers.ts
 @@ -1,3 +1,4 @@
-+import { renameSavedRuntimeEnvironment } from './runtime-environment-rename-handler'
++import { renameSavedRuntimeEnvironment } from '../runtime-environment-rename-handler'
  import {
    manuallyDisconnectedResponse,
    runtimeEnvironmentCallFailure
-@@ -8,7 +9,6 @@
+@@ -8,7 +9,6 @@ import {
    addEnvironmentFromPairingCode,
    listEnvironments,
    removeEnvironment,
 -  renameEnvironment,
    resolveEnvironment
- } from '../../../shared/remote-runtime/host-store/runtime-environment-store'
+ } from '../../../../shared/remote-runtime/host-store/runtime-environment-store'
  import {
-@@ -152,26 +152,8 @@
+@@ -74,9 +74,7 @@ export function registerRuntimeEnvironmentConnectivityHandlers({
+   ipcMain.handle('runtimeEnvironments:desktopCreatedChatIds', () =>
+     desktopChatCreationHistory(getUserDataPath()).sessionIds()
+   )
+-  ipcMain.handle('runtimeEnvironments:getStatusSnapshots', () =>
+-    getRuntimeEnvironmentStatusSnapshots()
+-  )
++  ipcMain.handle('runtimeEnvironments:getStatusSnapshots', getRuntimeEnvironmentStatusSnapshots)
+   ipcMain.handle('runtimeEnvironments:list', () => {
+     const environments = listEnvironments(getUserDataPath()).filter(
+       (environment) => !isGatedOffWslHost(environment)
+@@ -153,26 +151,8 @@ export function registerRuntimeEnvironmentConnectivityHandlers({
        return { removed: redactRuntimeEnvironment(removed) }
      }
    )
@@ -207,8 +219,49 @@ diff --git a/src/main/ipc/runtime-environments/runtime-environment-connectivity-
    )
    ipcMain.handle(
      'runtimeEnvironments:disconnect',
+diff --git a/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts b/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
+index 86e1a1cc778..74d60e1925c 100644
+--- a/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
++++ b/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
+@@ -20,11 +20,11 @@ vi.mock('../../../shared/remote-runtime/host-store/runtime-environment-store', (
+   resolveEnvironment: resolveEnvironmentMock
+ }))
+
+-import { registerRuntimeEnvironmentConnectivityHandlers } from './runtime-environment-connectivity-handlers'
++import { registerRuntimeEnvironmentConnectivityHandlers } from './connectivity/runtime-environment-connectivity-handlers'
+
+ const environment = { id: 'environment-a', name: 'desk', runtimeId: 'runtime-a', endpoints: [] }
+
+-function renameHandler(): (event: unknown, args: { selector: string; name: string }) => unknown {
++function renameHandler(): (event: unknown, args: unknown) => unknown {
+   const call = handleMock.mock.calls.find(([channel]) => channel === 'runtimeEnvironments:rename')
+   expect(call).toBeTruthy()
+   return call![1]
+@@ -44,7 +44,7 @@ beforeEach(() => {
+
+ describe('runtime environment rename argument guard', () => {
+   it('rejects a non-string name before touching the store', () => {
+-    expect(() => renameHandler()(null, { selector: 'environment-a', name: 42 as never })).toThrow(
++    expect(() => renameHandler()(null, { selector: 'environment-a', name: 42 })).toThrow(
+       'Renaming a server requires a name.'
+     )
+     expect(resolveEnvironmentMock).not.toHaveBeenCalled()
+@@ -52,9 +52,9 @@ describe('runtime environment rename argument guard', () => {
+   })
+
+   it('passes a string name through to the store rename', () => {
+-    expect(
+-      renameHandler()(null, { selector: 'environment-a', name: 'desk-2' })
+-    ).toMatchObject({ environment: { name: 'desk-2' } })
++    expect(renameHandler()(null, { selector: 'environment-a', name: 'desk-2' })).toMatchObject({
++      environment: { name: 'desk-2' }
++    })
+     expect(renameEnvironmentMock).toHaveBeenCalledWith('/tmp/orca-user-data', 'environment-a', {
+       name: 'desk-2'
+     })
 diff --git a/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts b/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts
 new file mode 100644
+index 00000000000..cb20ca1f0ab
 --- /dev/null
 +++ b/src/main/ipc/runtime-environments/runtime-environment-rename-handler.ts
 @@ -0,0 +1,23 @@
@@ -340,16 +393,17 @@ index f331aa16643..2943a2685f5 100644
 +}
 diff --git a/src/renderer/src/web/preload-api/web-runtime-environment-mutations.ts b/src/renderer/src/web/preload-api/web-runtime-environment-mutations.ts
 new file mode 100644
-index 00000000000..7e3c5b03336
+index 00000000000..0423f9e71a5
 --- /dev/null
 +++ b/src/renderer/src/web/preload-api/web-runtime-environment-mutations.ts
-@@ -0,0 +1,42 @@
+@@ -0,0 +1,44 @@
 +import { translate } from '@/i18n/i18n'
 +import {
 +  redactStoredWebRuntimeEnvironment,
 +  saveStoredWebRuntimeEnvironment
 +} from '../web-runtime-environment'
 +import {
++  assertEnvironmentPairingCurrent,
 +  resolveEnvironment,
 +  webRuntimeState,
 +  removeActiveRuntimeEnvironment,
@@ -370,6 +424,7 @@ index 00000000000..7e3c5b03336
 +  if (trimmed === environment.name) {
 +    return { environment: redactStoredWebRuntimeEnvironment(environment) }
 +  }
++  assertEnvironmentPairingCurrent(environment)
 +  const next = { ...environment, name: trimmed, updatedAt: Date.now() }
 +  saveStoredWebRuntimeEnvironment(next)
 +  if (webRuntimeState.activeEnvironment?.id === environment.id) {
@@ -387,10 +442,11 @@ index 00000000000..7e3c5b03336
 +  return { removed: redactStoredWebRuntimeEnvironment(environment) }
 +}
 diff --git a/src/renderer/src/web/preload-api/web-runtime-environments-api.ts b/src/renderer/src/web/preload-api/web-runtime-environments-api.ts
-index 2518e932dac..a946b1ef709 100644
+index bbcdebc7cb2..15bee31cc5a 100644
 --- a/src/renderer/src/web/preload-api/web-runtime-environments-api.ts
 +++ b/src/renderer/src/web/preload-api/web-runtime-environments-api.ts
-@@ -1,3 +1,7 @@
+@@ -1,4 +1,8 @@
+ import { createWebRuntimeEnvironmentSubscriber } from './web-runtime-subscription'
 +import {
 +  renameWebRuntimeEnvironment,
 +  removeWebRuntimeEnvironment
@@ -398,15 +454,16 @@ index 2518e932dac..a946b1ef709 100644
  import { pairedRuntimeConnectionFromOffer } from '../../../../shared/remote-runtime/pairing/paired-runtime-connection'
  import {
    createWebRuntimeSubscriptionApiControl,
-@@ -33,7 +37,6 @@ import {
+@@ -32,8 +36,6 @@ import {
    disconnectActiveRuntimeEnvironment,
    getClientForEnvironment,
    manuallyDisconnectedEnvironmentIds,
 -  removeActiveRuntimeEnvironment,
+-  assertEnvironmentPairingCurrent,
    requireActiveEnvironmentOrNull,
    resolveEnvironment,
-   webRuntimeState,
-@@ -185,35 +188,8 @@ export function createRuntimeEnvironmentsApi(): PreloadApi['runtimeEnvironments'
+   webRuntimeState
+@@ -182,37 +184,8 @@ export function createRuntimeEnvironmentsApi(): PreloadApi['runtimeEnvironments'
      }),
      resolve: async ({ selector }) =>
        redactStoredWebRuntimeEnvironment(resolveEnvironment(selector)),
@@ -432,6 +489,8 @@ index 2518e932dac..a946b1ef709 100644
 -      if (trimmed === environment.name) {
 -        return { environment: redactStoredWebRuntimeEnvironment(environment) }
 -      }
+-      // The resolved record may predate a re-pair in another tab; refuse to rename that stale copy.
+-      assertEnvironmentPairingCurrent(environment)
 -      const next = { ...environment, name: trimmed, updatedAt: Date.now() }
 -      saveStoredWebRuntimeEnvironment(next)
 -      if (webRuntimeState.activeEnvironment?.id === environment.id) {
@@ -445,10 +504,10 @@ index 2518e932dac..a946b1ef709 100644
        const environment = resolveEnvironment(selector)
        if (webRuntimeState.activeEnvironment?.id === environment.id) {
 diff --git a/src/shared/plugins/languages/protected-copy-keys.json b/src/shared/plugins/languages/protected-copy-keys.json
-index 61f954189d0..6c026e86013 100644
+index aa5cb838cd9..e02367dd28e 100644
 --- a/src/shared/plugins/languages/protected-copy-keys.json
 +++ b/src/shared/plugins/languages/protected-copy-keys.json
-@@ -353,6 +353,10 @@
+@@ -363,6 +363,10 @@
      "auto.components.settings.RuntimeEnvironmentsPane.d2e00809e4",
      "auto.components.settings.RuntimeEnvironmentsPane.ed3e3f069d",
      "auto.components.settings.RuntimeEnvironmentsPane.removeDefaultServerDescription",
@@ -523,39 +582,21 @@ index 0f0d8e9278c..8a34611dd26 100644
 -  }
 -  throw new RuntimeEnvironmentStoreError('invalid_argument', `Unknown environment: ${selector}`)
 -}
+diff --git a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
+--- a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
++++ b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
+@@ -1,10 +1,13 @@
++import type { StoredWebRuntimeEnvironment } from '../web-runtime-environment'
+ import { beforeEach, describe, expect, it } from 'vitest'
+ import { installApi } from '../web-preload-api-test-harness'
+ import { webRuntimeState } from './web-runtime-session'
 
-diff --git a/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts b/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
-index 86e1a1cc778..a884ccdba83 100644
---- a/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
-+++ b/src/main/ipc/runtime-environments/runtime-environment-rename-guard.test.ts
-@@ -24,7 +24,7 @@ import { registerRuntimeEnvironmentConnectivityHandlers } from './runtime-enviro'
+ const ENV_KEY = 'orca.web.runtimeEnvironment.v1'
 
- const environment = { id: 'environment-a', name: 'desk', runtimeId: 'runtime-a', endpoints: [] }
-
--function renameHandler(): (event: unknown, args: { selector: string; name: string }) => unknown {
-+function renameHandler(): (event: unknown, args: unknown) => unknown {
-   const call = handleMock.mock.calls.find(([channel]) => channel === 'runtimeEnvironments:rename')
-   expect(call).toBeTruthy()
-   return call![1]
-@@ -44,7 +44,7 @@ beforeEach(() => {
-
- describe('runtime environment rename argument guard', () => {
-   it('rejects a non-string name before touching the store', () => {
--    expect(() => renameHandler()(null, { selector: 'environment-a', name: 42 as never })).toThrow(
-+    expect(() => renameHandler()(null, { selector: 'environment-a', name: 42 })).toThrow(
-       'Renaming a server requires a name.'
-     )
-     expect(resolveEnvironmentMock).not.toHaveBeenCalled()
-@@ -52,9 +52,9 @@ describe('runtime environment rename argument guard', () => {
-   })
-
-   it('passes a string name through to the store rename', () => {
--    expect(
--      renameHandler()(null, { selector: 'environment-a', name: 'desk-2' })
--    ).toMatchObject({ environment: { name: 'desk-2' } })
-+    expect(renameHandler()(null, { selector: 'environment-a', name: 'desk-2' })).toMatchObject({
-+      environment: { name: 'desk-2' }
-+    })
-     expect(renameEnvironmentMock).toHaveBeenCalledWith('/tmp/orca-user-data', 'environment-a', {
-       name: 'desk-2'
-     })
+-function storedEnvironment(overrides: Record<string, unknown> = {}) {
++function storedEnvironment(
++  overrides: Partial<StoredWebRuntimeEnvironment> = {}
++): StoredWebRuntimeEnvironment {
+   return {
+     id: 'web-env-1',
+     name: 'Test runtime',

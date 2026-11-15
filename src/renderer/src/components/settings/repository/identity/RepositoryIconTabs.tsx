@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useImperativeHandle, useRef, useState, type RefObject } from 'react'
+import { Suspense, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Github, Image, Link2 } from 'lucide-react'
 import type { RepoIcon } from '../../../../../../shared/repo-icon'
@@ -41,30 +41,15 @@ type RepositoryIconTabsProps = {
   onUseGitHubAvatar: () => void
 }
 
-async function uploadRepositoryIcon({
-  uploadRequest,
-  mountedRef,
-  setUploading,
-  handleSetIcon,
-  cancelUpload,
-  t
-}: {
-  uploadRequest: RefObject<symbol | null>
-  mountedRef: RefObject<boolean>
-  setUploading: (uploading: boolean) => void
-  handleSetIcon: (icon: RepoIcon | null) => void
-  cancelUpload: () => void
-  t: ReturnType<typeof useTranslate>
-}): Promise<void> {
-  if (uploadRequest.current) {
-    return
-  }
-  const request = Symbol()
-  uploadRequest.current = request
-  setUploading(true)
+async function pickRepositoryIconImage(
+  isCurrent: () => boolean,
+  onIcon: (icon: RepoIcon) => void,
+  onError: (error: unknown) => void,
+  onSettled: () => void
+): Promise<void> {
   try {
     const result = await window.api.shell.pickRepoIconImage()
-    if (!result || !mountedRef.current || uploadRequest.current !== request) {
+    if (!result || !isCurrent()) {
       return
     }
     if ('error' in result) {
@@ -77,36 +62,16 @@ async function uploadRepositoryIcon({
       throw new Error('Repo icon image is too large.')
     }
     const dataUrl = `data:image/png;base64,${await blobToBase64(png)}`
-    if (!mountedRef.current || uploadRequest.current !== request) {
-      return
+    if (isCurrent()) {
+      onIcon({ type: 'image', src: dataUrl, source: 'upload', label: result.fileName })
     }
-    handleSetIcon({
-      type: 'image',
-      src: dataUrl,
-      source: 'upload',
-      label: result.fileName
-    })
   } catch (error) {
-    if (!mountedRef.current || uploadRequest.current !== request) {
-      return
+    if (isCurrent()) {
+      onError(error)
     }
-    toast.error(
-      error instanceof Error
-        ? error.message === CLIPBOARD_IMAGE_TOO_LARGE_ERROR ||
-          error.message.endsWith('Repo icon image must be 10MB or smaller.')
-          ? t(
-              'auto.components.settings.RepositoryIconPicker.imageTooLarge',
-              'Image exceeds the 10MB or 32-megapixel limit.'
-            )
-          : error.message
-        : t(
-            'auto.components.settings.RepositoryIconPicker.868c5c9b56',
-            'Failed to import repo icon'
-          )
-    )
   } finally {
-    if (mountedRef.current && uploadRequest.current === request) {
-      cancelUpload()
+    if (isCurrent()) {
+      onSettled()
     }
   }
 }
@@ -148,15 +113,35 @@ export function RepositoryIconTabs({
     onSetIcon(icon)
   }
 
-  const handleUploadImage = () =>
-    uploadRepositoryIcon({
-      uploadRequest,
-      mountedRef,
-      setUploading,
+  const handleUploadImage = async () => {
+    if (uploadRequest.current) {
+      return
+    }
+    const request = Symbol()
+    uploadRequest.current = request
+    setUploading(true)
+    return pickRepositoryIconImage(
+      () => mountedRef.current && uploadRequest.current === request,
       handleSetIcon,
-      cancelUpload,
-      t
-    })
+      (error) => {
+        toast.error(
+          error instanceof Error
+            ? error.message === CLIPBOARD_IMAGE_TOO_LARGE_ERROR ||
+              error.message.endsWith('Repo icon image must be 10MB or smaller.')
+              ? t(
+                  'auto.components.settings.RepositoryIconPicker.imageTooLarge',
+                  'Image exceeds the 10MB or 32-megapixel limit.'
+                )
+              : error.message
+            : t(
+                'auto.components.settings.RepositoryIconPicker.868c5c9b56',
+                'Failed to import repo icon'
+              )
+        )
+      },
+      cancelUpload
+    )
+  }
 
   const handleUseWebsiteFavicon = () => {
     const src = faviconUrlFromWebsite(website)

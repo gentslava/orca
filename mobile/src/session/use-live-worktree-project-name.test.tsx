@@ -1,8 +1,14 @@
 import { createElement } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { createFakeRpcClient, type FakeRpcClient } from '../mobile-web-shell/bridge-host-test-fakes'
-import { useLiveWorktreeName, type LiveWorktreeName } from '../worktree/use-live-worktree-name'
+import {
+  createFakeRpcClient,
+  type FakeRpcClient
+} from '../mobile-web-shell/test-support/bridge-host-test-fakes'
+import {
+  useLiveWorktreeName,
+  type LiveWorktreeName
+} from '../worktree/row-presentation/use-live-worktree-name'
 
 vi.mock('expo-router', async () => {
   const React = await import('react')

@@ -3,11 +3,8 @@ import { normalizeConversationPreferences } from '../../../shared/conversation-n
 import { normalizePersonalProjectOrder } from '../../../shared/personal-project-order'
 import { normalizeExplorerDisplayRootByWorktree } from '../../../shared/file-listing/file-explorer-display-root'
 import type { PersistedState } from '../../../shared/persisted-state-types'
-import {
-  getDefaultUIState,
-  normalizeAgentActivityDisplayMode,
-  normalizeWorktreeCardProperties
-} from '../../../shared/constants'
+import { getDefaultUIState, normalizeAgentActivityDisplayMode } from '../../../shared/constants'
+import { normalizeWorktreeCardProperties } from '../../../shared/worktree/row-display/card-properties'
 import {
   normalizeWorkspaceStatuses,
   clampWorkspaceBoardColumnWidth,

@@ -168,3 +168,15 @@ The frozen plan contains one strict target matrix for all eleven requested packa
 Each Linux format is extracted and measured against the source receipt and unpacked application. The shared application manifest must match across formats; only the verified format marker and the upstream AppImage-only pinned Node payload differ. A second native runner independently checks architecture, ABI floor, all archive contents and hashes. Both verified slices are mandatory in the final assembler and release ledger. Missing formats, altered receipts or changed bytes block publication and preserve the previous release.
 
 This addition preserves the existing macOS ARM64, Windows x64 and Android signing policies. Intel macOS expansion remains separate; no iOS signing credentials are introduced. Account names, session control and live providers are never exercised by packaging.
+
+The refresh on upstream 042c4516efa75bc83bba339d95bb8dcacfbdf004 retires only the project-start overlay adjustment to `worktree-creation-chat-handoff.test.tsx`, deleted upstream at 85f8ff358eb44ff0d7f877d91b5f80243e504012. That adjustment changed a fake Terminal region and the selector asserting that same mock; it added no real UI test case. Workspace-start implementation and its real component regressions remain selected. Other new assertions stay protected by the strict fixture-retirement policy.
+
+The dynamic host-model report regression follows merged 41512: the next-turn picker and captured message keep the selected model when answering-model metadata changes. The test observes and flushes the new host report before checking the unchanged selection. Its current module imports now live in the same patch as the test; the later duplicate import-retarget section is removed. The working-picker assertion keeps the upstream selected-model contract with the Next turn label from 34866.
+
+The combined host facade reuses the existing restart/resume factory return type, as its other collaborator fields already do. Removing the redundant type-only import keeps the class within the unchanged 300-line limit; runtime statements and public behavior remain unchanged.
+
+Large source-refresh merges run the same pre-commit tasks with at most two concurrent lint-staged groups. The hook still checks every staged file and runs every configured command; the cap avoids launching all argument chunks at once on a shared workstation.
+
+The flaky-test ratchet uses the same bounded 64 MiB Git-output buffer as the adjacent ratchet tooling. This accommodates the full changed-path inventory of a source-refresh merge; changed-file scope and every finding remain enforced.
+
+The journal range-plan regression pins its monotonic clock while asserting exact row batches and indexed SQL plans. It does not assert a wall-time budget; the production eight-millisecond slice remains unchanged. The child-provider exit regression waits for its existing terminal assertions on both asynchronous publication channels, without changing expected values or timeouts.

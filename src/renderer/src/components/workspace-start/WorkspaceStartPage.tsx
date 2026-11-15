@@ -62,3 +62,40 @@ export function WorkspaceStartPage({
     </div>
   )
 }
+
+type WorkspaceStartProps = Parameters<typeof WorkspaceStartPage>[0]
+
+export function workspaceStartPageForGroup(
+  shown: boolean,
+  worktreeId: string,
+  groupId: string,
+  commands: {
+    newTerminalTab: WorkspaceStartProps['onNewTerminalTab']
+    newTerminalWithShell: WorkspaceStartProps['onNewTerminalWithShell']
+    newBrowserTab: WorkspaceStartProps['onNewBrowserTab']
+    newSimulatorTab: WorkspaceStartProps['onNewSimulatorTab']
+    newFileTab: WorkspaceStartProps['onNewFileTab']
+  }
+) {
+  return shown ? (
+    <WorkspaceStartPage
+      worktreeId={worktreeId}
+      groupId={groupId}
+      onNewTerminalTab={commands.newTerminalTab}
+      onNewTerminalWithShell={commands.newTerminalWithShell}
+      onNewBrowserTab={commands.newBrowserTab}
+      onNewSimulatorTab={commands.newSimulatorTab}
+      onNewFileTab={commands.newFileTab}
+    />
+  ) : null
+}
+
+export function workspaceAgentTourAnchor(focused: boolean, contentType: string | undefined) {
+  return focused ? (
+    <div
+      className="pointer-events-none absolute inset-x-0 top-1/4 h-px"
+      data-contextual-tour-target="workspace-agent-terminal-tip"
+      data-active-content-type={contentType}
+    />
+  ) : null
+}

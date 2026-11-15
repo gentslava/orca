@@ -5,13 +5,13 @@ import { createWithQueryClient } from '../test-support/query-client-test-rendere
 import { stubRpcClient } from '../transport/rpc/rpc-client-test-stub'
 import type { RpcClient } from '../transport/rpc/rpc-client-contract'
 import { useMobileStructuredAgentSession } from './native-chat/agent-session/use-mobile-structured-agent-session'
-import { useMobileStructuredNativeChatSendBridge } from './native-chat/composer/use-mobile-structured-native-chat-send-bridge'
+import { useMobileStructuredNativeChatSendBridge } from './native-chat/composer/delivery/use-mobile-structured-native-chat-send-bridge'
 import { structuredAgentSessionHostSupport } from './native-chat/agent-session/mobile-structured-agent-session-host-support'
 import { snapshotEvent } from './native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture'
 import { defineMobilePendingModelSendCases } from './mobile-pending-model-send.test-fixture'
-import { mobileNativeChatDraftDestination } from './native-chat/composer/mobile-native-chat-draft-inputs'
-import { closeMobileNativeChatTabDraft } from './native-chat/composer/mobile-native-chat-draft-store'
-import type { MobileNativeChatSendOrigin } from './native-chat/transcript/mobile-native-chat-pending-echo'
+import { mobileNativeChatDraftDestination } from './native-chat/composer/drafts/mobile-native-chat-draft-inputs'
+import { closeMobileNativeChatTabDraft } from './native-chat/composer/drafts/mobile-native-chat-draft-store'
+import type { MobileNativeChatSendOrigin } from './native-chat/transcript/sending/mobile-native-chat-pending-echo'
 
 const storage = vi.hoisted(() => new Map<string, string>())
 vi.mock('@react-native-async-storage/async-storage', () => ({

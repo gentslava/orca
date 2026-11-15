@@ -5,7 +5,7 @@ import { installChats } from '../../ai-vault/structured-sessions/structured-sess
 import {
   agentSessionLeaseFixture,
   agentSessionRecordFixture
-} from '../../../shared/agent-session/lifecycle/agent-session-record.test-fixture'
+} from '../../../shared/agent-session/lifecycle/records/agent-session-record.test-fixture'
 import { setStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 const mocks = vi.hoisted(() => {
   vi.resetModules()

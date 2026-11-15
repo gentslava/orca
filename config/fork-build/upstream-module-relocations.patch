@@ -38,7 +38,7 @@ index b71d37ed2f5..dc2fe3f08cc 100644
      const repo = makeRepo({ id: 'repo-1', displayName: 'Legacy Repo', path: '/Users/ada/orca' })
      const project = makeProject({ id: 'project-1', displayName: 'Canonical Orca' })
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
-index 3e5a6936975..edb5db46047 100644
+index e33e5c4fbd7..84604247f10 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
 @@ -4,6 +4,8 @@ import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts
@@ -193,10 +193,12 @@ index 00000000000..507a8a3f0fa
 +  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
 +})
 diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-index e7df911e774..348a1be547f 100644
+index 7542022719f..96e2148a789 100644
 --- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
 +++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-@@ -3,9 +3,20 @@
+@@ -1,11 +1,22 @@
+ // @vitest-environment happy-dom
+
 -import { cleanup, render, screen } from '@testing-library/react'
 +import { act, cleanup, render, renderHook, screen } from '@testing-library/react'
  import AgentCombobox from '@/components/agent/AgentCombobox'
@@ -218,7 +220,7 @@ index e7df911e774..348a1be547f 100644
 
  import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
  import '@/lib/agent-session/launch/routing/agent-launch-route-input'
-@@ -220,3 +231,78 @@ it('waits on a paired server only while contact is checking without a reported O
+@@ -175,3 +186,78 @@ it('waits on a paired server only while contact is checking without a reported O
  })
 
  /** Copies whose owner-field reads (`id`, `executionHostId`) are counted. */
@@ -297,11 +299,3 @@ index e7df911e774..348a1be547f 100644
 +    }
 +  }
 +)
-diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.ts
---- a/src/main/ipc/ai-vault/ai-vault.ts
-+++ b/src/main/ipc/ai-vault/ai-vault.ts
-@@ -1,4 +1,3 @@
--import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
- import {
-   captureRuntimeAiVaultProjectionDependency,
-   type AiVaultProjectionDependency
