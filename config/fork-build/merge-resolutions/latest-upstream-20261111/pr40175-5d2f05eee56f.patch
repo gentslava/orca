@@ -1,0 +1,57 @@
+--- a/src/renderer/src/components/agent/launch-settings/AgentLaunchChoiceEditor.tsx
++++ b/src/renderer/src/components/agent/launch-settings/AgentLaunchChoiceEditor.tsx
+@@ -12,6 +12,7 @@
+ import { reconcileAgentChoiceArgs } from '../../../../../shared/agent-launch/choices/agent-choice-reconciliation'
+ import type { TuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent'
+ import { useTranslate } from '@/i18n/use-translate'
++import { useAgentModelMenu, type AgentModelMenuSource } from './use-agent-model-menu'
+ import type { RuntimeClientTarget } from '../../../../../shared/runtime-client-target'
+ import { AgentChoiceFields } from './AgentChoiceControls'
+ import { useAgentSettingsModelCatalog } from './use-agent-settings-model-catalog'
+@@ -24,12 +25,14 @@
+   permission,
+   permissionControlRef,
+   save,
+-  catalogTarget,
++  catalogSource,
++  catalogTarget = null,
+   showArguments = true
+ }: {
++  catalogSource?: AgentModelMenuSource
+   showArguments?: boolean
+   /** The host whose models this editor lists; null keeps the release's seed models. */
+-  catalogTarget: RuntimeClientTarget | null
++  catalogTarget?: RuntimeClientTarget | null
+   agent: TuiAgent
+   label: string
+   choices: AgentModelOptionChoices | undefined
+@@ -39,9 +42,12 @@
+   save: (patch: AgentChoicePatch | undefined, userArgs: string) => Promise<void>
+ }): React.JSX.Element {
+   const t = useTranslate()
++  const [modelOpen, setModelOpen] = useState(false)
++  const menuSource = agent === 'antigravity' ? undefined : catalogSource
++  const modelMenu = useAgentModelMenu(agent, choices, menuSource, modelOpen)
+   const { catalog: liveCatalog, usesSeedModels } = useAgentSettingsModelCatalog(
+     agent,
+-    catalogTarget
++    menuSource ? null : catalogTarget
+   )
+   const menu = useRef({ open: false, committed: false })
+   const editorRef = useRef<HTMLDivElement>(null)
+@@ -60,6 +66,7 @@
+     )
+   }
+   const onOpenChange = (open: boolean): void => {
++    setModelOpen(open)
+     if (!open && !menu.current.committed) {
+       saveArgs(text.trim())
+     }
+@@ -107,6 +114,7 @@
+       <div className="space-y-2">
+         <AgentChoiceFields
+           agent={agent}
++          modelMenu={menuSource ? modelMenu : undefined}
+           value={choices}
+           disabled={pending}
+           layout="rows"

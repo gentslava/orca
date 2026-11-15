@@ -1,0 +1,61 @@
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredAsyncQuestion.tsx
+@@ -211,3 +211,57 @@
+     </>
+   )
+ }
++
++export function NativeChatStructuredPrompts({
++  pane,
++  controller,
++  response,
++  session,
++  transport,
++  submits,
++  shouldFocus,
++  answerInputRef
++}: {
++  pane: Pick<
++    NativeChatStructuredViewProps,
++    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible'
++  >
++  controller: ReturnType<typeof useStructuredAgentSession>
++  response: ReturnType<typeof useStructuredPromptResponseHold>
++  session: Pick<NativeChatLiveSession, 'messages' | 'readPhase'>
++  transport: NativeChatStructuredComposerTransport
++  submits: { queuedMessages: { cards: readonly Pick<QueuedMessageCard, 'text'>[] } }
++  shouldFocus: boolean
++  answerInputRef: RefObject<HTMLTextAreaElement | null>
++}): React.JSX.Element {
++  const prompt = controller.prompts[0] ?? null
++  const questionBody = prompt?.body.kind === 'question' ? prompt.body : null
++  const approval = prompt?.body.kind === 'approval' ? chatApprovalFromJournal(prompt.body) : null
++  const cancelPrompt = () => cancelStructuredPrompt(controller, prompt)
++  return (
++    <>
++      {prompt && approval ? (
++        <NativeChatApprovalCard
++          key={`${prompt.itemId}:${prompt.revision}`}
++          approval={approval}
++          onChoose={(optionId) => void response.respond(prompt, { kind: 'option', optionId })}
++          isSubmitting={response.holds(prompt)}
++          onCancel={cancelPrompt}
++          shouldFocus={shouldFocus}
++        />
++      ) : null}
++      {prompt && questionBody ? (
++        <NativeChatStructuredQuestionCard
++          key={`${prompt.itemId}:${prompt.revision}`}
++          questions={agentSessionPromptQuestions(questionBody)}
++          onAnswer={(answer) => void response.respond(prompt, answer)}
++          isSubmitting={response.holds(prompt)}
++          onCancel={cancelPrompt}
++          shouldFocus={shouldFocus}
++          answerInputRef={answerInputRef}
++        />
++      ) : null}
++      {nativeChatStructuredAsyncQuestion(pane, controller, session, transport, submits)}
++    </>
++  )
++}

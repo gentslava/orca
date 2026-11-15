@@ -1,0 +1,28 @@
+diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
+--- a/src/renderer/src/i18n/locales/en.json
++++ b/src/renderer/src/i18n/locales/en.json
+@@ -746,6 +746,13 @@
+           "performance": "performance",
+           "remote": "remote",
+           "gpu": "gpu"
++        }
++      },
++      "holdQuit": {
++        "title": "Hold ⌘Q while agents are working",
++        "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
++        "keyword": {
++          "quit": "quit"
+         }
+       }
+     },
+@@ -24371,6 +24378,10 @@
+     "updateHost": "Update Orca on {{host}} to open the Git Graph",
+     "title": "Git Graph"
+   },
++  "holdQuit": {
++    "hint": "Agents are still working. Hold ⌘Q to quit.",
++    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
++  },
+   "macosUpdateRequirement": {
+     "title": "Orca updates now need macOS {{macos}}",
+     "description": "Orca {{version}} requires macOS {{macos}} or later. This version keeps working, but it won’t get new updates on this Mac.",

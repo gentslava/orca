@@ -1,0 +1,150 @@
+--- a/src/renderer/src/components/agent/launch-settings/AgentChoiceControls.tsx
++++ b/src/renderer/src/components/agent/launch-settings/AgentChoiceControls.tsx
+@@ -1,3 +1,4 @@
++import type { modelMenuOptions } from '../../../../../shared/agent-session/options/model-menu-options'
+ import type {
+   AgentChoicePatch,
+   AgentDedicatedChoices
+@@ -27,6 +28,9 @@
+ export type AgentChoiceControlsProps = {
+   agent: TuiAgent | null | undefined
+   value: AgentDedicatedChoices | undefined
++  modelMenu?: ReturnType<typeof modelMenuOptions> & {
++    fallbackAfterFailure?: boolean
++  }
+   disabled?: boolean
+   onOpenChange?: (open: boolean) => void
+   optionIds?: readonly string[]
+@@ -69,6 +73,7 @@
+   onOpenChange,
+   optionIds,
+   defaultLabels,
++  modelMenu,
+   layout = 'stacked',
+   liveCatalog,
+   usesSeedModels,
+@@ -81,37 +86,60 @@
+   if (!agent || !picksModel) {
+     return null
+   }
+-  const catalog = picksModel ? getAgentSessionOptionLaunchCatalog(agent) : null
++  const catalog = modelMenu?.catalog ?? getAgentSessionOptionLaunchCatalog(agent)
+   const selected = value
+-  const model = catalog && selected?.model ? findCatalogModel(catalog, selected.model) : undefined
+   const live =
+-    liveCatalog && liveCatalog.origin !== 'unknown' && liveCatalog.models.length
++    !modelMenu && liveCatalog && liveCatalog.origin !== 'unknown' && liveCatalog.models.length
+       ? { agent, catalog: liveCatalog, terminal: {} }
+       : null
+-  const listedModels = live
+-    ? agentPickerModels(live).filter(({ hidden }) => !hidden)
+-    : (catalog?.models ?? [])
+-  const unlistedModel =
+-    selected?.model && !(live ? listedModels.some(({ id }) => id === selected.model) : model)
+-      ? selected.model
+-      : undefined
++  const listedModels = modelMenu
++    ? modelMenu.rows
++    : live
++      ? agentPickerModels(live).filter(({ hidden }) => !hidden)
++      : (catalog?.models ?? [])
+   const liveEffort = live
+     ? agentPickerEntryOptions(live, selected?.model, 'terminal').find(({ id }) => id === 'effort')
+     : undefined
+-  const options = sourceControlActionOptions(agent, selected?.model ?? '').flatMap((row) => {
++  const model = selected?.model
++    ? modelMenu
++      ? listedModels.find((row) => row.id === selected.model)
++      : live
++        ? listedModels.find((row) => row.id === selected.model)
++        : catalog && findCatalogModel(catalog, selected.model)
++    : undefined
++  const unlistedModel = catalog && selected?.model && !model ? selected.model : undefined
++  let options = sourceControlActionOptions(agent, selected?.model ?? '').filter(
+     // CLI carrier mappings remain available to Args badges without advertising a mode control.
+-    if (
+-      (!model && row.option.category === 'mode') ||
+-      (optionIds && !optionIds.includes(row.option.id))
+-    ) {
+-      return []
++    ({ option }) =>
++      (Boolean(model) || option.category !== 'mode') &&
++      (!optionIds || optionIds.includes(option.id))
++  )
++  const effort = modelMenu?.descriptors.find((entry) => entry.id === 'effort')
++  const modelDescriptor = modelMenu?.descriptors.find((entry) => entry.id === 'model')
++  if (modelMenu && selected?.model) {
++    options = options.filter(({ option }) => option.id !== 'effort')
++    if (effort?.kind.type === 'select') {
++      options.push({
++        option: {
++          id: 'effort',
++          label: effort.label,
++          category: effort.category,
++          kind: { type: 'select', choices: effort.kind.choices, defaultValue: '' },
++          apply: {}
++        },
++        route: null
++      })
+     }
+-    if (!live || row.option.id !== 'effort') {
+-      return [row]
+-    }
+-    // A listed model with no reasoning levels gets no effort menu.
+-    return liveEffort ? [{ ...row, option: { ...row.option, kind: liveEffort.kind } }] : []
+-  })
++  }
++  if (!modelMenu && live) {
++    options = options.flatMap((row) =>
++      row.option.id !== 'effort'
++        ? [row]
++        : liveEffort
++          ? [{ ...row, option: { ...row.option, kind: liveEffort.kind } }]
++          : []
++    )
++  }
+   const defaultLabel = t('settings.sourceControl.actionModel.effortDefault', 'Default')
+   return (
+     <div className={layout === 'contents' ? 'contents' : 'grid min-w-0 grid-cols-1 gap-2'}>
+@@ -121,6 +149,11 @@
+           row={layout === 'rows'}
+           value={selected?.model ?? AGENT_DEFAULT_VALUE}
+           disabled={disabled}
++          pendingLabel={
++            modelMenu?.status === 'listing' && modelDescriptor
++              ? (selected?.model ?? t('settings.sourceControl.actionModel.model', 'Model'))
++              : undefined
++          }
+           onOpenChange={onOpenChange}
+           choices={[
+             {
+@@ -129,14 +162,17 @@
+                 defaultLabels?.model ??
+                 t('settings.sourceControl.actionModel.agentDefault', 'Agent default')
+             },
+-            ...listedModels.map(({ id, label }) => ({ value: id, label })),
++            ...listedModels.map(({ id, label }) => ({
++              value: id,
++              label
++            })),
+             ...(unlistedModel ? [{ value: unlistedModel, label: unlistedModel }] : [])
+           ]}
+           onChange={(model) => onSelect({ model: model === AGENT_DEFAULT_VALUE ? null : model })}
+         />
+       ) : null}
+-      {catalog?.models.length && usesSeedModels ? (
+-        <p data-agent-model-list-fallback className="text-xs text-muted-foreground">
++      {(modelMenu?.fallbackAfterFailure ?? (catalog?.models.length && usesSeedModels)) ? (
++        <p role="note" data-agent-model-list-fallback className="text-xs text-muted-foreground">
+           {t(
+             'settings.agents.modelListFallback',
+             'Built-in list. Orca could not get a model list from this host.'
+@@ -165,7 +201,7 @@
+             row={layout === 'rows'}
+             hint={sourceControlActionRouteHint(route, t)}
+             value={current ?? AGENT_DEFAULT_VALUE}
+-            disabled={disabled}
++            disabled={disabled || (option.id === 'effort' && effort?.settable === false)}
+             onOpenChange={onOpenChange}
+             choices={[
+               {

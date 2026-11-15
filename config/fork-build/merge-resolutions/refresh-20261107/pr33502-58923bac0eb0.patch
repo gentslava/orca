@@ -1,0 +1,16 @@
+diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
+--- a/src/renderer/src/i18n/locales/ru.json
++++ b/src/renderer/src/i18n/locales/ru.json
+@@ -144,6 +144,12 @@
+       }
+     },
+     "projectOrder": {
++      "pin": "Закрепить проект",
++      "unpin": "Открепить проект",
++      "frequent": "Часто используемые",
++      "recentDescription": "Недавно открытые вами",
++      "frequentDescription": "По частоте ваших открытий",
++      "nameDescription": "Название проекта по алфавиту",
+       "saveFailed": "Не удалось сохранить порядок проектов"
+     },
+     "agentSummary": {
