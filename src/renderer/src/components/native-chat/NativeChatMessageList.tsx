@@ -19,7 +19,7 @@ import { useNativeChatTranscriptProjection } from './conversation/projection/use
 import { useNativeChatQuestionReceipts } from './conversation/projection/use-native-chat-question-receipts'
 import { nativeChatTaskListPredecessors } from '../../../../shared/native-chat/input/task-lists/native-chat-task-list-history'
 import { NativeChatDockedTaskList } from './tools/tasks/NativeChatDockedTaskList'
-import { useNativeChatTurnStatus } from './conversation/turns/use-native-chat-turn-status'
+import * as turnStatus from './conversation/turns/use-native-chat-turn-status'
 import { NativeChatAwaitingInputRow } from './prompts/NativeChatAwaitingInputRow'
 import { NativeChatTurnActivityLine } from './messages/reasoning/NativeChatTurnActivityLine'
 import {
@@ -138,7 +138,7 @@ export function NativeChatMessageList({
       isStructuredAgentSessionThinking({ items: journalItems ?? [], latestTurn }),
     [journalItems, latestTurn, subagentId]
   )
-  const turnStatuses = useNativeChatTurnStatus({
+  const turnStatuses = turnStatus.useNativeChatTurnStatus({
     turnKeys,
     liveTurnKey,
     isWorking: working,
