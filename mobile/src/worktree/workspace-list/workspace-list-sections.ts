@@ -21,6 +21,10 @@ import {
   PR_GROUP_ORDER
 } from '../../../../src/shared/workspace-view/workspace-pr-groups'
 import type { FilterState, Section, SectionRepo, Worktree } from './workspace-list-types'
+import {
+  NO_PROJECT_SECTION_CATALOG,
+  type ProjectSectionCatalog
+} from '../project-sections/project-section-catalog'
 import type {
   WorkspaceGroupBy,
   WorkspaceSortBy
@@ -30,17 +34,16 @@ import { getWorktreeRowIdentity } from '../row-presentation/worktree-host-row-id
 import { NO_WORKTREE_HOST_CONTEXT } from '../row-presentation/worktree-host-context-labels'
 import type { WorktreeHostContextOf } from '../row-presentation/worktree-host-context-labels'
 import {
+  getRepoExecutionHostId,
   LOCAL_EXECUTION_HOST_ID,
   type ExecutionHostId
 } from '../../../../src/shared/execution-host'
 import {
   buildProjectGroupingIndex,
   buildProjectSections,
-  getProjectGroupingForRepo,
-  type ProjectSectionModel
+  getProjectGroupingForRepo
 } from '../../../../src/shared/project-section-grouping'
 import { withRepoSectionDisplayLabels } from '../../../../src/shared/project-section-order'
-import type { ProjectOrderBy } from '../../../../src/shared/ui-chrome-types'
 import { translate } from '../../i18n/mobile-i18n'
 import {
   indexHiddenProjects,
@@ -49,22 +52,11 @@ import {
 } from '../../../../src/shared/hidden-projects'
 import { filterWorktrees } from './workspace-row-filtering'
 
-export type ProjectSectionCatalog = {
-  /** Catalog repos of the hosts the list shows; each without rows gets an empty section. */
-  repos: readonly SectionRepo[]
-  /** Null until the desktop's catalog answers; rows then group by repo, as the desktop's would. */
-  grouping: ProjectSectionModel | null
-  /** Manual header rank; undefined keeps first-row order. */
-  repoOrder: ReadonlyMap<string, number> | undefined
-  projectOrderBy: ProjectOrderBy
-}
-
-export const NO_PROJECT_SECTION_CATALOG: ProjectSectionCatalog = {
-  repos: [],
-  grouping: null,
-  repoOrder: undefined,
-  projectOrderBy: 'manual'
-}
+export type { FilterState, Section, SectionRepo, Worktree } from './workspace-list-types'
+export {
+  NO_PROJECT_SECTION_CATALOG,
+  type ProjectSectionCatalog
+} from '../project-sections/project-section-catalog'
 
 export function buildSectionRepoMap(
   catalogRepos: readonly SectionRepo[],
@@ -176,6 +168,11 @@ export function buildMobileWorkspacePlan(
           buildProjectSections({
             items: canonicalGroupWorktrees,
             repoIdOf: (w) => w.repoId,
+            repoOfItem: (w) =>
+              projectCatalog.repos.find(
+                (repo) =>
+                  repo.id === w.repoId && getRepoExecutionHostId(repo) === (w.hostId ?? 'local')
+              ),
             displayRepoIdOf: (w) =>
               (displayRootByIdentity.get(getWorktreeRowIdentity(w)) ?? w).repoId,
             repoMap,

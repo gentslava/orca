@@ -495,6 +495,7 @@ import {
 } from './orchestration/orchestration-worker-release-schemas-params'
 import { WorkerStartParams } from './orchestration/orchestration-worker-start-params'
 import { WorkerDispatchParams as WorkerDispatchParamsOfOrchestrationWorkerStopParams } from './orchestration/orchestration-worker-stop-params'
+import { RecordProjectOpenParams, SetProjectPinnedParams } from './personal-project-order-params'
 import {
   PluginCatalogAddParams,
   PluginCatalogRemoveParams,
@@ -1671,10 +1672,12 @@ export const RPC_PARAMS_BY_METHOD = {
   'ui.getJiraSavedFilters': null,
   'ui.mutateJiraSavedFilters': JiraSavedFilterMutationParam,
   'ui.recordFeatureInteraction': FeatureInteractionIdParam,
+  'ui.recordProjectOpen': RecordProjectOpenParams,
   'ui.set': UiUpdate,
   'ui.setCollapsed': SetCollapsedParams,
   'ui.setConversationPreference': SetConversationPreferenceParams,
   'ui.setJiraQuickFilters': JiraQuickFilterStateParam,
+  'ui.setProjectPinned': SetProjectPinnedParams,
   'updater.check': UpdaterCheckParams,
   'updater.download': null,
   'updater.getStatus': null,
