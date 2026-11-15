@@ -19,11 +19,7 @@ import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-pro
 import { getOrcaElectronLaunchArgs } from './electron-launch-args'
 import { retryTransientMainEvaluate } from './electron-main-evaluate-retry'
 import { cleanupE2EDaemons, closeElectronAppForE2E } from './electron-process-shutdown'
-import {
-  assertElectronResolvedIsolatedHome,
-  createElectronHomeIsolation,
-  type ElectronHomeIsolation
-} from './electron-home-isolation'
+import * as electronHome from './electron-home-isolation'
 import type { LaunchOptions } from './orca-restart-launch-options'
 import { selectSidebarBody } from './store'
 
@@ -89,10 +85,10 @@ function createRestartLaunchIsolation(
   userDataDir: string,
   headful: boolean,
   extraEnv: Record<string, string>
-): ElectronHomeIsolation {
+): electronHome.ElectronHomeIsolation {
   const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
   void _unused
-  return createElectronHomeIsolation({
+  return electronHome.createElectronHomeIsolation({
     inheritedEnv: cleanEnv,
     launchEnv: {
       NODE_ENV: 'development',
@@ -166,7 +162,7 @@ export function createRestartSession(
           return app.getPath('home')
         })
       )
-      assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
+      electronHome.assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
       await options?.beforeFirstWindow?.(app)
       const page = await app.firstWindow({ timeout: 120_000 })
       await page.waitForLoadState('domcontentloaded')

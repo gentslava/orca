@@ -24,10 +24,7 @@ import {
   NativeChatStructuredTranscriptFrame
 } from './NativeChatStructuredTranscript'
 import { NativeChatChildTranscriptStack } from './NativeChatChildTranscript'
-import {
-  NativeChatChildNavigationContext,
-  useNativeChatChildNavigator
-} from './native-chat-child-navigation'
+import * as childNavigation from './native-chat-child-navigation'
 import { NativeChatContextClearFade } from './conversation/projection/NativeChatContextClearFade'
 import { useStructuredNativeChatSubmitReveal } from './pane/actions/use-structured-native-chat-submit-reveal'
 import { useStructuredPromptResponseHold } from './prompts/use-structured-prompt-response-hold'
@@ -65,7 +62,7 @@ import { nativeChatStructuredStopControls } from './session/structured/writes/na
 import { useAppStore } from '../../store'
 import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
 import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
-import { NativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
+import { nativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
 import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
 import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
 import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
@@ -83,7 +80,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   // The host's own word on whether the provider child has answered startup yet.
   const hostExecution = useStructuredAgentSessionHostExecution(props.sessionId, props.target)
   const paneKey = structuredAgentSessionPaneKey(props.tabId, props.sessionId)
-  const childNavigator = useNativeChatChildNavigator(JSON.stringify([paneKey, props.target]))
+  const childNavigator = childNavigation.useNativeChatChildNavigator(
+    JSON.stringify([paneKey, props.target])
+  )
   const { messageListRef: childMessageListRef } = childNavigator
   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
   // Chat-wide preference; an alternate send flips it for one message.
@@ -252,7 +251,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
     hostNotice
   })
   const root = (
-    <NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
+    <childNavigation.NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
       <div
         ref={rootRef}
         data-native-chat-root="true"
@@ -343,18 +342,13 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                 pane={props}
                 isVisible={props.isVisible && childNavigator.child === null}
               />
-              {prompt || subagentOpen ? null : (
-                <NativeChatStructuredComposerTabStrips
-                  tabId={props.tabId}
-                  runtimeContext={imageRuntimeContext}
-                  threadGoal={controller.threadGoal}
-                  transport={transport}
-                  isWorking={controller.isWorking}
-                  isVisible={props.isVisible}
-                  turnId={controller.turnId}
-                  workingStartedAt={controller.workingStartedAt}
-                />
-              )}
+              {nativeChatStructuredComposerTabStrips({
+                shown: prompt === null && !subagentOpen,
+                pane: props,
+                controller,
+                runtimeContext: imageRuntimeContext,
+                transport
+              })}
               {/* Prompt cards take the composer's slot, below the background-task dock. */}
               {composerShown || subagentOpen ? null : (
                 <NativeChatPromptSlotNotices notices={notices} />
@@ -408,7 +402,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
         {handOff.dialog}
         <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
       </div>
-    </NativeChatChildNavigationContext.Provider>
+    </childNavigation.NativeChatChildNavigationContext.Provider>
   )
   return (
     <NativeChatLinkClickContext value={onLinkClick}>

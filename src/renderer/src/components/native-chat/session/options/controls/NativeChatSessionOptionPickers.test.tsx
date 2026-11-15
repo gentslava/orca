@@ -164,5 +164,7 @@ it('shows the selected model when legacy answering-model metadata names another 
       }}
     />
   )
-  expect(screen.getByRole('button', { name: 'Model Opus 5.5' }).textContent).toBe('Opus 5.5')
+  expect(screen.getByRole('button', { name: 'Next turn: Model Opus 5.5' }).textContent).toBe(
+    'Opus 5.5'
+  )
 })

@@ -1,4 +1,8 @@
 import { createWebRuntimeEnvironmentSubscriber } from './web-runtime-subscription'
+import {
+  renameWebRuntimeEnvironment,
+  removeWebRuntimeEnvironment
+} from './web-runtime-environment-mutations'
 import { pairedRuntimeConnectionFromOffer } from '../../../../shared/remote-runtime/pairing/paired-runtime-connection'
 import {
   createWebRuntimeSubscriptionApiControl,
@@ -32,8 +36,6 @@ import {
   disconnectActiveRuntimeEnvironment,
   getClientForEnvironment,
   manuallyDisconnectedEnvironmentIds,
-  removeActiveRuntimeEnvironment,
-  assertEnvironmentPairingCurrent,
   requireActiveEnvironmentOrNull,
   resolveEnvironment,
   webRuntimeState
@@ -182,37 +184,8 @@ export function createRuntimeEnvironmentsApi(): PreloadApi['runtimeEnvironments'
     }),
     resolve: async ({ selector }) =>
       redactStoredWebRuntimeEnvironment(resolveEnvironment(selector)),
-    remove: async ({ selector }) => {
-      const environment = resolveEnvironment(selector)
-      if (webRuntimeState.activeEnvironment?.id === environment.id) {
-        removeActiveRuntimeEnvironment()
-      }
-      manuallyDisconnectedEnvironmentIds.delete(environment.id)
-      return { removed: redactStoredWebRuntimeEnvironment(environment) }
-    },
-    rename: async ({ selector, name }) => {
-      const environment = resolveEnvironment(selector)
-      const trimmed = name.trim()
-      if (!trimmed) {
-        throw new Error(
-          translate(
-            'auto.web.webPreloadApi.runtimeEnvironmentNameRequired',
-            'A server name is required.'
-          )
-        )
-      }
-      if (trimmed === environment.name) {
-        return { environment: redactStoredWebRuntimeEnvironment(environment) }
-      }
-      // The resolved record may predate a re-pair in another tab; refuse to rename that stale copy.
-      assertEnvironmentPairingCurrent(environment)
-      const next = { ...environment, name: trimmed, updatedAt: Date.now() }
-      saveStoredWebRuntimeEnvironment(next)
-      if (webRuntimeState.activeEnvironment?.id === environment.id) {
-        webRuntimeState.activeEnvironment = next
-      }
-      return { environment: redactStoredWebRuntimeEnvironment(next) }
-    },
+    remove: async ({ selector }) => removeWebRuntimeEnvironment(selector),
+    rename: async ({ selector, name }) => renameWebRuntimeEnvironment(selector, name),
     disconnect: async ({ selector }) => {
       const environment = resolveEnvironment(selector)
       if (webRuntimeState.activeEnvironment?.id === environment.id) {

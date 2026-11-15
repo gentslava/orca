@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act, type ReactElement, type ReactNode } from 'react'
 import { fireEvent, getByRole } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { chooseEffort, effortLabel } from '../native-chat/native-chat-effort-slider.test-fixture'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -106,8 +106,6 @@ describe('setup records exist only for authored setups', () => {
       document.querySelector<HTMLButtonElement>('button[aria-label="Configure codex"]')!
     const prompt = () =>
       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
-    const effort = (label: string) =>
-      getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
     const close = () =>
       fireEvent.keyDown(document.querySelector('[cmdk-input]')!, { key: 'Escape' })
     show(entry)
@@ -120,14 +118,14 @@ describe('setup records exist only for authored setups', () => {
     // Arguments are agent settings, so the launch panel offers no editor for them.
     expect(document.querySelector('textarea[aria-label="Arguments"]')).toBeNull()
     fireEvent.click(getByRole(document.body, 'radio', { name: 'Low' }))
-    expect(effort('Low')).toBe('on')
+    expect(effortLabel()).toBe('Low')
     expect(sourceCount()).toBe(1)
     changePrompt(prompt(), 'fix the flaky test')
     close()
     expect(document.querySelector('[cmdk-input]')).toBeNull()
     fireEvent.click(configure())
     expect(prompt().textContent).toBe('fix the flaky test')
-    expect(effort('Low')).toBe('on')
+    expect(effortLabel()).toBe('Low')
     close()
 
     act(() =>
@@ -140,7 +138,7 @@ describe('setup records exist only for authored setups', () => {
     show({ ...entry, worktreeId: 'repo::/new' })
     fireEvent.click(configure())
     expect(prompt().textContent).toBe('fix the flaky test')
-    expect(effort('Low')).toBe('on')
+    expect(effortLabel()).toBe('Low')
   })
 
   it('keeps a search preset in its own options slot, saving only real changes, with one shared prompt', async () => {
@@ -180,14 +178,11 @@ describe('setup records exist only for authored setups', () => {
         </InMenu>
       )
     )
-    const user = userEvent.setup()
     const [plain, searched] = document.querySelectorAll<HTMLButtonElement>(
       'button[aria-label="Configure claude"]'
     )
     const prompt = () =>
       document.querySelector<HTMLElement>('[contenteditable][aria-multiline="true"]')!
-    const effort = (label: string) =>
-      getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
     const model = () => document.querySelector('[cmdk-item][data-current="true"]')?.textContent
     const close = () =>
       fireEvent.keyDown(document.querySelector('[cmdk-input]')!, { key: 'Escape' })
@@ -195,7 +190,7 @@ describe('setup records exist only for authored setups', () => {
     // Opening a preset saves nothing, and the plain row still shows defaults.
     fireEvent.click(searched)
     expect(model()).toBe('opus')
-    expect(effort('High')).toBe('on')
+    expect(effortLabel()).toBe('High')
     close()
     expect(sourceCount()).toBe(0)
     fireEvent.click(plain)
@@ -206,14 +201,14 @@ describe('setup records exist only for authored setups', () => {
 
     // A real change saves into that preset's slot only and survives close and reopen.
     fireEvent.click(searched)
-    await user.click(getByRole(document.body, 'radio', { name: 'Low' }))
-    expect(effort('Low')).toBe('on')
+    chooseEffort('Low')
+    expect(effortLabel()).toBe('Low')
     expect(sourceCount()).toBe(1)
     changePrompt(prompt(), 'review the diff')
     close()
     fireEvent.click(searched)
     expect(model()).toBe('opus')
-    expect(effort('Low')).toBe('on')
+    expect(effortLabel()).toBe('Low')
     close()
 
     // The plain row keeps its own options but shares the workspace's typed prompt.
