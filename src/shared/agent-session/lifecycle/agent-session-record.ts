@@ -130,6 +130,8 @@ export type AgentSessionRecord = {
   launchDirectory?: string
   /** Provider options the user chose, replayed whenever a new owner starts the session. */
   options?: Record<string, string>
+  /** Original host configuration resolved when Default was selected; empty before first launch. */
+  defaultModelOptions?: Record<string, string>
   /** The permission mode the user chose; Orca's, so a provider's options answer never replaces it. */
   permissionMode?: string
   usageLimitContinueCancel?: { turnItemId: string; resetsAt: number }
@@ -178,10 +180,8 @@ export function agentSessionExecutionLocationsEqual(
   left: AgentSessionExecutionLocation,
   right: AgentSessionExecutionLocation
 ): boolean {
-  return (
-    agentSessionScopeKey(left) === agentSessionScopeKey(right) &&
-    left.workspaceKind === right.workspaceKind
-  )
+  const sameScope = agentSessionScopeKey(left) === agentSessionScopeKey(right)
+  return sameScope && left.workspaceKind === right.workspaceKind
 }
 
 export function isAgentSessionExecutionLocation(
@@ -211,8 +211,7 @@ export function isAgentSessionProcessIdentity(
     Number.isSafeInteger(identity.pid) &&
     (identity.pid as number) > 0 &&
     (identity.processStartTimeMs === null ||
-      (Number.isSafeInteger(identity.processStartTimeMs) &&
-        (identity.processStartTimeMs as number) >= 0)) &&
+      isNonNegativeSafeInteger(identity.processStartTimeMs)) &&
     isBoundedString(identity.spawnToken, MAX_ID_LENGTH) &&
     (identity.runtime === undefined || isBoundedString(identity.runtime, MAX_ID_LENGTH))
   )
@@ -322,6 +321,8 @@ export function isPersistedAgentSessionObservationRecord(
       (record.launchDirectory === undefined ||
         isBoundedString(record.launchDirectory, MAX_PATH_LENGTH)) &&
       (record.options === undefined || isAgentSessionOptions(record.options)) &&
+      (record.defaultModelOptions === undefined ||
+        isAgentSessionOptions(record.defaultModelOptions)) &&
       (record.permissionMode === undefined ||
         isBoundedString(record.permissionMode, MAX_ID_LENGTH)) &&
       isOptionalUsageLimitContinueCancel(record.usageLimitContinueCancel) &&

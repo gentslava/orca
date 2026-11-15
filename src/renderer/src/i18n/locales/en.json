@@ -20731,6 +20731,8 @@
         "forkedFromUnknown": "Forked from another chat"
       },
       "composer": {
+        "defaultModel": "Default",
+        "defaultModelNotReported": "Default model not reported",
         "send": "Send",
         "planMode": "Plan",
         "moreControls": "More chat controls",
@@ -20852,8 +20854,8 @@
           "xhigh": "XHigh"
         },
         "imageUnavailable": "Preview unavailable",
-        "nextTurnOptionsLabel": "Next turn: {{options}}",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+        "nextTurnOptionsLabel": "Next turn: {{options}}",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
         "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
       },
