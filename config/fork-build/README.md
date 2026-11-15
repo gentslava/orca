@@ -176,3 +176,5 @@ The dynamic host-model report regression follows merged 41512: the next-turn pic
 The combined host facade reuses the existing restart/resume factory return type, as its other collaborator fields already do. Removing the redundant type-only import keeps the class within the unchanged 300-line limit; runtime statements and public behavior remain unchanged.
 
 Large source-refresh merges run the same pre-commit tasks with at most two concurrent lint-staged groups. The hook still checks every staged file and runs every configured command; the cap avoids launching all argument chunks at once on a shared workstation.
+
+The flaky-test ratchet uses the same bounded 64 MiB Git-output buffer as the adjacent ratchet tooling. This accommodates the full changed-path inventory of a source-refresh merge; changed-file scope and every finding remain enforced.

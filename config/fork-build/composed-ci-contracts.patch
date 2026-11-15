@@ -1025,3 +1025,14 @@ diff --git a/.husky/pre-commit b/.husky/pre-commit
  #!/usr/bin/env sh
 -lint-staged
 +lint-staged --concurrent 2
+diff --git a/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs b/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
+--- a/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
++++ b/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
+@@ -47,6 +47,7 @@
+     cwd: root,
+     encoding: 'utf8',
+     stdio: ['ignore', 'pipe', 'ignore'],
++    maxBuffer: 64 * 1024 * 1024,
+     ...options
+   })
+ }
