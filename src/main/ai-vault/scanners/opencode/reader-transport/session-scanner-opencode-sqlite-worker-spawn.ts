@@ -1,12 +1,14 @@
+import type * as AiVault from '../../../../../shared/ai-vault/contracts/ai-vault-types'
+import { existsSync } from 'node:fs'
+import type { Worker } from 'node:worker_threads'
+import { spawnWorkerThread } from '../../../../worker-threads/worker-thread-spawn'
+import { findForeignSqliteReaderEntry } from '../../../../foreign-sqlite-readers/foreign-sqlite-reader-entry-path'
+import { selectedWslSqliteSessionId } from '../../../session-scanner-selection'
 import { aiVaultScopePathsForWslDistro } from '../../../../../shared/ai-vault/scanning/ai-vault-scope-cwd-match'
 import {
   recordSessionScanIssue,
   scanIssueTextFromError
 } from '../../../parsing/session-scan-issues'
-import { existsSync } from 'node:fs'
-import type { Worker } from 'node:worker_threads'
-import { spawnWorkerThread } from '../../../../worker-threads/worker-thread-spawn'
-import type * as AiVault from '../../../../../shared/ai-vault/contracts/ai-vault-types'
 import { throwIfSignalAborted } from '../../../../../shared/abort-signal-reason'
 import { openCodeTranscriptPageLimit } from '../../../../../shared/opencode-transcript-page-limit'
 import type { SessionFileCandidate } from '../../../session-scanner-types'
@@ -21,7 +23,6 @@ import {
   openCodeWslClient,
   openCodeWslPath
 } from './session-scanner-opencode-wsl-client'
-import { findForeignSqliteReaderEntry } from '../../../../foreign-sqlite-readers/foreign-sqlite-reader-entry-path'
 import { runOpenCodeSqliteScanRequest } from '../sqlite/session-scanner-opencode-sqlite-scan-scope'
 import {
   noteAiVaultScanDatabases,
@@ -47,9 +48,7 @@ function defaultWorkerFactory(): Worker {
 let sharedClient: OpenCodeSqliteWorkerClient | null = null
 
 function getSharedClient(): OpenCodeSqliteWorkerClient {
-  sharedClient ??= new OpenCodeSqliteWorkerClient({
-    workerFactory: defaultWorkerFactory
-  })
+  sharedClient ??= new OpenCodeSqliteWorkerClient({ workerFactory: defaultWorkerFactory })
   return sharedClient
 }
 
@@ -170,6 +169,11 @@ async function listCandidatesForHost(
               signal,
               dbPaths: [...paths.keys()],
               scopePaths,
+              selectedSessionId: selectedWslSqliteSessionId(
+                args.selectedSessionId,
+                args.agent ?? 'opencode',
+                paths
+              ),
               issues
             })
           },
