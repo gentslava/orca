@@ -1,3 +1,4 @@
+import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
 import {
   captureRuntimeAiVaultProjectionDependency,
   type AiVaultProjectionDependency
@@ -61,7 +62,6 @@ import {
 import { allHostsRuntimeScanTimeoutMs } from './ai-vault-all-host-timeouts'
 import { registerAiVaultScanProgressBroadcast } from './ai-vault-scan-progress-broadcast'
 import { boundedAiVaultConversationList } from '../../ai-vault/structured-conversation-navigation'
-import { scanLocalAiVaultSessionsAsIssue } from './ai-vault-local-scan'
 
 type AiVaultHandlerOptions = AiVaultSessionSources &
   AiVaultResumeHandlerOptions & {

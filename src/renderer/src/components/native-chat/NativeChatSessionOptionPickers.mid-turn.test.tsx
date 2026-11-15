@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 
 const rpc = vi.hoisted(() => ({ call: vi.fn() }))
@@ -40,11 +40,13 @@ afterEach(() => {
   forgetStructuredSessionSelection(sessionId)
 })
 
-it('refreshes the composer model from host execution reports without changing captured input', async () => {
+it('keeps the next-turn model and captured input stable when host execution reports change', async () => {
   let reportedModel = 'claude-opus-5-5'
   const sent: unknown[] = []
+  const reports: string[] = []
   rpc.call.mockImplementation(async (_target, method) => {
     if (method === 'agentSession.options') {
+      reports.push(reportedModel)
       return {
         models: [{ id: 'claude-opus-5-5', label: 'Opus 5.5', efforts: [] }],
         current: {
@@ -94,16 +96,18 @@ it('refreshes the composer model from host execution reports without changing ca
     ).toBeTruthy()
   )
   reportedModel = 'claude-opus-4-8'
-  rerender(<Composer stamp={reportedModel} />)
+  await act(async () => rerender(<Composer stamp={reportedModel} />))
+  expect(reports.at(-1)).toBe(reportedModel)
   await waitFor(() =>
     expect(
-      screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 4\.8$/ })
+      screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 5\.5$/ })
     ).toBeTruthy()
   )
   fireEvent.click(screen.getByText('Capture next message'))
   expect(sent).toEqual([{ selection: { model: 'claude-opus-5-5' } }])
   reportedModel = 'claude-opus-5-5'
-  rerender(<Composer stamp={reportedModel} />)
+  await act(async () => rerender(<Composer stamp={reportedModel} />))
+  expect(reports.at(-1)).toBe(reportedModel)
   await waitFor(() =>
     expect(
       screen.getByRole('button', { name: /^Next turn: Model (Claude )?Opus 5\.5$/ })

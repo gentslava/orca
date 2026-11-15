@@ -1,14 +1,17 @@
 import { createElement, useLayoutEffect } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { BRIDGE_NATIVE_VERB_NAMES, type BridgeNativeVerb } from './bridge/bridge-native-verbs'
-import { bridgeId, clientFrame, createFakeRpcClient } from './bridge-host-test-fakes'
-import type { FakeRpcClient } from './bridge-host-test-fakes'
-import { CACHED } from './mobile-web-shell-session-test-fixtures'
+import {
+  BRIDGE_NATIVE_VERB_NAMES,
+  type BridgeNativeVerb
+} from './bridge/native-capabilities/bridge-native-verbs'
+import { bridgeId, clientFrame, createFakeRpcClient } from './test-support/bridge-host-test-fakes'
+import type { FakeRpcClient } from './test-support/bridge-host-test-fakes'
+import { CACHED } from './test-support/mobile-web-shell-session-test-fixtures'
 import {
   useMobileWebShellBridge,
   type MobileWebShellBridgeView
-} from './use-mobile-web-shell-bridge'
+} from './page-document/use-mobile-web-shell-bridge'
 import { connectionLogStore } from '../diagnostics/connection/persisted-connection-log-store'
 
 const doubles = vi.hoisted((): { client: FakeRpcClient | null } => ({ client: null }))
@@ -63,7 +66,13 @@ function Screen(): null {
   })
   held.view = view
   useLayoutEffect(() => {
-    view.viewRef({ postBridgeMessage: async () => {} })
+    view.viewRef({
+      postBridgeMessage: async () => {},
+      createVisualDocument: async () => {
+        throw new Error('This media picker fixture creates no visual')
+      },
+      releaseVisualDocument: async () => {}
+    })
     return () => view.viewRef(null)
   }, [view.viewRef])
   return null

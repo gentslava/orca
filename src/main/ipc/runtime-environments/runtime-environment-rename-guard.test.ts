@@ -20,7 +20,7 @@ vi.mock('../../../shared/remote-runtime/host-store/runtime-environment-store', (
   resolveEnvironment: resolveEnvironmentMock
 }))
 
-import { registerRuntimeEnvironmentConnectivityHandlers } from './runtime-environment-connectivity-handlers'
+import { registerRuntimeEnvironmentConnectivityHandlers } from './connectivity/runtime-environment-connectivity-handlers'
 
 const environment = { id: 'environment-a', name: 'desk', runtimeId: 'runtime-a', endpoints: [] }
 

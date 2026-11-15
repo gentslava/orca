@@ -4,6 +4,7 @@ import {
   saveStoredWebRuntimeEnvironment
 } from '../web-runtime-environment'
 import {
+  assertEnvironmentPairingCurrent,
   resolveEnvironment,
   webRuntimeState,
   removeActiveRuntimeEnvironment,
@@ -24,6 +25,7 @@ export function renameWebRuntimeEnvironment(selector: string, name: string) {
   if (trimmed === environment.name) {
     return { environment: redactStoredWebRuntimeEnvironment(environment) }
   }
+  assertEnvironmentPairingCurrent(environment)
   const next = { ...environment, name: trimmed, updatedAt: Date.now() }
   saveStoredWebRuntimeEnvironment(next)
   if (webRuntimeState.activeEnvironment?.id === environment.id) {

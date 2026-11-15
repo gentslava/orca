@@ -49,7 +49,7 @@ async function session(variable: string, signedOut = false) {
 }
 
 const work = {
-  currentWork: () => null,
+  currentWork: async () => null,
   childWorkOpen: () => false,
   hasOpenDispatch: () => false,
   providerHoldsDispatch: () => false,

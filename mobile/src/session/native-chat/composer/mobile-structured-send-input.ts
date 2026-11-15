@@ -3,9 +3,9 @@ import type { StructuredAgentSessionComposerOptions } from '../../../../../src/s
 import type { AgentSessionSlashCommand } from '../../../../../src/shared/agent-session/agent-session-wire'
 import type { StructuredAgentSessionState } from '../../../../../src/shared/agent-session/structured-agent-session-reducer'
 import type { RpcClient } from '../../../transport/rpc/rpc-client-contract'
-import type { MobileNativeChatSendErrorReporter } from './use-mobile-native-chat-send-error'
-import type { MobileStructuredSends } from './use-mobile-structured-sends'
-import type { MobileStructuredSendsOut } from './use-mobile-structured-stop-offer'
+import type { MobileNativeChatSendErrorReporter } from './delivery/use-mobile-native-chat-send-error'
+import type { MobileStructuredSends } from './delivery/use-mobile-structured-sends'
+import type { MobileStructuredSendsOut } from './delivery/use-mobile-structured-stop-offer'
 
 export type MobileStructuredSendInput = {
   agent: string | null

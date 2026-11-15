@@ -1,4 +1,3 @@
-import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
 import { useMemo } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/class-names'
@@ -30,6 +29,7 @@ import { NativeChatExpandable } from '../../messages/disclosure/NativeChatExpand
 import { useNativeChatDisclosure } from '../../messages/disclosure/native-chat-disclosure-store'
 import { NativeChatToolOutput } from './NativeChatToolOutput'
 import { NativeChatToolInvocation } from '../../NativeChatToolInvocation'
+import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
 
 const TARGET_CLASS =
   'min-w-0 text-chat-foreground transition-colors group-hover/tool-line:text-chat-foreground-strong'

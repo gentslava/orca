@@ -1,3 +1,4 @@
+import type { JournalForkInstall } from '../../agent-session-journal/journal-fork-stages'
 // Admission already passed; journal before adapter effects so a crash leaves recoverable unknown work.
 // Calling the adapter first could lose a turn it accepted.
 
@@ -23,6 +24,7 @@ import {
 import type { AgentSessionRefusalReason } from '../../../../shared/agent-session/failures/agent-session-refusal-details'
 import type { AgentSessionSendResult } from '../../../../shared/agent-session/agent-session-wire'
 import type { StructuredAgentSessionCurrentWork } from '../observations/structured-agent-session-current-work'
+import type { JournalWorkReader } from '../../agent-session-journal/journal-work-read'
 import type { AgentSessionJournal } from '../../agent-session-journal/journal-store'
 import type { JournalOperationReceipt } from '../../agent-session-journal/writing/journal-row-writer'
 import type { StructuredAgentSessionAdapter } from '../providers/structured-agent-session-adapter'
@@ -42,11 +44,13 @@ import './structured-agent-session-turns-prompt'
 import './structured-agent-session-turns-cancel'
 
 export type AgentSessionTurnContext = {
+  forkInstall?: JournalForkInstall
   sessionId: string
   journal: AgentSessionJournal
   fence: number
   /** Read fresh: child exit may change current work mid-operation. */
-  currentWork?: () => StructuredAgentSessionCurrentWork | null
+  currentWork?: () => Promise<StructuredAgentSessionCurrentWork | null>
+  readWork?: JournalWorkReader
   adapter: StructuredAgentSessionAdapter
   /** Registry declarations; agents.capabilities(agent) is this session’s answer. */
   agents: StructuredAgentRegistry
@@ -142,7 +146,7 @@ export async function performSend(
   userClient?: 'desktop' | 'mobile',
   telemetryOwnerKey?: string
 ): Promise<TurnOutcome<AgentSessionSendResult>> {
-  const existing = ctx.journal.submission(input.clientMessageId)
+  const existing = await ctx.journal.reads.submission(input.clientMessageId)
   if (existing && existing.payloadFingerprint !== input.payloadFingerprint) {
     return invalid(
       'messageIdReused',
@@ -159,7 +163,7 @@ export async function performSend(
   const captured = keepCurrentOptions
     ? { options: undefined }
     : input.steer
-      ? captureStructuredSteerOptions(ctx, input.options, input.selection)
+      ? await captureStructuredSteerOptions(ctx, input.options, input.selection)
       : captureStructuredExecutionOptions(ctx, input.options, input.selection)
   if ('refusal' in captured) {
     return { ok: false, refusal: captured.refusal }
@@ -174,11 +178,18 @@ export async function performSend(
         telemetryOwnerKey
       )
     }
-    await ctx.journal.appendSubmission(
-      { ...submission, options: captured.options, fence: ctx.fence, handoverRecorded: true },
-      undefined,
-      ctx.operationReceipt
-    )
+    const acceptedSubmission = {
+      ...submission,
+      options: captured.options,
+      fence: ctx.fence,
+      handoverRecorded: true as const
+    }
+    await (ctx.forkInstall
+      ? ctx.journal.write({ kind: 'submission', input: acceptedSubmission }, () => ({
+          receipt: ctx.operationReceipt,
+          forkInstall: ctx.forkInstall
+        }))
+      : ctx.journal.appendSubmission(acceptedSubmission, undefined, ctx.operationReceipt))
   } catch (error) {
     forgetNativeChatPrompt(ctx.journal, input.clientMessageId)
     return agentSessionAdmissionWriteRefusal(ctx, error)
@@ -187,16 +198,16 @@ export async function performSend(
     ok: true,
     value: {
       clientMessageId: input.clientMessageId,
-      submission: { ...requireSubmission(ctx, input.clientMessageId) }
+      submission: await requireSubmission(ctx, input.clientMessageId)
     }
   }
 }
 
-function requireSubmission(
+async function requireSubmission(
   ctx: AgentSessionTurnContext,
   clientMessageId: string
-): AgentJournalSubmission {
-  const submission = ctx.journal.submission(clientMessageId)
+): Promise<AgentJournalSubmission> {
+  const submission = await ctx.journal.reads.submission(clientMessageId)
   if (!submission) {
     throw new Error('agent_session_submission_lost')
   }
@@ -214,8 +225,7 @@ export type AgentSessionReplayContext = Pick<
   | 'defaultModelSelected'
   | 'now'
 > & {
-  journal: Pick<
-    AgentSessionJournal,
-    'cursor' | 'submission' | 'inputOrder' | 'epoch' | 'threadGoal'
-  > & { queuedMessages: Pick<AgentSessionJournal['queuedMessages'], 'get'> }
+  journal: Pick<AgentSessionJournal, 'cursor' | 'reads'> & {
+    queuedMessages: Pick<AgentSessionJournal['queuedMessages'], 'get'>
+  }
 }

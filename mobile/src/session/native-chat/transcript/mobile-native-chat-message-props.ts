@@ -1,6 +1,6 @@
 import type * as Chat from '../../../../../src/shared/native-chat/native-chat-types'
 import type { NativeChatResolvedPrompt } from '../../../../../src/shared/native-chat/native-chat-resolution-receipt'
-import type { NativeChatTurnStatus } from '../../../../../src/shared/native-chat/transcript/native-chat-turn-status'
+import type { NativeChatTurnStatus } from '../../../../../src/shared/native-chat/transcript/turns/native-chat-turn-status'
 
 export type MobileNativeChatMessageProps = {
   message: Chat.NativeChatMessage

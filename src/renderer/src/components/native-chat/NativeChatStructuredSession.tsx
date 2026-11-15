@@ -1,9 +1,10 @@
-import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
+import { useStructuredNativeChatSubagents } from './subagents/use-structured-native-chat-subagents'
 import { NativeChatStructuredPrompts } from './prompts/NativeChatStructuredAsyncQuestion'
 import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPaneFileDropSurface'
 import { useNativeChatHandOff } from './pane/actions/use-native-chat-hand-off'
 import { useNativeChatStructuredPaneNotices } from '@/components/native-chat/messages/notices/use-native-chat-structured-pane-notices'
 import { useNativeChatPaneFork } from '@/components/native-chat/messages/actions/use-native-chat-fork'
+import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
 import { cn } from '@/lib/class-names'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from '@/components/native-chat/appearance/native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from '@/components/native-chat/appearance/use-native-chat-store-appearance-style'
@@ -23,7 +24,6 @@ import {
   NativeChatStructuredTranscriptFrame
 } from './NativeChatStructuredTranscript'
 import { NativeChatChildTranscriptStack } from './NativeChatChildTranscript'
-import type { NativeChatMessageListHandle } from './messages/actions/use-native-chat-reveal-latest'
 import * as childNavigation from './native-chat-child-navigation'
 import { NativeChatContextClearFade } from './conversation/projection/NativeChatContextClearFade'
 import { useStructuredNativeChatSubmitReveal } from './pane/actions/use-structured-native-chat-submit-reveal'
@@ -36,7 +36,7 @@ import { useNativeChatRootInputRouting } from './composer/focus/use-native-chat-
 import { useNativeChatFontSize } from './appearance/use-native-chat-font-size'
 import { useNativeChatFind } from './viewport/find/use-native-chat-find'
 import { NativeChatFindBar } from './viewport/find/NativeChatFindBar'
-import { nativeChatQueueFollowUps } from '../../../../shared/native-chat/input/native-chat-follow-up-behavior'
+import { nativeChatQueueFollowUps } from '../../../../shared/native-chat/input/composer/native-chat-follow-up-behavior'
 import { LinkActionPopover } from '@/components/link-actions/LinkActionPopover'
 import { useNativeChatLinkActions } from './links/actions/use-native-chat-link-actions'
 import { NativeChatLinkClickContext } from './links/actions/native-chat-link-click-context'
@@ -47,7 +47,6 @@ import { useStructuredAgentSession } from './session/structured/use-structured-a
 import { useNativeChatImageRuntimeContext } from './media/images/native-chat-image-runtime-context'
 import { useStructuredNativeChatPaneCommands } from './pane/actions/use-structured-native-chat-pane-commands'
 import type { NativeChatStructuredViewProps } from './native-chat-view-types'
-import { NativeChatStructuredSessionStatus } from './tools/tasks/NativeChatStructuredSessionStatus'
 import { useNativeChatInterruptedContinuation } from './usage/NativeChatInterruptedContinue'
 import { NativeChatPromptSlotNotices } from './composer/controls/NativeChatComposerNotices'
 import {
@@ -84,7 +83,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   const childNavigator = childNavigation.useNativeChatChildNavigator(
     JSON.stringify([paneKey, props.target])
   )
-  const childMessageListRef = useRef<NativeChatMessageListHandle>(null)
+  const { messageListRef: childMessageListRef } = childNavigator
   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
   // Chat-wide preference; an alternate send flips it for one message.
   const queueFollowUps = useAppStore((store) => nativeChatQueueFollowUps(store.settings))
@@ -189,7 +188,10 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   const prompt = controller.prompts[0] ?? null
   // Unknown prompts leave the composer usable; a send starts a turn whose cancel can resolve them.
   const promptsUnanswerable = pendingPromptsAllUnanswerableHere(controller.prompts)
-  const composerShown = (prompt === null || promptsUnanswerable) && readFailure?.final !== true
+  const subagents = useStructuredNativeChatSubagents({ ...props, paneKey, controller })
+  const subagentOpen = subagents.openId !== null
+  const composerShown =
+    (prompt === null || promptsUnanswerable) && readFailure?.final !== true && !subagentOpen
   // An owned prompt keeps its card; otherwise a missing program leaves the composer disabled.
   const installLayout = viewState.kind === 'empty' ? 'hero' : 'strip'
   const install = useNativeChatInstallSlot(props, agentLabel, installLayout)
@@ -264,6 +266,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
           paneCommands.onKeyDownCapture(event)
           rootInput.onKeyDownCapture(event)
         }}
+        onKeyDown={subagents.onKeyDown}
         onContextMenuCapture={paneCommands.onContextMenuCapture}
         className={cn(
           NATIVE_CHAT_APPEARANCE_ROOT_CLASS,
@@ -304,6 +307,8 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
               ) : (
                 <NativeChatStructuredTranscript
                   pane={props}
+                  paneKey={paneKey}
+                  find={find}
                   directory={fileLinkContext}
                   controller={controller}
                   continuation={continuation.view}
@@ -332,26 +337,22 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                 focusComposer={focusComposer}
                 editAttachTo={{ terminalTabId: props.tabId, agent: props.agent, transport }}
               />
-              <NativeChatStructuredSessionStatus
-                sessionId={props.sessionId}
-                paneKey={paneKey}
-                isVisible={props.isVisible}
-                tasks={controller}
-                messageListRef={submits.messageListRef}
-              />
+              {subagents.strip}
               <NativeChatStructuredWorkerApprovals
                 pane={props}
                 isVisible={props.isVisible && childNavigator.child === null}
               />
               {nativeChatStructuredComposerTabStrips({
-                shown: prompt === null,
+                shown: prompt === null && !subagentOpen,
                 pane: props,
                 controller,
                 runtimeContext: imageRuntimeContext,
                 transport
               })}
               {/* Prompt cards take the composer's slot, below the background-task dock. */}
-              {composerShown ? null : <NativeChatPromptSlotNotices notices={notices} />}
+              {composerShown || subagentOpen ? null : (
+                <NativeChatPromptSlotNotices notices={notices} />
+              )}
               <NativeChatStructuredPrompts
                 pane={props}
                 controller={controller}
@@ -363,9 +364,8 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                 answerInputRef={questionAnswerInputRef}
               />
 
-              {composerShown && (
-                <NativeChatInstallSlot slot={install.slot} agentLabel={agentLabel} />
-              )}
+              {composerShown && <NativeChatInstallSlot install={install} agentLabel={agentLabel} />}
+              {subagents.statusBar}
               {composerShown ? (
                 <NativeChatComposer
                   ref={composerRef}

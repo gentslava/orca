@@ -26,6 +26,7 @@ export const webRuntimeState: {
   zcodePlanSiteRuntimeValue: ZcodePlanSite | null
   worktreeVisibilityDefaultsRuntimeEnvironmentId: string | null
   worktreeVisibilityDefaultsRuntimeValue: WorktreeVisibilityDefaults | null
+  worktreeCardDetailsRowRuntimeEnvironmentId: string | null
   activeClient: WebRuntimeClient | null
   activeClientEnvironmentId: string | null
   cachedDetectedWorktrees: { loadedAt: number; worktrees: Worktree[] } | null
@@ -35,6 +36,7 @@ export const webRuntimeState: {
   zcodePlanSiteRuntimeValue: null,
   worktreeVisibilityDefaultsRuntimeEnvironmentId: null,
   worktreeVisibilityDefaultsRuntimeValue: null,
+  worktreeCardDetailsRowRuntimeEnvironmentId: null,
   activeClient: null,
   activeClientEnvironmentId: null,
   cachedDetectedWorktrees: null
@@ -207,6 +209,13 @@ const PAIRING_CHANGED_MESSAGE = 'The paired Orca server changed while the reques
 
 export function assertActiveEnvironment(environmentId: string): void {
   if (requireActiveEnvironment().id !== environmentId) {
+    throw new Error(PAIRING_CHANGED_MESSAGE)
+  }
+}
+
+export function assertEnvironmentPairingCurrent(environment: StoredWebRuntimeEnvironment): void {
+  const stored = readStoredWebRuntimeEnvironment()
+  if (stored?.id === environment.id && pairingRevisionOf(stored) > pairingRevisionOf(environment)) {
     throw new Error(PAIRING_CHANGED_MESSAGE)
   }
 }

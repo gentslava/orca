@@ -12,8 +12,15 @@ vi.mock('../../transport/connection/host-client-hooks', () => ({
 }))
 
 import { RpcClientProvider } from '../../transport/connection/client-context.web'
-import { createFakeBridgePortPair, disposeBridgePortPair } from './bridge-port-pair-test-harness'
-import { NativeVerbError, useNativeVerbs, type NativeVerbs } from './use-native-verbs'
+import {
+  createFakeBridgePortPair,
+  disposeBridgePortPair
+} from './test-support/bridge-port-pair-test-harness'
+import {
+  NativeVerbError,
+  useNativeVerbs,
+  type NativeVerbs
+} from './native-capabilities/use-native-verbs'
 
 const held: { verbs: NativeVerbs | null } = { verbs: null }
 

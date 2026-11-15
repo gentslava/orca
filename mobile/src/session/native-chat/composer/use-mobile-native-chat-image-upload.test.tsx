@@ -1,13 +1,14 @@
+import type { BridgePortPair } from '../../../mobile-web-shell/bridge/test-support/bridge-port-pair-contract'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { RpcClientProvider } from '../../../transport/connection/client-context.web'
-import {
-  createFakeBridgePortPair,
-  type BridgePortPair
-} from '../../../mobile-web-shell/bridge/bridge-port-pair-test-harness'
-import { useMobileNativeChatImageUpload } from './use-mobile-native-chat-image-upload'
+import { createFakeBridgePortPair } from '../../../mobile-web-shell/bridge/test-support/bridge-port-pair-test-harness'
+import { useMobileNativeChatImageUpload } from './attachments/use-mobile-native-chat-image-upload'
 
-vi.mock('../../../platform/media-picker', async () => import('../../../platform/media-picker.web'))
+vi.mock(
+  '../../../platform/media-picking/media-picker',
+  async () => import('../../../platform/media-picking/media-picker.web')
+)
 vi.mock('../../../transport/connection/host-client-hooks', () => ({
   useDisconnectHostClient: () => () => {},
   useForceReconnect: () => null,

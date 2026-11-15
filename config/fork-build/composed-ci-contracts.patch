@@ -1018,3 +1018,10 @@ diff --git a/src/renderer/src/components/native-chat/session/options/controls/Na
 +    'Opus 5.5'
 +  )
  })
+diff --git a/.husky/pre-commit b/.husky/pre-commit
+--- a/.husky/pre-commit
++++ b/.husky/pre-commit
+@@ -1,2 +1,2 @@
+ #!/usr/bin/env sh
+-lint-staged
++lint-staged --concurrent 2
