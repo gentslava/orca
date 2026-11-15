@@ -1036,3 +1036,15 @@ diff --git a/config/scripts/static-analysis/ratchets/test-quality/check-flaky-te
      ...options
    })
  }
+diff --git a/src/main/native-chat/agent-session-journal/journal-domain-maintenance.test.ts b/src/main/native-chat/agent-session-journal/journal-domain-maintenance.test.ts
+--- a/src/main/native-chat/agent-session-journal/journal-domain-maintenance.test.ts
++++ b/src/main/native-chat/agent-session-journal/journal-domain-maintenance.test.ts
+@@ -297,6 +297,8 @@
+       }
+       return statement
+     })
++    // Query-plan coverage is independent of the maintenance time slice.
++    vi.spyOn(performance, 'now').mockReturnValue(0)
+     expect(
+       maintain(db, { kind: 'domain-retired-prune', sessionId: 'chat', epoch: 'epoch' })
+     ).toEqual({ kind: 'domain-retired', deleted: 50, more: true })

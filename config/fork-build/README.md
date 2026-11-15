@@ -178,3 +178,5 @@ The combined host facade reuses the existing restart/resume factory return type,
 Large source-refresh merges run the same pre-commit tasks with at most two concurrent lint-staged groups. The hook still checks every staged file and runs every configured command; the cap avoids launching all argument chunks at once on a shared workstation.
 
 The flaky-test ratchet uses the same bounded 64 MiB Git-output buffer as the adjacent ratchet tooling. This accommodates the full changed-path inventory of a source-refresh merge; changed-file scope and every finding remain enforced.
+
+The journal range-plan regression pins its monotonic clock while asserting exact row batches and indexed SQL plans. It does not assert a wall-time budget; the production eight-millisecond slice remains unchanged. The child-provider exit regression waits for its existing terminal assertions on both asynchronous publication channels, without changing expected values or timeouts.
