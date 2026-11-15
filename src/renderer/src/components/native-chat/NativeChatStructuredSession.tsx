@@ -4,6 +4,7 @@ import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPane
 import { useNativeChatHandOff } from './pane/actions/use-native-chat-hand-off'
 import { useNativeChatStructuredPaneNotices } from '@/components/native-chat/messages/notices/use-native-chat-structured-pane-notices'
 import { useNativeChatPaneFork } from '@/components/native-chat/messages/actions/use-native-chat-fork'
+import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
 import { cn } from '@/lib/class-names'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from '@/components/native-chat/appearance/native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from '@/components/native-chat/appearance/use-native-chat-store-appearance-style'
@@ -409,5 +410,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
       </div>
     </NativeChatChildNavigationContext.Provider>
   )
-  return <NativeChatLinkClickContext value={onLinkClick}>{root}</NativeChatLinkClickContext>
+  return (
+    <NativeChatLinkClickContext value={onLinkClick}>
+      {nativeChatForegroundTasks(props.sessionId, controller, root)}
+    </NativeChatLinkClickContext>
+  )
 }
