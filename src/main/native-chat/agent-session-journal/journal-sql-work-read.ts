@@ -1,3 +1,4 @@
+import { journalDomainSteerOptions } from './journal-domain-steer-options'
 import { readJournalSqlCurrentWork } from './journal-sql-current-work'
 export { readJournalSqlCurrentWork } from './journal-sql-current-work'
 import {
@@ -71,7 +72,11 @@ export function readJournalSqlWork(
   context: JournalSqlStatusContext,
   input: JournalSqlWorkRead
 ): JournalSqlWorkResult {
-  if (input.operation.kind === 'state' || input.operation.kind === 'input') {
+  if (
+    input.operation.kind === 'state' ||
+    input.operation.kind === 'input' ||
+    input.operation.kind === 'steer-options'
+  ) {
     context.prepareWork()
   }
   const work = readJournalSqlCurrentWork(context, input.authority)
@@ -96,6 +101,8 @@ function readWork(
         journalDomainInputEligibility(context.scope, authority, context, work)
       )
     }
+    case 'steer-options':
+      return { kind: 'steer-options', ...journalDomainSteerOptions(context, work, operation.fence) }
     case 'opening-send':
       return { kind: 'opening-send', opening: journalOpeningSend(context, work, operation.fence) }
     case 'state':

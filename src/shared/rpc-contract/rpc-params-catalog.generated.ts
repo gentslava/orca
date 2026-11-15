@@ -663,6 +663,7 @@ import { CurrentRequestsParams } from './structured-agent-session/agent-session-
 import { ReadVisualParams } from './structured-agent-session/agent-session-visual-params'
 import { ContinueInterruptedParams } from './structured-agent-session/structured-agent-session-continue-params'
 import { ContinuationContextParams } from './structured-agent-session/structured-agent-session-identifiers'
+import { SendParams } from './structured-agent-session/structured-agent-session-message-params'
 import {
   AcknowledgeAttentionParams,
   AgentsParams,
@@ -685,7 +686,6 @@ import {
   RestartResumeParams,
   RevealParams,
   RewindParams,
-  SendParams,
   SetOptionParams,
   SleepWorkspaceParams,
   SubscribeTurnCompletionsParams,
