@@ -8,6 +8,7 @@ import {
   CONVERSATION_PROJECT_VISIBILITY_CAPABILITY
 } from './conversation-navigation-preferences'
 import { ACCOUNT_RUNTIME_CAPABILITIES } from './account-runtime-capabilities'
+import { USAGE_RUNTIME_CAPABILITIES } from './usage-history-rpc'
 import * as agentLaunchCapabilities from './agent-launch/contracts/agent-launch-runtime-capability'
 import {
   AGENT_SESSION_BOUNDARY_RUNTIME_CAPABILITY,
@@ -58,6 +59,7 @@ export const MIN_COMPATIBLE_RUNTIME_SERVER_VERSION = 2
 // Why stars: importers keep reading every capability from here while each area owns its module.
 
 export * from './host-runtime-capabilities'
+export * from './usage-history-rpc'
 
 export * from './mobile-runtime-capabilities'
 export * from './preflight-runtime-capabilities'
@@ -108,6 +110,7 @@ export const RUNTIME_CAPABILITIES = /* @__PURE__ */ (() =>
     ...agentLaunchCapabilities.AGENT_LAUNCH_RUNTIME_CAPABILITIES,
     ...AGENT_SESSION_RUNTIME_CAPABILITIES,
     ...ACCOUNT_RUNTIME_CAPABILITIES,
+    ...USAGE_RUNTIME_CAPABILITIES,
     ...SKILL_RUNTIME_CAPABILITIES,
     ...AUTOMATION_RUNTIME_CAPABILITIES,
     ...WORKTREE_RUNTIME_CAPABILITIES,
