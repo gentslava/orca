@@ -66,7 +66,13 @@ function Screen(): null {
   })
   held.view = view
   useLayoutEffect(() => {
-    view.viewRef({ postBridgeMessage: async () => {} })
+    view.viewRef({
+      postBridgeMessage: async () => {},
+      createVisualDocument: async () => {
+        throw new Error('This media picker fixture creates no visual')
+      },
+      releaseVisualDocument: async () => {}
+    })
     return () => view.viewRef(null)
   }, [view.viewRef])
   return null

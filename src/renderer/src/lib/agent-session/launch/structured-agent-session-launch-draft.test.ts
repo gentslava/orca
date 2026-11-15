@@ -100,7 +100,7 @@ describe('structured launch draft persistence', () => {
         })
       })
       await act(() => composer.result.current(text))
-      expect(send).toHaveBeenCalledExactlyOnceWith(text, [])
+      expect(send).toHaveBeenCalledExactlyOnceWith(text, [], {})
       composer.unmount()
       await nativeChatComposerDraftWritesSettled()
       await restart()

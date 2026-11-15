@@ -297,6 +297,8 @@ it.each([100, 1_000])(
       }
       return statement
     })
+    // Query-plan coverage is independent of the maintenance time slice.
+    vi.spyOn(performance, 'now').mockReturnValue(0)
     expect(
       maintain(db, { kind: 'domain-retired-prune', sessionId: 'chat', epoch: 'epoch' })
     ).toEqual({ kind: 'domain-retired', deleted: 50, more: true })

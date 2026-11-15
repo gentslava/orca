@@ -7,6 +7,11 @@ const { mocks, moduleFactories, resetStructuredSessionMocks } = await vi.hoisted
   (await import('./NativeChatStructuredSession.test-harness')).createStructuredSessionMocks()
 )
 
+vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
+  loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
+    .loadNodeOniguruma
+}))
+
 vi.mock('../../../../runtime/native-chat/requests/structured-agent-session-call', () =>
   moduleFactories.structuredAgentSessionCall()
 )

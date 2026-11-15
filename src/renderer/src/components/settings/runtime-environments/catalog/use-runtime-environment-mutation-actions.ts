@@ -181,38 +181,16 @@ export function useRuntimeEnvironmentMutationActions({
     }
   }
 
-  const renameEnvironment = async (
-    environment: PublicKnownRuntimeEnvironment,
-    nextName: string
-  ): Promise<boolean> => {
-    const trimmedName = nextName.trim()
-    setRenamingId(environment.id)
-    setRenameError(null)
-    try {
-      await window.api.runtimeEnvironments.rename({ selector: environment.id, name: trimmedName })
-      await loadEnvironments()
-      if (mountedRef.current) {
-        toast.success(
-          t(
-            'auto.components.settings.RuntimeEnvironmentsPane.serverRenamed',
-            'Renamed to {{value0}}.',
-            { value0: trimmedName }
-          )
-        )
-      }
-      return true
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to rename server.'
-      if (mountedRef.current) {
-        setRenameError(message)
-      }
-      return false
-    } finally {
-      if (mountedRef.current) {
-        setRenamingId(null)
-      }
-    }
-  }
+  const renameEnvironment = (environment: PublicKnownRuntimeEnvironment, nextName: string) =>
+    renameSavedRuntimeEnvironment({
+      environment,
+      nextName,
+      mountedRef,
+      loadEnvironments,
+      setRenamingId,
+      setRenameError,
+      t
+    })
 
   return {
     isSaving,
@@ -232,5 +210,51 @@ export function useRuntimeEnvironmentMutationActions({
     addEnvironment,
     removeEnvironment,
     renameEnvironment
+  }
+}
+
+async function renameSavedRuntimeEnvironment({
+  environment,
+  nextName,
+  mountedRef,
+  loadEnvironments,
+  setRenamingId,
+  setRenameError,
+  t
+}: {
+  environment: PublicKnownRuntimeEnvironment
+  nextName: string
+  mountedRef: MutableRefObject<boolean>
+  loadEnvironments: RuntimeEnvironmentMutationActionParams['loadEnvironments']
+  setRenamingId: (id: string | null) => void
+  setRenameError: (error: string | null) => void
+  t: ReturnType<typeof useTranslate>
+}): Promise<boolean> {
+  const trimmedName = nextName.trim()
+  setRenamingId(environment.id)
+  setRenameError(null)
+  try {
+    await window.api.runtimeEnvironments.rename({ selector: environment.id, name: trimmedName })
+    await loadEnvironments()
+    if (mountedRef.current) {
+      toast.success(
+        t(
+          'auto.components.settings.RuntimeEnvironmentsPane.serverRenamed',
+          'Renamed to {{value0}}.',
+          { value0: trimmedName }
+        )
+      )
+    }
+    return true
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to rename server.'
+    if (mountedRef.current) {
+      setRenameError(message)
+    }
+    return false
+  } finally {
+    if (mountedRef.current) {
+      setRenamingId(null)
+    }
   }
 }
