@@ -3015,5 +3015,17 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "4c9bd3f5402214fc607fc398c85ab77fe123c8c9e524db058fe09c4214d2bd2c",
     "reason": "Reuse the current single implementation; preserve model-default readiness/permission guards, owner questions, focus boundaries and task cancellation without duplicate snapshot or prompt wrappers."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "a670db8e297b30f9e942553a495d5f943b316797",
+      "45e7c245b7444db30e91b173fb1962dcca763694",
+      "3582ba00da76f9a6f2b2c54fcac7db6dec29d9bb"
+    ],
+    "patch": "refresh-20261115/33395-use-structured-agent-session-options-10a4a7b761f9.patch",
+    "patchSha256": "adf014712055d8a95c62b4d4b8a71cfe243cb1e3a8bdd2c2c98db6e74734b42e",
+    "resultSha256": "f63e709367f4fe6d1f12fd6d53a8fca66727301935dd944851ea24769fa88933",
+    "reason": "Combine Default reset and current option snapshots with general write readiness. Preserve the permission mode on busy legacy hosts, per-option host-update-required admission fencing, Default reset exclusivity, and current-context guards without duplicate snapshot handlers."
   }
 ]
