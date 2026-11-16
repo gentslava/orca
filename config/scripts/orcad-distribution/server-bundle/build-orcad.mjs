@@ -63,7 +63,7 @@ import { findSlotProblems, readManifest } from '../prebuilds/orcad-prebuild-slot
 import { orcadAgentBrowserNativeName } from '../../../../src/shared/remote-runtime/orcad-distribution/orcad-agent-browser-name.ts'
 import { runProcessSync } from '@orca/process-host'
 import { describeProcessFailure } from '../../tool-invocation/process-failure-message.mjs'
-import { resolveBuildSourceCommit } from '../../build-identity/build-source-commit.mjs'
+import { resolveOrcadSourceCommit } from './orcad-source-commit.mjs'
 
 const { darkBuildMarkers } = createRequire(import.meta.url)('../../../dark-build-switches.cjs')
 
@@ -256,7 +256,7 @@ const cliPackage = {
   type: 'commonjs',
   private: true,
   version: cliVersion,
-  commit: resolveBuildSourceCommit()
+  commit: resolveOrcadSourceCommit()
 }
 writeFileSync(join(OUT_DIR, ORCAD_CLI_PACKAGE_FILENAME), `${JSON.stringify(cliPackage)}\n`)
 const launcherResult = await buildOrcadLauncher(OUT_FILE)
