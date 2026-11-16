@@ -1,4 +1,5 @@
 import * as usageLimit from '../recovery/structured-agent-session-host-background'
+import { backgroundAdmission } from '../structured-agent-session-background-message'
 import { createStructuredAgentSessionConversationReads } from './structured-agent-session-conversation-reads'
 import { continuationContextReader as contextReader } from '../recovery/structured-agent-session-continuation-context'
 import { structuredAgentStartJournal } from '../acquisition/structured-agent-start-journal'
@@ -185,12 +186,10 @@ export class StructuredAgentSessionHost {
 
   /** Stop hidden children too, using one bounded host snapshot. */
   sleepWorkspace = createStructuredAgentSessionWorkspaceSleeper(() => ({
-    deps: this.deps,
+    ...this.lifetimeContext(),
     tasks: this.tasks,
     lifetime: this.lifetime,
-    sessions: this.sessions,
     conversationDelivery: this.conversationDelivery,
-    runtimeState: this.runtimeState,
     clientDelivery: this.clientDelivery
   }))
 
@@ -318,6 +317,7 @@ export class StructuredAgentSessionHost {
   appendAgentStart = this.startJournal.appendAgentStart
 
   currentWork = this.clientDelivery.readCurrentWork
+  canAdmitBackgroundMessage = backgroundAdmission(() => this.sessions, this.currentWork)
   currentWorkAtRest = this.reads.currentWorkAtRest
   readCurrentRequests: BackgroundTasks['currentRequests'] = (...args) =>
     this.backgroundTasks.currentRequests(...args)

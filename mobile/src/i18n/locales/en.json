@@ -3002,11 +3002,6 @@
       "sendQueueHint": "Runs after the current turn",
       "sendSteerHint": "Goes into what the agent is doing now"
     },
-    "contextUsage": {
-      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
-      "title": "Context",
-      "estimated": "Estimated from the last response."
-    },
     "composerAttachments": {
       "file": "File",
       "fileMeta": "{{type}} · {{size}}",
@@ -3285,19 +3280,6 @@
       "canContinue": "You can continue in this conversation.",
       "unnamedServer": "the remote server"
     },
-    "interruptedContinue": {
-      "failed": "Couldn't continue this chat. Try again, or send a message.",
-      "explanation": "Continue, and the agent first checks whether its last step finished."
-    },
-    "restartNote": {
-      "continued": "Orca asked this agent to continue after a restart. Your own prompt was not re-sent.",
-      "refused": "Orca couldn't continue this chat after the restart. Send a message to continue it.",
-      "unconfirmed": "Orca asked this agent to continue after the restart but couldn't confirm it did. Check its latest reply before sending another message.",
-      "notConnected": "Orca couldn't reconnect this chat after the restart, so it didn't ask the agent to continue."
-    },
-    "sendError": {
-      "dismiss": "Dismiss"
-    },
     "toolActivity": {
       "count_one": "{{count}} tool call",
       "count_other": "{{count}} tool calls",
@@ -3468,7 +3450,20 @@
       "taskFromCoordinator": "Task from coordinator",
       "messageFromCoordinator": "Message from coordinator",
       "updateFromWorker": "Update from worker",
-      "messageFrom": "Message from"
+      "messageFrom": "Message from",
+      "sessionLink": "Link"
+    },
+    "contextUsage": {
+      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
+      "title": "Context",
+      "estimated": "Estimated from the last response."
+    },
+    "interruptedContinue": {
+      "failed": "Couldn't continue this chat. Try again, or send a message.",
+      "explanation": "Continue, and the agent first checks whether its last step finished."
+    },
+    "sendError": {
+      "dismiss": "Dismiss"
     },
     "fork": {
       "busy": "Another chat or terminal is opening. Wait, then fork the {{agent}} chat again.",
@@ -3574,6 +3569,12 @@
         "failed": "{{count}} failed"
       },
       "pasteHint": "When the browser lands on a page that won't load, copy its address and paste it here."
+    },
+    "restartNote": {
+      "continued": "Orca asked this agent to continue after a restart. Your own prompt was not re-sent.",
+      "refused": "Orca couldn't continue this chat after the restart. Send a message to continue it.",
+      "unconfirmed": "Orca asked this agent to continue after the restart but couldn't confirm it did. Check its latest reply before sending another message.",
+      "notConnected": "Orca couldn't reconnect this chat after the restart, so it didn't ask the agent to continue."
     },
     "tool": {
       "activity": "Activity"
