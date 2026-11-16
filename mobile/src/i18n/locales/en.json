@@ -294,33 +294,6 @@
       "textSizePickerTitle": "Terminal text size"
     }
   },
-  "appMove": {
-    "play": {
-      "title": "Orca is now on Google Play",
-      "description": "This app still works, but updates now come from Google Play. Switching takes a few minutes.",
-      "installTitle": "Install Orca from Google Play",
-      "installDescription": "You can do this now, wherever you are.",
-      "openGooglePlay": "Open Google Play",
-      "cantUseGooglePlay": "I can't use Google Play"
-    },
-    "download": {
-      "title": "Get the new Orca app",
-      "description": "This app still works, but updates and security fixes now come through the new app. Switching takes a few minutes.",
-      "installTitle": "Download the new app",
-      "installDescription": "If your phone asks, allow your browser to install apps.",
-      "download": "Download",
-      "keepThisVersion": "Keep using this version",
-      "keepThisVersionNote": "You'll miss security fixes. We'll remind you in a week."
-    },
-    "pairTitle": "Pair it with your computer",
-    "pairDescription": "In Orca on your computer, go to Settings → Mobile and scan the code.",
-    "deleteTitle": "Delete this app",
-    "deleteDescription": "Once the new app shows your agents. Until then, keep using this one.",
-    "dataKept": "Your agents, chats and workspaces are saved on your computer, so you'll see them all in the new app.",
-    "banner": {
-      "seeHowToSwitch": "See how to switch"
-    }
-  },
   "accounts": {
     "screen": {
       "invalidSnapshot": "Invalid accounts snapshot from host",
@@ -3005,6 +2978,13 @@
       "sendQueueHint": "Runs after the current turn",
       "sendSteerHint": "Goes into what the agent is doing now"
     },
+    "contextUsage": {
+      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
+      "title": "Context",
+      "estimated": "Estimated from the last response.",
+      "deferredTitle": "Loaded on demand",
+      "deferredDescription": "Not included in current usage. Loaded when needed."
+    },
     "composerAttachments": {
       "file": "File",
       "fileMeta": "{{type}} · {{size}}",
@@ -3283,6 +3263,13 @@
       "canContinue": "You can continue in this conversation.",
       "unnamedServer": "the remote server"
     },
+    "interruptedContinue": {
+      "failed": "Couldn't continue this chat. Try again, or send a message.",
+      "explanation": "Continue, and the agent first checks whether its last step finished."
+    },
+    "sendError": {
+      "dismiss": "Dismiss"
+    },
     "toolActivity": {
       "count_one": "{{count}} tool call",
       "count_other": "{{count}} tool calls",
@@ -3455,18 +3442,6 @@
       "updateFromWorker": "Update from worker",
       "messageFrom": "Message from",
       "sessionLink": "Link"
-    },
-    "contextUsage": {
-      "label": "Context {{used}} of {{window}} tokens, {{percent}}% used",
-      "title": "Context",
-      "estimated": "Estimated from the last response."
-    },
-    "interruptedContinue": {
-      "failed": "Couldn't continue this chat. Try again, or send a message.",
-      "explanation": "Continue, and the agent first checks whether its last step finished."
-    },
-    "sendError": {
-      "dismiss": "Dismiss"
     },
     "fork": {
       "busy": "Another chat or terminal is opening. Wait, then fork the {{agent}} chat again.",
@@ -5120,6 +5095,33 @@
     "activity": {
       "needsWindow": "Couldn’t update. Open Orca on {{desktop}}.",
       "failed": "Couldn’t update the agent list."
+    }
+  },
+  "appMove": {
+    "play": {
+      "title": "Orca is now on Google Play",
+      "description": "This app still works, but updates now come from Google Play. Switching takes a few minutes.",
+      "installTitle": "Install Orca from Google Play",
+      "installDescription": "You can do this now, wherever you are.",
+      "openGooglePlay": "Open Google Play",
+      "cantUseGooglePlay": "I can't use Google Play"
+    },
+    "download": {
+      "title": "Get the new Orca app",
+      "description": "This app still works, but updates and security fixes now come through the new app. Switching takes a few minutes.",
+      "installTitle": "Download the new app",
+      "installDescription": "If your phone asks, allow your browser to install apps.",
+      "download": "Download",
+      "keepThisVersion": "Keep using this version",
+      "keepThisVersionNote": "You'll miss security fixes. We'll remind you in a week."
+    },
+    "pairTitle": "Pair it with your computer",
+    "pairDescription": "In Orca on your computer, go to Settings → Mobile and scan the code.",
+    "deleteTitle": "Delete this app",
+    "deleteDescription": "Once the new app shows your agents. Until then, keep using this one.",
+    "dataKept": "Your agents, chats and workspaces are saved on your computer, so you'll see them all in the new app.",
+    "banner": {
+      "seeHowToSwitch": "See how to switch"
     }
   },
   "workspaceOptions": {
