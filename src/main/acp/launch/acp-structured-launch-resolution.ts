@@ -49,6 +49,8 @@ export type AcpStructuredLaunch = StructuredAgentCommand & {
   fullAccess: boolean
   /** The saved model the launch line carries. */
   launchModel?: string
+  /** The launched program's version, when its check or managed release names it. */
+  version?: string
   resume: {
     sessionId: string
     key: string
@@ -89,6 +91,8 @@ export type AcpLaunchInvocationDeps = {
 
 /** What a launch runs, and the spec of the backend the account home pins. */
 export type AcpLaunchInvocation = StructuredAgentCommand & {
+  /** The managed release's version, when the launch runs one. */
+  version?: string
   env: Record<string, string>
   envToDelete: string[]
   spec: AcpLaunchSpec
@@ -166,7 +170,7 @@ export function acpStructuredLaunchPart(
         reason: 'providerResumeUnavailable'
       })
     }
-    const { env, envToDelete, command, prefixArgs, spec, antigravityChatAuth } =
+    const { env, envToDelete, command, prefixArgs, spec, antigravityChatAuth, version } =
       await resolveAcpLaunchInvocation(agentSpec, record.accountHome, {
         resolveEnvironment: basis.baseEnvironment,
         resolveLaunchEnv: () => basis.launchEnv(),
@@ -201,6 +205,8 @@ export function acpStructuredLaunchPart(
         })
       : null
     const fullAccess = basis.permissionMode === 'full-access'
+    // A managed release's receipt names its version; other programs answer the check.
+    const launchedVersion = version ?? launchVersion.version
     // A load restores the conversation's own model, and a stale role there would stop the agent
     // before it opens; resumed chats apply their model through the session instead.
     const model = spec.launchesWithModel && !head ? record.options?.model : undefined
@@ -214,6 +220,7 @@ export function acpStructuredLaunchPart(
         args: [...prefixArgs, ...args],
         fullAccess,
         ...(model ? { launchModel: model } : {}),
+        ...(launchedVersion ? { version: launchedVersion } : {}),
         resume: head
           ? {
               sessionId: head.handle.nativeId,
