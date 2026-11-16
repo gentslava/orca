@@ -1,3 +1,4 @@
+import type { HoldQuitSettings } from '../mac-hold-quit'
 import type { WorkerRoleSettings } from '../orchestration-worker-roles'
 import type { AntigravityChatAuthSettings } from '../agent-accounts/antigravity/antigravity-chat-auth-config'
 import type { EmulatorOpeningSettings } from '../emulator/emulator-opening-preferences'
@@ -45,6 +46,7 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
   AgentPermissionGlobalSettings &
   ExternalConversationSettings &
   BrowserLinkOpeningSettings &
+  HoldQuitSettings &
   WorkerRoleSettings &
   BrowserExtensionGlobalSettings &
   PluginAppearanceSettings &
