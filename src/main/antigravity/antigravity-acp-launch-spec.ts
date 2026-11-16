@@ -38,6 +38,11 @@ import {
   hasManagedAntigravityChatSignIn,
   isAntigravityHostAccountHome
 } from './antigravity-host-acp'
+import { isAgySignedOutOutput } from './agy-signed-out-output'
+import {
+  ANTIGRAVITY_MODEL_LISTING_ARGS,
+  parseAntigravityModelCatalogListing
+} from './antigravity-model-catalog-listing'
 
 // Chats cannot adopt agy's terminal conversations.
 const ANTIGRAVITY_SESSION_HISTORY: StructuredAgentSessionHistory = {
@@ -139,6 +144,13 @@ const ANTIGRAVITY_HOST_LAUNCH_SPEC: AcpLaunchSpec = {
   permissionModeConfig: {
     values: { ask: 'default', 'accept-edits': 'accept-edits', 'full-access': 'default' },
     fullAccessAtLaunch: true
+  },
+  modelDiscovery: {
+    kind: 'command',
+    args: ANTIGRAVITY_MODEL_LISTING_ARGS,
+    parse: parseAntigravityModelCatalogListing,
+    listingNamesConfiguredModel: false,
+    isNotSignedInOutput: isAgySignedOutOutput
   },
   keepsEverySession: true,
   sessionMeta: undefined
