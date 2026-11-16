@@ -11,7 +11,6 @@ const desktop = [
   'src/main/gemini/gemini-acp-resume.test.ts',
   'src/main/gemini/gemini-acp-session.test.ts',
   'src/main/native-chat/agent-session-wire/structured-agent-session-model-default.test.ts',
-  'src/main/runtime/rpc/methods/structured-sessions/catalog/structured-agent-session-options-read.test.ts',
   'src/main/codex/structured/turns/codex-structured-message-options.test.ts',
   'src/shared/agent-session/options/view/structured-agent-session-option-view.test.ts',
   'src/main/ai-vault/structured-conversation-navigation.test.ts',
@@ -32,7 +31,6 @@ const desktop = [
   'src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-lifecycle.test.tsx',
   'src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-addition.test.ts',
   'src/renderer/src/components/native-chat/attachments/intake/native-chat-composer-drop-scope.test.tsx',
-  'src/renderer/src/components/native-chat/attachments/intake/native-chat-composer-workspace-file-drop.test.tsx',
   'src/renderer/src/components/native-chat/attachments/chips/use-native-chat-composer-attachments.test.tsx',
   'src/renderer/src/components/native-chat/composer/editor/native-chat-composer-composition.test.tsx',
   'src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.test.tsx',
@@ -41,6 +39,7 @@ const desktop = [
   'src/renderer/src/components/native-chat/use-structured-agent-session-queue-working.test.tsx',
   'src/main/native-chat/agent-session-wire/host/testing/structured-agent-session-goal-steering.test.ts',
   'src/main/native-chat/agent-session-wire/host/testing/structured-agent-session-queued-move.test.ts',
+  'src/shared/native-chat/transcript/folding/native-chat-turn-fold.test.ts',
   'src/shared/orchestration-worker-roles.test.ts',
   'src/cli/orchestration/workers/worker-role-cli.test.ts',
   'src/main/runtime/rpc/methods/orchestration/worker/worker-role-routing.test.ts',
@@ -74,11 +73,9 @@ const desktop = [
   'src/renderer/src/app-shell/use-hold-quit-activity.test.tsx',
   'src/renderer/src/components/HoldQuitNotice.test.tsx',
   'src/main/menu/app-menu-hold-quit.test.ts',
-  'src/main/persistence/applying-settings/persistence-settings-ui-defaults.test.ts',
   'src/main/updater/mac-install/updater-mac-quit-guard.test.ts',
   'src/main/startup/quit/main-process-quit-update-veto.test.ts',
-  'src/renderer/src/store/slices/hold-quit-settings-owner.test.ts',
-  'src/main/codex-usage/scanner.test.ts'
+  'src/renderer/src/store/slices/hold-quit-settings-owner.test.ts'
 ]
 const mobile = [
   'src/session/native-chat/visual/MobileNativeChatImageAttachment.test.tsx',
@@ -89,6 +86,7 @@ const mobile = [
   'src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.test.ts',
   'src/session/native-chat/input/session-options/use-mobile-structured-agent-options.test.ts',
   'src/session/use-mobile-structured-model-default-send.test.tsx',
+  'src/session/native-chat/transcript/turn-state/use-mobile-native-chat-turn-disclosure.reader-toggle.test.tsx',
   'src/host-screen/personal-project-order.test.tsx',
   'src/worktree/personal-project-opening.test.ts',
   'src/worktree/personal-project-route-intent.test.ts'

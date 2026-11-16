@@ -1,8 +1,6 @@
-diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
-index 3b8e2e3ae77..63940b22736 100644
 --- a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
-@@ -2,10 +2,11 @@ import { useAppStore } from '@/store'
+@@ -2,10 +2,11 @@
  import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
  import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
  import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -15,7 +13,7 @@ index 3b8e2e3ae77..63940b22736 100644
    const order = useAppStore((state) => state.projectOrderBy)
    const setOrder = useAppStore((state) => state.setProjectOrderBy)
    const supported = usePersonalProjectOrderSupported()
-@@ -32,7 +33,7 @@ export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean
+@@ -32,7 +33,7 @@
            </TooltipTrigger>
            <TooltipContent side="right" sideOffset={6}>
              {!supported && option.id === 'recent'
@@ -24,11 +22,9 @@ index 3b8e2e3ae77..63940b22736 100644
                    'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
                    'Most recent workspace activity'
                  )
-diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
-index 76f3105b236..bdf0b58f0c1 100644
 --- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
 +++ b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
-@@ -29,10 +29,10 @@ export function UsageAccountQuotaCard({
+@@ -32,10 +32,10 @@
  }): React.JSX.Element {
    const t = useTranslate()
    const intlLocale = useIntlLocale()
@@ -41,7 +37,7 @@ index 76f3105b236..bdf0b58f0c1 100644
        (section) => !providerSections.some((existing) => existing.window === section.window)
      )
    ].flatMap((section) =>
-@@ -40,7 +40,7 @@ export function UsageAccountQuotaCard({
+@@ -43,7 +43,7 @@
        ? [{ ...section, window: section.window }]
        : []
    )
@@ -50,7 +46,7 @@ index 76f3105b236..bdf0b58f0c1 100644
    return (
      <article
        className="min-w-0 space-y-3 rounded-lg border border-border bg-card p-4"
-@@ -157,7 +157,8 @@ export function UsageAccountQuotas({
+@@ -161,7 +161,8 @@
      accounts,
      accountsUnverifiable,
      settings,
@@ -60,11 +56,9 @@ index 76f3105b236..bdf0b58f0c1 100644
    )
    return (
      <section className="space-y-3" data-testid="usage-account-quotas">
-diff --git a/src/renderer/src/components/stats/usage-account-quota-rows.ts b/src/renderer/src/components/stats/usage-account-quota-rows.ts
-index a0fbd97d416..398dceca97e 100644
 --- a/src/renderer/src/components/stats/usage-account-quota-rows.ts
 +++ b/src/renderer/src/components/stats/usage-account-quota-rows.ts
-@@ -15,6 +15,7 @@ import {
+@@ -15,6 +15,7 @@
    normalizeCodexStatusRuntimeTarget
  } from '../status-bar/accounts/status-bar-codex-accounts'
  import { translate } from '@/i18n/i18n'
@@ -72,7 +66,7 @@ index a0fbd97d416..398dceca97e 100644
  import { USAGE_PROVIDER_KEYS } from '../status-bar/usage/owner-usage-rate-limits'
  import {
    getVisibleUsageProvider,
-@@ -35,23 +36,26 @@ function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget
+@@ -35,23 +36,26 @@
    return left.runtime === right.runtime && left.wslDistro === right.wslDistro
  }
 
@@ -116,7 +110,7 @@ index a0fbd97d416..398dceca97e 100644
    return groups.flatMap((group) =>
      group.targets.flatMap((account) => {
        const currentAccount = account.active && sameRuntime(group.runtimeTarget, target)
-@@ -71,10 +75,7 @@ function managedQuotaRows({
+@@ -71,10 +75,7 @@
                status: !unverifiable && cached?.isFetching ? 'fetching' : 'unavailable',
                error: unverifiable
                  ? (current?.error ??
@@ -128,7 +122,7 @@ index a0fbd97d416..398dceca97e 100644
                  : (account.hint ?? null),
                ...(unverifiable ? { usageMetadata: { unverifiableOwner: true } } : {})
              }
-@@ -88,11 +89,11 @@ function managedQuotaRows({
+@@ -88,11 +89,11 @@
            runtimeLabel:
              group.runtimeTarget.runtime === 'host'
                ? group.label === 'This device'
@@ -142,7 +136,7 @@ index a0fbd97d416..398dceca97e 100644
            active: account.active,
            provider: limits
          }
-@@ -104,13 +105,13 @@ function managedQuotaRows({
+@@ -104,13 +105,13 @@
  function antigravityQuotaRows(
    accounts: AntigravityAccountUsage[],
    unverifiable: boolean,
@@ -159,7 +153,7 @@ index a0fbd97d416..398dceca97e 100644
      runtimeLabel: ownerLabel,
      active: account.active,
      provider:
-@@ -133,14 +134,15 @@ export function buildUsageAccountQuotaRows(
+@@ -133,14 +134,15 @@
    accounts: ProviderAccountsSnapshot | null,
    unverifiable = false,
    settings?: Partial<UsageProviderSettings> | null,
@@ -177,7 +171,7 @@ index a0fbd97d416..398dceca97e 100644
                'stats.usage.quota.currentAccount',
                'Current account · identity unavailable'
              ),
-@@ -151,37 +153,43 @@ export function buildUsageAccountQuotaRows(
+@@ -151,37 +153,43 @@
        : []
    const claude =
      accounts?.claude && !accounts.failedProviders?.includes('claude')
@@ -244,11 +238,9 @@ index a0fbd97d416..398dceca97e 100644
        : fallback(limits.antigravity)),
      ...USAGE_PROVIDER_KEYS.filter(
        (key) => key !== 'claude' && key !== 'codex' && key !== 'antigravity'
-diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
-index f71ca642901..a698fda1489 100644
 --- a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
-@@ -1,8 +1,8 @@
+@@ -1,11 +1,15 @@
  import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
  import { FilePlus, FileText, Globe, Settings, Smartphone, TerminalSquare } from 'lucide-react'
  import { Button } from '@/components/ui/button'
@@ -257,9 +249,17 @@ index f71ca642901..a698fda1489 100644
 +import { AgentIcon } from '@/components/agent/icons/AgentIcon'
 +import { useTranslate } from '@/i18n/use-translate'
  import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
- import type { TabCreateMenuOption } from '../tab-bar/tab-create-menu-options'
- import { chatUnavailableLabel, rowId, rowLabel } from '../tab-bar/tab-agent-row-presentation'
-@@ -40,35 +40,33 @@ export function WorkspaceStartActions({
+ import type { TabCreateMenuOption } from '../tab-bar/create-menu/tab-create-menu-options'
+-import { chatUnavailableLabel, rowId, rowLabel } from '../agent/launch-menu/agent-menu-row-presentation'
++import {
++  chatUnavailableLabel,
++  rowId,
++  rowLabel
++} from '../agent/launch-menu/agent-menu-row-presentation'
+
+ function ActionIcon({ kind }: { kind: TabCreateMenuOption['kind'] }) {
+   switch (kind) {
+@@ -40,35 +44,33 @@
    onSelect: (option: TabCreateMenuOption) => void
    onManageAgents: () => void
  }) {
@@ -302,7 +302,7 @@ index f71ca642901..a698fda1489 100644
            </p>
          ) : (
            <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2">
-@@ -83,10 +81,10 @@ export function WorkspaceStartActions({
+@@ -83,10 +85,10 @@
                >
                  <AgentIcon agent={row.agent} size={16} />
                  <span className="min-w-0 break-words">

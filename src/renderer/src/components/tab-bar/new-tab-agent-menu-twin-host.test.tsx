@@ -8,7 +8,7 @@ import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTar
 import { TEST_REPO } from '@/store/repos/repo.test-fixture'
 import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 import { resetRendererAppPlatformCacheForTests } from '@/app-shell/platform/renderer-app-platform'
-import { getDefaultSettings } from '../../../../shared/constants'
+import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
 import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat.test-fixture'
 import {
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
@@ -19,7 +19,7 @@ import {
   NEW_TAB_PAIRED_STATUS,
   newTabTwinHostWorkspaces
 } from './new-tab-agent-menu-twin-host.test-fixture'
-import { useAgentMenuObservation } from './use-new-tab-agent-menu-rows'
+import { useAgentMenuObservation } from '../agent/launch-menu/use-new-tab-agent-menu-rows'
 
 const initial = useAppStore.getState()
 afterEach(() => {

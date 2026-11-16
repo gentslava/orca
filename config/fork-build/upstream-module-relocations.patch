@@ -1,10 +1,8 @@
-diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
-index 37a6ea076e8..4f25a70a8fe 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
-@@ -35,6 +35,34 @@ const baseSession: AiVaultSession = {
+@@ -35,6 +35,34 @@
  }
- 
+
  describe('buildAiVaultProjectContext', () => {
 +  it('attributes a structured chat to its stored workspace on its own host even when its cwd matches another project', () => {
 +    const repo = makeRepo({ id: 'saved-repo', path: '/saved', displayName: 'Saved project' })
@@ -37,9 +35,6 @@ index 37a6ea076e8..4f25a70a8fe 100644
    it('uses durable worktree project ids before repo fallback', () => {
      const repo = makeRepo({ id: 'repo-1', displayName: 'Legacy Repo', path: '/Users/ada/orca' })
      const project = makeProject({ id: 'project-1', displayName: 'Canonical Orca' })
-diff --git a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
-new file mode 100644
-index 00000000000..597bfd4a6da
 --- /dev/null
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
 @@ -0,0 +1,73 @@
@@ -116,9 +111,6 @@ index 00000000000..597bfd4a6da
 +    expect(found?.status).toBe(owner ? 'active' : 'unavailable')
 +  })
 +})
-diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
-new file mode 100644
-index 00000000000..aba8b600501
 --- /dev/null
 +++ b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
 @@ -0,0 +1,75 @@
@@ -197,9 +189,6 @@ index 00000000000..aba8b600501
 +  ])
 +  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
 +})
-diff --git a/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx b/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx
-new file mode 100644
-index 00000000000..787d2c0c4b2
 --- /dev/null
 +++ b/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx
 @@ -0,0 +1,105 @@
@@ -213,7 +202,7 @@ index 00000000000..787d2c0c4b2
 +import { TEST_REPO } from '@/store/repos/repo.test-fixture'
 +import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 +import { resetRendererAppPlatformCacheForTests } from '@/app-shell/platform/renderer-app-platform'
-+import { getDefaultSettings } from '../../../../shared/constants'
++import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
 +import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat.test-fixture'
 +import {
 +  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
@@ -224,7 +213,7 @@ index 00000000000..787d2c0c4b2
 +  NEW_TAB_PAIRED_STATUS,
 +  newTabTwinHostWorkspaces
 +} from './new-tab-agent-menu-twin-host.test-fixture'
-+import { useAgentMenuObservation } from './use-new-tab-agent-menu-rows'
++import { useAgentMenuObservation } from '../agent/launch-menu/use-new-tab-agent-menu-rows'
 +
 +const initial = useAppStore.getState()
 +afterEach(() => {
@@ -308,3 +297,129 @@ index 00000000000..787d2c0c4b2
 +    }
 +  }
 +)
+--- a/mobile/src/worktree/row-presentation/use-live-worktree-name.ts
++++ b/mobile/src/worktree/row-presentation/use-live-worktree-name.ts
+@@ -5,7 +5,7 @@
+ import { subscribeSharedClientEvents } from '../../transport/connection/shared-client-events'
+ import type { ConnectionState } from '../../transport/connection/connection-state'
+ import { sessionWorktreeRecordRead } from '../catalog/session-worktree-record-operations'
+-import { parseRoutableExecutionHostId } from '../../../../src/shared/execution-host'
++import { parseRoutableExecutionHostId } from '../../../../src/shared/execution-host/execution-host'
+ import { sessionProjectNameRead } from '../session-project-name-operations'
+ import { getLiveWorktreeDisplayName } from './worktree-display-name'
+ import {
+--- a/src/main/runtime/orchestration/session-links/session-link-participants.ts
++++ b/src/main/runtime/orchestration/session-links/session-link-participants.ts
+@@ -3,7 +3,7 @@
+ import { SessionLinkParticipant } from '../../../../shared/session-link'
+ import { getStructuredAgentSessionHost } from '../../../native-chat/agent-session-wire/host/structured-agent-session-registry'
+ import type { OrcaRuntimeService } from '../../orca-runtime'
+-import { isNativeLocalLocation } from '../../../../shared/execution-host'
++import { isNativeLocalLocation } from '../../../../shared/execution-host/execution-host'
+ import { canonicalOrcaSessionId } from '../addressing/session-lineage/canonical-orca-session-id'
+ import {
+   conversationRecordReader,
+--- a/src/main/runtime/orchestration/structured-session-child-metadata.ts
++++ b/src/main/runtime/orchestration/structured-session-child-metadata.ts
+@@ -1,6 +1,6 @@
+ import type { AgentSessionConversationView } from '../../../shared/agent-session/lifecycle/leases/agent-session-conversation-view'
+ import { isStructuredAgentId } from '../../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
+-import { parseRoutableExecutionHostId } from '../../../shared/execution-host'
++import { parseRoutableExecutionHostId } from '../../../shared/execution-host/execution-host'
+ import { isTuiAgent } from '../../../shared/agent-launch/catalog/tui-agent-config'
+ import type {
+   OrchestrationChildExecutionHost,
+--- a/src/renderer/src/components/native-chat/NativeChatChildMediaScope.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatChildMediaScope.tsx
+@@ -3,7 +3,7 @@
+ import { resolveWorkspaceDirectory } from '@/lib/workspace/paths/workspace-directory'
+ import type { RuntimeFileOperationArgs } from '@/runtime/files/runtime-file-client-types'
+ import type { RuntimeClientTarget } from '../../../../shared/remote-runtime/host-catalog/runtime-client-target'
+-import { toRuntimeExecutionHostId } from '../../../../shared/execution-host'
++import { toRuntimeExecutionHostId } from '../../../../shared/execution-host/execution-host'
+ import { NativeChatMarkdownImageOwnerContext } from './media/images/native-chat-markdown-image-owner'
+ import {
+   NativeChatVisualOwnerContext,
+--- a/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatChildMetadata.tsx
+@@ -5,7 +5,7 @@
+ import { useAppStore } from '@/store'
+ import { executionHostIdForStructuredTarget } from '@/runtime/native-chat/session-ownership/structured-agent-session-owner'
+ import { isStructuredAgentId } from '../../../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
+-import { toSshExecutionHostId } from '../../../../shared/execution-host'
++import { toSshExecutionHostId } from '../../../../shared/execution-host/execution-host'
+ import type { OrchestrationSessionChild } from '../../../../shared/orchestration-session-children'
+ import type { RuntimeClientTarget } from '../../../../shared/remote-runtime/host-catalog/runtime-client-target'
+
+--- a/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx
+@@ -1,5 +1,5 @@
+ import { defineFixture } from '../../component-fixtures/component-fixture'
+-import { getDefaultSettings } from '../../../../shared/constants'
++import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
+ import { NativeChatToolRun } from './tools/runs/NativeChatToolRun'
+
+ const command =
+--- a/src/renderer/src/components/native-chat/NativeChatSuccessfulReviewActivity.fixture.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatSuccessfulReviewActivity.fixture.tsx
+@@ -1,5 +1,5 @@
+ import { defineFixture } from '../../component-fixtures/component-fixture'
+-import { getDefaultSettings } from '../../../../shared/constants'
++import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
+ import type { NativeChatMessage } from '../../../../shared/native-chat/native-chat-types'
+ import { MessageRow } from './messages/rows/NativeChatMessageRow'
+ import { buildNativeChatTranscriptSlots } from './conversation/slots/native-chat-transcript-slots'
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-host-scope.test.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-host-scope.test.ts
+@@ -7,7 +7,10 @@
+ import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
+ import type { AiVaultSessionResumeTargetState } from '../session-actions/ai-vault-session-resume'
+ import { useAiVaultExecutionHostScope } from './ai-vault-host-scope'
+-import type { ExecutionHostId, ExecutionHostScope } from '../../../../../../shared/execution-host'
++import type {
++  ExecutionHostId,
++  ExecutionHostScope
++} from '../../../../../../shared/execution-host/execution-host'
+
+ type HostScopeResult = ReturnType<typeof useAiVaultExecutionHostScope>
+
+--- a/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx
++++ b/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx
+@@ -1,5 +1,5 @@
+ import { defineFixture } from '../../component-fixtures/component-fixture'
+-import { getDefaultSettings } from '../../../../shared/constants'
++import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
+ import type { NativeChatAppearanceSettings } from '../../../../shared/native-chat/native-chat-appearance-settings'
+ import Settings from './Settings'
+ import { ConfirmationDialogProvider } from '../confirmation-dialog'
+--- a/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx
++++ b/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx
+@@ -12,7 +12,7 @@
+ } from '../../../../../../shared/repository/appearance/repo-icon'
+ import { RepositoryIconTabs } from './RepositoryIconTabs'
+ import { RepositoryIconPicker } from './RepositoryIconPicker'
+-import { DEFAULT_REPO_BADGE_COLOR } from '../../../../../../shared/constants'
++import { DEFAULT_REPO_BADGE_COLOR } from '../../../../../../shared/repository/appearance/repo-badge-color'
+
+ vi.mock('../../../repo/repo-icon', () => ({
+   getRepoLucideIconOptions: () => [],
+--- a/src/renderer/src/components/stats/UsageHistoryLayout.fixture.tsx
++++ b/src/renderer/src/components/stats/UsageHistoryLayout.fixture.tsx
+@@ -1,5 +1,5 @@
+ import { defineFixture } from '../../component-fixtures/component-fixture'
+-import { getDefaultSettings } from '../../../../shared/constants'
++import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
+ import type { UsageHistoryRow } from '../../../../shared/usage-history-types'
+ import { UsageHistoryBreakdowns, UsageHistoryDailyChart } from './UsageHistoryDetails'
+ import { usageHistoryAccountKey } from './usage-history-model'
+--- a/src/renderer/src/components/tab-bar/terminal-tabs/SortableTab.tsx
++++ b/src/renderer/src/components/tab-bar/terminal-tabs/SortableTab.tsx
+@@ -19,7 +19,7 @@
+ import { preventMiddleButtonDefault } from '../strip/middle-button-default-guard'
+ import { useSortableTabRename } from './use-sortable-tab-rename'
+ import { useTabRenameReturnFocus } from './use-tab-rename-return-focus'
+-import { useTabSessionLink } from './use-tab-session-link'
++import { useTabSessionLink } from '../use-tab-session-link'
+ import { SortableTabContextMenu } from './SortableTabContextMenu'
+ import { useSortableTabContextMenu } from './use-sortable-tab-context-menu'
+ import { useTranslate } from '@/i18n/use-translate'

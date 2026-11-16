@@ -1,4 +1,4 @@
-import type { ExecutionHostId } from '../../../src/shared/execution-host'
+import type { ExecutionHostId } from '../../../src/shared/execution-host/execution-host'
 import type { ProjectConversationHistorySnapshot } from './project-conversation-history-refresh'
 import type { ConversationHistory, ConversationTab } from './project-conversations'
 
