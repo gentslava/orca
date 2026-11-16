@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { installApi } from '../web-preload-api-test-harness'
 import { webRuntimeState } from './web-runtime-session'
+import type { StoredWebRuntimeEnvironment } from '../web-runtime-environment'
 
 const ENV_KEY = 'orca.web.runtimeEnvironment.v1'
 
-function storedEnvironment(overrides: Record<string, unknown> = {}) {
+function storedEnvironment(
+  overrides: Partial<StoredWebRuntimeEnvironment> = {}
+): StoredWebRuntimeEnvironment {
   return {
     id: 'web-env-1',
     name: 'Test runtime',
