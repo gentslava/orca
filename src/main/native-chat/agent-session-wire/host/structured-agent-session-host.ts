@@ -21,7 +21,7 @@ import { StructuredAgentSessionClientDelivery } from '../publication/subscribers
 import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
 import * as resume from '../recovery/structured-agent-session-restart-resume-host'
 import type { StructuredAgentSessionRestartResume } from '../recovery/structured-agent-session-restart-resume-contract'
-import { structuredAgentSessionRestartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
+import { restartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
 import * as conversation from '../delivery/structured-agent-session-host-delivery'
 import { wireStructuredAgentSessionQueuedMessages as wireQueuedMessages } from '../delivery/structured-agent-session-queued-wiring'
 import * as sessionLogger from './structured-agent-session-logger'
@@ -117,12 +117,11 @@ export class StructuredAgentSessionHost {
       failStartingChild: (...args) => this.lifetime.failStartingChild(...args),
       trackOpen: (open) => this.tasks.trackAttach(open)
     })
-    this.restartResume = resume.createStructuredAgentSessionRestartResume(deps, this.sessions, {
-      ...structuredAgentSessionRestartResumeSurfaces(this, this.now),
-      readChildWork: this.clientDelivery.readChildWork,
-      childWorkOpen: this.clientDelivery.childWorkOpen,
-      publishStatus: this.clientDelivery.publishStatusAndSettlement
-    })
+    this.restartResume = resume.createStructuredAgentSessionRestartResume(
+      deps,
+      this.sessions,
+      restartResumeSurfaces(this, this.now, this.clientDelivery)
+    )
     this.lifetime = lifetime.createStructuredAgentSessionConversationLifetime({
       context: () => this.lifetimeContext(),
       sessions: this.sessions,
@@ -279,6 +278,7 @@ export class StructuredAgentSessionHost {
     () => this.attachContext()
   )
   cancel = this.mutations.cancel
+  backgroundTask = this.mutations.backgroundTask
   respondToPrompt = this.mutations.respondToPrompt
   setOption = this.mutations.setOption
   changeThreadGoal = this.mutations.changeThreadGoal
@@ -329,6 +329,7 @@ export class StructuredAgentSessionHost {
   settleLateDispatch = this.mutations.settleLateDispatch
   publishWorkChanged: (sessionId: string) => void = this.clientDelivery.publishGenerationEnded
 
+  publishForegroundTasks = (id: string): void => this.backgroundTasks.publish(id)
   publishChildWorkEvidence = this.clientDelivery.publishChildWork
   unsubscribe = (id: string, key: string): void => this.clientDelivery.subscribers.close(id, key)
 
