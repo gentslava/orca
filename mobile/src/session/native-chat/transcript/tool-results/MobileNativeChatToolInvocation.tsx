@@ -16,11 +16,14 @@ import { toolStyles as styles, toolType } from './mobile-native-chat-tool-styles
 
 export function MobileNativeChatToolInvocation({
   call,
+  showsInput,
   fontScale,
   rootIdentity,
   positionKey
 }: {
   call: NativeChatToolCallBlock
+  /** False when the row draws the input itself, as a diff or a command. */
+  showsInput: boolean
   fontScale: number
   rootIdentity: string
   positionKey: string
@@ -42,7 +45,7 @@ export function MobileNativeChatToolInvocation({
           {`${identity.server} / ${identity.tool}`}
         </Text>
       ) : null}
-      {available ? (
+      {!showsInput ? null : available ? (
         <>
           <View style={styles.line}>
             <Text style={[styles.lineWord, type.meta]}>

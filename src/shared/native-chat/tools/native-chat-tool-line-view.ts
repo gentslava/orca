@@ -4,6 +4,7 @@ import {
   type NativeChatToolCallBlock,
   type NativeChatToolResultBlock
 } from '../native-chat-types'
+import { diffFromToolCall, type NativeChatDiffLine } from './native-chat-diff'
 import { toolWebSearchResults, type NativeChatWebSearchResult } from './native-chat-tool-identity'
 import {
   nativeChatToolLineLabel,
@@ -39,4 +40,22 @@ export function nativeChatToolLineView(
   const hasDetail = call !== undefined || body !== undefined
   const resultPreview = call ? '' : (body?.output.split('\n')[0]?.slice(0, 80) ?? '')
   return { call, label, body, resultPreview, failed, results, hasDetail }
+}
+
+export type NativeChatToolCallInputView = {
+  diff: NativeChatDiffLine[] | null
+  /** The command to draw highlighted, when it is the whole input. */
+  command: string | null
+  /** False when the diff or the command already is the input. */
+  showsBody: boolean
+}
+
+/** Derived on open, so collapsed rows do no diff work. */
+export function nativeChatToolCallInputView(
+  call: NativeChatToolCallBlock,
+  label: NativeChatToolLineLabel | null
+): NativeChatToolCallInputView {
+  const diff = diffFromToolCall(call.name, call.input)
+  const command = diff ? null : (label?.commandDetail ?? null)
+  return { diff, command, showsBody: diff === null && command === null }
 }

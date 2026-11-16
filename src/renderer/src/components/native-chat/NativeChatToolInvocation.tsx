@@ -11,9 +11,12 @@ import {
 import { NativeChatCopyButton } from './messages/actions/NativeChatCopyButton'
 
 export function NativeChatToolInvocation({
-  call
+  call,
+  showsInput
 }: {
   call: NativeChatToolCallBlock
+  /** False when the row draws the input itself, as a diff or a command. */
+  showsInput: boolean
 }): React.JSX.Element {
   const t = useTranslate()
   const input = useMemo(() => formatToolInput(call.input), [call.input])
@@ -30,7 +33,7 @@ export function NativeChatToolInvocation({
           {identity.server} / {identity.tool}
         </p>
       ) : null}
-      {available ? (
+      {!showsInput ? null : available ? (
         <>
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-chat-foreground-faint">

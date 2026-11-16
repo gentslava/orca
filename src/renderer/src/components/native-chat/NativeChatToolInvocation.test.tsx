@@ -14,6 +14,76 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+const LONG_COMMAND = `printf '%s' ${Array.from({ length: 12 }, (_, index) => `'argument-${index}'`).join(' ')} END_OF_COMMAND`
+
+function occurrences(node: Element | null, part: string): number {
+  return (node?.textContent ?? '').split(part).length - 1
+}
+
+function openedDetail(container: HTMLElement): Element | null {
+  const row = container.querySelector<HTMLButtonElement>('button[aria-expanded="false"]')
+  if (!row) {
+    throw new Error('The tool row is missing')
+  }
+  fireEvent.click(row)
+  return container.querySelector('[data-native-chat-member-detail]')
+}
+
+describe('expanded tool input drawn once', () => {
+  it('draws an edit that has a diff as the diff alone, under its exact tool name', () => {
+    const { container } = render(
+      <NativeChatToolLine
+        block={{
+          type: 'tool-call',
+          name: 'Edit',
+          state: 'running',
+          input: {
+            file_path: '/repo/src/total.ts',
+            old_string: 'const total = before',
+            new_string: 'const total = after'
+          }
+        }}
+      />
+    )
+    const detail = openedDetail(container)
+    const invocation = detail?.querySelector('[data-native-chat-tool-invocation]')
+    expect(invocation?.textContent).toBe('Edit')
+    expect(occurrences(detail, 'const total = after')).toBe(1)
+    expect(screen.queryByRole('button', { name: 'Copy input' })).toBeNull()
+  })
+
+  it.each([
+    { name: 'the row shortened', command: LONG_COMMAND },
+    { name: 'the row shows whole', command: 'ls -la' }
+  ])('draws a lone command $name once as a command, before any result', ({ command }) => {
+    const { container } = render(
+      <NativeChatToolLine
+        block={{ type: 'tool-call', name: 'Bash', state: 'running', input: { command } }}
+      />
+    )
+    const detail = openedDetail(container)
+    expect(detail?.querySelector('[data-native-chat-tool-invocation]')?.textContent).toBe('Bash')
+    const code = detail?.querySelectorAll('pre[data-native-chat-code-content]')
+    expect(code).toHaveLength(1)
+    expect(code?.[0]?.textContent).toBe(command)
+    expect(occurrences(detail, command)).toBe(1)
+    expect(screen.queryByRole('button', { name: 'Copy input' })).toBeNull()
+  })
+
+  it('draws a command with other arguments as one input body, without a separate command', () => {
+    const input = { cmd: LONG_COMMAND, workdir: '/repo', timeout_ms: 10000 }
+    const { container } = render(
+      <NativeChatToolLine block={{ type: 'tool-call', name: 'exec_command', input }} />
+    )
+    const detail = openedDetail(container)
+    const code = detail?.querySelectorAll('pre[data-native-chat-code-content]')
+    expect(code).toHaveLength(1)
+    expect(code?.[0]?.textContent).toBe(JSON.stringify(input, null, 2))
+    expect(occurrences(detail, 'END_OF_COMMAND')).toBe(1)
+    expect(screen.getByRole('button', { name: 'Copy input' })).toBeInTheDocument()
+  })
+})
+
 describe('expanded tool invocation', () => {
   it('exposes the exact tool and all input fields separately from its result', () => {
     const input = { cmd: "printf '%s' hello", workdir: '/repo', timeout_ms: 10000 }

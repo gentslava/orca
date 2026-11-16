@@ -34,6 +34,30 @@ function Invocations() {
         }}
         result={{ type: 'tool-result', output: '{"success":true,"message":"Report delivered"}' }}
       />
+      <NativeChatToolLine
+        block={{
+          type: 'tool-call',
+          name: 'Edit',
+          state: 'running',
+          input: {
+            file_path: '/workspace/orca/src/review-total.ts',
+            old_string: 'const total = reviewed.length',
+            new_string: 'const total = reviewed.filter(isApproved).length'
+          }
+        }}
+      />
+      <NativeChatToolLine
+        block={{
+          type: 'tool-call',
+          name: 'Bash',
+          state: 'completed',
+          input: {
+            command:
+              "printf '%s\\n' 'Review completed' 'All changed interfaces match the brief' 'No follow-up is needed'"
+          }
+        }}
+        result={{ type: 'tool-result', output: 'Review completed' }}
+      />
     </div>
   )
 }

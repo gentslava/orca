@@ -2,10 +2,7 @@ import { useContext, useMemo } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { MobileNativeChatOwnedScrollView } from '../viewport/MobileNativeChatOwnedScrollView'
 import { ChevronRight } from 'lucide-react-native'
-import {
-  diffFromText,
-  diffFromToolCall
-} from '../../../../../../src/shared/native-chat/tools/native-chat-diff'
+import { diffFromText } from '../../../../../../src/shared/native-chat/tools/native-chat-diff'
 import type { NativeChatDiffLine } from '../../../../../../src/shared/native-chat/tools/native-chat-diff'
 import {
   mcpToolIdentity,
@@ -13,7 +10,11 @@ import {
 } from '../../../../../../src/shared/native-chat/tools/native-chat-tool-identity'
 import { nativeChatToolIconName } from '../../../../../../src/shared/native-chat/tools/native-chat-tool-icon'
 import { nativeChatToolRowVerbCopy } from './native-chat-tool-row-verb-copy'
-import { nativeChatToolLineView } from '../../../../../../src/shared/native-chat/tools/native-chat-tool-line-view'
+import {
+  nativeChatToolCallInputView,
+  nativeChatToolLineView
+} from '../../../../../../src/shared/native-chat/tools/native-chat-tool-line-view'
+import type { NativeChatToolLineLabel } from '../../../../../../src/shared/native-chat/tools/native-chat-tool-line-label'
 import type {
   NativeChatToolCallBlock,
   NativeChatToolResultBlock
@@ -119,8 +120,7 @@ function DiffView({ lines, fontScale }: { lines: NativeChatDiffLine[]; fontScale
 function ToolLineDetail({
   call,
   body,
-  fullCommand,
-  commandLanguage,
+  label,
   results,
   fontScale,
   disclosureKey,
@@ -128,34 +128,33 @@ function ToolLineDetail({
 }: {
   call: NativeChatToolCallBlock | undefined
   body: NativeChatToolResultBlock | undefined
-  fullCommand: string | null
-  commandLanguage: string | null
+  label: NativeChatToolLineLabel | null
   results: NativeChatWebSearchResult[]
   fontScale: number
   disclosureKey?: string
   memberId?: string
 }): React.JSX.Element {
   useMobileColorScheme()
-  const diff = call
-    ? diffFromToolCall(call.name, call.input)
-    : body
-      ? diffFromText(body.output)
-      : null
-  const command = useMemo(
+  const input = call ? nativeChatToolCallInputView(call, label) : null
+  const diff = input ? input.diff : body ? diffFromText(body.output) : null
+  const command = input?.command ?? null
+  const commandLanguage = label?.commandLanguage ?? null
+  const commandSegments = useMemo(
     () =>
-      !diff && fullCommand && commandLanguage
-        ? highlightMobileCode(fullCommand, commandLanguage).segments
+      command !== null && commandLanguage
+        ? highlightMobileCode(command, commandLanguage).segments
         : null,
-    [diff, fullCommand, commandLanguage]
+    [command, commandLanguage]
   )
   const type = toolType(fontScale).code
   const onLayout = useMobileNativeChatOpenedDetail()
   const t = useMobileTranslation()
   return (
     <View style={styles.detail} onLayout={onLayout}>
-      {call ? (
+      {call && input ? (
         <MobileNativeChatToolInvocation
           call={call}
+          showsInput={input.showsBody}
           fontScale={fontScale}
           rootIdentity={`${memberId ?? call.callId ?? 'detail'}:input`}
           positionKey={`${disclosureKey ?? call.callId ?? 'detail'}:input`}
@@ -163,7 +162,7 @@ function ToolLineDetail({
       ) : null}
       {results.length > 0 ? <SearchResults results={results} fontScale={fontScale} /> : null}
       {diff ? <DiffView lines={diff} fontScale={fontScale} /> : null}
-      {!diff && fullCommand ? (
+      {command !== null ? (
         <MobileNativeChatOwnedScrollView
           rootIdentity={`${memberId ?? call?.callId ?? 'detail'}:command`}
           positionKey={`${disclosureKey ?? call?.callId ?? 'detail'}:command`}
@@ -172,7 +171,7 @@ function ToolLineDetail({
           keyboardShouldPersistTaps="handled"
         >
           <Text selectable={INLINE_TEXT_SELECTION} style={[styles.codeText, type]}>
-            {command ? <MobileSyntaxSegments segments={command} /> : fullCommand}
+            {commandSegments ? <MobileSyntaxSegments segments={commandSegments} /> : command}
           </Text>
         </MobileNativeChatOwnedScrollView>
       ) : null}
@@ -216,7 +215,6 @@ export function MobileNativeChatToolLine({
     () => nativeChatToolLineView(block, result),
     [block, result]
   )
-  const commandDetail = label?.commandDetail ?? null
   const fullCommand = label?.fullCommand ?? null
   const verb = label?.verb ? nativeChatToolRowVerbCopy(t)[label.verb] : null
   const commandAlone = label?.command === true && verb !== null && label.target.length > 0
@@ -296,8 +294,7 @@ export function MobileNativeChatToolLine({
           disclosureKey={disclosureKey}
           call={call}
           body={body}
-          fullCommand={commandDetail}
-          commandLanguage={label?.commandLanguage ?? null}
+          label={label}
           results={results}
           fontScale={fontScale}
         />

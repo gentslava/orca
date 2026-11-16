@@ -2,7 +2,10 @@ import { foldMobileNativeChatMessages } from '../projection/mobile-native-chat-r
 import { createElement, type ReactNode } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { NativeChatMessage } from '../../../../../../src/shared/native-chat/native-chat-types'
+import type {
+  NativeChatMessage,
+  NativeChatToolCallBlock
+} from '../../../../../../src/shared/native-chat/native-chat-types'
 
 vi.mock('react-native', async () => {
   const React = await import('react')
@@ -94,6 +97,16 @@ function toolLines(root: ReactTestInstance): ReactTestInstance[] {
     .flatMap((box) => box.findAll((node) => String(node.type) === 'Pressable'))
 }
 
+function allText(node: ReactTestInstance): string {
+  return node.children.map((child) => (typeof child === 'string' ? child : allText(child))).join('')
+}
+
+function occurrences(text: string, part: string): number {
+  return text.split(part).length - 1
+}
+
+const LONG_COMMAND = `printf '%s' ${Array.from({ length: 12 }, (_, index) => `'argument-${index}'`).join(' ')} END_OF_COMMAND`
+
 function press(node: ReactTestInstance): void {
   act(() => {
     node.props.onPress()
@@ -143,5 +156,76 @@ describe('mobile tool result availability', () => {
     expect(button(tree.root, 'command 0').props.disabled).toBe(false)
     press(button(tree.root, 'command 0'))
     expect(textIn(tree.root)).not.toContain('late named output')
+  })
+
+  function openedCall(block: NativeChatToolCallBlock, callId: string) {
+    const tree = render(message([{ ...block, callId }]))
+    for (const line of toolLines(tree.root)) {
+      press(line)
+    }
+    const member = tree.root.findAll(
+      (node) => node.props.testID === `chat-member:call:${callId}`
+    )[0]!
+    return {
+      tree,
+      texts: textIn(member),
+      text: allText(member),
+      inputCopies: member
+        .findAll((node) => String(node.type) === 'CopyButton')
+        .filter((node) => node.props.accessibilityLabel === 'Copy input')
+        .map((node) => String(node.props.text))
+    }
+  }
+
+  it('draws an edit that has a diff as the diff alone, under its exact tool name', () => {
+    const call = openedCall(
+      {
+        type: 'tool-call',
+        name: 'Edit',
+        state: 'running',
+        input: {
+          file_path: '/repo/src/total.ts',
+          old_string: 'const total = before',
+          new_string: 'const total = after'
+        }
+      },
+      'edit'
+    )
+    expect(call.texts).toContain('Edit')
+    expect(occurrences(call.text, 'const total = after')).toBe(1)
+    expect(call.texts).not.toContain('Input')
+    expect(call.inputCopies).toEqual([])
+  })
+
+  it.each([
+    { name: 'the row shortened', command: LONG_COMMAND, worded: 1 },
+    // The row words this one too.
+    { name: 'the row shows whole', command: 'ls -la', worded: 2 }
+  ])('draws a lone command $name once as a command, before any result', ({ command, worded }) => {
+    const call = openedCall(
+      { type: 'tool-call', name: 'Bash', state: 'running', input: { command } },
+      'command'
+    )
+    expect(call.texts.filter((text) => text === 'Bash')).toHaveLength(1)
+    expect(call.inputCopies).toEqual([])
+    expect(call.texts).not.toContain('Input')
+    expect(call.texts.some((text) => text.includes('"command"'))).toBe(false)
+    expect(occurrences(call.text, command)).toBe(worded)
+  })
+
+  it('draws a command with other arguments as one input body, without a separate command', () => {
+    const input = { cmd: LONG_COMMAND, workdir: '/repo', timeout_ms: 10000 }
+    const call = openedCall({ type: 'tool-call', name: 'exec_command', input }, 'arguments')
+    expect(call.texts).toContain('exec_command')
+    expect(call.inputCopies).toEqual([JSON.stringify(input, null, 2)])
+    expect(occurrences(call.text, 'END_OF_COMMAND')).toBe(1)
+  })
+
+  it('reveals a long input body in full on request', () => {
+    const input = { message: `${'a'.repeat(4500)}END_OF_INPUT` }
+    const call = openedCall({ type: 'tool-call', name: 'handoff', input }, 'large')
+    expect(call.text).not.toContain('END_OF_INPUT')
+    press(button(call.tree.root, 'Show full input'))
+    expect(textIn(call.tree.root)).toContain(JSON.stringify(input, null, 2))
   })
 })

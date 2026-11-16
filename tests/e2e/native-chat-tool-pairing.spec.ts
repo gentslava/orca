@@ -159,11 +159,12 @@ test('keeps named output owners and accepted tasks while retaining a standalone 
     await expect(silent).toHaveAttribute('aria-expanded', 'false')
     await silent.click()
     await expect(silent).toHaveAttribute('aria-expanded', 'true')
-    const silentInvocation = silent.locator('..').locator('[data-native-chat-tool-invocation]')
+    const silentDetail = silent.locator('..')
+    const silentInvocation = silentDetail.locator('[data-native-chat-tool-invocation]')
     await expect(silentInvocation).toBeVisible()
     await expect(silentInvocation.getByText('Bash', { exact: true })).toBeVisible()
-    await expect(silentInvocation.locator('pre[data-native-chat-code-content]')).toHaveText(
-      JSON.stringify({ command: 'printf silent_0' }, null, 2)
+    await expect(silentDetail.locator('pre[data-native-chat-code-content]')).toHaveText(
+      'printf silent_0'
     )
     await silent.click()
     await expect(silent).toHaveAttribute('aria-expanded', 'false')
