@@ -31,6 +31,7 @@ import { COPILOT_LAUNCH_SPEC } from '../../copilot/copilot-acp-launch-spec'
 import { KIMI_LAUNCH_SPEC } from '../../kimi/kimi-acp-launch-spec'
 import { CURSOR_LAUNCH_SPEC } from '../../cursor/cursor-acp-launch-spec'
 import type { AcpLaunchSpec } from './acp-launch-contract'
+import { GEMINI_ACP_LAUNCH_SPEC } from '../../gemini/gemini-acp-launch-spec'
 
 const GROK_LAUNCH_SPEC: AcpLaunchSpec = {
   agent: 'grok',
@@ -157,6 +158,7 @@ export const ACP_LAUNCH_SPECS: readonly AcpLaunchSpec[] = [
   OPENCODE_LAUNCH_SPEC,
   OPENCODE2_LAUNCH_SPEC,
   OMP_LAUNCH_SPEC,
+  GEMINI_ACP_LAUNCH_SPEC,
   ANTIGRAVITY_LAUNCH_SPEC,
   COPILOT_LAUNCH_SPEC,
   KIMI_LAUNCH_SPEC,
