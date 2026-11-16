@@ -156,7 +156,18 @@ test('keeps named output owners and accepted tasks while retaining a standalone 
 
     const silent = members.getByRole('button', { name: /printf silent_0$/ })
     await expect(silent).toBeVisible()
-    await expect(silent).not.toHaveAttribute('aria-expanded', /true|false/)
+    await expect(silent).toHaveAttribute('aria-expanded', 'false')
+    await silent.click()
+    await expect(silent).toHaveAttribute('aria-expanded', 'true')
+    const silentDetail = silent.locator('..')
+    const silentInvocation = silentDetail.locator('[data-native-chat-tool-invocation]')
+    await expect(silentInvocation).toBeVisible()
+    await expect(silentInvocation.getByText('Bash', { exact: true })).toBeVisible()
+    await expect(silentDetail.locator('pre[data-native-chat-code-content]')).toHaveText(
+      'printf silent_0'
+    )
+    await silent.click()
+    await expect(silent).toHaveAttribute('aria-expanded', 'false')
 
     for (const [index, command] of COMMANDS.entries()) {
       const line = members.getByRole('button', { name: new RegExp(command) })
