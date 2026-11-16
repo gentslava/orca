@@ -169,6 +169,56 @@ test('real Git: merged after frozen upstream blocks publication', () =>
     assert.match(result.blockers[0].reason, /frozen/)
   }))
 
+test('real Git: a pinned snapshot applies the final head of a PR merged after it', () =>
+  fixture((cwd) => {
+    const pinned = git(cwd, 'rev-parse', 'HEAD')
+    git(cwd, 'checkout', '-B', 'feature', pinned)
+    writeFileSync(join(cwd, 'feature'), 'feature\n')
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'feature')
+    const head = git(cwd, 'rev-parse', 'HEAD')
+    git(cwd, 'checkout', '-B', 'live', pinned)
+    writeFileSync(join(cwd, 'unrelated'), 'newer upstream\n')
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'newer upstream')
+    const newer = git(cwd, 'rev-parse', 'HEAD')
+    writeFileSync(join(cwd, 'feature'), 'feature\n')
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'squashed feature')
+    const observed = git(cwd, 'rev-parse', 'HEAD')
+    const merged = {
+      ...pr(1),
+      state: 'closed',
+      merged_at: 'date',
+      merge_commit_sha: observed,
+      head: { sha: head }
+    }
+    const applied = compose(cwd, pinned, [merged], { observedUpstream: observed })
+    assert.equal(applied.publishable, true)
+    assert.deepEqual(applied.mergedAfterBaseline, [1])
+    assert.equal(git(cwd, 'show', `${applied.commit}:feature`), 'feature')
+    assert.throws(() => git(cwd, 'show', `${applied.commit}:unrelated`))
+    assert.match(
+      renderReport({
+        blockers: [],
+        lifecycle: [],
+        selections: [merged],
+        upstream: pinned,
+        result: applied
+      }),
+      /PR 1 \| merged after the frozen upstream \(final head applied\)/
+    )
+
+    git(cwd, 'checkout', '-B', 'refreshed', head)
+    git(cwd, 'merge', '--no-edit', newer)
+    const refreshed = git(cwd, 'rev-parse', 'HEAD')
+    const carried = compose(cwd, pinned, [{ ...merged, head: { sha: refreshed } }], {
+      observedUpstream: observed
+    })
+    assert.equal(carried.publishable, false)
+    assert.match(carried.blockers[0].reason, /frozen/)
+  }))
+
 test('real Git: rejects a PR ref that moved after metadata resolution', () =>
   fixture((cwd) => {
     const frozen = git(cwd, 'rev-parse', 'HEAD')
