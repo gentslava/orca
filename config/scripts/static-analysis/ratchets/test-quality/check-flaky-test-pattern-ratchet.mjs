@@ -47,6 +47,7 @@ function git(root, args, options = {}) {
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
+    maxBuffer: 64 * 1024 * 1024,
     ...options
   })
 }

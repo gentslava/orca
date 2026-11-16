@@ -68,6 +68,9 @@ function runtimeScanArgs(
   const scanArgs: AiVaultListArgs = { executionHostScope: hostInfo.executionHostId }
   if (listArgs?.includeStructuredSessions) {
     scanArgs.includeStructuredSessions = true
+    if (listArgs.structuredOnly) {
+      scanArgs.structuredOnly = true
+    }
   }
   if (listArgs?.afterFingerprint !== undefined) {
     scanArgs.afterFingerprint = listArgs.afterFingerprint
