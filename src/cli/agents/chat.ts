@@ -4,9 +4,9 @@ import { printResult } from '../output/command-result-output'
 import { RuntimeClientError } from '../runtime/connection/types'
 import { readInjectedAgentSessionId } from '../../shared/agent-session/lifecycle/launch/agent-session-caller-env'
 
-type ChatCloseResult = { ok: true; found?: boolean }
-
 type ChatRenameResult = { name: string | null; applied: boolean }
+// Hosts before `found` answer `{ ok: true }` alone.
+type ChatCloseResult = { ok: true; found?: boolean }
 
 export const CHAT_HANDLERS: Record<string, CommandHandler> = {
   'chat rename': async ({ flags, client, json }) => {
@@ -60,11 +60,7 @@ export const CHAT_HANDLERS: Record<string, CommandHandler> = {
 }
 
 // The host answers with bare wire codes; say what they mean for this command.
-function explainChatRefusal(
-  error: unknown,
-  sessionId: string,
-  action: 'rename' | 'close'
-): unknown {
+function explainChatRefusal(error: unknown, sessionId: string, verb: 'rename' | 'close'): unknown {
   if (!(error instanceof RuntimeClientError)) {
     return error
   }
@@ -80,7 +76,7 @@ function explainChatRefusal(
   ) {
     return new RuntimeClientError(
       'incompatible_runtime',
-      `This Orca host cannot ${action} chats from the CLI. Update Orca on that host, or check that it has chats turned on.`
+      `This Orca host cannot ${verb} chats from the CLI. Update Orca on that host, or check that it has chats turned on.`
     )
   }
   return error
