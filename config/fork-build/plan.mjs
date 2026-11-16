@@ -226,7 +226,7 @@ try {
   plan.compatibilityContract = JSON.parse(
     git(source, [
       'show',
-      `${plan.result.commit}:src/shared/local-build-compatibility-contract.json`
+      `${plan.result.commit}:src/shared/remote-runtime/orcad-distribution/local-build-compatibility-contract.json`
     ])
   )
   const mobile = JSON.parse(git(source, ['show', 'HEAD:mobile/app.json'])).expo
