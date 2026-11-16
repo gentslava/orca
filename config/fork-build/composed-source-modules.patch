@@ -180,7 +180,7 @@ index 00000000000..6bd5ccf50da
 +  )
 +}
 diff --git a/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts b/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
-index 4471b9b990c..51e4a1a3636 100644
+index 8eef764e878..92527e2dca5 100644
 --- a/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
 +++ b/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
 @@ -1,3 +1,4 @@
@@ -188,7 +188,7 @@ index 4471b9b990c..51e4a1a3636 100644
  import { agentSessionInteractionCommand } from '../../../../../../src/shared/agent-session/options/permissions/agent-session-interaction-mode'
  import { selectAgentSessionCurrentRequests } from '../../../../../../src/shared/agent-session/requests/agent-session-current-requests'
  import { useCallback } from 'react'
-@@ -10,29 +11,19 @@ import { pendingPromptsAllUnanswerableHere } from '../../../../../../src/shared/
+@@ -10,27 +11,19 @@ import { pendingPromptsAllUnanswerableHere } from '../../../../../../src/shared/
  import {
    SkillRefLimitError,
    structuredAgentSessionSendBody,
@@ -198,11 +198,8 @@ index 4471b9b990c..51e4a1a3636 100644
  } from '../../../../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
  import type { AgentJournalSkillRef } from '../../../../../../src/shared/agent-session/journal/agent-session-journal-types'
  import { MAX_SKILL_REFS } from '../../../../../../src/shared/rpc-contract/structured-agent-session/structured-agent-session-message-params'
--import {
--  structuredAgentSessionGoalObjective,
--  type StructuredAgentSessionComposerOptions
--} from '../../../../../../src/shared/agent-session/view/structured-agent-session-composer'
-+import { structuredAgentSessionGoalObjective } from '../../../../../../src/shared/agent-session/view/structured-agent-session-composer'
+-import type { StructuredAgentSessionComposerOptions } from '../../../../../../src/shared/agent-session/view/structured-agent-session-composer'
+ import { structuredAgentSessionGoalObjective } from '../../../../../../src/shared/agent-session/view/structured-agent-session-goal-mode'
  import { translate } from '../../../../i18n/mobile-i18n'
 -import type { AgentSessionSlashCommand } from '../../../../../../src/shared/agent-session/agent-session-wire'
 -import type { StructuredAgentSessionState } from '../../../../../../src/shared/agent-session/structured-agent-session-reducer'
@@ -220,10 +217,10 @@ index 4471b9b990c..51e4a1a3636 100644
  import { structuredSessionOperationId } from '../../agent-session/structured-session-operation-id'
  import { UNCONFIRMED_SEND_MESSAGE } from './use-mobile-native-chat-unconfirmed-sends'
  import { timeoutForDeadline } from '../../agent-session/mobile-structured-agent-session-rpc'
-@@ -46,46 +37,9 @@ export type StructuredMobileSendAttachment =
+@@ -44,47 +37,9 @@ export type StructuredMobileSendAttachment =
    | (StructuredAgentSessionAttachment & { kind?: 'image'; id?: string })
    | { kind: 'file'; id?: string; path: string }
-
+ 
 -export function useMobileStructuredSendWithOutcome(args: {
 -  agent: string | null
 -  client: RpcClient | null
@@ -253,6 +250,7 @@ index 4471b9b990c..51e4a1a3636 100644
 -    | 'conversationCommands'
 -    | 'compactInstructions'
 -    | 'changeThreadGoal'
+-    | 'openMcpPanel'
 -  >
 -  sessionCommands?: readonly AgentSessionSlashCommand[]
 -  onSendError: MobileNativeChatSendErrorReporter
@@ -272,10 +270,10 @@ index 4471b9b990c..51e4a1a3636 100644
    deadline?: number,
 diff --git a/mobile/src/session/native-chat/composer/mobile-structured-send-input.ts b/mobile/src/session/native-chat/composer/mobile-structured-send-input.ts
 new file mode 100644
-index 00000000000..7f1ff8e55d4
+index 00000000000..a32eeaf2a26
 --- /dev/null
 +++ b/mobile/src/session/native-chat/composer/mobile-structured-send-input.ts
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,50 @@
 +import type { StructuredAgentSessionSendControl } from '../../../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
 +import type { StructuredAgentSessionComposerOptions } from '../../../../../src/shared/agent-session/view/structured-agent-session-composer'
 +import type { AgentSessionSlashCommand } from '../../../../../src/shared/agent-session/agent-session-wire'
@@ -314,6 +312,7 @@ index 00000000000..7f1ff8e55d4
 +    | 'conversationCommands'
 +    | 'compactInstructions'
 +    | 'changeThreadGoal'
++    | 'openMcpPanel'
 +  >
 +  sessionCommands?: readonly AgentSessionSlashCommand[]
 +  onSendError: MobileNativeChatSendErrorReporter
@@ -337,279 +336,6 @@ index 4abdf4398f7..cc301a8216e 100644
  }): React.JSX.Element {
    useMobileColorScheme()
    const t = useMobileTranslation()
-diff --git a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tsx b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tsx
-index bd35e3f43ac..30c2eb688f4 100644
---- a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tsx
-+++ b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tsx
-@@ -1,3 +1,4 @@
-+import type { MobileNativeChatMessageProps } from '../mobile-native-chat-message-props'
- import { memo, useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react'
- import { Text, View } from 'react-native'
- import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inline-text-selection'
-@@ -30,12 +31,10 @@ import {
-   nativeChatAskRunBlocks,
-   nativeChatAskRunSubject
- } from '../../../../../../src/shared/native-chat/input/questions/native-chat-ask-row'
--import type { NativeChatResolvedPrompt } from '../../../../../../src/shared/native-chat/native-chat-resolution-receipt'
- import { MobileNativeChatSubagentGroup } from './MobileNativeChatSubagentGroup'
- import { MobileNativeChatBackgroundTaskRun } from './MobileNativeChatBackgroundTaskRun'
- import { withoutBackgroundTaskRows } from '../../../../../../src/shared/native-chat/input/task-lists/native-chat-background-task-row'
- import { ToolRun } from '../tool-results/MobileNativeChatToolRun'
--import type { NativeChatTurnStatus } from '../../../../../../src/shared/native-chat/transcript/turns/native-chat-turn-status'
- import { styles } from './mobile-native-chat-message-styles'
- import { MobileNativeChatAgentMessageCard } from '../agent-messages/MobileNativeChatAgentMessageCard'
- import { MobileNativeChatVisualContext } from '../../visual/mobile-native-chat-visual-context'
-@@ -76,44 +75,7 @@ function MobileNativeChatMessageImpl({
-   onToggleSubagentGroup,
-   userMessageOpen,
-   onToggleUserMessage
--}: {
--  message: Chat.NativeChatMessage
--  // Stable placement key survives older messages joining a folded row.
--  rowKey?: string
--  runOwner?: string
--  // Only the newest live assistant row can still grow.
--  mayStillGrow?: boolean
--  // Compare plan updates against the prior write, not an empty checklist.
--  previousTodoWrite?: Chat.NativeChatToolCallBlock
--  previousUpdatePlan?: Chat.NativeChatToolCallBlock
--  fontScale?: number
--  turnStatus?: NativeChatTurnStatus | null
--  turnStatusAbove?: boolean
--  turnExpanded?: boolean
--  turnKey?: string
--  /** The chat may rewind to this row, by desktop's `nativeChatRowOffersRewind`. */
--  rewindable?: true
--  onToggleTurn?: (turnKey: string) => void
--  activeTurnIsWorking?: boolean
--  trailingRun?: boolean
--  // The run’s first row draws all members; later members render no duplicate activity.
--  workRun?: readonly Chat.NativeChatMessage[]
--  joinsWorkRun?: boolean
--  foldedAway?: boolean
--  openReasoning?: ReadonlySet<string>
--  structuredActivityUi?: boolean
--  // Hide the reasoning row while the live activity line discloses the same block.
--  reasoningIsLive?: boolean
--  reasoningExpanded?: boolean
--  onToggleReasoning?: (key: string) => void
--  unsentNotice?: string
--  receipt?: NativeChatResolvedPrompt
--  awaiting?: boolean
--  subagentGroupsOpen?: ReadonlySet<string>
--  onToggleSubagentGroup?: (groupId: string) => void
--  userMessageOpen?: boolean
--  onToggleUserMessage?: (messageId: string) => void
--}): React.JSX.Element {
-+}: MobileNativeChatMessageProps): React.JSX.Element {
-   useMobileColorScheme()
-   const t = useMobileTranslation()
-   const { shown: message, showFull, recovery } = useMobileNativeChatFullMessage(rowMessage)
-diff --git a/mobile/src/session/native-chat/transcript/mobile-native-chat-message-props.ts b/mobile/src/session/native-chat/transcript/mobile-native-chat-message-props.ts
-new file mode 100644
-index 00000000000..5a77c281186
---- /dev/null
-+++ b/mobile/src/session/native-chat/transcript/mobile-native-chat-message-props.ts
-@@ -0,0 +1,42 @@
-+import type * as Chat from '../../../../../src/shared/native-chat/native-chat-types'
-+import type { NativeChatResolvedPrompt } from '../../../../../src/shared/native-chat/native-chat-resolution-receipt'
-+import type { NativeChatTurnStatus } from '../../../../../src/shared/native-chat/transcript/turns/native-chat-turn-status'
-+
-+export type MobileNativeChatMessageProps = {
-+  message: Chat.NativeChatMessage
-+  // Stable placement key survives older messages joining a folded row.
-+  rowKey?: string
-+  runOwner?: string
-+  // Only the newest live assistant row can still grow.
-+  mayStillGrow?: boolean
-+  // Compare plan updates against the prior write, not an empty checklist.
-+  previousTodoWrite?: Chat.NativeChatToolCallBlock
-+  previousUpdatePlan?: Chat.NativeChatToolCallBlock
-+  fontScale?: number
-+  turnStatus?: NativeChatTurnStatus | null
-+  turnStatusAbove?: boolean
-+  turnExpanded?: boolean
-+  turnKey?: string
-+  /** The chat may rewind to this row, by desktop's `nativeChatRowOffersRewind`. */
-+  rewindable?: true
-+  onToggleTurn?: (turnKey: string) => void
-+  activeTurnIsWorking?: boolean
-+  trailingRun?: boolean
-+  // The run’s first row draws all members; later members render no duplicate activity.
-+  workRun?: readonly Chat.NativeChatMessage[]
-+  joinsWorkRun?: boolean
-+  foldedAway?: boolean
-+  openReasoning?: ReadonlySet<string>
-+  structuredActivityUi?: boolean
-+  // Hide the reasoning row while the live activity line discloses the same block.
-+  reasoningIsLive?: boolean
-+  reasoningExpanded?: boolean
-+  onToggleReasoning?: (key: string) => void
-+  unsentNotice?: string
-+  receipt?: NativeChatResolvedPrompt
-+  awaiting?: boolean
-+  subagentGroupsOpen?: ReadonlySet<string>
-+  onToggleSubagentGroup?: (groupId: string) => void
-+  userMessageOpen?: boolean
-+  onToggleUserMessage?: (messageId: string) => void
-+}
-diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-index 1c5c6e50941..240a6522543 100644
---- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-+++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-@@ -13,29 +13,25 @@ import {
- } from '../../../../../../src/shared/native-chat/native-chat-notice'
- import {
-   isTextBlock,
--  type NativeChatBlock,
--  type NativeChatTextBlock
-+  type NativeChatBlock
- } from '../../../../../../src/shared/native-chat/native-chat-types'
- import { readWholeAgentSessionFailureFact } from '../../../../../../src/shared/agent-session/failures/agent-session-failure'
- import { agentSessionFailureDetailText } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-quoted-detail'
--import { agentSessionFailureSentence } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-words'
- import { agentSessionSignInCommand } from '../../../../../../src/shared/agent-session/lifecycle/launch/agent-session-setup-commands'
--import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/native-chat-orca-stop-words'
- import {
-   MobileNativeChatForkedFromContext,
--  MobileNativeChatNoticeContext,
--  type MobileNativeChatNoticeView
-+  MobileNativeChatNoticeContext
- } from './mobile-native-chat-notice-context'
- import { MobileNativeChatMarkdown } from '../message-content/MobileNativeChatMarkdown'
- import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inline-text-selection'
- import { colors, radii, spacing, typography } from '../../../../theme/mobile-theme'
- import { themedStyleSheet } from '../../../../theme/themed-styles'
- import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
--import { nativeChatHostStatusCopy, nativeChatNoticeCopy } from './native-chat-notice-copy'
--import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
--import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
--import { sayMobileAgentSessionFailure } from '../../agent-session/agent-session-failure-copy'
--import type { Translate } from '../../../../i18n/mobile-i18n'
-+import {
-+  nativeChatHostStatusCopy,
-+  nativeChatNoticeCopy,
-+  nativeChatNoticeLineText
-+} from './native-chat-notice-copy'
- import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
- import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../../src/shared/native-chat/native-chat-stopped-before-start'
- import { MONO_SIZE, TEXT_SIZE, scaledType } from '../messages/mobile-native-chat-message-styles'
-@@ -49,46 +45,6 @@ function toneColor(tone: NativeChatNoticeTone): string {
-   return { warning: colors.statusAmber, error: colors.statusRed, notice: colors.textMuted }[tone]
- }
-
--// The phone always reads its Orca host as remote.
--function noticeLineText(
--  notice: NativeChatTextBlock,
--  names: MobileNativeChatNoticeView,
--  t: Translate
--): string {
--  if (notice.orcaStop) {
--    const say = nativeChatOrcaStopSay(t)
--    return nativeChatOrcaStopRowText(
--      notice.orcaStop.cause,
--      names.hostName ?? say('unnamedServer'),
--      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
--      say
--    )
--  }
--  const failure = readWholeAgentSessionFailureFact(notice.failure)
--  if (failure?.kind === 'usageLimitReached') {
--    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
--  }
--  // Only reword text fully described by its fact; other host text stays as written.
--  const context = { agentName: names.agentName }
--  const surface =
--    failure &&
--    [
--      'savedConversationMissing',
--      'pluginInputRequired',
--      'modelUnavailable',
--      'providerUnavailable',
--      'providerSafetyStopped',
--      'providerResponseFailed'
--    ].includes(failure.kind)
--      ? (['row', 'rejection'] as const).find(
--          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
--        )
--      : undefined
--  return failure && surface
--    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
--    : notice.text
--}
--
- // Render system notices separately so they cannot read as the agent’s own prose.
- export function MobileNativeChatNoticeRow({
-   blocks,
-@@ -122,7 +78,7 @@ export function MobileNativeChatNoticeRow({
-     ) : null
-   }
-   const look = nativeChatNoticeLook(notice)
--  const lineText = noticeLineText(notice, names, t)
-+  const lineText = nativeChatNoticeLineText(notice, names, t)
-   const failure = readWholeAgentSessionFailureFact(notice.failure)
-   const failureDetail = agentSessionFailureDetailText(failure)
-   const signInCommand =
-diff --git a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-copy.ts b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-copy.ts
-index 64098a81868..71bcd6a43ec 100644
---- a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-copy.ts
-+++ b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-copy.ts
-@@ -1,3 +1,11 @@
-+import type { NativeChatTextBlock } from '../../../../../../src/shared/native-chat/native-chat-types'
-+import type { MobileNativeChatNoticeView } from './mobile-native-chat-notice-context'
-+import { readWholeAgentSessionFailureFact } from '../../../../../../src/shared/agent-session/failures/agent-session-failure'
-+import { agentSessionFailureSentence } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-words'
-+import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/native-chat-orca-stop-words'
-+import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
-+import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
-+import { sayMobileAgentSessionFailure } from '../../agent-session/agent-session-failure-copy'
- import type { Translate } from '../../../../i18n/mobile-i18n'
-
- export function nativeChatNoticeCopy(t: Translate) {
-@@ -26,3 +34,43 @@ export function nativeChatHostStatusCopy(t: Translate) {
-     )
-   }
- }
-+
-+// The phone always reads its Orca host as remote.
-+export function nativeChatNoticeLineText(
-+  notice: NativeChatTextBlock,
-+  names: MobileNativeChatNoticeView,
-+  t: Translate
-+): string {
-+  if (notice.orcaStop) {
-+    const say = nativeChatOrcaStopSay(t)
-+    return nativeChatOrcaStopRowText(
-+      notice.orcaStop.cause,
-+      names.hostName ?? say('unnamedServer'),
-+      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
-+      say
-+    )
-+  }
-+  const failure = readWholeAgentSessionFailureFact(notice.failure)
-+  if (failure?.kind === 'usageLimitReached') {
-+    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
-+  }
-+  // Only reword text fully described by its fact; other host text stays as written.
-+  const context = { agentName: names.agentName }
-+  const surface =
-+    failure &&
-+    [
-+      'savedConversationMissing',
-+      'pluginInputRequired',
-+      'modelUnavailable',
-+      'providerUnavailable',
-+      'providerSafetyStopped',
-+      'providerResponseFailed'
-+    ].includes(failure.kind)
-+      ? (['row', 'rejection'] as const).find(
-+          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
-+        )
-+      : undefined
-+  return failure && surface
-+    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
-+    : notice.text
-+}
 diff --git a/mobile/src/session/structured-session-send-options.test-fixture.ts b/mobile/src/session/structured-session-send-options.test-fixture.ts
 new file mode 100644
 index 00000000000..6dc8230a498
@@ -647,6 +373,27 @@ index 00000000000..6dc8230a498
 +    value: structuredSendResultFixture(dispatchState, reason)
 +  })
 +}
+diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
+index b78f8b63e5a..2346ca35ba2 100644
+--- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
++++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
+@@ -20,7 +20,6 @@ import { StructuredAgentSessionBackgroundTaskChannel as BackgroundTasks } from '
+ import { StructuredAgentSessionClientDelivery } from '../publication/subscribers/structured-agent-session-client-delivery'
+ import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
+ import * as resume from '../recovery/structured-agent-session-restart-resume-host'
+-import type { StructuredAgentSessionRestartResume } from '../recovery/structured-agent-session-restart-resume-contract'
+ import { restartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
+ import * as conversation from '../delivery/structured-agent-session-host-delivery'
+ import { wireStructuredAgentSessionQueuedMessages as wireQueuedMessages } from '../delivery/structured-agent-session-queued-wiring'
+@@ -61,7 +60,7 @@ export class StructuredAgentSessionHost {
+   private readonly conversationDelivery: conversation.StructuredAgentSessionConversationDelivery
+   private readonly eventRecovery: EventRecovery
+   private readonly backgroundTasks: BackgroundTasks
+-  readonly restartResume: StructuredAgentSessionRestartResume
++  readonly restartResume: ReturnType<typeof resume.createStructuredAgentSessionRestartResume>
+ 
+   readonly usageLimitContinue: ReturnType<typeof usageLimit.start>
+ 
 diff --git a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
 index 84a18c6de18..52dcf525d7d 100644
 --- a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
@@ -675,10 +422,10 @@ index 84a18c6de18..52dcf525d7d 100644
      await showEntries(false)
      await configure()
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-index 819c2d08646..031e2aaeb88 100644
+index b7bc7ae6ee7..bd8a9b63da1 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-@@ -62,7 +62,7 @@ import { nativeChatStructuredStopControls } from './session/structured/writes/na
+@@ -65,7 +65,7 @@ import { nativeChatStructuredStopControls } from './session/structured/writes/na
  import { useAppStore } from '../../store'
  import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
  import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
@@ -687,10 +434,10 @@ index 819c2d08646..031e2aaeb88 100644
  import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
  import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
  import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
-@@ -342,18 +342,13 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
-                 pane={props}
-                 isVisible={props.isVisible && childNavigator.child === null}
+@@ -341,20 +341,14 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                />
+               {subagents.strip}
+               <NativeChatStructuredWorkerApprovals pane={props} isVisible={parentShown} />
 -              {prompt || subagentOpen ? null : (
 -                <NativeChatStructuredComposerTabStrips
 -                  tabId={props.tabId}
@@ -701,96 +448,26 @@ index 819c2d08646..031e2aaeb88 100644
 -                  isVisible={props.isVisible}
 -                  turnId={controller.turnId}
 -                  workingStartedAt={controller.workingStartedAt}
+-                  target={props.target}
+-                  focusComposer={focusComposer}
 -                />
 -              )}
 +              {nativeChatStructuredComposerTabStrips({
-+                shown: prompt === null && !subagentOpen,
++                shown: !prompt && !subagentOpen,
 +                pane: props,
 +                controller,
 +                runtimeContext: imageRuntimeContext,
-+                transport
++                transport,
++                focusComposer
 +              })}
                {/* Prompt cards take the composer's slot, below the background-task dock. */}
                {composerShown || subagentOpen ? null : (
                  <NativeChatPromptSlotNotices notices={notices} />
-diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
-index 2d0c5cd6ab0..d9047c49bc1 100644
---- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
-+++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
-@@ -9,7 +9,8 @@ import type { NativeChatStructuredComposerTransport } from './native-chat-struct
- import type * as RemoteRuntimePtyIdModule from '../../../../../../shared/remote-runtime/remote-runtime-pty-id'
-
- vi.mock('../controls/NativeChatComposerWorkspace', () => ({
--  NativeChatComposerWorkspace: () => null
-+  NativeChatComposerWorkspace: () => null,
-+  nativeChatComposerWorkspaceFooter: () => undefined
- }))
-
- vi.mock('@/i18n/i18n', () => ({
-diff --git a/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts b/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
-index 8a3f2bb3bfa..e5b18374371 100644
---- a/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
-+++ b/src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.ts
-@@ -40,6 +40,7 @@ import {
- } from '../../drafts/native-chat-composer-draft-memory'
- import {
-   finishNativeChatComposerSubmission,
-+  isNativeChatComposerDraftBlank,
-   readNativeChatComposerDraft,
-   updateNativeChatComposerDraft
- } from '../../drafts/native-chat-composer-draft-store'
-@@ -213,14 +214,8 @@ export function useNativeChatStructuredComposerSend({
-         setCaret(composing ? 0 : left.text.length)
-         clearSkillOrigin()
-       }
--      // A refused command returns only to an empty composer; a lone command typed since would be replaced.
--      const recoversDraft = () => {
--        const current = readNativeChatComposerDraft(draftScopeKey)
--        return (
--          consumed &&
--          (!hostCommand || (current.text.trim() === '' && (current.images?.length ?? 0) === 0))
--        )
--      }
-+      const recoversDraft = () =>
-+        consumed && (!hostCommand || isNativeChatComposerDraftBlank(draftScopeKey))
-       const prepareAttachments: StructuredAgentSessionAttachmentPreparation | undefined =
-         stagedInput ? (input) => stagedInput.prepare(input, structuredTransport) : undefined
-       return dispatchNativeChatStructuredComposerText(
-diff --git a/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts b/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
-index 6d65724feae..ebaf9acf9d8 100644
---- a/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
-+++ b/src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.ts
-@@ -93,6 +93,11 @@ export function readNativeChatComposerDraft(
-   return records.get(currentDraftScope(scopeKey)) ?? EMPTY_DRAFT
- }
-
-+export function isNativeChatComposerDraftBlank(scopeKey: string): boolean {
-+  const current = readNativeChatComposerDraft(scopeKey)
-+  return current.text.trim() === '' && (current.images?.length ?? 0) === 0
-+}
-+
- export function finishNativeChatComposerSubmission(
-   scopeKey: string,
-   submission: DraftSubmission,
-diff --git a/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx b/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
-index 3ca81e627dc..711c28a1305 100644
---- a/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
-+++ b/src/renderer/src/components/native-chat/drafts/native-chat-composer-prompt-recall.test.tsx
-@@ -8,7 +8,8 @@ import type * as nativeChatAgentProfiles from '../../../../../shared/native-chat
- import type * as RemoteRuntimePtyIdModule from '../../../../../shared/remote-runtime/remote-runtime-pty-id'
-
- vi.mock('../composer/controls/NativeChatComposerWorkspace', () => ({
--  NativeChatComposerWorkspace: () => null
-+  NativeChatComposerWorkspace: () => null,
-+  nativeChatComposerWorkspaceFooter: () => undefined
- }))
-
- vi.mock('@/i18n/i18n', () => ({
 diff --git a/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx b/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
-index 4f59cfe777d..d931334fa14 100644
+index aa2179a55ad..67f7152e99b 100644
 --- a/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
 +++ b/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
-@@ -78,3 +78,35 @@ function NativeChatStructuredGoalStrip(props: {
+@@ -94,3 +94,36 @@ function NativeChatStructuredGoalStrip(props: {
      />
    )
  }
@@ -802,20 +479,21 @@ index 4f59cfe777d..d931334fa14 100644
 +  pane,
 +  controller,
 +  runtimeContext,
-+  transport
++  transport,
++  focusComposer
 +}: {
 +  shown: boolean
-+  pane: Pick<ComposerTabStripsProps, 'tabId' | 'isVisible'>
++  pane: Pick<ComposerTabStripsProps, 'tabId' | 'isVisible' | 'target'>
 +  controller: Pick<
 +    ComposerTabStripsProps,
 +    'threadGoal' | 'isWorking' | 'turnId' | 'workingStartedAt'
 +  >
-+  runtimeContext: ComposerTabStripsProps['runtimeContext']
-+  transport: ComposerTabStripsProps['transport']
-+}) {
++} & Pick<ComposerTabStripsProps, 'runtimeContext' | 'transport' | 'focusComposer'>) {
 +  return shown ? (
 +    <NativeChatStructuredComposerTabStrips
 +      tabId={pane.tabId}
++      target={pane.target}
++      focusComposer={focusComposer}
 +      runtimeContext={runtimeContext}
 +      threadGoal={controller.threadGoal}
 +      transport={transport}
@@ -826,10 +504,98 @@ index 4f59cfe777d..d931334fa14 100644
 +    />
 +  ) : null
 +}
+diff --git a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+index 8d53a0d8d2e..623e4606cea 100644
+--- a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
++++ b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+@@ -24,6 +24,7 @@ import {
+ } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-labels'
+ import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
+ import type { NativeChatOptionPickerRequest } from './native-chat-option-picker-request'
++import { withPendingValue, type PendingPick } from './native-chat-session-option-pending-pick'
+ import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
+ import { NativeChatModelCombobox } from './NativeChatModelCombobox'
+ import { useNativeChatPickerFocusReturn } from '../../../composer/focus/native-chat-picker-focus-return'
+@@ -39,35 +40,6 @@ export type NativeChatSessionOptionPickersProps = {
+   focusComposer?: () => void
+ }
+ 
+-/** A descriptor write in flight; its value shows until it settles. */
+-type PendingPick = { id: string; value?: SessionOptionValue }
+-
+-// Show pending picks in place while open; refusal restores the host snapshot.
+-function withPendingValue(
+-  descriptor: SessionOptionDescriptor,
+-  pending: PendingPick | null
+-): SessionOptionDescriptor {
+-  if (pending?.id !== descriptor.id) {
+-    return descriptor
+-  }
+-  const { kind } = descriptor
+-  if (kind.type === 'select' && typeof pending.value === 'string') {
+-    return {
+-      ...descriptor,
+-      valueSource: 'dispatched',
+-      kind: { ...kind, currentValue: pending.value }
+-    }
+-  }
+-  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
+-    return {
+-      ...descriptor,
+-      valueSource: 'dispatched',
+-      kind: { ...kind, currentValue: pending.value }
+-    }
+-  }
+-  return descriptor
+-}
+-
+ // Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
+ function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
+   return value === title
+diff --git a/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts
+new file mode 100644
+index 00000000000..cc17b59b6c8
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts
+@@ -0,0 +1,33 @@
++import type {
++  SessionOptionDescriptor,
++  SessionOptionValue
++} from '../../../../../../../shared/native-chat/input/native-chat-session-options'
++
++/** A descriptor write in flight; its value shows until it settles. */
++export type PendingPick = { id: string; value?: SessionOptionValue }
++
++// Show pending picks in place while open; refusal restores the host snapshot.
++export function withPendingValue(
++  descriptor: SessionOptionDescriptor,
++  pending: PendingPick | null
++): SessionOptionDescriptor {
++  if (pending?.id !== descriptor.id) {
++    return descriptor
++  }
++  const { kind } = descriptor
++  if (kind.type === 'select' && typeof pending.value === 'string') {
++    return {
++      ...descriptor,
++      valueSource: 'dispatched',
++      kind: { ...kind, currentValue: pending.value }
++    }
++  }
++  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
++    return {
++      ...descriptor,
++      valueSource: 'dispatched',
++      kind: { ...kind, currentValue: pending.value }
++    }
++  }
++  return descriptor
++}
 diff --git a/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usage.test.tsx b/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usage.test.tsx
+index 30de490d99c..52338692f8c 100644
 --- a/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usage.test.tsx
 +++ b/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usage.test.tsx
-@@ -125,6 +125,7 @@
+@@ -125,6 +125,7 @@ function ownerUsage(): OwnerUsageRateLimits & { accounts: ProviderAccountsSnapsh
    return {
      rateLimits,
      accounts: { claude: { accounts: [], activeAccountId: null }, codex: accounts, rateLimits },
@@ -838,7 +604,7 @@ diff --git a/src/renderer/src/components/status-bar/CodexSwitcherMenu.remote-usa
      refreshRemote: null
    }
 diff --git a/src/renderer/src/components/status-bar/accounts/CodexSwitcherMenu.fixture.tsx b/src/renderer/src/components/status-bar/accounts/CodexSwitcherMenu.fixture.tsx
-index fc43d6c26ac..0431f864f6a 100644
+index 7b4a1cec091..a29de8b5273 100644
 --- a/src/renderer/src/components/status-bar/accounts/CodexSwitcherMenu.fixture.tsx
 +++ b/src/renderer/src/components/status-bar/accounts/CodexSwitcherMenu.fixture.tsx
 @@ -162,6 +162,7 @@ function switcherFixture(
@@ -849,127 +615,3 @@ index fc43d6c26ac..0431f864f6a 100644
          remoteOwner: { environmentId: 'laptop', label: 'Laptop' },
          refreshRemote: null
        }
-diff --git a/src/shared/default-global-settings.ts b/src/shared/default-global-settings.ts
-index 7c5bf1f6953..1dacefff701 100644
---- a/src/shared/default-global-settings.ts
-+++ b/src/shared/default-global-settings.ts
-@@ -19,7 +19,7 @@ import {
- } from './left-sidebar-appearance'
- import { DEFAULT_SOURCE_CONTROL_GROUP_ORDER } from './source-control/listing/source-control-group-order'
- import { DESKTOP_TERMINAL_SCROLLBACK_ROWS_DEFAULT } from './terminal/replay/terminal-scrollback-policy'
--import { NESTED_WORKER_MAX_DEPTH_DEFAULT } from './orchestration/workers/nested-worker-depth'
-+import { getDefaultOrchestrationSettings } from './orchestration/orchestration-settings'
- import { getDefaultWorkspaceCleanupRules } from './workspace-cleanup/workspace-cleanup-policy'
-
- export function buildDefaultSettings(args: {
-@@ -183,10 +183,7 @@ export function buildDefaultSettings(args: {
-     // New profiles only; stored profiles without the key load as false (normalizeLoadedGlobalSettings).
-     artifactSharingEnabled: true,
-     agentSkillSharingEnabled: false,
--    nestedWorkerMaxDepth: NESTED_WORKER_MAX_DEPTH_DEFAULT,
--    nestedWorkerMaxDepthDefaultedToFour: true,
--    orchestrationWorkerAutoReleaseEnabled: true,
--    orchestrationCoordinatorApprovalsEnabled: false,
-+    ...getDefaultOrchestrationSettings(),
-     showArtifactsButton: false,
-     showSkillsButton: false,
-     showMobileButton: false,
-diff --git a/src/shared/global-settings-base.ts b/src/shared/global-settings-base.ts
-index d617bba6d01..7bdee971364 100644
---- a/src/shared/global-settings-base.ts
-+++ b/src/shared/global-settings-base.ts
-@@ -18,11 +18,10 @@ import type { TerminalScrollSettings } from './terminal/appearance/terminal-scro
- import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
- import type { HoldQuitSettings } from './mac-hold-quit'
- import type { AgentPermissionGlobalSettings } from './agent-launch/permissions/tui-agent-permission-choice'
--import type { WorkerRoleSettings } from './orchestration-worker-roles'
-+import type { OrchestrationGlobalSettings } from './orchestration/orchestration-settings'
- import type { TerminalColorOverrideGlobalSettings } from './terminal-themes/terminal-color-overrides'
- import type { WindowMaterialSettings } from './window-material'
- import type { EditorSaveSettings } from './editor-save-settings'
--import type { NestedWorkerDepthSettings } from './orchestration/workers/nested-worker-depth'
- import type { SshRemoteControlSettings } from './ssh-remote-control-settings'
- import type { AgentWorkspaceTrustSettings } from './agent-launch/permissions/agent-workspace-trust-decision'
- import type { KeybindingGlobalSettings } from './keybindings/global-settings'
-@@ -41,7 +40,7 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
-   AgentPermissionGlobalSettings &
-   ExternalConversationSettings &
-   BrowserLinkOpeningSettings &
--  WorkerRoleSettings &
-+  OrchestrationGlobalSettings &
-   HoldQuitSettings &
-   BrowserExtensionGlobalSettings &
-   PluginAppearanceSettings &
-@@ -54,7 +53,6 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
-   WindowMaterialSettings &
-   EditorSaveSettings &
-   BrowserPasswordsGlobalSettings &
--  NestedWorkerDepthSettings &
-   AgentWorkspaceTrustSettings &
-   KeybindingGlobalSettings &
-   WorkspaceCleanupPolicySettings
-diff --git a/src/shared/global-settings-types.ts b/src/shared/global-settings-types.ts
-index 85f4a02b995..6364ba50453 100644
---- a/src/shared/global-settings-types.ts
-+++ b/src/shared/global-settings-types.ts
-@@ -255,11 +255,6 @@ export type GlobalSettings = GlobalSettingsBase & {
-   artifactSharingEnabled?: boolean
-   /** Capability gate for agent/CLI skill publishing; manual reviewed publishing remains available. */
-   agentSkillSharingEnabled?: boolean
--  /** Escalate native-chat worker turn errors to the dispatching Run; absent means on. Renderer-only so workers cannot silence failures via CLI. */
--  /** Close a finished worker's terminal or chat after a grace period; absent means on. The coordinator's runtime decides. */
--  orchestrationWorkerAutoReleaseEnabled?: boolean
--  /** Coordinator agents may allow workers' permission prompts on this machine; absent means off. Not in any agent-writable settings RPC. */
--  orchestrationCoordinatorApprovalsEnabled?: boolean
-   /** Only toggles the sidebar shortcut; Artifacts stay reachable from Settings. */
-   showArtifactsButton?: boolean
-   /** Only toggles the sidebar shortcut; Skills stay reachable from Settings. */
-diff --git a/src/shared/orchestration/orchestration-settings.ts b/src/shared/orchestration/orchestration-settings.ts
-new file mode 100644
-index 00000000000..c3102b10cc4
---- /dev/null
-+++ b/src/shared/orchestration/orchestration-settings.ts
-@@ -0,0 +1,23 @@
-+import type { WorkerRoleSettings } from '../orchestration-worker-roles'
-+import {
-+  NESTED_WORKER_MAX_DEPTH_DEFAULT,
-+  type NestedWorkerDepthSettings
-+} from './workers/nested-worker-depth'
-+
-+export type OrchestrationGlobalSettings = WorkerRoleSettings &
-+  NestedWorkerDepthSettings & {
-+    /** Close a finished worker's terminal or chat after a grace period; absent means on. The coordinator's runtime decides. */
-+    orchestrationWorkerAutoReleaseEnabled?: boolean
-+    /** Coordinator agents may allow workers' permission prompts on this machine; absent means off. Not in any agent-writable settings RPC. */
-+    orchestrationCoordinatorApprovalsEnabled?: boolean
-+  }
-+
-+export function getDefaultOrchestrationSettings(): Required<OrchestrationGlobalSettings> {
-+  return {
-+    nestedWorkerMaxDepth: NESTED_WORKER_MAX_DEPTH_DEFAULT,
-+    nestedWorkerMaxDepthDefaultedToFour: true,
-+    orchestrationWorkerRoles: {},
-+    orchestrationWorkerAutoReleaseEnabled: true,
-+    orchestrationCoordinatorApprovalsEnabled: false
-+  }
-+}
-diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
---- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-+++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-@@ -20,7 +20,6 @@
- import { StructuredAgentSessionClientDelivery } from '../publication/subscribers/structured-agent-session-client-delivery'
- import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
- import * as resume from '../recovery/structured-agent-session-restart-resume-host'
--import type { StructuredAgentSessionRestartResume } from '../recovery/structured-agent-session-restart-resume-contract'
- import { restartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
- import * as conversation from '../delivery/structured-agent-session-host-delivery'
- import { wireStructuredAgentSessionQueuedMessages as wireQueuedMessages } from '../delivery/structured-agent-session-queued-wiring'
-@@ -61,7 +60,7 @@
-   private readonly conversationDelivery: conversation.StructuredAgentSessionConversationDelivery
-   private readonly eventRecovery: EventRecovery
-   private readonly backgroundTasks: BackgroundTasks
--  readonly restartResume: StructuredAgentSessionRestartResume
-+  readonly restartResume: ReturnType<typeof resume.createStructuredAgentSessionRestartResume>
-
-   readonly usageLimitContinue: ReturnType<typeof usageLimit.start>
-
