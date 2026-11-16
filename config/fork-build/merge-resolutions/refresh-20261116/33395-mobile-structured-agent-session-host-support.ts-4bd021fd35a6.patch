@@ -1,6 +1,6 @@
 --- a/mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts
 +++ b/mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts
-@@ -37,11 +37,13 @@ import {
+@@ -38,11 +38,13 @@ import {
    AGENT_SESSION_PERMISSION_MODES_RUNTIME_CAPABILITY,
    AGENT_SESSION_PERMISSION_OWN_RUNTIME_CAPABILITY
  } from '../../../../../src/shared/agent-session/agent-session-permission-modes-capability'
@@ -14,7 +14,7 @@
    commandsOnRequest?: boolean
    coherentModelCatalog?: boolean
    modelEffortDiscovery?: boolean
-@@ -97,6 +99,7 @@ export function structuredAgentSessionHostSupport(
+@@ -100,6 +102,7 @@ export function structuredAgentSessionHostSupport(
  ): StructuredAgentSessionHostSupport {
    return {
      steerDraft: capabilities.includes(AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY),

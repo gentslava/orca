@@ -185,6 +185,8 @@ The journal range-plan regression pins its monotonic clock while asserting exact
 
 Where this section differs from the notes above, it is the current state.
 
+A second pass the same day moved the composition to upstream `396f14d90436`: nine branches were merged with it, nine reviewed resolutions were re-recorded on its inputs, and `project-start-actions.patch` follows one moved import. Upstream PR 42954 is part of that snapshot.
+
 Every selected branch that conflicted with this upstream was merged with it in its own branch, feature first, so the composition no longer carries direct upstream conflicts. The 252 earlier reviewed resolutions matched none of the refreshed inputs and were replaced by 41 records for conflicts between selected features.
 
 Selection changes:

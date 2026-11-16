@@ -8,8 +8,8 @@
  import { asyncQuestionSourceScope } from '../../../../../shared/native-chat/input/native-chat-ask'
  import { structuredAgentSessionPaneKey } from '../../../../../shared/agent-session/view/structured-agent-session-projection'
  import { structuredAgentSessionHostKey } from '../../../runtime/native-chat/host-capabilities/structured-agent-session-host-capability'
-@@ -115,8 +116,11 @@ function NativeChatAsyncQuestionForm({
-   )
+@@ -137,8 +138,11 @@ function NativeChatHostAsyncQuestion({
+   return <NativeChatStructuredAsyncQuestion {...props} skip={skip} />
  }
  
 -export function nativeChatStructuredAsyncQuestion(
@@ -22,11 +22,13 @@
    controller: Pick<
      ReturnType<typeof useStructuredAgentSession>,
      'epoch' | 'prompts' | 'submissions'
-@@ -128,23 +132,26 @@ export function nativeChatStructuredAsyncQuestion(
+@@ -150,25 +154,28 @@ export function nativeChatStructuredAsyncQuestion(
    const { agent, sessionId } = props
    const { epoch } = controller
    return (
--    <NativeChatStructuredAsyncQuestion
+-    <NativeChatHostAsyncQuestion
+-      target={props.target}
+-      sessionId={sessionId}
 -      paneKey={structuredAgentSessionPaneKey(props.tabId, sessionId)}
 -      session={session}
 -      submissions={controller.submissions}
@@ -44,7 +46,9 @@
 -      sourceScope={asyncQuestionSourceScope({ kind: 'journal', agent, sessionId, epoch })}
 -    />
 +    <>
-+      <NativeChatStructuredAsyncQuestion
++      <NativeChatHostAsyncQuestion
++        target={props.target}
++        sessionId={sessionId}
 +        paneKey={structuredAgentSessionPaneKey(props.tabId, sessionId)}
 +        session={session}
 +        submissions={controller.submissions}
@@ -66,7 +70,7 @@
    )
  }
  
-@@ -160,7 +167,7 @@ export function NativeChatStructuredPrompts({
+@@ -184,7 +191,7 @@ export function NativeChatStructuredPrompts({
  }: {
    pane: Pick<
      NativeChatStructuredViewProps,
@@ -75,7 +79,7 @@
    >
    controller: ReturnType<typeof useStructuredAgentSession>
    response: ReturnType<typeof useStructuredPromptResponseHold>
-@@ -182,7 +189,7 @@ export function NativeChatStructuredPrompts({
+@@ -206,7 +213,7 @@ export function NativeChatStructuredPrompts({
          shouldFocus={shouldFocus}
          answerInputRef={answerInputRef}
        />

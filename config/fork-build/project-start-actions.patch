@@ -1,8 +1,8 @@
 diff --git a/config/flaky-test-pattern-baseline.txt b/config/flaky-test-pattern-baseline.txt
-index 13adac09936..e30ffcfdceb 100644
+index f985d31e2f2..8538cfcf245 100644
 --- a/config/flaky-test-pattern-baseline.txt
 +++ b/config/flaky-test-pattern-baseline.txt
-@@ -275,7 +275,7 @@
+@@ -271,7 +271,7 @@
  1 test-no-real-time-wait:tests/e2e/pdf-find-counter.spec.ts
  1 test-no-real-time-wait:tests/e2e/pdf-viewer-rebuild-recovery.spec.ts
  1 test-no-real-time-wait:tests/e2e/project-group-manual-sort.spec.ts
@@ -11,14 +11,14 @@ index 13adac09936..e30ffcfdceb 100644
  4 test-no-real-time-wait:tests/e2e/relaunch-sleeping-agents-resume-on-view.spec.ts
  1 test-no-real-time-wait:tests/e2e/resource-manager-local-pty-view.spec.ts
  1 test-no-real-time-wait:tests/e2e/settings-display-name-ime.spec.ts
-@@ -463,7 +463,6 @@
+@@ -457,7 +457,6 @@
  1 test-no-wall-clock:src/renderer/src/components/sidebar/worktree-list/listing/WorktreeList.lineage-agent-expansion-coupling.test.tsx
  2 test-no-wall-clock:src/renderer/src/components/terminal-pane/pty-connection/emulation/fish-color-scheme-child-stdin.node-pty.test.ts
  2 test-no-wall-clock:src/renderer/src/components/terminal-pane/snapshots/remote-snapshot-alt-screen-host-chain.test.ts
 -1 test-no-wall-clock:src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
  2 test-no-wall-clock:src/renderer/src/components/workspace-cleanup/removal/use-workspace-cleanup-removal.agent-stop.test.tsx
- 2 test-no-wall-clock:src/renderer/src/hooks/ipc-events/agent-status-terminal-title-tab-write.test.ts
  1 test-no-wall-clock:src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
+ 1 test-no-wall-clock:src/shared/__tests__/process-host/windows-cmd-shim-resolution.test.ts
 diff --git a/config/focus-setting-read-baseline.txt b/config/focus-setting-read-baseline.txt
 index d573715c22d..70281cd6c6e 100644
 --- a/config/focus-setting-read-baseline.txt
@@ -174,10 +174,10 @@ index f5a19383fa0..e8daa49aa54 100644
          .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
          .map((workspace) => {
 diff --git a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-index a8d94b90f68..dc3b89e6c5b 100644
+index 9e7782e5877..a96faa85c7a 100644
 --- a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
 +++ b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-@@ -20,7 +20,7 @@ import { selectTabBarAgentProjections } from './tab-agent-types-by-tab-id'
+@@ -19,7 +19,7 @@ import { selectTabBarAgentProjections } from './tab-agent-types-by-tab-id'
  import type { TabBarAgentProjections } from './tab-agent-types-by-tab-id'
  import { shouldShowWindowsShellMenu } from './windows-shell-menu-visibility'
  import { createUnifiedTabLookup } from './tab-bar-item-model'
@@ -186,7 +186,7 @@ index a8d94b90f68..dc3b89e6c5b 100644
  import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
  import type { GitFileStatus } from '../../../../shared/git/status/git-status-types'
  import type { GlobalSettings } from '../../../../shared/global-settings-types'
-@@ -122,7 +122,7 @@ export function useTabBarRuntimeModel({
+@@ -111,7 +111,7 @@ export function useTabBarRuntimeModel({
    )
    const settings = useAppStore((s) => s.settings)
    // Why: use the worktree's owning host so offered Windows shells match the host that actually runs the terminal.
@@ -195,7 +195,7 @@ index a8d94b90f68..dc3b89e6c5b 100644
      runtimeEnvironmentIdOrLocalUnlessTwin(s, worktreeId)
    )
    // Why: retained tab strips rerun selectors on every store write; reuse canonical indexes, don't flatten both slices here.
-@@ -137,16 +137,16 @@ export function useTabBarRuntimeModel({
+@@ -126,16 +126,16 @@ export function useTabBarRuntimeModel({
    })
    const isWebClient = (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ === true
    const windowsTerminalCapabilityOwnerKey = getWindowsTerminalCapabilityOwnerKey(
@@ -216,7 +216,7 @@ index a8d94b90f68..dc3b89e6c5b 100644
      isWebClient ||
      Boolean(worktreeConnectionId)
    const windowsTerminalCapabilities = useWindowsTerminalCapabilities(
-@@ -160,14 +160,14 @@ export function useTabBarRuntimeModel({
+@@ -149,14 +149,14 @@ export function useTabBarRuntimeModel({
      ? (worktreeRemotePlatform ?? windowsTerminalCapabilities.hostPlatform)
      : windowsTerminalCapabilities.hostPlatform
    const showWindowsShellMenu = shouldShowWindowsShellMenu({
@@ -233,7 +233,7 @@ index a8d94b90f68..dc3b89e6c5b 100644
    const projects = useAppStore((s) => (needsLocalProjectRuntime ? s.projects : EMPTY_PROJECTS))
    const repos = useAppStore((s) => (needsLocalProjectRuntime ? s.repos : EMPTY_REPOS))
    const worktreesByRepo = useAppStore((s) =>
-@@ -221,7 +221,7 @@ export function useTabBarRuntimeModel({
+@@ -210,7 +210,7 @@ export function useTabBarRuntimeModel({
    )
    const [managedBrowserCreationEnabled, mobileEmulatorCreationEnabled] = useAppStore(
      useShallow((state) => {
@@ -262,7 +262,7 @@ index 0aba10115a4..779e66cd8a6 100644
      return args.hostPlatform === 'win32'
    }
 diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-index ff526ac5445..2c209059de6 100644
+index e4896d27f77..fc54d344897 100644
 --- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 +++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 @@ -1,3 +1,7 @@
@@ -345,7 +345,7 @@ index ff526ac5445..2c209059de6 100644
            activeTab.contentType !== 'terminal' &&
            activeTab.contentType !== 'agent-session' &&
 diff --git a/src/renderer/src/components/tab-group/tab-group-visible-id.ts b/src/renderer/src/components/tab-group/tab-group-visible-id.ts
-index 92cca52df7d..e05da7aa7ac 100644
+index 245a5f40f74..4d09c056b60 100644
 --- a/src/renderer/src/components/tab-group/tab-group-visible-id.ts
 +++ b/src/renderer/src/components/tab-group/tab-group-visible-id.ts
 @@ -9,3 +9,14 @@ export function resolveGroupTabFromVisibleId(
@@ -518,7 +518,7 @@ index b5960594bf9..b40b12f645c 100644
  
  describe('startup agent recovery host inventory', () => {
 diff --git a/src/renderer/src/components/terminal/use-terminal-startup-activation.ts b/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
-index 1c9db93eb73..27f82277a33 100644
+index 82b2779516b..27f82277a33 100644
 --- a/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
 +++ b/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
 @@ -1,14 +1,7 @@
@@ -531,7 +531,7 @@ index 1c9db93eb73..27f82277a33 100644
  import { createWorkspaceTerminalHostAuthoritySelector } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
 -import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
 -import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
--import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
+-import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/workspace-layout/layout-owner-switch'
 -import { createInitialTerminalThroughLayoutOwner } from '@/store/terminals/tabs/creation/terminal-tab-create-through-layout-owner'
  import type { TerminalColdActivationController } from '../terminal-cold-activation'
  
@@ -919,10 +919,10 @@ index 00000000000..b1c748f8692
 +  ) : null
 +}
 diff --git a/src/renderer/src/i18n/locales/de.json b/src/renderer/src/i18n/locales/de.json
-index b06913d6a52..770f5a8cb4a 100644
+index f293d465513..3bba16eddf6 100644
 --- a/src/renderer/src/i18n/locales/de.json
 +++ b/src/renderer/src/i18n/locales/de.json
-@@ -22217,6 +22217,12 @@
+@@ -22210,6 +22210,12 @@
        "draft": "{{review}}: Entwurf",
        "merged": "{{review}}: gemergt",
        "open": "{{review}}: offen"
@@ -936,10 +936,10 @@ index b06913d6a52..770f5a8cb4a 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index 26c40702239..7b4adc60d07 100644
+index 2d6b4505a63..aee3b69310d 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -24431,6 +24431,12 @@
+@@ -24493,6 +24493,12 @@
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
      },
@@ -953,10 +953,10 @@ index 26c40702239..7b4adc60d07 100644
        "menu": {
          "waking": "Waking VM…",
 diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
-index 97d607d2e4a..b64a482ab5a 100644
+index 425cdd07444..46cdf66e49b 100644
 --- a/src/renderer/src/i18n/locales/es.json
 +++ b/src/renderer/src/i18n/locales/es.json
-@@ -22692,6 +22692,12 @@
+@@ -22685,6 +22685,12 @@
        "draft": "{{review}}: Borrador",
        "merged": "{{review}}: Fusionada",
        "open": "{{review}}: Abierta"
@@ -970,10 +970,10 @@ index 97d607d2e4a..b64a482ab5a 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/fr.json b/src/renderer/src/i18n/locales/fr.json
-index d9a54acc9b8..5c0ca7ecea5 100644
+index 819c5775cf2..a704d8473cc 100644
 --- a/src/renderer/src/i18n/locales/fr.json
 +++ b/src/renderer/src/i18n/locales/fr.json
-@@ -22715,6 +22715,12 @@
+@@ -22708,6 +22708,12 @@
        "draft": "{{review}} : brouillon",
        "merged": "{{review}} : fusionnée",
        "open": "{{review}} : ouverte"
@@ -987,10 +987,10 @@ index d9a54acc9b8..5c0ca7ecea5 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ja.json b/src/renderer/src/i18n/locales/ja.json
-index f00f3789cd5..97edb8357d5 100644
+index f7b83352c32..369f41ab87b 100644
 --- a/src/renderer/src/i18n/locales/ja.json
 +++ b/src/renderer/src/i18n/locales/ja.json
-@@ -23466,6 +23466,12 @@
+@@ -23459,6 +23459,12 @@
        "merged": "{{review}}: マージ済み",
        "open": "{{review}}: オープン"
      },
@@ -1004,10 +1004,10 @@ index f00f3789cd5..97edb8357d5 100644
        "menu": {
          "waking": "VM を復帰中…",
 diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
-index 4d50b7ea466..cac31e0ea07 100644
+index 6caae3ee24c..517ba7b93ca 100644
 --- a/src/renderer/src/i18n/locales/ko.json
 +++ b/src/renderer/src/i18n/locales/ko.json
-@@ -21972,6 +21972,12 @@
+@@ -21965,6 +21965,12 @@
        "draft": "{{review}}: 초안",
        "merged": "{{review}}: 병합됨",
        "open": "{{review}}: 열림"
@@ -1021,10 +1021,10 @@ index 4d50b7ea466..cac31e0ea07 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/pt.json b/src/renderer/src/i18n/locales/pt.json
-index 7a31897cfb6..49a50bb037c 100644
+index 5463999aba5..9bc4008c0b7 100644
 --- a/src/renderer/src/i18n/locales/pt.json
 +++ b/src/renderer/src/i18n/locales/pt.json
-@@ -23199,6 +23199,12 @@
+@@ -23192,6 +23192,12 @@
        "draft": "{{review}}: Rascunho",
        "merged": "{{review}}: Mergeado",
        "open": "{{review}}: Aberto"
@@ -1038,10 +1038,10 @@ index 7a31897cfb6..49a50bb037c 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
-index de947066440..0e25b940de3 100644
+index ac17c3e8e32..b93bbb3ab95 100644
 --- a/src/renderer/src/i18n/locales/ru.json
 +++ b/src/renderer/src/i18n/locales/ru.json
-@@ -22980,6 +22980,12 @@
+@@ -22973,6 +22973,12 @@
        "draft": "{{review}}: черновик",
        "merged": "{{review}}: слит",
        "open": "{{review}}: открыт"
@@ -1055,10 +1055,10 @@ index de947066440..0e25b940de3 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/locales/tr.json
-index e18f866efb5..3e8035ff107 100644
+index ec39cc7c1e9..aaaa2249586 100644
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
-@@ -22357,6 +22357,12 @@
+@@ -22350,6 +22350,12 @@
        "draft": "{{review}}: Taslak",
        "merged": "{{review}}: Merge edildi",
        "open": "{{review}}: Açık"
@@ -1072,10 +1072,10 @@ index e18f866efb5..3e8035ff107 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh-Hant.json b/src/renderer/src/i18n/locales/zh-Hant.json
-index 452d13917dd..8f92cf34d36 100644
+index 4d5928c874f..dcccc48b77c 100644
 --- a/src/renderer/src/i18n/locales/zh-Hant.json
 +++ b/src/renderer/src/i18n/locales/zh-Hant.json
-@@ -21889,6 +21889,12 @@
+@@ -21882,6 +21882,12 @@
        "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合併",
        "open": "{{review}}：開放"
@@ -1089,10 +1089,10 @@ index 452d13917dd..8f92cf34d36 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh.json b/src/renderer/src/i18n/locales/zh.json
-index 104f5a4c65f..72b7868edce 100644
+index 5edf18f7257..16c361d5ee1 100644
 --- a/src/renderer/src/i18n/locales/zh.json
 +++ b/src/renderer/src/i18n/locales/zh.json
-@@ -23465,6 +23465,12 @@
+@@ -23458,6 +23458,12 @@
        "merged": "{{review}}：已合并",
        "open": "{{review}}：开放"
      },
@@ -1292,7 +1292,7 @@ index dab14a46146..856004ff59d 100644
  
    /** Rival detected owners make authority unresolved, not local; the old live-paired-client guard incorrectly seeded alongside host creation (#15556). */
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts b/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
-index 8d8167b3520..077a7fa7f3e 100644
+index 97772cf2527..bcc6a017d8d 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
 +++ b/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
 @@ -41,9 +41,7 @@ import {
@@ -1393,12 +1393,12 @@ index 8d8167b3520..077a7fa7f3e 100644
  }
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts b/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts
 deleted file mode 100644
-index f3d29d59b48..00000000000
+index 3f9f05641a1..00000000000
 --- a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts
 +++ /dev/null
 @@ -1,107 +0,0 @@
 -import { useAppStore } from '../../store'
--import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
+-import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/workspace-layout/layout-owner-switch'
 -import { isFrameDrawnServerWorkspace } from './frame-drawn-server-workspace-set'
 -import { isWebRuntimeInitialTerminalBootstrapInFlight } from './initial-terminal/web-runtime-initial-terminal-bootstrap'
 -import { dispatchWebRuntimeInitialTerminalBootstrap } from './initial-terminal/web-runtime-initial-terminal-bootstrap-dispatch'
