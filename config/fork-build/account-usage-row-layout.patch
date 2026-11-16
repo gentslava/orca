@@ -1,23 +1,30 @@
 diff --git a/src/renderer/src/components/status-bar/accounts/AccountSwitchList.tsx b/src/renderer/src/components/status-bar/accounts/AccountSwitchList.tsx
-index 86076773503..d7d0605ebd2 100644
+index 28fd362c506..acd842d658c 100644
 --- a/src/renderer/src/components/status-bar/accounts/AccountSwitchList.tsx
 +++ b/src/renderer/src/components/status-bar/accounts/AccountSwitchList.tsx
-@@ -26,12 +26,13 @@ export function AccountSwitchList({
+@@ -29,9 +29,12 @@ export function AccountSwitchList({
          <span className="flex items-center gap-2">
            <span className="min-w-0 flex-1 truncate">{heading}</span>
            <span className="flex shrink-0 items-end gap-1 text-right">
--            <span className="min-w-8 whitespace-nowrap">
 +            <span className="min-w-0 flex-1" />
-+            <span className="min-w-8 shrink-0 whitespace-nowrap">
+             <span
+               className={
+-                showResetColumn ? 'min-w-8 whitespace-nowrap' : 'min-w-9 whitespace-nowrap'
++                showResetColumn
++                  ? 'min-w-8 shrink-0 whitespace-nowrap'
++                  : 'min-w-9 shrink-0 whitespace-nowrap'
+               }
+             >
                {display === 'used'
-                 ? t('auto.components.status.bar.AccountSwitchList.used', 'Used')
+@@ -39,7 +42,7 @@ export function AccountSwitchList({
                  : t('auto.components.status.bar.AccountSwitchList.left', 'Left')}
              </span>
--            <span className="w-11 shrink-0 whitespace-normal break-all">
-+            <span className="w-24 shrink-0 whitespace-nowrap">
-               {t('auto.components.status.bar.AccountSwitchList.reset', 'Reset')}
-             </span>
-           </span>
+             {showResetColumn ? (
+-              <span className="w-11 shrink-0 whitespace-normal break-all">
++              <span className="w-24 shrink-0 whitespace-nowrap">
+                 {t('auto.components.status.bar.AccountSwitchList.reset', 'Reset')}
+               </span>
+             ) : null}
 diff --git a/src/renderer/src/components/status-bar/accounts/AccountSwitchRowItem.tsx b/src/renderer/src/components/status-bar/accounts/AccountSwitchRowItem.tsx
 index 37c73d584ea..0e7a84851d4 100644
 --- a/src/renderer/src/components/status-bar/accounts/AccountSwitchRowItem.tsx
@@ -58,10 +65,10 @@ index 37c73d584ea..0e7a84851d4 100644
        {action ? <div className="shrink-0 pr-1.5">{action}</div> : null}
      </div>
 diff --git a/src/renderer/src/components/status-bar/usage/InlineProviderUsage.tsx b/src/renderer/src/components/status-bar/usage/InlineProviderUsage.tsx
-index 7b933679b36..88bb773ff79 100644
+index 86cf063863b..1ab3baec182 100644
 --- a/src/renderer/src/components/status-bar/usage/InlineProviderUsage.tsx
 +++ b/src/renderer/src/components/status-bar/usage/InlineProviderUsage.tsx
-@@ -130,7 +130,9 @@ export function InlineUsageBars({
+@@ -129,7 +129,9 @@ export function InlineUsageBars({
              <span className="w-8 shrink-0 text-right tabular-nums">
                {formatBareUsagePercentage(window.used, display, t)}
              </span>

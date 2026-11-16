@@ -8,7 +8,8 @@ import {
   compose,
   freezeForeignHead,
   freezeRetainedHead,
-  git
+  git,
+  isAncestor
 } from './composition.mjs'
 import { controlFingerprint } from './promotion.mjs'
 import { currentCompatibilityPatch } from './retired-test-fixtures.mjs'
@@ -102,16 +103,32 @@ try {
     ...new Set([plan.upstream, observedUpstream, ...selectedRefs])
   ])
   requireUpstreamBuildAncestor(source, plan.upstream, observedUpstream)
+  const mergedAfterBaseline = plan.selections.filter(
+    (pr) => pr.merged_at && !isAncestor(source, pr.merge_commit_sha, plan.upstream)
+  )
+  if (mergedAfterBaseline.length) {
+    git(source, [
+      'fetch',
+      '--no-tags',
+      'origin',
+      ...mergedAfterBaseline.map(
+        (pr) => `refs/pull/${pr.number}/head:refs/personal/pr-${pr.number}`
+      )
+    ])
+  }
   for (const pr of plan.selections) {
     if (pr.retainedHeadSource) {
       freezeRetainedHead(source, pr)
     } else if (pr.foreignHeadSource) {
       freezeForeignHead(source, pr)
-    } else if (!pr.merged_at) {
+    } else if (!pr.merged_at || mergedAfterBaseline.includes(pr)) {
       assertFrozenHead(source, pr.number, pr.head.sha)
     }
   }
-  plan.result = compose(source, plan.upstream, plan.selections, { timestamp: plan.timestamp })
+  plan.result = compose(source, plan.upstream, plan.selections, {
+    timestamp: plan.timestamp,
+    observedUpstream
+  })
   for (const patch of config.compatibilityPatches) {
     if (
       ![
@@ -209,7 +226,7 @@ try {
   plan.compatibilityContract = JSON.parse(
     git(source, [
       'show',
-      `${plan.result.commit}:src/shared/local-build-compatibility-contract.json`
+      `${plan.result.commit}:src/shared/remote-runtime/orcad-distribution/local-build-compatibility-contract.json`
     ])
   )
   const mobile = JSON.parse(git(source, ['show', 'HEAD:mobile/app.json'])).expo

@@ -87,7 +87,8 @@
     "40293": 40673,
     "40955": 40951,
     "40870": 41203,
-    "40816": 41430
+    "40816": 41430,
+    "41859": 42954
   },
   "dependencies": {
     "36593": [36634]
@@ -126,12 +127,22 @@
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
+    "36634": "Owner retains full tool invocation details in expanded chat rows; upstream issue 36633 was closed as not planned and the maintainer alternative 36958 was closed unmerged.",
+    "36945": "Owner retains the project name in the mobile session header; upstream issue 36942 was closed as not planned after the session bar redesign in 41345.",
     "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
   },
   "retainedHeadSources": {
     "34365": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/gentslava/android-picker-refusal-diagnostics"
+    },
+    "36634": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/fix/native-chat-tool-invocation-details"
+    },
+    "36945": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/fix/mobile-project-header"
     },
     "38848": {
       "repository": "gentslava/orca",
@@ -143,6 +154,10 @@
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/cli-chat-close-39918"
     },
+    "40298": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/saved-server-rename-40298"
+    },
     "40980": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/antigravity-models-40980"
@@ -152,5 +167,5 @@
       "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
     }
   },
-  "pullRequestUpstreamCommit": "042c4516efa75bc83bba339d95bb8dcacfbdf004"
+  "pullRequestUpstreamCommit": "6d5af64e39ab7c75c4b5f9f371f1fb7aa7a70634"
 }

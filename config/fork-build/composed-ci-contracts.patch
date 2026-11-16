@@ -1,11 +1,11 @@
 diff --git a/.github/workflows/pr.yml b/.github/workflows/pr.yml
-index afa721690d0..a2966b7eb4d 100644
+index 1f5a26dff7f..9560311628a 100644
 --- a/.github/workflows/pr.yml
 +++ b/.github/workflows/pr.yml
-@@ -998,6 +998,10 @@ jobs:
+@@ -996,6 +996,10 @@ jobs:
            filter: blob:none
            persist-credentials: false
-
+ 
 +      - name: Fetch upstream release tags for fork compatibility tests
 +        if: github.repository != 'stablyai/orca'
 +        run: git fetch --no-tags https://github.com/stablyai/orca.git 'refs/tags/v*:refs/tags/v*'
@@ -13,8 +13,16 @@ index afa721690d0..a2966b7eb4d 100644
        - uses: ./.github/actions/install-node-dependencies
          with:
            native-runtime: node
+diff --git a/.husky/pre-commit b/.husky/pre-commit
+index b3c072ba76d..7dce33ea1d4 100644
+--- a/.husky/pre-commit
++++ b/.husky/pre-commit
+@@ -1,2 +1,2 @@
+ #!/usr/bin/env sh
+-lint-staged --quiet
++lint-staged --quiet --concurrent 2
 diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
-index 77213de1849..e057b7bdcc2 100644
+index 9dc172749e1..d323753e316 100644
 --- a/config/react-compiler-bailout-baseline.txt
 +++ b/config/react-compiler-bailout-baseline.txt
 @@ -1,5 +1,5 @@
@@ -24,7 +32,7 @@ index 77213de1849..e057b7bdcc2 100644
  5 src/renderer/src/app-shell/TitlebarLeftControls.tsx
  3 src/renderer/src/app-shell/use-app-startup-hydration.ts
  2 src/renderer/src/components/FirstLaunchBanner.tsx
-@@ -216,6 +216,7 @@
+@@ -215,6 +215,7 @@
  2 src/renderer/src/components/native-chat/composer/pickers/use-native-chat-skills.ts
  1 src/renderer/src/components/native-chat/conversation/projection/use-native-chat-context-clear-floor.ts
  2 src/renderer/src/components/native-chat/conversation/projection/use-native-chat-transcript-projection.ts
@@ -32,7 +40,7 @@ index 77213de1849..e057b7bdcc2 100644
  4 src/renderer/src/components/native-chat/host-access/NativeChatSessionGate.tsx
  1 src/renderer/src/components/native-chat/host-access/use-native-chat-mobile-hold-notice.ts
  2 src/renderer/src/components/native-chat/host-access/use-native-chat-provisional-launch.ts
-@@ -253,6 +254,7 @@
+@@ -252,6 +253,7 @@
  1 src/renderer/src/components/native-chat/tools/runs/use-native-chat-tool-run-window.ts
  1 src/renderer/src/components/native-chat/usage/NativeChatAccountUsageCard.tsx
  2 src/renderer/src/components/native-chat/usage/use-native-chat-account-usage.ts
@@ -40,68 +48,6 @@ index 77213de1849..e057b7bdcc2 100644
  1 src/renderer/src/components/native-chat/viewport/find/use-native-chat-find.ts
  1 src/renderer/src/components/native-chat/viewport/history/NativeChatOlderHistoryRow.tsx
  1 src/renderer/src/components/native-chat/viewport/history/use-native-chat-selected-history.ts
-diff --git a/config/scripts/mobile-web-app/shell/mobile-web-app-drawer-render.test.mjs b/config/scripts/mobile-web-app/shell/mobile-web-app-drawer-render.test.mjs
-index aa3782d8cf8..79376423437 100644
---- a/config/scripts/mobile-web-app/shell/mobile-web-app-drawer-render.test.mjs
-+++ b/config/scripts/mobile-web-app/shell/mobile-web-app-drawer-render.test.mjs
-@@ -89,7 +89,11 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
-   it('closes the sheet instead of leaving the screen', async () => {
-     const browser = await ENGINES[0].launch()
-     try {
--      const page = await browser.newPage({ viewport: VIEWPORT, reducedMotion: 'no-preference' })
-+      const page = await browser.newPage({
-+        viewport: VIEWPORT,
-+        reducedMotion: 'no-preference',
-+        locale: 'en-US'
-+      })
-       const errors = []
-       page.on('pageerror', (error) => errors.push(`${error.name}: ${error.message}`))
-       await page.addInitScript(installShellDouble, {
-@@ -111,6 +115,18 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
-       // Closed sheet claims nothing; shell retains its existing pop fallback.
-       expect(await page.evaluate(notifyNames)).not.toContain(backNames.claim)
-
-+      await page.getByRole('button', { name: 'More options', exact: true }).click()
-+      await page.getByRole('button', { name: 'Advanced: workspaces', exact: true }).click()
-+      await page.waitForFunction(
-+        (name) => {
-+          const claims = globalThis.__orcaRenderCheckNotifies
-+            .filter((frame) => frame.name === name)
-+            .map((frame) => frame.claimed)
-+          return claims.length === 2 && claims[0] === true && claims[1] === false
-+        },
-+        backNames.claim,
-+        { timeout: 10_000, polling: 100 }
-+      )
-       await workspaceOptionsButton(page).click({ timeout: 30_000 })
-       await page.waitForFunction(
-         () => document.querySelector('[aria-label="Dismiss drawer"]') !== null,
-@@ -118,10 +134,12 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
-         { timeout: 10_000, polling: 100 }
-       )
-       const claimed = await page.waitForFunction(
--        (name) =>
--          globalThis.__orcaRenderCheckNotifies.find(
--            (frame) => frame.name === name && frame.claimed === true
--          ) ?? null,
-+        (name) => {
-+          const latest = globalThis.__orcaRenderCheckNotifies.findLast(
-+            (frame) => frame.name === name
-+          )
-+          return latest?.claimed === true ? latest : null
-+        },
-         backNames.claim,
-         { timeout: 10_000, polling: 100 }
-       )
-@@ -153,7 +171,7 @@ describeDrawer('the device Back key reaching a sheet on the page', () => {
-             .map((frame) => frame.claimed),
-         backNames.claim
-       )
--      expect(claims).toEqual([true, false])
-+      expect(claims).toEqual([true, false, true, false])
-       expect(errors).toEqual([])
-       await page.close()
-     } finally {
 diff --git a/config/scripts/mobile-web-app/shell/mobile-web-app-open-target-render.test.mjs b/config/scripts/mobile-web-app/shell/mobile-web-app-open-target-render.test.mjs
 index 700e87fc3da..e80e051bc0b 100644
 --- a/config/scripts/mobile-web-app/shell/mobile-web-app-open-target-render.test.mjs
@@ -144,6 +90,18 @@ index 700e87fc3da..e80e051bc0b 100644
      expect(errors).toEqual([])
      await page.close()
    }, 60_000)
+diff --git a/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs b/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
+index d9d092cf230..ce992ab8320 100644
+--- a/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
++++ b/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
+@@ -47,6 +47,7 @@ function git(root, args, options = {}) {
+     cwd: root,
+     encoding: 'utf8',
+     stdio: ['ignore', 'pipe', 'ignore'],
++    maxBuffer: 64 * 1024 * 1024,
+     ...options
+   })
+ }
 diff --git a/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx b/mobile/src/mobile-web-shell/bridge/native-image-permission-refusal.test.tsx
 new file mode 100644
 index 00000000000..81ab79f246f
@@ -217,23 +175,8 @@ index 00000000000..81ab79f246f
 +    await disposeBridgePortPair(pair)
 +  }
 +})
-diff --git a/mobile/src/mobile-web-shell/host-bridge/bridge-host.ts b/mobile/src/mobile-web-shell/host-bridge/bridge-host.ts
-index 87d19b170ea..db6d7df9a8d 100644
---- a/mobile/src/mobile-web-shell/host-bridge/bridge-host.ts
-+++ b/mobile/src/mobile-web-shell/host-bridge/bridge-host.ts
-@@ -303,9 +303,7 @@ export function createBridgeHost(options: BridgeHostOptions): BridgeHost {
-       dispatch(read.message)
-     },
-     publishRoute: (next) => routes.publish(next, serving && initSent),
--    publishSafeAreaInsets: (next) => {
--      routes.publishSafeAreaInsets(next, deliverable())
--    },
-+    publishSafeAreaInsets: (next) => routes.publishSafeAreaInsets(next, deliverable()),
-     publishKeyboardInset: (next) => routes.publishKeyboardInset(next, deliverable()),
-     publishStorage: () => sendInit(true),
-     publishHostStatus: () => verdict.publish(() => deliverable() && sendInit(), dispatch),
 diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
-index 3a938323303..58c02ca0a76 100644
+index 8e914ce7955..598f2260630 100644
 --- a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
 +++ b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session.ts
 @@ -8,14 +8,8 @@ import {
@@ -253,7 +196,7 @@ index 3a938323303..58c02ca0a76 100644
  import type {
    MobileStructuredAgentSessionArgs,
    StructuredMobileSession
-@@ -201,7 +195,10 @@ export function useMobileStructuredAgentSession(
+@@ -200,7 +194,10 @@ export function useMobileStructuredAgentSession(
    // Prefer host actionability: ended-agent prompts must receive no answer.
    const [approvalPrompt, questionPrompt] = useMemo(() => {
      const prompts = { items, currentRequests, actionablePromptIds }
@@ -265,7 +208,7 @@ index 3a938323303..58c02ca0a76 100644
    }, [items, currentRequests, actionablePromptIds])
    const commandRefusalCauses = useMemo(
      () => ({
-@@ -293,8 +290,8 @@ export function useMobileStructuredAgentSession(
+@@ -292,8 +289,8 @@ export function useMobileStructuredAgentSession(
        requestCancel(prompt ?? pendingStructuredPromptIdentity(stateRef.current)),
      receipts,
      actionablePromptIds: state.actionablePromptIds,
@@ -413,7 +356,7 @@ index 00000000000..aa14f252a4d
 +  restoreRejectedDraft
 +})
 diff --git a/src/main/orcad/native-runtime/orcad-windows-conpty-breakaway.integration.test.ts b/src/main/orcad/native-runtime/orcad-windows-conpty-breakaway.integration.test.ts
-index 26fee48dff1..89c31be1911 100644
+index 015bb8b7cbe..084aba899d2 100644
 --- a/src/main/orcad/native-runtime/orcad-windows-conpty-breakaway.integration.test.ts
 +++ b/src/main/orcad/native-runtime/orcad-windows-conpty-breakaway.integration.test.ts
 @@ -1,3 +1,4 @@
@@ -469,7 +412,7 @@ index 175b9de8cfa..ff95eced6ce 100644
 -    expect(effort('Low')).toBe('on')
 +    expect(effortLabel()).toBe('Low')
      close()
-
+ 
      act(() =>
 @@ -140,7 +138,7 @@ describe('setup records exist only for authored setups', () => {
      show({ ...entry, worktreeId: 'repo::/new' })
@@ -478,7 +421,7 @@ index 175b9de8cfa..ff95eced6ce 100644
 -    expect(effort('Low')).toBe('on')
 +    expect(effortLabel()).toBe('Low')
    })
-
+ 
    it('keeps a search preset in its own options slot, saving only real changes, with one shared prompt', async () => {
 @@ -180,14 +178,11 @@ describe('setup records exist only for authored setups', () => {
          </InMenu>
@@ -505,7 +448,7 @@ index 175b9de8cfa..ff95eced6ce 100644
      expect(sourceCount()).toBe(0)
      fireEvent.click(plain)
 @@ -206,14 +201,14 @@ describe('setup records exist only for authored setups', () => {
-
+ 
      // A real change saves into that preset's slot only and survives close and reopen.
      fireEvent.click(searched)
 -    await user.click(getByRole(document.body, 'radio', { name: 'Low' }))
@@ -520,110 +463,8 @@ index 175b9de8cfa..ff95eced6ce 100644
 -    expect(effort('Low')).toBe('on')
 +    expect(effortLabel()).toBe('Low')
      close()
-
+ 
      // The plain row keeps its own options but shares the workspace's typed prompt.
-diff --git a/src/renderer/src/components/feature-wall/commit-pr-settings/AiCommitPrSettingsCard.discovery.test.tsx b/src/renderer/src/components/feature-wall/commit-pr-settings/AiCommitPrSettingsCard.discovery.test.tsx
-index ba93c6cae03..35930dc95bc 100644
---- a/src/renderer/src/components/feature-wall/commit-pr-settings/AiCommitPrSettingsCard.discovery.test.tsx
-+++ b/src/renderer/src/components/feature-wall/commit-pr-settings/AiCommitPrSettingsCard.discovery.test.tsx
-@@ -1,3 +1,4 @@
-+import { chooseEffort } from '../../native-chat/native-chat-effort-slider.test-fixture'
- // @vitest-environment happy-dom
- import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
- import { expect, it } from 'vitest'
-@@ -49,7 +50,7 @@ it.each(['omitted', 'efforts replaced'])(
-     })
-     fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
-     fireEvent.click(screen.getByRole('option', { name: 'GPT-6.1 Sol' }))
--    fireEvent.click(screen.getByRole('radio', { name: 'High' }))
-+    chooseEffort('High')
-     act(() =>
-       useAppStore.setState(({ settings }) => ({
-         settings: {
-diff --git a/src/renderer/src/components/feature-wall/commit-pr-settings/AiCommitPrSettingsCard.test.tsx b/src/renderer/src/components/feature-wall/commit-pr-settings/AiCommitPrSettingsCard.test.tsx
-index 98ce621210f..aa969f27d24 100644
---- a/src/renderer/src/components/feature-wall/commit-pr-settings/AiCommitPrSettingsCard.test.tsx
-+++ b/src/renderer/src/components/feature-wall/commit-pr-settings/AiCommitPrSettingsCard.test.tsx
-@@ -1,3 +1,4 @@
-+import { chooseEffort } from '../../native-chat/native-chat-effort-slider.test-fixture'
- // @vitest-environment happy-dom
- import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
- import { expect, it } from 'vitest'
-@@ -51,7 +52,7 @@ it('uses the shared AI-author picker without saving on cancel and preserves Cust
-   fireEvent.click(screen.getByRole('button', { name: 'Configure Codex' }))
-   // The draft still names legacy GPT-5.4, so its section opens by itself.
-   fireEvent.click(screen.getByRole('option', { name: 'GPT-5.4' }))
--  fireEvent.click(screen.getByRole('radio', { name: 'Low' }))
-+  chooseEffort('Low')
-   fireEvent.click(screen.getByRole('button', { name: /^Use$/ }))
-   await waitFor(() =>
-     expect(useAppStore.getState().settings?.commitMessageAi).toMatchObject({
-diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-index 6a30b79b846..819c2d08646 100644
---- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-@@ -24,10 +24,7 @@ import {
-   NativeChatStructuredTranscriptFrame
- } from './NativeChatStructuredTranscript'
- import { NativeChatChildTranscriptStack } from './NativeChatChildTranscript'
--import {
--  NativeChatChildNavigationContext,
--  useNativeChatChildNavigator
--} from './native-chat-child-navigation'
-+import * as childNavigation from './native-chat-child-navigation'
- import { NativeChatContextClearFade } from './conversation/projection/NativeChatContextClearFade'
- import { useStructuredNativeChatSubmitReveal } from './pane/actions/use-structured-native-chat-submit-reveal'
- import { useStructuredPromptResponseHold } from './prompts/use-structured-prompt-response-hold'
-@@ -83,7 +80,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
-   // The host's own word on whether the provider child has answered startup yet.
-   const hostExecution = useStructuredAgentSessionHostExecution(props.sessionId, props.target)
-   const paneKey = structuredAgentSessionPaneKey(props.tabId, props.sessionId)
--  const childNavigator = useNativeChatChildNavigator(JSON.stringify([paneKey, props.target]))
-+  const childNavigator = childNavigation.useNativeChatChildNavigator(
-+    JSON.stringify([paneKey, props.target])
-+  )
-   const { messageListRef: childMessageListRef } = childNavigator
-   const readOnlyComposerRef = useRef<NativeChatComposerHandle>(null)
-   // Chat-wide preference; an alternate send flips it for one message.
-@@ -252,7 +251,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
-     hostNotice
-   })
-   const root = (
--    <NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
-+    <childNavigation.NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
-       <div
-         ref={rootRef}
-         data-native-chat-root="true"
-@@ -408,7 +407,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
-         {handOff.dialog}
-         <LinkActionPopover request={linkActionRequest} onClose={closeLinkActions} />
-       </div>
--    </NativeChatChildNavigationContext.Provider>
-+    </childNavigation.NativeChatChildNavigationContext.Provider>
-   )
-   return (
-     <NativeChatLinkClickContext value={onLinkClick}>
-diff --git a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
-index 7cffbef2580..2d0c5cd6ab0 100644
---- a/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
-+++ b/src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx
-@@ -190,7 +190,7 @@ describe('structured send racing the next IME composition', () => {
-     expect(readNativeChatDraftCache(pane)).toBe('하')
-
-     await act(async () => pressEnter(input))
--    expect(structured.send).toHaveBeenLastCalledWith('하', [])
-+    expect(structured.send).toHaveBeenLastCalledWith('하', [], {})
-   })
- })
-
-@@ -233,6 +233,6 @@ describe('the Enter that commits a Hangul composition', () => {
-     await act(async () => pressEnter(input))
-
-     expect(structured.send).toHaveBeenCalledOnce()
--    expect(structured.send).toHaveBeenCalledWith('안녕하세요', [])
-+    expect(structured.send).toHaveBeenCalledWith('안녕하세요', [], {})
-   })
- })
 diff --git a/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts b/src/renderer/src/components/native-chat/native-chat-effort-slider.test-fixture.ts
 new file mode 100644
 index 00000000000..dee0b508007
@@ -650,174 +491,6 @@ index 00000000000..dee0b508007
 +  }
 +  throw new Error(`Effort slider does not offer ${label}`)
 +}
-diff --git a/src/renderer/src/components/native-chat/surfaces/integration/NativeChatStructuredSession.test.tsx b/src/renderer/src/components/native-chat/surfaces/integration/NativeChatStructuredSession.test.tsx
-index 04c4a0534ba..125f980c80e 100644
---- a/src/renderer/src/components/native-chat/surfaces/integration/NativeChatStructuredSession.test.tsx
-+++ b/src/renderer/src/components/native-chat/surfaces/integration/NativeChatStructuredSession.test.tsx
-@@ -7,6 +7,11 @@ const { mocks, moduleFactories, resetStructuredSessionMocks } = await vi.hoisted
-   (await import('./NativeChatStructuredSession.test-harness')).createStructuredSessionMocks()
- )
-
-+vi.mock('@/lib/syntax-highlighting/oniguruma', async () => ({
-+  loadOniguruma: (await import('@/lib/syntax-highlighting/oniguruma-test-harness'))
-+    .loadNodeOniguruma
-+}))
-+
- vi.mock('../../../../runtime/native-chat/requests/structured-agent-session-call', () =>
-   moduleFactories.structuredAgentSessionCall()
- )
-diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-index 96e2148a789..96321c2210c 100644
---- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-+++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-@@ -12,7 +12,6 @@ import {
-   NEW_TAB_PAIRED_STATUS,
-   newTabTwinHostWorkspaces
- } from './new-tab-agent-menu-twin-host.test-fixture'
--import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat'
- import {
-   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
-   STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
-@@ -204,7 +203,7 @@ it.each(['git-worktree', 'folder'] as const)(
-     setLocalRuntimeCapabilitiesForTests([CHAT, CLIENT])
-     useAppStore.setState({
-       ...initial,
--      settings: { ...getDefaultSettings('/home/me'), nativeChatProviders: EVERY_AGENT_CHAT },
-+      settings: { ...getDefaultSettings('/home/me'), agentDefaultSurface: 'chat' },
-       repos: NEW_TAB_TWIN_HOSTS.map((executionHostId) => ({ ...TEST_REPO, executionHostId })),
-       ...twinWorkspaces,
-       runtimeStatusByEnvironmentId: new Map([['paired', pairedStatus]]),
-diff --git a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
-index 22fe3bf02c6..ff163e06567 100644
---- a/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
-+++ b/src/renderer/src/lib/agent-session/launch/structured-agent-session-launch-draft.test.ts
-@@ -100,7 +100,7 @@ describe('structured launch draft persistence', () => {
-         })
-       })
-       await act(() => composer.result.current(text))
--      expect(send).toHaveBeenCalledExactlyOnceWith(text, [])
-+      expect(send).toHaveBeenCalledExactlyOnceWith(text, [], {})
-       composer.unmount()
-       await nativeChatComposerDraftWritesSettled()
-       await restart()
-diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
-index 21e051c0e34..a2b607d13d7 100644
---- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
-+++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
-@@ -100,8 +100,6 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
-             ? ui.customSidekicks
-             : []
-         const petId = ui.petId ?? ui.sidekickId
--        // Migration: one-shot old-'recent'→'smart' runs in main (_sortBySmartMigrated), not here, so a deliberate 'recent' choice survives restart.
--        const sortBy = ui.sortBy
-         const statusBarItemsWithGrok = hydrateStatusBarItems(ui)
-         const hydrated = {
-           // Why: persisted widths may be stale/corrupt/hand-edited; clamp during hydration so invalid values can't break layout.
-@@ -121,7 +119,8 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
-           ...normalizeRightSidebarRoute(ui.rightSidebarTab, ui.rightSidebarExplorerView),
-           activityBarPosition: sanitizeActivityBarPosition(ui.activityBarPosition),
-           groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
--          sortBy,
-+          // Migration runs in main; hydration preserves a deliberate recent choice.
-+          sortBy: ui.sortBy,
-           // Why: main-process getUI() already normalized this (defaulting to 'manual'); read it through without migrating.
-           projectOrderBy: ui.projectOrderBy,
-           personalProjectOrder: newerPersonalProjectOrder(
-diff --git a/src/shared/agent-session/failures/agent-session-failure-words.ts b/src/shared/agent-session/failures/agent-session-failure-words.ts
-index f3fc2a723c5..97706bd5437 100644
---- a/src/shared/agent-session/failures/agent-session-failure-words.ts
-+++ b/src/shared/agent-session/failures/agent-session-failure-words.ts
-@@ -1,10 +1,4 @@
--import {
--  isSubmissionRejectionFact,
--  type AgentSessionFailureFact,
--  type AgentSessionFailureKind,
--  type SubmissionRejectionFact,
--  type SubmissionRejectionKind
--} from './agent-session-failure'
-+import * as failureFacts from './agent-session-failure'
- import type { AgentSessionConversationCommand } from '../agent-session-conversation-command'
- import { cliMissingSentence, notSignedInSentence } from '../agent-session-availability-sentences'
- import {
-@@ -42,13 +36,13 @@ export type AgentSessionFailureSentence = string & { readonly [failureSentence]:
-
- export type AgentSessionFailureRowWords = {
-   text: AgentSessionFailureSentence
--  failure: AgentSessionFailureFact
-+  failure: failureFacts.AgentSessionFailureFact
- }
-
- /** Legacy sentence/hidden marker and the newer fact, written together by the host. */
- export type AgentJournalDispatchRejection = {
-   reason: AgentSessionFailureSentence
--  rejection: SubmissionRejectionFact
-+  rejection: failureFacts.SubmissionRejectionFact
- }
-
- /** row describes the chat; rejection describes a rejected message; answer describes a refused approval/question answer. */
-@@ -74,7 +68,7 @@ export type AgentSessionFailureWordsContext = {
-
- type Sentence = (
-   context: AgentSessionFailureWordsContext,
--  fact: AgentSessionFailureFact,
-+  fact: failureFacts.AgentSessionFailureFact,
-   surface: AgentSessionFailureSurface,
-   say: AgentSessionFailureSay
- ) => string
-@@ -280,11 +274,11 @@ const FAILURE_SENTENCES = {
-     }),
-   previousExitUnverifiable: namingAgent('previousExitUnverifiable'),
-   sessionNotRestored: namingAgent('sessionNotRestored')
--} satisfies Record<AgentSessionFailureKind, Sentence>
-+} satisfies Record<failureFacts.AgentSessionFailureKind, Sentence>
-
- /** The sentence a person reads for this fact on this surface; never a marker. */
- export function agentSessionFailureSentence(
--  fact: AgentSessionFailureFact,
-+  fact: failureFacts.AgentSessionFailureFact,
-   surface: AgentSessionFailureSurface,
-   context: AgentSessionFailureWordsContext = {},
-   /** Desktop and phone pass their translations; the host keeps English. */
-@@ -296,7 +290,10 @@ export function agentSessionFailureSentence(
-
- /** Preserve markers released clients hide. A write failure keeps the bare marker; its error stays in the log. */
- const LEGACY_REJECTION_MARKERS: Partial<
--  Record<SubmissionRejectionKind, (context: AgentSessionFailureWordsContext) => string | undefined>
-+  Record<
-+    failureFacts.SubmissionRejectionKind,
-+    (context: AgentSessionFailureWordsContext) => string | undefined
-+  >
- > = {
-   cancelled: () => DISPATCH_REJECTED_CANCELLED,
-   writeFailed: () => DISPATCH_REJECTED_WRITE_FAILED,
-@@ -310,23 +307,23 @@ const LEGACY_REJECTION_MARKERS: Partial<
-
- /** The words a status row reporting this fact records. */
- export function agentSessionFailureWords(
--  fact: AgentSessionFailureFact,
-+  fact: failureFacts.AgentSessionFailureFact,
-   context: AgentSessionFailureWordsContext & { surface: 'row' }
- ): AgentSessionFailureRowWords
- /** The words a message rejected for this fact records. */
- export function agentSessionFailureWords(
--  fact: SubmissionRejectionFact,
-+  fact: failureFacts.SubmissionRejectionFact,
-   context: AgentSessionFailureWordsContext & { surface: 'rejection' }
- ): AgentJournalDispatchRejection
- export function agentSessionFailureWords(
--  fact: AgentSessionFailureFact,
-+  fact: failureFacts.AgentSessionFailureFact,
-   context: AgentSessionFailureWordsContext & { surface: AgentSessionFailureSurface }
- ): AgentSessionFailureRowWords | AgentJournalDispatchRejection {
-   if (context.surface === 'row') {
-     return { text: branded(agentSessionFailureSentence(fact, 'row', context)), failure: fact }
-   }
-   // The rejection overload admits only these; a caller that got past the types is Orca's bug.
--  if (!isSubmissionRejectionFact(fact)) {
-+  if (!failureFacts.isSubmissionRejectionFact(fact)) {
-     throw new Error(`agent session failure kind ${fact.kind} cannot reject a message`)
-   }
-   const words =
 diff --git a/src/shared/agent-session/options/model-menu-catalog.test-fixture.ts b/src/shared/agent-session/options/model-menu-catalog.test-fixture.ts
 new file mode 100644
 index 00000000000..ef95435cfb5
@@ -843,6 +516,42 @@ index 00000000000..ef95435cfb5
 +    }
 +  ]
 +}
+diff --git a/src/shared/native-chat/tools/native-chat-command-disclosure.test.ts b/src/shared/native-chat/tools/native-chat-command-disclosure.test.ts
+index 4a089a87aea..a7625304aa7 100644
+--- a/src/shared/native-chat/tools/native-chat-command-disclosure.test.ts
++++ b/src/shared/native-chat/tools/native-chat-command-disclosure.test.ts
+@@ -1,5 +1,5 @@
+ import { describe, expect, it } from 'vitest'
+-import { nativeChatToolLineView } from './native-chat-tool-line-view'
++import { nativeChatToolCallInputView, nativeChatToolLineView } from './native-chat-tool-line-view'
+ 
+ describe('command disclosure', () => {
+   it('opens a running short command before any output exists', () => {
+@@ -16,14 +16,19 @@ describe('command disclosure', () => {
+ 
+   it('keeps the full command accessible when metadata accompanies a shortened label', () => {
+     const command = `pnpm test ${'src/checkout/payment-validation.test.ts '.repeat(4)}`
+-    const view = nativeChatToolLineView({
+-      type: 'tool-call',
++    const call = {
++      type: 'tool-call' as const,
+       name: 'Bash',
+-      state: 'running',
++      state: 'running' as const,
+       input: { command, description: 'Validate checkout', timeout: 600000 }
+-    })
++    }
++    const view = nativeChatToolLineView(call)
+     expect(view.hasDetail).toBe(true)
+     expect(view.label?.target.length).toBeLessThan(command.trim().length)
+-    expect(view.label?.commandDetail).toBe(command.trim())
++    expect(view.label?.commandDetail).toBeNull()
++    expect(nativeChatToolCallInputView(call, view.label)).toMatchObject({
++      command: null,
++      showsBody: true
++    })
+   })
+ })
 diff --git a/tests/e2e/github-project-board.spec.ts b/tests/e2e/github-project-board.spec.ts
 index a9ff2eee83b..854503a6b94 100644
 --- a/tests/e2e/github-project-board.spec.ts
@@ -855,79 +564,6 @@ index a9ff2eee83b..854503a6b94 100644
            defaultTaskSource: 'github',
            defaultRepoSelection: [repo.id],
            githubProjects: {
-diff --git a/tests/e2e/helpers/orca-app.ts b/tests/e2e/helpers/orca-app.ts
-index b3f5d6e78ee..d9b951c78bd 100644
---- a/tests/e2e/helpers/orca-app.ts
-+++ b/tests/e2e/helpers/orca-app.ts
-@@ -17,10 +17,7 @@ import { recordElectronShutdownTiming } from './electron-shutdown-timing'
- import { getOrcaElectronLaunchArgs } from './electron-launch-args'
- import { retryTransientMainEvaluate } from './electron-main-evaluate-retry'
- import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-profile'
--import {
--  assertElectronResolvedIsolatedHome,
--  createElectronHomeIsolation
--} from './electron-home-isolation'
-+import * as electronHome from './electron-home-isolation'
- import {
-   createSeededTestRepo,
-   isValidGitRepo,
-@@ -165,7 +162,7 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
-     // Strip ELECTRON_RUN_AS_NODE or Node rejects Playwright’s remote-debugging switch before launch.
-     const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
-     void _unused
--    const homeIsolation = createElectronHomeIsolation({
-+    const homeIsolation = electronHome.createElectronHomeIsolation({
-       inheritedEnv: cleanEnv,
-       launchEnv,
-       extraEnv: orcaAppExtraEnv,
-@@ -194,7 +191,7 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
-       const resolvedHome = await retryTransientMainEvaluate(() =>
-         app.evaluate(({ app }) => app.getPath('home'))
-       )
--      assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
-+      electronHome.assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
-     } catch (error) {
-       await closeElectronAppForE2E(app, { cleanupDaemonsForUserDataDir: userDataDir })
-       await removeUserDataDirAfterShutdown(userDataDir)
-diff --git a/tests/e2e/helpers/orca-restart.ts b/tests/e2e/helpers/orca-restart.ts
-index aad59f2ab22..26de08a3de2 100644
---- a/tests/e2e/helpers/orca-restart.ts
-+++ b/tests/e2e/helpers/orca-restart.ts
-@@ -19,11 +19,7 @@ import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-pro
- import { getOrcaElectronLaunchArgs } from './electron-launch-args'
- import { retryTransientMainEvaluate } from './electron-main-evaluate-retry'
- import { cleanupE2EDaemons, closeElectronAppForE2E } from './electron-process-shutdown'
--import {
--  assertElectronResolvedIsolatedHome,
--  createElectronHomeIsolation,
--  type ElectronHomeIsolation
--} from './electron-home-isolation'
-+import * as electronHome from './electron-home-isolation'
- import type { LaunchOptions } from './orca-restart-launch-options'
- import { selectSidebarBody } from './store'
-
-@@ -89,10 +85,10 @@ function createRestartLaunchIsolation(
-   userDataDir: string,
-   headful: boolean,
-   extraEnv: Record<string, string>
--): ElectronHomeIsolation {
-+): electronHome.ElectronHomeIsolation {
-   const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
-   void _unused
--  return createElectronHomeIsolation({
-+  return electronHome.createElectronHomeIsolation({
-     inheritedEnv: cleanEnv,
-     launchEnv: {
-       NODE_ENV: 'development',
-@@ -166,7 +162,7 @@ export function createRestartSession(
-           return app.getPath('home')
-         })
-       )
--      assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
-+      electronHome.assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
-       await options?.beforeFirstWindow?.(app)
-       const page = await app.firstWindow({ timeout: 120_000 })
-       await page.waitForLoadState('domcontentloaded')
 diff --git a/tests/e2e/runtime-host-status-recovery.spec.ts b/tests/e2e/runtime-host-status-recovery.spec.ts
 index 4c35bb3fa96..c0c5a2eff5f 100644
 --- a/tests/e2e/runtime-host-status-recovery.spec.ts
@@ -946,7 +582,7 @@ index 4c35bb3fa96..c0c5a2eff5f 100644
  } from './helpers/paired-electron-client'
  import { launchHeadlessPairedRuntimeHost } from './helpers/headless-paired-runtime-host'
 +import { showWorkspaceSidebar } from './helpers/sidebar-project-dialog'
-
+ 
  async function interruptibleHost(offer: RuntimeDesktopPairingOffer) {
    const pairing = decodePairingOffer(offer.pairingUrl)
 @@ -91,10 +94,22 @@ async function expectWorkspaceHostAppearance(
@@ -988,63 +624,3 @@ index 4c35bb3fa96..c0c5a2eff5f 100644
        await expect
          .poll(() => statusEvidence(browser!.page), { timeout: 30_000 })
          .toMatchObject({ verification: 'verified', transport: 'ready' })
-diff --git a/mobile/src/mobile-web-shell/native-media-pick-diagnostics.test.ts b/mobile/src/mobile-web-shell/native-media-pick-diagnostics.test.ts
---- a/mobile/src/mobile-web-shell/native-media-pick-diagnostics.test.ts
-+++ b/mobile/src/mobile-web-shell/native-media-pick-diagnostics.test.ts
-@@ -66,7 +66,13 @@
-   })
-   held.view = view
-   useLayoutEffect(() => {
--    view.viewRef({ postBridgeMessage: async () => {} })
-+    view.viewRef({
-+      postBridgeMessage: async () => {},
-+      createVisualDocument: async () => {
-+        throw new Error('This media picker fixture creates no visual')
-+      },
-+      releaseVisualDocument: async () => {}
-+    })
-     return () => view.viewRef(null)
-   }, [view.viewRef])
-   return null
-diff --git a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.test.tsx b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.test.tsx
---- a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.test.tsx
-+++ b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.test.tsx
-@@ -164,5 +164,7 @@
-       }}
-     />
-   )
--  expect(screen.getByRole('button', { name: 'Model Opus 5.5' }).textContent).toBe('Opus 5.5')
-+  expect(screen.getByRole('button', { name: 'Next turn: Model Opus 5.5' }).textContent).toBe(
-+    'Opus 5.5'
-+  )
- })
-diff --git a/.husky/pre-commit b/.husky/pre-commit
---- a/.husky/pre-commit
-+++ b/.husky/pre-commit
-@@ -1,2 +1,2 @@
- #!/usr/bin/env sh
--lint-staged
-+lint-staged --concurrent 2
-diff --git a/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs b/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
---- a/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
-+++ b/config/scripts/static-analysis/ratchets/test-quality/check-flaky-test-pattern-ratchet.mjs
-@@ -47,6 +47,7 @@
-     cwd: root,
-     encoding: 'utf8',
-     stdio: ['ignore', 'pipe', 'ignore'],
-+    maxBuffer: 64 * 1024 * 1024,
-     ...options
-   })
- }
-diff --git a/src/main/native-chat/agent-session-journal/journal-domain-maintenance.test.ts b/src/main/native-chat/agent-session-journal/journal-domain-maintenance.test.ts
---- a/src/main/native-chat/agent-session-journal/journal-domain-maintenance.test.ts
-+++ b/src/main/native-chat/agent-session-journal/journal-domain-maintenance.test.ts
-@@ -297,6 +297,8 @@
-       }
-       return statement
-     })
-+    // Query-plan coverage is independent of the maintenance time slice.
-+    vi.spyOn(performance, 'now').mockReturnValue(0)
-     expect(
-       maintain(db, { kind: 'domain-retired-prune', sessionId: 'chat', epoch: 'epoch' })
-     ).toEqual({ kind: 'domain-retired', deleted: 50, more: true })

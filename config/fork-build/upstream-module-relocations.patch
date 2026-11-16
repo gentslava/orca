@@ -1,10 +1,10 @@
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
-index b71d37ed2f5..dc2fe3f08cc 100644
+index 37a6ea076e8..4f25a70a8fe 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 @@ -35,6 +35,34 @@ const baseSession: AiVaultSession = {
  }
-
+ 
  describe('buildAiVaultProjectContext', () => {
 +  it('attributes a structured chat to its stored workspace on its own host even when its cwd matches another project', () => {
 +    const repo = makeRepo({ id: 'saved-repo', path: '/saved', displayName: 'Saved project' })
@@ -38,22 +38,42 @@ index b71d37ed2f5..dc2fe3f08cc 100644
      const repo = makeRepo({ id: 'repo-1', displayName: 'Legacy Repo', path: '/Users/ada/orca' })
      const project = makeProject({ id: 'project-1', displayName: 'Canonical Orca' })
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
-index e33e5c4fbd7..84604247f10 100644
---- a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
+new file mode 100644
+index 00000000000..597bfd4a6da
+--- /dev/null
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
-@@ -4,6 +4,8 @@ import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts
- import type { Repo } from '../../../../../../shared/repo-types'
- import type { Worktree } from '../../../../../../shared/worktree/types'
-
+@@ -0,0 +1,73 @@
++import { describe, expect, it } from 'vitest'
++import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
 +import { MIXED_FOLDER } from '../../../../../../shared/folder-workspaces/folder-workspace-host-routing.test-fixture'
++import { resolveAiVaultSessionWorktreeInfo } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-worktree'
++import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
 +import { aiVaultSessionOwnerWorkspaces } from './ai-vault-session-worktree'
- import { resolveAiVaultSessionWorktreeInfo } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-worktree'
-
- const baseSession: AiVaultSession = {
-@@ -66,6 +68,47 @@ function makeRepo(overrides: Partial<Repo> = {}): Repo {
- }
-
- describe('resolveAiVaultSessionWorktreeInfo', () => {
++
++const baseSession: AiVaultSession = {
++  id: 'codex:session-1',
++  executionHostId: 'local',
++  agent: 'codex',
++  sessionId: 'session-1',
++  title: 'Find the pane',
++  cwd: '/repo/orca/src',
++  branch: null,
++  model: null,
++  filePath: '/home/ada/.codex/session-1.jsonl',
++  codexHome: null,
++  createdAt: null,
++  updatedAt: '2026-06-24T10:00:00.000Z',
++  modifiedAt: '2026-06-24T10:00:00.000Z',
++  messageCount: 2,
++  totalTokens: 42,
++  previewMessages: [],
++  queuedMessageCount: 0,
++  subagentTranscriptCount: 0,
++  resumeCommand: "codex resume 'session-1'",
++  subagent: null
++}
++
++describe('resolveAiVaultSessionWorktreeInfo', () => {
 +  it('resolves a record-only chat by stored folder identity without a cwd and keeps host twins separate', () => {
 +    const folder = { ...MIXED_FOLDER, id: 'folder-1', name: 'Notes', folderPath: '/work/notes' }
 +    const saved = {
@@ -83,6 +103,7 @@ index e33e5c4fbd7..84604247f10 100644
 +    const worktrees = ['Debian', 'Ubuntu'].map((distro) =>
 +      makeWorktree({
 +        id: `folder:${distro}`,
++        repoId: 'repo-1',
 +        path: `\\\\wsl.localhost\\${distro}\\home\\ada\\orca`
 +      })
 +    )
@@ -94,31 +115,15 @@ index e33e5c4fbd7..84604247f10 100644
 +    expect(found?.worktreeId).toBe(owner ? `folder:${owner}` : undefined)
 +    expect(found?.status).toBe(owner ? 'active' : 'unavailable')
 +  })
-+
-   it('ranks each same-host candidate by its closest cwd spelling, independent of link length or alias order', () => {
-     const parent = makeWorktree({ id: 'parent', path: '/a-very-long-parent-link' })
-     const child = makeWorktree({ id: 'child', path: '/short', priorWorktreeIds: ['repo-1::/old'] })
-diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
-index 28f6abb3003..3b8e2e3ae77 100644
---- a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
-+++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
-@@ -3,7 +3,7 @@ import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-o
- import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
- import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
- import { translate } from '@/i18n/i18n'
--import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
-+import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
-
- export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
-   const order = useAppStore((state) => state.projectOrderBy)
++})
 diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
 new file mode 100644
-index 00000000000..507a8a3f0fa
+index 00000000000..aba8b600501
 --- /dev/null
 +++ b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
 @@ -0,0 +1,75 @@
 +import { expect, it } from 'vitest'
-+import type { Repo } from '../../../../../../shared/repo-types'
++import type { Repo } from '../../../../../../shared/repository/repo-types'
 +import type { Row } from '../../../../../../shared/sidebar-list/row-types'
 +import {
 +  getSidebarOrderedRepoHeaderRowsByBucket,
@@ -192,38 +197,42 @@ index 00000000000..507a8a3f0fa
 +  ])
 +  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
 +})
-diff --git a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-index 7542022719f..96e2148a789 100644
---- a/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-+++ b/src/renderer/src/components/tab-bar/use-new-tab-agent-menu-rows-owner.test.tsx
-@@ -1,11 +1,22 @@
- // @vitest-environment happy-dom
-
--import { cleanup, render, screen } from '@testing-library/react'
-+import { act, cleanup, render, renderHook, screen } from '@testing-library/react'
- import AgentCombobox from '@/components/agent/AgentCombobox'
- import { TooltipProvider } from '@/components/ui/tooltip'
- import { AGENT_CATALOG } from '@/lib/agent-catalog/agent-catalog'
- import { afterEach, expect, it, vi } from 'vitest'
- import { useAppStore } from '@/store/index'
+diff --git a/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx b/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx
+new file mode 100644
+index 00000000000..787d2c0c4b2
+--- /dev/null
++++ b/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx
+@@ -0,0 +1,105 @@
++// @vitest-environment happy-dom
++
++import { act, cleanup, renderHook } from '@testing-library/react'
++import { afterEach, expect, it, vi } from 'vitest'
++import { useAppStore } from '@/store/index'
 +import { getRuntimeAgentInventoryKey } from '@/store/slices/agent-inventory/runtime-agent-inventory-key'
++import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
++import { TEST_REPO } from '@/store/repos/repo.test-fixture'
++import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
++import { resetRendererAppPlatformCacheForTests } from '@/app-shell/platform/renderer-app-platform'
++import { getDefaultSettings } from '../../../../shared/constants'
++import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat.test-fixture'
++import {
++  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
++  STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
++} from '../../../../shared/agent-session/agent-session-runtime-capabilities'
 +import {
 +  NEW_TAB_TWIN_HOSTS,
 +  NEW_TAB_PAIRED_STATUS,
 +  newTabTwinHostWorkspaces
 +} from './new-tab-agent-menu-twin-host.test-fixture'
-+import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat'
-+import {
-+  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
-+  STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
-+} from '../../../../shared/agent-session/agent-session-runtime-capabilities'
-
- import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
- import '@/lib/agent-session/launch/routing/agent-launch-route-input'
-@@ -175,3 +186,78 @@ it('waits on a paired server only while contact is checking without a reported O
- })
-
- /** Copies whose owner-field reads (`id`, `executionHostId`) are counted. */
++import { useAgentMenuObservation } from './use-new-tab-agent-menu-rows'
++
++const initial = useAppStore.getState()
++afterEach(() => {
++  cleanup()
++  useAppStore.setState(initial, true)
++  setLocalRuntimeCapabilitiesForTests(null)
++  resetRendererAppPlatformCacheForTests()
++})
 +
 +it.each(['git-worktree', 'folder'] as const)(
 +  'keeps %s discovery and chat rows on the explicitly named twin host',

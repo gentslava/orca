@@ -1,10 +1,10 @@
 diff --git a/mobile/src/host-screen/HostConversations.tsx b/mobile/src/host-screen/HostConversations.tsx
-index 7081e91b646..7ece2386967 100644
+index 4fe78d5cf93..d28dfaf2762 100644
 --- a/mobile/src/host-screen/HostConversations.tsx
 +++ b/mobile/src/host-screen/HostConversations.tsx
-@@ -74,7 +74,8 @@ export function HostConversations({
-         controller.projectCatalog,
+@@ -75,7 +75,8 @@ export function HostConversations({
          [...controller.sectionsResult.repoById.values()],
+         state.hostProjectGroups,
          state.view.filters.visibleHostIds,
 -        controller.projectOrderBy
 +        controller.projectOrderBy,
@@ -29,13 +29,13 @@ index 7a9d1feba0c..613a73c3c49 100644
      />
    )
 diff --git a/mobile/src/host-screen/project-conversation-order.ts b/mobile/src/host-screen/project-conversation-order.ts
-index 92bea0b8657..5f8f43d425c 100644
+index 828c6e3548a..2ef0207a212 100644
 --- a/mobile/src/host-screen/project-conversation-order.ts
 +++ b/mobile/src/host-screen/project-conversation-order.ts
 @@ -1,3 +1,4 @@
 +import { resolveProjectPreferenceKey } from '../../../src/shared/project-preference-identity'
  import type { ConversationPreferences } from '../../../src/shared/conversation-navigation-preferences'
- import { sortProjectEntries } from '../../../src/shared/project-section-order'
+ import { sortProjectEntries } from '../../../src/shared/sidebar-list/sections/project-section-order'
  import type { ProjectSectionCatalog } from '../worktree/workspace-list/workspace-list-sections'
 @@ -14,18 +15,33 @@ export function orderProjectConversations(
  ): ConversationProject[] {
@@ -84,15 +84,15 @@ index 92bea0b8657..5f8f43d425c 100644
      .map(([, project]) => project)
      .map((project) => ({
 diff --git a/mobile/src/host-screen/project-conversations.test.ts b/mobile/src/host-screen/project-conversations.test.ts
-index 8bb4a9fc9d5..b2bd0128da1 100644
+index 4575c22497c..2eac9f57172 100644
 --- a/mobile/src/host-screen/project-conversations.test.ts
 +++ b/mobile/src/host-screen/project-conversations.test.ts
 @@ -1,3 +1,4 @@
-+import { projectHostSetupProjectionFromRepos } from '../../../src/shared/project-host-setup-projection'
++import { projectHostSetupProjectionFromRepos } from '../../../src/shared/project/host-setup/project-host-setup-projection'
  import { describe, expect, it } from 'vitest'
  import { conversationPreferenceKey } from '../../../src/shared/conversation-navigation-preferences'
  import type { ProjectSectionCatalog } from '../worktree/workspace-list/workspace-list-sections'
-@@ -311,3 +312,62 @@ describe('projects containing conversations', () => {
+@@ -312,3 +313,63 @@ describe('projects containing conversations', () => {
      ).toBe(true)
    })
  })
@@ -138,6 +138,7 @@ index 8bb4a9fc9d5..b2bd0128da1 100644
 +          ['alpha', 1]
 +        ]),
 +        projectOrderBy: mode,
++        projectGroups: [],
 +        grouping: {
 +          projects: projection.projects,
 +          projectHostSetups: projection.setups,
@@ -174,7 +175,7 @@ index 6c762384f9b..d99acb18e1a 100644
          let result: unknown = {
 @@ -131,3 +135,15 @@ export const hiddenProjectRestore = fixture(320, 'hidden')
  export const registeredProjectActions = fixture(320, 'registered')
-
+ 
  export const loadingProjects = fixture(320, 'loading')
 +
 +export const projectOrderModes = defineFixture({
@@ -189,7 +190,7 @@ index 6c762384f9b..d99acb18e1a 100644
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
-index c4dbe428f7d..61cadd5e17a 100644
+index 4ac1e8619b0..359bd60c7af 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 @@ -23,11 +23,15 @@ const state = vi.hoisted(() => {
@@ -358,7 +359,7 @@ index 1c5633c80ca..d68299d8835 100644
          <Button
 diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 new file mode 100644
-index 00000000000..28f6abb3003
+index 00000000000..3b8e2e3ae77
 --- /dev/null
 +++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 @@ -0,0 +1,45 @@
@@ -367,7 +368,7 @@ index 00000000000..28f6abb3003
 +import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
 +import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 +import { translate } from '@/i18n/i18n'
-+import { PROJECT_ORDER_OPTIONS } from './sidebar-workspace-option-items'
++import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
 +
 +export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
 +  const order = useAppStore((state) => state.projectOrderBy)
@@ -408,7 +409,7 @@ index 00000000000..28f6abb3003
 +  )
 +}
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
-index 338ab091e03..a56186a4062 100644
+index f22b7671e3f..66f0dbf3d52 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 @@ -131,3 +131,34 @@ describe('project conversation ownership', () => {
@@ -447,16 +448,16 @@ index 338ab091e03..a56186a4062 100644
 +  expect(result.map((group) => group.executionHostId)).toEqual(['runtime:remote', 'local'])
 +})
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ts
-index 80075fa1143..482eaf1fa86 100644
+index 2da7ac63223..0507fff57be 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ts
 @@ -28,6 +28,7 @@ import {
    getProjectGroupingForRepo,
    type ProjectSectionEntry
- } from '../../../../shared/project-section-grouping'
+ } from '../../../../shared/sidebar-list/sections/project-section-grouping'
 +import type { PersonalProjectOrder } from '../../../../shared/personal-project-order'
- import { sortProjectEntries } from '../../../../shared/project-section-order'
-
+ import { sortProjectEntries } from '../../../../shared/sidebar-list/sections/project-section-order'
+ 
  type ConversationItem = { session: AiVaultSession; repo: Repo; lastActivityAt?: number }
 @@ -49,6 +50,7 @@ export function buildConversationProjectGroups(args: {
    catalog: ProjectHostSetupProjection
@@ -526,7 +527,7 @@ index 61936e8a41b..74d0b57134c 100644
  import {
 @@ -194,10 +194,8 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
  }
-
+ 
  function ProjectOrderOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.Element {
 -  const supportsPersonalOrder = usePersonalProjectOrderSupported()
    const t = useTranslate()

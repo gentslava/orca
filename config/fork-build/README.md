@@ -4,7 +4,7 @@
 
 Generated integration, packaging and promotion commits use GitHub's standard `github-actions[bot]` identity. Original upstream and PR commits retain their authors. Integration subjects use `fork: integrate PR NUMBER`; the source SHA remains in the Source-Head trailer and build plan. Fork status reports use plain PR numbers without issue mentions or upstream URLs, so routine builds do not add cross-reference events to upstream discussions. Keep personal package and CI reports in this fork; upstream PRs describe and validate only their own changes.
 
-The workflow freezes fresh `stablyai/orca:main`, discovers all open main-targeted PRs by the configured authors (including drafts), and adds explicitly selected community PRs. `seed` and the persistent fork status issue retain previously selected PRs after closure. Closed unmerged PRs block publication until a replacement or a reasoned exclusion is recorded. Merged PRs are omitted only after their merge commit is proven to be in the frozen upstream.
+The workflow freezes fresh `stablyai/orca:main`, discovers all open main-targeted PRs by the configured authors (including drafts), and adds explicitly selected community PRs. `seed` and the persistent fork status issue retain previously selected PRs after closure. Closed unmerged PRs block publication until a replacement or a reasoned exclusion is recorded. Merged PRs are omitted only after their merge commit is proven to be in the frozen upstream. A build pinned to an explicit upstream snapshot may predate such a merge: the PR is then composed from its final head, provided its merge commit is in the observed main and the head carries no upstream history newer than the snapshot. Any other merged PR outside the frozen upstream blocks publication.
 
 A deliberately retained closed PR must be listed in `retainClosed` with a nonempty reason. Its freshly resolved head is composed with the same identity and conflict checks as an open PR. Exclusion/replacement and retention cannot coexist for one PR. The narrower native selection fix in PR 36892 is superseded by PR 38022, which also protects the editor insertion magnifier after a physical-handset reproduction. No head is pinned in configuration.
 
@@ -180,3 +180,24 @@ Large source-refresh merges run the same pre-commit tasks with at most two concu
 The flaky-test ratchet uses the same bounded 64 MiB Git-output buffer as the adjacent ratchet tooling. This accommodates the full changed-path inventory of a source-refresh merge; changed-file scope and every finding remain enforced.
 
 The journal range-plan regression pins its monotonic clock while asserting exact row batches and indexed SQL plans. It does not assert a wall-time budget; the production eight-millisecond slice remains unchanged. The child-provider exit regression waits for its existing terminal assertions on both asynchronous publication channels, without changing expected values or timeouts.
+
+## Refresh on upstream 6d5af64e39ab (2026-11-16)
+
+Where this section differs from the notes above, it is the current state.
+
+Every selected branch that conflicted with this upstream was merged with it in its own branch, feature first, so the composition no longer carries direct upstream conflicts. The 252 earlier reviewed resolutions matched none of the refreshed inputs and were replaced by 41 records for conflicts between selected features.
+
+Selection changes:
+
+- PR 41859 is replaced by merged upstream PR 42954, which fixes the same mobile report controls with one fixed isolated document.
+- PRs 36634 and 36945 are retained closed personal features: upstream closed issues 36633 and 36942 as not planned. PR 36634 now shows a tool call's input once: a diff or a lone command carries it, anything else gets one Input block.
+- Foreign PR 40298 composes from `integration/saved-server-rename-40298`, where the rename is ported onto upstream's worker-backed environment store.
+- PR 36593 follows PR 36634's rule for the full-command detail; its one differing assertion is corrected in `composed-ci-contracts.patch`.
+
+Overlay changes:
+
+- `composed-source-modules.patch` no longer extracts the orchestration settings group, the mobile message props, the notice copy or the draft-blank helper: those files fit their budgets without it. It gains the pending-pick extraction for the desktop option pickers.
+- `runtime-environment-rename.patch` keeps only the offline `orca environment rename` command, the mutation-actions extraction and the protected copy keys; the store selection and rename handler now come from upstream and the integration branch.
+- `composed-ci-contracts.patch` drops adjustments to suites upstream deleted and the line-budget workarounds that are no longer needed.
+- `upstream-module-relocations.patch` re-homes the fork-only cases of two suites upstream deleted into small test files beside the code they cover.
+- `project-start-actions.patch` removes one stale flaky-pattern baseline entry.

@@ -215,6 +215,16 @@ export function prepareFeatureMerge(cwd, upstream, head, timestamp) {
   }
 }
 
+// A pinned snapshot can predate a merge; the final PR head still applies as a feature
+// only while it carries no upstream history newer than that snapshot.
+function mergedAfterFrozenBaseline(cwd, pr, upstream, observed) {
+  if (!observed || observed === upstream || !isAncestor(cwd, pr.merge_commit_sha, observed)) {
+    return false
+  }
+  const shared = git(cwd, ['merge-base', '--all', pr.head.sha, observed])
+  return /^[a-f0-9]{40}$/.test(shared) && isAncestor(cwd, shared, upstream)
+}
+
 function directConflicts(cwd, upstream, sha) {
   const directory = mkdtempSync(join(tmpdir(), 'personal-conflict-'))
   try {
@@ -260,7 +270,8 @@ export function compose(
   selections,
   {
     timestamp = new Date().toISOString(),
-    resolutionsDirectory = join(import.meta.dirname, 'merge-resolutions')
+    resolutionsDirectory = join(import.meta.dirname, 'merge-resolutions'),
+    observedUpstream
   } = {}
 ) {
   git(cwd, ['checkout', '-B', 'personal-candidate', upstream])
@@ -270,15 +281,19 @@ export function compose(
     retiredFixtures = [],
     conflicts = [],
     suppliedByUpstream = [],
+    mergedAfterBaseline = [],
     blockers = []
   for (const pr of selections) {
     if (pr.merged_at) {
       if (isAncestor(cwd, pr.merge_commit_sha, upstream)) {
         suppliedByUpstream.push(pr.number)
-      } else {
-        blockers.push({ number: pr.number, reason: 'Merge commit is not in frozen upstream' })
+        continue
       }
-      continue
+      if (!mergedAfterFrozenBaseline(cwd, pr, upstream, observedUpstream)) {
+        blockers.push({ number: pr.number, reason: 'Merge commit is not in frozen upstream' })
+        continue
+      }
+      mergedAfterBaseline.push(pr.number)
     }
     const before = git(cwd, ['rev-parse', 'HEAD'])
     const message = `fork: integrate PR ${pr.number}`
@@ -344,6 +359,7 @@ export function compose(
     retiredFixtures,
     conflicts,
     suppliedByUpstream,
+    mergedAfterBaseline,
     blockers,
     publishable: !conflicts.length && !blockers.length
   }
