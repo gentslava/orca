@@ -179,6 +179,13 @@ export function configureRuntimeServices(runtime: OrcaRuntimeService): void {
   }
   configureDesktopCloudServices(runtime, () => state.store?.getSettings(), app.getPath('userData'))
   runtime.setAccountServices({ claudeAccounts, codexAccounts, rateLimits })
+  const backend = state.backend
+  if (!backend) {
+    throw new Error('Usage backend must be initialized before runtime wiring')
+  }
+  runtime.usageHistory.setInvoker((method, params, purpose) =>
+    backend.invokeUsage(method, params, purpose)
+  )
   installWslOrcadAccountShim(store)
   runtime.setCommitMessageAgentEnvironmentResolvers({
     // Resolve every Codex launch through runtime-home, including default-account hooks/auth.
