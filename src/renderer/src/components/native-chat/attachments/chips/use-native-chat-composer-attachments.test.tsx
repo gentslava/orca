@@ -42,6 +42,20 @@ describe('useNativeChatComposerAttachments', () => {
     act(() => probe.root.unmount())
   })
 
+  it('clears a pending image on disable without putting its marker in prompt text', async () => {
+    const probe = await renderProbe('structured-1', true)
+    act(() => {
+      probe.latest().beginPendingImageAttachment()
+    })
+    expect(probe.latest().imageAttachments).toMatchObject([{ pending: true }])
+    expect(readNativeChatDraftCache('structured-1')).toBe('')
+
+    await probe.rerender('structured-1', true)
+    expect(probe.latest().imageAttachments).toEqual([])
+    expect(readNativeChatDraftCache('structured-1')).toBe('')
+    act(() => probe.root.unmount())
+  })
+
   it('keeps an upload that finishes while the composer is unmounted, for when it returns', async () => {
     const probe = await renderProbe('pty-gone')
     const chips = probe.latest().pendingChips
