@@ -660,6 +660,7 @@ import { SkipAsyncQuestionsParams } from './structured-agent-session/skip-async-
 import { ContinueInterruptedParams } from './structured-agent-session/structured-agent-session-continue-params'
 import { ContinuationContextParams } from './structured-agent-session/structured-agent-session-identifiers'
 import { AgentSessionMcpParams } from './structured-agent-session/structured-agent-session-mcp-params'
+import { SendParams } from './structured-agent-session/structured-agent-session-message-params'
 import {
   AcknowledgeAttentionParams,
   AgentsParams,
@@ -682,7 +683,6 @@ import {
   RestartResumeParams,
   RevealParams,
   RewindParams,
-  SendParams,
   SetOptionParams,
   SleepWorkspaceParams,
   SubscribeTurnCompletionsParams,
