@@ -19,7 +19,7 @@ const environment = { id: 'environment-a', name: 'desk', runtimeId: 'runtime-a',
 
 function renameHandler(): (
   event: unknown,
-  args: { selector: string; name: string }
+  args: { selector: string; name: unknown }
 ) => Promise<unknown> {
   const call = handleMock.mock.calls.find(([channel]) => channel === 'runtimeEnvironments:rename')
   expect(call).toBeTruthy()
@@ -35,9 +35,9 @@ beforeEach(() => {
 
 describe('runtime environment rename argument guard', () => {
   it('rejects a non-string name before touching the store', async () => {
-    await expect(
-      renameHandler()(null, { selector: 'environment-a', name: 42 as never })
-    ).rejects.toThrow('Renaming a server requires a name.')
+    await expect(renameHandler()(null, { selector: 'environment-a', name: 42 })).rejects.toThrow(
+      'Renaming a server requires a name.'
+    )
     expect(resolveEnvironmentMock).not.toHaveBeenCalled()
     expect(renameEnvironmentMock).not.toHaveBeenCalled()
   })
