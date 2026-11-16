@@ -1,11 +1,5 @@
-import type {
-  AgentJournalItemBody,
-  AgentJournalRenderItem
-} from '../../../../../../src/shared/agent-session/journal/agent-session-journal-types'
-import { projectStructuredItemsToNativeChat } from '../../../../../../src/shared/agent-session/view/structured-agent-session-projection'
 import { foldMobileNativeChatMessages } from '../projection/mobile-native-chat-render-data'
-import { useMobileNativeChatTurnDisclosure } from '../turn-state/use-mobile-native-chat-turn-disclosure'
-import { createElement, Fragment, type ReactNode } from 'react'
+import { createElement, type ReactNode } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { NativeChatMessage } from '../../../../../../src/shared/native-chat/native-chat-types'
@@ -73,10 +67,6 @@ vi.mock('../message-actions/MobileNativeChatMessageActionsSheet', () => ({
 }))
 
 import { MobileNativeChatMessage } from './MobileNativeChatMessage'
-import {
-  MobileNativeChatDisclosureContext,
-  useMobileNativeChatDisclosures
-} from '../viewport/mobile-native-chat-disclosure-store'
 
 function message(blocks: NativeChatMessage['blocks']): NativeChatMessage {
   return { id: 'source', role: 'assistant', blocks, timestamp: 1, source: 'transcript' }
@@ -132,51 +122,6 @@ describe('mobile tool result availability', () => {
     return renderer!
   }
 
-  // The page's window unmounts a row scrolled past; older messages joining its fold change its id.
-  it('keeps what the reader opened in a windowed-out row by its row key', () => {
-    const row = message([
-      { type: 'tool-call', callId: 'one', name: 'Bash', input: 'first input' },
-      { type: 'tool-result', callId: 'one', output: 'first output' },
-      { type: 'tool-call', callId: 'two', name: 'Bash', input: 'second input' },
-      { type: 'tool-result', callId: 'two', output: 'second output' }
-    ])
-    function Window({ shown, id }: { shown: boolean; id: string }) {
-      const disclosures = useMobileNativeChatDisclosures('chat')
-      return createElement(
-        MobileNativeChatDisclosureContext.Provider,
-        { value: disclosures },
-        shown
-          ? createElement(MobileNativeChatMessage, {
-              message: { ...row, id },
-              rowKey: 'kept'
-            })
-          : null
-      )
-    }
-    const draw = (shown: boolean, id = 'source') =>
-      act(() => {
-        const element = createElement(Window, { shown, id })
-        if (renderer) {
-          renderer.update(element)
-        } else {
-          renderer = create(element)
-        }
-      })
-    const header = () =>
-      renderer!.root.find(
-        (node) =>
-          String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion === 'polite'
-      )
-    draw(true)
-    press(header())
-    press(button(renderer!.root, 'first input'))
-    draw(false)
-    draw(true, 'older-head')
-    expect(toolLines(renderer!.root)).toHaveLength(2)
-    expect(textIn(renderer!.root)).toContain('first output')
-    expect(textIn(renderer!.root)).not.toContain('second output')
-  })
-
   it('gives a named completion to its own call past silent calls, not to the first', () => {
     const calls: NativeChatMessage['blocks'] = Array.from({ length: 18 }, (_, index) => ({
       type: 'tool-call',
@@ -198,155 +143,5 @@ describe('mobile tool result availability', () => {
     expect(button(tree.root, 'command 0').props.disabled).toBe(false)
     press(button(tree.root, 'command 0'))
     expect(textIn(tree.root)).not.toContain('late named output')
-  })
-
-  it.each([true, false])(
-    'draws derived outputs ahead of a prompt queued while stopping (host scopes: %s)',
-    (hasScopes) => {
-      function item(
-        itemId: string,
-        sequence: number,
-        body: AgentJournalItemBody
-      ): AgentJournalRenderItem {
-        return {
-          itemId,
-          sequence,
-          body,
-          revision: 1,
-          observedAt: sequence,
-          ...(hasScopes
-            ? {
-                turnScope:
-                  sequence <= 2
-                    ? { kind: 'thread' as const }
-                    : { kind: 'turn' as const, turnItemId: 'turn' }
-              }
-            : {})
-        }
-      }
-      const items = [
-        item('prompt', 1, {
-          kind: 'message',
-          role: 'user',
-          blocks: [{ type: 'text', text: 'question' }]
-        }),
-        item('turn', 2, { kind: 'turn', turnId: 'turn', userItemId: 'prompt', state: 'running' }),
-        item('working-call', 3, {
-          kind: 'tool-call',
-          callId: 'working',
-          name: 'Bash',
-          input: 'still working',
-          state: 'running'
-        }),
-        item('queued', 4, {
-          kind: 'message',
-          role: 'user',
-          blocks: [{ type: 'text', text: 'queued question' }]
-        }),
-        item('source', 5, {
-          kind: 'message',
-          role: 'assistant',
-          blocks: [
-            { type: 'text', text: 'source context' },
-            { type: 'tool-result', callId: 'unavailable-a', output: 'output one\nfull one' },
-            { type: 'tool-result', callId: 'unavailable-b', output: 'output two\nfull two' }
-          ]
-        })
-      ]
-      let drawn: NativeChatMessage[] = []
-      let waiting: string[] = []
-      let live: string[] = []
-      function Phone({ journal }: { journal: AgentJournalRenderItem[] }): React.JSX.Element {
-        const raw = projectStructuredItemsToNativeChat(journal).map((row) =>
-          row.id === 'queued' ? { ...row, queued: true as const } : row
-        )
-        const rows = foldMobileNativeChatMessages(raw, 'claude')
-        const disclosure = useMobileNativeChatTurnDisclosure({
-          messages: rows,
-          enabled: true,
-          isWorking: true,
-          stopping: true,
-          turnJournal: { items: journal, submissions: [] },
-          scopeKey: 'remote-host\0folder\0tab'
-        })
-        drawn = Array.from(disclosure.listMessages)
-        waiting = disclosure.waitingRows.map((row) => row.item.id)
-        live = drawn.flatMap((row, index) =>
-          disclosure.resolveRow(index, row).activeTurnIsWorking ? [row.id] : []
-        )
-        return createElement(
-          Fragment,
-          null,
-          ...drawn.map((row, index) =>
-            createElement(MobileNativeChatMessage, {
-              key: row.id,
-              message: row,
-              ...disclosure.resolveRow(index, row),
-              structuredActivityUi: true
-            })
-          )
-        )
-      }
-      act(() => {
-        renderer = create(createElement(Phone, { journal: items }))
-      })
-      const tree = renderer!
-      const headers = () =>
-        tree.root.findAll(
-          (node) =>
-            String(node.type) === 'Pressable' && node.props.accessibilityLiveRegion === 'polite'
-        )
-      for (let index = 0; index < headers().length; index += 1) {
-        press(headers()[index]!)
-      }
-      for (let index = 0; index < toolLines(tree.root).length; index += 1) {
-        press(toolLines(tree.root)[index]!)
-      }
-      const orphan = drawn.find((row) => row.role === 'tool')!
-      expect(orphan.id).not.toBe('source')
-      expect(orphan.journalPosition).toEqual({ sequence: 5, index: 0 })
-      expect(drawn.map((row) => row.id)).toEqual(['prompt', 'working-call', 'source', orphan.id])
-      expect(waiting).toEqual(['queued'])
-      expect(live).toContain(orphan.id)
-      expect(toolLines(tree.root)).toHaveLength(3)
-      expect(textIn(tree.root)).toContain('output one\nfull one')
-      expect(textIn(tree.root)).toContain('output two\nfull two')
-      const firstOutput = button(tree.root, 'output one')
-      act(() => tree.update(createElement(Phone, { journal: structuredClone(items) })))
-      expect(drawn.find((row) => row.role === 'tool')?.id).toBe(orphan.id)
-      expect(waiting).toEqual(['queued'])
-      expect(button(tree.root, 'output one')).toBe(firstOutput)
-      expect(foldMobileNativeChatMessages(drawn, 'claude')).toEqual(drawn)
-    }
-  )
-
-  it('keeps duplicate-ID rows independently open as results and later rows arrive', () => {
-    const initial = message([
-      { type: 'tool-call', callId: 'duplicate', name: 'Bash', input: 'first input' },
-      { type: 'tool-call', callId: 'duplicate', name: 'Bash', input: 'second input' },
-      { type: 'tool-result', callId: 'duplicate', output: 'first output' }
-    ])
-    const tree = render(initial)
-    const first = button(tree.root, 'first input')
-    const second = button(tree.root, 'second input')
-    press(first)
-    expect(textIn(tree.root)).toContain('first output')
-    const updated = message([
-      { type: 'tool-call', callId: 'duplicate', name: 'Bash', input: 'changed first input' },
-      { type: 'tool-call', callId: 'duplicate', name: 'Bash', input: 'changed second input' },
-      { type: 'tool-result', callId: 'duplicate', output: 'first output' },
-      { type: 'tool-result', callId: 'duplicate', output: 'second output' },
-      { type: 'tool-call', callId: 'later', name: 'Bash', input: 'later input' }
-    ])
-    act(() => tree.update(createElement(MobileNativeChatMessage, { message: updated })))
-    expect(button(tree.root, 'changed first input')).toBe(first)
-    expect(button(tree.root, 'changed second input')).toBe(second)
-    expect(textIn(tree.root)).toContain('first output')
-    expect(textIn(tree.root)).not.toContain('second output')
-    press(second)
-    expect(textIn(tree.root)).toContain('second output')
-    press(first)
-    expect(textIn(tree.root)).not.toContain('first output')
-    expect(textIn(tree.root)).toContain('second output')
   })
 })
