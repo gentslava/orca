@@ -1,7 +1,7 @@
 // Shared signed-out and structured-error classification for `agy` CLI stdout/stderr.
 
-import { stripAnsiEscapeSequences } from '../../shared/ansi-escape-sequences'
-import type { UsageRateLimitFailureKind } from '../../shared/rate-limit-types'
+import { stripAnsiEscapeSequences } from '../../shared/terminal/protocol/escape/ansi-escape-sequences'
+import type { UsageRateLimitFailureKind } from '../../shared/agent-usage/rate-limits/rate-limit-types'
 
 const AGY_ERROR_PREFIX = 'AGY_ERROR:'
 

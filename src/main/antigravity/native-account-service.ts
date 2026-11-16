@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto'
 import { homedir } from 'node:os'
-import type { AntigravityAccountState } from '../../shared/antigravity-account-types'
+import type { AntigravityAccountState } from '../../shared/agent-accounts/antigravity/antigravity-account-types'
 import type {
   AntigravityAccountUsage,
   ProviderRateLimits,
   RateLimitRuntimeTarget
-} from '../../shared/rate-limit-types'
+} from '../../shared/agent-usage/rate-limits/rate-limit-types'
 import {
   ANTIGRAVITY_USAGE_HOST_TARGET,
   type AntigravityUsageLogin,
