@@ -3,7 +3,7 @@
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { AgentSessionQueuedMessage } from '../../../../shared/agent-session/requests/agent-session-queued-message-wire'
-import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+import type { RuntimeClientTarget } from '../../../../shared/remote-runtime/host-catalog/runtime-client-target'
 import { useNativeChatComposerKeyDown } from './composer/editor/use-native-chat-composer-keydown'
 import { useStructuredAgentSessionMutate } from './session/structured/writes/use-structured-agent-session-mutate'
 import { useStructuredAgentSessionQueuedMessages } from './queue/use-structured-agent-session-queued-messages'
