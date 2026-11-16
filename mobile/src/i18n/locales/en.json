@@ -3577,6 +3577,12 @@
       },
       "pasteHint": "When the browser lands on a page that won't load, copy its address and paste it here."
     },
+    "restartNote": {
+      "continued": "Orca asked this agent to continue after a restart. Your own prompt was not re-sent.",
+      "refused": "Orca couldn't continue this chat after the restart. Send a message to continue it.",
+      "unconfirmed": "Orca asked this agent to continue after the restart but couldn't confirm it did. Check its latest reply before sending another message.",
+      "notConnected": "Orca couldn't reconnect this chat after the restart, so it didn't ask the agent to continue."
+    },
     "tool": {
       "activity": "Activity"
     }

@@ -1,8 +1,8 @@
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { useAppStore } from '@/store'
-import { useTabBarRuntimeModel } from '../tab-bar/use-tab-bar-runtime-model'
-import { useTabBarCreateMenuController } from '../tab-bar/use-tab-bar-create-menu-controller'
-import { usePluginNewFileMenuOptions } from '../tab-bar/use-plugin-new-file-menu-options'
+import { useTabBarRuntimeModel } from '../tab-bar/model/use-tab-bar-runtime-model'
+import { useTabBarCreateMenuController } from '../tab-bar/create-menu/use-tab-bar-create-menu-controller'
+import { usePluginNewFileMenuOptions } from '../tab-bar/create-menu/use-plugin-new-file-menu-options'
 import { WorkspaceStartActions } from './WorkspaceStartActions'
 
 export function WorkspaceStartPage({

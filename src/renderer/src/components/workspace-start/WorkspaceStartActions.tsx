@@ -4,8 +4,12 @@ import { Button } from '@/components/ui/button'
 import { AgentIcon } from '@/components/agent/icons/AgentIcon'
 import { useTranslate } from '@/i18n/use-translate'
 import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
-import type { TabCreateMenuOption } from '../tab-bar/tab-create-menu-options'
-import { chatUnavailableLabel, rowId, rowLabel } from '../tab-bar/tab-agent-row-presentation'
+import type { TabCreateMenuOption } from '../tab-bar/create-menu/tab-create-menu-options'
+import {
+  chatUnavailableLabel,
+  rowId,
+  rowLabel
+} from '../agent/launch-menu/agent-menu-row-presentation'
 
 function ActionIcon({ kind }: { kind: TabCreateMenuOption['kind'] }) {
   switch (kind) {

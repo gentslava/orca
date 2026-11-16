@@ -7,7 +7,10 @@ import { TEST_REPO } from '@/store/repos/repo.test-fixture'
 import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
 import type { AiVaultSessionResumeTargetState } from '../session-actions/ai-vault-session-resume'
 import { useAiVaultExecutionHostScope } from './ai-vault-host-scope'
-import type { ExecutionHostId, ExecutionHostScope } from '../../../../../../shared/execution-host'
+import type {
+  ExecutionHostId,
+  ExecutionHostScope
+} from '../../../../../../shared/execution-host/execution-host'
 
 type HostScopeResult = ReturnType<typeof useAiVaultExecutionHostScope>
 

@@ -5,7 +5,7 @@ import {
   encodePairingOffer
 } from '../../src/shared/remote-runtime/pairing/pairing'
 import type { PairingCreateOfferResult } from '../../src/shared/remote-runtime/pairing/pairing-create-offer-contract'
-import { toRuntimeExecutionHostId } from '../../src/shared/execution-host'
+import { toRuntimeExecutionHostId } from '../../src/shared/execution-host/execution-host'
 import { composeWorktreeHostIdentity } from '../../src/shared/worktree/host-qualified-identity'
 import { expect, test } from './helpers/orca-app'
 import {

@@ -17,7 +17,7 @@ import {
   openAuthorityRuntime
 } from './structured-agent-session-tab-authority.test-support'
 
-vi.mock('../../../claude/claude-cli-flag-prewarm', () => ({
+vi.mock('../../../claude/cli-capabilities/claude-cli-flag-prewarm', () => ({
   prewarmClaudeCliFlags: async () => undefined
 }))
 

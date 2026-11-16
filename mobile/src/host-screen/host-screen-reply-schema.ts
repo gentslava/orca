@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { ConversationPreferencesSchema } from '../../../src/shared/conversation-navigation-preferences'
 import { PersonalProjectOrderSchema } from '../../../src/shared/personal-project-order'
-import type { PersistedUIState } from '../../../src/shared/persisted-ui-state-types'
+import type { PersistedUIState } from '../../../src/shared/orca-profiles/persisted-ui-state-types'
 import type { RepoIcon } from '../../../src/shared/repository/appearance/repo-icon'
 import {
   hostUnionArms,
