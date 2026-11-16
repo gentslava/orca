@@ -200,20 +200,15 @@ export async function activateBackendRuntime(
   const { installOrcadEmulatorBridge } = await import('../orcad/host-runtime/orcad-emulator-bridge')
   installOrcadEmulatorBridge(runtime, registerCleanup)
 
-  // Restore prior desktop-pushed account selection before automations or CLI launches.
-  const { restoreOrcadHostAccountLaunchEnv } =
-    await import('../orcad/account-launch/orcad-host-account-launch-env-store')
-  restoreOrcadHostAccountLaunchEnv(runtime, runtimeUserDataPath)
-  featureReadiness.open('accounts')
-
-  const { installOrcadSessionSearchService } =
-    await import('../orcad/host-runtime/orcad-session-search')
-  sessionSearch = await installOrcadSessionSearchService({
+  const { installOrcadProfileRuntimeServices } =
+    await import('../orcad/orcad-profile-runtime-services')
+  sessionSearch = await installOrcadProfileRuntimeServices({
     userDataPath: runtimeUserDataPath,
-    getSettings: () => profileStore.getSettings()
+    store: profileStore,
+    runtime,
+    featureReadiness,
+    registerCleanup
   })
-  getAppEnvironment().onWillQuit(() => sessionSearch?.dispose())
-  featureReadiness.open('sessionSearch')
 
   const { startAgentStateRulesLiveUpdates } =
     await import('../runtime/agent-state-rules/agent-state-rules-live-update')
