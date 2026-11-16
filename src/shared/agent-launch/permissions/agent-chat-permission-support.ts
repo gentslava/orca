@@ -36,6 +36,7 @@ const AGENT_CHAT_PERMISSION_MODES_BY_AGENT = new Map<string, AgentChatPermission
   ['omp', ACP_CHAT_PERMISSION_MODES],
   ['gemini', ACP_CHAT_PERMISSION_MODES],
   ['copilot', ACP_CHAT_PERMISSION_MODES],
+  ['cursor', ACP_CHAT_PERMISSION_MODES],
   ['kimi', KIMI_CHAT_PERMISSION_MODES],
   ['antigravity', ANTIGRAVITY_CHAT_PERMISSION_MODES]
 ])
