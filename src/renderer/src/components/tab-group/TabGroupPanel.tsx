@@ -1,3 +1,7 @@
+import {
+  workspaceStartPageForGroup,
+  workspaceAgentTourAnchor
+} from '../workspace-start/WorkspaceStartPage'
 import { Suspense, useCallback, useMemo, useRef } from 'react'
 import { lazyWithRetry as lazy } from '@/app-shell/startup/lazy-with-retry'
 import { useDroppable } from '@dnd-kit/core'
@@ -8,7 +12,7 @@ import { TabBarQuickCommandsButton } from '../tab-bar/TabBarQuickCommandsButton'
 import { TabGroupPaneActionsMenu } from './TabGroupPaneActionsMenu'
 import { useTabGroupWorkspaceModel } from './useTabGroupWorkspaceModel'
 import { closeTerminalTab } from '../terminal/terminal-tab-actions'
-import { resolveGroupTabFromVisibleId } from './tab-group-visible-id'
+import { resolveGroupTabFromVisibleId, runGroupTabCommand } from './tab-group-visible-id'
 import { getTabPaneBodyDroppableId, type HoveredTabInsertion } from './useTabDragSplit'
 import { tabGroupBodyAnchorName } from './tab-group-body-anchor'
 import { registerTabGroupBody } from './tab-group-body-geometry'
@@ -160,25 +164,15 @@ export default function TabGroupPanel({
         // Why: agent quick-launch can briefly desync unified/runtime tab ids before the host snapshot lands, so still route close through the shared helper.
         closeTerminalTab(terminalId, { reason: 'user' })
       }}
-      onCloseOthers={(visibleId) => {
-        // Why: TabBar emits entityId for terminals/browsers but unifiedTabId for editors; match both so the menu works on every tab kind.
-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
-        if (item) {
-          commands.closeOthers(item.id)
-        }
-      }}
-      onCloseToRight={(visibleId) => {
-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
-        if (item) {
-          commands.closeToRight(item.id)
-        }
-      }}
-      onCloseToLeft={(visibleId) => {
-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
-        if (item) {
-          commands.closeToLeft(item.id)
-        }
-      }}
+      onCloseOthers={(visibleId) =>
+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeOthers)
+      }
+      onCloseToRight={(visibleId) =>
+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToRight)
+      }
+      onCloseToLeft={(visibleId) =>
+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToLeft)
+      }
       onNewTerminalTab={commands.newTerminalTab}
       onNewTerminalWithShell={commands.newTerminalWithShell}
       onNewBrowserTab={commands.newBrowserTab}
@@ -368,15 +362,17 @@ export default function TabGroupPanel({
         className="relative flex-1 min-h-0 overflow-hidden"
         style={bodyAnchorStyle}
       >
-        {/* Why: empty anchor so the agent-sessions tour reads as a terminal-area tip, not toolbar chrome. */}
-        {isFocused ? (
-          <div
-            className="pointer-events-none absolute inset-x-0 top-1/4 h-px"
-            data-contextual-tour-target="workspace-agent-terminal-tip"
-            // Picks the chat or terminal split step of the agent-sessions tour.
-            data-active-content-type={activeTab?.contentType}
-          />
-        ) : null}
+        {workspaceAgentTourAnchor(isFocused, activeTab?.contentType)}
+        {workspaceStartPageForGroup(
+          isVisible &&
+            !showsSplitLanding &&
+            !activeTab &&
+            !model.groupTabs.length &&
+            !clientHostedRows.length,
+          worktreeId,
+          groupId,
+          commands
+        )}
         {activeTab &&
           activeTab.contentType !== 'terminal' &&
           activeTab.contentType !== 'agent-session' &&

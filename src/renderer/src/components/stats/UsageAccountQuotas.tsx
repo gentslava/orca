@@ -32,10 +32,10 @@ export function UsageAccountQuotaCard({
 }): React.JSX.Element {
   const t = useTranslate()
   const intlLocale = useIntlLocale()
-  const providerSections = getWindowSections(provider)
+  const providerSections = getWindowSections(provider, t)
   const sections = [
     ...providerSections,
-    ...getWindowSections({ ...provider, buckets: [] }).filter(
+    ...getWindowSections({ ...provider, buckets: [] }, t).filter(
       (section) => !providerSections.some((existing) => existing.window === section.window)
     )
   ].flatMap((section) =>
@@ -43,7 +43,7 @@ export function UsageAccountQuotaCard({
       ? [{ ...section, window: section.window }]
       : []
   )
-  const error = provider.error ? getProviderUsageErrorMessage(provider) : null
+  const error = provider.error ? getProviderUsageErrorMessage(provider, t) : null
   return (
     <article
       className="min-w-0 space-y-3 rounded-lg border border-border bg-card p-4"
@@ -161,7 +161,8 @@ export function UsageAccountQuotas({
     accounts,
     accountsUnverifiable,
     settings,
-    ownerLabel
+    ownerLabel,
+    t
   )
   return (
     <section className="space-y-3" data-testid="usage-account-quotas">

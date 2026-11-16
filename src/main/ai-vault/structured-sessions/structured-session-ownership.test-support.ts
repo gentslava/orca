@@ -135,6 +135,7 @@ export function installChats(records: AgentSessionRecord[]) {
   const byId = new Map(records.map((record) => [record.sessionId, record]))
   const store = {
     hostId: 'local',
+    listRecords: () => records,
     getRecord: vi.fn((sessionId: string) => byId.get(sessionId) ?? null),
     listConversations: vi.fn(() => records.map(agentSessionConversationView))
   }
