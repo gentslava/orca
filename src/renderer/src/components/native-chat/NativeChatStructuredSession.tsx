@@ -65,7 +65,7 @@ import { nativeChatStructuredStopControls } from './session/structured/writes/na
 import { useAppStore } from '../../store'
 import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
 import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
-import { NativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
+import { nativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
 import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
 import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
 import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
@@ -341,20 +341,14 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
               />
               {subagents.strip}
               <NativeChatStructuredWorkerApprovals pane={props} isVisible={parentShown} />
-              {prompt || subagentOpen ? null : (
-                <NativeChatStructuredComposerTabStrips
-                  tabId={props.tabId}
-                  runtimeContext={imageRuntimeContext}
-                  threadGoal={controller.threadGoal}
-                  transport={transport}
-                  isWorking={controller.isWorking}
-                  isVisible={props.isVisible}
-                  turnId={controller.turnId}
-                  workingStartedAt={controller.workingStartedAt}
-                  target={props.target}
-                  focusComposer={focusComposer}
-                />
-              )}
+              {nativeChatStructuredComposerTabStrips({
+                shown: !prompt && !subagentOpen,
+                pane: props,
+                controller,
+                runtimeContext: imageRuntimeContext,
+                transport,
+                focusComposer
+              })}
               {/* Prompt cards take the composer's slot, below the background-task dock. */}
               {composerShown || subagentOpen ? null : (
                 <NativeChatPromptSlotNotices notices={notices} />

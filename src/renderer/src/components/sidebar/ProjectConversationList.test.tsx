@@ -23,11 +23,15 @@ const state = vi.hoisted(() => {
   const preferences: ConversationPreferences = { revision: 0, entries: {} }
   return {
     preferences,
+    personalOrderSupported: true,
     setPreference: vi.fn(),
     projectVisibilitySupported: true,
     setProjectHidden: vi.fn()
   }
 })
+vi.mock('@/hooks/use-personal-project-order', () => ({
+  usePersonalProjectOrderSupported: () => state.personalOrderSupported
+}))
 vi.mock('./use-conversation-preferences', () => ({ useConversationPreferences: () => state }))
 vi.mock('./SidebarConversationStart', () => ({
   SidebarConversationStart: ({
@@ -43,6 +47,7 @@ vi.mock('../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-tit
 }))
 beforeEach(() => {
   state.preferences = { revision: 0, entries: {} }
+  state.personalOrderSupported = true
   state.projectVisibilitySupported = true
   state.setPreference.mockReset().mockResolvedValue(undefined)
   state.setProjectHidden
@@ -275,6 +280,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
     executionHostScope: 'all'
   })
   const [first, second] = screen.getAllByRole('region')
+  const originalLabels = screen
+    .getAllByRole('region')
+    .map((region) => region.getAttribute('aria-label'))
   if (!first || !second) {
     throw new Error('Expected both host-qualified projects')
   }
@@ -284,6 +292,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
     'ssh:box',
     'local'
   ])
+  expect(screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))).toEqual(
+    originalLabels.toReversed()
+  )
   expect(persist).toHaveBeenCalledWith({
     manualRepoOrder: [
       { hostId: 'ssh:box', repoId: 'same' },
@@ -291,4 +302,52 @@ it('moves only the selected host project when adjacent projects share a repo id'
     ]
   })
   vi.restoreAllMocks()
+})
+
+it('offers every project order mode and applies it without rewriting manual order', async () => {
+  const setOrder = vi.fn((projectOrderBy) => useAppStore.setState({ projectOrderBy }))
+  useAppStore.setState({
+    personalProjectOrder: {
+      projects: {
+        '["local","local","repo:orca"]': { openCount: 5, lastOpenedAt: 100 },
+        '["local","local","repo:djinn"]': { openCount: 1, lastOpenedAt: 200 }
+      },
+      settledOperations: []
+    },
+    setProjectOrderBy: setOrder
+  })
+  const originalRepos = useAppStore.getState().repos
+  const originalManual = useAppStore.getState().manualRepoOrder
+  mount()
+  for (const [label, expected] of [
+    ['Name', ['Djinn', 'Orca']],
+    ['Frequent', ['Orca', 'Djinn']],
+    ['Recent', ['Djinn', 'Orca']],
+    ['Manual', ['Orca', 'Djinn']]
+  ] as const) {
+    await userEvent.click(screen.getByRole('button', { name: 'Project order' }))
+    expect(screen.getAllByRole('menuitemradio')).toHaveLength(4)
+    await userEvent.click(screen.getByRole('menuitemradio', { name: label }))
+    expect(
+      screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))
+    ).toEqual(expected)
+  }
+  expect(useAppStore.getState().repos).toBe(originalRepos)
+  expect(useAppStore.getState().manualRepoOrder).toBe(originalManual)
+})
+
+it('shows unsupported project modes disabled on older hosts', async () => {
+  state.personalOrderSupported = false
+  mount()
+  await userEvent.click(screen.getByRole('button', { name: 'Project order' }))
+  for (const label of ['Name', 'Frequent']) {
+    expect(screen.getByRole('menuitemradio', { name: label }).getAttribute('aria-disabled')).toBe(
+      'true'
+    )
+  }
+  for (const label of ['Manual', 'Recent']) {
+    expect(
+      screen.getByRole('menuitemradio', { name: label }).getAttribute('aria-disabled')
+    ).not.toBe('true')
+  }
 })

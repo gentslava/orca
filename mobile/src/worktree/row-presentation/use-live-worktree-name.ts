@@ -5,7 +5,7 @@ import type { RpcClient } from '../../transport/rpc/rpc-client-contract'
 import { subscribeSharedClientEvents } from '../../transport/connection/shared-client-events'
 import type { ConnectionState } from '../../transport/connection/connection-state'
 import { sessionWorktreeRecordRead } from '../catalog/session-worktree-record-operations'
-import { parseRoutableExecutionHostId } from '../../../../src/shared/execution-host'
+import { parseRoutableExecutionHostId } from '../../../../src/shared/execution-host/execution-host'
 import { sessionProjectNameRead } from '../session-project-name-operations'
 import { getLiveWorktreeDisplayName } from './worktree-display-name'
 import {
