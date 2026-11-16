@@ -167,7 +167,7 @@ export function buildDefaultSettings(args: {
     // New chats of agents on their own settings; others start in their agent permission.
     nativeChatPermissionMode: 'full-access',
     openInApplications: [...DEFAULT_OPEN_IN_APPLICATIONS],
-    rightSidebarOpenByDefault: true,
+    rightSidebarOpenByDefault: false,
     showGitIgnoredFiles: true,
     followSymlinkedDirectories: false,
     sourceControlViewMode: 'list',
@@ -175,8 +175,8 @@ export function buildDefaultSettings(args: {
     sourceControlCompareAgainstUpstream: false,
     prAutoRefresh: 'default',
     showTitlebarAppName: true,
-    showTasksButton: true,
-    showAutomationsButton: true,
+    showTasksButton: false,
+    showAutomationsButton: false,
     artifactsEnabled: true,
     // New profiles only; stored profiles without the key load as false (normalizeLoadedGlobalSettings).
     artifactSharingEnabled: true,
@@ -187,7 +187,7 @@ export function buildDefaultSettings(args: {
     orchestrationCoordinatorApprovalsEnabled: false,
     showArtifactsButton: false,
     showSkillsButton: false,
-    showMobileButton: true,
+    showMobileButton: false,
     showPinnedWorktreesInGroups: false,
     ctrlTabOrderMode: 'mru',
     // Why: Orca-first keeps core shortcuts working from a focused terminal; TUI-ownership users opt in.
@@ -298,7 +298,7 @@ export function buildDefaultSettings(args: {
     experimentalConnectors: false,
     experimentalWslHosts: false,
     experimentalOrchestrationPanel: false,
-    compactWorktreeCards: false,
+    compactWorktreeCards: true,
     // Why: local desktop stays the default until the user picks a saved runtime environment.
     activeRuntimeEnvironmentId: null,
     // Why: hydrate a stable empty shape so renderer optional-chained reads never hit undefined.
