@@ -1,6 +1,6 @@
 --- a/src/main/runtime/rpc/methods/client-state/client-ui.ts
 +++ b/src/main/runtime/rpc/methods/client-state/client-ui.ts
-@@ -4,6 +4,11 @@ import {
+@@ -4,6 +4,11 @@
    SetConversationPreferenceParams,
    updateConversationPreference
  } from '../../../../../shared/conversation-navigation-preferences'
@@ -12,11 +12,10 @@
  import {
    normalizeJiraSavedFilterState,
    mutateJiraSavedFilterState
-@@ -60,6 +65,24 @@ export const CLIENT_UI_METHODS = [
-       }).conversationPreferences
+@@ -61,6 +66,24 @@
      })
    }),
-+  defineMethod({
+   defineMethod({
 +    name: 'ui.recordProjectOpen',
 +    permission: 'workspace',
 +    params: RecordProjectOpenParams,
@@ -34,6 +33,7 @@
 +      return { ...result, ui: uiForCaller(result.ui, context) }
 +    }
 +  }),
-   defineMethod({
++  defineMethod({
      name: 'ui.getJiraQuickFilters',
      permission: 'workspace',
+     params: null,

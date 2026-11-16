@@ -203,3 +203,5 @@ Overlay changes:
 - `composed-ci-contracts.patch` drops adjustments to suites upstream deleted and the line-budget workarounds that are no longer needed.
 - `upstream-module-relocations.patch` re-homes the fork-only cases of two suites upstream deleted into small test files beside the code they cover.
 - `project-start-actions.patch` removes one stale flaky-pattern baseline entry.
+
+The November 16 refresh follows upstream module relocations through c7f83f4e1958 and includes turn-diff summary collapse from 43124. The regression inventory follows upstream retirements in 42978, 42999 and 43047; the retained-history folding and mobile reader-toggle suites remain required. The obsolete setup-retention fixture adaptation is removed because 43047 retired that original suite. All selected features and all eleven package outputs remain required.

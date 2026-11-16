@@ -4,11 +4,11 @@
  import * as z from 'zod'
  import { ConversationPreferencesSchema } from '../../../src/shared/conversation-navigation-preferences'
 +import { PersonalProjectOrderSchema } from '../../../src/shared/personal-project-order'
- import type { PersistedUIState } from '../../../src/shared/persisted-ui-state-types'
+ import type { PersistedUIState } from '../../../src/shared/orca-profiles/persisted-ui-state-types'
  import type { RepoIcon } from '../../../src/shared/repository/appearance/repo-icon'
  import {
-@@ -25,7 +26,9 @@ export const WORKSPACE_SORT_BY_ARMS = hostUnionArms<PersistedUIState['sortBy']>(
- 
+@@ -25,7 +26,9 @@
+
  const WORKSPACE_PROJECT_ORDER_ARMS = hostUnionArms<PersistedUIState['projectOrderBy']>({
    manual: true,
 -  recent: true
@@ -18,7 +18,7 @@
  })
  const WORKSPACE_AGENT_ACTIVITY_LAYOUT_ARMS = hostUnionArms<
    NonNullable<PersistedUIState['agentActivityDisplayMode']>
-@@ -134,6 +137,7 @@ export const hostViewSettingsSchema = z
+@@ -134,6 +137,7 @@
          'conversationPreferences',
          ConversationPreferencesSchema
        ),

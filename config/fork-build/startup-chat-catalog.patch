@@ -1,5 +1,3 @@
-diff --git a/mobile/src/host-screen/project-conversation-history-refresh.ts b/mobile/src/host-screen/project-conversation-history-refresh.ts
-index 45e72f88fd6..05b264be194 100644
 --- a/mobile/src/host-screen/project-conversation-history-refresh.ts
 +++ b/mobile/src/host-screen/project-conversation-history-refresh.ts
 @@ -1,4 +1,7 @@
@@ -11,7 +9,7 @@ index 45e72f88fd6..05b264be194 100644
  import type { RpcClient } from '../transport/rpc/rpc-client-contract'
  import {
    agentHistoryHostStatusRead,
-@@ -11,7 +14,11 @@ export type ProjectConversationHistorySnapshot = ReturnType<typeof readConversat
+@@ -11,7 +14,11 @@
  export async function refreshProjectConversationHistory(
    client: RpcClient,
    force: boolean,
@@ -24,10 +22,11 @@ index 45e72f88fd6..05b264be194 100644
  ) {
    const status = agentHistoryHostStatusRead.interpret(
      await agentHistoryHostStatusRead.request(client)
-@@ -29,6 +36,18 @@ export async function refreshProjectConversationHistory(
+@@ -28,6 +35,18 @@
+     includeAntigravityIdeSessions: true,
      includeStructuredSessions: true,
      force
-   }
++  }
 +  if (!previous && onCatalog && capabilities.includes(AI_VAULT_STRUCTURED_CATALOG_CAPABILITY)) {
 +    try {
 +      const history = readConversationHistory(
@@ -39,17 +38,13 @@ index 45e72f88fd6..05b264be194 100644
 +    } catch (error) {
 +      console.warn('Could not load the chat catalog before history', error)
 +    }
-+  }
+   }
    const afterFingerprint = force ? undefined : previous?.fingerprint
    const read = async (conditional: boolean) =>
-     readConversationHistory(
-diff --git a/mobile/src/host-screen/project-conversation-snapshot.ts b/mobile/src/host-screen/project-conversation-snapshot.ts
-new file mode 100644
-index 00000000000..90228358bef
 --- /dev/null
 +++ b/mobile/src/host-screen/project-conversation-snapshot.ts
 @@ -0,0 +1,55 @@
-+import type { ExecutionHostId } from '../../../src/shared/execution-host'
++import type { ExecutionHostId } from '../../../src/shared/execution-host/execution-host'
 +import type { ProjectConversationHistorySnapshot } from './project-conversation-history-refresh'
 +import type { ConversationHistory, ConversationTab } from './project-conversations'
 +
@@ -104,11 +99,9 @@ index 00000000000..90228358bef
 +  }
 +  return { ...next, tabs, capabilities, history, historyByHost }
 +}
-diff --git a/mobile/src/host-screen/use-project-conversations.test.tsx b/mobile/src/host-screen/use-project-conversations.test.tsx
-index 00d63ab05d9..5556d075d28 100644
 --- a/mobile/src/host-screen/use-project-conversations.test.tsx
 +++ b/mobile/src/host-screen/use-project-conversations.test.tsx
-@@ -84,6 +84,60 @@ async function mount(initial: ProjectConversationsSource) {
+@@ -84,6 +84,60 @@
  }
 
  describe('host-owned conversation snapshots', () => {
@@ -169,11 +162,9 @@ index 00d63ab05d9..5556d075d28 100644
    it('shows the warm list immediately on return and refreshes stale rows in the background', async () => {
      vi.useFakeTimers()
      const { client, sendRequest } = replies()
-diff --git a/mobile/src/host-screen/use-project-conversations.ts b/mobile/src/host-screen/use-project-conversations.ts
-index 71e063ba83d..e9b63a46da1 100644
 --- a/mobile/src/host-screen/use-project-conversations.ts
 +++ b/mobile/src/host-screen/use-project-conversations.ts
-@@ -12,22 +12,14 @@ import {
+@@ -12,22 +12,14 @@
  import { getWorktreeRowIdentity } from '../worktree/row-presentation/worktree-host-row-identity'
  import { resolveWorktreeHostId } from '../worktree/row-presentation/worktree-host-context-labels'
  import { isConversationHistoryNotice } from './conversation-records'
@@ -188,8 +179,7 @@ index 71e063ba83d..e9b63a46da1 100644
 -  type ConversationHistory,
 -  type ConversationTab
 -} from './project-conversations'
-+import { readConversationTabs } from './project-conversations'
-
+-
 -type ConversationSnapshot = {
 -  tabs: Map<string, ConversationTab[]>
 -  history: ConversationHistory[]
@@ -198,10 +188,12 @@ index 71e063ba83d..e9b63a46da1 100644
 -  complete: boolean
 -  failed: boolean
 -}
++import { readConversationTabs } from './project-conversations'
++
  const EMPTY: ConversationSnapshot = {
    tabs: new Map(),
    history: [],
-@@ -143,6 +135,44 @@ export function useProjectConversations(controller: ProjectConversationsSource)
+@@ -143,6 +135,44 @@
          complete: true,
          failed: false
        }
@@ -246,7 +238,7 @@ index 71e063ba83d..e9b63a46da1 100644
        try {
          const historyRequests = Promise.all(
            [...sources].map(async ([sourceHost, sourceClient]) => {
-@@ -150,14 +180,20 @@ export function useProjectConversations(controller: ProjectConversationsSource)
+@@ -150,14 +180,20 @@
                const { capabilities, history } = await refreshProjectConversationHistory(
                  sourceClient,
                  force,
@@ -269,7 +261,7 @@ index 71e063ba83d..e9b63a46da1 100644
                const historyFailed = history.issues.some(
                  (issue) => !isConversationHistoryNotice(issue)
                )
-@@ -165,15 +201,6 @@ export function useProjectConversations(controller: ProjectConversationsSource)
+@@ -165,15 +201,6 @@
                  next.complete = false
                }
                next.failed ||= historyFailed
@@ -285,7 +277,7 @@ index 71e063ba83d..e9b63a46da1 100644
              } catch {
                failedSources.add(sourceHost)
                next.failed = true
-@@ -208,56 +235,7 @@ export function useProjectConversations(controller: ProjectConversationsSource)
+@@ -208,56 +235,7 @@
            )
          }
          await historyRequests
@@ -343,11 +335,9 @@ index 71e063ba83d..e9b63a46da1 100644
        } finally {
          running = false
          if (current()) {
-diff --git a/src/main/ai-vault/listing/cached-session-list.ts b/src/main/ai-vault/listing/cached-session-list.ts
-index d82a0373c83..8f15a0823dc 100644
 --- a/src/main/ai-vault/listing/cached-session-list.ts
 +++ b/src/main/ai-vault/listing/cached-session-list.ts
-@@ -69,6 +69,9 @@ export async function listAiVaultSessions(
+@@ -69,6 +69,9 @@
    args?: AiVaultListArgs,
    options: { signal?: AbortSignal } = {}
  ): Promise<AiVaultListResult> {
@@ -357,11 +347,9 @@ index d82a0373c83..8f15a0823dc 100644
    const key = aiVaultLocalScanScopeKey(args)
    const depth = requestedAiVaultSessionDepth(args)
    const scanKey = aiVaultLocalScanKey(args)
-diff --git a/src/main/ai-vault/runtime-hosts/ai-vault-runtime-scan.ts b/src/main/ai-vault/runtime-hosts/ai-vault-runtime-scan.ts
-index adb7b7870c9..d12db582caf 100644
 --- a/src/main/ai-vault/runtime-hosts/ai-vault-runtime-scan.ts
 +++ b/src/main/ai-vault/runtime-hosts/ai-vault-runtime-scan.ts
-@@ -68,6 +68,9 @@ function runtimeScanArgs(
+@@ -68,6 +68,9 @@
    const scanArgs: AiVaultListArgs = { executionHostScope: hostInfo.executionHostId }
    if (listArgs?.includeStructuredSessions) {
      scanArgs.includeStructuredSessions = true
@@ -371,11 +359,9 @@ index adb7b7870c9..d12db582caf 100644
    }
    if (listArgs?.afterFingerprint !== undefined) {
      scanArgs.afterFingerprint = listArgs.afterFingerprint
-diff --git a/src/main/ai-vault/runtime-hosts/runtime-session-scanner.ts b/src/main/ai-vault/runtime-hosts/runtime-session-scanner.ts
-index 4a0a1ff0f49..692eec48bcb 100644
 --- a/src/main/ai-vault/runtime-hosts/runtime-session-scanner.ts
 +++ b/src/main/ai-vault/runtime-hosts/runtime-session-scanner.ts
-@@ -84,6 +84,7 @@ export async function scanRuntimeAiVaultSessions(
+@@ -84,6 +84,7 @@
      {
        includeAntigravityIdeSessions: args.includeAntigravityIdeSessions,
        ...(args.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
@@ -383,11 +369,9 @@ index 4a0a1ff0f49..692eec48bcb 100644
        limit: args.limit,
        unlimited: args.unlimited,
        force: args.force,
-diff --git a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
-index fe8e7225904..00ebbe1a690 100644
 --- a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
 +++ b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
-@@ -135,6 +135,7 @@ export function installChats(records: AgentSessionRecord[]) {
+@@ -135,6 +135,7 @@
    const byId = new Map(records.map((record) => [record.sessionId, record]))
    const store = {
      hostId: 'local',
@@ -395,9 +379,6 @@ index fe8e7225904..00ebbe1a690 100644
      getRecord: vi.fn((sessionId: string) => byId.get(sessionId) ?? null),
      listConversations: vi.fn(() => records.map(agentSessionConversationView))
    }
-diff --git a/src/main/ipc/ai-vault/ai-vault-startup-catalog.test.ts b/src/main/ipc/ai-vault/ai-vault-startup-catalog.test.ts
-new file mode 100644
-index 00000000000..18a6e5411b8
 --- /dev/null
 +++ b/src/main/ipc/ai-vault/ai-vault-startup-catalog.test.ts
 @@ -0,0 +1,98 @@
@@ -499,11 +480,9 @@ index 00000000000..18a6e5411b8
 +    }
 +  }
 +})
-diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.ts
-index 4adcec4ca24..7708700ee2c 100644
 --- a/src/main/ipc/ai-vault/ai-vault.ts
 +++ b/src/main/ipc/ai-vault/ai-vault.ts
-@@ -115,6 +115,7 @@ async function listAiVaultSessions(
+@@ -118,6 +118,7 @@
          ? [...new Set(scopePaths)].sort()
          : scopePaths,
      executionHostScope,
@@ -511,11 +490,9 @@ index 4adcec4ca24..7708700ee2c 100644
      selectedSessionId: args?.selectedSessionId,
      includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
      includeStructuredSessions: args?.includeStructuredSessions === true,
-diff --git a/src/main/runtime/rpc/methods/history/ai-vault.test.ts b/src/main/runtime/rpc/methods/history/ai-vault.test.ts
-index 9094c62e804..fb46b7fdbd3 100644
 --- a/src/main/runtime/rpc/methods/history/ai-vault.test.ts
 +++ b/src/main/runtime/rpc/methods/history/ai-vault.test.ts
-@@ -174,6 +174,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
+@@ -117,6 +117,7 @@
            dispatcher.dispatch(
              makeRequest('aiVault.listSessions', {
                includeStructuredSessions: true,
@@ -523,11 +500,9 @@ index 9094c62e804..fb46b7fdbd3 100644
                executionHostId
              })
            )
-diff --git a/src/main/runtime/rpc/methods/history/ai-vault.ts b/src/main/runtime/rpc/methods/history/ai-vault.ts
-index f1ec0ae9518..277ff3519b6 100644
 --- a/src/main/runtime/rpc/methods/history/ai-vault.ts
 +++ b/src/main/runtime/rpc/methods/history/ai-vault.ts
-@@ -121,6 +121,8 @@ export const AI_VAULT_METHODS = [
+@@ -121,6 +121,8 @@
              force: params.force,
              scopePaths: params.scopePaths,
              selectedSessionId,
@@ -536,11 +511,9 @@ index f1ec0ae9518..277ff3519b6 100644
              scopeOnly: params.scopeOnly,
              includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
            },
-diff --git a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
-index 9a890794f67..0424792bc8e 100644
 --- a/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/AiVaultPanel.project-navigation.test.tsx
-@@ -101,7 +101,9 @@ it('keeps the loaded project list and expanded chats while navigating across pro
+@@ -101,7 +101,9 @@
      expect(list.scrollTop).toBe(240)
    }
 
@@ -551,11 +524,9 @@ index 9a890794f67..0424792bc8e 100644
    expect(listSessions).toHaveBeenCalledTimes(requests + 1)
    expect(listSessions.mock.lastCall?.[0].force).toBe(true)
    expect(project.querySelectorAll('[data-conversation-id]')).toHaveLength(7)
-diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-conversation-refresh.test.tsx b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-conversation-refresh.test.tsx
-index 2431f4c653a..7758285f6d1 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-conversation-refresh.test.tsx
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-conversation-refresh.test.tsx
-@@ -257,3 +257,36 @@ it('withholds previous-host chats while a newly selected remote host is still an
+@@ -264,3 +264,36 @@
    )
    expect(latest?.sessions.map((row) => row.title)).toEqual(['Remote only'])
  })
@@ -592,8 +563,6 @@ index 2431f4c653a..7758285f6d1 100644
 +  await act(async () => deliver?.(enriched))
 +  expect(latest?.sessions).toEqual(enriched.sessions)
 +})
-diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
-index 9561dafdef6..540feca1bdd 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
 @@ -1,3 +1,4 @@
@@ -601,7 +570,7 @@ index 9561dafdef6..540feca1bdd 100644
  import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
  import { aiVaultScanErrorText } from './ai-vault-scan-issue-copy'
-@@ -109,6 +110,7 @@ export function useAiVaultSessionRefresh(
+@@ -109,6 +110,7 @@
        )}\n${sessionLimitRef.current}`,
      []
    )
@@ -609,7 +578,7 @@ index 9561dafdef6..540feca1bdd 100644
    const refresh = useCallback(
      async (args: AiVaultRefreshArgs = {}): Promise<void> => {
        const observation = associationsRef.current
-@@ -198,6 +200,12 @@ export function useAiVaultSessionRefresh(
+@@ -198,6 +200,12 @@
          scanKey === currentScanScopeKey() &&
          associationCurrent()
        try {
@@ -622,7 +591,7 @@ index 9561dafdef6..540feca1bdd 100644
          const previous = conditionalSnapshotRef.current
          const result = await refreshAiVaultSessionList(
            request,
-@@ -247,7 +255,7 @@ export function useAiVaultSessionRefresh(
+@@ -247,7 +255,7 @@
        }
        // Read changing scope through refs; recursion requires a stable refresh identity.
      },
@@ -631,9 +600,6 @@ index 9561dafdef6..540feca1bdd 100644
    )
 
    useEffect(() => {
-diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
-new file mode 100644
-index 00000000000..c439e2d3a74
 --- /dev/null
 +++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/use-ai-vault-startup-catalog.ts
 @@ -0,0 +1,57 @@
@@ -694,11 +660,9 @@ index 00000000000..c439e2d3a74
 +    [applyScan, gate, setLoading]
 +  )
 +}
-diff --git a/src/renderer/src/web/preload-api/web-ai-vault-api.ts b/src/renderer/src/web/preload-api/web-ai-vault-api.ts
-index 2d89779270d..a5b008ef5b3 100644
 --- a/src/renderer/src/web/preload-api/web-ai-vault-api.ts
 +++ b/src/renderer/src/web/preload-api/web-ai-vault-api.ts
-@@ -75,6 +75,7 @@ export function createWebAiVaultApi(): NonNullable<Partial<PreloadApi>['aiVault'
+@@ -75,6 +75,7 @@
        return callRuntimeResult<AiVaultListResult>('aiVault.listSessions', {
          includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions,
          ...(args?.includeStructuredSessions ? { includeStructuredSessions: true } : {}),
@@ -706,11 +670,9 @@ index 2d89779270d..a5b008ef5b3 100644
          limit: args?.limit,
          unlimited: args?.unlimited,
          force: args?.force,
-diff --git a/src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts b/src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts
-index 87c1b3ef66c..7cde3ace665 100644
 --- a/src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts
 +++ b/src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts
-@@ -13,8 +13,11 @@ export const AI_VAULT_DELETE_SESSION_RUNTIME_CAPABILITY = 'aiVault.delete-sessio
+@@ -13,8 +13,11 @@
  export const AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY =
    'aiVault.search.canonical-project.v1' as const
 
@@ -722,11 +684,9 @@ index 87c1b3ef66c..7cde3ace665 100644
    AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY,
    AI_VAULT_SESSION_TITLES_RUNTIME_CAPABILITY,
    AI_VAULT_SESSION_TITLE_REFRESH_RUNTIME_CAPABILITY,
-diff --git a/src/shared/ai-vault/contracts/ai-vault-types.ts b/src/shared/ai-vault/contracts/ai-vault-types.ts
-index 9ea6525baa2..90c91edddf4 100644
 --- a/src/shared/ai-vault/contracts/ai-vault-types.ts
 +++ b/src/shared/ai-vault/contracts/ai-vault-types.ts
-@@ -237,6 +237,8 @@ export type AiVaultListArgs = {
+@@ -237,6 +237,8 @@
    selectedSessionId?: string
    /** Primary conversation navigation includes durable chats without provider files. */
    includeStructuredSessions?: boolean
@@ -735,11 +695,9 @@ index 9ea6525baa2..90c91edddf4 100644
    historyOwnership?: { projectKey?: string }
    /** Opts a selected runtime-host refresh into content-conditional replies. */
    afterFingerprint?: string | null
-diff --git a/src/shared/rpc-contract/ai-vault/ai-vault-params.ts b/src/shared/rpc-contract/ai-vault/ai-vault-params.ts
-index db6698d3248..d21d3ec7974 100644
 --- a/src/shared/rpc-contract/ai-vault/ai-vault-params.ts
 +++ b/src/shared/rpc-contract/ai-vault/ai-vault-params.ts
-@@ -32,6 +32,7 @@ export const AiVaultListSessionsParams = z
+@@ -32,6 +32,7 @@
        .optional(),
      includeAntigravityIdeSessions: OptionalBoolean,
      includeStructuredSessions: OptionalBoolean,

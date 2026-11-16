@@ -8,7 +8,7 @@
  import { MessageSquarePlus, SquareSplitVertical } from 'lucide-react'
  import { ShortcutKeyCombo } from '@/components/ShortcutKeyCombo'
  import { Button } from '@/components/ui/button'
-@@ -53,13 +54,13 @@ export function NativeChatPaneHeader({
+@@ -53,13 +54,13 @@
    )
    return (
      <div

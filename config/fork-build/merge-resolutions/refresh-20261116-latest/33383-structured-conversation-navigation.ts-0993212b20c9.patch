@@ -1,6 +1,6 @@
 --- a/src/main/ai-vault/structured-conversation-navigation.ts
 +++ b/src/main/ai-vault/structured-conversation-navigation.ts
-@@ -30,7 +30,12 @@ export function boundedAiVaultConversationList(
+@@ -30,7 +30,12 @@
    args?: AiVaultListArgs
  ): AiVaultListResult {
    return conditionalAiVaultListResult(
@@ -14,7 +14,7 @@
      null
    )
  }
-@@ -153,6 +158,7 @@ export function projectDurableAiVaultConversations(
+@@ -153,6 +158,7 @@
    }
    return {
      ...result,

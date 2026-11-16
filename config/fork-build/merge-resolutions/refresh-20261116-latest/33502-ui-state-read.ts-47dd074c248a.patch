@@ -5,9 +5,9 @@
  import { normalizeConversationPreferences } from '../../../shared/conversation-navigation-preferences'
 +import { normalizePersonalProjectOrder } from '../../../shared/personal-project-order'
  import { normalizeExplorerDisplayRootByWorktree } from '../../../shared/file-listing/file-explorer-display-root'
- import type { PersistedState } from '../../../shared/persisted-state-types'
- import { getDefaultUIState, normalizeAgentActivityDisplayMode } from '../../../shared/constants'
-@@ -44,6 +45,7 @@ export function getPersistedUI(
+ import type { PersistedState } from '../../../shared/orca-profiles/persisted-state-types'
+ import { getDefaultUIState } from '../../../shared/orca-profiles/constants'
+@@ -46,6 +47,7 @@
      groupBy: normalizeGroupBy(state.ui?.groupBy),
      sortBy: normalizeSortBy(state.ui?.sortBy),
      conversationPreferences: normalizeConversationPreferences(state.ui?.conversationPreferences),

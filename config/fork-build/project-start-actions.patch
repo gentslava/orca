@@ -1,8 +1,6 @@
-diff --git a/config/flaky-test-pattern-baseline.txt b/config/flaky-test-pattern-baseline.txt
-index f985d31e2f2..8538cfcf245 100644
 --- a/config/flaky-test-pattern-baseline.txt
 +++ b/config/flaky-test-pattern-baseline.txt
-@@ -271,7 +271,7 @@
+@@ -260,7 +260,7 @@
  1 test-no-real-time-wait:tests/e2e/pdf-find-counter.spec.ts
  1 test-no-real-time-wait:tests/e2e/pdf-viewer-rebuild-recovery.spec.ts
  1 test-no-real-time-wait:tests/e2e/project-group-manual-sort.spec.ts
@@ -11,136 +9,27 @@ index f985d31e2f2..8538cfcf245 100644
  4 test-no-real-time-wait:tests/e2e/relaunch-sleeping-agents-resume-on-view.spec.ts
  1 test-no-real-time-wait:tests/e2e/resource-manager-local-pty-view.spec.ts
  1 test-no-real-time-wait:tests/e2e/settings-display-name-ime.spec.ts
-@@ -457,7 +457,6 @@
- 1 test-no-wall-clock:src/renderer/src/components/sidebar/worktree-list/listing/WorktreeList.lineage-agent-expansion-coupling.test.tsx
+@@ -437,7 +437,6 @@
+ 1 test-no-wall-clock:src/renderer/src/components/browser-pane/assemble-chrome/browser-workspace-pane.adoption-chrome.test.tsx
  2 test-no-wall-clock:src/renderer/src/components/terminal-pane/pty-connection/emulation/fish-color-scheme-child-stdin.node-pty.test.ts
  2 test-no-wall-clock:src/renderer/src/components/terminal-pane/snapshots/remote-snapshot-alt-screen-host-chain.test.ts
 -1 test-no-wall-clock:src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
  2 test-no-wall-clock:src/renderer/src/components/workspace-cleanup/removal/use-workspace-cleanup-removal.agent-stop.test.tsx
  1 test-no-wall-clock:src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
  1 test-no-wall-clock:src/shared/__tests__/process-host/windows-cmd-shim-resolution.test.ts
-diff --git a/config/focus-setting-read-baseline.txt b/config/focus-setting-read-baseline.txt
-index d573715c22d..70281cd6c6e 100644
 --- a/config/focus-setting-read-baseline.txt
 +++ b/config/focus-setting-read-baseline.txt
-@@ -28,22 +28,22 @@
- 1 src/renderer/src/components/browser-pane/stream-remote/use-remote-browser-stream-activation.ts
- 2 src/renderer/src/components/cmd-j/quick-action-context.ts
- 2 src/renderer/src/components/editor/EditorContent.tsx
--1 src/renderer/src/components/editor/panel/EditorDiffFileSurface.tsx
--1 src/renderer/src/components/editor/panel/EditorEditFileSurface.tsx
--1 src/renderer/src/components/editor/panel/EditorMarkdownFileSurface.tsx
- 1 src/renderer/src/components/editor/csv/csv-link-routing.ts
--2 src/renderer/src/components/editor/markdown/documents/useMarkdownDocuments.ts
- 1 src/renderer/src/components/editor/file-ownership/restored-editor-workspace-runtime-owner.ts
- 2 src/renderer/src/components/editor/loading/useEditorPanelContentState.ts
- 1 src/renderer/src/components/editor/loading/useEditorPanelFileContentLoader.ts
--2 src/renderer/src/components/feature-wall/setup/integrations/ConnectIntegrationsList.tsx
--1 src/renderer/src/components/feature-wall/setup/browser/FeatureWallBrowserAction.tsx
--1 src/renderer/src/components/feature-wall/setup/FeatureWallSetupChecklist.tsx
-+2 src/renderer/src/components/editor/markdown/documents/useMarkdownDocuments.ts
-+1 src/renderer/src/components/editor/panel/EditorDiffFileSurface.tsx
-+1 src/renderer/src/components/editor/panel/EditorEditFileSurface.tsx
-+1 src/renderer/src/components/editor/panel/EditorMarkdownFileSurface.tsx
- 1 src/renderer/src/components/feature-wall/FeatureWallTourSurface.tsx
-+1 src/renderer/src/components/feature-wall/setup/FeatureWallSetupChecklist.tsx
-+1 src/renderer/src/components/feature-wall/setup/browser/FeatureWallBrowserAction.tsx
-+2 src/renderer/src/components/feature-wall/setup/integrations/ConnectIntegrationsList.tsx
- 2 src/renderer/src/components/feature-wall/setup/integrations/use-feature-wall-task-source-presentation.ts
- 2 src/renderer/src/components/feature-wall/setup/integrations/use-integration-connection-status.ts
--1 src/renderer/src/components/floating-terminal/use-floating-terminal-panel-controller.ts
- 1 src/renderer/src/components/floating-terminal/state/use-floating-terminal-panel-store-state.ts
-+1 src/renderer/src/components/floating-terminal/use-floating-terminal-panel-controller.ts
- 1 src/renderer/src/components/integrations/source-control/bitbucket-credentials-dialog.tsx
- 1 src/renderer/src/components/integrations/source-control/bitbucket-integration-card.tsx
- 3 src/renderer/src/components/integrations/source-control/cli-source-control-integration-cards.tsx
-@@ -63,9 +63,9 @@
- 1 src/renderer/src/components/linear-item-drawer-edit-section.tsx
- 1 src/renderer/src/components/native-chat-recovery/tree/NativeChatResumeOnRestartGroups.tsx
- 1 src/renderer/src/components/native-chat/media/visuals/NativeChatVisualFrame.tsx
-+1 src/renderer/src/components/new-workspace/name-field/use-smart-workspace-name-field-controller.ts
- 1 src/renderer/src/components/new-workspace/source-search/use-jira-source-connection.ts
- 7 src/renderer/src/components/new-workspace/source-search/use-linear-source-connection.ts
--1 src/renderer/src/components/new-workspace/name-field/use-smart-workspace-name-field-controller.ts
- 1 src/renderer/src/components/new-workspace/source-search/use-smart-workspace-secondary-searches.ts
- 6 src/renderer/src/components/new-workspace/source-search/use-work-item-source-foundation.ts
- 1 src/renderer/src/components/new-workspace/source-search/use-work-item-source-search.ts
-@@ -137,36 +137,33 @@
- 1 src/renderer/src/components/skills/SkillsPage.tsx
- 1 src/renderer/src/components/skills/setup/linear-agent-skill-install-cta.tsx
- 1 src/renderer/src/components/source-control/BaseRefPicker.tsx
-+1 src/renderer/src/components/status-bar/StatusBarSurface.tsx
- 1 src/renderer/src/components/status-bar/accounts/ClaudeSwitcherMenu.tsx
- 1 src/renderer/src/components/status-bar/accounts/CodexSwitcherMenu.tsx
--1 src/renderer/src/components/status-bar/host-connections/SshStatusSegment.tsx
--1 src/renderer/src/components/status-bar/StatusBarSurface.tsx
- 2 src/renderer/src/components/status-bar/accounts/provider-account-sync-key.ts
--1 src/renderer/src/components/status-bar/usage/usage-provider-settings-target.ts
- 1 src/renderer/src/components/status-bar/accounts/use-claude-switcher-state.ts
- 2 src/renderer/src/components/status-bar/accounts/use-codex-switcher-controller.ts
- 1 src/renderer/src/components/status-bar/composition/use-status-bar-controller.ts
-+1 src/renderer/src/components/status-bar/host-connections/SshStatusSegment.tsx
-+1 src/renderer/src/components/status-bar/usage/usage-provider-settings-target.ts
+@@ -149,10 +149,7 @@
  1 src/renderer/src/components/status-bar/workspace-storage/decisions/use-workspace-space-git-refresh-action.ts
--1 src/renderer/src/components/status-bar/workspace-storage/manager/use-workspace-space-manager-panel.ts
+ 1 src/renderer/src/components/status-bar/workspace-storage/manager/use-workspace-space-manager-panel.ts
  1 src/renderer/src/components/status-bar/workspace-storage/decisions/workspace-space-decision-details.ts
 -1 src/renderer/src/components/tab-bar/TabBar.tsx
--2 src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-+1 src/renderer/src/components/status-bar/workspace-storage/manager/use-workspace-space-manager-panel.ts
- 1 src/renderer/src/components/tab-bar/web-runtime-tab-move-mirror.ts
--1 src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
- 3 src/renderer/src/components/tab-group/useTabGroupCreationCommands.ts
+-2 src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
+ 1 src/renderer/src/runtime/web-session-tabs-sync/placement/web-runtime-tab-move-mirror.ts
+-1 src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
+ 3 src/renderer/src/components/tab-group/workspace-model/useTabGroupCreationCommands.ts
  11 src/renderer/src/components/task-page/TaskPage.tsx
  2 src/renderer/src/components/task-page/jira/creation/IssueAssigneeField.tsx
--1 src/renderer/src/components/task-page/jira/listing/task-page-jira-status-order.ts
- 4 src/renderer/src/components/task-page/jira/creation/use-task-page-jira-creation-metadata.ts
- 4 src/renderer/src/components/task-page/jira/creation/use-task-page-jira-issue-creation.ts
-+1 src/renderer/src/components/task-page/jira/listing/task-page-jira-status-order.ts
- 1 src/renderer/src/components/task-page/jira/listing/use-task-page-jira-list-effects.ts
- 1 src/renderer/src/components/task-page/linear/Filters.tsx
--4 src/renderer/src/components/task-page/linear/issues/task-page-linear-state-cell.tsx
--8 src/renderer/src/components/task-page/linear/issues/use-task-page-linear-board.ts
--4 src/renderer/src/components/task-page/linear/use-task-page-linear-context-state.ts
- 6 src/renderer/src/components/task-page/linear/creation/use-task-page-linear-creation-state.ts
- 4 src/renderer/src/components/task-page/linear/creation/use-task-page-linear-issue-creation.ts
- 2 src/renderer/src/components/task-page/linear/creation/use-task-page-linear-project-creation.ts
-+4 src/renderer/src/components/task-page/linear/issues/task-page-linear-state-cell.tsx
-+8 src/renderer/src/components/task-page/linear/issues/use-task-page-linear-board.ts
-+4 src/renderer/src/components/task-page/linear/use-task-page-linear-context-state.ts
- 5 src/renderer/src/components/task-page/linear/use-task-page-linear-view-state.ts
- 3 src/renderer/src/components/task-page/use-task-page-detail-routing.ts
- 2 src/renderer/src/components/task-page/use-task-page-provider-metadata.ts
-@@ -186,12 +183,12 @@
- 2 src/renderer/src/components/terminal/terminal-tab-create.ts
- 2 src/renderer/src/components/use-new-linear-issue-projects.ts
- 5 src/renderer/src/components/use-terminal-create-actions.ts
--3 src/renderer/src/components/worktree-jump/use-worktree-jump-palette-controller.ts
--1 src/renderer/src/components/worktree-jump/workspaces/use-worktree-jump-palette-create-action.ts
- 2 src/renderer/src/components/worktree-jump/results/use-worktree-jump-palette-filter.ts
--3 src/renderer/src/components/worktree-jump/workspaces/use-worktree-jump-palette-quick-actions.ts
- 2 src/renderer/src/components/worktree-jump/state/use-worktree-jump-palette-store-state.ts
- 4 src/renderer/src/components/worktree-jump/tasks/use-worktree-jump-palette-task-url.ts
-+3 src/renderer/src/components/worktree-jump/use-worktree-jump-palette-controller.ts
-+1 src/renderer/src/components/worktree-jump/workspaces/use-worktree-jump-palette-create-action.ts
-+3 src/renderer/src/components/worktree-jump/workspaces/use-worktree-jump-palette-quick-actions.ts
- 1 src/renderer/src/components/worktree-jump/workspaces/worktree-jump-palette-create-worktree.ts
- 1 src/renderer/src/hooks/composer-state/composer-navigation-actions.ts
- 1 src/renderer/src/hooks/composer-state/composer-source-state.ts
-@@ -317,10 +314,10 @@
- 1 src/renderer/src/store/slices/worktrees/metadata/worktree-lineage-actions.ts
- 3 src/renderer/src/store/slices/worktrees/metadata/worktree-lineage-host-merge.ts
- 3 src/renderer/src/store/slices/worktrees/session/worktree-terminal-reference.ts
--1 src/renderer/src/store/terminals/tabs/creation/terminal-active-workspace-creation.ts
--1 src/renderer/src/store/terminals/tabs/presentation/terminal-tab-appearance.ts
- 1 src/renderer/src/store/terminals/retirement/terminal-tab-close-providers.ts
- 1 src/renderer/src/store/terminals/retirement/terminal-tab-retirement.ts
-+1 src/renderer/src/store/terminals/tabs/creation/terminal-active-workspace-creation.ts
-+1 src/renderer/src/store/terminals/tabs/presentation/terminal-tab-appearance.ts
- 1 src/renderer/src/web/preload-api/web-app-api.ts
- 3 src/renderer/src/web/preload-api/web-preference-normalization.ts
- 20 src/renderer/src/web/preload-api/web-preferences-store.ts
-diff --git a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx b/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
-index f5a19383fa0..e8daa49aa54 100644
 --- a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
 +++ b/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
 @@ -1,3 +1,4 @@
@@ -148,7 +37,7 @@ index f5a19383fa0..e8daa49aa54 100644
  import { createPortal } from 'react-dom'
  import TerminalPane from './terminal-pane/TerminalPane'
  import { TerminalRestoringPlaceholder } from './terminal-pane/mounting/TerminalRestoringPlaceholder'
-@@ -38,6 +39,24 @@ export function TerminalLegacyTerminalPanes({
+@@ -38,6 +39,24 @@
            : ''
        }`}
      >
@@ -173,20 +62,18 @@ index f5a19383fa0..e8daa49aa54 100644
        {workspaceSurfaces
          .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
          .map((workspace) => {
-diff --git a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-index 9e7782e5877..a96faa85c7a 100644
---- a/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-+++ b/src/renderer/src/components/tab-bar/use-tab-bar-runtime-model.ts
-@@ -19,7 +19,7 @@ import { selectTabBarAgentProjections } from './tab-agent-types-by-tab-id'
+--- a/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
++++ b/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
+@@ -19,7 +19,7 @@
  import type { TabBarAgentProjections } from './tab-agent-types-by-tab-id'
- import { shouldShowWindowsShellMenu } from './windows-shell-menu-visibility'
+ import { shouldShowWindowsShellMenu } from '../create-menu/windows-shell-menu-visibility'
  import { createUnifiedTabLookup } from './tab-bar-item-model'
 -import { getClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
 +import { getWorkspaceClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
  import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
- import type { GitFileStatus } from '../../../../shared/git/status/git-status-types'
- import type { GlobalSettings } from '../../../../shared/global-settings-types'
-@@ -111,7 +111,7 @@ export function useTabBarRuntimeModel({
+ import type { GitFileStatus } from '../../../../../shared/git/status/git-status-types'
+ import type { GlobalSettings } from '../../../../../shared/settings/global-settings-types'
+@@ -111,7 +111,7 @@
    )
    const settings = useAppStore((s) => s.settings)
    // Why: use the worktree's owning host so offered Windows shells match the host that actually runs the terminal.
@@ -195,7 +82,7 @@ index 9e7782e5877..a96faa85c7a 100644
      runtimeEnvironmentIdOrLocalUnlessTwin(s, worktreeId)
    )
    // Why: retained tab strips rerun selectors on every store write; reuse canonical indexes, don't flatten both slices here.
-@@ -126,16 +126,16 @@ export function useTabBarRuntimeModel({
+@@ -126,16 +126,16 @@
    })
    const isWebClient = (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ === true
    const windowsTerminalCapabilityOwnerKey = getWindowsTerminalCapabilityOwnerKey(
@@ -216,7 +103,7 @@ index 9e7782e5877..a96faa85c7a 100644
      isWebClient ||
      Boolean(worktreeConnectionId)
    const windowsTerminalCapabilities = useWindowsTerminalCapabilities(
-@@ -149,14 +149,14 @@ export function useTabBarRuntimeModel({
+@@ -149,14 +149,14 @@
      ? (worktreeRemotePlatform ?? windowsTerminalCapabilities.hostPlatform)
      : windowsTerminalCapabilities.hostPlatform
    const showWindowsShellMenu = shouldShowWindowsShellMenu({
@@ -233,7 +120,7 @@ index 9e7782e5877..a96faa85c7a 100644
    const projects = useAppStore((s) => (needsLocalProjectRuntime ? s.projects : EMPTY_PROJECTS))
    const repos = useAppStore((s) => (needsLocalProjectRuntime ? s.repos : EMPTY_REPOS))
    const worktreesByRepo = useAppStore((s) =>
-@@ -210,7 +210,7 @@ export function useTabBarRuntimeModel({
+@@ -210,7 +210,7 @@
    )
    const [managedBrowserCreationEnabled, mobileEmulatorCreationEnabled] = useAppStore(
      useShallow((state) => {
@@ -242,10 +129,8 @@ index 9e7782e5877..a96faa85c7a 100644
        return [
          policy['managed-browser'].state === 'enabled',
          policy['mobile-emulator'].state === 'enabled'
-diff --git a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
-index 0aba10115a4..779e66cd8a6 100644
---- a/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
-+++ b/src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
+--- a/src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
++++ b/src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
 @@ -1,12 +1,12 @@
  export function shouldShowWindowsShellMenu(args: {
 -  activeRuntimeEnvironmentId: string | null | undefined
@@ -261,8 +146,6 @@ index 0aba10115a4..779e66cd8a6 100644
    if (args.worktreeHasRemoteConnection) {
      return args.hostPlatform === 'win32'
    }
-diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-index e4896d27f77..fc54d344897 100644
 --- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 +++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 @@ -1,3 +1,7 @@
@@ -273,16 +156,19 @@ index e4896d27f77..fc54d344897 100644
  import { Suspense, useCallback, useMemo, useRef } from 'react'
  import { lazyWithRetry as lazy } from '@/app-shell/startup/lazy-with-retry'
  import { useDroppable } from '@dnd-kit/core'
-@@ -8,7 +12,7 @@ import { TabBarQuickCommandsButton } from '../tab-bar/TabBarQuickCommandsButton'
- import { TabGroupPaneActionsMenu } from './TabGroupPaneActionsMenu'
- import { useTabGroupWorkspaceModel } from './useTabGroupWorkspaceModel'
+@@ -8,7 +12,10 @@
+ import { TabGroupPaneActionsMenu } from './panel/TabGroupPaneActionsMenu'
+ import { useTabGroupWorkspaceModel } from './workspace-model/useTabGroupWorkspaceModel'
  import { closeTerminalTab } from '../terminal/terminal-tab-actions'
--import { resolveGroupTabFromVisibleId } from './tab-group-visible-id'
-+import { resolveGroupTabFromVisibleId, runGroupTabCommand } from './tab-group-visible-id'
- import { getTabPaneBodyDroppableId, type HoveredTabInsertion } from './useTabDragSplit'
- import { tabGroupBodyAnchorName } from './tab-group-body-anchor'
- import { registerTabGroupBody } from './tab-group-body-geometry'
-@@ -160,25 +164,15 @@ export default function TabGroupPanel({
+-import { resolveGroupTabFromVisibleId } from './workspace-model/tab-group-visible-id'
++import {
++  resolveGroupTabFromVisibleId,
++  runGroupTabCommand
++} from './workspace-model/tab-group-visible-id'
+ import { getTabPaneBodyDroppableId } from './drag/useTabDragSplit'
+ import type { HoveredTabInsertion } from './drag/tab-insertion'
+ import { tabGroupBodyAnchorName } from './retained-pane/tab-group-body-anchor'
+@@ -161,25 +168,15 @@
          // Why: agent quick-launch can briefly desync unified/runtime tab ids before the host snapshot lands, so still route close through the shared helper.
          closeTerminalTab(terminalId, { reason: 'user' })
        }}
@@ -317,7 +203,7 @@ index e4896d27f77..fc54d344897 100644
        onNewTerminalTab={commands.newTerminalTab}
        onNewTerminalWithShell={commands.newTerminalWithShell}
        onNewBrowserTab={commands.newBrowserTab}
-@@ -368,15 +362,17 @@ export default function TabGroupPanel({
+@@ -369,15 +366,17 @@
          className="relative flex-1 min-h-0 overflow-hidden"
          style={bodyAnchorStyle}
        >
@@ -344,11 +230,9 @@ index e4896d27f77..fc54d344897 100644
          {activeTab &&
            activeTab.contentType !== 'terminal' &&
            activeTab.contentType !== 'agent-session' &&
-diff --git a/src/renderer/src/components/tab-group/tab-group-visible-id.ts b/src/renderer/src/components/tab-group/tab-group-visible-id.ts
-index 245a5f40f74..4d09c056b60 100644
---- a/src/renderer/src/components/tab-group/tab-group-visible-id.ts
-+++ b/src/renderer/src/components/tab-group/tab-group-visible-id.ts
-@@ -9,3 +9,14 @@ export function resolveGroupTabFromVisibleId(
+--- a/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
++++ b/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
+@@ -9,3 +9,14 @@
      null
    )
  }
@@ -363,11 +247,9 @@ index 245a5f40f74..4d09c056b60 100644
 +    command(item.id)
 +  }
 +}
-diff --git a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-index b5960594bf9..b40b12f645c 100644
 --- a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
 +++ b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-@@ -5,10 +5,6 @@ import { createRoot, type Root } from 'react-dom/client'
+@@ -5,10 +5,6 @@
  import { afterEach, describe, expect, it, vi } from 'vitest'
  import { useTerminalWatcherEffects } from '../use-terminal-watcher-effects'
  import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
@@ -375,22 +257,22 @@ index b5960594bf9..b40b12f645c 100644
 -  claimEmptyWorkspaceDefaultSurface,
 -  releaseEmptyWorkspaceDefaultSurface
 -} from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
- 
+
  const mocks = vi.hoisted(() => {
    const storeTabsByWorktree: Record<string, unknown[]> = {}
-@@ -66,8 +62,6 @@ vi.mock(
+@@ -66,8 +62,6 @@
    })
  )
- 
+
 -const PENDING_INTENT = { callerProvidesSurface: false, seedUserDefaultSurface: true }
 -
  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
  let root: Root | undefined
  afterEach(async () => {
-@@ -118,117 +112,30 @@ function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}
+@@ -118,116 +112,29 @@
    return null
  }
- 
+
 -describe('passive terminal seeding during native chat creation', () => {
 -  it('waits for worktree creation before checking whether a fallback shell is needed', async () => {
 -    mocks.storePendingCreations['creation-1'] = {
@@ -423,13 +305,14 @@ index b5960594bf9..b40b12f645c 100644
 +    await act(async () => root?.render(<Watcher hydrated worktreeId="wt-2" />))
 +    await act(async () => root?.render(<Watcher hydrated />))
      expect(mocks.createTab).not.toHaveBeenCalled()
--
++    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
++    expect(mocks.gate).toHaveBeenCalledWith('wt-2')
++  })
+
 -    mocks.storePendingCreations = {}
 -    await act(async () => root?.render(<Watcher />))
 -    expect(mocks.createTab).toHaveBeenCalledOnce()
-+    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
-+    expect(mocks.gate).toHaveBeenCalledWith('wt-2')
-   })
+-  })
 -})
 -
 -function deferredGate(): (outcome: 'empty' | 'blocked') => Promise<void> {
@@ -442,7 +325,7 @@ index b5960594bf9..b40b12f645c 100644
 -  )
 -  return async (outcome) => act(async () => finishGate(outcome))
 -}
- 
+-
 -describe('passive terminal seeding retries until a decision applies', () => {
 -  it('seeds once after a StrictMode double run', async () => {
 -    const finishGate = deferredGate()
@@ -496,7 +379,7 @@ index b5960594bf9..b40b12f645c 100644
 -    mocks.storeClosedRecords = { 'closed-tab': { worktreeId: 'wt-1', closedAt: Date.now() } }
 -    await finishGate('empty')
      expect(mocks.createTab).not.toHaveBeenCalled()
-   })
+-  })
 -
 -  // Leaving cancels reseed; returning must still seed the workspace.
 -  it('seeds on return to a workspace left while a reseed awaited agent detection', async () => {
@@ -513,12 +396,9 @@ index b5960594bf9..b40b12f645c 100644
 -    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
 -    await act(async () => root?.render(<Watcher />))
 -    expect(mocks.createTab).toHaveBeenCalledTimes(1)
--  })
+   })
  })
- 
- describe('startup agent recovery host inventory', () => {
-diff --git a/src/renderer/src/components/terminal/use-terminal-startup-activation.ts b/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
-index 82b2779516b..27f82277a33 100644
+
 --- a/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
 +++ b/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
 @@ -1,14 +1,7 @@
@@ -534,18 +414,18 @@ index 82b2779516b..27f82277a33 100644
 -import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/workspace-layout/layout-owner-switch'
 -import { createInitialTerminalThroughLayoutOwner } from '@/store/terminals/tabs/creation/terminal-tab-create-through-layout-owner'
  import type { TerminalColdActivationController } from '../terminal-cold-activation'
- 
+
  type TerminalStartupController = Pick<
-@@ -17,8 +10,6 @@ type TerminalStartupController = Pick<
+@@ -17,8 +10,6 @@
    | 'workspaceSessionReady'
    | 'terminalStartupRestorationReady'
    | 'hydrationSucceeded'
 -  | 'reconcileWorktreeTabModel'
 -  | 'createTab'
  >
- 
+
  export function useTerminalStartupActivation(controller: TerminalStartupController): void {
-@@ -26,93 +17,14 @@ export function useTerminalStartupActivation(controller: TerminalStartupControll
+@@ -26,93 +17,14 @@
      activeWorktreeId,
      workspaceSessionReady,
      terminalStartupRestorationReady,
@@ -640,16 +520,13 @@ index 82b2779516b..27f82277a33 100644
    const startupResumeWorktreeIdsRef = useRef(new Set<string>())
    useEffect(() => {
      if (
-diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx
-new file mode 100644
-index 00000000000..83e9a892f8b
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx
 @@ -0,0 +1,45 @@
 +import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 +import { defineFixture } from '../../component-fixtures/component-fixture'
 +import { i18n, loadRendererUiLanguage } from '@/i18n/i18n'
-+import { buildTabCreateMenuOptions } from '../tab-bar/tab-create-menu-options'
++import { buildTabCreateMenuOptions } from '../tab-bar/create-menu/tab-create-menu-options'
 +import { WorkspaceStartActions } from './WorkspaceStartActions'
 +
 +function Actions() {
@@ -691,9 +568,6 @@ index 00000000000..83e9a892f8b
 +    await i18n.changeLanguage(await loadRendererUiLanguage('ru'))
 +  }
 +})
-diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
-new file mode 100644
-index 00000000000..f71ca642901
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 @@ -0,0 +1,114 @@
@@ -703,8 +577,8 @@ index 00000000000..f71ca642901
 +import { AgentIcon } from '@/lib/agent-catalog'
 +import { translate } from '@/i18n/i18n'
 +import type { NewTabAgentMenuRow } from '../../../../shared/agent-launch/picker/agent-launch-picker-rows'
-+import type { TabCreateMenuOption } from '../tab-bar/tab-create-menu-options'
-+import { chatUnavailableLabel, rowId, rowLabel } from '../tab-bar/tab-agent-row-presentation'
++import type { TabCreateMenuOption } from '../tab-bar/create-menu/tab-create-menu-options'
++import { chatUnavailableLabel, rowId, rowLabel } from '../agent/launch-menu/agent-menu-row-presentation'
 +
 +function ActionIcon({ kind }: { kind: TabCreateMenuOption['kind'] }) {
 +  switch (kind) {
@@ -811,17 +685,14 @@ index 00000000000..f71ca642901
 +    </section>
 +  )
 +}
-diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx
-new file mode 100644
-index 00000000000..b1c748f8692
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx
 @@ -0,0 +1,101 @@
 +import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 +import { useAppStore } from '@/store'
-+import { useTabBarRuntimeModel } from '../tab-bar/use-tab-bar-runtime-model'
-+import { useTabBarCreateMenuController } from '../tab-bar/use-tab-bar-create-menu-controller'
-+import { usePluginNewFileMenuOptions } from '../tab-bar/use-plugin-new-file-menu-options'
++import { useTabBarRuntimeModel } from '../tab-bar/model/use-tab-bar-runtime-model'
++import { useTabBarCreateMenuController } from '../tab-bar/create-menu/use-tab-bar-create-menu-controller'
++import { usePluginNewFileMenuOptions } from '../tab-bar/create-menu/use-plugin-new-file-menu-options'
 +import { WorkspaceStartActions } from './WorkspaceStartActions'
 +
 +export function WorkspaceStartPage({
@@ -918,8 +789,6 @@ index 00000000000..b1c748f8692
 +    />
 +  ) : null
 +}
-diff --git a/src/renderer/src/i18n/locales/de.json b/src/renderer/src/i18n/locales/de.json
-index f293d465513..3bba16eddf6 100644
 --- a/src/renderer/src/i18n/locales/de.json
 +++ b/src/renderer/src/i18n/locales/de.json
 @@ -22210,6 +22210,12 @@
@@ -935,28 +804,24 @@ index f293d465513..3bba16eddf6 100644
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index 2d6b4505a63..aee3b69310d 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -24493,6 +24493,12 @@
+@@ -24525,6 +24525,12 @@
+       "checksPending": "{{review}} checks: Pending",
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
-     },
++    },
 +    "start": {
 +      "title": "What would you like to open?",
 +      "description": "Choose an agent or a tool for this project.",
 +      "agents": "Agents",
 +      "manageAgents": "Manage agents"
-+    },
+     },
      "vm": {
        "menu": {
-         "waking": "Waking VM…",
-diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
-index 425cdd07444..46cdf66e49b 100644
 --- a/src/renderer/src/i18n/locales/es.json
 +++ b/src/renderer/src/i18n/locales/es.json
-@@ -22685,6 +22685,12 @@
+@@ -22688,6 +22688,12 @@
        "draft": "{{review}}: Borrador",
        "merged": "{{review}}: Fusionada",
        "open": "{{review}}: Abierta"
@@ -969,11 +834,9 @@ index 425cdd07444..46cdf66e49b 100644
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/i18n/locales/fr.json b/src/renderer/src/i18n/locales/fr.json
-index 819c5775cf2..a704d8473cc 100644
 --- a/src/renderer/src/i18n/locales/fr.json
 +++ b/src/renderer/src/i18n/locales/fr.json
-@@ -22708,6 +22708,12 @@
+@@ -22711,6 +22711,12 @@
        "draft": "{{review}} : brouillon",
        "merged": "{{review}} : fusionnée",
        "open": "{{review}} : ouverte"
@@ -986,28 +849,24 @@ index 819c5775cf2..a704d8473cc 100644
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/i18n/locales/ja.json b/src/renderer/src/i18n/locales/ja.json
-index f7b83352c32..369f41ab87b 100644
 --- a/src/renderer/src/i18n/locales/ja.json
 +++ b/src/renderer/src/i18n/locales/ja.json
-@@ -23459,6 +23459,12 @@
+@@ -23460,6 +23460,12 @@
+       "draft": "{{review}}: 下書き",
        "merged": "{{review}}: マージ済み",
        "open": "{{review}}: オープン"
-     },
++    },
 +    "start": {
 +      "title": "何を開きますか？",
 +      "description": "このプロジェクトで使う Agent やツールを選択してください。",
 +      "agents": "Agent",
 +      "manageAgents": "Agent を管理"
-+    },
+     },
      "vm": {
        "menu": {
-         "waking": "VM を復帰中…",
-diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
-index 6caae3ee24c..517ba7b93ca 100644
 --- a/src/renderer/src/i18n/locales/ko.json
 +++ b/src/renderer/src/i18n/locales/ko.json
-@@ -21965,6 +21965,12 @@
+@@ -21968,6 +21968,12 @@
        "draft": "{{review}}: 초안",
        "merged": "{{review}}: 병합됨",
        "open": "{{review}}: 열림"
@@ -1020,8 +879,6 @@ index 6caae3ee24c..517ba7b93ca 100644
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/i18n/locales/pt.json b/src/renderer/src/i18n/locales/pt.json
-index 5463999aba5..9bc4008c0b7 100644
 --- a/src/renderer/src/i18n/locales/pt.json
 +++ b/src/renderer/src/i18n/locales/pt.json
 @@ -23192,6 +23192,12 @@
@@ -1037,8 +894,6 @@ index 5463999aba5..9bc4008c0b7 100644
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
-index ac17c3e8e32..b93bbb3ab95 100644
 --- a/src/renderer/src/i18n/locales/ru.json
 +++ b/src/renderer/src/i18n/locales/ru.json
 @@ -22973,6 +22973,12 @@
@@ -1054,8 +909,6 @@ index ac17c3e8e32..b93bbb3ab95 100644
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/locales/tr.json
-index ec39cc7c1e9..aaaa2249586 100644
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
 @@ -22350,6 +22350,12 @@
@@ -1071,8 +924,6 @@ index ec39cc7c1e9..aaaa2249586 100644
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/i18n/locales/zh-Hant.json b/src/renderer/src/i18n/locales/zh-Hant.json
-index 4d5928c874f..dcccc48b77c 100644
 --- a/src/renderer/src/i18n/locales/zh-Hant.json
 +++ b/src/renderer/src/i18n/locales/zh-Hant.json
 @@ -21882,6 +21882,12 @@
@@ -1088,36 +939,32 @@ index 4d5928c874f..dcccc48b77c 100644
      }
    },
    "tabHoverCard": {
-diff --git a/src/renderer/src/i18n/locales/zh.json b/src/renderer/src/i18n/locales/zh.json
-index 5edf18f7257..16c361d5ee1 100644
 --- a/src/renderer/src/i18n/locales/zh.json
 +++ b/src/renderer/src/i18n/locales/zh.json
-@@ -23458,6 +23458,12 @@
+@@ -23883,6 +23883,12 @@
+       "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合并",
        "open": "{{review}}：开放"
-     },
++    },
 +    "start": {
 +      "title": "要打开什么？",
 +      "description": "为此项目选择代理或工具。",
 +      "agents": "代理",
 +      "manageAgents": "管理代理"
-+    },
+     },
      "vm": {
        "menu": {
-         "waking": "正在唤醒虚拟机…",
-diff --git a/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts b/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
-index 78592a6d956..6ff4b9fe8df 100644
 --- a/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
 +++ b/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
-@@ -24,7 +24,6 @@ import {
+@@ -24,7 +24,6 @@
    type IssueCommandLaunch
  } from '@/lib/workspace/activation/initial-surface/worktree-setup-issue-command-queue'
  import { applyDefaultTerminalTabs } from '@/lib/workspace/activation/initial-surface/worktree-default-terminal-tabs'
 -import { openDefaultAgentChatInEmptyWorkspace } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-agent-chat'
  import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
  import { findPendingWorktreeCreationId } from '../../creation/pending-worktree-creation'
- 
-@@ -82,6 +81,9 @@ export function ensureWorktreeHasInitialTerminal(
+
+@@ -82,6 +81,9 @@
    opts?: InitialTerminalOptions
  ): string | null {
    const { renderableTabCount } = store.reconcileWorktreeTabModel(worktreeId)
@@ -1127,7 +974,7 @@ index 78592a6d956..6ff4b9fe8df 100644
    // Editor/browser-only workspaces need no extra terminal merely because the legacy terminal slice is empty.
    const ownerState =
      store.settings !== undefined || store.repos !== undefined || store.worktreesByRepo !== undefined
-@@ -229,30 +231,6 @@ export function ensureWorktreeHasInitialTerminal(
+@@ -229,30 +231,6 @@
    if (templatedTabId) {
      return templatedTabId
    }
@@ -1158,30 +1005,30 @@ index 78592a6d956..6ff4b9fe8df 100644
    // Activation-created PTY spawns must not count as activity and reshuffle Recent.
    // Stamp before hooks so chat/provider chrome can resolve agent identity immediately.
    const launchAgent =
-diff --git a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
-index dab14a46146..856004ff59d 100644
 --- a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
 +++ b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
-@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
+@@ -3,6 +3,7 @@
  import type * as AgentStatusModule from '@/lib/agent-status/aggregation/worktree-agent-status'
  import { createTestStore } from '@/store/testing/app-store-test-fixture'
  import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
 +import { makeFolderWorkspace } from '@/store/folder-workspaces/folder-workspace.test-fixture'
  import { ensureWorktreeHasInitialTerminal } from '@/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding'
  import { resolveWorkspaceTerminalHostAuthority } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
- 
-@@ -21,6 +22,7 @@ vi.mock('@/lib/agent-status/aggregation/worktree-agent-status', async (importOri
- 
+
+@@ -21,6 +22,7 @@
+
  type TestStore = ReturnType<typeof createTestStore>
- 
+
 +const LOCAL_WORKTREE_ID = 'repoLocal::/tmp/local/feature'
  const SSH_WORKTREE_ID = 'repoSsh::/srv/proj/feature'
  const PAIRED_WORKTREE_ID = 'repoPaired::/srv/proj/paired'
  const TARGET_ID = 'ssh-target-1'
-@@ -37,6 +39,22 @@ function repo(id: string, path: string, connectionId?: string): never {
+@@ -35,6 +37,22 @@
+     addedAt: 0,
+     ...(connectionId ? { connectionId } : {})
    } as never
- }
- 
++}
++
 +function seedLocal(store: TestStore): void {
 +  store.setState({
 +    repos: [repo('repoLocal', '/tmp/local')],
@@ -1196,14 +1043,12 @@ index dab14a46146..856004ff59d 100644
 +      ]
 +    }
 +  })
-+}
-+
- function seedDirectSsh(store: TestStore): void {
-   store.setState({
-     repos: [repo('repoSsh', '/srv/proj', TARGET_ID)],
-@@ -67,7 +85,59 @@ function terminalTabCount(store: TestStore, worktreeId: string): number {
  }
- 
+
+ function seedDirectSsh(store: TestStore): void {
+@@ -67,7 +85,59 @@
+ }
+
  describe('workspace terminal seeding authority', () => {
 -  it('seeds once the SSH target connects, with no workspace snapshot to wait for', () => {
 +  it('runs an explicit local startup immediately, exactly once', () => {
@@ -1262,8 +1107,8 @@ index dab14a46146..856004ff59d 100644
      // Host workspace snapshots no longer answer after relay removal (#27214); waiting forever strands connected targets.
      const store = createTestStore()
      seedDirectSsh(store)
-@@ -77,7 +147,9 @@ describe('workspace terminal seeding authority', () => {
- 
+@@ -77,7 +147,9 @@
+
      connectTarget(store)
      expect(resolveWorkspaceTerminalHostAuthority(store.getState(), SSH_WORKTREE_ID)).toBe('none')
 -    expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeTruthy()
@@ -1272,52 +1117,50 @@ index dab14a46146..856004ff59d 100644
 +    ).toBeTruthy()
      expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(1)
    })
- 
-@@ -92,7 +164,7 @@ describe('workspace terminal seeding authority', () => {
+
+@@ -92,7 +164,7 @@
        }
      })
- 
+
 -    // Startup restore passes no reseed option; only an explicit activation does.
 +    // Reopening an empty workspace still leaves its first action to the user.
      expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeNull()
      expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(0)
      expect(
-@@ -105,7 +177,7 @@ describe('workspace terminal seeding authority', () => {
+@@ -105,7 +177,7 @@
          undefined,
          { reseedEmptiedWorkspace: true }
        )
 -    ).toBeTruthy()
 +    ).toBeNull()
    })
- 
+
    /** Rival detected owners make authority unresolved, not local; the old live-paired-client guard incorrectly seeded alongside host creation (#15556). */
-diff --git a/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts b/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
-index 97772cf2527..bcc6a017d8d 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
 +++ b/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
-@@ -41,9 +41,7 @@ import {
+@@ -41,9 +41,7 @@
  } from '../hosted-terminals/restoration/web-runtime-wake-terminal-respawn'
  import { createWebRuntimeSessionTerminal } from '../hosted-terminals/creation/web-runtime-terminal-creation'
  import { releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame } from './initial-terminal/web-runtime-initial-terminal-bootstrap'
 -import { createInitialTerminalSeeder } from './initial-terminal-seeder'
  import { toRuntimeWorktreeSelector } from '../rpc/targets/runtime-worktree-selector'
 -import { hostSnapshotAffirmsWorktreeContents } from './hydration/host-session-snapshot-authority'
- 
+
  import type { SessionTabsSnapshotHandler } from './visibility-resume-types'
  import { subscribeRuntimeEnvironment } from '../rpc/environment-revisions/runtime-environment-pairing-refresh'
-@@ -61,10 +59,7 @@ export type ActiveSubscriptionArgs = {
+@@ -61,10 +59,7 @@
    visibilitySnapshotAccepted: Ref<SessionTabsSnapshotHandler<void>>
  }
- 
+
 -export type ActiveSessionTabsSubscription = WindowVisibilitySubscriptionParking & {
 -  /** The worktree became selected again while its stream stayed warm. */
 -  reconsiderSelected: () => void
 -}
 +export type ActiveSessionTabsSubscription = WindowVisibilitySubscriptionParking
- 
+
  export function installActiveSessionTabsSubscription({
    activeWorktreeId,
-@@ -89,7 +84,7 @@ export function installActiveSessionTabsSubscription({
+@@ -89,7 +84,7 @@
      return undefined
    }
    const expectedTrackingGeneration = getWebSessionTabsTrackingGeneration(environmentId)
@@ -1326,17 +1169,17 @@ index 97772cf2527..bcc6a017d8d 100644
    const isSelected = (): boolean => {
      const state = useAppStore.getState()
      return (
-@@ -97,9 +92,7 @@ export function installActiveSessionTabsSubscription({
+@@ -97,9 +92,7 @@
        mirroredRuntimeEnvironmentIdForWorkspace(state, activeWorktreeId) === environmentId
      )
    }
 -  const seeder = createInitialTerminalSeeder(environmentId, activeWorktreeId)
    let requestedRespawnAfterWake = false
 -  let hostAffirmedWorktree = false
- 
+
    const applyActiveSnapshot = async (
      event: RuntimeMobileSessionTabsResult & { type: 'snapshot' | 'updated' },
-@@ -140,8 +133,6 @@ export function installActiveSessionTabsSubscription({
+@@ -140,8 +133,6 @@
      const hasLiveLocalPty = localTabs.some(
        (tab) => (syncState.ptyIdsByTabId[tab.id] ?? []).length > 0
      )
@@ -1345,7 +1188,7 @@ index 97772cf2527..bcc6a017d8d 100644
      const respawn = shouldRespawnWebRuntimeTerminalAfterWake({
        event: recoveredEvent,
        activeWorktreeId,
-@@ -163,7 +154,6 @@ export function installActiveSessionTabsSubscription({
+@@ -163,7 +154,6 @@
            trackingGeneration: expectedTrackingGeneration
          })
      if (decision.apply) {
@@ -1353,7 +1196,7 @@ index 97772cf2527..bcc6a017d8d 100644
        const replayed = isRuntimeSubscriptionReplayResponse(response)
        settle = applyWebSessionTabsStorePatch(
          createWebSessionTabsSnapshotPatch(recovered, environmentId),
-@@ -184,20 +174,10 @@ export function installActiveSessionTabsSubscription({
+@@ -184,20 +174,10 @@
          event.type === 'updated' && !replayed
        )
        visibilitySnapshotAccepted.current(environmentId, recovered, receivedFrame, runtimeId)
@@ -1375,7 +1218,7 @@ index 97772cf2527..bcc6a017d8d 100644
          isCurrent() &&
          isSelected() &&
          respawn &&
-@@ -294,14 +274,5 @@ export function installActiveSessionTabsSubscription({
+@@ -294,14 +274,5 @@
        }
      }
    ])
@@ -1391,9 +1234,6 @@ index 97772cf2527..bcc6a017d8d 100644
 -  )
 +  return parking
  }
-diff --git a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts b/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts
-deleted file mode 100644
-index 3f9f05641a1..00000000000
 --- a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts
 +++ /dev/null
 @@ -1,107 +0,0 @@
@@ -1504,11 +1344,9 @@ index 3f9f05641a1..00000000000
 -    }
 -  }
 -}
-diff --git a/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts b/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts
-index f5f8efe6aa7..fc4d297626d 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts
 +++ b/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts
-@@ -126,7 +126,6 @@ export function createWarmWorktreeSessionSubscriptions(
+@@ -126,7 +126,6 @@
        if (warm) {
          entries.delete(key)
          entries.set(key, warm)
@@ -1516,9 +1354,6 @@ index f5f8efe6aa7..fc4d297626d 100644
        } else {
          const subscription = install(args)
          if (!subscription) {
-diff --git a/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts b/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts
-new file mode 100644
-index 00000000000..6a88038dae8
 --- /dev/null
 +++ b/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts
 @@ -0,0 +1,24 @@
@@ -1546,28 +1381,26 @@ index 00000000000..6a88038dae8
 +    }
 +  }
 +)
-diff --git a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts b/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
-index 9b56c8a6ae9..38f03966e0f 100644
 --- a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
 +++ b/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
-@@ -8,7 +8,6 @@ import type { ExecutionHostId } from '../../execution-host'
+@@ -8,7 +8,6 @@
  import type { TuiAgent } from '../catalog/tui-agent'
  import { filterEnabledTuiAgents, TUI_AGENT_AUTO_PICK_ORDER } from '../catalog/tui-agent-selection'
  import type { AgentSessionChatProgram } from '../../agent-session/agent-session-agent-availability'
 -import { agentSessionInstallCommand } from '../../agent-session/lifecycle/launch/agent-session-setup-commands'
- 
+
  export type HostChatAnswer =
    | 'yes'
-@@ -21,8 +20,6 @@ export type HostChatAnswer =
+@@ -21,8 +20,6 @@
    | 'windows'
    | 'no-chats'
  export type ChatProgramObservation = AgentSessionChatProgram | 'unlearned'
 -const chatProgramOffered = (program: ChatProgramObservation) =>
 -  program === 'available' || program === 'installable'
- 
+
  export function orderAgentLaunchPickerAgents(
    defaultAgent: TuiAgent | 'blank' | null | undefined,
-@@ -62,7 +59,7 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -62,7 +59,7 @@
    hostChatAnswer: (agent: TuiAgent) => HostChatAnswer
    /** Whether the chat's own program runs there, which for some agents is not their CLI. */
    chatProgram: (agent: TuiAgent) => ChatProgramObservation
@@ -1576,7 +1409,7 @@ index 9b56c8a6ae9..38f03966e0f 100644
    offerAgentSetup?: boolean
    hostPlatform?: string | null
  }): NewTabAgentMenuRow[] {
-@@ -79,17 +76,14 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -79,17 +76,14 @@
    const unavailable = new Map<TuiAgent, ChatUnavailableReason>()
    const chatAgents = filterEnabledTuiAgents(args.chatAgents, settings?.disabledTuiAgents)
    const canOpen = (agent: TuiAgent): boolean =>
@@ -1600,7 +1433,7 @@ index 9b56c8a6ae9..38f03966e0f 100644
      const displayed = nativeChatPreferenceFor(settings, agent)
      if (!displayed && (!installed.includes(agent) || !canOpen(agent))) {
        continue
-@@ -101,8 +95,7 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -101,8 +95,7 @@
        }
        continue
      }
@@ -1610,32 +1443,30 @@ index 9b56c8a6ae9..38f03966e0f 100644
        runnable.push(agent)
      } else {
        unavailable.set(
-@@ -121,12 +114,6 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -120,12 +113,6 @@
+                 : answer
        )
      }
-   }
+-  }
 -  // A host with no agents at all offers chats that set one up, so a first agent is findable.
 -  if (runnable.length === 0 && unavailable.size === 0 && installed.length === 0) {
 -    runnable.push(
 -      ...chatAgents.filter((agent) => needsSetup(agent) && args.hostChatAnswer(agent) === 'yes')
 -    )
--  }
+   }
    return [
      ...orderAgentLaunchPickerAgents(defaultAgent, runnable).map((agent) => ({
-       kind: 'chat' as const,
-diff --git a/tests/e2e/relaunch-first-terminal.spec.ts b/tests/e2e/relaunch-first-terminal.spec.ts
-index 72ceee412e3..5af48521be0 100644
 --- a/tests/e2e/relaunch-first-terminal.spec.ts
 +++ b/tests/e2e/relaunch-first-terminal.spec.ts
 @@ -1,5 +1,4 @@
 -// After relaunch, preserve deliberately empty/editor-only workspaces and seed a terminal only when a never-opened workspace is shown.
 -// Main’s terminal rows must give the same answer with or without window tab saves.
 +// Empty workspaces offer actions after activation and relaunch; terminal creation is explicit.
- 
+
  import path from 'node:path'
  import { writeFileSync } from 'node:fs'
-@@ -87,7 +86,7 @@ async function worktreePath(page: Page, worktreeId: string): Promise<string> {
- 
+@@ -87,7 +86,7 @@
+
  // The editor-only workspace's file also opens read-only, then again for editing: a relaunch
  // restores it editable, as the reopen left it.
 -test('a relaunch seeds only a workspace that was never opened', async ({
@@ -1643,9 +1474,9 @@ index 72ceee412e3..5af48521be0 100644
    testRepoPath
  }, testInfo) => {
    const session = createRestartSession(testInfo)
-@@ -111,12 +110,20 @@ test('a relaunch seeds only a workspace that was never opened', async ({
+@@ -111,12 +110,20 @@
      const neverOpened = await createWorktree(first.page, `relaunch-never-${stamp}`)
- 
+
      await switchToWorktree(first.page, emptied)
 +    await waitForTabs(first.page, emptied, { terminals: 0, editors: 0 })
 +    await expect(
@@ -1658,14 +1489,14 @@ index 72ceee412e3..5af48521be0 100644
      await waitForTabs(first.page, emptied, { terminals: 1, editors: 0 })
      await closeTerminals(first.page, emptied)
      await waitForTabs(first.page, emptied, { terminals: 0, editors: 0 })
- 
+
      await switchToWorktree(first.page, editorOnly)
 -    await waitForTabs(first.page, editorOnly, { terminals: 1, editors: 0 })
 +    await waitForTabs(first.page, editorOnly, { terminals: 0, editors: 0 })
      const notes = path.join(await worktreePath(first.page, editorOnly), 'relaunch-notes.txt')
      writeFileSync(notes, 'notes\n')
      await openEditor(first.page, editorOnly, notes, true)
-@@ -136,10 +143,13 @@ test('a relaunch seeds only a workspace that was never opened', async ({
+@@ -136,10 +143,13 @@
      await waitForSessionReady(second.page)
      for (const worktreeId of [emptied, editorOnly, neverOpened]) {
        await switchToWorktree(second.page, worktreeId)

@@ -3,17 +3,17 @@
 @@ -1,3 +1,4 @@
 +import { newerPersonalProjectOrder } from '../../../../src/shared/personal-project-order'
  // Sync phone view settings through the shared ui.get/ui.set store so edits converge across clients.
- 
+
  import type { WorkspaceStatusDefinition } from '../../../../src/shared/worktree/types'
-@@ -38,6 +39,7 @@ export type WorkspaceViewSettings = {
+@@ -38,6 +39,7 @@
      // Written with the card properties only: whether they are a Card layout preset.
      | '_worktreeCardModeDefaulted'
      | 'conversationPreferences'
 +    | 'personalProjectOrder'
    >
  >
- 
-@@ -49,6 +51,7 @@ export type MobileViewState = {
+
+@@ -49,6 +51,7 @@
    workspaceStatuses: readonly WorkspaceStatusDefinition[]
    /** Null until the desktop's value is read; the served project list's order stands in. */
    conversationPreferences?: PersistedUIState['conversationPreferences']
@@ -21,7 +21,7 @@
    projectOrderBy: ProjectOrderBy | null
    /** May hold a property a newer desktop added; it is carried back unchanged. */
    worktreeCardProperties: readonly WorktreeCardProperty[]
-@@ -168,6 +171,10 @@ export function applyDesktopViewSettings(
+@@ -168,6 +171,10 @@
        settings.workspaceHostScope
      )
    }
@@ -32,7 +32,7 @@
    return {
      groupBy: isGroupBy(settings.groupBy) ? settings.groupBy : current.groupBy,
      sortBy: isSortBy(settings.sortBy) ? settings.sortBy : current.sortBy,
-@@ -181,6 +188,7 @@ export function applyDesktopViewSettings(
+@@ -181,6 +188,7 @@
      settings.conversationPreferences.revision >= (current.conversationPreferences?.revision ?? 0)
        ? { conversationPreferences: settings.conversationPreferences }
        : {}),

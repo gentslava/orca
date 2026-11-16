@@ -1,6 +1,6 @@
 --- a/src/shared/wsl-move/wsl-move-ui-dispositions.ts
 +++ b/src/shared/wsl-move/wsl-move-ui-dispositions.ts
-@@ -18,6 +18,11 @@ export const UI_STATE_DISPOSITIONS = {
+@@ -18,6 +18,11 @@
      38,
      'Conversation preferences retain their execution-host-qualified identities.'
    ),
