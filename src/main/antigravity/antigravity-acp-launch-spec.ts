@@ -40,6 +40,7 @@ import {
   hasManagedAntigravityChatSignIn,
   isAntigravityHostAccountHome
 } from './antigravity-host-acp'
+import { isAgySignedOutOutput } from './agy-signed-out-output'
 
 // Chats cannot adopt agy's terminal conversations.
 const ANTIGRAVITY_SESSION_HISTORY: StructuredAgentSessionHistory = {
@@ -132,6 +133,7 @@ const ANTIGRAVITY_HOST_LAUNCH_SPEC: AcpLaunchSpec = {
     kind: 'command',
     args: ['models'],
     parse: parseAgyModelListing,
+    isNotSignedInOutput: isAgySignedOutOutput,
     listingNamesConfiguredModel: false
   },
   account: {
