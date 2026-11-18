@@ -1,3 +1,4 @@
+import { structuredAgentSessionReportedModelChoice } from '../../../structured-agent-session-default-model-choice'
 import type {
   AgentSessionOptionCatalog,
   CatalogModel,
@@ -256,9 +257,17 @@ export function structuredAgentSessionOptionSnapshot(
   state: StructuredAgentSessionOptionState
 ): SessionOptionDescriptor[] {
   const permission = structuredAgentSessionPermissionDescriptor(state)
-  const options = modelOptionSnapshot(state).map((option) =>
-    state.fastModeRestricted && option.id === 'fastMode' ? { ...option, settable: false } : option
-  )
+  const options = modelOptionSnapshot(state).map((option) => {
+    if (option.id === 'model') {
+      const reportedModel = structuredAgentSessionReportedModelChoice(state)
+      return reportedModel
+        ? { ...option, reportedModel: reportedModel.value, reportedModelLabel: reportedModel.label }
+        : option
+    }
+    return state.fastModeRestricted && option.id === 'fastMode'
+      ? { ...option, settable: false }
+      : option
+  })
   const interaction = structuredAgentSessionInteractionDescriptor(state)
   return [...options, ...(permission ? [permission] : []), ...(interaction ? [interaction] : [])]
 }
@@ -283,11 +292,16 @@ export function canSetStructuredAgentSessionOption(
   interactionReady = true,
   pending = false
 ): boolean {
-  if (!interactionReady || pending || (id === 'fastMode' && state.fastModeRestricted)) {
+  const descriptor = snapshot.find((entry) => entry.id === id)
+  if (
+    !interactionReady ||
+    pending ||
+    descriptor?.disabledReason === 'host-update-required' ||
+    (id === 'fastMode' && state.fastModeRestricted)
+  ) {
     return false
   }
   if (id === 'permissionMode' || id === 'interactionMode') {
-    const descriptor = snapshot.find((entry) => entry.id === id)
     return (
       descriptor?.settable === true &&
       descriptor.kind.type === 'select' &&
