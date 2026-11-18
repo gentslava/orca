@@ -35,17 +35,13 @@ export function LinkRoutingPreferenceDialogProvider({
   const nextIdRef = useRef(0)
   const [queue, setQueue] = useState<LinkRoutingPreferenceDialogRequest[]>([])
   const activeRequest = queue[0] ?? null
-  const activeRequestRef = useRef<LinkRoutingPreferenceDialogRequest | null>(activeRequest)
   const setContextualToursBlockingSurfaceVisible = useAppStore(
     (s) => s.setContextualToursBlockingSurfaceVisible
   )
-  const lastDisplayedRequestRef = useRef<LinkRoutingPreferenceDialogRequest | null>(activeRequest)
-  activeRequestRef.current = activeRequest
-  if (activeRequest) {
-    lastDisplayedRequestRef.current = activeRequest
-  }
-  // Why: Radix keeps dialog content mounted while closing; keep copy stable during exit animation.
-  const displayedRequest = activeRequest ?? lastDisplayedRequestRef.current
+  const [lastDisplayedRequest, setLastDisplayedRequest] =
+    useState<LinkRoutingPreferenceDialogRequest | null>(null)
+  // Radix keeps the dialog mounted during its exit animation.
+  const displayedRequest = activeRequest ?? lastDisplayedRequest
   const openLinksInAppDefault = displayedRequest?.options.openLinksInAppDefault === true
   const isMac = navigator.userAgent.includes('Mac')
   const systemBrowserShortcut = isMac ? '⇧⌘' : 'Shift+Ctrl'
@@ -84,19 +80,23 @@ export function LinkRoutingPreferenceDialogProvider({
     })
   }, [requestPreference])
 
-  const settleActiveRequest = useCallback((openInOrca: boolean) => {
-    const request = activeRequestRef.current
-    if (!request) {
-      return
-    }
-    request.resolve(openInOrca)
-    setQueue((currentQueue) => {
-      if (currentQueue[0]?.id === request.id) {
-        return currentQueue.slice(1)
+  const settleActiveRequest = useCallback(
+    (openInOrca: boolean) => {
+      const request = activeRequest
+      if (!request) {
+        return
       }
-      return currentQueue.filter((queuedRequest) => queuedRequest.id !== request.id)
-    })
-  }, [])
+      setLastDisplayedRequest(request)
+      request.resolve(openInOrca)
+      setQueue((currentQueue) => {
+        if (currentQueue[0]?.id === request.id) {
+          return currentQueue.slice(1)
+        }
+        return currentQueue.filter((queuedRequest) => queuedRequest.id !== request.id)
+      })
+    },
+    [activeRequest]
+  )
 
   return (
     <LinkRoutingPreferenceDialogContext.Provider value={requestPreference}>
