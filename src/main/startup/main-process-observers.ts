@@ -217,7 +217,7 @@ export function initializeMainProcessObservers(): void {
   const backend = new BackendSupervisor(usageWorktrees)
   state.backend = backend
   // Paired clients get a renderer's usage privileges, never the automation-only methods.
-  provideHostUsageAnalytics((call) => backend.callControl(BACKEND_PUBLIC_USAGE_METHOD, call))
+  provideHostUsageAnalytics((call) => backend.invokeUsage(BACKEND_PUBLIC_USAGE_METHOD, call))
   state.claudeUsage = state.backend.automationClient('claudeUsage')
   state.codexUsage = state.backend.automationClient('codexUsage')
 }
