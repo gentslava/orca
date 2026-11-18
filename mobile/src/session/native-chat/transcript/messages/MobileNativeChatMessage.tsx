@@ -146,13 +146,9 @@ function MobileNativeChatMessageImpl({
   )
   // Task rows replace their plain-text twins, which the host writes for readers without task blocks.
   const { backgroundTasks } = deriveNativeChatRowContent(message.blocks)
-  const drawnProse =
-    isReasoning || (message.role === 'system' && workRun)
-      ? []
-      : withoutSubagentGroupTwins(
-          backgroundTasks.length > 0 ? withoutBackgroundTaskRows(prose) : prose
-        )
   const isSystem = message.role === 'system'
+  const ownProse = backgroundTasks.length > 0 ? withoutBackgroundTaskRows(prose) : prose
+  const drawnProse = isReasoning || (isSystem && workRun) ? [] : withoutSubagentGroupTwins(ownProse)
   const pullRequestEvent = isSystem
     ? drawnProse.find(
         (block): block is Chat.NativeChatTextBlock =>
@@ -333,23 +329,17 @@ function MobileNativeChatMessageImpl({
                 />
               ) : null}
               {isUser ? (
-                <>
-                  {drawnProse.some(Chat.isImageRefBlock) ? (
-                    <View style={styles.userImageAttachments}>
-                      {proseRows(drawnProse.filter(Chat.isImageRefBlock))}
-                    </View>
-                  ) : null}
-                  <MobileNativeChatUserMessageFold
-                    text={deriveNativeChatRowContent(message.blocks).markdown}
-                    fontScale={fontScale}
-                    open={userMessageOpen === true}
-                    onToggle={() => onToggleUserMessage?.(message.id)}
-                    recovery={recovery}
-                    status={showFull}
-                  >
-                    {proseRows(drawnProse.filter((block) => !Chat.isImageRefBlock(block)))}
-                  </MobileNativeChatUserMessageFold>
-                </>
+                <MobileNativeChatUserMessageFold
+                  attachments={proseRows(drawnProse.filter(Chat.isImageRefBlock))}
+                  text={deriveNativeChatRowContent(message.blocks).markdown}
+                  fontScale={fontScale}
+                  open={userMessageOpen === true}
+                  onToggle={() => onToggleUserMessage?.(message.id)}
+                  recovery={recovery}
+                  status={showFull}
+                >
+                  {proseRows(drawnProse.filter((block) => !Chat.isImageRefBlock(block)))}
+                </MobileNativeChatUserMessageFold>
               ) : (
                 <MobileNativeChatAnswerProse
                   rowKey={message.id}
