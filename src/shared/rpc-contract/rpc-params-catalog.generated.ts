@@ -460,6 +460,7 @@ import {
   ReplyParams,
   ResetParams,
   SessionAddressParams,
+  SessionChildrenParams,
   TaskCreateParams,
   TaskListParams
 } from './orchestration/orchestration-params'
@@ -1456,6 +1457,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.runStop': RunStopParams,
   'orchestration.runUse': RunUseParams,
   'orchestration.sessionAddress': SessionAddressParams,
+  'orchestration.sessionChildren': SessionChildrenParams,
   'orchestration.taskCreate': TaskCreateParams,
   'orchestration.taskList': TaskListParams,
   'orchestration.workerAbandon': WorkerDispatchParams,
