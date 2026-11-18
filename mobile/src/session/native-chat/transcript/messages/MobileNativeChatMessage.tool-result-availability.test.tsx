@@ -43,6 +43,7 @@ vi.mock('lucide-react-native', () => ({
   Check: 'Check',
   ChevronDown: 'ChevronDown',
   ChevronRight: 'ChevronRight',
+  Clock: 'Clock',
   Copy: 'Copy',
   Eye: 'Eye',
   FileMinus2: 'FileMinus2',
@@ -50,14 +51,18 @@ vi.mock('lucide-react-native', () => ({
   FilePlus2: 'FilePlus2',
   Folder: 'Folder',
   Globe: 'Globe',
+  Hourglass: 'Hourglass',
   ListChecks: 'ListChecks',
   MessageSquareMore: 'MessageSquareMore',
   Pencil: 'Pencil',
+  Play: 'Play',
   Plug: 'Plug',
   Search: 'Search',
   SquareChevronRight: 'SquareChevronRight',
   SquareTerminal: 'SquareTerminal',
-  Wrench: 'Wrench'
+  Webhook: 'Webhook',
+  Wrench: 'Wrench',
+  Zap: 'Zap'
 }))
 vi.mock('../../../../components/markdown/MobileMarkdown', () => ({
   MobileMarkdown: 'MobileMarkdown'
