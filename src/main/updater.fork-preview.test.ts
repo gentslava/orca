@@ -1,73 +1,79 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { loadUpdaterModule, warmUpdaterModule } from './updater/testing/updater-test-module-loader'
+import type { UpdaterSetup } from './updater/lifecycle/updater-setup'
 
-const {
-  appMock,
-  autoUpdaterMock,
-  chooseLocalBuildMock,
-  fetchNudgeMock,
-  moduleFactories,
-  resetUpdaterMocks,
-  loadAutoUpdaterMock,
-  listReleaseBuildsMock,
-  resolveTargetBuildMock
-} = await vi.hoisted(async () => {
-  const mocks = (await import('./updater/testing/updater-test-harness')).createUpdaterMocks()
+const mocks = vi.hoisted(() => {
+  const autoUpdater = {
+    autoDownload: false,
+    autoInstallOnAppQuit: false,
+    autoRunAppAfterInstall: true,
+    allowPrerelease: false,
+    allowDowngrade: false,
+    disableDifferentialDownload: false,
+    on: vi.fn(),
+    setFeedURL: vi.fn(),
+    checkForUpdates: vi.fn().mockResolvedValue(null),
+    downloadUpdate: vi.fn(),
+    quitAndInstall: vi.fn()
+  }
   return {
-    ...mocks,
-    loadAutoUpdaterMock: vi.fn(() => mocks.autoUpdaterMock),
-    listReleaseBuildsMock: vi.fn().mockResolvedValue([]),
-    resolveTargetBuildMock: vi.fn()
+    autoUpdater,
+    version: vi.fn(() => '1.4.214'),
+    load: vi.fn(() => autoUpdater),
+    list: vi.fn().mockResolvedValue([]),
+    resolve: vi.fn(),
+    nudge: vi.fn().mockResolvedValue(null),
+    choose: vi.fn()
   }
 })
-
-vi.mock('electron', () => moduleFactories.electron())
-vi.mock('electron-updater', () => moduleFactories.electronUpdater())
-vi.mock('./updater/electron-updater-loader', () => ({
-  loadElectronAutoUpdater: loadAutoUpdaterMock
+vi.mock('electron', () => ({
+  app: { isPackaged: true, getVersion: mocks.version, on: vi.fn(), prependListener: vi.fn() },
+  BrowserWindow: { getAllWindows: () => [] },
+  autoUpdater: { on: vi.fn() },
+  powerMonitor: { on: vi.fn() },
+  shell: { showItemInFolder: vi.fn() },
+  net: { fetch: vi.fn() }
 }))
-vi.mock('./ipc/pty/kill-all', () => moduleFactories.ptyKillAll())
-vi.mock('./updater/linux-package/linux-update-package-type', () =>
-  moduleFactories.linuxUpdatePackageType()
-)
-vi.mock('./updater/updater-lifecycle-diagnostics', () =>
-  moduleFactories.updaterLifecycleDiagnostics()
-)
-vi.mock('./updater/releases/updater-changelog', () => moduleFactories.updaterChangelog())
-vi.mock('./updater/nudges/nudge-campaign', () => moduleFactories.updaterNudge())
-vi.mock('./updater/update-install-exit-watchdog', () => moduleFactories.updateInstallExitWatchdog())
-vi.mock('./updater/releases/updater-prerelease-feed', () => moduleFactories.updaterPrereleaseFeed())
-vi.mock('./local-builds/local-build-switch', () => moduleFactories.localBuildSwitch())
-vi.mock('./local-builds/local-build-feed-server', () => moduleFactories.localBuildFeedServer())
+vi.mock('./updater/electron-updater-loader', () => ({ loadElectronAutoUpdater: mocks.load }))
+vi.mock('./updater/updater-lifecycle-diagnostics', () => ({ recordUpdaterLifecycle: vi.fn() }))
+vi.mock('./updater/mac-install/macos-shipit-scheduling', () => ({
+  configureMacShipItScheduling: vi.fn()
+}))
+vi.mock('./updater/linux-package/linux-update-package-type', () => ({
+  getLinuxPackageType: () => 'deb',
+  getLinuxRootPackageType: () => 'deb',
+  isExternallyManagedLinuxInstall: () => false
+}))
+vi.mock('./updater/nudges/nudge-campaign', () => ({
+  fetchNudge: mocks.nudge,
+  shouldApplyNudge: () => false
+}))
 vi.mock('./updater/releases/updater-release-builds', () => ({
-  listReleaseBuilds: listReleaseBuildsMock,
-  resolveTargetBuild: resolveTargetBuildMock
+  listReleaseBuilds: mocks.list,
+  resolveTargetBuild: mocks.resolve
 }))
+vi.mock('./local-builds/local-build-switch', () => ({ chooseLocalBuild: mocks.choose }))
 
-warmUpdaterModule()
+let updater: UpdaterSetup
 const lastCheckAt = 1_700_000_000_000
+beforeEach(async () => {
+  vi.clearAllMocks()
+  vi.useFakeTimers()
+  vi.setSystemTime(lastCheckAt)
+  const { UpdaterSetup } = await import('./updater/lifecycle/updater-setup')
+  updater = new UpdaterSetup()
+})
+afterEach(() => {
+  vi.clearAllTimers()
+  vi.useRealTimers()
+})
 
 describe('fork preview updater isolation', () => {
-  beforeEach(() => {
-    vi.spyOn(Date, 'now').mockReturnValue(lastCheckAt)
-    resetUpdaterMocks()
-    loadAutoUpdaterMock.mockClear()
-    listReleaseBuildsMock.mockClear()
-    resolveTargetBuildMock.mockClear()
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   it.each([
     '1.4.214-local.forkpreview.123456.abcdef',
     '1.4.255-local.forkpreview.123456.abcdef',
     '1.4.214-rc.1.local.forkpreview.123456.abcdef'
   ])('blocks setup and every public self-update entry point for %s', async (version) => {
-    appMock.getVersion.mockReturnValue(version)
-    const updater = await loadUpdaterModule()
-
+    mocks.version.mockReturnValue(version)
     expect(updater.getUpdateStatus()).toEqual({ state: 'not-available' })
     updater.setupAutoUpdater(null)
     updater.checkForUpdates()
@@ -78,16 +84,15 @@ describe('fork preview updater isolation', () => {
     updater.quitAndInstall()
     expect(await updater.listAvailableReleaseBuilds('stable', { force: true })).toEqual([])
     expect(await updater.listAvailableReleaseBuilds('hourly')).toEqual([])
-
     expect(updater.getUpdateStatus()).toEqual({ state: 'not-available' })
-    expect(loadAutoUpdaterMock).not.toHaveBeenCalled()
-    expect(fetchNudgeMock).not.toHaveBeenCalled()
-    expect(listReleaseBuildsMock).not.toHaveBeenCalled()
-    expect(resolveTargetBuildMock).not.toHaveBeenCalled()
-    expect(chooseLocalBuildMock).not.toHaveBeenCalled()
-    expect(autoUpdaterMock.checkForUpdates).not.toHaveBeenCalled()
-    expect(autoUpdaterMock.downloadUpdate).not.toHaveBeenCalled()
-    expect(autoUpdaterMock.quitAndInstall).not.toHaveBeenCalled()
+    expect(mocks.load).not.toHaveBeenCalled()
+    expect(mocks.nudge).not.toHaveBeenCalled()
+    expect(mocks.list).not.toHaveBeenCalled()
+    expect(mocks.resolve).not.toHaveBeenCalled()
+    expect(mocks.choose).not.toHaveBeenCalled()
+    expect(mocks.autoUpdater.checkForUpdates).not.toHaveBeenCalled()
+    expect(mocks.autoUpdater.downloadUpdate).not.toHaveBeenCalled()
+    expect(mocks.autoUpdater.quitAndInstall).not.toHaveBeenCalled()
     expect(updater.isQuittingForUpdate()).toBe(false)
   })
 
@@ -99,18 +104,15 @@ describe('fork preview updater isolation', () => {
     '1.4.214-adhoc.123456.abcdef',
     '1.4.214-local.123456.abcdef'
   ])('preserves normal updater setup and release lookup for %s', async (version) => {
-    appMock.getVersion.mockReturnValue(version)
-    const updater = await loadUpdaterModule()
-
+    mocks.version.mockReturnValue(version)
     updater.setupAutoUpdater(null, { getLastUpdateCheckAt: () => lastCheckAt })
     await updater.listAvailableReleaseBuilds('stable', { force: true })
-
-    expect(loadAutoUpdaterMock).toHaveBeenCalledOnce()
-    expect(autoUpdaterMock.setFeedURL).toHaveBeenCalledWith({
+    expect(mocks.load).toHaveBeenCalledOnce()
+    expect(mocks.autoUpdater.setFeedURL).toHaveBeenCalledWith({
       provider: 'generic',
       url: 'https://github.com/stablyai/orca/releases/latest/download'
     })
-    expect(listReleaseBuildsMock).toHaveBeenCalledWith('stable')
+    expect(mocks.list).toHaveBeenCalledWith('stable')
     expect(updater.getUpdateStatus()).toEqual({ state: 'idle' })
   })
 })

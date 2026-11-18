@@ -747,3 +747,302 @@ index 64098a81868..3d084789e03 100644
 +    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
 +    : (nativeChatRestartNoteText(notice.text, t) ?? notice.text)
 +}
+diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
+index 8f3c041f235..415e64ff839 100644
+--- a/config/main-blocking-helper-baseline.txt
++++ b/config/main-blocking-helper-baseline.txt
+@@ -49,25 +49,15 @@
+ 3 src/main/ai-vault/scan-service/session-scanner-service-entry-path.ts
+ 12 src/main/ai-vault/scan-service/session-scanner-service-spawn.ts
+ 2 src/main/ai-vault/scanners/devin/session-scanner-devin-db.ts
+-2 src/main/ai-vault/scanners/hermes/hermes-state-db-conversations.ts
+-3 src/main/ai-vault/scanners/hermes/hermes-state-db-schema.ts
+ 2 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sources.ts
+-15 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sqlite.ts
+ 5 src/main/ai-vault/scanners/hermes/session-scanner-hermes-worker.ts
+ 1 src/main/ai-vault/scanners/omp/omp-session-root.ts
+ 2 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
+-15 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-dispatch.ts
+-1 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts
+ 25 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn.ts
+ 2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-wsl-client.ts
+ 3 src/main/ai-vault/scanners/opencode/session-scanner-opencode-sources.ts
+-3 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-capture.ts
+ 1 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-discovery.ts
+-2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-list.ts
+ 1 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
+-3 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite.ts
+-1 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite-list.ts
+-4 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
+ 1 src/main/ai-vault/scanners/zcode/session-scanner-zcode-sources.ts
+ 2 src/main/ai-vault/session-handoff-snapshot.ts
+ 1 src/main/ai-vault/session-titles/session-title-resolver.ts
+@@ -555,7 +545,7 @@
+ 3 src/main/ipc/accounts/zcode-plan-credentials.ts
+ 1 src/main/ipc/ai-vault/ai-vault-search.ts
+ 1 src/main/ipc/ai-vault/ai-vault-subagent-list.ts
+-6 src/main/ipc/app.ts
++5 src/main/ipc/app.ts
+ 1 src/main/ipc/automations.ts
+ 3 src/main/ipc/browser/browser-client-host-cookie-import-ipc.ts
+ 1 src/main/ipc/browser/browser-extensions.ts
+@@ -603,7 +593,6 @@
+ 3 src/main/ipc/hooks/register-worktree-hook-check-handler.ts
+ 2 src/main/ipc/hooks/register-worktree-hook-file-handlers.ts
+ 3 src/main/ipc/jira/register-handlers.ts
+-1 src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
+ 1 src/main/ipc/linear/custom-view-handlers.ts
+ 7 src/main/ipc/linear/issue-handlers.ts
+ 2 src/main/ipc/linear/project-handlers.ts
+@@ -840,12 +829,8 @@
+ 1 src/main/native-chat/transcript-filesystem/process/wsl-transcript-fs-process-spawn.ts
+ 2 src/main/native-chat/transcript-filesystem/wsl-transcript-fs-access.ts
+ 2 src/main/native-chat/transcript-history/codex/codex-rollout-history-source.ts
+-7 src/main/native-chat/transcript-history/hermes/transcript-hermes-sqlite.ts
+ 4 src/main/native-chat/transcript-history/opencode/transcript-opencode-database.ts
+-7 src/main/native-chat/transcript-history/opencode/transcript-opencode-sqlite-query.ts
+ 4 src/main/native-chat/transcript-history/opencode/transcript-opencode.ts
+-2 src/main/native-chat/transcript-history/opencode/transcript-opencode2-fork-coverage.ts
+-2 src/main/native-chat/transcript-history/opencode/transcript-opencode2-sqlite.ts
+ 1 src/main/native-chat/transcript-read-cache.ts
+ 1 src/main/native-chat/transcript-reader.ts
+ 1 src/main/native-chat/transcript-tail-reader.ts
+@@ -961,6 +946,7 @@
+ 2 src/main/orcad/native-runtime/node-pty-precondition.ts
+ 3 src/main/orcad/native-runtime/orcad-native-preflight.ts
+ 9 src/main/orcad/native-runtime/orcad-runtime-native-preflight.ts
++1 src/main/orcad/orcad-profile-runtime-services.ts # PROPOSED REVIEW: one-time startup restores the saved account before launch readiness opens.
+ 2 src/main/orcad/profile-state/orcad-host-identity-reset.ts
+ 3 src/main/orcad/profile-state/orcad-profile-state-startup.ts
+ 6 src/main/orcad/runtime-launch/orcad-bundled-runtime.ts
+@@ -1248,6 +1234,7 @@
+ 5 src/main/runtime/orchestration/legacy-remote/federated-dispatch-observation-fence.ts
+ 2 src/main/runtime/orchestration/legacy-remote/legacy-remote-db-methods.ts
+ 3 src/main/runtime/orchestration/legacy-remote/remote-dispatch-attachment-create.ts
++1 src/main/runtime/orchestration/session-links/session-link-store.ts # PROPOSED REVIEW: unchanged fork transaction around existing orchestration writes; present in prior source 5b79d8ced17c.
+ 2 src/main/runtime/orchestration/workers/lifecycle/context-only-dispatch-release.ts
+ 1 src/main/runtime/orchestration/workers/transcripts/worker-transcript-read.ts
+ 2 src/main/runtime/push/push-unregister-outbox.ts
+@@ -1602,7 +1589,7 @@
+ 4 src/shared/remote-runtime/host-store/runtime-environment-store-command.ts
+ 2 src/shared/remote-runtime/host-store/runtime-environment-store-file.ts
+ 6 src/shared/remote-runtime/host-store/runtime-environment-store-observation.ts
+-9 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
++10 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts # PROPOSED REVIEW: existing worker-owned rename; inline use is one offline CLI command.
+ 1 src/shared/remote-runtime/host-store/runtime-environment-store-read-cache.ts
+ 2 src/shared/remote-runtime/host-store/runtime-environment-store-records.ts
+ 1 src/shared/remote-runtime/host-store/runtime-environment-store-worker-entry.ts
+diff --git a/config/main-blocking-sqlite-baseline.txt b/config/main-blocking-sqlite-baseline.txt
+index c56ae457c6b..e459f57d023 100644
+--- a/config/main-blocking-sqlite-baseline.txt
++++ b/config/main-blocking-sqlite-baseline.txt
+@@ -4,17 +4,7 @@
+ 13 src/main/ai-vault-search/storage/session-search-schema.ts
+ 20 src/main/ai-vault/parse-cache/session-parse-cache-database.ts
+ 13 src/main/ai-vault/parse-cache/session-scope-cwds-table.ts
+-1 src/main/ai-vault/scanners/hermes/hermes-state-db-activity.ts
+-16 src/main/ai-vault/scanners/hermes/hermes-state-db-conversations.ts
+-4 src/main/ai-vault/scanners/hermes/hermes-state-db-messages.ts
+-6 src/main/ai-vault/scanners/hermes/hermes-state-db-schema.ts
+-2 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sqlite.ts
+-2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-capture.ts
+-4 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-list.ts
+ 2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
+-6 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite.ts
+-6 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite-list.ts
+-10 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
+ 5 src/main/browser-passwords/browser-password-chromium-import.ts
+ 1 src/main/browser/cookies/chromium/prepare-import.ts
+ 5 src/main/browser/cookies/sources/browser-cookie-firefox-import.ts
+@@ -64,9 +54,6 @@
+ 8 src/main/native-chat/agent-session-journal/writing/command-receipt-table.ts
+ 2 src/main/native-chat/agent-session-journal/writing/journal-goal-attachment-inverse.ts
+ 4 src/main/native-chat/agent-session-journal/writing/mail-withdrawal-receipts.ts
+-10 src/main/native-chat/transcript-history/opencode/transcript-opencode-sqlite-query.ts
+-14 src/main/native-chat/transcript-history/opencode/transcript-opencode2-fork-coverage.ts
+-10 src/main/native-chat/transcript-history/opencode/transcript-opencode2-sqlite.ts
+ 13 src/main/persistence/moving-wsl-projects/desktop-state/wsl-move-orchestration-history-rewrite.ts
+ 8 src/main/persistence/profile-state/automation-runs/profile-state-automation-runs-migration.ts
+ 4 src/main/persistence/profile-state/automation-runs/profile-state-automation-runs-reader.ts
+diff --git a/config/main-blocking-worker-entries.json b/config/main-blocking-worker-entries.json
+index 5aaf15417ec..0ab684e040d 100644
+--- a/config/main-blocking-worker-entries.json
++++ b/config/main-blocking-worker-entries.json
+@@ -23,5 +23,6 @@
+   "src/main/ipc/filesystem/watcher-process/parcel-watcher-process-entry.ts": "Dedicated utility/child-process entry; blocking work stays off Electron main.",
+   "src/main/orcad/orcad-local-serve-selection-entry.ts": "Dedicated utility/child-process entry; blocking work stays off Electron main.",
+   "src/main/native-chat/agent-session-journal/journal-sql-reader-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
+-  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main."
++  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
++  "src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts": "Dedicated utility process entry; the Electron child and its SQLite reader thread do not run on the main event loop."
+ }
+diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
+index 1d30f0bd762..47023b18bbd 100644
+--- a/config/main-sync-fs-baseline.txt
++++ b/config/main-sync-fs-baseline.txt
+@@ -271,7 +271,6 @@
+ 3 src/main/ipc/filesystem/watcher-process/parcel-watcher-entry-path.ts
+ 1 src/main/ipc/filesystem/watcher-process/root-paths/watcher-event-root-path-rewrite.ts
+ 1 src/main/ipc/filesystem/watcher-process/supervision/parcel-watcher-supervisor-subscribe.ts
+-1 src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
+ 1 src/main/ipc/notifications/notification-authorization-status.ts
+ 1 src/main/ipc/pty/host-env/spawn-pane-env.ts
+ 1 src/main/ipc/ssh/ssh-connect-flow.ts
+diff --git a/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts b/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts
+index c90a2d5b506..6fe92f00d5e 100644
+--- a/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts
++++ b/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts
+@@ -1,3 +1,4 @@
++import { lstat } from 'node:fs/promises'
+ import { basename, dirname, join } from 'node:path'
+ import type { UsageAccountRoot } from '../../../usage/usage-account-attribution'
+ import { isDirectory } from '../claude-profile-homes'
+@@ -7,21 +8,25 @@ import type { ClaudeWslProfileRouter } from '../wsl/claude-profile-wsl-router'
+ import type { ClaudeAccountSelectionTarget } from '../../selection/runtime-selection'
+ import type { ClaudeObservedConfigDirs } from './claude-observed-config-dirs'
+ 
+-export function claudeAccountHistoryRoots(): UsageAccountRoot[] {
++export async function claudeAccountHistoryRoots(): Promise<UsageAccountRoot[]> {
+   const router = installed
+-  return (router?.accountHomes() ?? []).flatMap((path) => {
+-    const accountId = basename(dirname(path))
+-    try {
+-      return router?.accountHome(accountId) === path &&
+-        isDirectory(path) &&
+-        isDirectory(dirname(path)) &&
+-        isDirectory(dirname(dirname(path)))
+-        ? [{ path, accountId }]
+-        : []
+-    } catch {
+-      return []
+-    }
+-  })
++  const roots = await Promise.all(
++    (router?.accountHomes() ?? []).map(async (path) => {
++      const accountId = basename(dirname(path))
++      try {
++        if (router?.accountHome(accountId) !== path) {
++          return null
++        }
++        const directories = await Promise.all(
++          [path, dirname(path), dirname(dirname(path))].map((entry) => lstat(entry))
++        )
++        return directories.every((entry) => entry.isDirectory()) ? { path, accountId } : null
++      } catch {
++        return null
++      }
++    })
++  )
++  return router === installed ? roots.filter((root) => root !== null) : []
+ }
+ 
+ let installed: ClaudeProfileRouter | undefined
+diff --git a/src/main/claude-usage/transcript-file-discovery-errors.test.ts b/src/main/claude-usage/transcript-file-discovery-errors.test.ts
+index 7d3b02e1aa1..7f972154b44 100644
+--- a/src/main/claude-usage/transcript-file-discovery-errors.test.ts
++++ b/src/main/claude-usage/transcript-file-discovery-errors.test.ts
+@@ -14,7 +14,10 @@ vi.mock('node:os', async () => {
+ })
+ 
+ vi.mock('../claude-accounts/profiles/routing/claude-profile-installed-router', () => ({
+-  claudeProfileHistoryDirs: () => []
++  claudeProfileHistoryDirs: () => [],
++  claudeAccountHistoryRoots: async () => [
++    { path: join(state.home, 'managed-account'), accountId: 'managed-a' }
++  ]
+ }))
+ 
+ vi.mock('node:fs/promises', async () => {
+@@ -70,3 +73,20 @@ describe('Claude history discovery failures', () => {
+     }
+   )
+ })
++
++it('discovers managed history surfaces asynchronously and retains their account identity', async () => {
++  const { claudeProfileTranscriptSources } = await import('./transcript-file-discovery')
++  const root = join(state.home, 'managed-account')
++  const projects = join(root, 'projects')
++  const transcripts = join(root, 'transcripts')
++  await mkdir(projects, { recursive: true })
++  await mkdir(transcripts)
++  await expect(claudeProfileTranscriptSources()).resolves.toEqual([
++    { path: projects, accountId: 'managed-a' },
++    { path: transcripts, accountId: 'managed-a' }
++  ])
++  await rm(transcripts, { recursive: true })
++  await expect(claudeProfileTranscriptSources()).resolves.toEqual([
++    { path: projects, accountId: 'managed-a' }
++  ])
++})
+diff --git a/src/main/claude-usage/transcript-file-discovery.ts b/src/main/claude-usage/transcript-file-discovery.ts
+index d6ec6498d33..4bb08ad8161 100644
+--- a/src/main/claude-usage/transcript-file-discovery.ts
++++ b/src/main/claude-usage/transcript-file-discovery.ts
+@@ -2,11 +2,10 @@ import {
+   claudeProfileHistoryDirs,
+   claudeAccountHistoryRoots
+ } from '../claude-accounts/profiles/routing/claude-profile-installed-router'
+-import { isDirectory } from '../claude-accounts/profiles/claude-profile-homes'
+ import type { UsageAccountRoot } from '../usage/usage-account-attribution'
+ import { homedir } from 'node:os'
+ import { join } from 'node:path'
+-import { readdir } from 'node:fs/promises'
++import { lstat, readdir } from 'node:fs/promises'
+ import { isDefinitiveAbsence } from '../../shared/errors/definitive-filesystem-absence'
+ 
+ const CLAUDE_PROJECTS_DIR = join(homedir(), '.claude', 'projects')
+@@ -47,13 +46,18 @@ export function claudeProfileTranscriptDirs(): string[] {
+   return [...claudeProfileHistoryDirs('projects'), ...claudeProfileHistoryDirs('transcripts')]
+ }
+ 
+-export function claudeProfileTranscriptSources(): UsageAccountRoot[] {
+-  return claudeAccountHistoryRoots().flatMap((root) =>
+-    ['projects', 'transcripts'].flatMap((surface) => {
+-      const path = join(root.path, surface)
+-      return isDirectory(path) ? [{ path, accountId: root.accountId }] : []
+-    })
++export async function claudeProfileTranscriptSources(): Promise<UsageAccountRoot[]> {
++  const roots = await claudeAccountHistoryRoots()
++  const sources = await Promise.all(
++    roots.flatMap((root) =>
++      ['projects', 'transcripts'].map(async (surface) => {
++        const path = join(root.path, surface)
++        const info = await lstat(path).catch(() => null)
++        return info?.isDirectory() ? { path, accountId: root.accountId } : null
++      })
++    )
+   )
++  return sources.filter((source) => source !== null)
+ }
+ 
+ export async function listClaudeTranscriptFiles(
+diff --git a/src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts b/src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
+index 208f54b7e06..ee68cf270c6 100644
+--- a/src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
++++ b/src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
+@@ -1,5 +1,4 @@
+ import { execFile } from 'node:child_process'
+-import { existsSync } from 'node:fs'
+ import { dirname, join } from 'node:path'
+ import type {
+   KeyboardLayoutKeyCharacters,
+@@ -22,7 +21,7 @@ export function resolveMacKeyboardHelperPath(): string | null {
+     return cachedHelperPath
+   }
+   const candidate = join(dirname(process.execPath), HELPER_EXECUTABLE)
+-  cachedHelperPath = existsSync(candidate) ? candidate : null
++  cachedHelperPath = candidate
+   return cachedHelperPath
+ }
+ 
+diff --git a/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts b/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
+index 8ac1ac64241..6429df5a661 100644
+--- a/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
++++ b/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
+@@ -1,5 +1,5 @@
+ // Use the pinned packaged build named by ORCA_CROSS_VERSION_PACKAGED_EXECUTABLE; skip when it is unavailable.
+-import { assertMacGuiLaunchAllowed } from '../../../config/scripts/gui-launch/macos-gui-launch-preflight.mjs'
++import { assertMacGuiLaunchAllowed } from '../../../../../config/scripts/gui-launch/macos-gui-launch-preflight.mjs'
+ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+ import { createServer, type AddressInfo } from 'node:net'
+ import os from 'node:os'

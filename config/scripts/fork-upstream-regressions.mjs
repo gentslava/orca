@@ -4,6 +4,10 @@ import { join, resolve } from 'node:path'
 import { isDirectInvocation } from './tool-invocation/script-entry-detection.mjs'
 
 const desktop = [
+  'src/shared/agent-session/journal/agent-message-link-provenance.test.ts',
+  'src/main/runtime/agent-session/structured-child-retention-lifecycle.test.ts',
+  'src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx',
+  'src/main/claude-usage/transcript-file-discovery-errors.test.ts',
   'config/scripts/fork-upstream-sync.test.mjs',
   'config/scripts/fork-upstream-archives.test.mjs',
   'src/main/gemini/gemini-acp-launch.test.ts',
@@ -21,10 +25,7 @@ const desktop = [
   'src/renderer/src/components/native-chat',
   'src/renderer/src/components/native-chat/NativeChatMessageRow.work-run.test.tsx',
   'src/renderer/src/components/native-chat/usage/NativeChatNoticeRow.test.tsx',
-  'src/shared/agent-session/agent-session-message-source.test.ts',
   'src/renderer/src/components/native-chat/use-structured-agent-session-model-default.test.tsx',
-  'src/renderer/src/components/native-chat/attachments/chips/native-chat-image-references.test.tsx',
-  'src/renderer/src/components/native-chat/queue/editing/native-chat-queued-edit-draft.test.ts',
   'src/renderer/src/components/native-chat/native-chat-composer-draft-recovery.test.ts',
   'src/renderer/src/components/native-chat/native-chat-composer-draft-storage.test.ts',
   'src/renderer/src/components/native-chat/drafts/native-chat-composer-draft-store.test.ts',
@@ -33,8 +34,6 @@ const desktop = [
   'src/renderer/src/components/native-chat/attachments/intake/native-chat-composer-drop-scope.test.tsx',
   'src/renderer/src/components/native-chat/attachments/chips/use-native-chat-composer-attachments.test.tsx',
   'src/renderer/src/components/native-chat/composer/editor/native-chat-composer-composition.test.tsx',
-  'src/renderer/src/components/native-chat/composer/submit/use-native-chat-structured-composer-send.test.tsx',
-  'src/renderer/src/components/native-chat/composer/submit/native-chat-structured-send-composition-clear.test.tsx',
   'src/renderer/src/components/native-chat/queue/editing/use-structured-agent-session-queued-edit.test.tsx',
   'src/renderer/src/components/native-chat/use-structured-agent-session-queue-working.test.tsx',
   'src/main/native-chat/agent-session-wire/host/testing/structured-agent-session-goal-steering.test.ts',
@@ -55,9 +54,6 @@ const desktop = [
   'src/renderer/src/components/stats/use-usage-history.test.ts',
   'src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.test.tsx',
   'src/main/updater.fork-preview.test.ts',
-  'src/main/updater/updater.build-channel-selection.test.ts',
-  'src/main/updater/updater.quit-and-install.test.ts',
-  'src/main/updater/updater.headless-serve-install.test.ts',
   'src/main/persistence/applying-settings/persistence-personal-project-order.test.ts',
   'src/main/runtime/rpc/methods/client-ui-project-order.test.ts',
   'src/renderer/src/components/sidebar/worktree-list-groups-personal-project-order.test.ts',
@@ -74,7 +70,6 @@ const desktop = [
   'src/renderer/src/components/HoldQuitNotice.test.tsx',
   'src/main/menu/app-menu-hold-quit.test.ts',
   'src/main/updater/mac-install/updater-mac-quit-guard.test.ts',
-  'src/main/startup/quit/main-process-quit-update-veto.test.ts',
   'src/renderer/src/store/slices/hold-quit-settings-owner.test.ts'
 ]
 const mobile = [
