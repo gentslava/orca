@@ -141,11 +141,6 @@ export function useMobileStructuredAgentSession(
     connected,
     mutate
   })
-  const hostStopping = useMobileStructuredSessionHostStopping({
-    client,
-    sessionId,
-    enabled: enabled && connected && hostSupport?.statusFeed === true
-  })
   const stopPress = useMobileStructuredStopPress(sessionKey)
   const { canStop, sendsOut } = useMobileStructuredStopOffer({
     sessionKey,
@@ -158,7 +153,11 @@ export function useMobileStructuredAgentSession(
     turnId,
     isWorking,
     canStop,
-    hostStopping,
+    hostStopping: useMobileStructuredSessionHostStopping({
+      client,
+      sessionId,
+      enabled: enabled && connected && hostSupport?.statusFeed === true
+    }),
     stopPressed: stopPress.pressed,
     queueCapable,
     queueFollowUps,
@@ -181,6 +180,7 @@ export function useMobileStructuredAgentSession(
     enabled,
     queueCapable,
     queueFollowUps,
+    steerCapable: hostSupport?.steerDraft === true,
     commandsWait: queueCapable && hostSupport?.queuedCommands === true,
     stateRef,
     stopping: turnIndicator.stopping,
