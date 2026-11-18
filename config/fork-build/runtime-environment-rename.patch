@@ -287,3 +287,18 @@ index f1f423dc170..822d028d209 100644
      "auto.components.settings.SettingsFormControls.b661b034ec",
      "auto.components.settings.SshDestructiveActionDialog.895b216267",
      "auto.components.settings.SshDestructiveActionDialog.moreTargets",
+diff --git a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
+index eba4e99eaad..bc6840fd2eb 100644
+--- a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
++++ b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
+@@ -1,7 +1,7 @@
+ import { beforeEach, describe, expect, it } from 'vitest'
+-import { installApi } from '../web-preload-api-test-harness'
+-import { webRuntimeState } from './web-runtime-session'
+-import type { StoredWebRuntimeEnvironment } from '../web-runtime-environment'
++import { installApi } from '../testing/web-preload-api-test-harness'
++import { webRuntimeState } from '../runtime/client/web-runtime-session'
++import type { StoredWebRuntimeEnvironment } from '../pairing/web-runtime-environment'
+ 
+ const ENV_KEY = 'orca.web.runtimeEnvironment.v1'
+ 

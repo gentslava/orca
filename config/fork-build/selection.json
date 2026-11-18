@@ -123,7 +123,8 @@
     "composed-reactive-copy.patch",
     "runtime-environment-rename.patch",
     "account-usage-row-layout.patch",
-    "fork-ci-macos-arm64-image.patch"
+    "fork-ci-macos-arm64-image.patch",
+    "composed-format.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
@@ -167,5 +168,5 @@
       "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
     }
   },
-  "pullRequestUpstreamCommit": "c7f83f4e195842f381d3ba59ac6424834cd73870"
+  "pullRequestUpstreamCommit": "faebc136a4fdbab97325edc02f7ec6eece91fa33"
 }

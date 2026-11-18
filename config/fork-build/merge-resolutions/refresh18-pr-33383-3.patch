@@ -1,0 +1,38 @@
+--- a/src/main/runtime/rpc/methods/history/ai-vault.ts
++++ b/src/main/runtime/rpc/methods/history/ai-vault.ts
+@@ -1,5 +1,5 @@
++import { getStructuredAgentSessionHost } from '../../../../native-chat/agent-session-wire/host/structured-agent-session-registry'
+ import { readStructuredConversationJournalPreviews } from '../../../../ai-vault/structured-conversation-journal-preview'
+-import { getStructuredAgentSessionHost } from '../../../../native-chat/agent-session-wire/host/structured-agent-session-registry'
+ import { prepareStructuredChatCliFork } from '../../../../ai-vault/structured-sessions/structured-chat-cli-fork'
+ import { aiVaultOrchestrationChildSessionIds } from '../../../../ai-vault/structured-conversation-navigation'
+ import {
+@@ -108,6 +108,10 @@
+       await ensureStructuredAgentSessionHostUnlessRefused(() =>
+         runtime.ensureStructuredAgentSessionHost()
+       )
++      const selectedSessionId =
++        params.executionHostId && params.selectedSessionId?.startsWith(`${params.executionHostId}:`)
++          ? `${LOCAL_EXECUTION_HOST_ID}:${params.selectedSessionId.slice(params.executionHostId.length + 1)}`
++          : params.selectedSessionId
+       let result
+       try {
+         result = await runtime.listAiVaultSessions(
+@@ -116,6 +120,7 @@
+             unlimited: params.unlimited,
+             force: params.force,
+             scopePaths: params.scopePaths,
++            selectedSessionId,
+             scopeOnly: params.scopeOnly,
+             includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
+           },
+@@ -155,7 +160,8 @@
+         ? truncateAiVaultListResult(
+             projected,
+             requestedAiVaultSessionDepth(params),
+-            params.scopePaths
++            params.scopePaths,
++            selectedSessionId
+           )
+         : projected
+       return conditionalAiVaultListResult(

@@ -1,0 +1,21 @@
+--- a/src/renderer/src/i18n/locales/en.json
++++ b/src/renderer/src/i18n/locales/en.json
+@@ -20858,6 +20858,8 @@
+         "forkedFromUnknown": "Forked from another chat"
+       },
+       "composer": {
++        "defaultModel": "Default",
++        "defaultModelNotReported": "Default model not reported",
+         "send": "Send",
+         "planMode": "Plan",
+         "moreControls": "More chat controls",
+@@ -20983,8 +20985,8 @@
+         "permissionAppliesNextMessage": "{{saved}} applies to your next message; running {{active}}",
+         "modelAndEffortValue": "{{model}} · {{effort}}",
+         "modelAndEffort": "Model and effort",
++        "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+         "nextTurnOptionsLabel": "Next turn: {{options}}",
+-        "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
+         "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
+       },

@@ -1,0 +1,11 @@
+--- a/mobile/src/i18n/locales/ru.json
++++ b/mobile/src/i18n/locales/ru.json
+@@ -451,6 +451,8 @@
+       "permissions": "Разрешения",
+       "permissionsLabel": "Разрешения: {{value}}",
+       "settingsLocked": "Настройки модели станут доступны после завершения текущего ответа.",
++      "searchModels": "Поиск моделей…",
++      "noModelsMatch": "Нет моделей, соответствующих поиску.",
+       "futureMessages": "Настройки применятся к следующим сообщениям.",
+       "workingWithDescription": "Агент работает. {{description}}"
+     },

@@ -1,0 +1,148 @@
+--- a/src/renderer/src/i18n/locales/en.json
++++ b/src/renderer/src/i18n/locales/en.json
+@@ -874,6 +874,13 @@
+       "uiZoom": {
+         "zoomOut": "Zoom out",
+         "zoomIn": "Zoom in"
++      },
++      "holdQuit": {
++        "title": "Hold ⌘Q while agents are working",
++        "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
++        "keyword": {
++          "quit": "quit"
++        }
+       }
+     },
+     "browser": {
+@@ -1188,48 +1195,6 @@
+       "codexRemoveHome": "Orca deletes this account's Codex folder on {{host}}, including its sign-in, MCP logins and any Codex history stored only in that folder. This cannot be undone. If it is selected, the next Codex you start uses System default.",
+       "claudeRemoveProfile": "Orca deletes this account's own Claude folder and the sign-in saved in it on {{host}}. Your System default login and chat history shared with it stay. If it is selected, the next Claude you start uses System default."
+     },
+-    "orchestration": {
+-      "roles": {
+-        "modelsUnavailable": "No models reported by this host.",
+-        "unavailable": "Unavailable",
+-        "notListed": "Not listed",
+-        "checking": "Checking…",
+-        "refreshingModels": "Refreshing models…",
+-        "agent": "Agent",
+-        "unconfigured": "Not configured",
+-        "model": "Model",
+-        "agentDefault": "Agent default",
+-        "effort": "Reasoning effort",
+-        "fast": "Fast",
+-        "on": "On",
+-        "off": "Off",
+-        "title": "Worker roles",
+-        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
+-        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
+-        "clear": "Clear profile",
+-        "new": "Add a role",
+-        "add": "Add",
+-        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
+-        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
+-        "research": "Research",
+-        "implementation": "Implementation",
+-        "review": "Review",
+-        "keyword": {
+-          "role": "role",
+-          "profile": "profile",
+-          "research": "research",
+-          "implementation": "implementation",
+-          "review": "review",
+-          "model": "model",
+-          "effort": "effort",
+-          "fast": "fast",
+-          "provider": "provider"
+-        },
+-        "modelsFailed": "Could not load models.",
+-        "modelErrorDetails": "Details",
+-        "retryModels": "Retry"
+-      }
+-    },
+     "sourceControl": {
+       "gitOperationInAnotherWorkspace": "Git operation running elsewhere",
+       "remoteOperationInAnotherWorkspace": "Another workspace is running a Git operation, such as push, pull, or force push. Wait for it to finish before using this action, so the two operations don't overlap.",
+@@ -1536,14 +1501,6 @@
+       "keywordEndOfFile": "end of file",
+       "62aa3336d9": "Insert final newline"
+     },
+-    "editorEndOfLine": {
+-      "title": "End of line",
+-      "description": "Line ending for new files and files with no line breaks yet. Auto follows the system that runs the file’s workspace: LF for Linux, macOS, and WSL, CRLF for Windows. Files with line breaks keep theirs.",
+-      "keywordLineEnding": "line ending",
+-      "auto": "Auto",
+-      "lf": "LF",
+-      "crlf": "CRLF"
+-    },
+     "repositoryFormatter": {
+       "description": "Use this project’s formatter for Format on Save.",
+       "saveFailed": "Could not save formatter settings.",
+@@ -1659,6 +1616,56 @@
+       },
+       "stepFailed": "Orca could not finish this step.",
+       "finishFailed": "Orca could not do that."
++    },
++    "orchestration": {
++      "roles": {
++        "modelsUnavailable": "No models reported by this host.",
++        "unavailable": "Unavailable",
++        "notListed": "Not listed",
++        "checking": "Checking…",
++        "refreshingModels": "Refreshing models…",
++        "agent": "Agent",
++        "unconfigured": "Not configured",
++        "model": "Model",
++        "agentDefault": "Agent default",
++        "effort": "Reasoning effort",
++        "fast": "Fast",
++        "on": "On",
++        "off": "Off",
++        "title": "Worker roles",
++        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
++        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
++        "clear": "Clear profile",
++        "new": "Add a role",
++        "add": "Add",
++        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
++        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
++        "research": "Research",
++        "implementation": "Implementation",
++        "review": "Review",
++        "keyword": {
++          "role": "role",
++          "profile": "profile",
++          "research": "research",
++          "implementation": "implementation",
++          "review": "review",
++          "model": "model",
++          "effort": "effort",
++          "fast": "fast",
++          "provider": "provider"
++        },
++        "modelsFailed": "Could not load models.",
++        "modelErrorDetails": "Details",
++        "retryModels": "Retry"
++      }
++    },
++    "editorEndOfLine": {
++      "title": "End of line",
++      "description": "Line ending for new files and files with no line breaks yet. Auto follows the system that runs the file’s workspace: LF for Linux, macOS, and WSL, CRLF for Windows. Files with line breaks keep theirs.",
++      "keywordLineEnding": "line ending",
++      "auto": "Auto",
++      "lf": "LF",
++      "crlf": "CRLF"
+     }
+   },
+   "menu": {
+@@ -26436,6 +26443,10 @@
+     "browseOnline": "Browse",
+     "browseOnlineLabel": "Browse community translations on orca.dev (opens in your browser)"
+   },
++  "holdQuit": {
++    "hint": "Agents are still working. Hold ⌘Q to quit.",
++    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
++  },
+   "projectConversations": {
+     "defaultGroupName": "{{project}} group",
+     "hideProject": "Hide project from list",
