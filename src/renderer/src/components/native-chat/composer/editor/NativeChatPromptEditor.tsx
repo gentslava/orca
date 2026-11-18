@@ -36,7 +36,6 @@ import type {
   NativeChatComposerInput,
   NativeChatPromptEditorProps
 } from './native-chat-composer-input'
-import { NativeChatImageRowProvider } from './NativeChatImageReferencePill'
 import { focusMountedNativeChatEditor, mountedEditorView } from './native-chat-mounted-editor-view'
 import { NativeChatUnkernedRunDecorations } from './native-chat-unkerned-run-decorations'
 import { NativeChatHardBreakParagraphs } from './native-chat-hard-break-paragraphs'
@@ -45,7 +44,6 @@ import { useNativeChatComposerMount } from '../focus/native-chat-composer-mount'
 import { useNativeChatPromptEditorHandle } from '../../native-chat-prompt-editor-handle'
 import { useAppStore } from '@/store'
 
-const NO_IMAGES: readonly string[] = []
 const NOT_COMPOSING = (): boolean => false
 
 // `initialValue` only seeds the editor at mount; keep the other props referentially stable or this memo stops helping.
@@ -58,7 +56,7 @@ export const NativeChatPromptEditor = memo(
 function NativePromptEditor({
   scopeKey,
   positionTarget,
-  imageRow = NO_IMAGES,
+  imageRow: _imageRow,
   inputRef,
   isComposing = NOT_COMPOSING,
   initialValue,
@@ -102,7 +100,7 @@ function NativePromptEditor({
         trailingNode: false
       }),
       NativeChatAgentReference,
-      ...nativeChatPromptPills,
+      ...nativeChatPromptPills.filter((pill) => pill.name !== NativeChatImageReference.name),
       NativeChatUnkernedRunDecorations,
       NativeChatHardBreakParagraphs,
       // A disabled box still says why it is disabled, as the plain text box's placeholder does.
@@ -359,24 +357,6 @@ function NativePromptEditor({
               editor.view.dispatch(closeHistory(editor.state.tr))
             },
             insertMention: (from, to, token) => insertPromptMention(editor, from, to, token),
-            removeImageReferences: (attachmentId) => {
-              const { tr } = editor.state
-              editor.state.doc.descendants((node, position) => {
-                if (
-                  node.type.name === NativeChatImageReference.name &&
-                  node.attrs.attachmentId === attachmentId
-                ) {
-                  // With the space inserted after it, so no gap is left where it sat.
-                  const from = tr.mapping.map(position)
-                  const to = from + node.nodeSize
-                  tr.delete(from, tr.doc.textBetween(to, to + 1) === ' ' ? to + 1 : to)
-                }
-              })
-              // Undo must not bring back a chip whose image is gone.
-              if (tr.docChanged) {
-                editor.view.dispatch(tr.setMeta('addToHistory', false))
-              }
-            },
             stagePastedText: (token) => {
               const pill = { type: NativeChatFileReference.name, attrs: { token } }
               editor.view.dispatch(closeHistory(editor.state.tr))
@@ -400,15 +380,13 @@ function NativePromptEditor({
 
   return (
     <NativeChatPastedTextScopeProvider value={scopeKey ?? ''}>
-      <NativeChatImageRowProvider value={imageRow}>
-        <EditorContent
-          editor={editor}
-          {...events}
-          onCompositionStartCapture={claimSelection}
-          data-disabled={disabled || undefined}
-          className="data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
-        />
-      </NativeChatImageRowProvider>
+      <EditorContent
+        editor={editor}
+        {...events}
+        onCompositionStartCapture={claimSelection}
+        data-disabled={disabled || undefined}
+        className="data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+      />
     </NativeChatPastedTextScopeProvider>
   )
 }
