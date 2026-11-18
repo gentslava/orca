@@ -2,6 +2,7 @@
 // except rename and close, which also admit rename-only and close-only clients.
 // Legacy tab restore may still install the host for fallback rows; that never admits agentSession calls.
 
+import { assertBotGroupSessionAccess } from '../../../../../bots/bot-group-session-access'
 import { agentSessionRefusalError } from '../../../../../../shared/agent-session/failures/agent-session-wire-refusals'
 import {
   AGENT_SESSION_CLOSE_ONLY_CLIENT_CAPABILITY,
@@ -62,8 +63,10 @@ export function requireStructuredHost(ctx: RpcContext, agent?: string): Structur
 
 export function requireStructuredSessionHost(
   ctx: RpcContext,
-  sessionId: string
+  sessionId: string,
+  readOnly = false
 ): StructuredAgentSessionHost {
+  assertBotGroupSessionAccess(ctx.runtime, sessionId, ctx.caller, readOnly)
   const host = requireStructuredHost(ctx)
   requireStructuredAgentAudience(ctx, host.sessionAgent(sessionId) ?? '')
   return host
@@ -129,10 +132,13 @@ export async function ensureStructuredHostInstalled(
 /** The host for a read, built first when this process has none: the read RPCs share this one. */
 export async function requireInstalledStructuredHost(
   ctx: RpcContext,
-  sessionId?: string
+  sessionId?: string,
+  readOnly = false
 ): Promise<StructuredAgentSessionHost> {
   await ensureStructuredHostInstalled(ctx)
-  return sessionId ? requireStructuredSessionHost(ctx, sessionId) : requireStructuredHost(ctx)
+  return sessionId
+    ? requireStructuredSessionHost(ctx, sessionId, readOnly)
+    : requireStructuredHost(ctx)
 }
 
 /** Naming reads no journal, so a client that asked only to rename chats (the paired CLI) may. */
