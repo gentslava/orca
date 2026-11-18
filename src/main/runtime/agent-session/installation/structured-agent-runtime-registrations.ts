@@ -13,6 +13,7 @@ import { agentModelCatalogStore } from '../../../native-chat/agent-model-catalog
 import { agentSessionAttachmentStoreRoot } from '../../../native-chat/agent-session-attachments/agent-session-attachment-references'
 import { journalSqlReads } from '../../../native-chat/agent-session-journal/journal-sql-reads'
 import { createStructuredClaudeRuntimeAdapter } from './structured-claude-runtime-adapter'
+import { claudeAtRestDiscovery, codexAtRestSkillRoots } from './structured-agent-at-rest-discovery'
 import {
   acpAgentModelDiscoveries,
   acpListingNeedsChatFolder
@@ -68,7 +69,8 @@ function createCodexAdapter(context: StructuredAgentAdapterContext): StructuredA
       ...providerInvocation,
       ...(deps.prepareCodexCatalogProbeHome
         ? { prepareHome: deps.prepareCodexCatalogProbeHome }
-        : {})
+        : {}),
+      skillRoots: codexAtRestSkillRoots(deps)
     }),
     resolveLaunch: withSupportedCodexCli(
       composeStructuredLaunch(
@@ -146,6 +148,7 @@ function createClaudeAdapter(
     ...(overlay ? { resolveClaudeLaunchEnv: overlay } : {}),
     resolveClaudeInheritedEnv: context.environment.resolveBaseEnvironment,
     atRestCommandProbe: createClaudeCommandCatalogProbe(claudeListingDeps(context)),
+    atRestDiscovery: claudeAtRestDiscovery(deps),
     onLifecycleEvent: context.deliverLifecycle,
     logger: deps.logger,
     onChildWorkEvidence: (sessionId, evidence, producer) =>

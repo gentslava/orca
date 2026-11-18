@@ -4,7 +4,7 @@ import {
   type AgyOutputFailure
 } from '../../../antigravity/agy-signed-out-output'
 import { stripTerminalControl } from '../../../../shared/terminal/protocol/escape/terminal-control-stripping'
-import { redactString } from '../../../observability/redactor'
+import { redactString } from '../../../../shared/observability/redactor'
 
 const AGY_MESSAGE_MAX_LENGTH = 160
 // Start at a boundary to avoid quadratic retries inside long, unbroken diagnostics.
