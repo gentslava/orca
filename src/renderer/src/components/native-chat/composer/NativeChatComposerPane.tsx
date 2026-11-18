@@ -1,14 +1,14 @@
+import { useNativeChatComposerTarget } from './submit/native-chat-composer-target'
 import { useNativeChatComposerEditSession } from '../queue/editing/use-native-chat-composer-edit-session'
 import { useNativeChatComposerNotice } from './controls/use-native-chat-composer-notice'
 import { useNativeChatMobileHoldNotice } from '../host-access/use-native-chat-mobile-hold-notice'
-import { forwardRef, useCallback, useState, useRef } from 'react'
+import { forwardRef, useState, useRef } from 'react'
 import { useNativeChatComposerInterrupt } from './submit/use-native-chat-composer-interrupt'
 import { useNativeChatContextUsageSummary } from '../usage/use-native-chat-context-usage-summary'
 import { useNativeChatMentionFiles } from './pickers/use-native-chat-mention-files'
-import { useNativeChatDraft } from '../drafts/use-native-chat-draft'
+import { useNativeChatComposerDraftSession } from './editor/use-native-chat-composer-draft-session'
 import { useNativeChatDraftEvents } from './editor/use-native-chat-draft-events'
 import { useNativeChatComposerRecall } from '../drafts/use-native-chat-composer-recall'
-import { useNativeChatLaunchDraftAdoption } from '../drafts/use-native-chat-launch-draft-adoption'
 import { NativeChatComposerWorkspace } from './controls/NativeChatComposerWorkspace'
 import { NativeChatComposerField } from './editor/NativeChatComposerField'
 import { useNativeChatComposerAttachments } from '../attachments/chips/use-native-chat-composer-attachments'
@@ -57,6 +57,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       launchSeed,
       structuredTransport,
       steerHead,
+      steerLast,
       recallSource,
       inputOwnedByCard = false,
       notices: chatNotices,
@@ -67,17 +68,12 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
   ): React.JSX.Element {
     // Own drafts and attachments by pane/conversation so reconnect PTY replacement and UI mode changes cannot discard unsent input.
     const imeEnterGesture = useImeEnterGestureOwnership()
-    const draftState = useNativeChatDraft(draftScopeKey, imeEnterGesture.isComposing)
+    const { draftState, caret, setCaret } = useNativeChatComposerDraftSession(
+      draftScopeKey,
+      imeEnterGesture.isComposing,
+      { terminalTabId, agent, launchSeed }
+    )
     const { draft, setDraft, flushDraftAppends } = draftState
-    const [caret, setCaret] = useState(draft.length)
-    useNativeChatLaunchDraftAdoption({
-      terminalTabId,
-      agent,
-      launchSeed,
-      draft,
-      setDraft,
-      setCaret
-    })
     const [activeSuggestion, setActiveSuggestion] = useState(0)
     const holdNotice = useNativeChatMobileHoldNotice(
       structuredTransport ? null : targetPtyId,
@@ -134,10 +130,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       structuredWorktreeId: structuredTransport?.worktreeId
     })
 
-    const resolveTarget = useCallback(
-      () => (targetPtyId ? { ptyId: targetPtyId } : null),
-      [targetPtyId]
-    )
+    const resolveTarget = useNativeChatComposerTarget(targetPtyId)
 
     const attachments = useNativeChatComposerAttachments({
       attachmentScopeKey: draftScopeKey,
@@ -333,15 +326,22 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       interrupt: editSession?.cancel ?? interrupt,
       send,
       hasAttachments: imageAttachments.length > 0,
-      ...(!editSession && steerHead ? { steerHead } : {}),
-      chordSteersHead: sendButton.chordSteersHead,
+      ...(!editSession && !disabled ? { steerHead, steerLast } : {}),
+      chordSteersQueued: sendButton.chordSteersQueued,
+      sendHeld,
       setActiveSuggestion: picker.navigateSuggestion,
       setDraft,
       setCaret
     })
 
     const pickerOpen = autocomplete.mode !== 'none'
-    const steerChord = useNativeChatSteerChordPreview(root, sendButton, steerHead, send, pickerOpen)
+    const steerChord = useNativeChatSteerChordPreview(
+      root,
+      { ...sendButton, sendHeld },
+      steerLast,
+      send,
+      pickerOpen
+    )
 
     const draftEvents = useNativeChatDraftEvents({
       draft,
@@ -405,11 +405,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
           launchPrompt={launchPrompt}
           workspaceFooter={
             !editSession && !launchPrompt ? (
-              <NativeChatComposerWorkspace
-                terminalTabId={terminalTabId}
-                structuredTransport={structuredTransport}
-                isWorking={isWorking}
-              />
+              <NativeChatComposerWorkspace {...{ terminalTabId, structuredTransport, isWorking }} />
             ) : undefined
           }
           {...fieldOverrides}
