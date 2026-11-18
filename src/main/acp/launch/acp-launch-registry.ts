@@ -13,11 +13,12 @@ import {
 } from '../../opencode/model-launch/opencode-model-catalog-listing'
 
 import { agentSessionSetupFor } from '../../../shared/agent-session/lifecycle/launch/agent-session-setup-commands'
+import { loadGrokSkillRoots, loadOmpSkillRoots, loadOpenCodeSkillRoots } from './acp-skill-roots'
 import {
-  loadGrokVisualsSkill,
-  loadOmpVisualsSkill,
-  loadOpenCodeVisualsSkill
-} from './acp-visuals-skill'
+  deliverGrokInstructions,
+  deliverOmpInstructions,
+  deliverOpenCodeInstructions
+} from './acp-instructions'
 
 import { GROK_SESSION_HISTORY } from '../../grok/grok-session-history'
 import { GROK_TRANSCRIPT_IMPORT } from '../../grok/grok-transcript-import'
@@ -37,10 +38,10 @@ import { GEMINI_ACP_LAUNCH_SPEC } from '../../gemini/gemini-acp-launch-spec'
 const GROK_LAUNCH_SPEC: AcpLaunchSpec = {
   agent: 'grok',
   command: 'grok',
-  args: ({ fullAccess, pluginDir }) => [
+  args: ({ fullAccess, pluginDirs }) => [
     'agent',
     ...(fullAccess ? ['--always-approve'] : []),
-    ...(pluginDir ? ['--plugin-dir', pluginDir] : []),
+    ...pluginDirs.flatMap((dir) => ['--plugin-dir', dir]),
     'stdio'
   ],
   env: {},
@@ -62,7 +63,8 @@ const GROK_LAUNCH_SPEC: AcpLaunchSpec = {
     read: readGrokModelCatalog,
     listingNamesConfiguredModel: false
   },
-  visualsSkill: loadGrokVisualsSkill,
+  skillRoots: loadGrokSkillRoots,
+  instructions: deliverGrokInstructions,
   compaction: true,
   transcriptImport: GROK_TRANSCRIPT_IMPORT,
   sessionHistory: GROK_SESSION_HISTORY
@@ -87,7 +89,8 @@ function openCodeLaunchSpec(
     loginCommand: agentSessionSetupFor(row.agent)?.loginCommand ?? [],
     account: openCodeAcpAccountBinding(),
     installDirectories: ({ homePath }) => [join(homePath, '.opencode', 'bin')],
-    visualsSkill: loadOpenCodeVisualsSkill,
+    skillRoots: loadOpenCodeSkillRoots,
+    instructions: deliverOpenCodeInstructions,
     compaction: true,
     assertCopyLaunchArgs: assertOpenCodeCopyUsesLocalStore,
     transcriptImport: OPENCODE_TRANSCRIPT_IMPORT,
@@ -123,9 +126,9 @@ const OMP_LAUNCH_SPEC: AcpLaunchSpec = {
   agent: 'omp',
   command: 'omp',
   // Full access approves permission requests individually.
-  args: ({ pluginDir, model }) => [
+  args: ({ pluginDirs, model }) => [
     'acp',
-    ...(pluginDir ? ['--plugin-dir', pluginDir] : []),
+    ...pluginDirs.flatMap((dir) => ['--plugin-dir', dir]),
     ...(model ? ['--model', model] : [])
   ],
   // ACP takes listed provider/id values only; the CLI also resolves roles, fallbacks and :level.
@@ -147,7 +150,8 @@ const OMP_LAUNCH_SPEC: AcpLaunchSpec = {
     listingNamesConfiguredModel: false,
     sessionFolderArgs: (folder) => ['--session-dir', folder]
   },
-  visualsSkill: loadOmpVisualsSkill,
+  skillRoots: loadOmpSkillRoots,
+  instructions: deliverOmpInstructions,
   compaction: true,
   compactionInstructions: true,
   transcriptImport: OMP_TRANSCRIPT_IMPORT,
