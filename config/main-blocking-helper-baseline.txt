@@ -890,7 +890,7 @@
 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
 5 src/main/orcad/account-launch/orcad-account-services.ts
 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts

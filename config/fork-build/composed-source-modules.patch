@@ -1157,3 +1157,29 @@ index da37b7bbaf3..4eba41af69a 100644
    featureReadiness.open('accounts')
  
    const { installOrcadSessionSearchService } = await import('./host-runtime/orcad-session-search')
+diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
+index b920410fbc3..a6e47a42a88 100644
+--- a/config/main-blocking-helper-baseline.txt
++++ b/config/main-blocking-helper-baseline.txt
+@@ -890,7 +890,7 @@
+ 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
+ 5 src/main/orcad/account-launch/orcad-account-services.ts
+ 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
+-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
++3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+ 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+ 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
+ 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
+diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
+index 47023b18bbd..d038325fb9b 100644
+--- a/config/main-sync-fs-baseline.txt
++++ b/config/main-sync-fs-baseline.txt
+@@ -328,7 +328,7 @@
+ 4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
+ 2 src/main/orca-profiles/storage/new-profile-state.ts
+ 5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
+-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
++3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+ 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+ 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
+ 2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
