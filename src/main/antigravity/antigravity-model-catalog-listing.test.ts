@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseAntigravityModelCatalogListing } from './antigravity-model-catalog-listing'
+import { parseAgyModelListing } from './antigravity-model-listing'
 
 const AGY_V1_5_4_MODELS_STDOUT = [
   '\r\u001b[2K⠋ Fetching available models...\r',
@@ -27,9 +27,9 @@ const THREE_EFFORTS = [
   { value: 'high', label: 'High' }
 ]
 
-describe('parseAntigravityModelCatalogListing', () => {
+describe('parseAgyModelListing', () => {
   it('folds multi-effort families into canonical ACP models while keeping single-variant models literal', () => {
-    expect(parseAntigravityModelCatalogListing(AGY_V1_5_4_MODELS_STDOUT)).toEqual([
+    expect(parseAgyModelListing(AGY_V1_5_4_MODELS_STDOUT)).toEqual([
       {
         id: 'gemini-4-carbon',
         label: 'Gemini 4 Carbon',
@@ -64,7 +64,8 @@ describe('parseAntigravityModelCatalogListing', () => {
         id: 'gpt-oss-120b-medium',
         label: 'GPT-OSS 120B (Medium)',
         isDefault: false,
-        efforts: []
+        efforts: [],
+        effortsKnown: false
       }
     ])
   })

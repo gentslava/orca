@@ -85,6 +85,24 @@ describe('expanded tool input drawn once', () => {
 })
 
 describe('expanded tool invocation', () => {
+  it('opens and closes the invocation of a completed command with no output', () => {
+    const command = 'printf silent_0'
+    const { container } = render(
+      <NativeChatToolLine
+        block={{ type: 'tool-call', name: 'Bash', state: 'completed', input: { command } }}
+        result={{ type: 'tool-result', output: '' }}
+      />
+    )
+    const toggle = screen.getByRole('button', { name: /printf silent_0$/ })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(container.querySelector('[data-native-chat-tool-invocation]')).toHaveTextContent('Bash')
+    expect(container.querySelector('pre[data-native-chat-code-content]')).toHaveTextContent(command)
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  })
+
   it('exposes the exact tool and all input fields separately from its result', () => {
     const input = { cmd: "printf '%s' hello", workdir: '/repo', timeout_ms: 10000 }
     const { container } = render(

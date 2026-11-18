@@ -23,5 +23,6 @@
   "src/main/ipc/filesystem/watcher-process/parcel-watcher-process-entry.ts": "Dedicated utility/child-process entry; blocking work stays off Electron main.",
   "src/main/orcad/orcad-local-serve-selection-entry.ts": "Dedicated utility/child-process entry; blocking work stays off Electron main.",
   "src/main/native-chat/agent-session-journal/journal-sql-reader-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
-  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main."
+  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
+  "src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts": "Dedicated utility process entry; the Electron child and its SQLite reader thread do not run on the main event loop."
 }

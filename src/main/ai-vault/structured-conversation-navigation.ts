@@ -1,6 +1,6 @@
 import type { AgentSessionRecord } from '../../shared/agent-session/lifecycle/agent-session-record'
 import { agentSessionConversationView } from '../../shared/agent-session/lifecycle/leases/agent-session-conversation-view'
-import { defaultAgentChatLabel } from '../../shared/agent-session/agent-session-chat-label'
+import { defaultAgentChatLabel } from '../../shared/agent-session/conversation-naming/agent-session-chat-label'
 import {
   isAiVaultAgent,
   isAiVaultSessionResumableContent,
@@ -30,12 +30,7 @@ export function boundedAiVaultConversationList(
   args?: AiVaultListArgs
 ): AiVaultListResult {
   return conditionalAiVaultListResult(
-    truncateAiVaultListResult(
-      result,
-      requestedAiVaultSessionDepth(args),
-      args?.scopePaths,
-      args?.selectedSessionId
-    ),
+    truncateAiVaultListResult(result, requestedAiVaultSessionDepth(args), args?.scopePaths),
     null
   )
 }

@@ -1,6 +1,6 @@
-import type { PersonalProjectOrder } from '../personal-project-order'
 import type { ConversationPreferences } from '../conversation-navigation-preferences'
 import type { GitHistoryRefs } from '../git/history/git-history-types'
+import type { PersonalProjectOrder } from '../personal-project-order'
 import type { JiraQuickFilterState } from '../jira/jira-quick-filters'
 import type { BrowserDevToolsDockLayout } from '../browser/devtools/browser-devtools-dock'
 import type { JiraSavedFilterState } from '../jira/jira-saved-filters'
@@ -154,6 +154,8 @@ export type PersistedUIState = {
   _zcodeStatusBarDefaultAdded?: boolean
   /** One-shot migration flag for adding the default-on Muse status item. */
   _museStatusBarDefaultAdded?: boolean
+  /** One-shot migration flag for adding the default-on Git blame status item. */
+  _gitBlameStatusBarDefaultAdded?: boolean
   statusBarItems: StatusBarItem[]
   statusBarVisible: boolean
   /** Why: this is client-side presentation, not a provider/account or execution-host setting. */
@@ -231,6 +233,8 @@ export type PersistedUIState = {
   browserKagiSessionLink?: string | null
   /** Side and size of DevTools docked in a browser pane; one choice for every page, like Chrome. */
   browserDevToolsDock?: BrowserDevToolsDockLayout
+  /** Width of extension side panels, in CSS px; one width for every extension, like Chrome. */
+  browserExtensionSidePanelWidth?: number
   /** Saved window bounds so the app restores last position/size instead of maximizing each launch. */
   windowBounds?: { x: number; y: number; width: number; height: number } | null
   /** Whether the window was maximized when it was last closed. */
@@ -265,6 +269,10 @@ export type PersistedUIState = {
   starNagAgentValueMomentAppVersion?: string | null
   trustedOrcaHooks?: PersistedTrustedOrcaHooks
   setupScriptPromptDismissedRepoIds?: string[]
+  /** Collapses the sidebar's "Moved to WSL host" list to its header. Desktop-only. */
+  wslMovedSectionCollapsed?: boolean
+  /** Moved-project entries the user hid from that list (`wslMovedProjectKey`); dropped once the project is no longer moved. */
+  hiddenWslMovedProjectKeys?: string[]
   /** Pet overlay visibility, separate from the experimentalPet settings flag so "Hide pet" is a reversible dismiss; absent = true. */
   petVisible?: boolean
   /** Active pet id (bundled id or custom UUID); unknown ids fall back to the default on read so a removed custom pet doesn't blank the overlay. */

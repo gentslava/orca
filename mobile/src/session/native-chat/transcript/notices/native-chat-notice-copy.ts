@@ -1,7 +1,7 @@
 import type { NativeChatTextBlock } from '../../../../../../src/shared/native-chat/native-chat-types'
 import { readWholeAgentSessionFailureFact } from '../../../../../../src/shared/agent-session/failures/agent-session-failure'
 import { agentSessionFailureSentence } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-words'
-import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/native-chat-orca-stop-words'
+import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/transcript/continuation/native-chat-orca-stop-words'
 import type { MobileNativeChatNoticeView } from './mobile-native-chat-notice-context'
 import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
 import { nativeChatRestartNoteText } from './native-chat-restart-note-copy'

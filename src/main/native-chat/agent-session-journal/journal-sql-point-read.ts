@@ -86,6 +86,7 @@ function read(
       }
     case 'naming-prompt':
     case 'automation-run':
+    case 'first-submitted-prompt':
       return readJournalDomainConsumer(scope, operation)
     case 'history-source-items':
       return {

@@ -11,7 +11,7 @@ import TabBar from '../tab-bar/TabBar'
 import { TabBarQuickCommandsButton } from '../tab-bar/quick-commands/TabBarQuickCommandsButton'
 import { TabGroupPaneActionsMenu } from './panel/TabGroupPaneActionsMenu'
 import { useTabGroupWorkspaceModel } from './workspace-model/useTabGroupWorkspaceModel'
-import { closeTerminalTab } from '../terminal/terminal-tab-actions'
+import { closeTerminalTab } from '../terminal/tab-lifecycle/terminal-tab-actions'
 import {
   resolveGroupTabFromVisibleId,
   runGroupTabCommand

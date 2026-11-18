@@ -6,13 +6,13 @@ import { agentSessionRefusalError } from '../../../../../../shared/agent-session
 import {
   AGENT_SESSION_CLOSE_ONLY_CLIENT_CAPABILITY,
   AGENT_SESSION_RENAME_ONLY_CLIENT_CAPABILITY
-} from '../../../../../../shared/agent-session/structured-agent-session-surface-capabilities'
+} from '../../../../../../shared/agent-session/capabilities/structured-agent-session-surface-capabilities'
 import { getStructuredAgentSessionHost } from '../../../../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import type { StructuredAgentSessionHost } from '../../../../../native-chat/agent-session-wire/host/structured-agent-session-host'
 import type { StructuredAgentSessionCaller } from '../../../../../native-chat/agent-session-wire/host/structured-agent-session-host-types'
 import type { RpcContext } from '../../../core'
 import { rpcCallerOperationKey } from '../../../callers/rpc-caller-identity'
-import { structuredAgentSessionHostRefusal } from '../../../../agent-session/structured-agent-session-host-refusal'
+import { structuredAgentSessionHostRefusal } from '../../../../agent-session/installation/structured-agent-session-host-refusal'
 import {
   createSupportFollowsHostSetting,
   clientReadsStructuredSessionAgent,

@@ -92,16 +92,12 @@ export function useOwnerUsageRateLimits(
 
   const applySnapshot = useCallback(
     (owner: string | null, snapshot: ProviderAccountsSnapshot) => {
-      if (snapshot.rateLimits) {
-        apply({ ownerId: owner, snapshot, failure: null })
-      } else {
-        // Why: a host that predates published usage answers without it; say so, never spin.
-        apply({
-          ownerId: owner,
-          snapshot,
-          failure: 'usage-not-published'
-        })
-      }
+      // Why: a host that predates published usage answers without it; say so, never spin, and keep its roster.
+      apply({
+        ownerId: owner,
+        snapshot,
+        failure: snapshot.rateLimits ? null : 'usage-not-published'
+      })
     },
     [apply]
   )

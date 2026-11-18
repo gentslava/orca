@@ -1,7 +1,7 @@
 import type { StructuredAgentSessionSendControl } from '../../../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
 import type { StructuredAgentSessionComposerOptions } from '../../../../../src/shared/agent-session/view/structured-agent-session-composer'
 import type { AgentSessionSlashCommand } from '../../../../../src/shared/agent-session/agent-session-wire'
-import type { StructuredAgentSessionState } from '../../../../../src/shared/agent-session/structured-agent-session-reducer'
+import type { StructuredAgentSessionState } from '../../../../../src/shared/agent-session/view/live-read/structured-agent-session-reducer'
 import type { RpcClient } from '../../../transport/rpc/rpc-client-contract'
 import type { MobileNativeChatSendErrorReporter } from './delivery/use-mobile-native-chat-send-error'
 import type { MobileStructuredSends } from './delivery/use-mobile-structured-sends'

@@ -7,11 +7,11 @@ import {
   AGENT_SESSION_FAILURE_KINDS,
   type AgentSessionFailureKind
 } from './agent-session-failure-kinds'
-import type { AgentSessionAccountKind } from '../agent-session-availability'
+import type { AgentSessionAccountKind } from './agent-session-availability'
 import {
   readAgentSessionArgumentProblem,
   type AgentSessionArgumentProblem
-} from '../agent-session-argument-problem'
+} from './agent-session-argument-problem'
 import {
   readAgentSessionUsageLimit,
   type AgentSessionUsageLimit
@@ -19,7 +19,7 @@ import {
 import {
   readAgentSessionRequestTimeout,
   type AgentSessionRequestTimeout
-} from '../agent-session-request-timeout'
+} from './agent-session-request-timeout'
 import { structuralValuesEqualIgnoringUndefined } from '../../collections/structural-value-equality'
 import {
   readAgentSessionRefusalReference,

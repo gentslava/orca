@@ -30,7 +30,6 @@ import { NativeChatExpandable } from '../../messages/disclosure/NativeChatExpand
 import { useNativeChatDisclosure } from '../../messages/disclosure/native-chat-disclosure-store'
 import { NativeChatToolOutput } from './NativeChatToolOutput'
 import { NativeChatToolInvocation } from '../../NativeChatToolInvocation'
-import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
 
 const TARGET_CLASS =
   'min-w-0 text-chat-foreground transition-colors group-hover/tool-line:text-chat-foreground-strong'
@@ -85,6 +84,8 @@ function ToolLineDetail({
 }
 
 /** A tool sentence with its output behind its own remembered disclosure. */
+
+import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
 export function NativeChatToolLine({
   block,
   result,
@@ -166,13 +167,10 @@ export function NativeChatToolLine({
             <NativeChatToolFileTarget
               path={label.filePath}
               label={label.target}
-              className={cn(TARGET_CLASS, 'truncate')}
+              className={TARGET_CLASS}
             />
           ) : (label?.target ?? resultPreview) ? (
-            <span
-              className={cn(TARGET_CLASS, expanded ? 'whitespace-normal break-words' : 'truncate')}
-              title={label?.title ?? resultPreview}
-            >
+            <span className={TARGET_CLASS} title={label?.title ?? resultPreview}>
               {label?.target ?? resultPreview}
             </span>
           ) : null}

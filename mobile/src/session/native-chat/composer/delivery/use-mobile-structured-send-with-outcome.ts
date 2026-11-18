@@ -7,7 +7,7 @@ import { mobileStructuredAgentSessionWorking } from '../../agent-session/mobile-
 import { structuredSessionBackgroundTasksView } from '../../../../../../src/shared/agent-session/view/structured-session-background-tasks-view'
 import { agentSessionVisibleFailureFacts } from '../../../../../../src/shared/agent-session/failures/agent-session-visible-failures'
 import { tuiAgentDisplayName } from '../../../../../../src/shared/agent-launch/catalog/tui-agent-display-names'
-import { pendingPromptsAllUnanswerableHere } from '../../../../../../src/shared/agent-session/agent-session-approval-subject'
+import { pendingPromptsAllUnanswerableHere } from '../../../../../../src/shared/agent-session/requests/prompts/agent-session-approval-subject'
 import {
   SkillRefLimitError,
   structuredAgentSessionSendBody,

@@ -3,7 +3,7 @@
 import type {
   AgentSessionBackgroundTask,
   AgentSessionBackgroundTaskState
-} from '../agent-session-background-task-wire'
+} from '../background-tasks/agent-session-background-task-wire'
 import { isLiveChildWork } from '../../agent-status/child-work/agent-status-child-work-liveness'
 import type { AgentChildWorkView } from '../../agent-status/child-work/agent-status-child-work-view'
 import type { AgentSessionForegroundTask } from '../agent-session-foreground-task'
@@ -63,10 +63,7 @@ export function structuredSessionBackgroundTasksView(
     Boolean(backgroundTasks?.children?.length || backgroundTasks?.tasks?.length)
   const incomplete = monitoring && backgroundTasks.incomplete === true
   const onlyEarlyCalls =
-    Boolean(backgroundTasks?.foregroundTasks?.length) &&
-    children?.length === 0 &&
-    !tasks.length &&
-    !settledTasks.length
+    Boolean(backgroundTasks?.foregroundTasks?.length) && children?.length === 0 && !tasks.length
   const show = monitoring && (incomplete || (!onlyForeground && !onlyEarlyCalls))
   // Commands and rewind follow the listed records, as the host's own admission does.
   const liveWork = children

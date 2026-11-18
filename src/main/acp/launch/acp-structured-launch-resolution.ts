@@ -34,10 +34,20 @@ import type { AcpLaunchSpec } from './acp-launch-contract'
 import { acpLaunchSpecForAccount, resolveAcpLaunchCommand } from './acp-launch-command'
 import {
   nothingExchangedOn,
-  type AcpSavedSessionReads
-} from '../session/acp-structured-resume-history'
+  type SavedProviderTurnReads
+} from '../../native-chat/agent-session-journal/journal-provider-turn-saved'
 import { AgentSessionPreSpawnError } from '../../native-chat/agent-session-wire/providers/structured-agent-session-adapter-errors'
 import { loadAcpVisualsSkill, type AcpLaunchVisualsDeps } from './acp-structured-launch-visuals'
+import { withoutCallerIdentity } from '../../runtime/agent-session/environment/structured-session-child-env'
+
+/** The environment a launch's process gets; see `AcpLaunchSpec.sharedToolProcess`. */
+export function acpProcessEnvironment(
+  launch: Pick<AcpStructuredLaunch, 'spec' | 'env' | 'envToDelete'>
+): { env: Record<string, string>; envToDelete: string[] } {
+  return launch.spec.sharedToolProcess
+    ? withoutCallerIdentity(launch.env, launch.envToDelete)
+    : { env: launch.env, envToDelete: launch.envToDelete }
+}
 
 export type AcpStructuredLaunch = StructuredAgentCommand & {
   spec: AcpLaunchSpec
@@ -63,7 +73,7 @@ export type AcpStructuredLaunch = StructuredAgentCommand & {
 }
 
 export type AcpStructuredLaunchPartDeps = {
-  savedSession: AcpSavedSessionReads
+  savedSession: SavedProviderTurnReads
   resolveCommand?: typeof resolveCliCommand
   homePath?: string
   inheritedEnv?: NodeJS.ProcessEnv

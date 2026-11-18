@@ -1,5 +1,5 @@
-import type { HoldQuitSettings } from '../mac-hold-quit'
 import type { WorkerRoleSettings } from '../orchestration-worker-roles'
+import type { HoldQuitSettings } from '../mac-hold-quit'
 import type { AntigravityChatAuthSettings } from '../agent-accounts/antigravity/antigravity-chat-auth-config'
 import type { EmulatorOpeningSettings } from '../emulator/emulator-opening-preferences'
 import type { BrowserExtensionGlobalSettings } from '../browser/extensions/browser-extension-settings'
@@ -10,8 +10,8 @@ import type { BrowserPasswordsGlobalSettings } from '../browser/passwords/browse
 import type { BrowserMemorySaverGlobalSettings } from '../browser/guest-lifecycle/browser-memory-saver'
 import type { ClaudeAccountSwitchSettings } from '../agent-accounts/claude/claude-account-switch-settings'
 import type { ExternalConversationSettings } from '../connectors/external-conversation-settings'
-import type { NativeChatGlobalSettings } from '../native-chat/native-chat-appearance-settings'
-import type { NativeChatIdleStopSettings } from '../native-chat/native-chat-idle-stop'
+import type { NativeChatGlobalSettings } from '../native-chat/settings/native-chat-appearance-settings'
+import type { NativeChatIdleStopSettings } from '../native-chat/settings/native-chat-idle-stop'
 import type { EditorTypographySettings } from '../editor/appearance/editor-typography-settings-types'
 import type { PluginAppearanceSettings } from '../plugins/appearance/plugin-appearance-settings-types'
 import type { PluginFileTypeSuggestionSettings } from '../plugins/contributions/plugin-file-type'
@@ -46,8 +46,8 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
   AgentPermissionGlobalSettings &
   ExternalConversationSettings &
   BrowserLinkOpeningSettings &
-  HoldQuitSettings &
   WorkerRoleSettings &
+  HoldQuitSettings &
   BrowserExtensionGlobalSettings &
   PluginAppearanceSettings &
   EditorTypographySettings &

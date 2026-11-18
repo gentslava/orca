@@ -80,17 +80,20 @@ export function acpModelCatalogDiscovery(
   spec: AcpLaunchSpec,
   { deps, environment }: StructuredAgentModelCatalogContext
 ): AgentModelCatalogDiscovery {
-  if (
-    spec.modelDiscovery.kind === 'unavailable' &&
-    (!spec.hostBackend || spec.hostBackend.spec.modelDiscovery.kind === 'unavailable')
-  ) {
+  // The probe lists through whichever install, Orca's or the host's, the account launches.
+  const listings = acpAgentModelDiscoveries(spec).filter(
+    (discovery) => discovery.kind !== 'unavailable'
+  )
+  if (listings.length === 0 && spec.modelDiscovery.kind === 'unavailable') {
     return { kind: 'unavailable', reason: spec.modelDiscovery.reason }
   }
-  const supported = acpAgentModelDiscoveries(spec).filter((entry) => entry.kind !== 'unavailable')
   return {
     kind: 'probe',
-    listingNamesConfiguredModel: supported.every((entry) => entry.listingNamesConfiguredModel),
-    ...(supported.some(acpListingNeedsChatFolder) ? { listsInChatFolder: true as const } : {}),
+    listingNamesConfiguredModel: listings.every((listing) => listing.listingNamesConfiguredModel),
+    ...(listings.some(acpListingNeedsChatFolder) ? { listsInChatFolder: true as const } : {}),
+    ...(listings.some((listing) => listing.kind === 'session' && listing.listsOnDemand)
+      ? { listsOnDemand: true as const }
+      : {}),
     probe: createAcpModelCatalogProbe(spec, {
       resolveEnvironment: environment.resolveBaseEnvironment,
       resolveSavedEnvironment: () => environment.resolveBaseEnvironment(true),
