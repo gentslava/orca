@@ -26,6 +26,7 @@ export type CodexAppServerInvocation = {
   experimentalApi?: boolean
   /** Kill unsupervised plugin trees before stdin EOF; root exit leaves children behind and blocks tree killing. */
   treeKillOnFinish?: boolean
+  allowHost?: boolean
 }
 
 /** Missing app-server subcommand or RPC method; only this class marks capability caches unsupported. */
@@ -97,6 +98,7 @@ export async function runCodexAppServerSession<T>(
     {
       site: CODEX_APP_SERVER_KILL_SITE,
       inheritedEnv: pairedEnv,
+      allowHost: invocation.allowHost ?? spawnImpl === spawnCodexAppServerProcess,
       spawnImpl: (spec) =>
         spawnImpl(spec.program, [...(spec.args ?? [])], {
           env: spec.env,
