@@ -1,7 +1,6 @@
 // Persist desktop-pushed account environment so launches before reconnect keep the selected account.
 import { randomUUID } from 'node:crypto'
-import { renameSync, rmSync, writeFileSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import { readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {
   HostAccountLaunchEnvParams,
@@ -30,17 +29,17 @@ async function readOrcadHostAccountLaunchEnv(
   }
 }
 
-export function writeOrcadHostAccountLaunchEnv(
+async function writeOrcadHostAccountLaunchEnv(
   userDataPath: string,
   launchEnv: HostAccountLaunchEnv
-): void {
+): Promise<void> {
   const target = join(userDataPath, FILE_NAME)
   const temporary = `${target}.${process.pid}.${randomUUID()}.tmp`
   try {
-    writeFileSync(temporary, JSON.stringify(launchEnv), { mode: 0o600 })
-    renameSync(temporary, target)
+    await writeFile(temporary, JSON.stringify(launchEnv), { mode: 0o600 })
+    await rename(temporary, target)
   } catch (error) {
-    rmSync(temporary, { force: true })
+    await rm(temporary, { force: true })
     throw error
   }
 }
@@ -52,9 +51,14 @@ export async function restoreOrcadHostAccountLaunchEnv(
 ): Promise<void> {
   // Why only a WSL host: only there does a desktop push accounts into account folders in this distro.
   const wslHost = isWslHost()
+  let writes = Promise.resolve()
   runtime.restoreHostAccountLaunchEnv(
     await readOrcadHostAccountLaunchEnv(userDataPath),
-    (launchEnv) => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv),
+    (launchEnv) => {
+      const write = writes.then(() => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv))
+      writes = write.catch(() => {})
+      return write
+    },
     wslHost
       ? { expectDesktopPush: true, refreshClaudeProfile: createWslHostClaudeProfileRefresh() }
       : {}

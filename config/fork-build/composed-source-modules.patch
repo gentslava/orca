@@ -1183,3 +1183,185 @@ index 47023b18bbd..d038325fb9b 100644
  2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
  1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
  2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
+diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
+index a6e47a42a88..ba6102b33b4 100644
+--- a/config/main-blocking-helper-baseline.txt
++++ b/config/main-blocking-helper-baseline.txt
+@@ -890,7 +890,6 @@
+ 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
+ 5 src/main/orcad/account-launch/orcad-account-services.ts
+ 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
+-3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+ 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+ 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
+ 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
+diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
+index d038325fb9b..6a461461686 100644
+--- a/config/main-sync-fs-baseline.txt
++++ b/config/main-sync-fs-baseline.txt
+@@ -328,7 +328,6 @@
+ 4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
+ 2 src/main/orca-profiles/storage/new-profile-state.ts
+ 5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
+-3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+ 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+ 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
+ 2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
+diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.test.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.test.ts
+new file mode 100644
+index 00000000000..f23979d8724
+--- /dev/null
++++ b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.test.ts
+@@ -0,0 +1,25 @@
++import { mkdtemp, readdir, rm } from 'node:fs/promises'
++import { tmpdir } from 'node:os'
++import { join } from 'node:path'
++import { expect, test, vi } from 'vitest'
++import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
++import { restoreOrcadHostAccountLaunchEnv } from './orcad-host-account-launch-env-store'
++
++test('restores the latest pushed account when two saves overlap', async () => {
++  const root = await mkdtemp(join(tmpdir(), 'orca-host-account-'))
++  try {
++    const restoreHostAccountLaunchEnv = vi.fn<OrcaRuntimeService['restoreHostAccountLaunchEnv']>()
++    const runtime = { restoreHostAccountLaunchEnv }
++    await restoreOrcadHostAccountLaunchEnv(runtime, root, () => false)
++    const [saved, persist] = restoreHostAccountLaunchEnv.mock.calls[0]!
++    expect(saved).toBeNull()
++    const first = { wslDistro: 'Ubuntu', terminal: { CODEX_HOME: '/old' }, claude: {} }
++    const latest = { wslDistro: 'Ubuntu', terminal: { CODEX_HOME: '/selected' }, claude: {} }
++    await Promise.all([persist(first), persist(latest)])
++    await restoreOrcadHostAccountLaunchEnv(runtime, root, () => false)
++    expect(restoreHostAccountLaunchEnv.mock.calls[1]?.[0]).toEqual(latest)
++    expect(await readdir(root)).toEqual(['host-account-launch-env.json'])
++  } finally {
++    await rm(root, { recursive: true, force: true })
++  }
++})
+diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+index d5d9f7cf439..ee4b3c2578a 100644
+--- a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
++++ b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+@@ -1,7 +1,6 @@
+ // Persist desktop-pushed account environment so launches before reconnect keep the selected account.
+ import { randomUUID } from 'node:crypto'
+-import { renameSync, rmSync, writeFileSync } from 'node:fs'
+-import { readFile } from 'node:fs/promises'
++import { readFile, rename, rm, writeFile } from 'node:fs/promises'
+ import { join } from 'node:path'
+ import {
+   HostAccountLaunchEnvParams,
+@@ -30,17 +29,17 @@ async function readOrcadHostAccountLaunchEnv(
+   }
+ }
+ 
+-export function writeOrcadHostAccountLaunchEnv(
++async function writeOrcadHostAccountLaunchEnv(
+   userDataPath: string,
+   launchEnv: HostAccountLaunchEnv
+-): void {
++): Promise<void> {
+   const target = join(userDataPath, FILE_NAME)
+   const temporary = `${target}.${process.pid}.${randomUUID()}.tmp`
+   try {
+-    writeFileSync(temporary, JSON.stringify(launchEnv), { mode: 0o600 })
+-    renameSync(temporary, target)
++    await writeFile(temporary, JSON.stringify(launchEnv), { mode: 0o600 })
++    await rename(temporary, target)
+   } catch (error) {
+-    rmSync(temporary, { force: true })
++    await rm(temporary, { force: true })
+     throw error
+   }
+ }
+@@ -52,9 +51,14 @@ export async function restoreOrcadHostAccountLaunchEnv(
+ ): Promise<void> {
+   // Why only a WSL host: only there does a desktop push accounts into account folders in this distro.
+   const wslHost = isWslHost()
++  let writes = Promise.resolve()
+   runtime.restoreHostAccountLaunchEnv(
+     await readOrcadHostAccountLaunchEnv(userDataPath),
+-    (launchEnv) => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv),
++    (launchEnv) => {
++      const write = writes.then(() => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv))
++      writes = write.catch(() => {})
++      return write
++    },
+     wslHost
+       ? { expectDesktopPush: true, refreshClaudeProfile: createWslHostClaudeProfileRefresh() }
+       : {}
+diff --git a/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts b/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts
+index 370212121c2..b2a9f60743f 100644
+--- a/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts
++++ b/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts
+@@ -15,7 +15,7 @@ import { FirstHostLaunchEnvGate } from './first-host-launch-env-gate'
+ export class HostAccountLaunchEnvState {
+   /** Pushed by the desktop that owns this host's accounts; held in memory, re-pushed on connect. */
+   private hostLaunchEnv: HostAccountLaunchEnv | null = null
+-  private persistHostLaunchEnv: ((launchEnv: HostAccountLaunchEnv) => void) | null = null
++  private persistHostLaunchEnv: ((launchEnv: HostAccountLaunchEnv) => Promise<void>) | null = null
+   private readonly firstHostLaunchEnv = new FirstHostLaunchEnvGate()
+   private refreshClaudeProfile: HostClaudeProfileRefresh | null = null
+ 
+@@ -49,7 +49,7 @@ export class HostAccountLaunchEnvState {
+   }
+ 
+   /** Refused where this host has account services of its own: they already decide every launch. */
+-  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): void {
++  async setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): Promise<void> {
+     if (this.hasOwnAccountServices()) {
+       throw new Error('This host manages its own provider accounts.')
+     }
+@@ -66,7 +66,7 @@ export class HostAccountLaunchEnvState {
+     }
+     this.firstHostLaunchEnv.settle()
+     try {
+-      this.persistHostLaunchEnv?.(launchEnv)
++      await this.persistHostLaunchEnv?.(launchEnv)
+     } catch (error) {
+       // Environment already applies; persistence failure loses it only on restart before the next push.
+       console.warn('[accounts] Could not save the host account env:', error)
+@@ -76,7 +76,7 @@ export class HostAccountLaunchEnvState {
+   /** orcad's store: starts from the last pushed env, so launches before a reconnect keep it. */
+   restoreHostLaunchEnv(
+     saved: HostAccountLaunchEnv | null,
+-    persist: (launchEnv: HostAccountLaunchEnv) => void,
++    persist: (launchEnv: HostAccountLaunchEnv) => Promise<void>,
+     options: { expectDesktopPush?: boolean; refreshClaudeProfile?: HostClaudeProfileRefresh } = {}
+   ): void {
+     this.persistHostLaunchEnv = persist
+diff --git a/src/main/runtime/agent-session/environment/runtime-account-controller.ts b/src/main/runtime/agent-session/environment/runtime-account-controller.ts
+index 41d2a92c863..898fc36b501 100644
+--- a/src/main/runtime/agent-session/environment/runtime-account-controller.ts
++++ b/src/main/runtime/agent-session/environment/runtime-account-controller.ts
+@@ -87,14 +87,14 @@ export class RuntimeAccountController {
+   }
+ 
+   /** Refused where this host has account services of its own: they already decide every launch. */
+-  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): void {
+-    this.hostAccounts.setHostLaunchEnv(launchEnv)
++  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): Promise<void> {
++    return this.hostAccounts.setHostLaunchEnv(launchEnv)
+   }
+ 
+   /** orcad's store: starts from the last pushed env, so launches before a reconnect keep it. */
+   restoreHostLaunchEnv(
+     saved: HostAccountLaunchEnv | null,
+-    persist: (launchEnv: HostAccountLaunchEnv) => void,
++    persist: (launchEnv: HostAccountLaunchEnv) => Promise<void>,
+     options: { expectDesktopPush?: boolean; refreshClaudeProfile?: HostClaudeProfileRefresh } = {}
+   ): void {
+     this.hostAccounts.restoreHostLaunchEnv(saved, persist, options)
+diff --git a/src/main/runtime/rpc/methods/accounts/accounts.ts b/src/main/runtime/rpc/methods/accounts/accounts.ts
+index 3e3b3d63b63..a3f49d5b3c9 100644
+--- a/src/main/runtime/rpc/methods/accounts/accounts.ts
++++ b/src/main/runtime/rpc/methods/accounts/accounts.ts
+@@ -63,7 +63,7 @@ const ACCOUNT_METHOD_DEFINITIONS = [
+       if (clientKind === 'mobile') {
+         throw new Error('Only the Orca desktop that owns this host can set its accounts.')
+       }
+-      runtime.setHostAccountLaunchEnv(params)
++      await runtime.setHostAccountLaunchEnv(params)
+       return {}
+     }
+   }),
