@@ -95,9 +95,11 @@ function noticeLineText(
 export function MobileNativeChatNoticeRow({
   blocks,
   fontScale,
-  onLongPress
+  onLongPress,
+  disclosed = false
 }: {
   blocks: readonly NativeChatBlock[]
+  disclosed?: boolean
   fontScale: number
   onLongPress?: () => void
 }): React.JSX.Element | null {
@@ -169,14 +171,16 @@ export function MobileNativeChatNoticeRow({
       const summary = nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)
       return (
         <View>
-          <MobileNativeChatNoticeDisclosure
-            summary={summary}
-            expanded={expanded}
-            fontScale={fontScale}
-            onPress={() => setExpanded((open) => !open)}
-            onLongPress={onLongPress}
-          />
-          {expanded ? diagnosticBody : null}
+          {disclosed ? null : (
+            <MobileNativeChatNoticeDisclosure
+              summary={summary}
+              expanded={expanded}
+              fontScale={fontScale}
+              onPress={() => setExpanded((open) => !open)}
+              onLongPress={onLongPress}
+            />
+          )}
+          {disclosed || expanded ? diagnosticBody : null}
         </View>
       )
     }
