@@ -807,15 +807,7 @@ index 8f3c041f235..415e64ff839 100644
  1 src/main/native-chat/transcript-read-cache.ts
  1 src/main/native-chat/transcript-reader.ts
  1 src/main/native-chat/transcript-tail-reader.ts
-@@ -961,6 +946,7 @@
- 2 src/main/orcad/native-runtime/node-pty-precondition.ts
- 3 src/main/orcad/native-runtime/orcad-native-preflight.ts
- 9 src/main/orcad/native-runtime/orcad-runtime-native-preflight.ts
-+1 src/main/orcad/orcad-profile-runtime-services.ts # PROPOSED REVIEW: one-time startup restores the saved account before launch readiness opens.
- 2 src/main/orcad/profile-state/orcad-host-identity-reset.ts
- 3 src/main/orcad/profile-state/orcad-profile-state-startup.ts
- 6 src/main/orcad/runtime-launch/orcad-bundled-runtime.ts
-@@ -1248,6 +1234,7 @@
+@@ -1248,6 +1233,7 @@
  5 src/main/runtime/orchestration/legacy-remote/federated-dispatch-observation-fence.ts
  2 src/main/runtime/orchestration/legacy-remote/legacy-remote-db-methods.ts
  3 src/main/runtime/orchestration/legacy-remote/remote-dispatch-attachment-create.ts
@@ -823,7 +815,7 @@ index 8f3c041f235..415e64ff839 100644
  2 src/main/runtime/orchestration/workers/lifecycle/context-only-dispatch-release.ts
  1 src/main/runtime/orchestration/workers/transcripts/worker-transcript-read.ts
  2 src/main/runtime/push/push-unregister-outbox.ts
-@@ -1602,7 +1589,7 @@
+@@ -1602,7 +1588,7 @@
  4 src/shared/remote-runtime/host-store/runtime-environment-store-command.ts
  2 src/shared/remote-runtime/host-store/runtime-environment-store-file.ts
  6 src/shared/remote-runtime/host-store/runtime-environment-store-observation.ts
@@ -1105,3 +1097,63 @@ index 75da59d8d14..9d5328569b2 100644
  
  type ClaudePermissionOptions = Pick<ClaudeAgentSdkOptions, 'permissionMode' | 'extraArgs'>
  
+diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+index cb333c68a7c..d5d9f7cf439 100644
+--- a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
++++ b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+@@ -1,6 +1,7 @@
+ // Persist desktop-pushed account environment so launches before reconnect keep the selected account.
+ import { randomUUID } from 'node:crypto'
+-import { readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
++import { renameSync, rmSync, writeFileSync } from 'node:fs'
++import { readFile } from 'node:fs/promises'
+ import { join } from 'node:path'
+ import {
+   HostAccountLaunchEnvParams,
+@@ -12,10 +13,12 @@ import { createWslHostClaudeProfileRefresh } from './orcad-wsl-host-claude-profi
+ 
+ const FILE_NAME = 'host-account-launch-env.json'
+ 
+-export function readOrcadHostAccountLaunchEnv(userDataPath: string): HostAccountLaunchEnv | null {
++async function readOrcadHostAccountLaunchEnv(
++  userDataPath: string
++): Promise<HostAccountLaunchEnv | null> {
+   let raw: string
+   try {
+-    raw = readFileSync(join(userDataPath, FILE_NAME), 'utf8')
++    raw = await readFile(join(userDataPath, FILE_NAME), 'utf8')
+   } catch {
+     return null
+   }
+@@ -42,15 +45,15 @@ export function writeOrcadHostAccountLaunchEnv(
+   }
+ }
+ 
+-export function restoreOrcadHostAccountLaunchEnv(
++export async function restoreOrcadHostAccountLaunchEnv(
+   runtime: Pick<OrcaRuntimeService, 'restoreHostAccountLaunchEnv'>,
+   userDataPath: string,
+   isWslHost: () => boolean = isWslHostOrcadProcess
+-): void {
++): Promise<void> {
+   // Why only a WSL host: only there does a desktop push accounts into account folders in this distro.
+   const wslHost = isWslHost()
+   runtime.restoreHostAccountLaunchEnv(
+-    readOrcadHostAccountLaunchEnv(userDataPath),
++    await readOrcadHostAccountLaunchEnv(userDataPath),
+     (launchEnv) => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv),
+     wslHost
+       ? { expectDesktopPush: true, refreshClaudeProfile: createWslHostClaudeProfileRefresh() }
+diff --git a/src/main/orcad/orcad-profile-runtime-services.ts b/src/main/orcad/orcad-profile-runtime-services.ts
+index da37b7bbaf3..4eba41af69a 100644
+--- a/src/main/orcad/orcad-profile-runtime-services.ts
++++ b/src/main/orcad/orcad-profile-runtime-services.ts
+@@ -29,7 +29,7 @@ export async function installOrcadProfileRuntimeServices({
+   // Restore the profile's account selection before admitting launches.
+   const { restoreOrcadHostAccountLaunchEnv } =
+     await import('./account-launch/orcad-host-account-launch-env-store')
+-  restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
++  await restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
+   featureReadiness.open('accounts')
+ 
+   const { installOrcadSessionSearchService } = await import('./host-runtime/orcad-session-search')

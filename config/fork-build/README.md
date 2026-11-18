@@ -206,7 +206,7 @@ Overlay changes:
 
 The November 16 refresh follows upstream module relocations through c7f83f4e1958 and includes turn-diff summary collapse from 43124. The regression inventory follows upstream retirements in 42978, 42999 and 43047; the retained-history folding and mobile reader-toggle suites remain required. The obsolete setup-retention fixture adaptation is removed because 43047 retired that original suite. All selected features and all eleven package outputs remain required.
 
-## Refresh on upstream faebc136a4fd (2026-11-18)
+## Refresh on upstream 9c6d2ed1e799 (2026-11-18)
 
 This refresh retains all 67 selected changes and all eleven required package outputs. Upstream now supplies 41540 (owner-scoped remote account rosters) and 43788 (remote Codex credit resets). The mobile model slider, transcript reader position and turn-diff collapse remain selected.
 
@@ -214,4 +214,4 @@ Twenty-five conflicting branches were merged with upstream in their own fork bra
 
 Combination records preserve both conversation preferences and project ordering, explicit model-default fences, queued-message steering, child transcript inspection, session-link owner questions and foreground task controls. Import-only corrections already present in refreshed atomic heads are removed from the compatibility patches after reverse-application checks. Remaining supplements follow current module owners. The two added empty-workspace startup regressions live in a focused suite; retired upstream fixture-maintenance changes are omitted. The final formatting correction is separate from semantic resolutions. The existing two React Compiler exceptions remain unchanged.
 
-The final supplement uses async lstat for managed Claude history roots, resolves the native keyboard helper through its existing fail-closed spawn path, and registers the existing OpenCode SQLite utility entry in the worker-only graph. Removed sync-call allowances are pruned rather than retained as spare budget. Three unchanged calls from the prior fork source are proposed for explicit owner review: startup account restoration, the session-link write transaction and the store-worker/offline-CLI rename. Their rows remain marked as proposals; they require owner acceptance before merge or release.
+The final supplement uses async lstat for managed Claude history roots, resolves the native keyboard helper through its existing fail-closed spawn path, and registers the existing OpenCode SQLite utility entry in the worker-only graph. Removed sync-call allowances are pruned rather than retained as spare budget. Startup now reads the saved account selection asynchronously before opening account readiness. Two unchanged calls from the prior fork source remain for explicit owner review: the session-link write transaction and the store-worker/offline-CLI rename. Their rows remain marked as proposals; they require owner acceptance before merge or release.
