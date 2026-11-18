@@ -22,7 +22,8 @@ import { ANTIGRAVITY_LAUNCH_SPEC } from './antigravity-acp-launch-spec'
 import { antigravityHostAccountHome, expireAntigravityHostAcpChecks } from './antigravity-host-acp'
 import { credential, harness } from './native-account-test-fixtures'
 
-vi.mock('./native-credential-backend', () => ({
+vi.mock('./native-credential-backend', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./native-credential-backend')>()),
   createAntigravityHostCredentialBackend: () => ({
     read: async () => ({ contents: '{}' }),
     write: async () => {}
