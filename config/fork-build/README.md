@@ -208,7 +208,7 @@ Overlay changes:
 
 The November 16 refresh follows upstream module relocations through c7f83f4e1958 and includes turn-diff summary collapse from 43124. The regression inventory follows upstream retirements in 42978, 42999 and 43047; the retained-history folding and mobile reader-toggle suites remain required. The obsolete setup-retention fixture adaptation is removed because 43047 retired that original suite. All selected features and all eleven package outputs remain required.
 
-## Refresh on upstream 9c6d2ed1e799 (2026-11-18)
+## Refresh on upstream 60d912e1531e (2026-11-18)
 
 This refresh retains all 67 selected changes and all eleven required package outputs. Upstream now supplies 41540 (owner-scoped remote account rosters) and 43788 (remote Codex credit resets). The mobile model slider, transcript reader position and turn-diff collapse remain selected.
 
@@ -219,3 +219,7 @@ Combination records preserve both conversation preferences and project ordering,
 The final supplement uses async lstat for managed Claude history roots, resolves the native keyboard helper through its existing fail-closed spawn path, and registers the existing OpenCode SQLite utility entry in the worker-only graph. Removed sync-call allowances are pruned rather than retained as spare budget. Startup reads the saved account selection asynchronously before opening account readiness. Remote account pushes serialize asynchronous atomic writes and acknowledge the existing RPC after persistence completes. Two unchanged calls from the prior fork source remain for explicit owner review: the session-link write transaction and the store-worker/offline-CLI rename. Their rows remain marked as proposals; they require owner acceptance before merge or release.
 
 The web bundle uses its pinned Terser build dependency for large esbuild outputs before hashing. Verified bundle bytes, excluding the approved fonts and locale catalogs, fell from 10,556,936 to 10,363,016 against the existing 10,485,760-byte limit. The native Metro build is unchanged. Full PR checks also required committed-state dialog exit copy and existing relay-index dispatch lint alignment.
+
+The pin moved from 9c6d2ed1e799 to 60d912e1531e, the newest upstream commit the refreshed branches were merged with; an older pin turns every merged branch into a combination conflict. Fork master with terminal daemon protocol 57 (PR 90) is merged into this source, so the cross-version wire checks compare against the same protocol. The two formatting defects left by the upstream merges are fixed in their owning branches (33361 `SidebarHeader.tsx`, 33502 `workspace-options-menu-items.tsx`) rather than in an overlay.
+
+The packaged Windows serve-switch check (D7) fails on this composition as it did on PR 87 and PR 90: its app driver opens the sidebar section menu by `data-sidebar-section-title="workspaces"` and a "Workspaces" item, which the selected conversation sidebar (33361) labels differently. It is not part of the aggregate PR gate; the fix belongs in 33361 or the driver, not in an overlay.
