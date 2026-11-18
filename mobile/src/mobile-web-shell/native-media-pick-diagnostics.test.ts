@@ -15,6 +15,7 @@ import {
 import { connectionLogStore } from '../diagnostics/connection/persisted-connection-log-store'
 
 const doubles = vi.hoisted((): { client: FakeRpcClient | null } => ({ client: null }))
+vi.mock('./page-document/use-page-app-presence', () => ({ usePageAppPresence: () => {} }))
 vi.mock('../transport/connection/host-client-hooks', () => ({
   useHostClient: () => ({ client: doubles.client })
 }))
@@ -58,6 +59,7 @@ function Screen(): null {
     onPageReady: () => {},
     onPagePainted: () => {},
     onPageBackClaim: () => {},
+    onPageSwapSafe: () => {},
     onPageLocation: () => {},
     onTerminalKeyRailClaim: () => {},
     onRouteParamClear: () => {},
