@@ -558,7 +558,6 @@
 2 src/renderer/src/components/status-bar/host-connections/SshTargetStatusRow.tsx
 1 src/renderer/src/components/status-bar/resources/session-actions/use-resource-usage-actions.ts
 1 src/renderer/src/components/status-bar/resources/use-resource-view-visible.ts
-1 src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts
 2 src/renderer/src/components/tab-bar/TabBar.tsx
 2 src/renderer/src/components/tab-bar/create-entry/TabBarCreateEntry.tsx
 1 src/renderer/src/components/tab-bar/strip/TabStripScrollIndicator.tsx
@@ -703,3 +702,5 @@
 1 src/renderer/src/store/plugins/appearance/plugin-icon-themes.ts
 5 src/renderer/src/store/retained-views/app-state-view.ts
 2 src/renderer/src/web/pairing/WebConnect.tsx
+2 src/renderer/src/components/native-chat/conversation/slots/use-native-chat-transcript-slots.ts
+12 src/renderer/src/components/native-chat/use-native-chat-transcript-row-keys.ts

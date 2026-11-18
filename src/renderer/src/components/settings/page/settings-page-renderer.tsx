@@ -1,4 +1,4 @@
-import { nativeChatContentMaxWidth } from '../../../../../shared/native-chat/native-chat-appearance-settings'
+import { nativeChatContentMaxWidth } from '../../../../../shared/native-chat/settings/native-chat-appearance-settings'
 import { SettingsHeader } from '../navigation/SettingsHeader'
 import { getGeneralSubPageTitle } from '../general/general-sub-pages'
 import { ActiveSettingsSectionProvider } from '../section-layout/SettingsSection'

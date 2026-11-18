@@ -123,7 +123,6 @@ export function updatePersistedUI(
       : normalizeSortBy(operations.state.ui?.sortBy),
     conversationPreferences: normalizeConversationPreferences(
       durableUpdates.conversationPreferences ?? currentUI.conversationPreferences
-
     ),
     personalProjectOrder: normalizePersonalProjectOrder(
       durableUpdates.personalProjectOrder ?? currentUI.personalProjectOrder
