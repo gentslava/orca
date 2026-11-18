@@ -208,30 +208,6 @@ index 00000000000..aba8b600501
 +  ])
 +  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
 +})
-diff --git a/src/main/window/macos-quit-chord-watch.test.ts b/src/main/window/macos-quit-chord-watch.test.ts
-index 24488bd8a29..1a0b4e86832 100644
---- a/src/main/window/macos-quit-chord-watch.test.ts
-+++ b/src/main/window/macos-quit-chord-watch.test.ts
-@@ -3,7 +3,7 @@ import { PassThrough } from 'node:stream'
- import { afterEach, expect, it, vi } from 'vitest'
- const mocks = vi.hoisted(() => ({ path: '/helper', spawn: vi.fn() }))
- vi.mock('@orca/process-host', () => ({ spawnProcess: mocks.spawn }))
--vi.mock('../ipc/macos-keyboard-layout-snapshot', () => ({
-+vi.mock('../ipc/keyboard/macos-keyboard-layout-snapshot', () => ({
-   resolveMacKeyboardHelperPath: () => mocks.path
- }))
- import { watchMacQuitChord } from './macos-quit-chord-watch'
-diff --git a/src/main/window/macos-quit-chord-watch.ts b/src/main/window/macos-quit-chord-watch.ts
-index accbe53c40f..3023acbd648 100644
---- a/src/main/window/macos-quit-chord-watch.ts
-+++ b/src/main/window/macos-quit-chord-watch.ts
-@@ -1,5 +1,5 @@
- import { spawnProcess } from '@orca/process-host'
--import { resolveMacKeyboardHelperPath } from '../ipc/macos-keyboard-layout-snapshot'
-+import { resolveMacKeyboardHelperPath } from '../ipc/keyboard/macos-keyboard-layout-snapshot'
- import type { HoldQuitWatchEvent } from './hold-quit-gesture'
- 
- export function watchMacQuitChord(
 diff --git a/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx b/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx
 index c1443226453..2e8b18f44c0 100644
 --- a/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx

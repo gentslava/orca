@@ -1,6 +1,6 @@
 --- a/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
 +++ b/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
-@@ -174,42 +174,3 @@
+@@ -156,42 +156,3 @@
      </>
    )
  }
