@@ -1,3 +1,4 @@
+import type { BridgeAppFrame } from '../bridge/page-lifecycle/bridge-app-resumed'
 import type { HostStatusReply } from '../../transport/hosts/host-status-reply-schema'
 import type {
   BridgeTerminalKeyId,
@@ -131,6 +132,8 @@ export type BridgeHostOptions = {
   onPageBackClaim: (claimed: boolean) => void
   // Where a host-area page from an older desktop navigated inside its own document; the native route never moves for those hops.
   onPageLocation: (href: string) => void
+  // The page's answer to sendAppResumed: whether reloading it onto a newer build now loses nothing.
+  onPageSwapSafe?: (safe: boolean, round: number) => void
   /** The page shows a terminal with its key row, or stopped; false also arrives each time a
    *  document starts or ends, and the page claims again on the `init` that follows. */
   onTerminalKeyRailClaim?: (
@@ -179,8 +182,9 @@ export type BridgeHost = {
    * every page older than the frame; the caller then leaves the key to the navigator.
    */
   sendBack: () => boolean
-  /** Tells a page that reads it that the app is leaving the foreground; nothing for older pages. */
-  sendAppInactive: () => void
+  /** Tells a page that reads it that the app is leaving the foreground, or is back from the
+   *  background (it answers through onPageSwapSafe); nothing for older pages. */
+  sendAppFrame: (frame: BridgeAppFrame) => void
   // Transfer the session’s Back state on client-driven host rebuild; the mounted page never reclaims it. Ending sessions simply discard it.
   readSessionBack: () => BridgeSessionBack
   dispose: () => void
