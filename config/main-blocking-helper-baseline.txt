@@ -84,7 +84,7 @@
 1 src/main/automations/launch/automation-run-setup-skip.ts
 2 src/main/automations/runtime-automation-service.ts
 5 src/main/backend/backend-entry.ts
-11 src/main/backend/core-runtime-activation.ts
+10 src/main/backend/core-runtime-activation.ts
 2 src/main/backend/core-runtime.ts
 4 src/main/bitbucket/client.ts
 5 src/main/bitbucket/credential-connection.ts

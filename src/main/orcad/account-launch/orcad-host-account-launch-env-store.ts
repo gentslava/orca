@@ -7,7 +7,7 @@ import {
   type HostAccountLaunchEnv
 } from '../../../shared/agent-launch/startup/host-account-launch-env'
 import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
-import { isWslHostOrcadProcess } from '../../wsl/filesystem/wsl-guest-windows-drive-path'
+import { isWslHostOrcadProcessAsync } from '../../wsl/filesystem/wsl-guest-windows-drive-path'
 import { createWslHostClaudeProfileRefresh } from './orcad-wsl-host-claude-profile-refresh'
 
 const FILE_NAME = 'host-account-launch-env.json'
@@ -47,10 +47,10 @@ async function writeOrcadHostAccountLaunchEnv(
 export async function restoreOrcadHostAccountLaunchEnv(
   runtime: Pick<OrcaRuntimeService, 'restoreHostAccountLaunchEnv'>,
   userDataPath: string,
-  isWslHost: () => boolean = isWslHostOrcadProcess
+  isWslHost: () => boolean | Promise<boolean> = isWslHostOrcadProcessAsync
 ): Promise<void> {
   // Why only a WSL host: only there does a desktop push accounts into account folders in this distro.
-  const wslHost = isWslHost()
+  const wslHost = await isWslHost()
   let writes = Promise.resolve()
   runtime.restoreHostAccountLaunchEnv(
     await readOrcadHostAccountLaunchEnv(userDataPath),
