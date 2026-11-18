@@ -1,5 +1,4 @@
 import { execFile } from 'node:child_process'
-import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import type {
   KeyboardLayoutKeyCharacters,
@@ -22,7 +21,7 @@ export function resolveMacKeyboardHelperPath(): string | null {
     return cachedHelperPath
   }
   const candidate = join(dirname(process.execPath), HELPER_EXECUTABLE)
-  cachedHelperPath = existsSync(candidate) ? candidate : null
+  cachedHelperPath = candidate
   return cachedHelperPath
 }
 
