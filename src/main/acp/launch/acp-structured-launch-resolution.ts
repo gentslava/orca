@@ -35,6 +35,7 @@ import {
   nothingExchangedOn,
   type SavedProviderTurnReads
 } from '../../native-chat/agent-session-journal/journal-provider-turn-saved'
+import { AgentSessionPreSpawnError } from '../../native-chat/agent-session-wire/providers/structured-agent-session-adapter-errors'
 import { loadAcpVisualsSkill, type AcpLaunchVisualsDeps } from './acp-structured-launch-visuals'
 import { withoutCallerIdentity } from '../../runtime/agent-session/environment/structured-session-child-env'
 
@@ -166,6 +167,19 @@ export function acpStructuredLaunchPart(
 ): StructuredAgentLaunchPartResolver<AcpStructuredLaunch> {
   return async (basis, identity) => {
     const { record } = basis
+    const head = agentSessionProviderHandleChainHead(record.providerHandleChain)
+    const mayBeUnsaved = async (): Promise<boolean> =>
+      head?.origin === 'created' &&
+      (await nothingExchangedOn(deps.savedSession, identity.sessionId, head.handle.nativeId))
+    if (
+      head &&
+      acpLaunchSpecForAccount(agentSpec, record.accountHome).resumeUnavailable &&
+      !(await mayBeUnsaved())
+    ) {
+      throw new AgentSessionPreSpawnError(`${agentSpec.agent} cannot safely reopen this chat`, {
+        reason: 'providerResumeUnavailable'
+      })
+    }
     const { env, envToDelete, command, prefixArgs, spec, antigravityChatAuth, version } =
       await resolveAcpLaunchInvocation(agentSpec, record.accountHome, {
         resolveEnvironment: basis.baseEnvironment,
@@ -203,7 +217,6 @@ export function acpStructuredLaunchPart(
     const fullAccess = basis.permissionMode === 'full-access'
     // A managed release's receipt names its version; other programs answer the check.
     const launchedVersion = version ?? launchVersion.version
-    const head = agentSessionProviderHandleChainHead(record.providerHandleChain)
     // A load restores the conversation's own model, and a stale role there would stop the agent
     // before it opens; resumed chats apply their model through the session instead.
     const model = spec.launchesWithModel && !head ? record.options?.model : undefined
@@ -222,13 +235,7 @@ export function acpStructuredLaunchPart(
           ? {
               sessionId: head.handle.nativeId,
               key: agentSessionProviderHandleKey(head.handle),
-              mayBeUnsaved: async () =>
-                head.origin === 'created' &&
-                (await nothingExchangedOn(
-                  deps.savedSession,
-                  identity.sessionId,
-                  head.handle.nativeId
-                )),
+              mayBeUnsaved,
               lossKeys: record.providerHandleChain.flatMap((link) =>
                 link.replaces?.reason === 'restore-failed' ? [link.replaces.key] : []
               )
