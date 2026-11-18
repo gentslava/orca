@@ -1491,3 +1491,374 @@ index 61e8625f643..fc01fd526f6 100644
  
    const startupResumeWorktreeIdsRef = useRef(new Set<string>())
    useEffect(() => {
+diff --git a/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts b/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts
+index 42f2110e3a6..bbce7a62d23 100644
+--- a/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts
++++ b/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts
+@@ -25,7 +25,10 @@ import {
+ } from './running-terminal-close-guard'
+ import { closeLocalTerminalTabState } from './close-local-terminal-tab-state'
+ import { runAsAutomaticDeselection } from '@/store/workspaces/selection/active-worktree-deselection-intent'
+-import { hasSplitLandingGroup } from '@/store/slices/tabs/split-landing-groups'
++import {
++  hasSplitLandingGroup,
++  keepsEmptiedWorkspaceOpen
++} from '@/store/slices/tabs/split-landing-groups'
+ import { getTerminalIncarnationHandle } from './terminal-close-incarnation'
+ import {
+   terminalTabCloseStoreReason,
+@@ -260,10 +263,12 @@ export function closeTerminalTab(tabId: string, options: CloseTerminalTabOptions
+           if (browserTab) {
+             current.setActiveBrowserTab(browserTab.id)
+             current.setActiveTabType('browser', owningWorktreeId)
+-          } else if (options?.reason === 'pty-exit') {
+-            runAsAutomaticDeselection(() => current.setActiveWorktree(null))
+-          } else {
+-            current.setActiveWorktree(null)
++          } else if (!keepsEmptiedWorkspaceOpen(owningWorktreeId)) {
++            if (options?.reason === 'pty-exit') {
++              runAsAutomaticDeselection(() => current.setActiveWorktree(null))
++            } else {
++              current.setActiveWorktree(null)
++            }
+           }
+         }
+       }
+diff --git a/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts b/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
+index 0d82e6c164c..8ef4f38ad94 100644
+--- a/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
++++ b/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
+@@ -3,7 +3,7 @@ import { useAppStore } from '../../../../store/index'
+ import { armFloatingPanelReclaimIntent } from '@/components/floating-terminal/focus/floating-workspace-focus-reclaim'
+ import { isFloatingWorkspacePanelFocused } from '@/components/floating-terminal/workspace/floating-workspace-terminal-actions'
+ import { selectFloatingVisibleTabCount } from '@/store/workspaces/floating/floating-workspace-panel-selector'
+-import { hasSplitLandingGroup } from '@/store/slices/tabs/split-landing-groups'
++import { keepsEmptiedWorkspaceOpen } from '@/store/slices/tabs/split-landing-groups'
+ 
+ /** Capture panel ownership before prompts/removal blur it; run the captured reaction only after the close lands. */
+ export function captureWorkspaceEmptiedReaction(
+@@ -31,7 +31,7 @@ function leaveWorktreeIfEmpty(worktreeId: string): void {
+   // Why: split-group closes bypass legacy Terminal.tsx; deselect the emptied worktree here or the window goes blank instead of landing.
+   if (
+     state.reconcileWorktreeTabModel(worktreeId).renderableTabCount === 0 &&
+-    !hasSplitLandingGroup(state, worktreeId)
++    !keepsEmptiedWorkspaceOpen(worktreeId)
+   ) {
+     state.setActiveWorktree(null)
+   }
+diff --git a/src/renderer/src/store/slices/editor/closing/close-file-action.ts b/src/renderer/src/store/slices/editor/closing/close-file-action.ts
+index f609dbc18a0..1a6c414d975 100644
+--- a/src/renderer/src/store/slices/editor/closing/close-file-action.ts
++++ b/src/renderer/src/store/slices/editor/closing/close-file-action.ts
+@@ -18,6 +18,7 @@ import {
+   shouldDeleteUntouchedUntitledFile
+ } from '../tabs/untitled-file-cleanup'
+ import { unifiedTabsKeepWorktreeSelected } from '../tabs/unified-tabs-keep-worktree-selected'
++import { keepsEmptiedWorkspaceOpen } from '../../tabs/split-landing-groups'
+ import { mayShareEditorBackingFile } from '../file-ids/editor-file-ids'
+ import { isSameOwnedDocument } from '../file-ids/same-owned-editor-document'
+ import { isEditorTabContentType } from '../tabs/editor-tab-content-type'
+@@ -220,6 +221,7 @@ export function createCloseFileAction(
+             )
+           const shouldDeactivateWorktree =
+             activeWorktreeId !== null &&
++            !keepsEmptiedWorkspaceOpen(activeWorktreeId) &&
+             !closesBackgroundFile &&
+             remainingForWorktree.length === 0 &&
+             browserTabsForWorktree.length === 0 &&
+diff --git a/src/renderer/src/store/slices/editor/closing/editor-close-last-file-start-page.test.ts b/src/renderer/src/store/slices/editor/closing/editor-close-last-file-start-page.test.ts
+new file mode 100644
+index 00000000000..6a3b0acaa3f
+--- /dev/null
++++ b/src/renderer/src/store/slices/editor/closing/editor-close-last-file-start-page.test.ts
+@@ -0,0 +1,28 @@
++/** Explicit start actions render an emptied workspace, so closing its last file keeps it selected. */
++import { describe, expect, it, vi } from 'vitest'
++import { createEditorTabsStore } from '../editor-slice-test-harness'
++
++vi.mock('@/runtime/web-session-tabs-sync/closing/close-mirrored-editor-tab', () => ({
++  notifyHostOfMirroredEditorClose: vi.fn()
++}))
++
++describe('closing the focused workspace’s last file', () => {
++  it('keeps the workspace selected on its start page', () => {
++    const store = createEditorTabsStore()
++    store.setState({ activeWorktreeId: 'wt-1' })
++    const fileId = store.getState().openFile({
++      filePath: '/repo/README.md',
++      relativePath: 'README.md',
++      worktreeId: 'wt-1',
++      language: 'markdown',
++      mode: 'edit'
++    })
++
++    store.getState().closeFile(fileId)
++
++    const state = store.getState()
++    expect(state.openFiles).toEqual([])
++    expect(state.activeWorktreeId).toBe('wt-1')
++    expect(state.activeTabTypeByWorktree['wt-1']).toBe('terminal')
++  })
++})
+diff --git a/src/renderer/src/store/slices/editor/closing/recently-closed-editor-tabs.ts b/src/renderer/src/store/slices/editor/closing/recently-closed-editor-tabs.ts
+index aec5436feb4..e487411e9fb 100644
+--- a/src/renderer/src/store/slices/editor/closing/recently-closed-editor-tabs.ts
++++ b/src/renderer/src/store/slices/editor/closing/recently-closed-editor-tabs.ts
+@@ -19,6 +19,7 @@ import {
+   shouldDeleteUntouchedUntitledFile
+ } from '../tabs/untitled-file-cleanup'
+ import { unifiedTabsKeepWorktreeSelected } from '../tabs/unified-tabs-keep-worktree-selected'
++import { keepsEmptiedWorkspaceOpen } from '../../tabs/split-landing-groups'
+ import { isEditorTabContentType } from '../tabs/editor-tab-content-type'
+ import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../../shared/workspace-layout/layout-owner-switch'
+ import {
+@@ -166,6 +167,7 @@ export function createRecentlyClosedEditorTabs(
+           const closedFileIds = new Set(closingFiles.map((f) => f.id))
+           const closedTabOrderIds = new Set([...closedFileIds, ...closingItemIds])
+           const shouldDeactivateWorktree =
++            !keepsEmptiedWorkspaceOpen(activeWorktreeId) &&
+             browserTabsForWorktree.length === 0 &&
+             terminalTabsForWorktree.length === 0 &&
+             !unifiedTabsKeepWorktreeSelected(
+diff --git a/src/renderer/src/store/slices/tabs/split-landing-groups.ts b/src/renderer/src/store/slices/tabs/split-landing-groups.ts
+index 7ecc483170e..6e6e54a967c 100644
+--- a/src/renderer/src/store/slices/tabs/split-landing-groups.ts
++++ b/src/renderer/src/store/slices/tabs/split-landing-groups.ts
+@@ -20,6 +20,11 @@ export function isSplitLandingGroup(
+   )
+ }
+ 
++/** Explicit start actions render every emptied workspace, so closing its last tab keeps it open. */
++export function keepsEmptiedWorkspaceOpen(worktreeId: string): boolean {
++  return worktreeId !== FLOATING_TERMINAL_WORKTREE_ID
++}
++
+ /** A waiting chooser keeps its workspace open when the last tab beside it closes. */
+ export function hasSplitLandingGroup(state: SplitLandingMarks, worktreeId: string): boolean {
+   return (state.groupsByWorktree?.[worktreeId] ?? []).some((group) =>
+diff --git a/src/renderer/src/store/slices/tabs/tabs-empty-workspace.ts b/src/renderer/src/store/slices/tabs/tabs-empty-workspace.ts
+index 5d96516c71e..c8212f1c8af 100644
+--- a/src/renderer/src/store/slices/tabs/tabs-empty-workspace.ts
++++ b/src/renderer/src/store/slices/tabs/tabs-empty-workspace.ts
+@@ -1,8 +1,8 @@
+ import type { AppState } from '../../types'
+ import { workspaceEditorFiles } from '../editor/tabs/workspace-editor-files'
+-import { hasSplitLandingGroup } from './split-landing-groups'
++import { keepsEmptiedWorkspaceOpen } from './split-landing-groups'
+ 
+-// Last user-close lands on welcome; failed-create cleanup preserves selection.
++// Last user-close lands on welcome unless the workspace shows its start page; failed-create cleanup preserves selection.
+ type LandingState = Pick<
+   AppState,
+   | 'activeWorktreeId'
+@@ -30,7 +30,7 @@ export function landsOnEmptiedWorktree(
+     (current.browserTabsByWorktree[worktreeId] ?? []).length === 0 &&
+     workspaceEditorFiles(current.openFiles, current.unifiedTabsByWorktree[worktreeId]).length ===
+       0 &&
+-    !hasSplitLandingGroup(current, worktreeId)
++    !keepsEmptiedWorkspaceOpen(worktreeId)
+   )
+ }
+ 
+diff --git a/tests/tools/win-update-e2e/app-driver.mjs b/tests/tools/win-update-e2e/app-driver.mjs
+index bfb42c5c80e..d9ed2e61f61 100644
+--- a/tests/tools/win-update-e2e/app-driver.mjs
++++ b/tests/tools/win-update-e2e/app-driver.mjs
+@@ -213,6 +213,17 @@ export async function ensureTerminal(page, { allowCreate = true, timeoutMs = 60_
+     return
+   }
+   await createWorkspaceFromSeededRepo(page, timeoutMs)
++  await openStartPageTerminal(page, timeoutMs)
++}
++
++// Explicit empty-workspace actions: a setup-only create opens the start page, whose New Terminal starts the shell.
++async function openStartPageTerminal(page, timeoutMs) {
++  const terminal = page.locator(TERMINAL_SURFACE_VISIBLE).first()
++  const startTerminal = page.getByRole('button', { name: /^New Terminal/ }).first()
++  await terminal.or(startTerminal).first().waitFor({ state: 'visible', timeout: timeoutMs })
++  if (!(await terminal.isVisible().catch(() => false))) {
++    await startTerminal.click({ timeout: timeoutMs })
++  }
+   await waitForTerminalReady(page, timeoutMs)
+ }
+ 
+diff --git a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
+index 7f1ceec23ac..7e73c0833e6 100644
+--- a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
++++ b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
+@@ -1,15 +1,10 @@
+ // @vitest-environment happy-dom
+ import type * as ParkedWatcherRegistryModule from '../terminal-pane/parking/output-watchers/terminal-parked-watcher-registry'
+-import { act, StrictMode } from 'react'
++import { act } from 'react'
+ import { createRoot, type Root } from 'react-dom/client'
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import { useTerminalWatcherEffects } from './workbench/use-terminal-watcher-effects'
+ import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
+-import {
+-  claimEmptyWorkspaceDefaultSurface,
+-  releaseEmptyWorkspaceDefaultSurface
+-} from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
+-import { folderWorkspaceKey } from '../../../../shared/workspace/identity/workspace-scope'
+ 
+ const mocks = vi.hoisted(() => {
+   const storeTabsByWorktree: Record<string, unknown[]> = {}
+@@ -77,8 +72,6 @@ vi.mock(
+   })
+ )
+ 
+-const PENDING_INTENT = { callerProvidesSurface: false, seedUserDefaultSurface: true }
+-
+ Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+ let root: Root | undefined
+ afterEach(async () => {
+@@ -132,149 +125,6 @@ function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}
+   return null
+ }
+ 
+-describe('passive terminal seeding during native chat creation', () => {
+-  it('waits for worktree creation before checking whether a fallback shell is needed', async () => {
+-    mocks.storePendingCreations['creation-1'] = {
+-      creationId: 'creation-1',
+-      worktreeId: 'wt-1',
+-      phase: 'creating',
+-      status: 'creating',
+-      startedAt: 1,
+-      indeterminate: false,
+-      loaderVisible: true,
+-      request: {
+-        repoId: 'repo-1',
+-        name: 'workspace',
+-        setupDecision: 'inherit',
+-        agent: 'codex',
+-        pendingFirstAgentMessageRename: false,
+-        note: '',
+-        startupPlan: null,
+-        quickPrompt: '',
+-        quickTelemetry: null
+-      }
+-    }
+-    mocks.gate.mockResolvedValue('empty')
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => root?.render(<Watcher />))
+-    expect(mocks.gate).not.toHaveBeenCalled()
+-    expect(mocks.createTab).not.toHaveBeenCalled()
+-
+-    mocks.storePendingCreations = {}
+-    await act(async () => root?.render(<Watcher />))
+-    expect(mocks.createTab).toHaveBeenCalledOnce()
+-  })
+-})
+-
+-function deferredGate(): (outcome: 'empty' | 'blocked') => Promise<void> {
+-  let finishGate!: (outcome: 'empty' | 'blocked') => void
+-  // One shared promise, as the gate's in-flight dedupe hands every rerun.
+-  mocks.gate.mockReturnValue(
+-    new Promise((resolve) => {
+-      finishGate = resolve
+-    })
+-  )
+-  return async (outcome) => act(async () => finishGate(outcome))
+-}
+-
+-describe('passive terminal seeding in a bot home', () => {
+-  it('leaves an empty bot home to its Chat, whose tab may not have arrived yet', async () => {
+-    mocks.activeWorktreeId = folderWorkspaceKey('home-1')
+-    mocks.gate.mockResolvedValue('empty')
+-    root = createRoot(document.createElement('div'))
+-    // The same folder seeds a shell once it is no longer a bot's home.
+-    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
+-    expect(mocks.createTab).toHaveBeenCalledOnce()
+-
+-    mocks.bots = [{ folderWorkspaceId: 'home-2' }]
+-    mocks.activeWorktreeId = folderWorkspaceKey('home-2')
+-    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
+-    expect(mocks.gate).toHaveBeenCalledTimes(2)
+-    expect(mocks.createTab).toHaveBeenCalledOnce()
+-  })
+-
+-  it('seeds a shell in a bot home folder while bots are off', async () => {
+-    mocks.bots = [{ folderWorkspaceId: 'home-1' }]
+-    mocks.botsEnabled = false
+-    mocks.activeWorktreeId = folderWorkspaceKey('home-1')
+-    mocks.gate.mockResolvedValue('empty')
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
+-    expect(mocks.createTab).toHaveBeenCalledOnce()
+-  })
+-})
+-
+-describe('passive terminal seeding retries until a decision applies', () => {
+-  it('seeds once after a StrictMode double run', async () => {
+-    const finishGate = deferredGate()
+-    const renderStrict = () =>
+-      root?.render(
+-        <StrictMode>
+-          <Watcher />
+-        </StrictMode>
+-      )
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => renderStrict())
+-    await finishGate('empty')
+-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
+-
+-    // The applied decision is final: a later run neither re-checks nor seeds again.
+-    await act(async () => renderStrict())
+-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
+-    expect(mocks.gate).toHaveBeenCalledTimes(2)
+-  })
+-
+-  it('seeds once across two empty checks separated by leaving the workspace', async () => {
+-    const resolvers: ((outcome: 'empty') => void)[] = []
+-    mocks.gate.mockImplementation(
+-      () =>
+-        new Promise((resolve) => {
+-          resolvers.push(resolve)
+-        })
+-    )
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => root?.render(<Watcher />))
+-    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
+-    await act(async () => root?.render(<Watcher />))
+-    await act(async () => resolvers.forEach((resolve) => resolve('empty')))
+-    await act(async () => root?.render(<Watcher />))
+-
+-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
+-    expect(mocks.gate).toHaveBeenCalledTimes(3)
+-  })
+-
+-  it('does not seed a workspace whose last terminal closed during the check', async () => {
+-    const finishGate = deferredGate()
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => root?.render(<Watcher />))
+-    // closeTab empties the row and records the close in the same store write.
+-    mocks.storeTabsByWorktree = { 'wt-1': [] }
+-    // Any time after the check began; a fixed far-future stamp keeps the wall clock out.
+-    mocks.storeClosedRecords = {
+-      'closed-tab': { worktreeId: 'wt-1', closedAt: Number.MAX_SAFE_INTEGER }
+-    }
+-    await finishGate('empty')
+-    expect(mocks.createTab).not.toHaveBeenCalled()
+-  })
+-
+-  // Leaving cancels reseed; returning must still seed the workspace.
+-  it('seeds on return to a workspace left while a reseed awaited agent detection', async () => {
+-    mocks.gate.mockResolvedValue('empty')
+-    claimEmptyWorkspaceDefaultSurface('wt-1', PENDING_INTENT)
+-    root = createRoot(document.createElement('div'))
+-    try {
+-      await act(async () => root?.render(<Watcher />))
+-      expect(mocks.createTab).not.toHaveBeenCalled()
+-    } finally {
+-      releaseEmptyWorkspaceDefaultSurface('wt-1')
+-    }
+-
+-    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
+-    await act(async () => root?.render(<Watcher />))
+-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
+-  })
+-})
+-
+ describe('startup agent recovery host inventory', () => {
+   it('keeps recovery available until the execution host answers', async () => {
+     mocks.authority = 'unverifiable'
