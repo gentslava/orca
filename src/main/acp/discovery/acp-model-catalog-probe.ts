@@ -1,4 +1,3 @@
-import { acpLaunchSpecForAccount } from '../launch/acp-launch-command'
 import { acpModelCatalogAuthError } from './acp-model-catalog-auth-error'
 import { readAgentCliVersion } from '../../agent-launch/preflight/agent-cli-version-probe'
 import { observeAcpForkSupport } from '../capabilities/acp-fork-support'
@@ -21,7 +20,7 @@ import {
 } from '../../native-chat/agent-model-catalog/agent-model-catalog-probe-runner'
 import { AgentModelCatalogListingStoppedError } from '../../native-chat/agent-model-catalog/agent-model-catalog-failures'
 import type { ProviderProcessLaunch } from '../../provider-process/provider-process-launch'
-import type { AgentSessionModelOption } from '../../../shared/agent-session/agent-session-wire'
+import type { AgentSessionModelOption } from '../../../shared/agent-session/options/model-catalog/agent-session-model-option'
 import { createAcpAgentConnection } from '../process/acp-agent-connection'
 import { acpRunFolder } from '../launch/acp-private-temp'
 import {
@@ -31,6 +30,8 @@ import {
 } from './acp-model-discovery-policy'
 import type { AcpLaunchSpec } from '../launch/acp-launch-contract'
 import { checkAcpLaunchVersion } from '../launch/acp-launch-version'
+import { acpLaunchSpecForAccount } from '../launch/acp-launch-command'
+import { agentSessionAccountHomePath } from '../../../shared/agent-session/lifecycle/accounts/agent-session-account-home'
 import {
   resolveAcpLaunchInvocation,
   type AcpLaunchInvocationDeps
@@ -54,7 +55,7 @@ export type AcpModelCatalogProbeDeps = AcpLaunchInvocationDeps & {
 
 /** Uses the same binary, account and scrubbed environment as chats. */
 export function createAcpModelCatalogProbe(
-  spec: AcpLaunchSpec,
+  agentSpec: AcpLaunchSpec,
   deps: AcpModelCatalogProbeDeps
 ): AgentModelCatalogProbe {
   const resolve = async (
@@ -64,19 +65,20 @@ export function createAcpModelCatalogProbe(
     operation?: StructuredAgentResolutionOperation
   ) => {
     assertStructuredAgentResolutionCurrent(operation)
-    const activeSpec = acpLaunchSpecForAccount(spec, accountHome)
-    const discovery = activeSpec.modelDiscovery
+    // A host install can list differently from Orca's managed one, so the account picks the spec.
+    const spec = acpLaunchSpecForAccount(agentSpec, accountHome)
+    const discovery = spec.modelDiscovery
     if (discovery.kind === 'unavailable') {
       throw new Error(discovery.reason)
     }
     // Reject folderless session discovery before spawning even a version probe.
     if (!workspace && acpListingNeedsChatFolder(discovery)) {
-      throw folderlessListing(activeSpec)
+      throw folderlessListing(spec)
     }
     // Start in home; only explicit chat-folder discovery reads project config.
     const cwd = deps.homePath ?? homedir()
     const { command, prefixArgs, env, envToDelete } = await resolveAcpLaunchInvocation(
-      activeSpec,
+      spec,
       accountHome,
       {
         ...deps,
@@ -112,32 +114,30 @@ export function createAcpModelCatalogProbe(
         const operation = runOperation
         assertStructuredAgentResolutionCurrent(operation)
         const release = await checkAcpLaunchVersion(
-          activeSpec,
+          spec,
           { command, prefixArgs, cwd, env, operation },
           acpListingDependsOnRelease(discovery),
           deps.probeVersion ?? ((input) => readAgentCliVersion({ ...input, timeoutMs: null }))
         )
         assertStructuredAgentResolutionCurrent(operation)
         if (release.status === 'tooOld') {
-          throw new Error(`${activeSpec.agent} at ${command} does not run structured chats`)
+          throw new Error(`${spec.agent} at ${command} does not run structured chats`)
         }
         const listing = acpModelListingForRelease(discovery, release.version)
         if (listing === null) {
-          throw new Error(
-            `${activeSpec.agent} at ${command} lists its models only through its chats`
-          )
+          throw new Error(`${spec.agent} at ${command} lists its models only through its chats`)
         }
         const launch = {
           command,
-          args: [...prefixArgs, ...activeSpec.args({ fullAccess: false, pluginDir: null })],
+          args: [...prefixArgs, ...spec.args({ fullAccess: false, pluginDir: null })],
           cwd,
           env,
           envToDelete
         }
-        const run = { label: activeSpec.agent, signal: options?.signal, timeoutMs: null }
+        const run = { label: spec.agent, signal: options?.signal, timeoutMs: null }
         // OMP records every model switch as account usage; starting on the picked model records none.
         const launchedModel =
-          activeSpec.launchesWithModel && usesModelSpecificAcpEfforts(activeSpec.agent)
+          spec.launchesWithModel && usesModelSpecificAcpEfforts(spec.agent)
             ? options?.selectedModels?.[0]
             : undefined
         let models: AgentSessionModelOption[]
@@ -151,37 +151,34 @@ export function createAcpModelCatalogProbe(
               env,
               envToDelete
             },
-            {
-              site: `${activeSpec.agent}-model-catalog-probe`,
-              signal: options?.signal,
-              timeoutMs: null
-            }
+            { site: `${spec.agent}-model-catalog-probe`, signal: options?.signal, timeoutMs: null }
           )
           models = listing.parse(stdout)
           if (models.length === 0 && listing.isNotSignedInOutput?.(stdout)) {
-            const account = activeSpec.dialect.signInAccount
+            const account = spec.dialect.signInAccount
             throw new AgentModelCatalogUnavailableError({
               reason: 'notSignedIn',
               ...(account ? { account } : {})
             })
           }
         } else if (listing.kind === 'session') {
-          if (!workspace) {
-            throw folderlessListing(activeSpec)
+          if (!workspace && !listing.inPrivateFolder) {
+            throw folderlessListing(spec)
           }
           // Remove disposable session storage after the process closes.
           const folderArgs = listing.sessionFolderArgs
           const listInSession = async (model: string | undefined) => {
-            const folder = folderArgs
-              ? await acpRunFolder(
-                  join(deps.dataDirectory, 'acp-listing-sessions', activeSpec.agent)
-                )
-              : null
+            const folder =
+              folderArgs || listing.inPrivateFolder
+                ? await acpRunFolder(join(deps.dataDirectory, 'acp-listing-sessions', spec.agent))
+                : null
+            const sessionCwd = listing.inPrivateFolder && folder ? folder.path : workspace
+            const started: string[] = []
             try {
               assertStructuredAgentResolutionCurrent(operation)
               const args = [
                 ...prefixArgs,
-                ...activeSpec.args({ fullAccess: false, pluginDir: null, model }),
+                ...spec.args({ fullAccess: false, pluginDir: null, model }),
                 ...(folderArgs && folder ? folderArgs(folder.path) : [])
               ]
               return await runAgentModelCatalogSession<
@@ -191,14 +188,14 @@ export function createAcpModelCatalogProbe(
                 () => (deps.connectSession ?? createAcpAgentConnection)({ ...launch, args }),
                 (connection, ready) =>
                   readSessionModels(
-                    activeSpec,
+                    spec,
                     listing,
                     connection,
-                    workspace,
+                    sessionCwd,
                     operation,
                     options?.selectedModels,
                     model,
-                    activeSpec.dialect.effortChangesModel ? ready : undefined,
+                    spec.dialect.effortChangesModel ? ready : undefined,
                     (result) =>
                       publish?.(
                         {
@@ -219,11 +216,26 @@ export function createAcpModelCatalogProbe(
                             ),
                           demanded: publish.demanded
                         }
-                      : undefined
+                      : undefined,
+                    (sessionId) => started.push(sessionId)
                   ),
                 run
               )
             } finally {
+              // The session's process has exited, so its files are no longer written.
+              const accountHomePath = agentSessionAccountHomePath(accountHome)
+              if (accountHomePath) {
+                for (const sessionId of started) {
+                  await listing
+                    .discardSession?.({ sessionId, cwd: sessionCwd, accountHomePath })
+                    .catch((error: unknown) => {
+                      console.warn(
+                        `[acp-model-catalog] ${spec.agent} kept a listing session:`,
+                        error
+                      )
+                    })
+                }
+              }
               await folder?.remove()
             }
           }
@@ -246,14 +258,14 @@ export function createAcpModelCatalogProbe(
             async (connection) => {
               const initialized = await connection.initialize()
               assertStructuredAgentResolutionCurrent(operation)
-              observeAcpForkSupport(activeSpec.agent, initialized)
+              observeAcpForkSupport(spec.agent, initialized)
               return listing.read(initialized, connection)
             },
             run
           )
         }
         if (models.length === 0) {
-          throw new Error(`${activeSpec.agent} listed no models`)
+          throw new Error(`${spec.agent} listed no models`)
         }
         const fastModeSupport = models.some((model) => model.supportsFastMode === true)
           ? { supported: true as const }
@@ -273,12 +285,12 @@ export function createAcpModelCatalogProbe(
         await resolve(home, options?.workspacePath ?? '', 'recover', options?.operation)
       ).run(options?.signal, options?.operation, options?.selectedModels, options?.publish)
     } catch (error) {
-      throw acpModelCatalogAuthError(error, acpLaunchSpecForAccount(spec, home))
+      throw acpModelCatalogAuthError(error, acpLaunchSpecForAccount(agentSpec, home))
     }
   }
   return Object.assign(probe, {
     supportsAccount: (home: Parameters<AgentModelCatalogProbe>[0]) =>
-      acpLaunchSpecForAccount(spec, home).modelDiscovery.kind !== 'unavailable',
+      acpLaunchSpecForAccount(agentSpec, home).modelDiscovery.kind !== 'unavailable',
     resolve: async (...args: Parameters<typeof resolve>) => {
       const resolved = await resolve(...args)
       return {
@@ -287,7 +299,7 @@ export function createAcpModelCatalogProbe(
           try {
             return await resolved.run(...runArgs)
           } catch (error) {
-            throw acpModelCatalogAuthError(error, acpLaunchSpecForAccount(spec, args[0]))
+            throw acpModelCatalogAuthError(error, acpLaunchSpecForAccount(agentSpec, args[0]))
           }
         }
       }

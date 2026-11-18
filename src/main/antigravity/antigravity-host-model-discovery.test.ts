@@ -48,7 +48,7 @@ async function createTempFolder(prefix: string): Promise<string> {
 }
 
 describe('Antigravity host CLI model discovery', () => {
-  it('discovers models through host agy while skipping probing for managed accounts', async () => {
+  it('discovers host models while leaving managed session listing on demand', async () => {
     const stateDirectory = await createTempFolder('orca-agy-probe-state-')
     const home = await createTempFolder('orca-agy-probe-home-')
     const localBin = join(home, '.local', 'bin')
@@ -92,7 +92,11 @@ describe('Antigravity host CLI model discovery', () => {
         'gpt-oss-120b-medium\tGPT-OSS 120B (Medium)'
       ].join('\n')
     }
+    const managedConnect = vi.fn(() => {
+      throw new Error('Unexpected managed session listing')
+    })
     const probe = createAcpModelCatalogProbe(ANTIGRAVITY_LAUNCH_SPEC, {
+      connectSession: managedConnect,
       dataDirectory: stateDirectory,
       homePath: home,
       resolveEnvironment: async () => ({
@@ -112,7 +116,8 @@ describe('Antigravity host CLI model discovery', () => {
       stateDirectory
     })
     expect(probe.supportsAccount?.(hostAccount)).toBe(true)
-    expect(probe.supportsAccount?.(managedAccount)).toBe(false)
+    expect(probe.supportsAccount?.(managedAccount)).toBe(true)
+    expect(discovery.listsOnDemand).toBe(true)
 
     const expectedModels = [
       {
@@ -129,7 +134,8 @@ describe('Antigravity host CLI model discovery', () => {
         id: 'gpt-oss-120b-medium',
         label: 'GPT-OSS 120B (Medium)',
         isDefault: false,
-        efforts: []
+        efforts: [],
+        effortsKnown: false
       }
     ]
     await expect(probe(hostAccount, {})).resolves.toEqual({
@@ -151,6 +157,7 @@ describe('Antigravity host CLI model discovery', () => {
     const service = createAgentModelCatalogService({
       store,
       probes: { antigravity: probe },
+      listsOnDemand: new Set(['antigravity']),
       resolveAccountHome: () => resolveAccount(),
       getConversation: () => undefined,
       getRecord: () => undefined,
@@ -163,15 +170,19 @@ describe('Antigravity host CLI model discovery', () => {
         accountHome: managedAccount,
         wslDistro: null
       })
-      await expect(
-        service.read({ agent: 'antigravity', waitForListing: true })
-      ).resolves.toStrictEqual({ origin: 'unknown' })
+      capturedLaunch = undefined
+      await service.prewarm()
+      expect(capturedLaunch).toBeUndefined()
+      expect(managedConnect).not.toHaveBeenCalled()
       expect(store.hasActiveFailure(managedFingerprint)).toBe(false)
 
       const pendingAccount = Promise.withResolvers<typeof hostAccount>()
       resolveAccount = () => pendingAccount.promise
       const switching = service.demand({ agent: 'antigravity' })
-      expect(service.snapshot({ agent: 'antigravity' })).toStrictEqual({ origin: 'unknown' })
+      expect(service.snapshot({ agent: 'antigravity' })).toStrictEqual({
+        origin: 'unknown',
+        listingInProgress: true
+      })
       pendingAccount.resolve(hostAccount)
       await switching
 
@@ -310,6 +321,10 @@ require('node:readline').createInterface({ input: process.stdin }).on('line', (l
         { launchEnv: { HOME: home }, location: null, purpose: 'read', workspacePath: null },
         services
       )
+      const catalogHome = await metadata.resolveAccountHome(
+        { launchEnv: { HOME: home }, location: null, purpose: 'catalog', workspacePath: null },
+        services
+      )
       const launchHome = await metadata.resolveAccountHome(
         { launchEnv: { HOME: home }, location: null, purpose: 'launch', workspacePath: null },
         services
@@ -319,7 +334,11 @@ require('node:readline').createInterface({ input: process.stdin }).on('line', (l
         services
       )
 
-      expect(readHome).toEqual(antigravityHostAccountHome(home))
+      expect(readHome).toEqual({
+        variable: 'GEMINI_HOME',
+        path: join(stateDirectory, 'antigravity-chat')
+      })
+      expect(catalogHome).toEqual(antigravityHostAccountHome(home))
       expect(launchHome).toEqual(antigravityHostAccountHome(home))
       expect(identityHome).toEqual({
         variable: 'GEMINI_HOME',
