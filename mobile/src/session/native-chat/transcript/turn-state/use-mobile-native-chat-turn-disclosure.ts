@@ -3,7 +3,7 @@ import { useMobileNativeChatTurnDiffs } from './use-mobile-native-chat-turn-diff
 import type { MobileNativeChatTurnRow } from '../projection/use-mobile-native-chat-row-props'
 import { useCallback, useMemo } from 'react'
 import { nativeChatAutomationTurnKeys } from '../../../../../../src/shared/native-chat/transcript/turns/native-chat-automation-turns'
-import { useMobileNativeChatScopedOpenKeys } from './use-mobile-native-chat-scoped-open-keys'
+import { useMobileNativeChatScopedOpenKeys } from '../viewport/mobile-native-chat-disclosure-store'
 import { foldBotItemNotes } from '../../../../../../src/shared/bots/bot-item-note-runs'
 import {
   isSubagentGroupBlock,
@@ -189,8 +189,10 @@ export function useMobileNativeChatTurnDisclosure({
       },
     [expandedReasoning, line]
   )
-  const { fold, trailingRunIndex, workRuns, itemNoteJoins } = useMobileNativeChatTranscriptRows({
+  const transcript = useMobileNativeChatTranscriptRows({
     enabled,
+    scopeKey,
+    historyHead: turnJournal?.items[0]?.itemId,
     rows,
     turnKeys,
     receipts,
@@ -199,6 +201,12 @@ export function useMobileNativeChatTurnDisclosure({
     liveReasoningId,
     turnDiffs: summaries
   })
+  const { fold, trailingRunIndex, workRuns, itemNoteJoins } = transcript
+  const historyExpandedTurns = transcript.expandedTurnKeys
+  const toggleHistoryTurn = useCallback(
+    (key: string) => toggleExpandedTurn(key, historyExpandedTurns),
+    [toggleExpandedTurn, historyExpandedTurns]
+  )
   const presentation = useMemo(
     () => ({ rows, workRuns, turnKeys, receipts }),
     [rows, workRuns, turnKeys, receipts]
@@ -222,7 +230,7 @@ export function useMobileNativeChatTurnDisclosure({
         turnDiff: summaries.get(message.id),
         turnStatus,
         ...(bar?.above === true && turnStatus !== null ? { turnStatusAbove: true } : {}),
-        turnExpanded: turnKey ? expandedTurnIds.has(turnKey) : false,
+        turnExpanded: turnKey ? historyExpandedTurns.has(turnKey) : false,
         // Pass row keys to one stable handler; per-row closures defeat memoization and render-time ref caches can leak discarded state.
         turnKey: turnKey && fold.foldableTurnKeys.has(turnKey) ? turnKey : undefined,
         ...(turnKey === message.id ? { opensTurn: true as const } : {}),
@@ -266,7 +274,7 @@ export function useMobileNativeChatTurnDisclosure({
       activeTurnKey,
       active,
       completedByTurn,
-      expandedTurnIds,
+      historyExpandedTurns,
       inLiveWorkingTurn,
       trailingRunIndex,
       workRuns,
@@ -290,7 +298,7 @@ export function useMobileNativeChatTurnDisclosure({
     active,
     presentation,
     activeActivityText,
-    onToggleTurn: toggleExpandedTurn,
+    onToggleTurn: toggleHistoryTurn,
     resolveRow,
     listMessages: waiting.listMessages,
     waitingRows: waiting.waitingRows,
