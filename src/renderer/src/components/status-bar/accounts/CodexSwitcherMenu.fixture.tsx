@@ -161,6 +161,7 @@ function switcherFixture(
   const ownerUsage = remote
     ? {
         rateLimits,
+        accountsUnverifiable: false,
         accounts: snapshot,
         remoteOwner: { environmentId: 'laptop', label: 'Laptop' },
         refreshRemote: null
