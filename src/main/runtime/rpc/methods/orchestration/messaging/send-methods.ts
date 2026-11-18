@@ -1,10 +1,8 @@
+import { assertSessionLinkMailBoundary } from '../../../../orchestration/session-links/session-link-mail-boundary'
 import { defineOrchestrationMethod } from '../access/orchestration-method-access'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import { isGroupAddress } from '../../../../orchestration/addressing/groups/group-addressing'
-import {
-  dispatchReportMailbox,
-  isDispatchReportType
-} from '../../../../orchestration/workers/reports/dispatch-report-mailbox'
+import * as dispatchReport from '../../../../orchestration/workers/reports/dispatch-report-mailbox'
 import { orchestrationSkillRecoveryData } from '../../../../../../shared/orchestration/orchestration-rpc-contract'
 import { SendParams } from './send-params'
 import { isDispatchMutationMessageType } from '../../../../../../shared/rpc-contract/orchestration/orchestration-params'
@@ -145,11 +143,12 @@ export const ORCHESTRATION_SEND_METHODS = [
           (!to ||
             ((params.type === 'worker_done' || params.type === 'heartbeat') && routing.dispatchId))
         ) {
-          const reporting =
-            routing.dispatchId && isDispatchReportType(params.type)
-              ? db.getDispatchContextById(routing.dispatchId)
-              : undefined
-          to = reporting ? dispatchReportMailbox(db, reporting) : `run:${routing.run.id}`
+          to = dispatchReport.dispatchReportRecipient(
+            db,
+            routing.dispatchId,
+            params.type,
+            routing.run.id
+          )
         }
         if (!to) {
           throw new OrchestrationError(
@@ -191,6 +190,7 @@ export const ORCHESTRATION_SEND_METHODS = [
             sendWarnings.push(recipient.warning)
           }
         }
+        assertSessionLinkMailBoundary(db, orchestrationCaller?.orcaSessionId, to)
         const withSendWarnings = <T extends object>(
           receipt: T
         ): T & { warnings?: SendRecipientWarning[] } =>
