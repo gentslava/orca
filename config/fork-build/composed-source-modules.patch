@@ -1046,3 +1046,62 @@ index 8ac1ac64241..6429df5a661 100644
  import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
  import { createServer, type AddressInfo } from 'node:net'
  import os from 'node:os'
+diff --git a/src/main/claude/structured/launch/claude-structured-child-env.ts b/src/main/claude/structured/launch/claude-structured-child-env.ts
+index 767a8fc52c2..db783de946a 100644
+--- a/src/main/claude/structured/launch/claude-structured-child-env.ts
++++ b/src/main/claude/structured/launch/claude-structured-child-env.ts
+@@ -118,3 +118,19 @@ export function claudeProbeEnv(sources: ClaudeChildEnvSources): Record<string, s
+     process.platform
+   )
+ }
++
++const CLAUDE_ARTIFACT_ENV = 'CLAUDE_CODE_ARTIFACT'
++
++// SDK entrypoints hide Claude's Artifact tools unless this is set; a user value still wins,
++// matched case-insensitively on Windows, where claude_code_artifact=0 is the same opt-out.
++export function withClaudeArtifactDefault(
++  env: Record<string, string>,
++  platform: NodeJS.Platform = process.platform
++): Record<string, string> {
++  const chosen = Object.keys(env).some(
++    (key) =>
++      key === CLAUDE_ARTIFACT_ENV ||
++      (platform === 'win32' && key.toUpperCase() === CLAUDE_ARTIFACT_ENV)
++  )
++  return chosen ? env : { ...env, [CLAUDE_ARTIFACT_ENV]: '1' }
++}
+diff --git a/src/main/claude/structured/launch/claude-structured-launch-resolution.ts b/src/main/claude/structured/launch/claude-structured-launch-resolution.ts
+index 75da59d8d14..9d5328569b2 100644
+--- a/src/main/claude/structured/launch/claude-structured-launch-resolution.ts
++++ b/src/main/claude/structured/launch/claude-structured-launch-resolution.ts
+@@ -20,6 +20,7 @@ import {
+ import type { ClaudeStructuredAuthPolicy } from '../../../claude-accounts/runtime-auth/claude-structured-auth-policy'
+ import {
+   claudeChildEnv,
++  withClaudeArtifactDefault,
+   claudeProbeEnv,
+   resolveClaudeChildEnvSources,
+   type ClaudeChildEnvSources,
+@@ -47,21 +48,7 @@ import {
+ 
+ export const CLAUDE_DEFAULT_SETTING_SOURCES = ['user', 'project', 'local'] as const
+ export const CLAUDE_SESSION_STATE_EVENTS_ENV = 'CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS'
+-const CLAUDE_ARTIFACT_ENV = 'CLAUDE_CODE_ARTIFACT'
+-
+-// SDK entrypoints hide Claude's Artifact tools unless this is set; a user value still wins,
+-// matched case-insensitively on Windows, where claude_code_artifact=0 is the same opt-out.
+-export function withClaudeArtifactDefault(
+-  env: Record<string, string>,
+-  platform: NodeJS.Platform = process.platform
+-): Record<string, string> {
+-  const chosen = Object.keys(env).some(
+-    (key) =>
+-      key === CLAUDE_ARTIFACT_ENV ||
+-      (platform === 'win32' && key.toUpperCase() === CLAUDE_ARTIFACT_ENV)
+-  )
+-  return chosen ? env : { ...env, [CLAUDE_ARTIFACT_ENV]: '1' }
+-}
++export { withClaudeArtifactDefault } from './claude-structured-child-env'
+ 
+ type ClaudePermissionOptions = Pick<ClaudeAgentSdkOptions, 'permissionMode' | 'extraArgs'>
+ 
