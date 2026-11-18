@@ -1,3 +1,4 @@
+import { acpModelCatalogAuthError } from './acp-model-catalog-auth-error'
 import { readAgentCliVersion } from '../../agent-launch/preflight/agent-cli-version-probe'
 import { observeAcpForkSupport } from '../capabilities/acp-fork-support'
 import {
@@ -40,7 +41,7 @@ import {
   type AcpModelCatalogConnection,
   type AcpModelCatalogSessionConnection
 } from './acp-listing-session-models'
-import { AcpAgentError, AcpAgentExitedError } from '../transport/acp-errors'
+import { AcpAgentExitedError } from '../transport/acp-errors'
 import { AgentModelCatalogUnavailableError } from '../../native-chat/agent-model-catalog/agent-model-catalog-unavailable'
 import { usesModelSpecificAcpEfforts } from '../../../shared/agent-session/options/model-catalog/agent-model-catalog-ownership'
 
@@ -153,6 +154,13 @@ export function createAcpModelCatalogProbe(
             { site: `${spec.agent}-model-catalog-probe`, signal: options?.signal, timeoutMs: null }
           )
           models = listing.parse(stdout)
+          if (models.length === 0 && listing.isNotSignedInOutput?.(stdout)) {
+            const account = spec.dialect.signInAccount
+            throw new AgentModelCatalogUnavailableError({
+              reason: 'notSignedIn',
+              ...(account ? { account } : {})
+            })
+          }
         } else if (listing.kind === 'session') {
           if (!workspace && !listing.inPrivateFolder) {
             throw folderlessListing(spec)
@@ -277,13 +285,12 @@ export function createAcpModelCatalogProbe(
         await resolve(home, options?.workspacePath ?? '', 'recover', options?.operation)
       ).run(options?.signal, options?.operation, options?.selectedModels, options?.publish)
     } catch (error) {
-      if (error instanceof AcpAgentError && error.code === -32000) {
-        throw new AgentModelCatalogUnavailableError({ reason: 'notSignedIn' })
-      }
-      throw error
+      throw acpModelCatalogAuthError(error, acpLaunchSpecForAccount(agentSpec, home))
     }
   }
   return Object.assign(probe, {
+    supportsAccount: (home: Parameters<AgentModelCatalogProbe>[0]) =>
+      acpLaunchSpecForAccount(agentSpec, home).modelDiscovery.kind !== 'unavailable',
     resolve: async (...args: Parameters<typeof resolve>) => {
       const resolved = await resolve(...args)
       return {
@@ -292,10 +299,7 @@ export function createAcpModelCatalogProbe(
           try {
             return await resolved.run(...runArgs)
           } catch (error) {
-            if (error instanceof AcpAgentError && error.code === -32000) {
-              throw new AgentModelCatalogUnavailableError({ reason: 'notSignedIn' })
-            }
-            throw error
+            throw acpModelCatalogAuthError(error, acpLaunchSpecForAccount(agentSpec, args[0]))
           }
         }
       }
