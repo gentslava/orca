@@ -132,6 +132,7 @@ function App(): React.JSX.Element {
       </TooltipProvider>
       <SkillFreshnessNudge />
       <HoldQuitNotice />
+      {/* One account-link confirm at a time, over whatever screen the owner is on. */}
       <WorktreeBaseFallbackDialog />
       <ClaudeAccountSwitchDialog />
       <PinnedTabCloseDialog />

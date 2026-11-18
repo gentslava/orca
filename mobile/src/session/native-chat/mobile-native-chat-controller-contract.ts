@@ -143,6 +143,7 @@ export type MobileNativeChatController = {
 }
 
 export type MobileNativeChatControllerArgs = {
+  itemLink?: Parameters<typeof useMobileNativeChatSessionLane>[0]['itemLink']
   client: RpcClient | null
   /** The route's paired host; differs from `client` only when a server executes the workspace. */
   pairedHostClient: RpcClient | null

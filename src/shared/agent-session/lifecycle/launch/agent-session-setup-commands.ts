@@ -34,7 +34,6 @@ export const AGENT_SESSION_SETUP_COMMANDS = [
   { agent: 'opencode2', loginCommand: ['opencode2', 'auth', 'login'] },
   { agent: 'pi', loginCommand: ['pi'], slashCommand: '/login' },
   { agent: 'omp', loginCommand: ['omp'], slashCommand: '/login' },
-  { agent: 'gemini', loginCommand: ['gemini'], slashCommand: '/auth' },
   {
     agent: 'copilot',
     loginCommand: ['copilot', 'login'],
@@ -58,6 +57,7 @@ export const AGENT_SESSION_SETUP_COMMANDS = [
     loginCommand: ['hermes', 'model'],
     installCommand: 'curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash'
   },
+  { agent: 'gemini', loginCommand: ['gemini'], slashCommand: '/auth' },
   // An `agy` login does not sign its chats in: they keep their own sign-in.
   { agent: 'antigravity', loginCommand: [] }
 ] as const

@@ -153,7 +153,7 @@ export class AcpAtRestCommandCatalog extends AtRestCommandCatalog {
               answer({ commands: undefined, fromAgent: false })
               return
             }
-            const location = activeSpec.visualsSkill
+            const location = activeSpec.skillRoots
               ? await awaitAcpDiscovery(
                   (deps.resolveVisualsSkill ?? resolveNativeChatVisualsSkillLocation)(),
                   signal
@@ -161,10 +161,10 @@ export class AcpAtRestCommandCatalog extends AtRestCommandCatalog {
               : null
             check()
             const skill =
-              location && activeSpec.visualsSkill
+              location && activeSpec.skillRoots
                 ? await awaitAcpDiscovery(
-                    activeSpec.visualsSkill({
-                      skill: location,
+                    activeSpec.skillRoots({
+                      roots: [location],
                       version: version.version,
                       env: launch.env
                     }),
@@ -186,7 +186,7 @@ export class AcpAtRestCommandCatalog extends AtRestCommandCatalog {
               env: { ...launch.env, ...skill?.env },
               args: [
                 ...invocation.prefixArgs,
-                ...activeSpec.args({ fullAccess: false, pluginDir: skill?.pluginDir ?? null }),
+                ...activeSpec.args({ fullAccess: false, pluginDirs: skill?.pluginDirs ?? [] }),
                 ...folderArgs
               ]
             })

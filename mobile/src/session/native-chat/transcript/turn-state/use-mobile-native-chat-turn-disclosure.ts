@@ -2,7 +2,9 @@ import { useMobileNativeChatGeneratedImageAnswers } from '../message-content/use
 import { useMobileNativeChatTurnDiffs } from './use-mobile-native-chat-turn-diffs'
 import type { MobileNativeChatTurnRow } from '../projection/use-mobile-native-chat-row-props'
 import { useCallback, useMemo } from 'react'
+import { nativeChatAutomationTurnKeys } from '../../../../../../src/shared/native-chat/transcript/turns/native-chat-automation-turns'
 import { useMobileNativeChatScopedOpenKeys } from '../viewport/mobile-native-chat-disclosure-store'
+import { foldBotItemNotes } from '../../../../../../src/shared/bots/bot-item-note-runs'
 import {
   isSubagentGroupBlock,
   type NativeChatMessage
@@ -31,6 +33,7 @@ import {
   nativeChatTurnBarRows
 } from '../../../../../../src/shared/native-chat/transcript/turns/native-chat-turn-grouping'
 import { useMobileNativeChatTurnStatus } from './use-mobile-native-chat-turn-status'
+import { mobileNativeChatQuietCardAnswerIds } from './mobile-native-chat-quiet-card-answer-rows'
 import { structuredAgentTurnOpeningSendPending } from '../../../../../../src/shared/agent-session/view/structured-agent-session-turn-timing'
 
 const NO_TURN_KEYS: readonly undefined[] = []
@@ -83,7 +86,7 @@ export function useMobileNativeChatTurnDisclosure({
   } = useMemo(() => {
     if (!enabled) {
       return {
-        rows: messages,
+        rows: foldBotItemNotes(messages),
         turnKeys: NO_TURN_KEYS,
         liveTurnKey: undefined,
         unresolvedRowIds: undefined,
@@ -91,9 +94,10 @@ export function useMobileNativeChatTurnDisclosure({
       }
     }
     const membership = nativeChatTurnMembership(messages, turnJournal)
+    const turnKeys = nativeChatRowsInDrawOrder(membership.turnKeys, membership.drawOrder)
     return {
-      rows: nativeChatRowsInDrawOrder(messages, membership.drawOrder),
-      turnKeys: nativeChatRowsInDrawOrder(membership.turnKeys, membership.drawOrder),
+      rows: foldBotItemNotes(nativeChatRowsInDrawOrder(messages, membership.drawOrder), turnKeys),
+      turnKeys,
       liveTurnKey: membership.liveTurnKey,
       partialTurnKey: membership.partialTurnKey,
       unresolvedRowIds: membership.unresolvedRowIds
@@ -129,20 +133,27 @@ export function useMobileNativeChatTurnDisclosure({
           turnJournal ?? {}
         )
       : null
-    if (!ids?.size) {
+    const quiet = enabled
+      ? mobileNativeChatQuietCardAnswerIds(rows, turnKeys, completedByTurn, summaries)
+      : null
+    if (!ids?.size && !quiet?.size) {
       return { listMessages: rows, waitingRows: [], indexById: null }
     }
     return {
-      listMessages: rows.filter((message) => !ids.has(message.id)),
-      waitingRows: rows.flatMap((item, index) => (ids.has(item.id) ? [{ item, index }] : [])),
+      listMessages: rows.filter((message) => !ids?.has(message.id) && !quiet?.has(message.id)),
+      waitingRows: rows.flatMap((item, index) => (ids?.has(item.id) ? [{ item, index }] : [])),
       indexById: new Map(rows.map((message, index) => [message.id, index]))
     }
-  }, [enabled, rows, stopping, turnJournal])
+  }, [completedByTurn, enabled, rows, stopping, summaries, turnJournal, turnKeys])
   const [expandedTurnIds, toggleExpandedTurn] = useMobileNativeChatScopedOpenKeys(scopeKey)
   const [expandedReasoning, toggleReasoning] = useMobileNativeChatScopedOpenKeys(scopeKey)
   const [openSubagentGroups, toggleSubagentGroup] = useMobileNativeChatScopedOpenKeys(scopeKey)
   const [openUserMessages, toggleUserMessage] = useMobileNativeChatScopedOpenKeys(scopeKey)
   const bars = useMemo(() => nativeChatTurnBarRows(rows, turnKeys), [rows, turnKeys])
+  const automationTurns = useMemo(
+    () => nativeChatAutomationTurnKeys(rows, turnKeys),
+    [rows, turnKeys]
+  )
 
   const inLiveWorkingTurn = useCallback(
     (index: number) =>
@@ -178,12 +189,7 @@ export function useMobileNativeChatTurnDisclosure({
       },
     [expandedReasoning, line]
   )
-  const {
-    fold,
-    expandedTurnKeys: historyExpandedTurns,
-    trailingRunIndex,
-    workRuns
-  } = useMobileNativeChatTranscriptRows({
+  const transcript = useMobileNativeChatTranscriptRows({
     enabled,
     scopeKey,
     historyHead: turnJournal?.items[0]?.itemId,
@@ -192,8 +198,11 @@ export function useMobileNativeChatTurnDisclosure({
     receipts,
     completedByTurn,
     expandedTurnKeys: expandedTurnIds,
-    liveReasoningId
+    liveReasoningId,
+    turnDiffs: summaries
   })
+  const { fold, trailingRunIndex, workRuns, itemNoteJoins } = transcript
+  const historyExpandedTurns = transcript.expandedTurnKeys
   const toggleHistoryTurn = useCallback(
     (key: string) => toggleExpandedTurn(key, historyExpandedTurns),
     [toggleExpandedTurn, historyExpandedTurns]
@@ -225,6 +234,9 @@ export function useMobileNativeChatTurnDisclosure({
         // Pass row keys to one stable handler; per-row closures defeat memoization and render-time ref caches can leak discarded state.
         turnKey: turnKey && fold.foldableTurnKeys.has(turnKey) ? turnKey : undefined,
         ...(turnKey === message.id ? { opensTurn: true as const } : {}),
+        ...(turnKey !== undefined && automationTurns.has(turnKey)
+          ? { inAutomationTurn: true as const }
+          : {}),
         ...(fold.foldedRows.has(index) ? { foldedAway: true } : {}),
         // Without a user boundary, session working state remains authoritative; bridge chat knows only its synthetic stream row is live.
         activeTurnIsWorking: enabled
@@ -237,6 +249,7 @@ export function useMobileNativeChatTurnDisclosure({
           ? { workRun: workRuns.heads.get(index), openReasoning: expandedReasoning }
           : {}),
         ...(workRuns.joined.has(index) ? { joinsWorkRun: true } : {}),
+        ...(itemNoteJoins.has(index) ? { itemNoteJoin: itemNoteJoins.get(index) } : {}),
         mayStillGrow: !lineYields && message.id === latestAssistantId,
         reasoningIsLive: message.id === liveReasoningId,
         reasoningExpanded:
@@ -253,6 +266,7 @@ export function useMobileNativeChatTurnDisclosure({
     },
     [
       turnKeys,
+      automationTurns,
       summaries,
       waiting,
       bars,
@@ -264,6 +278,7 @@ export function useMobileNativeChatTurnDisclosure({
       inLiveWorkingTurn,
       trailingRunIndex,
       workRuns,
+      itemNoteJoins,
       fold,
       rows,
       latestAssistantId,

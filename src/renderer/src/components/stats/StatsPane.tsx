@@ -1,3 +1,4 @@
+import type { StatsHost } from './StatsHostScope'
 import { useEffect, useState } from 'react'
 import { BarChart3, Bot, Check, ChevronDown, Clock, GitPullRequest } from 'lucide-react'
 import { useAppStore } from '../../store'
@@ -114,16 +115,21 @@ function UsageAnalyticsOptionIcon({ tab }: { tab: UsageTab }): React.JSX.Element
 }
 
 export function StatsPane({
-  hostScope
-}: { hostScope?: SettingsHostScope } = {}): React.JSX.Element {
+  hostScope,
+  host
+}: { hostScope?: SettingsHostScope; host?: StatsHost } = {}): React.JSX.Element {
   return hostScope?.available === false ? (
     <SettingsHostScopeUnavailableNotice />
   ) : (
-    <OwnedStatsPane hostScope={hostScope} />
+    <OwnedStatsPane hostTarget={hostScope?.target ?? host?.target} />
   )
 }
 
-function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
+function OwnedStatsPane({
+  hostTarget
+}: {
+  hostTarget?: SettingsHostScope['target']
+}): React.JSX.Element {
   const t = useTranslate()
   const intlLocale = useIntlLocale()
   const summary = useAppStore((s) => s.statsSummary)
@@ -132,9 +138,9 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
   const localRateLimits = useAppStore((state) => state.rateLimits)
   const environments = useAppStore((state) => state.runtimeEnvironments)
   const selectedHost =
-    hostScope?.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
+    hostTarget?.kind === 'local' && isWebClientLocation() && environments?.length === 1
       ? { kind: 'environment' as const, environmentId: environments[0].id }
-      : hostScope?.target
+      : hostTarget
   const { remoteOwner } = useOwnerUsageRateLimits(localRateLimits)
   const historyTarget = selectedHost ?? getUsageOwnerHostScope(remoteOwner)
   const remoteHistory = historyTarget.kind === 'environment' || isWebClientLocation()
@@ -146,15 +152,20 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
         historyTarget.environmentId)
       : t('stats.usage.localHost', 'This device')
   const [activeUsageTab, setActiveUsageTab] = useState<UsageTab>('overview')
+  // Grok credits come from this computer's status bar, so a remote host has no Grok tab.
+  const usageOptions = remoteHistory
+    ? USAGE_ANALYTICS_OPTIONS.filter((option) => option.id !== 'grok')
+    : USAGE_ANALYTICS_OPTIONS
   const activeUsageOption =
-    USAGE_ANALYTICS_OPTIONS.find(
-      (option) => option.id === activeUsageTab && (!remoteHistory || option.id !== 'grok')
-    ) ?? USAGE_ANALYTICS_OPTIONS[0]
+    usageOptions.find((option) => option.id === activeUsageTab) ?? usageOptions[0]
 
   useEffect(() => {
     recordFeatureInteraction('usage-tracking')
+  }, [recordFeatureInteraction])
+
+  useEffect(() => {
     void fetchStatsSummary()
-  }, [fetchStatsSummary, recordFeatureInteraction])
+  }, [fetchStatsSummary])
 
   return (
     <div className="@container space-y-5">
@@ -185,9 +196,7 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              {USAGE_ANALYTICS_OPTIONS.filter(
-                (option) => !remoteHistory || option.id !== 'grok'
-              ).map((option) => (
+              {usageOptions.map((option) => (
                 <DropdownMenuItem key={option.id} onSelect={() => setActiveUsageTab(option.id)}>
                   <span className="flex min-w-0 items-center gap-2">
                     <UsageAnalyticsOptionIcon tab={option.id} />

@@ -182,6 +182,7 @@ export function ConfirmationDialogProvider({
               </DialogDescription>
             ) : null}
           </DialogHeader>
+          {options?.details}
           {options?.fields ? (
             <div className="space-y-3">
               {options.fields.inputs.map((field, index) => (

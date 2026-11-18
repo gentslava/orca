@@ -21,8 +21,10 @@ import { acpModelCatalogDiscovery } from '../runtime/agent-session/model-catalog
 import { ANTIGRAVITY_LAUNCH_SPEC } from './antigravity-acp-launch-spec'
 import { antigravityHostAccountHome, expireAntigravityHostAcpChecks } from './antigravity-host-acp'
 import { credential, harness } from './native-account-test-fixtures'
+import type * as NativeCredentialBackend from './native-credential-backend'
 
-vi.mock('./native-credential-backend', () => ({
+vi.mock('./native-credential-backend', async (importOriginal) => ({
+  ...(await importOriginal<typeof NativeCredentialBackend>()),
   createAntigravityHostCredentialBackend: () => ({
     read: async () => ({ contents: '{}' }),
     write: async () => {}

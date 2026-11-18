@@ -23,11 +23,12 @@ clearer.
 - Use `ORCA_CHAT_TEMP_DIR` for disposable build/test data, if set: dependency installs, private
   caches, source checkouts, build output and test environments. It is the same folder for the
   whole chat. Give each task its own subfolder: Orca removes a subfolder once nothing in it has
-  changed for 7 days, whatever it holds, and removes the whole folder with the chat. Move reports
-  and files the user needs into `ORCA_CHAT_SCRATCH_DIR` before replying. If temporary storage is
-  unavailable, use the operating system temporary directory; do not fall back to persistent
-  artifact storage for builds. Keep source changes in the workspace or an Orca worktree: commits
-  that exist only in a temporary checkout are lost with it.
+  changed for 7 days, unless it holds Git data, and removes the whole folder with the chat. Move
+  reports and files the user needs into `ORCA_CHAT_SCRATCH_DIR` before replying. If temporary
+  storage is unavailable, use the operating system temporary directory; do not fall back to
+  persistent artifact storage for builds. Keep source changes in the workspace or an Orca
+  worktree, and delete a temporary checkout when its task is done: it stays until the chat is
+  removed, and is removed with it.
 - Prefer the package manager's normal shared cache. When a task needs an isolated cache or
   dependency tree, keep it in `ORCA_CHAT_TEMP_DIR`. Follow the project's existing dependency
   installation rules.
@@ -36,6 +37,9 @@ clearer.
 - Inline your styles, scripts and data. Libraries and fonts may load only from cdn.jsdelivr.net,
   unpkg.com, cdnjs.cloudflare.com, esm.sh, fonts.googleapis.com and fonts.gstatic.com. The page
   can't make network requests; use inline SVG or `data:` URLs for images.
+- `<audio>` and `<video>` elements can't load media here, even from `data:` URLs. To share a
+  recording, save it as its own file in the `ORCA_CHAT_SCRATCH_DIR` folder (in the workspace only
+  if the user wants it in the project) and give its path in your reply instead.
 - Don't size anything to the viewport height (`100vh`); Orca fits the frame to your content.
 - Use Orca's theme variables for surfaces, text, and controls; pair hover `--accent` with
   `--accent-foreground`. Scope fixed-palette CSS to its mockup. Orca updates tokens and

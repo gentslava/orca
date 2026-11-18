@@ -25,6 +25,7 @@ export function useTerminalStartupActivation(controller: TerminalStartupControll
     [activeWorktreeId]
   )
   const activeWorktreeHostAuthority = useAppStore(hostAuthoritySelector)
+
   const startupResumeWorktreeIdsRef = useRef(new Set<string>())
   useEffect(() => {
     if (

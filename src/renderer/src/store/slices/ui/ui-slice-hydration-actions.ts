@@ -37,6 +37,7 @@ import { normalizeStatusBarUsageMode } from '../../../../../shared/status-bar/st
 import { normalizeBrowserPageZoomLevel } from '../../../../../shared/browser/site-settings/browser-page-zoom'
 import { normalizeKagiSessionLink } from '../../../../../shared/browser/navigation/browser-url'
 import { isReleaseChannel } from '../../../../../shared/updater/release-channel'
+import { normalizeSidebarBody } from '../../../../../shared/ui-chrome/sidebar-body'
 import {
   filterSetupScriptPromptDismissalsToValidRepos,
   sanitizeSetupScriptPromptDismissals
@@ -67,11 +68,11 @@ import {
   clampPetSize
 } from './ui-slice-hydration-sanitizers'
 import {
-  hydrateAgentReadState,
-  hydrateSidebarWidths,
   hydrateOneShotNoticesSeen,
+  hydrateReadAndBotState,
   sanitizeTaskResumeState
-} from './ui-slice-hydration-values'
+} from './ui-slice-bot-sidebar-hydration'
+import { hydrateSidebarWidths } from './ui-slice-hydration-values'
 import { hydrateWslMovedSection } from './ui-slice-wsl-moved-section-actions'
 import { hydrateBrowserPaneLayout } from './browser-pane-layout-hydration'
 import { hydrateStatusBarItems } from './ui-slice-hydration-status-bar-items'
@@ -117,7 +118,7 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
             s.combinedDiffFileTreeWidth
           ),
           sidebarOpen: typeof ui.sidebarOpen === 'boolean' ? ui.sidebarOpen : true,
-          rightSidebarOpen: typeof ui.rightSidebarOpen === 'boolean' ? ui.rightSidebarOpen : false,
+          rightSidebarOpen: typeof ui.rightSidebarOpen === 'boolean' ? ui.rightSidebarOpen : true,
           ...normalizeRightSidebarRoute(ui.rightSidebarTab, ui.rightSidebarExplorerView),
           activityBarPosition: sanitizeActivityBarPosition(ui.activityBarPosition),
           groupBy: (ui.groupBy as UISlice['groupBy'] | 'parent') === 'parent' ? 'repo' : ui.groupBy,
@@ -261,7 +262,7 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
           statusBarCompactChangeNoticeDismissed: ui.statusBarCompactChangeNoticeDismissed !== false,
           ...hydrateOneShotNoticesSeen(ui),
           ...hydrateWslMovedSection(ui),
-          ...hydrateAgentReadState(ui),
+          ...hydrateReadAndBotState(ui),
           workspaceCleanupDismissals: sanitizeWorkspaceCleanupDismissals(
             ui.workspaceCleanup?.dismissals
           ),
@@ -273,6 +274,8 @@ export function createUiHydrationActions(set: UISliceSet, _get: UISliceGet): Par
           // Why: restore only on startup; on 'sync' broadcasts it would clobber the window's current per-window view.
           activeView:
             source === 'startup' ? sanitizeHydratedActiveView(ui.activeView) : s.activeView,
+          // Startup only, like activeView: another window's pick must not switch this one's list.
+          sidebarBody: source === 'startup' ? normalizeSidebarBody(ui.sidebarBody) : s.sidebarBody,
           persistedUIReady: true
         }
         // Capture authoritative baseline before overlaying dirty/in-flight local fields or their diff vanishes (STA-5781). Nonnumeric width fallback may differ from main until the next drag.

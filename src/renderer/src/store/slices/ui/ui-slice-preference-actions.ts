@@ -43,13 +43,20 @@ import {
   WORKSPACE_BOARD_COLUMN_WIDTH_DEFAULT
 } from '../../../../../shared/workspace/status/workspace-statuses'
 import { createHostWorkspaceStatusActions } from './ui-slice-host-workspace-statuses'
+import { createUiBotPreferenceActions } from './ui-slice-bot-preference-actions'
+import { toggleCollapsedGroupSet } from './collapsed-group-toggle'
+import { DEFAULT_SIDEBAR_BODY } from '../../../../../shared/ui-chrome/sidebar-body'
 
 /** Builds preference defaults and setters for the UI slice, leaving durable writes to the persistence layer. */
 export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Partial<UISlice> {
   return {
     gitGraphFiltersByWorktree: {},
-    sidebarBody: 'conversations',
+    sidebarBody: DEFAULT_SIDEBAR_BODY,
     setSidebarBody: (body) => set({ sidebarBody: body }),
+    chooseSidebarBody: (body) => {
+      set({ sidebarBody: body })
+      window.api.ui.set({ sidebarBody: body }).catch(console.error)
+    },
 
     groupBy: 'repo',
     // Why: group keys are mode-specific, so clear collapsed state on mode switch — stale keys are meaningless and accumulate.
@@ -118,6 +125,7 @@ export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Par
     setHideWorkspacesFromOtherDevices: (v) => set({ hideWorkspacesFromOtherDevices: v }),
     alwaysShowDefaultBranchWorkspace: true,
     setAlwaysShowDefaultBranchWorkspace: (v) => set({ alwaysShowDefaultBranchWorkspace: v }),
+    ...createUiBotPreferenceActions(set, get),
 
     explorerDisplayRootByWorktree: {},
     /** Stores an explicit root choice while rejecting empty IDs and prototype-related record keys. */
@@ -191,12 +199,7 @@ export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Par
     collapsedGroups: new Set<string>(),
     toggleCollapsedGroup: (key) =>
       set((s) => {
-        const next = new Set(s.collapsedGroups)
-        if (next.has(key)) {
-          next.delete(key)
-        } else {
-          next.add(key)
-        }
+        const next = toggleCollapsedGroupSet(s.collapsedGroups, key)
         window.api.ui.set({ collapsedGroups: [...next] }).catch(console.error)
         return { collapsedGroups: next }
       }),

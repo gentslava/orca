@@ -20,12 +20,6 @@ export const START_FAILURE_COPY = {
       AGENT_SESSION_FAILURE_COPY.providerStartFailed,
       values
     ),
-  providerResumeUnavailable: (values) =>
-    translate(
-      'session.failure.providerResumeUnavailable',
-      '{{agent}} cannot safely reopen this chat. Start a new chat or continue in the terminal.',
-      values
-    ),
   runCommandAgain: (values) =>
     translate(
       'session.failure.runCommandAgain',
