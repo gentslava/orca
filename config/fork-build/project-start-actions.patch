@@ -1525,10 +1525,10 @@ index 42f2110e3a6..bbce7a62d23 100644
          }
        }
 diff --git a/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts b/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
-index 0d82e6c164c..8ef4f38ad94 100644
+index 0d82e6c164c..386091465b8 100644
 --- a/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
 +++ b/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
-@@ -3,7 +3,7 @@ import { useAppStore } from '../../../../store/index'
+@@ -3,12 +3,12 @@ import { useAppStore } from '../../../../store/index'
  import { armFloatingPanelReclaimIntent } from '@/components/floating-terminal/focus/floating-workspace-focus-reclaim'
  import { isFloatingWorkspacePanelFocused } from '@/components/floating-terminal/workspace/floating-workspace-terminal-actions'
  import { selectFloatingVisibleTabCount } from '@/store/workspaces/floating/floating-workspace-panel-selector'
@@ -1537,12 +1537,31 @@ index 0d82e6c164c..8ef4f38ad94 100644
  
  /** Capture panel ownership before prompts/removal blur it; run the captured reaction only after the close lands. */
  export function captureWorkspaceEmptiedReaction(
+   worktreeId: string,
+-  options?: { floatingPanelGuestOwned?: boolean }
++  options?: { floatingPanelGuestOwned?: boolean; leavesStartPage?: boolean }
+ ): () => void {
+   // Emptying the floating panel retains keyboard ownership; emptying a worktree leaves that worktree.
+   if (worktreeId === FLOATING_TERMINAL_WORKTREE_ID) {
+@@ -20,10 +20,10 @@ export function captureWorkspaceEmptiedReaction(
+       }
+     }
+   }
+-  return () => leaveWorktreeIfEmpty(worktreeId)
++  return () => leaveWorktreeIfEmpty(worktreeId, options?.leavesStartPage === true)
+ }
+ 
+-function leaveWorktreeIfEmpty(worktreeId: string): void {
++function leaveWorktreeIfEmpty(worktreeId: string, leavesStartPage: boolean): void {
+   const state = useAppStore.getState()
+   if (state.activeWorktreeId !== worktreeId) {
+     return
 @@ -31,7 +31,7 @@ function leaveWorktreeIfEmpty(worktreeId: string): void {
    // Why: split-group closes bypass legacy Terminal.tsx; deselect the emptied worktree here or the window goes blank instead of landing.
    if (
      state.reconcileWorktreeTabModel(worktreeId).renderableTabCount === 0 &&
 -    !hasSplitLandingGroup(state, worktreeId)
-+    !keepsEmptiedWorkspaceOpen(worktreeId)
++    (leavesStartPage || !keepsEmptiedWorkspaceOpen(worktreeId))
    ) {
      state.setActiveWorktree(null)
    }
@@ -1862,3 +1881,18 @@ index 7f1ceec23ac..7e73c0833e6 100644
  describe('startup agent recovery host inventory', () => {
    it('keeps recovery available until the execution host answers', async () => {
      mocks.authority = 'unverifiable'
+diff --git a/src/renderer/src/lib/workspace/tabs/workspace-tab-commands.ts b/src/renderer/src/lib/workspace/tabs/workspace-tab-commands.ts
+index 49c67c7ead8..6a3f3617532 100644
+--- a/src/renderer/src/lib/workspace/tabs/workspace-tab-commands.ts
++++ b/src/renderer/src/lib/workspace/tabs/workspace-tab-commands.ts
+@@ -127,8 +127,8 @@ function closeFocusedSplitLanding(state: TabState): boolean {
+   if (group === null) {
+     return false
+   }
+-  // Closing a sole chooser empties the workspace, which then lands like a last-tab close.
+-  const whenEmptied = captureWorkspaceEmptiedReaction(group.worktreeId)
++  // Close on a sole empty chooser is the user leaving the workspace, not a last-tab close.
++  const whenEmptied = captureWorkspaceEmptiedReaction(group.worktreeId, { leavesStartPage: true })
+   if (!state.closeEmptyGroup(group.worktreeId, group.id)) {
+     return false
+   }
