@@ -30,51 +30,6 @@ index eb4426bfbe8..785fe0427f9 100644
                          : undefined,
                        ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
                      },
-diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-index fe551f09fb4..3602e70cf19 100644
---- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-+++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-@@ -27,7 +27,11 @@ import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inlin
- import { colors, radii, spacing, typography } from '../../../../theme/mobile-theme'
- import { themedStyleSheet } from '../../../../theme/themed-styles'
- import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
--import { nativeChatHostStatusCopy, nativeChatNoticeCopy, nativeChatNoticeLineText } from './native-chat-notice-copy'
-+import {
-+  nativeChatHostStatusCopy,
-+  nativeChatNoticeCopy,
-+  nativeChatNoticeLineText
-+} from './native-chat-notice-copy'
- import { nativeChatReviewNoticeSummary } from './native-chat-review-notice-copy'
- import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
- import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../../src/shared/native-chat/transcript/pending-sends/native-chat-stopped-before-start'
-diff --git a/src/main/persistence/applying-settings/ui-state-update.ts b/src/main/persistence/applying-settings/ui-state-update.ts
-index d6eeb14fc73..051d568d6c5 100644
---- a/src/main/persistence/applying-settings/ui-state-update.ts
-+++ b/src/main/persistence/applying-settings/ui-state-update.ts
-@@ -123,7 +123,6 @@ export function updatePersistedUI(
-       : normalizeSortBy(operations.state.ui?.sortBy),
-     conversationPreferences: normalizeConversationPreferences(
-       durableUpdates.conversationPreferences ?? currentUI.conversationPreferences
--
-     ),
-     personalProjectOrder: normalizePersonalProjectOrder(
-       durableUpdates.personalProjectOrder ?? currentUI.personalProjectOrder
-diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-index 408db7179f6..7c016eb9e13 100644
---- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-+++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-@@ -12,7 +12,10 @@ import { TabBarQuickCommandsButton } from '../tab-bar/quick-commands/TabBarQuick
- import { TabGroupPaneActionsMenu } from './panel/TabGroupPaneActionsMenu'
- import { useTabGroupWorkspaceModel } from './workspace-model/useTabGroupWorkspaceModel'
- import { closeTerminalTab } from '../terminal/tab-lifecycle/terminal-tab-actions'
--import { resolveGroupTabFromVisibleId, runGroupTabCommand } from './workspace-model/tab-group-visible-id'
-+import {
-+  resolveGroupTabFromVisibleId,
-+  runGroupTabCommand
-+} from './workspace-model/tab-group-visible-id'
- import { getTabPaneBodyDroppableId } from './drag/useTabDragSplit'
- import type { HoveredTabInsertion } from './drag/tab-insertion'
- import { tabGroupBodyAnchorName } from './retained-pane/tab-group-body-anchor'
 diff --git a/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx b/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx
 index aad359e80a2..d9ddbd62a4d 100644
 --- a/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx

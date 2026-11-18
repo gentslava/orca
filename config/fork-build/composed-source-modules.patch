@@ -1,3 +1,113 @@
+diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
+index 813d00d49af..3d82e0d3728 100644
+--- a/config/main-blocking-helper-baseline.txt
++++ b/config/main-blocking-helper-baseline.txt
+@@ -48,25 +48,15 @@
+ 3 src/main/ai-vault/scan-service/session-scanner-service-entry-path.ts
+ 12 src/main/ai-vault/scan-service/session-scanner-service-spawn.ts
+ 2 src/main/ai-vault/scanners/devin/session-scanner-devin-db.ts
+-2 src/main/ai-vault/scanners/hermes/hermes-state-db-conversations.ts
+-3 src/main/ai-vault/scanners/hermes/hermes-state-db-schema.ts
+ 2 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sources.ts
+-15 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sqlite.ts
+ 5 src/main/ai-vault/scanners/hermes/session-scanner-hermes-worker.ts
+ 1 src/main/ai-vault/scanners/omp/omp-session-root.ts
+ 2 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
+-15 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-dispatch.ts
+-1 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts
+ 25 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn.ts
+ 2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-wsl-client.ts
+ 3 src/main/ai-vault/scanners/opencode/session-scanner-opencode-sources.ts
+-3 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-capture.ts
+ 1 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-discovery.ts
+-2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-list.ts
+ 1 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
+-3 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite.ts
+-1 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite-list.ts
+-4 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
+ 1 src/main/ai-vault/scanners/zcode/session-scanner-zcode-sources.ts
+ 2 src/main/ai-vault/session-handoff-snapshot.ts
+ 1 src/main/ai-vault/session-titles/session-title-resolver.ts
+@@ -94,7 +84,7 @@
+ 1 src/main/automations/launch/automation-run-setup-skip.ts
+ 2 src/main/automations/runtime-automation-service.ts
+ 5 src/main/backend/backend-entry.ts
+-11 src/main/backend/core-runtime-activation.ts
++10 src/main/backend/core-runtime-activation.ts
+ 2 src/main/backend/core-runtime.ts
+ 4 src/main/bitbucket/client.ts
+ 5 src/main/bitbucket/credential-connection.ts
+@@ -599,7 +589,7 @@
+ 3 src/main/ipc/accounts/zcode-plan-credentials.ts
+ 1 src/main/ipc/ai-vault/ai-vault-search.ts
+ 1 src/main/ipc/ai-vault/ai-vault-subagent-list.ts
+-6 src/main/ipc/app.ts
++5 src/main/ipc/app.ts
+ 1 src/main/ipc/automations.ts
+ 3 src/main/ipc/browser/browser-client-host-cookie-import-ipc.ts
+ 1 src/main/ipc/browser/browser-extensions.ts
+@@ -647,7 +637,6 @@
+ 3 src/main/ipc/hooks/register-worktree-hook-check-handler.ts
+ 2 src/main/ipc/hooks/register-worktree-hook-file-handlers.ts
+ 3 src/main/ipc/jira/register-handlers.ts
+-1 src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
+ 1 src/main/ipc/linear/custom-view-handlers.ts
+ 7 src/main/ipc/linear/issue-handlers.ts
+ 2 src/main/ipc/linear/project-handlers.ts
+@@ -885,12 +874,8 @@
+ 1 src/main/native-chat/transcript-filesystem/process/wsl-transcript-fs-process-spawn.ts
+ 2 src/main/native-chat/transcript-filesystem/wsl-transcript-fs-access.ts
+ 2 src/main/native-chat/transcript-history/codex/codex-rollout-history-source.ts
+-7 src/main/native-chat/transcript-history/hermes/transcript-hermes-sqlite.ts
+ 4 src/main/native-chat/transcript-history/opencode/transcript-opencode-database.ts
+-7 src/main/native-chat/transcript-history/opencode/transcript-opencode-sqlite-query.ts
+ 4 src/main/native-chat/transcript-history/opencode/transcript-opencode.ts
+-2 src/main/native-chat/transcript-history/opencode/transcript-opencode2-fork-coverage.ts
+-2 src/main/native-chat/transcript-history/opencode/transcript-opencode2-sqlite.ts
+ 1 src/main/native-chat/transcript-read-cache.ts
+ 1 src/main/native-chat/transcript-reader.ts
+ 1 src/main/native-chat/transcript-tail-reader.ts
+@@ -954,7 +939,6 @@
+ 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
+ 5 src/main/orcad/account-launch/orcad-account-services.ts
+ 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
+-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+ 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+ 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
+ 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
+diff --git a/config/main-blocking-worker-entries.json b/config/main-blocking-worker-entries.json
+index 9fcf656e082..b280050bfd9 100644
+--- a/config/main-blocking-worker-entries.json
++++ b/config/main-blocking-worker-entries.json
+@@ -27,5 +27,6 @@
+   "src/main/bots/bot-items-tables.ts": "Bots DB worker; bot store SQL runs only inside this worker thread.",
+   "src/main/bots/bot-items-store.ts": "Bots DB worker; bot store SQL runs only inside this worker thread.",
+   "src/main/native-chat/agent-session-journal/journal-sql-reader-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
+-  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main."
++  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
++  "src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts": "Dedicated utility process entry; the Electron child and its SQLite reader thread do not run on the main event loop."
+ }
+diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
+index d2fcc6bc456..d4794a48318 100644
+--- a/config/main-sync-fs-baseline.txt
++++ b/config/main-sync-fs-baseline.txt
+@@ -285,7 +285,6 @@
+ 3 src/main/ipc/filesystem/watcher-process/parcel-watcher-entry-path.ts
+ 1 src/main/ipc/filesystem/watcher-process/root-paths/watcher-event-root-path-rewrite.ts
+ 1 src/main/ipc/filesystem/watcher-process/supervision/parcel-watcher-supervisor-subscribe.ts
+-1 src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
+ 1 src/main/ipc/notifications/notification-authorization-status.ts
+ 1 src/main/ipc/pty/host-env/spawn-pane-env.ts
+ 1 src/main/ipc/ssh/ssh-connect-flow.ts
+@@ -343,8 +342,6 @@
+ 4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
+ 2 src/main/orca-profiles/storage/new-profile-state.ts
+ 5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
+-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+-2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+ 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
+ 2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
+ 2 src/main/orcad/artifact-slots/orcad-daemon-slot-pins.ts
 diff --git a/config/oxlint-anti-slop.json b/config/oxlint-anti-slop.json
 index 54485134c60..121166bc7a4 100644
 --- a/config/oxlint-anti-slop.json
@@ -10,457 +120,116 @@ index 54485134c60..121166bc7a4 100644
          "**/*-test-fixture.{ts,tsx}",
          "**/*-test-fixtures.{ts,tsx}",
          "**/*.test-fixture.{ts,tsx}",
-diff --git a/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts b/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
-index 9adb526b310..435507e8d49 100644
---- a/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
-+++ b/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
+diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
+index c1cc706b193..b604f43c5c3 100644
+--- a/config/react-compiler-bailout-baseline.txt
++++ b/config/react-compiler-bailout-baseline.txt
+@@ -88,7 +88,6 @@
+ 2 src/renderer/src/components/browser-pane/page-prompts/browser-webauthn-account-dialog.tsx
+ 1 src/renderer/src/components/cmd-j/PaletteFilterFieldOptions.tsx
+ 1 src/renderer/src/components/cmd-j/PaletteFilterMenu.tsx
+-4 src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
+ 1 src/renderer/src/components/crash-report/CrashReportDialog.tsx
+ 1 src/renderer/src/components/crash-report/CrashReportDialogSurface.tsx
+ 3 src/renderer/src/components/crash-report/use-crash-report-copy.ts
+@@ -215,7 +214,6 @@
+ 1 src/renderer/src/components/task-page/linear/issue-workspace/linear-issue-workspace-detail-state.ts
+ 2 src/renderer/src/components/task-page/linear/item-drawer/linear-item-drawer-comment-footer.tsx
+ 1 src/renderer/src/components/link-actions/LinkActionPopover.tsx
+-3 src/renderer/src/components/link-actions/link-routing-preference-dialog.tsx
+ 1 src/renderer/src/components/mobile/MobilePage.tsx
+ 1 src/renderer/src/components/mobile/WindowsFirewallNotice.tsx
+ 2 src/renderer/src/components/mobile/use-mobile-page-paired-devices.ts
+diff --git a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+index 027e3018843..c676f463a8d 100644
+--- a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
++++ b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
 @@ -1,3 +1,4 @@
-+import type { MobileStructuredSendInput } from '../mobile-structured-send-input'
- import { agentSessionInteractionCommand } from '../../../../../../src/shared/agent-session/options/permissions/agent-session-interaction-mode'
- import { selectAgentSessionCurrentRequests } from '../../../../../../src/shared/agent-session/requests/agent-session-current-requests'
- import { useCallback } from 'react'
-@@ -10,27 +11,19 @@ import { pendingPromptsAllUnanswerableHere } from '../../../../../../src/shared/
- import {
-   SkillRefLimitError,
-   structuredAgentSessionSendBody,
--  type StructuredAgentSessionAttachment,
--  type StructuredAgentSessionSendControl
-+  type StructuredAgentSessionAttachment
- } from '../../../../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
- import type { AgentJournalSkillRef } from '../../../../../../src/shared/agent-session/journal/agent-session-journal-types'
- import { MAX_SKILL_REFS } from '../../../../../../src/shared/rpc-contract/structured-agent-session/structured-agent-session-message-params'
--import type { StructuredAgentSessionComposerOptions } from '../../../../../../src/shared/agent-session/view/structured-agent-session-composer'
- import { structuredAgentSessionGoalObjective } from '../../../../../../src/shared/agent-session/view/structured-agent-session-goal-mode'
- import { translate } from '../../../../i18n/mobile-i18n'
--import type { AgentSessionSlashCommand } from '../../../../../../src/shared/agent-session/agent-session-wire'
--import type { StructuredAgentSessionState } from '../../../../../../src/shared/agent-session/view/live-read/structured-agent-session-reducer'
- import { mobileStructuredSendQueues } from './mobile-structured-send-queue-rule'
--import type { RpcClient } from '../../../../transport/rpc/rpc-client-contract'
- import type {
-   MobileNativeChatSendIntent,
-   MobileNativeChatSendOutcome
- } from './mobile-native-chat-send'
- import { dispatchMobileStructuredCommand } from '../commands/mobile-structured-composer-command'
--import type { MobileNativeChatSendErrorReporter } from './use-mobile-native-chat-send-error'
- import { sendMobileStructuredAgentSessionMessage } from '../../agent-session/mobile-structured-agent-session-send'
--import type { MobileStructuredSends } from './use-mobile-structured-sends'
--import type { MobileStructuredSendsOut } from './use-mobile-structured-stop-offer'
- import { structuredSessionOperationId } from '../../agent-session/structured-session-operation-id'
- import { UNCONFIRMED_SEND_MESSAGE } from './use-mobile-native-chat-unconfirmed-sends'
- import { timeoutForDeadline } from '../../agent-session/mobile-structured-agent-session-rpc'
-@@ -44,47 +37,9 @@ export type StructuredMobileSendAttachment =
-   | (StructuredAgentSessionAttachment & { kind?: 'image'; id?: string })
-   | { kind: 'file'; id?: string; path: string }
- 
--export function useMobileStructuredSendWithOutcome(args: {
--  agent: string | null
--  client: RpcClient | null
--  sessionId: string | null
--  enabled: boolean
--  queueCapable: boolean
--  steerCapable?: boolean
--  queueFollowUps: boolean
--  commandsWait: boolean
--  stateRef: { readonly current: StructuredAgentSessionState }
--  stopping: boolean
--  /** The host's queue sends next: commands that cannot wait in line read the chat as working. */
--  queueSendsNext: boolean
--  accept: MobileStructuredSends['accept']
--  acknowledge: MobileStructuredSends['acknowledge']
--  reject: MobileStructuredSends['reject']
--  holdUnconfirmed: MobileStructuredSends['holdUnconfirmed']
--  commandPending: { current: boolean }
--  onClearSent: () => () => void
--  /** This chat's message sends still out, which a command waits behind as on desktop. */
--  sendsOut: MobileStructuredSendsOut
--  controller: Pick<
--    StructuredAgentSessionComposerOptions,
--    | 'snapshot'
--    | 'setOption'
--    | 'invokeAction'
--    | 'conversationCommands'
--    | 'compactInstructions'
--    | 'changeThreadGoal'
--    | 'openMcpPanel'
--  >
--  sessionCommands?: readonly AgentSessionSlashCommand[]
--  onSendError: MobileNativeChatSendErrorReporter
--  // Older hosts accept neither per-chat model nor effort.
--  /** The chat's own model and effort each send carries; absent for an older host, which takes neither. */
--  sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'>
--  sendOptions?: () => Readonly<Record<string, string>> | undefined
--  isModelWritePending?: () => boolean
--  // An older host refuses a send body carrying `skills`; there the `$name` text stands alone.
--  takesSkills?: boolean
--}): (
-+export function useMobileStructuredSendWithOutcome(
-+  args: MobileStructuredSendInput
-+): (
-   text: string,
-   images?: string[],
-   deadline?: number,
-diff --git a/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx b/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
-index 4abdf4398f7..cc301a8216e 100644
---- a/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
-+++ b/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
-@@ -18,6 +18,7 @@ export function MobileNativeChatModelList(props: {
-   moreChoices: { shown: boolean; onToggle: () => void }
-   onSetOption: (value: SessionOptionValue) => void
-   onInvokeAction: () => void
-+  onReset?: () => void
- }): React.JSX.Element {
-   useMobileColorScheme()
-   const t = useMobileTranslation()
-diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-index 75d2ca8cb70..fe551f09fb4 100644
---- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-+++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-@@ -13,31 +13,22 @@ import {
- } from '../../../../../../src/shared/native-chat/transcript/notices/native-chat-notice'
- import {
-   isTextBlock,
--  type NativeChatBlock,
--  type NativeChatTextBlock
-+  type NativeChatBlock
- } from '../../../../../../src/shared/native-chat/native-chat-types'
- import { readWholeAgentSessionFailureFact } from '../../../../../../src/shared/agent-session/failures/agent-session-failure'
- import { agentSessionFailureDetailText } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-quoted-detail'
--import { agentSessionFailureSentence } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-words'
- import { agentSessionSignInCommand } from '../../../../../../src/shared/agent-session/lifecycle/launch/agent-session-setup-commands'
--import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/transcript/continuation/native-chat-orca-stop-words'
- import {
-   MobileNativeChatForkedFromContext,
--  MobileNativeChatNoticeContext,
--  type MobileNativeChatNoticeView
-+  MobileNativeChatNoticeContext
- } from './mobile-native-chat-notice-context'
- import { MobileNativeChatMarkdown } from '../message-content/MobileNativeChatMarkdown'
- import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inline-text-selection'
- import { colors, radii, spacing, typography } from '../../../../theme/mobile-theme'
- import { themedStyleSheet } from '../../../../theme/themed-styles'
- import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
--import { nativeChatHostStatusCopy, nativeChatNoticeCopy } from './native-chat-notice-copy'
--import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
--import { nativeChatRestartNoteText } from './native-chat-restart-note-copy'
-+import { nativeChatHostStatusCopy, nativeChatNoticeCopy, nativeChatNoticeLineText } from './native-chat-notice-copy'
- import { nativeChatReviewNoticeSummary } from './native-chat-review-notice-copy'
--import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
--import { sayMobileAgentSessionFailure } from '../../agent-session/agent-session-failure-copy'
--import type { Translate } from '../../../../i18n/mobile-i18n'
- import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
- import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../../src/shared/native-chat/transcript/pending-sends/native-chat-stopped-before-start'
- import { MONO_SIZE, TEXT_SIZE, scaledType } from '../messages/mobile-native-chat-message-styles'
-@@ -51,46 +42,6 @@ function toneColor(tone: NativeChatNoticeTone): string {
-   return { warning: colors.statusAmber, error: colors.statusRed, notice: colors.textMuted }[tone]
- }
- 
--// The phone always reads its Orca host as remote.
--function noticeLineText(
--  notice: NativeChatTextBlock,
--  names: MobileNativeChatNoticeView,
--  t: Translate
--): string {
--  if (notice.orcaStop) {
--    const say = nativeChatOrcaStopSay(t)
--    return nativeChatOrcaStopRowText(
--      notice.orcaStop.cause,
--      names.hostName ?? say('unnamedServer'),
--      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
--      say
--    )
--  }
--  const failure = readWholeAgentSessionFailureFact(notice.failure)
--  if (failure?.kind === 'usageLimitReached') {
--    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
--  }
--  // Only reword text fully described by its fact; other host text stays as written.
--  const context = { agentName: names.agentName }
--  const surface =
--    failure &&
--    [
--      'savedConversationMissing',
--      'pluginInputRequired',
--      'modelUnavailable',
--      'providerUnavailable',
--      'providerSafetyStopped',
--      'providerResponseFailed'
--    ].includes(failure.kind)
--      ? (['row', 'rejection'] as const).find(
--          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
--        )
--      : undefined
--  return failure && surface
--    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
--    : (nativeChatRestartNoteText(notice.text, t) ?? notice.text)
--}
--
- // Render system notices separately so they cannot read as the agent’s own prose.
- export function MobileNativeChatNoticeRow({
-   blocks,
-@@ -124,7 +75,7 @@ export function MobileNativeChatNoticeRow({
-     ) : null
-   }
-   const look = nativeChatNoticeLook(notice)
--  const lineText = noticeLineText(notice, names, t)
-+  const lineText = nativeChatNoticeLineText(notice, names, t)
-   const failure = readWholeAgentSessionFailureFact(notice.failure)
-   const failureDetail = agentSessionFailureDetailText(failure)
-   const signInCommand =
-diff --git a/mobile/src/session/structured-session-send-options.test-fixture.ts b/mobile/src/session/structured-session-send-options.test-fixture.ts
++import { minifyLargeMobileWebScripts } from './minify-large-mobile-web-scripts.mjs'
+ import { readFile, readdir } from 'node:fs/promises'
+ import { readRouteSnapshot } from '../../mobile-web-app/mobile-web-app-route-snapshot.mjs'
+ import { MOBILE_WEB_APP_DEPENDENCY_PATH } from '../../mobile-web-app/mobile-web-app-bundle-dependencies.mjs'
+@@ -557,7 +558,9 @@ export async function bundleMobileWebApp({ appDir = defaultAppDir } = {}) {
+   const result = await buildMobileWebAppScripts(routes)
+   assertNoZodLocaleTables(result.metafile)
+   const entryOutputPath = entryOutput(result.metafile)
+-  const renamed = renameOutputsByContent(result.metafile, result.outputFiles)
++  const catalogOutputs = localeCatalogOutputs(result.metafile)
++  const outputFiles = await minifyLargeMobileWebScripts(result.outputFiles, catalogOutputs)
++  const renamed = renameOutputsByContent(result.metafile, outputFiles)
+   const entry = renamed.get(basename(entryOutputPath))
+   const byName = (left, right) => (left.name < right.name ? -1 : 1)
+   const others = [...renamed.entries()]
+@@ -568,7 +571,6 @@ export async function bundleMobileWebApp({ appDir = defaultAppDir } = {}) {
+   const chunks = others.filter(({ emittedName }) => isScriptOutput(emittedName)).sort(byName)
+   const images = others.filter(({ emittedName }) => !isScriptOutput(emittedName)).sort(byName)
+   const closure = entryStaticClosure(result.metafile, entryOutputPath)
+-  const catalogOutputs = localeCatalogOutputs(result.metafile)
+   return {
+     script: entry.bytes,
+     chunks,
+diff --git a/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs b/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs
 new file mode 100644
-index 00000000000..6dc8230a498
+index 00000000000..0174074fbf0
 --- /dev/null
-+++ b/mobile/src/session/structured-session-send-options.test-fixture.ts
-@@ -0,0 +1,31 @@
-+import type { AgentSessionOptionsResult } from '../../../src/shared/agent-session/options/protocol/agent-session-options-result'
-+import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
-+import { structuredSendResultFixture } from './structured-agent-send-result.test-fixture'
-+import { ok } from './native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture'
++++ b/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs
+@@ -0,0 +1,30 @@
++import { createRequire } from 'node:module'
++import { basename } from 'node:path'
++import { isScriptOutput } from './mobile-web-app-chunk-grouping.mjs'
 +
-+export function deferred<T>() {
-+  let resolve!: (value: T) => void
-+  const promise = new Promise<T>((accept) => {
-+    resolve = accept
-+  })
-+  return { promise, resolve }
-+}
++const requireMobile = createRequire(new URL('../../../../mobile/package.json', import.meta.url))
++const LARGE_SCRIPT_BYTES = 256 * 1024
 +
-+export const MODEL_OPTIONS: AgentSessionOptionsResult = {
-+  conversationCommands: ['compact'],
-+  models: [
-+    { id: 'opus', label: 'Opus', isDefault: true, efforts: [] },
-+    { id: 'sonnet', label: 'Sonnet', isDefault: false, efforts: [] }
-+  ],
-+  current: { model: 'opus' }
-+}
-+
-+export function sendResult(dispatchState: AgentJournalDispatchState, reason: string | null = null) {
-+  return ok({
-+    ok: true,
-+    replayed: false,
-+    fence: 3,
-+    cursor: { epoch: 'epoch-1', sequence: 1 },
-+    value: structuredSendResultFixture(dispatchState, reason)
-+  })
-+}
-diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-index a91b2664235..3ce1ba18c68 100644
---- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-+++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
-@@ -20,7 +20,6 @@ import { StructuredAgentSessionBackgroundTaskChannel as BackgroundTasks } from '
- import { StructuredAgentSessionClientDelivery } from '../publication/subscribers/structured-agent-session-client-delivery'
- import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
- import * as resume from '../recovery/structured-agent-session-restart-resume-host'
--import type { StructuredAgentSessionRestartResume } from '../recovery/structured-agent-session-restart-resume-contract'
- import { restartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
- import * as conversation from '../delivery/structured-agent-session-host-delivery'
- import { wireStructuredAgentSessionQueuedMessages as wireQueuedMessages } from '../delivery/structured-agent-session-queued-wiring'
-@@ -61,7 +60,7 @@ export class StructuredAgentSessionHost {
-   private readonly conversationDelivery: conversation.StructuredAgentSessionConversationDelivery
-   private readonly eventRecovery: EventRecovery
-   private readonly backgroundTasks: BackgroundTasks
--  readonly restartResume: StructuredAgentSessionRestartResume
-+  readonly restartResume: ReturnType<typeof resume.createStructuredAgentSessionRestartResume>
- 
-   readonly usageLimitContinue: ReturnType<typeof usageLimit.start>
- 
-diff --git a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
-index b0335445e8b..c9f50d3039b 100644
---- a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
-+++ b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
-@@ -1,4 +1,4 @@
--import { act, fireEvent, getByRole, waitFor } from '@testing-library/react'
-+import { act, fireEvent, getByRole, queryByRole, waitFor } from '@testing-library/react'
- import { expect } from 'vitest'
- import type { Root } from 'react-dom/client'
- import { useAppStore } from '@/store'
-@@ -125,8 +125,14 @@ export async function verifyOmniboxPresetIdentity(
-     await waitFor(() => expect(effort('Low')).not.toBeNull())
-   }
-   const close = () => fireEvent.keyDown(setupPanel()!, { key: 'Escape' })
--  const effort = (label: string) =>
--    getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
-+  const effort = (label: string) => {
-+    const slider = queryByRole(document.body, 'slider', { name: 'Effort' })
-+    return slider
-+      ? slider.getAttribute('aria-valuetext') === label
-+        ? 'on'
-+        : 'off'
-+      : getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
-+  }
-   try {
-     await showEntries(false)
-     await configure()
-diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-index 60add3b6720..091e62dffbd 100644
---- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-+++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
-@@ -65,7 +65,7 @@ import { nativeChatStructuredStopControls } from './session/structured/writes/na
- import { useAppStore } from '../../store'
- import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
- import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
--import { NativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
-+import { nativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
- import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
- import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
- import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
-@@ -341,20 +341,14 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
-               />
-               {subagents.strip}
-               <NativeChatStructuredWorkerApprovals pane={props} isVisible={parentShown} />
--              {prompt || subagentOpen ? null : (
--                <NativeChatStructuredComposerTabStrips
--                  tabId={props.tabId}
--                  runtimeContext={imageRuntimeContext}
--                  threadGoal={controller.threadGoal}
--                  transport={transport}
--                  isWorking={controller.isWorking}
--                  isVisible={props.isVisible}
--                  turnId={controller.turnId}
--                  workingStartedAt={controller.workingStartedAt}
--                  target={props.target}
--                  focusComposer={focusComposer}
--                />
--              )}
-+              {nativeChatStructuredComposerTabStrips({
-+                shown: !prompt && !subagentOpen,
-+                pane: props,
-+                controller,
-+                runtimeContext: imageRuntimeContext,
-+                transport,
-+                focusComposer
-+              })}
-               {/* Prompt cards take the composer's slot, below the background-task dock. */}
-               {composerShown || subagentOpen ? null : (
-                 <NativeChatPromptSlotNotices notices={notices} />
-diff --git a/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx b/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
-index 4b4abbd83bb..7086c48f6bb 100644
---- a/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
-+++ b/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
-@@ -95,3 +95,36 @@ function NativeChatStructuredGoalStrip(props: {
-     />
-   )
- }
-+
-+type ComposerTabStripsProps = Parameters<typeof NativeChatStructuredComposerTabStrips>[0]
-+
-+export function nativeChatStructuredComposerTabStrips({
-+  shown,
-+  pane,
-+  controller,
-+  runtimeContext,
-+  transport,
-+  focusComposer
-+}: {
-+  shown: boolean
-+  pane: Pick<ComposerTabStripsProps, 'tabId' | 'isVisible' | 'target'>
-+  controller: Pick<
-+    ComposerTabStripsProps,
-+    'threadGoal' | 'isWorking' | 'turnId' | 'workingStartedAt'
-+  >
-+} & Pick<ComposerTabStripsProps, 'runtimeContext' | 'transport' | 'focusComposer'>) {
-+  return shown ? (
-+    <NativeChatStructuredComposerTabStrips
-+      tabId={pane.tabId}
-+      target={pane.target}
-+      focusComposer={focusComposer}
-+      runtimeContext={runtimeContext}
-+      threadGoal={controller.threadGoal}
-+      transport={transport}
-+      isWorking={controller.isWorking}
-+      isVisible={pane.isVisible}
-+      turnId={controller.turnId}
-+      workingStartedAt={controller.workingStartedAt}
-+    />
-+  ) : null
-+}
-diff --git a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
-index 8d53a0d8d2e..623e4606cea 100644
---- a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
-+++ b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
-@@ -24,6 +24,7 @@ import {
- } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-labels'
- import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
- import type { NativeChatOptionPickerRequest } from './native-chat-option-picker-request'
-+import { withPendingValue, type PendingPick } from './native-chat-session-option-pending-pick'
- import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
- import { NativeChatModelCombobox } from './NativeChatModelCombobox'
- import { useNativeChatPickerFocusReturn } from '../../../composer/focus/native-chat-picker-focus-return'
-@@ -39,35 +40,6 @@ export type NativeChatSessionOptionPickersProps = {
-   focusComposer?: () => void
- }
- 
--/** A descriptor write in flight; its value shows until it settles. */
--type PendingPick = { id: string; value?: SessionOptionValue }
--
--// Show pending picks in place while open; refusal restores the host snapshot.
--function withPendingValue(
--  descriptor: SessionOptionDescriptor,
--  pending: PendingPick | null
--): SessionOptionDescriptor {
--  if (pending?.id !== descriptor.id) {
--    return descriptor
--  }
--  const { kind } = descriptor
--  if (kind.type === 'select' && typeof pending.value === 'string') {
--    return {
--      ...descriptor,
--      valueSource: 'dispatched',
--      kind: { ...kind, currentValue: pending.value }
--    }
--  }
--  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
--    return {
--      ...descriptor,
--      valueSource: 'dispatched',
--      kind: { ...kind, currentValue: pending.value }
--    }
--  }
--  return descriptor
--}
--
- // Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
- function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
-   return value === title
-diff --git a/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts
-new file mode 100644
-index 00000000000..cc17b59b6c8
---- /dev/null
-+++ b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts
-@@ -0,0 +1,33 @@
-+import type {
-+  SessionOptionDescriptor,
-+  SessionOptionValue
-+} from '../../../../../../../shared/native-chat/input/native-chat-session-options'
-+
-+/** A descriptor write in flight; its value shows until it settles. */
-+export type PendingPick = { id: string; value?: SessionOptionValue }
-+
-+// Show pending picks in place while open; refusal restores the host snapshot.
-+export function withPendingValue(
-+  descriptor: SessionOptionDescriptor,
-+  pending: PendingPick | null
-+): SessionOptionDescriptor {
-+  if (pending?.id !== descriptor.id) {
-+    return descriptor
-+  }
-+  const { kind } = descriptor
-+  if (kind.type === 'select' && typeof pending.value === 'string') {
-+    return {
-+      ...descriptor,
-+      valueSource: 'dispatched',
-+      kind: { ...kind, currentValue: pending.value }
++export async function minifyLargeMobileWebScripts(outputFiles, catalogOutputs) {
++  const files = []
++  for (const output of outputFiles) {
++    if (
++      !isScriptOutput(output.path) ||
++      output.contents.byteLength < LARGE_SCRIPT_BYTES ||
++      catalogOutputs.has(basename(output.path))
++    ) {
++      files.push(output)
++      continue
 +    }
++    const { minify } = requireMobile('terser')
++    const { code } = await minify(output.text, {
++      module: true,
++      ecma: 2022,
++      compress: { passes: 2 },
++      mangle: true
++    })
++    const contents = Buffer.from(code)
++    files.push(contents.byteLength < output.contents.byteLength ? { ...output, contents } : output)
 +  }
-+  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
-+    return {
-+      ...descriptor,
-+      valueSource: 'dispatched',
-+      kind: { ...kind, currentValue: pending.value }
-+    }
-+  }
-+  return descriptor
++  return files
 +}
+diff --git a/mobile/package.json b/mobile/package.json
+index 462ddff5fce..ecf71f9cd0b 100644
+--- a/mobile/package.json
++++ b/mobile/package.json
+@@ -98,6 +98,7 @@
+     "oxfmt": "^0.74.0",
+     "oxlint": "1.91.0",
+     "react-test-renderer": "19.3.0",
++    "terser": "5.51.2",
+     "tsx": "^4.23.15",
+     "typescript": "^7.0.2",
+     "typescript-api": "npm:typescript@6.0.3",
+diff --git a/mobile/pnpm-lock.yaml b/mobile/pnpm-lock.yaml
+index 0fa61bb55e2..ba3f063528a 100644
+--- a/mobile/pnpm-lock.yaml
++++ b/mobile/pnpm-lock.yaml
+@@ -428,6 +428,9 @@ importers:
+       react-test-renderer:
+         specifier: 19.3.0
+         version: 19.3.0(react@19.3.0)
++      terser:
++        specifier: 5.51.2
++        version: 5.51.2
+       tsx:
+         specifier: ^4.23.15
+         version: 4.23.15
 diff --git a/mobile/src/session/mobile-pending-model-send.test-fixture.ts b/mobile/src/session/mobile-pending-model-send.test-fixture.ts
 new file mode 100644
 index 00000000000..e7a7f3ff7be
@@ -630,6 +399,95 @@ index 00000000000..e7a7f3ff7be
 +    }
 +  )
 +}
+diff --git a/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts b/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
+index 9adb526b310..435507e8d49 100644
+--- a/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
++++ b/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
+@@ -1,3 +1,4 @@
++import type { MobileStructuredSendInput } from '../mobile-structured-send-input'
+ import { agentSessionInteractionCommand } from '../../../../../../src/shared/agent-session/options/permissions/agent-session-interaction-mode'
+ import { selectAgentSessionCurrentRequests } from '../../../../../../src/shared/agent-session/requests/agent-session-current-requests'
+ import { useCallback } from 'react'
+@@ -10,27 +11,19 @@ import { pendingPromptsAllUnanswerableHere } from '../../../../../../src/shared/
+ import {
+   SkillRefLimitError,
+   structuredAgentSessionSendBody,
+-  type StructuredAgentSessionAttachment,
+-  type StructuredAgentSessionSendControl
++  type StructuredAgentSessionAttachment
+ } from '../../../../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
+ import type { AgentJournalSkillRef } from '../../../../../../src/shared/agent-session/journal/agent-session-journal-types'
+ import { MAX_SKILL_REFS } from '../../../../../../src/shared/rpc-contract/structured-agent-session/structured-agent-session-message-params'
+-import type { StructuredAgentSessionComposerOptions } from '../../../../../../src/shared/agent-session/view/structured-agent-session-composer'
+ import { structuredAgentSessionGoalObjective } from '../../../../../../src/shared/agent-session/view/structured-agent-session-goal-mode'
+ import { translate } from '../../../../i18n/mobile-i18n'
+-import type { AgentSessionSlashCommand } from '../../../../../../src/shared/agent-session/agent-session-wire'
+-import type { StructuredAgentSessionState } from '../../../../../../src/shared/agent-session/view/live-read/structured-agent-session-reducer'
+ import { mobileStructuredSendQueues } from './mobile-structured-send-queue-rule'
+-import type { RpcClient } from '../../../../transport/rpc/rpc-client-contract'
+ import type {
+   MobileNativeChatSendIntent,
+   MobileNativeChatSendOutcome
+ } from './mobile-native-chat-send'
+ import { dispatchMobileStructuredCommand } from '../commands/mobile-structured-composer-command'
+-import type { MobileNativeChatSendErrorReporter } from './use-mobile-native-chat-send-error'
+ import { sendMobileStructuredAgentSessionMessage } from '../../agent-session/mobile-structured-agent-session-send'
+-import type { MobileStructuredSends } from './use-mobile-structured-sends'
+-import type { MobileStructuredSendsOut } from './use-mobile-structured-stop-offer'
+ import { structuredSessionOperationId } from '../../agent-session/structured-session-operation-id'
+ import { UNCONFIRMED_SEND_MESSAGE } from './use-mobile-native-chat-unconfirmed-sends'
+ import { timeoutForDeadline } from '../../agent-session/mobile-structured-agent-session-rpc'
+@@ -44,47 +37,9 @@ export type StructuredMobileSendAttachment =
+   | (StructuredAgentSessionAttachment & { kind?: 'image'; id?: string })
+   | { kind: 'file'; id?: string; path: string }
+ 
+-export function useMobileStructuredSendWithOutcome(args: {
+-  agent: string | null
+-  client: RpcClient | null
+-  sessionId: string | null
+-  enabled: boolean
+-  queueCapable: boolean
+-  steerCapable?: boolean
+-  queueFollowUps: boolean
+-  commandsWait: boolean
+-  stateRef: { readonly current: StructuredAgentSessionState }
+-  stopping: boolean
+-  /** The host's queue sends next: commands that cannot wait in line read the chat as working. */
+-  queueSendsNext: boolean
+-  accept: MobileStructuredSends['accept']
+-  acknowledge: MobileStructuredSends['acknowledge']
+-  reject: MobileStructuredSends['reject']
+-  holdUnconfirmed: MobileStructuredSends['holdUnconfirmed']
+-  commandPending: { current: boolean }
+-  onClearSent: () => () => void
+-  /** This chat's message sends still out, which a command waits behind as on desktop. */
+-  sendsOut: MobileStructuredSendsOut
+-  controller: Pick<
+-    StructuredAgentSessionComposerOptions,
+-    | 'snapshot'
+-    | 'setOption'
+-    | 'invokeAction'
+-    | 'conversationCommands'
+-    | 'compactInstructions'
+-    | 'changeThreadGoal'
+-    | 'openMcpPanel'
+-  >
+-  sessionCommands?: readonly AgentSessionSlashCommand[]
+-  onSendError: MobileNativeChatSendErrorReporter
+-  // Older hosts accept neither per-chat model nor effort.
+-  /** The chat's own model and effort each send carries; absent for an older host, which takes neither. */
+-  sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'>
+-  sendOptions?: () => Readonly<Record<string, string>> | undefined
+-  isModelWritePending?: () => boolean
+-  // An older host refuses a send body carrying `skills`; there the `$name` text stands alone.
+-  takesSkills?: boolean
+-}): (
++export function useMobileStructuredSendWithOutcome(
++  args: MobileStructuredSendInput
++): (
+   text: string,
+   images?: string[],
+   deadline?: number,
 diff --git a/mobile/src/session/native-chat/composer/mobile-structured-send-input.ts b/mobile/src/session/native-chat/composer/mobile-structured-send-input.ts
 new file mode 100644
 index 00000000000..84b8fc85743
@@ -686,8 +544,20 @@ index 00000000000..84b8fc85743
 +  // An older host refuses a send body carrying `skills`; there the `$name` text stands alone.
 +  takesSkills?: boolean
 +}
+diff --git a/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx b/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
+index 4abdf4398f7..cc301a8216e 100644
+--- a/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
++++ b/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
+@@ -18,6 +18,7 @@ export function MobileNativeChatModelList(props: {
+   moreChoices: { shown: boolean; onToggle: () => void }
+   onSetOption: (value: SessionOptionValue) => void
+   onInvokeAction: () => void
++  onReset?: () => void
+ }): React.JSX.Element {
+   useMobileColorScheme()
+   const t = useMobileTranslation()
 diff --git a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-copy.ts b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-copy.ts
-index 64098a81868..3d084789e03 100644
+index 87c3094ee2e..f7d703e77e3 100644
 --- a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-copy.ts
 +++ b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-copy.ts
 @@ -1,3 +1,12 @@
@@ -703,7 +573,7 @@ index 64098a81868..3d084789e03 100644
  import type { Translate } from '../../../../i18n/mobile-i18n'
  
  export function nativeChatNoticeCopy(t: Translate) {
-@@ -26,3 +35,43 @@ export function nativeChatHostStatusCopy(t: Translate) {
+@@ -27,3 +36,43 @@ export function nativeChatHostStatusCopy(t: Translate) {
      )
    }
  }
@@ -747,139 +617,43 @@ index 64098a81868..3d084789e03 100644
 +    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
 +    : (nativeChatRestartNoteText(notice.text, t) ?? notice.text)
 +}
-diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
-index 8f3c041f235..415e64ff839 100644
---- a/config/main-blocking-helper-baseline.txt
-+++ b/config/main-blocking-helper-baseline.txt
-@@ -49,25 +49,15 @@
- 3 src/main/ai-vault/scan-service/session-scanner-service-entry-path.ts
- 12 src/main/ai-vault/scan-service/session-scanner-service-spawn.ts
- 2 src/main/ai-vault/scanners/devin/session-scanner-devin-db.ts
--2 src/main/ai-vault/scanners/hermes/hermes-state-db-conversations.ts
--3 src/main/ai-vault/scanners/hermes/hermes-state-db-schema.ts
- 2 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sources.ts
--15 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sqlite.ts
- 5 src/main/ai-vault/scanners/hermes/session-scanner-hermes-worker.ts
- 1 src/main/ai-vault/scanners/omp/omp-session-root.ts
- 2 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
--15 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-dispatch.ts
--1 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts
- 25 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn.ts
- 2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-wsl-client.ts
- 3 src/main/ai-vault/scanners/opencode/session-scanner-opencode-sources.ts
--3 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-capture.ts
- 1 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-discovery.ts
--2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-list.ts
- 1 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
--3 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite.ts
--1 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite-list.ts
--4 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
- 1 src/main/ai-vault/scanners/zcode/session-scanner-zcode-sources.ts
- 2 src/main/ai-vault/session-handoff-snapshot.ts
- 1 src/main/ai-vault/session-titles/session-title-resolver.ts
-@@ -555,7 +545,7 @@
- 3 src/main/ipc/accounts/zcode-plan-credentials.ts
- 1 src/main/ipc/ai-vault/ai-vault-search.ts
- 1 src/main/ipc/ai-vault/ai-vault-subagent-list.ts
--6 src/main/ipc/app.ts
-+5 src/main/ipc/app.ts
- 1 src/main/ipc/automations.ts
- 3 src/main/ipc/browser/browser-client-host-cookie-import-ipc.ts
- 1 src/main/ipc/browser/browser-extensions.ts
-@@ -603,7 +593,6 @@
- 3 src/main/ipc/hooks/register-worktree-hook-check-handler.ts
- 2 src/main/ipc/hooks/register-worktree-hook-file-handlers.ts
- 3 src/main/ipc/jira/register-handlers.ts
--1 src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
- 1 src/main/ipc/linear/custom-view-handlers.ts
- 7 src/main/ipc/linear/issue-handlers.ts
- 2 src/main/ipc/linear/project-handlers.ts
-@@ -840,12 +829,8 @@
- 1 src/main/native-chat/transcript-filesystem/process/wsl-transcript-fs-process-spawn.ts
- 2 src/main/native-chat/transcript-filesystem/wsl-transcript-fs-access.ts
- 2 src/main/native-chat/transcript-history/codex/codex-rollout-history-source.ts
--7 src/main/native-chat/transcript-history/hermes/transcript-hermes-sqlite.ts
- 4 src/main/native-chat/transcript-history/opencode/transcript-opencode-database.ts
--7 src/main/native-chat/transcript-history/opencode/transcript-opencode-sqlite-query.ts
- 4 src/main/native-chat/transcript-history/opencode/transcript-opencode.ts
--2 src/main/native-chat/transcript-history/opencode/transcript-opencode2-fork-coverage.ts
--2 src/main/native-chat/transcript-history/opencode/transcript-opencode2-sqlite.ts
- 1 src/main/native-chat/transcript-read-cache.ts
- 1 src/main/native-chat/transcript-reader.ts
- 1 src/main/native-chat/transcript-tail-reader.ts
-@@ -1248,6 +1233,7 @@
- 5 src/main/runtime/orchestration/legacy-remote/federated-dispatch-observation-fence.ts
- 2 src/main/runtime/orchestration/legacy-remote/legacy-remote-db-methods.ts
- 3 src/main/runtime/orchestration/legacy-remote/remote-dispatch-attachment-create.ts
-+1 src/main/runtime/orchestration/session-links/session-link-store.ts # PROPOSED REVIEW: unchanged fork transaction around existing orchestration writes; present in prior source 5b79d8ced17c.
- 2 src/main/runtime/orchestration/workers/lifecycle/context-only-dispatch-release.ts
- 1 src/main/runtime/orchestration/workers/transcripts/worker-transcript-read.ts
- 2 src/main/runtime/push/push-unregister-outbox.ts
-@@ -1602,7 +1588,7 @@
- 4 src/shared/remote-runtime/host-store/runtime-environment-store-command.ts
- 2 src/shared/remote-runtime/host-store/runtime-environment-store-file.ts
- 6 src/shared/remote-runtime/host-store/runtime-environment-store-observation.ts
--9 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
-+10 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts # PROPOSED REVIEW: existing worker-owned rename; inline use is one offline CLI command.
- 1 src/shared/remote-runtime/host-store/runtime-environment-store-read-cache.ts
- 2 src/shared/remote-runtime/host-store/runtime-environment-store-records.ts
- 1 src/shared/remote-runtime/host-store/runtime-environment-store-worker-entry.ts
-diff --git a/config/main-blocking-sqlite-baseline.txt b/config/main-blocking-sqlite-baseline.txt
-index c56ae457c6b..e459f57d023 100644
---- a/config/main-blocking-sqlite-baseline.txt
-+++ b/config/main-blocking-sqlite-baseline.txt
-@@ -4,17 +4,7 @@
- 13 src/main/ai-vault-search/storage/session-search-schema.ts
- 20 src/main/ai-vault/parse-cache/session-parse-cache-database.ts
- 13 src/main/ai-vault/parse-cache/session-scope-cwds-table.ts
--1 src/main/ai-vault/scanners/hermes/hermes-state-db-activity.ts
--16 src/main/ai-vault/scanners/hermes/hermes-state-db-conversations.ts
--4 src/main/ai-vault/scanners/hermes/hermes-state-db-messages.ts
--6 src/main/ai-vault/scanners/hermes/hermes-state-db-schema.ts
--2 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sqlite.ts
--2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-capture.ts
--4 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-list.ts
- 2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
--6 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite.ts
--6 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite-list.ts
--10 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
- 5 src/main/browser-passwords/browser-password-chromium-import.ts
- 1 src/main/browser/cookies/chromium/prepare-import.ts
- 5 src/main/browser/cookies/sources/browser-cookie-firefox-import.ts
-@@ -64,9 +54,6 @@
- 8 src/main/native-chat/agent-session-journal/writing/command-receipt-table.ts
- 2 src/main/native-chat/agent-session-journal/writing/journal-goal-attachment-inverse.ts
- 4 src/main/native-chat/agent-session-journal/writing/mail-withdrawal-receipts.ts
--10 src/main/native-chat/transcript-history/opencode/transcript-opencode-sqlite-query.ts
--14 src/main/native-chat/transcript-history/opencode/transcript-opencode2-fork-coverage.ts
--10 src/main/native-chat/transcript-history/opencode/transcript-opencode2-sqlite.ts
- 13 src/main/persistence/moving-wsl-projects/desktop-state/wsl-move-orchestration-history-rewrite.ts
- 8 src/main/persistence/profile-state/automation-runs/profile-state-automation-runs-migration.ts
- 4 src/main/persistence/profile-state/automation-runs/profile-state-automation-runs-reader.ts
-diff --git a/config/main-blocking-worker-entries.json b/config/main-blocking-worker-entries.json
-index 5aaf15417ec..0ab684e040d 100644
---- a/config/main-blocking-worker-entries.json
-+++ b/config/main-blocking-worker-entries.json
-@@ -23,5 +23,6 @@
-   "src/main/ipc/filesystem/watcher-process/parcel-watcher-process-entry.ts": "Dedicated utility/child-process entry; blocking work stays off Electron main.",
-   "src/main/orcad/orcad-local-serve-selection-entry.ts": "Dedicated utility/child-process entry; blocking work stays off Electron main.",
-   "src/main/native-chat/agent-session-journal/journal-sql-reader-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
--  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main."
-+  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
-+  "src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts": "Dedicated utility process entry; the Electron child and its SQLite reader thread do not run on the main event loop."
- }
-diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
-index 1d30f0bd762..47023b18bbd 100644
---- a/config/main-sync-fs-baseline.txt
-+++ b/config/main-sync-fs-baseline.txt
-@@ -271,7 +271,6 @@
- 3 src/main/ipc/filesystem/watcher-process/parcel-watcher-entry-path.ts
- 1 src/main/ipc/filesystem/watcher-process/root-paths/watcher-event-root-path-rewrite.ts
- 1 src/main/ipc/filesystem/watcher-process/supervision/parcel-watcher-supervisor-subscribe.ts
--1 src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
- 1 src/main/ipc/notifications/notification-authorization-status.ts
- 1 src/main/ipc/pty/host-env/spawn-pane-env.ts
- 1 src/main/ipc/ssh/ssh-connect-flow.ts
+diff --git a/mobile/src/session/structured-session-send-options.test-fixture.ts b/mobile/src/session/structured-session-send-options.test-fixture.ts
+new file mode 100644
+index 00000000000..6dc8230a498
+--- /dev/null
++++ b/mobile/src/session/structured-session-send-options.test-fixture.ts
+@@ -0,0 +1,31 @@
++import type { AgentSessionOptionsResult } from '../../../src/shared/agent-session/options/protocol/agent-session-options-result'
++import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
++import { structuredSendResultFixture } from './structured-agent-send-result.test-fixture'
++import { ok } from './native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture'
++
++export function deferred<T>() {
++  let resolve!: (value: T) => void
++  const promise = new Promise<T>((accept) => {
++    resolve = accept
++  })
++  return { promise, resolve }
++}
++
++export const MODEL_OPTIONS: AgentSessionOptionsResult = {
++  conversationCommands: ['compact'],
++  models: [
++    { id: 'opus', label: 'Opus', isDefault: true, efforts: [] },
++    { id: 'sonnet', label: 'Sonnet', isDefault: false, efforts: [] }
++  ],
++  current: { model: 'opus' }
++}
++
++export function sendResult(dispatchState: AgentJournalDispatchState, reason: string | null = null) {
++  return ok({
++    ok: true,
++    replayed: false,
++    fence: 3,
++    cursor: { epoch: 'epoch-1', sequence: 1 },
++    value: structuredSendResultFixture(dispatchState, reason)
++  })
++}
 diff --git a/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts b/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts
 index c90a2d5b506..6fe92f00d5e 100644
 --- a/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts
@@ -1027,186 +801,27 @@ index 208f54b7e06..ee68cf270c6 100644
    return cachedHelperPath
  }
  
-diff --git a/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts b/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
-index 8ac1ac64241..6429df5a661 100644
---- a/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
-+++ b/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
-@@ -1,5 +1,5 @@
- // Use the pinned packaged build named by ORCA_CROSS_VERSION_PACKAGED_EXECUTABLE; skip when it is unavailable.
--import { assertMacGuiLaunchAllowed } from '../../../config/scripts/gui-launch/macos-gui-launch-preflight.mjs'
-+import { assertMacGuiLaunchAllowed } from '../../../../../config/scripts/gui-launch/macos-gui-launch-preflight.mjs'
- import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
- import { createServer, type AddressInfo } from 'node:net'
- import os from 'node:os'
-diff --git a/src/main/claude/structured/launch/claude-structured-child-env.ts b/src/main/claude/structured/launch/claude-structured-child-env.ts
-index 767a8fc52c2..db783de946a 100644
---- a/src/main/claude/structured/launch/claude-structured-child-env.ts
-+++ b/src/main/claude/structured/launch/claude-structured-child-env.ts
-@@ -118,3 +118,19 @@ export function claudeProbeEnv(sources: ClaudeChildEnvSources): Record<string, s
-     process.platform
-   )
- }
-+
-+const CLAUDE_ARTIFACT_ENV = 'CLAUDE_CODE_ARTIFACT'
-+
-+// SDK entrypoints hide Claude's Artifact tools unless this is set; a user value still wins,
-+// matched case-insensitively on Windows, where claude_code_artifact=0 is the same opt-out.
-+export function withClaudeArtifactDefault(
-+  env: Record<string, string>,
-+  platform: NodeJS.Platform = process.platform
-+): Record<string, string> {
-+  const chosen = Object.keys(env).some(
-+    (key) =>
-+      key === CLAUDE_ARTIFACT_ENV ||
-+      (platform === 'win32' && key.toUpperCase() === CLAUDE_ARTIFACT_ENV)
-+  )
-+  return chosen ? env : { ...env, [CLAUDE_ARTIFACT_ENV]: '1' }
-+}
-diff --git a/src/main/claude/structured/launch/claude-structured-launch-resolution.ts b/src/main/claude/structured/launch/claude-structured-launch-resolution.ts
-index 75da59d8d14..9d5328569b2 100644
---- a/src/main/claude/structured/launch/claude-structured-launch-resolution.ts
-+++ b/src/main/claude/structured/launch/claude-structured-launch-resolution.ts
-@@ -20,6 +20,7 @@ import {
- import type { ClaudeStructuredAuthPolicy } from '../../../claude-accounts/runtime-auth/claude-structured-auth-policy'
- import {
-   claudeChildEnv,
-+  withClaudeArtifactDefault,
-   claudeProbeEnv,
-   resolveClaudeChildEnvSources,
-   type ClaudeChildEnvSources,
-@@ -47,21 +48,7 @@ import {
+diff --git a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
+index e878fcf51f2..095dd4feb5a 100644
+--- a/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
++++ b/src/main/native-chat/agent-session-wire/host/structured-agent-session-host.ts
+@@ -20,7 +20,6 @@ import { StructuredAgentSessionBackgroundTaskChannel as BackgroundTasks } from '
+ import { StructuredAgentSessionClientDelivery } from '../publication/subscribers/structured-agent-session-client-delivery'
+ import { createStructuredAgentSessionPublicationWiring } from './structured-agent-session-publication-wiring'
+ import * as resume from '../recovery/structured-agent-session-restart-resume-host'
+-import type { StructuredAgentSessionRestartResume } from '../recovery/structured-agent-session-restart-resume-contract'
+ import { restartResumeSurfaces } from '../recovery/structured-agent-session-restart-resume-wiring'
+ import * as conversation from '../delivery/structured-agent-session-host-delivery'
+ import { wireStructuredAgentSessionQueuedMessages as wireQueuedMessages } from '../delivery/structured-agent-session-queued-wiring'
+@@ -61,7 +60,7 @@ export class StructuredAgentSessionHost {
+   private readonly conversationDelivery: conversation.StructuredAgentSessionConversationDelivery
+   private readonly eventRecovery: EventRecovery
+   private readonly backgroundTasks: BackgroundTasks
+-  readonly restartResume: StructuredAgentSessionRestartResume
++  readonly restartResume: ReturnType<typeof resume.createStructuredAgentSessionRestartResume>
  
- export const CLAUDE_DEFAULT_SETTING_SOURCES = ['user', 'project', 'local'] as const
- export const CLAUDE_SESSION_STATE_EVENTS_ENV = 'CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS'
--const CLAUDE_ARTIFACT_ENV = 'CLAUDE_CODE_ARTIFACT'
--
--// SDK entrypoints hide Claude's Artifact tools unless this is set; a user value still wins,
--// matched case-insensitively on Windows, where claude_code_artifact=0 is the same opt-out.
--export function withClaudeArtifactDefault(
--  env: Record<string, string>,
--  platform: NodeJS.Platform = process.platform
--): Record<string, string> {
--  const chosen = Object.keys(env).some(
--    (key) =>
--      key === CLAUDE_ARTIFACT_ENV ||
--      (platform === 'win32' && key.toUpperCase() === CLAUDE_ARTIFACT_ENV)
--  )
--  return chosen ? env : { ...env, [CLAUDE_ARTIFACT_ENV]: '1' }
--}
-+export { withClaudeArtifactDefault } from './claude-structured-child-env'
+   readonly usageLimitContinue: ReturnType<typeof usageLimit.start>
  
- type ClaudePermissionOptions = Pick<ClaudeAgentSdkOptions, 'permissionMode' | 'extraArgs'>
- 
-diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-index cb333c68a7c..d5d9f7cf439 100644
---- a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-+++ b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-@@ -1,6 +1,7 @@
- // Persist desktop-pushed account environment so launches before reconnect keep the selected account.
- import { randomUUID } from 'node:crypto'
--import { readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
-+import { renameSync, rmSync, writeFileSync } from 'node:fs'
-+import { readFile } from 'node:fs/promises'
- import { join } from 'node:path'
- import {
-   HostAccountLaunchEnvParams,
-@@ -12,10 +13,12 @@ import { createWslHostClaudeProfileRefresh } from './orcad-wsl-host-claude-profi
- 
- const FILE_NAME = 'host-account-launch-env.json'
- 
--export function readOrcadHostAccountLaunchEnv(userDataPath: string): HostAccountLaunchEnv | null {
-+async function readOrcadHostAccountLaunchEnv(
-+  userDataPath: string
-+): Promise<HostAccountLaunchEnv | null> {
-   let raw: string
-   try {
--    raw = readFileSync(join(userDataPath, FILE_NAME), 'utf8')
-+    raw = await readFile(join(userDataPath, FILE_NAME), 'utf8')
-   } catch {
-     return null
-   }
-@@ -42,15 +45,15 @@ export function writeOrcadHostAccountLaunchEnv(
-   }
- }
- 
--export function restoreOrcadHostAccountLaunchEnv(
-+export async function restoreOrcadHostAccountLaunchEnv(
-   runtime: Pick<OrcaRuntimeService, 'restoreHostAccountLaunchEnv'>,
-   userDataPath: string,
-   isWslHost: () => boolean = isWslHostOrcadProcess
--): void {
-+): Promise<void> {
-   // Why only a WSL host: only there does a desktop push accounts into account folders in this distro.
-   const wslHost = isWslHost()
-   runtime.restoreHostAccountLaunchEnv(
--    readOrcadHostAccountLaunchEnv(userDataPath),
-+    await readOrcadHostAccountLaunchEnv(userDataPath),
-     (launchEnv) => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv),
-     wslHost
-       ? { expectDesktopPush: true, refreshClaudeProfile: createWslHostClaudeProfileRefresh() }
-diff --git a/src/main/orcad/orcad-profile-runtime-services.ts b/src/main/orcad/orcad-profile-runtime-services.ts
-index da37b7bbaf3..4eba41af69a 100644
---- a/src/main/orcad/orcad-profile-runtime-services.ts
-+++ b/src/main/orcad/orcad-profile-runtime-services.ts
-@@ -29,7 +29,7 @@ export async function installOrcadProfileRuntimeServices({
-   // Restore the profile's account selection before admitting launches.
-   const { restoreOrcadHostAccountLaunchEnv } =
-     await import('./account-launch/orcad-host-account-launch-env-store')
--  restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
-+  await restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
-   featureReadiness.open('accounts')
- 
-   const { installOrcadSessionSearchService } = await import('./host-runtime/orcad-session-search')
-diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
-index b920410fbc3..a6e47a42a88 100644
---- a/config/main-blocking-helper-baseline.txt
-+++ b/config/main-blocking-helper-baseline.txt
-@@ -890,7 +890,7 @@
- 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
- 5 src/main/orcad/account-launch/orcad-account-services.ts
- 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
--4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-+3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
- 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
- 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
- 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
-diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
-index 47023b18bbd..d038325fb9b 100644
---- a/config/main-sync-fs-baseline.txt
-+++ b/config/main-sync-fs-baseline.txt
-@@ -328,7 +328,7 @@
- 4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
- 2 src/main/orca-profiles/storage/new-profile-state.ts
- 5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
--4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-+3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
- 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
- 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
- 2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
-diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
-index a6e47a42a88..ba6102b33b4 100644
---- a/config/main-blocking-helper-baseline.txt
-+++ b/config/main-blocking-helper-baseline.txt
-@@ -890,7 +890,6 @@
- 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
- 5 src/main/orcad/account-launch/orcad-account-services.ts
- 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
--3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
- 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
- 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
- 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
-diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
-index d038325fb9b..6a461461686 100644
---- a/config/main-sync-fs-baseline.txt
-+++ b/config/main-sync-fs-baseline.txt
-@@ -328,7 +328,6 @@
- 4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
- 2 src/main/orca-profiles/storage/new-profile-state.ts
- 5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
--3 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
- 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
- 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
- 2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
 diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.test.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.test.ts
 new file mode 100644
 index 00000000000..f23979d8724
@@ -1239,19 +854,38 @@ index 00000000000..f23979d8724
 +  }
 +})
 diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-index d5d9f7cf439..ee4b3c2578a 100644
+index cb333c68a7c..95d7e6cde89 100644
 --- a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
 +++ b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-@@ -1,7 +1,6 @@
+@@ -1,21 +1,23 @@
  // Persist desktop-pushed account environment so launches before reconnect keep the selected account.
  import { randomUUID } from 'node:crypto'
--import { renameSync, rmSync, writeFileSync } from 'node:fs'
--import { readFile } from 'node:fs/promises'
+-import { readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 +import { readFile, rename, rm, writeFile } from 'node:fs/promises'
  import { join } from 'node:path'
  import {
    HostAccountLaunchEnvParams,
-@@ -30,17 +29,17 @@ async function readOrcadHostAccountLaunchEnv(
+   type HostAccountLaunchEnv
+ } from '../../../shared/agent-launch/startup/host-account-launch-env'
+ import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
+-import { isWslHostOrcadProcess } from '../../wsl/filesystem/wsl-guest-windows-drive-path'
++import { isWslHostOrcadProcessAsync } from '../../wsl/filesystem/wsl-guest-windows-drive-path'
+ import { createWslHostClaudeProfileRefresh } from './orcad-wsl-host-claude-profile-refresh'
+ 
+ const FILE_NAME = 'host-account-launch-env.json'
+ 
+-export function readOrcadHostAccountLaunchEnv(userDataPath: string): HostAccountLaunchEnv | null {
++async function readOrcadHostAccountLaunchEnv(
++  userDataPath: string
++): Promise<HostAccountLaunchEnv | null> {
+   let raw: string
+   try {
+-    raw = readFileSync(join(userDataPath, FILE_NAME), 'utf8')
++    raw = await readFile(join(userDataPath, FILE_NAME), 'utf8')
+   } catch {
+     return null
+   }
+@@ -27,31 +29,36 @@ export function readOrcadHostAccountLaunchEnv(userDataPath: string): HostAccount
    }
  }
  
@@ -1274,14 +908,23 @@ index d5d9f7cf439..ee4b3c2578a 100644
      throw error
    }
  }
-@@ -52,9 +51,14 @@ export async function restoreOrcadHostAccountLaunchEnv(
- ): Promise<void> {
+ 
+-export function restoreOrcadHostAccountLaunchEnv(
++export async function restoreOrcadHostAccountLaunchEnv(
+   runtime: Pick<OrcaRuntimeService, 'restoreHostAccountLaunchEnv'>,
+   userDataPath: string,
+-  isWslHost: () => boolean = isWslHostOrcadProcess
+-): void {
++  isWslHost: () => boolean | Promise<boolean> = isWslHostOrcadProcessAsync
++): Promise<void> {
    // Why only a WSL host: only there does a desktop push accounts into account folders in this distro.
-   const wslHost = isWslHost()
+-  const wslHost = isWslHost()
++  const wslHost = await isWslHost()
 +  let writes = Promise.resolve()
    runtime.restoreHostAccountLaunchEnv(
-     await readOrcadHostAccountLaunchEnv(userDataPath),
+-    readOrcadHostAccountLaunchEnv(userDataPath),
 -    (launchEnv) => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv),
++    await readOrcadHostAccountLaunchEnv(userDataPath),
 +    (launchEnv) => {
 +      const write = writes.then(() => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv))
 +      writes = write.catch(() => {})
@@ -1290,6 +933,63 @@ index d5d9f7cf439..ee4b3c2578a 100644
      wslHost
        ? { expectDesktopPush: true, refreshClaudeProfile: createWslHostClaudeProfileRefresh() }
        : {}
+diff --git a/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts b/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+index f91a4b31a7a..dabfbf8c4d6 100644
+--- a/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
++++ b/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+@@ -3,7 +3,7 @@
+  * ~/.claude first, as the desktop's launches into the distro do. Without it the folder stays as it
+  * was when the account was added: Claude replays its first-run screens and misses settings changes.
+  */
+-import { existsSync } from 'node:fs'
++import { access } from 'node:fs/promises'
+ import { homedir } from 'node:os'
+ import { posix } from 'node:path'
+ import type { HostAccountLaunchEnv } from '../../../shared/agent-launch/startup/host-account-launch-env'
+@@ -25,13 +25,19 @@ export function createWslHostClaudeProfileRefresh(
+   args: {
+     userHome?: string
+     provision?: Provision
+-    hasMarker?: (markerPath: string) => boolean
++    hasMarker?: (markerPath: string) => boolean | Promise<boolean>
+     waitMs?: number
+   } = {}
+ ): (launchEnv: HostAccountLaunchEnv) => Promise<void> {
+   const userHome = args.userHome ?? homedir()
+   const provision = args.provision ?? provisionWslClaudeAccountProfile
+-  const hasMarker = args.hasMarker ?? existsSync
++  const hasMarker =
++    args.hasMarker ??
++    ((path) =>
++      access(path).then(
++        () => true,
++        () => false
++      ))
+   const running = new Map<string, Promise<void>>()
+ 
+   return async (launchEnv) => {
+@@ -49,7 +55,7 @@ export function createWslHostClaudeProfileRefresh(
+     }
+     // Why both: only Orca's own folder for this account is rewritten, and only one the desktop
+     // already set up; a missing folder is the desktop's to create when the account is added.
+-    if (profile.home !== configDir || !hasMarker(claudeProfileMarkerPath(profile))) {
++    if (profile.home !== configDir || !(await hasMarker(claudeProfileMarkerPath(profile)))) {
+       return
+     }
+     let refresh = running.get(accountId)
+diff --git a/src/main/orcad/orcad-profile-runtime-services.ts b/src/main/orcad/orcad-profile-runtime-services.ts
+index da37b7bbaf3..4eba41af69a 100644
+--- a/src/main/orcad/orcad-profile-runtime-services.ts
++++ b/src/main/orcad/orcad-profile-runtime-services.ts
+@@ -29,7 +29,7 @@ export async function installOrcadProfileRuntimeServices({
+   // Restore the profile's account selection before admitting launches.
+   const { restoreOrcadHostAccountLaunchEnv } =
+     await import('./account-launch/orcad-host-account-launch-env-store')
+-  restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
++  await restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
+   featureReadiness.open('accounts')
+ 
+   const { installOrcadSessionSearchService } = await import('./host-runtime/orcad-session-search')
 diff --git a/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts b/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts
 index 370212121c2..b2a9f60743f 100644
 --- a/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts
@@ -1365,205 +1065,6 @@ index 3e3b3d63b63..a3f49d5b3c9 100644
        return {}
      }
    }),
-diff --git a/cloud/apps/relay-edge/src/host-relay-director.ts b/cloud/apps/relay-edge/src/host-relay-director.ts
-index 9452912cb5a..98a9c1bc167 100644
---- a/cloud/apps/relay-edge/src/host-relay-director.ts
-+++ b/cloud/apps/relay-edge/src/host-relay-director.ts
-@@ -84,8 +84,7 @@ export abstract class HostRelayDirector extends HostRelayPhones {
-       if (!namespace) { break }
-       try {
-         const index = namespace.get(namespace.idFromName(userId))
--        if (op === 'add') { await index.add(pending.relayHostId) }
--        else { await index.remove(pending.relayHostId) }
-+        await (op === 'add' ? index.add(pending.relayHostId) : index.remove(pending.relayHostId))
-         acked[userId] = op
-       } catch {
-         // Retried below.
-diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
-index ba6102b33b4..897091af8b5 100644
---- a/config/main-blocking-helper-baseline.txt
-+++ b/config/main-blocking-helper-baseline.txt
-@@ -84,7 +84,7 @@
- 1 src/main/automations/launch/automation-run-setup-skip.ts
- 2 src/main/automations/runtime-automation-service.ts
- 5 src/main/backend/backend-entry.ts
--11 src/main/backend/core-runtime-activation.ts
-+10 src/main/backend/core-runtime-activation.ts
- 2 src/main/backend/core-runtime.ts
- 4 src/main/bitbucket/client.ts
- 5 src/main/bitbucket/credential-connection.ts
-diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
-index 6a461461686..e9937b452f4 100644
---- a/config/main-sync-fs-baseline.txt
-+++ b/config/main-sync-fs-baseline.txt
-@@ -328,7 +328,6 @@
- 4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
- 2 src/main/orca-profiles/storage/new-profile-state.ts
- 5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
--2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
- 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
- 2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
- 2 src/main/orcad/artifact-slots/orcad-daemon-slot-pins.ts
-diff --git a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
-index bb9917c8eb7..12c56dbc620 100644
---- a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
-+++ b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
-@@ -1,3 +1,4 @@
-+import { minifyLargeMobileWebScripts } from './minify-large-mobile-web-scripts.mjs'
- import { readFile, readdir } from 'node:fs/promises'
- import { readRouteSnapshot } from '../../mobile-web-app/mobile-web-app-route-snapshot.mjs'
- import { MOBILE_WEB_APP_DEPENDENCY_PATH } from '../../mobile-web-app/mobile-web-app-bundle-dependencies.mjs'
-@@ -555,7 +556,9 @@ export async function bundleMobileWebApp({ appDir = defaultAppDir } = {}) {
-   const result = await buildMobileWebAppScripts(routes)
-   assertNoZodLocaleTables(result.metafile)
-   const entryOutputPath = entryOutput(result.metafile)
--  const renamed = renameOutputsByContent(result.metafile, result.outputFiles)
-+  const catalogOutputs = localeCatalogOutputs(result.metafile)
-+  const outputFiles = await minifyLargeMobileWebScripts(result.outputFiles, catalogOutputs)
-+  const renamed = renameOutputsByContent(result.metafile, outputFiles)
-   const entry = renamed.get(basename(entryOutputPath))
-   const byName = (left, right) => (left.name < right.name ? -1 : 1)
-   const others = [...renamed.entries()]
-@@ -566,7 +569,6 @@ export async function bundleMobileWebApp({ appDir = defaultAppDir } = {}) {
-   const chunks = others.filter(({ emittedName }) => isScriptOutput(emittedName)).sort(byName)
-   const images = others.filter(({ emittedName }) => !isScriptOutput(emittedName)).sort(byName)
-   const closure = entryStaticClosure(result.metafile, entryOutputPath)
--  const catalogOutputs = localeCatalogOutputs(result.metafile)
-   return {
-     script: entry.bytes,
-     chunks,
-diff --git a/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs b/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs
-new file mode 100644
-index 00000000000..0174074fbf0
---- /dev/null
-+++ b/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs
-@@ -0,0 +1,30 @@
-+import { createRequire } from 'node:module'
-+import { basename } from 'node:path'
-+import { isScriptOutput } from './mobile-web-app-chunk-grouping.mjs'
-+
-+const requireMobile = createRequire(new URL('../../../../mobile/package.json', import.meta.url))
-+const LARGE_SCRIPT_BYTES = 256 * 1024
-+
-+export async function minifyLargeMobileWebScripts(outputFiles, catalogOutputs) {
-+  const files = []
-+  for (const output of outputFiles) {
-+    if (
-+      !isScriptOutput(output.path) ||
-+      output.contents.byteLength < LARGE_SCRIPT_BYTES ||
-+      catalogOutputs.has(basename(output.path))
-+    ) {
-+      files.push(output)
-+      continue
-+    }
-+    const { minify } = requireMobile('terser')
-+    const { code } = await minify(output.text, {
-+      module: true,
-+      ecma: 2022,
-+      compress: { passes: 2 },
-+      mangle: true
-+    })
-+    const contents = Buffer.from(code)
-+    files.push(contents.byteLength < output.contents.byteLength ? { ...output, contents } : output)
-+  }
-+  return files
-+}
-diff --git a/mobile/package.json b/mobile/package.json
-index 462ddff5fce..ecf71f9cd0b 100644
---- a/mobile/package.json
-+++ b/mobile/package.json
-@@ -98,6 +98,7 @@
-     "oxfmt": "^0.74.0",
-     "oxlint": "1.91.0",
-     "react-test-renderer": "19.3.0",
-+    "terser": "5.51.2",
-     "tsx": "^4.23.15",
-     "typescript": "^7.0.2",
-     "typescript-api": "npm:typescript@6.0.3",
-diff --git a/mobile/pnpm-lock.yaml b/mobile/pnpm-lock.yaml
-index 0fa61bb55e2..ba3f063528a 100644
---- a/mobile/pnpm-lock.yaml
-+++ b/mobile/pnpm-lock.yaml
-@@ -428,6 +428,9 @@ importers:
-       react-test-renderer:
-         specifier: 19.3.0
-         version: 19.3.0(react@19.3.0)
-+      terser:
-+        specifier: 5.51.2
-+        version: 5.51.2
-       tsx:
-         specifier: ^4.23.15
-         version: 4.23.15
-diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-index ee4b3c2578a..95d7e6cde89 100644
---- a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-+++ b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-@@ -7,7 +7,7 @@ import {
-   type HostAccountLaunchEnv
- } from '../../../shared/agent-launch/startup/host-account-launch-env'
- import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
--import { isWslHostOrcadProcess } from '../../wsl/filesystem/wsl-guest-windows-drive-path'
-+import { isWslHostOrcadProcessAsync } from '../../wsl/filesystem/wsl-guest-windows-drive-path'
- import { createWslHostClaudeProfileRefresh } from './orcad-wsl-host-claude-profile-refresh'
- 
- const FILE_NAME = 'host-account-launch-env.json'
-@@ -47,10 +47,10 @@ async function writeOrcadHostAccountLaunchEnv(
- export async function restoreOrcadHostAccountLaunchEnv(
-   runtime: Pick<OrcaRuntimeService, 'restoreHostAccountLaunchEnv'>,
-   userDataPath: string,
--  isWslHost: () => boolean = isWslHostOrcadProcess
-+  isWslHost: () => boolean | Promise<boolean> = isWslHostOrcadProcessAsync
- ): Promise<void> {
-   // Why only a WSL host: only there does a desktop push accounts into account folders in this distro.
--  const wslHost = isWslHost()
-+  const wslHost = await isWslHost()
-   let writes = Promise.resolve()
-   runtime.restoreHostAccountLaunchEnv(
-     await readOrcadHostAccountLaunchEnv(userDataPath),
-diff --git a/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts b/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
-index f91a4b31a7a..dabfbf8c4d6 100644
---- a/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
-+++ b/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
-@@ -3,7 +3,7 @@
-  * ~/.claude first, as the desktop's launches into the distro do. Without it the folder stays as it
-  * was when the account was added: Claude replays its first-run screens and misses settings changes.
-  */
--import { existsSync } from 'node:fs'
-+import { access } from 'node:fs/promises'
- import { homedir } from 'node:os'
- import { posix } from 'node:path'
- import type { HostAccountLaunchEnv } from '../../../shared/agent-launch/startup/host-account-launch-env'
-@@ -25,13 +25,19 @@ export function createWslHostClaudeProfileRefresh(
-   args: {
-     userHome?: string
-     provision?: Provision
--    hasMarker?: (markerPath: string) => boolean
-+    hasMarker?: (markerPath: string) => boolean | Promise<boolean>
-     waitMs?: number
-   } = {}
- ): (launchEnv: HostAccountLaunchEnv) => Promise<void> {
-   const userHome = args.userHome ?? homedir()
-   const provision = args.provision ?? provisionWslClaudeAccountProfile
--  const hasMarker = args.hasMarker ?? existsSync
-+  const hasMarker =
-+    args.hasMarker ??
-+    ((path) =>
-+      access(path).then(
-+        () => true,
-+        () => false
-+      ))
-   const running = new Map<string, Promise<void>>()
- 
-   return async (launchEnv) => {
-@@ -49,7 +55,7 @@ export function createWslHostClaudeProfileRefresh(
-     }
-     // Why both: only Orca's own folder for this account is rewritten, and only one the desktop
-     // already set up; a missing folder is the desktop's to create when the account is added.
--    if (profile.home !== configDir || !hasMarker(claudeProfileMarkerPath(profile))) {
-+    if (profile.home !== configDir || !(await hasMarker(claudeProfileMarkerPath(profile)))) {
-       return
-     }
-     let refresh = running.get(accountId)
 diff --git a/src/main/wsl/filesystem/wsl-guest-windows-drive-path.ts b/src/main/wsl/filesystem/wsl-guest-windows-drive-path.ts
 index e5ed8061d81..515a57f337f 100644
 --- a/src/main/wsl/filesystem/wsl-guest-windows-drive-path.ts
@@ -1622,8 +1123,35 @@ index e5ed8061d81..515a57f337f 100644
  /** Decode /proc/mounts octal escapes, including whitespace and backslashes. */
  function decodeMountField(field: string): string {
    return field.replace(/\\([0-7]{3})/g, (_match, octal: string) =>
+diff --git a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
+index b0335445e8b..c9f50d3039b 100644
+--- a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
++++ b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
+@@ -1,4 +1,4 @@
+-import { act, fireEvent, getByRole, waitFor } from '@testing-library/react'
++import { act, fireEvent, getByRole, queryByRole, waitFor } from '@testing-library/react'
+ import { expect } from 'vitest'
+ import type { Root } from 'react-dom/client'
+ import { useAppStore } from '@/store'
+@@ -125,8 +125,14 @@ export async function verifyOmniboxPresetIdentity(
+     await waitFor(() => expect(effort('Low')).not.toBeNull())
+   }
+   const close = () => fireEvent.keyDown(setupPanel()!, { key: 'Escape' })
+-  const effort = (label: string) =>
+-    getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
++  const effort = (label: string) => {
++    const slider = queryByRole(document.body, 'slider', { name: 'Effort' })
++    return slider
++      ? slider.getAttribute('aria-valuetext') === label
++        ? 'on'
++        : 'off'
++      : getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
++  }
+   try {
+     await showEntries(false)
+     await configure()
 diff --git a/src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx b/src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
-index abe23fa0573..38595bf89d9 100644
+index 446ee2ebd62..d62315d7974 100644
 --- a/src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
 +++ b/src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
 @@ -46,13 +46,13 @@ export function ConfirmationDialogProvider({
@@ -1725,23 +1253,363 @@ index 0b7d2f035f6..da0aab31c70 100644
  
    return (
      <LinkRoutingPreferenceDialogContext.Provider value={requestPreference}>
-diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
-index 1cf3344e4a3..0c82b4149a7 100644
---- a/config/react-compiler-bailout-baseline.txt
-+++ b/config/react-compiler-bailout-baseline.txt
-@@ -72,7 +72,6 @@
- 2 src/renderer/src/components/browser-pane/page-prompts/browser-webauthn-account-dialog.tsx
- 1 src/renderer/src/components/cmd-j/PaletteFilterFieldOptions.tsx
- 1 src/renderer/src/components/cmd-j/PaletteFilterMenu.tsx
--4 src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
- 1 src/renderer/src/components/crash-report/CrashReportDialog.tsx
- 1 src/renderer/src/components/crash-report/CrashReportDialogSurface.tsx
- 3 src/renderer/src/components/crash-report/use-crash-report-copy.ts
-@@ -199,7 +198,6 @@
- 1 src/renderer/src/components/task-page/linear/issue-workspace/linear-issue-workspace-detail-state.ts
- 2 src/renderer/src/components/task-page/linear/item-drawer/linear-item-drawer-comment-footer.tsx
- 1 src/renderer/src/components/link-actions/LinkActionPopover.tsx
--3 src/renderer/src/components/link-actions/link-routing-preference-dialog.tsx
- 1 src/renderer/src/components/mobile/MobilePage.tsx
- 1 src/renderer/src/components/mobile/WindowsFirewallNotice.tsx
- 2 src/renderer/src/components/mobile/use-mobile-page-paired-devices.ts
+diff --git a/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx b/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
+index 651d8fd0aea..534bdf73ab9 100644
+--- a/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
++++ b/src/renderer/src/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips.tsx
+@@ -95,3 +95,36 @@ function NativeChatStructuredGoalStrip(props: {
+     />
+   )
+ }
++
++type ComposerTabStripsProps = Parameters<typeof NativeChatStructuredComposerTabStrips>[0]
++
++export function nativeChatStructuredComposerTabStrips({
++  shown,
++  pane,
++  controller,
++  runtimeContext,
++  transport,
++  focusComposer
++}: {
++  shown: boolean
++  pane: Pick<ComposerTabStripsProps, 'tabId' | 'isVisible' | 'target'>
++  controller: Pick<
++    ComposerTabStripsProps,
++    'threadGoal' | 'isWorking' | 'turnId' | 'workingStartedAt'
++  >
++} & Pick<ComposerTabStripsProps, 'runtimeContext' | 'transport' | 'focusComposer'>) {
++  return shown ? (
++    <NativeChatStructuredComposerTabStrips
++      tabId={pane.tabId}
++      target={pane.target}
++      focusComposer={focusComposer}
++      runtimeContext={runtimeContext}
++      threadGoal={controller.threadGoal}
++      transport={transport}
++      isWorking={controller.isWorking}
++      isVisible={pane.isVisible}
++      turnId={controller.turnId}
++      workingStartedAt={controller.workingStartedAt}
++    />
++  ) : null
++}
+diff --git a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+index 8d53a0d8d2e..623e4606cea 100644
+--- a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
++++ b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+@@ -24,6 +24,7 @@ import {
+ } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-labels'
+ import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
+ import type { NativeChatOptionPickerRequest } from './native-chat-option-picker-request'
++import { withPendingValue, type PendingPick } from './native-chat-session-option-pending-pick'
+ import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
+ import { NativeChatModelCombobox } from './NativeChatModelCombobox'
+ import { useNativeChatPickerFocusReturn } from '../../../composer/focus/native-chat-picker-focus-return'
+@@ -39,35 +40,6 @@ export type NativeChatSessionOptionPickersProps = {
+   focusComposer?: () => void
+ }
+ 
+-/** A descriptor write in flight; its value shows until it settles. */
+-type PendingPick = { id: string; value?: SessionOptionValue }
+-
+-// Show pending picks in place while open; refusal restores the host snapshot.
+-function withPendingValue(
+-  descriptor: SessionOptionDescriptor,
+-  pending: PendingPick | null
+-): SessionOptionDescriptor {
+-  if (pending?.id !== descriptor.id) {
+-    return descriptor
+-  }
+-  const { kind } = descriptor
+-  if (kind.type === 'select' && typeof pending.value === 'string') {
+-    return {
+-      ...descriptor,
+-      valueSource: 'dispatched',
+-      kind: { ...kind, currentValue: pending.value }
+-    }
+-  }
+-  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
+-    return {
+-      ...descriptor,
+-      valueSource: 'dispatched',
+-      kind: { ...kind, currentValue: pending.value }
+-    }
+-  }
+-  return descriptor
+-}
+-
+ // Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
+ function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
+   return value === title
+diff --git a/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts
+new file mode 100644
+index 00000000000..cc17b59b6c8
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-pending-pick.ts
+@@ -0,0 +1,33 @@
++import type {
++  SessionOptionDescriptor,
++  SessionOptionValue
++} from '../../../../../../../shared/native-chat/input/native-chat-session-options'
++
++/** A descriptor write in flight; its value shows until it settles. */
++export type PendingPick = { id: string; value?: SessionOptionValue }
++
++// Show pending picks in place while open; refusal restores the host snapshot.
++export function withPendingValue(
++  descriptor: SessionOptionDescriptor,
++  pending: PendingPick | null
++): SessionOptionDescriptor {
++  if (pending?.id !== descriptor.id) {
++    return descriptor
++  }
++  const { kind } = descriptor
++  if (kind.type === 'select' && typeof pending.value === 'string') {
++    return {
++      ...descriptor,
++      valueSource: 'dispatched',
++      kind: { ...kind, currentValue: pending.value }
++    }
++  }
++  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
++    return {
++      ...descriptor,
++      valueSource: 'dispatched',
++      kind: { ...kind, currentValue: pending.value }
++    }
++  }
++  return descriptor
++}
+diff --git a/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts b/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
+index 8ac1ac64241..6429df5a661 100644
+--- a/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
++++ b/tests/e2e/remote/paired-runtime/client-hosts/packaged-old-orca.ts
+@@ -1,5 +1,5 @@
+ // Use the pinned packaged build named by ORCA_CROSS_VERSION_PACKAGED_EXECUTABLE; skip when it is unavailable.
+-import { assertMacGuiLaunchAllowed } from '../../../config/scripts/gui-launch/macos-gui-launch-preflight.mjs'
++import { assertMacGuiLaunchAllowed } from '../../../../../config/scripts/gui-launch/macos-gui-launch-preflight.mjs'
+ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+ import { createServer, type AddressInfo } from 'node:net'
+ import os from 'node:os'
+diff --git a/config/main-blocking-sqlite-baseline.txt b/config/main-blocking-sqlite-baseline.txt
+index 9d948cdc5d3..8028b6098f6 100644
+--- a/config/main-blocking-sqlite-baseline.txt
++++ b/config/main-blocking-sqlite-baseline.txt
+@@ -4,17 +4,7 @@
+ 13 src/main/ai-vault-search/storage/session-search-schema.ts
+ 20 src/main/ai-vault/parse-cache/session-parse-cache-database.ts
+ 13 src/main/ai-vault/parse-cache/session-scope-cwds-table.ts
+-1 src/main/ai-vault/scanners/hermes/hermes-state-db-activity.ts
+-16 src/main/ai-vault/scanners/hermes/hermes-state-db-conversations.ts
+-4 src/main/ai-vault/scanners/hermes/hermes-state-db-messages.ts
+-6 src/main/ai-vault/scanners/hermes/hermes-state-db-schema.ts
+-2 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sqlite.ts
+-2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-capture.ts
+-4 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-list.ts
+ 2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
+-6 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite.ts
+-6 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite-list.ts
+-10 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
+ 47 src/main/bots/bot-group-store.ts
+ 18 src/main/bots/bot-work-store.ts
+ 5 src/main/browser-passwords/browser-password-chromium-import.ts
+@@ -68,9 +58,6 @@
+ 8 src/main/native-chat/agent-session-journal/writing/command-receipt-table.ts
+ 2 src/main/native-chat/agent-session-journal/writing/journal-goal-attachment-inverse.ts
+ 4 src/main/native-chat/agent-session-journal/writing/mail-withdrawal-receipts.ts
+-10 src/main/native-chat/transcript-history/opencode/transcript-opencode-sqlite-query.ts
+-14 src/main/native-chat/transcript-history/opencode/transcript-opencode2-fork-coverage.ts
+-10 src/main/native-chat/transcript-history/opencode/transcript-opencode2-sqlite.ts
+ 13 src/main/persistence/moving-wsl-projects/desktop-state/wsl-move-orchestration-history-rewrite.ts
+ 8 src/main/persistence/profile-state/automation-runs/profile-state-automation-runs-migration.ts
+ 4 src/main/persistence/profile-state/automation-runs/profile-state-automation-runs-reader.ts
+diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+index 3098eb5a170..3c69bd90acd 100644
+--- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
++++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+@@ -13,18 +13,14 @@ import {
+ } from '../../../../../../src/shared/native-chat/transcript/notices/native-chat-notice'
+ import {
+   isTextBlock,
+-  type NativeChatBlock,
+-  type NativeChatTextBlock
++  type NativeChatBlock
+ } from '../../../../../../src/shared/native-chat/native-chat-types'
+ import { readWholeAgentSessionFailureFact } from '../../../../../../src/shared/agent-session/failures/agent-session-failure'
+ import { agentSessionFailureDetailText } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-quoted-detail'
+-import { agentSessionFailureSentence } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-words'
+ import { agentSessionSignInCommand } from '../../../../../../src/shared/agent-session/lifecycle/launch/agent-session-setup-commands'
+-import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/transcript/continuation/native-chat-orca-stop-words'
+ import {
+   MobileNativeChatForkedFromContext,
+-  MobileNativeChatNoticeContext,
+-  type MobileNativeChatNoticeView
++  MobileNativeChatNoticeContext
+ } from './mobile-native-chat-notice-context'
+ import { MobileNativeChatMarkdown } from '../message-content/MobileNativeChatMarkdown'
+ import { MobileNativeChatAutomationResultRow } from '../MobileNativeChatAutomationResultRow'
+@@ -33,13 +29,12 @@ import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inlin
+ import { colors, radii, spacing, typography } from '../../../../theme/mobile-theme'
+ import { themedStyleSheet } from '../../../../theme/themed-styles'
+ import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
+-import { nativeChatHostStatusCopy, nativeChatNoticeCopy } from './native-chat-notice-copy'
+-import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
+-import { nativeChatRestartNoteText } from './native-chat-restart-note-copy'
++import {
++  nativeChatHostStatusCopy,
++  nativeChatNoticeCopy,
++  nativeChatNoticeLineText
++} from './native-chat-notice-copy'
+ import { nativeChatReviewNoticeSummary } from './native-chat-review-notice-copy'
+-import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
+-import { sayMobileAgentSessionFailure } from '../../agent-session/agent-session-failure-copy'
+-import type { Translate } from '../../../../i18n/mobile-i18n'
+ import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
+ import { mobileNativeChatBotCard } from '../bot-cards/mobile-native-chat-bot-cards'
+ import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../../src/shared/native-chat/transcript/pending-sends/native-chat-stopped-before-start'
+@@ -54,46 +49,6 @@ function toneColor(tone: NativeChatNoticeTone): string {
+   return { warning: colors.statusAmber, error: colors.statusRed, notice: colors.textMuted }[tone]
+ }
+ 
+-// The phone always reads its Orca host as remote.
+-function noticeLineText(
+-  notice: NativeChatTextBlock,
+-  names: MobileNativeChatNoticeView,
+-  t: Translate
+-): string {
+-  if (notice.orcaStop) {
+-    const say = nativeChatOrcaStopSay(t)
+-    return nativeChatOrcaStopRowText(
+-      notice.orcaStop.cause,
+-      names.hostName ?? say('unnamedServer'),
+-      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
+-      say
+-    )
+-  }
+-  const failure = readWholeAgentSessionFailureFact(notice.failure)
+-  if (failure?.kind === 'usageLimitReached') {
+-    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
+-  }
+-  // Only reword text fully described by its fact; other host text stays as written.
+-  const context = { agentName: names.agentName }
+-  const surface =
+-    failure &&
+-    [
+-      'savedConversationMissing',
+-      'pluginInputRequired',
+-      'modelUnavailable',
+-      'providerUnavailable',
+-      'providerSafetyStopped',
+-      'providerResponseFailed'
+-    ].includes(failure.kind)
+-      ? (['row', 'rejection'] as const).find(
+-          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
+-        )
+-      : undefined
+-  return failure && surface
+-    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
+-    : (nativeChatRestartNoteText(notice.text, t) ?? notice.text)
+-}
+-
+ // Render system notices separately so they cannot read as the agent’s own prose.
+ export function MobileNativeChatNoticeRow({
+   blocks,
+@@ -148,7 +103,7 @@ export function MobileNativeChatNoticeRow({
+     return botCard
+   }
+   const look = nativeChatNoticeLook(notice)
+-  const lineText = noticeLineText(notice, names, t)
++  const lineText = nativeChatNoticeLineText(notice, names, t)
+   const failure = readWholeAgentSessionFailureFact(notice.failure)
+   const failureDetail = agentSessionFailureDetailText(failure)
+   const signInCommand =
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+index cb0738c8342..36d75480019 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+@@ -64,7 +64,7 @@ import { useStructuredAgentSessionHostExecution } from '@/components/native-chat
+ import { useAppStore } from '@/store/index'
+ import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agent-session-launch-label'
+ import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
+-import { NativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
++import { nativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
+ import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
+ import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
+ import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
+@@ -325,20 +325,14 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+                 />
+                 {subagents.strip}
+                 <NativeChatStructuredWorkerApprovals pane={props} isVisible={parentShown} />
+-                {prompt || subagentOpen ? null : (
+-                  <NativeChatStructuredComposerTabStrips
+-                    tabId={props.tabId}
+-                    runtimeContext={imageRuntimeContext}
+-                    threadGoal={controller.threadGoal}
+-                    transport={transport}
+-                    isWorking={controller.isWorking}
+-                    isVisible={props.isVisible}
+-                    turnId={controller.turnId}
+-                    workingStartedAt={controller.workingStartedAt}
+-                    target={props.target}
+-                    focusComposer={focusComposer}
+-                  />
+-                )}
++                {nativeChatStructuredComposerTabStrips({
++                  shown: !prompt && !subagentOpen,
++                  pane: props,
++                  controller,
++                  runtimeContext: imageRuntimeContext,
++                  transport,
++                  focusComposer
++                })}
+                 {/* Prompt cards take the composer's slot, below the background-task dock. */}
+                 {composerShown || subagentOpen ? null : (
+                   <NativeChatPromptSlotNotices notices={notices} />
+diff --git a/src/renderer/src/components/stats/StatsPane.tsx b/src/renderer/src/components/stats/StatsPane.tsx
+index e515d32543e..088beb906a6 100644
+--- a/src/renderer/src/components/stats/StatsPane.tsx
++++ b/src/renderer/src/components/stats/StatsPane.tsx
+@@ -1,3 +1,4 @@
++import type { StatsHost } from './StatsHostScope'
+ import { useEffect, useState } from 'react'
+ import { BarChart3, Bot, Check, ChevronDown, Clock, GitPullRequest } from 'lucide-react'
+ import { useAppStore } from '../../store'
+@@ -114,16 +115,21 @@ function UsageAnalyticsOptionIcon({ tab }: { tab: UsageTab }): React.JSX.Element
+ }
+ 
+ export function StatsPane({
+-  hostScope
+-}: { hostScope?: SettingsHostScope } = {}): React.JSX.Element {
++  hostScope,
++  host
++}: { hostScope?: SettingsHostScope; host?: StatsHost } = {}): React.JSX.Element {
+   return hostScope?.available === false ? (
+     <SettingsHostScopeUnavailableNotice />
+   ) : (
+-    <OwnedStatsPane hostScope={hostScope} />
++    <OwnedStatsPane hostTarget={hostScope?.target ?? host?.target} />
+   )
+ }
+ 
+-function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
++function OwnedStatsPane({
++  hostTarget
++}: {
++  hostTarget?: SettingsHostScope['target']
++}): React.JSX.Element {
+   const t = useTranslate()
+   const intlLocale = useIntlLocale()
+   const summary = useAppStore((s) => s.statsSummary)
+@@ -132,9 +138,9 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
+   const localRateLimits = useAppStore((state) => state.rateLimits)
+   const environments = useAppStore((state) => state.runtimeEnvironments)
+   const selectedHost =
+-    hostScope?.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
++    hostTarget?.kind === 'local' && isWebClientLocation() && environments?.length === 1
+       ? { kind: 'environment' as const, environmentId: environments[0].id }
+-      : hostScope?.target
++      : hostTarget
+   const { remoteOwner } = useOwnerUsageRateLimits(localRateLimits)
+   const historyTarget = selectedHost ?? getUsageOwnerHostScope(remoteOwner)
+   const remoteHistory = historyTarget.kind === 'environment' || isWebClientLocation()

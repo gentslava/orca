@@ -1,26 +1,25 @@
 diff --git a/src/main/native-chat/agent-session-wire/recovery/structured-agent-session-outgrown-child.ts b/src/main/native-chat/agent-session-wire/recovery/structured-agent-session-outgrown-child.ts
-index 56ba64076cf..2ce9eeb2462 100644
 --- a/src/main/native-chat/agent-session-wire/recovery/structured-agent-session-outgrown-child.ts
 +++ b/src/main/native-chat/agent-session-wire/recovery/structured-agent-session-outgrown-child.ts
-@@ -15,6 +15,7 @@ import type { StructuredAgentSessionLogger } from '../host/structured-agent-sess
+@@ -15,6 +15,7 @@
  import type { AgentChatPermissionChoice } from '../../../../shared/agent-launch/permissions/agent-chat-permission-mode'
  import {
    agentSessionAccountHomesEqual,
 +  isLegacyAgentSessionAccountHome,
    type AgentSessionAccountHome
  } from '../../../../shared/agent-session/lifecycle/accounts/agent-session-account-home'
-
-@@ -64,8 +65,7 @@ function picksNewLaunchModel(
+ 
+@@ -64,8 +65,7 @@
    )
  }
-
+ 
 -/** Loop-free while a start launches under the account `current` reads; a read that throws is no
 - *  answer, so unreadable account evidence replaces nothing. */
 +/** Keep unreadable accounts in place; unreadable Codex selection also refuses the send. */
  async function launchedUnderOtherAccount(
    child: OutgrownChildReading['child'],
    current: (() => Promise<AgentSessionAccountHome | null>) | undefined
-@@ -73,8 +73,14 @@ async function launchedUnderOtherAccount(
+@@ -73,8 +73,14 @@
    if (!child || child.phase === 'starting' || child.close || !child.accountHome || !current) {
      return false
    }
@@ -35,9 +34,9 @@ index 56ba64076cf..2ce9eeb2462 100644
 +  })
 +  return home !== null && !agentSessionAccountHomesEqual(home, accountHome)
  }
-
- /** Retire under serialization only when no work is owed; failed Stop leaves a close for startup to join. */
-@@ -106,14 +112,14 @@ export async function retireOutgrownStructuredAgentSessionChild(
+ 
+ /** The bot's tools changed since this child launched; a start reads them again. */
+@@ -118,6 +124,7 @@
    })
    if (
      !(
@@ -45,15 +44,14 @@ index 56ba64076cf..2ce9eeb2462 100644
        (child.phase !== 'starting' && !child.close && facts.signedOut) ||
        picksNewLaunchModel(facts.nextMessage, deps.next, deps.requiresModelTransitionRestart) ||
        (await launchedWithOtherPermissionMode(
-         session.child,
+@@ -125,7 +132,6 @@
          deps.launchPermission,
          deps.permissionRequiresAcquisition
--      )) ||
--      (await launchedUnderOtherAccount(session.child, deps.launchAccountHome))
-+      ))
+       )) ||
+-      (await launchedUnderOtherAccount(session.child, deps.launchAccountHome)) ||
+       (await launchedWithOtherTools(session.child, deps.launchToolsChanged))
      ) ||
      structuredAgentSessionChildHasOpenWork(deps.work, await deps.work.currentWork()) ||
-     owesWakeUp(facts.newestTurnCompletedAt, deps.work.childWork())
 diff --git a/src/main/native-chat/agent-session-wire/recovery/testing/structured-agent-session-account-read.test.ts b/src/main/native-chat/agent-session-wire/recovery/testing/structured-agent-session-account-read.test.ts
 new file mode 100644
 index 00000000000..62169d7b1c2

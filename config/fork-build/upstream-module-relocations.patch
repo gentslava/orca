@@ -1,16 +1,3 @@
-diff --git a/mobile/src/worktree/row-presentation/use-live-worktree-name.ts b/mobile/src/worktree/row-presentation/use-live-worktree-name.ts
-index 2ee72990200..2cb8d993d1f 100644
---- a/mobile/src/worktree/row-presentation/use-live-worktree-name.ts
-+++ b/mobile/src/worktree/row-presentation/use-live-worktree-name.ts
-@@ -5,7 +5,7 @@ import type { RpcClient } from '../../transport/rpc/rpc-client-contract'
- import { subscribeSharedClientEvents } from '../../transport/connection/shared-client-events'
- import type { ConnectionState } from '../../transport/connection/connection-state'
- import { sessionWorktreeRecordRead } from '../catalog/session-worktree-record-operations'
--import { parseRoutableExecutionHostId } from '../../../../src/shared/execution-host'
-+import { parseRoutableExecutionHostId } from '../../../../src/shared/execution-host/execution-host'
- import { sessionProjectNameRead } from '../session-project-name-operations'
- import { getLiveWorktreeDisplayName } from './worktree-display-name'
- import {
 diff --git a/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx b/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx
 index ced19d6088b..fd2f8995e5e 100644
 --- a/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx
@@ -22,22 +9,6 @@ index ced19d6088b..fd2f8995e5e 100644
  import { NativeChatToolRun } from './tools/runs/NativeChatToolRun'
  
  const command =
-diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-host-scope.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-host-scope.test.ts
-index 22d89b1d9b4..ac8b245d5c0 100644
---- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-host-scope.test.ts
-+++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-host-scope.test.ts
-@@ -7,7 +7,10 @@ import { TEST_REPO } from '@/store/repos/repo.test-fixture'
- import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
- import type { AiVaultSessionResumeTargetState } from '../session-actions/ai-vault-session-resume'
- import { useAiVaultExecutionHostScope } from './ai-vault-host-scope'
--import type { ExecutionHostId, ExecutionHostScope } from '../../../../../../shared/execution-host'
-+import type {
-+  ExecutionHostId,
-+  ExecutionHostScope
-+} from '../../../../../../shared/execution-host/execution-host'
- 
- type HostScopeResult = ReturnType<typeof useAiVaultExecutionHostScope>
- 
 diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
 index 0dfe0043305..4cd0c95bd59 100644
 --- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
@@ -261,21 +232,6 @@ index accbe53c40f..3023acbd648 100644
  import type { HoldQuitWatchEvent } from './hold-quit-gesture'
  
  export function watchMacQuitChord(
-diff --git a/src/renderer/src/app-shell/use-hold-quit-activity.test.tsx b/src/renderer/src/app-shell/use-hold-quit-activity.test.tsx
-index 07115e01b2d..0b698af051f 100644
---- a/src/renderer/src/app-shell/use-hold-quit-activity.test.tsx
-+++ b/src/renderer/src/app-shell/use-hold-quit-activity.test.tsx
-@@ -5,8 +5,8 @@ import { createStore } from 'zustand/vanilla'
- import { getDefaultSettings } from '../../../shared/orca-profiles/constants'
- import type { AgentStatusEntry } from '../../../shared/agent-status/contracts/agent-status-types'
- import { AGENT_STATUS_STALE_AFTER_MS } from '../../../shared/agent-status/contracts/agent-status-freshness'
--import { createFreshnessScheduler } from '@/store/slices/agent-status/agent-status-freshness-scheduler'
--import { acceptedAgentStatuses } from '@/store/slices/agent-status/accepted-agent-statuses'
-+import { createFreshnessScheduler } from '@/store/slices/agent-status/status-ownership/agent-status-freshness-scheduler'
-+import { acceptedAgentStatuses } from '@/store/slices/agent-status/status-ownership/accepted-agent-statuses'
- import { resetRendererAppPlatformCacheForTests } from '@/app-shell/platform/renderer-app-platform'
- 
- const initialEntries = acceptedAgentStatuses()
 diff --git a/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx b/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx
 index c1443226453..2e8b18f44c0 100644
 --- a/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx
