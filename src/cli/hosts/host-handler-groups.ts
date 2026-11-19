@@ -12,6 +12,7 @@ export const HOST_HANDLER_GROUPS: readonly HandlerGroup[] = [
       'environment add',
       'environment list',
       'environment show',
+      'environment rename',
       'environment rm'
     ],
     load: async () => (await import('./environment.js')).ENVIRONMENT_HANDLERS

@@ -63,7 +63,7 @@ const ACCOUNT_METHOD_DEFINITIONS = [
       if (clientKind === 'mobile') {
         throw new Error('Only the Orca desktop that owns this host can set its accounts.')
       }
-      runtime.setHostAccountLaunchEnv(params)
+      await runtime.setHostAccountLaunchEnv(params)
       return {}
     }
   }),
