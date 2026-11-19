@@ -1407,7 +1407,7 @@ diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatN
 index 3098eb5a170..3c69bd90acd 100644
 --- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
 +++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-@@ -13,18 +13,14 @@ import {
+@@ -13,19 +13,15 @@ import {
  } from '../../../../../../src/shared/native-chat/transcript/notices/native-chat-notice'
  import {
    isTextBlock,
@@ -1416,6 +1416,7 @@ index 3098eb5a170..3c69bd90acd 100644
 +  type NativeChatBlock
  } from '../../../../../../src/shared/native-chat/native-chat-types'
  import { readWholeAgentSessionFailureFact } from '../../../../../../src/shared/agent-session/failures/agent-session-failure'
+ import { isAgentSessionSetupFailureKind } from '../../../../../../src/shared/agent-session/failures/agent-session-visible-failures'
  import { agentSessionFailureDetailText } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-quoted-detail'
 -import { agentSessionFailureSentence } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-words'
  import { agentSessionSignInCommand } from '../../../../../../src/shared/agent-session/lifecycle/launch/agent-session-setup-commands'
@@ -1428,7 +1429,7 @@ index 3098eb5a170..3c69bd90acd 100644
  } from './mobile-native-chat-notice-context'
  import { MobileNativeChatMarkdown } from '../message-content/MobileNativeChatMarkdown'
  import { MobileNativeChatAutomationResultRow } from '../MobileNativeChatAutomationResultRow'
-@@ -33,13 +29,12 @@ import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inlin
+@@ -34,13 +30,12 @@ import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inlin
  import { colors, radii, spacing, typography } from '../../../../theme/mobile-theme'
  import { themedStyleSheet } from '../../../../theme/themed-styles'
  import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
@@ -1447,7 +1448,7 @@ index 3098eb5a170..3c69bd90acd 100644
  import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
  import { mobileNativeChatBotCard } from '../bot-cards/mobile-native-chat-bot-cards'
  import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../../src/shared/native-chat/transcript/pending-sends/native-chat-stopped-before-start'
-@@ -54,46 +49,6 @@ function toneColor(tone: NativeChatNoticeTone): string {
+@@ -55,46 +50,6 @@ function toneColor(tone: NativeChatNoticeTone): string {
    return { warning: colors.statusAmber, error: colors.statusRed, notice: colors.textMuted }[tone]
  }
  
@@ -1494,7 +1495,7 @@ index 3098eb5a170..3c69bd90acd 100644
  // Render system notices separately so they cannot read as the agent’s own prose.
  export function MobileNativeChatNoticeRow({
    blocks,
-@@ -148,7 +103,7 @@ export function MobileNativeChatNoticeRow({
+@@ -149,7 +104,7 @@ export function MobileNativeChatNoticeRow({
      return botCard
    }
    const look = nativeChatNoticeLook(notice)
@@ -1502,7 +1503,7 @@ index 3098eb5a170..3c69bd90acd 100644
 +  const lineText = nativeChatNoticeLineText(notice, names, t)
    const failure = readWholeAgentSessionFailureFact(notice.failure)
    const failureDetail = agentSessionFailureDetailText(failure)
-   const signInCommand =
+   // A setup failure a later successful turn resolved reads as history: muted, with no action.
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
 index cb0738c8342..36d75480019 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx

@@ -1,17 +1,5 @@
 [
   {
-    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
-    "blobs": [
-      null,
-      "4ca066d9b18d55b30dce3de3e1a8bc77c71096e2",
-      "376eb823f86c81902a564695f36dc1c772f6dcc3"
-    ],
-    "patch": "refresh18-pr-33383-0.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "322557d3f9412c40b226f7bbad0eb7b7277c8b3aae3ecbf82a59655ed2c0d644",
-    "reason": "Preserve structured-session projection and bounded previews with selected-session cache and RPC scope."
-  },
-  {
     "path": "src/main/ai-vault/structured-conversation-navigation.ts",
     "blobs": [
       null,
@@ -60,18 +48,6 @@
     "reason": "Preserve structured-session projection and bounded previews with selected-session cache and RPC scope."
   },
   {
-    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
-    "blobs": [
-      "9152efe9afad91860c4aef2bf8822bc03c888c29",
-      "059630c8c617e5aa32079879130ffa8ce65629cd",
-      "befcf815feac065ab1b08885b9e4a8e300efc61a"
-    ],
-    "patch": "refresh18-pr-33395-2.patch",
-    "patchSha256": "94c13a588552238812d2715263a268c185b1e92612988a6f015d2f092ac8fd5d",
-    "resultSha256": "cdc21ffaf7ad8c9d86e81b3ac08d2e36a314d2ea7b33f8b601ac6c2ef5eb4adf",
-    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
-  },
-  {
     "path": "mobile/src/session/native-chat/input/session-options/native-chat-session-option-copy.ts",
     "blobs": [
       "92ed5716ccbe5ea695477ea5386bf005ba75a051",
@@ -81,18 +57,6 @@
     "patch": "refresh18-pr-33395-3.patch",
     "patchSha256": "f3c9488f456937e044628ac7e14d57b6e3e0469b0d95daf3e2eb3e3b6f93f402",
     "resultSha256": "5ec7dfe9770e1c54aeba18ace7b9abd23dd00046b91a0524d98b81ac8918c66f",
-    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
-    "blobs": [
-      "c89dc695712f060dffb3afc270c53963b4e8b5a0",
-      "2b953575f42cb0b02a53e0d4305ed08eed3b1db1",
-      "a8b5c77f77e1afcbcf121e8b2ad06b5c40ba763d"
-    ],
-    "patch": "refresh18-pr-33395-4.patch",
-    "patchSha256": "f3715055d640427761de17261309620f8329a8e1da6f1d1b31a3d60990509a6e",
-    "resultSha256": "08dfe888ba7c4c43a1fc8ad23578cd514c1294d68ea3ed48f39cc66aeb472e86",
     "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
   },
   {
@@ -142,18 +106,6 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "ce3d5523ebd8d030a19cd9f8d9148f40a1d5c0d1cdb30b57b294ccf28eaf749c",
     "reason": "Full invocation details remain expandable without output; preserve plain-command identity and complete wrapped inputs while retaining selected full-command presentation."
-  },
-  {
-    "path": "mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx",
-    "blobs": [
-      "80bead6e18a8932f3bf789049a61a33487d686f7",
-      "56fae5c123a2b9e9cbebd133564025c4d6857993",
-      "512a74c852a674944f4cd3acad4964c23800b745"
-    ],
-    "patch": "refresh18-pr-41381-2.patch",
-    "patchSha256": "739b2d99f9199b8a0d82367c6f5c372187ea68bc0e197cd0c1d31a2ac69e4e40",
-    "resultSha256": "2e1348969a188a9c833ea3b75eae039e54660d979521ed4a2052d836066ab866",
-    "reason": "Retain model-default reset in the searchable pinned mobile picker and merge working-notice copy with search translations."
   },
   {
     "path": "mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionRows.tsx",
@@ -327,30 +279,6 @@
     "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
     "blobs": [
       "0605d3597013b6e2cb1a970431700ebcd950e2cb",
-      "bcf711372ba3926b978e04a1ea24249f7698b984",
-      "5e20b6aff27af18b70792c783d340c21d9106915"
-    ],
-    "patch": "release-60d-37744-1.patch",
-    "patchSha256": "82100854abade06238237155226ea6631660054326d3738ac0f5b40a5bc344a5",
-    "resultSha256": "92392b7700f35040dabd45794559326b526b2bb08ab056e85b684e17a1b63fc9",
-    "reason": "Retain child-chat navigation and separate prompt cards, and register linked-chat RPCs and capabilities."
-  },
-  {
-    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
-    "blobs": [
-      "ae2bb0e02cc479e5d6571b46782e2d6dd799a55b",
-      "708b6780e4cfd7a585e4619dc5587fa0ed257808",
-      "99316003b2966616998164cddf01a1b48f77ea80"
-    ],
-    "patch": "release-60d-37744-4.patch",
-    "patchSha256": "f9c7d620bf2cbbb3c25f1f065c7413bf074c5db5c20aafece24a6de88675c22c",
-    "resultSha256": "8e0ddca2e802026a619e28b9c4f0b49ce84314c600877586033d009ddc28c911",
-    "reason": "Retain child-chat navigation and separate prompt cards, and register linked-chat RPCs and capabilities."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
-    "blobs": [
-      "0605d3597013b6e2cb1a970431700ebcd950e2cb",
       "562546b42fff89853913cbfe7ea293a4a3586c22",
       "0dd47ba6e4f57566b5712db44118ddd6f71f16ed"
     ],
@@ -420,30 +348,6 @@
     "reason": "Keep the linked-chat control inside the floating pane toolbar."
   },
   {
-    "path": "src/main/ipc/ai-vault/ai-vault.ts",
-    "blobs": [
-      "e615e6b589aa1fbb37dc457bfd829173b69c07d8",
-      "355e2def6e241e62ba3d77dbe79d550eef9e2197",
-      "f0d468c5f3535cfc827781c7cebf256a2901efef"
-    ],
-    "patch": "refresh-dca1-33383-0.patch",
-    "patchSha256": "32ff991bd38ad4723875a128efd9fac5658669ff562363e605983b055ff6bcba",
-    "resultSha256": "273bc5feb74ddd64a71e1a529333ffbe6424f8f33f299302025c675a380e2bca",
-    "reason": "Keep PR 33361's structured-session projection and uncached structured host legs with upstream's single-host list timeout, and add PR 33383's selectedSessionId passthrough to local, cached and bounded host scans."
-  },
-  {
-    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
-    "blobs": [
-      "008a7eb4dd8a78fa2358e611ecc4f53e05044d96",
-      "7fbcae4622cc0b62207b550c51180427c8971fde",
-      "5c3dd44d5bda75fbc290ab4f3700480fa37e55ec"
-    ],
-    "patch": "refresh-dca1-33383-1.patch",
-    "patchSha256": "df1c96ae26cac674f205900b17bc4a06d69e02a4212b699d2d3b43dc7dba9263",
-    "resultSha256": "35a0e39fdbf850dbffb00f2b478fe9fb13fb5054cb926bb654c232536a22d6b8",
-    "reason": "Keep upstream's single-host list timeout constant and PR 33361's structured-session list contract, and add PR 33383's selectedSessionId argument and includesStructuredSessions result flag."
-  },
-  {
     "path": "src/shared/orca-profiles/persisted-ui-state-types.ts",
     "blobs": [
       "a242ac0787c4cb6e79f4eea0e7766d65aedc6172",
@@ -471,18 +375,6 @@
     "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
     "blobs": [
       "8feef3dc8dbaf9695bb11c39667ff892e280a7c8",
-      "83257ce6e73873cac2f8a28d542da6a0b7b1a532",
-      "4334460461d153bc69c4f4ebff760f5d3ba6a400"
-    ],
-    "patch": "refresh-dca1-37744-0.patch",
-    "patchSha256": "d7914cdb82cb24e3cb909fb2c8417199e9240f6f82bb091a1ba1395d789eb0ab",
-    "resultSha256": "7d6d9825389d5c01034bdda99380e7dac8e044911acb462ef0c4bd8c090257f4",
-    "reason": "Keep upstream's prompt-keyed answer operation and PR 33362's immediate card-answer contract while PR 37744 renders the session-link owner question beside the host async question."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
-    "blobs": [
-      "8feef3dc8dbaf9695bb11c39667ff892e280a7c8",
       "7a0d7ddce0b6039e69d9527d9b000616cda71f21",
       "2d3feeeecf4674f6d116e268f7ecd57e4fe6b1e4"
     ],
@@ -490,5 +382,113 @@
     "patchSha256": "6b4e4581403eeda6f50b66ed5084826cc50051fd5f7f2795f3556b97b958444b",
     "resultSha256": "0d6844b6c54a1702f035e241cf55807d73868a54ad92a8d00ab1425d5b8413b7",
     "reason": "Keep upstream's prompt-keyed answer operation and PR 37744's session-link owner question; drop PR 38963's duplicate prompt wrapper, since the combined structured session already renders the prompt card beside the questions."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
+    "blobs": [
+      null,
+      "b6c4204881d1d30d1d260359a7f22dde8454845e",
+      "e99e12e484935ef999ab95d725c9039aae85d09a"
+    ],
+    "patch": "refresh-7ade-33383-0.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "c2993e9379808f820f1e9c842a640d3ca13b01d581271599aba5ce231e696d84",
+    "reason": "Keep PR 33361's navigation test, including the structured-session filter exemption that PR 33383's copy lacks."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "4e45cf7822a58f02e6c5225ed9982f742099f1e9",
+      "355e2def6e241e62ba3d77dbe79d550eef9e2197",
+      "bc39ccb13bee83da7ecb1f5fd366d86f4112b0b7"
+    ],
+    "patch": "refresh-7ade-33383-1.patch",
+    "patchSha256": "32ff991bd38ad4723875a128efd9fac5658669ff562363e605983b055ff6bcba",
+    "resultSha256": "273bc5feb74ddd64a71e1a529333ffbe6424f8f33f299302025c675a380e2bca",
+    "reason": "Keep PR 33361's structured-session projection and uncached structured host legs, and add PR 33383's selectedSessionId passthrough to local, cached and bounded host scans."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "5b6c624766c064e73b4d2c3da82e1c7a22438e81",
+      "7fbcae4622cc0b62207b550c51180427c8971fde",
+      "90acc49efcc43b5ed14ede93361df3d2621f3095"
+    ],
+    "patch": "refresh-7ade-33383-2.patch",
+    "patchSha256": "df1c96ae26cac674f205900b17bc4a06d69e02a4212b699d2d3b43dc7dba9263",
+    "resultSha256": "35a0e39fdbf850dbffb00f2b478fe9fb13fb5054cb926bb654c232536a22d6b8",
+    "reason": "Keep PR 33361's structured-session list contract and current upstream fields, and add PR 33383's selectedSessionId argument and includesStructuredSessions result flag."
+  },
+  {
+    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "324d4e3a9703707b4188459c32cbf0607c04dc10",
+      "fb740a38ebcc860388fcec8afbe772a682af88e5",
+      "20d4f8dcda28249af8f9610403e61994ef4e63be"
+    ],
+    "patch": "refresh-7ade-33395-0.patch",
+    "patchSha256": "fe091855ebee3d89ce2d7687c45b76319cb974431a8e4c3898e3de473e9b754d",
+    "resultSha256": "a46f3be2594b4ca5e85943f376f70a87e9ab8dc8566aeab52311c49327f2961b",
+    "reason": "Add PR 33395's model-default capability to the host support that PR 33362 extends with draft steering."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "636e3bcc328f2ca756dc47ce95a5a50db135059c",
+      "2b46ae72ac16f8c03278ff9bf63b381d24fe5d37",
+      "1d0b810893a0c83296edadfd8c478fcd15f4437d"
+    ],
+    "patch": "refresh-7ade-33395-1.patch",
+    "patchSha256": "f80c61e42946ee57a5e91219d3b93dcfb97cb99566a6d4b1c6d127aa4c3f968d",
+    "resultSha256": "0efc807c7dfb0b74d909274e1ea7acfef49db6ebef8d623c06732881e71b737a",
+    "reason": "PR 33395's options hook already carries PR 33362's turn-pick lock and adds the model-default reset; keep it whole."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "efeabe4ebc08f272722979430c043b0ca8038f61",
+      "bcf711372ba3926b978e04a1ea24249f7698b984",
+      "6d544e63a1bd5135c1a60dd82185403170abd635"
+    ],
+    "patch": "refresh-7ade-37744-0.patch",
+    "patchSha256": "82100854abade06238237155226ea6631660054326d3738ac0f5b40a5bc344a5",
+    "resultSha256": "92392b7700f35040dabd45794559326b526b2bb08ab056e85b684e17a1b63fc9",
+    "reason": "Retain PR 34895's child-chat navigation and separate prompt cards, and render PR 37744's linked-chat questions."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "b347a0924105f63c5aa85b1d64e96a63b14d3b65",
+      "83257ce6e73873cac2f8a28d542da6a0b7b1a532",
+      "c390d1de3d4efc472b18ee63eb7ff74ec5a91825"
+    ],
+    "patch": "refresh-7ade-37744-1.patch",
+    "patchSha256": "d7914cdb82cb24e3cb909fb2c8417199e9240f6f82bb091a1ba1395d789eb0ab",
+    "resultSha256": "7d6d9825389d5c01034bdda99380e7dac8e044911acb462ef0c4bd8c090257f4",
+    "reason": "Keep upstream's prompt-keyed answer operation and PR 33362's immediate card-answer contract while PR 37744 renders the session-link owner question beside the host async question."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "969ede454fb4742f2478807a065b569e20435d7c",
+      "b55513567b96207ae8109afcc75ac3ac14498d2b",
+      "2046e1a7ca09c3cd54a7a9b76efd0c4a59b2d045"
+    ],
+    "patch": "refresh-7ade-37744-2.patch",
+    "patchSha256": "59fd2295e8eb05cd4fe11b42b4e4459c103c708c8c2bfbaca235f2dc6972f95c",
+    "resultSha256": "22cce5ff6498b967ff0c752f731648497b80a26003584f94ea5b03925944c048",
+    "reason": "Register PR 37744's session-link capabilities beside the session-children and worker-role routing capabilities."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "4139c2fa4e98f212405611295d51f0467944cc80",
+      "fcb42b294cd95d782f663bf2a60e700c084169d1",
+      "1f2e75d65706326c928b3ee5cb437ac721465bcc"
+    ],
+    "patch": "refresh-7ade-41381-0.patch",
+    "patchSha256": "318a4adee029c24761f507a5af43dd7d98f4f69c1e50c412d121f8ad94ae4921",
+    "resultSha256": "e57062758622ea9769f2b9cc8a4c9edd24cde93f4cc25c5b25c0deda8f68f742",
+    "reason": "Retain model-default reset in the searchable pinned mobile picker, on the model list and the other option pages, and keep the working-notice copy."
   }
 ]

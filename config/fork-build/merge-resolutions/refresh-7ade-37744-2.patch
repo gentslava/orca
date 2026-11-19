@@ -13,7 +13,7 @@
  export const ORCHESTRATION_FEDERATION_RUNTIME_CAPABILITY = 'orchestration.federation.v1' as const
  export const ORCHESTRATION_FEDERATION_CONTROL_MAIL_RUNTIME_CAPABILITY =
    'orchestration.federation-control-mail.v1' as const
-@@ -53,6 +60,11 @@
+@@ -56,6 +63,11 @@
  
  export const ORCHESTRATION_RUNTIME_CAPABILITIES = [
    ORCHESTRATION_SESSION_CHILDREN_CAPABILITY,

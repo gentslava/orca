@@ -2,14 +2,14 @@
 +++ b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
 @@ -7,7 +7,7 @@
  import { AccessibilityInfo, Keyboard, Platform, Text, View } from 'react-native'
- import { ChevronLeft, Clock, LockKeyhole } from 'lucide-react-native'
+ import { Clock, LockKeyhole } from 'lucide-react-native'
  import { BottomDrawer } from '../../../../components/bottom-drawer/BottomDrawer'
 -import { ListGroup, LIST_LEADING_INSET, SectionHeader } from '../../../../components/list/ListGroup'
 +import { ListGroup, LIST_LEADING_INSET } from '../../../../components/list/ListGroup'
- import { NavBarButton } from '../../../../components/nav-bar/NavBarButton'
  import { SheetHeader } from '../../../../components/nav-bar/SheetHeader'
  import { colors } from '../../../../theme/mobile-theme'
-@@ -16,7 +16,6 @@
+ import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
+@@ -15,7 +15,6 @@
  import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
  import { useMoreModelsShown } from './use-more-models-shown'
  import {
@@ -17,7 +17,7 @@
    sessionOptionDispatchUnconfirmed,
    type SessionOptionDescriptor,
    type SessionOptionValue
-@@ -35,14 +34,10 @@
+@@ -34,14 +33,10 @@
  import {
    descriptorRowElements,
    ModelPill,
@@ -35,7 +35,7 @@
  import { sortNativeChatSessionOptions } from '../../../../../../src/shared/native-chat/input/session-options/native-chat-session-option-snapshot'
  import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../../../src/shared/agent-launch/permissions/agent-chat-permission-mode-option-id'
  import {
-@@ -137,8 +132,7 @@
+@@ -136,8 +131,7 @@
    const permissionColor = permissionChoiceColor(permissionChoice?.value)
    const permissionIcon =
      !model && permissionChoice ? permissionModeIcon(permissionChoice.value) : undefined
@@ -45,7 +45,7 @@
    const primary = model
      ? nativeChatModelPillLabel(model, say)
      : mobileSessionOptionSummaryValue(home)
-@@ -217,9 +211,12 @@
+@@ -216,9 +210,12 @@
            moreModels.reset()
            onDrawerAfterClose?.()
          }}
@@ -59,7 +59,7 @@
              <View style={styles.header}>
                <SheetHeader
                  title={nativeChatSessionOptionLabel(activeDescriptor, say)}
-@@ -256,29 +253,38 @@
+@@ -251,29 +248,38 @@
                  </View>
                </View>
              ) : null}
@@ -119,7 +119,7 @@
              {sessionOptionDispatchUnconfirmed(activeDescriptor) ? (
                <SessionOptionCaption>
                  {t(
-@@ -291,25 +297,16 @@
+@@ -286,25 +292,16 @@
                <SessionOptionCaption>{permissionDeferred}</SessionOptionCaption>
              ) : null}
              {reason ? <SessionOptionCaption>{reason}</SessionOptionCaption> : null}
@@ -155,7 +155,7 @@
              ) : null}
            </View>
          ) : null}
-@@ -317,67 +314,3 @@
+@@ -312,67 +309,3 @@
      </View>
    )
  }
