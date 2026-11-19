@@ -1,0 +1,12 @@
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+@@ -372,6 +372,9 @@
+                     steerHead={
+                       bot.stopControls.stopping ? undefined : submits.queuedMessages.steerHead
+                     }
++                    steerLast={
++                      bot.stopControls.stopping ? undefined : submits.queuedMessages.steerLast
++                    }
+                     structuredTransport={transport}
+                     notices={notices}
+                     recallSource={{ messages: session.messages, withoutImageMarkers: true }}
