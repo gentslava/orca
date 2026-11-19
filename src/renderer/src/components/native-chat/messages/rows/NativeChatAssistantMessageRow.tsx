@@ -65,7 +65,8 @@ export function NativeChatAssistantMessageRow({
   const toolRun = toolRunProps(props, content, run)
   const isSystem = message.role === 'system'
   // The same words slot construction chooses the turn's action holder by; Copy needs them.
-  const words = nativeChatAgentRowWords(message, t)
+  const words =
+    message.role === 'reasoning' || (isSystem && run) ? '' : nativeChatAgentRowWords(message, t)
   const streaming = messageIsStreaming(message, activeTurnIsWorking, trailingRun)
   // A bot's quiet result shows as a line, not its marker, unless an automation's row opened its turn.
   const inBotHome = useBotForWorkspace(useNativeChatVisualOwner()?.worktreeId ?? null) !== null
