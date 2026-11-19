@@ -242,7 +242,7 @@ The changed e2e shards on this composition failed four upstream specs. Two waite
 
 ## Refresh on upstream 7ade3e9b7718 (2026-11-19)
 
-The pin moved from dca1a281a2b6 to 7ade3e9b7718, upstream main 234 commits later. Upstream merged test PR 44481 as 288943d457b1 after rebasing it on newer main, which the old pin cannot compose; 39915 (83913b96904f) is also in the new pin. All selected changes and all eleven package outputs remain required, and 44450, 44451 and 44452 stay held.
+The pin moved from dca1a281a2b6 to 7ade3e9b7718, upstream main 234 commits later. Upstream merged test PR 44481 as 288943d457b1 after rebasing it on newer main, which the old pin cannot compose; 39915 (83913b96904f) is also in the new pin. All selected changes and all eleven package outputs remain required, and 44450, 44451 and 44452 stay held. 44655, opened during this refresh on newer upstream main, is held for the next one.
 
 Fork master now carries terminal daemon protocol 60 from fork PR 91, which cherry-picks upstream 43707, 41917 and 43896 with their tests. Master is merged into this source, so the runtime launcher ratchet compares protocol 60 with 60 while this composition changes the runtime launcher files.
 
