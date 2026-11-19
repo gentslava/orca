@@ -1,3 +1,4 @@
+import { useNativeChatChildHistory } from '../use-native-chat-child-history'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { cn } from '@/lib/class-names'
 import { NativeChatMessageList } from '../NativeChatMessageList'
@@ -51,6 +52,16 @@ export function NativeChatSubagentTranscripts({
     [open, openId, paneKey]
   )
   const isVisible = props.isVisible ?? true
+  useNativeChatChildHistory({
+    scopeKey: `${props.session.sessionId ?? ''}:${openId ?? ''}`,
+    agentId: openId ?? undefined,
+    messages: props.session.messages,
+    hasMore: props.session.hasMore,
+    loading: props.session.loadingEarlier,
+    generation: props.session.olderHistoryGeneration,
+    enabled: isVisible && openId !== null,
+    loadEarlier: props.session.loadEarlier
+  })
   const mainRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<HTMLDivElement>(null)
   const shownId = shown?.agentId ?? null
