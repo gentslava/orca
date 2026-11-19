@@ -255,9 +255,13 @@ export function MobileNativeChatSessionOptionPickers({
                 disabled={locked(model)}
                 onSetOption={(value) => applyOption(model, value)}
                 onInvokeAction={() => invokeAction(model)}
-                onReset={controller.optionSurface?.resetOption
-                  ? () => { void controller.optionSurface?.resetOption?.(model.id) }
-                  : undefined}
+                onReset={
+                  controller.optionSurface?.resetOption
+                    ? () => {
+                        void controller.optionSurface?.resetOption?.(model.id)
+                      }
+                    : undefined
+                }
               />
             ) : (
               <>
@@ -271,7 +275,9 @@ export function MobileNativeChatSessionOptionPickers({
                       onInvokeAction: () => invokeAction(activeDescriptor),
                       moreChoices: moreModels,
                       onReset: controller.optionSurface?.resetOption
-                        ? () => { void controller.optionSurface?.resetOption?.(activeDescriptor.id) }
+                        ? () => {
+                            void controller.optionSurface?.resetOption?.(activeDescriptor.id)
+                          }
                         : undefined,
                       ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
                     },
