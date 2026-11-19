@@ -3810,6 +3810,9 @@
         "noteChanged": "Note changed",
         "indexChanged": "MEMORY.md changed"
       }
+    },
+    "tool": {
+      "activity": "Activity"
     }
   },
   "sourceControl": {
