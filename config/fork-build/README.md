@@ -239,3 +239,29 @@ Two overruns exist only in the combination, so `composed-source-modules.patch` g
 New upstream slices 44450 (mobile reader, from 33576), 44451 (desktop model Default, from 33395) and 44452 (mobile subagent view) are held in `exclude` for this composition: each overlaps a selected parent PR and needs stacking or a combination check. They are selected in the next refresh.
 
 The changed e2e shards on this composition failed four upstream specs. Two waited for the shell that workspace activation no longer seeds: the paired-client project removal spec and the repeated background-resize column check each opened a workspace that now shows its start page. `project-start-actions.patch` adds one e2e helper that clicks the start page's New Terminal when the active workspace has no terminal tab, and both specs call it with their assertions unchanged. The other two fail the same way on plain upstream dca1a281 and stay unchanged. The floating-tab rename spec looks for the sidebar search button by its label from before bots, which are on by default. The folder keyboard navigation spec clicks a row that the setup-script prompt covers in CI's 1280x1024 window.
+
+## Refresh on upstream 7ade3e9b7718 (2026-11-19)
+
+The pin moved from dca1a281a2b6 to 7ade3e9b7718, upstream main 234 commits later. Upstream merged test PR 44481 as 288943d457b1 after rebasing it on newer main, which the old pin cannot compose; 39915 (83913b96904f) is also in the new pin. All selected changes and all eleven package outputs remain required, and 44450, 44451 and 44452 stay held.
+
+Fork master now carries terminal daemon protocol 60 from fork PR 91, which cherry-picks upstream 43707, 41917 and 43896 with their tests. Master is merged into this source, so the runtime launcher ratchet compares protocol 60 with 60 while this composition changes the runtime launcher files.
+
+Ten branches conflicted with the new pin and were merged with it in their own branches, feature first: 33361, 33383, 33395, 33417, 33576, 34895, 37744, 41381, 43124 and the 40980 integration branch.
+
+- 33361 follows upstream's indexed history-row ownership lookup and still lets only this host's chats own its history rows.
+- 33383 combines its single-conversation history with upstream's History agent filter, sort and restart offer. The scope switch and filters move into one small component, so the panel stays within 400 lines.
+- 33395 keeps the model-default reset beside upstream's CLI update row.
+- 33417 moves its pill selection beside the pill list, and 33576 moves the waiting-row projection into its own module, so both stay within their line limits. 33576 also passes the resolved prompt that upstream's fold rows now take.
+- 34895 passes upstream's approval target where it renders the worker approval timeline.
+- 37744 renders upstream's new async question fixture through its questions slot.
+- 40980 keeps upstream's promise-based listing errors with its account-aware sign-in mapping, now in its auth-error module.
+- 41381 drops the back button that upstream replaced with the sheet header's.
+- 43124 keeps its single-row turn-diff estimate with upstream's one status row for opened pull requests.
+
+The composed checks found three single-PR defects. Each is fixed in its own branch after merging that branch with the pin. 41166 keeps mobile's own CLI-too-old wording, because upstream reworded the shared desktop default it reuses. 33360 lists Gemini in upstream's now-exhaustive chat-agent skill profiles with no folder scan, as before. 33502 gates its personal-opening capture inside its helper, so the worktree actions hook stays within 300 lines.
+
+Nine combination records were re-recorded, as described in the merge-resolutions README. The mobile notice-row section of `composed-source-modules.patch` is re-rolled around upstream's setup-failure lines.
+
+The relay two-path failover test that failed on PR 88 is an upstream flake, fixed by upstream 44236 in this pin. No selected PR touches the relay.
+
+Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, and the blocking-helper ratchet with no baseline rows. Lint passes except the test-runner list check, which needs the control files. The composed regression suites pass: 180 desktop with 1 skipped, and 32 mobile.
