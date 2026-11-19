@@ -285,7 +285,6 @@
 3 src/main/ipc/filesystem/watcher-process/parcel-watcher-entry-path.ts
 1 src/main/ipc/filesystem/watcher-process/root-paths/watcher-event-root-path-rewrite.ts
 1 src/main/ipc/filesystem/watcher-process/supervision/parcel-watcher-supervisor-subscribe.ts
-1 src/main/ipc/keyboard/macos-keyboard-layout-snapshot.ts
 1 src/main/ipc/notifications/notification-authorization-status.ts
 1 src/main/ipc/pty/host-env/spawn-pane-env.ts
 1 src/main/ipc/ssh/ssh-connect-flow.ts
@@ -341,8 +340,6 @@
 4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
 2 src/main/orca-profiles/storage/new-profile-state.ts
 5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
-2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
 2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
 2 src/main/orcad/artifact-slots/orcad-daemon-slot-pins.ts

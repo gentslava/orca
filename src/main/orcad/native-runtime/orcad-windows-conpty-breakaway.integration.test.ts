@@ -1,3 +1,4 @@
+// @orca-isolated-worker: native addon state cannot be reset between files.
 // Exercise ConPTY under the hidden, job-detached process used by Windows SSH hosts.
 import { createRequire } from 'node:module'
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
