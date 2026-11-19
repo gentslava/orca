@@ -43,6 +43,8 @@ import { PlainSshTerminalPanels } from './components/plain-ssh-terminal/PlainSsh
 import { PluginShotReplayMount } from './components/plugins/view/PluginShotReplayMount'
 import { AddToChatPointMenuHost } from './components/native-chat/selection-quotes/AddToChatMenu'
 import { installActiveWorktreeRemovalSuccessor } from './lib/workspace/activation/active-worktree-removal-successor'
+import { useHoldQuitActivity } from './app-shell/use-hold-quit-activity'
+import { HoldQuitNotice } from './components/HoldQuitNotice'
 
 function App(): React.JSX.Element {
   const layout = useAppChromeLayout()
@@ -51,6 +53,7 @@ function App(): React.JSX.Element {
   const clearUnreadDockBadge = useUnreadDockBadge(floatingWorkspace.open)
 
   useAppShellServices()
+  useHoldQuitActivity()
   // Load drafts before the startup chain so no failed step can skip them.
   useEffect(startNativeChatDraftLoad, [])
   // Committed WSL moves only: the list is empty otherwise, and always with the internal gate closed.
@@ -128,6 +131,7 @@ function App(): React.JSX.Element {
         <PluginUpdateReviewHost />
       </TooltipProvider>
       <SkillFreshnessNudge />
+      <HoldQuitNotice />
       {/* One account-link confirm at a time, over whatever screen the owner is on. */}
       <WorktreeBaseFallbackDialog />
       <ClaudeAccountSwitchDialog />
