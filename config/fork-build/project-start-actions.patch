@@ -1,43 +1,134 @@
---- a/config/flaky-test-pattern-baseline.txt
-+++ b/config/flaky-test-pattern-baseline.txt
-@@ -260,7 +260,7 @@
- 1 test-no-real-time-wait:tests/e2e/pdf-find-counter.spec.ts
- 1 test-no-real-time-wait:tests/e2e/pdf-viewer-rebuild-recovery.spec.ts
- 1 test-no-real-time-wait:tests/e2e/project-group-manual-sort.spec.ts
--2 test-no-real-time-wait:tests/e2e/relaunch-first-terminal.spec.ts
-+1 test-no-real-time-wait:tests/e2e/relaunch-first-terminal.spec.ts
- 4 test-no-real-time-wait:tests/e2e/relaunch-sleeping-agents-resume-on-view.spec.ts
- 1 test-no-real-time-wait:tests/e2e/resource-manager-local-pty-view.spec.ts
- 1 test-no-real-time-wait:tests/e2e/settings-display-name-ime.spec.ts
-@@ -437,7 +437,6 @@
- 1 test-no-wall-clock:src/renderer/src/components/browser-pane/assemble-chrome/browser-workspace-pane.adoption-chrome.test.tsx
- 2 test-no-wall-clock:src/renderer/src/components/terminal-pane/pty-connection/emulation/fish-color-scheme-child-stdin.node-pty.test.ts
- 2 test-no-wall-clock:src/renderer/src/components/terminal-pane/snapshots/remote-snapshot-alt-screen-host-chain.test.ts
--1 test-no-wall-clock:src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
- 2 test-no-wall-clock:src/renderer/src/components/workspace-cleanup/removal/use-workspace-cleanup-removal.agent-stop.test.tsx
- 1 test-no-wall-clock:src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
- 1 test-no-wall-clock:src/shared/__tests__/process-host/windows-cmd-shim-resolution.test.ts
+diff --git a/config/focus-setting-read-baseline.txt b/config/focus-setting-read-baseline.txt
+index c85072bc9fd..7c42270d6e3 100644
 --- a/config/focus-setting-read-baseline.txt
 +++ b/config/focus-setting-read-baseline.txt
-@@ -149,10 +149,7 @@
+@@ -140,9 +140,6 @@
  1 src/renderer/src/components/status-bar/workspace-storage/decisions/use-workspace-space-git-refresh-action.ts
- 1 src/renderer/src/components/status-bar/workspace-storage/manager/use-workspace-space-manager-panel.ts
  1 src/renderer/src/components/status-bar/workspace-storage/decisions/workspace-space-decision-details.ts
+ 1 src/renderer/src/components/status-bar/workspace-storage/manager/use-workspace-space-manager-panel.ts
 -1 src/renderer/src/components/tab-bar/TabBar.tsx
--2 src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
- 1 src/renderer/src/runtime/web-session-tabs-sync/placement/web-runtime-tab-move-mirror.ts
 -1 src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
+-2 src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
  3 src/renderer/src/components/tab-group/workspace-model/useTabGroupCreationCommands.ts
  11 src/renderer/src/components/task-page/TaskPage.tsx
  2 src/renderer/src/components/task-page/jira/creation/IssueAssigneeField.tsx
---- a/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
-+++ b/src/renderer/src/components/TerminalLegacyTerminalPanes.tsx
+diff --git a/src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts b/src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
+index 0aba10115a4..779e66cd8a6 100644
+--- a/src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
++++ b/src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
+@@ -1,12 +1,12 @@
+ export function shouldShowWindowsShellMenu(args: {
+-  activeRuntimeEnvironmentId: string | null | undefined
++  runtimeEnvironmentId: string | null | undefined
+   hostPlatform: NodeJS.Platform | null
+   isWindowsClient: boolean
+   worktreeHasRemoteConnection: boolean
+ }): boolean {
+   // Offer Windows shells only after the execution host is known Windows, independent of client platform.
+   const runtimeHostIsNotKnownWindows =
+-    Boolean(args.activeRuntimeEnvironmentId?.trim()) && args.hostPlatform !== 'win32'
++    Boolean(args.runtimeEnvironmentId?.trim()) && args.hostPlatform !== 'win32'
+   if (args.worktreeHasRemoteConnection) {
+     return args.hostPlatform === 'win32'
+   }
+diff --git a/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts b/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
+index b65beb27102..adc2524e2a6 100644
+--- a/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
++++ b/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
+@@ -19,7 +19,7 @@ import { selectTabBarAgentProjections } from './tab-agent-types-by-tab-id'
+ import type { TabBarAgentProjections } from './tab-agent-types-by-tab-id'
+ import { shouldShowWindowsShellMenu } from '../create-menu/windows-shell-menu-visibility'
+ import { createUnifiedTabLookup } from './tab-bar-item-model'
+-import { getClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
++import { getWorkspaceClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
+ import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
+ import type { GitFileStatus } from '../../../../../shared/git/status/git-status-types'
+ import type { GlobalSettings } from '../../../../../shared/settings/global-settings-types'
+@@ -111,7 +111,7 @@ export function useTabBarRuntimeModel({
+   )
+   const settings = useAppStore((s) => s.settings)
+   // Why: use the worktree's owning host so offered Windows shells match the host that actually runs the terminal.
+-  const activeRuntimeEnvironmentId = useAppStore((s) =>
++  const runtimeEnvironmentId = useAppStore((s) =>
+     runtimeEnvironmentIdOrLocalUnlessTwin(s, worktreeId)
+   )
+   // Why: retained tab strips rerun selectors on every store write; reuse canonical indexes, don't flatten both slices here.
+@@ -126,16 +126,16 @@ export function useTabBarRuntimeModel({
+   })
+   const isWebClient = (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ === true
+   const windowsTerminalCapabilityOwnerKey = getWindowsTerminalCapabilityOwnerKey(
+-    activeRuntimeEnvironmentId,
++    runtimeEnvironmentId,
+     worktreeConnectionId
+   )
+   const runtimeTarget = useMemo(
+-    () => runtimeTargetForOwnerEnvironment(activeRuntimeEnvironmentId),
+-    [activeRuntimeEnvironmentId]
++    () => runtimeTargetForOwnerEnvironment(runtimeEnvironmentId),
++    [runtimeEnvironmentId]
+   )
+   const shouldProbeWindowsShellCapabilities =
+     isWindows ||
+-    Boolean(activeRuntimeEnvironmentId?.trim()) ||
++    Boolean(runtimeEnvironmentId?.trim()) ||
+     isWebClient ||
+     Boolean(worktreeConnectionId)
+   const windowsTerminalCapabilities = useWindowsTerminalCapabilities(
+@@ -149,14 +149,14 @@ export function useTabBarRuntimeModel({
+     ? (worktreeRemotePlatform ?? windowsTerminalCapabilities.hostPlatform)
+     : windowsTerminalCapabilities.hostPlatform
+   const showWindowsShellMenu = shouldShowWindowsShellMenu({
+-    activeRuntimeEnvironmentId,
++    runtimeEnvironmentId,
+     hostPlatform: shellMenuHostPlatform,
+     isWindowsClient: isWindows,
+     worktreeHasRemoteConnection: Boolean(worktreeConnectionId)
+   })
+   // Subscribe to project/worktree maps only for the local shell menu; their routine writes otherwise repaint every retained strip.
+   const needsLocalProjectRuntime =
+-    showWindowsShellMenu && !activeRuntimeEnvironmentId?.trim() && !worktreeConnectionId
++    showWindowsShellMenu && !runtimeEnvironmentId?.trim() && !worktreeConnectionId
+   const projects = useAppStore((s) => (needsLocalProjectRuntime ? s.projects : EMPTY_PROJECTS))
+   const repos = useAppStore((s) => (needsLocalProjectRuntime ? s.repos : EMPTY_REPOS))
+   const worktreesByRepo = useAppStore((s) =>
+@@ -210,7 +210,7 @@ export function useTabBarRuntimeModel({
+   )
+   const [managedBrowserCreationEnabled, mobileEmulatorCreationEnabled] = useAppStore(
+     useShallow((state) => {
+-      const policy = getClientCreationActionPolicy(state, worktreeId)
++      const policy = getWorkspaceClientCreationActionPolicy(state, worktreeId)
+       return [
+         policy['managed-browser'].state === 'enabled',
+         policy['mobile-emulator'].state === 'enabled'
+diff --git a/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts b/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
+index 9119a4819df..1de5e6c9771 100644
+--- a/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
++++ b/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
+@@ -9,3 +9,14 @@ export function resolveGroupTabFromVisibleId(
+     null
+   )
+ }
++
++export function runGroupTabCommand(
++  groupTabs: readonly Tab[],
++  visibleId: string,
++  command: (tabId: string) => void
++): void {
++  const item = resolveGroupTabFromVisibleId(groupTabs, visibleId)
++  if (item) {
++    command(item.id)
++  }
++}
+diff --git a/src/renderer/src/components/terminal/workbench/TerminalLegacyTerminalPanes.tsx b/src/renderer/src/components/terminal/workbench/TerminalLegacyTerminalPanes.tsx
+index 91be2536ecb..6434f823d35 100644
+--- a/src/renderer/src/components/terminal/workbench/TerminalLegacyTerminalPanes.tsx
++++ b/src/renderer/src/components/terminal/workbench/TerminalLegacyTerminalPanes.tsx
 @@ -1,3 +1,4 @@
-+import { WorkspaceStartPage } from './workspace-start/WorkspaceStartPage'
++import { WorkspaceStartPage } from '../../workspace-start/WorkspaceStartPage'
  import { createPortal } from 'react-dom'
- import TerminalPane from './terminal-pane/TerminalPane'
- import { TerminalRestoringPlaceholder } from './terminal-pane/mounting/TerminalRestoringPlaceholder'
-@@ -38,6 +39,24 @@
+ import TerminalPane from '../../terminal-pane/TerminalPane'
+ import { TerminalRestoringPlaceholder } from '../../terminal-pane/mounting/TerminalRestoringPlaceholder'
+@@ -38,6 +39,24 @@ export function TerminalLegacyTerminalPanes({
            : ''
        }`}
      >
@@ -62,464 +153,9 @@
        {workspaceSurfaces
          .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
          .map((workspace) => {
---- a/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
-+++ b/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
-@@ -19,7 +19,7 @@
- import type { TabBarAgentProjections } from './tab-agent-types-by-tab-id'
- import { shouldShowWindowsShellMenu } from '../create-menu/windows-shell-menu-visibility'
- import { createUnifiedTabLookup } from './tab-bar-item-model'
--import { getClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
-+import { getWorkspaceClientCreationActionPolicy } from '@/lib/workspace/creation/surface-policy/client-creation-action-policy'
- import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
- import type { GitFileStatus } from '../../../../../shared/git/status/git-status-types'
- import type { GlobalSettings } from '../../../../../shared/settings/global-settings-types'
-@@ -111,7 +111,7 @@
-   )
-   const settings = useAppStore((s) => s.settings)
-   // Why: use the worktree's owning host so offered Windows shells match the host that actually runs the terminal.
--  const activeRuntimeEnvironmentId = useAppStore((s) =>
-+  const runtimeEnvironmentId = useAppStore((s) =>
-     runtimeEnvironmentIdOrLocalUnlessTwin(s, worktreeId)
-   )
-   // Why: retained tab strips rerun selectors on every store write; reuse canonical indexes, don't flatten both slices here.
-@@ -126,16 +126,16 @@
-   })
-   const isWebClient = (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ === true
-   const windowsTerminalCapabilityOwnerKey = getWindowsTerminalCapabilityOwnerKey(
--    activeRuntimeEnvironmentId,
-+    runtimeEnvironmentId,
-     worktreeConnectionId
-   )
-   const runtimeTarget = useMemo(
--    () => runtimeTargetForOwnerEnvironment(activeRuntimeEnvironmentId),
--    [activeRuntimeEnvironmentId]
-+    () => runtimeTargetForOwnerEnvironment(runtimeEnvironmentId),
-+    [runtimeEnvironmentId]
-   )
-   const shouldProbeWindowsShellCapabilities =
-     isWindows ||
--    Boolean(activeRuntimeEnvironmentId?.trim()) ||
-+    Boolean(runtimeEnvironmentId?.trim()) ||
-     isWebClient ||
-     Boolean(worktreeConnectionId)
-   const windowsTerminalCapabilities = useWindowsTerminalCapabilities(
-@@ -149,14 +149,14 @@
-     ? (worktreeRemotePlatform ?? windowsTerminalCapabilities.hostPlatform)
-     : windowsTerminalCapabilities.hostPlatform
-   const showWindowsShellMenu = shouldShowWindowsShellMenu({
--    activeRuntimeEnvironmentId,
-+    runtimeEnvironmentId,
-     hostPlatform: shellMenuHostPlatform,
-     isWindowsClient: isWindows,
-     worktreeHasRemoteConnection: Boolean(worktreeConnectionId)
-   })
-   // Subscribe to project/worktree maps only for the local shell menu; their routine writes otherwise repaint every retained strip.
-   const needsLocalProjectRuntime =
--    showWindowsShellMenu && !activeRuntimeEnvironmentId?.trim() && !worktreeConnectionId
-+    showWindowsShellMenu && !runtimeEnvironmentId?.trim() && !worktreeConnectionId
-   const projects = useAppStore((s) => (needsLocalProjectRuntime ? s.projects : EMPTY_PROJECTS))
-   const repos = useAppStore((s) => (needsLocalProjectRuntime ? s.repos : EMPTY_REPOS))
-   const worktreesByRepo = useAppStore((s) =>
-@@ -210,7 +210,7 @@
-   )
-   const [managedBrowserCreationEnabled, mobileEmulatorCreationEnabled] = useAppStore(
-     useShallow((state) => {
--      const policy = getClientCreationActionPolicy(state, worktreeId)
-+      const policy = getWorkspaceClientCreationActionPolicy(state, worktreeId)
-       return [
-         policy['managed-browser'].state === 'enabled',
-         policy['mobile-emulator'].state === 'enabled'
---- a/src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
-+++ b/src/renderer/src/components/tab-bar/create-menu/windows-shell-menu-visibility.ts
-@@ -1,12 +1,12 @@
- export function shouldShowWindowsShellMenu(args: {
--  activeRuntimeEnvironmentId: string | null | undefined
-+  runtimeEnvironmentId: string | null | undefined
-   hostPlatform: NodeJS.Platform | null
-   isWindowsClient: boolean
-   worktreeHasRemoteConnection: boolean
- }): boolean {
-   // Offer Windows shells only after the execution host is known Windows, independent of client platform.
-   const runtimeHostIsNotKnownWindows =
--    Boolean(args.activeRuntimeEnvironmentId?.trim()) && args.hostPlatform !== 'win32'
-+    Boolean(args.runtimeEnvironmentId?.trim()) && args.hostPlatform !== 'win32'
-   if (args.worktreeHasRemoteConnection) {
-     return args.hostPlatform === 'win32'
-   }
---- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-+++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-@@ -1,3 +1,7 @@
-+import {
-+  workspaceStartPageForGroup,
-+  workspaceAgentTourAnchor
-+} from '../workspace-start/WorkspaceStartPage'
- import { Suspense, useCallback, useMemo, useRef } from 'react'
- import { lazyWithRetry as lazy } from '@/app-shell/startup/lazy-with-retry'
- import { useDroppable } from '@dnd-kit/core'
-@@ -8,7 +12,10 @@
- import { TabGroupPaneActionsMenu } from './panel/TabGroupPaneActionsMenu'
- import { useTabGroupWorkspaceModel } from './workspace-model/useTabGroupWorkspaceModel'
- import { closeTerminalTab } from '../terminal/terminal-tab-actions'
--import { resolveGroupTabFromVisibleId } from './workspace-model/tab-group-visible-id'
-+import {
-+  resolveGroupTabFromVisibleId,
-+  runGroupTabCommand
-+} from './workspace-model/tab-group-visible-id'
- import { getTabPaneBodyDroppableId } from './drag/useTabDragSplit'
- import type { HoveredTabInsertion } from './drag/tab-insertion'
- import { tabGroupBodyAnchorName } from './retained-pane/tab-group-body-anchor'
-@@ -161,25 +168,15 @@
-         // Why: agent quick-launch can briefly desync unified/runtime tab ids before the host snapshot lands, so still route close through the shared helper.
-         closeTerminalTab(terminalId, { reason: 'user' })
-       }}
--      onCloseOthers={(visibleId) => {
--        // Why: TabBar emits entityId for terminals/browsers but unifiedTabId for editors; match both so the menu works on every tab kind.
--        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
--        if (item) {
--          commands.closeOthers(item.id)
--        }
--      }}
--      onCloseToRight={(visibleId) => {
--        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
--        if (item) {
--          commands.closeToRight(item.id)
--        }
--      }}
--      onCloseToLeft={(visibleId) => {
--        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
--        if (item) {
--          commands.closeToLeft(item.id)
--        }
--      }}
-+      onCloseOthers={(visibleId) =>
-+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeOthers)
-+      }
-+      onCloseToRight={(visibleId) =>
-+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToRight)
-+      }
-+      onCloseToLeft={(visibleId) =>
-+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToLeft)
-+      }
-       onNewTerminalTab={commands.newTerminalTab}
-       onNewTerminalWithShell={commands.newTerminalWithShell}
-       onNewBrowserTab={commands.newBrowserTab}
-@@ -369,15 +366,17 @@
-         className="relative flex-1 min-h-0 overflow-hidden"
-         style={bodyAnchorStyle}
-       >
--        {/* Why: empty anchor so the agent-sessions tour reads as a terminal-area tip, not toolbar chrome. */}
--        {isFocused ? (
--          <div
--            className="pointer-events-none absolute inset-x-0 top-1/4 h-px"
--            data-contextual-tour-target="workspace-agent-terminal-tip"
--            // Picks the chat or terminal split step of the agent-sessions tour.
--            data-active-content-type={activeTab?.contentType}
--          />
--        ) : null}
-+        {workspaceAgentTourAnchor(isFocused, activeTab?.contentType)}
-+        {workspaceStartPageForGroup(
-+          isVisible &&
-+            !showsSplitLanding &&
-+            !activeTab &&
-+            !model.groupTabs.length &&
-+            !clientHostedRows.length,
-+          worktreeId,
-+          groupId,
-+          commands
-+        )}
-         {activeTab &&
-           activeTab.contentType !== 'terminal' &&
-           activeTab.contentType !== 'agent-session' &&
---- a/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
-+++ b/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
-@@ -9,3 +9,14 @@
-     null
-   )
- }
-+
-+export function runGroupTabCommand(
-+  groupTabs: readonly Tab[],
-+  visibleId: string,
-+  command: (tabId: string) => void
-+): void {
-+  const item = resolveGroupTabFromVisibleId(groupTabs, visibleId)
-+  if (item) {
-+    command(item.id)
-+  }
-+}
---- a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-+++ b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-@@ -5,10 +5,6 @@
- import { afterEach, describe, expect, it, vi } from 'vitest'
- import { useTerminalWatcherEffects } from '../use-terminal-watcher-effects'
- import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
--import {
--  claimEmptyWorkspaceDefaultSurface,
--  releaseEmptyWorkspaceDefaultSurface
--} from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
-
- const mocks = vi.hoisted(() => {
-   const storeTabsByWorktree: Record<string, unknown[]> = {}
-@@ -66,8 +62,6 @@
-   })
- )
-
--const PENDING_INTENT = { callerProvidesSurface: false, seedUserDefaultSurface: true }
--
- Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
- let root: Root | undefined
- afterEach(async () => {
-@@ -118,116 +112,29 @@
-   return null
- }
-
--describe('passive terminal seeding during native chat creation', () => {
--  it('waits for worktree creation before checking whether a fallback shell is needed', async () => {
--    mocks.storePendingCreations['creation-1'] = {
--      creationId: 'creation-1',
--      worktreeId: 'wt-1',
--      phase: 'creating',
--      status: 'creating',
--      startedAt: 1,
--      indeterminate: false,
--      loaderVisible: true,
--      request: {
--        repoId: 'repo-1',
--        name: 'workspace',
--        setupDecision: 'inherit',
--        agent: 'codex',
--        pendingFirstAgentMessageRename: false,
--        note: '',
--        startupPlan: null,
--        quickPrompt: '',
--        quickTelemetry: null
--      }
--    }
-+describe('empty workspace entry waits for an explicit action', () => {
-+  it('does not start a shell after hydration, an empty host answer, or switching away and back', async () => {
-     mocks.gate.mockResolvedValue('empty')
-     root = createRoot(document.createElement('div'))
--    await act(async () => root?.render(<Watcher />))
--    expect(mocks.gate).not.toHaveBeenCalled()
-+    await act(async () => root?.render(<Watcher hydrated />))
-+    await act(async () => root?.render(<Watcher hydrated worktreeId="wt-2" />))
-+    await act(async () => root?.render(<Watcher hydrated />))
-     expect(mocks.createTab).not.toHaveBeenCalled()
-+    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
-+    expect(mocks.gate).toHaveBeenCalledWith('wt-2')
-+  })
-
--    mocks.storePendingCreations = {}
--    await act(async () => root?.render(<Watcher />))
--    expect(mocks.createTab).toHaveBeenCalledOnce()
--  })
--})
--
--function deferredGate(): (outcome: 'empty' | 'blocked') => Promise<void> {
--  let finishGate!: (outcome: 'empty' | 'blocked') => void
--  // One shared promise, as the gate's in-flight dedupe hands every rerun.
--  mocks.gate.mockReturnValue(
--    new Promise((resolve) => {
--      finishGate = resolve
--    })
--  )
--  return async (outcome) => act(async () => finishGate(outcome))
--}
--
--describe('passive terminal seeding retries until a decision applies', () => {
--  it('seeds once after a StrictMode double run', async () => {
--    const finishGate = deferredGate()
--    const renderStrict = () =>
-+  it('keeps an empty project empty under StrictMode', async () => {
-+    mocks.gate.mockResolvedValue('empty')
-+    root = createRoot(document.createElement('div'))
-+    await act(async () =>
-       root?.render(
-         <StrictMode>
--          <Watcher />
-+          <Watcher hydrated />
-         </StrictMode>
-       )
--    root = createRoot(document.createElement('div'))
--    await act(async () => renderStrict())
--    await finishGate('empty')
--    expect(mocks.createTab).toHaveBeenCalledTimes(1)
--
--    // The applied decision is final: a later run neither re-checks nor seeds again.
--    await act(async () => renderStrict())
--    expect(mocks.createTab).toHaveBeenCalledTimes(1)
--    expect(mocks.gate).toHaveBeenCalledTimes(2)
--  })
--
--  it('seeds once across two empty checks separated by leaving the workspace', async () => {
--    const resolvers: ((outcome: 'empty') => void)[] = []
--    mocks.gate.mockImplementation(
--      () =>
--        new Promise((resolve) => {
--          resolvers.push(resolve)
--        })
-     )
--    root = createRoot(document.createElement('div'))
--    await act(async () => root?.render(<Watcher />))
--    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
--    await act(async () => root?.render(<Watcher />))
--    await act(async () => resolvers.forEach((resolve) => resolve('empty')))
--    await act(async () => root?.render(<Watcher />))
--
--    expect(mocks.createTab).toHaveBeenCalledTimes(1)
--    expect(mocks.gate).toHaveBeenCalledTimes(3)
--  })
--
--  it('does not seed a workspace whose last terminal closed during the check', async () => {
--    const finishGate = deferredGate()
--    root = createRoot(document.createElement('div'))
--    await act(async () => root?.render(<Watcher />))
--    // closeTab empties the row and records the close in the same store write.
--    mocks.storeTabsByWorktree = { 'wt-1': [] }
--    mocks.storeClosedRecords = { 'closed-tab': { worktreeId: 'wt-1', closedAt: Date.now() } }
--    await finishGate('empty')
-     expect(mocks.createTab).not.toHaveBeenCalled()
--  })
--
--  // Leaving cancels reseed; returning must still seed the workspace.
--  it('seeds on return to a workspace left while a reseed awaited agent detection', async () => {
--    mocks.gate.mockResolvedValue('empty')
--    claimEmptyWorkspaceDefaultSurface('wt-1', PENDING_INTENT)
--    root = createRoot(document.createElement('div'))
--    try {
--      await act(async () => root?.render(<Watcher />))
--      expect(mocks.createTab).not.toHaveBeenCalled()
--    } finally {
--      releaseEmptyWorkspaceDefaultSurface('wt-1')
--    }
--
--    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
--    await act(async () => root?.render(<Watcher />))
--    expect(mocks.createTab).toHaveBeenCalledTimes(1)
-   })
- })
-
---- a/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
-+++ b/src/renderer/src/components/terminal/use-terminal-startup-activation.ts
-@@ -1,14 +1,7 @@
- import { useEffect, useMemo, useRef } from 'react'
- import { useAppStore } from '@/store'
--import { shouldSeedDefaultSurface } from '@/lib/workspace/activation/initial-surface/automatic-default-surface'
--import { findPendingWorktreeCreationId } from '@/lib/workspace/creation/pending-worktree-creation'
--import { isTerminalWorkspaceEmptiedOnPurpose } from '../../../../shared/workspace-layout/terminal-surfaces/closed-terminal-tab-tombstones'
- import { gateWorktreeAgentActivation } from '@/lib/workspace/activation/worktree-agent-activation-gate'
- import { createWorkspaceTerminalHostAuthoritySelector } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
--import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
--import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
--import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/workspace-layout/layout-owner-switch'
--import { createInitialTerminalThroughLayoutOwner } from '@/store/terminals/tabs/creation/terminal-tab-create-through-layout-owner'
- import type { TerminalColdActivationController } from '../terminal-cold-activation'
-
- type TerminalStartupController = Pick<
-@@ -17,8 +10,6 @@
-   | 'workspaceSessionReady'
-   | 'terminalStartupRestorationReady'
-   | 'hydrationSucceeded'
--  | 'reconcileWorktreeTabModel'
--  | 'createTab'
- >
-
- export function useTerminalStartupActivation(controller: TerminalStartupController): void {
-@@ -26,93 +17,14 @@
-     activeWorktreeId,
-     workspaceSessionReady,
-     terminalStartupRestorationReady,
--    hydrationSucceeded,
--    reconcileWorktreeTabModel,
--    createTab
-+    hydrationSucceeded
-   } = controller
--  const startupActivationGateWorktreeIdsRef = useRef(new Set<string>())
-   // Subscribe so host answers rerun the passes; retain owner resolution to avoid repeating catalog walks on every store write (STA-3363).
-   const hostAuthoritySelector = useMemo(
-     () => createWorkspaceTerminalHostAuthoritySelector(activeWorktreeId),
-     [activeWorktreeId]
-   )
-   const activeWorktreeHostAuthority = useAppStore(hostAuthoritySelector)
--  const activeWorktreeCreationPending = useAppStore(
--    (state) =>
--      findPendingWorktreeCreationId(state.pendingWorktreeCreations, activeWorktreeId) !== null
--  )
--
--  useEffect(() => {
--    if (
--      !workspaceSessionReady ||
--      !terminalStartupRestorationReady ||
--      !activeWorktreeId ||
--      activeWorktreeCreationPending
--    ) {
--      return
--    }
--    // An unanswered owner is not an empty host; seeding before its census duplicates tabs (STA-4658).
--    if (activeWorktreeHostAuthority !== 'none') {
--      return
--    }
--    if (startupActivationGateWorktreeIdsRef.current.has(activeWorktreeId)) {
--      return
--    }
--    let cancelled = false
--    void gateWorktreeAgentActivation(activeWorktreeId).then((outcome) => {
--      if (
--        cancelled ||
--        outcome === 'blocked' ||
--        useAppStore.getState().activeWorktreeId !== activeWorktreeId
--      ) {
--        return
--      }
--      // An in-flight reseed owns the surface but remains unmarked so leaving mid-wait allows retry on return.
--      if (outcome === 'empty' && isEmptyWorkspaceDefaultSurfacePending(activeWorktreeId)) {
--        return
--      }
--      // Only applied decisions consume the gate; canceled/blocked checks stay retryable and reruns share the in-flight promise.
--      startupActivationGateWorktreeIdsRef.current.add(activeWorktreeId)
--      if (outcome !== 'empty') {
--        return
--      }
--      // A pending or unanswered chat create owns the surface even before its tab is published.
--      if (hasStructuredAgentLaunchInWorktree(activeWorktreeId)) {
--        return
--      }
--      // Why: the activation gate reconciles durable/live agent state first; only an actually empty, never-visited workspace receives a default shell.
--      const { renderableTabCount } = reconcileWorktreeTabModel(activeWorktreeId)
--      // Only recorded closes preserve emptiness; reread at decision time because rows can change while waiting.
--      const emptiedOnPurpose = isTerminalWorkspaceEmptiedOnPurpose(
--        useAppStore.getState(),
--        activeWorktreeId
--      )
--      if (shouldSeedDefaultSurface(activeWorktreeId, renderableTabCount, emptiedOnPurpose)) {
--        if (
--          ORCA_LAYOUT_OWNER_IS_MAIN &&
--          createInitialTerminalThroughLayoutOwner(useAppStore.getState, activeWorktreeId, () =>
--            createTab(activeWorktreeId, undefined, undefined, { pendingActivationSpawn: true })
--          )
--        ) {
--          return
--        }
--        // Initial default tabs must not count as user activity and reorder the sidebar; explicit New Tab still does.
--        createTab(activeWorktreeId, undefined, undefined, { pendingActivationSpawn: true })
--      }
--    })
--    return () => {
--      cancelled = true
--    }
--  }, [
--    activeWorktreeId,
--    activeWorktreeHostAuthority,
--    activeWorktreeCreationPending,
--    createTab,
--    reconcileWorktreeTabModel,
--    terminalStartupRestorationReady,
--    workspaceSessionReady
--  ])
--
-   const startupResumeWorktreeIdsRef = useRef(new Set<string>())
-   useEffect(() => {
-     if (
+diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx
+new file mode 100644
+index 00000000000..6b61624d827
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.fixture.tsx
 @@ -0,0 +1,45 @@
@@ -568,6 +204,9 @@
 +    await i18n.changeLanguage(await loadRendererUiLanguage('ru'))
 +  }
 +})
+diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
+new file mode 100644
+index 00000000000..617464a024d
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 @@ -0,0 +1,114 @@
@@ -685,6 +324,9 @@
 +    </section>
 +  )
 +}
+diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx
+new file mode 100644
+index 00000000000..1f12a17e516
 --- /dev/null
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartPage.tsx
 @@ -0,0 +1,101 @@
@@ -789,9 +431,157 @@
 +    />
 +  ) : null
 +}
+diff --git a/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx b/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx
+new file mode 100644
+index 00000000000..aad359e80a2
+--- /dev/null
++++ b/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx
+@@ -0,0 +1,140 @@
++// @vitest-environment happy-dom
++import type * as ParkedWatcherRegistryModule from '../terminal-pane/parking/output-watchers/terminal-parked-watcher-registry'
++import { act, StrictMode } from 'react'
++import { createRoot, type Root } from 'react-dom/client'
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { useTerminalWatcherEffects } from '../terminal/workbench/use-terminal-watcher-effects'
++import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
++
++const mocks = vi.hoisted(() => {
++  const storeTabsByWorktree: Record<string, unknown[]> = {}
++  const storeClosedRecords: Record<string, { worktreeId: string; closedAt: number }> = {}
++  const storePendingCreations: Record<string, PendingWorktreeCreation> = {}
++  return {
++    gate: vi.fn(),
++    resume: vi.fn(),
++    authority: 'none',
++    launchStatus: vi.fn((_worktreeId: string, _provider: string): string => 'idle'),
++    createTab: vi.fn(),
++    storeTabsByWorktree,
++    storeClosedRecords,
++    storePendingCreations
++  }
++})
++vi.mock('@/store', () => {
++  const getState = () => ({
++    activeWorktreeId: 'wt-1',
++    tabsByWorktree: mocks.storeTabsByWorktree,
++    closedTerminalTabTombstonesByTabId: mocks.storeClosedRecords,
++    pendingWorktreeCreations: mocks.storePendingCreations
++  })
++  return {
++    useAppStore: Object.assign(
++      (selector: (state: ReturnType<typeof getState>) => unknown) => selector(getState()),
++      { getState }
++    )
++  }
++})
++vi.mock('@/lib/workspace/activation/worktree-agent-activation-gate', () => ({
++  gateWorktreeAgentActivation: mocks.gate
++}))
++vi.mock('@/lib/agent-session/launch/structured-agent-session-launch-status', () => ({
++  hasStructuredAgentLaunchInWorktree: (worktreeId: string) =>
++    ['claude', 'codex', 'grok'].some((agent) => mocks.launchStatus(worktreeId, agent) !== 'idle')
++}))
++vi.mock('@/lib/agent-session/resume/resume-sleeping-agent-session', () => ({
++  resumeSleepingAgentSessionsForWorktree: mocks.resume
++}))
++vi.mock('@/lib/workspace/ownership/workspace-terminal-host-authority', () => ({
++  createWorkspaceTerminalHostAuthoritySelector: () => () => mocks.authority
++}))
++vi.mock('../terminal-pane/parking/output-watchers/terminal-parked-tab-watchers', () => ({
++  syncParkedTerminalTabWatchersForWorkspaces: vi.fn()
++}))
++
++vi.mock(
++  '../terminal-pane/parking/output-watchers/terminal-parked-watcher-registry',
++  async (importOriginal) => ({
++    ...(await importOriginal<typeof ParkedWatcherRegistryModule>()),
++    pruneParkedTerminalWatchers: vi.fn(),
++    terminalWatcherLiveWorkspaceIds: () => new Set(),
++    disposeAllParkedTerminalWatchers: vi.fn()
++  })
++)
++
++Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
++let root: Root | undefined
++afterEach(async () => {
++  await act(async () => root?.unmount())
++  vi.clearAllMocks()
++  mocks.authority = 'none'
++  mocks.storeTabsByWorktree = {}
++  mocks.storeClosedRecords = {}
++  mocks.storePendingCreations = {}
++})
++
++function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}): null {
++  useTerminalWatcherEffects({
++    activeWorktreeId: worktreeId,
++    workspaceSessionReady: true,
++    terminalStartupRestorationReady: restored,
++    hydrationSucceeded: hydrated,
++    workspaceSurfaceIds: [],
++    workspaceSurfaceIdSet: new Set(),
++    tabsByWorktree: {},
++    createTab: mocks.createTab,
++    reconcileWorktreeTabModel: () => ({
++      renderableTabCount: 0,
++      activeRenderableTabId: null
++    }),
++    activationDeferredMountTabIdsByWorktreeRef: { current: new Map() },
++    activeTabId: null,
++    activeTabIdByWorktree: {},
++    activeView: 'terminal',
++    activityTerminalPortals: [],
++    anyMountedWorktreeHasLayout: false,
++    backgroundMountRevision: 0,
++    effectiveParkedTerminalWorktreeIds: new Set(),
++    evictionExemptTerminalTabIds: new Set(),
++    getEffectiveLayoutForWorktree: () => undefined,
++    groupsByWorktree: {},
++    measurableBackgroundWorktreeIdsRef: { current: new Set() },
++    mountedWorktreeIdsRef: { current: new Set() },
++    pairedRuntimeParkingEnvironmentIds: new Set(),
++    pendingStartupByTabId: {},
++    renderedActiveWorktreeId: worktreeId,
++    startupTerminalTabHold: null,
++    terminalParkingEnabled: false,
++    terminalProviderSnapshotCapabilityRevision: 0,
++    terminalSshParkingEnabled: false,
++    terminalTitleSnapshotAuthorityEnabled: false
++  })
++  return null
++}
++
++describe('empty workspace entry waits for an explicit action', () => {
++  it('does not start a shell after hydration, an empty host answer, or switching away and back', async () => {
++    mocks.gate.mockResolvedValue('empty')
++    root = createRoot(document.createElement('div'))
++    await act(async () => root?.render(<Watcher hydrated />))
++    await act(async () => root?.render(<Watcher hydrated worktreeId="wt-2" />))
++    await act(async () => root?.render(<Watcher hydrated />))
++    expect(mocks.createTab).not.toHaveBeenCalled()
++    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
++    expect(mocks.gate).toHaveBeenCalledWith('wt-2')
++  })
++
++  it('keeps an empty project empty under StrictMode', async () => {
++    mocks.gate.mockResolvedValue('empty')
++    root = createRoot(document.createElement('div'))
++    await act(async () =>
++      root?.render(
++        <StrictMode>
++          <Watcher hydrated />
++        </StrictMode>
++      )
++    )
++    expect(mocks.createTab).not.toHaveBeenCalled()
++  })
++})
++
+diff --git a/src/renderer/src/i18n/locales/de.json b/src/renderer/src/i18n/locales/de.json
+index c500701c8d3..81c9c7aa5b0 100644
 --- a/src/renderer/src/i18n/locales/de.json
 +++ b/src/renderer/src/i18n/locales/de.json
-@@ -22210,6 +22210,12 @@
+@@ -22296,6 +22296,12 @@
        "draft": "{{review}}: Entwurf",
        "merged": "{{review}}: gemergt",
        "open": "{{review}}: offen"
@@ -804,24 +594,28 @@
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
+index 991b00c35a4..75bb806696d 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -24525,6 +24525,12 @@
-       "checksPending": "{{review}} checks: Pending",
+@@ -25384,6 +25384,12 @@
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
-+    },
+     },
 +    "start": {
 +      "title": "What would you like to open?",
 +      "description": "Choose an agent or a tool for this project.",
 +      "agents": "Agents",
 +      "manageAgents": "Manage agents"
-     },
++    },
      "vm": {
        "menu": {
+         "waking": "Waking VM…",
+diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
+index 9ce9e723cd9..ba201f4b92a 100644
 --- a/src/renderer/src/i18n/locales/es.json
 +++ b/src/renderer/src/i18n/locales/es.json
-@@ -22688,6 +22688,12 @@
+@@ -22777,6 +22777,12 @@
        "draft": "{{review}}: Borrador",
        "merged": "{{review}}: Fusionada",
        "open": "{{review}}: Abierta"
@@ -834,9 +628,11 @@
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/i18n/locales/fr.json b/src/renderer/src/i18n/locales/fr.json
+index cd042e0de1a..8b5e788bd36 100644
 --- a/src/renderer/src/i18n/locales/fr.json
 +++ b/src/renderer/src/i18n/locales/fr.json
-@@ -22711,6 +22711,12 @@
+@@ -22798,6 +22798,12 @@
        "draft": "{{review}} : brouillon",
        "merged": "{{review}} : fusionnée",
        "open": "{{review}} : ouverte"
@@ -849,24 +645,28 @@
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/i18n/locales/ja.json b/src/renderer/src/i18n/locales/ja.json
+index c2ef678b0aa..127dffc857d 100644
 --- a/src/renderer/src/i18n/locales/ja.json
 +++ b/src/renderer/src/i18n/locales/ja.json
-@@ -23460,6 +23460,12 @@
-       "draft": "{{review}}: 下書き",
+@@ -23533,6 +23533,12 @@
        "merged": "{{review}}: マージ済み",
        "open": "{{review}}: オープン"
-+    },
+     },
 +    "start": {
 +      "title": "何を開きますか？",
 +      "description": "このプロジェクトで使う Agent やツールを選択してください。",
 +      "agents": "Agent",
 +      "manageAgents": "Agent を管理"
-     },
++    },
      "vm": {
        "menu": {
+         "waking": "VM を復帰中…",
+diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
+index a06a1ee4a51..ffb896d128f 100644
 --- a/src/renderer/src/i18n/locales/ko.json
 +++ b/src/renderer/src/i18n/locales/ko.json
-@@ -21968,6 +21968,12 @@
+@@ -22048,6 +22048,12 @@
        "draft": "{{review}}: 초안",
        "merged": "{{review}}: 병합됨",
        "open": "{{review}}: 열림"
@@ -879,9 +679,11 @@
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/i18n/locales/pt.json b/src/renderer/src/i18n/locales/pt.json
+index 9ee75308e0a..a2a0505d957 100644
 --- a/src/renderer/src/i18n/locales/pt.json
 +++ b/src/renderer/src/i18n/locales/pt.json
-@@ -23192,6 +23192,12 @@
+@@ -23277,6 +23277,12 @@
        "draft": "{{review}}: Rascunho",
        "merged": "{{review}}: Mergeado",
        "open": "{{review}}: Aberto"
@@ -894,9 +696,11 @@
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
+index bb2479e53f3..c3c1e5a2c85 100644
 --- a/src/renderer/src/i18n/locales/ru.json
 +++ b/src/renderer/src/i18n/locales/ru.json
-@@ -22973,6 +22973,12 @@
+@@ -23075,6 +23075,12 @@
        "draft": "{{review}}: черновик",
        "merged": "{{review}}: слит",
        "open": "{{review}}: открыт"
@@ -909,9 +713,11 @@
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/locales/tr.json
+index 40fd699dd81..779abe27e58 100644
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
-@@ -22350,6 +22350,12 @@
+@@ -22438,6 +22438,12 @@
        "draft": "{{review}}: Taslak",
        "merged": "{{review}}: Merge edildi",
        "open": "{{review}}: Açık"
@@ -924,9 +730,11 @@
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/i18n/locales/zh-Hant.json b/src/renderer/src/i18n/locales/zh-Hant.json
+index 5d6f5cdd36c..040195e30dd 100644
 --- a/src/renderer/src/i18n/locales/zh-Hant.json
 +++ b/src/renderer/src/i18n/locales/zh-Hant.json
-@@ -21882,6 +21882,12 @@
+@@ -21965,6 +21965,12 @@
        "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合併",
        "open": "{{review}}：開放"
@@ -939,32 +747,36 @@
      }
    },
    "tabHoverCard": {
+diff --git a/src/renderer/src/i18n/locales/zh.json b/src/renderer/src/i18n/locales/zh.json
+index 7fa560dfc4c..a1f3717375c 100644
 --- a/src/renderer/src/i18n/locales/zh.json
 +++ b/src/renderer/src/i18n/locales/zh.json
-@@ -23883,6 +23883,12 @@
-       "draft": "{{review}}：草稿",
+@@ -23966,6 +23966,12 @@
        "merged": "{{review}}：已合并",
        "open": "{{review}}：开放"
-+    },
+     },
 +    "start": {
 +      "title": "要打开什么？",
 +      "description": "为此项目选择代理或工具。",
 +      "agents": "代理",
 +      "manageAgents": "管理代理"
-     },
++    },
      "vm": {
        "menu": {
+         "waking": "正在唤醒虚拟机…",
+diff --git a/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts b/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
+index 1b01aab549a..1d1921ba75a 100644
 --- a/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
 +++ b/src/renderer/src/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding.ts
-@@ -24,7 +24,6 @@
+@@ -24,7 +24,6 @@ import {
    type IssueCommandLaunch
  } from '@/lib/workspace/activation/initial-surface/worktree-setup-issue-command-queue'
  import { applyDefaultTerminalTabs } from '@/lib/workspace/activation/initial-surface/worktree-default-terminal-tabs'
 -import { openDefaultAgentChatInEmptyWorkspace } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-agent-chat'
  import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
  import { findPendingWorktreeCreationId } from '../../creation/pending-worktree-creation'
-
-@@ -82,6 +81,9 @@
+ 
+@@ -82,6 +81,9 @@ export function ensureWorktreeHasInitialTerminal(
    opts?: InitialTerminalOptions
  ): string | null {
    const { renderableTabCount } = store.reconcileWorktreeTabModel(worktreeId)
@@ -974,7 +786,7 @@
    // Editor/browser-only workspaces need no extra terminal merely because the legacy terminal slice is empty.
    const ownerState =
      store.settings !== undefined || store.repos !== undefined || store.worktreesByRepo !== undefined
-@@ -229,30 +231,6 @@
+@@ -229,30 +231,6 @@ export function ensureWorktreeHasInitialTerminal(
    if (templatedTabId) {
      return templatedTabId
    }
@@ -1005,30 +817,30 @@
    // Activation-created PTY spawns must not count as activity and reshuffle Recent.
    // Stamp before hooks so chat/provider chrome can resolve agent identity immediately.
    const launchAgent =
+diff --git a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
+index dab14a46146..856004ff59d 100644
 --- a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
 +++ b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
-@@ -3,6 +3,7 @@
+@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
  import type * as AgentStatusModule from '@/lib/agent-status/aggregation/worktree-agent-status'
  import { createTestStore } from '@/store/testing/app-store-test-fixture'
  import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
 +import { makeFolderWorkspace } from '@/store/folder-workspaces/folder-workspace.test-fixture'
  import { ensureWorktreeHasInitialTerminal } from '@/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding'
  import { resolveWorkspaceTerminalHostAuthority } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
-
-@@ -21,6 +22,7 @@
-
+ 
+@@ -21,6 +22,7 @@ vi.mock('@/lib/agent-status/aggregation/worktree-agent-status', async (importOri
+ 
  type TestStore = ReturnType<typeof createTestStore>
-
+ 
 +const LOCAL_WORKTREE_ID = 'repoLocal::/tmp/local/feature'
  const SSH_WORKTREE_ID = 'repoSsh::/srv/proj/feature'
  const PAIRED_WORKTREE_ID = 'repoPaired::/srv/proj/paired'
  const TARGET_ID = 'ssh-target-1'
-@@ -35,6 +37,22 @@
-     addedAt: 0,
-     ...(connectionId ? { connectionId } : {})
+@@ -37,6 +39,22 @@ function repo(id: string, path: string, connectionId?: string): never {
    } as never
-+}
-+
+ }
+ 
 +function seedLocal(store: TestStore): void {
 +  store.setState({
 +    repos: [repo('repoLocal', '/tmp/local')],
@@ -1043,12 +855,14 @@
 +      ]
 +    }
 +  })
- }
-
++}
++
  function seedDirectSsh(store: TestStore): void {
-@@ -67,7 +85,59 @@
+   store.setState({
+     repos: [repo('repoSsh', '/srv/proj', TARGET_ID)],
+@@ -67,7 +85,59 @@ function terminalTabCount(store: TestStore, worktreeId: string): number {
  }
-
+ 
  describe('workspace terminal seeding authority', () => {
 -  it('seeds once the SSH target connects, with no workspace snapshot to wait for', () => {
 +  it('runs an explicit local startup immediately, exactly once', () => {
@@ -1107,8 +921,8 @@
      // Host workspace snapshots no longer answer after relay removal (#27214); waiting forever strands connected targets.
      const store = createTestStore()
      seedDirectSsh(store)
-@@ -77,7 +147,9 @@
-
+@@ -77,7 +147,9 @@ describe('workspace terminal seeding authority', () => {
+ 
      connectTarget(store)
      expect(resolveWorkspaceTerminalHostAuthority(store.getState(), SSH_WORKTREE_ID)).toBe('none')
 -    expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeTruthy()
@@ -1117,136 +931,41 @@
 +    ).toBeTruthy()
      expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(1)
    })
-
-@@ -92,7 +164,7 @@
+ 
+@@ -92,7 +164,7 @@ describe('workspace terminal seeding authority', () => {
        }
      })
-
+ 
 -    // Startup restore passes no reseed option; only an explicit activation does.
 +    // Reopening an empty workspace still leaves its first action to the user.
      expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeNull()
      expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(0)
      expect(
-@@ -105,7 +177,7 @@
+@@ -105,7 +177,7 @@ describe('workspace terminal seeding authority', () => {
          undefined,
          { reseedEmptiedWorkspace: true }
        )
 -    ).toBeTruthy()
 +    ).toBeNull()
    })
-
+ 
    /** Rival detected owners make authority unresolved, not local; the old live-paired-client guard incorrectly seeded alongside host creation (#15556). */
---- a/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
-+++ b/src/renderer/src/runtime/web-session-tabs-sync/active-session-subscription.ts
-@@ -41,9 +41,7 @@
- } from '../hosted-terminals/restoration/web-runtime-wake-terminal-respawn'
- import { createWebRuntimeSessionTerminal } from '../hosted-terminals/creation/web-runtime-terminal-creation'
- import { releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame } from './initial-terminal/web-runtime-initial-terminal-bootstrap'
--import { createInitialTerminalSeeder } from './initial-terminal-seeder'
- import { toRuntimeWorktreeSelector } from '../rpc/targets/runtime-worktree-selector'
--import { hostSnapshotAffirmsWorktreeContents } from './hydration/host-session-snapshot-authority'
-
- import type { SessionTabsSnapshotHandler } from './visibility-resume-types'
- import { subscribeRuntimeEnvironment } from '../rpc/environment-revisions/runtime-environment-pairing-refresh'
-@@ -61,10 +59,7 @@
-   visibilitySnapshotAccepted: Ref<SessionTabsSnapshotHandler<void>>
- }
-
--export type ActiveSessionTabsSubscription = WindowVisibilitySubscriptionParking & {
--  /** The worktree became selected again while its stream stayed warm. */
--  reconsiderSelected: () => void
--}
-+export type ActiveSessionTabsSubscription = WindowVisibilitySubscriptionParking
-
- export function installActiveSessionTabsSubscription({
-   activeWorktreeId,
-@@ -89,7 +84,7 @@
-     return undefined
-   }
-   const expectedTrackingGeneration = getWebSessionTabsTrackingGeneration(environmentId)
--  // Warm streams outlive selection; seed only the selected worktree on this host because IDs can collide across hosts.
-+  // Warm streams outlive selection; only the selected workspace may respawn after wake.
-   const isSelected = (): boolean => {
-     const state = useAppStore.getState()
-     return (
-@@ -97,9 +92,7 @@
-       mirroredRuntimeEnvironmentIdForWorkspace(state, activeWorktreeId) === environmentId
-     )
-   }
--  const seeder = createInitialTerminalSeeder(environmentId, activeWorktreeId)
-   let requestedRespawnAfterWake = false
--  let hostAffirmedWorktree = false
-
-   const applyActiveSnapshot = async (
-     event: RuntimeMobileSessionTabsResult & { type: 'snapshot' | 'updated' },
-@@ -140,8 +133,6 @@
-     const hasLiveLocalPty = localTabs.some(
-       (tab) => (syncState.ptyIdsByTabId[tab.id] ?? []).length > 0
-     )
--    const firstHostAnswer = !hostAffirmedWorktree
--    const bootstrap = decision.apply && seeder.decide(recoveredEvent, firstHostAnswer)
-     const respawn = shouldRespawnWebRuntimeTerminalAfterWake({
-       event: recoveredEvent,
-       activeWorktreeId,
-@@ -163,7 +154,6 @@
-           trackingGeneration: expectedTrackingGeneration
-         })
-     if (decision.apply) {
--      hostAffirmedWorktree ||= hostSnapshotAffirmsWorktreeContents(recovered)
-       const replayed = isRuntimeSubscriptionReplayResponse(response)
-       settle = applyWebSessionTabsStorePatch(
-         createWebSessionTabsSnapshotPatch(recovered, environmentId),
-@@ -184,20 +174,10 @@
-         event.type === 'updated' && !replayed
-       )
-       visibilitySnapshotAccepted.current(environmentId, recovered, receivedFrame, runtimeId)
--      // Applied frames release awaiting-mirror only after seeding checked the held latch; pending RPCs retain claims and later frames decide retries.
-       releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame(environmentId, recovered.worktree)
-     }
--    if (decision.apply && isCurrent()) {
--      // Warm streams may answer empty only while unselected; redecide on selection.
--      seeder.noteAppliedFrame(
--        bootstrap ? { event: recoveredEvent, firstHostAnswer, receivedFrame, runtimeId } : null,
--        isSelected()
--      )
--    }
-     try {
--      if (isCurrent() && isSelected() && bootstrap) {
--        await seeder.seed()
--      } else if (
-+      if (
-         isCurrent() &&
-         isSelected() &&
-         respawn &&
-@@ -294,14 +274,5 @@
-       }
-     }
-   ])
--  return Object.assign(
--    () => {
--      seeder.dispose()
--      parking()
--    },
--    {
--      restartEnded: () => parking.restartEnded(),
--      reconsiderSelected: () => seeder.reconsiderSelected(isSelected())
--    }
--  )
-+  return parking
- }
---- a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal-seeder.ts
+diff --git a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-seeder.ts b/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-seeder.ts
+deleted file mode 100644
+index 14ac648d7db..00000000000
+--- a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-seeder.ts
 +++ /dev/null
 @@ -1,107 +0,0 @@
--import { useAppStore } from '../../store'
--import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/workspace-layout/layout-owner-switch'
--import { isFrameDrawnServerWorkspace } from './frame-drawn-server-workspace-set'
--import { isWebRuntimeInitialTerminalBootstrapInFlight } from './initial-terminal/web-runtime-initial-terminal-bootstrap'
--import { dispatchWebRuntimeInitialTerminalBootstrap } from './initial-terminal/web-runtime-initial-terminal-bootstrap-dispatch'
--import { shouldApplyRecoveredWebSessionTabsSnapshot } from './tracking'
--import { shouldBootstrapInitialWebRuntimeTerminal } from './tracking-decisions'
--import type { RuntimeMobileSessionTabsResult } from '../../../../shared/remote-runtime/session-graph/runtime-session-contracts'
--import type { SessionTabsStreamEvent } from './state'
--import { hasSplitLandingGroup } from '../../store/slices/tabs/split-landing-groups'
+-import { useAppStore } from '../../../store/index'
+-import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../shared/workspace-layout/layout-owner-switch'
+-import { isFrameDrawnServerWorkspace } from '../frame-drawn/frame-drawn-server-workspace-set'
+-import { isWebRuntimeInitialTerminalBootstrapInFlight } from './web-runtime-initial-terminal-bootstrap'
+-import { dispatchWebRuntimeInitialTerminalBootstrap } from './web-runtime-initial-terminal-bootstrap-dispatch'
+-import { shouldApplyRecoveredWebSessionTabsSnapshot } from '../tracking/tracking'
+-import { shouldBootstrapInitialWebRuntimeTerminal } from '../tracking/tracking-decisions'
+-import type { RuntimeMobileSessionTabsResult } from '../../../../../shared/remote-runtime/session-graph/runtime-session-contracts'
+-import type { SessionTabsStreamEvent } from '../state'
+-import { hasSplitLandingGroup } from '../../../store/slices/tabs/split-landing-groups'
 -
 -type SessionTabsFrame = RuntimeMobileSessionTabsResult & { type: 'snapshot' | 'updated' }
 -
@@ -1344,9 +1063,111 @@
 -    }
 -  }
 -}
---- a/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts
-+++ b/src/renderer/src/runtime/web-session-tabs-sync/warm-worktree-subscriptions.ts
-@@ -126,7 +126,6 @@
+diff --git a/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/active-session-subscription.ts b/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/active-session-subscription.ts
+index e448f84ab7e..40341b0f177 100644
+--- a/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/active-session-subscription.ts
++++ b/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/active-session-subscription.ts
+@@ -41,9 +41,7 @@ import {
+ } from '../../hosted-terminals/restoration/web-runtime-wake-terminal-respawn'
+ import { createWebRuntimeSessionTerminal } from '../../hosted-terminals/creation/web-runtime-terminal-creation'
+ import { releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame } from '../initial-terminal/web-runtime-initial-terminal-bootstrap'
+-import { createInitialTerminalSeeder } from '../initial-terminal/initial-terminal-seeder'
+ import { toRuntimeWorktreeSelector } from '../../rpc/targets/runtime-worktree-selector'
+-import { hostSnapshotAffirmsWorktreeContents } from '../hydration/host-session-snapshot-authority'
+ 
+ import type { SessionTabsSnapshotHandler } from '../visibility-resume/visibility-resume-types'
+ import { subscribeRuntimeEnvironment } from '../../rpc/environment-revisions/runtime-environment-pairing-refresh'
+@@ -61,10 +59,7 @@ export type ActiveSubscriptionArgs = {
+   visibilitySnapshotAccepted: Ref<SessionTabsSnapshotHandler<void>>
+ }
+ 
+-export type ActiveSessionTabsSubscription = WindowVisibilitySubscriptionParking & {
+-  /** The worktree became selected again while its stream stayed warm. */
+-  reconsiderSelected: () => void
+-}
++export type ActiveSessionTabsSubscription = WindowVisibilitySubscriptionParking
+ 
+ export function installActiveSessionTabsSubscription({
+   activeWorktreeId,
+@@ -89,7 +84,7 @@ export function installActiveSessionTabsSubscription({
+     return undefined
+   }
+   const expectedTrackingGeneration = getWebSessionTabsTrackingGeneration(environmentId)
+-  // Warm streams outlive selection; seed only the selected worktree on this host because IDs can collide across hosts.
++  // Warm streams outlive selection; only the selected workspace may respawn after wake.
+   const isSelected = (): boolean => {
+     const state = useAppStore.getState()
+     return (
+@@ -97,9 +92,7 @@ export function installActiveSessionTabsSubscription({
+       mirroredRuntimeEnvironmentIdForWorkspace(state, activeWorktreeId) === environmentId
+     )
+   }
+-  const seeder = createInitialTerminalSeeder(environmentId, activeWorktreeId)
+   let requestedRespawnAfterWake = false
+-  let hostAffirmedWorktree = false
+ 
+   const applyActiveSnapshot = async (
+     event: RuntimeMobileSessionTabsResult & { type: 'snapshot' | 'updated' },
+@@ -140,8 +133,6 @@ export function installActiveSessionTabsSubscription({
+     const hasLiveLocalPty = localTabs.some(
+       (tab) => (syncState.ptyIdsByTabId[tab.id] ?? []).length > 0
+     )
+-    const firstHostAnswer = !hostAffirmedWorktree
+-    const bootstrap = decision.apply && seeder.decide(recoveredEvent, firstHostAnswer)
+     const respawn = shouldRespawnWebRuntimeTerminalAfterWake({
+       event: recoveredEvent,
+       activeWorktreeId,
+@@ -163,7 +154,6 @@ export function installActiveSessionTabsSubscription({
+           trackingGeneration: expectedTrackingGeneration
+         })
+     if (decision.apply) {
+-      hostAffirmedWorktree ||= hostSnapshotAffirmsWorktreeContents(recovered)
+       const replayed = isRuntimeSubscriptionReplayResponse(response)
+       settle = applyWebSessionTabsStorePatch(
+         createWebSessionTabsSnapshotPatch(recovered, environmentId),
+@@ -184,20 +174,10 @@ export function installActiveSessionTabsSubscription({
+         event.type === 'updated' && !replayed
+       )
+       visibilitySnapshotAccepted.current(environmentId, recovered, receivedFrame, runtimeId)
+-      // Applied frames release awaiting-mirror only after seeding checked the held latch; pending RPCs retain claims and later frames decide retries.
+       releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame(environmentId, recovered.worktree)
+     }
+-    if (decision.apply && isCurrent()) {
+-      // Warm streams may answer empty only while unselected; redecide on selection.
+-      seeder.noteAppliedFrame(
+-        bootstrap ? { event: recoveredEvent, firstHostAnswer, receivedFrame, runtimeId } : null,
+-        isSelected()
+-      )
+-    }
+     try {
+-      if (isCurrent() && isSelected() && bootstrap) {
+-        await seeder.seed()
+-      } else if (
++      if (
+         isCurrent() &&
+         isSelected() &&
+         respawn &&
+@@ -294,14 +274,5 @@ export function installActiveSessionTabsSubscription({
+       }
+     }
+   ])
+-  return Object.assign(
+-    () => {
+-      seeder.dispose()
+-      parking()
+-    },
+-    {
+-      restartEnded: () => parking.restartEnded(),
+-      reconsiderSelected: () => seeder.reconsiderSelected(isSelected())
+-    }
+-  )
++  return parking
+ }
+diff --git a/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/warm-worktree-subscriptions.ts b/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/warm-worktree-subscriptions.ts
+index 2f8e95b0bc5..1b698ea4e9c 100644
+--- a/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/warm-worktree-subscriptions.ts
++++ b/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/warm-worktree-subscriptions.ts
+@@ -126,7 +126,6 @@ export function createWarmWorktreeSessionSubscriptions(
        if (warm) {
          entries.delete(key)
          entries.set(key, warm)
@@ -1354,6 +1175,9 @@
        } else {
          const subscription = install(args)
          if (!subscription) {
+diff --git a/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts b/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts
+new file mode 100644
+index 00000000000..6a88038dae8
 --- /dev/null
 +++ b/src/shared/agent-launch/picker/agent-launch-picker-installed-programs.test.ts
 @@ -0,0 +1,24 @@
@@ -1381,26 +1205,28 @@
 +    }
 +  }
 +)
+diff --git a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts b/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
+index 4f2eaffced4..7db078ba04e 100644
 --- a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
 +++ b/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
-@@ -8,7 +8,6 @@
+@@ -8,7 +8,6 @@ import type { ExecutionHostId } from '../../execution-host/execution-host'
  import type { TuiAgent } from '../catalog/tui-agent'
  import { filterEnabledTuiAgents, TUI_AGENT_AUTO_PICK_ORDER } from '../catalog/tui-agent-selection'
- import type { AgentSessionChatProgram } from '../../agent-session/agent-session-agent-availability'
+ import type { AgentSessionChatProgram } from '../../agent-session/agent-discovery/agent-session-agent-availability'
 -import { agentSessionInstallCommand } from '../../agent-session/lifecycle/launch/agent-session-setup-commands'
-
+ 
  export type HostChatAnswer =
    | 'yes'
-@@ -21,8 +20,6 @@
+@@ -21,8 +20,6 @@ export type HostChatAnswer =
    | 'windows'
    | 'no-chats'
  export type ChatProgramObservation = AgentSessionChatProgram | 'unlearned'
 -const chatProgramOffered = (program: ChatProgramObservation) =>
 -  program === 'available' || program === 'installable'
-
+ 
  export function orderAgentLaunchPickerAgents(
    defaultAgent: TuiAgent | 'blank' | null | undefined,
-@@ -62,7 +59,7 @@
+@@ -62,7 +59,7 @@ export function buildNewTabAgentMenuRows(args: {
    hostChatAnswer: (agent: TuiAgent) => HostChatAnswer
    /** Whether the chat's own program runs there, which for some agents is not their CLI. */
    chatProgram: (agent: TuiAgent) => ChatProgramObservation
@@ -1409,7 +1235,7 @@
    offerAgentSetup?: boolean
    hostPlatform?: string | null
  }): NewTabAgentMenuRow[] {
-@@ -79,17 +76,14 @@
+@@ -79,17 +76,14 @@ export function buildNewTabAgentMenuRows(args: {
    const unavailable = new Map<TuiAgent, ChatUnavailableReason>()
    const chatAgents = filterEnabledTuiAgents(args.chatAgents, settings?.disabledTuiAgents)
    const canOpen = (agent: TuiAgent): boolean =>
@@ -1433,7 +1259,7 @@
      const displayed = nativeChatPreferenceFor(settings, agent)
      if (!displayed && (!installed.includes(agent) || !canOpen(agent))) {
        continue
-@@ -101,8 +95,7 @@
+@@ -101,8 +95,7 @@ export function buildNewTabAgentMenuRows(args: {
        }
        continue
      }
@@ -1443,73 +1269,706 @@
        runnable.push(agent)
      } else {
        unavailable.set(
-@@ -120,12 +113,6 @@
-                 : answer
+@@ -121,12 +114,6 @@ export function buildNewTabAgentMenuRows(args: {
        )
      }
--  }
+   }
 -  // A host with no agents at all offers chats that set one up, so a first agent is findable.
 -  if (runnable.length === 0 && unavailable.size === 0 && installed.length === 0) {
 -    runnable.push(
 -      ...chatAgents.filter((agent) => needsSetup(agent) && args.hostChatAnswer(agent) === 'yes')
 -    )
-   }
+-  }
    return [
      ...orderAgentLaunchPickerAgents(defaultAgent, runnable).map((agent) => ({
---- a/tests/e2e/relaunch-first-terminal.spec.ts
-+++ b/tests/e2e/relaunch-first-terminal.spec.ts
-@@ -1,5 +1,4 @@
--// After relaunch, preserve deliberately empty/editor-only workspaces and seed a terminal only when a never-opened workspace is shown.
--// Main’s terminal rows must give the same answer with or without window tab saves.
-+// Empty workspaces offer actions after activation and relaunch; terminal creation is explicit.
-
- import path from 'node:path'
- import { writeFileSync } from 'node:fs'
-@@ -87,7 +86,7 @@
-
- // The editor-only workspace's file also opens read-only, then again for editing: a relaunch
- // restores it editable, as the reopen left it.
--test('a relaunch seeds only a workspace that was never opened', async ({
-+test('empty workspaces offer actions before and after relaunch', async ({
-   testRepoPath
- }, testInfo) => {
-   const session = createRestartSession(testInfo)
-@@ -111,12 +110,20 @@
-     const neverOpened = await createWorktree(first.page, `relaunch-never-${stamp}`)
-
-     await switchToWorktree(first.page, emptied)
-+    await waitForTabs(first.page, emptied, { terminals: 0, editors: 0 })
-+    await expect(
-+      first.page.getByRole('heading', { name: 'What would you like to open?' })
-+    ).toBeVisible()
-+    await first.page
-+      .getByRole('button', { name: /^New Terminal/ })
-+      .first()
-+      .click()
-     await waitForTabs(first.page, emptied, { terminals: 1, editors: 0 })
-     await closeTerminals(first.page, emptied)
-     await waitForTabs(first.page, emptied, { terminals: 0, editors: 0 })
-
-     await switchToWorktree(first.page, editorOnly)
--    await waitForTabs(first.page, editorOnly, { terminals: 1, editors: 0 })
-+    await waitForTabs(first.page, editorOnly, { terminals: 0, editors: 0 })
-     const notes = path.join(await worktreePath(first.page, editorOnly), 'relaunch-notes.txt')
-     writeFileSync(notes, 'notes\n')
-     await openEditor(first.page, editorOnly, notes, true)
-@@ -136,10 +143,13 @@
-     await waitForSessionReady(second.page)
-     for (const worktreeId of [emptied, editorOnly, neverOpened]) {
-       await switchToWorktree(second.page, worktreeId)
--      // A first terminal is created shortly after a workspace is shown, or not at all.
--      await second.page.waitForTimeout(3_000)
-+      if (worktreeId !== editorOnly) {
-+        await expect(
-+          second.page.getByRole('heading', { name: 'What would you like to open?' })
-+        ).toBeVisible()
+       kind: 'chat' as const,
+diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
+index 2afb4f7dc96..227481e3d66 100644
+--- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
++++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
+@@ -1,3 +1,7 @@
++import {
++  workspaceStartPageForGroup,
++  workspaceAgentTourAnchor
++} from '../workspace-start/WorkspaceStartPage'
+ import { Suspense, useCallback, useMemo, useRef } from 'react'
+ import { lazyWithRetry as lazy } from '@/app-shell/startup/lazy-with-retry'
+ import { useDroppable } from '@dnd-kit/core'
+@@ -8,7 +12,10 @@ import { TabBarQuickCommandsButton } from '../tab-bar/quick-commands/TabBarQuick
+ import { TabGroupPaneActionsMenu } from './panel/TabGroupPaneActionsMenu'
+ import { useTabGroupWorkspaceModel } from './workspace-model/useTabGroupWorkspaceModel'
+ import { closeTerminalTab } from '../terminal/tab-lifecycle/terminal-tab-actions'
+-import { resolveGroupTabFromVisibleId } from './workspace-model/tab-group-visible-id'
++import {
++  resolveGroupTabFromVisibleId,
++  runGroupTabCommand
++} from './workspace-model/tab-group-visible-id'
+ import { getTabPaneBodyDroppableId } from './drag/useTabDragSplit'
+ import type { HoveredTabInsertion } from './drag/tab-insertion'
+ import { tabGroupBodyAnchorName } from './retained-pane/tab-group-body-anchor'
+@@ -172,25 +179,15 @@ export default function TabGroupPanel({
+         // Why: agent quick-launch can briefly desync unified/runtime tab ids before the host snapshot lands, so still route close through the shared helper.
+         closeTerminalTab(terminalId, { reason: 'user' })
+       }}
+-      onCloseOthers={(visibleId) => {
+-        // Why: TabBar emits entityId for terminals/browsers but unifiedTabId for editors; match both so the menu works on every tab kind.
+-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
+-        if (item) {
+-          commands.closeOthers(item.id)
+-        }
+-      }}
+-      onCloseToRight={(visibleId) => {
+-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
+-        if (item) {
+-          commands.closeToRight(item.id)
+-        }
+-      }}
+-      onCloseToLeft={(visibleId) => {
+-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
+-        if (item) {
+-          commands.closeToLeft(item.id)
+-        }
+-      }}
++      onCloseOthers={(visibleId) =>
++        runGroupTabCommand(model.groupTabs, visibleId, commands.closeOthers)
 +      }
++      onCloseToRight={(visibleId) =>
++        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToRight)
++      }
++      onCloseToLeft={(visibleId) =>
++        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToLeft)
++      }
+       onNewTerminalTab={commands.newTerminalTab}
+       onNewTerminalWithShell={commands.newTerminalWithShell}
+       onNewBrowserTab={commands.newBrowserTab}
+@@ -366,15 +363,17 @@ export default function TabGroupPanel({
+         className="relative flex-1 min-h-0 overflow-hidden"
+         style={bodyAnchorStyle}
+       >
+-        {/* Why: empty anchor so the agent-sessions tour reads as a terminal-area tip, not toolbar chrome. */}
+-        {isFocused ? (
+-          <div
+-            className="pointer-events-none absolute inset-x-0 top-1/4 h-px"
+-            data-contextual-tour-target="workspace-agent-terminal-tip"
+-            // Picks the chat or terminal split step of the agent-sessions tour.
+-            data-active-content-type={activeTab?.contentType}
+-          />
+-        ) : null}
++        {workspaceAgentTourAnchor(isFocused, activeTab?.contentType)}
++        {workspaceStartPageForGroup(
++          isVisible &&
++            !showsSplitLanding &&
++            !activeTab &&
++            !model.groupTabs.length &&
++            !clientHostedRows.length,
++          worktreeId,
++          groupId,
++          commands
++        )}
+         {activeTab && toVisibleTabType(activeTab.contentType) === 'editor' && (
+           // Why: a capture-phase owner, so Monaco never sees the drop and the file opens as a tab here.
+           <div ref={attachEditorFileDropOwner} className="absolute inset-0 flex min-h-0 min-w-0">
+diff --git a/src/renderer/src/components/terminal/workspace-mounting/use-terminal-startup-activation.ts b/src/renderer/src/components/terminal/workspace-mounting/use-terminal-startup-activation.ts
+index 61e8625f643..fc01fd526f6 100644
+--- a/src/renderer/src/components/terminal/workspace-mounting/use-terminal-startup-activation.ts
++++ b/src/renderer/src/components/terminal/workspace-mounting/use-terminal-startup-activation.ts
+@@ -1,15 +1,7 @@
+ import { useEffect, useMemo, useRef } from 'react'
+ import { useAppStore } from '@/store'
+-import { shouldSeedDefaultSurface } from '@/lib/workspace/activation/initial-surface/automatic-default-surface'
+-import { findPendingWorktreeCreationId } from '@/lib/workspace/creation/pending-worktree-creation'
+-import { isTerminalWorkspaceEmptiedOnPurpose } from '../../../../../shared/workspace-layout/terminal-surfaces/closed-terminal-tab-tombstones'
+ import { gateWorktreeAgentActivation } from '@/lib/workspace/activation/worktree-agent-activation-gate'
+ import { createWorkspaceTerminalHostAuthoritySelector } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
+-import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
+-import { isBotPage } from '../../bots/bot-workspace'
+-import { isEmptyWorkspaceDefaultSurfacePending } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
+-import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../shared/workspace-layout/layout-owner-switch'
+-import { createInitialTerminalThroughLayoutOwner } from '@/store/terminals/tabs/creation/terminal-tab-create-through-layout-owner'
+ import type { TerminalColdActivationController } from './terminal-cold-activation'
+ 
+ type TerminalStartupController = Pick<
+@@ -18,8 +10,6 @@ type TerminalStartupController = Pick<
+   | 'workspaceSessionReady'
+   | 'terminalStartupRestorationReady'
+   | 'hydrationSucceeded'
+-  | 'reconcileWorktreeTabModel'
+-  | 'createTab'
+ >
+ 
+ export function useTerminalStartupActivation(controller: TerminalStartupController): void {
+@@ -27,92 +17,14 @@ export function useTerminalStartupActivation(controller: TerminalStartupControll
+     activeWorktreeId,
+     workspaceSessionReady,
+     terminalStartupRestorationReady,
+-    hydrationSucceeded,
+-    reconcileWorktreeTabModel,
+-    createTab
++    hydrationSucceeded
+   } = controller
+-  const startupActivationGateWorktreeIdsRef = useRef(new Set<string>())
+   // Subscribe so host answers rerun the passes; retain owner resolution to avoid repeating catalog walks on every store write (STA-3363).
+   const hostAuthoritySelector = useMemo(
+     () => createWorkspaceTerminalHostAuthoritySelector(activeWorktreeId),
+     [activeWorktreeId]
+   )
+   const activeWorktreeHostAuthority = useAppStore(hostAuthoritySelector)
+-  const activeWorktreeCreationPending = useAppStore(
+-    (state) =>
+-      findPendingWorktreeCreationId(state.pendingWorktreeCreations, activeWorktreeId) !== null
+-  )
+-
+-  useEffect(() => {
+-    if (
+-      !workspaceSessionReady ||
+-      !terminalStartupRestorationReady ||
+-      !activeWorktreeId ||
+-      activeWorktreeCreationPending
+-    ) {
+-      return
+-    }
+-    // An unanswered owner is not an empty host; seeding before its census duplicates tabs (STA-4658).
+-    if (activeWorktreeHostAuthority !== 'none') {
+-      return
+-    }
+-    if (startupActivationGateWorktreeIdsRef.current.has(activeWorktreeId)) {
+-      return
+-    }
+-    let cancelled = false
+-    void gateWorktreeAgentActivation(activeWorktreeId).then((outcome) => {
+-      if (
+-        cancelled ||
+-        outcome === 'blocked' ||
+-        useAppStore.getState().activeWorktreeId !== activeWorktreeId
+-      ) {
+-        return
+-      }
+-      // An in-flight reseed owns the surface but remains unmarked so leaving mid-wait allows retry on return.
+-      if (outcome === 'empty' && isEmptyWorkspaceDefaultSurfacePending(activeWorktreeId)) {
+-        return
+-      }
+-      // Only applied decisions consume the gate; canceled/blocked checks stay retryable and reruns share the in-flight promise.
+-      startupActivationGateWorktreeIdsRef.current.add(activeWorktreeId)
+-      if (outcome !== 'empty') {
+-        return
+-      }
+-      // A pending or unanswered chat create, or a bot's Chat, owns the surface before its tab is published.
+-      if (hasStructuredAgentLaunchInWorktree(activeWorktreeId) || isBotPage(activeWorktreeId)) {
+-        return
+-      }
+-      // Why: the activation gate reconciles durable/live agent state first; only an actually empty, never-visited workspace receives a default shell.
+-      const { renderableTabCount } = reconcileWorktreeTabModel(activeWorktreeId)
+-      // Only recorded closes preserve emptiness; reread at decision time because rows can change while waiting.
+-      const emptiedOnPurpose = isTerminalWorkspaceEmptiedOnPurpose(
+-        useAppStore.getState(),
+-        activeWorktreeId
+-      )
+-      if (shouldSeedDefaultSurface(activeWorktreeId, renderableTabCount, emptiedOnPurpose)) {
+-        if (
+-          ORCA_LAYOUT_OWNER_IS_MAIN &&
+-          createInitialTerminalThroughLayoutOwner(useAppStore.getState, activeWorktreeId, () =>
+-            createTab(activeWorktreeId, undefined, undefined, { pendingActivationSpawn: true })
+-          )
+-        ) {
+-          return
+-        }
+-        // Initial default tabs must not count as user activity and reorder the sidebar; explicit New Tab still does.
+-        createTab(activeWorktreeId, undefined, undefined, { pendingActivationSpawn: true })
+-      }
+-    })
+-    return () => {
+-      cancelled = true
+-    }
+-  }, [
+-    activeWorktreeId,
+-    activeWorktreeHostAuthority,
+-    activeWorktreeCreationPending,
+-    createTab,
+-    reconcileWorktreeTabModel,
+-    terminalStartupRestorationReady,
+-    workspaceSessionReady
+-  ])
+ 
+   const startupResumeWorktreeIdsRef = useRef(new Set<string>())
+   useEffect(() => {
+diff --git a/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts b/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts
+index 42f2110e3a6..bbce7a62d23 100644
+--- a/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts
++++ b/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts
+@@ -25,7 +25,10 @@ import {
+ } from './running-terminal-close-guard'
+ import { closeLocalTerminalTabState } from './close-local-terminal-tab-state'
+ import { runAsAutomaticDeselection } from '@/store/workspaces/selection/active-worktree-deselection-intent'
+-import { hasSplitLandingGroup } from '@/store/slices/tabs/split-landing-groups'
++import {
++  hasSplitLandingGroup,
++  keepsEmptiedWorkspaceOpen
++} from '@/store/slices/tabs/split-landing-groups'
+ import { getTerminalIncarnationHandle } from './terminal-close-incarnation'
+ import {
+   terminalTabCloseStoreReason,
+@@ -260,10 +263,12 @@ export function closeTerminalTab(tabId: string, options: CloseTerminalTabOptions
+           if (browserTab) {
+             current.setActiveBrowserTab(browserTab.id)
+             current.setActiveTabType('browser', owningWorktreeId)
+-          } else if (options?.reason === 'pty-exit') {
+-            runAsAutomaticDeselection(() => current.setActiveWorktree(null))
+-          } else {
+-            current.setActiveWorktree(null)
++          } else if (!keepsEmptiedWorkspaceOpen(owningWorktreeId)) {
++            if (options?.reason === 'pty-exit') {
++              runAsAutomaticDeselection(() => current.setActiveWorktree(null))
++            } else {
++              current.setActiveWorktree(null)
++            }
+           }
+         }
+       }
+diff --git a/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts b/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
+index 0d82e6c164c..386091465b8 100644
+--- a/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
++++ b/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
+@@ -3,12 +3,12 @@ import { useAppStore } from '../../../../store/index'
+ import { armFloatingPanelReclaimIntent } from '@/components/floating-terminal/focus/floating-workspace-focus-reclaim'
+ import { isFloatingWorkspacePanelFocused } from '@/components/floating-terminal/workspace/floating-workspace-terminal-actions'
+ import { selectFloatingVisibleTabCount } from '@/store/workspaces/floating/floating-workspace-panel-selector'
+-import { hasSplitLandingGroup } from '@/store/slices/tabs/split-landing-groups'
++import { keepsEmptiedWorkspaceOpen } from '@/store/slices/tabs/split-landing-groups'
+ 
+ /** Capture panel ownership before prompts/removal blur it; run the captured reaction only after the close lands. */
+ export function captureWorkspaceEmptiedReaction(
+   worktreeId: string,
+-  options?: { floatingPanelGuestOwned?: boolean }
++  options?: { floatingPanelGuestOwned?: boolean; leavesStartPage?: boolean }
+ ): () => void {
+   // Emptying the floating panel retains keyboard ownership; emptying a worktree leaves that worktree.
+   if (worktreeId === FLOATING_TERMINAL_WORKTREE_ID) {
+@@ -20,10 +20,10 @@ export function captureWorkspaceEmptiedReaction(
+       }
      }
--    await waitForTabs(second.page, neverOpened, { terminals: 1, editors: 0 })
-+    await waitForTabs(second.page, neverOpened, { terminals: 0, editors: 0 })
-     expect(await workspaceTabs(second.page, emptied)).toEqual({ terminals: 0, editors: 0 })
-     expect(await workspaceTabs(second.page, editorOnly)).toEqual({ terminals: 0, editors: 1 })
-     expect(await isReadOnly(second.page, notes)).toBe(null)
+   }
+-  return () => leaveWorktreeIfEmpty(worktreeId)
++  return () => leaveWorktreeIfEmpty(worktreeId, options?.leavesStartPage === true)
+ }
+ 
+-function leaveWorktreeIfEmpty(worktreeId: string): void {
++function leaveWorktreeIfEmpty(worktreeId: string, leavesStartPage: boolean): void {
+   const state = useAppStore.getState()
+   if (state.activeWorktreeId !== worktreeId) {
+     return
+@@ -31,7 +31,7 @@ function leaveWorktreeIfEmpty(worktreeId: string): void {
+   // Why: split-group closes bypass legacy Terminal.tsx; deselect the emptied worktree here or the window goes blank instead of landing.
+   if (
+     state.reconcileWorktreeTabModel(worktreeId).renderableTabCount === 0 &&
+-    !hasSplitLandingGroup(state, worktreeId)
++    (leavesStartPage || !keepsEmptiedWorkspaceOpen(worktreeId))
+   ) {
+     state.setActiveWorktree(null)
+   }
+diff --git a/src/renderer/src/store/slices/editor/closing/close-file-action.ts b/src/renderer/src/store/slices/editor/closing/close-file-action.ts
+index f609dbc18a0..1a6c414d975 100644
+--- a/src/renderer/src/store/slices/editor/closing/close-file-action.ts
++++ b/src/renderer/src/store/slices/editor/closing/close-file-action.ts
+@@ -18,6 +18,7 @@ import {
+   shouldDeleteUntouchedUntitledFile
+ } from '../tabs/untitled-file-cleanup'
+ import { unifiedTabsKeepWorktreeSelected } from '../tabs/unified-tabs-keep-worktree-selected'
++import { keepsEmptiedWorkspaceOpen } from '../../tabs/split-landing-groups'
+ import { mayShareEditorBackingFile } from '../file-ids/editor-file-ids'
+ import { isSameOwnedDocument } from '../file-ids/same-owned-editor-document'
+ import { isEditorTabContentType } from '../tabs/editor-tab-content-type'
+@@ -220,6 +221,7 @@ export function createCloseFileAction(
+             )
+           const shouldDeactivateWorktree =
+             activeWorktreeId !== null &&
++            !keepsEmptiedWorkspaceOpen(activeWorktreeId) &&
+             !closesBackgroundFile &&
+             remainingForWorktree.length === 0 &&
+             browserTabsForWorktree.length === 0 &&
+diff --git a/src/renderer/src/store/slices/editor/closing/editor-close-last-file-start-page.test.ts b/src/renderer/src/store/slices/editor/closing/editor-close-last-file-start-page.test.ts
+new file mode 100644
+index 00000000000..6a3b0acaa3f
+--- /dev/null
++++ b/src/renderer/src/store/slices/editor/closing/editor-close-last-file-start-page.test.ts
+@@ -0,0 +1,28 @@
++/** Explicit start actions render an emptied workspace, so closing its last file keeps it selected. */
++import { describe, expect, it, vi } from 'vitest'
++import { createEditorTabsStore } from '../editor-slice-test-harness'
++
++vi.mock('@/runtime/web-session-tabs-sync/closing/close-mirrored-editor-tab', () => ({
++  notifyHostOfMirroredEditorClose: vi.fn()
++}))
++
++describe('closing the focused workspace’s last file', () => {
++  it('keeps the workspace selected on its start page', () => {
++    const store = createEditorTabsStore()
++    store.setState({ activeWorktreeId: 'wt-1' })
++    const fileId = store.getState().openFile({
++      filePath: '/repo/README.md',
++      relativePath: 'README.md',
++      worktreeId: 'wt-1',
++      language: 'markdown',
++      mode: 'edit'
++    })
++
++    store.getState().closeFile(fileId)
++
++    const state = store.getState()
++    expect(state.openFiles).toEqual([])
++    expect(state.activeWorktreeId).toBe('wt-1')
++    expect(state.activeTabTypeByWorktree['wt-1']).toBe('terminal')
++  })
++})
+diff --git a/src/renderer/src/store/slices/editor/closing/recently-closed-editor-tabs.ts b/src/renderer/src/store/slices/editor/closing/recently-closed-editor-tabs.ts
+index aec5436feb4..e487411e9fb 100644
+--- a/src/renderer/src/store/slices/editor/closing/recently-closed-editor-tabs.ts
++++ b/src/renderer/src/store/slices/editor/closing/recently-closed-editor-tabs.ts
+@@ -19,6 +19,7 @@ import {
+   shouldDeleteUntouchedUntitledFile
+ } from '../tabs/untitled-file-cleanup'
+ import { unifiedTabsKeepWorktreeSelected } from '../tabs/unified-tabs-keep-worktree-selected'
++import { keepsEmptiedWorkspaceOpen } from '../../tabs/split-landing-groups'
+ import { isEditorTabContentType } from '../tabs/editor-tab-content-type'
+ import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../../shared/workspace-layout/layout-owner-switch'
+ import {
+@@ -166,6 +167,7 @@ export function createRecentlyClosedEditorTabs(
+           const closedFileIds = new Set(closingFiles.map((f) => f.id))
+           const closedTabOrderIds = new Set([...closedFileIds, ...closingItemIds])
+           const shouldDeactivateWorktree =
++            !keepsEmptiedWorkspaceOpen(activeWorktreeId) &&
+             browserTabsForWorktree.length === 0 &&
+             terminalTabsForWorktree.length === 0 &&
+             !unifiedTabsKeepWorktreeSelected(
+diff --git a/src/renderer/src/store/slices/tabs/split-landing-groups.ts b/src/renderer/src/store/slices/tabs/split-landing-groups.ts
+index 7ecc483170e..6e6e54a967c 100644
+--- a/src/renderer/src/store/slices/tabs/split-landing-groups.ts
++++ b/src/renderer/src/store/slices/tabs/split-landing-groups.ts
+@@ -20,6 +20,11 @@ export function isSplitLandingGroup(
+   )
+ }
+ 
++/** Explicit start actions render every emptied workspace, so closing its last tab keeps it open. */
++export function keepsEmptiedWorkspaceOpen(worktreeId: string): boolean {
++  return worktreeId !== FLOATING_TERMINAL_WORKTREE_ID
++}
++
+ /** A waiting chooser keeps its workspace open when the last tab beside it closes. */
+ export function hasSplitLandingGroup(state: SplitLandingMarks, worktreeId: string): boolean {
+   return (state.groupsByWorktree?.[worktreeId] ?? []).some((group) =>
+diff --git a/src/renderer/src/store/slices/tabs/tabs-empty-workspace.ts b/src/renderer/src/store/slices/tabs/tabs-empty-workspace.ts
+index 5d96516c71e..c8212f1c8af 100644
+--- a/src/renderer/src/store/slices/tabs/tabs-empty-workspace.ts
++++ b/src/renderer/src/store/slices/tabs/tabs-empty-workspace.ts
+@@ -1,8 +1,8 @@
+ import type { AppState } from '../../types'
+ import { workspaceEditorFiles } from '../editor/tabs/workspace-editor-files'
+-import { hasSplitLandingGroup } from './split-landing-groups'
++import { keepsEmptiedWorkspaceOpen } from './split-landing-groups'
+ 
+-// Last user-close lands on welcome; failed-create cleanup preserves selection.
++// Last user-close lands on welcome unless the workspace shows its start page; failed-create cleanup preserves selection.
+ type LandingState = Pick<
+   AppState,
+   | 'activeWorktreeId'
+@@ -30,7 +30,7 @@ export function landsOnEmptiedWorktree(
+     (current.browserTabsByWorktree[worktreeId] ?? []).length === 0 &&
+     workspaceEditorFiles(current.openFiles, current.unifiedTabsByWorktree[worktreeId]).length ===
+       0 &&
+-    !hasSplitLandingGroup(current, worktreeId)
++    !keepsEmptiedWorkspaceOpen(worktreeId)
+   )
+ }
+ 
+diff --git a/tests/tools/win-update-e2e/app-driver.mjs b/tests/tools/win-update-e2e/app-driver.mjs
+index bfb42c5c80e..d9ed2e61f61 100644
+--- a/tests/tools/win-update-e2e/app-driver.mjs
++++ b/tests/tools/win-update-e2e/app-driver.mjs
+@@ -213,6 +213,17 @@ export async function ensureTerminal(page, { allowCreate = true, timeoutMs = 60_
+     return
+   }
+   await createWorkspaceFromSeededRepo(page, timeoutMs)
++  await openStartPageTerminal(page, timeoutMs)
++}
++
++// Explicit empty-workspace actions: a setup-only create opens the start page, whose New Terminal starts the shell.
++async function openStartPageTerminal(page, timeoutMs) {
++  const terminal = page.locator(TERMINAL_SURFACE_VISIBLE).first()
++  const startTerminal = page.getByRole('button', { name: /^New Terminal/ }).first()
++  await terminal.or(startTerminal).first().waitFor({ state: 'visible', timeout: timeoutMs })
++  if (!(await terminal.isVisible().catch(() => false))) {
++    await startTerminal.click({ timeout: timeoutMs })
++  }
+   await waitForTerminalReady(page, timeoutMs)
+ }
+ 
+diff --git a/tests/e2e/remote/paired-runtime/workspace-routing/paired-client-project-removal-stops-host-terminals.spec.ts b/tests/e2e/remote/paired-runtime/workspace-routing/paired-client-project-removal-stops-host-terminals.spec.ts
+index d3742935c5f..0be68e59dfb 100644
+--- a/tests/e2e/remote/paired-runtime/workspace-routing/paired-client-project-removal-stops-host-terminals.spec.ts
++++ b/tests/e2e/remote/paired-runtime/workspace-routing/paired-client-project-removal-stops-host-terminals.spec.ts
+@@ -14,6 +14,7 @@ import {
+ import { createRestartSession } from '../../../desktop/electron-fixtures/orca-restart'
+ import { readFreshTerminalInventory } from '../../../terminal/layout/terminal-inventory-observation'
+ import type { RuntimeTerminalListResult } from '../../../../../src/shared/terminal/runtime/runtime-terminal-contracts'
++import { openWorkspaceStartTerminal } from '../../../workspaces/lifecycle/workspace-start-terminal'
+ 
+ function seededRepoPathOrSkip(): string {
+   const repoPath = existsSync(TEST_REPO_PATH_FILE)
+@@ -108,6 +109,7 @@ test('removing a project from a paired client stops its shells on the host', asy
+       state?.setActiveView('terminal')
+       state?.setActiveWorktree(id)
+     }, worktreeId)
++    await openWorkspaceStartTerminal(paired.page)
+     let handle: string | undefined
+     await expect
+       .poll(
+diff --git a/tests/e2e/terminal/rendering/terminal-column-desync-repro.spec.ts b/tests/e2e/terminal/rendering/terminal-column-desync-repro.spec.ts
+index 0ec9a5e90ab..eb50c6751ba 100644
+--- a/tests/e2e/terminal/rendering/terminal-column-desync-repro.spec.ts
++++ b/tests/e2e/terminal/rendering/terminal-column-desync-repro.spec.ts
+@@ -18,6 +18,7 @@ import {
+ } from '../layout/terminal-pane-operations'
+ import { waitForPtyColumnsAtMost } from './terminal-column-probes'
+ import { waitForPtyShellEcho } from '../lifecycle/terminal-pty-readiness'
++import { openWorkspaceStartTerminal } from '../../workspaces/lifecycle/workspace-start-terminal'
+ 
+ // Use a generous probe ceiling so it reports actual columns instead of waiting for a target width.
+ const READ_ANY_COLS = 100_000
+@@ -180,6 +181,7 @@ test.describe('Terminal column desync repro', () => {
+     const widths = [700, 1320, 640, 1180, 600]
+     for (const [index, width] of widths.entries()) {
+       await switchToWorktree(orcaPage, otherWorktreeId)
++      await openWorkspaceStartTerminal(orcaPage)
+       await waitForActiveTerminalManager(orcaPage, 30_000)
+       await orcaPage.setViewportSize({ width, height: 800 })
+       await orcaPage.waitForTimeout(350)
+diff --git a/tests/e2e/workspaces/lifecycle/workspace-start-terminal.ts b/tests/e2e/workspaces/lifecycle/workspace-start-terminal.ts
+new file mode 100644
+index 00000000000..3f9c31d4d01
+--- /dev/null
++++ b/tests/e2e/workspaces/lifecycle/workspace-start-terminal.ts
+@@ -0,0 +1,30 @@
++import { expect, type Page } from '@stablyai/playwright-test'
++
++function activeWorktreeHasTerminalTab(page: Page): Promise<boolean> {
++  return page.evaluate(() => {
++    const state = window.__store?.getState()
++    const worktreeId = state?.activeWorktreeId
++    return Boolean(worktreeId && (state?.tabsByWorktree[worktreeId] ?? []).length > 0)
++  })
++}
++
++// Explicit empty-workspace actions: a workspace without tabs shows its start page, whose New Terminal starts the shell.
++export async function openWorkspaceStartTerminal(page: Page, timeoutMs = 30_000): Promise<void> {
++  // Windows lists one `New Terminal: <shell>` action per detected shell.
++  const newTerminal = page
++    .getByRole('button', { name: /^New Terminal(?::|$)/ })
++    .filter({ visible: true })
++    .first()
++  await expect
++    .poll(
++      async () => (await activeWorktreeHasTerminalTab(page)) || (await newTerminal.isVisible()),
++      {
++        timeout: timeoutMs,
++        message: 'The active workspace showed neither a terminal tab nor its start page'
++      }
++    )
++    .toBe(true)
++  if (!(await activeWorktreeHasTerminalTab(page))) {
++    await newTerminal.click({ timeout: timeoutMs })
++  }
++}
+diff --git a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
+index 7f1ceec23ac..7e73c0833e6 100644
+--- a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
++++ b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
+@@ -1,15 +1,10 @@
+ // @vitest-environment happy-dom
+ import type * as ParkedWatcherRegistryModule from '../terminal-pane/parking/output-watchers/terminal-parked-watcher-registry'
+-import { act, StrictMode } from 'react'
++import { act } from 'react'
+ import { createRoot, type Root } from 'react-dom/client'
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import { useTerminalWatcherEffects } from './workbench/use-terminal-watcher-effects'
+ import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
+-import {
+-  claimEmptyWorkspaceDefaultSurface,
+-  releaseEmptyWorkspaceDefaultSurface
+-} from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
+-import { folderWorkspaceKey } from '../../../../shared/workspace/identity/workspace-scope'
+ 
+ const mocks = vi.hoisted(() => {
+   const storeTabsByWorktree: Record<string, unknown[]> = {}
+@@ -77,8 +72,6 @@ vi.mock(
+   })
+ )
+ 
+-const PENDING_INTENT = { callerProvidesSurface: false, seedUserDefaultSurface: true }
+-
+ Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+ let root: Root | undefined
+ afterEach(async () => {
+@@ -132,149 +125,6 @@ function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}
+   return null
+ }
+ 
+-describe('passive terminal seeding during native chat creation', () => {
+-  it('waits for worktree creation before checking whether a fallback shell is needed', async () => {
+-    mocks.storePendingCreations['creation-1'] = {
+-      creationId: 'creation-1',
+-      worktreeId: 'wt-1',
+-      phase: 'creating',
+-      status: 'creating',
+-      startedAt: 1,
+-      indeterminate: false,
+-      loaderVisible: true,
+-      request: {
+-        repoId: 'repo-1',
+-        name: 'workspace',
+-        setupDecision: 'inherit',
+-        agent: 'codex',
+-        pendingFirstAgentMessageRename: false,
+-        note: '',
+-        startupPlan: null,
+-        quickPrompt: '',
+-        quickTelemetry: null
+-      }
+-    }
+-    mocks.gate.mockResolvedValue('empty')
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => root?.render(<Watcher />))
+-    expect(mocks.gate).not.toHaveBeenCalled()
+-    expect(mocks.createTab).not.toHaveBeenCalled()
+-
+-    mocks.storePendingCreations = {}
+-    await act(async () => root?.render(<Watcher />))
+-    expect(mocks.createTab).toHaveBeenCalledOnce()
+-  })
+-})
+-
+-function deferredGate(): (outcome: 'empty' | 'blocked') => Promise<void> {
+-  let finishGate!: (outcome: 'empty' | 'blocked') => void
+-  // One shared promise, as the gate's in-flight dedupe hands every rerun.
+-  mocks.gate.mockReturnValue(
+-    new Promise((resolve) => {
+-      finishGate = resolve
+-    })
+-  )
+-  return async (outcome) => act(async () => finishGate(outcome))
+-}
+-
+-describe('passive terminal seeding in a bot home', () => {
+-  it('leaves an empty bot home to its Chat, whose tab may not have arrived yet', async () => {
+-    mocks.activeWorktreeId = folderWorkspaceKey('home-1')
+-    mocks.gate.mockResolvedValue('empty')
+-    root = createRoot(document.createElement('div'))
+-    // The same folder seeds a shell once it is no longer a bot's home.
+-    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
+-    expect(mocks.createTab).toHaveBeenCalledOnce()
+-
+-    mocks.bots = [{ folderWorkspaceId: 'home-2' }]
+-    mocks.activeWorktreeId = folderWorkspaceKey('home-2')
+-    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
+-    expect(mocks.gate).toHaveBeenCalledTimes(2)
+-    expect(mocks.createTab).toHaveBeenCalledOnce()
+-  })
+-
+-  it('seeds a shell in a bot home folder while bots are off', async () => {
+-    mocks.bots = [{ folderWorkspaceId: 'home-1' }]
+-    mocks.botsEnabled = false
+-    mocks.activeWorktreeId = folderWorkspaceKey('home-1')
+-    mocks.gate.mockResolvedValue('empty')
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
+-    expect(mocks.createTab).toHaveBeenCalledOnce()
+-  })
+-})
+-
+-describe('passive terminal seeding retries until a decision applies', () => {
+-  it('seeds once after a StrictMode double run', async () => {
+-    const finishGate = deferredGate()
+-    const renderStrict = () =>
+-      root?.render(
+-        <StrictMode>
+-          <Watcher />
+-        </StrictMode>
+-      )
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => renderStrict())
+-    await finishGate('empty')
+-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
+-
+-    // The applied decision is final: a later run neither re-checks nor seeds again.
+-    await act(async () => renderStrict())
+-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
+-    expect(mocks.gate).toHaveBeenCalledTimes(2)
+-  })
+-
+-  it('seeds once across two empty checks separated by leaving the workspace', async () => {
+-    const resolvers: ((outcome: 'empty') => void)[] = []
+-    mocks.gate.mockImplementation(
+-      () =>
+-        new Promise((resolve) => {
+-          resolvers.push(resolve)
+-        })
+-    )
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => root?.render(<Watcher />))
+-    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
+-    await act(async () => root?.render(<Watcher />))
+-    await act(async () => resolvers.forEach((resolve) => resolve('empty')))
+-    await act(async () => root?.render(<Watcher />))
+-
+-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
+-    expect(mocks.gate).toHaveBeenCalledTimes(3)
+-  })
+-
+-  it('does not seed a workspace whose last terminal closed during the check', async () => {
+-    const finishGate = deferredGate()
+-    root = createRoot(document.createElement('div'))
+-    await act(async () => root?.render(<Watcher />))
+-    // closeTab empties the row and records the close in the same store write.
+-    mocks.storeTabsByWorktree = { 'wt-1': [] }
+-    // Any time after the check began; a fixed far-future stamp keeps the wall clock out.
+-    mocks.storeClosedRecords = {
+-      'closed-tab': { worktreeId: 'wt-1', closedAt: Number.MAX_SAFE_INTEGER }
+-    }
+-    await finishGate('empty')
+-    expect(mocks.createTab).not.toHaveBeenCalled()
+-  })
+-
+-  // Leaving cancels reseed; returning must still seed the workspace.
+-  it('seeds on return to a workspace left while a reseed awaited agent detection', async () => {
+-    mocks.gate.mockResolvedValue('empty')
+-    claimEmptyWorkspaceDefaultSurface('wt-1', PENDING_INTENT)
+-    root = createRoot(document.createElement('div'))
+-    try {
+-      await act(async () => root?.render(<Watcher />))
+-      expect(mocks.createTab).not.toHaveBeenCalled()
+-    } finally {
+-      releaseEmptyWorkspaceDefaultSurface('wt-1')
+-    }
+-
+-    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
+-    await act(async () => root?.render(<Watcher />))
+-    expect(mocks.createTab).toHaveBeenCalledTimes(1)
+-  })
+-})
+-
+ describe('startup agent recovery host inventory', () => {
+   it('keeps recovery available until the execution host answers', async () => {
+     mocks.authority = 'unverifiable'
+diff --git a/src/renderer/src/lib/workspace/tabs/workspace-tab-commands.ts b/src/renderer/src/lib/workspace/tabs/workspace-tab-commands.ts
+index 49c67c7ead8..6a3f3617532 100644
+--- a/src/renderer/src/lib/workspace/tabs/workspace-tab-commands.ts
++++ b/src/renderer/src/lib/workspace/tabs/workspace-tab-commands.ts
+@@ -127,8 +127,8 @@ function closeFocusedSplitLanding(state: TabState): boolean {
+   if (group === null) {
+     return false
+   }
+-  // Closing a sole chooser empties the workspace, which then lands like a last-tab close.
+-  const whenEmptied = captureWorkspaceEmptiedReaction(group.worktreeId)
++  // Close on a sole empty chooser is the user leaving the workspace, not a last-tab close.
++  const whenEmptied = captureWorkspaceEmptiedReaction(group.worktreeId, { leavesStartPage: true })
+   if (!state.closeEmptyGroup(group.worktreeId, group.id)) {
+     return false
+   }

@@ -14,32 +14,41 @@ import { subscribeToNativeChatComposerDraft } from '../../drafts/native-chat-com
 import { closeHistory } from '@tiptap/pm/history'
 import { Slice } from '@tiptap/pm/model'
 import { TextSelection } from '@tiptap/pm/state'
-import { memo, useCallback, useImperativeHandle, useLayoutEffect, useMemo, useRef } from 'react'
+import { memo, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { shallow } from 'zustand/shallow'
 import { EditorContent } from '@tiptap/react'
-import { useNativeChatComposerEditor } from './native-chat-composer-editor-owner'
+import {
+  NativeChatComposerEditorView,
+  useNativeChatComposerEditor
+} from './native-chat-composer-editor-owner'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import {
   fileReferenceContent,
+  insertPromptMention,
   NativeChatFileReference,
-  NativeChatSkill,
+  NativeChatImageReference,
+  nativeChatPromptPillsFor,
   promptLeafText,
   promptText,
   promptTextOffset,
   promptTextPosition
 } from './native-chat-prompt-document'
-import { promptParagraphLines, promptTextContent } from './native-chat-prompt-document-text'
+import { openingPromptContent, promptTextContent } from './native-chat-prompt-document-text'
 import type {
   NativeChatComposerInput,
   NativeChatPromptEditorProps
 } from './native-chat-composer-input'
+import { NativeChatImageRowProvider } from './NativeChatImageReferencePill'
 import { focusMountedNativeChatEditor, mountedEditorView } from './native-chat-mounted-editor-view'
 import { NativeChatUnkernedRunDecorations } from './native-chat-unkerned-run-decorations'
 import { NativeChatHardBreakParagraphs } from './native-chat-hard-break-paragraphs'
 
 import { useNativeChatComposerMount } from '../focus/native-chat-composer-mount'
+import { useNativeChatPromptEditorHandle } from '../../native-chat-prompt-editor-handle'
+import { useAppStore } from '@/store'
 
+const NO_IMAGES: readonly string[] = []
 const NOT_COMPOSING = (): boolean => false
 
 // `initialValue` only seeds the editor at mount; keep the other props referentially stable or this memo stops helping.
@@ -52,7 +61,7 @@ export const NativeChatPromptEditor = memo(
 function NativePromptEditor({
   scopeKey,
   positionTarget,
-  imageRow: _imageRow,
+  imageRow,
   inputRef,
   isComposing = NOT_COMPOSING,
   initialValue,
@@ -63,7 +72,13 @@ function NativePromptEditor({
   className,
   ...events
 }: NativeChatPromptEditorProps): React.JSX.Element {
+  // Only an editor given its image row holds image chips; chat keeps images in its tray.
+  const imageChips = imageRow !== undefined
   const adopted = useRef(readNativeChatDraftSnapshot(scopeKey, initialValue))
+  const [initialContent] = useState(() =>
+    openingPromptContent(adopted.current?.document, initialValue, imageChips)
+  )
+  const spellcheck = useAppStore((s) => s.settings?.nativeChatComposerSpellcheck !== false)
   const claimSelection = () => {
     selection.claim()
     const position = adopted.current && nativeChatDraftPositions.get(adopted.current)
@@ -92,8 +107,7 @@ function NativePromptEditor({
         trailingNode: false
       }),
       NativeChatAgentReference,
-      NativeChatSkill,
-      NativeChatFileReference,
+      ...nativeChatPromptPillsFor(imageChips),
       NativeChatUnkernedRunDecorations,
       NativeChatHardBreakParagraphs,
       // A disabled box still says why it is disabled, as the plain text box's placeholder does.
@@ -105,9 +119,7 @@ function NativePromptEditor({
         showOnlyWhenEditable: false
       })
     ],
-    content: adopted.current?.document
-      ? promptParagraphLines(adopted.current.document)
-      : promptTextContent(initialValue),
+    content: initialContent,
     editable: !disabled,
     editorProps: {
       attributes: {
@@ -115,10 +127,13 @@ function NativePromptEditor({
         role: 'textbox',
         'aria-multiline': 'true',
         'aria-label': placeholder,
+        spellcheck: spellcheck ? 'true' : 'false',
+        // Chromium on macOS still applies system text replacements under spellcheck=false; autocorrect=off stops them.
+        ...(spellcheck ? {} : { autocorrect: 'off', autocapitalize: 'off' }),
         class: `${className ?? ''} whitespace-pre-wrap break-words [&_p]:m-0 [&_p.is-editor-empty:only-child]:before:content-[attr(data-placeholder)] [&_p.is-editor-empty:only-child]:before:text-chat-foreground-faint [&_p.is-editor-empty:only-child]:before:float-left [&_p.is-editor-empty:only-child]:before:h-0 [&_p.is-editor-empty:only-child]:before:pointer-events-none`,
         ...Object.fromEntries(Object.entries(events).filter(([key]) => key.startsWith('aria-')))
       },
-      // Clipboard input is always literal text; only the picker and attachments create pills.
+      // Clipboard input is read as plain text, as a draft is: a bot's token in it becomes its pill.
       handlePaste: (view, event) => {
         if (event.defaultPrevented) {
           return true
@@ -127,7 +142,7 @@ function NativePromptEditor({
         if (text == null) {
           return false
         }
-        const content = editor?.schema.nodeFromJSON(promptTextContent(text))
+        const content = editor?.schema.nodeFromJSON(promptTextContent(text, imageChips))
         if (!content) {
           return false
         }
@@ -240,7 +255,7 @@ function NativePromptEditor({
         ? {
             insertAgentReferences: (references) => insertAgentReferences(editor, references),
             insertText: (text) => {
-              const content = editor.schema.nodeFromJSON(promptTextContent(text))
+              const content = editor.schema.nodeFromJSON(promptTextContent(text, imageChips))
               editor.view.dispatch(
                 editor.state.tr.replaceSelection(new Slice(content.content, 1, 1))
               )
@@ -261,13 +276,10 @@ function NativePromptEditor({
               }
               adopted.current = readNativeChatDraftSnapshot(scopeKey, value)
               const stored = adopted.current?.document
-              if (stored) {
-                editor.commands.setContent(stored, { emitUpdate: false })
-                applyPosition(previousRange)
-                return
-              }
-              if (!value) {
-                editor.commands.setContent(promptTextContent(''), { emitUpdate: false })
+              if (stored || !value) {
+                editor.commands.setContent(openingPromptContent(stored, '', imageChips), {
+                  emitUpdate: false
+                })
                 applyPosition(previousRange)
                 return
               }
@@ -289,7 +301,7 @@ function NativePromptEditor({
               start = promptTextOffset(doc, from)
               end = old.length - promptTextOffset(doc, to)
               const content = editor.schema.nodeFromJSON(
-                promptTextContent(value.slice(start, value.length - end))
+                promptTextContent(value.slice(start, value.length - end), imageChips)
               )
               editor.commands.command(({ tr }) => {
                 tr.replaceRange(from, to, new Slice(content.content, 1, 1))
@@ -327,7 +339,7 @@ function NativePromptEditor({
               // Why both: the text check covers other paragraphs, the view covers soft wraps.
               return (
                 !beyond.includes('\n') &&
-                editor.view.endOfTextblock(edge === 'start' ? 'up' : 'down')
+                mountedEditorView(editor)?.endOfTextblock(edge === 'start' ? 'up' : 'down') === true
               )
             },
             select: () => {
@@ -353,6 +365,25 @@ function NativePromptEditor({
                 .run()
               editor.view.dispatch(closeHistory(editor.state.tr))
             },
+            insertMention: (from, to, token) => insertPromptMention(editor, from, to, token),
+            removeImageReferences: (attachmentId) => {
+              const { tr } = editor.state
+              editor.state.doc.descendants((node, position) => {
+                if (
+                  node.type.name === NativeChatImageReference.name &&
+                  node.attrs.attachmentId === attachmentId
+                ) {
+                  // With the space inserted after it, so no gap is left where it sat.
+                  const from = tr.mapping.map(position)
+                  const to = from + node.nodeSize
+                  tr.delete(from, tr.doc.textBetween(to, to + 1) === ' ' ? to + 1 : to)
+                }
+              })
+              // Undo must not bring back a chip whose image is gone.
+              if (tr.docChanged) {
+                editor.view.dispatch(tr.setMeta('addToHistory', false))
+              }
+            },
             stagePastedText: (token) => {
               const pill = { type: NativeChatFileReference.name, attrs: { token } }
               editor.view.dispatch(closeHistory(editor.state.tr))
@@ -369,20 +400,23 @@ function NativePromptEditor({
             }
           }
         : null,
-    [editor, scopeKey, applyPosition]
+    [editor, scopeKey, applyPosition, imageChips]
   )
-  useImperativeHandle(inputRef, () => input!, [input])
+  useNativeChatPromptEditorHandle(inputRef, editor, input)
   useNativeChatComposerMount(scopeKey ?? '', input, isComposing, disabled)
 
   return (
     <NativeChatPastedTextScopeProvider value={scopeKey ?? ''}>
-      <EditorContent
-        editor={editor}
-        {...events}
-        onCompositionStartCapture={claimSelection}
-        data-disabled={disabled || undefined}
-        className="data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
-      />
+      <NativeChatImageRowProvider value={imageRow ?? NO_IMAGES}>
+        <NativeChatComposerEditorView editor={editor} />
+        <EditorContent
+          editor={editor}
+          {...events}
+          onCompositionStartCapture={claimSelection}
+          data-disabled={disabled || undefined}
+          className="data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+        />
+      </NativeChatImageRowProvider>
     </NativeChatPastedTextScopeProvider>
   )
 }

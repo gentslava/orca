@@ -1,0 +1,58 @@
+diff --git a/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
+index eb4426bfbe8..785fe0427f9 100644
+--- a/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
++++ b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
+@@ -260,9 +260,13 @@ export function MobileNativeChatSessionOptionPickers({
+                 disabled={locked(model)}
+                 onSetOption={(value) => applyOption(model, value)}
+                 onInvokeAction={() => invokeAction(model)}
+-                onReset={controller.optionSurface?.resetOption
+-                  ? () => { void controller.optionSurface?.resetOption?.(model.id) }
+-                  : undefined}
++                onReset={
++                  controller.optionSurface?.resetOption
++                    ? () => {
++                        void controller.optionSurface?.resetOption?.(model.id)
++                      }
++                    : undefined
++                }
+               />
+             ) : (
+               <>
+@@ -276,7 +280,9 @@ export function MobileNativeChatSessionOptionPickers({
+                       onInvokeAction: () => invokeAction(activeDescriptor),
+                       moreChoices: moreModels,
+                       onReset: controller.optionSurface?.resetOption
+-                        ? () => { void controller.optionSurface?.resetOption?.(activeDescriptor.id) }
++                        ? () => {
++                            void controller.optionSurface?.resetOption?.(activeDescriptor.id)
++                          }
+                         : undefined,
+                       ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
+                     },
+diff --git a/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx b/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx
+index aad359e80a2..d9ddbd62a4d 100644
+--- a/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx
++++ b/src/renderer/src/components/workspace-start/workspace-startup-explicit-actions.test.tsx
+@@ -137,4 +137,3 @@ describe('empty workspace entry waits for an explicit action', () => {
+     expect(mocks.createTab).not.toHaveBeenCalled()
+   })
+ })
+-
+diff --git a/src/shared/native-chat/tools/native-chat-tool-line-label.ts b/src/shared/native-chat/tools/native-chat-tool-line-label.ts
+index 11395d05ddf..81b5f580115 100644
+--- a/src/shared/native-chat/tools/native-chat-tool-line-label.ts
++++ b/src/shared/native-chat/tools/native-chat-tool-line-label.ts
+@@ -1,7 +1,11 @@
+ import { nativeChatCommandLanguage } from './native-chat-command-language'
+ import { isNativeChatFileCountPath } from './native-chat-edit-patch-files'
+ import { nativeChatToolCategory } from './native-chat-tool-icon'
+-import { nativeChatFullCommand, nativeChatToolInputText, nativeChatPlainCommandInput } from './native-chat-tool-input-text'
++import {
++  nativeChatFullCommand,
++  nativeChatToolInputText,
++  nativeChatPlainCommandInput
++} from './native-chat-tool-input-text'
+ import { createToolInputDisplay, summarizeToolInput } from './native-chat-tool-summary'
+ import type { NativeChatToolCallBlock, NativeChatToolResultBlock } from '../native-chat-types'
+ 

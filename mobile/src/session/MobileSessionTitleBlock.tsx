@@ -1,6 +1,15 @@
-import { Fragment, useCallback } from 'react'
+import { Fragment, useCallback, type ReactNode } from 'react'
 import { DetailCardFocusBoundary } from '../components/detail-cards/detail-card-host'
-import { Platform, Pressable, StyleSheet, Text, View, type HostInstance } from 'react-native'
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type HostInstance,
+  type StyleProp,
+  type TextStyle
+} from 'react-native'
 import type { SessionTitleCard } from './tabs/use-session-title-card'
 import { StatusDot } from '../components/feedback/StatusDot'
 import type { ConnectionState } from '../transport/connection/connection-state'
@@ -14,6 +23,7 @@ import { MOBILE_SESSION_STATUS_LABELS } from '../transport/connection/mobile-ses
  *  and its host, as desktop's tab card does, because a sideways phone cuts the title short. */
 export function MobileSessionTitleBlock({
   title,
+  leading,
   connState,
   details,
   meta,
@@ -22,6 +32,8 @@ export function MobileSessionTitleBlock({
   onRetry
 }: {
   title: string
+  /** Before the title, as a bot's avatar is. */
+  leading?: ReactNode
   connState: ConnectionState
   details: SessionTitleCard
   meta: string
@@ -31,6 +43,17 @@ export function MobileSessionTitleBlock({
   onRetry: () => void
 }): React.JSX.Element {
   const t = useMobileTranslation()
+  const titleText = (extra?: StyleProp<TextStyle>) => (
+    <Text
+      ref={details.titleRef}
+      onLayout={details.onAnchorLayout}
+      onPress={Platform.OS === 'web' ? details.toggle : undefined}
+      style={[styles.sessionTitle, centered && centeredStyles.title, extra]}
+      numberOfLines={1}
+    >
+      {title}
+    </Text>
+  )
   // Why: opening the card must keep a focused field's keyboard. 'always' because the whole block
   // is one button; 'handled' would let its own text through.
   const titleKeepsKeyboard = useKeyboardPersistingTaps('always')
@@ -67,19 +90,18 @@ export function MobileSessionTitleBlock({
             'Shows the full workspace name and where it is'
           )}
         >
-          <View style={centeredStyles.row}>
-            <StatusDot state={connState} />
-            <Text
-              ref={details.titleRef}
-              onLayout={details.onAnchorLayout}
-              onPress={Platform.OS === 'web' ? details.toggle : undefined}
-              style={[styles.sessionTitle, centeredStyles.text, centered && centeredStyles.title]}
-              numberOfLines={1}
-            >
-              {title}
-            </Text>
-          </View>
-          {connState !== 'connected' ? (
+          {leading ? (
+            <View style={styles.sessionBotTitleRow}>
+              {leading}
+              {titleText(styles.sessionBotTitle)}
+            </View>
+          ) : (
+            <View style={centeredStyles.row}>
+              <StatusDot state={connState} />
+              {titleText(centeredStyles.text)}
+            </View>
+          )}
+          {leading || connState !== 'connected' ? (
             <Pressable
               style={({ pressed }) => [styles.sessionMetaRow, pressed && pressedStyle]}
               disabled={!showConnectionRetry}
@@ -91,6 +113,7 @@ export function MobileSessionTitleBlock({
                   : undefined
               }
             >
+              {leading ? <StatusDot state={connState} /> : null}
               <Text style={styles.sessionMetaText} numberOfLines={1}>
                 {meta}
               </Text>

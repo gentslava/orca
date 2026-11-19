@@ -1,279 +1,27 @@
 [
   {
-    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
     "blobs": [
       null,
-      "4ca066d9b18d55b30dce3de3e1a8bc77c71096e2",
-      "376eb823f86c81902a564695f36dc1c772f6dcc3"
+      "6dacd781ee4a329a8d5c7cf1c22815bcfeea317c",
+      "ed80d6551552b5e104c809ce8c67234f6380b53b"
     ],
-    "patch": "refresh-20261116/33383-structured-conversation-navigation.test.ts-651ef88ee891.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "322557d3f9412c40b226f7bbad0eb7b7277c8b3aae3ecbf82a59655ed2c0d644",
-    "reason": "Keep PR 33361's desktop projection (bounded conversation list, uncached structured host legs, projectOwnerKey, filter assertions) and add PR 33383's selectedSessionId passthrough and includesStructuredSessions result flag, so the bounded list and cached host legs retain the selected mobile conversation."
+    "patch": "refresh18-pr-33383-1.patch",
+    "patchSha256": "11c4fe5cb992597208eb3ac5703580e0fb1d1c7a3416026cd8b162a58931275f",
+    "resultSha256": "9bef32c78aefe0fe1c8bd3801f8caa737aa6dcbfb9129a9eb5da35b93dab4ff0",
+    "reason": "Preserve structured-session projection and bounded previews with selected-session cache and RPC scope."
   },
   {
-    "path": "mobile/src/session/native-chat/input/session-options/native-chat-session-option-copy.ts",
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
     "blobs": [
-      "45e95f964e1f85a940598ac264deb3abfb8076af",
-      "d2b5c5984c8f329e923555f8114c2ec1d633b26c",
-      "b791309e027e9ab4187985532f458c8851675d6d"
+      "e8dad7db1fccd56197d0f452eda3cb2205774c61",
+      "73c50d9695721eba167905a974b00adb4134c6d3",
+      "b5ac9d2c3e317c6e8a6344baa2ec586ec0548ec0"
     ],
-    "patch": "refresh-20261116/33395-native-chat-session-option-copy.ts-d8c8f93f83be.patch",
-    "patchSha256": "f858cccf6d19dea3afb8bad7847e53363573d088b7f4adc8a7e08c01b9c32f48",
-    "resultSha256": "0ed939f5fefdb24ef32d312814ceb812d73b7a94ecd14893fc0377ae6817fbdb",
-    "reason": "Keep PR 33362's steer-draft capability and explicit immediate/queue delivery gating together with PR 33395's default-model capability, model reset surface and pending-model-pick send guard; PR 33395's option hooks already contain PR 33362's turn-pick locking."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
-    "blobs": [
-      "1756c670cc72fd10fcb5caa459241bf22f6a5b67",
-      "bd3547775d47b01e842f69f533a804ca731ef2e7",
-      "22017dafcfe6887286ef512c75285ffa2051c39a"
-    ],
-    "patch": "refresh-20261116/33395-use-structured-agent-session-send-options.ts-3c9cd64b3729.patch",
-    "patchSha256": "e5fd02f38b52978ac39b59ccc0cc52f7fef627d39a84f9d614cfadc001c64f65",
-    "resultSha256": "2790ca192bc06833dee3a58178223f007ab6e228935af4811e19af5450c36ec7",
-    "reason": "Keep PR 33362's steer-draft capability and explicit immediate/queue delivery gating together with PR 33395's default-model capability, model reset surface and pending-model-pick send guard; PR 33395's option hooks already contain PR 33362's turn-pick locking."
-  },
-  {
-    "path": "mobile/src/host-screen/host-screen-operations.ts",
-    "blobs": [
-      "27d363957529fded381e9a0fd34025faff9ca0a0",
-      "4eca3fbaa29a7ae4a729f86d2c91ab34dd8541df",
-      "7961ec09c7cc5480d76d811ee5d7ea23356d002c"
-    ],
-    "patch": "refresh-20261116/33502-host-screen-operations.ts-50f2d485d607.patch",
-    "patchSha256": "19391577f32846d23d333f7a1986f1bcf97cdb074fdf92f3fc7a474666110dd8",
-    "resultSha256": "79516cdb49e2cacaca20f973d465774e9fe6dd4e567d45bbd3f8fb03bab18462",
-    "reason": "Union of two independent persisted UI fields: keep the conversationPreferences state, RPC method, capabilities and mobile schema from PRs 33361/33383 alongside PR 33502's personalProjectOrder state, record-open/pin RPC methods, capability and catalog-aware mobile view settings."
-  },
-  {
-    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
-    "blobs": [
-      "8f91f507cb58375a95b47db347ff75a930756b67",
-      "f7aadc19498ddaba3159fcceebe65ec1f276f825",
-      "814dfb1b6b50765920cc1a4f5830846a0a7d05cc"
-    ],
-    "patch": "refresh-20261116/33502-use-host-screen-controller.ts-d447b852cb14.patch",
-    "patchSha256": "e97bb08fda9cae8df4df46212a19a65e7e3a4e901e5be378f7df71e870f75775",
-    "resultSha256": "9650b8fdd63b62a65cfa97f1753ddfe9d35d19a995623807beabdbc76ac7e946",
-    "reason": "Union of two independent persisted UI fields: keep the conversationPreferences state, RPC method, capabilities and mobile schema from PRs 33361/33383 alongside PR 33502's personalProjectOrder state, record-open/pin RPC methods, capability and catalog-aware mobile view settings."
-  },
-  {
-    "path": "src/shared/remote-runtime/protocol/protocol-version.ts",
-    "blobs": [
-      "7d0c87f0e1332e13fd1361de98826d1c82f08f84",
-      "c1c9541c75082428186019f5819cc450cb3aa4a0",
-      "fff27e1a890de7f399c942e3d648d2ed8f19e0f2"
-    ],
-    "patch": "refresh-20261116/33502-protocol-version.ts-61b9eaa182e1.patch",
-    "patchSha256": "115c290f3aadf389a752d03c5ac4f6be6a00abbcc38beeab9469b0df5b77b79a",
-    "resultSha256": "997c1ed1c5115763b4d4d2d84545d4684451365e1326868bcfef91d55294ab6a",
-    "reason": "Union of two independent persisted UI fields: keep the conversationPreferences state, RPC method, capabilities and mobile schema from PRs 33361/33383 alongside PR 33502's personalProjectOrder state, record-open/pin RPC methods, capability and catalog-aware mobile view settings."
-  },
-  {
-    "path": "src/shared/native-chat/tools/native-chat-tool-line-label.ts",
-    "blobs": [
-      "4baf8d36cbbbd46d820e1ba93c251528ab442670",
-      "6010c2e7a7e75821261b79135e55a27bd42954e3",
-      "f443ca7463c87a3edeae05bafcfda5f58746024b"
-    ],
-    "patch": "refresh-20261116/36593-native-chat-tool-line-label.ts-896754d122a6.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "3fa2b76803f92765d6643077061742a971faa0c6df35eac380bd03466494afc4",
-    "reason": "Keep PR 36634's input-view contract (commandDetail is the command only when it is the whole input, every call row opens) because its detail view already makes every command openable and its full text reachable, which is what PR 36593's commandDetail and hasDetail edits were for; PR 36593's one-line header and caret changes merge cleanly elsewhere."
-  },
-  {
-    "path": "src/shared/native-chat/tools/native-chat-tool-line-view.ts",
-    "blobs": [
-      "ef7b593998ad32cc2ce492bcf28b140b0f128a35",
-      "54166428b9f6862ee8e7be48f608d3f85a6e0bfe",
-      "730de935b18a6c0450d0107b1f0249129104ad22"
-    ],
-    "patch": "refresh-20261116/36593-native-chat-tool-line-view.ts-6fee32bce7d0.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "ce3d5523ebd8d030a19cd9f8d9148f40a1d5c0d1cdb30b57b294ccf28eaf749c",
-    "reason": "Keep PR 36634's input-view contract (commandDetail is the command only when it is the whole input, every call row opens) because its detail view already makes every command openable and its full text reachable, which is what PR 36593's commandDetail and hasDetail edits were for; PR 36593's one-line header and caret changes merge cleanly elsewhere."
-  },
-  {
-    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
-    "blobs": [
-      "ebd3ab25c0d415e32eac624f56dbd75a29c40799",
-      "ab3a0c20e959d9ff222841540fb839e011c8b05f",
-      "e4097af173f41e9f08b49a63e77b38d3b2cd4ff3"
-    ],
-    "patch": "refresh-20261116/37744-orchestration.ts-81f674a4beb8.patch",
-    "patchSha256": "6105d473813572518a842ba7b7282c2ddb2be73b12a7cf62b4bd7aef7a46d92d",
-    "resultSha256": "060715fbbccd9273695952f49ce0f9923899b94b12c38272fd5d7610125f5a21",
-    "reason": "Keep the composed prompt slot (NativeChatStructuredPrompts, child navigation, session-children methods and capabilities) and route it through PR 37744's nativeChatStructuredQuestions so the session-link owner question renders, with both RPC method groups and both capability sets registered."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
-    "blobs": [
-      "19e4f8ee663f8cde4dd8cd770244af5d549c5657",
-      "de26e586e84e0249a89bceb7c337b521ff15279b",
-      "bfdbff3f5443d0c58b97bf545859dcf8dade5c7a"
-    ],
-    "patch": "refresh-20261116/37744-NativeChatStructuredSession.tsx-a227cb9e8f41.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "2cda81683a075fa0baf8ddeecc8f175c2dfd2d3f0d4e0afda6fe492cc8b4b435",
-    "reason": "Keep the composed prompt slot (NativeChatStructuredPrompts, child navigation, session-children methods and capabilities) and route it through PR 37744's nativeChatStructuredQuestions so the session-link owner question renders, with both RPC method groups and both capability sets registered."
-  },
-  {
-    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
-    "blobs": [
-      "43c3e0f836ddc920e25eefbd425c8c25a642b12c",
-      "a50a603a58498f1bc20b09471c39a5bec3a8defe",
-      "1b097b2ee5a5a4c9d455307ddb12a5253e99e4a0"
-    ],
-    "patch": "refresh-20261116/37744-orchestration-runtime-capabilities.ts-67a58d26a88b.patch",
-    "patchSha256": "d1335e35d4cf5e8dad6bf8241e9262f33646feaa34bc9527d711c07a2a5ecdb4",
-    "resultSha256": "95a043f5b441841265af944dbef525e40c881a7bbe9515eb9e89dd347856fd7e",
-    "reason": "Keep the composed prompt slot (NativeChatStructuredPrompts, child navigation, session-children methods and capabilities) and route it through PR 37744's nativeChatStructuredQuestions so the session-link owner question renders, with both RPC method groups and both capability sets registered."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
-    "blobs": [
-      "19e4f8ee663f8cde4dd8cd770244af5d549c5657",
-      "de26e586e84e0249a89bceb7c337b521ff15279b",
-      "27c50483ed5f82293d5dbff87133b2d466ef43a2"
-    ],
-    "patch": "refresh-20261116/38848-NativeChatStructuredSession.tsx-e8512ab556c7.patch",
-    "patchSha256": "be07b03da54efe593ddb91047288b017655cd56c007dccabfa5ef0ad397032d8",
-    "resultSha256": "cb89b020a3a4198e32723b3a955f2542fa1a600d44a2ac77681057ba3146fe75",
-    "reason": "Keep the composed session layout (file-drop scope, child transcript stack, structured prompts) and add PR 38848's steerLast composer prop next to steerHead; its other hunks are unchanged base layout the composition already replaced."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
-    "blobs": [
-      "19e4f8ee663f8cde4dd8cd770244af5d549c5657",
-      "00b9c42d21078261cee7f3e2011eed25ba20b148",
-      "eec1d8d1ffd9b8fb673fc1f6e3ed198b8e6c3d20"
-    ],
-    "patch": "refresh-20261116/38963-NativeChatStructuredSession.tsx-b88e2ea8fadb.patch",
-    "patchSha256": "f21c15df986d208b39e4d08e488259fb43af256a7044a342b3ad2ff40b62aaf2",
-    "resultSha256": "c67c6fe144e920ba8141a9991503d65c1e915bfefe1f1325d117df032180d00d",
-    "reason": "Keep the composed session layout, questions helper, input-view tool rows and settled-task strip, and add PR 38963's foreground-task provider, Background action beside running calls, task actions and early-call strip rule (which now also yields to settled rows); its duplicate NativeChatStructuredPrompts copy is dropped in favour of the composed one."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
-    "blobs": [
-      "efd53b4489ccee309f98bc0a323c9697e8348dc6",
-      "fe06796a7c3b5e35f1ca5fef9873af9e50b450d2",
-      "dbf1c810dcfea5e17db5f56a3aecd2861eb25475"
-    ],
-    "patch": "refresh-20261116/38963-use-structured-agent-session.ts-8f7a17d6da74.patch",
-    "patchSha256": "33acbaeae9664a93d73b534e901d4fb61c48ac975bbc1d959448bc2819abf389",
-    "resultSha256": "4642eea1a0aea1c58ffaca40c9c14873ea71e1ff978fea6a0a21721fe53009c6",
-    "reason": "Keep the composed session layout, questions helper, input-view tool rows and settled-task strip, and add PR 38963's foreground-task provider, Background action beside running calls, task actions and early-call strip rule (which now also yields to settled rows); its duplicate NativeChatStructuredPrompts copy is dropped in favour of the composed one."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
-    "blobs": [
-      "7a21599f1f6b11e6b6e7a011f75386fe6f971e2e",
-      "389eee2fea1535fa5c96b74dc49322ff05f28ca8",
-      "ee115ba88492670bd183b7cefd87c0aaefd53f59"
-    ],
-    "patch": "refresh-20261116/38963-NativeChatToolLine.tsx-7b845d320725.patch",
-    "patchSha256": "496a1523d2c21faadc1dfa70a5722a5187ae0788e553f61037755d5a4666b99b",
-    "resultSha256": "fe7445452d087c0ea50fbed0735941441dffd7bf50c369ce33011ee67173af42",
-    "reason": "Keep the composed session layout, questions helper, input-view tool rows and settled-task strip, and add PR 38963's foreground-task provider, Background action beside running calls, task actions and early-call strip rule (which now also yields to settled rows); its duplicate NativeChatStructuredPrompts copy is dropped in favour of the composed one."
-  },
-  {
-    "path": "src/shared/agent-session/view/structured-session-background-tasks-view.ts",
-    "blobs": [
-      "b982006b77fd74a82dadd1f6b1012234095b7280",
-      "22b28c259d53fe043d2e1c43828f6f0195bb6298",
-      "dbe273b5e5393684a07ccb4752b1aaae8d678fba"
-    ],
-    "patch": "refresh-20261116/38963-structured-session-background-tasks-view.ts-6989612be1c3.patch",
-    "patchSha256": "a5ef05b99bcb35ace6a970f9a9b0fd7e5dd471e40a730a189044ab1039ff4e0c",
-    "resultSha256": "88d976c509acdd4a8845e29c8bd47b381d6590797d397ed819e26b9471b0a1d0",
-    "reason": "Keep the composed session layout, questions helper, input-view tool rows and settled-task strip, and add PR 38963's foreground-task provider, Background action beside running calls, task actions and early-call strip rule (which now also yields to settled rows); its duplicate NativeChatStructuredPrompts copy is dropped in favour of the composed one."
-  },
-  {
-    "path": "mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx",
-    "blobs": [
-      "80bead6e18a8932f3bf789049a61a33487d686f7",
-      "56fae5c123a2b9e9cbebd133564025c4d6857993",
-      "512a74c852a674944f4cd3acad4964c23800b745"
-    ],
-    "patch": "refresh-20261116/41381-MobileNativeChatSessionOptionPickers.tsx-f9b9e082e1a6.patch",
-    "patchSha256": "ceb984b27485ce797881fbe94adc26b6773c138e66531a1649882498f261f7b8",
-    "resultSha256": "9045db21384842ea7f7647745a94a27180ad2c2cb1ef70c4c171743cfaeafa71",
-    "reason": "Keep PR 41381's searchable pinned model list and options layout and carry PR 33395's Default-model reset row through it: onReset is passed both to the model list and to the plain descriptor rows, and the row builder accepts query and onReset together."
-  },
-  {
-    "path": "mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionRows.tsx",
-    "blobs": [
-      "6dcaf2b1469db439ca95094c4f3bb18cd51bd566",
-      "555717a67bd07d5d8bf0e0af4c5ff34f656becd9",
-      "7173e40c550f7f8ef7bbfcc8af7cfcac7935bf2c"
-    ],
-    "patch": "refresh-20261116/41381-MobileNativeChatSessionOptionRows.tsx-41e30ea97989.patch",
-    "patchSha256": "20caeca8a473779cf2bbafa2c3bdf09000723579a9b10b60fa21ebff94e84e19",
-    "resultSha256": "bd04b198121d48005da503ecbf03ef516f2fb059da16e0e87d3b5815034e7d20",
-    "reason": "Keep PR 41381's searchable pinned model list and options layout and carry PR 33395's Default-model reset row through it: onReset is passed both to the model list and to the plain descriptor rows, and the row builder accepts query and onReset together."
-  },
-  {
-    "path": "src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts",
-    "blobs": [
-      "2f6e1618c8936701b1c8d90444f403e5a3b2834a",
-      "6e9049fb1e0b5f8e977de10a8d39deb77b3abc9e",
-      "ee8fd4c10c690e47eea4e0229200590daf8ca922"
-    ],
-    "patch": "refresh-20261116/41540-use-owner-usage-rate-limits.ts-c3b8d71913ec.patch",
-    "patchSha256": "671cd6894191e61531c597af0fb5581c8587d0a9255cbdab4cede3dfa54c9189",
-    "resultSha256": "f8c8c52bdb7ac62447c76b255c71584322782c22360c437b399abe57b9909862",
-    "reason": "Keep PR 34899's selectable owner target, local account watch, accountsUnverifiable flag and refresh generation guard, stored as PR 41540's single owned snapshot so its remote Codex account rows read the same accounts output."
-  },
-  {
-    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
-    "blobs": [
-      "77656abc24c20241a1ae95e8393ec184ac010edd",
-      "2a2cbad89a7d41b21ec0df2ed7ff31757aff0e31",
-      "5b0422d3fea045aa6aa0ca27a0065c5b60a64e9b"
-    ],
-    "patch": "refresh-20261116/33395-mobile-structured-agent-session-host-support.ts-4bd021fd35a6.patch",
-    "patchSha256": "20393a3a2403f6cbf4d3e7a834100198d064b60545422b26852bb740f1b41e69",
-    "resultSha256": "863913cbb0c0185d7416da5ae4cded795c8dea3caec3f9ebc38cc52eb508d907",
-    "reason": "Both features prepend a host-support flag at the same position; keep the steer-draft capability from the composition and the default-model capability from PR 33395, in the order of the previous verified composition, on upstream's file that also gained skipAsyncQuestions."
-  },
-  {
-    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
-    "blobs": [
-      "dc02b9360b3c54a4eeabc02fd87462aad44df7a2",
-      "68cba704f8a2bc5fb866ca1eb17e26dfd3e95ff3",
-      "73a144d88cb04d12449c92279aacfc5c0769a834"
-    ],
-    "patch": "refresh-20261116/33502-runtime-rpc-mobile-paired-desktop-methods.ts-c4f0da1c34d9.patch",
-    "patchSha256": "61146dd807b069151b13cfcac5a7b9674fad1ac6545520ec80416f196556961f",
-    "resultSha256": "5e5f02aa031e257a551b50b9af0e4e584ba2a61058dc49e7325e9b09ade8f3c2",
-    "reason": "Conversation navigation preferences and the personal project order both extend the persisted UI state at the same position; keep both fields, both normalizers and all three paired-desktop RPC methods, conversation preferences first as in the previous verified composition."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
-    "blobs": [
-      "8feef3dc8dbaf9695bb11c39667ff892e280a7c8",
-      "3ce3660ce24054b3ab0c8ae4707add4d835905d1",
-      "4334460461d153bc69c4f4ebff760f5d3ba6a400"
-    ],
-    "patch": "refresh-20261116/37744-NativeChatStructuredAsyncQuestion.tsx-5a07cc4a941e.patch",
-    "patchSha256": "0b317243f8310c1fc08aaf0e54b33d49ef93e82fb8d7bd914404f682c05e8efc",
-    "resultSha256": "ded574c2f78e149732f25e908a47eed281162e18216d32a3e570cbc1a2cdbbdc",
-    "reason": "The composed prompt wrapper (NativeChatStructuredPrompts) and PR 37744's session-link owner question both extend this module; keep both import sets, and point the wrapper at PR 37744's renamed nativeChatStructuredQuestions with its isFocusedGroup pane field, on upstream's host-saved Skip."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
-    "blobs": [
-      "cd7bf09e6a00fc9730579f5641e3a6fddcabf711",
-      "ae2568dc90b2737a82cac899041aedc0dbccbb31",
-      "6c040c570bdaef7fde54b0cb296d0601c4b7f351"
-    ],
-    "patch": "refresh-20261116/38963-NativeChatStructuredAsyncQuestion.tsx-becc66c7cf82.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "ded574c2f78e149732f25e908a47eed281162e18216d32a3e570cbc1a2cdbbdc",
-    "reason": "PR 38963 adds the same NativeChatStructuredPrompts wrapper the composition already carries; keep the composed file unchanged (one wrapper, already calling PR 37744's nativeChatStructuredQuestions and importing the session-link owner question) instead of the merge's duplicated declaration."
+    "patch": "refresh18-pr-33383-3.patch",
+    "patchSha256": "cdc425f21fae45cef4b34662b0da6aaac1d37988fc2aaeef94d33e8eae4ffb12",
+    "resultSha256": "1578a20ef73217fcbd327f4e4b204c74ec9b9c1d769998e7de6f1317367bbd64",
+    "reason": "Preserve structured-session projection and bounded previews with selected-session cache and RPC scope."
   },
   {
     "path": "src/shared/project-conversation-list.ts",
@@ -282,58 +30,10 @@
       "fd65d664f0096822f8a51bb9379f8a21e0312c5d",
       "ec74841e922177c0deb2662a420e2b6ac4734ef2"
     ],
-    "patch": "refresh-20261116/33383-project-conversation-list.ts-44810835bdce.patch",
+    "patch": "refresh18-pr-33383-5.patch",
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "bb6a648d500766e659136c760f86f4e600d7ddb818319970b6af443de8646f7e",
-    "reason": "PR 33361 and PR 33383 add the same conversation list module and differ only in how the ellipsis is written in the generic-title pattern; keep the composed copy with the ASCII-escaped \\u2026, which matches the same character, as in the previous verified composition."
-  },
-  {
-    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
-    "blobs": [
-      null,
-      "a69cc178538df29ae2374c04fa3d94323bf41de2",
-      "8f47007ec29615d392d944f1f56d2296fa02a419"
-    ],
-    "patch": "refresh-20261116-latest/33383-structured-conversation-navigation.ts-0993212b20c9.patch",
-    "patchSha256": "0d9063f4e0bb5e49a9228643c1743a78197c024b2a9e4e4567210cc6dda1ceb5",
-    "resultSha256": "fd8d2fc203ccd9522f9356009adb3be69919f0aa13ae6b3fc24afcbab1565e3c",
-    "reason": "Keep PR 33361's desktop projection (bounded conversation list, uncached structured host legs, projectOwnerKey, filter assertions) and add PR 33383's selectedSessionId passthrough and includesStructuredSessions result flag, so the bounded list and cached host legs retain the selected mobile conversation. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
-  },
-  {
-    "path": "src/main/ipc/ai-vault/ai-vault.ts",
-    "blobs": [
-      "6e1d58af708162e94abaa73e5e4e7caf8fe12782",
-      "b731e4d6035cb350e7074cdb31af9275ed92b73f",
-      "face614d17e77a744123b0e431131be95c2e901f"
-    ],
-    "patch": "refresh-20261116-latest/33383-ai-vault.ts-dced30c29974.patch",
-    "patchSha256": "9a0b459e735f45872968ef1e07e444fa50fdd40bcac7adc6ec3a082fe54b87de",
-    "resultSha256": "0edcf720006ab898974e429c314c415b7a53222f3f4c47c87a7b2e1a93164330",
-    "reason": "Keep PR 33361's desktop projection (bounded conversation list, uncached structured host legs, projectOwnerKey, filter assertions) and add PR 33383's selectedSessionId passthrough and includesStructuredSessions result flag, so the bounded list and cached host legs retain the selected mobile conversation. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
-  },
-  {
-    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
-    "blobs": [
-      "45ebfeb74153a7b4f7e0ac1b8c5bd4915f43e382",
-      "502b18d703bbb06d3a479931862c2f8aa6ff6a59",
-      "0a0801192657e650624046f2085443f915cab00c"
-    ],
-    "patch": "refresh-20261116-latest/33383-ai-vault.ts-22b330a2cf47.patch",
-    "patchSha256": "75a47e0877e2840d20c5757103c3854d4d66b16294dcdcc8b71cd91cc777d134",
-    "resultSha256": "46b2e79597ed49712094687b6a9e93efc1d9dba24feaf0af5d655b25a33f4210",
-    "reason": "Keep PR 33361's desktop projection (bounded conversation list, uncached structured host legs, projectOwnerKey, filter assertions) and add PR 33383's selectedSessionId passthrough and includesStructuredSessions result flag, so the bounded list and cached host legs retain the selected mobile conversation. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
-  },
-  {
-    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
-    "blobs": [
-      "008a7eb4dd8a78fa2358e611ecc4f53e05044d96",
-      "a4e2796474521dcf19d2818fa77606f72679d9fd",
-      "5c3dd44d5bda75fbc290ab4f3700480fa37e55ec"
-    ],
-    "patch": "refresh-20261116-latest/33383-ai-vault-types.ts-90b34b4b6d3d.patch",
-    "patchSha256": "bf68dcde38fac38dcebeee800155993a3e8353bc996a450a90df15a893046163",
-    "resultSha256": "98764f125b54f7da8fa09e5284e29def9d902716284dbaf419797c3ebf123818",
-    "reason": "Keep PR 33361's desktop projection (bounded conversation list, uncached structured host legs, projectOwnerKey, filter assertions) and add PR 33383's selectedSessionId passthrough and includesStructuredSessions result flag, so the bounded list and cached host legs retain the selected mobile conversation. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "reason": "Preserve structured-session projection and bounded previews with selected-session cache and RPC scope."
   },
   {
     "path": "src/shared/rpc-contract/ai-vault/ai-vault-params.ts",
@@ -342,34 +42,94 @@
       "bf2ec518152e68cd379065c128d76eb92644ec09",
       "ce2f82d2bc8917f4d8f69a21286dd72a7cf7ad7c"
     ],
-    "patch": "refresh-20261116-latest/33383-ai-vault-params.ts-7234ebcab280.patch",
+    "patch": "refresh18-pr-33383-6.patch",
     "patchSha256": "aff70dfb4b89f998a87744978002834748d3007ce60bbd956e584be195db8751",
     "resultSha256": "1de013916038546826d0b51c105983331bff86b3cc980af94f0f5eed2049e65f",
-    "reason": "Keep PR 33361's desktop projection (bounded conversation list, uncached structured host legs, projectOwnerKey, filter assertions) and add PR 33383's selectedSessionId passthrough and includesStructuredSessions result flag, so the bounded list and cached host legs retain the selected mobile conversation. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "reason": "Preserve structured-session projection and bounded previews with selected-session cache and RPC scope."
   },
   {
-    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "path": "mobile/src/session/native-chat/input/session-options/native-chat-session-option-copy.ts",
     "blobs": [
-      "c89dc695712f060dffb3afc270c53963b4e8b5a0",
-      "2b953575f42cb0b02a53e0d4305ed08eed3b1db1",
-      "a8b5c77f77e1afcbcf121e8b2ad06b5c40ba763d"
+      "92ed5716ccbe5ea695477ea5386bf005ba75a051",
+      "499f252c007a2a0824a198977bc0447cb6aa02ad",
+      "b33fb60742a4726a1e932be52f39d1c98aeb22bd"
     ],
-    "patch": "refresh-20261116-latest/33395-use-structured-agent-session-options.ts-28850d3dd07d.patch",
-    "patchSha256": "7304079a113a5ac5d5bc5c3509e26a4a72a9b43ad23d0565b6a38e7eead3418e",
-    "resultSha256": "08dfe888ba7c4c43a1fc8ad23578cd514c1294d68ea3ed48f39cc66aeb472e86",
-    "reason": "Keep PR 33362's steer-draft capability and explicit immediate/queue delivery gating together with PR 33395's default-model capability, model reset surface and pending-model-pick send guard; PR 33395's option hooks already contain PR 33362's turn-pick locking. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "patch": "refresh18-pr-33395-3.patch",
+    "patchSha256": "f3c9488f456937e044628ac7e14d57b6e3e0469b0d95daf3e2eb3e3b6f93f402",
+    "resultSha256": "5ec7dfe9770e1c54aeba18ace7b9abd23dd00046b91a0524d98b81ac8918c66f",
+    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "1756c670cc72fd10fcb5caa459241bf22f6a5b67",
+      "bd3547775d47b01e842f69f533a804ca731ef2e7",
+      "22017dafcfe6887286ef512c75285ffa2051c39a"
+    ],
+    "patch": "refresh18-pr-33395-5.patch",
+    "patchSha256": "e8ef88e5e04ec009e4cc69b09f7768e6d74c2b67b519bb71a47234e9519ab3d2",
+    "resultSha256": "2790ca192bc06833dee3a58178223f007ab6e228935af4811e19af5450c36ec7",
+    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
   },
   {
     "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts",
     "blobs": [
-      "f75d11a62a51fdc007c8a5815125d98e942e096f",
-      "4e68b5faab3020fbd45c0c73d2b1d2d7903536e8",
-      "9b5e4870bcd3adefcfc79acc3c1df604fd1afaec"
+      "79a3ff8c3473af32f32febc4b64e1e436da61da7",
+      "3bc8fb94936c414dd29210b297f7a57b0dc262c9",
+      "90ea9c82fec85720a2ec3f070f2a900b27e3dc6d"
     ],
-    "patch": "refresh-20261116-latest/33395-use-structured-agent-session-sends.ts-fc49241d9cd6.patch",
+    "patch": "refresh18-pr-33395-6.patch",
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "ad0df3865ace7aa4e6cce1b445f59eed5cdb6bae0b2ac027063ae0e8fb7cf2aa",
-    "reason": "Keep PR 33362's steer-draft capability and explicit immediate/queue delivery gating together with PR 33395's default-model capability, model reset surface and pending-model-pick send guard; PR 33395's option hooks already contain PR 33362's turn-pick locking. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "resultSha256": "a4053a271c7e0da6155dc316f1af5f20130eb296b1ceb68ecb3e33e1233c9378",
+    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
+  },
+  {
+    "path": "src/shared/native-chat/tools/native-chat-tool-line-label.ts",
+    "blobs": [
+      "4baf8d36cbbbd46d820e1ba93c251528ab442670",
+      "fb90fc409495f841d4b231a5281ab2911659b033",
+      "f443ca7463c87a3edeae05bafcfda5f58746024b"
+    ],
+    "patch": "refresh18-pr-36593-0.patch",
+    "patchSha256": "2abdf0c1924d713a0f69fb98eb8c5cbe3cf016d85d77735c74f426f1c029a3f8",
+    "resultSha256": "ae423d1a59e20ca57f4b5de28b558c0f5e54f63d1eb325a0cce72d69c7aff56f",
+    "reason": "Full invocation details remain expandable without output; preserve plain-command identity and complete wrapped inputs while retaining selected full-command presentation."
+  },
+  {
+    "path": "src/shared/native-chat/tools/native-chat-tool-line-view.ts",
+    "blobs": [
+      "ef7b593998ad32cc2ce492bcf28b140b0f128a35",
+      "54166428b9f6862ee8e7be48f608d3f85a6e0bfe",
+      "730de935b18a6c0450d0107b1f0249129104ad22"
+    ],
+    "patch": "refresh18-pr-36593-1.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ce3d5523ebd8d030a19cd9f8d9148f40a1d5c0d1cdb30b57b294ccf28eaf749c",
+    "reason": "Full invocation details remain expandable without output; preserve plain-command identity and complete wrapped inputs while retaining selected full-command presentation."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionRows.tsx",
+    "blobs": [
+      "e0d2436e8ff784e33c72c058ebe01ebcedb358c5",
+      "6fe1509edec93e8e171d7d88efd5fc003eff3809",
+      "f9b8295e6301181d96c2575cb253441404d1fd0a"
+    ],
+    "patch": "refresh18-pr-41381-3.patch",
+    "patchSha256": "b491e2bdb261bca6e9ccc0d4c52dcf9d47d235565eef3b916a0173de64bd05df",
+    "resultSha256": "092a7a5accfe4081f9ceadd971137d7897547e005113e1160cad9ce93ac17eec",
+    "reason": "Retain model-default reset in the searchable pinned mobile picker and merge working-notice copy with search translations."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-operations.ts",
+    "blobs": [
+      "27d363957529fded381e9a0fd34025faff9ca0a0",
+      "4eca3fbaa29a7ae4a729f86d2c91ab34dd8541df",
+      "7961ec09c7cc5480d76d811ee5d7ea23356d002c"
+    ],
+    "patch": "release-60d-33502-0.patch",
+    "patchSha256": "d3bad9470a98a099aa87288cf928b4b91d8f2c4da1313ff7c69e82be5258f6af",
+    "resultSha256": "98a5a616d428fac810b3021327162eb8660d5517b2794043691199b0bb9d3280",
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
     "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
@@ -378,10 +138,22 @@
       "3efd6e15ddbce4649d9336b9dd0477dee8e65374",
       "fb9caa236f586f3a6c577c64d122617ec6818c43"
     ],
-    "patch": "refresh-20261116-latest/33502-host-screen-reply-schema.ts-51e6ec4ed3ea.patch",
-    "patchSha256": "9d5ecdc70ce3997dd5a62a47dbf87e92073dc044b040c16effb311fddf44c26c",
+    "patch": "release-60d-33502-1.patch",
+    "patchSha256": "fe9a5b9eddddaa812006a5e182b2d03c57cc7baff3bf49173c90e34eae30be72",
     "resultSha256": "4e53a84243f8a50b584d5a233f6a7f75112bf5db218afa6b54d0eb911a6bdad9",
-    "reason": "Union of two independent persisted UI fields: keep the conversationPreferences state, RPC method, capabilities and mobile schema from PRs 33361/33383 alongside PR 33502's personalProjectOrder state, record-open/pin RPC methods, capability and catalog-aware mobile view settings. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "4491127e4278e5d63697a1d8c91f81490b96c13e",
+      "d312eaf2a86aeeb37d173a98f0bc7546dfb79139",
+      "5bf7c844f3e8d0559d2fe560ad16965e35bc4d0e"
+    ],
+    "patch": "release-60d-33502-2.patch",
+    "patchSha256": "7602e6f711eac6645b39b4b69c6a02341ae6c85a87f00cba2abcd9a14aa65ff1",
+    "resultSha256": "48b650247bb4fe0c76f7442f74ed7964c2edd55d8aebe50824b1b7517af5d059",
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
     "path": "mobile/src/worktree/workspace-list/workspace-view-settings.ts",
@@ -390,105 +162,333 @@
       "05cf4377f29751771e5d042a50f6c28238f180e9",
       "8bc707acc401293a70f49079f0230d471df466cf"
     ],
-    "patch": "refresh-20261116-latest/33502-workspace-view-settings.ts-4148960478bc.patch",
-    "patchSha256": "0a62d2b7a78ffe6365ea045b559dbaa8096114ef4eff06063a30b711423f3925",
+    "patch": "release-60d-33502-3.patch",
+    "patchSha256": "f92c5bc6abb75ec1994a09443b449eb1a408a0239f6a9122a8a2250be78f76b3",
     "resultSha256": "c3ae9f7030a3c5d0e1460fdd8d47c60f7b5ac7eaf3863202e8e52ff1bcf0af36",
-    "reason": "Union of two independent persisted UI fields: keep the conversationPreferences state, RPC method, capabilities and mobile schema from PRs 33361/33383 alongside PR 33502's personalProjectOrder state, record-open/pin RPC methods, capability and catalog-aware mobile view settings. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
     "path": "src/main/persistence/applying-settings/ui-state-read.ts",
     "blobs": [
-      "c2ed55500dd7311e90a78d8fa8d22b30c5a7724b",
-      "ef30904ab1110ee094b75845b546600d6da8569f",
-      "a4a91ca9ff5839199d1ae552ab3b6485e7d93901"
+      "dc01e2cc59ee43549d654df1033c8a6616e758ae",
+      "391b4ae4cb7acbec45fcfc74a580160c30591cc9",
+      "808398701310add42afc7af57dea00bdd33abf3c"
     ],
-    "patch": "refresh-20261116-latest/33502-ui-state-read.ts-47dd074c248a.patch",
-    "patchSha256": "587aaf401da7d394e16dcf07fcfbbb4c54fb5e6f26a07d818c8d47dd75a61543",
-    "resultSha256": "975d71ff8c8edaa127d0721004e0caf70beb1dc5dee364e7d782fc845489bd22",
-    "reason": "Conversation navigation preferences and the personal project order both extend the persisted UI state at the same position; keep both fields, both normalizers and all three paired-desktop RPC methods, conversation preferences first as in the previous verified composition. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "patch": "release-60d-33502-4.patch",
+    "patchSha256": "2f09ffdbc5f6104b2aa45aa67032cec5c10ba26f4b4d93471e94676a21ce0286",
+    "resultSha256": "5481e6f324471cfbbcd960aec4617e43727df7c3a5afd16a34f4c3b644a9f172",
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
     "path": "src/main/persistence/applying-settings/ui-state-update.ts",
     "blobs": [
-      "35f5c5e969e9f70151c339c3034e1eeef71901ab",
-      "4455ea4f9466a6f300db223f86f48bdeecdf2a7e",
-      "d2d87aee5b0f3af33c4205b9f0cb379d4a63b171"
+      "04092c7304017e7a8b7ee0a00a60d0d358425fa2",
+      "01e55d675826421e96defbc9a230094abc9db455",
+      "417d3cb221a389360b785b36f2e33bd5d756352e"
     ],
-    "patch": "refresh-20261116-latest/33502-ui-state-update.ts-b3d19f7cb238.patch",
-    "patchSha256": "16a54f56fdb1b4ca38c8f17fc0cbc4d958754a88dad609227755fc056b3956f8",
-    "resultSha256": "a7cd6fd9e4030ff36cc3eecd3cf4959c9cba3d590077658625139f0275adb245",
-    "reason": "Conversation navigation preferences and the personal project order both extend the persisted UI state at the same position; keep both fields, both normalizers and all three paired-desktop RPC methods, conversation preferences first as in the previous verified composition. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "patch": "release-60d-33502-5.patch",
+    "patchSha256": "d9595b30721142961811fcb4c7218d1be41288603fd0c6343e2464794f1084c5",
+    "resultSha256": "f803f7931d45abab46e94555f7e6cfe3f6345ebf90744c8fc6d8e78c7521d386",
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
     "path": "src/main/runtime/rpc/methods/client-state/client-ui.ts",
     "blobs": [
-      "8c58cb5720065076da15d9f5aca5f9bbc1900c30",
-      "f582fa95ec88c833f901be26b07f72ab37f684c5",
-      "b4f88a7a1079b118b5e45a73297659def78b7dcd"
+      "c74801bf598d1593276e48a895a2a095fbbf3527",
+      "66984250f0f1c8aa273982089a1ba7edfb880e75",
+      "e16f56b498cb76a2daa793428c61518e2a103809"
     ],
-    "patch": "refresh-20261116-latest/33502-client-ui.ts-ed4df822fb28.patch",
-    "patchSha256": "c6436c5b03b52cb0bdd1424d84bd23b44ba906cd7d407f4e7ac2de907df633aa",
-    "resultSha256": "16516455bccf0ac4899c09493a792e888b02a4d3318c894340742d9be21b7705",
-    "reason": "Union of two independent persisted UI fields: keep the conversationPreferences state, RPC method, capabilities and mobile schema from PRs 33361/33383 alongside PR 33502's personalProjectOrder state, record-open/pin RPC methods, capability and catalog-aware mobile view settings. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "patch": "release-60d-33502-6.patch",
+    "patchSha256": "951eeea9532014839c50c6d0617e3866b8003a732d64012e349ad2301fa456bb",
+    "resultSha256": "d357e1b99cf0ac6f09483803880bb5939bc62182d99a6b781cea56f66686e96a",
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
     "path": "src/main/runtime/rpc/methods/client-state/ui-state-schema-parity-checks.ts",
     "blobs": [
-      "12e58fe713ce1bff667e015b36eee259b2064f10",
-      "99afc5b00e2b595d51ebee62636d4f70f35d14b7",
-      "a3eac5e07acbea36ce402ec41d9c2b4462bc1efd"
+      "4f739cacf8d53236cfcb2b3489836ebf3a046225",
+      "47b24b8724da6484026303e7880f2b963126d93a",
+      "8531a5805cf1419ca11728ba0b14829f8d59ce22"
     ],
-    "patch": "refresh-20261116-latest/33502-ui-state-schema-parity-checks.ts-5d66a224445c.patch",
+    "patch": "release-60d-33502-7.patch",
     "patchSha256": "00affee690fb3cf85b00e13a62b8a49d85567b48f9c348fbfe03916df832715f",
-    "resultSha256": "55ca0d5babe3bbd34ee4d690d5c2807331ecf558903857d8a106df7da450621c",
-    "reason": "Union of two independent persisted UI fields: keep the conversationPreferences state, RPC method, capabilities and mobile schema from PRs 33361/33383 alongside PR 33502's personalProjectOrder state, record-open/pin RPC methods, capability and catalog-aware mobile view settings. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "resultSha256": "dcb8edd00e5ce00531e9359654f07807723802bd67abd4ef6e2fc3392a5fc399",
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
-    "path": "src/shared/orca-profiles/persisted-ui-state-types.ts",
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
     "blobs": [
-      "ac3fabed742f3fd9a8f6eab9c3f58b3e2a8dd0f5",
-      "ed2839199d461fd0b091a30007f4e6d77cd8db14",
-      "6e091433c2acf3b42958b4c4d4ef518255e2be84"
+      "dc02b9360b3c54a4eeabc02fd87462aad44df7a2",
+      "68cba704f8a2bc5fb866ca1eb17e26dfd3e95ff3",
+      "73a144d88cb04d12449c92279aacfc5c0769a834"
     ],
-    "patch": "refresh-20261116-latest/33502-persisted-ui-state-types.ts-c1ed47f2fb94.patch",
-    "patchSha256": "f372df8760768e49e1110b44ba4f3df97ac4fd78bb130208ab77620422455a9c",
-    "resultSha256": "7a5c1e7ba56a78de57c9f7a29e610ef398b01d61a417d7357a1bbdab6d5c9366",
-    "reason": "Conversation navigation preferences and the personal project order both extend the persisted UI state at the same position; keep both fields, both normalizers and all three paired-desktop RPC methods, conversation preferences first as in the previous verified composition. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "patch": "release-60d-33502-8.patch",
+    "patchSha256": "222f6b2d85e42a98dfae8b389c74463bc1aaa91f8d0c8b04716e66150f4b99b7",
+    "resultSha256": "5e5f02aa031e257a551b50b9af0e4e584ba2a61058dc49e7325e9b09ade8f3c2",
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
-    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "path": "src/shared/remote-runtime/protocol/protocol-version.ts",
     "blobs": [
-      "c8590274c77ecc21bee693350f8544a7d839a9f1",
-      "e0cf50e17ead47f7090efcc09ae508f19793ad2f",
-      "e53e083f79fd3a066b3e1213a16c53d91916e2db"
+      "9e2add5c1d8a735fe49b9189206e2b40ea4b6028",
+      "562163ca2caee28a980c8832796e363b441a95cd",
+      "4aad655b0c4c563a82c8734d81c3b3dfc41ee8d2"
     ],
-    "patch": "refresh-20261116-latest/33502-wsl-move-ui-dispositions.ts-0e60f49dac04.patch",
-    "patchSha256": "65ea11fa78040432d36393545f734e3fc5065bf3fc8c6c2c3ebfc09b8d0b9d73",
-    "resultSha256": "323cc7332569176158d219836acf33c86027f5937937d2d69800894b79beb775",
-    "reason": "Union of two independent persisted UI fields: keep the conversationPreferences state, RPC method, capabilities and mobile schema from PRs 33361/33383 alongside PR 33502's personalProjectOrder state, record-open/pin RPC methods, capability and catalog-aware mobile view settings. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "patch": "release-60d-33502-10.patch",
+    "patchSha256": "e0b8336a83aa7ea825ebe35e2b0d562c651d8b58ae0518213817d10e42dc0884",
+    "resultSha256": "e06a046fbb85084676e58478e0f16544c3d695eba5bc5ac76a92d64516aecfc6",
+    "reason": "Preserve independent personal project order and conversation preferences across mobile, persistence, RPC and WSL."
   },
   {
     "path": "src/shared/settings/global-settings-base.ts",
     "blobs": [
-      "c43cc28d43289fea7a262de2dbb860fb809bb2ad",
-      "b18ea417e7e0ff1a4c255daf6b77c61621fcd9af",
-      "5615b6ca14b7757c235772c85f376a2a5af91b66"
+      "eb470d6a1e973449624a9ad0cbafe3ee66b7cffb",
+      "e09f1034de14375b369bfaf0037c5256d06362d3",
+      "4187d1e45d4e545d939bace9e9658eac147acd80"
     ],
-    "patch": "refresh-20261116-latest/33512-global-settings-base.ts-c1666aef0408.patch",
-    "patchSha256": "724001892a87253a8c70c28495017d33cb9d008e94f404d1ca51e66da2f1ee01",
-    "resultSha256": "299bbef8780ea942839404646ed01c4e58fbfe30b0ffaf744256921d1b81b5c6",
-    "reason": "Worker role settings and the macOS hold-to-quit settings both join the global settings intersection after BrowserLinkOpeningSettings; keep both members and both imports, worker roles first as in the previous verified composition. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "patch": "release-60d-33512-1.patch",
+    "patchSha256": "3ab215593d1862cb48af30c14d4d4412a3a051df54ed75843058c9f62ca6d0d9",
+    "resultSha256": "499e17e79cf23b0677b38fdbab71c9daba28fd78be48e112e24f27b4b3b06b49",
+    "reason": "Keep chat project translations, hold-to-quit settings and worker role settings together."
+  },
+  {
+    "path": "src/renderer/src/components/settings/page/settings-interface-secondary-section-renderers.tsx",
+    "blobs": [
+      "0a26fa4e920f5bee2d6c750504848690d01bc1c0",
+      "aa54a0d26b0271e87dda54dbccbf517f5e8c77b8",
+      "e568fc736265836e679c312efa5405c23fefb3fe"
+    ],
+    "patch": "release-60d-34899-0.patch",
+    "patchSha256": "0d034ad09ee7123edcef2725aad590715bcbf61aec7a90c942771e1833972330",
+    "resultSha256": "7c0fbcdebf8e93cdb1bea737e613a28f948451ba35e2acf7e6422d7b5dd57e80",
+    "reason": "Show current account quotas above the history ledger for the same host and keep both English catalogs."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
+    "blobs": [
+      "ebd3ab25c0d415e32eac624f56dbd75a29c40799",
+      "ab3a0c20e959d9ff222841540fb839e011c8b05f",
+      "e4097af173f41e9f08b49a63e77b38d3b2cd4ff3"
+    ],
+    "patch": "release-60d-37744-0.patch",
+    "patchSha256": "085c10c041402881cbd4a3d35e52d0fed7ab853842a9f562f291d79c9bbf0ba5",
+    "resultSha256": "060715fbbccd9273695952f49ce0f9923899b94b12c38272fd5d7610125f5a21",
+    "reason": "Retain child-chat navigation and separate prompt cards, and register linked-chat RPCs and capabilities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "0605d3597013b6e2cb1a970431700ebcd950e2cb",
+      "562546b42fff89853913cbfe7ea293a4a3586c22",
+      "0dd47ba6e4f57566b5712db44118ddd6f71f16ed"
+    ],
+    "patch": "release-60d-38848-0.patch",
+    "patchSha256": "ea50bb95478c70e3f590b5e6160c95696eaf97eabaf970ff4388eecf1d65f89d",
+    "resultSha256": "d952679a7b643ea454aacd9baba67f86f6062e3a322183e76a17231b035349f4",
+    "reason": "Send the newest queued message from the parent composer while preserving child-chat read-only input and Stop precedence."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "0605d3597013b6e2cb1a970431700ebcd950e2cb",
+      "bba7a477637b23474b818c374e71d078fa5621f8",
+      "30f1646aa211763fc6e016903bb924fefe18e84c"
+    ],
+    "patch": "release-60d-38963-0.patch",
+    "patchSha256": "c523d37b8eb0647741eeb7cace7f722704e07fb2cd8b35dde4404cc7532af879",
+    "resultSha256": "a6076abe3240705540e69846f41e4ff955346bf6a1610a9d7aa156e1eb613b5c",
+    "reason": "Keep linked-chat prompts and completed child history while exposing foreground task actions and moving tools into the task dock."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "fff91fd4677f6e34410bd5d964892dc493583d3a",
+      "bf65620b22426f1cc93c59b02e043873c0574d0b",
+      "638f017eef0335e702ea19738a5a37c16386d90a"
+    ],
+    "patch": "release-60d-38963-2.patch",
+    "patchSha256": "243e99bdb2230db8bc5508784f09a83da4f3bbd76abda56ef1b361900c7327b6",
+    "resultSha256": "2818f105ef64972a5e0d834c4098a12c3255b8f807bae37e3f44fb5eebf1a82f",
+    "reason": "Keep linked-chat prompts and completed child history while exposing foreground task actions and moving tools into the task dock."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
+    "blobs": [
+      "7a21599f1f6b11e6b6e7a011f75386fe6f971e2e",
+      "389eee2fea1535fa5c96b74dc49322ff05f28ca8",
+      "ee115ba88492670bd183b7cefd87c0aaefd53f59"
+    ],
+    "patch": "release-60d-38963-3.patch",
+    "patchSha256": "6bfd6c35d6ad43374693fdd68abefbf21dc000734b105aacdcb771c37fabe162",
+    "resultSha256": "fe7445452d087c0ea50fbed0735941441dffd7bf50c369ce33011ee67173af42",
+    "reason": "Keep linked-chat prompts and completed child history while exposing foreground task actions and moving tools into the task dock."
+  },
+  {
+    "path": "src/shared/agent-session/view/structured-session-background-tasks-view.ts",
+    "blobs": [
+      "d1aa35fde87a4e8461e07a0d1fcf182ea761d2d1",
+      "6c2b261c917f68012afb774636772184f127cbf0",
+      "4ef2efdf20e6e7ff188194bb9546904cc3494416"
+    ],
+    "patch": "release-60d-38963-4.patch",
+    "patchSha256": "df382404deac6afb4324eb6b71edb014cac2821813e6408a1fb4cd5fc08117b7",
+    "resultSha256": "ba597d47df26b47355601ba6a7e042436c8fa0181dde2bcf9c3edebbb1cf003d",
+    "reason": "Keep linked-chat prompts and completed child history while exposing foreground task actions and moving tools into the task dock."
   },
   {
     "path": "src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx",
     "blobs": [
       "54fb72e94fc454a71825ca0ce5674744de8eccc2",
-      "63d5e79a3580f07b2e61cab08fb262f23b3d1710",
+      "c943d4f9eb1cf558da00191eb1d34b16607d8f9d",
       "cd5723139e0bdfd4636ab53dd915eb0a5bd90cc6"
     ],
-    "patch": "refresh-20261116-latest/39882-NativeChatPaneHeader.tsx-bda2bea0810a.patch",
-    "patchSha256": "519d1372fbd9efbe1426525755de26cad5c3955ba4a585dec0acdd8c273b6881",
-    "resultSha256": "631d8f3cdbfd64fd819e324bba9cce49f624031e5cc11bd36cf39e1851551543",
-    "reason": "PR 39882's floating toolbar container holds PR 37744's session-link control ahead of the hand-off and split actions. Revalidated on upstream c7f83f4e1958 after preserving its module moves."
+    "patch": "release-60d-39882-0.patch",
+    "patchSha256": "029e61a703d60cba05c074de99682c2903980c73de6cb4731c9ed9da979897cd",
+    "resultSha256": "1ba90bb47a947bac35592d0196a115f97d2d1208ba5f9f0aadc04776c380e355",
+    "reason": "Keep the linked-chat control inside the floating pane toolbar."
+  },
+  {
+    "path": "src/shared/orca-profiles/persisted-ui-state-types.ts",
+    "blobs": [
+      "a242ac0787c4cb6e79f4eea0e7766d65aedc6172",
+      "ee7426746db4d5671da853e064cb7afa6b71a317",
+      "486a140be1688546a6a19ffb3d0e9f2b3a6c9d5d"
+    ],
+    "patch": "refresh-dca1-33502-0.patch",
+    "patchSha256": "d147ba6d0bae16a4d52878065a6a18ac4ebcc076b1c833d7de2da6fde45508dc",
+    "resultSha256": "18476ded4160d8c4dc32b606491358bfedc5ac3497243d2820923621cb89b8b2",
+    "reason": "Union of independent persisted UI fields: keep PR 33361's remembered sidebarBody and conversation preferences alongside PR 33502's personalProjectOrder."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "eecf6bdde78938e945dc97dfc7fa5eb708720571",
+      "186e1423da75305b054a27dca8ac7105a4c886a1",
+      "0904d21793b57623a01d95cf797120e1d3995d2c"
+    ],
+    "patch": "refresh-dca1-33502-1.patch",
+    "patchSha256": "65ea11fa78040432d36393545f734e3fc5065bf3fc8c6c2c3ebfc09b8d0b9d73",
+    "resultSha256": "80d864b78bdcbab65ed534d364b883c2f76e30f4fbf1c735045fbf0c49e43803",
+    "reason": "Keep PR 33361's global sidebarBody field and conversation-preference disposition with PR 33502's host-rewritten personalProjectOrder disposition."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "8feef3dc8dbaf9695bb11c39667ff892e280a7c8",
+      "7a0d7ddce0b6039e69d9527d9b000616cda71f21",
+      "2d3feeeecf4674f6d116e268f7ecd57e4fe6b1e4"
+    ],
+    "patch": "refresh-dca1-38963-0.patch",
+    "patchSha256": "6b4e4581403eeda6f50b66ed5084826cc50051fd5f7f2795f3556b97b958444b",
+    "resultSha256": "0d6844b6c54a1702f035e241cf55807d73868a54ad92a8d00ab1425d5b8413b7",
+    "reason": "Keep upstream's prompt-keyed answer operation and PR 37744's session-link owner question; drop PR 38963's duplicate prompt wrapper, since the combined structured session already renders the prompt card beside the questions."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.test.ts",
+    "blobs": [
+      null,
+      "b6c4204881d1d30d1d260359a7f22dde8454845e",
+      "e99e12e484935ef999ab95d725c9039aae85d09a"
+    ],
+    "patch": "refresh-7ade-33383-0.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "c2993e9379808f820f1e9c842a640d3ca13b01d581271599aba5ce231e696d84",
+    "reason": "Keep PR 33361's navigation test, including the structured-session filter exemption that PR 33383's copy lacks."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "4e45cf7822a58f02e6c5225ed9982f742099f1e9",
+      "355e2def6e241e62ba3d77dbe79d550eef9e2197",
+      "bc39ccb13bee83da7ecb1f5fd366d86f4112b0b7"
+    ],
+    "patch": "refresh-7ade-33383-1.patch",
+    "patchSha256": "32ff991bd38ad4723875a128efd9fac5658669ff562363e605983b055ff6bcba",
+    "resultSha256": "273bc5feb74ddd64a71e1a529333ffbe6424f8f33f299302025c675a380e2bca",
+    "reason": "Keep PR 33361's structured-session projection and uncached structured host legs, and add PR 33383's selectedSessionId passthrough to local, cached and bounded host scans."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "5b6c624766c064e73b4d2c3da82e1c7a22438e81",
+      "7fbcae4622cc0b62207b550c51180427c8971fde",
+      "90acc49efcc43b5ed14ede93361df3d2621f3095"
+    ],
+    "patch": "refresh-7ade-33383-2.patch",
+    "patchSha256": "df1c96ae26cac674f205900b17bc4a06d69e02a4212b699d2d3b43dc7dba9263",
+    "resultSha256": "35a0e39fdbf850dbffb00f2b478fe9fb13fb5054cb926bb654c232536a22d6b8",
+    "reason": "Keep PR 33361's structured-session list contract and current upstream fields, and add PR 33383's selectedSessionId argument and includesStructuredSessions result flag."
+  },
+  {
+    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "324d4e3a9703707b4188459c32cbf0607c04dc10",
+      "fb740a38ebcc860388fcec8afbe772a682af88e5",
+      "20d4f8dcda28249af8f9610403e61994ef4e63be"
+    ],
+    "patch": "refresh-7ade-33395-0.patch",
+    "patchSha256": "fe091855ebee3d89ce2d7687c45b76319cb974431a8e4c3898e3de473e9b754d",
+    "resultSha256": "a46f3be2594b4ca5e85943f376f70a87e9ab8dc8566aeab52311c49327f2961b",
+    "reason": "Add PR 33395's model-default capability to the host support that PR 33362 extends with draft steering."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "636e3bcc328f2ca756dc47ce95a5a50db135059c",
+      "2b46ae72ac16f8c03278ff9bf63b381d24fe5d37",
+      "1d0b810893a0c83296edadfd8c478fcd15f4437d"
+    ],
+    "patch": "refresh-7ade-33395-1.patch",
+    "patchSha256": "f80c61e42946ee57a5e91219d3b93dcfb97cb99566a6d4b1c6d127aa4c3f968d",
+    "resultSha256": "0efc807c7dfb0b74d909274e1ea7acfef49db6ebef8d623c06732881e71b737a",
+    "reason": "PR 33395's options hook already carries PR 33362's turn-pick lock and adds the model-default reset; keep it whole."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "efeabe4ebc08f272722979430c043b0ca8038f61",
+      "bcf711372ba3926b978e04a1ea24249f7698b984",
+      "6d544e63a1bd5135c1a60dd82185403170abd635"
+    ],
+    "patch": "refresh-7ade-37744-0.patch",
+    "patchSha256": "82100854abade06238237155226ea6631660054326d3738ac0f5b40a5bc344a5",
+    "resultSha256": "92392b7700f35040dabd45794559326b526b2bb08ab056e85b684e17a1b63fc9",
+    "reason": "Retain PR 34895's child-chat navigation and separate prompt cards, and render PR 37744's linked-chat questions."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "b347a0924105f63c5aa85b1d64e96a63b14d3b65",
+      "83257ce6e73873cac2f8a28d542da6a0b7b1a532",
+      "c390d1de3d4efc472b18ee63eb7ff74ec5a91825"
+    ],
+    "patch": "refresh-7ade-37744-1.patch",
+    "patchSha256": "d7914cdb82cb24e3cb909fb2c8417199e9240f6f82bb091a1ba1395d789eb0ab",
+    "resultSha256": "7d6d9825389d5c01034bdda99380e7dac8e044911acb462ef0c4bd8c090257f4",
+    "reason": "Keep upstream's prompt-keyed answer operation and PR 33362's immediate card-answer contract while PR 37744 renders the session-link owner question beside the host async question."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "969ede454fb4742f2478807a065b569e20435d7c",
+      "b55513567b96207ae8109afcc75ac3ac14498d2b",
+      "2046e1a7ca09c3cd54a7a9b76efd0c4a59b2d045"
+    ],
+    "patch": "refresh-7ade-37744-2.patch",
+    "patchSha256": "59fd2295e8eb05cd4fe11b42b4e4459c103c708c8c2bfbaca235f2dc6972f95c",
+    "resultSha256": "22cce5ff6498b967ff0c752f731648497b80a26003584f94ea5b03925944c048",
+    "reason": "Register PR 37744's session-link capabilities beside the session-children and worker-role routing capabilities."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "4139c2fa4e98f212405611295d51f0467944cc80",
+      "fcb42b294cd95d782f663bf2a60e700c084169d1",
+      "1f2e75d65706326c928b3ee5cb437ac721465bcc"
+    ],
+    "patch": "refresh-7ade-41381-0.patch",
+    "patchSha256": "318a4adee029c24761f507a5af43dd7d98f4f69c1e50c412d121f8ad94ae4921",
+    "resultSha256": "e57062758622ea9769f2b9cc8a4c9edd24cde93f4cc25c5b25c0deda8f68f742",
+    "reason": "Retain model-default reset in the searchable pinned mobile picker, on the model list and the other option pages, and keep the working-notice copy."
   }
 ]

@@ -287,3 +287,70 @@ index f1f423dc170..822d028d209 100644
      "auto.components.settings.SettingsFormControls.b661b034ec",
      "auto.components.settings.SshDestructiveActionDialog.895b216267",
      "auto.components.settings.SshDestructiveActionDialog.moreTargets",
+diff --git a/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts b/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
+index 1723bc3ef25..ef52253ae8b 100644
+--- a/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
++++ b/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
+@@ -15,7 +15,8 @@ import {
+   getPreferredPairingOffer,
+   type KnownRuntimeEnvironment,
+   type PersistedRuntimeEnvironment,
+-  type RuntimeEnvironmentSource
++  type RuntimeEnvironmentSource,
++  type RuntimeEnvironmentStore
+ } from '../host-catalog/runtime-environments'
+ import {
+   readEnvironmentStore,
+@@ -174,12 +175,7 @@ export function renameEnvironment(
+     throw remoteServerPairingStoreError('nameTaken', { name: colliding.name })
+   }
+   const renamed = { ...existing, name, updatedAt: args.now ?? Date.now() }
+-  writeEnvironmentStore(userDataPath, {
+-    version: 1,
+-    environments: store.environments
+-      .map((entry) => (entry.id === existing.id ? renamed : entry))
+-      .sort((a, b) => a.name.localeCompare(b.name))
+-  })
++  writeReplacedEnvironment(userDataPath, store, renamed)
+   return renamed
+ }
+ 
+@@ -224,13 +220,21 @@ export function replaceEnvironmentPairing(
+     pairingRevision: Math.max(args.now, previousPairingRevision + 1),
+     lastUsedAt: existing.lastUsedAt
+   }
++  writeReplacedEnvironment(userDataPath, store, next)
++  return next
++}
++
++function writeReplacedEnvironment(
++  userDataPath: string,
++  store: RuntimeEnvironmentStore,
++  replacement: PersistedRuntimeEnvironment
++): void {
+   writeEnvironmentStore(userDataPath, {
+     version: 1,
+     environments: store.environments
+-      .map((entry) => (entry.id === existing.id ? next : entry))
++      .map((entry) => (entry.id === replacement.id ? replacement : entry))
+       .sort((a, b) => a.name.localeCompare(b.name))
+   })
+-  return next
+ }
+ 
+ export function resolveEnvironment(
+diff --git a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
+index eba4e99eaad..bc6840fd2eb 100644
+--- a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
++++ b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
+@@ -1,7 +1,7 @@
+ import { beforeEach, describe, expect, it } from 'vitest'
+-import { installApi } from '../web-preload-api-test-harness'
+-import { webRuntimeState } from './web-runtime-session'
+-import type { StoredWebRuntimeEnvironment } from '../web-runtime-environment'
++import { installApi } from '../testing/web-preload-api-test-harness'
++import { webRuntimeState } from '../runtime/client/web-runtime-session'
++import type { StoredWebRuntimeEnvironment } from '../pairing/web-runtime-environment'
+ 
+ const ENV_KEY = 'orca.web.runtimeEnvironment.v1'
+ 

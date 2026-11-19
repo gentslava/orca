@@ -1,5 +1,4 @@
 import * as usageLimit from '../recovery/structured-agent-session-host-background'
-import { backgroundAdmission } from '../structured-agent-session-background-message'
 import { createStructuredAgentSessionConversationReads } from './structured-agent-session-conversation-reads'
 import { continuationContextReader as contextReader } from '../recovery/structured-agent-session-continuation-context'
 import { structuredAgentStartJournal } from '../acquisition/structured-agent-start-journal'
@@ -129,7 +128,8 @@ export class StructuredAgentSessionHost {
       // In-flight starts count as execution before a child is indexed.
       deliveryActive: (id) => this.runtimeState.hasDeliveryWork(id),
       closeStatus: (sessionId, options) => this.clientDelivery.closeSession(sessionId, options),
-      childWorkOpen: this.clientDelivery.childWorkOpen
+      childWorkOpen: this.clientDelivery.childWorkOpen,
+      viewed: (sessionId) => this.clientDelivery.subscribers.subscriberCount(sessionId) > 0
     })
     this.continuationContext = contextReader(deps, this.lifetime.conversation)
     this.usageLimitContinue = usageLimit.start(this.mutationContext(), this, this.clientDelivery)
@@ -142,7 +142,7 @@ export class StructuredAgentSessionHost {
   hasSession = (sessionId: string): boolean => this.sessions.has(sessionId)
   loadedSessionIds = this.sessions.loadedSessionIds
   hasLoadedProviders = (): boolean => this.loadedSessionIds().length > 0
-  private readonly reads = createStructuredAgentSessionConversationReads(() => ({
+  readonly reads = createStructuredAgentSessionConversationReads(() => ({
     ...this.lifetimeContext(),
     serialize: this.serialize,
     seal: (id) => this.runtimeState.sealEventSink(id),
@@ -182,14 +182,11 @@ export class StructuredAgentSessionHost {
   /** Release resources; user-close cancels cut turns, while eviction leaves their failure reportable. */
   close: typeof this.lifetime.close = (...args) => this.lifetime.close(...args)
 
+  /** Stop a finished background run's agent now, as the idle sweep would; viewed or owed work keeps it. */
+  releaseIdleSession = (sessionId: string) => this.lifetime.idleSweep.release(sessionId)
+
   /** Stop hidden children too, using one bounded host snapshot. */
-  sleepWorkspace = createStructuredAgentSessionWorkspaceSleeper(() => ({
-    ...this.lifetimeContext(),
-    tasks: this.tasks,
-    lifetime: this.lifetime,
-    conversationDelivery: this.conversationDelivery,
-    clientDelivery: this.clientDelivery
-  }))
+  sleepWorkspace = createStructuredAgentSessionWorkspaceSleeper(() => this.collaborators())
 
   serializeCreateIntent = this.tasks.serializeCreateIntent.bind(this.tasks)
 
@@ -216,7 +213,8 @@ export class StructuredAgentSessionHost {
 
   revealSession = this.reads.revealSession
 
-  private serialize = this.tasks.serialize.bind(this.tasks)
+  /** The chat's conversation lane: opens, attaches and creates hold it, so open-or-absent is exact. */
+  serialize = this.tasks.serialize.bind(this.tasks)
   withForkSourceAdmission = this.serialize
 
   private readonly entry = structuredAgentSessionEntryDelegates(() => this.attachContext())
@@ -249,7 +247,6 @@ export class StructuredAgentSessionHost {
     mutationWiring.createStructuredAgentSessionHostMutationContext({
       deps: this.deps,
       sessions: this.sessions,
-      subscribers: this.clientDelivery.subscribers,
       lifetime: this.lifetime,
       clientDelivery: this.clientDelivery,
       conversationDelivery: this.conversationDelivery,
@@ -279,6 +276,7 @@ export class StructuredAgentSessionHost {
   cancel = this.mutations.cancel
   backgroundTask = this.mutations.backgroundTask
   respondToPrompt = this.mutations.respondToPrompt
+  approveAutoReviewDenial = this.mutations.approveAutoReviewDenial
   setOption = this.mutations.setOption
   changeThreadGoal = this.mutations.changeThreadGoal
   readOptions = this.mutations.readOptions
@@ -294,9 +292,13 @@ export class StructuredAgentSessionHost {
 
   readonly continuationContext: ReturnType<typeof contextReader>
 
+  /** Opens the conversation at rest, starting no agent; Orca's own notes write through it. */
+  conversation = (sessionId: string) => this.lifetime.conversation(sessionId)
   observeConversationPublications = this.sessions.observeConversationPublications
   forkBoundary: BackgroundTasks['forkBoundary'] = (...a) => this.backgroundTasks.forkBoundary(...a)
   savedContent = (sessionId: string) => this.backgroundTasks.savedContent(sessionId)
+  /** A conversation's bounded journal reads, opened at rest. */
+  journalReads = async (id: string) => (await this.conversation(id)).journal.reads
   historyItem = (id: string, itemId: string) => this.backgroundTasks.historyItem(id, itemId)
   conversationOutline = (sessionId: string) => this.backgroundTasks.conversationOutline(sessionId)
   namingPrompt = this.reads.namingPrompt
@@ -308,18 +310,14 @@ export class StructuredAgentSessionHost {
   holdMailSources = this.reads.holdMailSources
   wakeQueuedMessages = (sessionId: string) => this.queued.refresh(sessionId)
 
-  private readonly startJournal = structuredAgentStartJournal(
-    () => this.deps,
-    (sessionId) => this.lifetime.conversation(sessionId)
-  )
+  private readonly startJournal = structuredAgentStartJournal(() => this.deps, this.conversation)
   captureAgentStartDestination = this.startJournal.captureAgentStartDestination
   appendAgentStart = this.startJournal.appendAgentStart
 
   currentWork = this.clientDelivery.readCurrentWork
-  canAdmitBackgroundMessage = backgroundAdmission(() => this.sessions, this.currentWork)
   currentWorkAtRest = this.reads.currentWorkAtRest
-  readCurrentRequests: BackgroundTasks['currentRequests'] = (...args) =>
-    this.backgroundTasks.currentRequests(...args)
+  readCurrentRequests: BackgroundTasks['currentRequests'] = (...a) =>
+    this.backgroundTasks.currentRequests(...a)
 
   observeJournalPublications = this.clientDelivery.observeJournalPublications
 
@@ -340,13 +338,21 @@ export class StructuredAgentSessionHost {
 
   subscribeTurnCompletions = this.clientDelivery.subscribeTurnCompletions
   readStatusSummary = this.clientDelivery.readStatusSummary
+  /** The usage-limit continue as the journal stands now, ahead of the next status publish. */
+  readUsageLimitContinue = async (id: string) =>
+    this.usageLimitContinue.readState(id, await this.clientDelivery.readUsageLimitCut(id))
+  publishedWork = this.clientDelivery.readPublishedWork
 
-  collaboratorsForTests = () => ({
-    sessions: this.sessions,
-    subscribers: this.clientDelivery.subscribers,
-    runtimeState: this.runtimeState,
-    conversationDelivery: this.conversationDelivery,
+  private collaborators = () => ({
+    deps: this.deps,
+    tasks: this.tasks,
     lifetime: this.lifetime,
+    sessions: this.sessions,
+    conversationDelivery: this.conversationDelivery,
+    runtimeState: this.runtimeState,
+    clientDelivery: this.clientDelivery,
+    subscribers: this.clientDelivery.subscribers,
     serialize: this.serialize
   })
+  collaboratorsForTests = this.collaborators
 }

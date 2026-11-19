@@ -10,8 +10,8 @@ import { memo, useCallback, useRef, useState } from 'react'
 import Svg, { Circle } from 'react-native-svg'
 import {
   contextUsageRingReadout,
-  groupContextUsageRows,
   formatContextTokenCount,
+  keyContextUsageRows,
   type NativeChatContextUsageSummary
 } from '../../../../../../src/shared/native-chat/native-chat-context-usage-summary'
 import { AnchoredDetailCardLayer } from '../../../../components/detail-cards/AnchoredDetailCard'
@@ -125,7 +125,9 @@ const MobileNativeChatContextUsageRing = memo(function MobileNativeChatContextUs
     [layerRef, cardKeepsKeyboard]
   )
   const { filled, critical, used, window } = contextUsageRingReadout(usage)
-  const { used: rows, deferred } = groupContextUsageRows(usage.rows)
+  const rows = keyContextUsageRows(usage.rows)
+  const counted = rows.filter(({ row }) => !row.deferred)
+  const deferred = rows.filter(({ row }) => row.deferred)
   const tint = critical ? colors.statusRed : colors.textMuted
   const label = t(
     'chat.contextUsage.label',
@@ -186,37 +188,18 @@ const MobileNativeChatContextUsageRing = memo(function MobileNativeChatContextUs
         <View style={styles.track}>
           <View style={[styles.fill, critical && styles.fillCritical, { width: `${filled}%` }]} />
         </View>
-        {rows.length > 0 ? (
-          <View style={styles.rows}>
-            {rows.map(({ key, row }) => (
-              <View key={key} style={styles.row}>
-                <Text style={styles.rowName} numberOfLines={1}>
-                  {row.name}
-                </Text>
-                <Text style={styles.rowValue}>{row.percentage}%</Text>
-              </View>
-            ))}
-          </View>
+        {counted.length > 0 ? (
+          <View style={styles.rows}>{counted.map(renderContextUsageRow)}</View>
         ) : null}
         {deferred.length > 0 ? (
-          <View style={styles.deferred}>
-            <Text style={styles.deferredTitle}>
-              {t('chat.contextUsage.deferredTitle', 'Loaded on demand')}
-            </Text>
-            <Text style={styles.deferredDescription}>
+          <View style={[styles.rows, styles.deferred]}>
+            <Text style={styles.note}>
               {t(
-                'chat.contextUsage.deferredDescription',
-                'Not included in current usage. Loaded when needed.'
+                'chat.contextUsage.deferredNote',
+                'Loaded on demand. Not counted in the used total.'
               )}
             </Text>
-            {deferred.map(({ key, row }) => (
-              <View key={key} style={styles.row}>
-                <Text style={styles.rowName} numberOfLines={1}>
-                  {row.name}
-                </Text>
-                <Text style={styles.rowValue}>{formatContextTokenCount(row.tokens)}</Text>
-              </View>
-            ))}
+            {deferred.map(renderContextUsageRow)}
           </View>
         ) : null}
         {usage.estimated ? (
@@ -228,6 +211,23 @@ const MobileNativeChatContextUsageRing = memo(function MobileNativeChatContextUs
     </>
   )
 })
+
+/** Deferred rows sit outside the window, so they show tokens rather than a share of it. */
+function renderContextUsageRow({
+  key,
+  row
+}: ReturnType<typeof keyContextUsageRows>[number]): React.JSX.Element {
+  return (
+    <View key={key} style={styles.row}>
+      <Text style={styles.rowName} numberOfLines={1}>
+        {row.name}
+      </Text>
+      <Text style={styles.rowValue}>
+        {row.deferred ? formatContextTokenCount(row.tokens) : `${row.percentage}%`}
+      </Text>
+    </View>
+  )
+}
 
 const ringStyles = StyleSheet.create({
   ring: { transform: [{ rotate: '-90deg' }] }
@@ -269,18 +269,11 @@ const styles = themedStyleSheet(() => ({
     fontVariant: ['tabular-nums']
   },
   deferred: {
-    marginTop: spacing.md,
     paddingTop: spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.borderSubtle,
-    gap: spacing.xs
+    borderTopColor: colors.borderSubtle
   },
-  deferredTitle: {
-    color: colors.textPrimary,
-    fontSize: typography.metaSize,
-    fontWeight: '600'
-  },
-  deferredDescription: {
+  note: {
     color: colors.textMuted,
     fontSize: typography.metaSize
   },

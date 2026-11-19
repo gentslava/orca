@@ -89,6 +89,11 @@ export const styles = themedStyleSheet(() => ({
     color: colors.statusRed,
     fontSize: typography.metaSize
   },
+  automationResultsCarried: {
+    marginTop: spacing.xs,
+    color: colors.textMuted,
+    fontSize: typography.metaSize
+  },
   showFull: {
     alignSelf: 'flex-start',
     paddingTop: spacing.xs
@@ -109,11 +114,6 @@ export const styles = themedStyleSheet(() => ({
     backgroundColor: colors.bgRaised,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle
-  },
-  userImageAttachments: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm
   },
   imageCompactThumb: {
     width: 58,

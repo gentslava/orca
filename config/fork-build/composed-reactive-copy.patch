@@ -1,19 +1,21 @@
+diff --git a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
+index 3b8e2e3ae77..63940b22736 100644
 --- a/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectOrderMenuItems.tsx
-@@ -2,10 +2,11 @@
+@@ -2,10 +2,11 @@ import { useAppStore } from '@/store'
  import { usePersonalProjectOrderSupported } from '@/hooks/use-personal-project-order'
  import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu'
  import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 -import { translate } from '@/i18n/i18n'
 +import { useTranslate } from '@/i18n/use-translate'
  import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
-
+ 
  export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean }) {
 +  const t = useTranslate()
    const order = useAppStore((state) => state.projectOrderBy)
    const setOrder = useAppStore((state) => state.setProjectOrderBy)
    const supported = usePersonalProjectOrderSupported()
-@@ -32,7 +33,7 @@
+@@ -32,7 +33,7 @@ export function ProjectOrderMenuItems({ keepOpen = false }: { keepOpen?: boolean
            </TooltipTrigger>
            <TooltipContent side="right" sideOffset={6}>
              {!supported && option.id === 'recent'
@@ -22,9 +24,11 @@
                    'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
                    'Most recent workspace activity'
                  )
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+index d10f90c1d9f..96132289fe2 100644
 --- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
 +++ b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
-@@ -32,10 +32,10 @@
+@@ -32,10 +32,10 @@ export function UsageAccountQuotaCard({
  }): React.JSX.Element {
    const t = useTranslate()
    const intlLocale = useIntlLocale()
@@ -37,16 +41,7 @@
        (section) => !providerSections.some((existing) => existing.window === section.window)
      )
    ].flatMap((section) =>
-@@ -43,7 +43,7 @@
-       ? [{ ...section, window: section.window }]
-       : []
-   )
--  const error = provider.error ? getProviderUsageErrorMessage(provider) : null
-+  const error = provider.error ? getProviderUsageErrorMessage(provider, t) : null
-   return (
-     <article
-       className="min-w-0 space-y-3 rounded-lg border border-border bg-card p-4"
-@@ -161,7 +161,8 @@
+@@ -161,7 +161,8 @@ export function UsageAccountQuotas({
      accounts,
      accountsUnverifiable,
      settings,
@@ -56,9 +51,11 @@
    )
    return (
      <section className="space-y-3" data-testid="usage-account-quotas">
+diff --git a/src/renderer/src/components/stats/usage-account-quota-rows.ts b/src/renderer/src/components/stats/usage-account-quota-rows.ts
+index 0955a323a80..08f703b61f6 100644
 --- a/src/renderer/src/components/stats/usage-account-quota-rows.ts
 +++ b/src/renderer/src/components/stats/usage-account-quota-rows.ts
-@@ -15,6 +15,7 @@
+@@ -15,6 +15,7 @@ import {
    normalizeCodexStatusRuntimeTarget
  } from '../status-bar/accounts/status-bar-codex-accounts'
  import { translate } from '@/i18n/i18n'
@@ -66,10 +63,10 @@
  import { USAGE_PROVIDER_KEYS } from '../status-bar/usage/owner-usage-rate-limits'
  import {
    getVisibleUsageProvider,
-@@ -35,23 +36,26 @@
+@@ -35,23 +36,26 @@ function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget
    return left.runtime === right.runtime && left.wslDistro === right.wslDistro
  }
-
+ 
 -function managedQuotaRows({
 -  provider,
 -  groups,
@@ -110,7 +107,7 @@
    return groups.flatMap((group) =>
      group.targets.flatMap((account) => {
        const currentAccount = account.active && sameRuntime(group.runtimeTarget, target)
-@@ -71,10 +75,7 @@
+@@ -71,10 +75,7 @@ function managedQuotaRows({
                status: !unverifiable && cached?.isFetching ? 'fetching' : 'unavailable',
                error: unverifiable
                  ? (current?.error ??
@@ -122,7 +119,7 @@
                  : (account.hint ?? null),
                ...(unverifiable ? { usageMetadata: { unverifiableOwner: true } } : {})
              }
-@@ -88,11 +89,11 @@
+@@ -88,11 +89,11 @@ function managedQuotaRows({
            runtimeLabel:
              group.runtimeTarget.runtime === 'host'
                ? group.label === 'This device'
@@ -136,7 +133,7 @@
            active: account.active,
            provider: limits
          }
-@@ -104,13 +105,13 @@
+@@ -104,13 +105,13 @@ function managedQuotaRows({
  function antigravityQuotaRows(
    accounts: AntigravityAccountUsage[],
    unverifiable: boolean,
@@ -153,7 +150,7 @@
      runtimeLabel: ownerLabel,
      active: account.active,
      provider:
-@@ -133,14 +134,15 @@
+@@ -133,14 +134,15 @@ export function buildUsageAccountQuotaRows(
    accounts: ProviderAccountsSnapshot | null,
    unverifiable = false,
    settings?: Partial<UsageProviderSettings> | null,
@@ -171,7 +168,7 @@
                'stats.usage.quota.currentAccount',
                'Current account · identity unavailable'
              ),
-@@ -151,37 +153,43 @@
+@@ -151,37 +153,43 @@ export function buildUsageAccountQuotaRows(
        : []
    const claude =
      accounts?.claude && !accounts.failedProviders?.includes('claude')
@@ -238,6 +235,8 @@
        : fallback(limits.antigravity)),
      ...USAGE_PROVIDER_KEYS.filter(
        (key) => key !== 'claude' && key !== 'codex' && key !== 'antigravity'
+diff --git a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
+index 617464a024d..8fc4d7a4a1a 100644
 --- a/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 +++ b/src/renderer/src/components/workspace-start/WorkspaceStartActions.tsx
 @@ -1,11 +1,15 @@
@@ -256,10 +255,10 @@
 +  rowId,
 +  rowLabel
 +} from '../agent/launch-menu/agent-menu-row-presentation'
-
+ 
  function ActionIcon({ kind }: { kind: TabCreateMenuOption['kind'] }) {
    switch (kind) {
-@@ -40,35 +44,33 @@
+@@ -40,35 +44,33 @@ export function WorkspaceStartActions({
    onSelect: (option: TabCreateMenuOption) => void
    onManageAgents: () => void
  }) {
@@ -302,7 +301,7 @@
            </p>
          ) : (
            <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2">
-@@ -83,10 +85,10 @@
+@@ -83,10 +85,10 @@ export function WorkspaceStartActions({
                >
                  <AgentIcon agent={row.agent} size={16} />
                  <span className="min-w-0 break-words">

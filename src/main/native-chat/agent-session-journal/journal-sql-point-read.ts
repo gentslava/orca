@@ -27,6 +27,11 @@ import { readJournalSqlStatusState } from './journal-sql-status-state'
 import { readJournalSqlStatusIndicators } from './journal-sql-status-indicators'
 import { readJournalSqlQueue } from './journal-sql-queued-messages'
 import { readJournalDomainItems } from './journal-sql-item-reads'
+import {
+  readJournalDomainAcpHistory,
+  readJournalDomainAcpHistoryItems,
+  readJournalDomainAcpHistoryRows
+} from './journal-domain-acp-history'
 
 export type { JournalSqlPointRead, JournalSqlPointReadResult } from './journal-sql-point-read-types'
 import type { JournalSqlPointRead, JournalSqlPointReadResult } from './journal-sql-point-read-types'
@@ -86,6 +91,18 @@ function read(
       }
     case 'naming-prompt':
     case 'automation-run':
+    case 'bot-memory-sources':
+    case 'automation-result-notes':
+    case 'operation-window':
+    case 'prompt-item':
+    case 'latest-task-list':
+    case 'run-mentions':
+    case 'turn-ran-since':
+    case 'ended-turn-count':
+    case 'send-fingerprints':
+    case 'operation-sent':
+    case 'accepted-send-of-row':
+    case 'first-submitted-prompt':
       return readJournalDomainConsumer(scope, operation)
     case 'history-source-items':
       return {
@@ -95,6 +112,18 @@ function read(
     case 'fork-marker-group':
     case 'projected-stop-notes':
       return readJournalDomainPublication(scope, operation)
+    case 'acp-history':
+      return { kind: 'acp-history', history: readJournalDomainAcpHistory(scope, operation) }
+    case 'acp-history-rows':
+      return {
+        kind: 'acp-history-rows',
+        rows: readJournalDomainAcpHistoryRows(scope, operation.itemIds)
+      }
+    case 'acp-history-items':
+      return {
+        kind: 'acp-history-items',
+        ...readJournalDomainAcpHistoryItems(scope, operation.itemIds)
+      }
     case 'generation':
       return { kind: 'generation', generation: readJournalGeneration(scope, operation.input) }
     case 'work':
@@ -147,6 +176,7 @@ function read(
     case 'named-turn':
     case 'message-options':
     case 'continuation-context':
+    case 'continuation-spill':
     case 'history-items':
     case 'claude-history-prompts':
     case 'canonical-item-ids':

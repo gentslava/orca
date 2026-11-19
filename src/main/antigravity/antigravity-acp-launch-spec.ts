@@ -12,6 +12,7 @@ import {
   resolveAntigravityChatAuthConfig
 } from '../../shared/agent-accounts/antigravity/antigravity-chat-auth-config'
 import { agentSessionSetupFor } from '../../shared/agent-session/lifecycle/launch/agent-session-setup-commands'
+import { deliverAntigravityInstructions } from '../acp/launch/acp-instructions'
 import { ANTIGRAVITY_ACP_COMMAND, ANTIGRAVITY_ACP_RUNTIME } from './antigravity-acp-runtime'
 import {
   compareAppVersions,
@@ -28,6 +29,8 @@ import { ANTIGRAVITY_CHAT_HOME_FOLDER } from './antigravity-chat-home'
 import { assertAntigravityChatAuthPublished } from './antigravity-chat-auth-publication'
 import { readAntigravitySignInLine } from './antigravity-sign-in-url'
 import { antigravityChatRulesMeta } from './antigravity-chat-rules'
+import { discardAntigravityListingSession } from './antigravity-listing-session'
+import { parseAgyModelListing } from './antigravity-model-listing'
 import {
   AGY_SKIP_PERMISSIONS_FLAG,
   ANTIGRAVITY_HOST_ACP_MINIMUM_VERSION,
@@ -39,10 +42,6 @@ import {
   isAntigravityHostAccountHome
 } from './antigravity-host-acp'
 import { isAgySignedOutOutput } from './agy-signed-out-output'
-import {
-  ANTIGRAVITY_MODEL_LISTING_ARGS,
-  parseAntigravityModelCatalogListing
-} from './antigravity-model-catalog-listing'
 
 // Chats cannot adopt agy's terminal conversations.
 const ANTIGRAVITY_SESSION_HISTORY: StructuredAgentSessionHistory = {
@@ -85,17 +84,21 @@ const ANTIGRAVITY_MANAGED_LAUNCH_SPEC = {
   permissionModeConfig: {
     values: { ask: 'default', 'accept-edits': 'auto_edit', 'full-access': 'yolo' }
   },
+  // Its server lists models only in a session, which it keeps, so Orca removes it.
   modelDiscovery: {
-    kind: 'unavailable',
-    reason: 'the Antigravity server lists its models only in a signed-in session'
+    kind: 'session',
+    listingNamesConfiguredModel: false,
+    inPrivateFolder: true,
+    // The server unpacks about 1 GB per start (29s cold here), so only a picker asking starts it.
+    listsOnDemand: true,
+    discardSession: discardAntigravityListingSession
   },
+  instructions: deliverAntigravityInstructions,
   transcriptImport: null,
   sessionHistory: ANTIGRAVITY_SESSION_HISTORY,
   privateTempDirectory: true,
-  // The Windows 1.4.5 server otherwise writes its workflow tool into every chat workspace.
-  ...(process.platform === 'win32'
-    ? { sessionMeta: { antigravity: { disabledTools: ['run_workflow'] } } }
-    : {}),
+  // The server otherwise writes its workflow tool into every chat workspace.
+  sessionMeta: { antigravity: { disabledTools: ['run_workflow'] } },
   // `session/load` replays the whole conversation, which the chat already holds.
   resumePreference: 'resume',
   resolveSessionMeta: antigravityChatRulesMeta,
@@ -125,6 +128,14 @@ const ANTIGRAVITY_HOST_LAUNCH_SPEC: AcpLaunchSpec = {
   authMethodUnavailableMessage: undefined,
   signIn: undefined,
   dialect: { ...ANTIGRAVITY_ACP_DIALECT, signInAccount: 'system' },
+  // `agy models` lists without opening a session.
+  modelDiscovery: {
+    kind: 'command',
+    args: ['models'],
+    parse: parseAgyModelListing,
+    isNotSignedInOutput: isAgySignedOutOutput,
+    listingNamesConfiguredModel: false
+  },
   account: {
     pin: antigravityChatAccount.pin,
     resolve: async ({ launchEnv }) =>
@@ -144,13 +155,6 @@ const ANTIGRAVITY_HOST_LAUNCH_SPEC: AcpLaunchSpec = {
   permissionModeConfig: {
     values: { ask: 'default', 'accept-edits': 'accept-edits', 'full-access': 'default' },
     fullAccessAtLaunch: true
-  },
-  modelDiscovery: {
-    kind: 'command',
-    args: ANTIGRAVITY_MODEL_LISTING_ARGS,
-    parse: parseAntigravityModelCatalogListing,
-    listingNamesConfiguredModel: false,
-    isNotSignedInOutput: isAgySignedOutOutput
   },
   keepsEverySession: true,
   sessionMeta: undefined
@@ -187,6 +191,7 @@ export const ANTIGRAVITY_LAUNCH_SPEC = {
       (await hasAgyCredential(homePath)) &&
       (await antigravityHostAcpReady(command, env, envToDelete))
         ? antigravityHostAccountHome(homePath)
-        : null
+        : null,
+    selectionRevision: () => antigravityChatSignIn.get().revision
   }
 } satisfies AcpLaunchSpec

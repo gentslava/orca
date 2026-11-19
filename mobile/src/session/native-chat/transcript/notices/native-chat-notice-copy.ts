@@ -1,7 +1,7 @@
 import type { NativeChatTextBlock } from '../../../../../../src/shared/native-chat/native-chat-types'
 import { readWholeAgentSessionFailureFact } from '../../../../../../src/shared/agent-session/failures/agent-session-failure'
 import { agentSessionFailureSentence } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-words'
-import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/native-chat-orca-stop-words'
+import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/transcript/continuation/native-chat-orca-stop-words'
 import type { MobileNativeChatNoticeView } from './mobile-native-chat-notice-context'
 import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
 import { nativeChatRestartNoteText } from './native-chat-restart-note-copy'
@@ -14,7 +14,8 @@ export function nativeChatNoticeCopy(t: Translate) {
     compaction: t('chat.notice.compaction', 'Context compacted'),
     contextCleared: t('chat.notice.contextCleared', 'Context cleared'),
     forkedFrom: t('chat.notice.forkedFrom', 'Forked from'),
-    plan: t('chat.notice.plan', 'Plan')
+    plan: t('chat.notice.plan', 'Plan'),
+    botCreated: t('chat.notice.botCreated', 'Bot created')
   }
 }
 

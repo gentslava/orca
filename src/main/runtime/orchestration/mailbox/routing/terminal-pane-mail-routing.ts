@@ -22,7 +22,7 @@ import type { OrchestrationDb } from '../../db/orchestration-db'
 import {
   orchestrationMailNotice,
   type AgentMessageSource
-} from '../../../../../shared/agent-session/agent-session-message-source'
+} from '../../../../../shared/agent-session/journal/agent-session-message-source'
 import type { QueuedMessageOwed } from '../../../../native-chat/agent-session-journal/queued-messages/queued-message-consume-error'
 import {
   structuredMailboxCustody,
@@ -208,14 +208,12 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
     }
     // Log failures without blocking the later first-turn workspace rename.
     try {
-      // A working edge can follow a human answer, unblocking parked mail too.
-      this.notifyStructuredSessionJournalActivity(summary.sessionId)
       if (summary.status === 'working') {
+        // A working edge can follow a human answer, unblocking parked mail too.
+        this.notifyStructuredSessionJournalActivity(summary.sessionId)
         return
       }
-      const openDb = () => this.getExistingOrchestrationDb()
-      const deliver = (mailbox: string) => this.deliverPendingMessagesForHandle(mailbox)
-      structuredSessionIdleEdgeMailboxes(summary.sessionId, openDb).forEach(deliver)
+      this.redriveStructuredSessionMail(summary.sessionId)
     } catch (error) {
       console.warn('[orchestration] structured session mail redrive failed', {
         sessionId: summary.sessionId,
@@ -224,11 +222,19 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
     }
   }
 
+  /** A chat's idle edge for its mail: parked mail retried, and the mailboxes it owns re-derived. */
+  redriveStructuredSessionMail(sessionId: string): void {
+    this.notifyStructuredSessionJournalActivity(sessionId)
+    const openDb = () => this.getExistingOrchestrationDb()
+    const deliver = (mailbox: string) => this.deliverPendingMessagesForHandle(mailbox)
+    structuredSessionIdleEdgeMailboxes(sessionId, openDb).forEach(deliver)
+  }
+
   /** A closed chat ends its workers' Dispatches as a closed terminal does; /clear successors retain their work. */
   onStructuredSessionTabHidden(sessionId: string): void {
     try {
       const db = this.getExistingOrchestrationDb()
-      pauseSessionLinkForSession(db, sessionId)
+      void pauseSessionLinkForSession(db, sessionId)
       for (const worker of db ? closedChatWorkersForSession(sessionId, db) : []) {
         this.failActiveDispatchOnExit(worker.handle, worker.paneKey, OPERATOR_CLOSE_EXIT_CAUSE)
       }
@@ -242,7 +248,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
   /** Settlement drops anything parked for the session; nothing will ever redrive it again. */
   forgetStructuredSessionMail(sessionId: string): void {
     this.orchestrationStructuredMailboxPointerDelivery.forgetSession(sessionId)
-    pauseSessionLinkForSession(this.sessionLinkDb(), sessionId)
+    void pauseSessionLinkForSession(this.sessionLinkDb(), sessionId)
   }
 
   /** After a check, move, takeover or reset, delete the cards that would hand a chat mail it no

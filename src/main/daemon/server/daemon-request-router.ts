@@ -134,6 +134,7 @@ export class DaemonRequestRouter {
             ? { expectedIncarnationId: request.payload.expectedIncarnationId }
             : {}),
           ...(request.payload.steadyState === true ? { steadyState: true } : {}),
+          ...(request.payload.jobMembershipOnly === true ? { jobMembershipOnly: true } : {}),
           ...(request.payload.ignoreDetached === true ? { ignoreDetached: true } : {})
         }
         return Object.keys(options).length > 0

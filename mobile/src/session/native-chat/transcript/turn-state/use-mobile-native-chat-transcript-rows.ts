@@ -1,5 +1,9 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
-import type { NativeChatResolvedPrompt } from '../../../../../../src/shared/native-chat/native-chat-resolution-receipt'
+import {
+  botItemNoteJoins,
+  type BotItemNoteJoin
+} from '../../../../../../src/shared/bots/bot-item-note-runs'
+import type { NativeChatResolvedPrompt } from '../../../../../../src/shared/native-chat/input/questions/native-chat-resolution-receipt'
 import { deriveNativeChatRowContent } from '../../../../../../src/shared/native-chat/transcript/row-content/native-chat-row-content'
 import {
   NATIVE_CHAT_EMPTY_TURN_FOLD,
@@ -11,13 +15,13 @@ import {
 import {
   nativeChatRowRendersProse,
   nativeChatRowSpeaksOrActs
-} from '../../../../../../src/shared/native-chat/native-chat-trailing-run'
+} from '../../../../../../src/shared/native-chat/transcript/folding/native-chat-trailing-run'
 import type { NativeChatTurnStatus } from '../../../../../../src/shared/native-chat/transcript/turns/native-chat-turn-status'
 import type { NativeChatMessage } from '../../../../../../src/shared/native-chat/native-chat-types'
 import {
   nativeChatWorkRunMember,
   nativeChatWorkRunSpans
-} from '../../../../../../src/shared/native-chat/native-chat-work-run'
+} from '../../../../../../src/shared/native-chat/transcript/folding/native-chat-work-run'
 
 type TranscriptRows = {
   rows: readonly NativeChatMessage[]
@@ -78,11 +82,15 @@ export function useMobileNativeChatTranscriptRows({
   receipts,
   completedByTurn,
   expandedTurnKeys,
-  liveReasoningId
+  liveReasoningId,
+  turnDiffs
 }: TranscriptRows & {
   enabled: boolean
   scopeKey: string
   historyHead?: string
+  /** Turn diffs by the row they draw under (undefined: its turn changed nothing); one ends an
+   *  item-note cluster there. */
+  turnDiffs: ReadonlyMap<string, unknown>
   completedByTurn: Readonly<Record<string, NativeChatTurnStatus>>
   expandedTurnKeys: ReadonlySet<string>
   liveReasoningId: string | undefined
@@ -91,6 +99,7 @@ export function useMobileNativeChatTranscriptRows({
   expandedTurnKeys: ReadonlySet<string>
   trailingRunIndex: number
   workRuns: MobileNativeChatWorkRuns
+  itemNoteJoins: ReadonlyMap<number, BotItemNoteJoin>
 } {
   const committedFold = useRef<NativeChatTurnFoldHistory | null>(null)
   const historyFold = useMemo(
@@ -101,7 +110,7 @@ export function useMobileNativeChatTranscriptRows({
             historyHead,
             messages: rows,
             rows: rows.map((message, index) =>
-              nativeChatTurnFoldRow(message, turnKeys[index], receipts?.has(message.id) === true)
+              nativeChatTurnFoldRow(message, turnKeys[index], receipts?.get(message.id))
             ),
             settledTurnKeys: new Set(
               Object.entries(completedByTurn).flatMap(([key, status]) =>
@@ -134,10 +143,20 @@ export function useMobileNativeChatTranscriptRows({
         : NO_WORK_RUNS,
     [enabled, liveReasoningId, receipts, rows, turnKeys]
   )
+  const itemNoteJoins = useMemo(
+    () =>
+      botItemNoteJoins(
+        rows,
+        (index) => fold.foldedRows.has(index) || workRuns.joined.has(index),
+        (index) => turnDiffs.get(rows[index]!.id) !== undefined
+      ),
+    [fold, rows, turnDiffs, workRuns]
+  )
   return {
     fold,
     expandedTurnKeys: historyFold?.expandedTurnKeys ?? expandedTurnKeys,
     trailingRunIndex,
-    workRuns
+    workRuns,
+    itemNoteJoins
   }
 }

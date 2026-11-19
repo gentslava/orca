@@ -1,4 +1,4 @@
-import type { StructuredAgentContextUsage } from '../agent-session/structured-agent-session-context-usage'
+import type { StructuredAgentContextUsage } from '../agent-session/conversation-context/structured-agent-session-context-usage'
 
 /** Reduce provider context breakdowns to the rows shown by the composer ring. */
 export type NativeChatContextUsageSummary = {
@@ -49,13 +49,6 @@ export function summarizeContextUsage(
         ...(row.deferred === true ? { deferred: true as const } : {})
       }))
       .sort((left, right) => right.tokens - left.tokens)
-  }
-}
-
-export function groupContextUsageRows(rows: NativeChatContextUsageSummary['rows']) {
-  return {
-    used: keyContextUsageRows(rows.filter((row) => !row.deferred)),
-    deferred: keyContextUsageRows(rows.filter((row) => row.deferred))
   }
 }
 

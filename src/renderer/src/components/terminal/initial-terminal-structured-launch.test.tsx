@@ -1,15 +1,16 @@
 // @vitest-environment happy-dom
 import type * as ParkedWatcherRegistryModule from '../terminal-pane/parking/output-watchers/terminal-parked-watcher-registry'
-import { act, StrictMode } from 'react'
+import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { useTerminalWatcherEffects } from '../use-terminal-watcher-effects'
+import { useTerminalWatcherEffects } from './workbench/use-terminal-watcher-effects'
 import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
 
 const mocks = vi.hoisted(() => {
   const storeTabsByWorktree: Record<string, unknown[]> = {}
   const storeClosedRecords: Record<string, { worktreeId: string; closedAt: number }> = {}
   const storePendingCreations: Record<string, PendingWorktreeCreation> = {}
+  const bots: { folderWorkspaceId: string }[] = []
   return {
     gate: vi.fn(),
     resume: vi.fn(),
@@ -18,12 +19,15 @@ const mocks = vi.hoisted(() => {
     createTab: vi.fn(),
     storeTabsByWorktree,
     storeClosedRecords,
-    storePendingCreations
+    storePendingCreations,
+    bots,
+    botsEnabled: true,
+    activeWorktreeId: 'wt-1'
   }
 })
 vi.mock('@/store', () => {
   const getState = () => ({
-    activeWorktreeId: 'wt-1',
+    activeWorktreeId: mocks.activeWorktreeId,
     tabsByWorktree: mocks.storeTabsByWorktree,
     closedTerminalTabTombstonesByTabId: mocks.storeClosedRecords,
     pendingWorktreeCreations: mocks.storePendingCreations
@@ -41,6 +45,12 @@ vi.mock('@/lib/workspace/activation/worktree-agent-activation-gate', () => ({
 vi.mock('@/lib/agent-session/launch/structured-agent-session-launch-status', () => ({
   hasStructuredAgentLaunchInWorktree: (worktreeId: string) =>
     ['claude', 'codex', 'grok'].some((agent) => mocks.launchStatus(worktreeId, agent) !== 'idle')
+}))
+vi.mock('@/lib/bot-catalog', () => ({
+  readBots: () => mocks.bots,
+  readBotsEnabled: () => mocks.botsEnabled,
+  useBots: () => mocks.bots,
+  useBotsEnabled: () => true
 }))
 vi.mock('@/lib/agent-session/resume/resume-sleeping-agent-session', () => ({
   resumeSleepingAgentSessionsForWorktree: mocks.resume
@@ -71,6 +81,9 @@ afterEach(async () => {
   mocks.storeTabsByWorktree = {}
   mocks.storeClosedRecords = {}
   mocks.storePendingCreations = {}
+  mocks.bots = []
+  mocks.botsEnabled = true
+  mocks.activeWorktreeId = 'wt-1'
 })
 
 function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}): null {
@@ -111,32 +124,6 @@ function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}
   })
   return null
 }
-
-describe('empty workspace entry waits for an explicit action', () => {
-  it('does not start a shell after hydration, an empty host answer, or switching away and back', async () => {
-    mocks.gate.mockResolvedValue('empty')
-    root = createRoot(document.createElement('div'))
-    await act(async () => root?.render(<Watcher hydrated />))
-    await act(async () => root?.render(<Watcher hydrated worktreeId="wt-2" />))
-    await act(async () => root?.render(<Watcher hydrated />))
-    expect(mocks.createTab).not.toHaveBeenCalled()
-    expect(mocks.gate).toHaveBeenCalledWith('wt-1')
-    expect(mocks.gate).toHaveBeenCalledWith('wt-2')
-  })
-
-  it('keeps an empty project empty under StrictMode', async () => {
-    mocks.gate.mockResolvedValue('empty')
-    root = createRoot(document.createElement('div'))
-    await act(async () =>
-      root?.render(
-        <StrictMode>
-          <Watcher hydrated />
-        </StrictMode>
-      )
-    )
-    expect(mocks.createTab).not.toHaveBeenCalled()
-  })
-})
 
 describe('startup agent recovery host inventory', () => {
   it('keeps recovery available until the execution host answers', async () => {

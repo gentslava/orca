@@ -3,12 +3,12 @@ import { expect, it, vi } from 'vitest'
 import { RpcDispatcher } from '../../rpc/dispatcher'
 import { STRUCTURED_AGENT_SESSION_REVEAL_METHODS } from '../../rpc/methods/structured-sessions/conversation/structured-agent-session-reveal'
 import { STRUCTURED_AGENT_SESSION_CLOSE_METHOD } from '../../rpc/methods/structured-sessions/conversation/structured-agent-session-close-method'
-import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from '../../../../shared/agent-session/agent-session-runtime-capabilities'
+import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from '../../../../shared/agent-session/capabilities/agent-session-runtime-capabilities'
 import { AGENT_LAUNCH_RUNTIME_CAPABILITY } from '../../../../shared/agent-launch/contracts/agent-launch-runtime-capability'
 import {
   AGENT_SESSION_CLOSE_ONLY_CLIENT_CAPABILITY,
   AGENT_SESSION_RENAME_ONLY_CLIENT_CAPABILITY
-} from '../../../../shared/agent-session/structured-agent-session-surface-capabilities'
+} from '../../../../shared/agent-session/capabilities/structured-agent-session-surface-capabilities'
 import {
   AuthorityRuntime,
   B,

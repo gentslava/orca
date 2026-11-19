@@ -233,6 +233,39 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     )
     expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'low')
   })
+
+  it('lists a highest-first effort menu lowest first on the /effort page', async () => {
+    const effort: SessionOptionDescriptor = {
+      id: 'effort',
+      label: 'Reasoning effort',
+      category: 'thought_level',
+      kind: {
+        type: 'select',
+        currentValue: 'high',
+        choices: [
+          { value: 'xhigh', label: 'Extra high' },
+          { value: 'high', label: 'High' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'low', label: 'Low' }
+        ]
+      },
+      valueSource: 'applied',
+      transport: 'agent-session',
+      settable: true
+    }
+    mount([MODEL_DESCRIPTOR, effort], false, 'model')
+    const slider = renderer!.root.findByProps({ accessibilityRole: 'adjustable' })
+    expect(slider.props.accessibilityValue).toMatchObject({ now: 2, text: 'High' })
+    await act(async () =>
+      slider.props.onAccessibilityAction({ nativeEvent: { actionName: 'decrement' } })
+    )
+    expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'medium')
+    act(() => renderer!.unmount())
+    setOption.mockClear()
+    mount([MODEL_DESCRIPTOR, effort], false, 'effort')
+    await act(async () => rowByText('Low').props.onPress())
+    expect(setOption).toHaveBeenCalledExactlyOnceWith('effort', 'low')
+  })
 })
 
 const EFFORT_DESCRIPTOR: SessionOptionDescriptor = {

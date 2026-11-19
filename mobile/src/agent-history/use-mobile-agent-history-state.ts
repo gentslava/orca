@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { mobileChatShownName } from '../session/fork/mobile-fork-marked-name'
 import { useQueryClient } from '@tanstack/react-query'
 import { mobileStructuredSessionStatusFeed } from '../session/native-chat/agent-session/mobile-structured-session-status-feed'
-import type { AgentSessionConversationNames } from '../../../src/shared/agent-session/agent-session-conversation-names'
+import type { AgentSessionConversationNames } from '../../../src/shared/agent-session/conversation-naming/agent-session-conversation-names'
 import { useForceReconnect } from '../transport/connection/host-client-hooks'
 import { useWorkspaceClient } from '../worktree/execution-hosts/use-workspace-client'
 import type { RpcClient } from '../transport/rpc/rpc-client-contract'
@@ -90,10 +90,10 @@ async function readAgentHistory(
   }
   const reply = await agentHistorySessionScan.request(client, {
     limit: MOBILE_AI_VAULT_SESSION_LIMIT,
+    // Like desktop History: IDE transcripts continue in a new CLI conversation.
+    includeAntigravityIdeSessions: true,
     force,
-    ...(scan.conversationId
-      ? { includeStructuredSessions: true, includeAntigravityIdeSessions: true }
-      : {}),
+    ...(scan.conversationId ? { includeStructuredSessions: true } : {}),
     ...(scan.conversationId &&
     status.capabilities?.includes(AI_VAULT_SELECTED_SESSION_RUNTIME_CAPABILITY)
       ? { selectedSessionId: scan.conversationId }
@@ -137,7 +137,7 @@ function agentHistoryQuery(
 
 export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams) {
   const t = useMobileTranslation()
-  const { hostId, worktreeId, conversationId, worktrees, worktreesLoaded } = params
+  const { hostId, worktreeId, conversationId, worktrees, worktreesLoaded, projectSetups } = params
   const { client, state: connState } = useWorkspaceClient(hostId)
   const forceReconnect = useForceReconnect()
   const queryClient = useQueryClient()
@@ -155,12 +155,13 @@ export function useMobileAgentHistoryState(params: MobileAgentHistoryStateParams
       scopeFilterPaths: deriveMobileAiVaultScopePaths(
         conversationId ? 'all' : scope,
         activeWorktree,
-        worktrees
+        worktrees,
+        projectSetups
       ),
       activeWorktreePath: activeWorktree?.path ?? null,
       conversationId
     }),
-    [scope, activeWorktree, worktrees, conversationId]
+    [scope, activeWorktree, worktrees, projectSetups, conversationId]
   )
   // Subscribed before the query so the feed's stream opens ahead of the first read, on the page bridge as natively.
   const feed = useMemo(() => (client ? mobileStructuredSessionStatusFeed(client) : null), [client])

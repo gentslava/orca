@@ -1,7 +1,7 @@
 import { projectedAccountHome } from '../structured-session-history-account'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host/execution-host'
 import { agentSessionOwnerObservationIsLive } from '../../../shared/agent-session/lifecycle/leases/agent-session-lease-adjudication'
-import { defaultAgentChatLabel } from '../../../shared/agent-session/agent-session-chat-label'
+import { defaultAgentChatLabel } from '../../../shared/agent-session/conversation-naming/agent-session-chat-label'
 import type { AiVaultListResult } from '../../../shared/ai-vault/contracts/ai-vault-types'
 import { historyRowFallsBackToChatLabel } from '../../../shared/agent-session/view/structured-chat-row-name'
 import type { AiVaultSearchResponse } from '../../../shared/ai-vault/search/ai-vault-search-types'
@@ -11,7 +11,8 @@ import {
 } from '../../../shared/ai-vault/search/ai-vault-search-transport'
 import type { AiVaultPrepareSessionResumeArgs } from '../../../shared/ai-vault/resume/ai-vault-resume-preparation'
 import { getStructuredAgentSessionHost } from '../../native-chat/agent-session-wire/host/structured-agent-session-registry'
-import { ensureStructuredAgentSessionHostUnlessRefused } from '../../runtime/agent-session/structured-agent-session-host-refusal'
+import { historyRowOwners, historyRowOwnershipLookup } from './history-row-ownership-lookup'
+import { ensureStructuredAgentSessionHostUnlessRefused } from '../../runtime/agent-session/installation/structured-agent-session-host-refusal'
 import {
   listStructuredProviderSessionOwnership,
   terminalResumeBlocked,
@@ -44,7 +45,7 @@ export function projectStructuredAiVaultSessions(
     journalPreviews?: ReadonlyMap<string, StructuredConversationJournalPreview>
   }
 ): AiVaultListResult {
-  const owner = ownershipLookup()
+  const owner = historyRowOwnershipLookup()
   if (!owner) {
     return result
   }
@@ -80,7 +81,7 @@ export function projectStructuredAiVaultSearchResponse(
   opensChat: StructuredChatOpener,
   transport: SessionSearchTransport = 'ipc'
 ): AiVaultSearchResponse {
-  const owner = response.kind === 'results' ? ownershipLookup() : null
+  const owner = response.kind === 'results' ? historyRowOwnershipLookup() : null
   if (!owner || response.kind !== 'results') {
     return response
   }
@@ -152,44 +153,6 @@ function ownedRow(
     : { title, structuredSession, ...account }
 }
 
-// Build one lookup per projection to avoid scanning all chat records for every row.
-function ownershipLookup():
-  | ((row: { agent: string; sessionId: string }) => StructuredProviderSessionOwnership | null)
-  | null {
-  if (!getStructuredAgentSessionHost()) {
-    return null
-  }
-  const byProviderSession = new Map<string, StructuredProviderSessionOwnership>()
-  for (const ownership of listOwnership(true)) {
-    const key = `${ownership.provider}\0${ownership.providerSessionId}`
-    const kept = byProviderSession.get(key)
-    if (!kept || (kept.role !== 'head' && ownership.role === 'head')) {
-      byProviderSession.set(key, ownership)
-    }
-  }
-  return (row) => {
-    const found = historyRowOwners(row.agent).flatMap(
-      (owner) => byProviderSession.get(`${owner}\0${row.sessionId}`) ?? []
-    )
-    return found.find((ownership) => ownership.role === 'head') ?? found[0] ?? null
-  }
-}
-
-/** One history row agent can correspond to several chat providers. */
-const HISTORY_ROW_OWNERS = new Map<string, StructuredAgentId[]>()
-for (const { definition, sessionHistory } of STRUCTURED_AGENT_RUNTIME_METADATA) {
-  for (const rowAgent of sessionHistory.rowAgents) {
-    HISTORY_ROW_OWNERS.set(rowAgent, [
-      ...(HISTORY_ROW_OWNERS.get(rowAgent) ?? []),
-      definition.agent
-    ])
-  }
-}
-
-function historyRowOwners(rowAgent: string): readonly StructuredAgentId[] {
-  return HISTORY_ROW_OWNERS.get(rowAgent) ?? []
-}
-
 export function assertLegacyAiVaultResumeAllowed(args: AiVaultPrepareSessionResumeArgs): void {
   // A fork writes a new conversation, and preparing its home never writes this one.
   const blocking = args.fork ? undefined : resumeOwnerships(args).find(terminalResumeBlocked)
@@ -241,17 +204,9 @@ function resumeOwnerships(
   ]
 }
 
-function listOwnership(localOnly = false): StructuredProviderSessionOwnership[] {
+function listOwnership(): StructuredProviderSessionOwnership[] {
   const host = getStructuredAgentSessionHost()
-  return host
-    ? listStructuredProviderSessionOwnership(
-        host.deps.store
-          .listConversations()
-          .filter(
-            (record) => !localOnly || record.location.executionHostId === LOCAL_EXECUTION_HOST_ID
-          )
-      )
-    : []
+  return host ? listStructuredProviderSessionOwnership(host.deps.store.listConversations()) : []
 }
 
 function resumesOwnedSession(

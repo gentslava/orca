@@ -213,22 +213,24 @@ export async function ensureTerminal(page, { allowCreate = true, timeoutMs = 60_
     return
   }
   await createWorkspaceFromSeededRepo(page, timeoutMs)
-  await createTerminalTab(page)
+  await openStartPageTerminal(page, timeoutMs)
+}
+
+// Explicit empty-workspace actions: a setup-only create opens the start page, whose New Terminal starts the shell.
+async function openStartPageTerminal(page, timeoutMs) {
+  const terminal = page.locator(TERMINAL_SURFACE_VISIBLE).first()
+  const startTerminal = page.getByRole('button', { name: /^New Terminal/ }).first()
+  await terminal.or(startTerminal).first().waitFor({ state: 'visible', timeout: timeoutMs })
+  if (!(await terminal.isVisible().catch(() => false))) {
+    await startTerminal.click({ timeout: timeoutMs })
+  }
+  await waitForTerminalReady(page, timeoutMs)
 }
 
 // Use seeded-project composer’s Blank Terminal path so probes reach a shell rather than an agent/native folder dialog.
 async function createWorkspaceFromSeededRepo(page, timeoutMs) {
   // Share one deadline across creation rather than reset each step’s budget.
   const deadline = Date.now() + timeoutMs
-  const sidebarTitle = page.locator('[data-sidebar-section-title]').first()
-  if ((await sidebarTitle.getAttribute('data-sidebar-section-title')) !== 'workspaces') {
-    if (!(await tryClickWithKnownOverlayRetry(page, sidebarTitle, deadline - Date.now()))) {
-      await sidebarTitle.click({ timeout: 1 })
-    }
-    await page.getByRole('menuitem', { name: 'Workspaces', exact: true }).click({
-      timeout: Math.max(1, deadline - Date.now())
-    })
-  }
   const newWorkspace = page
     .getByRole(NEW_WORKSPACE_BUTTON.role, { name: NEW_WORKSPACE_BUTTON.name })
     .first()

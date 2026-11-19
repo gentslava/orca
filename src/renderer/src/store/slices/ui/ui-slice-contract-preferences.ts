@@ -26,12 +26,18 @@ import type { ChangelogData, UpdateStatus } from '../../../../../shared/updater/
 import type { StatusBarUsageMode } from '../../../../../shared/status-bar/status-bar-usage-mode'
 import type { PersistedUIWriteBaseline } from './persisted-ui-write-baseline'
 import type { UISliceCore } from './ui-slice-contract-core'
+import type { BotSidebarView } from '../../../../../shared/bots/bot-sidebar-view'
+import type { BotChatFold } from '../../../../../shared/bots/bot-chat-tree'
+import type { SidebarBody } from '../../../../../shared/ui-chrome/sidebar-body'
 
 export type UISlicePreferences = {
   gitGraphFiltersByWorktree?: PersistedUIState['gitGraphFiltersByWorktree']
   /** Which list the sidebar body shows. Navigator-only; does not change the active view. */
-  sidebarBody: 'conversations' | 'workspaces' | 'agents'
-  setSidebarBody: (body: UISlicePreferences['sidebarBody']) => void
+  sidebarBody: SidebarBody
+  /** Transient switch, e.g. revealing a workspace; the remembered choice stays as it was. */
+  setSidebarBody: (body: SidebarBody) => void
+  /** The user's own pick, remembered across restarts. */
+  chooseSidebarBody: (body: SidebarBody) => void
   groupBy: 'none' | 'workspace-status' | 'repo' | 'pr-status'
   setGroupBy: (g: UISlicePreferences['groupBy']) => void
   sortBy: 'name' | 'smart' | 'recent' | 'repo' | 'manual'
@@ -59,6 +65,15 @@ export type UISlicePreferences = {
   setHideAutomationGeneratedWorkspaces: (v: boolean) => void
   hideCliCreatedWorkspaces: boolean
   setHideCliCreatedWorkspaces: (v: boolean) => void
+  hideBotCreatedWorkspaces: boolean
+  setHideBotCreatedWorkspaces: (v: boolean) => void
+  botSidebarView: BotSidebarView
+  setBotSidebarView: (patch: Partial<BotSidebarView>) => void
+  botChatFolds: Record<string, BotChatFold>
+  /** A chat's manual fold, shared by Activity and the sidebar; undefined while it folds by default. */
+  botChatFold: (hostId: string, botId: string, chatId: string) => BotChatFold | undefined
+  /** Null clears the manual choice, so the chat folds by its default again. */
+  setBotChatFold: (hostId: string, botId: string, chatId: string, fold: BotChatFold | null) => void
   hideDetachedHeadWorkspaces: boolean
   setHideDetachedHeadWorkspaces: (v: boolean) => void
   hideWorkspacesFromOtherDevices: boolean
@@ -117,6 +132,9 @@ export type UISlicePreferences = {
   setWorkspaceBoardOpacity: (opacity: number) => void
   workspaceBoardColumnWidth: number
   setWorkspaceBoardColumnWidth: (width: number) => void
+  /** Dragged cap on the sidebar Bots section; null keeps the default 40% cap. */
+  sidebarBotsHeight: number | null
+  setSidebarBotsHeight: (height: number | null) => void
   syncTaskStatusFromWorkspaceBoard: boolean
   setSyncTaskStatusFromWorkspaceBoard: (enabled: boolean) => void
   /** Transient: the in-window Agent Dashboard companion drawer is open. Not persisted. */
@@ -237,4 +255,6 @@ export type UISlicePersistence = {
   setBrowserKagiSessionLink: (link: string | null) => void
   browserDevToolsDock: BrowserDevToolsDockLayout
   setBrowserDevToolsDock: (layout: BrowserDevToolsDockLayout) => void
+  browserExtensionSidePanelWidth: number
+  setBrowserExtensionSidePanelWidth: (width: number) => void
 }

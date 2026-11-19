@@ -1,7 +1,7 @@
 import { SubagentExpansionProvider } from './ai-vault-subagent-expansion'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState, type Ref } from 'react'
-import type { AgentDotState } from '@/components/AgentStateDot'
+import type { AgentDotState } from '@/components/agent/status/AgentStateDot'
 import type {
   AiVaultScope,
   AiVaultSession
@@ -10,7 +10,7 @@ import type { AiVaultResumeStartup } from '../../../../../../shared/ai-vault/res
 import { useTranslate } from '@/i18n/use-translate'
 import { cn } from '@/lib/class-names'
 import { useLatestHandler } from '@/lib/use-latest-handler'
-import { measureVirtualRowRetainingHiddenSize } from '@/hooks/virtualized-hidden-row-measurement'
+import { measureVirtualRowRetainingHiddenSize } from '@/lib/list-interaction/virtualized-hidden-row-measurement'
 import { getActiveStickyHeaderIndexForScroll } from '../../../sidebar/worktree-list/viewport/virtual-rows'
 import { EmptyState, SessionLoadingState } from './AiVaultSessionListStates'
 import type { AiVaultSessionListGroup } from './ai-vault-session-filters'
@@ -30,7 +30,8 @@ import {
 import type { AiVaultResumeInChatEligibility } from '../session-actions/ai-vault-session-resume-in-chat'
 import { AiVaultVirtualRow, type AiVaultListRow } from './AiVaultVirtualRow'
 import type { AiVaultSearchHit } from '../../../../../../shared/ai-vault/search/ai-vault-search-types'
-import { resolveAiVaultSessionRowChatActions } from '../session-actions/ai-vault-session-chat-action'
+import type { AiVaultSessionRowChatActions } from '../session-actions/ai-vault-session-chat-action'
+import { aiVaultSessionRowChat } from '../session-actions/ai-vault-session-row-chat'
 import {
   resumeAiVaultSessionHere,
   type AiVaultResumeHere
@@ -220,6 +221,16 @@ export function AiVaultSessionVirtualList({
     })
   }, [])
 
+  const { rowActions, openConversation } = aiVaultSessionRowChat({
+    getOriginalPaneTarget,
+    isStructuredSessionOpen,
+    getSessionResumeState,
+    getSessionResumeInChat,
+    searchHits,
+    onResume,
+    onJumpToOriginalPane,
+    onResumeInNewChat
+  })
   // Keep a synchronous single-flight latch while resume opens its destination so repeated picks cannot start duplicate resumes.
   const pickInFlight = useRef(false)
   const pickHere = (session: AiVaultSession): boolean => {
@@ -229,17 +240,14 @@ export function AiVaultSessionVirtualList({
     if (pickInFlight.current) {
       return true
     }
+    const actions = rowActions(session)
+    if (resumeHere.alongside) {
+      return pickAlongside(session, actions, resumeHere)
+    }
     const picked = resumeAiVaultSessionHere({
       session,
       here: resumeHere,
-      actions: resolveAiVaultSessionRowChatActions({
-        session,
-        originalPaneTarget: getOriginalPaneTarget(session),
-        structuredSessionOpen: isStructuredSessionOpen(session),
-        resumeState: getSessionResumeState(session),
-        resumeInChat: getSessionResumeInChat(session),
-        searchHit: searchHits?.get(session.id)
-      }),
+      actions,
       jump: onJumpToOriginalPane
     })
     if (!picked) {
@@ -252,6 +260,25 @@ export function AiVaultSessionVirtualList({
     void picked.then(release, release)
     return true
   }
+  // The row's own Resume and Resume in New Chat, so their eligibility and ownership checks hold.
+  const pickAlongside = (
+    session: AiVaultSession,
+    actions: AiVaultSessionRowChatActions,
+    here: AiVaultResumeHere
+  ): boolean => {
+    if (actions.canJumpToOriginalPane) {
+      onJumpToOriginalPane(session)
+    } else if (session.structuredSession && actions.resumeWorktreeId) {
+      onResume(session, actions.resumeWorktreeId)
+    } else if (actions.resumeInNewChatWorkspaceId) {
+      onResumeInNewChat(session, actions.resumeInNewChatWorkspaceId)
+    } else {
+      return false
+    }
+    here.dismiss()
+    return true
+  }
+
   // Enter resumes the row in the chat; a row that can't shows its details instead.
   const activateSession = (session: AiVaultSession, index: number): void => {
     if (stale || (conversationNavigation && openConversation(session))) {
@@ -261,29 +288,6 @@ export function AiVaultSessionVirtualList({
       setExpandedSessionIds((current) => new Set(current).add(session.id))
       virtualizer.scrollToIndex(index)
     }
-  }
-  function openConversation(session: AiVaultSession): boolean {
-    if (session.structuredSession) {
-      onResume(session, session.structuredSession.workspaceId)
-      return true
-    }
-    const actions = resolveAiVaultSessionRowChatActions({
-      session,
-      originalPaneTarget: getOriginalPaneTarget(session),
-      structuredSessionOpen: isStructuredSessionOpen(session),
-      resumeState: getSessionResumeState(session),
-      resumeInChat: getSessionResumeInChat(session),
-      searchHit: searchHits?.get(session.id)
-    })
-    if (actions.canJumpToOriginalPane) {
-      onJumpToOriginalPane(session)
-      return true
-    }
-    if (actions.resumeInNewChatWorkspaceId) {
-      onResumeInNewChat(session, actions.resumeInNewChatWorkspaceId)
-      return true
-    }
-    return false
   }
   const selectRow = useLatestHandler(selection.select)
   const pickSession = useLatestHandler((session: AiVaultSession) => {

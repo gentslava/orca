@@ -1,5 +1,5 @@
-import { readStructuredConversationJournalPreviews } from '../../../../ai-vault/structured-conversation-journal-preview'
 import { getStructuredAgentSessionHost } from '../../../../native-chat/agent-session-wire/host/structured-agent-session-registry'
+import { readStructuredConversationJournalPreviews } from '../../../../ai-vault/structured-conversation-journal-preview'
 import { prepareStructuredChatCliFork } from '../../../../ai-vault/structured-sessions/structured-chat-cli-fork'
 import { aiVaultOrchestrationChildSessionIds } from '../../../../ai-vault/structured-conversation-navigation'
 import {
@@ -33,7 +33,7 @@ import {
 import {
   ensureStructuredAgentSessionHostUnlessRefused,
   tryEnsureStructuredAgentSessionHostForResume
-} from '../../../agent-session/structured-agent-session-host-refusal'
+} from '../../../agent-session/installation/structured-agent-session-host-refusal'
 import {
   clientOpensStructuredChatFromHistory,
   supportsStructuredAgentSessions

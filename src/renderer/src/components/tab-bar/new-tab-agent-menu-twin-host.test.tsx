@@ -4,7 +4,7 @@ import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { useAppStore } from '@/store/index'
 import { getRuntimeAgentInventoryKey } from '@/store/slices/agent-inventory/runtime-agent-inventory-key'
-import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
+import { useAgentDetectionTargetForWorktree } from '@/lib/agent-session/launch/inventory/useAgentDetectionTarget'
 import { TEST_REPO } from '@/store/repos/repo.test-fixture'
 import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 import { resetRendererAppPlatformCacheForTests } from '@/app-shell/platform/renderer-app-platform'
@@ -13,7 +13,7 @@ import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-cha
 import {
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
   STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
-} from '../../../../shared/agent-session/agent-session-runtime-capabilities'
+} from '../../../../shared/agent-session/capabilities/agent-session-runtime-capabilities'
 import {
   NEW_TAB_TWIN_HOSTS,
   NEW_TAB_PAIRED_STATUS,

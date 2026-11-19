@@ -12,6 +12,7 @@ import { nativeChatModelDescription } from './native-chat-model-description'
 import { useTranslate } from '@/i18n/use-translate'
 import type {
   SessionOptionDescriptor,
+  SessionOptionsCliUpdate,
   SessionOptionSelectChoice
 } from '../../../../../../../shared/native-chat/input/native-chat-session-options'
 import { nativeChatSessionChoiceLabel } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-labels'
@@ -21,6 +22,7 @@ import { NativeChatSessionOptionWriteGroup } from './NativeChatSessionOptionWrit
 import { nativeChatModelSearchScore } from '../../../../../../../shared/native-chat/input/native-chat-model-search'
 import { AgentPickerLegacyModelsToggle } from '../../../../agent/AgentPickerLegacyModelsToggle'
 import { useLegacyModelsExpanded } from '../../../../agent/use-legacy-models-expanded'
+import { NativeChatModelCliUpdateRow } from './NativeChatModelCliUpdateRow'
 
 type NativeChatModelComboboxProps = {
   choices: readonly SessionOptionSelectChoice[]
@@ -34,6 +36,8 @@ type NativeChatModelComboboxProps = {
   onSelect: (value: string) => void
   defaultChoice?: SessionOptionDescriptor['defaultChoice']
   onReset?: () => void
+  /** The chat host's own CLI update, which brings models this list lacks. */
+  cliUpdate?: SessionOptionsCliUpdate
 }
 
 export function NativeChatModelCombobox({
@@ -44,7 +48,8 @@ export function NativeChatModelCombobox({
   busy,
   onSelect,
   defaultChoice,
-  onReset
+  onReset,
+  cliUpdate
 }: NativeChatModelComboboxProps): React.JSX.Element {
   const t = useTranslate()
   const searchLabel = t('components.native-chat.composer.searchModels', 'Search models…')
@@ -166,6 +171,7 @@ export function NativeChatModelCombobox({
             ]}
           </CommandGroup>
         </NativeChatSessionOptionWriteGroup>
+        <NativeChatModelCliUpdateRow update={cliUpdate} />
       </CommandList>
     </Command>
   )

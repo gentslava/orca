@@ -5,7 +5,7 @@ import {
   nativeChatWorkRunMember,
   nativeChatWorkRunSpans,
   type NativeChatWorkRunRow
-} from '../../../../../../shared/native-chat/native-chat-work-run'
+} from '../../../../../../shared/native-chat/transcript/folding/native-chat-work-run'
 import {
   type NativeChatRowTypography,
   estimateNativeChatRowHeight,
@@ -54,7 +54,7 @@ function workRunSlot(
         hasReceipt: false,
         hasStatus: head.status !== undefined,
         hasTurnDiff: turnDiff !== undefined,
-        openedPullRequestCount: openedPullRequests?.length
+        hasOpenedPullRequests: (openedPullRequests?.length ?? 0) > 0
       },
       typography
     )

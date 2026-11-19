@@ -3,7 +3,7 @@
 import type {
   AgentSessionBackgroundTask,
   AgentSessionBackgroundTaskState
-} from '../agent-session-background-task-wire'
+} from '../background-tasks/agent-session-background-task-wire'
 import { isLiveChildWork } from '../../agent-status/child-work/agent-status-child-work-liveness'
 import type { AgentChildWorkView } from '../../agent-status/child-work/agent-status-child-work-view'
 import type { AgentSessionForegroundTask } from '../agent-session-foreground-task'
@@ -64,7 +64,7 @@ export function structuredSessionBackgroundTasksView(
   const incomplete = monitoring && backgroundTasks.incomplete === true
   const onlyEarlyCalls =
     Boolean(backgroundTasks?.foregroundTasks?.length) &&
-    children?.length === 0 &&
+    !children?.length &&
     !tasks.length &&
     !settledTasks.length
   const show = monitoring && (incomplete || (!onlyForeground && !onlyEarlyCalls))

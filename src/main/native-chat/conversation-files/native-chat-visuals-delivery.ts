@@ -30,19 +30,34 @@ export type PrepareNativeChatVisuals = (
   sessionId: string
 ) => Promise<NativeChatVisualsLaunch | null>
 
-export function createNativeChatVisualsDelivery(deps: {
-  stateDirectory: string
-  logger: StructuredAgentSessionLogger
+type NativeChatVisualsSwitch = {
   isEnabled?: () => boolean
   resolveSkill?: () => Promise<NativeChatVisualsSkillLocation | null>
-}): PrepareNativeChatVisuals {
-  const resolveSkill = deps.resolveSkill ?? (() => resolveNativeChatVisualsSkillLocation())
+}
+
+/** The bundled visuals skill while visuals are on; null when off or missing from this install.
+ *  A chat's launch and its resting `/` probe both load it from here. */
+export async function enabledNativeChatVisualsSkill(
+  deps: NativeChatVisualsSwitch
+): Promise<NativeChatVisualsSkillLocation | null> {
+  if (deps.isEnabled?.() === false) {
+    return null
+  }
+  return (deps.resolveSkill ?? (() => resolveNativeChatVisualsSkillLocation()))()
+}
+
+export function createNativeChatVisualsDelivery(
+  deps: NativeChatVisualsSwitch & {
+    stateDirectory: string
+    logger: StructuredAgentSessionLogger
+  }
+): PrepareNativeChatVisuals {
   return async (sessionId) => {
     try {
       if (deps.isEnabled?.() === false) {
         return null
       }
-      const skill = await resolveSkill()
+      const skill = await enabledNativeChatVisualsSkill(deps)
       if (!skill) {
         deps.logger.warn('native-chat visuals skill is missing from this install', {
           scope: 'nativeChatVisuals.skill',
@@ -95,6 +110,17 @@ export function withNativeChatVisualsEnv(
         ...(visuals.temporaryFolder ? { [NATIVE_CHAT_TEMP_DIR_ENV]: visuals.temporaryFolder } : {})
       }
     : rest
+}
+
+/** Inherited folder keys a launch drops: a folder this chat does not name belongs to another chat. */
+export function nativeChatVisualsInheritedEnvToDelete(
+  visuals: NativeChatVisualsLaunch | null
+): string[] {
+  return [
+    ...(visuals ? [] : [NATIVE_CHAT_SCRATCH_DIR_ENV]),
+    ...(visuals?.temporaryFolder ? [] : [NATIVE_CHAT_TEMP_DIR_ENV]),
+    LEGACY_NATIVE_CHAT_VISUALS_DIR_ENV
+  ]
 }
 
 export function nativeChatVisualsWritableFolders(visuals: NativeChatVisualsLaunch): string[] {

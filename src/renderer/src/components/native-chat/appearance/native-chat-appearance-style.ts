@@ -6,7 +6,7 @@ import {
   DEFAULT_NATIVE_CHAT_FONT_SIZE,
   nativeChatContentMaxWidth,
   resolveNativeChatAppearanceSettings
-} from '../../../../../shared/native-chat/native-chat-appearance-settings'
+} from '../../../../../shared/native-chat/settings/native-chat-appearance-settings'
 import { DEFAULT_APP_FONT_FAMILY } from '../../../../../shared/app-lifecycle/appearance/app-font-family'
 import { resolveConfiguredTerminalColors } from '../../../../../shared/terminal-themes/terminal-theme-selection'
 import { MATCH_TERMINAL_APP_THEME } from '../../../../../shared/plugins/appearance/plugin-theme-settings'

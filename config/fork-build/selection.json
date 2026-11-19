@@ -6,7 +6,7 @@
   "seed": [
     33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
     33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
-    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40816
+    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40728, 40816
   ],
   "include": [
     {
@@ -69,7 +69,11 @@
   "exclude": {
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
-    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
+    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
+    "44450": "Hold: mobile slice of 33576 (same notePlace change); select it once 33576 drops its mobile part, in the next refresh.",
+    "44451": "Hold: desktop Default slice of 33395; select it once 33395 is stacked on it (dependencies 33395 -> 44451) and its overlap with 33362 is resolved, in the next refresh.",
+    "44452": "Hold: mobile subagent view; select it in the next refresh after checking its overlap with 33363, 34895 and 38963.",
+    "44655": "Hold: opened during the 7ade3e9b7718 refresh on newer upstream main (7923959bffd), which this pin cannot compose; select it in the next refresh."
   },
   "replacements": {
     "36569": 36922,
@@ -87,6 +91,7 @@
     "40293": 40673,
     "40955": 40951,
     "40870": 41203,
+    "40728": 43959,
     "40816": 41430,
     "41859": 42954
   },
@@ -123,7 +128,8 @@
     "composed-reactive-copy.patch",
     "runtime-environment-rename.patch",
     "account-usage-row-layout.patch",
-    "fork-ci-macos-arm64-image.patch"
+    "fork-ci-macos-arm64-image.patch",
+    "composed-format.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
@@ -167,5 +173,5 @@
       "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
     }
   },
-  "pullRequestUpstreamCommit": "c7f83f4e195842f381d3ba59ac6424834cd73870"
+  "pullRequestUpstreamCommit": "7ade3e9b7718c7133e47d7ed9fc19891bab997b8"
 }

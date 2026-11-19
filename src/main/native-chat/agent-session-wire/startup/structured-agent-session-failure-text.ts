@@ -6,7 +6,7 @@ import {
   type AgentSessionFailureKind,
   type ProviderDiagnostic
 } from '../../../../shared/agent-session/failures/agent-session-failure'
-import type { AgentSessionArgumentProblem } from '../../../../shared/agent-session/agent-session-argument-problem'
+import type { AgentSessionArgumentProblem } from '../../../../shared/agent-session/failures/agent-session-argument-problem'
 import type { AgentSessionRefusalReason } from '../../../../shared/agent-session/failures/agent-session-refusal-details'
 import {
   agentSessionFailureWords,
@@ -47,7 +47,6 @@ const TYPED_START_REFUSALS = [
   'claudeAccountSetupFailed',
   'agentCommandNotRunnable',
   'runtimeNotInstalled',
-  'providerResumeUnavailable',
   'fullAccessAsRoot',
   'launchPreparationFailed',
   'conversationOpenInTerminal',
@@ -137,11 +136,7 @@ export function providerStartupFailureFact(cause?: unknown): SubmissionRejection
     })
   }
   const typed = typedStartRefusal(
-    cause instanceof AgentSessionAcquisitionRefusal
-      ? cause.reason
-      : isAgentSessionPreSpawnError(cause) && cause.reason === 'providerResumeUnavailable'
-        ? cause.reason
-        : undefined
+    cause instanceof AgentSessionAcquisitionRefusal ? cause.reason : undefined
   )
   if (typed) {
     return agentSessionFailureFact(typed, {

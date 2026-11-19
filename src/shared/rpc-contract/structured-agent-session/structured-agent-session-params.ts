@@ -1,4 +1,5 @@
 import { ExecutionLocation } from '../structured-agent-session-location-params'
+import { BotLinkOpenTargetSchema } from '../../bots/bot-link-open-target'
 import { AgentSessionSelectionSchema } from '../../agent-session/options/protocol/agent-session-execution-options'
 import {
   SendBody,
@@ -15,9 +16,9 @@ import {
 import * as z from 'zod'
 import { CREATE_TAB_FIELDS } from './structured-agent-session-create-tab-params'
 import { isStructuredAgentId } from '../../agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
-import { AGENT_SESSION_RESPONSE_OPTION_ID_MAX_LENGTH as MAX_RESPONSE_OPTION_ID_LENGTH } from '../../agent-session/agent-session-question-answer'
+import { AGENT_SESSION_RESPONSE_OPTION_ID_MAX_LENGTH as MAX_RESPONSE_OPTION_ID_LENGTH } from '../../agent-session/requests/prompts/agent-session-question-answer'
 
-import { AGENT_SESSION_THREAD_GOAL_OBJECTIVE_MAX_LENGTH } from '../../agent-session/agent-session-thread-goal-wire'
+import { AGENT_SESSION_THREAD_GOAL_OBJECTIVE_MAX_LENGTH } from '../../agent-session/thread-goals/agent-session-thread-goal-wire'
 import { MutationEnvelope } from './structured-agent-session-mutation-envelope'
 import { SOURCE_FIELDS, ResumeWriterAdmission } from './structured-agent-session-resume-params'
 
@@ -156,6 +157,7 @@ export const SetOptionParams = z
 
 export const OptionsParams = z.object({ sessionId: SessionId }).strict()
 export const RevealParams = OptionsParams.extend({
+  botLinkTarget: BotLinkOpenTargetSchema.optional(),
   navigation: z.literal('caller').optional()
 }).strict()
 export const SwitchToChatParams = OptionsParams.extend({

@@ -20,10 +20,6 @@
       "retryImageHint": "Загрузить изображение ещё раз",
       "retryImage": "Изображение недоступно — нажмите, чтобы повторить"
     },
-    "contextUsage": {
-      "deferredTitle": "По требованию",
-      "deferredDescription": "Не входят в текущий расход контекста. Загружаются при необходимости."
-    },
     "agentMessage": {
       "sessionLink": "Связь"
     },

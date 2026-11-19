@@ -2,7 +2,7 @@ import { createLocalWorkerStartDispatch } from './local-worker-start-dispatch'
 import { refuseClaimedWorkerTerminal } from '../../../../../orchestration/db/worker-dispatch/worker-terminal-claim'
 import { waitForWorkerAgentReady } from '../../../../../terminal/wait/launched-agent-composer-readiness'
 import type { OrcaRuntimeService } from '../../../../../orca-runtime'
-import { describeTerminalWaitBlockedReason } from '../../../../../../../shared/terminal/runtime-policy/terminal-wait-blocked-reason-legacy-alias'
+import { agentStartupBlockedMessage } from '../../../../../terminal/wait/agent-startup-blocked-message'
 import type { OrchestrationDb } from '../../../../../orchestration/db/orchestration-db'
 import type {
   DispatchContextRow,
@@ -25,7 +25,10 @@ import {
   persistWorkerSetupWaitOutcome
 } from './readiness/worker-setup-gate'
 import { failWorkerStartWithReceipt } from './worker-start-receipt'
-import { assertExplicitWorkerUsable } from './placement/explicit-worker-terminal-validation'
+import {
+  assertExplicitWorkerUsable,
+  explicitWorkerWorkspace
+} from './placement/explicit-worker-terminal-validation'
 import { resolveDispatchAssigneeParty } from '../../../../../orchestration/addressing/orchestration-party'
 import { chatAssigneeOf, chatWorkerMode } from '../../chat-assignee-admission'
 import { recordCreatedWorkerTerminalCustody } from './placement/created-worker-terminal-custody'
@@ -61,15 +64,22 @@ export async function startLocalWorker(args: {
   const terminal = args.params.terminal && resolveDispatchAssigneeParty(args.params.terminal, db)
   const params = terminal ? { ...args.params, terminal: terminal.address } : args.params
   const chat = terminal ? chatAssigneeOf(terminal) : null
-  const requestedWorktree = params.worktree ?? 'current'
+  const requestedWorktree =
+    params.worktree ?? (await explicitWorkerWorkspace(runtime, db, terminal))
   const createsWorktree = requestedWorktree === 'new-child' || requestedWorktree === 'new-top-level'
   const creationTargetFor = (callerWorktreeId: string) =>
     resolveWorkerWorktreeCreationTarget({
       runtime,
       requestedWorktree,
       repo: params.repo,
-      callerWorktreeId
+      callerWorktreeId,
+      crossStoreParent: params.crossStoreParent
     })
+  const coordinatorWorktreeId = await resolveDispatchCallerWorktreeId(
+    runtime,
+    params.from,
+    callerSession
+  )
   const { agent, launch, fastWorkspace, fastWorkerMode } = await preflightLocalWorkerStartLaunch({
     params,
     runtime,
@@ -80,11 +90,6 @@ export async function startLocalWorker(args: {
     mode: args.mode
   })
 
-  const coordinatorWorktreeId = await resolveDispatchCallerWorktreeId(
-    runtime,
-    params.from,
-    callerSession
-  )
   const creationTarget = createsWorktree
     ? await creationTargetFor(coordinatorWorktreeId)
     : undefined
@@ -170,10 +175,11 @@ export async function startLocalWorker(args: {
       params,
       requestedWorktree,
       creationTarget,
+      orchestrationRunId: run.id,
       resolvedWorktree,
       mode,
       agent,
-      launchPreferences: launch.preferences,
+      launch,
       effects,
       onStage,
       followUp: args.followUp
@@ -227,7 +233,7 @@ export async function startLocalWorker(args: {
         }
         throw new Error(
           wait.blockedReason
-            ? `Agent startup blocked: ${describeTerminalWaitBlockedReason(wait.blockedReason)}`
+            ? await agentStartupBlockedMessage(runtime, terminalHandle, wait.blockedReason)
             : structuredSession
               ? `Setup did not finish before the structured worker started (${wait.status}).`
               : `Agent did not become ready (${wait.status}).`
@@ -263,7 +269,7 @@ export async function startLocalWorker(args: {
       agent: agent ?? null,
       launchedAgent: external || workerChat ? null : (agent ?? null),
       setupReceipt,
-      launchReceipt: launch.receipt,
+      launchReceipt: placed.launch,
       mode,
       timeoutMs: params.timeoutMs ?? 60_000,
       readinessDeadline,
@@ -282,20 +288,18 @@ export async function startLocalWorker(args: {
       failedStage,
       error,
       setup: placed?.setupReceipt ?? EXISTING_WORKTREE_SETUP,
-      launch: launch.receipt,
+      launch: placed?.launch ?? launch.receipt,
       mode
     })
   }
-  if (
-    !params.terminal &&
-    terminalHandle &&
-    result &&
-    typeof result === 'object' &&
-    'state' in result &&
-    result.state === 'ready'
-  ) {
+  const state = result && typeof result === 'object' && 'state' in result ? result.state : null
+  // An unknown outcome with an agent launched may yet be a running worker: a bot records it, with no
+  // card. One that failed before any agent (a lost worktree reply) is no worker at all.
+  if (!params.terminal && terminalHandle && (state === 'ready' || state === 'outcome_unknown')) {
     recordStart({
+      ready: state === 'ready',
       dispatchId: started.dispatch.id,
+      taskId: task.id,
       workerAddress: terminalHandle,
       task: task.spec,
       agent: agent ?? null,

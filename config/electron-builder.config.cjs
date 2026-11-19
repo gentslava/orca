@@ -96,6 +96,10 @@ const {
   buildMacShipItScheduling
 } = require('./scripts/desktop-distribution/macos/macos-shipit-scheduling.cjs')
 
+const {
+  buildMacNativeAddon
+} = require('./scripts/desktop-distribution/macos/build-macos-native-addon.cjs')
+
 // Dev channels need release bundle ID/signature/notarization so Squirrel.Mac accepts updates and macOS retains app identity.
 const isMacHourly = process.env.ORCA_MAC_HOURLY === '1'
 const isMacDaily = process.env.ORCA_MAC_DAILY === '1'
@@ -170,6 +174,11 @@ const emojiShortcodeDatasetResource = {
   to: 'node_modules/emojibase-data/en/shortcodes/emojibase.json'
 }
 const commonExtraResources = [
+  {
+    from: 'node_modules/node-pty/build/Release',
+    to: 'bin',
+    filter: ['journal-file-lock', 'journal-file-lock.exe']
+  },
   relayExtraResource,
   orcadTemplateExtraResource,
   orcadTemplateNodeModulesExtraResource,
@@ -367,15 +376,15 @@ module.exports = {
     'out/main/skills/bundled-skill-install/bundled-skill-local-host.js',
     'out/main/skills/bundled-skill-install/bundled-skill-installation.js',
     'out/main/startup/network-compatibility/http1-compatibility-marker.js',
-    // `orca uninstall` runs the app's cleanup in the CLI process.
-    'out/main/uninstall/orca-{install-identity,uninstall-cleanup}.js',
-    'out/main/cli/cli-installer.js',
+    // `orca agent hooks` gives main hook code an app environment in the CLI process.
     'out/main/backend/node-service-environment.js',
     'out/main/daemon-entry.js',
     'out/main/session-scanner-service-entry.js',
     'out/main/wsl-transcript-fs-process-entry.js',
     'out/main/foreign-sqlite-reader-entry.js',
     'out/main/agent-identity-worker-entry.js',
+    'out/main/bots-db-worker-entry.js',
+    'out/main/session-link-worker-entry.js',
     'out/main/session-search-worker-entry.js',
     'out/main/journal-sql-worker-entry.js',
     'out/main/journal-sql-reader-entry.js',
@@ -422,6 +431,17 @@ module.exports = {
     if (context.electronPlatformName !== 'win32') {
       ensureProviderExec(context.electronPlatformName, context.arch)
     }
+    return import('./scripts/native-build/build-journal-file-lock.mjs').then(
+      ({ buildJournalFileLock }) => {
+        const lockName =
+          context.electronPlatformName === 'win32' ? 'journal-file-lock.exe' : 'journal-file-lock'
+        buildJournalFileLock(
+          join(__dirname, '..', 'node_modules', 'node-pty', 'build', 'Release', lockName),
+          context.arch === 3 ? 'arm64' : 'x64',
+          { glibcFloor: context.electronPlatformName === 'linux' ? 'desktop' : false }
+        )
+      }
+    )
   },
   afterPack: async (context) => {
     const resourcesDir =
@@ -459,6 +479,13 @@ module.exports = {
       const architecture = macSliceArch(context.arch, 'local-build compatibility')
       const schedulingAddon = buildMacShipItScheduling(resourcesDir, architecture)
       await signMacStandaloneHelper(schedulingAddon, 'ShipIt scheduling', context.packager)
+      const menuDeadKeyAddon = buildMacNativeAddon(
+        resourcesDir,
+        architecture,
+        'macos-menu-dead-key',
+        'orca_menu_dead_key.node'
+      )
+      await signMacStandaloneHelper(menuDeadKeyAddon, 'Menu dead-key guard', context.packager)
       const version = context.packager.appInfo.version
       let commit = process.env.ORCA_BUILD_COMMIT || process.env.GITHUB_SHA || 'unknown'
       if (commit === 'unknown') {
@@ -552,6 +579,11 @@ module.exports = {
     })
     chmodUnixCliLaunchers(resourcesDir, context.electronPlatformName)
     if (context.electronPlatformName === 'darwin') {
+      await signMacStandaloneHelper(
+        join(resourcesDir, 'bin', 'journal-file-lock'),
+        'journal file lock',
+        context.packager
+      )
       await signMacComputerUseHelper(join(resourcesDir, 'Orca Computer Use.app'), context.packager)
       await signMacStandaloneHelper(
         join(resourcesDir, '..', 'MacOS', 'orca-notification-status'),

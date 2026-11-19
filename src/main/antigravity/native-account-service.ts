@@ -23,6 +23,7 @@ import {
 } from './native-credential-codec'
 import { fetchGoogleIdentity } from './google-userinfo-identity'
 import { expireAntigravityHostAcpChecks } from './antigravity-host-acp'
+import { AntigravityRewrittenLoginIdentity } from './native-account-rewritten-login'
 import type {
   AntigravityAccountStore,
   AntigravityAccountVault,
@@ -56,6 +57,9 @@ function matches(
 
 export class AntigravityAccountService {
   private mutation: Promise<unknown> = Promise.resolve()
+  private readonly rewrittenLogins = new AntigravityRewrittenLoginIdentity(
+    () => this.lookupIdentity
+  )
 
   constructor(
     private readonly store: AntigravityAccountStore,
@@ -244,7 +248,11 @@ export class AntigravityAccountService {
   }
 
   private async reconcile(selectedId?: string) {
-    const current = await this.backend.read()
+    const current = await this.rewrittenLogins.identify(
+      await this.backend.read(),
+      this.store.read().accounts,
+      (account, login) => this.matches(account, login)
+    )
     // Re-read after native I/O so a delayed read never restores an older vault.
     const vault = this.store.read()
     if (selectedId !== undefined) {

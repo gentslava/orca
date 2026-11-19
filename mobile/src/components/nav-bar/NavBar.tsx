@@ -207,10 +207,12 @@ const styles = themedStyleSheet(() => ({
     width: '100%',
     opacity: 0.45
   },
-  // Equal sides keep the title centred whatever the buttons on either side.
+  // Equal sides keep the title centred whatever the buttons on either side; the floor fits two
+  // buttons, so a long title truncates instead of covering them.
   side: {
     flex: 1,
     flexBasis: 0,
+    minWidth: NAV_BAR_BUTTON_SIZE * 2 + spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm

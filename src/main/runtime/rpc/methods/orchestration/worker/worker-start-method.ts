@@ -20,8 +20,6 @@ import {
 import { parseTaskDeps } from './start/admission/task-deps-argument'
 import { WorkerStartParams } from '../../../../../../shared/rpc-contract/orchestration/orchestration-worker-start-params'
 import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
-import { FederationWorkerLaunchParams } from '../../../../../../shared/rpc-contract/orchestration/orchestration-federation-start-params'
-import { prepareFederationWorkerLaunchOnHost } from './start/launch/worker-opencode-model-preflight'
 import {
   isWorkerStartTimeoutWithinTimerLimit,
   resolveWorkerStartReadinessTimeoutMs
@@ -31,6 +29,7 @@ import { assertWorkerStartTaskSpecWithinPromptBudget } from './start/admission/w
 import { ORCA_SESSION_ADDRESS_PREFIX } from '../../../../../../shared/agent-session/identity/orca-session-address-prefix'
 import { ORCHESTRATION_SESSION_CALLER_ERROR_CODES as SESSION_CODES } from '../../../../../../shared/orchestration/orchestration-session-caller-codes'
 import { resolveDispatchCreator } from '../runs/dispatch-creator'
+import { checkedWorkerOrigin } from '../../bots-items-worker-origin'
 
 type WorkerStartContext = Pick<
   RpcContext,
@@ -58,26 +57,6 @@ export const ORCHESTRATION_WORKER_START_METHODS = [
     permission: 'workspace',
     params: WorkerStartParams,
     handler: async (params, ctx) => startWorker(params, ctx)
-  }),
-  defineOrchestrationMethod({
-    name: 'orchestration.workerLaunchPreflight',
-    access: { kind: 'reads', targets: { terminal: 'worker' } },
-    permission: 'workspace',
-    params: FederationWorkerLaunchParams,
-    handler: async (params, { runtime }) => {
-      if (params.worktree === 'current' || params.worktree === 'new-child') {
-        throw new OrchestrationError(
-          'invalid_argument',
-          'Remote launch preflight requires an exact worktree selector or new-top-level.'
-        )
-      }
-      const { launch } = await prepareFederationWorkerLaunchOnHost({
-        params,
-        createsWorktree: params.worktree === 'new-top-level',
-        runtime
-      })
-      return { launch: { ...launch.receipt, effective: null } }
-    }
   })
 ]
 
@@ -88,7 +67,22 @@ export async function startWorker(
   startFollowUp?: WorkerFollowUp
 ): Promise<unknown> {
   const { runtime, orchestrationMutation, orchestrationCaller } = ctx
-  const prepared = await prepareWorkerStart(startParams, ctx, startFollowUp)
+  if (startParams.origin !== undefined && startParams.on) {
+    throw new OrchestrationError(
+      'invalid_argument',
+      'worker-start --item starts workers on this computer, where the item is. No effects were applied.',
+      { effectsApplied: false }
+    )
+  }
+  const checked =
+    startParams.origin !== undefined
+      ? await checkedWorkerOrigin(startParams.origin, ctx)
+      : undefined
+  const prepared = await prepareWorkerStart(
+    checked ? { ...startParams, origin: checked.origin } : startParams,
+    ctx,
+    startFollowUp
+  )
   const { params, followUp, coordinator, bindRun, helperCreator, taskDeps, existingTask, withRun } =
     prepared
   const db = runtime.getOrchestrationDb()
@@ -126,7 +120,10 @@ export async function startWorker(
     followUp
   })
   await stopHelperAfterStart(runtime, receipt, orchestrationMutation)
-  return withRun(withWorkerStartNext(receipt))
+  const started = withRun(withWorkerStartNext(receipt))
+  return checked && started && typeof started === 'object'
+    ? { ...started, linkedItem: checked.linkedItem }
+    : started
 }
 
 /** What every start checks and binds before it is placed, here or on a paired server. */
@@ -176,9 +173,21 @@ export async function prepareWorkerStart(
   }
   const placement = params.worktree ?? 'current'
   if (
+    params.crossStoreParent &&
+    (orchestrationCaller?.kind !== 'peer' || placement !== 'new-child')
+  ) {
+    throw new OrchestrationError(
+      'invalid_argument',
+      "Only the paired Orca coordinating a Run names its own workspace as a new-child's parent. No effects were applied.",
+      { effectsApplied: false }
+    )
+  }
+  // A paired Orca's new-child nests under its own workspace, named by the parent it sends.
+  if (
     orchestrationCaller?.kind === 'peer' &&
     !followUp &&
     !params.terminal &&
+    !params.crossStoreParent &&
     /^(current|new-child)$/.test(placement)
   ) {
     throw new OrchestrationError(

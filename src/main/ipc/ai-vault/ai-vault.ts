@@ -18,6 +18,7 @@ import type { AiVaultDeleteSessionArgs } from '../../../shared/ai-vault/contract
 
 import {
   AI_VAULT_SCOPE_PATHS_MAX_COUNT,
+  AI_VAULT_SINGLE_HOST_LIST_TIMEOUT_MS,
   isAiVaultScanCancelledError,
   type AiVaultFirstUserPromptArgs,
   type AiVaultListArgs,
@@ -34,7 +35,7 @@ import {
   toRuntimeExecutionHostId,
   type ExecutionHostId
 } from '../../../shared/execution-host/execution-host'
-import { createSenderScopedRequestCancellations } from '../sender-scoped-request-cancellation'
+import { createSenderScopedRequestCancellations } from '../renderer-requests/sender-scoped-request-cancellation'
 import { discoverAiVaultHosts, type AiVaultHostDiscoveryResult } from './ai-vault-host-discovery'
 import {
   scanRuntimeAiVaultSessions,
@@ -125,10 +126,7 @@ async function listAiVaultSessions(
     ...(args?.scopeOnly === true ? { scopeOnly: true } : {})
   })
   const depth = requestedAiVaultSessionDepth(args)
-  const afterFingerprint =
-    parseRoutableExecutionHostId(executionHostScope)?.kind === 'runtime'
-      ? args?.afterFingerprint
-      : undefined
+  const afterFingerprint = parsedHost?.kind === 'runtime' ? args?.afterFingerprint : undefined
   // Why: every renderer request carries its own cancellation signal, so
   // coalescing has to survive them — the coordinator hands all same-key callers
   // one scan and only aborts it once every one of them has cancelled.
@@ -215,7 +213,7 @@ async function scanAiVaultSessionsByHostScope(
       },
       scanner: handlerOptions.scanRuntimeAiVaultSessions,
       listArgs: args,
-      options: { signal }
+      options: { signal, responseTimeoutMs: AI_VAULT_SINGLE_HOST_LIST_TIMEOUT_MS }
     })
   }
 
