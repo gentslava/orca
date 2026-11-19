@@ -14,6 +14,7 @@ import {
 import { createRestartSession } from '../../../desktop/electron-fixtures/orca-restart'
 import { readFreshTerminalInventory } from '../../../terminal/layout/terminal-inventory-observation'
 import type { RuntimeTerminalListResult } from '../../../../../src/shared/terminal/runtime/runtime-terminal-contracts'
+import { openWorkspaceStartTerminal } from '../../../workspaces/lifecycle/workspace-start-terminal'
 
 function seededRepoPathOrSkip(): string {
   const repoPath = existsSync(TEST_REPO_PATH_FILE)
@@ -108,6 +109,7 @@ test('removing a project from a paired client stops its shells on the host', asy
       state?.setActiveView('terminal')
       state?.setActiveWorktree(id)
     }, worktreeId)
+    await openWorkspaceStartTerminal(paired.page)
     let handle: string | undefined
     await expect
       .poll(
