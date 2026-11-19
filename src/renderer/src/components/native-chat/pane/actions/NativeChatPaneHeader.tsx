@@ -1,3 +1,5 @@
+import type { RuntimeClientTarget } from '../../../../../../shared/remote-runtime/host-catalog/runtime-client-target'
+import { SessionLinkControl } from '../../SessionLinkControl'
 import { Fragment } from 'react'
 import { MessageSquarePlus, SquareSplitVertical } from 'lucide-react'
 import { ShortcutKeyCombo } from '@/components/ui/ShortcutKeyCombo'
@@ -28,7 +30,8 @@ export function NativeChatPaneHeader({
   nativeChat,
   focused,
   colorScheme,
-  handOff
+  handOff,
+  target
 }: {
   tabId: string
   worktreeId: string
@@ -37,6 +40,7 @@ export function NativeChatPaneHeader({
   focused: boolean
   colorScheme: React.CSSProperties['colorScheme']
   handOff?: NativeChatHeaderHandOff
+  target?: RuntimeClientTarget
 }): React.JSX.Element {
   const t = useTranslate()
   const actions = useStructuredChatPaneActions(tabId, worktreeId, groupId)
@@ -59,6 +63,9 @@ export function NativeChatPaneHeader({
       style={HEADER_STYLE}
     >
       <div className="pane-title-actions ml-auto flex shrink-0 items-center gap-0">
+        {nativeChat.sessionId && target ? (
+          <SessionLinkControl sessionId={nativeChat.sessionId} target={target} />
+        ) : null}
         {handOff && focused ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -141,6 +148,7 @@ export function nativeChatPaneHeader(
     | 'isVisible'
     | 'isFocusedGroup'
     | 'contextMenuActions'
+    | 'target'
   >,
   worktreeId: string | null,
   colorScheme: React.CSSProperties['colorScheme'],
@@ -152,6 +160,7 @@ export function nativeChatPaneHeader(
       worktreeId={worktreeId}
       groupId={view.groupId}
       nativeChat={{ sessionId: view.sessionId, agent: view.agent }}
+      target={view.target}
       focused={view.isFocusedGroup}
       colorScheme={colorScheme}
       handOff={
