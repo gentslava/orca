@@ -53,6 +53,11 @@ export type SessionOptionDescriptor = {
   disabledReason?: SessionOptionDisabledReason
   /** Active value when a saved selection intentionally waits for a later input. */
   activeValue?: string
+  /** A reset action, separate from catalog model IDs. Absent on older hosts and PTY surfaces. */
+  defaultChoice?: { selected: boolean; model?: SessionOptionSelectChoice }
+  /** Execution label for Default only; never a picker choice or send option. */
+  reportedModel?: string
+  reportedModelLabel?: string
   /** Picker-only/flip-only PTY commands need action rows rather than invented absolute control states. */
   action?: { type: 'agent-picker' | 'toggle-command' }
 }
@@ -117,6 +122,7 @@ export type NativeChatSessionOptionSettingsMutation =
       sessionId?: string
     }
   | { type: 'clear-model-if-missing'; agent: AgentType; availableModelIds: readonly string[] }
+  | { type: 'clear-model'; agent: AgentType }
 
 /** The chat host's own CLI is behind its latest release, which may list models this one lacks. */
 export type SessionOptionsCliUpdate = {
@@ -128,6 +134,7 @@ export type SessionOptionsCliUpdate = {
 }
 
 export type SessionOptionsSurface = {
+  resetOption?: (id: string) => Promise<SessionOptionSetResult>
   demandModelCatalog?: () => void
   /** Absent while the user's own CLI is current, and for Orca's own copy. */
   cliUpdate?: SessionOptionsCliUpdate
