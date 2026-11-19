@@ -3,6 +3,7 @@ import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPane
 import { useNativeChatHandOff } from './pane/actions/use-native-chat-hand-off'
 import { useNativeChatStructuredPaneNotices } from '@/components/native-chat/messages/notices/use-native-chat-structured-pane-notices'
 import { useNativeChatPaneFork } from '@/components/native-chat/messages/actions/use-native-chat-fork'
+import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
 import { useRef, useState } from 'react'
 import { structuredAgentSessionPaneKey } from '../../../../shared/agent-session/view/structured-agent-session-projection'
 import { NativeChatComposer } from './composer/NativeChatComposer'
@@ -253,7 +254,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
     hostSendGate,
     hostNotice: botServerDown ? null : hostNotice
   })
-  return (
+  const content = (
     <NativeChatSlackMirrorContext.Provider value={slackMirror}>
       <NativeChatChildNavigationContext.Provider value={childNavigator.navigation}>
         <NativeChatSurface surface={surface} working={controller.isWorking}>
@@ -400,4 +401,5 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
       </NativeChatChildNavigationContext.Provider>
     </NativeChatSlackMirrorContext.Provider>
   )
+  return nativeChatForegroundTasks(props.sessionId, controller, content)
 }
