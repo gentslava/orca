@@ -21188,8 +21188,7 @@
         "forkedFromUnknown": "Forked from another chat"
       },
       "composer": {
-        "defaultModel": "Default",
-        "defaultModelNotReported": "Default model not reported",
+        "confirmEscapeStop": "Press Esc again to stop",
         "send": "Send",
         "planMode": "Plan",
         "moreControls": "More chat controls",
@@ -21332,6 +21331,8 @@
         "permissionAppliesNextMessage": "{{saved}} applies to your next message; running {{active}}",
         "modelAndEffortValue": "{{model}} · {{effort}}",
         "modelAndEffort": "Model and effort",
+        "defaultModel": "Default",
+        "defaultModelNotReported": "Default model not reported",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
         "nextTurnOptionsLabel": "Next turn: {{options}}",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
