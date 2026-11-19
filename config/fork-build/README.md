@@ -264,4 +264,6 @@ Nine combination records were re-recorded, as described in the merge-resolutions
 
 The relay two-path failover test that failed on PR 88 is an upstream flake, fixed by upstream 44236 in this pin. No selected PR touches the relay.
 
+The changed e2e specs on this composition failed `bot-automation-result-note.spec.ts`, which fails the same way on plain upstream 7ade3e9b7718. Upstream 44417 turned the automation result note into a status row named `Scheduled · Morning digest · Finished`, but the spec still looks for `Morning digest. Finished`. `composed-ci-contracts.patch` follows the new row name until upstream updates the spec. No selected PR touches the row or the spec.
+
 Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, and the blocking-helper ratchet with no baseline rows. Lint passes except the test-runner list check, which needs the control files. The composed regression suites pass: 180 desktop with 1 skipped, and 32 mobile.
