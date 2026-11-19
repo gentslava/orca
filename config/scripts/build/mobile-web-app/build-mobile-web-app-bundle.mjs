@@ -1,3 +1,4 @@
+import { minifyLargeMobileWebScripts } from './minify-large-mobile-web-scripts.mjs'
 import { readFile, readdir } from 'node:fs/promises'
 import { readRouteSnapshot } from '../../mobile-web-app/mobile-web-app-route-snapshot.mjs'
 import { MOBILE_WEB_APP_DEPENDENCY_PATH } from '../../mobile-web-app/mobile-web-app-bundle-dependencies.mjs'
@@ -557,7 +558,9 @@ export async function bundleMobileWebApp({ appDir = defaultAppDir } = {}) {
   const result = await buildMobileWebAppScripts(routes)
   assertNoZodLocaleTables(result.metafile)
   const entryOutputPath = entryOutput(result.metafile)
-  const renamed = renameOutputsByContent(result.metafile, result.outputFiles)
+  const catalogOutputs = localeCatalogOutputs(result.metafile)
+  const outputFiles = await minifyLargeMobileWebScripts(result.outputFiles, catalogOutputs)
+  const renamed = renameOutputsByContent(result.metafile, outputFiles)
   const entry = renamed.get(basename(entryOutputPath))
   const byName = (left, right) => (left.name < right.name ? -1 : 1)
   const others = [...renamed.entries()]
@@ -568,7 +571,6 @@ export async function bundleMobileWebApp({ appDir = defaultAppDir } = {}) {
   const chunks = others.filter(({ emittedName }) => isScriptOutput(emittedName)).sort(byName)
   const images = others.filter(({ emittedName }) => !isScriptOutput(emittedName)).sort(byName)
   const closure = entryStaticClosure(result.metafile, entryOutputPath)
-  const catalogOutputs = localeCatalogOutputs(result.metafile)
   return {
     script: entry.bytes,
     chunks,

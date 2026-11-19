@@ -3,7 +3,7 @@
  * ~/.claude first, as the desktop's launches into the distro do. Without it the folder stays as it
  * was when the account was added: Claude replays its first-run screens and misses settings changes.
  */
-import { existsSync } from 'node:fs'
+import { access } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { posix } from 'node:path'
 import type { HostAccountLaunchEnv } from '../../../shared/agent-launch/startup/host-account-launch-env'
@@ -25,13 +25,19 @@ export function createWslHostClaudeProfileRefresh(
   args: {
     userHome?: string
     provision?: Provision
-    hasMarker?: (markerPath: string) => boolean
+    hasMarker?: (markerPath: string) => boolean | Promise<boolean>
     waitMs?: number
   } = {}
 ): (launchEnv: HostAccountLaunchEnv) => Promise<void> {
   const userHome = args.userHome ?? homedir()
   const provision = args.provision ?? provisionWslClaudeAccountProfile
-  const hasMarker = args.hasMarker ?? existsSync
+  const hasMarker =
+    args.hasMarker ??
+    ((path) =>
+      access(path).then(
+        () => true,
+        () => false
+      ))
   const running = new Map<string, Promise<void>>()
 
   return async (launchEnv) => {
@@ -49,7 +55,7 @@ export function createWslHostClaudeProfileRefresh(
     }
     // Why both: only Orca's own folder for this account is rewritten, and only one the desktop
     // already set up; a missing folder is the desktop's to create when the account is added.
-    if (profile.home !== configDir || !hasMarker(claudeProfileMarkerPath(profile))) {
+    if (profile.home !== configDir || !(await hasMarker(claudeProfileMarkerPath(profile)))) {
       return
     }
     let refresh = running.get(accountId)
