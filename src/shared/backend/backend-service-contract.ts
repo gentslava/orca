@@ -69,6 +69,7 @@ export const BACKEND_CAPABILITIES = [
   'usage',
   'usage.catalog',
   'usage.claudeProfileDirs',
+  'usage.accountRoots',
   'usage.telemetry'
 ] as const
 
