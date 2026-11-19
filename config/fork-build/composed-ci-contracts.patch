@@ -437,3 +437,17 @@ index c9c466894b2..5c357d0e684 100644
      await expect(note).toBeVisible({ timeout: 30_000 })
      await note.click()
      await expect(chat.getByText(/hasn't read this yet/)).toBeVisible()
+diff --git a/tests/e2e/integrations/bots/bot-item-view-width.spec.ts b/tests/e2e/integrations/bots/bot-item-view-width.spec.ts
+index 1c7ffa12813..a9240a1293c 100644
+--- a/tests/e2e/integrations/bots/bot-item-view-width.spec.ts
++++ b/tests/e2e/integrations/bots/bot-item-view-width.spec.ts
+@@ -137,7 +137,7 @@ test('an item with an open question lays out within the bot panel', async ({
+     view: node.querySelector('fieldset')!.getBoundingClientRect().width
+   }))
+   expect(widths.view).toBeLessThanOrEqual(widths.pane)
+-  const reply = await pane.getByRole('button', { name: 'Reply' }).boundingBox()
++  const submit = await pane.getByRole('button', { name: 'Comment', exact: true }).boundingBox()
+   const box = await pane.boundingBox()
+-  expect(reply!.x + reply!.width).toBeLessThanOrEqual(box!.x + box!.width)
++  expect(submit!.x + submit!.width).toBeLessThanOrEqual(box!.x + box!.width)
+ })
