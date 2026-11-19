@@ -58,7 +58,7 @@ export const NativeChatPromptEditor = memo(
 function NativePromptEditor({
   scopeKey,
   positionTarget,
-  imageRow = NO_IMAGES,
+  imageRow,
   inputRef,
   isComposing = NOT_COMPOSING,
   initialValue,
@@ -69,9 +69,11 @@ function NativePromptEditor({
   className,
   ...events
 }: NativeChatPromptEditorProps): React.JSX.Element {
+  // Only an editor given its image row holds image chips; chat keeps images in its tray.
+  const imageChips = imageRow !== undefined
   const adopted = useRef(readNativeChatDraftSnapshot(scopeKey, initialValue))
   const [initialContent] = useState(() =>
-    openingPromptContent(adopted.current?.document, initialValue)
+    openingPromptContent(adopted.current?.document, initialValue, imageChips)
   )
   const spellcheck = useAppStore((s) => s.settings?.nativeChatComposerSpellcheck !== false)
   const claimSelection = () => {
@@ -102,7 +104,9 @@ function NativePromptEditor({
         trailingNode: false
       }),
       NativeChatAgentReference,
-      ...nativeChatPromptPills,
+      ...nativeChatPromptPills.filter(
+        (pill) => imageChips || pill.name !== NativeChatImageReference.name
+      ),
       NativeChatUnkernedRunDecorations,
       NativeChatHardBreakParagraphs,
       // A disabled box still says why it is disabled, as the plain text box's placeholder does.
@@ -137,7 +141,7 @@ function NativePromptEditor({
         if (text == null) {
           return false
         }
-        const content = editor?.schema.nodeFromJSON(promptTextContent(text))
+        const content = editor?.schema.nodeFromJSON(promptTextContent(text, imageChips))
         if (!content) {
           return false
         }
@@ -250,7 +254,7 @@ function NativePromptEditor({
         ? {
             insertAgentReferences: (references) => insertAgentReferences(editor, references),
             insertText: (text) => {
-              const content = editor.schema.nodeFromJSON(promptTextContent(text))
+              const content = editor.schema.nodeFromJSON(promptTextContent(text, imageChips))
               editor.view.dispatch(
                 editor.state.tr.replaceSelection(new Slice(content.content, 1, 1))
               )
@@ -272,7 +276,9 @@ function NativePromptEditor({
               adopted.current = readNativeChatDraftSnapshot(scopeKey, value)
               const stored = adopted.current?.document
               if (stored || !value) {
-                editor.commands.setContent(openingPromptContent(stored, ''), { emitUpdate: false })
+                editor.commands.setContent(openingPromptContent(stored, '', imageChips), {
+                  emitUpdate: false
+                })
                 applyPosition(previousRange)
                 return
               }
@@ -294,7 +300,7 @@ function NativePromptEditor({
               start = promptTextOffset(doc, from)
               end = old.length - promptTextOffset(doc, to)
               const content = editor.schema.nodeFromJSON(
-                promptTextContent(value.slice(start, value.length - end))
+                promptTextContent(value.slice(start, value.length - end), imageChips)
               )
               editor.commands.command(({ tr }) => {
                 tr.replaceRange(from, to, new Slice(content.content, 1, 1))
@@ -393,14 +399,14 @@ function NativePromptEditor({
             }
           }
         : null,
-    [editor, scopeKey, applyPosition]
+    [editor, scopeKey, applyPosition, imageChips]
   )
   useNativeChatPromptEditorHandle(inputRef, editor, input)
   useNativeChatComposerMount(scopeKey ?? '', input, isComposing, disabled)
 
   return (
     <NativeChatPastedTextScopeProvider value={scopeKey ?? ''}>
-      <NativeChatImageRowProvider value={imageRow}>
+      <NativeChatImageRowProvider value={imageRow ?? NO_IMAGES}>
         <EditorContent
           editor={editor}
           {...events}
