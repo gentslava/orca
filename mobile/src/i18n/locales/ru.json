@@ -142,9 +142,7 @@
       "openImageHint": "Открывает изображение в полном размере"
     },
     "agentMessage": {
-      "sessionLink": "Связь",
-      "handedOffToAgent": "Передано агенту",
-      "startedAgent": "Агент запущен"
+      "sessionLink": "Связь"
     },
     "tool": {
       "activity": "Активность"
@@ -1115,6 +1113,7 @@
       "providerUnavailable": "{{agent}} не смог ответить, поскольку сервис занят. Выберите другую модель или немного подождите и отправьте сообщение снова.",
       "providerSafetyStopped": "{{agent}} остановил этот ответ после проверки безопасности. Проверьте запрос и отправьте его снова.",
       "providerResponseFailed": "{{agent}} не удалось завершить этот ответ. Откройте подробности, чтобы узнать больше.",
+      "providerResponseFailedQuoted": "{{agent}} не удалось завершить этот ответ: {{detail}}.",
       "selectedModel": "выбранную модель",
       "providerRejected": "{{agent}} не принял это сообщение.",
       "providerRejectedQuoted": "{{agent}} не принял это сообщение: {{detail}}.",

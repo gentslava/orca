@@ -270,3 +270,36 @@ The changed e2e specs on this composition failed two upstream specs that fail th
 - Upstream 44421 removed the Reply button from a bot item's open question, but `bot-item-view-width.spec.ts` still measures it. The spec now checks the comment box's submit button, which is the pane's rightmost control.
 
 Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, and the blocking-helper ratchet with no baseline rows. Lint passes except the test-runner list check, which needs the control files. The composed regression suites pass: 180 desktop with 1 skipped, and 32 mobile.
+
+## Refresh on upstream 0bd39bd4dcce (2026-11-19)
+
+The pin moved from 7ade3e9b7718 to 0bd39bd4dcce, upstream main 113 commits later. Terminal daemon protocol is 60 on both sides, so no protocol adoption is needed. The plan resolves 70 changes: upstream supplies 29 and the fork composes 41. All eleven package outputs remain required.
+
+Selection changes:
+
+- 44450 (parked phone reader, from 33576), 44452 (mobile subagent view) and 44655 (Activity rows name the project) are selected. 33576 is stacked on 44450 (`"33576": [44450]`): its branch merges 44450, keeps 44450's place-keeper anchor unchanged and runs its own window update before it, so the two compose without a recorded resolution. 33576 keeps the rest of its phone reader: history-fold retention, reading place, waiting rows, the reader toggle, page list, tail follow and the touch growth hold, which builds on upstream 36949.
+- 44451 (desktop Default slice of 33395) stays held. A restack of 33395 onto it was prepared but not published, because it changes 33395 behaviour: an accepted reset clears the new-chat model even after the view moved, the desktop Default row loses its model description, the mobile picker no longer forces the model row settable or says "Default model not reported", and an unstarted Default chat no longer snapshots the configured default. 33395 composes from its own head merged with the pin until the owner decides.
+- 44768 is held: it is based on upstream db07b71ab7c, newer than this pin.
+- `seed` gains 44450, 44451, 44452 and 44655. During this refresh GitHub search and the PR list returned only 13 of the owner's open PRs, which would otherwise hide new PRs from planning.
+
+Nine branches conflicted with the pin and were merged with it in their own branches, feature first:
+
+- 33363 and 33512 keep both sides' new translation keys.
+- 33371 keeps its own host scope in Stats & Usage; upstream's checking state belongs to the wrapper 33371 replaced.
+- 33395 keeps its model-default reset beside upstream's CLI-update catalog hook.
+- 33576 carries upstream's merged quiet rows into its waiting-rows module.
+- 34895 follows upstream 44423, where each subagent is one status row: the open button falls back to child navigation, and worker rows keep their state label and details.
+- 37744 keeps upstream's orchestration-reader worker beside its session-link worker in every build list, and shows the link title on upstream 44440's phone status rows and queued senders.
+- 41166 keeps the mobile failure copy out of the runtime catalog; mobile reads the shared defaults, which upstream also extended.
+- 44452 adds the open action to upstream 44440's subagent rows, moves its state helpers into its own module and stays within the controller's 300-line limit.
+
+The 40298 integration branch merges the foreign author's new head (0dce50cb31d7), which requires the stored pairing to match before a rename writes back.
+
+Four new combination records: three for 44452 beside 38963 (overlay host, background task strip, row overlays host) and one for 33395's options hook beside 33362, which replaces `refresh-7ade-33395-1`. 44 records remain.
+
+Overlay changes:
+
+- `preview-updater-guard.patch` also blocks upstream 44541's automatic download, install and setting re-apply in fork previews.
+- `composed-source-modules.patch` prunes the three compiler baseline rows the composition improves: the confirmation dialog (now 3 upstream), the link routing preference dialog and 44655's trimmed hover card summary.
+- `composed-source-modules.patch` also moves the queued-message composer value into a hook beside its context. 38963's foreground task provider and 44452's subagent view together put the phone chat overlay over its 400-line limit; each fits alone.
+- `composed-ci-contracts.patch` keeps both e2e spec adaptations; upstream has not updated those specs by this pin.

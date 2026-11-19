@@ -48,42 +48,6 @@
     "reason": "Preserve structured-session projection and bounded previews with selected-session cache and RPC scope."
   },
   {
-    "path": "mobile/src/session/native-chat/input/session-options/native-chat-session-option-copy.ts",
-    "blobs": [
-      "92ed5716ccbe5ea695477ea5386bf005ba75a051",
-      "499f252c007a2a0824a198977bc0447cb6aa02ad",
-      "b33fb60742a4726a1e932be52f39d1c98aeb22bd"
-    ],
-    "patch": "refresh18-pr-33395-3.patch",
-    "patchSha256": "f3c9488f456937e044628ac7e14d57b6e3e0469b0d95daf3e2eb3e3b6f93f402",
-    "resultSha256": "5ec7dfe9770e1c54aeba18ace7b9abd23dd00046b91a0524d98b81ac8918c66f",
-    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
-    "blobs": [
-      "1756c670cc72fd10fcb5caa459241bf22f6a5b67",
-      "bd3547775d47b01e842f69f533a804ca731ef2e7",
-      "22017dafcfe6887286ef512c75285ffa2051c39a"
-    ],
-    "patch": "refresh18-pr-33395-5.patch",
-    "patchSha256": "e8ef88e5e04ec009e4cc69b09f7768e6d74c2b67b519bb71a47234e9519ab3d2",
-    "resultSha256": "2790ca192bc06833dee3a58178223f007ab6e228935af4811e19af5450c36ec7",
-    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts",
-    "blobs": [
-      "79a3ff8c3473af32f32febc4b64e1e436da61da7",
-      "3bc8fb94936c414dd29210b297f7a57b0dc262c9",
-      "90ea9c82fec85720a2ec3f070f2a900b27e3dc6d"
-    ],
-    "patch": "refresh18-pr-33395-6.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "a4053a271c7e0da6155dc316f1af5f20130eb296b1ceb68ecb3e33e1233c9378",
-    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
-  },
-  {
     "path": "src/shared/native-chat/tools/native-chat-tool-line-label.ts",
     "blobs": [
       "4baf8d36cbbbd46d820e1ba93c251528ab442670",
@@ -420,30 +384,6 @@
     "reason": "Keep PR 33361's structured-session list contract and current upstream fields, and add PR 33383's selectedSessionId argument and includesStructuredSessions result flag."
   },
   {
-    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
-    "blobs": [
-      "324d4e3a9703707b4188459c32cbf0607c04dc10",
-      "fb740a38ebcc860388fcec8afbe772a682af88e5",
-      "20d4f8dcda28249af8f9610403e61994ef4e63be"
-    ],
-    "patch": "refresh-7ade-33395-0.patch",
-    "patchSha256": "fe091855ebee3d89ce2d7687c45b76319cb974431a8e4c3898e3de473e9b754d",
-    "resultSha256": "a46f3be2594b4ca5e85943f376f70a87e9ab8dc8566aeab52311c49327f2961b",
-    "reason": "Add PR 33395's model-default capability to the host support that PR 33362 extends with draft steering."
-  },
-  {
-    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
-    "blobs": [
-      "636e3bcc328f2ca756dc47ce95a5a50db135059c",
-      "2b46ae72ac16f8c03278ff9bf63b381d24fe5d37",
-      "1d0b810893a0c83296edadfd8c478fcd15f4437d"
-    ],
-    "patch": "refresh-7ade-33395-1.patch",
-    "patchSha256": "f80c61e42946ee57a5e91219d3b93dcfb97cb99566a6d4b1c6d127aa4c3f968d",
-    "resultSha256": "0efc807c7dfb0b74d909274e1ea7acfef49db6ebef8d623c06732881e71b737a",
-    "reason": "PR 33395's options hook already carries PR 33362's turn-pick lock and adds the model-default reset; keep it whole."
-  },
-  {
     "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
     "blobs": [
       "efeabe4ebc08f272722979430c043b0ca8038f61",
@@ -490,5 +430,101 @@
     "patchSha256": "318a4adee029c24761f507a5af43dd7d98f4f69c1e50c412d121f8ad94ae4921",
     "resultSha256": "e57062758622ea9769f2b9cc8a4c9edd24cde93f4cc25c5b25c0deda8f68f742",
     "reason": "Retain model-default reset in the searchable pinned mobile picker, on the model list and the other option pages, and keep the working-notice copy."
+  },
+  {
+    "path": "mobile/src/session/native-chat/MobileNativeChatOverlay.tsx",
+    "blobs": [
+      "37a6d3105249b6ffbce91ea9e23c411861d8e335",
+      "eb650fd0a13bf3f02f01c6edb0f16c72a09b489f",
+      "09524fe6fef90b71f6029dbcafe2cef559994d92"
+    ],
+    "patch": "refresh-0bd3-44452-0.patch",
+    "patchSha256": "b989019c230a5b2205f63ba93c96cdcb812c162b5eb23c3a72d6c109905732c8",
+    "resultSha256": "ed47083b6369040d079f41244f998019d1eac7f7c7ca5e860aae788388e9da6b",
+    "reason": "Open a subagent's view from its row and the background task strip beside the foreground task action, with the row overlays' image source kept first."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/tasks/MobileNativeChatBackgroundTasks.tsx",
+    "blobs": [
+      "f2da2622448973d5921458500f76bcfac1625665",
+      "184ccdd11f061f9f718123295c41f2a9c1d15cfe",
+      "77ff0480858480f47913f411512971c6a4250af0"
+    ],
+    "patch": "refresh-0bd3-44452-1.patch",
+    "patchSha256": "4acd23b9b69ed35da06e2abd1e7fe2c7c407c5ebca2a9cf2583fd2e135424693",
+    "resultSha256": "b8df35c0dbe339e5ab04d7626ed55b1d75bc1179e5b6aee9ef81284094b73f15",
+    "reason": "Open a subagent's view from its row and the background task strip beside the foreground task action, with the row overlays' image source kept first."
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx",
+    "blobs": [
+      "0af7d55fc152def8bff4d87bef584aca95cff0b6",
+      "c697fef438b14f940a489eb1cee08164e2683942",
+      "993f60f017b81d49941e17e48ef638e7816284a3"
+    ],
+    "patch": "refresh-0bd3-44452-2.patch",
+    "patchSha256": "24b72e79311d010d94f3f4833d78dce6e403fe9209bbf07447031f3d03811a47",
+    "resultSha256": "fb03041be4cfa384a22d4ebaad69d04df2786010314ffbd701e747db954768c6",
+    "reason": "Open a subagent's view from its row and the background task strip beside the foreground task action, with the row overlays' image source kept first."
+  },
+  {
+    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "324d4e3a9703707b4188459c32cbf0607c04dc10",
+      "fb740a38ebcc860388fcec8afbe772a682af88e5",
+      "20d4f8dcda28249af8f9610403e61994ef4e63be"
+    ],
+    "patch": "refresh-7ade-33395-0.patch",
+    "patchSha256": "fe091855ebee3d89ce2d7687c45b76319cb974431a8e4c3898e3de473e9b754d",
+    "resultSha256": "a46f3be2594b4ca5e85943f376f70a87e9ab8dc8566aeab52311c49327f2961b",
+    "reason": "Add PR 33395's model-default capability to the host support that PR 33362 extends with draft steering."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/session-options/native-chat-session-option-copy.ts",
+    "blobs": [
+      "92ed5716ccbe5ea695477ea5386bf005ba75a051",
+      "499f252c007a2a0824a198977bc0447cb6aa02ad",
+      "b33fb60742a4726a1e932be52f39d1c98aeb22bd"
+    ],
+    "patch": "refresh18-pr-33395-3.patch",
+    "patchSha256": "f3c9488f456937e044628ac7e14d57b6e3e0469b0d95daf3e2eb3e3b6f93f402",
+    "resultSha256": "5ec7dfe9770e1c54aeba18ace7b9abd23dd00046b91a0524d98b81ac8918c66f",
+    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "b15cce5a2fdbf675a11a48142cdf8e57398177a9",
+      "d7e618f19783add9cd03c015272c6ca96df935b9",
+      "9751711ca8bcb8e9caaae2f44a6d683522a22001"
+    ],
+    "patch": "refresh-0bd3-33395-0.patch",
+    "patchSha256": "b266a2a5293d5e86ce384e5998955354ca4fd88b70721f25c81938212961e372",
+    "resultSha256": "002e07975aecafcf507f757ad2b38c23f2537013a79e6e46bb0d6387bc6a5ed8",
+    "reason": "Keep PR 33395's model-default reset, pending-pick send fence and Default copy beside PR 33362's steer delivery and host-update gating, which 33395 already carries."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "1756c670cc72fd10fcb5caa459241bf22f6a5b67",
+      "bd3547775d47b01e842f69f533a804ca731ef2e7",
+      "22017dafcfe6887286ef512c75285ffa2051c39a"
+    ],
+    "patch": "refresh18-pr-33395-5.patch",
+    "patchSha256": "e8ef88e5e04ec009e4cc69b09f7768e6d74c2b67b519bb71a47234e9519ab3d2",
+    "resultSha256": "2790ca192bc06833dee3a58178223f007ab6e228935af4811e19af5450c36ec7",
+    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts",
+    "blobs": [
+      "79a3ff8c3473af32f32febc4b64e1e436da61da7",
+      "3bc8fb94936c414dd29210b297f7a57b0dc262c9",
+      "90ea9c82fec85720a2ec3f070f2a900b27e3dc6d"
+    ],
+    "patch": "refresh18-pr-33395-6.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "a4053a271c7e0da6155dc316f1af5f20130eb296b1ceb68ecb3e33e1233c9378",
+    "reason": "Combine explicit model-default fences and pick snapshots with draft steering and queue capabilities; merge independent locale keys."
   }
 ]

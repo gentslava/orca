@@ -6,7 +6,7 @@
   "seed": [
     33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
     33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
-    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40728, 40816
+    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40728, 40816, 44450, 44451, 44452, 44655
   ],
   "include": [
     {
@@ -70,10 +70,8 @@
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
     "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
-    "44450": "Hold: mobile slice of 33576 (same notePlace change); select it once 33576 drops its mobile part, in the next refresh.",
-    "44451": "Hold: desktop Default slice of 33395; select it once 33395 is stacked on it (dependencies 33395 -> 44451) and its overlap with 33362 is resolved, in the next refresh.",
-    "44452": "Hold: mobile subagent view; select it in the next refresh after checking its overlap with 33363, 34895 and 38963.",
-    "44655": "Hold: opened during the 7ade3e9b7718 refresh on newer upstream main (7923959bffd), which this pin cannot compose; select it in the next refresh."
+    "44451": "Hold: the restack of 33395 onto this slice changes 33395 behaviour (stale-view new-chat clear, Default row detail, mobile fallback, unstarted snapshot); 33395 composes from its own head until the owner decides.",
+    "44768": "Hold: based on upstream db07b71ab7c, newer than this refresh pin; select it in the next refresh."
   },
   "replacements": {
     "36569": 36922,
@@ -96,6 +94,7 @@
     "41859": 42954
   },
   "dependencies": {
+    "33576": [44450],
     "36593": [36634]
   },
   "outputs": [
@@ -173,5 +172,5 @@
       "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
     }
   },
-  "pullRequestUpstreamCommit": "7ade3e9b7718c7133e47d7ed9fc19891bab997b8"
+  "pullRequestUpstreamCommit": "0bd39bd4dcce12a338b5eaec285d45772724229d"
 }
