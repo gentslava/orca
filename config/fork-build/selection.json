@@ -69,7 +69,10 @@
   "exclude": {
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
-    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
+    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
+    "44450": "Hold: mobile slice of 33576 (same notePlace change); select it once 33576 drops its mobile part, in the next refresh.",
+    "44451": "Hold: desktop Default slice of 33395; select it once 33395 is stacked on it (dependencies 33395 -> 44451) and its overlap with 33362 is resolved, in the next refresh.",
+    "44452": "Hold: mobile subagent view; select it in the next refresh after checking its overlap with 33363, 34895 and 38963."
   },
   "replacements": {
     "36569": 36922,
