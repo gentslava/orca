@@ -259,6 +259,8 @@ export const ORCAD_ARTIFACTS: readonly OrcadArtifact[] = [
   { filename: 'agent-identity-worker-entry.js' },
   // Bot stores' SQL (items) runs in this worker thread, off the event loop.
   { filename: 'bots-db-worker-entry.js' },
+  // Session link SQL runs in this worker thread, on its own connection to the orchestration database.
+  { filename: 'session-link-worker-entry.js' },
   // Codex launch trust grants edit configs and the ownership ledger in this worker thread.
   { filename: 'codex-project-trust-worker-entry.js' },
   { filename: ORCAD_PORT_SCAN_COMMAND_WORKER_ENTRY },
