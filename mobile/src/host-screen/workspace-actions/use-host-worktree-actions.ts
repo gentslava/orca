@@ -1,9 +1,8 @@
 import type { HostWorktreeActionsArgs } from '../host-worktree-actions-contract'
-import { PERSONAL_PROJECT_ORDER_CAPABILITY } from '../../../../src/shared/personal-project-order'
 
 import {
   captureMobilePersonalOpening,
-  applyAcknowledgedMobilePersonalOpening
+  acknowledgeMobilePersonalOpening
 } from '../../worktree/personal-project-opening'
 import { useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -29,6 +28,7 @@ import { isWorktreePinned } from '../../worktree/workspace-list/workspace-list-s
 import type { Worktree } from '../../worktree/workspace-list/workspace-list-types'
 import { worktreeActivate, worktreePinWrite, worktreeSleep } from '../host-screen-operations'
 import { useHostWorktreeDelete } from './use-host-worktree-delete'
+import { useHostWorktreeRowWrites } from './use-host-worktree-row-writes'
 import { useHostMutation, type HostMutationPhase } from '../../query/host-mutation'
 
 import { workspaceRename } from './workspace-rename-mutation'
@@ -157,13 +157,29 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
 
   const putWorktreeToSleep = useCallback(
     (item: Worktree) => {
-      if (!client) {
+      // Slept at the row's owner, as desktop does; the paired desktop would sleep its own same-id row.
+      const rowClient = clientForRow(item)
+      if (!rowClient) {
         return
       }
-      setSleptIds((prev) => new Set(prev).add(getWorktreeRowIdentity(item)))
-      void worktreeSleep.request(client, { worktree: `id:${item.worktreeId}` }).catch(() => null)
+      const identity = getWorktreeRowIdentity(item)
+      setSleptIds((prev) => new Set(prev).add(identity))
+      void worktreeSleep
+        .request(rowClient, { worktree: `id:${item.worktreeId}` })
+        .then((reply) => worktreeSleep.interpret(reply).accepted)
+        .catch(() => false)
+        .then((accepted) => {
+          // A refused sleep must not leave the row drawn asleep.
+          if (!accepted) {
+            setSleptIds((prev) => {
+              const next = new Set(prev)
+              next.delete(identity)
+              return next
+            })
+          }
+        })
     },
-    [client, setSleptIds]
+    [clientForRow, setSleptIds]
   )
 
   const workspaceRenameWrite = useHostMutation(workspaceRename, { hostId: hostId ?? '', client })
@@ -186,6 +202,7 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
   )
 
   const worktreeDelete = useHostWorktreeDelete({ client, clientForRow, fetchWorktrees, state })
+  const rowWrites = useHostWorktreeRowWrites({ clientForRow, state })
 
   const handleRemoveHost = useCallback(async () => {
     if (!hostId) {
@@ -244,16 +261,15 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
       if (routeHost === null) {
         return
       }
-      const personalOpening = hostCapabilities.includes(PERSONAL_PROJECT_ORDER_CAPABILITY)
-        ? await captureMobilePersonalOpening({
-            client,
-            hostId,
-            capabilities: hostCapabilities,
-            catalog: args.projectCatalog ?? state.servedProjectSections,
-            target: item,
-            rows: [...state.worktrees, ...serverWorkspaces.worktrees]
-          })
-        : null
+      const capture = captureMobilePersonalOpening({
+        client,
+        hostId,
+        capabilities: hostCapabilities,
+        catalog: args.projectCatalog ?? state.servedProjectSections,
+        target: item,
+        rows: [...state.worktrees, ...serverWorkspaces.worktrees]
+      })
+      const personalOpening = capture && (await capture)
       // Use an empty missing hostId: the shell refuses /h//session, whereas the string undefined would name an accepted host.
       const executionHost = routeHost ? `&executionHost=${encodeURIComponent(routeHost)}` : ''
       const pane = paneKey ? `&paneKey=${encodeURIComponent(paneKey)}` : ''
@@ -273,9 +289,7 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
               notifyClients: false,
               navigation: 'caller'
             })
-            .then((reply) =>
-              applyAcknowledgedMobilePersonalOpening(reply, personalOpening, state, client)
-            )
+            .then(acknowledgeMobilePersonalOpening(personalOpening, state, client))
             .catch(() => null)
         }
       })
@@ -304,6 +318,7 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
 
   return {
     ...worktreeDelete,
+    ...rowWrites,
     handleRemoveHost,
     leaveHost,
     navigateFromHostList,

@@ -68,12 +68,12 @@ export function NativeChatAssistantMessageRow({
   const words =
     message.role === 'reasoning' || (isSystem && run) ? '' : nativeChatAgentRowWords(message, t)
   const streaming = messageIsStreaming(message, activeTurnIsWorking, trailingRun)
-  // A bot's quiet result shows as a line, not its marker, unless an automation's row opened its turn.
   const inBotHome = useBotForWorkspace(useNativeChatVisualOwner()?.worktreeId ?? null) !== null
   const quiet = quietBotAnswer(words, {
     botAnswer: inBotHome && message.role === 'assistant',
     streaming,
-    inAutomationTurn: props.inAutomationTurn === true
+    inAutomationTurn: props.inAutomationTurn === true,
+    inActingTurn: props.inActingTurn === true
   })
   const shownWords = withLegacyNativeChatIdeasAsList(quiet.words)
   // Hide controls on system asides and the still-working frontier, where more content may arrive. In
