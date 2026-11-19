@@ -121,18 +121,26 @@ index 54485134c60..121166bc7a4 100644
          "**/*-test-fixtures.{ts,tsx}",
          "**/*.test-fixture.{ts,tsx}",
 diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
-index c1cc706b193..b604f43c5c3 100644
+index 54b3f2ce394..35192620d7f 100644
 --- a/config/react-compiler-bailout-baseline.txt
 +++ b/config/react-compiler-bailout-baseline.txt
-@@ -88,7 +88,6 @@
+@@ -14,7 +14,6 @@
+ 10 src/renderer/src/components/maintenance/update-card/UpdateCard.tsx
+ 1 src/renderer/src/components/sidebar/workspace-creation/base-ref-update/WorktreeBaseFallbackDialog.tsx
+ 1 src/renderer/src/components/activity/terminal-portal/activity-terminal-portal-status.ts
+-1 src/renderer/src/components/activity/thread-preview/activity-thread-hover-card-summary.tsx
+ 1 src/renderer/src/components/activity/thread-list/activity-thread-list-pane.tsx
+ 1 src/renderer/src/components/activity/thread-list/use-activity-thread-action-bindings.ts
+ 1 src/renderer/src/components/activity/threads/use-agent-pane-threads.ts
+@@ -87,7 +86,6 @@
  2 src/renderer/src/components/browser-pane/page-prompts/browser-webauthn-account-dialog.tsx
  1 src/renderer/src/components/cmd-j/PaletteFilterFieldOptions.tsx
  1 src/renderer/src/components/cmd-j/PaletteFilterMenu.tsx
--4 src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
+-3 src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
  1 src/renderer/src/components/crash-report/CrashReportDialog.tsx
  1 src/renderer/src/components/crash-report/CrashReportDialogSurface.tsx
  3 src/renderer/src/components/crash-report/use-crash-report-copy.ts
-@@ -215,7 +214,6 @@
+@@ -214,7 +212,6 @@
  1 src/renderer/src/components/task-page/linear/issue-workspace/linear-issue-workspace-detail-state.ts
  2 src/renderer/src/components/task-page/linear/item-drawer/linear-item-drawer-comment-footer.tsx
  1 src/renderer/src/components/link-actions/LinkActionPopover.tsx
@@ -1660,3 +1668,164 @@ index c2184d46764..04b516b9a77 100644
  
      showActiveOnly: false,
      setShowActiveOnly: (v) => set({ showActiveOnly: v }),
+diff --git a/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx b/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
+index 7eed71bf216..7a5ab16d1e2 100644
+--- a/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
++++ b/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
+@@ -1,4 +1,7 @@
+-import { MobileQueuedMessageComposerContext } from './input/queued-messages/mobile-queued-message-composer-context'
++import {
++  MobileQueuedMessageComposerContext,
++  useMobileQueuedMessageComposer
++} from './input/queued-messages/mobile-queued-message-composer-context'
+ import { Activity, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+ import { StyleSheet, View } from 'react-native'
+ import { MobileNativeChatView, type MobileNativeChatInputLockReason } from './MobileNativeChatView'
+@@ -185,44 +188,17 @@ function MobileNativeChatOverlayContent({
+         : null,
+     [itemSource, fullContent.detail, load]
+   )
+-  const queuedComposerContext = useMemo(
+-    () => ({
+-      agent,
+-      structured: structuredComposer ?? null,
+-      interactionModeSupported: controller.nativeChatSessionOptions?.controller.snapshot.some(
+-        (entry) => entry.id === 'interactionMode'
+-      ),
+-      skillDiscovery: controller.nativeChatSkills,
+-      onNeedSkills: controller.loadNativeChatSkills,
+-      filePaths: controller.nativeChatFilePaths,
+-      onNeedFiles: controller.loadNativeChatFiles,
+-      onError: (message: string) => controller.reportQueuedEditError?.(message),
+-      onMicPress,
+-      micActive,
+-      micStarting,
+-      micProcessing,
+-      dictationMode,
+-      onMicPressIn,
+-      onMicPressOut
+-    }),
+-    [
+-      agent,
+-      structuredComposer,
+-      controller.nativeChatSessionOptions,
+-      controller.nativeChatSkills,
+-      controller.loadNativeChatSkills,
+-      controller.nativeChatFilePaths,
+-      controller.loadNativeChatFiles,
+-      controller.reportQueuedEditError,
+-      onMicPress,
+-      micActive,
+-      micStarting,
+-      micProcessing,
+-      dictationMode,
+-      onMicPressIn,
+-      onMicPressOut
+-    ]
+-  )
++  const queuedComposerContext = useMobileQueuedMessageComposer(controller, {
++    agent,
++    structured: structuredComposer ?? null,
++    onMicPress,
++    micActive,
++    micStarting,
++    micProcessing,
++    dictationMode,
++    onMicPressIn,
++    onMicPressOut
++  })
+   // Why a ref: rows read this through context, and the route's callback changes every render.
+   const runInTerminalRef = useRef(onRunInTerminal)
+   useLayoutEffect(() => {
+diff --git a/mobile/src/session/native-chat/input/queued-messages/mobile-queued-message-composer-context.ts b/mobile/src/session/native-chat/input/queued-messages/mobile-queued-message-composer-context.ts
+index edb26efc2ce..f8366810625 100644
+--- a/mobile/src/session/native-chat/input/queued-messages/mobile-queued-message-composer-context.ts
++++ b/mobile/src/session/native-chat/input/queued-messages/mobile-queued-message-composer-context.ts
+@@ -1,8 +1,9 @@
+ import type { NativeChatSkillDiscoverySnapshot } from '../../../../../../src/shared/native-chat/input/composer/native-chat-picker-items'
+-import { createContext } from 'react'
++import { createContext, useMemo } from 'react'
+ import type { MobileNativeChatStructuredComposer } from '../../composer/commands/mobile-native-chat-structured-composer'
++import type { MobileNativeChatController } from '../../mobile-native-chat-controller-contract'
+ 
+-export const MobileQueuedMessageComposerContext = createContext<{
++type MobileQueuedMessageComposer = {
+   agent: string | null
+   interactionModeSupported?: boolean
+   structured: MobileNativeChatStructuredComposer | null
+@@ -18,4 +19,74 @@ export const MobileQueuedMessageComposerContext = createContext<{
+   dictationMode: string | undefined
+   onMicPressIn: () => void
+   onMicPressOut: () => void
+-} | null>(null)
++}
++
++export const MobileQueuedMessageComposerContext = createContext<MobileQueuedMessageComposer | null>(
++  null
++)
++
++/** What a queued message's editor shares with the chat composer: its agent, pickers and mic. */
++export function useMobileQueuedMessageComposer(
++  controller: MobileNativeChatController,
++  composer: Pick<
++    MobileQueuedMessageComposer,
++    | 'agent'
++    | 'structured'
++    | 'onMicPress'
++    | 'micActive'
++    | 'micStarting'
++    | 'micProcessing'
++    | 'dictationMode'
++    | 'onMicPressIn'
++    | 'onMicPressOut'
++  >
++): MobileQueuedMessageComposer {
++  const { agent, structured, onMicPress, micActive, micStarting, micProcessing } = composer
++  const { dictationMode, onMicPressIn, onMicPressOut } = composer
++  const {
++    nativeChatSessionOptions,
++    nativeChatSkills,
++    loadNativeChatSkills,
++    nativeChatFilePaths,
++    loadNativeChatFiles,
++    reportQueuedEditError
++  } = controller
++  return useMemo(
++    () => ({
++      agent,
++      structured,
++      interactionModeSupported: nativeChatSessionOptions?.controller.snapshot.some(
++        (entry) => entry.id === 'interactionMode'
++      ),
++      skillDiscovery: nativeChatSkills,
++      onNeedSkills: loadNativeChatSkills,
++      filePaths: nativeChatFilePaths,
++      onNeedFiles: loadNativeChatFiles,
++      onError: (message: string) => reportQueuedEditError?.(message),
++      onMicPress,
++      micActive,
++      micStarting,
++      micProcessing,
++      dictationMode,
++      onMicPressIn,
++      onMicPressOut
++    }),
++    [
++      agent,
++      structured,
++      nativeChatSessionOptions,
++      nativeChatSkills,
++      loadNativeChatSkills,
++      nativeChatFilePaths,
++      loadNativeChatFiles,
++      reportQueuedEditError,
++      onMicPress,
++      micActive,
++      micStarting,
++      micProcessing,
++      dictationMode,
++      onMicPressIn,
++      onMicPressOut
++    ]
++  )
++}

@@ -11,7 +11,7 @@
  import type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
  import { toast } from 'sonner'
  import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
-@@ -28,6 +32,7 @@
+@@ -28,6 +32,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
    const { agent, fence, launch, providerVisible, sessionId, transportEnabled, turnId } = args
    const environmentId = args.target.kind === 'environment' ? args.target.environmentId : null
    const target = useMemo(() => runtimeTargetForOwnerEnvironment(environmentId), [environmentId])
@@ -19,7 +19,7 @@
    const capturePresentation = args.capturePresentation
    const providerStarting = args.providerStarting ?? false
    const newLaunch = launch?.kind === 'new'
-@@ -40,6 +45,9 @@
+@@ -40,6 +45,9 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
      optionStateRef,
      activeOptionRecordRef,
      controller,
@@ -29,7 +29,7 @@
      takesSelection,
      updateOptionState,
      rereadOptions,
-@@ -68,31 +76,55 @@
+@@ -68,31 +76,55 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
  
    const acceptsPicks = (!transportEnabled || fence !== null) && launch?.seedPending !== true
  
@@ -46,6 +46,7 @@
 -  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) =>
 -    !acceptsPicks
 -      ? lockedStructuredAgentSessionOptionSnapshot(snapshot)
+-      : !acceptsTurnPicks
 +  const renderedView = optionView(optionState, launchSeedOptions, launch?.explicitOptions)
 +  const lockSnapshot = (
 +    snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>,
@@ -53,7 +54,7 @@
 +  ) => {
 +    const choices =
 +      takesModelDefault && fence !== null
-+        ? snapshot.map((descriptor) =>
+         ? snapshot.map((descriptor) =>
 +            descriptor.id === 'model'
 +              ? {
 +                  ...descriptor,
@@ -65,8 +66,7 @@
 +        : snapshot
 +    return !acceptsPicks
 +      ? lockedStructuredAgentSessionOptionSnapshot(choices)
-       : !acceptsTurnPicks
--        ? snapshot.map((descriptor) =>
++      : !acceptsTurnPicks
 +        ? choices.map((descriptor) =>
              descriptor.id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
                ? descriptor
@@ -78,14 +78,13 @@
    useLayoutEffect(() => {
      interactionReadyRef.current = acceptsPicks
 -    lockSnapshotRef.current = lockSnapshot
--  })
--  const renderedView = optionView(optionState, launchSeedOptions, launch?.explicitOptions)
 +    lockSnapshotRef.current = (snapshot) =>
 +      lockSnapshot(
 +        snapshot,
 +        optionView(optionStateRef.current, launchSeedOptions, launch?.explicitOptions)
 +      )
-+  })
+   })
+-  const renderedView = optionView(optionState, launchSeedOptions, launch?.explicitOptions)
    const optionSnapshot = structuredAgentSessionOptionAvailability({
      controller,
      view: renderedView,
@@ -94,7 +93,7 @@
      ready: acceptsPicks,
      providerStarting,
      isCurrentContext
-@@ -126,7 +158,7 @@
+@@ -126,7 +158,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
        record: optionStateRef.current.record,
        view,
        snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
@@ -103,7 +102,7 @@
        providerStarting,
        existingChat: !newLaunch || args.hasTurn === true,
        isCurrentContext,
-@@ -171,6 +203,27 @@
+@@ -171,6 +203,27 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
      },
      [launch?.explicitOptions, launchSeedOptions, optionStateRef, optionView, setStructuredOption]
    )
@@ -128,27 +127,27 @@
 +      updateOptionState
 +    }
 +  })
-   const cliUpdate = useAgentCliUpdate(target, agent)
-   const cliUpdatePhase = cliUpdate.run?.phase ?? 'idle'
-   const cliUpdateAgent = cliUpdate.update?.runnable ? cliUpdate.update.agent : null
-@@ -183,6 +236,7 @@
-   )
+   const { demandModelCatalog } = hostCatalog
+   // The updated CLI lists the models it was too old for.
+   const cliUpdate = useNativeChatCliUpdate(target, agent, demandModelCatalog)
+@@ -182,6 +235,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
+   const openCliUpdateFailure = cliUpdate?.openFailure
    const optionSurface = useMemo<SessionOptionsSurface>(
      () => ({
 +      ...(takesModelDefault ? { resetOption } : {}),
        getSnapshot: () => optionSnapshot,
        demandModelCatalog,
-       ...(cliUpdateAgent
-@@ -205,6 +259,8 @@
+       ...(cliUpdateAgent && cliUpdateModels && startCliUpdate && openCliUpdateFailure
+@@ -206,6 +260,8 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
        optionSnapshot,
        demandModelCatalog,
        writer,
 +      resetOption,
 +      takesModelDefault,
        cliUpdateAgent,
-       cliUpdatePhase,
-       startCliUpdate,
-@@ -232,7 +288,14 @@
+       cliUpdateModels,
+       cliUpdateRunnable,
+@@ -235,7 +291,14 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
      optionSnapshot,
      optionSurface,
      setStructuredOption,
