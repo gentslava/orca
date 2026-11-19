@@ -29,9 +29,12 @@ export function AccountSwitchList({
         <span className="flex items-center gap-2">
           <span className="min-w-0 flex-1 truncate">{heading}</span>
           <span className="flex shrink-0 items-end gap-1 text-right">
+            <span className="min-w-0 flex-1" />
             <span
               className={
-                showResetColumn ? 'min-w-8 whitespace-nowrap' : 'min-w-9 whitespace-nowrap'
+                showResetColumn
+                  ? 'min-w-8 shrink-0 whitespace-nowrap'
+                  : 'min-w-9 shrink-0 whitespace-nowrap'
               }
             >
               {display === 'used'
@@ -39,7 +42,7 @@ export function AccountSwitchList({
                 : t('auto.components.status.bar.AccountSwitchList.left', 'Left')}
             </span>
             {showResetColumn ? (
-              <span className="w-11 shrink-0 whitespace-normal break-all">
+              <span className="w-24 shrink-0 whitespace-nowrap">
                 {t('auto.components.status.bar.AccountSwitchList.reset', 'Reset')}
               </span>
             ) : null}

@@ -24,6 +24,7 @@ import {
 } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-labels'
 import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
 import type { NativeChatOptionPickerRequest } from './native-chat-option-picker-request'
+import { withPendingValue, type PendingPick } from './native-chat-session-option-pending-pick'
 import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
 import { NativeChatModelCombobox } from './NativeChatModelCombobox'
 import { useNativeChatPickerFocusReturn } from '../../../composer/focus/native-chat-picker-focus-return'
@@ -37,35 +38,6 @@ export type NativeChatSessionOptionPickersProps = {
   pickerRequest?: NativeChatOptionPickerRequest | null
   /** Where focus lands after a visit that changed something; see `useNativeChatPickerFocusReturn`. */
   focusComposer?: () => void
-}
-
-/** A descriptor write in flight; its value shows until it settles. */
-type PendingPick = { id: string; value?: SessionOptionValue }
-
-// Show pending picks in place while open; refusal restores the host snapshot.
-function withPendingValue(
-  descriptor: SessionOptionDescriptor,
-  pending: PendingPick | null
-): SessionOptionDescriptor {
-  if (pending?.id !== descriptor.id) {
-    return descriptor
-  }
-  const { kind } = descriptor
-  if (kind.type === 'select' && typeof pending.value === 'string') {
-    return {
-      ...descriptor,
-      valueSource: 'dispatched',
-      kind: { ...kind, currentValue: pending.value }
-    }
-  }
-  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
-    return {
-      ...descriptor,
-      valueSource: 'dispatched',
-      kind: { ...kind, currentValue: pending.value }
-    }
-  }
-  return descriptor
 }
 
 // Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
