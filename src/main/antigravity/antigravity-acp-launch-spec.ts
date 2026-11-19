@@ -45,6 +45,7 @@ import {
   hasManagedAntigravityChatSignIn,
   isAntigravityHostAccountHome
 } from './antigravity-host-acp'
+import { isAgySignedOutOutput } from './agy-signed-out-output'
 
 // Chats and terminals share agy's conversation store when a chat runs the host's `agy acp`. A bare
 // `-c` is not refused: managed chats live elsewhere, so it would block agy for every Chat user.
@@ -142,6 +143,7 @@ const ANTIGRAVITY_HOST_LAUNCH_SPEC: AcpLaunchSpec = {
     kind: 'command',
     args: ['models'],
     parse: parseAgyModelListing,
+    isNotSignedInOutput: isAgySignedOutOutput,
     listingNamesConfiguredModel: false
   },
   account: {
