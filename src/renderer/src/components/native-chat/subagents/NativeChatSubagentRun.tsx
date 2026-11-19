@@ -1,3 +1,4 @@
+import { useNativeChatChildNavigation } from '../native-chat-child-navigation'
 import { useId, useRef, useState } from 'react'
 import { Bot, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/class-names'
@@ -58,14 +59,20 @@ export function SubagentElapsed({
 export function NativeChatSubagentEntries({
   agents,
   onOpen,
+  stateLabels,
+  entryDetails,
   className
 }: {
   agents: readonly NativeChatSubagentEntry[]
   onOpen?: (agentId: string) => void
+  stateLabels?: ReadonlyMap<string, string>
+  entryDetails?: ReadonlyMap<string, React.ReactNode>
   className?: string
 }): React.JSX.Element {
   const t = useTranslate()
   const listId = useId()
+  const navigation = useNativeChatChildNavigation()
+  const canOpen = onOpen !== undefined || navigation !== null
   return (
     <ul className={cn('space-y-0.5', className)}>
       {agents.map((agent, index) => {
@@ -94,18 +101,18 @@ export function NativeChatSubagentEntries({
                 id={`${describedBy}-state`}
                 className="ml-auto shrink-0 font-sans text-xs tabular-nums text-chat-foreground-faint"
               >
-                {subagentStateLabel(state, 1, 1, say)}
+                {stateLabels?.get(agent.id) ?? subagentStateLabel(state, 1, 1, say)}
                 {typeof agent.tokens === 'number'
                   ? ` · ${say('tokens', { value0: formatSubagentTokens(agent.tokens) })}`
                   : null}
               </span>
             </span>
-            {detail ? (
+            {entryDetails?.get(agent.id) || detail ? (
               <span
                 id={`${describedBy}-detail`}
                 className="truncate pl-3 font-sans text-xs text-chat-foreground-faint"
               >
-                {detail}
+                {entryDetails?.get(agent.id) ?? detail}
               </span>
             ) : null}
           </span>
@@ -117,14 +124,18 @@ export function NativeChatSubagentEntries({
               state={state}
               detail={detail}
               runsOn={runsOn}
-              opens={onOpen !== undefined}
+              opens={canOpen}
             >
-              {onOpen === undefined ? (
+              {!canOpen ? (
                 <div className="flex items-start gap-1.5 py-0.5">{entry}</div>
               ) : (
                 <button
                   type="button"
-                  onClick={() => onOpen(agent.id)}
+                  onClick={() =>
+                    onOpen
+                      ? onOpen(agent.id)
+                      : navigation?.open({ agentId: agent.id, label: agent.label })
+                  }
                   aria-label={t(
                     'components.native-chat.backgroundTasks.openAgent',
                     'Open {{value0}}',
@@ -240,12 +251,16 @@ function SubagentEntryPreview({
 export function NativeChatSubagentRun({
   block,
   disclosureId,
-  onOpenSubagent
+  onOpenSubagent,
+  stateLabels,
+  entryDetails
 }: {
   block: NativeChatSubagentGroupBlock
   /** Remembers the reader's open/closed choice past this row's lifetime. */
   disclosureId?: string
   onOpenSubagent?: (agentId: string) => void
+  stateLabels?: ReadonlyMap<string, string>
+  entryDetails?: ReadonlyMap<string, React.ReactNode>
 }): React.JSX.Element | null {
   const agents = block.agents
   // Not memoized: its words follow the reader's language, which can change under the same roster.
@@ -298,7 +313,13 @@ export function NativeChatSubagentRun({
         />
       </button>
       {open ? (
-        <NativeChatSubagentEntries agents={agents} onOpen={onOpenSubagent} className="mt-1" />
+        <NativeChatSubagentEntries
+          stateLabels={stateLabels}
+          entryDetails={entryDetails}
+          agents={agents}
+          onOpen={onOpenSubagent}
+          className="mt-1"
+        />
       ) : null}
     </div>
   )
