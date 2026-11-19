@@ -15,7 +15,8 @@ import {
   getPreferredPairingOffer,
   type KnownRuntimeEnvironment,
   type PersistedRuntimeEnvironment,
-  type RuntimeEnvironmentSource
+  type RuntimeEnvironmentSource,
+  type RuntimeEnvironmentStore
 } from '../host-catalog/runtime-environments'
 import {
   readEnvironmentStore,
@@ -174,12 +175,7 @@ export function renameEnvironment(
     throw remoteServerPairingStoreError('nameTaken', { name: colliding.name })
   }
   const renamed = { ...existing, name, updatedAt: args.now ?? Date.now() }
-  writeEnvironmentStore(userDataPath, {
-    version: 1,
-    environments: store.environments
-      .map((entry) => (entry.id === existing.id ? renamed : entry))
-      .sort((a, b) => a.name.localeCompare(b.name))
-  })
+  writeReplacedEnvironment(userDataPath, store, renamed)
   return renamed
 }
 
@@ -224,13 +220,21 @@ export function replaceEnvironmentPairing(
     pairingRevision: Math.max(args.now, previousPairingRevision + 1),
     lastUsedAt: existing.lastUsedAt
   }
+  writeReplacedEnvironment(userDataPath, store, next)
+  return next
+}
+
+function writeReplacedEnvironment(
+  userDataPath: string,
+  store: RuntimeEnvironmentStore,
+  replacement: PersistedRuntimeEnvironment
+): void {
   writeEnvironmentStore(userDataPath, {
     version: 1,
     environments: store.environments
-      .map((entry) => (entry.id === existing.id ? next : entry))
+      .map((entry) => (entry.id === replacement.id ? replacement : entry))
       .sort((a, b) => a.name.localeCompare(b.name))
   })
-  return next
 }
 
 export function resolveEnvironment(
