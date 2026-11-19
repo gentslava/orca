@@ -11,6 +11,7 @@ import {
 import { nativeChatModelDescription } from './native-chat-model-description'
 import { useTranslate } from '@/i18n/use-translate'
 import type {
+  SessionOptionDescriptor,
   SessionOptionsCliUpdate,
   SessionOptionSelectChoice
 } from '../../../../../../../shared/native-chat/input/native-chat-session-options'
@@ -32,6 +33,8 @@ type NativeChatModelComboboxProps = {
   busy: boolean
   /** Called for a model other than the current one; the list stays as it is. */
   onSelect: (value: string) => void
+  defaultChoice?: SessionOptionDescriptor['defaultChoice']
+  onReset?: () => void
   /** The chat host's own CLI, too old for models on Orca's list. */
   cliUpdate?: SessionOptionsCliUpdate
 }
@@ -50,6 +53,8 @@ export function NativeChatModelCombobox({
   readOnlyReason,
   busy,
   onSelect,
+  defaultChoice,
+  onReset,
   cliUpdate
 }: NativeChatModelComboboxProps): React.JSX.Element {
   const t = useTranslate()
@@ -73,7 +78,7 @@ export function NativeChatModelCombobox({
     : []
   const renderChoice = (choice: SessionOptionSelectChoice) => {
     const label = nativeChatSessionChoiceLabel(choice, say)
-    const current = choice.value === currentValue
+    const current = !defaultChoice?.selected && choice.value === currentValue
     return (
       <CommandItem
         key={choice.value}
@@ -127,6 +132,41 @@ export function NativeChatModelCombobox({
         </CommandEmpty>
         <NativeChatSessionOptionWriteGroup busy={busy}>
           <CommandGroup>
+            {defaultChoice && onReset ? (
+              <CommandItem
+                value="provider-default-action"
+                keywords={[
+                  t('components.native-chat.composer.defaultModel', 'Default'),
+                  defaultChoice.model?.label ?? '',
+                  defaultChoice.model?.description ?? ''
+                ]}
+                selection="palette"
+                disabled={readOnly}
+                aria-current={defaultChoice.selected || undefined}
+                onSelect={() => {
+                  if (!defaultChoice.selected) {
+                    onReset()
+                  }
+                }}
+              >
+                <NativeChatSessionOptionChoiceBody
+                  label={t('components.native-chat.composer.defaultModel', 'Default')}
+                  description={
+                    defaultChoice.model?.label ??
+                    t(
+                      'components.native-chat.composer.defaultModelNotReported',
+                      'Default model not reported'
+                    )
+                  }
+                  detail={defaultChoice.model?.description}
+                />
+                <span className="ml-auto flex size-3.5 shrink-0 items-center justify-center">
+                  {defaultChoice.selected ? (
+                    <Check className="size-3.5 text-muted-foreground" />
+                  ) : null}
+                </span>
+              </CommandItem>
+            ) : null}
             {/* One keyed array, so a row moving between sections keeps its highlight. */}
             {[
               ...(cliUpdate
