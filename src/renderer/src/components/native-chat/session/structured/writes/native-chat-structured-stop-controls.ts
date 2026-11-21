@@ -20,6 +20,7 @@ export function nativeChatStructuredStopControls(
     onStop: (() => void) | undefined
     escapeStops: boolean
     steerHead: (() => boolean) | undefined
+    steerLast: (() => boolean) | undefined
     afterStop: NativeChatAfterStopSend | undefined
   }
 } {
@@ -40,6 +41,7 @@ export function nativeChatStructuredStopControls(
       // A stray Escape (closing the New bot dialog, say) must not stop a new bot's first words.
       escapeStops: !(controller.canStop && kickoff?.live === true),
       steerHead: stopping ? undefined : controller.queuedMessages.steerHead,
+      steerLast: stopping ? undefined : controller.queuedMessages.steerLast,
       afterStop: stopping ? (controller.sendsQueue ? 'queue' : 'send') : undefined
     }
   }
