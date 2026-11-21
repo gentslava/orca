@@ -210,8 +210,7 @@ export function isAgentSessionProcessIdentity(
     Number.isSafeInteger(identity.pid) &&
     (identity.pid as number) > 0 &&
     (identity.processStartTimeMs === null ||
-      (Number.isSafeInteger(identity.processStartTimeMs) &&
-        (identity.processStartTimeMs as number) >= 0)) &&
+      isNonNegativeSafeInteger(identity.processStartTimeMs)) &&
     isBoundedString(identity.spawnToken, MAX_ID_LENGTH) &&
     (identity.runtime === undefined || isBoundedString(identity.runtime, MAX_ID_LENGTH))
   )

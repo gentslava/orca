@@ -1,5 +1,3 @@
-import { toast } from 'sonner'
-import { translate } from '@/i18n/i18n'
 import {
   DEFAULT_STATUS_BAR_USAGE_FORMAT,
   normalizeStatusBarUsageFormat
@@ -45,6 +43,7 @@ import {
 import { createHostWorkspaceStatusActions } from './ui-slice-host-workspace-statuses'
 import { createUiBotPreferenceActions } from './ui-slice-bot-preference-actions'
 import { toggleCollapsedGroupSet } from './collapsed-group-toggle'
+import { chooseProjectOrderMode } from './project-order-mode-choice'
 import { DEFAULT_SIDEBAR_VIEW } from '../../../../../shared/ui-chrome/sidebar-body'
 
 /** Builds preference defaults and setters for the UI slice, leaving durable writes to the persistence layer. */
@@ -70,13 +69,7 @@ export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Par
     setSortBy: (s) => set({ sortBy: s }),
 
     projectOrderBy: 'manual',
-    setProjectOrderBy: (p) => {
-      void import('@/runtime/personal-project-order-client')
-        .then(({ writeProjectOrderMode }) => writeProjectOrderMode(p))
-        .catch(() =>
-          toast.error(translate('sidebar.projectOrder.saveFailed', 'Could not save project order'))
-        )
-    },
+    setProjectOrderBy: chooseProjectOrderMode,
 
     showActiveOnly: false,
     setShowActiveOnly: (v) => set({ showActiveOnly: v }),

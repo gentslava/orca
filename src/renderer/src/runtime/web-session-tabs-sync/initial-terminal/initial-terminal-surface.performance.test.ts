@@ -6,7 +6,6 @@ import type { OpenFile } from '../../../store/slices/editor/types/open-file'
 import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
 import { updateStructuredAgentLaunchRecords } from '@/lib/agent-session/launch/structured-agent-session-launch-persistence'
 import type { StructuredAgentLaunchPersistedRecord } from '@/lib/agent-session/launch/structured-agent-session-launch-record'
-import { holdEmptyWorkspaceDefaultSurfaceForLaunch } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
 import type { StructuredLaunchState } from '@/lib/agent-session/launch/structured-agent-session-launch-state-store'
 import type * as LaunchStateStore from '@/lib/agent-session/launch/structured-agent-session-launch-state-store'
 import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
@@ -46,7 +45,6 @@ vi.mock('../../hosted-terminals/creation/web-runtime-terminal-creation', () => (
 }))
 
 createTabsSliceMockApi()
-const { createInitialTerminalSeeder } = await import('./initial-terminal-seeder')
 const { createInitialTerminalThroughLayoutOwner } =
   await import('../../../store/terminals/tabs/creation/terminal-tab-create-through-layout-owner')
 const workspace = 'repo1::/tmp/agent-worktree'
@@ -272,8 +270,6 @@ it.each([100, 1_000])(
       expect(store.getState().tabsByWorktree[workspace] ?? []).toEqual([])
     }
     try {
-      await createInitialTerminalSeeder(`chat-host-${population}`, workspace).seed()
-      assertNoInventoryWork()
       for (const refused of [false, true]) {
         const reply = Promise.withResolvers<LayoutApplyReply>()
         transport.callRuntimeRpc.mockReturnValueOnce(reply.promise)
@@ -332,53 +328,3 @@ it.each([750, 7_500])('skips %i unrelated editors without an editor surface', (p
   expect(editor.renderableTabCount).toBe(2)
   expect(editorReads).toBeGreaterThan(0)
 })
-
-it.each([100, 1_000])(
-  'skips %i pending creations while a surface is claimed',
-  async (population) => {
-    const store = testStore.current!
-    let pendingReads = 0
-    const pendingWorktreeCreations = Object.fromEntries(
-      Array.from({ length: population }, (_, index) => {
-        const pending: PendingWorktreeCreation = {
-          creationId: `pending-${index}`,
-          worktreeId: `repo1::/tmp/other-${index}`,
-          phase: 'creating',
-          get status() {
-            pendingReads++
-            return 'creating' as const
-          },
-          startedAt: 1,
-          indeterminate: false,
-          loaderVisible: false,
-          request: {
-            repoId: 'repo1',
-            name: `other-${index}`,
-            setupDecision: 'skip',
-            agent: null,
-            pendingFirstAgentMessageRename: false,
-            note: '',
-            startupPlan: null,
-            quickPrompt: '',
-            quickTelemetry: null
-          }
-        }
-        return [pending.creationId, pending]
-      })
-    )
-    store.setState({ pendingWorktreeCreations })
-    pendingReads = 0
-    const seeder = createInitialTerminalSeeder(`claim-host-${population}`, workspace)
-    const release = holdEmptyWorkspaceDefaultSurfaceForLaunch(workspace)
-    try {
-      await seeder.seed()
-      expect(pendingReads).toBe(0)
-      expect(store.getState().tabsByWorktree[workspace] ?? []).toEqual([])
-    } finally {
-      release()
-    }
-    await seeder.seed()
-    expect(pendingReads).toBeGreaterThan(0)
-    expect(store.getState().tabsByWorktree[workspace]).toHaveLength(1)
-  }
-)

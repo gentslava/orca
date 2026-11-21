@@ -14,7 +14,10 @@ vi.mock('node:os', async () => {
 })
 
 vi.mock('../claude-accounts/profiles/routing/claude-profile-installed-router', () => ({
-  claudeProfileHistoryDirs: () => []
+  claudeProfileHistoryDirs: () => [],
+  claudeAccountHistoryRoots: async () => [
+    { path: join(state.home, 'managed-account'), accountId: 'managed-a' }
+  ]
 }))
 
 vi.mock('node:fs/promises', async () => {
@@ -66,4 +69,21 @@ describe('Claude history discovery failures', () => {
     state.code = 'ENOENT'
     await expect(list([])).resolves.toEqual([sibling])
   })
+})
+
+it('discovers managed history surfaces asynchronously and retains their account identity', async () => {
+  const { claudeProfileTranscriptSources } = await import('./transcript-file-discovery')
+  const root = join(state.home, 'managed-account')
+  const projects = join(root, 'projects')
+  const transcripts = join(root, 'transcripts')
+  await mkdir(projects, { recursive: true })
+  await mkdir(transcripts)
+  await expect(claudeProfileTranscriptSources()).resolves.toEqual([
+    { path: projects, accountId: 'managed-a' },
+    { path: transcripts, accountId: 'managed-a' }
+  ])
+  await rm(transcripts, { recursive: true })
+  await expect(claudeProfileTranscriptSources()).resolves.toEqual([
+    { path: projects, accountId: 'managed-a' }
+  ])
 })

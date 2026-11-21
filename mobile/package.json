@@ -98,6 +98,7 @@
     "oxfmt": "^0.79.0",
     "oxlint": "1.94.0",
     "react-test-renderer": "19.3.0",
+    "terser": "5.51.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "typescript-api": "npm:typescript@6.0.3",

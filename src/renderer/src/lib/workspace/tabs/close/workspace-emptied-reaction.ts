@@ -3,12 +3,12 @@ import { useAppStore } from '../../../../store/index'
 import { armFloatingPanelReclaimIntent } from '@/components/floating-terminal/focus/floating-workspace-focus-reclaim'
 import { isFloatingWorkspacePanelFocused } from '@/components/floating-terminal/workspace/floating-workspace-terminal-actions'
 import { selectFloatingVisibleTabCount } from '@/store/workspaces/floating/floating-workspace-panel-selector'
-import { hasSplitLandingGroup } from '@/store/slices/tabs/split-landing-groups'
+import { keepsEmptiedWorkspaceOpen } from '@/store/slices/tabs/split-landing-groups'
 
 /** Capture panel ownership before prompts/removal blur it; run the captured reaction only after the close lands. */
 export function captureWorkspaceEmptiedReaction(
   worktreeId: string,
-  options?: { floatingPanelGuestOwned?: boolean }
+  options?: { floatingPanelGuestOwned?: boolean; leavesStartPage?: boolean }
 ): () => void {
   // Emptying the floating panel retains keyboard ownership; emptying a worktree leaves that worktree.
   if (worktreeId === FLOATING_TERMINAL_WORKTREE_ID) {
@@ -20,10 +20,10 @@ export function captureWorkspaceEmptiedReaction(
       }
     }
   }
-  return () => leaveWorktreeIfEmpty(worktreeId)
+  return () => leaveWorktreeIfEmpty(worktreeId, options?.leavesStartPage === true)
 }
 
-function leaveWorktreeIfEmpty(worktreeId: string): void {
+function leaveWorktreeIfEmpty(worktreeId: string, leavesStartPage: boolean): void {
   const state = useAppStore.getState()
   if (state.activeWorktreeId !== worktreeId) {
     return
@@ -31,7 +31,7 @@ function leaveWorktreeIfEmpty(worktreeId: string): void {
   // Why: split-group closes bypass legacy Terminal.tsx; deselect the emptied worktree here or the window goes blank instead of landing.
   if (
     state.reconcileWorktreeTabModel(worktreeId).renderableTabCount === 0 &&
-    !hasSplitLandingGroup(state, worktreeId)
+    (leavesStartPage || !keepsEmptiedWorkspaceOpen(worktreeId))
   ) {
     state.setActiveWorktree(null)
   }
