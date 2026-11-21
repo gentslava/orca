@@ -1,0 +1,48 @@
+diff --git a/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionRows.tsx b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionRows.tsx
+index 132c6faf4ddf3056118d60ab3ca2a313f2bdf017..987d1a852d9af241c1889a8d0aff6cd3222d791a 100644
+--- a/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionRows.tsx
++++ b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionRows.tsx
+@@ -24,6 +24,7 @@ import {
+ import { sayMobileNativeChatSessionOption as say } from './native-chat-session-option-copy'
+ import { orderEffortLevels } from '../../../../../../src/shared/agent-session/options/view/effort-level-order'
+ import { MobileSwitch } from '../../../../components/controls/MobileSwitch'
++import { nativeChatModelSearchScore } from '../../../../../../src/shared/native-chat/input/native-chat-model-search'
+ 
+ export function SessionOptionCaption({ children }: { children: string }): React.JSX.Element {
+   useMobileColorScheme()
+@@ -138,6 +139,7 @@ type DescriptorRowsProps = {
+   onInvokeAction: () => void
+   /** A leading mark per choice, as each permission mode has its icon. */
+   choiceLeading?: (value: string) => ReactNode
++  query?: string
+   /** Whether search-only choices are revealed; without it they stay off the list. */
+   moreChoices?: { shown: boolean; onToggle: () => void }
+   onReset?: () => void
+@@ -165,6 +167,7 @@ export function descriptorRowElements(
+     onSetOption,
+     onInvokeAction,
+     choiceLeading,
++    query,
+     moreChoices,
+     onReset
+   }: DescriptorRowsProps,
+@@ -235,6 +238,19 @@ export function descriptorRowElements(
+       onPress={() => onSetOption(choice.value)}
+     />
+   )
++  const terms = query?.toLowerCase().split(/\s+/).filter(Boolean) ?? []
++  if (query !== undefined && terms.length > 0) {
++    return choices
++      .filter((choice) => {
++        return (
++          nativeChatModelSearchScore(choice.value, query, [
++            nativeChatSessionChoiceLabel(choice, say, descriptor.id),
++            choice.description ?? ''
++          ]) > 0
++        )
++      })
++      .map(choiceRow)
++  }
+   // No search here, so search-only rows stay out; folded ones follow a More models toggle.
+   const listed = choices.filter(
+     (choice) =>
