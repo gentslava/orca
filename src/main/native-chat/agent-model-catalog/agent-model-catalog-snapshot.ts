@@ -27,6 +27,7 @@ export type AgentModelCatalogBinding = {
   fingerprint: string
   base: string
   exact: boolean
+  canProbe: boolean
   folder?: string
   cwd?: string
   workspacePath?: string | null
@@ -147,6 +148,7 @@ export function agentModelCatalogMemoryBinding(
   ) {
     return
   }
+  const probe = deps.probes?.[params.agent]
   const fingerprint = agentModelCatalogFingerprintForRecord(record)
   return {
     identity: capture(params),
@@ -157,6 +159,7 @@ export function agentModelCatalogMemoryBinding(
     fingerprint,
     base: fingerprint,
     exact: false,
+    canProbe: Boolean(probe && probe.supportsAccount?.(record.accountHome) !== false),
     keepDefault:
       agentModelCatalogDefaultFollowsAccount(params.agent) ||
       (!params.inSessionWorkspace && params.workspacePath === undefined) ||
@@ -238,7 +241,8 @@ export function projectAgentModelCatalogSnapshot(
     !params.verifiedOnly &&
     (deps.store.isListing(bound.fingerprint) ||
       (resolving && bound.projecting !== undefined) ||
-      (resolving &&
+      (bound.canProbe &&
+        resolving &&
         (deps.store.probeDue(bound.fingerprint) ||
           // The picked model's menu is listed by the refresh this read just asked for.
           deps.store.efforts.due(bound.fingerprint, params.selectedModel))))
