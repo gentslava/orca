@@ -367,6 +367,8 @@ Overlay changes:
 - `composed-ci-contracts.patch` keeps upstream's compiler baseline row for the owner usage hook, which keeps its lint suppression. It optional-chains `capture()` in 44451's model-default test, which becomes optional beside 33362.
 - `composed-format.patch` formats the tool-line label import from the 36593 record.
 - `conversation-project-order.patch` uses the neutral project names (Acme, Example) that 33361's tests now use.
+- `project-start-actions.patch` retires upstream's `agent-launch-picker-rows.test.ts`, which checks the setup chat rows that this launch menu leaves out. `composed-ci-contracts.patch` checks the process start time with `isNonNegativeSafeInteger`, as fork master did, instead of upstream's cast.
+- `fork-upstream-regressions.mjs` names the two model-default suites at their new paths.
 - The Russian desktop overlay drops 85 keys that 46107 now translates.
 
 Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, the React Compiler ratchet and the localization checks. Lint passes; the test-runner list check passes on the merged tree with the control files. The composed regression suites pass: 191 desktop with 1 skipped, and 32 mobile.

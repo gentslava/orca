@@ -456,3 +456,17 @@ index 011580de94b..8acb571bacf 100644
    await act(() => view.result.current.optionSurface.setOption('effort', 'high'))
    expect(seededByNextLaunch(mocks.enqueue.mock.calls)).toBeUndefined()
    view.unmount()
+diff --git a/src/shared/agent-session/lifecycle/agent-session-record.ts b/src/shared/agent-session/lifecycle/agent-session-record.ts
+index f4df51200ba..6f957172cf1 100644
+--- a/src/shared/agent-session/lifecycle/agent-session-record.ts
++++ b/src/shared/agent-session/lifecycle/agent-session-record.ts
+@@ -210,8 +210,7 @@ export function isAgentSessionProcessIdentity(
+     Number.isSafeInteger(identity.pid) &&
+     (identity.pid as number) > 0 &&
+     (identity.processStartTimeMs === null ||
+-      (Number.isSafeInteger(identity.processStartTimeMs) &&
+-        (identity.processStartTimeMs as number) >= 0)) &&
++      isNonNegativeSafeInteger(identity.processStartTimeMs)) &&
+     isBoundedString(identity.spawnToken, MAX_ID_LENGTH) &&
+     (identity.runtime === undefined || isBoundedString(identity.runtime, MAX_ID_LENGTH))
+   )
