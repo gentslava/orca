@@ -1,3 +1,4 @@
+import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { aiVaultScanErrorText } from './ai-vault-scan-issue-copy'
@@ -119,6 +120,7 @@ export function useAiVaultSessionRefresh(
       )}\n${sessionLimitRef.current}`,
     []
   )
+  const loadStartupCatalog = useAiVaultStartupCatalog(applyScan, publicationGateRef, setLoading)
   const refresh = useCallback(
     async (args: AiVaultRefreshArgs = {}): Promise<void> => {
       const observation = associationsRef.current
@@ -208,6 +210,12 @@ export function useAiVaultSessionRefresh(
         scanKey === currentScanScopeKey() &&
         associationCurrent()
       try {
+        if (!cachedResult) {
+          await loadStartupCatalog(request, requestTokenRef.current, scanKey, requestCurrent)
+          if (!requestCurrent()) {
+            return
+          }
+        }
         const previous = conditionalSnapshotRef.current
         const result = await refreshAiVaultSessionList(
           request,
@@ -257,7 +265,7 @@ export function useAiVaultSessionRefresh(
       }
       // Read changing scope through refs; recursion requires a stable refresh identity.
     },
-    [applyScan, currentScanScopeKey]
+    [applyScan, currentScanScopeKey, loadStartupCatalog]
   )
 
   useEffect(() => {

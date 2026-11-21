@@ -29,7 +29,7 @@ export async function installOrcadProfileRuntimeServices({
   // Restore the profile's account selection before admitting launches.
   const { restoreOrcadHostAccountLaunchEnv } =
     await import('./account-launch/orcad-host-account-launch-env-store')
-  restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
+  await restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
   featureReadiness.open('accounts')
 
   const { installOrcadSessionSearchService } = await import('./host-runtime/orcad-session-search')
