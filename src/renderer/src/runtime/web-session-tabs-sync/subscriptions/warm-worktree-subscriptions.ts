@@ -135,7 +135,6 @@ export function createWarmWorktreeSessionSubscriptions(
       if (warm) {
         entries.delete(key)
         entries.set(key, warm)
-        warm.subscription.reconsiderSelected()
       } else {
         const subscription = install(args)
         if (!subscription) {

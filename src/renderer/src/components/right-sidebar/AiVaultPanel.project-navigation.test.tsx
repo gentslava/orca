@@ -101,7 +101,9 @@ it('keeps the loaded project list and expanded chats while navigating across pro
     expect(list.scrollTop).toBe(240)
   }
 
-  fireEvent.click(screen.getByRole('button', { name: 'Refresh Session History' }))
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh Session History' }))
+  })
   expect(listSessions).toHaveBeenCalledTimes(requests + 1)
   expect(listSessions.mock.lastCall?.[0].force).toBe(true)
   expect(project.querySelectorAll('[data-conversation-id]')).toHaveLength(7)

@@ -137,7 +137,7 @@ test('an item with an open question lays out within the bot panel', async ({
     view: node.querySelector('fieldset')!.getBoundingClientRect().width
   }))
   expect(widths.view).toBeLessThanOrEqual(widths.pane)
-  const reply = await pane.getByRole('button', { name: 'Reply' }).boundingBox()
+  const submit = await pane.getByRole('button', { name: 'Comment', exact: true }).boundingBox()
   const box = await pane.boundingBox()
-  expect(reply!.x + reply!.width).toBeLessThanOrEqual(box!.x + box!.width)
+  expect(submit!.x + submit!.width).toBeLessThanOrEqual(box!.x + box!.width)
 })

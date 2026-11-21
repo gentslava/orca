@@ -90,14 +90,14 @@ export class RuntimeAccountController {
   }
 
   /** Refused where this host has account services of its own: they already decide every launch. */
-  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): void {
-    this.hostAccounts.setHostLaunchEnv(launchEnv)
+  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): Promise<void> {
+    return this.hostAccounts.setHostLaunchEnv(launchEnv)
   }
 
   /** orcad's store: starts from the last pushed env, so launches before a reconnect keep it. */
   restoreHostLaunchEnv(
     saved: HostAccountLaunchEnv | null,
-    persist: (launchEnv: HostAccountLaunchEnv) => void,
+    persist: (launchEnv: HostAccountLaunchEnv) => Promise<void>,
     options: { expectDesktopPush?: boolean; refreshClaudeProfile?: HostClaudeProfileRefresh } = {}
   ): void {
     this.hostAccounts.restoreHostLaunchEnv(saved, persist, options)
