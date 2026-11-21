@@ -21,6 +21,19 @@ export function readLedger(body = '') {
   return match ? JSON.parse(match[1]) : { tracked: [] }
 }
 
+const selectedLabel = (entry) => (entry.feature ? `Feature ${entry.feature}` : `PR ${entry.number}`)
+
+function forkFeatureLine(result, feature) {
+  const branch = `\`${feature.repository}:${feature.ref}\` at \`${feature.head.sha}\``
+  let state = `not composed from ${branch}`
+  if (result.included?.some((entry) => entry.feature === feature.feature)) {
+    state = `composed from ${branch}`
+  } else if (result.satisfiedFeatures?.includes(feature.feature)) {
+    state = `already contained in upstream; skipped ${branch}`
+  }
+  return `- ${feature.feature}: ${state}. ${feature.reason}`
+}
+
 export function renderReport(plan) {
   const lines = [
     '# Orca personal build',
@@ -78,11 +91,17 @@ export function renderReport(plan) {
         `| PR ${pr.number} | ${plan.result.mergedAfterBaseline?.includes(pr.number) ? 'merged after the frozen upstream (final head applied)' : pr.merged_at ? 'merged (ancestry checked)' : pr.state === 'closed' ? 'retained closed' : pr.draft ? 'open draft' : 'open'} | \`${pr.head.sha}\` |`
       )
     }
+    if (plan.forkFeatures?.length) {
+      lines.push('', '## Fork-local features', '')
+      for (const feature of plan.forkFeatures) {
+        lines.push(forkFeatureLine(plan.result, feature))
+      }
+    }
     if (plan.result.localeMerges?.length) {
       lines.push('', '## Translation catalog merges', '')
       for (const entry of plan.result.localeMerges) {
         lines.push(
-          `- PR ${entry.number}: independent keys merged in ${entry.paths.map((path) => `\`${path}\``).join(', ')}.`
+          `- ${selectedLabel(entry)}: independent keys merged in ${entry.paths.map((path) => `\`${path}\``).join(', ')}.`
         )
       }
     }
@@ -119,7 +138,7 @@ export function renderReport(plan) {
       for (const entry of plan.result.reviewedResolutions) {
         for (const patch of entry.patches) {
           lines.push(
-            `- PR ${entry.number}: \`${patch.path}\`; patch SHA-256 \`${patch.patchSha256}\`. ${patch.reason}`
+            `- ${selectedLabel(entry)}: \`${patch.path}\`; patch SHA-256 \`${patch.patchSha256}\`. ${patch.reason}`
           )
         }
       }
@@ -132,7 +151,7 @@ export function renderReport(plan) {
       for (const entry of plan.result.retiredFixtures || []) {
         for (const retirement of entry.paths) {
           lines.push(
-            `- PR ${entry.number}: \`${retirement.path}\`; fixture delta SHA-256 \`${retirement.deltaSha256}\`.`
+            `- ${selectedLabel(entry)}: \`${retirement.path}\`; fixture delta SHA-256 \`${retirement.deltaSha256}\`.`
           )
         }
       }
@@ -147,11 +166,13 @@ export function renderReport(plan) {
     lines.push('', '## Conflicts and blockers', '')
     for (const conflict of plan.result.conflicts) {
       lines.push(
-        `- PR ${conflict.number}: **${conflict.kind}** conflict; ${conflict.paths.map((path) => `\`${path}\``).join(', ')}. Prior integrated PRs: ${conflict.preceding.join(', ') || 'none'}.`
+        `- ${selectedLabel(conflict)}: **${conflict.kind}** conflict; ${conflict.paths.map((path) => `\`${path}\``).join(', ')}. Prior integrated PRs: ${conflict.preceding.join(', ') || 'none'}.${conflict.precedingFeatures ? ` Prior integrated features: ${conflict.precedingFeatures.join(', ') || 'none'}.` : ''}`
       )
     }
     for (const blocker of [...plan.blockers, ...plan.result.blockers]) {
-      lines.push(`- ${blocker.number ? `PR ${blocker.number}: ` : ''}${blocker.reason}`)
+      lines.push(
+        `- ${blocker.number || blocker.feature ? `${selectedLabel(blocker)}: ` : ''}${blocker.reason}`
+      )
     }
     if (plan.result.publishable) {
       lines.push(

@@ -90,6 +90,30 @@ test('promotes the exact built application, preserves control without importing 
     assert.equal(git(f.remote, ['rev-parse', 'main']), plan.upstream)
   }))
 
+test('fork feature integrations count as selected-feature history for promotion', () =>
+  fixture((f) => {
+    git(f.cwd, ['checkout', '--detach', f.plan.result.commit])
+    commit(f.cwd, 'fork-feature', 'owner preference\n')
+    const source = commit(f.cwd, 'overlay', 'compatibility\n')
+    const result = {
+      ...f.plan.result,
+      included: [...f.plan.result.included, { feature: 'rows', head: 'b'.repeat(40) }],
+      commit: source,
+      tree: git(f.cwd, ['rev-parse', 'HEAD^{tree}'])
+    }
+    const candidate = preparePromotion(f.cwd, { ...f.plan, result })
+    assert.equal(git(f.cwd, ['show', `${candidate.commit}:fork-feature`]), 'owner preference')
+    git(f.cwd, ['reset', '--hard', source])
+    assert.throws(
+      () =>
+        preparePromotion(f.cwd, {
+          ...f.plan,
+          result: { ...result, included: f.plan.result.included }
+        }),
+      /linear selected-feature history/
+    )
+  }))
+
 test('a concurrent master update preserves both remote branches', () =>
   fixture((f) => {
     git(f.cwd, ['checkout', '--detach', f.plan.configuration])
