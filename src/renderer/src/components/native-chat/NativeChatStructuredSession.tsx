@@ -370,6 +370,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                   steerHead={
                     bot.stopControls.stopping ? undefined : submits.queuedMessages.steerHead
                   }
+                  steerLast={
+                    bot.stopControls.stopping ? undefined : submits.queuedMessages.steerLast
+                  }
                   structuredTransport={transport}
                   notices={notices}
                   recallSource={{ messages: session.messages, withoutImageMarkers: true }}
