@@ -1,4 +1,5 @@
-import { resolveHostCapabilities } from '@/lib/agent-session/launch/routing/agent-launch-route-input'
+import { readRuntimeStatuses } from '@/store/slices/runtime-status/views/runtime-status-owner'
+import { hostCapabilitiesFrom } from '@/lib/agent-session/launch/routing/agent-launch-route-input'
 import { workspaceKindForWorktreeId } from '../../../../../../shared/agent-launch/contracts/workspace-launch-kind'
 import {
   structuredAgentSessionLaunchFeasible,
@@ -7,7 +8,7 @@ import {
 import { resolveStructuredAgentSessionOwner } from '@/runtime/native-chat/session-ownership/structured-agent-session-owner'
 import { useAppStore } from '@/store/index'
 import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
-import { normalizeExecutionHostId } from '../../../../../../shared/execution-host'
+import { normalizeExecutionHostId } from '../../../../../../shared/execution-host/execution-host'
 import {
   adoptsCliConversations,
   CLI_CONVERSATION_ADOPTING_AGENTS
@@ -15,7 +16,7 @@ import {
 import {
   STRUCTURED_AGENT_SESSION_RESUME_HISTORY_RUNTIME_CAPABILITY,
   STRUCTURED_AGENT_SESSION_RESUME_LINKED_CWD_RUNTIME_CAPABILITY
-} from '../../../../../../shared/agent-session/structured-agent-session-surface-capabilities'
+} from '../../../../../../shared/agent-session/capabilities/structured-agent-session-surface-capabilities'
 import { resolveAiVaultTargetWorkspacePath } from './ai-vault-session-launch-target'
 import {
   resolveAiVaultSessionResumeInChatEligibility,
@@ -51,7 +52,7 @@ export function resolveAiVaultSessionResumeInChatForWorkspace(args: {
     args.session.agent !== 'pi' &&
     aiVaultSessionResumeInChatWorkspaceMatters(args.session.agent) &&
     !aiVaultSessionCwdMatchesWorkspace(args.session.cwd, targetWorkspacePath)
-  const capabilities = targetOwner ? resolveHostCapabilities(state, targetOwner) : null
+  const capabilities = targetOwner ? hostCapabilitiesFrom(readRuntimeStatuses(), targetOwner) : null
   return resolveAiVaultSessionResumeInChatEligibility({
     session: args.session,
     targetWorkspaceId,
