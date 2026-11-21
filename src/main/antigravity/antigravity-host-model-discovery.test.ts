@@ -285,7 +285,9 @@ describe('Antigravity host CLI model discovery', () => {
         agentCapabilities: {
           loadSession: true,
           sessionCapabilities: { resume: {}, close: {}, load: {}, list: {} },
-          auth: { logout: {} }
+          auth: { logout: {} },
+          // A host agy takes chats only where it can append Orca's instructions to its prompt.
+          _meta: { antigravity: { systemPrompt: { append: true } } }
         },
         agentInfo: { name: 'Antigravity ACP Server', version: '1.5.4' },
         authMethods: [{ id: 'oauth-personal', name: 'Log in with Google' }]
