@@ -1,3 +1,4 @@
+import { withStructuredAgentSessionReportedModel } from '../../../structured-agent-session-default-model-choice'
 import { structuredLaunchRequestedOptions } from '../../../native-chat/input/session-options/native-chat-session-option-defaults'
 import {
   commitStructuredAgentSessionOptionValues,
@@ -63,7 +64,9 @@ export function structuredAgentSessionShownSnapshot(
   state: StructuredAgentSessionOptionState
 ): SessionOptionDescriptor[] {
   const view = structuredAgentSessionOptionView(state, undefined, {})
-  const snapshot = structuredAgentSessionOptionSnapshot(view)
+  const snapshot = structuredAgentSessionOptionSnapshot(view).map((option) =>
+    withStructuredAgentSessionReportedModel(option, view)
+  )
   const modelOption = snapshot.find((descriptor) => descriptor.id === 'model')
   const model = modelOption?.kind.currentValue
   const descriptor = snapshot.find((entry) => entry.id === 'effort')
@@ -137,7 +140,7 @@ function modelOptionView(
 export function structuredAgentSessionSendSelection(
   view: StructuredAgentSessionOptionState
 ): Record<string, string> | undefined {
-  if (view.record.agent !== 'claude') {
+  if (view.record.agent !== 'claude' || view.modelDefault) {
     return undefined
   }
   const snapshot =
