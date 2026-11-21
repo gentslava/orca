@@ -2,11 +2,10 @@ import {
   claudeProfileHistoryDirs,
   claudeAccountHistoryRoots
 } from '../claude-accounts/profiles/routing/claude-profile-installed-router'
-import { isDirectory } from '../claude-accounts/profiles/claude-profile-homes'
 import type { UsageAccountRoot } from '../usage/usage-account-attribution'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { readdir } from 'node:fs/promises'
+import { lstat, readdir } from 'node:fs/promises'
 import { isDefinitiveAbsence } from '../../shared/errors/definitive-filesystem-absence'
 
 const CLAUDE_PROJECTS_DIR = join(homedir(), '.claude', 'projects')
@@ -47,13 +46,18 @@ export function claudeProfileTranscriptDirs(): string[] {
   return [...claudeProfileHistoryDirs('projects'), ...claudeProfileHistoryDirs('transcripts')]
 }
 
-export function claudeProfileTranscriptSources(): UsageAccountRoot[] {
-  return claudeAccountHistoryRoots().flatMap((root) =>
-    ['projects', 'transcripts'].flatMap((surface) => {
-      const path = join(root.path, surface)
-      return isDirectory(path) ? [{ path, accountId: root.accountId }] : []
-    })
+export async function claudeProfileTranscriptSources(): Promise<UsageAccountRoot[]> {
+  const roots = await claudeAccountHistoryRoots()
+  const sources = await Promise.all(
+    roots.flatMap((root) =>
+      ['projects', 'transcripts'].map(async (surface) => {
+        const path = join(root.path, surface)
+        const info = await lstat(path).catch(() => null)
+        return info?.isDirectory() ? { path, accountId: root.accountId } : null
+      })
+    )
   )
+  return sources.filter((source) => source !== null)
 }
 
 export async function listClaudeTranscriptFiles(

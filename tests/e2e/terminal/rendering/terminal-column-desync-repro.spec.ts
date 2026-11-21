@@ -18,6 +18,7 @@ import {
 } from '../layout/terminal-pane-operations'
 import { waitForPtyColumnsAtMost } from './terminal-column-probes'
 import { waitForPtyShellEcho } from '../lifecycle/terminal-pty-readiness'
+import { openWorkspaceStartTerminal } from '../../workspaces/lifecycle/workspace-start-terminal'
 
 // Use a generous probe ceiling so it reports actual columns instead of waiting for a target width.
 const READ_ANY_COLS = 100_000
@@ -157,6 +158,7 @@ test.describe('Terminal column desync repro', () => {
     const widths = [700, 1320, 640, 1180, 600]
     for (const [index, width] of widths.entries()) {
       await switchToWorktree(orcaPage, otherWorktreeId)
+      await openWorkspaceStartTerminal(orcaPage)
       await waitForActiveTerminalManager(orcaPage, 30_000)
       await orcaPage.setViewportSize({ width, height: 800 })
       await orcaPage.waitForTimeout(350)
