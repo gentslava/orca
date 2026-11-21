@@ -7,6 +7,7 @@ import {
   assertFrozenHead,
   compose,
   freezeForeignHead,
+  freezeForkFeatureHead,
   freezeRetainedHead,
   git,
   isAncestor
@@ -78,7 +79,12 @@ try {
     previous: ledger.tracked,
     readPr: async (number) => api(`repos/${config.upstream}/pulls/${number}`),
     readRetainedHead: async ({ repository, ref }) =>
-      api(`repos/${repository}/git/ref/${ref.slice('refs/'.length)}`).object.sha
+      api(`repos/${repository}/git/ref/${ref.slice('refs/'.length)}`).object.sha,
+    forkRepository: process.env.GITHUB_REPOSITORY,
+    readForkBranch: async ({ repository, ref }) => ({
+      ...api(`repos/${repository}/git/ref/${ref.slice('refs/'.length)}`),
+      repository: api(`repos/${repository}`).full_name
+    })
   })
   Object.assign(plan, resolved)
   const source = join(directory, 'source')
@@ -125,7 +131,10 @@ try {
       assertFrozenHead(source, pr.number, pr.head.sha)
     }
   }
-  plan.result = compose(source, plan.upstream, plan.selections, {
+  for (const feature of plan.forkFeatures) {
+    freezeForkFeatureHead(source, feature)
+  }
+  plan.result = compose(source, plan.upstream, [...plan.selections, ...plan.forkFeatures], {
     timestamp: plan.timestamp,
     observedUpstream
   })
@@ -262,6 +271,12 @@ try {
           pr.head.sha,
           pr.merge_commit_sha,
           pr.retainedHeadSource ?? pr.foreignHeadSource ?? null
+        ]),
+        forkFeatures: plan.forkFeatures.map((feature) => [
+          feature.feature,
+          feature.repository,
+          feature.ref,
+          feature.head.sha
         ]),
         outputs: config.outputs,
         compatibility: plan.compatibility,

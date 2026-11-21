@@ -101,6 +101,27 @@ The removal work is recorded in [the atomic PR plans](atomic-pr-plans.md). The t
 
 Feature branches own English copy. Sparse Russian desktop/mobile catalogs live in `localizations/` and are applied only to composed fork source. Planning validates English keys, placeholders and duplicate keys, and rejects a different existing translation. The plan and build fingerprint record each overlay digest. Missing or stale overlays block publication.
 
+## Fork-local features
+
+Some of the owner's preferences differ from a deliberate upstream decision. They live only in this fork, on a branch with no upstream PR. `forkFeatures` in `selection.json` names each branch by a stable slug:
+
+```json
+"forkFeatures": {
+  "activity-row-project-only": {
+    "ref": "refs/heads/fix/activity-row-project-only",
+    "reason": "Activity rows name only the project; upstream keeps the workspace name."
+  }
+}
+```
+
+Each entry needs a lowercase kebab-case slug, a `refs/heads/` ref and a nonempty reason. The repository is the fork running the build (`GITHUB_REPOSITORY`, so local planner runs set it to `gentslava/orca`). An explicit `repository` must belong to a configured author. Unknown fields, two slugs on one branch, and a branch already used by `retainedHeadSources` or `foreignHeadSources` are rejected before any branch is read.
+
+Planning reads each branch through the API and requires the canonical repository name, the exact ref and a commit. It pins that head, fetches the branch, and rejects a head that moved or was rewritten after the pin. A missing branch fails planning; there is no fallback to an earlier head.
+
+Features compose after every upstream PR, in slug order, with the same merge, translation-catalog and reviewed-resolution checks. Resolution records match by path and the three blob identities, so they need no PR number. Name a feature's patches after its slug, for example `refresh-0bd3-activity-row-project-only-0.patch`. A head already contained in the frozen upstream is reported as satisfied and skipped. A branch carrying upstream history newer than the frozen upstream blocks publication, because that history would enter the build as part of the feature. Merge the pin into the branch, feature first, as for PR branches, and choose a pin no older than each feature's upstream merge base.
+
+Integration commits are titled `fork: integrate feature SLUG` and keep the Source-Head trailer. `plan.json` records each feature's slug, repository, ref, reason and pinned head under `forkFeatures`. Result entries name the feature by slug in `included`, `satisfiedFeatures`, conflicts, blockers, translation merges and reviewed resolutions. The build fingerprint includes every pinned feature head. Qualification and promotion count feature integrations like PR integrations. The status report lists features by slug and branch, without upstream links. The status ledger does not track features, so removing one is an explicit selection change. The checks are in `fork-features.test.mjs`.
+
 ## One source for macOS, Windows and Android
 
 Publication rechecks the live upstream main against the source plan after all platforms and independent package checks finish. A moved main blocks publication and requires a fresh composition and checks; rerunning the old package jobs cannot make that source current.

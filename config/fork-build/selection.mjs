@@ -39,9 +39,61 @@ function validBranchSource(source) {
   )
 }
 
+const forkFeatureSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+const forkFeatureFields = new Set(['ref', 'reason', 'repository'])
+
+function declaredForkFeatures(config, forkRepository) {
+  const declared = config.forkFeatures ?? {}
+  if (typeof declared !== 'object' || Array.isArray(declared)) {
+    throw new Error('Invalid fork feature declarations')
+  }
+  const branches = new Set(
+    [
+      ...Object.values(config.retainedHeadSources ?? {}),
+      ...Object.values(config.foreignHeadSources ?? {})
+    ].map((source) => `${source.repository}:${source.ref}`)
+  )
+  return Object.keys(declared)
+    .sort()
+    .map((slug) => {
+      const entry = declared[slug]
+      const source = { repository: entry?.repository ?? forkRepository, ref: entry?.ref }
+      const branch = `${source.repository}:${source.ref}`
+      if (
+        !forkFeatureSlug.test(slug) ||
+        slug.length > 64 ||
+        Object.keys(entry ?? {}).some((field) => !forkFeatureFields.has(field)) ||
+        typeof entry?.reason !== 'string' ||
+        !entry.reason.trim() ||
+        !validBranchSource(source) ||
+        !config.authors.includes(source.repository.split('/')[0]) ||
+        branches.has(branch)
+      ) {
+        throw new Error(`Invalid fork feature: ${slug}`)
+      }
+      branches.add(branch)
+      return { feature: slug, ...source, reason: entry.reason }
+    })
+}
+
+// Fork-local features have no upstream PR; only the exact named fork branch may supply them.
+async function pinForkFeature(feature, readForkBranch) {
+  const source = { repository: feature.repository, ref: feature.ref }
+  const branch = typeof readForkBranch === 'function' ? await readForkBranch(source) : null
+  if (
+    branch?.repository !== source.repository ||
+    branch.ref !== source.ref ||
+    branch.object?.type !== 'commit' ||
+    !/^[a-f0-9]{40}$/.test(branch.object.sha || '')
+  ) {
+    throw new Error(`Fork feature branch identity cannot be verified: ${feature.feature}`)
+  }
+  return { ...feature, head: { sha: branch.object.sha } }
+}
+
 export async function resolveSelection(
   config,
-  { openOwn, previous = [], readPr, readRetainedHead }
+  { openOwn, previous = [], readPr, readRetainedHead, forkRepository, readForkBranch }
 ) {
   const retained = config.retainClosed || {}
   for (const [number, reason] of Object.entries(retained)) {
@@ -75,6 +127,7 @@ export async function resolveSelection(
       throw new Error(`Invalid foreign PR branch source: PR ${number}`)
     }
   }
+  const declaredFeatures = declaredForkFeatures(config, forkRepository)
   const numbers = new Set([
     ...config.seed,
     ...Object.keys(retained).map(Number),
@@ -176,8 +229,13 @@ export async function resolveSelection(
   for (const number of [...numbers].sort((a, b) => a - b)) {
     await resolve(number)
   }
+  const forkFeatures = []
+  for (const feature of declaredFeatures) {
+    forkFeatures.push(await pinForkFeature(feature, readForkBranch))
+  }
   return {
     selections: orderSelections([...records.values()], config.dependencies),
+    forkFeatures,
     lifecycle,
     blockers,
     tracked: [...new Set([...numbers, ...records.keys()])].sort((a, b) => a - b)

@@ -95,6 +95,20 @@ function freezeForkBranchHead(cwd, pr, source, kind, originalHead, runGit) {
   }
 }
 
+export function freezeForkFeatureHead(cwd, feature, runGit = git) {
+  const ref = `refs/personal/feature-${feature.feature}`
+  runGit(cwd, ['check-ref-format', feature.ref])
+  runGit(cwd, [
+    'fetch',
+    '--no-tags',
+    `https://github.com/${feature.repository}.git`,
+    `${feature.ref}:${ref}`
+  ])
+  if (runGit(cwd, ['rev-parse', ref]) !== feature.head.sha) {
+    throw new Error(`Fork feature ${feature.feature} branch moved after snapshot; rerun planning`)
+  }
+}
+
 function mergeAndValidateCatalogs(cwd, before, incoming, upstream) {
   const repaired = []
   let base
@@ -225,6 +239,20 @@ function mergedAfterFrozenBaseline(cwd, pr, upstream, observed) {
   return /^[a-f0-9]{40}$/.test(shared) && isAncestor(cwd, shared, upstream)
 }
 
+// A branch merged with upstream newer than the pin would carry that upstream into its feature delta.
+function carriesUnfrozenUpstream(cwd, head, upstream, observed) {
+  if (!observed || observed === upstream) {
+    return false
+  }
+  const shared = git(cwd, ['merge-base', '--all', head, observed])
+  return !/^[a-f0-9]{40}$/.test(shared) || !isAncestor(cwd, shared, upstream)
+}
+
+const selectedIdentity = (entry) =>
+  entry.feature ? { feature: entry.feature } : { number: entry.number }
+const selectedSubject = (entry) =>
+  entry.feature ? `feature ${entry.feature}` : `PR ${entry.number}`
+
 function directConflicts(cwd, upstream, sha) {
   const directory = mkdtempSync(join(tmpdir(), 'personal-conflict-'))
   try {
@@ -254,7 +282,7 @@ function sealSelectedFeature(cwd, before, pr, timestamp) {
       '-p',
       before,
       '-m',
-      `fork: integrate PR ${pr.number}\n\nSource-Head: ${pr.head.sha}`
+      `fork: integrate ${selectedSubject(pr)}\n\nSource-Head: ${pr.head.sha}`
     ],
     {
       GIT_AUTHOR_DATE: timestamp,
@@ -282,9 +310,22 @@ export function compose(
     conflicts = [],
     suppliedByUpstream = [],
     mergedAfterBaseline = [],
+    satisfiedFeatures = [],
     blockers = []
   for (const pr of selections) {
-    if (pr.merged_at) {
+    if (pr.feature) {
+      if (isAncestor(cwd, pr.head.sha, upstream)) {
+        satisfiedFeatures.push(pr.feature)
+        continue
+      }
+      if (carriesUnfrozenUpstream(cwd, pr.head.sha, upstream, observedUpstream)) {
+        blockers.push({
+          feature: pr.feature,
+          reason: 'Branch carries upstream history newer than the frozen upstream'
+        })
+        continue
+      }
+    } else if (pr.merged_at) {
       if (isAncestor(cwd, pr.merge_commit_sha, upstream)) {
         suppliedByUpstream.push(pr.number)
         continue
@@ -296,7 +337,8 @@ export function compose(
       mergedAfterBaseline.push(pr.number)
     }
     const before = git(cwd, ['rev-parse', 'HEAD'])
-    const message = `fork: integrate PR ${pr.number}`
+    const identity = selectedIdentity(pr)
+    const message = `fork: integrate ${selectedSubject(pr)}`
     try {
       prepareFeatureMerge(cwd, upstream, pr.head.sha, timestamp)
       git(cwd, ['commit', '-m', message], {
@@ -305,14 +347,18 @@ export function compose(
       })
       const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha, upstream)
       if (repaired.length) {
-        git(cwd, ['commit', '-m', `fork: merge independent translation keys for PR ${pr.number}`], {
-          GIT_AUTHOR_DATE: timestamp,
-          GIT_COMMITTER_DATE: timestamp
-        })
-        localeMerges.push({ number: pr.number, paths: repaired })
+        git(
+          cwd,
+          ['commit', '-m', `fork: merge independent translation keys for ${selectedSubject(pr)}`],
+          {
+            GIT_AUTHOR_DATE: timestamp,
+            GIT_COMMITTER_DATE: timestamp
+          }
+        )
+        localeMerges.push({ ...identity, paths: repaired })
       }
       sealSelectedFeature(cwd, before, pr, timestamp)
-      included.push({ number: pr.number, head: pr.head.sha })
+      included.push({ ...identity, head: pr.head.sha })
     } catch (error) {
       const paths = git(cwd, ['diff', '--name-only', '--diff-filter=U']).split('\n').filter(Boolean)
       const resolution = resolveSelectedFeatureConflicts(cwd, resolutionsDirectory, upstream)
@@ -323,16 +369,16 @@ export function compose(
           GIT_COMMITTER_DATE: timestamp
         })
         sealSelectedFeature(cwd, before, pr, timestamp)
-        included.push({ number: pr.number, head: pr.head.sha })
+        included.push({ ...identity, head: pr.head.sha })
         const localePaths = [...new Set([...resolution.localePaths, ...repaired])]
         if (localePaths.length) {
-          localeMerges.push({ number: pr.number, paths: localePaths })
+          localeMerges.push({ ...identity, paths: localePaths })
         }
         if (resolution.patches.length) {
-          reviewedResolutions.push({ number: pr.number, patches: resolution.patches })
+          reviewedResolutions.push({ ...identity, patches: resolution.patches })
         }
         if (resolution.retirements.length) {
-          retiredFixtures.push({ number: pr.number, paths: resolution.retirements })
+          retiredFixtures.push({ ...identity, paths: resolution.retirements })
         }
         continue
       }
@@ -341,11 +387,14 @@ export function compose(
         throw error
       }
       conflicts.push({
-        number: pr.number,
+        ...identity,
         head: pr.head.sha,
         kind: directConflicts(cwd, upstream, pr.head.sha) ? 'upstream' : 'combination',
         paths,
-        preceding: included.map((entry) => entry.number)
+        preceding: included.flatMap((entry) => (entry.feature ? [] : [entry.number])),
+        ...(pr.feature
+          ? { precedingFeatures: included.flatMap((entry) => entry.feature ?? []) }
+          : {})
       })
     }
   }
@@ -360,6 +409,7 @@ export function compose(
     conflicts,
     suppliedByUpstream,
     mergedAfterBaseline,
+    satisfiedFeatures,
     blockers,
     publishable: !conflicts.length && !blockers.length
   }
