@@ -1,0 +1,36 @@
+diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+index ce124f4a470d45a62756251eb91fd0e5486f6267..63fde7c93e4e326851f4a1243b8b3a9cd066f364 100644
+--- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
++++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+@@ -83,6 +83,7 @@ function noticeLineText(
+       'modelUnavailable',
+       'providerUnavailable',
+       'providerSafetyStopped',
++      'flaggedRequestNotSwitched',
+       'providerResponseFailed'
+     ].includes(failure.kind)
+       ? (['row', 'rejection'] as const).find(
+@@ -207,13 +208,12 @@ export function MobileNativeChatNoticeRow({
+   )
+   switch (look.kind) {
+     case 'auto-review-denied':
+-    case 'settled-permission': {
+-      const summary = nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)
++    case 'settled-permission':
+       return (
+         <View>
+           {disclosed ? null : (
+             <MobileNativeChatNoticeDisclosure
+-              summary={summary}
++              summary={nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)}
+               expanded={expanded}
+               fontScale={fontScale}
+               onPress={() => setExpanded((open) => !open)}
+@@ -223,7 +223,6 @@ export function MobileNativeChatNoticeRow({
+           {disclosed || expanded ? diagnosticBody : null}
+         </View>
+       )
+-    }
+     case 'divider':
+       return <MobileNativeChatDivider label={copy[look.label]} />
+     case 'forked-from': {

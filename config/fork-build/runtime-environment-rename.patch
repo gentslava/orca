@@ -150,10 +150,10 @@ index 5cd4ccf1a5e..648ae304e37 100644
    userDataPath: string,
    selector: string
 diff --git a/src/cli/specs/environment.ts b/src/cli/specs/environment.ts
-index b9a925cb48b..bcab9e58963 100644
+index 594ed9ee21a..96549a0aff0 100644
 --- a/src/cli/specs/environment.ts
 +++ b/src/cli/specs/environment.ts
-@@ -69,6 +69,15 @@ export const ENVIRONMENT_COMMAND_SPECS: CommandSpec[] = [
+@@ -70,6 +70,15 @@ export const ENVIRONMENT_COMMAND_SPECS: CommandSpec[] = [
      usage: 'orca environment show --environment <selector> [--json]',
      allowedFlags: [...LOCAL_COMMAND_FLAGS, 'environment']
    },
@@ -170,7 +170,7 @@ index b9a925cb48b..bcab9e58963 100644
      path: ['environment', 'rm'],
      destructive: true,
 diff --git a/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts b/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
-index 55bdaf08853..c8935966982 100644
+index 530ecc50743..b457fdc010b 100644
 --- a/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
 +++ b/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
 @@ -181,38 +181,16 @@ export function useRuntimeEnvironmentMutationActions({
@@ -273,10 +273,10 @@ index 55bdaf08853..c8935966982 100644
 +  }
 +}
 diff --git a/src/shared/plugins/languages/protected-copy-keys.json b/src/shared/plugins/languages/protected-copy-keys.json
-index f1f423dc170..822d028d209 100644
+index 7035f992eee..5935ca03199 100644
 --- a/src/shared/plugins/languages/protected-copy-keys.json
 +++ b/src/shared/plugins/languages/protected-copy-keys.json
-@@ -363,6 +363,10 @@
+@@ -393,6 +393,10 @@
      "auto.components.settings.RuntimeEnvironmentsPane.d2e00809e4",
      "auto.components.settings.RuntimeEnvironmentsPane.ed3e3f069d",
      "auto.components.settings.RuntimeEnvironmentsPane.removeDefaultServerDescription",
@@ -339,18 +339,3 @@ index 1723bc3ef25..ef52253ae8b 100644
  }
  
  export function resolveEnvironment(
-diff --git a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
-index eba4e99eaad..bc6840fd2eb 100644
---- a/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
-+++ b/src/renderer/src/web/preload-api/web-runtime-environments-rename.test.ts
-@@ -1,7 +1,7 @@
- import { beforeEach, describe, expect, it } from 'vitest'
--import { installApi } from '../web-preload-api-test-harness'
--import { webRuntimeState } from './web-runtime-session'
--import type { StoredWebRuntimeEnvironment } from '../web-runtime-environment'
-+import { installApi } from '../testing/web-preload-api-test-harness'
-+import { webRuntimeState } from '../runtime/client/web-runtime-session'
-+import type { StoredWebRuntimeEnvironment } from '../pairing/web-runtime-environment'
- 
- const ENV_KEY = 'orca.web.runtimeEnvironment.v1'
- 

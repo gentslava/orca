@@ -6,7 +6,8 @@
   "seed": [
     33360, 33361, 33362, 33363, 33365, 33369, 33371, 33375, 33383, 33395, 33403, 33417, 33502,
     33512, 33576, 34338, 34365, 34471, 34480, 34866, 34895, 34899, 36548, 36558, 36569, 36572,
-    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40728, 40816, 44450, 44451, 44452, 44655
+    36574, 36593, 36606, 36607, 36858, 36892, 37279, 37717, 40728, 40816, 44450, 44451, 44452,
+    44655, 44768, 45385, 45437, 46107
   ],
   "include": [
     {
@@ -70,8 +71,7 @@
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
     "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
-    "44451": "Hold: the restack of 33395 onto this slice changes 33395 behaviour (stale-view new-chat clear, Default row detail, mobile fallback, unstarted snapshot); 33395 composes from its own head until the owner decides.",
-    "44768": "Hold: based on upstream db07b71ab7c, newer than this refresh pin; select it in the next refresh."
+    "45983": "Hold: the maintainer carry-over of 33360 is based on upstream newer than this refresh pin; upstream merged Gemini chats as 45985 instead."
   },
   "replacements": {
     "36569": 36922,
@@ -91,9 +91,12 @@
     "40870": 41203,
     "40728": 43959,
     "40816": 41430,
-    "41859": 42954
+    "41859": 42954,
+    "44655": 45027,
+    "44768": 44991
   },
   "dependencies": {
+    "33395": [44451],
     "33576": [44450],
     "36593": [36634]
   },
@@ -131,12 +134,17 @@
     "composed-format.patch"
   ],
   "retainClosed": {
+    "33360": "Upstream closed it for 45985 (517e1ddb825f), merged after this refresh pin; the fork keeps Gemini chats from its branch until a pin includes 45985, then records the replacement.",
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
     "36634": "Owner retains full tool invocation details in expanded chat rows; upstream issue 36633 was closed as not planned and the maintainer alternative 36958 was closed unmerged.",
     "36945": "Owner retains the project name in the mobile session header; upstream issue 36942 was closed as not planned after the session bar redesign in 41345.",
     "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
   },
   "retainedHeadSources": {
+    "33360": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/gentslava/upstream-gemini-acp"
+    },
     "34365": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/gentslava/android-picker-refusal-diagnostics"
@@ -172,5 +180,11 @@
       "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
     }
   },
-  "pullRequestUpstreamCommit": "0bd39bd4dcce12a338b5eaec285d45772724229d"
+  "forkFeatures": {
+    "activity-row-project-only": {
+      "ref": "refs/heads/fix/activity-row-project-only",
+      "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
+    }
+  },
+  "pullRequestUpstreamCommit": "75339dcf434f37145016d938209dc5741d14bc78"
 }
