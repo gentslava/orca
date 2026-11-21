@@ -335,10 +335,10 @@ Selection changes:
 
 - 45027 replaces 44655 and 44991 replaces 44768; both merged upstream. 45385 merged and is supplied by upstream.
 - 44451 (desktop Default) is selected, and 33395 is stacked on it (`"33395": [44451]`). 33395's branch merges 44451 and carries only the rest of the model-default reset.
-- 45437 (When Claude flags a request) and 46107 (Russian desktop strings) are selected. 46107 is desktop-only: a complete Russian phone catalog exceeds the 384 KiB that one host catalog reply carries (upstream 40519). The phone translation waits on `feat/ru-translations-mobile` for host catalog delivery over several replies and is not selected; the phone keeps the pin's catalog with the fork mobile overlay.
+- 45437 (When Claude flags a request) and 46107 (Russian desktop strings) are selected. A complete Russian phone catalog exceeds the 384 KiB that one host catalog reply carries (upstream 40519), so 46107 is desktop-only. 46187 serves a larger phone catalog in 384 KiB windows through `mobileWeb.bundle.localeCatalogRange`, and 46190 adds the complete Russian phone catalog on top of it (`"46190": [46187]`). Both are selected, and the Russian mobile overlay is now empty.
 - Gemini CLI chat over ACP landed upstream in 45985 after this pin, and upstream closed 33360 and the maintainer carry-over 45983. 33360 is retained closed from `gentslava/upstream-gemini-acp` until the pin contains 45985; the next refresh records `"33360": 45985` in `replacements`. 45983 closed unmerged and has no selection entry.
 - The fork-local feature `activity-row-project-only` (branch `fix/activity-row-project-only`) names only the project on Activity rows; upstream 45027 keeps the workspace name.
-- `seed` gains 44768, 45385, 45437 and 46107.
+- `seed` gains 44768, 45385, 45437, 46107, 46187 and 46190.
 
 Twenty branches were merged with the pin in their own branches, feature first: 33360, 33362, 33371, 33383, 33417, 33502, 33512, 33576, 34338, 34895, 34899, 37744, 38963, 39882, 41166, 42410, 44452, 45437, the 38848 retained branch and the 40980 integration branch. `fix/activity-row-project-only` merged the pin cleanly. The 33361, 33395 and 44451 branches were merged with the pin separately.
 
@@ -369,6 +369,7 @@ Overlay changes:
 - `conversation-project-order.patch` uses the neutral project names (Acme, Example) that 33361's tests now use.
 - `project-start-actions.patch` retires upstream's `agent-launch-picker-rows.test.ts`, which checks the setup chat rows that this launch menu leaves out. `composed-ci-contracts.patch` checks the process start time with `isNonNegativeSafeInteger`, as fork master did, instead of upstream's cast.
 - `fork-upstream-regressions.mjs` names the two model-default suites at their new paths.
+- `composed-source-modules.patch` prunes the 13 SQLite blocking baseline rows for the OpenCode and Hermes scanners, which its utility process entry exempts.
 - The Russian desktop overlay drops 85 keys that 46107 now translates.
 
-Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, the React Compiler ratchet and the localization checks. Lint passes; the test-runner list check passes on the merged tree with the control files. The composed regression suites pass: 191 desktop with 1 skipped, and 32 mobile.
+Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, the React Compiler ratchet and the localization checks. Lint passes; the test-runner list check passes on the merged tree with the control files. The composed regression suites pass: 191 desktop with 1 skipped, and 32 mobile. The phone web bundle builds and verifies, with the largest host catalog ru at 434,522 bytes in windows.
