@@ -1,0 +1,27 @@
+diff --git a/mobile/src/host-screen/host-screen-operations.ts b/mobile/src/host-screen/host-screen-operations.ts
+index ab205052e6233a2c46b541bacb976313318f6cd9..349ad7f698626fc1e632c8e1b3d7cf607168e8fa 100644
+--- a/mobile/src/host-screen/host-screen-operations.ts
++++ b/mobile/src/host-screen/host-screen-operations.ts
+@@ -165,3 +165,22 @@ export const conversationPreferenceWrite = bindDeferredRpcOperation(
+     )
+   })
+ )
++
++export const projectOpenWrite = bindDeferredRpcOperation(
++  defineRpcOperation({
++    name: 'ui.record-personal-project-open',
++    method: 'ui.recordProjectOpen',
++    acceptance: 'success-result-or-skip',
++    barrier: 'after-caller-barrier',
++    read: rpcResultVariant('project-open-recorded', hostViewSettingsSchema)
++  })
++)
++export const projectPinWrite = bindDeferredRpcOperation(
++  defineRpcOperation({
++    name: 'ui.set-project-pinned',
++    method: 'ui.setProjectPinned',
++    acceptance: 'success-result-or-skip',
++    barrier: 'after-caller-barrier',
++    read: rpcResultVariant('project-pin-written', hostViewSettingsSchema)
++  })
++)

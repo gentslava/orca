@@ -38,7 +38,7 @@ import type { WorkspaceStatusDefinition } from '../worktree/types'
 import type { PersistedAutomationHostFilter } from '../automations/ownership/automation-host-filter'
 import type { PendingRuntimeRepoRemoval } from '../remote-runtime/host-catalog/pending-runtime-repo-removal'
 import type { BotSidebarView } from '../bots/bot-sidebar-view'
-import type { SidebarBody } from '../ui-chrome/sidebar-body'
+import type { SidebarView } from '../ui-chrome/sidebar-body'
 
 export type PersistedUIState = {
   gitGraphFiltersByWorktree?: Record<string, GitHistoryRefs>
@@ -52,8 +52,8 @@ export type PersistedUIState = {
   activeView: TopLevelView
   sidebarWidth: number
   sidebarOpen?: boolean
-  /** Sidebar list the user last picked, restored at startup; absent or unknown means Workspaces. */
-  sidebarBody?: SidebarBody
+  /** Sidebar view picked in its title menu or Appearance, restored at startup; absent or unknown means upstream's project list. */
+  sidebarView?: SidebarView
   rightSidebarOpen: boolean
   rightSidebarTab: RightSidebarTab
   rightSidebarExplorerView: RightSidebarExplorerView
@@ -142,6 +142,7 @@ export type PersistedUIState = {
   workspaceBoardColumnWidth?: number
   /** Dragged cap on the sidebar Bots section in px; absent or null keeps the default 40% cap. */
   sidebarBotsHeight?: number | null
+  sidebarProjectsFirst?: boolean
   syncTaskStatusFromWorkspaceBoard?: boolean
   /** Migrate reversed defaults once; never infer later user order from IDs/labels. */
   _workspaceStatusesDefaultOrderMigrated?: boolean

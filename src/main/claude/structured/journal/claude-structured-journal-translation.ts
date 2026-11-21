@@ -40,6 +40,7 @@ import { ClaudeUsageLimits } from './claude-usage-limits'
 import { ClaudeThreadGoal } from './claude-thread-goal'
 import { createClaudeFinalOutputCoverage } from './claude-final-output-coverage'
 import { withClaudeConversationContent } from './claude-internal-message-content'
+import { journalClaudeFullAccessRefusal } from '../permissions/claude-full-access-refusal-notice'
 import {
   journalClaudePluginInputFailure,
   settleClaudeInterruptedTurn
@@ -134,7 +135,7 @@ export function createClaudeJournalTranslator(
     providerFallback,
     corrections,
     turn,
-    assistantFailures: new ClaudeAssistantFailures(deps.account, deps.model),
+    assistantFailures: new ClaudeAssistantFailures(deps),
     usageLimits: new ClaudeUsageLimits(),
     threadGoal: new ClaudeThreadGoal(() => deps.sink.journalSnapshot?.()?.threadGoal)
   }
@@ -186,6 +187,8 @@ export function createClaudeJournalTranslator(
             event.message.is_api_error_message !== true ||
             event.startedSend != null
         }
+        // Checked on every root frame: an approved plan settles the fallback without a new init.
+        journalClaudeFullAccessRefusal(deps, turnScope())
       }
     }
     if (event.type === 'message' && absorbClaudeCommandFrame(messageContext, event.message)) {
@@ -219,16 +222,15 @@ export function createClaudeJournalTranslator(
       backgroundTasks.observe(event.message, event.observedAt ?? Date.now())
       messageContext.usageLimits.observe(event.message, turn.command?.rejections)
       const kind = claudeProviderFrameKind(event.message)
-      if (
-        !journalClaudeMessage(
-          messageContext,
-          event.message,
-          event.startsTurn === true,
-          event.observedAt ?? Date.now(),
-          event.requestedAt,
-          event.clientMessageId
-        )
-      ) {
+      const journaled = journalClaudeMessage(
+        messageContext,
+        event.message,
+        event.startsTurn === true,
+        event.observedAt ?? Date.now(),
+        event.requestedAt,
+        event.clientMessageId
+      )
+      if (!journaled && !messageContext.assistantFailures.foldsNoFallbackNotice(event.message)) {
         providerFallback.append(
           kind,
           event.message,

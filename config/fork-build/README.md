@@ -324,3 +324,52 @@ Overlay changes:
 - `composed-source-modules.patch` prunes the three compiler baseline rows the composition improves: the confirmation dialog (now 3 upstream), the link routing preference dialog and 44655's trimmed hover card summary.
 - `composed-source-modules.patch` also moves the queued-message composer value into a hook beside its context. 38963's foreground task provider and 44452's subagent view together put the phone chat overlay over its 400-line limit; each fits alone.
 - `composed-ci-contracts.patch` keeps both e2e spec adaptations; upstream has not updated those specs by this pin.
+
+## Refresh on upstream 75339dcf434f (2026-11-21)
+
+The pin moved from 0bd39bd4dcce to 75339dcf434f, upstream main 743 commits later. The plan resolves 78 changes: upstream supplies 32, the fork composes 45 PRs and one fork-local feature. All eleven package outputs remain required.
+
+Fork master carries terminal daemon protocol 61 from fork PR 94, which cherry-picks upstream 44920 with its tests. Master is merged into this source, so the runtime launcher ratchet compares protocol 61 with 61 while this composition changes the runtime launcher files.
+
+Selection changes:
+
+- 45027 replaces 44655 and 44991 replaces 44768; both merged upstream. 45385 merged and is supplied by upstream.
+- 44451 (desktop Default) is selected, and 33395 is stacked on it (`"33395": [44451]`). 33395's branch merges 44451 and carries only the rest of the model-default reset.
+- 45437 (When Claude flags a request) and 46107 (Russian desktop strings) are selected. A complete Russian phone catalog exceeds the 384 KiB that one host catalog reply carries (upstream 40519), so 46107 is desktop-only. 46187 serves a larger phone catalog in 384 KiB windows through `mobileWeb.bundle.localeCatalogRange`, and 46190 adds the complete Russian phone catalog on top of it (`"46190": [46187]`). Both are selected, and the Russian mobile overlay is now empty.
+- Gemini CLI chat over ACP landed upstream in 45985 after this pin, and upstream closed 33360 and the maintainer carry-over 45983. 33360 is retained closed from `gentslava/upstream-gemini-acp` until the pin contains 45985; the next refresh records `"33360": 45985` in `replacements`. 45983 closed unmerged and has no selection entry.
+- The fork-local feature `activity-row-project-only` (branch `fix/activity-row-project-only`) names only the project on Activity rows; upstream 45027 keeps the workspace name.
+- `seed` gains 44768, 45385, 45437, 46107, 46187 and 46190.
+
+Twenty branches were merged with the pin in their own branches, feature first: 33360, 33362, 33371, 33383, 33417, 33502, 33512, 33576, 34338, 34895, 34899, 37744, 38963, 39882, 41166, 42410, 44452, 45437, the 38848 retained branch and the 40980 integration branch. `fix/activity-row-project-only` merged the pin cleanly. The 33361, 33395 and 44451 branches were merged with the pin separately.
+
+- 33360 adds Gemini beside upstream's Kiro in the ACP registry, setup commands, naming exclusions and agent profiles. Bots stay held back from Gemini only.
+- 33371 hands its usage history invoker to the runtime through the desktop core, which upstream 45071 introduced.
+- 33383 keeps its single-conversation history with upstream's History bottom bar and agent filter. Its empty-list states move into the load-state module.
+- 33512 reads hold-to-quit settings through the native settings projection (45130) and keybindings from the desktop core. The keyboard helper path no longer checks for the file; the quit-chord watch fails closed at spawn.
+- 34895's chat pane contexts move into one wrapper, and 34899's local accounts stream joins upstream's per-host owner accounts stream (44478).
+- 37744 writes session-link mail on its worker connection without a sender Dispatch (44472). Its owner question uses upstream's question card look.
+- 40980's integration branch keeps upstream's sign-in answer when a listing finds the agent signed out. Its host agy fixture declares the system prompt capability that upstream now requires.
+- 34338's upload test finds the spinner by upstream's `loading-spinner` frame; upstream no longer spins the svg itself.
+- 33576 gives upstream's quiet-turn loop test the scope key its history fold requires.
+- 42410 builds the Pi visuals environment with upstream's helper and the shared inherited-folder list, so an inherited temporary folder is dropped as before.
+- 45437 moves its setting into upstream's host-owned settings (`projectHostOwnedSettings`, `useHostSetting`).
+- 33417, 34895, 37744, 38848, 38963, 44452 and 45437 extract or condense code so each file stays within its line limit on this pin.
+
+The 40298 integration branch merges the foreign author's new head (fbaff164deb1). Its rename handler stays in its own module.
+
+Combination records: 43 new `refresh-7533-*` records and 9 unchanged earlier records; 52 in all. The rest were removed.
+
+Overlay changes:
+
+- `project-start-actions.patch` routes the tab bar's creation policy through the workspace owner with upstream's host statuses. It also retires upstream's passive initial-terminal seeder with its test and the two seeding cases in the initial-surface performance suite.
+- `composed-source-modules.patch` no longer carries the keyboard helper, the queued-message composer hook, the desktop option pending pick, the structured session tab strips or the saved-server rename test imports; branches now own them. It moves the phone notice line text into its copy module and the desktop picker's accessible name into its labels module. It also prunes the blocking-helper, sync-fs and compiler baseline rows that the composition improves.
+- `composed-source-modules.patch`'s pending model send fixture imports the default-model capability from 44451's runtime capabilities module.
+- `composed-ci-contracts.patch` keeps upstream's compiler baseline row for the owner usage hook, which keeps its lint suppression. It optional-chains `capture()` in 44451's model-default test, which becomes optional beside 33362.
+- `composed-format.patch` formats the tool-line label import from the 36593 record.
+- `conversation-project-order.patch` uses the neutral project names (Acme, Example) that 33361's tests now use.
+- `project-start-actions.patch` retires upstream's `agent-launch-picker-rows.test.ts`, which checks the setup chat rows that this launch menu leaves out. `composed-ci-contracts.patch` checks the process start time with `isNonNegativeSafeInteger`, as fork master did, instead of upstream's cast.
+- `fork-upstream-regressions.mjs` names the two model-default suites at their new paths.
+- `composed-source-modules.patch` prunes the 13 SQLite blocking baseline rows for the OpenCode and Hermes scanners, which its utility process entry exempts.
+- The Russian desktop overlay drops 85 keys that 46107 now translates.
+
+Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, the React Compiler ratchet and the localization checks. Lint passes; the test-runner list check passes on the merged tree with the control files. The composed regression suites pass: 191 desktop with 1 skipped, and 32 mobile. The full PR checks pass on this composition. The phone web bundle builds and verifies, with the largest host catalog ru at 434,522 bytes in windows.

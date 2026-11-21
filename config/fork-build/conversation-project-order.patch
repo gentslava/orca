@@ -247,8 +247,8 @@ index 4ac1e8619b0..359bd60c7af 100644
 +  useAppStore.setState({
 +    personalProjectOrder: {
 +      projects: {
-+        '["local","local","repo:orca"]': { openCount: 5, lastOpenedAt: 100 },
-+        '["local","local","repo:djinn"]': { openCount: 1, lastOpenedAt: 200 }
++        '["local","local","repo:acme"]': { openCount: 5, lastOpenedAt: 100 },
++        '["local","local","repo:example"]': { openCount: 1, lastOpenedAt: 200 }
 +      },
 +      settledOperations: []
 +    },
@@ -258,10 +258,10 @@ index 4ac1e8619b0..359bd60c7af 100644
 +  const originalManual = useAppStore.getState().manualRepoOrder
 +  mount()
 +  for (const [label, expected] of [
-+    ['Name', ['Djinn', 'Orca']],
-+    ['Frequent', ['Orca', 'Djinn']],
-+    ['Recent', ['Djinn', 'Orca']],
-+    ['Manual', ['Orca', 'Djinn']]
++    ['Name', ['Acme', 'Example']],
++    ['Frequent', ['Acme', 'Example']],
++    ['Recent', ['Example', 'Acme']],
++    ['Manual', ['Acme', 'Example']]
 +  ] as const) {
 +    await userEvent.click(screen.getByRole('button', { name: 'Project order' }))
 +    expect(screen.getAllByRole('menuitemradio')).toHaveLength(4)
@@ -425,7 +425,7 @@ index f22b7671e3f..66f0dbf3d52 100644
 +    folders: [localFolder],
 +    sessions: [{ ...chat('lost', 'local', 'folder:missing'), cwd: '/Apple' }]
 +  })
-+  expect(result.map((group) => group.label)).toEqual(['Apple', 'Djinn', 'Notes', 'Orca'])
++  expect(result.map((group) => group.label)).toEqual(['Acme', 'Apple', 'Example', 'Notes'])
 +})
 +
 +it('keeps host-local personal rankings separate when repo IDs collide', () => {
@@ -439,8 +439,8 @@ index f22b7671e3f..66f0dbf3d52 100644
 +    catalog: projectHostSetupProjectionFromRepos(repos),
 +    personalProjectOrder: {
 +      projects: {
-+        '["local","local","repo:orca"]': { openCount: 1 },
-+        '["runtime:remote","runtime:remote","repo:orca"]': { openCount: 9 }
++        '["local","local","repo:acme"]': { openCount: 1 },
++        '["runtime:remote","runtime:remote","repo:acme"]': { openCount: 9 }
 +      },
 +      settledOperations: []
 +    }

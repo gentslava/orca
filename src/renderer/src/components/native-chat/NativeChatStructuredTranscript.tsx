@@ -3,11 +3,14 @@ import {
   NativeChatPartyWorkerApprovalStack,
   nativeChatWorkerApprovalParty
 } from './worker-approvals/NativeChatWorkerApprovals'
-import { NativeChatCrewFrame, NativeChatCrewPanel } from '../orchestration-crew/NativeChatCrewPanel'
 import { NativeChatSessionChildren } from './NativeChatSessionChildren'
 import type { NativeChatStructuredViewProps } from './native-chat-view-types'
 import { NativeChatUsageLimitActionsProvider } from './usage/NativeChatUsageLimitActions'
 import type { ComponentProps, ReactNode, Ref } from 'react'
+import { NativeChatAntigravityAuthProvider } from './antigravity-auth/native-chat-antigravity-auth'
+import { NativeChatSlackMirrorContext } from './slack-mirror/native-chat-slack-mirror'
+import { NativeChatCrewContext } from '../orchestration-crew/use-native-chat-crew'
+import { NativeChatChildNavigationContext } from './native-chat-child-navigation'
 import { NativeChatSubagentTranscripts } from './subagents/NativeChatSubagentTranscripts'
 import { NativeChatRowActionsProvider } from './messages/actions/NativeChatRowActionsProvider'
 import {
@@ -92,26 +95,21 @@ export function NativeChatStructuredTranscript({
   )
 }
 
+/** The transcript area, with this chat's retained children above the conversation. */
 export function NativeChatStructuredTranscriptFrame({
   pane,
-  composerRef,
-  canMention,
   isVisible,
   children
 }: {
   pane: Omit<NativeChatStructuredViewProps, 'mode'>
-  composerRef: ComponentProps<typeof NativeChatCrewPanel>['composerRef']
-  canMention: boolean
   isVisible: boolean
   children: ReactNode
 }): React.JSX.Element {
   return (
-    <NativeChatCrewFrame
-      panel={<NativeChatCrewPanel {...pane} {...{ composerRef, canMention, isVisible }} />}
-    >
+    <div className="relative flex min-h-0 flex-1 flex-col">
       <NativeChatSessionChildren {...pane} isVisible={isVisible} />
       {children}
-    </NativeChatCrewFrame>
+    </div>
   )
 }
 
@@ -128,5 +126,32 @@ export function NativeChatStructuredWorkerApprovals({
       target={pane.target}
       isVisible={isVisible}
     />
+  )
+}
+
+/** What every part of a chat pane reads: its Antigravity sign-in, Slack mirror, crew and child navigation. */
+export function NativeChatStructuredContexts({
+  antigravityAuth,
+  slackMirror,
+  crew,
+  childNavigation,
+  children
+}: {
+  antigravityAuth: ComponentProps<typeof NativeChatAntigravityAuthProvider>['target']
+  slackMirror: ComponentProps<typeof NativeChatSlackMirrorContext.Provider>['value']
+  crew: ComponentProps<typeof NativeChatCrewContext.Provider>['value']
+  childNavigation: ComponentProps<typeof NativeChatChildNavigationContext.Provider>['value']
+  children: ReactNode
+}): React.JSX.Element {
+  return (
+    <NativeChatAntigravityAuthProvider target={antigravityAuth}>
+      <NativeChatSlackMirrorContext.Provider value={slackMirror}>
+        <NativeChatCrewContext.Provider value={crew}>
+          <NativeChatChildNavigationContext.Provider value={childNavigation}>
+            {children}
+          </NativeChatChildNavigationContext.Provider>
+        </NativeChatCrewContext.Provider>
+      </NativeChatSlackMirrorContext.Provider>
+    </NativeChatAntigravityAuthProvider>
   )
 }

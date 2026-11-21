@@ -72,10 +72,7 @@ export function MobileNativeChatUserMessageFold({
             {open
               ? t('chat.nativeChatUserMessageFold.showLess', 'Show less')
               : recovery?.load === 'failed'
-                ? t(
-                    'chat.nativeChatUserMessageFold.loadFailed',
-                    "Show full message — couldn't load, tap to retry"
-                  )
+                ? t('chat.nativeChatUserMessageFold.loadFailed', 'Retry full message')
                 : t('chat.nativeChatUserMessageFold.showFullMessage', 'Show full message')}
           </Text>
         </Pressable>

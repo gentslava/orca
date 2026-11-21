@@ -93,6 +93,8 @@ export const AGENT_SESSION_FAILURE_COPY = {
   claudeAccountSetupFailed: CLAUDE_PROFILE_SETUP_FAILED_MESSAGE,
   agentCommandNotRunnable:
     "{{agent}}'s Command in Settings → Agents must start with a program Orca can find. Variables, pipes and other shell syntax aren't supported; use the Environment setting for variables. Change it or reset it.",
+  agentCommandFailed:
+    "{{agent}}'s Command in Settings → Agents didn't start {{agent}}: {{detail}}. Change it or reset it.",
   runtimeNotInstalled:
     "{{agent}} isn't installed on the computer running this chat. Install it from the chat in a current version of Orca.",
   fullAccessAsRoot:
@@ -121,6 +123,8 @@ export const AGENT_SESSION_FAILURE_COPY = {
     "{{agent}} couldn't respond because the service is busy. Pick another model, or wait a little and send again.",
   providerSafetyStopped:
     '{{agent}} stopped this response after a safety check. Review your request and send again.',
+  flaggedRequestNotSwitched:
+    '{{agent}} declined this request, and switching models on flagged requests is off. Rephrase it and send again, or change "When Claude flags a request" in Settings → Agents.',
   providerResponseFailed:
     "{{agent}} couldn't finish this response. Open Details for more information.",
   providerResponseFailedQuoted: "{{agent}} couldn't finish this response: {{detail}}.",

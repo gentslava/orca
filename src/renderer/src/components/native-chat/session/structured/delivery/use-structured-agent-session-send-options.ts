@@ -17,17 +17,11 @@ export function useStructuredAgentSessionSendOptions(
     ReturnType<typeof useStructuredAgentSessionOptionState>,
     'optionStateRef' | 'optionView' | 'takesSendOptions' | 'takesSelection'
   > &
-    Partial<
-      Pick<ReturnType<typeof useStructuredAgentSessionOptionState>, 'optionPicks' | 'controller'>
-    >
+    Partial<Pick<ReturnType<typeof useStructuredAgentSessionOptionState>, 'controller'>>
 ): () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'> | undefined {
-  const { optionStateRef, optionPicks, optionView, controller, takesSendOptions, takesSelection } =
-    source
+  const { optionStateRef, optionView, controller, takesSendOptions, takesSelection } = source
   return useCallback(() => {
-    if (
-      (optionPicks && structuredOptionPickIsPending(optionPicks.current, 'model')) ||
-      (!takesSelection && controller?.isPending('model'))
-    ) {
+    if (!takesSelection && controller?.isPending('model')) {
       return undefined
     }
     if (!takesSendOptions && !takesSelection) {
@@ -44,14 +38,28 @@ export function useStructuredAgentSessionSendOptions(
     return takesSelection
       ? { selection: structuredAgentSessionMessageSelection(view) }
       : { options: structuredAgentSessionSendSelection(view) }
-  }, [
-    controller,
-    launch,
-    optionPicks,
-    optionStateRef,
-    optionView,
-    sessionId,
-    takesSendOptions,
-    takesSelection
-  ])
+  }, [controller, launch, optionStateRef, optionView, sessionId, takesSendOptions, takesSelection])
+}
+
+type ModelWriteSource = Pick<
+  ReturnType<typeof useStructuredAgentSessionOptionState>,
+  'optionPicks' | 'controller' | 'takesSelection'
+>
+
+function structuredAgentSessionModelWritePending(source: ModelWriteSource): boolean {
+  return (
+    structuredOptionPickIsPending(source.optionPicks.current, 'model') ||
+    (!source.takesSelection && source.controller.isPending('model'))
+  )
+}
+
+/** A model write on its way decides what the next message runs on, so sends wait for it. */
+export function useStructuredAgentSessionModelWritePending(
+  source: ModelWriteSource
+): () => boolean {
+  const { optionPicks, controller, takesSelection } = source
+  return useCallback(
+    () => structuredAgentSessionModelWritePending({ optionPicks, controller, takesSelection }),
+    [controller, optionPicks, takesSelection]
+  )
 }

@@ -47,12 +47,15 @@ export function useStructuredAgentSessionSends(args: {
   stopping?: boolean
   /** The composer's model and effort each send carries; undefined to a host that takes none. */
   sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'> | undefined
+  /** A model write the next message must wait for. */
+  isModelWritePending?: () => boolean
   sendOptions?: () => Readonly<Record<string, string>> | undefined
 }) {
   const {
     cursor,
     fence,
     historyLoaded,
+    isModelWritePending,
     isWorking = false,
     queue,
     queuedMessageIds,
@@ -134,6 +137,9 @@ export function useStructuredAgentSessionSends(args: {
       const steers =
         request?.delivery === 'immediate' ||
         (!delivery && isWorking && steerCapability === 'supported')
+      if (isModelWritePending?.()) {
+        return false
+      }
       const captured = sendSelection ? sendSelection() : { options: sendOptions?.() }
       if (captured === undefined) {
         return false
@@ -171,6 +177,7 @@ export function useStructuredAgentSessionSends(args: {
         : true
     },
     [
+      isModelWritePending,
       isWorking,
       queue,
       queuedMessageIds,

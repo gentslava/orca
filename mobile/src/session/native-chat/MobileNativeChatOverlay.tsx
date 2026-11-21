@@ -1,14 +1,16 @@
+import { slackPeopleOf } from '../../../../src/shared/connectors/slack-mention-tokens'
+import { MobileNativeChatForegroundTasksProvider } from './input/MobileNativeChatForegroundTaskAction'
 import {
   MobileQueuedMessageComposerContext,
   useMobileQueuedMessageComposer
 } from './input/queued-messages/mobile-queued-message-composer-context'
+import { MobileMarkdownSlackPeopleContext } from '../../components/markdown/parsing/mobile-markdown-mentions'
 import { Activity, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { MobileNativeChatView, type MobileNativeChatInputLockReason } from './MobileNativeChatView'
 import { useMobileNativeChatProjection } from './transcript/projection/use-mobile-native-chat-projection'
 import { nativeChatDockedTaskList } from '../../../../src/shared/native-chat/input/task-lists/native-chat-task-list-state'
 import type { MobileNativeChatImageAttachments } from './composer/attachments/use-mobile-native-chat-image-attachments'
-import { MobileNativeChatForegroundTasksProvider } from './input/MobileNativeChatForegroundTaskAction'
 import type { MobileNativeChatController } from './mobile-native-chat-controller-contract'
 import type { MobileNativeChatStructuredComposer } from './composer/commands/mobile-native-chat-structured-composer'
 import { useMobileNativeChatComposerTray } from './composer/menus/use-mobile-native-chat-composer-tray'
@@ -126,6 +128,7 @@ function MobileNativeChatOverlayContent({
     session.messages,
     controller.nativeChatItemSource
   )
+  const slackPeople = useMemo(() => slackPeopleOf(session.messages), [session.messages])
   const folded = useMobileNativeChatProjection(
     fullContent.messages,
     agent,
@@ -255,7 +258,7 @@ function MobileNativeChatOverlayContent({
     agent,
     source: controller.nativeChatSubagents
   })
-  return (
+  const chat = (
     <MobileNativeChatRowOverlaysHost
       conversation={{ surfaceId: sendSurfaceId, sessionId }}
       imageSource={imageSource}
@@ -294,6 +297,7 @@ function MobileNativeChatOverlayContent({
                         workingStartedAt={controller.nativeChatWorkingStartedAt}
                         settledTurns={controller.nativeChatSettledTurns}
                         turnJournal={controller.nativeChatTurnJournal}
+                        transcriptLoading={session.transcriptLoading}
                         receipts={controller.nativeChatReceipts}
                         actionablePromptIds={controller.nativeChatActionablePromptIds}
                         streaming={streaming}
@@ -321,6 +325,7 @@ function MobileNativeChatOverlayContent({
                         question={controller.nativeChatQuestion}
                         onAnswerQuestion={controller.handleNativeChatQuestionAnswer}
                         permission={controller.nativeChatPermission}
+                        workerApprovals={controller.nativeChatWorkerApprovals}
                         onRespondPermission={controller.handleNativeChatRespondPermission}
                         composerTray={composerTray}
                         onOpenFile={onOpenFile}
@@ -390,6 +395,11 @@ function MobileNativeChatOverlayContent({
         </MobileQueuedMessageComposerContext.Provider>
       </MobileMarkdownLinksContext.Provider>
     </MobileNativeChatRowOverlaysHost>
+  )
+  return (
+    <MobileMarkdownSlackPeopleContext.Provider value={slackPeople}>
+      {chat}
+    </MobileMarkdownSlackPeopleContext.Provider>
   )
 }
 
