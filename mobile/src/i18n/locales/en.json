@@ -3350,6 +3350,7 @@
       "permissionAppliesNextMessage": "{{saved}} applies to your next message; running {{active}}",
       "permissionAppliesNextMessageCompact": "{{saved}} · next message",
       "permissionAppliesNextMessageTiming": "Applies next message · running {{active}}",
+      "defaultModel": "Default",
       "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works."
     },
     "streamFrame": {
@@ -4077,9 +4078,6 @@
       "running": "Running",
       "failed": "Failed"
     },
-    "tool": {
-      "activity": "Activity"
-    },
     "workerApproval": {
       "title": "{{worker}} · {{title}}",
       "allow": "Allow",
@@ -4087,6 +4085,9 @@
       "waiting": "{{count}} workers waiting · oldest first",
       "countdown": "Claude denies it on its own in {{time}} if nobody answers.",
       "openWorker": "Open worker"
+    },
+    "tool": {
+      "activity": "Activity"
     }
   },
   "sourceControl": {
