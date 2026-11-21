@@ -119,6 +119,7 @@ async function listAiVaultSessions(
         ? [...new Set(scopePaths)].sort()
         : scopePaths,
     executionHostScope,
+    selectedSessionId: args?.selectedSessionId,
     includeAntigravityIdeSessions: args?.includeAntigravityIdeSessions === true,
     includeStructuredSessions: args?.includeStructuredSessions === true,
     ...(args?.scopeOnly === true ? { scopeOnly: true } : {})
@@ -147,6 +148,7 @@ async function listAiVaultSessions(
           dependency,
           depth,
           scopePaths,
+          selectedSessionId: args?.selectedSessionId,
           force: args?.force === true,
           afterFingerprint,
           scan
@@ -188,6 +190,7 @@ async function scanAiVaultSessionsByHostScope(
               dependency: dependency?.forHost(hostInfo.environmentId),
               depth,
               scopePaths,
+              selectedSessionId: args?.selectedSessionId,
               force: args?.force === true,
               scan
             })
@@ -197,7 +200,8 @@ async function scanAiVaultSessionsByHostScope(
       [...scannedResults, ...runtimeResults],
       args?.limit,
       args?.unlimited,
-      scopePaths
+      scopePaths,
+      args?.selectedSessionId
     )
   }
 
