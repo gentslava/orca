@@ -4076,6 +4076,9 @@
       "running": "Running",
       "failed": "Failed"
     },
+    "tool": {
+      "activity": "Activity"
+    },
     "workerApproval": {
       "title": "{{worker}} · {{title}}",
       "allow": "Allow",
