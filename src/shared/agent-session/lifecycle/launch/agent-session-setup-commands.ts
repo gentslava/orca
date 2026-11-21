@@ -63,6 +63,7 @@ export const AGENT_SESSION_SETUP_COMMANDS = [
     remoteLoginCommand: ['kiro-cli', 'login', '--use-device-flow'],
     installCommand: 'curl -fsSL https://cli.kiro.dev/install | bash'
   },
+  { agent: 'gemini', loginCommand: ['gemini'], slashCommand: '/auth' },
   // An `agy` login signs in only chats on agy (`system`); chats on Orca's server keep their own.
   {
     agent: 'antigravity',

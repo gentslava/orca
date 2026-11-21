@@ -41,7 +41,8 @@ export const NATIVE_CHAT_AGENTS = [
   'kiro',
   'pi',
   'antigravity',
-  'hermes'
+  'hermes',
+  'gemini'
 ] as const
 
 export type NativeChatAgent = (typeof NATIVE_CHAT_AGENTS)[number]
@@ -63,7 +64,8 @@ const AGENT_CHAT_PERMISSION_MODES_BY_AGENT: Record<
   // Pi asks no approvals, so its chats run with every tool it has, as its terminal does.
   pi: null,
   antigravity: EDIT_ACCEPTING_CHAT_PERMISSION_MODES,
-  hermes: EDIT_ACCEPTING_CHAT_PERMISSION_MODES
+  hermes: EDIT_ACCEPTING_CHAT_PERMISSION_MODES,
+  gemini: ACP_CHAT_PERMISSION_MODES
 }
 
 export function isNativeChatAgent(agent: string): agent is NativeChatAgent {
