@@ -70,8 +70,7 @@
   "exclude": {
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
-    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
-    "45983": "Hold: the maintainer carry-over of 33360 is based on upstream newer than this refresh pin; upstream merged Gemini chats as 45985 instead."
+    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
   },
   "replacements": {
     "36569": 36922,
@@ -134,7 +133,7 @@
     "composed-format.patch"
   ],
   "retainClosed": {
-    "33360": "Upstream closed it for 45985 (517e1ddb825f), merged after this refresh pin; the fork keeps Gemini chats from its branch until a pin includes 45985, then records the replacement.",
+    "33360": "Gemini CLI chat over ACP landed upstream in 45985 after this pin; retained until the pin contains 45985",
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
     "36634": "Owner retains full tool invocation details in expanded chat rows; upstream issue 36633 was closed as not planned and the maintainer alternative 36958 was closed unmerged.",
     "36945": "Owner retains the project name in the mobile session header; upstream issue 36942 was closed as not planned after the session bar redesign in 41345.",
