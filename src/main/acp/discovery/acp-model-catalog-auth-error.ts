@@ -27,9 +27,19 @@ function acpModelCatalogAuthError(error: unknown, spec: AcpLaunchSpec): unknown 
     : error
 }
 
-/** Rethrows a listing failure, as the account's sign-in when that is what failed. */
-export function rethrowAcpSignedOut(agentSpec: AcpLaunchSpec, home: AgentSessionAccountHome) {
+/** Rethrows a listing failure, as the account's sign-in when that is what failed. A listing often
+ *  reaches a signed-out server before any chat sends; answering lets a chat offer its sign-in choices
+ *  without a failed send first. */
+export function rethrowAcpSignedOut(
+  agentSpec: AcpLaunchSpec,
+  home: AgentSessionAccountHome,
+  answerSignIn?: (signedIn: boolean) => void
+) {
   return (error: unknown): never => {
-    throw acpModelCatalogAuthError(error, acpLaunchSpecForAccount(agentSpec, home))
+    const mapped = acpModelCatalogAuthError(error, acpLaunchSpecForAccount(agentSpec, home))
+    if (mapped !== error) {
+      answerSignIn?.(false)
+    }
+    throw mapped
   }
 }

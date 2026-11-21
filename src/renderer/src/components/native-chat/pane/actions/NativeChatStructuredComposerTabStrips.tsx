@@ -95,36 +95,3 @@ function NativeChatStructuredGoalStrip(props: {
     />
   )
 }
-
-type ComposerTabStripsProps = Parameters<typeof NativeChatStructuredComposerTabStrips>[0]
-
-export function nativeChatStructuredComposerTabStrips({
-  shown,
-  pane,
-  controller,
-  runtimeContext,
-  transport,
-  focusComposer
-}: {
-  shown: boolean
-  pane: Pick<ComposerTabStripsProps, 'tabId' | 'isVisible' | 'target'>
-  controller: Pick<
-    ComposerTabStripsProps,
-    'threadGoal' | 'isWorking' | 'turnId' | 'workingStartedAt'
-  >
-} & Pick<ComposerTabStripsProps, 'runtimeContext' | 'transport' | 'focusComposer'>) {
-  return shown ? (
-    <NativeChatStructuredComposerTabStrips
-      tabId={pane.tabId}
-      target={pane.target}
-      focusComposer={focusComposer}
-      runtimeContext={runtimeContext}
-      threadGoal={controller.threadGoal}
-      transport={transport}
-      isWorking={controller.isWorking}
-      isVisible={pane.isVisible}
-      turnId={controller.turnId}
-      workingStartedAt={controller.workingStartedAt}
-    />
-  ) : null
-}

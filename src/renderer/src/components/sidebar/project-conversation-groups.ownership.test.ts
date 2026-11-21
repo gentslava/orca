@@ -112,10 +112,10 @@ describe('project conversation ownership', () => {
     const result = groups({
       repos,
       catalog: projectHostSetupProjectionFromRepos(repos),
-      sessions: [{ ...conversationSessions[0]!, projectOwnerKey: 'repo:orca' }]
+      sessions: [{ ...conversationSessions[0]!, projectOwnerKey: 'repo:acme' }]
     })
     expect(result).toHaveLength(1)
-    expect(result[0]?.repo?.id).toBe('orca')
+    expect(result[0]?.repo?.id).toBe('acme')
     expect(result[0]?.sessions).toHaveLength(1)
   })
   it('does not guess a host for unqualified workspace twins', () => {
@@ -140,7 +140,7 @@ it('orders folder and history-only groups by name together with registered proje
     folders: [localFolder],
     sessions: [{ ...chat('lost', 'local', 'folder:missing'), cwd: '/Apple' }]
   })
-  expect(result.map((group) => group.label)).toEqual(['Apple', 'Djinn', 'Notes', 'Orca'])
+  expect(result.map((group) => group.label)).toEqual(['Acme', 'Apple', 'Example', 'Notes'])
 })
 
 it('keeps host-local personal rankings separate when repo IDs collide', () => {
@@ -154,8 +154,8 @@ it('keeps host-local personal rankings separate when repo IDs collide', () => {
     catalog: projectHostSetupProjectionFromRepos(repos),
     personalProjectOrder: {
       projects: {
-        '["local","local","repo:orca"]': { openCount: 1 },
-        '["runtime:remote","runtime:remote","repo:orca"]': { openCount: 9 }
+        '["local","local","repo:acme"]': { openCount: 1 },
+        '["runtime:remote","runtime:remote","repo:acme"]': { openCount: 9 }
       },
       settledOperations: []
     }

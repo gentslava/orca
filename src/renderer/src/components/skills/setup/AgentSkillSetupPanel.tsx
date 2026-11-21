@@ -138,7 +138,7 @@ function BundledAgentSkillSetupPanel({
             : installedButton === 'replace'
               ? t(
                   'auto.components.settings.AgentSkillSetupPanel.replaceWithOrcaCopy',
-                  "Replace with Orca's copy"
+                  'Replace with Orca’s'
                 )
               : action.kind === 'run' && action.changes
                 ? bundledSkillSetupActionLabel(action.changes, t)

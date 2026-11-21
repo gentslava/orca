@@ -8,7 +8,7 @@ import {
   structuredAgentSessionHostSupport,
   type StructuredAgentSessionHostSupport
 } from './native-chat/agent-session/mobile-structured-agent-session-host-support'
-import { AGENT_SESSION_DEFAULT_MODEL_CAPABILITY } from '../../../src/shared/agent-session-default-model'
+import { AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session/capabilities/agent-session-runtime-capabilities'
 import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session/lifecycle/operations/agent-session-create-capabilities'
 import { deferred, MODEL_OPTIONS, sendResult } from './structured-session-send-options.test-fixture'
 import {
@@ -51,7 +51,7 @@ export function defineMobilePendingModelSendCases({
       setAgent('claude')
       setHostSupport(
         structuredAgentSessionHostSupport([
-          AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
+          AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY,
           ...(takesOptions ? [AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY] : [])
         ])
       )
@@ -123,7 +123,7 @@ export function defineMobilePendingModelSendCases({
       setAgent('claude')
       setHostSupport(
         structuredAgentSessionHostSupport([
-          AGENT_SESSION_DEFAULT_MODEL_CAPABILITY,
+          AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY,
           AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
         ])
       )
