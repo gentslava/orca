@@ -327,7 +327,7 @@ Overlay changes:
 
 ## Refresh on upstream 75339dcf434f (2026-11-21)
 
-The pin moved from 0bd39bd4dcce to 75339dcf434f, upstream main 743 commits later. The plan resolves 76 changes: upstream supplies 32, the fork composes 43 PRs and one fork-local feature. All eleven package outputs remain required.
+The pin moved from 0bd39bd4dcce to 75339dcf434f, upstream main 743 commits later. The plan resolves 78 changes: upstream supplies 32, the fork composes 45 PRs and one fork-local feature. All eleven package outputs remain required.
 
 Fork master carries terminal daemon protocol 61 from fork PR 94, which cherry-picks upstream 44920 with its tests. Master is merged into this source, so the runtime launcher ratchet compares protocol 61 with 61 while this composition changes the runtime launcher files.
 
@@ -372,4 +372,4 @@ Overlay changes:
 - `composed-source-modules.patch` prunes the 13 SQLite blocking baseline rows for the OpenCode and Hermes scanners, which its utility process entry exempts.
 - The Russian desktop overlay drops 85 keys that 46107 now translates.
 
-Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, the React Compiler ratchet and the localization checks. Lint passes; the test-runner list check passes on the merged tree with the control files. The composed regression suites pass: 191 desktop with 1 skipped, and 32 mobile. The phone web bundle builds and verifies, with the largest host catalog ru at 434,522 bytes in windows.
+Locally the composition passes qualification, the desktop, CLI, web and mobile typechecks, the React Compiler ratchet and the localization checks. Lint passes; the test-runner list check passes on the merged tree with the control files. The composed regression suites pass: 191 desktop with 1 skipped, and 32 mobile. The full PR checks pass on this composition. The phone web bundle builds and verifies, with the largest host catalog ru at 434,522 bytes in windows.
