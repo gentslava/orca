@@ -1,3 +1,4 @@
+import { acpSignedOutError, rethrowAcpSignedOut } from './acp-model-catalog-auth-error'
 import { readAgentCliVersion } from '../../agent-launch/preflight/agent-cli-version-probe'
 import { observeAcpForkSupport } from '../capabilities/acp-fork-support'
 import {
@@ -39,8 +40,7 @@ import {
   type AcpModelCatalogConnection,
   type AcpModelCatalogSessionConnection
 } from './acp-listing-session-models'
-import { AcpAgentError, AcpAgentExitedError } from '../transport/acp-errors'
-import { AgentModelCatalogUnavailableError } from '../../native-chat/agent-model-catalog/agent-model-catalog-unavailable'
+import { AcpAgentExitedError } from '../transport/acp-errors'
 import { usesModelSpecificAcpEfforts } from '../../../shared/agent-session/options/model-catalog/agent-model-catalog-ownership'
 
 type AcpListingConnect<C> = (launch: ProviderProcessLaunch, options: AcpAgentConnectionOptions) => C
@@ -153,6 +153,9 @@ export function createAcpModelCatalogProbe(
             { site: `${spec.agent}-model-catalog-probe`, signal: options?.signal, timeoutMs: null }
           )
           models = listing.parse(stdout)
+          if (models.length === 0 && listing.isNotSignedInOutput?.(stdout)) {
+            throw acpSignedOutError(spec)
+          }
         } else if (listing.kind === 'session') {
           // Remove disposable session storage after the process closes.
           const folderArgs = listing.sessionFolderArgs
@@ -275,29 +278,23 @@ export function createAcpModelCatalogProbe(
     }
   }
   const probe: AgentModelCatalogProbe = (home, options) =>
-    resolve(home, options?.workspacePath ?? '', 'recover', options?.operation).then((resolved) =>
-      resolved
-        .run(options?.signal, options?.operation, options?.selectedModels, options?.publish)
-        .catch(signedOutAsUnavailable(resolved.answerSignIn))
-    )
+    resolve(home, options?.workspacePath ?? '', 'recover', options?.operation)
+      .then((resolved) =>
+        resolved
+          .run(options?.signal, options?.operation, options?.selectedModels, options?.publish)
+          .catch(rethrowAcpSignedOut(agentSpec, home, resolved.answerSignIn))
+      )
+      .catch(rethrowAcpSignedOut(agentSpec, home))
   return Object.assign(probe, {
+    supportsAccount: (home: Parameters<AgentModelCatalogProbe>[0]) =>
+      acpLaunchSpecForAccount(agentSpec, home).modelDiscovery.kind !== 'unavailable',
     resolve: async (...args: Parameters<typeof resolve>) => {
       const { answerSignIn, ...resolved } = await resolve(...args)
       return {
         ...resolved,
         run: (...runArgs: Parameters<typeof resolved.run>) =>
-          resolved.run(...runArgs).catch(signedOutAsUnavailable(answerSignIn))
+          resolved.run(...runArgs).catch(rethrowAcpSignedOut(agentSpec, args[0], answerSignIn))
       }
     }
   })
-}
-
-// A listing often reaches a signed-out server before any chat sends; telling the spec lets a chat
-// offer its sign-in choices without a failed send first.
-const signedOutAsUnavailable = (answerSignIn?: (signedIn: boolean) => void) => (error: unknown) => {
-  if (!(error instanceof AcpAgentError && error.code === -32000)) {
-    throw error
-  }
-  answerSignIn?.(false)
-  throw new AgentModelCatalogUnavailableError({ reason: 'notSignedIn' })
 }
