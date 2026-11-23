@@ -196,7 +196,8 @@ try {
         'fork-ci-macos-arm64-image.patch',
         'composed-contract-migrations.patch',
         'composed-qualification-format.patch',
-        'selected-regressions.patch'
+        'selected-regressions.patch',
+        'composed-source-quality.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')
