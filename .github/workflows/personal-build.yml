@@ -122,7 +122,11 @@ jobs:
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Lint the composed source
         run: pnpm run lint
+      - name: Install headless Chromium for mobile bundle regressions
+        run: pnpm exec playwright install --with-deps --only-shell chromium
       - name: Run desktop and mobile unit tests
+        env:
+          ORCA_MOBILE_WEB_APP_DEPS_REQUIRED: '1'
         run: |
           pnpm test --maxWorkers=2
           pnpm --dir mobile test --maxWorkers=2

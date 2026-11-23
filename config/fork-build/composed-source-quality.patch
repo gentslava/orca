@@ -1039,3 +1039,161 @@ index 32cf9eefece..005df516857 100644
    /** Extract OAuth credentials from the local Gemini CLI for rate-limit fetching. Off by default (explicit opt-in). */
    geminiCliOAuthEnabled: boolean
    /** Poll Claude usage with existing CLI credentials. Off uses live terminal readings only. */
+diff --git a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+index fccd8a5ca9f..b7edfc208ff 100644
+--- a/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
++++ b/config/scripts/mobile-web-app/mobile-web-app-project-conversations-render.test.mjs
+@@ -5,13 +5,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+ import { chromium } from 'playwright-core'
+ import { buildMobileWebAppBundle } from '../build/mobile-web-app/build-mobile-web-app-bundle.mjs'
+ import { mobileWebAppDependenciesPresent } from './mobile-web-app-bundle-dependencies.mjs'
+-import {
+-  createBundleServer,
+-  installShellDouble,
+-  readBridgeFaultGrant,
+-  readBridgeProtocolVersion,
+-  readShellCsp
+-} from './preview/mobile-web-app-render-harness.mjs'
++import { createBundleServer, readShellCsp } from './preview/mobile-web-app-render-harness.mjs'
++import { installShellDouble, readBridgeContract } from './preview/project-conversations-shell.mjs'
+ 
+ const HOST = {
+   id: 'conversation-host',
+@@ -147,8 +142,9 @@ let scratch, server, browser, origin, version, faultGrant
+ const proofDir = process.env.ORCA_CONVERSATION_PROOF_DIR
+ 
+ beforeAll(async () => {
+-  version = await readBridgeProtocolVersion()
+-  faultGrant = await readBridgeFaultGrant()
++  const contract = await readBridgeContract()
++  version = contract.version
++  faultGrant = contract.faultGrant
+   scratch = await mkdtemp(join(tmpdir(), 'orca-mobile-conversations-'))
+   const built = await buildMobileWebAppBundle({ outDir: join(scratch, 'bundle') })
+   const served = await createBundleServer({ outDir: built.outDir, cspHeader: await readShellCsp() })
+diff --git a/config/scripts/mobile-web-app/preview/project-conversations-shell.mjs b/config/scripts/mobile-web-app/preview/project-conversations-shell.mjs
+new file mode 100644
+index 00000000000..8d546b24c62
+--- /dev/null
++++ b/config/scripts/mobile-web-app/preview/project-conversations-shell.mjs
+@@ -0,0 +1,93 @@
++import { readFile } from 'node:fs/promises'
++
++export async function readBridgeContract() {
++  const source = await readFile(
++    new URL(
++      '../../../../mobile/src/mobile-web-shell/bridge/protocol/bridge-frame-fields.ts',
++      import.meta.url
++    ),
++    'utf8'
++  )
++  const version = /\bBRIDGE_PROTOCOL_VERSION = (\d+)/.exec(source)?.[1]
++  const faultGrant = /\bBRIDGE_FAULT_GRANT = .([a-zA-Z]+)./.exec(source)?.[1]
++  if (!version || !faultGrant) {
++    throw new Error('Could not read the mobile shell bridge contract')
++  }
++  return { version: Number(version), faultGrant }
++}
++
++// Playwright serializes this function into the page before loading the real mobile bundle.
++export function installShellDouble({
++  version,
++  sessionId,
++  buildId,
++  route,
++  host,
++  storage,
++  grants,
++  pageRoutes,
++  replies
++}) {
++  globalThis.__orcaRenderCheckNotifies = []
++  globalThis.__orcaRenderCheckRequests = []
++  const channel = {
++    onmessage: null,
++    postMessage(json) {
++      const frame = JSON.parse(json)
++      const answer = (message) => {
++        queueMicrotask(() =>
++          channel.onmessage?.({ data: JSON.stringify({ v: version, ...message }) })
++        )
++      }
++      if (frame.type === 'ready') {
++        answer({
++          type: 'init',
++          sessionId,
++          buildId,
++          connection: {
++            state: 'connected',
++            reconnectAttempt: 0,
++            lastConnectedAt: 1,
++            lastInboundAt: 1,
++            generation: 0
++          },
++          grants: {
++            rpc: { maxPendingRequests: 64, maxSubscriptions: 32 },
++            native: grants
++          },
++          pageRoutes,
++          route,
++          host,
++          storage
++        })
++      } else if (frame.type === 'notify') {
++        globalThis.__orcaRenderCheckNotifies.push(frame)
++      } else if (frame.type === 'request') {
++        globalThis.__orcaRenderCheckRequests.push({ method: frame.method, params: frame.params })
++        if (Object.hasOwn(replies, frame.method)) {
++          answer({
++            type: 'reply',
++            id: frame.id,
++            payload: { id: frame.id, ok: true, result: replies[frame.method] }
++          })
++          return
++        }
++        refuse(frame.id)
++      } else if (frame.type === 'subscribe') {
++        refuse(frame.id)
++      }
++      function refuse(id) {
++        answer({
++          type: 'error',
++          id,
++          error: {
++            category: 'RenderCheckShellDouble',
++            message: 'The project conversations fixture has no reply for this RPC',
++            isRpcDeliveryUnknown: false
++          }
++        })
++      }
++    }
++  }
++  globalThis.orcaBridge = channel
++}
+diff --git a/config/scripts/mobile-web-app/session/mobile-web-app-native-chat-subagent-view-render.test.mjs b/config/scripts/mobile-web-app/session/mobile-web-app-native-chat-subagent-view-render.test.mjs
+index 22b77994127..aa9c3dba17b 100644
+--- a/config/scripts/mobile-web-app/session/mobile-web-app-native-chat-subagent-view-render.test.mjs
++++ b/config/scripts/mobile-web-app/session/mobile-web-app-native-chat-subagent-view-render.test.mjs
+@@ -149,7 +149,9 @@ async function openChat(hash = '') {
+   const failures = []
+   page.on('pageerror', (error) => failures.push(error.message))
+   page.on('console', (message) => {
+-    if (message.type() === 'error') failures.push(message.text())
++    if (message.type() === 'error') {
++      failures.push(message.text())
++    }
+   })
+   await page.goto(`${origin}/${hash}`)
+   try {
+diff --git a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
+index ae49af290cd..1fbcf7e3e48 100644
+--- a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
++++ b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
+@@ -72,7 +72,6 @@ export function MobileNativeChatRowOverlaysHost({
+         setShown({ actionsFor })
+       },
+       openRewind,
+-      imageSource,
+       ...(openSubagent ? { openSubagent } : {})
+     }),
+     [setShown, openRewind, imageSource, openSubagent]
