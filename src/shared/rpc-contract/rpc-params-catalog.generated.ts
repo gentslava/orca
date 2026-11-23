@@ -41,7 +41,10 @@ import {
 } from '../browser/client-hosting/desktop-browser-bridge-protocol'
 import { SetConversationPreferenceParams } from '../conversation-navigation-preferences'
 import { MobileWebBundleChunkParamsSchema } from '../mobile-web-bundle/bundle-rpc-contract'
-import { MobileWebBundleLocaleCatalogParamsSchema } from '../mobile-web-bundle/locale-catalog-contract'
+import {
+  MobileWebBundleLocaleCatalogParamsSchema,
+  MobileWebBundleLocaleCatalogRangeParamsSchema
+} from '../mobile-web-bundle/locale-catalog-contract'
 import { OrcadMigrationBlobChunkRequestSchema } from '../orcad-migration/orcad-migration-blob-transfer'
 import { OrcadMigrationSnapshotChunkRequestSchema } from '../orcad-migration/orcad-migration-scrollback'
 import {
@@ -1886,6 +1889,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'mobileWeb.bundle.brotliRange': MobileWebBundleChunkParamsSchema,
   'mobileWeb.bundle.chunk': MobileWebBundleChunkParamsSchema,
   'mobileWeb.bundle.localeCatalog': MobileWebBundleLocaleCatalogParamsSchema,
+  'mobileWeb.bundle.localeCatalogRange': MobileWebBundleLocaleCatalogRangeParamsSchema,
   'mobileWeb.bundle.manifest': null,
   'mobileWeb.bundle.range': MobileWebBundleChunkParamsSchema,
   'nativeChat.readSession': NativeChatSession,
