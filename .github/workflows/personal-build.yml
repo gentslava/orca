@@ -5,7 +5,10 @@ on:
   pull_request:
     branches: [master]
     paths:
+      - AGENTS.md
       - config/fork-build/**
+      - .github/dependabot.yml
+      - .github/workflows/fork-preview-macos-arm64.yml
       - .github/workflows/personal-build.yml
   schedule:
     - cron: '37 3 * * *'
@@ -28,7 +31,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: personal-upstream-pr-build
+  group: personal-upstream-pr-build-${{ github.event_name == 'pull_request' && github.event.pull_request.number ||
+    (github.event_name == 'workflow_dispatch' && (inputs.audit_only || github.ref != 'refs/heads/master')) && format('qualification-{0}', github.ref_name) || 'release' }}
   cancel-in-progress: false
 
 env:
@@ -38,19 +42,27 @@ env:
 
 jobs:
   plan:
-    if: github.repository == 'gentslava/orca' && (github.ref == 'refs/heads/master' || github.event_name == 'pull_request')
+    if: >-
+      github.repository == 'gentslava/orca' &&
+      (github.ref == 'refs/heads/master' || github.event_name == 'pull_request' ||
+       github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
       build: ${{ steps.compose.outputs.build }}
+      receipt: ${{ steps.compose.outputs.receipt }}
+      tag: ${{ steps.compose.outputs.tag }}
       source: ${{ steps.compose.outputs.source }}
+      upstream: ${{ steps.compose.outputs.upstream }}
       linux_matrix: ${{ steps.compose.outputs.linux_matrix }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - &checkout
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      - &node
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           package-manager-cache: false
@@ -63,15 +75,10 @@ jobs:
           AUDIT_ONLY: ${{ inputs.audit_only || false }}
           FORCE_BUILD: ${{ inputs.force_build || false }}
           FORK_BUILD_UPSTREAM_COMMIT: ${{ inputs.upstream_commit || '' }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
-            FORK_BUILD_UPSTREAM_COMMIT="$(node -p "JSON.parse(require('node:fs').readFileSync('config/fork-build/selection.json', 'utf8')).pullRequestUpstreamCommit")"
-            export FORK_BUILD_UPSTREAM_COMMIT
-          fi
-          node config/fork-build/plan.mjs
+        run: node config/fork-build/plan.mjs
       - name: Preserve the exact plan and report even on conflict
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        uses: actions/upload-artifact@v7
         with:
           name: personal-source-plan
           path: personal-build/
@@ -82,23 +89,22 @@ jobs:
     needs: plan
     if: needs.plan.outputs.build == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 55
     env:
       ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
       ORCA_RELEASE_JAVASCRIPT_SOURCE_SHA: ${{ needs.plan.outputs.source }}
       ORCA_CLI_BUILD_COMPILER: tsrs
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - &checkout-control
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           path: control
           persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+      - *node
+      - &source-plan
+        uses: actions/download-artifact@v8
         with:
           name: personal-source-plan
           path: personal-build
@@ -111,12 +117,35 @@ jobs:
           native-runtime: node
           persist-native-cache: 'false'
       - uses: ./.github/actions/install-mobile-dependencies
-      - name: Qualify and build shared release resources with the upstream artifact implementation
+      - name: Install Electron package binary for upstream unit tests
+        run: node config/scripts/electron-installation/platform-layout/install-electron-package-binary.mjs
+      - name: Verify formatting, localization and changed source
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
+      - name: Lint the composed source
+        env:
+          ORCA_CODE_QUALITY_BASE: ${{ needs.plan.outputs.upstream }}
+          ORCA_FORK_BUILD_CONTROL_ROOT: ${{ runner.temp }}/personal-control
+        run: pnpm run lint
+      - name: Fetch the upstream release fixtures for cross-version tests
         run: |
-          node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
+          baseline="$(node -p 'require("./personal-build/plan.json").upstreamRelease.tag')"
+          [[ "$baseline" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git fetch --no-tags https://github.com/stablyai/orca.git \
+            "refs/tags/$baseline:refs/tags/$baseline" \
+            refs/tags/v1.4.199:refs/tags/v1.4.199
+      - name: Install headless Chromium for mobile bundle regressions
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+      - name: Run desktop and mobile unit tests
+        env:
+          ORCA_MOBILE_WEB_APP_DEPS_REQUIRED: '1'
+        run: |
+          pnpm --dir mobile test --maxWorkers=2
+          pnpm test --maxWorkers=2
+      - name: Build shared JavaScript with upstream tooling
+        run: |
           pnpm run build:release:javascript:parallel
           node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs pack
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      - uses: actions/upload-artifact@v7
         with:
           name: personal-javascript
           path: .build/release-javascript/
@@ -144,19 +173,9 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          ref: ${{ github.sha }}
-          path: control
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
+      - *checkout-control
+      - *node
+      - *source-plan
       - name: Restore the frozen source and require native ARM64
         run: |
           set -euo pipefail
@@ -177,7 +196,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Qualify formatting and source quality of the exact composition
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+      - &javascript-artifact
+        uses: actions/download-artifact@v8
         with:
           name: personal-javascript
           path: .build/release-javascript
@@ -208,9 +228,9 @@ jobs:
           pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 --config.mac.identity=- --publish never
       - name: Measure archives against the exact source and stage downloads
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage personal-build/plan.json "$GITHUB_WORKSPACE"
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      - uses: actions/upload-artifact@v7
         with:
-          name: personal-macos-arm64
+          name: personal-package-macos-arm64
           path: personal-packages/
           if-no-files-found: error
           retention-days: 14
@@ -226,19 +246,9 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          ref: ${{ github.sha }}
-          path: control
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
+      - *checkout-control
+      - *node
+      - *source-plan
       - name: Restore the shared source plan on Windows x64
         shell: pwsh
         run: |
@@ -270,10 +280,7 @@ jobs:
             pnpm exec vitest run --config config/vitest.config.ts $test --maxWorkers=1
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           } finally { Remove-Item $test }
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-javascript
-          path: .build/release-javascript
+      - *javascript-artifact
       - name: Build existing Windows release resources and native helpers
         shell: pwsh
         run: |
@@ -295,9 +302,9 @@ jobs:
           & "$env:RUNNER_TEMP/personal-control/config/fork-build/extract-windows-packages.ps1" -Packages dist -Verification "$env:RUNNER_TEMP/windows-stage"
           node "$env:RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-windows personal-build/plan.json "$env:GITHUB_WORKSPACE" "$env:RUNNER_TEMP/windows-stage"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      - uses: actions/upload-artifact@v7
         with:
-          name: personal-windows-x64
+          name: personal-package-windows-x64
           path: personal-packages/
           if-no-files-found: error
           retention-days: 14
@@ -308,21 +315,12 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - *checkout
+      - *node
+      - *source-plan
+      - uses: actions/download-artifact@v8
         with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-windows-x64
+          name: personal-package-windows-x64
           path: windows-packages
       - name: Re-extract and verify both Windows downloads with trusted code
         shell: pwsh
@@ -330,9 +328,9 @@ jobs:
           & ./config/fork-build/extract-windows-packages.ps1 -Packages windows-packages -Verification "$env:RUNNER_TEMP/windows-verify"
           node config/fork-build/packages.mjs verify-windows personal-build/plan.json windows-packages "$env:RUNNER_TEMP/windows-verify"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      - uses: actions/upload-artifact@v7
         with:
-          name: personal-windows-verification
+          name: personal-package-windows-verification
           path: windows-packages/windows-verified.json
           if-no-files-found: error
           retention-days: 14
@@ -345,19 +343,9 @@ jobs:
     env:
       ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          ref: ${{ github.sha }}
-          path: control
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
+      - *checkout-control
+      - *node
+      - *source-plan
       - name: Restore the shared source and require the existing debug signing policy
         env:
           RELEASE_CERTIFICATE: ${{ vars.ORCA_ANDROID_RELEASE_CERT_SHA256 }}
@@ -379,7 +367,8 @@ jobs:
         env:
           MOBILE_ANDROID_PUBLISH_RELEASE: 'false'
         run: node scripts/prepare-android-release.mjs
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      - &java
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
@@ -395,15 +384,15 @@ jobs:
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-android personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Preserve a rejected APK for signing diagnostics
         if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        uses: actions/upload-artifact@v7
         with:
           name: personal-android-rejected
           path: mobile/android/app/build/outputs/apk/release/*.apk
           if-no-files-found: ignore
           retention-days: 3
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      - uses: actions/upload-artifact@v7
         with:
-          name: personal-android
+          name: personal-package-android
           path: personal-packages/
           if-no-files-found: error
           retention-days: 14
@@ -414,31 +403,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - *checkout
+      - *node
+      - *java
+      - *source-plan
+      - uses: actions/download-artifact@v8
         with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-android
+          name: personal-package-android
           path: android-packages
       - name: Independently verify the APK with the Android SDK
         run: node config/fork-build/packages.mjs verify-android personal-build/plan.json android-packages
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      - uses: actions/upload-artifact@v7
         with:
-          name: personal-android-verification
+          name: personal-package-android-verification
           path: android-packages/android-verified.json
           if-no-files-found: error
           retention-days: 14
@@ -460,19 +437,9 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          ref: ${{ github.sha }}
-          path: control
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
+      - *checkout-control
+      - *node
+      - *source-plan
       - name: Restore the same planned source on its native Linux architecture
         run: |
           test "$(node -p process.arch)" = "$ORCA_LINUX_BUILD_ARCH"
@@ -490,10 +457,7 @@ jobs:
           native-runtime: electron
           persist-native-cache: 'false'
       - uses: ./.github/actions/install-mobile-dependencies
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-javascript
-          path: .build/release-javascript
+      - *javascript-artifact
       - name: Restore upstream JavaScript and build native host resources
         run: |
           node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs restore
@@ -512,9 +476,9 @@ jobs:
         run: node config/scripts/desktop-distribution/runtime-verification/run-linux-packaged-node-pty-floor-smoke.mjs --app-dir "$APP_DIRECTORY"
       - name: Extract and measure every Linux format against its source receipt
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-linux personal-build/plan.json "$GITHUB_WORKSPACE" "$ORCA_LINUX_BUILD_ARCH"
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      - uses: actions/upload-artifact@v7
         with:
-          name: personal-${{ matrix.id }}
+          name: personal-package-${{ matrix.id }}
           path: personal-packages/
           if-no-files-found: error
           retention-days: 14
@@ -529,21 +493,12 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - *checkout
+      - *node
+      - *source-plan
+      - uses: actions/download-artifact@v8
         with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-${{ matrix.id }}
+          name: personal-package-${{ matrix.id }}
           path: linux-packages/${{ matrix.id }}
       - name: Install trusted archive inspection tools
         run: |
@@ -554,103 +509,67 @@ jobs:
           ARCHITECTURE: ${{ matrix.architecture }}
           TARGET_ID: ${{ matrix.id }}
         run: node config/fork-build/packages.mjs verify-linux personal-build/plan.json "linux-packages/$TARGET_ID" "$ARCHITECTURE"
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      - uses: actions/upload-artifact@v7
         with:
-          name: personal-${{ matrix.id }}-verification
+          name: personal-package-${{ matrix.id }}-verification
           path: linux-packages/${{ matrix.id }}/${{ matrix.id }}-verified.json
           if-no-files-found: error
           retention-days: 14
 
-  publish:
-    needs: [plan, macos, windows, android, linux, verify-windows, verify-android, verify-linux]
-    if: github.ref == 'refs/heads/master' && needs.macos.result == 'success' && needs.verify-windows.result == 'success' && needs.verify-android.result == 'success' && needs.verify-linux.result == 'success'
+  stage:
+    needs: [plan, macos, verify-windows, verify-android, verify-linux]
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     runs-on: macos-26-intel
-    timeout-minutes: 25
+    timeout-minutes: 30
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - *checkout
+      - *node
+      - *source-plan
+      - uses: actions/download-artifact@v8
         with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-macos-arm64
-          path: personal-packages
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-windows-x64
-          path: windows-packages
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-windows-verification
-          path: windows-packages
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-android
-          path: android-packages
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-android-verification
-          path: android-packages
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-linux-x64
-          path: linux-packages/linux-x64
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-linux-x64-verification
-          path: linux-packages/linux-x64
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-linux-arm64
-          path: linux-packages/linux-arm64
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-linux-arm64-verification
-          path: linux-packages/linux-arm64
-      - name: Independently verify packages with trusted configuration code
+          pattern: personal-package-*
+          path: deliverables
+      - name: Reopen both macOS archives and check the complete platform set
         run: |
+          mv deliverables/personal-package-macos-arm64 personal-packages
+          mv deliverables/personal-package-windows-x64 windows-packages
+          mv deliverables/personal-package-android android-packages
+          mkdir linux-packages
+          for arch in x64 arm64; do
+            mv "deliverables/personal-package-linux-$arch" "linux-packages/linux-$arch"
+            mv "deliverables/personal-package-linux-$arch-verification/linux-$arch-verified.json" "linux-packages/linux-$arch/"
+          done
+          mv deliverables/personal-package-windows-verification/windows-verified.json windows-packages/
+          mv deliverables/personal-package-android-verification/android-verified.json android-packages/
           node config/fork-build/packages.mjs verify personal-build/plan.json personal-packages
           node config/fork-build/packages.mjs assemble-release personal-build/plan.json personal-packages windows-packages android-packages linux-packages
-      - name: Require current upstream before publication
-        run: node config/fork-build/upstream-freshness.mjs personal-build/plan.json
-      - name: Publish complete immutable downloads; preserve previous releases
+      - name: Stage complete verified downloads as a draft
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          tag="personal-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title "Orca personal macOS + Windows + Linux + Android ${GITHUB_RUN_NUMBER}" --notes-file personal-build/report.md personal-packages/* personal-build/plan.json personal-build/source.bundle
+          RELEASE_TAG: ${{ needs.plan.outputs.tag }}
+        run: node config/fork-build/release-draft.mjs personal-build personal-packages
 
   sync:
-    needs: [plan, publish]
-    if: needs.publish.result == 'success' && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    needs: [plan, stage]
+    if: github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      master: ${{ steps.promote.outputs.master }}
+      main: ${{ steps.promote.outputs.main }}
+      observed_upstream: ${{ steps.promote.outputs.observed_upstream }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: personal-source-plan
-          path: personal-build
+      - *node
+      - *source-plan
       - name: Promote verified application to master and mirror upstream to main atomically
+        id: promote
         env:
           FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
         run: node config/fork-build/promotion.mjs personal-build
@@ -659,12 +578,34 @@ jobs:
         run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
       - name: Preserve the exact branch promotion receipt
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        uses: actions/upload-artifact@v7
         with:
           name: personal-branch-promotion
           path: personal-build/promotion.json
           if-no-files-found: warn
           retention-days: 14
+
+  publish:
+    needs: [plan, sync]
+    if: github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the staged release after successful branch promotion
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.plan.outputs.tag }}
+          BUILT_SOURCE: ${{ needs.plan.outputs.source }}
+          PROMOTED_MASTER: ${{ needs.sync.outputs.master }}
+          PROMOTED_MAIN: ${{ needs.sync.outputs.main }}
+        run: |
+          [[ "$RELEASE_TAG" =~ ^personal-[0-9]+-[0-9]+$ && "$BUILT_SOURCE" =~ ^[0-9a-f]{40}$ ]]
+          refs="$(git ls-remote "https://github.com/$GITHUB_REPOSITORY.git" refs/heads/main refs/heads/master)"
+          grep -Fxq "$PROMOTED_MASTER"$'\t'refs/heads/master <<< "$refs"
+          grep -Fxq "$PROMOTED_MAIN"$'\t'refs/heads/main <<< "$refs"
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$BUILT_SOURCE" --draft=false --prerelease --latest=false
 
   status:
     needs:
@@ -678,26 +619,21 @@ jobs:
         verify-windows,
         verify-android,
         verify-linux,
-        publish,
-        sync
+        stage,
+        sync,
+        publish
       ]
-    if: always() && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
+    if: always() && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && !inputs.audit_only
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write
+      contents: read
       issues: write
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        continue-on-error: true
+      - *checkout
+      - *node
+      - uses: actions/download-artifact@v8
+        if: needs.plan.outputs.receipt == 'true'
         with:
           name: personal-source-plan
           path: personal-build
@@ -711,23 +647,11 @@ jobs:
           LINUX_VERIFICATION: ${{ needs.verify-linux.result }}
           WINDOWS_VERIFICATION: ${{ needs.verify-windows.result }}
           ANDROID_VERIFICATION: ${{ needs.verify-android.result }}
+          DRAFT_STAGE: ${{ needs.stage.result }}
           PUBLICATION: ${{ needs.publish.result }}
           BRANCH_SYNC: ${{ needs.sync.result }}
+          PROMOTED_MAIN: ${{ needs.sync.outputs.main }}
+          OBSERVED_UPSTREAM: ${{ needs.sync.outputs.observed_upstream }}
         run: |
           mkdir -p personal-build
           node config/fork-build/status.mjs personal-build
-      - name: Keep only the current verified and promoted release
-        if: needs.publish.result == 'success' && needs.sync.result == 'success'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PUBLICATION: ${{ needs.publish.result }}
-          BRANCH_SYNC: ${{ needs.sync.result }}
-        run: node config/fork-build/release-retention.mjs personal-build
-      - name: Preserve the release cleanup receipt
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        with:
-          name: personal-release-retention
-          path: personal-build/release-retention.json
-          if-no-files-found: ignore
-          retention-days: 14

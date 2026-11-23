@@ -11,16 +11,3 @@ index f4ec633d330..a4a5e6ab0ef 100644
      timeout-minutes: 20
      steps:
        - uses: actions/checkout@v6
-diff --git a/.github/workflows/ssh-hostile-hosts.yml b/.github/workflows/ssh-hostile-hosts.yml
-index fa45eff64b3..eeb1d33276a 100644
---- a/.github/workflows/ssh-hostile-hosts.yml
-+++ b/.github/workflows/ssh-hostile-hosts.yml
-@@ -230,7 +230,7 @@ jobs:
-       fail-fast: false
-       matrix:
-         include:
--          - os: macos-15
-+          - os: macos-26
-             target: darwin-arm64
-             cell: macos-arm64-local-sshd
-           - os: macos-15-intel

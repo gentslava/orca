@@ -38,7 +38,7 @@ if (command === 'prepare') {
   mkdirSync(application, { recursive: true })
   git(application, ['init'])
   git(application, ['remote', 'add', 'origin', `https://github.com/${plan.repository}.git`])
-  git(application, ['fetch', '--no-tags', 'origin', plan.upstream])
+  git(application, ['fetch', '--no-tags', 'origin', `${plan.upstream}:refs/remotes/origin/main`])
   git(application, ['bundle', 'verify', join(resolve(input, '..'), 'source.bundle')])
   git(application, [
     'fetch',

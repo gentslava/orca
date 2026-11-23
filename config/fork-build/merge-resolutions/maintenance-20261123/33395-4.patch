@@ -1,0 +1,11 @@
+diff --git a/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts b/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts
+--- a/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts
++++ b/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts
+@@ -170,4 +170,7 @@
+   const envelope = rig.envelope({}, 'agentSession.setOption', hostTestOperationId())
+   expect(SetOptionParams.safeParse({ envelope, key: 'model', value: null }).success).toBe(true)
+   expect(SetOptionParams.safeParse({ envelope, key: 'effort', value: null }).success).toBe(false)
++  expect(SetOptionParams.safeParse({ envelope, key: 'model', value: undefined }).success).toBe(
++    false
++  )
+ })

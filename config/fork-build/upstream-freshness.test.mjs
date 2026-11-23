@@ -81,6 +81,15 @@ test('explicit snapshots follow a real uninterrupted upstream history through pu
         ),
       /Upstream main moved/
     )
+    assert.equal(
+      requireCurrentUpstream(
+        { ...snapshot, upstreamBaseline: { observed, pinned: false } },
+        reply,
+        verify,
+        { allowForward: true }
+      ),
+      current
+    )
     const foreign = git(cwd, [
       'commit-tree',
       git(cwd, ['rev-parse', 'HEAD^{tree}']),

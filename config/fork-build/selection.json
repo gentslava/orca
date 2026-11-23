@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 47337,
+      "reason": "Preserve queued mode, model, effort and safe delivery when a bot replaces its chat. Upstream PR CI passed and its same-provider/cross-provider regression tests cover the behavior."
+    },
+    {
       "number": 39918,
       "reason": "Close CLI-launched agent chats through the existing host lifecycle, with explicit session IDs, unknown-session errors and narrowly scoped paired-client capability."
     },
@@ -73,26 +77,41 @@
     "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
   },
   "replacements": {
+    "33360": 45985,
     "36569": 36922,
     "36574": 36922,
     "36606": 36928,
     "36607": 36928,
-    "37279": 37276,
+    "36736": 40148,
     "36858": 37211,
+    "36892": 38022,
+    "37279": 37276,
     "37717": 37711,
     "37861": 37958,
-    "36892": 38022,
     "39022": 39727,
-    "36736": 40148,
-    "40499": 40496,
     "40293": 40673,
-    "40955": 40951,
-    "40870": 41203,
+    "40499": 40496,
     "40728": 43959,
     "40816": 41430,
+    "40870": 41203,
+    "40955": 40951,
     "41859": 42954,
     "44655": 45027,
     "44768": 44991
+  },
+  "reviewedUpstreamMerges": {
+    "39727": {
+      "head": "6fabb219837547f8fdf43c45b8d4eb4f1e963ef1",
+      "merge": "c00f8448d5f4f2e3116babc29983c1c5e18c8513",
+      "mergedAt": "2026-11-08T04:44:39Z",
+      "reason": "GitHub no longer serves PR metadata. The last verified release plan records the merge, whose patch matches PR 39022 and the surviving PR 39727 Git head. The relocated automation and queue readers still import directly from the owning modules."
+    },
+    "40496": {
+      "head": "187126b03eb4ec0eaaaf6f223a607db464bcb7ce",
+      "merge": "1500ba41539685843f30af38248b57737b341147",
+      "mergedAt": "2026-11-09T22:18:36Z",
+      "reason": "The merged ACP subagent restart digest fix replaces PR 40499. The verified release plan and surviving upstream Git ref supply the exact identities after the PR API became unavailable."
+    }
   },
   "dependencies": {
     "33395": [44451],
@@ -131,20 +150,20 @@
     "runtime-environment-rename.patch",
     "account-usage-row-layout.patch",
     "fork-ci-macos-arm64-image.patch",
-    "composed-format.patch"
+    "composed-format.patch",
+    "composed-contract-migrations.patch",
+    "composed-qualification-format.patch",
+    "selected-regressions.patch",
+    "composed-source-quality.patch"
   ],
   "retainClosed": {
-    "33360": "Gemini CLI chat over ACP landed upstream in 45985 after this pin; retained until the pin contains 45985",
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
     "36634": "Owner retains full tool invocation details in expanded chat rows; upstream issue 36633 was closed as not planned and the maintainer alternative 36958 was closed unmerged.",
     "36945": "Owner retains the project name in the mobile session header; upstream issue 36942 was closed as not planned after the session bar redesign in 41345.",
-    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
+    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first.",
+    "40980": "Keep host-specific Antigravity model discovery for native chat and terminal pickers while the upstream follow-ups are under review."
   },
   "retainedHeadSources": {
-    "33360": {
-      "repository": "gentslava/orca",
-      "ref": "refs/heads/gentslava/upstream-gemini-acp"
-    },
     "34365": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/gentslava/android-picker-refusal-diagnostics"
@@ -169,7 +188,7 @@
     },
     "40298": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/saved-server-rename-40298"
+      "ref": "refs/heads/integration/rename-saved-server-40298"
     },
     "40980": {
       "repository": "gentslava/orca",
@@ -185,6 +204,5 @@
       "ref": "refs/heads/fix/activity-row-project-only",
       "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
     }
-  },
-  "pullRequestUpstreamCommit": "75339dcf434f37145016d938209dc5741d14bc78"
+  }
 }

@@ -1,4 +1,4 @@
-name: Fork upstream sync - macOS ARM64
+name: Fork upstream preview - macOS ARM64
 run-name: Fork upstream sync - ${{ github.event_name }} - ${{ github.run_number }}
 
 on:
@@ -288,81 +288,4 @@ jobs:
           name: fork-sync-build-diagnostics
           path: ${{ runner.temp }}/fork-sync/
           if-no-files-found: error
-          retention-days: 7
-
-  promote:
-    needs: [plan, macos-arm64]
-    if: >-
-      needs.macos-arm64.result == 'success' && needs.macos-arm64.outputs.archive-id != '' &&
-      github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - uses: actions/download-artifact@v8
-        with:
-          name: fork-sync-candidate
-          path: ${{ runner.temp }}/fork-sync/
-      - name: Fast-forward master to the archived candidate with an atomic old-SHA guard
-        env:
-          FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
-          FORK_SYNC_PLAN: ${{ needs.plan.outputs.plan }}
-        run: node config/scripts/fork-upstream-sync.mjs promote
-      - name: Remove temporary SSH credentials even after cancellation
-        if: always()
-        run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
-      - name: Upload promotion diagnostics
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: fork-sync-promotion-diagnostics
-          path: ${{ runner.temp }}/fork-sync/
-          if-no-files-found: error
-          retention-days: 7
-
-  integration-pr:
-    needs: [plan, macos-arm64, promote]
-    if: >-
-      always() && !cancelled() && needs.plan.outputs.build == 'true' &&
-      (needs.macos-arm64.result == 'failure' || needs.promote.result == 'failure') &&
-      github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - name: Open or update the single fork integration PR from an upstream-main mirror
-        env:
-          FORK_SYNC_DEPLOY_KEY: ${{ secrets.FORK_SYNC_DEPLOY_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
-          FORK_SYNC_PLAN: ${{ needs.plan.outputs.plan }}
-        run: node config/scripts/fork-upstream-sync.mjs recover
-      - name: Remove temporary SSH credentials even after cancellation
-        if: always()
-        run: rm -rf -- "$RUNNER_TEMP"/orca-fork-sync-ssh-*
-      - name: Retain recovery errors when repository policy rejects the PR or mirror push
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: fork-sync-recovery-diagnostics
-          path: ${{ runner.temp }}/fork-sync/
-          if-no-files-found: warn
           retention-days: 7

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import childProcess from 'node:child_process'
 import { syncBuiltinESMExports } from 'node:module'
 import { afterEach, mock, test } from 'node:test'
-import { api } from './github.mjs'
+import { api, searchPullRequests } from './github.mjs'
 
 afterEach(() => {
   mock.restoreAll()
@@ -38,5 +38,23 @@ test('a failed mutation is not replayed', () => {
   assert.throws(
     () => api('repos/example/app/issues/1', { body: 'update' }),
     (error) => error === failure
+  )
+})
+
+test('author discovery requires a complete, consistent multi-page inventory', () => {
+  const first = Array.from({ length: 100 }, (_, index) => ({ number: index + 1 }))
+  const page = (path) => ({
+    total_count: 101,
+    incomplete_results: false,
+    items: path.endsWith('&page=1') ? first : [{ number: 101 }]
+  })
+  assert.equal(searchPullRequests('is:pr author:owner', page).at(-1).number, 101)
+  assert.throws(
+    () =>
+      searchPullRequests('is:pr author:owner', (path) => ({
+        ...page(path),
+        items: path.endsWith('&page=1') ? first : [{ number: 100 }]
+      })),
+    /changed during pagination/
   )
 })

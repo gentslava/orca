@@ -53,7 +53,7 @@ test('requires explicit inclusion, a trusted branch owner and readable branch id
     { include: [], seed: [7] },
     { include: [{ number: 7, reason: ' ' }] },
     { foreignHeadSources: { 7: { ...source, repository: 'untrusted/fork' } } },
-    { retainClosed: { 7: 'Keep it' } },
+    { retainClosed: { 7: 'Keep it' }, retainedHeadSources: { 7: source } },
     { exclude: { 7: 'Retired' } },
     { replacements: { 7: 8 } }
   ]) {
@@ -98,6 +98,19 @@ test('a foreign closure blocks instead of silently retaining the integration', a
   })
   assert.equal(result.selections.length, 0)
   assert.equal(result.blockers[0].number, 7)
+})
+
+test('a reviewed closure keeps the fork integration bound to the original foreign head', async () => {
+  const result = await resolveSelection(
+    { ...config, retainClosed: { 7: 'Retain host model discovery' } },
+    { ...readers, readPr: async () => ({ ...original, state: 'closed' }) }
+  )
+  assert.deepEqual(result.blockers, [])
+  assert.deepEqual(result.selections[0].foreignHeadSource, {
+    ...source,
+    originalHeadSha: original.head.sha
+  })
+  assert.equal(result.lifecycle[0].disposition, 'retained-closed')
 })
 
 test('a merged foreign PR uses the upstream merge without reading the integration branch', async () => {

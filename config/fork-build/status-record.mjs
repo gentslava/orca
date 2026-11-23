@@ -3,12 +3,12 @@ export function nextRecord(current, plan, { runId, attempt, publication, branchS
     return null
   }
   const lastGood =
-    publication === 'success'
+    publication === 'success' && branchSync === 'success'
       ? {
-          tag: `personal-${runId}-${attempt}`,
+          tag: plan.releaseTag ?? `personal-${runId}-${attempt}`,
           fingerprint: plan.fingerprint,
           commit: plan.result.commit,
-          promoted: branchSync === 'success'
+          promoted: true
         }
       : current.lastGood
   return {

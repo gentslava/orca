@@ -1,5 +1,7 @@
 # Personal Orca builds
 
+[MAINTENANCE.md](MAINTENANCE.md) describes the current update, validation and release procedure. This file records the integration design, package details and historical refresh decisions.
+
 `main` is the upstream mirror. `master` contains the qualified composed application, the daily/manual workflow and this selection. Source refreshes may land through a fully green pull request before packaging; the release ledger separately identifies the last successfully packaged application. There is no additional integration branch.
 
 Generated integration, packaging and promotion commits use GitHub's standard `github-actions[bot]` identity. Original upstream and PR commits retain their authors. Integration subjects use `fork: integrate PR NUMBER`; the source SHA remains in the Source-Head trailer and build plan. Fork status reports use plain PR numbers without issue mentions or upstream URLs, so routine builds do not add cross-reference events to upstream discussions. Keep personal package and CI reports in this fork; upstream PRs describe and validate only their own changes.
@@ -21,14 +23,14 @@ When every conflicted path is an English or Russian desktop/mobile translation c
 ## Operation
 
 - Daily at 03:37 UTC, plus manual **Personal upstream + PR build** on `master`.
-- Pull-request Linux qualification uses `pullRequestUpstreamCommit` from the selection. Refresh that full upstream SHA with the composed source before opening a maintenance PR. Scheduled builds still follow latest main; manual builds may choose `upstream_commit`. Every explicit baseline must pass the existing upstream ancestry checks.
-- `audit_only`: resolve lifecycle and test composition; never package.
+- Pull requests and scheduled builds freeze the current upstream main once in planning. Manual diagnostics can select a full ancestor SHA with `upstream_commit`.
+- `audit_only` resolves lifecycle and tests composition. It can run on a maintenance branch with read-only permissions.
 - `force_build`: bypass reuse of an identical last successful composition.
 - Persistent [status issue](https://github.com/gentslava/orca/issues/12): current report, lifecycle ledger, and last successful downloads.
-- Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, Windows x64 installer and portable ZIP, Linux x64 and ARM64 AppImage/DEB/RPM, Android APK, checksums, archive/app proofs, the source plan and a Git bundle. After successful independent package verification and release publication, a trusted job promotes the built application to `master` and its frozen upstream to `main` in one atomic lease-protected push. Each selected PR contributes one linear commit over clean upstream main; original PR heads are recorded in commit messages and the build plan, not imported as parents. Required compatibility/localization corrections are folded into one commit. Promotion adds only the fork control commit, without the previous master as a parent. The replaced master is retained in an archive/master-<full-sha> branch in that same atomic push.
+- Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, Windows x64 installer and portable ZIP, Linux x64 and ARM64 AppImage/DEB/RPM, Android APK, checksums, archive/app proofs, the source plan and a Git bundle. After independent package verification and draft asset verification, a trusted job promotes the built application to `master` and its frozen upstream to `main` in one atomic lease-protected push. Each selected PR contributes one linear commit over clean upstream main; original PR heads are recorded in commit messages and the build plan, not imported as parents. Required compatibility/localization corrections are folded into one commit. Promotion adds only the fork control commit, without the previous master as a parent. The replaced master is retained in an archive/master-<full-sha> branch in that same atomic push.
 - Required conflicts or failed checks preserve the current verified release. No silent subset build or automatic substitution/closing of upstream issues/PRs.
 
-Upstream mirror and source maintenance do not wait for hosted packaging capacity. A source refresh preserves upstream and feature ancestry and must pass the full pull-request checks before merge. Transient EOF, connection-reset, TLS-connection, timeout and HTTP 502/503/504 failures retry read-only GitHub metadata requests and Git fetch/ref discovery up to three times; pushes, API mutations and permanent failures are never retried automatically.
+A source refresh preserves upstream and feature ancestry. The maintenance PR must pass the required checks before merge. The verified release promotes the upstream mirror and composed master together. Transient EOF, connection-reset, TLS-connection, timeout and HTTP 502/503/504 failures retry read-only GitHub metadata requests and Git fetch/ref discovery up to three times; pushes, API mutations and permanent failures are never retried automatically.
 
 The package lane builds one shared JavaScript artifact using the upstream release artifact implementation in development mode, then restores its source/configuration-checked bytes on every desktop runner. Each native host uses the upstream host-resource build and electron-builder targets. Linux reuses the upstream format packager with private per-format copies of one unpacked application; a guarded adapter selects the native architecture and personal package configuration. The package lane builds/typechecks the production desktop/CLI/web/mobile resources and native helpers. Trusted verification independently re-extracts DMG/ZIP, checks ARM64, code signatures, embedded source/version identity, the app-tree manifest and package digests. It does not launch the application. Component/unit checks do not establish physical-device or provider acceptance.
 
@@ -42,7 +44,7 @@ Run this from Terminal and quit Orca completely when prompted. The installer sel
 
 Promotion preserves only the pinned fork workflow, pipeline scripts/tests, preview updater test and `AGENTS.md` over the built source. The promotion commit has only the built source as its parent; previous master history is retained in a separate archive branch. Both old branch identities are checked against the push advertisement. A concurrent update or a newer/divergent mirror blocks both updates. Only master may be replaced using its exact expected SHA lease, atomically with the archive backup; main must remain a fast-forward. Audit-only, failed and unchanged-input runs do not promote. Configuration fingerprints use the controlled files rather than the master commit, so source promotion alone does not force another build.
 
-Build jobs execute the composed source with read-only repository permissions and no publishing/signing secrets. Publication uses a separate fresh runner and trusted master scripts. It checks only artifacts from the same workflow run. Publication never overwrites an existing release. After promotion, the trusted status job applies the single-release retention policy described below.
+Build jobs execute the composed source with read-only repository permissions and no publishing/signing secrets. Publication uses a separate fresh runner and trusted master scripts. It checks only artifacts from the same workflow run. Publication never overwrites an existing release. After promotion, the publication job opens the verified draft and the status job records the result.
 
 ## Editing selection
 
@@ -72,7 +74,7 @@ node --test config/fork-build/selection-retained.test.mjs config/fork-build/comp
 actionlint .github/workflows/personal-build.yml
 ```
 
-The old fork-upstream preview workflow remains available manually for recovery. Its automatic promotion schedule is retired when this workflow is installed, so two automation paths cannot race to update master.
+The macOS fork-upstream preview remains available for manual diagnostics and produces Actions artifacts. The personal workflow owns branch promotion.
 
 Claude fallback lifecycle: merged PR 37958 supersedes PR 37861, including separation of response observations from saved model preferences. The old fallback integration resolutions are removed. Merged PR 37968 supplies compact orchestration cards; PR 33403 now carries only human-authored chat navigation and preserves upstream card rendering on desktop and mobile. The merged successors are required by number and ancestry, without head pins.
 
@@ -170,11 +172,9 @@ Current-upstream follow-up: sidebar catalog imports and reactive row copy now li
 
 The existing client width preference now applies at the common Settings content container in atomic 40638: Comfortable, Wide and Full behave consistently across every page and search results. Its English description is owned by the upstream feature; the Russian description stays in the fork localization layer. No remote-server preference or new protocol is introduced.
 
-## One current internal release
+## Release history
 
-The fork keeps one published release: the latest fully verified multiplatform build, after successful master/main promotion and the persistent last-good ledger update. The trusted status job then deletes older published releases and their assets. Failed, audit-only, reused or unpromoted runs cannot trigger cleanup. Draft releases are left alone; a newer published release or changed live ledger blocks deletion. Git tags and source/archive branches are retained. The cleanup receipt records each deletion as it succeeds and is retained as an Actions artifact for 14 days; a failed deletion stops cleanup without retrying mutations.
-
-PR screenshots belong in GitHub user-attachments, not separate evidence releases. Historical binary download links expire when the next verified release replaces them; the status issue always links to the current verified release.
+The personal workflow retains previous releases and rollback refs. The status issue points to the latest release that finished both promotion and publication. See [the release procedure](MAINTENANCE.md#release-and-recovery) for draft recovery.
 
 Atomic 34895 owns the terminal delivery/pending projection and command-marker hooks extracted from its enlarged view. Their three duplicate sections are removed from `composed-source-modules.patch`; source line budgets are unchanged. Its session-children RPC and the collaboration RPCs declare their access through the current upstream method factory while retaining existing authorization and mail boundaries.
 

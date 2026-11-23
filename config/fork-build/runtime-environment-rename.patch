@@ -170,10 +170,10 @@ index 594ed9ee21a..96549a0aff0 100644
      path: ['environment', 'rm'],
      destructive: true,
 diff --git a/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts b/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
-index 530ecc50743..b457fdc010b 100644
+index f74fa3c2802..b457fdc010b 100644
 --- a/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
 +++ b/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
-@@ -181,38 +181,16 @@ export function useRuntimeEnvironmentMutationActions({
+@@ -181,36 +181,16 @@ export function useRuntimeEnvironmentMutationActions({
      }
    }
  
@@ -195,18 +195,16 @@ index 530ecc50743..b457fdc010b 100644
 -            { value0: trimmedName }
 -          )
 -        )
+-        setRenamingId(null)
 -      }
 -      return true
 -    } catch (error) {
 -      const message = error instanceof Error ? error.message : 'Failed to rename server.'
 -      if (mountedRef.current) {
 -        setRenameError(message)
--      }
--      return false
--    } finally {
--      if (mountedRef.current) {
 -        setRenamingId(null)
 -      }
+-      return false
 -    }
 -  }
 +  const renameEnvironment = (environment: PublicKnownRuntimeEnvironment, nextName: string) =>
@@ -222,7 +220,7 @@ index 530ecc50743..b457fdc010b 100644
  
    return {
      isSaving,
-@@ -234,3 +212,49 @@ export function useRuntimeEnvironmentMutationActions({
+@@ -232,3 +212,49 @@ export function useRuntimeEnvironmentMutationActions({
      renameEnvironment
    }
  }
@@ -272,21 +270,6 @@ index 530ecc50743..b457fdc010b 100644
 +    }
 +  }
 +}
-diff --git a/src/shared/plugins/languages/protected-copy-keys.json b/src/shared/plugins/languages/protected-copy-keys.json
-index 7035f992eee..5935ca03199 100644
---- a/src/shared/plugins/languages/protected-copy-keys.json
-+++ b/src/shared/plugins/languages/protected-copy-keys.json
-@@ -393,6 +393,10 @@
-     "auto.components.settings.RuntimeEnvironmentsPane.d2e00809e4",
-     "auto.components.settings.RuntimeEnvironmentsPane.ed3e3f069d",
-     "auto.components.settings.RuntimeEnvironmentsPane.removeDefaultServerDescription",
-+    "auto.components.settings.RuntimeEnvironmentsPane.renameConfirm",
-+    "auto.components.settings.RuntimeEnvironmentsPane.renameDescription",
-+    "auto.components.settings.RuntimeEnvironmentsPane.renameNameLabel",
-+    "auto.components.settings.RuntimeEnvironmentsPane.renameTitle",
-     "auto.components.settings.SettingsFormControls.b661b034ec",
-     "auto.components.settings.SshDestructiveActionDialog.895b216267",
-     "auto.components.settings.SshDestructiveActionDialog.moreTargets",
 diff --git a/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts b/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
 index 1723bc3ef25..ef52253ae8b 100644
 --- a/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
