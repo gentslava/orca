@@ -126,6 +126,13 @@ jobs:
           ORCA_CODE_QUALITY_BASE: ${{ needs.plan.outputs.upstream }}
           ORCA_FORK_BUILD_CONTROL_ROOT: ${{ runner.temp }}/personal-control
         run: pnpm run lint
+      - name: Fetch the upstream release fixtures for cross-version tests
+        run: |
+          baseline="$(node -p 'require("./personal-build/plan.json").upstreamRelease.tag')"
+          [[ "$baseline" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git fetch --no-tags https://github.com/stablyai/orca.git \
+            "refs/tags/$baseline:refs/tags/$baseline" \
+            refs/tags/v1.4.199:refs/tags/v1.4.199
       - name: Install headless Chromium for mobile bundle regressions
         run: pnpm exec playwright install --with-deps --only-shell chromium
       - name: Run desktop and mobile unit tests
