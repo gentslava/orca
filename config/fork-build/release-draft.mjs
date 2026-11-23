@@ -41,7 +41,7 @@ const paths = [
 const files = new Map(
   paths.map((path) => [
     basename(path),
-    { path, size: statSync(path).size, digest: 'sha256:' + hashFile(path) }
+    { path, size: statSync(path).size, digest: `sha256:${hashFile(path)}` }
   ])
 )
 if (files.size !== paths.length) {
