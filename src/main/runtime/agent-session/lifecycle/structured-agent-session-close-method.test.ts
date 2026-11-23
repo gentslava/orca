@@ -1,5 +1,7 @@
 import '../../rpc/dispatch/testing/unused-default-rpc-methods.test-fixture'
 import { expect, it, vi } from 'vitest'
+import { createStructuredAgentSessionLogger } from '../../../native-chat/agent-session-wire/host/structured-agent-session-logger'
+import { openTestAgentSessionRecordStoreSlot } from '../records/agent-session-record-store-test-harness'
 import { RpcDispatcher } from '../../rpc/dispatcher'
 import { STRUCTURED_AGENT_SESSION_REVEAL_METHODS } from '../../rpc/methods/structured-sessions/conversation/structured-agent-session-reveal'
 import { STRUCTURED_AGENT_SESSION_CLOSE_METHOD } from '../../rpc/methods/structured-sessions/conversation/structured-agent-session-close-method'
@@ -14,7 +16,8 @@ import {
   B,
   G,
   authorityProfile,
-  openAuthorityRuntime
+  openAuthorityRuntime,
+  root
 } from './structured-agent-session-tab-authority.test-support'
 
 vi.mock('../../../claude/cli-capabilities/claude-cli-flag-prewarm', () => ({
@@ -83,6 +86,11 @@ it.each([
   ['the paired CLI', PAIRED_CLI]
 ])('lets %s close a chat at rest before the host is built', async (_caller, cli) => {
   const { profile } = await authorityProfile([B], { records: [B], visible: [B] })
+  await openTestAgentSessionRecordStoreSlot({
+    stateDirectory: root,
+    hostId: 'local',
+    logger: createStructuredAgentSessionLogger()
+  })
   const rpc = new RpcDispatcher({
     runtime: new AuthorityRuntime(profile),
     methods: [STRUCTURED_AGENT_SESSION_CLOSE_METHOD]
