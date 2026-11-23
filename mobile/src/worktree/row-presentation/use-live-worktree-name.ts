@@ -97,7 +97,8 @@ export function useLiveWorktreeName({
       let eventStreamReady = false
       let hasSuccessfulRefresh = false
       let fallbackInterval: ReturnType<typeof setInterval> | null = null
-      let refreshGeneration = 0
+      let refreshInFlight = false
+      let refreshSuperseded = false
       let refreshProjectName = true
       let projectGeneration = 0
       let projectRetryTimer: ReturnType<typeof setTimeout> | null = null
@@ -110,13 +111,15 @@ export function useLiveWorktreeName({
         }
       }
       const refreshWorktreeName = async (): Promise<void> => {
-        // Only the newest request may publish or stop polling; events can overtake slow fallback reads.
-        const generation = ++refreshGeneration
+        if (stale || refreshInFlight) {
+          return
+        }
+        refreshInFlight = true
         try {
           const response = await sessionWorktreeRecordRead.request(client, {
             worktree: `id:${worktreeId}`
           })
-          if (stale || generation !== refreshGeneration) {
+          if (stale || refreshSuperseded) {
             return
           }
           const classified = classifyWorktreeShowResponse(response)
@@ -223,6 +226,12 @@ export function useLiveWorktreeName({
           }
         } catch {
           // Non-fatal: the route param remains a usable label until the next refresh.
+        } finally {
+          refreshInFlight = false
+          if (refreshSuperseded) {
+            refreshSuperseded = false
+            void refreshWorktreeName()
+          }
         }
       }
 
@@ -238,6 +247,11 @@ export function useLiveWorktreeName({
       const invalidateAndRefresh = (): void => {
         hasSuccessfulRefresh = false
         startFallbackPoll()
+        if (refreshInFlight) {
+          // A host event can make the current reply stale. Poll ticks only wait for it.
+          refreshSuperseded = true
+          return
+        }
         void refreshWorktreeName()
       }
 
