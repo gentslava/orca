@@ -1,6 +1,7 @@
 import { useStructuredNativeChatSubagents } from './subagents/use-structured-native-chat-subagents'
 import { useNativeChatCrewSource } from '../orchestration-crew/use-native-chat-crew'
 import { NativeChatPaneFileDropScope } from './attachments/intake/NativeChatPaneFileDropSurface'
+import { nativeChatForegroundTasks } from './NativeChatForegroundTaskAction'
 import { useNativeChatHandOff } from './pane/actions/use-native-chat-hand-off'
 import { useNativeChatStructuredPaneNotices } from '@/components/native-chat/messages/notices/use-native-chat-structured-pane-notices'
 import { useNativeChatPaneFork } from '@/components/native-chat/messages/actions/use-native-chat-fork'
@@ -252,7 +253,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
     hostNotice: botServerDown ? null : hostNotice,
     kickoffSignIn: bot.signInOwed
   })
-  return (
+  const content = (
     <NativeChatStructuredContexts
       antigravityAuth={install.antigravityAuth}
       slackMirror={slackMirror}
@@ -400,4 +401,5 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
       </NativeChatSurface>
     </NativeChatStructuredContexts>
   )
+  return nativeChatForegroundTasks(props.sessionId, controller, content)
 }

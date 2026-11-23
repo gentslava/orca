@@ -1,3 +1,4 @@
+import { NativeChatForegroundTaskAction } from '../../../NativeChatForegroundTaskAction'
 import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
 import { workerDockKindLabel, workerDockStateLabel } from './worker-dock-labels'
 import { memo } from 'react'
@@ -244,6 +245,9 @@ export const WorkerDockRow = memo(function WorkerDockRow({
           <Age at={row.changedAt} visible={visible} />
         </button>
       )}
+      {row.providerId && row.kind !== 'worker' ? (
+        <NativeChatForegroundTaskAction taskId={row.providerId} />
+      ) : null}
       <WorkerDockRowAction row={row} narrow={narrow} pending={pending} onAction={onAction} />
     </div>
   )
