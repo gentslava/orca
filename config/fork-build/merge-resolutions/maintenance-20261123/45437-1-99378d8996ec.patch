@@ -1,0 +1,29 @@
+diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+--- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
++++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+@@ -83,6 +83,7 @@
+       'modelUnavailable',
+       'providerUnavailable',
+       'providerSafetyStopped',
++      'flaggedRequestNotSwitched',
+       'providerResponseFailed'
+     ].includes(failure.kind)
+       ? (['row', 'rejection'] as const).find(
+@@ -207,8 +208,7 @@
+   )
+   switch (look.kind) {
+     case 'auto-review-denied':
+-    case 'settled-permission': {
+-      const summary = nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)
++    case 'settled-permission':
+       return (
+         <View>
+           {disclosed ? null : (
+@@ -223,7 +223,6 @@
+           {disclosed || expanded ? diagnosticBody : null}
+         </View>
+       )
+-    }
+     case 'divider':
+       return <MobileNativeChatDivider label={copy[look.label]} />
+     case 'forked-from': {
