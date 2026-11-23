@@ -120,17 +120,36 @@ export async function resolveSelection(
       !config.authors.includes(source.repository.split('/')[0]) ||
       typeof included?.reason !== 'string' ||
       !included.reason.trim() ||
-      retained[number] ||
+      retainedSources[number] ||
       config.exclude[number] ||
       config.replacements[number]
     ) {
       throw new Error(`Invalid foreign PR branch source: PR ${number}`)
     }
   }
+  const upstreamMerges = config.reviewedUpstreamMerges ?? {}
+  for (const [number, receipt] of Object.entries(upstreamMerges)) {
+    if (
+      !/^[1-9]\d*$/.test(number) ||
+      !Number.isSafeInteger(Number(number)) ||
+      !/^[a-f0-9]{40}$/.test(receipt?.head || '') ||
+      !/^[a-f0-9]{40}$/.test(receipt?.merge || '') ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(receipt?.mergedAt || '') ||
+      typeof receipt?.reason !== 'string' ||
+      !receipt.reason.trim() ||
+      config.exclude[number] ||
+      config.replacements[number] ||
+      retained[number] ||
+      foreignSources[number]
+    ) {
+      throw new Error(`Invalid reviewed upstream merge: PR ${number}`)
+    }
+  }
   const declaredFeatures = declaredForkFeatures(config, forkRepository)
   const numbers = new Set([
     ...config.seed,
     ...Object.keys(retained).map(Number),
+    ...Object.keys(upstreamMerges).map(Number),
     ...previous,
     ...config.include.map((entry) => entry.number),
     ...openOwn
@@ -138,6 +157,7 @@ export async function resolveSelection(
       .map((pr) => pr.number)
   ])
   const records = new Map(),
+    visited = new Set(),
     lifecycle = [],
     blockers = []
   async function resolve(number, chain = []) {
@@ -147,14 +167,38 @@ export async function resolveSelection(
     if (chain.includes(number)) {
       throw new Error(`Replacement cycle: ${[...chain, number].join(' -> ')}`)
     }
+    if (visited.has(number)) {
+      return
+    }
+    visited.add(number)
     if (config.exclude[number]) {
       lifecycle.push({ number, disposition: 'excluded', reason: config.exclude[number] })
       return
     }
-    if (records.has(number)) {
+    const receipt = upstreamMerges[number]
+    if (receipt) {
+      records.set(number, {
+        number,
+        state: 'closed',
+        head: { sha: receipt.head },
+        merge_commit_sha: receipt.merge,
+        merged_at: receipt.mergedAt,
+        reviewedUpstreamMerge: receipt
+      })
+      lifecycle.push({
+        number,
+        disposition: 'reviewed-upstream-merge',
+        head: receipt.head,
+        reason: receipt.reason
+      })
       return
     }
     const pr = await readPr(number)
+    if (pr === null) {
+      lifecycle.push({ number, disposition: 'unavailable-needs-review' })
+      blockers.push({ number, reason: 'GitHub PR metadata unavailable (HTTP 404)' })
+      return
+    }
     if (!['open', 'closed'].includes(pr.state) || pr.number !== number) {
       throw new Error(`Invalid PR state/identity: PR ${number}`)
     }
@@ -167,7 +211,8 @@ export async function resolveSelection(
       await resolve(replacement, [...chain, number])
       return
     }
-    if (pr.state === 'closed' && !pr.merged_at && retained[number]) {
+    const source = foreignSources[number]
+    if (pr.state === 'closed' && !pr.merged_at && retained[number] && !source) {
       const source = retainedSources[number]
       let selected = pr
       if (source) {
@@ -197,12 +242,11 @@ export async function resolveSelection(
       })
       return
     }
-    if (pr.state === 'closed' && !pr.merged_at) {
+    if (pr.state === 'closed' && !pr.merged_at && !retained[number]) {
       lifecycle.push({ number, disposition: 'closed-needs-review' })
       blockers.push({ number, reason: 'Closed without a recorded replacement or retirement' })
       return
     }
-    const source = foreignSources[number]
     if (!pr.merged_at && source) {
       if (config.authors.includes(pr.user.login) || typeof readRetainedHead !== 'function') {
         throw new Error(`Foreign PR branch identity cannot be verified: PR ${number}`)
@@ -216,7 +260,12 @@ export async function resolveSelection(
         head: { ...pr.head, sha },
         foreignHeadSource: { ...source, originalHeadSha: pr.head.sha }
       })
-      lifecycle.push({ number, disposition: 'fork-integrated', head: sha })
+      lifecycle.push({
+        number,
+        disposition: pr.state === 'closed' ? 'retained-closed' : 'fork-integrated',
+        head: sha,
+        ...(pr.state === 'closed' ? { reason: retained[number] } : {})
+      })
       return
     }
     records.set(number, pr)

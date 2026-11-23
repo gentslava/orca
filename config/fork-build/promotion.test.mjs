@@ -29,6 +29,8 @@ function fixture(run) {
     commit(cwd, 'application', 'historical application\n')
     commit(cwd, 'retired-feature', 'not selected\n')
     commit(cwd, 'AGENTS.md', 'fork agent guidance\n')
+    commit(cwd, '.github/dependabot.yml', 'fork action updates\n')
+    commit(cwd, 'config/fork-build/MAINTENANCE.md', 'maintenance instructions\n')
     commit(cwd, '.github/workflows/personal-build.yml', 'trusted workflow\n')
     const configuration = commit(cwd, 'config/fork-build/selection.json', '{"selected":true}\n')
     git(cwd, ['push', remote, `${configuration}:refs/heads/master`])
@@ -39,6 +41,8 @@ function fixture(run) {
     const plan = {
       repository: 'stablyai/orca',
       configuration,
+      forkMain: main,
+      timestamp: '2026-11-23T03:00:00.000Z',
       upstream,
       runUrl: 'https://github.com/gentslava/orca/actions/runs/1',
       result: {
@@ -88,6 +92,12 @@ test('promotes the exact built application, preserves control without importing 
     )
     assert.equal(git(f.remote, ['rev-parse', 'master']), candidate.commit)
     assert.equal(git(f.remote, ['rev-parse', 'main']), plan.upstream)
+    assert.equal(git(f.remote, ['rev-parse', `refs/heads/archive/main-${f.main}`]), f.main)
+    assert.equal(
+      git(f.remote, ['show', 'master:config/fork-build/MAINTENANCE.md']),
+      'maintenance instructions'
+    )
+    assert.deepEqual(promoteBranches(cwd, plan, candidate, { forkUrl: f.remote }), result)
   }))
 
 test('fork feature integrations count as selected-feature history for promotion', () =>

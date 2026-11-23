@@ -1,7 +1,8 @@
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { join, resolve } from 'node:path'
-import { api, readLedger, renderReport } from './github.mjs'
+import { parseArgs } from 'node:util'
+import { api, readLedger, readPullRequest, renderReport } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
 import {
   assertFrozenHead,
@@ -24,8 +25,21 @@ import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/b
 import { packageTargets } from './package-targets.mjs'
 
 const here = import.meta.dirname
+const forkRepository = process.env.GITHUB_REPOSITORY || 'gentslava/orca'
 const config = JSON.parse(readFileSync(join(here, 'selection.json'), 'utf8'))
-const directory = resolve(process.env.FORK_BUILD_OUTPUT || 'personal-build')
+const { values: options } = parseArgs({
+  options: {
+    audit: { type: 'boolean' },
+    force: { type: 'boolean' },
+    'keep-source': { type: 'boolean' },
+    upstream: { type: 'string' },
+    output: { type: 'string' }
+  }
+})
+const requestedUpstream = options.upstream ?? process.env.FORK_BUILD_UPSTREAM_COMMIT
+const directory = resolve(options.output || process.env.FORK_BUILD_OUTPUT || 'personal-build')
+const source = join(directory, 'source')
+let createdSource = false
 mkdirSync(directory, { recursive: true })
 const configuration = git(process.cwd(), ['rev-parse', 'HEAD'])
 if (process.env.GITHUB_SHA && process.env.GITHUB_SHA !== configuration) {
@@ -36,8 +50,11 @@ const plan = {
   configuration,
   repository: config.upstream,
   timestamp: new Date().toISOString(),
-  auditOnly: process.env.AUDIT_ONLY === 'true',
-  runUrl: `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+  auditOnly: options.audit || process.env.AUDIT_ONLY === 'true',
+  releaseTag: process.env.GITHUB_RUN_ID
+    ? `personal-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`
+    : undefined,
+  runUrl: `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${forkRepository}/actions/runs/${process.env.GITHUB_RUN_ID || 'local'}`,
   blockers: [],
   lifecycle: [],
   selections: [],
@@ -47,48 +64,64 @@ const plan = {
 try {
   plan.targets = packageTargets(plan.outputs)
   const ledger = config.statusIssue
-    ? readLedger(api(`repos/${process.env.GITHUB_REPOSITORY}/issues/${config.statusIssue}`).body)
+    ? readLedger(api(`repos/${forkRepository}/issues/${config.statusIssue}`).body)
     : { tracked: [] }
   plan.previous = ledger
+  plan.forkMain = api(`repos/${forkRepository}/git/ref/heads/main`).object.sha
   const observedUpstream = api(`repos/${config.upstream}/git/ref/heads/${config.base}`).object.sha
-  plan.upstream = selectUpstreamBuildCommit(
-    observedUpstream,
-    process.env.FORK_BUILD_UPSTREAM_COMMIT
-  )
+  plan.upstream = selectUpstreamBuildCommit(observedUpstream, requestedUpstream)
   plan.upstreamBaseline = {
     observed: observedUpstream,
-    requested: Boolean(process.env.FORK_BUILD_UPSTREAM_COMMIT?.trim()),
+    requested: Boolean(requestedUpstream?.trim()),
     pinned: plan.upstream !== observedUpstream
   }
   plan.upstreamRelease = upstreamReleaseIdentity(api(`repos/${config.upstream}/releases/latest`))
   const own = []
+  plan.authorInventory = []
   for (const author of config.authors) {
-    const query = encodeURIComponent(
-      `repo:${config.upstream} is:pr is:open author:${author} base:${config.base}`
-    )
+    const query = encodeURIComponent(`repo:${config.upstream} is:pr author:${author}`)
     const search = api(`search/issues?q=${query}&per_page=100`)
     if (search.incomplete_results || search.total_count > 100) {
       throw new Error('Incomplete own-PR discovery; narrow or paginate before building')
     }
+    const ownMain = api(
+      `search/issues?q=${encodeURIComponent(
+        `repo:${config.upstream} is:pr is:open author:${author} base:${config.base}`
+      )}&per_page=100`
+    )
+    if (ownMain.incomplete_results || ownMain.total_count > 100) {
+      throw new Error('Incomplete active owner PR discovery')
+    }
     own.push(
-      ...search.items.map((pr) => ({ ...pr, user: { login: author }, base: { ref: config.base } }))
+      ...ownMain.items.map((pr) => ({ ...pr, user: { login: author }, base: { ref: config.base } }))
+    )
+    const openMain = new Set(ownMain.items.map(({ number }) => number))
+    plan.authorInventory.push(
+      ...search.items.map((pr) => ({
+        number: pr.number,
+        title: pr.title,
+        author,
+        state: pr.pull_request?.merged_at ? 'merged' : pr.state,
+        draft: pr.draft === true,
+        openOnMain: openMain.has(pr.number)
+      }))
     )
   }
   const resolved = await resolveSelection(config, {
     openOwn: own,
     previous: ledger.tracked,
-    readPr: async (number) => api(`repos/${config.upstream}/pulls/${number}`),
+    readPr: async (number) => readPullRequest(`repos/${config.upstream}/pulls/${number}`),
     readRetainedHead: async ({ repository, ref }) =>
       api(`repos/${repository}/git/ref/${ref.slice('refs/'.length)}`).object.sha,
-    forkRepository: process.env.GITHUB_REPOSITORY,
+    forkRepository,
     readForkBranch: async ({ repository, ref }) => ({
       ...api(`repos/${repository}/git/ref/${ref.slice('refs/'.length)}`),
       repository: api(`repos/${repository}`).full_name
     })
   })
   Object.assign(plan, resolved)
-  const source = join(directory, 'source')
   mkdirSync(source)
+  createdSource = true
   git(source, ['init'])
   git(source, ['config', 'gc.auto', '0'])
   if (process.env.FORK_BUILD_REFERENCE) {
@@ -122,19 +155,30 @@ try {
       )
     ])
   }
+  const frozen = []
   for (const pr of plan.selections) {
-    if (pr.retainedHeadSource) {
-      freezeRetainedHead(source, pr)
-    } else if (pr.foreignHeadSource) {
-      freezeForeignHead(source, pr)
-    } else if (!pr.merged_at || mergedAfterBaseline.includes(pr)) {
-      assertFrozenHead(source, pr.number, pr.head.sha)
+    try {
+      if (pr.retainedHeadSource) {
+        freezeRetainedHead(source, pr)
+      } else if (pr.foreignHeadSource) {
+        freezeForeignHead(source, pr)
+      } else if (!pr.merged_at || mergedAfterBaseline.includes(pr)) {
+        assertFrozenHead(source, pr.number, pr.head.sha)
+      }
+      frozen.push(pr)
+    } catch (error) {
+      plan.blockers.push({ number: pr.number, reason: error.message })
     }
   }
   for (const feature of plan.forkFeatures) {
-    freezeForkFeatureHead(source, feature)
+    try {
+      freezeForkFeatureHead(source, feature)
+      frozen.push(feature)
+    } catch (error) {
+      plan.blockers.push({ feature: feature.feature, reason: error.message })
+    }
   }
-  plan.result = compose(source, plan.upstream, [...plan.selections, ...plan.forkFeatures], {
+  plan.result = compose(source, plan.upstream, frozen, {
     timestamp: plan.timestamp,
     observedUpstream
   })
@@ -287,6 +331,7 @@ try {
   plan.reuse =
     ledger.lastGood?.promoted === true &&
     ledger.lastGood.fingerprint === plan.fingerprint &&
+    !options.force &&
     process.env.FORCE_BUILD !== 'true'
   if (plan.result.publishable && !plan.auditOnly && !plan.reuse) {
     git(source, [
@@ -311,13 +356,13 @@ try {
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(
       process.env.GITHUB_OUTPUT,
-      `build=${build}\nconfiguration=${configuration}\nupstream=${plan.upstream || ''}\nsource=${plan.result?.commit || ''}\nlinux_matrix=${JSON.stringify(plan.targets?.filter((target) => target.platform === 'linux') ?? [])}\n`
+      `build=${build}\nreceipt=true\ntag=${plan.releaseTag || ''}\nconfiguration=${configuration}\nupstream=${plan.upstream || ''}\nsource=${plan.result?.commit || ''}\nlinux_matrix=${JSON.stringify(plan.targets?.filter((target) => target.platform === 'linux') ?? [])}\n`
     )
   }
   if (!plan.result?.publishable) {
     process.exitCode = 1
   }
-  if (existsSync(join(directory, 'source'))) {
+  if (createdSource && !options['keep-source'] && process.env.FORK_BUILD_KEEP_SOURCE !== 'true') {
     // The source checkout is not an artifact; only the frozen bundle and receipts are uploaded.
     const { rmSync } = await import('node:fs')
     rmSync(join(directory, 'source'), { recursive: true, force: true, maxRetries: 3 })

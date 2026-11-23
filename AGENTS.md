@@ -8,6 +8,12 @@
 
 Never break main. Use stacks or collapse PRs before merge
 
+# Maintaining the gentslava/orca fork
+
+When the repository owner asks «Обновляй», «Обнови Orca», «Актуализируй форк» or «Синхронизируй с upstream», execute the complete maintenance cycle in [config/fork-build/MAINTENANCE.md](./config/fork-build/MAINTENANCE.md). Start by freezing the live branch identities and reviewing the selections. Resolve integration and CI failures, run all applicable gates, and finish with an independently verified release, atomic branch promotion, and an updated status ledger.
+
+Use [selection.json](./config/fork-build/selection.json) for required features and reviewed source decisions. Resolve routine maintenance decisions from the repository. Record unresolved product choices for the owner and continue independent work. Keep fork-only controls out of upstream PRs.
+
 # Design System
 
 All UI work — layout, color, typography, spacing, component selection, UX behavior — must follow [`docs/STYLEGUIDE.md`](./docs/STYLEGUIDE.md). Use the tokens defined in `src/renderer/src/assets/main.css` (the canonical source) and the shadcn primitives in `src/renderer/src/components/ui/`. Don't invent new color values, font sizes, or shadow tiers when a documented one already covers the role. Read the `docs/styleguide/` deep dive it links only when your change touches that topic. When STYLEGUIDE.md is silent, follow the resolution order in its final section.

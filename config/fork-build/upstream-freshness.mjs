@@ -23,7 +23,8 @@ export function requireCurrentUpstream(
   plan,
   readMain = () =>
     git(process.cwd(), ['ls-remote', `https://github.com/${repository}.git`, mainRef]),
-  verifySnapshot = verifySnapshotAncestry
+  verifySnapshot = verifySnapshotAncestry,
+  { allowForward = false } = {}
 ) {
   if (plan?.repository !== repository || !/^[a-f0-9]{40}$/.test(plan.upstream || '')) {
     throw new Error('Invalid upstream identity in the source plan')
@@ -34,7 +35,7 @@ export function requireCurrentUpstream(
   }
   if (match[1] !== plan.upstream) {
     const baseline = plan.upstreamBaseline
-    if (baseline?.requested === true || baseline?.pinned === true) {
+    if (allowForward || baseline?.requested === true || baseline?.pinned === true) {
       if (!/^[a-f0-9]{40}$/.test(baseline.observed || '')) {
         throw new Error('Invalid observed upstream identity for the explicit build snapshot')
       }

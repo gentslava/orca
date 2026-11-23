@@ -23,6 +23,11 @@ const { lastGood } = ledger
 const report = existsSync(join(directory, 'report.md'))
   ? readFileSync(join(directory, 'report.md'), 'utf8')
   : `Planning failed before a receipt was produced. See [Actions](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}).`
-const body = `${report}\n\nPackages: macOS **${process.env.PACKAGE_RESULT}**, Windows **${process.env.WINDOWS_RESULT}**, Linux **${process.env.LINUX_RESULT}**, Android **${process.env.ANDROID_RESULT}**. Independent verification: Windows **${process.env.WINDOWS_VERIFICATION}**, Linux **${process.env.LINUX_VERIFICATION}**, Android **${process.env.ANDROID_VERIFICATION}**. Publication: **${process.env.PUBLICATION}**. Master/main promotion: **${process.env.BRANCH_SYNC}**.${plan?.reuse ? ' Inputs unchanged; reusing last successful release.' : ''}\n\n${lastGood ? `Last successful release: [${lastGood.tag}](https://github.com/${process.env.GITHUB_REPOSITORY}/releases/tag/${lastGood.tag}).` : 'No successful personal release yet.'}\n\n<!-- orca-personal-ledger\n${JSON.stringify(ledger)}\n-->`
+const { OBSERVED_UPSTREAM, PROMOTED_MAIN } = process.env
+const drift =
+  OBSERVED_UPSTREAM && OBSERVED_UPSTREAM !== PROMOTED_MAIN
+    ? `\n\nUpstream had already advanced to \`${OBSERVED_UPSTREAM}\` at promotion. The next run will recompose.`
+    : ''
+const body = `${report}\n\nPackages: macOS **${process.env.PACKAGE_RESULT}**, Windows **${process.env.WINDOWS_RESULT}**, Linux **${process.env.LINUX_RESULT}**, Android **${process.env.ANDROID_RESULT}**. Independent verification: Windows **${process.env.WINDOWS_VERIFICATION}**, Linux **${process.env.LINUX_VERIFICATION}**, Android **${process.env.ANDROID_VERIFICATION}**. Release draft: **${process.env.DRAFT_STAGE}**. Publication: **${process.env.PUBLICATION}**. Master/main promotion: **${process.env.BRANCH_SYNC}**.${plan?.reuse ? ' Inputs unchanged; reusing last successful release.' : ''}${drift}\n\n${lastGood ? `Last successful release: [${lastGood.tag}](https://github.com/${process.env.GITHUB_REPOSITORY}/releases/tag/${lastGood.tag}).` : 'No successful personal release yet.'}\n\n<!-- orca-personal-ledger\n${JSON.stringify(ledger)}\n-->`
 api(path, { body })
 writeFileSync(join(directory, 'status-ledger.json'), JSON.stringify(ledger, null, 2))

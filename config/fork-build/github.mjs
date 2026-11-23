@@ -16,6 +16,17 @@ export function api(path, data) {
   return JSON.parse(data ? run() : withGitHubReadRetry(run))
 }
 
+export function readPullRequest(path, read = api) {
+  try {
+    return read(path)
+  } catch (error) {
+    if (/^gh: .*\(HTTP 404\)$/m.test(error.stderr?.toString() || '')) {
+      return null
+    }
+    throw error
+  }
+}
+
 export function readLedger(body = '') {
   const match = body.match(/<!-- orca-personal-ledger\n([\s\S]*?)\n-->/)
   return match ? JSON.parse(match[1]) : { tracked: [] }
@@ -75,6 +86,12 @@ export function renderReport(plan) {
   ]
   if (plan.error) {
     lines.push(`Planning error: ${plan.error}`, '')
+  }
+  if (!plan.result && plan.blockers?.length) {
+    lines.push('', '## Blockers', '')
+    for (const { number, feature, reason } of plan.blockers) {
+      lines.push(`- ${number ? `PR ${number}: ` : feature ? `${feature}: ` : ''}${reason}`)
+    }
   }
   if (plan.result) {
     lines.push(
@@ -183,6 +200,9 @@ export function renderReport(plan) {
       '',
       `Already supplied by upstream: ${plan.result.suppliedByUpstream.map((n) => `PR ${n}`).join(', ') || 'none'}.`
     )
+  }
+  if (plan.authorInventory?.length) {
+    lines.push('', `Owner PR inventory: ${plan.authorInventory.length}; full records in plan.json.`)
   }
   lines.push('', '## Lifecycle', '')
   for (const entry of plan.lifecycle || []) {

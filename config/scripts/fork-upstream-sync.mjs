@@ -211,7 +211,7 @@ export function promoteCandidate(
 export function pushPinnedForkRefs(
   cwd,
   updates,
-  { forkUrl = FORK_WRITE_URL, env = process.env, replaceMaster = false } = {}
+  { forkUrl = FORK_WRITE_URL, env = process.env, replaceMaster = false, archiveMain = false } = {}
 ) {
   if (!updates.length || new Set(updates.map((entry) => entry.ref)).size !== updates.length) {
     throw new Error('Expected distinct fork branch updates')
@@ -233,14 +233,18 @@ export function pushPinnedForkRefs(
   if (replaceMaster && !master) {
     throw new Error('Clean-history promotion requires an exact master update')
   }
-  const backup = replaceMaster
-    ? {
-        ref: `refs/heads/archive/master-${master.before}`,
-        before: '0'.repeat(40),
-        after: master.before
-      }
-    : null
-  const pinnedUpdates = backup ? [...updates, backup] : updates
+  const backups = updates
+    .filter(
+      ({ ref, before, after }) =>
+        (replaceMaster && ref === 'refs/heads/master') ||
+        (archiveMain && ref === 'refs/heads/main' && before !== after)
+    )
+    .map(({ ref, before }) => ({
+      ref: `refs/heads/archive/${ref.slice('refs/heads/'.length)}-${before}`,
+      before: '0'.repeat(40),
+      after: before
+    }))
+  const pinnedUpdates = [...updates, ...backups]
   const hooks = mkdtempSync(join(tmpdir(), 'orca-fork-promotion-'))
   try {
     // Check the push advertisement too; a fetch followed by an ordinary push has a race window.
@@ -262,12 +266,8 @@ export function pushPinnedForkRefs(
         `core.hooksPath=${hooks}`,
         'push',
         '--atomic',
-        ...(backup
-          ? [
-              `--force-with-lease=refs/heads/master:${master.before}`,
-              `--force-with-lease=${backup.ref}:`
-            ]
-          : []),
+        ...(replaceMaster ? [`--force-with-lease=refs/heads/master:${master.before}`] : []),
+        ...backups.map(({ ref }) => `--force-with-lease=${ref}:`),
         forkUrl,
         ...pinnedUpdates.map((entry) => `${entry.after}:${entry.ref}`)
       ],
