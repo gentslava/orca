@@ -53,6 +53,7 @@ jobs:
       receipt: ${{ steps.compose.outputs.receipt }}
       tag: ${{ steps.compose.outputs.tag }}
       source: ${{ steps.compose.outputs.source }}
+      upstream: ${{ steps.compose.outputs.upstream }}
       linux_matrix: ${{ steps.compose.outputs.linux_matrix }}
     steps:
       - &checkout
@@ -121,6 +122,9 @@ jobs:
       - name: Verify formatting, localization and changed source
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Lint the composed source
+        env:
+          ORCA_CODE_QUALITY_BASE: ${{ needs.plan.outputs.upstream }}
+          ORCA_FORK_BUILD_CONTROL_ROOT: ${{ runner.temp }}/personal-control
         run: pnpm run lint
       - name: Install headless Chromium for mobile bundle regressions
         run: pnpm exec playwright install --with-deps --only-shell chromium
