@@ -1,8 +1,11 @@
 import { afterEach, test } from 'node:test'
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, copyFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { git } from './composition.mjs'
 import { hashFile } from '../scripts/fork-upstream-archives.mjs'
 import {
   packageIdentity,
@@ -46,6 +49,55 @@ function temporary() {
 afterEach(() =>
   roots.splice(0).forEach((directory) => rmSync(directory, { recursive: true, force: true }))
 )
+
+test('package checkout uses the planned upstream as the reference for source checks', () => {
+  const directory = temporary()
+  const repository = join(directory, 'upstream')
+  const application = join(directory, 'application')
+  mkdirSync(repository)
+  git(repository, ['init', '-b', 'main'])
+  git(repository, ['commit', '--allow-empty', '-m', 'Frozen upstream'])
+  const upstream = git(repository, ['rev-parse', 'HEAD'])
+  git(repository, ['switch', '-c', 'personal-candidate'])
+  writeFileSync(join(repository, 'app.txt'), 'Composed application')
+  git(repository, ['add', 'app.txt'])
+  git(repository, ['commit', '-m', 'Compose selected changes'])
+  const commit = git(repository, ['rev-parse', 'HEAD'])
+  const tree = git(repository, ['rev-parse', 'HEAD^{tree}'])
+  git(repository, [
+    'bundle',
+    'create',
+    join(directory, 'source.bundle'),
+    'refs/heads/personal-candidate',
+    `^${upstream}`
+  ])
+  git(repository, ['switch', 'main'])
+  git(repository, ['commit', '--allow-empty', '-m', 'Newer remote upstream'])
+
+  const input = join(directory, 'plan.json')
+  writeJson(input, {
+    ...plan,
+    repository: 'stablyai/orca',
+    upstream,
+    result: { publishable: true, commit, tree }
+  })
+  execFileSync(
+    process.execPath,
+    [fileURLToPath(new URL('./packages.mjs', import.meta.url)), 'prepare', input, application],
+    {
+      env: {
+        ...process.env,
+        GITHUB_ENV: join(directory, 'github-env'),
+        GIT_CONFIG_COUNT: '1',
+        GIT_CONFIG_KEY_0: `url.${pathToFileURL(repository).href}.insteadOf`,
+        GIT_CONFIG_VALUE_0: 'https://github.com/stablyai/orca.git'
+      }
+    }
+  )
+  assert.equal(git(application, ['rev-parse', 'HEAD']), commit)
+  assert.equal(git(application, ['rev-parse', 'origin/main']), upstream)
+  assert.equal(git(application, ['merge-base', 'origin/main', 'HEAD']), upstream)
+})
 
 function executable(file, machine = 0x8664) {
   const bytes = Buffer.alloc(512)
