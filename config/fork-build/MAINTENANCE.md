@@ -87,7 +87,7 @@ gh run view RUN_ID -R gentslava/orca --log-failed
 gh run download RUN_ID -R gentslava/orca -n personal-source-plan
 ```
 
-The schedule and default manual build freeze fresh upstream main. A manual `upstream_commit` requires a full SHA on upstream main's history. Use `audit_only=true` for historical diagnostics. The release path requires both fork branch leases and a fast-forward mirror. When upstream advances while packaging, promotion verifies the frozen source remains an ancestor, reports the newly observed SHA and leaves it for the next cycle. Divergence or concurrently changed fork refs block promotion.
+The schedule and default manual build freeze fresh upstream main. A manual `upstream_commit` requires a full SHA on upstream main's history. Use `audit_only=true` for historical diagnostics or to run the read-only audit from a maintenance branch. Package, release and promotion operations require the trusted master workflow. The release path requires both fork branch leases and a fast-forward mirror. When upstream advances while packaging, promotion verifies the frozen source remains an ancestor, reports the newly observed SHA and leaves it for the next cycle. Divergence or concurrently changed fork refs block promotion.
 
 Verify all 11 outputs before staging a draft: macOS ARM64 DMG and ZIP, Windows x64 installer and portable ZIP, Android APK, and AppImage/DEB/RPM for each Linux architecture. The preview signing policy is macOS ad hoc, Windows unsigned and Android Expo debug signing. The Android lane blocks if production signing is required. Archive checks validate architecture, package contents, source identity, version and digests. Report hardware, display and authenticated provider acceptance separately.
 

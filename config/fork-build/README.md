@@ -24,7 +24,7 @@ When every conflicted path is an English or Russian desktop/mobile translation c
 
 - Daily at 03:37 UTC, plus manual **Personal upstream + PR build** on `master`.
 - Pull requests and scheduled builds freeze the current upstream main once in planning. Manual diagnostics can select a full ancestor SHA with `upstream_commit`.
-- `audit_only`: resolve lifecycle and test composition; never package.
+- `audit_only` resolves lifecycle and tests composition. It can run on a maintenance branch with read-only permissions.
 - `force_build`: bypass reuse of an identical last successful composition.
 - Persistent [status issue](https://github.com/gentslava/orca/issues/12): current report, lifecycle ledger, and last successful downloads.
 - Each run retains plan/report artifacts for 14 days. Successful prereleases retain ARM64 DMG and ZIP, Windows x64 installer and portable ZIP, Linux x64 and ARM64 AppImage/DEB/RPM, Android APK, checksums, archive/app proofs, the source plan and a Git bundle. After independent package verification and draft asset verification, a trusted job promotes the built application to `master` and its frozen upstream to `main` in one atomic lease-protected push. Each selected PR contributes one linear commit over clean upstream main; original PR heads are recorded in commit messages and the build plan, not imported as parents. Required compatibility/localization corrections are folded into one commit. Promotion adds only the fork control commit, without the previous master as a parent. The replaced master is retained in an archive/master-<full-sha> branch in that same atomic push.

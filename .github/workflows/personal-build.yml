@@ -31,7 +31,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: personal-upstream-pr-build-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'release' }}
+  group: personal-upstream-pr-build-${{ github.event_name == 'pull_request' && github.event.pull_request.number ||
+    github.event_name == 'workflow_dispatch' && inputs.audit_only && format('audit-{0}', github.ref_name) || 'release' }}
   cancel-in-progress: false
 
 env:
@@ -41,7 +42,10 @@ env:
 
 jobs:
   plan:
-    if: github.repository == 'gentslava/orca' && (github.ref == 'refs/heads/master' || github.event_name == 'pull_request')
+    if: >-
+      github.repository == 'gentslava/orca' &&
+      (github.ref == 'refs/heads/master' || github.event_name == 'pull_request' ||
+       (github.event_name == 'workflow_dispatch' && inputs.audit_only))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
