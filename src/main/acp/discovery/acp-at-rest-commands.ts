@@ -185,6 +185,7 @@ export class AcpAtRestCommandCatalog extends AtRestCommandCatalog {
               args: [
                 ...invocation.prefixArgs,
                 ...activeSpec.args({ fullAccess: false, pluginDirs: skill?.pluginDirs ?? [] }),
+                ...(skill?.args ?? []),
                 ...folderArgs
               ]
             })

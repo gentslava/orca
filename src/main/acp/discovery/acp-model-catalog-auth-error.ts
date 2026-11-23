@@ -1,6 +1,7 @@
 import type { AcpLaunchSpec } from '../launch/acp-launch-contract'
 import { acpLaunchSpecForAccount } from '../launch/acp-launch-command'
 import type { AgentSessionAccountHome } from '../../../shared/agent-session/lifecycle/accounts/agent-session-account-home'
+import { acpAuthenticationRequired } from '../turns/acp-prompt-failure'
 import { AcpAgentError } from '../transport/acp-errors'
 import { AgentModelCatalogProbeError } from '../../native-chat/agent-model-catalog/agent-model-catalog-probe-runner'
 import { AgentModelCatalogUnavailableError } from '../../native-chat/agent-model-catalog/agent-model-catalog-unavailable'
@@ -22,9 +23,10 @@ function acpModelCatalogAuthError(error: unknown, spec: AcpLaunchSpec): unknown 
     spec.modelDiscovery.isNotSignedInOutput?.(
       `${error.failedExit.stdout}\n${error.failedExit.stderr}`
     ) === true
-  return (error instanceof AcpAgentError && error.code === -32000) || commandSignedOut
-    ? acpSignedOutError(spec)
-    : error
+  const acpSignedOut =
+    error instanceof AcpAgentError &&
+    (error.code === -32000 || acpAuthenticationRequired(spec.dialect, error))
+  return acpSignedOut || commandSignedOut ? acpSignedOutError(spec) : error
 }
 
 /** Rethrows a listing failure, as the account's sign-in when that is what failed. A listing often
