@@ -82,19 +82,19 @@
     "36574": 36922,
     "36606": 36928,
     "36607": 36928,
-    "37279": 37276,
+    "36736": 40148,
     "36858": 37211,
+    "36892": 38022,
+    "37279": 37276,
     "37717": 37711,
     "37861": 37958,
-    "36892": 38022,
     "39022": 39727,
-    "36736": 40148,
-    "40499": 40496,
     "40293": 40673,
-    "40955": 40951,
-    "40870": 41203,
+    "40499": 40496,
     "40728": 43959,
     "40816": 41430,
+    "40870": 41203,
+    "40955": 40951,
     "41859": 42954,
     "44655": 45027,
     "44768": 44991
@@ -150,14 +150,15 @@
     "runtime-environment-rename.patch",
     "account-usage-row-layout.patch",
     "fork-ci-macos-arm64-image.patch",
-    "composed-format.patch"
+    "composed-format.patch",
+    "composed-contract-migrations.patch"
   ],
   "retainClosed": {
-    "40980": "Keep host-specific Antigravity model discovery for native chat and terminal pickers while the upstream follow-ups are under review.",
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
     "36634": "Owner retains full tool invocation details in expanded chat rows; upstream issue 36633 was closed as not planned and the maintainer alternative 36958 was closed unmerged.",
     "36945": "Owner retains the project name in the mobile session header; upstream issue 36942 was closed as not planned after the session bar redesign in 41345.",
-    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
+    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first.",
+    "40980": "Keep host-specific Antigravity model discovery for native chat and terminal pickers while the upstream follow-ups are under review."
   },
   "retainedHeadSources": {
     "34365": {
@@ -181,6 +182,10 @@
     "39918": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/cli-chat-close-39918"
+    },
+    "40298": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/rename-saved-server-40298"
     },
     "40980": {
       "repository": "gentslava/orca",

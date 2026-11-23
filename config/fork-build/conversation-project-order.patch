@@ -157,10 +157,10 @@ index 4575c22497c..2eac9f57172 100644
 +  }
 +)
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
-index 6c762384f9b..d99acb18e1a 100644
+index c422803a1b9..06707ed2a13 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.fixture.tsx
-@@ -56,7 +56,11 @@ function fixture(
+@@ -64,7 +64,11 @@ function fixture(
          liveLeafCount: 0,
          runtimeProtocolVersion: 3,
          minCompatibleRuntimeClientVersion: 2,
@@ -173,7 +173,7 @@ index 6c762384f9b..d99acb18e1a 100644
        })
        window.api.runtime.call = async (request) => {
          let result: unknown = {
-@@ -131,3 +135,15 @@ export const hiddenProjectRestore = fixture(320, 'hidden')
+@@ -141,3 +145,15 @@ export const hiddenProjectRestore = fixture(320, 'hidden')
  export const registeredProjectActions = fixture(320, 'registered')
  
  export const loadingProjects = fixture(320, 'loading')
@@ -190,10 +190,10 @@ index 6c762384f9b..d99acb18e1a 100644
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
-index 4ac1e8619b0..359bd60c7af 100644
+index f8da020b11c..f8e07db84e4 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.test.tsx
-@@ -23,11 +23,15 @@ const state = vi.hoisted(() => {
+@@ -24,11 +24,15 @@ const state = vi.hoisted(() => {
    const preferences: ConversationPreferences = { revision: 0, entries: {} }
    return {
      preferences,
@@ -209,7 +209,7 @@ index 4ac1e8619b0..359bd60c7af 100644
  vi.mock('./use-conversation-preferences', () => ({ useConversationPreferences: () => state }))
  vi.mock('./SidebarConversationStart', () => ({
    SidebarConversationStart: ({
-@@ -43,6 +47,7 @@ vi.mock('../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-tit
+@@ -44,6 +48,7 @@ vi.mock('../right-sidebar/ai-vault/session-list/use-ai-vault-session-display-tit
  }))
  beforeEach(() => {
    state.preferences = { revision: 0, entries: {} }
@@ -217,7 +217,7 @@ index 4ac1e8619b0..359bd60c7af 100644
    state.projectVisibilitySupported = true
    state.setPreference.mockReset().mockResolvedValue(undefined)
    state.setProjectHidden
-@@ -275,6 +280,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
+@@ -282,6 +287,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
      executionHostScope: 'all'
    })
    const [first, second] = screen.getAllByRole('region')
@@ -227,7 +227,7 @@ index 4ac1e8619b0..359bd60c7af 100644
    if (!first || !second) {
      throw new Error('Expected both host-qualified projects')
    }
-@@ -284,6 +292,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
+@@ -291,6 +299,9 @@ it('moves only the selected host project when adjacent projects share a repo id'
      'ssh:box',
      'local'
    ])
@@ -237,7 +237,7 @@ index 4ac1e8619b0..359bd60c7af 100644
    expect(persist).toHaveBeenCalledWith({
      manualRepoOrder: [
        { hostId: 'ssh:box', repoId: 'same' },
-@@ -292,3 +303,51 @@ it('moves only the selected host project when adjacent projects share a repo id'
+@@ -299,3 +310,51 @@ it('moves only the selected host project when adjacent projects share a repo id'
    })
    vi.restoreAllMocks()
  })
@@ -290,10 +290,10 @@ index 4ac1e8619b0..359bd60c7af 100644
 +  }
 +})
 diff --git a/src/renderer/src/components/sidebar/ProjectConversationList.tsx b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
-index 1c5633c80ca..d68299d8835 100644
+index d036b9ffe8c..4baea5fad76 100644
 --- a/src/renderer/src/components/sidebar/ProjectConversationList.tsx
 +++ b/src/renderer/src/components/sidebar/ProjectConversationList.tsx
-@@ -15,8 +15,6 @@ import {
+@@ -18,8 +18,6 @@ import {
    DropdownMenuContent,
    DropdownMenuTrigger,
    DropdownMenuItem,
@@ -302,7 +302,7 @@ index 1c5633c80ca..d68299d8835 100644
    DropdownMenuSeparator
  } from '@/components/ui/dropdown-menu'
  import { useTranslate } from '@/i18n/use-translate'
-@@ -32,6 +30,7 @@ import {
+@@ -35,6 +33,7 @@ import {
    PROJECT_CONVERSATION_PAGE_SIZE
  } from '../../../../shared/project-conversation-list'
  import { PROJECT_ORDER_OPTIONS } from './worktree-list/controls/sidebar-workspace-option-items'
@@ -310,7 +310,7 @@ index 1c5633c80ca..d68299d8835 100644
  import { useConversationPreferences } from './use-conversation-preferences'
  import { ProjectConversationRow } from './ProjectConversationRow'
  import { ProjectConversationSection } from './ProjectConversationSection'
-@@ -55,7 +54,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -58,7 +57,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
    const catalog = useProjectHostSetupProjection()
    const order = useAppStore((state) => state.projectOrderBy)
    const manualOrder = useAppStore((state) => state.manualRepoOrder)
@@ -319,7 +319,7 @@ index 1c5633c80ca..d68299d8835 100644
    const activeWorkspaceId = useAppStore((state) => state.activeWorktreeId)
    const activeTab = useAppStore((state) =>
      state.activeWorktreeId ? state.getActiveTab(state.activeWorktreeId) : null
-@@ -86,6 +85,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -89,6 +88,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
          catalog,
          order,
          manualOrder,
@@ -327,7 +327,7 @@ index 1c5633c80ca..d68299d8835 100644
          activeWorkspaceId
        }),
      [
-@@ -99,6 +99,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -102,6 +102,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
        catalog,
        order,
        manualOrder,
@@ -335,7 +335,7 @@ index 1c5633c80ca..d68299d8835 100644
        activeWorkspaceId
      ]
    )
-@@ -214,20 +215,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
+@@ -217,20 +218,7 @@ export function ProjectConversationList(props: ProjectConversationListProps): Re
              </Button>
            </DropdownMenuTrigger>
            <DropdownMenuContent align="start">
@@ -409,7 +409,7 @@ index 00000000000..3b8e2e3ae77
 +  )
 +}
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
-index f22b7671e3f..66f0dbf3d52 100644
+index 520675eed9d..fa3518a2291 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ownership.test.ts
 @@ -131,3 +131,34 @@ describe('project conversation ownership', () => {
@@ -448,10 +448,10 @@ index f22b7671e3f..66f0dbf3d52 100644
 +  expect(result.map((group) => group.executionHostId)).toEqual(['runtime:remote', 'local'])
 +})
 diff --git a/src/renderer/src/components/sidebar/project-conversation-groups.ts b/src/renderer/src/components/sidebar/project-conversation-groups.ts
-index 2da7ac63223..0507fff57be 100644
+index d0820a78fe1..d4dc3615ac2 100644
 --- a/src/renderer/src/components/sidebar/project-conversation-groups.ts
 +++ b/src/renderer/src/components/sidebar/project-conversation-groups.ts
-@@ -28,6 +28,7 @@ import {
+@@ -31,6 +31,7 @@ import {
    getProjectGroupingForRepo,
    type ProjectSectionEntry
  } from '../../../../shared/sidebar-list/sections/project-section-grouping'
@@ -459,7 +459,7 @@ index 2da7ac63223..0507fff57be 100644
  import { sortProjectEntries } from '../../../../shared/sidebar-list/sections/project-section-order'
  
  type ConversationItem = { session: AiVaultSession; repo: Repo; lastActivityAt?: number }
-@@ -49,6 +50,7 @@ export function buildConversationProjectGroups(args: {
+@@ -52,6 +53,7 @@ export function buildConversationProjectGroups(args: {
    catalog: ProjectHostSetupProjection
    order: ProjectOrderBy
    manualOrder?: ManualRepoOrderEntry[]
@@ -467,7 +467,7 @@ index 2da7ac63223..0507fff57be 100644
    activeWorkspaceId: string | null
    activeExecutionHostId?: ExecutionHostId | null
    executionHostScope?: ExecutionHostScope
-@@ -78,6 +80,7 @@ export function buildConversationProjectGroups(args: {
+@@ -81,6 +83,7 @@ export function buildConversationProjectGroups(args: {
      return hosts?.size === 1 ? [...hosts][0]! : null
    }
    const projectIndex = buildProjectGroupingIndex({
@@ -475,7 +475,7 @@ index 2da7ac63223..0507fff57be 100644
      projects: args.catalog.projects,
      projectHostSetups: args.catalog.setups
    })
-@@ -231,7 +234,38 @@ export function buildConversationProjectGroups(args: {
+@@ -234,7 +237,38 @@ export function buildConversationProjectGroups(args: {
      group.sessions.push(session)
      orphans.set(key, group)
    }

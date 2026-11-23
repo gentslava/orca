@@ -1,8 +1,8 @@
 diff --git a/config/focus-setting-read-baseline.txt b/config/focus-setting-read-baseline.txt
-index 960f93f8ee2..05d2229cada 100644
+index 3ef27c0b49c..ce0b94c5ef4 100644
 --- a/config/focus-setting-read-baseline.txt
 +++ b/config/focus-setting-read-baseline.txt
-@@ -136,9 +136,6 @@
+@@ -135,9 +135,6 @@
  1 src/renderer/src/components/status-bar/workspace-storage/decisions/use-workspace-space-git-refresh-action.ts
  1 src/renderer/src/components/status-bar/workspace-storage/decisions/workspace-space-decision-details.ts
  1 src/renderer/src/components/status-bar/workspace-storage/manager/use-workspace-space-manager-panel.ts
@@ -101,7 +101,7 @@ index 3a36763aee7..2d6efb1e0cc 100644
          policy['managed-browser'].state === 'enabled',
          policy['mobile-emulator'].state === 'enabled'
 diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-index 38ebc8c54c1..3f39e0d418f 100644
+index a51ec1ba190..797e058de76 100644
 --- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 +++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 @@ -1,3 +1,7 @@
@@ -159,7 +159,7 @@ index 38ebc8c54c1..3f39e0d418f 100644
        onNewTerminalTab={commands.newTerminalTab}
        onNewTerminalWithShell={commands.newTerminalWithShell}
        onNewBrowserTab={commands.newBrowserTab}
-@@ -370,15 +367,17 @@ export default function TabGroupPanel({
+@@ -372,15 +369,17 @@ export default function TabGroupPanel({
          className="relative flex-1 min-h-0 overflow-hidden"
          style={bodyAnchorStyle}
        >
@@ -205,186 +205,6 @@ index 9119a4819df..1de5e6c9771 100644
 +    command(item.id)
 +  }
 +}
-diff --git a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-index 7f1ceec23ac..7e73c0833e6 100644
---- a/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-+++ b/src/renderer/src/components/terminal/initial-terminal-structured-launch.test.tsx
-@@ -1,15 +1,10 @@
- // @vitest-environment happy-dom
- import type * as ParkedWatcherRegistryModule from '../terminal-pane/parking/output-watchers/terminal-parked-watcher-registry'
--import { act, StrictMode } from 'react'
-+import { act } from 'react'
- import { createRoot, type Root } from 'react-dom/client'
- import { afterEach, describe, expect, it, vi } from 'vitest'
- import { useTerminalWatcherEffects } from './workbench/use-terminal-watcher-effects'
- import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
--import {
--  claimEmptyWorkspaceDefaultSurface,
--  releaseEmptyWorkspaceDefaultSurface
--} from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
--import { folderWorkspaceKey } from '../../../../shared/workspace/identity/workspace-scope'
- 
- const mocks = vi.hoisted(() => {
-   const storeTabsByWorktree: Record<string, unknown[]> = {}
-@@ -77,8 +72,6 @@ vi.mock(
-   })
- )
- 
--const PENDING_INTENT = { callerProvidesSurface: false, seedUserDefaultSurface: true }
--
- Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
- let root: Root | undefined
- afterEach(async () => {
-@@ -132,149 +125,6 @@ function Watcher({ restored = true, hydrated = false, worktreeId = 'wt-1' } = {}
-   return null
- }
- 
--describe('passive terminal seeding during native chat creation', () => {
--  it('waits for worktree creation before checking whether a fallback shell is needed', async () => {
--    mocks.storePendingCreations['creation-1'] = {
--      creationId: 'creation-1',
--      worktreeId: 'wt-1',
--      phase: 'creating',
--      status: 'creating',
--      startedAt: 1,
--      indeterminate: false,
--      loaderVisible: true,
--      request: {
--        repoId: 'repo-1',
--        name: 'workspace',
--        setupDecision: 'inherit',
--        agent: 'codex',
--        pendingFirstAgentMessageRename: false,
--        note: '',
--        startupPlan: null,
--        quickPrompt: '',
--        quickTelemetry: null
--      }
--    }
--    mocks.gate.mockResolvedValue('empty')
--    root = createRoot(document.createElement('div'))
--    await act(async () => root?.render(<Watcher />))
--    expect(mocks.gate).not.toHaveBeenCalled()
--    expect(mocks.createTab).not.toHaveBeenCalled()
--
--    mocks.storePendingCreations = {}
--    await act(async () => root?.render(<Watcher />))
--    expect(mocks.createTab).toHaveBeenCalledOnce()
--  })
--})
--
--function deferredGate(): (outcome: 'empty' | 'blocked') => Promise<void> {
--  let finishGate!: (outcome: 'empty' | 'blocked') => void
--  // One shared promise, as the gate's in-flight dedupe hands every rerun.
--  mocks.gate.mockReturnValue(
--    new Promise((resolve) => {
--      finishGate = resolve
--    })
--  )
--  return async (outcome) => act(async () => finishGate(outcome))
--}
--
--describe('passive terminal seeding in a bot home', () => {
--  it('leaves an empty bot home to its Chat, whose tab may not have arrived yet', async () => {
--    mocks.activeWorktreeId = folderWorkspaceKey('home-1')
--    mocks.gate.mockResolvedValue('empty')
--    root = createRoot(document.createElement('div'))
--    // The same folder seeds a shell once it is no longer a bot's home.
--    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
--    expect(mocks.createTab).toHaveBeenCalledOnce()
--
--    mocks.bots = [{ folderWorkspaceId: 'home-2' }]
--    mocks.activeWorktreeId = folderWorkspaceKey('home-2')
--    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
--    expect(mocks.gate).toHaveBeenCalledTimes(2)
--    expect(mocks.createTab).toHaveBeenCalledOnce()
--  })
--
--  it('seeds a shell in a bot home folder while bots are off', async () => {
--    mocks.bots = [{ folderWorkspaceId: 'home-1' }]
--    mocks.botsEnabled = false
--    mocks.activeWorktreeId = folderWorkspaceKey('home-1')
--    mocks.gate.mockResolvedValue('empty')
--    root = createRoot(document.createElement('div'))
--    await act(async () => root?.render(<Watcher worktreeId={mocks.activeWorktreeId} />))
--    expect(mocks.createTab).toHaveBeenCalledOnce()
--  })
--})
--
--describe('passive terminal seeding retries until a decision applies', () => {
--  it('seeds once after a StrictMode double run', async () => {
--    const finishGate = deferredGate()
--    const renderStrict = () =>
--      root?.render(
--        <StrictMode>
--          <Watcher />
--        </StrictMode>
--      )
--    root = createRoot(document.createElement('div'))
--    await act(async () => renderStrict())
--    await finishGate('empty')
--    expect(mocks.createTab).toHaveBeenCalledTimes(1)
--
--    // The applied decision is final: a later run neither re-checks nor seeds again.
--    await act(async () => renderStrict())
--    expect(mocks.createTab).toHaveBeenCalledTimes(1)
--    expect(mocks.gate).toHaveBeenCalledTimes(2)
--  })
--
--  it('seeds once across two empty checks separated by leaving the workspace', async () => {
--    const resolvers: ((outcome: 'empty') => void)[] = []
--    mocks.gate.mockImplementation(
--      () =>
--        new Promise((resolve) => {
--          resolvers.push(resolve)
--        })
--    )
--    root = createRoot(document.createElement('div'))
--    await act(async () => root?.render(<Watcher />))
--    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
--    await act(async () => root?.render(<Watcher />))
--    await act(async () => resolvers.forEach((resolve) => resolve('empty')))
--    await act(async () => root?.render(<Watcher />))
--
--    expect(mocks.createTab).toHaveBeenCalledTimes(1)
--    expect(mocks.gate).toHaveBeenCalledTimes(3)
--  })
--
--  it('does not seed a workspace whose last terminal closed during the check', async () => {
--    const finishGate = deferredGate()
--    root = createRoot(document.createElement('div'))
--    await act(async () => root?.render(<Watcher />))
--    // closeTab empties the row and records the close in the same store write.
--    mocks.storeTabsByWorktree = { 'wt-1': [] }
--    // Any time after the check began; a fixed far-future stamp keeps the wall clock out.
--    mocks.storeClosedRecords = {
--      'closed-tab': { worktreeId: 'wt-1', closedAt: Number.MAX_SAFE_INTEGER }
--    }
--    await finishGate('empty')
--    expect(mocks.createTab).not.toHaveBeenCalled()
--  })
--
--  // Leaving cancels reseed; returning must still seed the workspace.
--  it('seeds on return to a workspace left while a reseed awaited agent detection', async () => {
--    mocks.gate.mockResolvedValue('empty')
--    claimEmptyWorkspaceDefaultSurface('wt-1', PENDING_INTENT)
--    root = createRoot(document.createElement('div'))
--    try {
--      await act(async () => root?.render(<Watcher />))
--      expect(mocks.createTab).not.toHaveBeenCalled()
--    } finally {
--      releaseEmptyWorkspaceDefaultSurface('wt-1')
--    }
--
--    await act(async () => root?.render(<Watcher worktreeId="wt-2" />))
--    await act(async () => root?.render(<Watcher />))
--    expect(mocks.createTab).toHaveBeenCalledTimes(1)
--  })
--})
--
- describe('startup agent recovery host inventory', () => {
-   it('keeps recovery available until the execution host answers', async () => {
-     mocks.authority = 'unverifiable'
 diff --git a/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts b/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts
 index 42f2110e3a6..bbce7a62d23 100644
 --- a/src/renderer/src/components/terminal/tab-lifecycle/terminal-tab-actions.ts
@@ -999,10 +819,10 @@ index 00000000000..d9ddbd62a4d
 +  })
 +})
 diff --git a/src/renderer/src/i18n/locales/de.json b/src/renderer/src/i18n/locales/de.json
-index 5ff6f9c13ec..dc9b3489d78 100644
+index 44842c4dfd9..35d2ab4fc50 100644
 --- a/src/renderer/src/i18n/locales/de.json
 +++ b/src/renderer/src/i18n/locales/de.json
-@@ -22241,6 +22241,12 @@
+@@ -22464,6 +22464,12 @@
        "draft": "{{review}}: Entwurf",
        "merged": "{{review}}: gemergt",
        "open": "{{review}}: offen"
@@ -1016,10 +836,10 @@ index 5ff6f9c13ec..dc9b3489d78 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index 1950893b156..9f7a5ddfa93 100644
+index f1c27f8bc71..c4210736c3d 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -25636,6 +25636,12 @@
+@@ -25825,6 +25825,12 @@
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
      },
@@ -1033,10 +853,10 @@ index 1950893b156..9f7a5ddfa93 100644
        "menu": {
          "waking": "Waking VM…",
 diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
-index e681db809a8..bb47b91c3c6 100644
+index b83bc4427f5..1c2da558e65 100644
 --- a/src/renderer/src/i18n/locales/es.json
 +++ b/src/renderer/src/i18n/locales/es.json
-@@ -22720,6 +22720,12 @@
+@@ -22948,6 +22948,12 @@
        "draft": "{{review}}: Borrador",
        "merged": "{{review}}: Fusionada",
        "open": "{{review}}: Abierta"
@@ -1050,10 +870,10 @@ index e681db809a8..bb47b91c3c6 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/fr.json b/src/renderer/src/i18n/locales/fr.json
-index d03b1a341a6..ffb1494c831 100644
+index 7484c247f5d..672a35853fd 100644
 --- a/src/renderer/src/i18n/locales/fr.json
 +++ b/src/renderer/src/i18n/locales/fr.json
-@@ -22741,6 +22741,12 @@
+@@ -22969,6 +22969,12 @@
        "draft": "{{review}} : brouillon",
        "merged": "{{review}} : fusionnée",
        "open": "{{review}} : ouverte"
@@ -1067,10 +887,10 @@ index d03b1a341a6..ffb1494c831 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ja.json b/src/renderer/src/i18n/locales/ja.json
-index 3d03d2a83ed..914194363a9 100644
+index 52a806ef954..8dd2fd576cc 100644
 --- a/src/renderer/src/i18n/locales/ja.json
 +++ b/src/renderer/src/i18n/locales/ja.json
-@@ -23470,6 +23470,12 @@
+@@ -23694,6 +23694,12 @@
        "merged": "{{review}}: マージ済み",
        "open": "{{review}}: オープン"
      },
@@ -1083,28 +903,11 @@ index 3d03d2a83ed..914194363a9 100644
      "vm": {
        "menu": {
          "waking": "VM を復帰中…",
-diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
-index 6481b35fb21..2bb013b9d53 100644
---- a/src/renderer/src/i18n/locales/ko.json
-+++ b/src/renderer/src/i18n/locales/ko.json
-@@ -21989,6 +21989,12 @@
-       "draft": "{{review}}: 초안",
-       "merged": "{{review}}: 병합됨",
-       "open": "{{review}}: 열림"
-+    },
-+    "start": {
-+      "title": "무엇을 여시겠어요?",
-+      "description": "이 프로젝트에서 사용할 에이전트나 도구를 선택하세요.",
-+      "agents": "에이전트",
-+      "manageAgents": "에이전트 관리"
-     }
-   },
-   "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/pt.json b/src/renderer/src/i18n/locales/pt.json
-index a0b24dbf908..0f2fbcb66ee 100644
+index 65087c19717..80e74f17070 100644
 --- a/src/renderer/src/i18n/locales/pt.json
 +++ b/src/renderer/src/i18n/locales/pt.json
-@@ -23217,6 +23217,12 @@
+@@ -23427,6 +23427,12 @@
        "draft": "{{review}}: Rascunho",
        "merged": "{{review}}: Mergeado",
        "open": "{{review}}: Aberto"
@@ -1118,10 +921,10 @@ index a0b24dbf908..0f2fbcb66ee 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
-index 2eb0ecf5dcb..9ebe2b22971 100644
+index 0c879ad8aef..326ab54e927 100644
 --- a/src/renderer/src/i18n/locales/ru.json
 +++ b/src/renderer/src/i18n/locales/ru.json
-@@ -26287,6 +26287,12 @@
+@@ -26315,6 +26315,12 @@
          "provisionFailed": "ВМ не создана или её создание прервано. Откройте «Настройки», чтобы уничтожить или удалить её."
        },
        "suspendFailed": "Не удалось приостановить рабочее пространство ВМ"
@@ -1135,10 +938,10 @@ index 2eb0ecf5dcb..9ebe2b22971 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/locales/tr.json
-index 1e9aa195550..f8e2b55959a 100644
+index 372dd709122..f863bef11cc 100644
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
-@@ -22383,6 +22383,12 @@
+@@ -22583,6 +22583,12 @@
        "draft": "{{review}}: Taslak",
        "merged": "{{review}}: Merge edildi",
        "open": "{{review}}: Açık"
@@ -1152,10 +955,10 @@ index 1e9aa195550..f8e2b55959a 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh-Hant.json b/src/renderer/src/i18n/locales/zh-Hant.json
-index ade18585962..1dd3d4da0de 100644
+index c70377242ae..c0ef366fdeb 100644
 --- a/src/renderer/src/i18n/locales/zh-Hant.json
 +++ b/src/renderer/src/i18n/locales/zh-Hant.json
-@@ -21908,6 +21908,12 @@
+@@ -22135,6 +22135,12 @@
        "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合併",
        "open": "{{review}}：開放"
@@ -1169,10 +972,10 @@ index ade18585962..1dd3d4da0de 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh.json b/src/renderer/src/i18n/locales/zh.json
-index 31818889f3e..b95d44d811e 100644
+index 5cbff542b56..e726081fe78 100644
 --- a/src/renderer/src/i18n/locales/zh.json
 +++ b/src/renderer/src/i18n/locales/zh.json
-@@ -24268,6 +24268,12 @@
+@@ -25098,6 +25098,12 @@
        "merged": "{{review}}：已合并",
        "open": "{{review}}：开放"
      },
@@ -1239,29 +1042,52 @@ index 1b01aab549a..1d1921ba75a 100644
    // Stamp before hooks so chat/provider chrome can resolve agent identity immediately.
    const launchAgent =
 diff --git a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
-index dab14a46146..856004ff59d 100644
---- a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
+new file mode 100644
+index 00000000000..856004ff59d
+--- /dev/null
 +++ b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
-@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
- import type * as AgentStatusModule from '@/lib/agent-status/aggregation/worktree-agent-status'
- import { createTestStore } from '@/store/testing/app-store-test-fixture'
- import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
+@@ -0,0 +1,224 @@
++/** Use one remote-authority question for seeding/resume: only none authorizes local terminal creation, never unverifiable. */
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import type * as AgentStatusModule from '@/lib/agent-status/aggregation/worktree-agent-status'
++import { createTestStore } from '@/store/testing/app-store-test-fixture'
++import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
 +import { makeFolderWorkspace } from '@/store/folder-workspaces/folder-workspace.test-fixture'
- import { ensureWorktreeHasInitialTerminal } from '@/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding'
- import { resolveWorkspaceTerminalHostAuthority } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
- 
-@@ -21,6 +22,7 @@ vi.mock('@/lib/agent-status/aggregation/worktree-agent-status', async (importOri
- 
- type TestStore = ReturnType<typeof createTestStore>
- 
++import { ensureWorktreeHasInitialTerminal } from '@/lib/workspace/activation/initial-surface/worktree-initial-terminal-seeding'
++import { resolveWorkspaceTerminalHostAuthority } from '@/lib/workspace/ownership/workspace-terminal-host-authority'
++
++// Main's answer to the window's layout commands, as a switch-on build sends them.
++vi.mock('@/runtime/rpc/calls/runtime-rpc-call', async (importOriginal) =>
++  (
++    await import('@/runtime/workspace-layout/testing/layout-apply-test-transport.test-fixture')
++  ).runtimeRpcClientWithLayoutApply(await importOriginal())
++)
++
++vi.mock('sonner', () => ({ toast: { info: vi.fn(), success: vi.fn(), error: vi.fn() } }))
++vi.mock('@/lib/agent-status/aggregation/worktree-agent-status', async (importOriginal) => {
++  const actual = await importOriginal<typeof AgentStatusModule>()
++  return { ...actual, detectAgentStatusFromTitle: vi.fn().mockReturnValue(null) }
++})
++
++type TestStore = ReturnType<typeof createTestStore>
++
 +const LOCAL_WORKTREE_ID = 'repoLocal::/tmp/local/feature'
- const SSH_WORKTREE_ID = 'repoSsh::/srv/proj/feature'
- const PAIRED_WORKTREE_ID = 'repoPaired::/srv/proj/paired'
- const TARGET_ID = 'ssh-target-1'
-@@ -37,6 +39,22 @@ function repo(id: string, path: string, connectionId?: string): never {
-   } as never
- }
- 
++const SSH_WORKTREE_ID = 'repoSsh::/srv/proj/feature'
++const PAIRED_WORKTREE_ID = 'repoPaired::/srv/proj/paired'
++const TARGET_ID = 'ssh-target-1'
++const ENVIRONMENT_ID = 'runtime-env-1'
++
++function repo(id: string, path: string, connectionId?: string): never {
++  return {
++    id,
++    path,
++    displayName: id,
++    badgeColor: '#000',
++    addedAt: 0,
++    ...(connectionId ? { connectionId } : {})
++  } as never
++}
++
 +function seedLocal(store: TestStore): void {
 +  store.setState({
 +    repos: [repo('repoLocal', '/tmp/local')],
@@ -1278,14 +1104,36 @@ index dab14a46146..856004ff59d 100644
 +  })
 +}
 +
- function seedDirectSsh(store: TestStore): void {
-   store.setState({
-     repos: [repo('repoSsh', '/srv/proj', TARGET_ID)],
-@@ -67,7 +85,59 @@ function terminalTabCount(store: TestStore, worktreeId: string): number {
- }
- 
- describe('workspace terminal seeding authority', () => {
--  it('seeds once the SSH target connects, with no workspace snapshot to wait for', () => {
++function seedDirectSsh(store: TestStore): void {
++  store.setState({
++    repos: [repo('repoSsh', '/srv/proj', TARGET_ID)],
++    worktreesByRepo: {
++      repoSsh: [
++        makeWorktree({
++          id: SSH_WORKTREE_ID,
++          repoId: 'repoSsh',
++          path: '/srv/proj/feature',
++          hostId: `ssh:${TARGET_ID}`
++        } as never)
++      ]
++    }
++  })
++}
++
++function connectTarget(store: TestStore): void {
++  store.getState().setSshConnectionState(TARGET_ID, {
++    targetId: TARGET_ID,
++    status: 'connected',
++    error: null,
++    reconnectAttempt: 0
++  })
++}
++
++function terminalTabCount(store: TestStore, worktreeId: string): number {
++  return (store.getState().tabsByWorktree[worktreeId] ?? []).length
++}
++
++describe('workspace terminal seeding authority', () => {
 +  it('runs an explicit local startup immediately, exactly once', () => {
 +    const store = createTestStore()
 +    seedLocal(store)
@@ -1339,38 +1187,90 @@ index dab14a46146..856004ff59d 100644
 +  )
 +
 +  it('runs an explicit startup once the SSH target connects', () => {
-     // Host workspace snapshots no longer answer after relay removal (#27214); waiting forever strands connected targets.
-     const store = createTestStore()
-     seedDirectSsh(store)
-@@ -77,7 +147,9 @@ describe('workspace terminal seeding authority', () => {
- 
-     connectTarget(store)
-     expect(resolveWorkspaceTerminalHostAuthority(store.getState(), SSH_WORKTREE_ID)).toBe('none')
--    expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeTruthy()
++    // Host workspace snapshots no longer answer after relay removal (#27214); waiting forever strands connected targets.
++    const store = createTestStore()
++    seedDirectSsh(store)
++    expect(resolveWorkspaceTerminalHostAuthority(store.getState(), SSH_WORKTREE_ID)).toBe(
++      'unverifiable'
++    )
++
++    connectTarget(store)
++    expect(resolveWorkspaceTerminalHostAuthority(store.getState(), SSH_WORKTREE_ID)).toBe('none')
 +    expect(
 +      ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID, { command: 'echo ready' })
 +    ).toBeTruthy()
-     expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(1)
-   })
- 
-@@ -92,7 +164,7 @@ describe('workspace terminal seeding authority', () => {
-       }
-     })
- 
--    // Startup restore passes no reseed option; only an explicit activation does.
++    expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(1)
++  })
++
++  it('leaves a worktree emptied on purpose empty at startup, even once its target connected', () => {
++    const store = createTestStore()
++    seedDirectSsh(store)
++    connectTarget(store)
++    store.setState({
++      tabsByWorktree: { [SSH_WORKTREE_ID]: [] },
++      closedTerminalTabTombstonesByTabId: {
++        closed: { closedAt: Date.now(), worktreeId: SSH_WORKTREE_ID }
++      }
++    })
++
 +    // Reopening an empty workspace still leaves its first action to the user.
-     expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeNull()
-     expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(0)
-     expect(
-@@ -105,7 +177,7 @@ describe('workspace terminal seeding authority', () => {
-         undefined,
-         { reseedEmptiedWorkspace: true }
-       )
--    ).toBeTruthy()
++    expect(ensureWorktreeHasInitialTerminal(store.getState(), SSH_WORKTREE_ID)).toBeNull()
++    expect(terminalTabCount(store, SSH_WORKTREE_ID)).toBe(0)
++    expect(
++      ensureWorktreeHasInitialTerminal(
++        store.getState(),
++        SSH_WORKTREE_ID,
++        undefined,
++        undefined,
++        undefined,
++        undefined,
++        { reseedEmptiedWorkspace: true }
++      )
 +    ).toBeNull()
-   })
- 
-   /** Rival detected owners make authority unresolved, not local; the old live-paired-client guard incorrectly seeded alongside host creation (#15556). */
++  })
++
++  /** Rival detected owners make authority unresolved, not local; the old live-paired-client guard incorrectly seeded alongside host creation (#15556). */
++  it('does not seed locally when the runtime owner cannot be named', () => {
++    const store = createTestStore()
++    store.setState({
++      repos: [repo('repoPaired', '/srv/proj')],
++      worktreesByRepo: {},
++      detectedWorktreesByRepo: {
++        repoPaired: {
++          authoritative: true,
++          worktrees: [
++            makeWorktree({
++              id: PAIRED_WORKTREE_ID,
++              repoId: 'repoPaired',
++              path: '/srv/proj/paired',
++              hostId: `runtime:${ENVIRONMENT_ID}`,
++              runtimeOwnerEnvironmentId: ENVIRONMENT_ID
++            } as never)
++          ]
++        },
++        repoPairedRival: {
++          authoritative: true,
++          worktrees: [
++            makeWorktree({
++              id: PAIRED_WORKTREE_ID,
++              repoId: 'repoPairedRival',
++              path: '/srv/proj/paired',
++              hostId: 'local'
++            } as never)
++          ]
++        }
++      } as never
++    })
++
++    expect(resolveWorkspaceTerminalHostAuthority(store.getState(), PAIRED_WORKTREE_ID)).toBe(
++      'unverifiable'
++    )
++    expect(ensureWorktreeHasInitialTerminal(store.getState(), PAIRED_WORKTREE_ID)).toBeNull()
++    expect(terminalTabCount(store, PAIRED_WORKTREE_ID)).toBe(0)
++  })
++})
++
++afterEach(() => vi.unstubAllGlobals())
 diff --git a/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts b/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
 index 0d82e6c164c..386091465b8 100644
 --- a/src/renderer/src/lib/workspace/tabs/close/workspace-emptied-reaction.ts
@@ -1427,120 +1327,6 @@ index 49c67c7ead8..6a3f3617532 100644
    if (!state.closeEmptyGroup(group.worktreeId, group.id)) {
      return false
    }
-diff --git a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-seeder.test.ts b/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-seeder.test.ts
-deleted file mode 100644
-index 9248c1d4576..00000000000
---- a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-seeder.test.ts
-+++ /dev/null
-@@ -1,108 +0,0 @@
--import { beforeEach, expect, it, vi } from 'vitest'
--import { createTestStore } from '../../../store/testing/app-store-test-fixture'
--import { createTabsSliceMockApi } from '../../../store/slices/tabs/tabs-slice-test-harness'
--import { holdEmptyWorkspaceDefaultSurfaceForLaunch } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
--
--const testStore = vi.hoisted(() => {
--  const ref: { current: ReturnType<typeof createTestStore> | null } = { current: null }
--  return ref
--})
--vi.mock('@/store/index', () => ({
--  useAppStore: { getState: () => testStore.current!.getState() }
--}))
--vi.mock('../../hosted-terminals/creation/web-runtime-terminal-creation', () => ({
--  createWebRuntimeSessionTerminal: async ({ worktreeId }: { worktreeId: string }) => {
--    const id = testStore.current!.getState().createTab(worktreeId)
--    return { status: 'created', mirroredTabId: id }
--  }
--}))
--
--createTabsSliceMockApi()
--
--const { createInitialTerminalSeeder } = await import('./initial-terminal-seeder')
--const workspace = 'repo1::/tmp/agent-worktree'
--
--beforeEach(() => {
--  testStore.current = createTestStore()
--  testStore.current.setState({ activeWorktreeId: workspace })
--})
--
--it('keeps a provisional chat as the only surface after an empty host answer', async () => {
--  const store = testStore.current!
--  const seeder = createInitialTerminalSeeder('paired-host', workspace)
--  expect(
--    seeder.decide(
--      {
--        type: 'snapshot',
--        worktree: workspace,
--        publicationEpoch: 'host-epoch',
--        snapshotVersion: 1,
--        activeGroupId: null,
--        activeTabId: null,
--        activeTabType: 'terminal',
--        tabs: []
--      },
--      true
--    )
--  ).toBe(true)
--
--  const release = holdEmptyWorkspaceDefaultSurfaceForLaunch(workspace)
--  try {
--    await seeder.seed()
--    expect(store.getState().tabsByWorktree[workspace] ?? []).toEqual([])
--  } finally {
--    release()
--  }
--
--  store.getState().createUnifiedTab(workspace, 'agent-session', {
--    id: 'agent-chat',
--    entityId: 'agent-session',
--    agentSessionAgent: 'codex'
--  })
--  await seeder.seed()
--
--  expect(store.getState().tabsByWorktree[workspace] ?? []).toEqual([])
--  expect(
--    store.getState().unifiedTabsByWorktree[workspace]?.map((tab) => ({
--      id: tab.id,
--      contentType: tab.contentType
--    }))
--  ).toEqual([{ id: 'agent-chat', contentType: 'agent-session' }])
--})
--
--it('seeds a terminal-only workspace after its launch claim is released', async () => {
--  const seeder = createInitialTerminalSeeder('terminal-only-host', workspace)
--  const release = holdEmptyWorkspaceDefaultSurfaceForLaunch(workspace)
--  try {
--    await seeder.seed()
--    expect(testStore.current!.getState().tabsByWorktree[workspace] ?? []).toEqual([])
--  } finally {
--    release()
--  }
--
--  await seeder.seed()
--  expect(testStore.current!.getState().tabsByWorktree[workspace]).toHaveLength(1)
--})
--
--it('leaves the first surface to an agent launch reported by the host', async () => {
--  const seeder = createInitialTerminalSeeder('launching-host', workspace)
--  if (
--    seeder.decide(
--      {
--        type: 'snapshot',
--        worktree: workspace,
--        publicationEpoch: 'host-epoch',
--        snapshotVersion: 1,
--        activeGroupId: null,
--        activeTabId: null,
--        activeTabType: 'terminal',
--        initialSurfaceLaunch: { launchId: 'host-launch', agent: 'codex' },
--        tabs: []
--      },
--      true
--    )
--  ) {
--    await seeder.seed()
--  }
--  expect(testStore.current!.getState().tabsByWorktree[workspace] ?? []).toEqual([])
--})
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-seeder.ts b/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-seeder.ts
 deleted file mode 100644
 index dee806a0fa4..00000000000
@@ -1669,91 +1455,8 @@ index dee806a0fa4..00000000000
 -    }
 -  }
 -}
-diff --git a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-surface.performance.test.ts b/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-surface.performance.test.ts
-index 1adce15376e..1c99bbc7b1f 100644
---- a/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-surface.performance.test.ts
-+++ b/src/renderer/src/runtime/web-session-tabs-sync/initial-terminal/initial-terminal-surface.performance.test.ts
-@@ -6,7 +6,6 @@ import type { OpenFile } from '../../../store/slices/editor/types/open-file'
- import type { PendingWorktreeCreation } from '@/lib/workspace/creation/pending-worktree-creation'
- import { updateStructuredAgentLaunchRecords } from '@/lib/agent-session/launch/structured-agent-session-launch-persistence'
- import type { StructuredAgentLaunchPersistedRecord } from '@/lib/agent-session/launch/structured-agent-session-launch-record'
--import { holdEmptyWorkspaceDefaultSurfaceForLaunch } from '@/lib/workspace/activation/initial-surface/empty-workspace-default-surface-claims'
- import type { StructuredLaunchState } from '@/lib/agent-session/launch/structured-agent-session-launch-state-store'
- import type * as LaunchStateStore from '@/lib/agent-session/launch/structured-agent-session-launch-state-store'
- import { hasStructuredAgentLaunchInWorktree } from '@/lib/agent-session/launch/structured-agent-session-launch-status'
-@@ -46,7 +45,6 @@ vi.mock('../../hosted-terminals/creation/web-runtime-terminal-creation', () => (
- }))
- 
- createTabsSliceMockApi()
--const { createInitialTerminalSeeder } = await import('./initial-terminal-seeder')
- const { createInitialTerminalThroughLayoutOwner } =
-   await import('../../../store/terminals/tabs/creation/terminal-tab-create-through-layout-owner')
- const workspace = 'repo1::/tmp/agent-worktree'
-@@ -272,8 +270,6 @@ it.each([100, 1_000])(
-       expect(store.getState().tabsByWorktree[workspace] ?? []).toEqual([])
-     }
-     try {
--      await createInitialTerminalSeeder(`chat-host-${population}`, workspace).seed()
--      assertNoInventoryWork()
-       for (const refused of [false, true]) {
-         const reply = Promise.withResolvers<LayoutApplyReply>()
-         transport.callRuntimeRpc.mockReturnValueOnce(reply.promise)
-@@ -332,53 +328,3 @@ it.each([750, 7_500])('skips %i unrelated editors without an editor surface', (p
-   expect(editor.renderableTabCount).toBe(2)
-   expect(editorReads).toBeGreaterThan(0)
- })
--
--it.each([100, 1_000])(
--  'skips %i pending creations while a surface is claimed',
--  async (population) => {
--    const store = testStore.current!
--    let pendingReads = 0
--    const pendingWorktreeCreations = Object.fromEntries(
--      Array.from({ length: population }, (_, index) => {
--        const pending: PendingWorktreeCreation = {
--          creationId: `pending-${index}`,
--          worktreeId: `repo1::/tmp/other-${index}`,
--          phase: 'creating',
--          get status() {
--            pendingReads++
--            return 'creating' as const
--          },
--          startedAt: 1,
--          indeterminate: false,
--          loaderVisible: false,
--          request: {
--            repoId: 'repo1',
--            name: `other-${index}`,
--            setupDecision: 'skip',
--            agent: null,
--            pendingFirstAgentMessageRename: false,
--            note: '',
--            startupPlan: null,
--            quickPrompt: '',
--            quickTelemetry: null
--          }
--        }
--        return [pending.creationId, pending]
--      })
--    )
--    store.setState({ pendingWorktreeCreations })
--    pendingReads = 0
--    const seeder = createInitialTerminalSeeder(`claim-host-${population}`, workspace)
--    const release = holdEmptyWorkspaceDefaultSurfaceForLaunch(workspace)
--    try {
--      await seeder.seed()
--      expect(pendingReads).toBe(0)
--      expect(store.getState().tabsByWorktree[workspace] ?? []).toEqual([])
--    } finally {
--      release()
--    }
--    await seeder.seed()
--    expect(pendingReads).toBeGreaterThan(0)
--    expect(store.getState().tabsByWorktree[workspace]).toHaveLength(1)
--  }
--)
 diff --git a/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/active-session-subscription.ts b/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/active-session-subscription.ts
-index e448f84ab7e..40341b0f177 100644
+index 09982ed3d23..40341b0f177 100644
 --- a/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/active-session-subscription.ts
 +++ b/src/renderer/src/runtime/web-session-tabs-sync/subscriptions/active-session-subscription.ts
 @@ -41,9 +41,7 @@ import {
@@ -1762,7 +1465,7 @@ index e448f84ab7e..40341b0f177 100644
  import { releaseWebRuntimeInitialTerminalBootstrapOnMirrorFrame } from '../initial-terminal/web-runtime-initial-terminal-bootstrap'
 -import { createInitialTerminalSeeder } from '../initial-terminal/initial-terminal-seeder'
  import { toRuntimeWorktreeSelector } from '../../rpc/targets/runtime-worktree-selector'
--import { hostSnapshotAffirmsWorktreeContents } from '../hydration/host-session-snapshot-authority'
+-import { hostSnapshotAffirmsWorktreeContents } from '../../../../../shared/remote-runtime/session-graph/host-session-snapshot-authority'
  
  import type { SessionTabsSnapshotHandler } from '../visibility-resume/visibility-resume-types'
  import { subscribeRuntimeEnvironment } from '../../rpc/environment-revisions/runtime-environment-pairing-refresh'
@@ -2008,44 +1711,8 @@ index 00000000000..6a88038dae8
 +    }
 +  }
 +)
-diff --git a/src/shared/agent-launch/picker/agent-launch-picker-rows.test.ts b/src/shared/agent-launch/picker/agent-launch-picker-rows.test.ts
-deleted file mode 100644
-index 82cc03189e8..00000000000
---- a/src/shared/agent-launch/picker/agent-launch-picker-rows.test.ts
-+++ /dev/null
-@@ -1,30 +0,0 @@
--import { expect, it } from 'vitest'
--import { buildNewTabAgentMenuRows, type ChatProgramObservation } from './agent-launch-picker-rows'
--import type { TuiAgent } from '../catalog/tui-agent'
--
--const rowsFor = (detected: TuiAgent[] | null, program: ChatProgramObservation) =>
--  buildNewTabAgentMenuRows({
--    settings: { agentDefaultSurface: 'chat' },
--    detectedOnHost: detected,
--    chatAgents: ['antigravity'],
--    hostChatAnswer: () => 'yes',
--    chatProgram: () => program
--  })
--
--it('marks a chat as setup only when its agent is not installed on the host', () => {
--  expect(rowsFor(['claude'], 'installable')).toContainEqual({
--    kind: 'chat',
--    agent: 'antigravity',
--    setup: true
--  })
--  expect(rowsFor(null, 'installable')).toContainEqual({
--    kind: 'chat',
--    agent: 'antigravity',
--    setup: true
--  })
--  expect(rowsFor(['claude'], 'available')).toContainEqual({ kind: 'chat', agent: 'antigravity' })
--  expect(rowsFor(['antigravity'], 'unknown')).toContainEqual({
--    kind: 'chat',
--    agent: 'antigravity'
--  })
--})
 diff --git a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts b/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
-index 9b60104647c..df0b14c90c7 100644
+index fa97ea313da..9eaf0c5ec06 100644
 --- a/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
 +++ b/src/shared/agent-launch/picker/agent-launch-picker-rows.ts
 @@ -8,7 +8,6 @@ import type { ExecutionHostId } from '../../execution-host/execution-host'
@@ -2065,7 +1732,7 @@ index 9b60104647c..df0b14c90c7 100644
  
  /** An agent whose CLI isn't detected still counts as installed when its chat program is there. */
  export const chatProgramInstalled = (program: ChatProgramObservation): boolean =>
-@@ -72,7 +69,7 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -77,7 +74,7 @@ export function buildNewTabAgentMenuRows(args: {
    hostChatAnswer: (agent: TuiAgent) => HostChatAnswer
    /** Whether the chat's own program runs there, which for some agents is not their CLI. */
    chatProgram: (agent: TuiAgent) => ChatProgramObservation
@@ -2074,7 +1741,7 @@ index 9b60104647c..df0b14c90c7 100644
    offerAgentSetup?: boolean
    hostPlatform?: string | null
  }): NewTabAgentMenuRow[] {
-@@ -89,17 +86,14 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -94,17 +91,14 @@ export function buildNewTabAgentMenuRows(args: {
    const unavailable = new Map<TuiAgent, ChatUnavailableReason>()
    const chatAgents = filterEnabledTuiAgents(args.chatAgents, settings?.disabledTuiAgents)
    const canOpen = (agent: TuiAgent): boolean =>
@@ -2098,7 +1765,7 @@ index 9b60104647c..df0b14c90c7 100644
      const displayed = nativeChatPreferenceFor(settings, agent)
      if (!displayed && (!installed.includes(agent) || !canOpen(agent))) {
        continue
-@@ -111,8 +105,7 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -116,8 +110,7 @@ export function buildNewTabAgentMenuRows(args: {
        }
        continue
      }
@@ -2108,7 +1775,7 @@ index 9b60104647c..df0b14c90c7 100644
        runnable.push(agent)
      } else {
        unavailable.set(
-@@ -131,12 +124,6 @@ export function buildNewTabAgentMenuRows(args: {
+@@ -136,18 +129,9 @@ export function buildNewTabAgentMenuRows(args: {
        )
      }
    }
@@ -2118,49 +1785,16 @@ index 9b60104647c..df0b14c90c7 100644
 -      ...chatAgents.filter((agent) => needsSetup(agent) && args.hostChatAnswer(agent) === 'yes')
 -    )
 -  }
+   const chats = orderAgentLaunchPickerAgents(defaultAgent, runnable).map((agent) => ({
+     kind: 'chat' as const,
+-    agent,
+-    ...(!args.detectedOnHost?.includes(agent) && !chatProgramInstalled(args.chatProgram(agent))
+-      ? { setup: true as const }
+-      : {})
++    agent
+   }))
    return [
-     ...orderAgentLaunchPickerAgents(defaultAgent, runnable).map((agent) => ({
-       kind: 'chat' as const,
-diff --git a/tests/e2e/remote/paired-runtime/workspace-routing/paired-client-project-removal-stops-host-terminals.spec.ts b/tests/e2e/remote/paired-runtime/workspace-routing/paired-client-project-removal-stops-host-terminals.spec.ts
-index d3742935c5f..0be68e59dfb 100644
---- a/tests/e2e/remote/paired-runtime/workspace-routing/paired-client-project-removal-stops-host-terminals.spec.ts
-+++ b/tests/e2e/remote/paired-runtime/workspace-routing/paired-client-project-removal-stops-host-terminals.spec.ts
-@@ -14,6 +14,7 @@ import {
- import { createRestartSession } from '../../../desktop/electron-fixtures/orca-restart'
- import { readFreshTerminalInventory } from '../../../terminal/layout/terminal-inventory-observation'
- import type { RuntimeTerminalListResult } from '../../../../../src/shared/terminal/runtime/runtime-terminal-contracts'
-+import { openWorkspaceStartTerminal } from '../../../workspaces/lifecycle/workspace-start-terminal'
- 
- function seededRepoPathOrSkip(): string {
-   const repoPath = existsSync(TEST_REPO_PATH_FILE)
-@@ -108,6 +109,7 @@ test('removing a project from a paired client stops its shells on the host', asy
-       state?.setActiveView('terminal')
-       state?.setActiveWorktree(id)
-     }, worktreeId)
-+    await openWorkspaceStartTerminal(paired.page)
-     let handle: string | undefined
-     await expect
-       .poll(
-diff --git a/tests/e2e/terminal/rendering/terminal-column-desync-repro.spec.ts b/tests/e2e/terminal/rendering/terminal-column-desync-repro.spec.ts
-index db4982913f7..58b92ccec4c 100644
---- a/tests/e2e/terminal/rendering/terminal-column-desync-repro.spec.ts
-+++ b/tests/e2e/terminal/rendering/terminal-column-desync-repro.spec.ts
-@@ -18,6 +18,7 @@ import {
- } from '../layout/terminal-pane-operations'
- import { waitForPtyColumnsAtMost } from './terminal-column-probes'
- import { waitForPtyShellEcho } from '../lifecycle/terminal-pty-readiness'
-+import { openWorkspaceStartTerminal } from '../../workspaces/lifecycle/workspace-start-terminal'
- 
- // Use a generous probe ceiling so it reports actual columns instead of waiting for a target width.
- const READ_ANY_COLS = 100_000
-@@ -157,6 +158,7 @@ test.describe('Terminal column desync repro', () => {
-     const widths = [700, 1320, 640, 1180, 600]
-     for (const [index, width] of widths.entries()) {
-       await switchToWorktree(orcaPage, otherWorktreeId)
-+      await openWorkspaceStartTerminal(orcaPage)
-       await waitForActiveTerminalManager(orcaPage, 30_000)
-       await orcaPage.setViewportSize({ width, height: 800 })
-       await orcaPage.waitForTimeout(350)
+     // Chats the host runs now lead the ones that install their agent first.
 diff --git a/tests/e2e/workspaces/lifecycle/workspace-start-terminal.ts b/tests/e2e/workspaces/lifecycle/workspace-start-terminal.ts
 new file mode 100644
 index 00000000000..3f9c31d4d01
@@ -2219,3 +1853,19 @@ index bfb42c5c80e..d9ed2e61f61 100644
    await waitForTerminalReady(page, timeoutMs)
  }
  
+diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
+--- a/src/renderer/src/i18n/locales/ko.json
++++ b/src/renderer/src/i18n/locales/ko.json
+@@ -25133,6 +25133,12 @@
+         "provisionFailed": "VM이 만들어지지 않았거나 생성이 중단되었습니다. 설정을 열어 삭제하거나 제거하세요."
+       },
+       "suspendFailed": "VM 워크스페이스를 일시 중지하지 못했습니다"
++    },
++    "start": {
++      "title": "무엇을 여시겠어요?",
++      "description": "이 프로젝트에서 사용할 에이전트나 도구를 선택하세요.",
++      "agents": "에이전트",
++      "manageAgents": "에이전트 관리"
+     }
+   },
+   "tabHoverCard": {

@@ -193,7 +193,8 @@ try {
         'account-usage-row-layout.patch',
         'composed-source-modules.patch',
         'composed-reactive-copy.patch',
-        'fork-ci-macos-arm64-image.patch'
+        'fork-ci-macos-arm64-image.patch',
+        'composed-contract-migrations.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')
