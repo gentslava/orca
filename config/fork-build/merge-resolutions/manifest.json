@@ -1090,5 +1090,41 @@
     "patch": "maintenance-20261123/forward-45437-1-59f81edef109.patch",
     "patchSha256": "59f81edef109f68df8764857f92be66acb7ec9cf286d13d09a31e2aef1d65b77",
     "resultSha256": "3ee49806fe259746dc132e53b2893b97ec449a097335790c14044e9107f4f2a8"
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/client-ui.ts",
+    "blobs": [
+      "151645cf5b9e2fa2b6e63b56f748527d8330c887",
+      "583d7e9bd11107d4350b4a696eadfc2d4858b40e",
+      "c18fb15850fa94c3d28d4ca581594f8335438be7"
+    ],
+    "reason": "Keep ranked project and conversation writes while filtering paired UI state for the caller under current upstream policy.",
+    "patch": "maintenance-20261123/ebe35-33502-6-5f5af90679fd.patch",
+    "patchSha256": "5f5af90679fd88416950fdc4804fc1e9316e8b7237681cd80fc93d70d0a9cf07",
+    "resultSha256": "9c8dd127e4fab037ad982988d4ced816ee41e4462787bb09c93a7a266055525c"
+  },
+  {
+    "path": "mobile/src/i18n/en-runtime-required.json",
+    "blobs": [
+      "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
+      "ee10032908245593a526b0ad819b91f4ad9c1beb",
+      "6d828839f17fcde8c6da1c4ab5d30120b4708923"
+    ],
+    "reason": "Retain the current webhook and bot translations when sharing mobile launch failure copy.",
+    "patch": "maintenance-20261123/ebe35-41166-0-65abb4d7e76b.patch",
+    "patchSha256": "65abb4d7e76bbcaee0028a6b7446cabfbc8cc80ed8d613cf4da5e6034dae1d33",
+    "resultSha256": "fc834997b884d8ecd31deeadcf40a1f73d5c5ed31dc1761fc540ae659c5456ad"
+  },
+  {
+    "path": "mobile/src/i18n/en-runtime-required.json",
+    "blobs": [
+      "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
+      "c3e0509cd6fdf7dd43aa310752b0496d32f8b394",
+      "84b1f1507a410cc72deadd064fe7b77d61e78c45"
+    ],
+    "reason": "Keep the flagged Claude request translation alongside the shared mobile launch wording.",
+    "patch": "maintenance-20261123/ebe35-45437-0-40fd4a626703.patch",
+    "patchSha256": "40fd4a6267035fec10bb6321e722d08795f1f7392347b66f75a59db229d429c3",
+    "resultSha256": "f77818def50cf2221cb8e955ec5dfc8edd1b4f409b064c5b332813acab330396"
   }
 ]
