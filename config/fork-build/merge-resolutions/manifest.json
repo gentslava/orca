@@ -1014,10 +1014,10 @@
       "27582630684dd82d8507a533b6bc4eb79aa0dd1f",
       "343dd8d55837ae20f50a4febabefbedfcec43552"
     ],
-    "reason": "Keep the upstream Korean usage overview strings and the fork usage history translations.",
-    "patch": "maintenance-20261123/forward-33371-0-566c616ec02d.patch",
-    "patchSha256": "566c616ec02d37d64b18054e17c5c3c8c88ccbe9f9d91ec001c29dceb3cfce16",
-    "resultSha256": "e3dbef9b93193c52fa9ed8c6bebcc9672c5694b8c3ddca1bd86758905a8e01ba"
+    "reason": "Retain Korean usage history and the current overview labels; retire displaced keys after checking the composed English catalog.",
+    "patch": "maintenance-20261123/forward-33371-0-92d9e7850c19.patch",
+    "patchSha256": "92d9e7850c19b6cb27b84617351f4113536c380e926a14050b65797469c0d70c",
+    "resultSha256": "ef6eeb7d160bcf9d383c49570e7e9cc7d7a095607e0530e0586c480131f039d3"
   },
   {
     "path": "src/shared/remote-runtime/protocol/protocol-version.ts",

@@ -9,7 +9,34 @@ diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/local
            "a58aba506f": "생성된 PR",
            "1c96f433e2": "에이전트 작업 시간",
            "9dbec9e675": "시작된 에이전트",
-@@ -19651,17 +19650,6 @@
+@@ -5502,25 +5501,7 @@
+           "trackingSince": "{{value0}} 이후 추적 중"
+         },
+         "UsageOverviewPane": {
+-          "33f7b043d2": "공급자",
+-          "70f36452d4": "캐시 비율",
+-          "327603fe8b": "활성 일수",
+-          "0eaf937335": "예상 비용",
+-          "3887b94ce5": "총 토큰",
+-          "2d13e57f72": "OpenCode 활성화",
+-          "2f1ee2878b": "Codex 활성화",
+-          "0ea0cae435": "Claude 활성화",
+-          "6c00c46815": "공급자를 활성화해 로컬 에이전트 로그를 스캔하고 통합 토큰 원장을 만드세요.",
+-          "49405ccc8d": "토큰 추적 시작",
+-          "ca6bc5fded": "새로고침",
+-          "e06d1baf5c": "사용량 개요 새로고침",
+-          "c760c481c5": "사용량 개요",
+-          "55c910f4f1": "- 일부 모델 가격 확인 불가",
+-          "enableMuse": "Muse 사용",
+-          "noLocalUsageYet": "아직 로컬 Claude, Codex, OpenCode 또는 Muse 사용량을 찾지 못했습니다. 다음 에이전트 세션이 토큰 로그를 기록하면 개요가 채워집니다.",
+-          "providersEnabledWithData": "{{enabled}}개 활성화 - {{withData}}개에 데이터 있음",
+-          "sessionCount_one": "세션 {{formatted}}개",
+-          "sessionCount_other": "세션 {{formatted}}개"
++          "3887b94ce5": "총 토큰"
+         },
+         "share": {
+           "card": {
+@@ -19651,17 +19632,6 @@
          "keyword-trust": "신뢰",
          "keyword-hooks": "훅"
        },
@@ -27,7 +54,7 @@ diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/local
        "NativeChatResumeToast": {
          "resumingOn_one": "{{machine}}에서 에이전트 {{count}}개를 다시 시작하는 중…",
          "resumingOn_other": "{{machine}}에서 에이전트 {{count}}개를 재개하는 중…",
-@@ -19709,6 +19697,17 @@
+@@ -19709,6 +19679,17 @@
          "notAttachedShort": "다시 연결되지 않았습니다.",
          "dispatchRejectedShort": "에이전트가 계속하기를 거부했습니다.",
          "unsupportedShort": "Orca가 이 에이전트를 재개할 수 없습니다."
@@ -45,7 +72,7 @@ diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/local
        }
      },
      "i18n": {
-@@ -25729,49 +25728,6 @@
+@@ -25729,49 +25710,6 @@
      "title": "Orca를 시작할 수 없음",
      "finishFailed": "Orca가 시작을 완료하지 못했습니다: {{detail}}"
    },
@@ -95,7 +122,7 @@ diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/local
    "localBuild": {
      "chooseTitle": "로컬 Orca 빌드 선택",
      "chooseButton": "빌드 선택",
-@@ -27751,36 +27707,6 @@
+@@ -27751,36 +27689,6 @@
        }
      }
    },
@@ -132,7 +159,7 @@ diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/local
    "speechModelUpdate": {
      "update": "업데이트",
      "cancel": "취소",
-@@ -27800,6 +27726,147 @@
+@@ -27800,6 +27708,147 @@
        "dismiss": "닫기",
        "cancelDownload": "다운로드 취소"
      }
@@ -280,7 +307,7 @@ diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/local
    },
    "renderer": {
      "lib": {
-@@ -27824,26 +27891,6 @@
+@@ -27824,26 +27873,6 @@
        "read": "사용량을 불러올 수 없습니다. 다시 새로 고침하세요.",
        "retry": "새로고침"
      }
@@ -307,7 +334,7 @@ diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/local
    },
    "tabBar": {
      "createRow": {
-@@ -27928,54 +27975,6 @@
+@@ -27928,54 +27957,6 @@
      "browseOnline": "찾아보기",
      "browseOnlineLabel": "orca.dev에서 커뮤니티 번역 둘러보기 (브라우저에서 열림)"
    },

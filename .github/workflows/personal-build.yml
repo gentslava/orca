@@ -139,8 +139,8 @@ jobs:
         env:
           ORCA_MOBILE_WEB_APP_DEPS_REQUIRED: '1'
         run: |
-          pnpm test --maxWorkers=2
           pnpm --dir mobile test --maxWorkers=2
+          pnpm test --maxWorkers=2
       - name: Build shared JavaScript with upstream tooling
         run: |
           pnpm run build:release:javascript:parallel

@@ -542,6 +542,167 @@ index a464d531812..1fda015ea47 100644
                      </MobileNativeChatForegroundTasksProvider>
                      {subagents.screen}
                    </MobileNativeChatNoticeContext.Provider>
+diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture.ts b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture.ts
+new file mode 100644
+index 00000000000..03221a2d5cf
+--- /dev/null
++++ b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture.ts
+@@ -0,0 +1,155 @@
++import type {
++  AgentJournalRenderItem,
++  AgentJournalSubmission
++} from '../../../../../src/shared/agent-session/journal/agent-session-journal-types'
++import type {
++  AgentSessionQueuedMessage,
++  AgentSessionQueuePause
++} from '../../../../../src/shared/agent-session/requests/agent-session-queued-message-wire'
++import type { AgentSessionSubscribeEvent } from '../../../../../src/shared/agent-session/agent-session-wire'
++import type { RpcResponse } from '../../../transport/rpc/rpc-wire-types'
++import type { StructuredAgentSessionHostSupport } from './mobile-structured-agent-session-host-support'
++
++export const SESSION_ID = 'session-1'
++
++export const CAPABLE: StructuredAgentSessionHostSupport = {
++  promptCancel: false,
++  questionAnswers: false,
++  queuedMessages: true,
++  queuedCommands: false,
++  queuedMessageEdit: true,
++  statusFeed: false,
++  quietRepeatedStop: false,
++  sendOptions: false,
++  conversationStop: false,
++  permissionModes: false,
++  itemDetail: false,
++  phoneAttachments: false,
++  usageLimitAutoContinue: false,
++  usageLimitContinueCancel: false,
++  sendUsageLimitContinuation: false
++}
++export const LEGACY: StructuredAgentSessionHostSupport = {
++  ...CAPABLE,
++  queuedMessages: false,
++  queuedMessageEdit: false
++}
++
++export function ok(result: unknown): RpcResponse {
++  return { id: 'request-1', ok: true, result, _meta: { runtimeId: 'runtime-1' } }
++}
++
++export function fieldsOf(value: unknown): Record<string, unknown> {
++  return typeof value === 'object' && value !== null
++    ? Object.fromEntries(Object.entries(value))
++    : {}
++}
++
++export function mutationOk(value: unknown) {
++  return ok({
++    ok: true,
++    replayed: false,
++    fence: 3,
++    cursor: { epoch: 'epoch-1', sequence: 1 },
++    value
++  })
++}
++
++export function acceptedSubmission(
++  clientMessageId: string,
++  queuedMessageId?: string
++): AgentJournalSubmission {
++  return {
++    clientMessageId,
++    ...(queuedMessageId ? { queuedMessageId } : {}),
++    fence: 3,
++    payloadFingerprint: 'fp',
++    dispatchState: 'accepted',
++    providerItemId: `item-${clientMessageId}`,
++    reason: null,
++    submittedAt: 10,
++    resolvedAt: 11
++  }
++}
++
++export function queuedDraft(
++  overrides: Partial<AgentSessionQueuedMessage> & { messageId: string }
++): AgentSessionQueuedMessage {
++  return {
++    position: 1,
++    body: {
++      kind: 'message',
++      role: 'user',
++      blocks: [{ type: 'text', text: `text of ${overrides.messageId}` }]
++    },
++    state: 'waiting',
++    ...overrides
++  }
++}
++
++export function snapshotEvent(input?: {
++  queuedMessages?: AgentSessionQueuedMessage[] | null
++  items?: AgentJournalRenderItem[]
++  fence?: number
++  runningTurn?: boolean
++  submissions?: AgentJournalSubmission[]
++}): Extract<AgentSessionSubscribeEvent, { type: 'snapshot' }> {
++  const items: AgentJournalRenderItem[] =
++    input?.items ??
++    (input?.runningTurn
++      ? [
++          {
++            itemId: 'turn-item-1',
++            revision: 1,
++            body: { kind: 'turn', turnId: 'turn-1', state: 'running' },
++            sequence: 1,
++            observedAt: 1
++          }
++        ]
++      : [])
++  const oldest = items[0]
++  const newest = items.at(-1)
++  const fence = input?.fence ?? 3
++  return {
++    type: 'snapshot',
++    sessionId: SESSION_ID,
++    fence,
++    page: {
++      sessionId: SESSION_ID,
++      epoch: 'epoch-1',
++      fence,
++      direction: 'tail',
++      items,
++      removedItemIds: [],
++      submissions: input?.submissions ?? [],
++      window: {
++        oldest: oldest ? { epoch: 'epoch-1', sequence: oldest.sequence } : null,
++        newest: newest ? { epoch: 'epoch-1', sequence: newest.sequence } : null,
++        nextCursor: { epoch: 'epoch-1', sequence: oldest?.sequence ?? 0 }
++      },
++      liveCursor: { epoch: 'epoch-1', sequence: newest?.sequence ?? 0 },
++      hasOlder: false,
++      hasNewer: false
++    },
++    ...(input?.queuedMessages !== undefined ? { queuedMessages: input.queuedMessages } : {})
++  }
++}
++
++export function batchEvent(
++  queuedMessages?: AgentSessionQueuedMessage[] | null,
++  submissions: AgentJournalSubmission[] = [],
++  queuePause?: AgentSessionQueuePause | null
++): AgentSessionSubscribeEvent {
++  return {
++    type: 'batch',
++    sessionId: SESSION_ID,
++    batch: {
++      cursor: { epoch: 'epoch-1', sequence: 2 },
++      items: [],
++      removedItemIds: [],
++      submissions
++    },
++    ...(queuedMessages !== undefined ? { queuedMessages } : {}),
++    ...(queuePause !== undefined ? { queuePause } : {})
++  }
++}
 diff --git a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
 index ae49af290cd..1fbcf7e3e48 100644
 --- a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
@@ -554,6 +715,216 @@ index ae49af290cd..1fbcf7e3e48 100644
        ...(openSubagent ? { openSubagent } : {})
      }),
      [setShown, openRewind, imageSource, openSubagent]
+diff --git a/mobile/src/session/native-chat/transcript/turn-state/use-mobile-native-chat-turn-disclosure.test-fixture.tsx b/mobile/src/session/native-chat/transcript/turn-state/use-mobile-native-chat-turn-disclosure.test-fixture.tsx
+new file mode 100644
+index 00000000000..32d29192027
+--- /dev/null
++++ b/mobile/src/session/native-chat/transcript/turn-state/use-mobile-native-chat-turn-disclosure.test-fixture.tsx
+@@ -0,0 +1,60 @@
++import { createElement } from 'react'
++import type { NativeChatMessage } from '../../../../../../src/shared/native-chat/native-chat-types'
++import type { NativeChatTurnJournal } from '../../../../../../src/shared/native-chat/transcript/turns/native-chat-turn-membership'
++import type { NativeChatSettledTurns } from '../../../../../../src/shared/native-chat/transcript/turns/native-chat-turn-status'
++import { useMobileNativeChatTurnDisclosure } from './use-mobile-native-chat-turn-disclosure'
++
++export function userMessage(id: string): NativeChatMessage {
++  return {
++    id,
++    role: 'user',
++    blocks: [{ type: 'text', text: id }],
++    timestamp: null,
++    source: 'transcript'
++  }
++}
++
++// A component, not a host string: React Native's ElementType has no string members.
++export function Result(_props: {
++  disclosure: ReturnType<typeof useMobileNativeChatTurnDisclosure>
++}): null {
++  return null
++}
++
++export function Harness({
++  messages,
++  enabled,
++  isWorking = true,
++  settledTurns,
++  turnJournal,
++  workingStartedAt,
++  thinking,
++  lineYields,
++  scopeKey = 'host\0worktree\0tab-a',
++  showsTurnDiffs
++}: {
++  messages: readonly NativeChatMessage[]
++  enabled: boolean
++  isWorking?: boolean
++  settledTurns?: NativeChatSettledTurns
++  turnJournal?: NativeChatTurnJournal
++  workingStartedAt?: number | null
++  thinking?: boolean
++  lineYields?: boolean
++  scopeKey?: string
++  showsTurnDiffs?: boolean
++}): React.JSX.Element {
++  const disclosure = useMobileNativeChatTurnDisclosure({
++    messages,
++    enabled,
++    isWorking,
++    settledTurns,
++    turnJournal,
++    workingStartedAt,
++    thinking,
++    lineYields,
++    scopeKey,
++    showsTurnDiffs
++  })
++  return createElement(Result, { disclosure })
++}
+diff --git a/mobile/src/session/structured-agent-send-result.test-fixture.ts b/mobile/src/session/structured-agent-send-result.test-fixture.ts
+new file mode 100644
+index 00000000000..e01d70af515
+--- /dev/null
++++ b/mobile/src/session/structured-agent-send-result.test-fixture.ts
+@@ -0,0 +1,23 @@
++// Include the durable submission and dispatchState: ok alone proves no message delivery.
++
++import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
++import type { AgentSessionSendResult } from '../../../src/shared/agent-session/agent-session-wire'
++
++export function structuredSendResultFixture(
++  dispatchState: AgentJournalDispatchState,
++  reason: string | null = null
++): AgentSessionSendResult {
++  return {
++    clientMessageId: 'msg-1',
++    submission: {
++      clientMessageId: 'msg-1',
++      fence: 3,
++      payloadFingerprint: 'fingerprint',
++      dispatchState,
++      providerItemId: null,
++      reason,
++      submittedAt: 10,
++      resolvedAt: dispatchState === 'pending' ? null : 10
++    }
++  }
++}
+diff --git a/mobile/src/test-support/query-client-test-renderer.ts b/mobile/src/test-support/query-client-test-renderer.ts
+new file mode 100644
+index 00000000000..c7c7d2ae2c5
+--- /dev/null
++++ b/mobile/src/test-support/query-client-test-renderer.ts
+@@ -0,0 +1,25 @@
++import type { ReactElement } from 'react'
++import { notifyManager } from '@tanstack/react-query'
++import { create, type ReactTestRenderer, type TestRendererOptions } from 'react-test-renderer'
++import { documentQueryClient } from './rpc-recording/react-mounting/hook-mount'
++
++// TanStack tells observers on a zero-delay timer; a microtask lets act() and fake-timer tests see replies.
++notifyManager.setScheduler(queueMicrotask)
++
++/** react-test-renderer's create inside a query client that lives as long as the renderer, as a page document's does. */
++export function createWithQueryClient(
++  element: ReactElement,
++  options?: TestRendererOptions
++): ReactTestRenderer {
++  const document = documentQueryClient()
++  const renderer = create(document.wrap(element), options)
++  const update = renderer.update.bind(renderer)
++  const unmount = renderer.unmount.bind(renderer)
++  return Object.assign(renderer, {
++    update: (next: ReactElement) => update(document.wrap(next)),
++    unmount: () => {
++      unmount()
++      void document.end()
++    }
++  })
++}
+diff --git a/mobile/src/test-support/react-native-motion-stub.ts b/mobile/src/test-support/react-native-motion-stub.ts
+new file mode 100644
+index 00000000000..be336152ab4
+--- /dev/null
++++ b/mobile/src/test-support/react-native-motion-stub.ts
+@@ -0,0 +1,39 @@
++// What animated chat controls (and the composer's announcements) read from react-native, for tests that hand-mock it. Timings finish at
++// once, so a test sees each control at rest.
++export function reactNativeMotionStub() {
++  class Value {
++    constructor(public value: number) {}
++    setValue(value: number): void {
++      this.value = value
++    }
++    interpolate(): this {
++      return this
++    }
++    stopAnimation(): void {}
++  }
++  const curve = (t: number) => t
++  const shaped = (easing: (t: number) => number) => easing
++  return {
++    AccessibilityInfo: {
++      isReduceMotionEnabled: () => Promise.resolve(false),
++      addEventListener: () => ({ remove: () => {} }),
++      announceForAccessibilityWithOptions: () => {}
++    },
++    Animated: {
++      Value,
++      View: 'Animated.View',
++      timing: () => ({
++        start: (done?: (result: { finished: boolean }) => void) => done?.({ finished: true }),
++        stop: () => {}
++      })
++    },
++    Easing: {
++      bezier: () => curve,
++      cubic: curve,
++      ease: curve,
++      in: shaped,
++      inOut: shaped,
++      out: shaped
++    }
++  }
++}
+diff --git a/mobile/src/test-support/react-test-renderer-host-nodes.ts b/mobile/src/test-support/react-test-renderer-host-nodes.ts
+new file mode 100644
+index 00000000000..4e117e5a413
+--- /dev/null
++++ b/mobile/src/test-support/react-test-renderer-host-nodes.ts
+@@ -0,0 +1,10 @@
++import type { ReactTestInstance } from 'react-test-renderer'
++
++// Mock native host names ('Pressable', 'Text') are outside findAllByType’s ElementType.
++export function findAllByHostType(root: ReactTestInstance, hostType: string): ReactTestInstance[] {
++  return root.findAll((node) => node.type === hostType)
++}
++
++export function findByHostType(root: ReactTestInstance, hostType: string): ReactTestInstance {
++  return root.find((node) => node.type === hostType)
++}
+diff --git a/mobile/src/transport/rpc/rpc-client-test-stub.ts b/mobile/src/transport/rpc/rpc-client-test-stub.ts
+new file mode 100644
+index 00000000000..5e0da03bd07
+--- /dev/null
++++ b/mobile/src/transport/rpc/rpc-client-test-stub.ts
+@@ -0,0 +1,17 @@
++import type { RpcClient } from './rpc-client-contract'
++
++/** A connected RpcClient whose behaviour is only the members a test supplies; an unscripted request rejects. */
++export function stubRpcClient(members: Partial<RpcClient> = {}): RpcClient {
++  return {
++    sendRequest: (method) => Promise.reject(new Error(`unscripted request: ${method}`)),
++    subscribe: () => () => {},
++    updateTerminalSubscriptionViewport: () => {},
++    getState: () => 'connected',
++    getReconnectAttempt: () => 0,
++    getLastConnectedAt: () => null,
++    onStateChange: () => () => {},
++    notifyForeground: () => {},
++    close: () => {},
++    ...members
++  }
++}
 diff --git a/mobile/src/worktree/navigation/worktree-show-resolution.ts b/mobile/src/worktree/navigation/worktree-show-resolution.ts
 index 95876af78ee..a5b1324a7bc 100644
 --- a/mobile/src/worktree/navigation/worktree-show-resolution.ts
@@ -1165,8 +1536,62 @@ index 52b992533f2..b2affa7bf6e 100644
      const runtime = new OrcaRuntimeService(null, undefined, {
        orchestrationEnvironmentTransport: transport
      })
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
+index 00a2d761954..6740dfd4801 100644
+--- a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
+@@ -86,15 +86,16 @@ export async function startLocalWorker(args: {
+     params.from,
+     callerSession
+   )
+-  const { agent, launch, fastWorkspace, fastWorkerMode } = await preflightLocalWorkerStartLaunch({
+-    params,
+-    runtime,
+-    callerSession,
+-    requestedWorktree,
+-    createsWorktree,
+-    creationTargetFor,
+-    mode: args.mode
+-  })
++  const { agent, launch, fastWorkspace, fastWorkerMode, preflightTerminal } =
++    await preflightLocalWorkerStartLaunch({
++      params,
++      runtime,
++      callerSession,
++      requestedWorktree,
++      createsWorktree,
++      creationTargetFor,
++      mode: args.mode
++    })
+ 
+   const creationTarget = createsWorktree
+     ? await creationTargetFor(coordinatorWorktreeId)
+@@ -129,20 +130,9 @@ export async function startLocalWorker(args: {
+       ? fastWorkerMode
+       : resolveWorkerStartModeOnHost(runtime, decided, resolvedWorktree?.id, agent)
+   let mode = chatWorkerMode(await hostMode, chat)
+-  if (
+-    agent &&
+-    (mode.mode === 'terminal' || createsWorktree) &&
+-    (params.role || params.fastMode !== undefined)
+-  ) {
+-    await runtime.preflightOrchestrationWorkerLaunch(
+-      agent,
+-      launch.preferences,
+-      createsWorktree
+-        ? { repo: creationTarget?.repoSelector ?? params.repo }
+-        : resolvedWorktree
+-          ? { worktree: `id:${resolvedWorktree.id}` }
+-          : {}
+-    )
++  const terminalPreflight = preflightTerminal(mode, creationTarget, resolvedWorktree)
++  if (terminalPreflight) {
++    await terminalPreflight
+   }
+ 
+   // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
 diff --git a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
-index 3a42fe80843..8b73fb9846b 100644
+index 3a42fe80843..1a25d23447b 100644
 --- a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
 @@ -1,3 +1,4 @@
@@ -1174,10 +1599,35 @@ index 3a42fe80843..8b73fb9846b 100644
  import type { OrcaRuntimeService } from '../../../../orca-runtime'
  import type { OrchestrationEntryCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
  import { OrchestrationError } from '../../../../orchestration/orchestration-error'
-@@ -99,3 +100,21 @@ export async function preflightLocalWorkerStartLaunch(args: {
+@@ -97,5 +98,45 @@ export async function preflightLocalWorkerStartLaunch(args: {
+     structuredFastModeSupported,
+     structuredFastServiceTier
    })
-   return { ...prepared, fastWorkspace, fastWorkerMode }
- }
+-  return { ...prepared, fastWorkspace, fastWorkerMode }
++  function preflightTerminal(
++    workerMode: WorkerStartModeReceipt,
++    creationTarget?: WorkerWorktreeCreationTarget,
++    worktree?: { id: string }
++  ): Promise<void> | undefined {
++    if (
++      prepared.agent &&
++      (workerMode.mode === 'terminal' || createsWorktree) &&
++      (params.role || params.fastMode !== undefined)
++    ) {
++      return runtime.preflightOrchestrationWorkerLaunch(
++        prepared.agent,
++        prepared.launch.preferences,
++        createsWorktree
++          ? { repo: creationTarget?.repoSelector ?? params.repo }
++          : worktree
++            ? { worktree: `id:${worktree.id}` }
++            : {}
++      )
++    }
++    return undefined
++  }
++  return { ...prepared, fastWorkspace, fastWorkerMode, preflightTerminal }
++}
 +
 +export function applyWorkerStartRole(runtime: OrcaRuntimeService, params: WorkerStartInput) {
 +  if (params.role) {
@@ -1195,12 +1645,12 @@ index 3a42fe80843..8b73fb9846b 100644
 +    }
 +  }
 +  return params
-+}
+ }
 diff --git a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
-index d53fd5d96ce..36fda9da6a2 100644
+index bc21a84ee4b..34788b74f71 100644
 --- a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
-@@ -19,7 +19,7 @@ import {
+@@ -15,7 +15,7 @@ import {
  } from './start/admission/worker-start-authority'
  import { parseTaskDeps } from './start/admission/task-deps-argument'
  import { WorkerStartParams } from '../../../../../../shared/rpc-contract/orchestration/orchestration-worker-start-params'
@@ -1209,7 +1659,7 @@ index d53fd5d96ce..36fda9da6a2 100644
  import {
    isWorkerStartTimeoutWithinTimerLimit,
    resolveWorkerStartReadinessTimeoutMs
-@@ -157,20 +157,7 @@ export async function prepareWorkerStart(
+@@ -155,20 +155,7 @@ export async function prepareWorkerStart(
    }: Omit<WorkerStartContext, 'orchestrationMutation'>,
    followUp?: WorkerFollowUp
  ) {
@@ -1231,6 +1681,19 @@ index d53fd5d96ce..36fda9da6a2 100644
    if (!isWorkerStartTimeoutWithinTimerLimit(params.timeoutMs)) {
      throw new OrchestrationError(
        'invalid_argument',
+@@ -269,11 +256,7 @@ export async function prepareWorkerStart(
+     )
+   }
+   if (helperCreator && !followUp) {
+-    assertHelperStartScope(db, helperCreator, {
+-      task: existingTask,
+-      params,
+-      ...(followUp ? { followUp } : {})
+-    })
++    assertHelperStartScope(db, helperCreator, { task: existingTask, params })
+   }
+   if (existingTask) {
+     await assertWorkerStartTaskSpecWithinPromptBudget(existingTask.spec)
 diff --git a/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts b/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts
 index ff64eeba7cc..ceb54d3a326 100644
 --- a/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts
@@ -1327,10 +1790,10 @@ index 4cd0c95bd59..02225f44866 100644
      })
  
 diff --git a/src/renderer/src/components/settings/runtime-environments/RuntimeServersSection.fixture.tsx b/src/renderer/src/components/settings/runtime-environments/RuntimeServersSection.fixture.tsx
-index 17234e77568..97da7816657 100644
+index 1f2870b23d6..c7d4b093c9e 100644
 --- a/src/renderer/src/components/settings/runtime-environments/RuntimeServersSection.fixture.tsx
 +++ b/src/renderer/src/components/settings/runtime-environments/RuntimeServersSection.fixture.tsx
-@@ -165,6 +165,7 @@ function Section({
+@@ -175,6 +175,7 @@ function Section({
              onConnect={() => {}}
              onDisconnect={() => {}}
              onRemove={() => {}}
@@ -1502,7 +1965,7 @@ index 8627d4c7be8..31024f3bb04 100644
        .object({
          x: z.number().finite(),
 diff --git a/src/shared/rpc-contract/rpc-params-catalog.generated.ts b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
-index cad1a6e896c..d103ed72b72 100644
+index 93ab5399861..7ec2a1d9fea 100644
 --- a/src/shared/rpc-contract/rpc-params-catalog.generated.ts
 +++ b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
 @@ -727,7 +727,6 @@ import {
