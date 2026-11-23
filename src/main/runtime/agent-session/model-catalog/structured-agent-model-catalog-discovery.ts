@@ -1,7 +1,10 @@
 // Use session launch resolvers, including missing-program env refresh, for probes so catalogs match the binary/account sessions actually use.
 
 import { createAcpModelCatalogProbe } from '../../../acp/discovery/acp-model-catalog-probe'
-import { acpListingNeedsChatFolder } from '../../../acp/discovery/acp-model-discovery-policy'
+import {
+  acpAgentModelDiscoveries,
+  acpListingNeedsChatFolder
+} from '../../../acp/discovery/acp-model-discovery-policy'
 import type { AcpLaunchSpec } from '../../../acp/launch/acp-launch-contract'
 import {
   createClaudeModelCatalogProbe,
@@ -78,15 +81,15 @@ export function acpModelCatalogDiscovery(
   { deps, environment }: StructuredAgentModelCatalogContext
 ): AgentModelCatalogDiscovery {
   // The probe lists through whichever install, Orca's or the host's, the account launches.
-  const listings = [spec, ...(spec.hostBackend ? [spec.hostBackend.spec] : [])]
-    .map(({ modelDiscovery }) => modelDiscovery)
-    .filter((discovery) => discovery.kind !== 'unavailable')
+  const listings = acpAgentModelDiscoveries(spec).filter(
+    (discovery) => discovery.kind !== 'unavailable'
+  )
   if (listings.length === 0 && spec.modelDiscovery.kind === 'unavailable') {
     return { kind: 'unavailable', reason: spec.modelDiscovery.reason }
   }
   return {
     kind: 'probe',
-    listingNamesConfiguredModel: listings.some((listing) => listing.listingNamesConfiguredModel),
+    listingNamesConfiguredModel: listings.every((listing) => listing.listingNamesConfiguredModel),
     ...(listings.some(acpListingNeedsChatFolder) ? { listsInChatFolder: true as const } : {}),
     ...(listings.some((listing) => listing.kind === 'session' && listing.listsOnDemand)
       ? { listsOnDemand: true as const }

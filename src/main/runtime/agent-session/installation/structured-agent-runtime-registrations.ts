@@ -15,7 +15,10 @@ import { journalSqlReads } from '../../../native-chat/agent-session-journal/jour
 import { createStructuredClaudeRuntimeAdapter } from './structured-claude-runtime-adapter'
 import { nameChatFromClaudeRename } from '../naming/claude-user-rename'
 import { claudeAtRestDiscovery, codexAtRestSkillRoots } from './structured-agent-at-rest-discovery'
-import { acpListingNeedsChatFolder } from '../../../acp/discovery/acp-model-discovery-policy'
+import {
+  acpAgentModelDiscoveries,
+  acpListingNeedsChatFolder
+} from '../../../acp/discovery/acp-model-discovery-policy'
 import type { AcpLaunchSpec } from '../../../acp/launch/acp-launch-contract'
 import { acpStructuredAgentDefinition } from '../../../acp/session/acp-structured-agent-definitions'
 import type { SavedProviderTurnReads } from '../../../native-chat/agent-session-journal/journal-provider-turn-saved'
@@ -188,7 +191,7 @@ function createAcpAdapter(
         dataDirectory: deps.stateDirectory
       },
       // Agents that list models in a throwaway chat-folder session report commands there too.
-      ...(acpListingNeedsChatFolder(spec.modelDiscovery)
+      ...(acpAgentModelDiscoveries(spec).some(acpListingNeedsChatFolder)
         ? {
             atRestCommands: new AcpAtRestCommandCatalog(spec, {
               ...deps.acpLaunchCommand,

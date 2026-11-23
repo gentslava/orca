@@ -12,6 +12,8 @@ import {
   compareAppVersions,
   isValidAppVersion
 } from '../../shared/app-lifecycle/identity/app-version'
+import { agentModelCatalogFingerprint } from '../native-chat/agent-model-catalog/agent-model-catalog-fingerprint'
+import { agentModelCatalogStore } from '../native-chat/agent-model-catalog/agent-model-catalog-store'
 import { initializeAntigravityAcp } from './antigravity-acp-runtime-probe'
 import { antigravityTakesSystemPrompt } from '../acp/launch/acp-instructions'
 
@@ -69,6 +71,20 @@ type HostCheck = {
   version?: string
 }
 const checks = new Map<string, HostCheck>()
+
+export function expireAntigravityHostAcpChecks(homePath?: string): void {
+  checks.clear()
+  if (homePath !== undefined) {
+    agentModelCatalogStore.expireAgent(
+      'antigravity',
+      agentModelCatalogFingerprint({
+        agent: 'antigravity',
+        accountHome: antigravityHostAccountHome(homePath),
+        wslDistro: null
+      })
+    )
+  }
+}
 
 class IncompatibleHostAcp extends Error {}
 
