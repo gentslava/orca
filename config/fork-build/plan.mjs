@@ -2,7 +2,7 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { join, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
-import { api, readLedger, readPullRequest, renderReport } from './github.mjs'
+import { api, readLedger, readPullRequest, renderReport, searchPullRequests } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
 import {
   assertFrozenHead,
@@ -54,7 +54,9 @@ const plan = {
   releaseTag: process.env.GITHUB_RUN_ID
     ? `personal-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`
     : undefined,
-  runUrl: `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${forkRepository}/actions/runs/${process.env.GITHUB_RUN_ID || 'local'}`,
+  runUrl: process.env.GITHUB_RUN_ID
+    ? `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${forkRepository}/actions/runs/${process.env.GITHUB_RUN_ID}`
+    : undefined,
   blockers: [],
   lifecycle: [],
   selections: [],
@@ -79,25 +81,15 @@ try {
   const own = []
   plan.authorInventory = []
   for (const author of config.authors) {
-    const query = encodeURIComponent(`repo:${config.upstream} is:pr author:${author}`)
-    const search = api(`search/issues?q=${query}&per_page=100`)
-    if (search.incomplete_results || search.total_count > 100) {
-      throw new Error('Incomplete own-PR discovery; narrow or paginate before building')
-    }
-    const ownMain = api(
-      `search/issues?q=${encodeURIComponent(
-        `repo:${config.upstream} is:pr is:open author:${author} base:${config.base}`
-      )}&per_page=100`
-    )
-    if (ownMain.incomplete_results || ownMain.total_count > 100) {
-      throw new Error('Incomplete active owner PR discovery')
-    }
+    const query = `repo:${config.upstream} is:pr author:${author}`
+    const records = searchPullRequests(query)
+    const ownMain = searchPullRequests(`${query} is:open base:${config.base}`)
     own.push(
-      ...ownMain.items.map((pr) => ({ ...pr, user: { login: author }, base: { ref: config.base } }))
+      ...ownMain.map((pr) => ({ ...pr, user: { login: author }, base: { ref: config.base } }))
     )
-    const openMain = new Set(ownMain.items.map(({ number }) => number))
+    const openMain = new Set(ownMain.map(({ number }) => number))
     plan.authorInventory.push(
-      ...search.items.map((pr) => ({
+      ...records.map((pr) => ({
         number: pr.number,
         title: pr.title,
         author,

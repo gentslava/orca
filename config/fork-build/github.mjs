@@ -27,6 +27,38 @@ export function readPullRequest(path, read = api) {
   }
 }
 
+export function searchPullRequests(query, read = api) {
+  const path = `search/issues?q=${encodeURIComponent(query)}&per_page=100&sort=created&order=asc`
+  const records = new Map()
+  let expected
+  for (let page = 1; page <= 10; page++) {
+    const result = read(`${path}&page=${page}`)
+    expected ??= result.total_count
+    if (
+      result.incomplete_results ||
+      result.total_count !== expected ||
+      !Number.isSafeInteger(expected) ||
+      expected > 1000 ||
+      !Array.isArray(result.items)
+    ) {
+      break
+    }
+    for (const item of result.items) {
+      if (!Number.isSafeInteger(item.number) || records.has(item.number)) {
+        throw new Error('PR search changed during pagination; retry the audit')
+      }
+      records.set(item.number, item)
+    }
+    if (records.size === expected) {
+      return [...records.values()]
+    }
+    if (result.items.length < 100) {
+      break
+    }
+  }
+  throw new Error('Incomplete PR discovery; retry or narrow the author inventory search')
+}
+
 export function readLedger(body = '') {
   const match = body.match(/<!-- orca-personal-ledger\n([\s\S]*?)\n-->/)
   return match ? JSON.parse(match[1]) : { tracked: [] }
@@ -75,7 +107,7 @@ export function renderReport(plan) {
     '',
     'All planned platforms and formats are required. Packaging verification does not establish physical-device, desktop-display or live-provider acceptance.',
     '',
-    `Run: ${plan.runUrl}`,
+    `Run: ${plan.runUrl || 'local'}`,
     '',
     `Configuration: \`${plan.configuration}\``,
     `Upstream: \`${plan.upstream || 'unresolved'}\``,
