@@ -982,5 +982,113 @@
     "patchSha256": "eca448f574f2bb194d460a4dcc22c382b5fd09f667a695d09650dc51d42e5680",
     "resultSha256": "e2d8d0646915eec5eeb4250510faef8a8354e98f9d3d416b6643c37bdef919aa",
     "reason": "Keep the persisted worker-role and macOS hold-to-quit settings through the current upstream settings changes."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts",
+    "blobs": [
+      "900b6515cf52a6d23ad970c4e80dfbb181882622",
+      "864d468e9ece32919e0f0d974127d0015e3c153c",
+      "76f1aec869736195bbd0f7368cd2c590dbd99ec3"
+    ],
+    "reason": "Reuse the role-aware fast launch when the upstream persistent lineage selects the same worker mode.",
+    "patch": "maintenance-20261123/forward-33369-0-2a4d7e22e6f6.patch",
+    "patchSha256": "2a4d7e22e6f64f9c677b5c6e94efca28cd2592baf91132e605420cca15627e35",
+    "resultSha256": "9b4a3ac11c6e7e5a1457400eadc73c6c9bcf3d68ee16eac098d6d3bbd33ceefe"
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx",
+    "blobs": [
+      "8b2d558b14bfa90eeb4de3e791a7c1371aafe3ac",
+      "01ac1c237ee9c2b282f54f0e46e143414a40c839",
+      "ce124f4a470d45a62756251eb91fd0e5486f6267"
+    ],
+    "reason": "Pass the upstream event timestamp and retain the controlled disclosure state for compact activity notices.",
+    "patch": "maintenance-20261123/forward-33363-0-1b7c23f9b6ce.patch",
+    "patchSha256": "1b7c23f9b6ce67cde819bd2c9e7489df5aeb301d6ef516d08551c2dc55cb8771",
+    "resultSha256": "b554d129ce828375bce5597c769a5bad792b61ec538403b75d8df8bfbff38a86"
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ko.json",
+    "blobs": [
+      "be189d1920c86b39fa5d52afdcbcdc7f225fd1f7",
+      "27582630684dd82d8507a533b6bc4eb79aa0dd1f",
+      "343dd8d55837ae20f50a4febabefbedfcec43552"
+    ],
+    "reason": "Keep the upstream Korean usage overview strings and the fork usage history translations.",
+    "patch": "maintenance-20261123/forward-33371-0-566c616ec02d.patch",
+    "patchSha256": "566c616ec02d37d64b18054e17c5c3c8c88ccbe9f9d91ec001c29dceb3cfce16",
+    "resultSha256": "e3dbef9b93193c52fa9ed8c6bebcc9672c5694b8c3ddca1bd86758905a8e01ba"
+  },
+  {
+    "path": "src/shared/remote-runtime/protocol/protocol-version.ts",
+    "blobs": [
+      "9e2add5c1d8a735fe49b9189206e2b40ea4b6028",
+      "3fc5011b771bc73edd524cf2eef6a506e66e934a",
+      "4aad655b0c4c563a82c8734d81c3b3dfc41ee8d2"
+    ],
+    "reason": "Advertise conversation navigation, project visibility and personal project ordering to paired clients.",
+    "patch": "maintenance-20261123/forward-33502-10-08b8514cdede.patch",
+    "patchSha256": "08b8514cdedec395ecf6cd49061ea1b7f72aa0b544c3ebfb60625c34c41d56d3",
+    "resultSha256": "df43f51ce6f08958262034f31e5ce2fce04960d004c3d8f5028c7fdf71a6df02"
+  },
+  {
+    "path": "src/main/runtime/orchestration/db/schema/create-tables.ts",
+    "blobs": [
+      "783acc317a03d8c45f3b111ba625e9039f2e8656",
+      "d2a093531e5d7120855f2e749050411a8e91b5a0",
+      "a720e1dd7e784e31acccdbcb0847c6b6bd749e04"
+    ],
+    "reason": "Initialize both linked-session and worker-bound-terminal tables and advertise linked chat groups alongside paired child lineage.",
+    "patch": "maintenance-20261123/forward-37744-0-4d3d5a9e71cf.patch",
+    "patchSha256": "4d3d5a9e71cfc33de38949e00505fcbe37899db76b236489b7d754a4a15a387c",
+    "resultSha256": "9cd3087c2e1676772c56819b4905f6252cb7be16ff8f8b7615d20a84b51cd4da"
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "7b572c09a3be43a41fa312aabe3b76b9284ce9f6",
+      "ad64357f47d83ebba73efaef5d9deed2ee1578a2",
+      "9827e88b1592285190df69ec007788418250c5a0"
+    ],
+    "reason": "Initialize both linked-session and worker-bound-terminal tables and advertise linked chat groups alongside paired child lineage.",
+    "patch": "maintenance-20261123/forward-37744-5-f80887527d1a.patch",
+    "patchSha256": "f80887527d1a4739f106d9f418fb4d4f457b098f36abc61459910bba9091d20d",
+    "resultSha256": "eb05b2ac761b5b978156ab69fa37f3926e8ff52056f987ff866ae2c58ff6cd0d"
+  },
+  {
+    "path": "mobile/src/i18n/en-runtime-required.json",
+    "blobs": [
+      "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
+      "dcf0642de71cae173b41e745453319f79c19b322",
+      "6d828839f17fcde8c6da1c4ab5d30120b4708923"
+    ],
+    "reason": "Preserve upstream bot card translations while sharing the mobile start failure strings.",
+    "patch": "maintenance-20261123/forward-41166-0-33ad8594b757.patch",
+    "patchSha256": "33ad8594b757419819834d0a5d752809ac7ac72a7dfde149ce2fd23f4326ddd6",
+    "resultSha256": "f0d1557e45335fa5061aee4370b4e6f8f573409441f71e28c3c2afe1c89507be"
+  },
+  {
+    "path": "mobile/src/i18n/en-runtime-required.json",
+    "blobs": [
+      "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
+      "c4215eed9ca43c4ab0b014eb1f27376838d69e72",
+      "84b1f1507a410cc72deadd064fe7b77d61e78c45"
+    ],
+    "reason": "Keep flagged Claude request copy and the latest review summary under the compact activity disclosure.",
+    "patch": "maintenance-20261123/forward-45437-0-5e6ba68484f7.patch",
+    "patchSha256": "5e6ba68484f7222d366b9ea8e01204e967b230e88a40f76e956b331447e2dc8d",
+    "resultSha256": "7cf7e16bcd9a75a87754a5fb9269af0fe674d3d34737c5dc1db7d51ac94910b9"
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx",
+    "blobs": [
+      "8b2d558b14bfa90eeb4de3e791a7c1371aafe3ac",
+      "4845939bd3c6c8f64c5e82284988159b8492cf99",
+      "f3024f072e34d0e19cd8951e908a7d6d97a38d93"
+    ],
+    "reason": "Keep flagged Claude request copy and the latest review summary under the compact activity disclosure.",
+    "patch": "maintenance-20261123/forward-45437-1-59f81edef109.patch",
+    "patchSha256": "59f81edef109f68df8764857f92be66acb7ec9cf286d13d09a31e2aef1d65b77",
+    "resultSha256": "3ee49806fe259746dc132e53b2893b97ec449a097335790c14044e9107f4f2a8"
   }
 ]

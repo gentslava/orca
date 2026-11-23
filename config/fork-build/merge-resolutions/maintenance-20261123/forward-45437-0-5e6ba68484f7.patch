@@ -1,0 +1,13 @@
+diff --git a/mobile/src/i18n/en-runtime-required.json b/mobile/src/i18n/en-runtime-required.json
+--- a/mobile/src/i18n/en-runtime-required.json
++++ b/mobile/src/i18n/en-runtime-required.json
+@@ -1158,6 +1158,9 @@
+       "uncommittedFiles_one": "{{count}} uncommitted",
+       "uncommittedFiles_other": "{{count}} uncommitted"
+     },
++    "failure": {
++      "flaggedRequestNotSwitched": "{{agent}} declined this request, and switching models on flagged requests is off. Rephrase it and send again, or change \"When Claude flags a request\" in Settings → Agents."
++    },
+     "fileReader": {
+       "reviewNotes_one": "{{count}} review note",
+       "reviewNotes_other": "{{count}} review notes"
