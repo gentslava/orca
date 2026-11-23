@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { installApi } from '../../testing/web-preload-api-test-harness'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { installBrowserGlobals } from '../../testing/web-preload-api-test-harness'
+import { createRuntimeEnvironmentsApi } from './web-runtime-environments-api'
 import { webRuntimeState } from '../../runtime/client/web-runtime-session'
 import type { StoredWebRuntimeEnvironment } from '../../pairing/web-runtime-environment'
 
@@ -31,13 +32,20 @@ function storedEnvironment(
   }
 }
 
+function installApi() {
+  const { storage } = installBrowserGlobals()
+  return { api: { runtimeEnvironments: createRuntimeEnvironmentsApi() }, storage }
+}
+
 describe('runtimeEnvironments.rename', () => {
   beforeEach(() => {
     webRuntimeState.activeEnvironment = null
   })
 
+  afterEach(() => vi.unstubAllGlobals())
+
   it('rejects the rename when another tab re-paired the environment', async () => {
-    const { api, storage } = await installApi()
+    const { api, storage } = installApi()
     // The in-memory copy predates a re-pair that another tab already stored.
     webRuntimeState.activeEnvironment = storedEnvironment({ pairingRevision: 1 })
     const rePaired = JSON.stringify(storedEnvironment({ pairingRevision: 2 }))
@@ -52,7 +60,7 @@ describe('runtimeEnvironments.rename', () => {
   })
 
   it('rejects the rename when another tab removed the pairing', async () => {
-    const { api, storage } = await installApi()
+    const { api, storage } = installApi()
     webRuntimeState.activeEnvironment = storedEnvironment()
     // Another tab removed the pairing: nothing is stored for a rename to write back.
     storage.removeItem(ENV_KEY)
@@ -64,7 +72,7 @@ describe('runtimeEnvironments.rename', () => {
   })
 
   it('rejects the rename when another tab paired a different environment', async () => {
-    const { api, storage } = await installApi()
+    const { api, storage } = installApi()
     webRuntimeState.activeEnvironment = storedEnvironment()
     const otherEnvironment = JSON.stringify(storedEnvironment({ id: 'web-env-2' }))
     storage.setItem(ENV_KEY, otherEnvironment)
@@ -77,7 +85,7 @@ describe('runtimeEnvironments.rename', () => {
   })
 
   it('renames the stored record when the pairing is current', async () => {
-    const { api, storage } = await installApi()
+    const { api, storage } = installApi()
     const environment = storedEnvironment({ pairingRevision: 1 })
     webRuntimeState.activeEnvironment = environment
     storage.setItem(ENV_KEY, JSON.stringify(environment))
