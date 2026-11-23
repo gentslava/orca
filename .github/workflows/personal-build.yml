@@ -604,7 +604,7 @@ jobs:
         sync,
         publish
       ]
-    if: always() && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    if: always() && github.repository == 'gentslava/orca' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && !inputs.audit_only
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

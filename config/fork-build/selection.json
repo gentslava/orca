@@ -151,7 +151,9 @@
     "account-usage-row-layout.patch",
     "fork-ci-macos-arm64-image.patch",
     "composed-format.patch",
-    "composed-contract-migrations.patch"
+    "composed-contract-migrations.patch",
+    "composed-qualification-format.patch",
+    "selected-regressions.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",

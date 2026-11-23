@@ -194,7 +194,9 @@ try {
         'composed-source-modules.patch',
         'composed-reactive-copy.patch',
         'fork-ci-macos-arm64-image.patch',
-        'composed-contract-migrations.patch'
+        'composed-contract-migrations.patch',
+        'composed-qualification-format.patch',
+        'selected-regressions.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')
@@ -326,11 +328,14 @@ try {
     ledger.lastGood.fingerprint === plan.fingerprint &&
     !options.force &&
     process.env.FORCE_BUILD !== 'true'
-  if (plan.result.publishable && !plan.auditOnly && !plan.reuse) {
+  const bundleName = plan.result.publishable
+    ? !plan.auditOnly && !plan.reuse && 'source.bundle'
+    : plan.result.commit !== plan.upstream && 'diagnostic.bundle'
+  if (bundleName) {
     git(source, [
       'bundle',
       'create',
-      join(directory, 'source.bundle'),
+      join(directory, bundleName),
       'refs/heads/personal-candidate',
       `^${plan.upstream}`
     ])

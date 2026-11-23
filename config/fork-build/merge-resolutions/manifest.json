@@ -946,5 +946,41 @@
     "patchSha256": "99378d8996ecbb0b279c8c7df22a66ecd329b8a228275383bd54961eaee362b5",
     "resultSha256": "d01e89f89c9c066a390cbb3cdd60278f903b2bee69dba18a2552c034b859e2c2",
     "reason": "Preserve the mobile notice disclosure while adding Claude's refusal policy and localized details."
+  },
+  {
+    "path": "src/shared/orca-profiles/persisted-ui-state-types.ts",
+    "blobs": [
+      "add00b392a2ec3d2fcb1f7964b427fe6777fdc29",
+      "7b39de6a873c842a8d46d4ae510b45c604c8ca83",
+      "0dae8be839349234fb2251f25d65b588e0d8d8e8"
+    ],
+    "patch": "maintenance-20261123/33502-9-70bd02a5f21f.patch",
+    "patchSha256": "70bd02a5f21f7d608604bda1fc2cd4561ad749afb713373f0ac9e470fcc3f552",
+    "resultSha256": "f1843b29a40576f91c27a5d819384bf3c2e403c91bb1d7696aede24b2457de8a",
+    "reason": "Keep conversation preferences and project order alongside upstream persisted activity-bar arrangement."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "dbf35e16f0658205abc832d3ac8533185a5a91b4",
+      "93924a02bcaedfa94ff9e67909ce94532aac5d72",
+      "2129167b6842ad2ffe23b8cfa58259d2ea258e51"
+    ],
+    "patch": "maintenance-20261123/33502-11-368bcc68c4e2.patch",
+    "patchSha256": "368bcc68c4e2744e3d403bed36a1f04af35d8abd0505afa0516296535481b161",
+    "resultSha256": "23eb1f384a37d54c9b3c85ccddf5c06f5564f59c219672ca541940903effbd1f",
+    "reason": "Retain scoped conversation keys and rewrite project-order host keys independently during a WSL move."
+  },
+  {
+    "path": "src/shared/settings/global-settings-base.ts",
+    "blobs": [
+      "8b173bf4e32b5f0295e30318efa4f19d897cbd23",
+      "04185c673b4ee5c456a65d0d105a932edf2f060d",
+      "935155a8ef6589ca4a5c9fdf0ed2a803ac3591cb"
+    ],
+    "patch": "maintenance-20261123/33512-0-eca448f574f2.patch",
+    "patchSha256": "eca448f574f2bb194d460a4dcc22c382b5fd09f667a695d09650dc51d42e5680",
+    "resultSha256": "e2d8d0646915eec5eeb4250510faef8a8354e98f9d3d416b6643c37bdef919aa",
+    "reason": "Keep the persisted worker-role and macOS hold-to-quit settings through the current upstream settings changes."
   }
 ]
