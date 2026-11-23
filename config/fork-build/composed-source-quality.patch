@@ -723,6 +723,24 @@ index f34ab638126..e390cb65d46 100644
                        model,
                        spec.dialect.effortChangesModel ? ready : undefined,
                        (result) =>
+diff --git a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
+index 86aaae165df..fe3bf2041e1 100644
+--- a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
++++ b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
+@@ -146,9 +146,11 @@ export function installChats(records: AgentSessionRecord[]) {
+     hostId: 'local',
+     listRecords: () => records,
+     getRecord: vi.fn((sessionId: string) => byId.get(sessionId) ?? null),
+-    listConversations: vi.fn(() => records.map(agentSessionConversationView))
++    listConversations: vi.fn(() => records.map(agentSessionConversationView)),
++    conversationsKeyedBy: (keys: AgentSessionConversationKeys, key: string) =>
++      records.map(agentSessionConversationView).filter((view) => keys(view).includes(key))
+   }
+-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the ownership read touches only `deps.store.listConversations`, `getRecord` and `hostId`; the rest of the host is never reached.
++  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: conversation projection only reads the store methods supplied by this fixture.
+   setStructuredAgentSessionHost({ deps: { store } } as never)
+   return store
+ }
 diff --git a/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts b/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts
 new file mode 100644
 index 00000000000..33ff3d2be15
