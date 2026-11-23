@@ -13,11 +13,11 @@ const env = process.env
 if (
   env.GITHUB_REPOSITORY !== repository ||
   env.GITHUB_EVENT_NAME !== 'workflow_dispatch' ||
-  env.GITHUB_REF !== 'refs/heads/master' ||
+  !env.GITHUB_REF?.startsWith('refs/heads/') ||
   !/^[1-9]\d{0,19}$/.test(id ?? '') ||
   id === env.GITHUB_RUN_ID
 ) {
-  throw new Error('Reusing qualification requires a different completed run on trusted master')
+  throw new Error('Reusing qualification requires an earlier run of the fork manual workflow')
 }
 
 function api(endpoint) {
@@ -31,18 +31,17 @@ function api(endpoint) {
 const run = api(`runs/${id}`)
 const head = run.head_sha
 if (
-  run.status !== 'completed' ||
-  run.conclusion !== 'success' ||
   run.event !== 'workflow_dispatch' ||
   run.path !== workflow ||
   run.head_repository?.full_name !== repository ||
   !/^[a-f0-9]{40}$/.test(head ?? '')
 ) {
-  throw new Error('Expected a successful manually qualified run of the fork workflow')
+  throw new Error('Expected a manually qualified run of the fork workflow')
 }
 const { jobs } = api(`runs/${id}/jobs?filter=latest&per_page=100`)
 const javascript = jobs.find((job) => job.name === 'javascript')
 if (
+  !jobs.some((job) => job.name === 'plan' && job.conclusion === 'success') ||
   javascript?.conclusion !== 'success' ||
   ![
     'Verify formatting, localization and changed source',

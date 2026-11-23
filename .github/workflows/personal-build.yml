@@ -490,10 +490,18 @@ jobs:
           configuration="$RUNNER_TEMP/personal-control/config/fork-build/linux-builder.config.cjs"
           pnpm exec electron-builder --config "$configuration" --linux dir "--$ORCA_LINUX_BUILD_ARCH" --publish never
           node "$RUNNER_TEMP/personal-control/config/fork-build/linux-packaging.mjs" "$ORCA_LINUX_BUILD_ARCH"
+      - name: Use the native build's Ubuntu mirror for the x64 PTY check
+        if: matrix.architecture == 'x64'
+        run: |
+          docker build --pull --tag orca-packaged-pty-floor - <<'DOCKERFILE'
+          FROM ubuntu:20.04
+          RUN sed -i -E 's#http://(archive|security)\.ubuntu\.com/ubuntu#http://mirrors.mit.edu/ubuntu#g' /etc/apt/sources.list
+          DOCKERFILE
+          docker tag orca-packaged-pty-floor ubuntu:20.04
       - name: Verify packaged PTY loading on the supported glibc floor
         env:
           APP_DIRECTORY: ${{ matrix.architecture == 'arm64' && 'dist/linux-arm64-unpacked' || 'dist/linux-unpacked' }}
-        run: node config/scripts/desktop-distribution/runtime-verification/run-linux-packaged-node-pty-floor-smoke.mjs --app-dir "$APP_DIRECTORY"
+        run: timeout --kill-after=30s 8m node config/scripts/desktop-distribution/runtime-verification/run-linux-packaged-node-pty-floor-smoke.mjs --app-dir "$APP_DIRECTORY"
       - name: Extract and measure every Linux format against its source receipt
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-linux personal-build/plan.json "$GITHUB_WORKSPACE" "$ORCA_LINUX_BUILD_ARCH"
       - uses: actions/upload-artifact@v7
