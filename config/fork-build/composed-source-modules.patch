@@ -1470,3 +1470,28 @@ index 58ce148c487..e90038908a5 100644
  
      showActiveOnly: false,
      setShowActiveOnly: (v) => set({ showActiveOnly: v }),
+diff --git a/src/main/acp/discovery/acp-model-discovery-policy.ts b/src/main/acp/discovery/acp-model-discovery-policy.ts
+--- a/src/main/acp/discovery/acp-model-discovery-policy.ts
++++ b/src/main/acp/discovery/acp-model-discovery-policy.ts
+@@ -59,10 +59,18 @@
+ /** Discovery modes across an agent's base backend and optional host backend. */
+ export function acpAgentModelDiscoveries(spec: {
+   modelDiscovery: AcpModelDiscovery
+-  hostBackend?: { spec: { modelDiscovery: AcpModelDiscovery } }
++  hostBackend?: {
++    spec: { modelDiscovery: AcpModelDiscovery }
++    otherSpecs?: readonly { modelDiscovery: AcpModelDiscovery }[]
++  }
+ }): AcpModelDiscovery[] {
+-  return spec.hostBackend
+-    ? [spec.modelDiscovery, spec.hostBackend.spec.modelDiscovery]
++  const host = spec.hostBackend
++  return host
++    ? [
++        spec.modelDiscovery,
++        host.spec.modelDiscovery,
++        ...(host.otherSpecs ?? []).map(({ modelDiscovery }) => modelDiscovery)
++      ]
+     : [spec.modelDiscovery]
+ }
+ 

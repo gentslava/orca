@@ -1126,5 +1126,29 @@
     "patch": "maintenance-20261123/ebe35-45437-0-40fd4a626703.patch",
     "patchSha256": "40fd4a6267035fec10bb6321e722d08795f1f7392347b66f75a59db229d429c3",
     "resultSha256": "f77818def50cf2221cb8e955ec5dfc8edd1b4f409b064c5b332813acab330396"
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ko.json",
+    "blobs": [
+      "be189d1920c86b39fa5d52afdcbcdc7f225fd1f7",
+      "924547f29f55b57ad12955f11bcbfc1187e83b26",
+      "343dd8d55837ae20f50a4febabefbedfcec43552"
+    ],
+    "patch": "maintenance-20261123/e23-33371-7c4a8ed934db.patch",
+    "patchSha256": "7c4a8ed934db154e7665cdd80ea09e79da418272ac8b89e1cee60e3db12f71a5",
+    "resultSha256": "bc4756ec2fbced0aed4cd2363ec29265cb83e99b32616d7e6823095d1ef8139d",
+    "reason": "Keep the Korean usage history translations and the overview keys supported by the composed English source."
+  },
+  {
+    "path": "src/main/runtime/agent-session/model-catalog/structured-agent-model-catalog-discovery.ts",
+    "blobs": [
+      "b865d3f881af7198cfc715b146068252dde54366",
+      "3c57eb8e40c56ea3224d1d261fdd59e6e7e0aedb",
+      "c56b4065a813d9e3d56731f842772943b3432026"
+    ],
+    "patch": "maintenance-20261123/e23-40980-a8a17f2bc721.patch",
+    "patchSha256": "a8a17f2bc7218467bf1e63b8d471e9339fb83ae89bb30c9ad67b12f6d02fb9c2",
+    "resultSha256": "d61bf98bc4a308f48e6295cf3b422ea6a51b3bbbfe2fc6a3b4a62392bbdee9ae",
+    "reason": "Share ACP catalog backend enumeration so the picker and its launch registration both include every host backend."
   }
 ]
