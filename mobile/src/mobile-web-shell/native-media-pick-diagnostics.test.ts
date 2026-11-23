@@ -7,7 +7,6 @@ import {
 } from './bridge/native-capabilities/bridge-native-verbs'
 import { bridgeId, clientFrame, createFakeRpcClient } from './test-support/bridge-host-test-fakes'
 import type { FakeRpcClient } from './test-support/bridge-host-test-fakes'
-import { CACHED } from './test-support/mobile-web-shell-session-test-fixtures'
 import {
   useMobileWebShellBridge,
   type MobileWebShellBridgeView
@@ -34,7 +33,12 @@ function Screen(): null {
       buildId: 'build-a',
       totalBytes: 4096,
       elapsedMs: 1,
-      compat: CACHED.compat
+      compat: {
+        schemaVersion: 1,
+        runtimeProtocolVersion: 5,
+        minCompatibleRuntimeProtocolVersion: 2,
+        pageVersion: 1
+      }
     },
     sessionEstablished: true,
     route: { pathname: '/h/host-1' },
