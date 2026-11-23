@@ -118,12 +118,16 @@ jobs:
       - uses: ./.github/actions/install-mobile-dependencies
       - name: Install Electron package binary for upstream unit tests
         run: node config/scripts/electron-installation/platform-layout/install-electron-package-binary.mjs
-      - name: Qualify and build shared release resources with the upstream artifact implementation
+      - name: Verify formatting, localization and changed source
+        run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
+      - name: Lint the composed source
+        run: pnpm run lint
+      - name: Run desktop and mobile unit tests
         run: |
-          node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
-          pnpm run lint
           pnpm test --maxWorkers=2
           pnpm --dir mobile test --maxWorkers=2
+      - name: Build shared JavaScript with upstream tooling
+        run: |
           pnpm run build:release:javascript:parallel
           node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs pack
       - uses: actions/upload-artifact@v7

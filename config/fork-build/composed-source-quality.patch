@@ -234,3 +234,808 @@ index fc42d49..84d20c7 100644
    await rig.runtime.restoreStructuredAgentSessionTabs()
    const rpc = new RpcDispatcher({
      runtime: rig.runtime,
+diff --git a/config/scripts/localization/catalog-validation/verify-localization-catalog.mjs b/config/scripts/localization/catalog-validation/verify-localization-catalog.mjs
+index 92c24ea2b85..9eb4f409206 100644
+--- a/config/scripts/localization/catalog-validation/verify-localization-catalog.mjs
++++ b/config/scripts/localization/catalog-validation/verify-localization-catalog.mjs
+@@ -10,7 +10,6 @@ import { LOCALIZATION_SURFACES, readLocalizationSurface } from './localization-s
+ import { collectConstantFallbacks } from './localization-constant-fallbacks.mjs'
+ import { collectLocalizationKeyReferences } from './localization-key-references.mjs'
+ export { collectLocalizationKeyReferences } from './localization-key-references.mjs'
+-import { repairTranslatedValue } from '../../locale-catalog/locale-translation-policy.mjs'
+ import {
+   collectGenericTermRegressions,
+   collectGlossaryViolations,
+diff --git a/mobile/src/bots/host-bot-sections.ts b/mobile/src/bots/host-bot-sections.ts
+index 736f950568e..fd8ce7c757c 100644
+--- a/mobile/src/bots/host-bot-sections.ts
++++ b/mobile/src/bots/host-bot-sections.ts
+@@ -192,3 +192,16 @@ export function isProjectListRow(
+     composeWorktreeHostIdentity(resolveWorktreeHostId(row, repoHostIdByRepoId), row.worktreeId)
+   )
+ }
++
++export function appendHostBotSections<T extends { sections: Section[]; rawSections: Section[] }>(
++  base: T,
++  botSections: Section[]
++): T {
++  return botSections.length
++    ? {
++        ...base,
++        sections: [...botSections, ...base.sections],
++        rawSections: [...botSections, ...base.rawSections]
++      }
++    : base
++}
+diff --git a/mobile/src/host-screen/workspace-actions/use-host-worktree-actions.ts b/mobile/src/host-screen/workspace-actions/use-host-worktree-actions.ts
+index f75509453a9..511f1ac3ce4 100644
+--- a/mobile/src/host-screen/workspace-actions/use-host-worktree-actions.ts
++++ b/mobile/src/host-screen/workspace-actions/use-host-worktree-actions.ts
+@@ -1,7 +1,7 @@
+ import type { HostWorktreeActionsArgs } from '../host-worktree-actions-contract'
+ 
+ import {
+-  captureMobilePersonalOpening,
++  captureHostListPersonalOpening,
+   acknowledgeMobilePersonalOpening
+ } from '../../worktree/personal-project-opening'
+ import { useCallback } from 'react'
+@@ -266,19 +266,7 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
+       if (routeHost === null) {
+         return
+       }
+-      const fullRow = [...state.worktrees, ...serverWorkspaces.worktrees].find(
+-        (row) => getWorktreeRowIdentity(row) === getWorktreeRowIdentity(item)
+-      )
+-      const capture =
+-        fullRow &&
+-        captureMobilePersonalOpening({
+-          client,
+-          hostId,
+-          capabilities: hostCapabilities,
+-          catalog: args.projectCatalog ?? state.servedProjectSections,
+-          target: fullRow,
+-          rows: [...state.worktrees, ...serverWorkspaces.worktrees]
+-        })
++      const capture = captureHostListPersonalOpening(args, item)
+       const personalOpening = capture ? await capture : null
+       // Use an empty missing hostId: the shell refuses /h//session, whereas the string undefined would name an accepted host.
+       const executionHost = routeHost ? `&executionHost=${encodeURIComponent(routeHost)}` : ''
+@@ -313,7 +301,7 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
+       navigateFromHostList,
+       serverWorkspaces,
+       state.servedProjectSections,
+-      args.projectCatalog,
++      args,
+       state.worktrees,
+       state.clientRef,
+       state.viewRef,
+diff --git a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
+index feef6b3b61e..9c022c8cb15 100644
+--- a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
++++ b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
+@@ -30,6 +30,7 @@ import type { HostSidebarFeed } from '../sidebar-feed/use-host-sidebar-feed'
+ import type { HostScreenState } from '../use-host-screen-state'
+ import {
+   buildHostBotSections,
++  appendHostBotSections,
+   isProjectListRow,
+   type HostBotListing
+ } from '../../bots/host-bot-sections'
+@@ -315,14 +316,5 @@ export function useHostListSections(inputs: HostListSectionsInputs): HostListSec
+     botListedIdentities: botSections.listedIdentities,
+     lastVisited
+   })
+-  return useMemo(() => {
+-    if (botSections.sections.length === 0) {
+-      return base
+-    }
+-    return {
+-      ...base,
+-      sections: [...botSections.sections, ...base.sections],
+-      rawSections: [...botSections.sections, ...base.rawSections]
+-    }
+-  }, [base, botSections])
++  return useMemo(() => appendHostBotSections(base, botSections.sections), [base, botSections])
+ }
+diff --git a/mobile/src/worktree/navigation/worktree-show-resolution.ts b/mobile/src/worktree/navigation/worktree-show-resolution.ts
+index 95876af78ee..a5b1324a7bc 100644
+--- a/mobile/src/worktree/navigation/worktree-show-resolution.ts
++++ b/mobile/src/worktree/navigation/worktree-show-resolution.ts
+@@ -30,3 +30,19 @@ export function classifyWorktreeShowResponse(response: RpcResponse): WorktreeSho
+   }
+   return endsWithNotFoundToken(response.error.message) ? 'missing' : 'unknown'
+ }
++
++export function confirmMissingWorktree<Client>(
++  resolution: WorktreeShowResolution,
++  key: { client: Client; worktreeId: string },
++  previous: { client: Client; worktreeId: string; count: number }
++): {
++  resolution: WorktreeShowResolution
++  streak: { client: Client; worktreeId: string; count: number }
++} {
++  const sameWorktree = previous.client === key.client && previous.worktreeId === key.worktreeId
++  const count = resolution === 'missing' ? (sameWorktree ? previous.count : 0) + 1 : 0
++  return {
++    resolution: resolution === 'missing' && count < 2 ? 'unknown' : resolution,
++    streak: { ...key, count }
++  }
++}
+diff --git a/mobile/src/worktree/personal-project-opening.ts b/mobile/src/worktree/personal-project-opening.ts
+index c1bbf0da325..4f2a3475edf 100644
+--- a/mobile/src/worktree/personal-project-opening.ts
++++ b/mobile/src/worktree/personal-project-opening.ts
+@@ -1,3 +1,5 @@
++import type { HostWorktreeActionsArgs } from '../host-screen/host-worktree-actions-contract'
++import { getWorktreeRowIdentity } from './row-presentation/worktree-host-row-identity'
+ import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
+ import type { MobileViewState } from './workspace-list/workspace-view-settings'
+ import { randomUUID } from 'expo-crypto'
+@@ -38,6 +40,29 @@ export function captureMobilePersonalOpening(
+     : null
+ }
+ 
++export function captureHostListPersonalOpening(
++  args: Pick<
++    HostWorktreeActionsArgs,
++    'client' | 'hostId' | 'hostCapabilities' | 'projectCatalog' | 'state'
++  >,
++  selected: Parameters<typeof getWorktreeRowIdentity>[0]
++): Promise<PersonalOpening | null> | null {
++  const { client, hostId, hostCapabilities, projectCatalog, state } = args
++  const rows = [...state.worktrees, ...state.serverWorkspaces.worktrees]
++  const identity = getWorktreeRowIdentity(selected)
++  const target = rows.find((row) => getWorktreeRowIdentity(row) === identity)
++  return target
++    ? captureMobilePersonalOpening({
++        client,
++        hostId,
++        capabilities: hostCapabilities,
++        catalog: projectCatalog ?? state.servedProjectSections,
++        rows,
++        target
++      })
++    : null
++}
++
+ async function capturePersonalOpening(args: PersonalOpeningArgs): Promise<PersonalOpening | null> {
+   if (
+     !args.client ||
+diff --git a/mobile/src/worktree/row-presentation/use-live-worktree-name.ts b/mobile/src/worktree/row-presentation/use-live-worktree-name.ts
+index 61c42e793ea..fe140966580 100644
+--- a/mobile/src/worktree/row-presentation/use-live-worktree-name.ts
++++ b/mobile/src/worktree/row-presentation/use-live-worktree-name.ts
+@@ -15,6 +15,7 @@ import {
+ import { useMobileTranslation } from '../../i18n/use-mobile-translation'
+ import {
+   classifyWorktreeShowResponse,
++  confirmMissingWorktree,
+   type WorktreeShowResolution
+ } from '../navigation/worktree-show-resolution'
+ 
+@@ -123,19 +124,13 @@ export function useLiveWorktreeName({
+             return
+           }
+           const classified = classifyWorktreeShowResponse(response)
+-          const streak = missingStreakRef.current
+-          missingStreakRef.current = {
+-            client,
+-            worktreeId,
+-            count:
+-              classified === 'missing'
+-                ? (streak.client === client && streak.worktreeId === worktreeId
+-                    ? streak.count
+-                    : 0) + 1
+-                : 0
+-          }
+-          const resolution =
+-            classified === 'missing' && missingStreakRef.current.count < 2 ? 'unknown' : classified
++          const key = { client, worktreeId }
++          const { streak, resolution } = confirmMissingWorktree(
++            classified,
++            key,
++            missingStreakRef.current
++          )
++          missingStreakRef.current = streak
+           setResolved((current) =>
+             current.client === client &&
+             current.worktreeId === worktreeId &&
+diff --git a/src/main/acp/discovery/acp-model-catalog-probe.ts b/src/main/acp/discovery/acp-model-catalog-probe.ts
+index f34ab638126..e390cb65d46 100644
+--- a/src/main/acp/discovery/acp-model-catalog-probe.ts
++++ b/src/main/acp/discovery/acp-model-catalog-probe.ts
+@@ -12,7 +12,7 @@ import type {
+   AgentModelCatalogProbe,
+   AgentModelCatalogLookup
+ } from '../../native-chat/agent-model-catalog/agent-model-catalog-discovery'
+-import { agentModelCatalogInputStamp } from '../../native-chat/agent-model-catalog/agent-model-catalog-input-stamp'
++import { agentModelCatalogDirectoryStamps } from '../../native-chat/agent-model-catalog/agent-model-catalog-input-stamp'
+ import {
+   runAgentModelCatalogListing,
+   runAgentModelCatalogSession
+@@ -97,14 +97,9 @@ export function createAcpModelCatalogProbe(
+     return {
+       answerSignIn: spec.signIn?.answered,
+       identity: { command, prefixArgs, cwd, workspace },
+-      inputStamp: JSON.stringify(
+-        await Promise.all(
+-          [
+-            ...new Set([cwd, ...(discovery.kind === 'command' && workspace ? [workspace] : [])])
+-          ].map((directory) =>
+-            agentModelCatalogInputStamp({ command, prefixArgs, cwd: directory, env })
+-          )
+-        )
++      inputStamp: await agentModelCatalogDirectoryStamps(
++        { command, prefixArgs, cwd, env },
++        discovery.kind === 'command' ? workspace : undefined
+       ),
+       run: async (
+         signal?: AbortSignal,
+@@ -112,7 +107,6 @@ export function createAcpModelCatalogProbe(
+         selectedModels?: readonly string[],
+         publish?: AgentModelCatalogProgress
+       ) => {
+-        const options = { signal, operation: runOperation, selectedModels }
+         const operation = runOperation
+         assertStructuredAgentResolutionCurrent(operation)
+         const release = await checkAcpLaunchVersion(
+@@ -129,7 +123,7 @@ export function createAcpModelCatalogProbe(
+         if (listing === null) {
+           throw new Error(`${spec.agent} at ${command} lists its models only through its chats`)
+         }
+-        const gate = enterAcpListingGate(spec.launchGate, options.signal)
++        const gate = enterAcpListingGate(spec.launchGate, signal)
+         let models: AgentSessionModelOption[]
+         let attemptedModels: string[] | undefined
+         try {
+@@ -151,7 +145,7 @@ export function createAcpModelCatalogProbe(
+           // OMP records every model switch as account usage; starting on the picked model records none.
+           const launchedModel =
+             spec.launchesWithModel && usesModelSpecificAcpEfforts(spec.agent)
+-              ? options?.selectedModels?.[0]
++              ? selectedModels?.[0]
+               : undefined
+           if (listing.kind === 'command') {
+             const stdout = await (deps.runListing ?? runAgentModelCatalogListing)(
+@@ -205,7 +199,7 @@ export function createAcpModelCatalogProbe(
+                       connection,
+                       sessionCwd,
+                       operation,
+-                      options?.selectedModels,
++                      selectedModels,
+                       model,
+                       spec.dialect.effortChangesModel ? ready : undefined,
+                       (result) =>
+diff --git a/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts b/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts
+new file mode 100644
+index 00000000000..33ff3d2be15
+--- /dev/null
++++ b/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts
+@@ -0,0 +1,14 @@
++import type { AgentSessionJournalIdentity } from '../../../shared/agent-session/journal/agent-session-journal-identity'
++import { claudeProviderHandle } from '../../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
++
++export const PROVIDER_SESSION_ID = '819cf9f8-e43c-4ad7-b50f-54aa158a726a'
++
++export function identityFor(sessionId = 'session-1'): AgentSessionJournalIdentity {
++  return {
++    sessionId,
++    workspaceId: 'workspace-1',
++    hostId: 'host-1',
++    agent: 'claude',
++    providerHandle: claudeProviderHandle(PROVIDER_SESSION_ID, null)
++  }
++}
+diff --git a/src/main/claude/structured/claude-structured-session-test-support.ts b/src/main/claude/structured/claude-structured-session-test-support.ts
+index accf186275b..7ea7aea4087 100644
+--- a/src/main/claude/structured/claude-structured-session-test-support.ts
++++ b/src/main/claude/structured/claude-structured-session-test-support.ts
+@@ -1,5 +1,4 @@
+ import type { AgentJournalMessageItem } from '../../../shared/agent-session/journal/agent-session-journal-types'
+-import type { AgentSessionJournalIdentity } from '../../../shared/agent-session/journal/agent-session-journal-identity'
+ import { ORCA_AGENT_SESSION_SPAWN_TOKEN_ENV } from '../../../shared/agent-session/lifecycle/launch/agent-session-caller-env'
+ import type {
+   ClaudeStreamJsonConnection,
+@@ -12,14 +11,15 @@ import type { ClaudeStructuredLaunch } from './launch/claude-structured-launch-r
+ import type { ClaudeStructuredSessionAdapterDeps } from './claude-structured-session-state'
+ import type { ClaudeStructuredSessionEvent } from './lifecycle/claude-structured-session-event'
+ import type { StructuredAgentSessionEventSink } from '../../native-chat/agent-session-wire/journal-ingress/structured-agent-session-event-sink'
+-import { claudeProviderHandle } from '../../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
+ import {
+   type claudeInitialization,
+   claudeInitializationScope,
+   claudeStartupSettled
+ } from './startup/claude-structured-startup-settled-test-support'
+ 
+-export const PROVIDER_SESSION_ID = '819cf9f8-e43c-4ad7-b50f-54aa158a726a'
++import { PROVIDER_SESSION_ID } from './claude-structured-session-identity.test-fixture'
++
++export { identityFor, PROVIDER_SESSION_ID } from './claude-structured-session-identity.test-fixture'
+ 
+ export const USER_MESSAGE: AgentJournalMessageItem = {
+   kind: 'message',
+@@ -27,16 +27,6 @@ export const USER_MESSAGE: AgentJournalMessageItem = {
+   blocks: [{ type: 'text', text: 'ship it' }]
+ }
+ 
+-export function identityFor(sessionId = 'session-1'): AgentSessionJournalIdentity {
+-  return {
+-    sessionId,
+-    workspaceId: 'workspace-1',
+-    hostId: 'host-1',
+-    agent: 'claude',
+-    providerHandle: claudeProviderHandle(PROVIDER_SESSION_ID, null)
+-  }
+-}
+-
+ type Route = (params: Record<string, unknown> | undefined) => unknown
+ 
+ export type FakeConnection = Omit<ClaudeStreamJsonConnection, 'closed' | 'exitVerdict'> & {
+@@ -69,7 +59,13 @@ export function fakeClaude(
+     replayUuids?: (string | null)[]
+     capabilities?: string[]
+     unprovenCloseVerdict?: ClaudeStreamJsonConnection['exitVerdict']
+-    routes?: Record<string, Route>
++    routes?: Record<string, Route> & {
++      interrupt?: (
++        params: Record<string, unknown> | undefined
++      ) =>
++        | ReturnType<ClaudeStreamJsonConnection['interrupt']>
++        | Awaited<ReturnType<ClaudeStreamJsonConnection['interrupt']>>
++    }
+   } = {}
+ ) {
+   const connections: FakeConnection[] = []
+@@ -159,7 +155,8 @@ export function fakeClaude(
+       },
+       supportedModels: async () => {
+         connection.calls.push({ subtype: 'list_models' })
+-        return (routed('list_models') as unknown[] | undefined) ?? []
++        const reply = await routed('list_models')
++        return Array.isArray(reply) ? reply : []
+       },
+       setModel: async (model) => {
+         connection.calls.push({ subtype: 'set_model', params: { model } })
+@@ -178,9 +175,7 @@ export function fakeClaude(
+           subtype: 'interrupt',
+           params: interruptOptions?.cancelQueued ? { cancelQueued: true } : {}
+         })
+-        return routed('interrupt', interruptOptions) as
+-          | Awaited<ReturnType<ClaudeStreamJsonConnection['interrupt']>>
+-          | undefined
++        return routes.interrupt?.(interruptOptions)
+       },
+       cancelAsyncMessage: async (uuid) => {
+         connection.calls.push({ subtype: 'cancel_async_message', params: { uuid } })
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-input-stamp.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-input-stamp.ts
+index 79b31647171..4ccc1f1bdfa 100644
+--- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-input-stamp.ts
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-input-stamp.ts
+@@ -69,3 +69,14 @@ export async function agentModelCatalogInputStamp(input: {
+     await Promise.all((input.configFiles ?? []).map((file) => fileStamp(file, true)))
+   ])
+ }
++
++export async function agentModelCatalogDirectoryStamps(
++  input: Parameters<typeof agentModelCatalogInputStamp>[0],
++  workspace?: string
++): Promise<string> {
++  const directories = new Set(workspace ? [input.cwd, workspace] : [input.cwd])
++  const stamps = await Promise.all(
++    [...directories].map((cwd) => agentModelCatalogInputStamp({ ...input, cwd }))
++  )
++  return JSON.stringify(stamps)
++}
+diff --git a/src/main/runtime/construction/runtime-host-services.ts b/src/main/runtime/construction/runtime-host-services.ts
+index 1cb71ff91a6..83b0a2cc9c2 100644
+--- a/src/main/runtime/construction/runtime-host-services.ts
++++ b/src/main/runtime/construction/runtime-host-services.ts
+@@ -288,8 +288,7 @@ export abstract class OrcaRuntimeWithPreservedBranchCleanup extends RuntimeAgent
+     resolveRepo: (...args) => this.managedWorktreeQueries.resolveRepoForConnection(...args),
+     notifyReposChanged: () => this.notifyReposChanged(),
+     resolveFolderConnectionId: (workspace) => this.resolveFolderWorkspaceConnectionId(workspace),
+-    acquireFileWatcherRemoval: (path, connectionId) =>
+-      this.acquireFileWatcherRemoval(path, connectionId),
++    acquireFileWatcherRemoval: (...args) => this.acquireFileWatcherRemoval(...args),
+     teardownFolderWorkspacePtys: (...target) =>
+       teardownFolderWorkspacePtys(
+         {
+diff --git a/src/main/runtime/orchestration/mailbox/routing/mailbox-terminal-identity.ts b/src/main/runtime/orchestration/mailbox/routing/mailbox-terminal-identity.ts
+index 6cdcd512340..138cca76892 100644
+--- a/src/main/runtime/orchestration/mailbox/routing/mailbox-terminal-identity.ts
++++ b/src/main/runtime/orchestration/mailbox/routing/mailbox-terminal-identity.ts
+@@ -1,3 +1,5 @@
++import { resolveStructuredWorkerAuthority } from '../../terminal-authority/structured-sessions/structured-worker-authority'
++import { resolveTerminalIdentityFromProbes } from '../../../terminal/identity/terminal-identity-probe'
+ import { OrcaRuntimeWithGetPtyRecordForPaneKey } from './terminal-pane-mail-routing'
+ import type { OrchestrationMailboxTerminal } from './mailbox-owner'
+ import type { RuntimePtyWorktreeRecord } from '../../../terminal/records/runtime-terminal-state-records'
+@@ -6,6 +8,18 @@ import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../shared/workspace-layou
+ 
+ /** Which live terminal orchestration types mail into, and the handle it is known by. */
+ export abstract class OrcaRuntimeWithMailboxTerminalIdentity extends OrcaRuntimeWithGetPtyRecordForPaneKey {
++  /** Read-only live-agent identity in either lane, without terminal.show's writable-looking pane payload. */
++  resolveTerminalIdentity(handle: string) {
++    return resolveTerminalIdentityFromProbes(handle, {
++      isLiveStructuredWorker: () =>
++        Boolean(resolveStructuredWorkerAuthority(handle, this._orchestrationDb)),
++      hasLivePty: () => Boolean(this.getLivePtyForHandle(handle)),
++      assertLiveLeaf: () => {
++        this.getLiveLeafForHandle(handle)
++      }
++    })
++  }
++
+   protected getMailboxTerminalForPaneKey(paneKey: string): OrchestrationMailboxTerminal | null {
+     const pty = this.getPtyRecordForPaneKey(paneKey)
+     return pty ? this.getOrchestrationMailboxTerminal(pty.ptyId) : null
+diff --git a/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts b/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
+index adde1bd430e..9a056cf7d7a 100644
+--- a/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
++++ b/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
+@@ -16,7 +16,6 @@ import {
+   GENERIC_PROCESS_NAME_AGENTS,
+   recognizeAgentProcess
+ } from '../../../../../shared/agent-status/process/agent-process-recognition'
+-import { resolveStructuredWorkerAuthority } from '../../terminal-authority/structured-sessions/structured-worker-authority'
+ import type { StructuredPointerTarget } from '../structured-pointer/structured-mailbox-pointer-delivery'
+ import type { OrchestrationDb } from '../../db/orchestration-db'
+ import {
+@@ -31,7 +30,6 @@ import {
+ } from './structured-session-mail-target'
+ import { closedChatWorkersForSession } from '../../workers/lifecycle/chat-assignee'
+ import { OPERATOR_CLOSE_EXIT_CAUSE } from '../../../../../shared/terminal/pty/lifecycle/terminal-exit-cause'
+-import { resolveTerminalIdentityFromProbes } from '../../../terminal/identity/terminal-identity-probe'
+ import { observeChatWorkerWorking } from '../../workers/turn-stops/chat-worker-turn-stops'
+ import { ChatWorkerModelWait } from '../../workers/turn-stops/chat-worker-model-wait'
+ 
+@@ -163,18 +161,6 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
+     }
+   }
+ 
+-  /** Read-only live-agent identity in either lane, without terminal.show's writable-looking pane payload. */
+-  resolveTerminalIdentity(handle: string) {
+-    return resolveTerminalIdentityFromProbes(handle, {
+-      isLiveStructuredWorker: () =>
+-        Boolean(resolveStructuredWorkerAuthority(handle, this._orchestrationDb)),
+-      hasLivePty: () => Boolean(this.getLivePtyForHandle(handle)),
+-      assertLiveLeaf: () => {
+-        this.getLiveLeafForHandle(handle)
+-      }
+-    })
+-  }
+-
+   deliverPendingMessagesForHandle(handle: string, reservedTypes?: ReadonlySet<string>): void {
+     this.orchestrationMailboxNotifications.deliverForHandle(handle, reservedTypes)
+   }
+diff --git a/src/main/runtime/rpc/methods/history/ai-vault-history-recovery.test.ts b/src/main/runtime/rpc/methods/history/ai-vault-history-recovery.test.ts
+index b798f1a6e59..45e0525ec48 100644
+--- a/src/main/runtime/rpc/methods/history/ai-vault-history-recovery.test.ts
++++ b/src/main/runtime/rpc/methods/history/ai-vault-history-recovery.test.ts
+@@ -284,25 +284,35 @@ describe('aiVault.listSessions handler + shared cache', () => {
+       scannedAt: SCANNED_AT
+     })
+     const dispatcher = makeDispatcher()
+-    const localResponse = (await dispatcher.dispatch(
++    const localResponse = await dispatcher.dispatch(
+       makeRequest('aiVault.listSessions', { limit: 500 })
+-    )) as { ok: boolean; result: AiVaultListResult }
+-    const runtimeResponse = (await dispatcher.dispatch(
++    )
++    const runtimeResponse = await dispatcher.dispatch(
+       makeRequest('aiVault.listSessions', {
+         limit: 500,
+         executionHostId: 'runtime:remote-server'
+       })
+-    )) as { ok: boolean; result: AiVaultListResult }
+-
+-    // Host identity changes response stamps, never host-local scan/cache identity.
+-
+-    expect(localResponse.result.sessions[0]?.executionHostId).toBe('local')
+-    expect(localResponse.result.scanId).toEqual(expect.any(String))
+-    expect(runtimeResponse.result).not.toHaveProperty('scanId')
+-    expect(runtimeResponse.result.sessions[0]?.executionHostId).toBe('runtime:remote-server')
+-    expect(runtimeResponse.result.sessions[0]?.id).toBe(
+-      'runtime:remote-server:claude:sess-1:/tmp/t.jsonl'
+     )
+-    expect(runtimeResponse.result.issues[0]?.executionHostId).toBe('runtime:remote-server')
++
++    expect(localResponse).toMatchObject({
++      ok: true,
++      result: {
++        sessions: [{ executionHostId: 'local' }],
++        scanId: expect.any(String)
++      }
++    })
++    expect(runtimeResponse).toMatchObject({
++      ok: true,
++      result: {
++        sessions: [
++          {
++            executionHostId: 'runtime:remote-server',
++            id: 'runtime:remote-server:claude:sess-1:/tmp/t.jsonl'
++          }
++        ],
++        issues: [{ executionHostId: 'runtime:remote-server' }]
++      }
++    })
++    expect(runtimeResponse).not.toHaveProperty('result.scanId')
+   })
+ })
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
+index 3a42fe80843..8b73fb9846b 100644
+--- a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
+@@ -1,3 +1,4 @@
++import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
+ import type { OrcaRuntimeService } from '../../../../orca-runtime'
+ import type { OrchestrationEntryCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
+ import { OrchestrationError } from '../../../../orchestration/orchestration-error'
+@@ -99,3 +100,21 @@ export async function preflightLocalWorkerStartLaunch(args: {
+   })
+   return { ...prepared, fastWorkspace, fastWorkerMode }
+ }
++
++export function applyWorkerStartRole(runtime: OrcaRuntimeService, params: WorkerStartInput) {
++  if (params.role) {
++    try {
++      return resolveWorkerRoleParams(
++        params,
++        runtime.requireStore().getSettings().orchestrationWorkerRoles
++      )
++    } catch (error) {
++      throw new OrchestrationError(
++        'invalid_argument',
++        error instanceof Error ? error.message : 'Invalid worker role profile.',
++        { effectsApplied: false }
++      )
++    }
++  }
++  return params
++}
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
+index d53fd5d96ce..36fda9da6a2 100644
+--- a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
+@@ -19,7 +19,7 @@ import {
+ } from './start/admission/worker-start-authority'
+ import { parseTaskDeps } from './start/admission/task-deps-argument'
+ import { WorkerStartParams } from '../../../../../../shared/rpc-contract/orchestration/orchestration-worker-start-params'
+-import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
++import { applyWorkerStartRole } from './worker-start-launch-preflight'
+ import {
+   isWorkerStartTimeoutWithinTimerLimit,
+   resolveWorkerStartReadinessTimeoutMs
+@@ -157,20 +157,7 @@ export async function prepareWorkerStart(
+   }: Omit<WorkerStartContext, 'orchestrationMutation'>,
+   followUp?: WorkerFollowUp
+ ) {
+-  if (params.role) {
+-    try {
+-      params = resolveWorkerRoleParams(
+-        params,
+-        runtime.requireStore().getSettings().orchestrationWorkerRoles
+-      )
+-    } catch (error) {
+-      throw new OrchestrationError(
+-        'invalid_argument',
+-        error instanceof Error ? error.message : 'Invalid worker role profile.',
+-        { effectsApplied: false }
+-      )
+-    }
+-  }
++  params = applyWorkerStartRole(runtime, params)
+   if (!isWorkerStartTimeoutWithinTimerLimit(params.timeoutMs)) {
+     throw new OrchestrationError(
+       'invalid_argument',
+diff --git a/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts b/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts
+index ff64eeba7cc..ceb54d3a326 100644
+--- a/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts
++++ b/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts
+@@ -110,8 +110,13 @@ export function createEncryptedWsResponseReader(session: AuthenticatedMobileWs):
+       typeof data === 'string' ? data : data.toString('utf-8'),
+       session.sharedKey
+     )
+-    expect(decrypted).toBeTruthy()
+-    const response = JSON.parse(decrypted!) as Record<string, unknown>
++    if (!decrypted) {
++      throw new Error('Fixture received an unreadable RPC reply')
++    }
++    const response: unknown = JSON.parse(decrypted)
++    if (!response || typeof response !== 'object' || !('id' in response)) {
++      throw new Error('Fixture received an invalid RPC reply')
++    }
+     const waiterIndex = waiters.findIndex(
+       (waiter) => response.id === waiter.id && waiter.predicate(response)
+     )
+diff --git a/src/renderer/src/components/native-chat/composer/editor/native-chat-prompt-editor.test-support.ts b/src/renderer/src/components/native-chat/composer/editor/native-chat-prompt-editor.test-support.ts
+index ac74aeaf7d7..678624b8bc3 100644
+--- a/src/renderer/src/components/native-chat/composer/editor/native-chat-prompt-editor.test-support.ts
++++ b/src/renderer/src/components/native-chat/composer/editor/native-chat-prompt-editor.test-support.ts
+@@ -1,10 +1,13 @@
+ import { act } from '@testing-library/react'
+-import type { Editor } from '@tiptap/react'
++import { Editor } from '@tiptap/react'
+ import { promptText } from './native-chat-prompt-document'
+ import { promptTextContent } from './native-chat-prompt-document-text'
+ 
+ export function promptEditor(element: HTMLElement): Editor {
+-  return (element as HTMLElement & { editor: Editor }).editor
++  if (!('editor' in element) || !(element.editor instanceof Editor)) {
++    throw new Error('The prompt element has no attached Tiptap editor')
++  }
++  return element.editor
+ }
+ 
+ export function promptValue(element: HTMLElement): string {
+diff --git a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
+index e18f322c744..8fc019c0c78 100644
+--- a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
++++ b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts
+@@ -237,21 +237,18 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
+   const cliUpdateAgent = cliUpdateModels?.length ? cliUpdate?.update?.agent : undefined
+   const cliUpdateRunnable = cliUpdate?.update?.runnable === true
+   const cliUpdatePhase = cliUpdate?.run?.phase ?? 'idle'
+-  const startCliUpdate = cliUpdate?.start
+-  const openCliUpdateFailure = cliUpdate?.openFailure
++  const { start: startCliUpdate, openFailure: openCliUpdateFailure } = cliUpdate ?? {}
+   const optionSurface = useMemo<SessionOptionsSurface>(
+     () => ({
+-      ...(offersDefault
+-        ? {
+-            resetOption: async (id: string) => {
+-              // A busy host that takes no per-message options would apply it to the running turn.
+-              if (id === 'model' && acceptsTurnPicks) {
+-                await resetModel()
+-              }
+-              return { snapshot: optionSnapshot }
++      resetOption: offersDefault
++        ? async (id: string) => {
++            // A busy host without per-message options would apply the reset to its running turn.
++            if (id === 'model' && acceptsTurnPicks) {
++              await resetModel()
+             }
++            return { snapshot: optionSnapshot }
+           }
+-        : {}),
++        : undefined,
+       getSnapshot: () => optionSnapshot,
+       demandModelCatalog,
+       ...(cliUpdateAgent && cliUpdateModels && startCliUpdate && openCliUpdateFailure
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
+index 4cd0c95bd59..02225f44866 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
+@@ -248,6 +248,7 @@ describe('buildAiVaultProjectContext', () => {
+     const session = makeSession({
+       id: 'claude:runtime-ambiguous',
+       cwd: '/srv/orca/src',
++      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: An older wire record can omit the host; this fixture checks that legacy input.
+       executionHostId: undefined as unknown as AiVaultSession['executionHostId']
+     })
+ 
+diff --git a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
+index 856004ff59d..29c3e6d6521 100644
+--- a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
++++ b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
+@@ -1,3 +1,5 @@
++import type { Repo } from '../../../../../shared/repository/repo-types'
++import type { DetectedWorktree } from '../../../../../shared/worktree/types'
+ /** Use one remote-authority question for seeding/resume: only none authorizes local terminal creation, never unverifiable. */
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import type * as AgentStatusModule from '@/lib/agent-status/aggregation/worktree-agent-status'
+@@ -28,7 +30,7 @@ const PAIRED_WORKTREE_ID = 'repoPaired::/srv/proj/paired'
+ const TARGET_ID = 'ssh-target-1'
+ const ENVIRONMENT_ID = 'runtime-env-1'
+ 
+-function repo(id: string, path: string, connectionId?: string): never {
++function repo(id: string, path: string, connectionId?: string): Repo {
+   return {
+     id,
+     path,
+@@ -36,7 +38,16 @@ function repo(id: string, path: string, connectionId?: string): never {
+     badgeColor: '#000',
+     addedAt: 0,
+     ...(connectionId ? { connectionId } : {})
+-  } as never
++  }
++}
++
++function makeDetectedWorktree(overrides: Parameters<typeof makeWorktree>[0]): DetectedWorktree {
++  return {
++    ...makeWorktree(overrides),
++    ownership: 'orca-managed',
++    selectedCheckout: false,
++    visible: true
++  }
+ }
+ 
+ function seedLocal(store: TestStore): void {
+@@ -65,7 +76,7 @@ function seedDirectSsh(store: TestStore): void {
+           repoId: 'repoSsh',
+           path: '/srv/proj/feature',
+           hostId: `ssh:${TARGET_ID}`
+-        } as never)
++        })
+       ]
+     }
+   })
+@@ -188,29 +199,33 @@ describe('workspace terminal seeding authority', () => {
+       worktreesByRepo: {},
+       detectedWorktreesByRepo: {
+         repoPaired: {
++          repoId: 'repoPaired',
+           authoritative: true,
++          source: 'git',
+           worktrees: [
+-            makeWorktree({
++            makeDetectedWorktree({
+               id: PAIRED_WORKTREE_ID,
+               repoId: 'repoPaired',
+               path: '/srv/proj/paired',
+               hostId: `runtime:${ENVIRONMENT_ID}`,
+               runtimeOwnerEnvironmentId: ENVIRONMENT_ID
+-            } as never)
++            })
+           ]
+         },
+         repoPairedRival: {
++          repoId: 'repoPairedRival',
+           authoritative: true,
++          source: 'git',
+           worktrees: [
+-            makeWorktree({
++            makeDetectedWorktree({
+               id: PAIRED_WORKTREE_ID,
+               repoId: 'repoPairedRival',
+               path: '/srv/proj/paired',
+               hostId: 'local'
+-            } as never)
++            })
+           ]
+         }
+-      } as never
++      }
+     })
+ 
+     expect(resolveWorkspaceTerminalHostAuthority(store.getState(), PAIRED_WORKTREE_ID)).toBe(
+diff --git a/src/shared/settings/global-settings-base.ts b/src/shared/settings/global-settings-base.ts
+index 74083346348..d4c54c16513 100644
+--- a/src/shared/settings/global-settings-base.ts
++++ b/src/shared/settings/global-settings-base.ts
+@@ -1,3 +1,4 @@
++import type { ZcodePlanSite } from '../agent-accounts/usage-credentials/zcode-plan-sites'
+ import type { WorkerRoleSettings } from '../orchestration-worker-roles'
+ import type { HoldQuitSettings } from '../mac-hold-quit'
+ import type { AntigravityChatAuthSettings } from '../agent-accounts/antigravity/antigravity-chat-auth-config'
+@@ -85,4 +86,7 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
+   ManagedAccountNameSettings &
+   NewTabMenuSettings &
+   UiLanguageSettings &
+-  ChatDeleteSettings
++  ChatDeleteSettings & {
++    /** GLM Coding Plan site whose API key is saved in AI Provider Accounts; defaults to the international Z.AI console. */
++    zcodePlanSite?: ZcodePlanSite
++  }
+diff --git a/src/shared/settings/global-settings-types.ts b/src/shared/settings/global-settings-types.ts
+index 32cf9eefece..005df516857 100644
+--- a/src/shared/settings/global-settings-types.ts
++++ b/src/shared/settings/global-settings-types.ts
+@@ -29,7 +29,6 @@ import type { NotificationSettings } from '../notifications/notification-setting
+ import type { CtrlTabOrderMode } from '../workspace-layout/tab-groups/tab-types'
+ import type { TerminalQuickCommand } from '../terminal/quick-commands/terminal-quick-command-types'
+ import type { TuiAgent } from '../agent-launch/catalog/tui-agent'
+-import type { ZcodePlanSite } from '../agent-accounts/usage-credentials/zcode-plan-sites'
+ import type {
+   AgentDashboardMode,
+   BranchPrefixStrategy,
+@@ -379,8 +378,6 @@ export type GlobalSettings = GlobalSettingsBase & {
+   minimaxUsageModels: string
+   /** MiniMax account region; defaults to overseas for existing users. */
+   minimaxEndpoint: MiniMaxEndpoint
+-  /** GLM Coding Plan site whose API key is saved in AI Provider Accounts; defaults to the international Z.AI console. */
+-  zcodePlanSite?: ZcodePlanSite
+   /** Extract OAuth credentials from the local Gemini CLI for rate-limit fetching. Off by default (explicit opt-in). */
+   geminiCliOAuthEnabled: boolean
+   /** Poll Claude usage with existing CLI credentials. Off uses live terminal readings only. */
