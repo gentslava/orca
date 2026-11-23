@@ -715,6 +715,18 @@ index ae49af290cd..1fbcf7e3e48 100644
        ...(openSubagent ? { openSubagent } : {})
      }),
      [setShown, openRewind, imageSource, openSubagent]
+diff --git a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
+index fb9be91801f..60b4b2169b4 100644
+--- a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
++++ b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
+@@ -58,6 +58,7 @@ vi.mock('lucide-react-native', () => ({
+   Play: 'Play',
+   Plug: 'Plug',
+   Search: 'Search',
++  Send: 'Send',
+   SquareChevronRight: 'SquareChevronRight',
+   SquareTerminal: 'SquareTerminal',
+   Webhook: 'Webhook',
 diff --git a/mobile/src/session/native-chat/transcript/turn-state/use-mobile-native-chat-turn-disclosure.test-fixture.tsx b/mobile/src/session/native-chat/transcript/turn-state/use-mobile-native-chat-turn-disclosure.test-fixture.tsx
 new file mode 100644
 index 00000000000..32d29192027
