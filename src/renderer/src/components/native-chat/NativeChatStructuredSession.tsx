@@ -25,7 +25,7 @@ import { useStructuredNativeChatSubmitReveal } from './pane/actions/use-structur
 import { useStructuredPromptResponseHold } from './prompts/use-structured-prompt-response-hold'
 import { useBotLinkPrompt } from '@/lib/agent-session/open/bot-link-item-target'
 import { useStructuredChatLiveSession } from './session/structured/use-structured-chat-live-session'
-import { nativeChatStructuredAsyncQuestion } from './prompts/NativeChatStructuredAsyncQuestion'
+import { nativeChatStructuredQuestions } from './prompts/NativeChatStructuredAsyncQuestion'
 import { NativeChatStructuredPromptCard } from './prompts/NativeChatStructuredPromptCard'
 import {
   selectNativeChatViewState,
@@ -353,7 +353,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
               shouldFocus={!promptsUnanswerable && paneActive && childNavigator.child === null}
               answerInputRef={questionAnswerInputRef}
             />
-            {nativeChatStructuredAsyncQuestion(props, controller, session, transport, submits)}
+            {nativeChatStructuredQuestions(props, controller, session, transport, submits)}
             {botServerDown && hostOutage ? (
               <BotServerOutageCard key={hostOutage.environmentId} outage={hostOutage} />
             ) : null}
