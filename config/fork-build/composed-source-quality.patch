@@ -911,10 +911,10 @@ index 79b31647171..4ccc1f1bdfa 100644
 +  return JSON.stringify(stamps)
 +}
 diff --git a/src/main/native-chat/agent-session-wire/options/structured-agent-session-configured-default-model.test.ts b/src/main/native-chat/agent-session-wire/options/structured-agent-session-configured-default-model.test.ts
-index 2e80c3e577f..1b103bcd07f 100644
+index 2e80c3e577f..649ca75129e 100644
 --- a/src/main/native-chat/agent-session-wire/options/structured-agent-session-configured-default-model.test.ts
 +++ b/src/main/native-chat/agent-session-wire/options/structured-agent-session-configured-default-model.test.ts
-@@ -180,13 +180,16 @@ it.each([true, false])(
+@@ -180,13 +180,20 @@ it.each([true, false])(
    'keeps the saved Default baseline when host configuration later changes (readsWithoutModel=%s)',
    async (readsWithoutModel) => {
      const read = catalog(true)
@@ -925,6 +925,10 @@ index 2e80c3e577f..1b103bcd07f 100644
 +    await openRigTurnFor(rig, first)
 +    expect(await pick('model', null)).toMatchObject({ ok: true })
 +    expect(rig.store.getRecord(SESSION)?.defaultModelOptions?.model).toBe('configured-model')
++    rig.host.deps.adapter.readOptions = async () => ({
++      models: [],
++      current: { model: 'configured-model' }
++    })
      read.mockResolvedValue({
        ...(await read()),
        defaultModelOptions: { model: 'changed-configured-model', effort: 'medium' }
