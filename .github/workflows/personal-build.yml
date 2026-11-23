@@ -26,6 +26,10 @@ on:
         description: Optional full upstream commit for a fixed build; empty follows latest main
         type: string
         default: ''
+      tested_run:
+        description: Optional successful fork qualification run for the identical source tree
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -48,6 +52,9 @@ jobs:
        github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
     outputs:
       build: ${{ steps.compose.outputs.build }}
       receipt: ${{ steps.compose.outputs.receipt }}
@@ -55,6 +62,7 @@ jobs:
       source: ${{ steps.compose.outputs.source }}
       upstream: ${{ steps.compose.outputs.upstream }}
       linux_matrix: ${{ steps.compose.outputs.linux_matrix }}
+      full_suite_reused: ${{ steps.qualification.outputs.full_suite_reused }}
     steps:
       - &checkout
         uses: actions/checkout@v7
@@ -76,6 +84,13 @@ jobs:
           FORCE_BUILD: ${{ inputs.force_build || false }}
           FORK_BUILD_UPSTREAM_COMMIT: ${{ inputs.upstream_commit || '' }}
         run: node config/fork-build/plan.mjs
+      - name: Verify prior qualification for this exact source tree
+        id: qualification
+        if: inputs.tested_run && steps.compose.outputs.build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TESTED_RUN: ${{ inputs.tested_run }}
+        run: node config/fork-build/qualification-reuse.mjs "$TESTED_RUN" personal-build
       - name: Preserve the exact plan and report even on conflict
         if: always()
         uses: actions/upload-artifact@v7
@@ -122,11 +137,13 @@ jobs:
       - name: Verify formatting, localization and changed source
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Lint the composed source
+        if: needs.plan.outputs.full_suite_reused != 'true'
         env:
           ORCA_CODE_QUALITY_BASE: ${{ needs.plan.outputs.upstream }}
           ORCA_FORK_BUILD_CONTROL_ROOT: ${{ runner.temp }}/personal-control
         run: pnpm run lint
       - name: Fetch the upstream release fixtures for cross-version tests
+        if: needs.plan.outputs.full_suite_reused != 'true'
         run: |
           baseline="$(node -p 'require("./personal-build/plan.json").upstreamRelease.tag')"
           [[ "$baseline" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
@@ -134,8 +151,10 @@ jobs:
             "refs/tags/$baseline:refs/tags/$baseline" \
             refs/tags/v1.4.199:refs/tags/v1.4.199
       - name: Install headless Chromium for mobile bundle regressions
+        if: needs.plan.outputs.full_suite_reused != 'true'
         run: pnpm exec playwright install --with-deps --only-shell chromium
       - name: Run desktop and mobile unit tests
+        if: needs.plan.outputs.full_suite_reused != 'true'
         env:
           ORCA_MOBILE_WEB_APP_DEPS_REQUIRED: '1'
         run: |
@@ -207,6 +226,7 @@ jobs:
           node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs restore
           pnpm run build:release:host
       - name: Verify regressions from all composed features
+        if: needs.plan.outputs.full_suite_reused != 'true'
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/regressions.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Verify preview updater policy against the composed application
         run: |
@@ -470,10 +490,18 @@ jobs:
           configuration="$RUNNER_TEMP/personal-control/config/fork-build/linux-builder.config.cjs"
           pnpm exec electron-builder --config "$configuration" --linux dir "--$ORCA_LINUX_BUILD_ARCH" --publish never
           node "$RUNNER_TEMP/personal-control/config/fork-build/linux-packaging.mjs" "$ORCA_LINUX_BUILD_ARCH"
+      - name: Use the native build's Ubuntu mirror for the x64 PTY check
+        if: matrix.architecture == 'x64'
+        run: |
+          docker build --pull --tag orca-packaged-pty-floor - <<'DOCKERFILE'
+          FROM ubuntu:20.04
+          RUN sed -i -E 's#http://(archive|security)\.ubuntu\.com/ubuntu#http://mirrors.mit.edu/ubuntu#g' /etc/apt/sources.list
+          DOCKERFILE
+          docker tag orca-packaged-pty-floor ubuntu:20.04
       - name: Verify packaged PTY loading on the supported glibc floor
         env:
           APP_DIRECTORY: ${{ matrix.architecture == 'arm64' && 'dist/linux-arm64-unpacked' || 'dist/linux-unpacked' }}
-        run: node config/scripts/desktop-distribution/runtime-verification/run-linux-packaged-node-pty-floor-smoke.mjs --app-dir "$APP_DIRECTORY"
+        run: timeout --kill-after=30s 8m node config/scripts/desktop-distribution/runtime-verification/run-linux-packaged-node-pty-floor-smoke.mjs --app-dir "$APP_DIRECTORY"
       - name: Extract and measure every Linux format against its source receipt
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-linux personal-build/plan.json "$GITHUB_WORKSPACE" "$ORCA_LINUX_BUILD_ARCH"
       - uses: actions/upload-artifact@v7
