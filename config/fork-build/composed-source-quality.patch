@@ -762,7 +762,7 @@ index 00000000000..33ff3d2be15
 +  }
 +}
 diff --git a/src/main/claude/structured/claude-structured-session-test-support.ts b/src/main/claude/structured/claude-structured-session-test-support.ts
-index accf186275b..7ea7aea4087 100644
+index accf186275b..184a061dbbe 100644
 --- a/src/main/claude/structured/claude-structured-session-test-support.ts
 +++ b/src/main/claude/structured/claude-structured-session-test-support.ts
 @@ -1,5 +1,4 @@
@@ -783,7 +783,7 @@ index accf186275b..7ea7aea4087 100644
  } from './startup/claude-structured-startup-settled-test-support'
  
 -export const PROVIDER_SESSION_ID = '819cf9f8-e43c-4ad7-b50f-54aa158a726a'
-+import { PROVIDER_SESSION_ID } from './claude-structured-session-identity.test-fixture'
++import { identityFor, PROVIDER_SESSION_ID } from './claude-structured-session-identity.test-fixture'
 +
 +export { identityFor, PROVIDER_SESSION_ID } from './claude-structured-session-identity.test-fixture'
  
@@ -1326,6 +1326,18 @@ index 4cd0c95bd59..02225f44866 100644
        executionHostId: undefined as unknown as AiVaultSession['executionHostId']
      })
  
+diff --git a/src/renderer/src/components/settings/runtime-environments/RuntimeServersSection.fixture.tsx b/src/renderer/src/components/settings/runtime-environments/RuntimeServersSection.fixture.tsx
+index 17234e77568..97da7816657 100644
+--- a/src/renderer/src/components/settings/runtime-environments/RuntimeServersSection.fixture.tsx
++++ b/src/renderer/src/components/settings/runtime-environments/RuntimeServersSection.fixture.tsx
+@@ -165,6 +165,7 @@ function Section({
+             onConnect={() => {}}
+             onDisconnect={() => {}}
+             onRemove={() => {}}
++            onRename={() => {}}
+             onMakeDefault={() => {}}
+             onCheckForUpdates={() => {}}
+             onRecheck={() => {}}
 diff --git a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts b/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
 index 856004ff59d..b605ee1ddb6 100644
 --- a/src/renderer/src/lib/workspace/ownership/workspace-terminal-host-authority.test.ts
