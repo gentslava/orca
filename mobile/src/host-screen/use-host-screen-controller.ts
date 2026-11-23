@@ -69,7 +69,6 @@ export function useHostScreenController({
   const { hostCapabilities, statusReadable, floatingWorkspaceEnabled, hostInstallationId } =
     useHostProtocolGates()
   const state = useHostScreenState(hostId, peekStoredHost(hostId))
-  const settings = useHostViewSettings({ client, connState, state })
   const connectionVerdict = classifyConnection({
     state: connState,
     reconnectAttempts,
@@ -89,6 +88,13 @@ export function useHostScreenController({
     sidebarFeed?.feed.kind === 'ready'
       ? (sidebarFeed.feed.domains.projectCatalog ?? state.servedProjectSections)
       : state.servedProjectSections
+  const settings = useHostViewSettings({
+    client,
+    connState,
+    state,
+    hostCapabilities,
+    projectCatalog
+  })
   // The host's botsChanged re-reads its own bots; a reconnect or the foreground, every host's.
   const [botsChangeKeys, noteBotsChanged] = useReducer(
     (keys: Record<BotsChangeScope, number>, scope: BotsChangeScope) => ({
@@ -125,6 +131,7 @@ export function useHostScreenController({
     connState,
     embedded,
     fetchWorktrees: catalog.fetchWorktrees,
+    projectCatalog,
     forgetHostClient,
     hostCapabilities,
     hostId,
