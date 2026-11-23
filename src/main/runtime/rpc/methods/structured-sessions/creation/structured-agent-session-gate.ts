@@ -66,7 +66,9 @@ export function requireStructuredSessionHost(
   sessionId: string,
   readOnly = false
 ): StructuredAgentSessionHost {
-  assertBotGroupSessionAccess(ctx.runtime, sessionId, ctx.caller, readOnly)
+  if (!readOnly) {
+    assertBotGroupSessionAccess(ctx.runtime, sessionId)
+  }
   const host = requireStructuredHost(ctx)
   requireStructuredAgentAudience(ctx, host.sessionAgent(sessionId) ?? '')
   return host
