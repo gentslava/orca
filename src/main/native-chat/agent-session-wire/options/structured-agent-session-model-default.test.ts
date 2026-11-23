@@ -32,7 +32,7 @@ async function openRigTurnFor(
     throw new Error('Expected the test conversation to be open')
   }
   const turnId = `turn-of-${id}`
-  const now = Date.now()
+  const now = 1_700_000_000_000
   await journal.appendItem(
     { provider: 'codex', threadId: THREAD, turnId, ordinal: 0 },
     {

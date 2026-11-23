@@ -58,6 +58,7 @@ vi.mock('lucide-react-native', () => ({
   Play: 'Play',
   Plug: 'Plug',
   Search: 'Search',
+  Send: 'Send',
   SquareChevronRight: 'SquareChevronRight',
   SquareTerminal: 'SquareTerminal',
   Webhook: 'Webhook',

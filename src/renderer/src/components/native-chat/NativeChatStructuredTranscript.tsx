@@ -1,8 +1,5 @@
 import { NativeChatWorkerTimeline } from './tools/tasks/dock/NativeChatWorkerResultTimeline'
-import {
-  NativeChatPartyWorkerApprovalStack,
-  nativeChatWorkerApprovalParty
-} from './worker-approvals/NativeChatWorkerApprovals'
+import { nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
 import { NativeChatSessionChildren } from './NativeChatSessionChildren'
 import type { NativeChatStructuredViewProps } from './native-chat-view-types'
 import { NativeChatUsageLimitActionsProvider } from './usage/NativeChatUsageLimitActions'
@@ -69,7 +66,7 @@ export function NativeChatStructuredTranscript({
             workerDock={controller.backgroundTasks.workerDock}
             target={pane.target}
             sessionId={pane.sessionId}
-            isVisible={props.isVisible}
+            isVisible={props.isVisible === true}
           >
             {(timedRows) => (
               <NativeChatSubagentTranscripts
@@ -113,22 +110,6 @@ export function NativeChatStructuredTranscriptFrame({
       <NativeChatSessionChildren {...pane} isVisible={isVisible} />
       {children}
     </div>
-  )
-}
-
-export function NativeChatStructuredWorkerApprovals({
-  pane,
-  isVisible
-}: {
-  pane: Pick<NativeChatStructuredViewProps, 'target' | 'sessionId'>
-  isVisible: boolean
-}): React.JSX.Element {
-  return (
-    <NativeChatPartyWorkerApprovalStack
-      party={nativeChatWorkerApprovalParty(pane)}
-      target={pane.target}
-      isVisible={isVisible}
-    />
   )
 }
 

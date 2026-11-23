@@ -15,7 +15,7 @@ import {
 } from './start/admission/worker-start-authority'
 import { parseTaskDeps } from './start/admission/task-deps-argument'
 import { WorkerStartParams } from '../../../../../../shared/rpc-contract/orchestration/orchestration-worker-start-params'
-import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
+import { applyWorkerStartRole } from './worker-start-launch-preflight'
 import {
   isWorkerStartTimeoutWithinTimerLimit,
   resolveWorkerStartReadinessTimeoutMs
@@ -155,20 +155,7 @@ export async function prepareWorkerStart(
   }: Omit<WorkerStartContext, 'orchestrationMutation'>,
   followUp?: WorkerFollowUp
 ) {
-  if (params.role) {
-    try {
-      params = resolveWorkerRoleParams(
-        params,
-        runtime.requireStore().getSettings().orchestrationWorkerRoles
-      )
-    } catch (error) {
-      throw new OrchestrationError(
-        'invalid_argument',
-        error instanceof Error ? error.message : 'Invalid worker role profile.',
-        { effectsApplied: false }
-      )
-    }
-  }
+  params = applyWorkerStartRole(runtime, params)
   if (!isWorkerStartTimeoutWithinTimerLimit(params.timeoutMs)) {
     throw new OrchestrationError(
       'invalid_argument',
@@ -269,11 +256,7 @@ export async function prepareWorkerStart(
     )
   }
   if (helperCreator && !followUp) {
-    assertHelperStartScope(db, helperCreator, {
-      task: existingTask,
-      params,
-      ...(followUp ? { followUp } : {})
-    })
+    assertHelperStartScope(db, helperCreator, { task: existingTask, params })
   }
   if (existingTask) {
     await assertWorkerStartTaskSpecWithinPromptBudget(existingTask.spec)

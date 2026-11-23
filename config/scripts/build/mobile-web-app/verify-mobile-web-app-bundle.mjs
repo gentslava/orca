@@ -342,7 +342,13 @@ export async function verifyMobileWebAppBundle({ bundleDir = defaultBundleDir } 
         `budget of ${String(MOBILE_WEB_APP_BUNDLE_MAX_ENTRY_BYTES)}`
     )
   }
-  return { ...manifest, catalogBytes: first.catalogBytes, eagerBytes, onDemandBytes, hostCatalogLimits }
+  return {
+    ...manifest,
+    catalogBytes: first.catalogBytes,
+    eagerBytes,
+    onDemandBytes,
+    hostCatalogLimits
+  }
 }
 
 // The largest host catalog and the windows it takes, so a catalog nearing the cap shows before it fails.

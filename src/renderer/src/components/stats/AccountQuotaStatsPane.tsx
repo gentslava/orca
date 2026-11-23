@@ -42,10 +42,14 @@ export function AccountQuotaStatsPane({ host }: { host: StatsHost }): React.JSX.
           })
         }
         onManage={() => {
+          const hostScope = getUsageOwnerHostScope(remoteOwner)
+          if (!hostScope) {
+            return
+          }
           openSettingsTarget({
             pane: 'accounts',
             repoId: null,
-            hostScope: getUsageOwnerHostScope(remoteOwner)
+            hostScope
           })
           openSettingsPage()
         }}

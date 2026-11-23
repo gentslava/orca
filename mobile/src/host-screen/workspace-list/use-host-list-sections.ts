@@ -30,6 +30,7 @@ import type { HostSidebarFeed } from '../sidebar-feed/use-host-sidebar-feed'
 import type { HostScreenState } from '../use-host-screen-state'
 import {
   buildHostBotSections,
+  appendHostBotSections,
   isProjectListRow,
   type HostBotListing
 } from '../../bots/host-bot-sections'
@@ -315,14 +316,5 @@ export function useHostListSections(inputs: HostListSectionsInputs): HostListSec
     botListedIdentities: botSections.listedIdentities,
     lastVisited
   })
-  return useMemo(() => {
-    if (botSections.sections.length === 0) {
-      return base
-    }
-    return {
-      ...base,
-      sections: [...botSections.sections, ...base.sections],
-      rawSections: [...botSections.sections, ...base.rawSections]
-    }
-  }, [base, botSections])
+  return useMemo(() => appendHostBotSections(base, botSections.sections), [base, botSections])
 }

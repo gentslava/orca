@@ -117,6 +117,7 @@ describe('aiVault.listSessions handler + shared cache', () => {
           dispatcher.dispatch(
             makeRequest('aiVault.listSessions', {
               includeStructuredSessions: true,
+              structuredOnly: true,
               executionHostId
             })
           )
@@ -283,25 +284,35 @@ describe('aiVault.listSessions handler + shared cache', () => {
       scannedAt: SCANNED_AT
     })
     const dispatcher = makeDispatcher()
-    const localResponse = (await dispatcher.dispatch(
+    const localResponse = await dispatcher.dispatch(
       makeRequest('aiVault.listSessions', { limit: 500 })
-    )) as { ok: boolean; result: AiVaultListResult }
-    const runtimeResponse = (await dispatcher.dispatch(
+    )
+    const runtimeResponse = await dispatcher.dispatch(
       makeRequest('aiVault.listSessions', {
         limit: 500,
         executionHostId: 'runtime:remote-server'
       })
-    )) as { ok: boolean; result: AiVaultListResult }
-
-    // Host identity changes response stamps, never host-local scan/cache identity.
-
-    expect(localResponse.result.sessions[0]?.executionHostId).toBe('local')
-    expect(localResponse.result.scanId).toEqual(expect.any(String))
-    expect(runtimeResponse.result).not.toHaveProperty('scanId')
-    expect(runtimeResponse.result.sessions[0]?.executionHostId).toBe('runtime:remote-server')
-    expect(runtimeResponse.result.sessions[0]?.id).toBe(
-      'runtime:remote-server:claude:sess-1:/tmp/t.jsonl'
     )
-    expect(runtimeResponse.result.issues[0]?.executionHostId).toBe('runtime:remote-server')
+
+    expect(localResponse).toMatchObject({
+      ok: true,
+      result: {
+        sessions: [{ executionHostId: 'local' }],
+        scanId: expect.any(String)
+      }
+    })
+    expect(runtimeResponse).toMatchObject({
+      ok: true,
+      result: {
+        sessions: [
+          {
+            executionHostId: 'runtime:remote-server',
+            id: 'runtime:remote-server:claude:sess-1:/tmp/t.jsonl'
+          }
+        ],
+        issues: [{ executionHostId: 'runtime:remote-server' }]
+      }
+    })
+    expect(runtimeResponse).not.toHaveProperty('result.scanId')
   })
 })

@@ -175,6 +175,7 @@ function Section({
             onConnect={() => {}}
             onDisconnect={() => {}}
             onRemove={() => {}}
+            onRename={() => {}}
             onMakeDefault={() => {}}
             onCheckForUpdates={() => {}}
             onRecheck={() => {}}

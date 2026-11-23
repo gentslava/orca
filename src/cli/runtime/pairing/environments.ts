@@ -1,6 +1,7 @@
 import {
   addEnvironmentFromPairingCode as addEnvironmentFromPairingCodeInStore,
   removeEnvironment as removeEnvironmentFromStore,
+  renameEnvironment as renameEnvironmentInStore,
   resolveEnvironment as resolveEnvironmentFromStore,
   resolveEnvironmentPairingOffer as resolveEnvironmentPairingOfferFromStore
 } from '../../../shared/remote-runtime/host-store/runtime-environment-store'
@@ -30,6 +31,18 @@ export async function addEnvironmentFromPairingCode(
   return await translateStoreError(
     async () => await addEnvironmentFromPairingCodeInStore(userDataPath, args)
   )
+}
+
+export async function renameEnvironment(
+  userDataPath: string,
+  selector: string,
+  name: string
+): Promise<KnownRuntimeEnvironment> {
+  return await translateStoreError(async () => {
+    const existing = await resolveEnvironmentFromStore(userDataPath, selector)
+    await renameEnvironmentInStore(userDataPath, existing.id, { name })
+    return await resolveEnvironmentFromStore(userDataPath, existing.id)
+  })
 }
 
 export async function removeEnvironment(

@@ -47,22 +47,12 @@
 3 src/main/ai-vault/scan-service/session-scanner-service-entry-path.ts
 12 src/main/ai-vault/scan-service/session-scanner-service-spawn.ts
 2 src/main/ai-vault/scanners/devin/session-scanner-devin-db.ts
-2 src/main/ai-vault/scanners/hermes/hermes-state-db-conversations.ts
-3 src/main/ai-vault/scanners/hermes/hermes-state-db-schema.ts
 1 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sources.ts
-15 src/main/ai-vault/scanners/hermes/session-scanner-hermes-sqlite.ts
 1 src/main/ai-vault/scanners/omp/omp-session-root.ts
 2 src/main/ai-vault/scanners/opencode/reader-transport/opencode-wsl-runtime-preparation.ts
-15 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-dispatch.ts
-1 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts
 5 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-worker-spawn.ts
 2 src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-wsl-client.ts
-3 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-capture.ts
-2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-list.ts
 1 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
-3 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite.ts
-1 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite-list.ts
-4 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
 1 src/main/ai-vault/session-handoff-snapshot.ts
 1 src/main/ai-vault/session-titles/session-title-resolver.ts
 4 src/main/amp/hook-service.ts
@@ -87,7 +77,7 @@
 2 src/main/automations/runtime-automation-service.ts
 1 src/main/avatar-generation/avatar-generation-ipc.ts # per Generate click: the agent env prep commit-message generation shares; its sync read is a shell rc lookup for GROK_HOME only when it is unset
 5 src/main/backend/backend-entry.ts
-11 src/main/backend/core-runtime-activation.ts
+10 src/main/backend/core-runtime-activation.ts
 2 src/main/backend/core-runtime.ts
 1 src/main/bots/bot-access-request-watch.ts
 1 src/main/bots/bot-group-store-tables.ts # indexRemoteAsks at store open (one-shot startup); its SQL is in main-blocking-sqlite-baseline
@@ -798,12 +788,8 @@
 1 src/main/native-chat/transcript-filesystem/process/wsl-transcript-fs-process-spawn.ts
 2 src/main/native-chat/transcript-filesystem/wsl-transcript-fs-access.ts
 2 src/main/native-chat/transcript-history/codex/codex-rollout-history-source.ts
-7 src/main/native-chat/transcript-history/hermes/transcript-hermes-sqlite.ts
 3 src/main/native-chat/transcript-history/opencode/transcript-opencode-database.ts
-7 src/main/native-chat/transcript-history/opencode/transcript-opencode-sqlite-query.ts
 2 src/main/native-chat/transcript-history/opencode/transcript-opencode.ts
-2 src/main/native-chat/transcript-history/opencode/transcript-opencode2-fork-coverage.ts
-2 src/main/native-chat/transcript-history/opencode/transcript-opencode2-sqlite.ts
 1 src/main/network/macos-tailscale-dns-diagnostic.ts
 3 src/main/node-runtime/managed-runtime-installation.ts
 1 src/main/node-runtime/managed-runtime-release-install.ts
@@ -863,7 +849,6 @@
 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
 4 src/main/orcad/account-launch/orcad-account-services.ts
 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
@@ -1553,7 +1538,7 @@
 4 src/shared/remote-runtime/host-store/runtime-environment-store-command.ts
 2 src/shared/remote-runtime/host-store/runtime-environment-store-file.ts
 6 src/shared/remote-runtime/host-store/runtime-environment-store-observation.ts
-10 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts # renameEnvironment persists through the same worker-served writeEnvironmentStore as the other store ops; its sync call reaches the event loop only on the inline CLI/worker-down fallback
+9 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts # renameEnvironment persists through the same worker-served writeEnvironmentStore as the other store ops; its sync call reaches the event loop only on the inline CLI/worker-down fallback
 1 src/shared/remote-runtime/host-store/runtime-environment-store-read-cache.ts
 2 src/shared/remote-runtime/host-store/runtime-environment-store-records.ts
 1 src/shared/remote-runtime/host-store/runtime-environment-store-worker-entry.ts

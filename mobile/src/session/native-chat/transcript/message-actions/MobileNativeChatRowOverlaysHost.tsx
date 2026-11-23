@@ -72,7 +72,6 @@ export function MobileNativeChatRowOverlaysHost({
         setShown({ actionsFor })
       },
       openRewind,
-      imageSource,
       ...(openSubagent ? { openSubagent } : {})
     }),
     [setShown, openRewind, imageSource, openSubagent]

@@ -1,3 +1,4 @@
+import { DEFAULT_PROVIDER_QUOTA_SETTINGS } from './default-provider-quota-settings'
 import type { GlobalSettings } from './global-settings-types'
 import type { NotificationSettings } from '../notifications/notification-settings-types'
 import type { VoiceSettings } from '../speech/speech-types'
@@ -257,14 +258,7 @@ export function buildDefaultSettings(args: {
     visibleTaskProvidersDefaultedForJira: true,
     defaultRepoSelection: null,
     defaultLinearTeamSelection: null,
-    opencodeSessionCookie: '',
-    opencodeWorkspaceId: '',
-    minimaxGroupId: '',
-    minimaxUsageModels: 'general',
-    minimaxEndpoint: 'overseas',
-    zcodePlanSite: 'zai',
-    geminiCliOAuthEnabled: false,
-    claudeOAuthUsageEnabled: true,
+    ...DEFAULT_PROVIDER_QUOTA_SETTINGS,
     agentCmdOverrides: {},
     // Arguments hold only the user's own text; the permission flag comes from the choice below.
     agentDefaultArgs: {},

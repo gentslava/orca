@@ -1,3 +1,4 @@
+import { ClientUiBrowserFields } from './client-ui-browser-fields-params'
 import { GitHistoryRefName } from '../source-control/git-params'
 import * as z from 'zod'
 import { isFeatureTipSeenId } from '../../feature-education/feature-tips'
@@ -254,21 +255,7 @@ export const UiUpdateFields = z
     acknowledgedAgentsByPaneKey: z.record(z.string(), z.number().finite()).optional(),
     activityClearedAtByPaneKey: z.record(z.string(), z.number().finite()).optional(),
     manuallyUnreadTurnsByPaneKey: z.record(z.string(), z.number().finite()).optional(),
-    browserDefaultUrl: NullableString.optional(),
-    browserDefaultSearchEngine: z
-      .enum(['google', 'duckduckgo', 'bing', 'kagi'])
-      .nullable()
-      .optional(),
-    browserDefaultZoomLevel: z.number().finite().optional(),
-    browserKagiSessionLink: NullableString.optional(),
-    browserDevToolsDock: z
-      .object({
-        side: z.enum(['bottom', 'right']),
-        bottomFraction: z.number().finite(),
-        rightFraction: z.number().finite()
-      })
-      .optional(),
-    browserExtensionSidePanelWidth: z.number().finite().optional(),
+    ...ClientUiBrowserFields,
     windowBounds: z
       .object({
         x: z.number().finite(),

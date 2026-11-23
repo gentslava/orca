@@ -11,19 +11,15 @@ import {
 } from '../../../../../../src/shared/native-chat/transcript/notices/native-chat-notice'
 import {
   isTextBlock,
-  type NativeChatBlock,
-  type NativeChatTextBlock
+  type NativeChatBlock
 } from '../../../../../../src/shared/native-chat/native-chat-types'
 import { readWholeAgentSessionFailureFact } from '../../../../../../src/shared/agent-session/failures/agent-session-failure'
 import { isAgentSessionSetupFailureKind } from '../../../../../../src/shared/agent-session/failures/agent-session-visible-failures'
 import { agentSessionFailureDetailText } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-quoted-detail'
-import { agentSessionFailureSentence } from '../../../../../../src/shared/agent-session/failures/agent-session-failure-words'
 import { agentSessionSignInCommand } from '../../../../../../src/shared/agent-session/lifecycle/launch/agent-session-setup-commands'
-import { nativeChatOrcaStopRowText } from '../../../../../../src/shared/native-chat/transcript/continuation/native-chat-orca-stop-words'
 import {
   MobileNativeChatForkedFromContext,
-  MobileNativeChatNoticeContext,
-  type MobileNativeChatNoticeView
+  MobileNativeChatNoticeContext
 } from './mobile-native-chat-notice-context'
 import { MobileNativeChatMarkdown } from '../message-content/MobileNativeChatMarkdown'
 import { MobileNativeChatAutomationResultRow } from '../MobileNativeChatAutomationResultRow'
@@ -32,13 +28,12 @@ import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inlin
 import { colors, radii, spacing, typography } from '../../../../theme/mobile-theme'
 import { themedStyleSheet } from '../../../../theme/themed-styles'
 import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
-import { nativeChatHostStatusCopy, nativeChatNoticeCopy } from './native-chat-notice-copy'
-import { nativeChatOrcaStopSay } from './native-chat-orca-stop-copy'
-import { nativeChatRestartNoteText } from './native-chat-restart-note-copy'
+import {
+  nativeChatHostStatusCopy,
+  nativeChatNoticeCopy,
+  nativeChatNoticeLineText
+} from './native-chat-notice-copy'
 import { nativeChatReviewNoticeSummary } from './native-chat-review-notice-copy'
-import { nativeChatUsageLimitText } from './native-chat-usage-limit-copy'
-import { sayMobileAgentSessionFailure } from '../../agent-session/agent-session-failure-copy'
-import type { Translate } from '../../../../i18n/mobile-i18n'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
 import { mobileNativeChatBotCard } from '../bot-cards/mobile-native-chat-bot-cards'
 import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../../src/shared/native-chat/transcript/pending-sends/native-chat-stopped-before-start'
@@ -52,47 +47,6 @@ import { NATIVE_CHAT_GOAL_CHECK_SUMMARY } from '../../../../../../src/shared/nat
 
 function toneColor(tone: NativeChatNoticeTone): string {
   return { warning: colors.statusAmber, error: colors.statusRed, notice: colors.textMuted }[tone]
-}
-
-// The phone always reads its Orca host as remote.
-function noticeLineText(
-  notice: NativeChatTextBlock,
-  names: MobileNativeChatNoticeView,
-  t: Translate
-): string {
-  if (notice.orcaStop) {
-    const say = nativeChatOrcaStopSay(t)
-    return nativeChatOrcaStopRowText(
-      notice.orcaStop.cause,
-      names.hostName ?? say('unnamedServer'),
-      { continueAvailable: names.continuation?.continueAvailable === true, remoteHost: true },
-      say
-    )
-  }
-  const failure = readWholeAgentSessionFailureFact(notice.failure)
-  if (failure?.kind === 'usageLimitReached') {
-    return nativeChatUsageLimitText(failure.usageLimit, names.agentName, t)
-  }
-  // Only reword text fully described by its fact; other host text stays as written.
-  const context = { agentName: names.agentName }
-  const surface =
-    failure &&
-    [
-      'savedConversationMissing',
-      'pluginInputRequired',
-      'modelUnavailable',
-      'providerUnavailable',
-      'providerSafetyStopped',
-      'flaggedRequestNotSwitched',
-      'providerResponseFailed'
-    ].includes(failure.kind)
-      ? (['row', 'rejection'] as const).find(
-          (candidate) => notice.text === agentSessionFailureSentence(failure, candidate, context)
-        )
-      : undefined
-  return failure && surface
-    ? agentSessionFailureSentence(failure, surface, context, sayMobileAgentSessionFailure)
-    : (nativeChatRestartNoteText(notice.text, t) ?? notice.text)
 }
 
 // Render system notices separately so they cannot read as the agent’s own prose.
@@ -161,7 +115,7 @@ export function MobileNativeChatNoticeRow({
     return botCard
   }
   const look = nativeChatNoticeLook(notice)
-  const lineText = noticeLineText(notice, names, t)
+  const lineText = nativeChatNoticeLineText(notice, names, t)
   const failure = readWholeAgentSessionFailureFact(notice.failure)
   const failureDetail = agentSessionFailureDetailText(failure)
   // A setup failure a later successful turn resolved reads as history: muted, with no action.
@@ -215,7 +169,7 @@ export function MobileNativeChatNoticeRow({
         <View>
           {disclosed ? null : (
             <MobileNativeChatNoticeDisclosure
-              summary={summary}
+              summary={nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)}
               expanded={expanded}
               fontScale={fontScale}
               onPress={() => setExpanded((open) => !open)}

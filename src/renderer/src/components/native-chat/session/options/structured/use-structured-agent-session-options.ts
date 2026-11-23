@@ -136,7 +136,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   const optionSnapshot = offersDefault
     ? availableSnapshot.map((descriptor) =>
         descriptor.id === 'model'
-          ? { ...descriptor, defaultChoice: { selected: renderedView.modelDefault === true } }
+          ? { ...descriptor, defaultChoice: structuredAgentSessionDefaultModelChoice(renderedView) }
           : descriptor
       )
     : availableSnapshot
@@ -237,21 +237,18 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   const cliUpdateAgent = cliUpdateModels?.length ? cliUpdate?.update?.agent : undefined
   const cliUpdateRunnable = cliUpdate?.update?.runnable === true
   const cliUpdatePhase = cliUpdate?.run?.phase ?? 'idle'
-  const startCliUpdate = cliUpdate?.start
-  const openCliUpdateFailure = cliUpdate?.openFailure
+  const { start: startCliUpdate, openFailure: openCliUpdateFailure } = cliUpdate ?? {}
   const optionSurface = useMemo<SessionOptionsSurface>(
     () => ({
-      ...(offersDefault
-        ? {
-            resetOption: async (id: string) => {
-              // A busy host that takes no per-message options would apply it to the running turn.
-              if (id === 'model' && acceptsTurnPicks) {
-                await resetModel()
-              }
-              return { snapshot: optionSnapshot }
+      resetOption: offersDefault
+        ? async (id: string) => {
+            // A busy host without per-message options would apply the reset to its running turn.
+            if (id === 'model' && acceptsTurnPicks) {
+              await resetModel()
             }
+            return { snapshot: optionSnapshot }
           }
-        : {}),
+        : undefined,
       getSnapshot: () => optionSnapshot,
       demandModelCatalog,
       ...(cliUpdateAgent && cliUpdateModels && startCliUpdate && openCliUpdateFailure

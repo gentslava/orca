@@ -25132,6 +25132,12 @@
         "provisionFailed": "VM이 만들어지지 않았거나 생성이 중단되었습니다. 설정을 열어 삭제하거나 제거하세요."
       },
       "suspendFailed": "VM 워크스페이스를 일시 중지하지 못했습니다"
+    },
+    "start": {
+      "title": "무엇을 여시겠어요?",
+      "description": "이 프로젝트에서 사용할 에이전트나 도구를 선택하세요.",
+      "agents": "에이전트",
+      "manageAgents": "에이전트 관리"
     }
   },
   "tabHoverCard": {

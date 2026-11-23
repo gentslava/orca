@@ -127,8 +127,8 @@ function closeFocusedSplitLanding(state: TabState): boolean {
   if (group === null) {
     return false
   }
-  // Closing a sole chooser empties the workspace, which then lands like a last-tab close.
-  const whenEmptied = captureWorkspaceEmptiedReaction(group.worktreeId)
+  // Close on a sole empty chooser is the user leaving the workspace, not a last-tab close.
+  const whenEmptied = captureWorkspaceEmptiedReaction(group.worktreeId, { leavesStartPage: true })
   if (!state.closeEmptyGroup(group.worktreeId, group.id)) {
     return false
   }

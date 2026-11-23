@@ -32,6 +32,7 @@ function Queue({ cards }: { cards: QueuedMessageCard[] }) {
     editor: undefined,
     edit: noop,
     steerHead: undefined,
+    steerLast: undefined,
     isWorking: true
   }
   return (

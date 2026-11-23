@@ -20,6 +20,11 @@ export function isSplitLandingGroup(
   )
 }
 
+/** Explicit start actions render every emptied workspace, so closing its last tab keeps it open. */
+export function keepsEmptiedWorkspaceOpen(worktreeId: string): boolean {
+  return worktreeId !== FLOATING_TERMINAL_WORKTREE_ID
+}
+
 /** A waiting chooser keeps its workspace open when the last tab beside it closes. */
 export function hasSplitLandingGroup(state: SplitLandingMarks, worktreeId: string): boolean {
   return (state.groupsByWorktree?.[worktreeId] ?? []).some((group) =>

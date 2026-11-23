@@ -52,6 +52,7 @@
         "**/*.spec.{ts,tsx}",
         // Vitest support modules shared by split suites; only test files import them.
         "**/*-test-harness.{ts,tsx}",
+        "**/*.test-harness.{ts,tsx}",
         "**/*-test-fixture.{ts,tsx}",
         "**/*-test-fixtures.{ts,tsx}",
         "**/*.test-fixture.{ts,tsx}",
