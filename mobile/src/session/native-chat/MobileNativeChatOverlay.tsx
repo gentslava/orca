@@ -33,6 +33,7 @@ import type { MobileNativeChatHostOutage } from './status/mobile-native-chat-hos
 import { MobileMarkdownLinksContext } from '../../components/markdown/links/mobile-markdown-links-context'
 import type { ConnectionState } from '../../transport/connection/connection-state'
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
+import { useMobileNativeChatSubagents } from './subagents/use-mobile-native-chat-subagents'
 
 type Props = {
   controller: MobileNativeChatController
@@ -251,6 +252,13 @@ function MobileNativeChatOverlayContent({
     ]
   )
   const continueFailed = sendErrorMessage === null && continuation?.failed === true
+  const subagents = useMobileNativeChatSubagents({
+    scopeKey: `${sendSurfaceId}\0${sessionId}`,
+    messages: fullContent.messages,
+    folded,
+    agent,
+    source: controller.nativeChatSubagents
+  })
   const chat = (
     <MobileNativeChatRowOverlaysHost
       conversation={{ surfaceId: sendSurfaceId, sessionId }}
@@ -258,6 +266,7 @@ function MobileNativeChatOverlayContent({
       onOpenUrlInOrca={onOpenUrlInOrca}
       linkOpenMode={linkOpenMode}
       rewind={controller.nativeChatRewind}
+      openSubagent={subagents.open}
     >
       <MobileMarkdownLinksContext.Provider value={markdownLinks}>
         <MobileQueuedMessageComposerContext.Provider value={queuedComposerContext}>
@@ -270,112 +279,112 @@ function MobileNativeChatOverlayContent({
                       key={sendSurfaceId}
                       tasks={controller.nativeChatBackgroundTasks}
                     >
-                      <MobileNativeChatView
-                        itemNavigation={session.itemNavigation}
-                        messages={session.messages}
-                        folded={folded}
-                        status={session.status}
-                        error={session.error}
-                        readFailedFinally={session.readFailedFinally === true}
-                        clearing={session.clearing === true}
-                        agent={controller.nativeChatAgent}
-                        sessionLive={controller.nativeChatSessionLive}
-                        agentWorking={controller.nativeChatTurnActive}
-                        awaitingInput={controller.nativeChatAwaitingInput}
-                        canStop={controller.nativeChatCanStop}
-                        sendFollowUp={controller.nativeChatSendFollowUp}
-                        structuredActivityUi={controller.nativeChatStructured}
-                        turnIndicator={controller.nativeChatTurnIndicator}
-                        workingStartedAt={controller.nativeChatWorkingStartedAt}
-                        settledTurns={controller.nativeChatSettledTurns}
-                        turnJournal={controller.nativeChatTurnJournal}
-                        transcriptLoading={session.transcriptLoading}
-                        receipts={controller.nativeChatReceipts}
-                        actionablePromptIds={controller.nativeChatActionablePromptIds}
-                        streaming={streaming}
-                        onStop={controller.handleNativeChatStop}
-                        ask={controller.nativeChatAsk}
-                        askPending={controller.nativeChatAskPending}
-                        askSendSource={controller.nativeChatAskSendSource}
-                        askKey={controller.nativeChatAskKey}
-                        promptKey={controller.nativeChatPromptKey}
-                        onDismissAsk={controller.dismissNativeChatAsk}
-                        onAnswerAsk={controller.handleNativeChatAnswerAsk}
-                        askRequiresTerminal={
-                          !controller.nativeChatStructured && nativeChatAskRequiresTerminal(agent)
-                        }
-                        onAnswerInTerminal={
-                          activeSessionTabId
-                            ? () => controller.setTabView(activeSessionTabId, 'terminal')
-                            : undefined
-                        }
-                        onCancelAsk={controller.handleNativeChatCancelAsk}
-                        onCancelPrompt={controller.handleNativeChatCancelPrompt}
-                        onCollapseAsk={controller.collapseNativeChatAsk}
-                        onCollapsePrompt={controller.collapseNativeChatPrompt}
-                        collapsedPrompt={controller.nativeChatCollapsedPrompt}
-                        question={controller.nativeChatQuestion}
-                        onAnswerQuestion={controller.handleNativeChatQuestionAnswer}
-                        permission={controller.nativeChatPermission}
-                        workerApprovals={controller.nativeChatWorkerApprovals}
-                        onRespondPermission={controller.handleNativeChatRespondPermission}
-                        composerTray={composerTray}
-                        onOpenFile={openFile}
-                        hasMore={session.hasMore}
-                        olderPages={session.olderPages}
-                        onLoadEarlier={session.loadEarlier}
-                        onSend={images.sendNativeChat}
-                        sendSurfaceId={sendSurfaceId}
-                        getSendCompletionGeneration={getSendCompletionGeneration}
-                        getComposerEditGeneration={controller.getChatComposerEditGeneration}
-                        pending={controller.chatPending}
-                        imagePreviewsByMessageId={controller.chatImagePreviewsByMessageId}
-                        composerScopeKey={controller.chatComposerScopeKey}
-                        draftKey={controller.chatDraftKey}
-                        onComposerTextChange={controller.setChatComposerText}
-                        onAttachImage={
-                          controller.nativeChatAcceptsImages
-                            ? () => void images.attachImage('library')
-                            : undefined
-                        }
-                        onPasteImages={
-                          controller.nativeChatAcceptsImages
-                            ? (paste) => void images.attachImage(paste)
-                            : undefined
-                        }
-                        attachments={images.attachments}
-                        onRemoveAttachment={images.removeAttachment}
-                        isAttaching={images.isAttaching}
-                        onMicPress={onMicPress}
-                        micActive={micActive}
-                        micStarting={micStarting}
-                        micProcessing={micProcessing}
-                        dictationMode={dictationMode}
-                        onMicPressIn={onMicPressIn}
-                        onMicPressOut={onMicPressOut}
-                        inputLockReason={inputLockReason}
-                        hostOutage={hostOutage}
-                        sendErrorMessage={
-                          continueFailed
-                            ? t(
-                                'chat.interruptedContinue.failed',
-                                "Couldn't continue this chat. Try again, or send a message."
-                              )
-                            : sendErrorMessage
-                        }
-                        onDismissSendError={
-                          continueFailed ? continuation?.dismissFailure : undefined
-                        }
-                        onClearSendError={onClearSendError}
-                        {...mentionFiles}
-                        skillDiscovery={controller.nativeChatSkills}
-                        onNeedSkills={controller.loadNativeChatSkills}
-                        sessionOptions={controller.nativeChatSessionOptions}
-                        contextUsage={controller.nativeChatContextUsage}
-                        structuredComposer={structuredComposer}
-                        keyboardInset={keyboardInset}
-                      />
+                    <MobileNativeChatView
+                      itemNavigation={session.itemNavigation}
+                      messages={session.messages}
+                      folded={folded}
+                      status={session.status}
+                      error={session.error}
+                      readFailedFinally={session.readFailedFinally === true}
+                      clearing={session.clearing === true}
+                      agent={controller.nativeChatAgent}
+                      sessionLive={controller.nativeChatSessionLive}
+                      agentWorking={controller.nativeChatTurnActive}
+                      awaitingInput={controller.nativeChatAwaitingInput}
+                      canStop={controller.nativeChatCanStop}
+                      sendFollowUp={controller.nativeChatSendFollowUp}
+                      structuredActivityUi={controller.nativeChatStructured}
+                      turnIndicator={controller.nativeChatTurnIndicator}
+                      workingStartedAt={controller.nativeChatWorkingStartedAt}
+                      settledTurns={controller.nativeChatSettledTurns}
+                      turnJournal={controller.nativeChatTurnJournal}
+                      transcriptLoading={session.transcriptLoading}
+                      receipts={controller.nativeChatReceipts}
+                      actionablePromptIds={controller.nativeChatActionablePromptIds}
+                      streaming={streaming}
+                      onStop={controller.handleNativeChatStop}
+                      ask={controller.nativeChatAsk}
+                      askPending={controller.nativeChatAskPending}
+                      askSendSource={controller.nativeChatAskSendSource}
+                      askKey={controller.nativeChatAskKey}
+                      promptKey={controller.nativeChatPromptKey}
+                      onDismissAsk={controller.dismissNativeChatAsk}
+                      onAnswerAsk={controller.handleNativeChatAnswerAsk}
+                      askRequiresTerminal={
+                        !controller.nativeChatStructured && nativeChatAskRequiresTerminal(agent)
+                      }
+                      onAnswerInTerminal={
+                        activeSessionTabId
+                          ? () => controller.setTabView(activeSessionTabId, 'terminal')
+                          : undefined
+                      }
+                      onCancelAsk={controller.handleNativeChatCancelAsk}
+                      onCancelPrompt={controller.handleNativeChatCancelPrompt}
+                      onCollapseAsk={controller.collapseNativeChatAsk}
+                      onCollapsePrompt={controller.collapseNativeChatPrompt}
+                      collapsedPrompt={controller.nativeChatCollapsedPrompt}
+                      question={controller.nativeChatQuestion}
+                      onAnswerQuestion={controller.handleNativeChatQuestionAnswer}
+                      permission={controller.nativeChatPermission}
+                      workerApprovals={controller.nativeChatWorkerApprovals}
+                      onRespondPermission={controller.handleNativeChatRespondPermission}
+                      composerTray={composerTray}
+                      onOpenFile={openFile}
+                      hasMore={session.hasMore}
+                      olderPages={session.olderPages}
+                      onLoadEarlier={session.loadEarlier}
+                      onSend={images.sendNativeChat}
+                      sendSurfaceId={sendSurfaceId}
+                      getSendCompletionGeneration={getSendCompletionGeneration}
+                      getComposerEditGeneration={controller.getChatComposerEditGeneration}
+                      pending={controller.chatPending}
+                      imagePreviewsByMessageId={controller.chatImagePreviewsByMessageId}
+                      composerScopeKey={controller.chatComposerScopeKey}
+                      draftKey={controller.chatDraftKey}
+                      onComposerTextChange={controller.setChatComposerText}
+                      onAttachImage={
+                        controller.nativeChatAcceptsImages
+                          ? () => void images.attachImage('library')
+                          : undefined
+                      }
+                      onPasteImages={
+                        controller.nativeChatAcceptsImages
+                          ? (paste) => void images.attachImage(paste)
+                          : undefined
+                      }
+                      attachments={images.attachments}
+                      onRemoveAttachment={images.removeAttachment}
+                      isAttaching={images.isAttaching}
+                      onMicPress={onMicPress}
+                      micActive={micActive}
+                      micStarting={micStarting}
+                      micProcessing={micProcessing}
+                      dictationMode={dictationMode}
+                      onMicPressIn={onMicPressIn}
+                      onMicPressOut={onMicPressOut}
+                      inputLockReason={inputLockReason}
+                      hostOutage={hostOutage}
+                      sendErrorMessage={
+                        continueFailed
+                          ? t(
+                              'chat.interruptedContinue.failed',
+                              "Couldn't continue this chat. Try again, or send a message."
+                            )
+                          : sendErrorMessage
+                      }
+                      onDismissSendError={continueFailed ? continuation?.dismissFailure : undefined}
+                      onClearSendError={onClearSendError}
+                      {...mentionFiles}
+                      skillDiscovery={controller.nativeChatSkills}
+                      onNeedSkills={controller.loadNativeChatSkills}
+                      sessionOptions={controller.nativeChatSessionOptions}
+                      contextUsage={controller.nativeChatContextUsage}
+                      structuredComposer={structuredComposer}
+                      keyboardInset={keyboardInset}
+                      covered={subagents.screen !== null}
+                    />
                     </MobileNativeChatForegroundTasksProvider>
+                    {subagents.screen}
                   </MobileNativeChatNoticeContext.Provider>
                 </MobileNativeChatReplyRevealsContext.Provider>
               </MobileNativeChatRootItemSourceContext.Provider>
