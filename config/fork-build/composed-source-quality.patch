@@ -2046,3 +2046,33 @@ index 5cf0bbe55df..0de48f85de8 100644
      isWorking,
      holds: mail.holds,
      stopping: args.stopping,
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
+index f52192f7f12..65b4d77f471 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
+@@ -1,4 +1,7 @@
+-import { NativeChatWorkerApprovalTimeline, nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
++import {
++  NativeChatWorkerApprovalTimeline,
++  nativeChatWorkerApprovalParty
++} from './worker-approvals/NativeChatWorkerApprovals'
+ import { NativeChatSessionChildren } from './NativeChatSessionChildren'
+ import type { NativeChatStructuredViewProps } from './native-chat-view-types'
+ import { NativeChatUsageLimitActionsProvider } from './usage/NativeChatUsageLimitActions'
+diff --git a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+index 158671e4e25..95be3b7bd89 100644
+--- a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
++++ b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+@@ -10,7 +10,11 @@ import {
+ } from '../status-bar/usage/use-owner-usage-rate-limits'
+ import { UsageAccountQuotas } from './UsageAccountQuotas'
+ 
+-export function AccountQuotaStatsPane({ hostScope }: { hostScope: SettingsHostScope }): React.JSX.Element {
++export function AccountQuotaStatsPane({
++  hostScope
++}: {
++  hostScope: SettingsHostScope
++}): React.JSX.Element {
+   const t = useTranslate()
+   const localRateLimits = useAppStore((state) => state.rateLimits)
+   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
