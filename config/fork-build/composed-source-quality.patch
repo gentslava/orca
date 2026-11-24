@@ -1859,3 +1859,75 @@ diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worke
    }
  
    // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
+diff --git a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
+index 5cdc437bfea..3b0e99dcafc 100644
+--- a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
++++ b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
+@@ -17,7 +17,10 @@ import {
+   useMobileQueuedCardActions,
+   type MobileQueuedCardActions
+ } from './mobile-queued-card-actions'
+-import { headSteerableQueuedMessageCard, lastSteerableQueuedMessageCard } from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
++import {
++  headSteerableQueuedMessageCard,
++  lastSteerableQueuedMessageCard
++} from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
+ import type { AgentSessionQueuePause } from '../../../../../../src/shared/agent-session/requests/agent-session-queued-message-wire'
+ import type { MobileQueuedMessageEdit } from './use-mobile-structured-queued-message-controls'
+ import type { MobileQueuedMessageInlineEditor } from './mobile-queued-message-edit-draft'
+diff --git a/src/main/usage/cache/usage-source-cache-file.ts b/src/main/usage/cache/usage-source-cache-file.ts
+index 8c5c2aebe1e..2bdc1bd232e 100644
+--- a/src/main/usage/cache/usage-source-cache-file.ts
++++ b/src/main/usage/cache/usage-source-cache-file.ts
+@@ -75,7 +75,8 @@ export async function readUsageSourceCacheForScan<T>(ref: UsageSourceCacheRef):
+     const sources = parsed.sources.filter(isSourceRecord)
+     return {
+       sources,
+-      reuseProjections: ref.reuse !== false && parsed.worktreeFingerprint === ref.worktreeFingerprint,
++      reuseProjections:
++        ref.reuse !== false && parsed.worktreeFingerprint === ref.worktreeFingerprint,
+       accountAttributionAvailable: sources.length > 0 || ref.hadPreviousHistory !== true
+     }
+   } catch (error) {
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+index 1be43c65d24..51a0a30dc48 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+@@ -319,7 +319,10 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+               </NativeChatContextClearFade>
+             </NativeChatStructuredTranscriptFrame>
+           </NativeChatDockTranscript>
+-          <NativeChatDock shown={!readFailure?.final} keepFloatingTerminalTriggerClear={parentShown}>
++          <NativeChatDock
++            shown={!readFailure?.final}
++            keepFloatingTerminalTriggerClear={parentShown}
++          >
+             {subagents.dock}
+             {subagents.pairedAsks}
+             {prompt || subagentOpen ? null : (
+diff --git a/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx b/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
+index ba44b821570..1524e89de25 100644
+--- a/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
++++ b/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
+@@ -133,7 +133,9 @@ function NativePromptEditor({
+         if (text == null) {
+           return false
+         }
+-        const content = editor?.schema.nodeFromJSON(promptTextContent(toLfPastedText(text), imageChips))
++        const content = editor?.schema.nodeFromJSON(
++          promptTextContent(toLfPastedText(text), imageChips)
++        )
+         if (!content) {
+           return false
+         }
+@@ -272,7 +274,9 @@ function NativePromptEditor({
+               adopted.current = readNativeChatDraftSnapshot(scopeKey, value)
+               const stored = adopted.current?.document
+               if (stored || !value) {
+-                editor.commands.setContent(openingPromptContent(stored, '', imageChips), { emitUpdate: false })
++                editor.commands.setContent(openingPromptContent(stored, '', imageChips), {
++                  emitUpdate: false
++                })
+                 syncSideChatPill(editor, sideChatEnabled(editor))
+                 applyPosition(previousRange)
+                 return
