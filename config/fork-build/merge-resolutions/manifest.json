@@ -1788,18 +1788,6 @@
     "resultSha256": "41e688405cbc4e3170b19ffa4e344769c942425b42c100e54e6fc40485073b20"
   },
   {
-    "path": "src/renderer/src/i18n/locales/ru.json",
-    "blobs": [
-      "4764ed6b28929a2252ceb0957826dd2e797e7f02",
-      "6d74ceab16d63d6a9509a452e704e1f45b484b5a",
-      "29d3962a2ef1ee3422e9dd9e074e8080217e1643"
-    ],
-    "patch": "forward-20261125-pr-46107-58923bac.patch",
-    "patchSha256": "c4f6e308fd5b6386f24d4f22533e7b8b2fea2e9c3159fc988e08abff4cc29a5a",
-    "resultSha256": "37f4376211f192a503ef3d86a646c61dfb34382c9d597ee8b1b22eda81c04c16",
-    "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders. Preserve upstream catalog changes since the prior reviewed merge."
-  },
-  {
     "path": "src/main/native-chat/agent-model-catalog/agent-model-catalog-refresh.ts",
     "blobs": [
       "27b9decf08e5812ef3599fdd953fa000ec77d5a8",
@@ -1810,5 +1798,17 @@
     "patchSha256": "9b8f66aaf46ec9200e52668221b0d2fb8c2ce1b855125b387f1324dd71acdda8",
     "resultSha256": "b443648a9b7a5be04ec933706a0292adfd6d7a7ab320a1fe3188da98c113365e",
     "reason": "Keep account-scoped probe support and preserve the upstream unavailable-scope and relist guards."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "4764ed6b28929a2252ceb0957826dd2e797e7f02",
+      "8c0ce7713f9f5a4954e7e8d82c14a4836fd8f7ec",
+      "29d3962a2ef1ee3422e9dd9e074e8080217e1643"
+    ],
+    "patch": "forward-20261125-pr-46107-58923bac.patch",
+    "patchSha256": "64435885fa287ffbb43c739b8ae299460e54113de486893bdcdf404e934ce3e5",
+    "resultSha256": "06ec14937e39379436d18e003e90cd25b0e87a23f212b624f08cd26e98f272c9",
+    "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders. Preserve upstream catalog changes since the prior reviewed merge."
   }
 ]
