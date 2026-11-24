@@ -1606,5 +1606,29 @@
     "patchSha256": "4bf2b28807a69e01d16ca4fc62a138bcf18639e69fc73a14280e1ca9f64aeb51",
     "resultSha256": "0dfe2ba2ff07e390adc2c7617a07378bce9dc7606cdc40582591a1464939a8d5",
     "reason": "Keep foreground-to-background tool control with the current worker dock, prompt ownership and child chat context."
+  },
+  {
+    "path": "src/main/antigravity/native-account-service.ts",
+    "blobs": [
+      "68f626860d7984f32fa3948bc466f194757cd5ce",
+      "ba080556cd41c85fdad42a98233b0ffad6518a60",
+      "2dcd2ed2ed3b1aefd7f79ff59de57fc344998684"
+    ],
+    "patch": "restore-8b301-pr-40980-7240114a.patch",
+    "patchSha256": "ee74e256eeb230a0ac6a6ddccfd4961db8aa047d87a06ca0bae908b4428621e5",
+    "resultSha256": "d23de27ac9ea17de5d9fcedcff3027f7ba7858aab925238ab01f39a89f5b276a",
+    "reason": "Preserve upstream credential switching and all configured backends alongside the fork host catalog invalidation."
+  },
+  {
+    "path": "src/main/runtime/agent-session/model-catalog/structured-agent-model-catalog-discovery.ts",
+    "blobs": [
+      "b865d3f881af7198cfc715b146068252dde54366",
+      "3c57eb8e40c56ea3224d1d261fdd59e6e7e0aedb",
+      "c56b4065a813d9e3d56731f842772943b3432026"
+    ],
+    "patch": "restore-8b301-pr-40980-91c1450e.patch",
+    "patchSha256": "7d865fad9ef16b4c2d1bceb77670086c7c31e430b3c210ede9abe8d5f73e8860",
+    "resultSha256": "b098ce7a6fb2be09844d204a7204787f5ea1b546ebdce19ac4f4791ebd5b19eb",
+    "reason": "Preserve upstream credential switching and all configured backends alongside the fork host catalog invalidation."
   }
 ]

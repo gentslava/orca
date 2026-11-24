@@ -965,3 +965,14 @@ diff --git a/src/renderer/src/components/settings/repository/identity/Repository
    const upload = [...container.querySelectorAll('button')].find((button) =>
      button.textContent?.includes('Upload')
    )
+diff --git a/src/main/antigravity/antigravity-host-acp.ts b/src/main/antigravity/antigravity-host-acp.ts
+--- a/src/main/antigravity/antigravity-host-acp.ts
++++ b/src/main/antigravity/antigravity-host-acp.ts
+@@ -3,7 +3,6 @@
+ import { readFile, stat } from 'node:fs/promises'
+ import { join } from 'node:path'
+ import { homedir } from 'node:os'
+-import { agentModelCatalogFingerprint } from '../native-chat/agent-model-catalog/agent-model-catalog-fingerprint'
+ import type { InitializeResponse } from '../acp/generated/acp-protocol.generated'
+ import { AcpAgentError, AcpConnectionClosedError } from '../acp/transport/acp-errors'
+ import {
