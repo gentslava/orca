@@ -2076,3 +2076,134 @@ index 158671e4e25..95be3b7bd89 100644
    const t = useTranslate()
    const localRateLimits = useAppStore((state) => state.rateLimits)
    const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
+diff --git a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+index dc990003186..6c109dfe96d 100644
+--- a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
++++ b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+@@ -483,10 +483,8 @@ export async function readLocaleCatalogs(directory = localeCatalogDir) {
+   return Promise.all(
+     names.map(async (name) => {
+       // Minify: the host sends and the phone keeps the parsed object, not the source layout.
+-      const bytes = Buffer.from(
+-        JSON.stringify(JSON.parse(await readFile(join(directory, name), 'utf8'))),
+-        'utf8'
+-      )
++      const data = await readFile(join(directory, name), 'utf8')
++      const bytes = Buffer.from(JSON.stringify(JSON.parse(data)))
+       const sha256 = sha256Hex(bytes)
+       return {
+         locale: name.slice(0, -'.json'.length),
+diff --git a/src/main/ipc/register-core-handlers/register-core-handlers.ts b/src/main/ipc/register-core-handlers/register-core-handlers.ts
+index 91f7e06d4b4..8bd52b0ce31 100644
+--- a/src/main/ipc/register-core-handlers/register-core-handlers.ts
++++ b/src/main/ipc/register-core-handlers/register-core-handlers.ts
+@@ -97,10 +97,7 @@ import {
+ import { callRuntimeSessionSearch } from '../../ai-vault/runtime-hosts/runtime-session-search-call'
+ import { aiVaultOrchestrationChildSessionIds } from '../../ai-vault/structured-conversation-navigation'
+ import { configureRuntimeAiVaultSessionDelete } from '../ai-vault/ai-vault-delete'
+-import {
+-  ensurePersistedStructuredAgentSessionHostUnlessRefused,
+-  ensureStructuredAgentSessionHostUnlessRefused
+-} from '../../runtime/agent-session/installation/structured-agent-session-host-refusal'
++import { ensurePersistedStructuredAgentSessionHostUnlessRefused } from '../../runtime/agent-session/installation/structured-agent-session-host-refusal'
+ import { getAgentSessionAttachmentStore } from '../../native-chat/agent-session-attachments/agent-session-attachment-store-registry'
+ import type { PluginService } from '../../plugins/plugin-service'
+ import type { PluginMarketplaceHandlerServices } from '../plugins/plugin-marketplaces'
+diff --git a/src/renderer/src/components/repo/project-peek/ProjectIconSourcePanel.tsx b/src/renderer/src/components/repo/project-peek/ProjectIconSourcePanel.tsx
+index 5715de92e28..3c06b4b05de 100644
+--- a/src/renderer/src/components/repo/project-peek/ProjectIconSourcePanel.tsx
++++ b/src/renderer/src/components/repo/project-peek/ProjectIconSourcePanel.tsx
+@@ -49,7 +49,7 @@ export function ProjectIconSourcePanel({
+         onClick={() => void uploadImage()}
+       >
+         <ImageUp />
+-        {t('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload PNG')}
++        {t('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload image')}
+       </Button>
+       <form
+         className="flex items-center gap-1.5"
+@@ -81,7 +81,7 @@ export function ProjectIconSourcePanel({
+       <p className="text-2xs text-muted-foreground">
+         {t(
+           'auto.components.settings.RepositoryIconPicker.fde066a63b',
+-          'PNG uploads must be 256KB or smaller.'
++          'PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF. Up to 10MB and 32 megapixels.'
+         )}
+       </p>
+     </div>
+diff --git a/src/renderer/src/components/sidebar/SidebarSectionDragOverlay.tsx b/src/renderer/src/components/sidebar/SidebarSectionDragOverlay.tsx
+index a6ec7ff438d..68eabb29ba8 100644
+--- a/src/renderer/src/components/sidebar/SidebarSectionDragOverlay.tsx
++++ b/src/renderer/src/components/sidebar/SidebarSectionDragOverlay.tsx
+@@ -1,11 +1,26 @@
+ import { useCallback, type CSSProperties } from 'react'
+ import { createPortal } from 'react-dom'
+-import { DragOverlay, useDndContext } from '@dnd-kit/core'
++import { DragOverlay, useDndContext, type Modifier } from '@dnd-kit/core'
+ import { ArrowDownUp } from 'lucide-react'
+ import { cloneSidebarDragSource } from './worktree-list/drag/worktree-sidebar-pointer-drag-dom'
+ 
+ const HEADER_PREVIEW_Z_INDEX = 999
+ 
++export const sidebarSectionDragModifiers: Modifier[] = [
++  ({ draggingNodeRect, scrollableAncestorRects: [viewport], transform }) => ({
++    ...transform,
++    x: 0,
++    // Keep the preview within the sidebar viewport when the pointer leaves it.
++    y:
++      draggingNodeRect && viewport
++        ? Math.max(
++            viewport.top - draggingNodeRect.top,
++            Math.min(transform.y, viewport.bottom - draggingNodeRect.bottom)
++          )
++        : transform.y
++  })
++]
++
+ export function SidebarSectionDragOverlay({
+   sidebarStyle
+ }: {
+diff --git a/src/renderer/src/components/sidebar/index.tsx b/src/renderer/src/components/sidebar/index.tsx
+index fb0c2b11bae..e69e1191a0d 100644
+--- a/src/renderer/src/components/sidebar/index.tsx
++++ b/src/renderer/src/components/sidebar/index.tsx
+@@ -5,8 +5,7 @@ import {
+   TouchSensor,
+   pointerWithin,
+   useSensor,
+-  useSensors,
+-  type Modifier
++  useSensors
+ } from '@dnd-kit/core'
+ import { useAppStore } from '@/store/index'
+ import { TooltipProvider } from '@/components/ui/tooltip'
+@@ -35,7 +34,7 @@ import { StalledTerminalDaemonBanner } from '../maintenance/terminal-daemon/Stal
+ import { SidebarBotsSection } from '@/components/bots/SidebarBotsSection'
+ import { SidebarBotsSplit, SidebarProjectsListSlot } from './SidebarBotsSplit'
+ import { SidebarContentViewport } from './SidebarContentViewport'
+-import { SidebarSectionDragOverlay } from './SidebarSectionDragOverlay'
++import { SidebarSectionDragOverlay, sidebarSectionDragModifiers } from './SidebarSectionDragOverlay'
+ import { PROJECTS_SECTION_GROUP_KEY } from '../../../../shared/sidebar-list/sections/group-keys'
+ import { useBotsEnabled } from '@/lib/bot-catalog'
+ import { StartupWorktreeRefreshStatus } from './worktree-list/listing/StartupWorktreeRefreshStatus'
+@@ -79,20 +78,6 @@ const AgentDashboardSidebarHost = lazyWithRetry(
+ 
+ const MIN_WIDTH = 220
+ const MAX_WIDTH = 500
+-const sidebarSectionDragModifiers: Modifier[] = [
+-  ({ draggingNodeRect, scrollableAncestorRects: [viewport], transform }) => ({
+-    ...transform,
+-    x: 0,
+-    // Keep the preview within the sidebar viewport when the pointer leaves it.
+-    y:
+-      draggingNodeRect && viewport
+-        ? Math.max(
+-            viewport.top - draggingNodeRect.top,
+-            Math.min(transform.y, viewport.bottom - draggingNodeRect.bottom)
+-          )
+-        : transform.y
+-  })
+-]
+ // Why: start on the divider pixel so pointing at the visible seam resizes instead of scrolling the list.
+ export const WORKTREE_SIDEBAR_RESIZE_HANDLE_CLASS_NAME =
+   'peer absolute -right-[9px] top-0 z-20 h-full w-[9px] cursor-col-resize'
