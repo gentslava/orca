@@ -1859,22 +1859,6 @@ diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worke
    }
  
    // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
-diff --git a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
-index 5cdc437bfea..3b0e99dcafc 100644
---- a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
-+++ b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
-@@ -17,7 +17,10 @@ import {
-   useMobileQueuedCardActions,
-   type MobileQueuedCardActions
- } from './mobile-queued-card-actions'
--import { headSteerableQueuedMessageCard, lastSteerableQueuedMessageCard } from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
-+import {
-+  headSteerableQueuedMessageCard,
-+  lastSteerableQueuedMessageCard
-+} from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
- import type { AgentSessionQueuePause } from '../../../../../../src/shared/agent-session/requests/agent-session-queued-message-wire'
- import type { MobileQueuedMessageEdit } from './use-mobile-structured-queued-message-controls'
- import type { MobileQueuedMessageInlineEditor } from './mobile-queued-message-edit-draft'
 diff --git a/src/main/usage/cache/usage-source-cache-file.ts b/src/main/usage/cache/usage-source-cache-file.ts
 index 8c5c2aebe1e..2bdc1bd232e 100644
 --- a/src/main/usage/cache/usage-source-cache-file.ts
@@ -1931,3 +1915,134 @@ index ba44b821570..1524e89de25 100644
                  syncSideChatPill(editor, sideChatEnabled(editor))
                  applyPosition(previousRange)
                  return
+diff --git a/mobile/src/session/native-chat/MobileNativeChatView.tsx b/mobile/src/session/native-chat/MobileNativeChatView.tsx
+index 8bbdb1db9ce..65a10ee2c8a 100644
+--- a/mobile/src/session/native-chat/MobileNativeChatView.tsx
++++ b/mobile/src/session/native-chat/MobileNativeChatView.tsx
+@@ -151,9 +151,8 @@ export function MobileNativeChatView({
+ }: Props): React.JSX.Element {
+   useMobileColorScheme()
+   const t = useMobileTranslation()
+-  const insets = useSafeAreaInsets()
+-  const bottomPad = keyboardInset > 0 ? keyboardInset + insets.bottom : insets.bottom
+-  const rootStyle = [styles.root, { paddingBottom: bottomPad }]
++  const { bottom } = useSafeAreaInsets()
++  const rootStyle = [styles.root, { paddingBottom: bottom + Math.max(0, keyboardInset) }]
+   const { fontScale, pinchGesture } = useMobileNativeChatPinchGesture()
+   const { font, lineSpacing } = useNativeChatTextSettings()
+ 
+diff --git a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
+index 5cdc437bfea..3123ce0cf20 100644
+--- a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
++++ b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
+@@ -17,7 +17,10 @@ import {
+   useMobileQueuedCardActions,
+   type MobileQueuedCardActions
+ } from './mobile-queued-card-actions'
+-import { headSteerableQueuedMessageCard, lastSteerableQueuedMessageCard } from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
++import {
++  headSteerableQueuedMessageCard,
++  lastSteerableQueuedMessageCard
++} from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
+ import type { AgentSessionQueuePause } from '../../../../../../src/shared/agent-session/requests/agent-session-queued-message-wire'
+ import type { MobileQueuedMessageEdit } from './use-mobile-structured-queued-message-controls'
+ import type { MobileQueuedMessageInlineEditor } from './mobile-queued-message-edit-draft'
+@@ -183,7 +186,6 @@ export function MobileNativeChatQueuedMessages({
+   const editingHidden =
+     editor !== undefined && cards.length > 0 && editor.messageId !== cards[0]!.messageId
+   const showAll = open || cards.length === 1 || editingHidden
+-  const shownCards = showAll ? cards : cards.slice(0, 1)
+   const queueBusy = busyIds.has(QUEUE_KEY)
+   const headId = mobileNativeChatShortcutCard(steerOrder ?? cards)?.messageId
+   const messageIds = cards.map((card) => card.messageId)
+@@ -339,7 +341,7 @@ export function MobileNativeChatQueuedMessages({
+                 {...drag}
+               />
+             ) : (
+-              shownCards.map((card) => renderRow(card, reveal, show))
++              (showAll ? cards : cards.slice(0, 1)).map((card) => renderRow(card, reveal, show))
+             )
+           }}
+         </MobileQueuedMessageScrollList>
+diff --git a/src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts b/src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts
+index 5cf0bbe55df..0de48f85de8 100644
+--- a/src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts
++++ b/src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts
+@@ -24,7 +24,7 @@ import type {
+ import type { StructuredAgentSessionPendingSend } from '../session/structured/delivery/structured-agent-session-pending-sends'
+ import {
+   headSteerableQueuedMessageCard,
+-  queuedMessageCardSteers,
++  lastSteerableQueuedMessageCard,
+   projectQueuedMessageCards,
+   type QueuedMessageCard
+ } from '../../../../../shared/agent-session/view/structured-agent-session-queued-cards'
+@@ -229,48 +229,18 @@ export function useStructuredAgentSessionQueuedMessages(args: {
+   // The host's whole queue, in the order a pending drag will leave it: its head is what the shortcut sends.
+   const steerOrder = reordered.held
+   const mailLeads = steerOrder[0] !== undefined && mail.waitingIds.has(steerOrder[0].messageId)
+-  const steerHead = useCallback((): boolean => {
+-    if (!enabled) {
+-      return false
+-    }
+-    const head = headSteerableQueuedMessageCard(steerOrder)
+-    if (!head || editingMessageId === head.messageId || inFlightRef.current.has(head.messageId)) {
+-      return false
++  const bindSteerShortcut = (card: QueuedMessageCard | null) => {
++    if (!enabled || !card || editingMessageId === card.messageId || inFlight.has(card.messageId)) {
++      return undefined
+     }
+-    void steer(head.messageId)
+-    return true
+-  }, [editingMessageId, enabled, steerOrder, steer])
+-  const steerableHead = enabled ? headSteerableQueuedMessageCard(steerOrder) : null
+-  // The same checks as the press, read from rendered state, so the composer never offers a dead steer.
+-  const headSteers =
+-    steerableHead !== null &&
+-    editingMessageId !== steerableHead.messageId &&
+-    !inFlight.has(steerableHead.messageId)
+-  const steerCard = useCallback(
+-    (card: QueuedMessageCard | undefined): boolean => {
+-      if (
+-        !enabled ||
+-        !card ||
+-        card.hold === 'sending' ||
+-        !queuedMessageCardSteers(card) ||
+-        editingMessageId === card.messageId ||
+-        inFlightRef.current.has(card.messageId)
+-      ) {
++    return () => {
++      if (inFlightRef.current.has(card.messageId)) {
+         return false
+       }
+       void steer(card.messageId)
+       return true
+-    },
+-    [editingMessageId, enabled, steer]
+-  )
+-
+-  const canSteer = (card: QueuedMessageCard | undefined): boolean =>
+-    enabled &&
+-    card !== undefined &&
+-    card.hold !== 'sending' &&
+-    queuedMessageCardSteers(card) &&
+-    editingMessageId !== card.messageId &&
+-    !inFlight.has(card.messageId)
++    }
++  }
+ 
+   const resume = useCallback(
+     (): Promise<boolean> =>
+@@ -355,10 +325,8 @@ export function useStructuredAgentSessionQueuedMessages(args: {
+     edit: editing.begin,
+     editCapable: editing.capable,
+     editor: editing.editor,
+-    steerHead: headSteers ? steerHead : undefined,
+-    steerLast: canSteer(reordered.cards.at(-1))
+-      ? () => steerCard(reordered.cards.at(-1))
+-      : undefined,
++    steerHead: bindSteerShortcut(headSteerableQueuedMessageCard(steerOrder)),
++    steerLast: bindSteerShortcut(lastSteerableQueuedMessageCard(reordered.cards)),
+     isWorking,
+     holds: mail.holds,
+     stopping: args.stopping,
