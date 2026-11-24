@@ -1558,5 +1558,53 @@
     "patchSha256": "e4f77a34d7b8df68e68397b65cffb726981c57d91eb538b03d4c869eef1e0a24",
     "resultSha256": "0fbb4d6e4f0ee01d15c2aea9a905c0d17ad5f0408c6c50fe23381d1b49e23adf",
     "reason": "Steer the newest personal message while retaining the upstream waiting-mail action and inline edit guards."
+  },
+  {
+    "path": "config/scripts/test-runtime/sqlite-admission/vitest-node-runtime-files.mjs",
+    "blobs": [
+      "49875ce298af4a9a2291c543433742bd74abcd68",
+      "3c2633c2f9a1fd385157e82d331c472b7ddb5467",
+      "60a6c117cc2090d8360b1167a111886beaa7fe25"
+    ],
+    "patch": "restore-8b301-pr-38963-94aa51a3.patch",
+    "patchSha256": "51b6a6ed178dc22ceeefd8855b15f6df077ff28bd25050d1cd2d70e55b5c4567",
+    "resultSha256": "9c7bbad2762c2e446796e430c2da5ff56a30e91059e8ac0619e50d44b9704974",
+    "reason": "Keep foreground-to-background tool control with the current worker dock, prompt ownership and child chat context."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "d8106f9a11a46645d4e04601a48918cff549e0ea",
+      "d4e14df8122a4baaaf3a39951752b7701c0e7bde",
+      "5f2b0079690906c72dc8d77d6fe5db9eb8bb1b49"
+    ],
+    "patch": "restore-8b301-pr-38963-1d7a4539.patch",
+    "patchSha256": "d24bcbb258290369a5ed75053f88286b599637ea6391e764b2a295e2e980bb5a",
+    "resultSha256": "c4a2af1cfaf00d42b3c9f58f730de97b1bd09fc74ebae20d9b6beb3d55d2104f",
+    "reason": "Keep foreground-to-background tool control with the current worker dock, prompt ownership and child chat context."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "fff91fd4677f6e34410bd5d964892dc493583d3a",
+      "b87f849fb7c05fe7eedaf233789ac6ca6f239e83",
+      "638f017eef0335e702ea19738a5a37c16386d90a"
+    ],
+    "patch": "restore-8b301-pr-38963-77f3327a.patch",
+    "patchSha256": "a9d88e3724bda17354fa93720b35fe3dbafee2cae75ab503b7dde07aee6baf20",
+    "resultSha256": "3820b4963c6e03f144bcb583135dd8682f878629070ca0eb1189f6f40a417e1b",
+    "reason": "Keep foreground-to-background tool control with the current worker dock, prompt ownership and child chat context."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRow.tsx",
+    "blobs": [
+      "8bdd3ecf5a0aab8e851c85ec9bf608216f0b3e37",
+      "28d5c44c7c11bc477ac180d8e9b9f5a7e1f099a3",
+      "fabb69e0174d392807d968cfbd40d48982afdaf9"
+    ],
+    "patch": "restore-8b301-pr-38963-439c7a02.patch",
+    "patchSha256": "4bf2b28807a69e01d16ca4fc62a138bcf18639e69fc73a14280e1ca9f64aeb51",
+    "resultSha256": "0dfe2ba2ff07e390adc2c7617a07378bce9dc7606cdc40582591a1464939a8d5",
+    "reason": "Keep foreground-to-background tool control with the current worker dock, prompt ownership and child chat context."
   }
 ]
