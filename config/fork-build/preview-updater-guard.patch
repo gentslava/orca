@@ -1,8 +1,8 @@
 diff --git a/src/main/updater/lifecycle/updater-setup.ts b/src/main/updater/lifecycle/updater-setup.ts
-index 23401024692..2fea336c8e8 100644
+index 98cd8dc4fb2..9a1fafd24ea 100644
 --- a/src/main/updater/lifecycle/updater-setup.ts
 +++ b/src/main/updater/lifecycle/updater-setup.ts
-@@ -40,20 +40,44 @@ export type UpdaterSetupOptions = {
+@@ -55,20 +55,44 @@ export type UpdaterSetupOptions = {
    onBeforeQuitFailure?: PreQuitCleanupFailureMode
  }
  
@@ -47,17 +47,17 @@ index 23401024692..2fea336c8e8 100644
      if (this.currentStatus.state === 'downloaded' && !this.currentStatus.installing) {
        this.publishDownloadStatus(this.currentStatus)
      } else {
-@@ -62,6 +86,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
-   }
- 
-   quitAndInstall(automatic = false): void {
-+    if (this.rejectForkPreviewUpdate(!automatic)) {
+@@ -80,6 +104,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
+     trigger: UpdateInstallTrigger = 'manual',
+     isCurrentTeamRestart?: () => boolean
+   ): void {
++    if (this.rejectForkPreviewUpdate(trigger === 'manual')) {
 +      return
 +    }
-     super.quitAndInstall(automatic)
+     super.quitAndInstall(trigger, isCurrentTeamRestart)
    }
  
-@@ -70,6 +97,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
+@@ -88,6 +115,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
    }
  
    getUpdateStatus(): UpdateStatus {
@@ -67,7 +67,7 @@ index 23401024692..2fea336c8e8 100644
      return super.getUpdateStatus()
    }
  
-@@ -112,6 +142,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
+@@ -130,6 +160,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
      channel: ReleaseChannel,
      options?: ReleaseBuildListOptions
    ): Promise<ReleaseBuild[]> {
@@ -77,7 +77,7 @@ index 23401024692..2fea336c8e8 100644
      return super.listAvailableReleaseBuilds(channel, options)
    }
  
-@@ -124,6 +157,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
+@@ -142,6 +175,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
    }
  
    setupAutoUpdater(mainWindow: BrowserWindow | null, opts?: UpdaterSetupOptions): void {
