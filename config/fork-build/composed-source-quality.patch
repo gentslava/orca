@@ -2331,3 +2331,138 @@ index ba5817a5569..b1c784a1e4d 100644
    }
  
    beforeEach(() => {
+diff --git a/src/main/claude-usage/worktree-change-rescan.test.ts b/src/main/claude-usage/worktree-change-rescan.test.ts
+index dd28ad150a6..734034caf9a 100644
+--- a/src/main/claude-usage/worktree-change-rescan.test.ts
++++ b/src/main/claude-usage/worktree-change-rescan.test.ts
+@@ -67,7 +67,11 @@ async function forkedHistory() {
+         }
+       )
+       await writeClaudeUsageSourceCache(ref, result.processedFiles)
+-      return result.dailyAggregates.map((day) => [day.projectLabel, day.inputTokens])
++      const totals = new Map<string, number>()
++      for (const { projectLabel, inputTokens } of result.dailyAggregates) {
++        totals.set(projectLabel, (totals.get(projectLabel) ?? 0) + inputTokens)
++      }
++      return [...totals]
+     } catch (error) {
+       if (error instanceof WorkerStopped) {
+         return null
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
+index e30797d8cfb..4e9b15622e0 100644
+--- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
+@@ -150,11 +150,13 @@ export class AgentModelCatalogStore {
+     return revision
+   }
+ 
+-  private retireListings(agent: string): void {
+-    this.retirementRevisions.set(agent, this.retirementRevision(agent) + 1)
+-    this.retirements.retire(agent)
++  private retireListings(agent: string, scope?: string): void {
++    if (scope === undefined) {
++      this.retirementRevisions.set(agent, this.retirementRevision(agent) + 1)
++      this.retirements.retire(agent)
++    }
+     for (const [fingerprint, flight] of this.refreshes) {
+-      if (flight.agent === agent) {
++      if (flight.agent === agent && (scope === undefined || fingerprint === scope)) {
+         retireAgentModelCatalogListing(this.refreshes, this.listingWaiters, fingerprint, flight)
+       }
+     }
+@@ -201,7 +203,7 @@ export class AgentModelCatalogStore {
+   }
+ 
+   expireAgent(agent: string, fingerprint?: string): void {
+-    this.retireListings(agent)
++    this.retireListings(agent, fingerprint)
+     retireAgentModelCatalogObservations(
+       this.entries,
+       this.dueEntries,
+diff --git a/src/main/usage/usage-account-attribution.test.ts b/src/main/usage/usage-account-attribution.test.ts
+index 68f90241773..64f598f6b6e 100644
+--- a/src/main/usage/usage-account-attribution.test.ts
++++ b/src/main/usage/usage-account-attribution.test.ts
+@@ -83,6 +83,7 @@ describe('account provenance on the original collectors', () => {
+       [],
+       loaded.sources,
+       undefined,
++      undefined,
+       loaded.reuseProjections,
+       loaded.accountAttributionAvailable
+     )
+@@ -257,6 +258,7 @@ describe('account provenance on the original collectors', () => {
+       ],
+       loaded.sources,
+       undefined,
++      undefined,
+       loaded.reuseProjections
+     )
+     expect(tokensByAccount(projectEventUsageHistory('codex', second.dailyAggregates))).toEqual({
+@@ -284,6 +286,7 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
++      undefined,
+       sources
+     )
+     expect(tokensByAccount(projectClaudeUsageHistory(first.dailyAggregates))).toEqual({
+@@ -297,6 +300,7 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
++      undefined,
+       sources
+     )
+     expect(second.dailyAggregates).toEqual(first.dailyAggregates)
+@@ -307,6 +311,7 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
++      undefined,
+       sources
+     )
+     expect(tokensByAccount(projectClaudeUsageHistory(reclaimed.dailyAggregates))).toEqual({
+@@ -357,6 +362,7 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       [source.path],
+       loaded.verifiedSources,
++      undefined,
+       [source],
+       loaded.reuseProjections
+     )
+@@ -386,7 +392,7 @@ describe('account provenance on the original collectors', () => {
+       )
+     ).toBeNull()
+     const { scanClaudeUsageFiles } = await import('../claude-usage/scanner')
+-    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, [
++    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, undefined, [
+       { path: linked, accountId: 'wrong' }
+     ])
+     expect(tokensByAccount(projectClaudeUsageHistory(claude.dailyAggregates))).toEqual({
+diff --git a/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx b/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
+index 85206d7ac85..9e1e8309435 100644
+--- a/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
+@@ -26,7 +26,7 @@ function openedDetail(container: HTMLElement): Element | null {
+     throw new Error('The tool row is missing')
+   }
+   fireEvent.click(row)
+-  return container.querySelector('[data-native-chat-member-detail]')
++  return container.querySelector('[data-slot="collapsible-content"]')
+ }
+ 
+ describe('expanded tool input drawn once', () => {
+diff --git a/src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts b/src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts
+index 7e0b735bfd2..45afb349c69 100644
+--- a/src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts
++++ b/src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts
+@@ -223,7 +223,7 @@ export function useAccountOwnerUsage(
+   return {
+     owner,
+     rateLimits: scopedRateLimits,
+-    accounts: ownerId ? (owned?.snapshot ?? null) : null,
++    accounts: owned?.snapshot ?? null,
+     accountsUnverifiable: unavailable || (owned !== null && owned.failure !== null),
+     remoteOwner,
+     refreshRemote: ownerId || unavailable ? refreshRemote : null
