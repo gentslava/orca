@@ -1762,5 +1762,41 @@
     "patchSha256": "27dd548d995e449deec822dec647dc7f574c3d41c88b13a4f0d1769ee46f7f2e",
     "resultSha256": "39f9c4b13eaf0b6c2f8355a5e5cc1c27abeabafb9bed55ec2928243165f1591d",
     "reason": "Keep current mobile glossary and add the remaining Russian translations alongside the new ranged catalog"
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/es.json",
+    "blobs": [
+      "bbaefb5e7b1f43240c86bf0a080fdad107f7f1f2",
+      "0bf1d9ac933347a729647ca4ae95c933a630e644",
+      "4d4624b6769a4a42068ce6fdf8b7ebe46be906f3"
+    ],
+    "reason": "Merge surviving translation keys and retire labels absent from the English usage catalog.",
+    "patch": "forward-20261125-pr-33371-328ca638.patch",
+    "patchSha256": "bda47d6a9f4c49b4ede028d3efded01771902a68b1fc0c0ebaec3196d5814bff",
+    "resultSha256": "7242673cb176cc00b2624579ab638e177867ab64fb5960c108b5a51522f98a53"
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ko.json",
+    "blobs": [
+      "be189d1920c86b39fa5d52afdcbcdc7f225fd1f7",
+      "b569af495baf1fb6b295d18be16bb75cbac038ea",
+      "343dd8d55837ae20f50a4febabefbedfcec43552"
+    ],
+    "reason": "Merge surviving translation keys and retire labels absent from the English usage catalog.",
+    "patch": "forward-20261125-pr-33371-aa028d28.patch",
+    "patchSha256": "bb2353077d2e29c044311eca1701da53a0e564d7fd114adaaa0f01f8a1608304",
+    "resultSha256": "41e688405cbc4e3170b19ffa4e344769c942425b42c100e54e6fc40485073b20"
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "4764ed6b28929a2252ceb0957826dd2e797e7f02",
+      "6d74ceab16d63d6a9509a452e704e1f45b484b5a",
+      "29d3962a2ef1ee3422e9dd9e074e8080217e1643"
+    ],
+    "patch": "forward-20261125-pr-46107-58923bac.patch",
+    "patchSha256": "c4f6e308fd5b6386f24d4f22533e7b8b2fea2e9c3159fc988e08abff4cc29a5a",
+    "resultSha256": "37f4376211f192a503ef3d86a646c61dfb34382c9d597ee8b1b22eda81c04c16",
+    "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders. Preserve upstream catalog changes since the prior reviewed merge."
   }
 ]
