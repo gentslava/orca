@@ -1342,5 +1342,41 @@
     "patchSha256": "658b5a6a104892fccc89999f26f758e54d08cba0fe7dbde1f97eacbb2e935f01",
     "resultSha256": "8b2338f6854c36f597fe974effa5c225e4f6434b0c558106f8cc5c5f55649510",
     "reason": "Keep image chips on opted-in surfaces and preserve line ending normalization and the upstream side-chat extension."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "77a5ac75f0e4f642c439c5bfe92f0428b067beb1",
+      "8c6025f2e4f741be17286413b6c78b234dcdcdcd",
+      "d8955bab0f22c872897b2ba52e6a6081038701d9"
+    ],
+    "patch": "restore-8b301-pr-33502-71397d9b.patch",
+    "patchSha256": "b0048ad359df413d84ddc633d429dd344c26e806ff61b66c1403973fa0256159",
+    "resultSha256": "b6016b09f1a4ea48a1834d9a148170d0ac56521c9047710df89c239913dce120",
+    "reason": "Decode both project order and conversation preferences from each workspace host."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "4491127e4278e5d63697a1d8c91f81490b96c13e",
+      "5c353d41a1285e6c1893e24514a44ca384811fa5",
+      "5bf7c844f3e8d0559d2fe560ad16965e35bc4d0e"
+    ],
+    "patch": "restore-8b301-pr-33502-bbedafb0.patch",
+    "patchSha256": "850eb48ba57b6f855fa74285e8138c155168cb9526a100a0e60df7ae2fe52787",
+    "resultSha256": "049a8097f0ee5f95846c7a4eb7a5291bf8e6415318c31e7e5932addefbac6196",
+    "reason": "Keep host project order settings beside the current bot and sidebar feeds."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/client-ui.ts",
+    "blobs": [
+      "151645cf5b9e2fa2b6e63b56f748527d8330c887",
+      "583d7e9bd11107d4350b4a696eadfc2d4858b40e",
+      "c18fb15850fa94c3d28d4ca581594f8335438be7"
+    ],
+    "patch": "restore-8b301-pr-33502-16f4b9fa.patch",
+    "patchSha256": "5f5af90679fd88416950fdc4804fc1e9316e8b7237681cd80fc93d70d0a9cf07",
+    "resultSha256": "9c8dd127e4fab037ad982988d4ced816ee41e4462787bb09c93a7a266055525c",
+    "reason": "Keep scoped RPCs for both conversation preferences and project pin/open order."
   }
 ]
