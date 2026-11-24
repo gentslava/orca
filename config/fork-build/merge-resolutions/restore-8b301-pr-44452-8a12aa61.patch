@@ -1,0 +1,26 @@
+diff --git a/mobile/src/session/native-chat/MobileNativeChatView.tsx b/mobile/src/session/native-chat/MobileNativeChatView.tsx
+--- a/mobile/src/session/native-chat/MobileNativeChatView.tsx
++++ b/mobile/src/session/native-chat/MobileNativeChatView.tsx
+@@ -146,7 +146,8 @@
+   onRespondPermission,
+   composerTray: { content: trayContent, composerInputRef: inputRef, ...tray } = NO_COMPOSER_TRAY,
+   onOpenFile,
+-  keyboardInset = 0
++  keyboardInset = 0,
++  covered = false
+ }: Props): React.JSX.Element {
+   useMobileColorScheme()
+   const t = useMobileTranslation()
+@@ -364,7 +365,11 @@
+ 
+   return (
+     <MobileNativeChatOpenFileContext value={onOpenFile}>
+-      <MobileNativeChatComposerMenuHost testID="native-chat-view" style={rootStyle}>
++      <MobileNativeChatComposerMenuHost
++        testID="native-chat-view"
++        style={rootStyle}
++        aria-hidden={covered}
++      >
+         {status === 'loading' && messages.length === 0 ? (
+           <MobileStateView
+             loading

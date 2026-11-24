@@ -900,18 +900,6 @@
     "reason": "Support both opening a retained child chat and backgrounding a running tool."
   },
   {
-    "path": "mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx",
-    "blobs": [
-      "0af7d55fc152def8bff4d87bef584aca95cff0b6",
-      "c697fef438b14f940a489eb1cee08164e2683942",
-      "993f60f017b81d49941e17e48ef638e7816284a3"
-    ],
-    "patch": "maintenance-20261123/44452-3-b8f0fb99a4ec.patch",
-    "patchSha256": "b8f0fb99a4ec5f191fd3497c2b4ac9f2cd0110fb2f33082e74a4166335f91d3f",
-    "resultSha256": "4ed4e93de61d7950eae8af93f211985a17667cec6fbc6efbd893a9f578df8fea",
-    "reason": "Keep rewind, image and child chat actions on the same typed overlay host."
-  },
-  {
     "path": "mobile/src/i18n/en-runtime-required.json",
     "blobs": [
       "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
@@ -1654,5 +1642,53 @@
     "patchSha256": "ecb41f26a34d20bb50a63df80d4003cd6ecd8948e3f095ad32defb9bfec40428",
     "resultSha256": "e2628c04a97182d20d79606e4c3fa8ad4f14542170c1ff0a82e2cb23f3fcf8dd",
     "reason": "Keep explicit model reset and filtered choices in the current option rows"
+  },
+  {
+    "path": "mobile/src/session/native-chat/MobileNativeChatOverlay.tsx",
+    "blobs": [
+      "96dc950a438349cf1bfa4829276a64bbc4b59a36",
+      "4f06ec6390cf7cc69f397e115c5d82e7253baa79",
+      "36e14f66b9f82fa051784a4d20cd59546e43c0fc"
+    ],
+    "patch": "restore-8b301-pr-44452-a1b21294.patch",
+    "patchSha256": "04d5810bc2539d6089dcb5cd50695bdcf121a14639e3887dc88cadc8d503f823",
+    "resultSha256": "17ba4c25c090246ba20bf223ea6f165953b517ab401446a73f75d6dca3522bf0",
+    "reason": "Preserve foreground task controls and show child chats above the parent session"
+  },
+  {
+    "path": "mobile/src/session/native-chat/MobileNativeChatView.tsx",
+    "blobs": [
+      "057ca091001c4cd16dd2657f198748e2c0474f61",
+      "19e06a9c3af5cb3a36f72025d065dd8c9f62d92d",
+      "3c1b0ee3e70ef44765151bafa0403c493aa483dc"
+    ],
+    "patch": "restore-8b301-pr-44452-8a12aa61.patch",
+    "patchSha256": "e073a4521a5bdfe25c0707a6bfc4e199c8be6baf7f099f3c500d760249b816d9",
+    "resultSha256": "199a9bd8e33a7ca1e2d9ca0ae78976055072475e85fd8abaab3867af97864616",
+    "reason": "Keep the root composer menu host while hiding covered parent chats from accessibility"
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/tasks/MobileNativeChatBackgroundTasks.tsx",
+    "blobs": [
+      "7c626987bb93bd1e837383c25e3088aef1a73c1e",
+      "a7de0c54772d65f6d53dbefecafe614e3bd4c8fc",
+      "c62fb17d0da2658e899ceee0abe78bf4fbdaed93"
+    ],
+    "patch": "restore-8b301-pr-44452-3d6f4513.patch",
+    "patchSha256": "eb19756ef1cde2e327225f41f4b1c79ff6400692f813d70de2c3d0d0b547b30b",
+    "resultSha256": "b02b0bca20348fa9389ac5e1e840e2fbd39437dd1de9afc126f2dd8b13bc9f19",
+    "reason": "Keep both opening child chats and moving active work to the background"
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx",
+    "blobs": [
+      "0af7d55fc152def8bff4d87bef584aca95cff0b6",
+      "c697fef438b14f940a489eb1cee08164e2683942",
+      "993f60f017b81d49941e17e48ef638e7816284a3"
+    ],
+    "patch": "restore-8b301-pr-44452-d6188cc8.patch",
+    "patchSha256": "4d47f3004d87aa4a7b68ae7ad9112b28a88b7c00b7d7a22c0ec4e16ed9a86f02",
+    "resultSha256": "fb03041be4cfa384a22d4ebaad69d04df2786010314ffbd701e747db954768c6",
+    "reason": "Retain rewind, scoped image previews and opening child chats with one image source"
   }
 ]

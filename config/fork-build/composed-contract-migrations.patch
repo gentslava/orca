@@ -976,3 +976,26 @@ diff --git a/src/main/antigravity/antigravity-host-acp.ts b/src/main/antigravity
  import type { InitializeResponse } from '../acp/generated/acp-protocol.generated'
  import { AcpAgentError, AcpConnectionClosedError } from '../acp/transport/acp-errors'
  import {
+diff --git a/mobile/src/session/native-chat/composer/menus/MobileNativeChatComposerMenuHost.tsx b/mobile/src/session/native-chat/composer/menus/MobileNativeChatComposerMenuHost.tsx
+--- a/mobile/src/session/native-chat/composer/menus/MobileNativeChatComposerMenuHost.tsx
++++ b/mobile/src/session/native-chat/composer/menus/MobileNativeChatComposerMenuHost.tsx
+@@ -7,16 +7,18 @@
+ export function MobileNativeChatComposerMenuHost({
+   style,
+   testID,
++  'aria-hidden': ariaHidden,
+   children
+ }: {
+   style?: StyleProp<ViewStyle>
+   testID?: string
++  'aria-hidden'?: boolean
+   children: ReactNode
+ }): React.JSX.Element {
+   const ref = useRef<HostInstance>(null)
+   return (
+     <ComposerMenuHostContext value={ref}>
+-      <View ref={ref} testID={testID} style={style}>
++      <View ref={ref} testID={testID} style={style} aria-hidden={ariaHidden}>
+         {children}
+       </View>
+     </ComposerMenuHostContext>
