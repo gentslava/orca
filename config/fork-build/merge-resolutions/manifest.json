@@ -1498,5 +1498,29 @@
     "patchSha256": "6de486287ba2a906a9b835cd44dc31a2384ed39cbeed0c1d33ed709bb8882961",
     "resultSha256": "b9bc169ae25da9379871b71ca6016826185cb843b5d3abeca5dabef94d5a5c79",
     "reason": "Keep quiet tool disclosure without disturbing the reader scroll anchor or hiding successful review asides."
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/agent-messages/MobileNativeChatAgentMessageCard.tsx",
+    "blobs": [
+      "ab095f1139d187a7da2f1e5d6732ee1254889a94",
+      "2f554d678e323f0417d50043219bf7e6ce0575c3",
+      "79bea6c03b16d79131e3c8da5eb08fed5a50a8a3"
+    ],
+    "patch": "restore-8b301-pr-37744-3acfe399.patch",
+    "patchSha256": "d4b8cd5bd43fdc2392752a89ff616b5610617f4c3148c6bdeb1be449bdf05541",
+    "resultSha256": "6e3a97251f1c350d539f6e5c3acea38e40f98868e07e7922b12732ff52a47476",
+    "reason": "Show the source chat link while preserving sender details, preview lines and waiting-mail state."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "d8106f9a11a46645d4e04601a48918cff549e0ea",
+      "f73032e3b233513989ca59d9ef53d18b3e68ee1a",
+      "15ce3399fc5175908c05061c78ed946fb096633e"
+    ],
+    "patch": "restore-8b301-pr-37744-1d7a4539.patch",
+    "patchSha256": "1bbbc69fc539c55748442704b389f5fcf846875481fc71fd446d97f9574deb51",
+    "resultSha256": "4b7b5d5836c01bfce4fab3c007acf92b5e3be664c0adb7aa7b9dbc742ad221e4",
+    "reason": "Keep owner-directed link questions in the retained child view and preserve the existing host prompt flow."
   }
 ]
