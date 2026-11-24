@@ -1402,5 +1402,53 @@
     "patchSha256": "301a297f348e0682e761ae7b5eef517f0a94c3df006f3621770da96a9c4b1e35",
     "resultSha256": "6f2fe2511e6c0793404a8733870d8a64d31dc1b82022111048889add42ed9b22",
     "reason": "Keep the new scroll-write marker on the existing shared window contract."
+  },
+  {
+    "path": "src/renderer/src/components/settings/repository/identity/RepositoryIconPicker.tsx",
+    "blobs": [
+      "781da3980ae7dd43b41e5ab3b0eb1eafaa763745",
+      "a87e4af9bf588c042114d1d612cb4600e8989d8d",
+      "4ebf1c41660a79de523a220b9d86d9547bd9861a"
+    ],
+    "patch": "restore-8b301-pr-34338-f04bafdc.patch",
+    "patchSha256": "e2186057cd8cb961b39d69f108af0dc3eefd1cb84ff8ba030922c05b48c34ade",
+    "resultSha256": "3aa3a512833f304e7d5b2cc88e453616f1a2e2fa0903f03947aafbb71a66d55c",
+    "reason": "Keep checked image conversion and upload cancellation alongside the shared monogram and icon settings."
+  },
+  {
+    "path": "src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.tsx",
+    "blobs": [
+      "68cb14ad8ccca99633122f79091e19ad0e8acd95",
+      "c7f45ce7c25ab8fd95a7e7c7536a341dcdbac86e",
+      "bf17a6b6040a96668a112cc868834912db3e375a"
+    ],
+    "patch": "restore-8b301-pr-34338-da6b67f4.patch",
+    "patchSha256": "7d2f2d77897357efd8edc18617662a02433752a3cb0ebb29005cca16b0ff0f42",
+    "resultSha256": "051b2040df3c638cd2f2c3c9aa07496a37b1b95c3ef17a5385e9b696b366fbf4",
+    "reason": "Keep checked image conversion and upload cancellation alongside the shared monogram and icon settings."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "6d4ffd7a60420e607d7dadc3ebf7eaf3e2bad076",
+      "d33e9bd472961eb2475d81762596889a1bd57034",
+      "c7f353e7e51400b737f0ea26c214e76161f4d1ae"
+    ],
+    "patch": "restore-8b301-pr-34338-927f1d2c.patch",
+    "patchSha256": "9e045447775b760045381100b410cd5dc3738c0a6af92e180eb2a8c08a76570f",
+    "resultSha256": "9ad578ab3d7ba16c69e193071edbc7a2d234b2014627cc2927822cf58bab624a",
+    "reason": "Keep checked image conversion and upload cancellation alongside the shared monogram and icon settings."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/zh.json",
+    "blobs": [
+      "7e5888c566a68df8d9737df56f9b31e0d424c01f",
+      "1f7456b2aed326551a1fd021e5172fee32540f5f",
+      "b41969c912f53b7654f383143f77959dbfdf8162"
+    ],
+    "patch": "restore-8b301-pr-34338-7aa19738.patch",
+    "patchSha256": "298257e6bcf0ffbb4e2d043cedd0dfc1e49f3ae8d742c3392e89076d9055738f",
+    "resultSha256": "0ac7b220ac37ef08eae505ab2ed19017bf3687324e0193ff8605c631a762924b",
+    "reason": "Keep checked image conversion and upload cancellation alongside the shared monogram and icon settings."
   }
 ]
