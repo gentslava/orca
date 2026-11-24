@@ -1630,5 +1630,17 @@
     "patchSha256": "7d865fad9ef16b4c2d1bceb77670086c7c31e430b3c210ede9abe8d5f73e8860",
     "resultSha256": "b098ce7a6fb2be09844d204a7204787f5ea1b546ebdce19ac4f4791ebd5b19eb",
     "reason": "Preserve upstream credential switching and all configured backends alongside the fork host catalog invalidation."
+  },
+  {
+    "path": "mobile/src/i18n/en-runtime-required.json",
+    "blobs": [
+      "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
+      "d8ebfec819f0b28e35c7829013e7580f38382a1a",
+      "6d828839f17fcde8c6da1c4ab5d30120b4708923"
+    ],
+    "patch": "restore-8b301-pr-41166-24d5c6c5.patch",
+    "patchSha256": "e68bbbdcef61d7ec9bbe16158d9d4dd604da283984cb8b2d8569c573b8bfd355",
+    "resultSha256": "f4e3f857488b8c753de3562f23f159e3fdda061636e45c11519312c371aa4205",
+    "reason": "Remove duplicate extracted fallbacks and retain translations added by the current composition"
   }
 ]
