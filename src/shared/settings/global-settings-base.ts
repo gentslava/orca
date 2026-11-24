@@ -1,3 +1,6 @@
+import type { ZcodePlanSite } from '../agent-accounts/usage-credentials/zcode-plan-sites'
+import type { WorkerRoleSettings } from '../orchestration-worker-roles'
+import type { HoldQuitSettings } from '../mac-hold-quit'
 import type { AntigravityChatAuthSettings } from '../agent-accounts/antigravity/antigravity-chat-auth-config'
 import type { EmulatorOpeningSettings } from '../emulator/emulator-opening-preferences'
 import type { BrowserExtensionGlobalSettings } from '../browser/extensions/browser-extension-settings'
@@ -58,6 +61,8 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
   ClaudeAccountSwitchSettings &
   AgentPermissionGlobalSettings &
   BrowserLinkOpeningSettings &
+  WorkerRoleSettings &
+  HoldQuitSettings &
   BrowserExtensionGlobalSettings &
   PluginAppearanceSettings &
   EditorTypographySettings &
@@ -81,4 +86,7 @@ export type GlobalSettingsBase = AntigravityChatAuthSettings &
   ManagedAccountNameSettings &
   NewTabMenuSettings &
   UiLanguageSettings &
-  ChatDeleteSettings
+  ChatDeleteSettings & {
+    /** GLM Coding Plan site whose API key is saved in AI Provider Accounts; defaults to the international Z.AI console. */
+    zcodePlanSite?: ZcodePlanSite
+  }

@@ -467,7 +467,8 @@
       "hideDetails": "Hide details",
       "showDetails": "Show details",
       "loading": "Loading agent sessions…",
-      "showAllAgents": "Show all agents"
+      "showAllAgents": "Show all agents",
+      "conversationUnavailable": "This conversation's history is unavailable on this host."
     },
     "resumeTarget": {
       "runtimeUnavailable": "Resume from history is not available in runtime-hosted workspaces.",
@@ -945,7 +946,6 @@
       "agentActivitySortDescription": "Agents that need attention, then most recent activity.",
       "manualWorkspaceOrderDescription": "Drag workspaces to arrange them within each group.",
       "manualProjectOrderDescription": "Drag projects to arrange them",
-      "recentProjectOrderDescription": "Most recent workspace activity",
       "detailed": "Detailed",
       "compact": "Compact",
       "fullList": "Full list",
@@ -970,7 +970,10 @@
       "searchProjectsPlaceholder": "Search projects…",
       "searchProjects": "Search projects",
       "hover": "Hover",
-      "agentActivityLayout": "Agent activity layout"
+      "agentActivityLayout": "Agent activity layout",
+      "frequent": "Frequently used",
+      "frequentProjectOrderDescription": "Most project openings by you",
+      "recentProjectOpeningDescription": "Most recently opened by you"
     },
     "workspaceOptionsSheet": {
       "hosts": "Hosts",
@@ -1011,6 +1014,10 @@
     },
     "identity": {
       "hostNotFound": "Host not found"
+    },
+    "project": {
+      "unpin": "Unpin project",
+      "pin": "Pin project"
     }
   },
   "webShell": {
@@ -2676,7 +2683,10 @@
       "stateIdleCount_one": "{{value0}} stopped",
       "stateIdleCount_other": "{{value0}} stopped",
       "stateUnverifiableCount_one": "{{value0}} with status unavailable",
-      "stateUnverifiableCount_other": "{{value0}} with status unavailable"
+      "stateUnverifiableCount_other": "{{value0}} with status unavailable",
+      "openAgent": "Open {{value0}}",
+      "background": "Background",
+      "backgrounding": "Backgrounding…"
     },
     "bulkCloseSheetActions": {
       "closeOtherTabs": "Close Other Tabs"
@@ -3001,6 +3011,7 @@
       "modelNotSelected": "{{agent}} has no model selected. Check your model selection and {{agent}} sign-in, then send again.",
       "providerUnavailable": "{{agent}} couldn't respond because the service is busy. Pick another model, or wait a little and send again.",
       "providerSafetyStopped": "{{agent}} stopped this response after a safety check. Review your request and send again.",
+      "flaggedRequestNotSwitched": "{{agent}} declined this request, and switching models on flagged requests is off. Rephrase it and send again, or change \"When Claude flags a request\" in Settings → Agents.",
       "providerResponseFailed": "{{agent}} couldn't finish this response. Open Details for more information.",
       "providerResponseFailedQuoted": "{{agent}} couldn't finish this response: {{detail}}.",
       "selectedModel": "the selected model",
@@ -3167,7 +3178,8 @@
       "mailOwnerUnconfirmed": "Orca couldn't confirm this message is still meant for this chat.",
       "chatNotFound": "Orca can't find this chat.",
       "startNewChat": "Start a new chat to continue.",
-      "tryAgain": "Try again."
+      "tryAgain": "Try again.",
+      "notDoneBackgroundTask": "Couldn't move the task to the background."
     },
     "workerAutoClose": {
       "running": "Temporary orchestration worker · Closes 2 minutes after it finishes",
@@ -3349,7 +3361,9 @@
       "disconnected": "Attach failed (disconnected)",
       "permissionDenied": "Photo permission denied",
       "imageTooLarge": "Image too large to attach",
-      "attachFailed": "Attach failed"
+      "attachFailed": "Attach failed",
+      "mediaUnavailable": "Media attachments unavailable here",
+      "capacityReached": "Attachment capacity reached"
     },
     "ask": {
       "send": "Send",
@@ -3402,7 +3416,6 @@
       "closed": "Not sent before Orca closed"
     },
     "sessionOptionPickers": {
-      "workingAnnouncement": "Agent is working. Model settings unlock when this turn finishes.",
       "modelFullAccessLabel": "Model, {{value}}, full access",
       "modelLabel": "Model, {{value}}",
       "permissionsLabel": "Permissions, {{value}}",
@@ -3414,7 +3427,11 @@
       "applying": "Applying…",
       "onAttach": "Applies when the chat attaches",
       "heldPickRefused": "{{picked}} isn't available in this chat. Kept {{kept}}.",
-      "optionsSection": "Options"
+      "optionsSection": "Options",
+      "searchModels": "Search models…",
+      "noModelsMatch": "No models match your search.",
+      "futureMessages": "Choices apply to future messages.",
+      "workingWithDescription": "Agent is working. {{description}}"
     },
     "sessionOptionRows": {
       "defaultMarker": "Default",
@@ -3477,7 +3494,9 @@
       "sessionOptions": "Session options",
       "permissionAppliesNextMessage": "{{saved}} applies to your next message; running {{active}}",
       "permissionAppliesNextMessageCompact": "{{saved}} · next message",
-      "permissionAppliesNextMessageTiming": "Applies next message · running {{active}}"
+      "permissionAppliesNextMessageTiming": "Applies next message · running {{active}}",
+      "defaultModel": "Default",
+      "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works."
     },
     "streamFrame": {
       "streamFailed": "Transcript stream failed",
@@ -3537,7 +3556,11 @@
     "nativeChatProse": {
       "attachedImage": "Attached image",
       "image": "image",
-      "openImageHint": "Opens the image full size"
+      "openImageHint": "Opens the image full size",
+      "loadingImage": "Loading image",
+      "imageUnavailable": "Image unavailable",
+      "retryImageHint": "Tries to load it again",
+      "retryImage": "Image unavailable — tap to retry"
     },
     "nativeChatToolLine": {
       "durationMilliseconds": "{{milliseconds}}ms",
@@ -3570,7 +3593,12 @@
       "triedFetch": "Tried to fetch",
       "searchingWeb": "Searching the web",
       "searchedWeb": "Searched the web",
-      "triedSearchWeb": "Tried to search the web"
+      "triedSearchWeb": "Tried to search the web",
+      "input": "Input",
+      "output": "Output",
+      "copyInput": "Copy input",
+      "showFullInput": "Show full input",
+      "inputUnavailable": "Input is not available in this transcript."
     },
     "nativeChatUserMessageFold": {
       "showLess": "Show less",
@@ -3769,7 +3797,8 @@
       "started_other": "Kicked off {{count}} subagents",
       "ran_one": "Ran {{count}} subagent",
       "ran_other": "Ran {{count}} subagents",
-      "tokens": "{{value0}} tokens"
+      "tokens": "{{value0}} tokens",
+      "openAgent": "Open {{value0}}"
     },
     "textAttachmentPreview": {
       "unreadableReply": "Unreadable attachment reply. Try again.",
@@ -3808,7 +3837,8 @@
         "followedUp": "Follow-up",
         "handedOff": "Handed off",
         "task": "Task"
-      }
+      },
+      "sessionLink": "Link"
     },
     "fork": {
       "busy": "Another chat or terminal is opening. Wait, then fork the {{agent}} chat again.",
@@ -4277,6 +4307,19 @@
       "always": "Always allow {{server}}",
       "deny": "Deny",
       "thisServer": "this server"
+    },
+    "subagentView": {
+      "promptFromMain": "Prompt from main agent",
+      "noSteps": "No steps yet",
+      "beforeClear": "This subagent ran before the chat was cleared",
+      "stoppedBeforeReply": "Stopped before replying",
+      "noReply": "Ended without a reply",
+      "backTo": "Back to {{value0}}",
+      "unnamed": "Subagent",
+      "mainAgent": "Main agent"
+    },
+    "tool": {
+      "activity": "Activity"
     }
   },
   "sourceControl": {
@@ -8527,5 +8570,8 @@
       "home": "A managed agent's Home Chat can't be deleted",
       "workerOwed": "An orchestration still waits on this chat"
     }
+  },
+  "workspaceOptions": {
+    "recentActivity": "Most recent workspace activity"
   }
 }

@@ -1,8 +1,13 @@
+import type {
+  MobileNativeChatSessionOptionPickersProps,
+  PresentationProps
+} from '../mobile-native-chat-session-option-picker-contract'
+export type * from '../mobile-native-chat-session-option-picker-contract'
 import { useEffect, useRef } from 'react'
 import { AccessibilityInfo, Keyboard, Platform, Text, View } from 'react-native'
 import { Clock, LockKeyhole } from 'lucide-react-native'
 import { BottomDrawer } from '../../../../components/bottom-drawer/BottomDrawer'
-import { ListGroup, LIST_LEADING_INSET, SectionHeader } from '../../../../components/list/ListGroup'
+import { ListGroup, LIST_LEADING_INSET } from '../../../../components/list/ListGroup'
 import { SheetHeader } from '../../../../components/nav-bar/SheetHeader'
 import { colors } from '../../../../theme/mobile-theme'
 import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
@@ -10,7 +15,6 @@ import { translate } from '../../../../i18n/mobile-i18n'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
 import { useMoreModelsShown } from './use-more-models-shown'
 import {
-  isReadOnlySessionOptionValue,
   sessionOptionDispatchUnconfirmed,
   type SessionOptionDescriptor,
   type SessionOptionValue
@@ -29,14 +33,10 @@ import {
 import {
   descriptorRowElements,
   ModelPill,
-  SessionOptionCaption,
-  SessionOptionSummaryRow,
-  showsSessionOptionAsSwitch
+  SessionOptionCaption
 } from './MobileNativeChatSessionOptionRows'
-import {
-  SessionOptionSegments,
-  showsSessionOptionAsSegments
-} from './MobileNativeChatSessionOptionSegments'
+import { MobileNativeChatModelList } from './MobileNativeChatModelList'
+import { MobileNativeChatModelOptions } from './MobileNativeChatModelOptions'
 import { sortNativeChatSessionOptions } from '../../../../../../src/shared/native-chat/input/session-options/native-chat-session-option-snapshot'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../../../src/shared/agent-launch/permissions/agent-chat-permission-mode-option-id'
 import {
@@ -44,25 +44,7 @@ import {
   permissionChoiceLeading,
   permissionModeIcon
 } from './mobile-native-chat-permission-mode-icons'
-import type { MobileNativeChatSessionOptionsController } from './use-mobile-native-chat-session-options'
 import { sessionOptionPickerStyles as styles } from './mobile-native-chat-session-option-picker-styles'
-
-export type MobileNativeChatPickerPresentation = { page: string | null; refocus: boolean }
-
-export type MobileNativeChatSessionOptionPickersProps = {
-  controller: MobileNativeChatSessionOptionsController
-  // Mid-turn terminal model commands would interleave with agent output.
-  isWorking: boolean
-  // Block applies during composer send: the host’s body/Enter delay could submit the setting as prompt text.
-  sendInFlight?: boolean
-}
-
-type PresentationProps = {
-  presentation: MobileNativeChatPickerPresentation | null
-  onNavigate: (page: string | null) => void
-  onDrawerOpen: (page: string) => void
-  onDrawerAfterClose?: () => void
-}
 
 function selectedChoice(descriptor: SessionOptionDescriptor | undefined) {
   return descriptor?.kind.type === 'select'
@@ -107,25 +89,32 @@ export function MobileNativeChatSessionOptionPickers({
     ? snapshot.find((descriptor) => descriptor.id === presentation?.page)
     : undefined
   const permissionView = activeDescriptor !== undefined && activeDescriptor === permission
+  const forFutureTurn = activeDescriptor?.transport === 'agent-session'
   const showWorkingNotice =
     (model !== undefined || permission !== undefined) &&
     activeDescriptor !== undefined &&
     isWorking &&
-    activeDescriptor.transport !== 'agent-session' &&
     !permissionView
+  const workingNoticeDescription = forFutureTurn
+    ? t('chat.sessionOptionPickers.futureMessages', 'Choices apply to future messages.')
+    : t(
+        'chat.sessionOptionPickers.settingsLocked',
+        'Model settings unlock when this turn finishes.'
+      )
 
   useEffect(() => {
     if (Platform.OS === 'ios' && showWorkingNotice) {
       // Queued announcements cannot be canceled when the picker closes or changes pages.
       AccessibilityInfo.announceForAccessibilityWithOptions(
         translate(
-          'chat.sessionOptionPickers.workingAnnouncement',
-          'Agent is working. Model settings unlock when this turn finishes.'
+          'chat.sessionOptionPickers.workingWithDescription',
+          'Agent is working. {{description}}',
+          { description: workingNoticeDescription }
         ),
         { queue: false }
       )
     }
-  }, [showWorkingNotice])
+  }, [showWorkingNotice, workingNoticeDescription])
 
   const options = sortNativeChatSessionOptions(snapshot)
   if (!model && !permission && options.length === 0) {
@@ -142,8 +131,7 @@ export function MobileNativeChatSessionOptionPickers({
   const permissionColor = permissionChoiceColor(permissionChoice?.value)
   const permissionIcon =
     !model && permissionChoice ? permissionModeIcon(permissionChoice.value) : undefined
-  const segmentOptions = options.filter(showsSessionOptionAsSegments)
-  const rowOptions = options.filter((descriptor) => !segmentOptions.includes(descriptor))
+  const modelHome = homeView && model !== undefined
   const primary = model
     ? nativeChatModelPillLabel(model, say)
     : mobileSessionOptionSummaryValue(home)
@@ -157,6 +145,7 @@ export function MobileNativeChatSessionOptionPickers({
     // A permission report can match a new explicit pick while the saved intent is Own.
     if (
       descriptor !== permission &&
+      !descriptor.defaultChoice?.selected &&
       descriptor.valueSource !== 'unknown' &&
       descriptor.valueSource !== 'default' &&
       descriptor.kind.type === 'select' &&
@@ -221,9 +210,12 @@ export function MobileNativeChatSessionOptionPickers({
           moreModels.reset()
           onDrawerAfterClose?.()
         }}
+        fillAvailable={modelHome}
+        contentScrollable={!modelHome}
+        dragContentToDismiss={!modelHome}
       >
         {activeDescriptor ? (
-          <View style={styles.sheet}>
+          <View style={[styles.sheet, modelHome && styles.modelSheet]}>
             <View style={styles.header}>
               <SheetHeader
                 title={nativeChatSessionOptionLabel(activeDescriptor, say)}
@@ -247,38 +239,48 @@ export function MobileNativeChatSessionOptionPickers({
             </View>
             {showWorkingNotice ? (
               <View style={styles.lockNotice} accessibilityLiveRegion="polite">
-                <LockKeyhole size={16} color={colors.textSecondary} />
+                {!forFutureTurn ? <LockKeyhole size={16} color={colors.textSecondary} /> : null}
                 <View style={styles.lockNoticeBody}>
                   <Text style={styles.lockNoticeTitle}>
                     {t('chat.sessionOptionPickers.agentWorking', 'Agent is working')}
                   </Text>
-                  <Text style={styles.lockNoticeDescription}>
-                    {t(
-                      'chat.sessionOptionPickers.settingsLocked',
-                      'Model settings unlock when this turn finishes.'
-                    )}
-                  </Text>
+                  <Text style={styles.lockNoticeDescription}>{workingNoticeDescription}</Text>
                 </View>
               </View>
             ) : null}
-            {homeView && model ? (
-              <SectionHeader title={nativeChatSessionOptionLabel(model, say)} first />
+            {modelHome ? (
+              <MobileNativeChatModelList
+                descriptor={model}
+                moreChoices={moreModels}
+                disabled={locked(model)}
+                onReset={
+                  controller.optionSurface?.resetOption
+                    ? () => {
+                        void controller.optionSurface?.resetOption?.(model.id)
+                      }
+                    : undefined
+                }
+                onSetOption={(value) => applyOption(model, value)}
+                onInvokeAction={() => invokeAction(model)}
+              />
             ) : (
-              <View style={styles.pageTop} />
+              <>
+                <View style={styles.pageTop} />
+                <ListGroup separatorInset={permissionView ? LIST_LEADING_INSET : undefined}>
+                  {descriptorRowElements(
+                    {
+                      descriptor: activeDescriptor,
+                      disabled: locked(activeDescriptor),
+                      onSetOption: (value) => applyOption(activeDescriptor, value),
+                      onInvokeAction: () => invokeAction(activeDescriptor),
+                      moreChoices: moreModels,
+                      ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
+                    },
+                    t
+                  )}
+                </ListGroup>
+              </>
             )}
-            <ListGroup separatorInset={permissionView ? LIST_LEADING_INSET : undefined}>
-              {descriptorRowElements(
-                {
-                  descriptor: activeDescriptor,
-                  disabled: locked(activeDescriptor),
-                  onSetOption: (value) => applyOption(activeDescriptor, value),
-                  onInvokeAction: () => invokeAction(activeDescriptor),
-                  moreChoices: moreModels,
-                  ...(permissionView ? { choiceLeading: permissionChoiceLeading } : {})
-                },
-                t
-              )}
-            </ListGroup>
             {sessionOptionDispatchUnconfirmed(activeDescriptor) ? (
               <SessionOptionCaption>
                 {t(
@@ -291,93 +293,20 @@ export function MobileNativeChatSessionOptionPickers({
               <SessionOptionCaption>{permissionDeferred}</SessionOptionCaption>
             ) : null}
             {reason ? <SessionOptionCaption>{reason}</SessionOptionCaption> : null}
-            {homeView && model ? (
-              <>
-                {segmentOptions.map((descriptor) => (
-                  <SessionOptionSegments
-                    key={descriptor.id}
-                    descriptor={descriptor}
-                    disabled={locked(descriptor)}
-                    onSetOption={(value) => applyOption(descriptor, value)}
-                  />
-                ))}
-                <OptionRows
-                  descriptors={[...rowOptions, ...(permission ? [permission] : [])]}
-                  permission={permission}
-                  permissionColor={permissionColor}
-                  locked={locked}
-                  onNavigate={onNavigate}
-                  onSetOption={applyOption}
-                />
-              </>
+            {modelHome ? (
+              <MobileNativeChatModelOptions
+                key={model.kind.currentValue?.toString()}
+                options={options}
+                permission={permission}
+                permissionColor={permissionColor}
+                locked={locked}
+                onNavigate={onNavigate}
+                onSetOption={applyOption}
+              />
             ) : null}
           </View>
         ) : null}
       </BottomDrawer>
     </View>
-  )
-}
-
-function OptionRows({
-  descriptors,
-  permission,
-  permissionColor,
-  locked,
-  onNavigate,
-  onSetOption
-}: {
-  descriptors: readonly SessionOptionDescriptor[]
-  permission: SessionOptionDescriptor | undefined
-  permissionColor: string | undefined
-  locked: (descriptor: SessionOptionDescriptor) => boolean
-  onNavigate: (page: string) => void
-  onSetOption: (descriptor: SessionOptionDescriptor, value: SessionOptionValue) => void
-}): React.JSX.Element | null {
-  const t = useMobileTranslation()
-  if (descriptors.length === 0) {
-    return null
-  }
-  return (
-    <>
-      <SectionHeader title={t('chat.sessionOptionPickers.optionsSection', 'Options')} />
-      <ListGroup>
-        {descriptors.flatMap((descriptor) => {
-          const isPermission = descriptor === permission
-          const deferred = isPermission ? mobileDeferredPermissionSummary(descriptor) : null
-          const disabled = locked(descriptor) || !descriptor.settable
-          if (showsSessionOptionAsSwitch(descriptor)) {
-            return descriptorRowElements(
-              {
-                descriptor,
-                disabled,
-                onSetOption: (value) => onSetOption(descriptor, value),
-                onInvokeAction: () => onNavigate(descriptor.id)
-              },
-              t
-            )
-          }
-          return [
-            <SessionOptionSummaryRow
-              key={descriptor.id}
-              label={
-                isPermission
-                  ? t('chat.sessionOptionPickers.permissions', 'Permissions')
-                  : nativeChatSessionOptionLabel(descriptor, say)
-              }
-              value={deferred?.saved ?? mobileSessionOptionSummaryValue(descriptor)}
-              subtitle={deferred?.timing}
-              accessibleValue={deferred?.full}
-              valueColor={isPermission ? permissionColor : undefined}
-              disabled={disabled}
-              onPress={
-                isReadOnlySessionOptionValue(descriptor)
-                  ? undefined
-                  : () => onNavigate(descriptor.id)
-              }
-            />
-          ]
-        })}
-      </ListGroup>
-    </>
   )
 }

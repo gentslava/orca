@@ -1,3 +1,5 @@
+import { structuredAgentSessionRuntimeModel } from './structured-agent-session-ran-options'
+import { readStructuredAgentSessionDefaultModel } from './structured-agent-session-default-model-preview'
 import { readAcpForkSupport } from '../../../acp/capabilities/acp-fork-support'
 import { supportsSessionAccountUsage } from '../../../../shared/agent-session/lifecycle/accounts/agent-session-account-usage'
 import { structuredAgentSessionCatalogScopeOwned } from './structured-agent-session-catalog-reads'
@@ -30,6 +32,7 @@ import { structuredAgentSessionImmediatePermission } from './structured-agent-se
 import type { StructuredAgentSessionMutationContext } from '../operations/structured-agent-session-mutation-context'
 import { readStructuredSessionRecovery } from '../recovery/structured-agent-session-recovery-read'
 import { fillUnknownModelEfforts } from '../../../../shared/agent-session/options/model-catalog/agent-session-model-efforts'
+import { effectiveAgentSessionOptions } from '../../../runtime/agent-session/records/agent-session-record-options'
 
 /** A live child's own answer, or the answer at rest; the goal, usage and rewind either way. */
 export async function readStructuredAgentSessionOptions(
@@ -131,6 +134,7 @@ export async function readStructuredAgentSessionOptions(
   const capabilities = agents.capabilities(agent)
   const restingOptions = await atRest()
   const recovery = await readStructuredSessionRecovery(session, context, sessionId)
+  const defaultModel = await readStructuredAgentSessionDefaultModel(context.deps, sessionId)
   const [floor, goalSource, contextUsage] = await Promise.all([
     session.journal.reads.contextFloor(),
     session.journal.reads.threadGoalSource(),
@@ -162,7 +166,7 @@ export async function readStructuredAgentSessionOptions(
           (row) => row.isDefault
         )?.id
       : undefined
-  const stored = record?.options ?? {}
+  const stored = (record && effectiveAgentSessionOptions(record)) ?? {}
   const saved =
     agents.definition(agent)?.restingOptions.listedSelection?.(stored, options.models) ?? stored
   const model = saved.model ?? (options.current.model || selected.current.model || displayDefault)
@@ -253,6 +257,7 @@ export async function readStructuredAgentSessionOptions(
           ? (live?.forkSupport ?? readAcpForkSupport(agent))
           : 'unsupported',
     ...(supportsSessionAccountUsage(record) ? { accountUsage: true as const } : {}),
+    ...(defaultModel ? { defaultModel } : {}),
     ...(live?.effortFixed
       ? {
           models: options.models.map(({ effortsKnown: _unknown, ...row }) => ({
@@ -263,8 +268,12 @@ export async function readStructuredAgentSessionOptions(
       : {}),
     current: {
       ...current,
+      ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
       acceptedInputSources,
-      reportedModel: undefined,
+      reportedModel:
+        record?.defaultModelOptions !== undefined && agent === 'claude' && session.child
+          ? structuredAgentSessionRuntimeModel(session.child)
+          : undefined,
       ...(reportedEffort !== undefined ? { reportedEffort } : {}),
       defaulted,
       confirmed,

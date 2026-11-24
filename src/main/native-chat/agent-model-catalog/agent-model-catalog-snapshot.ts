@@ -1,10 +1,11 @@
+export { agentModelCatalogReleasedOwner } from './agent-model-catalog-read-scope'
 import {
   agentModelCatalogReadRecords,
+  agentModelCatalogReleasedOwner,
   agentModelCatalogScopedRecord
 } from './agent-model-catalog-read-scope'
 import { agentModelCatalogFingerprintForRecord } from './agent-model-catalog-fingerprint'
 import { agentSessionPinnedLaunchDirectory } from '../../runtime/agent-session/records/agent-session-record-launch-directory'
-import type { AgentSessionConversationView } from '../../../shared/agent-session/lifecycle/leases/agent-session-conversation-view'
 import type { AgentSessionModelCatalogResult } from '../../../shared/agent-session/agent-session-wire'
 import { agentModelCatalogResultFromEntry } from './agent-model-catalog-entry'
 import { agentModelCatalogDefaultFollowsAccount } from './agent-model-catalog-workspace'
@@ -26,6 +27,7 @@ export type AgentModelCatalogBinding = {
   fingerprint: string
   base: string
   exact: boolean
+  canProbe: boolean
   folder?: string
   cwd?: string
   workspacePath?: string | null
@@ -61,14 +63,6 @@ export function bindAgentModelCatalogScope(
   }
 }
 
-export function agentModelCatalogReleasedOwner(
-  record: AgentSessionConversationView | undefined
-): boolean {
-  return (
-    record?.ownerObservation.claimStatus === 'released' && !!record.ownerObservation.deathEvidence
-  )
-}
-
 export function agentModelCatalogRequestKey(
   deps: AgentModelCatalogServiceDeps,
   params: AgentModelCatalogReadParams
@@ -95,7 +89,8 @@ export function agentModelCatalogRequestKey(
     workspacePath: params.workspacePath,
     inSessionWorkspace:
       inWorkspace && record ? [record.location.workspaceId, record.launchDirectory] : undefined,
-    legacy: params.legacy
+    legacy: params.legacy,
+    requireConfiguredDefault: params.requireConfiguredDefault
   })
 }
 
@@ -153,6 +148,7 @@ export function agentModelCatalogMemoryBinding(
   ) {
     return
   }
+  const probe = deps.probes?.[params.agent]
   const fingerprint = agentModelCatalogFingerprintForRecord(record)
   return {
     identity: capture(params),
@@ -163,6 +159,7 @@ export function agentModelCatalogMemoryBinding(
     fingerprint,
     base: fingerprint,
     exact: false,
+    canProbe: Boolean(probe && probe.supportsAccount?.(record.accountHome) !== false),
     keepDefault:
       agentModelCatalogDefaultFollowsAccount(params.agent) ||
       (!params.inSessionWorkspace && params.workspacePath === undefined) ||
@@ -203,8 +200,11 @@ export function projectAgentModelCatalogSnapshot(
   const listed = deps.store.observation(bound.fingerprint)
   const independent = independentAgentModelCatalog(params.agent)
   if (
-    params.verifiedOnly &&
-    (!listed || (independent && (!bound.exact || !deps.store.verified(listed))))
+    (params.verifiedOnly || params.requireConfiguredDefault) &&
+    (!listed ||
+      (independent && !bound.exact) ||
+      ((independent || params.requireConfiguredDefault) &&
+        !deps.store.verified(listed, params.requireConfiguredDefault)))
   ) {
     return { origin: 'unknown' }
   }
@@ -241,7 +241,8 @@ export function projectAgentModelCatalogSnapshot(
     !params.verifiedOnly &&
     (deps.store.isListing(bound.fingerprint) ||
       (resolving && bound.projecting !== undefined) ||
-      (resolving &&
+      (bound.canProbe &&
+        resolving &&
         (deps.store.probeDue(bound.fingerprint) ||
           // The picked model's menu is listed by the refresh this read just asked for.
           deps.store.efforts.due(bound.fingerprint, params.selectedModel))))

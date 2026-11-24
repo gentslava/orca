@@ -1,7 +1,5 @@
 import { createLocalWorkerStartDispatch } from './local-worker-start-dispatch'
 import { refuseClaimedWorkerTerminal } from '../../../../../orchestration/db/worker-dispatch/worker-terminal-claim'
-import { probeWorkerOpenCodeModelLaunchSupport } from './launch/worker-opencode-model-preflight'
-import { resolveWorkerConfiguredAgentParams } from './launch/worker-configured-agent-preflight'
 import type { OrcaRuntimeService } from '../../../../../orca-runtime'
 import type { OrchestrationDb } from '../../../../../orchestration/db/orchestration-db'
 import type {
@@ -40,7 +38,6 @@ import {
   releaseRetriedWorkerTerminal
 } from '../release/retried-worker-terminal-release'
 import { requireWorkerAuthority, type WorkerEffect } from './placement/worker-placement-topology'
-import { prepareLocalWorkerStart } from './launch/worker-start-validation'
 import { deliverAndSettleWorkerStartReadiness } from './readiness/worker-start-readiness-settlement'
 import { handOverWhenReady } from './readiness/placed-worker-readiness'
 import type { WorkerStartMutation } from './worker-start-mutation'
@@ -50,6 +47,7 @@ import {
 } from '../../../../../orchestration/workers/launch/worker-start-card'
 import { rebindReusedStructuredWorker } from '../../structured-workers/orchestration-structured-worker-session'
 import { placedWorkerParty, type WorkerFollowUp } from '../follow-up/worker-follow-up-placement'
+import { preflightLocalWorkerStartLaunch } from '../worker-start-launch-preflight'
 
 export async function startLocalWorker(args: {
   params: WorkerStartInput
@@ -94,26 +92,16 @@ export async function startLocalWorker(args: {
   const existingWorktree =
     requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree
   const targetLabel = workerStartTargetLabel({ ...args.params, createsWorktree, requestedWorktree })
-  const launchParams = await refuseUnmatchedWorkerSelector(targetLabel, () =>
-    resolveWorkerConfiguredAgentParams(runtime, params, async () =>
-      createsWorktree
-        ? { repo: (await creationTargetFor(coordinatorWorktreeId)).repoSelector }
-        : { worktree: existingWorktree }
-    )
-  )
-  let openCodeModelLaunchSupported = false
-  if (!createsWorktree && launchParams.agent === 'opencode' && launchParams.model) {
-    openCodeModelLaunchSupported = await refuseUnmatchedWorkerSelector(targetLabel, () =>
-      probeWorkerOpenCodeModelLaunchSupport(runtime, launchParams, { worktree: existingWorktree })
-    )
-  }
-
-  const { agent, launch } = prepareLocalWorkerStart({
-    params: launchParams,
-    createsWorktree,
-    runtime,
-    openCodeModelLaunchSupported
-  })
+  const { agent, launch, fastWorkspace, fastWorkerMode, preflightTerminal } =
+    await refuseUnmatchedWorkerSelector(targetLabel, () => preflightLocalWorkerStartLaunch({
+      params,
+      runtime,
+      coordinatorWorktreeId,
+      requestedWorktree,
+      createsWorktree,
+      creationTargetFor,
+      mode: args.mode
+    }))
 
   const creationTarget = createsWorktree
     ? await creationTargetFor(coordinatorWorktreeId)
@@ -122,6 +110,7 @@ export async function startLocalWorker(args: {
     await refuseUnmatchedWorkerSelector(targetLabel, () =>
       resolveExistingWorkerWorkspace(runtime, creationTarget, existingWorktree)
     )
+  resolvedWorktree = fastWorkspace ?? resolvedWorktree
   if (terminal) {
     await assertExplicitWorkerUsable({
       runtime,
@@ -133,8 +122,15 @@ export async function startLocalWorker(args: {
     })
   }
   const decided = lineageModeForResolvedAgent(runtime, args.mode, { ...args, params, agent })
-  const hostMode = resolveWorkerStartModeOnHost(runtime, decided, resolvedWorktree?.id, agent)
+  const hostMode =
+    decided === args.mode && fastWorkerMode
+      ? fastWorkerMode
+      : resolveWorkerStartModeOnHost(runtime, decided, resolvedWorktree?.id, agent)
   let mode = chatWorkerMode(await hostMode, chat)
+  const terminalPreflight = preflightTerminal(mode, creationTarget, resolvedWorktree)
+  if (terminalPreflight) {
+    await terminalPreflight
+  }
 
   // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
   refuseClaimedWorkerTerminal(db, params.terminal, runtime, args.followUp?.of)

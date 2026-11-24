@@ -9,6 +9,7 @@ import {
   normalizeNativeChatProviderChoices
 } from '../../../shared/native-chat/settings/native-chat-providers'
 import { resolveNestedWorkerMaxDepth } from '../../../shared/orchestration/workers/nested-worker-depth'
+import { sanitizeWorkerRoleProfileUpdates } from '../../../shared/orchestration-worker-roles'
 import { sanitizeAgentLaunchProfileUpdates } from '../../../shared/agent-launch/choices/tui-agent-launch-defaults'
 import { normalizeTerminalQuickCommands } from '../../../shared/terminal/quick-commands/terminal-quick-commands'
 import { assertTerminalQuickCommandsStorable } from '../../../shared/terminal/quick-commands/terminal-quick-command-prompt-limit'
@@ -78,6 +79,9 @@ export function updateSettings(
   if ('showMenuBarIcon' in updates) {
     sanitizedUpdates.showMenuBarIcon = updates.showMenuBarIcon === true
   }
+  if ('holdQuitWhileAgentsWork' in updates) {
+    sanitizedUpdates.holdQuitWhileAgentsWork = updates.holdQuitWhileAgentsWork === true
+  }
   if ('linuxTilingWindowMode' in updates) {
     sanitizedUpdates.linuxTilingWindowMode = updates.linuxTilingWindowMode === true
   }
@@ -92,6 +96,7 @@ export function updateSettings(
       nestedWorkerMaxDepth: updates.nestedWorkerMaxDepth
     })
   }
+  sanitizeWorkerRoleProfileUpdates(sanitizedUpdates, updates)
   if ('nativeChatAppearance' in updates) {
     sanitizedUpdates.nativeChatAppearance = normalizeNativeChatAppearanceSettings(
       updates.nativeChatAppearance

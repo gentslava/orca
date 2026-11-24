@@ -31,6 +31,8 @@ export type ClaudeJournalTranslatorDeps = {
   onBackgroundTaskJournalFailure?: (error: Error) => void
   account?: () => AgentSessionAccountKind | undefined
   model?: () => string | undefined
+  /** True when the child runs with Claude's switch to another model for flagged requests off. */
+  stopsOnFlaggedRequest?: () => boolean
   goalBackgroundWork?: () => ClaudeGoalBackgroundWork
   /** True when this acquisition's pending startup took a turnless failure result and will fail with it. */
   acceptStartupFailure?: (message: Record<string, unknown>) => boolean
@@ -63,6 +65,7 @@ export type ClaudeJournalTranslator = {
   childTaskParent?: (taskId: string, run?: string) => string | undefined
   childToolOwner?: ClaudeChildToolQueries['childToolOwner']
   childActivity?: ClaudeChildToolQueries['childActivity']
+  foregroundToolIds?: ClaudeChildToolQueries['foregroundToolIds']
   retryPendingTaskRows?: () => StructuredAgentSessionSinkAdmission
   retryPendingCancellations?: () => StructuredAgentSessionSinkAdmission
   /** Streamed blocks awaiting final frames; settlement clears them. */

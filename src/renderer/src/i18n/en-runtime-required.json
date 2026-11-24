@@ -1121,10 +1121,6 @@
         }
       },
       "stats": {
-        "UsageOverviewPane": {
-          "sessionCount_one": "{{formatted}} session",
-          "sessionCount_other": "{{formatted}} sessions"
-        },
         "usage": {
           "overview": {
             "sections": {
@@ -2788,6 +2784,7 @@
         "couldNotStopTheAgent": "Couldn't stop the agent.",
         "editSavedArguments": "Edit them in Settings > Agents > Arguments.",
         "emptyMessage": "This message is empty, so it was not sent.",
+        "flaggedRequestNotSwitched": "{{agent}} declined this request, and switching models on flagged requests is off. Rephrase it and send again, or change \"When Claude flags a request\" in Settings → Agents.",
         "forkOriginalLatestOnly": "{{agent}} can only fork the latest response in the original chat. Open that chat and fork its latest response once it has finished.",
         "forkOriginalLatestOnlyNamed": "{{agent}} can only fork the latest response in \"{{detail}}\". Open that chat and fork its latest response once it has finished.",
         "forkOriginalMissing": "{{agent}} could not find this response in the original chat. Open it and fork from there.",
@@ -3171,6 +3168,7 @@
         "messagesUnsettled": "A message you sent earlier isn't confirmed yet.",
         "notAvailable": "This isn't available in this chat.",
         "notDoneAnswer": "Your answer was not sent.",
+        "notDoneBackgroundTask": "Couldn't move the task to the background.",
         "notDoneCommand": "The command didn't run.",
         "notDoneGoalChangeIncomplete": "Couldn't finish changing the goal. Check the chat.",
         "notDoneOption": "The setting wasn't changed.",
@@ -3629,7 +3627,9 @@
     "repository": {
       "iconPickErrors": {
         "notPng": "Repo icons must be PNG files.",
-        "tooLarge": "Repo icon image must be 256KB or smaller."
+        "sourceTooLarge": "Repo icon image must be 10MB or smaller.",
+        "tooLarge": "Repo icon image must be 256KB or smaller.",
+        "unsupportedImage": "Choose a PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF image."
       }
     },
     "shortcuts": {

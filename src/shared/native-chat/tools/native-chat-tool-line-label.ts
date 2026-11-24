@@ -3,8 +3,8 @@ import { isNativeChatFileCountPath } from './native-chat-edit-patch-files'
 import { nativeChatToolCategory } from './native-chat-tool-icon'
 import {
   nativeChatFullCommand,
-  nativeChatPlainCommandInput,
-  nativeChatToolInputText
+  nativeChatToolInputText,
+  nativeChatPlainCommandInput
 } from './native-chat-tool-input-text'
 import { createToolInputDisplay, summarizeToolInput } from './native-chat-tool-summary'
 import type { NativeChatToolCallBlock, NativeChatToolResultBlock } from '../native-chat-types'
@@ -47,7 +47,7 @@ export type NativeChatToolLineLabel = {
   filePath: string | null
   /** The whole command a command row ran; null when its input names none. */
   fullCommand: string | null
-  /** The whole command, when the row had to shorten it. */
+  /** The command as given, when it is the call's whole input. */
   commandDetail: string | null
   /** Grammar of `commandDetail`; null when the row holds no command text. */
   commandLanguage: string | null
@@ -103,7 +103,7 @@ export function nativeChatToolLineLabel(
       commandLanguage = nativeChatCommandLanguage(call.name, call.input)
       const plainCommand = nativeChatPlainCommandInput(call.input)
       if (plainCommand?.trim() === fullCommand) {
-        commandDetail = plainCommand === target ? null : plainCommand
+        commandDetail = plainCommand
       }
     }
     if (running) {

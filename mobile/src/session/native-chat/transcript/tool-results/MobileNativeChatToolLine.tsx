@@ -2,10 +2,7 @@ import { useContext, useMemo } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { MobileNativeChatOwnedScrollView } from '../viewport/MobileNativeChatOwnedScrollView'
 import { ChevronRight } from 'lucide-react-native'
-import {
-  diffFromText,
-  diffFromToolCall
-} from '../../../../../../src/shared/native-chat/tools/native-chat-diff'
+import { diffFromText } from '../../../../../../src/shared/native-chat/tools/native-chat-diff'
 import type { NativeChatDiffLine } from '../../../../../../src/shared/native-chat/tools/native-chat-diff'
 import {
   mcpToolIdentity,
@@ -13,7 +10,11 @@ import {
 } from '../../../../../../src/shared/native-chat/tools/native-chat-tool-identity'
 import { nativeChatToolIconName } from '../../../../../../src/shared/native-chat/tools/native-chat-tool-icon'
 import { nativeChatToolRowVerbCopy } from './native-chat-tool-row-verb-copy'
-import { nativeChatToolLineView } from '../../../../../../src/shared/native-chat/tools/native-chat-tool-line-view'
+import {
+  nativeChatToolCallInputView,
+  nativeChatToolLineView
+} from '../../../../../../src/shared/native-chat/tools/native-chat-tool-line-view'
+import type { NativeChatToolLineLabel } from '../../../../../../src/shared/native-chat/tools/native-chat-tool-line-label'
 import type {
   NativeChatToolCallBlock,
   NativeChatToolResultBlock
@@ -29,10 +30,12 @@ import { MobileNativeChatToolGlyph } from './MobileNativeChatToolIcon'
 import { MobileNativeChatToolOutput } from '../message-content/MobileNativeChatFullContent'
 import { useMobileNativeChatOpenedDetail } from '../../visual/mobile-native-chat-opened-detail'
 import { useMobileNativeChatDisclosure } from '../viewport/mobile-native-chat-disclosure-store'
+import { MobileNativeChatToolInvocation } from './MobileNativeChatToolInvocation'
 import { toolStyles as styles, toolType } from './mobile-native-chat-tool-styles'
 import type { Translate } from '../../../../i18n/mobile-i18n'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
 import { useMobileNativeChatOpenFile } from '../../links/mobile-native-chat-open-file-context'
+import { MobileNativeChatForegroundTaskAction } from '../../input/MobileNativeChatForegroundTaskAction'
 
 function toolDuration(durationMs: unknown, t: Translate): string | null {
   if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs < 0) {
@@ -118,8 +121,7 @@ function DiffView({ lines, fontScale }: { lines: NativeChatDiffLine[]; fontScale
 function ToolLineDetail({
   call,
   body,
-  fullCommand,
-  commandLanguage,
+  label,
   results,
   fontScale,
   disclosureKey,
@@ -127,33 +129,41 @@ function ToolLineDetail({
 }: {
   call: NativeChatToolCallBlock | undefined
   body: NativeChatToolResultBlock | undefined
-  fullCommand: string | null
-  commandLanguage: string | null
+  label: NativeChatToolLineLabel | null
   results: NativeChatWebSearchResult[]
   fontScale: number
   disclosureKey?: string
   memberId?: string
 }): React.JSX.Element {
   useMobileColorScheme()
-  const diff = call
-    ? diffFromToolCall(call.name, call.input)
-    : body
-      ? diffFromText(body.output)
-      : null
-  const command = useMemo(
+  const input = call ? nativeChatToolCallInputView(call, label) : null
+  const diff = input ? input.diff : body ? diffFromText(body.output) : null
+  const command = input?.command ?? null
+  const commandLanguage = label?.commandLanguage ?? null
+  const commandSegments = useMemo(
     () =>
-      !diff && fullCommand && commandLanguage
-        ? highlightMobileCode(fullCommand, commandLanguage).segments
+      command !== null && commandLanguage
+        ? highlightMobileCode(command, commandLanguage).segments
         : null,
-    [diff, fullCommand, commandLanguage]
+    [command, commandLanguage]
   )
   const type = toolType(fontScale).code
   const onLayout = useMobileNativeChatOpenedDetail()
+  const t = useMobileTranslation()
   return (
     <View style={styles.detail} onLayout={onLayout}>
+      {call && input ? (
+        <MobileNativeChatToolInvocation
+          call={call}
+          showsInput={input.showsBody}
+          fontScale={fontScale}
+          rootIdentity={`${memberId ?? call.callId ?? 'detail'}:input`}
+          positionKey={`${disclosureKey ?? call.callId ?? 'detail'}:input`}
+        />
+      ) : null}
       {results.length > 0 ? <SearchResults results={results} fontScale={fontScale} /> : null}
       {diff ? <DiffView lines={diff} fontScale={fontScale} /> : null}
-      {!diff && fullCommand ? (
+      {command !== null ? (
         <MobileNativeChatOwnedScrollView
           rootIdentity={`${memberId ?? call?.callId ?? 'detail'}:command`}
           positionKey={`${disclosureKey ?? call?.callId ?? 'detail'}:command`}
@@ -162,17 +172,24 @@ function ToolLineDetail({
           keyboardShouldPersistTaps="handled"
         >
           <Text selectable={INLINE_TEXT_SELECTION} style={[styles.codeText, type]}>
-            {command ? <MobileSyntaxSegments segments={command} /> : fullCommand}
+            {commandSegments ? <MobileSyntaxSegments segments={commandSegments} /> : command}
           </Text>
         </MobileNativeChatOwnedScrollView>
       ) : null}
       {body ? (
-        <MobileNativeChatToolOutput
-          body={body}
-          type={type}
-          rootIdentity={`${memberId ?? body.callId ?? 'detail'}:output`}
-          positionKey={`${disclosureKey ?? body.callId ?? 'detail'}:output`}
-        />
+        <View>
+          {call ? (
+            <Text style={[styles.lineWord, toolType(fontScale).meta]}>
+              {t('chat.nativeChatToolLine.output', 'Output')}
+            </Text>
+          ) : null}
+          <MobileNativeChatToolOutput
+            body={body}
+            type={type}
+            rootIdentity={`${memberId ?? body.callId ?? 'detail'}:output`}
+            positionKey={`${disclosureKey ?? body.callId ?? 'detail'}:output`}
+          />
+        </View>
       ) : null}
     </View>
   )
@@ -199,7 +216,6 @@ export function MobileNativeChatToolLine({
     () => nativeChatToolLineView(block, result),
     [block, result]
   )
-  const commandDetail = label?.commandDetail ?? null
   const fullCommand = label?.fullCommand ?? null
   const verb = label?.verb ? nativeChatToolRowVerbCopy(t)[label.verb] : null
   const commandAlone = label?.command === true && verb !== null && label.target.length > 0
@@ -243,7 +259,7 @@ export function MobileNativeChatToolLine({
           {target ? (
             <Text
               style={[styles.lineTarget, type.row, filePath && onOpenFile && styles.lineLink]}
-              numberOfLines={1}
+              numberOfLines={expanded ? undefined : 1}
               onPress={filePath && onOpenFile ? () => onOpenFile(filePath) : undefined}
               suppressHighlighting={!(filePath && onOpenFile)}
               accessibilityRole={filePath && onOpenFile ? 'link' : undefined}
@@ -266,6 +282,9 @@ export function MobileNativeChatToolLine({
             ) : null}
           </View>
         </Pressable>
+        {call?.state === 'running' && !body ? (
+          <MobileNativeChatForegroundTaskAction toolUseId={call.callId} />
+        ) : null}
         {fullCommand ? (
           <MobileSourceCopyButton
             text={fullCommand}
@@ -279,8 +298,7 @@ export function MobileNativeChatToolLine({
           disclosureKey={disclosureKey}
           call={call}
           body={body}
-          fullCommand={commandDetail}
-          commandLanguage={label?.commandLanguage ?? null}
+          label={label}
           results={results}
           fontScale={fontScale}
         />

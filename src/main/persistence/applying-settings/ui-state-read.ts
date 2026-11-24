@@ -1,4 +1,6 @@
 import { normalizeGitGraphFilters } from '../../../shared/git/history/git-graph-filters'
+import { normalizeConversationPreferences } from '../../../shared/conversation-navigation-preferences'
+import { normalizePersonalProjectOrder } from '../../../shared/personal-project-order'
 import { normalizeExplorerDisplayRootByWorktree } from '../../../shared/file-listing/file-explorer-display-root'
 import type { PersistedState } from '../../../shared/orca-profiles/persisted-state-types'
 import { getDefaultUIState } from '../../../shared/orca-profiles/constants'
@@ -45,6 +47,8 @@ export function getPersistedUI(
     ...uiState,
     groupBy: normalizeGroupBy(state.ui?.groupBy),
     sortBy: normalizeSortBy(state.ui?.sortBy),
+    conversationPreferences: normalizeConversationPreferences(state.ui?.conversationPreferences),
+    personalProjectOrder: normalizePersonalProjectOrder(state.ui?.personalProjectOrder),
     projectOrderBy: normalizeProjectOrderBy(state.ui?.projectOrderBy),
     rightSidebarTab: normalizeRightSidebarTab(state.ui?.rightSidebarTab),
     rightSidebarExplorerView: normalizeRightSidebarExplorerView(

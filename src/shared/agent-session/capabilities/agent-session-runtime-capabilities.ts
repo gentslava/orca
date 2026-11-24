@@ -1,5 +1,6 @@
 import { AGENT_SESSION_ATTENTION_RUNTIME_CAPABILITIES } from '../view/agent-session-attention-capabilities'
 import { AGENT_SESSION_BACKGROUND_TASK_CHILD_VIEWS_CAPABILITY } from '../background-tasks/agent-session-background-task-child-views-capability'
+import { AGENT_SESSION_FOREGROUND_TASK_CAPABILITY } from '../agent-session-foreground-task-capability'
 import {
   AGENT_SESSION_CONTINUE_INTERRUPTED_RUNTIME_CAPABILITY,
   AGENT_SESSION_PHONE_CONTINUE_INTERRUPTED_RUNTIME_CAPABILITY
@@ -56,6 +57,7 @@ export const AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY =
 // Hand-offs link via submission.queuedMessageId, never equal draft/submission IDs. queuePause
 // holds every card until queuedMessagesResume or a later turn starts. nextQueuedMessageId names
 // the next eligible card; null/missing means none. Per-card holds: send_failed conversion or kept.
+export const AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY = 'agent-session.steer-draft.v1' as const
 export const AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY =
   'agent-session.queued-messages.v2' as const
 // Advertise in-place update/edit holds separately from mid-turn queueing: kept/mail cards remain editable while queueing is off. Never fall back to copy/delete.
@@ -150,6 +152,10 @@ export const AGENT_SESSION_PROMPT_SUGGESTIONS_RUNTIME_CAPABILITY =
 // The host appends CI result lines to chats that opened or pushed to a PR; older hosts write none.
 export const AGENT_SESSION_PR_EVENTS_RUNTIME_CAPABILITY = 'agent-session.pr-events.v1' as const
 
+// The host takes a null model pick that returns a chat to the agent's default; older hosts refuse null.
+export const AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY =
+  'agent-session.default-model.v1' as const
+
 // Individual client flags must not retain the unused host capability aggregate.
 export const AGENT_SESSION_RUNTIME_CAPABILITIES = /* @__PURE__ */ (() =>
   [
@@ -172,6 +178,7 @@ export const AGENT_SESSION_RUNTIME_CAPABILITIES = /* @__PURE__ */ (() =>
     AGENT_SESSION_ACCEPTED_SEND_RUNTIME_CAPABILITY,
     AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY,
     AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
+    AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY,
     AGENT_SESSION_QUEUED_COMMANDS_RUNTIME_CAPABILITY,
     AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY,
     AGENT_SESSION_QUEUED_MESSAGE_REORDER_RUNTIME_CAPABILITY,
@@ -206,7 +213,9 @@ export const AGENT_SESSION_RUNTIME_CAPABILITIES = /* @__PURE__ */ (() =>
     AGENT_SESSION_BACKGROUND_TASK_ROW_STOP_CAPABILITY,
     AGENT_SESSION_BACKGROUND_TASK_CHILD_VIEWS_CAPABILITY,
     AGENT_SESSION_PR_EVENTS_RUNTIME_CAPABILITY,
+    AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY,
     AGENT_SESSION_TEXT_APPEND_RUNTIME_CAPABILITY,
+    AGENT_SESSION_FOREGROUND_TASK_CAPABILITY,
     AGENT_SESSION_TOOL_OUTPUT_APPEND_RUNTIME_CAPABILITY,
     AGENT_SESSION_PROMPT_SUGGESTIONS_RUNTIME_CAPABILITY,
     ...AGENT_SESSION_RESUME_RUNTIME_CAPABILITIES

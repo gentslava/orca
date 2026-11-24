@@ -17,6 +17,7 @@ import {
   AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_REORDER_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_IMAGE_EDIT_RUNTIME_CAPABILITY,
+  AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY,
   AGENT_SESSION_PHONE_ATTACHMENTS_RUNTIME_CAPABILITY,
   AGENT_SESSION_PHONE_THREAD_GOAL_RUNTIME_CAPABILITY,
   AGENT_SESSION_MCP_RUNTIME_CAPABILITY,
@@ -24,7 +25,8 @@ import {
   AGENT_SESSION_PHONE_REWIND_RUNTIME_CAPABILITY,
   AGENT_SESSION_PHONE_USAGE_LIMIT_CONTINUE_CANCEL_RUNTIME_CAPABILITY,
   AGENT_SESSION_SKIP_ASYNC_QUESTIONS_RUNTIME_CAPABILITY,
-  AGENT_SESSION_QUEUED_MESSAGE_SKILLS_EDIT_RUNTIME_CAPABILITY
+  AGENT_SESSION_QUEUED_MESSAGE_SKILLS_EDIT_RUNTIME_CAPABILITY,
+  AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY
 } from '../../../../../src/shared/agent-session/capabilities/agent-session-runtime-capabilities'
 import { AGENT_SESSION_STATUS_FEED_RUNTIME_CAPABILITY } from '../../../../../src/shared/agent-session/view/agent-session-attention-capabilities'
 import {
@@ -42,6 +44,8 @@ import { SKILL_DISCOVER_WORKSPACE_CAPABILITY } from '../../../../../src/shared/s
 import { AGENT_SESSION_PHONE_CONTINUE_INTERRUPTED_RUNTIME_CAPABILITY } from '../../../../../src/shared/agent-session/lifecycle/stopping/agent-session-continue-interrupted-capability'
 
 export type StructuredAgentSessionHostSupport = {
+  steerDraft?: boolean
+  defaultModel?: boolean
   commandsOnRequest?: boolean
   coherentModelCatalog?: boolean
   modelEffortDiscovery?: boolean
@@ -100,6 +104,8 @@ export function structuredAgentSessionHostSupport(
   capabilities: readonly string[]
 ): StructuredAgentSessionHostSupport {
   return {
+    steerDraft: capabilities.includes(AGENT_SESSION_STEER_DRAFT_RUNTIME_CAPABILITY),
+    defaultModel: capabilities.includes(AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY),
     commandsOnRequest: capabilities.includes(AGENT_SESSION_COMMANDS_ON_REQUEST_CAPABILITY),
     coherentModelCatalog: capabilities.includes(AGENT_SESSION_COHERENT_MODEL_CATALOG_CAPABILITY),
     modelEffortDiscovery: capabilities.includes(AGENT_SESSION_MODEL_EFFORT_DISCOVERY_CAPABILITY),

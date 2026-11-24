@@ -138,6 +138,7 @@ export type RuntimeStore = {
     codexSessionSourceHome?: GlobalSettings['codexSessionSourceHome']
     deleteChatHistoryWithWorkspace?: GlobalSettings['deleteChatHistoryWithWorkspace']
     nestedWorkerMaxDepth?: GlobalSettings['nestedWorkerMaxDepth']
+    orchestrationWorkerRoles?: GlobalSettings['orchestrationWorkerRoles']
     orchestrationWorkerAutoReleaseEnabled?: GlobalSettings['orchestrationWorkerAutoReleaseEnabled']
     orchestrationCoordinatorApprovalsEnabled?: GlobalSettings['orchestrationCoordinatorApprovalsEnabled']
     workspaceDir: string
@@ -211,6 +212,7 @@ export type RuntimeStore = {
     machineName?: GlobalSettings['machineName']
     voice?: VoiceSettings
     claudeAgentTeamsMode?: GlobalSettings['claudeAgentTeamsMode']
+    claudeFlaggedRequestAction?: GlobalSettings['claudeFlaggedRequestAction']
     claudeAccountSwitchRunningSessions?: GlobalSettings['claudeAccountSwitchRunningSessions']
     // Read query-responder kill switches per ingested chunk to capture reply ownership.
     terminalMainSideEffectAuthority?: GlobalSettings['terminalMainSideEffectAuthority']

@@ -27,9 +27,11 @@ export function installOwnership(
     accountHome?: AgentSessionRecord['accountHome']
     acquiredAccount?: AgentSessionRecord['acquiredAccount']
     lastTurn?: AgentSessionRecord['lastTurn']
+    location?: Partial<AgentSessionRecord['location']>
   } = {}
 ): void {
-  const { handle, accountHome, acquiredAccount, lastTurn, ...ownershipOverrides } = overrides
+  const { handle, accountHome, acquiredAccount, location, lastTurn, ...ownershipOverrides } =
+    overrides
   const ownership: Omit<StructuredProviderSessionOwnership, 'role' | 'key'> = {
     sessionId: 'session-alpha',
     workspaceId: 'workspace-1',
@@ -49,7 +51,8 @@ export function installOwnership(
     location: {
       ...fixture.location,
       workspaceId: ownership.workspaceId,
-      wslDistro: ownership.wslDistro
+      wslDistro: ownership.wslDistro,
+      ...location
     },
     provider: ownership.provider,
     providerHandleChain: [
@@ -74,6 +77,7 @@ export function installOwnership(
   setStructuredAgentSessionHost({
     deps: {
       store: {
+        listRecords: () => [record],
         hostId: record.lease.ownerProcess?.hostId ?? 'local',
         getRecord: (sessionId: string) => (sessionId === record.sessionId ? record : null),
         listConversations: () => [view],
@@ -140,10 +144,13 @@ export function installChats(records: AgentSessionRecord[]) {
   const byId = new Map(records.map((record) => [record.sessionId, record]))
   const store = {
     hostId: 'local',
+    listRecords: () => records,
     getRecord: vi.fn((sessionId: string) => byId.get(sessionId) ?? null),
-    listConversations: vi.fn(() => records.map(agentSessionConversationView))
+    listConversations: vi.fn(() => records.map(agentSessionConversationView)),
+    conversationsKeyedBy: (keys: AgentSessionConversationKeys, key: string) =>
+      records.map(agentSessionConversationView).filter((view) => keys(view).includes(key))
   }
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the ownership read touches only `deps.store.listConversations`, `getRecord` and `hostId`; the rest of the host is never reached.
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: conversation projection only reads the store methods supplied by this fixture.
   setStructuredAgentSessionHost({ deps: { store } } as never)
   return store
 }

@@ -5537,7 +5537,6 @@
         },
         "StatsPane": {
           "42d3e0bdf7": "사용 분석 제공자: {{value0}}",
-          "c79f073d4c": "사용량 분석",
           "a58aba506f": "생성된 PR",
           "1c96f433e2": "에이전트 작업 시간",
           "9dbec9e675": "시작된 에이전트",
@@ -5550,25 +5549,8 @@
           "trackingSince": "{{value0}} 이후 추적 중"
         },
         "UsageOverviewPane": {
-          "33f7b043d2": "공급자",
-          "70f36452d4": "캐시 비율",
-          "327603fe8b": "활성 일수",
-          "0eaf937335": "예상 비용",
           "3887b94ce5": "총 토큰",
-          "2d13e57f72": "OpenCode 활성화",
-          "2f1ee2878b": "Codex 활성화",
-          "0ea0cae435": "Claude 활성화",
-          "6c00c46815": "공급자를 활성화해 로컬 에이전트 로그를 스캔하고 통합 토큰 원장을 만드세요.",
-          "49405ccc8d": "토큰 추적 시작",
-          "ca6bc5fded": "새로고침",
-          "e06d1baf5c": "사용량 개요 새로고침",
-          "c760c481c5": "사용량 개요",
-          "55c910f4f1": "- 일부 모델 가격 확인 불가",
-          "enableMuse": "Muse 활성화",
-          "noLocalUsageYet": "아직 로컬 Claude, Codex, OpenCode 또는 Muse 사용량을 찾지 못했습니다. 다음 에이전트 세션이 토큰 로그를 기록하면 개요가 채워집니다.",
-          "providersEnabledWithData": "{{enabled}}개 활성화 - {{withData}}개에 데이터 있음",
-          "sessionCount_one": "세션 {{formatted}}개",
-          "sessionCount_other": "세션 {{formatted}}개"
+          "enableMuse": "Muse 활성화"
         },
         "share": {
           "card": {
@@ -8971,10 +8953,10 @@
         "RepositoryIconPicker": {
           "2b7d27b93c": "{{value0}} 저장소 색상 사용",
           "useRepoIcon": "{{value0}} 저장소 아이콘 사용",
-          "fde066a63b": "PNG 업로드는 256KB 이하여야 합니다.",
+          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO 또는 AVIF. 최대 10MB 및 3,200만 화소.",
           "cc1286e263": "파비콘",
           "03ca1a4e9b": "example.com",
-          "381b4844fd": "PNG 업로드",
+          "381b4844fd": "이미지 업로드",
           "7da623abcc": "기본적으로 사용됨 — GitHub는 소유자가 사용자 정의 이미지를 설정하지 않은 경우에도 항상 하나를 제공합니다.",
           "c490787d24": "이모티콘",
           "b2d7fd2116": "아이콘",
@@ -8998,7 +8980,8 @@
           "lucideDescription": "저장소 색상의 {{label}} 아이콘",
           "defaultIcon": "기본값",
           "cc76342291": "GitHub 아바타 사용",
-          "43bf3709dd": "저장소 아이콘"
+          "43bf3709dd": "저장소 아이콘",
+          "imageTooLarge": "이미지가 10MB 또는 3,200만 화소 제한을 초과합니다."
         },
         "RepositoryPane": {
           "15a99d9b9f": "상대 경로는 이 프로젝트 루트에서 확인됩니다.",
@@ -25525,6 +25508,12 @@
         "provisionFailed": "VM이 만들어지지 않았거나 생성이 중단되었습니다. 설정을 열어 삭제하거나 제거하세요."
       },
       "suspendFailed": "VM 워크스페이스를 일시 중지하지 못했습니다"
+    },
+    "start": {
+      "title": "무엇을 여시겠어요?",
+      "description": "이 프로젝트에서 사용할 에이전트나 도구를 선택하세요.",
+      "agents": "에이전트",
+      "manageAgents": "에이전트 관리"
     }
   },
   "tabHoverCard": {

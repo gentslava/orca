@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import type { AgentSessionRewindSurface } from '../../../../../../src/shared/agent-session/lifecycle/rewind/agent-session-rewind-request'
 import type { NativeChatMessage } from '../../../../../../src/shared/native-chat/native-chat-types'
 import { triggerMediumImpact } from '../../../../platform/haptics/haptics'
@@ -28,6 +28,7 @@ export function MobileNativeChatRowOverlaysHost({
   onOpenUrlInOrca,
   linkOpenMode,
   rewind,
+  openSubagent,
   children
 }: {
   conversation: MobileNativeChatConversation
@@ -37,26 +38,43 @@ export function MobileNativeChatRowOverlaysHost({
   linkOpenMode: MobileLinkOpenMode
   /** The chat's "Rewind to here"; absent where it can't rewind. */
   rewind?: AgentSessionRewindSurface
+  openSubagent?: (agentId: string) => void
   children?: React.ReactNode
 }): React.JSX.Element {
   const { openRewind, dialog, close: closeRewind } = useMobileNativeChatRewindDialog(rewind)
   // Keep pressed message text with its conversation so streaming cannot rewrite an open sheet.
   const [shown, setShown] = useMobileNativeChatConversationState<{
     image?: MobileNativeChatViewedImage
+    imageOwner?: MobileNativeChatImageSource
     actionsFor?: NativeChatMessage
     link?: string
   }>(conversation)
+  const client = imageSource?.client
+  const worktreeId = imageSource?.worktreeId
+  const ownsImage =
+    !shown?.imageOwner ||
+    (shown.imageOwner.client === client && shown.imageOwner.worktreeId === worktreeId)
+  useEffect(() => {
+    if (!ownsImage) {
+      setShown(null)
+    }
+  }, [ownsImage, setShown])
   const overlays = useMemo(
     () => ({
-      openImage: (image: MobileNativeChatViewedImage) => setShown({ image }),
+      imageSource,
+      openImage: (image: MobileNativeChatViewedImage) =>
+        setShown({
+          image,
+          ...(imageSource ? { imageOwner: imageSource } : {})
+        }),
       openActions: (actionsFor: NativeChatMessage) => {
         triggerMediumImpact()
         setShown({ actionsFor })
       },
       openRewind,
-      imageSource
+      ...(openSubagent ? { openSubagent } : {})
     }),
-    [setShown, openRewind, imageSource]
+    [setShown, openRewind, imageSource, openSubagent]
   )
   // Why a ref: every markdown block reads openLink, so a reconnect must not change its identity.
   const linkRouteRef = useRef({ linkOpenMode, onOpenUrlInOrca })
@@ -75,14 +93,14 @@ export function MobileNativeChatRowOverlaysHost({
   // Memoize overlay callbacks so streamed words cannot rebuild them.
   const opened = useMemo(() => {
     const close = () => setShown(null)
-    return shown?.image ? (
+    return shown?.image && ownsImage ? (
       <MobileImageViewer {...shown.image} actions={MobileImageViewerActions} onClose={close} />
     ) : shown?.actionsFor ? (
       <MobileNativeChatMessageActionsSheet message={shown.actionsFor} onClose={close} />
     ) : shown?.link ? (
       <MobileLinkActionSheet url={shown.link} onClose={close} openInOrca={onOpenUrlInOrca} />
     ) : null
-  }, [shown, setShown, onOpenUrlInOrca])
+  }, [shown, ownsImage, setShown, onOpenUrlInOrca])
   return (
     <MobileNativeChatRowOverlaysContext.Provider value={overlays}>
       <MarkdownLinkHandlerContext.Provider value={openLink}>

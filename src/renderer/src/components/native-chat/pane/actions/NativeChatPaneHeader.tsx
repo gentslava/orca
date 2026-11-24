@@ -1,4 +1,7 @@
+import type { RuntimeClientTarget } from '../../../../../../shared/remote-runtime/host-catalog/runtime-client-target'
+import { SessionLinkControl } from '../../SessionLinkControl'
 import { Fragment } from 'react'
+import './native-chat-pane-header.css'
 import { MessageSquarePlus, SquareSplitVertical } from 'lucide-react'
 import { ShortcutKeyCombo } from '@/components/ui/ShortcutKeyCombo'
 import { Button } from '@/components/ui/button'
@@ -32,7 +35,8 @@ export function NativeChatPaneHeader({
   nativeChat,
   focused,
   colorScheme,
-  handOff
+  handOff,
+  target
 }: {
   tabId: string
   worktreeId: string
@@ -41,6 +45,7 @@ export function NativeChatPaneHeader({
   focused: boolean
   colorScheme: React.CSSProperties['colorScheme']
   handOff?: NativeChatHeaderHandOff
+  target?: RuntimeClientTarget
 }): React.JSX.Element {
   const t = useTranslate()
   const actions = useStructuredChatPaneActions(tabId, worktreeId, groupId)
@@ -72,14 +77,17 @@ export function NativeChatPaneHeader({
   const homeBot = hostedChat && homeRule && bot?.chatSessionId === nativeChat.sessionId ? bot : null
   return (
     <div
-      className="pane-title-bar z-20"
+      className="pane-title-bar native-chat-pane-header z-20"
       data-chromeless=""
       data-active-pane={focused ? '' : undefined}
       data-pane-title-surface={light ? 'light' : 'dark'}
       style={HEADER_STYLE}
     >
       {homeBot ? <BotHomeBanner bot={homeBot} /> : null}
-      <div className="pane-title-actions ml-auto flex shrink-0 items-center gap-0">
+      <div className="pane-title-actions native-chat-pane-actions ml-auto flex shrink-0 items-center gap-0 rounded-md border bg-popover p-0.5 text-popover-foreground shadow-xs">
+        {nativeChat.sessionId && target ? (
+          <SessionLinkControl sessionId={nativeChat.sessionId} target={target} />
+        ) : null}
         {handOff && focused ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -162,6 +170,7 @@ export function nativeChatPaneHeader(
     | 'isVisible'
     | 'isFocusedGroup'
     | 'contextMenuActions'
+    | 'target'
   >,
   worktreeId: string | null,
   colorScheme: React.CSSProperties['colorScheme'],
@@ -173,6 +182,7 @@ export function nativeChatPaneHeader(
       worktreeId={worktreeId}
       groupId={view.groupId}
       nativeChat={{ sessionId: view.sessionId, agent: view.agent }}
+      target={view.target}
       focused={view.isFocusedGroup}
       colorScheme={colorScheme}
       handOff={

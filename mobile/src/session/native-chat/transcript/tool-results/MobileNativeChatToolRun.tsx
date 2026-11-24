@@ -10,7 +10,7 @@ import {
   type NativeSyntheticEvent,
   type ScrollViewInstance
 } from 'react-native'
-import { Check } from 'lucide-react-native'
+import { Check, ChevronRight } from 'lucide-react-native'
 import { useWorkingPulse } from '../../../../components/motion/use-working-motion'
 import { MobileNativeChatReplyRevealsContext } from './mobile-native-chat-reply-reveals'
 import {
@@ -56,10 +56,12 @@ const FOLLOW_REARM_PX = 24
 // Keep one header element so live-to-settled changes cannot remount it.
 function PulsingText({
   pulsing,
+  open,
   style,
   children
 }: {
   pulsing: boolean
+  open: boolean
   style?: React.ComponentProps<typeof Animated.Text>['style']
   children: React.ReactNode
 }): React.JSX.Element {
@@ -67,7 +69,11 @@ function PulsingText({
   const reducedMotion = useContext(MobileNativeChatReplyRevealsContext)?.reducedMotion ?? true
   const pulse = useWorkingPulse(pulsing && !reducedMotion)
   return (
-    <Animated.Text ref={pulse.ref} style={[style, pulse.style]} numberOfLines={2}>
+    <Animated.Text
+      ref={pulse.ref}
+      style={[style, pulse.style]}
+      numberOfLines={open ? undefined : 1}
+    >
       {children}
     </Animated.Text>
   )
@@ -197,9 +203,11 @@ export function ToolRun({
   const { live, latestCallLabel, iconName: headerIcon } = header
   const sentence = nativeChatToolRunSentence(header.work, { live }, nativeChatToolRunWords(t))
   const fallbackLabel =
-    header.fallbackLabel === 'result'
-      ? nativeChatToolActivityCopy(t).result
-      : nativeChatToolCallCount(t, header.callCount)
+    header.callCount === 0 && asideCount > 0
+      ? t('chat.tool.activity', 'Activity')
+      : header.fallbackLabel === 'result'
+        ? nativeChatToolActivityCopy(t).result
+        : nativeChatToolCallCount(t, header.callCount)
   const marks = [
     header.failedCallCount > 0
       ? nativeChatToolActivityCopy(t, { value0: header.failedCallCount }).failedCount
@@ -226,6 +234,7 @@ export function ToolRun({
         ) : null}
         <PulsingText
           pulsing={live}
+          open={open}
           style={[styles.headerSentence, type.row, live && styles.headerSentenceLive]}
         >
           {sentence ?? fallbackLabel}
@@ -235,7 +244,6 @@ export function ToolRun({
             {` · ${marks.join(', ')}`}
           </Text>
         ) : null}
-        {}
         {!live && header.succeeded ? (
           <Check size={12 * fontScale} color={colors.textMuted} strokeWidth={2} />
         ) : null}
@@ -244,6 +252,11 @@ export function ToolRun({
             {latestCallLabel}
           </Text>
         ) : null}
+        <View style={styles.lineTrailing}>
+          <View style={open ? styles.caretOpen : undefined}>
+            <ChevronRight size={14 * fontScale} color={colors.textMuted} strokeWidth={2} />
+          </View>
+        </View>
       </Pressable>
       {/* A read's result is the image the agent saw, so it shows without opening the run. */}
       {viewedImages ? <View style={styles.viewedImages}>{viewedImages}</View> : null}

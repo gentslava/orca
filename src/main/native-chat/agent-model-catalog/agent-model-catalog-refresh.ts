@@ -1,3 +1,4 @@
+import { agentModelCatalogReleasedOwner } from './agent-model-catalog-read-scope'
 import { resolveAgentModelCatalogAccount } from './agent-model-catalog-account-resolution'
 import type { AgentModelCatalogAdmission } from './agent-model-catalog-admission'
 import { agentModelCatalogFingerprint } from './agent-model-catalog-fingerprint'
@@ -16,7 +17,6 @@ import { scopedAgentModelCatalogLister } from './agent-model-catalog-scoped-list
 import { seedAccountList } from './agent-model-catalog-account-list'
 import type { AgentModelCatalogEntry } from './agent-model-catalog-entry'
 import {
-  agentModelCatalogReleasedOwner,
   bindAgentModelCatalogScope,
   type AgentModelCatalogBinding
 } from './agent-model-catalog-snapshot'
@@ -31,6 +31,7 @@ export type AgentModelCatalogLaunch = {
   legacy?: boolean
   /** Resolves saved scope only and lists nothing (a saved-only read, or a deleted chat's). */
   passive: boolean
+  requireConfiguredDefault?: true
   bindingKey: string
   identity: string
 }
@@ -100,6 +101,9 @@ export function createAgentModelCatalogRefreshes(context: {
         return
       }
       const { record, scoped, workspacePath, folder, base, probeHome } = facts
+      const registered = deps.probes?.[agent]
+      const probe =
+        probeHome && registered?.supportsAccount?.(probeHome) !== false ? registered : undefined
       const bound: AgentModelCatalogBinding = {
         identity: launch.identity,
         agent,
@@ -110,6 +114,7 @@ export function createAgentModelCatalogRefreshes(context: {
         fingerprint: base,
         base,
         exact: false,
+        canProbe: Boolean(probe),
         folder,
         workspacePath,
         // A workspace that was named but cannot be inspected here may pick its own model.
@@ -157,7 +162,6 @@ export function createAgentModelCatalogRefreshes(context: {
       resolvedFingerprint = fingerprint
       Object.assign(bound, { fingerprint, exact, cwd })
       bindAgentModelCatalogScope(bindings, launch.bindingKey, bound, requestKey)
-      const probe = deps.probes?.[agent]
       let completion: Promise<AgentModelCatalogEntry | null> | undefined
       if (
         !launch.passive &&
@@ -205,6 +209,7 @@ export function createAgentModelCatalogRefreshes(context: {
               }
             }
           } else if (
+            launch.requireConfiguredDefault ||
             deps.store.probeDue(fingerprint) ||
             [...targets].some((model) => deps.store.efforts.due(fingerprint, model))
           ) {

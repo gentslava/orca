@@ -197,6 +197,15 @@
         "installLockWaitHolderGone": "The other Orca install in this distro stopped. Orca takes over in a few seconds."
       }
     },
+    "projectOrder": {
+      "pin": "Pin project",
+      "unpin": "Unpin project",
+      "frequent": "Frequent",
+      "recentDescription": "Most recently opened by you",
+      "frequentDescription": "Most project openings by you",
+      "nameDescription": "Project name, A to Z",
+      "saveFailed": "Could not save project order"
+    },
     "agentSummary": {
       "state": {
         "waiting": "waiting",
@@ -878,7 +887,7 @@
         "codeTextSize": "Code text size",
         "codeTextSizeDescription": "Code blocks, inline code, commands and tool output.",
         "width": "Width",
-        "widthDescription": "How wide messages and the message box can grow in a wide pane.",
+        "widthDescription": "How wide chats and Settings pages can grow.",
         "resetAppearance": "Reset chat appearance",
         "resetDescription": "Restore the defaults above.",
         "comfortable": "Comfortable",
@@ -945,6 +954,13 @@
       "uiZoom": {
         "zoomOut": "Zoom out",
         "zoomIn": "Zoom in"
+      },
+      "holdQuit": {
+        "title": "Hold ⌘Q while agents are working",
+        "description": "Hold for about a second to quit during active work. When agents finish, a quick press quits normally.",
+        "keyword": {
+          "quit": "quit"
+        }
       }
     },
     "browser": {
@@ -1251,7 +1267,15 @@
       "hideAgentDetails": "Hide {{agent}} details",
       "defaultAutoBadge": "Default · Auto",
       "newAgentsTitle": "New agents",
-      "defaultSurfaceServerDescription": "The default for agents {{host}} starts itself, such as from its CLI or orchestration workers. Agents you open from this computer follow This computer's choice."
+      "defaultSurfaceServerDescription": "The default for agents {{host}} starts itself, such as from its CLI or orchestration workers. Agents you open from this computer follow This computer's choice.",
+      "claudeFlaggedRequest": {
+        "title": "When Claude flags a request",
+        "description": "When a safety check flags a request, Claude can re-run it on its fallback model and keep using that model, or end the turn with an error. Applies to Claude chats and terminals started after you change it.",
+        "stop": "Stop with an error",
+        "switchModel": "Switch to Claude's fallback model",
+        "unsupported": "Update Orca on {{host}} to change this setting there.",
+        "updateFailed": "Could not update the setting on {{host}}."
+      }
     },
     "followSymlinkedDirectoriesKeywords": {
       "symlink": "symlink",
@@ -1524,7 +1548,9 @@
     "repository": {
       "iconPickErrors": {
         "notPng": "Repo icons must be PNG files.",
-        "tooLarge": "Repo icon image must be 256KB or smaller."
+        "tooLarge": "Repo icon image must be 256KB or smaller.",
+        "unsupportedImage": "Choose a PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF image.",
+        "sourceTooLarge": "Repo icon image must be 10MB or smaller."
       }
     },
     "bots": {
@@ -2032,6 +2058,48 @@
     },
     "artifacts": {
       "teamDisabled": "Artifact sharing is turned off by your team."
+    },
+    "orchestration": {
+      "roles": {
+        "modelsUnavailable": "No models reported by this host.",
+        "unavailable": "Unavailable",
+        "notListed": "Not listed",
+        "checking": "Checking…",
+        "refreshingModels": "Refreshing models…",
+        "agent": "Agent",
+        "unconfigured": "Not configured",
+        "model": "Model",
+        "agentDefault": "Agent default",
+        "effort": "Reasoning effort",
+        "fast": "Fast",
+        "on": "On",
+        "off": "Off",
+        "title": "Worker roles",
+        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
+        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
+        "clear": "Clear profile",
+        "new": "Add a role",
+        "add": "Add",
+        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
+        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
+        "research": "Research",
+        "implementation": "Implementation",
+        "review": "Review",
+        "keyword": {
+          "role": "role",
+          "profile": "profile",
+          "research": "research",
+          "implementation": "implementation",
+          "review": "review",
+          "model": "model",
+          "effort": "effort",
+          "fast": "fast",
+          "provider": "provider"
+        },
+        "modelsFailed": "Could not load models.",
+        "modelErrorDetails": "Details",
+        "retryModels": "Retry"
+      }
     }
   },
   "menu": {
@@ -2207,7 +2275,8 @@
         "remotePairingUnreachable": "Cannot reach Orca at {{endpoint}}.",
         "remotePairingInvalidDetails": "This access link contains invalid connection details.",
         "remotePairingSaveFailed": "Orca verified the host but could not save it. Check browser storage and try again.",
-        "remotePairingRepairUnavailable": "Re-pairing is not available in the browser. Pair this browser with the server again."
+        "remotePairingRepairUnavailable": "Re-pairing is not available in the browser. Pair this browser with the server again.",
+        "runtimeEnvironmentNameRequired": "A server name is required."
       },
       "web": {
         "preload": {
@@ -6493,7 +6562,6 @@
         },
         "StatsPane": {
           "42d3e0bdf7": "Usage analytics provider: {{value0}}",
-          "c79f073d4c": "Usage Analytics",
           "a58aba506f": "PRs created",
           "1c96f433e2": "Time agents worked",
           "9dbec9e675": "Agents spawned",
@@ -6506,25 +6574,7 @@
           "trackingSince": "Tracking since {{value0}}"
         },
         "UsageOverviewPane": {
-          "33f7b043d2": "Providers",
-          "70f36452d4": "Cache share",
-          "327603fe8b": "Active days",
-          "0eaf937335": "Est. cost",
-          "3887b94ce5": "Total tokens",
-          "2d13e57f72": "Enable OpenCode",
-          "2f1ee2878b": "Enable Codex",
-          "0ea0cae435": "Enable Claude",
-          "6c00c46815": "Enable a provider to scan local agent logs and build the combined token ledger.",
-          "49405ccc8d": "Start tracking tokens",
-          "ca6bc5fded": "Refresh",
-          "e06d1baf5c": "Refresh usage overview",
-          "c760c481c5": "Usage Overview",
-          "55c910f4f1": "- some model prices are unavailable",
-          "enableMuse": "Enable Muse",
-          "noLocalUsageYet": "No local Claude, Codex, OpenCode, or Muse usage found yet. The overview will populate after the next agent session writes token logs.",
-          "providersEnabledWithData": "{{enabled}} enabled - {{withData}} with data",
-          "sessionCount_one": "{{formatted}} session",
-          "sessionCount_other": "{{formatted}} sessions"
+          "3887b94ce5": "Total tokens"
         },
         "share": {
           "card": {
@@ -9987,10 +10037,10 @@
         "RepositoryIconPicker": {
           "2b7d27b93c": "Use {{value0}} repo color",
           "useRepoIcon": "Use {{value0}} repo icon",
-          "fde066a63b": "PNG uploads must be 256KB or smaller.",
+          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF. Up to 10MB and 32 megapixels.",
           "cc1286e263": "Favicon",
           "03ca1a4e9b": "example.com",
-          "381b4844fd": "Upload PNG",
+          "381b4844fd": "Upload image",
           "7da623abcc": "Used by default — GitHub always provides one, even when the owner hasn't set a custom image.",
           "c490787d24": "Emoji",
           "b2d7fd2116": "Icon",
@@ -10016,7 +10066,8 @@
           "cc76342291": "Use GitHub avatar",
           "43bf3709dd": "Repo icon",
           "autoColor": "Automatic color (kept distinct from other projects)",
-          "lettersDescription": "Letters “{{text}}”"
+          "lettersDescription": "Letters “{{text}}”",
+          "imageTooLarge": "Image exceeds the 10MB or 32-megapixel limit."
         },
         "RepositoryPane": {
           "15a99d9b9f": "Relative paths resolve from this project root.",
@@ -10196,6 +10247,11 @@
           "connectedNewProjectsHint": "Connected to {{value0}}. To create new projects there by default, choose it under New projects open on.",
           "removeDefaultServerBlocked": "This server is the default host for new projects. Choose another one under New projects open on before removing it.",
           "serverReplaced": "{{value0}} is not the Orca server this computer paired with: Orca connects to the host as a different SSH user, or its server was reinstalled. Open the ⋯ menu here and choose Forget…, then connect the SSH host to pair with its current server.",
+          "renameTitle": "Rename Server",
+          "renameDescription": "Only the display name changes. Pairing, connection details and projects stay as they are.",
+          "renameNameLabel": "Name",
+          "renameConfirm": "Rename",
+          "serverRenamed": "Renamed to {{value0}}.",
           "6f303a89a3": "Switch server",
           "4ae8a4a381": "Remove server"
         },
@@ -11239,7 +11295,16 @@
             "96e32c1118": "MiniMax usage",
             "e8d2710689": "Muse usage",
             "aff6e6afdf": "IDE font",
-            "ba1f9d39a6": "Antigravity usage"
+            "ba1f9d39a6": "Antigravity usage",
+            "sidebarView": {
+              "title": "Sidebar view",
+              "description": "What the left sidebar lists: projects and their workspaces, or agent sessions by project.",
+              "sessions": "sessions",
+              "chats": "chats",
+              "conversations": "conversations",
+              "projects": "projects",
+              "workspaces": "workspaces"
+            }
           }
         },
         "auto": {
@@ -14355,6 +14420,7 @@
           "sshAccessLinked": "SSH route…",
           "sshAccess": "Connect through SSH…",
           "remove": "Remove…",
+          "rename": "Rename…",
           "connecting": "Connecting…",
           "disconnecting": "Disconnecting…",
           "needsUpdate": "Needs update",
@@ -21081,6 +21147,7 @@
         "modelNotSelected": "{{agent}} has no model selected. Check your model selection and {{agent}} sign-in, then send again.",
         "providerUnavailable": "{{agent}} couldn't respond because the service is busy. Pick another model, or wait a little and send again.",
         "providerSafetyStopped": "{{agent}} stopped this response after a safety check. Review your request and send again.",
+        "flaggedRequestNotSwitched": "{{agent}} declined this request, and switching models on flagged requests is off. Rephrase it and send again, or change \"When Claude flags a request\" in Settings → Agents.",
         "providerResponseFailed": "{{agent}} couldn't finish this response. Open Details for more information.",
         "providerResponseFailedQuoted": "{{agent}} couldn't finish this response: {{detail}}.",
         "selectedModel": "the selected model",
@@ -21235,7 +21302,8 @@
         "compactAfterSending": "Your earlier message is still being sent. Run /compact once it has gone.",
         "pendingWork": "Wait for pending work and messages to finish before using this command.",
         "reattachFiles": "Remove them and attach them again.",
-        "mailOwnerUnconfirmed": "Orca couldn't confirm this message is still meant for this chat."
+        "mailOwnerUnconfirmed": "Orca couldn't confirm this message is still meant for this chat.",
+        "notDoneBackgroundTask": "Couldn't move the task to the background."
       },
       "taskList": {
         "title": "Tasks",
@@ -21312,6 +21380,7 @@
         "forkedFromUnknown": "Forked from another chat"
       },
       "composer": {
+        "confirmEscapeStop": "Press Esc again to stop",
         "send": "Send",
         "planMode": "Plan",
         "moreControls": "More chat controls",
@@ -21388,6 +21457,8 @@
         "chooseInAgentPicker": "Choose in agent picker…",
         "searchModels": "Search models…",
         "noModelsMatch": "No models match your search.",
+        "defaultModel": "Default",
+        "defaultModelDescription": "Use the agent's configured model",
         "toggleOption": "Toggle {{value0}}",
         "pillAccessibleName": "{{value0}} {{value1}}",
         "sentNotConfirmed": "Sent to the agent — not confirmed",
@@ -21465,7 +21536,11 @@
         "retryChats": "Retry",
         "permissionAppliesNextMessage": "{{saved}} applies to your next message; currently using {{active}}",
         "modelAndEffortValue": "{{model}} · {{effort}}",
-        "modelAndEffort": "Model and effort"
+        "modelAndEffort": "Model and effort",
+        "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+        "nextTurnOptionsLabel": "Next turn: {{options}}",
+        "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
+        "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
       },
       "tool": {
         "exitCode": "exit {{value0}}",
@@ -21561,7 +21636,13 @@
         "runBrowser_one": "Used the browser {{count}} time",
         "runPlan_one": "Updated the plan {{count}} time",
         "runLiveBrowser_one": "Using the browser {{count}} time",
-        "runLivePlan_one": "Updating the plan {{count}} time"
+        "runLivePlan_one": "Updating the plan {{count}} time",
+        "input": "Input",
+        "output": "Output",
+        "copyInput": "Copy input",
+        "showFullInput": "Show full input",
+        "inputUnavailable": "Input is not available in this transcript.",
+        "activity": "Activity"
       },
       "providerFrame": {
         "byteCount_one": "{{count}} byte",
@@ -21646,7 +21727,9 @@
         "needsAttention_other": "{{count}} need attention",
         "workerBadge": "Worker",
         "subagentBadge": "Subagent",
-        "nameInMessage": "Add {{name}} to message"
+        "nameInMessage": "Add {{name}} to message",
+        "background": "Background",
+        "backgrounding": "Backgrounding…"
       },
       "jumpToLatest": "Jump to latest",
       "newRowsAnnouncement": "New messages arrived while you were away",
@@ -22903,6 +22986,31 @@
         "sampleCall": "Sample call",
         "sampleNote": "Starts a real run",
         "send": "Send"
+      },
+      "children": {
+        "metadata": {
+          "localHost": "Local execution host",
+          "environment": "Environment {{value0}}",
+          "wsl": "WSL · {{value0}}",
+          "ssh": "SSH · {{value0}}",
+          "unknown": "Unknown",
+          "agent": "Agent",
+          "host": "Execution host"
+        },
+        "back": "Back to conversation",
+        "started": "Started {{value0}}",
+        "finished": "Finished {{value0}}",
+        "loading": "Loading agent history…",
+        "unavailable": "This host has not supplied the agent’s conversation history.",
+        "loadEarlier": "Load earlier history",
+        "result": "Recorded result",
+        "starting": "Starting",
+        "unavailableState": "Unavailable",
+        "workersUnavailable": "This host’s worker history is unavailable.",
+        "identityUnavailable": "This worker’s conversation identity could not be verified.",
+        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
+        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
+        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
       }
     },
     "tab": {
@@ -24296,7 +24404,120 @@
         "filesStayLine": "Its files stay on {{host}}.",
         "removing": "Removing…"
       }
-    }
+    },
+    "sessionLink": {
+      "agentAsksYou": "{{agent}} asks you",
+      "reviewerRole": "reviewer",
+      "implementerRole": "implementer",
+      "goal": "Goal",
+      "search": "Search agent, chat, workspace or branch…",
+      "story": "Shared story",
+      "storyPlaceholder": "Goal, issue link or local plan path; existing spending and privacy boundaries…",
+      "noAutomaticRead": "Links and plan files are references. Their contents are not read or shared automatically.",
+      "implementer": "Implements",
+      "reviewer": "Leads and reviews",
+      "swap": "Swap roles",
+      "limits": "Up to 6 automatic turns, including introductions, or 12 agent messages before the owner continues. Agent messages do not grant permissions. Transport and journal stay on this host; model requests use each session’s provider and account.",
+      "creating": "Creating link…",
+      "create": "Create link and introduce agents",
+      "paused": "Paused",
+      "endedShort": "Ended",
+      "waitingShort": "Waiting",
+      "title": "Work together",
+      "linkedAgent": "Linked with {{agent}} ({{role}})",
+      "roleReviewer": "reviewer",
+      "roleImplementer": "implementer",
+      "turnLimitReached": "Turn limit reached ({{count}})",
+      "workTogether": "Work together…",
+      "retry": "Retry the unconfirmed action",
+      "pause": "Pause",
+      "stop": "Stop link turns",
+      "end": "End link",
+      "turns": "automatic turns",
+      "messages": "agent messages",
+      "history": "Previous links",
+      "loading": "Loading available sessions…",
+      "you": "You",
+      "journal": "Link journal",
+      "details": "Delivery details",
+      "reasonPause": "Paused by the owner",
+      "reasonStop": "Urgent stop requested",
+      "reasonEnd": "Link ended",
+      "reasonTurns": "Automatic turn limit reached",
+      "reasonMessages": "Agent message limit reached",
+      "reasonRepeated": "Repeated messages; owner review needed",
+      "reasonOwner": "Owner decision needed. Answer the question below to continue.",
+      "reasonHeld": "Delivery held before dispatch. Review and continue to retry.",
+      "reasonRefused": "The session refused delivery. Review the chat before retrying.",
+      "reasonUnknown": "Delivery is unconfirmed. Check the chat; this message will not be sent again.",
+      "stopPending": "Stop requested",
+      "stopAcknowledged": "Link turn stopped",
+      "stopUnconfirmed": "Stop unconfirmed. Use Stop in the agent chat.",
+      "control": "Link control",
+      "introduction": "Introduction",
+      "message": "Message",
+      "question": "Question",
+      "checkpoint": "Checkpoint",
+      "reply": "Reply",
+      "ownerRequest": "Owner decision",
+      "ownerNote": "Owner message",
+      "recorded": "Recorded",
+      "queued": "Queued",
+      "dispatching": "Sending",
+      "accepted": "Delivered",
+      "blocked": "Needs review",
+      "cancelled": "Cancelled",
+      "ended": "Link ended. The journal is retained.",
+      "waiting": "Waiting for a reply",
+      "active": "Link active. Busy agents receive messages after their current turn.",
+      "retryFirst": "The previous action is unconfirmed. Retry that action before starting another.",
+      "link": "Link",
+      "stopUnrelated": "The current turn was started outside this link and was left running.",
+      "reasonResume": "Continued by the owner",
+      "stopIdle": "No active turn to stop",
+      "reviewDelivery": "Review unconfirmed delivery",
+      "reviewDeliveryHelp": "This message may already have reached the agent. Check the recipient chat. Marking it reviewed keeps the link paused and allows later messages after you continue; this message will never be resent.",
+      "checkedRecipient": "I checked the recipient chat",
+      "resolveDelivery": "Mark reviewed; do not resend",
+      "deliveryReviewed": "Delivery reviewed by the owner; automatic resend is disabled.",
+      "reviewBeforeContinue": "Review the unconfirmed delivery before continuing",
+      "partnerUnavailable": "The selected chat is no longer available. Choose another partner.",
+      "changePartner": "Change partner",
+      "otherLink": "This chat is already linked to another partner. End that link before connecting these two chats.",
+      "policyLabel": "Automatic collaboration",
+      "untilAccepted": "Until the reviewer accepts the result",
+      "customLimit": "Limit automatic turns",
+      "turnLimit": "Turn limit (1–10,000)",
+      "policyHelp": "One turn is one automatic agent wake-up, including introductions. Repeated messages still pause the link. Spending and other owner decisions require your answer.",
+      "policySettings": "Collaboration limits",
+      "saveResume": "Save and continue",
+      "savePolicy": "Save limits",
+      "ownerQuestion": "Question for you",
+      "legacyAnswer": "This host needs two steps: send your answer, then continue the link. Update the desktop app for one-step continuation.",
+      "answerResume": "Answer and continue",
+      "localTransport": "Agent messages do not grant permissions. Transport and journal stay on this host; model requests use each session’s provider and account.",
+      "continue": "Continue link",
+      "policyChanged": "Collaboration limits changed by the owner",
+      "policyResumed": "Collaboration limits changed and link continued",
+      "ownerAnswered": "Answered by the owner",
+      "sendResume": "Send and continue",
+      "addParticipants": "Add agents",
+      "addSelected": "Add selected agents",
+      "chooseParticipants": "Choose chats to connect.",
+      "chooseAgents": "Choose agents",
+      "groupSameWorkspace": "Some participants use the same workspace. Coordinate file writes before editing.",
+      "groupOptionalNote": "Optional note to all participants",
+      "groupOwnerMessage": "Your message to all participants",
+      "groupHostDescription": "Connect existing chats on this host. You control the story, permissions and continuation.",
+      "sendAll": "Send to all",
+      "linkedGroup": "Linked agents: {{agents}}",
+      "groupOwnerAnswer": "Your decision for all participants",
+      "participants": "Participants",
+      "availableEmpty": "No available chats on this host.",
+      "participantsAdded": "Agents added by the owner",
+      "reasonParticipants": "A chat closed or changed context. Verify the participant chats before continuing."
+    },
+    "tab-bar": {}
   },
   "dashboardPopout": {
     "recoverableError": {
@@ -24379,7 +24600,11 @@
       "openActivity": "View activity",
       "closeActivity": "Turn off activity view",
       "projects": "Projects",
-      "workspaces": "Workspaces"
+      "workspaces": "Workspaces",
+      "loadingChatAgents": "Loading chat agents…",
+      "noChatAgents": "No chat agents available on this host",
+      "activity": "Activity",
+      "sessions": "Sessions"
     }
   },
   "runtimeRpc": {
@@ -25822,6 +26047,12 @@
       "checksPassing": "{{review}} checks: Passing",
       "open": "{{review}}: Open"
     },
+    "start": {
+      "title": "What would you like to open?",
+      "description": "Choose an agent or a tool for this project.",
+      "agents": "Agents",
+      "manageAgents": "Manage agents"
+    },
     "vm": {
       "menu": {
         "waking": "Waking VM…",
@@ -26938,6 +27169,143 @@
       "events_other": "{{count}} events",
       "sessions_other": "{{count}} sessions",
       "turns_other": "{{count}} turns"
+    },
+    "usage": {
+      "quota": {
+        "used": "{{percent}}% used",
+        "resetsAt": "Resets {{time}}",
+        "resetUnavailable": "Reset time unavailable",
+        "unavailable": "Quota data unavailable",
+        "refreshing": "Refreshing quota…",
+        "updatedAt": "Quota checked {{time}}",
+        "neverUpdated": "Quota has not been checked",
+        "lastKnown": "Last known quota; the latest check failed.",
+        "title": "Current account quotas",
+        "scope": "{{host}} · Account-wide subscription windows. History filters do not change these limits.",
+        "refresh": "Refresh account quotas",
+        "reportedAccountCoverage": "Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.",
+        "partialAccounts": "The account list is unavailable or incomplete. Only reported accounts and current provider quota snapshots are shown.",
+        "noSources": "No account quota source is available. Manage provider accounts to check your subscription.",
+        "manage": "Manage accounts",
+        "ownerUnverifiable": "The account host cannot be verified.",
+        "defaultWsl": "WSL default",
+        "currentAccount": "Current account · identity unavailable"
+      },
+      "localHost": "This device",
+      "refresh": "Refresh",
+      "history": {
+        "detail": "History detail",
+        "providerDetails": "Original provider view",
+        "providerDetailsScope": "This provider view has its own period and project filters. Account filters above apply to the historical ledger.",
+        "title": "Historical usage",
+        "owner": "{{host}} · Recorded agent logs",
+        "refresh": "Refresh historical usage",
+        "ownerUnavailable": "Historical usage is unavailable from {{host}}. Check the host connection and update it if it does not support historical usage.",
+        "empty": "No recorded usage matches this selection. Enable a provider, refresh its scan, or change the filters."
+      },
+      "activity": {
+        "title": "Local Orca activity · since first launch",
+        "scope": "Local Orca events only. These counters use a different source and lifetime period from the historical log scan."
+      },
+      "breakdown": {
+        "total": "Share of {{total}} selected tokens"
+      },
+      "daily": {
+        "title": "Daily usage",
+        "metric": "Chart metric",
+        "cost": "API estimate",
+        "description": "Select a day to inspect its usage. Days without recorded usage are shown at zero.",
+        "partialCost": "Some usage has no recorded price. The chart shows the priced portion; * marks a partial estimate. This is not a billing statement.",
+        "inspect": "{{day}}: {{tokens}} tokens",
+        "inspectCost": "{{day}}: {{cost}} API-equivalent estimate",
+        "providers": "Provider series",
+        "unpriced": "Price unavailable"
+      },
+      "tokens": "Tokens",
+      "unknown": "Unknown",
+      "accounts": {
+        "title": "By account · tokens / API estimate"
+      },
+      "models": {
+        "title": "By model · tokens / API estimate"
+      },
+      "projects": {
+        "title": "By project · tokens / API estimate"
+      },
+      "session": {
+        "unavailable": "Session attribution unavailable",
+        "multipleProjects": "Multiple projects",
+        "multipleModels": "Multiple models",
+        "title": "Session drilldown",
+        "description": "Tokens match the selected period, account, provider, model, project and day. Select the last recorded day to inspect a session.",
+        "lastDay": "Last recorded day",
+        "activity": "Events / turns",
+        "input": "All input",
+        "output": "Output",
+        "showMore": "Show more sessions",
+        "estimate": "API-equivalent estimate: {{cost}}",
+        "legacy": "Some cached rows have no session attribution. Their tokens remain in the ledger; a new scan rebuilds session detail from available logs.",
+        "lifetime": "Some session rows show lifetime totals because period attribution is unavailable. Refresh the scan to rebuild their detail."
+      },
+      "account": {
+        "multiple": "Multiple accounts",
+        "coverage": "{{tokens}} tokens across {{rows}} rows have unknown account ownership and are excluded from named-account totals. Shared history and older records cannot be assigned from the current login.",
+        "unknown": "Unknown account",
+        "recorded": "Recorded account {{id}}"
+      },
+      "filter": {
+        "project": "Project",
+        "model": "Model",
+        "search": "Search {{filter}}…",
+        "noMatches": "No matches",
+        "period": "History period",
+        "provider": "Provider",
+        "allProviders": "All providers",
+        "account": "Account",
+        "allAccounts": "All accounts",
+        "allModels": "All models",
+        "allProjects": "All projects",
+        "scope": "Project scope",
+        "allLocal": "All local projects",
+        "orca": "Orca projects and folders",
+        "clearDay": "{{day}} · Clear day filter"
+      },
+      "period": {
+        "7d": "7 days",
+        "30d": "30 days",
+        "90d": "90 days",
+        "all": "All time"
+      },
+      "estimate": {
+        "partial": "Partial API-equivalent estimate",
+        "title": "API-equivalent estimate",
+        "calculation": "How these figures are calculated",
+        "explanation": "Dollar amounts are API-equivalent estimates from token logs, not subscription charges or billed spend. Unavailable model prices are excluded; OpenCode cost telemetry and Muse pricing are not treated as billing sources.",
+        "unpriced": "{{tokens}} tokens have no API price estimate."
+      },
+      "days": "Recorded days",
+      "cache": {
+        "title": "Cache read share of input",
+        "explanation": "Cache share = cache read / (new input + cache read + cache write). Cached input is included once; reasoning is already included in output."
+      },
+      "format": {
+        "notAvailable": "n/a"
+      },
+      "coverage": {
+        "counts": "Recorded coverage: {{providers}} providers · {{models}} models · {{projects}} projects · {{days}} days.",
+        "partial": "Coverage is incomplete. Disabled, unavailable or failed sources do not mean zero usage; totals include recorded rows only."
+      },
+      "source": {
+        "ownerUnsupported": "History unavailable on this host",
+        "loading": "Loading scan state…",
+        "failed": "Historical source unavailable",
+        "disabled": "Tracking disabled",
+        "scanning": "Scanning logs…",
+        "neverScanned": "Not scanned yet",
+        "updated": "Scanned {{time}}",
+        "needsRescan": "Saved totals need a new scan before they can be included. Refresh to rebuild history from available logs.",
+        "enable": "Enable {{provider}}"
+      }
     }
   },
   "github": {
@@ -31060,5 +31428,38 @@
     "moveLeft": "Move left",
     "moveRight": "Move right",
     "reset": "Reset tab order"
+  },
+  "holdQuit": {
+    "hint": "Agents are still working. Hold ⌘Q to quit.",
+    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
+  },
+  "projectConversations": {
+    "defaultGroupName": "{{project}} group",
+    "hideProject": "Hide project from list",
+    "hiddenProjects": "Hidden projects",
+    "keepFiles": "Files and history are kept",
+    "restoreProject": "Restore {{project}}",
+    "projectOptionsFor": "Project options for {{project}}",
+    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
+    "search": "Search chats",
+    "projectOrder": "Project order",
+    "allChats": "Chats",
+    "archived": "Archived",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "noChats": "No chats yet",
+    "loading": "Loading chats…",
+    "noArchived": "No archived chats",
+    "noMatching": "No matching chats",
+    "untitled": "Untitled chat",
+    "unpin": "Unpin chat",
+    "pin": "Pin chat",
+    "restore": "Restore chat",
+    "archive": "Archive chat",
+    "working": "Working",
+    "needsYou": "Needs you",
+    "showMore": "Show more",
+    "newChatInProject": "New chat in {{project}}",
+    "saveFailed": "Could not save chat preferences. Update Orca or try again."
   }
 }

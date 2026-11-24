@@ -3,10 +3,13 @@ import type { JournalForkInstall } from '../../agent-session-journal/journal-for
 // Calling the adapter first could lose a turn it accepted.
 
 import {
+  captureStructuredExecutionOptions,
+  captureStructuredSteerOptions
+} from '../options/structured-agent-session-execution-options'
+import {
   forgetNativeChatPrompt,
   rememberNativeChatPrompt
 } from '../../../telemetry/native-chat-prompt-submissions'
-import { captureStructuredExecutionOptions } from '../options/structured-agent-session-execution-options'
 import type { AgentSessionFailureWordsContext } from '../../../../shared/agent-session/failures/agent-session-failure-words'
 import type {
   AgentJournalMessageItem,
@@ -54,6 +57,8 @@ export type AgentSessionTurnContext = {
   agent: string
   logger: StructuredAgentSessionLogger
   persistedOptions?: Readonly<Record<string, string>>
+  /** The chat follows the agent's default model; `persistedOptions` holds what it resolved to. */
+  modelDefault?: boolean
   persistOptions: (options: Readonly<Record<string, string>>) => Promise<void>
   resolvedBy: string
   /** Publish non-journal state; appends publish themselves. */
@@ -135,6 +140,8 @@ export async function performSend(
     /** Persist only source kind in the submission. */
     source?: AgentSessionMessageSource
     options?: Readonly<Record<string, string>>
+    steer?: true
+    keepCurrentOptions?: true
     selection?: Readonly<Record<string, string>>
   },
   userClient?: 'desktop' | 'mobile',
@@ -153,7 +160,12 @@ export async function performSend(
       value: { clientMessageId: input.clientMessageId, submission: { ...existing } }
     }
   }
-  const captured = captureStructuredExecutionOptions(ctx, input.options, input.selection)
+  const { steer: _steer, keepCurrentOptions, ...submission } = input
+  const captured = keepCurrentOptions
+    ? { options: undefined }
+    : input.steer
+      ? await captureStructuredSteerOptions(ctx, input.options, input.selection)
+      : captureStructuredExecutionOptions(ctx, input.options, input.selection)
   if ('refusal' in captured) {
     return { ok: false, refusal: captured.refusal }
   }
@@ -167,8 +179,8 @@ export async function performSend(
         telemetryOwnerKey
       )
     }
-    const submission = {
-      ...input,
+    const acceptedSubmission = {
+      ...submission,
       options: captured.options,
       fence: ctx.fence,
       handoverRecorded: true as const
@@ -176,11 +188,11 @@ export async function performSend(
     const sending = ctx.journal.holdSending()
     try {
       await (ctx.forkInstall
-        ? ctx.journal.write({ kind: 'submission', input: submission }, () => ({
+        ? ctx.journal.write({ kind: 'submission', input: acceptedSubmission }, () => ({
             receipt: ctx.operationReceipt,
             forkInstall: ctx.forkInstall
           }))
-        : ctx.journal.appendSubmission(submission, undefined, ctx.operationReceipt))
+        : ctx.journal.appendSubmission(acceptedSubmission, undefined, ctx.operationReceipt))
     } finally {
       sending()
     }
@@ -211,7 +223,7 @@ async function requireSubmission(
 
 export type AgentSessionReplayContext = Pick<
   AgentSessionTurnContext,
-  'sessionId' | 'fence' | 'currentWork' | 'agent' | 'persistedOptions' | 'now'
+  'sessionId' | 'fence' | 'currentWork' | 'agent' | 'persistedOptions' | 'modelDefault' | 'now'
 > & {
   journal: Pick<AgentSessionJournal, 'cursor' | 'reads'> & {
     queuedMessages: Pick<AgentSessionJournal['queuedMessages'], 'get'>

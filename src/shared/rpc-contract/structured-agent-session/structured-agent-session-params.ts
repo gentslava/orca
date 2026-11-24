@@ -87,25 +87,7 @@ export const CreateSupportParams = z
   })
   .strict()
 
-export const SendParams = z
-  .object({
-    envelope: MutationEnvelope,
-    retryUnknown: z.literal(true).optional(),
-    /** Host-held draft while active; gate strict payloads on agent-session.queued-messages.v2.
-     * Operation fingerprint only, never body fingerprint. */
-    delivery: z.literal('queue-if-active').optional(),
-    /** Preserve composer options until dispatch; requires agent-session.send-options.v1. Operation fingerprint only. */
-    options: AgentSessionOptions.optional(),
-    selection: AgentSessionSelectionSchema.optional(),
-    // Strict payload: only hosts advertising the bound usage-limit send capability accept this.
-    usageLimitContinuationOfTurnItemId: Identifier('Invalid source turn item id').optional(),
-    body: SendBody
-  })
-  .strict()
-  .refine(
-    (value) => value.options === undefined || value.selection === undefined,
-    'Choose options or selection'
-  )
+export { SendParams } from './structured-agent-session-message-params'
 
 export const CreateIntentParams = z
   .object({
@@ -180,11 +162,14 @@ export const RespondParams = z
   })
   .strict()
 
-export const SetOptionParams = z.strictObject({
-  envelope: MutationEnvelope,
-  key: Identifier('Invalid option key'),
-  value: z.string().max(MAX_OPTION_LABEL)
-})
+/** A null model returns the chat to the agent's default; only hosts advertising default-model take it. */
+export const SetOptionParams = z
+  .strictObject({
+    envelope: MutationEnvelope,
+    key: Identifier('Invalid option key'),
+    value: z.string().max(MAX_OPTION_LABEL).nullable()
+  })
+  .refine((params) => params.value !== null || params.key === 'model', 'Only a model has a default')
 
 export const OptionsParams = z.object({ sessionId: SessionId }).strict()
 export const RevealParams = OptionsParams.extend({

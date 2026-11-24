@@ -1,4 +1,5 @@
 import { translate } from '@/i18n/i18n'
+import type { Translate } from '@/i18n/use-translate'
 import type {
   NativeChatSessionOptionCopyId,
   NativeChatSessionOptionSay
@@ -8,6 +9,7 @@ import type {
 
 const PIECES: Record<NativeChatSessionOptionCopyId, (values?: { value0: string }) => string> = {
   model: () => translate('components.native-chat.composer.model', 'Model'),
+  defaultModel: () => translate('components.native-chat.composer.defaultModel', 'Default'),
   effort: () => translate('components.native-chat.composer.effort', 'Effort'),
   fastMode: () => translate('components.native-chat.composer.fastMode', 'Fast mode'),
   speed: () => translate('components.native-chat.composer.speed', 'Speed'),
@@ -41,9 +43,24 @@ const PIECES: Record<NativeChatSessionOptionCopyId, (values?: { value0: string }
       'components.native-chat.composer.availableAfterSessionStarts',
       'Available after the session starts.'
     ),
+  futureOptionsRequireUpdate: () =>
+    translate(
+      'components.native-chat.composer.futureOptionsRequireUpdate',
+      'Update Orca on this host to change future-turn choices while the agent works.'
+    ),
   sessionOptions: () =>
     translate('components.native-chat.composer.sessionOptions', 'Session options')
 }
 
 export const sayNativeChatSessionOptionTranslated: NativeChatSessionOptionSay = (id, values) =>
   PIECES[id](values)
+
+// Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
+export function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
+  return value === title
+    ? title
+    : t('components.native-chat.composer.pillAccessibleName', '{{value0}} {{value1}}', {
+        value0: title,
+        value1: value
+      })
+}

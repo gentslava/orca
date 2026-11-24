@@ -75,16 +75,21 @@ export function retireAgentModelCatalogObservations(
   dueEntries: Set<string>,
   retiredObservations: Set<string>,
   partialAttempts: Map<string, { agent: string; at: number }>,
-  agent: string
+  agent: string,
+  fingerprint?: string
 ): void {
   for (const entry of entries.values()) {
-    if (entry.agent === agent) {
+    if (entry.agent === agent && (fingerprint === undefined || entry.fingerprint === fingerprint)) {
       dueEntries.add(entry.fingerprint)
       retiredObservations.add(entry.fingerprint)
     }
   }
+  const prefix = fingerprint === undefined ? '' : `${JSON.stringify([fingerprint]).slice(0, -1)},`
   for (const [key, attempt] of partialAttempts) {
-    if (attempt.agent === agent) {
+    if (
+      attempt.agent === agent &&
+      (fingerprint === undefined || key === fingerprint || key.startsWith(prefix))
+    ) {
       partialAttempts.delete(key)
     }
   }
@@ -118,6 +123,18 @@ export function createAgentModelCatalogEntryFactory(
       seenAgentModelRows(agent, previous?.seen, success.models, source, clock)
     )
   }
+}
+
+export function agentModelCatalogDefaultVerified(
+  entry: AgentModelCatalogEntry,
+  attempts: ReadonlyMap<string, unknown>,
+  requireDefault: boolean
+): boolean {
+  return (
+    !requireDefault ||
+    !independentAgentModelCatalog(entry.agent) ||
+    (entry.discovered?.complete === true && !attempts.has(entry.fingerprint))
+  )
 }
 
 function writeAgentModelCatalogSuccess(

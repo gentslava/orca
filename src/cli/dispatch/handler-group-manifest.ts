@@ -1,3 +1,4 @@
+import { ORCHESTRATION_HANDLER_GROUP } from './orchestration-handler-group'
 import type { CommandHandler } from './dispatch'
 import { AUTH_HANDLER_GROUP } from '../accounts/auth-handler-group'
 import { BOT_HANDLER_GROUPS } from '../bots/bot-handler-groups'
@@ -122,46 +123,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     load: async () => (await import('../terminals/terminal.js')).TERMINAL_HANDLERS
   },
   ...BROWSER_HANDLER_GROUPS,
-  {
-    name: 'orchestration',
-    keys: [
-      'orchestration run-create',
-      'orchestration run-use',
-      'orchestration run-current',
-      'orchestration run-list',
-      'orchestration run-show',
-      'orchestration send',
-      'orchestration check',
-      'orchestration reply',
-      'orchestration inbox',
-      'orchestration task-create',
-      'orchestration task-list',
-      'orchestration task-update',
-      'orchestration worker-start',
-      'orchestration worker-show',
-      'orchestration worker-read',
-      'orchestration worker-stop',
-      'orchestration approve',
-      'orchestration deny',
-      'orchestration worker-abandon',
-      'orchestration worker-release',
-      'orchestration worker-keep-open',
-      'orchestration worker-retain',
-      'orchestration worker-list',
-      'orchestration dispatch',
-      'orchestration ask',
-      'orchestration dispatch-show',
-      'orchestration coordinator-start',
-      'orchestration coordinator-stop',
-      'orchestration request-show',
-      'orchestration gate-create',
-      'orchestration gate-resolve',
-      'orchestration gate-list',
-      'orchestration reset'
-    ],
-    load: async () =>
-      (await import('../orchestration/orchestration-handlers.js')).ORCHESTRATION_HANDLERS
-  },
+  ORCHESTRATION_HANDLER_GROUP,
   {
     name: 'emulator',
     keys: [
@@ -228,7 +190,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'chat',
-    keys: ['chat rename'],
+    keys: ['chat rename', 'chat close'],
     load: async () => (await import('../agents/chat.js')).CHAT_HANDLERS
   },
   ...BOT_HANDLER_GROUPS,

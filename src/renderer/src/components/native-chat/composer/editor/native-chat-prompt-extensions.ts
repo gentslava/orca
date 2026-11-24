@@ -2,13 +2,13 @@ import StarterKit from '@tiptap/starter-kit'
 import type { Extensions } from '@tiptap/react'
 import { translate } from '@/i18n/i18n'
 import { NativeChatAgentReference } from './native-chat-agent-reference'
-import { nativeChatPromptPills } from './native-chat-prompt-document'
+import { nativeChatPromptPillsFor } from './native-chat-prompt-document'
 import { NativeChatSideChat } from './native-chat-side-chat-node'
 import { NativeChatUnkernedRunDecorations } from './native-chat-unkerned-run-decorations'
 import { NativeChatHardBreakParagraphs } from './native-chat-hard-break-paragraphs'
 
 /** The composer's plain-text schema: paragraphs, hard breaks and the pills only Orca inserts. */
-export function nativeChatPromptExtensions(): Extensions {
+export function nativeChatPromptExtensions(imageChips = true): Extensions {
   return [
     StarterKit.configure({
       blockquote: false,
@@ -29,7 +29,7 @@ export function nativeChatPromptExtensions(): Extensions {
       trailingNode: false
     }),
     NativeChatAgentReference,
-    ...nativeChatPromptPills,
+    ...nativeChatPromptPillsFor(imageChips),
     NativeChatSideChat.configure({
       placeholder: () =>
         translate('components.native-chat.sideChat.placeholder', 'Ask a side question')

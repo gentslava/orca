@@ -1,0 +1,72 @@
+import {
+  AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY,
+  AI_VAULT_STRUCTURED_CATALOG_CAPABILITY
+} from '../../../src/shared/ai-vault/contracts/ai-vault-runtime-capabilities'
+import type { RpcClient } from '../transport/rpc/rpc-client-contract'
+import {
+  agentHistoryHostStatusRead,
+  agentHistorySessionScan
+} from '../agent-history/mobile-agent-history-operations'
+import { readConversationHistory } from './conversation-records'
+
+export type ProjectConversationHistorySnapshot = ReturnType<typeof readConversationHistory>
+
+export async function refreshProjectConversationHistory(
+  client: RpcClient,
+  force: boolean,
+  previous?: ProjectConversationHistorySnapshot,
+  onCatalog?: (snapshot: {
+    capabilities: readonly string[]
+    history: ProjectConversationHistorySnapshot
+  }) => void
+) {
+  const status = agentHistoryHostStatusRead.interpret(
+    await agentHistoryHostStatusRead.request(client)
+  )
+  const capabilities = status.capabilities ?? []
+  if (!capabilities.includes('aiVault.v1')) {
+    return { capabilities, history: null }
+  }
+  const request = {
+    ...(capabilities.includes(AI_VAULT_CANONICAL_PROJECT_SEARCH_CAPABILITY)
+      ? { historyOwnership: {} }
+      : {}),
+    unlimited: true,
+    includeAntigravityIdeSessions: true,
+    includeStructuredSessions: true,
+    force
+  }
+  if (!previous && onCatalog && capabilities.includes(AI_VAULT_STRUCTURED_CATALOG_CAPABILITY)) {
+    try {
+      const history = readConversationHistory(
+        agentHistorySessionScan.interpret(
+          await agentHistorySessionScan.request(client, { ...request, structuredOnly: true })
+        )
+      )
+      onCatalog({ capabilities, history })
+    } catch (error) {
+      console.warn('Could not load the chat catalog before history', error)
+    }
+  }
+  const afterFingerprint = force ? undefined : previous?.fingerprint
+  const read = async (conditional: boolean) =>
+    readConversationHistory(
+      agentHistorySessionScan.interpret(
+        await agentHistorySessionScan.request(client, {
+          ...request,
+          ...(conditional && afterFingerprint ? { afterFingerprint } : {})
+        })
+      )
+    )
+  let history = await read(true)
+  if (history.unchanged) {
+    if (previous && afterFingerprint && history.fingerprint === afterFingerprint) {
+      return { capabilities, history: previous }
+    }
+    history = await read(false)
+    if (history.unchanged) {
+      throw new Error('Conversation history refresh did not return a full snapshot')
+    }
+  }
+  return { capabilities, history }
+}

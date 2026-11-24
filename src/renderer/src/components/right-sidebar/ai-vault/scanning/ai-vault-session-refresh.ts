@@ -1,3 +1,5 @@
+import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refresh-key'
+import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { aiVaultScanErrorText } from './ai-vault-scan-issue-copy'
@@ -7,7 +9,10 @@ import { AiVaultSessionPublicationGate } from './ai-vault-session-publication-ga
 import { EMPTY_AI_VAULT_SESSIONS } from '../session-list/ai-vault-session-identity'
 import { useAppliedAiVaultScan } from './ai-vault-applied-scan'
 import { useAiVaultSessionHostRefreshEvents } from '../scope/ai-vault-host-scope'
-import { aiVaultSessionResultCacheKey } from './ai-vault-session-result-cache'
+import {
+  aiVaultSessionResultCacheKey,
+  resetAiVaultSessionResultCacheForTest
+} from './ai-vault-session-result-cache'
 import {
   refreshAiVaultSessionList,
   type AiVaultConditionalSnapshot,
@@ -16,10 +21,14 @@ import {
   readLastAiVaultSessionList
 } from './ai-vault-session-list-request'
 import { useAiVaultNewSessionRescan } from './ai-vault-new-session-rescan'
+import { useAiVaultConversationRefresh } from './ai-vault-conversation-refresh'
 import { saveAiVaultSessionList } from './ai-vault-saved-session-lists'
 import { useAiVaultAssociationObservation } from './ai-vault-association-observation'
 import { createNonSecureContextUuid as createBrowserUuid } from '../../../../../../shared/identifiers/non-secure-context-uuid'
-import { claimAiVaultForcedRescan } from './ai-vault-forced-rescan-budget'
+import {
+  claimAiVaultForcedRescan,
+  resetAiVaultForcedRescanBudgetForTest
+} from './ai-vault-forced-rescan-budget'
 import {
   type AiVaultListResult,
   type AiVaultSession,
@@ -34,7 +43,8 @@ export function useAiVaultSessionRefresh(
   scopePaths: readonly string[],
   executionHostScope: ExecutionHostScope,
   sessionLimit: AiVaultSessionLimit,
-  scopeOnly = false
+  scopeOnly = false,
+  includeStructuredSessions = false
 ): {
   error: string | null
   loading: boolean
@@ -45,12 +55,13 @@ export function useAiVaultSessionRefresh(
   /** The depth the sessions on screen came from, which trails the selected one during a rescan. */
   loadedSessionLimit: AiVaultSessionLimit | null
 } {
-  const scanScopeKey = `${aiVaultSessionResultCacheKey(executionHostScope, scopePaths, scopeOnly)}\n${sessionLimit}`
+  const scanScopeKey = `${aiVaultSessionResultCacheKey(executionHostScope, scopePaths, scopeOnly, includeStructuredSessions)}\n${sessionLimit}`
   // A return to the panel opens on the list this scope already holds instead of a skeleton.
   const { scan, applyScan } = useAppliedAiVaultScan(() => {
     const result = readCachedAiVaultSessionList({
       scopePaths,
       scopeOnly,
+      includeStructuredSessions,
       executionHostScope,
       sessionLimit
     })
@@ -75,12 +86,14 @@ export function useAiVaultSessionRefresh(
   const publicationGateRef = useRef<AiVaultSessionPublicationGate>(undefined!)
   publicationGateRef.current ??= new AiVaultSessionPublicationGate()
   // Workspace or Project rows would pass for All's list while it loads or after it fails; the filter narrows the rest.
-  const shown = scan?.scopeOnly && !scopeOnly ? null : scan
+  const isolatedScan = includeStructuredSessions && scan?.scopeKey !== scanScopeKey ? null : scan
+  const shown = isolatedScan?.scopeOnly && !scopeOnly ? null : isolatedScan
   // Kept through rescans so a repeat failure doesn't blink; shown only for the scope that failed.
   const error = failure?.scopeKey === scanScopeKey ? aiVaultScanErrorText(failure.cause) : null
   const scopePathsRef = useRef<readonly string[]>(scopePaths)
   scopePathsRef.current = scopePaths
   const scopeOnlyRef = useRef(scopeOnly)
+  const includeStructuredSessionsRef = useRef(includeStructuredSessions)
   const executionHostScopeRef = useRef<ExecutionHostScope>(executionHostScope)
   executionHostScopeRef.current = executionHostScope
   const sessionLimitRef = useRef(sessionLimit)
@@ -88,17 +101,20 @@ export function useAiVaultSessionRefresh(
   useLayoutEffect(() => {
     sessionLimitRef.current = sessionLimit
     scopeOnlyRef.current = scopeOnly
+    includeStructuredSessionsRef.current = includeStructuredSessions
     associationsRef.current = associations
-  }, [associations, scopeOnly, sessionLimit])
+  }, [associations, includeStructuredSessions, scopeOnly, sessionLimit])
   const currentScanScopeKey = useCallback(
     () =>
       `${aiVaultSessionResultCacheKey(
         executionHostScopeRef.current,
         scopePathsRef.current,
-        scopeOnlyRef.current
+        scopeOnlyRef.current,
+        includeStructuredSessionsRef.current
       )}\n${sessionLimitRef.current}`,
     []
   )
+  const loadStartupCatalog = useAiVaultStartupCatalog(applyScan, publicationGateRef, setLoading)
   const refresh = useCallback(
     async (args: AiVaultRefreshArgs = {}): Promise<void> => {
       const observation = associationsRef.current
@@ -110,11 +126,17 @@ export function useAiVaultSessionRefresh(
       const request = {
         scopePaths: scopePathsRef.current,
         scopeOnly: scopeOnlyRef.current,
+        includeStructuredSessions: includeStructuredSessionsRef.current,
         executionHostScope: hostScope,
         sessionLimit: selectedLimit
       }
       const { scopeOnly } = request
-      const baseKey = aiVaultSessionResultCacheKey(hostScope, request.scopePaths, scopeOnly)
+      const baseKey = aiVaultSessionResultCacheKey(
+        hostScope,
+        request.scopePaths,
+        scopeOnly,
+        request.includeStructuredSessions
+      )
       const scanKey = `${baseKey}\n${selectedLimit}`
       const applyListed = (published: AiVaultListResult, scanned = false) =>
         applyScan(
@@ -182,6 +204,12 @@ export function useAiVaultSessionRefresh(
         scanKey === currentScanScopeKey() &&
         associationCurrent()
       try {
+        if (!cachedResult) {
+          await loadStartupCatalog(request, requestTokenRef.current, scanKey, requestCurrent)
+          if (!requestCurrent()) {
+            return
+          }
+        }
         const previous = conditionalSnapshotRef.current
         const result = await refreshAiVaultSessionList(
           request,
@@ -231,7 +259,7 @@ export function useAiVaultSessionRefresh(
       }
       // Read changing scope through refs; recursion requires a stable refresh identity.
     },
-    [applyScan, currentScanScopeKey]
+    [applyScan, currentScanScopeKey, loadStartupCatalog]
   )
 
   useEffect(() => {
@@ -276,7 +304,8 @@ export function useAiVaultSessionRefresh(
   // Retry prior relay-readiness errors on host events; otherwise startup/reconnect failures can persist indefinitely.
   useAiVaultSessionHostRefreshEvents(error, refresh)
 
-  useAiVaultNewSessionRescan(refresh)
+  useAiVaultConversationRefresh(includeStructuredSessions, executionHostScope, refresh)
+  useAiVaultNewSessionRescan(refresh, includeStructuredSessions)
 
   // A stale list keeps the scope pending, so it shows as refreshing until the rescan answers.
   const scopePending =
@@ -290,4 +319,10 @@ export function useAiVaultSessionRefresh(
     sessions: shown?.result.sessions ?? EMPTY_AI_VAULT_SESSIONS,
     loadedSessionLimit: shown?.limit ?? null
   }
+}
+
+export function resetAiVaultForcedRescanThrottleForTest(): void {
+  resetAiVaultForcedRescanBudgetForTest()
+  resetAgentSessionIdsRefreshKeys()
+  resetAiVaultSessionResultCacheForTest()
 }

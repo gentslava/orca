@@ -10,10 +10,7 @@ import {
   structuredAgentSessionQueueSendsNext
 } from '../../../../../src/shared/agent-session/view/structured-agent-session-live-turn'
 import { mobileStructuredLinkedPrompts } from '../input/prompts/mobile-structured-linked-prompts'
-import {
-  projectStructuredPermission,
-  projectStructuredQuestion
-} from '../input/prompts/mobile-structured-agent-prompts'
+import * as promptProjection from '../input/prompts/mobile-structured-agent-prompts'
 import type {
   MobileStructuredAgentSessionArgs,
   StructuredMobileSession
@@ -140,12 +137,8 @@ export function useMobileStructuredAgentSession(
     state,
     turnId,
     connected,
-    mutate
-  })
-  const hostStopping = useMobileStructuredSessionHostStopping({
-    client,
-    sessionId,
-    enabled: enabled && connected && hostSupport?.statusFeed === true
+    mutate,
+    onSendError
   })
   const stopPress = useMobileStructuredStopPress(sessionKey)
   const { canStop, sendsOut } = useMobileStructuredStopOffer({
@@ -159,7 +152,11 @@ export function useMobileStructuredAgentSession(
     turnId,
     isWorking,
     canStop,
-    hostStopping,
+    hostStopping: useMobileStructuredSessionHostStopping({
+      client,
+      sessionId,
+      enabled: enabled && connected && hostSupport?.statusFeed === true
+    }),
     stopPressed: stopPress.pressed,
     queueCapable,
     queueFollowUps,
@@ -182,6 +179,7 @@ export function useMobileStructuredAgentSession(
     enabled,
     queueCapable,
     queueFollowUps,
+    steerCapable: hostSupport?.steerDraft === true,
     commandsWait: queueCapable && hostSupport?.queuedCommands === true,
     stateRef,
     stopping: turnIndicator.stopping,
@@ -192,6 +190,7 @@ export function useMobileStructuredAgentSession(
     controller: mcp.commands,
     sessionCommands: args.sessionCommands,
     onSendError,
+    isModelWritePending: options.isModelWritePending,
     queueSendsNext,
     sendSelection: options.sendSelection,
     takesSkills: hostSupport?.sendSkills === true
@@ -276,6 +275,7 @@ export function useMobileStructuredAgentSession(
       loadEarlier,
       savedAt
     },
+    subagentSource: { journalItems: state.items, roster: state.subagentRoster },
     isWorking: isWorking || queueSendsNext,
     canStop,
     sendFollowUp: turnIndicator.sendFollowUp ?? null,
@@ -289,8 +289,8 @@ export function useMobileStructuredAgentSession(
       requestCancel(prompt ?? linked.promptIdentity),
     receipts,
     actionablePromptIds: state.actionablePromptIds,
-    permission: projectStructuredPermission(approvalPrompt),
-    question: projectStructuredQuestion(questionPrompt),
+    permission: promptProjection.projectStructuredPermission(approvalPrompt),
+    question: promptProjection.projectStructuredQuestion(questionPrompt),
     respondPermission,
     respondQuestion,
     queued,

@@ -1,4 +1,4 @@
-import { StatsPane } from '../../stats/StatsPane'
+import { AccountQuotaStatsPane } from '../../stats/AccountQuotaStatsPane'
 import { AppearancePane } from '../appearance/AppearancePane'
 import { ChatSettingsSection } from '../chat/ChatSettingsSection'
 import { InputPane } from '../input/InputPane'
@@ -173,13 +173,6 @@ export function renderStatsSettingsSection(
   t: Translate = translate
 ): React.JSX.Element {
   const { model, navigation, view } = context
-  const hostTarget = model.settingsHostScope.target
-  const hostName =
-    hostTarget.kind === 'environment'
-      ? (model.runtimeEnvironments.find(
-          (environment) => environment.id === hostTarget.environmentId
-        )?.name ?? hostTarget.environmentId)
-      : null
   return (
     <SettingsSection
       id="stats"
@@ -194,7 +187,7 @@ export function renderStatsSettingsSection(
         <SettingsHostScopeUnavailableNotice />
       ) : (
         <SettingsGroup bodyClassName="py-4">
-          <StatsPane host={{ target: hostTarget, name: hostName }} />
+          <AccountQuotaStatsPane host={{ target: model.settingsHostScope.target, name: null }} />
         </SettingsGroup>
       )}
     </SettingsSection>

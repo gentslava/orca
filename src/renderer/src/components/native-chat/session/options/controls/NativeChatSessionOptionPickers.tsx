@@ -3,8 +3,7 @@ import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { translate } from '@/i18n/i18n'
-import { useTranslate, type Translate } from '@/i18n/use-translate'
+import { useTranslate } from '@/i18n/use-translate'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { sortNativeChatSessionOptions } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-snapshot'
 import {
@@ -23,13 +22,17 @@ import {
   selectedNativeChatChoice,
   nativeChatSessionOptionDisabledReason
 } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-labels'
-import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
+import {
+  pillAccessibleName,
+  sayNativeChatSessionOptionTranslated as say
+} from './native-chat-session-option-labels-text'
 import type { NativeChatOptionPickerRequest } from './native-chat-option-picker-request'
 import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
 import { NativeChatModelCombobox } from './NativeChatModelCombobox'
 import { useNativeChatPickerFocusReturn } from '../../../composer/focus/native-chat-picker-focus-return'
 import { NativeChatSessionOptionRows } from './NativeChatSessionOptionRows'
 import { NativeChatSessionOptionWriteGroup } from './NativeChatSessionOptionWriteGroup'
+import { withPendingValue, type PendingPick } from './native-chat-session-option-pending-pick'
 
 export type NativeChatSessionOptionPickersProps = {
   surface: SessionOptionsSurface | null
@@ -38,45 +41,6 @@ export type NativeChatSessionOptionPickersProps = {
   pickerRequest?: NativeChatOptionPickerRequest | null
   /** Where focus lands after a visit that changed something; see `useNativeChatPickerFocusReturn`. */
   focusComposer?: () => void
-}
-
-/** A descriptor write in flight; its value shows until it settles. */
-type PendingPick = { id: string; value?: SessionOptionValue }
-
-// Show pending picks in place while open; refusal restores the host snapshot.
-function withPendingValue(
-  descriptor: SessionOptionDescriptor,
-  pending: PendingPick | null
-): SessionOptionDescriptor {
-  if (pending?.id !== descriptor.id) {
-    return descriptor
-  }
-  const { kind } = descriptor
-  if (kind.type === 'select' && typeof pending.value === 'string') {
-    return {
-      ...descriptor,
-      valueSource: 'dispatched',
-      kind: { ...kind, currentValue: pending.value }
-    }
-  }
-  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
-    return {
-      ...descriptor,
-      valueSource: 'dispatched',
-      kind: { ...kind, currentValue: pending.value }
-    }
-  }
-  return descriptor
-}
-
-// Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
-function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
-  return value === title
-    ? title
-    : t('components.native-chat.composer.pillAccessibleName', '{{value0}} {{value1}}', {
-        value0: title,
-        value1: value
-      })
 }
 
 function PickerTrigger(props: {
@@ -103,7 +67,7 @@ function PickerTrigger(props: {
             size="xs"
             aria-label={props.accessibleName}
             aria-disabled={props.disabled || undefined}
-            className="max-w-64"
+            className="min-w-0 max-w-64 shrink"
             onClick={(event) => {
               if (props.disabled) {
                 event.preventDefault()
@@ -157,6 +121,7 @@ function SessionOptionPopover(props: {
   request: NativeChatOptionPickerRequest | null
   onSet: (descriptor: SessionOptionDescriptor, value: SessionOptionValue) => void
   onAction: (descriptor: SessionOptionDescriptor) => void
+  onReset?: (descriptor: SessionOptionDescriptor) => void
   focusComposer?: () => void
 }): React.JSX.Element {
   const t = useTranslate()
@@ -188,11 +153,19 @@ function SessionOptionPopover(props: {
   }, [open, demandModelCatalog])
   const focusReturn = useNativeChatPickerFocusReturn(props.focusComposer)
   const modelTitle = t('components.native-chat.composer.model', 'Model')
-  const modelLabel = nativeChatModelPillLabel(model, say)
+  const defaultSelected = model.defaultChoice?.selected === true
+  // Default names the model it resolved to once the host does; until then it names itself.
+  const resolved = model.valueSource !== 'unknown' && model.valueSource !== 'default'
+  const modelLabel =
+    defaultSelected && !resolved
+      ? t('components.native-chat.composer.defaultModel', 'Default')
+      : nativeChatModelPillLabel(model, say)
   const effort = options.find((option) => option.id === 'effort')
   const effortChoice =
     effort && effort.valueSource !== 'unknown' ? selectedNativeChatChoice(effort) : null
-  const knownModel = model.valueSource !== 'unknown' && selectedNativeChatChoice(model)
+  const knownModel =
+    (defaultSelected && !resolved) ||
+    (model.valueSource !== 'unknown' && selectedNativeChatChoice(model))
   const tooltipLabel = knownModel
     ? effortChoice
       ? t('components.native-chat.composer.modelAndEffortValue', '{{model}} · {{effort}}', {
@@ -202,6 +175,7 @@ function SessionOptionPopover(props: {
       : modelLabel
     : t('components.native-chat.composer.modelAndEffort', 'Model and effort')
   const modelName = knownModel ? pillAccessibleName(modelTitle, tooltipLabel, t) : tooltipLabel
+  const forFutureTurn = props.isWorking && model.transport === 'agent-session'
   const optionsTitle = nativeChatOptionsPillTitle(options, say)
   const optionsLabel = nativeChatOptionValuesLabel(options, say)
   const modelReason = nativeChatSessionOptionDisabledReason(model.disabledReason, say)
@@ -222,11 +196,18 @@ function SessionOptionPopover(props: {
     }
     // During a provider fallback, picking the saved model is a real change.
     if (
+      descriptor.defaultChoice?.selected ||
       descriptor.valueSource === 'unknown' ||
       descriptor.valueSource === 'default' ||
       (descriptor.fallbackModel ?? descriptor.kind.currentValue) !== value
     ) {
       props.onSet(descriptor, value)
+    }
+  }
+  const reset = (descriptor: SessionOptionDescriptor): void => {
+    if (!pendingIds.has(descriptor.id)) {
+      focusReturn.notePick()
+      props.onReset?.(descriptor)
     }
   }
   const act = (descriptor: SessionOptionDescriptor): void => {
@@ -248,9 +229,15 @@ function SessionOptionPopover(props: {
         optionsLabel={optionsLabel}
         tooltipLabel={tooltipLabel}
         accessibleName={
-          optionsLabel
-            ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel, t)}`
-            : modelName
+          forFutureTurn
+            ? t('components.native-chat.composer.nextTurnOptionsLabel', 'Next turn: {{options}}', {
+                options: optionsLabel
+                  ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel, t)}`
+                  : modelName
+              })
+            : optionsLabel
+              ? `${modelName}, ${pillAccessibleName(optionsTitle, optionsLabel, t)}`
+              : modelName
         }
         disabled={!canOpen}
         disabledReason={modelReason ?? optionsReason}
@@ -280,7 +267,11 @@ function SessionOptionPopover(props: {
             return
           }
           const row = content.querySelector(`[data-option-id="${CSS.escape(optionId)}"]`)
+          if (row?.closest('[aria-disabled="true"]')) {
+            return
+          }
           const control =
+            row?.querySelector<HTMLElement>('[role="slider"]:not([data-disabled])') ??
             row?.querySelector<HTMLElement>('[aria-checked="true"]:not(:disabled)') ??
             row?.querySelector<HTMLElement>('button:not(:disabled)')
           if (control) {
@@ -303,6 +294,9 @@ function SessionOptionPopover(props: {
           }
         }}
       >
+        {forFutureTurn && model.disabledReason === 'host-update-required' ? (
+          <p className="px-2 py-1 text-xs text-muted-foreground">{modelReason}</p>
+        ) : null}
         {model.kind.type === 'select' && !model.action ? (
           <NativeChatModelCombobox
             choices={model.kind.choices}
@@ -311,6 +305,17 @@ function SessionOptionPopover(props: {
             readOnlyReason={modelReason}
             busy={pendingIds.has(model.id)}
             onSelect={(value) => set(model, value)}
+            defaultChoice={
+              model.defaultChoice && props.onReset
+                ? {
+                    selected: defaultSelected,
+                    modelLabel:
+                      defaultSelected && resolved ? modelLabel : model.defaultChoice.model?.label,
+                    modelDescription: model.defaultChoice.model?.description,
+                    onSelect: () => reset(model)
+                  }
+                : undefined
+            }
             cliUpdate={props.cliUpdate}
           />
         ) : (
@@ -361,6 +366,7 @@ function NativeChatSessionOptionPickersInner({
     return null
   }
   const model = withPendingValue(reportedModel, pending.get(reportedModel.id) ?? null)
+  const resetOption = surface.resetOption
   const options = sortNativeChatSessionOptions(snapshot)
     .filter((descriptor) => descriptor.id !== 'interactionMode')
     .map((descriptor) => withPendingValue(descriptor, pending.get(descriptor.id) ?? null))
@@ -398,6 +404,13 @@ function NativeChatSessionOptionPickersInner({
           runSessionOptionSurfaceCall({ id: descriptor.id }, markPending(descriptor.id), () =>
             surface.invokeAction(descriptor.id)
           )
+        }
+        onReset={
+          resetOption &&
+          ((descriptor) =>
+            runSessionOptionSurfaceCall({ id: descriptor.id }, markPending(descriptor.id), () =>
+              resetOption(descriptor.id)
+            ))
         }
         focusComposer={focusComposer}
       />

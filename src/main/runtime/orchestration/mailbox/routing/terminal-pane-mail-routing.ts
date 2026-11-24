@@ -1,3 +1,5 @@
+import { scheduleSessionLinkDelivery } from '../../session-links/session-link-delivery'
+import { pauseSessionLinkForSession } from '../../session-links/session-link-lifecycle'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../shared/workspace-layout/layout-owner-switch'
 import type { TerminalIdentityReadContext } from '../../../terminal/query/terminal-identity-read-context'
 import { ptyRecordForPaneKey } from '../../../terminal/query/pty-pane-record'
@@ -14,7 +16,6 @@ import {
   GENERIC_PROCESS_NAME_AGENTS,
   recognizeAgentProcess
 } from '../../../../../shared/agent-status/process/agent-process-recognition'
-import { resolveStructuredWorkerAuthority } from '../../terminal-authority/structured-sessions/structured-worker-authority'
 import type { StructuredPointerTarget } from '../structured-pointer/structured-mailbox-pointer-delivery'
 import type { OrchestrationDb } from '../../db/orchestration-db'
 import {
@@ -29,7 +30,6 @@ import {
 } from './structured-session-mail-target'
 import { closedChatWorkersForSession } from '../../workers/lifecycle/chat-assignee'
 import { OPERATOR_CLOSE_EXIT_CAUSE } from '../../../../../shared/terminal/pty/lifecycle/terminal-exit-cause'
-import { resolveTerminalIdentityFromProbes } from '../../../terminal/identity/terminal-identity-probe'
 import { observeChatWorkerWorking } from '../../workers/turn-stops/chat-worker-turn-stops'
 import { ChatWorkerModelWait } from '../../workers/turn-stops/chat-worker-model-wait'
 
@@ -161,20 +161,17 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
     }
   }
 
-  /** Read-only live-agent identity in either lane, without terminal.show's writable-looking pane payload. */
-  resolveTerminalIdentity(handle: string) {
-    return resolveTerminalIdentityFromProbes(handle, {
-      isLiveStructuredWorker: () =>
-        Boolean(resolveStructuredWorkerAuthority(handle, this._orchestrationDb)),
-      hasLivePty: () => Boolean(this.getLivePtyForHandle(handle)),
-      assertLiveLeaf: () => {
-        this.getLiveLeafForHandle(handle)
-      }
-    })
-  }
-
   deliverPendingMessagesForHandle(handle: string, reservedTypes?: ReadonlySet<string>): void {
     this.orchestrationMailboxNotifications.deliverForHandle(handle, reservedTypes)
+  }
+
+  private sessionLinkDb(): OrchestrationDb | null {
+    try {
+      return this.getExistingOrchestrationDb()
+    } catch (error) {
+      console.warn('[session-link] orchestration database unavailable', error)
+      return null
+    }
   }
 
   /** The structured idle edge: any journal movement is a chance to redrive parked mail. */
@@ -190,6 +187,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
 
   notifyStructuredSessionJournalActivity(sessionId: string): void {
     this.orchestrationStructuredMailboxPointerDelivery.onJournalActivity(sessionId)
+    scheduleSessionLinkDelivery(this.sessionLinkDb(), sessionId)
   }
 
   /** Retry parked mail on working/idle edges; at idle re-derive owned mailboxes for workers and chats. */
@@ -240,6 +238,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
   onStructuredSessionTabHidden(sessionId: string): void {
     try {
       const db = this.getExistingOrchestrationDb()
+      void pauseSessionLinkForSession(db, sessionId)
       for (const worker of db ? closedChatWorkersForSession(sessionId, db) : []) {
         this.failActiveDispatchOnExit(worker.handle, worker.paneKey, OPERATOR_CLOSE_EXIT_CAUSE)
       }
@@ -253,6 +252,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
   /** Settlement drops anything parked for the session; nothing will ever redrive it again. */
   forgetStructuredSessionMail(sessionId: string): void {
     this.orchestrationStructuredMailboxPointerDelivery.forgetSession(sessionId)
+    void pauseSessionLinkForSession(this.sessionLinkDb(), sessionId)
     this.chatWorkerModelWaitWatch?.end(sessionId)
   }
 
@@ -298,6 +298,7 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends OrcaRuntimeW
   }
 
   protected scheduleRestoredMessageRepoints(): void {
+    scheduleSessionLinkDelivery(this.sessionLinkDb())
     let handles: Set<string>
     try {
       const db = this._orchestrationDb

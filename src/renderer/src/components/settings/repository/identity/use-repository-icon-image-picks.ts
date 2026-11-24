@@ -7,17 +7,17 @@ import { repoIconPickFailureText } from './repo-icon-pick-failure-text'
 
 /** Image-sourced repo icons (uploaded PNG, website favicon), shared by Settings and the project card. */
 export function useRepositoryIconImagePicks(onSetIcon: (repoIcon: RepoIcon | null) => void): {
-  uploadImage: () => Promise<void>
+  uploadImage: (isCurrent?: () => boolean) => Promise<void>
   /** Returns whether the URL resolved to a favicon. */
   applyWebsiteFavicon: (website: string) => boolean
 } {
   const t = useTranslate()
   const mountedRef = useMountedRef()
 
-  const uploadImage = async (): Promise<void> => {
+  const uploadImage = async (isCurrent = () => true): Promise<void> => {
     try {
       const result = await window.api.shell.pickRepoIconImage()
-      if (!result || !mountedRef.current) {
+      if (!result || !mountedRef.current || !isCurrent()) {
         return
       }
       if ('error' in result) {
@@ -26,6 +26,9 @@ export function useRepositoryIconImagePicks(onSetIcon: (repoIcon: RepoIcon | nul
       }
       onSetIcon({ type: 'image', src: result.dataUrl, source: 'upload', label: result.fileName })
     } catch (error) {
+      if (!mountedRef.current || !isCurrent()) {
+        return
+      }
       toast.error(
         error instanceof Error
           ? error.message

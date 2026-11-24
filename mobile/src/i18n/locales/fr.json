@@ -456,8 +456,7 @@
       "modelLabel": "Modèle, {{value}}",
       "permissions": "Autorisations",
       "permissionsLabel": "Autorisations, {{value}}",
-      "settingsLocked": "Les paramètres du modèle seront déverrouillés à la fin de ce tour.",
-      "workingAnnouncement": "L'agent travaille. Les paramètres du modèle seront déverrouillés à la fin de ce tour."
+      "settingsLocked": "Les paramètres du modèle seront déverrouillés à la fin de ce tour."
     },
     "sessionOptionRows": {
       "defaultMarker": "Par défaut",
@@ -1789,7 +1788,6 @@
       "prMrLink": "Lien PR/MR",
       "project": "Projet",
       "recent": "Récents",
-      "recentProjectOrderDescription": "Activité d'espace de travail la plus récente",
       "searchProjects": "Rechercher des projets",
       "searchProjectsPlaceholder": "Rechercher des projets…",
       "selectedCount": "{{count}} sur {{total}}",

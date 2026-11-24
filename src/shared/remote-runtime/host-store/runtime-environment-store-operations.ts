@@ -15,7 +15,8 @@ import {
   getPreferredPairingOffer,
   type KnownRuntimeEnvironment,
   type PersistedRuntimeEnvironment,
-  type RuntimeEnvironmentSource
+  type RuntimeEnvironmentSource,
+  type RuntimeEnvironmentStore
 } from '../host-catalog/runtime-environments'
 import {
   readEnvironmentStore,
@@ -151,6 +152,33 @@ export function removeEnvironment(userDataPath: string, selector: string): Known
   return environment
 }
 
+/** Renames a saved server in place; id, pairing, endpoints and history are untouched. */
+export function renameEnvironment(
+  userDataPath: string,
+  selector: string,
+  args: { name: string; now?: number }
+): PersistedRuntimeEnvironment {
+  const store = readPersistedEnvironmentStore(userDataPath)
+  const existing = resolveEnvironmentFromStore(store, selector)
+  const name = args.name.trim()
+  if (!name) {
+    throw new RuntimeEnvironmentStoreError('invalid_argument', 'Environment name cannot be empty.')
+  }
+  if (name === existing.name) {
+    return existing
+  }
+  const colliding = findCollidingEnvironmentName(
+    store.environments.filter((entry) => entry.id !== existing.id),
+    name
+  )
+  if (colliding) {
+    throw remoteServerPairingStoreError('nameTaken', { name: colliding.name })
+  }
+  const renamed = { ...existing, name, updatedAt: args.now ?? Date.now() }
+  writeReplacedEnvironment(userDataPath, store, renamed)
+  return renamed
+}
+
 export function updateEnvironmentFromPairingCode(
   userDataPath: string,
   selector: string,
@@ -192,13 +220,21 @@ export function replaceEnvironmentPairing(
     pairingRevision: Math.max(args.now, previousPairingRevision + 1),
     lastUsedAt: existing.lastUsedAt
   }
+  writeReplacedEnvironment(userDataPath, store, next)
+  return next
+}
+
+function writeReplacedEnvironment(
+  userDataPath: string,
+  store: RuntimeEnvironmentStore,
+  replacement: PersistedRuntimeEnvironment
+): void {
   writeEnvironmentStore(userDataPath, {
     version: 1,
     environments: store.environments
-      .map((entry) => (entry.id === existing.id ? next : entry))
+      .map((entry) => (entry.id === replacement.id ? replacement : entry))
       .sort((a, b) => a.name.localeCompare(b.name))
   })
-  return next
 }
 
 export function resolveEnvironment(

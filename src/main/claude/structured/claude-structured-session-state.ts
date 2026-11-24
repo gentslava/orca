@@ -74,6 +74,7 @@ export type ClaudeStructuredSessionAdapterDeps = {
     evidence: AgentChildWorkEvidence[],
     producer?: StructuredAgentSessionChildWorkProducer
   ) => void
+  onForegroundTasksChanged?: (sessionId: string) => void
   openConnection?: typeof openClaudeStreamJsonConnection
   readProcessStartTime?: (pid: number) => Promise<number | null>
   mintLinkId?: () => string
@@ -262,6 +263,8 @@ export type ClaudeAcquisitionAttempt = {
     ClaudeStructuredLaunch,
     'account' | 'pathToClaudeCodeExecutable' | 'configuredProgram' | 'prefixArgs'
   >
+  /** The resolved launch turned off Claude's switch to another model for flagged requests. */
+  stopsOnFlaggedRequest?: boolean
 }
 
 export function createClaudeAcquisitionAttempt(

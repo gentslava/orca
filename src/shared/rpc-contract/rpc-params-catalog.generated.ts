@@ -44,8 +44,12 @@ import {
   DesktopBrowserBridgeResultChunkParams,
   DesktopBrowserBridgeResultParams
 } from '../browser/client-hosting/desktop-browser-bridge-protocol'
+import { SetConversationPreferenceParams } from '../conversation-navigation-preferences'
 import { MobileWebBundleChunkParamsSchema } from '../mobile-web-bundle/bundle-rpc-contract'
-import { MobileWebBundleLocaleCatalogParamsSchema } from '../mobile-web-bundle/locale-catalog-contract'
+import {
+  MobileWebBundleLocaleCatalogParamsSchema,
+  MobileWebBundleLocaleCatalogRangeParamsSchema
+} from '../mobile-web-bundle/locale-catalog-contract'
 import { OrcadMigrationBlobChunkRequestSchema } from '../orcad-migration/orcad-migration-blob-transfer'
 import { OrcadMigrationSnapshotChunkRequestSchema } from '../orcad-migration/orcad-migration-scrollback'
 import {
@@ -675,7 +679,10 @@ import {
   FederationImportParams,
   FederationPullParams
 } from './orchestration/orchestration-federation-relay-params'
-import { FederationAttachStartParams } from './orchestration/orchestration-federation-start-params'
+import {
+  FederationAttachStartParams,
+  FederationWorkerLaunchParams
+} from './orchestration/orchestration-federation-start-params'
 import {
   GateCreateParams,
   GateListParams,
@@ -693,6 +700,7 @@ import {
   ReplyParams,
   ResetParams,
   SessionAddressParams,
+  SessionChildrenParams,
   TaskCreateParams,
   TaskListParams,
   WorkerTranscriptParams
@@ -735,6 +743,7 @@ import {
   PairedServerAskListParams,
   PairedServerDisallowParams
 } from './paired-server-asks-params'
+import { RecordProjectOpenParams, SetProjectPinnedParams } from './personal-project-order-params'
 import {
   PluginCatalogAddParams,
   PluginCatalogRemoveParams,
@@ -900,6 +909,7 @@ import {
   SshTargetAdd,
   SshTargetUpdate
 } from './ssh/ssh-params'
+import { BackgroundTaskParams } from './structured-agent-session-background-params'
 import {
   AttachmentReadParams,
   AttachmentTextReadParams,
@@ -914,6 +924,7 @@ import { AutoReviewApprovalParams } from './structured-agent-session/structured-
 import { ContinueInterruptedParams } from './structured-agent-session/structured-agent-session-continue-params'
 import { ContinuationContextParams } from './structured-agent-session/structured-agent-session-identifiers'
 import { AgentSessionMcpParams } from './structured-agent-session/structured-agent-session-mcp-params'
+import { SendParams } from './structured-agent-session/structured-agent-session-message-params'
 import {
   AcknowledgeAttentionParams,
   AgentsParams,
@@ -937,7 +948,6 @@ import {
   RestartResumeParams,
   RevealParams,
   RewindParams,
-  SendParams,
   SetOptionParams,
   SleepWorkspaceParams,
   SubscribeTurnCompletionsParams,
@@ -1002,6 +1012,11 @@ import {
 } from './terminal/terminal-viewport-schemas-params'
 import { UpdaterCheckParams } from './updater/updater-params'
 import {
+  UsageRefreshParams,
+  UsageSetEnabledParams,
+  UsageSnapshotParams
+} from './usage-history-params'
+import {
   WebhookCallShow,
   WebhookCalls,
   WebhookCard,
@@ -1065,6 +1080,16 @@ import {
   WorktreeTeardownMissingTerminalsParams
 } from './workspaces/worktree-params'
 import { WorktreeAdoptProvisionedRoot } from './workspaces/worktree-provisioned-root-params'
+import {
+  LinkAddParticipantsParams,
+  LinkControlParams,
+  LinkCreateParams,
+  LinkListParams,
+  LinkResolveParams,
+  LinkSendParams,
+  LinkSetPolicyParams,
+  LinkShowParams
+} from '../session-link'
 import { RepoIconDataUrlsParams } from '../sidebar-list/catalog/repo-icon-data-urls-contract'
 import { SidebarInputsReadParams } from '../sidebar-list/feed/sidebar-inputs-feed-contract'
 import {
@@ -1153,6 +1178,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.acknowledgeAttention': AcknowledgeAttentionParams,
   'agentSession.agents': AgentsParams,
   'agentSession.approveAutoReviewDenial': AutoReviewApprovalParams,
+  'agentSession.backgroundTask': BackgroundTaskParams,
   'agentSession.cancel': CancelParams,
   'agentSession.cancelUsageLimitContinue': CancelUsageLimitContinueParams,
   'agentSession.close': OptionsParams,
@@ -1881,6 +1907,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'mobileWeb.bundle.brotliRange': MobileWebBundleChunkParamsSchema,
   'mobileWeb.bundle.chunk': MobileWebBundleChunkParamsSchema,
   'mobileWeb.bundle.localeCatalog': MobileWebBundleLocaleCatalogParamsSchema,
+  'mobileWeb.bundle.localeCatalogRange': MobileWebBundleLocaleCatalogRangeParamsSchema,
   'mobileWeb.bundle.manifest': null,
   'mobileWeb.bundle.range': MobileWebBundleChunkParamsSchema,
   'nativeChat.readSession': NativeChatSession,
@@ -1935,6 +1962,15 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.gateList': GateListParams,
   'orchestration.gateResolve': GateResolveParams,
   'orchestration.inbox': InboxParams,
+  'orchestration.linkAddParticipants': LinkAddParticipantsParams,
+  'orchestration.linkCandidates': LinkListParams,
+  'orchestration.linkControl': LinkControlParams,
+  'orchestration.linkCreate': LinkCreateParams,
+  'orchestration.linkCurrent': LinkListParams,
+  'orchestration.linkResolve': LinkResolveParams,
+  'orchestration.linkSend': LinkSendParams,
+  'orchestration.linkSetPolicy': LinkSetPolicyParams,
+  'orchestration.linkShow': LinkShowParams,
   'orchestration.partyLocation': PartyLocationParams,
   'orchestration.partyOpen': PartyLocationParams,
   'orchestration.peerMailAck': PeerMailAckParams,
@@ -1953,6 +1989,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.runStop': RunStopParams,
   'orchestration.runUse': RunUseParams,
   'orchestration.sessionAddress': SessionAddressParams,
+  'orchestration.sessionChildren': SessionChildrenParams,
   'orchestration.sessionWorkers': SessionWorkersParams,
   'orchestration.taskCreate': TaskCreateParams,
   'orchestration.taskList': TaskListParams,
@@ -1967,6 +2004,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.workerDockStop': WorkerDockStop,
   'orchestration.workerDockSubscribe': WorkerDockSubscribe,
   'orchestration.workerKeepOpen': OrchestrationWorkerKeepOpenParams,
+  'orchestration.workerLaunchPreflight': FederationWorkerLaunchParams,
   'orchestration.workerList': WorkerListParams,
   'orchestration.workerRead': WorkerReadParams,
   'orchestration.workerRelease': WorkerDispatchParamsOfOrchestrationWorkerReleaseSchemasParams,
@@ -2203,14 +2241,20 @@ export const RPC_PARAMS_BY_METHOD = {
   'ui.getJiraSavedFilters': null,
   'ui.mutateJiraSavedFilters': JiraSavedFilterMutationParam,
   'ui.recordFeatureInteraction': FeatureInteractionIdParam,
+  'ui.recordProjectOpen': RecordProjectOpenParams,
   'ui.set': UiUpdate,
   'ui.setCollapsed': SetCollapsedParams,
+  'ui.setConversationPreference': SetConversationPreferenceParams,
   'ui.setJiraQuickFilters': JiraQuickFilterStateParam,
+  'ui.setProjectPinned': SetProjectPinnedParams,
   'updater.check': UpdaterCheckParams,
   'updater.download': null,
   'updater.getStatus': null,
   'updater.install': null,
   'usage.call': UsageCallParams,
+  'usage.getSnapshot': UsageSnapshotParams,
+  'usage.refresh': UsageRefreshParams,
+  'usage.setEnabled': UsageSetEnabledParams,
   'webhooks.call': WebhookCallShow,
   'webhooks.calls': WebhookCalls,
   'webhooks.card': WebhookCard,

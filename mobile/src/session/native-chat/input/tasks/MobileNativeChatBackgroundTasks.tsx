@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react'
+import { memo, useContext, useMemo, useState } from 'react'
 import {
   Dimensions,
   type LayoutChangeEvent,
@@ -12,6 +12,7 @@ import {
   Activity,
   Bot,
   ChevronDown,
+  ChevronRight,
   CircleHelp,
   SquareTerminal,
   Workflow
@@ -49,6 +50,8 @@ import {
   mobileAgentChildRowText
 } from '../../../../worktree/agent-lineage/mobile-agent-child-row-text'
 import { trayStripStyles as strip } from './mobile-native-chat-tray-strip-styles'
+import { MobileNativeChatForegroundTaskAction } from '../MobileNativeChatForegroundTaskAction'
+import { MobileNativeChatRowOverlaysContext } from '../../transcript/message-actions/mobile-native-chat-row-overlays'
 
 type TaskKind = AgentSessionBackgroundTask['kind']
 
@@ -102,6 +105,10 @@ function TaskRow({
   onStop: (taskId: string) => void
 }): React.JSX.Element {
   useMobileColorScheme()
+  const t = useMobileTranslation()
+  const { openSubagent } = useContext(MobileNativeChatRowOverlaysContext)
+  // Only an agent's activity streams into the chat, filed under the provider's id.
+  const shownId = row.kind === 'agent' && openSubagent ? row.providerId : undefined
   const { lead, trail } = mobileAgentChildRowText(row, now)
   const meta = backgroundTaskRowMeta(row, hostNow)
   const stopId = backgroundTaskRowStopId(row, supportsTaskStop)
@@ -111,10 +118,27 @@ function TaskRow({
       <View testID="background-task-row" style={styles.row}>
         <BackgroundTaskKindIcon kind={row.kind} size={14} />
         <AgentStateDot state={row.displayState} />
-        <Text style={styles.rowText} numberOfLines={1} ellipsizeMode="tail">
-          <Text style={styles.lead}>{lead}</Text>
-          {trail ? <Text style={styles.trail}>{` · ${trail}`}</Text> : null}
-        </Text>
+        <Pressable
+          disabled={shownId === undefined}
+          accessibilityRole={shownId === undefined ? undefined : 'button'}
+          accessibilityLabel={
+            shownId === undefined
+              ? undefined
+              : t('session.backgroundTask.openAgent', 'Open {{value0}}', {
+                  value0: mobileAgentChildRowName(row)
+                })
+          }
+          style={({ pressed }) => [styles.opens, pressed && strip.pressed]}
+          onPress={() => shownId !== undefined && openSubagent?.(shownId)}
+        >
+          <Text style={styles.rowText} numberOfLines={1} ellipsizeMode="tail">
+            <Text style={styles.lead}>{lead}</Text>
+            {trail ? <Text style={styles.trail}>{` · ${trail}`}</Text> : null}
+          </Text>
+          {shownId !== undefined ? (
+            <ChevronRight size={12} color={colors.textMuted} strokeWidth={2} />
+          ) : null}
+        </Pressable>
         {meta ? (
           // Reticks every second; screen readers hear the row's state, not its clock.
           <Text style={styles.meta} importantForAccessibility="no" accessibilityElementsHidden>
@@ -134,6 +158,7 @@ function TaskRow({
             onPress={() => onStop(stopId)}
           />
         ) : null}
+        <MobileNativeChatForegroundTaskAction taskId={row.providerId} />
       </View>
       {row.owned.length > 0 ? (
         // Work a child owns (its shell, a nested agent) reads beneath it, not in its kind's group.
@@ -328,6 +353,15 @@ const styles = themedStyleSheet(() => ({
   },
   owned: {
     marginLeft: spacing.lg
+  },
+  // The row's height, so a name is a full tap target where it opens its agent.
+  opens: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs
   },
   rowText: {
     flex: 1,

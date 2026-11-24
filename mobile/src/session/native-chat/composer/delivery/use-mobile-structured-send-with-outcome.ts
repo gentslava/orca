@@ -1,3 +1,4 @@
+import type { MobileStructuredSendInput } from '../mobile-structured-send-input'
 import { agentSessionInteractionCommand } from '../../../../../../src/shared/agent-session/options/permissions/agent-session-interaction-mode'
 import { selectAgentSessionCurrentRequests } from '../../../../../../src/shared/agent-session/requests/agent-session-current-requests'
 import { useCallback } from 'react'
@@ -10,27 +11,19 @@ import { pendingPromptsAllUnanswerableHere } from '../../../../../../src/shared/
 import {
   SkillRefLimitError,
   structuredAgentSessionSendBody,
-  type StructuredAgentSessionAttachment,
-  type StructuredAgentSessionSendControl
+  type StructuredAgentSessionAttachment
 } from '../../../../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
 import type { AgentJournalSkillRef } from '../../../../../../src/shared/agent-session/journal/agent-session-journal-types'
 import { MAX_SKILL_REFS } from '../../../../../../src/shared/rpc-contract/structured-agent-session/structured-agent-session-message-params'
-import type { StructuredAgentSessionComposerOptions } from '../../../../../../src/shared/agent-session/view/structured-agent-session-composer'
 import { structuredAgentSessionGoalObjective } from '../../../../../../src/shared/agent-session/view/structured-agent-session-goal-mode'
 import { translate } from '../../../../i18n/mobile-i18n'
-import type { AgentSessionSlashCommand } from '../../../../../../src/shared/agent-session/agent-session-wire'
-import type { StructuredAgentSessionState } from '../../../../../../src/shared/agent-session/view/live-read/structured-agent-session-reducer'
 import { mobileStructuredSendQueues } from './mobile-structured-send-queue-rule'
-import type { RpcClient } from '../../../../transport/rpc/rpc-client-contract'
 import type {
   MobileNativeChatSendIntent,
   MobileNativeChatSendOutcome
 } from './mobile-native-chat-send'
 import { dispatchMobileStructuredCommand } from '../commands/mobile-structured-composer-command'
-import type { MobileNativeChatSendErrorReporter } from './use-mobile-native-chat-send-error'
 import { sendMobileStructuredAgentSessionMessage } from '../../agent-session/mobile-structured-agent-session-send'
-import type { MobileStructuredSends } from './use-mobile-structured-sends'
-import type { MobileStructuredSendsOut } from './use-mobile-structured-stop-offer'
 import { structuredSessionOperationId } from '../../agent-session/structured-session-operation-id'
 import { UNCONFIRMED_SEND_MESSAGE } from './use-mobile-native-chat-unconfirmed-sends'
 import { timeoutForDeadline } from '../../agent-session/mobile-structured-agent-session-rpc'
@@ -44,45 +37,9 @@ export type StructuredMobileSendAttachment =
   | (StructuredAgentSessionAttachment & { kind?: 'image'; id?: string })
   | { kind: 'file'; id?: string; path: string }
 
-export function useMobileStructuredSendWithOutcome(args: {
-  agent: string | null
-  client: RpcClient | null
-  sessionId: string | null
-  enabled: boolean
-  queueCapable: boolean
-  queueFollowUps: boolean
-  commandsWait: boolean
-  stateRef: { readonly current: StructuredAgentSessionState }
-  stopping: boolean
-  /** The host's queue sends next: commands that cannot wait in line read the chat as working. */
-  queueSendsNext: boolean
-  accept: MobileStructuredSends['accept']
-  acknowledge: MobileStructuredSends['acknowledge']
-  reject: MobileStructuredSends['reject']
-  holdUnconfirmed: MobileStructuredSends['holdUnconfirmed']
-  commandPending: { current: boolean }
-  onClearSent: () => () => void
-  /** This chat's message sends still out, which a command waits behind as on desktop. */
-  sendsOut: MobileStructuredSendsOut
-  controller: Pick<
-    StructuredAgentSessionComposerOptions,
-    | 'snapshot'
-    | 'setOption'
-    | 'invokeAction'
-    | 'conversationCommands'
-    | 'compactInstructions'
-    | 'changeThreadGoal'
-    | 'openMcpPanel'
-  >
-  sessionCommands?: readonly AgentSessionSlashCommand[]
-  onSendError: MobileNativeChatSendErrorReporter
-  // Older hosts accept neither per-chat model nor effort.
-  /** The chat's own model and effort each send carries; absent for an older host, which takes neither. */
-  sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'>
-  sendOptions?: () => Readonly<Record<string, string>> | undefined
-  // An older host refuses a send body carrying `skills`; there the `$name` text stands alone.
-  takesSkills?: boolean
-}): (
+export function useMobileStructuredSendWithOutcome(
+  args: MobileStructuredSendInput
+): (
   text: string,
   images?: string[],
   deadline?: number,
@@ -101,9 +58,11 @@ export function useMobileStructuredSendWithOutcome(args: {
     enabled,
     onClearSent,
     reject,
+    isModelWritePending,
     holdUnconfirmed,
     onSendError,
     queueCapable,
+    steerCapable = false,
     queueFollowUps,
     queueSendsNext,
     sendOptions,
@@ -136,6 +95,11 @@ export function useMobileStructuredSendWithOutcome(args: {
       }
       if (attachments === undefined && images !== undefined && images.length > 0) {
         onSendError('Message not sent')
+        return 'rejected'
+      }
+      const immediate = intent?.delivery === 'immediate'
+      if (immediate && queueCapable && !steerCapable) {
+        onSendError('Update Orca on this host to answer while the agent works.')
         return 'rejected'
       }
       const captured = sendSelection?.() ?? { options: sendOptions?.() }
@@ -200,6 +164,10 @@ export function useMobileStructuredSendWithOutcome(args: {
       if (commandOutcome !== null) {
         return commandOutcome
       }
+      if (isModelWritePending?.()) {
+        onSendError('Message not sent (model selection is still updating)')
+        return 'rejected'
+      }
       const imageAttachments: StructuredAgentSessionAttachment[] = []
       const files: { path: string }[] = []
       for (const attachment of sendAttachments) {
@@ -242,9 +210,11 @@ export function useMobileStructuredSendWithOutcome(args: {
         expectedRuntimeFence: currentFence,
         text: wireText,
         attachments: imageAttachments,
+        ...(immediate && steerCapable ? { steer: true as const } : {}),
         skills,
         // Resolved from the chat as it is now: a hold-menu choice made mid-turn may land after it.
-        ...(mobileStructuredSendQueues(queueCapable, queueFollowUps, stateRef.current, {
+        ...(!immediate &&
+        mobileStructuredSendQueues(queueCapable, queueFollowUps, stateRef.current, {
           alternate: intent?.alternate,
           isWorking: mobileStructuredAgentSessionWorking(stateRef.current) || queueSendsNext,
           stopping
@@ -279,9 +249,11 @@ export function useMobileStructuredSendWithOutcome(args: {
       enabled,
       onClearSent,
       reject,
+      isModelWritePending,
       holdUnconfirmed,
       onSendError,
       queueCapable,
+      steerCapable,
       queueFollowUps,
       queueSendsNext,
       sendOptions,

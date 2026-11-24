@@ -12,7 +12,7 @@ import type {
   AgentModelCatalogProbe,
   AgentModelCatalogLookup
 } from '../../native-chat/agent-model-catalog/agent-model-catalog-discovery'
-import { agentModelCatalogInputStamp } from '../../native-chat/agent-model-catalog/agent-model-catalog-input-stamp'
+import { agentModelCatalogDirectoryStamps } from '../../native-chat/agent-model-catalog/agent-model-catalog-input-stamp'
 import {
   runAgentModelCatalogListing,
   runAgentModelCatalogSession
@@ -43,7 +43,7 @@ import {
   type AcpModelCatalogSessionConnection
 } from './acp-listing-session-models'
 import { AcpAgentExitedError } from '../transport/acp-errors'
-import { signedOutAsUnavailable } from './acp-listing-signed-out'
+import { acpSignedOutError, rethrowAcpSignedOut } from './acp-model-catalog-auth-error'
 import { discardAcpListingSessions } from './acp-listing-session-discard'
 import { sealSharedToolProcessChild } from '../../runtime/agent-session/environment/structured-session-child-env'
 import { usesModelSpecificAcpEfforts } from '../../../shared/agent-session/options/model-catalog/agent-model-catalog-ownership'
@@ -97,14 +97,9 @@ export function createAcpModelCatalogProbe(
     return {
       answerSignIn: spec.signIn?.answered,
       identity: { command, prefixArgs, cwd, workspace },
-      inputStamp: JSON.stringify(
-        await Promise.all(
-          [
-            ...new Set([cwd, ...(discovery.kind === 'command' && workspace ? [workspace] : [])])
-          ].map((directory) =>
-            agentModelCatalogInputStamp({ command, prefixArgs, cwd: directory, env })
-          )
-        )
+      inputStamp: await agentModelCatalogDirectoryStamps(
+        { command, prefixArgs, cwd, env },
+        discovery.kind === 'command' ? workspace : undefined
       ),
       run: async (
         signal?: AbortSignal,
@@ -112,7 +107,6 @@ export function createAcpModelCatalogProbe(
         selectedModels?: readonly string[],
         publish?: AgentModelCatalogProgress
       ) => {
-        const options = { signal, operation: runOperation, selectedModels }
         const operation = runOperation
         assertStructuredAgentResolutionCurrent(operation)
         const release = await checkAcpLaunchVersion(
@@ -129,7 +123,7 @@ export function createAcpModelCatalogProbe(
         if (listing === null) {
           throw new Error(`${spec.agent} at ${command} lists its models only through its chats`)
         }
-        const gate = enterAcpListingGate(spec.launchGate, options.signal)
+        const gate = enterAcpListingGate(spec.launchGate, signal)
         let models: AgentSessionModelOption[]
         let attemptedModels: string[] | undefined
         try {
@@ -151,7 +145,7 @@ export function createAcpModelCatalogProbe(
           // OMP records every model switch as account usage; starting on the picked model records none.
           const launchedModel =
             spec.launchesWithModel && usesModelSpecificAcpEfforts(spec.agent)
-              ? options?.selectedModels?.[0]
+              ? selectedModels?.[0]
               : undefined
           if (listing.kind === 'command') {
             const stdout = await (deps.runListing ?? runAgentModelCatalogListing)(
@@ -165,6 +159,9 @@ export function createAcpModelCatalogProbe(
               { site: `${spec.agent}-model-catalog-probe`, signal: gate.signal, timeoutMs: null }
             )
             models = listing.parse(stdout)
+            if (models.length === 0 && listing.isNotSignedInOutput?.(stdout)) {
+              throw acpSignedOutError(spec)
+            }
           } else if (listing.kind === 'session') {
             // Remove disposable session storage after the process closes.
             const folderArgs = listing.sessionFolderArgs
@@ -202,7 +199,7 @@ export function createAcpModelCatalogProbe(
                       connection,
                       sessionCwd,
                       operation,
-                      options?.selectedModels,
+                      selectedModels,
                       model,
                       spec.dialect.effortChangesModel ? ready : undefined,
                       (result) =>
@@ -294,18 +291,22 @@ export function createAcpModelCatalogProbe(
     }
   }
   const probe: AgentModelCatalogProbe = (home, options) =>
-    resolve(home, options?.workspacePath ?? '', 'recover', options?.operation).then((resolved) =>
-      resolved
-        .run(options?.signal, options?.operation, options?.selectedModels, options?.publish)
-        .catch(signedOutAsUnavailable(agentSpec.dialect, resolved.answerSignIn))
-    )
+    resolve(home, options?.workspacePath ?? '', 'recover', options?.operation)
+      .then((resolved) =>
+        resolved
+          .run(options?.signal, options?.operation, options?.selectedModels, options?.publish)
+          .catch(rethrowAcpSignedOut(agentSpec, home, resolved.answerSignIn))
+      )
+      .catch(rethrowAcpSignedOut(agentSpec, home))
   return Object.assign(probe, {
+    supportsAccount: (home: Parameters<AgentModelCatalogProbe>[0]) =>
+      acpLaunchSpecForAccount(agentSpec, home).modelDiscovery.kind !== 'unavailable',
     resolve: async (...args: Parameters<typeof resolve>) => {
       const { answerSignIn, ...resolved } = await resolve(...args)
       return {
         ...resolved,
         run: (...runArgs: Parameters<typeof resolved.run>) =>
-          resolved.run(...runArgs).catch(signedOutAsUnavailable(agentSpec.dialect, answerSignIn))
+          resolved.run(...runArgs).catch(rethrowAcpSignedOut(agentSpec, args[0], answerSignIn))
       }
     }
   })

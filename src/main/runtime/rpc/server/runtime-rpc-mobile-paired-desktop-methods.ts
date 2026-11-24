@@ -6,6 +6,7 @@ export const PAIRED_DESKTOP_METHODS = [
   'mobileWeb.bundle.brotliRange',
   'mobileWeb.bundle.chunk',
   'mobileWeb.bundle.localeCatalog',
+  'mobileWeb.bundle.localeCatalogRange',
   'mobileWeb.bundle.manifest',
   'mobileWeb.bundle.range',
   'notifications.getMissedSince',
@@ -40,6 +41,9 @@ export const PAIRED_DESKTOP_METHODS = [
   'stats.summary',
   'ui.get',
   'ui.recordFeatureInteraction',
+  'ui.setConversationPreference',
+  'ui.recordProjectOpen',
+  'ui.setProjectPinned',
   'ui.set',
   // The desktop's accounts pane and project pickers target its active runtime, not a workspace's host.
   'accounts.consumeCodexResetCredit',

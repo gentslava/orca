@@ -3,7 +3,13 @@ import {
   PROJECT_ROOT_ORDER_RUNTIME_CAPABILITY
 } from '../../project/groups/project-group-order-capability'
 import { EMULATOR_RUNTIME_CAPABILITIES } from './emulator-runtime-capabilities'
+import {
+  CONVERSATION_NAVIGATION_CAPABILITY,
+  CONVERSATION_PROJECT_VISIBILITY_CAPABILITY
+} from '../../conversation-navigation-preferences'
+import { PERSONAL_PROJECT_ORDER_CAPABILITY } from '../../personal-project-order'
 import { ACCOUNT_RUNTIME_CAPABILITIES } from './account-runtime-capabilities'
+import { USAGE_RUNTIME_CAPABILITIES } from '../../usage-history-rpc'
 import * as agentLaunchCapabilities from '../../agent-launch/contracts/agent-launch-runtime-capability'
 import {
   AGENT_SESSION_BOUNDARY_RUNTIME_CAPABILITY,
@@ -76,6 +82,9 @@ export const RUNTIME_CAPABILITIES = /* @__PURE__ */ (() =>
   [
     ...EMULATOR_RUNTIME_CAPABILITIES,
     SAVED_RESUME_ORIGIN_RUNTIME_CAPABILITY,
+    CONVERSATION_NAVIGATION_CAPABILITY,
+    CONVERSATION_PROJECT_VISIBILITY_CAPABILITY,
+    PERSONAL_PROJECT_ORDER_CAPABILITY,
     ...HOST_RUNTIME_CAPABILITIES,
     ...DEVICE_KEY_RUNTIME_CAPABILITIES,
     E2EE_V2_TOKEN_CAPABILITIES_RUNTIME_CAPABILITY,
@@ -87,6 +96,7 @@ export const RUNTIME_CAPABILITIES = /* @__PURE__ */ (() =>
     ...agentLaunchCapabilities.AGENT_LAUNCH_RUNTIME_CAPABILITIES,
     ...AGENT_SESSION_RUNTIME_CAPABILITIES,
     ...ACCOUNT_RUNTIME_CAPABILITIES,
+    ...USAGE_RUNTIME_CAPABILITIES,
     ...SKILL_RUNTIME_CAPABILITIES,
     ...AUTOMATION_RUNTIME_CAPABILITIES,
     ...WORKTREE_RUNTIME_CAPABILITIES,

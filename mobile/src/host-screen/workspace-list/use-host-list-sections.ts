@@ -28,7 +28,7 @@ import {
 import { useHostRepoIconDataUrls } from '../catalog/use-host-repo-icon-data-urls'
 import type { HostSidebarFeed } from '../sidebar-feed/use-host-sidebar-feed'
 import type { HostScreenState } from '../use-host-screen-state'
-import { isProjectListRow, type HostBotListing } from '../../bots/host-bot-sections'
+import { appendHostBotSections, isProjectListRow, type HostBotListing } from '../../bots/host-bot-sections'
 import { useHostBotSections } from '../../bots/use-host-bot-sections'
 import type { LastVisitedWorktreeOnHost } from '../../worktree/row-presentation/host-list-highlight'
 import { indexHiddenProjects } from '../../../../src/shared/project/catalog/hidden-projects'
@@ -109,14 +109,16 @@ function useLegacyHostListSections({
         state.desktopRepos,
         state.hostProjectGroups,
         state.view.filters.visibleHostIds,
-        state.view.projectOrderBy
+        state.view.projectOrderBy,
+        state.view.personalProjectOrder
       ),
     [
       state.servedProjectSections,
       state.desktopRepos,
       state.hostProjectGroups,
       state.view.filters.visibleHostIds,
-      state.view.projectOrderBy
+      state.view.projectOrderBy,
+      state.view.personalProjectOrder
     ]
   )
   const collapsedGroups = useCollapsedGroups(state)
@@ -286,14 +288,5 @@ export function useHostListSections(inputs: HostListSectionsInputs): HostListSec
     botListedIdentities: botSections.listedIdentities,
     lastVisited
   })
-  return useMemo(() => {
-    if (botSections.sections.length === 0) {
-      return base
-    }
-    return {
-      ...base,
-      sections: [...botSections.sections, ...base.sections],
-      rawSections: [...botSections.sections, ...base.rawSections]
-    }
-  }, [base, botSections])
+  return useMemo(() => appendHostBotSections(base, botSections.sections), [base, botSections])
 }

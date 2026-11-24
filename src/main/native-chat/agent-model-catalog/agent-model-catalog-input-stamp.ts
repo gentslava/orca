@@ -69,3 +69,14 @@ export async function agentModelCatalogInputStamp(input: {
     await Promise.all((input.configFiles ?? []).map((file) => fileStamp(file, true)))
   ])
 }
+
+export async function agentModelCatalogDirectoryStamps(
+  input: Parameters<typeof agentModelCatalogInputStamp>[0],
+  workspace?: string
+): Promise<string> {
+  const directories = new Set(workspace ? [input.cwd, workspace] : [input.cwd])
+  const stamps = await Promise.all(
+    [...directories].map((cwd) => agentModelCatalogInputStamp({ ...input, cwd }))
+  )
+  return JSON.stringify(stamps)
+}

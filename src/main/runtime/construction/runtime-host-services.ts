@@ -42,6 +42,7 @@ import { RuntimeRepositoryRefQueries } from '../repositories/runtime-repository-
 import { RuntimeServerEnvironmentCommands } from '../files/server-browse/runtime-server-environment-commands'
 import { RuntimeRepositoryForkBackfill } from '../repositories/runtime-repository-fork-backfill'
 import { RuntimeWorkspaceSessionController } from '../workspaces/session-hosts/runtime-workspace-session-controller'
+import { UsageProviderFacade } from '../../usage/usage-provider-facade'
 import { RuntimeAiVaultCommands } from '../integrations/ai-vault/runtime-ai-vault-commands'
 import { ClaudeAgentTeamsService } from '../terminal/agent-teams/claude-agent-teams-service'
 import { teardownFolderWorkspacePtys } from '../workspaces/removal/folder-workspace-pty-teardown'
@@ -254,6 +255,7 @@ export abstract class OrcaRuntimeWithPreservedBranchCleanup extends RuntimeAgent
   protected readonly accounts = new RuntimeAccountController((change) =>
     this.onClaudeAccountSelected(change)
   )
+  readonly usageHistory = new UsageProviderFacade()
 
   protected abstract onClaudeAccountSelected(
     ...change: Parameters<ClaudeAccountSelectedHandler>
@@ -286,8 +288,7 @@ export abstract class OrcaRuntimeWithPreservedBranchCleanup extends RuntimeAgent
     resolveRepo: (...args) => this.managedWorktreeQueries.resolveRepoForConnection(...args),
     notifyReposChanged: () => this.notifyReposChanged(),
     resolveFolderConnectionId: (workspace) => this.resolveFolderWorkspaceConnectionId(workspace),
-    acquireFileWatcherRemoval: (path, connectionId) =>
-      this.acquireFileWatcherRemoval(path, connectionId),
+    acquireFileWatcherRemoval: (...args) => this.acquireFileWatcherRemoval(...args),
     teardownFolderWorkspacePtys: (...target) =>
       teardownFolderWorkspacePtys(
         {

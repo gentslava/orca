@@ -450,8 +450,7 @@
       "modelLabel": "모델, {{value}}",
       "permissions": "권한",
       "permissionsLabel": "권한, {{value}}",
-      "settingsLocked": "이번 턴이 끝나면 모델 설정을 변경할 수 있습니다.",
-      "workingAnnouncement": "에이전트가 작업 중입니다. 이번 턴이 끝나면 모델 설정을 변경할 수 있습니다."
+      "settingsLocked": "이번 턴이 끝나면 모델 설정을 변경할 수 있습니다."
     },
     "sessionOptionRows": {
       "defaultMarker": "기본값",
@@ -1738,7 +1737,6 @@
       "prMrLink": "PR/MR 링크",
       "project": "프로젝트",
       "recent": "최근",
-      "recentProjectOrderDescription": "가장 최근의 워크스페이스 활동",
       "searchProjects": "프로젝트 검색",
       "searchProjectsPlaceholder": "프로젝트 검색…",
       "selectedCount": "{{total}}개 중 {{count}}개",

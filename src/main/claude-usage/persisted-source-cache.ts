@@ -1,3 +1,4 @@
+import { isDefinitiveAbsence } from '../../shared/errors/definitive-filesystem-absence'
 import type { ClaudeUsagePersistedFile, ClaudeUsagePersistedState } from './types'
 import { encodeClaudeUsagePersistedFiles } from './persisted-token-columns'
 import { writeClaudeUsageJson, readClaudeUsageJson } from './source-cache-compression'
@@ -24,6 +25,8 @@ const SOURCE_DOMAIN = 'claude-usage-sources-v1'
 export type ClaudeUsageLoadedSourceCache = {
   sources: ClaudeUsagePersistedFile[]
   verifiedSources?: ClaudeUsageVerifiedSources
+  reuseProjections?: boolean
+  accountAttributionAvailable?: boolean
   unchangedSourceCache?: {
     ref: UsageSourceCacheRef
     sources: readonly ClaudeUsagePersistedFile[]
@@ -31,7 +34,8 @@ export type ClaudeUsageLoadedSourceCache = {
 }
 
 export async function readClaudeUsageSourceCache(
-  ref: UsageSourceCacheRef
+  ref: UsageSourceCacheRef,
+  preserveAccountClaims = false
 ): Promise<ClaudeUsageLoadedSourceCache> {
   const cacheRef = { ...ref }
   try {
@@ -48,7 +52,10 @@ export async function readClaudeUsageSourceCache(
       (parsed.schemaVersion === 7 && !verified) ||
       (parsed.schemaVersion === 6 && verified)
     ) {
-      return { sources: [] }
+      return {
+        sources: [],
+        ...(preserveAccountClaims ? { accountAttributionAvailable: false } : {})
+      }
     }
     const sameWorktrees = parsed.worktreeFingerprint === cacheRef.worktreeFingerprint
     const sources = await reattributeUsageSourcesForWorktrees(
@@ -58,11 +65,20 @@ export async function readClaudeUsageSourceCache(
       // Claude attribution resolves transcript cwds through realpath.
       { attributionResolvesCwd: true }
     )
+    const reuseProjections = cacheRef.reuse !== false && sameWorktrees
     if (verified) {
       const normalized = normalizeClaudeUsageSourceFiles(sources, new WeakSet(sources))
       return {
         sources: normalized.processedFiles,
         verifiedSources: new WeakSet(normalized.processedFiles),
+        ...(preserveAccountClaims
+          ? {
+              reuseProjections,
+              accountAttributionAvailable:
+                !normalized.invalidated &&
+                (normalized.processedFiles.length > 0 || cacheRef.hadPreviousHistory !== true)
+            }
+          : {}),
         unchangedSourceCache:
           sameWorktrees &&
           !normalized.invalidated &&
@@ -72,9 +88,27 @@ export async function readClaudeUsageSourceCache(
             : undefined
       }
     }
+    if (preserveAccountClaims) {
+      const normalized = normalizeClaudeUsageSourceFiles(sources)
+      return {
+        sources: normalized.processedFiles,
+        reuseProjections: reuseProjections && !normalized.invalidated,
+        accountAttributionAvailable:
+          !normalized.invalidated &&
+          (normalized.processedFiles.length > 0 || cacheRef.hadPreviousHistory !== true)
+      }
+    }
     return { sources }
-  } catch {
-    return { sources: [] }
+  } catch (error) {
+    return {
+      sources: [],
+      ...(preserveAccountClaims
+        ? {
+            accountAttributionAvailable:
+              isDefinitiveAbsence(error) && cacheRef.hadPreviousHistory !== true
+          }
+        : {})
+    }
   }
 }
 

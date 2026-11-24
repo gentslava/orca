@@ -450,8 +450,7 @@
       "modelLabel": "モデル、{{value}}",
       "permissions": "権限",
       "permissionsLabel": "権限、{{value}}",
-      "settingsLocked": "このターンが完了すると、モデル設定を変更できます。",
-      "workingAnnouncement": "Agent が作業中です。このターンが完了すると、モデル設定を変更できます。"
+      "settingsLocked": "このターンが完了すると、モデル設定を変更できます。"
     },
     "sessionOptionRows": {
       "defaultMarker": "既定",
@@ -1738,7 +1737,6 @@
       "prMrLink": "PR/MR リンク",
       "project": "プロジェクト",
       "recent": "最近",
-      "recentProjectOrderDescription": "最新のワークスペースアクティビティ",
       "searchProjects": "プロジェクトを検索する",
       "searchProjectsPlaceholder": "プロジェクトを検索…",
       "selectedCount": "{{total}} 件中 {{count}} 件",

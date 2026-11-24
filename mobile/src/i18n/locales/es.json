@@ -456,8 +456,7 @@
       "modelLabel": "Modelo, {{value}}",
       "permissions": "Permisos",
       "permissionsLabel": "Permisos, {{value}}",
-      "settingsLocked": "La configuración del modelo se desbloqueará cuando termine este turno.",
-      "workingAnnouncement": "El agente está trabajando. La configuración del modelo se desbloqueará cuando termine este turno."
+      "settingsLocked": "La configuración del modelo se desbloqueará cuando termine este turno."
     },
     "sessionOptionRows": {
       "defaultMarker": "Predeterminado",
@@ -1789,7 +1788,6 @@
       "prMrLink": "Enlace PR/MR",
       "project": "Proyecto",
       "recent": "Reciente",
-      "recentProjectOrderDescription": "Actividad más reciente en el espacio de trabajo",
       "searchProjects": "Buscar proyectos",
       "searchProjectsPlaceholder": "Buscar proyectos…",
       "selectedCount": "{{count}} de {{total}}",

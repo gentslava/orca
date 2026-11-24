@@ -72,6 +72,7 @@ function fixture(provider: 'claude' | 'codex', wsl = false) {
       : { target: { kind: 'environment', environmentId: 'windows' }, wslHostDistro: null },
     rateLimits: remote,
     accounts: wsl ? null : { claude, codex, rateLimits: remote },
+    accountsUnverifiable: Boolean(wsl),
     remoteOwner: wsl ? null : { environmentId: 'windows', label: 'Windows server' },
     refreshRemote: null
   }

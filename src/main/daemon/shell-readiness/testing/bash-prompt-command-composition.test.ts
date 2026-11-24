@@ -25,7 +25,13 @@ function runInteractiveBash(
 ): string {
   const rcfile = join(tempHome, 'rcfile')
   writeFileSync(join(tempHome, '.bash_profile'), profile)
-  writeFileSync(rcfile, rcfileContent)
+  writeFileSync(
+    rcfile,
+    rcfileContent.replace(
+      '[[ -f /etc/profile ]] && source /etc/profile',
+      'unset PROMPT_COMMAND; trap - DEBUG'
+    )
+  )
   const result = spawnSync(
     bash,
     ['-lc', '"$BASH" --noprofile --rcfile "$1" -i 2>&1', 'bash', rcfile],
