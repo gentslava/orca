@@ -17,13 +17,12 @@ diff --git a/mobile/src/session/native-chat/transcript/message-actions/MobileNat
    children?: React.ReactNode
  }): React.JSX.Element {
    const { openRewind, dialog, close: closeRewind } = useMobileNativeChatRewindDialog(rewind)
-@@ -69,9 +71,11 @@
+@@ -69,9 +71,10 @@
          triggerMediumImpact()
          setShown({ actionsFor })
        },
 -      openRewind
 +      openRewind,
-+      imageSource,
 +      ...(openSubagent ? { openSubagent } : {})
      }),
 -    [setShown, openRewind, imageSource]

@@ -230,10 +230,10 @@ index 22b77994127..aa9c3dba17b 100644
    await page.goto(`${origin}/${hash}`)
    try {
 diff --git a/mobile/src/bots/host-bot-sections.ts b/mobile/src/bots/host-bot-sections.ts
-index 736f950568e..fd8ce7c757c 100644
+index f2ff2cc4411..e9690d4134b 100644
 --- a/mobile/src/bots/host-bot-sections.ts
 +++ b/mobile/src/bots/host-bot-sections.ts
-@@ -192,3 +192,16 @@ export function isProjectListRow(
+@@ -262,3 +262,16 @@ export function isProjectListRow(
      composeWorktreeHostIdentity(resolveWorktreeHostId(row, repoHostIdByRepoId), row.worktreeId)
    )
  }
@@ -293,255 +293,6 @@ index f75509453a9..511f1ac3ce4 100644
        state.worktrees,
        state.clientRef,
        state.viewRef,
-diff --git a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
-index feef6b3b61e..9c022c8cb15 100644
---- a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
-+++ b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
-@@ -30,6 +30,7 @@ import type { HostSidebarFeed } from '../sidebar-feed/use-host-sidebar-feed'
- import type { HostScreenState } from '../use-host-screen-state'
- import {
-   buildHostBotSections,
-+  appendHostBotSections,
-   isProjectListRow,
-   type HostBotListing
- } from '../../bots/host-bot-sections'
-@@ -315,14 +316,5 @@ export function useHostListSections(inputs: HostListSectionsInputs): HostListSec
-     botListedIdentities: botSections.listedIdentities,
-     lastVisited
-   })
--  return useMemo(() => {
--    if (botSections.sections.length === 0) {
--      return base
--    }
--    return {
--      ...base,
--      sections: [...botSections.sections, ...base.sections],
--      rawSections: [...botSections.sections, ...base.rawSections]
--    }
--  }, [base, botSections])
-+  return useMemo(() => appendHostBotSections(base, botSections.sections), [base, botSections])
- }
-diff --git a/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx b/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
-index a464d531812..1fda015ea47 100644
---- a/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
-+++ b/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
-@@ -279,110 +279,112 @@ function MobileNativeChatOverlayContent({
-                       key={sendSurfaceId}
-                       tasks={controller.nativeChatBackgroundTasks}
-                     >
--                    <MobileNativeChatView
--                      itemNavigation={session.itemNavigation}
--                      messages={session.messages}
--                      folded={folded}
--                      status={session.status}
--                      error={session.error}
--                      readFailedFinally={session.readFailedFinally === true}
--                      clearing={session.clearing === true}
--                      agent={controller.nativeChatAgent}
--                      sessionLive={controller.nativeChatSessionLive}
--                      agentWorking={controller.nativeChatTurnActive}
--                      awaitingInput={controller.nativeChatAwaitingInput}
--                      canStop={controller.nativeChatCanStop}
--                      sendFollowUp={controller.nativeChatSendFollowUp}
--                      structuredActivityUi={controller.nativeChatStructured}
--                      turnIndicator={controller.nativeChatTurnIndicator}
--                      workingStartedAt={controller.nativeChatWorkingStartedAt}
--                      settledTurns={controller.nativeChatSettledTurns}
--                      turnJournal={controller.nativeChatTurnJournal}
--                      transcriptLoading={session.transcriptLoading}
--                      receipts={controller.nativeChatReceipts}
--                      actionablePromptIds={controller.nativeChatActionablePromptIds}
--                      streaming={streaming}
--                      onStop={controller.handleNativeChatStop}
--                      ask={controller.nativeChatAsk}
--                      askPending={controller.nativeChatAskPending}
--                      askSendSource={controller.nativeChatAskSendSource}
--                      askKey={controller.nativeChatAskKey}
--                      promptKey={controller.nativeChatPromptKey}
--                      onDismissAsk={controller.dismissNativeChatAsk}
--                      onAnswerAsk={controller.handleNativeChatAnswerAsk}
--                      askRequiresTerminal={
--                        !controller.nativeChatStructured && nativeChatAskRequiresTerminal(agent)
--                      }
--                      onAnswerInTerminal={
--                        activeSessionTabId
--                          ? () => controller.setTabView(activeSessionTabId, 'terminal')
--                          : undefined
--                      }
--                      onCancelAsk={controller.handleNativeChatCancelAsk}
--                      onCancelPrompt={controller.handleNativeChatCancelPrompt}
--                      onCollapseAsk={controller.collapseNativeChatAsk}
--                      onCollapsePrompt={controller.collapseNativeChatPrompt}
--                      collapsedPrompt={controller.nativeChatCollapsedPrompt}
--                      question={controller.nativeChatQuestion}
--                      onAnswerQuestion={controller.handleNativeChatQuestionAnswer}
--                      permission={controller.nativeChatPermission}
--                      workerApprovals={controller.nativeChatWorkerApprovals}
--                      onRespondPermission={controller.handleNativeChatRespondPermission}
--                      composerTray={composerTray}
--                      onOpenFile={openFile}
--                      hasMore={session.hasMore}
--                      olderPages={session.olderPages}
--                      onLoadEarlier={session.loadEarlier}
--                      onSend={images.sendNativeChat}
--                      sendSurfaceId={sendSurfaceId}
--                      getSendCompletionGeneration={getSendCompletionGeneration}
--                      getComposerEditGeneration={controller.getChatComposerEditGeneration}
--                      pending={controller.chatPending}
--                      imagePreviewsByMessageId={controller.chatImagePreviewsByMessageId}
--                      composerScopeKey={controller.chatComposerScopeKey}
--                      draftKey={controller.chatDraftKey}
--                      onComposerTextChange={controller.setChatComposerText}
--                      onAttachImage={
--                        controller.nativeChatAcceptsImages
--                          ? () => void images.attachImage('library')
--                          : undefined
--                      }
--                      onPasteImages={
--                        controller.nativeChatAcceptsImages
--                          ? (paste) => void images.attachImage(paste)
--                          : undefined
--                      }
--                      attachments={images.attachments}
--                      onRemoveAttachment={images.removeAttachment}
--                      isAttaching={images.isAttaching}
--                      onMicPress={onMicPress}
--                      micActive={micActive}
--                      micStarting={micStarting}
--                      micProcessing={micProcessing}
--                      dictationMode={dictationMode}
--                      onMicPressIn={onMicPressIn}
--                      onMicPressOut={onMicPressOut}
--                      inputLockReason={inputLockReason}
--                      hostOutage={hostOutage}
--                      sendErrorMessage={
--                        continueFailed
--                          ? t(
--                              'chat.interruptedContinue.failed',
--                              "Couldn't continue this chat. Try again, or send a message."
--                            )
--                          : sendErrorMessage
--                      }
--                      onDismissSendError={continueFailed ? continuation?.dismissFailure : undefined}
--                      onClearSendError={onClearSendError}
--                      {...mentionFiles}
--                      skillDiscovery={controller.nativeChatSkills}
--                      onNeedSkills={controller.loadNativeChatSkills}
--                      sessionOptions={controller.nativeChatSessionOptions}
--                      contextUsage={controller.nativeChatContextUsage}
--                      structuredComposer={structuredComposer}
--                      keyboardInset={keyboardInset}
--                      covered={subagents.screen !== null}
--                    />
-+                      <MobileNativeChatView
-+                        itemNavigation={session.itemNavigation}
-+                        messages={session.messages}
-+                        folded={folded}
-+                        status={session.status}
-+                        error={session.error}
-+                        readFailedFinally={session.readFailedFinally === true}
-+                        clearing={session.clearing === true}
-+                        agent={controller.nativeChatAgent}
-+                        sessionLive={controller.nativeChatSessionLive}
-+                        agentWorking={controller.nativeChatTurnActive}
-+                        awaitingInput={controller.nativeChatAwaitingInput}
-+                        canStop={controller.nativeChatCanStop}
-+                        sendFollowUp={controller.nativeChatSendFollowUp}
-+                        structuredActivityUi={controller.nativeChatStructured}
-+                        turnIndicator={controller.nativeChatTurnIndicator}
-+                        workingStartedAt={controller.nativeChatWorkingStartedAt}
-+                        settledTurns={controller.nativeChatSettledTurns}
-+                        turnJournal={controller.nativeChatTurnJournal}
-+                        transcriptLoading={session.transcriptLoading}
-+                        receipts={controller.nativeChatReceipts}
-+                        actionablePromptIds={controller.nativeChatActionablePromptIds}
-+                        streaming={streaming}
-+                        onStop={controller.handleNativeChatStop}
-+                        ask={controller.nativeChatAsk}
-+                        askPending={controller.nativeChatAskPending}
-+                        askSendSource={controller.nativeChatAskSendSource}
-+                        askKey={controller.nativeChatAskKey}
-+                        promptKey={controller.nativeChatPromptKey}
-+                        onDismissAsk={controller.dismissNativeChatAsk}
-+                        onAnswerAsk={controller.handleNativeChatAnswerAsk}
-+                        askRequiresTerminal={
-+                          !controller.nativeChatStructured && nativeChatAskRequiresTerminal(agent)
-+                        }
-+                        onAnswerInTerminal={
-+                          activeSessionTabId
-+                            ? () => controller.setTabView(activeSessionTabId, 'terminal')
-+                            : undefined
-+                        }
-+                        onCancelAsk={controller.handleNativeChatCancelAsk}
-+                        onCancelPrompt={controller.handleNativeChatCancelPrompt}
-+                        onCollapseAsk={controller.collapseNativeChatAsk}
-+                        onCollapsePrompt={controller.collapseNativeChatPrompt}
-+                        collapsedPrompt={controller.nativeChatCollapsedPrompt}
-+                        question={controller.nativeChatQuestion}
-+                        onAnswerQuestion={controller.handleNativeChatQuestionAnswer}
-+                        permission={controller.nativeChatPermission}
-+                        workerApprovals={controller.nativeChatWorkerApprovals}
-+                        onRespondPermission={controller.handleNativeChatRespondPermission}
-+                        composerTray={composerTray}
-+                        onOpenFile={openFile}
-+                        hasMore={session.hasMore}
-+                        olderPages={session.olderPages}
-+                        onLoadEarlier={session.loadEarlier}
-+                        onSend={images.sendNativeChat}
-+                        sendSurfaceId={sendSurfaceId}
-+                        getSendCompletionGeneration={getSendCompletionGeneration}
-+                        getComposerEditGeneration={controller.getChatComposerEditGeneration}
-+                        pending={controller.chatPending}
-+                        imagePreviewsByMessageId={controller.chatImagePreviewsByMessageId}
-+                        composerScopeKey={controller.chatComposerScopeKey}
-+                        draftKey={controller.chatDraftKey}
-+                        onComposerTextChange={controller.setChatComposerText}
-+                        onAttachImage={
-+                          controller.nativeChatAcceptsImages
-+                            ? () => void images.attachImage('library')
-+                            : undefined
-+                        }
-+                        onPasteImages={
-+                          controller.nativeChatAcceptsImages
-+                            ? (paste) => void images.attachImage(paste)
-+                            : undefined
-+                        }
-+                        attachments={images.attachments}
-+                        onRemoveAttachment={images.removeAttachment}
-+                        isAttaching={images.isAttaching}
-+                        onMicPress={onMicPress}
-+                        micActive={micActive}
-+                        micStarting={micStarting}
-+                        micProcessing={micProcessing}
-+                        dictationMode={dictationMode}
-+                        onMicPressIn={onMicPressIn}
-+                        onMicPressOut={onMicPressOut}
-+                        inputLockReason={inputLockReason}
-+                        hostOutage={hostOutage}
-+                        sendErrorMessage={
-+                          continueFailed
-+                            ? t(
-+                                'chat.interruptedContinue.failed',
-+                                "Couldn't continue this chat. Try again, or send a message."
-+                              )
-+                            : sendErrorMessage
-+                        }
-+                        onDismissSendError={
-+                          continueFailed ? continuation?.dismissFailure : undefined
-+                        }
-+                        onClearSendError={onClearSendError}
-+                        {...mentionFiles}
-+                        skillDiscovery={controller.nativeChatSkills}
-+                        onNeedSkills={controller.loadNativeChatSkills}
-+                        sessionOptions={controller.nativeChatSessionOptions}
-+                        contextUsage={controller.nativeChatContextUsage}
-+                        structuredComposer={structuredComposer}
-+                        keyboardInset={keyboardInset}
-+                        covered={subagents.screen !== null}
-+                      />
-                     </MobileNativeChatForegroundTasksProvider>
-                     {subagents.screen}
-                   </MobileNativeChatNoticeContext.Provider>
 diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture.ts b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture.ts
 new file mode 100644
 index 00000000000..03221a2d5cf
@@ -703,27 +454,18 @@ index 00000000000..03221a2d5cf
 +    ...(queuePause !== undefined ? { queuePause } : {})
 +  }
 +}
-diff --git a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
-index ae49af290cd..1fbcf7e3e48 100644
---- a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
-+++ b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
-@@ -72,7 +72,6 @@ export function MobileNativeChatRowOverlaysHost({
-         setShown({ actionsFor })
-       },
-       openRewind,
--      imageSource,
-       ...(openSubagent ? { openSubagent } : {})
-     }),
-     [setShown, openRewind, imageSource, openSubagent]
 diff --git a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
-index fb9be91801f..60b4b2169b4 100644
 --- a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
 +++ b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
-@@ -58,6 +58,7 @@ vi.mock('lucide-react-native', () => ({
+@@ -58,6 +58,11 @@
    Play: 'Play',
    Plug: 'Plug',
    Search: 'Search',
 +  Send: 'Send',
++  ShieldCheck: 'ShieldCheck',
++  ShieldMinus: 'ShieldMinus',
++  ShieldQuestion: 'ShieldQuestion',
++  ShieldX: 'ShieldX',
    SquareChevronRight: 'SquareChevronRight',
    SquareTerminal: 'SquareTerminal',
    Webhook: 'Webhook',
@@ -1532,7 +1274,7 @@ index b798f1a6e59..45e0525ec48 100644
    })
  })
 diff --git a/src/main/runtime/rpc/methods/orchestration/federation/paired-server-asks.test.ts b/src/main/runtime/rpc/methods/orchestration/federation/paired-server-asks.test.ts
-index 52b992533f2..b2affa7bf6e 100644
+index 870f5f01a0c..fc766467a79 100644
 --- a/src/main/runtime/rpc/methods/orchestration/federation/paired-server-asks.test.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/federation/paired-server-asks.test.ts
 @@ -1,3 +1,4 @@
@@ -1548,60 +1290,6 @@ index 52b992533f2..b2affa7bf6e 100644
      const runtime = new OrcaRuntimeService(null, undefined, {
        orchestrationEnvironmentTransport: transport
      })
-diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
-index 00a2d761954..6740dfd4801 100644
---- a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
-+++ b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
-@@ -86,15 +86,16 @@ export async function startLocalWorker(args: {
-     params.from,
-     callerSession
-   )
--  const { agent, launch, fastWorkspace, fastWorkerMode } = await preflightLocalWorkerStartLaunch({
--    params,
--    runtime,
--    callerSession,
--    requestedWorktree,
--    createsWorktree,
--    creationTargetFor,
--    mode: args.mode
--  })
-+  const { agent, launch, fastWorkspace, fastWorkerMode, preflightTerminal } =
-+    await preflightLocalWorkerStartLaunch({
-+      params,
-+      runtime,
-+      callerSession,
-+      requestedWorktree,
-+      createsWorktree,
-+      creationTargetFor,
-+      mode: args.mode
-+    })
- 
-   const creationTarget = createsWorktree
-     ? await creationTargetFor(coordinatorWorktreeId)
-@@ -129,20 +130,9 @@ export async function startLocalWorker(args: {
-       ? fastWorkerMode
-       : resolveWorkerStartModeOnHost(runtime, decided, resolvedWorktree?.id, agent)
-   let mode = chatWorkerMode(await hostMode, chat)
--  if (
--    agent &&
--    (mode.mode === 'terminal' || createsWorktree) &&
--    (params.role || params.fastMode !== undefined)
--  ) {
--    await runtime.preflightOrchestrationWorkerLaunch(
--      agent,
--      launch.preferences,
--      createsWorktree
--        ? { repo: creationTarget?.repoSelector ?? params.repo }
--        : resolvedWorktree
--          ? { worktree: `id:${resolvedWorktree.id}` }
--          : {}
--    )
-+  const terminalPreflight = preflightTerminal(mode, creationTarget, resolvedWorktree)
-+  if (terminalPreflight) {
-+    await terminalPreflight
-   }
- 
-   // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
 diff --git a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
 index 3a42fe80843..1a25d23447b 100644
 --- a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
@@ -1659,7 +1347,7 @@ index 3a42fe80843..1a25d23447b 100644
 +  return params
  }
 diff --git a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
-index bc21a84ee4b..34788b74f71 100644
+index c2d5fea7c44..65359575c28 100644
 --- a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
 @@ -15,7 +15,7 @@ import {
@@ -1671,7 +1359,7 @@ index bc21a84ee4b..34788b74f71 100644
  import {
    isWorkerStartTimeoutWithinTimerLimit,
    resolveWorkerStartReadinessTimeoutMs
-@@ -155,20 +155,7 @@ export async function prepareWorkerStart(
+@@ -156,20 +156,7 @@ export async function prepareWorkerStart(
    }: Omit<WorkerStartContext, 'orchestrationMutation'>,
    followUp?: WorkerFollowUp
  ) {
@@ -1693,7 +1381,7 @@ index bc21a84ee4b..34788b74f71 100644
    if (!isWorkerStartTimeoutWithinTimerLimit(params.timeoutMs)) {
      throw new OrchestrationError(
        'invalid_argument',
-@@ -269,11 +256,7 @@ export async function prepareWorkerStart(
+@@ -270,11 +257,7 @@ export async function prepareWorkerStart(
      )
    }
    if (helperCreator && !followUp) {
@@ -1908,7 +1596,7 @@ index 856004ff59d..b605ee1ddb6 100644
  
      expect(resolveWorkspaceTerminalHostAuthority(store.getState(), PAIRED_WORKTREE_ID)).toBe(
 diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
-index b963f9c808c..10a38c763bf 100644
+index f52a6f4e406..76c7952896a 100644
 --- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 +++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 @@ -62,7 +62,6 @@ import {
@@ -1977,10 +1665,10 @@ index 8627d4c7be8..31024f3bb04 100644
        .object({
          x: z.number().finite(),
 diff --git a/src/shared/rpc-contract/rpc-params-catalog.generated.ts b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
-index 93ab5399861..7ec2a1d9fea 100644
+index 6d32bafd787..0ae6cd03c28 100644
 --- a/src/shared/rpc-contract/rpc-params-catalog.generated.ts
 +++ b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
-@@ -727,7 +727,6 @@ import {
+@@ -735,7 +735,6 @@ import {
  } from './orchestration/orchestration-worker-release-schemas-params'
  import { WorkerStartParams } from './orchestration/orchestration-worker-start-params'
  import { WorkerDispatchParams as WorkerDispatchParamsOfOrchestrationWorkerStopParams } from './orchestration/orchestration-worker-stop-params'
@@ -1988,7 +1676,7 @@ index 93ab5399861..7ec2a1d9fea 100644
  import {
    PairedServerAllowParams,
    PairedServerAllowancesParams,
-@@ -736,6 +735,7 @@ import {
+@@ -744,6 +743,7 @@ import {
    PairedServerAskListParams,
    PairedServerDisallowParams
  } from './paired-server-asks-params'
@@ -2088,3 +1776,693 @@ index 32cf9eefece..005df516857 100644
    /** Extract OAuth credentials from the local Gemini CLI for rate-limit fetching. Off by default (explicit opt-in). */
    geminiCliOAuthEnabled: boolean
    /** Poll Claude usage with existing CLI credentials. Off uses live terminal readings only. */
+diff --git a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
+--- a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
++++ b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
+@@ -28,7 +28,11 @@
+ import { useHostRepoIconDataUrls } from '../catalog/use-host-repo-icon-data-urls'
+ import type { HostSidebarFeed } from '../sidebar-feed/use-host-sidebar-feed'
+ import type { HostScreenState } from '../use-host-screen-state'
+-import { isProjectListRow, type HostBotListing } from '../../bots/host-bot-sections'
++import {
++  appendHostBotSections,
++  isProjectListRow,
++  type HostBotListing
++} from '../../bots/host-bot-sections'
+ import { useHostBotSections } from '../../bots/use-host-bot-sections'
+ import type { LastVisitedWorktreeOnHost } from '../../worktree/row-presentation/host-list-highlight'
+ import { indexHiddenProjects } from '../../../../src/shared/project/catalog/hidden-projects'
+@@ -298,17 +302,9 @@
+     lastVisited
+   })
+   return useMemo(() => {
+-    const paused = botSections.pausedMatches
+-      ? { pausedBotMatches: botSections.pausedMatches, showPausedBots }
+-      : {}
+-    if (botSections.sections.length === 0) {
+-      return { ...base, ...paused }
+-    }
+-    return {
+-      ...base,
+-      ...paused,
+-      sections: [...botSections.sections, ...base.sections],
+-      rawSections: [...botSections.sections, ...base.rawSections]
+-    }
++    const sections = appendHostBotSections(base, botSections.sections)
++    return botSections.pausedMatches
++      ? { ...sections, pausedBotMatches: botSections.pausedMatches, showPausedBots }
++      : sections
+   }, [base, botSections, showPausedBots])
+ }
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
+--- a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
+@@ -92,9 +92,8 @@
+   const existingWorktree =
+     requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree
+   const targetLabel = workerStartTargetLabel({ ...args.params, createsWorktree, requestedWorktree })
+-  const { agent, launch, fastWorkspace, fastWorkerMode } = await refuseUnmatchedWorkerSelector(
+-    targetLabel,
+-    () =>
++  const { agent, launch, fastWorkspace, fastWorkerMode, preflightTerminal } =
++    await refuseUnmatchedWorkerSelector(targetLabel, () =>
+       preflightLocalWorkerStartLaunch({
+         params,
+         runtime,
+@@ -104,7 +103,7 @@
+         creationTargetFor,
+         mode: args.mode
+       })
+-  )
++    )
+ 
+   const creationTarget = createsWorktree
+     ? await creationTargetFor(coordinatorWorktreeId)
+@@ -130,20 +129,9 @@
+       ? fastWorkerMode
+       : resolveWorkerStartModeOnHost(runtime, decided, resolvedWorktree?.id, agent)
+   let mode = chatWorkerMode(await hostMode, chat)
+-  if (
+-    agent &&
+-    (mode.mode === 'terminal' || createsWorktree) &&
+-    (params.role || params.fastMode !== undefined)
+-  ) {
+-    await runtime.preflightOrchestrationWorkerLaunch(
+-      agent,
+-      launch.preferences,
+-      createsWorktree
+-        ? { repo: creationTarget?.repoSelector ?? params.repo }
+-        : resolvedWorktree
+-          ? { worktree: `id:${resolvedWorktree.id}` }
+-          : {}
+-    )
++  const terminalPreflight = preflightTerminal(mode, creationTarget, resolvedWorktree)
++  if (terminalPreflight) {
++    await terminalPreflight
+   }
+ 
+   // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
+diff --git a/src/main/usage/cache/usage-source-cache-file.ts b/src/main/usage/cache/usage-source-cache-file.ts
+index 8c5c2aebe1e..2bdc1bd232e 100644
+--- a/src/main/usage/cache/usage-source-cache-file.ts
++++ b/src/main/usage/cache/usage-source-cache-file.ts
+@@ -75,7 +75,8 @@ export async function readUsageSourceCacheForScan<T>(ref: UsageSourceCacheRef):
+     const sources = parsed.sources.filter(isSourceRecord)
+     return {
+       sources,
+-      reuseProjections: ref.reuse !== false && parsed.worktreeFingerprint === ref.worktreeFingerprint,
++      reuseProjections:
++        ref.reuse !== false && parsed.worktreeFingerprint === ref.worktreeFingerprint,
+       accountAttributionAvailable: sources.length > 0 || ref.hadPreviousHistory !== true
+     }
+   } catch (error) {
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+index 1be43c65d24..51a0a30dc48 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+@@ -319,7 +319,10 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+               </NativeChatContextClearFade>
+             </NativeChatStructuredTranscriptFrame>
+           </NativeChatDockTranscript>
+-          <NativeChatDock shown={!readFailure?.final} keepFloatingTerminalTriggerClear={parentShown}>
++          <NativeChatDock
++            shown={!readFailure?.final}
++            keepFloatingTerminalTriggerClear={parentShown}
++          >
+             {subagents.dock}
+             {subagents.pairedAsks}
+             {prompt || subagentOpen ? null : (
+diff --git a/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx b/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
+index ba44b821570..1524e89de25 100644
+--- a/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
++++ b/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
+@@ -133,7 +133,9 @@ function NativePromptEditor({
+         if (text == null) {
+           return false
+         }
+-        const content = editor?.schema.nodeFromJSON(promptTextContent(toLfPastedText(text), imageChips))
++        const content = editor?.schema.nodeFromJSON(
++          promptTextContent(toLfPastedText(text), imageChips)
++        )
+         if (!content) {
+           return false
+         }
+@@ -272,7 +274,9 @@ function NativePromptEditor({
+               adopted.current = readNativeChatDraftSnapshot(scopeKey, value)
+               const stored = adopted.current?.document
+               if (stored || !value) {
+-                editor.commands.setContent(openingPromptContent(stored, '', imageChips), { emitUpdate: false })
++                editor.commands.setContent(openingPromptContent(stored, '', imageChips), {
++                  emitUpdate: false
++                })
+                 syncSideChatPill(editor, sideChatEnabled(editor))
+                 applyPosition(previousRange)
+                 return
+diff --git a/mobile/src/session/native-chat/MobileNativeChatView.tsx b/mobile/src/session/native-chat/MobileNativeChatView.tsx
+index 8bbdb1db9ce..65a10ee2c8a 100644
+--- a/mobile/src/session/native-chat/MobileNativeChatView.tsx
++++ b/mobile/src/session/native-chat/MobileNativeChatView.tsx
+@@ -151,9 +151,8 @@ export function MobileNativeChatView({
+ }: Props): React.JSX.Element {
+   useMobileColorScheme()
+   const t = useMobileTranslation()
+-  const insets = useSafeAreaInsets()
+-  const bottomPad = keyboardInset > 0 ? keyboardInset + insets.bottom : insets.bottom
+-  const rootStyle = [styles.root, { paddingBottom: bottomPad }]
++  const { bottom } = useSafeAreaInsets()
++  const rootStyle = [styles.root, { paddingBottom: bottom + Math.max(0, keyboardInset) }]
+   const { fontScale, pinchGesture } = useMobileNativeChatPinchGesture()
+   const { font, lineSpacing } = useNativeChatTextSettings()
+ 
+diff --git a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
+index 5cdc437bfea..3123ce0cf20 100644
+--- a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
++++ b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
+@@ -17,7 +17,10 @@ import {
+   useMobileQueuedCardActions,
+   type MobileQueuedCardActions
+ } from './mobile-queued-card-actions'
+-import { headSteerableQueuedMessageCard, lastSteerableQueuedMessageCard } from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
++import {
++  headSteerableQueuedMessageCard,
++  lastSteerableQueuedMessageCard
++} from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
+ import type { AgentSessionQueuePause } from '../../../../../../src/shared/agent-session/requests/agent-session-queued-message-wire'
+ import type { MobileQueuedMessageEdit } from './use-mobile-structured-queued-message-controls'
+ import type { MobileQueuedMessageInlineEditor } from './mobile-queued-message-edit-draft'
+@@ -183,7 +186,6 @@ export function MobileNativeChatQueuedMessages({
+   const editingHidden =
+     editor !== undefined && cards.length > 0 && editor.messageId !== cards[0]!.messageId
+   const showAll = open || cards.length === 1 || editingHidden
+-  const shownCards = showAll ? cards : cards.slice(0, 1)
+   const queueBusy = busyIds.has(QUEUE_KEY)
+   const headId = mobileNativeChatShortcutCard(steerOrder ?? cards)?.messageId
+   const messageIds = cards.map((card) => card.messageId)
+@@ -339,7 +341,7 @@ export function MobileNativeChatQueuedMessages({
+                 {...drag}
+               />
+             ) : (
+-              shownCards.map((card) => renderRow(card, reveal, show))
++              (showAll ? cards : cards.slice(0, 1)).map((card) => renderRow(card, reveal, show))
+             )
+           }}
+         </MobileQueuedMessageScrollList>
+diff --git a/src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts b/src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts
+index 5cf0bbe55df..0de48f85de8 100644
+--- a/src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts
++++ b/src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts
+@@ -24,7 +24,7 @@ import type {
+ import type { StructuredAgentSessionPendingSend } from '../session/structured/delivery/structured-agent-session-pending-sends'
+ import {
+   headSteerableQueuedMessageCard,
+-  queuedMessageCardSteers,
++  lastSteerableQueuedMessageCard,
+   projectQueuedMessageCards,
+   type QueuedMessageCard
+ } from '../../../../../shared/agent-session/view/structured-agent-session-queued-cards'
+@@ -229,48 +229,18 @@ export function useStructuredAgentSessionQueuedMessages(args: {
+   // The host's whole queue, in the order a pending drag will leave it: its head is what the shortcut sends.
+   const steerOrder = reordered.held
+   const mailLeads = steerOrder[0] !== undefined && mail.waitingIds.has(steerOrder[0].messageId)
+-  const steerHead = useCallback((): boolean => {
+-    if (!enabled) {
+-      return false
+-    }
+-    const head = headSteerableQueuedMessageCard(steerOrder)
+-    if (!head || editingMessageId === head.messageId || inFlightRef.current.has(head.messageId)) {
+-      return false
++  const bindSteerShortcut = (card: QueuedMessageCard | null) => {
++    if (!enabled || !card || editingMessageId === card.messageId || inFlight.has(card.messageId)) {
++      return undefined
+     }
+-    void steer(head.messageId)
+-    return true
+-  }, [editingMessageId, enabled, steerOrder, steer])
+-  const steerableHead = enabled ? headSteerableQueuedMessageCard(steerOrder) : null
+-  // The same checks as the press, read from rendered state, so the composer never offers a dead steer.
+-  const headSteers =
+-    steerableHead !== null &&
+-    editingMessageId !== steerableHead.messageId &&
+-    !inFlight.has(steerableHead.messageId)
+-  const steerCard = useCallback(
+-    (card: QueuedMessageCard | undefined): boolean => {
+-      if (
+-        !enabled ||
+-        !card ||
+-        card.hold === 'sending' ||
+-        !queuedMessageCardSteers(card) ||
+-        editingMessageId === card.messageId ||
+-        inFlightRef.current.has(card.messageId)
+-      ) {
++    return () => {
++      if (inFlightRef.current.has(card.messageId)) {
+         return false
+       }
+       void steer(card.messageId)
+       return true
+-    },
+-    [editingMessageId, enabled, steer]
+-  )
+-
+-  const canSteer = (card: QueuedMessageCard | undefined): boolean =>
+-    enabled &&
+-    card !== undefined &&
+-    card.hold !== 'sending' &&
+-    queuedMessageCardSteers(card) &&
+-    editingMessageId !== card.messageId &&
+-    !inFlight.has(card.messageId)
++    }
++  }
+ 
+   const resume = useCallback(
+     (): Promise<boolean> =>
+@@ -355,10 +325,8 @@ export function useStructuredAgentSessionQueuedMessages(args: {
+     edit: editing.begin,
+     editCapable: editing.capable,
+     editor: editing.editor,
+-    steerHead: headSteers ? steerHead : undefined,
+-    steerLast: canSteer(reordered.cards.at(-1))
+-      ? () => steerCard(reordered.cards.at(-1))
+-      : undefined,
++    steerHead: bindSteerShortcut(headSteerableQueuedMessageCard(steerOrder)),
++    steerLast: bindSteerShortcut(lastSteerableQueuedMessageCard(reordered.cards)),
+     isWorking,
+     holds: mail.holds,
+     stopping: args.stopping,
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
+index f52192f7f12..65b4d77f471 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
+@@ -1,4 +1,7 @@
+-import { NativeChatWorkerApprovalTimeline, nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
++import {
++  NativeChatWorkerApprovalTimeline,
++  nativeChatWorkerApprovalParty
++} from './worker-approvals/NativeChatWorkerApprovals'
+ import { NativeChatSessionChildren } from './NativeChatSessionChildren'
+ import type { NativeChatStructuredViewProps } from './native-chat-view-types'
+ import { NativeChatUsageLimitActionsProvider } from './usage/NativeChatUsageLimitActions'
+diff --git a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+index 158671e4e25..95be3b7bd89 100644
+--- a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
++++ b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+@@ -10,7 +10,11 @@ import {
+ } from '../status-bar/usage/use-owner-usage-rate-limits'
+ import { UsageAccountQuotas } from './UsageAccountQuotas'
+ 
+-export function AccountQuotaStatsPane({ hostScope }: { hostScope: SettingsHostScope }): React.JSX.Element {
++export function AccountQuotaStatsPane({
++  hostScope
++}: {
++  hostScope: SettingsHostScope
++}): React.JSX.Element {
+   const t = useTranslate()
+   const localRateLimits = useAppStore((state) => state.rateLimits)
+   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
+diff --git a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+index dc990003186..6c109dfe96d 100644
+--- a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
++++ b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+@@ -483,10 +483,8 @@ export async function readLocaleCatalogs(directory = localeCatalogDir) {
+   return Promise.all(
+     names.map(async (name) => {
+       // Minify: the host sends and the phone keeps the parsed object, not the source layout.
+-      const bytes = Buffer.from(
+-        JSON.stringify(JSON.parse(await readFile(join(directory, name), 'utf8'))),
+-        'utf8'
+-      )
++      const data = await readFile(join(directory, name), 'utf8')
++      const bytes = Buffer.from(JSON.stringify(JSON.parse(data)))
+       const sha256 = sha256Hex(bytes)
+       return {
+         locale: name.slice(0, -'.json'.length),
+diff --git a/src/main/ipc/register-core-handlers/register-core-handlers.ts b/src/main/ipc/register-core-handlers/register-core-handlers.ts
+index 91f7e06d4b4..8bd52b0ce31 100644
+--- a/src/main/ipc/register-core-handlers/register-core-handlers.ts
++++ b/src/main/ipc/register-core-handlers/register-core-handlers.ts
+@@ -97,10 +97,7 @@ import {
+ import { callRuntimeSessionSearch } from '../../ai-vault/runtime-hosts/runtime-session-search-call'
+ import { aiVaultOrchestrationChildSessionIds } from '../../ai-vault/structured-conversation-navigation'
+ import { configureRuntimeAiVaultSessionDelete } from '../ai-vault/ai-vault-delete'
+-import {
+-  ensurePersistedStructuredAgentSessionHostUnlessRefused,
+-  ensureStructuredAgentSessionHostUnlessRefused
+-} from '../../runtime/agent-session/installation/structured-agent-session-host-refusal'
++import { ensurePersistedStructuredAgentSessionHostUnlessRefused } from '../../runtime/agent-session/installation/structured-agent-session-host-refusal'
+ import { getAgentSessionAttachmentStore } from '../../native-chat/agent-session-attachments/agent-session-attachment-store-registry'
+ import type { PluginService } from '../../plugins/plugin-service'
+ import type { PluginMarketplaceHandlerServices } from '../plugins/plugin-marketplaces'
+diff --git a/src/renderer/src/components/repo/project-peek/ProjectIconSourcePanel.tsx b/src/renderer/src/components/repo/project-peek/ProjectIconSourcePanel.tsx
+index 5715de92e28..3c06b4b05de 100644
+--- a/src/renderer/src/components/repo/project-peek/ProjectIconSourcePanel.tsx
++++ b/src/renderer/src/components/repo/project-peek/ProjectIconSourcePanel.tsx
+@@ -49,7 +49,7 @@ export function ProjectIconSourcePanel({
+         onClick={() => void uploadImage()}
+       >
+         <ImageUp />
+-        {t('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload PNG')}
++        {t('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload image')}
+       </Button>
+       <form
+         className="flex items-center gap-1.5"
+@@ -81,7 +81,7 @@ export function ProjectIconSourcePanel({
+       <p className="text-2xs text-muted-foreground">
+         {t(
+           'auto.components.settings.RepositoryIconPicker.fde066a63b',
+-          'PNG uploads must be 256KB or smaller.'
++          'PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF. Up to 10MB and 32 megapixels.'
+         )}
+       </p>
+     </div>
+diff --git a/src/renderer/src/components/sidebar/SidebarSectionDragOverlay.tsx b/src/renderer/src/components/sidebar/SidebarSectionDragOverlay.tsx
+index a6ec7ff438d..68eabb29ba8 100644
+--- a/src/renderer/src/components/sidebar/SidebarSectionDragOverlay.tsx
++++ b/src/renderer/src/components/sidebar/SidebarSectionDragOverlay.tsx
+@@ -1,11 +1,26 @@
+ import { useCallback, type CSSProperties } from 'react'
+ import { createPortal } from 'react-dom'
+-import { DragOverlay, useDndContext } from '@dnd-kit/core'
++import { DragOverlay, useDndContext, type Modifier } from '@dnd-kit/core'
+ import { ArrowDownUp } from 'lucide-react'
+ import { cloneSidebarDragSource } from './worktree-list/drag/worktree-sidebar-pointer-drag-dom'
+ 
+ const HEADER_PREVIEW_Z_INDEX = 999
+ 
++export const sidebarSectionDragModifiers: Modifier[] = [
++  ({ draggingNodeRect, scrollableAncestorRects: [viewport], transform }) => ({
++    ...transform,
++    x: 0,
++    // Keep the preview within the sidebar viewport when the pointer leaves it.
++    y:
++      draggingNodeRect && viewport
++        ? Math.max(
++            viewport.top - draggingNodeRect.top,
++            Math.min(transform.y, viewport.bottom - draggingNodeRect.bottom)
++          )
++        : transform.y
++  })
++]
++
+ export function SidebarSectionDragOverlay({
+   sidebarStyle
+ }: {
+diff --git a/src/renderer/src/components/sidebar/index.tsx b/src/renderer/src/components/sidebar/index.tsx
+index fb0c2b11bae..e69e1191a0d 100644
+--- a/src/renderer/src/components/sidebar/index.tsx
++++ b/src/renderer/src/components/sidebar/index.tsx
+@@ -5,8 +5,7 @@ import {
+   TouchSensor,
+   pointerWithin,
+   useSensor,
+-  useSensors,
+-  type Modifier
++  useSensors
+ } from '@dnd-kit/core'
+ import { useAppStore } from '@/store/index'
+ import { TooltipProvider } from '@/components/ui/tooltip'
+@@ -35,7 +34,7 @@ import { StalledTerminalDaemonBanner } from '../maintenance/terminal-daemon/Stal
+ import { SidebarBotsSection } from '@/components/bots/SidebarBotsSection'
+ import { SidebarBotsSplit, SidebarProjectsListSlot } from './SidebarBotsSplit'
+ import { SidebarContentViewport } from './SidebarContentViewport'
+-import { SidebarSectionDragOverlay } from './SidebarSectionDragOverlay'
++import { SidebarSectionDragOverlay, sidebarSectionDragModifiers } from './SidebarSectionDragOverlay'
+ import { PROJECTS_SECTION_GROUP_KEY } from '../../../../shared/sidebar-list/sections/group-keys'
+ import { useBotsEnabled } from '@/lib/bot-catalog'
+ import { StartupWorktreeRefreshStatus } from './worktree-list/listing/StartupWorktreeRefreshStatus'
+@@ -79,20 +78,6 @@ const AgentDashboardSidebarHost = lazyWithRetry(
+ 
+ const MIN_WIDTH = 220
+ const MAX_WIDTH = 500
+-const sidebarSectionDragModifiers: Modifier[] = [
+-  ({ draggingNodeRect, scrollableAncestorRects: [viewport], transform }) => ({
+-    ...transform,
+-    x: 0,
+-    // Keep the preview within the sidebar viewport when the pointer leaves it.
+-    y:
+-      draggingNodeRect && viewport
+-        ? Math.max(
+-            viewport.top - draggingNodeRect.top,
+-            Math.min(transform.y, viewport.bottom - draggingNodeRect.bottom)
+-          )
+-        : transform.y
+-  })
+-]
+ // Why: start on the divider pixel so pointing at the visible seam resizes instead of scrolling the list.
+ export const WORKTREE_SIDEBAR_RESIZE_HANDLE_CLASS_NAME =
+   'peer absolute -right-[9px] top-0 z-20 h-full w-[9px] cursor-col-resize'
+diff --git a/mobile/src/host-screen/conversation-project-actions.test.tsx b/mobile/src/host-screen/conversation-project-actions.test.tsx
+index 7adc4c2e66b..786e8ab6101 100644
+--- a/mobile/src/host-screen/conversation-project-actions.test.tsx
++++ b/mobile/src/host-screen/conversation-project-actions.test.tsx
+@@ -1,4 +1,4 @@
+-import { createElement, type ReactNode, type ReactElement } from 'react'
++import { Children, createElement, type ReactNode, type ReactElement } from 'react'
+ import { Pressable, Text } from 'react-native'
+ import { act, create, type ReactTestRenderer } from 'react-test-renderer'
+ import { afterEach, expect, it, vi } from 'vitest'
+@@ -111,7 +111,9 @@ it('uses neutral hide and restore actions and exposes disabled state on older ho
+     accessibilityState: { disabled: true }
+   })
+   expect(
+-    tree.root.findAll((node) => node.type === Text).map((node) => node.props.children)
++    tree.root
++      .findAll((node) => node.type === Text)
++      .flatMap((node) => Children.toArray(node.props.children))
+   ).toContain(conversationCopy().keepFiles)
+   await act(async () =>
+     tree.update(
+diff --git a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
+index a822439589f..448f7a41a49 100644
+--- a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
++++ b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
+@@ -55,6 +55,9 @@ vi.mock('lucide-react-native', () => ({
+   X: 'X'
+ }))
+ 
++vi.mock('../../../../components/bottom-drawer/BottomDrawer', () => ({
++  BottomDrawer: 'BottomDrawer'
++}))
+ vi.mock('../../../../components/sheets/ActionSheetModal', () => ({
+   ActionSheetModal: 'ActionSheetModal'
+ }))
+@@ -65,6 +68,10 @@ vi.mock('../tasks/MobileNativeChatDockedTaskList', () => ({
+   MobileNativeChatDockedTaskList: 'DockedTaskList'
+ }))
+ 
++vi.mock('../tasks/MobileNativeChatWorkerDock', () => ({
++  MobileNativeChatWorkerDock: 'WorkerDock'
++}))
++
+ vi.mock('./MobileQueuedMessageComposer', () => ({
+   MobileQueuedMessageComposer: 'QueuedMessageComposer'
+ }))
+diff --git a/mobile/src/session/native-chat/input/session-options/mobile-native-chat-model-default-picker.test.ts b/mobile/src/session/native-chat/input/session-options/mobile-native-chat-model-default-picker.test.ts
+index 2f3b963433c..f67fe818d90 100644
+--- a/mobile/src/session/native-chat/input/session-options/mobile-native-chat-model-default-picker.test.ts
++++ b/mobile/src/session/native-chat/input/session-options/mobile-native-chat-model-default-picker.test.ts
+@@ -1,4 +1,4 @@
+-import { createElement, useState, type ReactNode } from 'react'
++import { Children, createElement, useState, type ReactNode } from 'react'
+ import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
+ import { documentQueryClient } from '../../../../test-support/rpc-recording/react-mounting/hook-mount'
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+@@ -113,20 +113,13 @@ describe('MobileNativeChatSessionOptionPickers', () => {
+   }
+ 
+   const rowByText = (text: string) => {
+-    const label = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Text').find(
+-      (node) => node.props.children === text
++    const row = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Pressable').find(
++      (node) => node.props.accessibilityLabel === text
+     )
+-    if (!label) {
++    if (!row) {
+       throw new Error(`No row labeled ${text}`)
+     }
+-    let parent = label.parent
+-    while (parent && String(parent.type) !== 'Pressable') {
+-      parent = parent.parent
+-    }
+-    if (!parent) {
+-      throw new Error(`No pressable row for ${text}`)
+-    }
+-    return parent
++    return row
+   }
+ 
+   beforeEach(() => {
+@@ -164,8 +157,8 @@ describe('MobileNativeChatSessionOptionPickers', () => {
+     await act(async () => rowByText('Default').props.onPress())
+     expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
+     expect(
+-      findAllByHostType(renderer!.root, 'Text').some(
+-        (node) => node.props.children === 'Default model not reported'
++      findAllByHostType(renderer!.root, 'Text').some((node) =>
++        Children.toArray(node.props.children).includes('Default model not reported')
+       )
+     ).toBe(true)
+   })
+diff --git a/mobile/src/session/native-chat/input/session-options/mobile-native-chat-pinned-model-options.test.ts b/mobile/src/session/native-chat/input/session-options/mobile-native-chat-pinned-model-options.test.ts
+index ba5817a5569..b1c784a1e4d 100644
+--- a/mobile/src/session/native-chat/input/session-options/mobile-native-chat-pinned-model-options.test.ts
++++ b/mobile/src/session/native-chat/input/session-options/mobile-native-chat-pinned-model-options.test.ts
+@@ -111,20 +111,13 @@ describe('MobileNativeChatSessionOptionPickers', () => {
+   }
+ 
+   const rowByText = (text: string) => {
+-    const label = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Text').find(
+-      (node) => node.props.children === text
++    const row = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Pressable').find(
++      (node) => node.props.accessibilityLabel === text
+     )
+-    if (!label) {
++    if (!row) {
+       throw new Error(`No row labeled ${text}`)
+     }
+-    let parent = label.parent
+-    while (parent && String(parent.type) !== 'Pressable') {
+-      parent = parent.parent
+-    }
+-    if (!parent) {
+-      throw new Error(`No pressable row for ${text}`)
+-    }
+-    return parent
++    return row
+   }
+ 
+   beforeEach(() => {
+diff --git a/src/main/claude-usage/worktree-change-rescan.test.ts b/src/main/claude-usage/worktree-change-rescan.test.ts
+index dd28ad150a6..734034caf9a 100644
+--- a/src/main/claude-usage/worktree-change-rescan.test.ts
++++ b/src/main/claude-usage/worktree-change-rescan.test.ts
+@@ -67,7 +67,11 @@ async function forkedHistory() {
+         }
+       )
+       await writeClaudeUsageSourceCache(ref, result.processedFiles)
+-      return result.dailyAggregates.map((day) => [day.projectLabel, day.inputTokens])
++      const totals = new Map<string, number>()
++      for (const { projectLabel, inputTokens } of result.dailyAggregates) {
++        totals.set(projectLabel, (totals.get(projectLabel) ?? 0) + inputTokens)
++      }
++      return [...totals]
+     } catch (error) {
+       if (error instanceof WorkerStopped) {
+         return null
+diff --git a/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts b/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
+index e30797d8cfb..4e9b15622e0 100644
+--- a/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
++++ b/src/main/native-chat/agent-model-catalog/agent-model-catalog-store.ts
+@@ -150,11 +150,13 @@ export class AgentModelCatalogStore {
+     return revision
+   }
+ 
+-  private retireListings(agent: string): void {
+-    this.retirementRevisions.set(agent, this.retirementRevision(agent) + 1)
+-    this.retirements.retire(agent)
++  private retireListings(agent: string, scope?: string): void {
++    if (scope === undefined) {
++      this.retirementRevisions.set(agent, this.retirementRevision(agent) + 1)
++      this.retirements.retire(agent)
++    }
+     for (const [fingerprint, flight] of this.refreshes) {
+-      if (flight.agent === agent) {
++      if (flight.agent === agent && (scope === undefined || fingerprint === scope)) {
+         retireAgentModelCatalogListing(this.refreshes, this.listingWaiters, fingerprint, flight)
+       }
+     }
+@@ -201,7 +203,7 @@ export class AgentModelCatalogStore {
+   }
+ 
+   expireAgent(agent: string, fingerprint?: string): void {
+-    this.retireListings(agent)
++    this.retireListings(agent, fingerprint)
+     retireAgentModelCatalogObservations(
+       this.entries,
+       this.dueEntries,
+diff --git a/src/main/usage/usage-account-attribution.test.ts b/src/main/usage/usage-account-attribution.test.ts
+index 68f90241773..64f598f6b6e 100644
+--- a/src/main/usage/usage-account-attribution.test.ts
++++ b/src/main/usage/usage-account-attribution.test.ts
+@@ -83,6 +83,7 @@ describe('account provenance on the original collectors', () => {
+       [],
+       loaded.sources,
+       undefined,
++      undefined,
+       loaded.reuseProjections,
+       loaded.accountAttributionAvailable
+     )
+@@ -257,6 +258,7 @@ describe('account provenance on the original collectors', () => {
+       ],
+       loaded.sources,
+       undefined,
++      undefined,
+       loaded.reuseProjections
+     )
+     expect(tokensByAccount(projectEventUsageHistory('codex', second.dailyAggregates))).toEqual({
+@@ -284,6 +286,7 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
++      undefined,
+       sources
+     )
+     expect(tokensByAccount(projectClaudeUsageHistory(first.dailyAggregates))).toEqual({
+@@ -297,6 +300,7 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
++      undefined,
+       sources
+     )
+     expect(second.dailyAggregates).toEqual(first.dailyAggregates)
+@@ -307,6 +311,7 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
++      undefined,
+       sources
+     )
+     expect(tokensByAccount(projectClaudeUsageHistory(reclaimed.dailyAggregates))).toEqual({
+@@ -357,6 +362,7 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       [source.path],
+       loaded.verifiedSources,
++      undefined,
+       [source],
+       loaded.reuseProjections
+     )
+@@ -386,7 +392,7 @@ describe('account provenance on the original collectors', () => {
+       )
+     ).toBeNull()
+     const { scanClaudeUsageFiles } = await import('../claude-usage/scanner')
+-    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, [
++    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, undefined, [
+       { path: linked, accountId: 'wrong' }
+     ])
+     expect(tokensByAccount(projectClaudeUsageHistory(claude.dailyAggregates))).toEqual({
+diff --git a/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx b/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
+index 85206d7ac85..9e1e8309435 100644
+--- a/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx
+@@ -26,7 +26,7 @@ function openedDetail(container: HTMLElement): Element | null {
+     throw new Error('The tool row is missing')
+   }
+   fireEvent.click(row)
+-  return container.querySelector('[data-native-chat-member-detail]')
++  return container.querySelector('[data-slot="collapsible-content"]')
+ }
+ 
+ describe('expanded tool input drawn once', () => {
+diff --git a/src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts b/src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts
+index 7e0b735bfd2..45afb349c69 100644
+--- a/src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts
++++ b/src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts
+@@ -223,7 +223,7 @@ export function useAccountOwnerUsage(
+   return {
+     owner,
+     rateLimits: scopedRateLimits,
+-    accounts: ownerId ? (owned?.snapshot ?? null) : null,
++    accounts: owned?.snapshot ?? null,
+     accountsUnverifiable: unavailable || (owned !== null && owned.failure !== null),
+     remoteOwner,
+     refreshRemote: ownerId || unavailable ? refreshRemote : null

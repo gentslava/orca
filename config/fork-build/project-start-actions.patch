@@ -1,8 +1,8 @@
 diff --git a/config/focus-setting-read-baseline.txt b/config/focus-setting-read-baseline.txt
-index 3ef27c0b49c..ce0b94c5ef4 100644
+index 2f5c1205ae7..96ec1911883 100644
 --- a/config/focus-setting-read-baseline.txt
 +++ b/config/focus-setting-read-baseline.txt
-@@ -135,9 +135,6 @@
+@@ -133,9 +133,6 @@
  1 src/renderer/src/components/status-bar/workspace-storage/decisions/use-workspace-space-git-refresh-action.ts
  1 src/renderer/src/components/status-bar/workspace-storage/decisions/workspace-space-decision-details.ts
  1 src/renderer/src/components/status-bar/workspace-storage/manager/use-workspace-space-manager-panel.ts
@@ -100,92 +100,6 @@ index 3a36763aee7..2d6efb1e0cc 100644
        return [
          policy['managed-browser'].state === 'enabled',
          policy['mobile-emulator'].state === 'enabled'
-diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-index a51ec1ba190..797e058de76 100644
---- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-+++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-@@ -1,3 +1,7 @@
-+import {
-+  workspaceStartPageForGroup,
-+  workspaceAgentTourAnchor
-+} from '../workspace-start/WorkspaceStartPage'
- import { Suspense, useCallback, useMemo, useRef } from 'react'
- import { lazyWithRetry as lazy } from '@/app-shell/startup/lazy-with-retry'
- import { useDroppable } from '@dnd-kit/core'
-@@ -8,7 +12,10 @@ import { TabBarQuickCommandsButton } from '../tab-bar/quick-commands/TabBarQuick
- import { TabGroupPaneActionsMenu } from './panel/TabGroupPaneActionsMenu'
- import { useTabGroupWorkspaceModel } from './workspace-model/useTabGroupWorkspaceModel'
- import { closeTerminalTab } from '../terminal/tab-lifecycle/terminal-tab-actions'
--import { resolveGroupTabFromVisibleId } from './workspace-model/tab-group-visible-id'
-+import {
-+  resolveGroupTabFromVisibleId,
-+  runGroupTabCommand
-+} from './workspace-model/tab-group-visible-id'
- import { getTabPaneBodyDroppableId } from './drag/useTabDragSplit'
- import type { HoveredTabInsertion } from './drag/tab-insertion'
- import { tabGroupBodyAnchorName } from './retained-pane/tab-group-body-anchor'
-@@ -172,25 +179,15 @@ export default function TabGroupPanel({
-         // Why: agent quick-launch can briefly desync unified/runtime tab ids before the host snapshot lands, so still route close through the shared helper.
-         closeTerminalTab(terminalId, { reason: 'user' })
-       }}
--      onCloseOthers={(visibleId) => {
--        // Why: TabBar emits entityId for terminals/browsers but unifiedTabId for editors; match both so the menu works on every tab kind.
--        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
--        if (item) {
--          commands.closeOthers(item.id)
--        }
--      }}
--      onCloseToRight={(visibleId) => {
--        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
--        if (item) {
--          commands.closeToRight(item.id)
--        }
--      }}
--      onCloseToLeft={(visibleId) => {
--        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
--        if (item) {
--          commands.closeToLeft(item.id)
--        }
--      }}
-+      onCloseOthers={(visibleId) =>
-+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeOthers)
-+      }
-+      onCloseToRight={(visibleId) =>
-+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToRight)
-+      }
-+      onCloseToLeft={(visibleId) =>
-+        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToLeft)
-+      }
-       onNewTerminalTab={commands.newTerminalTab}
-       onNewTerminalWithShell={commands.newTerminalWithShell}
-       onNewBrowserTab={commands.newBrowserTab}
-@@ -372,15 +369,17 @@ export default function TabGroupPanel({
-         className="relative flex-1 min-h-0 overflow-hidden"
-         style={bodyAnchorStyle}
-       >
--        {/* Why: empty anchor so the agent-sessions tour reads as a terminal-area tip, not toolbar chrome. */}
--        {isFocused ? (
--          <div
--            className="pointer-events-none absolute inset-x-0 top-1/4 h-px"
--            data-contextual-tour-target="workspace-agent-terminal-tip"
--            // Picks the chat or terminal split step of the agent-sessions tour.
--            data-active-content-type={activeTab?.contentType}
--          />
--        ) : null}
-+        {workspaceAgentTourAnchor(isFocused, activeTab?.contentType)}
-+        {workspaceStartPageForGroup(
-+          isVisible &&
-+            !showsSplitLanding &&
-+            !activeTab &&
-+            !model.groupTabs.length &&
-+            !clientHostedRows.length,
-+          worktreeId,
-+          groupId,
-+          commands
-+        )}
-         {activeTab && toVisibleTabType(activeTab.contentType) === 'editor' && (
-           // Why: a capture-phase owner, so Monaco never sees the drop and the file opens as a tab here.
-           <div ref={attachEditorFileDropOwner} className="absolute inset-0 flex min-h-0 min-w-0">
 diff --git a/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts b/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
 index 9119a4819df..1de5e6c9771 100644
 --- a/src/renderer/src/components/tab-group/workspace-model/tab-group-visible-id.ts
@@ -819,10 +733,10 @@ index 00000000000..d9ddbd62a4d
 +  })
 +})
 diff --git a/src/renderer/src/i18n/locales/de.json b/src/renderer/src/i18n/locales/de.json
-index 44842c4dfd9..35d2ab4fc50 100644
+index f1db0a6bb8f..f657fabc055 100644
 --- a/src/renderer/src/i18n/locales/de.json
 +++ b/src/renderer/src/i18n/locales/de.json
-@@ -22464,6 +22464,12 @@
+@@ -22863,6 +22863,12 @@
        "draft": "{{review}}: Entwurf",
        "merged": "{{review}}: gemergt",
        "open": "{{review}}: offen"
@@ -836,10 +750,10 @@ index 44842c4dfd9..35d2ab4fc50 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index f1c27f8bc71..c4210736c3d 100644
+index dd1953ab53c..053c1152dcb 100644
 --- a/src/renderer/src/i18n/locales/en.json
 +++ b/src/renderer/src/i18n/locales/en.json
-@@ -25825,6 +25825,12 @@
+@@ -26047,6 +26047,12 @@
        "checksPassing": "{{review}} checks: Passing",
        "open": "{{review}}: Open"
      },
@@ -853,10 +767,10 @@ index f1c27f8bc71..c4210736c3d 100644
        "menu": {
          "waking": "Waking VM…",
 diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
-index b83bc4427f5..1c2da558e65 100644
+index 4078914002b..17535e57687 100644
 --- a/src/renderer/src/i18n/locales/es.json
 +++ b/src/renderer/src/i18n/locales/es.json
-@@ -22948,6 +22948,12 @@
+@@ -23353,6 +23353,12 @@
        "draft": "{{review}}: Borrador",
        "merged": "{{review}}: Fusionada",
        "open": "{{review}}: Abierta"
@@ -870,10 +784,10 @@ index b83bc4427f5..1c2da558e65 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/fr.json b/src/renderer/src/i18n/locales/fr.json
-index 7484c247f5d..672a35853fd 100644
+index e7a745044ca..ccb2143f60f 100644
 --- a/src/renderer/src/i18n/locales/fr.json
 +++ b/src/renderer/src/i18n/locales/fr.json
-@@ -22969,6 +22969,12 @@
+@@ -23374,6 +23374,12 @@
        "draft": "{{review}} : brouillon",
        "merged": "{{review}} : fusionnée",
        "open": "{{review}} : ouverte"
@@ -887,10 +801,10 @@ index 7484c247f5d..672a35853fd 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ja.json b/src/renderer/src/i18n/locales/ja.json
-index 52a806ef954..8dd2fd576cc 100644
+index 506399e25c1..bcc02fd2626 100644
 --- a/src/renderer/src/i18n/locales/ja.json
 +++ b/src/renderer/src/i18n/locales/ja.json
-@@ -23694,6 +23694,12 @@
+@@ -23926,6 +23926,12 @@
        "merged": "{{review}}: マージ済み",
        "open": "{{review}}: オープン"
      },
@@ -903,11 +817,28 @@ index 52a806ef954..8dd2fd576cc 100644
      "vm": {
        "menu": {
          "waking": "VM を復帰中…",
+diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
+index 3bc09420de5..2ac27c300b5 100644
+--- a/src/renderer/src/i18n/locales/ko.json
++++ b/src/renderer/src/i18n/locales/ko.json
+@@ -25507,6 +25507,12 @@
+         "provisionFailed": "VM이 만들어지지 않았거나 생성이 중단되었습니다. 설정을 열어 삭제하거나 제거하세요."
+       },
+       "suspendFailed": "VM 워크스페이스를 일시 중지하지 못했습니다"
++    },
++    "start": {
++      "title": "무엇을 여시겠어요?",
++      "description": "이 프로젝트에서 사용할 에이전트나 도구를 선택하세요.",
++      "agents": "에이전트",
++      "manageAgents": "에이전트 관리"
+     }
+   },
+   "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/pt.json b/src/renderer/src/i18n/locales/pt.json
-index 65087c19717..80e74f17070 100644
+index b8d8f31ab31..b0b21b69144 100644
 --- a/src/renderer/src/i18n/locales/pt.json
 +++ b/src/renderer/src/i18n/locales/pt.json
-@@ -23427,6 +23427,12 @@
+@@ -23823,6 +23823,12 @@
        "draft": "{{review}}: Rascunho",
        "merged": "{{review}}: Mergeado",
        "open": "{{review}}: Aberto"
@@ -921,10 +852,10 @@ index 65087c19717..80e74f17070 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
-index 0c879ad8aef..326ab54e927 100644
+index e2469dd3e6f..f0e186deaba 100644
 --- a/src/renderer/src/i18n/locales/ru.json
 +++ b/src/renderer/src/i18n/locales/ru.json
-@@ -26315,6 +26315,12 @@
+@@ -26394,6 +26394,12 @@
          "provisionFailed": "ВМ не создана или её создание прервано. Откройте «Настройки», чтобы уничтожить или удалить её."
        },
        "suspendFailed": "Не удалось приостановить рабочее пространство ВМ"
@@ -938,10 +869,10 @@ index 0c879ad8aef..326ab54e927 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/locales/tr.json
-index 372dd709122..f863bef11cc 100644
+index 8c36e22790d..464cb1aebb4 100644
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
-@@ -22583,6 +22583,12 @@
+@@ -22982,6 +22982,12 @@
        "draft": "{{review}}: Taslak",
        "merged": "{{review}}: Merge edildi",
        "open": "{{review}}: Açık"
@@ -955,10 +886,10 @@ index 372dd709122..f863bef11cc 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh-Hant.json b/src/renderer/src/i18n/locales/zh-Hant.json
-index c70377242ae..c0ef366fdeb 100644
+index f97a8105772..2ab8000ec13 100644
 --- a/src/renderer/src/i18n/locales/zh-Hant.json
 +++ b/src/renderer/src/i18n/locales/zh-Hant.json
-@@ -22135,6 +22135,12 @@
+@@ -22532,6 +22532,12 @@
        "draft": "{{review}}：草稿",
        "merged": "{{review}}：已合併",
        "open": "{{review}}：開放"
@@ -972,10 +903,10 @@ index c70377242ae..c0ef366fdeb 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh.json b/src/renderer/src/i18n/locales/zh.json
-index 5cbff542b56..e726081fe78 100644
+index 8743cc19e2e..5150cf887ce 100644
 --- a/src/renderer/src/i18n/locales/zh.json
 +++ b/src/renderer/src/i18n/locales/zh.json
-@@ -25098,6 +25098,12 @@
+@@ -25166,6 +25166,12 @@
        "merged": "{{review}}：已合并",
        "open": "{{review}}：开放"
      },
@@ -1853,19 +1784,88 @@ index bfb42c5c80e..d9ed2e61f61 100644
    await waitForTerminalReady(page, timeoutMs)
  }
  
-diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
---- a/src/renderer/src/i18n/locales/ko.json
-+++ b/src/renderer/src/i18n/locales/ko.json
-@@ -25133,6 +25133,12 @@
-         "provisionFailed": "VM이 만들어지지 않았거나 생성이 중단되었습니다. 설정을 열어 삭제하거나 제거하세요."
-       },
-       "suspendFailed": "VM 워크스페이스를 일시 중지하지 못했습니다"
-+    },
-+    "start": {
-+      "title": "무엇을 여시겠어요?",
-+      "description": "이 프로젝트에서 사용할 에이전트나 도구를 선택하세요.",
-+      "agents": "에이전트",
-+      "manageAgents": "에이전트 관리"
-     }
-   },
-   "tabHoverCard": {
+diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
+--- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
++++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
+@@ -1,3 +1,7 @@
++import {
++  workspaceStartPageForGroup,
++  workspaceAgentTourAnchor
++} from '../workspace-start/WorkspaceStartPage'
+ import { Suspense, useCallback, useMemo } from 'react'
+ import { lazyWithRetry as lazy } from '@/app-shell/startup/lazy-with-retry'
+ import { useDroppable } from '@dnd-kit/core'
+@@ -7,7 +11,10 @@
+ import { TabGroupStripActions } from './panel/TabGroupStripActions'
+ import { useTabGroupWorkspaceModel } from './workspace-model/useTabGroupWorkspaceModel'
+ import { closeTerminalTab } from '../terminal/tab-lifecycle/terminal-tab-actions'
+-import { resolveGroupTabFromVisibleId } from './workspace-model/tab-group-visible-id'
++import {
++  resolveGroupTabFromVisibleId,
++  runGroupTabCommand
++} from './workspace-model/tab-group-visible-id'
+ import { getTabPaneBodyDroppableId } from './drag/useTabDragSplit'
+ import type { HoveredTabInsertion } from './drag/tab-insertion'
+ import { tabGroupBodyAnchorName } from './retained-pane/tab-group-body-anchor'
+@@ -173,25 +180,15 @@
+         // Why: agent quick-launch can briefly desync unified/runtime tab ids before the host snapshot lands, so still route close through the shared helper.
+         closeTerminalTab(terminalId, { reason: 'user' })
+       }}
+-      onCloseOthers={(visibleId) => {
+-        // Why: TabBar emits entityId for terminals/browsers but unifiedTabId for editors; match both so the menu works on every tab kind.
+-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
+-        if (item) {
+-          commands.closeOthers(item.id)
+-        }
+-      }}
+-      onCloseToRight={(visibleId) => {
+-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
+-        if (item) {
+-          commands.closeToRight(item.id)
+-        }
+-      }}
+-      onCloseToLeft={(visibleId) => {
+-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
+-        if (item) {
+-          commands.closeToLeft(item.id)
+-        }
+-      }}
++      onCloseOthers={(visibleId) =>
++        runGroupTabCommand(model.groupTabs, visibleId, commands.closeOthers)
++      }
++      onCloseToRight={(visibleId) =>
++        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToRight)
++      }
++      onCloseToLeft={(visibleId) =>
++        runGroupTabCommand(model.groupTabs, visibleId, commands.closeToLeft)
++      }
+       onNewTerminalTab={commands.newTerminalTab}
+       onNewTerminalWithShell={commands.newTerminalWithShell}
+       onNewBrowserTab={commands.newBrowserTab}
+@@ -352,15 +349,17 @@
+         className="relative flex-1 min-h-0 overflow-hidden"
+         style={bodyAnchorStyle}
+       >
+-        {/* Why: empty anchor so the agent-sessions tour reads as a terminal-area tip, not toolbar chrome. */}
+-        {isFocused ? (
+-          <div
+-            className="pointer-events-none absolute inset-x-0 top-1/4 h-px"
+-            data-contextual-tour-target="workspace-agent-terminal-tip"
+-            // Picks the chat or terminal split step of the agent-sessions tour.
+-            data-active-content-type={activeTab?.contentType}
+-          />
+-        ) : null}
++        {workspaceAgentTourAnchor(isFocused, activeTab?.contentType)}
++        {workspaceStartPageForGroup(
++          isVisible &&
++            !showsSplitLanding &&
++            !activeTab &&
++            !model.groupTabs.length &&
++            !clientHostedRows.length,
++          worktreeId,
++          groupId,
++          commands
++        )}
+         {activeTab && toVisibleTabType(activeTab.contentType) === 'editor' && (
+           // Why: a capture-phase owner, so Monaco never sees the drop and the file opens as a tab here.
+           <div ref={attachEditorFileDropOwner} className="absolute inset-0 flex min-h-0 min-w-0">

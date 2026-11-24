@@ -1,5 +1,5 @@
 diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
-index 6f9d9bb3d0b..8d7790cf5a2 100644
+index 9c12a98ecb5..b29dcd93a52 100644
 --- a/config/main-blocking-helper-baseline.txt
 +++ b/config/main-blocking-helper-baseline.txt
 @@ -47,22 +47,12 @@
@@ -34,7 +34,7 @@ index 6f9d9bb3d0b..8d7790cf5a2 100644
  2 src/main/backend/core-runtime.ts
  1 src/main/bots/bot-access-request-watch.ts
  1 src/main/bots/bot-group-store-tables.ts # indexRemoteAsks at store open (one-shot startup); its SQL is in main-blocking-sqlite-baseline
-@@ -798,12 +788,8 @@
+@@ -801,12 +791,8 @@
  1 src/main/native-chat/transcript-filesystem/process/wsl-transcript-fs-process-spawn.ts
  2 src/main/native-chat/transcript-filesystem/wsl-transcript-fs-access.ts
  2 src/main/native-chat/transcript-history/codex/codex-rollout-history-source.ts
@@ -47,7 +47,7 @@ index 6f9d9bb3d0b..8d7790cf5a2 100644
  1 src/main/network/macos-tailscale-dns-diagnostic.ts
  3 src/main/node-runtime/managed-runtime-installation.ts
  1 src/main/node-runtime/managed-runtime-release-install.ts
-@@ -863,7 +849,6 @@
+@@ -866,7 +852,6 @@
  3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
  4 src/main/orcad/account-launch/orcad-account-services.ts
  4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
@@ -55,7 +55,7 @@ index 6f9d9bb3d0b..8d7790cf5a2 100644
  2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
  3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
  1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
-@@ -1553,7 +1538,7 @@
+@@ -1558,7 +1543,7 @@
  4 src/shared/remote-runtime/host-store/runtime-environment-store-command.ts
  2 src/shared/remote-runtime/host-store/runtime-environment-store-file.ts
  6 src/shared/remote-runtime/host-store/runtime-environment-store-observation.ts
@@ -65,7 +65,7 @@ index 6f9d9bb3d0b..8d7790cf5a2 100644
  2 src/shared/remote-runtime/host-store/runtime-environment-store-records.ts
  1 src/shared/remote-runtime/host-store/runtime-environment-store-worker-entry.ts
 diff --git a/config/main-blocking-sqlite-baseline.txt b/config/main-blocking-sqlite-baseline.txt
-index c3072e046ed..d6a6ae50987 100644
+index 97ea981cbb2..0561bad1fba 100644
 --- a/config/main-blocking-sqlite-baseline.txt
 +++ b/config/main-blocking-sqlite-baseline.txt
 @@ -4,17 +4,7 @@
@@ -85,7 +85,7 @@ index c3072e046ed..d6a6ae50987 100644
 -10 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
  13 src/main/bots/bot-group-store-tables.ts # store-open table setup moved out of the store, keep-field triggers and the incremental remote-ask index pass (one-shot startup)
  50 src/main/bots/bot-group-store.ts # +3: one indexed remote-ask insert per post on append and its by-request lookup
- 18 src/main/bots/bot-work-store.ts
+ 5 src/main/browser-passwords/browser-password-chromium-import.ts
 @@ -46,9 +36,6 @@
  8 src/main/native-chat/agent-session-journal/writing/command-receipt-table.ts
  2 src/main/native-chat/agent-session-journal/writing/journal-goal-attachment-inverse.ts
@@ -109,11 +109,35 @@ index 6d4ae695332..f75509453a9 100644
        // Use an empty missing hostId: the shell refuses /h//session, whereas the string undefined would name an accepted host.
        const executionHost = routeHost ? `&executionHost=${encodeURIComponent(routeHost)}` : ''
        const pane = paneKey ? `&paneKey=${encodeURIComponent(paneKey)}` : ''
+diff --git a/mobile/src/session/native-chat/composer/menus/MobileNativeChatComposerMenuHost.tsx b/mobile/src/session/native-chat/composer/menus/MobileNativeChatComposerMenuHost.tsx
+index 1aa070f8ac2..a4bea9e5d9a 100644
+--- a/mobile/src/session/native-chat/composer/menus/MobileNativeChatComposerMenuHost.tsx
++++ b/mobile/src/session/native-chat/composer/menus/MobileNativeChatComposerMenuHost.tsx
+@@ -7,16 +7,18 @@ const ComposerMenuHostContext = createContext<RefObject<HostInstance | null> | n
+ export function MobileNativeChatComposerMenuHost({
+   style,
+   testID,
++  'aria-hidden': ariaHidden,
+   children
+ }: {
+   style?: StyleProp<ViewStyle>
+   testID?: string
++  'aria-hidden'?: boolean
+   children: ReactNode
+ }): React.JSX.Element {
+   const ref = useRef<HostInstance>(null)
+   return (
+     <ComposerMenuHostContext value={ref}>
+-      <View ref={ref} testID={testID} style={style}>
++      <View ref={ref} testID={testID} style={style} aria-hidden={ariaHidden}>
+         {children}
+       </View>
+     </ComposerMenuHostContext>
 diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-index a31982d0660..2b9857e0c1e 100644
+index 61d4397fb12..23e33b2f413 100644
 --- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
 +++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
-@@ -167,7 +167,7 @@ export function MobileNativeChatNoticeRow({
+@@ -166,7 +166,7 @@ export function MobileNativeChatNoticeRow({
          <View>
            {disclosed ? null : (
              <MobileNativeChatNoticeDisclosure
@@ -122,6 +146,18 @@ index a31982d0660..2b9857e0c1e 100644
                expanded={expanded}
                fontScale={fontScale}
                onPress={() => setExpanded((open) => !open)}
+diff --git a/src/main/antigravity/antigravity-host-acp.ts b/src/main/antigravity/antigravity-host-acp.ts
+index c9d9b427360..d98381fc2f3 100644
+--- a/src/main/antigravity/antigravity-host-acp.ts
++++ b/src/main/antigravity/antigravity-host-acp.ts
+@@ -3,7 +3,6 @@
+ import { readFile, stat } from 'node:fs/promises'
+ import { join } from 'node:path'
+ import { homedir } from 'node:os'
+-import { agentModelCatalogFingerprint } from '../native-chat/agent-model-catalog/agent-model-catalog-fingerprint'
+ import type { InitializeResponse } from '../acp/generated/acp-protocol.generated'
+ import { AcpAgentError, AcpConnectionClosedError } from '../acp/transport/acp-errors'
+ import {
 diff --git a/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts b/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
 index b413e0a8631..7595f6df1cc 100644
 --- a/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
@@ -309,29 +345,68 @@ index 7dcc9ec4f85..66fbe46d934 100644
                recallSource={{ messages: sessionWithPending.messages, commands: commandMarkers }}
              />
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
-index 9ae6e482de7..87d95841982 100644
+index 9ae6e482de7..f52192f7f12 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
-@@ -1,8 +1,5 @@
- import { NativeChatWorkerTimeline } from './tools/tasks/dock/NativeChatWorkerResultTimeline'
+@@ -1,8 +1,4 @@
+-import { NativeChatWorkerTimeline } from './tools/tasks/dock/NativeChatWorkerResultTimeline'
 -import {
 -  NativeChatPartyWorkerApprovalStack,
 -  nativeChatWorkerApprovalParty
 -} from './worker-approvals/NativeChatWorkerApprovals'
-+import { nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
++import { NativeChatWorkerApprovalTimeline, nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
  import { NativeChatSessionChildren } from './NativeChatSessionChildren'
  import type { NativeChatStructuredViewProps } from './native-chat-view-types'
  import { NativeChatUsageLimitActionsProvider } from './usage/NativeChatUsageLimitActions'
-@@ -69,7 +66,7 @@ export function NativeChatStructuredTranscript({
-             workerDock={controller.backgroundTasks.workerDock}
+@@ -25,6 +21,7 @@ export function NativeChatStructuredTranscript({
+   pane,
+   directory,
+   controller,
++  rows,
+   continuation,
+   setup,
+   forks,
+@@ -49,13 +46,14 @@ export function NativeChatStructuredTranscript({
+   pane: ComponentProps<typeof NativeChatUsageLimitActionsProvider>['pane']
+   directory: ComponentProps<typeof NativeChatUsageLimitActionsProvider>['directory']
+   controller: ReturnType<typeof useStructuredAgentSession>
++  rows: ComponentProps<typeof NativeChatRowActionsProvider>['chat']
+   continuation: ReturnType<typeof useNativeChatInterruptedContinuation>['view']
+   forks: ComponentProps<typeof NativeChatRowActionsProvider>['forks']
+   setup: NativeChatHostSetup
+   messageListRef: Ref<NativeChatMessageListHandle>
+ }): React.JSX.Element {
+   return (
+-    <NativeChatRowActionsProvider pane={pane} chat={controller} forks={forks}>
++    <NativeChatRowActionsProvider pane={pane} chat={rows} forks={forks}>
+       <NativeChatUsageLimitActionsProvider
+         recovery={controller}
+         pane={pane}
+@@ -64,12 +62,9 @@ export function NativeChatStructuredTranscript({
+         view={continuation}
+       >
+         <NativeChatHostSetupContext.Provider value={setup}>
+-          <NativeChatWorkerTimeline
+-            approvalParty={nativeChatWorkerApprovalParty(pane)}
+-            workerDock={controller.backgroundTasks.workerDock}
++          <NativeChatWorkerApprovalTimeline
++            party={nativeChatWorkerApprovalParty(pane)}
              target={pane.target}
-             sessionId={pane.sessionId}
+-            sessionId={pane.sessionId}
 -            isVisible={props.isVisible}
-+            isVisible={props.isVisible === true}
            >
              {(timedRows) => (
                <NativeChatSubagentTranscripts
-@@ -116,22 +113,6 @@ export function NativeChatStructuredTranscriptFrame({
+@@ -91,7 +86,7 @@ export function NativeChatStructuredTranscript({
+                 turnActivity={controller.turnActivity}
+               />
+             )}
+-          </NativeChatWorkerTimeline>
++          </NativeChatWorkerApprovalTimeline>
+         </NativeChatHostSetupContext.Provider>
+       </NativeChatUsageLimitActionsProvider>
+     </NativeChatRowActionsProvider>
+@@ -116,22 +111,6 @@ export function NativeChatStructuredTranscriptFrame({
    )
  }
  
@@ -495,10 +570,10 @@ index ebbde147f2d..6d806b10fac 100644
 -  )
 -}
 diff --git a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.fixture.tsx b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.fixture.tsx
-index 4878a611eb0..4d12e4d6536 100644
+index ccfdef0545e..6cdaf0a542e 100644
 --- a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.fixture.tsx
 +++ b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.fixture.tsx
-@@ -72,6 +72,7 @@ function controller(
+@@ -77,6 +77,7 @@ function controller(
      editor: undefined,
      edit: noop,
      steerHead: undefined,
@@ -507,10 +582,10 @@ index 4878a611eb0..4d12e4d6536 100644
    }
  }
 diff --git a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.test.tsx b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.test.tsx
-index 9cf8fce65d8..c081786c012 100644
+index 56d179a3038..9fe69dc56ab 100644
 --- a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.test.tsx
 +++ b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.test.tsx
-@@ -45,6 +45,7 @@ function controller(
+@@ -50,6 +50,7 @@ function controller(
      editor: undefined,
      edit: vi.fn(async () => {}),
      steerHead: undefined,
@@ -519,10 +594,10 @@ index 9cf8fce65d8..c081786c012 100644
      ...extra
    }
 diff --git a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageRowTools.fixture.tsx b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageRowTools.fixture.tsx
-index d1985bc1c93..74574f16045 100644
+index 0cac3b71568..959c47b7195 100644
 --- a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageRowTools.fixture.tsx
 +++ b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageRowTools.fixture.tsx
-@@ -32,6 +32,7 @@ function Queue({ cards }: { cards: QueuedMessageCard[] }) {
+@@ -37,6 +37,7 @@ function Queue({ cards }: { cards: QueuedMessageCard[] }) {
      editor: undefined,
      edit: noop,
      steerHead: undefined,
@@ -610,26 +685,82 @@ index eafd23e65d4..2ded1281938 100644
 +export function resetAiVaultSessionResultCacheForTest(): void {
 +  cachedSessionResults.clear()
 +}
+diff --git a/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx b/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx
+index 044293640be..fe3235e6915 100644
+--- a/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx
++++ b/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx
+@@ -110,6 +110,15 @@ async function renderPicker({
+       )
+     )
+   })
++  if (inParent) {
++    const avatarTab = [...container.querySelectorAll('button[role="tab"]')].find(
++      (tab) => tab.textContent === 'Avatar'
++    )
++    if (!avatarTab) {
++      throw new Error('Missing Avatar tab')
++    }
++    await act(async () => avatarTab.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })))
++  }
+   const upload = [...container.querySelectorAll('button')].find((button) =>
+     button.textContent?.includes('Upload')
+   )
 diff --git a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
-index 7f1c1bf0e1b..b25d9a59ec7 100644
+index 7f1c1bf0e1b..158671e4e25 100644
 --- a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
 +++ b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
-@@ -42,10 +42,14 @@ export function AccountQuotaStatsPane({ host }: { host: StatsHost }): React.JSX.
+@@ -1,7 +1,7 @@
+ import { StatsPane } from './StatsPane'
+ import { useAppStore } from '../../store'
+ import { useTranslate } from '@/i18n/use-translate'
+-import type { StatsHost } from './StatsHostScope'
++import type { SettingsHostScope } from '../settings/host-scope/settings-host-scope'
+ import { resolveAccountOwner } from '@/runtime/provider-accounts/ownership/wsl-host-account-owner'
+ import { isWebClientLocation } from '@/app-shell/platform/web-client-location'
+ import {
+@@ -10,7 +10,7 @@ import {
+ } from '../status-bar/usage/use-owner-usage-rate-limits'
+ import { UsageAccountQuotas } from './UsageAccountQuotas'
+ 
+-export function AccountQuotaStatsPane({ host }: { host: StatsHost }): React.JSX.Element {
++export function AccountQuotaStatsPane({ hostScope }: { hostScope: SettingsHostScope }): React.JSX.Element {
+   const t = useTranslate()
+   const localRateLimits = useAppStore((state) => state.rateLimits)
+   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
+@@ -20,9 +20,9 @@ export function AccountQuotaStatsPane({ host }: { host: StatsHost }): React.JSX.
+   const openSettingsPage = useAppStore((state) => state.openSettingsPage)
+   const environments = useAppStore((state) => state.runtimeEnvironments)
+   const selectedHost =
+-    host.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
++    hostScope.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
+       ? { kind: 'environment' as const, environmentId: environments[0].id }
+-      : host.target
++      : hostScope.target
+   const accountOwner = resolveAccountOwner(selectedHost, environments ?? [])
+   const { rateLimits, remoteOwner, refreshRemote, accounts, accountsUnverifiable } =
+     useAccountOwnerUsage(accountOwner, localRateLimits, true)
+@@ -42,15 +42,19 @@ export function AccountQuotaStatsPane({ host }: { host: StatsHost }): React.JSX.
            })
          }
          onManage={() => {
-+          const hostScope = getUsageOwnerHostScope(remoteOwner)
-+          if (!hostScope) {
++          const accountHost = getUsageOwnerHostScope(remoteOwner)
++          if (!accountHost) {
 +            return
 +          }
            openSettingsTarget({
              pane: 'accounts',
              repoId: null,
 -            hostScope: getUsageOwnerHostScope(remoteOwner)
-+            hostScope
++            hostScope: accountHost
            })
            openSettingsPage()
          }}
+       />
+-      <StatsPane host={host} />
++      <StatsPane hostScope={hostScope} />
+     </div>
+   )
+ }
 diff --git a/src/renderer/src/components/stats/StatsPane.tsx b/src/renderer/src/components/stats/StatsPane.tsx
 index 088beb906a6..6dea17371be 100644
 --- a/src/renderer/src/components/stats/StatsPane.tsx
@@ -677,10 +808,10 @@ index 08f703b61f6..7e95bc1b800 100644
  function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget): boolean {
    return left.runtime === right.runtime && left.wslDistro === right.wslDistro
 diff --git a/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx b/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx
-index 35794a644f1..2c2b47fe763 100644
+index e605c5bb7d5..4373e4cfb1b 100644
 --- a/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx
 +++ b/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx
-@@ -97,6 +97,7 @@ function fixture(width = 520, wsl = false) {
+@@ -115,6 +115,7 @@ function fixture(
              owner: { target: { kind: 'local' }, wslHostDistro: wsl ? 'Ubuntu' : null },
              rateLimits: useAppStore.getState().rateLimits,
              accounts: null,

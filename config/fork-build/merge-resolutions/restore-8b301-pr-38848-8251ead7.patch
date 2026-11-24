@@ -1,0 +1,11 @@
+diff --git a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.tsx b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.tsx
+--- a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.tsx
++++ b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.tsx
+@@ -246,6 +246,7 @@
+                       agentName={agentName}
+                       statedFailures={statedFailures}
+                       showsSteerShortcut={card === steerableHead}
++                      previewsSteer={card === newest && controller.steerLast !== undefined}
+                       agentWorking={controller.isWorking}
+                       steerHeld={steerHeld}
+                       pending={controller.pending(card.messageId)}

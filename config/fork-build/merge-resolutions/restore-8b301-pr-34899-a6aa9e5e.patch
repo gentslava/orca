@@ -1,5 +1,4 @@
 diff --git a/src/renderer/src/components/settings/page/settings-interface-secondary-section-renderers.tsx b/src/renderer/src/components/settings/page/settings-interface-secondary-section-renderers.tsx
-index f402ec4b898e1aec6ea3c6cea4428812c8d5e4c2..b17dc92779a014c5dbe6d08eee0ef03f1febe6d5 100644
 --- a/src/renderer/src/components/settings/page/settings-interface-secondary-section-renderers.tsx
 +++ b/src/renderer/src/components/settings/page/settings-interface-secondary-section-renderers.tsx
 @@ -1,4 +1,4 @@
@@ -8,12 +7,12 @@ index f402ec4b898e1aec6ea3c6cea4428812c8d5e4c2..b17dc92779a014c5dbe6d08eee0ef03f
  import { AppearancePane } from '../appearance/AppearancePane'
  import { ChatSettingsSection } from '../chat/ChatSettingsSection'
  import { InputPane } from '../input/InputPane'
-@@ -187,7 +187,7 @@ export function renderStatsSettingsSection(
+@@ -187,7 +187,7 @@
          <SettingsHostScopeUnavailableNotice />
        ) : (
          <SettingsGroup bodyClassName="py-4">
 -          <StatsPane hostScope={model.settingsHostScope} />
-+          <AccountQuotaStatsPane host={{ target: model.settingsHostScope.target, name: null }} />
++          <AccountQuotaStatsPane hostScope={model.settingsHostScope} />
          </SettingsGroup>
        )}
      </SettingsSection>
