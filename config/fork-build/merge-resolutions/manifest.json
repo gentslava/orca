@@ -1126,5 +1126,17 @@
     "patchSha256": "9fcc780321bb1a51d139a59221830f6d360378a51875e60320b455ab1970abf7",
     "resultSha256": "b66384d4af1aba7c104527de730268de698dab74f7884d49f59ca2e76280baeb",
     "reason": "Keep successful review disclosure alongside timestamped mobile notices."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts",
+    "blobs": [
+      "900b6515cf52a6d23ad970c4e80dfbb181882622",
+      "171fa5ebf4f0071352d7bc91180cbbe95bab166a",
+      "76f1aec869736195bbd0f7368cd2c590dbd99ec3"
+    ],
+    "patch": "restore-8b301-pr-33369-a5434e1d.patch",
+    "patchSha256": "6603c92c4c21af6b433ada62924c7fb906e260b832d609fc536163da091be452",
+    "resultSha256": "376a611d873d784ab79c2ff35046010a4d542f7954d06ba16095c8f800417ca5",
+    "reason": "Apply configured role and fast-mode preflight while preserving folder admission, selector refusals and chat-lineage mode."
   }
 ]
