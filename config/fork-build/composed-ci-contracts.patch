@@ -133,10 +133,10 @@ index cfe6e9ae103..0e0af329c6c 100644
      queued,
 diff --git a/mobile/src/session/use-mobile-structured-model-default-send.test.tsx b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
 new file mode 100644
-index 00000000000..aa14f252a4d
+index 00000000000..f186b751593
 --- /dev/null
 +++ b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
-@@ -0,0 +1,130 @@
+@@ -0,0 +1,152 @@
 +import { createElement } from 'react'
 +import { act, type ReactTestRenderer } from 'react-test-renderer'
 +import { afterEach, beforeEach, vi } from 'vitest'
@@ -151,6 +151,28 @@ index 00000000000..aa14f252a4d
 +import { mobileNativeChatDraftDestination } from './native-chat/composer/drafts/mobile-native-chat-draft-inputs'
 +import { closeMobileNativeChatTabDraft } from './native-chat/composer/drafts/mobile-native-chat-draft-store'
 +import type { MobileNativeChatSendOrigin } from './native-chat/transcript/sending/mobile-native-chat-pending-echo'
++
++vi.mock('react-native', async () => {
++  const { reactNativeMotionStub } = await import('../test-support/react-native-motion-stub')
++  const motion = reactNativeMotionStub()
++  return {
++    ...motion,
++    AccessibilityInfo: {
++      ...motion.AccessibilityInfo,
++      isScreenReaderEnabled: async () => false
++    },
++    AppState: { currentState: 'active', addEventListener: () => ({ remove: () => {} }) },
++    Platform: { OS: 'ios' },
++    Pressable: 'Pressable',
++    Text: 'Text',
++    View: 'View',
++    StyleSheet: { create: (styles: unknown) => styles, hairlineWidth: 1 }
++  }
++})
++
++vi.mock('react-native-safe-area-context', () => ({
++  useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 })
++}))
 +
 +const storage = vi.hoisted(() => new Map<string, string>())
 +vi.mock('@react-native-async-storage/async-storage', () => ({

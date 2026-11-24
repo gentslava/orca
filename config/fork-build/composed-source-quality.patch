@@ -455,14 +455,17 @@ index 00000000000..03221a2d5cf
 +  }
 +}
 diff --git a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
-index fb9be91801f..60b4b2169b4 100644
 --- a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
 +++ b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
-@@ -58,6 +58,7 @@ vi.mock('lucide-react-native', () => ({
+@@ -58,6 +58,11 @@
    Play: 'Play',
    Plug: 'Plug',
    Search: 'Search',
 +  Send: 'Send',
++  ShieldCheck: 'ShieldCheck',
++  ShieldMinus: 'ShieldMinus',
++  ShieldQuestion: 'ShieldQuestion',
++  ShieldX: 'ShieldX',
    SquareChevronRight: 'SquareChevronRight',
    SquareTerminal: 'SquareTerminal',
    Webhook: 'Webhook',
@@ -2207,3 +2210,124 @@ index fb0c2b11bae..e69e1191a0d 100644
  // Why: start on the divider pixel so pointing at the visible seam resizes instead of scrolling the list.
  export const WORKTREE_SIDEBAR_RESIZE_HANDLE_CLASS_NAME =
    'peer absolute -right-[9px] top-0 z-20 h-full w-[9px] cursor-col-resize'
+diff --git a/mobile/src/host-screen/conversation-project-actions.test.tsx b/mobile/src/host-screen/conversation-project-actions.test.tsx
+index 7adc4c2e66b..786e8ab6101 100644
+--- a/mobile/src/host-screen/conversation-project-actions.test.tsx
++++ b/mobile/src/host-screen/conversation-project-actions.test.tsx
+@@ -1,4 +1,4 @@
+-import { createElement, type ReactNode, type ReactElement } from 'react'
++import { Children, createElement, type ReactNode, type ReactElement } from 'react'
+ import { Pressable, Text } from 'react-native'
+ import { act, create, type ReactTestRenderer } from 'react-test-renderer'
+ import { afterEach, expect, it, vi } from 'vitest'
+@@ -111,7 +111,9 @@ it('uses neutral hide and restore actions and exposes disabled state on older ho
+     accessibilityState: { disabled: true }
+   })
+   expect(
+-    tree.root.findAll((node) => node.type === Text).map((node) => node.props.children)
++    tree.root
++      .findAll((node) => node.type === Text)
++      .flatMap((node) => Children.toArray(node.props.children))
+   ).toContain(conversationCopy().keepFiles)
+   await act(async () =>
+     tree.update(
+diff --git a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
+index a822439589f..448f7a41a49 100644
+--- a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
++++ b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
+@@ -55,6 +55,9 @@ vi.mock('lucide-react-native', () => ({
+   X: 'X'
+ }))
+ 
++vi.mock('../../../../components/bottom-drawer/BottomDrawer', () => ({
++  BottomDrawer: 'BottomDrawer'
++}))
+ vi.mock('../../../../components/sheets/ActionSheetModal', () => ({
+   ActionSheetModal: 'ActionSheetModal'
+ }))
+@@ -65,6 +68,10 @@ vi.mock('../tasks/MobileNativeChatDockedTaskList', () => ({
+   MobileNativeChatDockedTaskList: 'DockedTaskList'
+ }))
+ 
++vi.mock('../tasks/MobileNativeChatWorkerDock', () => ({
++  MobileNativeChatWorkerDock: 'WorkerDock'
++}))
++
+ vi.mock('./MobileQueuedMessageComposer', () => ({
+   MobileQueuedMessageComposer: 'QueuedMessageComposer'
+ }))
+diff --git a/mobile/src/session/native-chat/input/session-options/mobile-native-chat-model-default-picker.test.ts b/mobile/src/session/native-chat/input/session-options/mobile-native-chat-model-default-picker.test.ts
+index 2f3b963433c..f67fe818d90 100644
+--- a/mobile/src/session/native-chat/input/session-options/mobile-native-chat-model-default-picker.test.ts
++++ b/mobile/src/session/native-chat/input/session-options/mobile-native-chat-model-default-picker.test.ts
+@@ -1,4 +1,4 @@
+-import { createElement, useState, type ReactNode } from 'react'
++import { Children, createElement, useState, type ReactNode } from 'react'
+ import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
+ import { documentQueryClient } from '../../../../test-support/rpc-recording/react-mounting/hook-mount'
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+@@ -113,20 +113,13 @@ describe('MobileNativeChatSessionOptionPickers', () => {
+   }
+ 
+   const rowByText = (text: string) => {
+-    const label = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Text').find(
+-      (node) => node.props.children === text
++    const row = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Pressable').find(
++      (node) => node.props.accessibilityLabel === text
+     )
+-    if (!label) {
++    if (!row) {
+       throw new Error(`No row labeled ${text}`)
+     }
+-    let parent = label.parent
+-    while (parent && String(parent.type) !== 'Pressable') {
+-      parent = parent.parent
+-    }
+-    if (!parent) {
+-      throw new Error(`No pressable row for ${text}`)
+-    }
+-    return parent
++    return row
+   }
+ 
+   beforeEach(() => {
+@@ -164,8 +157,8 @@ describe('MobileNativeChatSessionOptionPickers', () => {
+     await act(async () => rowByText('Default').props.onPress())
+     expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
+     expect(
+-      findAllByHostType(renderer!.root, 'Text').some(
+-        (node) => node.props.children === 'Default model not reported'
++      findAllByHostType(renderer!.root, 'Text').some((node) =>
++        Children.toArray(node.props.children).includes('Default model not reported')
+       )
+     ).toBe(true)
+   })
+diff --git a/mobile/src/session/native-chat/input/session-options/mobile-native-chat-pinned-model-options.test.ts b/mobile/src/session/native-chat/input/session-options/mobile-native-chat-pinned-model-options.test.ts
+index ba5817a5569..b1c784a1e4d 100644
+--- a/mobile/src/session/native-chat/input/session-options/mobile-native-chat-pinned-model-options.test.ts
++++ b/mobile/src/session/native-chat/input/session-options/mobile-native-chat-pinned-model-options.test.ts
+@@ -111,20 +111,13 @@ describe('MobileNativeChatSessionOptionPickers', () => {
+   }
+ 
+   const rowByText = (text: string) => {
+-    const label = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Text').find(
+-      (node) => node.props.children === text
++    const row = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Pressable').find(
++      (node) => node.props.accessibilityLabel === text
+     )
+-    if (!label) {
++    if (!row) {
+       throw new Error(`No row labeled ${text}`)
+     }
+-    let parent = label.parent
+-    while (parent && String(parent.type) !== 'Pressable') {
+-      parent = parent.parent
+-    }
+-    if (!parent) {
+-      throw new Error(`No pressable row for ${text}`)
+-    }
+-    return parent
++    return row
+   }
+ 
+   beforeEach(() => {
