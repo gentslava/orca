@@ -309,32 +309,73 @@ index 7dcc9ec4f85..66fbe46d934 100644
                recallSource={{ messages: sessionWithPending.messages, commands: commandMarkers }}
              />
 diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
-index 9ae6e482de7..87d95841982 100644
 --- a/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
 +++ b/src/renderer/src/components/native-chat/NativeChatStructuredTranscript.tsx
-@@ -1,8 +1,5 @@
- import { NativeChatWorkerTimeline } from './tools/tasks/dock/NativeChatWorkerResultTimeline'
+@@ -1,8 +1,4 @@
+-import { NativeChatWorkerTimeline } from './tools/tasks/dock/NativeChatWorkerResultTimeline'
 -import {
 -  NativeChatPartyWorkerApprovalStack,
 -  nativeChatWorkerApprovalParty
 -} from './worker-approvals/NativeChatWorkerApprovals'
-+import { nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
++import { NativeChatWorkerApprovalTimeline, nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
  import { NativeChatSessionChildren } from './NativeChatSessionChildren'
  import type { NativeChatStructuredViewProps } from './native-chat-view-types'
  import { NativeChatUsageLimitActionsProvider } from './usage/NativeChatUsageLimitActions'
-@@ -69,7 +66,7 @@ export function NativeChatStructuredTranscript({
-             workerDock={controller.backgroundTasks.workerDock}
+@@ -25,6 +21,7 @@
+   pane,
+   directory,
+   controller,
++  rows,
+   continuation,
+   setup,
+   forks,
+@@ -49,13 +46,14 @@
+   pane: ComponentProps<typeof NativeChatUsageLimitActionsProvider>['pane']
+   directory: ComponentProps<typeof NativeChatUsageLimitActionsProvider>['directory']
+   controller: ReturnType<typeof useStructuredAgentSession>
++  rows: ComponentProps<typeof NativeChatRowActionsProvider>['chat']
+   continuation: ReturnType<typeof useNativeChatInterruptedContinuation>['view']
+   forks: ComponentProps<typeof NativeChatRowActionsProvider>['forks']
+   setup: NativeChatHostSetup
+   messageListRef: Ref<NativeChatMessageListHandle>
+ }): React.JSX.Element {
+   return (
+-    <NativeChatRowActionsProvider pane={pane} chat={controller} forks={forks}>
++    <NativeChatRowActionsProvider pane={pane} chat={rows} forks={forks}>
+       <NativeChatUsageLimitActionsProvider
+         recovery={controller}
+         pane={pane}
+@@ -64,12 +62,9 @@
+         view={continuation}
+       >
+         <NativeChatHostSetupContext.Provider value={setup}>
+-          <NativeChatWorkerTimeline
+-            approvalParty={nativeChatWorkerApprovalParty(pane)}
+-            workerDock={controller.backgroundTasks.workerDock}
++          <NativeChatWorkerApprovalTimeline
++            party={nativeChatWorkerApprovalParty(pane)}
              target={pane.target}
-             sessionId={pane.sessionId}
+-            sessionId={pane.sessionId}
 -            isVisible={props.isVisible}
-+            isVisible={props.isVisible === true}
            >
              {(timedRows) => (
                <NativeChatSubagentTranscripts
-@@ -116,22 +113,6 @@ export function NativeChatStructuredTranscriptFrame({
-   )
- }
- 
+@@ -91,7 +86,7 @@
+                 turnActivity={controller.turnActivity}
+               />
+             )}
+-          </NativeChatWorkerTimeline>
++          </NativeChatWorkerApprovalTimeline>
+         </NativeChatHostSetupContext.Provider>
+       </NativeChatUsageLimitActionsProvider>
+     </NativeChatRowActionsProvider>
+@@ -113,22 +108,6 @@
+       <NativeChatSessionChildren {...pane} isVisible={isVisible} />
+       {children}
+     </div>
+-  )
+-}
+-
 -export function NativeChatStructuredWorkerApprovals({
 -  pane,
 -  isVisible
@@ -348,12 +389,9 @@ index 9ae6e482de7..87d95841982 100644
 -      target={pane.target}
 -      isVisible={isVisible}
 -    />
--  )
--}
--
- /** What every part of a chat pane reads: its Antigravity sign-in, Slack mirror, crew and child navigation. */
- export function NativeChatStructuredContexts({
-   antigravityAuth,
+   )
+ }
+ 
 diff --git a/src/renderer/src/components/native-chat/media/visuals/native-chat-visual-read-client.ts b/src/renderer/src/components/native-chat/media/visuals/native-chat-visual-read-client.ts
 index b905c5ddf01..fbad0d364fb 100644
 --- a/src/renderer/src/components/native-chat/media/visuals/native-chat-visual-read-client.ts

@@ -1450,5 +1450,29 @@
     "patchSha256": "298257e6bcf0ffbb4e2d043cedd0dfc1e49f3ae8d742c3392e89076d9055738f",
     "resultSha256": "0ac7b220ac37ef08eae505ab2ed19017bf3687324e0193ff8605c631a762924b",
     "reason": "Keep checked image conversion and upload cancellation alongside the shared monogram and icon settings."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "d8106f9a11a46645d4e04601a48918cff549e0ea",
+      "59ea2e79ffb0a3eafe0efe44379fe79e387c81d6",
+      "17cff70944d5669ffcbf5353713cc2df51e57e4d"
+    ],
+    "patch": "restore-8b301-pr-34895-1d7a4539.patch",
+    "patchSha256": "68abef8bea762555053f8e67eef6038433db3101141234bbb702c1e1130ff499",
+    "resultSha256": "b6eead21969c297e183dc2cec879112792f2fe5947093ac2886d6443c19f5823",
+    "reason": "Retain the parent and child transcript controls while keeping worker auto-close and the current queue and editor APIs."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/subagents/NativeChatSubagentTranscripts.tsx",
+    "blobs": [
+      "fd1e4f2478a73ed02995547f1d3fcb77f72ed050",
+      "e47835143b573f862041f91bf385fbece7b7122e",
+      "a16e223a660e4386287f1ec45914421ed2e127b9"
+    ],
+    "patch": "restore-8b301-pr-34895-4565d6d1.patch",
+    "patchSha256": "3f0ef3d2cdc7e993f43f867f29ff608787bfa6c5e0e72cc50206bc985a93fdf1",
+    "resultSha256": "fbf35a74a0478c77dc28973905dee95034c9da3cb31142037d9bf495fc6c6b71",
+    "reason": "Keep child history identity and the upstream waiting-mail timeline context."
   }
 ]
