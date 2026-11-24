@@ -1270,5 +1270,29 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "29f626057e3c7a3f6cd2715a72c6b4dd7b9d06a1d36dd560c38226b7c0c8cde0",
     "reason": "Keep upstream reopen retry and the persisted runtime target."
+  },
+  {
+    "path": "src/main/native-chat/agent-session-wire/options/structured-agent-session-options-read.ts",
+    "blobs": [
+      "3134048bccbbcd53578f954e9a692c81b0f88464",
+      "5f450a65fb59fb8e2b1cfadd42123f3e22c9d1f1",
+      "eb3df252f015c168adb87269ef9ab25bb48017e0"
+    ],
+    "patch": "restore-8b301-pr-44451-7743f03c.patch",
+    "patchSha256": "f2f9826c44a6afd8ed612dd79f12154e4fe450dabd7484c334ea3ce071da9e2f",
+    "resultSha256": "a19e37e570723f8da324c135a8bc647798f8faadf9e2c353bd81bba7510546b7",
+    "reason": "Keep catalog-scoped model selection while honoring explicit Default reset state."
+  },
+  {
+    "path": "src/main/native-chat/agent-session-wire/options/structured-agent-session-resting-options.ts",
+    "blobs": [
+      "56b74b10fd1c4e5b6e87d714fb34d09d07f674e5",
+      "a21b7c24e2ffe82768918570fd285a16715897ab",
+      "7402e3c74255c75ef242bdf48094d4df34b328c3"
+    ],
+    "patch": "restore-8b301-pr-44451-f7ae5418.patch",
+    "patchSha256": "9154a2798bccab412174a61f56dbaec85d4f40c3ae8cd0a64e0b6782cabc8516",
+    "resultSha256": "52a324520d0dfcbdfb8912c590b9537cac9cc5c4b9b3d9f4d1998866a1967fcc",
+    "reason": "Keep catalog-scoped model selection while honoring explicit Default reset state."
   }
 ]
