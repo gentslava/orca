@@ -6,8 +6,11 @@ import { git } from './composition.mjs'
 
 const repository = 'gentslava/orca'
 const workflow = '.github/workflows/personal-build.yml'
-// Qualification from before the reuse input was added remains eligible.
-const previousWorkflowBlob = 'ddc49f97dd059634c1eca38167d403e689d50ff3'
+// These workflow versions precede the reuse input and hosted ARM64 image selector.
+const previousWorkflowBlobs = [
+  'ddc49f97dd059634c1eca38167d403e689d50ff3',
+  'f60c59c5103b3adbf9323fd781b200fa492bf69c'
+]
 const [id, output] = process.argv.slice(2)
 const env = process.env
 if (
@@ -59,7 +62,7 @@ git(root, ['fetch', '--no-tags', 'origin', head])
 const priorWorkflow = git(root, ['rev-parse', `${head}:${workflow}`])
 const releaseWorkflow = git(root, ['rev-parse', `HEAD:${workflow}`])
 if (
-  ![releaseWorkflow, previousWorkflowBlob].includes(priorWorkflow) ||
+  ![releaseWorkflow, ...previousWorkflowBlobs].includes(priorWorkflow) ||
   git(root, [
     'diff',
     '--name-only',

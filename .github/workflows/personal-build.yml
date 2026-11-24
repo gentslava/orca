@@ -26,6 +26,11 @@ on:
         description: Optional full upstream commit for a fixed build; empty follows latest main
         type: string
         default: ''
+      macos_runner:
+        description: Hosted ARM64 image for the macOS release lane
+        type: choice
+        options: [macos-26, macos-15]
+        default: macos-26
       tested_run:
         description: Optional successful fork qualification run for the identical source tree
         type: string
@@ -175,7 +180,7 @@ jobs:
   macos:
     needs: [plan, javascript]
     if: needs.plan.outputs.build == 'true' && github.ref == 'refs/heads/master'
-    runs-on: macos-26
+    runs-on: ${{ inputs.macos_runner == 'macos-15' && 'macos-15' || 'macos-26' }}
     timeout-minutes: 120
     env:
       ORCA_RELEASE_JAVASCRIPT_SOURCE_SHA: ${{ needs.plan.outputs.source }}
@@ -195,6 +200,15 @@ jobs:
       - *checkout-control
       - *node
       - *source-plan
+      - name: Select the installed Xcode 26 toolchain on macOS 15
+        if: inputs.macos_runner == 'macos-15'
+        run: |
+          set -euo pipefail
+          xcode=$(find /Applications -maxdepth 1 -type d -name 'Xcode_26.*.app' | sort -V | tail -n 1)
+          test -n "$xcode"
+          export DEVELOPER_DIR="$xcode/Contents/Developer"
+          xcodebuild -version
+          printf 'DEVELOPER_DIR=%s\n' "$DEVELOPER_DIR" >> "$GITHUB_ENV"
       - name: Restore the frozen source and require native ARM64
         run: |
           set -euo pipefail
