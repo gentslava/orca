@@ -58,13 +58,15 @@ export async function readClaudeUsageSourceCache(
       }
     }
     const sameWorktrees = parsed.worktreeFingerprint === cacheRef.worktreeFingerprint
-    const sources = await reattributeUsageSourcesForWorktrees(
-      parsed.sources,
-      typeof parsed.worktreeFingerprint === 'string' ? parsed.worktreeFingerprint : null,
-      cacheRef.worktreeFingerprint,
-      // Claude attribution resolves transcript cwds through realpath.
-      { attributionResolvesCwd: true }
-    )
+    // Re-reading a moved transcript must retain its previous event ownership.
+    const sources = preserveAccountClaims
+      ? parsed.sources
+      : await reattributeUsageSourcesForWorktrees(
+          parsed.sources,
+          typeof parsed.worktreeFingerprint === 'string' ? parsed.worktreeFingerprint : null,
+          cacheRef.worktreeFingerprint,
+          { attributionResolvesCwd: true }
+        )
     const reuseProjections = cacheRef.reuse !== false && sameWorktrees
     if (verified) {
       const normalized = normalizeClaudeUsageSourceFiles(sources, new WeakSet(sources))
