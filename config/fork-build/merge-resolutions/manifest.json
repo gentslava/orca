@@ -1294,5 +1294,41 @@
     "patchSha256": "9154a2798bccab412174a61f56dbaec85d4f40c3ae8cd0a64e0b6782cabc8516",
     "resultSha256": "52a324520d0dfcbdfb8912c590b9537cac9cc5c4b9b3d9f4d1998866a1967fcc",
     "reason": "Keep catalog-scoped model selection while honoring explicit Default reset state."
+  },
+  {
+    "path": "mobile/src/session/native-chat/mobile-native-chat-controller-contract.ts",
+    "blobs": [
+      "670db83c3715cc9fdaaff1b559cb3aeabe0f55a1",
+      "8b1a0b128b3a2ab5df5c0127220ff8fdb78f883c",
+      "1239fb71e72322d763ef511b62f2b5c604eca29d"
+    ],
+    "patch": "restore-8b301-pr-33395-8b5da616.patch",
+    "patchSha256": "83e86120c2f0037f986a8b7dbfd97b387726ce7b0b80a7f3b0cb9d4f414cbd14",
+    "resultSha256": "b89dad6d826d658735b05ff96f7af08e1f7c1bfde9b8118df3d04ff39079cf80",
+    "reason": "Expose mobile model-reset support without dropping the coordinator worker dock contract."
+  },
+  {
+    "path": "src/main/native-chat/agent-session-wire/options/structured-agent-session-options-read.ts",
+    "blobs": [
+      "3134048bccbbcd53578f954e9a692c81b0f88464",
+      "0bd709d5fcffefd3e882c8d2dfca452e7ca00d78",
+      "845c4b4751761726d12da71e5e7c23f552a854cb"
+    ],
+    "patch": "restore-8b301-pr-33395-7743f03c.patch",
+    "patchSha256": "5ee166702a0b702cc6d7447e1dd39dbde08626f83a62fbe263f56f3f03b24e65",
+    "resultSha256": "5ed2ca4a218c89cf2f13e9a0b3197bef5ddc300fcf3445d2ba57a7ca0a2c49fc",
+    "reason": "Retain workspace model scoping and explicit reset semantics from the prerequisite branch."
+  },
+  {
+    "path": "src/main/native-chat/agent-session-wire/options/structured-agent-session-resting-options.ts",
+    "blobs": [
+      "56b74b10fd1c4e5b6e87d714fb34d09d07f674e5",
+      "1fcc80ba47d51b0114318fb53adab03ccbd887fa",
+      "7402e3c74255c75ef242bdf48094d4df34b328c3"
+    ],
+    "patch": "restore-8b301-pr-33395-f7ae5418.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "52a324520d0dfcbdfb8912c590b9537cac9cc5c4b9b3d9f4d1998866a1967fcc",
+    "reason": "Retain workspace model scoping and explicit reset semantics from the prerequisite branch."
   }
 ]
