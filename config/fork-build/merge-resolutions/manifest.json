@@ -1138,5 +1138,113 @@
     "patchSha256": "6603c92c4c21af6b433ada62924c7fb906e260b832d609fc536163da091be452",
     "resultSha256": "376a611d873d784ab79c2ff35046010a4d542f7954d06ba16095c8f800417ca5",
     "reason": "Apply configured role and fast-mode preflight while preserving folder admission, selector refusals and chat-lineage mode."
+  },
+  {
+    "path": "src/main/backend-desktop/backend-supervisor.ts",
+    "blobs": [
+      "dacd8b1767e8b1bc57b1a2253e6fabff4f56ca67",
+      "991925b5f9110ae94d86e5b3438a848e2ed51d2b",
+      "f002970e6604693375bf84bcb4b6bdd99556b546"
+    ],
+    "patch": "restore-8b301-pr-33371-cfd28b95.patch",
+    "patchSha256": "3be85c48916731a08daad7abcf5af9fd700e00e7a7a0320839405b0255070415",
+    "resultSha256": "97b20c7b5a3c0146a60b832f88d2a8283d49bed6026cd3a9419beb34a22d1a40",
+    "reason": "Restart the backend for background usage work even when no renderer document is attached."
+  },
+  {
+    "path": "src/main/claude-usage/persisted-source-cache.ts",
+    "blobs": [
+      "12fb712fc833a3ba693eb46ab031ed83310c3ab1",
+      "ca9621433569d40348303c82d7dc12542190c361",
+      "355b9182abd844d46b53eacd78936f85a638befa"
+    ],
+    "patch": "restore-8b301-pr-33371-55f4fa1f.patch",
+    "patchSha256": "9ce0cb0c72d85fccdc682e0acee6ec66c08835f65723a36de8110daea26d66ed",
+    "resultSha256": "c8055c8a8a6411f90f269a5f516f257f7ef559930763acc3e91e25ad3ee5f413",
+    "reason": "Keep resumable checkpoints, account-scoped usage, and worktree reattribution with the current scanner APIs."
+  },
+  {
+    "path": "src/main/claude-usage/scanner.ts",
+    "blobs": [
+      "4db42a2552c9360ab5c7363689807092a901481b",
+      "928768a0c4027023d0ad9ee85bddf3bc0840d42c",
+      "4eca5a3c79014e72bc25442e00bbf4f3faa5d883"
+    ],
+    "patch": "restore-8b301-pr-33371-57797754.patch",
+    "patchSha256": "6750eea5990598062d6b9efe41e8ecdad5a0dd8ab32d5d02fb2b5b7ddbf52afd",
+    "resultSha256": "19c4a9197302b28d40384d74f467ea5d1f24db634b7cc7fd8d1a4c2ba16c827c",
+    "reason": "Keep resumable checkpoints, account-scoped usage, and worktree reattribution with the current scanner APIs."
+  },
+  {
+    "path": "src/main/codex-usage/scanner.ts",
+    "blobs": [
+      "b52b955f00d0fc71049c1a3aac657a552dff5bf1",
+      "813d4c810c01d94e718861108cf174a39b054adb",
+      "5c718d3e642f5f9eeb40b857d3bd65b08612dc2d"
+    ],
+    "patch": "restore-8b301-pr-33371-e998a707.patch",
+    "patchSha256": "2b333d376644e91c396e11a4eaa6aaf93baa60ab97d30f85c428fd8fe42433cf",
+    "resultSha256": "806ebef6752b9382bae4412432abfd4e545439e6740c72c47fafd464b8fdceea",
+    "reason": "Keep resumable checkpoints, account-scoped usage, and worktree reattribution with the current scanner APIs."
+  },
+  {
+    "path": "src/main/usage/cache/usage-source-cache-file.ts",
+    "blobs": [
+      "a5832e19c1ffd3ff7fc29c8d6bef997a30e659b8",
+      "8f7b498efaeac33e0b20f433ca218cb401824ee3",
+      "82abae91bd442ef72d8cb9cb9c431fc9806ce4bb"
+    ],
+    "patch": "restore-8b301-pr-33371-8bc61545.patch",
+    "patchSha256": "e94833bdc9339f39255f2c2c242b69914f4e28a2d5b24836702ec1d7290572c4",
+    "resultSha256": "188cb3b36e813dd013b9eb1dac2c15f496b5a36e88f8d7aaa037a1d3dffd29bb",
+    "reason": "Keep resumable checkpoints, account-scoped usage, and worktree reattribution with the current scanner APIs."
+  },
+  {
+    "path": "src/main/usage/provider-lifecycle/usage-provider-store-lifecycle.ts",
+    "blobs": [
+      "2793f36fc21599aa01d51f2ac7b96aefb22af45e",
+      "a56f9e10e62a6514b26211a2087b79562650cf39",
+      "6718349d263bf724538392d35c332ee54b17c1a7"
+    ],
+    "patch": "restore-8b301-pr-33371-97ff37d4.patch",
+    "patchSha256": "48f36ba1d958a6ccacd5abe39c8de6f2a69da92e3fe2643d6f6458eeda04731e",
+    "resultSha256": "7c322d24ae61e23333509f2eabb73c8a813c599bd0945b04557165ecedf13437",
+    "reason": "Keep resumable checkpoints, account-scoped usage, and worktree reattribution with the current scanner APIs."
+  },
+  {
+    "path": "src/main/usage/scan-worker/usage-scan-worker-entry.ts",
+    "blobs": [
+      "d3c8db832f523b406e4d993e8c08b547540aac29",
+      "31e9481dd06b83544c8a93b8a09948156e464ac9",
+      "e425a3c83ceed45a2f5c903d278f4915927bdd74"
+    ],
+    "patch": "restore-8b301-pr-33371-7da73313.patch",
+    "patchSha256": "b3e91c55a3d9148ff52c678b2dfec9475024cdd9f2f8a9bfa40cefe72eccba91",
+    "resultSha256": "1b8700f66dc4b14dc404d251257fc28ce9aab2d7281d7dbe5c594c728865fa8f",
+    "reason": "Keep resumable checkpoints, account-scoped usage, and worktree reattribution with the current scanner APIs."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/es.json",
+    "blobs": [
+      "bbaefb5e7b1f43240c86bf0a080fdad107f7f1f2",
+      "1a08909927b8099fb5b40c2769cb79723df3717e",
+      "4d4624b6769a4a42068ce6fdf8b7ebe46be906f3"
+    ],
+    "patch": "restore-8b301-pr-33371-328ca638.patch",
+    "patchSha256": "bda47d6a9f4c49b4ede028d3efded01771902a68b1fc0c0ebaec3196d5814bff",
+    "resultSha256": "81e35e944208e250dbc280958a54d73fdcd4616ea77a85776c88a852b07f7ea3",
+    "reason": "Merge surviving translation keys and retire labels absent from the English usage catalog."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ko.json",
+    "blobs": [
+      "be189d1920c86b39fa5d52afdcbcdc7f225fd1f7",
+      "6451b649a3defb6a9ee665c54ba5a9e8464d711f",
+      "343dd8d55837ae20f50a4febabefbedfcec43552"
+    ],
+    "patch": "restore-8b301-pr-33371-aa028d28.patch",
+    "patchSha256": "49c206b4276124222cb0c93f31917fcda6cf65a5d3fbf2a184355c811c4d96c8",
+    "resultSha256": "e36306851e3cfeba41d701312ee51d8797f7ac0a8474f61ae8745b329d4603dc",
+    "reason": "Merge surviving translation keys and retire labels absent from the English usage catalog."
   }
 ]
