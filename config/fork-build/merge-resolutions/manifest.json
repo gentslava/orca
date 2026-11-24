@@ -1090,5 +1090,29 @@
     "patch": "maintenance-20261123/forward-45437-1-59f81edef109.patch",
     "patchSha256": "59f81edef109f68df8764857f92be66acb7ec9cf286d13d09a31e2aef1d65b77",
     "resultSha256": "3ee49806fe259746dc132e53b2893b97ec449a097335790c14044e9107f4f2a8"
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault/panel/AiVaultPanel.tsx",
+    "blobs": [
+      "669c709c6cfb4c91e564a2e1c9d148dc7fc9987d",
+      "53a6301059e72facc3dffb178a74ab14a7c64cd2",
+      "aa3ba8c3d2fed35a0cb65b2fc80444e6a21e4b8b"
+    ],
+    "patch": "restore-8b301-pr-33361-23236cca.patch",
+    "patchSha256": "6baece707a381fff8fa8e7b4aaf629d6ed50b1e1310eafd1241fa4f4746e23a9",
+    "resultSha256": "cc5542dffc2d77100632dd94c397b84564d798ed473bf682ec99dbe80f5bc2a3",
+    "reason": "Preserve conversation navigation scope and wait for the submitted query before searching."
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault/session-actions/ai-vault-session-resume-here.ts",
+    "blobs": [
+      "09ec01e2c0e62293ea7fd7e3ee60921f8090c46b",
+      "c26882ec73e66d3a6c01704d89858a7867101303",
+      "3dc5cc4ff83850fba9141bd0b57df13ff2ece825"
+    ],
+    "patch": "restore-8b301-pr-33361-e83d02fe.patch",
+    "patchSha256": "e11c5477041c9045bd7491569f732a345be758131ee4e00526e697ce10534d7e",
+    "resultSha256": "29f626057e3c7a3f6cd2715a72c6b4dd7b9d06a1d36dd560c38226b7c0c8cde0",
+    "reason": "Keep reopened history on its originating runtime and retain the upstream retry action."
   }
 ]
