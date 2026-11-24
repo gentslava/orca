@@ -40,6 +40,7 @@ it('sends no queued card and retries no start on a host held for its permission 
     isWorking: false
   }
   const controller = {
+    rewind: { surface: undefined },
     capturePresentation: () => () => true,
     respond: vi.fn(async () => null),
     queuedMessages

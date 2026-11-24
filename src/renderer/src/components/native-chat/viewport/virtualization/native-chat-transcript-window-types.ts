@@ -18,6 +18,8 @@ export type NativeChatTranscriptWindow = {
   scrollToEnd: () => void
   /** Restore a detached reader offset through the virtualizer's scroll owner. */
   restoreScrollOffset: (offset: number) => void
+
+  markProgrammaticScroll: (offset: number) => void
   /** True when this scroll event is the echo of a registered application write. */
   consumeProgrammaticScroll: (event: Event) => boolean
   /** Rebase a pending end reconcile while the reader takes over this frame. */
