@@ -1,20 +1,20 @@
 diff --git a/config/main-blocking-worker-entries.json b/config/main-blocking-worker-entries.json
-index 8fa232d151e..fba4d0eb3ec 100644
+index 9d05876478b..dedf15c3eaa 100644
 --- a/config/main-blocking-worker-entries.json
 +++ b/config/main-blocking-worker-entries.json
-@@ -32,5 +32,6 @@
-   "src/main/bots/bot-items-tables.ts": "Bots DB worker; bot store SQL runs only inside this worker thread.",
+@@ -33,5 +33,6 @@
    "src/main/bots/bot-items-store.ts": "Bots DB worker; bot store SQL runs only inside this worker thread.",
+   "src/main/bots/bot-item-waiting-ask-keep.ts": "Bots DB worker; bot store SQL runs only inside this worker thread.",
    "src/main/native-chat/agent-session-journal/journal-sql-reader-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
 -  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main."
 +  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
 +  "src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts": "Dedicated utility process entry; the Electron child and its SQLite reader thread do not run on the main event loop."
  }
 diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
-index 5ae0029979a..834f70b9e4a 100644
+index 1db6542fb95..fe10801ba81 100644
 --- a/config/main-sync-fs-baseline.txt
 +++ b/config/main-sync-fs-baseline.txt
-@@ -318,8 +318,6 @@
+@@ -317,8 +317,6 @@
  4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
  2 src/main/orca-profiles/storage/new-profile-state.ts
  5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
@@ -36,7 +36,7 @@ index 54485134c60..121166bc7a4 100644
          "**/*-test-fixtures.{ts,tsx}",
          "**/*.test-fixture.{ts,tsx}",
 diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
-index 56d01916fee..9a0b6fd151d 100644
+index f17d6240bfe..927b3752916 100644
 --- a/config/react-compiler-bailout-baseline.txt
 +++ b/config/react-compiler-bailout-baseline.txt
 @@ -82,7 +82,6 @@
@@ -55,34 +55,6 @@ index 56d01916fee..9a0b6fd151d 100644
  1 src/renderer/src/components/mobile/MobilePage.tsx
  1 src/renderer/src/components/mobile/WindowsFirewallNotice.tsx
  2 src/renderer/src/components/mobile/use-mobile-page-paired-devices.ts
-diff --git a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
-index 76acc7a798c..bf607d863d2 100644
---- a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
-+++ b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
-@@ -1,3 +1,4 @@
-+import { minifyLargeMobileWebScripts } from './minify-large-mobile-web-scripts.mjs'
- import { readFile, readdir } from 'node:fs/promises'
- import { readRouteSnapshot } from '../../mobile-web-app/mobile-web-app-route-snapshot.mjs'
- import { MOBILE_WEB_APP_DEPENDENCY_PATH } from '../../mobile-web-app/mobile-web-app-bundle-dependencies.mjs'
-@@ -560,7 +561,9 @@ export async function bundleMobileWebApp({ appDir = defaultAppDir } = {}) {
-   const result = await buildMobileWebAppScripts(routes)
-   assertNoZodLocaleTables(result.metafile)
-   const entryOutputPath = entryOutput(result.metafile)
--  const outputFiles = bannerOnlyWhereScriptsRunFirst(result.metafile, result.outputFiles)
-+  const catalogOutputs = localeCatalogOutputs(result.metafile)
-+  const minified = await minifyLargeMobileWebScripts(result.outputFiles, catalogOutputs)
-+  const outputFiles = bannerOnlyWhereScriptsRunFirst(result.metafile, minified)
-   const renamed = renameOutputsByContent(result.metafile, outputFiles)
-   const entry = renamed.get(basename(entryOutputPath))
-   const byName = (left, right) => (left.name < right.name ? -1 : 1)
-@@ -572,7 +575,6 @@ export async function bundleMobileWebApp({ appDir = defaultAppDir } = {}) {
-   const chunks = others.filter(({ emittedName }) => isScriptOutput(emittedName)).sort(byName)
-   const images = others.filter(({ emittedName }) => !isScriptOutput(emittedName)).sort(byName)
-   const closure = entryStaticClosure(result.metafile, entryOutputPath)
--  const catalogOutputs = localeCatalogOutputs(result.metafile)
-   return {
-     script: entry.bytes,
-     chunks,
 diff --git a/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs b/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs
 new file mode 100644
 index 00000000000..0174074fbf0
@@ -471,6 +443,18 @@ index 4abdf4398f7..cc301a8216e 100644
  }): React.JSX.Element {
    useMobileColorScheme()
    const t = useMobileTranslation()
+diff --git a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
+index f9d9caccda2..44dbed3449e 100644
+--- a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
++++ b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
+@@ -38,6 +38,7 @@ export function noticeLineText(
+       'modelUnavailable',
+       'providerUnavailable',
+       'providerSafetyStopped',
++      'flaggedRequestNotSwitched',
+       'providerResponseFailed'
+     ].includes(failure.kind)
+       ? (['row', 'rejection'] as const).find(
 diff --git a/mobile/src/session/structured-session-send-options.test-fixture.ts b/mobile/src/session/structured-session-send-options.test-fixture.ts
 new file mode 100644
 index 00000000000..6dc8230a498
@@ -1306,14 +1290,30 @@ index 58ce148c487..e90038908a5 100644
  
      showActiveOnly: false,
      setShowActiveOnly: (v) => set({ showActiveOnly: v }),
-diff --git a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
---- a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
-+++ b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
-@@ -38,6 +38,7 @@
-       'modelUnavailable',
-       'providerUnavailable',
-       'providerSafetyStopped',
-+      'flaggedRequestNotSwitched',
-       'providerResponseFailed'
-     ].includes(failure.kind)
-       ? (['row', 'rejection'] as const).find(
+diff --git a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+--- a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
++++ b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+@@ -1,3 +1,4 @@
++import { minifyLargeMobileWebScripts } from './minify-large-mobile-web-scripts.mjs'
+ import { readFile, readdir } from 'node:fs/promises'
+ import { readRouteSnapshot } from '../../mobile-web-app/mobile-web-app-route-snapshot.mjs'
+ import { MOBILE_WEB_APP_DEPENDENCY_PATH } from '../../mobile-web-app/mobile-web-app-bundle-dependencies.mjs'
+@@ -544,7 +545,9 @@
+   const result = await buildMobileWebAppScripts(routes)
+   assertNoZodLocaleTables(result.metafile)
+   const entryOutputPath = entryOutput(result.metafile)
+-  const outputFiles = bannerOnlyWhereScriptsRunFirst(result.metafile, result.outputFiles)
++  const catalogOutputs = localeCatalogOutputs(result.metafile)
++  const minified = await minifyLargeMobileWebScripts(result.outputFiles, catalogOutputs)
++  const outputFiles = bannerOnlyWhereScriptsRunFirst(result.metafile, minified)
+   const renamed = renameOutputsByContent(result.metafile, outputFiles)
+   const entry = renamed.get(basename(entryOutputPath))
+   const byName = (left, right) => (left.name < right.name ? -1 : 1)
+@@ -556,7 +559,6 @@
+   const chunks = others.filter(({ emittedName }) => isScriptOutput(emittedName)).sort(byName)
+   const images = others.filter(({ emittedName }) => !isScriptOutput(emittedName)).sort(byName)
+   const closure = entryStaticClosure(result.metafile, entryOutputPath)
+-  const catalogOutputs = localeCatalogOutputs(result.metafile)
+   const deferred = deferredOutputs(result.metafile)
+   return {
+     script: entry.bytes,

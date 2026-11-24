@@ -230,10 +230,10 @@ index 22b77994127..aa9c3dba17b 100644
    await page.goto(`${origin}/${hash}`)
    try {
 diff --git a/mobile/src/bots/host-bot-sections.ts b/mobile/src/bots/host-bot-sections.ts
-index 736f950568e..fd8ce7c757c 100644
+index f2ff2cc4411..e9690d4134b 100644
 --- a/mobile/src/bots/host-bot-sections.ts
 +++ b/mobile/src/bots/host-bot-sections.ts
-@@ -192,3 +192,16 @@ export function isProjectListRow(
+@@ -262,3 +262,16 @@ export function isProjectListRow(
      composeWorktreeHostIdentity(resolveWorktreeHostId(row, repoHostIdByRepoId), row.worktreeId)
    )
  }
@@ -293,255 +293,6 @@ index f75509453a9..511f1ac3ce4 100644
        state.worktrees,
        state.clientRef,
        state.viewRef,
-diff --git a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
-index feef6b3b61e..9c022c8cb15 100644
---- a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
-+++ b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
-@@ -30,6 +30,7 @@ import type { HostSidebarFeed } from '../sidebar-feed/use-host-sidebar-feed'
- import type { HostScreenState } from '../use-host-screen-state'
- import {
-   buildHostBotSections,
-+  appendHostBotSections,
-   isProjectListRow,
-   type HostBotListing
- } from '../../bots/host-bot-sections'
-@@ -315,14 +316,5 @@ export function useHostListSections(inputs: HostListSectionsInputs): HostListSec
-     botListedIdentities: botSections.listedIdentities,
-     lastVisited
-   })
--  return useMemo(() => {
--    if (botSections.sections.length === 0) {
--      return base
--    }
--    return {
--      ...base,
--      sections: [...botSections.sections, ...base.sections],
--      rawSections: [...botSections.sections, ...base.rawSections]
--    }
--  }, [base, botSections])
-+  return useMemo(() => appendHostBotSections(base, botSections.sections), [base, botSections])
- }
-diff --git a/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx b/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
-index a464d531812..1fda015ea47 100644
---- a/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
-+++ b/mobile/src/session/native-chat/MobileNativeChatOverlay.tsx
-@@ -279,110 +279,112 @@ function MobileNativeChatOverlayContent({
-                       key={sendSurfaceId}
-                       tasks={controller.nativeChatBackgroundTasks}
-                     >
--                    <MobileNativeChatView
--                      itemNavigation={session.itemNavigation}
--                      messages={session.messages}
--                      folded={folded}
--                      status={session.status}
--                      error={session.error}
--                      readFailedFinally={session.readFailedFinally === true}
--                      clearing={session.clearing === true}
--                      agent={controller.nativeChatAgent}
--                      sessionLive={controller.nativeChatSessionLive}
--                      agentWorking={controller.nativeChatTurnActive}
--                      awaitingInput={controller.nativeChatAwaitingInput}
--                      canStop={controller.nativeChatCanStop}
--                      sendFollowUp={controller.nativeChatSendFollowUp}
--                      structuredActivityUi={controller.nativeChatStructured}
--                      turnIndicator={controller.nativeChatTurnIndicator}
--                      workingStartedAt={controller.nativeChatWorkingStartedAt}
--                      settledTurns={controller.nativeChatSettledTurns}
--                      turnJournal={controller.nativeChatTurnJournal}
--                      transcriptLoading={session.transcriptLoading}
--                      receipts={controller.nativeChatReceipts}
--                      actionablePromptIds={controller.nativeChatActionablePromptIds}
--                      streaming={streaming}
--                      onStop={controller.handleNativeChatStop}
--                      ask={controller.nativeChatAsk}
--                      askPending={controller.nativeChatAskPending}
--                      askSendSource={controller.nativeChatAskSendSource}
--                      askKey={controller.nativeChatAskKey}
--                      promptKey={controller.nativeChatPromptKey}
--                      onDismissAsk={controller.dismissNativeChatAsk}
--                      onAnswerAsk={controller.handleNativeChatAnswerAsk}
--                      askRequiresTerminal={
--                        !controller.nativeChatStructured && nativeChatAskRequiresTerminal(agent)
--                      }
--                      onAnswerInTerminal={
--                        activeSessionTabId
--                          ? () => controller.setTabView(activeSessionTabId, 'terminal')
--                          : undefined
--                      }
--                      onCancelAsk={controller.handleNativeChatCancelAsk}
--                      onCancelPrompt={controller.handleNativeChatCancelPrompt}
--                      onCollapseAsk={controller.collapseNativeChatAsk}
--                      onCollapsePrompt={controller.collapseNativeChatPrompt}
--                      collapsedPrompt={controller.nativeChatCollapsedPrompt}
--                      question={controller.nativeChatQuestion}
--                      onAnswerQuestion={controller.handleNativeChatQuestionAnswer}
--                      permission={controller.nativeChatPermission}
--                      workerApprovals={controller.nativeChatWorkerApprovals}
--                      onRespondPermission={controller.handleNativeChatRespondPermission}
--                      composerTray={composerTray}
--                      onOpenFile={openFile}
--                      hasMore={session.hasMore}
--                      olderPages={session.olderPages}
--                      onLoadEarlier={session.loadEarlier}
--                      onSend={images.sendNativeChat}
--                      sendSurfaceId={sendSurfaceId}
--                      getSendCompletionGeneration={getSendCompletionGeneration}
--                      getComposerEditGeneration={controller.getChatComposerEditGeneration}
--                      pending={controller.chatPending}
--                      imagePreviewsByMessageId={controller.chatImagePreviewsByMessageId}
--                      composerScopeKey={controller.chatComposerScopeKey}
--                      draftKey={controller.chatDraftKey}
--                      onComposerTextChange={controller.setChatComposerText}
--                      onAttachImage={
--                        controller.nativeChatAcceptsImages
--                          ? () => void images.attachImage('library')
--                          : undefined
--                      }
--                      onPasteImages={
--                        controller.nativeChatAcceptsImages
--                          ? (paste) => void images.attachImage(paste)
--                          : undefined
--                      }
--                      attachments={images.attachments}
--                      onRemoveAttachment={images.removeAttachment}
--                      isAttaching={images.isAttaching}
--                      onMicPress={onMicPress}
--                      micActive={micActive}
--                      micStarting={micStarting}
--                      micProcessing={micProcessing}
--                      dictationMode={dictationMode}
--                      onMicPressIn={onMicPressIn}
--                      onMicPressOut={onMicPressOut}
--                      inputLockReason={inputLockReason}
--                      hostOutage={hostOutage}
--                      sendErrorMessage={
--                        continueFailed
--                          ? t(
--                              'chat.interruptedContinue.failed',
--                              "Couldn't continue this chat. Try again, or send a message."
--                            )
--                          : sendErrorMessage
--                      }
--                      onDismissSendError={continueFailed ? continuation?.dismissFailure : undefined}
--                      onClearSendError={onClearSendError}
--                      {...mentionFiles}
--                      skillDiscovery={controller.nativeChatSkills}
--                      onNeedSkills={controller.loadNativeChatSkills}
--                      sessionOptions={controller.nativeChatSessionOptions}
--                      contextUsage={controller.nativeChatContextUsage}
--                      structuredComposer={structuredComposer}
--                      keyboardInset={keyboardInset}
--                      covered={subagents.screen !== null}
--                    />
-+                      <MobileNativeChatView
-+                        itemNavigation={session.itemNavigation}
-+                        messages={session.messages}
-+                        folded={folded}
-+                        status={session.status}
-+                        error={session.error}
-+                        readFailedFinally={session.readFailedFinally === true}
-+                        clearing={session.clearing === true}
-+                        agent={controller.nativeChatAgent}
-+                        sessionLive={controller.nativeChatSessionLive}
-+                        agentWorking={controller.nativeChatTurnActive}
-+                        awaitingInput={controller.nativeChatAwaitingInput}
-+                        canStop={controller.nativeChatCanStop}
-+                        sendFollowUp={controller.nativeChatSendFollowUp}
-+                        structuredActivityUi={controller.nativeChatStructured}
-+                        turnIndicator={controller.nativeChatTurnIndicator}
-+                        workingStartedAt={controller.nativeChatWorkingStartedAt}
-+                        settledTurns={controller.nativeChatSettledTurns}
-+                        turnJournal={controller.nativeChatTurnJournal}
-+                        transcriptLoading={session.transcriptLoading}
-+                        receipts={controller.nativeChatReceipts}
-+                        actionablePromptIds={controller.nativeChatActionablePromptIds}
-+                        streaming={streaming}
-+                        onStop={controller.handleNativeChatStop}
-+                        ask={controller.nativeChatAsk}
-+                        askPending={controller.nativeChatAskPending}
-+                        askSendSource={controller.nativeChatAskSendSource}
-+                        askKey={controller.nativeChatAskKey}
-+                        promptKey={controller.nativeChatPromptKey}
-+                        onDismissAsk={controller.dismissNativeChatAsk}
-+                        onAnswerAsk={controller.handleNativeChatAnswerAsk}
-+                        askRequiresTerminal={
-+                          !controller.nativeChatStructured && nativeChatAskRequiresTerminal(agent)
-+                        }
-+                        onAnswerInTerminal={
-+                          activeSessionTabId
-+                            ? () => controller.setTabView(activeSessionTabId, 'terminal')
-+                            : undefined
-+                        }
-+                        onCancelAsk={controller.handleNativeChatCancelAsk}
-+                        onCancelPrompt={controller.handleNativeChatCancelPrompt}
-+                        onCollapseAsk={controller.collapseNativeChatAsk}
-+                        onCollapsePrompt={controller.collapseNativeChatPrompt}
-+                        collapsedPrompt={controller.nativeChatCollapsedPrompt}
-+                        question={controller.nativeChatQuestion}
-+                        onAnswerQuestion={controller.handleNativeChatQuestionAnswer}
-+                        permission={controller.nativeChatPermission}
-+                        workerApprovals={controller.nativeChatWorkerApprovals}
-+                        onRespondPermission={controller.handleNativeChatRespondPermission}
-+                        composerTray={composerTray}
-+                        onOpenFile={openFile}
-+                        hasMore={session.hasMore}
-+                        olderPages={session.olderPages}
-+                        onLoadEarlier={session.loadEarlier}
-+                        onSend={images.sendNativeChat}
-+                        sendSurfaceId={sendSurfaceId}
-+                        getSendCompletionGeneration={getSendCompletionGeneration}
-+                        getComposerEditGeneration={controller.getChatComposerEditGeneration}
-+                        pending={controller.chatPending}
-+                        imagePreviewsByMessageId={controller.chatImagePreviewsByMessageId}
-+                        composerScopeKey={controller.chatComposerScopeKey}
-+                        draftKey={controller.chatDraftKey}
-+                        onComposerTextChange={controller.setChatComposerText}
-+                        onAttachImage={
-+                          controller.nativeChatAcceptsImages
-+                            ? () => void images.attachImage('library')
-+                            : undefined
-+                        }
-+                        onPasteImages={
-+                          controller.nativeChatAcceptsImages
-+                            ? (paste) => void images.attachImage(paste)
-+                            : undefined
-+                        }
-+                        attachments={images.attachments}
-+                        onRemoveAttachment={images.removeAttachment}
-+                        isAttaching={images.isAttaching}
-+                        onMicPress={onMicPress}
-+                        micActive={micActive}
-+                        micStarting={micStarting}
-+                        micProcessing={micProcessing}
-+                        dictationMode={dictationMode}
-+                        onMicPressIn={onMicPressIn}
-+                        onMicPressOut={onMicPressOut}
-+                        inputLockReason={inputLockReason}
-+                        hostOutage={hostOutage}
-+                        sendErrorMessage={
-+                          continueFailed
-+                            ? t(
-+                                'chat.interruptedContinue.failed',
-+                                "Couldn't continue this chat. Try again, or send a message."
-+                              )
-+                            : sendErrorMessage
-+                        }
-+                        onDismissSendError={
-+                          continueFailed ? continuation?.dismissFailure : undefined
-+                        }
-+                        onClearSendError={onClearSendError}
-+                        {...mentionFiles}
-+                        skillDiscovery={controller.nativeChatSkills}
-+                        onNeedSkills={controller.loadNativeChatSkills}
-+                        sessionOptions={controller.nativeChatSessionOptions}
-+                        contextUsage={controller.nativeChatContextUsage}
-+                        structuredComposer={structuredComposer}
-+                        keyboardInset={keyboardInset}
-+                        covered={subagents.screen !== null}
-+                      />
-                     </MobileNativeChatForegroundTasksProvider>
-                     {subagents.screen}
-                   </MobileNativeChatNoticeContext.Provider>
 diff --git a/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture.ts b/mobile/src/session/native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture.ts
 new file mode 100644
 index 00000000000..03221a2d5cf
@@ -703,18 +454,6 @@ index 00000000000..03221a2d5cf
 +    ...(queuePause !== undefined ? { queuePause } : {})
 +  }
 +}
-diff --git a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
-index ae49af290cd..1fbcf7e3e48 100644
---- a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
-+++ b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.tsx
-@@ -72,7 +72,6 @@ export function MobileNativeChatRowOverlaysHost({
-         setShown({ actionsFor })
-       },
-       openRewind,
--      imageSource,
-       ...(openSubagent ? { openSubagent } : {})
-     }),
-     [setShown, openRewind, imageSource, openSubagent]
 diff --git a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx b/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
 index fb9be91801f..60b4b2169b4 100644
 --- a/mobile/src/session/native-chat/transcript/messages/MobileNativeChatMessage.tool-result-availability.test.tsx
@@ -1532,7 +1271,7 @@ index b798f1a6e59..45e0525ec48 100644
    })
  })
 diff --git a/src/main/runtime/rpc/methods/orchestration/federation/paired-server-asks.test.ts b/src/main/runtime/rpc/methods/orchestration/federation/paired-server-asks.test.ts
-index 52b992533f2..b2affa7bf6e 100644
+index 870f5f01a0c..fc766467a79 100644
 --- a/src/main/runtime/rpc/methods/orchestration/federation/paired-server-asks.test.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/federation/paired-server-asks.test.ts
 @@ -1,3 +1,4 @@
@@ -1548,60 +1287,6 @@ index 52b992533f2..b2affa7bf6e 100644
      const runtime = new OrcaRuntimeService(null, undefined, {
        orchestrationEnvironmentTransport: transport
      })
-diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
-index 00a2d761954..6740dfd4801 100644
---- a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
-+++ b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
-@@ -86,15 +86,16 @@ export async function startLocalWorker(args: {
-     params.from,
-     callerSession
-   )
--  const { agent, launch, fastWorkspace, fastWorkerMode } = await preflightLocalWorkerStartLaunch({
--    params,
--    runtime,
--    callerSession,
--    requestedWorktree,
--    createsWorktree,
--    creationTargetFor,
--    mode: args.mode
--  })
-+  const { agent, launch, fastWorkspace, fastWorkerMode, preflightTerminal } =
-+    await preflightLocalWorkerStartLaunch({
-+      params,
-+      runtime,
-+      callerSession,
-+      requestedWorktree,
-+      createsWorktree,
-+      creationTargetFor,
-+      mode: args.mode
-+    })
- 
-   const creationTarget = createsWorktree
-     ? await creationTargetFor(coordinatorWorktreeId)
-@@ -129,20 +130,9 @@ export async function startLocalWorker(args: {
-       ? fastWorkerMode
-       : resolveWorkerStartModeOnHost(runtime, decided, resolvedWorktree?.id, agent)
-   let mode = chatWorkerMode(await hostMode, chat)
--  if (
--    agent &&
--    (mode.mode === 'terminal' || createsWorktree) &&
--    (params.role || params.fastMode !== undefined)
--  ) {
--    await runtime.preflightOrchestrationWorkerLaunch(
--      agent,
--      launch.preferences,
--      createsWorktree
--        ? { repo: creationTarget?.repoSelector ?? params.repo }
--        : resolvedWorktree
--          ? { worktree: `id:${resolvedWorktree.id}` }
--          : {}
--    )
-+  const terminalPreflight = preflightTerminal(mode, creationTarget, resolvedWorktree)
-+  if (terminalPreflight) {
-+    await terminalPreflight
-   }
- 
-   // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
 diff --git a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
 index 3a42fe80843..1a25d23447b 100644
 --- a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-launch-preflight.ts
@@ -1659,7 +1344,7 @@ index 3a42fe80843..1a25d23447b 100644
 +  return params
  }
 diff --git a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
-index bc21a84ee4b..34788b74f71 100644
+index c2d5fea7c44..65359575c28 100644
 --- a/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/worker/worker-start-method.ts
 @@ -15,7 +15,7 @@ import {
@@ -1671,7 +1356,7 @@ index bc21a84ee4b..34788b74f71 100644
  import {
    isWorkerStartTimeoutWithinTimerLimit,
    resolveWorkerStartReadinessTimeoutMs
-@@ -155,20 +155,7 @@ export async function prepareWorkerStart(
+@@ -156,20 +156,7 @@ export async function prepareWorkerStart(
    }: Omit<WorkerStartContext, 'orchestrationMutation'>,
    followUp?: WorkerFollowUp
  ) {
@@ -1693,7 +1378,7 @@ index bc21a84ee4b..34788b74f71 100644
    if (!isWorkerStartTimeoutWithinTimerLimit(params.timeoutMs)) {
      throw new OrchestrationError(
        'invalid_argument',
-@@ -269,11 +256,7 @@ export async function prepareWorkerStart(
+@@ -270,11 +257,7 @@ export async function prepareWorkerStart(
      )
    }
    if (helperCreator && !followUp) {
@@ -1908,7 +1593,7 @@ index 856004ff59d..b605ee1ddb6 100644
  
      expect(resolveWorkspaceTerminalHostAuthority(store.getState(), PAIRED_WORKTREE_ID)).toBe(
 diff --git a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
-index b963f9c808c..10a38c763bf 100644
+index f52a6f4e406..76c7952896a 100644
 --- a/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 +++ b/src/renderer/src/store/slices/ui/ui-slice-hydration-actions.ts
 @@ -62,7 +62,6 @@ import {
@@ -1977,10 +1662,10 @@ index 8627d4c7be8..31024f3bb04 100644
        .object({
          x: z.number().finite(),
 diff --git a/src/shared/rpc-contract/rpc-params-catalog.generated.ts b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
-index 93ab5399861..7ec2a1d9fea 100644
+index 6d32bafd787..0ae6cd03c28 100644
 --- a/src/shared/rpc-contract/rpc-params-catalog.generated.ts
 +++ b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
-@@ -727,7 +727,6 @@ import {
+@@ -735,7 +735,6 @@ import {
  } from './orchestration/orchestration-worker-release-schemas-params'
  import { WorkerStartParams } from './orchestration/orchestration-worker-start-params'
  import { WorkerDispatchParams as WorkerDispatchParamsOfOrchestrationWorkerStopParams } from './orchestration/orchestration-worker-stop-params'
@@ -1988,7 +1673,7 @@ index 93ab5399861..7ec2a1d9fea 100644
  import {
    PairedServerAllowParams,
    PairedServerAllowancesParams,
-@@ -736,6 +735,7 @@ import {
+@@ -744,6 +743,7 @@ import {
    PairedServerAskListParams,
    PairedServerDisallowParams
  } from './paired-server-asks-params'
@@ -2088,3 +1773,89 @@ index 32cf9eefece..005df516857 100644
    /** Extract OAuth credentials from the local Gemini CLI for rate-limit fetching. Off by default (explicit opt-in). */
    geminiCliOAuthEnabled: boolean
    /** Poll Claude usage with existing CLI credentials. Off uses live terminal readings only. */
+diff --git a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
+--- a/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
++++ b/mobile/src/host-screen/workspace-list/use-host-list-sections.ts
+@@ -28,7 +28,11 @@
+ import { useHostRepoIconDataUrls } from '../catalog/use-host-repo-icon-data-urls'
+ import type { HostSidebarFeed } from '../sidebar-feed/use-host-sidebar-feed'
+ import type { HostScreenState } from '../use-host-screen-state'
+-import { isProjectListRow, type HostBotListing } from '../../bots/host-bot-sections'
++import {
++  appendHostBotSections,
++  isProjectListRow,
++  type HostBotListing
++} from '../../bots/host-bot-sections'
+ import { useHostBotSections } from '../../bots/use-host-bot-sections'
+ import type { LastVisitedWorktreeOnHost } from '../../worktree/row-presentation/host-list-highlight'
+ import { indexHiddenProjects } from '../../../../src/shared/project/catalog/hidden-projects'
+@@ -298,17 +302,9 @@
+     lastVisited
+   })
+   return useMemo(() => {
+-    const paused = botSections.pausedMatches
+-      ? { pausedBotMatches: botSections.pausedMatches, showPausedBots }
+-      : {}
+-    if (botSections.sections.length === 0) {
+-      return { ...base, ...paused }
+-    }
+-    return {
+-      ...base,
+-      ...paused,
+-      sections: [...botSections.sections, ...base.sections],
+-      rawSections: [...botSections.sections, ...base.rawSections]
+-    }
++    const sections = appendHostBotSections(base, botSections.sections)
++    return botSections.pausedMatches
++      ? { ...sections, pausedBotMatches: botSections.pausedMatches, showPausedBots }
++      : sections
+   }, [base, botSections, showPausedBots])
+ }
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
+--- a/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts
+@@ -92,9 +92,8 @@
+   const existingWorktree =
+     requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree
+   const targetLabel = workerStartTargetLabel({ ...args.params, createsWorktree, requestedWorktree })
+-  const { agent, launch, fastWorkspace, fastWorkerMode } = await refuseUnmatchedWorkerSelector(
+-    targetLabel,
+-    () =>
++  const { agent, launch, fastWorkspace, fastWorkerMode, preflightTerminal } =
++    await refuseUnmatchedWorkerSelector(targetLabel, () =>
+       preflightLocalWorkerStartLaunch({
+         params,
+         runtime,
+@@ -104,7 +103,7 @@
+         creationTargetFor,
+         mode: args.mode
+       })
+-  )
++    )
+ 
+   const creationTarget = createsWorktree
+     ? await creationTargetFor(coordinatorWorktreeId)
+@@ -130,20 +129,9 @@
+       ? fastWorkerMode
+       : resolveWorkerStartModeOnHost(runtime, decided, resolvedWorktree?.id, agent)
+   let mode = chatWorkerMode(await hostMode, chat)
+-  if (
+-    agent &&
+-    (mode.mode === 'terminal' || createsWorktree) &&
+-    (params.role || params.fastMode !== undefined)
+-  ) {
+-    await runtime.preflightOrchestrationWorkerLaunch(
+-      agent,
+-      launch.preferences,
+-      createsWorktree
+-        ? { repo: creationTarget?.repoSelector ?? params.repo }
+-        : resolvedWorktree
+-          ? { worktree: `id:${resolvedWorktree.id}` }
+-          : {}
+-    )
++  const terminalPreflight = preflightTerminal(mode, creationTarget, resolvedWorktree)
++  if (terminalPreflight) {
++    await terminalPreflight
+   }
+ 
+   // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.

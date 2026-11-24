@@ -1,22 +1,3 @@
-diff --git a/config/scripts/build/mobile-web-app/verify-mobile-web-app-bundle.mjs b/config/scripts/build/mobile-web-app/verify-mobile-web-app-bundle.mjs
-index b250ec0061f..5da132c771d 100644
---- a/config/scripts/build/mobile-web-app/verify-mobile-web-app-bundle.mjs
-+++ b/config/scripts/build/mobile-web-app/verify-mobile-web-app-bundle.mjs
-@@ -342,7 +342,13 @@ export async function verifyMobileWebAppBundle({ bundleDir = defaultBundleDir }
-         `budget of ${String(MOBILE_WEB_APP_BUNDLE_MAX_ENTRY_BYTES)}`
-     )
-   }
--  return { ...manifest, catalogBytes: first.catalogBytes, eagerBytes, onDemandBytes, hostCatalogLimits }
-+  return {
-+    ...manifest,
-+    catalogBytes: first.catalogBytes,
-+    eagerBytes,
-+    onDemandBytes,
-+    hostCatalogLimits
-+  }
- }
- 
- // The largest host catalog and the windows it takes, so a catalog nearing the cap shows before it fails.
 diff --git a/config/scripts/build/mobile-web-app/verify-mobile-web-app-catalog-ranges.test.mjs b/config/scripts/build/mobile-web-app/verify-mobile-web-app-catalog-ranges.test.mjs
 index 76227dae595..54fe65ed360 100644
 --- a/config/scripts/build/mobile-web-app/verify-mobile-web-app-catalog-ranges.test.mjs
