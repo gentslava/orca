@@ -1714,5 +1714,17 @@
     "patchSha256": "e6f500ee23c2630e1cf3a094dc6742db8a61eeba9956cf8a6cf03d37e2328959",
     "resultSha256": "e41cc88ec21b959784f2831260c03bded5b97801f430efd30b6cd0fb3b6d0435",
     "reason": "Retain disclosed review rows and use the upstream notice-line helper"
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "4764ed6b28929a2252ceb0957826dd2e797e7f02",
+      "b88eceff7c2178d95f958386ce9069a606433e6a",
+      "29d3962a2ef1ee3422e9dd9e074e8080217e1643"
+    ],
+    "patch": "restore-8b301-pr-46107-58923bac.patch",
+    "patchSha256": "190ab9c2bfc1a66c1027e7f943e8ca03323dd4392196c08f16a92676c95ba87c",
+    "resultSha256": "80f64de0c5fa1ef007f083c058e178b37f35fcc4171b14a03b5dc7d07af430fe",
+    "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders"
   }
 ]
