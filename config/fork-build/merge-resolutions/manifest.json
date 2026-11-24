@@ -1330,5 +1330,17 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "52a324520d0dfcbdfb8912c590b9537cac9cc5c4b9b3d9f4d1998866a1967fcc",
     "reason": "Retain workspace model scoping and explicit reset semantics from the prerequisite branch."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx",
+    "blobs": [
+      "650bf9fdad99983cba318c1fc3bbe09065497fd7",
+      "64248d9ee812bbf270dbb2a36ee6675d9d7c91b4",
+      "d8872678cbad881a808575f0b2b79b54c88842fd"
+    ],
+    "patch": "restore-8b301-pr-33417-429d4c83.patch",
+    "patchSha256": "658b5a6a104892fccc89999f26f758e54d08cba0fe7dbde1f97eacbb2e935f01",
+    "resultSha256": "8b2338f6854c36f597fe974effa5c225e4f6434b0c558106f8cc5c5f55649510",
+    "reason": "Keep image chips on opted-in surfaces and preserve line ending normalization and the upstream side-chat extension."
   }
 ]
