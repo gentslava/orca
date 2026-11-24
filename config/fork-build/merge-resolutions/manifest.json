@@ -1798,5 +1798,17 @@
     "patchSha256": "c4f6e308fd5b6386f24d4f22533e7b8b2fea2e9c3159fc988e08abff4cc29a5a",
     "resultSha256": "37f4376211f192a503ef3d86a646c61dfb34382c9d597ee8b1b22eda81c04c16",
     "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders. Preserve upstream catalog changes since the prior reviewed merge."
+  },
+  {
+    "path": "src/main/native-chat/agent-model-catalog/agent-model-catalog-refresh.ts",
+    "blobs": [
+      "27b9decf08e5812ef3599fdd953fa000ec77d5a8",
+      "42ce38751df731b28ae6578fb479259b72fd6022",
+      "03e42dbb773b9d97518944dd6594f881e3fda9a2"
+    ],
+    "patch": "forward-20261125-pr-40980-b2c25ea0.patch",
+    "patchSha256": "9b8f66aaf46ec9200e52668221b0d2fb8c2ce1b855125b387f1324dd71acdda8",
+    "resultSha256": "b443648a9b7a5be04ec933706a0292adfd6d7a7ab320a1fe3188da98c113365e",
+    "reason": "Keep account-scoped probe support and preserve the upstream unavailable-scope and relist guards."
   }
 ]
