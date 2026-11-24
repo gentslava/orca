@@ -129,7 +129,6 @@ describe('account provenance on the original collectors', () => {
       [],
       JSON.parse(JSON.stringify(first.processedDatabases)),
       undefined,
-      undefined,
       sources
     )
     expect(persisted.dailyAggregates).toEqual(first.dailyAggregates)
