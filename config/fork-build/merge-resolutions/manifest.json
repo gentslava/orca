@@ -1378,5 +1378,29 @@
     "patchSha256": "5f5af90679fd88416950fdc4804fc1e9316e8b7237681cd80fc93d70d0a9cf07",
     "resultSha256": "9c8dd127e4fab037ad982988d4ced816ee41e4462787bb09c93a7a266055525c",
     "reason": "Keep scoped RPCs for both conversation preferences and project pin/open order."
+  },
+  {
+    "path": "mobile/src/session/native-chat/MobileNativeChatView.tsx",
+    "blobs": [
+      "057ca091001c4cd16dd2657f198748e2c0474f61",
+      "19094daf2234e8c2f5fef78aae0580da4bbe0322",
+      "3bdbad83928672acc4b30a718237f5cab7181772"
+    ],
+    "patch": "restore-8b301-pr-33576-8a12aa61.patch",
+    "patchSha256": "f6919f31053301e92bc7ab3e7aed3bf659b7230683662f236abef4d72aaa0770",
+    "resultSha256": "1b0d3940e1798143f4e7ef016758f4113ef510b100787635ecd1a077f1a9db98",
+    "reason": "Preserve the worker approval context in the cross-platform message list."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/viewport/virtualization/use-native-chat-transcript-window.ts",
+    "blobs": [
+      "9d2d217c5f00abf2997bc6a2bb97f358fc550805",
+      "e0509caf5672733025dc2e827e77a37b6458b3a1",
+      "fcba56eda0510cd2bbac49f38c0b304f5d9cb9d0"
+    ],
+    "patch": "restore-8b301-pr-33576-7f60e523.patch",
+    "patchSha256": "301a297f348e0682e761ae7b5eef517f0a94c3df006f3621770da96a9c4b1e35",
+    "resultSha256": "6f2fe2511e6c0793404a8733870d8a64d31dc1b82022111048889add42ed9b22",
+    "reason": "Keep the new scroll-write marker on the existing shared window contract."
   }
 ]
