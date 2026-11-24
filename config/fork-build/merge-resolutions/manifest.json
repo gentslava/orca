@@ -1246,5 +1246,29 @@
     "patchSha256": "49c206b4276124222cb0c93f31917fcda6cf65a5d3fbf2a184355c811c4d96c8",
     "resultSha256": "e36306851e3cfeba41d701312ee51d8797f7ac0a8474f61ae8745b329d4603dc",
     "reason": "Merge surviving translation keys and retire labels absent from the English usage catalog."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "18741f4d8638815c02130ae3ee0a73689fbaaceb",
+      "84d30bafcab9acaebaf5e9ea06934dfc6d3d929e",
+      "047e208d0eed3a8941303973761def308e5e81e8"
+    ],
+    "patch": "restore-8b301-pr-33383-b0b361ad.patch",
+    "patchSha256": "6e8dad2b3bdcc3ce9e8f8e1fa4746dc8b40f77978733def38790f6a8c5d44a0b",
+    "resultSha256": "ada3d79d7b32f13be733dc037efb169572f7a7233aff1ac53f95ae9e87be5614",
+    "reason": "Pass the selected session through bounded history RPC while sustaining structured conversation previews."
+  },
+  {
+    "path": "src/renderer/src/components/right-sidebar/ai-vault/session-actions/ai-vault-session-resume-here.ts",
+    "blobs": [
+      "09ec01e2c0e62293ea7fd7e3ee60921f8090c46b",
+      "4543f7bc630b7bbed92d86c582954d5c3efd2873",
+      "3dc5cc4ff83850fba9141bd0b57df13ff2ece825"
+    ],
+    "patch": "restore-8b301-pr-33383-e83d02fe.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "29f626057e3c7a3f6cd2715a72c6b4dd7b9d06a1d36dd560c38226b7c0c8cde0",
+    "reason": "Keep upstream reopen retry and the persisted runtime target."
   }
 ]
