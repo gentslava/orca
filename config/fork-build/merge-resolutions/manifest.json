@@ -132,18 +132,6 @@
     "reason": "Compose 33369's worker role settings with 33512's hold-to-quit setting."
   },
   {
-    "path": "src/renderer/src/components/settings/page/settings-interface-secondary-section-renderers.tsx",
-    "blobs": [
-      "847d9f8fe492cfb565bcc2dd0e819bd7221dbaae",
-      "f402ec4b898e1aec6ea3c6cea4428812c8d5e4c2",
-      "b71740bf10467d6d550d8066fe509673e5cb467c"
-    ],
-    "patch": "refresh-7533-34899-0.patch",
-    "patchSha256": "2fd304b1e8cc286431df2999a145ee561e2d9b090c35b0dff22725a79addb27a",
-    "resultSha256": "408b0e1dd993205d3e1d2309746e1244d76c7680684031d89c2ffe44300feaac",
-    "reason": "Open 34899's account quotas above 33371's Stats & Usage on the Settings host."
-  },
-  {
     "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
     "blobs": [
       "ebd3ab25c0d415e32eac624f56dbd75a29c40799",
@@ -1474,5 +1462,29 @@
     "patchSha256": "3f0ef3d2cdc7e993f43f867f29ff608787bfa6c5e0e72cc50206bc985a93fdf1",
     "resultSha256": "fbf35a74a0478c77dc28973905dee95034c9da3cb31142037d9bf495fc6c6b71",
     "reason": "Keep child history identity and the upstream waiting-mail timeline context."
+  },
+  {
+    "path": "src/renderer/src/components/settings/page/settings-interface-secondary-section-renderers.tsx",
+    "blobs": [
+      "847d9f8fe492cfb565bcc2dd0e819bd7221dbaae",
+      "f402ec4b898e1aec6ea3c6cea4428812c8d5e4c2",
+      "b71740bf10467d6d550d8066fe509673e5cb467c"
+    ],
+    "patch": "restore-8b301-pr-34899-a6aa9e5e.patch",
+    "patchSha256": "16dc29725f8fe207086f7e9670295e911c1314a045bc93d8db07187da21e4b23",
+    "resultSha256": "440b0c6f5ddc5d2b04ce769467e851699a4e81a3ea0bfa4ed86e64ad3633f4da",
+    "reason": "Show account quotas and existing usage history for the selected settings host."
+  },
+  {
+    "path": "src/renderer/src/components/status-bar/usage/use-owner-usage-rate-limits.ts",
+    "blobs": [
+      "9dc5415e040468c736f357a5af563c91a727deac",
+      "58ee0a5ff2c2696eac439b9f71d3992824a82d9c",
+      "2060b0b77adb9db54b01d83340905c6211f17a48"
+    ],
+    "patch": "restore-8b301-pr-34899-7aa0b3bb.patch",
+    "patchSha256": "1ab0d0f25c8c3f6f2813eaec14b004ca5955415e7a0df4d702c3b11e33fcb04e",
+    "resultSha256": "28f5f90c2f7e6f356f439f37eb6d2208846d8b2c05353ef01c37c3acd58a76f0",
+    "reason": "Retain Codex auth scoping and report inaccessible remote account state."
   }
 ]
