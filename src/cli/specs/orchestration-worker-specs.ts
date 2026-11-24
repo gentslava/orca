@@ -40,7 +40,7 @@ export const ORCHESTRATION_WORKER_COMMAND_SPECS: CommandSpec[] = [
     ],
     identityFlagRoles: { from: 'caller', terminal: 'target' },
     notes: [
-      "--item <n> (from a bot's own chat) links the worker to that item and moves your own item to In progress; another bot's item keeps its status.",
+      "--item <n> (from a bot's own chat) links the worker to that item and moves your own item to In progress, unless it still asks your owner a question (it stays Needs you); another bot's item keeps its status. Link every worker you start for an item, reviewers included.",
       '--for <message id> links the worker to a question you took and are starting it to answer. The start never fails on it: the receipt says when the question could not be linked, and why.',
       '--role resolves a saved profile in Settings > Orchestration > Worker roles on the Run home. Explicit --model, --effort and --fast override profile values. Explicit --agent replaces the provider; choosing a different agent clears inherited model, effort and Fast. Roles cannot combine with --terminal.',
       '--fast on|off requires a selected model with proven support. Claude and Codex require an existing workspace, the configured Chat UI route, and a verified workspace model catalog; Codex uses the provider-listed Fast service tier. Terminal launches use their existing launch-option catalog. Unsupported choices fail before Task/Dispatch creation. Role and Fast launches require orchestration.worker-role-routing.v1 on both the Run home and any selected execution server; no local fallback is attempted.',

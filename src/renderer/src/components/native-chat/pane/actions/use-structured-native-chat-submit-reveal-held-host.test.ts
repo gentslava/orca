@@ -32,9 +32,15 @@ it('sends no queued card and retries no start on a host held for its permission 
     editor: undefined,
     steerHead: vi.fn(() => true),
     steerLast: vi.fn(() => true),
+    holds: () => false,
+    agentMail: [],
+    agentMailEditable: () => false,
+    mailLeads: false,
+    stopping: false,
     isWorking: false
   }
   const controller = {
+    rewind: { surface: undefined },
     capturePresentation: () => () => true,
     respond: vi.fn(async () => null),
     queuedMessages

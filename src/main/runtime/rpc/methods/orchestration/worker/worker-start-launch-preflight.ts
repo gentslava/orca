@@ -1,8 +1,6 @@
 import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
-import type { OrchestrationEntryCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
-import { resolveDispatchCallerWorktreeId } from '../orchestration-caller-workspace'
 import { resolveWorkerStartModeOnHost } from '../structured-workers/orchestration-worker-start-mode'
 import type { AgentLaunchModeReceipt as WorkerStartModeReceipt } from '../../../../../../shared/agent-launch/contracts/agent-launch-intent'
 import type { WorkerStartInput } from './start/worker-start-input'
@@ -15,36 +13,26 @@ import type { WorkerWorktreeCreationTarget } from './start/placement/worker-work
 export async function preflightLocalWorkerStartLaunch(args: {
   params: WorkerStartInput
   runtime: OrcaRuntimeService
-  callerSession?: OrchestrationEntryCaller
+  coordinatorWorktreeId: string
   requestedWorktree: string
   createsWorktree: boolean
   creationTargetFor: (callerWorktreeId: string) => Promise<WorkerWorktreeCreationTarget>
   mode: WorkerStartModeReceipt
 }) {
-  const { params, runtime, callerSession, requestedWorktree, createsWorktree, mode } = args
+  const { params, runtime, coordinatorWorktreeId, requestedWorktree, createsWorktree, mode } = args
   const launchParams = await resolveWorkerConfiguredAgentParams(runtime, params, async () => {
-    const callerWorkspaceId = await resolveDispatchCallerWorktreeId(
-      runtime,
-      params.from,
-      callerSession
-    )
     return createsWorktree
-      ? { repo: (await args.creationTargetFor(callerWorkspaceId)).repoSelector }
+      ? { repo: (await args.creationTargetFor(coordinatorWorktreeId)).repoSelector }
       : {
-          worktree: requestedWorktree === 'current' ? `id:${callerWorkspaceId}` : requestedWorktree
+          worktree: requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree
         }
   })
   let openCodeModelLaunchSupported = false
   if (!createsWorktree && launchParams.agent === 'opencode' && launchParams.model) {
-    const callerWorkspaceId = await resolveDispatchCallerWorktreeId(
-      runtime,
-      params.from,
-      callerSession
-    )
     openCodeModelLaunchSupported = await probeWorkerOpenCodeModelLaunchSupport(
       runtime,
       launchParams,
-      { worktree: requestedWorktree === 'current' ? `id:${callerWorkspaceId}` : requestedWorktree }
+      { worktree: requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree }
     )
   }
 
@@ -64,13 +52,8 @@ export async function preflightLocalWorkerStartLaunch(args: {
         { effectsApplied: false }
       )
     }
-    const callerWorkspaceId = await resolveDispatchCallerWorktreeId(
-      runtime,
-      params.from,
-      callerSession
-    )
     fastWorkspace = await runtime.showManagedTerminalWorkspace(
-      requestedWorktree === 'current' ? `id:${callerWorkspaceId}` : requestedWorktree
+      requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree
     )
     fastWorkerMode = await resolveWorkerStartModeOnHost(
       runtime,

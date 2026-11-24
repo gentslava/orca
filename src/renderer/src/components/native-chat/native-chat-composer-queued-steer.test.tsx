@@ -72,6 +72,8 @@ function Composer({
     queuePause: null,
     submissions: [],
     hasPendingPrompt: false,
+    stopping: false,
+    transcriptShown: true,
     isWorking: true,
     sending,
     composerScopeKey: undefined,

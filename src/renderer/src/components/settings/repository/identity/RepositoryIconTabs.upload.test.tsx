@@ -101,6 +101,7 @@ async function renderPicker({
       ) : (
         <RepositoryIconTabs
           initialTab="avatar"
+        lettersPanel={null}
           selectedLucideName={null}
           selectedEmoji=""
           loadingGitHub={false}

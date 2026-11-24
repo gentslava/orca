@@ -85,7 +85,8 @@ export class BackendSupervisor {
         return document.token
       }
     )
-    void this.ensureReady(false).catch(() => {})
+    // Start the usage utility process on first demand (BACKEND_PORT_REQUEST or callControl)
+    // rather than eagerly at launch, saving ~28 MiB physical footprint when Usage is unused.
   }
 
   automationClient(provider: 'claudeUsage' | 'codexUsage'): AutomationUsageClient {

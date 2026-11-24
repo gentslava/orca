@@ -22,7 +22,7 @@ import {
 import { NativeChatChildTranscriptStack } from './NativeChatChildTranscript'
 import { useNativeChatChildNavigator } from './native-chat-child-navigation'
 import { NativeChatContextClearFade } from './conversation/projection/NativeChatContextClearFade'
-import { useStructuredNativeChatSubmitReveal } from './pane/actions/use-structured-native-chat-submit-reveal'
+import { useStructuredNativeChatSubmitReveal as useSubmitReveal } from './pane/actions/use-structured-native-chat-submit-reveal'
 import { useStructuredPromptResponseHold } from './prompts/use-structured-prompt-response-hold'
 import { useBotLinkPrompt } from '@/lib/agent-session/open/bot-link-item-target'
 import { useStructuredChatLiveSession } from './session/structured/use-structured-chat-live-session'
@@ -62,6 +62,7 @@ import { structuredAgentLabel } from '@/lib/agent-session/launch/structured-agen
 import { useNativeChatStructuredComposerTransport } from '@/components/native-chat/composer/submit/use-native-chat-structured-composer-transport'
 import { NativeChatStructuredComposerTabStrips } from '@/components/native-chat/pane/actions/NativeChatStructuredComposerTabStrips'
 import { nativeChatPaneHeader } from '@/components/native-chat/pane/actions/NativeChatPaneHeader'
+import { NativeChatWorkerAutoCloseBanner } from '@/components/native-chat/worker-lifetime/NativeChatWorkerAutoCloseBanner'
 import { structuredAgentSessionReadFailureNotice } from '@/components/native-chat/messages/notices/structured-agent-session-read-failure-notice'
 import { useStructuredAgentSessionDeliveryNotices } from '@/components/native-chat/session/structured/delivery/use-structured-agent-session-delivery-notices'
 import { useNativeChatHostOutage } from '@/components/native-chat/host-access/use-native-chat-host-outage'
@@ -123,7 +124,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   const agentLabel = structuredAgentLabel(props.agent)
   const hostSendGate = useNativeChatHostSendGate(props.target, props.agent, hostOutage)
   const hostHeld = hostSendGate.sendBlockedReason !== null
-  const submits = useStructuredNativeChatSubmitReveal(controller, provisionalLaunch.retry, hostHeld)
+  const submits = useSubmitReveal(controller, provisionalLaunch.retry, hostHeld, focusComposer)
   const promptResponse = useStructuredPromptResponseHold(submits.respond)
   const startFailures = useStructuredChatStartFailureFacts(
     controller,
@@ -266,6 +267,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
         className="[container-type:size]"
       >
         {nativeChatPaneHeader(props, ownerWorktreeId, surface.appearance.colorScheme, handOff)}
+        <NativeChatWorkerAutoCloseBanner pane={props} />
         <NativeChatPaneFileDropScope
           enabled={childNavigator.child === null}
           hidden={childNavigator.child !== null}
@@ -303,6 +305,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                     continuation={continuation.view}
                     setup={setup}
                     forks={forks}
+                    rows={submits.rows}
                     messageListRef={submits.messageListRef}
                     session={session}
                     isVisible={parentShown}
@@ -316,12 +319,11 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
               </NativeChatContextClearFade>
             </NativeChatStructuredTranscriptFrame>
           </NativeChatDockTranscript>
-          <NativeChatDock shown={!readFailure?.final}>
-            {composerShown ? null : subagents.dock}
+          <NativeChatDock shown={!readFailure?.final} keepFloatingTerminalTriggerClear={parentShown}>
+            {subagents.dock}
             {subagents.pairedAsks}
             {prompt || subagentOpen ? null : (
               <NativeChatStructuredComposerTabStrips
-                tabId={props.tabId}
                 runtimeContext={imageRuntimeContext}
                 threadGoal={controller.threadGoal}
                 transport={transport}
@@ -369,7 +371,6 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
             {composerShown ? (
               <NativeChatComposer
                 ref={composerRef}
-                dock={subagents.dock}
                 terminalTabId={props.tabId}
                 paneKey={paneKey}
                 draftScopeKey={structuredAgentSessionDraftScopeKey(props.sessionId)}
@@ -378,6 +379,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                 {...bot.stopControls.composer}
                 unavailableHint={install.unavailableHint}
                 steerHead={bot.stopControls.stopping ? undefined : submits.queuedMessages.steerHead}
+                steerLast={bot.stopControls.stopping ? undefined : submits.queuedMessages.steerLast}
                 structuredTransport={transport}
                 notices={notices}
                 recallSource={{ messages: session.messages, withoutImageMarkers: true }}

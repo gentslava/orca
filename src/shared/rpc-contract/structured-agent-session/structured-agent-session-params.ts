@@ -238,6 +238,8 @@ export const ModelCatalogParams = z.strictObject({
   waitForListing: z.boolean().optional(),
   // Read saved data without starting a listing; gate on saved-only capability because older hosts refuse unknown keys.
   savedOnly: z.boolean().optional(),
+  // Lists the agent's catalog again first; gate on the relist capability for the same reason.
+  relist: z.literal(true).optional(),
   selectedModel: Identifier('Invalid selected model').optional()
 })
 

@@ -22,6 +22,8 @@ type NavBarProps = {
   /** Usually the back button; a side-panel or close button where a screen has no back. */
   leading?: ReactNode
   title?: string
+  /** Before the title, as a chat's avatar is. */
+  titleLeading?: ReactNode
   /** One short line under the title: host, workspace, or a status. */
   subtitle?: ReactNode
   /** Replaces the title block, e.g. the session title that opens its details card. */
@@ -43,6 +45,7 @@ type NavBarProps = {
 export function NavBar({
   leading,
   title,
+  titleLeading,
   subtitle,
   center,
   trailing,
@@ -61,7 +64,18 @@ export function NavBar({
         <Animated.View style={[styles.center, titleOpacity && { opacity: titleOpacity }]}>
           {center ?? (
             <>
-              {title !== undefined ? (
+              {title !== undefined && titleLeading ? (
+                <View style={styles.titleRow}>
+                  {titleLeading}
+                  <Text
+                    style={[styles.title, styles.titleButtonText]}
+                    numberOfLines={1}
+                    accessibilityRole="header"
+                  >
+                    {title}
+                  </Text>
+                </View>
+              ) : title !== undefined ? (
                 <Text style={styles.title} numberOfLines={1} accessibilityRole="header">
                   {title}
                 </Text>
@@ -232,6 +246,12 @@ const styles = themedStyleSheet(() => ({
     color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '600'
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    maxWidth: '100%'
   },
   subtitleRow: {
     flexDirection: 'row',

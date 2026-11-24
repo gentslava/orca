@@ -1,5 +1,4 @@
-import { NativeChatWorkerTimeline } from './tools/tasks/dock/NativeChatWorkerResultTimeline'
-import { nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
+import { NativeChatWorkerApprovalTimeline, nativeChatWorkerApprovalParty } from './worker-approvals/NativeChatWorkerApprovals'
 import { NativeChatSessionChildren } from './NativeChatSessionChildren'
 import type { NativeChatStructuredViewProps } from './native-chat-view-types'
 import { NativeChatUsageLimitActionsProvider } from './usage/NativeChatUsageLimitActions'
@@ -22,6 +21,7 @@ export function NativeChatStructuredTranscript({
   pane,
   directory,
   controller,
+  rows,
   continuation,
   setup,
   forks,
@@ -46,13 +46,14 @@ export function NativeChatStructuredTranscript({
   pane: ComponentProps<typeof NativeChatUsageLimitActionsProvider>['pane']
   directory: ComponentProps<typeof NativeChatUsageLimitActionsProvider>['directory']
   controller: ReturnType<typeof useStructuredAgentSession>
+  rows: ComponentProps<typeof NativeChatRowActionsProvider>['chat']
   continuation: ReturnType<typeof useNativeChatInterruptedContinuation>['view']
   forks: ComponentProps<typeof NativeChatRowActionsProvider>['forks']
   setup: NativeChatHostSetup
   messageListRef: Ref<NativeChatMessageListHandle>
 }): React.JSX.Element {
   return (
-    <NativeChatRowActionsProvider pane={pane} chat={controller} forks={forks}>
+    <NativeChatRowActionsProvider pane={pane} chat={rows} forks={forks}>
       <NativeChatUsageLimitActionsProvider
         recovery={controller}
         pane={pane}
@@ -61,12 +62,9 @@ export function NativeChatStructuredTranscript({
         view={continuation}
       >
         <NativeChatHostSetupContext.Provider value={setup}>
-          <NativeChatWorkerTimeline
-            approvalParty={nativeChatWorkerApprovalParty(pane)}
-            workerDock={controller.backgroundTasks.workerDock}
+          <NativeChatWorkerApprovalTimeline
+            party={nativeChatWorkerApprovalParty(pane)}
             target={pane.target}
-            sessionId={pane.sessionId}
-            isVisible={props.isVisible === true}
           >
             {(timedRows) => (
               <NativeChatSubagentTranscripts
@@ -88,7 +86,7 @@ export function NativeChatStructuredTranscript({
                 turnActivity={controller.turnActivity}
               />
             )}
-          </NativeChatWorkerTimeline>
+          </NativeChatWorkerApprovalTimeline>
         </NativeChatHostSetupContext.Provider>
       </NativeChatUsageLimitActionsProvider>
     </NativeChatRowActionsProvider>

@@ -10,15 +10,16 @@ import {
 } from '../../filesystem/durable-file-write'
 import { encodeUsageCacheJson, parseUsageCacheJson, readUsageCacheJson } from './usage-cache-json'
 import { decodedUsageCacheText, publishGzipUsageCache } from './usage-cache-gzip'
+import { reattributeUsageSourcesForWorktrees } from '../worktree-attribution/usage-attribution-invalidation'
 
 // Only scans need bulky per-source records; worker-owned sidecars keep them off main.
 
-/** Where one provider's per-source scan cache lives, and whether this scan may start from it. */
+/** Where one provider's per-source scan cache lives, and the worktrees this scan attributes against. */
 export type UsageSourceCacheRef = {
   path: string
   schemaVersion: number
   worktreeFingerprint: string | null
-  reuse: boolean
+  reuse?: boolean
   hadPreviousHistory?: boolean
 }
 
@@ -34,23 +35,23 @@ export function usageSourceCachePath(cacheFile: string): string {
   return join(dir, `${name}-sources.json`)
 }
 
-/** The last scan's records; none when unreadable or from another schema, so the scan starts cold. */
+/** The last scan's records still attributed correctly; none when unreadable or from another schema. */
 export async function readUsageSourceCache<T>(ref: UsageSourceCacheRef): Promise<T[]> {
-  if (!ref.reuse) {
-    return []
-  }
   try {
     const parsed = await parseUsageCacheJson<{
       schemaVersion: number
       worktreeFingerprint: string | null
       sources: T[]
     }>(decodedUsageCacheText(ref.path))
-    // The sidecar can commit before its report, so validate attribution independently.
-    return parsed?.schemaVersion === ref.schemaVersion &&
-      parsed.worktreeFingerprint === ref.worktreeFingerprint &&
-      Array.isArray(parsed.sources)
-      ? parsed.sources.filter(isSourceRecord)
-      : []
+    if (parsed?.schemaVersion !== ref.schemaVersion || !Array.isArray(parsed.sources)) {
+      return []
+    }
+    // The sidecar can commit before its report, so validate attribution against its own fingerprint.
+    return await reattributeUsageSourcesForWorktrees(
+      parsed.sources.filter(isSourceRecord),
+      typeof parsed.worktreeFingerprint === 'string' ? parsed.worktreeFingerprint : null,
+      ref.worktreeFingerprint
+    )
   } catch {
     return []
   }
@@ -74,7 +75,7 @@ export async function readUsageSourceCacheForScan<T>(ref: UsageSourceCacheRef): 
     const sources = parsed.sources.filter(isSourceRecord)
     return {
       sources,
-      reuseProjections: ref.reuse && parsed.worktreeFingerprint === ref.worktreeFingerprint,
+      reuseProjections: ref.reuse !== false && parsed.worktreeFingerprint === ref.worktreeFingerprint,
       accountAttributionAvailable: sources.length > 0 || ref.hadPreviousHistory !== true
     }
   } catch (error) {
@@ -151,8 +152,7 @@ export async function splitUsageCacheFile(
       path: usageSourceCachePath(request.cacheFile),
       schemaVersion: typeof report.schemaVersion === 'number' ? report.schemaVersion : 0,
       worktreeFingerprint:
-        typeof report.worktreeFingerprint === 'string' ? report.worktreeFingerprint : null,
-      reuse: true
+        typeof report.worktreeFingerprint === 'string' ? report.worktreeFingerprint : null
     },
     sources
   )

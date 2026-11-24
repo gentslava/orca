@@ -28,11 +28,8 @@ import { INLINE_TEXT_SELECTION } from '../../../../platform/text-selection/inlin
 import { colors, radii, spacing, typography } from '../../../../theme/mobile-theme'
 import { themedStyleSheet } from '../../../../theme/themed-styles'
 import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
-import {
-  nativeChatHostStatusCopy,
-  nativeChatNoticeCopy,
-  nativeChatNoticeLineText
-} from './native-chat-notice-copy'
+import { nativeChatHostStatusCopy, nativeChatNoticeCopy } from './native-chat-notice-copy'
+import { noticeLineText } from './native-chat-notice-line-text'
 import { nativeChatReviewNoticeSummary } from './native-chat-review-notice-copy'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
 import { mobileNativeChatBotCard } from '../bot-cards/mobile-native-chat-bot-cards'
@@ -40,7 +37,7 @@ import { NATIVE_CHAT_STOPPED_BEFORE_START_PRESENTATION } from '../../../../../..
 import { MONO_SIZE, TEXT_SIZE, scaledType } from '../messages/mobile-native-chat-message-styles'
 import { MobileNativeChatOwnedScrollView } from '../viewport/MobileNativeChatOwnedScrollView'
 import { toolStyles } from '../tool-results/mobile-native-chat-tool-styles'
-import { MobileNativeChatUsageLimitStatus } from './MobileNativeChatUsageLimitStatus'
+import { MobileNativeChatUsageLimitRow } from './MobileNativeChatUsageLimitStatus'
 import { MobileNativeChatNoticeDisclosure } from './MobileNativeChatNoticeDisclosure'
 import { sheetPrimaryButtonStyles } from '../../../../components/sheets/SheetPrimaryButton'
 import { NATIVE_CHAT_GOAL_CHECK_SUMMARY } from '../../../../../../src/shared/native-chat/transcript/turns/native-chat-thread-goal-rows'
@@ -115,7 +112,7 @@ export function MobileNativeChatNoticeRow({
     return botCard
   }
   const look = nativeChatNoticeLook(notice)
-  const lineText = nativeChatNoticeLineText(notice, names, t)
+  const lineText = noticeLineText(notice, names, t)
   const failure = readWholeAgentSessionFailureFact(notice.failure)
   const failureDetail = agentSessionFailureDetailText(failure)
   // A setup failure a later successful turn resolved reads as history: muted, with no action.
@@ -254,6 +251,17 @@ export function MobileNativeChatNoticeRow({
         </Text>
       )
     case 'line': {
+      if (failure?.kind === 'usageLimitReached') {
+        return (
+          <MobileNativeChatUsageLimitRow
+            notice={notice}
+            text={lineText}
+            fontScale={fontScale}
+            onLongPress={onLongPress}
+            details={detail || payload ? diagnosticBody : null}
+          />
+        )
+      }
       const textStyle = [
         styles.line,
         scaledType(TEXT_SIZE, fontScale),
@@ -290,7 +298,6 @@ export function MobileNativeChatNoticeRow({
               </Text>
             </Pressable>
           ) : null}
-          <MobileNativeChatUsageLimitStatus notice={notice} fontScale={fontScale} />
           {detail || payload ? (
             <View>
               <MobileNativeChatNoticeDisclosure

@@ -319,6 +319,7 @@ export function useNativeChatTranscriptWindow({
     releaseEndPin,
     scrollToEnd,
     restoreScrollOffset,
+    markProgrammaticScroll: programmaticScrollMarks.mark,
     consumeProgrammaticScroll,
     reconcileReaderScroll
   }

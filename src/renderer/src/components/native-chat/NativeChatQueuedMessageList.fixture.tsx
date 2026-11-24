@@ -26,6 +26,11 @@ const controller: StructuredAgentSessionQueuedMessagesController = {
   resume: async () => false,
   steerHead: () => true,
   steerLast: () => true,
+  holds: () => false,
+  agentMail: [],
+  agentMailEditable: () => false,
+  mailLeads: false,
+  stopping: false,
   isWorking: true
 }
 

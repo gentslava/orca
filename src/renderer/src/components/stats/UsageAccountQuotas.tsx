@@ -57,7 +57,7 @@ export function UsageAccountQuotaCard({
         </h4>
         {provider.planType ? (
           <span className="text-xs text-muted-foreground">
-            {formatPlanLabel(provider.planType)}
+            {formatPlanLabel(provider.planType, provider.provider)}
           </span>
         ) : null}
       </div>

@@ -137,7 +137,7 @@ export default function AiVaultPanel({
     activeWorktreePath,
     local: workspace !== undefined
   })
-  const [query, setQuery] = useAiVaultPanelQuery(initialQuery, {
+  const [query, setQuery, querySubmitted] = useAiVaultPanelQuery(initialQuery, {
     preferredScope,
     activeWorktreeId,
     activeProjectKey
@@ -164,7 +164,10 @@ export default function AiVaultPanel({
     scope !== 'all',
     conversationNavigation
   )
-  const search = useAiVaultPanelSearch(query, agents, searchWithin, executionHostScope, searchSort)
+  const search = useAiVaultPanelSearch(query, agents, searchWithin, executionHostScope, {
+    sort: searchSort,
+    submitted: querySubmitted
+  })
   const { searching, searchHits } = search
   const {
     listMode,

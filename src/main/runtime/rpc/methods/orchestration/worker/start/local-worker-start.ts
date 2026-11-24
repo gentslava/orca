@@ -10,11 +10,15 @@ import type {
 import type { OrchestrationEntryCaller } from '../../../../../orchestration/addressing/orchestration-caller-identity'
 import type { OrchestrationPartyIdentity as OrchestrationCallerIdentity } from '../../../../../../../shared/orchestration/mailbox/orchestration-party-identity'
 import { resolveDispatchCallerWorktreeId } from '../../orchestration-caller-workspace'
+import {
+  refuseUnmatchedWorkerSelector,
+  workerStartTargetLabel
+} from './worker-start-selector-refusal'
 import { resolveWorkerStartModeOnHost } from '../../structured-workers/orchestration-worker-start-mode'
 import { lineageModeForResolvedAgent } from './worker-chat-lineage'
 import type { AgentLaunchModeReceipt as WorkerStartModeReceipt } from '../../../../../../../shared/agent-launch/contracts/agent-launch-intent'
 import { EXISTING_WORKTREE_SETUP, placeWorkerAgent } from './placement/worker-start-agent-placement'
-import { assertOrchestrationWorktreeCreationSupported } from './placement/folder-worktree-placement'
+import { resolveExistingWorkerWorkspace } from './placement/folder-worktree-placement'
 import { resolveWorkerWorktreeCreationTarget } from './placement/worker-worktree-creation'
 import type { WorkerStartInput } from './worker-start-input'
 import {
@@ -81,38 +85,31 @@ export async function startLocalWorker(args: {
       callerWorktreeId,
       crossStoreParent: params.crossStoreParent
     })
-  const coordinatorWorktreeId = await resolveDispatchCallerWorktreeId(
-    runtime,
-    params.from,
-    callerSession
+  const coordinatorWorktreeId = await refuseUnmatchedWorkerSelector(
+    { flag: '--from', value: params.from },
+    () => resolveDispatchCallerWorktreeId(runtime, params.from, callerSession)
   )
+  const existingWorktree =
+    requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree
+  const targetLabel = workerStartTargetLabel({ ...args.params, createsWorktree, requestedWorktree })
   const { agent, launch, fastWorkspace, fastWorkerMode, preflightTerminal } =
-    await preflightLocalWorkerStartLaunch({
+    await refuseUnmatchedWorkerSelector(targetLabel, () => preflightLocalWorkerStartLaunch({
       params,
       runtime,
-      callerSession,
+      coordinatorWorktreeId,
       requestedWorktree,
       createsWorktree,
       creationTargetFor,
       mode: args.mode
-    })
+    }))
 
   const creationTarget = createsWorktree
     ? await creationTargetFor(coordinatorWorktreeId)
     : undefined
-  if (creationTarget) {
-    await assertOrchestrationWorktreeCreationSupported({
-      runtime,
-      repoSelector: creationTarget.repoSelector,
-      existingPlacement: 'current or an exact existing folder workspace'
-    })
-  }
   let resolvedWorktree: Awaited<ReturnType<typeof placeWorkerAgent>>['worktree'] | undefined =
-    creationTarget
-      ? undefined
-      : requestedWorktree === 'current'
-        ? await runtime.showManagedTerminalWorkspace(`id:${coordinatorWorktreeId}`)
-        : await runtime.showManagedTerminalWorkspace(requestedWorktree)
+    await refuseUnmatchedWorkerSelector(targetLabel, () =>
+      resolveExistingWorkerWorkspace(runtime, creationTarget, existingWorktree)
+    )
   resolvedWorktree = fastWorkspace ?? resolvedWorktree
   if (terminal) {
     await assertExplicitWorkerUsable({
