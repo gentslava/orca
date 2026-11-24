@@ -1522,5 +1522,41 @@
     "patchSha256": "1bbbc69fc539c55748442704b389f5fcf846875481fc71fd446d97f9574deb51",
     "resultSha256": "4b7b5d5836c01bfce4fab3c007acf92b5e3be664c0adb7aa7b9dbc742ad221e4",
     "reason": "Keep owner-directed link questions in the retained child view and preserve the existing host prompt flow."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx",
+    "blobs": [
+      "606943922003e87aa0612fe43533b9ba0feac39f",
+      "75482e939c31bae7ce4c92978d6de23019ae9889",
+      "72b4c5d6e02ece590b146ef2eaed4f2015fb1f7b"
+    ],
+    "patch": "restore-8b301-pr-38848-8bbd3fef.patch",
+    "patchSha256": "333e6372f3e18760375cf0f06191475c318c7b9d2508e50125a9e4a932443cf2",
+    "resultSha256": "553cbdaf8e241dd5d621b0004d363e82816ed282b5a57628b597b52b8e92b2e6",
+    "reason": "Steer the newest personal message while retaining the upstream waiting-mail action and inline edit guards."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.tsx",
+    "blobs": [
+      "cb510a3fdcab65fb4fe8ba3837e1fc48ce880ff1",
+      "04a094451c64614b7443c4f263064a01455d0785",
+      "b629c9c14e3d7c598a892ebee65aea0b71262bb7"
+    ],
+    "patch": "restore-8b301-pr-38848-8251ead7.patch",
+    "patchSha256": "e036970692e379fe83a285503493697d3005fb03d1340403de1df42deb7dcd2c",
+    "resultSha256": "08178725e1d35a5a4badf4fbd3a720b92618398c3ce277982c56dfe079dafe58",
+    "reason": "Steer the newest personal message while retaining the upstream waiting-mail action and inline edit guards."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts",
+    "blobs": [
+      "a7bfcca1ceef1e1fc40d0502e2228c53e9281bac",
+      "634ae30835e4f17d19a0a0000aa8d180bf46237f",
+      "8319353c51b3178ff86b736aa8bc899e9ccf294c"
+    ],
+    "patch": "restore-8b301-pr-38848-25023ccc.patch",
+    "patchSha256": "e4f77a34d7b8df68e68397b65cffb726981c57d91eb538b03d4c869eef1e0a24",
+    "resultSha256": "0fbb4d6e4f0ee01d15c2aea9a905c0d17ad5f0408c6c50fe23381d1b49e23adf",
+    "reason": "Steer the newest personal message while retaining the upstream waiting-mail action and inline edit guards."
   }
 ]
