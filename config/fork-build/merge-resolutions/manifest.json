@@ -1114,5 +1114,17 @@
     "patchSha256": "e11c5477041c9045bd7491569f732a345be758131ee4e00526e697ce10534d7e",
     "resultSha256": "29f626057e3c7a3f6cd2715a72c6b4dd7b9d06a1d36dd560c38226b7c0c8cde0",
     "reason": "Keep reopened history on its originating runtime and retain the upstream retry action."
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx",
+    "blobs": [
+      "8b2d558b14bfa90eeb4de3e791a7c1371aafe3ac",
+      "19428bfbcbec9ccde4e1ee363042d5bc58ff4dcb",
+      "ce124f4a470d45a62756251eb91fd0e5486f6267"
+    ],
+    "patch": "restore-8b301-pr-33363-e9e83f71.patch",
+    "patchSha256": "9fcc780321bb1a51d139a59221830f6d360378a51875e60320b455ab1970abf7",
+    "resultSha256": "b66384d4af1aba7c104527de730268de698dab74f7884d49f59ca2e76280baeb",
+    "reason": "Keep successful review disclosure alongside timestamped mobile notices."
   }
 ]
