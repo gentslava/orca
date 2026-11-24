@@ -1486,5 +1486,17 @@
     "patchSha256": "1ab0d0f25c8c3f6f2813eaec14b004ca5955415e7a0df4d702c3b11e33fcb04e",
     "resultSha256": "28f5f90c2f7e6f356f439f37eb6d2208846d8b2c05353ef01c37c3acd58a76f0",
     "reason": "Retain Codex auth scoping and report inaccessible remote account state."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx",
+    "blobs": [
+      "2e24ac915328339b4be33df3d8ce228ca1491cbf",
+      "5754444f111f7ae473bfaaba25a1f05a3262e8b1",
+      "517b8da0abe7673f61790ad8a8991dc0d60abce2"
+    ],
+    "patch": "restore-8b301-pr-36593-0d1b2e34.patch",
+    "patchSha256": "6de486287ba2a906a9b835cd44dc31a2384ed39cbeed0c1d33ed709bb8882961",
+    "resultSha256": "b9bc169ae25da9379871b71ca6016826185cb843b5d3abeca5dabef94d5a5c79",
+    "reason": "Keep quiet tool disclosure without disturbing the reader scroll anchor or hiding successful review asides."
   }
 ]
