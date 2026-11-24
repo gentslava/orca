@@ -1690,5 +1690,29 @@
     "patchSha256": "4d47f3004d87aa4a7b68ae7ad9112b28a88b7c00b7d7a22c0ec4e16ed9a86f02",
     "resultSha256": "fb03041be4cfa384a22d4ebaad69d04df2786010314ffbd701e747db954768c6",
     "reason": "Retain rewind, scoped image previews and opening child chats with one image source"
+  },
+  {
+    "path": "mobile/src/i18n/en-runtime-required.json",
+    "blobs": [
+      "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
+      "ba91a4970a7e8104273ce006b9a17d2c6d689dc6",
+      "84b1f1507a410cc72deadd064fe7b77d61e78c45"
+    ],
+    "patch": "restore-8b301-pr-45437-24d5c6c5.patch",
+    "patchSha256": "12948a4c42f5f41e081c556e6af1dcb019598d11119af1fd9dbd79070a28cbfb",
+    "resultSha256": "6de89369b050f7bae54d08366c90999fbb6ebcaf292caace566b1b7cf99b553d",
+    "reason": "Keep the new flagged-request locale key while shared fallbacks supply the other messages"
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx",
+    "blobs": [
+      "8b2d558b14bfa90eeb4de3e791a7c1371aafe3ac",
+      "c06bb024d6bf21887bff75f22786a076c02594ab",
+      "f3024f072e34d0e19cd8951e908a7d6d97a38d93"
+    ],
+    "patch": "restore-8b301-pr-45437-e9e83f71.patch",
+    "patchSha256": "e6f500ee23c2630e1cf3a094dc6742db8a61eeba9956cf8a6cf03d37e2328959",
+    "resultSha256": "e41cc88ec21b959784f2831260c03bded5b97801f430efd30b6cd0fb3b6d0435",
+    "reason": "Retain disclosed review rows and use the upstream notice-line helper"
   }
 ]
