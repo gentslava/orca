@@ -35,6 +35,11 @@ import { BrowserClientHostRequestResultParams } from '../browser/client-hosting/
 import { BrowserClientPageMetadataParams } from '../browser/client-hosting/browser-client-page-metadata-protocol'
 import { BrowserPageInitializationActionParams } from '../browser/client-hosting/browser-page-initialization-action'
 import {
+  DesktopBrowserBridgeDownloadAbortParams,
+  DesktopBrowserBridgeDownloadWriteParams,
+  DesktopBrowserBridgeFileReadParams
+} from '../browser/client-hosting/desktop-browser-bridge-file-transfer-protocol'
+import {
   DesktopBrowserBridgeAttachParams,
   DesktopBrowserBridgeResultChunkParams,
   DesktopBrowserBridgeResultParams
@@ -47,7 +52,6 @@ import {
   WorkerDockAcknowledge,
   WorkerDockRead,
   WorkerDockResultRead,
-  WorkerDockResultsRead,
   WorkerDockStop,
   WorkerDockSubscribe
 } from '../orchestration/dock/worker-dock'
@@ -295,7 +299,6 @@ import {
   ProfileClearGoogleCookies,
   ProfileDelete,
   ProfileImportFromBrowser,
-  Screencast,
   Scroll,
   Select,
   SelectorPath,
@@ -321,7 +324,9 @@ import {
 import {
   FileChooserAnswer,
   PagePromptAnswer,
+  Screencast,
   ScreencastAck,
+  ScreencastReclaimForDesktop,
   ScreencastUnsubscribe
 } from './browser/browser-screencast-params'
 import { BrowserOpenUrlParams, BrowserTabCreateParams } from './browser/browser-tab-create-params'
@@ -952,6 +957,7 @@ import { TerminalDaemonRestartSeveredParams } from './terminal/terminal-daemon-p
 import { TerminalLimitUpdateParams } from './terminal/terminal-limit-params'
 import { TerminalAdoptOrphans } from './terminal/terminal-orphan-params'
 import { TerminalQuickCommandsUpdate } from './terminal/terminal-quick-command-params'
+import { TerminalSplit } from './terminal/terminal-split-params'
 import {
   TerminalAckOutput,
   TerminalMultiplex,
@@ -979,7 +985,6 @@ import {
   TerminalSend,
   TerminalSetPaneTitle,
   TerminalSetViewerColors,
-  TerminalSplit,
   TerminalStopExact,
   TerminalViewClaudeAgent,
   TerminalWait
@@ -1447,6 +1452,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'browser.saveImage': PageMenuImage,
   'browser.screencast': Screencast,
   'browser.screencast.ack': ScreencastAck,
+  'browser.screencast.reclaimForDesktop': ScreencastReclaimForDesktop,
   'browser.screencast.unsubscribe': ScreencastUnsubscribe,
   'browser.screenshot': Screenshot,
   'browser.scroll': Scroll,
@@ -1514,6 +1520,9 @@ export const RPC_PARAMS_BY_METHOD = {
   'connector.slackMirror.status': ConnectorSlackMirrorStatus,
   'desktop.openWindowInBackground': null,
   'desktopBrowserBridge.attach': DesktopBrowserBridgeAttachParams,
+  'desktopBrowserBridge.downloadAbort': DesktopBrowserBridgeDownloadAbortParams,
+  'desktopBrowserBridge.downloadWrite': DesktopBrowserBridgeDownloadWriteParams,
+  'desktopBrowserBridge.fileRead': DesktopBrowserBridgeFileReadParams,
   'desktopBrowserBridge.result': DesktopBrowserBridgeResultParams,
   'desktopBrowserBridge.resultChunk': DesktopBrowserBridgeResultChunkParams,
   'diagnostics.memory': null,
@@ -1943,7 +1952,6 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.workerDockAcknowledge': WorkerDockAcknowledge,
   'orchestration.workerDockRead': WorkerDockRead,
   'orchestration.workerDockResult': WorkerDockResultRead,
-  'orchestration.workerDockResultsRead': WorkerDockResultsRead,
   'orchestration.workerDockStop': WorkerDockStop,
   'orchestration.workerDockSubscribe': WorkerDockSubscribe,
   'orchestration.workerKeepOpen': OrchestrationWorkerKeepOpenParams,

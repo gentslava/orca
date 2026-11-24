@@ -211,6 +211,8 @@ export function RuntimeEnvironmentsPane({
       keywords={searchEntry.keywords}
       className="max-w-none space-y-6"
     >
+      {canGeneratePairingUrl ? <RuntimeShareComputerSection /> : null}
+
       <RuntimeDefaultHostRow
         allowLocalRuntime={allowLocalRuntime}
         activeValue={activeValue}
@@ -264,8 +266,6 @@ export function RuntimeEnvironmentsPane({
           )}
         </p>
       ) : null}
-
-      {canGeneratePairingUrl ? <RuntimeShareComputerSection /> : null}
 
       {/* Why gated on the managed API: WSL hosts, like managed servers, need the desktop. */}
       {managedCatalog.api ? <WslHostsSection onChanged={reloadAll} /> : null}
