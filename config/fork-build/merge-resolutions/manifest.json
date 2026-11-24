@@ -1726,5 +1726,17 @@
     "patchSha256": "190ab9c2bfc1a66c1027e7f943e8ca03323dd4392196c08f16a92676c95ba87c",
     "resultSha256": "80f64de0c5fa1ef007f083c058e178b37f35fcc4171b14a03b5dc7d07af430fe",
     "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders"
+  },
+  {
+    "path": "config/scripts/build/mobile-web-app/verify-mobile-web-app-bundle.mjs",
+    "blobs": [
+      "d0af8bc884939307523c1120da3613f79c3f78e2",
+      "cbb10ed74ee8e9840a4f3364a66ab71ae493ddef",
+      "b250ec0061f4b0087a4992291dd0e57b7613f779"
+    ],
+    "patch": "restore-8b301-pr-46187-3224df96.patch",
+    "patchSha256": "c307b3a6b7b366304cf9a20e4fa1f9cabc22685926e299282589fac335bb8a1a",
+    "resultSha256": "daba1bcb569ef3aeb9b2c5d7e9c632fefd1502138abd38bbeda92b4175aeb364",
+    "reason": "Verify host locale catalog ranges alongside the current deferred bundle budgets"
   }
 ]
