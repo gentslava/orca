@@ -1642,5 +1642,17 @@
     "patchSha256": "e68bbbdcef61d7ec9bbe16158d9d4dd604da283984cb8b2d8569c573b8bfd355",
     "resultSha256": "f4e3f857488b8c753de3562f23f159e3fdda061636e45c11519312c371aa4205",
     "reason": "Remove duplicate extracted fallbacks and retain translations added by the current composition"
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionRows.tsx",
+    "blobs": [
+      "154206ba9dbaf3d39b04370be5a65a2b46c4160b",
+      "d0ca0c5de5ca95725776fd99ab29b7046634fe3a",
+      "7d58dd29186e5d1b1ae92bd7698da62e97aa8505"
+    ],
+    "patch": "restore-8b301-pr-41381-67050f1c.patch",
+    "patchSha256": "ecb41f26a34d20bb50a63df80d4003cd6ecd8948e3f095ad32defb9bfec40428",
+    "resultSha256": "e2628c04a97182d20d79606e4c3fa8ad4f14542170c1ff0a82e2cb23f3fcf8dd",
+    "reason": "Keep explicit model reset and filtered choices in the current option rows"
   }
 ]
