@@ -1738,5 +1738,29 @@
     "patchSha256": "c307b3a6b7b366304cf9a20e4fa1f9cabc22685926e299282589fac335bb8a1a",
     "resultSha256": "daba1bcb569ef3aeb9b2c5d7e9c632fefd1502138abd38bbeda92b4175aeb364",
     "reason": "Verify host locale catalog ranges alongside the current deferred bundle budgets"
+  },
+  {
+    "path": "config/scripts/build/mobile-web-app/verify-mobile-web-app-bundle.mjs",
+    "blobs": [
+      "d0af8bc884939307523c1120da3613f79c3f78e2",
+      "87e57b12cedc54ab48016a97c97dd24f5d4b1f61",
+      "b250ec0061f4b0087a4992291dd0e57b7613f779"
+    ],
+    "patch": "restore-8b301-pr-46190-3224df96.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "daba1bcb569ef3aeb9b2c5d7e9c632fefd1502138abd38bbeda92b4175aeb364",
+    "reason": "The preceding range-verification PR already supplies this catalog check and the deferred-engine budget"
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "119a7bf08bfa7eb73393a758764e0d74839a2d21",
+      "6c4eb2e0831ce171e66e6605451dd38b9ffc638a",
+      "b71a508154b4ff3443f8253fe72ed62549fadbd4"
+    ],
+    "patch": "restore-8b301-pr-46190-00934582.patch",
+    "patchSha256": "27dd548d995e449deec822dec647dc7f574c3d41c88b13a4f0d1769ee46f7f2e",
+    "resultSha256": "39f9c4b13eaf0b6c2f8355a5e5cc1c27abeabafb9bed55ec2928243165f1591d",
+    "reason": "Keep current mobile glossary and add the remaining Russian translations alongside the new ranged catalog"
   }
 ]
