@@ -1776,18 +1776,6 @@
     "reason": "Keep account-scoped probe support and preserve the upstream unavailable-scope and relist guards."
   },
   {
-    "path": "src/renderer/src/i18n/locales/ru.json",
-    "blobs": [
-      "4764ed6b28929a2252ceb0957826dd2e797e7f02",
-      "8c0ce7713f9f5a4954e7e8d82c14a4836fd8f7ec",
-      "29d3962a2ef1ee3422e9dd9e074e8080217e1643"
-    ],
-    "patch": "forward-20261125-pr-46107-58923bac.patch",
-    "patchSha256": "64435885fa287ffbb43c739b8ae299460e54113de486893bdcdf404e934ce3e5",
-    "resultSha256": "06ec14937e39379436d18e003e90cd25b0e87a23f212b624f08cd26e98f272c9",
-    "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders. Preserve upstream catalog changes since the prior reviewed merge."
-  },
-  {
     "path": "src/renderer/src/i18n/locales/es.json",
     "blobs": [
       "bbaefb5e7b1f43240c86bf0a080fdad107f7f1f2",
