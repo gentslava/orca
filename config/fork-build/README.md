@@ -57,6 +57,8 @@ Replacement 40728 → 43959 takes the merged Session History host fix from upstr
 
 Replacement 40816 → 41430 adopts the merged welcome-screen Reopen closed tab repair, including folder-workspace activation and the Settings shortcut-recorder guard. The original closed contribution stays seeded so planning records its successor even without prior status history. The replacement is omitted only when its merge commit is present in the selected upstream snapshot. Native Chat restoration and paired-runtime terminal restoration remain separate open issues 40841 and 40842; build 92 predates this replacement.
 
+Mobile phone catalogs: PR 48573 replaces closed PR 46187 and raises the catalog build budget to 1 MiB. The host sends the complete catalog through the existing JSON reply and compresses it when the phone supports compressed frames. The rebased Russian translation PR 46190 depends on 48573 and changes only the catalog. Upstream issue 46171 was closed when 48573 merged.
+
 Mobile shared-reader lifecycle: merged PR 39727 carries the same four-file patch as closed PR 39022. The replacement records that maintainer port; composition verifies its merge ancestry before omitting it from the personal build.
 
 SSH test isolation: merged PR 40673 carries the exact patch from closed PR 40293, preserving its author, and also clears credential-decline holds in the shared connection fixture. The replacement prevents the closed original from blocking selection; composition requires the successor's merge ancestry before treating the fix as supplied by upstream.

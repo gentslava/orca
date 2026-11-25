@@ -1728,30 +1728,6 @@
     "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders"
   },
   {
-    "path": "config/scripts/build/mobile-web-app/verify-mobile-web-app-bundle.mjs",
-    "blobs": [
-      "d0af8bc884939307523c1120da3613f79c3f78e2",
-      "cbb10ed74ee8e9840a4f3364a66ab71ae493ddef",
-      "b250ec0061f4b0087a4992291dd0e57b7613f779"
-    ],
-    "patch": "restore-8b301-pr-46187-3224df96.patch",
-    "patchSha256": "c307b3a6b7b366304cf9a20e4fa1f9cabc22685926e299282589fac335bb8a1a",
-    "resultSha256": "daba1bcb569ef3aeb9b2c5d7e9c632fefd1502138abd38bbeda92b4175aeb364",
-    "reason": "Verify host locale catalog ranges alongside the current deferred bundle budgets"
-  },
-  {
-    "path": "config/scripts/build/mobile-web-app/verify-mobile-web-app-bundle.mjs",
-    "blobs": [
-      "d0af8bc884939307523c1120da3613f79c3f78e2",
-      "87e57b12cedc54ab48016a97c97dd24f5d4b1f61",
-      "b250ec0061f4b0087a4992291dd0e57b7613f779"
-    ],
-    "patch": "restore-8b301-pr-46190-3224df96.patch",
-    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "resultSha256": "daba1bcb569ef3aeb9b2c5d7e9c632fefd1502138abd38bbeda92b4175aeb364",
-    "reason": "The preceding range-verification PR already supplies this catalog check and the deferred-engine budget"
-  },
-  {
     "path": "mobile/src/i18n/locales/ru.json",
     "blobs": [
       "119a7bf08bfa7eb73393a758764e0d74839a2d21",
