@@ -469,7 +469,7 @@ for (const [directory, language, letters, upload, clear] of [
       const path = `${catalogDirectory}/${language}.json`
       mkdirSync(join(cwd, catalogDirectory), { recursive: true })
       const base = { icons: { letters } }
-      writeFileSync(join(cwd, path), JSON.stringify(base, null, 2) + '\n')
+      writeFileSync(join(cwd, path), `${JSON.stringify(base, null, 2)}\n`)
       git(cwd, 'add', path)
       git(cwd, 'commit', '-m', 'valid catalog')
       const upstream = git(cwd, 'rev-parse', 'HEAD')
@@ -477,7 +477,7 @@ for (const [directory, language, letters, upload, clear] of [
       const selections = Object.entries(additions).map(([key, copy], index) => {
         git(cwd, 'checkout', '-B', key, upstream)
         const catalog = { icons: { ...base.icons, [key]: copy } }
-        writeFileSync(join(cwd, path), JSON.stringify(catalog, null, 2) + '\n')
+        writeFileSync(join(cwd, path), `${JSON.stringify(catalog, null, 2)}\n`)
         git(cwd, 'add', path)
         git(cwd, 'commit', '-m', key)
         return { ...pr(index + 1), head: { sha: git(cwd, 'rev-parse', 'HEAD') } }

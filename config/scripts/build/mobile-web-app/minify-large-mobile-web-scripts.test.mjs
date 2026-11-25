@@ -5,7 +5,11 @@ import { PAGE_GLOBALS_BANNER, bannerOnlyWhereScriptsRunFirst } from './page-glob
 it('preserves the page bootstrap until script ordering is validated', async () => {
   const text = `${PAGE_GLOBALS_BANNER}\n/* ${'x'.repeat(262144)} */\nexport const value = 1;`
   const source = { path: '/fixture/app.js', text, contents: Buffer.from(text) }
-  const [script] = await minifyLargeMobileWebScripts([source], new Set())
+  const [script] = await minifyLargeMobileWebScripts([source], new Set(), async (body, options) => {
+    expect(body).not.toContain(PAGE_GLOBALS_BANNER)
+    expect(options.module).toBe(true)
+    return { code: 'export const value=1;' }
+  })
   expect(script.contents.length).toBeLessThan(source.contents.length)
   expect(script.contents.toString()).toMatch(/^globalThis\.process/)
   const [importingScript] = bannerOnlyWhereScriptsRunFirst(
