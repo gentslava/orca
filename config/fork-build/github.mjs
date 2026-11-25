@@ -83,7 +83,9 @@ export function renderReport(plan) {
     '',
     '## Install on your Mac',
     '',
-    'These personal builds use ad hoc signatures. Browser downloads may be blocked by macOS quarantine; a paid Apple Developer account is not needed for the verified local installation below.',
+    plan.macosTeamId
+      ? 'The macOS release targets the signed fork channel. Install its first Developer ID build from the DMG or use the verified installer with the signed tag. Subsequent signed releases are available through Check for Updates in Orca.'
+      : 'The macOS preview uses ad hoc signatures. Browser downloads may be blocked by macOS quarantine. Use Check for Updates in Orca to download the DMG when available. The installer below also supports ad hoc previews. Keep using Check for Updates if your installed copy is already on the signed fork channel.',
     '',
     'From an updated checkout of `gentslava/orca`, run this in Terminal:',
     '',

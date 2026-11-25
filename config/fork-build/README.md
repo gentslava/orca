@@ -34,7 +34,7 @@ A source refresh preserves upstream and feature ancestry. The maintenance PR mus
 
 The package lane builds one shared JavaScript artifact using the upstream release artifact implementation in development mode, then restores its source/configuration-checked bytes on every desktop runner. Each native host uses the upstream host-resource build and electron-builder targets. Linux reuses the upstream format packager with private per-format copies of one unpacked application; a guarded adapter selects the native architecture and personal package configuration. The package lane builds/typechecks the production desktop/CLI/web/mobile resources and native helpers. Trusted verification independently re-extracts DMG/ZIP, checks ARM64, code signatures, embedded source/version identity, the app-tree manifest and package digests. It does not launch the application. Component/unit checks do not establish physical-device or provider acceptance.
 
-Packages use ad hoc integrity signatures, without Developer ID/notarization. Browser downloads may acquire macOS quarantine even though the same locally built app starts normally. Install a verified personal release from an updated fork checkout using Node and GitHub CLI:
+Scheduled previews use ad hoc integrity signatures. For Developer ID builds and in-app updates, follow [the signed macOS procedure](MAINTENANCE.md#macos-update-channels). Browser downloads may acquire macOS quarantine even though the same locally built app starts normally. Install a verified personal release from an updated fork checkout using Node and GitHub CLI:
 
 ```sh
 node config/fork-build/install.mjs --wait --launch

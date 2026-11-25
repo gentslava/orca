@@ -25,8 +25,8 @@ function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex')
 }
 
-export function hashFile(file) {
-  const hash = createHash('sha256')
+export function hashFile(file, algorithm = 'sha256', encoding = 'hex') {
+  const hash = createHash(algorithm)
   const buffer = Buffer.alloc(1024 * 1024)
   const fd = openSync(file, 'r')
   try {
@@ -34,7 +34,7 @@ export function hashFile(file) {
     while ((size = readSync(fd, buffer, 0, buffer.length, null))) {
       hash.update(buffer.subarray(0, size))
     }
-    return hash.digest('hex')
+    return hash.digest(encoding)
   } finally {
     closeSync(fd)
   }
@@ -136,12 +136,33 @@ export function measurePreviewApp(app, expected) {
     throw new Error('Preview executable must contain exactly the arm64 architecture')
   }
   macTool('/usr/bin/codesign', ['--verify', '--deep', '--strict', app])
+  const channel = join(resources, 'orca-fork-macos-update-channel')
+  const teamId = expected.macosTeamId
+  let minimumMacosVersion
+  if (teamId) {
+    if (!/^[A-Z0-9]{10}$/.test(teamId) || readFileSync(channel, 'utf8') !== 'gentslava/orca\n') {
+      throw new Error('Packaged fork update channel differs from the signed plan')
+    }
+    const requirement =
+      `identifier "com.stablyai.orca" and anchor apple generic and certificate leaf[subject.OU] = "${teamId}" ` +
+      'and certificate leaf[field.1.2.840.113635.100.6.1.13] exists'
+    macTool('/usr/bin/codesign', ['--verify', '--strict', '-R', requirement, app])
+    macTool('/usr/bin/xcrun', ['stapler', 'validate', app])
+    minimumMacosVersion = macTool('/usr/libexec/PlistBuddy', [
+      '-c',
+      'Print :LSMinimumSystemVersion',
+      plist
+    ])
+  } else if (readdirSync(resources).includes('orca-fork-macos-update-channel')) {
+    throw new Error('The unsigned preview unexpectedly enables the update channel')
+  }
   const manifest = appManifest(app)
   return {
     identity,
     executable,
     architectures,
     codesign: 'verified-deep-strict',
+    ...(teamId ? { macosTeamId: teamId, minimumMacosVersion } : {}),
     appAsarSha256: hashFile(join(resources, 'app.asar')),
     executableSha256: hashFile(binary),
     treeSha256: sha256(JSON.stringify(manifest)),
@@ -218,10 +239,11 @@ export function stagePreviewArchives({
   version,
   formats,
   compatibilityContract,
+  macosTeamId,
   metadata = {}
 }) {
   assertExpectedIdentity({ commit, version })
-  const expected = { commit, version, compatibilityContract }
+  const expected = { commit, version, compatibilityContract, macosTeamId }
   const unpacked = measurePreviewApp(app, expected)
   const proof = appProof(unpacked)
   const files = requestedFormats(formats).map((format) => {
@@ -278,6 +300,7 @@ export function verifyStagedArchives(directory, expected) {
         JSON.stringify(expected.compatibilityContract)) ||
     info.forkMaster !== expected.forkSha ||
     info.upstreamMain !== expected.upstreamSha ||
+    info.macosTeamId !== expected.macosTeamId ||
     validation?.schemaVersion !== 1 ||
     !Array.isArray(info.files) ||
     info.files.length !== formats.length ||

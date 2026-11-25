@@ -23,6 +23,7 @@ import {
 } from './upstream-build-baseline.mjs'
 import { createLocalBuildVersion } from '../scripts/desktop-distribution/macos/build-mac-local.mjs'
 import { packageTargets } from './package-targets.mjs'
+import { signedMacTeamId } from './macos-update-channel.mjs'
 
 const here = import.meta.dirname
 const forkRepository = process.env.GITHUB_REPOSITORY || 'gentslava/orca'
@@ -178,6 +179,7 @@ try {
     if (
       ![
         'preview-updater-guard.patch',
+        'fork-updater.patch',
         'test-runner-registration.patch',
         'integration-module-boundaries.patch',
         'conversation-project-order.patch',
@@ -273,6 +275,12 @@ try {
   }
   plan.result.commit = git(source, ['rev-parse', 'HEAD'])
   plan.result.tree = git(source, ['rev-parse', 'HEAD^{tree}'])
+  plan.macosTeamId = signedMacTeamId(process.env, plan.result.tree)
+  if (plan.macosTeamId && (plan.auditOnly || plan.blockers.length || !plan.result.publishable)) {
+    throw new Error(
+      'Signed macOS input requires a clean source composition eligible for publication'
+    )
+  }
   plan.compatibilityContract = JSON.parse(
     git(source, [
       'show',
@@ -320,6 +328,7 @@ try {
           feature.head.sha
         ]),
         outputs: config.outputs,
+        macosTeamId: plan.macosTeamId,
         compatibility: plan.compatibility,
         localizations: plan.localizations
       })
