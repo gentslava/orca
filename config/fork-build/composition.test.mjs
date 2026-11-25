@@ -458,14 +458,16 @@ test('real Git: repairs text-clean duplicate scopes from valid independent catal
     assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
   }))
 
-for (const [language, letters, upload, clear] of [
-  ['zh', '字母', '上传图标', '清除图标'],
-  ['ko', '글자', '아이콘 업로드', '아이콘 지우기']
+for (const [directory, language, letters, upload, clear] of [
+  ['src/renderer/src', 'zh', '字母', '上传图标', '清除图标'],
+  ['src/renderer/src', 'ko', '글자', '아이콘 업로드', '아이콘 지우기'],
+  ['mobile/src', 'tr', 'Harfler', 'Simge yükle', 'Simgeyi temizle']
 ]) {
   test(`real Git: merges adjacent independent ${language} catalog additions`, () =>
     fixture((cwd) => {
-      const path = `src/renderer/src/i18n/locales/${language}.json`
-      mkdirSync(join(cwd, 'src/renderer/src/i18n/locales'), { recursive: true })
+      const catalogDirectory = `${directory}/i18n/locales`
+      const path = `${catalogDirectory}/${language}.json`
+      mkdirSync(join(cwd, catalogDirectory), { recursive: true })
       const base = { icons: { letters } }
       writeFileSync(join(cwd, path), JSON.stringify(base, null, 2) + '\n')
       git(cwd, 'add', path)

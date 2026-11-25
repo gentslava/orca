@@ -1786,5 +1786,89 @@
     "patchSha256": "64435885fa287ffbb43c739b8ae299460e54113de486893bdcdf404e934ce3e5",
     "resultSha256": "06ec14937e39379436d18e003e90cd25b0e87a23f212b624f08cd26e98f272c9",
     "reason": "Add missing Russian translations while retaining the established glossary for overlapping strings with identical placeholders. Preserve upstream catalog changes since the prior reviewed merge."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/es.json",
+    "blobs": [
+      "bbaefb5e7b1f43240c86bf0a080fdad107f7f1f2",
+      "40c5819aa5ecec45e889cefc8f74a2cf062e9e5d",
+      "4d4624b6769a4a42068ce6fdf8b7ebe46be906f3"
+    ],
+    "patch": "refresh-c475-pr-33371-328ca638.patch",
+    "patchSha256": "239ace8dadc2a767e78680446ea3190c7a9cd6cc425d28c963164797c9a26b5f",
+    "resultSha256": "e87d0a7b7ee8dba8ab077664525b35ff7b32eb355db9bb1f91f084ac51065559",
+    "reason": "Merge surviving translation keys and retire labels absent from the English usage catalog."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ko.json",
+    "blobs": [
+      "be189d1920c86b39fa5d52afdcbcdc7f225fd1f7",
+      "e2252382d47d63deb1fe8a64b9aecc29557e6235",
+      "343dd8d55837ae20f50a4febabefbedfcec43552"
+    ],
+    "patch": "refresh-c475-pr-33371-aa028d28.patch",
+    "patchSha256": "bb2353077d2e29c044311eca1701da53a0e564d7fd114adaaa0f01f8a1608304",
+    "resultSha256": "dce8f7e26cd1e68b793f8f58c941218a8b807a815891eb5d31ebe54686c0079a",
+    "reason": "Merge surviving translation keys and retire labels absent from the English usage catalog."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "7b572c09a3be43a41fa312aabe3b76b9284ce9f6",
+      "e4ff1230242925bd7fe2e22fb7b96ce46fe2fdc8",
+      "9827e88b1592285190df69ec007788418250c5a0"
+    ],
+    "patch": "refresh-c475-pr-37744-1ff733f3.patch",
+    "patchSha256": "e829f52e96814a1bddd0520b0fa9ad1046393a042245fef8d51ed0aae41e6af2",
+    "resultSha256": "434115a9012db0090d5749e9068816a50e09504d5fa59371bfd77ba90c6360d2",
+    "reason": "Initialize both linked-session and worker-bound-terminal tables and advertise linked chat groups alongside paired child lineage."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/messaging/worker-follow-up.ts",
+    "blobs": [
+      "3179eea73b3df9288ecbc781c9d44dcb901d717a",
+      "4adef3ffd3e59594c456d5b6fe86252fc64a5c5e",
+      "69eccd45ad8842dbf9cd8c1f6b135ab3abde0068"
+    ],
+    "patch": "refresh-c475-pr-37744-ccbc6990.patch",
+    "patchSha256": "6362e22e39e24e41bd78660bf039df0ef66910f6229f476fee765b0a11743849",
+    "resultSha256": "5ba6a0796c044d9e29fd3a0bc357050055f326b0b8e96ebe57f51f0c8894f352",
+    "reason": "Check session-link delivery authority before validating the upstream item scope for worker follow-ups."
+  },
+  {
+    "path": "mobile/src/i18n/en-runtime-required.json",
+    "blobs": [
+      "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
+      "7752e7a3b4767a11dedfafec56a41e5f7f73dabc",
+      "6d828839f17fcde8c6da1c4ab5d30120b4708923"
+    ],
+    "patch": "refresh-c475-pr-41166-24d5c6c5.patch",
+    "patchSha256": "9c365140924661b944dadc66c3747590f3c64e558fba84b09b1845fa252175f5",
+    "resultSha256": "52235614c5c5feed3d78aec6a5d7cf15161d45d6b08c1e123990f4a0732af398",
+    "reason": "Use the shared automation and bot-start fallbacks while retaining the new bot-open action copy."
+  },
+  {
+    "path": "mobile/src/i18n/en-runtime-required.json",
+    "blobs": [
+      "1e52de1cd7daf39769da0fc9a1e5df921e5e82f0",
+      "10c877ef8ae459e4752ab6214580670dc5b94b3b",
+      "84b1f1507a410cc72deadd064fe7b77d61e78c45"
+    ],
+    "patch": "refresh-c475-pr-45437-24d5c6c5.patch",
+    "patchSha256": "e2e6a8f7c083e854caff04374306dbc1cfc36b0942dbafca09c0fa98d36067e5",
+    "resultSha256": "cfe18dc0803450194df9db3e86f7edcf70894b3ec62e8d8457064d7645f80e28",
+    "reason": "Keep the new flagged-request locale key while shared fallbacks supply the other messages"
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "4764ed6b28929a2252ceb0957826dd2e797e7f02",
+      "8de76bd6b289b2b6ea7231b5a711067f55a1c5df",
+      "29d3962a2ef1ee3422e9dd9e074e8080217e1643"
+    ],
+    "patch": "refresh-c475-pr-46107-58923bac.patch",
+    "patchSha256": "ca198052d22619cfc32b263fd736944d4dd225d41fafda7860964b8202aaaf86",
+    "resultSha256": "bc05232e2cdacf4449fac71b0a70c835ffa94fe8e1fb0d6742a5183227651482",
+    "reason": "Preserve the reviewed Russian glossary and the independent translations added by upstream since the last composition."
   }
 ]
