@@ -76,6 +76,24 @@ Open a fork PR with the configuration and required adaptations. Check the comple
 
 Keep the platform build commands on upstream's current tooling. Check that macOS, Windows, Android and both Linux architectures consume the same source bundle. Review Actions updates using Dependabot, the official action release notes and the runner images. Official Actions use reviewed stable major tags when allowed by repository policy. Preserve immutable pins where policy requires them or where the trust and compatibility review depends on an exact action revision. Keep source identity independent from tool versions. `plan.json` freezes the configuration SHA, upstream SHA, selected heads, final tree and commit. Package metadata, checksums and verification receipts bind downloads to that identity.
 
+## Signed macOS update channel
+
+The macOS ARM64 updater uses the standard Orca download and restart flow. Its feed selects published personal releases in `gentslava/orca` that contain `latest-mac.yml` and the versioned ARM64 ZIP. The signed app carries the channel marker. Scheduled ad hoc previews use the existing manual installer. Windows, Linux and Android personal packages stay on their existing installation paths.
+
+Use a Developer ID Application certificate from the fork owner's Apple Developer team. Keep the team and bundle identifier stable across releases so macOS can retain grants for the app and its signed terminal helper. Configure the repository variable `ORCA_FORK_MAC_TEAM_ID` with the ten-character Team ID. In the `fork-macos-signing` GitHub environment, restrict deployments to `master` and require maintainer approval. Store `MAC_CERTS` (base64 P12), `MAC_CERTS_PASSWORD`, `APPLE_ID` and `APPLE_APP_SPECIFIC_PASSWORD` as environment secrets.
+
+Run a qualification for the intended upstream snapshot and review its complete composed tree, selected heads, and packaging scripts before approving access to the signing environment. Use the full `result.tree` from its plan. A later PR head change requires renewed review because the signing workflow checks that exact tree again.
+
+```sh
+gh workflow run personal-build.yml -R gentslava/orca --ref master \
+  -f upstream_commit=UPSTREAM_SHA -f tested_run=QUALIFICATION_RUN_ID \
+  -f macos_sign_tree=REVIEWED_TREE_SHA -f force_build=true
+```
+
+The signing run requires all 11 packages. The macOS archive gates check Developer ID, Team ID, notarization ticket, architecture and the packaged updater marker on the app in both archives. The release stage derives the update manifest from that verified ZIP, including its SHA-512 digest and the minimum supported macOS version. The draft follows the normal promotion and publication gates.
+
+An installed ad hoc preview requires a one-time installation of the first signed release. Use the release DMG or the verified installer with `--release PERSONAL_TAG` to preserve the rollback copy. macOS may ask for permissions or Keychain access when switching signing identity. Before recording signed-updater acceptance, test two consecutive signed builds on Apple Silicon. Grant a protected-folder permission on the first build, let Orca install the second from **Check for Updates**, and verify that the app and terminal helper can still access that folder after restart.
+
 ## Release and recovery
 
 ```sh

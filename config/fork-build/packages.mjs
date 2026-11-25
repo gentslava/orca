@@ -12,6 +12,7 @@ import {
 import { assembleReleasePackages } from './release-packages.mjs'
 import { stageLinuxPackages, verifyLinuxPackages } from './linux-packages.mjs'
 import { linuxPackageTarget } from './package-targets.mjs'
+import { writeForkMacUpdateManifest } from './macos-update-channel.mjs'
 
 const [command, input, location, extra, android, linux] = process.argv.slice(2)
 const plan = JSON.parse(readFileSync(resolve(input), 'utf8'))
@@ -29,6 +30,9 @@ const expected = {
   formats: 'both',
   forkSha: plan.configuration,
   upstreamSha: plan.upstream
+}
+if (plan.macosTeamId) {
+  expected.macosTeamId = plan.macosTeamId
 }
 if (plan.compatibilityContract) {
   expected.compatibilityContract = plan.compatibilityContract
@@ -100,9 +104,12 @@ if (command === 'prepare') {
         upstreamMain: plan.upstream,
         compositionTree: plan.result.tree,
         fingerprint: plan.fingerprint,
-        developerIdSigned: false,
-        notarized: false,
-        updater: 'disabled for fork-preview versions'
+        ...(expected.macosTeamId ? { macosTeamId: expected.macosTeamId } : {}),
+        developerIdSigned: Boolean(expected.macosTeamId),
+        notarized: Boolean(expected.macosTeamId),
+        updater: expected.macosTeamId
+          ? 'gentslava/orca signed macOS releases'
+          : 'disabled for previews'
       }
     })
   }
@@ -123,6 +130,9 @@ if (command === 'prepare') {
     info.configurationCommit !== plan.configuration
   ) {
     throw new Error('Package provenance differs from the planned composition')
+  }
+  if (expected.macosTeamId) {
+    writeForkMacUpdateManifest(resolve(location), expected, plan.timestamp)
   }
   writeFileSync(
     join(location, 'verified.json'),

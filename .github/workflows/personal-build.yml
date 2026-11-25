@@ -31,6 +31,10 @@ on:
         type: choice
         options: [macos-26, macos-15]
         default: macos-26
+      macos_sign_tree:
+        description: Exact reviewed composition tree for an authorized Developer ID release
+        type: string
+        default: ''
       tested_run:
         description: Optional successful fork qualification run for the identical source tree
         type: string
@@ -89,6 +93,8 @@ jobs:
           AUDIT_ONLY: ${{ inputs.audit_only || false }}
           FORCE_BUILD: ${{ inputs.force_build || false }}
           FORK_BUILD_UPSTREAM_COMMIT: ${{ inputs.upstream_commit || '' }}
+          FORK_MAC_SIGN_TREE: ${{ inputs.macos_sign_tree || '' }}
+          FORK_MAC_SIGN_TEAM_ID: ${{ vars.ORCA_FORK_MAC_TEAM_ID }}
         run: node config/fork-build/plan.mjs
       - name: Verify prior qualification for this exact source tree
         id: qualification
@@ -186,6 +192,7 @@ jobs:
     if: needs.plan.outputs.build == 'true' && github.ref == 'refs/heads/master'
     runs-on: ${{ inputs.macos_runner == 'macos-15' && 'macos-15' || 'macos-26' }}
     timeout-minutes: 120
+    environment: ${{ inputs.macos_sign_tree && 'fork-macos-signing' || 'fork-macos-preview' }}
     env:
       ORCA_RELEASE_JAVASCRIPT_SOURCE_SHA: ${{ needs.plan.outputs.source }}
       ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
@@ -257,12 +264,33 @@ jobs:
           set -euo pipefail
           pnpm run build:native
           pnpm run verify:computer-native
-      - name: Package ad hoc ARM64 DMG and ZIP
+      - name: Prepare pinned ARM64 packaging runtimes
         run: |
-          set -euo pipefail
           node config/scripts/orcad-distribution/prebuilds/pinned-node-downloads.mjs darwin-arm64
           pnpm run ensure:electron-runtime
+      - name: Package ad hoc ARM64 DMG and ZIP
+        if: '!inputs.macos_sign_tree'
+        run: |
           pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 --config.mac.identity=- --publish never
+      - name: Sign and notarize the reviewed ARM64 DMG and ZIP
+        if: github.event_name == 'workflow_dispatch' && inputs.macos_sign_tree != ''
+        env:
+          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ vars.ORCA_FORK_MAC_TEAM_ID }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'true'
+          ORCA_MAC_RELEASE: '1'
+        run: |
+          set -euo pipefail
+          : "${CSC_LINK:?Missing MAC_CERTS}" "${CSC_KEY_PASSWORD:?Missing MAC_CERTS_PASSWORD}"
+          : "${APPLE_ID:?Missing APPLE_ID}" "${APPLE_APP_SPECIFIC_PASSWORD:?Missing APPLE_APP_SPECIFIC_PASSWORD}"
+          ORCA_FORK_MAC_TEAM_ID="$(node -p 'require("./personal-build/plan.json").macosTeamId || ""')"
+          [[ -n "$ORCA_FORK_MAC_TEAM_ID" && "$ORCA_FORK_MAC_TEAM_ID" == "$APPLE_TEAM_ID" ]]
+          export ORCA_FORK_MAC_TEAM_ID
+          unset CSC_NAME ORCA_COMPUTER_MACOS_SIGN_IDENTITY
+          pnpm exec electron-builder --config config/electron-builder.config.cjs --mac dmg zip --arm64 --publish never
       - name: Measure archives against the exact source and stage downloads
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage personal-build/plan.json "$GITHUB_WORKSPACE"
       - uses: actions/upload-artifact@v7

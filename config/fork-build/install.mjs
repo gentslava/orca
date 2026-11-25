@@ -204,6 +204,17 @@ async function install(options) {
     const application = join(mount, 'Orca.app')
     verifyApplication(application, info)
     if (existsSync(options.destination)) {
+      const updateChannel = join(
+        options.destination,
+        'Contents',
+        'Resources',
+        'orca-fork-macos-update-channel'
+      )
+      if (existsSync(updateChannel) && !info.macosTeamId) {
+        throw new Error(
+          'Choose a signed release with --release or update the installed Orca in-app'
+        )
+      }
       if (lstatSync(options.destination).isSymbolicLink()) {
         throw new Error('Refusing a symlink destination')
       }
