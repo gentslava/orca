@@ -155,7 +155,8 @@
     "composed-contract-migrations.patch",
     "composed-qualification-format.patch",
     "selected-regressions.patch",
-    "composed-source-quality.patch"
+    "composed-source-quality.patch",
+    "release-typecheck-contracts.patch"
   ],
   "retainClosed": {
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",

@@ -142,6 +142,9 @@ jobs:
         run: node config/scripts/electron-installation/platform-layout/install-electron-package-binary.mjs
       - name: Verify formatting, localization and changed source
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/qualification.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
+      - name: Typecheck the composed source
+        if: needs.plan.outputs.full_suite_reused != 'true'
+        run: pnpm run typecheck:ci --bun-concurrency=2 --bun-threads=2
       - name: Lint the composed source
         if: needs.plan.outputs.full_suite_reused != 'true'
         env:
@@ -235,9 +238,8 @@ jobs:
         with:
           name: personal-javascript
           path: .build/release-javascript
-      - name: Build and typecheck desktop, CLI, web and mobile resources
+      - name: Build desktop, CLI, web and mobile resources
         run: |
-          pnpm run typecheck:ci --bun-concurrency=2 --bun-threads=2
           node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs restore
           pnpm run build:release:host
       - name: Verify regressions from all composed features
