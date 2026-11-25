@@ -334,7 +334,6 @@ export function NativeChatResolvedView({
               onSubmitted={revealLatest}
               answerCommandLocally={answerLocally}
               onSwitchToTerminal={onSwitchToTerminal}
-              readTerminalScreen={readTerminalScreen}
               launchSeed={{ ...launchDraftSignal, ownsTabWideLaunchDraft, readTerminalDraft }}
               recallSource={{ messages: sessionWithPending.messages, commands: commandMarkers }}
             />

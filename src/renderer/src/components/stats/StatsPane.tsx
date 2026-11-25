@@ -1,3 +1,4 @@
+import type { StatsHost } from './StatsHostScope'
 import { useEffect, useState } from 'react'
 import { BarChart3, Bot, Check, ChevronDown, Clock, GitPullRequest } from 'lucide-react'
 import { useAppStore } from '../../store'
@@ -114,16 +115,21 @@ function UsageAnalyticsOptionIcon({ tab }: { tab: UsageTab }): React.JSX.Element
 }
 
 export function StatsPane({
-  hostScope
-}: { hostScope?: SettingsHostScope } = {}): React.JSX.Element {
+  hostScope,
+  host
+}: { hostScope?: SettingsHostScope; host?: StatsHost } = {}): React.JSX.Element {
   return hostScope?.available === false ? (
     <SettingsHostScopeUnavailableNotice />
   ) : (
-    <OwnedStatsPane hostScope={hostScope} />
+    <OwnedStatsPane hostTarget={hostScope?.target ?? host?.target} />
   )
 }
 
-function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
+function OwnedStatsPane({
+  hostTarget
+}: {
+  hostTarget?: SettingsHostScope['target']
+}): React.JSX.Element {
   const t = useTranslate()
   const intlLocale = useIntlLocale()
   const summary = useAppStore((s) => s.statsSummary)
@@ -132,14 +138,14 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
   const localRateLimits = useAppStore((state) => state.rateLimits)
   const environments = useAppStore((state) => state.runtimeEnvironments)
   const selectedHost =
-    hostScope?.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
+    hostTarget?.kind === 'local' && isWebClientLocation() && environments?.length === 1
       ? { kind: 'environment' as const, environmentId: environments[0].id }
-      : hostScope?.target
+      : hostTarget
   const { remoteOwner } = useOwnerUsageRateLimits(localRateLimits)
   const historyTarget = selectedHost ?? getUsageOwnerHostScope(remoteOwner)
-  const remoteHistory = historyTarget.kind === 'environment' || isWebClientLocation()
+  const remoteHistory = historyTarget?.kind === 'environment' || isWebClientLocation()
   const historyOwnerLabel =
-    historyTarget.kind === 'environment'
+    historyTarget?.kind === 'environment'
       ? (environments?.find((environment) => environment.id === historyTarget.environmentId)
           ?.name ??
         remoteOwner?.label ??
@@ -160,6 +166,10 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
   useEffect(() => {
     void fetchStatsSummary()
   }, [fetchStatsSummary])
+
+  if (!historyTarget) {
+    return <SettingsHostScopeUnavailableNotice />
+  }
 
   return (
     <div className="@container space-y-5">

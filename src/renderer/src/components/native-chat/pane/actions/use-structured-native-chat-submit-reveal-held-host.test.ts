@@ -18,6 +18,11 @@ vi.mock('@/runtime/rpc/calls/runtime-rpc-call', () => ({
 it('sends no queued card and retries no start on a host held for its permission mode', async () => {
   const queuedMessages = {
     queueCapable: true,
+    holds: () => false,
+    agentMail: [],
+    agentMailEditable: () => false,
+    mailLeads: false,
+    stopping: false,
     clearCapable: true,
     cards: [],
     pause: { reason: 'stopped' },
@@ -37,6 +42,7 @@ it('sends no queued card and retries no start on a host held for its permission 
   const controller = {
     capturePresentation: () => () => true,
     respond: vi.fn(async () => null),
+    rewind: { surface: undefined },
     queuedMessages
   }
   const retryLaunch = vi.fn()

@@ -7,16 +7,18 @@ const ComposerMenuHostContext = createContext<RefObject<HostInstance | null> | n
 export function MobileNativeChatComposerMenuHost({
   style,
   testID,
+  'aria-hidden': ariaHidden,
   children
 }: {
   style?: StyleProp<ViewStyle>
   testID?: string
+  'aria-hidden'?: boolean
   children: ReactNode
 }): React.JSX.Element {
   const ref = useRef<HostInstance>(null)
   return (
     <ComposerMenuHostContext value={ref}>
-      <View ref={ref} testID={testID} style={style}>
+      <View ref={ref} testID={testID} style={style} aria-hidden={ariaHidden}>
         {children}
       </View>
     </ComposerMenuHostContext>

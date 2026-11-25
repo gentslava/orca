@@ -25876,6 +25876,12 @@
         "provisionFailed": "Sanal makine oluşturulamadı veya oluşturma işlemi yarıda kesildi. Makineyi yok etmek veya kaydını kaldırmak için Ayarlar’ı açın."
       },
       "suspendFailed": "Sanal makinedeki çalışma alanı askıya alınamadı"
+    },
+    "start": {
+      "title": "Ne açmak istersiniz?",
+      "description": "Bu proje için bir aracı veya araç seçin.",
+      "agents": "Aracılar",
+      "manageAgents": "Aracıları yönet"
     }
   },
   "tabHoverCard": {

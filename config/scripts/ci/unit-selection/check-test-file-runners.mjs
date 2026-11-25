@@ -17,6 +17,12 @@ const TEST_FILE_NAME = /\.(?:test|spec|e2e|bench)\.[cm]?[jt]sx?$/
 // Mirror literals must appear in runner sources; list manual rows each run so their lack of CI remains visible.
 const NON_UNIT_TEST_RUNNERS = [
   {
+    name: 'personal build node:test',
+    include: ['config/fork-build/*.test.mjs'],
+    sources: ['.github/workflows/personal-build.yml'],
+    mirrors: ['config/fork-build/*.test.mjs']
+  },
+  {
     name: 'Playwright e2e',
     include: ['tests/e2e/**/*.spec.ts'],
     sources: ['tests/playwright.config.ts'],
@@ -255,8 +261,11 @@ function trackedCodeSources(root) {
 
 function main(root) {
   const drift = findRunnerDrift(TEST_RUNNERS, (file) => {
+    const controlRoot = process.env.ORCA_FORK_BUILD_CONTROL_ROOT
+    const runnerRoot =
+      controlRoot && file === '.github/workflows/personal-build.yml' ? controlRoot : root
     try {
-      return readFileSync(path.join(root, file), 'utf8')
+      return readFileSync(path.join(runnerRoot, file), 'utf8')
     } catch {
       return null
     }

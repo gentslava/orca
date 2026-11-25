@@ -5,13 +5,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { chromium } from 'playwright-core'
 import { buildMobileWebAppBundle } from '../build/mobile-web-app/build-mobile-web-app-bundle.mjs'
 import { mobileWebAppDependenciesPresent } from './mobile-web-app-bundle-dependencies.mjs'
-import {
-  createBundleServer,
-  installShellDouble,
-  readBridgeFaultGrant,
-  readBridgeProtocolVersion,
-  readShellCsp
-} from './preview/mobile-web-app-render-harness.mjs'
+import { createBundleServer, readShellCsp } from './preview/mobile-web-app-render-harness.mjs'
+import { installShellDouble, readBridgeContract } from './preview/project-conversations-shell.mjs'
 
 const HOST = {
   id: 'conversation-host',
@@ -147,8 +142,9 @@ let scratch, server, browser, origin, version, faultGrant
 const proofDir = process.env.ORCA_CONVERSATION_PROOF_DIR
 
 beforeAll(async () => {
-  version = await readBridgeProtocolVersion()
-  faultGrant = await readBridgeFaultGrant()
+  const contract = await readBridgeContract()
+  version = contract.version
+  faultGrant = contract.faultGrant
   scratch = await mkdtemp(join(tmpdir(), 'orca-mobile-conversations-'))
   const built = await buildMobileWebAppBundle({ outDir: join(scratch, 'bundle') })
   const served = await createBundleServer({ outDir: built.outDir, cspHeader: await readShellCsp() })

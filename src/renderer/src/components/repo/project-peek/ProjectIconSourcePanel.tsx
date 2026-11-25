@@ -49,7 +49,7 @@ export function ProjectIconSourcePanel({
         onClick={() => void uploadImage()}
       >
         <ImageUp />
-        {t('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload PNG')}
+        {t('auto.components.settings.RepositoryIconPicker.381b4844fd', 'Upload image')}
       </Button>
       <form
         className="flex items-center gap-1.5"
@@ -81,7 +81,7 @@ export function ProjectIconSourcePanel({
       <p className="text-2xs text-muted-foreground">
         {t(
           'auto.components.settings.RepositoryIconPicker.fde066a63b',
-          'PNG uploads must be 256KB or smaller.'
+          'PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF. Up to 10MB and 32 megapixels.'
         )}
       </p>
     </div>

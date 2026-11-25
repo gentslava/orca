@@ -30,3 +30,19 @@ export function classifyWorktreeShowResponse(response: RpcResponse): WorktreeSho
   }
   return endsWithNotFoundToken(response.error.message) ? 'missing' : 'unknown'
 }
+
+export function confirmMissingWorktree<Client>(
+  resolution: WorktreeShowResolution,
+  key: { client: Client; worktreeId: string },
+  previous: { client: Client; worktreeId: string; count: number }
+): {
+  resolution: WorktreeShowResolution
+  streak: { client: Client; worktreeId: string; count: number }
+} {
+  const sameWorktree = previous.client === key.client && previous.worktreeId === key.worktreeId
+  const count = resolution === 'missing' ? (sameWorktree ? previous.count : 0) + 1 : 0
+  return {
+    resolution: resolution === 'missing' && count < 2 ? 'unknown' : resolution,
+    streak: { ...key, count }
+  }
+}

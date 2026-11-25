@@ -1,10 +1,13 @@
 import { act } from '@testing-library/react'
-import type { Editor } from '@tiptap/react'
+import { Editor } from '@tiptap/react'
 import { promptText } from './native-chat-prompt-document'
 import { promptTextContent } from './native-chat-prompt-document-text'
 
 export function promptEditor(element: HTMLElement): Editor {
-  return (element as HTMLElement & { editor: Editor }).editor
+  if (!('editor' in element) || !(element.editor instanceof Editor)) {
+    throw new Error('The prompt element has no attached Tiptap editor')
+  }
+  return element.editor
 }
 
 export function promptValue(element: HTMLElement): string {

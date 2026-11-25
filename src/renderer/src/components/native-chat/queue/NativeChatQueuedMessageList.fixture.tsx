@@ -77,6 +77,7 @@ function controller(
     editor: undefined,
     edit: noop,
     steerHead: undefined,
+    steerLast: undefined,
     isWorking: true
   }
 }

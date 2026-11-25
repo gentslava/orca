@@ -18,6 +18,7 @@ import {
   shouldDeleteUntouchedUntitledFile
 } from '../tabs/untitled-file-cleanup'
 import { unifiedTabsKeepWorktreeSelected } from '../tabs/unified-tabs-keep-worktree-selected'
+import { keepsEmptiedWorkspaceOpen } from '../../tabs/split-landing-groups'
 import { mayShareEditorBackingFile } from '../file-ids/editor-file-ids'
 import { isSameOwnedDocument } from '../file-ids/same-owned-editor-document'
 import { isEditorTabContentType } from '../tabs/editor-tab-content-type'
@@ -220,6 +221,7 @@ export function createCloseFileAction(
             )
           const shouldDeactivateWorktree =
             activeWorktreeId !== null &&
+            !keepsEmptiedWorkspaceOpen(activeWorktreeId) &&
             !closesBackgroundFile &&
             remainingForWorktree.length === 0 &&
             browserTabsForWorktree.length === 0 &&
