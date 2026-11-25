@@ -1,4 +1,4 @@
-import { Link2, Pencil, Pin, PinOff, SquareTerminal, Timer, X } from 'lucide-react'
+import { CopyX, Link2, Pencil, Pin, PinOff, SquareTerminal, Timer, X } from 'lucide-react'
 import {
   ContextMenuItem,
   ContextMenuSeparator,

@@ -118,7 +118,14 @@ describe('supervised conversations', () => {
       db.settleDeadWorkerTerminalRelease({
         requestingDispatchId: own.dispatch.id,
         resourceId: resource.id,
-        processIncarnation: resource.process_incarnation!
+        processIncarnation: resource.process_incarnation!,
+        expected: resource,
+        output: () => ({
+          kind: 'terminal_tail',
+          content: '',
+          archiveSource: 'terminal',
+          archiveStatus: 'unavailable'
+        })
       }).disposition
     ).toBe('released')
     const released = record(WORKER)

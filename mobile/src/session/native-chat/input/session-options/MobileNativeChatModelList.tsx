@@ -18,6 +18,7 @@ export function MobileNativeChatModelList(props: {
   moreChoices: { shown: boolean; onToggle: () => void }
   onSetOption: (value: SessionOptionValue) => void
   onInvokeAction: () => void
+  onReset?: () => void
 }): React.JSX.Element {
   useMobileColorScheme()
   const t = useMobileTranslation()

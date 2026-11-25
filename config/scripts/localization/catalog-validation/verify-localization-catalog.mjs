@@ -10,7 +10,6 @@ import { LOCALIZATION_SURFACES, readLocalizationSurface } from './localization-s
 import { collectConstantFallbacks } from './localization-constant-fallbacks.mjs'
 import { collectLocalizationKeyReferences } from './localization-key-references.mjs'
 export { collectLocalizationKeyReferences } from './localization-key-references.mjs'
-import { repairTranslatedValue } from '../../locale-catalog/locale-translation-policy.mjs'
 import {
   collectGenericTermRegressions,
   collectGlossaryViolations,

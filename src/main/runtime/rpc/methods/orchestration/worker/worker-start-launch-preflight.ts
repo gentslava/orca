@@ -1,3 +1,4 @@
+import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import type { OrchestrationEntryCaller } from '../../../../orchestration/addressing/orchestration-caller-identity'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
@@ -97,5 +98,45 @@ export async function preflightLocalWorkerStartLaunch(args: {
     structuredFastModeSupported,
     structuredFastServiceTier
   })
-  return { ...prepared, fastWorkspace, fastWorkerMode }
+  function preflightTerminal(
+    workerMode: WorkerStartModeReceipt,
+    creationTarget?: WorkerWorktreeCreationTarget,
+    worktree?: { id: string }
+  ): Promise<void> | undefined {
+    if (
+      prepared.agent &&
+      (workerMode.mode === 'terminal' || createsWorktree) &&
+      (params.role || params.fastMode !== undefined)
+    ) {
+      return runtime.preflightOrchestrationWorkerLaunch(
+        prepared.agent,
+        prepared.launch.preferences,
+        createsWorktree
+          ? { repo: creationTarget?.repoSelector ?? params.repo }
+          : worktree
+            ? { worktree: `id:${worktree.id}` }
+            : {}
+      )
+    }
+    return undefined
+  }
+  return { ...prepared, fastWorkspace, fastWorkerMode, preflightTerminal }
+}
+
+export function applyWorkerStartRole(runtime: OrcaRuntimeService, params: WorkerStartInput) {
+  if (params.role) {
+    try {
+      return resolveWorkerRoleParams(
+        params,
+        runtime.requireStore().getSettings().orchestrationWorkerRoles
+      )
+    } catch (error) {
+      throw new OrchestrationError(
+        'invalid_argument',
+        error instanceof Error ? error.message : 'Invalid worker role profile.',
+        { effectsApplied: false }
+      )
+    }
+  }
+  return params
 }

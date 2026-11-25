@@ -1,3 +1,5 @@
+import { resolveStructuredWorkerAuthority } from '../../terminal-authority/structured-sessions/structured-worker-authority'
+import { resolveTerminalIdentityFromProbes } from '../../../terminal/identity/terminal-identity-probe'
 import { OrcaRuntimeWithGetPtyRecordForPaneKey } from './terminal-pane-mail-routing'
 import type { OrchestrationMailboxTerminal } from './mailbox-owner'
 import type { RuntimePtyWorktreeRecord } from '../../../terminal/records/runtime-terminal-state-records'
@@ -6,6 +8,18 @@ import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../shared/workspace-layou
 
 /** Which live terminal orchestration types mail into, and the handle it is known by. */
 export abstract class OrcaRuntimeWithMailboxTerminalIdentity extends OrcaRuntimeWithGetPtyRecordForPaneKey {
+  /** Read-only live-agent identity in either lane, without terminal.show's writable-looking pane payload. */
+  resolveTerminalIdentity(handle: string) {
+    return resolveTerminalIdentityFromProbes(handle, {
+      isLiveStructuredWorker: () =>
+        Boolean(resolveStructuredWorkerAuthority(handle, this._orchestrationDb)),
+      hasLivePty: () => Boolean(this.getLivePtyForHandle(handle)),
+      assertLiveLeaf: () => {
+        this.getLiveLeafForHandle(handle)
+      }
+    })
+  }
+
   protected getMailboxTerminalForPaneKey(paneKey: string): OrchestrationMailboxTerminal | null {
     const pty = this.getPtyRecordForPaneKey(paneKey)
     return pty ? this.getOrchestrationMailboxTerminal(pty.ptyId) : null

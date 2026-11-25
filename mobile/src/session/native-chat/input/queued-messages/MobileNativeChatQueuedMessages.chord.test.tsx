@@ -55,6 +55,9 @@ vi.mock('lucide-react-native', () => ({
   X: 'X'
 }))
 
+vi.mock('../../../../components/bottom-drawer/BottomDrawer', () => ({
+  BottomDrawer: 'BottomDrawer'
+}))
 vi.mock('../../../../components/sheets/ActionSheetModal', () => ({
   ActionSheetModal: 'ActionSheetModal'
 }))
@@ -63,6 +66,10 @@ vi.mock('../tasks/MobileNativeChatBackgroundTasks', () => ({
 }))
 vi.mock('../tasks/MobileNativeChatDockedTaskList', () => ({
   MobileNativeChatDockedTaskList: 'DockedTaskList'
+}))
+
+vi.mock('../tasks/MobileNativeChatWorkerDock', () => ({
+  MobileNativeChatWorkerDock: 'WorkerDock'
 }))
 
 vi.mock('./MobileQueuedMessageComposer', () => ({

@@ -5,8 +5,7 @@ import {
   TouchSensor,
   pointerWithin,
   useSensor,
-  useSensors,
-  type Modifier
+  useSensors
 } from '@dnd-kit/core'
 import { useAppStore } from '@/store/index'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -35,7 +34,7 @@ import { StalledTerminalDaemonBanner } from '../maintenance/terminal-daemon/Stal
 import { SidebarBotsSection } from '@/components/bots/SidebarBotsSection'
 import { SidebarBotsSplit, SidebarProjectsListSlot } from './SidebarBotsSplit'
 import { SidebarContentViewport } from './SidebarContentViewport'
-import { SidebarSectionDragOverlay } from './SidebarSectionDragOverlay'
+import { SidebarSectionDragOverlay, sidebarSectionDragModifiers } from './SidebarSectionDragOverlay'
 import { PROJECTS_SECTION_GROUP_KEY } from '../../../../shared/sidebar-list/sections/group-keys'
 import { useBotsEnabled } from '@/lib/bot-catalog'
 import { StartupWorktreeRefreshStatus } from './worktree-list/listing/StartupWorktreeRefreshStatus'
@@ -79,20 +78,6 @@ const AgentDashboardSidebarHost = lazyWithRetry(
 
 const MIN_WIDTH = 220
 const MAX_WIDTH = 500
-const sidebarSectionDragModifiers: Modifier[] = [
-  ({ draggingNodeRect, scrollableAncestorRects: [viewport], transform }) => ({
-    ...transform,
-    x: 0,
-    // Keep the preview within the sidebar viewport when the pointer leaves it.
-    y:
-      draggingNodeRect && viewport
-        ? Math.max(
-            viewport.top - draggingNodeRect.top,
-            Math.min(transform.y, viewport.bottom - draggingNodeRect.bottom)
-          )
-        : transform.y
-  })
-]
 // Why: start on the divider pixel so pointing at the visible seam resizes instead of scrolling the list.
 export const WORKTREE_SIDEBAR_RESIZE_HANDLE_CLASS_NAME =
   'peer absolute -right-[9px] top-0 z-20 h-full w-[9px] cursor-col-resize'

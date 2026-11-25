@@ -15,7 +15,7 @@ import { FirstHostLaunchEnvGate } from './first-host-launch-env-gate'
 export class HostAccountLaunchEnvState {
   /** Pushed by the desktop that owns this host's accounts; held in memory, re-pushed on connect. */
   private hostLaunchEnv: HostAccountLaunchEnv | null = null
-  private persistHostLaunchEnv: ((launchEnv: HostAccountLaunchEnv) => void) | null = null
+  private persistHostLaunchEnv: ((launchEnv: HostAccountLaunchEnv) => Promise<void>) | null = null
   private readonly firstHostLaunchEnv = new FirstHostLaunchEnvGate()
   private refreshClaudeProfile: HostClaudeProfileRefresh | null = null
 
@@ -49,7 +49,7 @@ export class HostAccountLaunchEnvState {
   }
 
   /** Refused where this host has account services of its own: they already decide every launch. */
-  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): void {
+  async setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): Promise<void> {
     if (this.hasOwnAccountServices()) {
       throw new Error('This host manages its own provider accounts.')
     }
@@ -66,7 +66,7 @@ export class HostAccountLaunchEnvState {
     }
     this.firstHostLaunchEnv.settle()
     try {
-      this.persistHostLaunchEnv?.(launchEnv)
+      await this.persistHostLaunchEnv?.(launchEnv)
     } catch (error) {
       // Environment already applies; persistence failure loses it only on restart before the next push.
       console.warn('[accounts] Could not save the host account env:', error)
@@ -76,7 +76,7 @@ export class HostAccountLaunchEnvState {
   /** orcad's store: starts from the last pushed env, so launches before a reconnect keep it. */
   restoreHostLaunchEnv(
     saved: HostAccountLaunchEnv | null,
-    persist: (launchEnv: HostAccountLaunchEnv) => void,
+    persist: (launchEnv: HostAccountLaunchEnv) => Promise<void>,
     options: { expectDesktopPush?: boolean; refreshClaudeProfile?: HostClaudeProfileRefresh } = {}
   ): void {
     this.persistHostLaunchEnv = persist
