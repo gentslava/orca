@@ -113,6 +113,9 @@ export const MobileNativeChatAgentMessageCard = memo(function MobileNativeChatAg
   const words = mobileAgentMessageLead(heading, t)
   const kind = kindWord(heading, t)
   const preview = useMemo(() => agentMessagePreviewLine(text).line, [text])
+  const link = from.link
+    ? ` · ${t('chat.agentMessage.sessionLink', 'Link')}: ${from.link.title}`
+    : ''
   const items = message.agentStartItems ?? []
   const merged = message.mergedEvents ?? []
   const canCopy = agentMessageCanCopy(text)
@@ -138,7 +141,7 @@ export const MobileNativeChatAgentMessageCard = memo(function MobileNativeChatAg
       icon={<SenderMark agentType={view.agentType} />}
       // The live state never marks a row failed: a restarted worker would un-fail it. Waiting mail shows no status.
       badge={!waiting && view.dot === 'working' ? 'running' : null}
-      label={`${words} ${sender ? senderName : unnamed}${more > 0 ? ` +${more}` : ''}${
+      label={`${words} ${sender ? senderName : unnamed}${more > 0 ? ` +${more}` : ''}${link}${
         items.length > 0
           ? ` ${t('chat.agentMessage.row.forItems', 'for')} ${items.map((item) => item.title).join(', ')}`
           : ''
@@ -241,6 +244,7 @@ export const MobileNativeChatAgentMessageCard = memo(function MobileNativeChatAg
                 </Fragment>
               ))}
           {more > 0 ? ` +${more}` : null}
+          {link}
           {items.length > 0 ? (
             <>
               {` ${t('chat.agentMessage.row.forItems', 'for')} `}
