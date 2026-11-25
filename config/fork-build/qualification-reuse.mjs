@@ -48,6 +48,7 @@ if (
   javascript?.conclusion !== 'success' ||
   ![
     'Verify formatting, localization and changed source',
+    'Typecheck the composed source',
     'Lint the composed source',
     'Run desktop and mobile unit tests'
   ].every((name) =>

@@ -197,7 +197,8 @@ try {
         'composed-contract-migrations.patch',
         'composed-qualification-format.patch',
         'selected-regressions.patch',
-        'composed-source-quality.patch'
+        'composed-source-quality.patch',
+        'release-typecheck-contracts.patch'
       ].includes(patch)
     ) {
       throw new Error('Unrecognized compatibility correction')

@@ -1,0 +1,157 @@
+diff --git a/src/main/ai-vault/structured-conversation-navigation.test.ts b/src/main/ai-vault/structured-conversation-navigation.test.ts
+--- a/src/main/ai-vault/structured-conversation-navigation.test.ts
++++ b/src/main/ai-vault/structured-conversation-navigation.test.ts
+@@ -144,7 +144,14 @@
+       db.settleDeadWorkerTerminalRelease({
+         requestingDispatchId: started.dispatch.id,
+         resourceId: resource.id,
+-        processIncarnation: resource.process_incarnation!
++        processIncarnation: resource.process_incarnation!,
++        expected: resource,
++        output: () => ({
++          kind: 'terminal_tail',
++          content: '',
++          archiveSource: 'unavailable',
++          archiveStatus: 'unavailable'
++        })
+       })
+       const successor = testOrcaSessionId('561bb50e-6281-43a7-a761-4e15dc4c730a')
+       const records: AgentSessionRecord[] = [parent, worker, successor].map((sessionId) => ({
+diff --git a/src/main/runtime/orchestration/structured-session-child-metadata.test.ts b/src/main/runtime/orchestration/structured-session-child-metadata.test.ts
+--- a/src/main/runtime/orchestration/structured-session-child-metadata.test.ts
++++ b/src/main/runtime/orchestration/structured-session-child-metadata.test.ts
+@@ -125,7 +125,14 @@
+         db.settleDeadWorkerTerminalRelease({
+           requestingDispatchId: own.dispatch.id,
+           resourceId: resource.id,
+-          processIncarnation: resource.process_incarnation!
++          processIncarnation: resource.process_incarnation!,
++          expected: resource,
++          output: () => ({
++            kind: 'terminal_tail',
++            content: '',
++            archiveSource: 'unavailable',
++            archiveStatus: 'unavailable'
++          })
+         }).disposition
+       ).toBe('released')
+       expect(children()[0]).toMatchObject({ ...expected, result: 'Retained structured result' })
+@@ -163,7 +170,14 @@
+       db.settleDeadWorkerTerminalRelease({
+         requestingDispatchId: own.dispatch.id,
+         resourceId: resource.id,
+-        processIncarnation: resource.process_incarnation!
++        processIncarnation: resource.process_incarnation!,
++        expected: resource,
++        output: () => ({
++          kind: 'terminal_tail',
++          content: '',
++          archiveSource: 'unavailable',
++          archiveStatus: 'unavailable'
++        })
+       }).disposition
+     ).toBe('released')
+     expect(children()[0]).toMatchObject({ ...expected, result: 'Retained terminal result' })
+diff --git a/src/main/runtime/orchestration/structured-session-child-workers.test.ts b/src/main/runtime/orchestration/structured-session-child-workers.test.ts
+--- a/src/main/runtime/orchestration/structured-session-child-workers.test.ts
++++ b/src/main/runtime/orchestration/structured-session-child-workers.test.ts
+@@ -118,7 +118,14 @@
+       db.settleDeadWorkerTerminalRelease({
+         requestingDispatchId: own.dispatch.id,
+         resourceId: resource.id,
+-        processIncarnation: resource.process_incarnation!
++        processIncarnation: resource.process_incarnation!,
++        expected: resource,
++        output: () => ({
++          kind: 'terminal_tail',
++          content: '',
++          archiveSource: 'unavailable',
++          archiveStatus: 'unavailable'
++        })
+       }).disposition
+     ).toBe('released')
+     const released = record(WORKER)
+diff --git a/src/main/runtime/rpc/methods/orchestration/session-children.test.ts b/src/main/runtime/rpc/methods/orchestration/session-children.test.ts
+--- a/src/main/runtime/rpc/methods/orchestration/session-children.test.ts
++++ b/src/main/runtime/rpc/methods/orchestration/session-children.test.ts
+@@ -149,7 +149,14 @@
+   db.settleDeadWorkerTerminalRelease({
+     requestingDispatchId: started.dispatch.id,
+     resourceId: resource.id,
+-    processIncarnation: resource.process_incarnation!
++    processIncarnation: resource.process_incarnation!,
++    expected: resource,
++    output: () => ({
++      kind: 'terminal_tail',
++      content: '',
++      archiveSource: 'unavailable',
++      archiveStatus: 'unavailable'
++    })
+   })
+   await rig.restart()
+   setStructuredAgentSessionHost(rig.host)
+diff --git a/src/renderer/src/components/native-chat/NativeChatQueuedMessageList.fixture.tsx b/src/renderer/src/components/native-chat/NativeChatQueuedMessageList.fixture.tsx
+--- a/src/renderer/src/components/native-chat/NativeChatQueuedMessageList.fixture.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatQueuedMessageList.fixture.tsx
+@@ -13,6 +13,11 @@
+     })
+   ),
+   queueCapable: true,
++  holds: () => false,
++  agentMail: [],
++  agentMailEditable: () => false,
++  mailLeads: false,
++  stopping: false,
+   clearCapable: true,
+   editCapable: false,
+   editor: undefined,
+diff --git a/src/renderer/src/components/native-chat/pane/actions/use-structured-native-chat-submit-reveal-held-host.test.ts b/src/renderer/src/components/native-chat/pane/actions/use-structured-native-chat-submit-reveal-held-host.test.ts
+--- a/src/renderer/src/components/native-chat/pane/actions/use-structured-native-chat-submit-reveal-held-host.test.ts
++++ b/src/renderer/src/components/native-chat/pane/actions/use-structured-native-chat-submit-reveal-held-host.test.ts
+@@ -18,6 +18,11 @@
+ it('sends no queued card and retries no start on a host held for its permission mode', async () => {
+   const queuedMessages = {
+     queueCapable: true,
++    holds: () => false,
++    agentMail: [],
++    agentMailEditable: () => false,
++    mailLeads: false,
++    stopping: false,
+     clearCapable: true,
+     cards: [],
+     pause: { reason: 'stopped' },
+diff --git a/src/renderer/src/components/native-chat/native-chat-composer-queued-steer.test.tsx b/src/renderer/src/components/native-chat/native-chat-composer-queued-steer.test.tsx
+--- a/src/renderer/src/components/native-chat/native-chat-composer-queued-steer.test.tsx
++++ b/src/renderer/src/components/native-chat/native-chat-composer-queued-steer.test.tsx
+@@ -73,6 +73,8 @@
+     submissions: [],
+     hasPendingPrompt: false,
+     isWorking: true,
++    stopping: false,
++    transcriptShown: true,
+     sending,
+     composerScopeKey: undefined,
+     ...writes,
+diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
+--- a/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
++++ b/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
+@@ -42,6 +42,7 @@
+   editor: undefined,
+   edit: async () => {},
+   steerHead: undefined,
++  steerLast: undefined,
+   isWorking: true
+ }
+ 
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+--- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
++++ b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+@@ -57,7 +57,7 @@
+         </h4>
+         {provider.planType ? (
+           <span className="text-xs text-muted-foreground">
+-            {formatPlanLabel(provider.planType)}
++            {formatPlanLabel(provider.planType, provider.provider)}
+           </span>
+         ) : null}
+       </div>
