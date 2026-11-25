@@ -1,0 +1,731 @@
+diff --git a/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx b/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx
+index ced19d6088b..fd2f8995e5e 100644
+--- a/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatCompactActivityHeader.fixture.tsx
+@@ -1,5 +1,5 @@
+ import { defineFixture } from '../../component-fixtures/component-fixture'
+-import { getDefaultSettings } from '../../../../shared/constants'
++import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
+ import { NativeChatToolRun } from './tools/runs/NativeChatToolRun'
+ 
+ const command =
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
+new file mode 100644
+index 00000000000..4cd0c95bd59
+--- /dev/null
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scope/ai-vault-session-projects.test.ts
+@@ -0,0 +1,404 @@
++import { describe, expect, it } from 'vitest'
++import type { ProjectHostSetupProjection } from '../../../../../../shared/project/host-setup/project-host-setup-projection'
++import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
++import type { Project, ProjectHostSetup } from '../../../../../../shared/project/project-types'
++
++import type { Repo } from '../../../../../../shared/repository/repo-types'
++import type { Worktree } from '../../../../../../shared/worktree/types'
++
++import {
++  buildAiVaultProjectContext,
++  buildAiVaultSessionProjectById
++} from './ai-vault-session-projects'
++
++const baseSession: AiVaultSession = {
++  id: 'claude:1',
++  executionHostId: 'local',
++  agent: 'claude',
++  sessionId: 'session-1',
++  title: 'Implement project history',
++  cwd: '/Users/ada/orca',
++  branch: 'feature/history',
++  model: 'claude-sonnet-4-5',
++  filePath: '/Users/ada/.claude/projects/session-1.jsonl',
++  codexHome: null,
++  createdAt: '2026-05-01T10:00:00.000Z',
++  updatedAt: '2026-05-01T10:10:00.000Z',
++  modifiedAt: '2026-05-01T10:10:00.000Z',
++  messageCount: 4,
++  totalTokens: 1200,
++  previewMessages: [],
++  queuedMessageCount: 0,
++  subagentTranscriptCount: 0,
++  resumeCommand: "cd '/Users/ada/orca' && claude --resume 'session-1'",
++  subagent: null
++}
++
++describe('buildAiVaultProjectContext', () => {
++  it('attributes a structured chat to its stored workspace on its own host even when its cwd matches another project', () => {
++    const repo = makeRepo({ id: 'saved-repo', path: '/saved', displayName: 'Saved project' })
++    const worktree = makeWorktree({
++      id: 'saved-workspace',
++      repoId: repo.id,
++      projectId: 'saved-project',
++      path: '/saved'
++    })
++    const session = {
++      ...baseSession,
++      cwd: '/elsewhere',
++      structuredSession: { sessionId: 'stored-chat', workspaceId: worktree.id }
++    }
++    const args = {
++      repos: [repo],
++      worktrees: [worktree],
++      projectHostSetupProjection: makeProjection({
++        projects: [makeProject({ id: 'saved-project', displayName: 'Saved project' })]
++      })
++    }
++    expect(
++      buildAiVaultSessionProjectById({ ...args, sessions: [session] }).get(session.id)
++    ).toMatchObject({ key: 'project:saved-project' })
++    const remote = { ...session, executionHostId: 'runtime:remote' as const }
++    expect(
++      buildAiVaultSessionProjectById({ ...args, sessions: [remote] }).get(remote.id)?.key
++    ).not.toBe('project:saved-project')
++  })
++  it('uses durable worktree project ids before repo fallback', () => {
++    const repo = makeRepo({ id: 'repo-1', displayName: 'Legacy Repo', path: '/Users/ada/orca' })
++    const project = makeProject({ id: 'project-1', displayName: 'Canonical Orca' })
++    const worktree = makeWorktree({
++      id: 'wt-1',
++      repoId: repo.id,
++      projectId: project.id,
++      path: '/Users/ada/orca'
++    })
++
++    const context = buildAiVaultProjectContext({
++      repos: [repo],
++      worktrees: [worktree],
++      projectHostSetupProjection: makeProjection({
++        projects: [project],
++        setups: [makeSetup({ repoId: repo.id, projectId: project.id, path: repo.path })]
++      }),
++      activeRepo: repo,
++      activeWorktree: worktree,
++      sessions: [baseSession]
++    })
++
++    expect(context.activeProjectKey).toBe('project:project-1')
++    expect(context.sessionProjectById.get(baseSession.id)).toMatchObject({
++      kind: 'repo',
++      key: 'project:project-1',
++      label: 'Canonical Orca'
++    })
++  })
++
++  it('inherits setup project ids for legacy worktrees without project metadata', () => {
++    const repo = makeRepo({ id: 'repo-1', displayName: 'Orca Repo', path: '/repo/orca' })
++    const worktree = makeWorktree({
++      id: 'wt-legacy',
++      repoId: repo.id,
++      path: '/repo/orca'
++    })
++    const session = makeSession({ id: 'claude:legacy-worktree', cwd: '/repo/orca/src' })
++
++    const context = buildAiVaultProjectContext({
++      repos: [repo],
++      worktrees: [worktree],
++      projectHostSetupProjection: makeProjection({
++        projects: [makeProject({ id: 'github:stablyai/orca', displayName: 'Canonical Orca' })],
++        setups: [
++          makeSetup({
++            repoId: repo.id,
++            projectId: 'github:stablyai/orca',
++            path: repo.path
++          })
++        ]
++      }),
++      activeRepo: repo,
++      activeWorktree: worktree,
++      sessions: [session]
++    })
++
++    expect(context.activeProjectKey).toBe('project:github:stablyai/orca')
++    expect(context.sessionProjectById.get(session.id)).toMatchObject({
++      kind: 'repo',
++      key: 'project:github:stablyai/orca',
++      label: 'Canonical Orca'
++    })
++  })
++
++  it('inherits setup host ids for legacy worktrees without host metadata', () => {
++    const repo = makeRepo({ id: 'repo-1', displayName: 'Runtime Repo', path: '/runtime/orca' })
++    const worktree = makeWorktree({
++      id: 'wt-runtime',
++      repoId: repo.id,
++      path: '/runtime/orca'
++    })
++    const session = makeSession({
++      id: 'claude:runtime-worktree',
++      cwd: '/runtime/orca/src',
++      executionHostId: 'runtime:preview'
++    })
++
++    const context = buildAiVaultProjectContext({
++      repos: [repo],
++      worktrees: [worktree],
++      projectHostSetupProjection: makeProjection({
++        projects: [makeProject({ id: 'project-runtime', displayName: 'Runtime Project' })],
++        setups: [
++          makeSetup({
++            repoId: repo.id,
++            projectId: 'project-runtime',
++            path: repo.path,
++            hostId: 'runtime:preview'
++          })
++        ]
++      }),
++      activeRepo: repo,
++      activeWorktree: worktree,
++      sessions: [session]
++    })
++
++    expect(context.sessionProjectById.get(session.id)).toMatchObject({
++      kind: 'repo',
++      key: 'project:project-runtime',
++      hostKey: 'runtime:preview'
++    })
++  })
++
++  it('chooses the most specific nested path and lets worktrees win equal-length ties', () => {
++    const repo = makeRepo({ id: 'repo-root', displayName: 'Root', path: '/repo' })
++    const childRepo = makeRepo({ id: 'repo-child', displayName: 'Child Repo', path: '/repo/pkg' })
++    const worktree = makeWorktree({
++      id: 'wt-child',
++      repoId: childRepo.id,
++      projectId: 'child-project',
++      path: '/repo/pkg'
++    })
++    const session = makeSession({ id: 'claude:nested', cwd: '/repo/pkg/src' })
++
++    const context = buildAiVaultProjectContext({
++      repos: [repo, childRepo],
++      worktrees: [worktree],
++      projectHostSetupProjection: makeProjection({
++        projects: [makeProject({ id: 'child-project', displayName: 'Child Project' })],
++        setups: [
++          makeSetup({ repoId: repo.id, projectId: 'root-project', path: repo.path }),
++          makeSetup({ repoId: childRepo.id, projectId: 'setup-child', path: childRepo.path })
++        ]
++      }),
++      activeRepo: childRepo,
++      activeWorktree: worktree,
++      sessions: [session]
++    })
++
++    expect(context.sessionProjectById.get(session.id)).toMatchObject({
++      key: 'project:child-project',
++      label: 'Child Project'
++    })
++  })
++
++  it('uses the session host when matching overlapping local and SSH project paths', () => {
++    const localRepo = makeRepo({ id: 'local', displayName: 'Local', path: '/srv/orca' })
++    const sshRepo = makeRepo({
++      id: 'ssh',
++      displayName: 'SSH',
++      path: '/srv/orca',
++      connectionId: 'target-1'
++    })
++    const session = makeSession({
++      id: 'claude:ssh-session',
++      cwd: '/srv/orca/src',
++      executionHostId: 'ssh:target-1'
++    })
++
++    const context = buildAiVaultProjectContext({
++      repos: [localRepo, sshRepo],
++      worktrees: [],
++      projectHostSetupProjection: makeProjection({
++        projects: [],
++        setups: [
++          makeSetup({ repoId: localRepo.id, projectId: 'repo:local', path: localRepo.path }),
++          makeSetup({
++            repoId: sshRepo.id,
++            projectId: 'repo:ssh',
++            path: sshRepo.path,
++            hostId: 'ssh:target-1',
++            connectionId: 'target-1'
++          })
++        ]
++      }),
++      activeRepo: localRepo,
++      activeWorktree: null,
++      sessions: [session]
++    })
++
++    expect(context.sessionProjectById.get(session.id)).toMatchObject({
++      kind: 'repo',
++      key: 'repo:ssh',
++      label: 'SSH',
++      hostKey: 'ssh:target-1'
++    })
++  })
++
++  it('falls back to folder when a legacy hostless session matches multiple host buckets', () => {
++    const localRepo = makeRepo({ id: 'local', displayName: 'Local', path: '/srv/orca' })
++    const runtimeRepo = makeRepo({ id: 'runtime', displayName: 'Runtime', path: '/srv/orca' })
++    const session = makeSession({
++      id: 'claude:runtime-ambiguous',
++      cwd: '/srv/orca/src',
++      executionHostId: undefined as unknown as AiVaultSession['executionHostId']
++    })
++
++    const context = buildAiVaultProjectContext({
++      repos: [localRepo, runtimeRepo],
++      worktrees: [],
++      projectHostSetupProjection: makeProjection({
++        projects: [],
++        setups: [
++          makeSetup({ repoId: localRepo.id, projectId: 'repo:local', path: localRepo.path }),
++          makeSetup({
++            repoId: runtimeRepo.id,
++            projectId: 'repo:runtime',
++            path: runtimeRepo.path,
++            hostId: 'runtime:preview'
++          })
++        ]
++      }),
++      activeRepo: localRepo,
++      activeWorktree: null,
++      sessions: [session]
++    })
++
++    expect(context.sessionProjectById.get(session.id)).toMatchObject({
++      kind: 'folder',
++      key: 'folder:/srv/orca/src',
++      label: 'orca/src'
++    })
++  })
++
++  it('ignores blank setup paths instead of treating them as catch-all candidates', () => {
++    const repo = makeRepo({ id: 'repo-1', displayName: 'Repo', path: '/repo' })
++    const session = makeSession({ id: 'claude:outside', cwd: '/outside/path' })
++
++    const context = buildAiVaultProjectContext({
++      repos: [repo],
++      worktrees: [],
++      projectHostSetupProjection: makeProjection({
++        projects: [],
++        setups: [makeSetup({ repoId: repo.id, projectId: 'repo:repo-1', path: '' })]
++      }),
++      activeRepo: repo,
++      activeWorktree: null,
++      sessions: [session]
++    })
++
++    expect(context.sessionProjectById.get(session.id)).toMatchObject({
++      kind: 'folder',
++      key: 'folder:/outside/path',
++      label: 'outside/path'
++    })
++  })
++})
++
++function makeSession(overrides: Partial<AiVaultSession>): AiVaultSession {
++  return { ...baseSession, ...overrides }
++}
++
++function makeRepo(overrides: Partial<Repo>): Repo {
++  return {
++    id: 'repo-1',
++    path: '/Users/ada/orca',
++    displayName: 'Orca',
++    badgeColor: '#737373',
++    addedAt: 1,
++    ...overrides
++  }
++}
++
++function makeProject(overrides: Partial<Project>): Project {
++  return {
++    id: 'project-1',
++    displayName: 'Project',
++    badgeColor: '#737373',
++    sourceRepoIds: [],
++    createdAt: 1,
++    updatedAt: 1,
++    ...overrides
++  }
++}
++
++function makeSetup(overrides: Partial<ProjectHostSetup>): ProjectHostSetup {
++  return {
++    id: overrides.repoId ?? 'setup-1',
++    projectId: 'project-1',
++    hostId: 'local',
++    repoId: 'repo-1',
++    path: '/Users/ada/orca',
++    displayName: 'Orca',
++    setupState: 'ready',
++    setupMethod: 'legacy-repo',
++    createdAt: 1,
++    updatedAt: 1,
++    ...overrides
++  }
++}
++
++function makeWorktree(overrides: Partial<Worktree>): Worktree {
++  return {
++    id: 'wt-1',
++    repoId: 'repo-1',
++    displayName: 'main',
++    comment: '',
++    linkedIssue: null,
++    linkedPR: null,
++    linkedLinearIssue: null,
++    isArchived: false,
++    isUnread: false,
++    isPinned: false,
++    sortOrder: 0,
++    lastActivityAt: 1,
++    path: '/Users/ada/orca',
++    head: 'abc123',
++    branch: 'main',
++    isBare: false,
++    isMainWorktree: true,
++    ...overrides
++  }
++}
++
++function makeProjection(
++  overrides: Partial<ProjectHostSetupProjection>
++): ProjectHostSetupProjection {
++  return {
++    projects: [],
++    setups: [],
++    ...overrides
++  }
++}
++
++describe('AI vault session project attribution reuse', () => {
++  it('gives sessions on one host distinct attribution per cwd', () => {
++    const repos = [
++      makeRepo({ id: 'repo-a', path: '/repo-a' }),
++      makeRepo({ id: 'repo-b', path: '/repo-b' })
++    ]
++    const result = buildAiVaultSessionProjectById({
++      repos,
++      worktrees: [],
++      projectHostSetupProjection: makeProjection({}),
++      sessions: [
++        { ...baseSession, id: 'a1', cwd: '/repo-a/sub' },
++        { ...baseSession, id: 'b1', cwd: '/repo-b/sub' },
++        { ...baseSession, id: 'a2', cwd: '/repo-a/other' },
++        { ...baseSession, id: 'none', cwd: '/elsewhere/sub' }
++      ]
++    })
++
++    expect(result.get('a1')?.key).toBe('repo:repo-a')
++    expect(result.get('a2')?.key).toBe('repo:repo-a')
++    expect(result.get('b1')?.key).toBe('repo:repo-b')
++    expect(result.get('none')?.kind).toBe('folder')
++  })
++})
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
+new file mode 100644
+index 00000000000..597bfd4a6da
+--- /dev/null
++++ b/src/renderer/src/components/right-sidebar/ai-vault/session-list/ai-vault-session-worktree.test.ts
+@@ -0,0 +1,73 @@
++import { describe, expect, it } from 'vitest'
++import type { AiVaultSession } from '../../../../../../shared/ai-vault/contracts/ai-vault-types'
++import { MIXED_FOLDER } from '../../../../../../shared/folder-workspaces/folder-workspace-host-routing.test-fixture'
++import { resolveAiVaultSessionWorktreeInfo } from '../../../../../../shared/ai-vault/session-display/ai-vault-session-worktree'
++import { makeWorktree } from '@/store/slices/worktrees/worktree.test-fixture'
++import { aiVaultSessionOwnerWorkspaces } from './ai-vault-session-worktree'
++
++const baseSession: AiVaultSession = {
++  id: 'codex:session-1',
++  executionHostId: 'local',
++  agent: 'codex',
++  sessionId: 'session-1',
++  title: 'Find the pane',
++  cwd: '/repo/orca/src',
++  branch: null,
++  model: null,
++  filePath: '/home/ada/.codex/session-1.jsonl',
++  codexHome: null,
++  createdAt: null,
++  updatedAt: '2026-06-24T10:00:00.000Z',
++  modifiedAt: '2026-06-24T10:00:00.000Z',
++  messageCount: 2,
++  totalTokens: 42,
++  previewMessages: [],
++  queuedMessageCount: 0,
++  subagentTranscriptCount: 0,
++  resumeCommand: "codex resume 'session-1'",
++  subagent: null
++}
++
++describe('resolveAiVaultSessionWorktreeInfo', () => {
++  it('resolves a record-only chat by stored folder identity without a cwd and keeps host twins separate', () => {
++    const folder = { ...MIXED_FOLDER, id: 'folder-1', name: 'Notes', folderPath: '/work/notes' }
++    const saved = {
++      ...baseSession,
++      source: 'structured-record' as const,
++      cwd: null,
++      filePath: '',
++      structuredSession: { sessionId: 'saved-empty', workspaceId: 'folder:folder-1' }
++    }
++    const worktrees = aiVaultSessionOwnerWorkspaces([], [folder])
++    expect(
++      resolveAiVaultSessionWorktreeInfo({ session: saved, worktrees, activeWorktreeId: null })
++    ).toMatchObject({ worktreeId: 'folder:folder-1', path: '/work/notes', label: 'Notes' })
++    expect(
++      resolveAiVaultSessionWorktreeInfo({
++        session: { ...saved, executionHostId: 'runtime:remote' },
++        worktrees,
++        activeWorktreeId: null
++      })
++    ).toBeNull()
++  })
++  it.each([
++    { filePath: String.raw`\\wsl.localhost\Ubuntu\home\ada\.codex\session.jsonl`, owner: 'Ubuntu' },
++    { filePath: String.raw`\\wsl.localhost\Debian\home\ada\.codex\session.jsonl`, owner: 'Debian' },
++    { filePath: '/home/ada/.codex/session.jsonl', owner: undefined }
++  ])('requires transcript namespace proof for WSL Linux cwd: $owner', ({ filePath, owner }) => {
++    const worktrees = ['Debian', 'Ubuntu'].map((distro) =>
++      makeWorktree({
++        id: `folder:${distro}`,
++        repoId: 'repo-1',
++        path: `\\\\wsl.localhost\\${distro}\\home\\ada\\orca`
++      })
++    )
++    const found = resolveAiVaultSessionWorktreeInfo({
++      session: { ...baseSession, cwd: '/home/ada/orca/src', filePath },
++      worktrees,
++      activeWorktreeId: null
++    })
++    expect(found?.worktreeId).toBe(owner ? `folder:${owner}` : undefined)
++    expect(found?.status).toBe(owner ? 'active' : 'unavailable')
++  })
++})
+diff --git a/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx b/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx
+index c1443226453..2e8b18f44c0 100644
+--- a/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx
++++ b/src/renderer/src/components/settings/SettingsContentWidth.fixture.tsx
+@@ -1,8 +1,8 @@
+ import { defineFixture } from '../../component-fixtures/component-fixture'
+-import { getDefaultSettings } from '../../../../shared/constants'
+-import type { NativeChatAppearanceSettings } from '../../../../shared/native-chat/native-chat-appearance-settings'
++import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
++import type { NativeChatAppearanceSettings } from '../../../../shared/native-chat/settings/native-chat-appearance-settings'
+ import Settings from './Settings'
+-import { ConfirmationDialogProvider } from '../confirmation-dialog'
++import { ConfirmationDialogProvider } from '../dismiss/confirmation/confirmation-dialog'
+ 
+ function settingsWidth(
+   pane: 'general' | 'appearance' | 'shortcuts' | 'plugins',
+diff --git a/src/renderer/src/components/settings/page/settings-page-renderer.tsx b/src/renderer/src/components/settings/page/settings-page-renderer.tsx
+index 2c32f8bc043..d4dd7b8cf48 100644
+--- a/src/renderer/src/components/settings/page/settings-page-renderer.tsx
++++ b/src/renderer/src/components/settings/page/settings-page-renderer.tsx
+@@ -1,4 +1,4 @@
+-import { nativeChatContentMaxWidth } from '../../../../../shared/native-chat/native-chat-appearance-settings'
++import { nativeChatContentMaxWidth } from '../../../../../shared/native-chat/settings/native-chat-appearance-settings'
+ import { SettingsHeader } from '../navigation/SettingsHeader'
+ import { getGeneralSubPageTitle } from '../general/general-sub-pages'
+ import { ActiveSettingsSectionProvider } from '../section-layout/SettingsSection'
+diff --git a/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
+new file mode 100644
+index 00000000000..aba8b600501
+--- /dev/null
++++ b/src/renderer/src/components/sidebar/worktree-list/drag/project-header-pin-tiers.test.ts
+@@ -0,0 +1,75 @@
++import { expect, it } from 'vitest'
++import type { Repo } from '../../../../../../shared/repository/repo-types'
++import type { Row } from '../../../../../../shared/sidebar-list/row-types'
++import {
++  getSidebarOrderedRepoHeaderRowsByBucket,
++  getSidebarOrderedRepoHeaderIdsByBucket
++} from './project-header-drop'
++
++it('keeps pinned and unpinned project drag targets in separate fixed tiers', () => {
++  const a: Repo = { id: 'a', path: '/a', displayName: 'a', badgeColor: '', addedAt: 0 }
++  const b: Repo = { ...a, id: 'b', path: '/b' }
++  const headers: Row[] = [
++    {
++      type: 'header',
++      key: 'a',
++      label: 'a',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: a,
++      projectPinned: true
++    },
++    {
++      type: 'header',
++      key: 'b',
++      label: 'b',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: b,
++      projectPinned: false
++    }
++  ]
++  const buckets = getSidebarOrderedRepoHeaderIdsByBucket(headers)
++  expect([...buckets.values()]).toEqual([['a'], ['b']])
++})
++
++it('resolves rendered same-id headers by their own membership and pin tier', () => {
++  const repo: Repo = { id: 'same', path: '/same', displayName: 'Same', badgeColor: '', addedAt: 0 }
++  const rows: Row[] = [
++    {
++      type: 'header',
++      key: 'local',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: { ...repo, executionHostId: 'local' },
++      projectPinned: true
++    },
++    {
++      type: 'header',
++      key: 'remote',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: { ...repo, executionHostId: 'runtime:remote' },
++      projectPinned: false
++    },
++    {
++      type: 'header',
++      key: 'other-group',
++      count: 0,
++      icon: { kind: 'project' },
++      repo: { ...repo, projectGroupId: 'other' }
++    }
++  ]
++  const buckets = getSidebarOrderedRepoHeaderIdsByBucket(rows)
++  expect(
++    [...getSidebarOrderedRepoHeaderRowsByBucket(rows)].map(([bucket, headers]) => [
++      bucket,
++      headers.map((row) => row.key)
++    ])
++  ).toEqual([
++    [JSON.stringify(['ungrouped', true]), ['local']],
++    [JSON.stringify(['ungrouped', false]), ['remote']],
++    ['group:other', ['other-group']]
++  ])
++  expect([...buckets.values()]).toEqual([['same'], ['same'], ['same']])
++})
+diff --git a/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.fixture.tsx b/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.fixture.tsx
+index fea19423428..ed0000d1dbf 100644
+--- a/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.fixture.tsx
++++ b/src/renderer/src/components/skills/setup/AgentSkillSetupPanel.fixture.tsx
+@@ -4,7 +4,7 @@ import { i18n, loadRendererUiLanguage } from '@/i18n/i18n'
+ import { planOf, sharedEntry } from '../bundled-skill-plan-fixtures.test-support'
+ import { AgentSkillSetupPanel } from './AgentSkillSetupPanel'
+ import { useAppStore } from '@/store'
+-import { ConfirmationDialogProvider } from '@/components/confirmation-dialog'
++import { ConfirmationDialogProvider } from '@/components/dismiss/confirmation/confirmation-dialog'
+ import { CliSetupTipDialog } from '../../feature-tips/CliSetupTipDialog'
+ import SkillsPage from '../SkillsPage'
+ import { FEATURE_TIPS } from '../../../../../shared/feature-education/feature-tips'
+diff --git a/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx b/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx
+new file mode 100644
+index 00000000000..85659053b2a
+--- /dev/null
++++ b/src/renderer/src/components/tab-bar/new-tab-agent-menu-twin-host.test.tsx
+@@ -0,0 +1,105 @@
++// @vitest-environment happy-dom
++
++import { act, cleanup, renderHook } from '@testing-library/react'
++import { afterEach, expect, it, vi } from 'vitest'
++import { useAppStore } from '@/store/index'
++import { getRuntimeAgentInventoryKey } from '@/store/slices/agent-inventory/runtime-agent-inventory-key'
++import { useAgentDetectionTargetForWorktree } from '@/lib/agent-session/launch/inventory/useAgentDetectionTarget'
++import { TEST_REPO } from '@/store/repos/repo.test-fixture'
++import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
++import { resetRendererAppPlatformCacheForTests } from '@/app-shell/platform/renderer-app-platform'
++import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
++import { EVERY_AGENT_CHAT } from '../../../../shared/native-chat/every-agent-chat.test-fixture'
++import {
++  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY as CHAT,
++  STRUCTURED_AGENT_SESSION_CLIENT_LAUNCH_MODE_CAPABILITY as CLIENT
++} from '../../../../shared/agent-session/capabilities/agent-session-runtime-capabilities'
++import {
++  NEW_TAB_TWIN_HOSTS,
++  NEW_TAB_PAIRED_STATUS,
++  newTabTwinHostWorkspaces
++} from './new-tab-agent-menu-twin-host.test-fixture'
++import { useAgentMenuObservation } from '../agent/launch-menu/use-new-tab-agent-menu-rows'
++
++const initial = useAppStore.getState()
++afterEach(() => {
++  cleanup()
++  useAppStore.setState(initial, true)
++  setLocalRuntimeCapabilitiesForTests(null)
++  resetRendererAppPlatformCacheForTests()
++})
++
++it.each(['git-worktree', 'folder'] as const)(
++  'keeps %s discovery and chat rows on the explicitly named twin host',
++  async (kind) => {
++    const worktreeId = kind === 'folder' ? 'folder:twins' : `${TEST_REPO.id}::/work/twins`
++    const twinWorkspaces = newTabTwinHostWorkspaces(worktreeId)
++    const status = NEW_TAB_PAIRED_STATUS.status
++    if (!status) {
++      throw new Error('Paired runtime fixture has no status')
++    }
++    const pairedStatus = {
++      ...NEW_TAB_PAIRED_STATUS,
++      status: { ...status, capabilities: [CHAT, CLIENT] }
++    }
++    Object.assign(window, { api: { runtime: { getStatus: vi.fn() } } })
++    setLocalRuntimeCapabilitiesForTests([CHAT, CLIENT])
++    useAppStore.setState({
++      ...initial,
++      settings: { ...getDefaultSettings('/home/me'), nativeChatProviders: EVERY_AGENT_CHAT },
++      repos: NEW_TAB_TWIN_HOSTS.map((executionHostId) => ({ ...TEST_REPO, executionHostId })),
++      ...twinWorkspaces,
++      runtimeStatusByEnvironmentId: new Map([['paired', pairedStatus]]),
++      detectedWorktreesByRepo: {},
++      detectedAgentIds: ['codex'],
++      runtimeDetectedAgentIds: { [getRuntimeAgentInventoryKey('paired', worktreeId)]: ['codex'] },
++      ensureDetectedAgents: vi.fn(async () => ['codex' as const]),
++      ensureRuntimeDetectedAgents: vi.fn(async () => ['codex' as const])
++    })
++    for (const executionHostId of NEW_TAB_TWIN_HOSTS) {
++      const workspace = { kind, worktreeId, executionHostId }
++      const hook = renderHook(() => {
++        const target = useAgentDetectionTargetForWorktree(worktreeId, executionHostId)
++        return { target, menu: useAgentMenuObservation({ workspace }, true, target) }
++      })
++      await act(async () => {})
++      for (const activeHost of [null, ...NEW_TAB_TWIN_HOSTS]) {
++        act(() =>
++          useAppStore.setState({
++            activeWorktreeId: activeHost === null ? 'elsewhere' : worktreeId,
++            activeWorkspaceExecutionHostId: activeHost
++          })
++        )
++        expect(hook.result.current.target).toEqual(
++          executionHostId === 'local'
++            ? { kind: 'local' }
++            : { kind: 'runtime', environmentId: 'paired', worktreeId }
++        )
++        const model = hook.result.current.menu.model
++        expect(model.state).toBe('settled')
++        expect(model.state === 'settled' && model.rows).toContainEqual({
++          kind: 'chat',
++          agent: 'codex',
++          executionHostId
++        })
++      }
++      act(() =>
++        useAppStore.setState({
++          worktreesByRepo: {
++            [TEST_REPO.id]: useAppStore
++              .getState()
++              .worktreesByRepo[TEST_REPO.id].filter((row) => row.hostId !== executionHostId)
++          },
++          folderWorkspaces: useAppStore
++            .getState()
++            .folderWorkspaces.filter((row) => row.executionHostId !== executionHostId)
++        })
++      )
++      expect(hook.result.current.target).toBeUndefined()
++      const stale = hook.result.current.menu.model
++      expect(stale.state === 'settled' && stale.rows.some((row) => row.kind === 'chat')).toBe(false)
++      hook.unmount()
++      useAppStore.setState(twinWorkspaces)
++    }
++  }
++)

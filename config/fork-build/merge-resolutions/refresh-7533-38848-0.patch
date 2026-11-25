@@ -1,0 +1,14 @@
+diff --git a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+index fbd1eb76f2532db5ae3602c4d08b019f0e06287c..65051f56fb77fe8b101bae769c0324c3cace6c0f 100644
+--- a/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
++++ b/src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx
+@@ -370,6 +370,9 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
+                   steerHead={
+                     bot.stopControls.stopping ? undefined : submits.queuedMessages.steerHead
+                   }
++                  steerLast={
++                    bot.stopControls.stopping ? undefined : submits.queuedMessages.steerLast
++                  }
+                   structuredTransport={transport}
+                   notices={notices}
+                   recallSource={{ messages: session.messages, withoutImageMarkers: true }}
