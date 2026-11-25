@@ -458,31 +458,38 @@ test('real Git: repairs text-clean duplicate scopes from valid independent catal
     assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
   }))
 
-test('real Git: merges adjacent independent Chinese catalog additions', () =>
-  fixture((cwd) => {
-    const path = 'src/renderer/src/i18n/locales/zh.json'
-    mkdirSync(join(cwd, 'src/renderer/src/i18n/locales'), { recursive: true })
-    const base = { icons: { letters: '字母' } }
-    writeFileSync(join(cwd, path), JSON.stringify(base, null, 2) + '\n')
-    git(cwd, 'add', path)
-    git(cwd, 'commit', '-m', 'valid catalog')
-    const upstream = git(cwd, 'rev-parse', 'HEAD')
-    const additions = { upload: '上传图标', clear: '清除图标' }
-    const selections = Object.entries(additions).map(([key, copy], index) => {
-      git(cwd, 'checkout', '-B', key, upstream)
-      const catalog = { icons: { ...base.icons, [key]: copy } }
-      writeFileSync(join(cwd, path), JSON.stringify(catalog, null, 2) + '\n')
+for (const [directory, language, letters, upload, clear] of [
+  ['src/renderer/src', 'zh', '字母', '上传图标', '清除图标'],
+  ['src/renderer/src', 'ko', '글자', '아이콘 업로드', '아이콘 지우기'],
+  ['mobile/src', 'tr', 'Harfler', 'Simge yükle', 'Simgeyi temizle']
+]) {
+  test(`real Git: merges adjacent independent ${language} catalog additions`, () =>
+    fixture((cwd) => {
+      const catalogDirectory = `${directory}/i18n/locales`
+      const path = `${catalogDirectory}/${language}.json`
+      mkdirSync(join(cwd, catalogDirectory), { recursive: true })
+      const base = { icons: { letters } }
+      writeFileSync(join(cwd, path), `${JSON.stringify(base, null, 2)}\n`)
       git(cwd, 'add', path)
-      git(cwd, 'commit', '-m', key)
-      return { ...pr(index + 1), head: { sha: git(cwd, 'rev-parse', 'HEAD') } }
-    })
-    const result = compose(cwd, upstream, selections)
-    assert.equal(result.publishable, true)
-    assert.deepEqual(parseCatalog(git(cwd, 'show', `HEAD:${path}`)), {
-      icons: { ...base.icons, ...additions }
-    })
-    assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
-  }))
+      git(cwd, 'commit', '-m', 'valid catalog')
+      const upstream = git(cwd, 'rev-parse', 'HEAD')
+      const additions = { upload, clear }
+      const selections = Object.entries(additions).map(([key, copy], index) => {
+        git(cwd, 'checkout', '-B', key, upstream)
+        const catalog = { icons: { ...base.icons, [key]: copy } }
+        writeFileSync(join(cwd, path), `${JSON.stringify(catalog, null, 2)}\n`)
+        git(cwd, 'add', path)
+        git(cwd, 'commit', '-m', key)
+        return { ...pr(index + 1), head: { sha: git(cwd, 'rev-parse', 'HEAD') } }
+      })
+      const result = compose(cwd, upstream, selections)
+      assert.equal(result.publishable, true)
+      assert.deepEqual(parseCatalog(git(cwd, 'show', `HEAD:${path}`)), {
+        icons: { ...base.icons, ...additions }
+      })
+      assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
+    }))
+}
 
 test('real Git: shared integration ancestry cannot undo another selected feature', () =>
   fixture((cwd) => {

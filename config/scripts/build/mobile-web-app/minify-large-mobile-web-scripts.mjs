@@ -7,7 +7,11 @@ const requireMobile = createRequire(new URL('../../../../mobile/package.json', i
 const LARGE_SCRIPT_BYTES = 256 * 1024
 const PAGE_GLOBALS_PREFIX = `${PAGE_GLOBALS_BANNER}\n`
 
-export async function minifyLargeMobileWebScripts(outputFiles, catalogOutputs) {
+export async function minifyLargeMobileWebScripts(
+  outputFiles,
+  catalogOutputs,
+  minify = (source, options) => requireMobile('terser').minify(source, options)
+) {
   const files = []
   for (const output of outputFiles) {
     if (
@@ -18,7 +22,6 @@ export async function minifyLargeMobileWebScripts(outputFiles, catalogOutputs) {
       files.push(output)
       continue
     }
-    const { minify } = requireMobile('terser')
     const source = output.text
     const prefix = source.startsWith(PAGE_GLOBALS_PREFIX) ? PAGE_GLOBALS_PREFIX : ''
     const { code } = await minify(source.slice(prefix.length), {

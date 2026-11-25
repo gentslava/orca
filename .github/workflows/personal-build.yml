@@ -40,7 +40,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: personal-upstream-pr-build-${{ github.event_name == 'pull_request' && github.event.pull_request.number ||
+  group:
+    personal-upstream-pr-build-${{ github.event_name == 'pull_request' && github.event.pull_request.number ||
     (github.event_name == 'workflow_dispatch' && (inputs.audit_only || github.ref != 'refs/heads/master')) && format('qualification-{0}', github.ref_name) || 'release' }}
   cancel-in-progress: false
 

@@ -32,10 +32,9 @@ index 0aba10115a4..779e66cd8a6 100644
      return args.hostPlatform === 'win32'
    }
 diff --git a/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts b/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
-index 3a36763aee7..2d6efb1e0cc 100644
 --- a/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
 +++ b/src/renderer/src/components/tab-bar/model/use-tab-bar-runtime-model.ts
-@@ -21,7 +21,7 @@ import { selectTabBarAgentProjections } from './tab-agent-types-by-tab-id'
+@@ -26,7 +26,7 @@
  import type { TabBarAgentProjections } from './tab-agent-types-by-tab-id'
  import { shouldShowWindowsShellMenu } from '../create-menu/windows-shell-menu-visibility'
  import { createUnifiedTabLookup } from './tab-bar-item-model'
@@ -44,7 +43,7 @@ index 3a36763aee7..2d6efb1e0cc 100644
  import { selectWorktreesByRepo } from '@/store/workspaces/catalog/workspace-record-fields'
  import type { GitFileStatus } from '../../../../../shared/git/status/git-status-types'
  import type { GlobalSettings } from '../../../../../shared/settings/global-settings-types'
-@@ -113,7 +113,7 @@ export function useTabBarRuntimeModel({
+@@ -118,7 +118,7 @@
    )
    const settings = useAppStore((s) => s.settings)
    // Why: use the worktree's owning host so offered Windows shells match the host that actually runs the terminal.
@@ -53,7 +52,7 @@ index 3a36763aee7..2d6efb1e0cc 100644
      runtimeEnvironmentIdOrLocalUnlessTwin(s, worktreeId)
    )
    // Why: retained tab strips rerun selectors on every store write; reuse canonical indexes, don't flatten both slices here.
-@@ -128,16 +128,16 @@ export function useTabBarRuntimeModel({
+@@ -133,16 +133,16 @@
    })
    const isWebClient = (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ === true
    const windowsTerminalCapabilityOwnerKey = getWindowsTerminalCapabilityOwnerKey(
@@ -73,8 +72,8 @@ index 3a36763aee7..2d6efb1e0cc 100644
 +    Boolean(runtimeEnvironmentId?.trim()) ||
      isWebClient ||
      Boolean(worktreeConnectionId)
-   const windowsTerminalCapabilities = useWindowsTerminalCapabilities(
-@@ -151,14 +151,14 @@ export function useTabBarRuntimeModel({
+   const [returningStrip] = useState(
+@@ -185,14 +185,14 @@
      ? (worktreeRemotePlatform ?? windowsTerminalCapabilities.hostPlatform)
      : windowsTerminalCapabilities.hostPlatform
    const showWindowsShellMenu = shouldShowWindowsShellMenu({
@@ -91,7 +90,7 @@ index 3a36763aee7..2d6efb1e0cc 100644
    const projects = useAppStore((s) => (needsLocalProjectRuntime ? s.projects : EMPTY_PROJECTS))
    const repos = useAppStore((s) => (needsLocalProjectRuntime ? s.repos : EMPTY_REPOS))
    const worktreesByRepo = useAppStore((s) =>
-@@ -212,7 +212,7 @@ export function useTabBarRuntimeModel({
+@@ -246,7 +246,7 @@
    )
    const [managedBrowserCreationEnabled, mobileEmulatorCreationEnabled] =
      useAppStoreWithHostStatuses((state, statuses) => {
@@ -869,13 +868,12 @@ index e2469dd3e6f..f0e186deaba 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/locales/tr.json
-index 8c36e22790d..464cb1aebb4 100644
 --- a/src/renderer/src/i18n/locales/tr.json
 +++ b/src/renderer/src/i18n/locales/tr.json
-@@ -22982,6 +22982,12 @@
-       "draft": "{{review}}: Taslak",
-       "merged": "{{review}}: Merge edildi",
-       "open": "{{review}}: Açık"
+@@ -25876,6 +25876,12 @@
+         "provisionFailed": "Sanal makine oluşturulamadı veya oluşturma işlemi yarıda kesildi. Makineyi yok etmek veya kaydını kaldırmak için Ayarlar’ı açın."
+       },
+       "suspendFailed": "Sanal makinedeki çalışma alanı askıya alınamadı"
 +    },
 +    "start": {
 +      "title": "Ne açmak istersiniz?",
