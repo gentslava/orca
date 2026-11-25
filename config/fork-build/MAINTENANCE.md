@@ -78,7 +78,7 @@ Keep the platform build commands on upstream's current tooling. Check that macOS
 
 ## macOS update channels
 
-The macOS ARM64 updater uses the standard Orca download and restart flow. Its feed selects published personal releases in `gentslava/orca` that contain `latest-mac.yml` and the versioned ARM64 ZIP. The signed app carries the channel marker. Scheduled ad hoc previews check the same release list and offer a direct DMG download. Users install the downloaded app manually or use the existing verified CLI installer. Windows, Linux and Android personal packages stay on their existing installation paths.
+The macOS ARM64 updater uses the standard Orca download and restart flow. Its feed selects published personal releases in `gentslava/orca` that contain `latest-mac.yml` and the versioned ARM64 ZIP. The embedded version identifies the signed channel, and the signed bundle also carries the marker the archive and installer verify. Scheduled ad hoc previews check the same release list and offer a direct DMG download. Users install the downloaded app manually or use the existing verified CLI installer. Windows, Linux and Android personal packages stay on their existing installation paths.
 
 Use a Developer ID Application certificate from the fork owner's Apple Developer team. Keep the team and bundle identifier stable across releases so macOS can retain grants for the app and its signed terminal helper. Configure the repository variable `ORCA_FORK_MAC_TEAM_ID` with the ten-character Team ID. In the `fork-macos-signing` GitHub environment, restrict deployments to `master` and require maintainer approval. Store `MAC_CERTS` (base64 P12), `MAC_CERTS_PASSWORD`, `APPLE_ID` and `APPLE_APP_SPECIFIC_PASSWORD` as environment secrets.
 

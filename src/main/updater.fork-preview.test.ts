@@ -1,6 +1,3 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 import { BrowserWindow } from 'electron'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { UpdaterSetup } from './updater/lifecycle/updater-setup'
@@ -73,8 +70,6 @@ vi.mock('./local-builds/local-build-switch', () => ({ chooseLocalBuild: mocks.ch
 let updater: UpdaterSetup
 const hostPlatform = Object.getOwnPropertyDescriptor(process, 'platform')
 const hostArch = Object.getOwnPropertyDescriptor(process, 'arch')
-const hostResources = Object.getOwnPropertyDescriptor(process, 'resourcesPath')
-let resources: string | undefined
 const lastCheckAt = 1_700_000_000_000
 beforeEach(async () => {
   vi.clearAllMocks()
@@ -89,15 +84,6 @@ afterEach(() => {
   }
   if (hostArch) {
     Object.defineProperty(process, 'arch', hostArch)
-  }
-  if (hostResources) {
-    Object.defineProperty(process, 'resourcesPath', hostResources)
-  } else {
-    Reflect.deleteProperty(process, 'resourcesPath')
-  }
-  if (resources) {
-    rmSync(resources, { recursive: true, force: true })
-    resources = undefined
   }
   vi.clearAllTimers()
   vi.useRealTimers()
@@ -160,6 +146,7 @@ describe.runIf(process.env.ORCA_TEST_COMPOSED_FORK_UPDATER === '1')('macOS fork 
   const page = `https://github.com/gentslava/orca/releases/tag/${tag}`
   const download = `https://github.com/gentslava/orca/releases/download/${tag}`
   const offerRelease = (signed: boolean) => {
+    const releaseVersion = signed ? version.replace('-local.', '-signed.local.') : version
     mocks.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => [
@@ -168,7 +155,7 @@ describe.runIf(process.env.ORCA_TEST_COMPOSED_FORK_UPDATER === '1')('macOS fork 
           draft: false,
           published_at: new Date(lastCheckAt).toISOString(),
           assets: [
-            `Orca-${version}-arm64-mac.zip`,
+            `Orca-${releaseVersion}-arm64-mac.zip`,
             'orca-macos-arm64.dmg',
             'release-verification.json',
             ...(signed ? ['latest-mac.yml'] : [])
@@ -185,8 +172,6 @@ describe.runIf(process.env.ORCA_TEST_COMPOSED_FORK_UPDATER === '1')('macOS fork 
   beforeEach(() => {
     Object.defineProperty(process, 'platform', { value: 'darwin' })
     Object.defineProperty(process, 'arch', { value: 'arm64' })
-    resources = mkdtempSync(join(tmpdir(), 'orca-fork-update-test-'))
-    Object.defineProperty(process, 'resourcesPath', { configurable: true, value: resources })
     mocks.version.mockReturnValue('1.4.214-local.forkpreview.123455.abcdef123456')
   })
 
@@ -210,10 +195,7 @@ describe.runIf(process.env.ORCA_TEST_COMPOSED_FORK_UPDATER === '1')('macOS fork 
   })
 
   it('pins the native updater to a signed fork tag and ignores alternate upstream selectors', async () => {
-    if (!resources) {
-      throw new Error('Expected a test-only resource directory')
-    }
-    writeFileSync(join(resources, 'orca-fork-macos-update-channel'), 'gentslava/orca\n')
+    mocks.version.mockReturnValue('1.4.214-signed.local.forkpreview.123455.abcdef123456')
     offerRelease(true)
     updater.setupAutoUpdater(null, { getLastUpdateCheckAt: () => lastCheckAt })
     updater.checkForUpdatesFromMenu({ channel: 'stable', targetTag: 'v1.4.300' })

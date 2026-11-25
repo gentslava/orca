@@ -307,7 +307,10 @@ try {
     baseVersion,
     Date.parse(plan.timestamp),
     plan.result.commit
-  ).replace(/([.-])local\.(?=\d+\.)/, '$1local.forkpreview.')
+  ).replace(
+    /([.-])local\.(?=\d+\.)/,
+    plan.macosTeamId ? '$1signed.local.forkpreview.' : '$1local.forkpreview.'
+  )
   plan.fingerprint = createHash('sha256')
     .update(
       JSON.stringify({
