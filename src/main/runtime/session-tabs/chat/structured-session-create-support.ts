@@ -133,10 +133,10 @@ export abstract class OrcaRuntimeWithGetStructuredAgentSessionCreateSupport exte
       : resolved
   }
 
-  /** Resolve catalog account home through the same host create-intent resolver when no session record exists. */
+  /** Resolve catalog or identity account home through the host create-intent resolver when no session record exists. */
   async resolveStructuredAgentAccountHome(
     agent: StructuredAgentId,
-    purpose: 'read' | 'catalog' = 'read'
+    purpose: 'read' | 'catalog' | 'identity' = 'read'
   ): Promise<AgentSessionAccountHome> {
     const resolveAccountHome = this.structuredAgentAccountHomeResolver(agent, '', purpose)
     if (!resolveAccountHome) {
