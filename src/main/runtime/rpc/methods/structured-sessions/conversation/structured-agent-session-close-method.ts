@@ -4,8 +4,8 @@ import '../../../../../../shared/rpc-contract/structured-agent-session/structure
 import '../../../../../../shared/rpc-contract/structured-agent-session/structured-agent-session-rename-params'
 import '../../../../../../shared/rpc-contract/structured-agent-session/structured-agent-session-queued-edit-params'
 import {
-  requireStructuredCapability,
-  requireStructuredCleanupHost
+  requireCloseStructuredCapability,
+  requireCloseStructuredHost
 } from '../creation/structured-agent-session-gate'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../../shared/workspace-layout/layout-owner-switch'
 import { runsForBot } from '../../../../../bots/bot-session-tabs'
@@ -22,7 +22,7 @@ export const STRUCTURED_AGENT_SESSION_CLOSE_METHOD = defineMethod({
   permission: 'workspace',
   params: OptionsParams,
   handler: async (params, ctx) => {
-    requireStructuredCapability(ctx)
+    requireCloseStructuredCapability(ctx)
     // A bot's thread or run keeps working when its tab closes; it waits in the bot's Activity.
     const keepRunning = runsForBot(ctx.runtime.bots, params.sessionId)
     // Record close before requiring host so even failed closes fence racing creates.
@@ -33,7 +33,9 @@ export const STRUCTURED_AGENT_SESSION_CLOSE_METHOD = defineMethod({
           null
       )
     }
-    const host = requireStructuredCleanupHost(ctx)
+    const host = await requireCloseStructuredHost(ctx)
+    // Read before closing; the CLI reports an unknown id instead of a close that did nothing.
+    const found = host.deps.store.getConversation(params.sessionId) !== null
     const surface = captureStructuredSessionSurface(host, params.sessionId, ctx.runtime)
     try {
       const result = await retireCapturedStructuredSessionSurface(
@@ -51,6 +53,6 @@ export const STRUCTURED_AGENT_SESSION_CLOSE_METHOD = defineMethod({
         await host.close(params.sessionId, 'user-close')
       }
     }
-    return { ok: true as const }
+    return { ok: true as const, found }
   }
 })
