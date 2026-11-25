@@ -252,7 +252,9 @@ jobs:
       - name: Verify regressions from all composed features
         if: needs.plan.outputs.full_suite_reused != 'true'
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/regressions.mjs" personal-build/plan.json "$GITHUB_WORKSPACE"
-      - name: Verify preview updater policy against the composed application
+      - name: Verify fork updater policy against the composed application
+        env:
+          ORCA_TEST_COMPOSED_FORK_UPDATER: '1'
         run: |
           set -euo pipefail
           test ! -e src/main/updater.fork-preview.test.ts

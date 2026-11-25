@@ -144,7 +144,7 @@ export function measurePreviewApp(app, expected) {
       throw new Error('Packaged fork update channel differs from the signed plan')
     }
     const requirement =
-      `anchor apple generic and certificate leaf[subject.OU] = "${teamId}" ` +
+      `identifier "com.stablyai.orca" and anchor apple generic and certificate leaf[subject.OU] = "${teamId}" ` +
       'and certificate leaf[field.1.2.840.113635.100.6.1.13] exists'
     macTool('/usr/bin/codesign', ['--verify', '--strict', '-R', requirement, app])
     macTool('/usr/bin/xcrun', ['stapler', 'validate', app])

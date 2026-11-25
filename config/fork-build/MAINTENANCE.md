@@ -76,9 +76,9 @@ Open a fork PR with the configuration and required adaptations. Check the comple
 
 Keep the platform build commands on upstream's current tooling. Check that macOS, Windows, Android and both Linux architectures consume the same source bundle. Review Actions updates using Dependabot, the official action release notes and the runner images. Official Actions use reviewed stable major tags when allowed by repository policy. Preserve immutable pins where policy requires them or where the trust and compatibility review depends on an exact action revision. Keep source identity independent from tool versions. `plan.json` freezes the configuration SHA, upstream SHA, selected heads, final tree and commit. Package metadata, checksums and verification receipts bind downloads to that identity.
 
-## Signed macOS update channel
+## macOS update channels
 
-The macOS ARM64 updater uses the standard Orca download and restart flow. Its feed selects published personal releases in `gentslava/orca` that contain `latest-mac.yml` and the versioned ARM64 ZIP. The signed app carries the channel marker. Scheduled ad hoc previews use the existing manual installer. Windows, Linux and Android personal packages stay on their existing installation paths.
+The macOS ARM64 updater uses the standard Orca download and restart flow. Its feed selects published personal releases in `gentslava/orca` that contain `latest-mac.yml` and the versioned ARM64 ZIP. The signed app carries the channel marker. Scheduled ad hoc previews check the same release list and offer a direct DMG download. Users install the downloaded app manually or use the existing verified CLI installer. Windows, Linux and Android personal packages stay on their existing installation paths.
 
 Use a Developer ID Application certificate from the fork owner's Apple Developer team. Keep the team and bundle identifier stable across releases so macOS can retain grants for the app and its signed terminal helper. Configure the repository variable `ORCA_FORK_MAC_TEAM_ID` with the ten-character Team ID. In the `fork-macos-signing` GitHub environment, restrict deployments to `master` and require maintainer approval. Store `MAC_CERTS` (base64 P12), `MAC_CERTS_PASSWORD`, `APPLE_ID` and `APPLE_APP_SPECIFIC_PASSWORD` as environment secrets.
 

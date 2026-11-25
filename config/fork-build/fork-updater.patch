@@ -73,15 +73,21 @@ index e7a8bc171fe..23715fd12f9 100644
 
  // Stamp the effective channel version where node-mode CLI code can read it.
 diff --git a/src/main/updater/lifecycle/updater-fork-preview-guard.ts b/src/main/updater/lifecycle/updater-fork-preview-guard.ts
-index b67fea2542f..7486ec01ce6 100644
+index b67fea2542f..5b2395e33b5 100644
 --- a/src/main/updater/lifecycle/updater-fork-preview-guard.ts
 +++ b/src/main/updater/lifecycle/updater-fork-preview-guard.ts
-@@ -1,17 +1,61 @@
+@@ -1,17 +1,127 @@
  import { app } from 'electron'
 +import { updateDelayDaysToMs } from '../../../shared/updater/update-delay'
-+import { applyReleaseDelay, toDelayedUpdate } from '../releases/updater-release-delay'
++import {
++  applyReleaseDelay,
++  toDelayedUpdate,
++  type DatedReleaseTag
++} from '../releases/updater-release-delay'
 +import {
 +  fetchForkMacReleases,
++  forkMacDmg,
++  isForkMacBuild,
 +  forkReleaseDownloadUrl,
 +  forkReleasePage,
 +  isForkMacUpdateBuild,
@@ -91,15 +97,87 @@ index b67fea2542f..7486ec01ce6 100644
  import type { UpdateCheckOptions, UpdateStatus } from '../../../shared/updater/update-status-types'
  import type { ReleaseBuildListOptions } from '../releases/updater-release-build-cache'
  import { UpdaterDownloadInstall } from './updater-download-install'
- import type { UpdateInstallTrigger } from './updater-state'
+-import type { UpdateInstallTrigger } from './updater-state'
 -
 -function isForkPreviewBuild(): boolean {
 -  return /(?:-|\.)local\.forkpreview\.\d+\.[0-9a-f]{1,12}$/.test(app.getVersion())
 -}
++import { AUTO_UPDATE_CHECK_INTERVAL_MS, type UpdateInstallTrigger } from './updater-state'
 +import type { UpdateCheckVariant } from './updater-types'
 
  export class UpdaterForkPreviewGuard extends UpdaterDownloadInstall {
 +  private forkReleaseUrl: string | undefined
++
++  protected usesForkPreviewDownload(): boolean {
++    return isForkMacBuild() && !isForkMacUpdateBuild()
++  }
++
++  private async findForkRelease(
++    attempt: number | null,
++    requireSigned: boolean,
++    ignoreDelay: boolean
++  ): Promise<DatedReleaseTag | undefined> {
++    const version = app.getVersion()
++    const delayDays = ignoreDelay ? 0 : (this.getUpdateDelayDays?.() ?? 0)
++    const releases = await fetchForkMacReleases(version, requireSigned)
++    if (attempt === null || !this.isActiveUpdateCheckAttempt(attempt)) {
++      return undefined
++    }
++    const { eligible, releaseDelay } =
++      delayDays > 0
++        ? applyReleaseDelay(releases, releases, version, updateDelayDaysToMs(delayDays), Date.now())
++        : { eligible: releases, releaseDelay: null }
++    this.delayedUpdate = toDelayedUpdate(releaseDelay?.heldRelease, delayDays)
++    return eligible[0]
++  }
++
++  protected override runBackgroundUpdateCheck(nudgeId?: string | null): boolean {
++    return this.usesForkPreviewDownload()
++      ? this.checkForkPreview(false)
++      : super.runBackgroundUpdateCheck(nudgeId)
++  }
++
++  private checkForkPreview(userInitiated: boolean, ignoreDelay = false): boolean {
++    if (userInitiated) {
++      this.userInitiatedCheck = true
++    }
++    if (this.currentStatus.state === 'checking') {
++      if (userInitiated) {
++        this.sendStatus({ state: 'checking', userInitiated: true })
++      }
++      return false
++    }
++    const attempt = this.beginUpdateCheckAttempt()
++    this.sendStatus({ state: 'checking', userInitiated })
++    void this.findForkRelease(attempt, false, ignoreDelay)
++      .then((release) => {
++        if (!this.isActiveUpdateCheckAttempt(attempt)) {
++          return
++        }
++        this.scheduleAutomaticUpdateCheck(AUTO_UPDATE_CHECK_INTERVAL_MS)
++        if (!release) {
++          this.settleHeldUpdateCheck(attempt)
++          return
++        }
++        this.userInitiatedCheck = false
++        this.recordCompletedUpdateCheck()
++        this.sendSettledCheckStatus({
++          state: 'available',
++          version: release.version,
++          releaseUrl: forkReleasePage(release.tag),
++          manualDownloadUrl: `${forkReleaseDownloadUrl(release.tag)}/${forkMacDmg}`,
++          changelog: null
++        })
++      })
++      .catch((error: unknown) => {
++        if (this.isActiveUpdateCheckAttempt(attempt)) {
++          const wasUserInitiated = this.userInitiatedCheck
++          this.userInitiatedCheck = false
++          void this.sendCheckFailureStatus(String(error), wasUserInitiated, 'promise', error)
++        }
++      })
++    return true
++  }
 +
 +  protected override async pinDefaultReleaseFeed(
 +    variant: UpdateCheckVariant = 'default'
@@ -107,20 +185,9 @@ index b67fea2542f..7486ec01ce6 100644
 +    if (!isForkMacUpdateBuild()) {
 +      return super.pinDefaultReleaseFeed(variant)
 +    }
-+    const attempt = this.activeUpdateCheckAttemptId
-+    const version = app.getVersion()
-+    const delayDays = this.ignoreUpdateDelayOnce ? 0 : (this.getUpdateDelayDays?.() ?? 0)
++    const ignoreDelay = this.ignoreUpdateDelayOnce
 +    this.ignoreUpdateDelayOnce = false
-+    const releases = await fetchForkMacReleases(version)
-+    if (attempt === null || !this.isActiveUpdateCheckAttempt(attempt)) {
-+      return 'not-available'
-+    }
-+    const { eligible, releaseDelay } =
-+      delayDays > 0
-+        ? applyReleaseDelay(releases, releases, version, updateDelayDaysToMs(delayDays), Date.now())
-+        : { eligible: releases, releaseDelay: null }
-+    this.delayedUpdate = toDelayedUpdate(releaseDelay?.heldRelease, delayDays)
-+    const release = eligible[0]
++    const release = await this.findForkRelease(this.activeUpdateCheckAttemptId, true, ignoreDelay)
 +    if (!release) {
 +      return 'not-available'
 +    }
@@ -143,7 +210,22 @@ index b67fea2542f..7486ec01ce6 100644
        return false
      }
      this.sendStatus({ state: 'not-available', userInitiated })
-@@ -29,7 +73,9 @@ export class UpdaterForkPreviewGuard extends UpdaterDownloadInstall {
+@@ -19,20 +129,36 @@ export class UpdaterForkPreviewGuard extends UpdaterDownloadInstall {
+   }
+
+   checkForUpdates(): void {
+-    if (this.rejectForkPreviewUpdate()) {
++    if (!this.usesForkPreviewDownload() && this.rejectForkPreviewUpdate()) {
+       return
+     }
+     this.checkForUpdatesInBackground()
+   }
+
+   checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
++    if (this.usesForkPreviewDownload()) {
++      this.checkForkPreview(true, options?.ignoreUpdateDelay)
++      return
++    }
      if (this.rejectForkPreviewUpdate(true)) {
        return
      }
@@ -154,26 +236,56 @@ index b67fea2542f..7486ec01ce6 100644
    }
 
    downloadUpdate(automatic = false): void {
-@@ -61,7 +107,7 @@ export class UpdaterForkPreviewGuard extends UpdaterDownloadInstall {
++    if (this.usesForkPreviewDownload()) {
++      const status = this.currentStatus
++      if (!automatic && status.state === 'available' && status.manualDownloadUrl) {
++        const window = this.getMainWindow()
++        if (window && !window.isDestroyed() && !window.webContents.isDestroyed()) {
++          window.webContents.downloadURL(status.manualDownloadUrl)
++        }
++      }
++      return
++    }
+     if (this.rejectForkPreviewUpdate(!automatic)) {
+       return
+     }
+@@ -40,7 +166,7 @@ export class UpdaterForkPreviewGuard extends UpdaterDownloadInstall {
+   }
+
+   applyAutomaticUpdatesSetting(): void {
+-    if (this.rejectForkPreviewUpdate()) {
++    if (this.usesForkPreviewDownload() || this.rejectForkPreviewUpdate()) {
+       return
+     }
+     if (this.currentStatus.state === 'downloaded' && !this.currentStatus.installing) {
+@@ -54,14 +180,14 @@ export class UpdaterForkPreviewGuard extends UpdaterDownloadInstall {
+     trigger: UpdateInstallTrigger = 'manual',
+     isCurrentTeamRestart?: () => boolean
+   ): void {
+-    if (this.rejectForkPreviewUpdate(trigger === 'manual')) {
++    if (this.usesForkPreviewDownload() || this.rejectForkPreviewUpdate(trigger === 'manual')) {
+       return
+     }
+     super.quitAndInstall(trigger, isCurrentTeamRestart)
    }
 
    getUpdateStatus(): UpdateStatus {
 -    if (isForkPreviewBuild()) {
-+    if (isPersonalForkBuild() && !isForkMacUpdateBuild()) {
++    if (isPersonalForkBuild() && !isForkMacBuild()) {
        return { state: 'not-available' }
      }
      return super.getUpdateStatus()
-@@ -71,7 +117,7 @@ export class UpdaterForkPreviewGuard extends UpdaterDownloadInstall {
+@@ -71,7 +197,7 @@ export class UpdaterForkPreviewGuard extends UpdaterDownloadInstall {
      channel: ReleaseChannel,
      options?: ReleaseBuildListOptions
    ): Promise<ReleaseBuild[]> {
 -    if (this.rejectForkPreviewUpdate(true)) {
-+    if (this.rejectForkPreviewUpdate(true) || isForkMacUpdateBuild()) {
++    if (isPersonalForkBuild()) {
        return []
      }
      return super.listAvailableReleaseBuilds(channel, options)
 diff --git a/src/main/updater/lifecycle/updater-setup.ts b/src/main/updater/lifecycle/updater-setup.ts
-index c27e48b979b..2992edbaf95 100644
+index c27e48b979b..43ba0bc0a6a 100644
 --- a/src/main/updater/lifecycle/updater-setup.ts
 +++ b/src/main/updater/lifecycle/updater-setup.ts
 @@ -22,6 +22,7 @@ import { registerAutoUpdaterHandlers } from '../updater-events'
@@ -184,15 +296,34 @@ index c27e48b979b..2992edbaf95 100644
  import { UpdaterForkPreviewGuard } from './updater-fork-preview-guard'
  import type { TeamRestartOptions } from './updater-required-restart'
  import { sameTeamUpdateRestartScope } from './team-update-restart-record'
-@@ -133,6 +134,7 @@ export class UpdaterSetup extends UpdaterForkPreviewGuard {
+@@ -98,7 +99,7 @@ export class UpdaterSetup extends UpdaterForkPreviewGuard {
+   }
+
+   setupAutoUpdater(mainWindow: BrowserWindow | null, opts?: UpdaterSetupOptions): void {
+-    if (this.rejectForkPreviewUpdate()) {
++    if (!this.usesForkPreviewDownload() && this.rejectForkPreviewUpdate()) {
+       return
+     }
+     // Keep direct-window callers compatible; desktop composition supplies the lifecycle getter.
+@@ -133,6 +134,17 @@ export class UpdaterSetup extends UpdaterForkPreviewGuard {
        return
      }
 
++    if (this.usesForkPreviewDownload()) {
++      const elapsed = Date.now() - (this._getLastUpdateCheckAt?.() ?? 0)
++      if (elapsed >= AUTO_UPDATE_CHECK_INTERVAL_MS) {
++        this.runBackgroundUpdateCheck()
++      } else {
++        this.scheduleAutomaticUpdateCheck(AUTO_UPDATE_CHECK_INTERVAL_MS - elapsed)
++      }
++      return
++    }
++
 +    const forkMacUpdate = isForkMacUpdateBuild()
      const autoUpdater = this.getAutoUpdater()
      configureMacShipItScheduling()
      // Start automatic downloads after Orca publishes the offer and finishes release checks.
-@@ -160,7 +162,7 @@ export class UpdaterSetup extends UpdaterForkPreviewGuard {
+@@ -160,7 +172,7 @@ export class UpdaterSetup extends UpdaterForkPreviewGuard {
      }
 
      // Security: never re-add a verifyUpdateCodeSignature override — a no-op disables electron-updater's built-in Authenticode check and accepts any installer.
@@ -201,7 +332,7 @@ index c27e48b979b..2992edbaf95 100644
        autoUpdater.setFeedURL({
          provider: 'generic',
          url: 'https://github.com/stablyai/orca/releases/latest/download'
-@@ -257,11 +259,15 @@ export class UpdaterSetup extends UpdaterForkPreviewGuard {
+@@ -257,11 +269,15 @@ export class UpdaterSetup extends UpdaterForkPreviewGuard {
        }
      })
 
@@ -220,6 +351,18 @@ index c27e48b979b..2992edbaf95 100644
        if (
          this.backgroundCheckLaunchPending ||
          this.currentStatus.state === 'checking' ||
+diff --git a/src/main/updater/releases/updater-fallback.ts b/src/main/updater/releases/updater-fallback.ts
+index e232ad85e74..b341f327fc9 100644
+--- a/src/main/updater/releases/updater-fallback.ts
++++ b/src/main/updater/releases/updater-fallback.ts
+@@ -55,6 +55,7 @@ export function statusesEqual(left: UpdateStatus, right: UpdateStatus): boolean
+         left.version === right.version &&
+         left.activeNudgeId === right.activeNudgeId &&
+         left.releaseUrl === right.releaseUrl &&
++        left.manualDownloadUrl === right.manualDownloadUrl &&
+         // Changelog objects are recreated per check; dedupe by presence rather than reference.
+         Boolean(left.changelog) === Boolean(right.changelog)
+       )
 diff --git a/src/main/updater/releases/updater-fork-release-feed.test.ts b/src/main/updater/releases/updater-fork-release-feed.test.ts
 new file mode 100644
 index 00000000000..6d806e1dcdc
@@ -290,10 +433,10 @@ index 00000000000..6d806e1dcdc
 +})
 diff --git a/src/main/updater/releases/updater-fork-release-feed.ts b/src/main/updater/releases/updater-fork-release-feed.ts
 new file mode 100644
-index 00000000000..984746bd80f
+index 00000000000..4a9c7f18241
 --- /dev/null
 +++ b/src/main/updater/releases/updater-fork-release-feed.ts
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,116 @@
 +import { existsSync } from 'node:fs'
 +import { join } from 'node:path'
 +import { app, net } from 'electron'
@@ -310,12 +453,18 @@ index 00000000000..984746bd80f
 +  return forkVersionSuffix.test(app.getVersion())
 +}
 +
-+export function isForkMacUpdateBuild(): boolean {
++export function isForkMacBuild(): boolean {
 +  return (
 +    app.isPackaged &&
 +    process.platform === 'darwin' &&
 +    process.arch === 'arm64' &&
-+    isPersonalForkBuild() &&
++    isPersonalForkBuild()
++  )
++}
++
++export function isForkMacUpdateBuild(): boolean {
++  return (
++    isForkMacBuild() &&
 +    typeof process.resourcesPath === 'string' &&
 +    existsSync(join(process.resourcesPath, 'orca-fork-macos-update-channel'))
 +  )
@@ -333,7 +482,13 @@ index 00000000000..984746bd80f
 +  return typeof value === 'object' && value !== null
 +}
 +
-+export function parseForkMacReleases(data: unknown, currentVersion: string): DatedReleaseTag[] {
++export const forkMacDmg = 'orca-macos-arm64.dmg'
++
++export function parseForkMacReleases(
++  data: unknown,
++  currentVersion: string,
++  requireSigned = true
++): DatedReleaseTag[] {
 +  if (!Array.isArray(data)) {
 +    throw new Error('Invalid GitHub fork release list')
 +  }
@@ -369,7 +524,8 @@ index 00000000000..984746bd80f
 +    })
 +    if (
 +      !Number.isFinite(releasedAt) ||
-+      !assets.includes('latest-mac.yml') ||
++      !assets.includes(requireSigned ? 'latest-mac.yml' : forkMacDmg) ||
++      (!requireSigned && !assets.includes('release-verification.json')) ||
 +      versions.length !== 1 ||
 +      compareVersions(versions[0], currentVersion) <= 0
 +    ) {
@@ -380,7 +536,10 @@ index 00000000000..984746bd80f
 +  return updates.sort((left, right) => compareVersions(right.version, left.version))
 +}
 +
-+export async function fetchForkMacReleases(currentVersion: string): Promise<DatedReleaseTag[]> {
++export async function fetchForkMacReleases(
++  currentVersion: string,
++  requireSigned = true
++): Promise<DatedReleaseTag[]> {
 +  const response = await net.fetch(
 +    'https://api.github.com/repos/gentslava/orca/releases?per_page=100',
 +    {
@@ -392,7 +551,7 @@ index 00000000000..984746bd80f
 +  if (!response.ok) {
 +    throw new Error(`Fork release list returned HTTP ${response.status}`)
 +  }
-+  return parseForkMacReleases(await response.json(), currentVersion)
++  return parseForkMacReleases(await response.json(), currentVersion, requireSigned)
 +}
 diff --git a/src/main/updater/updater-events.ts b/src/main/updater/updater-events.ts
 index 8fc27add385..37dd20e700e 100644
@@ -434,3 +593,139 @@ index 8fc27add385..37dd20e700e 100644
              // Tell clients this host cannot self-update before offering a download.
              ...(isExternallyManagedLinuxInstall() ? { externallyManaged: true } : {})
            },
+diff --git a/src/renderer/src/components/maintenance/update-card/UpdateAvailableCardContent.tsx b/src/renderer/src/components/maintenance/update-card/UpdateAvailableCardContent.tsx
+index 9c26aa45f64..860a2e93551 100644
+--- a/src/renderer/src/components/maintenance/update-card/UpdateAvailableCardContent.tsx
++++ b/src/renderer/src/components/maintenance/update-card/UpdateAvailableCardContent.tsx
+@@ -121,12 +121,14 @@ export function UpdateAvailableRichContent({
+ export function UpdateAvailableSimpleContent({
+   version,
+   releaseUrl,
++  manualInstall = false,
+   onUpdate,
+   onClose,
+   externallyManaged = false
+ }: {
+   version: string
+   releaseUrl?: string
++  manualInstall?: boolean
+   onUpdate: () => void
+   onClose: () => void
+   externallyManaged?: boolean
+@@ -157,7 +159,9 @@ export function UpdateAvailableSimpleContent({
+         <ExternallyManagedNote />
+       ) : (
+         <p className="text-xs leading-relaxed text-muted-foreground">
+-          {t('auto.components.UpdateCard.fdd4a364fa', "Sessions won't be interrupted.")}
++          {manualInstall
++            ? t('updates.forkPreview.manualInstall', 'Install the downloaded update manually.')
++            : t('auto.components.UpdateCard.fdd4a364fa', "Sessions won't be interrupted.")}
+         </p>
+       )}
+       {releaseUrl && (
+@@ -176,7 +180,12 @@ export function UpdateAvailableSimpleContent({
+           onClick={onUpdate}
+           className="mt-0.5 w-full cursor-pointer"
+         >
+-          {t('auto.components.UpdateCard.ec8fe71cfc', 'Update')}
++          {manualInstall
++            ? t(
++                'auto.components.settings.GeneralUpdateSettingsSection.downloadUpdate',
++                'Download update'
++              )
++            : t('auto.components.UpdateCard.ec8fe71cfc', 'Update')}
+         </Button>
+       )}
+     </div>
+diff --git a/src/renderer/src/components/maintenance/update-card/UpdateCard.tsx b/src/renderer/src/components/maintenance/update-card/UpdateCard.tsx
+index 903c9d255c3..380c77ff107 100644
+--- a/src/renderer/src/components/maintenance/update-card/UpdateCard.tsx
++++ b/src/renderer/src/components/maintenance/update-card/UpdateCard.tsx
+@@ -141,9 +141,11 @@ export function UpdateCard(): React.JSX.Element | null {
+   }
+
+   const handleUpdate = (): void => {
+-    hasStartedDownload.current = true
+-    if (!reassuranceSeen) {
+-      markReassuranceSeen()
++    if (status.state !== 'available' || !status.manualDownloadUrl) {
++      hasStartedDownload.current = true
++      if (!reassuranceSeen) {
++        markReassuranceSeen()
++      }
+     }
+     void window.api.updater.download()
+   }
+diff --git a/src/renderer/src/components/maintenance/update-card/UpdateCardStateContent.tsx b/src/renderer/src/components/maintenance/update-card/UpdateCardStateContent.tsx
+index e132f0d1c40..a2c80548bf1 100644
+--- a/src/renderer/src/components/maintenance/update-card/UpdateCardStateContent.tsx
++++ b/src/renderer/src/components/maintenance/update-card/UpdateCardStateContent.tsx
+@@ -178,6 +178,7 @@ export function UpdateCardStateContent({
+     <UpdateAvailableSimpleContent
+       version={status.version}
+       releaseUrl={releaseUrl}
++      manualInstall={Boolean(status.manualDownloadUrl)}
+       onUpdate={onUpdate}
+       onClose={onDismiss}
+       externallyManaged={status.externallyManaged}
+diff --git a/src/renderer/src/components/settings/updates/GeneralUpdateSettingsSection.tsx b/src/renderer/src/components/settings/updates/GeneralUpdateSettingsSection.tsx
+index c7d22e0dd9a..983b1cb4666 100644
+--- a/src/renderer/src/components/settings/updates/GeneralUpdateSettingsSection.tsx
++++ b/src/renderer/src/components/settings/updates/GeneralUpdateSettingsSection.tsx
+@@ -238,6 +238,15 @@ export function GeneralUpdateSettingsSection({
+                     'Version {{version}} is available.',
+                     { version: updateStatus.version }
+                   )}
++              {updateStatus.manualDownloadUrl && (
++                <>
++                  {' '}
++                  {t(
++                    'updates.forkPreview.manualInstall',
++                    'Install the downloaded update manually.'
++                  )}
++                </>
++              )}
+               {updateStatus.source !== 'local' && (
+                 <a
+                   href={
+diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
+index e122ff623ba..23eaa8c50f8 100644
+--- a/src/renderer/src/i18n/locales/en.json
++++ b/src/renderer/src/i18n/locales/en.json
+@@ -26152,6 +26152,9 @@
+     }
+   },
+   "updates": {
++    "forkPreview": {
++      "manualInstall": "Install the downloaded update manually."
++    },
+     "installOnQuit": {
+       "title": "Update ready to install",
+       "summary": "Quit Orca. Reopen after installation.",
+diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
+index 44d01b35527..618c1ea942b 100644
+--- a/src/renderer/src/i18n/locales/ru.json
++++ b/src/renderer/src/i18n/locales/ru.json
+@@ -26953,6 +26953,9 @@
+     }
+   },
+   "updates": {
++    "forkPreview": {
++      "manualInstall": "Установите скачанное обновление вручную."
++    },
+     "installBlock": {
+       "instancesLabel": "Экземпляры, использующие Orca",
+       "browserLabel": "Фоновый браузер",
+diff --git a/src/shared/updater/update-status-types.ts b/src/shared/updater/update-status-types.ts
+index ae2a8ba8ed6..4602f204477 100644
+--- a/src/shared/updater/update-status-types.ts
++++ b/src/shared/updater/update-status-types.ts
+@@ -98,6 +98,8 @@ export type UpdateStatus = (
+       /** Linux only: a package manager owns this install, so Orca cannot apply the update itself.
+        *  Additive and optional — older clients simply keep offering their own download. */
+       externallyManaged?: boolean
++      /** Verified fork release asset that downloads for manual installation. */
++      manualDownloadUrl?: string
+     }
+   | {
+       state: 'not-available'

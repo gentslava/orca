@@ -179,7 +179,7 @@ try {
     if (
       ![
         'preview-updater-guard.patch',
-        'fork-signed-updater.patch',
+        'fork-updater.patch',
         'test-runner-registration.patch',
         'integration-module-boundaries.patch',
         'conversation-project-order.patch',
