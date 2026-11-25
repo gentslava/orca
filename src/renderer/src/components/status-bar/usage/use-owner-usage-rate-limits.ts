@@ -54,6 +54,7 @@ export type OwnerUsageRateLimits = {
   owner: AccountOwner | null
   rateLimits: RateLimitState
   accounts: ProviderAccountsSnapshot | null
+  accountsUnverifiable: boolean
   /** Null when this device owns the shown usage. */
   remoteOwner: RemoteUsageOwner | null
   /** Forces the owning host to re-read usage; null when this device owns it. */
@@ -80,7 +81,7 @@ export function useOwnerUsageRateLimits(local: RateLimitState): OwnerUsageRateLi
     }
   }, [owner])
 
-  return useAccountOwnerUsage(owner, local, visibleHostLabel)
+  return useAccountOwnerUsage(owner, local, false, visibleHostLabel)
 }
 
 /**
@@ -90,6 +91,7 @@ export function useOwnerUsageRateLimits(local: RateLimitState): OwnerUsageRateLi
 export function useAccountOwnerUsage(
   owner: AccountOwner | null,
   local: RateLimitState,
+  includeAccounts = false,
   hostLabel: string | null = null
 ): OwnerUsageRateLimits {
   const t = useTranslate()
@@ -100,12 +102,16 @@ export function useAccountOwnerUsage(
   const ownerName = useAppStore(
     (s) => s.runtimeEnvironments.find((environment) => environment.id === ownerId)?.name ?? null
   )
+  const followed = ownerId !== null || (includeAccounts && !unavailable)
   const subscribe = useCallback(
     (listener: () => void) =>
-      ownerId ? subscribeOwnerAccounts(ownerId, listener) : () => undefined,
-    [ownerId]
+      followed ? subscribeOwnerAccounts(ownerId, listener) : () => undefined,
+    [followed, ownerId]
   )
-  const read = useCallback(() => (ownerId ? readOwnerAccounts(ownerId) : null), [ownerId])
+  const read = useCallback(
+    () => (followed ? readOwnerAccounts(ownerId) : null),
+    [followed, ownerId]
+  )
   const owned = useSyncExternalStore(subscribe, read, read)
 
   const refreshRemote = useCallback(async () => {
@@ -149,14 +155,16 @@ export function useAccountOwnerUsage(
     [ownerId, ownerName, hostLabel, unavailable, wslDistro, languageRevision, t]
   )
 
+  const localOwnerLabel = t('stats.usage.localHost', 'This device')
   const ownerState = useMemo<OwnerUsageState>(() => {
-    if (!remoteOwner) {
+    if (!remoteOwner && !includeAccounts) {
       return { kind: 'local' }
     }
+    const ownerLabel = remoteOwner?.label ?? localOwnerLabel
     if (unavailable) {
       return {
         kind: 'remote-unverifiable',
-        ownerLabel: remoteOwner.label,
+        ownerLabel,
         reason: 'unsupported-owner',
         lastKnown: null
       }
@@ -167,15 +175,15 @@ export function useAccountOwnerUsage(
     if (owned.failure) {
       return {
         kind: 'remote-unverifiable',
-        ownerLabel: remoteOwner.label,
+        ownerLabel,
         reason: owned.failure,
         lastKnown: owned.snapshot?.rateLimits ?? null
       }
     }
     return owned.snapshot?.rateLimits
-      ? { kind: 'remote', ownerLabel: remoteOwner.label, rateLimits: owned.snapshot.rateLimits }
+      ? { kind: 'remote', ownerLabel, rateLimits: owned.snapshot.rateLimits }
       : { kind: 'remote-pending' }
-  }, [remoteOwner, owned, unavailable])
+  }, [remoteOwner, includeAccounts, owned, localOwnerLabel, unavailable])
 
   const rateLimits = useMemo(
     () => resolveOwnerUsageRateLimits(local, ownerState, t),
@@ -216,6 +224,7 @@ export function useAccountOwnerUsage(
     owner,
     rateLimits: scopedRateLimits,
     accounts: ownerId ? (owned?.snapshot ?? null) : null,
+    accountsUnverifiable: unavailable || (owned !== null && owned.failure !== null),
     remoteOwner,
     refreshRemote: ownerId || unavailable ? refreshRemote : null
   }
