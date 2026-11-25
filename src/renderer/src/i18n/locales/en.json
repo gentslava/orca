@@ -21421,6 +21421,7 @@
         "forkedFromUnknown": "Forked from another chat"
       },
       "composer": {
+        "confirmEscapeStop": "Press Esc again to stop",
         "send": "Send",
         "planMode": "Plan",
         "moreControls": "More chat controls",
