@@ -66,7 +66,8 @@ export const WorkerDockRow = memo(function WorkerDockRow({
   const rowId = row?.id ?? id ?? ''
   const loading = t('components.native-chat.workerDock.loadingWorker', 'Loading worker…')
   const title = row ? workerDockRowTitle(row) : loading
-  // An unreadable state has no label anywhere: the row reads as its title and time only.
+  const kind = row ? workerDockKindLabel(t, row.kind) : ''
+  // An unreadable state has no status label.
   const state = !row
     ? ''
     : row.retired
@@ -88,11 +89,9 @@ export const WorkerDockRow = memo(function WorkerDockRow({
     row.reason
       ? row.reason
       : ''
-  const label = [mixed && row ? workerDockKindLabel(t, row.kind) : '', title, state, reason, remote]
-    .filter(Boolean)
-    .join(' · ')
+  const label = [mixed ? kind : '', title, state, reason, remote].filter(Boolean).join(' · ')
   const tooltip = row
-    ? [row.name, title === row.title ? '' : row.title, title, state, reason, remote]
+    ? [kind, row.name, title === row.title ? '' : row.title, title, state, reason, remote]
         .filter(Boolean)
         .join(' · ')
     : undefined
@@ -117,6 +116,7 @@ export const WorkerDockRow = memo(function WorkerDockRow({
       >
         <WorkerDockGlyph glyph={row ? workerDockGlyph(row) : 'queued'} />
         <span className="min-w-0 flex-1 truncate">{title}</span>
+        {row ? <span className="shrink-0 text-xs text-muted-foreground">{kind}</span> : null}
         {row ? <Age at={row.changedAt} visible={visible} /> : null}
       </button>
       {/* Over the time on hover or focus, so at rest the title has the row's whole width. At rest it
