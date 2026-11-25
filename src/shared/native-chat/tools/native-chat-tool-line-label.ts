@@ -1,11 +1,7 @@
 import { nativeChatCommandLanguage } from './native-chat-command-language'
 import { isNativeChatFileCountPath } from './native-chat-edit-patch-files'
 import { nativeChatToolCategory } from './native-chat-tool-icon'
-import {
-  nativeChatFullCommand,
-  nativeChatPlainCommandInput,
-  nativeChatToolInputText
-} from './native-chat-tool-input-text'
+import { nativeChatFullCommand, nativeChatToolInputText, nativeChatPlainCommandInput } from './native-chat-tool-input-text'
 import { createToolInputDisplay, summarizeToolInput } from './native-chat-tool-summary'
 import type { NativeChatToolCallBlock, NativeChatToolResultBlock } from '../native-chat-types'
 
