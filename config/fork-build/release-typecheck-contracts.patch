@@ -120,6 +120,14 @@ diff --git a/src/renderer/src/components/native-chat/pane/actions/use-structured
      clearCapable: true,
      cards: [],
      pause: { reason: 'stopped' },
+@@ -37,6 +42,7 @@
+   const controller = {
+     capturePresentation: () => () => true,
+     respond: vi.fn(async () => null),
++    rewind: { surface: undefined },
+     queuedMessages
+   }
+   const retryLaunch = vi.fn()
 diff --git a/src/renderer/src/components/native-chat/native-chat-composer-queued-steer.test.tsx b/src/renderer/src/components/native-chat/native-chat-composer-queued-steer.test.tsx
 --- a/src/renderer/src/components/native-chat/native-chat-composer-queued-steer.test.tsx
 +++ b/src/renderer/src/components/native-chat/native-chat-composer-queued-steer.test.tsx
