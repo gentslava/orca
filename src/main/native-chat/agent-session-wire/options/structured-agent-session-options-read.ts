@@ -30,6 +30,7 @@ import { structuredAgentSessionImmediatePermission } from './structured-agent-se
 import type { StructuredAgentSessionMutationContext } from '../operations/structured-agent-session-mutation-context'
 import { readStructuredSessionRecovery } from '../recovery/structured-agent-session-recovery-read'
 import { fillUnknownModelEfforts } from '../../../../shared/agent-session/options/model-catalog/agent-session-model-efforts'
+import { effectiveAgentSessionOptions } from '../../../runtime/agent-session/records/agent-session-record-options'
 
 /** A live child's own answer, or the answer at rest; the goal, usage and rewind either way. */
 export async function readStructuredAgentSessionOptions(
@@ -162,7 +163,7 @@ export async function readStructuredAgentSessionOptions(
           (row) => row.isDefault
         )?.id
       : undefined
-  const stored = record?.options ?? {}
+  const stored = (record && effectiveAgentSessionOptions(record)) ?? {}
   const saved =
     agents.definition(agent)?.restingOptions.listedSelection?.(stored, options.models) ?? stored
   const model = saved.model ?? (options.current.model || selected.current.model || displayDefault)
@@ -263,6 +264,7 @@ export async function readStructuredAgentSessionOptions(
       : {}),
     current: {
       ...current,
+      ...(record?.defaultModelOptions !== undefined ? { modelDefault: true } : {}),
       acceptedInputSources,
       reportedModel: undefined,
       ...(reportedEffort !== undefined ? { reportedEffort } : {}),
