@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { BrowserWindow } from 'electron'
+import { BrowserWindow } from 'electron'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { UpdaterSetup } from './updater/lifecycle/updater-setup'
 
@@ -27,12 +27,24 @@ const mocks = vi.hoisted(() => {
     resolve: vi.fn(),
     nudge: vi.fn().mockResolvedValue(null),
     choose: vi.fn(),
-    fetch: vi.fn()
+    fetch: vi.fn(),
+    downloadURL: vi.fn(),
+    send: vi.fn()
   }
 })
 vi.mock('electron', () => ({
   app: { isPackaged: true, getVersion: mocks.version, on: vi.fn(), prependListener: vi.fn() },
-  BrowserWindow: { getAllWindows: () => [] },
+  BrowserWindow: class {
+    static getAllWindows() {
+      return []
+    }
+
+    isDestroyed() {
+      return false
+    }
+
+    webContents = { isDestroyed: () => false, downloadURL: mocks.downloadURL, send: mocks.send }
+  },
   autoUpdater: { on: vi.fn() },
   powerMonitor: { on: vi.fn() },
   shell: { showItemInFolder: vi.fn() },
@@ -180,11 +192,7 @@ describe.runIf(process.env.ORCA_TEST_COMPOSED_FORK_UPDATER === '1')('macOS fork 
 
   it('checks automatically and downloads the DMG on request without initializing native install', async () => {
     offerRelease(false)
-    const downloadURL = vi.fn()
-    const webContents = { isDestroyed: () => false, downloadURL, send: vi.fn() }
-    // SAFETY: these are the only BrowserWindow and webContents operations the updater performs here.
-    const window = { isDestroyed: () => false, webContents } as unknown as BrowserWindow
-    updater.setupAutoUpdater(window)
+    updater.setupAutoUpdater(new BrowserWindow({ show: false }))
     await vi.advanceTimersByTimeAsync(0)
     expect(updater.getUpdateStatus()).toMatchObject({
       state: 'available',
@@ -193,9 +201,9 @@ describe.runIf(process.env.ORCA_TEST_COMPOSED_FORK_UPDATER === '1')('macOS fork 
       manualDownloadUrl: `${download}/orca-macos-arm64.dmg`
     })
     updater.downloadUpdate(true)
-    expect(downloadURL).not.toHaveBeenCalled()
+    expect(mocks.downloadURL).not.toHaveBeenCalled()
     updater.downloadUpdate()
-    expect(downloadURL).toHaveBeenCalledExactlyOnceWith(`${download}/orca-macos-arm64.dmg`)
+    expect(mocks.downloadURL).toHaveBeenCalledExactlyOnceWith(`${download}/orca-macos-arm64.dmg`)
     updater.quitAndInstall()
     expect(mocks.load).not.toHaveBeenCalled()
     expect(mocks.autoUpdater.quitAndInstall).not.toHaveBeenCalled()
