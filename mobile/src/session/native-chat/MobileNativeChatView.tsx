@@ -146,7 +146,8 @@ export function MobileNativeChatView({
   onRespondPermission,
   composerTray: { content: trayContent, composerInputRef: inputRef, ...tray } = NO_COMPOSER_TRAY,
   onOpenFile,
-  keyboardInset = 0
+  keyboardInset = 0,
+  covered = false
 }: Props): React.JSX.Element {
   useMobileColorScheme()
   const t = useMobileTranslation()
@@ -364,7 +365,11 @@ export function MobileNativeChatView({
 
   return (
     <MobileNativeChatOpenFileContext value={onOpenFile}>
-      <MobileNativeChatComposerMenuHost testID="native-chat-view" style={rootStyle}>
+      <MobileNativeChatComposerMenuHost
+        testID="native-chat-view"
+        style={rootStyle}
+        aria-hidden={covered}
+      >
         {status === 'loading' && messages.length === 0 ? (
           <MobileStateView
             loading
