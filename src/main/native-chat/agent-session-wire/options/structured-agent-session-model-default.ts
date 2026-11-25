@@ -14,22 +14,29 @@ type ModelDefaultDeps = Pick<StructuredAgentSessionHostDeps, 'store' | 'modelCat
 async function configuredDefaultModel(
   deps: ModelDefaultDeps,
   record: AgentSessionRecord
-): Promise<string | undefined> {
+): Promise<Record<string, string> | undefined> {
   const listing = await deps.modelCatalog
     ?.read({
       agent: record.provider,
       sessionId: record.sessionId,
       inSessionWorkspace: true,
       verifiedOnly: true,
+      requireConfiguredDefault: true,
       waitForListing: true
     })
     .catch(() => null)
-  return listing && listing.origin !== 'unknown' && listing.listingNamesConfiguredModel === true
+  if (!listing || listing.origin === 'unknown') {
+    return undefined
+  }
+  // The host's configuration evidence names a model the listing may lack, and its effort.
+  const named = listing.listingNamesConfiguredModel
     ? listing.models.find((model) => model.isDefault)?.id
     : undefined
+  return listing.defaultModelOptions ?? (named ? { model: named } : undefined)
 }
 
-/** A chat that never ran launches without a model; one that ran moves to the configured model. */
+/** Default keeps the configured model the host names, so a later config change can't move the chat;
+ *  only a chat that never ran may launch without one. */
 export async function resetStructuredAgentSessionModel(
   deps: ModelDefaultDeps,
   ctx: Pick<AgentSessionTurnContext, 'sessionId' | 'fence' | 'now' | 'publish' | 'journal'>,
@@ -58,7 +65,7 @@ export async function resetStructuredAgentSessionModel(
     fence: ctx.fence,
     now: ctx.now(),
     options,
-    defaultModelOptions: configured ? { model: configured } : {}
+    defaultModelOptions: configured ?? {}
   })
   ctx.publish()
   return {
