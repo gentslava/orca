@@ -11,7 +11,7 @@ diff --git a/src/main/ai-vault/structured-conversation-navigation.test.ts b/src/
 +        output: () => ({
 +          kind: 'terminal_tail',
 +          content: '',
-+          archiveSource: 'unavailable',
++          archiveSource: 'terminal',
 +          archiveStatus: 'unavailable'
 +        })
        })
@@ -30,7 +30,7 @@ diff --git a/src/main/runtime/orchestration/structured-session-child-metadata.te
 +          output: () => ({
 +            kind: 'terminal_tail',
 +            content: '',
-+            archiveSource: 'unavailable',
++            archiveSource: 'terminal',
 +            archiveStatus: 'unavailable'
 +          })
          }).disposition
@@ -46,7 +46,7 @@ diff --git a/src/main/runtime/orchestration/structured-session-child-metadata.te
 +        output: () => ({
 +          kind: 'terminal_tail',
 +          content: '',
-+          archiveSource: 'unavailable',
++          archiveSource: 'terminal',
 +          archiveStatus: 'unavailable'
 +        })
        }).disposition
@@ -65,7 +65,7 @@ diff --git a/src/main/runtime/orchestration/structured-session-child-workers.tes
 +        output: () => ({
 +          kind: 'terminal_tail',
 +          content: '',
-+          archiveSource: 'unavailable',
++          archiveSource: 'terminal',
 +          archiveStatus: 'unavailable'
 +        })
        }).disposition
@@ -84,7 +84,7 @@ diff --git a/src/main/runtime/rpc/methods/orchestration/session-children.test.ts
 +    output: () => ({
 +      kind: 'terminal_tail',
 +      content: '',
-+      archiveSource: 'unavailable',
++      archiveSource: 'terminal',
 +      archiveStatus: 'unavailable'
 +    })
    })
