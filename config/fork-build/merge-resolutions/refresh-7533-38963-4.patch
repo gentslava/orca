@@ -1,0 +1,39 @@
+diff --git a/src/shared/agent-session/view/structured-session-background-tasks-view.ts b/src/shared/agent-session/view/structured-session-background-tasks-view.ts
+index 6c2b261c917f68012afb774636772184f127cbf0..6408d19ff568607f41e4e9f6bda0af1ca6ba2ec1 100644
+--- a/src/shared/agent-session/view/structured-session-background-tasks-view.ts
++++ b/src/shared/agent-session/view/structured-session-background-tasks-view.ts
+@@ -6,8 +6,10 @@ import type {
+ } from '../background-tasks/agent-session-background-task-wire'
+ import { isLiveChildWork } from '../../agent-status/child-work/agent-status-child-work-liveness'
+ import type { AgentChildWorkView } from '../../agent-status/child-work/agent-status-child-work-view'
++import type { AgentSessionForegroundTask } from '../agent-session-foreground-task'
+ 
+ export type StructuredSessionBackgroundTasksView = {
++  foregroundTasks?: AgentSessionForegroundTask[]
+   /** Background rows remain visible during a foreground turn. */
+   show: boolean
+   /** Idle-only monitoring/command gate; a running turn owns the indicator, but background rows remain visible. */
+@@ -60,7 +62,12 @@ export function structuredSessionBackgroundTasksView(
+     !settledTasks.length &&
+     Boolean(backgroundTasks?.children?.length || backgroundTasks?.tasks?.length)
+   const incomplete = monitoring && backgroundTasks.incomplete === true
+-  const show = monitoring && (incomplete || !onlyForeground)
++  const onlyEarlyCalls =
++    Boolean(backgroundTasks?.foregroundTasks?.length) &&
++    !children?.length &&
++    !tasks.length &&
++    !settledTasks.length
++  const show = monitoring && (incomplete || (!onlyForeground && !onlyEarlyCalls))
+   // Commands and rewind follow the listed records, as the host's own admission does.
+   const liveWork = children
+     ? children.some((child) => child.membership === 'live' && isLiveChildWork(child))
+@@ -68,6 +75,9 @@ export function structuredSessionBackgroundTasksView(
+   const supportsStop = backgroundTasks?.supportsTaskStop === true
+   return {
+     show,
++    ...(backgroundTasks?.foregroundTasks
++      ? { foregroundTasks: backgroundTasks.foregroundTasks }
++      : {}),
+     isMonitoring: turnId === null && liveWork,
+     tasks,
+     settledTasks,

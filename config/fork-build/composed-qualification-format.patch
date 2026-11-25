@@ -1,0 +1,169 @@
+diff --git a/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
+index 022930c8ca9..c67e51061e3 100644
+--- a/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
++++ b/mobile/src/session/native-chat/input/session-options/MobileNativeChatSessionOptionPickers.tsx
+@@ -255,7 +255,9 @@ export function MobileNativeChatSessionOptionPickers({
+                 disabled={locked(model)}
+                 onReset={
+                   controller.optionSurface?.resetOption
+-                    ? () => { void controller.optionSurface?.resetOption?.(model.id) }
++                    ? () => {
++                        void controller.optionSurface?.resetOption?.(model.id)
++                      }
+                     : undefined
+                 }
+                 onSetOption={(value) => applyOption(model, value)}
+diff --git a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
+index 425b749b8d7..f38218ee981 100644
+--- a/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
++++ b/src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx
+@@ -123,70 +123,74 @@ export function NativeChatToolLine({
+   return (
+     <div>
+       <div className="flex min-w-0 items-center gap-2">
+-      <button
+-        type="button"
+-        onClick={() => hasDetail && setExpanded(!expanded)}
+-        className={cn(
+-          'group/tool-line flex min-h-6.5 min-w-0 flex-1 items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+-          hasDetail ? 'cursor-pointer' : 'cursor-default'
+-        )}
+-        aria-expanded={hasDetail ? expanded : undefined}
+-      >
+-        {isCall ? (
+-          <NativeChatToolIcon
+-            mcpIdentity={block.mcpIdentity}
+-            rowWord={name}
+-            input={block.input}
+-            className={failed ? 'text-destructive/70' : 'text-chat-foreground-faint'}
+-          />
+-        ) : (
+-          /* Translated result labels identify no tool category; reserve an empty slot for alignment. */
+-          <span aria-hidden className="size-4 shrink-0" />
+-        )}
+-        {label?.verb && label.verb !== name ? <span className="sr-only">{name} </span> : null}
+-        {commandAlone ? (
+-          // The run's header already says these ran; the row is the command itself.
+-          <span className="sr-only">{label?.verb} </span>
+-        ) : (
+-          <span
+-            className={cn(
+-              'text-chat-foreground-faint transition-colors group-hover/tool-line:text-chat-foreground',
+-              label?.verb ? 'shrink-0' : 'min-w-0 truncate'
+-            )}
+-          >
+-            {label?.verb ??
+-              (isCall ? <NativeChatToolName name={name} mcpIdentity={block.mcpIdentity} /> : name)}
+-          </span>
+-        )}
+-        {label?.filePath ? (
+-          <NativeChatToolFileTarget
+-            path={label.filePath}
+-            label={label.target}
+-            className={cn(TARGET_CLASS, 'truncate')}
+-          />
+-        ) : (label?.target ?? resultPreview) ? (
+-          <span
+-            className={cn(TARGET_CLASS, expanded ? 'whitespace-normal break-words' : 'truncate')}
+-            title={label?.title ?? resultPreview}
+-          >
+-            {label?.target ?? resultPreview}
+-          </span>
+-        ) : null}
+-        <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">
+-          {isCall ? <NativeChatCommandMetadata block={block} /> : null}
+-          {hasDetail ? (
+-            <ChevronRight
++        <button
++          type="button"
++          onClick={() => hasDetail && setExpanded(!expanded)}
++          className={cn(
++            'group/tool-line flex min-h-6.5 min-w-0 flex-1 items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
++            hasDetail ? 'cursor-pointer' : 'cursor-default'
++          )}
++          aria-expanded={hasDetail ? expanded : undefined}
++        >
++          {isCall ? (
++            <NativeChatToolIcon
++              mcpIdentity={block.mcpIdentity}
++              rowWord={name}
++              input={block.input}
++              className={failed ? 'text-destructive/70' : 'text-chat-foreground-faint'}
++            />
++          ) : (
++            /* Translated result labels identify no tool category; reserve an empty slot for alignment. */
++            <span aria-hidden className="size-4 shrink-0" />
++          )}
++          {label?.verb && label.verb !== name ? <span className="sr-only">{name} </span> : null}
++          {commandAlone ? (
++            // The run's header already says these ran; the row is the command itself.
++            <span className="sr-only">{label?.verb} </span>
++          ) : (
++            <span
+               className={cn(
+-                'size-3.5 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
+-                expanded && 'rotate-90'
++                'text-chat-foreground-faint transition-colors group-hover/tool-line:text-chat-foreground',
++                label?.verb ? 'shrink-0' : 'min-w-0 truncate'
+               )}
++            >
++              {label?.verb ??
++                (isCall ? (
++                  <NativeChatToolName name={name} mcpIdentity={block.mcpIdentity} />
++                ) : (
++                  name
++                ))}
++            </span>
++          )}
++          {label?.filePath ? (
++            <NativeChatToolFileTarget
++              path={label.filePath}
++              label={label.target}
++              className={cn(TARGET_CLASS, 'truncate')}
+             />
++          ) : (label?.target ?? resultPreview) ? (
++            <span
++              className={cn(TARGET_CLASS, expanded ? 'whitespace-normal break-words' : 'truncate')}
++              title={label?.title ?? resultPreview}
++            >
++              {label?.target ?? resultPreview}
++            </span>
+           ) : null}
+-        </span>
+-      </button>
+-      {isCall && block.state === 'running' && !body ? (
+-        <NativeChatForegroundTaskAction toolUseId={block.callId} />
+-      ) : null}
++          <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">
++            {isCall ? <NativeChatCommandMetadata block={block} /> : null}
++            {hasDetail ? (
++              <ChevronRight
++                className={cn(
++                  'size-3.5 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
++                  expanded && 'rotate-90'
++                )}
++              />
++            ) : null}
++          </span>
++        </button>
++        {isCall && block.state === 'running' && !body ? (
++          <NativeChatForegroundTaskAction toolUseId={block.callId} />
++        ) : null}
+       </div>
+       {hasDetail ? (
+         <NativeChatExpandable open={expanded}>
+diff --git a/src/shared/agent-session/view/structured-session-background-tasks-view.ts b/src/shared/agent-session/view/structured-session-background-tasks-view.ts
+index 890c1926293..0b0d0bfebfa 100644
+--- a/src/shared/agent-session/view/structured-session-background-tasks-view.ts
++++ b/src/shared/agent-session/view/structured-session-background-tasks-view.ts
+@@ -65,7 +65,9 @@ export function structuredSessionBackgroundTasksView(
+   const incomplete = monitoring && backgroundTasks.incomplete === true
+   const onlyEarlyCalls =
+     Boolean(backgroundTasks?.foregroundTasks?.length) && children?.length === 0 && !tasks.length
+-  const show = monitoring && (incomplete || Boolean(backgroundTasks?.workerDock) || (!onlyForeground && !onlyEarlyCalls))
++  const show =
++    monitoring &&
++    (incomplete || Boolean(backgroundTasks?.workerDock) || (!onlyForeground && !onlyEarlyCalls))
+   // Commands and rewind follow the listed records, as the host's own admission does.
+   const liveWork = children
+     ? children.some((child) => child.membership === 'live' && isLiveChildWork(child))
