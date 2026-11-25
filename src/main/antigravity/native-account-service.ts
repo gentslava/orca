@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { homedir } from 'node:os'
 import type { AntigravityAccountState } from '../../shared/agent-accounts/antigravity/antigravity-account-types'
 import type {
   AntigravityAccountUsage,
@@ -21,6 +22,7 @@ import {
   type AntigravityNativeCredential
 } from './native-credential-codec'
 import { fetchGoogleIdentity } from './google-userinfo-identity'
+import { expireAntigravityHostAcpChecks } from './antigravity-host-acp'
 import { AntigravityRewrittenLoginIdentity } from './native-account-rewritten-login'
 import type {
   AntigravityAccountStore,
@@ -64,7 +66,8 @@ export class AntigravityAccountService {
     private readonly backend: AntigravityCredentialBackend,
     private readonly now: () => number = Date.now,
     private readonly lookupIdentity = fetchGoogleIdentity,
-    private readonly target: RateLimitRuntimeTarget = ANTIGRAVITY_USAGE_HOST_TARGET
+    private readonly target: RateLimitRuntimeTarget = ANTIGRAVITY_USAGE_HOST_TARGET,
+    private readonly homePath: string = homedir()
   ) {}
 
   listAccounts(): Promise<AntigravityAccountState> {
@@ -112,8 +115,9 @@ export class AntigravityAccountService {
       if (!selected) {
         throw new Error('Antigravity account was not found.')
       }
-      const switching = !current || !this.matches(selected, current)
-      if (switching) {
+      const credentialChanged = !current || !this.matches(selected, current)
+      const selectionChanged = credentialChanged || vault.selectedAccountId !== id
+      if (credentialChanged) {
         await this.backend.write(selected.credentials, current?.contents ?? null)
       }
       const readback = await this.backend.read()
@@ -131,8 +135,11 @@ export class AntigravityAccountService {
       latest.selectedAccountId = id
       this.updateSnapshot(latest, readback)
       await this.store.write(latest)
-      if (switching) {
+      if (credentialChanged) {
         switched?.()
+      }
+      if (selectionChanged && this.target.runtime === 'host') {
+        expireAntigravityHostAcpChecks(this.homePath)
       }
       return this.state({ vault: latest, current: readback })
     })
