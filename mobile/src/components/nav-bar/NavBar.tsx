@@ -30,6 +30,7 @@ type NavBarProps = {
   center?: ReactNode
   /** At most two NavBarButtons; anything more belongs in the ⋯ menu. */
   trailing?: ReactNode
+  reserveTwoButtonSides?: boolean
   /** A switcher or filter row under the title; it shares the bar's band, so the list slides under both. */
   accessory?: ReactNode
   style?: StyleProp<ViewStyle>
@@ -48,6 +49,7 @@ export function NavBar({
   subtitle,
   center,
   trailing,
+  reserveTwoButtonSides = false,
   accessory,
   style,
   titleOpacity,
@@ -58,7 +60,7 @@ export function NavBar({
   return (
     <View style={[styles.chrome, dividerOpacity && styles.chromeWithoutDivider, style]}>
       <View style={styles.bar}>
-        <View style={styles.side}>{leading}</View>
+        <View style={[styles.side, reserveTwoButtonSides && styles.twoButtonSide]}>{leading}</View>
         <Animated.View style={[styles.center, titleOpacity && { opacity: titleOpacity }]}>
           {center ?? (
             <>
@@ -90,7 +92,9 @@ export function NavBar({
             </>
           )}
         </Animated.View>
-        <View style={[styles.side, styles.trailing]}>{trailing}</View>
+        <View style={[styles.side, reserveTwoButtonSides && styles.twoButtonSide, styles.trailing]}>
+          {trailing}
+        </View>
       </View>
       {accessory !== undefined && accessory !== null ? (
         <View style={styles.accessory}>{accessory}</View>
@@ -226,6 +230,9 @@ const styles = themedStyleSheet(() => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm
+  },
+  twoButtonSide: {
+    minWidth: 2 * NAV_BAR_BUTTON_SIZE + spacing.sm
   },
   trailing: {
     justifyContent: 'flex-end'
