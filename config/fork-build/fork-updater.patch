@@ -700,20 +700,6 @@ index e122ff623ba..23eaa8c50f8 100644
      "installOnQuit": {
        "title": "Update ready to install",
        "summary": "Quit Orca. Reopen after installation.",
-diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
-index 44d01b35527..618c1ea942b 100644
---- a/src/renderer/src/i18n/locales/ru.json
-+++ b/src/renderer/src/i18n/locales/ru.json
-@@ -26953,6 +26953,9 @@
-     }
-   },
-   "updates": {
-+    "forkPreview": {
-+      "manualInstall": "Установите скачанное обновление вручную."
-+    },
-     "installBlock": {
-       "instancesLabel": "Экземпляры, использующие Orca",
-       "browserLabel": "Фоновый браузер",
 diff --git a/src/shared/updater/update-status-types.ts b/src/shared/updater/update-status-types.ts
 index ae2a8ba8ed6..4602f204477 100644
 --- a/src/shared/updater/update-status-types.ts

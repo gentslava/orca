@@ -1,4 +1,9 @@
 {
+  "updates": {
+    "forkPreview": {
+      "manualInstall": "Установите скачанное обновление вручную."
+    }
+  },
   "sidebar": {
     "projectOrder": {
       "saveFailed": "Не удалось сохранить порядок проектов",
