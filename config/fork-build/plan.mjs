@@ -5,6 +5,7 @@ import { parseArgs } from 'node:util'
 import { api, readLedger, readPullRequest, renderReport, searchPullRequests } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
 import {
+  applyCompatibilityPatch,
   assertFrozenHead,
   compose,
   freezeForeignHead,
@@ -234,8 +235,7 @@ try {
         writeFileSync(applicable, current.text)
       }
       if (current.text) {
-        git(source, ['apply', '--check', applicable])
-        git(source, ['apply', '--index', applicable])
+        plan.compatibility.at(-1).method = applyCompatibilityPatch(source, applicable)
         git(source, ['commit', '-m', `Personal packaging policy: ${patch}`], {
           GIT_AUTHOR_DATE: plan.timestamp,
           GIT_COMMITTER_DATE: plan.timestamp

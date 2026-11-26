@@ -6,7 +6,13 @@ import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { resolveSelection, orderSelections } from './selection.mjs'
-import { compose, assertFrozenHead, freezeRetainedHead, freezeForeignHead } from './composition.mjs'
+import {
+  applyCompatibilityPatch,
+  compose,
+  assertFrozenHead,
+  freezeRetainedHead,
+  freezeForeignHead
+} from './composition.mjs'
 import { mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { renderReport } from './github.mjs'
 import { pruneTranslationsWithoutSource } from './fork-localizations.mjs'
@@ -492,6 +498,32 @@ for (const [directory, language, letters, upload, clear] of [
       assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
     }))
 }
+
+test('real Git: compatibility patches merge known context and leave a clean tree after divergence', () =>
+  fixture((cwd) => {
+    const file = join(cwd, 'file')
+    const patch = join(cwd, '.git', 'compatibility.patch')
+    writeFileSync(file, 'upstream header\ncommon one\ncommon two\npolicy=old\nkeep\n')
+    git(cwd, 'add', 'file')
+    git(cwd, 'commit', '-m', 'original compatibility context')
+    const base = git(cwd, 'rev-parse', 'HEAD')
+    writeFileSync(file, 'upstream header\ncommon one\ncommon two\npolicy=fork\nkeep\n')
+    writeFileSync(patch, execFileSync('git', ['diff', '--full-index'], { cwd }))
+    writeFileSync(file, 'new header\ncommon one\ncommon two\npolicy=old\nkeep\n')
+    git(cwd, 'commit', '-am', 'upstream header')
+    assert.equal(applyCompatibilityPatch(cwd, patch), 'three-way')
+    assert.equal(git(cwd, 'show', ':file'), 'new header\ncommon one\ncommon two\npolicy=fork\nkeep')
+
+    git(cwd, 'reset', '--hard', base)
+    writeFileSync(file, 'upstream header\ncommon one\ncommon two\npolicy=another\nkeep\n')
+    git(cwd, 'commit', '-am', 'upstream policy')
+    assert.throws(() => applyCompatibilityPatch(cwd, patch))
+    assert.equal(git(cwd, 'status', '--porcelain'), '')
+    assert.equal(
+      git(cwd, 'show', ':file'),
+      'upstream header\ncommon one\ncommon two\npolicy=another\nkeep'
+    )
+  }))
 
 test('real Git: a selected ancestor lets a dependent PR extend an already integrated change', () =>
   fixture((cwd) => {

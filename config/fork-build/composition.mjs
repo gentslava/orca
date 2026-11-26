@@ -199,6 +199,23 @@ export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory, upstr
   return { localePaths, patches, retirements }
 }
 
+export function applyCompatibilityPatch(cwd, path) {
+  const before = git(cwd, ['rev-parse', 'HEAD'])
+  try {
+    git(cwd, ['apply', '--index', path])
+    return 'direct'
+  } catch {
+    try {
+      git(cwd, ['apply', '--3way', '--check', path])
+      git(cwd, ['apply', '--index', '--3way', path])
+      return 'three-way'
+    } catch (error) {
+      git(cwd, ['reset', '--hard', before])
+      throw error
+    }
+  }
+}
+
 export function prepareFeatureMerge(cwd, upstream, head, timestamp, dependencyBase) {
   const base = dependencyBase ?? git(cwd, ['merge-base', '--all', upstream, head])
   if (!/^[a-f0-9]{40}$/.test(base)) {
