@@ -10,10 +10,12 @@ import {
   noteStreamedTextStage,
   projectionBesideStreamedText
 } from '../../../../../shared/agent-session/view/structured-agent-session-streamed-text-rows'
-import { nativeChatSubagentEnding } from './native-chat-subagent-ending'
+import { nativeChatSubagentEnding } from '../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending'
 import { useNativeChatSubagentScope } from './use-native-chat-subagent-scope'
 
-vi.mock('./native-chat-subagent-ending', { spy: true })
+vi.mock('../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending', {
+  spy: true
+})
 
 afterEach(cleanup)
 

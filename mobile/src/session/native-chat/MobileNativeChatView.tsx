@@ -147,13 +147,14 @@ export function MobileNativeChatView({
   onRespondPermission,
   composerTray: { content: trayContent, composerInputRef: inputRef, ...tray } = NO_COMPOSER_TRAY,
   onOpenFile,
-  keyboardInset = 0
+  keyboardInset = 0,
+  covered = false
 }: Props): React.JSX.Element {
   useMobileColorScheme()
   const t = useMobileTranslation()
   const insets = useSafeAreaInsets()
   const bottomPad = keyboardInset > 0 ? keyboardInset + insets.bottom : insets.bottom
-  const rootStyle = [styles.root, { paddingBottom: bottomPad }]
+  const root = [styles.root, { paddingBottom: bottomPad }]
   const { fontScale, pinchGesture } = useMobileNativeChatPinchGesture()
   const { font, lineSpacing } = useNativeChatTextSettings()
 
@@ -360,12 +361,12 @@ export function MobileNativeChatView({
   )
 
   if (readFailedFinally && emptyStateView) {
-    return <View style={rootStyle}>{emptyStateView}</View>
+    return <View style={root}>{emptyStateView}</View>
   }
 
   return (
     <MobileNativeChatOpenFileContext value={onOpenFile}>
-      <MobileNativeChatComposerMenuHost testID="native-chat-view" style={rootStyle}>
+      <MobileNativeChatComposerMenuHost testID="native-chat-view" style={root} ariaHidden={covered}>
         {status === 'loading' && messages.length === 0 ? (
           <MobileStateView
             loading
