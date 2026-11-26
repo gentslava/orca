@@ -666,29 +666,6 @@ index 00000000000..4e117e5a413
 +export function findByHostType(root: ReactTestInstance, hostType: string): ReactTestInstance {
 +  return root.find((node) => node.type === hostType)
 +}
-diff --git a/mobile/src/transport/rpc/rpc-client-test-stub.ts b/mobile/src/transport/rpc/rpc-client-test-stub.ts
-new file mode 100644
-index 00000000000..5e0da03bd07
---- /dev/null
-+++ b/mobile/src/transport/rpc/rpc-client-test-stub.ts
-@@ -0,0 +1,17 @@
-+import type { RpcClient } from './rpc-client-contract'
-+
-+/** A connected RpcClient whose behaviour is only the members a test supplies; an unscripted request rejects. */
-+export function stubRpcClient(members: Partial<RpcClient> = {}): RpcClient {
-+  return {
-+    sendRequest: (method) => Promise.reject(new Error(`unscripted request: ${method}`)),
-+    subscribe: () => () => {},
-+    updateTerminalSubscriptionViewport: () => {},
-+    getState: () => 'connected',
-+    getReconnectAttempt: () => 0,
-+    getLastConnectedAt: () => null,
-+    onStateChange: () => () => {},
-+    notifyForeground: () => {},
-+    close: () => {},
-+    ...members
-+  }
-+}
 diff --git a/mobile/src/worktree/navigation/worktree-show-resolution.ts b/mobile/src/worktree/navigation/worktree-show-resolution.ts
 index 95876af78ee..a5b1324a7bc 100644
 --- a/mobile/src/worktree/navigation/worktree-show-resolution.ts
