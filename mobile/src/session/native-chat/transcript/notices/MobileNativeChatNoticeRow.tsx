@@ -51,10 +51,12 @@ export function MobileNativeChatNoticeRow({
   blocks,
   fontScale,
   onLongPress,
+  disclosed = false,
   cardId,
   timestamp
 }: {
   blocks: readonly NativeChatBlock[]
+  disclosed?: boolean
   fontScale: number
   onLongPress?: () => void
   /** The row's message id, for a bot card's fold and answer. */
@@ -162,14 +164,16 @@ export function MobileNativeChatNoticeRow({
     case 'settled-permission':
       return (
         <View>
-          <MobileNativeChatNoticeDisclosure
-            summary={nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)}
-            expanded={expanded}
-            fontScale={fontScale}
-            onPress={() => setExpanded((open) => !open)}
-            onLongPress={onLongPress}
-          />
-          {expanded ? diagnosticBody : null}
+          {disclosed ? null : (
+            <MobileNativeChatNoticeDisclosure
+              summary={nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)}
+              expanded={expanded}
+              fontScale={fontScale}
+              onPress={() => setExpanded((open) => !open)}
+              onLongPress={onLongPress}
+            />
+          )}
+          {disclosed || expanded ? diagnosticBody : null}
         </View>
       )
     case 'divider':

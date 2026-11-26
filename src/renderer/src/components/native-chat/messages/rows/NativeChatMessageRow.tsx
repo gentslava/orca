@@ -317,7 +317,7 @@ function MessageRowContent(props: MessageRowProps): React.JSX.Element | null {
       </div>
     )
   }
-  if (notice) {
+  if (notice && run === undefined) {
     return (
       <div ref={rowRef}>
         {/* A subagent's last word, shown in its sheet. */}
@@ -335,7 +335,7 @@ function MessageRowContent(props: MessageRowProps): React.JSX.Element | null {
     )
   }
 
-  if (providerFrame) {
+  if (providerFrame && run === undefined) {
     return (
       <div ref={rowRef}>
         <ProviderFrameRow block={providerFrame} />
