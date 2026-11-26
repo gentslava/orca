@@ -30,6 +30,8 @@ export type SessionOptionDisabledReason =
   | 'available-after-session-start'
   | 'set-when-session-starts'
   | 'host-update-required'
+  | 'models-loading'
+  | 'sign-in-for-models'
 
 export type SessionOptionDescriptor = {
   id: string

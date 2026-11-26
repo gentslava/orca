@@ -23,7 +23,8 @@ export function buildInterfaceSettingsSections(
     isWebClient,
     typedChatPermissions,
     managedBrowserCreationEnabled,
-    mobileEmulatorCreationEnabled
+    mobileEmulatorCreationEnabled,
+    showWorkspaceCardLayout
   }: SettingsNavigationBuildOptions,
   t: Translate = translate
 ): SettingsNavSection[] {
@@ -41,7 +42,8 @@ export function buildInterfaceSettingsSections(
         showDesktopThemeImports: showDesktopOnlySettings,
         showSystemTray: showDesktopOnlySettings && isWindows,
         showMenuBarIcon: showDesktopOnlySettings && isMac,
-        showTilingWindowMode: showDesktopOnlySettings && !isMac && !isWindows
+        showTilingWindowMode: showDesktopOnlySettings && !isMac && !isWindows,
+        showWorkspaceCardLayout
       }),
       group: 'interface'
     },

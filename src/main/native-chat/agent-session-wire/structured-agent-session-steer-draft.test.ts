@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, expect, it } from 'vitest'
+import { agentJournalSubmissionKey } from '../../../shared/agent-session/journal/agent-session-journal-item-key'
+import { AGENT_JOURNAL_THREAD_SCOPE } from '../../../shared/agent-session/journal/agent-session-journal-types'
 import {
   createQueuedMessageTestRig,
   QUEUED_RIG_CALLER,
@@ -7,16 +9,39 @@ import {
 import {
   hostTestMessage,
   hostTestOperationId,
-  HOST_TEST_SESSION as SESSION
+  HOST_TEST_SESSION as SESSION,
+  HOST_TEST_THREAD as THREAD
 } from './host/testing/structured-agent-session-host-test-data.test-fixture'
 import { eventually } from './host/testing/structured-agent-session-queued-message-rig-provider.test-fixture'
-import { openRigTurnFor } from './host/testing/structured-agent-session-queued-rig-turn.test-fixture'
 
 let rig: QueuedMessageTestRig
 beforeEach(async () => {
   rig = await createQueuedMessageTestRig({ restartable: true })
 })
 afterEach(() => rig.dispose())
+
+async function recordTurn(id: string, state: 'running' | 'interrupted' = 'running') {
+  const journal = rig.host.collaboratorsForTests().sessions.get(SESSION)?.journal
+  if (!journal) {
+    throw new Error('expected the conversation open')
+  }
+  const turnId = `turn-of-${id}`
+  const startedAt = Date.now()
+  await journal.appendItem(
+    { provider: 'codex', threadId: THREAD, turnId, ordinal: 0 },
+    {
+      kind: 'turn',
+      turnId,
+      startedAt,
+      userItemId: agentJournalSubmissionKey(id),
+      ...(state === 'running' ? { state } : { state, completedAt: startedAt })
+    },
+    {
+      fence: rig.store.getRecord(SESSION)?.lease.runtimeFence ?? 1,
+      turnScope: AGENT_JOURNAL_THREAD_SCOPE
+    }
+  )
+}
 
 it('steers the complete draft once with running choices while future picks and queued snapshots stay intact', async () => {
   const runningChoices = { model: 'model-a', effort: 'high', serviceTier: 'default' }
@@ -34,7 +59,7 @@ it('steers the complete draft once with running choices while future picks and q
   await first.result
   await eventually(() => expect(rig.dispatch).toHaveBeenCalledOnce())
   await rig.settleAccepted(first.id, 'running')
-  await openRigTurnFor(rig, first.id)
+  await recordTurn(first.id)
   const queuedChoices = { model: 'model-c', effort: 'medium' }
   const queued = await rig.send('keep these choices', 'queue-if-active', { carried: queuedChoices })
     .result
@@ -128,7 +153,7 @@ it('reuses the opening submission choices before the provider publishes its runn
   const queuedJournal = rig.host.collaboratorsForTests().sessions.get(SESSION)?.journal
   expect((await queuedJournal?.queuedMessages.get(operation))?.options).toEqual(choices)
   await rig.settleAccepted(first.id, 'opening')
-  await openRigTurnFor(rig, first.id)
+  await recordTurn(first.id)
   await eventually(() => expect(rig.dispatch).toHaveBeenCalledTimes(2))
   expect(rig.dispatch.mock.calls[1]?.[0].executionOptions).toEqual(choices)
   expect(await rig.host.send(QUEUED_RIG_CALLER, params)).toMatchObject({ ok: true, replayed: true })
@@ -143,11 +168,11 @@ it.each([{ fastMode: 'true' }, { serviceTier: 'priority' }] as const)(
     await first.result
     await eventually(() => expect(rig.dispatch).toHaveBeenCalledOnce())
     await rig.settleAccepted(first.id, 'running')
-    await openRigTurnFor(rig, first.id)
+    await recordTurn(first.id)
     const nextChoices = { ...choices, ...changed }
     await rig.send('next turn', undefined, { carried: nextChoices }).result
     expect(rig.dispatch).toHaveBeenCalledOnce()
-    await openRigTurnFor(rig, first.id, 'interrupted')
+    await recordTurn(first.id, 'interrupted')
     await eventually(() => expect(rig.dispatch).toHaveBeenCalledTimes(2))
     expect(rig.dispatch.mock.calls[1]?.[0].executionOptions).toEqual(nextChoices)
   }
