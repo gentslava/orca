@@ -1,0 +1,62 @@
+diff --git a/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.ts b/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.ts
+index dbc70b8bb0f5d52a42d10c84da9536924b5bd847..a5c3eeb3ceb2c554c73499560c5764605e4a2247 100644
+--- a/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.ts
++++ b/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.ts
+@@ -14,35 +14,43 @@ type ModelDefaultDeps = Pick<StructuredAgentSessionHostDeps, 'store' | 'modelCat
+ async function configuredDefaultModel(
+   deps: ModelDefaultDeps,
+   record: AgentSessionRecord
+-): Promise<string | undefined> {
++): Promise<Record<string, string> | undefined> {
+   const listing = await deps.modelCatalog
+     ?.read({
+       agent: record.provider,
+       sessionId: record.sessionId,
+       inSessionWorkspace: true,
+       verifiedOnly: true,
++      requireConfiguredDefault: true,
+       waitForListing: true
+     })
+     .catch(() => null)
+-  return listing && listing.origin !== 'unknown' && listing.listingNamesConfiguredModel === true
++  if (!listing || listing.origin === 'unknown') {
++    return undefined
++  }
++  // The host's configuration evidence names a model the listing may lack, and its effort.
++  const named = listing.listingNamesConfiguredModel
+     ? listing.models.find((model) => model.isDefault)?.id
+     : undefined
++  return listing.defaultModelOptions ?? (named ? { model: named } : undefined)
+ }
+ 
+-/** A chat that never ran launches without a model; one that ran moves to the configured model. */
++/** Default keeps the configured model the host names, so a later config change can't move the chat;
++ *  only a chat that never ran may launch without one. */
+ export async function resetStructuredAgentSessionModel(
+   deps: ModelDefaultDeps,
+   ctx: Pick<AgentSessionTurnContext, 'sessionId' | 'fence' | 'now' | 'publish' | 'journal'>,
+   hasProviderChild: boolean
+ ): Promise<TurnOutcome<AgentSessionOptionResult>> {
+   const record = deps.store.getRecord(ctx.sessionId)
++  const configured = record ? await configuredDefaultModel(deps, record) : undefined
+   // A provider thread may keep its own model, so only a chat with none launches on the default.
+   const unstarted =
++    !configured &&
+     !hasProviderChild &&
+     record?.providerHandleChain.length === 0 &&
+     (await ctx.journal.reads.savedContent()) === 'empty'
+-  const configured = record && !unstarted ? await configuredDefaultModel(deps, record) : undefined
+-  if (!record || (!unstarted && !configured)) {
++  if (!record || (!configured && !unstarted)) {
+     return {
+       ok: false,
+       refusal: refuse(
+@@ -58,7 +66,7 @@ export async function resetStructuredAgentSessionModel(
+     fence: ctx.fence,
+     now: ctx.now(),
+     options,
+-    defaultModelOptions: configured ? { model: configured } : {}
++    defaultModelOptions: configured ?? {}
+   })
+   ctx.publish()
+   return {
