@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 33576,
+      "reason": "Keep older transcript pages, reading position and folded turns across desktop and mobile lifecycle changes while retaining upstream streaming optimizations."
+    },
+    {
       "number": 38963,
       "reason": "Keep the Claude foreground task controls and background routing across desktop, mobile and the host lifecycle."
     },
@@ -238,6 +242,10 @@
     }
   },
   "forkHeadSources": {
+    "33576": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-chat-retention-33576"
+    },
     "38963": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-claude-background-38963"
