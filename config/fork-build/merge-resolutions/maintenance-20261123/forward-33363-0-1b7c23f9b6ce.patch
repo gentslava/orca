@@ -1,0 +1,41 @@
+diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+--- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
++++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+@@ -99,10 +99,12 @@
+   blocks,
+   fontScale,
+   onLongPress,
++  disclosed = false,
+   cardId,
+   timestamp
+ }: {
+   blocks: readonly NativeChatBlock[]
++  disclosed?: boolean
+   fontScale: number
+   onLongPress?: () => void
+   /** The row's message id, for a bot card's fold and answer. */
+@@ -211,14 +213,16 @@
+       const summary = nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)
+       return (
+         <View>
+-          <MobileNativeChatNoticeDisclosure
+-            summary={summary}
+-            expanded={expanded}
+-            fontScale={fontScale}
+-            onPress={() => setExpanded((open) => !open)}
+-            onLongPress={onLongPress}
+-          />
+-          {expanded ? diagnosticBody : null}
++          {disclosed ? null : (
++            <MobileNativeChatNoticeDisclosure
++              summary={summary}
++              expanded={expanded}
++              fontScale={fontScale}
++              onPress={() => setExpanded((open) => !open)}
++              onLongPress={onLongPress}
++            />
++          )}
++          {disclosed || expanded ? diagnosticBody : null}
+         </View>
+       )
+     }

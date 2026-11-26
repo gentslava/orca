@@ -1,0 +1,1319 @@
+diff --git a/config/main-blocking-worker-entries.json b/config/main-blocking-worker-entries.json
+index 9d05876478b..dedf15c3eaa 100644
+--- a/config/main-blocking-worker-entries.json
++++ b/config/main-blocking-worker-entries.json
+@@ -33,5 +33,6 @@
+   "src/main/bots/bot-items-store.ts": "Bots DB worker; bot store SQL runs only inside this worker thread.",
+   "src/main/bots/bot-item-waiting-ask-keep.ts": "Bots DB worker; bot store SQL runs only inside this worker thread.",
+   "src/main/native-chat/agent-session-journal/journal-sql-reader-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
+-  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main."
++  "src/main/native-chat/agent-session-journal/journal-sql-worker-entry.ts": "Dedicated worker-thread entry; blocking work stays off Electron main.",
++  "src/main/ai-vault/scanners/opencode/reader-transport/session-scanner-opencode-sqlite-process-entry.ts": "Dedicated utility process entry; the Electron child and its SQLite reader thread do not run on the main event loop."
+ }
+diff --git a/config/main-sync-fs-baseline.txt b/config/main-sync-fs-baseline.txt
+index 1db6542fb95..fe10801ba81 100644
+--- a/config/main-sync-fs-baseline.txt
++++ b/config/main-sync-fs-baseline.txt
+@@ -317,8 +317,6 @@
+ 4 src/main/orca-profiles/project-transfer/profile-project-state-file.ts
+ 2 src/main/orca-profiles/storage/new-profile-state.ts
+ 5 src/main/orca-profiles/storage/profile-legacy-state-import.ts
+-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+-2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+ 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
+ 2 src/main/orcad/artifact-slots/orcad-artifact-materializer.ts
+ 2 src/main/orcad/artifact-slots/orcad-daemon-slot-pins.ts
+diff --git a/config/oxlint-anti-slop.json b/config/oxlint-anti-slop.json
+index 54485134c60..121166bc7a4 100644
+--- a/config/oxlint-anti-slop.json
++++ b/config/oxlint-anti-slop.json
+@@ -52,6 +52,7 @@
+         "**/*.spec.{ts,tsx}",
+         // Vitest support modules shared by split suites; only test files import them.
+         "**/*-test-harness.{ts,tsx}",
++        "**/*.test-harness.{ts,tsx}",
+         "**/*-test-fixture.{ts,tsx}",
+         "**/*-test-fixtures.{ts,tsx}",
+         "**/*.test-fixture.{ts,tsx}",
+diff --git a/config/react-compiler-bailout-baseline.txt b/config/react-compiler-bailout-baseline.txt
+index f17d6240bfe..927b3752916 100644
+--- a/config/react-compiler-bailout-baseline.txt
++++ b/config/react-compiler-bailout-baseline.txt
+@@ -82,7 +82,6 @@
+ 2 src/renderer/src/components/browser-pane/page-prompts/browser-webauthn-account-dialog.tsx
+ 1 src/renderer/src/components/cmd-j/PaletteFilterFieldOptions.tsx
+ 1 src/renderer/src/components/cmd-j/PaletteFilterMenu.tsx
+-3 src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
+ 1 src/renderer/src/components/crash-report/CrashReportDialog.tsx
+ 1 src/renderer/src/components/crash-report/CrashReportDialogSurface.tsx
+ 3 src/renderer/src/components/crash-report/use-crash-report-copy.ts
+@@ -209,7 +208,6 @@
+ 1 src/renderer/src/components/task-page/linear/issue-workspace/linear-issue-workspace-detail-state.ts
+ 2 src/renderer/src/components/task-page/linear/item-drawer/linear-item-drawer-comment-footer.tsx
+ 1 src/renderer/src/components/link-actions/LinkActionPopover.tsx
+-3 src/renderer/src/components/link-actions/link-routing-preference-dialog.tsx
+ 1 src/renderer/src/components/mobile/MobilePage.tsx
+ 1 src/renderer/src/components/mobile/WindowsFirewallNotice.tsx
+ 2 src/renderer/src/components/mobile/use-mobile-page-paired-devices.ts
+diff --git a/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs b/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs
+new file mode 100644
+index 00000000000..0174074fbf0
+--- /dev/null
++++ b/config/scripts/build/mobile-web-app/minify-large-mobile-web-scripts.mjs
+@@ -0,0 +1,30 @@
++import { createRequire } from 'node:module'
++import { basename } from 'node:path'
++import { isScriptOutput } from './mobile-web-app-chunk-grouping.mjs'
++
++const requireMobile = createRequire(new URL('../../../../mobile/package.json', import.meta.url))
++const LARGE_SCRIPT_BYTES = 256 * 1024
++
++export async function minifyLargeMobileWebScripts(outputFiles, catalogOutputs) {
++  const files = []
++  for (const output of outputFiles) {
++    if (
++      !isScriptOutput(output.path) ||
++      output.contents.byteLength < LARGE_SCRIPT_BYTES ||
++      catalogOutputs.has(basename(output.path))
++    ) {
++      files.push(output)
++      continue
++    }
++    const { minify } = requireMobile('terser')
++    const { code } = await minify(output.text, {
++      module: true,
++      ecma: 2022,
++      compress: { passes: 2 },
++      mangle: true
++    })
++    const contents = Buffer.from(code)
++    files.push(contents.byteLength < output.contents.byteLength ? { ...output, contents } : output)
++  }
++  return files
++}
+diff --git a/mobile/package.json b/mobile/package.json
+index 3bb1facc11c..cf485bcc639 100644
+--- a/mobile/package.json
++++ b/mobile/package.json
+@@ -98,6 +98,7 @@
+     "oxfmt": "^0.79.0",
+     "oxlint": "1.94.0",
+     "react-test-renderer": "19.3.0",
++    "terser": "5.51.2",
+     "tsx": "^4.23.15",
+     "typescript": "^7.0.2",
+     "typescript-api": "npm:typescript@6.0.3",
+diff --git a/mobile/pnpm-lock.yaml b/mobile/pnpm-lock.yaml
+index 77dfa7f2bda..5d85f51d4d1 100644
+--- a/mobile/pnpm-lock.yaml
++++ b/mobile/pnpm-lock.yaml
+@@ -403,6 +403,9 @@ importers:
+       react-test-renderer:
+         specifier: 19.3.0
+         version: 19.3.0(react@19.3.0)
++      terser:
++        specifier: 5.51.2
++        version: 5.51.2
+       tsx:
+         specifier: ^4.23.15
+         version: 4.23.15
+diff --git a/mobile/src/session/mobile-pending-model-send.test-fixture.ts b/mobile/src/session/mobile-pending-model-send.test-fixture.ts
+new file mode 100644
+index 00000000000..111a5184bb4
+--- /dev/null
++++ b/mobile/src/session/mobile-pending-model-send.test-fixture.ts
+@@ -0,0 +1,163 @@
++import { act } from 'react-test-renderer'
++import { expect, it, type Mock } from 'vitest'
++import type { RpcClient } from '../transport/rpc/rpc-client-contract'
++import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
++import type { useMobileStructuredAgentSession } from './native-chat/agent-session/use-mobile-structured-agent-session'
++import type { useMobileStructuredNativeChatSendBridge } from './native-chat/composer/delivery/use-mobile-structured-native-chat-send-bridge'
++import {
++  structuredAgentSessionHostSupport,
++  type StructuredAgentSessionHostSupport
++} from './native-chat/agent-session/mobile-structured-agent-session-host-support'
++import { AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session/capabilities/agent-session-runtime-capabilities'
++import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../src/shared/agent-session/lifecycle/operations/agent-session-create-capabilities'
++import { deferred, MODEL_OPTIONS, sendResult } from './structured-session-send-options.test-fixture'
++import {
++  fieldsOf,
++  mutationOk,
++  ok
++} from './native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture'
++
++export function defineMobilePendingModelSendCases({
++  setAgent,
++  setHostSupport,
++  getHook,
++  getBridge,
++  sendRequest,
++  mountSession,
++  calls,
++  captureSendOrigin,
++  clearDraftForSend,
++  restoreRejectedDraft
++}: {
++  setAgent: (agent: string) => void
++  setHostSupport: (support: StructuredAgentSessionHostSupport) => void
++  getHook: () => ReturnType<typeof useMobileStructuredAgentSession>
++  getBridge: () => ReturnType<typeof useMobileStructuredNativeChatSendBridge>
++  sendRequest: Mock<RpcClient['sendRequest']>
++  mountSession: () => Promise<void>
++  calls: () => Parameters<RpcClient['sendRequest']>[]
++  captureSendOrigin: unknown
++  clearDraftForSend: unknown
++  restoreRejectedDraft: unknown
++}): void {
++  it.each([
++    ['explicit model', true, false],
++    ['Default reset', true, true],
++    ['legacy explicit model', false, false],
++    ['legacy Default reset', false, true]
++  ] as const)(
++    'rejects a send during a pending %s, then sends the accepted selection',
++    async (_name, takesOptions, reset) => {
++      setAgent('claude')
++      setHostSupport(
++        structuredAgentSessionHostSupport([
++          AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY,
++          ...(takesOptions ? [AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY] : [])
++        ])
++      )
++      const write = deferred<RpcResponse>()
++      let current = MODEL_OPTIONS.current
++      sendRequest.mockImplementation(async (method) => {
++        if (method === 'agentSession.setOption') {
++          return write.promise
++        }
++        if (method === 'agentSession.send') {
++          return sendResult('accepted')
++        }
++        if (method === 'agentSession.options') {
++          return ok({ ...MODEL_OPTIONS, current })
++        }
++        return ok({})
++      })
++      await mountSession()
++      await act(async () => {})
++      expect(getHook().pendingOptionId).toBeNull()
++      let mutation: Promise<unknown> | undefined
++      await act(async () => {
++        mutation = reset
++          ? getHook().optionSurface.resetOption?.('model')
++          : getHook().setStructuredOption('model', 'sonnet')
++        // The rendered picker has not caught up with the write's ref yet.
++        expect(getHook().pendingOptionId).toBeNull()
++        expect(await getBridge().sendWithOutcome('keep this draft')).toBe('rejected')
++        expect(await getHook().sendWithOutcome('keep this draft')).toBe('rejected')
++      })
++      expect(
++        sendRequest.mock.calls.filter(([method]) => method === 'agentSession.setOption')
++      ).toHaveLength(1)
++      expect(calls()).toHaveLength(0)
++      expect(getHook().session.messages).toEqual([])
++      expect(captureSendOrigin).not.toHaveBeenCalled()
++      expect(clearDraftForSend).not.toHaveBeenCalled()
++      expect(restoreRejectedDraft).not.toHaveBeenCalled()
++      await act(async () => {
++        expect(await getHook().sendWithOutcome('still pending')).toBe('rejected')
++      })
++      await act(async () => {
++        current = { model: 'sonnet', ...(reset ? { modelDefault: true } : {}) }
++        write.resolve(
++          mutationOk({
++            key: 'model',
++            value: reset ? null : 'sonnet',
++            options: { model: 'sonnet' },
++            ...(reset ? { modelDefault: true } : {})
++          })
++        )
++        await mutation
++        expect(await getBridge().sendWithOutcome('fresh send')).toBe('accepted')
++      })
++      expect(calls()).toHaveLength(1)
++      if (takesOptions && !reset) {
++        expect(fieldsOf(calls()[0]![1]).options).toEqual({ model: 'sonnet' })
++      } else {
++        expect(fieldsOf(calls()[0]![1])).not.toHaveProperty('options')
++      }
++      expect(getHook().session.messages).toHaveLength(1)
++      expect(clearDraftForSend).toHaveBeenCalledTimes(1)
++    }
++  )
++
++  it.each([false, true])(
++    'releases a failed model write without changing the selection (reset %s)',
++    async (reset) => {
++      setAgent('claude')
++      setHostSupport(
++        structuredAgentSessionHostSupport([
++          AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY,
++          AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
++        ])
++      )
++      const write = deferred<RpcResponse>()
++      sendRequest.mockImplementation(async (method) =>
++        method === 'agentSession.setOption'
++          ? write.promise
++          : method === 'agentSession.send'
++            ? sendResult('accepted')
++            : method === 'agentSession.options'
++              ? ok(MODEL_OPTIONS)
++              : method === 'agentSession.conversationCommand'
++                ? mutationOk({ command: 'compact', state: 'completed' })
++                : ok({})
++      )
++      await mountSession()
++      await act(async () => {})
++      await act(async () => {
++        const mutation = reset
++          ? getHook().optionSurface.resetOption?.('model')
++          : getHook().setStructuredOption('model', 'sonnet')
++        expect(await getHook().sendWithOutcome('pending')).toBe('rejected')
++        expect(await getBridge().sendWithOutcome('/compact')).toBe('accepted')
++        expect(getHook().isModelWritePending()).toBe(true)
++        write.resolve({
++          id: 'write',
++          ok: false,
++          error: { code: 'invalid_argument', message: 'Model unavailable' }
++        })
++        await mutation
++        expect(await getHook().sendWithOutcome('after refusal')).toBe('accepted')
++      })
++      expect(calls()).toHaveLength(1)
++      expect(fieldsOf(calls()[0]![1]).options).toEqual({ model: 'opus' })
++    }
++  )
++}
+diff --git a/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts b/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
+index 9adb526b310..435507e8d49 100644
+--- a/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
++++ b/mobile/src/session/native-chat/composer/delivery/use-mobile-structured-send-with-outcome.ts
+@@ -1,3 +1,4 @@
++import type { MobileStructuredSendInput } from '../mobile-structured-send-input'
+ import { agentSessionInteractionCommand } from '../../../../../../src/shared/agent-session/options/permissions/agent-session-interaction-mode'
+ import { selectAgentSessionCurrentRequests } from '../../../../../../src/shared/agent-session/requests/agent-session-current-requests'
+ import { useCallback } from 'react'
+@@ -10,27 +11,19 @@ import { pendingPromptsAllUnanswerableHere } from '../../../../../../src/shared/
+ import {
+   SkillRefLimitError,
+   structuredAgentSessionSendBody,
+-  type StructuredAgentSessionAttachment,
+-  type StructuredAgentSessionSendControl
++  type StructuredAgentSessionAttachment
+ } from '../../../../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
+ import type { AgentJournalSkillRef } from '../../../../../../src/shared/agent-session/journal/agent-session-journal-types'
+ import { MAX_SKILL_REFS } from '../../../../../../src/shared/rpc-contract/structured-agent-session/structured-agent-session-message-params'
+-import type { StructuredAgentSessionComposerOptions } from '../../../../../../src/shared/agent-session/view/structured-agent-session-composer'
+ import { structuredAgentSessionGoalObjective } from '../../../../../../src/shared/agent-session/view/structured-agent-session-goal-mode'
+ import { translate } from '../../../../i18n/mobile-i18n'
+-import type { AgentSessionSlashCommand } from '../../../../../../src/shared/agent-session/agent-session-wire'
+-import type { StructuredAgentSessionState } from '../../../../../../src/shared/agent-session/view/live-read/structured-agent-session-reducer'
+ import { mobileStructuredSendQueues } from './mobile-structured-send-queue-rule'
+-import type { RpcClient } from '../../../../transport/rpc/rpc-client-contract'
+ import type {
+   MobileNativeChatSendIntent,
+   MobileNativeChatSendOutcome
+ } from './mobile-native-chat-send'
+ import { dispatchMobileStructuredCommand } from '../commands/mobile-structured-composer-command'
+-import type { MobileNativeChatSendErrorReporter } from './use-mobile-native-chat-send-error'
+ import { sendMobileStructuredAgentSessionMessage } from '../../agent-session/mobile-structured-agent-session-send'
+-import type { MobileStructuredSends } from './use-mobile-structured-sends'
+-import type { MobileStructuredSendsOut } from './use-mobile-structured-stop-offer'
+ import { structuredSessionOperationId } from '../../agent-session/structured-session-operation-id'
+ import { UNCONFIRMED_SEND_MESSAGE } from './use-mobile-native-chat-unconfirmed-sends'
+ import { timeoutForDeadline } from '../../agent-session/mobile-structured-agent-session-rpc'
+@@ -44,47 +37,9 @@ export type StructuredMobileSendAttachment =
+   | (StructuredAgentSessionAttachment & { kind?: 'image'; id?: string })
+   | { kind: 'file'; id?: string; path: string }
+ 
+-export function useMobileStructuredSendWithOutcome(args: {
+-  agent: string | null
+-  client: RpcClient | null
+-  sessionId: string | null
+-  enabled: boolean
+-  queueCapable: boolean
+-  steerCapable?: boolean
+-  queueFollowUps: boolean
+-  commandsWait: boolean
+-  stateRef: { readonly current: StructuredAgentSessionState }
+-  stopping: boolean
+-  /** The host's queue sends next: commands that cannot wait in line read the chat as working. */
+-  queueSendsNext: boolean
+-  accept: MobileStructuredSends['accept']
+-  acknowledge: MobileStructuredSends['acknowledge']
+-  reject: MobileStructuredSends['reject']
+-  holdUnconfirmed: MobileStructuredSends['holdUnconfirmed']
+-  commandPending: { current: boolean }
+-  onClearSent: () => () => void
+-  /** This chat's message sends still out, which a command waits behind as on desktop. */
+-  sendsOut: MobileStructuredSendsOut
+-  controller: Pick<
+-    StructuredAgentSessionComposerOptions,
+-    | 'snapshot'
+-    | 'setOption'
+-    | 'invokeAction'
+-    | 'conversationCommands'
+-    | 'compactInstructions'
+-    | 'changeThreadGoal'
+-    | 'openMcpPanel'
+-  >
+-  sessionCommands?: readonly AgentSessionSlashCommand[]
+-  onSendError: MobileNativeChatSendErrorReporter
+-  // Older hosts accept neither per-chat model nor effort.
+-  /** The chat's own model and effort each send carries; absent for an older host, which takes neither. */
+-  sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'>
+-  sendOptions?: () => Readonly<Record<string, string>> | undefined
+-  isModelWritePending?: () => boolean
+-  // An older host refuses a send body carrying `skills`; there the `$name` text stands alone.
+-  takesSkills?: boolean
+-}): (
++export function useMobileStructuredSendWithOutcome(
++  args: MobileStructuredSendInput
++): (
+   text: string,
+   images?: string[],
+   deadline?: number,
+diff --git a/mobile/src/session/native-chat/composer/mobile-structured-send-input.ts b/mobile/src/session/native-chat/composer/mobile-structured-send-input.ts
+new file mode 100644
+index 00000000000..84b8fc85743
+--- /dev/null
++++ b/mobile/src/session/native-chat/composer/mobile-structured-send-input.ts
+@@ -0,0 +1,50 @@
++import type { StructuredAgentSessionSendControl } from '../../../../../src/shared/agent-session/requests/structured-agent-session-send-mutation'
++import type { StructuredAgentSessionComposerOptions } from '../../../../../src/shared/agent-session/view/structured-agent-session-composer'
++import type { AgentSessionSlashCommand } from '../../../../../src/shared/agent-session/agent-session-wire'
++import type { StructuredAgentSessionState } from '../../../../../src/shared/agent-session/view/live-read/structured-agent-session-reducer'
++import type { RpcClient } from '../../../transport/rpc/rpc-client-contract'
++import type { MobileNativeChatSendErrorReporter } from './delivery/use-mobile-native-chat-send-error'
++import type { MobileStructuredSends } from './delivery/use-mobile-structured-sends'
++import type { MobileStructuredSendsOut } from './delivery/use-mobile-structured-stop-offer'
++
++export type MobileStructuredSendInput = {
++  agent: string | null
++  client: RpcClient | null
++  sessionId: string | null
++  enabled: boolean
++  queueCapable: boolean
++  steerCapable?: boolean
++  queueFollowUps: boolean
++  commandsWait: boolean
++  stateRef: { readonly current: StructuredAgentSessionState }
++  stopping: boolean
++  /** The host's queue sends next: commands that cannot wait in line read the chat as working. */
++  queueSendsNext: boolean
++  accept: MobileStructuredSends['accept']
++  acknowledge: MobileStructuredSends['acknowledge']
++  reject: MobileStructuredSends['reject']
++  holdUnconfirmed: MobileStructuredSends['holdUnconfirmed']
++  commandPending: { current: boolean }
++  onClearSent: () => () => void
++  /** This chat's message sends still out, which a command waits behind as on desktop. */
++  sendsOut: MobileStructuredSendsOut
++  controller: Pick<
++    StructuredAgentSessionComposerOptions,
++    | 'snapshot'
++    | 'setOption'
++    | 'invokeAction'
++    | 'conversationCommands'
++    | 'compactInstructions'
++    | 'changeThreadGoal'
++    | 'openMcpPanel'
++  >
++  sessionCommands?: readonly AgentSessionSlashCommand[]
++  onSendError: MobileNativeChatSendErrorReporter
++  // Older hosts accept neither per-chat model nor effort.
++  /** The chat's own model and effort each send carries; absent for an older host, which takes neither. */
++  sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'>
++  sendOptions?: () => Readonly<Record<string, string>> | undefined
++  isModelWritePending?: () => boolean
++  // An older host refuses a send body carrying `skills`; there the `$name` text stands alone.
++  takesSkills?: boolean
++}
+diff --git a/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx b/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
+index 4abdf4398f7..cc301a8216e 100644
+--- a/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
++++ b/mobile/src/session/native-chat/input/session-options/MobileNativeChatModelList.tsx
+@@ -18,6 +18,7 @@ export function MobileNativeChatModelList(props: {
+   moreChoices: { shown: boolean; onToggle: () => void }
+   onSetOption: (value: SessionOptionValue) => void
+   onInvokeAction: () => void
++  onReset?: () => void
+ }): React.JSX.Element {
+   useMobileColorScheme()
+   const t = useMobileTranslation()
+diff --git a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
+index f9d9caccda2..44dbed3449e 100644
+--- a/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
++++ b/mobile/src/session/native-chat/transcript/notices/native-chat-notice-line-text.ts
+@@ -38,6 +38,7 @@ export function noticeLineText(
+       'modelUnavailable',
+       'providerUnavailable',
+       'providerSafetyStopped',
++      'flaggedRequestNotSwitched',
+       'providerResponseFailed'
+     ].includes(failure.kind)
+       ? (['row', 'rejection'] as const).find(
+diff --git a/mobile/src/session/structured-session-send-options.test-fixture.ts b/mobile/src/session/structured-session-send-options.test-fixture.ts
+new file mode 100644
+index 00000000000..6dc8230a498
+--- /dev/null
++++ b/mobile/src/session/structured-session-send-options.test-fixture.ts
+@@ -0,0 +1,31 @@
++import type { AgentSessionOptionsResult } from '../../../src/shared/agent-session/options/protocol/agent-session-options-result'
++import type { AgentJournalDispatchState } from '../../../src/shared/agent-session/journal/agent-session-journal-types'
++import { structuredSendResultFixture } from './structured-agent-send-result.test-fixture'
++import { ok } from './native-chat/agent-session/use-mobile-structured-agent-session-queued.test-fixture'
++
++export function deferred<T>() {
++  let resolve!: (value: T) => void
++  const promise = new Promise<T>((accept) => {
++    resolve = accept
++  })
++  return { promise, resolve }
++}
++
++export const MODEL_OPTIONS: AgentSessionOptionsResult = {
++  conversationCommands: ['compact'],
++  models: [
++    { id: 'opus', label: 'Opus', isDefault: true, efforts: [] },
++    { id: 'sonnet', label: 'Sonnet', isDefault: false, efforts: [] }
++  ],
++  current: { model: 'opus' }
++}
++
++export function sendResult(dispatchState: AgentJournalDispatchState, reason: string | null = null) {
++  return ok({
++    ok: true,
++    replayed: false,
++    fence: 3,
++    cursor: { epoch: 'epoch-1', sequence: 1 },
++    value: structuredSendResultFixture(dispatchState, reason)
++  })
++}
+diff --git a/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts b/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts
+index c90a2d5b506..6fe92f00d5e 100644
+--- a/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts
++++ b/src/main/claude-accounts/profiles/routing/claude-profile-installed-router.ts
+@@ -1,3 +1,4 @@
++import { lstat } from 'node:fs/promises'
+ import { basename, dirname, join } from 'node:path'
+ import type { UsageAccountRoot } from '../../../usage/usage-account-attribution'
+ import { isDirectory } from '../claude-profile-homes'
+@@ -7,21 +8,25 @@ import type { ClaudeWslProfileRouter } from '../wsl/claude-profile-wsl-router'
+ import type { ClaudeAccountSelectionTarget } from '../../selection/runtime-selection'
+ import type { ClaudeObservedConfigDirs } from './claude-observed-config-dirs'
+ 
+-export function claudeAccountHistoryRoots(): UsageAccountRoot[] {
++export async function claudeAccountHistoryRoots(): Promise<UsageAccountRoot[]> {
+   const router = installed
+-  return (router?.accountHomes() ?? []).flatMap((path) => {
+-    const accountId = basename(dirname(path))
+-    try {
+-      return router?.accountHome(accountId) === path &&
+-        isDirectory(path) &&
+-        isDirectory(dirname(path)) &&
+-        isDirectory(dirname(dirname(path)))
+-        ? [{ path, accountId }]
+-        : []
+-    } catch {
+-      return []
+-    }
+-  })
++  const roots = await Promise.all(
++    (router?.accountHomes() ?? []).map(async (path) => {
++      const accountId = basename(dirname(path))
++      try {
++        if (router?.accountHome(accountId) !== path) {
++          return null
++        }
++        const directories = await Promise.all(
++          [path, dirname(path), dirname(dirname(path))].map((entry) => lstat(entry))
++        )
++        return directories.every((entry) => entry.isDirectory()) ? { path, accountId } : null
++      } catch {
++        return null
++      }
++    })
++  )
++  return router === installed ? roots.filter((root) => root !== null) : []
+ }
+ 
+ let installed: ClaudeProfileRouter | undefined
+diff --git a/src/main/claude-usage/transcript-file-discovery-errors.test.ts b/src/main/claude-usage/transcript-file-discovery-errors.test.ts
+new file mode 100644
+index 00000000000..4d32938f387
+--- /dev/null
++++ b/src/main/claude-usage/transcript-file-discovery-errors.test.ts
+@@ -0,0 +1,89 @@
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
++import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
++import type * as FsPromises from 'node:fs/promises'
++import type * as NodeOs from 'node:os'
++import { tmpdir } from 'node:os'
++import { join } from 'node:path'
++import type { listClaudeTranscriptFiles } from './transcript-file-discovery'
++
++const state = vi.hoisted(() => ({ home: '', blocked: '', code: '' }))
++
++vi.mock('node:os', async () => {
++  const actual = await vi.importActual<typeof NodeOs>('node:os')
++  return { ...actual, homedir: () => state.home }
++})
++
++vi.mock('../claude-accounts/profiles/routing/claude-profile-installed-router', () => ({
++  claudeProfileHistoryDirs: () => [],
++  claudeAccountHistoryRoots: async () => [
++    { path: join(state.home, 'managed-account'), accountId: 'managed-a' }
++  ]
++}))
++
++vi.mock('node:fs/promises', async () => {
++  const actual = await vi.importActual<typeof FsPromises>('node:fs/promises')
++  return {
++    ...actual,
++    readdir: async (...args: Parameters<typeof actual.readdir>) => {
++      if (String(args[0]) === state.blocked) {
++        throw Object.assign(new Error(`Cannot discover ${state.blocked}`), { code: state.code })
++      }
++      return actual.readdir(...args)
++    }
++  }
++})
++
++let projects: string
++let list: typeof listClaudeTranscriptFiles
++
++beforeEach(async () => {
++  vi.resetModules()
++  state.home = await mkdtemp(join(tmpdir(), 'orca-claude-discovery-error-'))
++  state.blocked = ''
++  state.code = ''
++  projects = join(state.home, '.claude', 'projects')
++  await mkdir(projects, { recursive: true })
++  await mkdir(join(state.home, '.claude', 'transcripts'), { recursive: true })
++  list = (await import('./transcript-file-discovery')).listClaudeTranscriptFiles
++})
++
++afterEach(async () => {
++  await rm(state.home, { recursive: true, force: true })
++})
++
++describe('Claude history discovery failures', () => {
++  it('rejects an unreadable child instead of reporting that its sibling history disappeared', async () => {
++    const sibling = join(projects, 'kept.jsonl')
++    await writeFile(sibling, '')
++    state.blocked = join(projects, 'inaccessible')
++    await mkdir(state.blocked)
++    state.code = 'EACCES'
++    await expect(list([])).rejects.toMatchObject({ code: 'EACCES' })
++  })
++
++  it('keeps sibling files when a child disappears', async () => {
++    const sibling = join(projects, 'kept.jsonl')
++    await writeFile(sibling, '')
++    state.blocked = join(projects, 'removed')
++    await mkdir(state.blocked)
++    state.code = 'ENOENT'
++    await expect(list([])).resolves.toEqual([sibling])
++  })
++})
++
++it('discovers managed history surfaces asynchronously and retains their account identity', async () => {
++  const { claudeProfileTranscriptSources } = await import('./transcript-file-discovery')
++  const root = join(state.home, 'managed-account')
++  const projects = join(root, 'projects')
++  const transcripts = join(root, 'transcripts')
++  await mkdir(projects, { recursive: true })
++  await mkdir(transcripts)
++  await expect(claudeProfileTranscriptSources()).resolves.toEqual([
++    { path: projects, accountId: 'managed-a' },
++    { path: transcripts, accountId: 'managed-a' }
++  ])
++  await rm(transcripts, { recursive: true })
++  await expect(claudeProfileTranscriptSources()).resolves.toEqual([
++    { path: projects, accountId: 'managed-a' }
++  ])
++})
+diff --git a/src/main/claude-usage/transcript-file-discovery.ts b/src/main/claude-usage/transcript-file-discovery.ts
+index d6ec6498d33..4bb08ad8161 100644
+--- a/src/main/claude-usage/transcript-file-discovery.ts
++++ b/src/main/claude-usage/transcript-file-discovery.ts
+@@ -2,11 +2,10 @@ import {
+   claudeProfileHistoryDirs,
+   claudeAccountHistoryRoots
+ } from '../claude-accounts/profiles/routing/claude-profile-installed-router'
+-import { isDirectory } from '../claude-accounts/profiles/claude-profile-homes'
+ import type { UsageAccountRoot } from '../usage/usage-account-attribution'
+ import { homedir } from 'node:os'
+ import { join } from 'node:path'
+-import { readdir } from 'node:fs/promises'
++import { lstat, readdir } from 'node:fs/promises'
+ import { isDefinitiveAbsence } from '../../shared/errors/definitive-filesystem-absence'
+ 
+ const CLAUDE_PROJECTS_DIR = join(homedir(), '.claude', 'projects')
+@@ -47,13 +46,18 @@ export function claudeProfileTranscriptDirs(): string[] {
+   return [...claudeProfileHistoryDirs('projects'), ...claudeProfileHistoryDirs('transcripts')]
+ }
+ 
+-export function claudeProfileTranscriptSources(): UsageAccountRoot[] {
+-  return claudeAccountHistoryRoots().flatMap((root) =>
+-    ['projects', 'transcripts'].flatMap((surface) => {
+-      const path = join(root.path, surface)
+-      return isDirectory(path) ? [{ path, accountId: root.accountId }] : []
+-    })
++export async function claudeProfileTranscriptSources(): Promise<UsageAccountRoot[]> {
++  const roots = await claudeAccountHistoryRoots()
++  const sources = await Promise.all(
++    roots.flatMap((root) =>
++      ['projects', 'transcripts'].map(async (surface) => {
++        const path = join(root.path, surface)
++        const info = await lstat(path).catch(() => null)
++        return info?.isDirectory() ? { path, accountId: root.accountId } : null
++      })
++    )
+   )
++  return sources.filter((source) => source !== null)
+ }
+ 
+ export async function listClaudeTranscriptFiles(
+diff --git a/src/main/ipc/ai-vault/ai-vault.ts b/src/main/ipc/ai-vault/ai-vault.ts
+index 257c4a92418..963fcb62c28 100644
+--- a/src/main/ipc/ai-vault/ai-vault.ts
++++ b/src/main/ipc/ai-vault/ai-vault.ts
+@@ -126,10 +126,7 @@ async function listAiVaultSessions(
+     ...(args?.scopeOnly === true ? { scopeOnly: true } : {})
+   })
+   const depth = requestedAiVaultSessionDepth(args)
+-  const afterFingerprint =
+-    parseRoutableExecutionHostId(executionHostScope)?.kind === 'runtime'
+-      ? args?.afterFingerprint
+-      : undefined
++  const afterFingerprint = parsedHost?.kind === 'runtime' ? args?.afterFingerprint : undefined
+   // Why: every renderer request carries its own cancellation signal, so
+   // coalescing has to survive them — the coordinator hands all same-key callers
+   // one scan and only aborts it once every one of them has cancelled.
+diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.test.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.test.ts
+new file mode 100644
+index 00000000000..f23979d8724
+--- /dev/null
++++ b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.test.ts
+@@ -0,0 +1,25 @@
++import { mkdtemp, readdir, rm } from 'node:fs/promises'
++import { tmpdir } from 'node:os'
++import { join } from 'node:path'
++import { expect, test, vi } from 'vitest'
++import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
++import { restoreOrcadHostAccountLaunchEnv } from './orcad-host-account-launch-env-store'
++
++test('restores the latest pushed account when two saves overlap', async () => {
++  const root = await mkdtemp(join(tmpdir(), 'orca-host-account-'))
++  try {
++    const restoreHostAccountLaunchEnv = vi.fn<OrcaRuntimeService['restoreHostAccountLaunchEnv']>()
++    const runtime = { restoreHostAccountLaunchEnv }
++    await restoreOrcadHostAccountLaunchEnv(runtime, root, () => false)
++    const [saved, persist] = restoreHostAccountLaunchEnv.mock.calls[0]!
++    expect(saved).toBeNull()
++    const first = { wslDistro: 'Ubuntu', terminal: { CODEX_HOME: '/old' }, claude: {} }
++    const latest = { wslDistro: 'Ubuntu', terminal: { CODEX_HOME: '/selected' }, claude: {} }
++    await Promise.all([persist(first), persist(latest)])
++    await restoreOrcadHostAccountLaunchEnv(runtime, root, () => false)
++    expect(restoreHostAccountLaunchEnv.mock.calls[1]?.[0]).toEqual(latest)
++    expect(await readdir(root)).toEqual(['host-account-launch-env.json'])
++  } finally {
++    await rm(root, { recursive: true, force: true })
++  }
++})
+diff --git a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+index cb333c68a7c..95d7e6cde89 100644
+--- a/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
++++ b/src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+@@ -1,21 +1,23 @@
+ // Persist desktop-pushed account environment so launches before reconnect keep the selected account.
+ import { randomUUID } from 'node:crypto'
+-import { readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
++import { readFile, rename, rm, writeFile } from 'node:fs/promises'
+ import { join } from 'node:path'
+ import {
+   HostAccountLaunchEnvParams,
+   type HostAccountLaunchEnv
+ } from '../../../shared/agent-launch/startup/host-account-launch-env'
+ import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
+-import { isWslHostOrcadProcess } from '../../wsl/filesystem/wsl-guest-windows-drive-path'
++import { isWslHostOrcadProcessAsync } from '../../wsl/filesystem/wsl-guest-windows-drive-path'
+ import { createWslHostClaudeProfileRefresh } from './orcad-wsl-host-claude-profile-refresh'
+ 
+ const FILE_NAME = 'host-account-launch-env.json'
+ 
+-export function readOrcadHostAccountLaunchEnv(userDataPath: string): HostAccountLaunchEnv | null {
++async function readOrcadHostAccountLaunchEnv(
++  userDataPath: string
++): Promise<HostAccountLaunchEnv | null> {
+   let raw: string
+   try {
+-    raw = readFileSync(join(userDataPath, FILE_NAME), 'utf8')
++    raw = await readFile(join(userDataPath, FILE_NAME), 'utf8')
+   } catch {
+     return null
+   }
+@@ -27,31 +29,36 @@ export function readOrcadHostAccountLaunchEnv(userDataPath: string): HostAccount
+   }
+ }
+ 
+-export function writeOrcadHostAccountLaunchEnv(
++async function writeOrcadHostAccountLaunchEnv(
+   userDataPath: string,
+   launchEnv: HostAccountLaunchEnv
+-): void {
++): Promise<void> {
+   const target = join(userDataPath, FILE_NAME)
+   const temporary = `${target}.${process.pid}.${randomUUID()}.tmp`
+   try {
+-    writeFileSync(temporary, JSON.stringify(launchEnv), { mode: 0o600 })
+-    renameSync(temporary, target)
++    await writeFile(temporary, JSON.stringify(launchEnv), { mode: 0o600 })
++    await rename(temporary, target)
+   } catch (error) {
+-    rmSync(temporary, { force: true })
++    await rm(temporary, { force: true })
+     throw error
+   }
+ }
+ 
+-export function restoreOrcadHostAccountLaunchEnv(
++export async function restoreOrcadHostAccountLaunchEnv(
+   runtime: Pick<OrcaRuntimeService, 'restoreHostAccountLaunchEnv'>,
+   userDataPath: string,
+-  isWslHost: () => boolean = isWslHostOrcadProcess
+-): void {
++  isWslHost: () => boolean | Promise<boolean> = isWslHostOrcadProcessAsync
++): Promise<void> {
+   // Why only a WSL host: only there does a desktop push accounts into account folders in this distro.
+-  const wslHost = isWslHost()
++  const wslHost = await isWslHost()
++  let writes = Promise.resolve()
+   runtime.restoreHostAccountLaunchEnv(
+-    readOrcadHostAccountLaunchEnv(userDataPath),
+-    (launchEnv) => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv),
++    await readOrcadHostAccountLaunchEnv(userDataPath),
++    (launchEnv) => {
++      const write = writes.then(() => writeOrcadHostAccountLaunchEnv(userDataPath, launchEnv))
++      writes = write.catch(() => {})
++      return write
++    },
+     wslHost
+       ? { expectDesktopPush: true, refreshClaudeProfile: createWslHostClaudeProfileRefresh() }
+       : {}
+diff --git a/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts b/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+index f91a4b31a7a..dabfbf8c4d6 100644
+--- a/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
++++ b/src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+@@ -3,7 +3,7 @@
+  * ~/.claude first, as the desktop's launches into the distro do. Without it the folder stays as it
+  * was when the account was added: Claude replays its first-run screens and misses settings changes.
+  */
+-import { existsSync } from 'node:fs'
++import { access } from 'node:fs/promises'
+ import { homedir } from 'node:os'
+ import { posix } from 'node:path'
+ import type { HostAccountLaunchEnv } from '../../../shared/agent-launch/startup/host-account-launch-env'
+@@ -25,13 +25,19 @@ export function createWslHostClaudeProfileRefresh(
+   args: {
+     userHome?: string
+     provision?: Provision
+-    hasMarker?: (markerPath: string) => boolean
++    hasMarker?: (markerPath: string) => boolean | Promise<boolean>
+     waitMs?: number
+   } = {}
+ ): (launchEnv: HostAccountLaunchEnv) => Promise<void> {
+   const userHome = args.userHome ?? homedir()
+   const provision = args.provision ?? provisionWslClaudeAccountProfile
+-  const hasMarker = args.hasMarker ?? existsSync
++  const hasMarker =
++    args.hasMarker ??
++    ((path) =>
++      access(path).then(
++        () => true,
++        () => false
++      ))
+   const running = new Map<string, Promise<void>>()
+ 
+   return async (launchEnv) => {
+@@ -49,7 +55,7 @@ export function createWslHostClaudeProfileRefresh(
+     }
+     // Why both: only Orca's own folder for this account is rewritten, and only one the desktop
+     // already set up; a missing folder is the desktop's to create when the account is added.
+-    if (profile.home !== configDir || !hasMarker(claudeProfileMarkerPath(profile))) {
++    if (profile.home !== configDir || !(await hasMarker(claudeProfileMarkerPath(profile)))) {
+       return
+     }
+     let refresh = running.get(accountId)
+diff --git a/src/main/orcad/orcad-profile-runtime-services.ts b/src/main/orcad/orcad-profile-runtime-services.ts
+index da37b7bbaf3..4eba41af69a 100644
+--- a/src/main/orcad/orcad-profile-runtime-services.ts
++++ b/src/main/orcad/orcad-profile-runtime-services.ts
+@@ -29,7 +29,7 @@ export async function installOrcadProfileRuntimeServices({
+   // Restore the profile's account selection before admitting launches.
+   const { restoreOrcadHostAccountLaunchEnv } =
+     await import('./account-launch/orcad-host-account-launch-env-store')
+-  restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
++  await restoreOrcadHostAccountLaunchEnv(runtime, userDataPath)
+   featureReadiness.open('accounts')
+ 
+   const { installOrcadSessionSearchService } = await import('./host-runtime/orcad-session-search')
+diff --git a/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts b/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts
+index 370212121c2..b2a9f60743f 100644
+--- a/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts
++++ b/src/main/runtime/agent-session/environment/host-account-launch-env-state.ts
+@@ -15,7 +15,7 @@ import { FirstHostLaunchEnvGate } from './first-host-launch-env-gate'
+ export class HostAccountLaunchEnvState {
+   /** Pushed by the desktop that owns this host's accounts; held in memory, re-pushed on connect. */
+   private hostLaunchEnv: HostAccountLaunchEnv | null = null
+-  private persistHostLaunchEnv: ((launchEnv: HostAccountLaunchEnv) => void) | null = null
++  private persistHostLaunchEnv: ((launchEnv: HostAccountLaunchEnv) => Promise<void>) | null = null
+   private readonly firstHostLaunchEnv = new FirstHostLaunchEnvGate()
+   private refreshClaudeProfile: HostClaudeProfileRefresh | null = null
+ 
+@@ -49,7 +49,7 @@ export class HostAccountLaunchEnvState {
+   }
+ 
+   /** Refused where this host has account services of its own: they already decide every launch. */
+-  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): void {
++  async setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): Promise<void> {
+     if (this.hasOwnAccountServices()) {
+       throw new Error('This host manages its own provider accounts.')
+     }
+@@ -66,7 +66,7 @@ export class HostAccountLaunchEnvState {
+     }
+     this.firstHostLaunchEnv.settle()
+     try {
+-      this.persistHostLaunchEnv?.(launchEnv)
++      await this.persistHostLaunchEnv?.(launchEnv)
+     } catch (error) {
+       // Environment already applies; persistence failure loses it only on restart before the next push.
+       console.warn('[accounts] Could not save the host account env:', error)
+@@ -76,7 +76,7 @@ export class HostAccountLaunchEnvState {
+   /** orcad's store: starts from the last pushed env, so launches before a reconnect keep it. */
+   restoreHostLaunchEnv(
+     saved: HostAccountLaunchEnv | null,
+-    persist: (launchEnv: HostAccountLaunchEnv) => void,
++    persist: (launchEnv: HostAccountLaunchEnv) => Promise<void>,
+     options: { expectDesktopPush?: boolean; refreshClaudeProfile?: HostClaudeProfileRefresh } = {}
+   ): void {
+     this.persistHostLaunchEnv = persist
+diff --git a/src/main/runtime/agent-session/environment/runtime-account-controller.ts b/src/main/runtime/agent-session/environment/runtime-account-controller.ts
+index b205baae33d..cd919087bb0 100644
+--- a/src/main/runtime/agent-session/environment/runtime-account-controller.ts
++++ b/src/main/runtime/agent-session/environment/runtime-account-controller.ts
+@@ -90,14 +90,14 @@ export class RuntimeAccountController {
+   }
+ 
+   /** Refused where this host has account services of its own: they already decide every launch. */
+-  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): void {
+-    this.hostAccounts.setHostLaunchEnv(launchEnv)
++  setHostLaunchEnv(launchEnv: HostAccountLaunchEnv): Promise<void> {
++    return this.hostAccounts.setHostLaunchEnv(launchEnv)
+   }
+ 
+   /** orcad's store: starts from the last pushed env, so launches before a reconnect keep it. */
+   restoreHostLaunchEnv(
+     saved: HostAccountLaunchEnv | null,
+-    persist: (launchEnv: HostAccountLaunchEnv) => void,
++    persist: (launchEnv: HostAccountLaunchEnv) => Promise<void>,
+     options: { expectDesktopPush?: boolean; refreshClaudeProfile?: HostClaudeProfileRefresh } = {}
+   ): void {
+     this.hostAccounts.restoreHostLaunchEnv(saved, persist, options)
+diff --git a/src/main/runtime/rpc/methods/accounts/accounts.ts b/src/main/runtime/rpc/methods/accounts/accounts.ts
+index 5f854a11c78..1f1a03808d8 100644
+--- a/src/main/runtime/rpc/methods/accounts/accounts.ts
++++ b/src/main/runtime/rpc/methods/accounts/accounts.ts
+@@ -61,7 +61,7 @@ const ACCOUNT_METHOD_DEFINITIONS = [
+       if (clientKind === 'mobile') {
+         throw new Error('Only the Orca desktop that owns this host can set its accounts.')
+       }
+-      runtime.setHostAccountLaunchEnv(params)
++      await runtime.setHostAccountLaunchEnv(params)
+       return {}
+     }
+   }),
+diff --git a/src/main/wsl/filesystem/wsl-guest-windows-drive-path.ts b/src/main/wsl/filesystem/wsl-guest-windows-drive-path.ts
+index b055225e961..226855fa780 100644
+--- a/src/main/wsl/filesystem/wsl-guest-windows-drive-path.ts
++++ b/src/main/wsl/filesystem/wsl-guest-windows-drive-path.ts
+@@ -1,9 +1,11 @@
+ // WSL-host orcad must ignore Windows CLI shims; identify mounts by type because the automount root is configurable.
+ import { existsSync, readFileSync } from 'node:fs'
++import { access } from 'node:fs/promises'
+ import { isAbsolute } from 'node:path'
+ import { resolveCliCommand } from '../../../shared/shell/command-resolution/node-cli-command-resolution'
+ 
+ const WINDOWS_DRIVE_MOUNT_TYPES = new Set(['drvfs', '9p', 'virtiofs'])
++const WSL_INTEROP_PATH = '/proc/sys/fs/binfmt_misc/WSLInterop'
+ 
+ import { ORCAD_WSL_HOST_ENV } from '../../../shared/remote-runtime/serve-supervisor/orcad-server-launch-env'
+ 
+@@ -19,12 +21,12 @@ let windowsCopyVerdicts = new WeakMap<typeof resolveCliCommand, Map<string, Wind
+ export function isWslGuestProcess(
+   env: NodeJS.ProcessEnv = process.env,
+   platform: NodeJS.Platform = process.platform,
+-  interopRegistered: () => boolean = () => existsSync('/proc/sys/fs/binfmt_misc/WSLInterop')
++  interopRegistered: () => boolean = () => existsSync(WSL_INTEROP_PATH)
+ ): boolean {
+   if (platform !== 'linux') {
+     return false
+   }
+-  return Boolean(env.WSL_DISTRO_NAME?.trim() || env.WSL_INTEROP?.trim()) || interopRegistered()
++  return hasWslInteropEnvironment(env) || interopRegistered()
+ }
+ 
+ export function isWslHostOrcadProcess(
+@@ -35,6 +37,26 @@ export function isWslHostOrcadProcess(
+   return env[ORCAD_WSL_HOST_ENV] === '1' && isWslGuestProcess(env, platform, interopRegistered)
+ }
+ 
++export async function isWslHostOrcadProcessAsync(
++  env: NodeJS.ProcessEnv = process.env,
++  platform: NodeJS.Platform = process.platform
++): Promise<boolean> {
++  if (platform !== 'linux' || env[ORCAD_WSL_HOST_ENV] !== '1') {
++    return false
++  }
++  return (
++    hasWslInteropEnvironment(env) ||
++    (await access(WSL_INTEROP_PATH).then(
++      () => true,
++      () => false
++    ))
++  )
++}
++
++function hasWslInteropEnvironment(env: NodeJS.ProcessEnv): boolean {
++  return Boolean(env.WSL_DISTRO_NAME?.trim() || env.WSL_INTEROP?.trim())
++}
++
+ /** Decode /proc/mounts octal escapes, including whitespace and backslashes. */
+ function decodeMountField(field: string): string {
+   return field.replace(/\\([0-7]{3})/g, (_match, octal: string) =>
+diff --git a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
+index b0335445e8b..c9f50d3039b 100644
+--- a/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
++++ b/src/renderer/src/components/agent/agent-launch-picker-omnibox.test-fixture.tsx
+@@ -1,4 +1,4 @@
+-import { act, fireEvent, getByRole, waitFor } from '@testing-library/react'
++import { act, fireEvent, getByRole, queryByRole, waitFor } from '@testing-library/react'
+ import { expect } from 'vitest'
+ import type { Root } from 'react-dom/client'
+ import { useAppStore } from '@/store'
+@@ -125,8 +125,14 @@ export async function verifyOmniboxPresetIdentity(
+     await waitFor(() => expect(effort('Low')).not.toBeNull())
+   }
+   const close = () => fireEvent.keyDown(setupPanel()!, { key: 'Escape' })
+-  const effort = (label: string) =>
+-    getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
++  const effort = (label: string) => {
++    const slider = queryByRole(document.body, 'slider', { name: 'Effort' })
++    return slider
++      ? slider.getAttribute('aria-valuetext') === label
++        ? 'on'
++        : 'off'
++      : getByRole(document.body, 'radio', { name: label }).getAttribute('data-state')
++  }
+   try {
+     await showEntries(false)
+     await configure()
+diff --git a/src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx b/src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
+index 63c476c4fec..7c5d8bfe1fc 100644
+--- a/src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
++++ b/src/renderer/src/components/dismiss/confirmation/confirmation-dialog.tsx
+@@ -73,13 +73,13 @@ export function ConfirmationDialogProvider({
+   const setContextualToursBlockingSurfaceVisible = useAppStore(
+     (s) => s.setContextualToursBlockingSurfaceVisible
+   )
+-  const lastDisplayedRequestRef = useRef<ConfirmationDialogRequest | null>(activeRequest)
+-  activeRequestRef.current = activeRequest
+-  if (activeRequest) {
+-    lastDisplayedRequestRef.current = activeRequest
+-  }
+-  // Why: Radix keeps dialog content mounted while closing; keep labels stable without a post-render Effect.
+-  const displayedRequest = activeRequest ?? lastDisplayedRequestRef.current
++  const [lastDisplayedRequest, setLastDisplayedRequest] =
++    useState<ConfirmationDialogRequest | null>(null)
++  useLayoutEffect(() => {
++    activeRequestRef.current = activeRequest
++  }, [activeRequest])
++  // Radix retains the dialog while closing. Keep the last committed prompt's copy during exit.
++  const displayedRequest = activeRequest ?? lastDisplayedRequest
+   const options = displayedRequest?.options
+   // Why Cancel: the "Don't ask again" checkbox now comes first, and Enter must not confirm by accident.
+   const initialFocus = options?.initialFocus ?? (options?.fields ? undefined : 'cancel')
+@@ -129,6 +129,7 @@ export function ConfirmationDialogProvider({
+         'abort',
+         () => {
+           if (activeRequestRef.current?.id === request.id) {
++            setLastDisplayedRequest(request)
+             setDontAskAgain(false)
+             setFieldValues({})
+           }
+@@ -163,6 +164,7 @@ export function ConfirmationDialogProvider({
+       // Why: queued prompts must not inherit this request's preference or typed values.
+       setDontAskAgain(false)
+       setFieldValues({})
++      setLastDisplayedRequest(request)
+       request.resolve(confirmed)
+       setQueue((currentQueue) => {
+         if (currentQueue[0]?.id === request.id) {
+diff --git a/src/renderer/src/components/link-actions/link-routing-preference-dialog.tsx b/src/renderer/src/components/link-actions/link-routing-preference-dialog.tsx
+index 0b7d2f035f6..da0aab31c70 100644
+--- a/src/renderer/src/components/link-actions/link-routing-preference-dialog.tsx
++++ b/src/renderer/src/components/link-actions/link-routing-preference-dialog.tsx
+@@ -35,17 +35,13 @@ export function LinkRoutingPreferenceDialogProvider({
+   const nextIdRef = useRef(0)
+   const [queue, setQueue] = useState<LinkRoutingPreferenceDialogRequest[]>([])
+   const activeRequest = queue[0] ?? null
+-  const activeRequestRef = useRef<LinkRoutingPreferenceDialogRequest | null>(activeRequest)
+   const setContextualToursBlockingSurfaceVisible = useAppStore(
+     (s) => s.setContextualToursBlockingSurfaceVisible
+   )
+-  const lastDisplayedRequestRef = useRef<LinkRoutingPreferenceDialogRequest | null>(activeRequest)
+-  activeRequestRef.current = activeRequest
+-  if (activeRequest) {
+-    lastDisplayedRequestRef.current = activeRequest
+-  }
+-  // Why: Radix keeps dialog content mounted while closing; keep copy stable during exit animation.
+-  const displayedRequest = activeRequest ?? lastDisplayedRequestRef.current
++  const [lastDisplayedRequest, setLastDisplayedRequest] =
++    useState<LinkRoutingPreferenceDialogRequest | null>(null)
++  // Radix keeps the dialog mounted during its exit animation.
++  const displayedRequest = activeRequest ?? lastDisplayedRequest
+   const openLinksInAppDefault = displayedRequest?.options.openLinksInAppDefault === true
+   const isMac = navigator.userAgent.includes('Mac')
+   const systemBrowserShortcut = isMac ? '⇧⌘' : 'Shift+Ctrl'
+@@ -84,19 +80,23 @@ export function LinkRoutingPreferenceDialogProvider({
+     })
+   }, [requestPreference])
+ 
+-  const settleActiveRequest = useCallback((openInOrca: boolean) => {
+-    const request = activeRequestRef.current
+-    if (!request) {
+-      return
+-    }
+-    request.resolve(openInOrca)
+-    setQueue((currentQueue) => {
+-      if (currentQueue[0]?.id === request.id) {
+-        return currentQueue.slice(1)
++  const settleActiveRequest = useCallback(
++    (openInOrca: boolean) => {
++      const request = activeRequest
++      if (!request) {
++        return
+       }
+-      return currentQueue.filter((queuedRequest) => queuedRequest.id !== request.id)
+-    })
+-  }, [])
++      setLastDisplayedRequest(request)
++      request.resolve(openInOrca)
++      setQueue((currentQueue) => {
++        if (currentQueue[0]?.id === request.id) {
++          return currentQueue.slice(1)
++        }
++        return currentQueue.filter((queuedRequest) => queuedRequest.id !== request.id)
++      })
++    },
++    [activeRequest]
++  )
+ 
+   return (
+     <LinkRoutingPreferenceDialogContext.Provider value={requestPreference}>
+diff --git a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+index 8ab6b9f6b40..92ead3b9dfa 100644
+--- a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
++++ b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+@@ -3,8 +3,7 @@ import { ChevronDown, SlidersHorizontal } from 'lucide-react'
+ import { Button } from '@/components/ui/button'
+ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+-import { translate } from '@/i18n/i18n'
+-import { useTranslate, type Translate } from '@/i18n/use-translate'
++import { useTranslate } from '@/i18n/use-translate'
+ import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
+ import { sortNativeChatSessionOptions } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-snapshot'
+ import {
+@@ -23,7 +22,10 @@ import {
+   selectedNativeChatChoice,
+   nativeChatSessionOptionDisabledReason
+ } from '../../../../../../../shared/native-chat/input/session-options/native-chat-session-option-labels'
+-import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
++import {
++  pillAccessibleName,
++  sayNativeChatSessionOptionTranslated as say
++} from './native-chat-session-option-labels-text'
+ import type { NativeChatOptionPickerRequest } from './native-chat-option-picker-request'
+ import { runSessionOptionSurfaceCall } from './native-chat-session-option-surface-call'
+ import { NativeChatModelCombobox } from './NativeChatModelCombobox'
+@@ -41,16 +43,6 @@ export type NativeChatSessionOptionPickersProps = {
+   focusComposer?: () => void
+ }
+ 
+-// Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
+-function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
+-  return value === title
+-    ? title
+-    : t('components.native-chat.composer.pillAccessibleName', '{{value0}} {{value1}}', {
+-        value0: title,
+-        value1: value
+-      })
+-}
+-
+ function PickerTrigger(props: {
+   modelLabel: string
+   /** The options' values, shown after the model; empty when there are none to show. */
+diff --git a/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-labels-text.ts b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-labels-text.ts
+index c11eb526834..f0523512f03 100644
+--- a/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-labels-text.ts
++++ b/src/renderer/src/components/native-chat/session/options/controls/native-chat-session-option-labels-text.ts
+@@ -1,4 +1,5 @@
+ import { translate } from '@/i18n/i18n'
++import type { Translate } from '@/i18n/use-translate'
+ import type {
+   NativeChatSessionOptionCopyId,
+   NativeChatSessionOptionSay
+@@ -53,3 +54,13 @@ const PIECES: Record<NativeChatSessionOptionCopyId, (values?: { value0: string }
+ 
+ export const sayNativeChatSessionOptionTranslated: NativeChatSessionOptionSay = (id, values) =>
+   PIECES[id](values)
++
++// Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
++export function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
++  return value === title
++    ? title
++    : t('components.native-chat.composer.pillAccessibleName', '{{value0}} {{value1}}', {
++        value0: title,
++        value1: value
++      })
++}
+diff --git a/src/renderer/src/components/stats/StatsPane.tsx b/src/renderer/src/components/stats/StatsPane.tsx
+index e515d32543e..088beb906a6 100644
+--- a/src/renderer/src/components/stats/StatsPane.tsx
++++ b/src/renderer/src/components/stats/StatsPane.tsx
+@@ -1,3 +1,4 @@
++import type { StatsHost } from './StatsHostScope'
+ import { useEffect, useState } from 'react'
+ import { BarChart3, Bot, Check, ChevronDown, Clock, GitPullRequest } from 'lucide-react'
+ import { useAppStore } from '../../store'
+@@ -114,16 +115,21 @@ function UsageAnalyticsOptionIcon({ tab }: { tab: UsageTab }): React.JSX.Element
+ }
+ 
+ export function StatsPane({
+-  hostScope
+-}: { hostScope?: SettingsHostScope } = {}): React.JSX.Element {
++  hostScope,
++  host
++}: { hostScope?: SettingsHostScope; host?: StatsHost } = {}): React.JSX.Element {
+   return hostScope?.available === false ? (
+     <SettingsHostScopeUnavailableNotice />
+   ) : (
+-    <OwnedStatsPane hostScope={hostScope} />
++    <OwnedStatsPane hostTarget={hostScope?.target ?? host?.target} />
+   )
+ }
+ 
+-function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React.JSX.Element {
++function OwnedStatsPane({
++  hostTarget
++}: {
++  hostTarget?: SettingsHostScope['target']
++}): React.JSX.Element {
+   const t = useTranslate()
+   const intlLocale = useIntlLocale()
+   const summary = useAppStore((s) => s.statsSummary)
+@@ -132,9 +138,9 @@ function OwnedStatsPane({ hostScope }: { hostScope?: SettingsHostScope }): React
+   const localRateLimits = useAppStore((state) => state.rateLimits)
+   const environments = useAppStore((state) => state.runtimeEnvironments)
+   const selectedHost =
+-    hostScope?.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
++    hostTarget?.kind === 'local' && isWebClientLocation() && environments?.length === 1
+       ? { kind: 'environment' as const, environmentId: environments[0].id }
+-      : hostScope?.target
++      : hostTarget
+   const { remoteOwner } = useOwnerUsageRateLimits(localRateLimits)
+   const historyTarget = selectedHost ?? getUsageOwnerHostScope(remoteOwner)
+   const remoteHistory = historyTarget.kind === 'environment' || isWebClientLocation()
+diff --git a/src/renderer/src/store/slices/ui/project-order-mode-choice.ts b/src/renderer/src/store/slices/ui/project-order-mode-choice.ts
+new file mode 100644
+index 00000000000..c01eed377a9
+--- /dev/null
++++ b/src/renderer/src/store/slices/ui/project-order-mode-choice.ts
+@@ -0,0 +1,12 @@
++import { toast } from 'sonner'
++import { translate } from '@/i18n/i18n'
++import type { ProjectOrderBy } from '../../../../../shared/ui-chrome/ui-chrome-types'
++
++/** Saves a chosen project order through its runtime owner, which updates the store once saved. */
++export function chooseProjectOrderMode(mode: ProjectOrderBy): void {
++  void import('@/runtime/personal-project-order-client')
++    .then(({ writeProjectOrderMode }) => writeProjectOrderMode(mode))
++    .catch(() =>
++      toast.error(translate('sidebar.projectOrder.saveFailed', 'Could not save project order'))
++    )
++}
+diff --git a/src/renderer/src/store/slices/ui/ui-slice-preference-actions.ts b/src/renderer/src/store/slices/ui/ui-slice-preference-actions.ts
+index 58ce148c487..e90038908a5 100644
+--- a/src/renderer/src/store/slices/ui/ui-slice-preference-actions.ts
++++ b/src/renderer/src/store/slices/ui/ui-slice-preference-actions.ts
+@@ -1,5 +1,3 @@
+-import { toast } from 'sonner'
+-import { translate } from '@/i18n/i18n'
+ import {
+   DEFAULT_STATUS_BAR_USAGE_FORMAT,
+   normalizeStatusBarUsageFormat
+@@ -45,6 +43,7 @@ import {
+ import { createHostWorkspaceStatusActions } from './ui-slice-host-workspace-statuses'
+ import { createUiBotPreferenceActions } from './ui-slice-bot-preference-actions'
+ import { toggleCollapsedGroupSet } from './collapsed-group-toggle'
++import { chooseProjectOrderMode } from './project-order-mode-choice'
+ import { DEFAULT_SIDEBAR_VIEW } from '../../../../../shared/ui-chrome/sidebar-body'
+ 
+ /** Builds preference defaults and setters for the UI slice, leaving durable writes to the persistence layer. */
+@@ -70,13 +69,7 @@ export function createUiPreferenceActions(set: UISliceSet, get: UISliceGet): Par
+     setSortBy: (s) => set({ sortBy: s }),
+ 
+     projectOrderBy: 'manual',
+-    setProjectOrderBy: (p) => {
+-      void import('@/runtime/personal-project-order-client')
+-        .then(({ writeProjectOrderMode }) => writeProjectOrderMode(p))
+-        .catch(() =>
+-          toast.error(translate('sidebar.projectOrder.saveFailed', 'Could not save project order'))
+-        )
+-    },
++    setProjectOrderBy: chooseProjectOrderMode,
+ 
+     showActiveOnly: false,
+     setShowActiveOnly: (v) => set({ showActiveOnly: v }),
+diff --git a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+--- a/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
++++ b/config/scripts/build/mobile-web-app/build-mobile-web-app-bundle.mjs
+@@ -1,3 +1,4 @@
++import { minifyLargeMobileWebScripts } from './minify-large-mobile-web-scripts.mjs'
+ import { readFile, readdir } from 'node:fs/promises'
+ import { readRouteSnapshot } from '../../mobile-web-app/mobile-web-app-route-snapshot.mjs'
+ import { MOBILE_WEB_APP_DEPENDENCY_PATH } from '../../mobile-web-app/mobile-web-app-bundle-dependencies.mjs'
+@@ -544,7 +545,9 @@
+   const result = await buildMobileWebAppScripts(routes)
+   assertNoZodLocaleTables(result.metafile)
+   const entryOutputPath = entryOutput(result.metafile)
+-  const outputFiles = bannerOnlyWhereScriptsRunFirst(result.metafile, result.outputFiles)
++  const catalogOutputs = localeCatalogOutputs(result.metafile)
++  const minified = await minifyLargeMobileWebScripts(result.outputFiles, catalogOutputs)
++  const outputFiles = bannerOnlyWhereScriptsRunFirst(result.metafile, minified)
+   const renamed = renameOutputsByContent(result.metafile, outputFiles)
+   const entry = renamed.get(basename(entryOutputPath))
+   const byName = (left, right) => (left.name < right.name ? -1 : 1)
+@@ -556,7 +559,6 @@
+   const chunks = others.filter(({ emittedName }) => isScriptOutput(emittedName)).sort(byName)
+   const images = others.filter(({ emittedName }) => !isScriptOutput(emittedName)).sort(byName)
+   const closure = entryStaticClosure(result.metafile, entryOutputPath)
+-  const catalogOutputs = localeCatalogOutputs(result.metafile)
+   const deferred = deferredOutputs(result.metafile)
+   return {
+     script: entry.bytes,

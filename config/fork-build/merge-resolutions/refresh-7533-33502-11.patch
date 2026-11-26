@@ -1,0 +1,16 @@
+diff --git a/src/shared/wsl-move/wsl-move-ui-dispositions.ts b/src/shared/wsl-move/wsl-move-ui-dispositions.ts
+index 272867ff1a8c102756c0c5f89ccee15bf481c01e..7a51463c2a6b574f91e132d2f8cd5d80ee151097 100644
+--- a/src/shared/wsl-move/wsl-move-ui-dispositions.ts
++++ b/src/shared/wsl-move/wsl-move-ui-dispositions.ts
+@@ -18,6 +18,11 @@ export const UI_STATE_DISPOSITIONS = {
+     38,
+     'Conversation preferences retain their execution-host-qualified identities.'
+   ),
++  personalProjectOrder: {
++    disposition: 'rewrite-desktop',
++    item: 38,
++    note: 'Non-Git project keys name the setup owner and execution host; both need the WSL host rewrite.'
++  },
+   manualRepoOrder: moveDisposition(38, {
+     rewriteDesktopCopy: true,
+     note: "The desktop copy's hostId changes from 'local' to the WSL host."
