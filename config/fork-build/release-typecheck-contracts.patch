@@ -163,3 +163,191 @@ diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/rend
            </span>
          ) : null}
        </div>
+diff --git a/mobile/src/components/markdown/parsing/mobile-markdown-codex-file-citations.ts b/mobile/src/components/markdown/parsing/mobile-markdown-codex-file-citations.ts
+index c67b8805b1a914636e7bbfe585c11d5c52e54ae6..a6867ebe42c4b17d68d276862a52cfe86a741346 100644
+--- a/mobile/src/components/markdown/parsing/mobile-markdown-codex-file-citations.ts
++++ b/mobile/src/components/markdown/parsing/mobile-markdown-codex-file-citations.ts
+@@ -9,13 +9,14 @@ function citationRule(state: StateInline, silent: boolean): boolean {
+     return false
+   }
+   if (!silent) {
+-    if (state.linkLevel === 0) {
++    const canLink = 'linkLevel' in state && state.linkLevel === 0
++    if (canLink) {
+       state
+         .push('link_open', 'a', 1)
+         .attrSet('href', createNativeChatFileHref(citation.path, 'literal'))
+     }
+     state.push('text', '', 0).content = citation.label
+-    if (state.linkLevel === 0) {
++    if (canLink) {
+       state.push('link_close', 'a', -1)
+     }
+   }
+diff --git a/src/main/usage/usage-account-attribution.test.ts b/src/main/usage/usage-account-attribution.test.ts
+index 64f598f6b6e90343c6984e54eb2176bd13140dca..68f9024177334128748b7f39f52d2d0492021c66 100644
+--- a/src/main/usage/usage-account-attribution.test.ts
++++ b/src/main/usage/usage-account-attribution.test.ts
+@@ -83,7 +83,6 @@ describe('account provenance on the original collectors', () => {
+       [],
+       loaded.sources,
+       undefined,
+-      undefined,
+       loaded.reuseProjections,
+       loaded.accountAttributionAvailable
+     )
+@@ -258,7 +257,6 @@ describe('account provenance on the original collectors', () => {
+       ],
+       loaded.sources,
+       undefined,
+-      undefined,
+       loaded.reuseProjections
+     )
+     expect(tokensByAccount(projectEventUsageHistory('codex', second.dailyAggregates))).toEqual({
+@@ -286,7 +284,6 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
+-      undefined,
+       sources
+     )
+     expect(tokensByAccount(projectClaudeUsageHistory(first.dailyAggregates))).toEqual({
+@@ -300,7 +297,6 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
+-      undefined,
+       sources
+     )
+     expect(second.dailyAggregates).toEqual(first.dailyAggregates)
+@@ -311,7 +307,6 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
+-      undefined,
+       sources
+     )
+     expect(tokensByAccount(projectClaudeUsageHistory(reclaimed.dailyAggregates))).toEqual({
+@@ -362,7 +357,6 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       [source.path],
+       loaded.verifiedSources,
+-      undefined,
+       [source],
+       loaded.reuseProjections
+     )
+@@ -392,7 +386,7 @@ describe('account provenance on the original collectors', () => {
+       )
+     ).toBeNull()
+     const { scanClaudeUsageFiles } = await import('../claude-usage/scanner')
+-    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, undefined, [
++    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, [
+       { path: linked, accountId: 'wrong' }
+     ])
+     expect(tokensByAccount(projectClaudeUsageHistory(claude.dailyAggregates))).toEqual({
+diff --git a/src/renderer/src/components/native-chat/messages/rows/NativeChatMessageRow.tsx b/src/renderer/src/components/native-chat/messages/rows/NativeChatMessageRow.tsx
+index 8285c555f4cccdc4a530b6d4c7de1766e850aaee..415d19ad3f43ba5e8eabda813f487da1541d1d0c 100644
+--- a/src/renderer/src/components/native-chat/messages/rows/NativeChatMessageRow.tsx
++++ b/src/renderer/src/components/native-chat/messages/rows/NativeChatMessageRow.tsx
+@@ -22,7 +22,7 @@ import { NativeChatAutomationRunRow } from '../../automation-run/NativeChatAutom
+ import { mergedRunFailures } from '../../../../../../shared/native-chat/transcript/events/native-chat-event-plan'
+ import { NativeChatNoticeRow } from '../notices/NativeChatNoticeRow'
+ import { NativeChatSubagentEndingRow } from '../../subagents/NativeChatSubagentEndingRow'
+-import { isNativeChatSubagentEndingPresentation } from '../../subagents/native-chat-subagent-ending'
++import { isNativeChatSubagentEndingPresentation } from '../../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending'
+ import { NativeChatBotCreatedRow, NativeChatTookOverRow } from '../../NativeChatBotCreatedRow'
+ import { nativeChatNoticeBlock } from '../../../../../../shared/native-chat/transcript/notices/native-chat-notice'
+ import { nativeChatMessageRowBlocks } from './native-chat-message-row-words'
+diff --git a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-default-preview.test.tsx b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-default-preview.test.tsx
+index 67e8ba8f9f3ad322cb6e091bc5f2e02d1b0f7459..2fd3b81bdcebba2688dad0a58ee693ae057d4799 100644
+--- a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-default-preview.test.tsx
++++ b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-default-preview.test.tsx
+@@ -1,7 +1,7 @@
++// @vitest-environment happy-dom
+ import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
+ import { AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY } from '../../../../../../../shared/agent-session/capabilities/agent-session-runtime-capabilities'
+ import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../../../../../shared/agent-session/lifecycle/operations/agent-session-create-capabilities'
+-// @vitest-environment happy-dom
+ import {
+   mocks,
+   LOCAL_TARGET,
+@@ -18,11 +18,18 @@ import {
+   LIVE_OPTIONS
+ } from './use-structured-agent-session-options.test-fixture'
+ import { act, cleanup, waitFor } from '@testing-library/react'
+-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
++import type * as RuntimeCapabilityProof from '@/runtime/rpc/compatibility/runtime-capability-proof'
+ 
+ import { forgetStructuredSessionSelection } from '@/lib/agent-session/options/structured-agent-session-selection-controller'
+ import { resetHostModelCatalogSnapshotsForTests } from '@/runtime/native-chat/model-catalogs/host-model-catalog-snapshots'
+ import { replaceRuntimeEnvironmentRevisions } from '@/runtime/rpc/environment-revisions/runtime-environment-revision'
++const supportsRemote = vi.hoisted(() => vi.fn())
++vi.mock('@/runtime/rpc/compatibility/runtime-capability-proof', async (importOriginal) => ({
++  ...(await importOriginal<typeof RuntimeCapabilityProof>()),
++  runtimeEnvironmentSupportsCapability: supportsRemote
++}))
++
+ describe('useStructuredAgentSessionOptions', () => {
+   afterEach(() => {
+     cleanup()
+@@ -30,7 +37,7 @@ describe('useStructuredAgentSessionOptions', () => {
+     replaceRuntimeEnvironmentRevisions([])
+   })
+   beforeEach(() => {
+-    mocks.supportsRemote.mockReset().mockResolvedValue(false)
++    supportsRemote.mockReset().mockResolvedValue(false)
+     forgetStructuredSessionSelection('session-1')
+     mocks.call.mockReset()
+     mocks.enqueue.mockReset()
+@@ -77,7 +84,7 @@ describe('useStructuredAgentSessionOptions', () => {
+         AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
+       ]
+       setLocalRuntimeCapabilitiesForTests(capabilities)
+-      mocks.supportsRemote.mockResolvedValue(true)
++      supportsRemote.mockResolvedValue(true)
+       // New chats follow only on the pairing that holds this chat.
+       replaceRuntimeEnvironmentRevisions([{ id: 'server-1', createdAt: 1, pairingRevision: 1 }])
+       let reset = false
+@@ -119,7 +126,7 @@ describe('useStructuredAgentSessionOptions', () => {
+         expect.anything()
+       )
+       if (paired) {
+-        expect(mocks.supportsRemote).toHaveBeenCalledWith(
++        expect(supportsRemote).toHaveBeenCalledWith(
+           'server-1',
+           AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY
+         )
+diff --git a/src/renderer/src/components/native-chat/subagents/NativeChatSubagentEndingRow.tsx b/src/renderer/src/components/native-chat/subagents/NativeChatSubagentEndingRow.tsx
+index f570afae0a5b1df09fd4dfa3079450e99ffb8fbd..1ab050f78e3ac4c8c8fe4453387ccdb69741ba90 100644
+--- a/src/renderer/src/components/native-chat/subagents/NativeChatSubagentEndingRow.tsx
++++ b/src/renderer/src/components/native-chat/subagents/NativeChatSubagentEndingRow.tsx
+@@ -3,7 +3,7 @@ import { cn } from '@/lib/class-names'
+ import type { NativeChatTextBlock } from '../../../../../shared/native-chat/native-chat-types'
+ import { NativeChatMarkdown } from '../markdown/NativeChatMarkdown'
+ import { NativeChatCodeBlock } from '../markdown/code/NativeChatCodeBlock'
+-import { NATIVE_CHAT_SUBAGENT_FAILURE_PRESENTATION } from './native-chat-subagent-ending'
++import { NATIVE_CHAT_SUBAGENT_FAILURE_PRESENTATION } from '../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending'
+ 
+ /** A subagent's last word in its sheet: its reply under "Result", or its error under "Failed". */
+ export function NativeChatSubagentEndingRow({
+diff --git a/src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx b/src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx
+index 2ffa06807650fd0697b6f00119c8ccd8e93e68c3..4f0eed837a23dd91804591f6192b11b7fdf9fd15 100644
+--- a/src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx
++++ b/src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx
+@@ -133,6 +133,7 @@ export function NativeChatToolRun({
+   // A single command is more recognizable than its category summary. Its words read translate(), so key it on `t`.
+   const runSentence = recomputeOn([t], () => nativeChatToolRunSentence(headerBlocks, { live }))
++  const hasAsides = Boolean(asides && (asides.before.size > 0 || asides.after.length > 0))
+   const fallbackLabel =
+-    callCount === 0 && asideCount > 0
++    callCount === 0 && hasAsides
+       ? t('components.native-chat.tool.activity', 'Activity')
+       : fallbackKey === 'result'
+@@ -144,5 +145,5 @@ export function NativeChatToolRun({
+ 
+   // Standalone rosters/tasks have no tool calls for a header to summarize.
+-  if (blocks.length === 0 && asideCount === 0) {
++  if (blocks.length === 0 && !hasAsides) {
+     return standaloneRows.length > 0 ? <div className={spacing}>{standaloneRows}</div> : null
+   }

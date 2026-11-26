@@ -40,18 +40,6 @@ index 6d4ae695332..f75509453a9 100644
        // Use an empty missing hostId: the shell refuses /h//session, whereas the string undefined would name an accepted host.
        const executionHost = routeHost ? `&executionHost=${encodeURIComponent(routeHost)}` : ''
        const pane = paneKey ? `&paneKey=${encodeURIComponent(paneKey)}` : ''
-diff --git a/src/main/antigravity/antigravity-host-acp.ts b/src/main/antigravity/antigravity-host-acp.ts
-index c9d9b427360..d98381fc2f3 100644
---- a/src/main/antigravity/antigravity-host-acp.ts
-+++ b/src/main/antigravity/antigravity-host-acp.ts
-@@ -3,7 +3,6 @@
- import { readFile, stat } from 'node:fs/promises'
- import { join } from 'node:path'
- import { homedir } from 'node:os'
--import { agentModelCatalogFingerprint } from '../native-chat/agent-model-catalog/agent-model-catalog-fingerprint'
- import type { InitializeResponse } from '../acp/generated/acp-protocol.generated'
- import { AcpAgentError, AcpConnectionClosedError } from '../acp/transport/acp-errors'
- import {
 diff --git a/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts b/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
 index b413e0a8631..7595f6df1cc 100644
 --- a/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts

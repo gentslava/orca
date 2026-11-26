@@ -2245,14 +2245,15 @@ index 00d0bb9d1a352a2fa72e5fab9f6680b757cf7a5a..ad34ce2bb40ad4a98c93f70961f2def1
        "onAttach": "Sohbet bağlandığında uygulanır",
        "heldPickRefused": "{{picked}} bu sohbette kullanılamıyor. {{kept}} korundu.",
 diff --git a/src/renderer/src/components/tab-bar/terminal-tabs/SortableTab.tsx b/src/renderer/src/components/tab-bar/terminal-tabs/SortableTab.tsx
-index a4bc3416ef7f9bb548971c03b75951b1ca9d6bb0..fb6e131a87cd82f0af3fef4380b8b6bb5a879ea0 100644
+index a4bc3416ef7f9bb548971c03b75951b1ca9d6bb0..32adfadc107b88f7c52ef6c8ec73ee1dff6c9286 100644
 --- a/src/renderer/src/components/tab-bar/terminal-tabs/SortableTab.tsx
 +++ b/src/renderer/src/components/tab-bar/terminal-tabs/SortableTab.tsx
 @@ -1,7 +1,7 @@
  import { ContextMenu, ContextMenuTrigger } from '@/components/ui/context-menu'
  import { structuredAgentSessionAddressTabId } from '../../../../../shared/agent-session/view/structured-agent-session-projection'
- import { useCallback, useEffect } from 'react'
+-import { useCallback, useEffect } from 'react'
 -import { Minimize2, Pin } from 'lucide-react'
++import { useCallback } from 'react'
 +import { Minimize2 } from 'lucide-react'
  import { stripLeadingAgentTitleDecoration } from '../../../../../shared/agent-status/title/agent-title-decoration'
  import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
