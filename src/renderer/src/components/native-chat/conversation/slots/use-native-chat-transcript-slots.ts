@@ -1,9 +1,15 @@
+import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { toggleNativeChatExpandedKey } from '../../messages/disclosure/native-chat-expanded-keys'
+import {
+  nativeChatHistoryTurnFold,
+  nativeChatTurnFoldRow,
+  type NativeChatTurnFoldHistory
+} from '../../../../../../shared/native-chat/transcript/folding/native-chat-turn-fold'
 import { NativeChatVisualOwnerContext } from '../../media/visuals/native-chat-visual-owner'
 import {
   nativeChatMarkdownImageSources,
   nativeChatVisualMarkdownImageSources
 } from '../../markdown/native-chat-markdown-image-sources'
-import { useContext, useMemo, useState } from 'react'
 import {
   nativeChatLiveLine,
   type NativeChatLiveLine
@@ -25,13 +31,19 @@ import {
 const NO_ROWS: readonly NativeChatMessage[] = []
 export function useNativeChatTranscriptSlots({
   line,
+  scopeKey,
+  historyHead,
   structureMessages,
   ...input
-}: Omit<NativeChatTranscriptSlotsInput, 'liveReasoningId' | 'workers'> & {
+}: Omit<
+  NativeChatTranscriptSlotsInput,
+  'liveReasoningId' | 'expandedTurnKeys' | 'turnFold' | 'tailRowBelow' | 'workers'
+> & {
+  scopeKey: string
+  historyHead?: string
   /** `messages` as of their last change other than a streaming reply's text, row for row. */
   structureMessages?: readonly NativeChatMessage[]
   line: {
-    /** The row drawn under the transcript, if any. */
     tailRow: 'awaiting-input' | 'activity' | null
     thinking: boolean
     stopping?: boolean
@@ -39,8 +51,10 @@ export function useNativeChatTranscriptSlots({
   }
 }): {
   slots: NativeChatTranscriptSlot[]
-  forkPoint: NativeChatSideChatForkPoint | null
   liveLine: NativeChatLiveLine | null
+  expandedTurnKeys: ReadonlySet<string>
+  toggleExpandedTurn: (key: string) => void
+  forkPoint: NativeChatSideChatForkPoint | null
 } {
   const visualOwner = useContext(NativeChatVisualOwnerContext)
   const workers = useNativeChatWorkers()
@@ -57,17 +71,45 @@ export function useNativeChatTranscriptSlots({
     turnStatuses,
     turnDiffs,
     openedPullRequests,
-    expandedTurnKeys,
     isWorking,
     lifecycleWorking,
     subagentHeads,
     forkOffer
   } = input
+  const [expandedTurnKeys, setExpandedTurnKeys] = useState<ReadonlySet<string>>(new Set())
+  const structureRows = structureMessages?.length === messages.length ? structureMessages : messages
+  const committedFold = useRef<NativeChatTurnFoldHistory | null>(null)
+  const historyFold = useMemo(
+    () =>
+      nativeChatHistoryTurnFold(committedFold.current, {
+        scope: scopeKey,
+        historyHead,
+        messages: structureRows,
+        rows: structureRows.map((message, index) =>
+          nativeChatTurnFoldRow(message, turnKeys[index], receipts.get(message.id))
+        ),
+        settledTurnKeys: new Set(
+          Object.entries(turnStatuses.completedByTurn).flatMap(([key, status]) =>
+            status.workedSeconds != null ? [key] : []
+          )
+        ),
+        expandedTurnKeys
+      }),
+    [scopeKey, historyHead, structureRows, turnKeys, receipts, turnStatuses, expandedTurnKeys]
+  )
+  useLayoutEffect(() => {
+    committedFold.current = historyFold
+  }, [historyFold])
+  const toggleExpandedTurn = useCallback(
+    (key: string) => {
+      setExpandedTurnKeys(toggleNativeChatExpandedKey(historyFold.expandedTurnKeys, key))
+    },
+    [historyFold.expandedTurnKeys]
+  )
   const { tailRow, thinking, stopping = false, activityText } = line
   const draws = tailRow === 'activity'
   const working = isWorking || lifecycleWorking
   // Which rows are in the live turn is structure: found once per save, not per streamed frame.
-  const structureRows = structureMessages?.length === messages.length ? structureMessages : messages
   const liveTurnHasRows = useMemo(
     () =>
       structureRows.some((message, index) =>
@@ -124,7 +166,8 @@ export function useNativeChatTranscriptSlots({
       turnStatuses,
       turnDiffs,
       openedPullRequests,
-      expandedTurnKeys,
+      expandedTurnKeys: historyFold.expandedTurnKeys,
+      turnFold: historyFold,
       isWorking,
       lifecycleWorking,
       subagentHeads,
@@ -134,9 +177,9 @@ export function useNativeChatTranscriptSlots({
       leavingTurnKeys
     }),
     [
+      historyFold,
       leavingTurnKeys,
       workers,
-      expandedTurnKeys,
       imageSources,
       forkOffer,
       isWorking,
@@ -165,5 +208,11 @@ export function useNativeChatTranscriptSlots({
     leaving: leavingTurnKeys,
     setLeaving: setLeavingTurnKeys
   })
-  return { slots, forkPoint, liveLine }
+  return {
+    slots,
+    forkPoint,
+    liveLine,
+    expandedTurnKeys: historyFold.expandedTurnKeys,
+    toggleExpandedTurn
+  }
 }
