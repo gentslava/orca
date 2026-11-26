@@ -11,6 +11,14 @@
   ],
   "include": [
     {
+      "number": 34899,
+      "reason": "Preserve the selected host's quota roster with upstream WSL usage and authentication scoping."
+    },
+    {
+      "number": 36945,
+      "reason": "Keep the retained mobile project heading and upstream connection status on the new base."
+    },
+    {
       "number": 42410,
       "reason": "Separate persistent chat artifacts from disposable builds and preserve AppImage environment isolation with Windows environment matching."
     },
@@ -200,16 +208,24 @@
       "repository": "gentslava/orca",
       "ref": "refs/heads/fix/native-chat-tool-invocation-details"
     },
-    "36945": {
-      "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-a7a-mobile-project-title-36945"
-    },
     "38848": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/fix/queue-last-message-shortcut-20261106"
     }
   },
-  "foreignHeadSources": {
+  "forkHeadSources": {
+    "34899": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-account-quotas-34899"
+    },
+    "36945": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-mobile-project-title-36945"
+    },
+    "41166": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-mobile-fallbacks-41166"
+    },
     "42410": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-conversation-files-42410"
@@ -217,7 +233,9 @@
     "43124": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-file-changes-43124"
-    },
+    }
+  },
+  "foreignHeadSources": {
     "39918": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/cli-chat-close-39918"

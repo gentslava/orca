@@ -50,7 +50,8 @@ function declaredForkFeatures(config, forkRepository) {
   const branches = new Set(
     [
       ...Object.values(config.retainedHeadSources ?? {}),
-      ...Object.values(config.foreignHeadSources ?? {})
+      ...Object.values(config.foreignHeadSources ?? {}),
+      ...Object.values(config.forkHeadSources ?? {})
     ].map((source) => `${source.repository}:${source.ref}`)
   )
   return Object.keys(declared)
@@ -113,7 +114,8 @@ export async function resolveSelection(
     }
   }
   const foreignSources = config.foreignHeadSources || {}
-  for (const [number, source] of Object.entries(foreignSources)) {
+  const forkSources = config.forkHeadSources || {}
+  for (const [number, source] of Object.entries({ ...foreignSources, ...forkSources })) {
     const included = config.include.find((entry) => entry.number === Number(number))
     if (
       !validBranchSource(source) ||
@@ -121,10 +123,12 @@ export async function resolveSelection(
       typeof included?.reason !== 'string' ||
       !included.reason.trim() ||
       retainedSources[number] ||
+      (foreignSources[number] && forkSources[number]) ||
       config.exclude[number] ||
       config.replacements[number]
     ) {
-      throw new Error(`Invalid foreign PR branch source: PR ${number}`)
+      const kind = forkSources[number] ? 'own fork' : 'foreign'
+      throw new Error(`Invalid ${kind} PR branch source: PR ${number}`)
     }
   }
   const upstreamMerges = config.reviewedUpstreamMerges ?? {}
@@ -140,7 +144,8 @@ export async function resolveSelection(
       config.exclude[number] ||
       config.replacements[number] ||
       retained[number] ||
-      foreignSources[number]
+      foreignSources[number] ||
+      forkSources[number]
     ) {
       throw new Error(`Invalid reviewed upstream merge: PR ${number}`)
     }
@@ -211,7 +216,7 @@ export async function resolveSelection(
       await resolve(replacement, [...chain, number])
       return
     }
-    const source = foreignSources[number]
+    const source = forkSources[number] ?? foreignSources[number]
     if (pr.state === 'closed' && !pr.merged_at && retained[number] && !source) {
       const source = retainedSources[number]
       let selected = pr
@@ -248,8 +253,12 @@ export async function resolveSelection(
       return
     }
     if (!pr.merged_at && source) {
-      if (config.authors.includes(pr.user.login) || typeof readRetainedHead !== 'function') {
-        throw new Error(`Foreign PR branch identity cannot be verified: PR ${number}`)
+      const own = config.authors.includes(pr.user.login)
+      const permitted = forkSources[number]
+        ? own && pr.head.repo?.full_name === source.repository
+        : !own
+      if (!permitted || typeof readRetainedHead !== 'function') {
+        throw new Error(`Reviewed PR branch identity cannot be verified: PR ${number}`)
       }
       const sha = await readRetainedHead(source)
       if (!/^[a-f0-9]{40}$/.test(sha)) {

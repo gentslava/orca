@@ -41,6 +41,7 @@ Run the audit below on the live source and compare its `plan.json` with the last
 | `dependencies`           | Declare required application order. Reconcile stacked work with the lifecycle of each prerequisite.                                                               |
 | `retainClosed`           | Keep a required closed PR with a product reason. Use `retainedHeadSources` for a refreshed branch belonging to the original PR.                                   |
 | `foreignHeadSources`     | Use a reviewed, owner-maintained branch that descends from the exact foreign PR head. Explicit retention is required after closure.                               |
+| `forkHeadSources` | Use a reviewed refresh of our own PR from the same fork. Composition still verifies that it descends from the exact original PR head. |
 | `reviewedUpstreamMerges` | Record the original head, exact merge SHA, merged time and evidence for previously verified merges with missing metadata. A Git ancestry check remains mandatory. |
 | `forkFeatures`           | Name required fork-only branches without an upstream PR and record their purpose.                                                                                 |
 | `compatibilityPatches`   | List required integration corrections in application order. Keep each correction tied to a real difference between selected components.                           |
