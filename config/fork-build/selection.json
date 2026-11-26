@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 42410,
+      "reason": "Separate persistent chat artifacts from disposable builds and preserve AppImage environment isolation with Windows environment matching."
+    },
+    {
       "number": 43124,
       "reason": "Keep per-turn file changes collapsible and use the current session transcript slot height estimator."
     },
@@ -206,6 +210,10 @@
     }
   },
   "foreignHeadSources": {
+    "42410": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-conversation-files-42410"
+    },
     "43124": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-file-changes-43124"
