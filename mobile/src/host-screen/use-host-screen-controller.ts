@@ -158,6 +158,7 @@ export function useHostScreenController({
   })
   const sectionsResult = useHostListSections({
     client,
+    connected: connState === 'connected',
     hostId,
     feed,
     displayWorktrees,
