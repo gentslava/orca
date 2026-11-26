@@ -19,6 +19,7 @@ import {
   THREAD_READ_FILTER_VALUES
 } from '../../agent-status/presentation/agents-view-thread-filters'
 import { isReleaseChannel } from '../../updater/release-channel'
+import { SIDEBAR_VIEWS } from '../../ui-chrome/sidebar-body'
 import type { ReleaseChannel } from '../../updater/release-channel'
 import { ClientUiWorkspaceFilterFields } from './client-ui-workspace-filter-fields-params'
 import { TaskResumeState } from './task-resume-state-params'
@@ -136,6 +137,7 @@ export const UiUpdateFields = lazyZodSchema(() =>
       groupBy: z.enum(['none', 'workspace-status', 'repo', 'pr-status']).optional(),
       showWorkspaceLineage: z.boolean().optional(),
       sortBy: z.enum(['name', 'smart', 'recent', 'repo', 'manual']).optional(),
+      sidebarView: z.enum(SIDEBAR_VIEWS).optional(),
       projectOrderBy: z.enum(['manual', 'recent']).optional(),
       showActiveOnly: z.boolean().optional(),
       hideSleepingWorkspaces: z.boolean().optional(),

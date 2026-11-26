@@ -112,6 +112,8 @@ export type AiVaultSessionSubagentInfo = {
 export type AiVaultSessionTitleKind = 'named' | 'fallback'
 
 export type AiVaultSession = {
+  /** Legacy host affiliation; absence must retain local project attribution. */
+  projectOwnerKey?: string | null
   /** A durable Orca conversation with no provider transcript to read or mutate. */
   source?: 'structured-record'
   /** Host-proven content; absent or unknown must preserve recoverable conversations. */

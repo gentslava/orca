@@ -5,6 +5,7 @@ import {
   isAiVaultAgent,
   isAiVaultSessionResumableContent,
   aiVaultSessionRecoverableSignalCount,
+  type AiVaultListArgs,
   type AiVaultListResult,
   type AiVaultSession
 } from '../../shared/ai-vault/contracts/ai-vault-types'
@@ -14,10 +15,30 @@ import { structuredAgentRuntimeMetadata } from '../runtime/agent-session/install
 import type { StructuredChatOpener } from './structured-sessions/structured-session-ownership'
 import type { OrchestrationDb } from '../runtime/orchestration/db/orchestration-db'
 import { z } from 'zod'
+import {
+  requestedAiVaultSessionDepth,
+  truncateAiVaultListResult
+} from '../../shared/ai-vault/scanning/ai-vault-session-depth'
+import { conditionalAiVaultListResult } from './listing/session-list-fingerprint'
 import { clearedInto } from '../runtime/orchestration/addressing/session-lineage/structured-session-lineage'
 import { isGenericConversationTitle } from '../../shared/project-conversation-list'
 import { conversationNameSeed } from '../../shared/source-control/ai/generation/conversation-name-generation'
 import type { StructuredConversationJournalPreview } from './structured-conversation-journal-preview'
+
+export function boundedAiVaultConversationList(
+  result: AiVaultListResult,
+  args?: AiVaultListArgs
+): AiVaultListResult {
+  return conditionalAiVaultListResult(
+    truncateAiVaultListResult(
+      result,
+      requestedAiVaultSessionDepth(args),
+      args?.scopePaths,
+      args?.selectedSessionId
+    ),
+    null
+  )
+}
 
 /** Project the existing record catalog; provider files remain optional evidence, never identity. */
 export function projectDurableAiVaultConversations(

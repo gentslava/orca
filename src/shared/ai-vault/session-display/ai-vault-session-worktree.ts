@@ -92,6 +92,8 @@ function resolveWorktreeInfoFromCandidates(
   const recorded = hostCandidates.find(
     (candidate) =>
       candidate.worktree.id === session.structuredSession?.workspaceId &&
+      candidate.hostId === sessionHostId &&
+      candidate.source === 'current-path' &&
       !candidate.worktree.isArchived
   )
   if (recorded) {
