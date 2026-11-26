@@ -11,6 +11,14 @@
   ],
   "include": [
     {
+      "number": 33502,
+      "reason": "Keep personal project pins and opening order on desktop and mobile, with separate ownership for projects that share a repository ID on different hosts."
+    },
+    {
+      "number": 46107,
+      "reason": "Preserve the reviewed Russian translations while matching current upstream English keys, terminology and interpolation."
+    },
+    {
       "number": 34899,
       "reason": "Preserve the selected host's quota roster with upstream WSL usage and authentication scoping."
     },
