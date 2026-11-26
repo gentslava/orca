@@ -78,7 +78,7 @@ Keep the platform build commands on upstream's current tooling. Check that macOS
 
 ## macOS update channels
 
-The macOS ARM64 updater uses the standard Orca download and restart flow. Its feed selects published personal releases in `gentslava/orca` that contain `latest-mac.yml` and the versioned ARM64 ZIP. The embedded version identifies the signed channel, and the signed bundle also carries the marker the archive and installer verify. Scheduled ad hoc previews check the same release list and offer a direct DMG download. Users install the downloaded app manually or use the existing verified CLI installer. Windows, Linux and Android personal packages stay on their existing installation paths.
+The macOS ARM64 updater uses the standard Orca download and restart flow. Its feed selects published personal releases in `gentslava/orca` that contain `latest-mac.yml` and the versioned ARM64 ZIP. The embedded version identifies the signed channel, and the signed bundle also carries the marker the archive and installer verify. Scheduled ad hoc previews check the same release list and offer a direct DMG download. Users install the downloaded app manually or use the existing verified CLI installer. Windows and Linux personal packages stay on their existing installation paths.
 
 Use a Developer ID Application certificate from the fork owner's Apple Developer team. Keep the team and bundle identifier stable across releases so macOS can retain grants for the app and its signed terminal helper. Configure the repository variable `ORCA_FORK_MAC_TEAM_ID` with the ten-character Team ID. In the `fork-macos-signing` GitHub environment, restrict deployments to `master` and require maintainer approval. Store `MAC_CERTS` (base64 P12), `MAC_CERTS_PASSWORD`, `APPLE_ID` and `APPLE_APP_SPECIFIC_PASSWORD` as environment secrets.
 
@@ -93,6 +93,12 @@ gh workflow run personal-build.yml -R gentslava/orca --ref master \
 The signing run requires all 11 packages. The macOS archive gates check Developer ID, Team ID, notarization ticket, architecture and the packaged updater marker on the app in both archives. The release stage derives the update manifest from that verified ZIP, including its SHA-512 digest and the minimum supported macOS version. The draft follows the normal promotion and publication gates.
 
 An installed ad hoc preview requires a one-time installation of the first signed release. Use the release DMG or the verified installer with `--release PERSONAL_TAG` to preserve the rollback copy. macOS may ask for permissions or Keychain access when switching signing identity. Before recording signed-updater acceptance, test two consecutive signed builds on Apple Silicon. Grant a protected-folder permission on the first build, let Orca install the second from **Check for Updates**, and verify that the app and terminal helper can still access that folder after restart.
+
+## Android update channel
+
+The personal APK embeds the release plan's build version through its Expo configuration. Both Android checks verify it against the same plan as the signed APK receipt. The Android client checks published personal releases in the fork, validates the package name, Android version code, pinned Expo debug certificate and APK digest from the independent receipt, and opens the direct APK download. Run the Android updater tests when changing the release API, asset names, signing identity or build-version format. Keep the official mobile app's channels separate.
+
+Before recording device acceptance, install two consecutive personal APKs with the same mobile version on an Android device. Check that the first offers the second from the fork and that the update card clears after installing it over the first. A release built before the fork updater was enabled requires a one-time APK download from the fork.
 
 ## Release and recovery
 
