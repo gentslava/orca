@@ -40,7 +40,7 @@ export const ORCHESTRATION_WORKER_COMMAND_SPECS: CommandSpec[] = [
     ],
     identityFlagRoles: { from: 'caller', terminal: 'target' },
     notes: [
-      "--item <n> (from a bot's own chat) links the worker to that item and moves your own item to In progress; another bot's item keeps its status.",
+      "--item <n> (from a bot's own chat) links the worker to that item and moves your own item to In progress, unless it still asks your owner a question (it stays Needs you); another bot's item keeps its status. It can't be combined with --on. Link every worker you start for an item, reviewers included.",
       '--for <message id> links the worker to a question you took and are starting it to answer. The start never fails on it: the receipt says when the question could not be linked, and why.',
       '--role resolves a saved profile in Settings > Orchestration > Worker roles on the Run home. Explicit --model, --effort and --fast override profile values. Explicit --agent replaces the provider; choosing a different agent clears inherited model, effort and Fast. Roles cannot combine with --terminal.',
       '--fast on|off requires a selected model with proven support. Claude and Codex require an existing workspace, the configured Chat UI route, and a verified workspace model catalog; Codex uses the provider-listed Fast service tier. Terminal launches use their existing launch-option catalog. Unsupported choices fail before Task/Dispatch creation. Role and Fast launches require orchestration.worker-role-routing.v1 on both the Run home and any selected execution server; no local fallback is attempted.',
@@ -51,7 +51,7 @@ export const ORCHESTRATION_WORKER_COMMAND_SPECS: CommandSpec[] = [
       'A terminal the user kept open takes --terminal work and stays kept open.',
       '--agent takes an Orca agent id enabled on the worker server, such as claude, codex, cursor, antigravity, muse, zcode, opencode, or opencode2.',
       '--model supports Claude, Codex, Cursor, Antigravity, Grok, and Muse opaque provider model ids; --effort requires --model. OMP also takes its model roles and selectors (such as @worker or provider/model:level), with --effort as its thinking level. Neither can combine with --terminal. OpenCode model selection requires an existing worktree, a verified execution-host CLI, and an available model; effort is unsupported. Pi takes a provider/id --model and maps --effort to its --thinking level (off, minimal, low, medium, high, xhigh, max). Other agents, including zcode, launch with the model from their own config.',
-      'Finished workers close on their own unless started with --keep-open; a worker started in a new worktree (new-child or new-top-level) is kept open, so release it when no one will use its chat.',
+      'Finished workers close on their own unless started with --keep-open; a worker started in a new worktree (new-child or new-top-level) is kept open when the receipt says keepOpenByDefault, so release it when no one will use its chat.',
       'New worktrees use agent-first creation; without --setup, setup runs unless the project turns it off. Repository start-immediately runs setup beside the agent; wait-for-setup gates agent readiness and task input.',
       'New worktrees without --name get the name Orca gives an unnamed workspace; the receipt names it. Servers older than this change still require --name.',
       'Creation flags (--name, --repo, --base-branch, --display-name, --comment, --setup) are rejected for current/existing worktrees. Use exact --repo on the selected server; project/host convenience routing remains on worktree create.',
@@ -101,7 +101,8 @@ export const ORCHESTRATION_WORKER_COMMAND_SPECS: CommandSpec[] = [
       'A Dispatch created by orchestration dispatch is fenced without closing its unsupervised terminal process.',
       'processAction closed_agent_terminal means Orca issued the close (do not also run terminal close); stop_unknown exits 1 and may still report it when the agent exit was not proven.',
       'Also stops every helper it started and theirs, listed in helpers; a helper the user kept open is listed and keeps running.',
-      'Never deletes the worktree, setup terminal, configured tabs, or unrelated processes.'
+      'Also closes the startup tabs its start opened, the setup terminal once setup has finished (a failed setup stays open), and terminals its agent created without --keep-open; a setup still running keeps running.',
+      'Never deletes the worktree or touches unrelated processes.'
     ]
   },
   {
@@ -152,7 +153,8 @@ export const ORCHESTRATION_WORKER_COMMAND_SPECS: CommandSpec[] = [
       'Post-completion cleanup for a settled (succeeded or failed) worker; closes only the exact coordinator-owned agent terminal of that worker.',
       'A settled Dispatch created by orchestration dispatch has no owned terminal resource and is reported retained without process action.',
       "worker-read afterwards reads the worker's own transcript or chat history while it still exists; a worker with none, or whose original is gone, reads as no longer available.",
-      'Never closes setup terminals, configured tabs, reused or pre-existing terminals, terminals the user kept open, or unproven identities.',
+      "Also closes the startup tabs the worker's start opened, the setup terminal once setup has finished (a failed setup stays open), and terminals its agent created without --keep-open; a setup still running keeps running.",
+      'Never closes reused or pre-existing terminals, terminals the user kept open, or unproven identities.',
       'Idempotent: repeating the call reports already_released. Only release_unknown exits 1; retained, release_pending, and already_released exit 0.',
       'On a runtime that advertises orchestration.worker-auto-release.v1, an accepted worker_done already schedules this release about 2 minutes later (autoReleaseAt in worker-show and worker-list); call it only to release sooner or to clear a worker-keep-open. Chat workers follow autoReleaseAt too. autoReleaseAt is absent while its agent works again, and set afresh when it next goes idle.'
     ]
