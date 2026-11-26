@@ -68,7 +68,15 @@ export const LaunchPreferences = lazyZodSchema(() =>
         MAX_LAUNCH_PREFERENCE_LENGTH,
         'Invalid effort preference'
       ).optional(),
-      mode: StrictNonEmptyString(MAX_LAUNCH_PREFERENCE_LENGTH, 'Invalid mode preference').optional()
+      mode: StrictNonEmptyString(
+        MAX_LAUNCH_PREFERENCE_LENGTH,
+        'Invalid mode preference'
+      ).optional(),
+      fastMode: z.boolean().optional(),
+      serviceTier: StrictNonEmptyString(
+        MAX_LAUNCH_PREFERENCE_LENGTH,
+        'Invalid service tier preference'
+      ).optional()
     })
     .strict()
 )
