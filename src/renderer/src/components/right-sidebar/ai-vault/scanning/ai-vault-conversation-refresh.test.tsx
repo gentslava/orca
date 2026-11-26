@@ -13,10 +13,7 @@ import type { ExecutionHostScope } from '../../../../../../shared/execution-host
 import type { RuntimeClientTarget } from '../../../../../../shared/remote-runtime/host-catalog/runtime-client-target'
 import { useAppStore } from '@/store'
 import { acceptedAgentStatuses } from '@/store/slices/agent-status/status-ownership/accepted-agent-statuses'
-import {
-  resetAiVaultForcedRescanThrottleForTest,
-  useAiVaultSessionRefresh
-} from './ai-vault-session-refresh'
+import { useAiVaultSessionRefresh } from './ai-vault-session-refresh'
 
 const feeds = vi.hoisted(
   () =>
@@ -75,7 +72,7 @@ function saved(
     source: 'structured-record',
     id: `${executionHostId}:chat`,
     executionHostId,
-    agent: 'gemini',
+    agent: 'opencode',
     sessionId: 'saved-chat',
     title,
     cwd: '/notes',
@@ -109,7 +106,7 @@ async function publish(
     const summary: AgentSessionStatusSummary = {
       sessionId: 'saved-chat',
       workspaceId: 'folder:notes',
-      agent: 'gemini',
+      agent: 'opencode',
       status: null,
       latestPrompt: '',
       updatedAt: 1,
@@ -126,7 +123,6 @@ async function publish(
 beforeEach(() => {
   feeds.clear()
   latest = undefined
-  resetAiVaultForcedRescanThrottleForTest()
   useAppStore.setState(initialState, true)
   response = {
     sessions: [],
@@ -156,9 +152,9 @@ it('publishes creation and rename without provider IDs, tab state, or a forced d
   render(<Probe />)
   await act(async () => {})
   expect(latest?.sessions).toEqual([])
-  response = { ...response, sessions: [saved('New Gemini chat')], fingerprint: 'b'.repeat(64) }
+  response = { ...response, sessions: [saved('New OpenCode chat')], fingerprint: 'b'.repeat(64) }
   await publish('local')
-  expect(latest?.sessions[0]?.title).toBe('New Gemini chat')
+  expect(latest?.sessions[0]?.title).toBe('New OpenCode chat')
   response = {
     ...response,
     sessions: [saved('Renamed retained chat')],
@@ -182,7 +178,7 @@ it('publishes creation and rename without provider IDs, tab state, or a forced d
           'native',
           {
             state: 'working',
-            agentType: 'gemini',
+            agentType: 'opencode',
             prompt: '',
             updatedAt: 1,
             stateStartedAt: 1,
@@ -251,14 +247,14 @@ it('withholds previous-host chats while a newly selected remote host is still an
         answer = resolve
       })
   )
-  view.rerender(<Probe scope="runtime:remote" />)
+  view.rerender(<Probe scope="runtime:remote-switch" />)
   await act(async () => {})
   expect(latest?.sessions).toEqual([])
   expect(feeds.get('local')?.listeners.size).toBe(0)
   await act(async () =>
     answer?.({
       ...response,
-      sessions: [saved('Remote only', 'runtime:remote')],
+      sessions: [saved('Remote only', 'runtime:remote-switch')],
       fingerprint: 'b'.repeat(64)
     })
   )

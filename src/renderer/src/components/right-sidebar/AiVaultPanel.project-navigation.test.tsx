@@ -10,8 +10,6 @@ import type {
   AiVaultListResult
 } from '../../../../shared/ai-vault/contracts/ai-vault-types'
 import AiVaultPanel from './ai-vault/panel/AiVaultPanel'
-import { resetAiVaultForcedRescanThrottleForTest } from './ai-vault/scanning/ai-vault-session-refresh'
-import { resetInputQuietSchedulerForTest } from '@/lib/window-activity/input-quiet-scheduler'
 import {
   conversationSessions,
   conversationStore,
@@ -40,9 +38,7 @@ const initialState = useAppStore.getInitialState()
 
 beforeEach(() => {
   vi.useFakeTimers()
-  resetInputQuietSchedulerForTest()
   resetStructuredAgentSessionStatusFeedsForTests()
-  resetAiVaultForcedRescanThrottleForTest()
   useAppStore.setState(initialState, true)
   useAppStore.setState({ ...conversationStore, activeWorkspaceExecutionHostId: 'local' })
   listSessions.mockReset().mockResolvedValue({

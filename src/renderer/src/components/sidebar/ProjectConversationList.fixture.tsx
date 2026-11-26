@@ -18,7 +18,7 @@ const discovered = {
   sessionId: 'discovered',
   cwd: '/notes',
   title: 'Outline release notes',
-  agent: 'gemini' as const
+  agent: 'opencode' as const
 }
 const discoveredKey = JSON.stringify(['local', 'folder:/notes'])
 

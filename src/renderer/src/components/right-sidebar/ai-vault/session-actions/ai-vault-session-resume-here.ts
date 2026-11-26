@@ -45,7 +45,10 @@ export type AiVaultResumeHere = {
   confirm: ConfirmationDialogContextValue
 }
 
-type AiVaultReplacement = AiVaultResumeHere & { current: () => boolean }
+type AiVaultReplacement = AiVaultResumeHere & {
+  current: () => boolean
+  retry: () => Promise<void>
+}
 
 /** Replace this chat only after the picked chat opens; confirm busy chats first. False means the row cannot replace it. */
 export function resumeAiVaultSessionHere(args: {
@@ -59,7 +62,20 @@ export function resumeAiVaultSessionHere(args: {
 }): false | Promise<void> {
   const { session, actions } = args
   let current = (): boolean => true
-  const here = { ...args.here, current: () => current() }
+  const chat = findChatTab(args.here)
+  const here: AiVaultReplacement = {
+    ...args.here,
+    current: () => current(),
+    retry: async () => {
+      const anchor = findChatTab(args.here)
+      if (
+        anchor?.entityId === chat?.entityId &&
+        anchor?.executionHostId === chat?.executionHostId
+      ) {
+        await resumeAiVaultSessionHere(args)
+      }
+    }
+  }
   const structured = session.structuredSession
   // A group room never replaces this chat; it opens in its own tab.
   if (structured && botGroupRoomOfRow(readBotGroups(), session)) {
@@ -107,7 +123,6 @@ export function resumeAiVaultSessionHere(args: {
     return false
   }
   const agent = here.agent
-  const chat = findChatTab(here)
   if (!chat) {
     return replace()
   }
@@ -219,7 +234,7 @@ function revealInPlaceOf(
 ): Promise<void> {
   return openDesktopStructuredSession(
     { kind: 'history', structuredSession: structured },
-    target
+    { target, retry: here.retry }
   ).then((result) => {
     if (result.kind !== 'opened' || !here.current()) {
       return

@@ -5,15 +5,24 @@ import {
   conversationWorktrees,
   conversationSessions
 } from './ProjectConversationList.test-fixture'
-import { MIXED_FOLDER } from '../../../../shared/folder-workspaces/folder-workspace-host-routing.test-fixture'
+import type { FolderWorkspace } from '../../../../shared/folder-workspaces/folder-workspace-types'
 import { folderWorkspaceToWorktree } from '../../../../shared/folder-workspaces/folder-workspace-worktree'
 import { projectHostSetupProjectionFromRepos } from '../../../../shared/project/host-setup/project-host-setup-projection'
 import { buildAiVaultSessionProjectById } from '../right-sidebar/ai-vault/scope/ai-vault-session-projects'
 import type { AiVaultSession } from '../../../../shared/ai-vault/contracts/ai-vault-types'
 import type { ExecutionHostId } from '../../../../shared/execution-host/execution-host'
 
-const localFolder = {
-  ...MIXED_FOLDER,
+const localFolder: FolderWorkspace = {
+  projectGroupId: 'notes',
+  linkedTask: null,
+  comment: '',
+  isArchived: false,
+  isUnread: false,
+  isPinned: false,
+  sortOrder: 0,
+  lastActivityAt: 0,
+  createdAt: 0,
+  updatedAt: 0,
   id: 'notes',
   name: 'Notes',
   folderPath: '/notes',
