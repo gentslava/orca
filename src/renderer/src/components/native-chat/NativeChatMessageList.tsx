@@ -16,7 +16,7 @@ import { useNativeChatTranscriptProjection } from './conversation/projection/use
 import { useNativeChatQuestionReceipts } from './conversation/projection/use-native-chat-question-receipts'
 import { useNativeChatTaskListPredecessors } from './tools/use-native-chat-task-list-predecessors'
 import { NativeChatDockedTaskList } from './tools/tasks/NativeChatDockedTaskList'
-import { useNativeChatTurnStatus } from './conversation/turns/use-native-chat-turn-status'
+import * as turnStatus from './conversation/turns/use-native-chat-turn-status'
 import { NativeChatAwaitingInputRow } from './prompts/NativeChatAwaitingInputRow'
 import type { RuntimeFileOperationArgs } from '@/runtime/files/runtime-file-client-types'
 import type { NativeChatTurnActivity } from '../../../../shared/native-chat/transcript/turns/native-chat-turn-activity'
@@ -197,7 +197,7 @@ export function NativeChatMessageList({
   // The clock starts once the opening message lands, not while it still says "Sending…".
   const turnWorking =
     working && (liveTurnKey === undefined || deliveryNotices?.get(liveTurnKey)?.sending !== true)
-  const turnStatuses = useNativeChatTurnStatus({
+  const turnStatuses = turnStatus.useNativeChatTurnStatus({
     turnKeys,
     liveTurnKey,
     isWorking: turnWorking,

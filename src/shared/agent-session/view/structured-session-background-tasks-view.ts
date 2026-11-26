@@ -4,7 +4,7 @@ import type {
   AgentSessionBackgroundTask,
   AgentSessionBackgroundTaskState
 } from '../background-tasks/agent-session-background-task-wire'
-import { agentChildWorkLiveness } from '../../agent-status/child-work/agent-status-child-work-liveness'
+import { isLiveChildWork } from '../../agent-status/child-work/agent-status-child-work-liveness'
 import type { AgentChildWorkView } from '../../agent-status/child-work/agent-status-child-work-view'
 import type { AgentSessionForegroundTask } from '../agent-session-foreground-task'
 
@@ -55,19 +55,24 @@ export function structuredSessionBackgroundTasksView(
     foregroundCommands,
     (task) => task.id
   )
-  // Older rosters with only finished rows cannot hold the strip open.
-  const onlyFinished = !children && !tasks.length && Boolean(backgroundTasks?.settledTasks?.length)
+  const settledTasks = backgroundTasks?.settledTasks ?? NO_TASKS
   const onlyForeground =
     foregroundCommands.size > 0 &&
     !children?.length &&
     !tasks.length &&
+    !settledTasks.length &&
     Boolean(backgroundTasks?.children?.length || backgroundTasks?.tasks?.length)
   const incomplete = monitoring && backgroundTasks.incomplete === true
   const onlyEarlyCalls =
-    Boolean(backgroundTasks?.foregroundTasks?.length) && children?.length === 0 && !tasks.length
-  const show = monitoring && (incomplete || (!onlyFinished && !onlyForeground && !onlyEarlyCalls))
+    Boolean(backgroundTasks?.foregroundTasks?.length) &&
+    children?.length === 0 &&
+    !tasks.length &&
+    !settledTasks.length
+  const show = monitoring && (incomplete || (!onlyForeground && !onlyEarlyCalls))
   // Commands and rewind follow the listed records, as the host's own admission does.
-  const liveWork = children ? agentChildWorkLiveness(children) !== null : show
+  const liveWork = children
+    ? children.some((child) => child.membership === 'live' && isLiveChildWork(child))
+    : tasks.length > 0 || (show && !settledTasks.length)
   const supportsStop = backgroundTasks?.supportsTaskStop === true
   return {
     show,
@@ -76,8 +81,7 @@ export function structuredSessionBackgroundTasksView(
       : {}),
     isMonitoring: turnId === null && liveWork,
     tasks,
-    // Running work only, from any host: an older host's finished rows are not shown either.
-    settledTasks: NO_TASKS,
+    settledTasks,
     ...(children ? { children } : {}),
     supportsStop,
     // Missing supportsStopAll is legacy support; only explicit false means no untargeted Stop.

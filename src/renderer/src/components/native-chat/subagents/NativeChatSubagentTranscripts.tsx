@@ -1,3 +1,4 @@
+import { useNativeChatChildHistory } from '../use-native-chat-child-history'
 import { NativeChatWaitingAgentMailRowsContext } from '../queue/NativeChatWaitingAgentMailActions'
 import { slackPeopleOf } from '../../../../../shared/connectors/slack-mention-tokens'
 import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react'
@@ -109,6 +110,16 @@ export function NativeChatSubagentTranscripts({
     [open, openId, paneKey, showWaiting, stop, titleId, waiting]
   )
   const isVisible = props.isVisible ?? true
+  useNativeChatChildHistory({
+    scopeKey: `${props.session.sessionId ?? ''}:${openId ?? ''}`,
+    agentId: openId ?? undefined,
+    messages: props.session.messages,
+    hasMore: props.session.hasMore,
+    loading: props.session.loadingEarlier,
+    generation: props.session.olderHistoryGeneration,
+    enabled: isVisible && openId !== null,
+    loadEarlier: props.session.loadEarlier
+  })
   // Paused under the sheet, the conversation keeps the rows and messages it last drew until they
   // change besides streamed text, so it projects nothing each live window and never rewinds text.
   const mainItems = useHeldWhileHidden(props.journalItems, shown !== null, rowsBesideStreamedText)
