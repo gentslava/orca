@@ -3,6 +3,7 @@ import type { ConnectionState } from '../../transport/connection/connection-stat
 import type { MobileNativeChatTab } from './conversation/mobile-native-chat-eligibility'
 import type { StructuredAgentSessionHostSupport } from './agent-session/mobile-structured-agent-session-host-support'
 import type { useMobileNativeChatSessionLane } from './conversation/use-mobile-native-chat-session-lane'
+import type { WorkerDockEntry } from '../../../../src/shared/orchestration/dock/worker-dock'
 import type { NativeChatSkillDiscoverySnapshot } from '../../../../src/shared/native-chat/input/composer/native-chat-picker-items'
 import type { AgentSessionRewindSurface } from '../../../../src/shared/agent-session/lifecycle/rewind/agent-session-rewind-request'
 import type { NativeChatSendFollowUp } from '../../../../src/shared/native-chat/input/composer/native-chat-follow-up-behavior'
@@ -84,6 +85,8 @@ export type MobileNativeChatController = {
   nativeChatPermission: MobileChatPermission | null
   /** A coordinator chat's workers' open permission prompts, answered on their host. */
   nativeChatWorkerApprovals: MobileWorkerApprovals
+  /** Its current workers, for the strip above the message box. */
+  nativeChatWorkerDock: readonly WorkerDockEntry[]
   // A new prompt occurrence resets local card submission state only.
   nativeChatPromptKey: string | null
   /** Only a structured chat's journal question; a terminal chat's questions are asks. */

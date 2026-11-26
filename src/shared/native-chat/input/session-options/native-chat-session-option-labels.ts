@@ -34,6 +34,8 @@ export const NATIVE_CHAT_SESSION_OPTION_COPY = {
   availableAfterSessionStarts: 'Available after the session starts.',
   futureOptionsRequireUpdate:
     'Update Orca on this host to change future-turn choices while the agent works.',
+  modelsLoading: 'Loading models…',
+  signInForModels: 'Sign in to see the models you can use.',
   sessionOptions: 'Session options'
 } as const
 
@@ -159,6 +161,10 @@ export function nativeChatSessionOptionDisabledReason(
       return say('availableAfterSessionStarts')
     case 'host-update-required':
       return say('futureOptionsRequireUpdate')
+    case 'models-loading':
+      return say('modelsLoading')
+    case 'sign-in-for-models':
+      return say('signInForModels')
     case undefined:
       return null
   }
