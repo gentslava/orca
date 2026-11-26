@@ -20965,6 +20965,8 @@
         "chooseInAgentPicker": "Выбрать в списке агентов…",
         "searchModels": "Найти модель…",
         "noModelsMatch": "Подходящих моделей нет.",
+        "defaultModel": "По умолчанию",
+        "defaultModelDescription": "Модель, настроенная в агенте",
         "toggleOption": "Переключить {{value0}}",
         "pillAccessibleName": "{{value0}} {{value1}}",
         "sentNotConfirmed": "Отправлено агенту — получение не подтверждено",

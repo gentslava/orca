@@ -41,6 +41,8 @@ export type AgentSessionOptionsResult = {
   /** This session takes image attachments. Absent = unknown (an older host). */
   acceptsImages?: boolean
   models: AgentSessionModelOption[]
+  /** Original host/workspace configuration, or the saved Default baseline; never a recommendation. */
+  defaultModel?: { id: string; label: string; description?: string }
   /** False means inventory is unknown; retain existing rows. Absent keeps older hosts' authoritative-list behavior. */
   modelsKnown?: false
   /** The `models` ids the agent's own finished listing names, excluding host-added rows and

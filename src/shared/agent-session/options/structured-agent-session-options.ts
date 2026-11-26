@@ -57,6 +57,9 @@ export type StructuredAgentSessionOptionState = AgentSessionChildPermissionField
   reportedPermissionMode?: string | null
   permissionOwnSupported?: boolean | null
   reportedEffort?: string
+  /** What a Default chat's child last ran on; shown, never sent. */
+  reportedModel?: string
+  defaultModel?: AgentSessionOptionsResult['defaultModel']
   /** The answering child's provider fallback; the model pill names it while `model` stays the selection. */
   fallbackModel?: string
   /** The host is still listing models; it only keeps a seed from settling to built-in, since controls follow their data. */
@@ -213,6 +216,8 @@ export function applyStructuredAgentSessionOptions(
     reportedEffort: state.record.agent === 'pi' ? current.reportedEffort : undefined,
     fallbackModel: current.fallbackModel,
     catalog: keepCatalog ? state.catalog : answeredCatalog,
+    reportedModel: current.reportedModel,
+    defaultModel: result.defaultModel,
     fastModeRestricted:
       installed &&
       result.fastModeSupport?.supported === false &&

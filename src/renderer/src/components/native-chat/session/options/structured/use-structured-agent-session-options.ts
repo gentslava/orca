@@ -1,6 +1,8 @@
 import { useNativeChatPaneLifetimeEffect } from '../../../pane/ownership/native-chat-pane-lifetime'
 import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
 import { AGENT_CHAT_PERMISSION_MODE_OPTION_ID } from '../../../../../../../shared/agent-launch/permissions/agent-chat-permission-mode'
+import { structuredAgentSessionDefaultModelChoice } from '../../../../../../../shared/structured-agent-session-default-model-choice'
+import { useStructuredAgentSessionModelDefaultWrite } from './use-structured-agent-session-model-default-write'
 import type { StructuredAgentSessionOptionsArgs } from './structured-agent-session-options-contract'
 import { toast } from 'sonner'
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
@@ -43,6 +45,9 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     optionStateRef,
     activeOptionRecordRef,
     controller,
+    optionPicks,
+    writes,
+    beginOptionWrite,
     takesSelection,
     updateOptionState,
     rereadOptions,
@@ -79,42 +84,55 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     transportEnabled &&
     fence !== null
 
+  // A host that takes no per-message options would apply a pick to the turn already running.
   const acceptsTurnPicks =
     acceptsPicks && (!(args.isWorking ?? turnId !== null) || takesSendOptions || takesSelection)
   const interactionReadyRef = useRef(acceptsPicks)
   const lockSnapshotRef = useRef(
-    (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) => snapshot
+    (
+      snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>,
+      _view: typeof optionState
+    ) => snapshot
   )
-  const lockSnapshot = (snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>) =>
-    !acceptsPicks
-      ? lockedStructuredAgentSessionOptionSnapshot(snapshot)
+  const lockSnapshot = (
+    snapshot: ReturnType<typeof structuredAgentSessionOptionSnapshot>,
+    view: typeof optionState
+  ) => {
+    // Default stays choosable even where the host lists no model to pick; locks still apply.
+    const choices = offersDefault
+      ? snapshot.map((descriptor) =>
+          descriptor.id === 'model'
+            ? {
+                ...descriptor,
+                settable: true,
+                defaultChoice: structuredAgentSessionDefaultModelChoice(view)
+              }
+            : descriptor
+        )
+      : snapshot
+    return !acceptsPicks
+      ? lockedStructuredAgentSessionOptionSnapshot(choices)
       : !acceptsTurnPicks
-        ? snapshot.map((descriptor) =>
+        ? choices.map((descriptor) =>
             descriptor.id === AGENT_CHAT_PERMISSION_MODE_OPTION_ID
               ? descriptor
               : { ...descriptor, settable: false, disabledReason: 'host-update-required' as const }
           )
-        : snapshot
+        : choices
+  }
   useLayoutEffect(() => {
     interactionReadyRef.current = acceptsPicks
     lockSnapshotRef.current = lockSnapshot
   })
   const renderedView = optionView(optionState, launchSeedOptions, launch?.explicitOptions)
-  const availableSnapshot = structuredAgentSessionOptionAvailability({
+  const optionSnapshot = structuredAgentSessionOptionAvailability({
     controller,
     view: renderedView,
-    snapshot: lockSnapshot(structuredAgentSessionShownSnapshot(renderedView)),
+    snapshot: lockSnapshot(structuredAgentSessionShownSnapshot(renderedView), renderedView),
     ready: acceptsPicks,
     providerStarting,
     isCurrentContext
   })
-  const optionSnapshot = offersDefault
-    ? availableSnapshot.map((descriptor) =>
-        descriptor.id === 'model'
-          ? { ...descriptor, defaultChoice: { selected: renderedView.modelDefault === true } }
-          : descriptor
-      )
-    : availableSnapshot
   const modelOption = optionSnapshot.find((row) => row.id === 'model')
   const hostCatalog = useHostModelCatalogUpgrade({
     agent,
@@ -143,8 +161,8 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       controller,
       record: optionStateRef.current.record,
       view,
-      snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view)),
-      ready: acceptsPicks && interactionReadyRef.current,
+      snapshot: lockSnapshotRef.current(structuredAgentSessionOptionSnapshot(view), view),
+      ready: acceptsPicks && writes.current.count === 0 && interactionReadyRef.current,
       providerStarting,
       existingChat: !newLaunch || args.hasTurn === true,
       isCurrentContext,
@@ -176,23 +194,27 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   )
   useNativeChatPaneLifetimeEffect(useCallback(() => () => writer.detach(), [writer]))
   const setStructuredOption = writer.setOption
+  const writeModelDefault = useStructuredAgentSessionModelDefaultWrite(args.mutate, {
+    controller,
+    activeOptionRecordRef,
+    isCurrentContext,
+    updateOptionState,
+    optionPicks,
+    writes,
+    beginOptionWrite
+  })
   const setOption = useCallback(
     async (id: string, value: string | boolean) => {
       await setStructuredOption(id, value)
-      return {
-        snapshot: lockSnapshotRef.current(
-          structuredAgentSessionShownSnapshot(
-            optionView(optionStateRef.current, launchSeedOptions, launch?.explicitOptions)
-          )
-        )
-      }
+      const view = optionView(optionStateRef.current, launchSeedOptions, launch?.explicitOptions)
+      return { snapshot: lockSnapshotRef.current(structuredAgentSessionShownSnapshot(view), view) }
     },
     [launch?.explicitOptions, launchSeedOptions, optionStateRef, optionView, setStructuredOption]
   )
   const resetModel = useStructuredAgentSessionModelDefault({
     agent,
     target,
-    mutate: args.mutate,
+    mutate: writeModelDefault,
     source: {
       controller,
       activeOptionRecordRef,
@@ -217,7 +239,8 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       ...(offersDefault
         ? {
             resetOption: async (id: string) => {
-              if (id === 'model' && acceptsPicks) {
+              // A busy host that takes no per-message options would apply it to the running turn.
+              if (id === 'model' && acceptsTurnPicks) {
                 await resetModel()
               }
               return { snapshot: optionSnapshot }
@@ -249,7 +272,7 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
       demandModelCatalog,
       writer,
       offersDefault,
-      acceptsPicks,
+      acceptsTurnPicks,
       resetModel,
       cliUpdateAgent,
       cliUpdateModels,
@@ -280,7 +303,14 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
     optionSnapshot,
     optionSurface,
     setStructuredOption,
-    sendSource: { optionStateRef, optionView, controller, takesSendOptions, takesSelection },
+    sendSource: {
+      optionStateRef,
+      optionPicks,
+      optionView,
+      controller,
+      takesSendOptions,
+      takesSelection
+    },
     unavailable: hostCatalog.unavailable
   }
 }
