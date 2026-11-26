@@ -76,6 +76,7 @@
     }
   ],
   "exclude": {
+    "49959": "The current build uses the checked backport from claude-child-wake-expiry with 47724 and the confirmed-completion follow-up. Select 49959 directly once the fork moves to its upstream base.",
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
     "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
@@ -224,7 +225,7 @@
     },
     "claude-child-wake-expiry": {
       "ref": "refs/heads/integration/claude-work-wake-c475",
-      "reason": "Backport 47724 on c475b796 so an unconfirmed Claude subagent wake expires and restores the recorded outcome. Select 47724 directly when the fork advances beyond the PR base."
+      "reason": "Backport 47724 and 49959 on c475b796 so an unconfirmed Claude subagent wake expires and a confirmed ending clears the wake. Select the upstream fix when the fork advances beyond the PR base."
     },
     "codex-file-citations": {
       "ref": "refs/heads/integration/codex-file-citations-c475",
