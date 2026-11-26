@@ -79,7 +79,8 @@
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
     "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
-    "48762": "The upstream change targets the redesigned worker tray from 48581. The worker-tray-kind-labels feature supplies a reviewed compact-tray backport at c475b796. Drop that backport and select 48762 when the build moves to the redesigned tray."
+    "48762": "The upstream change targets the redesigned worker tray from 48581. The worker-tray-kind-labels feature supplies a reviewed compact-tray backport at c475b796. Drop that backport and select 48762 when the build moves to the redesigned tray.",
+    "49658": "Use the codex-file-citations backport on c475b796. Retire the backport and consume 49658 when the adopted upstream base supports it."
   },
   "replacements": {
     "33360": 45985,
@@ -216,6 +217,10 @@
     "worker-tray-kind-labels": {
       "ref": "refs/heads/integration/worker-tray-kinds-c475",
       "reason": "Compact-tray backport of the localized agent, worker, command and task labels from upstream 48762. Retire when the fork adopts the redesigned tray from 48581 and consumes 48762."
+    },
+    "codex-file-citations": {
+      "ref": "refs/heads/integration/codex-file-citations-c475",
+      "reason": "Backport 49658 so Codex document citations render as file links on the verified fork base."
     }
   }
 }
