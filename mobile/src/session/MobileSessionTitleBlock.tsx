@@ -13,6 +13,7 @@ import {
 import type { SessionTitleCard } from './tabs/use-session-title-card'
 import { StatusDot } from '../components/feedback/StatusDot'
 import type { ConnectionState } from '../transport/connection/connection-state'
+import type { ConnectionVerdict } from '../transport/connection/connection-health'
 import { styles } from './mobile-session-styles'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import { pressedStyle, spacing } from '../theme/mobile-theme'
@@ -25,6 +26,7 @@ export function MobileSessionTitleBlock({
   title,
   leading,
   connState,
+  verdict,
   details,
   meta,
   centered = false,
@@ -35,6 +37,8 @@ export function MobileSessionTitleBlock({
   /** Before the title, as a bot's avatar is. */
   leading?: ReactNode
   connState: ConnectionState
+  /** Colours the dot by the verdict's severity; omitted while a short drop is calmed. */
+  verdict?: ConnectionVerdict
   details: SessionTitleCard
   meta: string
   /** Sits in NavBar's centre slot rather than beside the tabs. */
@@ -97,7 +101,7 @@ export function MobileSessionTitleBlock({
             </View>
           ) : (
             <View style={centeredStyles.row}>
-              <StatusDot state={connState} />
+              <StatusDot state={connState} verdict={verdict} />
               {titleText(centeredStyles.text)}
             </View>
           )}
@@ -113,7 +117,7 @@ export function MobileSessionTitleBlock({
                   : undefined
               }
             >
-              {leading ? <StatusDot state={connState} /> : null}
+              {leading ? <StatusDot state={connState} verdict={verdict} /> : null}
               <Text style={styles.sessionMetaText} numberOfLines={1}>
                 {meta}
               </Text>
