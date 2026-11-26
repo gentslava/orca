@@ -59,6 +59,8 @@ async function forkedHistory() {
         undefined,
         [],
         previous.verifiedSources,
+        [],
+        true,
         async (checkpoint) => {
           await writeClaudeUsageSourceCache(ref, checkpoint)
           if (stopAtCheckpoint) {
@@ -67,7 +69,11 @@ async function forkedHistory() {
         }
       )
       await writeClaudeUsageSourceCache(ref, result.processedFiles)
-      return result.dailyAggregates.map((day) => [day.projectLabel, day.inputTokens])
+      const byProject = new Map<string, number>()
+      for (const day of result.dailyAggregates) {
+        byProject.set(day.projectLabel, (byProject.get(day.projectLabel) ?? 0) + day.inputTokens)
+      }
+      return [...byProject]
     } catch (error) {
       if (error instanceof WorkerStopped) {
         return null
