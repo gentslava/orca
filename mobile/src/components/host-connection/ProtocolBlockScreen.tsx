@@ -1,4 +1,8 @@
-import { isGooglePlayInstall, useWallAppUpdate } from '../../app-update/use-wall-app-update'
+import {
+  forkUpdateReleasesUrl,
+  isGooglePlayInstall,
+  useWallAppUpdate
+} from '../../app-update/use-wall-app-update'
 import { openExternalLink } from '../../platform/external-links/external-link'
 import { leaveHostRoute } from '../../host-route-exit'
 import { useRouteHandoff } from '../../navigation/route-handoff'
@@ -12,7 +16,7 @@ import type { CompatVerdict } from '../../transport/connection/protocol-compat'
 import type { MobileWebBundleCompatVerdict } from '../../transport/web-bundle/mobile-web-bundle-compat'
 import type { PageRouteRefusalVerdict } from '../../mobile-web-shell/routing/page-route-policy'
 
-const RELEASES_URL = 'https://github.com/stablyai/orca/releases'
+const RELEASES_URL = forkUpdateReleasesUrl ?? 'https://github.com/stablyai/orca/releases'
 const IOS_APP_STORE_URL = 'itms-apps://apps.apple.com/app/orca-ide/id6766130217'
 const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=dev.orca.app'
 
