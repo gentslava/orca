@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 43124,
+      "reason": "Keep per-turn file changes collapsible and use the current session transcript slot height estimator."
+    },
+    {
       "number": 49959,
       "reason": "Use the current upstream Claude wake lease and clear its wake evidence once a completion is confirmed."
     },
@@ -194,7 +198,7 @@
     },
     "36945": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/fix/mobile-project-header"
+      "ref": "refs/heads/integration/refresh-a7a-mobile-project-title-36945"
     },
     "38848": {
       "repository": "gentslava/orca",
@@ -202,6 +206,10 @@
     }
   },
   "foreignHeadSources": {
+    "43124": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-file-changes-43124"
+    },
     "39918": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/cli-chat-close-39918"
