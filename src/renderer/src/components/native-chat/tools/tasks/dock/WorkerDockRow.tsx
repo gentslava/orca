@@ -113,9 +113,8 @@ export const WorkerDockRow = memo(function WorkerDockRow({
           }
         }}
       >
-        <WorkerDockGlyph glyph={row ? workerDockGlyph(row) : 'queued'} />
+        <WorkerDockGlyph glyph={row ? workerDockGlyph(row) : 'queued'} kind={row?.kind} />
         <span className="min-w-0 flex-1 truncate">{title}</span>
-        {row ? <span className="shrink-0 text-xs text-muted-foreground">{kind}</span> : null}
         {row ? <Age at={row.changedAt} visible={visible} /> : null}
       </button>
       {/* Over the time on hover or focus, so at rest the title has the row's whole width. At rest it
