@@ -1858,5 +1858,29 @@
     "patchSha256": "ca198052d22619cfc32b263fd736944d4dd225d41fafda7860964b8202aaaf86",
     "resultSha256": "bc05232e2cdacf4449fac71b0a70c835ffa94fe8e1fb0d6742a5183227651482",
     "reason": "Preserve the reviewed Russian glossary and the independent translations added by upstream since the last composition."
+  },
+  {
+    "path": "src/main/claude/child-work/claude-child-work-evidence.ts",
+    "blobs": [
+      "a6f774a4787034e9b90d676273fa4c5438611e41",
+      "b402d2c87b6c5a3115de6a5efd0d5a1eb9b1bafb",
+      "c73234ca4e6d510ebe3d0c1c5abc646472c5a910"
+    ],
+    "patch": "c475-claude-child-wake-expiry-9a41345b.patch",
+    "patchSha256": "f9ecf6434ad0119005e7c990ce21c7b7301334a07a2121139bc3544ea4714c76",
+    "resultSha256": "11a9ab820696f7825e4c60063fc3d31cf75edcde42a03502e94a2af8c4c45341",
+    "reason": "Preserve frame ordering and prior Claude task controls with the lease-aware publisher and close cleanup."
+  },
+  {
+    "path": "src/main/claude/structured/claude-structured-session-adapter.ts",
+    "blobs": [
+      "64cbba85309916f96931b66d978e7ae7c30f12ce",
+      "fa8ce889a7b34a9eb922a3e32f3e64b389f45b3e",
+      "6f4a64d59317088073cf7a05607604390e2d9ff7"
+    ],
+    "patch": "c475-claude-child-wake-expiry-eb17e8f4.patch",
+    "patchSha256": "6ef3e9452af4d9b02c4ecb3a97f5efcc7c1a014fbb81c61a8cca4a9f9efd5827",
+    "resultSha256": "54731f65b7b8a5bdd80a8ba05929e595f6004d3d3aff23f140b17ab5a4160cd3",
+    "reason": "Preserve frame ordering and prior Claude task controls with the lease-aware publisher and close cleanup."
   }
 ]
