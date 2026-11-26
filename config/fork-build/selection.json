@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 33369,
+      "reason": "Keep worker role and Fast routing, including capability checks on the actual execution host before creating a workspace or dispatch."
+    },
+    {
       "number": 34895,
       "reason": "Keep retained child-agent transcripts reachable from the parent while preserving host-specific media, paste routing, and the current chat sheet layer."
     },
@@ -255,6 +259,10 @@
     }
   },
   "forkHeadSources": {
+    "33369": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-worker-launch-options-33369"
+    },
     "34895": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-child-chat-history-34895"
