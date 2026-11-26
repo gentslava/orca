@@ -629,7 +629,6 @@
       "permissions": "Permissões",
       "permissionsLabel": "Permissões, {{value}}",
       "settingsLocked": "As configurações do modelo serão desbloqueadas quando este turno terminar.",
-      "workingAnnouncement": "O agente está trabalhando. As configurações do modelo serão desbloqueadas quando este turno terminar.",
       "applying": "Aplicando…",
       "onAttach": "Aplica-se quando o chat se conectar",
       "heldPickRefused": "{{picked}} não está disponível neste chat. {{kept}} foi mantido.",

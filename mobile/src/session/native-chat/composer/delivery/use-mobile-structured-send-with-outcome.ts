@@ -50,6 +50,7 @@ export function useMobileStructuredSendWithOutcome(args: {
   sessionId: string | null
   enabled: boolean
   queueCapable: boolean
+  steerCapable?: boolean
   queueFollowUps: boolean
   commandsWait: boolean
   stateRef: { readonly current: StructuredAgentSessionState }
@@ -106,6 +107,7 @@ export function useMobileStructuredSendWithOutcome(args: {
     holdUnconfirmed,
     onSendError,
     queueCapable,
+    steerCapable = false,
     queueFollowUps,
     queueSendsNext,
     sendOptions,
@@ -138,6 +140,11 @@ export function useMobileStructuredSendWithOutcome(args: {
       }
       if (attachments === undefined && images !== undefined && images.length > 0) {
         onSendError('Message not sent')
+        return 'rejected'
+      }
+      const immediate = intent?.delivery === 'immediate'
+      if (immediate && queueCapable && !steerCapable) {
+        onSendError('Update Orca on this host to answer while the agent works.')
         return 'rejected'
       }
       const captured = sendSelection?.() ?? { options: sendOptions?.() }
@@ -248,9 +255,11 @@ export function useMobileStructuredSendWithOutcome(args: {
         expectedRuntimeFence: currentFence,
         text: wireText,
         attachments: imageAttachments,
+        ...(immediate && steerCapable ? { steer: true as const } : {}),
         skills,
         // Resolved from the chat as it is now: a hold-menu choice made mid-turn may land after it.
-        ...(mobileStructuredSendQueues(queueCapable, queueFollowUps, stateRef.current, {
+        ...(!immediate &&
+        mobileStructuredSendQueues(queueCapable, queueFollowUps, stateRef.current, {
           alternate: intent?.alternate,
           isWorking: mobileStructuredAgentSessionWorking(stateRef.current) || queueSendsNext,
           stopping
@@ -289,6 +298,7 @@ export function useMobileStructuredSendWithOutcome(args: {
       holdUnconfirmed,
       onSendError,
       queueCapable,
+      steerCapable,
       queueFollowUps,
       queueSendsNext,
       sendOptions,
