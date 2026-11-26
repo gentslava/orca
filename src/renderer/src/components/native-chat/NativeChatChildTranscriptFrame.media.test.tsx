@@ -10,7 +10,6 @@ import { NativeChatChildTranscriptFrame } from './NativeChatChildTranscriptFrame
 import { NativeChatMarkdown } from './markdown/NativeChatMarkdown'
 import { NativeChatMarkdownImageOwnerContext } from './media/images/native-chat-markdown-image-owner'
 import { NativeChatVisualOwnerContext } from './media/visuals/native-chat-visual-owner'
-import { clearNativeChatVisualCacheForTests } from './media/visuals/native-chat-visual-read-client'
 import type { NativeChatChildTranscriptProps } from './NativeChatChildTranscript'
 
 const reads = vi.hoisted(() => ({ image: vi.fn(), visual: vi.fn() }))
@@ -44,7 +43,7 @@ const props: NativeChatChildTranscriptProps = {
   runtimeContext: { target, worktreeId: 'worker-wt', worktreePath: undefined },
   session: {
     agent: 'codex',
-    sessionId: 'worker-session',
+    sessionId: 'worker-media-session',
     status: 'ready',
     readPhase: 'ready',
     messages: [
@@ -106,7 +105,6 @@ beforeEach(() => {
     }
   })
   resetLocalImageSrcStateForTests()
-  clearNativeChatVisualCacheForTests()
   reads.image
     .mockReset()
     .mockResolvedValue({ content: 'AA==', isBinary: true, mimeType: 'image/png' })
@@ -136,7 +134,7 @@ it('reads child markdown media on its own host, workspace and session despite pa
     expect(reads.visual).toHaveBeenCalledWith(
       target,
       'agentSession.readVisual',
-      { sessionId: 'worker-session', file: 'chart.html' },
+      { sessionId: 'worker-media-session', file: 'chart.html' },
       expect.anything()
     )
   )
