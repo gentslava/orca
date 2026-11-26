@@ -309,7 +309,7 @@ function MessageRowContent(props: MessageRowProps): React.JSX.Element | null {
       </div>
     )
   }
-  if (notice) {
+  if (notice && run === undefined) {
     return (
       <div ref={rowRef}>
         <NativeChatNoticeRow
@@ -322,7 +322,7 @@ function MessageRowContent(props: MessageRowProps): React.JSX.Element | null {
     )
   }
 
-  if (providerFrame) {
+  if (providerFrame && run === undefined) {
     return (
       <div ref={rowRef}>
         <ProviderFrameRow block={providerFrame} />
