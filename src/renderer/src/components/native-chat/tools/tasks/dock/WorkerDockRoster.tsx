@@ -364,6 +364,7 @@ export function WorkerDockRoster(props: {
       ) : null}
       <WorkerDockPill
         pill={pill}
+        kind={topRow?.kind}
         glyph={
           top
             ? workerDockGlyph({ ...top, retired: topRow?.retired })
