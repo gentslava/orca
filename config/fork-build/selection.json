@@ -222,6 +222,10 @@
       "ref": "refs/heads/integration/fork-android-update-c475",
       "reason": "Personal Android APKs use verified downloads from this fork and compare their packaged build identity."
     },
+    "claude-child-wake-expiry": {
+      "ref": "refs/heads/integration/claude-work-wake-c475",
+      "reason": "Backport 47724 on c475b796 so an unconfirmed Claude subagent wake expires and restores the recorded outcome. Select 47724 directly when the fork advances beyond the PR base."
+    },
     "codex-file-citations": {
       "ref": "refs/heads/integration/codex-file-citations-c475",
       "reason": "Backport 49658 so Codex document citations render as file links on the verified fork base."
