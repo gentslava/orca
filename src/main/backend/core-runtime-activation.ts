@@ -208,6 +208,9 @@ export async function activateBackendRuntime(
   registerCleanup(
     installFirstWorkRenameHookSubscription(firstWorkRenameDeps(profileStore, runtime))
   )
+  const { installAgentTurnWorktreeActivity } =
+    await import('../agent-hooks/runtime/agent-turn-worktree-activity')
+  registerCleanup(installAgentTurnWorktreeActivity())
 
   accountLaunch?.attachToRuntime(runtime)
   const { wireGitHubIssueLinkTitleFill } =
@@ -321,8 +324,7 @@ export async function activateBackendRuntime(
 
   await new ServeReadinessPublisher().publish(readiness, servePublishMode(options))
   // Background chat-journal maintenance, CI-line watches and runtime release reclaim start once this host is serving.
-  chatJournal.serving()
-  runtime.startPullRequestWatches({ admit: true })
+  chatJournal.serving(runtime)
   const { reclaimManagedRuntimeReleasesAtLaunch, startManagedRuntimeAutoUpdates } =
     await import('../runtime/rpc/methods/host-management/managed-runtime-install')
   reclaimManagedRuntimeReleasesAtLaunch(runtime)

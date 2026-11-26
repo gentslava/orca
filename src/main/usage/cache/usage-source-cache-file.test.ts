@@ -51,8 +51,7 @@ describe('usage source cache file', () => {
     const ref = {
       path: join(directory, 'sources.json'),
       schemaVersion: 7,
-      worktreeFingerprint: 'w',
-      reuse: true
+      worktreeFingerprint: 'w'
     }
     const label = `${'a'.repeat(4095)}😀é\n"\\\u0000\ud800`
     const shared = { totalTokens: 29 }
@@ -96,8 +95,7 @@ describe('usage source cache file', () => {
     const ref = {
       path: join(directory, 'sources.json'),
       schemaVersion: 7,
-      worktreeFingerprint: 'w',
-      reuse: true
+      worktreeFingerprint: 'w'
     }
     const complete = '{"schemaVersion":7,"worktreeFingerprint":"w","sources":[{"tokens":29}]}'
     for (const text of [complete.slice(0, -1), `${complete} null`, `${complete} garbage`]) {
@@ -110,8 +108,7 @@ describe('usage source cache file', () => {
     const ref = {
       path: join(directory, 'sources.json'),
       schemaVersion: 7,
-      worktreeFingerprint: 'w',
-      reuse: true
+      worktreeFingerprint: 'w'
     }
     writeFileSync(
       ref.path,
@@ -135,8 +132,7 @@ describe('usage source cache file', () => {
     const ref = {
       path: join(directory, 'sources.json'),
       schemaVersion: 7,
-      worktreeFingerprint: 'w',
-      reuse: true
+      worktreeFingerprint: 'w'
     }
     await writeUsageSourceCache(ref, [{ totalTokens: 29 }])
     const cyclic: { self?: unknown } = {}

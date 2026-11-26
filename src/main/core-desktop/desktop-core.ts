@@ -44,6 +44,7 @@ export class DesktopCore {
   claudeAccounts: ClaudeAccountService | null = null
   claudeRuntimeAuth: ClaudeRuntimeAuthService | null = null
   orcaAccount: OrcaAccountService | null = null
+  stopTeamPolicyRefresh: (() => void) | null = null
   runtime: OrcaRuntimeService | null = null
   rateLimits: RateLimitService | null = null
   runtimeRpc: OrcaRuntimeRpcServer | null = null
@@ -59,6 +60,7 @@ export class DesktopCore {
   watcherShutdownDone = false
   automations: AutomationService | null = null
   pluginService: PluginService | null = null
+  stopTeamPluginPolicy: (() => void) | null = null
   pluginKillListService: PluginKillListService | null = null
   pluginInstallStatsService: PluginInstallStatsService | null = null
   pluginMarketplaceService: PluginMarketplaceService | null = null
