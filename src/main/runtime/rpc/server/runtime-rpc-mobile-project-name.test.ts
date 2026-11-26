@@ -4,12 +4,7 @@ import { join } from 'node:path'
 import { expect, it } from 'vitest'
 import { OrcaRuntimeRpcServer } from './runtime-rpc'
 import { createMobileRpcSurfaceRuntime } from './runtime-rpc-mobile-method-allowlist-fixtures'
-import {
-  authenticateMobileWsSession,
-  createEncryptedWsResponseReader,
-  sendEncryptedWsRequest,
-  waitForWsClose
-} from './runtime-rpc-mobile-ws-test-harness'
+import { connectPhone } from '../../mobile-desktop-relay/mobile-desktop-relay-phone.test-fixture'
 
 it('lets a paired phone read the project name on its workspace host', async () => {
   const path = mkdtempSync(join(tmpdir(), 'orca-mobile-project-name-'))
@@ -29,32 +24,21 @@ it('lets a paired phone read the project name on its workspace host', async () =
   })
   try {
     await server.start()
-    const offer = server.createPairingOffer({
-      address: '127.0.0.1',
-      name: 'phone',
-      scope: 'mobile',
-      reach: 'this-computer'
-    })
-    if (!offer.available) {
-      throw new Error(`Pairing unavailable: ${offer.reason}`)
-    }
-    const phone = await authenticateMobileWsSession(offer.pairingUrl)
-    const replies = createEncryptedWsResponseReader(phone)
+    const phone = await connectPhone(server, 'phone', [])
     try {
-      sendEncryptedWsRequest(phone, {
-        id: 'project-name',
-        method: 'repo.show',
-        params: { repo: 'id:repo-1', repoHostId: 'ssh:build-host' }
-      })
-      expect(await replies.next('project-name')).toMatchObject({
+      phone.send(
+        'project-name',
+        'repo.show',
+        { repo: 'id:repo-1', repoHostId: 'ssh:build-host' },
+        null
+      )
+      expect(await phone.next('project-name')).toMatchObject({
         id: 'project-name',
         ok: true,
         result: { repo: { displayName: 'orca' } }
       })
     } finally {
-      replies.dispose()
-      phone.ws.close()
-      await waitForWsClose(phone.ws)
+      phone.close()
     }
   } finally {
     await server.stop()
