@@ -33,6 +33,7 @@ import type { MobileNativeChatHostOutage } from './status/mobile-native-chat-hos
 import { MobileMarkdownLinksContext } from '../../components/markdown/links/mobile-markdown-links-context'
 import type { ConnectionState } from '../../transport/connection/connection-state'
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
+import { useMobileNativeChatSubagents } from './subagents/use-mobile-native-chat-subagents'
 
 type Props = {
   controller: MobileNativeChatController
@@ -257,6 +258,13 @@ function MobileNativeChatOverlayContent({
     ]
   )
   const continueFailed = sendErrorMessage === null && continuation?.failed === true
+  const subagents = useMobileNativeChatSubagents({
+    scopeKey: `${sendSurfaceId}\0${sessionId}`,
+    messages: fullContent.messages,
+    folded,
+    agent,
+    source: controller.nativeChatSubagents
+  })
   const chat = (
     <MobileNativeChatRowOverlaysHost
       conversation={{ surfaceId: sendSurfaceId, sessionId }}
@@ -264,6 +272,7 @@ function MobileNativeChatOverlayContent({
       onOpenUrlInOrca={onOpenUrlInOrca}
       linkOpenMode={linkOpenMode}
       rewind={controller.nativeChatRewind}
+      openSubagent={subagents.open}
     >
       <MobileMarkdownLinksContext.Provider value={markdownLinks}>
         <MobileQueuedMessageComposerContext.Provider value={queuedComposerContext}>
@@ -380,8 +389,10 @@ function MobileNativeChatOverlayContent({
                         contextUsage={controller.nativeChatContextUsage}
                         structuredComposer={structuredComposer}
                         keyboardInset={keyboardInset}
+                        covered={subagents.screen !== null}
                       />
                     </MobileNativeChatForegroundTasksProvider>
+                    {subagents.screen}
                   </MobileNativeChatNoticeContext.Provider>
                 </MobileNativeChatReplyRevealsContext.Provider>
               </MobileNativeChatRootItemSourceContext.Provider>
