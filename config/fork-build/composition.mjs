@@ -384,7 +384,7 @@ export function compose(
       }
       git(cwd, ['reset', '--hard', before])
       if (!paths.length) {
-        throw error
+        throw new Error(`${message}: ${error.message}`, { cause: error })
       }
       conflicts.push({
         ...identity,

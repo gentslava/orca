@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 33371,
+      "reason": "Keep host-owned usage history and original account attribution while adopting upstream resumable provider scans."
+    },
+    {
       "number": 33383,
       "reason": "Keep live conversation evidence, host-specific list fingerprints and retries on the current AI Vault contracts."
     },
@@ -135,10 +139,6 @@
       "reason": "Owner-requested saved remote-server rename; issue 40221 was closed as duplicate, with matching earlier request 40165 and open implementation 40298. Include until upstream ships it."
     },
     {
-      "number": 40980,
-      "reason": "Discover host agy models (Claude Sonnet/Opus, GPT-OSS 120B, Gemini) for new chat and terminal model pickers via sessionless CLI probe, unblocking owner's agy model selection."
-    },
-    {
       "number": 41099,
       "reason": "Require a deliberate second Escape within two seconds before stopping a working chat; protect long-running turns from accidental key presses while keeping the Stop button immediate."
     },
@@ -170,7 +170,8 @@
   "exclude": {
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
-    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
+    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
+    "40980": "Upstream 48304, 48305 and 49165 discover the actual account-scoped agy session models, refresh the catalog on sign-in and avoid background listing. That replaces the older agy models probe."
   },
   "replacements": {
     "33360": 45985,
@@ -264,8 +265,7 @@
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
     "36634": "Owner retains full tool invocation details in expanded chat rows; upstream issue 36633 was closed as not planned and the maintainer alternative 36958 was closed unmerged.",
     "36945": "Owner retains the project name in the mobile session header; upstream issue 36942 was closed as not planned after the session bar redesign in 41345.",
-    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first.",
-    "40980": "Keep host-specific Antigravity model discovery for native chat and terminal pickers while the upstream follow-ups are under review."
+    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
   },
   "retainedHeadSources": {
     "34365": {
@@ -365,6 +365,10 @@
     "46107": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-6e49-russian-46107"
+    },
+    "33371": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-9a5a-usage-history-33371"
     }
   },
   "foreignHeadSources": {
@@ -375,10 +379,6 @@
     "40298": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/rename-saved-server-40298"
-    },
-    "40980": {
-      "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/antigravity-models-40980"
     },
     "41578": {
       "repository": "gentslava/orca",
