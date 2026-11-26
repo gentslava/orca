@@ -328,9 +328,6 @@
       "detailsRow": "Details row",
       "workspaceUnread": "Unread in this workspace",
       "unreadTab": "Unread tab"
-    },
-    "projectOrder": {
-      "saveFailed": "Could not save project order"
     }
   },
   "app": {
