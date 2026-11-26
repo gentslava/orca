@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 38963,
+      "reason": "Keep the Claude foreground task controls and background routing across desktop, mobile and the host lifecycle."
+    },
+    {
       "number": 44452,
       "reason": "Keep the mobile subagent transcript overlay and desktop shared view contract with the upstream composer menu host."
     },
@@ -234,6 +238,10 @@
     }
   },
   "forkHeadSources": {
+    "38963": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-claude-background-38963"
+    },
     "44452": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-mobile-child-view-44452"
