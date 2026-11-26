@@ -2266,5 +2266,137 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "8d7f25a50c958b106b23b2d078ddc42029be1580ab2fd4b98a07ff10665d852d",
     "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "036619662891ed0ea04a216d7fcaf2c8682ad4ee",
+      "6bfdf3713cc9b89c541ed99592306507444dcc38",
+      "dfcfc5d9826e99cb809c9006e4d15b245cce4caa"
+    ],
+    "patch": "nov27-33502-19ec9a33-91f6f5e.patch",
+    "patchSha256": "77079635e2297aa331dc5f8157904569e28871be0000516a6c9f3bed32672957",
+    "resultSha256": "d3f8cb2385f7a566a09b03a49abb98f9b6fdf9ebcea5809047879067d17a7162",
+    "reason": "Preserve existing live conversation navigation and its paired callable methods while still wiring personal ordering through both desktop and mobile."
+  },
+  {
+    "path": "src/shared/project-conversation-list.ts",
+    "blobs": [
+      null,
+      "ec74841e922177c0deb2662a420e2b6ac4734ef2",
+      "fd65d664f0096822f8a51bb9379f8a21e0312c5d"
+    ],
+    "patch": "nov27-33502-2e95bcc6-8d924e8.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "7b21d5e982300cb738ed1d83c71391d374be72bfa092956a2a322f7d3d1c00b9",
+    "reason": "Preserve existing live conversation navigation and its paired callable methods while still wiring personal ordering through both desktop and mobile."
+  },
+  {
+    "path": "src/shared/remote-runtime/protocol/protocol-version.ts",
+    "blobs": [
+      "9e2add5c1d8a735fe49b9189206e2b40ea4b6028",
+      "562163ca2caee28a980c8832796e363b441a95cd",
+      "10580ae70acbfc28d413a006280cb2e252737263"
+    ],
+    "patch": "nov27-33502-e400c615-cc82b7a.patch",
+    "patchSha256": "de2170625d2126397767840ba359cf84c8e95868ba82387606efab61bf8d4e27",
+    "resultSha256": "f3a097c9b199a271ae9127affd067e78e35c0822aa15cb5063994778eac2aaec",
+    "reason": "Preserve existing live conversation navigation and its paired callable methods while still wiring personal ordering through both desktop and mobile."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "2064148b89d82e107aeac7c008c7350f024f7da9",
+      "007b1057c90eadede1cbcd46b136069af0a60d8d",
+      "f9a46f92ffacdc716119f894e988690690a33345"
+    ],
+    "patch": "nov27-37744-1d7a4539-ad5ca19.patch",
+    "patchSha256": "bd66ce9cea7bc7418632c17e34a289232bd13b0f21778d2422d24630b590b6be",
+    "resultSha256": "b89ccc1bec13cdc0d9b31a7648ebd5f3e27160606b42745a8dfc7125bbbe8616",
+    "reason": "Mount the linked-chat owner decisions with existing prompt and Bot entry points. Retain child navigation and the negotiated consent capabilities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "7de3bc7a312dd3221fcda2fbbc69b602743a2a5a",
+      "7cfb566e348b2f096d30e4467163c2d3fceb44c1",
+      "3a0d7a849a1d3f85ff17b24a6a488ce754b9a978"
+    ],
+    "patch": "nov27-37744-08404640-b3752b1.patch",
+    "patchSha256": "61f0bcbfc80a10dde295689c1e472b0d00c04e278dc3e6df61fb0657a7206e72",
+    "resultSha256": "96f16582ee2c342b5410fbed8972217fbd189802ff9a8573f78d7ee004c9cd67",
+    "reason": "Mount the linked-chat owner decisions with existing prompt and Bot entry points. Retain child navigation and the negotiated consent capabilities."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "2bd658b5d890340dd3e082e0e913af543abd8f1b",
+      "f3f7b8fcbac98a6f6ac2c7e73fa3de05297c1d4c",
+      "17516e39c465707905b5b25b8cd0adf8c2194004"
+    ],
+    "patch": "nov27-37744-1ff733f3-001efd6.patch",
+    "patchSha256": "a265d4ceb8539a79754e81765051ad16e886744d513ae2a62afafd6d93b76521",
+    "resultSha256": "4e9000b12fcbe7b89eb9557070baec350d038da71a00de8c8338900b5b969564",
+    "reason": "Mount the linked-chat owner decisions with existing prompt and Bot entry points. Retain child navigation and the negotiated consent capabilities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx",
+    "blobs": [
+      null,
+      "85206d7ac856cb19dc426c006df92f403cf607ee",
+      "539f380076cf7494411cfe98bbdd5ad762a80241"
+    ],
+    "patch": "nov27-38963-3df658c3-4b4ab14.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "f63ebc2a5e56d685ce5070053f2d0ab2ee953c1aee2de356393bf29476c79319",
+    "reason": "Keep the current task and prompt contracts and rich tool output. Render the background action beside the current tool row and keep settled agents out of the live count."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "85923d06ab73b9efa237ea52271b54ad730f8a45",
+      "b87f849fb7c05fe7eedaf233789ac6ca6f239e83",
+      "5d45531aa994e1856d51a7dcd1610029578c757f"
+    ],
+    "patch": "nov27-38963-77f3327a-af063da.patch",
+    "patchSha256": "a9d88e3724bda17354fa93720b35fe3dbafee2cae75ab503b7dde07aee6baf20",
+    "resultSha256": "3820b4963c6e03f144bcb583135dd8682f878629070ca0eb1189f6f40a417e1b",
+    "reason": "Keep the current task and prompt contracts and rich tool output. Render the background action beside the current tool row and keep settled agents out of the live count."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
+    "blobs": [
+      "7a21599f1f6b11e6b6e7a011f75386fe6f971e2e",
+      "389eee2fea1535fa5c96b74dc49322ff05f28ca8",
+      "2f1f929fba8a7d97dd423692a9aedb3f1137056a"
+    ],
+    "patch": "nov27-38963-d156c600-48349e3.patch",
+    "patchSha256": "9bb3d6c0be68ecce777b7c75cbe9c5710ce1932b4118fee433cedf640225fb3f",
+    "resultSha256": "c84197805d79b0b53ded003ba507471af540ca81f0caf71e1e50c4cfd699a541",
+    "reason": "Keep the current task and prompt contracts and rich tool output. Render the background action beside the current tool row and keep settled agents out of the live count."
+  },
+  {
+    "path": "src/shared/agent-session/view/structured-session-background-tasks-view.ts",
+    "blobs": [
+      "6da238255d7e5cf0b0c8cf7cc1313f84ea04a519",
+      "0e73a75b0aed2f8961a414271da24c2179dd2e7f",
+      "74776e28c90548ae8e1875057e2437713963c85b"
+    ],
+    "patch": "nov27-38963-897a88b3-6944d03.patch",
+    "patchSha256": "00e08a1834e384b3574d333efd92b128cc02ac2d60dc375a1a8d0efa71bb05f8",
+    "resultSha256": "32084db5569d283fbfafc41c97c9688b0eca52c542deaee27f3288069bdfbac1",
+    "reason": "Keep the current task and prompt contracts and rich tool output. Render the background action beside the current tool row and keep settled agents out of the live count."
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx",
+    "blobs": [
+      "19428bfbcbec9ccde4e1ee363042d5bc58ff4dcb",
+      "c06bb024d6bf21887bff75f22786a076c02594ab",
+      "23e33b2f413e01353bb2aa313af45b38f11ae70f"
+    ],
+    "patch": "nov27-45437-e9e83f71-3ea0ab1.patch",
+    "patchSha256": "4de753c07c5bb67b93aaff8d88d5b37bff632ad75d2e87132d54bf9355521e3b",
+    "resultSha256": "ac3de648720b2e300c1ddb3e20be6adf3736698d89f2118698fd2c97fcbe5bc3",
+    "reason": "Preserve the current disclosure layout with the reviewed native notice summary, including mobile approval and error details."
   }
 ]

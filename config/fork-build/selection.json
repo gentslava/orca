@@ -224,7 +224,8 @@
     "33576": [44450],
     "36593": [36634],
     "46190": [48573],
-    "48773": [33361]
+    "48773": [33361],
+    "34899": [33371]
   },
   "outputs": [
     "macos-arm64-dmg",
@@ -348,7 +349,7 @@
     },
     "34899": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-a7a-account-quotas-34899"
+      "ref": "refs/heads/integration/refresh-9a5a-account-quotas-34899"
     },
     "36945": {
       "repository": "gentslava/orca",
@@ -368,7 +369,7 @@
     },
     "46107": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-6e49-russian-46107"
+      "ref": "refs/heads/integration/refresh-508d-russian-46107"
     },
     "33371": {
       "repository": "gentslava/orca",
@@ -376,7 +377,7 @@
     },
     "37744": {
       "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-9a5a-session-links-37744"
+      "ref": "refs/heads/integration/refresh-9a5a-session-links-ui-37744"
     }
   },
   "foreignHeadSources": {
