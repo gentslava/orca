@@ -15,6 +15,10 @@
       "reason": "Keep live conversation evidence, host-specific list fingerprints and retries on the current AI Vault contracts."
     },
     {
+      "number": 33362,
+      "reason": "Preserve queued draft editing and future-turn choices while a turn is active across the current desktop, mobile, and host RPC contracts."
+    },
+    {
       "number": 33361,
       "reason": "Keep conversation recovery and project navigation scoped to the verified execution host, including independent local and remote folder histories."
     },
@@ -201,6 +205,7 @@
   "dependencies": {
     "45437": [33363, 41166],
     "38963": [36593],
+    "33383": [33361],
     "33395": [44451],
     "33576": [44450],
     "36593": [36634],
@@ -271,6 +276,10 @@
     "33383": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-live-ai-vault-33383"
+    },
+    "33362": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-queued-options-33362"
     },
     "33361": {
       "repository": "gentslava/orca",
