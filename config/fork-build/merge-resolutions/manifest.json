@@ -2038,5 +2038,137 @@
     "patchSha256": "4a35a31ebeae648badc966bef32b70412b7a04e12d7d73aaee848cc926b60f51",
     "resultSha256": "9fb08f5fc4dc59794f726e916b1ca12b8a02a7a428ebfe93fd625046e9454932",
     "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "5ca1bd0c98122ccffa7570ee9f0d9ef88d2df159",
+      "94133228b917fd3b1eb007e8804db146a5d5dc61",
+      "b3555dd62a04c8e4f73e70c5af616c5e04cc1cc7"
+    ],
+    "patch": "refresh-6e49dcea-33395-d8bbab45.patch",
+    "patchSha256": "1bb0293914af8d4a4a437caed589d87ebc33215c9bf4be4ba318c425081ec4d8",
+    "resultSha256": "7927afbaa465754bef5546d7f33fa2b705395d89c9d3b3c535417774653b0f93",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "e4f135be674fa4e5f3bdab6485fa0ec9c19e911b",
+      "06339222578de88cd3bc520c226ca03181041399",
+      "a646913167476fdfe023427948901b7bb57cd283"
+    ],
+    "patch": "refresh-6e49dcea-33395-00934582.patch",
+    "patchSha256": "816d4c526f7b41dd6c558907f62cd2efd71e7ce6c2127f93dd25f826529842c7",
+    "resultSha256": "814ce417f198ed43e2768580a3adacec96adba4c51d58357a29c31cc1e29a39b",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "33fa768cdf1f7c61bde856f6f6cd3a7893378c50",
+      "04b58eb00f22e57df369d75cdaa3fb0bbbeb6bf6",
+      "6e4aae3f2a66272bc9a2024bcdbe2842b0debe5b"
+    ],
+    "patch": "refresh-6e49dcea-33395-2ac1241c.patch",
+    "patchSha256": "445dad17296715ed595914202f86dab6075a25b4aa1138618e92bcc8dc21ad0b",
+    "resultSha256": "417355ff5f4a3439aa5f5593e08edc37bc171ee8a2c26ad114f57377b4061efa",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/session-options/native-chat-session-option-copy.ts",
+    "blobs": [
+      "432dfd34e79db6e364d2ef1b96a844eb6572aab3",
+      "a6d13ee9baaee52460dc996cb0b480e8d2201b04",
+      "5ccce8671b45cb4df77997ee2b3811f2c43db70d"
+    ],
+    "patch": "refresh-6e49dcea-33395-f54c5412.patch",
+    "patchSha256": "d1bbe80fbdfb6864619cd0e6abd93341615de11cd0c0c440d7121a65cbd69d6b",
+    "resultSha256": "a936af6273d3118e1c2fb31a6e43b05426968aee612f765b4a5e4ffb1313b0e8",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts",
+    "blobs": [
+      null,
+      "ce5c7d8e9606c6a98a53364e2c0e5445a95018a0",
+      "aa22f134f4aa22140c6a389e18d7bf66447ef69e"
+    ],
+    "patch": "refresh-6e49dcea-33395-1fb71b70.patch",
+    "patchSha256": "6405a639565ed42743f98dca474189e05942edb1e3ee7b98b050135b34487781",
+    "resultSha256": "e1f0d831752f3e46f012eca2b77076ea3a48772991fa669b7850286aefffabc9",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "a2399fb74f47ef142f28efb1cd441006e436fc25",
+      "6515ac0ea2895444f6feebaa64eabde5ae4e34ad",
+      "54d41ce3fb7862d640c1489f65aa513b65b30e0d"
+    ],
+    "patch": "refresh-6e49dcea-33395-d0b7e1ce.patch",
+    "patchSha256": "8458c59aa32973d613b2e4b43e9d8c621eb1a306696a9897df33ddb4d44a7d2b",
+    "resultSha256": "bb8c4b7ff7dbe76f9122bf056f838ab25d25f6a037dfa59d456893be47c1da22",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/structured-session-model-default.test-fixture.tsx",
+    "blobs": [
+      null,
+      "ee554f0903529e8d731bbd53e67558b0c87be7b0",
+      "8ab00de59cb2c2f106625255c07afd4ff014ae21"
+    ],
+    "patch": "refresh-6e49dcea-33395-7316cc7d.patch",
+    "patchSha256": "59191d2ad4e1b782e3a3400557e217d33b9e1b5188543f72e6ffd57f8c784fa0",
+    "resultSha256": "b32f32eb0d9610bc40c9c46550278462f9c0666593bd81a15f0ed7894d717e44",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "36ba23e5eec9b0e276663851aac6fc8157e7d8ca",
+      "32732269fa2ad3a5913c93c1a61a167ab0eed37b",
+      "af0dd9831e0d82c5d4f849ab8a7e00af06eca80f"
+    ],
+    "patch": "refresh-6e49dcea-33395-2876e43a.patch",
+    "patchSha256": "85a1b5c2da60a3a0e86bc6f1a3f6f2bdc7da11a4920149eb69a1cbe8d07e3b0e",
+    "resultSha256": "8a229b5c396f552acd36df3c24d7e48d4b0e20f9e69ee943120be88623dcc076",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "1756c670cc72fd10fcb5caa459241bf22f6a5b67",
+      "bd3547775d47b01e842f69f533a804ca731ef2e7",
+      "6c0799a801be39de86518ce70cd04ecad0f5abe4"
+    ],
+    "patch": "refresh-6e49dcea-33395-4048609d.patch",
+    "patchSha256": "984d62ae27b218aff9f85cff9b930b0cb3797ca2b590b58e0ce8fdb0e5a86a57",
+    "resultSha256": "ac937a2aa9aa771a7190ec9d7afc5a022de9fcac47d789b512501481653eb0fd",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts",
+    "blobs": [
+      "79a3ff8c3473af32f32febc4b64e1e436da61da7",
+      "3bc8fb94936c414dd29210b297f7a57b0dc262c9",
+      "69d0186e5a2c47cc93570a09a50823fd92ca1aeb"
+    ],
+    "patch": "refresh-6e49dcea-33395-633161ba.patch",
+    "patchSha256": "b2c5078d483e1d35c7972b112145e73ede92e963ebcbae95b9c3f03f4d2ef97b",
+    "resultSha256": "ab8ac0eb0d6367150b049f713affceda857a818c4ccf1eb64cf9dd244a82d267",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/shared/native-chat/input/native-chat-session-options.ts",
+    "blobs": [
+      "3daffc2aad3de1a5cda6861e8f6eb86076daa43f",
+      "48fd42edff2e960880c9c68103ea73f855a61fd7",
+      "53f06b76ef5110d4874692df623c71e87df35454"
+    ],
+    "patch": "refresh-6e49dcea-33395-5543ac40.patch",
+    "patchSha256": "618c46bad5c52752be04394e0b3d4f91f513502834bf74fd362d10323f97d92e",
+    "resultSha256": "ab71fa46fe333e28cab1da69a50e2c7e74dd335731b9676af1a8deed6f769e51",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
   }
 ]

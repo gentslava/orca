@@ -1,0 +1,37 @@
+diff --git a/src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts b/src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts
+--- a/src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts
++++ b/src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts
+@@ -47,12 +47,15 @@
+   stopping?: boolean
+   /** The composer's model and effort each send carries; undefined to a host that takes none. */
+   sendSelection?: () => Pick<StructuredAgentSessionSendControl, 'options' | 'selection'> | undefined
++  /** A model write the next message must wait for. */
++  isModelWritePending?: () => boolean
+   sendOptions?: () => Readonly<Record<string, string>> | undefined
+ }) {
+   const {
+     cursor,
+     fence,
+     historyLoaded,
++    isModelWritePending,
+     isWorking = false,
+     queue,
+     queuedMessageIds,
+@@ -121,6 +124,9 @@
+       if (!text.trim() && attachments.length === 0) {
+         return false
+       }
++      if (isModelWritePending?.()) {
++        return false
++      }
+       if (request?.delivery === 'queue-if-active' && queue.capability !== 'supported') {
+         return false
+       }
+@@ -171,6 +177,7 @@
+         : true
+     },
+     [
++      isModelWritePending,
+       isWorking,
+       queue,
+       queuedMessageIds,
