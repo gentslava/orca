@@ -1,0 +1,12 @@
+diff --git a/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts b/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts
+index 8fbc5fab260a57f33a93a48d8e6bbbce6cb51c30..939f7fc9ee4d7a9f5b07f6a1f7f3e588e240b56f 100644
+--- a/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts
++++ b/src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts
+@@ -141,4 +141,7 @@ it('takes null only for the model', () => {
+   const envelope = rig.envelope({}, 'agentSession.setOption', hostTestOperationId())
+   expect(SetOptionParams.safeParse({ envelope, key: 'model', value: null }).success).toBe(true)
+   expect(SetOptionParams.safeParse({ envelope, key: 'effort', value: null }).success).toBe(false)
++  expect(SetOptionParams.safeParse({ envelope, key: 'model', value: undefined }).success).toBe(
++    false
++  )
+ })

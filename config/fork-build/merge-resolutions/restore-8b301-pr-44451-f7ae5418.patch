@@ -1,0 +1,20 @@
+diff --git a/src/main/native-chat/agent-session-wire/options/structured-agent-session-resting-options.ts b/src/main/native-chat/agent-session-wire/options/structured-agent-session-resting-options.ts
+--- a/src/main/native-chat/agent-session-wire/options/structured-agent-session-resting-options.ts
++++ b/src/main/native-chat/agent-session-wire/options/structured-agent-session-resting-options.ts
+@@ -13,6 +13,7 @@
+   structuredAgentSessionOptionModels,
+   type StructuredAgentSessionRestingOptions as RestingOptions
+ } from './structured-agent-session-option-models'
++import { effectiveAgentSessionOptions } from '../../../runtime/agent-session/records/agent-session-record-options'
+ 
+ /** What the asking client takes: whether it reads an answer that names no model. */
+ export type StructuredAgentSessionOptionsReader = { readsWithoutModel: boolean; deadline?: number }
+@@ -68,7 +69,7 @@
+       legacyOptionsDisplay: true
+     })
+   }
+-  const stored = record.options ?? {}
++  const stored = effectiveAgentSessionOptions(record) ?? {}
+   // The chat's own folder decides its default, as its first frame did.
+   const scoped = await readCatalog(true)
+   const folderDefault =

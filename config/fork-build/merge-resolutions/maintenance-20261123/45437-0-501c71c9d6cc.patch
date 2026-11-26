@@ -1,0 +1,13 @@
+diff --git a/mobile/src/i18n/en-runtime-required.json b/mobile/src/i18n/en-runtime-required.json
+--- a/mobile/src/i18n/en-runtime-required.json
++++ b/mobile/src/i18n/en-runtime-required.json
+@@ -1101,6 +1101,9 @@
+     "queuedMessageCardRow": {
+       "images_one": "{{count}} image",
+       "images_other": "{{count}} images"
++    },
++    "failure": {
++      "flaggedRequestNotSwitched": "{{agent}} declined this request, and switching models on flagged requests is off. Rephrase it and send again, or change \"When Claude flags a request\" in Settings → Agents."
+     }
+   },
+   "settings": {

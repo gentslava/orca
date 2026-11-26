@@ -1,0 +1,753 @@
+diff --git a/config/main-blocking-helper-baseline.txt b/config/main-blocking-helper-baseline.txt
+--- a/config/main-blocking-helper-baseline.txt
++++ b/config/main-blocking-helper-baseline.txt
+@@ -76,7 +76,7 @@
+ 2 src/main/automations/runtime-automation-service.ts
+ 1 src/main/avatar-generation/avatar-generation-ipc.ts # per Generate click: the agent env prep commit-message generation shares; its sync read is a shell rc lookup for GROK_HOME only when it is unset
+ 5 src/main/backend/backend-entry.ts
+-11 src/main/backend/core-runtime-activation.ts
++10 src/main/backend/core-runtime-activation.ts
+ 2 src/main/backend/core-runtime.ts
+ 1 src/main/bots/bot-access-request-watch.ts
+ 1 src/main/bots/bot-group-store-tables.ts # indexRemoteAsks at store open (one-shot startup); its SQL is in main-blocking-sqlite-baseline
+@@ -858,7 +858,6 @@
+ 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
+ 4 src/main/orcad/account-launch/orcad-account-services.ts
+ 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
+-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
+ 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
+ 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
+ 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
+@@ -1553,7 +1552,7 @@
+ 4 src/shared/remote-runtime/host-store/runtime-environment-store-command.ts
+ 2 src/shared/remote-runtime/host-store/runtime-environment-store-file.ts
+ 6 src/shared/remote-runtime/host-store/runtime-environment-store-observation.ts
+-10 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts # renameEnvironment persists through the same worker-served writeEnvironmentStore as the other store ops; its sync call reaches the event loop only on the inline CLI/worker-down fallback
++9 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts # renameEnvironment persists through the same worker-served writeEnvironmentStore as the other store ops; its sync call reaches the event loop only on the inline CLI/worker-down fallback
+ 1 src/shared/remote-runtime/host-store/runtime-environment-store-read-cache.ts
+ 2 src/shared/remote-runtime/host-store/runtime-environment-store-records.ts
+ 1 src/shared/remote-runtime/host-store/runtime-environment-store-worker-entry.ts
+diff --git a/mobile/src/host-screen/workspace-actions/use-host-worktree-actions.ts b/mobile/src/host-screen/workspace-actions/use-host-worktree-actions.ts
+index 6d4ae695332..f75509453a9 100644
+--- a/mobile/src/host-screen/workspace-actions/use-host-worktree-actions.ts
++++ b/mobile/src/host-screen/workspace-actions/use-host-worktree-actions.ts
+@@ -279,7 +279,7 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
+           target: fullRow,
+           rows: [...state.worktrees, ...serverWorkspaces.worktrees]
+         })
+-      const personalOpening = capture && (await capture)
++      const personalOpening = capture ? await capture : null
+       // Use an empty missing hostId: the shell refuses /h//session, whereas the string undefined would name an accepted host.
+       const executionHost = routeHost ? `&executionHost=${encodeURIComponent(routeHost)}` : ''
+       const pane = paneKey ? `&paneKey=${encodeURIComponent(paneKey)}` : ''
+diff --git a/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts b/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
+index b413e0a8631..7595f6df1cc 100644
+--- a/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
++++ b/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
+@@ -89,6 +89,7 @@ it.each([
+   await openTestAgentSessionRecordStoreSlot({
+     stateDirectory: root,
+     hostId: 'local',
++    legacySessionTabIds: [],
+     logger: createStructuredAgentSessionLogger()
+   })
+   const rpc = new RpcDispatcher({
+diff --git a/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts b/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts
+new file mode 100644
+index 00000000000..ff64eeba7cc
+--- /dev/null
++++ b/src/main/runtime/rpc/server/runtime-rpc-mobile-ws-test-harness.ts
+@@ -0,0 +1,144 @@
++import { expect } from 'vitest'
++import WebSocket from 'ws'
++import { parsePairingCode } from '../../../../shared/remote-runtime/pairing/pairing'
++import {
++  decrypt,
++  deriveSharedKey,
++  encrypt,
++  generateKeyPair
++} from '../../../../shared/remote-runtime/e2ee/node/e2ee-crypto'
++
++export function connectWs(endpoint: string): Promise<WebSocket> {
++  return new Promise((resolve, reject) => {
++    const ws = new WebSocket(endpoint)
++    ws.once('open', () => resolve(ws))
++    ws.once('error', reject)
++  })
++}
++
++export function nextWsMessage(ws: WebSocket): Promise<string> {
++  return new Promise((resolve) => {
++    ws.once('message', (data) => {
++      resolve(typeof data === 'string' ? data : data.toString('utf-8'))
++    })
++  })
++}
++
++export function waitForWsClose(ws: WebSocket): Promise<void> {
++  return new Promise((resolve) => {
++    if (ws.readyState === ws.CLOSED) {
++      resolve()
++      return
++    }
++    ws.once('close', () => resolve())
++  })
++}
++
++export type AuthenticatedMobileWs = {
++  ws: WebSocket
++  sharedKey: Uint8Array
++}
++
++export async function authenticateMobileWsSession(
++  pairingUrl: string
++): Promise<AuthenticatedMobileWs> {
++  const parsed = parsePairingCode(pairingUrl)
++  expect(parsed).toBeTruthy()
++  const ws = await connectWs(parsed!.endpoint)
++  const mobileKeys = generateKeyPair()
++  const serverPublicKey = Uint8Array.from(Buffer.from(parsed!.publicKeyB64, 'base64'))
++  const sharedKey = deriveSharedKey(mobileKeys.secretKey, serverPublicKey)
++
++  ws.send(
++    JSON.stringify({
++      type: 'e2ee_hello',
++      publicKeyB64: Buffer.from(mobileKeys.publicKey).toString('base64')
++    })
++  )
++  expect(JSON.parse(await nextWsMessage(ws))).toEqual({ type: 'e2ee_ready' })
++
++  ws.send(
++    encrypt(JSON.stringify({ type: 'e2ee_auth', deviceToken: parsed!.deviceToken }), sharedKey)
++  )
++  expect(JSON.parse(decrypt(await nextWsMessage(ws), sharedKey)!)).toEqual({
++    type: 'e2ee_authenticated'
++  })
++
++  return { ws, sharedKey }
++}
++
++export async function authenticateMobileWs(pairingUrl: string): Promise<WebSocket> {
++  return (await authenticateMobileWsSession(pairingUrl)).ws
++}
++
++export function sendEncryptedWsRequest(
++  session: AuthenticatedMobileWs,
++  request: Record<string, unknown>
++): void {
++  session.ws.send(encrypt(JSON.stringify(request), session.sharedKey))
++}
++
++export function createEncryptedWsResponseReader(session: AuthenticatedMobileWs): {
++  next: (
++    id: string,
++    predicate?: (response: Record<string, unknown>) => boolean
++  ) => Promise<Record<string, unknown>>
++  dispose: () => void
++} {
++  type Waiter = {
++    id: string
++    predicate: (response: Record<string, unknown>) => boolean
++    resolve: (response: Record<string, unknown>) => void
++  }
++  const queue: Record<string, unknown>[] = []
++  const waiters: Waiter[] = []
++
++  const takeQueued = (
++    id: string,
++    predicate: (response: Record<string, unknown>) => boolean
++  ): Record<string, unknown> | null => {
++    const index = queue.findIndex((response) => response.id === id && predicate(response))
++    if (index === -1) {
++      return null
++    }
++    const [response] = queue.splice(index, 1)
++    return response ?? null
++  }
++
++  const onMessage = (data: WebSocket.RawData): void => {
++    const decrypted = decrypt(
++      typeof data === 'string' ? data : data.toString('utf-8'),
++      session.sharedKey
++    )
++    expect(decrypted).toBeTruthy()
++    const response = JSON.parse(decrypted!) as Record<string, unknown>
++    const waiterIndex = waiters.findIndex(
++      (waiter) => response.id === waiter.id && waiter.predicate(response)
++    )
++    if (waiterIndex === -1) {
++      queue.push(response)
++      return
++    }
++    const [waiter] = waiters.splice(waiterIndex, 1)
++    waiter?.resolve(response)
++  }
++
++  session.ws.on('message', onMessage)
++
++  return {
++    next: (id: string, predicate: (response: Record<string, unknown>) => boolean = () => true) => {
++      const queued = takeQueued(id, predicate)
++      if (queued) {
++        return Promise.resolve(queued)
++      }
++      return new Promise<Record<string, unknown>>((resolve) => {
++        waiters.push({ id, predicate, resolve })
++      })
++    },
++    dispose: () => {
++      session.ws.off('message', onMessage)
++      waiters.length = 0
++      queue.length = 0
++    }
++  }
++}
+diff --git a/src/renderer/src/app-shell/platform/renderer-app-platform.ts b/src/renderer/src/app-shell/platform/renderer-app-platform.ts
+index 7d8a6c8b9e1..84127f0a2a8 100644
+--- a/src/renderer/src/app-shell/platform/renderer-app-platform.ts
++++ b/src/renderer/src/app-shell/platform/renderer-app-platform.ts
+@@ -23,3 +23,7 @@ export function getRendererAppPlatform(): NodeJS.Platform {
+   }
+   return 'win32'
+ }
++
++export function resetRendererAppPlatformCacheForTests(): void {
++  cachedAppPlatform = undefined
++}
+diff --git a/src/renderer/src/components/native-chat/media/visuals/native-chat-visual-read-client.ts b/src/renderer/src/components/native-chat/media/visuals/native-chat-visual-read-client.ts
+index b905c5ddf01..fbad0d364fb 100644
+--- a/src/renderer/src/components/native-chat/media/visuals/native-chat-visual-read-client.ts
++++ b/src/renderer/src/components/native-chat/media/visuals/native-chat-visual-read-client.ts
+@@ -156,3 +156,8 @@ export function isRetryableNativeChatVisualFailure(
+ ): boolean {
+   return reason === 'unavailable' || reason === 'not_found'
+ }
++
++export function clearNativeChatVisualCacheForTests(): void {
++  cache.clear()
++  inFlight.clear()
++}
+diff --git a/src/renderer/src/components/native-chat/messages/actions/native-chat-tooltip-test-harness.tsx b/src/renderer/src/components/native-chat/messages/actions/native-chat-tooltip-test-harness.tsx
+new file mode 100644
+index 00000000000..28f319ee08f
+--- /dev/null
++++ b/src/renderer/src/components/native-chat/messages/actions/native-chat-tooltip-test-harness.tsx
+@@ -0,0 +1,14 @@
++import {
++  render as renderUnwrapped,
++  type RenderOptions,
++  type RenderResult
++} from '@testing-library/react'
++import { TooltipProvider } from '@/components/ui/tooltip'
++
++// Transcript rows carry tooltips (message timestamps), which App's TooltipProvider supplies in production.
++export function render(
++  ui: React.ReactElement,
++  options?: Omit<RenderOptions, 'wrapper'>
++): RenderResult {
++  return renderUnwrapped(ui, { ...options, wrapper: TooltipProvider })
++}
+diff --git a/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.fixture.tsx b/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.fixture.tsx
+index 1041811f2d3..4e639eec5c8 100644
+--- a/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.fixture.tsx
++++ b/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.fixture.tsx
+@@ -15,8 +15,6 @@ import { BOTS_HOME_PIN_RUNTIME_CAPABILITY } from '../../../../../../shared/bot-r
+ import type { RuntimeEnvironmentStatus } from '../../../../../../shared/remote-runtime/host-status/runtime-host-status'
+ import type { RuntimeStatus } from '../../../../../../shared/remote-runtime/session-graph/runtime-session-contracts'
+ import TabBar from '../../../tab-bar/TabBar'
+-import { NativeChatMessageList } from '../../NativeChatMessageList'
+-import type { NativeChatLiveSession } from '../../session/terminal/read/native-chat-live-session-contract'
+ import { NativeChatPaneHeader } from './NativeChatPaneHeader'
+ 
+ export const splitShortcut = defineFixture({
+diff --git a/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx b/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
+--- a/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
++++ b/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
+@@ -1,7 +1,3 @@
+-import { NativeChatStructuredPromptCard } from './NativeChatStructuredPromptCard'
+-import { cancelStructuredPrompt } from '../session/structured/writes/native-chat-structured-stop-controls'
+-import type { RefObject } from 'react'
+-import type { useStructuredPromptResponseHold } from './use-structured-prompt-response-hold'
+ import { sessionLinkOwnerQuestion } from '../SessionLinkOwnerQuestion'
+ import { asyncQuestionSourceScope } from '../../../../../shared/native-chat/input/native-chat-ask'
+ import { structuredAgentSessionPaneKey } from '../../../../../shared/agent-session/view/structured-agent-session-projection'
+@@ -160,81 +156,3 @@
+     </>
+   )
+ }
+-
+-export function NativeChatStructuredPrompts({
+-  pane,
+-  controller,
+-  response,
+-  session,
+-  transport,
+-  submits,
+-  shouldFocus,
+-  answerInputRef
+-}: {
+-  pane: Pick<
+-    NativeChatStructuredViewProps,
+-    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible'
+-  >
+-  controller: ReturnType<typeof useStructuredAgentSession>
+-  response: ReturnType<typeof useStructuredPromptResponseHold>
+-  session: Pick<NativeChatLiveSession, 'messages' | 'readPhase'>
+-  transport: NativeChatStructuredComposerTransport
+-  submits: { queuedMessages: { cards: readonly Pick<QueuedMessageCard, 'text'>[] } }
+-  shouldFocus: boolean
+-  answerInputRef: RefObject<HTMLTextAreaElement | null>
+-}): React.JSX.Element {
+-  const prompt = controller.prompts[0] ?? null
+-  const cancelPrompt = () => cancelStructuredPrompt(controller, prompt)
+-  return (
+-    <>
+-      <NativeChatStructuredPromptCard
+-        key={prompt ? `${prompt.itemId}:${prompt.revision}` : undefined}
+-        prompt={prompt}
+-        promptResponse={response}
+-        onCancel={cancelPrompt}
+-        shouldFocus={shouldFocus}
+-        answerInputRef={answerInputRef}
+-      />
+-      {nativeChatStructuredAsyncQuestion(pane, controller, session, transport, submits)}
+-    </>
+-  )
+-}
+-
+-export function NativeChatStructuredPrompts({
+-  pane,
+-  controller,
+-  response,
+-  session,
+-  transport,
+-  submits,
+-  shouldFocus,
+-  answerInputRef
+-}: {
+-  pane: Pick<
+-    NativeChatStructuredViewProps,
+-    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible'
+-  >
+-  controller: ReturnType<typeof useStructuredAgentSession>
+-  response: ReturnType<typeof useStructuredPromptResponseHold>
+-  session: Pick<NativeChatLiveSession, 'messages' | 'readPhase'>
+-  transport: NativeChatStructuredComposerTransport
+-  submits: { queuedMessages: { cards: readonly Pick<QueuedMessageCard, 'text'>[] } }
+-  shouldFocus: boolean
+-  answerInputRef: RefObject<HTMLTextAreaElement | null>
+-}): React.JSX.Element {
+-  const prompt = controller.prompts[0] ?? null
+-  const cancelPrompt = () => cancelStructuredPrompt(controller, prompt)
+-  return (
+-    <>
+-      <NativeChatStructuredPromptCard
+-        key={prompt ? `${prompt.itemId}:${prompt.revision}` : undefined}
+-        prompt={prompt}
+-        promptResponse={response}
+-        onCancel={cancelPrompt}
+-        shouldFocus={shouldFocus}
+-        answerInputRef={answerInputRef}
+-      />
+-      {nativeChatStructuredAsyncQuestion(pane, controller, session, transport, submits)}
+-    </>
+-  )
+-}
+diff --git a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.fixture.tsx b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.fixture.tsx
+index ccfdef0545e..6cdaf0a542e 100644
+--- a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.fixture.tsx
++++ b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.fixture.tsx
+@@ -77,6 +77,7 @@ function controller(
+     editor: undefined,
+     edit: noop,
+     steerHead: undefined,
++    steerLast: undefined,
+     isWorking: true
+   }
+ }
+diff --git a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.test.tsx b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.test.tsx
+index 56d179a3038..9fe69dc56ab 100644
+--- a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.test.tsx
++++ b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageList.test.tsx
+@@ -50,6 +50,7 @@ function controller(
+     editor: undefined,
+     edit: vi.fn(async () => {}),
+     steerHead: undefined,
++    steerLast: undefined,
+     isWorking: false,
+     ...extra
+   }
+diff --git a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageRowTools.fixture.tsx b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageRowTools.fixture.tsx
+index 0cac3b71568..959c47b7195 100644
+--- a/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageRowTools.fixture.tsx
++++ b/src/renderer/src/components/native-chat/queue/NativeChatQueuedMessageRowTools.fixture.tsx
+@@ -37,6 +37,7 @@ function Queue({ cards }: { cards: QueuedMessageCard[] }) {
+     editor: undefined,
+     edit: noop,
+     steerHead: undefined,
++    steerLast: undefined,
+     isWorking: true
+   }
+   return (
+diff --git a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-model-default.test.tsx b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-model-default.test.tsx
+index d803a0a04ea..8c42b5ef424 100644
+--- a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-model-default.test.tsx
++++ b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-model-default.test.tsx
+@@ -52,7 +52,7 @@ it('returns the chat and later new chats to the agent default, even after an eff
+       selected: true
+     })
+   )
+-  expect(view.result.current.capture()?.selection).not.toHaveProperty('model')
++  expect(view.result.current.capture?.()?.selection).not.toHaveProperty('model')
+   await act(() => view.result.current.optionSurface.setOption('effort', 'high'))
+   expect(seededByNextLaunch(mocks.enqueue.mock.calls)).toBeUndefined()
+   view.unmount()
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-forced-rescan-budget.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-forced-rescan-budget.ts
+index 9124f594940..1ba53075aa9 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-forced-rescan-budget.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-forced-rescan-budget.ts
+@@ -18,3 +18,7 @@ export function claimAiVaultForcedRescan(userRequested = false): boolean {
+ export function aiVaultForcedRescanDelay(): number {
+   return lastForcedRescanAt + FORCED_RESCAN_MIN_INTERVAL_MS - Date.now()
+ }
++
++export function resetAiVaultForcedRescanBudgetForTest(): void {
++  lastForcedRescanAt = 0
++}
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
+index 967207b72d9..33fbbe9cc5b 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-refresh.ts
+@@ -1,3 +1,4 @@
++import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refresh-key'
+ import { useAiVaultStartupCatalog } from './use-ai-vault-startup-catalog'
+ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+ 
+@@ -8,7 +9,10 @@ import { AiVaultSessionPublicationGate } from './ai-vault-session-publication-ga
+ import { EMPTY_AI_VAULT_SESSIONS } from '../session-list/ai-vault-session-identity'
+ import { useAppliedAiVaultScan } from './ai-vault-applied-scan'
+ import { useAiVaultSessionHostRefreshEvents } from '../scope/ai-vault-host-scope'
+-import { aiVaultSessionResultCacheKey } from './ai-vault-session-result-cache'
++import {
++  aiVaultSessionResultCacheKey,
++  resetAiVaultSessionResultCacheForTest
++} from './ai-vault-session-result-cache'
+ import {
+   refreshAiVaultSessionList,
+   type AiVaultConditionalSnapshot,
+@@ -21,7 +25,10 @@ import { useAiVaultConversationRefresh } from './ai-vault-conversation-refresh'
+ import { saveAiVaultSessionList } from './ai-vault-saved-session-lists'
+ import { useAiVaultAssociationObservation } from './ai-vault-association-observation'
+ import { createNonSecureContextUuid as createBrowserUuid } from '../../../../../../shared/identifiers/non-secure-context-uuid'
+-import { claimAiVaultForcedRescan } from './ai-vault-forced-rescan-budget'
++import {
++  claimAiVaultForcedRescan,
++  resetAiVaultForcedRescanBudgetForTest
++} from './ai-vault-forced-rescan-budget'
+ import {
+   type AiVaultListResult,
+   type AiVaultSession,
+@@ -313,3 +320,9 @@ export function useAiVaultSessionRefresh(
+     loadedSessionLimit: shown?.limit ?? null
+   }
+ }
++
++export function resetAiVaultForcedRescanThrottleForTest(): void {
++  resetAiVaultForcedRescanBudgetForTest()
++  resetAgentSessionIdsRefreshKeys()
++  resetAiVaultSessionResultCacheForTest()
++}
+diff --git a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-result-cache.ts b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-result-cache.ts
+index eafd23e65d4..2ded1281938 100644
+--- a/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-result-cache.ts
++++ b/src/renderer/src/components/right-sidebar/ai-vault/scanning/ai-vault-session-result-cache.ts
+@@ -125,3 +125,7 @@ export function forgetAiVaultSessionResult(sessionId: string): void {
+   }
+   void forgetSavedAiVaultSession(sessionId)
+ }
++
++export function resetAiVaultSessionResultCacheForTest(): void {
++  cachedSessionResults.clear()
++}
+diff --git a/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx b/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx
+index 044293640be..fe3235e6915 100644
+--- a/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx
++++ b/src/renderer/src/components/settings/repository/identity/RepositoryIconTabs.upload.test.tsx
+@@ -110,6 +110,15 @@ async function renderPicker({
+       )
+     )
+   })
++  if (inParent) {
++    const avatarTab = [...container.querySelectorAll('button[role="tab"]')].find(
++      (tab) => tab.textContent === 'Avatar'
++    )
++    if (!avatarTab) {
++      throw new Error('Missing Avatar tab')
++    }
++    await act(async () => avatarTab.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })))
++  }
+   const upload = [...container.querySelectorAll('button')].find((button) =>
+     button.textContent?.includes('Upload')
+   )
+diff --git a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+--- a/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
++++ b/src/renderer/src/components/stats/AccountQuotaStatsPane.tsx
+@@ -46,10 +46,14 @@
+           })
+         }
+         onManage={() => {
++          const accountHost = getUsageOwnerHostScope(remoteOwner)
++          if (!accountHost) {
++            return
++          }
+           openSettingsTarget({
+             pane: 'accounts',
+             repoId: null,
+-            hostScope: getUsageOwnerHostScope(remoteOwner)
++            hostScope: accountHost
+           })
+           openSettingsPage()
+         }}
+diff --git a/src/renderer/src/components/stats/StatsPane.tsx b/src/renderer/src/components/stats/StatsPane.tsx
+index 088beb906a6..6dea17371be 100644
+--- a/src/renderer/src/components/stats/StatsPane.tsx
++++ b/src/renderer/src/components/stats/StatsPane.tsx
+@@ -143,9 +143,9 @@ function OwnedStatsPane({
+       : hostTarget
+   const { remoteOwner } = useOwnerUsageRateLimits(localRateLimits)
+   const historyTarget = selectedHost ?? getUsageOwnerHostScope(remoteOwner)
+-  const remoteHistory = historyTarget.kind === 'environment' || isWebClientLocation()
++  const remoteHistory = historyTarget?.kind === 'environment' || isWebClientLocation()
+   const historyOwnerLabel =
+-    historyTarget.kind === 'environment'
++    historyTarget?.kind === 'environment'
+       ? (environments?.find((environment) => environment.id === historyTarget.environmentId)
+           ?.name ??
+         remoteOwner?.label ??
+@@ -167,6 +167,10 @@ function OwnedStatsPane({
+     void fetchStatsSummary()
+   }, [fetchStatsSummary])
+ 
++  if (!historyTarget) {
++    return <SettingsHostScopeUnavailableNotice />
++  }
++
+   return (
+     <div className="@container space-y-5">
+       <div className="space-y-4">
+diff --git a/src/renderer/src/components/stats/usage-account-quota-rows.ts b/src/renderer/src/components/stats/usage-account-quota-rows.ts
+index 08f703b61f6..7e95bc1b800 100644
+--- a/src/renderer/src/components/stats/usage-account-quota-rows.ts
++++ b/src/renderer/src/components/stats/usage-account-quota-rows.ts
+@@ -30,7 +30,13 @@ export type UsageAccountQuotaRow = {
+   provider: ProviderRateLimits
+ }
+ 
+-type AccountGroup = ReturnType<typeof buildClaudeStatusSwitchGroups>[number]
++type ClaudeAccountGroup = ReturnType<typeof buildClaudeStatusSwitchGroups>[number]
++type AccountGroup = Omit<ClaudeAccountGroup, 'targets'> & {
++  targets: readonly Pick<
++    ClaudeAccountGroup['targets'][number],
++    'id' | 'label' | 'active' | 'hint'
++  >[]
++}
+ 
+ function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget): boolean {
+   return left.runtime === right.runtime && left.wslDistro === right.wslDistro
+diff --git a/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx b/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx
+index e605c5bb7d5..4373e4cfb1b 100644
+--- a/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx
++++ b/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx
+@@ -115,6 +115,7 @@ function fixture(
+             owner: { target: { kind: 'local' }, wslHostDistro: wsl ? 'Ubuntu' : null },
+             rateLimits: useAppStore.getState().rateLimits,
+             accounts: null,
++            accountsUnverifiable: Boolean(wsl),
+             remoteOwner: null,
+             refreshRemote: null
+           }}
+diff --git a/src/renderer/src/components/status-bar/accounts/PairedAccountSwitcher.fixture.tsx b/src/renderer/src/components/status-bar/accounts/PairedAccountSwitcher.fixture.tsx
+index 7a83f1b57dc..f77b8341f65 100644
+--- a/src/renderer/src/components/status-bar/accounts/PairedAccountSwitcher.fixture.tsx
++++ b/src/renderer/src/components/status-bar/accounts/PairedAccountSwitcher.fixture.tsx
+@@ -72,6 +72,7 @@ function fixture(provider: 'claude' | 'codex', wsl = false) {
+       : { target: { kind: 'environment', environmentId: 'windows' }, wslHostDistro: null },
+     rateLimits: remote,
+     accounts: wsl ? null : { claude, codex, rateLimits: remote },
++    accountsUnverifiable: Boolean(wsl),
+     remoteOwner: wsl ? null : { environmentId: 'windows', label: 'Windows server' },
+     refreshRemote: null
+   }
+diff --git a/src/renderer/src/components/status-bar/accounts/account-owner-routing.test.tsx b/src/renderer/src/components/status-bar/accounts/account-owner-routing.test.tsx
+index 75f22edb0a1..b91e24bc8f8 100644
+--- a/src/renderer/src/components/status-bar/accounts/account-owner-routing.test.tsx
++++ b/src/renderer/src/components/status-bar/accounts/account-owner-routing.test.tsx
+@@ -80,6 +80,7 @@ function ownerUsageFor(owner: AccountOwner): OwnerUsageRateLimits {
+     owner,
+     rateLimits: accounts?.rateLimits ?? useAppStore.getState().rateLimits,
+     accounts,
++    accountsUnverifiable: owner.wslHostDistro !== null,
+     remoteOwner: remote ? { environmentId: remote, label: 'Visible host' } : null,
+     refreshRemote: null
+   }
+diff --git a/src/renderer/src/components/tab-bar/terminal-tabs/SortableTabContextMenu.tsx b/src/renderer/src/components/tab-bar/terminal-tabs/SortableTabContextMenu.tsx
+index 2dd636fdc5f..9b5947b0c3e 100644
+--- a/src/renderer/src/components/tab-bar/terminal-tabs/SortableTabContextMenu.tsx
++++ b/src/renderer/src/components/tab-bar/terminal-tabs/SortableTabContextMenu.tsx
+@@ -1,4 +1,4 @@
+-import { Link2, Pencil, Pin, PinOff, SquareTerminal, Timer, X } from 'lucide-react'
++import { CopyX, Link2, Pencil, Pin, PinOff, SquareTerminal, Timer, X } from 'lucide-react'
+ import {
+   ContextMenuItem,
+   ContextMenuSeparator,
+diff --git a/src/renderer/src/lib/syntax-highlighting/oniguruma-test-harness.ts b/src/renderer/src/lib/syntax-highlighting/oniguruma-test-harness.ts
+new file mode 100644
+index 00000000000..487e50fd47f
+--- /dev/null
++++ b/src/renderer/src/lib/syntax-highlighting/oniguruma-test-harness.ts
+@@ -0,0 +1,18 @@
++import { readFile } from 'node:fs/promises'
++import { createRequire } from 'node:module'
++import type { Oniguruma } from './oniguruma'
++
++let nodeOnigurumaPromise: Promise<Oniguruma> | undefined
++
++/** The bundled Oniguruma WASM read from disk, for tests running outside a browser. */
++export function loadNodeOniguruma(): Promise<Oniguruma> {
++  nodeOnigurumaPromise ??= (async () => {
++    const oniguruma = await import('vscode-oniguruma')
++    const wasm = await readFile(
++      createRequire(import.meta.url).resolve('vscode-oniguruma/release/onig.wasm')
++    )
++    await oniguruma.loadWASM(wasm.buffer.slice(wasm.byteOffset, wasm.byteOffset + wasm.byteLength))
++    return oniguruma
++  })()
++  return nodeOnigurumaPromise
++}
+diff --git a/src/renderer/src/lib/window-activity/input-quiet-scheduler.ts b/src/renderer/src/lib/window-activity/input-quiet-scheduler.ts
+index 670ac8e9164..d7c5fe6c0b5 100644
+--- a/src/renderer/src/lib/window-activity/input-quiet-scheduler.ts
++++ b/src/renderer/src/lib/window-activity/input-quiet-scheduler.ts
+@@ -161,3 +161,7 @@ export function scheduleAfterInputQuiet(
+     clearScheduledWork()
+   }
+ }
++
++export function resetInputQuietSchedulerForTest(): void {
++  lastInputAt = Number.NEGATIVE_INFINITY
++}
+diff --git a/src/shared/folder-workspaces/folder-workspace-host-routing.test-fixture.ts b/src/shared/folder-workspaces/folder-workspace-host-routing.test-fixture.ts
+new file mode 100644
+index 00000000000..b041ab273e1
+--- /dev/null
++++ b/src/shared/folder-workspaces/folder-workspace-host-routing.test-fixture.ts
+@@ -0,0 +1,109 @@
++// Share locally stored folder rows (without host stamps) and saved partitions across main routing/window-save tests.
++import type { ExecutionHostId } from '../execution-host/execution-host'
++import type { FolderWorkspace } from './folder-workspace-types'
++import type { ProjectGroup } from '../project/groups/project-group-types'
++
++export function makeProjectGroup(overrides: Partial<ProjectGroup>): ProjectGroup {
++  return {
++    id: 'group-mixed',
++    name: 'group',
++    parentPath: null,
++    parentGroupId: null,
++    createdFrom: 'manual',
++    tabOrder: 0,
++    isCollapsed: false,
++    color: null,
++    createdAt: 1,
++    updatedAt: 1,
++    connectionId: null,
++    ...overrides
++  }
++}
++
++export function makeFolderWorkspace(overrides: Partial<FolderWorkspace>): FolderWorkspace {
++  return {
++    id: 'notes-1',
++    projectGroupId: 'group-mixed',
++    name: 'notes',
++    folderPath: '/Users/dev/notes',
++    connectionId: null,
++    linkedTask: null,
++    comment: '',
++    isArchived: false,
++    isUnread: false,
++    isPinned: false,
++    sortOrder: 0,
++    createdAt: 1,
++    lastActivityAt: 1,
++    updatedAt: 1,
++    ...overrides
++  }
++}
++
++/** A local group holding a local repo and an SSH repo: its folders have no single host. */
++export const MIXED_GROUP = makeProjectGroup({})
++/** Imported from a remote root, so it carries the target, yet it also holds a local repo. */
++const SSH_GROUP = makeProjectGroup({ id: 'group-ssh', connectionId: 'target-1' })
++
++export const ROUTING_REPOS = [
++  { id: 'repo-1', path: '/Users/dev/orca', projectGroupId: MIXED_GROUP.id, connectionId: null },
++  {
++    id: 'repo-ssh',
++    path: '/home/dev/api',
++    projectGroupId: MIXED_GROUP.id,
++    connectionId: 'target-1'
++  },
++  { id: 'repo-local-2', path: '/Users/dev/web', projectGroupId: SSH_GROUP.id, connectionId: null }
++]
++
++export const MIXED_FOLDER = makeFolderWorkspace({})
++
++export const FOLDER_HOST_CASES: {
++  name: string
++  folder: FolderWorkspace
++  groups: ProjectGroup[]
++  expected: ExecutionHostId
++}[] = [
++  {
++    name: 'in a local group with local and SSH repos',
++    folder: MIXED_FOLDER,
++    groups: [MIXED_GROUP],
++    expected: 'local'
++  },
++  {
++    name: 'in an SSH group that also holds a local repo',
++    folder: makeFolderWorkspace({ projectGroupId: SSH_GROUP.id }),
++    groups: [SSH_GROUP],
++    expected: 'ssh:target-1'
++  },
++  {
++    name: 'with its own SSH target, in an SSH group holding a local repo',
++    folder: makeFolderWorkspace({ projectGroupId: SSH_GROUP.id, connectionId: 'target-1' }),
++    groups: [SSH_GROUP],
++    expected: 'ssh:target-1'
++  },
++  {
++    name: 'with its own SSH target and no stamp (legacy), in a local group',
++    folder: makeFolderWorkspace({ connectionId: 'target-1' }),
++    groups: [MIXED_GROUP],
++    expected: 'ssh:target-1'
++  },
++  {
++    name: 'stamped with a host',
++    folder: makeFolderWorkspace({ executionHostId: 'ssh:target-2' }),
++    groups: [MIXED_GROUP],
++    expected: 'ssh:target-2'
++  },
++  {
++    name: 'inside an SSH repo but with no target of its own',
++    folder: makeFolderWorkspace({ folderPath: '/home/dev/api/docs' }),
++    groups: [MIXED_GROUP],
++    expected: 'local'
++  },
++  {
++    name: 'in a group main does not list',
++    folder: makeFolderWorkspace({ projectGroupId: 'gone' }),
++    groups: [],
++    expected: 'local'
++  }
++]

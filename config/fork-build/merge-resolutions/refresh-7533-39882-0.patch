@@ -1,0 +1,29 @@
+diff --git a/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx b/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx
+index 2234b21370e1f1de95699de8a5717a217b7ce15a..5b09c486a67ad4734f53766877d675947a37b3ac 100644
+--- a/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx
++++ b/src/renderer/src/components/native-chat/pane/actions/NativeChatPaneHeader.tsx
+@@ -1,6 +1,7 @@
+ import type { RuntimeClientTarget } from '../../../../../../shared/remote-runtime/host-catalog/runtime-client-target'
+ import { SessionLinkControl } from '../../SessionLinkControl'
+ import { Fragment } from 'react'
++import './native-chat-pane-header.css'
+ import { MessageSquarePlus, SquareSplitVertical } from 'lucide-react'
+ import { ShortcutKeyCombo } from '@/components/ui/ShortcutKeyCombo'
+ import { Button } from '@/components/ui/button'
+@@ -77,14 +78,14 @@ export function NativeChatPaneHeader({
+   )
+   return (
+     <div
+-      className="pane-title-bar z-20"
++      className="pane-title-bar native-chat-pane-header z-20"
+       data-chromeless=""
+       data-active-pane={focused ? '' : undefined}
+       data-pane-title-surface={light ? 'light' : 'dark'}
+       style={HEADER_STYLE}
+     >
+       {homeBot ? <BotHomeBanner bot={homeBot} /> : null}
+-      <div className="pane-title-actions ml-auto flex shrink-0 items-center gap-0">
++      <div className="pane-title-actions native-chat-pane-actions ml-auto flex shrink-0 items-center gap-0 rounded-md border bg-popover p-0.5 text-popover-foreground shadow-xs">
+         {nativeChat.sessionId && target ? (
+           <SessionLinkControl sessionId={nativeChat.sessionId} target={target} />
+         ) : null}
