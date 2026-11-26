@@ -138,7 +138,7 @@ export const UiUpdateFields = lazyZodSchema(() =>
       showWorkspaceLineage: z.boolean().optional(),
       sortBy: z.enum(['name', 'smart', 'recent', 'repo', 'manual']).optional(),
       sidebarView: z.enum(SIDEBAR_VIEWS).optional(),
-      projectOrderBy: z.enum(['manual', 'recent']).optional(),
+      projectOrderBy: z.enum(['manual', 'recent', 'frequent', 'name']).optional(),
       showActiveOnly: z.boolean().optional(),
       hideSleepingWorkspaces: z.boolean().optional(),
       showSleepingWorkspaces: z.boolean().optional(),

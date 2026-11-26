@@ -1,5 +1,6 @@
 import type { ConversationPreferences } from '../conversation-navigation-preferences'
 import type { GitHistoryRefs } from '../git/history/git-history-types'
+import type { PersonalProjectOrder } from '../personal-project-order'
 import type { BotChatFold } from '../bots/bot-chat-tree'
 import type { JiraQuickFilterState } from '../jira/jira-quick-filters'
 import type { BrowserDevToolsDockLayout } from '../browser/devtools/browser-devtools-dock'
@@ -66,6 +67,7 @@ export type PersistedUIState = {
   combinedDiffFileTreeWidth?: number
   groupBy: 'none' | 'workspace-status' | 'repo' | 'pr-status'
   sortBy: 'name' | 'smart' | 'recent' | 'repo' | 'manual'
+  personalProjectOrder?: PersonalProjectOrder
   conversationPreferences?: ConversationPreferences
   /** Project-header order in repo grouping, independent of workspace sort: manual permits drag, recent follows visible activity. */
   projectOrderBy: ProjectOrderBy
