@@ -559,17 +559,6 @@
       "answeredCount_other": "<answer>{{count}} soruyu</answer> yanıtladınız",
       "answeredCount": "<answer>{{count}} soruyu</answer> yanıtladınız"
     },
-    "approvalRecord": {
-      "cancelled": "<tool>{{tool}}</tool> isteği iptal edildi",
-      "coordinatorAllowed": "Koordinatör <tool>{{tool}}</tool> için izin verdi",
-      "coordinatorDenied": "Koordinatör <tool>{{tool}}</tool> isteğini reddetti",
-      "allowedUnnamed": "<tool>{{tool}}</tool> için izin verildi",
-      "deniedUnnamed": "<tool>{{tool}}</tool> reddedildi",
-      "youAllowed": "<tool>{{tool}}</tool> için izin verdiniz",
-      "youAllowedForSession": "Bu oturum için <tool>{{tool}}</tool> izni verdiniz",
-      "youDenied": "<tool>{{tool}}</tool> isteğini reddettiniz",
-      "youAnswered": "<tool>{{tool}}</tool> için yanıtınız: <answer>{{answer}}</answer>"
-    },
     "sessionOptionCopy": {
       "none": "Yok",
       "availableAfterSessionStarts": "Oturum başladıktan sonra kullanılabilir.",
@@ -612,7 +601,6 @@
       "permissions": "İzinler",
       "permissionsLabel": "İzinler, {{value}}",
       "settingsLocked": "Bu tur tamamlandığında model ayarlarının kilidi açılır.",
-      "workingAnnouncement": "Ajan çalışıyor. Bu tur tamamlandığında model ayarlarının kilidi açılır.",
       "applying": "Uygulanıyor…",
       "onAttach": "Sohbet bağlandığında uygulanır",
       "heldPickRefused": "{{picked}} bu sohbette kullanılamıyor. {{kept}} korundu.",
@@ -905,6 +893,17 @@
         "failed": "Başarısız: {{count}}"
       },
       "pasteHint": "Tarayıcı yüklenmeyen bir sayfaya yönlendiğinde adresi kopyalayıp buraya yapıştırın."
+    },
+    "approvalRecord": {
+      "cancelled": "<tool>{{tool}}</tool> isteği iptal edildi",
+      "coordinatorAllowed": "Koordinatör <tool>{{tool}}</tool> için izin verdi",
+      "coordinatorDenied": "Koordinatör <tool>{{tool}}</tool> isteğini reddetti",
+      "allowedUnnamed": "<tool>{{tool}}</tool> için izin verildi",
+      "deniedUnnamed": "<tool>{{tool}}</tool> reddedildi",
+      "youAllowed": "<tool>{{tool}}</tool> için izin verdiniz",
+      "youAllowedForSession": "Bu oturum için <tool>{{tool}}</tool> izni verdiniz",
+      "youDenied": "<tool>{{tool}}</tool> isteğini reddettiniz",
+      "youAnswered": "<tool>{{tool}}</tool> için yanıtınız: <answer>{{answer}}</answer>"
     },
     "restartNote": {
       "continued": "Orca, yeniden başlatmanın ardından bu ajandan devam etmesini istedi. İsteminiz yeniden gönderilmedi.",
