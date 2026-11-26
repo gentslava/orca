@@ -43,7 +43,7 @@ import {
   type AcpModelCatalogSessionConnection
 } from './acp-listing-session-models'
 import { AcpAgentExitedError } from '../transport/acp-errors'
-import { signedOutAsUnavailable } from './acp-listing-signed-out'
+import { acpSignedOutError, rethrowAcpSignedOut } from './acp-model-catalog-auth-error'
 import { discardAcpListingSessions } from './acp-listing-session-discard'
 import { sealSharedToolProcessChild } from '../../runtime/agent-session/environment/structured-session-child-env'
 import { usesModelSpecificAcpEfforts } from '../../../shared/agent-session/options/model-catalog/agent-model-catalog-ownership'
@@ -165,6 +165,9 @@ export function createAcpModelCatalogProbe(
               { site: `${spec.agent}-model-catalog-probe`, signal: gate.signal, timeoutMs: null }
             )
             models = listing.parse(stdout)
+            if (models.length === 0 && listing.isNotSignedInOutput?.(stdout)) {
+              throw acpSignedOutError(spec)
+            }
           } else if (listing.kind === 'session') {
             // Remove disposable session storage after the process closes.
             const folderArgs = listing.sessionFolderArgs
@@ -294,18 +297,22 @@ export function createAcpModelCatalogProbe(
     }
   }
   const probe: AgentModelCatalogProbe = (home, options) =>
-    resolve(home, options?.workspacePath ?? '', 'recover', options?.operation).then((resolved) =>
-      resolved
-        .run(options?.signal, options?.operation, options?.selectedModels, options?.publish)
-        .catch(signedOutAsUnavailable(agentSpec.dialect, resolved.answerSignIn))
-    )
+    resolve(home, options?.workspacePath ?? '', 'recover', options?.operation)
+      .then((resolved) =>
+        resolved
+          .run(options?.signal, options?.operation, options?.selectedModels, options?.publish)
+          .catch(rethrowAcpSignedOut(agentSpec, home, resolved.answerSignIn))
+      )
+      .catch(rethrowAcpSignedOut(agentSpec, home))
   return Object.assign(probe, {
+    supportsAccount: (home: Parameters<AgentModelCatalogProbe>[0]) =>
+      acpLaunchSpecForAccount(agentSpec, home).modelDiscovery.kind !== 'unavailable',
     resolve: async (...args: Parameters<typeof resolve>) => {
       const { answerSignIn, ...resolved } = await resolve(...args)
       return {
         ...resolved,
         run: (...runArgs: Parameters<typeof resolved.run>) =>
-          resolved.run(...runArgs).catch(signedOutAsUnavailable(agentSpec.dialect, answerSignIn))
+          resolved.run(...runArgs).catch(rethrowAcpSignedOut(agentSpec, args[0], answerSignIn))
       }
     }
   })
