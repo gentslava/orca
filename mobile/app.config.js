@@ -3,8 +3,13 @@
 const APS_ENVIRONMENT =
   process.env.ORCA_IOS_APS_ENVIRONMENT === 'production' ? 'production' : 'development'
 
+const FORK_ANDROID_BUILD = process.env.ORCA_FORK_ANDROID_BUILD_VERSION
+
 module.exports = ({ config }) => ({
   ...config,
+  ...(FORK_ANDROID_BUILD
+    ? { extra: { ...config.extra, orcaForkAndroidBuild: FORK_ANDROID_BUILD } }
+    : {}),
   // `expo run` installs a dev-client build cached for the current native fingerprint instead of
   // rebuilding; scripts/native-client.mjs populates the cache.
   buildCacheProvider: { plugin: './scripts/native-build-cache.cjs' },
