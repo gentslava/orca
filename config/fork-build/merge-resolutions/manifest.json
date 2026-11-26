@@ -2170,5 +2170,101 @@
     "patchSha256": "618c46bad5c52752be04394e0b3d4f91f513502834bf74fd362d10323f97d92e",
     "resultSha256": "ab71fa46fe333e28cab1da69a50e2c7e74dd335731b9676af1a8deed6f769e51",
     "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "3f85e7dc668dfa5865e41acb946cc4c55368b5b4",
+      "8c6025f2e4f741be17286413b6c78b234dcdcdcd",
+      "6d5e2a8c0ad7d9f1bb5dcc7198ddea54153927a3"
+    ],
+    "patch": "refresh-order-after-history-71397d9b.patch",
+    "patchSha256": "b0048ad359df413d84ddc633d429dd344c26e806ff61b66c1403973fa0256159",
+    "resultSha256": "b6016b09f1a4ea48a1834d9a148170d0ac56521c9047710df89c239913dce120",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "069dd6cd84a1d8b568c25d6ba684dd2b9a786f08",
+      "5c353d41a1285e6c1893e24514a44ca384811fa5",
+      "76ca21bf1a30594d12d9908f58f0badf5ccb13fa"
+    ],
+    "patch": "refresh-order-after-history-bbedafb0.patch",
+    "patchSha256": "850eb48ba57b6f855fa74285e8138c155168cb9526a100a0e60df7ae2fe52787",
+    "resultSha256": "049a8097f0ee5f95846c7a4eb7a5291bf8e6415318c31e7e5932addefbac6196",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
+    "blobs": [
+      null,
+      "85e082e8a0749af8392b208de928ce3812a9e567",
+      "6dacd781ee4a329a8d5c7cf1c22815bcfeea317c"
+    ],
+    "patch": "refresh-order-after-history-31ab9448.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "bd0482671060547cf4583d4438f5ed9d0a33ccedd7a2638883fdeb7b8b8a5440",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "4e45cf7822a58f02e6c5225ed9982f742099f1e9",
+      "96698ac5fc8fef99a16428c39e83b8720276857f",
+      "355e2def6e241e62ba3d77dbe79d550eef9e2197"
+    ],
+    "patch": "refresh-order-after-history-814a4225.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "273bc5feb74ddd64a71e1a529333ffbe6424f8f33f299302025c675a380e2bca",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "4583d2f70f8ec3d485a3131248e43dd0dd3c2d0d",
+      "2a70aa54647651184e15e579b34ba059e113ef4c",
+      "84d30bafcab9acaebaf5e9ea06934dfc6d3d929e"
+    ],
+    "patch": "refresh-order-after-history-b0b361ad.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "4983c71e3adf91177db3b2e232c0f53b4bb7f3d2ea0b05f9879d75a464c95d34",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "036619662891ed0ea04a216d7fcaf2c8682ad4ee",
+      "8cd51cb861922791a0e42fbddf94fdd437057455",
+      "dfcfc5d9826e99cb809c9006e4d15b245cce4caa"
+    ],
+    "patch": "refresh-order-after-history-19ec9a33.patch",
+    "patchSha256": "ae4327ff203e17218c0b5bc56ccafeb0d03a94639a1ab91471259b4a114219db",
+    "resultSha256": "0dfe5dd30926e580f8c487ba2bd57d555a6d6748be8f944159151f2a919bf91f",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "1f2b7b6c44b2d9259623e013cdb8946667ffdda5",
+      "d0b92f271322c85915fee8193a71842123d8a112",
+      "1071aa0d13db04c877d06115532074ff3431d943"
+    ],
+    "patch": "refresh-order-after-history-b9b0f477.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ec623db8b53199d09cc5c5fe77d44f9becaf1a638bb5ad542db71a028995b5ee",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault/ai-vault-params.ts",
+    "blobs": [
+      "f4ea537d4483f47137c91f6477070e025baa8e43",
+      "3f3ae6d79c58ad05747a9cfbbadf7b7e651b57ef",
+      "99d97b56f32f4e4fbf757b234565e6fa2d4f4bb1"
+    ],
+    "patch": "refresh-order-after-history-061b9452.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "8d7f25a50c958b106b23b2d078ddc42029be1580ab2fd4b98a07ff10665d852d",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
   }
 ]
