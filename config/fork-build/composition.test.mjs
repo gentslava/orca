@@ -493,6 +493,32 @@ for (const [directory, language, letters, upload, clear] of [
     }))
 }
 
+test('real Git: a selected ancestor lets a dependent PR extend an already integrated change', () =>
+  fixture((cwd) => {
+    writeFileSync(join(cwd, 'file'), 'models = [base]\n')
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'upstream models')
+    const upstream = git(cwd, 'rev-parse', 'HEAD')
+    writeFileSync(join(cwd, 'file'), 'models = [base, custom]\n')
+    git(cwd, 'commit', '-am', 'add a custom model')
+    const dependency = git(cwd, 'rev-parse', 'HEAD')
+    writeFileSync(join(cwd, 'file'), 'models = [base, custom, default]\n')
+    git(cwd, 'commit', '-am', 'extend the selected models')
+    const dependent = git(cwd, 'rev-parse', 'HEAD')
+    const selections = [dependency, dependent].map((sha, index) => ({
+      ...pr(index + 1),
+      head: { sha }
+    }))
+
+    const independent = compose(cwd, upstream, selections)
+    assert.equal(independent.publishable, false)
+    const result = compose(cwd, upstream, selections, { dependencies: { 2: [1] } })
+    assert.equal(result.publishable, true)
+    assert.equal(git(cwd, 'show', 'HEAD:file'), 'models = [base, custom, default]')
+    assert.equal(git(cwd, 'rev-list', '--count', `${upstream}..HEAD`), '2')
+    assert.equal(git(cwd, 'rev-list', '--min-parents=2', `${upstream}..HEAD`), '')
+  }))
+
 test('real Git: shared integration ancestry cannot undo another selected feature', () =>
   fixture((cwd) => {
     const base = git(cwd, 'rev-parse', 'HEAD')

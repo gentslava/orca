@@ -109,9 +109,9 @@ export function freezeForkFeatureHead(cwd, feature, runGit = git) {
   }
 }
 
-function mergeAndValidateCatalogs(cwd, before, incoming, upstream) {
+function mergeAndValidateCatalogs(cwd, before, incoming, upstream, dependencyBase) {
   const repaired = []
-  let base
+  let base = dependencyBase
   for (const path of composableLocalePaths) {
     if (!existsSync(join(cwd, path))) {
       continue
@@ -199,12 +199,20 @@ export function resolveSelectedFeatureConflicts(cwd, resolutionsDirectory, upstr
   return { localePaths, patches, retirements }
 }
 
-export function prepareFeatureMerge(cwd, upstream, head, timestamp) {
-  const base = git(cwd, ['merge-base', '--all', upstream, head])
+export function prepareFeatureMerge(cwd, upstream, head, timestamp, dependencyBase) {
+  const base = dependencyBase ?? git(cwd, ['merge-base', '--all', upstream, head])
   if (!/^[a-f0-9]{40}$/.test(base)) {
     throw new Error('Selected feature requires one upstream merge base')
   }
   const dates = timestamp ? { GIT_AUTHOR_DATE: timestamp, GIT_COMMITTER_DATE: timestamp } : {}
+  if (dependencyBase) {
+    const candidate = git(
+      cwd,
+      ['commit-tree', 'HEAD^{tree}', '-p', dependencyBase, '-m', 'Temporary candidate snapshot'],
+      dates
+    )
+    git(cwd, ['reset', '--hard', candidate])
+  }
   const snapshot = git(
     cwd,
     ['commit-tree', `${head}^{tree}`, '-p', base, '-m', 'Temporary feature snapshot'],
@@ -292,6 +300,19 @@ function sealSelectedFeature(cwd, before, pr, timestamp) {
   git(cwd, ['reset', '--hard', commit])
 }
 
+function includedDependencyBase(cwd, pr, included, dependencies) {
+  const declared = dependencies[pr.number] ?? []
+  if (!declared.length) {
+    return undefined
+  }
+  const selected = included.filter(({ number }) => declared.includes(number))
+  return selected.find(
+    ({ head }) =>
+      isAncestor(cwd, head, pr.head.sha) &&
+      selected.every((entry) => isAncestor(cwd, entry.head, head))
+  )?.head
+}
+
 export function compose(
   cwd,
   upstream,
@@ -299,7 +320,8 @@ export function compose(
   {
     timestamp = new Date().toISOString(),
     resolutionsDirectory = join(import.meta.dirname, 'merge-resolutions'),
-    observedUpstream
+    observedUpstream,
+    dependencies = {}
   } = {}
 ) {
   git(cwd, ['checkout', '-B', 'personal-candidate', upstream])
@@ -339,13 +361,28 @@ export function compose(
     const before = git(cwd, ['rev-parse', 'HEAD'])
     const identity = selectedIdentity(pr)
     const message = `fork: integrate ${selectedSubject(pr)}`
+    let dependencyBase = includedDependencyBase(cwd, pr, included, dependencies)
     try {
-      prepareFeatureMerge(cwd, upstream, pr.head.sha, timestamp)
+      if (dependencyBase) {
+        try {
+          prepareFeatureMerge(cwd, upstream, pr.head.sha, timestamp, dependencyBase)
+        } catch (error) {
+          if (!git(cwd, ['diff', '--name-only', '--diff-filter=U'])) {
+            throw error
+          }
+          // Existing reviewed resolutions are tied to the original upstream merge stages.
+          git(cwd, ['reset', '--hard', before])
+          dependencyBase = undefined
+          prepareFeatureMerge(cwd, upstream, pr.head.sha, timestamp)
+        }
+      } else {
+        prepareFeatureMerge(cwd, upstream, pr.head.sha, timestamp)
+      }
       git(cwd, ['commit', '-m', message], {
         GIT_AUTHOR_DATE: timestamp,
         GIT_COMMITTER_DATE: timestamp
       })
-      const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha, upstream)
+      const repaired = mergeAndValidateCatalogs(cwd, before, pr.head.sha, upstream, dependencyBase)
       if (repaired.length) {
         git(
           cwd,

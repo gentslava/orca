@@ -173,7 +173,8 @@ try {
   }
   plan.result = compose(source, plan.upstream, frozen, {
     timestamp: plan.timestamp,
-    observedUpstream
+    observedUpstream,
+    dependencies: config.dependencies
   })
   for (const patch of config.compatibilityPatches) {
     if (
