@@ -1,3 +1,4 @@
+import { inProcessSessionLinks } from '../../../../orchestration/session-links/worker/session-link-worker.test-fixture'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -113,6 +114,7 @@ describe('agents on a paired server messaging an agent on this computer', () => 
     transport?: OrchestrationEnvironmentTransport
   ): Side {
     const db = new OrchestrationDb(join(dir, `${name}.db`))
+    inProcessSessionLinks(db)
     const runtime = new OrcaRuntimeService(null, undefined, {
       orchestrationEnvironmentTransport: transport
     })

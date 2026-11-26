@@ -262,3 +262,16 @@ export function isProjectListRow(
     composeWorktreeHostIdentity(resolveWorktreeHostId(row, repoHostIdByRepoId), row.worktreeId)
   )
 }
+
+export function appendHostBotSections<T extends { sections: Section[]; rawSections: Section[] }>(
+  base: T,
+  botSections: Section[]
+): T {
+  return botSections.length
+    ? {
+        ...base,
+        sections: [...botSections, ...base.sections],
+        rawSections: [...botSections, ...base.rawSections]
+      }
+    : base
+}

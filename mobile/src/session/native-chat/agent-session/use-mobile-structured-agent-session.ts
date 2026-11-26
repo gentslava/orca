@@ -10,10 +10,7 @@ import {
   structuredAgentSessionQueueSendsNext
 } from '../../../../../src/shared/agent-session/view/structured-agent-session-live-turn'
 import { mobileStructuredLinkedPrompts } from '../input/prompts/mobile-structured-linked-prompts'
-import {
-  projectStructuredPermission,
-  projectStructuredQuestion
-} from '../input/prompts/mobile-structured-agent-prompts'
+import * as promptProjection from '../input/prompts/mobile-structured-agent-prompts'
 import type {
   MobileStructuredAgentSessionArgs,
   StructuredMobileSession
@@ -292,8 +289,8 @@ export function useMobileStructuredAgentSession(
       requestCancel(prompt ?? linked.promptIdentity),
     receipts,
     actionablePromptIds: state.actionablePromptIds,
-    permission: projectStructuredPermission(approvalPrompt),
-    question: projectStructuredQuestion(questionPrompt),
+    permission: promptProjection.projectStructuredPermission(approvalPrompt),
+    question: promptProjection.projectStructuredQuestion(questionPrompt),
     respondPermission,
     respondQuestion,
     queued,

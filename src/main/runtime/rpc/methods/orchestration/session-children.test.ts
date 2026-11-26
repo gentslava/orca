@@ -149,7 +149,14 @@ it('opens released worker history and a live reader through RPC without acquirin
   db.settleDeadWorkerTerminalRelease({
     requestingDispatchId: started.dispatch.id,
     resourceId: resource.id,
-    processIncarnation: resource.process_incarnation!
+    processIncarnation: resource.process_incarnation!,
+    expected: resource,
+    output: () => ({
+      kind: 'terminal_tail',
+      content: '',
+      archiveSource: 'terminal',
+      archiveStatus: 'unavailable'
+    })
   })
   await rig.restart()
   setStructuredAgentSessionHost(rig.host)

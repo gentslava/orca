@@ -144,7 +144,14 @@ describe('primary conversation navigation from the durable session catalog', () 
       db.settleDeadWorkerTerminalRelease({
         requestingDispatchId: started.dispatch.id,
         resourceId: resource.id,
-        processIncarnation: resource.process_incarnation!
+        processIncarnation: resource.process_incarnation!,
+        expected: resource,
+        output: () => ({
+          kind: 'terminal_tail',
+          content: '',
+          archiveSource: 'terminal',
+          archiveStatus: 'unavailable'
+        })
       })
       const successor = testOrcaSessionId('561bb50e-6281-43a7-a761-4e15dc4c730a')
       const records: AgentSessionRecord[] = [parent, worker, successor].map((sessionId) => ({

@@ -29,7 +29,6 @@ import type { NotificationSettings } from '../notifications/notification-setting
 import type { CtrlTabOrderMode } from '../workspace-layout/tab-groups/tab-types'
 import type { TerminalQuickCommand } from '../terminal/quick-commands/terminal-quick-command-types'
 import type { TuiAgent } from '../agent-launch/catalog/tui-agent'
-import type { ZcodePlanSite } from '../agent-accounts/usage-credentials/zcode-plan-sites'
 import type {
   AgentDashboardMode,
   BranchPrefixStrategy,
@@ -379,8 +378,6 @@ export type GlobalSettings = GlobalSettingsBase & {
   minimaxUsageModels: string
   /** MiniMax account region; defaults to overseas for existing users. */
   minimaxEndpoint: MiniMaxEndpoint
-  /** GLM Coding Plan site whose API key is saved in AI Provider Accounts; defaults to the international Z.AI console. */
-  zcodePlanSite?: ZcodePlanSite
   /** Extract OAuth credentials from the local Gemini CLI for rate-limit fetching. Off by default (explicit opt-in). */
   geminiCliOAuthEnabled: boolean
   /** Poll Claude usage with existing CLI credentials. Off uses live terminal readings only. */

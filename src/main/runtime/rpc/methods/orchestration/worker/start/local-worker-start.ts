@@ -92,9 +92,8 @@ export async function startLocalWorker(args: {
   const existingWorktree =
     requestedWorktree === 'current' ? `id:${coordinatorWorktreeId}` : requestedWorktree
   const targetLabel = workerStartTargetLabel({ ...args.params, createsWorktree, requestedWorktree })
-  const { agent, launch, fastWorkspace, fastWorkerMode } = await refuseUnmatchedWorkerSelector(
-    targetLabel,
-    () =>
+  const { agent, launch, fastWorkspace, fastWorkerMode, preflightTerminal } =
+    await refuseUnmatchedWorkerSelector(targetLabel, () =>
       preflightLocalWorkerStartLaunch({
         params,
         runtime,
@@ -104,7 +103,7 @@ export async function startLocalWorker(args: {
         creationTargetFor,
         mode: args.mode
       })
-  )
+    )
 
   const creationTarget = createsWorktree
     ? await creationTargetFor(coordinatorWorktreeId)
@@ -130,20 +129,9 @@ export async function startLocalWorker(args: {
       ? fastWorkerMode
       : resolveWorkerStartModeOnHost(runtime, decided, resolvedWorktree?.id, agent)
   let mode = chatWorkerMode(await hostMode, chat)
-  if (
-    agent &&
-    (mode.mode === 'terminal' || createsWorktree) &&
-    (params.role || params.fastMode !== undefined)
-  ) {
-    await runtime.preflightOrchestrationWorkerLaunch(
-      agent,
-      launch.preferences,
-      createsWorktree
-        ? { repo: creationTarget?.repoSelector ?? params.repo }
-        : resolvedWorktree
-          ? { worktree: `id:${resolvedWorktree.id}` }
-          : {}
-    )
+  const terminalPreflight = preflightTerminal(mode, creationTarget, resolvedWorktree)
+  if (terminalPreflight) {
+    await terminalPreflight
   }
 
   // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.

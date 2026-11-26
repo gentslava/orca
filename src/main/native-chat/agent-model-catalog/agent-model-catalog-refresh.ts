@@ -247,7 +247,6 @@ export function createAgentModelCatalogRefreshes(context: {
         await bounded(seeded)
       }
     }
-    const end = (): void => ended.abort()
     const held: Held = {
       current: () => current() && refreshes.get(key) === held,
       hold: (reader) => {
@@ -285,7 +284,7 @@ export function createAgentModelCatalogRefreshes(context: {
         }
       },
       workspaceId: launch.records.record?.location.workspaceId,
-      end
+      end: () => ended.abort()
     }
     refreshes.set(key, held)
     held.done = run()

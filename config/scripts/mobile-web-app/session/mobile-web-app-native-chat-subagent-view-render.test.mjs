@@ -149,7 +149,9 @@ async function openChat(hash = '') {
   const failures = []
   page.on('pageerror', (error) => failures.push(error.message))
   page.on('console', (message) => {
-    if (message.type() === 'error') failures.push(message.text())
+    if (message.type() === 'error') {
+      failures.push(message.text())
+    }
   })
   await page.goto(`${origin}/${hash}`)
   try {

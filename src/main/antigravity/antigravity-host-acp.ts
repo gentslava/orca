@@ -3,7 +3,6 @@
 import { readFile, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
-import { agentModelCatalogFingerprint } from '../native-chat/agent-model-catalog/agent-model-catalog-fingerprint'
 import type { InitializeResponse } from '../acp/generated/acp-protocol.generated'
 import { AcpAgentError, AcpConnectionClosedError } from '../acp/transport/acp-errors'
 import {

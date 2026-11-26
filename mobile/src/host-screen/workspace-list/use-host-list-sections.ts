@@ -28,7 +28,11 @@ import {
 import { useHostRepoIconDataUrls } from '../catalog/use-host-repo-icon-data-urls'
 import type { HostSidebarFeed } from '../sidebar-feed/use-host-sidebar-feed'
 import type { HostScreenState } from '../use-host-screen-state'
-import { isProjectListRow, type HostBotListing } from '../../bots/host-bot-sections'
+import {
+  appendHostBotSections,
+  isProjectListRow,
+  type HostBotListing
+} from '../../bots/host-bot-sections'
 import { useHostBotSections } from '../../bots/use-host-bot-sections'
 import type { LastVisitedWorktreeOnHost } from '../../worktree/row-presentation/host-list-highlight'
 import { indexHiddenProjects } from '../../../../src/shared/project/catalog/hidden-projects'
@@ -298,17 +302,9 @@ export function useHostListSections(inputs: HostListSectionsInputs): HostListSec
     lastVisited
   })
   return useMemo(() => {
-    const paused = botSections.pausedMatches
-      ? { pausedBotMatches: botSections.pausedMatches, showPausedBots }
-      : {}
-    if (botSections.sections.length === 0) {
-      return { ...base, ...paused }
-    }
-    return {
-      ...base,
-      ...paused,
-      sections: [...botSections.sections, ...base.sections],
-      rawSections: [...botSections.sections, ...base.rawSections]
-    }
+    const sections = appendHostBotSections(base, botSections.sections)
+    return botSections.pausedMatches
+      ? { ...sections, pausedBotMatches: botSections.pausedMatches, showPausedBots }
+      : sections
   }, [base, botSections, showPausedBots])
 }

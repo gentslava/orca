@@ -67,7 +67,11 @@ async function forkedHistory() {
         }
       )
       await writeClaudeUsageSourceCache(ref, result.processedFiles)
-      return result.dailyAggregates.map((day) => [day.projectLabel, day.inputTokens])
+      const totals = new Map<string, number>()
+      for (const { projectLabel, inputTokens } of result.dailyAggregates) {
+        totals.set(projectLabel, (totals.get(projectLabel) ?? 0) + inputTokens)
+      }
+      return [...totals]
     } catch (error) {
       if (error instanceof WorkerStopped) {
         return null

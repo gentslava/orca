@@ -1,10 +1,25 @@
 import { useCallback, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import { DragOverlay, useDndContext } from '@dnd-kit/core'
+import { DragOverlay, useDndContext, type Modifier } from '@dnd-kit/core'
 import { ArrowDownUp } from 'lucide-react'
 import { cloneSidebarDragSource } from './worktree-list/drag/worktree-sidebar-pointer-drag-dom'
 
 const HEADER_PREVIEW_Z_INDEX = 999
+
+export const sidebarSectionDragModifiers: Modifier[] = [
+  ({ draggingNodeRect, scrollableAncestorRects: [viewport], transform }) => ({
+    ...transform,
+    x: 0,
+    // Keep the preview within the sidebar viewport when the pointer leaves it.
+    y:
+      draggingNodeRect && viewport
+        ? Math.max(
+            viewport.top - draggingNodeRect.top,
+            Math.min(transform.y, viewport.bottom - draggingNodeRect.bottom)
+          )
+        : transform.y
+  })
+]
 
 export function SidebarSectionDragOverlay({
   sidebarStyle

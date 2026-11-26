@@ -126,6 +126,8 @@ export const AI_VAULT_METHODS = [
             force: params.force,
             scopePaths: params.scopePaths,
             selectedSessionId,
+            includeStructuredSessions: params.includeStructuredSessions,
+            structuredOnly: params.structuredOnly,
             scopeOnly: params.scopeOnly,
             includeAntigravityIdeSessions: params.includeAntigravityIdeSessions
           },
