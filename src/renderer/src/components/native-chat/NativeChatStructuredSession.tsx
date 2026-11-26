@@ -366,7 +366,7 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                     answerInputRef={questionAnswerInputRef}
                   />
                 )}
-                {nativeChatStructuredAsyncQuestion(props, controller, session, transport, submits)}
+                {nativeChatStructuredQuestions(props, controller, session, transport, submits)}
                 <NativeChatQueuedMessageList
                   controller={submits.queuedMessages}
                   chatWorktreeId={ownerWorktreeId ?? null}
