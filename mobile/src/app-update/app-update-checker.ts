@@ -22,9 +22,13 @@ export type AppUpdateState = {
 
 /** The update home should offer: dismissal hides only the version that was dismissed. */
 export function undismissedAppUpdate(state: AppUpdateState): KnownAppUpdate | null {
-  return state.available && state.available.version !== state.dismissedVersion
+  return state.available && appUpdateId(state.available) !== state.dismissedVersion
     ? state.available
     : null
+}
+
+export function appUpdateId(update: KnownAppUpdate): string {
+  return update.revision ?? update.version
 }
 
 export type AppUpdateCheckerDeps = {
@@ -56,7 +60,8 @@ export function createAppUpdateChecker(deps: AppUpdateCheckerDeps) {
       deps.source &&
       latest &&
       deps.installedVersion &&
-      isNewerReleaseVersion(latest.version, deps.installedVersion)
+      (deps.source.isApplicable?.(latest) ??
+        isNewerReleaseVersion(latest.version, deps.installedVersion))
         ? latest
         : null
     return {
@@ -131,7 +136,13 @@ export function createAppUpdateChecker(deps: AppUpdateCheckerDeps) {
       const result = await Promise.race([source.check(installed, controller.signal), timedOut])
       const checkedAt = deps.now()
       const latest =
-        result.kind === 'available' ? { version: result.version, url: result.url } : null
+        result.kind === 'available'
+          ? {
+              version: result.version,
+              url: result.url,
+              ...(result.revision === undefined ? {} : { revision: result.revision })
+            }
+          : null
       prefs = { ...prefs, lastCheckedAt: checkedAt, latest }
       schedule(checkedAt + APP_UPDATE_CHECK_INTERVAL_MS)
       await deps.saveCheck(checkedAt, latest).catch(() => {})
