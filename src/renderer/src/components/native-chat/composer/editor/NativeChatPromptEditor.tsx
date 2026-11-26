@@ -133,7 +133,9 @@ function NativePromptEditor({
         if (text == null) {
           return false
         }
-        const content = editor?.schema.nodeFromJSON(promptTextContent(toLfPastedText(text), imageChips))
+        const content = editor?.schema.nodeFromJSON(
+          promptTextContent(toLfPastedText(text), imageChips)
+        )
         if (!content) {
           return false
         }
@@ -272,7 +274,9 @@ function NativePromptEditor({
               adopted.current = readNativeChatDraftSnapshot(scopeKey, value)
               const stored = adopted.current?.document
               if (stored || !value) {
-                editor.commands.setContent(openingPromptContent(stored, '', imageChips), { emitUpdate: false })
+                editor.commands.setContent(openingPromptContent(stored, '', imageChips), {
+                  emitUpdate: false
+                })
                 syncSideChatPill(editor, sideChatEnabled(editor))
                 applyPosition(previousRange)
                 return

@@ -288,8 +288,7 @@ export abstract class OrcaRuntimeWithPreservedBranchCleanup extends RuntimeAgent
     resolveRepo: (...args) => this.managedWorktreeQueries.resolveRepoForConnection(...args),
     notifyReposChanged: () => this.notifyReposChanged(),
     resolveFolderConnectionId: (workspace) => this.resolveFolderWorkspaceConnectionId(workspace),
-    acquireFileWatcherRemoval: (path, connectionId) =>
-      this.acquireFileWatcherRemoval(path, connectionId),
+    acquireFileWatcherRemoval: (...args) => this.acquireFileWatcherRemoval(...args),
     teardownFolderWorkspacePtys: (...target) =>
       teardownFolderWorkspacePtys(
         {

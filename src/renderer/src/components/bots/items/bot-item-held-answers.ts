@@ -67,7 +67,7 @@ export function returnBotItemHeldAnswer(
     ],
     undefined,
     undefined,
-    [...skills]
+    { skills: [...skills], restoreImageReferences: true }
   )
 }
 

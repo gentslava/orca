@@ -1,7 +1,7 @@
+// @vitest-environment happy-dom
 import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
 import { AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY } from '../../../../../../../shared/agent-session/capabilities/agent-session-runtime-capabilities'
 import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../../../../../shared/agent-session/lifecycle/operations/agent-session-create-capabilities'
-// @vitest-environment happy-dom
 import {
   mocks,
   LOCAL_TARGET,
@@ -18,11 +18,18 @@ import {
   LIVE_OPTIONS
 } from './use-structured-agent-session-options.test-fixture'
 import { act, cleanup, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type * as RuntimeCapabilityProof from '@/runtime/rpc/compatibility/runtime-capability-proof'
 
 import { forgetStructuredSessionSelection } from '@/lib/agent-session/options/structured-agent-session-selection-controller'
 import { resetHostModelCatalogSnapshotsForTests } from '@/runtime/native-chat/model-catalogs/host-model-catalog-snapshots'
 import { replaceRuntimeEnvironmentRevisions } from '@/runtime/rpc/environment-revisions/runtime-environment-revision'
+const supportsRemote = vi.hoisted(() => vi.fn())
+vi.mock('@/runtime/rpc/compatibility/runtime-capability-proof', async (importOriginal) => ({
+  ...(await importOriginal<typeof RuntimeCapabilityProof>()),
+  runtimeEnvironmentSupportsCapability: supportsRemote
+}))
+
 describe('useStructuredAgentSessionOptions', () => {
   afterEach(() => {
     cleanup()
@@ -30,7 +37,7 @@ describe('useStructuredAgentSessionOptions', () => {
     replaceRuntimeEnvironmentRevisions([])
   })
   beforeEach(() => {
-    mocks.supportsRemote.mockReset().mockResolvedValue(false)
+    supportsRemote.mockReset().mockResolvedValue(false)
     forgetStructuredSessionSelection('session-1')
     mocks.call.mockReset()
     mocks.enqueue.mockReset()
@@ -77,7 +84,7 @@ describe('useStructuredAgentSessionOptions', () => {
         AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
       ]
       setLocalRuntimeCapabilitiesForTests(capabilities)
-      mocks.supportsRemote.mockResolvedValue(true)
+      supportsRemote.mockResolvedValue(true)
       // New chats follow only on the pairing that holds this chat.
       replaceRuntimeEnvironmentRevisions([{ id: 'server-1', createdAt: 1, pairingRevision: 1 }])
       let reset = false
@@ -119,7 +126,7 @@ describe('useStructuredAgentSessionOptions', () => {
         expect.anything()
       )
       if (paired) {
-        expect(mocks.supportsRemote).toHaveBeenCalledWith(
+        expect(supportsRemote).toHaveBeenCalledWith(
           'server-1',
           AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY
         )

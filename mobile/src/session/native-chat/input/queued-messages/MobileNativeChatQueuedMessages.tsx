@@ -17,7 +17,10 @@ import {
   useMobileQueuedCardActions,
   type MobileQueuedCardActions
 } from './mobile-queued-card-actions'
-import { headSteerableQueuedMessageCard, lastSteerableQueuedMessageCard } from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
+import {
+  headSteerableQueuedMessageCard,
+  lastSteerableQueuedMessageCard
+} from '../../../../../../src/shared/agent-session/view/structured-agent-session-queued-cards'
 import type { AgentSessionQueuePause } from '../../../../../../src/shared/agent-session/requests/agent-session-queued-message-wire'
 import type { MobileQueuedMessageEdit } from './use-mobile-structured-queued-message-controls'
 import type { MobileQueuedMessageInlineEditor } from './mobile-queued-message-edit-draft'
@@ -183,7 +186,6 @@ export function MobileNativeChatQueuedMessages({
   const editingHidden =
     editor !== undefined && cards.length > 0 && editor.messageId !== cards[0]!.messageId
   const showAll = open || cards.length === 1 || editingHidden
-  const shownCards = showAll ? cards : cards.slice(0, 1)
   const queueBusy = busyIds.has(QUEUE_KEY)
   const headId = mobileNativeChatShortcutCard(steerOrder ?? cards)?.messageId
   const messageIds = cards.map((card) => card.messageId)
@@ -339,7 +341,7 @@ export function MobileNativeChatQueuedMessages({
                 {...drag}
               />
             ) : (
-              shownCards.map((card) => renderRow(card, reveal, show))
+              (showAll ? cards : cards.slice(0, 1)).map((card) => renderRow(card, reveal, show))
             )
           }}
         </MobileQueuedMessageScrollList>

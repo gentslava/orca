@@ -315,13 +315,11 @@ export function nativeChatHistoryTurnFold(
       const retained = new Set(expandedTurnKeys)
       before.messages.forEach((message, index) => {
         const at = indexes.get(message.id)
-        const turnKey = at === undefined ? undefined : input.rows[at]?.turnKey
-        if (
-          at !== undefined &&
-          turnKey !== undefined &&
-          !before.fold.foldedRows.has(index) &&
-          fold.foldedRows.has(at)
-        ) {
+        if (at === undefined || before.fold.foldedRows.has(index) || !fold.foldedRows.has(at)) {
+          return
+        }
+        const turnKey = input.rows[at]?.turnKey
+        if (turnKey !== undefined) {
           retained.add(turnKey)
         }
       })

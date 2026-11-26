@@ -44,6 +44,7 @@ const queue = (count: number): StructuredAgentSessionQueuedMessagesController =>
   editor: undefined,
   edit: async () => {},
   steerHead: undefined,
+  steerLast: undefined,
   isWorking: true
 })
 

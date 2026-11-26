@@ -25359,6 +25359,12 @@
         "provisionFailed": "虛擬機器未建立，或建立過程中斷。請開啟「設定」將其銷毀或移除。"
       },
       "suspendFailed": "無法暫停虛擬機器工作區"
+    },
+    "start": {
+      "title": "要開啟什麼？",
+      "description": "為此專案選擇代理或工具。",
+      "agents": "代理",
+      "manageAgents": "管理代理"
     }
   },
   "tabHoverCard": {

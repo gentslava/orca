@@ -9,13 +9,14 @@ function citationRule(state: StateInline, silent: boolean): boolean {
     return false
   }
   if (!silent) {
-    if (state.linkLevel === 0) {
+    const canLink = 'linkLevel' in state && state.linkLevel === 0
+    if (canLink) {
       state
         .push('link_open', 'a', 1)
         .attrSet('href', createNativeChatFileHref(citation.path, 'literal'))
     }
     state.push('text', '', 0).content = citation.label
-    if (state.linkLevel === 0) {
+    if (canLink) {
       state.push('link_close', 'a', -1)
     }
   }

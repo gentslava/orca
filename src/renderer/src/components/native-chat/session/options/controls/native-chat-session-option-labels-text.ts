@@ -1,4 +1,5 @@
 import { translate } from '@/i18n/i18n'
+import type { Translate } from '@/i18n/use-translate'
 import type {
   NativeChatSessionOptionCopyId,
   NativeChatSessionOptionSay
@@ -60,3 +61,13 @@ const PIECES: Record<NativeChatSessionOptionCopyId, (values?: { value0: string }
 
 export const sayNativeChatSessionOptionTranslated: NativeChatSessionOptionSay = (id, values) =>
   PIECES[id](values)
+
+// Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
+export function pillAccessibleName(title: string, value: string, t: Translate = translate): string {
+  return value === title
+    ? title
+    : t('components.native-chat.composer.pillAccessibleName', '{{value0}} {{value1}}', {
+        value0: title,
+        value1: value
+      })
+}

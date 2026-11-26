@@ -22,7 +22,7 @@ import { NativeChatAutomationRunRow } from '../../automation-run/NativeChatAutom
 import { mergedRunFailures } from '../../../../../../shared/native-chat/transcript/events/native-chat-event-plan'
 import { NativeChatNoticeRow } from '../notices/NativeChatNoticeRow'
 import { NativeChatSubagentEndingRow } from '../../subagents/NativeChatSubagentEndingRow'
-import { isNativeChatSubagentEndingPresentation } from '../../subagents/native-chat-subagent-ending'
+import { isNativeChatSubagentEndingPresentation } from '../../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending'
 import { NativeChatBotCreatedRow, NativeChatTookOverRow } from '../../NativeChatBotCreatedRow'
 import { nativeChatNoticeBlock } from '../../../../../../shared/native-chat/transcript/notices/native-chat-notice'
 import { nativeChatMessageRowBlocks } from './native-chat-message-row-words'

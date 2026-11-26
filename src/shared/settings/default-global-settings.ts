@@ -1,3 +1,4 @@
+import { DEFAULT_PROVIDER_QUOTA_SETTINGS } from './default-provider-quota-settings'
 import type { GlobalSettings } from './global-settings-types'
 import { DEFAULT_EXPERIMENTAL_SETTINGS } from './default-experimental-settings'
 import type { NotificationSettings } from '../notifications/notification-settings-types'
@@ -258,13 +259,7 @@ export function buildDefaultSettings(args: {
     visibleTaskProvidersDefaultedForJira: true,
     defaultRepoSelection: null,
     defaultLinearTeamSelection: null,
-    opencodeSessionCookie: '',
-    opencodeWorkspaceId: '',
-    minimaxGroupId: '',
-    minimaxUsageModels: 'general',
-    minimaxEndpoint: 'overseas',
-    zcodePlanSite: 'zai',
-    claudeOAuthUsageEnabled: true,
+    ...DEFAULT_PROVIDER_QUOTA_SETTINGS,
     agentCmdOverrides: {},
     // Arguments hold only the user's own text; the permission flag comes from the choice below.
     agentDefaultArgs: {},

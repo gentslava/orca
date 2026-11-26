@@ -144,6 +144,7 @@ export function WorkerDockRoster(props: {
   // With no rows, the pill says only what is known: the provider reports work it does not list,
   // or the worker read failed (which claims nothing about whether anything runs).
   const unlisted = items.length === 0 && Boolean(props.incomplete)
+  const defaultGlyph = unlisted ? 'running' : 'queued'
   const unread = items.length === 0 && !unlisted && Boolean(props.unavailable)
   const shown = items.length > 0 || unlisted || unread
   const close = useLatestHandler((refocus: boolean) => {
@@ -290,13 +291,7 @@ export function WorkerDockRoster(props: {
         <WorkerDockPill
           pill={pill}
           kind={topRow?.kind}
-          glyph={
-            top
-              ? workerDockGlyph({ ...top, retired: topRow?.retired })
-              : unlisted
-                ? 'running'
-                : 'queued'
-          }
+          glyph={top ? workerDockGlyph({ ...top, retired: topRow?.retired }) : defaultGlyph}
           label={chipLabel}
           latest={topRow ? workerDockRowTitle(topRow) : count}
           total={total}

@@ -29,7 +29,6 @@ import type { NotificationSettings } from '../notifications/notification-setting
 import type { CtrlTabOrderMode } from '../workspace-layout/tab-groups/tab-types'
 import type { TerminalQuickCommand } from '../terminal/quick-commands/terminal-quick-command-types'
 import type { TuiAgent } from '../agent-launch/catalog/tui-agent'
-import type { ZcodePlanSite } from '../agent-accounts/usage-credentials/zcode-plan-sites'
 import type {
   AgentDashboardMode,
   BranchPrefixStrategy,
@@ -374,8 +373,6 @@ export type GlobalSettings = GlobalSettingsBase & {
   minimaxUsageModels: string
   /** MiniMax account region; defaults to overseas for existing users. */
   minimaxEndpoint: MiniMaxEndpoint
-  /** GLM Coding Plan site whose API key is saved in AI Provider Accounts; defaults to the international Z.AI console. */
-  zcodePlanSite?: ZcodePlanSite
   /** Poll Claude usage with existing CLI credentials. Off uses live terminal readings only. */
   claudeOAuthUsageEnabled: boolean
   /** Per-agent CLI command overrides. A missing key means use the catalog default binary name. */

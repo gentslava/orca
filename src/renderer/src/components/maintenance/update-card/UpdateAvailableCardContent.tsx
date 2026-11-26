@@ -121,12 +121,14 @@ export function UpdateAvailableRichContent({
 export function UpdateAvailableSimpleContent({
   version,
   releaseUrl,
+  manualInstall = false,
   onUpdate,
   onClose,
   externallyManaged = false
 }: {
   version: string
   releaseUrl?: string
+  manualInstall?: boolean
   onUpdate: () => void
   onClose: () => void
   externallyManaged?: boolean
@@ -157,7 +159,9 @@ export function UpdateAvailableSimpleContent({
         <ExternallyManagedNote />
       ) : (
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {t('auto.components.UpdateCard.fdd4a364fa', "Sessions won't be interrupted.")}
+          {manualInstall
+            ? t('updates.forkPreview.manualInstall', 'Install the downloaded update manually.')
+            : t('auto.components.UpdateCard.fdd4a364fa', "Sessions won't be interrupted.")}
         </p>
       )}
       {releaseUrl && (
@@ -176,7 +180,12 @@ export function UpdateAvailableSimpleContent({
           onClick={onUpdate}
           className="mt-0.5 w-full cursor-pointer"
         >
-          {t('auto.components.UpdateCard.ec8fe71cfc', 'Update')}
+          {manualInstall
+            ? t(
+                'auto.components.settings.GeneralUpdateSettingsSection.downloadUpdate',
+                'Download update'
+              )
+            : t('auto.components.UpdateCard.ec8fe71cfc', 'Update')}
         </Button>
       )}
     </div>

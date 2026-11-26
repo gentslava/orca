@@ -28,6 +28,7 @@ describe('command disclosure', () => {
     expect(view.hasDetail).toBe(true)
     expect(view.label?.target.length).toBeLessThan(command.trim().length)
     expect(view.label?.fullCommand).toBe(command.trim())
+    expect(view.label?.commandDetail).toBeNull()
     if (!view.call) {
       throw new Error('Expected a tool call')
     }

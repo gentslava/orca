@@ -50,6 +50,7 @@ function controller(
     editor: undefined,
     edit: vi.fn(async () => {}),
     steerHead: undefined,
+    steerLast: undefined,
     isWorking: false,
     ...extra
   }

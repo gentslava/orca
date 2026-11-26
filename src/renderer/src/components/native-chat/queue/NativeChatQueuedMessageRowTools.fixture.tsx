@@ -37,6 +37,7 @@ function Queue({ cards, fontSize }: { cards: QueuedMessageCard[]; fontSize?: num
     editor: undefined,
     edit: noop,
     steerHead: undefined,
+    steerLast: undefined,
     isWorking: true
   }
   return (

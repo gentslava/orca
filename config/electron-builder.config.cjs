@@ -113,9 +113,22 @@ const isWinDaily = process.env.ORCA_WIN_DAILY === '1'
 const isWinAdhoc = process.env.ORCA_WIN_ADHOC === '1'
 const isWinDevChannel = isWinHourly || isWinDaily || isWinAdhoc
 const isMacRelease = process.env.ORCA_MAC_RELEASE === '1' || isMacHourly || isMacDaily || isMacAdhoc
+const forkMacTeamId = process.env.ORCA_FORK_MAC_TEAM_ID
+if (
+  forkMacTeamId &&
+  (!isMacRelease ||
+    !/^[A-Z0-9]{10}$/.test(forkMacTeamId) ||
+    !/[.-]signed\.local\.forkpreview\.\d+\.[0-9a-f]{12}$/.test(
+      process.env.ORCA_LOCAL_BUILD_VERSION ?? ''
+    ))
+) {
+  throw new Error('Signed fork packaging requires a Developer ID team and a pinned fork version')
+}
 const isLinuxArm64Release = process.env.ORCA_LINUX_ARM64_RELEASE === '1'
 const localBuildVersion =
-  isMacRelease || isWinDevChannel ? undefined : process.env.ORCA_LOCAL_BUILD_VERSION
+  (isMacRelease && !forkMacTeamId) || isWinDevChannel
+    ? undefined
+    : process.env.ORCA_LOCAL_BUILD_VERSION
 const isHourlyChannel = isMacHourly || isWinHourly
 const isDailyChannel = isMacDaily || isWinDaily
 const isAdhocChannel = isMacAdhoc || isWinAdhoc
@@ -267,7 +280,7 @@ const macUsageDescriptions = {
   ...MACOS_FOLDER_USAGE_DESCRIPTIONS
 }
 // Developer ID team that signs every release-channel mac build.
-const ORCA_MAC_TEAM_ID = '6CX3WHS9HZ'
+const ORCA_MAC_TEAM_ID = forkMacTeamId ?? '6CX3WHS9HZ'
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
@@ -488,6 +501,12 @@ module.exports = {
         context.packager.appInfo.id
       )
       const architecture = macSliceArch(context.arch, 'local-build compatibility')
+      if (forkMacTeamId) {
+        if (architecture !== 'arm64') {
+          throw new Error('The fork update channel requires the macOS ARM64 package')
+        }
+        writeFileSync(join(resourcesDir, 'orca-fork-macos-update-channel'), 'gentslava/orca\n')
+      }
       const schedulingAddon = buildMacShipItScheduling(resourcesDir, architecture)
       await signMacStandaloneHelper(schedulingAddon, 'ShipIt scheduling', context.packager)
       const menuDeadKeyAddon = buildMacNativeAddon(
@@ -869,13 +888,18 @@ module.exports = {
   // Dual-arch builds need target node-pty rebuilds or Intel Macs get arm64 binaries and posix_spawnp failure.
   // beforeBuild performs targeted rebuild then returns false to skip optional cpu-features.
   npmRebuild: true,
-  publish: {
-    provider: 'github',
-    owner: 'stablyai',
-    repo: devChannelRepo ?? 'orca',
-    // Keep main-repo releases draft until release-cut verifies all assets; early --publish always would expose missing Windows installers.
-    releaseType: devChannelRepo ? 'prerelease' : 'draft'
-  }
+  publish: forkMacTeamId
+    ? {
+        provider: 'generic',
+        url: 'https://github.com/gentslava/orca/releases'
+      }
+    : {
+        provider: 'github',
+        owner: 'stablyai',
+        repo: devChannelRepo ?? 'orca',
+        // Keep main-repo releases draft until release-cut verifies all assets; early --publish always would expose missing Windows installers.
+        releaseType: devChannelRepo ? 'prerelease' : 'draft'
+      }
 }
 
 // Stamp the effective channel version where node-mode CLI code can read it.

@@ -1,8 +1,8 @@
 import { defineFixture } from '../../component-fixtures/component-fixture'
-import { getDefaultSettings } from '../../../../shared/constants'
-import type { NativeChatAppearanceSettings } from '../../../../shared/native-chat/native-chat-appearance-settings'
+import { getDefaultSettings } from '../../../../shared/orca-profiles/constants'
+import type { NativeChatAppearanceSettings } from '../../../../shared/native-chat/settings/native-chat-appearance-settings'
 import Settings from './Settings'
-import { ConfirmationDialogProvider } from '../confirmation-dialog'
+import { ConfirmationDialogProvider } from '../dismiss/confirmation/confirmation-dialog'
 
 function settingsWidth(
   pane: 'general' | 'appearance' | 'shortcuts' | 'plugins',

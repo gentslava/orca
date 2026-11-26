@@ -26,7 +26,7 @@ async function recordTurn(id: string, state: 'running' | 'interrupted' = 'runnin
     throw new Error('expected the conversation open')
   }
   const turnId = `turn-of-${id}`
-  const startedAt = Date.now()
+  const startedAt = Date.UTC(2026, 10, 26, 12)
   await journal.appendItem(
     { provider: 'codex', threadId: THREAD, turnId, ordinal: 0 },
     {
