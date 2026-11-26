@@ -493,3 +493,27 @@ index c79ece8b1c86df054f8e0394333fef156cd11a63..cc4c18ce24c6b99cbbcfc1ca299a2f3e
 +        if (turnKey !== undefined) {
            retained.add(turnKey)
          }
+diff --git a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.image-owner.test.tsx b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.image-owner.test.tsx
+index 0a8e877fbcb6a21d8ca91a5626c37c2c3e37a265..230792569b6731ead65281f51b874bcdbee6d1e6 100644
+--- a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.image-owner.test.tsx
++++ b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.image-owner.test.tsx
+@@ -11,4 +11,5 @@ import { stubRpcClient } from '../../../../transport/rpc/rpc-client-test-stub'
+ vi.mock('react-native', async () => ({
+   ...(await import('../../../../test-support/react-native-motion-stub')).reactNativeMotionStub(),
++  BackHandler: { addEventListener: () => ({ remove: () => {} }) },
+   Image: 'Image',
+   Modal: 'Modal',
+diff --git a/mobile/src/session/use-mobile-structured-model-default-send.test.tsx b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
+index f186b751593eb32c4f57d850be9f8a378cf0546e..0ae82b0916a28ebeed2ef4d7b6a07d6f7be52775 100644
+--- a/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
++++ b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
+@@ -32,4 +32,9 @@ vi.mock('react-native', async () => {
+ })
+ 
++vi.mock('expo-router', () => {
++  const router = { push: vi.fn() }
++  return { useRouter: () => router }
++})
++
+ vi.mock('react-native-safe-area-context', () => ({
+   useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 })
