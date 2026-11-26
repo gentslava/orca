@@ -3835,6 +3835,7 @@
         "message": "Message from",
         "notSentYet": "not sent yet"
       },
+      "sessionLink": "Link",
       "kind": {
         "started": "Started",
         "reopened": "Reopened",
@@ -8567,13 +8568,13 @@
       "failed": "Couldn’t update the agent list."
     }
   },
-  "workspaceOptions": {
-    "recentActivity": "Most recent workspace activity"
-  },
   "sidebar": {
     "cardSlot": {
       "working": "Working"
     }
+  },
+  "workspaceOptions": {
+    "recentActivity": "Most recent workspace activity"
   },
   "chats": {
     "delete": {
