@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { lazyZodSchema } from '../../schema/lazy-zod-schema'
 import {
   BrowserTarget,
   ExpectUrlBrowserTarget,
@@ -45,35 +46,6 @@ export const Scroll = ExpectUrlBrowserTarget.extend({
     .optional()
 })
 
-export const Screencast = BrowserTarget.extend({
-  format: z
-    .unknown()
-    .optional()
-    .transform((v) => (v === 'png' ? 'png' : 'jpeg'))
-    .pipe(z.enum(['png', 'jpeg'])),
-  quality: OptionalFiniteNumber,
-  maxWidth: OptionalFiniteNumber,
-  maxHeight: OptionalFiniteNumber,
-  viewportWidth: OptionalFiniteNumber,
-  viewportHeight: OptionalFiniteNumber,
-  deviceScaleFactor: OptionalFiniteNumber,
-  mobile: OptionalBoolean,
-  everyNthFrame: OptionalFiniteNumber,
-  minFrameIntervalMs: OptionalFiniteNumber,
-  // Ask for frame credit; the host echoes `frameAck: true` in `ready`. Old hosts strip it.
-  frameAck: z.literal(1).optional(),
-  // Ask for the page's cursor and hovered link: `ready.pointer`, then `pointer` events. Old hosts strip it.
-  pointerEvents: z.literal(1).optional(),
-  // Ask the page's permission, sign-in and open-app prompts as `pagePrompt` events. Old hosts strip it.
-  pagePrompts: z.literal(1).optional(),
-  // Open the pickers this viewer's own input opens on the viewer, as `fileChooser` events. Old hosts strip it.
-  fileChoosers: z.literal(1).optional(),
-  // Send right presses to the page and receive the menus they open as `contextMenu` events. Old hosts strip it.
-  contextMenus: z.literal(1).optional(),
-  // Ask where an agent points and presses on the page as `agentCursor` events. Old hosts strip it.
-  agentCursor: z.literal(1).optional()
-})
-
 export const FullScreenshot = BrowserTarget.extend({
   format: z
     .unknown()
@@ -86,7 +58,7 @@ export const Eval = ExpectUrlBrowserTarget.extend({
   expression: requiredString('Missing required --expression')
 })
 
-export const TabList = z.object({ worktree: OptionalString })
+export const TabList = lazyZodSchema(() => z.object({ worktree: OptionalString }))
 
 // Require exactly one of index/page. Opt-in focus reveals only within the current worktree;
 // other worktrees silently stage selection so parallel agents cannot steal the screen.
@@ -107,22 +79,26 @@ export const TabSwitch = BrowserTarget.extend({
   { message: 'Missing required --index (non-negative integer) or --page' }
 )
 
-export const TabShow = z.object({
-  page: requiredString('Missing required --page'),
-  worktree: OptionalString
-})
+export const TabShow = lazyZodSchema(() =>
+  z.object({
+    page: requiredString('Missing required --page'),
+    worktree: OptionalString
+  })
+)
 
-export const TabCurrent = z.object({ worktree: OptionalString })
+export const TabCurrent = lazyZodSchema(() => z.object({ worktree: OptionalString }))
 
-export const TabClose = z.object({
-  index: z
-    .unknown()
-    .transform((v) => (typeof v === 'number' ? v : undefined))
-    .pipe(z.union([z.number(), z.undefined()]))
-    .optional(),
-  page: OptionalString,
-  worktree: OptionalString
-})
+export const TabClose = lazyZodSchema(() =>
+  z.object({
+    index: z
+      .unknown()
+      .transform((v) => (typeof v === 'number' ? v : undefined))
+      .pipe(z.union([z.number(), z.undefined()]))
+      .optional(),
+    page: OptionalString,
+    worktree: OptionalString
+  })
+)
 
 export const TabSetProfile = BrowserTarget.extend({
   profileId: requiredString('Missing required --profile')
@@ -132,18 +108,26 @@ export const TabProfileClone = BrowserTarget.extend({
   profileId: requiredString('Missing required --profile')
 })
 
-export const ProfileDelete = z.object({ profileId: requiredString('Missing required --profile') })
+export const ProfileDelete = lazyZodSchema(() =>
+  z.object({ profileId: requiredString('Missing required --profile') })
+)
 
-export const ProfileClearGoogleCookies = ProfileDelete.extend({
-  executorRuntimeId: z.string().min(1)
-})
+export const ProfileClearGoogleCookies = lazyZodSchema(() =>
+  ProfileDelete.extend({
+    executorRuntimeId: z.string().min(1)
+  })
+)
 
-export const ProfileImportFromBrowser = z.object({
-  profileId: requiredString('Missing required --profile'),
-  browserFamily: requiredString('Missing required --browser-family'),
-  browserProfile: OptionalString,
-  supportsPartitionSkippedCookies: z.literal(true).optional()
-})
+export const ProfileClearCookies = ProfileClearGoogleCookies
+
+export const ProfileImportFromBrowser = lazyZodSchema(() =>
+  z.object({
+    profileId: requiredString('Missing required --profile'),
+    browserFamily: requiredString('Missing required --browser-family'),
+    browserProfile: OptionalString,
+    supportsPartitionSkippedCookies: z.literal(true).optional()
+  })
+)
 
 export const Drag = ExpectUrlBrowserTarget.extend({
   from: requiredString('Missing required --from and --to element refs'),
@@ -195,7 +179,10 @@ export const Highlight = BrowserTarget.extend({
 })
 
 export const Exec = BrowserTarget.extend({
-  command: requiredString('Missing required --command')
+  command: requiredString('Missing required --command'),
+  // A local caller's directory (and legacy WSL distro), so file operands resolve as it typed them.
+  cwd: OptionalString,
+  wslDistro: OptionalString
 })
 
 export const Get = BrowserTarget.extend({
@@ -293,11 +280,13 @@ export const MouseXY = ExpectUrlBrowserTarget.extend({
 const BROWSER_MOUSE_MODIFIERS = ['cmd', 'ctrl', 'alt', 'shift'] as const
 export type BrowserMouseModifier = (typeof BROWSER_MOUSE_MODIFIERS)[number]
 
-export const MouseModifiers = z
-  .unknown()
-  .transform((v) => (Array.isArray(v) ? v : undefined))
-  .pipe(z.union([z.array(z.enum(BROWSER_MOUSE_MODIFIERS)), z.undefined()]))
-  .optional()
+export const MouseModifiers = lazyZodSchema(() =>
+  z
+    .unknown()
+    .transform((v) => (Array.isArray(v) ? v : undefined))
+    .pipe(z.union([z.array(z.enum(BROWSER_MOUSE_MODIFIERS)), z.undefined()]))
+    .optional()
+)
 
 // Older hosts strip `modifiers` from mouseDown/mouseUp, so a modified press arrives plain.
 export const MouseButton = ExpectUrlBrowserTarget.extend({
