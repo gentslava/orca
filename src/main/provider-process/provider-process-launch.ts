@@ -1,3 +1,5 @@
+import { removeAppImageRuntimeEnv } from '../pty/shell-startup/appimage-terminal-env'
+
 export type ProviderProcessLaunch = {
   command: string
   args: string[]
@@ -15,6 +17,7 @@ export function resolveProviderChildEnv(
   platform: NodeJS.Platform = process.platform
 ): NodeJS.ProcessEnv {
   const childEnv: NodeJS.ProcessEnv = { ...baseEnv, ...launch.env }
+  removeAppImageRuntimeEnv(childEnv)
   // Windows names are case-insensitive: a differently cased inherited key is the same variable.
   const named = (key: string): string => (platform === 'win32' ? key.toUpperCase() : key)
   const deleted = new Set((launch.envToDelete ?? []).map(named))
