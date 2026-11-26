@@ -19,6 +19,14 @@
       "reason": "Preserve queued draft editing and future-turn choices while a turn is active across the current desktop, mobile, and host RPC contracts."
     },
     {
+      "number": 44451,
+      "reason": "Keep the desktop Default model choice while preserving account-specific listing and compatibility for older clients."
+    },
+    {
+      "number": 33395,
+      "reason": "Keep provider Default on desktop and mobile and serialize its reset before message dispatch."
+    },
+    {
       "number": 33361,
       "reason": "Keep conversation recovery and project navigation scoped to the verified execution host, including independent local and remote folder histories."
     },
@@ -206,7 +214,8 @@
     "45437": [33363, 41166],
     "38963": [36593],
     "33383": [33361],
-    "33395": [44451],
+    "33395": [33362, 44451],
+    "33502": [33361],
     "33576": [44450],
     "36593": [36634],
     "46190": [48573],
@@ -276,6 +285,14 @@
     "33383": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-live-ai-vault-33383"
+    },
+    "44451": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-default-picker-44451"
+    },
+    "33395": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-model-default-33395"
     },
     "33362": {
       "repository": "gentslava/orca",
