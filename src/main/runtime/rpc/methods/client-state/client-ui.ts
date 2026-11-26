@@ -6,6 +6,10 @@ import {
 } from '../../../../../shared/rpc-contract/personal-project-order-params'
 import { mutatePersonalProjectOrder } from '../../../../../shared/personal-project-order-writes'
 import {
+  SetConversationPreferenceParams,
+  updateConversationPreference
+} from '../../../../../shared/conversation-navigation-preferences'
+import {
   normalizeJiraSavedFilterState,
   mutateJiraSavedFilterState
 } from '../../../../../shared/jira/jira-saved-filters'
@@ -68,6 +72,19 @@ export const CLIENT_UI_METHODS = [
       const result = mutatePersonalProjectOrder(context.runtime, params)
       return { ...result, ui: uiForCaller(result.ui, context) }
     }
+  }),
+  defineMethod({
+    name: 'ui.setConversationPreference',
+    permission: 'workspace',
+    params: SetConversationPreferenceParams,
+    handler: (params, { runtime }) => ({
+      preferences: runtime.updateUIState({
+        conversationPreferences: updateConversationPreference(
+          runtime.getUIState().conversationPreferences,
+          params
+        )
+      }).conversationPreferences
+    })
   }),
   defineMethod({
     name: 'ui.getJiraQuickFilters',

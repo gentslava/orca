@@ -19,6 +19,10 @@ export const UI_STATE_DISPOSITIONS = {
     item: 38,
     note: 'Non-Git project keys name the setup owner and execution host; both need the WSL host rewrite.'
   },
+  conversationPreferences: notApplicableDisposition(
+    38,
+    'Conversation preferences retain their execution-host-qualified identities.'
+  ),
   manualRepoOrder: moveDisposition(38, {
     rewriteDesktopCopy: true,
     note: "The desktop copy's hostId changes from 'local' to the WSL host."
@@ -90,6 +94,7 @@ export const UI_STATE_GLOBAL_FIELDS = [
   'activeView',
   'sidebarWidth',
   'sidebarOpen',
+  'sidebarView',
   'rightSidebarOpen',
   'rightSidebarTab',
   'rightSidebarExplorerView',

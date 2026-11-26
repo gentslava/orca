@@ -55,6 +55,8 @@ const sessionPreviewMessageSchema = lazyZodSchema(() =>
 
 const aiVaultSessionSchema = lazyZodSchema(() =>
   z.object({
+    source: z.literal('structured-record').optional(),
+    conversationContent: z.enum(['empty', 'present', 'unknown']).optional().catch(undefined),
     accountHome: AiVaultSessionAccountHomeSchema,
     accountWslDistro: z.string().nullable().optional().catch(undefined),
     id: z.string(),

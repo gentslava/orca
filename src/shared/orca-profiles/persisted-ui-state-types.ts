@@ -1,3 +1,4 @@
+import type { ConversationPreferences } from '../conversation-navigation-preferences'
 import type { GitHistoryRefs } from '../git/history/git-history-types'
 import type { PersonalProjectOrder } from '../personal-project-order'
 import type { BotChatFold } from '../bots/bot-chat-tree'
@@ -37,6 +38,7 @@ import type { WorkspaceStatusDefinition } from '../worktree/types'
 import type { PersistedAutomationHostFilter } from '../automations/ownership/automation-host-filter'
 import type { PendingRuntimeRepoRemoval } from '../remote-runtime/host-catalog/pending-runtime-repo-removal'
 import type { BotSidebarView } from '../bots/bot-sidebar-view'
+import type { SidebarView } from '../ui-chrome/sidebar-body'
 
 export type PersistedUIState = {
   gitGraphFiltersByWorktree?: Record<string, GitHistoryRefs>
@@ -50,6 +52,8 @@ export type PersistedUIState = {
   activeView: TopLevelView
   sidebarWidth: number
   sidebarOpen?: boolean
+  /** Sidebar view picked in its title menu or Appearance, restored at startup; absent or unknown means upstream's project list. */
+  sidebarView?: SidebarView
   rightSidebarOpen: boolean
   rightSidebarTab: RightSidebarTab
   rightSidebarExplorerView: RightSidebarExplorerView
@@ -64,6 +68,7 @@ export type PersistedUIState = {
   groupBy: 'none' | 'workspace-status' | 'repo' | 'pr-status'
   sortBy: 'name' | 'smart' | 'recent' | 'repo' | 'manual'
   personalProjectOrder?: PersonalProjectOrder
+  conversationPreferences?: ConversationPreferences
   /** Project-header order in repo grouping, independent of workspace sort: manual permits drag, recent follows visible activity. */
   projectOrderBy: ProjectOrderBy
   /** Deprecated; the Active only filter is retired and ignored on hydration. */

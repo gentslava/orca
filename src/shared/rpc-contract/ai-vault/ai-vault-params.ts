@@ -35,6 +35,7 @@ export const AiVaultListSessionsParams = lazyZodSchema(() =>
         .pipe(z.union([z.number().int(), z.undefined()]))
         .optional(),
       includeAntigravityIdeSessions: OptionalBoolean,
+      includeStructuredSessions: OptionalBoolean,
       unlimited: OptionalBoolean,
       force: OptionalBoolean,
       afterFingerprint: z
