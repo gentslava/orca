@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 37744,
+      "reason": "Preserve owner-approved linked chat delivery with current journal storage, queued mail and worker identity checks."
+    },
+    {
       "number": 33371,
       "reason": "Keep host-owned usage history and original account attribution while adopting upstream resumable provider scans."
     },
@@ -369,6 +373,10 @@
     "33371": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-9a5a-usage-history-33371"
+    },
+    "37744": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-9a5a-session-links-37744"
     }
   },
   "foreignHeadSources": {
