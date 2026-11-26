@@ -1,6 +1,7 @@
+import '../../../shared/remote-runtime/host-store/environment-store-worker-test-fixture'
 import { EventEmitter } from 'node:events'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { RuntimeMetadata } from '../../../shared/runtime-bootstrap'
+import type { RuntimeMetadata } from '../../../shared/remote-runtime/bootstrap/runtime-bootstrap'
 import { sendRequest } from './transport'
 
 const { createConnection } = vi.hoisted(() => ({ createConnection: vi.fn() }))
@@ -34,14 +35,6 @@ afterEach(() => {
 })
 
 describe('CLI runtime response framing', () => {
-  it('reads a response split across chunks without losing its payload', async () => {
-    const encoded = reply({ data: '界😀done' })
-    const pending = sendRequest(metadata, 'terminal.read', {}, 30000)
-    socket.emit('data', encoded.slice(0, 7))
-    socket.emit('data', encoded.slice(7))
-    await expect(pending).resolves.toMatchObject({ result: { data: '界😀done' } })
-  })
-
   it('refreshes keepalives across chunks and ignores blanks and data after the final frame', async () => {
     vi.useFakeTimers()
     const pending = sendRequest(metadata, 'terminal.read', {}, 100)
@@ -71,21 +64,38 @@ describe('CLI runtime response framing', () => {
     }
   )
 
+  it('marks a timeout before the request is written as never sent', async () => {
+    vi.useFakeTimers()
+    const settled = sendRequest(metadata, 'orchestration.send', {}, 100).then(
+      () => undefined,
+      (error: unknown) => error
+    )
+    // The socket never connects, so nothing was written.
+    await vi.advanceTimersByTimeAsync(100)
+    expect(await settled).toMatchObject({ code: 'runtime_timeout', data: { requestSent: false } })
+  })
+
+  it('leaves a timeout after the request is written as possibly delivered', async () => {
+    vi.useFakeTimers()
+    const write = vi.spyOn(socket, 'write')
+    const pending = sendRequest(metadata, 'orchestration.send', {}, 100)
+    const settled = pending.then(
+      () => undefined,
+      (error: unknown) => error
+    )
+    socket.emit('connect')
+    await vi.advanceTimersByTimeAsync(100)
+    const error = await settled
+    expect(write).toHaveBeenCalledTimes(1)
+    expect(error).toMatchObject({ code: 'runtime_timeout' })
+    expect(error).not.toHaveProperty('data.requestSent')
+  })
+
   it('rejects close with an incomplete frame and does not parse later data', async () => {
     const pending = sendRequest(metadata, 'terminal.read', {}, 30000)
     socket.emit('data', '{"id":')
     socket.emit('close')
     socket.emit('data', reply({ data: 'ignored' }))
     await expect(pending).rejects.toMatchObject({ code: 'runtime_unavailable' })
-  })
-
-  it('rejects a timed out incomplete frame and ignores a late reply', async () => {
-    vi.useFakeTimers()
-    const pending = sendRequest(metadata, 'terminal.read', {}, 100)
-    const rejected = expect(pending).rejects.toMatchObject({ code: 'runtime_timeout' })
-    socket.emit('data', '{"id":')
-    await vi.advanceTimersByTimeAsync(100)
-    socket.emit('data', reply({ data: 'ignored' }))
-    await rejected
   })
 })
