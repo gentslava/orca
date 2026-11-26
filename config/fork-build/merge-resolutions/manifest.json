@@ -1882,5 +1882,161 @@
     "patchSha256": "6ef3e9452af4d9b02c4ecb3a97f5efcc7c1a014fbb81c61a8cca4a9f9efd5827",
     "resultSha256": "54731f65b7b8a5bdd80a8ba05929e595f6004d3d3aff23f140b17ab5a4160cd3",
     "reason": "Preserve frame ordering and prior Claude task controls with the lease-aware publisher and close cleanup."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
+    "blobs": [
+      null,
+      "6dacd781ee4a329a8d5c7cf1c22815bcfeea317c",
+      "85e082e8a0749af8392b208de928ce3812a9e567"
+    ],
+    "patch": "refresh-6e49dcea-33383-31ab9448.patch",
+    "patchSha256": "8305d3556fa04251890daefe8c1b2faae756e824f18b884866b49180291b44c6",
+    "resultSha256": "bd0482671060547cf4583d4438f5ed9d0a33ccedd7a2638883fdeb7b8b8a5440",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "4e45cf7822a58f02e6c5225ed9982f742099f1e9",
+      "355e2def6e241e62ba3d77dbe79d550eef9e2197",
+      "96698ac5fc8fef99a16428c39e83b8720276857f"
+    ],
+    "patch": "refresh-6e49dcea-33383-814a4225.patch",
+    "patchSha256": "a4e5bd632eb8d83925c72793ca6996a6d8ecdcf9b02eb4195a85148e1cc41a88",
+    "resultSha256": "273bc5feb74ddd64a71e1a529333ffbe6424f8f33f299302025c675a380e2bca",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "4583d2f70f8ec3d485a3131248e43dd0dd3c2d0d",
+      "84d30bafcab9acaebaf5e9ea06934dfc6d3d929e",
+      "2a70aa54647651184e15e579b34ba059e113ef4c"
+    ],
+    "patch": "refresh-6e49dcea-33383-b0b361ad.patch",
+    "patchSha256": "c5e07b03cc5a3dceaa878953f8024671063eed3bf42fb473a59467f275cda916",
+    "resultSha256": "4983c71e3adf91177db3b2e232c0f53b4bb7f3d2ea0b05f9879d75a464c95d34",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "1f2b7b6c44b2d9259623e013cdb8946667ffdda5",
+      "1071aa0d13db04c877d06115532074ff3431d943",
+      "d0b92f271322c85915fee8193a71842123d8a112"
+    ],
+    "patch": "refresh-6e49dcea-33383-b9b0f477.patch",
+    "patchSha256": "cc26a928416e4559ddb092a44ad3095157b71f4cac1e3be887ea8377b8d3b43b",
+    "resultSha256": "ec623db8b53199d09cc5c5fe77d44f9becaf1a638bb5ad542db71a028995b5ee",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault/ai-vault-params.ts",
+    "blobs": [
+      "f4ea537d4483f47137c91f6477070e025baa8e43",
+      "99d97b56f32f4e4fbf757b234565e6fa2d4f4bb1",
+      "3f3ae6d79c58ad05747a9cfbbadf7b7e651b57ef"
+    ],
+    "patch": "refresh-6e49dcea-33383-061b9452.patch",
+    "patchSha256": "692f0820e8cddee1de6d32bea93f9d6efcad3e057abb21c903d7a54aa4bd9251",
+    "resultSha256": "8d7f25a50c958b106b23b2d078ddc42029be1580ab2fd4b98a07ff10665d852d",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-read.ts",
+    "blobs": [
+      "54ae018b80afe5ceb9ee0a27be0b3897ce00c5c4",
+      "b357588db075e326be7f9f0843e8b704315cf9e6",
+      "f946cb1b498fa8260e46cfc100b4b34bca49d17f"
+    ],
+    "patch": "refresh-6e49dcea-33502-81efb3a9.patch",
+    "patchSha256": "101ff896b4820736e410be654cecd107aaf34ac73da59c0f80cf67c71067ea9c",
+    "resultSha256": "f681811be0a9f6d34eb583460910101eab9e4aaaee8e6d60eb91640616157c05",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-update.ts",
+    "blobs": [
+      "58a3568f50b94777a31d4a58dacb3cf61e913634",
+      "c03f394dec3a80bdfa3d36aa65f3b1ea492dfbcd",
+      "4befda5563311abdb1a9b7255f18a97e9d1f87f4"
+    ],
+    "patch": "refresh-6e49dcea-33502-67eb3099.patch",
+    "patchSha256": "6fc7882065cb938b1b32e5e3fa0fb609b1daa6944d2bd3436a1625242db40e02",
+    "resultSha256": "e38a6205b6d584071793555c793888de7e732407a15856c7f168916e5910a453",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/client-ui.ts",
+    "blobs": [
+      "53eefb91f60d141007ee58c1943d4cdbc3c3d866",
+      "583d7e9bd11107d4350b4a696eadfc2d4858b40e",
+      "aebf28a876797da36d5b3cc5e805b9ca1b3e7c9c"
+    ],
+    "patch": "refresh-6e49dcea-33502-16f4b9fa.patch",
+    "patchSha256": "b70da23c571d6e3fcea1b7540de8b87f3e0c02a27843bca57771ac43e8851ae3",
+    "resultSha256": "85f48d9584902a645bb1a8a1588b595312409748df694ac433d0b4d24f23836f",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/ui-state-schema-parity-checks.ts",
+    "blobs": [
+      "4f739cacf8d53236cfcb2b3489836ebf3a046225",
+      "47b24b8724da6484026303e7880f2b963126d93a",
+      "2025d3bf3ef9f0d8d482ef4b0a954f43721ac4e8"
+    ],
+    "patch": "refresh-6e49dcea-33502-172e891c.patch",
+    "patchSha256": "1df82c88ed21f4af50d65cd74cfcbc43994db1a50faab0e370f8e339463d212d",
+    "resultSha256": "fbd516ae400bdf81ca024d54fd56127944b436cb9f1ecbe44d813095332692f3",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/shared/orca-profiles/persisted-ui-state-types.ts",
+    "blobs": [
+      "add00b392a2ec3d2fcb1f7964b427fe6777fdc29",
+      "7b39de6a873c842a8d46d4ae510b45c604c8ca83",
+      "97c3aa899a9dc8b42e7537a406ff982cc3f5a3e6"
+    ],
+    "patch": "refresh-6e49dcea-33502-028965f1.patch",
+    "patchSha256": "d113dc15aff64517f459fabb0e45750e8d268378fa258da1cca983ff5f005d8d",
+    "resultSha256": "7a4f51966b638527314e78b940eba5b9e0f9eec8ab2e7bd238a27f193bdddc05",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/shared/remote-runtime/protocol/protocol-version.ts",
+    "blobs": [
+      "9e2add5c1d8a735fe49b9189206e2b40ea4b6028",
+      "3fc5011b771bc73edd524cf2eef6a506e66e934a",
+      "10580ae70acbfc28d413a006280cb2e252737263"
+    ],
+    "patch": "refresh-6e49dcea-33502-e400c615.patch",
+    "patchSha256": "c8f61c01bfa7fd08e2da14d4bf4b9d23c61b5553d4bbf3822130a603b79f9828",
+    "resultSha256": "075966e76b5449fc92df602d70073237df274f6dc49de04745a3cdbe97c0ed5c",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/shared/rpc-contract/client-ui/client-ui-params.ts",
+    "blobs": [
+      "93ac157b5c029cab826563cbed0638a717fdcf23",
+      "bd4ee9c22eb34cff4d8db208dd15390ef0fbf53c",
+      "55edd3d040b02d6e9e29709336c1641974dd8385"
+    ],
+    "patch": "refresh-6e49dcea-33502-44bfa9a7.patch",
+    "patchSha256": "982d2ffa7d603da2ff1300d7657ec408a09034c009dc7a0e36a15e62b8c01bc8",
+    "resultSha256": "00955b5a4e8cf0c9b608ac65190f7f837702b643c35195e49bfcb6d18c513429",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "dbf35e16f0658205abc832d3ac8533185a5a91b4",
+      "93924a02bcaedfa94ff9e67909ce94532aac5d72",
+      "a6009243eab1b206ac44edc80fc9c3d574d684c2"
+    ],
+    "patch": "refresh-6e49dcea-33502-71b259c8.patch",
+    "patchSha256": "4a35a31ebeae648badc966bef32b70412b7a04e12d7d73aaee848cc926b60f51",
+    "resultSha256": "9fb08f5fc4dc59794f726e916b1ca12b8a02a7a428ebfe93fd625046e9454932",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
   }
 ]
