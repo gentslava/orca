@@ -21967,10 +21967,16 @@
       "scrollMessageToTop": "Scroll this message to top",
       "loadingEarlier": "Loading…",
       "loadEarlier": "Load earlier messages",
+      "loadEarlierFailed": "Couldn't load earlier messages.",
+      "loadEarlierRetry": "Retry",
       "loadingEarlierMessages": "Loading earlier messages…",
       "railLabel": "Your messages",
       "railImageMessage": "Image attachment",
       "railEmptyMessage": "Message",
+      "railFilterPlaceholder": "Filter your messages",
+      "railNoMatches": "No messages match",
+      "railTickLabel": "Message {{index}} of {{count}}: {{text}}",
+      "railMatchCount": "{{count}} of {{total}}",
       "prompt": {
         "collapse": "Collapse",
         "expand": "Expand"
@@ -22142,6 +22148,11 @@
       "copyCode": "Copy code",
       "wrapLines": "Wrap lines",
       "disableLineWrap": "Disable line wrap",
+      "htmlPreview": "HTML preview",
+      "htmlView": "HTML view",
+      "htmlViewCode": "Code",
+      "htmlViewPreview": "Preview",
+      "htmlViewPreviewWaiting": "Preview is available when this code block finishes.",
       "context": {
         "unavailable": "Context usage is not known yet. It becomes available after the agent next responds.",
         "summary": "Context: {{used}} / {{window}} tokens ({{percent}}%), estimated from the last response.",
@@ -22322,6 +22333,17 @@
       "imagePreview": {
         "fileActions": "File actions",
         "linkActions": "Link actions"
+      },
+      "imageGallery": {
+        "scopeHelp": "Images near this part of the chat when you opened the preview. Images further up or down aren't included. Close and reopen to update.",
+        "description": "Images in this view: {{position}} of {{count}}. {{help}}",
+        "stepAnnouncement": "Image {{position}} of {{count}} in this view: {{title}}.",
+        "firstImage": "First image.",
+        "lastImage": "Last image.",
+        "loading": "Loading image…",
+        "loadFailed": "Couldn't load {{name}}",
+        "closedImageChanged": "Preview closed because an image changed. Open a thumbnail to capture the current set.",
+        "closedChatChanged": "Preview closed because the chat changed. Open a thumbnail to capture the current set."
       },
       "goalControl": {
         "settingsRejected": "Codex could not apply the selected model and effort. This goal change was not sent. Check the selection and try again.",
@@ -22992,53 +23014,6 @@
         "fromVia": "From {{name}} via {{computer}}",
         "fromViaPhone": "From {{name}}, typed on {{phone}} via {{computer}}"
       },
-      "loadEarlierFailed": "Couldn't load earlier messages.",
-      "loadEarlierRetry": "Retry",
-      "railFilterPlaceholder": "Filter your messages",
-      "railNoMatches": "No messages match",
-      "railTickLabel": "Message {{index}} of {{count}}: {{text}}",
-      "railMatchCount": "{{count}} of {{total}}",
-      "htmlPreview": "HTML preview",
-      "htmlView": "HTML view",
-      "htmlViewCode": "Code",
-      "htmlViewPreview": "Preview",
-      "htmlViewPreviewWaiting": "Preview is available when this code block finishes.",
-      "imageGallery": {
-        "scopeHelp": "Images near this part of the chat when you opened the preview. Images further up or down aren't included. Close and reopen to update.",
-        "description": "Images in this view: {{position}} of {{count}}. {{help}}",
-        "stepAnnouncement": "Image {{position}} of {{count}} in this view: {{title}}.",
-        "firstImage": "First image.",
-        "lastImage": "Last image.",
-        "loading": "Loading image…",
-        "loadFailed": "Couldn't load {{name}}",
-        "closedImageChanged": "Preview closed because an image changed. Open a thumbnail to capture the current set.",
-        "closedChatChanged": "Preview closed because the chat changed. Open a thumbnail to capture the current set."
-      },
-      "children": {
-        "metadata": {
-          "localHost": "Local execution host",
-          "environment": "Environment {{value0}}",
-          "wsl": "WSL · {{value0}}",
-          "ssh": "SSH · {{value0}}",
-          "unknown": "Unknown",
-          "agent": "Agent",
-          "host": "Execution host"
-        },
-        "back": "Back to conversation",
-        "started": "Started {{value0}}",
-        "finished": "Finished {{value0}}",
-        "loading": "Loading agent history…",
-        "unavailable": "This host has not supplied the agent’s conversation history.",
-        "loadEarlier": "Load earlier history",
-        "result": "Recorded result",
-        "starting": "Starting",
-        "unavailableState": "Unavailable",
-        "workersUnavailable": "This host’s worker history is unavailable.",
-        "identityUnavailable": "This worker’s conversation identity could not be verified.",
-        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
-        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
-        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
-      },
       "eventRow": {
         "showLess": "Show less",
         "showMore": "Show more",
@@ -23197,6 +23172,31 @@
         "sampleCall": "Sample call",
         "sampleNote": "Starts a real run",
         "send": "Send"
+      },
+      "children": {
+        "metadata": {
+          "localHost": "Local execution host",
+          "environment": "Environment {{value0}}",
+          "wsl": "WSL · {{value0}}",
+          "ssh": "SSH · {{value0}}",
+          "unknown": "Unknown",
+          "agent": "Agent",
+          "host": "Execution host"
+        },
+        "back": "Back to conversation",
+        "started": "Started {{value0}}",
+        "finished": "Finished {{value0}}",
+        "loading": "Loading agent history…",
+        "unavailable": "This host has not supplied the agent’s conversation history.",
+        "loadEarlier": "Load earlier history",
+        "result": "Recorded result",
+        "starting": "Starting",
+        "unavailableState": "Unavailable",
+        "workersUnavailable": "This host’s worker history is unavailable.",
+        "identityUnavailable": "This worker’s conversation identity could not be verified.",
+        "terminalUnavailable": "This worker runs in a terminal. Its conversation history is unavailable here.",
+        "remoteUnavailable": "This worker’s execution host has not supplied an inspectable conversation.",
+        "retainedUnavailable": "The worker’s identity could not be verified. Showing retained history."
       }
     },
     "tab": {
@@ -31452,35 +31452,6 @@
     "browseOnline": "Browse",
     "browseOnlineLabel": "Browse community translations on orca.dev (opens in your browser)"
   },
-  "projectConversations": {
-    "defaultGroupName": "{{project}} group",
-    "hideProject": "Hide project from list",
-    "hiddenProjects": "Hidden projects",
-    "keepFiles": "Files and history are kept",
-    "restoreProject": "Restore {{project}}",
-    "projectOptionsFor": "Project options for {{project}}",
-    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
-    "search": "Search chats",
-    "projectOrder": "Project order",
-    "allChats": "Chats",
-    "archived": "Archived",
-    "moveUp": "Move up",
-    "moveDown": "Move down",
-    "noChats": "No chats yet",
-    "loading": "Loading chats…",
-    "noArchived": "No archived chats",
-    "noMatching": "No matching chats",
-    "untitled": "Untitled chat",
-    "unpin": "Unpin chat",
-    "pin": "Pin chat",
-    "restore": "Restore chat",
-    "archive": "Archive chat",
-    "working": "Working",
-    "needsYou": "Needs you",
-    "showMore": "Show more",
-    "newChatInProject": "New chat in {{project}}",
-    "saveFailed": "Could not save chat preferences. Update Orca or try again."
-  },
   "agentCliUpdate": {
     "updating": "Updating…",
     "tryAgain": "Try again",
@@ -31574,10 +31545,6 @@
       "next": "Next month"
     }
   },
-  "holdQuit": {
-    "hint": "Agents are still working. Hold ⌘Q to quit.",
-    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
-  },
   "appRail": {
     "navigationLabel": "App navigation",
     "toolsLabel": "App tools",
@@ -31622,5 +31589,38 @@
       "badJson": "Check the pasted JSON: it doesn’t parse.",
       "none": "Orca found no server it can add. SSE servers, servers with their own OAuth client or tool filters, and values read from the environment (${VAR}) aren’t supported."
     }
+  },
+  "projectConversations": {
+    "defaultGroupName": "{{project}} group",
+    "hideProject": "Hide project from list",
+    "hiddenProjects": "Hidden projects",
+    "keepFiles": "Files and history are kept",
+    "restoreProject": "Restore {{project}}",
+    "projectOptionsFor": "Project options for {{project}}",
+    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
+    "search": "Search chats",
+    "projectOrder": "Project order",
+    "allChats": "Chats",
+    "archived": "Archived",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "noChats": "No chats yet",
+    "loading": "Loading chats…",
+    "noArchived": "No archived chats",
+    "noMatching": "No matching chats",
+    "untitled": "Untitled chat",
+    "unpin": "Unpin chat",
+    "pin": "Pin chat",
+    "restore": "Restore chat",
+    "archive": "Archive chat",
+    "working": "Working",
+    "needsYou": "Needs you",
+    "showMore": "Show more",
+    "newChatInProject": "New chat in {{project}}",
+    "saveFailed": "Could not save chat preferences. Update Orca or try again."
+  },
+  "holdQuit": {
+    "hint": "Agents are still working. Hold ⌘Q to quit.",
+    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
   }
 }
