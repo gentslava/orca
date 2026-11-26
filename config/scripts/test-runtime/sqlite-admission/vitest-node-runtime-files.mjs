@@ -37,7 +37,8 @@ const NODE_RUNTIME_INCLUDE = [
   // Bun on macOS fails its read-only directory case with ENOTEMPTY; Node passes it.
   ...(process.platform === 'darwin'
     ? ['config/scripts/worktree-storage/reclaim-worktree-generated-files.test.mjs']
-    : [])
+    : []),
+  'src/main/claude/claude-background-task-control-contract.test.ts'
 ]
 
 /** `filters` limits the SQLite import scan to the tests a filtered CLI run can select. */
