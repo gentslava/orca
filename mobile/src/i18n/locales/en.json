@@ -3456,6 +3456,8 @@
       "onAttach": "Applies when the chat attaches",
       "heldPickRefused": "{{picked}} isn't available in this chat. Kept {{kept}}.",
       "optionsSection": "Options",
+      "searchModels": "Search models…",
+      "noModelsMatch": "No models match your search.",
       "futureMessages": "Choices apply to future messages.",
       "workingWithDescription": "Agent is working. {{description}}"
     },
@@ -3792,17 +3794,6 @@
       "answeredCount_one": "You answered <answer>{{count}} question</answer>",
       "answeredCount_other": "You answered <answer>{{count}} questions</answer>",
       "answeredCount": "You answered <answer>{{count}} questions</answer>"
-    },
-    "approvalRecord": {
-      "cancelled": "Request for <tool>{{tool}}</tool> cancelled",
-      "coordinatorAllowed": "Coordinator allowed <tool>{{tool}}</tool>",
-      "coordinatorDenied": "Coordinator denied <tool>{{tool}}</tool>",
-      "allowedUnnamed": "Allowed <tool>{{tool}}</tool>",
-      "deniedUnnamed": "Denied <tool>{{tool}}</tool>",
-      "youAllowed": "You allowed <tool>{{tool}}</tool>",
-      "youAllowedForSession": "You allowed <tool>{{tool}}</tool> for this session",
-      "youDenied": "You denied <tool>{{tool}}</tool>",
-      "youAnswered": "You answered <tool>{{tool}}</tool>: <answer>{{answer}}</answer>"
     },
     "subagentGroup": {
       "stateCompleted": "completed",
@@ -4337,6 +4328,17 @@
       "always": "Always allow {{server}}",
       "deny": "Deny",
       "thisServer": "this server"
+    },
+    "approvalRecord": {
+      "cancelled": "Request for <tool>{{tool}}</tool> cancelled",
+      "coordinatorAllowed": "Coordinator allowed <tool>{{tool}}</tool>",
+      "coordinatorDenied": "Coordinator denied <tool>{{tool}}</tool>",
+      "allowedUnnamed": "Allowed <tool>{{tool}}</tool>",
+      "deniedUnnamed": "Denied <tool>{{tool}}</tool>",
+      "youAllowed": "You allowed <tool>{{tool}}</tool>",
+      "youAllowedForSession": "You allowed <tool>{{tool}}</tool> for this session",
+      "youDenied": "You denied <tool>{{tool}}</tool>",
+      "youAnswered": "You answered <tool>{{tool}}</tool>: <answer>{{answer}}</answer>"
     },
     "tool": {
       "activity": "Activity"
@@ -8593,13 +8595,13 @@
       "failed": "Couldn’t update the agent list."
     }
   },
-  "workspaceOptions": {
-    "recentActivity": "Most recent workspace activity"
-  },
   "sidebar": {
     "cardSlot": {
       "working": "Working"
     }
+  },
+  "workspaceOptions": {
+    "recentActivity": "Most recent workspace activity"
   },
   "chats": {
     "delete": {
