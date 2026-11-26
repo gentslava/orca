@@ -33,7 +33,13 @@ type NativeChatModelComboboxProps = {
   /** Called for a model other than the current one; the list stays as it is. */
   onSelect: (value: string) => void
   /** Offered where the host can return the chat to the agent's own model. */
-  defaultChoice?: { selected: boolean; modelLabel: string | undefined; onSelect: () => void }
+  defaultChoice?: {
+    selected: boolean
+    modelLabel: string | undefined
+    /** The reported default model's own description, under its name. */
+    modelDescription?: string
+    onSelect: () => void
+  }
   /** The chat host's own CLI, too old for models on Orca's list. */
   cliUpdate?: SessionOptionsCliUpdate
 }
@@ -140,7 +146,7 @@ export function NativeChatModelCombobox({
             {defaultChoice ? (
               <CommandItem
                 value={DEFAULT_MODEL_ROW}
-                keywords={[defaultLabel, defaultDescription]}
+                keywords={[defaultLabel, defaultDescription, defaultChoice.modelDescription ?? '']}
                 selection="palette"
                 disabled={readOnly}
                 aria-current={defaultChoice.selected || undefined}
@@ -153,6 +159,7 @@ export function NativeChatModelCombobox({
                 <NativeChatSessionOptionChoiceBody
                   label={defaultLabel}
                   description={defaultDescription}
+                  detail={defaultChoice.modelDescription}
                 />
                 <span className="ml-auto flex size-3.5 shrink-0 items-center justify-center">
                   {defaultChoice.selected ? (
