@@ -2,6 +2,8 @@ import { expect, it, vi } from 'vitest'
 import { appUpdateId, createAppUpdateChecker, undismissedAppUpdate } from './app-update-checker'
 import { createForkAndroidUpdateSource, FORK_RELEASES_URL } from './fork-android-update-source'
 
+type FetchRelease = Parameters<typeof createForkAndroidUpdateSource>[0]
+
 const stamp = 1795686711352
 const applicationId = 'dev.orca.app'
 const installed = { applicationId, versionCode: 34, timestamp: stamp }
@@ -52,7 +54,7 @@ function receiptFixture(timestamp: number, versionCode = 34) {
 
 function mockGithub(entries: unknown[], receipt: unknown) {
   return vi
-    .fn<typeof fetch>()
+    .fn<FetchRelease>()
     .mockResolvedValueOnce(Response.json(entries))
     .mockResolvedValueOnce(Response.json(receipt))
 }
@@ -121,7 +123,7 @@ it('hides cached upstream and just-installed updates while keeping a later rebui
       lastCheckedAt: checked,
       dismissedVersion: `34:${stamp}`
     }))
-    const source = createForkAndroidUpdateSource(vi.fn<typeof fetch>(), installed)
+    const source = createForkAndroidUpdateSource(vi.fn<FetchRelease>(), installed)
     const checker = createAppUpdateChecker({
       source,
       installedVersion: '0.0.70',

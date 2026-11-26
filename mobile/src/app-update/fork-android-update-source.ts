@@ -49,10 +49,12 @@ export function forkAndroidBuildTimestamp(version: unknown): number | null {
   return Number.isSafeInteger(timestamp) ? timestamp : null
 }
 
+type FetchRelease = (url: string, options: { signal: AbortSignal }) => Promise<Response>
+
 type InstalledBuild = { applicationId: string; versionCode: number; timestamp: number }
 
 export function createForkAndroidUpdateSource(
-  fetchImpl: typeof fetch,
+  fetchImpl: FetchRelease,
   installed: InstalledBuild
 ): AppUpdateSource {
   function isApplicable(update: KnownAppUpdate): boolean {
