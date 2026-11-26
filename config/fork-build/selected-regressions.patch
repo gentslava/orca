@@ -1,0 +1,13 @@
+diff --git a/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts b/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
+index 7595f6df1cc..fc42d493baa 100644
+--- a/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
++++ b/src/main/runtime/agent-session/lifecycle/structured-agent-session-close-method.test.ts
+@@ -43,7 +43,7 @@ const PAIRED_CLI = {
+ }
+ 
+ async function closeRig() {
+-  const rig = await openAuthorityRuntime(await authorityProfile([], { records: [B], visible: [] }))
++  const rig = await openAuthorityRuntime(await authorityProfile([B], { records: [B], visible: [B] }))
+   await rig.runtime.restoreStructuredAgentSessionTabs()
+   const rpc = new RpcDispatcher({
+     runtime: rig.runtime,

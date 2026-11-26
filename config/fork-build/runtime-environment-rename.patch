@@ -1,0 +1,324 @@
+diff --git a/src/cli/hosts/environment-rename.test.ts b/src/cli/hosts/environment-rename.test.ts
+new file mode 100644
+index 00000000000..d3f34d06f23
+--- /dev/null
++++ b/src/cli/hosts/environment-rename.test.ts
+@@ -0,0 +1,72 @@
++// @orca-isolated-worker: the inline environment store is sealed and closed by this file.
++import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
++import { tmpdir } from 'node:os'
++import { join } from 'node:path'
++import { afterEach, expect, it, vi } from 'vitest'
++import { main } from '../index'
++import { encodePairingOffer } from '../../shared/remote-runtime/pairing/pairing'
++import {
++  addEnvironmentFromPairingCode,
++  resolveEnvironment
++} from '../../shared/remote-runtime/host-store/runtime-environment-store'
++import { getEnvironmentStorePath } from '../../shared/remote-runtime/host-store/runtime-environment-store-records'
++import {
++  closeEnvironmentStore,
++  useInlineEnvironmentStoreForCli
++} from '../../shared/remote-runtime/host-store/runtime-environment-store-worker-client'
++
++const directories: string[] = []
++const originalExitCode = process.exitCode
++
++afterEach(async () => {
++  await closeEnvironmentStore()
++  vi.unstubAllEnvs()
++  vi.restoreAllMocks()
++  process.exitCode = originalExitCode
++  for (const directory of directories.splice(0)) {
++    rmSync(directory, { recursive: true, force: true })
++  }
++})
++
++it('renames the selected saved server offline without changing pairing or unreadable entries', async () => {
++  const directory = mkdtempSync(join(tmpdir(), 'orca-environment-rename-'))
++  directories.push(directory)
++  vi.stubEnv('ORCA_USER_DATA_PATH', directory)
++  vi.stubEnv('ORCA_ENVIRONMENT', 'stale-selection')
++  useInlineEnvironmentStoreForCli()
++  const existing = await addEnvironmentFromPairingCode(directory, {
++    name: 'Old server',
++    pairingCode: encodePairingOffer({
++      v: 2,
++      endpoint: 'ws://127.0.0.1:6768',
++      deviceToken: 'private-pairing-token',
++      publicKeyB64: Buffer.from(new Uint8Array(32).fill(1)).toString('base64')
++    })
++  })
++  const path = getEnvironmentStorePath(directory)
++  const store = JSON.parse(readFileSync(path, 'utf8'))
++  const unreadable = { id: 'newer-server', name: 'Future server', futureVersion: 2 }
++  store.environments.push(unreadable)
++  writeFileSync(path, JSON.stringify(store))
++  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
++
++  await main(
++    ['environment', 'rename', '--environment', existing.id, '--name', 'New server', '--json'],
++    directory
++  )
++
++  expect(process.exitCode ?? 0).toBe(0)
++  expect(await resolveEnvironment(directory, existing.id)).toEqual({
++    ...existing,
++    name: 'New server',
++    updatedAt: expect.any(Number)
++  })
++  expect(JSON.parse(readFileSync(path, 'utf8')).environments).toContainEqual(unreadable)
++  const output = String(log.mock.calls[0]?.[0])
++  expect(JSON.parse(output)).toMatchObject({
++    ok: true,
++    result: { environment: { id: existing.id, name: 'New server' } }
++  })
++  expect(output).not.toContain('private-pairing-token')
++  expect(output).not.toContain('publicKeyB64')
++})
+diff --git a/src/cli/hosts/environment.ts b/src/cli/hosts/environment.ts
+index 0e351cbb7cc..a87c5875cd9 100644
+--- a/src/cli/hosts/environment.ts
++++ b/src/cli/hosts/environment.ts
+@@ -21,6 +21,7 @@ import type { RuntimeStatus } from '../../shared/remote-runtime/session-graph/ru
+ import {
+   addEnvironmentFromPairingCode,
+   removeEnvironment,
++  renameEnvironment,
+   resolveEnvironment,
+   type EnvironmentAddResult,
+   type EnvironmentRemoveResult
+@@ -154,6 +155,17 @@ export const ENVIRONMENT_HANDLERS: Record<string, CommandHandler> = {
+       formatEnvironment(value)
+     )
+   },
++  'environment rename': async ({ flags, json }) => {
++    const selector = getRequiredStringFlag(flags, 'environment')
++    const name = getRequiredStringFlag(flags, 'name')
++    refuseReservedEnvironmentName(name)
++    const environment = redactRuntimeEnvironment(
++      await renameEnvironment(getDefaultUserDataPath(), selector, name)
++    )
++    printResult(localSuccess({ environment }), json, ({ environment: value }) =>
++      formatEnvironment(value)
++    )
++  },
+   'environment rm': async ({ flags, json }) => {
+     const selector = getRequiredStringFlag(flags, 'environment')
+     const removed = redactRuntimeEnvironment(
+diff --git a/src/cli/hosts/host-handler-groups.ts b/src/cli/hosts/host-handler-groups.ts
+index bc1531b8948..a3d98ef2ca2 100644
+--- a/src/cli/hosts/host-handler-groups.ts
++++ b/src/cli/hosts/host-handler-groups.ts
+@@ -12,6 +12,7 @@ export const HOST_HANDLER_GROUPS: readonly HandlerGroup[] = [
+       'environment add',
+       'environment list',
+       'environment show',
++      'environment rename',
+       'environment rm'
+     ],
+     load: async () => (await import('./environment.js')).ENVIRONMENT_HANDLERS
+diff --git a/src/cli/runtime/pairing/environments.ts b/src/cli/runtime/pairing/environments.ts
+index 5cd4ccf1a5e..648ae304e37 100644
+--- a/src/cli/runtime/pairing/environments.ts
++++ b/src/cli/runtime/pairing/environments.ts
+@@ -1,6 +1,7 @@
+ import {
+   addEnvironmentFromPairingCode as addEnvironmentFromPairingCodeInStore,
+   removeEnvironment as removeEnvironmentFromStore,
++  renameEnvironment as renameEnvironmentInStore,
+   resolveEnvironment as resolveEnvironmentFromStore,
+   resolveEnvironmentPairingOffer as resolveEnvironmentPairingOfferFromStore
+ } from '../../../shared/remote-runtime/host-store/runtime-environment-store'
+@@ -32,6 +33,18 @@ export async function addEnvironmentFromPairingCode(
+   )
+ }
+ 
++export async function renameEnvironment(
++  userDataPath: string,
++  selector: string,
++  name: string
++): Promise<KnownRuntimeEnvironment> {
++  return await translateStoreError(async () => {
++    const existing = await resolveEnvironmentFromStore(userDataPath, selector)
++    await renameEnvironmentInStore(userDataPath, existing.id, { name })
++    return await resolveEnvironmentFromStore(userDataPath, existing.id)
++  })
++}
++
+ export async function removeEnvironment(
+   userDataPath: string,
+   selector: string
+diff --git a/src/cli/specs/environment.ts b/src/cli/specs/environment.ts
+index 594ed9ee21a..96549a0aff0 100644
+--- a/src/cli/specs/environment.ts
++++ b/src/cli/specs/environment.ts
+@@ -70,6 +70,15 @@ export const ENVIRONMENT_COMMAND_SPECS: CommandSpec[] = [
+     usage: 'orca environment show --environment <selector> [--json]',
+     allowedFlags: [...LOCAL_COMMAND_FLAGS, 'environment']
+   },
++  {
++    path: ['environment', 'rename'],
++    summary: 'Rename one saved Orca server on this client',
++    usage: 'orca environment rename --environment <selector> --name <name> [--json]',
++    allowedFlags: [...LOCAL_COMMAND_FLAGS, 'environment', 'name'],
++    notes: [
++      'Changes only the saved name on this client; the server identity and pairing stay the same. Works offline.'
++    ]
++  },
+   {
+     path: ['environment', 'rm'],
+     destructive: true,
+diff --git a/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts b/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
+index f74fa3c2802..b457fdc010b 100644
+--- a/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
++++ b/src/renderer/src/components/settings/runtime-environments/catalog/use-runtime-environment-mutation-actions.ts
+@@ -181,36 +181,16 @@ export function useRuntimeEnvironmentMutationActions({
+     }
+   }
+ 
+-  const renameEnvironment = async (
+-    environment: PublicKnownRuntimeEnvironment,
+-    nextName: string
+-  ): Promise<boolean> => {
+-    const trimmedName = nextName.trim()
+-    setRenamingId(environment.id)
+-    setRenameError(null)
+-    try {
+-      await window.api.runtimeEnvironments.rename({ selector: environment.id, name: trimmedName })
+-      await loadEnvironments()
+-      if (mountedRef.current) {
+-        toast.success(
+-          t(
+-            'auto.components.settings.RuntimeEnvironmentsPane.serverRenamed',
+-            'Renamed to {{value0}}.',
+-            { value0: trimmedName }
+-          )
+-        )
+-        setRenamingId(null)
+-      }
+-      return true
+-    } catch (error) {
+-      const message = error instanceof Error ? error.message : 'Failed to rename server.'
+-      if (mountedRef.current) {
+-        setRenameError(message)
+-        setRenamingId(null)
+-      }
+-      return false
+-    }
+-  }
++  const renameEnvironment = (environment: PublicKnownRuntimeEnvironment, nextName: string) =>
++    renameSavedRuntimeEnvironment({
++      environment,
++      nextName,
++      mountedRef,
++      loadEnvironments,
++      setRenamingId,
++      setRenameError,
++      t
++    })
+ 
+   return {
+     isSaving,
+@@ -232,3 +212,49 @@ export function useRuntimeEnvironmentMutationActions({
+     renameEnvironment
+   }
+ }
++
++async function renameSavedRuntimeEnvironment({
++  environment,
++  nextName,
++  mountedRef,
++  loadEnvironments,
++  setRenamingId,
++  setRenameError,
++  t
++}: {
++  environment: PublicKnownRuntimeEnvironment
++  nextName: string
++  mountedRef: MutableRefObject<boolean>
++  loadEnvironments: RuntimeEnvironmentMutationActionParams['loadEnvironments']
++  setRenamingId: (id: string | null) => void
++  setRenameError: (error: string | null) => void
++  t: ReturnType<typeof useTranslate>
++}): Promise<boolean> {
++  const trimmedName = nextName.trim()
++  setRenamingId(environment.id)
++  setRenameError(null)
++  try {
++    await window.api.runtimeEnvironments.rename({ selector: environment.id, name: trimmedName })
++    await loadEnvironments()
++    if (mountedRef.current) {
++      toast.success(
++        t(
++          'auto.components.settings.RuntimeEnvironmentsPane.serverRenamed',
++          'Renamed to {{value0}}.',
++          { value0: trimmedName }
++        )
++      )
++    }
++    return true
++  } catch (error) {
++    const message = error instanceof Error ? error.message : 'Failed to rename server.'
++    if (mountedRef.current) {
++      setRenameError(message)
++    }
++    return false
++  } finally {
++    if (mountedRef.current) {
++      setRenamingId(null)
++    }
++  }
++}
+diff --git a/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts b/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
+index 1723bc3ef25..ef52253ae8b 100644
+--- a/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
++++ b/src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts
+@@ -15,7 +15,8 @@ import {
+   getPreferredPairingOffer,
+   type KnownRuntimeEnvironment,
+   type PersistedRuntimeEnvironment,
+-  type RuntimeEnvironmentSource
++  type RuntimeEnvironmentSource,
++  type RuntimeEnvironmentStore
+ } from '../host-catalog/runtime-environments'
+ import {
+   readEnvironmentStore,
+@@ -174,12 +175,7 @@ export function renameEnvironment(
+     throw remoteServerPairingStoreError('nameTaken', { name: colliding.name })
+   }
+   const renamed = { ...existing, name, updatedAt: args.now ?? Date.now() }
+-  writeEnvironmentStore(userDataPath, {
+-    version: 1,
+-    environments: store.environments
+-      .map((entry) => (entry.id === existing.id ? renamed : entry))
+-      .sort((a, b) => a.name.localeCompare(b.name))
+-  })
++  writeReplacedEnvironment(userDataPath, store, renamed)
+   return renamed
+ }
+ 
+@@ -224,13 +220,21 @@ export function replaceEnvironmentPairing(
+     pairingRevision: Math.max(args.now, previousPairingRevision + 1),
+     lastUsedAt: existing.lastUsedAt
+   }
++  writeReplacedEnvironment(userDataPath, store, next)
++  return next
++}
++
++function writeReplacedEnvironment(
++  userDataPath: string,
++  store: RuntimeEnvironmentStore,
++  replacement: PersistedRuntimeEnvironment
++): void {
+   writeEnvironmentStore(userDataPath, {
+     version: 1,
+     environments: store.environments
+-      .map((entry) => (entry.id === existing.id ? next : entry))
++      .map((entry) => (entry.id === replacement.id ? replacement : entry))
+       .sort((a, b) => a.name.localeCompare(b.name))
+   })
+-  return next
+ }
+ 
+ export function resolveEnvironment(

@@ -1,0 +1,90 @@
+diff --git a/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx b/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
+--- a/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
++++ b/src/renderer/src/components/native-chat/composer/editor/NativeChatPromptEditor.tsx
+@@ -67,7 +67,7 @@
+ function NativePromptEditor({
+   scopeKey,
+   positionTarget,
+-  imageRow = NO_IMAGES,
++  imageRow,
+   inputRef,
+   isComposing = NOT_COMPOSING,
+   initialValue,
+@@ -79,10 +79,12 @@
+   className,
+   ...events
+ }: NativeChatPromptEditorProps): React.JSX.Element {
++  // Only an editor given its image row holds image chips; chat keeps images in its tray.
++  const imageChips = imageRow !== undefined
+   const textPositions = useMemo(() => createPromptTextPositionTracking(), [])
+   const adopted = useRef(readNativeChatDraftSnapshot(scopeKey, initialValue))
+   const [initialContent] = useState(() =>
+-    openingPromptContent(adopted.current?.document, initialValue)
++    openingPromptContent(adopted.current?.document, initialValue, imageChips)
+   )
+   const spellcheck = useAppStore((s) => s.settings?.nativeChatComposerSpellcheck !== false)
+   const claimSelection = () => {
+@@ -94,7 +96,9 @@
+   }
+   const { editor, historyPaths, selection } = useNativeChatComposerEditor(scopeKey ?? '', {
+     extensions: [
+-      ...nativeChatPromptExtensions(),
++      ...nativeChatPromptExtensions().filter(
++        (extension) => imageChips || extension.name !== NativeChatImageReference.name
++      ),
+       // A disabled box still says why it is disabled, as the plain text box's placeholder does.
+       Placeholder.configure({
+         placeholder: ({ editor }) => {
+@@ -129,7 +133,7 @@
+         if (text == null) {
+           return false
+         }
+-        const content = editor?.schema.nodeFromJSON(promptTextContent(toLfPastedText(text)))
++        const content = editor?.schema.nodeFromJSON(promptTextContent(toLfPastedText(text), imageChips))
+         if (!content) {
+           return false
+         }
+@@ -246,7 +250,7 @@
+               textPositions.track(editor.state.doc, offset, changed),
+             insertAgentReferences: (references) => insertAgentReferences(editor, references),
+             insertText: (text) => {
+-              const content = editor.schema.nodeFromJSON(promptTextContent(text))
++              const content = editor.schema.nodeFromJSON(promptTextContent(text, imageChips))
+               editor.view.dispatch(
+                 editor.state.tr.replaceSelection(new Slice(content.content, 1, 1))
+               )
+@@ -268,7 +272,7 @@
+               adopted.current = readNativeChatDraftSnapshot(scopeKey, value)
+               const stored = adopted.current?.document
+               if (stored || !value) {
+-                editor.commands.setContent(openingPromptContent(stored, ''), { emitUpdate: false })
++                editor.commands.setContent(openingPromptContent(stored, '', imageChips), { emitUpdate: false })
+                 syncSideChatPill(editor, sideChatEnabled(editor))
+                 applyPosition(previousRange)
+                 return
+@@ -291,7 +295,7 @@
+               start = promptTextOffset(doc, from)
+               end = old.length - promptTextOffset(doc, to)
+               const content = editor.schema.nodeFromJSON(
+-                promptTextContent(value.slice(start, value.length - end))
++                promptTextContent(value.slice(start, value.length - end), imageChips)
+               )
+               editor.commands.command(({ tr }) => {
+                 tr.replaceRange(from, to, new Slice(content.content, 1, 1))
+@@ -380,14 +384,14 @@
+             }
+           }
+         : null,
+-    [editor, scopeKey, applyPosition, textPositions]
++    [editor, scopeKey, applyPosition, imageChips, textPositions]
+   )
+   useNativeChatPromptEditorHandle(inputRef, editor, input)
+   useNativeChatComposerMount(scopeKey ?? '', input, isComposing, disabled)
+ 
+   return (
+     <NativeChatPastedTextScopeProvider value={scopeKey ?? ''}>
+-      <NativeChatImageRowProvider value={imageRow}>
++      <NativeChatImageRowProvider value={imageRow ?? NO_IMAGES}>
+         <NativeChatComposerEditorView editor={editor} />
+         <EditorContent
+           editor={editor}

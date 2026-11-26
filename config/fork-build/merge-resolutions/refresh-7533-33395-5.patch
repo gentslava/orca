@@ -1,0 +1,15 @@
+diff --git a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+index 6515ac0ea2895444f6feebaa64eabde5ae4e34ad..54d41ce3fb7862d640c1489f65aa513b65b30e0d 100644
+--- a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
++++ b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+@@ -313,7 +313,9 @@ function SessionOptionPopover(props: {
+               model.defaultChoice && props.onReset
+                 ? {
+                     selected: defaultSelected,
+-                    modelLabel: defaultSelected && resolved ? modelLabel : undefined,
++                    modelLabel:
++                      defaultSelected && resolved ? modelLabel : model.defaultChoice.model?.label,
++                    modelDescription: model.defaultChoice.model?.description,
+                     onSelect: () => reset(model)
+                   }
+                 : undefined
