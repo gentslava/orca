@@ -351,3 +351,145 @@ index 2ffa06807650fd0697b6f00119c8ccd8e93e68c3..4f0eed837a23dd91804591f6192b11b7
 +  if (blocks.length === 0 && !hasAsides) {
      return standaloneRows.length > 0 ? <div className={spacing}>{standaloneRows}</div> : null
    }
+diff --git a/src/main/native-chat/agent-session-wire/structured-agent-session-steer-draft.test.ts b/src/main/native-chat/agent-session-wire/structured-agent-session-steer-draft.test.ts
+index 06784c10b95daf76aa1ec31e3c9e043905efba15..ffb5751d58a396059e48291a01462d1866b5d15e 100644
+--- a/src/main/native-chat/agent-session-wire/structured-agent-session-steer-draft.test.ts
++++ b/src/main/native-chat/agent-session-wire/structured-agent-session-steer-draft.test.ts
+@@ -27,5 +27,5 @@ async function recordTurn(id: string, state: 'running' | 'interrupted' = 'runnin
+   }
+   const turnId = `turn-of-${id}`
+-  const startedAt = Date.now()
++  const startedAt = Date.UTC(2026, 10, 26, 12)
+   await journal.appendItem(
+     { provider: 'codex', threadId: THREAD, turnId, ordinal: 0 },
+diff --git a/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts b/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
+index 800ec98f6a67acc4a8809f4a6122343b7c7ed858..1972597e95a3e59bb42361aabc1d2e993b7202f6 100644
+--- a/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
++++ b/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
+@@ -92,8 +92,5 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
+     }
+     const record = this.handles.get(handle)
+-    if (!record || record.runtimeId !== this.runtimeId) {
+-      return null
+-    }
+-    return record.worktreeId
++    return record?.runtimeId === this.runtimeId ? record.worktreeId : null
+   }
+ 
+diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
+index 5304c870008302ac7b0999c1790416685432a909..fd3fe5b3d1f060d83b6f7f857fb4ffc12695bebe 100644
+--- a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
++++ b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
+@@ -145,4 +145,5 @@ export function WorkerDockRoster(props: {
+   // or the worker read failed (which claims nothing about whether anything runs).
+   const unlisted = items.length === 0 && Boolean(props.incomplete)
++  const defaultGlyph = unlisted ? 'running' : 'queued'
+   const unread = items.length === 0 && !unlisted && Boolean(props.unavailable)
+   const shown = items.length > 0 || unlisted || unread
+@@ -291,11 +292,5 @@ export function WorkerDockRoster(props: {
+           pill={pill}
+           kind={topRow?.kind}
+-          glyph={
+-            top
+-              ? workerDockGlyph({ ...top, retired: topRow?.retired })
+-              : unlisted
+-                ? 'running'
+-                : 'queued'
+-          }
++          glyph={top ? workerDockGlyph({ ...top, retired: topRow?.retired }) : defaultGlyph}
+           label={chipLabel}
+           latest={topRow ? workerDockRowTitle(topRow) : count}
+diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
+index 25725dcf36eecacee9781ff711949008dc73dfc4..c82719c942321d315bd156843ced6ebf2d50180c 100644
+--- a/src/renderer/src/i18n/locales/es.json
++++ b/src/renderer/src/i18n/locales/es.json
+@@ -5806,24 +5806,5 @@
+         },
+         "UsageOverviewPane": {
+-          "33f7b043d2": "Proveedores",
+-          "70f36452d4": "Porcentaje de caché",
+-          "327603fe8b": "Días activos",
+-          "0eaf937335": "Est. costo",
+-          "3887b94ce5": "Tokens totales",
+-          "2d13e57f72": "Habilitar OpenCode",
+-          "2f1ee2878b": "Habilitar Codex",
+-          "0ea0cae435": "Habilitar Claude",
+-          "6c00c46815": "Habilita un proveedor para escanear registros locales de agentes y crear el historial combinado de tokens.",
+-          "49405ccc8d": "Empezar a rastrear tokens",
+-          "ca6bc5fded": "Actualizar",
+-          "e06d1baf5c": "Actualizar resumen de uso",
+-          "c760c481c5": "Resumen de uso",
+-          "55c910f4f1": "- algunos precios de modelos no están disponibles",
+-          "enableMuse": "Activar Muse",
+-          "noLocalUsageYet": "Aún no se encontró uso local de Claude, Codex, OpenCode ni Muse. El resumen se completará después de que la próxima sesión de agente escriba registros de tokens.",
+-          "providersEnabledWithData": "Habilitados: {{enabled}} - con datos: {{withData}}",
+-          "sessionCount_one": "{{formatted}} sesión",
+-          "sessionCount_other": "{{formatted}} sesiones",
+-          "sessionCount_many": "{{formatted}} sesiones"
++          "3887b94ce5": "Tokens totales"
+         },
+         "share": {
+diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
+index 836e43872d93606eed028757c6289ee89b7de2db..aa28dc25a9e0c3e2c38a82fa497cd4b533cb7b7a 100644
+--- a/src/renderer/src/i18n/locales/ko.json
++++ b/src/renderer/src/i18n/locales/ko.json
+@@ -5716,23 +5716,5 @@
+         },
+         "UsageOverviewPane": {
+-          "33f7b043d2": "공급자",
+-          "70f36452d4": "캐시 비율",
+-          "327603fe8b": "활성 일수",
+-          "0eaf937335": "예상 비용",
+-          "3887b94ce5": "총 토큰",
+-          "2d13e57f72": "OpenCode 활성화",
+-          "2f1ee2878b": "Codex 활성화",
+-          "0ea0cae435": "Claude 활성화",
+-          "6c00c46815": "공급자를 활성화해 로컬 에이전트 로그를 스캔하고 통합 토큰 원장을 만드세요.",
+-          "49405ccc8d": "토큰 추적 시작",
+-          "ca6bc5fded": "새로고침",
+-          "e06d1baf5c": "사용량 개요 새로고침",
+-          "c760c481c5": "사용량 개요",
+-          "55c910f4f1": "- 일부 모델 가격 확인 불가",
+-          "enableMuse": "Muse 활성화",
+-          "noLocalUsageYet": "아직 로컬 Claude, Codex, OpenCode 또는 Muse 사용량을 찾지 못했습니다. 다음 에이전트 세션이 토큰 로그를 기록하면 개요가 채워집니다.",
+-          "providersEnabledWithData": "{{enabled}}개 활성화 - {{withData}}개에 데이터 있음",
+-          "sessionCount_one": "세션 {{formatted}}개",
+-          "sessionCount_other": "세션 {{formatted}}개"
++          "3887b94ce5": "총 토큰"
+         },
+         "share": {
+diff --git a/src/shared/agent-session/agent-session-wire.ts b/src/shared/agent-session/agent-session-wire.ts
+index b554c957c942d9f4feaa63781dde2be73494ed83..f79285e1532579336bde3173a215bbc71cedc44d 100644
+--- a/src/shared/agent-session/agent-session-wire.ts
++++ b/src/shared/agent-session/agent-session-wire.ts
+@@ -36,8 +36,5 @@ export type AgentSessionTurnActivity = { turnId: string; text: string }
+ 
+ /** The agent's guess at the user's next prompt; never journaled, replaced when a turn opens. */
+-export type AgentSessionPromptSuggestion = {
+-  id: string
+-  text: string
+-}
++export type AgentSessionPromptSuggestion = { id: string; text: string }
+ 
+ /** Newest turn across the whole journal, including off-page long-running turns. null means no turn; older hosts omit it and clients derive from loaded rows. */
+diff --git a/src/shared/native-chat/transcript/folding/native-chat-turn-fold.ts b/src/shared/native-chat/transcript/folding/native-chat-turn-fold.ts
+index c79ece8b1c86df054f8e0394333fef156cd11a63..cc4c18ce24c6b99cbbcfc1ca299a2f3ec5e1c890 100644
+--- a/src/shared/native-chat/transcript/folding/native-chat-turn-fold.ts
++++ b/src/shared/native-chat/transcript/folding/native-chat-turn-fold.ts
+@@ -316,11 +316,9 @@ export function nativeChatHistoryTurnFold(
+       before.messages.forEach((message, index) => {
+         const at = indexes.get(message.id)
+-        const turnKey = at === undefined ? undefined : input.rows[at]?.turnKey
+-        if (
+-          at !== undefined &&
+-          turnKey !== undefined &&
+-          !before.fold.foldedRows.has(index) &&
+-          fold.foldedRows.has(at)
+-        ) {
++        if (at === undefined || before.fold.foldedRows.has(index) || !fold.foldedRows.has(at)) {
++          return
++        }
++        const turnKey = input.rows[at]?.turnKey
++        if (turnKey !== undefined) {
+           retained.add(turnKey)
+         }
