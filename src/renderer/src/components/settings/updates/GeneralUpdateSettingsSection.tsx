@@ -238,6 +238,15 @@ export function GeneralUpdateSettingsSection({
                     'Version {{version}} is available.',
                     { version: updateStatus.version }
                   )}
+              {updateStatus.manualDownloadUrl && (
+                <>
+                  {' '}
+                  {t(
+                    'updates.forkPreview.manualInstall',
+                    'Install the downloaded update manually.'
+                  )}
+                </>
+              )}
               {updateStatus.source !== 'local' && (
                 <a
                   href={

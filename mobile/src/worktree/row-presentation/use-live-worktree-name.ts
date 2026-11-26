@@ -15,6 +15,7 @@ import {
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
 import {
   classifyWorktreeShowResponse,
+  confirmMissingWorktree,
   type WorktreeShowResolution
 } from '../navigation/worktree-show-resolution'
 
@@ -123,19 +124,13 @@ export function useLiveWorktreeName({
             return
           }
           const classified = classifyWorktreeShowResponse(response)
-          const streak = missingStreakRef.current
-          missingStreakRef.current = {
-            client,
-            worktreeId,
-            count:
-              classified === 'missing'
-                ? (streak.client === client && streak.worktreeId === worktreeId
-                    ? streak.count
-                    : 0) + 1
-                : 0
-          }
-          const resolution =
-            classified === 'missing' && missingStreakRef.current.count < 2 ? 'unknown' : classified
+          const key = { client, worktreeId }
+          const { streak, resolution } = confirmMissingWorktree(
+            classified,
+            key,
+            missingStreakRef.current
+          )
+          missingStreakRef.current = streak
           setResolved((current) =>
             current.client === client &&
             current.worktreeId === worktreeId &&

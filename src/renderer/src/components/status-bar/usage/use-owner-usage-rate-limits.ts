@@ -223,7 +223,7 @@ export function useAccountOwnerUsage(
   return {
     owner,
     rateLimits: scopedRateLimits,
-    accounts: ownerId ? (owned?.snapshot ?? null) : null,
+    accounts: owned?.snapshot ?? null,
     accountsUnverifiable: unavailable || (owned !== null && owned.failure !== null),
     remoteOwner,
     refreshRemote: ownerId || unavailable ? refreshRemote : null

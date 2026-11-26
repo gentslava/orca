@@ -38,6 +38,7 @@ export function noticeLineText(
       'modelUnavailable',
       'providerUnavailable',
       'providerSafetyStopped',
+      'flaggedRequestNotSwitched',
       'providerResponseFailed'
     ].includes(failure.kind)
       ? (['row', 'rejection'] as const).find(

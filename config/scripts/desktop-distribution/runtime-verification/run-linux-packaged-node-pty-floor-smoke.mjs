@@ -30,10 +30,14 @@ function workspaceRelativePath(workspaceDirectory, inputPath) {
 export function packagedNodePtyFloorDockerArgs({ workspaceDirectory, appDirectory }) {
   const relativeAppDirectory = workspaceRelativePath(workspaceDirectory, appDirectory)
   const containerAppDirectory = `/workspace/${relativeAppDirectory}`
+  const apt = 'apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=20'
+  const install = `${apt} update -qq && ${apt} install -y -qq ${FLOOR_PACKAGES.join(' ')} >/dev/null`
+  const useMirror =
+    "sed -i -E -e 's#http://(archive|security)\\.ubuntu\\.com/ubuntu#http://mirrors.mit.edu/ubuntu#g' " +
+    "-e 's#http://ports\\.ubuntu\\.com/ubuntu-ports#http://mirrors.mit.edu/ubuntu-ports#g' /etc/apt/sources.list"
   const command = [
     'export DEBIAN_FRONTEND=noninteractive',
-    'apt-get update -qq',
-    `apt-get install -y -qq ${FLOOR_PACKAGES.join(' ')} >/dev/null`,
+    `( ( ${install} ) || ( ${useMirror} && ${install} ) )`,
     `ELECTRON_RUN_AS_NODE=1 ${containerAppDirectory}/${LINUX_EXECUTABLE} ` +
       '/workspace/config/scripts/desktop-distribution/runtime-verification/linux-packaged-node-pty-floor-child.cjs ' +
       `${containerAppDirectory}/resources`

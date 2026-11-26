@@ -153,11 +153,13 @@ export class AgentModelCatalogStore {
     return revision
   }
 
-  private retireListings(agent: string): void {
-    this.retirementRevisions.set(agent, this.retirementRevision(agent) + 1)
-    this.retirements.retire(agent)
+  private retireListings(agent: string, scope?: string): void {
+    if (scope === undefined) {
+      this.retirementRevisions.set(agent, this.retirementRevision(agent) + 1)
+      this.retirements.retire(agent)
+    }
     for (const [fingerprint, flight] of this.refreshes) {
-      if (flight.agent === agent) {
+      if (flight.agent === agent && (scope === undefined || fingerprint === scope)) {
         retireAgentModelCatalogListing(this.refreshes, this.listingWaiters, fingerprint, flight)
       }
     }
@@ -199,12 +201,10 @@ export class AgentModelCatalogStore {
   /** The listings running now, for a later forgetSeenRows to tell from newer ones. */
   runningListings = (): ReadonlySet<InFlightListing> => new Set(this.refreshes.values())
 
-  expireFailure(fingerprint: string): void {
-    this.failures.expire(fingerprint)
-  }
+  expireFailure = (fingerprint: string): void => this.failures.expire(fingerprint)
 
   expireAgent(agent: string, fingerprint?: string): void {
-    this.retireListings(agent)
+    this.retireListings(agent, fingerprint)
     retireAgentModelCatalogObservations(
       this.entries,
       this.dueEntries,

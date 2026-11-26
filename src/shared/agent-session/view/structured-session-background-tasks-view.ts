@@ -65,7 +65,9 @@ export function structuredSessionBackgroundTasksView(
   const incomplete = monitoring && backgroundTasks.incomplete === true
   const onlyEarlyCalls =
     Boolean(backgroundTasks?.foregroundTasks?.length) && children?.length === 0 && !tasks.length
-  const show = monitoring && (incomplete || Boolean(backgroundTasks?.workerDock) || (!onlyForeground && !onlyEarlyCalls))
+  const show =
+    monitoring &&
+    (incomplete || Boolean(backgroundTasks?.workerDock) || (!onlyForeground && !onlyEarlyCalls))
   // Commands and rewind follow the listed records, as the host's own admission does.
   const liveWork = children
     ? children.some((child) => child.membership === 'live' && isLiveChildWork(child))

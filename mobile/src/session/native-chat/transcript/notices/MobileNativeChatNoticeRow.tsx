@@ -166,7 +166,7 @@ export function MobileNativeChatNoticeRow({
         <View>
           {disclosed ? null : (
             <MobileNativeChatNoticeDisclosure
-              summary={summary}
+              summary={nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)}
               expanded={expanded}
               fontScale={fontScale}
               onPress={() => setExpanded((open) => !open)}

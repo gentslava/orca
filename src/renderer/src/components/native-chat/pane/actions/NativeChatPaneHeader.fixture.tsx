@@ -15,8 +15,6 @@ import { BOTS_HOME_PIN_RUNTIME_CAPABILITY } from '../../../../../../shared/bot-r
 import type { RuntimeEnvironmentStatus } from '../../../../../../shared/remote-runtime/host-status/runtime-host-status'
 import type { RuntimeStatus } from '../../../../../../shared/remote-runtime/session-graph/runtime-session-contracts'
 import TabBar from '../../../tab-bar/TabBar'
-import { NativeChatMessageList } from '../../NativeChatMessageList'
-import type { NativeChatLiveSession } from '../../session/terminal/read/native-chat-live-session-contract'
 import { NativeChatPaneHeader } from './NativeChatPaneHeader'
 
 export const splitShortcut = defineFixture({

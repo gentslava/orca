@@ -144,10 +144,13 @@ export function installChats(records: AgentSessionRecord[]) {
   const byId = new Map(records.map((record) => [record.sessionId, record]))
   const store = {
     hostId: 'local',
+    listRecords: () => records,
     getRecord: vi.fn((sessionId: string) => byId.get(sessionId) ?? null),
-    listConversations: vi.fn(() => records.map(agentSessionConversationView))
+    listConversations: vi.fn(() => records.map(agentSessionConversationView)),
+    conversationsKeyedBy: (keys: AgentSessionConversationKeys, key: string) =>
+      records.map(agentSessionConversationView).filter((view) => keys(view).includes(key))
   }
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the ownership read touches only `deps.store.listConversations`, `getRecord` and `hostId`; the rest of the host is never reached.
+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: conversation projection only reads the store methods supplied by this fixture.
   setStructuredAgentSessionHost({ deps: { store } } as never)
   return store
 }

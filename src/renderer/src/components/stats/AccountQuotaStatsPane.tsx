@@ -1,7 +1,7 @@
 import { StatsPane } from './StatsPane'
 import { useAppStore } from '../../store'
 import { useTranslate } from '@/i18n/use-translate'
-import type { StatsHost } from './StatsHostScope'
+import type { SettingsHostScope } from '../settings/host-scope/settings-host-scope'
 import { resolveAccountOwner } from '@/runtime/provider-accounts/ownership/wsl-host-account-owner'
 import { isWebClientLocation } from '@/app-shell/platform/web-client-location'
 import {
@@ -10,7 +10,11 @@ import {
 } from '../status-bar/usage/use-owner-usage-rate-limits'
 import { UsageAccountQuotas } from './UsageAccountQuotas'
 
-export function AccountQuotaStatsPane({ host }: { host: StatsHost }): React.JSX.Element {
+export function AccountQuotaStatsPane({
+  hostScope
+}: {
+  hostScope: SettingsHostScope
+}): React.JSX.Element {
   const t = useTranslate()
   const localRateLimits = useAppStore((state) => state.rateLimits)
   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
@@ -20,9 +24,9 @@ export function AccountQuotaStatsPane({ host }: { host: StatsHost }): React.JSX.
   const openSettingsPage = useAppStore((state) => state.openSettingsPage)
   const environments = useAppStore((state) => state.runtimeEnvironments)
   const selectedHost =
-    host.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
+    hostScope.target.kind === 'local' && isWebClientLocation() && environments?.length === 1
       ? { kind: 'environment' as const, environmentId: environments[0].id }
-      : host.target
+      : hostScope.target
   const accountOwner = resolveAccountOwner(selectedHost, environments ?? [])
   const { rateLimits, remoteOwner, refreshRemote, accounts, accountsUnverifiable } =
     useAccountOwnerUsage(accountOwner, localRateLimits, true)
@@ -42,15 +46,19 @@ export function AccountQuotaStatsPane({ host }: { host: StatsHost }): React.JSX.
           })
         }
         onManage={() => {
+          const accountHost = getUsageOwnerHostScope(remoteOwner)
+          if (!accountHost) {
+            return
+          }
           openSettingsTarget({
             pane: 'accounts',
             repoId: null,
-            hostScope: getUsageOwnerHostScope(remoteOwner)
+            hostScope: accountHost
           })
           openSettingsPage()
         }}
       />
-      <StatsPane host={host} />
+      <StatsPane hostScope={hostScope} />
     </div>
   )
 }

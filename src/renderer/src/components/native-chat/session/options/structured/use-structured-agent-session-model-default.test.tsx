@@ -52,7 +52,7 @@ it('returns the chat and later new chats to the agent default, even after an eff
       selected: true
     })
   )
-  expect(view.result.current.capture().selection).not.toHaveProperty('model')
+  expect(view.result.current.capture?.()?.selection).not.toHaveProperty('model')
   await act(() => view.result.current.optionSurface.setOption('effort', 'high'))
   expect(seededByNextLaunch(mocks.enqueue.mock.calls)).toBeUndefined()
   view.unmount()

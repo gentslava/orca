@@ -26,7 +26,10 @@ export function ConversationProjectOrderSheet({
         onPress: () => {
           void controller.settings.setProjectOrderBy(choice.id)
         },
-        disabled: !connected
+        disabled:
+          !connected ||
+          (!controller.settings.supportsPersonalProjectOrder &&
+            (choice.id === 'name' || choice.id === 'frequent'))
       }))}
     />
   )

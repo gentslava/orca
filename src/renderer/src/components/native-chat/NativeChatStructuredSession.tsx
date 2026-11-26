@@ -319,7 +319,10 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
               </NativeChatContextClearFade>
             </NativeChatStructuredTranscriptFrame>
           </NativeChatDockTranscript>
-          <NativeChatDock shown={!readFailure?.final} keepFloatingTerminalTriggerClear={parentShown}>
+          <NativeChatDock
+            shown={!readFailure?.final}
+            keepFloatingTerminalTriggerClear={parentShown}
+          >
             {subagents.dock}
             {subagents.pairedAsks}
             {prompt || subagentOpen ? null : (

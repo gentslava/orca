@@ -83,6 +83,7 @@ describe('account provenance on the original collectors', () => {
       [],
       loaded.sources,
       undefined,
+      undefined,
       loaded.reuseProjections,
       loaded.accountAttributionAvailable
     )
@@ -257,6 +258,7 @@ describe('account provenance on the original collectors', () => {
       ],
       loaded.sources,
       undefined,
+      undefined,
       loaded.reuseProjections
     )
     expect(tokensByAccount(projectEventUsageHistory('codex', second.dailyAggregates))).toEqual({
@@ -284,6 +286,7 @@ describe('account provenance on the original collectors', () => {
       undefined,
       sources.map((source) => source.path),
       undefined,
+      undefined,
       sources
     )
     expect(tokensByAccount(projectClaudeUsageHistory(first.dailyAggregates))).toEqual({
@@ -297,6 +300,7 @@ describe('account provenance on the original collectors', () => {
       undefined,
       sources.map((source) => source.path),
       undefined,
+      undefined,
       sources
     )
     expect(second.dailyAggregates).toEqual(first.dailyAggregates)
@@ -306,6 +310,7 @@ describe('account provenance on the original collectors', () => {
       second.processedFiles,
       undefined,
       sources.map((source) => source.path),
+      undefined,
       undefined,
       sources
     )
@@ -357,6 +362,7 @@ describe('account provenance on the original collectors', () => {
       undefined,
       [source.path],
       loaded.verifiedSources,
+      undefined,
       [source],
       loaded.reuseProjections
     )
@@ -386,7 +392,7 @@ describe('account provenance on the original collectors', () => {
       )
     ).toBeNull()
     const { scanClaudeUsageFiles } = await import('../claude-usage/scanner')
-    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, [
+    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, undefined, [
       { path: linked, accountId: 'wrong' }
     ])
     expect(tokensByAccount(projectClaudeUsageHistory(claude.dailyAggregates))).toEqual({
