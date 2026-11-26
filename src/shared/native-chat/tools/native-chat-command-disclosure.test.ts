@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nativeChatToolLineView } from './native-chat-tool-line-view'
+import { nativeChatToolCallInputView, nativeChatToolLineView } from './native-chat-tool-line-view'
 
 describe('command disclosure', () => {
   it('opens a running short command before any output exists', () => {
@@ -7,11 +7,14 @@ describe('command disclosure', () => {
       type: 'tool-call',
       name: 'Bash',
       state: 'running',
-      input: { command: 'git status --short', description: 'Inspect changes' }
+      input: { command: ' git status --short ' }
     })
     expect(view.hasDetail).toBe(true)
     expect(view.body).toBeUndefined()
-    expect(view.label).toMatchObject({ fullCommand: 'git status --short', commandDetail: null })
+    expect(view.label).toMatchObject({
+      fullCommand: 'git status --short',
+      commandDetail: ' git status --short '
+    })
   })
 
   it('keeps the full command accessible when metadata accompanies a shortened label', () => {
@@ -24,6 +27,14 @@ describe('command disclosure', () => {
     })
     expect(view.hasDetail).toBe(true)
     expect(view.label?.target.length).toBeLessThan(command.trim().length)
-    expect(view.label?.commandDetail).toBe(command.trim())
+    expect(view.label?.fullCommand).toBe(command.trim())
+    if (!view.call) {
+      throw new Error('Expected a tool call')
+    }
+    expect(nativeChatToolCallInputView(view.call, view.label)).toMatchObject({
+      command: null,
+      showsBody: true
+    })
+    expect(view.call.input).toMatchObject({ command, timeout: 600000 })
   })
 })
