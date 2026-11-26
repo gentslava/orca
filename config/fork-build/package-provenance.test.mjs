@@ -14,7 +14,7 @@ import {
   verifyPackageReceipt
 } from './package-provenance.mjs'
 import { measureWindowsArchives, WINDOWS_FILES } from './windows-packages.mjs'
-import { androidSigningCertificate } from './android-packages.mjs'
+import { androidSigningCertificate, assertAndroidUpdateIdentity } from './android-packages.mjs'
 import { assembleReleasePackages } from './release-packages.mjs'
 import { packageTargets } from './package-targets.mjs'
 
@@ -97,6 +97,17 @@ test('package checkout uses the planned upstream as the reference for source che
   assert.equal(git(application, ['rev-parse', 'HEAD']), commit)
   assert.equal(git(application, ['rev-parse', 'origin/main']), upstream)
   assert.equal(git(application, ['merge-base', 'origin/main', 'HEAD']), upstream)
+})
+
+test('Android APK must embed the fork updater version from its plan', () => {
+  assert.doesNotThrow(() =>
+    assertAndroidUpdateIdentity(plan, { extra: { orcaForkAndroidBuild: plan.version } })
+  )
+  assert.throws(() => assertAndroidUpdateIdentity(plan, {}), /update channel/)
+  assert.throws(
+    () => assertAndroidUpdateIdentity(plan, { extra: { orcaForkAndroidBuild: '0.0.71' } }),
+    /update channel/
+  )
 })
 
 function executable(file, machine = 0x8664) {

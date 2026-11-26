@@ -446,7 +446,7 @@ jobs:
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stamp-android personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Build the release APK with the existing Expo debug key
         working-directory: mobile/android
-        run: ./gradlew assembleRelease --no-daemon
+        run: ORCA_FORK_ANDROID_BUILD_VERSION="$ORCA_LOCAL_BUILD_VERSION" ./gradlew assembleRelease --no-daemon
       - name: Verify APK identity, architecture and signing certificate
         run: node "$RUNNER_TEMP/personal-control/config/fork-build/packages.mjs" stage-android personal-build/plan.json "$GITHUB_WORKSPACE"
       - name: Preserve a rejected APK for signing diagnostics

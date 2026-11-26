@@ -65,9 +65,16 @@ export function androidSigningCertificate(signerReport) {
   return certificate
 }
 
+export function assertAndroidUpdateIdentity(plan, expoConfig) {
+  if (expoConfig?.extra?.orcaForkAndroidBuild !== plan.version) {
+    throw new Error('The APK update channel does not identify the planned fork build')
+  }
+}
+
 export function measureAndroidPackage(plan, file) {
   const identity = JSON.parse(run('unzip', ['-p', file, 'assets/orca-personal-build.json']))
   assertIdentity(identity, androidIdentity(plan))
+  assertAndroidUpdateIdentity(plan, JSON.parse(run('unzip', ['-p', file, 'assets/app.config'])))
   const badging = run(androidTool('aapt'), ['dump', 'badging', file])
   for (const [key, value] of [
     ['name', plan.mobile.applicationId],

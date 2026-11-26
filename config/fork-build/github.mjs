@@ -101,7 +101,7 @@ export function renderReport(plan) {
     '',
     '## Install on Android',
     '',
-    'Check `orca-android.apk` against `android-SHA256SUMS`, then install it as an APK. It uses the existing Expo debug certificate, not a production signing identity. The committed mobile version/code are preserved; the embedded receipt binds it to the same source commit as the desktop packages.',
+    'Check `orca-android.apk` against `android-SHA256SUMS`, then install it as an APK. It uses the existing Expo debug certificate, not a production signing identity. The embedded receipt binds it to the same source commit as the desktop packages. The in-app updater checks this repository, compares personal build identities even when the mobile version is unchanged, and opens the verified APK download.',
     '',
     '## Install on Linux x64 or ARM64',
     '',
