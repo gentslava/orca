@@ -8217,10 +8217,10 @@
         "RepositoryIconPicker": {
           "2b7d27b93c": "Usar cor {{value0}} do repositório",
           "useRepoIcon": "Usar ícone {{value0}} do repositório",
-          "fde066a63b": "Envios de PNG devem ter 256KB ou menos.",
+          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO ou AVIF. Até 10 MB e 32 megapixels.",
           "cc1286e263": "Favicon",
           "03ca1a4e9b": "example.com",
-          "381b4844fd": "Enviar PNG",
+          "381b4844fd": "Enviar imagem",
           "7da623abcc": "Usado por padrão — o GitHub sempre fornece um, mesmo quando o proprietário não definiu uma imagem personalizada.",
           "c490787d24": "Emoji",
           "b2d7fd2116": "Ícone",
@@ -8237,14 +8237,15 @@
           "emojiTooLongForRepoIcon": "Este emoji não pode ser usado como ícone de repositório.",
           "currentEmojiSelection": "Atual: {{value0}}",
           "searchEmojiPlaceholder": "Pesquisar emoji",
+          "cc76342291": "Usar Avatar do GitHub",
+          "43bf3709dd": "Ícone do Repositório",
+          "imageTooLarge": "A imagem excede o limite de 10 MB ou 32 megapixels.",
           "custom": "Personalizado",
           "githubAvatar": "Avatar do GitHub",
           "customImage": "Imagem personalizada",
           "emojiDescription": "Emoji {{emoji}}",
           "lucideDescription": "Ícone {{label}} com a cor do repositório",
           "defaultIcon": "Padrão",
-          "cc76342291": "Usar Avatar do GitHub",
-          "43bf3709dd": "Ícone do Repositório",
           "autoColor": "Cor automática (diferente dos outros projetos)",
           "lettersDescription": "Letras “{{text}}”"
         },
@@ -11135,11 +11136,6 @@
           "searchHosts": "Pesquisar hosts…",
           "searchLanguages": "Pesquisar idiomas…"
         },
-        "accountsPaneActionErrors": {
-          "codexSignInTimedOut": "O login do Codex demorou demais para concluir. Tente novamente.",
-          "codexSignInUnavailable": "O login do Codex está temporariamente indisponível. Tente novamente em um minuto.",
-          "claudeSignInFailed": "Falha no login do Claude. Tente novamente."
-        },
         "PluginAuthor": {
           "catalogClaim": "Publicador listado por {{catalog}}. A autoria não foi verificada.",
           "unnamedCatalogClaim": "Publicador listado pelo catálogo. A autoria não foi verificada.",
@@ -11231,6 +11227,11 @@
           "cancel": "Cancelar",
           "confirm": "Remover",
           "unknownHost": "Host desconhecido"
+        },
+        "accountsPaneActionErrors": {
+          "codexSignInTimedOut": "O login do Codex demorou demais para concluir. Tente novamente.",
+          "codexSignInUnavailable": "O login do Codex está temporariamente indisponível. Tente novamente em um minuto.",
+          "claudeSignInFailed": "Falha no login do Claude. Tente novamente."
         }
       },
       "right": {
@@ -21773,17 +21774,6 @@
         "keyword-trust": "confiança",
         "keyword-hooks": "hooks"
       },
-      "task-page": {
-        "checksPill": {
-          "pipelinePassed": "Pipeline aprovado",
-          "pipelineFailed": "Pipeline falhou",
-          "pipelinePending": "Pipeline pendente",
-          "pipelineUnresolved": "Pipeline não resolvido"
-        }
-      },
-      "NewWorkspaceComposerFooter": {
-        "create": "Criar"
-      },
       "NativeChatResumeToast": {
         "resumingOn_one": "Retomando {{count}} agente em {{machine}}…",
         "resumingOn_many": "Retomando {{count}} agentes em {{machine}}…",
@@ -21831,11 +21821,6 @@
         "stateResuming": "Retomando",
         "stateStopped": "Parado"
       },
-      "RunTargetCombobox": {
-        "noWslDistros": "Nenhuma distribuição WSL encontrada",
-        "wslDistro": "Distribuição WSL",
-        "wslDistroHint": "Uma distribuição Linux neste PC"
-      },
       "NativeChatResumeFailureGuidance": {
         "fallbackShort": "Não foi possível retomar.",
         "unconfirmedShort": "Não foi possível confirmar se continuou.",
@@ -21845,6 +21830,22 @@
         "notAttachedShort": "Não reconectou.",
         "dispatchRejectedShort": "O agente se recusou a continuar.",
         "unsupportedShort": "O Orca não pode retomar este agente."
+      },
+      "task-page": {
+        "checksPill": {
+          "pipelinePassed": "Pipeline aprovado",
+          "pipelineFailed": "Pipeline falhou",
+          "pipelinePending": "Pipeline pendente",
+          "pipelineUnresolved": "Pipeline não resolvido"
+        }
+      },
+      "NewWorkspaceComposerFooter": {
+        "create": "Criar"
+      },
+      "RunTargetCombobox": {
+        "noWslDistros": "Nenhuma distribuição WSL encontrada",
+        "wslDistro": "Distribuição WSL",
+        "wslDistroHint": "Uma distribuição Linux neste PC"
       }
     },
     "startup": {
@@ -28649,14 +28650,6 @@
       "cancelDownload": "Cancelar download"
     }
   },
-  "renderer": {
-    "lib": {
-      "filePreview": {
-        "remoteFileUnsupported": "Abrir no Navegador do Orca só está disponível para arquivos locais.",
-        "twinFileUnsupported": "Este projeto está em mais de um host, então o Orca não consegue saber qual cópia abrir."
-      }
-    }
-  },
   "wslDriveProject": {
     "label": "Git",
     "converted": "Orca executa Git no Windows para este projeto. Terminais e agentes ainda funcionam em {{distro}}.",
@@ -28786,6 +28779,98 @@
     "sending": "Enviando…",
     "sendReport": "Enviar relatório"
   },
+  "agentCliUpdate": {
+    "updating": "Atualizando…",
+    "tryAgain": "Tentar novamente",
+    "update": "Atualizar",
+    "versions": "{{installed}} → {{latest}}",
+    "modelRequiresClaude": "Requer Claude Code CLI {{version}}",
+    "modelRequiresCodex": "Requer Codex CLI {{version}}",
+    "modelRequires": "Requer {{product}} {{version}}",
+    "claudeProduct": "Claude Code",
+    "codexProduct": "Codex CLI",
+    "grokProduct": "Grok Build",
+    "opencodeProduct": "OpenCode",
+    "opencode2Product": "OpenCode 2",
+    "ompProduct": "OMP",
+    "copilotProduct": "GitHub Copilot CLI",
+    "copilotShortProduct": "Copilot CLI",
+    "kimiProduct": "Kimi Code",
+    "cursorProduct": "Cursor CLI",
+    "hermesProduct": "Hermes Agent",
+    "gooseProduct": "Goose CLI",
+    "auggieProduct": "Auggie",
+    "kiloProduct": "Kilo CLI",
+    "mimoCodeProduct": "MiMo Code",
+    "qwenCodeProduct": "Qwen Code",
+    "devinProduct": "Devin CLI",
+    "codebuddyProduct": "CodeBuddy Code",
+    "commandCopied": "Comando copiado",
+    "commandNotCopied": "Não foi possível copiar o comando",
+    "copyCommand": "Copiar",
+    "manualHint": "Execute em um terminal:",
+    "noOutput": "O comando não exibiu nada.",
+    "heading_one": "{{count}} atualização de CLI disponível",
+    "heading_other": "{{count}} atualizações de CLI disponíveis",
+    "heading_many": "{{count}} atualizações de CLI disponíveis",
+    "updateAll": "Atualizar todos",
+    "thisComputer": "Este computador",
+    "statusUpdating": "Atualizando CLIs",
+    "statusUpdatingTooltip": "As atualizações das CLIs de agentes estão em andamento",
+    "statusFailed": "Falha na atualização da CLI",
+    "statusFailedTooltip": "Abra para ver o que deu errado",
+    "statusCount_one": "{{count}} atualização de CLI",
+    "statusCount_other": "{{count}} atualizações de CLI",
+    "statusCount_many": "{{count}} atualizações de CLI",
+    "statusTooltip": "Há versões mais novas de CLIs de agentes",
+    "failedButton": "Falha na atualização",
+    "failedChip": "falha na atualização",
+    "failedChipLabel": "Falha na atualização: ver erro",
+    "failedChipTooltip": "Falha na atualização. Clique para ver os detalhes.",
+    "failedTitle": "Não foi possível atualizar {{product}}",
+    "failedDescription": "O Orca executou <code>{{command}}</code> em <strong>{{host}}</strong> para atualizar seu {{product}} de <strong>{{installedVersion}}</strong> para <strong>{{latestVersion}}</strong>, mas o comando falhou.",
+    "failedDescriptionNoCommand": "O Orca não conseguiu atualizar seu {{product}} em <strong>{{host}}</strong>.",
+    "cardLabel": "Atualizações de CLIs de agentes",
+    "cardLater": "Depois",
+    "toastUpdating_one": "Atualizando {{current}} de {{count}} CLI",
+    "toastUpdating_other": "Atualizando {{current}} de {{count}} CLIs",
+    "toastUpdating_many": "Atualizando {{current}} de {{count}} CLIs",
+    "toastDone_one": "{{count}} CLI atualizada",
+    "toastDone_other": "{{count}} CLIs atualizadas",
+    "toastDone_many": "{{count}} CLIs atualizadas",
+    "hideList": "Ocultar lista",
+    "showList": "Mostrar lista",
+    "toastUpdate": "Atualizar {{total}}",
+    "toastRetry": "Tentar {{failed}} novamente",
+    "copied": "Copiado",
+    "manualSection": "Manual",
+    "toastFailedCount_one": "{{count}} atualização falhou",
+    "toastFailedCount_other": "{{count}} atualizações falharam",
+    "toastFailedCount_many": "{{count}} atualizações falharam",
+    "toastClose": "Fechar",
+    "queued": "Na fila"
+  },
+  "activityBar": {
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
+    "hide": "Ocultar",
+    "show": "Mostrar {{name}}",
+    "dragStart": "{{name}} selecionado",
+    "dragOver": "{{name}} sobre {{target}}",
+    "dragEnd": "{{name}} solto",
+    "dragCancel": "Movimentação de {{name}} cancelada",
+    "moveLeft": "Mover para a esquerda",
+    "moveRight": "Mover para a direita",
+    "reset": "Restaurar ordem das abas"
+  },
+  "renderer": {
+    "lib": {
+      "filePreview": {
+        "remoteFileUnsupported": "Abrir no Navegador do Orca só está disponível para arquivos locais.",
+        "twinFileUnsupported": "Este projeto está em mais de um host, então o Orca não consegue saber qual cópia abrir."
+      }
+    }
+  },
   "tabBar": {
     "createRow": {
       "label": "Ações de nova aba. Esquerda e Direita escolhem; a última personaliza esta fileira.",
@@ -28870,77 +28955,6 @@
     "browseOnline": "Explorar",
     "browseOnlineLabel": "Explorar traduções da comunidade em orca.dev (abre no navegador)"
   },
-  "agentCliUpdate": {
-    "updating": "Atualizando…",
-    "tryAgain": "Tentar novamente",
-    "update": "Atualizar",
-    "versions": "{{installed}} → {{latest}}",
-    "modelRequiresClaude": "Requer Claude Code CLI {{version}}",
-    "modelRequiresCodex": "Requer Codex CLI {{version}}",
-    "modelRequires": "Requer {{product}} {{version}}",
-    "claudeProduct": "Claude Code",
-    "codexProduct": "Codex CLI",
-    "grokProduct": "Grok Build",
-    "opencodeProduct": "OpenCode",
-    "opencode2Product": "OpenCode 2",
-    "ompProduct": "OMP",
-    "copilotProduct": "GitHub Copilot CLI",
-    "copilotShortProduct": "Copilot CLI",
-    "kimiProduct": "Kimi Code",
-    "cursorProduct": "Cursor CLI",
-    "hermesProduct": "Hermes Agent",
-    "gooseProduct": "Goose CLI",
-    "auggieProduct": "Auggie",
-    "kiloProduct": "Kilo CLI",
-    "mimoCodeProduct": "MiMo Code",
-    "qwenCodeProduct": "Qwen Code",
-    "devinProduct": "Devin CLI",
-    "codebuddyProduct": "CodeBuddy Code",
-    "commandCopied": "Comando copiado",
-    "commandNotCopied": "Não foi possível copiar o comando",
-    "copyCommand": "Copiar",
-    "manualHint": "Execute em um terminal:",
-    "noOutput": "O comando não exibiu nada.",
-    "heading_one": "{{count}} atualização de CLI disponível",
-    "heading_other": "{{count}} atualizações de CLI disponíveis",
-    "heading_many": "{{count}} atualizações de CLI disponíveis",
-    "updateAll": "Atualizar todos",
-    "thisComputer": "Este computador",
-    "statusUpdating": "Atualizando CLIs",
-    "statusUpdatingTooltip": "As atualizações das CLIs de agentes estão em andamento",
-    "statusFailed": "Falha na atualização da CLI",
-    "statusFailedTooltip": "Abra para ver o que deu errado",
-    "statusCount_one": "{{count}} atualização de CLI",
-    "statusCount_other": "{{count}} atualizações de CLI",
-    "statusCount_many": "{{count}} atualizações de CLI",
-    "statusTooltip": "Há versões mais novas de CLIs de agentes",
-    "failedButton": "Falha na atualização",
-    "failedChip": "falha na atualização",
-    "failedChipLabel": "Falha na atualização: ver erro",
-    "failedChipTooltip": "Falha na atualização. Clique para ver os detalhes.",
-    "failedTitle": "Não foi possível atualizar {{product}}",
-    "failedDescription": "O Orca executou <code>{{command}}</code> em <strong>{{host}}</strong> para atualizar seu {{product}} de <strong>{{installedVersion}}</strong> para <strong>{{latestVersion}}</strong>, mas o comando falhou.",
-    "failedDescriptionNoCommand": "O Orca não conseguiu atualizar seu {{product}} em <strong>{{host}}</strong>.",
-    "cardLabel": "Atualizações de CLIs de agentes",
-    "cardLater": "Depois",
-    "toastUpdating_one": "Atualizando {{current}} de {{count}} CLI",
-    "toastUpdating_other": "Atualizando {{current}} de {{count}} CLIs",
-    "toastUpdating_many": "Atualizando {{current}} de {{count}} CLIs",
-    "toastDone_one": "{{count}} CLI atualizada",
-    "toastDone_other": "{{count}} CLIs atualizadas",
-    "toastDone_many": "{{count}} CLIs atualizadas",
-    "hideList": "Ocultar lista",
-    "showList": "Mostrar lista",
-    "toastUpdate": "Atualizar {{total}}",
-    "toastRetry": "Tentar {{failed}} novamente",
-    "copied": "Copiado",
-    "manualSection": "Manual",
-    "toastFailedCount_one": "{{count}} atualização falhou",
-    "toastFailedCount_other": "{{count}} atualizações falharam",
-    "toastFailedCount_many": "{{count}} atualizações falharam",
-    "toastClose": "Fechar",
-    "queued": "Na fila"
-  },
   "backgroundWorkerPaused": {
     "title": "Alguns trabalhos em segundo plano foram pausados após falhas repetidas",
     "description": "A recuperação de chats do Claude fica desativada até você tentar novamente. A cópia, o retrocesso e as verificações de espaço voltam a funcionar quando você iniciar essas operações de novo.",
@@ -28992,19 +29006,6 @@
       "workerOwed": "Uma orquestração ainda aguarda este chat",
       "home": "O Home Chat de um agente gerenciado não pode ser excluído"
     }
-  },
-  "activityBar": {
-    "moveUp": "Mover para cima",
-    "moveDown": "Mover para baixo",
-    "hide": "Ocultar",
-    "show": "Mostrar {{name}}",
-    "dragStart": "{{name}} selecionado",
-    "dragOver": "{{name}} sobre {{target}}",
-    "dragEnd": "{{name}} solto",
-    "dragCancel": "Movimentação de {{name}} cancelada",
-    "moveLeft": "Mover para a esquerda",
-    "moveRight": "Mover para a direita",
-    "reset": "Restaurar ordem das abas"
   },
   "mcpServers": {
     "paste": {
