@@ -2446,5 +2446,41 @@
     "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "resultSha256": "4e9000b12fcbe7b89eb9557070baec350d038da71a00de8c8338900b5b969564",
     "reason": "Use Claude background actions alongside the delivered linked-chat owner prompts, mail boundaries, and capability checks."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "5ca1bd0c98122ccffa7570ee9f0d9ef88d2df159",
+      "db0e68a496bfbcf32ee6c8f6e4d64586636ca50e",
+      "09af2d0926f7517834432e49ab1eabe44df743b3"
+    ],
+    "patch": "nov27-44452-d8bbab45-e94c65e.patch",
+    "patchSha256": "2513be220bba814fe072a290de28b0f6db50fa3095f8a9814a4a3a3512562faa",
+    "resultSha256": "1022a272542f0813d8b37e75d695940e2abc78884624471ccb8e149b88eb9701",
+    "reason": "Keep foreground task actions and child chat navigation together in the mobile overlay and tray, including their labels."
+  },
+  {
+    "path": "mobile/src/session/native-chat/MobileNativeChatOverlay.tsx",
+    "blobs": [
+      "74ce67dcb7d37b9b7707c37eed30cf49e6126135",
+      "c533faf028046ef99c267ef46a496db1034da3a6",
+      "ac5ff723044e4afa1345a5e3acb0525623984ebe"
+    ],
+    "patch": "nov27-44452-a1b21294-f11f144.patch",
+    "patchSha256": "ebadb68d0b91c0e2b7c11fff534e1fa4185b4d3d45e48cd2236e8e406459bdf7",
+    "resultSha256": "94be8ea7d72b72e68f823c0ecde26b0a879a2e5caa0a6d43aa037c1fd68f1819",
+    "reason": "Keep foreground task actions and child chat navigation together in the mobile overlay and tray, including their labels."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/tasks/MobileNativeChatBackgroundTasks.tsx",
+    "blobs": [
+      "8f6ee4419a21d38adf9d2e9ad19707b010d6849f",
+      "a7de0c54772d65f6d53dbefecafe614e3bd4c8fc",
+      "800dd2a3ffafcf92feda48daaacaaa593a0a0f94"
+    ],
+    "patch": "nov27-44452-3d6f4513-cd4acab.patch",
+    "patchSha256": "eb19756ef1cde2e327225f41f4b1c79ff6400692f813d70de2c3d0d0b547b30b",
+    "resultSha256": "b02b0bca20348fa9389ac5e1e840e2fbd39437dd1de9afc126f2dd8b13bc9f19",
+    "reason": "Keep foreground task actions and child chat navigation together in the mobile overlay and tray, including their labels."
   }
 ]

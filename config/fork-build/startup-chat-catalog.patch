@@ -736,14 +736,13 @@ index b52d344523b..05127150645 100644
    /** Opts a selected runtime-host refresh into content-conditional replies. */
    afterFingerprint?: string | null
 diff --git a/src/shared/rpc-contract/ai-vault/ai-vault-params.ts b/src/shared/rpc-contract/ai-vault/ai-vault-params.ts
-index f0be2a7e600..765c9e3daeb 100644
 --- a/src/shared/rpc-contract/ai-vault/ai-vault-params.ts
 +++ b/src/shared/rpc-contract/ai-vault/ai-vault-params.ts
-@@ -32,6 +32,7 @@ export const AiVaultListSessionsParams = z
-       .optional(),
-     includeAntigravityIdeSessions: OptionalBoolean,
-     includeStructuredSessions: OptionalBoolean,
-+    structuredOnly: OptionalBoolean,
-     selectedSessionId: z.string().min(1).max(8192).optional(),
-     unlimited: OptionalBoolean,
-     force: OptionalBoolean,
+@@ -36,6 +36,7 @@
+         .optional(),
+       includeAntigravityIdeSessions: OptionalBoolean,
+       includeStructuredSessions: OptionalBoolean,
++      structuredOnly: OptionalBoolean,
+       selectedSessionId: z.string().min(1).max(8192).optional(),
+       unlimited: OptionalBoolean,
+       force: OptionalBoolean,
