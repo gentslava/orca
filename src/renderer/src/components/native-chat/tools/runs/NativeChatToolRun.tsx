@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { NativeChatExpandable } from '../../messages/disclosure/NativeChatExpandable'
 import { useNativeChatDisclosure } from '../../messages/disclosure/native-chat-disclosure-store'
 import { NativeChatTranscriptScrollContext } from '../../viewport/scroll/native-chat-transcript-scroll-context'
-import { Check } from 'lucide-react'
+import { Check, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/class-names'
 import { useTranslate } from '@/i18n/use-translate'
 import { recomputeOn } from '@/lib/recompute-on'
@@ -126,6 +126,7 @@ export function NativeChatToolRun({
     () => nativeChatToolRunHeader(blocks, { activeTurnIsWorking, trailing }),
     [activeTurnIsWorking, blocks, trailing]
   )
+  const hasAsides = Boolean(asides && (asides.before.size || asides.after.length))
   const viewedImages = useMemo(() => nativeChatToolRunViewedImages(headerBlocks), [headerBlocks])
   const hasAskCall = asks.length > 0
   const askSubject = hasAskCall ? nativeChatAskRunSubject(asks) : null
@@ -133,7 +134,7 @@ export function NativeChatToolRun({
   // A single command is more recognizable than its category summary. Its words read translate(), so key it on `t`.
   const runSentence = recomputeOn([t], () => nativeChatToolRunSentence(headerBlocks, { live }))
   const fallbackLabel =
-    callCount === 0 && asideCount > 0
+    callCount === 0 && hasAsides
       ? t('components.native-chat.tool.activity', 'Activity')
       : fallbackKey === 'result'
         ? t('components.native-chat.tool.result', NATIVE_CHAT_TOOL_ACTIVITY_COPY.result)
@@ -143,7 +144,7 @@ export function NativeChatToolRun({
           })
 
   // Standalone rosters/tasks have no tool calls for a header to summarize.
-  if (blocks.length === 0 && asideCount === 0) {
+  if (blocks.length === 0 && !hasAsides) {
     return standaloneRows.length > 0 ? <div className={spacing}>{standaloneRows}</div> : null
   }
 
@@ -170,7 +171,7 @@ export function NativeChatToolRun({
               }
               setOpen(!open)
             }}
-            className="group/tool-run flex min-h-6 min-w-0 flex-1 items-start gap-1.5 rounded-md py-0.5 text-left text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            className="group/tool-run flex min-h-6 min-w-0 flex-1 items-start gap-1.5 rounded-md py-0.5 text-left text-sm leading-relaxed hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
             aria-expanded={open}
             aria-live="polite"
             data-native-chat-tool-run-state={live ? 'live' : 'settled'}
@@ -183,12 +184,13 @@ export function NativeChatToolRun({
                 />
               </span>
             ) : null}
-            {/* Keep the collapsed header bounded; the tool detail carries the full command. */}
+            {/* Keep previews compact; opening reveals labels that are only shortened by the row width. */}
             <span
               className={cn(
-                'min-w-0 line-clamp-2 whitespace-normal break-words text-sm leading-relaxed transition-colors',
+                'min-w-0 text-sm leading-relaxed transition-colors',
+                open ? 'whitespace-normal break-words' : 'truncate',
                 live
-                  ? 'max-w-[72%] shrink-0 animate-pulse text-chat-foreground motion-reduce:animate-none'
+                  ? 'max-w-[72%] animate-pulse text-chat-foreground motion-reduce:animate-none'
                   : 'min-w-0 text-chat-foreground-faint group-hover/tool-run:text-chat-foreground'
               )}
             >
@@ -211,6 +213,15 @@ export function NativeChatToolRun({
                 </span>
               </span>
             ) : null}
+            <span className="ml-auto flex h-[1lh] shrink-0 items-center">
+              <ChevronRight
+                aria-hidden="true"
+                className={cn(
+                  'size-3.5 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
+                  open && 'rotate-90'
+                )}
+              />
+            </span>
           </button>
           <NativeChatBrowserRunPageButton calls={headerBlocks.filter(isToolCallBlock)} />
         </div>
