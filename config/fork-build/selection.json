@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 33383,
+      "reason": "Keep live conversation evidence, host-specific list fingerprints and retries on the current AI Vault contracts."
+    },
+    {
       "number": 33361,
       "reason": "Keep conversation recovery and project navigation scoped to the verified execution host, including independent local and remote folder histories."
     },
@@ -195,6 +199,7 @@
     }
   },
   "dependencies": {
+    "45437": [33363, 41166],
     "38963": [36593],
     "33395": [44451],
     "33576": [44450],
@@ -263,6 +268,10 @@
     }
   },
   "forkHeadSources": {
+    "33383": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-live-ai-vault-33383"
+    },
     "33361": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-ai-vault-recovery-33361"
