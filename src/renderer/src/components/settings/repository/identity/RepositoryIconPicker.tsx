@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import type { Repo } from '../../../../../../shared/repository/repo-types'
 import type { RepoIcon } from '../../../../../../shared/repository/appearance/repo-icon'
 import { RotateCcw } from 'lucide-react'
@@ -6,7 +7,7 @@ import { Label } from '../../../ui/label'
 import { getRepoLucideIconOptions } from '../../../repo/repo-icon'
 import { RepoMarkTile, useRepoMarkAppearance } from '../../../repo/RepoMark'
 import { RepositoryIconColorSection } from './RepositoryIconColorSection'
-import { RepositoryIconTabs } from './RepositoryIconTabs'
+import { RepositoryIconTabs, type RepositoryIconTabsHandle } from './RepositoryIconTabs'
 import { LettersPanel } from '../../../repo/project-peek/ProjectIconStylePanels'
 import { useRepositoryIconActions, type RepoAppearanceUpdate } from './use-repository-icon-actions'
 import { useTranslate, type Translate } from '@/i18n/use-translate'
@@ -58,6 +59,7 @@ export function RepositoryIconPicker({
   const t = useTranslate()
   const actions = useRepositoryIconActions(repo, updateRepo)
   const appearance = useRepoMarkAppearance(repo)
+  const iconTabsRef = useRef<RepositoryIconTabsHandle>(null)
   const selectedLucideName = repo.repoIcon?.type === 'lucide' ? repo.repoIcon.name : null
   const selectedEmoji = repo.repoIcon?.type === 'emoji' ? repo.repoIcon.emoji : ''
   const initialTab =
@@ -70,7 +72,10 @@ export function RepositoryIconPicker({
           : 'avatar'
   const currentIconLabel = getRepositoryIconLabel(appearance.icon, t)
 
-  const setIcon = (repoIcon: RepoIcon | null) => updateRepo(repo.id, { repoIcon })
+  const setIcon = (repoIcon: RepoIcon | null) => {
+    iconTabsRef.current?.cancelUpload()
+    updateRepo(repo.id, { repoIcon })
+  }
   const setBadgeColor = (badgeColor: string) => updateRepo(repo.id, { badgeColor })
 
   return (
@@ -89,7 +94,10 @@ export function RepositoryIconPicker({
           variant="outline"
           size="sm"
           className="gap-2"
-          onClick={actions.resetToDefault}
+          onClick={() => {
+            iconTabsRef.current?.cancelUpload()
+            actions.resetToDefault()
+          }}
         >
           <RotateCcw className="size-3.5" />
           {t('auto.components.settings.RepositoryIconPicker.549d126081', 'Reset')}
@@ -99,6 +107,7 @@ export function RepositoryIconPicker({
       <RepositoryIconColorSection badgeColor={repo.badgeColor} onBadgeColorChange={setBadgeColor} />
 
       <RepositoryIconTabs
+        ref={iconTabsRef}
         initialTab={initialTab}
         lettersPanel={<LettersPanel repo={repo} color={appearance.color} onSetIcon={setIcon} />}
         selectedLucideName={selectedLucideName}
