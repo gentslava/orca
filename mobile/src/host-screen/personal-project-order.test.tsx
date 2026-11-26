@@ -1,9 +1,9 @@
-import { createWithQueryClient } from '../test-support/query-client-test-renderer'
+import { documentQueryClient } from '../test-support/rpc-recording/react-mounting/hook-mount'
 import { buildProjectSectionCatalog } from '../worktree/project-sections/project-section-catalog'
 import { buildSections } from '../worktree/workspace-list/workspace-list-sections'
 import { NO_WORKSPACE_ROW_FILTERS } from '../../../src/shared/workspace-view/workspace-row-filters'
 import { createElement, useEffect } from 'react'
-import { act, type create } from 'react-test-renderer'
+import { act, create } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getDefaultUIState } from '../../../src/shared/orca-profiles/constants'
 import { projectHostSetupProjectionFromRepos } from '../../../src/shared/project/host-setup/project-host-setup-projection'
@@ -63,9 +63,11 @@ const rows: Worktree[] = [a, b].map((repo) => ({
   linkedPR: null
 }))
 let tree: ReturnType<typeof create> | null = null
-afterEach(() => {
+const queries = documentQueryClient()
+afterEach(async () => {
   act(() => tree?.unmount())
   tree = null
+  await queries.end()
 })
 
 describe('mobile personal project actions', () => {
@@ -150,7 +152,7 @@ describe('mobile personal project actions', () => {
       return null
     }
     await act(async () => {
-      tree = createWithQueryClient(createElement(Probe))
+      tree = create(queries.wrap(createElement(Probe)))
     })
     await act(async () => {
       await held.actions?.openWorktreeSession(rows[0])
@@ -180,7 +182,7 @@ describe('mobile personal project actions', () => {
     expect(held.mode).toBe('name')
     supportsPersonalOrder = false
     await act(async () => {
-      tree?.update(createElement(Probe))
+      tree?.update(queries.wrap(createElement(Probe)))
     })
     const beforeUnsupported = sendRequest.mock.calls.length
     await act(async () => {
@@ -261,7 +263,7 @@ it('clears personal summaries on a client switch without changing an empty view'
     return null
   }
   await act(async () => {
-    tree = createWithQueryClient(createElement(Probe))
+    tree = create(queries.wrap(createElement(Probe)))
   })
   expect(held.state?.viewRef.current).toBe(held.initial)
   await act(async () => {
@@ -282,7 +284,7 @@ it('clears personal summaries on a client switch without changing an empty view'
   })
   client = stubRpcClient({ sendRequest: async () => ({ id: 'read', ok: true, result: {} }) })
   await act(async () => {
-    tree?.update(createElement(Probe))
+    tree?.update(queries.wrap(createElement(Probe)))
   })
   expect(held.state?.viewRef.current.personalProjectOrder).toBeUndefined()
 })

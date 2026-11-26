@@ -51,6 +51,12 @@ export type ProjectHeaderRevealTarget<R extends Pick<ProjectSectionRepo, 'displa
   projectId?: string
 }
 
+const NULL_PROJECT_GROUPING_INDEX_KEY: object = {}
+const projectGroupingForRepoCache = new WeakMap<
+  ReadonlyMap<string, unknown>,
+  WeakMap<object, Map<string, ProjectHeaderRevealTarget<Pick<ProjectSectionRepo, 'displayName'>>>>
+>()
+
 export function getProjectGroupingForRepo<R extends Pick<ProjectSectionRepo, 'displayName'>>(
   repoId: string,
   repoMap: ReadonlyMap<string, R>,
@@ -59,41 +65,60 @@ export function getProjectGroupingForRepo<R extends Pick<ProjectSectionRepo, 'di
 ): ProjectHeaderRevealTarget<R> {
   const repo = ownerRepo ?? repoMap.get(repoId)
   const ownerHost = ownerRepo ? getRepoExecutionHostId(ownerRepo) : undefined
+  const cacheKey = ownerHost ? JSON.stringify([ownerHost, repoId]) : repoId
+  const indexKey: object = projectIndex ?? NULL_PROJECT_GROUPING_INDEX_KEY
+  let byIndex = projectGroupingForRepoCache.get(repoMap)
+  let byRepoId = byIndex?.get(indexKey)
+  const cached = byRepoId?.get(cacheKey)
+  if (cached && cached.repo === repo) {
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the cached repo is the identical value of type R, or both repos are absent.
+    return cached as ProjectHeaderRevealTarget<R>
+  }
   const setup = ownerHost
-    ? projectIndex?.setupByRepoHostId.get(JSON.stringify([ownerHost, repoId]))
+    ? projectIndex?.setupByRepoHostId.get(cacheKey)
     : projectIndex?.setupByRepoId.get(repoId)
   const project = setup ? projectIndex?.projectById.get(setup.projectId) : undefined
+  let result: ProjectHeaderRevealTarget<R>
   if (!setup || !project) {
-    return {
+    result = {
       key: `repo:${repoId}`,
       label: repo?.displayName ?? 'Unknown',
       repo
     }
-  }
-  if (projectIndex?.hostLocalCollisionIds.has(project.id)) {
-    return {
+  } else if (projectIndex?.hostLocalCollisionIds.has(project.id)) {
+    result = {
       key: `project:${projectPreferenceKeyForSetup(setup)}`,
       label: repo?.displayName ?? setup.displayName,
       repo,
       projectId: project.id
     }
-  }
-  if (projectIndex && isCheckoutScopedProjectSetup(setup, projectIndex)) {
+  } else if (projectIndex && isCheckoutScopedProjectSetup(setup, projectIndex)) {
     // Why: only the ambiguous surface needs checkout-specific headers.
-    return {
+    result = {
       key: `project:${project.id}::setup:${repoId}`,
       label: repo?.displayName ?? setup.displayName,
       repo,
       projectId: project.id
     }
+  } else {
+    // Provisioned copies and unambiguous checkouts share project identity rather than path-scoped setup identity.
+    result = {
+      key: `project:${project.id}`,
+      label: project.displayName,
+      repo,
+      projectId: project.id
+    }
   }
-  // Provisioned copies and unambiguous checkouts share project identity rather than path-scoped setup identity.
-  return {
-    key: `project:${project.id}`,
-    label: project.displayName,
-    repo,
-    projectId: project.id
+  if (!byIndex) {
+    byIndex = new WeakMap()
+    projectGroupingForRepoCache.set(repoMap, byIndex)
   }
+  if (!byRepoId) {
+    byRepoId = new Map()
+    byIndex.set(indexKey, byRepoId)
+  }
+  byRepoId.set(cacheKey, result)
+  return result
 }
 
 export function getProjectHeaderRevealTarget(
