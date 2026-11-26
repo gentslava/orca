@@ -1,4 +1,4 @@
-import { undismissedAppUpdate } from '../app-update/app-update-checker'
+import { appUpdateId, undismissedAppUpdate } from '../app-update/app-update-checker'
 import {
   appUpdateChecker,
   isRetiredGithubAndroidApp,
@@ -17,7 +17,7 @@ export function MobileHomeAppUpdateCard() {
     <AppUpdateCard
       version={available.version}
       onPress={() => openAppUpdate(available.url)}
-      onDismiss={() => appUpdateChecker.dismiss(available.version)}
+      onDismiss={() => appUpdateChecker.dismiss(appUpdateId(available))}
     />
   )
 }

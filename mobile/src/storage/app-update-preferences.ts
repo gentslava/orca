@@ -1,11 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as z from 'zod'
 
-const LAST_CHECKED_AT_KEY = 'orca:appUpdate:lastCheckedAt'
-const LATEST_KEY = 'orca:appUpdate:latest'
-const DISMISSED_VERSION_KEY = 'orca:appUpdate:dismissedVersion'
+type UpdateChannel = 'fork-android'
 
-export type KnownAppUpdate = { readonly version: string; readonly url: string }
+function preferenceKeys(channel?: UpdateChannel) {
+  const prefix = channel ? `orca:appUpdate:${channel}` : 'orca:appUpdate'
+  return {
+    checkedAt: `${prefix}:lastCheckedAt`,
+    latest: `${prefix}:latest`,
+    dismissed: `${prefix}:dismissedVersion`
+  }
+}
+
+export type KnownAppUpdate = {
+  readonly version: string
+  readonly url: string
+  readonly revision?: string
+}
 
 export type AppUpdatePreferences = {
   readonly lastCheckedAt: number | null
@@ -19,7 +30,11 @@ export const EMPTY_APP_UPDATE_PREFERENCES: AppUpdatePreferences = {
   dismissedVersion: null
 }
 
-const knownAppUpdateSchema = z.object({ version: z.string(), url: z.string() })
+const knownAppUpdateSchema = z.object({
+  version: z.string(),
+  url: z.string(),
+  revision: z.string().optional()
+})
 
 // Discard only the corrupt field; preserve adjacent check and dismissal state.
 function parseLatest(raw: string | null): KnownAppUpdate | null {
@@ -31,12 +46,15 @@ function parseLatest(raw: string | null): KnownAppUpdate | null {
   }
 }
 
-export async function loadAppUpdatePreferences(): Promise<AppUpdatePreferences> {
+export async function loadAppUpdatePreferences(
+  channel?: UpdateChannel
+): Promise<AppUpdatePreferences> {
+  const keys = preferenceKeys(channel)
   try {
     const [[, checkedAt], [, latest], [, dismissed]] = await AsyncStorage.multiGet([
-      LAST_CHECKED_AT_KEY,
-      LATEST_KEY,
-      DISMISSED_VERSION_KEY
+      keys.checkedAt,
+      keys.latest,
+      keys.dismissed
     ])
     const lastCheckedAt = checkedAt === null ? null : Number(checkedAt)
     return {
@@ -50,15 +68,23 @@ export async function loadAppUpdatePreferences(): Promise<AppUpdatePreferences> 
   }
 }
 
-export async function saveAppUpdateCheck(checkedAt: number, latest: KnownAppUpdate | null) {
+export async function saveAppUpdateCheck(
+  checkedAt: number,
+  latest: KnownAppUpdate | null,
+  channel?: UpdateChannel
+) {
+  const keys = preferenceKeys(channel)
   await AsyncStorage.multiSet([
-    [LAST_CHECKED_AT_KEY, String(checkedAt)],
-    [LATEST_KEY, latest ? JSON.stringify(latest) : '']
+    [keys.checkedAt, String(checkedAt)],
+    [keys.latest, latest ? JSON.stringify(latest) : '']
   ])
 }
 
-export async function saveDismissedAppUpdateVersion(version: string): Promise<void> {
-  await AsyncStorage.setItem(DISMISSED_VERSION_KEY, version)
+export async function saveDismissedAppUpdateVersion(
+  version: string,
+  channel?: UpdateChannel
+): Promise<void> {
+  await AsyncStorage.setItem(preferenceKeys(channel).dismissed, version)
 }
 
 const KEPT_RETIRED_APP_AT_KEY = 'orca:appUpdate:keptRetiredAppAt'

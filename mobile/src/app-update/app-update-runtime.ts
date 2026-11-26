@@ -12,6 +12,11 @@ import { appStoreUpdateSource } from './app-store-update-source'
 import { createAppUpdateChecker, type AppUpdateState } from './app-update-checker'
 import type { AppUpdateSource } from './app-update-source'
 import {
+  createForkAndroidUpdateSource,
+  FORK_RELEASES_URL,
+  forkAndroidBuildTimestamp
+} from './fork-android-update-source'
+import {
   ANDROID_RELEASE_TAG_PREFIX,
   createGithubReleaseUpdateSource,
   RETIRED_ANDROID_RELEASE_TAG_PREFIX
@@ -28,11 +33,35 @@ export const isRetiredGithubAndroidApp =
 export const isGooglePlayInstall =
   Platform.OS === 'android' && (OrcaPlayStorePresence?.isInstalledByPlayStore() ?? false)
 
+const androidConfig = Constants.expoConfig?.android
+const forkAndroidTimestamp = forkAndroidBuildTimestamp(
+  Constants.expoConfig?.extra?.orcaForkAndroidBuild
+)
+const forkAndroidBuild =
+  Platform.OS === 'android' &&
+  !isGooglePlayInstall &&
+  forkAndroidTimestamp !== null &&
+  androidConfig?.package &&
+  androidConfig.versionCode
+    ? {
+        applicationId: androidConfig.package,
+        versionCode: androidConfig.versionCode,
+        timestamp: forkAndroidTimestamp
+      }
+    : null
+
+const preferencesChannel = forkAndroidBuild ? 'fork-android' : undefined
+
+export const forkUpdateReleasesUrl = forkAndroidBuild ? FORK_RELEASES_URL : null
+
 /** The channel that installed this binary. */
 function resolveAppUpdateSource(): AppUpdateSource | null {
   if (Platform.OS === 'android') {
     if (isGooglePlayInstall) {
       return null
+    }
+    if (forkAndroidBuild) {
+      return createForkAndroidUpdateSource((input, init) => fetch(input, init), forkAndroidBuild)
     }
     return createGithubReleaseUpdateSource(
       (input, init) => fetch(input, init),
@@ -64,9 +93,9 @@ export const appUpdateChecker = createAppUpdateChecker({
     })
     return () => subscription.remove()
   },
-  loadPreferences: loadAppUpdatePreferences,
-  saveCheck: saveAppUpdateCheck,
-  saveDismissedVersion: saveDismissedAppUpdateVersion
+  loadPreferences: () => loadAppUpdatePreferences(preferencesChannel),
+  saveCheck: (checkedAt, latest) => saveAppUpdateCheck(checkedAt, latest, preferencesChannel),
+  saveDismissedVersion: (version) => saveDismissedAppUpdateVersion(version, preferencesChannel)
 })
 
 export function useAppUpdateState(): AppUpdateState {
