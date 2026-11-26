@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 34895,
+      "reason": "Keep retained child-agent transcripts reachable from the parent while preserving host-specific media, paste routing, and the current chat sheet layer."
+    },
+    {
       "number": 45437,
       "reason": "Keep the Claude flagged-request fallback setting and its quiet failure notice alongside upstream provider authentication and retry handling."
     },
@@ -251,6 +255,10 @@
     }
   },
   "forkHeadSources": {
+    "34895": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-child-chat-history-34895"
+    },
     "45437": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-quiet-chat-errors-45437"
