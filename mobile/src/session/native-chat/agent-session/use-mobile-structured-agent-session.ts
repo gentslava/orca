@@ -278,6 +278,7 @@ export function useMobileStructuredAgentSession(
       loadEarlier,
       savedAt
     },
+    subagentSource: { journalItems: state.items, roster: state.subagentRoster },
     isWorking: isWorking || queueSendsNext,
     canStop,
     sendFollowUp: turnIndicator.sendFollowUp ?? null,
