@@ -313,7 +313,9 @@ function SessionOptionPopover(props: {
               model.defaultChoice && props.onReset
                 ? {
                     selected: defaultSelected,
-                    modelLabel: defaultSelected && resolved ? modelLabel : undefined,
+                    modelLabel:
+                      defaultSelected && resolved ? modelLabel : model.defaultChoice.model?.label,
+                    modelDescription: model.defaultChoice.model?.description,
                     onSelect: () => reset(model)
                   }
                 : undefined

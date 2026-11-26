@@ -21552,8 +21552,8 @@
         "permissionAppliesNextMessage": "{{saved}} applies to your next message; currently using {{active}}",
         "modelAndEffortValue": "{{model}} · {{effort}}",
         "modelAndEffort": "Model and effort",
-        "nextTurnOptionsLabel": "Next turn: {{options}}",
         "futureOptionsRequireUpdate": "Update Orca on this host to change future-turn choices while the agent works.",
+        "nextTurnOptionsLabel": "Next turn: {{options}}",
         "steerUnavailable": "This host cannot send drafts immediately yet. Update Orca on this host, or change the Enter action in Chat settings.",
         "queueUnavailable": "This host cannot queue drafts yet. Update Orca on this host; your draft has been kept."
       },
@@ -21796,10 +21796,6 @@
       "railLabel": "Your messages",
       "railImageMessage": "Image attachment",
       "railEmptyMessage": "Message",
-      "railFilterPlaceholder": "Filter your messages",
-      "railNoMatches": "No messages match",
-      "railTickLabel": "Message {{index}} of {{count}}: {{text}}",
-      "railMatchCount": "{{count}} of {{total}}",
       "prompt": {
         "collapse": "Collapse",
         "expand": "Expand"
@@ -22146,17 +22142,6 @@
       "imagePreview": {
         "fileActions": "File actions",
         "linkActions": "Link actions"
-      },
-      "imageGallery": {
-        "scopeHelp": "Images near this part of the chat when you opened the preview. Images further up or down aren't included. Close and reopen to update.",
-        "description": "Images in this view: {{position}} of {{count}}. {{help}}",
-        "stepAnnouncement": "Image {{position}} of {{count}} in this view: {{title}}.",
-        "firstImage": "First image.",
-        "lastImage": "Last image.",
-        "loading": "Loading image…",
-        "loadFailed": "Couldn't load {{name}}",
-        "closedImageChanged": "Preview closed because an image changed. Open a thumbnail to capture the current set.",
-        "closedChatChanged": "Preview closed because the chat changed. Open a thumbnail to capture the current set."
       },
       "goalControl": {
         "settingsRejected": "Codex could not apply the selected model and effort. This goal change was not sent. Check the selection and try again.",
@@ -22984,6 +22969,21 @@
         "unlisted": "Background work running",
         "unread": "Workers couldn’t load",
         "unreadDetail": "Workers will show here once they load"
+      },
+      "railFilterPlaceholder": "Filter your messages",
+      "railNoMatches": "No messages match",
+      "railTickLabel": "Message {{index}} of {{count}}: {{text}}",
+      "railMatchCount": "{{count}} of {{total}}",
+      "imageGallery": {
+        "scopeHelp": "Images near this part of the chat when you opened the preview. Images further up or down aren't included. Close and reopen to update.",
+        "description": "Images in this view: {{position}} of {{count}}. {{help}}",
+        "stepAnnouncement": "Image {{position}} of {{count}} in this view: {{title}}.",
+        "firstImage": "First image.",
+        "lastImage": "Last image.",
+        "loading": "Loading image…",
+        "loadFailed": "Couldn't load {{name}}",
+        "closedImageChanged": "Preview closed because an image changed. Open a thumbnail to capture the current set.",
+        "closedChatChanged": "Preview closed because the chat changed. Open a thumbnail to capture the current set."
       },
       "webhookSetup": {
         "heading": "Set up a webhook",
@@ -25965,19 +25965,6 @@
         "grokFailed": "Grok could not name this chat. Try generating the name again.",
         "antigravityFailed": "Antigravity could not name this chat. Try generating the name again."
       }
-    }
-  },
-  "tabStrip": {
-    "overflow": {
-      "chipOnlyName_one": "{{title}}, {{count}} tab",
-      "chipOnlyName_other": "{{title}}, {{count}} tabs",
-      "entryNeedsAttention": "{{title}}, needs attention",
-      "moreTabs_one": "{{count}} more tab",
-      "moreTabs_other": "{{count}} more tabs",
-      "needAttention_one": ", {{count}} needs attention",
-      "needAttention_other": ", {{count}} need attention",
-      "openTabs_one": "{{count}} open tab",
-      "openTabs_other": "{{count}} open tabs"
     }
   },
   "updates": {
@@ -31179,35 +31166,6 @@
     "browseOnline": "Browse",
     "browseOnlineLabel": "Browse community translations on orca.dev (opens in your browser)"
   },
-  "projectConversations": {
-    "defaultGroupName": "{{project}} group",
-    "hideProject": "Hide project from list",
-    "hiddenProjects": "Hidden projects",
-    "keepFiles": "Files and history are kept",
-    "restoreProject": "Restore {{project}}",
-    "projectOptionsFor": "Project options for {{project}}",
-    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
-    "search": "Search chats",
-    "projectOrder": "Project order",
-    "allChats": "Chats",
-    "archived": "Archived",
-    "moveUp": "Move up",
-    "moveDown": "Move down",
-    "noChats": "No chats yet",
-    "loading": "Loading chats…",
-    "noArchived": "No archived chats",
-    "noMatching": "No matching chats",
-    "untitled": "Untitled chat",
-    "unpin": "Unpin chat",
-    "pin": "Pin chat",
-    "restore": "Restore chat",
-    "archive": "Archive chat",
-    "working": "Working",
-    "needsYou": "Needs you",
-    "showMore": "Show more",
-    "newChatInProject": "New chat in {{project}}",
-    "saveFailed": "Could not save chat preferences. Update Orca or try again."
-  },
   "agentCliUpdate": {
     "updating": "Updating…",
     "tryAgain": "Try again",
@@ -31304,6 +31262,48 @@
       "workerOwed": "An orchestration still waits on this chat",
       "home": "A managed agent's Home Chat can't be deleted"
     }
+  },
+  "tabStrip": {
+    "overflow": {
+      "chipOnlyName_one": "{{title}}, {{count}} tab",
+      "chipOnlyName_other": "{{title}}, {{count}} tabs",
+      "entryNeedsAttention": "{{title}}, needs attention",
+      "moreTabs_one": "{{count}} more tab",
+      "moreTabs_other": "{{count}} more tabs",
+      "needAttention_one": ", {{count}} needs attention",
+      "needAttention_other": ", {{count}} need attention",
+      "openTabs_one": "{{count}} open tab",
+      "openTabs_other": "{{count}} open tabs"
+    }
+  },
+  "projectConversations": {
+    "defaultGroupName": "{{project}} group",
+    "hideProject": "Hide project from list",
+    "hiddenProjects": "Hidden projects",
+    "keepFiles": "Files and history are kept",
+    "restoreProject": "Restore {{project}}",
+    "projectOptionsFor": "Project options for {{project}}",
+    "visibilityFailed": "Could not save project visibility. Update Orca or try again.",
+    "search": "Search chats",
+    "projectOrder": "Project order",
+    "allChats": "Chats",
+    "archived": "Archived",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "noChats": "No chats yet",
+    "loading": "Loading chats…",
+    "noArchived": "No archived chats",
+    "noMatching": "No matching chats",
+    "untitled": "Untitled chat",
+    "unpin": "Unpin chat",
+    "pin": "Pin chat",
+    "restore": "Restore chat",
+    "archive": "Archive chat",
+    "working": "Working",
+    "needsYou": "Needs you",
+    "showMore": "Show more",
+    "newChatInProject": "New chat in {{project}}",
+    "saveFailed": "Could not save chat preferences. Update Orca or try again."
   },
   "activityBar": {
     "moveUp": "Move up",

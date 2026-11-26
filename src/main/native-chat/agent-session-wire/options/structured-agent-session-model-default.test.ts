@@ -170,4 +170,7 @@ it('takes null only for the model', () => {
   const envelope = rig.envelope({}, 'agentSession.setOption', hostTestOperationId())
   expect(SetOptionParams.safeParse({ envelope, key: 'model', value: null }).success).toBe(true)
   expect(SetOptionParams.safeParse({ envelope, key: 'effort', value: null }).success).toBe(false)
+  expect(SetOptionParams.safeParse({ envelope, key: 'model', value: undefined }).success).toBe(
+    false
+  )
 })
