@@ -6,6 +6,7 @@ export const ImageUpload = defineFixture({
   render: () => (
     <RepositoryIconTabs
       initialTab="avatar"
+      lettersPanel={null}
       selectedLucideName={null}
       selectedEmoji=""
       loadingGitHub={false}

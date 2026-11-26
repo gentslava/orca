@@ -1,27 +1,15 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
-import { toast } from 'sonner'
-import { RotateCcw } from 'lucide-react'
+import { useRef } from 'react'
 import type { Repo } from '../../../../../../shared/repository/repo-types'
 import type { RepoIcon } from '../../../../../../shared/repository/appearance/repo-icon'
-import {
-  DEFAULT_REPO_BADGE_COLOR,
-  normalizeRepoBadgeColor
-} from '../../../../../../shared/repository/appearance/repo-badge-color'
+import { RotateCcw } from 'lucide-react'
 import { Button } from '../../../ui/button'
 import { Label } from '../../../ui/label'
-import { RepoIconGlyph, getRepoLucideIconOptions } from '../../../repo/repo-icon'
-import { runtimeTargetForOwnerEnvironment } from '@/runtime/rpc/targets/runtime-client-target'
-import {
-  getRepoExecutionHostId,
-  parseExecutionHostId
-} from '../../../../../../shared/execution-host/execution-host'
-import { useMountedRef } from '@/hooks/useMountedRef'
+import { getRepoLucideIconOptions } from '../../../repo/repo-icon'
+import { RepoMarkTile, useRepoMarkAppearance } from '../../../repo/RepoMark'
 import { RepositoryIconColorSection } from './RepositoryIconColorSection'
 import { RepositoryIconTabs, type RepositoryIconTabsHandle } from './RepositoryIconTabs'
-import {
-  buildRepositoryGitHubAvatarUpdate,
-  resolveRepositoryGitHubAvatar
-} from '../../../../runtime/repository-github/repository-icon-github'
+import { LettersPanel } from '../../../repo/project-peek/ProjectIconStylePanels'
+import { useRepositoryIconActions, type RepoAppearanceUpdate } from './use-repository-icon-actions'
 import { useTranslate, type Translate } from '@/i18n/use-translate'
 
 function getRepositoryIconLabel(repoIcon: RepoIcon | null | undefined, t: Translate): string {
@@ -32,6 +20,15 @@ function getRepositoryIconLabel(repoIcon: RepoIcon | null | undefined, t: Transl
     return (
       repoIcon.label ??
       t('auto.components.settings.RepositoryIconPicker.customImage', 'Custom image')
+    )
+  }
+  if (repoIcon?.type === 'letters') {
+    return t(
+      'auto.components.settings.RepositoryIconPicker.lettersDescription',
+      'Letters “{{text}}”',
+      {
+        text: repoIcon.text
+      }
     )
   }
   if (repoIcon?.type === 'emoji') {
@@ -57,103 +54,35 @@ export function RepositoryIconPicker({
   updateRepo
 }: {
   repo: Repo
-  updateRepo: (repoId: string, updates: Partial<Repo>) => void
+  updateRepo: (repoId: string, updates: RepoAppearanceUpdate) => void
 }): React.JSX.Element {
   const t = useTranslate()
-  const [loadingGitHub, setLoadingGitHub] = useState(false)
-  const [resetting, setResetting] = useState(false)
-  const mountedRef = useMountedRef()
+  const actions = useRepositoryIconActions(repo, updateRepo)
+  const appearance = useRepoMarkAppearance(repo)
   const iconTabsRef = useRef<RepositoryIconTabsHandle>(null)
-  // Resolve avatars/upstream on the selected repo owner, independent of focused host.
-  const selectedHost = parseExecutionHostId(getRepoExecutionHostId(repo))
-  const ownerEnvironmentId = selectedHost?.kind === 'runtime' ? selectedHost.environmentId : null
   const selectedLucideName = repo.repoIcon?.type === 'lucide' ? repo.repoIcon.name : null
   const selectedEmoji = repo.repoIcon?.type === 'emoji' ? repo.repoIcon.emoji : ''
-  const selectedBadgeColor = normalizeRepoBadgeColor(repo.badgeColor) ?? DEFAULT_REPO_BADGE_COLOR
   const initialTab =
-    repo.repoIcon?.type === 'emoji' ? 'emoji' : repo.repoIcon?.type === 'lucide' ? 'icon' : 'avatar'
-  const runtimeTarget = useMemo(
-    () => runtimeTargetForOwnerEnvironment(ownerEnvironmentId),
-    [ownerEnvironmentId]
-  )
+    repo.repoIcon == null || repo.repoIcon.type === 'letters'
+      ? 'letters'
+      : repo.repoIcon?.type === 'emoji'
+        ? 'emoji'
+        : repo.repoIcon?.type === 'lucide'
+          ? 'icon'
+          : 'avatar'
+  const currentIconLabel = getRepositoryIconLabel(appearance.icon, t)
 
-  const currentIconLabel = getRepositoryIconLabel(repo.repoIcon, t)
-
-  const setIcon = (repoIcon: RepoIcon | null) => updateRepo(repo.id, { repoIcon })
-  const setBadgeColor = (badgeColor: string) => updateRepo(repo.id, { badgeColor })
-
-  const resolveGitHubAvatar = useCallback(
-    (options?: { forceLive?: boolean }) =>
-      resolveRepositoryGitHubAvatar(runtimeTarget, repo, options),
-    [runtimeTarget, repo]
-  )
-
-  const handleUseGitHubAvatar = async () => {
-    setLoadingGitHub(true)
-    try {
-      const resolution = await resolveGitHubAvatar({ forceLive: true })
-      if (!mountedRef.current) {
-        return
-      }
-      if (!resolution.repoIcon) {
-        toast.error(
-          t(
-            'auto.components.settings.RepositoryIconPicker.f79972271a',
-            'No GitHub remote found for this repo.'
-          )
-        )
-        return
-      }
-      const updates = buildRepositoryGitHubAvatarUpdate(repo, resolution)
-      if (updates) {
-        updateRepo(repo.id, updates)
-      }
-    } catch {
-      if (mountedRef.current) {
-        toast.error(
-          t(
-            'auto.components.settings.RepositoryIconPicker.d71df44587',
-            'Failed to resolve the GitHub repo.'
-          )
-        )
-      }
-    } finally {
-      if (mountedRef.current) {
-        setLoadingGitHub(false)
-      }
-    }
-  }
-
-  const handleResetToDefault = async () => {
+  const setIcon = (repoIcon: RepoIcon | null) => {
     iconTabsRef.current?.cancelUpload()
-    setResetting(true)
-    try {
-      const resolution = await resolveGitHubAvatar({ forceLive: true }).catch(() => null)
-      if (!mountedRef.current) {
-        return
-      }
-      const updates = resolution
-        ? buildRepositoryGitHubAvatarUpdate(repo, resolution, { clearMissingIcon: true })
-        : { repoIcon: null }
-      if (updates) {
-        updateRepo(repo.id, updates)
-      }
-    } finally {
-      if (mountedRef.current) {
-        setResetting(false)
-      }
-    }
+    updateRepo(repo.id, { repoIcon })
   }
+  const setBadgeColor = (badgeColor: string) => updateRepo(repo.id, { badgeColor })
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3">
-        <RepoIconGlyph
-          repoIcon={repo.repoIcon}
-          color={selectedBadgeColor}
-          className="size-10 shrink-0 rounded-md border border-border/70 bg-muted/30"
-          iconClassName="size-5"
-        />
+        {/* Preview the resolved sidebar mark so auto colors and clash boxes match the cards. */}
+        <RepoMarkTile appearance={appearance} />
         <div className="min-w-0 flex-1">
           <Label className="text-sm font-semibold">
             {t('auto.components.settings.RepositoryIconPicker.43bf3709dd', 'Repo icon')}
@@ -165,8 +94,10 @@ export function RepositoryIconPicker({
           variant="outline"
           size="sm"
           className="gap-2"
-          disabled={resetting}
-          onClick={() => void handleResetToDefault()}
+          onClick={() => {
+            iconTabsRef.current?.cancelUpload()
+            actions.resetToDefault()
+          }}
         >
           <RotateCcw className="size-3.5" />
           {t('auto.components.settings.RepositoryIconPicker.549d126081', 'Reset')}
@@ -178,11 +109,12 @@ export function RepositoryIconPicker({
       <RepositoryIconTabs
         ref={iconTabsRef}
         initialTab={initialTab}
+        lettersPanel={<LettersPanel repo={repo} color={appearance.color} onSetIcon={setIcon} />}
         selectedLucideName={selectedLucideName}
         selectedEmoji={selectedEmoji}
-        loadingGitHub={loadingGitHub}
+        loadingGitHub={actions.loadingGitHub}
         onSetIcon={setIcon}
-        onUseGitHubAvatar={() => void handleUseGitHubAvatar()}
+        onUseGitHubAvatar={() => void actions.applyGitHubAvatar()}
       />
     </div>
   )

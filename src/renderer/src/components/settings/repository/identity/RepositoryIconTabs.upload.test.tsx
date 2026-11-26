@@ -94,13 +94,15 @@ async function renderPicker({
             addedAt: 1,
             badgeColor: DEFAULT_REPO_BADGE_COLOR,
             kind: 'git',
-            upstream: null
+            upstream: null,
+            repoIcon: githubIcon
           }}
           updateRepo={(_id, update) => icons.push(update.repoIcon ?? null)}
         />
       ) : (
         <RepositoryIconTabs
           initialTab="avatar"
+          lettersPanel={null}
           selectedLucideName={null}
           selectedEmoji=""
           loadingGitHub={false}
