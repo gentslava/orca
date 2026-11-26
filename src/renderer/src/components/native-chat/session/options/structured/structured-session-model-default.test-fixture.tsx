@@ -155,12 +155,6 @@ import { useStructuredAgentSessionSendOptions } from '../../structured/delivery/
 const LOCAL_TARGET = { kind: 'local' } as const
 const PAIRED_TARGET = { kind: 'environment', environmentId: 'server-1' } as const
 
-class FakeRpcCallError extends Error {
-  constructor(readonly code: string) {
-    super(code)
-  }
-}
-
 type Answers = {
   options?: (target: RuntimeClientTarget) => Promise<unknown>
   modelCatalog?: () => Promise<unknown>
@@ -217,11 +211,7 @@ type RenderProps = {
   onRender?: () => void
 }
 
-const PROVISIONAL: RenderProps = { transportEnabled: false, fence: null, launch: 'new' }
-// The receipt lands first; attach delivers the fence on a later render.
-const PUBLISHED_UNATTACHED: RenderProps = { transportEnabled: true, fence: null, launch: 'new' }
 const ATTACHED: RenderProps = { transportEnabled: true, fence: 1, launch: 'new' }
-const REOPENED: RenderProps = { transportEnabled: true, fence: 1 }
 
 function renderOptions(initial: RenderProps, mutate: StructuredAgentSessionMutate) {
   mocks.pick.mockImplementation(mutate)
@@ -280,35 +270,6 @@ function descriptor(snapshot: readonly SessionOptionDescriptor[], id: string) {
   return snapshot.find((entry) => entry.id === id)
 }
 
-function currentValue(snapshot: readonly SessionOptionDescriptor[], id: string) {
-  const entry = descriptor(snapshot, id)
-  return entry?.kind.type === 'select' ? (entry.kind.currentValue ?? null) : null
-}
-
-function modelChoiceCount(snapshot: readonly SessionOptionDescriptor[]): number {
-  const model = descriptor(snapshot, 'model')
-  return model?.kind.type === 'select' ? model.kind.choices.length : 0
-}
-
-function setOptionCalls(calls: ReturnType<typeof vi.fn<MutateCall>>): unknown[] {
-  return calls.mock.calls
-    .filter(([method]) => method === 'agentSession.setOption')
-    .map(([, , fields]) => fields)
-}
-
-const HOST_CATALOG = {
-  origin: 'live-session' as const,
-  models: [
-    {
-      id: 'gpt-hosted',
-      label: 'GPT Hosted',
-      isDefault: true,
-      efforts: [{ value: 'high', label: 'High' }]
-    }
-  ],
-  fetchedAt: 1_000
-}
-
 const LIVE_OPTIONS = {
   models: [
     { id: 'gpt-5.5', label: 'GPT-5.5', isDefault: true, efforts: [] },
@@ -317,47 +278,4 @@ const LIVE_OPTIONS = {
   current: { model: 'gpt-5.5', confirmed: ['model'] }
 }
 
-const SAVED_LIST = {
-  origin: 'probe',
-  models: [
-    {
-      id: 'gpt-5.5',
-      label: 'GPT-5.5',
-      isDefault: true,
-      efforts: [
-        { value: 'medium', label: 'Medium' },
-        { value: 'high', label: 'High' }
-      ]
-    },
-    { id: 'gpt-5.6-luna', label: 'GPT-5.6 Luna', efforts: [] }
-  ],
-  fetchedAt: 1_000
-}
-
-const SEED = { model: 'gpt-5.5' }
-const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
-
-export {
-  mocks,
-  LOCAL_TARGET,
-  PAIRED_TARGET,
-  FakeRpcCallError,
-  answer,
-  mutateWith,
-  PROVISIONAL,
-  PUBLISHED_UNATTACHED,
-  ATTACHED,
-  REOPENED,
-  renderOptions,
-  descriptor,
-  currentValue,
-  modelChoiceCount,
-  setOptionCalls,
-  HOST_CATALOG,
-  LIVE_OPTIONS,
-  SAVED_LIST,
-  SEED,
-  tick
-}
-
-export type { Answers, MutateCall, RenderProps }
+export { mocks, answer, mutateWith, ATTACHED, renderOptions, descriptor, LIVE_OPTIONS }
