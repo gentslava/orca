@@ -1,0 +1,46 @@
+diff --git a/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx b/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
+--- a/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
++++ b/src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx
+@@ -199,3 +199,42 @@
+     </>
+   )
+ }
++
++export function NativeChatStructuredPrompts({
++  pane,
++  controller,
++  response,
++  session,
++  transport,
++  submits,
++  shouldFocus,
++  answerInputRef
++}: {
++  pane: Pick<
++    NativeChatStructuredViewProps,
++    'target' | 'agent' | 'sessionId' | 'tabId' | 'isVisible'
++  >
++  controller: ReturnType<typeof useStructuredAgentSession>
++  response: ReturnType<typeof useStructuredPromptResponseHold>
++  session: Pick<NativeChatLiveSession, 'messages' | 'readPhase'>
++  transport: NativeChatStructuredComposerTransport
++  submits: { queuedMessages: { cards: readonly Pick<QueuedMessageCard, 'text'>[] } }
++  shouldFocus: boolean
++  answerInputRef: RefObject<HTMLTextAreaElement | null>
++}): React.JSX.Element {
++  const prompt = controller.prompts[0] ?? null
++  const cancelPrompt = () => cancelStructuredPrompt(controller, prompt)
++  return (
++    <>
++      <NativeChatStructuredPromptCard
++        key={prompt ? `${prompt.itemId}:${prompt.revision}` : undefined}
++        prompt={prompt}
++        promptResponse={response}
++        onCancel={cancelPrompt}
++        shouldFocus={shouldFocus}
++        answerInputRef={answerInputRef}
++      />
++      {nativeChatStructuredAsyncQuestion(pane, controller, session, transport, submits)}
++    </>
++  )
++}
