@@ -1284,48 +1284,6 @@
       "codexRemoveHome": "Orca deletes this account's Codex folder on {{host}}, including its sign-in and MCP logins. This cannot be undone. If it is selected, the next Codex you start uses System default.",
       "claudeRemoveProfile": "Orca deletes this account's own Claude folder and the sign-in saved in it on {{host}}. Your System default login and chat history shared with it stay. If it is selected, the next Claude you start uses System default."
     },
-    "orchestration": {
-      "roles": {
-        "modelsUnavailable": "No models reported by this host.",
-        "unavailable": "Unavailable",
-        "notListed": "Not listed",
-        "checking": "Checking…",
-        "refreshingModels": "Refreshing models…",
-        "agent": "Agent",
-        "unconfigured": "Not configured",
-        "model": "Model",
-        "agentDefault": "Agent default",
-        "effort": "Reasoning effort",
-        "fast": "Fast",
-        "on": "On",
-        "off": "Off",
-        "title": "Worker roles",
-        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
-        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
-        "clear": "Clear profile",
-        "new": "Add a role",
-        "add": "Add",
-        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
-        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
-        "research": "Research",
-        "implementation": "Implementation",
-        "review": "Review",
-        "keyword": {
-          "role": "role",
-          "profile": "profile",
-          "research": "research",
-          "implementation": "implementation",
-          "review": "review",
-          "model": "model",
-          "effort": "effort",
-          "fast": "fast",
-          "provider": "provider"
-        },
-        "modelsFailed": "Could not load models.",
-        "modelErrorDetails": "Details",
-        "retryModels": "Retry"
-      }
-    },
     "sourceControl": {
       "gitOperationInAnotherWorkspace": "Git operation running elsewhere",
       "remoteOperationInAnotherWorkspace": "Another workspace is running a Git operation, such as push, pull, or force push. Wait for it to finish before using this action, so the two operations don't overlap.",
@@ -1585,7 +1543,9 @@
     "repository": {
       "iconPickErrors": {
         "notPng": "Repo icons must be PNG files.",
-        "tooLarge": "Repo icon image must be 256KB or smaller."
+        "tooLarge": "Repo icon image must be 256KB or smaller.",
+        "unsupportedImage": "Choose a PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF image.",
+        "sourceTooLarge": "Repo icon image must be 10MB or smaller."
       }
     },
     "bots": {
@@ -2084,6 +2044,48 @@
       },
       "signInFailed": "Couldn’t sign you in to the console",
       "signInFailedDetail": "Your browser opened it anyway. Sign in there to continue."
+    },
+    "orchestration": {
+      "roles": {
+        "modelsUnavailable": "No models reported by this host.",
+        "unavailable": "Unavailable",
+        "notListed": "Not listed",
+        "checking": "Checking…",
+        "refreshingModels": "Refreshing models…",
+        "agent": "Agent",
+        "unconfigured": "Not configured",
+        "model": "Model",
+        "agentDefault": "Agent default",
+        "effort": "Reasoning effort",
+        "fast": "Fast",
+        "on": "On",
+        "off": "Off",
+        "title": "Worker roles",
+        "description": "Choose which agent handles each role, with a model and reasoning level for each. These profiles are saved on this Orca host.",
+        "catalog": "Agents keep their configured commands and permissions. Fast availability depends on the provider, account and workspace.",
+        "clear": "Clear profile",
+        "new": "Add a role",
+        "add": "Add",
+        "nameHint": "Use lowercase letters, digits and hyphens. Select an agent to save the role.",
+        "search": "Configure research, implementation and review agents, models, reasoning effort and Fast.",
+        "research": "Research",
+        "implementation": "Implementation",
+        "review": "Review",
+        "keyword": {
+          "role": "role",
+          "profile": "profile",
+          "research": "research",
+          "implementation": "implementation",
+          "review": "review",
+          "model": "model",
+          "effort": "effort",
+          "fast": "fast",
+          "provider": "provider"
+        },
+        "modelsFailed": "Could not load models.",
+        "modelErrorDetails": "Details",
+        "retryModels": "Retry"
+      }
     },
     "mobile": {
       "teamDisabledRelay": "Orca Relay is turned off by your team. Use LAN."
@@ -10031,10 +10033,10 @@
         "RepositoryIconPicker": {
           "2b7d27b93c": "Use {{value0}} repo color",
           "useRepoIcon": "Use {{value0}} repo icon",
-          "fde066a63b": "PNG uploads must be 256KB or smaller.",
+          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO or AVIF. Up to 10MB and 32 megapixels.",
           "cc1286e263": "Favicon",
           "03ca1a4e9b": "example.com",
-          "381b4844fd": "Upload PNG",
+          "381b4844fd": "Upload image",
           "7da623abcc": "Used by default — GitHub always provides one, even when the owner hasn't set a custom image.",
           "c490787d24": "Emoji",
           "b2d7fd2116": "Icon",
@@ -10059,6 +10061,7 @@
           "defaultIcon": "Default",
           "cc76342291": "Use GitHub avatar",
           "43bf3709dd": "Repo icon",
+          "imageTooLarge": "Image exceeds the 10MB or 32-megapixel limit.",
           "autoColor": "Automatic color (kept distinct from other projects)",
           "lettersDescription": "Letters “{{text}}”"
         },
@@ -31256,10 +31259,6 @@
       "next": "Next month"
     }
   },
-  "holdQuit": {
-    "hint": "Agents are still working. Hold ⌘Q to quit.",
-    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
-  },
   "appRail": {
     "navigationLabel": "App navigation",
     "toolsLabel": "App tools",
@@ -31279,6 +31278,10 @@
       "workerOwed": "An orchestration still waits on this chat",
       "home": "A managed agent's Home Chat can't be deleted"
     }
+  },
+  "holdQuit": {
+    "hint": "Agents are still working. Hold ⌘Q to quit.",
+    "unavailable": "Hold-to-quit is unavailable. Use the application menu to quit."
   },
   "activityBar": {
     "moveUp": "Move up",
