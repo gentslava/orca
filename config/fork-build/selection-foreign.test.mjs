@@ -130,3 +130,30 @@ test('a merged foreign PR uses the upstream merge without reading the integratio
   assert.deepEqual(result.selections, [merged])
   assert.equal(result.lifecycle[0].disposition, 'merged-check-ancestry')
 })
+
+test('pins an own refresh from the original fork and keeps its PR ancestry check', async () => {
+  const ownPR = {
+    ...original,
+    user: { login: 'owner' },
+    head: { ...original.head, repo: { full_name: source.repository } }
+  }
+  const inputs = { ...readers, readPr: async () => ownPR }
+  const reviewed = { ...config, foreignHeadSources: {}, forkHeadSources: { 7: source } }
+  const result = await resolveSelection(reviewed, inputs)
+  assert.deepEqual(result.selections[0].foreignHeadSource, {
+    ...source,
+    originalHeadSha: ownPR.head.sha
+  })
+  await assert.rejects(resolveSelection(reviewed, readers), /identity/)
+  await assert.rejects(
+    resolveSelection(
+      { ...reviewed, forkHeadSources: { 7: { ...source, repository: 'owner/other-fork' } } },
+      inputs
+    ),
+    /identity/
+  )
+  await assert.rejects(
+    resolveSelection({ ...reviewed, foreignHeadSources: { 7: source } }, inputs),
+    /branch source/
+  )
+})

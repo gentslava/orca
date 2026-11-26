@@ -1,0 +1,27 @@
+diff --git a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+--- a/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
++++ b/mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx
+@@ -161,13 +161,12 @@
+   )
+   switch (look.kind) {
+     case 'auto-review-denied':
+-    case 'settled-permission': {
+-      const summary = nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)
++    case 'settled-permission':
+       return (
+         <View>
+           {disclosed ? null : (
+             <MobileNativeChatNoticeDisclosure
+-              summary={summary}
++              summary={nativeChatReviewNoticeSummary(look, names.agentName ?? look.agent, t)}
+               expanded={expanded}
+               fontScale={fontScale}
+               onPress={() => setExpanded((open) => !open)}
+@@ -177,7 +176,6 @@
+           {disclosed || expanded ? diagnosticBody : null}
+         </View>
+       )
+-    }
+     case 'divider':
+       return <MobileNativeChatDivider label={copy[look.label]} />
+     case 'forked-from': {

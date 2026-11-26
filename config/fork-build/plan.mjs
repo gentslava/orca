@@ -5,6 +5,7 @@ import { parseArgs } from 'node:util'
 import { api, readLedger, readPullRequest, renderReport, searchPullRequests } from './github.mjs'
 import { resolveSelection } from './selection.mjs'
 import {
+  applyCompatibilityPatch,
   assertFrozenHead,
   compose,
   freezeForeignHead,
@@ -173,7 +174,8 @@ try {
   }
   plan.result = compose(source, plan.upstream, frozen, {
     timestamp: plan.timestamp,
-    observedUpstream
+    observedUpstream,
+    dependencies: config.dependencies
   })
   for (const patch of config.compatibilityPatches) {
     if (
@@ -187,7 +189,6 @@ try {
         'reviewed-merge-target-paths.patch',
         'upstream-module-relocations.patch',
         'startup-chat-catalog.patch',
-        'composed-format.patch',
         'composed-ci-contracts.patch',
         'project-start-actions.patch',
         'codex-selected-account-read.patch',
@@ -233,8 +234,7 @@ try {
         writeFileSync(applicable, current.text)
       }
       if (current.text) {
-        git(source, ['apply', '--check', applicable])
-        git(source, ['apply', '--index', applicable])
+        plan.compatibility.at(-1).method = applyCompatibilityPatch(source, applicable)
         git(source, ['commit', '-m', `Personal packaging policy: ${patch}`], {
           GIT_AUTHOR_DATE: plan.timestamp,
           GIT_COMMITTER_DATE: plan.timestamp

@@ -11,6 +11,106 @@
   ],
   "include": [
     {
+      "number": 37744,
+      "reason": "Preserve owner-approved linked chat delivery with current journal storage, queued mail and worker identity checks."
+    },
+    {
+      "number": 33371,
+      "reason": "Keep host-owned usage history and original account attribution while adopting upstream resumable provider scans."
+    },
+    {
+      "number": 33383,
+      "reason": "Keep live conversation evidence, host-specific list fingerprints and retries on the current AI Vault contracts."
+    },
+    {
+      "number": 33362,
+      "reason": "Preserve queued draft editing and future-turn choices while a turn is active across the current desktop, mobile, and host RPC contracts."
+    },
+    {
+      "number": 44451,
+      "reason": "Keep the desktop Default model choice while preserving account-specific listing and compatibility for older clients."
+    },
+    {
+      "number": 33395,
+      "reason": "Keep provider Default on desktop and mobile and serialize its reset before message dispatch."
+    },
+    {
+      "number": 33361,
+      "reason": "Keep conversation recovery and project navigation scoped to the verified execution host, including independent local and remote folder histories."
+    },
+    {
+      "number": 33369,
+      "reason": "Keep worker role and Fast routing, including capability checks on the actual execution host before creating a workspace or dispatch."
+    },
+    {
+      "number": 34895,
+      "reason": "Keep retained child-agent transcripts reachable from the parent while preserving host-specific media, paste routing, and the current chat sheet layer."
+    },
+    {
+      "number": 45437,
+      "reason": "Keep the Claude flagged-request fallback setting and its quiet failure notice alongside upstream provider authentication and retry handling."
+    },
+    {
+      "number": 34338,
+      "reason": "Preserve validated image import and cancellation across the Settings picker and the sidebar project icon controls."
+    },
+    {
+      "number": 33576,
+      "reason": "Keep older transcript pages, reading position and folded turns across desktop and mobile lifecycle changes while retaining upstream streaming optimizations."
+    },
+    {
+      "number": 38963,
+      "reason": "Keep the Claude foreground task controls and background routing across desktop, mobile and the host lifecycle."
+    },
+    {
+      "number": 44452,
+      "reason": "Keep the mobile subagent transcript overlay and desktop shared view contract with the upstream composer menu host."
+    },
+    {
+      "number": 36593,
+      "reason": "Keep expanded command details and the original disclosure behavior alongside upstream scroll tracking."
+    },
+    {
+      "number": 33363,
+      "reason": "Keep quiet review activity in the fold while preserving current streamed-text updates and notice timestamps."
+    },
+    {
+      "number": 33502,
+      "reason": "Keep personal project pins and opening order on desktop and mobile, with separate ownership for projects that share a repository ID on different hosts."
+    },
+    {
+      "number": 46107,
+      "reason": "Preserve the reviewed Russian translations while matching current upstream English keys, terminology and interpolation."
+    },
+    {
+      "number": 34899,
+      "reason": "Preserve the selected host's quota roster with upstream WSL usage and authentication scoping."
+    },
+    {
+      "number": 36945,
+      "reason": "Keep the retained mobile project heading and upstream connection status on the new base."
+    },
+    {
+      "number": 42410,
+      "reason": "Separate persistent chat artifacts from disposable builds and preserve AppImage environment isolation with Windows environment matching."
+    },
+    {
+      "number": 43124,
+      "reason": "Keep per-turn file changes collapsible and use the current session transcript slot height estimator."
+    },
+    {
+      "number": 49959,
+      "reason": "Use the current upstream Claude wake lease and clear its wake evidence once a completion is confirmed."
+    },
+    {
+      "number": 48762,
+      "reason": "Use the command and agent icons on the upstream redesigned worker tray."
+    },
+    {
+      "number": 49658,
+      "reason": "Render Codex document citations using native file links on the current upstream Markdown pipeline."
+    },
+    {
       "number": 47337,
       "reason": "Preserve queued mode, model, effort and safe delivery when a bot replaces its chat. Upstream PR CI passed and its same-provider/cross-provider regression tests cover the behavior."
     },
@@ -43,10 +143,6 @@
       "reason": "Owner-requested saved remote-server rename; issue 40221 was closed as duplicate, with matching earlier request 40165 and open implementation 40298. Include until upstream ships it."
     },
     {
-      "number": 40980,
-      "reason": "Discover host agy models (Claude Sonnet/Opus, GPT-OSS 120B, Gemini) for new chat and terminal model pickers via sessionless CLI probe, unblocking owner's agy model selection."
-    },
-    {
       "number": 41099,
       "reason": "Require a deliberate second Escape within two seconds before stopping a working chat; protect long-running turns from accidental key presses while keeping the Stop button immediate."
     },
@@ -76,12 +172,10 @@
     }
   ],
   "exclude": {
-    "49959": "The current build uses the checked backport from claude-child-wake-expiry with 47724 and the confirmed-completion follow-up. Select 49959 directly once the fork moves to its upstream base.",
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
     "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
-    "48762": "The upstream change targets the redesigned worker tray from 48581. The worker-tray-kind-labels feature supplies a reviewed compact-tray backport at c475b796. Drop that backport and select 48762 when the build moves to the redesigned tray.",
-    "49658": "Use the codex-file-citations backport on c475b796. Retire the backport and consume 49658 when the adopted upstream base supports it."
+    "40980": "Upstream 48304, 48305 and 49165 discover the actual account-scoped agy session models, refresh the catalog on sign-in and avoid background listing. That replaces the older agy models probe."
   },
   "replacements": {
     "33360": 45985,
@@ -122,11 +216,16 @@
     }
   },
   "dependencies": {
-    "33395": [44451],
+    "45437": [33363, 41166],
+    "38963": [34895, 36593],
+    "33383": [33361],
+    "33395": [33362, 44451],
+    "33502": [33361],
     "33576": [44450],
     "36593": [36634],
     "46190": [48573],
-    "48773": [33361]
+    "48773": [33361],
+    "34899": [33371]
   },
   "outputs": [
     "macos-arm64-dmg",
@@ -160,7 +259,6 @@
     "runtime-environment-rename.patch",
     "account-usage-row-layout.patch",
     "fork-ci-macos-arm64-image.patch",
-    "composed-format.patch",
     "composed-contract-migrations.patch",
     "composed-qualification-format.patch",
     "selected-regressions.patch",
@@ -171,8 +269,7 @@
     "34365": "Owner retains bounded photo-picker refusal diagnostics; upstream issue 34351 was closed as not reproducible.",
     "36634": "Owner retains full tool invocation details in expanded chat rows; upstream issue 36633 was closed as not planned and the maintainer alternative 36958 was closed unmerged.",
     "36945": "Owner retains the project name in the mobile session header; upstream issue 36942 was closed as not planned after the session bar redesign in 41345.",
-    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first.",
-    "40980": "Keep host-specific Antigravity model discovery for native chat and terminal pickers while the upstream follow-ups are under review."
+    "38848": "Owner preference: empty Cmd/Ctrl+Enter sends the newest queued message; upstream intentionally sends the first."
   },
   "retainedHeadSources": {
     "34365": {
@@ -183,13 +280,103 @@
       "repository": "gentslava/orca",
       "ref": "refs/heads/fix/native-chat-tool-invocation-details"
     },
-    "36945": {
-      "repository": "gentslava/orca",
-      "ref": "refs/heads/fix/mobile-project-header"
-    },
     "38848": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/fix/queue-last-message-shortcut-20261106"
+    }
+  },
+  "forkHeadSources": {
+    "33383": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-live-ai-vault-33383"
+    },
+    "44451": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-default-picker-44451"
+    },
+    "33395": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-model-default-33395"
+    },
+    "33362": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-queued-options-33362"
+    },
+    "33361": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-ai-vault-recovery-33361"
+    },
+    "33369": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-worker-launch-options-33369"
+    },
+    "34895": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-child-chat-history-34895"
+    },
+    "45437": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-quiet-chat-errors-45437"
+    },
+    "34338": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-project-icons-34338"
+    },
+    "33576": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-chat-retention-33576"
+    },
+    "38963": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-claude-background-38963"
+    },
+    "44452": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-mobile-child-view-44452"
+    },
+    "36593": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-tool-disclosure-36593"
+    },
+    "33363": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-compact-activity-33363"
+    },
+    "33502": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-project-order-33502"
+    },
+    "34899": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-9a5a-account-quotas-34899"
+    },
+    "36945": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-mobile-project-title-36945"
+    },
+    "41166": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-mobile-fallbacks-41166"
+    },
+    "42410": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-conversation-files-42410"
+    },
+    "43124": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-file-changes-43124"
+    },
+    "46107": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-508d-russian-46107"
+    },
+    "33371": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-9a5a-usage-history-catalogs-33371"
+    },
+    "37744": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-9a5a-session-links-ui-37744"
     }
   },
   "foreignHeadSources": {
@@ -201,10 +388,6 @@
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/rename-saved-server-40298"
     },
-    "40980": {
-      "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/antigravity-models-40980"
-    },
     "41578": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/mobile-chat-touch-scroll-41578"
@@ -215,21 +398,9 @@
       "ref": "refs/heads/fix/activity-row-project-only",
       "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
     },
-    "worker-tray-kind-labels": {
-      "ref": "refs/heads/integration/worker-tray-kinds-c475",
-      "reason": "Compact-tray backport of the localized agent, worker, command and task labels from upstream 48762. Retire when the fork adopts the redesigned tray from 48581 and consumes 48762."
-    },
     "android-fork-update-channel": {
       "ref": "refs/heads/integration/fork-android-update-c475",
       "reason": "Personal Android APKs use verified downloads from this fork and compare their packaged build identity."
-    },
-    "claude-child-wake-expiry": {
-      "ref": "refs/heads/integration/claude-work-wake-c475",
-      "reason": "Backport 47724 and 49959 on c475b796 so an unconfirmed Claude subagent wake expires and a confirmed ending clears the wake. Select the upstream fix when the fork advances beyond the PR base."
-    },
-    "codex-file-citations": {
-      "ref": "refs/heads/integration/codex-file-citations-c475",
-      "reason": "Backport 49658 so Codex document citations render as file links on the verified fork base."
     }
   }
 }

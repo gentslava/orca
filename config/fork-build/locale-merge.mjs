@@ -1,15 +1,12 @@
 import { isDeepStrictEqual } from 'node:util'
 
 const missing = Symbol('missing translation')
-export const composableLocalePaths = new Set([
-  'src/renderer/src/i18n/locales/en.json',
-  'src/renderer/src/i18n/locales/ko.json',
-  'src/renderer/src/i18n/locales/ru.json',
-  'src/renderer/src/i18n/locales/zh.json',
-  'mobile/src/i18n/locales/en.json',
-  'mobile/src/i18n/locales/ru.json',
-  'mobile/src/i18n/locales/tr.json'
-])
+const catalogLanguages = ['de', 'en', 'es', 'fr', 'ja', 'ko', 'pt', 'ru', 'tr', 'zh-Hant', 'zh']
+export const composableLocalePaths = new Set(
+  ['src/renderer/src', 'mobile/src'].flatMap((directory) =>
+    catalogLanguages.map((language) => `${directory}/i18n/locales/${language}.json`)
+  )
+)
 
 function object(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)

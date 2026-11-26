@@ -1882,5 +1882,605 @@
     "patchSha256": "6ef3e9452af4d9b02c4ecb3a97f5efcc7c1a014fbb81c61a8cca4a9f9efd5827",
     "resultSha256": "54731f65b7b8a5bdd80a8ba05929e595f6004d3d3aff23f140b17ab5a4160cd3",
     "reason": "Preserve frame ordering and prior Claude task controls with the lease-aware publisher and close cleanup."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
+    "blobs": [
+      null,
+      "6dacd781ee4a329a8d5c7cf1c22815bcfeea317c",
+      "85e082e8a0749af8392b208de928ce3812a9e567"
+    ],
+    "patch": "refresh-6e49dcea-33383-31ab9448.patch",
+    "patchSha256": "8305d3556fa04251890daefe8c1b2faae756e824f18b884866b49180291b44c6",
+    "resultSha256": "bd0482671060547cf4583d4438f5ed9d0a33ccedd7a2638883fdeb7b8b8a5440",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "4e45cf7822a58f02e6c5225ed9982f742099f1e9",
+      "355e2def6e241e62ba3d77dbe79d550eef9e2197",
+      "96698ac5fc8fef99a16428c39e83b8720276857f"
+    ],
+    "patch": "refresh-6e49dcea-33383-814a4225.patch",
+    "patchSha256": "a4e5bd632eb8d83925c72793ca6996a6d8ecdcf9b02eb4195a85148e1cc41a88",
+    "resultSha256": "273bc5feb74ddd64a71e1a529333ffbe6424f8f33f299302025c675a380e2bca",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "4583d2f70f8ec3d485a3131248e43dd0dd3c2d0d",
+      "84d30bafcab9acaebaf5e9ea06934dfc6d3d929e",
+      "2a70aa54647651184e15e579b34ba059e113ef4c"
+    ],
+    "patch": "refresh-6e49dcea-33383-b0b361ad.patch",
+    "patchSha256": "c5e07b03cc5a3dceaa878953f8024671063eed3bf42fb473a59467f275cda916",
+    "resultSha256": "4983c71e3adf91177db3b2e232c0f53b4bb7f3d2ea0b05f9879d75a464c95d34",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "1f2b7b6c44b2d9259623e013cdb8946667ffdda5",
+      "1071aa0d13db04c877d06115532074ff3431d943",
+      "d0b92f271322c85915fee8193a71842123d8a112"
+    ],
+    "patch": "refresh-6e49dcea-33383-b9b0f477.patch",
+    "patchSha256": "cc26a928416e4559ddb092a44ad3095157b71f4cac1e3be887ea8377b8d3b43b",
+    "resultSha256": "ec623db8b53199d09cc5c5fe77d44f9becaf1a638bb5ad542db71a028995b5ee",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault/ai-vault-params.ts",
+    "blobs": [
+      "f4ea537d4483f47137c91f6477070e025baa8e43",
+      "99d97b56f32f4e4fbf757b234565e6fa2d4f4bb1",
+      "3f3ae6d79c58ad05747a9cfbbadf7b7e651b57ef"
+    ],
+    "patch": "refresh-6e49dcea-33383-061b9452.patch",
+    "patchSha256": "692f0820e8cddee1de6d32bea93f9d6efcad3e057abb21c903d7a54aa4bd9251",
+    "resultSha256": "8d7f25a50c958b106b23b2d078ddc42029be1580ab2fd4b98a07ff10665d852d",
+    "reason": "Use the selected host-scoped conversation recovery as the common baseline while preserving fresh upstream listing behavior, selection, and refresh receipts."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-read.ts",
+    "blobs": [
+      "54ae018b80afe5ceb9ee0a27be0b3897ce00c5c4",
+      "b357588db075e326be7f9f0843e8b704315cf9e6",
+      "f946cb1b498fa8260e46cfc100b4b34bca49d17f"
+    ],
+    "patch": "refresh-6e49dcea-33502-81efb3a9.patch",
+    "patchSha256": "101ff896b4820736e410be654cecd107aaf34ac73da59c0f80cf67c71067ea9c",
+    "resultSha256": "f681811be0a9f6d34eb583460910101eab9e4aaaee8e6d60eb91640616157c05",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/main/persistence/applying-settings/ui-state-update.ts",
+    "blobs": [
+      "58a3568f50b94777a31d4a58dacb3cf61e913634",
+      "c03f394dec3a80bdfa3d36aa65f3b1ea492dfbcd",
+      "4befda5563311abdb1a9b7255f18a97e9d1f87f4"
+    ],
+    "patch": "refresh-6e49dcea-33502-67eb3099.patch",
+    "patchSha256": "6fc7882065cb938b1b32e5e3fa0fb609b1daa6944d2bd3436a1625242db40e02",
+    "resultSha256": "e38a6205b6d584071793555c793888de7e732407a15856c7f168916e5910a453",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/client-ui.ts",
+    "blobs": [
+      "53eefb91f60d141007ee58c1943d4cdbc3c3d866",
+      "583d7e9bd11107d4350b4a696eadfc2d4858b40e",
+      "aebf28a876797da36d5b3cc5e805b9ca1b3e7c9c"
+    ],
+    "patch": "refresh-6e49dcea-33502-16f4b9fa.patch",
+    "patchSha256": "b70da23c571d6e3fcea1b7540de8b87f3e0c02a27843bca57771ac43e8851ae3",
+    "resultSha256": "85f48d9584902a645bb1a8a1588b595312409748df694ac433d0b4d24f23836f",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/client-state/ui-state-schema-parity-checks.ts",
+    "blobs": [
+      "4f739cacf8d53236cfcb2b3489836ebf3a046225",
+      "47b24b8724da6484026303e7880f2b963126d93a",
+      "2025d3bf3ef9f0d8d482ef4b0a954f43721ac4e8"
+    ],
+    "patch": "refresh-6e49dcea-33502-172e891c.patch",
+    "patchSha256": "1df82c88ed21f4af50d65cd74cfcbc43994db1a50faab0e370f8e339463d212d",
+    "resultSha256": "fbd516ae400bdf81ca024d54fd56127944b436cb9f1ecbe44d813095332692f3",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/shared/orca-profiles/persisted-ui-state-types.ts",
+    "blobs": [
+      "add00b392a2ec3d2fcb1f7964b427fe6777fdc29",
+      "7b39de6a873c842a8d46d4ae510b45c604c8ca83",
+      "97c3aa899a9dc8b42e7537a406ff982cc3f5a3e6"
+    ],
+    "patch": "refresh-6e49dcea-33502-028965f1.patch",
+    "patchSha256": "d113dc15aff64517f459fabb0e45750e8d268378fa258da1cca983ff5f005d8d",
+    "resultSha256": "7a4f51966b638527314e78b940eba5b9e0f9eec8ab2e7bd238a27f193bdddc05",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/shared/remote-runtime/protocol/protocol-version.ts",
+    "blobs": [
+      "9e2add5c1d8a735fe49b9189206e2b40ea4b6028",
+      "3fc5011b771bc73edd524cf2eef6a506e66e934a",
+      "10580ae70acbfc28d413a006280cb2e252737263"
+    ],
+    "patch": "refresh-6e49dcea-33502-e400c615.patch",
+    "patchSha256": "c8f61c01bfa7fd08e2da14d4bf4b9d23c61b5553d4bbf3822130a603b79f9828",
+    "resultSha256": "075966e76b5449fc92df602d70073237df274f6dc49de04745a3cdbe97c0ed5c",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/shared/rpc-contract/client-ui/client-ui-params.ts",
+    "blobs": [
+      "93ac157b5c029cab826563cbed0638a717fdcf23",
+      "bd4ee9c22eb34cff4d8db208dd15390ef0fbf53c",
+      "55edd3d040b02d6e9e29709336c1641974dd8385"
+    ],
+    "patch": "refresh-6e49dcea-33502-44bfa9a7.patch",
+    "patchSha256": "982d2ffa7d603da2ff1300d7657ec408a09034c009dc7a0e36a15e62b8c01bc8",
+    "resultSha256": "00955b5a4e8cf0c9b608ac65190f7f837702b643c35195e49bfcb6d18c513429",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "src/shared/wsl-move/wsl-move-ui-dispositions.ts",
+    "blobs": [
+      "dbf35e16f0658205abc832d3ac8533185a5a91b4",
+      "93924a02bcaedfa94ff9e67909ce94532aac5d72",
+      "a6009243eab1b206ac44edc80fc9c3d574d684c2"
+    ],
+    "patch": "refresh-6e49dcea-33502-71b259c8.patch",
+    "patchSha256": "4a35a31ebeae648badc966bef32b70412b7a04e12d7d73aaee848cc926b60f51",
+    "resultSha256": "9fb08f5fc4dc59794f726e916b1ca12b8a02a7a428ebfe93fd625046e9454932",
+    "reason": "Use the selected conversation preferences as the common baseline while preserving personal project ordering, both sets of RPC controls, and the upstream storage contract."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "5ca1bd0c98122ccffa7570ee9f0d9ef88d2df159",
+      "94133228b917fd3b1eb007e8804db146a5d5dc61",
+      "b3555dd62a04c8e4f73e70c5af616c5e04cc1cc7"
+    ],
+    "patch": "refresh-6e49dcea-33395-d8bbab45.patch",
+    "patchSha256": "1bb0293914af8d4a4a437caed589d87ebc33215c9bf4be4ba318c425081ec4d8",
+    "resultSha256": "7927afbaa465754bef5546d7f33fa2b705395d89c9d3b3c535417774653b0f93",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "mobile/src/i18n/locales/ru.json",
+    "blobs": [
+      "e4f135be674fa4e5f3bdab6485fa0ec9c19e911b",
+      "06339222578de88cd3bc520c226ca03181041399",
+      "a646913167476fdfe023427948901b7bb57cd283"
+    ],
+    "patch": "refresh-6e49dcea-33395-00934582.patch",
+    "patchSha256": "816d4c526f7b41dd6c558907f62cd2efd71e7ce6c2127f93dd25f826529842c7",
+    "resultSha256": "814ce417f198ed43e2768580a3adacec96adba4c51d58357a29c31cc1e29a39b",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "mobile/src/session/native-chat/agent-session/mobile-structured-agent-session-host-support.ts",
+    "blobs": [
+      "33fa768cdf1f7c61bde856f6f6cd3a7893378c50",
+      "04b58eb00f22e57df369d75cdaa3fb0bbbeb6bf6",
+      "6e4aae3f2a66272bc9a2024bcdbe2842b0debe5b"
+    ],
+    "patch": "refresh-6e49dcea-33395-2ac1241c.patch",
+    "patchSha256": "445dad17296715ed595914202f86dab6075a25b4aa1138618e92bcc8dc21ad0b",
+    "resultSha256": "417355ff5f4a3439aa5f5593e08edc37bc171ee8a2c26ad114f57377b4061efa",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/session-options/native-chat-session-option-copy.ts",
+    "blobs": [
+      "432dfd34e79db6e364d2ef1b96a844eb6572aab3",
+      "a6d13ee9baaee52460dc996cb0b480e8d2201b04",
+      "5ccce8671b45cb4df77997ee2b3811f2c43db70d"
+    ],
+    "patch": "refresh-6e49dcea-33395-f54c5412.patch",
+    "patchSha256": "d1bbe80fbdfb6864619cd0e6abd93341615de11cd0c0c440d7121a65cbd69d6b",
+    "resultSha256": "a936af6273d3118e1c2fb31a6e43b05426968aee612f765b4a5e4ffb1313b0e8",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/main/native-chat/agent-session-wire/options/structured-agent-session-model-default.test.ts",
+    "blobs": [
+      null,
+      "ce5c7d8e9606c6a98a53364e2c0e5445a95018a0",
+      "aa22f134f4aa22140c6a389e18d7bf66447ef69e"
+    ],
+    "patch": "refresh-6e49dcea-33395-1fb71b70.patch",
+    "patchSha256": "6405a639565ed42743f98dca474189e05942edb1e3ee7b98b050135b34487781",
+    "resultSha256": "e1f0d831752f3e46f012eca2b77076ea3a48772991fa669b7850286aefffabc9",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "a2399fb74f47ef142f28efb1cd441006e436fc25",
+      "6515ac0ea2895444f6feebaa64eabde5ae4e34ad",
+      "54d41ce3fb7862d640c1489f65aa513b65b30e0d"
+    ],
+    "patch": "refresh-6e49dcea-33395-d0b7e1ce.patch",
+    "patchSha256": "8458c59aa32973d613b2e4b43e9d8c621eb1a306696a9897df33ddb4d44a7d2b",
+    "resultSha256": "bb8c4b7ff7dbe76f9122bf056f838ab25d25f6a037dfa59d456893be47c1da22",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/structured-session-model-default.test-fixture.tsx",
+    "blobs": [
+      null,
+      "ee554f0903529e8d731bbd53e67558b0c87be7b0",
+      "8ab00de59cb2c2f106625255c07afd4ff014ae21"
+    ],
+    "patch": "refresh-6e49dcea-33395-7316cc7d.patch",
+    "patchSha256": "59191d2ad4e1b782e3a3400557e217d33b9e1b5188543f72e6ffd57f8c784fa0",
+    "resultSha256": "b32f32eb0d9610bc40c9c46550278462f9c0666593bd81a15f0ed7894d717e44",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-options.ts",
+    "blobs": [
+      "36ba23e5eec9b0e276663851aac6fc8157e7d8ca",
+      "32732269fa2ad3a5913c93c1a61a167ab0eed37b",
+      "af0dd9831e0d82c5d4f849ab8a7e00af06eca80f"
+    ],
+    "patch": "refresh-6e49dcea-33395-2876e43a.patch",
+    "patchSha256": "85a1b5c2da60a3a0e86bc6f1a3f6f2bdc7da11a4920149eb69a1cbe8d07e3b0e",
+    "resultSha256": "8a229b5c396f552acd36df3c24d7e48d4b0e20f9e69ee943120be88623dcc076",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-send-options.ts",
+    "blobs": [
+      "1756c670cc72fd10fcb5caa459241bf22f6a5b67",
+      "bd3547775d47b01e842f69f533a804ca731ef2e7",
+      "6c0799a801be39de86518ce70cd04ecad0f5abe4"
+    ],
+    "patch": "refresh-6e49dcea-33395-4048609d.patch",
+    "patchSha256": "984d62ae27b218aff9f85cff9b930b0cb3797ca2b590b58e0ce8fdb0e5a86a57",
+    "resultSha256": "ac937a2aa9aa771a7190ec9d7afc5a022de9fcac47d789b512501481653eb0fd",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/delivery/use-structured-agent-session-sends.ts",
+    "blobs": [
+      "79a3ff8c3473af32f32febc4b64e1e436da61da7",
+      "3bc8fb94936c414dd29210b297f7a57b0dc262c9",
+      "69d0186e5a2c47cc93570a09a50823fd92ca1aeb"
+    ],
+    "patch": "refresh-6e49dcea-33395-633161ba.patch",
+    "patchSha256": "b2c5078d483e1d35c7972b112145e73ede92e963ebcbae95b9c3f03f4d2ef97b",
+    "resultSha256": "ab8ac0eb0d6367150b049f713affceda857a818c4ccf1eb64cf9dd244a82d267",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "src/shared/native-chat/input/native-chat-session-options.ts",
+    "blobs": [
+      "3daffc2aad3de1a5cda6861e8f6eb86076daa43f",
+      "48fd42edff2e960880c9c68103ea73f855a61fd7",
+      "53f06b76ef5110d4874692df623c71e87df35454"
+    ],
+    "patch": "refresh-6e49dcea-33395-5543ac40.patch",
+    "patchSha256": "618c46bad5c52752be04394e0b3d4f91f513502834bf74fd362d10323f97d92e",
+    "resultSha256": "ab71fa46fe333e28cab1da69a50e2c7e74dd335731b9676af1a8deed6f769e51",
+    "reason": "Compose the model reset after Desktop Default and queued drafts. Keep the independently verified reset and hold sends until the model write settles."
+  },
+  {
+    "path": "mobile/src/host-screen/host-screen-reply-schema.ts",
+    "blobs": [
+      "3f85e7dc668dfa5865e41acb946cc4c55368b5b4",
+      "8c6025f2e4f741be17286413b6c78b234dcdcdcd",
+      "6d5e2a8c0ad7d9f1bb5dcc7198ddea54153927a3"
+    ],
+    "patch": "refresh-order-after-history-71397d9b.patch",
+    "patchSha256": "b0048ad359df413d84ddc633d429dd344c26e806ff61b66c1403973fa0256159",
+    "resultSha256": "b6016b09f1a4ea48a1834d9a148170d0ac56521c9047710df89c239913dce120",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "mobile/src/host-screen/use-host-screen-controller.ts",
+    "blobs": [
+      "069dd6cd84a1d8b568c25d6ba684dd2b9a786f08",
+      "5c353d41a1285e6c1893e24514a44ca384811fa5",
+      "76ca21bf1a30594d12d9908f58f0badf5ccb13fa"
+    ],
+    "patch": "refresh-order-after-history-bbedafb0.patch",
+    "patchSha256": "850eb48ba57b6f855fa74285e8138c155168cb9526a100a0e60df7ae2fe52787",
+    "resultSha256": "049a8097f0ee5f95846c7a4eb7a5291bf8e6415318c31e7e5932addefbac6196",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/ai-vault/structured-conversation-navigation.ts",
+    "blobs": [
+      null,
+      "85e082e8a0749af8392b208de928ce3812a9e567",
+      "6dacd781ee4a329a8d5c7cf1c22815bcfeea317c"
+    ],
+    "patch": "refresh-order-after-history-31ab9448.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "bd0482671060547cf4583d4438f5ed9d0a33ccedd7a2638883fdeb7b8b8a5440",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/ipc/ai-vault/ai-vault.ts",
+    "blobs": [
+      "4e45cf7822a58f02e6c5225ed9982f742099f1e9",
+      "96698ac5fc8fef99a16428c39e83b8720276857f",
+      "355e2def6e241e62ba3d77dbe79d550eef9e2197"
+    ],
+    "patch": "refresh-order-after-history-814a4225.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "273bc5feb74ddd64a71e1a529333ffbe6424f8f33f299302025c675a380e2bca",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "4583d2f70f8ec3d485a3131248e43dd0dd3c2d0d",
+      "2a70aa54647651184e15e579b34ba059e113ef4c",
+      "84d30bafcab9acaebaf5e9ea06934dfc6d3d929e"
+    ],
+    "patch": "refresh-order-after-history-b0b361ad.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "4983c71e3adf91177db3b2e232c0f53b4bb7f3d2ea0b05f9879d75a464c95d34",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "036619662891ed0ea04a216d7fcaf2c8682ad4ee",
+      "8cd51cb861922791a0e42fbddf94fdd437057455",
+      "dfcfc5d9826e99cb809c9006e4d15b245cce4caa"
+    ],
+    "patch": "refresh-order-after-history-19ec9a33.patch",
+    "patchSha256": "ae4327ff203e17218c0b5bc56ccafeb0d03a94639a1ab91471259b4a114219db",
+    "resultSha256": "0dfe5dd30926e580f8c487ba2bd57d555a6d6748be8f944159151f2a919bf91f",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "1f2b7b6c44b2d9259623e013cdb8946667ffdda5",
+      "d0b92f271322c85915fee8193a71842123d8a112",
+      "1071aa0d13db04c877d06115532074ff3431d943"
+    ],
+    "patch": "refresh-order-after-history-b9b0f477.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ec623db8b53199d09cc5c5fe77d44f9becaf1a638bb5ad542db71a028995b5ee",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/shared/rpc-contract/ai-vault/ai-vault-params.ts",
+    "blobs": [
+      "f4ea537d4483f47137c91f6477070e025baa8e43",
+      "3f3ae6d79c58ad05747a9cfbbadf7b7e651b57ef",
+      "99d97b56f32f4e4fbf757b234565e6fa2d4f4bb1"
+    ],
+    "patch": "refresh-order-after-history-061b9452.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "8d7f25a50c958b106b23b2d078ddc42029be1580ab2fd4b98a07ff10665d852d",
+    "reason": "Compose personal project order with host-scoped conversation history and its live refresh. Keep each feature’s RPC and persisted UI changes."
+  },
+  {
+    "path": "src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts",
+    "blobs": [
+      "036619662891ed0ea04a216d7fcaf2c8682ad4ee",
+      "6bfdf3713cc9b89c541ed99592306507444dcc38",
+      "dfcfc5d9826e99cb809c9006e4d15b245cce4caa"
+    ],
+    "patch": "nov27-33502-19ec9a33-91f6f5e.patch",
+    "patchSha256": "77079635e2297aa331dc5f8157904569e28871be0000516a6c9f3bed32672957",
+    "resultSha256": "d3f8cb2385f7a566a09b03a49abb98f9b6fdf9ebcea5809047879067d17a7162",
+    "reason": "Preserve existing live conversation navigation and its paired callable methods while still wiring personal ordering through both desktop and mobile."
+  },
+  {
+    "path": "src/shared/project-conversation-list.ts",
+    "blobs": [
+      null,
+      "ec74841e922177c0deb2662a420e2b6ac4734ef2",
+      "fd65d664f0096822f8a51bb9379f8a21e0312c5d"
+    ],
+    "patch": "nov27-33502-2e95bcc6-8d924e8.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "7b21d5e982300cb738ed1d83c71391d374be72bfa092956a2a322f7d3d1c00b9",
+    "reason": "Preserve existing live conversation navigation and its paired callable methods while still wiring personal ordering through both desktop and mobile."
+  },
+  {
+    "path": "src/shared/remote-runtime/protocol/protocol-version.ts",
+    "blobs": [
+      "9e2add5c1d8a735fe49b9189206e2b40ea4b6028",
+      "562163ca2caee28a980c8832796e363b441a95cd",
+      "10580ae70acbfc28d413a006280cb2e252737263"
+    ],
+    "patch": "nov27-33502-e400c615-cc82b7a.patch",
+    "patchSha256": "de2170625d2126397767840ba359cf84c8e95868ba82387606efab61bf8d4e27",
+    "resultSha256": "f3a097c9b199a271ae9127affd067e78e35c0822aa15cb5063994778eac2aaec",
+    "reason": "Preserve existing live conversation navigation and its paired callable methods while still wiring personal ordering through both desktop and mobile."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "2064148b89d82e107aeac7c008c7350f024f7da9",
+      "007b1057c90eadede1cbcd46b136069af0a60d8d",
+      "f9a46f92ffacdc716119f894e988690690a33345"
+    ],
+    "patch": "nov27-37744-1d7a4539-ad5ca19.patch",
+    "patchSha256": "bd66ce9cea7bc7418632c17e34a289232bd13b0f21778d2422d24630b590b6be",
+    "resultSha256": "b89ccc1bec13cdc0d9b31a7648ebd5f3e27160606b42745a8dfc7125bbbe8616",
+    "reason": "Mount the linked-chat owner decisions with existing prompt and Bot entry points. Retain child navigation and the negotiated consent capabilities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "7de3bc7a312dd3221fcda2fbbc69b602743a2a5a",
+      "7cfb566e348b2f096d30e4467163c2d3fceb44c1",
+      "3a0d7a849a1d3f85ff17b24a6a488ce754b9a978"
+    ],
+    "patch": "nov27-37744-08404640-b3752b1.patch",
+    "patchSha256": "61f0bcbfc80a10dde295689c1e472b0d00c04e278dc3e6df61fb0657a7206e72",
+    "resultSha256": "96f16582ee2c342b5410fbed8972217fbd189802ff9a8573f78d7ee004c9cd67",
+    "reason": "Mount the linked-chat owner decisions with existing prompt and Bot entry points. Retain child navigation and the negotiated consent capabilities."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "2bd658b5d890340dd3e082e0e913af543abd8f1b",
+      "f3f7b8fcbac98a6f6ac2c7e73fa3de05297c1d4c",
+      "17516e39c465707905b5b25b8cd0adf8c2194004"
+    ],
+    "patch": "nov27-37744-1ff733f3-001efd6.patch",
+    "patchSha256": "a265d4ceb8539a79754e81765051ad16e886744d513ae2a62afafd6d93b76521",
+    "resultSha256": "4e9000b12fcbe7b89eb9557070baec350d038da71a00de8c8338900b5b969564",
+    "reason": "Mount the linked-chat owner decisions with existing prompt and Bot entry points. Retain child navigation and the negotiated consent capabilities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatToolInvocation.test.tsx",
+    "blobs": [
+      null,
+      "85206d7ac856cb19dc426c006df92f403cf607ee",
+      "539f380076cf7494411cfe98bbdd5ad762a80241"
+    ],
+    "patch": "nov27-38963-3df658c3-4b4ab14.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "f63ebc2a5e56d685ce5070053f2d0ab2ee953c1aee2de356393bf29476c79319",
+    "reason": "Keep the current task and prompt contracts and rich tool output. Render the background action beside the current tool row and keep settled agents out of the live count."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/structured/use-structured-agent-session.ts",
+    "blobs": [
+      "85923d06ab73b9efa237ea52271b54ad730f8a45",
+      "b87f849fb7c05fe7eedaf233789ac6ca6f239e83",
+      "5d45531aa994e1856d51a7dcd1610029578c757f"
+    ],
+    "patch": "nov27-38963-77f3327a-af063da.patch",
+    "patchSha256": "a9d88e3724bda17354fa93720b35fe3dbafee2cae75ab503b7dde07aee6baf20",
+    "resultSha256": "3820b4963c6e03f144bcb583135dd8682f878629070ca0eb1189f6f40a417e1b",
+    "reason": "Keep the current task and prompt contracts and rich tool output. Render the background action beside the current tool row and keep settled agents out of the live count."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/lines/NativeChatToolLine.tsx",
+    "blobs": [
+      "7a21599f1f6b11e6b6e7a011f75386fe6f971e2e",
+      "389eee2fea1535fa5c96b74dc49322ff05f28ca8",
+      "2f1f929fba8a7d97dd423692a9aedb3f1137056a"
+    ],
+    "patch": "nov27-38963-d156c600-48349e3.patch",
+    "patchSha256": "9bb3d6c0be68ecce777b7c75cbe9c5710ce1932b4118fee433cedf640225fb3f",
+    "resultSha256": "c84197805d79b0b53ded003ba507471af540ca81f0caf71e1e50c4cfd699a541",
+    "reason": "Keep the current task and prompt contracts and rich tool output. Render the background action beside the current tool row and keep settled agents out of the live count."
+  },
+  {
+    "path": "src/shared/agent-session/view/structured-session-background-tasks-view.ts",
+    "blobs": [
+      "6da238255d7e5cf0b0c8cf7cc1313f84ea04a519",
+      "0e73a75b0aed2f8961a414271da24c2179dd2e7f",
+      "74776e28c90548ae8e1875057e2437713963c85b"
+    ],
+    "patch": "nov27-38963-897a88b3-6944d03.patch",
+    "patchSha256": "00e08a1834e384b3574d333efd92b128cc02ac2d60dc375a1a8d0efa71bb05f8",
+    "resultSha256": "32084db5569d283fbfafc41c97c9688b0eca52c542deaee27f3288069bdfbac1",
+    "reason": "Keep the current task and prompt contracts and rich tool output. Render the background action beside the current tool row and keep settled agents out of the live count."
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/notices/MobileNativeChatNoticeRow.tsx",
+    "blobs": [
+      "19428bfbcbec9ccde4e1ee363042d5bc58ff4dcb",
+      "c06bb024d6bf21887bff75f22786a076c02594ab",
+      "23e33b2f413e01353bb2aa313af45b38f11ae70f"
+    ],
+    "patch": "nov27-45437-e9e83f71-3ea0ab1.patch",
+    "patchSha256": "4de753c07c5bb67b93aaff8d88d5b37bff632ad75d2e87132d54bf9355521e3b",
+    "resultSha256": "ac3de648720b2e300c1ddb3e20be6adf3736698d89f2118698fd2c97fcbe5bc3",
+    "reason": "Preserve the current disclosure layout with the reviewed native notice summary, including mobile approval and error details."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/orchestration.ts",
+    "blobs": [
+      "66f7f6a20f2dbc9c24bced3f151a9b782ef7f870",
+      "893fa3ffe6e237567d0c6e76797543d618aae10e",
+      "964713bc7b34dc7e21e3d4aa1da52b0d72c828d1"
+    ],
+    "patch": "nov27-38963-2979d6f0-1273e34.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "616b68af4296b9588f028e781c6e62faceffea173e915bfb77562f9dc2964680",
+    "reason": "Use Claude background actions alongside the delivered linked-chat owner prompts, mail boundaries, and capability checks."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/NativeChatStructuredSession.tsx",
+    "blobs": [
+      "2064148b89d82e107aeac7c008c7350f024f7da9",
+      "2bd92bb5d5de7e79bf6f2178f13e7908c9674d32",
+      "5e7570227879c37d59760ab68392e41f82cae0c5"
+    ],
+    "patch": "nov27-38963-1d7a4539-3100c54.patch",
+    "patchSha256": "c47721b6a6b55b03f8ca709e40b582610022d80ae54bcd411426c3b296559664",
+    "resultSha256": "aea13cdbefaa4f0471bea9a80e7397fae1fc7232be36c8c0a65f7ef49fc1b85b",
+    "reason": "Use Claude background actions alongside the delivered linked-chat owner prompts, mail boundaries, and capability checks."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatStructuredAsyncQuestion.tsx",
+    "blobs": [
+      "7de3bc7a312dd3221fcda2fbbc69b602743a2a5a",
+      "95ad44814f1563868bb63b3b669a8ab5f8a1915d",
+      "bb169ad77871802df31fa8c281f093c0b2c771e9"
+    ],
+    "patch": "nov27-38963-08404640-91e75a3.patch",
+    "patchSha256": "32ba7e9fc166147c21dd393ae39a5d183b03bc04f0cc145934ab8ce99ce29e19",
+    "resultSha256": "c3e4a84f778ff4e2706db810f16440ec5be3ac55fc2f40528f087d237d1ec224",
+    "reason": "Use Claude background actions alongside the delivered linked-chat owner prompts, mail boundaries, and capability checks."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "2bd658b5d890340dd3e082e0e913af543abd8f1b",
+      "3bfb879e3fb3d32f65e57aaa813dc3cf51c702b5",
+      "bec530f55d71d618c4e518dc07e54ad4024dc26d"
+    ],
+    "patch": "nov27-38963-1ff733f3-013bc98.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "4e9000b12fcbe7b89eb9557070baec350d038da71a00de8c8338900b5b969564",
+    "reason": "Use Claude background actions alongside the delivered linked-chat owner prompts, mail boundaries, and capability checks."
+  },
+  {
+    "path": "mobile/src/i18n/locales/en.json",
+    "blobs": [
+      "5ca1bd0c98122ccffa7570ee9f0d9ef88d2df159",
+      "db0e68a496bfbcf32ee6c8f6e4d64586636ca50e",
+      "09af2d0926f7517834432e49ab1eabe44df743b3"
+    ],
+    "patch": "nov27-44452-d8bbab45-e94c65e.patch",
+    "patchSha256": "2513be220bba814fe072a290de28b0f6db50fa3095f8a9814a4a3a3512562faa",
+    "resultSha256": "1022a272542f0813d8b37e75d695940e2abc78884624471ccb8e149b88eb9701",
+    "reason": "Keep foreground task actions and child chat navigation together in the mobile overlay and tray, including their labels."
+  },
+  {
+    "path": "mobile/src/session/native-chat/MobileNativeChatOverlay.tsx",
+    "blobs": [
+      "74ce67dcb7d37b9b7707c37eed30cf49e6126135",
+      "c533faf028046ef99c267ef46a496db1034da3a6",
+      "ac5ff723044e4afa1345a5e3acb0525623984ebe"
+    ],
+    "patch": "nov27-44452-a1b21294-f11f144.patch",
+    "patchSha256": "ebadb68d0b91c0e2b7c11fff534e1fa4185b4d3d45e48cd2236e8e406459bdf7",
+    "resultSha256": "94be8ea7d72b72e68f823c0ecde26b0a879a2e5caa0a6d43aa037c1fd68f1819",
+    "reason": "Keep foreground task actions and child chat navigation together in the mobile overlay and tray, including their labels."
+  },
+  {
+    "path": "mobile/src/session/native-chat/input/tasks/MobileNativeChatBackgroundTasks.tsx",
+    "blobs": [
+      "8f6ee4419a21d38adf9d2e9ad19707b010d6849f",
+      "a7de0c54772d65f6d53dbefecafe614e3bd4c8fc",
+      "800dd2a3ffafcf92feda48daaacaaa593a0a0f94"
+    ],
+    "patch": "nov27-44452-3d6f4513-cd4acab.patch",
+    "patchSha256": "eb19756ef1cde2e327225f41f4b1c79ff6400692f813d70de2c3d0d0b547b30b",
+    "resultSha256": "b02b0bca20348fa9389ac5e1e840e2fbd39437dd1de9afc126f2dd8b13bc9f19",
+    "reason": "Keep foreground task actions and child chat navigation together in the mobile overlay and tray, including their labels."
   }
 ]

@@ -5,8 +5,13 @@ import { createHash } from 'node:crypto'
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { resolveSelection, orderSelections } from './selection.mjs'
-import { compose, assertFrozenHead, freezeRetainedHead, freezeForeignHead } from './composition.mjs'
+import {
+  applyCompatibilityPatch,
+  compose,
+  assertFrozenHead,
+  freezeRetainedHead,
+  freezeForeignHead
+} from './composition.mjs'
 import { mergeTranslationCatalogs, parseCatalog } from './locale-merge.mjs'
 import { renderReport } from './github.mjs'
 import { pruneTranslationsWithoutSource } from './fork-localizations.mjs'
@@ -18,69 +23,6 @@ const pr = (number, extra = {}) => ({
   base: { ref: 'main' },
   head: { sha: 'a'.repeat(40) },
   ...extra
-})
-const config = {
-  upstream: 'owner/app',
-  base: 'main',
-  authors: ['me'],
-  seed: [1],
-  include: [{ number: 2 }],
-  exclude: {},
-  replacements: {},
-  dependencies: {}
-}
-test('retains closed own selections and follows only explicit replacements', async () => {
-  const records = { 1: pr(1, { state: 'closed' }), 2: pr(2), 3: pr(3) }
-  const readPr = async (n) => records[n]
-  const failed = await resolveSelection(config, { openOwn: [], previous: [1], readPr })
-  assert.equal(failed.blockers[0].number, 1)
-  const replaced = await resolveSelection(
-    { ...config, replacements: { 1: 3 } },
-    { openOwn: [], previous: [1], readPr }
-  )
-  assert.deepEqual(
-    replaced.selections.map((p) => p.number),
-    [2, 3]
-  )
-  assert.equal(replaced.lifecycle[0].replacement, 3)
-})
-test('orders dependencies and rejects cycles or missing requirements', () => {
-  assert.deepEqual(
-    orderSelections([pr(2), pr(1)], { 1: [2] }).map((p) => p.number),
-    [2, 1]
-  )
-  assert.throws(() => orderSelections([pr(1), pr(2)], { 1: [2], 2: [1] }), /cycle/)
-  assert.throws(() => orderSelections([pr(1)], { 1: [4] }), /missing/)
-})
-test('discovers only allowed authors and bases, rejects unknown state and replacement cycles', async () => {
-  const readPr = async (n) => pr(n, { state: 'closed' })
-  const resolved = await resolveSelection(
-    { ...config, seed: [], include: [] },
-    {
-      openOwn: [pr(4, { user: { login: 'other' } }), pr(5, { base: { ref: 'develop' } }), pr(6)],
-      previous: [],
-      readPr: async (n) => pr(n)
-    }
-  )
-  assert.deepEqual(
-    resolved.selections.map((p) => p.number),
-    [6]
-  )
-  await assert.rejects(
-    resolveSelection(
-      { ...config, replacements: { 1: 2, 2: 1 } },
-      { openOwn: [], previous: [], readPr }
-    ),
-    /cycle/
-  )
-  await assert.rejects(
-    resolveSelection(config, {
-      openOwn: [],
-      previous: [],
-      readPr: async (n) => pr(n, { state: 'mystery' })
-    }),
-    /state/
-  )
 })
 function git(cwd, ...args) {
   return execFileSync('git', args, {
@@ -461,6 +403,8 @@ test('real Git: repairs text-clean duplicate scopes from valid independent catal
 for (const [directory, language, letters, upload, clear] of [
   ['src/renderer/src', 'zh', '字母', '上传图标', '清除图标'],
   ['src/renderer/src', 'ko', '글자', '아이콘 업로드', '아이콘 지우기'],
+  ['src/renderer/src', 'fr', 'Lettres', 'Importer une icône', 'Effacer l’icône'],
+  ['mobile/src', 'es', 'Letras', 'Subir icono', 'Borrar icono'],
   ['mobile/src', 'tr', 'Harfler', 'Simge yükle', 'Simgeyi temizle']
 ]) {
   test(`real Git: merges adjacent independent ${language} catalog additions`, () =>
@@ -490,6 +434,58 @@ for (const [directory, language, letters, upload, clear] of [
       assert.deepEqual(result.localeMerges, [{ number: 2, paths: [path] }])
     }))
 }
+
+test('real Git: compatibility patches merge known context and leave a clean tree after divergence', () =>
+  fixture((cwd) => {
+    const file = join(cwd, 'file')
+    const patch = join(cwd, '.git', 'compatibility.patch')
+    writeFileSync(file, 'upstream header\ncommon one\ncommon two\npolicy=old\nkeep\n')
+    git(cwd, 'add', 'file')
+    git(cwd, 'commit', '-m', 'original compatibility context')
+    const base = git(cwd, 'rev-parse', 'HEAD')
+    writeFileSync(file, 'upstream header\ncommon one\ncommon two\npolicy=fork\nkeep\n')
+    writeFileSync(patch, execFileSync('git', ['diff', '--full-index'], { cwd }))
+    writeFileSync(file, 'new header\ncommon one\ncommon two\npolicy=old\nkeep\n')
+    git(cwd, 'commit', '-am', 'upstream header')
+    assert.equal(applyCompatibilityPatch(cwd, patch), 'three-way')
+    assert.equal(git(cwd, 'show', ':file'), 'new header\ncommon one\ncommon two\npolicy=fork\nkeep')
+
+    git(cwd, 'reset', '--hard', base)
+    writeFileSync(file, 'upstream header\ncommon one\ncommon two\npolicy=another\nkeep\n')
+    git(cwd, 'commit', '-am', 'upstream policy')
+    assert.throws(() => applyCompatibilityPatch(cwd, patch))
+    assert.equal(git(cwd, 'status', '--porcelain'), '')
+    assert.equal(
+      git(cwd, 'show', ':file'),
+      'upstream header\ncommon one\ncommon two\npolicy=another\nkeep'
+    )
+  }))
+
+test('real Git: a selected ancestor lets a dependent PR extend an already integrated change', () =>
+  fixture((cwd) => {
+    writeFileSync(join(cwd, 'file'), 'models = [base]\n')
+    git(cwd, 'add', '.')
+    git(cwd, 'commit', '-m', 'upstream models')
+    const upstream = git(cwd, 'rev-parse', 'HEAD')
+    writeFileSync(join(cwd, 'file'), 'models = [base, custom]\n')
+    git(cwd, 'commit', '-am', 'add a custom model')
+    const dependency = git(cwd, 'rev-parse', 'HEAD')
+    writeFileSync(join(cwd, 'file'), 'models = [base, custom, default]\n')
+    git(cwd, 'commit', '-am', 'extend the selected models')
+    const dependent = git(cwd, 'rev-parse', 'HEAD')
+    const selections = [dependency, dependent].map((sha, index) => ({
+      ...pr(index + 1),
+      head: { sha }
+    }))
+
+    const independent = compose(cwd, upstream, selections)
+    assert.equal(independent.publishable, false)
+    const result = compose(cwd, upstream, selections, { dependencies: { 2: [1] } })
+    assert.equal(result.publishable, true)
+    assert.equal(git(cwd, 'show', 'HEAD:file'), 'models = [base, custom, default]')
+    assert.equal(git(cwd, 'rev-list', '--count', `${upstream}..HEAD`), '2')
+    assert.equal(git(cwd, 'rev-list', '--min-parents=2', `${upstream}..HEAD`), '')
+  }))
 
 test('real Git: shared integration ancestry cannot undo another selected feature', () =>
   fixture((cwd) => {

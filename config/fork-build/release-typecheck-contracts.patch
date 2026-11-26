@@ -143,13 +143,13 @@ diff --git a/src/renderer/src/components/native-chat/native-chat-composer-queued
 diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
 --- a/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
 +++ b/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
-@@ -42,6 +42,7 @@
+@@ -44,6 +44,7 @@
    editor: undefined,
    edit: async () => {},
    steerHead: undefined,
 +  steerLast: undefined,
    isWorking: true
- }
+ })
  
 diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
 --- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
@@ -163,3 +163,436 @@ diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/rend
            </span>
          ) : null}
        </div>
+diff --git a/mobile/src/components/markdown/parsing/mobile-markdown-codex-file-citations.ts b/mobile/src/components/markdown/parsing/mobile-markdown-codex-file-citations.ts
+index c67b8805b1a914636e7bbfe585c11d5c52e54ae6..a6867ebe42c4b17d68d276862a52cfe86a741346 100644
+--- a/mobile/src/components/markdown/parsing/mobile-markdown-codex-file-citations.ts
++++ b/mobile/src/components/markdown/parsing/mobile-markdown-codex-file-citations.ts
+@@ -9,13 +9,14 @@ function citationRule(state: StateInline, silent: boolean): boolean {
+     return false
+   }
+   if (!silent) {
+-    if (state.linkLevel === 0) {
++    const canLink = 'linkLevel' in state && state.linkLevel === 0
++    if (canLink) {
+       state
+         .push('link_open', 'a', 1)
+         .attrSet('href', createNativeChatFileHref(citation.path, 'literal'))
+     }
+     state.push('text', '', 0).content = citation.label
+-    if (state.linkLevel === 0) {
++    if (canLink) {
+       state.push('link_close', 'a', -1)
+     }
+   }
+diff --git a/src/main/usage/usage-account-attribution.test.ts b/src/main/usage/usage-account-attribution.test.ts
+index 64f598f6b6e90343c6984e54eb2176bd13140dca..68f9024177334128748b7f39f52d2d0492021c66 100644
+--- a/src/main/usage/usage-account-attribution.test.ts
++++ b/src/main/usage/usage-account-attribution.test.ts
+@@ -83,7 +83,6 @@ describe('account provenance on the original collectors', () => {
+       [],
+       loaded.sources,
+       undefined,
+-      undefined,
+       loaded.reuseProjections,
+       loaded.accountAttributionAvailable
+     )
+@@ -258,7 +257,6 @@ describe('account provenance on the original collectors', () => {
+       ],
+       loaded.sources,
+       undefined,
+-      undefined,
+       loaded.reuseProjections
+     )
+     expect(tokensByAccount(projectEventUsageHistory('codex', second.dailyAggregates))).toEqual({
+@@ -286,7 +284,6 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
+-      undefined,
+       sources
+     )
+     expect(tokensByAccount(projectClaudeUsageHistory(first.dailyAggregates))).toEqual({
+@@ -300,7 +297,6 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
+-      undefined,
+       sources
+     )
+     expect(second.dailyAggregates).toEqual(first.dailyAggregates)
+@@ -311,7 +307,6 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       sources.map((source) => source.path),
+       undefined,
+-      undefined,
+       sources
+     )
+     expect(tokensByAccount(projectClaudeUsageHistory(reclaimed.dailyAggregates))).toEqual({
+@@ -362,7 +357,6 @@ describe('account provenance on the original collectors', () => {
+       undefined,
+       [source.path],
+       loaded.verifiedSources,
+-      undefined,
+       [source],
+       loaded.reuseProjections
+     )
+@@ -392,7 +386,7 @@ describe('account provenance on the original collectors', () => {
+       )
+     ).toBeNull()
+     const { scanClaudeUsageFiles } = await import('../claude-usage/scanner')
+-    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, undefined, [
++    const claude = await scanClaudeUsageFiles([], [], undefined, [linked], undefined, [
+       { path: linked, accountId: 'wrong' }
+     ])
+     expect(tokensByAccount(projectClaudeUsageHistory(claude.dailyAggregates))).toEqual({
+diff --git a/src/renderer/src/components/native-chat/messages/rows/NativeChatMessageRow.tsx b/src/renderer/src/components/native-chat/messages/rows/NativeChatMessageRow.tsx
+index 8285c555f4cccdc4a530b6d4c7de1766e850aaee..415d19ad3f43ba5e8eabda813f487da1541d1d0c 100644
+--- a/src/renderer/src/components/native-chat/messages/rows/NativeChatMessageRow.tsx
++++ b/src/renderer/src/components/native-chat/messages/rows/NativeChatMessageRow.tsx
+@@ -22,7 +22,7 @@ import { NativeChatAutomationRunRow } from '../../automation-run/NativeChatAutom
+ import { mergedRunFailures } from '../../../../../../shared/native-chat/transcript/events/native-chat-event-plan'
+ import { NativeChatNoticeRow } from '../notices/NativeChatNoticeRow'
+ import { NativeChatSubagentEndingRow } from '../../subagents/NativeChatSubagentEndingRow'
+-import { isNativeChatSubagentEndingPresentation } from '../../subagents/native-chat-subagent-ending'
++import { isNativeChatSubagentEndingPresentation } from '../../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending'
+ import { NativeChatBotCreatedRow, NativeChatTookOverRow } from '../../NativeChatBotCreatedRow'
+ import { nativeChatNoticeBlock } from '../../../../../../shared/native-chat/transcript/notices/native-chat-notice'
+ import { nativeChatMessageRowBlocks } from './native-chat-message-row-words'
+diff --git a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-default-preview.test.tsx b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-default-preview.test.tsx
+index 67e8ba8f9f3ad322cb6e091bc5f2e02d1b0f7459..2fd3b81bdcebba2688dad0a58ee693ae057d4799 100644
+--- a/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-default-preview.test.tsx
++++ b/src/renderer/src/components/native-chat/session/options/structured/use-structured-agent-session-default-preview.test.tsx
+@@ -1,7 +1,7 @@
++// @vitest-environment happy-dom
+ import { setLocalRuntimeCapabilitiesForTests } from '@/runtime/hosts/capabilities/local-runtime-capabilities'
+ import { AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY } from '../../../../../../../shared/agent-session/capabilities/agent-session-runtime-capabilities'
+ import { AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY } from '../../../../../../../shared/agent-session/lifecycle/operations/agent-session-create-capabilities'
+-// @vitest-environment happy-dom
+ import {
+   mocks,
+   LOCAL_TARGET,
+@@ -18,11 +18,18 @@ import {
+   LIVE_OPTIONS
+ } from './use-structured-agent-session-options.test-fixture'
+ import { act, cleanup, waitFor } from '@testing-library/react'
+-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
++import type * as RuntimeCapabilityProof from '@/runtime/rpc/compatibility/runtime-capability-proof'
+ 
+ import { forgetStructuredSessionSelection } from '@/lib/agent-session/options/structured-agent-session-selection-controller'
+ import { resetHostModelCatalogSnapshotsForTests } from '@/runtime/native-chat/model-catalogs/host-model-catalog-snapshots'
+ import { replaceRuntimeEnvironmentRevisions } from '@/runtime/rpc/environment-revisions/runtime-environment-revision'
++const supportsRemote = vi.hoisted(() => vi.fn())
++vi.mock('@/runtime/rpc/compatibility/runtime-capability-proof', async (importOriginal) => ({
++  ...(await importOriginal<typeof RuntimeCapabilityProof>()),
++  runtimeEnvironmentSupportsCapability: supportsRemote
++}))
++
+ describe('useStructuredAgentSessionOptions', () => {
+   afterEach(() => {
+     cleanup()
+@@ -30,7 +37,7 @@ describe('useStructuredAgentSessionOptions', () => {
+     replaceRuntimeEnvironmentRevisions([])
+   })
+   beforeEach(() => {
+-    mocks.supportsRemote.mockReset().mockResolvedValue(false)
++    supportsRemote.mockReset().mockResolvedValue(false)
+     forgetStructuredSessionSelection('session-1')
+     mocks.call.mockReset()
+     mocks.enqueue.mockReset()
+@@ -77,7 +84,7 @@ describe('useStructuredAgentSessionOptions', () => {
+         AGENT_SESSION_SEND_OPTIONS_RUNTIME_CAPABILITY
+       ]
+       setLocalRuntimeCapabilitiesForTests(capabilities)
+-      mocks.supportsRemote.mockResolvedValue(true)
++      supportsRemote.mockResolvedValue(true)
+       // New chats follow only on the pairing that holds this chat.
+       replaceRuntimeEnvironmentRevisions([{ id: 'server-1', createdAt: 1, pairingRevision: 1 }])
+       let reset = false
+@@ -119,7 +126,7 @@ describe('useStructuredAgentSessionOptions', () => {
+         expect.anything()
+       )
+       if (paired) {
+-        expect(mocks.supportsRemote).toHaveBeenCalledWith(
++        expect(supportsRemote).toHaveBeenCalledWith(
+           'server-1',
+           AGENT_SESSION_DEFAULT_MODEL_RUNTIME_CAPABILITY
+         )
+diff --git a/src/renderer/src/components/native-chat/subagents/NativeChatSubagentEndingRow.tsx b/src/renderer/src/components/native-chat/subagents/NativeChatSubagentEndingRow.tsx
+index f570afae0a5b1df09fd4dfa3079450e99ffb8fbd..1ab050f78e3ac4c8c8fe4453387ccdb69741ba90 100644
+--- a/src/renderer/src/components/native-chat/subagents/NativeChatSubagentEndingRow.tsx
++++ b/src/renderer/src/components/native-chat/subagents/NativeChatSubagentEndingRow.tsx
+@@ -3,7 +3,7 @@ import { cn } from '@/lib/class-names'
+ import type { NativeChatTextBlock } from '../../../../../shared/native-chat/native-chat-types'
+ import { NativeChatMarkdown } from '../markdown/NativeChatMarkdown'
+ import { NativeChatCodeBlock } from '../markdown/code/NativeChatCodeBlock'
+-import { NATIVE_CHAT_SUBAGENT_FAILURE_PRESENTATION } from './native-chat-subagent-ending'
++import { NATIVE_CHAT_SUBAGENT_FAILURE_PRESENTATION } from '../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-ending'
+ 
+ /** A subagent's last word in its sheet: its reply under "Result", or its error under "Failed". */
+ export function NativeChatSubagentEndingRow({
+diff --git a/src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx b/src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx
+index 2ffa06807650fd0697b6f00119c8ccd8e93e68c3..4f0eed837a23dd91804591f6192b11b7fdf9fd15 100644
+--- a/src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx
++++ b/src/renderer/src/components/native-chat/tools/runs/NativeChatToolRun.tsx
+@@ -133,6 +133,7 @@ export function NativeChatToolRun({
+   // A single command is more recognizable than its category summary. Its words read translate(), so key it on `t`.
+   const runSentence = recomputeOn([t], () => nativeChatToolRunSentence(headerBlocks, { live }))
++  const hasAsides = Boolean(asides && (asides.before.size > 0 || asides.after.length > 0))
+   const fallbackLabel =
+-    callCount === 0 && asideCount > 0
++    callCount === 0 && hasAsides
+       ? t('components.native-chat.tool.activity', 'Activity')
+       : fallbackKey === 'result'
+@@ -144,5 +145,5 @@ export function NativeChatToolRun({
+ 
+   // Standalone rosters/tasks have no tool calls for a header to summarize.
+-  if (blocks.length === 0 && asideCount === 0) {
++  if (blocks.length === 0 && !hasAsides) {
+     return standaloneRows.length > 0 ? <div className={spacing}>{standaloneRows}</div> : null
+   }
+diff --git a/src/main/native-chat/agent-session-wire/structured-agent-session-steer-draft.test.ts b/src/main/native-chat/agent-session-wire/structured-agent-session-steer-draft.test.ts
+index 06784c10b95daf76aa1ec31e3c9e043905efba15..ffb5751d58a396059e48291a01462d1866b5d15e 100644
+--- a/src/main/native-chat/agent-session-wire/structured-agent-session-steer-draft.test.ts
++++ b/src/main/native-chat/agent-session-wire/structured-agent-session-steer-draft.test.ts
+@@ -27,5 +27,5 @@ async function recordTurn(id: string, state: 'running' | 'interrupted' = 'runnin
+   }
+   const turnId = `turn-of-${id}`
+-  const startedAt = Date.now()
++  const startedAt = Date.UTC(2026, 10, 26, 12)
+   await journal.appendItem(
+     { provider: 'codex', threadId: THREAD, turnId, ordinal: 0 },
+diff --git a/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts b/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
+index 800ec98f6a67acc4a8809f4a6122343b7c7ed858..1972597e95a3e59bb42361aabc1d2e993b7202f6 100644
+--- a/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
++++ b/src/main/runtime/orchestration/mailbox/routing/terminal-pane-mail-routing.ts
+@@ -92,8 +92,5 @@ export abstract class OrcaRuntimeWithGetPtyRecordForPaneKey extends RuntimeSlept
+     }
+     const record = this.handles.get(handle)
+-    if (!record || record.runtimeId !== this.runtimeId) {
+-      return null
+-    }
+-    return record.worktreeId
++    return record?.runtimeId === this.runtimeId ? record.worktreeId : null
+   }
+ 
+diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
+index 5304c870008302ac7b0999c1790416685432a909..fd3fe5b3d1f060d83b6f7f857fb4ffc12695bebe 100644
+--- a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
++++ b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
+@@ -145,4 +145,5 @@ export function WorkerDockRoster(props: {
+   // or the worker read failed (which claims nothing about whether anything runs).
+   const unlisted = items.length === 0 && Boolean(props.incomplete)
++  const defaultGlyph = unlisted ? 'running' : 'queued'
+   const unread = items.length === 0 && !unlisted && Boolean(props.unavailable)
+   const shown = items.length > 0 || unlisted || unread
+@@ -291,11 +292,5 @@ export function WorkerDockRoster(props: {
+           pill={pill}
+           kind={topRow?.kind}
+-          glyph={
+-            top
+-              ? workerDockGlyph({ ...top, retired: topRow?.retired })
+-              : unlisted
+-                ? 'running'
+-                : 'queued'
+-          }
++          glyph={top ? workerDockGlyph({ ...top, retired: topRow?.retired }) : defaultGlyph}
+           label={chipLabel}
+           latest={topRow ? workerDockRowTitle(topRow) : count}
+diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
+index 25725dcf36eecacee9781ff711949008dc73dfc4..c82719c942321d315bd156843ced6ebf2d50180c 100644
+--- a/src/renderer/src/i18n/locales/es.json
++++ b/src/renderer/src/i18n/locales/es.json
+@@ -5806,24 +5806,5 @@
+         },
+         "UsageOverviewPane": {
+-          "33f7b043d2": "Proveedores",
+-          "70f36452d4": "Porcentaje de caché",
+-          "327603fe8b": "Días activos",
+-          "0eaf937335": "Est. costo",
+-          "3887b94ce5": "Tokens totales",
+-          "2d13e57f72": "Habilitar OpenCode",
+-          "2f1ee2878b": "Habilitar Codex",
+-          "0ea0cae435": "Habilitar Claude",
+-          "6c00c46815": "Habilita un proveedor para escanear registros locales de agentes y crear el historial combinado de tokens.",
+-          "49405ccc8d": "Empezar a rastrear tokens",
+-          "ca6bc5fded": "Actualizar",
+-          "e06d1baf5c": "Actualizar resumen de uso",
+-          "c760c481c5": "Resumen de uso",
+-          "55c910f4f1": "- algunos precios de modelos no están disponibles",
+-          "enableMuse": "Activar Muse",
+-          "noLocalUsageYet": "Aún no se encontró uso local de Claude, Codex, OpenCode ni Muse. El resumen se completará después de que la próxima sesión de agente escriba registros de tokens.",
+-          "providersEnabledWithData": "Habilitados: {{enabled}} - con datos: {{withData}}",
+-          "sessionCount_one": "{{formatted}} sesión",
+-          "sessionCount_other": "{{formatted}} sesiones",
+-          "sessionCount_many": "{{formatted}} sesiones"
++          "3887b94ce5": "Tokens totales"
+         },
+         "share": {
+diff --git a/src/renderer/src/i18n/locales/ko.json b/src/renderer/src/i18n/locales/ko.json
+index 836e43872d93606eed028757c6289ee89b7de2db..aa28dc25a9e0c3e2c38a82fa497cd4b533cb7b7a 100644
+--- a/src/renderer/src/i18n/locales/ko.json
++++ b/src/renderer/src/i18n/locales/ko.json
+@@ -5716,23 +5716,5 @@
+         },
+         "UsageOverviewPane": {
+-          "33f7b043d2": "공급자",
+-          "70f36452d4": "캐시 비율",
+-          "327603fe8b": "활성 일수",
+-          "0eaf937335": "예상 비용",
+-          "3887b94ce5": "총 토큰",
+-          "2d13e57f72": "OpenCode 활성화",
+-          "2f1ee2878b": "Codex 활성화",
+-          "0ea0cae435": "Claude 활성화",
+-          "6c00c46815": "공급자를 활성화해 로컬 에이전트 로그를 스캔하고 통합 토큰 원장을 만드세요.",
+-          "49405ccc8d": "토큰 추적 시작",
+-          "ca6bc5fded": "새로고침",
+-          "e06d1baf5c": "사용량 개요 새로고침",
+-          "c760c481c5": "사용량 개요",
+-          "55c910f4f1": "- 일부 모델 가격 확인 불가",
+-          "enableMuse": "Muse 활성화",
+-          "noLocalUsageYet": "아직 로컬 Claude, Codex, OpenCode 또는 Muse 사용량을 찾지 못했습니다. 다음 에이전트 세션이 토큰 로그를 기록하면 개요가 채워집니다.",
+-          "providersEnabledWithData": "{{enabled}}개 활성화 - {{withData}}개에 데이터 있음",
+-          "sessionCount_one": "세션 {{formatted}}개",
+-          "sessionCount_other": "세션 {{formatted}}개"
++          "3887b94ce5": "총 토큰"
+         },
+         "share": {
+diff --git a/src/shared/agent-session/agent-session-wire.ts b/src/shared/agent-session/agent-session-wire.ts
+index b554c957c942d9f4feaa63781dde2be73494ed83..f79285e1532579336bde3173a215bbc71cedc44d 100644
+--- a/src/shared/agent-session/agent-session-wire.ts
++++ b/src/shared/agent-session/agent-session-wire.ts
+@@ -36,8 +36,5 @@ export type AgentSessionTurnActivity = { turnId: string; text: string }
+ 
+ /** The agent's guess at the user's next prompt; never journaled, replaced when a turn opens. */
+-export type AgentSessionPromptSuggestion = {
+-  id: string
+-  text: string
+-}
++export type AgentSessionPromptSuggestion = { id: string; text: string }
+ 
+ /** Newest turn across the whole journal, including off-page long-running turns. null means no turn; older hosts omit it and clients derive from loaded rows. */
+diff --git a/src/shared/native-chat/transcript/folding/native-chat-turn-fold.ts b/src/shared/native-chat/transcript/folding/native-chat-turn-fold.ts
+index c79ece8b1c86df054f8e0394333fef156cd11a63..cc4c18ce24c6b99cbbcfc1ca299a2f3ec5e1c890 100644
+--- a/src/shared/native-chat/transcript/folding/native-chat-turn-fold.ts
++++ b/src/shared/native-chat/transcript/folding/native-chat-turn-fold.ts
+@@ -316,11 +316,9 @@ export function nativeChatHistoryTurnFold(
+       before.messages.forEach((message, index) => {
+         const at = indexes.get(message.id)
+-        const turnKey = at === undefined ? undefined : input.rows[at]?.turnKey
+-        if (
+-          at !== undefined &&
+-          turnKey !== undefined &&
+-          !before.fold.foldedRows.has(index) &&
+-          fold.foldedRows.has(at)
+-        ) {
++        if (at === undefined || before.fold.foldedRows.has(index) || !fold.foldedRows.has(at)) {
++          return
++        }
++        const turnKey = input.rows[at]?.turnKey
++        if (turnKey !== undefined) {
+           retained.add(turnKey)
+         }
+diff --git a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.image-owner.test.tsx b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.image-owner.test.tsx
+index 0a8e877fbcb6a21d8ca91a5626c37c2c3e37a265..230792569b6731ead65281f51b874bcdbee6d1e6 100644
+--- a/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.image-owner.test.tsx
++++ b/mobile/src/session/native-chat/transcript/message-actions/MobileNativeChatRowOverlaysHost.image-owner.test.tsx
+@@ -11,4 +11,5 @@ import { stubRpcClient } from '../../../../transport/rpc/rpc-client-test-stub'
+ vi.mock('react-native', async () => ({
+   ...(await import('../../../../test-support/react-native-motion-stub')).reactNativeMotionStub(),
++  BackHandler: { addEventListener: () => ({ remove: () => {} }) },
+   Image: 'Image',
+   Modal: 'Modal',
+diff --git a/mobile/src/session/use-mobile-structured-model-default-send.test.tsx b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
+index f186b751593eb32c4f57d850be9f8a378cf0546e..0ae82b0916a28ebeed2ef4d7b6a07d6f7be52775 100644
+--- a/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
++++ b/mobile/src/session/use-mobile-structured-model-default-send.test.tsx
+@@ -32,4 +32,9 @@ vi.mock('react-native', async () => {
+ })
+ 
++vi.mock('expo-router', () => {
++  const router = { push: vi.fn() }
++  return { useRouter: () => router }
++})
++
+ vi.mock('react-native-safe-area-context', () => ({
+   useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 })
+diff --git a/src/main/native-chat/agent-session-wire/options/structured-agent-session-options-read.ts b/src/main/native-chat/agent-session-wire/options/structured-agent-session-options-read.ts
+index 0bd709d5fcffefd3e882c8d2dfca452e7ca00d78..e9211db3a82298169daac5e7c90ebe532e6cb9f6 100644
+--- a/src/main/native-chat/agent-session-wire/options/structured-agent-session-options-read.ts
++++ b/src/main/native-chat/agent-session-wire/options/structured-agent-session-options-read.ts
+@@ -1,2 +1,3 @@
++import { readStructuredAgentSessionDefaultModel } from './structured-agent-session-default-model-preview'
+ import { readAcpForkSupport } from '../../../acp/capabilities/acp-fork-support'
+ import { supportsSessionAccountUsage } from '../../../../shared/agent-session/lifecycle/accounts/agent-session-account-usage'
+@@ -133,4 +134,5 @@ export async function readStructuredAgentSessionOptions(
+   const restingOptions = await atRest()
+   const recovery = await readStructuredSessionRecovery(session, context, sessionId)
++  const defaultModel = await readStructuredAgentSessionDefaultModel(context.deps, sessionId)
+   const [floor, goalSource, contextUsage] = await Promise.all([
+     session.journal.reads.contextFloor(),
+@@ -255,4 +257,5 @@ export async function readStructuredAgentSessionOptions(
+           : 'unsupported',
+     ...(supportsSessionAccountUsage(record) ? { accountUsage: true as const } : {}),
++    ...(defaultModel ? { defaultModel } : {}),
+     ...(live?.effortFixed
+       ? {
+diff --git a/src/renderer/src/components/bots/items/bot-item-held-answers.ts b/src/renderer/src/components/bots/items/bot-item-held-answers.ts
+index b655e901d3892ed8a66478478c813d4fd83b0e51..f338f5beebd6b4ba928cc66d2c1869291a181eab 100644
+--- a/src/renderer/src/components/bots/items/bot-item-held-answers.ts
++++ b/src/renderer/src/components/bots/items/bot-item-held-answers.ts
+@@ -68,5 +68,5 @@ export function returnBotItemHeldAnswer(
+     undefined,
+     undefined,
+-    [...skills]
++    { skills: [...skills], restoreImageReferences: true }
+   )
+ }
+diff --git a/src/renderer/src/components/native-chat/session/structured/delivery/structured-agent-session-message-hand-back.ts b/src/renderer/src/components/native-chat/session/structured/delivery/structured-agent-session-message-hand-back.ts
+index a72f1bf04048ee3669cbc4d04af0d64b6f15b6d5..e08749a2fb434267cfefb542c9dad4be44f366e0 100644
+--- a/src/renderer/src/components/native-chat/session/structured/delivery/structured-agent-session-message-hand-back.ts
++++ b/src/renderer/src/components/native-chat/session/structured/delivery/structured-agent-session-message-hand-back.ts
+@@ -5,4 +5,5 @@ import { appendToNativeChatComposerDraft } from '../../../drafts/native-chat-com
+ import { structuredAgentSessionDraftScopeKey } from '../../../drafts/native-chat-draft-scope'
+ import { unavailableNativeChatComposerDraftImage } from '../../../drafts/native-chat-composer-draft-persistence'
++import { promptMarkersToImageReferences } from '../../../../../../../shared/native-chat/transcript/images/native-chat-sent-image-prompt-markers'
+ import {
+   promptTextContent,
+@@ -24,5 +25,5 @@ export function returnMessageToComposer(
+   /** Uploads the host no longer stores: their chips come back asking to be attached again. */
+   expiredUploadIds?: ReadonlySet<string>,
+-  skills?: AgentJournalMessageItem['skills']
++  options: { skills?: AgentJournalMessageItem['skills']; restoreImageReferences?: boolean } = {}
+ ): boolean {
+   let image = 0
+@@ -42,5 +43,13 @@ export function returnMessageToComposer(
+       : [{ id, path: block.path, ...(connectionId ? { connectionId } : {}) }]
+   })
+-  const text = structuredAgentSessionMessageText({ kind: 'message', role: 'user', blocks })
++  const words = structuredAgentSessionMessageText({ kind: 'message', role: 'user', blocks })
++  const text = options.restoreImageReferences
++    ? promptMarkersToImageReferences(
++        words,
++        blocks.flatMap((block, index) =>
++          block.type === 'image-ref' ? [`${attachmentIdPrefix}-${index}`] : []
++        )
++      )
++    : words
+   if (text === '' && images.length === 0) {
+     return true
+@@ -50,6 +59,6 @@ export function returnMessageToComposer(
+     text,
+     images,
+-    ...(skills?.length
+-      ? { document: seedPromptSkillReferences(promptTextContent(text), skills) }
++    ...(options.skills?.length
++      ? { document: seedPromptSkillReferences(promptTextContent(text), options.skills) }
+       : {})
+   })
+@@ -70,5 +79,5 @@ export function handBackStructuredAgentSessionMessage(
+     imageConnectionIds,
+     expiredUploadIds,
+-    body.skills
++    { skills: body.skills }
+   )
+ }

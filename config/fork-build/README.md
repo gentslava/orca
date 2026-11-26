@@ -367,7 +367,6 @@ Overlay changes:
 - `composed-source-modules.patch` no longer carries the keyboard helper, the queued-message composer hook, the desktop option pending pick, the structured session tab strips or the saved-server rename test imports; branches now own them. It moves the phone notice line text into its copy module and the desktop picker's accessible name into its labels module. It also prunes the blocking-helper, sync-fs and compiler baseline rows that the composition improves.
 - `composed-source-modules.patch`'s pending model send fixture imports the default-model capability from 44451's runtime capabilities module.
 - `composed-ci-contracts.patch` keeps upstream's compiler baseline row for the owner usage hook, which keeps its lint suppression. It optional-chains `capture()` in 44451's model-default test, which becomes optional beside 33362.
-- `composed-format.patch` formats the tool-line label import from the 36593 record.
 - `conversation-project-order.patch` uses the neutral project names (Acme, Example) that 33361's tests now use.
 - `project-start-actions.patch` retires upstream's `agent-launch-picker-rows.test.ts`, which checks the setup chat rows that this launch menu leaves out. `composed-ci-contracts.patch` checks the process start time with `isNonNegativeSafeInteger`, as fork master did, instead of upstream's cast.
 - `fork-upstream-regressions.mjs` names the two model-default suites at their new paths.

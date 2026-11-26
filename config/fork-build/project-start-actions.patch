@@ -732,13 +732,13 @@ index 00000000000..d9ddbd62a4d
 +  })
 +})
 diff --git a/src/renderer/src/i18n/locales/de.json b/src/renderer/src/i18n/locales/de.json
-index f1db0a6bb8f..f657fabc055 100644
+index c2cb3e4db4982df7ca3753d257e0e6c20e5fae4a..a5766549251bd20cc8c5bf0273edd6bd10f547e0 100644
 --- a/src/renderer/src/i18n/locales/de.json
 +++ b/src/renderer/src/i18n/locales/de.json
-@@ -22863,6 +22863,12 @@
-       "draft": "{{review}}: Entwurf",
-       "merged": "{{review}}: gemergt",
-       "open": "{{review}}: offen"
+@@ -24741,6 +24741,12 @@
+         "provisionFailed": "Die VM wurde nicht erstellt, oder die Erstellung wurde unterbrochen. Öffne die Einstellungen, um sie zu löschen oder zu entfernen."
+       },
+       "suspendFailed": "VM-Arbeitsbereich konnte nicht angehalten werden"
 +    },
 +    "start": {
 +      "title": "Was möchtest du öffnen?",
@@ -766,13 +766,13 @@ index dd1953ab53c..053c1152dcb 100644
        "menu": {
          "waking": "Waking VM…",
 diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
-index 4078914002b..17535e57687 100644
+index 4cb14c0836631b8c0509c959817442f21bf55eb9..25725dcf36eecacee9781ff711949008dc73dfc4 100644
 --- a/src/renderer/src/i18n/locales/es.json
 +++ b/src/renderer/src/i18n/locales/es.json
-@@ -23353,6 +23353,12 @@
-       "draft": "{{review}}: Borrador",
-       "merged": "{{review}}: Fusionada",
-       "open": "{{review}}: Abierta"
+@@ -26203,6 +26203,12 @@
+         "provisionFailed": "La VM no se creó o su creación se interrumpió. Abre Ajustes para destruirla o quitarla."
+       },
+       "suspendFailed": "No se pudo suspender el espacio de trabajo de la VM"
 +    },
 +    "start": {
 +      "title": "¿Qué quieres abrir?",
@@ -783,13 +783,13 @@ index 4078914002b..17535e57687 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/fr.json b/src/renderer/src/i18n/locales/fr.json
-index e7a745044ca..ccb2143f60f 100644
+index 5af448e660a9b018db6cbdbf49463caed5bb7bd3..8ee0d674ab76c990594312bfae325376d1328475 100644
 --- a/src/renderer/src/i18n/locales/fr.json
 +++ b/src/renderer/src/i18n/locales/fr.json
-@@ -23374,6 +23374,12 @@
-       "draft": "{{review}} : brouillon",
-       "merged": "{{review}} : fusionnée",
-       "open": "{{review}} : ouverte"
+@@ -25221,6 +25221,12 @@
+         "provisionFailed": "La VM n'a pas été créée, ou sa création a été interrompue. Ouvrez les Paramètres pour la détruire ou la retirer."
+       },
+       "suspendFailed": "Impossible de suspendre l'espace de travail VM"
 +    },
 +    "start": {
 +      "title": "Que souhaitez-vous ouvrir ?",
@@ -834,13 +834,13 @@ index 3bc09420de5..2ac27c300b5 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/pt.json b/src/renderer/src/i18n/locales/pt.json
-index b8d8f31ab31..b0b21b69144 100644
+index dbf27d503f6ab36a19d88f8e6d36762d785987f3..12e5fcd18ffde9f15679c7d0a6e07ea6e0463ad9 100644
 --- a/src/renderer/src/i18n/locales/pt.json
 +++ b/src/renderer/src/i18n/locales/pt.json
-@@ -23823,6 +23823,12 @@
-       "draft": "{{review}}: Rascunho",
-       "merged": "{{review}}: Mergeado",
-       "open": "{{review}}: Aberto"
+@@ -26106,6 +26106,12 @@
+         "provisionFailed": "A VM não foi criada ou a criação foi interrompida. Abra as Configurações para destruí-la ou removê-la."
+       },
+       "suspendFailed": "Falha ao suspender o espaço de trabalho da VM"
 +    },
 +    "start": {
 +      "title": "O que você quer abrir?",
@@ -851,11 +851,10 @@ index b8d8f31ab31..b0b21b69144 100644
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/ru.json b/src/renderer/src/i18n/locales/ru.json
-index e2469dd3e6f..f0e186deaba 100644
 --- a/src/renderer/src/i18n/locales/ru.json
 +++ b/src/renderer/src/i18n/locales/ru.json
-@@ -26394,6 +26394,12 @@
-         "provisionFailed": "ВМ не создана или её создание прервано. Откройте «Настройки», чтобы уничтожить или удалить её."
+@@ -26873,6 +26873,12 @@
+         "provisionFailed": "ВМ не создана, или её создание было прервано. Откройте настройки, чтобы уничтожить или удалить её."
        },
        "suspendFailed": "Не удалось приостановить рабочее пространство ВМ"
 +    },
@@ -884,13 +883,13 @@ diff --git a/src/renderer/src/i18n/locales/tr.json b/src/renderer/src/i18n/local
    },
    "tabHoverCard": {
 diff --git a/src/renderer/src/i18n/locales/zh-Hant.json b/src/renderer/src/i18n/locales/zh-Hant.json
-index f97a8105772..2ab8000ec13 100644
+index 3e08336a922ed1c28aee6333128fcc420b5dc95a..72f6e94dfa99608c36489014818bebf1045f84a6 100644
 --- a/src/renderer/src/i18n/locales/zh-Hant.json
 +++ b/src/renderer/src/i18n/locales/zh-Hant.json
-@@ -22532,6 +22532,12 @@
-       "draft": "{{review}}：草稿",
-       "merged": "{{review}}：已合併",
-       "open": "{{review}}：開放"
+@@ -25345,6 +25345,12 @@
+         "provisionFailed": "虛擬機器未建立，或建立過程中斷。請開啟「設定」將其銷毀或移除。"
+       },
+       "suspendFailed": "無法暫停虛擬機器工作區"
 +    },
 +    "start": {
 +      "title": "要開啟什麼？",
@@ -1783,18 +1782,11 @@ index bfb42c5c80e..d9ed2e61f61 100644
  }
  
 diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
+index 2c062aac8bc5a2b5f0f6bbf80ccbeb5548d84bb9..98b5cb303d2d93b90b23f97f3693b0aecd472b27 100644
 --- a/src/renderer/src/components/tab-group/TabGroupPanel.tsx
 +++ b/src/renderer/src/components/tab-group/TabGroupPanel.tsx
-@@ -1,3 +1,7 @@
-+import {
-+  workspaceStartPageForGroup,
-+  workspaceAgentTourAnchor
-+} from '../workspace-start/WorkspaceStartPage'
- import { Suspense, useCallback, useMemo } from 'react'
- import { lazyWithRetry as lazy } from '@/app-shell/startup/lazy-with-retry'
- import { useDroppable } from '@dnd-kit/core'
-@@ -7,7 +11,10 @@
- import { TabGroupStripActions } from './panel/TabGroupStripActions'
+@@ -8,7 +8,14 @@ import { TabBarQuickCommandsButton } from '../tab-bar/quick-commands/TabBarQuick
+ import { TabGroupPaneActionsMenu } from './panel/TabGroupPaneActionsMenu'
  import { useTabGroupWorkspaceModel } from './workspace-model/useTabGroupWorkspaceModel'
  import { closeTerminalTab } from '../terminal/tab-lifecycle/terminal-tab-actions'
 -import { resolveGroupTabFromVisibleId } from './workspace-model/tab-group-visible-id'
@@ -1802,10 +1794,14 @@ diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/rende
 +  resolveGroupTabFromVisibleId,
 +  runGroupTabCommand
 +} from './workspace-model/tab-group-visible-id'
++import {
++  workspaceStartPageForGroup,
++  workspaceAgentTourAnchor
++} from '../workspace-start/WorkspaceStartPage'
  import { getTabPaneBodyDroppableId } from './drag/useTabDragSplit'
  import type { HoveredTabInsertion } from './drag/tab-insertion'
  import { tabGroupBodyAnchorName } from './retained-pane/tab-group-body-anchor'
-@@ -173,25 +180,15 @@
+@@ -172,25 +179,15 @@ export default function TabGroupPanel({
          // Why: agent quick-launch can briefly desync unified/runtime tab ids before the host snapshot lands, so still route close through the shared helper.
          closeTerminalTab(terminalId, { reason: 'user' })
        }}
@@ -1840,7 +1836,7 @@ diff --git a/src/renderer/src/components/tab-group/TabGroupPanel.tsx b/src/rende
        onNewTerminalTab={commands.newTerminalTab}
        onNewTerminalWithShell={commands.newTerminalWithShell}
        onNewBrowserTab={commands.newBrowserTab}
-@@ -352,15 +349,17 @@
+@@ -374,15 +371,17 @@ export default function TabGroupPanel({
          className="relative flex-1 min-h-0 overflow-hidden"
          style={bodyAnchorStyle}
        >
