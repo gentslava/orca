@@ -8,7 +8,7 @@ import {
 } from '../../../../shared/agent-session/failures/agent-session-failure-words'
 import { BoundedMap } from '../../../../shared/collections/bounded-map'
 import { claudeRecord, claudeText } from './claude-structured-item-translation'
-import type { AgentSessionAccountKind } from '../../../../shared/agent-session/failures/agent-session-availability'
+import type { ClaudeJournalTranslatorDeps } from './claude-journal-translator-contract'
 import { isRootClaudeFrame } from '../turns/claude-turn-opening'
 
 /** Claude refreshes a rejected login before its second attempt, and on a dead login it gives up
@@ -36,8 +36,10 @@ export class ClaudeAssistantFailures {
   /** The turn a credential retry failed, and its row; another turn never reads it. */
   private authFailure: { turnId: string; row: ClaudeFailureRow; shown: boolean } | null = null
   constructor(
-    private readonly account?: () => AgentSessionAccountKind | undefined,
-    private readonly model?: () => string | undefined
+    private readonly launch: Pick<
+      ClaudeJournalTranslatorDeps,
+      'account' | 'model' | 'stopsOnFlaggedRequest'
+    > = {}
   ) {}
 
   assistant(message: Record<string, unknown>, turnId: string | null) {
@@ -65,13 +67,27 @@ export class ClaudeAssistantFailures {
     return row
   }
 
+  /** With switching off, the refused reply that follows carries the row, so this notice writes none. */
+  foldsNoFallbackNotice(message: Record<string, unknown>): boolean {
+    return (
+      message.type === 'system' &&
+      message.subtype === 'model_refusal_no_fallback' &&
+      this.launch.stopsOnFlaggedRequest?.() === true
+    )
+  }
+
   /** Classify without recording it as shown; a caller that keeps the row must write it. */
   notice(message: Record<string, unknown>) {
-    const unavailable =
-      message.error === 'model_not_found' && (message.parent_tool_use_id ?? null) === null
+    const root = (message.parent_tool_use_id ?? null) === null
+    const unavailable = message.error === 'model_not_found' && root
+    const refused =
+      root &&
+      typeof message.error === 'string' &&
+      claudeRecord(message.message)?.stop_reason === 'refusal' &&
+      this.launch.stopsOnFlaggedRequest?.() === true
     if (
       message.type !== 'assistant' ||
-      (!unavailable && message.error !== 'authentication_failed')
+      (!unavailable && !refused && message.error !== 'authentication_failed')
     ) {
       return null
     }
@@ -84,10 +100,13 @@ export class ClaudeAssistantFailures {
           })
           .join('\n')
       : ''
+    if (refused) {
+      return this.failureRow('flaggedRequestNotSwitched', providerDiagnostic(text, 'log'))
+    }
     return unavailable
       ? this.failureRow(
           'modelUnavailable',
-          providerDiagnostic(this.model?.() ?? 'this model', 'log')
+          providerDiagnostic(this.launch.model?.() ?? 'this model', 'log')
         )
       : this.failureRow('notSignedIn', providerDiagnostic(text, 'person'))
   }
@@ -120,7 +139,11 @@ export class ClaudeAssistantFailures {
   }
 
   private failureRow(
-    kind: 'modelUnavailable' | 'notSignedIn' | 'providerResponseFailed',
+    kind:
+      | 'modelUnavailable'
+      | 'notSignedIn'
+      | 'providerResponseFailed'
+      | 'flaggedRequestNotSwitched',
     detail: ReturnType<typeof providerDiagnostic>
   ): ClaudeFailureRow {
     return {
@@ -128,7 +151,7 @@ export class ClaudeAssistantFailures {
       tone: 'error' as const,
       ...agentSessionFailureWords(
         agentSessionFailureFact(kind, {
-          account: this.account?.(),
+          account: this.launch.account?.(),
           detail
         }),
         { agentName: 'Claude', provider: 'claude', surface: 'row' }

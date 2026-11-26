@@ -3041,6 +3041,7 @@
       "modelNotSelected": "{{agent}} has no model selected. Check your model selection and {{agent}} sign-in, then send again.",
       "providerUnavailable": "{{agent}} couldn't respond because the service is busy. Pick another model, or wait a little and send again.",
       "providerSafetyStopped": "{{agent}} stopped this response after a safety check. Review your request and send again.",
+      "flaggedRequestNotSwitched": "{{agent}} declined this request, and switching models on flagged requests is off. Rephrase it and send again, or change \"When Claude flags a request\" in Settings → Agents.",
       "providerResponseFailed": "{{agent}} couldn't finish this response. Open Details for more information.",
       "providerResponseFailedQuoted": "{{agent}} couldn't finish this response: {{detail}}.",
       "selectedModel": "the selected model",
@@ -3796,6 +3797,17 @@
       "answeredCount_other": "You answered <answer>{{count}} questions</answer>",
       "answeredCount": "You answered <answer>{{count}} questions</answer>"
     },
+    "approvalRecord": {
+      "cancelled": "Request for <tool>{{tool}}</tool> cancelled",
+      "coordinatorAllowed": "Coordinator allowed <tool>{{tool}}</tool>",
+      "coordinatorDenied": "Coordinator denied <tool>{{tool}}</tool>",
+      "allowedUnnamed": "Allowed <tool>{{tool}}</tool>",
+      "deniedUnnamed": "Denied <tool>{{tool}}</tool>",
+      "youAllowed": "You allowed <tool>{{tool}}</tool>",
+      "youAllowedForSession": "You allowed <tool>{{tool}}</tool> for this session",
+      "youDenied": "You denied <tool>{{tool}}</tool>",
+      "youAnswered": "You answered <tool>{{tool}}</tool>: <answer>{{answer}}</answer>"
+    },
     "subagentGroup": {
       "stateCompleted": "completed",
       "stateWorking": "working",
@@ -4296,15 +4308,8 @@
       "running": "Running",
       "failed": "Failed"
     },
-    "subagentView": {
-      "promptFromMain": "Prompt from main agent",
-      "noSteps": "No steps yet",
-      "beforeClear": "This subagent ran before the chat was cleared",
-      "stoppedBeforeReply": "Stopped before replying",
-      "noReply": "Ended without a reply",
-      "backTo": "Back to {{value0}}",
-      "unnamed": "Subagent",
-      "mainAgent": "Main agent"
+    "tool": {
+      "activity": "Activity"
     },
     "workerApproval": {
       "allowFor": "Allow {{tool}} for {{worker}}?",
@@ -4341,19 +4346,15 @@
       "deny": "Deny",
       "thisServer": "this server"
     },
-    "approvalRecord": {
-      "cancelled": "Request for <tool>{{tool}}</tool> cancelled",
-      "coordinatorAllowed": "Coordinator allowed <tool>{{tool}}</tool>",
-      "coordinatorDenied": "Coordinator denied <tool>{{tool}}</tool>",
-      "allowedUnnamed": "Allowed <tool>{{tool}}</tool>",
-      "deniedUnnamed": "Denied <tool>{{tool}}</tool>",
-      "youAllowed": "You allowed <tool>{{tool}}</tool>",
-      "youAllowedForSession": "You allowed <tool>{{tool}}</tool> for this session",
-      "youDenied": "You denied <tool>{{tool}}</tool>",
-      "youAnswered": "You answered <tool>{{tool}}</tool>: <answer>{{answer}}</answer>"
-    },
-    "tool": {
-      "activity": "Activity"
+    "subagentView": {
+      "promptFromMain": "Prompt from main agent",
+      "noSteps": "No steps yet",
+      "beforeClear": "This subagent ran before the chat was cleared",
+      "stoppedBeforeReply": "Stopped before replying",
+      "noReply": "Ended without a reply",
+      "backTo": "Back to {{value0}}",
+      "unnamed": "Subagent",
+      "mainAgent": "Main agent"
     }
   },
   "sourceControl": {
@@ -8612,9 +8613,6 @@
       "working": "Working"
     }
   },
-  "workspaceOptions": {
-    "recentActivity": "Most recent workspace activity"
-  },
   "chats": {
     "delete": {
       "title": "Delete this chat?",
@@ -8718,5 +8716,8 @@
     "workspacesAllButCount": "All but {{count}}",
     "headerMissing": "Fill in {{header}} to add this server.",
     "servers": "Servers"
+  },
+  "workspaceOptions": {
+    "recentActivity": "Most recent workspace activity"
   }
 }
