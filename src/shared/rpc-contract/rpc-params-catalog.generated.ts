@@ -938,6 +938,7 @@ import {
   SshTargetAdd,
   SshTargetUpdate
 } from './ssh/ssh-params'
+import { BackgroundTaskParams } from './structured-agent-session-background-params'
 import {
   AttachmentReadParams,
   AttachmentTextReadParams,
@@ -1212,6 +1213,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.acknowledgeAttention': AcknowledgeAttentionParams,
   'agentSession.agents': AgentsParams,
   'agentSession.approveAutoReviewDenial': AutoReviewApprovalParams,
+  'agentSession.backgroundTask': BackgroundTaskParams,
   'agentSession.cancel': CancelParams,
   'agentSession.cancelUsageLimitContinue': CancelUsageLimitContinueParams,
   'agentSession.close': OptionsParams,
