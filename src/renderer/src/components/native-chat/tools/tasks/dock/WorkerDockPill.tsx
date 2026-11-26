@@ -4,6 +4,8 @@ import { useLatestHandler } from '@/lib/use-latest-handler'
 import { cn } from '@/lib/class-names'
 import { WorkerDockGlyph } from './WorkerDockGlyph'
 import type { WorkerDockGlyph as Glyph } from './worker-dock-card-order'
+import type { WorkerDockEntry } from '../../../../../../../shared/orchestration/dock/worker-dock'
+import { workerDockKindLabel } from './worker-dock-labels'
 
 /** The pill's height (28px) plus 8px: the room the transcript keeps clear at its end, and where Jump
  *  to latest rests so it stacks 8px above the pill. The pill sits on the dock's top edge, which the
@@ -23,6 +25,7 @@ export const WORKER_DOCK_SURFACE_CLASS =
 export function WorkerDockPill({
   pill,
   glyph,
+  kind,
   title,
   total,
   expanded,
@@ -32,6 +35,7 @@ export function WorkerDockPill({
 }: {
   pill: RefObject<HTMLButtonElement | null>
   glyph: Glyph
+  kind?: WorkerDockEntry['kind']
   title: string
   total: number
   expanded: boolean
@@ -40,6 +44,7 @@ export function WorkerDockPill({
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void
 }) {
   const t = useTranslate()
+  const accessibleTitle = kind ? `${workerDockKindLabel(t, kind)} · ${title}` : title
   // Only while the pill shows does the transcript reserve its room and Jump to latest lift over it.
   useLayoutEffect(() => {
     const pane = pill.current?.closest<HTMLElement>('[data-native-chat-root]')
@@ -68,7 +73,7 @@ export function WorkerDockPill({
               '{{count}} workers, latest: {{title}}',
               {
                 count: total,
-                title,
+                title: accessibleTitle,
                 defaultValue_one: '{{count}} worker, latest: {{title}}'
               }
             )
@@ -81,7 +86,7 @@ export function WorkerDockPill({
       onClick={onToggle}
       onKeyDown={onKeyDown}
     >
-      <WorkerDockGlyph glyph={glyph} />
+      <WorkerDockGlyph glyph={glyph} kind={kind} />
       <span
         key={title}
         data-worker-dock-pill-title=""
