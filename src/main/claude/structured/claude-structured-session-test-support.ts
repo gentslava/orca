@@ -1,5 +1,4 @@
 import type { AgentJournalMessageItem } from '../../../shared/agent-session/journal/agent-session-journal-types'
-import type { AgentSessionJournalIdentity } from '../../../shared/agent-session/journal/agent-session-journal-identity'
 import { ORCA_AGENT_SESSION_SPAWN_TOKEN_ENV } from '../../../shared/agent-session/lifecycle/launch/agent-session-caller-env'
 import type {
   ClaudeStreamJsonConnection,
@@ -12,29 +11,20 @@ import type { ClaudeStructuredLaunch } from './launch/claude-structured-launch-r
 import type { ClaudeStructuredSessionAdapterDeps } from './claude-structured-session-state'
 import type { ClaudeStructuredSessionEvent } from './lifecycle/claude-structured-session-event'
 import type { StructuredAgentSessionEventSink } from '../../native-chat/agent-session-wire/journal-ingress/structured-agent-session-event-sink'
-import { claudeProviderHandle } from '../../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
 import {
   type claudeInitialization,
   claudeInitializationScope,
   claudeStartupSettled
 } from './startup/claude-structured-startup-settled-test-support'
 
-export const PROVIDER_SESSION_ID = '819cf9f8-e43c-4ad7-b50f-54aa158a726a'
+import { identityFor, PROVIDER_SESSION_ID } from './claude-structured-session-identity.test-fixture'
+
+export { identityFor, PROVIDER_SESSION_ID } from './claude-structured-session-identity.test-fixture'
 
 export const USER_MESSAGE: AgentJournalMessageItem = {
   kind: 'message',
   role: 'user',
   blocks: [{ type: 'text', text: 'ship it' }]
-}
-
-export function identityFor(sessionId = 'session-1'): AgentSessionJournalIdentity {
-  return {
-    sessionId,
-    workspaceId: 'workspace-1',
-    hostId: 'host-1',
-    agent: 'claude',
-    providerHandle: claudeProviderHandle(PROVIDER_SESSION_ID, null)
-  }
 }
 
 type Route = (params: Record<string, unknown> | undefined) => unknown
@@ -69,7 +59,13 @@ export function fakeClaude(
     replayUuids?: (string | null)[]
     capabilities?: string[]
     unprovenCloseVerdict?: ClaudeStreamJsonConnection['exitVerdict']
-    routes?: Record<string, Route>
+    routes?: Record<string, Route> & {
+      interrupt?: (
+        params: Record<string, unknown> | undefined
+      ) =>
+        | ReturnType<ClaudeStreamJsonConnection['interrupt']>
+        | Awaited<ReturnType<ClaudeStreamJsonConnection['interrupt']>>
+    }
   } = {}
 ) {
   const connections: FakeConnection[] = []
@@ -159,7 +155,8 @@ export function fakeClaude(
       },
       supportedModels: async () => {
         connection.calls.push({ subtype: 'list_models' })
-        return (routed('list_models') as unknown[] | undefined) ?? []
+        const reply = await routed('list_models')
+        return Array.isArray(reply) ? reply : []
       },
       setModel: async (model) => {
         connection.calls.push({ subtype: 'set_model', params: { model } })
@@ -178,9 +175,7 @@ export function fakeClaude(
           subtype: 'interrupt',
           params: interruptOptions?.cancelQueued ? { cancelQueued: true } : {}
         })
-        return routed('interrupt', interruptOptions) as
-          | Awaited<ReturnType<ClaudeStreamJsonConnection['interrupt']>>
-          | undefined
+        return routes.interrupt?.(interruptOptions)
       },
       cancelAsyncMessage: async (uuid) => {
         connection.calls.push({ subtype: 'cancel_async_message', params: { uuid } })

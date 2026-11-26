@@ -1,6 +1,5 @@
-import { NativeChatWorkerTimeline } from './tools/tasks/dock/NativeChatWorkerResultTimeline'
 import {
-  NativeChatPartyWorkerApprovalStack,
+  NativeChatWorkerApprovalTimeline,
   nativeChatWorkerApprovalParty
 } from './worker-approvals/NativeChatWorkerApprovals'
 import { NativeChatSessionChildren } from './NativeChatSessionChildren'
@@ -25,6 +24,7 @@ export function NativeChatStructuredTranscript({
   pane,
   directory,
   controller,
+  rows,
   continuation,
   setup,
   forks,
@@ -49,13 +49,14 @@ export function NativeChatStructuredTranscript({
   pane: ComponentProps<typeof NativeChatUsageLimitActionsProvider>['pane']
   directory: ComponentProps<typeof NativeChatUsageLimitActionsProvider>['directory']
   controller: ReturnType<typeof useStructuredAgentSession>
+  rows: ComponentProps<typeof NativeChatRowActionsProvider>['chat']
   continuation: ReturnType<typeof useNativeChatInterruptedContinuation>['view']
   forks: ComponentProps<typeof NativeChatRowActionsProvider>['forks']
   setup: NativeChatHostSetup
   messageListRef: Ref<NativeChatMessageListHandle>
 }): React.JSX.Element {
   return (
-    <NativeChatRowActionsProvider pane={pane} chat={controller} forks={forks}>
+    <NativeChatRowActionsProvider pane={pane} chat={rows} forks={forks}>
       <NativeChatUsageLimitActionsProvider
         recovery={controller}
         pane={pane}
@@ -64,12 +65,9 @@ export function NativeChatStructuredTranscript({
         view={continuation}
       >
         <NativeChatHostSetupContext.Provider value={setup}>
-          <NativeChatWorkerTimeline
-            approvalParty={nativeChatWorkerApprovalParty(pane)}
-            workerDock={controller.backgroundTasks.workerDock}
+          <NativeChatWorkerApprovalTimeline
+            party={nativeChatWorkerApprovalParty(pane)}
             target={pane.target}
-            sessionId={pane.sessionId}
-            isVisible={props.isVisible}
           >
             {(timedRows) => (
               <NativeChatSubagentTranscripts
@@ -91,7 +89,7 @@ export function NativeChatStructuredTranscript({
                 turnActivity={controller.turnActivity}
               />
             )}
-          </NativeChatWorkerTimeline>
+          </NativeChatWorkerApprovalTimeline>
         </NativeChatHostSetupContext.Provider>
       </NativeChatUsageLimitActionsProvider>
     </NativeChatRowActionsProvider>
@@ -113,22 +111,6 @@ export function NativeChatStructuredTranscriptFrame({
       <NativeChatSessionChildren {...pane} isVisible={isVisible} />
       {children}
     </div>
-  )
-}
-
-export function NativeChatStructuredWorkerApprovals({
-  pane,
-  isVisible
-}: {
-  pane: Pick<NativeChatStructuredViewProps, 'target' | 'sessionId'>
-  isVisible: boolean
-}): React.JSX.Element {
-  return (
-    <NativeChatPartyWorkerApprovalStack
-      party={nativeChatWorkerApprovalParty(pane)}
-      target={pane.target}
-      isVisible={isVisible}
-    />
   )
 }
 

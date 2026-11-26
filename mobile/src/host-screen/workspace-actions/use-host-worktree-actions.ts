@@ -1,7 +1,7 @@
 import type { HostWorktreeActionsArgs } from '../host-worktree-actions-contract'
 
 import {
-  captureMobilePersonalOpening,
+  captureHostListPersonalOpening,
   acknowledgeMobilePersonalOpening
 } from '../../worktree/personal-project-opening'
 import { useCallback } from 'react'
@@ -266,20 +266,8 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
       if (routeHost === null) {
         return
       }
-      const fullRow = [...state.worktrees, ...serverWorkspaces.worktrees].find(
-        (row) => getWorktreeRowIdentity(row) === getWorktreeRowIdentity(item)
-      )
-      const capture =
-        fullRow &&
-        captureMobilePersonalOpening({
-          client,
-          hostId,
-          capabilities: hostCapabilities,
-          catalog: args.projectCatalog ?? state.servedProjectSections,
-          target: fullRow,
-          rows: [...state.worktrees, ...serverWorkspaces.worktrees]
-        })
-      const personalOpening = capture && (await capture)
+      const capture = captureHostListPersonalOpening(args, item)
+      const personalOpening = capture ? await capture : null
       // Use an empty missing hostId: the shell refuses /h//session, whereas the string undefined would name an accepted host.
       const executionHost = routeHost ? `&executionHost=${encodeURIComponent(routeHost)}` : ''
       const pane = paneKey ? `&paneKey=${encodeURIComponent(paneKey)}` : ''
@@ -313,7 +301,7 @@ export function useHostWorktreeActions(args: HostWorktreeActionsArgs) {
       navigateFromHostList,
       serverWorkspaces,
       state.servedProjectSections,
-      args.projectCatalog,
+      args,
       state.worktrees,
       state.clientRef,
       state.viewRef,

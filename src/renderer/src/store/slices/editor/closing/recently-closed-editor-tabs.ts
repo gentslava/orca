@@ -19,6 +19,7 @@ import {
   shouldDeleteUntouchedUntitledFile
 } from '../tabs/untitled-file-cleanup'
 import { unifiedTabsKeepWorktreeSelected } from '../tabs/unified-tabs-keep-worktree-selected'
+import { keepsEmptiedWorkspaceOpen } from '../../tabs/split-landing-groups'
 import { isEditorTabContentType } from '../tabs/editor-tab-content-type'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../../../shared/workspace-layout/layout-owner-switch'
 import {
@@ -166,6 +167,7 @@ export function createRecentlyClosedEditorTabs(
           const closedFileIds = new Set(closingFiles.map((f) => f.id))
           const closedTabOrderIds = new Set([...closedFileIds, ...closingItemIds])
           const shouldDeactivateWorktree =
+            !keepsEmptiedWorkspaceOpen(activeWorktreeId) &&
             browserTabsForWorktree.length === 0 &&
             terminalTabsForWorktree.length === 0 &&
             !unifiedTabsKeepWorktreeSelected(

@@ -180,13 +180,20 @@ it.each([true, false])(
   'keeps the saved Default baseline when host configuration later changes (readsWithoutModel=%s)',
   async (readsWithoutModel) => {
     const read = catalog(true)
-    const sessionId = await unstartedChat('preview-saved-default')
-    await pick('model', null, sessionId)
+    const first = await rig.workingSend({ model: 'picked-model' })
+    await rig.settleAccepted(first, 'first')
+    await openRigTurnFor(rig, first)
+    expect(await pick('model', null)).toMatchObject({ ok: true })
+    expect(rig.store.getRecord(SESSION)?.defaultModelOptions?.model).toBe('configured-model')
+    rig.host.deps.adapter.readOptions = async () => ({
+      models: [],
+      current: { model: 'configured-model' }
+    })
     read.mockResolvedValue({
       ...(await read()),
       defaultModelOptions: { model: 'changed-configured-model', effort: 'medium' }
     })
-    const options = await rig.host.readOptions(sessionId, { readsWithoutModel })
+    const options = await rig.host.readOptions(SESSION, { readsWithoutModel })
     expect(options.current.model).toBe('configured-model')
     expect(options).toHaveProperty('defaultModel', { id: 'configured-model', label: 'Configured' })
   }

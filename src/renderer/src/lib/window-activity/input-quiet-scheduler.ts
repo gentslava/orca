@@ -161,3 +161,7 @@ export function scheduleAfterInputQuiet(
     clearScheduledWork()
   }
 }
+
+export function resetInputQuietSchedulerForTest(): void {
+  lastInputAt = Number.NEGATIVE_INFINITY
+}

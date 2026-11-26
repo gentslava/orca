@@ -9,3 +9,14 @@ export function resolveGroupTabFromVisibleId(
     null
   )
 }
+
+export function runGroupTabCommand(
+  groupTabs: readonly Tab[],
+  visibleId: string,
+  command: (tabId: string) => void
+): void {
+  const item = resolveGroupTabFromVisibleId(groupTabs, visibleId)
+  if (item) {
+    command(item.id)
+  }
+}

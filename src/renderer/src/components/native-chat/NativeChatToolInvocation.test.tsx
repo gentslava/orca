@@ -26,7 +26,7 @@ function openedDetail(container: HTMLElement): Element | null {
     throw new Error('The tool row is missing')
   }
   fireEvent.click(row)
-  return container.querySelector('[data-native-chat-member-detail]')
+  return container.querySelector('[data-slot="collapsible-content"]')
 }
 
 describe('expanded tool input drawn once', () => {

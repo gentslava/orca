@@ -738,7 +738,6 @@ import {
 } from './orchestration/orchestration-worker-release-schemas-params'
 import { WorkerStartParams } from './orchestration/orchestration-worker-start-params'
 import { WorkerDispatchParams as WorkerDispatchParamsOfOrchestrationWorkerStopParams } from './orchestration/orchestration-worker-stop-params'
-import { RecordProjectOpenParams, SetProjectPinnedParams } from './personal-project-order-params'
 import {
   PairedServerAllowParams,
   PairedServerAllowancesParams,
@@ -747,6 +746,7 @@ import {
   PairedServerAskListParams,
   PairedServerDisallowParams
 } from './paired-server-asks-params'
+import { RecordProjectOpenParams, SetProjectPinnedParams } from './personal-project-order-params'
 import {
   PluginCatalogAddParams,
   PluginCatalogRemoveParams,

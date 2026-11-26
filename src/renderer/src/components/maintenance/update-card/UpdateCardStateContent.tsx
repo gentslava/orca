@@ -178,6 +178,7 @@ export function UpdateCardStateContent({
     <UpdateAvailableSimpleContent
       version={status.version}
       releaseUrl={releaseUrl}
+      manualInstall={Boolean(status.manualDownloadUrl)}
       onUpdate={onUpdate}
       onClose={onDismiss}
       externallyManaged={status.externallyManaged}

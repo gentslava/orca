@@ -1,7 +1,6 @@
 import { app, powerMonitor } from 'electron'
 import type { BrowserWindow } from 'electron'
-import type { ReleaseBuild, ReleaseChannel } from '../../../shared/updater/release-channel'
-import type { ReleaseBuildListOptions } from '../releases/updater-release-build-cache'
+import type { ReleaseChannel } from '../../../shared/updater/release-channel'
 import {
   managesUpdates,
   requiredMinimumVersion,
@@ -10,8 +9,7 @@ import {
 } from '../releases/updater-release-policy'
 import type {
   LinuxPackageInstallInstructions,
-  UpdateCheckOptions,
-  UpdateStatus
+  UpdateCheckOptions
 } from '../../../shared/updater/update-status-types'
 import type {
   RemoteServerUpdateInstallResult,
@@ -24,17 +22,14 @@ import { registerAutoUpdaterHandlers } from '../updater-events'
 import { getServeUpdateHandoffFailure } from '../serve-update-handoff'
 import { recordUpdaterLifecycle } from '../updater-lifecycle-diagnostics'
 import { AUTO_UPDATE_CHECK_INTERVAL_MS, TEAM_POLICY_CHECK_RETRY_MS } from './updater-state'
-import { UpdaterDownloadInstall } from './updater-download-install'
+import { isForkMacUpdateBuild } from '../releases/updater-fork-release-feed'
+import { UpdaterForkPreviewGuard } from './updater-fork-preview-guard'
 import type { TeamRestartOptions } from './updater-required-restart'
 import { sameTeamUpdateRestartScope } from './team-update-restart-record'
 import { configureMacShipItScheduling } from '../mac-install/macos-shipit-scheduling'
 import { handleElectronUpdaterProxyLogin } from './electron-updater-proxy-session'
 import { resolveWindowsUpdateInstallDirectory } from './windows-update-install-directory'
-import type {
-  PreQuitCleanupFailureMode,
-  UpdateInstallMode,
-  UpdateInstallTrigger
-} from './updater-state'
+import type { PreQuitCleanupFailureMode, UpdateInstallMode } from './updater-state'
 
 export type UpdaterSetupOptions = {
   getMainWindow?: () => BrowserWindow | null
@@ -55,40 +50,9 @@ export type UpdaterSetupOptions = {
   onBeforeQuitFailure?: PreQuitCleanupFailureMode
 }
 
-export class UpdaterSetup extends UpdaterDownloadInstall {
-  checkForUpdates(): void {
-    this.checkForUpdatesInBackground()
-  }
-
-  checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
-    super.checkForUpdatesFromMenu(options)
-  }
-
-  downloadUpdate(automatic = false): void {
-    super.downloadUpdate(automatic)
-  }
-
-  applyAutomaticUpdatesSetting(): void {
-    if (this.currentStatus.state === 'downloaded' && !this.currentStatus.installing) {
-      this.publishDownloadStatus(this.currentStatus)
-    } else {
-      this.downloadAvailableUpdateAutomatically()
-    }
-  }
-
-  override quitAndInstall(
-    trigger: UpdateInstallTrigger = 'manual',
-    isCurrentTeamRestart?: () => boolean
-  ): void {
-    super.quitAndInstall(trigger, isCurrentTeamRestart)
-  }
-
+export class UpdaterSetup extends UpdaterForkPreviewGuard {
   isQuittingForUpdate(): boolean {
     return super.isQuittingForUpdate()
-  }
-
-  getUpdateStatus(): UpdateStatus {
-    return super.getUpdateStatus()
   }
 
   getRemoteServerUpdateSupport(): RemoteServerUpdateSupport {
@@ -126,13 +90,6 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
     return super.showLinuxPackage()
   }
 
-  async listAvailableReleaseBuilds(
-    channel: ReleaseChannel,
-    options?: ReleaseBuildListOptions
-  ): Promise<ReleaseBuild[]> {
-    return super.listAvailableReleaseBuilds(channel, options)
-  }
-
   dismissNudge(): void {
     super.dismissNudge()
   }
@@ -142,6 +99,9 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
   }
 
   setupAutoUpdater(mainWindow: BrowserWindow | null, opts?: UpdaterSetupOptions): void {
+    if (!this.usesForkPreviewDownload() && this.rejectForkPreviewUpdate()) {
+      return
+    }
     // Keep direct-window callers compatible; desktop composition supplies the lifecycle getter.
     this.getMainWindow = opts?.getMainWindow ?? (mainWindow ? () => mainWindow : this.getMainWindow)
     this.onBeforeQuitCleanup = opts?.onBeforeQuit ?? null
@@ -174,6 +134,17 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
       return
     }
 
+    if (this.usesForkPreviewDownload()) {
+      const elapsed = Date.now() - (this._getLastUpdateCheckAt?.() ?? 0)
+      if (elapsed >= AUTO_UPDATE_CHECK_INTERVAL_MS) {
+        this.runBackgroundUpdateCheck()
+      } else {
+        this.scheduleAutomaticUpdateCheck(AUTO_UPDATE_CHECK_INTERVAL_MS - elapsed)
+      }
+      return
+    }
+
+    const forkMacUpdate = isForkMacUpdateBuild()
     const autoUpdater = this.getAutoUpdater()
     configureMacShipItScheduling()
     // Start automatic downloads after Orca publishes the offer and finishes release checks.
@@ -201,7 +172,7 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
     }
 
     // Security: never re-add a verifyUpdateCodeSignature override — a no-op disables electron-updater's built-in Authenticode check and accepts any installer.
-    if (this.activeUpdateSource === 'release') {
+    if (!forkMacUpdate && this.activeUpdateSource === 'release') {
       autoUpdater.setFeedURL({
         provider: 'generic',
         url: 'https://github.com/stablyai/orca/releases/latest/download'
@@ -298,11 +269,15 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
       }
     })
 
-    void this.checkForUpdateNudge()
-    this.scheduleUpdateNudgeCheck()
+    if (!forkMacUpdate) {
+      void this.checkForUpdateNudge()
+      this.scheduleUpdateNudgeCheck()
+    }
 
     const checkDailyOnWake = () => {
-      void this.checkForUpdateNudge()
+      if (!forkMacUpdate) {
+        void this.checkForUpdateNudge()
+      }
       if (
         this.backgroundCheckLaunchPending ||
         this.currentStatus.state === 'checking' ||

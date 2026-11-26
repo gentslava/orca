@@ -75,7 +75,8 @@ export async function readUsageSourceCacheForScan<T>(ref: UsageSourceCacheRef): 
     const sources = parsed.sources.filter(isSourceRecord)
     return {
       sources,
-      reuseProjections: ref.reuse !== false && parsed.worktreeFingerprint === ref.worktreeFingerprint,
+      reuseProjections:
+        ref.reuse !== false && parsed.worktreeFingerprint === ref.worktreeFingerprint,
       accountAttributionAvailable: sources.length > 0 || ref.hadPreviousHistory !== true
     }
   } catch (error) {
