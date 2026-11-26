@@ -29,6 +29,7 @@ import { diffFromText } from '../../../../../../shared/native-chat/tools/native-
 import { NativeChatExpandable } from '../../messages/disclosure/NativeChatExpandable'
 import { useNativeChatDisclosure } from '../../messages/disclosure/native-chat-disclosure-store'
 import { NativeChatToolOutput } from './NativeChatToolOutput'
+import { NativeChatForegroundTaskAction } from '../../NativeChatForegroundTaskAction'
 import { NativeChatToolInvocation } from '../../NativeChatToolInvocation'
 
 const TARGET_CLASS =
@@ -121,11 +122,12 @@ export function NativeChatToolLine({
 
   return (
     <div>
+      <div className="flex min-w-0 items-center gap-2">
       <button
         type="button"
         onClick={() => hasDetail && setExpanded(!expanded)}
         className={cn(
-          'group/tool-line flex min-h-6.5 w-full items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+          'group/tool-line flex min-h-6.5 min-w-0 flex-1 items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
           hasDetail ? 'cursor-pointer' : 'cursor-default'
         )}
         aria-expanded={hasDetail ? expanded : undefined}
@@ -182,6 +184,10 @@ export function NativeChatToolLine({
           ) : null}
         </span>
       </button>
+      {isCall && block.state === 'running' && !body ? (
+        <NativeChatForegroundTaskAction toolUseId={block.callId} />
+      ) : null}
+      </div>
       {hasDetail ? (
         <NativeChatExpandable open={expanded}>
           <ToolLineDetail block={block} body={body} label={sharedLabel} results={results} />
