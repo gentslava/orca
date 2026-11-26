@@ -143,13 +143,13 @@ diff --git a/src/renderer/src/components/native-chat/native-chat-composer-queued
 diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
 --- a/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
 +++ b/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-pane-fixture.tsx
-@@ -42,6 +42,7 @@
+@@ -44,6 +44,7 @@
    editor: undefined,
    edit: async () => {},
    steerHead: undefined,
 +  steerLast: undefined,
    isWorking: true
- }
+ })
  
 diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
 --- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx

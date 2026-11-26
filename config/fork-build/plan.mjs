@@ -189,7 +189,6 @@ try {
         'reviewed-merge-target-paths.patch',
         'upstream-module-relocations.patch',
         'startup-chat-catalog.patch',
-        'composed-format.patch',
         'composed-ci-contracts.patch',
         'project-start-actions.patch',
         'codex-selected-account-read.patch',

@@ -259,7 +259,6 @@
     "runtime-environment-rename.patch",
     "account-usage-row-layout.patch",
     "fork-ci-macos-arm64-image.patch",
-    "composed-format.patch",
     "composed-contract-migrations.patch",
     "composed-qualification-format.patch",
     "selected-regressions.patch",
