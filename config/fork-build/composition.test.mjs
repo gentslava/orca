@@ -461,6 +461,8 @@ test('real Git: repairs text-clean duplicate scopes from valid independent catal
 for (const [directory, language, letters, upload, clear] of [
   ['src/renderer/src', 'zh', '字母', '上传图标', '清除图标'],
   ['src/renderer/src', 'ko', '글자', '아이콘 업로드', '아이콘 지우기'],
+  ['src/renderer/src', 'fr', 'Lettres', 'Importer une icône', 'Effacer l’icône'],
+  ['mobile/src', 'es', 'Letras', 'Subir icono', 'Borrar icono'],
   ['mobile/src', 'tr', 'Harfler', 'Simge yükle', 'Simgeyi temizle']
 ]) {
   test(`real Git: merges adjacent independent ${language} catalog additions`, () =>
