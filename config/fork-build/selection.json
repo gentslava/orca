@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 45437,
+      "reason": "Keep the Claude flagged-request fallback setting and its quiet failure notice alongside upstream provider authentication and retry handling."
+    },
+    {
       "number": 34338,
       "reason": "Preserve validated image import and cancellation across the Settings picker and the sidebar project icon controls."
     },
@@ -246,6 +250,10 @@
     }
   },
   "forkHeadSources": {
+    "45437": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-quiet-chat-errors-45437"
+    },
     "34338": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-project-icons-34338"
