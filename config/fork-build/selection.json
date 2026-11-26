@@ -11,6 +11,10 @@
   ],
   "include": [
     {
+      "number": 34338,
+      "reason": "Preserve validated image import and cancellation across the Settings picker and the sidebar project icon controls."
+    },
+    {
       "number": 33576,
       "reason": "Keep older transcript pages, reading position and folded turns across desktop and mobile lifecycle changes while retaining upstream streaming optimizations."
     },
@@ -242,6 +246,10 @@
     }
   },
   "forkHeadSources": {
+    "34338": {
+      "repository": "gentslava/orca",
+      "ref": "refs/heads/integration/refresh-a7a-project-icons-34338"
+    },
     "33576": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-chat-retention-33576"
