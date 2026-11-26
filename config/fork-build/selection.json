@@ -11,6 +11,18 @@
   ],
   "include": [
     {
+      "number": 49959,
+      "reason": "Use the current upstream Claude wake lease and clear its wake evidence once a completion is confirmed."
+    },
+    {
+      "number": 48762,
+      "reason": "Use the command and agent icons on the upstream redesigned worker tray."
+    },
+    {
+      "number": 49658,
+      "reason": "Render Codex document citations using native file links on the current upstream Markdown pipeline."
+    },
+    {
       "number": 47337,
       "reason": "Preserve queued mode, model, effort and safe delivery when a bot replaces its chat. Upstream PR CI passed and its same-provider/cross-provider regression tests cover the behavior."
     },
@@ -78,9 +90,7 @@
   "exclude": {
     "36572": "Retired: shipped iOS and Android shells install their native channel per document; the injected live-document replacement is not a supported production lifecycle.",
     "36980": "Retired: Mobile Home redesigned and bottom quick-actions bar removed in upstream PR 38206; original layout request obsolete per owner decision.",
-    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained.",
-    "48762": "The upstream change targets the redesigned worker tray from 48581. The worker-tray-kind-labels feature supplies a reviewed compact-tray backport at c475b796. Drop that backport and select 48762 when the build moves to the redesigned tray.",
-    "49658": "Use the codex-file-citations backport on c475b796. Retire the backport and consume 49658 when the adopted upstream base supports it."
+    "40831": "Obsolete test-only seed-read repair: upstream 41350 at e902c9a65b69 retired the entire legacy-leaf E2E after failing pristine-main/branch controls; no replacement coverage or resolution of separate tab-restoration issues40841/40842 is claimed. PR closed, source branch retained."
   },
   "replacements": {
     "33360": 45985,
@@ -214,17 +224,9 @@
       "ref": "refs/heads/fix/activity-row-project-only",
       "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
     },
-    "worker-tray-kind-labels": {
-      "ref": "refs/heads/integration/worker-tray-kinds-c475",
-      "reason": "Compact-tray backport of the localized agent, worker, command and task labels from upstream 48762. Retire when the fork adopts the redesigned tray from 48581 and consumes 48762."
-    },
     "android-fork-update-channel": {
       "ref": "refs/heads/integration/fork-android-update-c475",
       "reason": "Personal Android APKs use verified downloads from this fork and compare their packaged build identity."
-    },
-    "codex-file-citations": {
-      "ref": "refs/heads/integration/codex-file-citations-c475",
-      "reason": "Backport 49658 so Codex document citations render as file links on the verified fork base."
     }
   }
 }
