@@ -2232,3 +2232,15 @@ index 08ecad3a2b075815bb3ec39110d223d03de11556..2be331f3052c889684a53ee34d37b99c
    /** Poll Claude usage with existing CLI credentials. Off uses live terminal readings only. */
    claudeOAuthUsageEnabled: boolean
    /** Per-agent CLI command overrides. A missing key means use the catalog default binary name. */
+diff --git a/mobile/src/i18n/locales/tr.json b/mobile/src/i18n/locales/tr.json
+index 00d0bb9d1a352a2fa72e5fab9f6680b757cf7a5a..ad34ce2bb40ad4a98c93f70961f2def1d84a5afe 100644
+--- a/mobile/src/i18n/locales/tr.json
++++ b/mobile/src/i18n/locales/tr.json
+@@ -612,7 +612,6 @@
+       "permissions": "İzinler",
+       "permissionsLabel": "İzinler, {{value}}",
+       "settingsLocked": "Bu tur tamamlandığında model ayarlarının kilidi açılır.",
+-      "workingAnnouncement": "Ajan çalışıyor. Bu tur tamamlandığında model ayarlarının kilidi açılır.",
+       "applying": "Uygulanıyor…",
+       "onAttach": "Sohbet bağlandığında uygulanır",
+       "heldPickRefused": "{{picked}} bu sohbette kullanılamıyor. {{kept}} korundu.",
