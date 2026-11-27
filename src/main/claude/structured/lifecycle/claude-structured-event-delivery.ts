@@ -1,3 +1,5 @@
+import { agentSessionForegroundTasksEqual } from '../../../../shared/agent-session/agent-session-foreground-task'
+import { claudeForegroundTasks } from '../claude-structured-background-task'
 import { ClaudePluginInputError } from '../../sdk-transport/claude-plugin-ui'
 import { claudePromptCardWritten } from '../../child-work/claude-child-work-evidence'
 import type {
@@ -48,7 +50,12 @@ type ClaudeEventDelivery = {
   event: ClaudeStructuredSessionEvent
   deps: Pick<
     ClaudeStructuredSessionAdapterDeps,
-    'onEvent' | 'onUserRenamed' | 'requestTimeoutMs' | 'logger' | 'onDispatchSettledLate'
+    | 'onEvent'
+    | 'onForegroundTasksChanged'
+    | 'onUserRenamed'
+    | 'requestTimeoutMs'
+    | 'logger'
+    | 'onDispatchSettledLate'
   >
   publishChildWork: (
     sessionId: string,
@@ -63,6 +70,7 @@ export function emitClaudeStructuredSessionEvent({
   deps,
   publishChildWork
 }: ClaudeEventDelivery): void {
+  const foregroundTasks = claudeForegroundTasks(session ?? undefined)
   if (event.type === 'retiring') {
     // Retire host input before publishing the logical failure to subscribers.
     deps.onEvent?.(event)
@@ -82,6 +90,11 @@ export function emitClaudeStructuredSessionEvent({
     session.events?.publish()
   }
   session?.translator?.handle(event)
+  if (
+    !agentSessionForegroundTasksEqual(foregroundTasks, claudeForegroundTasks(session ?? undefined))
+  ) {
+    deps.onForegroundTasksChanged?.(event.sessionId)
+  }
   if (session && event.type === 'message' && claudeAuthRetryStatus(event.message) !== null) {
     stopClaudeAuthRetries(session, event.sessionId, deps)
   }
