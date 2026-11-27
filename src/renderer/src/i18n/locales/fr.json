@@ -9679,10 +9679,10 @@
         "RepositoryIconPicker": {
           "2b7d27b93c": "Utiliser la couleur de dépôt {{value0}}",
           "useRepoIcon": "Utiliser l'icône de dépôt {{value0}}",
-          "fde066a63b": "Les PNG téléversés doivent peser 256 Ko au maximum.",
+          "fde066a63b": "PNG, JPEG, SVG, WebP, GIF, BMP, ICO ou AVIF. Jusqu’à 10 Mo et 32 mégapixels.",
           "cc1286e263": "Favicon",
           "03ca1a4e9b": "example.com",
-          "381b4844fd": "Téléverser un PNG",
+          "381b4844fd": "Téléverser une image",
           "7da623abcc": "Utilisé par défaut — GitHub en fournit toujours un, même quand le propriétaire n'a pas défini d'image personnalisée.",
           "c490787d24": "Émoji",
           "b2d7fd2116": "Icône",
@@ -9699,14 +9699,15 @@
           "emojiTooLongForRepoIcon": "Cet émoji ne peut pas servir d'icône de dépôt.",
           "currentEmojiSelection": "Actuel : {{value0}}",
           "searchEmojiPlaceholder": "Rechercher un émoji",
+          "cc76342291": "Utiliser l'avatar GitHub",
+          "43bf3709dd": "Icône du dépôt",
+          "imageTooLarge": "L’image dépasse la limite de 10 Mo ou de 32 mégapixels.",
           "custom": "Personnalisé",
           "githubAvatar": "Avatar GitHub",
           "customImage": "Image personnalisée",
           "emojiDescription": "Emoji {{emoji}}",
           "lucideDescription": "Icône {{label}} avec la couleur du dépôt",
           "defaultIcon": "Par défaut",
-          "cc76342291": "Utiliser l'avatar GitHub",
-          "43bf3709dd": "Icône du dépôt",
           "autoColor": "Couleur automatique (distincte des autres projets)",
           "lettersDescription": "Lettres « {{text}} »"
         },
@@ -14574,6 +14575,59 @@
           "addFolder": "Ajouter le dossier",
           "install": "Installer"
         },
+        "PluginPageHero": {
+          "screenshots": "Captures d’écran",
+          "openScreenshot": "Ouvrir la capture : {{value0}}",
+          "position": "{{value0}} sur {{value1}}",
+          "previous": "Capture précédente",
+          "next": "Capture suivante"
+        },
+        "PluginChips": {
+          "updateNeedsReview": "Mise à jour à relire",
+          "updatedTo": "Mis à jour vers {{value0}}",
+          "devUnverified": "Dév · non vérifié"
+        },
+        "PluginContributionActionNewFile": {
+          "create": "Créer"
+        },
+        "SettingsSearchableSelect": {
+          "noMatches": "Aucun résultat.",
+          "searchHosts": "Rechercher des hôtes…",
+          "searchLanguages": "Rechercher des langues…"
+        },
+        "RepositoryRemoveProjectSection": {
+          "filesNoteVmRecipe": "Les recettes de VM déterminent si leurs environnements et fichiers sont supprimés.",
+          "filesNote": "Les fichiers restent sur le disque, vous pouvez donc l’ajouter à nouveau plus tard.",
+          "hostCount_one": "{{count}} hôte",
+          "hostCount_other": "{{count}} hôtes",
+          "hostCount_many": "{{count}} hôtes",
+          "checkoutCount_one": "{{count}} checkout",
+          "checkoutCount_other": "{{count}} checkouts",
+          "checkoutCount_many": "{{count}} checkouts",
+          "removeButton": "Retirer…",
+          "dialogTitle": "Retirer {{name}} ?",
+          "terminalWarning_one": "{{count}} terminal ouvert dans ce projet sera fermé.",
+          "terminalWarning_other": "{{count}} terminaux ouverts dans ce projet seront fermés.",
+          "terminalWarning_many": "{{count}} terminaux ouverts dans ce projet seront fermés.",
+          "cancel": "Annuler",
+          "confirm": "Retirer",
+          "unknownHost": "Hôte inconnu"
+        },
+        "PluginAuthor": {
+          "publisher": "Éditeur",
+          "catalogByline": "Répertorié sous {{publisher}} par {{catalog}}",
+          "publisherByline": "Éditeur : {{publisher}}",
+          "declaredByline": "Éditeur déclaré : {{publisher}}",
+          "catalogClaim": "Éditeur répertorié par {{catalog}}. La paternité n’est pas vérifiée.",
+          "unnamedCatalogClaim": "Éditeur répertorié par le catalogue. La paternité n’est pas vérifiée.",
+          "gitClaim": "Éditeur déduit par Orca de l’URL du dépôt. La paternité n’est pas vérifiée.",
+          "unknownClaim": "La source de l’éditeur est inconnue. La paternité n’est pas vérifiée.",
+          "manifestClaim": "Éditeur déclaré par le plugin. La paternité n’est pas vérifiée.",
+          "shownPluginCount_one": "{{count}} plugin correspondant affiché, dont celui-ci",
+          "shownPluginCount_other": "{{count}} plugins correspondants affichés, dont celui-ci",
+          "samePublisher": "Autres éléments répertoriés sous {{value0}}",
+          "shownPluginCount_many": "{{count}} plugins correspondants affichés, dont celui-ci"
+        },
         "editorTypography": {
           "fontSizeUnit": "px",
           "lineHeightAuto": "Auto",
@@ -14619,26 +14673,6 @@
           "kitty_description": "Vérifiez les réglages qui seront importés depuis votre kitty.conf et les fichiers qu'il inclut.",
           "kitty_not_found": "Aucun kitty.conf trouvé sur cet ordinateur. Choisissez un fichier de configuration pour en importer un depuis un autre emplacement."
         },
-        "PluginPageHero": {
-          "screenshots": "Captures d’écran",
-          "openScreenshot": "Ouvrir la capture : {{value0}}",
-          "position": "{{value0}} sur {{value1}}",
-          "previous": "Capture précédente",
-          "next": "Capture suivante"
-        },
-        "PluginChips": {
-          "updateNeedsReview": "Mise à jour à relire",
-          "updatedTo": "Mis à jour vers {{value0}}",
-          "devUnverified": "Dév · non vérifié"
-        },
-        "PluginContributionActionNewFile": {
-          "create": "Créer"
-        },
-        "SettingsSearchableSelect": {
-          "noMatches": "Aucun résultat.",
-          "searchHosts": "Rechercher des hôtes…",
-          "searchLanguages": "Rechercher des langues…"
-        },
         "accountsPaneActionErrors": {
           "codexSignInTimedOut": "La connexion Codex a pris trop de temps. Réessayez.",
           "codexSignInUnavailable": "La connexion Codex est temporairement indisponible. Réessayez dans une minute.",
@@ -14656,39 +14690,6 @@
             "resetAt": "heure de réinitialisation, p. ex. 20:50",
             "optional": "omis lorsqu'un espace réservé à l'intérieur est vide"
           }
-        },
-        "RepositoryRemoveProjectSection": {
-          "filesNoteVmRecipe": "Les recettes de VM déterminent si leurs environnements et fichiers sont supprimés.",
-          "filesNote": "Les fichiers restent sur le disque, vous pouvez donc l’ajouter à nouveau plus tard.",
-          "hostCount_one": "{{count}} hôte",
-          "hostCount_other": "{{count}} hôtes",
-          "hostCount_many": "{{count}} hôtes",
-          "checkoutCount_one": "{{count}} checkout",
-          "checkoutCount_other": "{{count}} checkouts",
-          "checkoutCount_many": "{{count}} checkouts",
-          "removeButton": "Retirer…",
-          "dialogTitle": "Retirer {{name}} ?",
-          "terminalWarning_one": "{{count}} terminal ouvert dans ce projet sera fermé.",
-          "terminalWarning_other": "{{count}} terminaux ouverts dans ce projet seront fermés.",
-          "terminalWarning_many": "{{count}} terminaux ouverts dans ce projet seront fermés.",
-          "cancel": "Annuler",
-          "confirm": "Retirer",
-          "unknownHost": "Hôte inconnu"
-        },
-        "PluginAuthor": {
-          "publisher": "Éditeur",
-          "catalogByline": "Répertorié sous {{publisher}} par {{catalog}}",
-          "publisherByline": "Éditeur : {{publisher}}",
-          "declaredByline": "Éditeur déclaré : {{publisher}}",
-          "catalogClaim": "Éditeur répertorié par {{catalog}}. La paternité n’est pas vérifiée.",
-          "unnamedCatalogClaim": "Éditeur répertorié par le catalogue. La paternité n’est pas vérifiée.",
-          "gitClaim": "Éditeur déduit par Orca de l’URL du dépôt. La paternité n’est pas vérifiée.",
-          "unknownClaim": "La source de l’éditeur est inconnue. La paternité n’est pas vérifiée.",
-          "manifestClaim": "Éditeur déclaré par le plugin. La paternité n’est pas vérifiée.",
-          "shownPluginCount_one": "{{count}} plugin correspondant affiché, dont celui-ci",
-          "shownPluginCount_other": "{{count}} plugins correspondants affichés, dont celui-ci",
-          "samePublisher": "Autres éléments répertoriés sous {{value0}}",
-          "shownPluginCount_many": "{{count}} plugins correspondants affichés, dont celui-ci"
         }
       },
       "right": {
@@ -20491,17 +20492,6 @@
         "keyword-trust": "confiance",
         "keyword-hooks": "hooks"
       },
-      "task-page": {
-        "checksPill": {
-          "pipelinePassed": "Pipeline réussi",
-          "pipelineFailed": "Pipeline en échec",
-          "pipelinePending": "Pipeline en attente",
-          "pipelineUnresolved": "Pipeline non résolu"
-        }
-      },
-      "NewWorkspaceComposerFooter": {
-        "create": "Créer"
-      },
       "NativeChatResumeToast": {
         "resumingOn_one": "Reprise de {{count}} agent sur {{machine}}…",
         "resumingOn_many": "Reprise de {{count}} agents sur {{machine}}…",
@@ -20549,11 +20539,6 @@
         "stateResuming": "Reprise en cours",
         "stateStopped": "Arrêté"
       },
-      "RunTargetCombobox": {
-        "noWslDistros": "Aucune distro WSL trouvée",
-        "wslDistro": "Distro WSL",
-        "wslDistroHint": "Une distro Linux sur ce PC"
-      },
       "NativeChatResumeFailureGuidance": {
         "fallbackShort": "Reprise impossible.",
         "unconfirmedShort": "Reprise non confirmée.",
@@ -20563,6 +20548,22 @@
         "notAttachedShort": "Pas reconnecté.",
         "dispatchRejectedShort": "L’agent a refusé de continuer.",
         "unsupportedShort": "Orca ne peut pas reprendre cet agent."
+      },
+      "task-page": {
+        "checksPill": {
+          "pipelinePassed": "Pipeline réussi",
+          "pipelineFailed": "Pipeline en échec",
+          "pipelinePending": "Pipeline en attente",
+          "pipelineUnresolved": "Pipeline non résolu"
+        }
+      },
+      "NewWorkspaceComposerFooter": {
+        "create": "Créer"
+      },
+      "RunTargetCombobox": {
+        "noWslDistros": "Aucune distro WSL trouvée",
+        "wslDistro": "Distro WSL",
+        "wslDistroHint": "Une distro Linux sur ce PC"
       }
     },
     "i18n": {
@@ -26694,49 +26695,6 @@
     "title": "Orca n'a pas pu démarrer",
     "finishFailed": "Orca n'a pas pu terminer son démarrage : {{detail}}"
   },
-  "wslDriveProject": {
-    "label": "Git",
-    "converted": "Orca exécute Git sous Windows pour ce projet. Les terminaux et les agents s'exécutent toujours dans {{distro}}.",
-    "checkFailed": "Orca n'a pas pu vérifier ce projet.",
-    "convertFailed": "Orca n'a pas pu changer de Git.",
-    "description": "Ce projet se trouve sur un lecteur Windows, où Git dans WSL est lent et ne voit pas les modifications faites sous Windows. Utilisez plutôt Git pour Windows ; les terminaux et les agents restent dans {{distro}}.",
-    "useWindowsGit": "Utiliser Git pour Windows",
-    "review": "Rien ne change dans Orca pour ce projet : ses onglets, terminaux, chats et espaces de travail restent tels quels. Les terminaux en cours d'exécution continuent.",
-    "lineEndings": "Définir aussi core.autocrlf dans ce dépôt, pour que git dans les terminaux WSL cesse d'afficher chaque fichier comme modifié.",
-    "cancel": "Annuler",
-    "confirm": "Utiliser Git pour Windows",
-    "blocker": {
-      "notWsl": "Ce projet exécute déjà Git sous Windows.",
-      "repair": "Réparez d'abord l'environnement WSL de ce projet : sa distro est manquante ou WSL n'est pas disponible.",
-      "notWindowsDrive": "Un dossier de ce projet ne se trouve pas sur un lecteur Windows.",
-      "gitMissing": "Git pour Windows n'est pas installé. Installez-le depuis git-scm.com, puis réessayez.",
-      "wslWorktrees": "Git dans WSL a créé ces espaces de travail, et Git pour Windows ne peut pas les lire : {{paths}}. Supprimez-les, ou gardez ce projet sur Git dans WSL.",
-      "worktreeFolder": "Les nouveaux espaces de travail de ce projet sont configurés pour être créés dans WSL. Choisissez d'abord un dossier sur un lecteur Windows dans les paramètres de ce projet."
-    }
-  },
-  "wslDriveUnc": {
-    "label": "Emplacement",
-    "description": "Orca ouvre ce projet via WSL. Ouvrez-le plutôt à {{drivePath}} : Git s'exécute sous Windows, ce qui est bien plus rapide ici, et les terminaux et les agents restent dans {{distro}}.",
-    "convert": "Ouvrir à {{drivePath}}",
-    "review": "Orca met en pause les terminaux de ce projet, redémarre et le rouvre à {{drivePath}}. Les onglets, les terminaux avec leur historique, les chats et les paramètres suivent, et les terminaux en pause reprennent là où ils en étaient.",
-    "cancel": "Annuler",
-    "confirm": "Redémarrer et convertir",
-    "failed": "Orca n'a pas pu convertir ce projet.",
-    "restarting": "Redémarrage d'Orca pour convertir ce projet…",
-    "terminalsBusy": "Certains terminaux de ce projet sont occupés. Laissez-les terminer ou fermez-les, puis réessayez.",
-    "pauseFailed": "Orca n'a pas pu mettre en pause les terminaux de ce projet, donc rien n'a changé.",
-    "blocker": {
-      "pending": "Orca convertit déjà un projet. La conversion se termine au redémarrage d'Orca.",
-      "state": "Orca a trouvé pour ce projet un état enregistré qu'il ne peut pas convertir sans risque, donc rien n'a changé.",
-      "duplicate": "{{drivePath}} est déjà un projet dans Orca.",
-      "mixed": "Certains dossiers de ce projet se trouvent dans WSL, et non sur un lecteur Windows.",
-      "overlap": "Ce projet partage des dossiers avec un projet qu'Orca ne peut pas convertir, ils seraient donc séparés.",
-      "notDriveMount": "Dans cette distro, ce dossier n'est pas {{drivePath}} : il n'est pas monté depuis ce lecteur Windows.",
-      "notConvertible": "Ce projet ne se trouve pas sur un lecteur Windows de cet ordinateur.",
-      "differingState": "Orca a enregistré des détails différents pour ce dossier sous son chemin WSL et sous {{drivePath}}, donc rien n'a changé.",
-      "projectSplit": "Ce projet contient aussi un dépôt qui n'est pas converti, donc rien n'a changé."
-    }
-  },
   "localBuild": {
     "chooseTitle": "Choisir une build locale d'Orca",
     "chooseButton": "Choisir la build",
@@ -28711,21 +28669,6 @@
       "cancelDownload": "Annuler le téléchargement"
     }
   },
-  "renderer": {
-    "lib": {
-      "filePreview": {
-        "remoteFileUnsupported": "Ouvrir dans le navigateur Orca n'est disponible que pour les fichiers locaux.",
-        "twinFileUnsupported": "Ce projet se trouve sur plusieurs hôtes, donc Orca ne peut pas savoir quelle copie ouvrir."
-      }
-    }
-  },
-  "nestedImport": {
-    "error": {
-      "notInScan": "Le dépôt est introuvable dans le résultat de l'analyse des dépôts imbriqués",
-      "notGitRepository": "Ce n'est pas un dépôt Git valide",
-      "importFailed": "Le dépôt n'a pas pu être importé"
-    }
-  },
   "usage": {
     "failure": {
       "unavailable": "Les données d’utilisation sont indisponibles. Essayez Actualiser pour vous reconnecter.",
@@ -28754,6 +28697,148 @@
     "dontSend": "Ne pas envoyer",
     "sending": "Envoi…",
     "sendReport": "Envoyer le rapport"
+  },
+  "agentCliUpdate": {
+    "updating": "Mise à jour…",
+    "tryAgain": "Réessayer",
+    "update": "Mettre à jour",
+    "versions": "{{installed}} → {{latest}}",
+    "modelRequiresClaude": "Nécessite Claude Code CLI {{version}}",
+    "modelRequiresCodex": "Nécessite Codex CLI {{version}}",
+    "modelRequires": "Nécessite {{product}} {{version}}",
+    "claudeProduct": "Claude Code",
+    "codexProduct": "Codex CLI",
+    "grokProduct": "Grok Build",
+    "opencodeProduct": "OpenCode",
+    "opencode2Product": "OpenCode 2",
+    "ompProduct": "OMP",
+    "copilotProduct": "GitHub Copilot CLI",
+    "copilotShortProduct": "Copilot CLI",
+    "kimiProduct": "Kimi Code",
+    "cursorProduct": "Cursor CLI",
+    "hermesProduct": "Hermes Agent",
+    "gooseProduct": "Goose CLI",
+    "auggieProduct": "Auggie",
+    "kiloProduct": "Kilo CLI",
+    "mimoCodeProduct": "MiMo Code",
+    "qwenCodeProduct": "Qwen Code",
+    "devinProduct": "Devin CLI",
+    "codebuddyProduct": "CodeBuddy Code",
+    "commandCopied": "Commande copiée",
+    "commandNotCopied": "Impossible de copier la commande",
+    "copyCommand": "Copier",
+    "manualHint": "À exécuter dans un terminal :",
+    "noOutput": "La commande n'a rien affiché.",
+    "heading_one": "{{count}} mise à jour de CLI disponible",
+    "heading_other": "{{count}} mises à jour de CLI disponibles",
+    "heading_many": "{{count}} mises à jour de CLI disponibles",
+    "updateAll": "Tout mettre à jour",
+    "thisComputer": "Cet ordinateur",
+    "statusUpdating": "Mise à jour des CLI",
+    "statusUpdatingTooltip": "Les mises à jour des CLI d'agents sont en cours",
+    "statusFailed": "Échec de la mise à jour du CLI",
+    "statusFailedTooltip": "Ouvrez pour voir ce qui n'a pas fonctionné",
+    "statusCount_one": "{{count}} mise à jour de CLI",
+    "statusCount_other": "{{count}} mises à jour de CLI",
+    "statusCount_many": "{{count}} mises à jour de CLI",
+    "statusTooltip": "De nouvelles versions de CLI d'agents sont disponibles",
+    "failedButton": "Échec de la mise à jour",
+    "failedChip": "échec de la mise à jour",
+    "failedChipLabel": "Échec de la mise à jour : voir l'erreur",
+    "failedChipTooltip": "Échec de la mise à jour. Cliquez pour voir les détails.",
+    "failedTitle": "Impossible de mettre à jour {{product}}",
+    "failedDescription": "Orca a exécuté <code>{{command}}</code> sur <strong>{{host}}</strong> pour mettre à jour votre {{product}} de <strong>{{installedVersion}}</strong> vers <strong>{{latestVersion}}</strong>, et la commande a échoué.",
+    "failedDescriptionNoCommand": "Orca n'a pas pu mettre à jour votre {{product}} sur <strong>{{host}}</strong>.",
+    "cardLabel": "Mises à jour des CLI d'agents",
+    "cardLater": "Plus tard",
+    "toastUpdating_one": "Mise à jour du CLI {{current}} sur {{count}}",
+    "toastUpdating_other": "Mise à jour du CLI {{current}} sur {{count}}",
+    "toastUpdating_many": "Mise à jour du CLI {{current}} sur {{count}}",
+    "toastDone_one": "{{count}} CLI mis à jour",
+    "toastDone_other": "{{count}} CLI mis à jour",
+    "toastDone_many": "{{count}} CLI mis à jour",
+    "hideList": "Masquer la liste",
+    "showList": "Afficher la liste",
+    "toastUpdate": "Mettre à jour {{total}}",
+    "toastRetry": "Réessayer {{failed}}",
+    "copied": "Copié",
+    "manualSection": "Manuel",
+    "toastFailedCount_one": "{{count}} mise à jour a échoué",
+    "toastFailedCount_other": "{{count}} mises à jour ont échoué",
+    "toastFailedCount_many": "{{count}} mises à jour ont échoué",
+    "toastClose": "Fermer",
+    "queued": "En file d'attente"
+  },
+  "activityBar": {
+    "moveUp": "Déplacer vers le haut",
+    "moveDown": "Déplacer vers le bas",
+    "hide": "Masquer",
+    "show": "Afficher {{name}}",
+    "dragStart": "{{name}} saisi",
+    "dragOver": "{{name}} au-dessus de {{target}}",
+    "dragEnd": "{{name}} déposé",
+    "dragCancel": "Déplacement de {{name}} annulé",
+    "moveLeft": "Déplacer vers la gauche",
+    "moveRight": "Déplacer vers la droite",
+    "reset": "Réinitialiser l’ordre des onglets"
+  },
+  "wslDriveProject": {
+    "label": "Git",
+    "converted": "Orca exécute Git sous Windows pour ce projet. Les terminaux et les agents s'exécutent toujours dans {{distro}}.",
+    "checkFailed": "Orca n'a pas pu vérifier ce projet.",
+    "convertFailed": "Orca n'a pas pu changer de Git.",
+    "description": "Ce projet se trouve sur un lecteur Windows, où Git dans WSL est lent et ne voit pas les modifications faites sous Windows. Utilisez plutôt Git pour Windows ; les terminaux et les agents restent dans {{distro}}.",
+    "useWindowsGit": "Utiliser Git pour Windows",
+    "review": "Rien ne change dans Orca pour ce projet : ses onglets, terminaux, chats et espaces de travail restent tels quels. Les terminaux en cours d'exécution continuent.",
+    "lineEndings": "Définir aussi core.autocrlf dans ce dépôt, pour que git dans les terminaux WSL cesse d'afficher chaque fichier comme modifié.",
+    "cancel": "Annuler",
+    "confirm": "Utiliser Git pour Windows",
+    "blocker": {
+      "notWsl": "Ce projet exécute déjà Git sous Windows.",
+      "repair": "Réparez d'abord l'environnement WSL de ce projet : sa distro est manquante ou WSL n'est pas disponible.",
+      "notWindowsDrive": "Un dossier de ce projet ne se trouve pas sur un lecteur Windows.",
+      "gitMissing": "Git pour Windows n'est pas installé. Installez-le depuis git-scm.com, puis réessayez.",
+      "wslWorktrees": "Git dans WSL a créé ces espaces de travail, et Git pour Windows ne peut pas les lire : {{paths}}. Supprimez-les, ou gardez ce projet sur Git dans WSL.",
+      "worktreeFolder": "Les nouveaux espaces de travail de ce projet sont configurés pour être créés dans WSL. Choisissez d'abord un dossier sur un lecteur Windows dans les paramètres de ce projet."
+    }
+  },
+  "wslDriveUnc": {
+    "label": "Emplacement",
+    "description": "Orca ouvre ce projet via WSL. Ouvrez-le plutôt à {{drivePath}} : Git s'exécute sous Windows, ce qui est bien plus rapide ici, et les terminaux et les agents restent dans {{distro}}.",
+    "convert": "Ouvrir à {{drivePath}}",
+    "review": "Orca met en pause les terminaux de ce projet, redémarre et le rouvre à {{drivePath}}. Les onglets, les terminaux avec leur historique, les chats et les paramètres suivent, et les terminaux en pause reprennent là où ils en étaient.",
+    "cancel": "Annuler",
+    "confirm": "Redémarrer et convertir",
+    "failed": "Orca n'a pas pu convertir ce projet.",
+    "restarting": "Redémarrage d'Orca pour convertir ce projet…",
+    "terminalsBusy": "Certains terminaux de ce projet sont occupés. Laissez-les terminer ou fermez-les, puis réessayez.",
+    "pauseFailed": "Orca n'a pas pu mettre en pause les terminaux de ce projet, donc rien n'a changé.",
+    "blocker": {
+      "pending": "Orca convertit déjà un projet. La conversion se termine au redémarrage d'Orca.",
+      "state": "Orca a trouvé pour ce projet un état enregistré qu'il ne peut pas convertir sans risque, donc rien n'a changé.",
+      "duplicate": "{{drivePath}} est déjà un projet dans Orca.",
+      "mixed": "Certains dossiers de ce projet se trouvent dans WSL, et non sur un lecteur Windows.",
+      "overlap": "Ce projet partage des dossiers avec un projet qu'Orca ne peut pas convertir, ils seraient donc séparés.",
+      "notDriveMount": "Dans cette distro, ce dossier n'est pas {{drivePath}} : il n'est pas monté depuis ce lecteur Windows.",
+      "notConvertible": "Ce projet ne se trouve pas sur un lecteur Windows de cet ordinateur.",
+      "differingState": "Orca a enregistré des détails différents pour ce dossier sous son chemin WSL et sous {{drivePath}}, donc rien n'a changé.",
+      "projectSplit": "Ce projet contient aussi un dépôt qui n'est pas converti, donc rien n'a changé."
+    }
+  },
+  "renderer": {
+    "lib": {
+      "filePreview": {
+        "remoteFileUnsupported": "Ouvrir dans le navigateur Orca n'est disponible que pour les fichiers locaux.",
+        "twinFileUnsupported": "Ce projet se trouve sur plusieurs hôtes, donc Orca ne peut pas savoir quelle copie ouvrir."
+      }
+    }
+  },
+  "nestedImport": {
+    "error": {
+      "notInScan": "Le dépôt est introuvable dans le résultat de l'analyse des dépôts imbriqués",
+      "notGitRepository": "Ce n'est pas un dépôt Git valide",
+      "importFailed": "Le dépôt n'a pas pu être importé"
+    }
   },
   "tabBar": {
     "createRow": {
@@ -28839,77 +28924,6 @@
     "browseOnline": "Parcourir",
     "browseOnlineLabel": "Parcourir les traductions de la communauté sur orca.dev (s'ouvre dans votre navigateur)"
   },
-  "agentCliUpdate": {
-    "updating": "Mise à jour…",
-    "tryAgain": "Réessayer",
-    "update": "Mettre à jour",
-    "versions": "{{installed}} → {{latest}}",
-    "modelRequiresClaude": "Nécessite Claude Code CLI {{version}}",
-    "modelRequiresCodex": "Nécessite Codex CLI {{version}}",
-    "modelRequires": "Nécessite {{product}} {{version}}",
-    "claudeProduct": "Claude Code",
-    "codexProduct": "Codex CLI",
-    "grokProduct": "Grok Build",
-    "opencodeProduct": "OpenCode",
-    "opencode2Product": "OpenCode 2",
-    "ompProduct": "OMP",
-    "copilotProduct": "GitHub Copilot CLI",
-    "copilotShortProduct": "Copilot CLI",
-    "kimiProduct": "Kimi Code",
-    "cursorProduct": "Cursor CLI",
-    "hermesProduct": "Hermes Agent",
-    "gooseProduct": "Goose CLI",
-    "auggieProduct": "Auggie",
-    "kiloProduct": "Kilo CLI",
-    "mimoCodeProduct": "MiMo Code",
-    "qwenCodeProduct": "Qwen Code",
-    "devinProduct": "Devin CLI",
-    "codebuddyProduct": "CodeBuddy Code",
-    "commandCopied": "Commande copiée",
-    "commandNotCopied": "Impossible de copier la commande",
-    "copyCommand": "Copier",
-    "manualHint": "À exécuter dans un terminal :",
-    "noOutput": "La commande n'a rien affiché.",
-    "heading_one": "{{count}} mise à jour de CLI disponible",
-    "heading_other": "{{count}} mises à jour de CLI disponibles",
-    "heading_many": "{{count}} mises à jour de CLI disponibles",
-    "updateAll": "Tout mettre à jour",
-    "thisComputer": "Cet ordinateur",
-    "statusUpdating": "Mise à jour des CLI",
-    "statusUpdatingTooltip": "Les mises à jour des CLI d'agents sont en cours",
-    "statusFailed": "Échec de la mise à jour du CLI",
-    "statusFailedTooltip": "Ouvrez pour voir ce qui n'a pas fonctionné",
-    "statusCount_one": "{{count}} mise à jour de CLI",
-    "statusCount_other": "{{count}} mises à jour de CLI",
-    "statusCount_many": "{{count}} mises à jour de CLI",
-    "statusTooltip": "De nouvelles versions de CLI d'agents sont disponibles",
-    "failedButton": "Échec de la mise à jour",
-    "failedChip": "échec de la mise à jour",
-    "failedChipLabel": "Échec de la mise à jour : voir l'erreur",
-    "failedChipTooltip": "Échec de la mise à jour. Cliquez pour voir les détails.",
-    "failedTitle": "Impossible de mettre à jour {{product}}",
-    "failedDescription": "Orca a exécuté <code>{{command}}</code> sur <strong>{{host}}</strong> pour mettre à jour votre {{product}} de <strong>{{installedVersion}}</strong> vers <strong>{{latestVersion}}</strong>, et la commande a échoué.",
-    "failedDescriptionNoCommand": "Orca n'a pas pu mettre à jour votre {{product}} sur <strong>{{host}}</strong>.",
-    "cardLabel": "Mises à jour des CLI d'agents",
-    "cardLater": "Plus tard",
-    "toastUpdating_one": "Mise à jour du CLI {{current}} sur {{count}}",
-    "toastUpdating_other": "Mise à jour du CLI {{current}} sur {{count}}",
-    "toastUpdating_many": "Mise à jour du CLI {{current}} sur {{count}}",
-    "toastDone_one": "{{count}} CLI mis à jour",
-    "toastDone_other": "{{count}} CLI mis à jour",
-    "toastDone_many": "{{count}} CLI mis à jour",
-    "hideList": "Masquer la liste",
-    "showList": "Afficher la liste",
-    "toastUpdate": "Mettre à jour {{total}}",
-    "toastRetry": "Réessayer {{failed}}",
-    "copied": "Copié",
-    "manualSection": "Manuel",
-    "toastFailedCount_one": "{{count}} mise à jour a échoué",
-    "toastFailedCount_other": "{{count}} mises à jour ont échoué",
-    "toastFailedCount_many": "{{count}} mises à jour ont échoué",
-    "toastClose": "Fermer",
-    "queued": "En file d'attente"
-  },
   "backgroundWorkerPaused": {
     "title": "Certaines tâches d'arrière-plan sont en pause après des plantages répétés",
     "description": "La récupération des chats Claude est désactivée jusqu'à ce que vous réessayiez. La copie, le retour en arrière et les analyses Space reprennent lorsque vous les relancez.",
@@ -28961,19 +28975,6 @@
       "workerOwed": "Une orchestration attend encore ce chat",
       "home": "Le Home Chat d'un agent géré ne peut pas être supprimé"
     }
-  },
-  "activityBar": {
-    "moveUp": "Déplacer vers le haut",
-    "moveDown": "Déplacer vers le bas",
-    "hide": "Masquer",
-    "show": "Afficher {{name}}",
-    "dragStart": "{{name}} saisi",
-    "dragOver": "{{name}} au-dessus de {{target}}",
-    "dragEnd": "{{name}} déposé",
-    "dragCancel": "Déplacement de {{name}} annulé",
-    "moveLeft": "Déplacer vers la gauche",
-    "moveRight": "Déplacer vers la droite",
-    "reset": "Réinitialiser l’ordre des onglets"
   },
   "mcpServers": {
     "paste": {
