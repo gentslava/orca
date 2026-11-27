@@ -398,6 +398,10 @@
       "ref": "refs/heads/fix/activity-row-project-only",
       "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
     },
+    "antigravity-cli-quota": {
+      "ref": "refs/heads/fix/fork-antigravity-cli-quota",
+      "reason": "Restore Gemini and other Antigravity quotas with opt-in background polling and manual refresh through the local Antigravity CLI."
+    },
     "android-fork-update-channel": {
       "ref": "refs/heads/integration/fork-android-update-c475",
       "reason": "Personal Android APKs use verified downloads from this fork and compare their packaged build identity."
