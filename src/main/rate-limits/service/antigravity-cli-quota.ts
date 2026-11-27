@@ -11,6 +11,8 @@ import { localAccountRuntimeTargetKey } from '../../../shared/agent-accounts/loc
 import { getAppEnvironment } from '../../../shared/app-lifecycle/app-environment'
 import { hostShellEnvironment } from '../../runtime/agent-session/environment/structured-agent-shell-environment'
 
+const MAX_ANTIGRAVITY_USAGE_AGE_MS = 30 * 60_000
+
 type AntigravityUsageReceipt = {
   target: RateLimitRuntimeTarget
   login: string
@@ -30,6 +32,7 @@ async function antigravityUsageEnvironment(): Promise<NodeJS.ProcessEnv> {
 
 export class AntigravityCliQuota {
   private antigravityUsage: AntigravityUsageReceipt | null = null
+  private expirationTimer: ReturnType<typeof setTimeout> | undefined
   private antigravityRead: {
     target: string
     controller: AbortController
@@ -87,18 +90,29 @@ export class AntigravityCliQuota {
       throw new Error(limits.error ?? 'Antigravity did not return quota.')
     }
     this.antigravityUsage = { target, login, limits }
+    clearTimeout(this.expirationTimer)
+    this.expirationTimer = setTimeout(
+      () => {
+        this.expirationTimer = undefined
+        this.antigravityUsage = null
+        this.onChange()
+      },
+      Math.max(0, limits.updatedAt + MAX_ANTIGRAVITY_USAGE_AGE_MS - Date.now())
+    )
     this.onChange()
   }
 
   clear(): void {
     this.antigravityRead?.controller.abort()
     this.antigravityRead = null
+    clearTimeout(this.expirationTimer)
+    this.expirationTimer = undefined
     this.antigravityUsage = null
   }
 
   async getCurrent(): Promise<ProviderRateLimits | null> {
     const reading = this.antigravityUsage
-    if (!reading || Date.now() - reading.limits.updatedAt >= 30 * 60_000) {
+    if (!reading || Date.now() - reading.limits.updatedAt >= MAX_ANTIGRAVITY_USAGE_AGE_MS) {
       return null
     }
     const account = await getAntigravityAccountService(reading.target)

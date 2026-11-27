@@ -81,3 +81,35 @@ it('hides receipts for another login or after the freshness window', async () =>
   await vi.advanceTimersByTimeAsync(30 * 60_000)
   expect((await service.getState()).antigravityCli).toBeNull()
 })
+
+it('publishes expiry even when successive background refreshes fail', async () => {
+  service.setAntigravityCliQuotaTarget(() => target)
+  const snapshots: (number | undefined)[] = []
+  let receivedFirst: () => void = () => {}
+  let receivedExpiry: () => void = () => {}
+  const first = new Promise<void>((resolve) => {
+    receivedFirst = resolve
+  })
+  const expired = new Promise<void>((resolve) => {
+    receivedExpiry = resolve
+  })
+  service.onStateChange((state) => {
+    const percent = state.antigravityCli?.session?.usedPercent
+    snapshots.push(percent)
+    if (percent === 93) {
+      receivedFirst()
+    } else if (snapshots.includes(93)) {
+      receivedExpiry()
+    }
+  })
+  service.start({ fetchImmediately: false })
+  await first
+  fetchAntigravityRateLimits.mockRejectedValue(new Error('CLI unavailable'))
+
+  await vi.advanceTimersByTimeAsync(15 * 60_000)
+  expect((await service.getState()).antigravityCli?.session?.usedPercent).toBe(93)
+
+  await vi.advanceTimersByTimeAsync(15 * 60_000)
+  await expired
+  expect(snapshots.at(-1)).toBeUndefined()
+})
