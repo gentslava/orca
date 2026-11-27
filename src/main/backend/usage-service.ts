@@ -12,7 +12,8 @@ const rangeSchema = lazyZodSchema(() =>
   z.object({
     scope: z.string().max(4096),
     range: z.string().max(128),
-    limit: z.number().int().nonnegative().optional()
+    limit: z.number().int().nonnegative().optional(),
+    includeHistory: z.boolean().optional()
   })
 )
 const automationSchema = lazyZodSchema(() =>
@@ -30,7 +31,7 @@ type QueryStore<Scope, Range, Kind> = {
   getScanState(): unknown
   setEnabled(enabled: boolean): unknown
   refresh(force?: boolean): unknown
-  getSnapshot(scope: Scope, range: Range, limit?: number): unknown
+  getSnapshot(scope: Scope, range: Range, limit?: number, includeHistory?: boolean): unknown
   getSummary(scope: Scope, range: Range): unknown
   getDaily(scope: Scope, range: Range): unknown
   getBreakdown(scope: Scope, range: Range, kind: Kind): unknown
@@ -43,11 +44,13 @@ function registerUsageQueries<Scope extends string, Range extends string, Kind e
   store: QueryStore<Scope, Range, Kind>
 ): void {
   const query =
-    (fn: (scope: Scope, range: Range, limit?: number) => unknown): Handler =>
+    (
+      fn: (scope: Scope, range: Range, limit?: number, includeHistory?: boolean) => unknown
+    ): Handler =>
     (raw) => {
       const args = rangeSchema.parse(raw)
       // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: Each registered provider uses the same public scope/range contract; the generic preserves its query signature.
-      return fn(args.scope as Scope, args.range as Range, args.limit)
+      return fn(args.scope as Scope, args.range as Range, args.limit, args.includeHistory)
     }
   handlers.set(`${prefix}:getScanState`, () => store.getScanState())
   handlers.set(`${prefix}:setEnabled`, (raw) =>
@@ -58,7 +61,9 @@ function registerUsageQueries<Scope extends string, Range extends string, Kind e
   )
   handlers.set(
     `${prefix}:getSnapshot`,
-    query((scope, range, limit) => store.getSnapshot(scope, range, limit))
+    query((scope, range, limit, includeHistory) =>
+      store.getSnapshot(scope, range, limit, includeHistory)
+    )
   )
   handlers.set(
     `${prefix}:getSummary`,

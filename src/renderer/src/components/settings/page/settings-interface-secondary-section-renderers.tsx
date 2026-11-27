@@ -168,13 +168,6 @@ export function renderStatsSettingsSection(
   t: Translate = translate
 ): React.JSX.Element {
   const { model, navigation, view } = context
-  const hostTarget = model.settingsHostScope.target
-  const hostName =
-    hostTarget.kind === 'environment'
-      ? (model.runtimeEnvironments.find(
-          (environment) => environment.id === hostTarget.environmentId
-        )?.name ?? hostTarget.environmentId)
-      : null
   return (
     <SettingsSection
       id="stats"
@@ -189,7 +182,7 @@ export function renderStatsSettingsSection(
         <SettingsHostScopeUnavailableNotice />
       ) : (
         <SettingsGroup bodyClassName="py-4">
-          <StatsPane host={{ target: hostTarget, name: hostName }} />
+          <StatsPane hostScope={model.settingsHostScope} />
         </SettingsGroup>
       )}
     </SettingsSection>
