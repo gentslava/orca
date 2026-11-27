@@ -1,0 +1,39 @@
+diff --git a/src/main/runtime/rpc/methods/client-state/client-ui.ts b/src/main/runtime/rpc/methods/client-state/client-ui.ts
+--- a/src/main/runtime/rpc/methods/client-state/client-ui.ts
++++ b/src/main/runtime/rpc/methods/client-state/client-ui.ts
+@@ -1,5 +1,10 @@
+ import { normalizeJiraQuickFilterState } from '../../../../../shared/jira/jira-quick-filters'
+ import { JiraQuickFilterStateParam } from '../../../../../shared/rpc-contract/jira/jira-quick-filter-params'
++import {
++  RecordProjectOpenParams,
++  SetProjectPinnedParams
++} from '../../../../../shared/rpc-contract/personal-project-order-params'
++import { mutatePersonalProjectOrder } from '../../../../../shared/personal-project-order-writes'
+ import {
+   SetConversationPreferenceParams,
+   updateConversationPreference
+@@ -51,6 +56,24 @@
+ 
+ export const CLIENT_UI_METHODS = [
+   defineMethod({
++    name: 'ui.recordProjectOpen',
++    permission: 'workspace',
++    params: RecordProjectOpenParams,
++    handler: (params, context) => {
++      const result = mutatePersonalProjectOrder(context.runtime, params)
++      return { ...result, ui: uiForCaller(result.ui, context) }
++    }
++  }),
++  defineMethod({
++    name: 'ui.setProjectPinned',
++    permission: 'workspace',
++    params: SetProjectPinnedParams,
++    handler: (params, context) => {
++      const result = mutatePersonalProjectOrder(context.runtime, params)
++      return { ...result, ui: uiForCaller(result.ui, context) }
++    }
++  }),
++  defineMethod({
+     name: 'ui.setConversationPreference',
+     permission: 'workspace',
+     params: SetConversationPreferenceParams,

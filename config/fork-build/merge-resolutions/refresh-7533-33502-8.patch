@@ -1,0 +1,13 @@
+diff --git a/src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts b/src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts
+index fe69c76afd851078fd5622f2ff6f2f830d4906c6..c6a20bb2869ec734accf1d84c54f619df6e08bae 100644
+--- a/src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts
++++ b/src/main/runtime/rpc/server/runtime-rpc-mobile-paired-desktop-methods.ts
+@@ -41,6 +41,8 @@ export const PAIRED_DESKTOP_METHODS = [
+   'ui.get',
+   'ui.recordFeatureInteraction',
+   'ui.setConversationPreference',
++  'ui.recordProjectOpen',
++  'ui.setProjectPinned',
+   'ui.set',
+   // The desktop's accounts pane and project pickers target its active runtime, not a workspace's host.
+   'accounts.consumeCodexResetCredit',

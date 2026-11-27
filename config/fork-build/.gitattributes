@@ -1,0 +1,2 @@
+# Patch digests and reviewed results require identical bytes on every checkout.
+*.patch -text

@@ -1,0 +1,30 @@
+diff --git a/mobile/src/session/native-chat/transcript/agent-messages/MobileNativeChatAgentMessageCard.tsx b/mobile/src/session/native-chat/transcript/agent-messages/MobileNativeChatAgentMessageCard.tsx
+--- a/mobile/src/session/native-chat/transcript/agent-messages/MobileNativeChatAgentMessageCard.tsx
++++ b/mobile/src/session/native-chat/transcript/agent-messages/MobileNativeChatAgentMessageCard.tsx
+@@ -144,6 +144,9 @@
+   const words = mobileAgentMessageLead(heading, t)
+   const kind = kindWord(heading, t)
+   const preview = useMemo(() => agentMessagePreviewLine(text).line, [text])
++  const link = from.link
++    ? ` · ${t('chat.agentMessage.sessionLink', 'Link')}: ${from.link.title}`
++    : ''
+   const items = message.agentStartItems ?? []
+   const merged = message.mergedEvents ?? []
+   const canCopy = agentMessageCanCopy(text)
+@@ -169,7 +172,7 @@
+       icon={<SenderMark agentType={view.agentType} />}
+       // The live state never marks a row failed: a restarted worker would un-fail it. Waiting mail shows no status.
+       badge={!waiting && view.dot === 'working' ? 'running' : null}
+-      label={`${words} ${senderName}${from.senders.length > 1 ? ` +${from.senders.length - 1}` : ''}${
++      label={`${words} ${senderName}${from.senders.length > 1 ? ` +${from.senders.length - 1}` : ''}${link}${
+         items.length > 0
+           ? ` ${t('chat.agentMessage.row.forItems', 'for')} ${items.map((item) => item.title).join(', ')}`
+           : ''
+@@ -273,6 +276,7 @@
+                 </Fragment>
+               ))}
+           {more > 0 ? ` +${more}` : null}
++          {link}
+           {items.length > 0 ? (
+             <>
+               {` ${t('chat.agentMessage.row.forItems', 'for')} `}

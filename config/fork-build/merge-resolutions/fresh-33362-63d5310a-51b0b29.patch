@@ -1,0 +1,16 @@
+diff --git a/src/shared/rpc-contract/rpc-params-catalog.generated.ts b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
+--- a/src/shared/rpc-contract/rpc-params-catalog.generated.ts
++++ b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
+@@ -964,11 +964,11 @@
+   QueuedMessageActionParams,
+   QueuedMessagesResumeParams,
+   RespondParams,
+-  SendParams,
+   SetOptionParams
+ } from './structured-agent-session/structured-agent-session-core-params'
+ import { ContinuationContextParams } from './structured-agent-session/structured-agent-session-identifiers'
+ import { AgentSessionMcpParams } from './structured-agent-session/structured-agent-session-mcp-params'
++import { SendParams } from './structured-agent-session/structured-agent-session-message-params'
+ import {
+   AcknowledgeAttentionParams,
+   AgentsParams,
