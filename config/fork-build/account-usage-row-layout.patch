@@ -52,17 +52,3 @@ index b0dfc877fe..27458cddd3 100644
            </div>
          )
        })}
-diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
-index 685a61b44d..015b89d0d9 100644
---- a/src/renderer/src/i18n/locales/en.json
-+++ b/src/renderer/src/i18n/locales/en.json
-@@ -27480,7 +27480,8 @@
-         "manage": "Manage accounts",
-         "ownerUnverifiable": "The account host cannot be verified.",
-         "defaultWsl": "WSL default",
--        "currentAccount": "Current account · identity unavailable"
-+        "currentAccount": "Current account · identity unavailable",
-+        "googleAccount": "Google account"
-       }
-     }
-   },
