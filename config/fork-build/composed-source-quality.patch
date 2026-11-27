@@ -560,13 +560,13 @@ index 0000000000000000000000000000000000000000..03221a2d5cf9fdee5d22773b8ee49e62
 +  }
 +}
 diff --git a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
-index a822439589f2c1376847d0c4f8a6e9ba5179e693..448f7a41a498682fad1fdd276b23a63c7d91bf30 100644
+index a822439589..6c725f0ef6 100644
 --- a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
 +++ b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.chord.test.tsx
 @@ -55,6 +55,9 @@ vi.mock('lucide-react-native', () => ({
    X: 'X'
  }))
- 
+
 +vi.mock('../../../../components/bottom-drawer/BottomDrawer', () => ({
 +  BottomDrawer: 'BottomDrawer'
 +}))
@@ -576,7 +576,7 @@ index a822439589f2c1376847d0c4f8a6e9ba5179e693..448f7a41a498682fad1fdd276b23a63c
 @@ -65,6 +68,10 @@ vi.mock('../tasks/MobileNativeChatDockedTaskList', () => ({
    MobileNativeChatDockedTaskList: 'DockedTaskList'
  }))
- 
+
 +vi.mock('../tasks/MobileNativeChatWorkerDock', () => ({
 +  MobileNativeChatWorkerDock: 'WorkerDock'
 +}))
@@ -584,6 +584,17 @@ index a822439589f2c1376847d0c4f8a6e9ba5179e693..448f7a41a498682fad1fdd276b23a63c
  vi.mock('./MobileQueuedMessageComposer', () => ({
    MobileQueuedMessageComposer: 'QueuedMessageComposer'
  }))
+@@ -99,7 +106,9 @@ describe('the newest queued-message chord', () => {
+       tray = useMobileNativeChatComposerTray({
+         queued: props,
+         taskList: null,
+-        backgroundTasks: null
++        backgroundTasks: null,
++        workerDock: [],
++        workerApprovals: []
+       })
+       return createElement('View', null, tray.content)
+     }
 diff --git a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx b/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
 index 5cdc437bfea60ce8b862bf29f43cc487a069a769..3123ce0cf20953de51d716e057dc3f8e0d29fbf3 100644
 --- a/mobile/src/session/native-chat/input/queued-messages/MobileNativeChatQueuedMessages.tsx
