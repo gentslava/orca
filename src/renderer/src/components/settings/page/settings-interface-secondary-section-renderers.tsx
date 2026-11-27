@@ -1,4 +1,4 @@
-import { StatsPane } from '../../stats/StatsPane'
+import { AccountQuotaStatsPane } from '../../stats/AccountQuotaStatsPane'
 import { AppearancePane } from '../appearance/AppearancePane'
 import { ChatSettingsSection } from '../chat/ChatSettingsSection'
 import { InputPane } from '../input/InputPane'
@@ -182,7 +182,7 @@ export function renderStatsSettingsSection(
         <SettingsHostScopeUnavailableNotice />
       ) : (
         <SettingsGroup bodyClassName="py-4">
-          <StatsPane hostScope={model.settingsHostScope} />
+          <AccountQuotaStatsPane hostScope={model.settingsHostScope} />
         </SettingsGroup>
       )}
     </SettingsSection>
