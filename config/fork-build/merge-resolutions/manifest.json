@@ -2746,5 +2746,77 @@
     "patchSha256": "9e75e5e9ec6b88d6b49038085cc6a35a33295230937e2bb29ab88a43868697fe",
     "resultSha256": "758cd57dd48572ec4efb79ea4d459755ab9b591dc74cd4dc9e175ab5b9f85616",
     "reason": "Keep selected-session list fields alongside the upstream hidden-row count."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx",
+    "blobs": [
+      "a2399fb74f47ef142f28efb1cd441006e436fc25",
+      "74722963b5c1663733f40087bfe0d606ad428131",
+      "54d41ce3fb7862d640c1489f65aa513b65b30e0d"
+    ],
+    "patch": "fresh-33395-d0b7e1ce-ce0b875.patch",
+    "patchSha256": "68a2e6bba0d61bd185d9b67f03dbdc1deed181dd8cf6256be320e4b769a139ca",
+    "resultSha256": "6c7bac4a906f6bc371deb69df53751ddfe725f6b5dd8c8b695141009583682e6",
+    "reason": "Retain the verified Default model option beside current pinned picker behavior."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "4583d2f70f8ec3d485a3131248e43dd0dd3c2d0d",
+      "7424f64bd6356baae9bc4aa5f1243b288db19f55",
+      "84d30bafcab9acaebaf5e9ea06934dfc6d3d929e"
+    ],
+    "patch": "fresh-33502-b0b361ad-2bad21d.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "d56bcb78aef07f2717e901d5710765e00b859d5c937a8fad539a5b0264bd02e8",
+    "reason": "This project-order revision carries the previous conversation-navigation changes. Preserve the already-integrated selected-session and upstream row-count contracts."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "1f2b7b6c44b2d9259623e013cdb8946667ffdda5",
+      "ee8b3c94e62894413c0383a1e9cae19909ad7807",
+      "1071aa0d13db04c877d06115532074ff3431d943"
+    ],
+    "patch": "fresh-33502-b9b0f477-f9b4dcc.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "758cd57dd48572ec4efb79ea4d459755ab9b591dc74cd4dc9e175ab5b9f85616",
+    "reason": "This project-order revision carries the previous conversation-navigation changes. Preserve the already-integrated selected-session and upstream row-count contracts."
+  },
+  {
+    "path": "mobile/src/session/native-chat/transcript/agent-messages/MobileNativeChatAgentMessageCard.tsx",
+    "blobs": [
+      "2f554d678e323f0417d50043219bf7e6ce0575c3",
+      "8e929a5a678709e4cf5ccd3e7ef86db157caaa36",
+      "280213f7cd9b16f9c3469b884a68acd495939480"
+    ],
+    "patch": "fresh-37744-3acfe399-b17e70b.patch",
+    "patchSha256": "20490349831f22eef24b480ac48db66e821a276a0a8497a9db690ad9e3197ab7",
+    "resultSha256": "2fc63d0abbc80c9e589e956aef8d27c13a380abd5fea813fd8ebe30a0ad4b86a",
+    "reason": "Preserve linked-chat and owner-question controls alongside upstream group sender labels and rich question rendering."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/prompts/NativeChatQuestionCard.tsx",
+    "blobs": [
+      "3dc68e3e7fea9f371ec3e03bd8c76175d4b2478d",
+      "80d5978872d687743181eefb2325448042df082e",
+      "b7db418a8e51cca41122813c3a6e2eb7e2cb8289"
+    ],
+    "patch": "fresh-37744-c47f62ce-a37e5d9.patch",
+    "patchSha256": "1c07ea0cdcd17063ef5592a89cd66ecf5ee280a019449a9696e395e53cdd9c5b",
+    "resultSha256": "7e23d7837dd3ba91848c94b081cbb247db2787d57bb82715031c1599011c9644",
+    "reason": "Preserve linked-chat and owner-question controls alongside upstream group sender labels and rich question rendering."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/queue/use-structured-agent-session-queued-messages.ts",
+    "blobs": [
+      "a7bfcca1ceef1e1fc40d0502e2228c53e9281bac",
+      "d1625c4f5ba1d4608bea5e390d6e438ea0d1d5b0",
+      "8319353c51b3178ff86b736aa8bc899e9ccf294c"
+    ],
+    "patch": "fresh-38848-25023ccc-4355a7e.patch",
+    "patchSha256": "2e7e553b330ca017e068151a511b13d1cc1d56b5a1d6a8158b28097c1c71277b",
+    "resultSha256": "3079b42885497bfa38a49ba068fc73d6dbd5972812b9de6f488e6b3fd093343a",
+    "reason": "Preserve the tested newest-queued-message action using the current queue delivery capabilities."
   }
 ]
