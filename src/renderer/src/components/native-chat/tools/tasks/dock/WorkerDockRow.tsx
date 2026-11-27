@@ -121,7 +121,7 @@ export const WorkerDockRow = memo(function WorkerDockRow({
         }}
       >
         <span className="flex h-5 shrink-0 items-center">
-          <WorkerDockGlyph glyph={row ? workerDockGlyph(row) : 'queued'} />
+          <WorkerDockGlyph glyph={row ? workerDockGlyph(row) : 'queued'} kind={row?.kind} />
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
           {/* A command is one mono line; the tooltip carries the whole of it. */}
