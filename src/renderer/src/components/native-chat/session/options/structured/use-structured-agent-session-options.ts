@@ -232,21 +232,18 @@ export function useStructuredAgentSessionOptions(args: StructuredAgentSessionOpt
   const cliUpdateRunPhase = cliUpdate?.run?.phase ?? 'idle'
   // Waiting for an update slot reads as updating here.
   const cliUpdatePhase = cliUpdateRunPhase === 'queued' ? 'running' : cliUpdateRunPhase
-  const startCliUpdate = cliUpdate?.start
-  const openCliUpdateFailure = cliUpdate?.openFailure
+  const { start: startCliUpdate, openFailure: openCliUpdateFailure } = cliUpdate ?? {}
   const optionSurface = useMemo<SessionOptionsSurface>(
     () => ({
-      ...(offersDefault
-        ? {
-            resetOption: async (id: string) => {
-              // A busy host that takes no per-message options would apply it to the running turn.
-              if (id === 'model' && acceptsTurnPicks) {
-                await resetModel()
-              }
-              return { snapshot: optionSnapshot }
+      resetOption: offersDefault
+        ? async (id: string) => {
+            // A busy host without per-message options would apply the reset to its running turn.
+            if (id === 'model' && acceptsTurnPicks) {
+              await resetModel()
             }
+            return { snapshot: optionSnapshot }
           }
-        : {}),
+        : undefined,
       getSnapshot: () => optionSnapshot,
       demandModelCatalog,
       ...(cliUpdateAgent && cliUpdateModels && startCliUpdate && openCliUpdateFailure

@@ -1,37 +1,45 @@
 import * as z from 'zod'
+import { lazyZodSchema } from './schema/lazy-zod-schema'
 import type { AiVaultSession } from './ai-vault/contracts/ai-vault-types'
 import { sessionFileExecutionNamespace } from './ai-vault/scanning/ai-vault-scope-cwd-match'
 import { antigravitySessionOrigin } from './agent-session/lifecycle/provider-handles/antigravity-session-origin'
 
 export const CONVERSATION_NAVIGATION_CAPABILITY = 'ui.conversationPreferences.v1'
 export const CONVERSATION_PROJECT_VISIBILITY_CAPABILITY = 'ui.conversationProjectVisibility.v1'
-const Preference = z.object({ pinned: z.boolean().optional(), archived: z.boolean().optional() })
-export const ConversationPreferencesSchema = z.object({
-  revision: z.number().int().nonnegative().catch(0),
-  entries: z.record(z.string().max(2048), Preference.catch({})).catch({}),
-  hiddenProjects: z.record(z.string().max(2048), z.string().max(1024)).optional().catch(undefined)
-})
+const Preference = lazyZodSchema(() =>
+  z.object({ pinned: z.boolean().optional(), archived: z.boolean().optional() })
+)
+export const ConversationPreferencesSchema = lazyZodSchema(() =>
+  z.object({
+    revision: z.number().int().nonnegative().catch(0),
+    entries: z.record(z.string().max(2048), Preference.catch({})).catch({}),
+    hiddenProjects: z.record(z.string().max(2048), z.string().max(1024)).optional().catch(undefined)
+  })
+)
 export type ConversationPreferences = z.infer<typeof ConversationPreferencesSchema>
 export type ConversationPreference = z.infer<typeof Preference>
-const SetChatPreferenceParams = z
-  .object({
-    key: z.string().min(1).max(2048),
-    pinned: z.boolean().optional(),
-    archived: z.boolean().optional()
-  })
-  .strict()
-  .refine((value) => value.pinned !== undefined || value.archived !== undefined)
-export const SetConversationProjectVisibilityParams = z
-  .object({
-    projectKey: z.string().min(1).max(2048),
-    label: z.string().min(1).max(1024),
-    hidden: z.boolean()
-  })
-  .strict()
-export const SetConversationPreferenceParams = z.union([
-  SetChatPreferenceParams,
-  SetConversationProjectVisibilityParams
-])
+const SetChatPreferenceParams = lazyZodSchema(() =>
+  z
+    .object({
+      key: z.string().min(1).max(2048),
+      pinned: z.boolean().optional(),
+      archived: z.boolean().optional()
+    })
+    .strict()
+    .refine((value) => value.pinned !== undefined || value.archived !== undefined)
+)
+export const SetConversationProjectVisibilityParams = lazyZodSchema(() =>
+  z
+    .object({
+      projectKey: z.string().min(1).max(2048),
+      label: z.string().min(1).max(1024),
+      hidden: z.boolean()
+    })
+    .strict()
+)
+export const SetConversationPreferenceParams = lazyZodSchema(() =>
+  z.union([SetChatPreferenceParams, SetConversationProjectVisibilityParams])
+)
 
 export function conversationProjectVisibilityKey(host: string, projectKey: string): string {
   return JSON.stringify([host, projectKey])

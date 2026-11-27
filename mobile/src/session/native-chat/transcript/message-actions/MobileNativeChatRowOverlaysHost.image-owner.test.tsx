@@ -10,6 +10,7 @@ import { stubRpcClient } from '../../../../transport/rpc/rpc-client-test-stub'
 
 vi.mock('react-native', async () => ({
   ...(await import('../../../../test-support/react-native-motion-stub')).reactNativeMotionStub(),
+  BackHandler: { addEventListener: () => ({ remove: () => {} }) },
   Image: 'Image',
   Modal: 'Modal',
   Platform: { OS: 'ios' },

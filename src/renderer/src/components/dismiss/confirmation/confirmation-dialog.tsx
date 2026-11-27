@@ -73,13 +73,13 @@ export function ConfirmationDialogProvider({
   const setContextualToursBlockingSurfaceVisible = useAppStore(
     (s) => s.setContextualToursBlockingSurfaceVisible
   )
-  const lastDisplayedRequestRef = useRef<ConfirmationDialogRequest | null>(activeRequest)
-  activeRequestRef.current = activeRequest
-  if (activeRequest) {
-    lastDisplayedRequestRef.current = activeRequest
-  }
-  // Why: Radix keeps dialog content mounted while closing; keep labels stable without a post-render Effect.
-  const displayedRequest = activeRequest ?? lastDisplayedRequestRef.current
+  const [lastDisplayedRequest, setLastDisplayedRequest] =
+    useState<ConfirmationDialogRequest | null>(null)
+  useLayoutEffect(() => {
+    activeRequestRef.current = activeRequest
+  }, [activeRequest])
+  // Radix retains the dialog while closing. Keep the last committed prompt's copy during exit.
+  const displayedRequest = activeRequest ?? lastDisplayedRequest
   const options = displayedRequest?.options
   // Why Cancel: the "Don't ask again" checkbox now comes first, and Enter must not confirm by accident.
   const initialFocus = options?.initialFocus ?? (options?.fields ? undefined : 'cancel')
@@ -129,6 +129,7 @@ export function ConfirmationDialogProvider({
         'abort',
         () => {
           if (activeRequestRef.current?.id === request.id) {
+            setLastDisplayedRequest(request)
             setDontAskAgain(false)
             setFieldValues({})
           }
@@ -163,6 +164,7 @@ export function ConfirmationDialogProvider({
       // Why: queued prompts must not inherit this request's preference or typed values.
       setDontAskAgain(false)
       setFieldValues({})
+      setLastDisplayedRequest(request)
       request.resolve(confirmed)
       setQueue((currentQueue) => {
         if (currentQueue[0]?.id === request.id) {

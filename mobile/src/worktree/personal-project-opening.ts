@@ -1,3 +1,5 @@
+import type { HostWorktreeActionsArgs } from '../host-screen/host-worktree-actions-contract'
+import { getWorktreeRowIdentity } from './row-presentation/worktree-host-row-identity'
 import type { RpcResponse } from '../transport/rpc/rpc-wire-types'
 import type { MobileViewState } from './workspace-list/workspace-view-settings'
 import { randomUUID } from 'expo-crypto'
@@ -35,6 +37,29 @@ export function captureMobilePersonalOpening(
 ): Promise<PersonalOpening | null> | null {
   return args.capabilities.includes(PERSONAL_PROJECT_ORDER_CAPABILITY)
     ? capturePersonalOpening(args)
+    : null
+}
+
+export function captureHostListPersonalOpening(
+  args: Pick<
+    HostWorktreeActionsArgs,
+    'client' | 'hostId' | 'hostCapabilities' | 'projectCatalog' | 'state'
+  >,
+  selected: Parameters<typeof getWorktreeRowIdentity>[0]
+): Promise<PersonalOpening | null> | null {
+  const { client, hostId, hostCapabilities, projectCatalog, state } = args
+  const rows = [...state.worktrees, ...state.serverWorkspaces.worktrees]
+  const identity = getWorktreeRowIdentity(selected)
+  const target = rows.find((row) => getWorktreeRowIdentity(row) === identity)
+  return target
+    ? captureMobilePersonalOpening({
+        client,
+        hostId,
+        capabilities: hostCapabilities,
+        catalog: projectCatalog ?? state.servedProjectSections,
+        rows,
+        target
+      })
     : null
 }
 

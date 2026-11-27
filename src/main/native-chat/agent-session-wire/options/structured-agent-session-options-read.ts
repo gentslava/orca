@@ -1,3 +1,4 @@
+import { readStructuredAgentSessionDefaultModel } from './structured-agent-session-default-model-preview'
 import { readAcpForkSupport } from '../../../acp/capabilities/acp-fork-support'
 import { supportsSessionAccountUsage } from '../../../../shared/agent-session/lifecycle/accounts/agent-session-account-usage'
 import { structuredAgentSessionCatalogScopeOwned } from './structured-agent-session-catalog-reads'
@@ -132,6 +133,7 @@ export async function readStructuredAgentSessionOptions(
   const capabilities = agents.capabilities(agent)
   const restingOptions = await atRest()
   const recovery = await readStructuredSessionRecovery(session, context, sessionId)
+  const defaultModel = await readStructuredAgentSessionDefaultModel(context.deps, sessionId)
   const [floor, goalSource, contextUsage] = await Promise.all([
     session.journal.reads.contextFloor(),
     session.journal.reads.threadGoalSource(),
@@ -254,6 +256,7 @@ export async function readStructuredAgentSessionOptions(
           ? (live?.forkSupport ?? readAcpForkSupport(agent))
           : 'unsupported',
     ...(supportsSessionAccountUsage(record) ? { accountUsage: true as const } : {}),
+    ...(defaultModel ? { defaultModel } : {}),
     ...(live?.effortFixed
       ? {
           models: options.models.map(({ effortsKnown: _unknown, ...row }) => ({

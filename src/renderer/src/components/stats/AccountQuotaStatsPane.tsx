@@ -46,10 +46,14 @@ export function AccountQuotaStatsPane({
           })
         }
         onManage={() => {
+          const accountHost = getUsageOwnerHostScope(remoteOwner)
+          if (!accountHost) {
+            return
+          }
           openSettingsTarget({
             pane: 'accounts',
             repoId: null,
-            hostScope: getUsageOwnerHostScope(remoteOwner)
+            hostScope: accountHost
           })
           openSettingsPage()
         }}

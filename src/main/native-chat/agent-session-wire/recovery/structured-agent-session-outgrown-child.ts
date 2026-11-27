@@ -17,6 +17,7 @@ import type { StructuredAgentSessionLogger } from '../host/structured-agent-sess
 import type { AgentChatPermissionChoice } from '../../../../shared/agent-launch/permissions/agent-chat-permission-mode'
 import {
   agentSessionAccountHomesEqual,
+  isLegacyAgentSessionAccountHome,
   type AgentSessionAccountHome
 } from '../../../../shared/agent-session/lifecycle/accounts/agent-session-account-home'
 
@@ -69,8 +70,7 @@ function picksNewLaunchModel(
   )
 }
 
-/** Loop-free while a start launches under the account `current` reads; a read that throws is no
- *  answer, so unreadable account evidence replaces nothing. */
+/** Keep unreadable accounts in place; unreadable Codex selection also refuses the send. */
 async function launchedUnderOtherAccount(
   child: OutgrownChildReading['child'],
   current: (() => Promise<AgentSessionAccountHome | null>) | undefined
@@ -78,8 +78,14 @@ async function launchedUnderOtherAccount(
   if (!child || child.phase === 'starting' || child.close || !child.accountHome || !current) {
     return false
   }
-  const home = await current().catch(() => null)
-  return home !== null && !agentSessionAccountHomesEqual(home, child.accountHome)
+  const accountHome = child.accountHome
+  const home = await current().catch((error: unknown) => {
+    if (isLegacyAgentSessionAccountHome(accountHome) && accountHome.variable === 'CODEX_HOME') {
+      throw error
+    }
+    return null
+  })
+  return home !== null && !agentSessionAccountHomesEqual(home, accountHome)
 }
 
 /** The bot's tools changed since this child launched; a start reads them again. */
@@ -165,6 +171,7 @@ export async function retireOutgrownStructuredAgentSessionChild(
   })
   if (
     !(
+      (await launchedUnderOtherAccount(session.child, deps.launchAccountHome)) ||
       (child.phase !== 'starting' && !child.close && facts.signedOut) ||
       picksNewLaunchModel(facts.nextMessage, deps.next, deps.requiresModelTransitionRestart) ||
       (await launchedWithOtherPermissionMode(
@@ -172,7 +179,6 @@ export async function retireOutgrownStructuredAgentSessionChild(
         deps.launchPermission,
         deps.permissionRequiresAcquisition
       )) ||
-      (await launchedUnderOtherAccount(session.child, deps.launchAccountHome)) ||
       (await launchedWithOtherTools(session.child, deps.launchToolsChanged))
     ) ||
     structuredAgentSessionChildHasOpenWork(deps.work, await deps.work.currentWork()) ||

@@ -338,7 +338,7 @@
 70 src/shared/rpc-contract/source-control/git-params.ts
 2 src/shared/rpc-contract/structured-agent-session/agent-session-attachment-params.ts
 2 src/shared/rpc-contract/structured-agent-session/structured-agent-session-create-tab-params.ts
-37 src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
+36 src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
 47 src/shared/rpc-contract/terminal/terminal-unary-params.ts
 36 src/shared/rpc-contract/workspace-layout/workspace-layout-params.ts
 2 src/shared/rpc-contract/workspace-layout/workspace-layout-sleep-wake-params.ts

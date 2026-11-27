@@ -1,33 +1,45 @@
 import { z } from 'zod'
+import { lazyZodSchema } from './schema/lazy-zod-schema'
 
 export const INITIAL_WORKER_ROLE_NAMES = ['research', 'implementation', 'review'] as const
 
-export const WorkerRoleName = z
-  .string()
-  .regex(/^[a-z][a-z0-9-]{0,47}$/, 'Invalid worker role name')
-  .refine(
-    (name) => !['constructor', 'prototype', '__proto__'].includes(name),
-    'Invalid worker role name'
-  )
+export const WorkerRoleName = lazyZodSchema(() =>
+  z
+    .string()
+    .regex(/^[a-z][a-z0-9-]{0,47}$/, 'Invalid worker role name')
+    .refine(
+      (name) => !['constructor', 'prototype', '__proto__'].includes(name),
+      'Invalid worker role name'
+    )
+)
 
-const ProfileString = z
-  .string()
-  .min(1)
-  .max(512)
-  .refine((value) => value === value.trim(), 'Surrounding whitespace is invalid')
+const ProfileString = lazyZodSchema(() =>
+  z
+    .string()
+    .min(1)
+    .max(512)
+    .refine((value) => value === value.trim(), 'Surrounding whitespace is invalid')
+)
 
-export const WorkerRoleProfileSchema = z
-  .object({
-    agent: ProfileString,
-    model: ProfileString.optional(),
-    effort: ProfileString.optional(),
-    fastMode: z.boolean().optional()
-  })
-  .strict()
+export const WorkerRoleProfileSchema = lazyZodSchema(() =>
+  z
+    .object({
+      agent: ProfileString,
+      model: ProfileString.optional(),
+      effort: ProfileString.optional(),
+      fastMode: z.boolean().optional()
+    })
+    .strict()
+)
 
-const WorkerRoleProfilesSchema = z
-  .record(WorkerRoleName, WorkerRoleProfileSchema)
-  .refine((profiles) => Object.keys(profiles).length <= 24, 'At most 24 worker roles are supported')
+const WorkerRoleProfilesSchema = lazyZodSchema(() =>
+  z
+    .record(WorkerRoleName, WorkerRoleProfileSchema)
+    .refine(
+      (profiles) => Object.keys(profiles).length <= 24,
+      'At most 24 worker roles are supported'
+    )
+)
 
 export type WorkerRoleProfile = z.infer<typeof WorkerRoleProfileSchema>
 export type WorkerRoleProfiles = Record<string, WorkerRoleProfile>

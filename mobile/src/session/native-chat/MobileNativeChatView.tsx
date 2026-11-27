@@ -152,9 +152,8 @@ export function MobileNativeChatView({
 }: Props): React.JSX.Element {
   useMobileColorScheme()
   const t = useMobileTranslation()
-  const insets = useSafeAreaInsets()
-  const bottomPad = keyboardInset > 0 ? keyboardInset + insets.bottom : insets.bottom
-  const root = [styles.root, { paddingBottom: bottomPad }]
+  const { bottom } = useSafeAreaInsets()
+  const root = [styles.root, { paddingBottom: bottom + Math.max(0, keyboardInset) }]
   const { fontScale, pinchGesture } = useMobileNativeChatPinchGesture()
   const { font, lineSpacing } = useNativeChatTextSettings()
 

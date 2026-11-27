@@ -8,7 +8,6 @@ import type { ExecutionHostId } from '../../execution-host/execution-host'
 import type { TuiAgent } from '../catalog/tui-agent'
 import { filterEnabledTuiAgents, TUI_AGENT_AUTO_PICK_ORDER } from '../catalog/tui-agent-selection'
 import type { AgentSessionChatProgram } from '../../agent-session/agent-discovery/agent-session-agent-availability'
-import { agentSessionInstallCommand } from '../../agent-session/lifecycle/launch/agent-session-setup-commands'
 
 export type HostChatAnswer =
   | 'yes'
@@ -21,8 +20,6 @@ export type HostChatAnswer =
   | 'windows'
   | 'no-chats'
 export type ChatProgramObservation = AgentSessionChatProgram | 'unlearned'
-const chatProgramOffered = (program: ChatProgramObservation) =>
-  program === 'available' || program === 'installable'
 
 /** An agent whose CLI isn't detected still counts as installed when its chat program is there. */
 export const chatProgramInstalled = (program: ChatProgramObservation): boolean =>
@@ -77,7 +74,7 @@ export function buildNewTabAgentMenuRows(args: {
   hostChatAnswer: (agent: TuiAgent) => HostChatAnswer
   /** Whether the chat's own program runs there, which for some agents is not their CLI. */
   chatProgram: (agent: TuiAgent) => ChatProgramObservation
-  /** Offer chats for agents the host lacks: the chat walks through installing and signing in. */
+  /** Accepted from upstream callers; missing programs stay outside this fork launch menu. */
   offerAgentSetup?: boolean
   hostPlatform?: string | null
 }): NewTabAgentMenuRow[] {
@@ -94,17 +91,14 @@ export function buildNewTabAgentMenuRows(args: {
   const unavailable = new Map<TuiAgent, ChatUnavailableReason>()
   const chatAgents = filterEnabledTuiAgents(args.chatAgents, settings?.disabledTuiAgents)
   const canOpen = (agent: TuiAgent): boolean =>
-    chatProgramOffered(args.chatProgram(agent)) ||
-    (args.chatProgram(agent) === 'unknown' && installed.includes(agent))
-  // Only uninstalled programs: an unreadable one stays a failed check, never an install prompt.
-  const needsSetup = (agent: TuiAgent): boolean =>
-    args.offerAgentSetup === true &&
-    agentSessionInstallCommand(agent, args.hostPlatform) !== null &&
-    args.detectedOnHost !== null &&
-    !installed.includes(agent) &&
-    ['missing', 'installable'].includes(args.chatProgram(agent))
+    args.chatProgram(agent) === 'available' ||
+    (installed.includes(agent) && ['installable', 'unknown'].includes(args.chatProgram(agent)))
   const chatToo = new Set<TuiAgent>()
   for (const agent of chatAgents) {
+    const program = args.chatProgram(agent)
+    if (!installed.includes(agent) && (program === 'missing' || program === 'installable')) {
+      continue
+    }
     const displayed = nativeChatPreferenceFor(settings, agent)
     if (!displayed && (!installed.includes(agent) || !canOpen(agent))) {
       continue
@@ -116,8 +110,7 @@ export function buildNewTabAgentMenuRows(args: {
       }
       continue
     }
-    const program = args.chatProgram(agent)
-    if (answer === 'yes' && (canOpen(agent) || needsSetup(agent))) {
+    if (answer === 'yes' && canOpen(agent)) {
       runnable.push(agent)
     } else {
       unavailable.set(
@@ -136,18 +129,9 @@ export function buildNewTabAgentMenuRows(args: {
       )
     }
   }
-  // A host with no agents at all offers chats that set one up, so a first agent is findable.
-  if (runnable.length === 0 && unavailable.size === 0 && installed.length === 0) {
-    runnable.push(
-      ...chatAgents.filter((agent) => needsSetup(agent) && args.hostChatAnswer(agent) === 'yes')
-    )
-  }
   const chats = orderAgentLaunchPickerAgents(defaultAgent, runnable).map((agent) => ({
     kind: 'chat' as const,
-    agent,
-    ...(!args.detectedOnHost?.includes(agent) && !chatProgramInstalled(args.chatProgram(agent))
-      ? { setup: true as const }
-      : {})
+    agent
   }))
   return [
     // Chats the host runs now lead the ones that install their agent first.

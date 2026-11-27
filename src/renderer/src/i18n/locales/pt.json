@@ -26078,6 +26078,12 @@
         "provisionFailed": "A VM não foi criada ou a criação foi interrompida. Abra as Configurações para destruí-la ou removê-la."
       },
       "suspendFailed": "Falha ao suspender o espaço de trabalho da VM"
+    },
+    "start": {
+      "title": "O que você quer abrir?",
+      "description": "Escolha um agente ou uma ferramenta para este projeto.",
+      "agents": "Agentes",
+      "manageAgents": "Gerenciar agentes"
     }
   },
   "tabHoverCard": {

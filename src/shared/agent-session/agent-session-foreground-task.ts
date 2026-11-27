@@ -1,14 +1,17 @@
 import * as z from 'zod'
+import { lazyZodSchema } from '../schema/lazy-zod-schema'
 import { Identifier } from '../rpc-contract/structured-agent-session/structured-agent-session-identifiers'
 
-export const AgentSessionForegroundTaskSchema = z
-  .object({
-    toolUseId: Identifier('Invalid tool call id'),
-    turnId: Identifier('Invalid turn id'),
-    generation: Identifier('Invalid acquisition generation'),
-    taskId: Identifier('Invalid task id').optional()
-  })
-  .strict()
+export const AgentSessionForegroundTaskSchema = lazyZodSchema(() =>
+  z
+    .object({
+      toolUseId: Identifier('Invalid tool call id'),
+      turnId: Identifier('Invalid turn id'),
+      generation: Identifier('Invalid acquisition generation'),
+      taskId: Identifier('Invalid task id').optional()
+    })
+    .strict()
+)
 
 /** Captured by the executing host; a later process or turn cannot inherit this action. */
 export type AgentSessionForegroundTask = z.infer<typeof AgentSessionForegroundTaskSchema>

@@ -1,5 +1,6 @@
 import { defineFixture } from '../../component-fixtures/component-fixture'
 import { createEmptyRateLimitState } from '../../../../shared/agent-usage/rate-limits/rate-limit-state-factory'
+import type { CodexManagedAccountSummary } from '../../../../shared/agent-accounts/managed-account-types'
 import type { ProviderRateLimits } from '../../../../shared/agent-usage/rate-limits/rate-limit-types'
 import { UsageAccountQuotas } from './UsageAccountQuotas'
 
@@ -50,26 +51,32 @@ export const savedProviderAccounts = defineFixture({
       <UsageAccountQuotas
         accounts={{
           claude: { accounts: [], activeAccountId: null },
-          codex: { accounts: [], activeAccountId: null },
+          codex: {
+            accounts: [
+              { id: 'work', email: 'work@example.test' },
+              { id: 'personal', email: 'personal@example.test' },
+              { id: 'unread', email: 'unread@example.test' }
+            ].map<CodexManagedAccountSummary>((account) => ({
+              ...account,
+              managedHomeRuntime: 'host',
+              createdAt: checkedAt,
+              updatedAt: checkedAt,
+              lastAuthenticatedAt: checkedAt
+            })),
+            activeAccountId: 'work'
+          },
           rateLimits: null
         }}
         rateLimits={createEmptyRateLimitState({
           muse: quota('muse', 24),
-          antigravity: quota('antigravity', 31),
-          antigravityAccounts: [
-            {
-              accountId: 'work',
-              email: 'work@example.test',
-              active: true,
-              rateLimits: quota('antigravity', 31)
-            },
+          codex: quota('codex', 31),
+          inactiveCodexAccounts: [
             {
               accountId: 'personal',
-              email: 'personal@example.test',
-              active: false,
-              rateLimits: quota('antigravity', 64)
-            },
-            { accountId: 'unread', email: 'unread@example.test', active: false, rateLimits: null }
+              rateLimits: quota('codex', 64),
+              updatedAt: checkedAt,
+              isFetching: false
+            }
           ]
         })}
         ownerLabel="Build server"

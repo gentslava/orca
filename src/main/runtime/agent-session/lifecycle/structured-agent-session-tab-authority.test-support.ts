@@ -50,7 +50,7 @@ afterEach(async () => {
   await closeTestStores()
   await closeTestJournalHostDatabases()
   vi.restoreAllMocks()
-  await rm(root, { recursive: true, force: true })
+  await rm(root, { recursive: true, force: true, maxRetries: 3 })
 })
 
 export class AuthorityRuntime extends OrcaRuntimeService {

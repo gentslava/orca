@@ -13,6 +13,11 @@ const controller: StructuredAgentSessionQueuedMessagesController = {
     })
   ),
   queueCapable: true,
+  holds: () => false,
+  agentMail: [],
+  agentMailEditable: () => false,
+  mailLeads: false,
+  stopping: false,
   clearCapable: true,
   editCapable: false,
   editor: undefined,

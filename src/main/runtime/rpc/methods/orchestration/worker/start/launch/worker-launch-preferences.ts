@@ -10,6 +10,7 @@ import type { OrcaRuntimeService } from '../../../../../../orca-runtime'
 import type { AgentMessageSender } from '../../../../../../../../shared/agent-session/journal/agent-session-message-source'
 import { OrchestrationError } from '../../../../../../orchestration/orchestration-error'
 import { z } from 'zod'
+import { lazyZodSchema } from '../../../../../../../../shared/schema/lazy-zod-schema'
 
 export type OrchestrationWorkerLaunchSelection = {
   agent: TuiAgent | null
@@ -26,13 +27,15 @@ export type OrchestrationWorkerLaunchReceipt = {
   effective: OrchestrationWorkerLaunchSelection | null
 }
 
-const PreflightSelection = z.object({
-  agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
-  model: z.string().nullable(),
-  effort: z.string().nullable(),
-  fastMode: z.boolean().optional(),
-  serviceTier: z.string().optional()
-})
+const PreflightSelection = lazyZodSchema(() =>
+  z.object({
+    agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
+    model: z.string().nullable(),
+    effort: z.string().nullable(),
+    fastMode: z.boolean().optional(),
+    serviceTier: z.string().optional()
+  })
+)
 
 export function parseWorkerLaunchPreflight(value: unknown): OrchestrationWorkerLaunchReceipt {
   const parsed = z

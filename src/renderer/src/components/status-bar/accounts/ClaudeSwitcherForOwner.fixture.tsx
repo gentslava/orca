@@ -117,6 +117,7 @@ function fixture(
             owner: { target: { kind: 'local' }, wslHostDistro: wsl ? 'Ubuntu' : null },
             rateLimits: useAppStore.getState().rateLimits,
             accounts: null,
+            accountsUnverifiable: Boolean(wsl),
             remoteOwner: null,
             refreshRemote: null
           }}

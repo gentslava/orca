@@ -125,3 +125,7 @@ export function forgetAiVaultSessionResult(sessionId: string): void {
   }
   void forgetSavedAiVaultSession(sessionId)
 }
+
+export function resetAiVaultSessionResultCacheForTest(): void {
+  cachedSessionResults.clear()
+}

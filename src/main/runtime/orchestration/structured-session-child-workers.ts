@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { lazyZodSchema } from '../../../shared/schema/lazy-zod-schema'
 import type { OrcaSessionId } from '../../../shared/agent-session/identity/orca-session-address'
 import type {
   OrchestrationChildConversation,
@@ -22,8 +23,8 @@ import {
 import { readWorkerTerminalHostScope } from '../../../shared/orchestration/workers/worker-terminal-host-scope'
 import { structuredSessionChildMetadata } from './structured-session-child-metadata'
 
-const dispatchIds = z.array(
-  z.object({ id: z.string(), startedAt: z.number(), settledAt: z.number().nullable() })
+const dispatchIds = lazyZodSchema(() =>
+  z.array(z.object({ id: z.string(), startedAt: z.number(), settledAt: z.number().nullable() }))
 )
 const PAGE_SIZE = 100
 

@@ -25183,6 +25183,12 @@
         "provisionFailed": "La VM n'a pas été créée, ou sa création a été interrompue. Ouvrez les Paramètres pour la détruire ou la retirer."
       },
       "suspendFailed": "Impossible de suspendre l'espace de travail VM"
+    },
+    "start": {
+      "title": "Que souhaitez-vous ouvrir ?",
+      "description": "Choisissez un agent ou un outil pour ce projet.",
+      "agents": "Agents",
+      "manageAgents": "Gérer les agents"
     }
   },
   "tabHoverCard": {

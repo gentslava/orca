@@ -25656,6 +25656,12 @@
         "provisionFailed": "Die VM wurde nicht erstellt, oder die Erstellung wurde unterbrochen. Öffne die Einstellungen, um sie zu löschen oder zu entfernen."
       },
       "suspendFailed": "VM-Arbeitsbereich konnte nicht angehalten werden"
+    },
+    "start": {
+      "title": "Was möchtest du öffnen?",
+      "description": "Wähle einen Agenten oder ein Werkzeug für dieses Projekt.",
+      "agents": "Agenten",
+      "manageAgents": "Agenten verwalten"
     }
   },
   "tabHoverCard": {

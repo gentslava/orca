@@ -255,7 +255,9 @@ export function MobileNativeChatSessionOptionPickers({
                 disabled={locked(model)}
                 onReset={
                   controller.optionSurface?.resetOption
-                    ? () => { void controller.optionSurface?.resetOption?.(model.id) }
+                    ? () => {
+                        void controller.optionSurface?.resetOption?.(model.id)
+                      }
                     : undefined
                 }
                 onSetOption={(value) => applyOption(model, value)}

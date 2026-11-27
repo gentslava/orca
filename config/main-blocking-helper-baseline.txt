@@ -76,7 +76,7 @@
 2 src/main/automations/runtime-automation-service.ts
 1 src/main/avatar-generation/avatar-generation-ipc.ts # per Generate click: the agent env prep commit-message generation shares; its sync read is a shell rc lookup for GROK_HOME only when it is unset
 5 src/main/backend/backend-entry.ts
-11 src/main/backend/core-runtime-activation.ts
+10 src/main/backend/core-runtime-activation.ts
 2 src/main/backend/core-runtime.ts
 1 src/main/bots/bot-access-request-watch.ts
 1 src/main/bots/bot-group-store-tables.ts # indexRemoteAsks at store open (one-shot startup); its SQL is in main-blocking-sqlite-baseline
@@ -858,7 +858,6 @@
 3 src/main/orca-profiles/storage/profile-legacy-state-import.ts
 4 src/main/orcad/account-launch/orcad-account-services.ts
 4 src/main/orcad/account-launch/orcad-codex-account-homes.ts
-4 src/main/orcad/account-launch/orcad-host-account-launch-env-store.ts
 2 src/main/orcad/account-launch/orcad-wsl-host-claude-profile-refresh.ts
 3 src/main/orcad/artifact-slots/orcad-artifact-cache-retention.ts
 1 src/main/orcad/artifact-slots/orcad-artifact-identity.ts
@@ -1552,7 +1551,7 @@
 4 src/shared/remote-runtime/host-store/runtime-environment-store-command.ts
 2 src/shared/remote-runtime/host-store/runtime-environment-store-file.ts
 6 src/shared/remote-runtime/host-store/runtime-environment-store-observation.ts
-10 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts # renameEnvironment persists through the same worker-served writeEnvironmentStore as the other store ops; its sync call reaches the event loop only on the inline CLI/worker-down fallback
+9 src/shared/remote-runtime/host-store/runtime-environment-store-operations.ts # renameEnvironment persists through the same worker-served writeEnvironmentStore as the other store ops; its sync call reaches the event loop only on the inline CLI/worker-down fallback
 1 src/shared/remote-runtime/host-store/runtime-environment-store-read-cache.ts
 2 src/shared/remote-runtime/host-store/runtime-environment-store-records.ts
 1 src/shared/remote-runtime/host-store/runtime-environment-store-worker-entry.ts

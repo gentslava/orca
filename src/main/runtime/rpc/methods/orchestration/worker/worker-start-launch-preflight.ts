@@ -1,3 +1,4 @@
+import { resolveWorkerRoleParams } from '../../../../../../shared/orchestration-worker-roles'
 import type { TuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent'
 import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
@@ -125,6 +126,24 @@ export async function preflightWorkerLaunchPreferencesOnHost(
         : resolvedWorktree
           ? { worktree: `id:${resolvedWorktree.id}` }
           : {}
+    )
+  }
+}
+
+export function applyWorkerStartRole(runtime: OrcaRuntimeService, params: WorkerStartInput) {
+  if (!params.role) {
+    return params
+  }
+  try {
+    return resolveWorkerRoleParams(
+      params,
+      runtime.requireStore().getSettings().orchestrationWorkerRoles
+    )
+  } catch (error) {
+    throw new OrchestrationError(
+      'invalid_argument',
+      error instanceof Error ? error.message : 'Invalid worker role profile.',
+      { effectsApplied: false }
     )
   }
 }

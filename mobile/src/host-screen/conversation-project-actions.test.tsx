@@ -1,4 +1,4 @@
-import { createElement, type ReactNode, type ReactElement } from 'react'
+import { Children, createElement, type ReactNode, type ReactElement } from 'react'
 import { Pressable, Text } from 'react-native'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, expect, it, vi } from 'vitest'
@@ -111,7 +111,9 @@ it('uses neutral hide and restore actions and exposes disabled state on older ho
     accessibilityState: { disabled: true }
   })
   expect(
-    tree.root.findAll((node) => node.type === Text).map((node) => node.props.children)
+    tree.root
+      .findAll((node) => node.type === Text)
+      .flatMap((node) => Children.toArray(node.props.children))
   ).toContain(conversationCopy().keepFiles)
   await act(async () =>
     tree.update(

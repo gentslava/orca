@@ -4,6 +4,7 @@ import type { NativeChatComposerDraftImage } from '../../../drafts/native-chat-c
 import { appendToNativeChatComposerDraft } from '../../../drafts/native-chat-composer-draft-store'
 import { structuredAgentSessionDraftScopeKey } from '../../../drafts/native-chat-draft-scope'
 import { unavailableNativeChatComposerDraftImage } from '../../../drafts/native-chat-composer-draft-persistence'
+import { promptMarkersToImageReferences } from '../../../../../../../shared/native-chat/transcript/images/native-chat-sent-image-prompt-markers'
 import {
   promptTextContent,
   seedPromptSkillReferences
@@ -23,7 +24,7 @@ export function returnMessageToComposer(
   imageConnectionIds?: readonly (string | null)[],
   /** Uploads the host no longer stores: their chips come back asking to be attached again. */
   expiredUploadIds?: ReadonlySet<string>,
-  skills?: AgentJournalMessageItem['skills']
+  options: { skills?: AgentJournalMessageItem['skills']; restoreImageReferences?: boolean } = {}
 ): boolean {
   let image = 0
   // Not the attachment hook's helper: its imports reach the store, whose teardown imports this.
@@ -41,7 +42,15 @@ export function returnMessageToComposer(
       ? [unavailableNativeChatComposerDraftImage({ id, path: block.path })]
       : [{ id, path: block.path, ...(connectionId ? { connectionId } : {}) }]
   })
-  const text = structuredAgentSessionMessageText({ kind: 'message', role: 'user', blocks })
+  const words = structuredAgentSessionMessageText({ kind: 'message', role: 'user', blocks })
+  const text = options.restoreImageReferences
+    ? promptMarkersToImageReferences(
+        words,
+        blocks.flatMap((block, index) =>
+          block.type === 'image-ref' ? [`${attachmentIdPrefix}-${index}`] : []
+        )
+      )
+    : words
   if (text === '' && images.length === 0) {
     return true
   }
@@ -49,8 +58,8 @@ export function returnMessageToComposer(
   return appendToNativeChatComposerDraft(composerScopeKey, {
     text,
     images,
-    ...(skills?.length
-      ? { document: seedPromptSkillReferences(promptTextContent(text), skills) }
+    ...(options.skills?.length
+      ? { document: seedPromptSkillReferences(promptTextContent(text), options.skills) }
       : {})
   })
 }
@@ -69,6 +78,6 @@ export function handBackStructuredAgentSessionMessage(
     body.blocks,
     imageConnectionIds,
     expiredUploadIds,
-    body.skills
+    { skills: body.skills }
   )
 }

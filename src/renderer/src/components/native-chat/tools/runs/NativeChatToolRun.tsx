@@ -132,8 +132,9 @@ export function NativeChatToolRun({
   const showsHeader = !hasAskCall || callCount > 0
   // A single command is more recognizable than its category summary. Its words read translate(), so key it on `t`.
   const runSentence = recomputeOn([t], () => nativeChatToolRunSentence(headerBlocks, { live }))
+  const hasAsides = Boolean(asides && (asides.before.size > 0 || asides.after.length > 0))
   const fallbackLabel =
-    callCount === 0 && asideCount > 0
+    callCount === 0 && hasAsides
       ? t('components.native-chat.tool.activity', 'Activity')
       : fallbackKey === 'result'
         ? t('components.native-chat.tool.result', NATIVE_CHAT_TOOL_ACTIVITY_COPY.result)
@@ -143,7 +144,7 @@ export function NativeChatToolRun({
           })
 
   // Standalone rosters/tasks have no tool calls for a header to summarize.
-  if (blocks.length === 0 && asideCount === 0) {
+  if (blocks.length === 0 && !hasAsides) {
     return standaloneRows.length > 0 ? <div className={spacing}>{standaloneRows}</div> : null
   }
 

@@ -62,7 +62,6 @@ import {
   sanitizePersistedRepoIds,
   sanitizePerWorktreePreferences,
   sanitizeWorkspaceCleanupDismissals,
-  sanitizePersistedSidebarWidth,
   sanitizeActivityBarArrangement,
   keepUnchangedHydratedFields,
   hydratedFieldsAreState,

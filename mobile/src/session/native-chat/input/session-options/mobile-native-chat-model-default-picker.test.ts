@@ -1,4 +1,4 @@
-import { createElement, useState, type ReactNode } from 'react'
+import { Children, createElement, useState, type ReactNode } from 'react'
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer'
 import { documentQueryClient } from '../../../../test-support/rpc-recording/react-mounting/hook-mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -113,20 +113,13 @@ describe('MobileNativeChatSessionOptionPickers', () => {
   }
 
   const rowByText = (text: string) => {
-    const label = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Text').find(
-      (node) => node.props.children === text
+    const row = findAllByHostType(findByHostType(renderer!.root, 'BottomDrawer'), 'Pressable').find(
+      (node) => node.props.accessibilityLabel === text
     )
-    if (!label) {
+    if (!row) {
       throw new Error(`No row labeled ${text}`)
     }
-    let parent = label.parent
-    while (parent && String(parent.type) !== 'Pressable') {
-      parent = parent.parent
-    }
-    if (!parent) {
-      throw new Error(`No pressable row for ${text}`)
-    }
-    return parent
+    return row
   }
 
   beforeEach(() => {
@@ -164,8 +157,8 @@ describe('MobileNativeChatSessionOptionPickers', () => {
     await act(async () => rowByText('Default').props.onPress())
     expect(resetOption).toHaveBeenCalledExactlyOnceWith('model')
     expect(
-      findAllByHostType(renderer!.root, 'Text').some(
-        (node) => node.props.children === 'Default model not reported'
+      findAllByHostType(renderer!.root, 'Text').some((node) =>
+        Children.toArray(node.props.children).includes('Default model not reported')
       )
     ).toBe(true)
   })
