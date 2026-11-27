@@ -11749,16 +11749,6 @@
               "34f2b8c539": "Использование Cursor"
             },
             "matchTerminal": "Как в терминале",
-            "museUsageDescription": "Показывать квоту подписки Muse в строке состояния.",
-            "muse": "muse",
-            "meta": "meta",
-            "statusBarUsageFormat": {
-              "title": "Формат использования",
-              "description": "Настройте с помощью плейсхолдеров, как использование каждого провайдера отображается в строке состояния.",
-              "format": "формат",
-              "template": "шаблон",
-              "placeholder": "плейсхолдер"
-            },
             "37e6b58b0e": "Масштаб интерфейса",
             "931c53cd16": "Использование Claude",
             "1b404ee6ad": "Показать кнопку Orca Mobile",
@@ -11776,8 +11766,27 @@
             "9bc701a4d1": "Показать кнопку задач",
             "c29089716e": "Использование Kimi",
             "96e32c1118": "Использование MiniMax",
-            "e8d2710689": "Использование Muse",
-            "aff6e6afdf": "Шрифт IDE"
+            "aff6e6afdf": "Шрифт IDE",
+            "sidebarView": {
+              "title": "Вид боковой панели",
+              "description": "Что показывает левая боковая панель: проекты и их рабочие пространства или сессии агентов по проектам.",
+              "sessions": "сессии",
+              "chats": "чаты",
+              "conversations": "беседы",
+              "projects": "проекты",
+              "workspaces": "рабочие пространства"
+            },
+            "museUsageDescription": "Показывать квоту подписки Muse в строке состояния.",
+            "muse": "muse",
+            "meta": "meta",
+            "statusBarUsageFormat": {
+              "title": "Формат использования",
+              "description": "Настройте с помощью плейсхолдеров, как использование каждого провайдера отображается в строке состояния.",
+              "format": "формат",
+              "template": "шаблон",
+              "placeholder": "плейсхолдер"
+            },
+            "e8d2710689": "Использование Muse"
           }
         },
         "auto": {
@@ -15454,24 +15463,6 @@
           "searchHosts": "Поиск серверов…",
           "searchLanguages": "Поиск языков…"
         },
-        "accountsPaneActionErrors": {
-          "codexSignInTimedOut": "Вход в Codex занял слишком много времени. Повторите попытку.",
-          "codexSignInUnavailable": "Вход в Codex временно недоступен. Повторите попытку через минуту.",
-          "claudeSignInFailed": "Не удалось войти в Claude. Повторите попытку."
-        },
-        "StatusBarUsageFormatSetting": {
-          "reset": "Сбросить",
-          "previewLabel": "Предпросмотр",
-          "previewBuiltin": "Оставьте пустым, чтобы использовать встроенный формат Orca.",
-          "placeholder": {
-            "provider": "название провайдера",
-            "plan": "план (Codex)",
-            "windows": "процент окна",
-            "reset": "время до сброса, например 3h 15m",
-            "resetAt": "время сброса по часам, например 20:50",
-            "optional": "опускается, если плейсхолдер внутри пуст"
-          }
-        },
         "RepositoryRemoveProjectSection": {
           "filesNoteVmRecipe": "Рецепты VM определяют, будут ли удалены их окружения и файлы.",
           "filesNote": "Файлы останутся на диске, поэтому проект можно будет добавить снова.",
@@ -15508,6 +15499,24 @@
           "samePublisher": "Другие под именем {{value0}}",
           "shownPluginCount_few": "Показано {{count}} подходящих плагина, включая этот",
           "shownPluginCount_many": "Показано {{count}} подходящих плагинов, включая этот"
+        },
+        "accountsPaneActionErrors": {
+          "codexSignInTimedOut": "Вход в Codex занял слишком много времени. Повторите попытку.",
+          "codexSignInUnavailable": "Вход в Codex временно недоступен. Повторите попытку через минуту.",
+          "claudeSignInFailed": "Не удалось войти в Claude. Повторите попытку."
+        },
+        "StatusBarUsageFormatSetting": {
+          "reset": "Сбросить",
+          "previewLabel": "Предпросмотр",
+          "previewBuiltin": "Оставьте пустым, чтобы использовать встроенный формат Orca.",
+          "placeholder": {
+            "provider": "название провайдера",
+            "plan": "план (Codex)",
+            "windows": "процент окна",
+            "reset": "время до сброса, например 3h 15m",
+            "resetAt": "время сброса по часам, например 20:50",
+            "optional": "опускается, если плейсхолдер внутри пуст"
+          }
         },
         "editorTypography": {
           "fontSizeUnit": "px",
@@ -21517,11 +21526,6 @@
         "stateResuming": "Возобновляется",
         "stateStopped": "Остановлен"
       },
-      "RunTargetCombobox": {
-        "noWslDistros": "Дистрибутивы WSL не найдены",
-        "wslDistro": "Дистрибутив WSL",
-        "wslDistroHint": "Дистрибутив Linux на этом ПК"
-      },
       "NativeChatResumeFailureGuidance": {
         "fallbackShort": "Не удалось возобновить.",
         "unconfirmedShort": "Продолжение не подтверждено.",
@@ -21531,6 +21535,11 @@
         "notAttachedShort": "Не переподключился.",
         "dispatchRejectedShort": "Агент отказался продолжить.",
         "unsupportedShort": "Orca не может его возобновить."
+      },
+      "RunTargetCombobox": {
+        "noWslDistros": "Дистрибутивы WSL не найдены",
+        "wslDistro": "Дистрибутив WSL",
+        "wslDistroHint": "Дистрибутив Linux на этом ПК"
       },
       "task-page": {
         "checksPill": {
@@ -25391,7 +25400,9 @@
       "openActivity": "Посмотреть активность",
       "closeActivity": "Выключить просмотр активности",
       "projects": "Проекты",
-      "workspaces": "Рабочие пространства"
+      "workspaces": "Рабочие пространства",
+      "activity": "Активность",
+      "sessions": "Сессии"
     }
   },
   "runtimeRpc": {
@@ -27569,49 +27580,6 @@
   "startupFailure": {
     "title": "Не удалось запустить Orca",
     "finishFailed": "Orca не удалось завершить запуск: {{detail}}"
-  },
-  "wslDriveProject": {
-    "label": "Git",
-    "converted": "Orca запускает Git в Windows для этого проекта. Терминалы и агенты по-прежнему работают в {{distro}}.",
-    "checkFailed": "Orca не удалось проверить этот проект.",
-    "convertFailed": "Orca не удалось переключить Git.",
-    "description": "Этот проект находится на диске Windows, где Git в WSL работает медленно и пропускает изменения, сделанные в Windows. Используйте вместо него Git для Windows; терминалы и агенты останутся в {{distro}}.",
-    "useWindowsGit": "Использовать Git для Windows",
-    "review": "Для этого проекта в Orca ничего не изменится: его вкладки, терминалы, чаты и рабочие пространства останутся как есть. Запущенные терминалы продолжат работать.",
-    "lineEndings": "Также задать core.autocrlf в этом репозитории, чтобы git в терминалах WSL перестал показывать каждый файл изменённым.",
-    "cancel": "Отмена",
-    "confirm": "Использовать Git для Windows",
-    "blocker": {
-      "notWsl": "Этот проект уже использует Git в Windows.",
-      "repair": "Сначала исправьте среду выполнения WSL этого проекта: её дистрибутив отсутствует или WSL недоступна.",
-      "notWindowsDrive": "Одна из папок этого проекта находится не на диске Windows.",
-      "gitMissing": "Git для Windows не установлен. Установите его с git-scm.com, затем повторите попытку.",
-      "wslWorktrees": "Эти рабочие пространства создал Git в WSL, и Git для Windows не может их прочитать: {{paths}}. Удалите их или оставьте этот проект на Git в WSL.",
-      "worktreeFolder": "Новые рабочие пространства этого проекта настроены на размещение внутри WSL. Сначала выберите папку на диске Windows в настройках этого проекта."
-    }
-  },
-  "wslDriveUnc": {
-    "label": "Расположение",
-    "description": "Orca открывает этот проект через WSL. Откройте его по пути {{drivePath}}: Git будет работать в Windows, что здесь намного быстрее, а терминалы и агенты останутся в {{distro}}.",
-    "convert": "Открыть по пути {{drivePath}}",
-    "review": "Orca приостановит терминалы этого проекта, перезапустится и снова откроет его по пути {{drivePath}}. Вкладки, терминалы с их историей, чаты и настройки перенесутся, а приостановленные терминалы продолжат с того же места.",
-    "cancel": "Отмена",
-    "confirm": "Перезапустить и преобразовать",
-    "failed": "Orca не удалось преобразовать этот проект.",
-    "restarting": "Перезапуск Orca для преобразования этого проекта…",
-    "terminalsBusy": "Некоторые терминалы этого проекта заняты. Дождитесь их завершения или закройте их, затем повторите попытку.",
-    "pauseFailed": "Orca не удалось приостановить терминалы этого проекта, поэтому ничего не изменилось.",
-    "blocker": {
-      "pending": "Orca уже преобразует проект. Это завершится при перезапуске Orca.",
-      "state": "Orca нашла сохранённое состояние этого проекта, которое не может безопасно преобразовать, поэтому ничего не изменилось.",
-      "duplicate": "{{drivePath}} уже является проектом в Orca.",
-      "mixed": "Некоторые папки этого проекта находятся внутри WSL, а не на диске Windows.",
-      "overlap": "У этого проекта общие папки с проектом, который Orca не может преобразовать, поэтому они разделились бы.",
-      "notDriveMount": "В этом дистрибутиве папке не соответствует путь «{{drivePath}}»: папка не смонтирована с этого диска Windows.",
-      "notConvertible": "Этот проект находится не на диске Windows этого компьютера.",
-      "differingState": "Orca сохранила разные сведения об этой папке под её путём WSL и под {{drivePath}}, поэтому ничего не изменилось.",
-      "projectSplit": "Этот проект также содержит репозиторий, который не преобразуется, поэтому ничего не изменилось."
-    }
   },
   "native": {
     "about": {
@@ -31466,10 +31434,6 @@
     "chatChoicesNote": "Выбор модели или уровня усилий {{agent}} без флага CLI применяется к чатам.",
     "composedChoicesNote": "Выбранные уровень усилий и скорость {{agent}} включаются в аргумент модели."
   },
-  "checks": {
-    "gitlabAllowedFailure": "Допускается сбой",
-    "rerunUnsuccessful": "Перезапустить неудачные"
-  },
   "remoteHostBrowserControl": {
     "title": "{{host}} управляет вкладкой браузера",
     "description": "Агенты на этом SSH-сервере могут открывать и использовать вкладки браузера Orca в его рабочих пространствах. На вкладках, которыми он управляет, отображается его имя. Это можно изменить в разделе Настройки > SSH.",
@@ -31582,21 +31546,6 @@
       "cancelDownload": "Отменить загрузку"
     }
   },
-  "renderer": {
-    "lib": {
-      "filePreview": {
-        "remoteFileUnsupported": "Открытие в браузере Orca доступно только для локальных файлов.",
-        "twinFileUnsupported": "Этот проект находится на нескольких серверах, поэтому Orca не может определить, какую копию открыть."
-      }
-    }
-  },
-  "nestedImport": {
-    "error": {
-      "notInScan": "Репозиторий не найден в результатах сканирования вложенных репозиториев",
-      "notGitRepository": "Недействительный Git-репозиторий",
-      "importFailed": "Не удалось импортировать репозиторий"
-    }
-  },
   "usage": {
     "failure": {
       "unavailable": "Данные об использовании недоступны. Нажмите «Обновить», чтобы восстановить подключение.",
@@ -31625,6 +31574,157 @@
     "dontSend": "Не отправлять",
     "sending": "Отправка…",
     "sendReport": "Отправить отчёт"
+  },
+  "agentCliUpdate": {
+    "updating": "Обновление…",
+    "tryAgain": "Повторить попытку",
+    "update": "Обновить",
+    "versions": "{{installed}} → {{latest}}",
+    "modelRequiresClaude": "Требуется Claude Code CLI {{version}}",
+    "modelRequiresCodex": "Требуется Codex CLI {{version}}",
+    "modelRequires": "Требуется {{product}} {{version}}",
+    "claudeProduct": "Claude Code",
+    "codexProduct": "Codex CLI",
+    "grokProduct": "Grok Build",
+    "opencodeProduct": "OpenCode",
+    "opencode2Product": "OpenCode 2",
+    "ompProduct": "OMP",
+    "copilotProduct": "GitHub Copilot CLI",
+    "copilotShortProduct": "Copilot CLI",
+    "kimiProduct": "Kimi Code",
+    "cursorProduct": "Cursor CLI",
+    "hermesProduct": "Hermes Agent",
+    "gooseProduct": "Goose CLI",
+    "auggieProduct": "Auggie",
+    "kiloProduct": "Kilo CLI",
+    "mimoCodeProduct": "MiMo Code",
+    "qwenCodeProduct": "Qwen Code",
+    "devinProduct": "Devin CLI",
+    "codebuddyProduct": "CodeBuddy Code",
+    "commandCopied": "Команда скопирована",
+    "commandNotCopied": "Не удалось скопировать команду",
+    "copyCommand": "Копировать",
+    "manualHint": "Выполните в терминале:",
+    "noOutput": "Команда ничего не вывела.",
+    "heading_one": "Доступно {{count}} обновление CLI",
+    "heading_few": "Доступно {{count}} обновления CLI",
+    "heading_many": "Доступно {{count}} обновлений CLI",
+    "heading_other": "Доступно {{count}} обновления CLI",
+    "updateAll": "Обновить все",
+    "thisComputer": "Этот компьютер",
+    "statusUpdating": "Обновление CLI",
+    "statusUpdatingTooltip": "Выполняются обновления CLI агентов",
+    "statusFailed": "Не удалось обновить CLI",
+    "statusFailedTooltip": "Откройте, чтобы узнать, что пошло не так",
+    "statusCount_one": "{{count}} обновление CLI",
+    "statusCount_few": "{{count}} обновления CLI",
+    "statusCount_many": "{{count}} обновлений CLI",
+    "statusCount_other": "{{count}} обновления CLI",
+    "statusTooltip": "Вышли новые версии CLI агентов",
+    "failedButton": "Ошибка обновления",
+    "failedChip": "ошибка обновления",
+    "failedChipLabel": "Ошибка обновления: показать ошибку",
+    "failedChipTooltip": "Ошибка обновления. Нажмите, чтобы увидеть подробности.",
+    "failedTitle": "Не удалось обновить {{product}}",
+    "failedDescription": "Orca выполнила <code>{{command}}</code> на <strong>{{host}}</strong>, чтобы обновить {{product}} с <strong>{{installedVersion}}</strong> до <strong>{{latestVersion}}</strong>, но команда завершилась с ошибкой.",
+    "failedDescriptionNoCommand": "Orca не удалось обновить {{product}} на <strong>{{host}}</strong>.",
+    "cardLabel": "Обновления CLI агентов",
+    "cardLater": "Позже",
+    "toastUpdating_one": "Обновление {{current}} из {{count}} CLI",
+    "toastUpdating_few": "Обновление {{current}} из {{count}} CLI",
+    "toastUpdating_many": "Обновление {{current}} из {{count}} CLI",
+    "toastUpdating_other": "Обновление {{current}} из {{count}} CLI",
+    "toastDone_one": "Обновлено CLI: {{count}}",
+    "toastDone_few": "Обновлено CLI: {{count}}",
+    "toastDone_many": "Обновлено CLI: {{count}}",
+    "toastDone_other": "Обновлено CLI: {{count}}",
+    "hideList": "Скрыть список",
+    "showList": "Показать список",
+    "toastUpdate": "Обновить {{total}}",
+    "toastRetry": "Повторить {{failed}}",
+    "copied": "Скопировано",
+    "manualSection": "Вручную",
+    "toastFailedCount_one": "Неудачных обновлений: {{count}}",
+    "toastFailedCount_few": "Неудачных обновлений: {{count}}",
+    "toastFailedCount_many": "Неудачных обновлений: {{count}}",
+    "toastFailedCount_other": "Неудачных обновлений: {{count}}",
+    "toastClose": "Закрыть",
+    "queued": "В очереди"
+  },
+  "activityBar": {
+    "moveUp": "Переместить вверх",
+    "moveDown": "Переместить вниз",
+    "hide": "Скрыть",
+    "show": "Показать {{name}}",
+    "dragStart": "Выбрано для перемещения: {{name}}",
+    "dragOver": "{{name}} над {{target}}",
+    "dragEnd": "Отпущено: {{name}}",
+    "dragCancel": "Перемещение отменено: {{name}}",
+    "moveLeft": "Переместить влево",
+    "moveRight": "Переместить вправо",
+    "reset": "Сбросить порядок вкладок"
+  },
+  "wslDriveProject": {
+    "label": "Git",
+    "converted": "Orca запускает Git в Windows для этого проекта. Терминалы и агенты по-прежнему работают в {{distro}}.",
+    "checkFailed": "Orca не удалось проверить этот проект.",
+    "convertFailed": "Orca не удалось переключить Git.",
+    "description": "Этот проект находится на диске Windows, где Git в WSL работает медленно и пропускает изменения, сделанные в Windows. Используйте вместо него Git для Windows; терминалы и агенты останутся в {{distro}}.",
+    "useWindowsGit": "Использовать Git для Windows",
+    "review": "Для этого проекта в Orca ничего не изменится: его вкладки, терминалы, чаты и рабочие пространства останутся как есть. Запущенные терминалы продолжат работать.",
+    "lineEndings": "Также задать core.autocrlf в этом репозитории, чтобы git в терминалах WSL перестал показывать каждый файл изменённым.",
+    "cancel": "Отмена",
+    "confirm": "Использовать Git для Windows",
+    "blocker": {
+      "notWsl": "Этот проект уже использует Git в Windows.",
+      "repair": "Сначала исправьте среду выполнения WSL этого проекта: её дистрибутив отсутствует или WSL недоступна.",
+      "notWindowsDrive": "Одна из папок этого проекта находится не на диске Windows.",
+      "gitMissing": "Git для Windows не установлен. Установите его с git-scm.com, затем повторите попытку.",
+      "wslWorktrees": "Эти рабочие пространства создал Git в WSL, и Git для Windows не может их прочитать: {{paths}}. Удалите их или оставьте этот проект на Git в WSL.",
+      "worktreeFolder": "Новые рабочие пространства этого проекта настроены на размещение внутри WSL. Сначала выберите папку на диске Windows в настройках этого проекта."
+    }
+  },
+  "wslDriveUnc": {
+    "label": "Расположение",
+    "description": "Orca открывает этот проект через WSL. Откройте его по пути {{drivePath}}: Git будет работать в Windows, что здесь намного быстрее, а терминалы и агенты останутся в {{distro}}.",
+    "convert": "Открыть по пути {{drivePath}}",
+    "review": "Orca приостановит терминалы этого проекта, перезапустится и снова откроет его по пути {{drivePath}}. Вкладки, терминалы с их историей, чаты и настройки перенесутся, а приостановленные терминалы продолжат с того же места.",
+    "cancel": "Отмена",
+    "confirm": "Перезапустить и преобразовать",
+    "failed": "Orca не удалось преобразовать этот проект.",
+    "restarting": "Перезапуск Orca для преобразования этого проекта…",
+    "terminalsBusy": "Некоторые терминалы этого проекта заняты. Дождитесь их завершения или закройте их, затем повторите попытку.",
+    "pauseFailed": "Orca не удалось приостановить терминалы этого проекта, поэтому ничего не изменилось.",
+    "blocker": {
+      "pending": "Orca уже преобразует проект. Это завершится при перезапуске Orca.",
+      "state": "Orca нашла сохранённое состояние этого проекта, которое не может безопасно преобразовать, поэтому ничего не изменилось.",
+      "duplicate": "{{drivePath}} уже является проектом в Orca.",
+      "mixed": "Некоторые папки этого проекта находятся внутри WSL, а не на диске Windows.",
+      "overlap": "У этого проекта общие папки с проектом, который Orca не может преобразовать, поэтому они разделились бы.",
+      "notDriveMount": "В этом дистрибутиве папке не соответствует путь «{{drivePath}}»: папка не смонтирована с этого диска Windows.",
+      "notConvertible": "Этот проект находится не на диске Windows этого компьютера.",
+      "differingState": "Orca сохранила разные сведения об этой папке под её путём WSL и под {{drivePath}}, поэтому ничего не изменилось.",
+      "projectSplit": "Этот проект также содержит репозиторий, который не преобразуется, поэтому ничего не изменилось."
+    }
+  },
+  "checks": {
+    "gitlabAllowedFailure": "Допускается сбой",
+    "rerunUnsuccessful": "Перезапустить неудачные"
+  },
+  "renderer": {
+    "lib": {
+      "filePreview": {
+        "remoteFileUnsupported": "Открытие в браузере Orca доступно только для локальных файлов.",
+        "twinFileUnsupported": "Этот проект находится на нескольких серверах, поэтому Orca не может определить, какую копию открыть."
+      }
+    }
+  },
+  "nestedImport": {
+    "error": {
+      "notInScan": "Репозиторий не найден в результатах сканирования вложенных репозиториев",
+      "notGitRepository": "Недействительный Git-репозиторий",
+      "importFailed": "Не удалось импортировать репозиторий"
+    }
   },
   "tabBar": {
     "createRow": {
@@ -31711,82 +31811,6 @@
     "browseOnline": "Обзор",
     "browseOnlineLabel": "Просмотреть переводы сообщества на orca.dev (откроется в браузере)"
   },
-  "agentCliUpdate": {
-    "updating": "Обновление…",
-    "tryAgain": "Повторить попытку",
-    "update": "Обновить",
-    "versions": "{{installed}} → {{latest}}",
-    "modelRequiresClaude": "Требуется Claude Code CLI {{version}}",
-    "modelRequiresCodex": "Требуется Codex CLI {{version}}",
-    "modelRequires": "Требуется {{product}} {{version}}",
-    "claudeProduct": "Claude Code",
-    "codexProduct": "Codex CLI",
-    "grokProduct": "Grok Build",
-    "opencodeProduct": "OpenCode",
-    "opencode2Product": "OpenCode 2",
-    "ompProduct": "OMP",
-    "copilotProduct": "GitHub Copilot CLI",
-    "copilotShortProduct": "Copilot CLI",
-    "kimiProduct": "Kimi Code",
-    "cursorProduct": "Cursor CLI",
-    "hermesProduct": "Hermes Agent",
-    "gooseProduct": "Goose CLI",
-    "auggieProduct": "Auggie",
-    "kiloProduct": "Kilo CLI",
-    "mimoCodeProduct": "MiMo Code",
-    "qwenCodeProduct": "Qwen Code",
-    "devinProduct": "Devin CLI",
-    "codebuddyProduct": "CodeBuddy Code",
-    "commandCopied": "Команда скопирована",
-    "commandNotCopied": "Не удалось скопировать команду",
-    "copyCommand": "Копировать",
-    "manualHint": "Выполните в терминале:",
-    "noOutput": "Команда ничего не вывела.",
-    "heading_one": "Доступно {{count}} обновление CLI",
-    "heading_few": "Доступно {{count}} обновления CLI",
-    "heading_many": "Доступно {{count}} обновлений CLI",
-    "heading_other": "Доступно {{count}} обновления CLI",
-    "updateAll": "Обновить все",
-    "thisComputer": "Этот компьютер",
-    "statusUpdating": "Обновление CLI",
-    "statusUpdatingTooltip": "Выполняются обновления CLI агентов",
-    "statusFailed": "Не удалось обновить CLI",
-    "statusFailedTooltip": "Откройте, чтобы узнать, что пошло не так",
-    "statusCount_one": "{{count}} обновление CLI",
-    "statusCount_few": "{{count}} обновления CLI",
-    "statusCount_many": "{{count}} обновлений CLI",
-    "statusCount_other": "{{count}} обновления CLI",
-    "statusTooltip": "Вышли новые версии CLI агентов",
-    "failedButton": "Ошибка обновления",
-    "failedChip": "ошибка обновления",
-    "failedChipLabel": "Ошибка обновления: показать ошибку",
-    "failedChipTooltip": "Ошибка обновления. Нажмите, чтобы увидеть подробности.",
-    "failedTitle": "Не удалось обновить {{product}}",
-    "failedDescription": "Orca выполнила <code>{{command}}</code> на <strong>{{host}}</strong>, чтобы обновить {{product}} с <strong>{{installedVersion}}</strong> до <strong>{{latestVersion}}</strong>, но команда завершилась с ошибкой.",
-    "failedDescriptionNoCommand": "Orca не удалось обновить {{product}} на <strong>{{host}}</strong>.",
-    "cardLabel": "Обновления CLI агентов",
-    "cardLater": "Позже",
-    "toastUpdating_one": "Обновление {{current}} из {{count}} CLI",
-    "toastUpdating_few": "Обновление {{current}} из {{count}} CLI",
-    "toastUpdating_many": "Обновление {{current}} из {{count}} CLI",
-    "toastUpdating_other": "Обновление {{current}} из {{count}} CLI",
-    "toastDone_one": "Обновлено CLI: {{count}}",
-    "toastDone_few": "Обновлено CLI: {{count}}",
-    "toastDone_many": "Обновлено CLI: {{count}}",
-    "toastDone_other": "Обновлено CLI: {{count}}",
-    "hideList": "Скрыть список",
-    "showList": "Показать список",
-    "toastUpdate": "Обновить {{total}}",
-    "toastRetry": "Повторить {{failed}}",
-    "copied": "Скопировано",
-    "manualSection": "Вручную",
-    "toastFailedCount_one": "Неудачных обновлений: {{count}}",
-    "toastFailedCount_few": "Неудачных обновлений: {{count}}",
-    "toastFailedCount_many": "Неудачных обновлений: {{count}}",
-    "toastFailedCount_other": "Неудачных обновлений: {{count}}",
-    "toastClose": "Закрыть",
-    "queued": "В очереди"
-  },
   "backgroundWorkerPaused": {
     "title": "Часть фоновой работы приостановлена после повторяющихся сбоев",
     "description": "Восстановление чатов Claude выключено, пока вы не повторите попытку. Копирование, перемотка и сканирование Space возобновятся, когда вы снова их запустите.",
@@ -31840,19 +31864,6 @@
       "workerOwed": "Оркестрация всё ещё ожидает этот чат",
       "home": "Главный чат управляемого агента нельзя удалить"
     }
-  },
-  "activityBar": {
-    "moveUp": "Переместить вверх",
-    "moveDown": "Переместить вниз",
-    "hide": "Скрыть",
-    "show": "Показать {{name}}",
-    "dragStart": "Выбрано для перемещения: {{name}}",
-    "dragOver": "{{name}} над {{target}}",
-    "dragEnd": "Отпущено: {{name}}",
-    "dragCancel": "Перемещение отменено: {{name}}",
-    "moveLeft": "Переместить влево",
-    "moveRight": "Переместить вправо",
-    "reset": "Сбросить порядок вкладок"
   },
   "mcpServers": {
     "paste": {

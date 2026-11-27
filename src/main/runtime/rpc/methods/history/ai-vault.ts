@@ -1,4 +1,11 @@
+import { readStructuredConversationJournalPreviews } from '../../../../ai-vault/structured-conversation-journal-preview'
+import { getStructuredAgentSessionHost } from '../../../../native-chat/agent-session-wire/host/structured-agent-session-registry'
 import { prepareStructuredChatCliFork } from '../../../../ai-vault/structured-sessions/structured-chat-cli-fork'
+import { aiVaultOrchestrationChildSessionIds } from '../../../../ai-vault/structured-conversation-navigation'
+import {
+  requestedAiVaultSessionDepth,
+  truncateAiVaultListResult
+} from '../../../../../shared/ai-vault/scanning/ai-vault-session-depth'
 import { writeAiVaultSessionHandoffSnapshot } from '../../../../ai-vault/session-handoff-snapshot'
 import { prepareAiVaultSessionHandoffPrompts } from '../../../../ai-vault/session-handoff-prompt'
 import {
@@ -131,14 +138,43 @@ export const AI_VAULT_METHODS = [
       const projected = projectStructuredAiVaultSessions(
         result,
         (agent) => clientOpensStructuredChatFromHistory({ clientKind, clientCapabilities }, agent),
-        // Others keep a row per conversation: old Show more counts rows; plugin resume guards match by id.
-        clientCapabilities?.includes(AI_VAULT_CHAT_ROWS_CLIENT_CAPABILITY) === true
+        {
+          listsChatOnce:
+            clientCapabilities?.includes(AI_VAULT_CHAT_ROWS_CLIENT_CAPABILITY) === true,
+          includeStructuredSessions: params.includeStructuredSessions,
+          ...(params.includeStructuredSessions
+            ? {
+                journalPreviews: await readStructuredConversationJournalPreviews(
+                  getStructuredAgentSessionHost()?.deps.journalDatabase,
+                  getStructuredAgentSessionHost()?.deps.store.listRecords() ?? []
+                )
+              }
+            : {}),
+          ...(params.includeStructuredSessions
+            ? {
+                childSessionIds: aiVaultOrchestrationChildSessionIds(() =>
+                  runtime.getExistingOrchestrationDb()
+                )
+              }
+            : {})
+        }
       )
+      const limited = params.includeStructuredSessions
+        ? truncateAiVaultListResult(
+            projected,
+            requestedAiVaultSessionDepth(params),
+            params.scopePaths
+          )
+        : projected
       return conditionalAiVaultListResult(
         params.executionHostId
-          ? restampAiVaultListResult(projected, params.executionHostId)
-          : projected,
-        params.unlimited ? undefined : params.afterFingerprint,
+          ? restampAiVaultListResult(limited, params.executionHostId)
+          : limited,
+        params.includeStructuredSessions
+          ? (params.afterFingerprint ?? null)
+          : params.unlimited
+            ? undefined
+            : params.afterFingerprint,
         params.force
       )
     }

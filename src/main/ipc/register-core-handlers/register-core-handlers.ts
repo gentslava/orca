@@ -91,6 +91,7 @@ import {
   scanRuntimeAiVaultSessions
 } from '../../ai-vault/runtime-hosts/runtime-session-scanner'
 import { callRuntimeSessionSearch } from '../../ai-vault/runtime-hosts/runtime-session-search-call'
+import { aiVaultOrchestrationChildSessionIds } from '../../ai-vault/structured-conversation-navigation'
 import { configureRuntimeAiVaultSessionDelete } from '../ai-vault/ai-vault-delete'
 import {
   ensurePersistedStructuredAgentSessionHostUnlessRefused,
@@ -246,6 +247,8 @@ export async function registerCoreHandlers(
     registerAiVaultHandlers({
       getUserDataPath: () => app.getPath('userData'),
       ensureStructuredSessionOwnership,
+      getOrchestrationChildSessionIds: () =>
+        aiVaultOrchestrationChildSessionIds(() => runtime.getExistingOrchestrationDb()),
       getAdditionalCodexHomePaths: lifecycleOptions.getAdditionalAiVaultCodexHomePaths,
       prepareSessionResume: lifecycleOptions.prepareAiVaultSessionResume,
       getActiveRuntimeAiVaultHostInfos: async () =>
@@ -272,9 +275,7 @@ export async function registerCoreHandlers(
     registerNativeChatHandlers()
     registerClipboardHandlers((path) => resolveDesktopAuthorizedPath(path, store), {
       localChatAttachmentStore: async () => {
-        await ensureStructuredAgentSessionHostUnlessRefused(() =>
-          runtime.ensureStructuredAgentSessionHost()
-        )
+        await ensureStructuredSessionOwnership()
         return getAgentSessionAttachmentStore()
       }
     })
