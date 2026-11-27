@@ -24,3 +24,8 @@ sharing its accessible-label formatter. The worker-role branch reuses the
 upstream inherited-launch fallback and parses launch receipts lazily in its
 receipt module. The upstream ownership test fixture provides the keyed
 conversation lookup and additionally tracks calls.
+
+On upstream `19dd83585e81`, the newer lazy schemas retain the model-only null
+reset, personal project order and linked-chat metadata. The previous message
+contract and model reset are present before applying PR 33395, so its overlapping
+contract path keeps those exact combined inputs.

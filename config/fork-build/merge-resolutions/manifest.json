@@ -2818,5 +2818,53 @@
     "patchSha256": "2e7e553b330ca017e068151a511b13d1cc1d56b5a1d6a8158b28097c1c71277b",
     "resultSha256": "3079b42885497bfa38a49ba068fc73d6dbd5972812b9de6f488e6b3fd093343a",
     "reason": "Preserve the tested newest-queued-message action using the current queue delivery capabilities."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts",
+    "blobs": [
+      "f3d8b43811b46c4f514ed9ebd7c4fdcf0755f271",
+      "7c58912d9ff4d3f20bb2632952324655e6fae833",
+      "47af8d7d01964a81fc58548280243223d3fbd0d7"
+    ],
+    "patch": "fresh-44451-19f14034-4dbbb92.patch",
+    "patchSha256": "741ab63222e714d8d3032f650ad94ba7ea33bff821095c9ab4026845b014988a",
+    "resultSha256": "30e7e1d715ebe4346ad66778d9812cf2e3236d363f4d6f26a3bd11a06ddd0a52",
+    "reason": "Keep the model-only null reset in the lazy upstream option schema."
+  },
+  {
+    "path": "src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts",
+    "blobs": [
+      "f3d8b43811b46c4f514ed9ebd7c4fdcf0755f271",
+      "0aff441a55e511c51506b61764d0839f7b4bcd0d",
+      "ac1dd4ba20b6d23da87c70f49c465144ceebba60"
+    ],
+    "patch": "fresh-33395-19f14034-4981edb.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "30e7e1d715ebe4346ad66778d9812cf2e3236d363f4d6f26a3bd11a06ddd0a52",
+    "reason": "The selected follow-up changes no contract fields beyond the already-integrated message schema and model-only null reset."
+  },
+  {
+    "path": "src/shared/sidebar-list/catalog/project-section-catalog-schema.ts",
+    "blobs": [
+      "8d63b634b88e22a0147fe48cd6572be8a979a5e8",
+      "79ade79410683ba78003012001a27104e95bd6a4",
+      "08b2a949c04e850bc9de1f2545a100d06c78e3a8"
+    ],
+    "patch": "fresh-33502-2efec334-177dff0.patch",
+    "patchSha256": "0b1d6838a693763eea452d07b78488cc2aa4f2fec2622482aa01a252df560cc0",
+    "resultSha256": "2c56c9211eb82f677f8b5d1ffc3b208b26b9d9d23ebd1855e053a7fd2c466de1",
+    "reason": "Keep personal project ordering alongside the lazy upstream catalog and mixed-version decoding."
+  },
+  {
+    "path": "src/shared/agent-session/journal/agent-session-message-source.ts",
+    "blobs": [
+      "d85ac845b9e3e6ecdee88cdc0864f6e64daf3d99",
+      "93dba464f9019ad7bab9088043eee66154e73edd",
+      "b60becda8633653d71db7a78a5819ff178fa0375"
+    ],
+    "patch": "fresh-37744-ad0776cb-3bf736b.patch",
+    "patchSha256": "71b10d7ea36ceefb67ed257ea7e0b571a501ad24292b8cfa31af24f1d9610ae0",
+    "resultSha256": "e8fee5a83087cda90febe301dc126382cafb52bc6492c0fe2cd0e1755f0a111e",
+    "reason": "Keep linked-chat metadata in the lazy upstream agent-message schema."
   }
 ]
