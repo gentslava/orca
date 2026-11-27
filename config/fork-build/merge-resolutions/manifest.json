@@ -2647,8 +2647,8 @@
       "74d7dcb08276cddca83703fe859c3a3c319647eb"
     ],
     "patch": "fresh-33361-5539273f-8ab2d53.patch",
-    "patchSha256": "4f04f7e0c2fc24fac0832ab1b3f741bfcf40cc1ce8df687d69750bdac44ee743",
-    "resultSha256": "87ec7d7608a27f2deab241fb5efcba41b12091505bed62ffc09709295f384d2b",
+    "patchSha256": "9f9ff263950da6cad410a46168cb0307ea4880b509e8308129bf217c164cc7be",
+    "resultSha256": "49408ffc1230898769e7876862a31d093b4acba5c8a0dea64e8bef98aa2ba4ea",
     "reason": "Preserve upstream filtering and fallback titles for Claude harness turns alongside the conversation-content and first-prompt detection in PR 33361."
   },
   {
@@ -2674,5 +2674,77 @@
     "patchSha256": "52071adbb7c2336e706d521f4812a851c6e5925a36465929252a87e28aa53ecb",
     "resultSha256": "93ee0c9960fdc1b3da09e5308a72d0356cc1d5b17b7153282b9cb89808e871fd",
     "reason": "Retain upstream mixed-client row-count capability while supplying PR 33361 journal previews, child filtering and scoped conversation pagination."
+  },
+  {
+    "path": "src/main/ai-vault/listing/session-list-results.ts",
+    "blobs": [
+      "e64c109127079b02d14b8cd292060af2b507dd01",
+      "d046a0a4c53fd6cf89e639fb428ea16cddf382f1",
+      "c22de25d3275d21fec22299e27d3a4a80cf31f80"
+    ],
+    "patch": "fresh-33383-1bff0009-31f8e15.patch",
+    "patchSha256": "ef155f7985f9331f9b7c9b5f4e5983d05696a0278d5aa157f9306f27978943d8",
+    "resultSha256": "a22625468a75776eb5d6d0873d6da7afb4b28d129db00934700920602c844a16",
+    "reason": "Retain upstream hidden-row counts and scan timestamps as PR 33383 restamps the public cache result."
+  },
+  {
+    "path": "src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.ts",
+    "blobs": [
+      "519c1801ce1e79fd6006dda2210a7d9c0c87d77b",
+      "51fb1a9946a221127bed8e7b5f9a7e1d8b12f177",
+      "74d7dcb08276cddca83703fe859c3a3c319647eb"
+    ],
+    "patch": "fresh-33383-5539273f-320998c.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "49408ffc1230898769e7876862a31d093b4acba5c8a0dea64e8bef98aa2ba4ea",
+    "reason": "At this exact head PR 33383 has no additional scanner change. Preserve PR 33361 content detection and upstream harness-turn filtering."
+  },
+  {
+    "path": "src/main/ai-vault/structured-sessions/structured-session-ownership.ts",
+    "blobs": [
+      "edcac5015b539a6e8f8aebadeb433194173436aa",
+      "cab718ade55bbf993172a90947767d4e62c69dd7",
+      "59dd8fef4273f3865a34de84f2739084ae13f292"
+    ],
+    "patch": "fresh-33383-3270520d-b215a30.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "d2ba6ea787c7726b46f8e3611d90d1694a09c2eaeb6f32493c76cf50500921bd",
+    "reason": "At this exact head PR 33383 has no additional projection change. Preserve durable history and upstream UI deduplication."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "4583d2f70f8ec3d485a3131248e43dd0dd3c2d0d",
+      "472f42b2e34699221a7ea4b6b735db6f5da2fe96",
+      "2a70aa54647651184e15e579b34ba059e113ef4c"
+    ],
+    "patch": "fresh-33383-b0b361ad-76f52dc.patch",
+    "patchSha256": "5d354e4e30c398254d219381f62fef8aaed6676ac35d1a1a3df82145311d0e31",
+    "resultSha256": "d56bcb78aef07f2717e901d5710765e00b859d5c937a8fad539a5b0264bd02e8",
+    "reason": "Carry selected-session passthrough and size-stable cache reads into the latest client-aware history projection."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-runtime-capabilities.ts",
+    "blobs": [
+      "ddfe235ec4f3a22dc56c38d30e6499e183c81502",
+      "9012dfa4c31a19fc9602521f9a65984b63095952",
+      "94ab13e38185d8c38987c949184aee9ed9f528ad"
+    ],
+    "patch": "fresh-33383-e50a882c-105bfeb.patch",
+    "patchSha256": "c7ae0ba746db8b0ad2307af3332d72f8565b9cd64037cc9d06c98aa3b8dc82a1",
+    "resultSha256": "5949bb551a7a08fe1725df9bb0033f2a03effc32967faa01fe7328fccccd5d0d",
+    "reason": "Keep independent chat row-count and canonical project search wire capabilities."
+  },
+  {
+    "path": "src/shared/ai-vault/contracts/ai-vault-types.ts",
+    "blobs": [
+      "1f2b7b6c44b2d9259623e013cdb8946667ffdda5",
+      "ad8a87c4c6b759fcc2fa2d17cf846dacc32db4ab",
+      "d0b92f271322c85915fee8193a71842123d8a112"
+    ],
+    "patch": "fresh-33383-b9b0f477-9e5d394.patch",
+    "patchSha256": "9e75e5e9ec6b88d6b49038085cc6a35a33295230937e2bb29ab88a43868697fe",
+    "resultSha256": "758cd57dd48572ec4efb79ea4d459755ab9b591dc74cd4dc9e175ab5b9f85616",
+    "reason": "Keep selected-session list fields alongside the upstream hidden-row count."
   }
 ]

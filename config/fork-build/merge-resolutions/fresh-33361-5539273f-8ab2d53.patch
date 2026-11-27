@@ -82,27 +82,27 @@ diff --git a/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.t
      }
      return
    }
-@@ -186,12 +204,16 @@
+@@ -186,14 +204,13 @@
      // A caveat precedes local commands (/clear, /model) and bash-mode input, which name nothing.
      const followsLocalCommandCaveat = state.afterLocalCommandCaveat
      state.afterLocalCommandCaveat = isHarnessTurn && title.startsWith('<local-command-caveat')
-+    if (!isMetaUserTurn) {
+-    if (!title) {
+-      return
+-    }
+     if (!isMetaUserTurn) {
+-      state.firstUserTitle ??= title
+-    } else if (!isHarnessTurn) {
 +      state.conversationContent = 'present'
 +      const prompt = extractFullFirstUserPromptText(content)
 +      state.firstUserTitle ??= prompt ? normalizeTitleText(prompt) : null
-+      return
-+    }
-     if (!title) {
-       return
-     }
--    if (!isMetaUserTurn) {
--      state.firstUserTitle ??= title
--    } else if (!isHarnessTurn) {
-+    if (!isHarnessTurn) {
++    } else if (title && !isHarnessTurn) {
        state.metaTitle ??= title
-     } else if (!followsLocalCommandCaveat && state.metaTitle === null) {
+-    } else if (!followsLocalCommandCaveat && state.metaTitle === null) {
++    } else if (title && !followsLocalCommandCaveat && state.metaTitle === null) {
        // Raw text keeps command args and envelope bodies that the 96-character title cuts off.
-@@ -201,6 +223,7 @@
+       state.metaTitle = claudeHarnessTurnTitle(typeof content === 'string' ? content : title)
+     }
+@@ -201,6 +218,7 @@
    }
 
    if (record.type === 'assistant') {
@@ -110,7 +110,7 @@ diff --git a/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.t
      accumulator.messageCount++
      const message = asRecord(record.message)
      addSessionContent(accumulator, 'assistant', message?.content, record.timestamp)
-@@ -209,6 +232,10 @@
+@@ -209,6 +227,10 @@
        accumulator.model = model
      }
      accumulator.totalTokens += claudeUsageTotal(message?.usage)
@@ -121,7 +121,7 @@ diff --git a/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.t
    }
  }
 
-@@ -219,7 +246,7 @@
+@@ -219,7 +241,7 @@
  ): Promise<AiVaultSession | null> {
    // Detach previews so later appends cannot mutate a published session.
    const snapshot = cloneClaudeSessionParseState(state)
@@ -130,7 +130,7 @@ diff --git a/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.t
    snapshot.accumulator.fallbackTitle =
      snapshot.generatedTitle ?? snapshot.firstUserTitle ?? snapshot.metaTitle
    // Count only on the transcript-owning host; runtime hosts stamp identity after parsing, while SSH walks supply counts.
-@@ -231,9 +258,17 @@
+@@ -231,9 +253,17 @@
        options.signal
      )
    }
