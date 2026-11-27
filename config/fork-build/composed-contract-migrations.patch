@@ -536,13 +536,19 @@ index 088beb906a6..6dea17371be 100644
      <div className="@container space-y-5">
        <div className="space-y-4">
 diff --git a/src/renderer/src/components/stats/usage-account-quota-rows.ts b/src/renderer/src/components/stats/usage-account-quota-rows.ts
-index 08f703b61f6..7e95bc1b800 100644
+index 08f703b61f..f85ea7a85b 100644
 --- a/src/renderer/src/components/stats/usage-account-quota-rows.ts
 +++ b/src/renderer/src/components/stats/usage-account-quota-rows.ts
-@@ -30,7 +30,13 @@ export type UsageAccountQuotaRow = {
+@@ -1,5 +1,4 @@
+ import type {
+-  AntigravityAccountUsage,
+   InactiveAccountUsage,
+   ProviderRateLimits,
+   RateLimitRuntimeTarget,
+@@ -30,7 +29,13 @@ export type UsageAccountQuotaRow = {
    provider: ProviderRateLimits
  }
- 
+
 -type AccountGroup = ReturnType<typeof buildClaudeStatusSwitchGroups>[number]
 +type ClaudeAccountGroup = ReturnType<typeof buildClaudeStatusSwitchGroups>[number]
 +type AccountGroup = Omit<ClaudeAccountGroup, 'targets'> & {
@@ -551,9 +557,58 @@ index 08f703b61f6..7e95bc1b800 100644
 +    'id' | 'label' | 'active' | 'hint'
 +  >[]
 +}
- 
+
  function sameRuntime(left: RateLimitRuntimeTarget, right: RateLimitRuntimeTarget): boolean {
    return left.runtime === right.runtime && left.wslDistro === right.wslDistro
+@@ -102,33 +107,6 @@ function managedQuotaRows(
+   )
+ }
+
+-function antigravityQuotaRows(
+-  accounts: AntigravityAccountUsage[],
+-  unverifiable: boolean,
+-  ownerLabel?: string,
+-  t: Translate = translate
+-): UsageAccountQuotaRow[] {
+-  return accounts.map((account) => ({
+-    key: `antigravity:${account.accountId}`,
+-    identity:
+-      account.email ?? t('auto.components.status.bar.antigravity.unknownAccount', 'Google account'),
+-    runtimeLabel: ownerLabel,
+-    active: account.active,
+-    provider:
+-      account.rateLimits && !unverifiable
+-        ? account.rateLimits
+-        : {
+-            provider: 'antigravity',
+-            session: null,
+-            weekly: null,
+-            status: 'unavailable',
+-            updatedAt: account.rateLimits?.updatedAt ?? 0,
+-            error: null,
+-            ...(unverifiable ? { usageMetadata: { unverifiableOwner: true } } : {})
+-          }
+-  }))
+-}
+-
+ export function buildUsageAccountQuotaRows(
+   limits: RateLimitState,
+   accounts: ProviderAccountsSnapshot | null,
+@@ -188,11 +166,8 @@ export function buildUsageAccountQuotaRows(
+   return [
+     ...claude,
+     ...codex,
+-    ...(limits.antigravityAccounts?.length
+-      ? antigravityQuotaRows(limits.antigravityAccounts, unverifiable, ownerLabel, t)
+-      : fallback(limits.antigravity)),
+-    ...USAGE_PROVIDER_KEYS.filter(
+-      (key) => key !== 'claude' && key !== 'codex' && key !== 'antigravity'
+-    ).flatMap((key) => fallback(limits[key]))
++    ...USAGE_PROVIDER_KEYS.filter((key) => key !== 'claude' && key !== 'codex').flatMap((key) =>
++      fallback(limits[key])
++    )
+   ]
+ }
 diff --git a/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx b/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx
 index e605c5bb7d5..4373e4cfb1b 100644
 --- a/src/renderer/src/components/status-bar/accounts/ClaudeSwitcherForOwner.fixture.tsx
@@ -751,3 +806,135 @@ index 00000000000..b041ab273e1
 +    expected: 'local'
 +  }
 +]
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.fixture.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.fixture.tsx
+index 046ca66874..6319750a93 100644
+--- a/src/renderer/src/components/stats/UsageAccountQuotas.fixture.tsx
++++ b/src/renderer/src/components/stats/UsageAccountQuotas.fixture.tsx
+@@ -1,5 +1,6 @@
+ import { defineFixture } from '../../component-fixtures/component-fixture'
+ import { createEmptyRateLimitState } from '../../../../shared/agent-usage/rate-limits/rate-limit-state-factory'
++import type { CodexManagedAccountSummary } from '../../../../shared/agent-accounts/managed-account-types'
+ import type { ProviderRateLimits } from '../../../../shared/agent-usage/rate-limits/rate-limit-types'
+ import { UsageAccountQuotas } from './UsageAccountQuotas'
+
+@@ -50,26 +51,32 @@ export const savedProviderAccounts = defineFixture({
+       <UsageAccountQuotas
+         accounts={{
+           claude: { accounts: [], activeAccountId: null },
+-          codex: { accounts: [], activeAccountId: null },
++          codex: {
++            accounts: [
++              { id: 'work', email: 'work@example.test' },
++              { id: 'personal', email: 'personal@example.test' },
++              { id: 'unread', email: 'unread@example.test' }
++            ].map<CodexManagedAccountSummary>((account) => ({
++              ...account,
++              managedHomeRuntime: 'host',
++              createdAt: checkedAt,
++              updatedAt: checkedAt,
++              lastAuthenticatedAt: checkedAt
++            })),
++            activeAccountId: 'work'
++          },
+           rateLimits: null
+         }}
+         rateLimits={createEmptyRateLimitState({
+           muse: quota('muse', 24),
+-          antigravity: quota('antigravity', 31),
+-          antigravityAccounts: [
+-            {
+-              accountId: 'work',
+-              email: 'work@example.test',
+-              active: true,
+-              rateLimits: quota('antigravity', 31)
+-            },
++          codex: quota('codex', 31),
++          inactiveCodexAccounts: [
+             {
+               accountId: 'personal',
+-              email: 'personal@example.test',
+-              active: false,
+-              rateLimits: quota('antigravity', 64)
+-            },
+-            { accountId: 'unread', email: 'unread@example.test', active: false, rateLimits: null }
++              rateLimits: quota('codex', 64),
++              updatedAt: checkedAt,
++              isFetching: false
++            }
+           ]
+         })}
+         ownerLabel="Build server"
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
+index f550e04077..96b0f78760 100644
+--- a/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
++++ b/src/renderer/src/components/stats/UsageAccountQuotas.test.tsx
+@@ -119,34 +119,16 @@ describe('account quotas', () => {
+     expect(cards[2]).toHaveTextContent('Quota data unavailable')
+   })
+
+-  it('without an account list, shows reported Antigravity accounts and current accounts', () => {
+-    const antigravity = (percent: number): ProviderRateLimits => ({
+-      ...quota(percent, 'plus'),
+-      provider: 'antigravity'
+-    })
+-    const saved = (email: string, active: boolean, rateLimits: ProviderRateLimits | null) => ({
+-      accountId: email,
+-      email,
+-      active,
+-      rateLimits
+-    })
+-    renderQuotas(
+-      createEmptyRateLimitState({
++  it('shows current supported quotas without an account list and ignores a retired provider', () => {
++    const limitsFromOlderHost = {
++      ...createEmptyRateLimitState({
+         codex: quota(27, 'plus'),
+-        muse: { ...quota(12, 'plus'), provider: 'muse' },
+-        antigravity: antigravity(31),
+-        antigravityAccounts: [
+-          saved('active@example.test', true, antigravity(31)),
+-          saved('saved@example.test', false, antigravity(64)),
+-          saved('unread@example.test', false, null)
+-        ]
+-      })
+-    )
+-    const cards = screen.getAllByTestId('usage-quota-antigravity')
+-    expect(cards).toHaveLength(3)
+-    expect(cards[1]).toHaveTextContent('saved@example.test')
+-    expect(cards[1]).toHaveTextContent('64% used')
+-    expect(within(cards[2]).queryByRole('progressbar')).not.toBeInTheDocument()
++        muse: { ...quota(12, 'plus'), provider: 'muse' }
++      }),
++      antigravity: { ...quota(31, 'plus'), provider: 'antigravity' }
++    }
++    renderQuotas(limitsFromOlderHost)
++    expect(screen.queryByTestId('usage-quota-antigravity')).not.toBeInTheDocument()
+     expect(screen.getByTestId('usage-quota-muse')).toHaveTextContent('12% used')
+     expect(screen.getByTestId('usage-quota-codex')).toHaveTextContent('identity unavailable')
+     expect(screen.getByTestId('usage-quota-coverage')).toHaveTextContent(
+diff --git a/src/renderer/src/components/stats/UsageAccountQuotas.tsx b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+index 96132289fe..d8c6543810 100644
+--- a/src/renderer/src/components/stats/UsageAccountQuotas.tsx
++++ b/src/renderer/src/components/stats/UsageAccountQuotas.tsx
+@@ -194,7 +194,7 @@ export function UsageAccountQuotas({
+         {accounts && !accountsUnverifiable && !accounts.failedProviders?.length
+           ? t(
+               'stats.usage.quota.reportedAccountCoverage',
+-              'Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
++              'Claude and Codex show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.'
+             )
+           : t(
+               'stats.usage.quota.partialAccounts',
+diff --git a/src/renderer/src/i18n/locales/en.json b/src/renderer/src/i18n/locales/en.json
+index 685a61b44d..4ef2787782 100644
+--- a/src/renderer/src/i18n/locales/en.json
++++ b/src/renderer/src/i18n/locales/en.json
+@@ -27474,7 +27474,7 @@
+         "title": "Current account quotas",
+         "scope": "{{host}} · Account-wide subscription windows. History filters do not change these limits.",
+         "refresh": "Refresh account quotas",
+-        "reportedAccountCoverage": "Claude, Codex and Antigravity show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.",
++        "reportedAccountCoverage": "Claude and Codex show accounts reported by this host. Other providers show the current account only; unavailable windows do not mean zero usage.",
+         "partialAccounts": "The account list is unavailable or incomplete. Only reported accounts and current provider quota snapshots are shown.",
+         "noSources": "No account quota source is available. Manage provider accounts to check your subscription.",
+         "manage": "Manage accounts",

@@ -2482,5 +2482,161 @@
     "patchSha256": "eb19756ef1cde2e327225f41f4b1c79ff6400692f813d70de2c3d0d0b547b30b",
     "resultSha256": "b02b0bca20348fa9389ac5e1e840e2fbd39437dd1de9afc126f2dd8b13bc9f19",
     "reason": "Keep foreground task actions and child chat navigation together in the mobile overlay and tray, including their labels."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/orchestration/worker/start/local-worker-start.ts",
+    "blobs": [
+      "d49eb5df90fc2f94d82375bf2e6b9a8c706a542e",
+      "14a771d17821a83316f8d8531fd863609d4b92a5",
+      "0eb0d531dfa5bcb1b9b8d20592b0d6b33d078878"
+    ],
+    "patch": "nov27-33369-a5434e1d-b487adf.patch",
+    "patchSha256": "347252111714271fdf268f8d2fe4c7783a670b25244e2eadc50dc51ecadc25e8",
+    "resultSha256": "efc1db63d90965f69bdc4f268f8e665b40d67b0e3f724cbb65831ac82173941b",
+    "reason": "Keep reviewed host launch preference preflight and fast worker selection alongside upstream worker custody and dispatch handling."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "46539b68dc92dc8705b372eec5c6b878be1c53ea",
+      "f4903c0b7aa8605104ec7f5f1e70a239d49a25c4",
+      "170cdc7c3741f254eb1d99faf6be758967efc933"
+    ],
+    "patch": "nov27-33502-927f1d2c-a917050.patch",
+    "patchSha256": "c05d17a0b8ab864109b9b20ff0bf338ea4f473bd0b3ad74cb403e68835028cff",
+    "resultSha256": "d0620aa105cbb93cb5baed1fb320523bfc0079ee1cb4f2fc3e44f482fe5e730c",
+    "reason": "Retain published project-order modes and settings contract with the latest independent catalog entries and workspace state."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/ru.json",
+    "blobs": [
+      "7589a25be6ec025e7d87f5d2efdd6072623fa9ab",
+      "86917524a0f5debc12517d9a479b6587fad918a7",
+      "04c5bef5918d17f55f1530018e7714347bf18007"
+    ],
+    "patch": "nov27-33502-58923bac-17ebf3f.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "ac6abdb6dd48264fd45c464a4095f823aa3c46fc0f037c96ba372da4dc2ee9d9",
+    "reason": "Retain published project-order modes and settings contract with the latest independent catalog entries and workspace state."
+  },
+  {
+    "path": "src/shared/orca-profiles/persisted-ui-state-types.ts",
+    "blobs": [
+      "add00b392a2ec3d2fcb1f7964b427fe6777fdc29",
+      "2dbcad4cc0e43fb0c2aead18306c5b4f8e972163",
+      "97c3aa899a9dc8b42e7537a406ff982cc3f5a3e6"
+    ],
+    "patch": "nov27-33502-028965f1-88a0104.patch",
+    "patchSha256": "d113dc15aff64517f459fabb0e45750e8d268378fa258da1cca983ff5f005d8d",
+    "resultSha256": "b679452fba48c542cf27c4490d6e20916d1ae52008598a573f0b67359af35181",
+    "reason": "Retain published project-order modes and settings contract with the latest independent catalog entries and workspace state."
+  },
+  {
+    "path": "src/shared/rpc-contract/client-ui/client-ui-params.ts",
+    "blobs": [
+      "93ac157b5c029cab826563cbed0638a717fdcf23",
+      "39f3faf07a86421245071edb613bf7da0fe4dbc9",
+      "55edd3d040b02d6e9e29709336c1641974dd8385"
+    ],
+    "patch": "nov27-33502-44bfa9a7-9109910.patch",
+    "patchSha256": "982d2ffa7d603da2ff1300d7657ec408a09034c009dc7a0e36a15e62b8c01bc8",
+    "resultSha256": "d88d0315ea2acba0e509a8dd85250c9a008bb267029f390b3271d637b4085a04",
+    "reason": "Retain published project-order modes and settings contract with the latest independent catalog entries and workspace state."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "2bd658b5d890340dd3e082e0e913af543abd8f1b",
+      "b74f46984c8c7fcfcda9975f1b1da146e5f119ce",
+      "bec530f55d71d618c4e518dc07e54ad4024dc26d"
+    ],
+    "patch": "nov27-34895-1ff733f3-d7cf1b0.patch",
+    "patchSha256": "e374a964875199c4105491a3530bc5f2ad91623cdf103d8cf4f39c34f5f86368",
+    "resultSha256": "65ce71d03793045129094b851c352023c171078b2835c7011268f368317c9779",
+    "reason": "Advertise the selected session children capability alongside upstream task-note and other runtime capabilities."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "46539b68dc92dc8705b372eec5c6b878be1c53ea",
+      "2043b0ccbebb6760dfac8c29e62a1a50f9371ea5",
+      "d655bca86de9fd9b6bb3a00b75067f4227572fe8"
+    ],
+    "patch": "nov27-37744-927f1d2c-dbcd18a.patch",
+    "patchSha256": "0c2235629f02876cbd9e4eab9d74afb57f8e2730fecb78bce0559bc8ed7b1f99",
+    "resultSha256": "8051e7134e53e05086147daf410f1d473aa2867e8a6e3459346a6ff39a67d606",
+    "reason": "Preserve linked-chat consent and delivery capability identifiers with upstream task notes, worker preferences and sidebar translations."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "2bd658b5d890340dd3e082e0e913af543abd8f1b",
+      "69613669a602b56b334940c6dbfc3e37b7b88659",
+      "17516e39c465707905b5b25b8cd0adf8c2194004"
+    ],
+    "patch": "nov27-37744-1ff733f3-6a58863.patch",
+    "patchSha256": "ce976b340eae9215c024f5d34c2a2c87bd820b6c2cbd065298989180890c6eb2",
+    "resultSha256": "e4ff1e9e041241c9a4a0ae283ff45906edba642bd6286b639345093db70815d0",
+    "reason": "Preserve linked-chat consent and delivery capability identifiers with upstream task notes, worker preferences and sidebar translations."
+  },
+  {
+    "path": "src/renderer/src/i18n/locales/en.json",
+    "blobs": [
+      "46539b68dc92dc8705b372eec5c6b878be1c53ea",
+      "92d7b4481f2a28aabb4b154cc14d9de2d8db167c",
+      "6a2651ecd02c08f66962663078dfc11c8b36580a"
+    ],
+    "patch": "nov27-38963-927f1d2c-4603dc6.patch",
+    "patchSha256": "46b18b3bae758aba2b306872793e60822177ee66a06494e9498ca69fce96a5ad",
+    "resultSha256": "9559c40bbe3986c7ca3aae0c80d82c50c960016ee479486c2b93a0e1b6c46846",
+    "reason": "Retain the released foreground-to-background action and labels while preserving current linked-chat and worker capabilities."
+  },
+  {
+    "path": "src/shared/orchestration/orchestration-runtime-capabilities.ts",
+    "blobs": [
+      "2bd658b5d890340dd3e082e0e913af543abd8f1b",
+      "e8865f58fe0c0e68cd80cc8f2c7a8d6b9ab47e5f",
+      "bec530f55d71d618c4e518dc07e54ad4024dc26d"
+    ],
+    "patch": "nov27-38963-1ff733f3-4c1ff3f.patch",
+    "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "resultSha256": "e4ff1e9e041241c9a4a0ae283ff45906edba642bd6286b639345093db70815d0",
+    "reason": "Retain the released foreground-to-background action and labels while preserving current linked-chat and worker capabilities."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockGlyph.tsx",
+    "blobs": [
+      "1de7ae4c359d182cc3dfeae9f49268f79478603d",
+      "1d684bd873ea127b2cc54a2759c77a03ed6db9c2",
+      "d009333dde2dbcaea46ed579400e45ad2626e65c"
+    ],
+    "patch": "nov27-48762-362317b2-9b4bf35.patch",
+    "patchSha256": "877278291adf014c605025dd90b94f9d354f449b186b1c3c303247273b860da7",
+    "resultSha256": "efec7ce32376680398fd51fdadf971823bacf5bf4c25cbd38752ae0bf3265306",
+    "reason": "Keep the command and subagent kind icons and accessible labels alongside upstream progress notes and the compact animated running mark."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockPill.tsx",
+    "blobs": [
+      "d04e5478a40ca3fb6caf0e852c34615fbcabdae1",
+      "0b72485164cc828f0552ad16cd75edd7911df63c",
+      "43c44e10e2ace34f9bc350de8bae9b9a672ca991"
+    ],
+    "patch": "nov27-48762-6015b5a7-962ca84.patch",
+    "patchSha256": "dfdb0de7bf853f46d4f144342827e8be833a327a9672888e16b30138ae343b38",
+    "resultSha256": "7e256f5321c3de74994843ae5573dca1553e9175061bae27dd14eedcbb9a7813",
+    "reason": "Keep the command and subagent kind icons and accessible labels alongside upstream progress notes and the compact animated running mark."
+  },
+  {
+    "path": "src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRow.tsx",
+    "blobs": [
+      "90b69cee09a0ed731876cf6c4c758d230cbeab6d",
+      "5133f9dee4a997e3e2089d43e67b325986c684a1",
+      "406fe51fb0f2a2b95bb582cdc370355ba72d25e3"
+    ],
+    "patch": "nov27-48762-439c7a02-ca8b1ce.patch",
+    "patchSha256": "37d8bdca06e9a00ec664b02d970455d49641d86c8078076c5c1919bdc2574e89",
+    "resultSha256": "73cdcaabc24a8baec89b98de95b34fb3f8de944e464833462b4be30303bd3036",
+    "reason": "Keep the command and subagent kind icons and accessible labels alongside upstream progress notes and the compact animated running mark."
   }
 ]
