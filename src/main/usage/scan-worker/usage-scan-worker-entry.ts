@@ -23,6 +23,7 @@ import type {
 } from './usage-scan-worker-protocol'
 import {
   readUsageSourceCache,
+  readUsageSourceCacheForScan,
   splitUsageCacheFile,
   writeUsageSourceCache,
   type UsageSourceCacheRef
@@ -79,13 +80,15 @@ async function runScan(
   // The switch narrows each provider's cache type without assertions.
   switch (request.providerId) {
     case 'claude': {
-      const previous = await readClaudeUsageSourceCache(request.sourceCache)
+      const previous = await readClaudeUsageSourceCache(request.sourceCache, true)
       const result = await scanClaudeUsageFiles(
         request.worktrees,
         previous.sources,
         onFilesScanned,
         request.profileDirs,
         previous.verifiedSources,
+        previous.accountAttributionAvailable === false ? [] : request.accountRoots,
+        previous.reuseProjections ?? false,
         (files) =>
           checkpointSourceCache(() => writeClaudeUsageSourceCache(request.sourceCache, files))
       )
@@ -102,10 +105,15 @@ async function runScan(
       }
     }
     case 'codex': {
+      const previous = await readUsageSourceCacheForScan<CodexUsagePersistedFile>(
+        request.sourceCache
+      )
       const result = await scanCodexUsageFiles(
         request.worktrees,
-        await readUsageSourceCache<CodexUsagePersistedFile>(request.sourceCache),
+        previous.sources,
         onFilesScanned,
+        previous.reuseProjections,
+        previous.accountAttributionAvailable,
         (files) => checkpointSourceCache(() => writeUsageSourceCache(request.sourceCache, files))
       )
       await persistSourceCache(request.sourceCache, result.processedFiles)
@@ -117,12 +125,16 @@ async function runScan(
       }
     }
     case 'opencode': {
+      const previous = await readUsageSourceCacheForScan<OpenCodeUsagePersistedDatabase>(
+        request.sourceCache
+      )
       const result = await scanOpenCodeUsageDatabases(
         request.worktrees,
-        normalizeOpenCodeUsagePersistedDatabases(
-          await readUsageSourceCache<OpenCodeUsagePersistedDatabase>(request.sourceCache)
-        ),
-        onFilesScanned
+        normalizeOpenCodeUsagePersistedDatabases(previous.sources),
+        onFilesScanned,
+        request.accountRoots,
+        previous.reuseProjections,
+        previous.accountAttributionAvailable
       )
       await persistSourceCache(request.sourceCache, result.processedDatabases)
       return {

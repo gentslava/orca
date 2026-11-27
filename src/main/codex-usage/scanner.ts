@@ -8,6 +8,11 @@ import type { CodexUsageWorktreeRef } from './codex-usage-event-attribution'
 import { codexUsageAggregation } from './codex-usage-aggregation'
 import { getProcessedFileInfo, parseCodexUsageFile } from './codex-rollout-file-parse'
 import { resolveCodexRolloutResume } from './codex-rollout-resume-state'
+import { getCodexAccountHomeSessionSources } from '../codex/history/rollouts/codex-account-home-discovery'
+import {
+  createUsageAccountAttribution,
+  createUsageAccountRootResolver
+} from '../usage/usage-account-attribution'
 import type {
   CodexUsageDailyAggregate,
   CodexUsageParseResumeState,
@@ -35,6 +40,8 @@ export async function scanCodexUsageFiles(
   worktrees: CodexUsageWorktreeRef[],
   previousProcessedFiles: CodexUsagePersistedFile[],
   onFilesScanned?: (count: number) => void,
+  reuseProjections = true,
+  accountAttributionAvailable = true,
   onCheckpoint?: UsageScanCheckpoint<CodexUsagePersistedFile>
 ): Promise<{
   processedFiles: CodexUsagePersistedFile[]
@@ -43,6 +50,16 @@ export async function scanCodexUsageFiles(
 }> {
   const files = await listCodexSessionFiles()
   const previousByPath = new Map(previousProcessedFiles.map((file) => [file.path, file]))
+  const accountAttribution = createUsageAccountAttribution(
+    previousProcessedFiles.map((file) => ({
+      keys: file.ownedEventKeys ?? [],
+      accountIds: file.ownedAccountIds
+    }))
+  )
+  const resolveAccount = createUsageAccountRootResolver(
+    accountAttributionAvailable ? getCodexAccountHomeSessionSources() : []
+  )
+  const sourceAccounts = new Map<string, string | null>()
   // Share the per-cwd attribution cache across all files in this scan.
   const resolveWorktree = await createUsageWorktreeResolver(worktrees)
   const legacySourceSkipBytesByPath = getLegacySourceSkipBytesByPath(files)
@@ -63,6 +80,7 @@ export async function scanCodexUsageFiles(
   for (const [index, filePath] of files.entries()) {
     const legacySourceSkipBytes = legacySourceSkipBytesByPath.get(filePath) ?? 0
     const fileInfo = await getProcessedFileInfo(filePath)
+    sourceAccounts.set(filePath, await resolveAccount(filePath))
     const previous = previousByPath.get(filePath)
     const mustReclaimDeferred = lostOwnerPath && previous?.hasDeferredClaims !== false
     // Reuse and resume both build on the cached projections, so a record missing them is reparsed.
@@ -73,6 +91,7 @@ export async function scanCodexUsageFiles(
       Array.isArray(previous.sessions) &&
       Array.isArray(previous.dailyAggregates)
     const canReuse =
+      reuseProjections &&
       !mustReclaimDeferred &&
       legacySourceSkipBytes === 0 &&
       previous &&
@@ -88,6 +107,7 @@ export async function scanCodexUsageFiles(
     } else {
       // Resume growing rollouts; reclaims and legacy suffix parses require fresh context.
       if (
+        reuseProjections &&
         !mustReclaimDeferred &&
         legacySourceSkipBytes === 0 &&
         previous &&
@@ -137,6 +157,8 @@ export async function scanCodexUsageFiles(
     const processed = await parseCodexUsageFile(filePath, resolveWorktree, {
       legacySourceSkipBytes: legacySourceSkipBytesByPath.get(filePath) ?? 0,
       resume,
+      accountIdForEvent: (key) =>
+        accountAttribution.observe(key, sourceAccounts.get(filePath) ?? null),
       canClaimEventKey: (eventKey) => {
         const owner = eventOwnerByKey.get(eventKey)
         return owner === undefined || owner === filePath
@@ -190,6 +212,21 @@ export async function scanCodexUsageFiles(
       if ((index + 1) % YIELD_EVERY_FILES === 0) {
         await yieldToEventLoop()
       }
+    }
+  }
+
+  // Conflicting copies discovered later must also remove earlier source-account claims.
+  for (const filePath of files) {
+    const current = parsedByPath.get(filePath) ?? reusedByPath.get(filePath)
+    if (
+      current &&
+      accountAttribution.needsReprojection({
+        keys: current.ownedEventKeys,
+        accountIds: current.ownedAccountIds
+      })
+    ) {
+      await parseAndPublish(filePath)
+      onFilesScanned?.(1)
     }
   }
 

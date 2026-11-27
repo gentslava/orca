@@ -5791,7 +5791,6 @@
         },
         "StatsPane": {
           "42d3e0bdf7": "Proveedor de análisis de uso: {{value0}}",
-          "c79f073d4c": "Análisis de uso",
           "a58aba506f": "PRs creados",
           "1c96f433e2": "Tiempo trabajado por agentes",
           "9dbec9e675": "Agents iniciados",
