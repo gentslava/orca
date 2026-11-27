@@ -377,16 +377,19 @@ index 800ec98f6a67acc4a8809f4a6122343b7c7ed858..1972597e95a3e59bb42361aabc1d2e99
    }
  
 diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
-index 5304c870008302ac7b0999c1790416685432a909..fd3fe5b3d1f060d83b6f7f857fb4ffc12695bebe 100644
+index 9cfc6740b7627280586351e8acd264e2e1ff0ac2..0cd878415dc009532480f39032f17e1ca075dd80 100644
 --- a/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
 +++ b/src/renderer/src/components/native-chat/tools/tasks/dock/WorkerDockRoster.tsx
-@@ -145,4 +145,5 @@ export function WorkerDockRoster(props: {
+@@ -131,6 +131,7 @@
+   // With no rows, the pill says only what is known: the provider reports work it does not list,
    // or the worker read failed (which claims nothing about whether anything runs).
    const unlisted = items.length === 0 && Boolean(props.incomplete)
 +  const defaultGlyph = unlisted ? 'running' : 'queued'
    const unread = items.length === 0 && !unlisted && Boolean(props.unavailable)
    const shown = items.length > 0 || unlisted || unread
-@@ -291,11 +292,5 @@ export function WorkerDockRoster(props: {
+   const close = useLatestHandler((refocus: boolean) => {
+@@ -289,13 +290,7 @@
+         <WorkerDockPill
            pill={pill}
            kind={topRow?.kind}
 -          glyph={
@@ -398,7 +401,8 @@ index 5304c870008302ac7b0999c1790416685432a909..fd3fe5b3d1f060d83b6f7f857fb4ffc1
 -          }
 +          glyph={top ? workerDockGlyph({ ...top, retired: topRow?.retired }) : defaultGlyph}
            label={chipLabel}
-           latest={topRow ? workerDockRowTitle(topRow) : count}
+           spokenLabel={chipSpoken}
+           latest={topRow ? workerDockSpokenTitle(topRow.kind, workerDockRowTitle(topRow)) : count}
 diff --git a/src/renderer/src/i18n/locales/es.json b/src/renderer/src/i18n/locales/es.json
 index 25725dcf36eecacee9781ff711949008dc73dfc4..c82719c942321d315bd156843ced6ebf2d50180c 100644
 --- a/src/renderer/src/i18n/locales/es.json
@@ -596,3 +600,171 @@ index a72f1bf04048ee3669cbc4d04af0d64b6f15b6d5..e08749a2fb434267cfefb542c9dad4be
 +    { skills: body.skills }
    )
  }
+diff --git a/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-command-group.test.tsx b/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-command-group.test.tsx
+index 0f0a5b584ac243f92afa81a01367fad5e06d1dae..3c38ed681e9a5cbc9994101a18acb65d7aa8e90c 100644
+--- a/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-command-group.test.tsx
++++ b/src/renderer/src/components/native-chat/tools/tasks/dock/worker-dock-command-group.test.tsx
+@@ -165,6 +165,15 @@
+       expect.stringContaining('Explore sub-1')
+     ])
+     expect(within(commands).getByText('make target-shell-1')).toBeInTheDocument()
++    expect(
++      within(workers).getByText('Explore sub-1').closest('button')?.querySelector('svg.lucide-bot')
++    ).toBeInTheDocument()
++    expect(
++      within(commands)
++        .getByText('make target-shell-1')
++        .closest('button')
++        ?.querySelector('svg.lucide-square-terminal')
++    ).toBeInTheDocument()
+     expect(document.querySelectorAll('[data-worker-dock-group-label]')).toHaveLength(1)
+   })
+
+@@ -175,7 +184,11 @@
+   })
+
+   it('keeps a new agent in the agents group while the card is held', () => {
+-    const view = renderTray({ expanded: true, workers: [worker('a')], tasks: [command('shell-1')] })
++    const view = renderTray({
++      expanded: true,
++      workers: [worker('a')],
++      tasks: [command('shell-1')]
++    })
+     const region = screen.getByRole('region', { name: 'Workers and background commands' })
+     fireEvent.pointerEnter(region.parentElement!)
+     view.rerender({ tasks: [command('shell-1'), subagent('sub-new')] })
+@@ -447,7 +460,11 @@
+   })
+
+   it('keeps focus on a command row’s Stop when the last worker leaves', () => {
+-    const view = renderTray({ expanded: true, workers: [worker('a')], tasks: [command('shell-1')] })
++    const view = renderTray({
++      expanded: true,
++      workers: [worker('a')],
++      tasks: [command('shell-1')]
++    })
+     const stop = screen.getByRole('button', { name: /^Stop .*make target-shell-1/ })
+     stop.focus()
+     view.rerender({ workerRows: new Map(), workerIdentities: [] })
+diff --git a/src/main/claude/child-work/claude-child-wake-lease.ts b/src/main/claude/child-work/claude-child-wake-lease.ts
+index 0c62c91ff4a3644f09f06b9e6c9247a526cb55d9..dfce3483d1b9fd88de3a61256dd5a393c28ddf45 100644
+--- a/src/main/claude/child-work/claude-child-wake-lease.ts
++++ b/src/main/claude/child-work/claude-child-wake-lease.ts
+@@ -2,7 +2,12 @@
+ // owner again when its surviving descendants end, so an unbounded wake left the row working for good.
+
+ import type { AgentChildWorkEvidence } from '../../../shared/agent-status/child-work/agent-status-child-work-evidence'
+-import type { DecodedClaudeTask, EndedClaudeTask } from './claude-child-work-evidence'
++import { liveClaudeTaskRunState, record } from '../background-tasks/claude-background-task-frames'
++import {
++  claudeRosterEntries,
++  type DecodedClaudeTask,
++  type EndedClaudeTask
++} from './claude-child-work-evidence'
+
+ /** Long enough for a resumed owner's first frame, short enough that a wrong guess settles quickly. */
+ export const CLAUDE_CHILD_WAKE_LEASE_MS = 60_000
+@@ -68,6 +73,29 @@ export class ClaudeChildWake {
+     }
+   }
+
++  confirmRoster(tasks: unknown): void {
++    if (!Array.isArray(tasks)) {
++      return
++    }
++    for (const { id, task, live } of claudeRosterEntries(tasks)) {
++      if (live) {
++        this.confirmRunning(id, task)
++      }
++    }
++  }
++
++  confirmFrame(id: string, message: Record<string, unknown>): void {
++    const patch = record(message.patch)
++    if (patch && liveClaudeTaskRunState(patch.status) !== null) {
++      this.confirmRunning(id, patch)
++    } else if (
++      liveClaudeTaskRunState(message.status) !== null ||
++      message.subtype === 'task_progress'
++    ) {
++      this.confirmRunning(id, message)
++    }
++  }
++
+   /** Whether this owner's wake already ran out, so the decoder must not read it as done. */
+   spent(id: string): boolean {
+     return this.expired.has(id)
+diff --git a/src/main/claude/child-work/claude-child-work-decoder.ts b/src/main/claude/child-work/claude-child-work-decoder.ts
+index 2de19775355e723dd70f4f83a0c535a5b57ac4c9..220be3a9f2fb62d862aa369ff3dcb7ee285c79db 100644
+--- a/src/main/claude/child-work/claude-child-work-decoder.ts
++++ b/src/main/claude/child-work/claude-child-work-decoder.ts
+@@ -25,7 +25,6 @@ import {
+   claudeChildWorkObservation,
+   type DecodedClaudeTask,
+   type EndedClaudeTask,
+-  claudeRosterEntries,
+   claudeTaskProgressFacts,
+   type ClaudeTaskFacts
+ } from './claude-child-work-evidence'
+@@ -70,13 +69,7 @@ export class ClaudeChildWorkDecoder {
+       return
+     }
+     if (message.subtype === 'background_tasks_changed') {
+-      if (Array.isArray(message.tasks)) {
+-        for (const { id, task, live } of claudeRosterEntries(message.tasks)) {
+-          if (live) {
+-            this.wake.confirmRunning(id, task)
+-          }
+-        }
+-      }
++      this.wake.confirmRoster(message.tasks)
+       const known = { live: this.live, ended: this.ended, parentOf: this.taskInvocations.parentOf }
+       for (const [id, task] of tf.claudeRosterStarts(message, known)) {
+         this.started(id, task, true)
+@@ -91,18 +84,7 @@ export class ClaudeChildWorkDecoder {
+     if (selected && (!selected.current || selected.invocation.excluded)) {
+       return
+     }
+-    // Only a frame the decoder admits proves the provider runs this owner; a historical alias
+-    // that is ignored above would otherwise clear the lease and leave the row working for good.
+-    // A frame that does not report running (a metadata-only update) says nothing about a resume.
+-    // task_progress is emitted only while a task runs, and a running update reports it under the patch.
+-    const patch = record(message.patch)
+-    const running = liveClaudeTaskRunState(patch?.status) ?? liveClaudeTaskRunState(message.status)
+-    if (running !== null || message.subtype === 'task_progress') {
+-      this.wake.confirmRunning(
+-        id,
+-        liveClaudeTaskRunState(patch?.status) !== null ? patch! : message
+-      )
+-    }
++    this.wake.confirmFrame(id, message)
+     switch (message.subtype) {
+       case 'task_started':
+         this.started(id, message)
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
+index b17ae348f7a46c9a6c74b38b12016e22c279a2b3..a43e8fefd1e88cd1d45f26e0b923cf5e5dce25a9 100644
+--- a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
+@@ -122,7 +122,7 @@ export function assertWorkerLaunchPreferencesCreateTerminal(args: {
+   if (args.terminal && (args.role || args.model || args.effort || args.fastMode !== undefined)) {
+     throw new OrchestrationError(
+       'invalid_argument',
+-      '--role, --model and --effort or --fast cannot be applied when reusing an existing terminal.'
++      '--role, --model, --effort, and --fast cannot be applied when reusing an existing terminal.'
+     )
+   }
+ }
+diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/worker-retry-launch-defaults.test.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/worker-retry-launch-defaults.test.ts
+index e883dd2850cbb91ade100e53856ba885dee1b7ea..7df21a0951f7c2379c1676aebe065123876aa23d 100644
+--- a/src/main/runtime/rpc/methods/orchestration/worker/start/worker-retry-launch-defaults.test.ts
++++ b/src/main/runtime/rpc/methods/orchestration/worker/start/worker-retry-launch-defaults.test.ts
+@@ -323,7 +323,8 @@ describe('worker-start --retry-of launch preference rehydration', () => {
+       })
+     ).rejects.toMatchObject({
+       code: 'invalid_argument',
+-      message: '--model and --effort cannot be applied when reusing an existing terminal.'
++      message:
++        '--role, --model, --effort, and --fast cannot be applied when reusing an existing terminal.'
+     })
+
+     const reused = await callStart({

@@ -80,7 +80,7 @@
     },
     {
       "number": 46107,
-      "reason": "Preserve the reviewed Russian translations while matching current upstream English keys, terminology and interpolation."
+      "reason": "Use the original Russian translation PR directly. Its current catalog and upstream preserve every translated key from the older fork adaptation with matching English source."
     },
     {
       "number": 34899,
@@ -366,10 +366,6 @@
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-a7a-file-changes-43124"
     },
-    "46107": {
-      "repository": "gentslava/orca",
-      "ref": "refs/heads/integration/refresh-508d-russian-46107"
-    },
     "33371": {
       "repository": "gentslava/orca",
       "ref": "refs/heads/integration/refresh-9a5a-usage-history-catalogs-33371"
@@ -397,6 +393,10 @@
     "activity-row-project-only": {
       "ref": "refs/heads/fix/activity-row-project-only",
       "reason": "Activity rows name only the project; upstream 45027 keeps the workspace name."
+    },
+    "antigravity-cli-quota": {
+      "ref": "refs/heads/fix/fork-antigravity-cli-quota",
+      "reason": "Restore Gemini and other Antigravity quotas with opt-in background polling and manual refresh through the local Antigravity CLI."
     },
     "android-fork-update-channel": {
       "ref": "refs/heads/integration/fork-android-update-c475",

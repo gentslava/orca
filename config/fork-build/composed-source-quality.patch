@@ -1075,24 +1075,6 @@ index e075d602a6f0ee1658de0d65342a5f46623c8116..0eada7e55a85027a063c792493035fad
                        model,
                        spec.dialect.effortChangesModel ? ready : undefined,
                        (result) =>
-diff --git a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
-index 86aaae165df410cfd0e3edc540e6e13702b3391d..fe3bf2041e13549e04156d7187b4434c2a75ba9b 100644
---- a/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
-+++ b/src/main/ai-vault/structured-sessions/structured-session-ownership.test-support.ts
-@@ -146,9 +146,11 @@ export function installChats(records: AgentSessionRecord[]) {
-     hostId: 'local',
-     listRecords: () => records,
-     getRecord: vi.fn((sessionId: string) => byId.get(sessionId) ?? null),
--    listConversations: vi.fn(() => records.map(agentSessionConversationView))
-+    listConversations: vi.fn(() => records.map(agentSessionConversationView)),
-+    conversationsKeyedBy: (keys: AgentSessionConversationKeys, key: string) =>
-+      records.map(agentSessionConversationView).filter((view) => keys(view).includes(key))
-   }
--  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the ownership read touches only `deps.store.listConversations`, `getRecord` and `hostId`; the rest of the host is never reached.
-+  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: conversation projection only reads the store methods supplied by this fixture.
-   setStructuredAgentSessionHost({ deps: { store } } as never)
-   return store
- }
 diff --git a/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts b/src/main/claude/structured/claude-structured-session-identity.test-fixture.ts
 new file mode 100644
 index 0000000000000000000000000000000000000000..33ff3d2be15665d0083a08355d532b0d6524a5b4
@@ -2269,19 +2251,6 @@ index a4bc3416ef7f9bb548971c03b75951b1ca9d6bb0..32adfadc107b88f7c52ef6c8ec73ee1d
  import { stripLeadingAgentTitleDecoration } from '../../../../../shared/agent-status/title/agent-title-decoration'
  import { getAgentLabel } from '@/lib/agent-catalog/agent-catalog'
  import { basename } from '@/lib/path'
-diff --git a/config/zod-prefer-lazy-baseline.txt b/config/zod-prefer-lazy-baseline.txt
-index 36a77bf9a5..e1c370fe71 100644
---- a/config/zod-prefer-lazy-baseline.txt
-+++ b/config/zod-prefer-lazy-baseline.txt
-@@ -338,7 +338,7 @@
- 70 src/shared/rpc-contract/source-control/git-params.ts
- 2 src/shared/rpc-contract/structured-agent-session/agent-session-attachment-params.ts
- 2 src/shared/rpc-contract/structured-agent-session/structured-agent-session-create-tab-params.ts
--37 src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
-+36 src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
- 47 src/shared/rpc-contract/terminal/terminal-unary-params.ts
- 36 src/shared/rpc-contract/workspace-layout/workspace-layout-params.ts
- 2 src/shared/rpc-contract/workspace-layout/workspace-layout-sleep-wake-params.ts
 diff --git a/src/main/runtime/orchestration/session-links/session-link-store.ts b/src/main/runtime/orchestration/session-links/session-link-store.ts
 index d5f8ff82b5..0cd62dc66a 100644
 --- a/src/main/runtime/orchestration/session-links/session-link-store.ts
@@ -2345,41 +2314,6 @@ index b2ddc670de..6e021624f3 100644
  )
  const PAGE_SIZE = 100
 
-diff --git a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
-index 4a1caed07c..f125e688c7 100644
---- a/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
-+++ b/src/main/runtime/rpc/methods/orchestration/worker/start/launch/worker-launch-preferences.ts
-@@ -10,6 +10,7 @@ import type { OrcaRuntimeService } from '../../../../../../orca-runtime'
- import type { AgentMessageSender } from '../../../../../../../../shared/agent-session/journal/agent-session-message-source'
- import { OrchestrationError } from '../../../../../../orchestration/orchestration-error'
- import { z } from 'zod'
-+import { lazyZodSchema } from '../../../../../../../../shared/schema/lazy-zod-schema'
-
- export type OrchestrationWorkerLaunchSelection = {
-   agent: TuiAgent | null
-@@ -26,13 +27,15 @@ export type OrchestrationWorkerLaunchReceipt = {
-   effective: OrchestrationWorkerLaunchSelection | null
- }
-
--const PreflightSelection = z.object({
--  agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
--  model: z.string().nullable(),
--  effort: z.string().nullable(),
--  fastMode: z.boolean().optional(),
--  serviceTier: z.string().optional()
--})
-+const PreflightSelection = lazyZodSchema(() =>
-+  z.object({
-+    agent: z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value)),
-+    model: z.string().nullable(),
-+    effort: z.string().nullable(),
-+    fastMode: z.boolean().optional(),
-+    serviceTier: z.string().optional()
-+  })
-+)
-
- export function parseWorkerLaunchPreflight(value: unknown): OrchestrationWorkerLaunchReceipt {
-   const parsed = z
 diff --git a/src/shared/agent-session/agent-session-foreground-task.ts b/src/shared/agent-session/agent-session-foreground-task.ts
 index 21c607f9da..a620e5a9aa 100644
 --- a/src/shared/agent-session/agent-session-foreground-task.ts
@@ -3175,3 +3109,114 @@ index 2fd5d2997c..a1351a37a7 100644
 
  export function sessionLinkPeers(link: SessionLink, id: string): SessionLinkParticipant[] {
    const own = link.participants.find((p) => p.sessionId === id)
+diff --git a/src/main/codex/structured/journal/codex-structured-journal-items.ts b/src/main/codex/structured/journal/codex-structured-journal-items.ts
+index 3c2717fc0503dfe2b07fc5bbbacc1210a6bc206d..70272c3adb0de1ef18eba2d55ba2bc7bd2830a6b 100644
+--- a/src/main/codex/structured/journal/codex-structured-journal-items.ts
++++ b/src/main/codex/structured/journal/codex-structured-journal-items.ts
+@@ -190,27 +190,22 @@ export class CodexJournalItems {
+     if (!translated.body) {
+       return CODEX_JOURNAL_ADMITTED
+     }
++    const { sink } = this.deps
+     if (method === 'item/completed') {
+-      const admission = appendCodexLifecycleItem(
+-        this.deps.sink,
+-        identity,
+-        translated.body,
+-        attribution
+-      )
+-      return admission.accepted ? publishCodexLifecycle(this.deps.sink) : admission
++      const admission = appendCodexLifecycleItem(sink, identity, translated.body, attribution)
++      return admission.accepted ? publishCodexLifecycle(sink) : admission
+     }
+     const options = requiresTerminalSettlement(translated.body) ? { lifecycle: true } : {}
+     const appendOptions = { ...options, ...attribution }
+-    const admission = this.deps.sink.tryAppendItem
+-      ? this.deps.sink.tryAppendItem(identity, translated.body, appendOptions)
+-      : (this.deps.sink.appendItem(identity, translated.body, appendOptions),
+-        CODEX_JOURNAL_ADMITTED)
++    const admission = sink.tryAppendItem
++      ? sink.tryAppendItem(identity, translated.body, appendOptions)
++      : (sink.appendItem(identity, translated.body, appendOptions), CODEX_JOURNAL_ADMITTED)
+     if (!admission.accepted) {
+       return admission
+     }
+-    return this.deps.sink.tryPublish
+-      ? this.deps.sink.tryPublish(options)
+-      : (this.deps.sink.publish(options), CODEX_JOURNAL_ADMITTED)
++    return sink.tryPublish
++      ? sink.tryPublish(options)
++      : (sink.publish(options), CODEX_JOURNAL_ADMITTED)
+   }
+
+   /** A kept agent's running command: later output streams onto its row with its saved fields. */
+@@ -286,30 +281,28 @@ export class CodexJournalItems {
+     while (this.activeItems.size - this.streams.persistentCount > room) {
+       const oldest = [...this.activeItems].find(
+         ([, active]) => !codexCommandOutlivesTurn(active.item)
+-      )?.[0]
+-      if (typeof oldest !== 'string') {
++      )
++      if (!oldest) {
+         break
+       }
+-      const evicted = this.activeItems.get(oldest)
+-      if (evicted) {
+-        const body = interruptedCodexItemBody(evicted, this.streams)
+-        if (body) {
+-          const admission = appendCodexLifecycleItem(this.deps.sink, evicted.identity, body, {
+-            ...this.deps.attributionFor(evicted.threadId, evicted.turnId),
+-            ...(evicted.startedAt === undefined ? {} : { observedAt: evicted.startedAt })
+-          })
+-          if (!admission.accepted) {
+-            return admission
+-          }
+-          const published = publishCodexLifecycle(this.deps.sink)
+-          if (!published.accepted) {
+-            return published
+-          }
++      const [key, evicted] = oldest
++      const body = interruptedCodexItemBody(evicted, this.streams)
++      if (body) {
++        const admission = appendCodexLifecycleItem(this.deps.sink, evicted.identity, body, {
++          ...this.deps.attributionFor(evicted.threadId, evicted.turnId),
++          ...(evicted.startedAt === undefined ? {} : { observedAt: evicted.startedAt })
++        })
++        if (!admission.accepted) {
++          return admission
++        }
++        const published = publishCodexLifecycle(this.deps.sink)
++        if (!published.accepted) {
++          return published
+         }
+-        this.streams.forget(evicted.threadId, evicted.item.id)
+-        this.suppress(evicted.threadId, evicted.turnId ?? 'outside-turn')
+       }
+-      this.activeItems.delete(oldest)
++      this.streams.forget(evicted.threadId, evicted.item.id)
++      this.suppress(evicted.threadId, evicted.turnId ?? 'outside-turn')
++      this.activeItems.delete(key)
+     }
+     return CODEX_JOURNAL_ADMITTED
+   }
+diff --git a/src/shared/agent-session/lifecycle/agent-session-record.ts b/src/shared/agent-session/lifecycle/agent-session-record.ts
+index ca57c3809b35b3b83735de96ed1b1e2bb08b0048..20984310185f65f1346b384cea715414f4f63ee2 100644
+--- a/src/shared/agent-session/lifecycle/agent-session-record.ts
++++ b/src/shared/agent-session/lifecycle/agent-session-record.ts
+@@ -307,13 +307,10 @@ function isPersistedAgentSessionObservationLease(
+
+ /** Stored identity is independent of registrations; availability is checked only at start. */
+ export function isPersistedAgentSessionObservationRecord(
+-  value: unknown
+-): value is PersistedAgentSessionObservationRecord {
+-  if (!isStoredRecordObject(value)) {
+-    return false
+-  }
+-  const record = value
++  record: unknown
++): record is PersistedAgentSessionObservationRecord {
+   if (
++    !isStoredRecordObject(record) ||
+     !(
+       record.schemaVersion === AGENT_SESSION_RECORD_SCHEMA_VERSION &&
+       isAgentSessionId(record.sessionId) &&

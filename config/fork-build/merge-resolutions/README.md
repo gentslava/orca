@@ -15,3 +15,26 @@ On `0bd39bd4dcce` four records were added: PR 44452's subagent view beside PR 38
 On `75339dcf434f` 43 records were recorded for conflicts between selected PRs: 33395's model-default remainder on 44451 beside 33362 (9), 33502's project order beside 33361's conversation preferences (12), 33512's hold-to-quit setting beside 33369's roles (1), 34899's account quotas above 33371's Stats & Usage (1), 37744's session links beside 34895's session children (4), 38848's newest-message steer (1), 38963's foreground task controls beside 34895, 36634, 37744 and 33362 (5), 39882's pane toolbar with 37744's link control (1), 41381's pinned picker with 33395's Default row and reset (4), 44452's subagent view beside 38963 (3) and 45437's flagged-request copy beside 41166 and 33363 (2). Nine earlier records (33383's navigation and AI Vault list, 36593's tool line label) kept their unchanged preimages. Every other record matched no input and was removed with its patch file. 52 records remain.
 
 On upstream `0e0acf0e1249`, the refresh retained the previous release's worker launch preflight under the new local dispatch path, project ordering beside the new sidebar and workspace contracts, and session-children, linked-chat and background-task capabilities alongside task notes. The worker dock keeps the command and subagent icons with upstream progress notes and the animated running mark. The records use the exact current conflict stages and the corresponding previously shipped changes.
+
+On upstream `94bc95610b8a`, the fork kept provider history classification and
+deduplication alongside scoped conversation recovery and selected-session
+cache reads. Chat-link controls keep upstream rich question rendering and
+multi-sender labels. The model picker retains upstream focus handling while
+sharing its accessible-label formatter. The worker-role branch reuses the
+upstream inherited-launch fallback and parses launch receipts lazily in its
+receipt module. The upstream ownership test fixture provides the keyed
+conversation lookup and additionally tracks calls.
+
+On upstream `19dd83585e81`, the newer lazy schemas retain the model-only null
+reset, personal project order and linked-chat metadata. The previous message
+contract and model reset are present before applying PR 33395, so its overlapping
+contract path keeps those exact combined inputs.
+
+On upstream `c3d47dca326b`, the send RPC still reaches the selected steer schema
+after upstream split the lazy contract modules. The reset stays restricted to
+the model option in the new core module. The worker tray retains the terminal
+and agent icons with upstream's separate command group. The Claude decoder
+keeps bounded wake leases and the upstream command-survivor logic. Russian
+translation PR 46107 now supplies the catalog directly. Its current head and
+upstream cover every translated key from the previous adaptation with the same
+English source.

@@ -1,0 +1,14 @@
+diff --git a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+--- a/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
++++ b/src/renderer/src/components/native-chat/session/options/controls/NativeChatSessionOptionPickers.tsx
+@@ -316,7 +316,9 @@
+               model.defaultChoice && props.onReset
+                 ? {
+                     selected: defaultSelected,
+-                    modelLabel: defaultSelected && resolved ? modelLabel : undefined,
++                    modelLabel:
++                      defaultSelected && resolved ? modelLabel : model.defaultChoice.model?.label,
++                    modelDescription: model.defaultChoice.model?.description,
+                     onSelect: () => reset(model)
+                   }
+                 : undefined

@@ -42,9 +42,10 @@ if (
   throw new Error('Expected a manually qualified run of the fork workflow')
 }
 const { jobs } = api(`runs/${id}/jobs?filter=latest&per_page=100`)
+const planning = jobs.find((job) => job.name === 'plan')
 const javascript = jobs.find((job) => job.name === 'javascript')
 if (
-  !jobs.some((job) => job.name === 'plan' && job.conclusion === 'success') ||
+  planning?.conclusion !== 'success' ||
   javascript?.conclusion !== 'success' ||
   ![
     'Verify formatting, localization and changed source',
@@ -82,6 +83,9 @@ if (
 const directory = resolve(output)
 const planFile = join(directory, 'plan.json')
 const plan = JSON.parse(readFileSync(planFile, 'utf8'))
+const planArtifactName = previousWorkflowBlobs.includes(priorWorkflow)
+  ? 'personal-source-plan'
+  : `personal-source-plan-${planning.run_attempt}`
 const artifact = mkdtempSync(join(env.RUNNER_TEMP ?? tmpdir(), 'orca-qualification-'))
 try {
   execFileSync('gh', [
@@ -91,7 +95,7 @@ try {
     '--repo',
     repository,
     '--name',
-    'personal-source-plan',
+    planArtifactName,
     '--dir',
     artifact
   ])

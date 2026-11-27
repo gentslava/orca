@@ -1,0 +1,24 @@
+diff --git a/src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts b/src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
+--- a/src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
++++ b/src/shared/rpc-contract/structured-agent-session/structured-agent-session-params.ts
+@@ -167,12 +167,15 @@
+   })
+   .strict()
+
++/** A null model returns the chat to the agent's default; only hosts advertising default-model take it. */
+ export const SetOptionParams = lazyZodSchema(() =>
+-  z.strictObject({
+-    envelope: MutationEnvelope,
+-    key: Identifier('Invalid option key'),
+-    value: z.string().max(MAX_OPTION_LABEL)
+-  })
++  z
++    .strictObject({
++      envelope: MutationEnvelope,
++      key: Identifier('Invalid option key'),
++      value: z.string().max(MAX_OPTION_LABEL).nullable()
++    })
++    .refine((params) => params.value !== null || params.key === 'model', 'Only a model has a default')
+ )
+
+ export const OptionsParams = z.object({ sessionId: SessionId }).strict()
