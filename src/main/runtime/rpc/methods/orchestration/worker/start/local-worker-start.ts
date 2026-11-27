@@ -1,5 +1,4 @@
 import { createLocalWorkerStartDispatch } from './local-worker-start-dispatch'
-import { refuseClaimedWorkerTerminal } from '../../../../../orchestration/db/worker-dispatch/worker-terminal-claim'
 import type { OrcaRuntimeService } from '../../../../../orca-runtime'
 import type { OrchestrationDb } from '../../../../../orchestration/db/orchestration-db'
 import type {
@@ -37,7 +36,8 @@ import {
   closeFailedSetupOnceRetryReady,
   releaseRetriedWorkerTerminal
 } from '../release/retried-worker-terminal-release'
-import { requireWorkerAuthority, type WorkerEffect } from './placement/worker-placement-topology'
+import { requireWorkerAuthority } from './placement/worker-placement-topology'
+import { joinWorkerStartWarnings } from './launch/worker-launch-preferences'
 import { deliverAndSettleWorkerStartReadiness } from './readiness/worker-start-readiness-settlement'
 import { handOverWhenReady, wakeReusedSleptAgent } from './readiness/placed-worker-readiness'
 import type { WorkerStartMutation } from './worker-start-mutation'
@@ -105,7 +105,7 @@ export async function startLocalWorker(args: {
     mode: args.mode,
     chatLineage: args.chatLineage
   })
-  const { agent, launch, fastWorkspace, fastWorkerMode } = launchStart
+  const { agent, launch, fastWorkspace, fastWorkerMode, warning: retryLaunchWarning } = launchStart
 
   const creationTarget = createsWorktree
     ? await creationTargetFor(coordinatorWorktreeId)
@@ -133,12 +133,12 @@ export async function startLocalWorker(args: {
   )
   await preflightWorkerLaunchPreferencesOnHost({ ...host, mode, createsWorktree }, launchStart)
 
-  // Synchronous through the Dispatch insert, so nothing else claims the terminal in between.
-  refuseClaimedWorkerTerminal(db, params.terminal, runtime, args.followUp?.of)
-  const run = args.bindRun()
-  const started = createLocalWorkerStartDispatch(args, {
+  const followUp = args.followUp
+  if (followUp?.retainedChat) {
+    await runtime.ensureStructuredAgentSessionHost()
+  }
+  const { run, started, retained, effects } = createLocalWorkerStartDispatch(args, {
     params,
-    run,
     requestedWorktree,
     createsWorktree,
     mode,
@@ -148,14 +148,7 @@ export async function startLocalWorker(args: {
     launchReceipt: launch.receipt
   })
   releaseRetriedWorkerTerminal(runtime, db, params)
-  const effects: WorkerEffect[] = []
   const task = started.task
-  if (resolvedWorktree) {
-    effects.push(
-      { kind: 'worktree', action: 'reused', id: resolvedWorktree.id },
-      { kind: 'setup', action: 'not_applicable', state: 'not_applicable' }
-    )
-  }
   let terminalHandle = params.terminal
   let placed: Awaited<ReturnType<typeof placeWorkerAgent>> | undefined
   let failedStage = 'terminal_create'
@@ -175,7 +168,8 @@ export async function startLocalWorker(args: {
       error,
       setup: placed?.setupReceipt ?? EXISTING_WORKTREE_SETUP,
       launch: placed?.launch ?? launch.receipt,
-      mode
+      mode,
+      warning: joinWorkerStartWarnings(retryLaunchWarning, placed?.warning)
     })
   const recordOutcome = (outcome: unknown): void => {
     closeFailedSetupOnceRetryReady(runtime, db, params.retryOf, outcome)
@@ -205,7 +199,8 @@ export async function startLocalWorker(args: {
       launch,
       effects,
       onStage,
-      followUp: args.followUp
+      followUp:
+        retained && followUp && !terminal ? { ...followUp, reopen: retained.publish } : followUp
     })
     // New worktrees resolve host support after creation, so the final mode receipt may differ from preflight.
     mode = placed.mode
@@ -226,7 +221,9 @@ export async function startLocalWorker(args: {
       failedStage = 'setup_start'
       throw new Error('Setup terminal failed to start before the gated agent launch.')
     }
-    persistWorkerReadinessStage(setupStage)
+    if (!retained) {
+      persistWorkerReadinessStage(setupStage)
+    }
 
     const launchedAt = Date.now()
     failedStage = 'agent_readiness'
@@ -242,8 +239,13 @@ export async function startLocalWorker(args: {
     // Fixed now: the hand-over may run later, from the background wait.
     const placement = placed
     const handle = terminalHandle
+    const warning = joinWorkerStartWarnings(retryLaunchWarning, placement.warning)
+    const awaitingReceipt = { runId: run.id, taskId: task.id, launch: placed.launch, mode, warning }
     // A hand-over from the background wait gets a fresh delivery budget; one in time keeps the shared one.
     const bindTerminal = (): void => {
+      if (retained) {
+        return retained.assertStarting(started.dispatch.id)
+      }
       const terminalAuthority = authority ?? requireWorkerAuthority(runtime, handle)
       db.prepareStartingWorkerAuthority({
         dispatchId: started.dispatch.id,
@@ -283,7 +285,7 @@ export async function startLocalWorker(args: {
         timeoutMs,
         readinessDeadline: deliveryDeadline,
         effects,
-        terminalRevealWarning: placement.warning,
+        terminalRevealWarning: warning,
         onStage
       })
     }
@@ -296,7 +298,7 @@ export async function startLocalWorker(args: {
       timeoutMs,
       readinessDeadline,
       launchedAt,
-      receipt: { runId: run.id, taskId: task.id, launch: placed.launch, mode },
+      receipt: awaitingReceipt,
       onSetupFailed: () => onStage('setup_wait'),
       handOver,
       bindTerminal,

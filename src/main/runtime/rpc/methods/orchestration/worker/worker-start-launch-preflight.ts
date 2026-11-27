@@ -3,8 +3,7 @@ import type { OrcaRuntimeService } from '../../../../orca-runtime'
 import { OrchestrationError } from '../../../../orchestration/orchestration-error'
 import type { AgentLaunchModeReceipt as WorkerStartModeReceipt } from '../../../../../../shared/agent-launch/contracts/agent-launch-intent'
 import { lineageModeForResolvedAgent } from './start/worker-chat-lineage'
-import { resolveWorkerConfiguredAgentParams } from './start/launch/worker-configured-agent-preflight'
-import { probeWorkerOpenCodeModelLaunchSupport } from './start/launch/worker-opencode-model-preflight'
+import { resolveLocalWorkerStartPreferences } from './start/launch/worker-opencode-model-preflight'
 import type { WorkerWorktreeCreationTarget } from './start/placement/worker-worktree-creation'
 import type { WorkerStartInput } from './start/worker-start-input'
 import { preflightStructuredWorkerFast } from './worker-structured-fast-preflight'
@@ -26,19 +25,18 @@ export async function preflightLocalWorkerStartLaunch(args: {
   chatLineage?: boolean
 }) {
   const { params, runtime, existingWorktree, createsWorktree, targetLabel } = args
-  const launchParams = await refuseUnmatchedWorkerSelector(targetLabel, () =>
-    resolveWorkerConfiguredAgentParams(runtime, params, async () =>
-      createsWorktree
-        ? { repo: (await args.creationTargetFor()).repoSelector }
-        : { worktree: existingWorktree }
-    )
-  )
-  let openCodeModelLaunchSupported = false
-  if (!createsWorktree && launchParams.agent === 'opencode' && launchParams.model) {
-    openCodeModelLaunchSupported = await refuseUnmatchedWorkerSelector(targetLabel, () =>
-      probeWorkerOpenCodeModelLaunchSupport(runtime, launchParams, { worktree: existingWorktree })
-    )
-  }
+  const { launchParams, openCodeModelLaunchSupported, probeDropWarning } =
+    await resolveLocalWorkerStartPreferences({
+      params,
+      createsWorktree,
+      existingWorktree,
+      targetLabel,
+      runtime,
+      resolveTarget: async () =>
+        createsWorktree
+          ? { repo: (await args.creationTargetFor()).repoSelector }
+          : { worktree: existingWorktree }
+    })
   const mode = lineageModeForResolvedAgent(runtime, args.mode, {
     chatLineage: args.chatLineage,
     params,
@@ -90,7 +88,8 @@ export async function preflightLocalWorkerStartLaunch(args: {
     structuredFastModeSupported,
     structuredFastServiceTier
   })
-  return { ...prepared, launchParams, fastWorkspace, fastWorkerMode }
+  const warning = probeDropWarning ?? prepared.launch.warning
+  return { ...prepared, launchParams, fastWorkspace, fastWorkerMode, warning }
 }
 
 export async function preflightWorkerLaunchPreferencesOnHost(

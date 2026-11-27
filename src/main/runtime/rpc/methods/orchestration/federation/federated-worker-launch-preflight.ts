@@ -12,7 +12,7 @@ import type { WorkerStartInput } from '../worker/start/worker-start-input'
 import {
   assertWorkerLaunchPreferencesRuntimeSupported,
   parseWorkerLaunchPreflight,
-  type OrchestrationWorkerLaunchReceipt
+  resolveFederatedWorkerLaunchPreferences
 } from '../worker/start/launch/worker-launch-preferences'
 
 export async function preflightFederatedWorkerLaunch(args: {
@@ -22,11 +22,10 @@ export async function preflightFederatedWorkerLaunch(args: {
   status: RuntimeStatus
   worktree: string
   preflightTimeoutMs: number
-  requestedLaunch: OrchestrationWorkerLaunchReceipt
-}): Promise<OrchestrationWorkerLaunchReceipt> {
-  const { params, runtime, server, status, worktree, preflightTimeoutMs } = args
+  createsWorktree: boolean
+}) {
+  const { runtime, server, status, worktree, preflightTimeoutMs } = args
   const pairingFence = { expectedEnvironmentPairingRevision: server.pairingRevision }
-  let { requestedLaunch } = args
   if (!status.capabilities?.includes(ORCHESTRATION_CONTRACT_RUNTIME_CAPABILITY)) {
     throw new OrchestrationError(
       'orchestration_migration_required',
@@ -40,6 +39,14 @@ export async function preflightFederatedWorkerLaunch(args: {
       `Connected server ${server.name} does not support orchestration federation.`
     )
   }
+  const plan = resolveFederatedWorkerLaunchPreferences({
+    params: args.params,
+    createsWorktree: args.createsWorktree,
+    capabilities: status.capabilities,
+    serverName: server.name
+  })
+  const params = { ...args.params, model: plan.model, effort: plan.effort }
+  let { requestedLaunch } = plan
   assertWorkerLaunchPreferencesRuntimeSupported({
     model: params.model,
     effort: params.effort,
@@ -85,5 +92,5 @@ export async function preflightFederatedWorkerLaunch(args: {
       )
     }
   }
-  return requestedLaunch
+  return { ...plan, requestedLaunch }
 }

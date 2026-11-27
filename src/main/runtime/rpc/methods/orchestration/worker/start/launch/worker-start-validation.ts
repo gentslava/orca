@@ -87,6 +87,7 @@ export function prepareLocalWorkerStart(args: {
     agent: params.agent,
     model: params.model,
     effort: params.effort,
+    inheritedLaunchPreferences: params.inheritedLaunchPreferences,
     fastMode: params.fastMode,
     role: params.role,
     missingAgentMessage: 'A configured --agent is required when worker-start creates a terminal.'
@@ -150,6 +151,7 @@ function resolveWorkerStartAgent(args: {
   agent?: string
   model?: string
   effort?: string
+  inheritedLaunchPreferences?: boolean
   fastMode?: boolean
   role?: string
   missingAgentMessage: string
@@ -183,6 +185,7 @@ function resolveWorkerStartAgent(args: {
         createsWorktree: args.createsWorktree,
         model: args.model,
         effort: args.effort,
+        inheritedLaunchPreferences: args.inheritedLaunchPreferences,
         fastMode: args.fastMode,
         role: args.role
       })
