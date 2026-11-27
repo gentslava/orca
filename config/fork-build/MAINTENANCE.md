@@ -109,7 +109,9 @@ gh workflow run personal-build.yml -R gentslava/orca --ref master
 gh workflow run personal-build.yml -R gentslava/orca --ref master -f force_build=true
 gh run watch RUN_ID -R gentslava/orca --compact --exit-status
 gh run view RUN_ID -R gentslava/orca --log-failed
-gh run download RUN_ID -R gentslava/orca -n personal-source-plan
+gh api 'repos/gentslava/orca/actions/runs/RUN_ID/jobs?filter=latest' \
+  --jq '.jobs[] | select(.name == "plan") | .run_attempt'
+gh run download RUN_ID -R gentslava/orca -n personal-source-plan-PLAN_ATTEMPT
 ```
 
 The schedule and default manual build freeze fresh upstream main. A manual `upstream_commit` requires a full SHA on upstream main's history. Use `audit_only=true` for historical diagnostics or to run the read-only audit from a maintenance branch. A manual run on a maintenance branch without `audit_only` qualifies the selected snapshot with JavaScript checks and Linux packages. Windows, macOS, Android, release and promotion require the trusted master workflow. The release path requires both fork branch leases and a fast-forward mirror. When upstream advances while packaging, promotion verifies the frozen source remains an ancestor, reports the newly observed SHA and leaves it for the next cycle. Divergence or concurrently changed fork refs block promotion.

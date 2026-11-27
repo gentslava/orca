@@ -72,6 +72,7 @@ jobs:
       source: ${{ steps.compose.outputs.source }}
       upstream: ${{ steps.compose.outputs.upstream }}
       linux_matrix: ${{ steps.compose.outputs.linux_matrix }}
+      plan_artifact_id: ${{ steps.upload-plan.outputs.artifact-id }}
       full_suite_reused: ${{ steps.qualification.outputs.full_suite_reused }}
     steps:
       - &checkout
@@ -104,10 +105,11 @@ jobs:
           TESTED_RUN: ${{ inputs.tested_run }}
         run: node config/fork-build/qualification-reuse.mjs "$TESTED_RUN" personal-build
       - name: Preserve the exact plan and report even on conflict
+        id: upload-plan
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: personal-source-plan
+          name: personal-source-plan-${{ github.run_attempt }}
           path: personal-build/
           if-no-files-found: error
           retention-days: 14
@@ -117,6 +119,8 @@ jobs:
     if: needs.plan.outputs.build == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 55
+    outputs:
+      artifact_id: ${{ steps.upload-javascript.outputs.artifact-id }}
     env:
       ORCA_PNPM_GLOBAL_VIRTUAL_STORE: '0'
       ORCA_RELEASE_JAVASCRIPT_SOURCE_SHA: ${{ needs.plan.outputs.source }}
@@ -133,7 +137,7 @@ jobs:
       - &source-plan
         uses: actions/download-artifact@v8
         with:
-          name: personal-source-plan
+          artifact-ids: ${{ needs.plan.outputs.plan_artifact_id }}
           path: personal-build
       - name: Restore the immutable source for the shared JavaScript bundle
         run: |
@@ -179,7 +183,8 @@ jobs:
         run: |
           pnpm run build:release:javascript:parallel
           node config/scripts/release/javascript-artifacts/release-javascript-artifact.mjs pack
-      - uses: actions/upload-artifact@v7
+      - id: upload-javascript
+        uses: actions/upload-artifact@v7
         with:
           name: personal-javascript
           path: .build/release-javascript/
@@ -243,7 +248,7 @@ jobs:
       - &javascript-artifact
         uses: actions/download-artifact@v8
         with:
-          name: personal-javascript
+          artifact-ids: ${{ needs.javascript.outputs.artifact_id }}
           path: .build/release-javascript
       - name: Build desktop, CLI, web and mobile resources
         run: |
@@ -701,9 +706,9 @@ jobs:
       - *checkout
       - *node
       - uses: actions/download-artifact@v8
-        if: needs.plan.outputs.receipt == 'true'
+        if: needs.plan.outputs.receipt == 'true' && needs.plan.outputs.plan_artifact_id != ''
         with:
-          name: personal-source-plan
+          artifact-ids: ${{ needs.plan.outputs.plan_artifact_id }}
           path: personal-build
       - name: Update the persistent lifecycle and last-successful-build record
         env:
@@ -737,7 +742,7 @@ jobs:
       - *node
       - uses: actions/download-artifact@v8
         with:
-          name: personal-source-plan
+          artifact-ids: ${{ needs.plan.outputs.plan_artifact_id }}
           path: personal-build
       - name: Keep the published release and its verified rollback
         env:
