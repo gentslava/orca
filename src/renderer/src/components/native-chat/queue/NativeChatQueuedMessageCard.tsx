@@ -122,6 +122,7 @@ export function NativeChatQueuedMessageCard({
   agentName,
   statedFailures,
   showsSteerShortcut,
+  previewsSteer = false,
   agentWorking,
   steerHeld = false,
   pending = null,
@@ -140,6 +141,7 @@ export function NativeChatQueuedMessageCard({
   statedFailures?: readonly AgentSessionFailureFact[]
   /** Only the head card answers Cmd/Ctrl+Shift+Enter; only it may show the chord. */
   showsSteerShortcut: boolean
+  previewsSteer?: boolean
   /** The agent is working: a steerable card's action reads Steer, otherwise Send. */
   agentWorking: boolean
   /** The chat reads Stopping: the card waits for the stop (`NativeChatQueuedMessageList`). */
@@ -208,7 +210,7 @@ export function NativeChatQueuedMessageCard({
       className={cn(
         'group/queued relative px-2.5 py-1.5 outline-none',
         // Lit while the chat's composer shows Steer queued: the card that press would send.
-        showsSteerShortcut &&
+        previewsSteer &&
           '[[data-native-chat-root]:has([data-native-chat-steer-preview=steer-queued])_&]:bg-accent'
       )}
     >
