@@ -1,0 +1,152 @@
+diff --git a/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.ts b/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.ts
+--- a/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.ts
++++ b/src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.ts
+@@ -1,3 +1,4 @@
++import { extractFullFirstUserPromptText } from '../../prompts/session-scanner-first-user-prompt'
+ import {
+   remoteSessionContentLines,
+   type RemoteSessionContent
+@@ -49,6 +50,7 @@
+   generatedTitle: string | null
+   firstUserTitle: string | null
+   afterLocalCommandCaveat: boolean
++  conversationContent: NonNullable<AiVaultSession['conversationContent']>
+ }
+
+ export function createClaudeSessionParseState(
+@@ -65,7 +67,8 @@
+     metaTitle: null,
+     generatedTitle: null,
+     firstUserTitle: null,
+-    afterLocalCommandCaveat: false
++    afterLocalCommandCaveat: false,
++    conversationContent: 'empty'
+   }
+ }
+
+@@ -80,7 +83,8 @@
+     metaTitle: state.metaTitle,
+     generatedTitle: state.generatedTitle,
+     firstUserTitle: state.firstUserTitle,
+-    afterLocalCommandCaveat: state.afterLocalCommandCaveat
++    afterLocalCommandCaveat: state.afterLocalCommandCaveat,
++    conversationContent: state.conversationContent
+   }
+ }
+
+@@ -103,8 +107,14 @@
+
+ // Tool results and attachments can parse to ~20x their size; listing never reads them (#42921).
+ export function consumeClaudeSessionLine(state: ClaudeSessionParseState, line: string): void {
++  const markUnknown = () => {
++    if (line.trim() && state.conversationContent !== 'present') {
++      state.conversationContent = 'unknown'
++    }
++  }
+   const members = readJsonObjectMembers(line, CLAUDE_RECORD_FIELDS)
+   if (!members) {
++    markUnknown()
+     return
+   }
+   const record: Record<string, unknown> = {}
+@@ -120,6 +130,7 @@
+       record.message = JSON.parse(message)
+     }
+   } catch {
++    markUnknown()
+     return
+   }
+   consumeClaudeSessionRecord(state, record)
+@@ -150,8 +161,14 @@
+     return
+   }
+
+-  if (record.type === 'agent-name' && !state.generatedTitle) {
+-    state.metaTitle ??= normalizeTitleText(extractString(record.agentName) ?? '')
++  if (record.type === 'agent-name') {
++    if (!state.generatedTitle) {
++      state.metaTitle ??= normalizeTitleText(extractString(record.agentName) ?? '')
++    }
++    return
++  }
++
++  if (record.type === 'mode' || record.type === 'permission-mode') {
+     return
+   }
+
+@@ -169,6 +186,7 @@
+     const prompt = normalizePromptField(record.lastPrompt)
+     if (prompt) {
+       accumulator.lastUserPrompt = prompt
++      state.conversationContent = 'present'
+     }
+     return
+   }
+@@ -186,12 +204,16 @@
+     // A caveat precedes local commands (/clear, /model) and bash-mode input, which name nothing.
+     const followsLocalCommandCaveat = state.afterLocalCommandCaveat
+     state.afterLocalCommandCaveat = isHarnessTurn && title.startsWith('<local-command-caveat')
++    if (!isMetaUserTurn) {
++      state.conversationContent = 'present'
++      const prompt = extractFullFirstUserPromptText(content)
++      state.firstUserTitle ??= prompt ? normalizeTitleText(prompt) : title
++      return
++    }
+     if (!title) {
+       return
+     }
+-    if (!isMetaUserTurn) {
+-      state.firstUserTitle ??= title
+-    } else if (!isHarnessTurn) {
++    if (!isHarnessTurn) {
+       state.metaTitle ??= title
+     } else if (!followsLocalCommandCaveat && state.metaTitle === null) {
+       // Raw text keeps command args and envelope bodies that the 96-character title cuts off.
+@@ -201,6 +223,7 @@
+   }
+
+   if (record.type === 'assistant') {
++    state.conversationContent = 'present'
+     accumulator.messageCount++
+     const message = asRecord(record.message)
+     addSessionContent(accumulator, 'assistant', message?.content, record.timestamp)
+@@ -209,6 +232,10 @@
+       accumulator.model = model
+     }
+     accumulator.totalTokens += claudeUsageTotal(message?.usage)
++    return
++  }
++  if (state.conversationContent !== 'present') {
++    state.conversationContent = 'unknown'
+   }
+ }
+
+@@ -219,7 +246,7 @@
+ ): Promise<AiVaultSession | null> {
+   // Detach previews so later appends cannot mutate a published session.
+   const snapshot = cloneClaudeSessionParseState(state)
+-  // Explicit custom titles win, then generated names, real prompts and injected-context fallbacks.
++  // Explicit custom titles win, then generated names, real prompts and agent names.
+   snapshot.accumulator.fallbackTitle =
+     snapshot.generatedTitle ?? snapshot.firstUserTitle ?? snapshot.metaTitle
+   // Count only on the transcript-owning host; runtime hosts stamp identity after parsing, while SSH walks supply counts.
+@@ -231,9 +258,17 @@
+       options.signal
+     )
+   }
+-  // A rename (custom-title) or Claude's generated name is the session's own; prompts and metadata are stand-ins.
+   const titleKind = snapshot.accumulator.title || snapshot.generatedTitle ? 'named' : 'fallback'
+-  return finalizeSession(snapshot.accumulator, platform, { ...options, titleKind })
++  const session = finalizeSession(snapshot.accumulator, platform, { ...options, titleKind })
++  return session
++    ? {
++        ...session,
++        conversationContent:
++          session.queuedMessageCount > 0 || session.subagentTranscriptCount > 0
++            ? 'present'
++            : snapshot.conversationContent
++      }
++    : null
+ }
+
+ export function createClaudeSessionResumeState(

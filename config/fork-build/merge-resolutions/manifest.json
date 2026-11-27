@@ -2638,5 +2638,41 @@
     "patchSha256": "37d8bdca06e9a00ec664b02d970455d49641d86c8078076c5c1919bdc2574e89",
     "resultSha256": "73cdcaabc24a8baec89b98de95b34fb3f8de944e464833462b4be30303bd3036",
     "reason": "Keep the command and subagent kind icons and accessible labels alongside upstream progress notes and the compact animated running mark."
+  },
+  {
+    "path": "src/main/ai-vault/scanners/claude/session-scanner-primary-parsers.ts",
+    "blobs": [
+      "519c1801ce1e79fd6006dda2210a7d9c0c87d77b",
+      "4643addaee5926b46d9656470df2f87d5b892339",
+      "74d7dcb08276cddca83703fe859c3a3c319647eb"
+    ],
+    "patch": "fresh-33361-5539273f-8ab2d53.patch",
+    "patchSha256": "43507bc52073986c7fabbe8d72ebe7ab06ad15adcc5ce7388ba41aeaa4fa9667",
+    "resultSha256": "cb9c086ae597167ec24497dfbe3354cb068353aa5906403fbe8607231ef24312",
+    "reason": "Preserve upstream filtering and fallback titles for Claude harness turns alongside the conversation-content and first-prompt detection in PR 33361."
+  },
+  {
+    "path": "src/main/ai-vault/structured-sessions/structured-session-ownership.ts",
+    "blobs": [
+      "edcac5015b539a6e8f8aebadeb433194173436aa",
+      "5d4553b163abb8945eccb19cd33a2c1d1bf57b99",
+      "59dd8fef4273f3865a34de84f2739084ae13f292"
+    ],
+    "patch": "fresh-33361-3270520d-d800dbb.patch",
+    "patchSha256": "a31021957c9df02a81afe725bd25797ecf47c29a6741a448802cbe8fa3e1124a",
+    "resultSha256": "d2ba6ea787c7726b46f8e3611d90d1694a09c2eaeb6f32493c76cf50500921bd",
+    "reason": "Preserve upstream row deduplication, hidden-row counts, and search grouping alongside PR 33361 durable conversation projection and title fallback."
+  },
+  {
+    "path": "src/main/runtime/rpc/methods/history/ai-vault.ts",
+    "blobs": [
+      "4583d2f70f8ec3d485a3131248e43dd0dd3c2d0d",
+      "049ab9055b42360b7f77bf99defcc9f7ed9ded9b",
+      "84d30bafcab9acaebaf5e9ea06934dfc6d3d929e"
+    ],
+    "patch": "fresh-33361-b0b361ad-5e54a2c.patch",
+    "patchSha256": "52071adbb7c2336e706d521f4812a851c6e5925a36465929252a87e28aa53ecb",
+    "resultSha256": "93ee0c9960fdc1b3da09e5308a72d0356cc1d5b17b7153282b9cb89808e871fd",
+    "reason": "Retain upstream mixed-client row-count capability while supplying PR 33361 journal previews, child filtering and scoped conversation pagination."
   }
 ]
