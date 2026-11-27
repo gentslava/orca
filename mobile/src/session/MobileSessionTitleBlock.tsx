@@ -16,8 +16,9 @@ import type { ConnectionState } from '../transport/connection/connection-state'
 import type { ConnectionVerdict } from '../transport/connection/connection-health'
 import { styles } from './mobile-session-styles'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
-import { pressedStyle } from '../theme/mobile-theme'
+import { pressedStyle, spacing } from '../theme/mobile-theme'
 import { useKeyboardPersistingTaps } from '../platform/keyboard/keyboard-persisting-taps'
+import { MOBILE_SESSION_STATUS_LABELS } from '../transport/connection/mobile-session-connection-copy'
 
 /** The session's title and status line. A tap opens a card with the full name, where it lives
  *  and its host, as desktop's tab card does, because a sideways phone cuts the title short. */
@@ -87,6 +88,7 @@ export function MobileSessionTitleBlock({
           onPress={details.toggle}
           aria-expanded={details.requestedOpen}
           accessibilityRole="button"
+          accessibilityLabel={`${title}, ${MOBILE_SESSION_STATUS_LABELS[connState]}`}
           accessibilityHint={t(
             'session.header.workspaceDetailsHint',
             'Shows the full workspace name and where it is'
@@ -98,24 +100,29 @@ export function MobileSessionTitleBlock({
               {titleText(styles.sessionBotTitle)}
             </View>
           ) : (
-            titleText()
+            <View style={centeredStyles.row}>
+              <StatusDot state={connState} verdict={verdict} />
+              {titleText(centeredStyles.text)}
+            </View>
           )}
-          <Pressable
-            style={({ pressed }) => [styles.sessionMetaRow, pressed && pressedStyle]}
-            disabled={!showConnectionRetry}
-            onPress={onRetry}
-            accessibilityRole={showConnectionRetry ? 'button' : undefined}
-            accessibilityLabel={
-              showConnectionRetry
-                ? t('session.header.reconnectToDesktop', 'Reconnect to desktop')
-                : undefined
-            }
-          >
-            <StatusDot state={connState} verdict={verdict} />
-            <Text style={styles.sessionMetaText} numberOfLines={1}>
-              {meta}
-            </Text>
-          </Pressable>
+          {leading || connState !== 'connected' ? (
+            <Pressable
+              style={({ pressed }) => [styles.sessionMetaRow, pressed && pressedStyle]}
+              disabled={!showConnectionRetry}
+              onPress={onRetry}
+              accessibilityRole={showConnectionRetry ? 'button' : undefined}
+              accessibilityLabel={
+                showConnectionRetry
+                  ? t('session.header.reconnectToDesktop', 'Reconnect to desktop')
+                  : undefined
+              }
+            >
+              {leading ? <StatusDot state={connState} verdict={verdict} /> : null}
+              <Text style={styles.sessionMetaText} numberOfLines={1}>
+                {meta}
+              </Text>
+            </Pressable>
+          ) : null}
         </Pressable>
       </Fragment>
       <DetailCardFocusBoundary refs={details.boundaryRefs} index={1} active={details.active} />
@@ -124,6 +131,15 @@ export function MobileSessionTitleBlock({
 }
 
 const centeredStyles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    maxWidth: '100%',
+    gap: spacing.sm
+  },
+  text: {
+    flexShrink: 1
+  },
   block: {
     maxWidth: '100%',
     alignItems: 'center'
