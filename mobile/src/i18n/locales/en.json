@@ -4289,6 +4289,9 @@
       "running": "Running",
       "failed": "Failed"
     },
+    "tool": {
+      "activity": "Activity"
+    },
     "workerApproval": {
       "allowFor": "Allow {{tool}} for {{worker}}?",
       "title": "{{worker}} · {{title}}",
